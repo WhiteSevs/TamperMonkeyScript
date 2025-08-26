@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网页调试
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.21
+// @version      2025.8.27
 // @author       WhiteSevs
 // @description  内置多种网页调试工具，包括：Eruda、vConsole、PageSpy、Chii，可在设置菜单中进行详细配置
 // @license      GPL-3.0-only
@@ -12,9 +12,9 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@734ba267afee2a5995d15dc419e754a19532cbf4/lib/Eruda/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@9f63667d501ec8df5bdb4af680f37793f393754f/lib/VConsole/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@b2f37e0ef04aafbccbdbd52733f795c2076acd87/lib/PageSpy/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @resource     Resource_erudaBenchmark       https://fastly.jsdelivr.net/npm/eruda-benchmark@2.0.1
 // @resource     Resource_erudaCode            https://fastly.jsdelivr.net/npm/eruda-code@2.2.0
@@ -45,23 +45,19 @@
 (function (Qmsg, DOMUtils, Utils, pops) {
   'use strict';
 
-  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
-  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
-  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
-  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
-  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-  var _GM_setClipboard = /* @__PURE__ */ (() => typeof GM_setClipboard != "undefined" ? GM_setClipboard : void 0)();
-  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
-  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
-  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
-  var _monkeyWindow = /* @__PURE__ */ (() => window)();
+  var _GM_deleteValue = (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
+  var _GM_getResourceText = (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
+  var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
+  var _GM_info = (() => typeof GM_info != "undefined" ? GM_info : void 0)();
+  var _GM_registerMenuCommand = (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_setClipboard = (() => typeof GM_setClipboard != "undefined" ? GM_setClipboard : void 0)();
+  var _GM_setValue = (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
+  var _GM_unregisterMenuCommand = (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
+  var _unsafeWindow = (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
+  var _monkeyWindow = (() => window)();
   const CommonUtil = {
-    /**
-     * 移除元素（未出现也可以等待出现）
-     * @param selector 元素选择器
-     */
-    waitRemove(...args) {
+waitRemove(...args) {
       args.forEach((selector) => {
         if (typeof selector !== "string") {
           return;
@@ -71,15 +67,7 @@
         });
       });
     },
-    /**
-     * 添加屏蔽CSS
-     * @param args
-     * @example
-     * addBlockCSS("")
-     * addBlockCSS("","")
-     * addBlockCSS(["",""])
-     */
-    addBlockCSS(...args) {
+addBlockCSS(...args) {
       let selectorList = [];
       if (args.length === 0) {
         return;
@@ -96,16 +84,7 @@
       });
       return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
-    /**
-     * 设置GM_getResourceText的style内容
-     * @param resourceMapData 资源数据
-     * @example
-     * setGMResourceCSS({
-     *   keyName: "ViewerCSS",
-     *   url: "https://example.com/example.css",
-     * })
-     */
-    setGMResourceCSS(resourceMapData) {
+setGMResourceCSS(resourceMapData) {
       let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
       if (typeof cssText === "string" && cssText) {
         addStyle(cssText);
@@ -113,13 +92,7 @@
         CommonUtil.loadStyleLink(resourceMapData.url);
       }
     },
-    /**
-     * 添加<link>标签
-     * @param url
-     * @example
-     * loadStyleLink("https://example.com/example.css")
-     */
-    async loadStyleLink(url) {
+async loadStyleLink(url) {
       let $link = document.createElement("link");
       $link.rel = "stylesheet";
       $link.type = "text/css";
@@ -128,13 +101,7 @@
         document.head.appendChild($link);
       });
     },
-    /**
-     * 添加<script>标签
-     * @param url
-     * @example
-     * loadStyleLink("https://example.com/example.js")
-     */
-    async loadScript(url) {
+async loadScript(url) {
       let $script = document.createElement("script");
       $script.src = url;
       return new Promise((resolve) => {
@@ -144,25 +111,7 @@
         (document.head || document.documentElement).appendChild($script);
       });
     },
-    /**
-     * 将url修复，例如只有search的链接修复为完整的链接
-     *
-     * 注意：不包括http转https
-     * @param url 需要修复的链接
-     * @example
-     * 修复前：`/xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`//xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     */
-    fixUrl(url) {
+fixUrl(url) {
       url = url.trim();
       if (url.match(/^http(s|):\/\//i)) {
         return url;
@@ -180,17 +129,7 @@
         return url;
       }
     },
-    /**
-     * http转https
-     * @param url 需要修复的链接
-     * @example
-     * 修复前：
-     * 修复后：
-     * @example
-     * 修复前：
-     * 修复后：
-     */
-    fixHttps(url) {
+fixHttps(url) {
       if (url.startsWith("https://")) {
         return url;
       }
@@ -201,17 +140,10 @@
       urlInstance.protocol = "https:";
       return urlInstance.toString();
     },
-    /**
-     * 禁止页面滚动，默认锁定html和body
-     * @example
-     * lockScroll();
-     * @example
-     * lockScroll(document.body);
-     */
-    lockScroll(...args) {
+lockScroll(...args) {
       let $hidden = document.createElement("style");
-      $hidden.innerHTML = /*css*/
-      `
+      $hidden.innerHTML =
+`
 			.pops-overflow-hidden-important {
 				overflow: hidden !important;
 			}
@@ -222,10 +154,7 @@
       });
       (document.head || document.documentElement).appendChild($hidden);
       return {
-        /**
-         * 解除锁定
-         */
-        recovery() {
+recovery() {
           $elList.forEach(($el) => {
             $el.classList.remove("pops-overflow-hidden-important");
           });
@@ -233,10 +162,7 @@
         }
       };
     },
-    /**
-     * 获取剪贴板文本
-     */
-    async getClipboardText() {
+async getClipboardText() {
       function readClipboardText(resolve) {
         navigator.clipboard.readText().then((clipboardText) => {
           resolve(clipboardText);
@@ -247,8 +173,7 @@
       }
       function requestPermissionsWithClipboard(resolve) {
         navigator.permissions.query({
-          // @ts-ignore
-          name: "clipboard-read"
+name: "clipboard-read"
         }).then((permissionStatus) => {
           readClipboardText(resolve);
         }).catch((error) => {
@@ -285,20 +210,10 @@
         }
       });
     },
-    /**
-     * html转义
-     * @param unsafe
-     */
-    escapeHtml(unsafe) {
+escapeHtml(unsafe) {
       return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
     },
-    /**
-     * 在规定时间内循环，如果超时或返回false则取消循环
-     * @param fn 循环的函数
-     * @param intervalTime 循环间隔时间
-     * @param [timeout=5000] 循环超时时间
-     */
-    interval(fn, intervalTime, timeout = 5e3) {
+interval(fn, intervalTime, timeout = 5e3) {
       let timeId;
       let maxTimeout = timeout - intervalTime;
       let intervalTimeCount = intervalTime;
@@ -319,10 +234,7 @@
       };
       loop(false);
     },
-    /**
-     * 找到对应的上层元素
-     */
-    findParentNode($el, selector, parentSelector) {
+findParentNode($el, selector, parentSelector) {
       if (parentSelector) {
         let $parent = DOMUtils.closest($el, parentSelector);
         if ($parent) {
@@ -339,18 +251,15 @@
     }
   };
   const PanelSettingConfig = {
-    /** Toast位置 */
-    qmsg_config_position: {
+qmsg_config_position: {
       key: "qmsg-config-position",
       defaultValue: "bottom"
     },
-    /** 最多显示的数量 */
-    qmsg_config_maxnums: {
+qmsg_config_maxnums: {
       key: "qmsg-config-maxnums",
       defaultValue: 3
     },
-    /** 逆序弹出 */
-    qmsg_config_showreverse: {
+qmsg_config_showreverse: {
       key: "qmsg-config-showreverse",
       defaultValue: false
     }
@@ -428,10 +337,8 @@
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
     },
     mask: {
-      // 开启遮罩层
-      enable: true,
-      // 取消点击遮罩层的事件
-      clickEvent: {
+enable: true,
+clickEvent: {
         toClose: false,
         toHide: false
       }
@@ -488,10 +395,7 @@
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const PROPS_STORAGE_API = "data-storage-api";
   const PanelUISize = {
-    /**
-     * 一般设置界面的尺寸
-     */
-    setting: {
+setting: {
       get width() {
         if (window.innerWidth < 550) {
           return "88vw";
@@ -511,18 +415,12 @@
         }
       }
     },
-    /**
-     * 中等的设置界面
-     */
-    settingMiddle: {
+settingMiddle: {
       get width() {
         return window.innerWidth < 350 ? "88vw" : "350px";
       }
     },
-    /**
-     * 信息界面，一般用于提示信息之类
-     */
-    info: {
+info: {
       get width() {
         return window.innerWidth < 350 ? "88vw" : "350px";
       },
@@ -532,25 +430,9 @@
     }
   };
   class StorageUtils {
-    /** 存储的键名 */
-    storageKey;
+storageKey;
     listenerData;
-    /**
-     * 存储的键名，可以是多层的，如：a.b.c
-     *
-     * 那就是
-     * {
-     *  "a": {
-     *     "b": {
-     *       "c": {
-     *         ...你的数据
-     *       }
-     *     }
-     *   }
-     * }
-     * @param key
-     */
-    constructor(key) {
+constructor(key) {
       if (typeof key === "string") {
         let trimKey = key.trim();
         if (trimKey == "") {
@@ -562,10 +444,7 @@
       }
       this.listenerData = new Utils.Dictionary();
     }
-    /**
-     * 获取本地值
-     */
-    getLocalValue() {
+getLocalValue() {
       let localValue = _GM_getValue(this.storageKey);
       if (localValue == null) {
         localValue = {};
@@ -573,89 +452,49 @@
       }
       return localValue;
     }
-    /**
-     * 设置本地值
-     * @param value
-     */
-    setLocalValue(value) {
+setLocalValue(value) {
       _GM_setValue(this.storageKey, value);
     }
-    /**
-     * 设置值
-     * @param key 键
-     * @param value 值
-     */
-    set(key, value) {
+set(key, value) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, value);
     }
-    /**
-     * 获取值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    get(key, defaultValue) {
+get(key, defaultValue) {
       let localValue = this.getLocalValue();
       return Reflect.get(localValue, key) ?? defaultValue;
     }
-    /**
-     * 获取所有值
-     */
-    getAll() {
+getAll() {
       let localValue = this.getLocalValue();
       return localValue;
     }
-    /**
-     * 删除值
-     * @param key 键
-     */
-    delete(key) {
+delete(key) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, void 0);
     }
-    /**
-     * 判断是否存在该值
-     */
-    has(key) {
+has(key) {
       let localValue = this.getLocalValue();
       return Reflect.has(localValue, key);
     }
-    /**
-     * 获取所有键
-     */
-    keys() {
+keys() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue);
     }
-    /**
-     * 获取所有值
-     */
-    values() {
+values() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue).map(
         (key) => Reflect.get(localValue, key)
       );
     }
-    /**
-     * 清空所有值
-     */
-    clear() {
+clear() {
       _GM_deleteValue(this.storageKey);
     }
-    /**
-     * 监听值改变
-     * + .set
-     * + .delete
-     * @param key 监听的键
-     * @param callback 值改变的回调函数
-     */
-    addValueChangeListener(key, callback) {
+addValueChangeListener(key, callback) {
       let listenerId = Math.random();
       let listenerData = this.listenerData.get(key) || [];
       listenerData.push({
@@ -666,11 +505,7 @@
       this.listenerData.set(key, listenerData);
       return listenerId;
     }
-    /**
-     * 移除监听
-     * @param listenerId 监听的id或键名
-     */
-    removeValueChangeListener(listenerId) {
+removeValueChangeListener(listenerId) {
       let flag = false;
       for (const [key, listenerData] of this.listenerData.entries()) {
         for (let index = 0; index < listenerData.length; index++) {
@@ -685,13 +520,7 @@
       }
       return flag;
     }
-    /**
-     * 主动触发监听器
-     * @param key 键
-     * @param oldValue （可选）旧值
-     * @param newValue （可选）新值
-     */
-    triggerValueChangeListener(key, oldValue, newValue) {
+triggerValueChangeListener(key, oldValue, newValue) {
       if (!this.listenerData.has(key)) {
         return;
       }
@@ -720,10 +549,7 @@
   const PopsPanelStorageApi = new StorageUtils(KEY);
   const PanelContent = {
     $data: {
-      /**
-       * @private
-       */
-      __contentConfig: null,
+__contentConfig: null,
       get contentConfig() {
         if (this.__contentConfig == null) {
           this.__contentConfig = new utils.Dictionary();
@@ -731,36 +557,20 @@
         return this.__contentConfig;
       }
     },
-    /**
-     * 设置所有配置项，用于初始化默认的值
-     *
-     * 如果是第一组添加的话，那么它默认就是设置菜单打开的配置
-     * @param configList 配置项
-     */
-    addContentConfig(configList) {
+addContentConfig(configList) {
       if (!Array.isArray(configList)) {
         configList = [configList];
       }
       let index = this.$data.contentConfig.keys().length;
       this.$data.contentConfig.set(index, configList);
     },
-    /**
-     * 获取所有的配置内容，用于初始化默认的值
-     */
-    getAllContentConfig() {
+getAllContentConfig() {
       return this.$data.contentConfig.values().flat();
     },
-    /**
-     * 获取配置内容
-     * @param index 配置索引
-     */
-    getConfig(index = 0) {
+getConfig(index = 0) {
       return this.$data.contentConfig.get(index) ?? [];
     },
-    /**
-     * 获取默认左侧底部的配置项
-     */
-    getDefaultBottomContentConfig() {
+getDefaultBottomContentConfig() {
       return [
         {
           id: "script-version",
@@ -801,30 +611,19 @@
     init() {
       this.initExtensionsMenu();
     },
-    /**
-     * 初始化菜单项
-     */
-    initExtensionsMenu() {
+initExtensionsMenu() {
       if (!Panel.isTopWindow()) {
         return;
       }
       GM_Menu.add(this.$data.menuOption);
     },
-    /**
-     * 添加菜单项
-     * @param option 菜单配置
-     */
-    addMenuOption(option) {
+addMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
       this.$data.menuOption.push(...option);
     },
-    /**
-     * 更新菜单项
-     * @param option 菜单配置
-     */
-    updateMenuOption(option) {
+updateMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
@@ -837,115 +636,61 @@
         }
       });
     },
-    /**
-     * 获取菜单项
-     * @param [index=0] 索引
-     */
-    getMenuOption(index = 0) {
+getMenuOption(index = 0) {
       return this.$data.menuOption[index];
     },
-    /**
-     * 删除菜单项
-     * @param [index=0] 索引
-     */
-    deleteMenuOption(index = 0) {
+deleteMenuOption(index = 0) {
       this.$data.menuOption.splice(index, 1);
     }
   };
   const Panel = {
-    /** 数据 */
-    $data: {
-      /**
-       * @private
-       */
-      __contentConfigInitDefaultValue: null,
-      /**
-       * @private
-       */
-      __onceExecMenuData: null,
-      /**
-       * @private
-       */
-      __onceExecData: null,
-      /**
-       * @private
-       */
-      __panelConfig: {},
-      /**
-       * 面板
-       */
-      $panel: null,
-      /**
-       * 面板配置
-       */
-      panelContent: [],
-      /**
-       * 菜单项初始化的默认值
-       */
-      get contentConfigInitDefaultValue() {
+$data: {
+__contentConfigInitDefaultValue: null,
+__onceExecMenuData: null,
+__onceExecData: null,
+__panelConfig: {},
+$panel: null,
+panelContent: [],
+get contentConfigInitDefaultValue() {
         if (this.__contentConfigInitDefaultValue == null) {
           this.__contentConfigInitDefaultValue = new utils.Dictionary();
         }
         return this.__contentConfigInitDefaultValue;
       },
-      /**
-       * 菜单项初始化时禁用的键
-       */
-      contentConfigInitDisabledKeys: [],
-      /**
-       * 成功只执行了一次的菜单项
-       *
-       * + .exec
-       * + .execMenu
-       * + .execMenuOnce
-       */
-      get onceExecMenuData() {
+contentConfigInitDisabledKeys: [],
+get onceExecMenuData() {
         if (this.__onceExecMenuData == null) {
           this.__onceExecMenuData = new utils.Dictionary();
         }
         return this.__onceExecMenuData;
       },
-      /**
-       * 成功只执行了一次的项
-       *
-       * + .onceExec
-       */
-      get onceExecData() {
+get onceExecData() {
         if (this.__onceExecData == null) {
           this.__onceExecData = new utils.Dictionary();
         }
         return this.__onceExecData;
       },
-      /** 脚本名，一般用在设置的标题上 */
-      get scriptName() {
+get scriptName() {
         return SCRIPT_NAME;
       },
-      /**
-       * pops.panel的默认配置
-       */
-      get panelConfig() {
+get panelConfig() {
         return this.__panelConfig;
       },
       set panelConfig(value) {
         this.__panelConfig = value;
       },
-      /** 菜单项的总值在本地数据配置的键名 */
-      key: KEY,
-      /** 菜单项在attributes上配置的菜单键 */
-      attributeKeyName: ATTRIBUTE_KEY,
-      /** 菜单项在attributes上配置的菜单默认值 */
-      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
+key: KEY,
+attributeKeyName: ATTRIBUTE_KEY,
+attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
     },
     init() {
       this.initContentDefaultValue();
       PanelMenu.init();
     },
-    /** 判断是否是顶层窗口 */
-    isTopWindow() {
+isTopWindow() {
       return _unsafeWindow.top === _unsafeWindow.self;
     },
-    /** 初始化菜单项的默认值保存到本地数据中 */
-    initContentDefaultValue() {
+initContentDefaultValue() {
       const initDefaultValue = (config) => {
         if (!config.attributes) {
           return;
@@ -953,7 +698,7 @@
         if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
           return;
         }
-        let menuDefaultConfig = /* @__PURE__ */ new Map();
+        let menuDefaultConfig = new Map();
         let key = config.attributes[ATTRIBUTE_KEY];
         if (key != null) {
           const defaultValue = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
@@ -1009,31 +754,16 @@
       }
       this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
     },
-    /**
-     * 设置初始化使用的默认值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    setDefaultValue(key, defaultValue) {
+setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
         log.warn("请检查该key(已存在): " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
-    /**
-     * 设置值
-     * @param key 键
-     * @param value 值
-     */
-    setValue(key, value) {
+setValue(key, value) {
       PopsPanelStorageApi.set(key, value);
     },
-    /**
-     * 获取值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    getValue(key, defaultValue) {
+getValue(key, defaultValue) {
       let localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
         if (this.$data.contentConfigInitDefaultValue.has(key)) {
@@ -1043,66 +773,25 @@
       }
       return localValue;
     },
-    /**
-     * 删除值
-     * @param key 键
-     */
-    deleteValue(key) {
+deleteValue(key) {
       PopsPanelStorageApi.delete(key);
     },
-    /**
-     * 判断该键是否存在
-     * @param key 键
-     */
-    hasKey(key) {
+hasKey(key) {
       return PopsPanelStorageApi.has(key);
     },
-    /**
-     * 监听调用setValue、deleteValue
-     * @param key 需要监听的键
-     * @param callback
-     */
-    addValueChangeListener(key, callback) {
+addValueChangeListener(key, callback) {
       let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
         callback(key, __oldValue, __newValue);
       });
       return listenerId;
     },
-    /**
-     * 移除监听
-     * @param listenerId 监听的id
-     */
-    removeValueChangeListener(listenerId) {
+removeValueChangeListener(listenerId) {
       PopsPanelStorageApi.removeValueChangeListener(listenerId);
     },
-    /**
-     * 主动触发菜单值改变的回调
-     * @param key 菜单键
-     * @param newValue 想要触发的新值，默认使用当前值
-     * @param oldValue 想要触发的旧值，默认使用当前值
-     */
-    triggerMenuValueChange(key, newValue, oldValue) {
+triggerMenuValueChange(key, newValue, oldValue) {
       PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
     },
-    /**
-     * 执行菜单
-     *
-     * @param queryKey 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 执行的回调函数
-     * @param checkExec 判断是否执行回调
-     *
-     * （默认）如果想要每个菜单是`与`关系，即每个菜单都判断为开启，那么就判断它们的值&就行
-     *
-     * 如果想要任意菜单存在true再执行，那么判断它们的值|就行
-     *
-     * + 返回值都为`true`，执行回调，如果回调返回了<style>元素，该元素会在监听到值改变时被移除掉
-     * + 返回值有一个为`false`，则不执行回调，且移除之前回调函数返回的<style>元素
-     * @param once 是否只执行一次，默认true
-     *
-     * + true （默认）只执行一次，且会监听键的值改变
-     * + false 不会监听键的值改变
-     */
-    exec(queryKey, callback, checkExec, once = true) {
+exec(queryKey, callback, checkExec, once = true) {
       const that = this;
       let queryKeyFn;
       if (typeof queryKey === "string" || Array.isArray(queryKey)) {
@@ -1207,28 +896,15 @@
       });
       valueChangeCallback();
       let result = {
-        /**
-         * 清空菜单执行情况
-         *
-         * + 清空存储的元素列表
-         * + 清空值改变的监听器
-         * + 清空存储的一次执行的键
-         */
-        clear() {
+clear() {
           this.clearStoreStyleElements();
           this.removeValueChangeListener();
           once && that.$data.onceExecMenuData.delete(storageKey);
         },
-        /**
-         * 清空存储的元素列表
-         */
-        clearStoreStyleElements: () => {
+clearStoreStyleElements: () => {
           return clearBeforeStoreValue();
         },
-        /**
-         * 移除值改变的监听器
-         */
-        removeValueChangeListener: () => {
+removeValueChangeListener: () => {
           listenerIdList.forEach((listenerId) => {
             this.removeValueChangeListener(listenerId);
           });
@@ -1236,14 +912,7 @@
       };
       return result;
     },
-    /**
-     * 自动判断菜单是否启用，然后执行回调
-     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 回调
-     * @param isReverse 逆反判断菜单启用，默认false
-     * @param once 是否是只执行一次，默认false
-     */
-    execMenu(key, callback, isReverse = false, once = false) {
+execMenu(key, callback, isReverse = false, once = false) {
       return this.exec(
         key,
         (option) => {
@@ -1265,35 +934,15 @@
         once
       );
     },
-    /**
-     * 自动判断菜单是否启用，然后执行回调，只会执行一次
-     *
-     * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
-     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 回调
-     * @param isReverse 逆反判断菜单启用，默认false
-     */
-    execMenuOnce(key, callback, isReverse = false) {
+execMenuOnce(key, callback, isReverse = false) {
       return this.execMenu(key, callback, isReverse, true);
     },
-    /**
-     * 移除已执行的仅执行一次的菜单
-     * + .exec
-     * + .execMenu
-     * + .execMenuOnce
-     * @param key 键
-     */
-    deleteExecMenuOnce(key) {
+deleteExecMenuOnce(key) {
       this.$data.onceExecMenuData.delete(key);
       let flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
-    /**
-     * 根据key执行一次，该key不会和execMenu|exec|execMenuOnce已执行的key冲突
-     * @param key 键
-     * @param callback 回调
-     */
-    onceExec(key, callback) {
+onceExec(key, callback) {
       key = this.transformKey(key);
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
@@ -1304,23 +953,11 @@
       callback();
       this.$data.onceExecData.set(key, 1);
     },
-    /**
-     * 移除已执行的仅执行一次的菜单
-     * + .onceExec
-     * @param key 键
-     */
-    deleteOnceExec(key) {
+deleteOnceExec(key) {
       key = this.transformKey(key);
       this.$data.onceExecData.delete(key);
     },
-    /**
-     * 显示设置面板
-     * @param content 显示的内容配置
-     * @param [title] 标题
-     * @param [preventDefaultContentConfig=false] 是否阻止默认添加内容配置（版本号），默认false
-     * @param [preventRegisterSearchPlugin=false] 是否阻止默认添加搜索组件，默认false
-     */
-    showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
+showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
       this.$data.$panel = null;
       this.$data.panelContent = [];
       let checkHasBottomVersionContentConfig = content.findIndex((it) => {
@@ -1372,11 +1009,7 @@
         this.registerConfigSearch({ $panel, content });
       }
     },
-    /**
-     * 注册设置面板的搜索功能（双击左侧选项第一个）
-     * @param config 配置项
-     */
-    registerConfigSearch(config) {
+registerConfigSearch(config) {
       const { $panel, content } = config;
       let asyncQueryProperty = async (target, handler) => {
         if (target == null) {
@@ -1400,10 +1033,8 @@
           },
           {
             root: null,
-            // 使用视口作为根
-            threshold: 1
-            // 元素完全进入视口时触发
-          }
+threshold: 1
+}
         );
         observer.observe($el);
         $el.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1424,8 +1055,7 @@
           },
           content: {
             text: (
-              /*html*/
-              `
+`
 						<div class="search-wrapper">
 							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
 						</div>
@@ -1446,8 +1076,7 @@
           height: "auto",
           drag: true,
           style: (
-            /*css*/
-            `
+`
 					${__pops.config.cssText.panelCSS}
 
 					.search-wrapper{
@@ -1512,8 +1141,7 @@
           let $item = domUtils.createElement("div", {
             className: "search-result-item",
             innerHTML: (
-              /*html*/
-              `
+`
 							<div class="search-result-item-path">${searchPath.matchedData?.path}</div>
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
 						`
@@ -1735,13 +1363,14 @@
           timer = void 0;
           if (isDoubleClick && clickElement === selectorTarget) {
             isDoubleClick = false;
+            clickElement = null;
             dbclick_event(evt);
           } else {
             timer = setTimeout(() => {
               isDoubleClick = false;
             }, 200);
-            clickElement = selectorTarget;
             isDoubleClick = true;
+            clickElement = selectorTarget;
           }
         },
         {
@@ -1752,8 +1381,7 @@
         domUtils.createElement("style", {
           type: "text/css",
           textContent: (
-            /*css*/
-            `
+`
 					.pops-flashing{
 						animation: double-blink 1.5s ease-in-out;
 					}
@@ -1779,10 +1407,7 @@
         })
       );
     },
-    /**
-     * 把key:string[]转为string
-     */
-    transformKey(key) {
+transformKey(key) {
       if (Array.isArray(key)) {
         const keyArray = key.sort();
         return JSON.stringify(keyArray);
@@ -1795,11 +1420,7 @@
   const console = unsafeWin.console;
   const copy = _GM_setClipboard || utils.setClip.bind(utils);
   const WebSiteDebugUtil = {
-    /**
-     * 执行插件代码
-     * @param args
-     */
-    evalPlugin: (...args) => {
+evalPlugin: (...args) => {
       if (args.length === 0) {
         return;
       }
@@ -1834,39 +1455,27 @@
   const DebugToolVersionConfig = JSON.parse(versionJSON);
   const DebugToolConfig = {
     eruda: {
-      /** 版本号 */
-      version: DebugToolVersionConfig.eruda.version,
-      /** 项目地址 */
-      homeUrl: "https://github.com/liriliri/eruda",
-      /** 设置文档 */
-      settingDocUrl: "https://github.com/liriliri/eruda/blob/master/README.md"
+version: DebugToolVersionConfig.eruda.version,
+homeUrl: "https://github.com/liriliri/eruda",
+settingDocUrl: "https://github.com/liriliri/eruda/blob/master/README.md"
     },
     vConsole: {
-      /** 版本号 */
-      version: DebugToolVersionConfig.vconsole.version,
-      /** 项目地址 */
-      homeUrl: "https://github.com/Tencent/vConsole",
-      /** 设置文档 */
-      settingDocUrl: "https://github.com/Tencent/vConsole/blob/dev/README_CN.md"
+version: DebugToolVersionConfig.vconsole.version,
+homeUrl: "https://github.com/Tencent/vConsole",
+settingDocUrl: "https://github.com/Tencent/vConsole/blob/dev/README_CN.md"
     },
     pageSpy: {
-      /** 版本号 */
-      version: DebugToolVersionConfig["@huolala-tech/page-spy-browser"].version,
-      /** 项目地址 */
-      homeUrl: "https://github.com/HuolalaTech/page-spy-web",
-      /** 设置文档 */
-      settingDocUrl: "https://github.com/HuolalaTech/page-spy-web/blob/main/README_ZH.md",
-      /** 默认配置 */
-      defaultConfig: {
+version: DebugToolVersionConfig["@huolala-tech/page-spy-browser"].version,
+homeUrl: "https://github.com/HuolalaTech/page-spy-web",
+settingDocUrl: "https://github.com/HuolalaTech/page-spy-web/blob/main/README_ZH.md",
+defaultConfig: {
         api: "pagespy.jikejishu.com",
         cliennOrigin: "https://pagespy.jikejishu.com"
       }
     },
     chii: {
-      /** 设置文档 */
-      settingDocUrl: "https://github.com/liriliri/chii/blob/master/README_CN.md",
-      /** 默认配置 */
-      defaultConfig: {
+settingDocUrl: "https://github.com/liriliri/chii/blob/master/README_CN.md",
+defaultConfig: {
         url: "https://chii.liriliri.io/",
         scriptJs: "//chii.liriliri.io/target.js"
       }
@@ -2389,8 +1998,7 @@
         update: function() {
           beginTime = this.end();
         },
-        // Backwards Compatibility
-        domElement: container,
+domElement: container,
         setMode: showPanel
       };
     };
@@ -2471,8 +2079,8 @@
           document.querySelectorAll(".vc-stats-buttons").forEach((statusButton) => {
             statusButton.addEventListener("click", (event) => {
               const currentType = event.target.dataset.type;
-              if (currentType.toString() === "2" && // @ts-ignore
-              !(self.performance && self.performance.memory)) {
+              if (currentType.toString() === "2" &&
+!(self.performance && self.performance.memory)) {
                 console.error(
                   "浏览器不支持window.performance或者window.performance.memory"
                 );
@@ -2484,8 +2092,7 @@
         });
         vConsoleStats.on("renderTab", (callback) => {
           const statsHTML = (
-            /*html*/
-            `
+`
                 <div class="vc-stats-buttons">
                     <div class="vc-button-container">
                         <button class="vc-stats-button" data-type="0">show FPS</button>
@@ -2533,8 +2140,8 @@
         }
         const cssNode = document.createElement("style");
         cssNode.setAttribute("type", "text/css");
-        cssNode.innerHTML = /*css*/
-        `
+        cssNode.innerHTML =
+`
             .vc-stats-button{
                 margin: 10px 10px;
                 background-color: #fbf9fe;
@@ -2614,8 +2221,7 @@
         });
         vConsoleExportLogs.on("renderTab", (callback) => {
           const html = (
-            /*html*/
-            `<div class="vconsole-exportlog"></div>`
+`<div class="vconsole-exportlog"></div>`
           );
           callback(html);
         });
@@ -2659,7 +2265,7 @@
         let logText = this.getAllLogContent();
         this.funDownload(
           logText,
-          `${(/* @__PURE__ */ new Date()).toLocaleDateString() + " " + (/* @__PURE__ */ new Date()).toLocaleTimeString()}.log`
+          `${( new Date()).toLocaleDateString() + " " + ( new Date()).toLocaleTimeString()}.log`
         );
       };
       copyText = () => {
@@ -2794,65 +2400,56 @@
       return;
     }
     let $pageSpy = new __pageSpy__({
-      // SDK 会从引入的路径自动分析并决定 Server 的地址（api）和调试端的地址（clientOrigin）
-      // 假设你从 https://example.com/page-spy/index.min.js 引入，那么 SDK 会在内部设置：
-      //   - api: "example.com"
-      //   - clientOrigin: "https://example.com"
-      // 如果你的服务部署在别处，就需要在这里手动指定去覆盖。
-      api,
+
+
+
+
+api,
       clientOrigin,
-      // project 作为信息的一种聚合，可以在调试端房间列表进行搜索
-      project: Panel.getValue(
+project: Panel.getValue(
         GlobalSettingConfig.pagespy_project.key,
         GlobalSettingConfig.pagespy_project.defaultValue
       ),
-      // title 供用户提供自定义参数，可以用于区分当前调试的客户端
-      // 对应的信息显示在每个调试连接面板的「设备id」下方
-      title: Panel.getValue(
+
+title: Panel.getValue(
         GlobalSettingConfig.pagespy_title.key,
         GlobalSettingConfig.pagespy_title.defaultValue
       ),
-      // 指示 SDK 初始化完成，是否自动在客户端左下角渲染「圆形白底带 Logo」的控件
-      // 如果设置为 false, 可以调用 window.$pageSpy.render() 手动渲染
-      autoRender: Panel.getValue(
+
+autoRender: Panel.getValue(
         GlobalSettingConfig.pagespy_autoRender.key,
         GlobalSettingConfig.pagespy_autoRender.defaultValue
       ),
-      // 手动指定 PageSpy 服务的 scheme。
-      // 这在 SDK 无法正确分析出 scheme 可以使用，例如 PageSpy 的浏览器插件
-      // 是通过 chrome-extension://xxx/sdk/index.min.js 引入 SDK，这会
-      // 被 SDK 解析成无效的 "chrome-extension://" 并回退到 ["http://", "ws://"]。
-      //   - （默认）传值 undefined 或者 null：SDK 会自动分析；
-      //   - 传递 boolean 值：
-      //     - true：SDK 将通过 ["https://", "wss://"] 访问 PageSpy 服务
-      //     - false：SDK 将通过 ["http://", "ws://"] 访问 PageSpy 服务
-      enableSSL: Panel.getValue(
+
+
+
+
+
+
+
+enableSSL: Panel.getValue(
         GlobalSettingConfig.pagespy_enableSSL.key,
         GlobalSettingConfig.pagespy_enableSSL.defaultValue
       ),
-      // 在 PageSpy@1.7.4 支持离线回放功能后，客户端集成的 SDK 可以不用和调试端建立连接，
-      // 通过 DataHarborPlugin 收集数据、导出离线日志，成为新的使用方式。
-      // 默认值 false。用户设置为其他值时，会进入 "离线模式"，具体表现为 PageSpy 不会创建房间、建立 WebSocket 连接。
-      // 仅适用浏览器环境的 SDK
-      offline: Panel.getValue(
+
+
+
+offline: Panel.getValue(
         GlobalSettingConfig.pagespy_offline.key,
         GlobalSettingConfig.pagespy_offline.defaultValue
       ),
-      // PageSpy 内置的插件都是开箱即用的，你可以手动指定禁用哪些插件
-      // disabledPlugins: [],
-      // 是否允许 SDK 在收集离线日志时，序列化非基本类型的数据，序列化的目的是方便在回放时查看
-      serializeData: Panel.getValue(
+
+
+serializeData: Panel.getValue(
         GlobalSettingConfig.pagespy_serializeData.key,
         GlobalSettingConfig.pagespy_serializeData.defaultValue
       ),
-      // 是否启用权限认证功能。启用后，SDK 会生成 6 位数的随机 “密钥”；调试端进入房间时要求输入对应的密钥
-      useSecret: Panel.getValue(
+useSecret: Panel.getValue(
         GlobalSettingConfig.pagespy_useSecret.key,
         GlobalSettingConfig.pagespy_useSecret.defaultValue
       ),
-      // SDK 在调试端进入房间之前会在内存中缓存数据，以便于调试端进入房间后可以看到之前的数据。
-      // 但数据体积会越来越大，因此可以指定 SDK 在本地最多缓存多少条数据记录。
-      messageCapacity: Panel.getValue(
+
+messageCapacity: Panel.getValue(
         GlobalSettingConfig.pagespy_messageCapacity.key,
         GlobalSettingConfig.pagespy_messageCapacity.defaultValue
       )
@@ -2881,21 +2478,14 @@
       }
       this.setLocalHeight(height);
     },
-    /**
-     *
-     */
-    getLocalHeight() {
+getLocalHeight() {
       let value = Number(globalThis.localStorage.getItem(this.$data.key));
       if (isNaN(value)) {
         return null;
       }
       return value;
     },
-    /**
-     *
-     * @param value
-     */
-    setLocalHeight(value) {
+setLocalHeight(value) {
       if (typeof value !== "number") {
         console.log(value);
         throw new TypeError(`${this.$data.key}的值必须是number`);
@@ -2910,17 +2500,10 @@
     isExistGMLocalHeight() {
       return typeof this.getGMLocalHeight() === "number";
     },
-    /**
-     *
-     */
-    getGMLocalHeight() {
+getGMLocalHeight() {
       return Panel.getValue(this.$data.key);
     },
-    /**
-     *
-     * @param value
-     */
-    setGMLocalHeight(value) {
+setGMLocalHeight(value) {
       if (typeof value !== "number") {
         console.log(value);
         throw new TypeError(`${this.$data.key}的值必须是number`);
@@ -2980,21 +2563,14 @@
   };
   const DebugTool = {
     $data: {
-      /** 当前的调试工具是否已执行 */
-      isLoadDebugTool: false,
-      /** 当前已执行的调试工具名 */
-      loadDebugToolName: void 0,
-      /** 当前执行了调试工具的iframe */
-      iframeUrlList: []
+isLoadDebugTool: false,
+loadDebugToolName: void 0,
+iframeUrlList: []
     },
     $ele: {
-      /** 隐藏调试工具的style元素 */
-      hideDebugToolCSSNode: void 0
+hideDebugToolCSSNode: void 0
     },
-    /**
-     * 处理当在iframe内加载时，是否允许执行，如果允许，那么把url添加到菜单中
-     */
-    handleToolWithIframe() {
+handleToolWithIframe() {
       if (Panel.isTopWindow()) {
         return true;
       }
@@ -3021,10 +2597,7 @@
       });
       return true;
     },
-    /**
-     * 执行当前的调试工具
-     */
-    execDebugTool() {
+execDebugTool() {
       let debugTool = Panel.getValue(GlobalSettingConfig.debugTool.key);
       debugTool = debugTool.toString().toLowerCase();
       console.log(`网页调试：当前使用的调试工具【${debugTool}】`);
@@ -3048,10 +2621,7 @@
         console.error("当前未配置该调试工具的运行");
       }
     },
-    /**
-     * 在脚本菜单中添加控制当前的调试工具状态的菜单按钮
-     */
-    registerDebugToolMenuControls() {
+registerDebugToolMenuControls() {
       if (!Panel.isTopWindow()) {
         console.warn("不在iframe内重复添加菜单按钮");
         return;
@@ -3087,25 +2657,17 @@
       };
       GM_Menu.add(menuData);
     },
-    /**
-     * 判断页面中是否已存在隐藏调试工具的CSS元素节点
-     * @returns
-     */
-    isInjectDebugToolHideCSS() {
+isInjectDebugToolHideCSS() {
       return Boolean(
         this.$ele.hideDebugToolCSSNode && document.documentElement.contains(this.$ele.hideDebugToolCSSNode)
       );
     },
-    /**
-     * 创建隐藏调试工具的CSS元素
-     * @returns
-     */
-    createDebugToolHideCSS() {
+createDebugToolHideCSS() {
       let $css = document.createElement("style");
       $css.setAttribute("type", "text/css");
       $css.setAttribute("data-from", "hide-debug-tool");
-      $css.innerHTML = /*css*/
-      `
+      $css.innerHTML =
+`
 		/* Eruda的按钮 */
         #eruda{
             display: none !important;
@@ -3126,10 +2688,7 @@
         `;
       return $css;
     },
-    /**
-     * 隐藏当前的调试工具
-     */
-    hideCurrentDebugTool() {
+hideCurrentDebugTool() {
       if (this.$ele.hideDebugToolCSSNode == null) {
         console.log("未创建隐藏【调试工具】的style元素 => 创建元素");
         this.$ele.hideDebugToolCSSNode = this.createDebugToolHideCSS();
@@ -3139,10 +2698,7 @@
         document.documentElement.appendChild(this.$ele.hideDebugToolCSSNode);
       }
     },
-    /**
-     * 显示当前的调试工具
-     */
-    showCurrentDebugTool() {
+showCurrentDebugTool() {
       if (this.$ele.hideDebugToolCSSNode) {
         console.log("页面存在隐藏【调试工具】的style元素 => 移除元素");
         document.documentElement.removeChild(this.$ele.hideDebugToolCSSNode);
@@ -3175,39 +2731,19 @@
         return this.__storeApiFn;
       }
     },
-    /**
-     * 获取自定义的存储接口
-     * @param type 组件类型
-     */
-    getStorageApi(type) {
+getStorageApi(type) {
       if (!this.hasStorageApi(type)) {
         return;
       }
       return this.$data.storeApiValue.get(type);
     },
-    /**
-     * 判断是否存在自定义的存储接口
-     * @param type 组件类型
-     */
-    hasStorageApi(type) {
+hasStorageApi(type) {
       return this.$data.storeApiValue.has(type);
     },
-    /**
-     * 设置自定义的存储接口
-     * @param type 组件类型
-     * @param storageApiValue 存储接口
-     */
-    setStorageApi(type, storageApiValue) {
+setStorageApi(type, storageApiValue) {
       this.$data.storeApiValue.set(type, storageApiValue);
     },
-    /**
-     * 初始化组件的存储接口属性
-     *
-     * @param type 组件类型
-     * @param config 组件配置，必须包含prop属性
-     * @param storageApiValue 存储接口
-     */
-    initComponentsStorageApi(type, config, storageApiValue) {
+initComponentsStorageApi(type, config, storageApiValue) {
       let propsStorageApi;
       if (this.hasStorageApi(type)) {
         propsStorageApi = this.getStorageApi(type);
@@ -3216,12 +2752,7 @@
       }
       this.setComponentsStorageApiProperty(config, propsStorageApi);
     },
-    /**
-     * 设置组件的存储接口属性
-     * @param config 组件配置，必须包含prop属性
-     * @param storageApiValue 存储接口
-     */
-    setComponentsStorageApiProperty(config, storageApiValue) {
+setComponentsStorageApiProperty(config, storageApiValue) {
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
     }
   };
@@ -3414,14 +2945,14 @@
             getLiElementCallBack(liElement) {
               let $left = document.createElement("div");
               $left.className = "pops-panel-item-left-text";
-              $left.innerHTML = /*html*/
-              `
+              $left.innerHTML =
+`
                             <p class="pops-panel-item-left-main-text">最新版本</p>
                         `;
               let $right = document.createElement("div");
               $right.className = "pops-panel-item-right-text";
-              $right.innerHTML = /*html*/
-              `
+              $right.innerHTML =
+`
                         <a href="${DebugToolConfig.eruda.homeUrl}" target="_blank">
                             <img src="https://img.shields.io/npm/v/eruda/latest.svg?label=eruda" alt="eruda">
                         </a>
@@ -3675,8 +3206,7 @@
         type: "forms",
         forms: [
           UISwitch(
-            /*html*/
-            `
+`
                     <a class="plugin-anchor" href="https://github.com/liriliri/eruda-monitor" target="_blank">
                         <img src="https://img.shields.io/npm/v/eruda-monitor/latest.svg?label=">
                     </a>
@@ -3692,8 +3222,7 @@
                     `
           ),
           UISwitch(
-            /*html*/
-            `
+`
                     <a class="plugin-anchor" href="https://github.com/liriliri/eruda-features" target="_blank">
                         <img src="https://img.shields.io/npm/v/eruda-features/latest.svg?label=">
                     </a>
@@ -3709,8 +3238,7 @@
                     `
           ),
           UISwitch(
-            /*html*/
-            `
+`
                     <a class="plugin-anchor" href="https://github.com/liriliri/eruda-timing" target="_blank">
                         <img src="https://img.shields.io/npm/v/eruda-timing/latest.svg?label=">
                     </a>
@@ -3726,8 +3254,7 @@
                     `
           ),
           UISwitch(
-            /*html*/
-            `
+`
                     <a class="plugin-anchor" href="https://github.com/liriliri/eruda-code" target="_blank">
                         <img src="https://img.shields.io/npm/v/eruda-code/latest.svg?label=">
                     </a>
@@ -3743,8 +3270,7 @@
                     `
           ),
           UISwitch(
-            /*html*/
-            `
+`
                     <a class="plugin-anchor" href="https://github.com/liriliri/eruda-benchmark" target="_blank">
                         <img src="https://img.shields.io/npm/v/eruda-benchmark/latest.svg?label=">
                     </a>
@@ -3767,8 +3293,7 @@
             "测试地理位置接口"
           ),
           UISwitch(
-            /*html*/
-            `
+`
                     <a class="plugin-anchor" href="https://github.com/liriliri/eruda-orientation" target="_blank">
                         <img src="https://img.shields.io/npm/v/eruda-orientation/latest.svg?label=">
                     </a>
@@ -3784,8 +3309,7 @@
                     `
           ),
           UISwitch(
-            /*html*/
-            `
+`
                     <a class="plugin-anchor" href="https://github.com/liriliri/eruda-vue" target="_blank">
                         <img src="https://img.shields.io/npm/v/eruda-vue/latest.svg?label=">
                     </a>
@@ -3801,8 +3325,7 @@
                     `
           ),
           UISwitch(
-            /*html*/
-            `
+`
                     <a class="plugin-anchor" href="https://github.com/liriliri/eruda-touches" target="_blank">
                         <img src="https://img.shields.io/npm/v/eruda-touches/latest.svg?label=">
                     </a>
@@ -3818,8 +3341,7 @@
                     `
           ),
           UISwitch(
-            /*html*/
-            `
+`
                     <a class="plugin-anchor" href="https://github.com/pomelo-chuan/eruda-outline-plugin" target="_blank">
                         <img src="https://img.shields.io/npm/v/eruda-outline-plugin/latest.svg?label=">
                     </a>
@@ -3835,8 +3357,7 @@
 					`
           ),
           UISwitch(
-            /*html*/
-            `
+`
                     <a class="plugin-anchor" href="https://github.com/Faithree/eruda-pixel" target="_blank">
                         <img src="https://img.shields.io/npm/v/eruda-pixel/latest.svg?label=">
                     </a>
@@ -3918,14 +3439,14 @@
             getLiElementCallBack(liElement) {
               let $left = document.createElement("div");
               $left.className = "pops-panel-item-left-text";
-              $left.innerHTML = /*html*/
-              `
+              $left.innerHTML =
+`
                             <p class="pops-panel-item-left-main-text">最新版本</p>
                         `;
               let $right = document.createElement("div");
               $right.className = "pops-panel-item-right-text";
-              $right.innerHTML = /*html*/
-              `
+              $right.innerHTML =
+`
                         <a href="${DebugToolConfig.vConsole.homeUrl}" target="_blank">
                             <img src="https://img.shields.io/npm/v/vconsole/latest.svg?label=vConsole" alt="vConsole">
                         </a>
@@ -4155,8 +3676,7 @@
             "使用该插件可以复制或下载console中打印的log"
           ),
           UISwitch(
-            /*html*/
-            `
+`
                         <a class="plugin-anchor" href="https://github.com/Zippowxk/vue-vconsole-devtools" target="_blank">
                             <img src="https://img.shields.io/npm/v/vue-vconsole-devtools/latest.svg?label=">
                         </a>
@@ -4241,14 +3761,14 @@
             getLiElementCallBack(liElement) {
               let $left = document.createElement("div");
               $left.className = "pops-panel-item-left-text";
-              $left.innerHTML = /*html*/
-              `
+              $left.innerHTML =
+`
                             <p class="pops-panel-item-left-main-text">最新版本</p>
                         `;
               let $right = document.createElement("div");
               $right.className = "pops-panel-item-right-text";
-              $right.innerHTML = /*html*/
-              `
+              $right.innerHTML =
+`
                         <a href="${DebugToolConfig.pageSpy.homeUrl}" target="_blank">
                             <img src="https://img.shields.io/npm/v/@huolala-tech/page-spy-browser?label=pagespy" alt="page-spy-browser">
                         </a>
@@ -4541,8 +4061,7 @@
   ]);
   Panel.$data.panelConfig = {
     style: (
-      /*css*/
-      `
+`
 				aside.pops-panel-aside{
 					width: 20%;
 				}

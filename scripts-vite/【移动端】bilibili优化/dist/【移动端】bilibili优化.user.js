@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.21
+// @version      2025.8.27
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -13,9 +13,9 @@
 // @match        *://www.bilibili.com/h5/comment/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/QRCode/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
@@ -47,7 +47,7 @@
 (function (Qmsg, DOMUtils, Utils, pops, md5, Artplayer, artplayerPluginDanmuku, Viewer, flvjs) {
   'use strict';
 
-  const o=new Set;const importCSS = async t=>{o.has(t)||o.add(t);};
+  const a=new Set;const importCSS = async t=>{a.has(t)||(a.add(t),(n=>{function r(d){let e=document.createElement("style");if(e.setAttribute("type","text/css"),e.setAttribute("data-type","gm-css"),globalThis.trustedTypes){const l=globalThis.trustedTypes.createPolicy("safe-innerHTML",{createHTML:i=>i});e.innerHTML=l.createHTML(d);}else e.innerHTML=d;return (document.head||document.documentElement).appendChild(e),e}if(typeof GM_addStyle=="function"){GM_addStyle(n);return}r(n);})(t));};
 
   const blockCss = '@charset "UTF-8";.m-video2-awaken-btn,.openapp-dialog{display:none!important}.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-head m-open-app{display:none!important}.m-home .launch-app-btn.home-float-openapp{display:none!important}.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp,.m-space m-open-app:has(>.m-fixed-openapp){display:none!important}#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp{display:none!important}#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn,#app .m-dynamic m-open-app:has(>.m-fixed-openapp){display:none!important}#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .m-opus .m-navbar .m-nav-openapp,#app .m-opus m-open-app.m-open-app.fixed-openapp{display:none!important}#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp{display:none!important}#app.main-container bili-open-app.btn-download{display:none!important}#__next m-open-app[class^=TopBar_download],#__next m-open-app:has([class^=GoApp]){display:none!important}#__next m-open-app[class^=MainButton_btnWrap]{visibility:hidden!important}#app .read-app-main bili-open-app{display:none!important}#app .playlist>.open-app-wp{display:none!important}#app .playlist>.open-app-wp+div{padding-top:56.25%}';
   importCSS(blockCss);
@@ -55,113 +55,59 @@
   importCSS(commonCss);
   const BilibiliBeautifyCSS = '@charset "UTF-8";\r\n/* 主页 */\r\n#app .m-head {\r\n	--bg-color: #f0f1f3;\r\n	--bg-rever-color: #ffffff;\r\n	--pd-width: 1.3333vmin;\r\n	--bd-circle: 1.3333vmin;\r\n	--card-height: 30vmin;\r\n	--icon-font-size: 3.2vmin;\r\n	--icon-text-font-size: 2.6vmin;\r\n	--icon-font-margin-right: 3vmin;\r\n	--title-font-size: 2.8vmin;\r\n	background-color: var(--bg-color);\r\n}\r\n#app .m-head .m-home {\r\n	background-color: var(--bg-color);\r\n}\r\n/* 美化视频卡片 */\r\n#app .m-head .video-list .card-box .v-card {\r\n	background-color: var(--bg-rever-color);\r\n	padding: 0px;\r\n	margin: 0px;\r\n	width: calc(50% - var(--pd-width) / 2);\r\n	border-radius: var(--bd-circle);\r\n	margin-top: var(--pd-width);\r\n	display: grid;\r\n	/* 视频封面区域 */\r\n}\r\n#app .m-head .video-list .card-box .v-card .card {\r\n	background: var(--bg-rever-color);\r\n	border-radius: unset;\r\n	border-top-left-radius: var(--bd-circle);\r\n	border-top-right-radius: var(--bd-circle);\r\n	height: var(--card-height);\r\n}\r\n#app .m-head .video-list .card-box .v-card .card .count {\r\n	display: flex;\r\n	justify-content: safe flex-start;\r\n	padding-right: 0;\r\n}\r\n#app .m-head .video-list .card-box .v-card .card .count .iconfont {\r\n	font-size: var(--icon-text-font-size);\r\n}\r\n#app .m-head .video-list .card-box .v-card .card .count > span {\r\n	font-size: var(--icon-text-font-size);\r\n	margin-right: var(--icon-font-margin-right);\r\n}\r\n/* 视频标题区域 */\r\n#app .m-head .video-list .card-box .v-card .title {\r\n	padding: 0;\r\n	margin: var(--pd-width);\r\n	font-size: var(--title-font-size);\r\n}\r\n/* 两列 => 左边的 */\r\n#app .m-head .video-list .card-box .v-card:nth-child(2n-1) {\r\n	/*background-color: red;*/\r\n	margin-right: calc(var(--pd-width) / 2);\r\n}\r\n/* 两列 => 右边的 */\r\n#app .m-head .video-list .card-box .v-card:nth-child(2n) {\r\n	/*background-color: rebeccapurple;*/\r\n	margin-left: calc(var(--pd-width) / 2);\r\n}\r\n';
   const BilibiliRouter = {
-    /**
-     * 视频页面
-     * + /video/
-     */
-    isVideo() {
+isVideo() {
       return window.location.pathname.startsWith("/video/");
     },
-    /**
-     * 番剧
-     * + /bangumi/
-     */
-    isBangumi() {
+isBangumi() {
       return window.location.pathname.startsWith("/bangumi/");
     },
-    /**
-     * 搜索
-     * + /search
-     */
-    isSearch() {
+isSearch() {
       return window.location.pathname.startsWith("/search");
     },
-    /**
-     * 搜索结果页面
-     *
-     * + /search?keyword=xxx
-     */
-    isSearchResult() {
+isSearchResult() {
       let urlSearchParams = new URLSearchParams(window.location.search);
       return this.isSearch() && urlSearchParams.has("keyword");
     },
-    /**
-     * 直播
-     * + live.bilibili.com
-     */
-    isLive() {
+isLive() {
       return window.location.hostname === "live.bilibili.com";
     },
-    /**
-     * 专栏稿件
-     * + /opus
-     */
-    isOpus() {
+isOpus() {
       return window.location.pathname.startsWith("/opus");
     },
-    /**
-     * 话题
-     * + /topic-detail
-     */
-    isTopicDetail() {
+isTopicDetail() {
       return window.location.pathname.startsWith("/topic-detail");
     },
-    /**
-     * 动态
-     * + /dynamic
-     */
-    isDynamic() {
+isDynamic() {
       return window.location.pathname.startsWith("/dynamic");
     },
-    /**
-     * 首页
-     * + /
-     * + /channel
-     */
-    isHead() {
+isHead() {
       return window.location.pathname === "/" || window.location.pathname.startsWith("/channel");
     },
-    /**
-     * 个人空间
-     * + /space
-     */
-    isSpace() {
+isSpace() {
       return window.location.pathname.startsWith("/space");
     },
-    /**
-     * 播放列表
-     * + /playlist
-     */
-    isPlayList() {
+isPlayList() {
       return window.location.pathname.startsWith("/playlist");
     }
   };
   const BilibiliPCRouter = {
-    /**
-     * 桌面端
-     */
-    isPC() {
+isPC() {
       return window.location.hostname === "www.bilibili.com";
     },
-    /**
-     * 应该是动态？
-     * + /read/mobile-readlist/
-     * + /read/mobile?id=
-     */
-    isReadMobile() {
+isReadMobile() {
       return this.isPC() && window.location.pathname.startsWith("/read/mobile");
     }
   };
-  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
-  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
-  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
-  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
-  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
-  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
-  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
-  var _monkeyWindow = /* @__PURE__ */ (() => window)();
+  var _GM_deleteValue = (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
+  var _GM_getResourceText = (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
+  var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
+  var _GM_info = (() => typeof GM_info != "undefined" ? GM_info : void 0)();
+  var _GM_registerMenuCommand = (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_setValue = (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
+  var _GM_unregisterMenuCommand = (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
+  var _unsafeWindow = (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
+  var _monkeyWindow = (() => window)();
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
   const ATTRIBUTE_KEY = "data-key";
@@ -169,10 +115,7 @@
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const PROPS_STORAGE_API = "data-storage-api";
   const PanelUISize = {
-    /**
-     * 一般设置界面的尺寸
-     */
-    setting: {
+setting: {
       get width() {
         if (window.innerWidth < 550) {
           return "88vw";
@@ -192,18 +135,12 @@
         }
       }
     },
-    /**
-     * 中等的设置界面
-     */
-    settingMiddle: {
+settingMiddle: {
       get width() {
         return window.innerWidth < 350 ? "88vw" : "350px";
       }
     },
-    /**
-     * 信息界面，一般用于提示信息之类
-     */
-    info: {
+info: {
       get width() {
         return window.innerWidth < 350 ? "88vw" : "350px";
       },
@@ -213,25 +150,9 @@
     }
   };
   class StorageUtils {
-    /** 存储的键名 */
-    storageKey;
+storageKey;
     listenerData;
-    /**
-     * 存储的键名，可以是多层的，如：a.b.c
-     *
-     * 那就是
-     * {
-     *  "a": {
-     *     "b": {
-     *       "c": {
-     *         ...你的数据
-     *       }
-     *     }
-     *   }
-     * }
-     * @param key
-     */
-    constructor(key) {
+constructor(key) {
       if (typeof key === "string") {
         let trimKey = key.trim();
         if (trimKey == "") {
@@ -243,10 +164,7 @@
       }
       this.listenerData = new Utils.Dictionary();
     }
-    /**
-     * 获取本地值
-     */
-    getLocalValue() {
+getLocalValue() {
       let localValue = _GM_getValue(this.storageKey);
       if (localValue == null) {
         localValue = {};
@@ -254,89 +172,49 @@
       }
       return localValue;
     }
-    /**
-     * 设置本地值
-     * @param value
-     */
-    setLocalValue(value) {
+setLocalValue(value) {
       _GM_setValue(this.storageKey, value);
     }
-    /**
-     * 设置值
-     * @param key 键
-     * @param value 值
-     */
-    set(key, value) {
+set(key, value) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, value);
     }
-    /**
-     * 获取值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    get(key, defaultValue) {
+get(key, defaultValue) {
       let localValue = this.getLocalValue();
       return Reflect.get(localValue, key) ?? defaultValue;
     }
-    /**
-     * 获取所有值
-     */
-    getAll() {
+getAll() {
       let localValue = this.getLocalValue();
       return localValue;
     }
-    /**
-     * 删除值
-     * @param key 键
-     */
-    delete(key) {
+delete(key) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, void 0);
     }
-    /**
-     * 判断是否存在该值
-     */
-    has(key) {
+has(key) {
       let localValue = this.getLocalValue();
       return Reflect.has(localValue, key);
     }
-    /**
-     * 获取所有键
-     */
-    keys() {
+keys() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue);
     }
-    /**
-     * 获取所有值
-     */
-    values() {
+values() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue).map(
         (key) => Reflect.get(localValue, key)
       );
     }
-    /**
-     * 清空所有值
-     */
-    clear() {
+clear() {
       _GM_deleteValue(this.storageKey);
     }
-    /**
-     * 监听值改变
-     * + .set
-     * + .delete
-     * @param key 监听的键
-     * @param callback 值改变的回调函数
-     */
-    addValueChangeListener(key, callback) {
+addValueChangeListener(key, callback) {
       let listenerId = Math.random();
       let listenerData = this.listenerData.get(key) || [];
       listenerData.push({
@@ -347,11 +225,7 @@
       this.listenerData.set(key, listenerData);
       return listenerId;
     }
-    /**
-     * 移除监听
-     * @param listenerId 监听的id或键名
-     */
-    removeValueChangeListener(listenerId) {
+removeValueChangeListener(listenerId) {
       let flag = false;
       for (const [key, listenerData] of this.listenerData.entries()) {
         for (let index = 0; index < listenerData.length; index++) {
@@ -366,13 +240,7 @@
       }
       return flag;
     }
-    /**
-     * 主动触发监听器
-     * @param key 键
-     * @param oldValue （可选）旧值
-     * @param newValue （可选）新值
-     */
-    triggerValueChangeListener(key, oldValue, newValue) {
+triggerValueChangeListener(key, oldValue, newValue) {
       if (!this.listenerData.has(key)) {
         return;
       }
@@ -401,10 +269,7 @@
   const PopsPanelStorageApi = new StorageUtils(KEY);
   const PanelContent = {
     $data: {
-      /**
-       * @private
-       */
-      __contentConfig: null,
+__contentConfig: null,
       get contentConfig() {
         if (this.__contentConfig == null) {
           this.__contentConfig = new utils.Dictionary();
@@ -412,36 +277,20 @@
         return this.__contentConfig;
       }
     },
-    /**
-     * 设置所有配置项，用于初始化默认的值
-     *
-     * 如果是第一组添加的话，那么它默认就是设置菜单打开的配置
-     * @param configList 配置项
-     */
-    addContentConfig(configList) {
+addContentConfig(configList) {
       if (!Array.isArray(configList)) {
         configList = [configList];
       }
       let index = this.$data.contentConfig.keys().length;
       this.$data.contentConfig.set(index, configList);
     },
-    /**
-     * 获取所有的配置内容，用于初始化默认的值
-     */
-    getAllContentConfig() {
+getAllContentConfig() {
       return this.$data.contentConfig.values().flat();
     },
-    /**
-     * 获取配置内容
-     * @param index 配置索引
-     */
-    getConfig(index = 0) {
+getConfig(index = 0) {
       return this.$data.contentConfig.get(index) ?? [];
     },
-    /**
-     * 获取默认左侧底部的配置项
-     */
-    getDefaultBottomContentConfig() {
+getDefaultBottomContentConfig() {
       return [
         {
           id: "script-version",
@@ -482,30 +331,19 @@
     init() {
       this.initExtensionsMenu();
     },
-    /**
-     * 初始化菜单项
-     */
-    initExtensionsMenu() {
+initExtensionsMenu() {
       if (!Panel.isTopWindow()) {
         return;
       }
       GM_Menu.add(this.$data.menuOption);
     },
-    /**
-     * 添加菜单项
-     * @param option 菜单配置
-     */
-    addMenuOption(option) {
+addMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
       this.$data.menuOption.push(...option);
     },
-    /**
-     * 更新菜单项
-     * @param option 菜单配置
-     */
-    updateMenuOption(option) {
+updateMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
@@ -518,27 +356,15 @@
         }
       });
     },
-    /**
-     * 获取菜单项
-     * @param [index=0] 索引
-     */
-    getMenuOption(index = 0) {
+getMenuOption(index = 0) {
       return this.$data.menuOption[index];
     },
-    /**
-     * 删除菜单项
-     * @param [index=0] 索引
-     */
-    deleteMenuOption(index = 0) {
+deleteMenuOption(index = 0) {
       this.$data.menuOption.splice(index, 1);
     }
   };
   const CommonUtil = {
-    /**
-     * 移除元素（未出现也可以等待出现）
-     * @param selector 元素选择器
-     */
-    waitRemove(...args) {
+waitRemove(...args) {
       args.forEach((selector) => {
         if (typeof selector !== "string") {
           return;
@@ -548,15 +374,7 @@
         });
       });
     },
-    /**
-     * 添加屏蔽CSS
-     * @param args
-     * @example
-     * addBlockCSS("")
-     * addBlockCSS("","")
-     * addBlockCSS(["",""])
-     */
-    addBlockCSS(...args) {
+addBlockCSS(...args) {
       let selectorList = [];
       if (args.length === 0) {
         return;
@@ -573,16 +391,7 @@
       });
       return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
-    /**
-     * 设置GM_getResourceText的style内容
-     * @param resourceMapData 资源数据
-     * @example
-     * setGMResourceCSS({
-     *   keyName: "ViewerCSS",
-     *   url: "https://example.com/example.css",
-     * })
-     */
-    setGMResourceCSS(resourceMapData) {
+setGMResourceCSS(resourceMapData) {
       let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
       if (typeof cssText === "string" && cssText) {
         addStyle(cssText);
@@ -590,13 +399,7 @@
         CommonUtil.loadStyleLink(resourceMapData.url);
       }
     },
-    /**
-     * 添加<link>标签
-     * @param url
-     * @example
-     * loadStyleLink("https://example.com/example.css")
-     */
-    async loadStyleLink(url) {
+async loadStyleLink(url) {
       let $link = document.createElement("link");
       $link.rel = "stylesheet";
       $link.type = "text/css";
@@ -605,13 +408,7 @@
         document.head.appendChild($link);
       });
     },
-    /**
-     * 添加<script>标签
-     * @param url
-     * @example
-     * loadStyleLink("https://example.com/example.js")
-     */
-    async loadScript(url) {
+async loadScript(url) {
       let $script = document.createElement("script");
       $script.src = url;
       return new Promise((resolve) => {
@@ -621,25 +418,7 @@
         (document.head || document.documentElement).appendChild($script);
       });
     },
-    /**
-     * 将url修复，例如只有search的链接修复为完整的链接
-     *
-     * 注意：不包括http转https
-     * @param url 需要修复的链接
-     * @example
-     * 修复前：`/xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`//xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     */
-    fixUrl(url) {
+fixUrl(url) {
       url = url.trim();
       if (url.match(/^http(s|):\/\//i)) {
         return url;
@@ -657,17 +436,7 @@
         return url;
       }
     },
-    /**
-     * http转https
-     * @param url 需要修复的链接
-     * @example
-     * 修复前：
-     * 修复后：
-     * @example
-     * 修复前：
-     * 修复后：
-     */
-    fixHttps(url) {
+fixHttps(url) {
       if (url.startsWith("https://")) {
         return url;
       }
@@ -678,17 +447,10 @@
       urlInstance.protocol = "https:";
       return urlInstance.toString();
     },
-    /**
-     * 禁止页面滚动，默认锁定html和body
-     * @example
-     * lockScroll();
-     * @example
-     * lockScroll(document.body);
-     */
-    lockScroll(...args) {
+lockScroll(...args) {
       let $hidden = document.createElement("style");
-      $hidden.innerHTML = /*css*/
-      `
+      $hidden.innerHTML =
+`
 			.pops-overflow-hidden-important {
 				overflow: hidden !important;
 			}
@@ -699,10 +461,7 @@
       });
       (document.head || document.documentElement).appendChild($hidden);
       return {
-        /**
-         * 解除锁定
-         */
-        recovery() {
+recovery() {
           $elList.forEach(($el) => {
             $el.classList.remove("pops-overflow-hidden-important");
           });
@@ -710,10 +469,7 @@
         }
       };
     },
-    /**
-     * 获取剪贴板文本
-     */
-    async getClipboardText() {
+async getClipboardText() {
       function readClipboardText(resolve) {
         navigator.clipboard.readText().then((clipboardText) => {
           resolve(clipboardText);
@@ -724,8 +480,7 @@
       }
       function requestPermissionsWithClipboard(resolve) {
         navigator.permissions.query({
-          // @ts-ignore
-          name: "clipboard-read"
+name: "clipboard-read"
         }).then((permissionStatus) => {
           readClipboardText(resolve);
         }).catch((error) => {
@@ -762,20 +517,10 @@
         }
       });
     },
-    /**
-     * html转义
-     * @param unsafe
-     */
-    escapeHtml(unsafe) {
+escapeHtml(unsafe) {
       return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
     },
-    /**
-     * 在规定时间内循环，如果超时或返回false则取消循环
-     * @param fn 循环的函数
-     * @param intervalTime 循环间隔时间
-     * @param [timeout=5000] 循环超时时间
-     */
-    interval(fn, intervalTime, timeout = 5e3) {
+interval(fn, intervalTime, timeout = 5e3) {
       let timeId;
       let maxTimeout = timeout - intervalTime;
       let intervalTimeCount = intervalTime;
@@ -796,10 +541,7 @@
       };
       loop(false);
     },
-    /**
-     * 找到对应的上层元素
-     */
-    findParentNode($el, selector, parentSelector) {
+findParentNode($el, selector, parentSelector) {
       if (parentSelector) {
         let $parent = DOMUtils.closest($el, parentSelector);
         if ($parent) {
@@ -816,99 +558,53 @@
     }
   };
   const Panel = {
-    /** 数据 */
-    $data: {
-      /**
-       * @private
-       */
-      __contentConfigInitDefaultValue: null,
-      /**
-       * @private
-       */
-      __onceExecMenuData: null,
-      /**
-       * @private
-       */
-      __onceExecData: null,
-      /**
-       * @private
-       */
-      __panelConfig: {},
-      /**
-       * 面板
-       */
-      $panel: null,
-      /**
-       * 面板配置
-       */
-      panelContent: [],
-      /**
-       * 菜单项初始化的默认值
-       */
-      get contentConfigInitDefaultValue() {
+$data: {
+__contentConfigInitDefaultValue: null,
+__onceExecMenuData: null,
+__onceExecData: null,
+__panelConfig: {},
+$panel: null,
+panelContent: [],
+get contentConfigInitDefaultValue() {
         if (this.__contentConfigInitDefaultValue == null) {
           this.__contentConfigInitDefaultValue = new utils.Dictionary();
         }
         return this.__contentConfigInitDefaultValue;
       },
-      /**
-       * 菜单项初始化时禁用的键
-       */
-      contentConfigInitDisabledKeys: [],
-      /**
-       * 成功只执行了一次的菜单项
-       *
-       * + .exec
-       * + .execMenu
-       * + .execMenuOnce
-       */
-      get onceExecMenuData() {
+contentConfigInitDisabledKeys: [],
+get onceExecMenuData() {
         if (this.__onceExecMenuData == null) {
           this.__onceExecMenuData = new utils.Dictionary();
         }
         return this.__onceExecMenuData;
       },
-      /**
-       * 成功只执行了一次的项
-       *
-       * + .onceExec
-       */
-      get onceExecData() {
+get onceExecData() {
         if (this.__onceExecData == null) {
           this.__onceExecData = new utils.Dictionary();
         }
         return this.__onceExecData;
       },
-      /** 脚本名，一般用在设置的标题上 */
-      get scriptName() {
+get scriptName() {
         return SCRIPT_NAME;
       },
-      /**
-       * pops.panel的默认配置
-       */
-      get panelConfig() {
+get panelConfig() {
         return this.__panelConfig;
       },
       set panelConfig(value) {
         this.__panelConfig = value;
       },
-      /** 菜单项的总值在本地数据配置的键名 */
-      key: KEY,
-      /** 菜单项在attributes上配置的菜单键 */
-      attributeKeyName: ATTRIBUTE_KEY,
-      /** 菜单项在attributes上配置的菜单默认值 */
-      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
+key: KEY,
+attributeKeyName: ATTRIBUTE_KEY,
+attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
     },
     init() {
       this.initContentDefaultValue();
       PanelMenu.init();
     },
-    /** 判断是否是顶层窗口 */
-    isTopWindow() {
+isTopWindow() {
       return _unsafeWindow.top === _unsafeWindow.self;
     },
-    /** 初始化菜单项的默认值保存到本地数据中 */
-    initContentDefaultValue() {
+initContentDefaultValue() {
       const initDefaultValue = (config) => {
         if (!config.attributes) {
           return;
@@ -916,7 +612,7 @@
         if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
           return;
         }
-        let menuDefaultConfig = /* @__PURE__ */ new Map();
+        let menuDefaultConfig = new Map();
         let key = config.attributes[ATTRIBUTE_KEY];
         if (key != null) {
           const defaultValue = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
@@ -972,31 +668,16 @@
       }
       this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
     },
-    /**
-     * 设置初始化使用的默认值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    setDefaultValue(key, defaultValue) {
+setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
         log$1.warn("请检查该key(已存在): " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
-    /**
-     * 设置值
-     * @param key 键
-     * @param value 值
-     */
-    setValue(key, value) {
+setValue(key, value) {
       PopsPanelStorageApi.set(key, value);
     },
-    /**
-     * 获取值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    getValue(key, defaultValue) {
+getValue(key, defaultValue) {
       let localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
         if (this.$data.contentConfigInitDefaultValue.has(key)) {
@@ -1006,66 +687,25 @@
       }
       return localValue;
     },
-    /**
-     * 删除值
-     * @param key 键
-     */
-    deleteValue(key) {
+deleteValue(key) {
       PopsPanelStorageApi.delete(key);
     },
-    /**
-     * 判断该键是否存在
-     * @param key 键
-     */
-    hasKey(key) {
+hasKey(key) {
       return PopsPanelStorageApi.has(key);
     },
-    /**
-     * 监听调用setValue、deleteValue
-     * @param key 需要监听的键
-     * @param callback
-     */
-    addValueChangeListener(key, callback) {
+addValueChangeListener(key, callback) {
       let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
         callback(key, __oldValue, __newValue);
       });
       return listenerId;
     },
-    /**
-     * 移除监听
-     * @param listenerId 监听的id
-     */
-    removeValueChangeListener(listenerId) {
+removeValueChangeListener(listenerId) {
       PopsPanelStorageApi.removeValueChangeListener(listenerId);
     },
-    /**
-     * 主动触发菜单值改变的回调
-     * @param key 菜单键
-     * @param newValue 想要触发的新值，默认使用当前值
-     * @param oldValue 想要触发的旧值，默认使用当前值
-     */
-    triggerMenuValueChange(key, newValue, oldValue) {
+triggerMenuValueChange(key, newValue, oldValue) {
       PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
     },
-    /**
-     * 执行菜单
-     *
-     * @param queryKey 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 执行的回调函数
-     * @param checkExec 判断是否执行回调
-     *
-     * （默认）如果想要每个菜单是`与`关系，即每个菜单都判断为开启，那么就判断它们的值&就行
-     *
-     * 如果想要任意菜单存在true再执行，那么判断它们的值|就行
-     *
-     * + 返回值都为`true`，执行回调，如果回调返回了<style>元素，该元素会在监听到值改变时被移除掉
-     * + 返回值有一个为`false`，则不执行回调，且移除之前回调函数返回的<style>元素
-     * @param once 是否只执行一次，默认true
-     *
-     * + true （默认）只执行一次，且会监听键的值改变
-     * + false 不会监听键的值改变
-     */
-    exec(queryKey, callback, checkExec, once = true) {
+exec(queryKey, callback, checkExec, once = true) {
       const that = this;
       let queryKeyFn;
       if (typeof queryKey === "string" || Array.isArray(queryKey)) {
@@ -1170,28 +810,15 @@
       });
       valueChangeCallback();
       let result = {
-        /**
-         * 清空菜单执行情况
-         *
-         * + 清空存储的元素列表
-         * + 清空值改变的监听器
-         * + 清空存储的一次执行的键
-         */
-        clear() {
+clear() {
           this.clearStoreStyleElements();
           this.removeValueChangeListener();
           once && that.$data.onceExecMenuData.delete(storageKey);
         },
-        /**
-         * 清空存储的元素列表
-         */
-        clearStoreStyleElements: () => {
+clearStoreStyleElements: () => {
           return clearBeforeStoreValue();
         },
-        /**
-         * 移除值改变的监听器
-         */
-        removeValueChangeListener: () => {
+removeValueChangeListener: () => {
           listenerIdList.forEach((listenerId) => {
             this.removeValueChangeListener(listenerId);
           });
@@ -1199,14 +826,7 @@
       };
       return result;
     },
-    /**
-     * 自动判断菜单是否启用，然后执行回调
-     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 回调
-     * @param isReverse 逆反判断菜单启用，默认false
-     * @param once 是否是只执行一次，默认false
-     */
-    execMenu(key, callback, isReverse = false, once = false) {
+execMenu(key, callback, isReverse = false, once = false) {
       return this.exec(
         key,
         (option) => {
@@ -1228,35 +848,15 @@
         once
       );
     },
-    /**
-     * 自动判断菜单是否启用，然后执行回调，只会执行一次
-     *
-     * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
-     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 回调
-     * @param isReverse 逆反判断菜单启用，默认false
-     */
-    execMenuOnce(key, callback, isReverse = false) {
+execMenuOnce(key, callback, isReverse = false) {
       return this.execMenu(key, callback, isReverse, true);
     },
-    /**
-     * 移除已执行的仅执行一次的菜单
-     * + .exec
-     * + .execMenu
-     * + .execMenuOnce
-     * @param key 键
-     */
-    deleteExecMenuOnce(key) {
+deleteExecMenuOnce(key) {
       this.$data.onceExecMenuData.delete(key);
       let flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
-    /**
-     * 根据key执行一次，该key不会和execMenu|exec|execMenuOnce已执行的key冲突
-     * @param key 键
-     * @param callback 回调
-     */
-    onceExec(key, callback) {
+onceExec(key, callback) {
       key = this.transformKey(key);
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
@@ -1267,23 +867,11 @@
       callback();
       this.$data.onceExecData.set(key, 1);
     },
-    /**
-     * 移除已执行的仅执行一次的菜单
-     * + .onceExec
-     * @param key 键
-     */
-    deleteOnceExec(key) {
+deleteOnceExec(key) {
       key = this.transformKey(key);
       this.$data.onceExecData.delete(key);
     },
-    /**
-     * 显示设置面板
-     * @param content 显示的内容配置
-     * @param [title] 标题
-     * @param [preventDefaultContentConfig=false] 是否阻止默认添加内容配置（版本号），默认false
-     * @param [preventRegisterSearchPlugin=false] 是否阻止默认添加搜索组件，默认false
-     */
-    showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
+showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
       this.$data.$panel = null;
       this.$data.panelContent = [];
       let checkHasBottomVersionContentConfig = content.findIndex((it) => {
@@ -1335,11 +923,7 @@
         this.registerConfigSearch({ $panel, content });
       }
     },
-    /**
-     * 注册设置面板的搜索功能（双击左侧选项第一个）
-     * @param config 配置项
-     */
-    registerConfigSearch(config) {
+registerConfigSearch(config) {
       const { $panel, content } = config;
       let asyncQueryProperty = async (target, handler) => {
         if (target == null) {
@@ -1363,10 +947,8 @@
           },
           {
             root: null,
-            // 使用视口作为根
-            threshold: 1
-            // 元素完全进入视口时触发
-          }
+threshold: 1
+}
         );
         observer.observe($el);
         $el.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1387,8 +969,7 @@
           },
           content: {
             text: (
-              /*html*/
-              `
+`
 						<div class="search-wrapper">
 							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
 						</div>
@@ -1409,8 +990,7 @@
           height: "auto",
           drag: true,
           style: (
-            /*css*/
-            `
+`
 					${__pops.config.cssText.panelCSS}
 
 					.search-wrapper{
@@ -1475,8 +1055,7 @@
           let $item = domUtils.createElement("div", {
             className: "search-result-item",
             innerHTML: (
-              /*html*/
-              `
+`
 							<div class="search-result-item-path">${searchPath.matchedData?.path}</div>
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
 						`
@@ -1698,13 +1277,14 @@
           timer = void 0;
           if (isDoubleClick && clickElement === selectorTarget) {
             isDoubleClick = false;
+            clickElement = null;
             dbclick_event(evt);
           } else {
             timer = setTimeout(() => {
               isDoubleClick = false;
             }, 200);
-            clickElement = selectorTarget;
             isDoubleClick = true;
+            clickElement = selectorTarget;
           }
         },
         {
@@ -1715,8 +1295,7 @@
         domUtils.createElement("style", {
           type: "text/css",
           textContent: (
-            /*css*/
-            `
+`
 					.pops-flashing{
 						animation: double-blink 1.5s ease-in-out;
 					}
@@ -1742,10 +1321,7 @@
         })
       );
     },
-    /**
-     * 把key:string[]转为string
-     */
-    transformKey(key) {
+transformKey(key) {
       if (Array.isArray(key)) {
         const keyArray = key.sort();
         return JSON.stringify(keyArray);
@@ -1761,18 +1337,15 @@
     }
   };
   const PanelSettingConfig = {
-    /** Toast位置 */
-    qmsg_config_position: {
+qmsg_config_position: {
       key: "qmsg-config-position",
       defaultValue: "bottom"
     },
-    /** 最多显示的数量 */
-    qmsg_config_maxnums: {
+qmsg_config_maxnums: {
       key: "qmsg-config-maxnums",
       defaultValue: 3
     },
-    /** 逆序弹出 */
-    qmsg_config_showreverse: {
+qmsg_config_showreverse: {
       key: "qmsg-config-showreverse",
       defaultValue: false
     }
@@ -1850,10 +1423,8 @@
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
     },
     mask: {
-      // 开启遮罩层
-      enable: true,
-      // 取消点击遮罩层的事件
-      clickEvent: {
+enable: true,
+clickEvent: {
         toClose: false,
         toHide: false
       }
@@ -1905,32 +1476,19 @@
   const cookieManager = new utils.GM_Cookie();
   const QRCodeJS = _monkeyWindow.QRCode || _unsafeWindow.QRCode;
   const VueUtils = {
-    /**
-     * 获取vue2实例
-     * @param $el
-     */
-    getVue($el) {
+getVue($el) {
       if ($el == null) {
         return;
       }
       return $el["__vue__"] || $el["__Ivue__"] || $el["__IVue__"];
     },
-    /**
-     * 获取vue3实例
-     * @param $el
-     */
-    getVue3($el) {
+getVue3($el) {
       if ($el == null) {
         return;
       }
       return $el["__vueParentComponent"];
     },
-    /**
-     * 等待vue属性并进行设置
-     * @param $el 目标对象
-     * @param checkOption 需要设置的配置
-     */
-    waitVuePropToSet($el, checkOption) {
+waitVuePropToSet($el, checkOption) {
       if (!Array.isArray(checkOption)) {
         checkOption = [checkOption];
       }
@@ -1997,15 +1555,7 @@
         });
       });
     },
-    /**
-     * 观察vue属性的变化
-     * @param $el 目标对象
-     * @param key 需要观察的属性
-     * @param callback 监听回调
-     * @param watchConfig 监听配置
-     * @param failWait 当检测失败/超时触发该回调
-     */
-    watchVuePropChange($el, key, callback, watchConfig, failWait) {
+watchVuePropChange($el, key, callback, watchConfig, failWait) {
       let config = utils.assign(
         {
           immediate: true,
@@ -2045,13 +1595,7 @@
         });
       });
     },
-    /**
-     * 前往网址
-     * @param $el 包含vue属性的元素
-     * @param path 需要跳转的路径
-     * @param [useRouter=false] 是否强制使用Vue的Router来进行跳转，默认false
-     */
-    goToUrl($el, path, useRouter = false) {
+goToUrl($el, path, useRouter = false) {
       if ($el == null) {
         Qmsg.error("跳转Url: $vueNode为空");
         log$1.error("跳转Url: $vueNode为空：" + path);
@@ -2088,11 +1632,7 @@
         $router.push(path);
       }
     },
-    /**
-     * 手势返回
-     * @param option 配置
-     */
-    hookGestureReturnByVueRouter(option) {
+hookGestureReturnByVueRouter(option) {
       function popstateEvent() {
         log$1.success("触发popstate事件");
         resumeBack(true);
@@ -2125,12 +1665,7 @@
     }
   };
   const BilibiliUtils = {
-    /**
-     * 前往网址
-     * @param path
-     * @param [useRouter=false] 是否强制使用Router，默认false
-     */
-    goToUrl(path, useRouter = false) {
+goToUrl(path, useRouter = false) {
       let isGoToUrlBlank = Panel.getValue("bili-go-to-url-blank");
       log$1.info("即将跳转URL：" + path);
       if (useRouter) {
@@ -2177,25 +1712,14 @@
         $router.push(path);
       }
     },
-    /**
-     * 前往登录
-     */
-    goToLogin(fromUrl = "") {
+goToLogin(fromUrl = "") {
       window.open(
         `https://passport.bilibili.com/h5-app/passport/login?gourl=${encodeURIComponent(
         fromUrl
       )}`
       );
     },
-    /**
-     * 转换时长为显示的时长
-     *
-     * + 30 => 0:30
-     * + 120 => 2:00
-     * + 14400 => 4:00:00
-     * @param duration 秒
-     */
-    parseDuration(duration) {
+parseDuration(duration) {
       if (typeof duration !== "number") {
         duration = parseInt(duration);
       }
@@ -2219,18 +1743,7 @@
       )}:${zeroPadding(duration % 60)}`;
       }
     },
-    /**
-     * 转换显示的文本
-     *
-     * 如：播放量、弹幕量、点赞、投币、收藏、转发
-     *
-     * 播放量：114514
-     *
-     * ↓
-     *
-     * 播放量：114.5万
-     */
-    parseCount(count) {
+parseCount(count) {
       let countText = count.toString();
       if (count > 1e4) {
         let roundNum = (count / 1e4).toFixed(2).slice(0, -1);
@@ -2247,10 +1760,7 @@
       }
       return countText;
     },
-    /**
-     * 手势返回
-     */
-    hookGestureReturnByVueRouter(option) {
+hookGestureReturnByVueRouter(option) {
       function popstateEvent() {
         log$1.success("触发popstate事件");
         resumeBack(true);
@@ -2281,10 +1791,7 @@
         resumeBack
       };
     },
-    /**
-     * 固定meta viewport缩放倍率为1
-     */
-    initialScale() {
+initialScale() {
       log$1.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>");
       domUtils.ready(() => {
         let meta = domUtils.createElement(
@@ -2303,32 +1810,16 @@
     }
   };
   const BilibiliUrl = {
-    /**
-     * 获取用户个人空间链接
-     * @param userId 用户id
-     */
-    getUserSpaceUrl(userId) {
+getUserSpaceUrl(userId) {
       return `https://m.bilibili.com/space/${userId}`;
     },
-    /**
-     * 获取用户个人空间动态链接-dynamic
-     * @param id 该动态的id
-     */
-    getUserSpaceDynamicUrl(id) {
+getUserSpaceDynamicUrl(id) {
       return `https://m.bilibili.com/dynamic/${id}`;
     },
-    /**
-     * 获取用户个人空间动态链接-opus
-     * @param id 该动态的id
-     */
-    getUserSpaceOpusUrl(id) {
+getUserSpaceOpusUrl(id) {
       return `https://m.bilibili.com/opus/${id}`;
     },
-    /**
-     * 获取视频链接
-     * @param id bv/av号
-     */
-    getVideoUrl(id) {
+getVideoUrl(id) {
       return `https://m.bilibili.com/video/${id}`;
     }
   };
@@ -2344,8 +1835,7 @@
       playlist: "#app .playlist",
       space: "#app .m-space"
     },
-    /** 主题色 */
-    theme: "#FB7299"
+theme: "#FB7299"
   };
   const BilibiliPCData = {
     className: {
@@ -2357,10 +1847,7 @@
   const artPlayerCSS$1 = ".artplayer-container {\r\n	position: absolute;\r\n	width: 100%;\r\n	height: 100%;\r\n	top: 0;\r\n	left: 0;\r\n	overflow: hidden;\r\n}";
   const artPlayerCommonCSS = "/* 设置播放器基础宽高 */\r\n#artplayer {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n/* 通用隐藏class */\r\n.art-video-player .art-common-hide {\r\n	display: none !important;\r\n}\r\n/* 设置播放器基础宽高 */\r\n.art-video-player {\r\n	width: 100% !important;\r\n}\r\n/* 播放时隐藏进度条 */\r\n.art-hide-cursor .art-progress {\r\n	display: none !important;\r\n}\r\n/* 不知道为什么背景模糊了 */\r\n.art-video-player.art-backdrop .art-settings {\r\n	backdrop-filter: unset !important;\r\n}\r\n/* 底部的设置菜单当前选中的提示文字设置文字溢出省略号 */\r\n.art-settings .art-setting-item .art-setting-item-right-tooltip {\r\n	max-width: 100px;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n}\r\n\r\n/* 竖屏 宽度小于400px */\r\n@media (orientation: portrait) and (max-width: 400px) {\r\n	/* 修正小屏下宽度溢出 */\r\n	.art-controls .art-control {\r\n		max-width: 60px;\r\n		white-space: pre-wrap;\r\n	}\r\n}\r\n\r\n/* 竖屏 宽度小于550px */\r\n@media (orientation: portrait) and (max-width: 550px) {\r\n	/* 隐藏 弹幕设置按钮 */\r\n	.artplayer-plugin-danmuku .apd-config ,\r\n    /* 隐藏 弹幕输入框 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		display: none !important;\r\n	}\r\n	/* 弹幕库靠右对齐 */\r\n	.artplayer-plugin-danmuku {\r\n		justify-content: right;\r\n	}\r\n}\r\n/* 横屏 */\r\n@media (orientation: landscape) {\r\n	/* 限制弹幕输入框的最大宽度 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		max-width: 260px;\r\n	}\r\n}\r\n\r\n/* 插件-在线观看人数  */\r\n.art-lock .art-layer-top-wrap {\r\n	/* 启用了锁定功能，隐藏底部控制栏，所以这个也同步 */\r\n	display: none !important;\r\n}\r\n.art-layer-top-wrap {\r\n	--layer-top-wrap-follow-text-font-size: 0.8em;\r\n	--layer-top-wrap-follow-icon-size: 1em;\r\n	width: 100%;\r\n	position: absolute;\r\n	top: 0px;\r\n	right: 0px;\r\n	color: #fff;\r\n	display: -webkit-box;\r\n	display: -ms-flexbox;\r\n	display: flex;\r\n	left: 0;\r\n	-webkit-transition: all 0.2s ease-in-out;\r\n	transition: all 0.2s ease-in-out;\r\n	width: 100%;\r\n	background: linear-gradient(to bottom, #000, transparent);\r\n	padding: 10px calc(var(--art-padding));\r\n	z-index: 60;\r\n}\r\n.art-player-top-wrap {\r\n	width: 100%;\r\n}\r\n.art-player-top-wrap .art-player-top-title-text {\r\n	white-space: nowrap;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n	max-width: 100%;\r\n}\r\n/* 面板隐藏时，顶部toolbar也隐藏 */\r\n.art-hide-cursor .art-layer-top-wrap {\r\n	transform: translateY(-60px);\r\n}\r\n/*.art-layer-top-wrap .art-player-top-wrap {\r\n}\r\n.art-layer-top-wrap .art-player-top-title-text {\r\n}*/\r\n/* 下面的当前在线观看人数 */\r\n.art-layer-top-wrap .art-player-top-follow {\r\n	margin-top: var(--art-padding);\r\n	gap: var(--layer-top-wrap-follow-text-font-size);\r\n	font-size: var(--layer-top-wrap-follow-text-font-size);\r\n	display: flex;\r\n	align-items: center;\r\n	position: absolute;\r\n}\r\n.art-layer-top-wrap .art-player-top-follow .art-player-top-follow-icon {\r\n	width: var(--layer-top-wrap-follow-icon-size);\r\n	height: var(--layer-top-wrap-follow-icon-size);\r\n}\r\n.art-layer-top-wrap .art-player-top-follow-text {\r\n	text-wrap: nowrap;\r\n}\r\n/* 插件-在线观看人数  */\r\n\r\n/* 插件-锁定 */\r\n.art-video-player .art-layers .art-layer.art-layer-lock {\r\n	/* 放在右边 */\r\n	right: 0;\r\n	left: calc(100% - 20px - var(--art-lock-size) - var(--art-lock-left-size));\r\n}\r\n/* 插件-锁定 */\r\n";
   const BilibiliApiRequestCheck = {
-    /**
-     * 合并并检查是否传入aid或者bvid
-     */
-    mergeAidOrBvidSearchParamsData(searchParamsData, config) {
+mergeAidOrBvidSearchParamsData(searchParamsData, config) {
       if ("aid" in config && config["aid"] != null) {
         Reflect.set(searchParamsData, "aid", config.aid);
       } else if ("bvid" in config && config["bvid"] != null) {
@@ -2374,16 +1861,10 @@
     web_host: "api.bilibili.com"
   };
   const BilibiliApiResponseCheck = {
-    /**
-     * check json has {code: 0, message: "0"}
-     */
-    isWebApiSuccess(json) {
+isWebApiSuccess(json) {
       return json?.code === 0 && (json?.message === "0" || json?.message === "success");
     },
-    /**
-     * 是否是区域限制
-     */
-    isAreaLimit(data2) {
+isAreaLimit(data2) {
       let areaLimitCode = {
         "6002003": "抱歉您所在地区不可观看！"
       };
@@ -2398,84 +1879,18 @@
     }
   };
   const VideoQualityNameMap = {
-    /**
-     * 仅mp4方式支持
-     * + 6
-     */
-    "240P 极速": 6,
-    /**
-     * 仅mp4方式支持
-     * + 16
-     */
-    "360P 流畅": 16,
-    /**
-     * 仅mp4方式支持
-     * + 32
-     */
-    "480P 清晰": 32,
-    /**
-     * web端默认值
-     *
-     * B站前端需要登录才能选择，但是直接发送请求可以不登录就拿到720P的取流地址
-     *
-     * 无720P时则为720P60
-     * + 64
-     */
-    "720P 高清": 64,
-    /**
-     * 需要认证登录账号
-     * + 74
-     */
-    "720P60 高帧率": 74,
-    /**
-     * TV端与APP端默认值
-     *
-     * 需要认证登录账号
-     * + 80
-     */
-    "1080P 高清": 80,
-    /**
-     * 大多情况需求认证大会员账号
-     * + 112
-     */
-    "1080P+ 高码率": 112,
-    /**
-     * 大多情况需求认证大会员账号
-     * + 116
-     */
-    "1080P60 高帧率": 116,
-    /**
-     * 需要fnval&128=128且fourk=1
-     *
-     * 大多情况需求认证大会员账号
-     * + 120
-     */
-    "4K 超清": 120,
-    /**
-     * 仅支持dash方式
-     *
-     * 需要fnval&64=64
-     * + 125
-     */
-    "HDR 真彩色": 125,
-    /**
-     * 仅支持dash方式
-     *
-     * 需要fnval&512=512
-     *
-     * 大多情况需求认证大会员账号
-     * + 126
-     */
-    杜比视界: 126,
-    /**
-     * 仅支持dash方式
-     *
-     * 需要fnval&1024=1024
-     *
-     * 大多情况需求认证大会员账号
-     * + 127
-     */
-    "8K 超高清": 127
+"240P 极速": 6,
+"360P 流畅": 16,
+"480P 清晰": 32,
+"720P 高清": 64,
+"720P60 高帧率": 74,
+"1080P 高清": 80,
+"1080P+ 高码率": 112,
+"1080P60 高帧率": 116,
+"4K 超清": 120,
+"HDR 真彩色": 125,
+杜比视界: 126,
+"8K 超高清": 127
   };
   const VideoQualityMap = {};
   Object.keys(VideoQualityNameMap).forEach((qualityName) => {
@@ -2483,11 +1898,7 @@
     Reflect.set(VideoQualityMap, qualityValue, qualityName);
   });
   const BilibiliUserApi = {
-    /**
-     * 获取导航栏用户信息
-     * @param [checkCode=true] 校验返回JSON的状态码，设置false可以获取未登录状态下的wbi_img，用于请求参数处理
-     */
-    async nav(checkCode = true) {
+async nav(checkCode = true) {
       let response = await httpx.get(
         "https://api.bilibili.com/x/web-interface/nav?web_location=333.401",
         {
@@ -2513,12 +1924,7 @@
       }
       return data2.data;
     },
-    /**
-     * 获取用户空间动态
-     * @param mid 用户id
-     * @param offset 分页偏移，默认是""
-     */
-    async space(mid, offset = "") {
+async space(mid, offset = "") {
       let response = await httpx.get(
         "https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space",
         {
@@ -2538,13 +1944,7 @@
       }
       return data2["data"];
     },
-    /**
-     * 查询用户关注明细
-     * @param mid 用户id
-     * @param pn 页码 默认为 1
-     * @param ps 每页项数 默认为 50
-     */
-    async following(mid, pn = 1, ps = 50) {
+async following(mid, pn = 1, ps = 50) {
       let response = await httpx.get(
         "https://api.bilibili.com/x/relation/followings",
         {
@@ -2596,26 +1996,16 @@
     }
   };
   const BilibiliVideoApi = {
-    /**
-     * 获取视频播放地址，avid或bvid必须给一个
-     * + /x/player/playurl
-     * @param config
-     * @param extraParams 额外参数，一般用于hook network参数内的判断
-     */
-    async playUrl(config, extraParams) {
+async playUrl(config, extraParams) {
       let searchParamsData = {
         cid: config.cid,
         qn: config.qn ?? VideoQualityNameMap["1080P60 高帧率"],
         high_quality: config.high_quality ?? 1,
         fnval: config.fnval ?? 1,
-        // 固定0
-        fnver: config.fnver ?? 0,
-        // 是否允许 4K 视频
-        fourk: config.fourk ?? 1,
-        // 为 1 时可以不登录拉到 64 和 80 清晰度，但是也会限制最高画质为80
-        try_look: await BilibiliGlobalData.$data.isLogin ? 0 : 1,
-        // 该值是用来请求可以在移动端播放的链接的
-        platform: config.setPlatformHTML5 ? "html5" : "pc"
+fnver: config.fnver ?? 0,
+fourk: config.fourk ?? 1,
+try_look: await BilibiliGlobalData.$data.isLogin ? 0 : 1,
+platform: config.setPlatformHTML5 ? "html5" : "pc"
       };
       BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(
         searchParamsData,
@@ -2640,11 +2030,7 @@
       }
       return data2["data"];
     },
-    /**
-     * 获取视频在线观看人数
-     * + /x/player/online/total
-     */
-    async onlineTotal(config) {
+async onlineTotal(config) {
       let searchParamsData = {
         cid: config.cid
       };
@@ -2668,11 +2054,7 @@
       }
       return data2["data"];
     },
-    /**
-     * 点赞视频（web端）
-     * @param config
-     */
-    async like(config) {
+async like(config) {
       let searchParamsData = {
         like: config.like,
         csrf: cookieManager.get("bili_jct")?.value || ""
@@ -2716,8 +2098,7 @@
     }
   };
   const AppKeyInfo = {
-    /** web_ios */
-    ios: {
+ios: {
       appkey: "27eb53fc9058f8c3",
       appsec: "c2ed53a74eeefe3cf99fbd01d8c9c375",
       mobi_app: "ipnone"
@@ -2730,23 +2111,15 @@
     return md5(searchParams.toString() + appsec);
   }
   const BilibiliLoginApi = {
-    /**
-     * 获取登录二维码信息（TV端）
-     * https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/login/login_action/QR.md#%E7%94%B3%E8%AF%B7%E4%BA%8C%E7%BB%B4%E7%A0%81(TV%E7%AB%AF)
-     */
-    async getQrCodeInfo() {
+async getQrCodeInfo() {
       let Api = "https://passport.bilibili.com/x/passport-tv-login/qrcode/auth_code";
       let postData = {
-        /** APP 密钥 APP 方式必要 */
-        appkey: AppKeyInfo.ios.appkey,
-        /** TV 端 id */
-        local_id: "0",
-        /** 当前时间戳 APP 方式必要 */
-        ts: "0",
-        /** APP 签名 APP 方式必要 */
-        // sign: "",
-        /** 平台标识 会被拼接到返回的 url query */
-        mobi_app: AppKeyInfo.ios.mobi_app,
+appkey: AppKeyInfo.ios.appkey,
+local_id: "0",
+ts: "0",
+
+
+mobi_app: AppKeyInfo.ios.mobi_app,
         csrf: cookieManager.get("bili_jct")?.value || ""
       };
       let sign = appSign(postData, AppKeyInfo.ios.appkey, AppKeyInfo.ios.appsec);
@@ -2763,8 +2136,7 @@
           responseType: "json",
           fetch: true
         }
-        // sign: 'e134154ed6add881d28fbdf68653cd9c',
-      );
+);
       log$1.info(postResp);
       if (!postResp.status) {
         return;
@@ -2777,12 +2149,7 @@
       let loginData = data2.data;
       return loginData;
     },
-    /**
-     * 获取auth_code对应的链接的扫码状态
-     * @param auth_code
-     * @returns
-     */
-    async poll(auth_code) {
+async poll(auth_code) {
       let Api = "https://passport.bilibili.com/x/passport-tv-login/qrcode/poll";
       let postData = {
         appkey: AppKeyInfo.ios.appkey,
@@ -2846,20 +2213,13 @@
       }
       this.confirmScanQrcode(qrcodeInfo);
     },
-    /**'
-     * 获取二维码信息
-     */
-    getQRCodeInfo: async function() {
+getQRCodeInfo: async function() {
       log$1.info("正在申请二维码...");
       let qrcodeInfo = await BilibiliLoginApi.getQrCodeInfo();
       log$1.info("获取到二维码信息", qrcodeInfo);
       return qrcodeInfo;
     },
-    /**
-     * 确认扫码
-     * @param qrcodeInfo
-     */
-    async confirmScanQrcode(qrcodeInfo) {
+async confirmScanQrcode(qrcodeInfo) {
       let $alert = __pops.alert({
         title: {
           text: "请扫描二维码登录",
@@ -2869,8 +2229,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `<div id="bili-qrcode-canvas"></div>`
+`<div id="bili-qrcode-canvas"></div>`
           ),
           html: true
         },
@@ -2899,8 +2258,7 @@
         drag: true,
         dragLimit: true,
         style: (
-          /*css*/
-          `
+`
             #bili-qrcode-canvas{
                 display: flex;
                 align-items: center;
@@ -2970,27 +2328,13 @@
       }
       $alert.close();
     },
-    /**
-     * 生成过期时间
-     * @param monthNumber xx月后过期
-     * @returns
-     */
-    generateExpireAt(monthNumber = 6) {
-      return (/* @__PURE__ */ new Date()).getTime() + 1e3 * 60 * 60 * 24 * 30 * monthNumber;
+generateExpireAt(monthNumber = 6) {
+      return ( new Date()).getTime() + 1e3 * 60 * 60 * 24 * 30 * monthNumber;
     },
-    /**
-     * 设置获取到的access_token和过期时间
-     * @param data
-     */
-    setAccessTokenInfo(data2) {
+setAccessTokenInfo(data2) {
       _GM_setValue("bili-accessTokenInfo", data2);
     },
-    /**
-     * 获取access_token和过期时间
-     * 自动根据过期时间处理数据
-     * @returns
-     */
-    getAccessTokenInfo() {
+getAccessTokenInfo() {
       let data2 = _GM_getValue("bili-accessTokenInfo");
       if (data2 && data2.expireAt > Date.now()) {
         return data2;
@@ -2998,21 +2342,12 @@
         return null;
       }
     },
-    /**
-     * 获取access_token
-     * @returns
-     */
-    getAccessToken() {
+getAccessToken() {
       return this.getAccessTokenInfo()?.access_token || "";
     }
   };
   const BilibiliApiProxy = {
-    /**
-     * 获取番剧代理服务器
-     *
-     * 轮询查询播放地址
-     */
-    getBangumiProxyHost() {
+getBangumiProxyHost() {
       let serverHost = [
         {
           name: "中国大陆",
@@ -3049,18 +2384,7 @@
       }
       return serverHost;
     },
-    /**
-     * 获取搜索代理服务器
-     *
-     * 因为有些代理服务器虽然能拉取播放地址，但是不能使用搜索功能
-     *
-     * 特地区分开
-     *
-     * 如果没有填入服务器，则从番剧代理服务器中获取
-     *
-     * 搜索番剧结果
-     */
-    getSearchProxyHost() {
+getSearchProxyHost() {
       let bangumiProxyHost = this.getBangumiProxyHost();
       let serverHost = [];
       let hk_host = Panel.getValue("bili-search-proxyApiServer-hk");
@@ -3104,10 +2428,7 @@
       }
       return serverHost;
     },
-    /**
-     * 获取番剧代理参数
-     */
-    getBangumiProxySearchParam(option = {}) {
+getBangumiProxySearchParam(option = {}) {
       let proxyData = {
         from_client: "BROWSER",
         drm_tech_type: 2,
@@ -3119,16 +2440,7 @@
     }
   };
   const BilibiliCDNProxy = {
-    /**
-     * 筛选出更好的cdn
-     *
-     * 通过playurl获取到的url信息默认的base_url|baseUrl可能是辣鸡的mcdn节点，而upos节点在backupUrl|backup_url中
-     *
-     * 筛选最好的节点
-     *
-     * 传入参数顺序base_url=>baseUrl=>backup_url=>backupUrl，即好的在后面
-     */
-    findBetterCDN(...args) {
+findBetterCDN(...args) {
       let urlList = [];
       args.forEach((arg) => {
         if (Array.isArray(arg)) {
@@ -3151,39 +2463,19 @@
         return urlList[0];
       }
     },
-    /**
-     * 视频/音频CDN替换host
-     * @param url 视频url
-     * @param isAudio 是否是音频
-     */
-    replaceVideoCDN(url, isAudio = false) {
+replaceVideoCDN(url, isAudio = false) {
       let userChooseCDN = isAudio ? Panel.getValue("bili-video-uposServerSelect-audio") : Panel.getValue("bili-video-uposServerSelect");
       let ownCDN = isAudio ? Panel.getValue("bili-video-uposServerSelect-audio-own") : Panel.getValue("bili-video-uposServerSelect-own");
       ownCDN = (ownCDN ?? "").trim();
       return this.replaceVideoCDNHost(url, userChooseCDN, ownCDN);
     },
-    /**
-     * 番剧视频CDN替换
-     * @param url 视频url
-     * @param isAudio 是否是音频
-     */
-    replaceBangumiVideoCDN(url, isAudio = false) {
+replaceBangumiVideoCDN(url, isAudio = false) {
       let userChooseCDN = isAudio ? Panel.getValue("bili-bangumi-uposServerSelect-audio") : Panel.getValue("bili-bangumi-uposServerSelect");
       let ownCDN = isAudio ? Panel.getValue("bili-bangumi-uposServerSelect-audio-own") : Panel.getValue("bili-bangumi-uposServerSelect-own");
       ownCDN = (ownCDN ?? "").trim();
       return this.replaceVideoCDNHost(url, userChooseCDN, ownCDN);
     },
-    /**
-     * 视频CDN替换host
-     *
-     * 有以下类型
-     * .mcdn.bilivideo 辣鸡路线
-     * @param url 视频url
-     * @param userChooseCDNHost 需要替换的host
-     * @param ownCDNHost 自定义的host
-     *
-     */
-    replaceVideoCDNHost(url, userChooseCDNHost, ownCDNHost) {
+replaceVideoCDNHost(url, userChooseCDNHost, ownCDNHost) {
       try {
         let urlInst = new URL(url);
         let originHost = urlInst.host;
@@ -3207,12 +2499,7 @@
         return url;
       }
     },
-    /**
-     * 获取upos服务器列表
-     * @link https://github.com/the1812/Bilibili-Evolved/issues/3234#issuecomment-1504764774
-     * @link https://github.com/Kanda-Akihito-Kun/ccb/blob/main/data/cdn.json
-     */
-    getUposCDNServerList() {
+getUposCDNServerList() {
       const serverAreaList = {
         上海: [
           "cn-sh-ct-01-13.bilivideo.com",
@@ -3453,32 +2740,21 @@
           "cn-hk-eq-bcache-16.bilivideo.com"
         ],
         海外: [
-          // akamai（Akamai海外）
-          "upos-hz-mirrorakam.akamaized.net",
-          // 阿里云
-          "upos-sz-mirroraliov.bilivideo.com",
-          // 腾讯云
-          "upos-sz-mirrorcosov.bilivideo.com",
-          // 华为云
-          "upos-sz-mirrorhwov.bilivideo.com",
-          // bilibili
-          "cn-hk-eq-bcache-01.bilivideo.com"
+"upos-hz-mirrorakam.akamaized.net",
+"upos-sz-mirroraliov.bilivideo.com",
+"upos-sz-mirrorcosov.bilivideo.com",
+"upos-sz-mirrorhwov.bilivideo.com",
+"cn-hk-eq-bcache-01.bilivideo.com"
         ],
         "海外（东南亚）": [
-          // 阿里云
-          "upos-sz-mirroralibstar1.bilivideo.com",
-          // 腾讯云
-          "upos-sz-mirrorcosbstar1.bilivideo.com",
-          // 华为云
-          "upos-sz-mirrorhwbstar1.bilivideo.com",
-          // Akamai
-          "upos-bstar1-mirrorakam.akamaized.net"
+"upos-sz-mirroralibstar1.bilivideo.com",
+"upos-sz-mirrorcosbstar1.bilivideo.com",
+"upos-sz-mirrorhwbstar1.bilivideo.com",
+"upos-bstar1-mirrorakam.akamaized.net"
         ],
         其它: [
-          // tf_hw（华为云）
-          "upos-tf-all-hw.bilivideo.com",
-          //  tf_tx（腾讯云）
-          "upos-tf-all-tx.bilivideo.com"
+"upos-tf-all-hw.bilivideo.com",
+"upos-tf-all-tx.bilivideo.com"
         ]
       };
       const serverList = [
@@ -3519,10 +2795,7 @@
         _GM_getValue(this.$data.KEY, {})
       );
     }
-    /**
-     * 获取默认配置
-     */
-    getDefaultDanmakuOption() {
+getDefaultDanmakuOption() {
       return {
         speed: 5,
         margin: [10, "75%"],
@@ -3534,19 +2807,12 @@
         visible: true
       };
     }
-    /**
-     * 获取本地保存的配置
-     */
-    getLocalArtDanmakuOption() {
+getLocalArtDanmakuOption() {
       return this.$data.localArtDanmakuOption;
     }
-    /**
-     * 监听配置项的改变
-     */
-    onConfigChange(art) {
+onConfigChange(art) {
       art.on(
-        // @ts-ignore
-        "artplayerPluginDanmuku:config",
+"artplayerPluginDanmuku:config",
         (option) => {
           Object.keys(this.$data.localArtDanmakuOption).forEach((key) => {
             if (Reflect.has(option, key)) {
@@ -3563,18 +2829,9 @@
   const ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY = "setting-bilibili-m4sAudio";
   const M4SAudioUtils = {
     $flag: {
-      /**
-       * 是否正在循环中
-       */
-      isIntervaling: false
+isIntervaling: false
     },
-    /**
-     * 自定义某个函数执行N次和间隔时间
-     * @param fn 需要执行的函数
-     * @param count 重复执行的次数
-     * @param delayTime 重复执行的间隔时间
-     */
-    intervalHandler(fn, count = 2, delayTime = 900) {
+intervalHandler(fn, count = 2, delayTime = 900) {
       if (M4SAudioUtils.$flag.isIntervaling) {
         return;
       }
@@ -3609,25 +2866,16 @@
       plugin_KEY: "plugin-bilibili-m4sAudio"
     },
     $data: {
-      /** artplayer实例 */
-      art: null,
-      /** 播放的音频 */
-      audio: new Audio(),
-      /** 上次同步的所在的进度 */
-      latestSyncTime: 0,
-      /** 音频的重新连接的配置 */
-      reconnectConfig: {
-        /** 最大连接的次数 */
-        maxCount: 5,
-        /** 尝试重新连接的间隔时间 */
-        delayTime: 1e3
+art: null,
+audio: new Audio(),
+latestSyncTime: 0,
+reconnectConfig: {
+maxCount: 5,
+delayTime: 1e3
       },
-      /** 音频的重新连接的信息 */
-      reconnectInfo: {
-        /** 重新连接的链接url */
-        url: "",
-        /** 已失败连接的次数 */
-        count: 0
+reconnectInfo: {
+url: "",
+count: 0
       },
       option: null
     },
@@ -3635,12 +2883,7 @@
       onRestart: void 0
     },
     events: {
-      /**
-       * artplayer 播放
-       *
-       * 同步进度 - 同步音量 - 播放音频
-       */
-      play: () => {
+play: () => {
         M4SAudio.handler.play();
         M4SAudio.handler.syncVolume();
         M4SAudio.handler.syncMuted();
@@ -3648,36 +2891,19 @@
           M4SAudio.handler.syncTime();
         }, 1);
       },
-      /**
-       * 视频进度更新（主动改变的，而不是播放的改变）
-       *
-       * 音频同步进度
-       * @param currentTime 当前的进度
-       */
-      seek: (currentTime) => {
+seek: (currentTime) => {
         M4SAudioUtils.intervalHandler(() => {
           M4SAudio.handler.syncTime();
           M4SAudio.handler.syncPlayState();
         });
       },
-      /**
-       * 视频暂停
-       *
-       * 音频暂停
-       */
-      pause: () => {
+pause: () => {
         M4SAudioUtils.intervalHandler(() => {
           M4SAudio.handler.syncTime();
         }, 1);
         M4SAudio.handler.pause();
       },
-      /**
-       * 视频重载，这里的音频也重载
-       *
-       * 触发回调 - 获取新的音频 - 同步进度
-       * @param url
-       */
-      restart: (url) => {
+restart: (url) => {
         if (typeof M4SAudio.userEvent.onRestart === "function") {
           let newAudioUrl = M4SAudio.userEvent.onRestart(url);
           M4SAudio.handler.playUrl(newAudioUrl);
@@ -3687,106 +2913,53 @@
         }, 1);
         M4SAudio.handler.syncPlayState();
       },
-      /**
-       * 静音状态改变
-       * @param state
-       */
-      muted: (state) => {
+muted: (state) => {
         M4SAudio.handler.syncVolume();
         M4SAudio.handler.syncMuted();
       },
-      /**
-       * artplayer 销毁
-       *
-       * 音频暂停
-       */
-      destroy: () => {
+destroy: () => {
         M4SAudio.handler.pause();
       },
-      /**
-       * 视频出岔子了无法播放
-       *
-       * 音频暂停 - 同步进度
-       * @param error
-       * @param reconnectTime
-       */
-      error: (error, reconnectTime) => {
+error: (error, reconnectTime) => {
         M4SAudio.handler.pause();
       },
-      /**
-       * 当播放器尺寸变化时触发
-       *
-       * 可能会音视频不停步
-       */
-      resize: () => {
+resize: () => {
         M4SAudioUtils.intervalHandler(() => {
           M4SAudio.handler.syncTime();
         });
       },
-      /**
-       * 当播放器发生窗口全屏时触发
-       *
-       * 可能会音视频不停步
-       */
-      fullscreen: () => {
+fullscreen: () => {
         M4SAudioUtils.intervalHandler(() => {
           M4SAudio.handler.syncTime();
         });
       },
-      /**
-       * 视频播放完毕
-       *
-       * 音频暂停
-       */
-      "video:ended": () => {
+"video:ended": () => {
         M4SAudio.handler.pause();
       },
-      /**
-       * 视频倍速改变
-       *
-       * 同步视频的倍速
-       */
-      "video:ratechange": () => {
+"video:ratechange": () => {
         M4SAudio.handler.syncPlayBackRate();
       },
-      /**
-       * 视频缓冲暂停
-       *
-       * 音频暂停 然后同步进度
-       */
-      "video:waiting": () => {
+"video:waiting": () => {
         M4SAudio.handler.pause();
       },
-      /**
-       * 视频缓冲恢复，音频也恢复
-       */
-      "video:playing": () => {
+"video:playing": () => {
         M4SAudioUtils.intervalHandler(() => {
           M4SAudio.handler.syncTime();
         }, 1);
         M4SAudio.handler.play();
       },
-      /**
-       * 切换页面视频会被暂停
-       */
-      "video:pause": () => {
+"video:pause": () => {
         M4SAudio.handler.pause();
         M4SAudioUtils.intervalHandler(() => {
           M4SAudio.handler.syncTime();
         }, 1);
       },
-      /**
-       * 同步音量
-       */
-      "video:volumechange": () => {
+"video:volumechange": () => {
         M4SAudio.handler.syncVolume();
         M4SAudio.handler.syncMuted();
         M4SAudio.handler.syncPlayState();
       },
-      /**
-       * 视频更新进度
-       */
-      "video:timeupdate": () => {
+"video:timeupdate": () => {
         let videoTime = M4SAudio.$data.art.currentTime;
         if (Math.abs(videoTime - M4SAudio.$data.latestSyncTime) >= 3) {
           M4SAudio.$data.latestSyncTime = videoTime;
@@ -3799,8 +2972,7 @@
     audioEvents: {
       loadedmetadata: (event) => {
         M4SAudio.$data.art.emit(
-          // @ts-ignore
-          "m4sAudio:loadedmetadata",
+"m4sAudio:loadedmetadata",
           event
         );
         console.log(TAG$4 + "Audio预加载完成");
@@ -3817,8 +2989,7 @@
       },
       canplaythrough: (event) => {
         M4SAudio.$data.art.emit(
-          // @ts-ignore
-          "m4sAudio:canplaythrough",
+"m4sAudio:canplaythrough",
           event
         );
         console.log(
@@ -3830,8 +3001,7 @@
       },
       error: (event) => {
         M4SAudio.$data.art.emit(
-          // @ts-ignore
-          "m4sAudio:error",
+"m4sAudio:error",
           event
         );
         console.error(TAG$4 + `Audio加载失败`, event);
@@ -3855,14 +3025,8 @@
         }
       }
     },
-    /**
-     * 音频工具处理
-     */
-    handler: {
-      /**
-       * 播放音频链接，会自行处理判断是否是字符串链接
-       */
-      playUrl(url) {
+handler: {
+playUrl(url) {
         if (typeof url !== "string") {
           return;
         }
@@ -3872,50 +3036,39 @@
           M4SAudio.bindAudio();
         }
         M4SAudio.$data.art.emit(
-          // @ts-ignore
-          "m4sAudio:restart",
+"m4sAudio:restart",
           url
         );
         M4SAudio.handler.syncTime();
         M4SAudio.handler.syncPlayState();
       },
-      /** 播放音频 */
-      play() {
+play() {
         if (M4SAudio.$data.audio.paused) {
           M4SAudio.$data.audio.play();
           M4SAudio.$data.art.emit(
-            // @ts-ignore
-            "m4sAudio:play"
+"m4sAudio:play"
           );
         }
       },
-      /** 暂停音频 */
-      pause() {
+pause() {
         if (!M4SAudio.$data.audio.paused) {
           M4SAudio.$data.audio.pause();
           M4SAudio.$data.art.emit(
-            // @ts-ignore
-            "m4sAudio:pause"
+"m4sAudio:pause"
           );
         }
       },
-      /** 同步播放状态 */
-      syncPlayState() {
+syncPlayState() {
         if (M4SAudio.$data.art.playing) {
           this.play();
         } else {
           this.pause();
         }
         M4SAudio.$data.art.emit(
-          // @ts-ignore
-          "m4sAudio:syncPlayState"
+"m4sAudio:syncPlayState"
         );
       },
-      /**
-       * 音频同步视频进度
-       * @param offset 差距大小
-       */
-      syncTime(offset = 0.1) {
+syncTime(offset = 0.1) {
         let videoTime = M4SAudio.$data.art.currentTime;
         let audioTime = M4SAudio.$data.audio.currentTime;
         if (Math.abs(videoTime - audioTime) >= Math.abs(offset)) {
@@ -3923,46 +3076,35 @@
           this.syncVolume();
           this.syncMuted();
           M4SAudio.$data.art.emit(
-            // @ts-ignore
-            "m4sAudio:syncTime"
+"m4sAudio:syncTime"
           );
         }
       },
-      /** 同步音量 */
-      syncVolume() {
+syncVolume() {
         M4SAudio.$data.audio.volume = M4SAudio.$data.art.volume;
         M4SAudio.$data.art.emit(
-          // @ts-ignore
-          "m4sAudio:syncVolume"
+"m4sAudio:syncVolume"
         );
       },
-      /** 同步静音状态 */
-      syncMuted() {
+syncMuted() {
         let artMuted = M4SAudio.$data.art.muted;
         M4SAudio.$data.audio.muted = artMuted;
         M4SAudio.$data.art.emit(
-          // @ts-ignore
-          "m4sAudio:syncMuted"
+"m4sAudio:syncMuted"
         );
       },
-      /** 同步播放倍速 */
-      syncPlayBackRate() {
+syncPlayBackRate() {
         let artPlayBackRate = M4SAudio.$data.art.playbackRate;
         let audioPlayBackRate = M4SAudio.$data.audio.playbackRate;
         if (artPlayBackRate !== audioPlayBackRate) {
           M4SAudio.$data.audio.playbackRate = artPlayBackRate;
           M4SAudio.$data.art.emit(
-            // @ts-ignore
-            "m4sAudio:syncPlayBackRate"
+"m4sAudio:syncPlayBackRate"
           );
         }
       }
     },
-    /**
-     * 更新
-     * @param audioList
-     */
-    update(option) {
+update(option) {
       this.unbind();
       this.unbindAudio();
       this.$data.option = null;
@@ -3981,8 +3123,7 @@
         let currentSelectAudioInfo = {
           index: 0,
           html: firstAudioInfo.soundQualityCodeText,
-          /** 播放的地址 */
-          url: firstAudioInfo.url
+url: firstAudioInfo.url
         };
         if (storageAudioInfo) {
           const findAudioIndex = option.audioList.findIndex(
@@ -4018,8 +3159,7 @@
           html: "音频",
           tooltip: currentSelectAudioInfo.html,
           icon: (
-            /*html*/
-            `
+`
 				<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="22" height="22">
 					<path d="M123.5 438.5h131.3v310.7H123.5zM769.2 438.5h131.3v310.7H769.2z"></path>
 					<path d="M859.8 398.8h-48.3c-7.9 0-15.4 1.6-22.5 3.9v-32.4c0-125.2-101.9-227.1-227.1-227.1h-99.7c-125.2 0-227.1 101.9-227.1 227.1v32.4c-7.1-2.3-14.6-3.9-22.5-3.9h-48.3c-40.9 0-74.2 33.3-74.2 74.2v243c0 40.9 33.3 74.2 74.2 74.2h48.3c40.9 0 74.2-33.3 74.2-74.2V370.3c0-96.7 78.7-175.4 175.4-175.4h99.7c96.7 0 175.4 78.7 175.4 175.4V716c0 40.9 33.3 74.2 74.2 74.2h48.3c40.9 0 74.2-33.3 74.2-74.2V473c-0.1-40.9-33.3-74.2-74.2-74.2zM235.1 716c0 12.4-10.1 22.5-22.5 22.5h-48.3c-12.4 0-22.5-10.1-22.5-22.5V473c0-12.4 10.1-22.5 22.5-22.5h48.3c12.4 0 22.5 10.1 22.5 22.5v243z m647.2 0c0 12.4-10.1 22.5-22.5 22.5h-48.3c-12.4 0-22.5-10.1-22.5-22.5V473c0-12.4 10.1-22.5 22.5-22.5h48.3c12.4 0 22.5 10.1 22.5 22.5v243z"></path>
@@ -4062,10 +3202,7 @@
         }
       }
     },
-    /**
-     * 绑定事件
-     */
-    bind() {
+bind() {
       Object.keys(this.events).forEach((eventName) => {
         this.$data.art.on(
           eventName,
@@ -4073,10 +3210,7 @@
         );
       });
     },
-    /**
-     * 绑定音频事件
-     */
-    bindAudio() {
+bindAudio() {
       Object.keys(this.audioEvents).forEach((eventName) => {
         this.$data.audio.addEventListener(
           eventName,
@@ -4087,10 +3221,7 @@
         );
       });
     },
-    /**
-     * 取消绑定事件
-     */
-    unbind() {
+unbind() {
       Object.keys(this.events).forEach((eventName) => {
         this.$data.art.off(
           eventName,
@@ -4098,10 +3229,7 @@
         );
       });
     },
-    /**
-     * 取消绑定音频事件
-     */
-    unbindAudio() {
+unbindAudio() {
       Object.keys(this.audioEvents).forEach((eventName) => {
         this.$data.audio.removeEventListener(
           eventName,
@@ -4152,10 +3280,7 @@
         });
       }
     },
-    /**
-     * 绑定事件
-     */
-    bind() {
+bind() {
       Object.keys(this.events).forEach((eventName) => {
         TopToolBar.art.on(
           eventName,
@@ -4163,10 +3288,7 @@
         );
       });
     },
-    /**
-     * 取消绑定事件
-     */
-    unbind() {
+unbind() {
       Object.keys(this.events).forEach((eventName) => {
         TopToolBar.art.off(
           eventName,
@@ -4178,39 +3300,27 @@
   const TopToolBar = {
     art: null,
     $el: {
-      /** 容器 */
-      $topWrap: null,
+$topWrap: null,
       $topTitle: null,
-      /** 视频标题 */
-      $topTitleText: null,
-      /** 视频标题的下面的容器 */
-      $topTitleFollow: null,
-      /** 视频标题下面的在线观看人数 */
-      $topTitleFollowText: null,
-      /** 右侧容器 */
-      $topRight: null,
-      /** 右侧容器的下面的容器 */
-      $topRightFollow: null
+$topTitleText: null,
+$topTitleFollow: null,
+$topTitleFollowText: null,
+$topRight: null,
+$topRightFollow: null
     },
     $data: {
-      /** 是否已初始化 */
-      isInit: false,
+isInit: false,
       __option: {},
-      /** 配置 */
-      option: {}
+option: {}
     },
     $key: {
       plugin_KEY: "plugin-bilibili-topToolBar"
     },
-    /**
-     * 初始化
-     */
-    init(option) {
+init(option) {
       this.art.layers.add({
         name: "top-wrap",
         html: (
-          /*html*/
-          `
+`
             <div class="art-player-top-wrap">
                 <div class="art-player-top-title">
                     <!-- 番剧名，第xx集 -->
@@ -4251,15 +3361,11 @@
         }
       });
     },
-    /**
-     * 更新配置
-     */
-    update(option) {
+update(option) {
       if (!this.$data.isInit) {
         this.$data.isInit = true;
         Object.defineProperties(this.$data.option, {
-          /** 是否显示容器 @default false */
-          showWrap: {
+showWrap: {
             set(value) {
               TopToolBar.$data.__option.showWrap = value;
             },
@@ -4267,8 +3373,7 @@
               return TopToolBar.$data.__option.showWrap;
             }
           },
-          /** 是否显示标题 @default false */
-          showTitle: {
+showTitle: {
             set(value) {
               TopToolBar.$data.__option.showTitle = value;
             },
@@ -4276,8 +3381,7 @@
               return TopToolBar.$data.__option.showTitle;
             }
           },
-          /** 视频标题文字 */
-          title: {
+title: {
             set(value) {
               TopToolBar.$data.__option.title = value;
               if (typeof value === "string") {
@@ -4288,8 +3392,7 @@
               return TopToolBar.$data.__option.title;
             }
           },
-          /** 是否显示在线观看人数 @default false */
-          showOnlineTotal: {
+showOnlineTotal: {
             set(value) {
               TopToolBar.$data.__option.showOnlineTotal = value;
             },
@@ -4297,8 +3400,7 @@
               return TopToolBar.$data.__option.showOnlineTotal;
             }
           },
-          /** 在线人数请求参数信息 */
-          onlineInfoParams: {
+onlineInfoParams: {
             set(value) {
               TopToolBar.$data.__option.onlineInfoParams = value;
               TopToolBar.updateOnlineTotal({
@@ -4310,8 +3412,7 @@
               return TopToolBar.$data.__option.onlineInfoParams;
             }
           },
-          /** 是否显示右侧视图 */
-          showRight: {
+showRight: {
             set(value) {
               TopToolBar.$data.__option.showRight = value;
             },
@@ -4319,8 +3420,7 @@
               return TopToolBar.$data.__option.showRight;
             }
           },
-          /** 是否显示右侧下面的follow */
-          showRightFollow: {
+showRightFollow: {
             set(value) {
               TopToolBar.$data.__option.showRightFollow = value;
             },
@@ -4332,10 +3432,7 @@
       }
       Object.assign(this.$data.option, option);
     },
-    /**
-     * 更新在线观看人数
-     */
-    async updateOnlineTotal(option) {
+async updateOnlineTotal(option) {
       if (!option.showOnlineTotal) {
         return;
       }
@@ -4449,29 +3546,17 @@
     }
   };
   const SubTitleEvent = {
-    /**
-     * 重置
-     */
-    reset() {
+reset() {
       this.unbind();
     },
-    /**
-     * 绑定事件
-     */
-    bind() {
+bind() {
       SubTitle.art.on("video:timeupdate", this.event, this);
     },
-    /**
-     * 取消绑定事件
-     */
-    unbind() {
+unbind() {
       SubTitle.clearSubTitle();
       SubTitle.art.off("video:timeupdate", this.event);
     },
-    /**
-     * 事件
-     */
-    event() {
+event() {
       let currentTime = SubTitle.art.currentTime;
       let currentSubTitleData = SubTitleData.allSubTitleInfo[SubTitleData.currentSelectIndex]?.data;
       if (!currentSubTitleData) {
@@ -4514,18 +3599,9 @@
     }
   };
   const SubTitleData = {
-    /**
-     * 所有的字幕信息
-     */
-    allSubTitleInfo: [],
-    /**
-     * 当前选择的字幕下标
-     */
-    currentSelectIndex: -1,
-    /**
-     * 重置所有data数据
-     */
-    reset() {
+allSubTitleInfo: [],
+currentSelectIndex: -1,
+reset() {
       this.allSubTitleInfo = [];
       this.currentSelectIndex = -1;
     }
@@ -4536,34 +3612,23 @@
       plugin_KEY: "plugin-bilibili-cc-subtitle"
     },
     $el: {
-      /**
-       * 字幕容器
-       */
-      $subtitle: null
+$subtitle: null
     },
-    /**
-     * 更新字幕信息
-     * @param option
-     */
-    async update(option) {
+async update(option) {
       const that = this;
       const STORAGE_KEY = `artplayer-bili-cc-subtitle-${option.from}`;
       const SubTitleSettingLayer = {
         config: {
           NAME: "setting-bilibili-cc-subtitle"
         },
-        /**
-         * 获取默认的配置项
-         */
-        getDefaultSettingOption: () => {
+getDefaultSettingOption: () => {
           return {
             name: SubTitleSettingLayer.config.NAME,
             width: 200,
             html: "字幕",
             tooltip: "",
             icon: (
-              /*html*/
-              `
+`
 					<svg xmlns="http://www.w3.org/2000/svg" height="22" width="22" viewBox="0 0 48 48">
 						<path d="M0 0h48v48H0z" fill="none"/>
 						<path fill="#ffffff" d="M40 8H8c-2.21 0-4 1.79-4 4v24c0 2.21 1.79 4 4 4h32c2.21 0 4-1.79 4-4V12c0-2.21-1.79-4-4-4zM8 24h8v4H8v-4zm20 12H8v-4h20v4zm12 0h-8v-4h8v4zm0-8H20v-4h20v4z"/>
@@ -4585,22 +3650,14 @@
             }
           };
         },
-        /**
-         * 获取配置项
-         *
-         * 因为配置会被动态修改，
-         */
-        getSettingOption: () => {
+getSettingOption: () => {
           const settingOption = SubTitleSettingLayer.getDefaultSettingOption();
           const defaultSelector2 = SubTitleSettingLayer.getDefaultSettingSelector();
           settingOption.selector.push(defaultSelector2);
           settingOption.tooltip = defaultSelector2.html;
           return settingOption;
         },
-        /**
-         * 获取默认的selector配置项
-         */
-        getDefaultSettingSelector: () => {
+getDefaultSettingSelector: () => {
           return {
             default: true,
             html: "无",
@@ -4609,10 +3666,7 @@
             subTitle_data: []
           };
         },
-        /**
-         * 添加配置菜单
-         */
-        addSetting(selectorList) {
+addSetting(selectorList) {
           let settingOption = this.getSettingOption();
           if (selectorList && selectorList.length) {
             settingOption.selector.push(...selectorList);
@@ -4650,10 +3704,7 @@
             that.art.setting.add(settingOption);
           }
         },
-        /**
-         * 判断是否已经添加了配置菜单
-         */
-        isAddSetting() {
+isAddSetting() {
           return that.art.setting.find(this.config.NAME) != null;
         }
       };
@@ -4726,8 +3777,7 @@
             responseType: "json",
             allowInterceptConfig: false,
             headers: {
-              // Host: "www.bilibili.com",
-              Referer: "https://www.bilibili.com",
+Referer: "https://www.bilibili.com",
               "User-Agent": utils.getRandomPCUA()
             }
           }
@@ -4794,19 +3844,12 @@
       }
       SubTitleSettingLayer.addSetting(settingSelectorList);
     },
-    /**
-     * 清空字幕
-     */
-    clearSubTitle() {
+clearSubTitle() {
       if (this.$el.$subtitle) {
         this.$el.$subtitle.innerHTML = "";
       }
     },
-    /**
-     * 更新artplayer实例
-     * @param art
-     */
-    updateArtPlayer(art) {
+updateArtPlayer(art) {
       this.art = art;
     }
   };
@@ -4862,10 +3905,7 @@
       mounted(panel, item) {
         panel.setAttribute("data-plugin", EpChoose.$key.SETTING_KEY);
       },
-      /**
-       * 播放下一集
-       */
-      playNext() {
+playNext() {
         let findIndex = this.selector.findIndex((item) => item.default);
         if (findIndex !== -1 && findIndex + 1 < this.selector.length - 1) {
           findIndex += 1;
@@ -4878,8 +3918,7 @@
   };
   const EpChooseEvent = {
     $event: {
-      /** 自动连播 */
-      "video:ended": () => {
+"video:ended": () => {
         console.log(TAG$2 + "自动连播启用，播放下一集");
         let settingIns = EpChoose.$data.art.setting.find(
           EpChoose.$key.SETTING_KEY
@@ -4915,19 +3954,12 @@
     $data: {
       art: null
     },
-    /**
-     * 重置环境变量
-     */
-    resetEnv() {
+resetEnv() {
       Object.keys(this.$data).forEach((key) => {
         Reflect.set(this.$data, key, null);
       });
     },
-    /**
-     * 初始化
-     * @param option
-     */
-    init(art, option) {
+init(art, option) {
       this.resetEnv();
       this.$data.art = art;
       EpChooseEvent.unbind(art);
@@ -4937,8 +3969,7 @@
       if (!this.$flag.isInitCSS) {
         this.$flag.isInitCSS = true;
         addStyle(
-          /*css*/
-          `
+`
 			.art-setting-panel[data-plugin="${EpChoose.$key.SETTING_KEY}"] .art-setting-item .art-setting-item-left-text{
 				max-width: 210px;
 				overflow: hidden;
@@ -4950,11 +3981,7 @@
       }
       this.update(option);
     },
-    /**
-     * 更新
-     * @param option
-     */
-    update(option) {
+update(option) {
       EpChooseEvent.unbind(this.$data.art);
       if (option.EP_LIST == null) {
         return;
@@ -5000,70 +4027,40 @@
   };
   const ArtPlayerCommonOption = () => {
     return {
-      /** 容器 */
-      container: "",
-      /** 视频地址 */
-      url: "",
-      /** 视频封面 */
-      // poster: 'https://artplayer.org/assets/sample/poster.jpg',
-      /** 默认音量 */
-      volume: 1,
-      /** 是否是直播 */
-      isLive: false,
-      /** 是否静音 */
-      muted: false,
-      /** 是否自动播放 */
-      autoplay: false,
-      /** 是否显示视频画中画按钮 */
-      pip: false,
-      /** 播放器是否自动运行迷你模式 */
-      autoMini: false,
-      /** 是否显示截图按钮 */
-      screenshot: false,
-      /** 是否显示视频设置按钮 */
-      setting: true,
-      /** 是否循环播放 */
-      loop: false,
-      /** 是否显示视频翻转按钮 */
-      flip: true,
-      /** 是否显示视频播放速率按钮 */
-      playbackRate: true,
-      /** 播放器是否自动调整大小(可能有bug) */
-      autoSize: false,
-      /** 是否显示视频宽高比按钮 */
-      aspectRatio: false,
-      /** 是否显示视频窗口全屏按钮 */
-      fullscreen: true,
-      /** 是否显示视频网页全屏按钮 */
-      fullscreenWeb: true,
-      /** 是否启用播放器字幕偏移 */
-      subtitleOffset: true,
-      /** 是否启用播放器迷你进度条 */
-      miniProgressBar: true,
-      /** 保证页面只存在一个实例 */
-      mutex: false,
-      /** UI中是否使用背景 */
-      backdrop: true,
-      /** 移动端是否使用playsInline */
-      playsInline: false,
-      /** 是否使用自动播放 */
-      autoPlayback: true,
-      /** 是否使用airplay */
-      airplay: true,
-      /** 是否在移动端显示一个 锁定按钮 ，用于隐藏底部 控制栏 */
-      lock: true,
-      /** 是否在移动端添加长按视频快进功能 */
-      fastForward: true,
-      /** 播放器颜色主题 */
-      theme: BilibiliData.theme,
-      /** 播放器语言 */
-      lang: navigator.language.toLowerCase(),
-      /** 覆盖video属性 */
-      moreVideoAttr: {
+container: "",
+url: "",
+
+
+volume: 1,
+isLive: false,
+muted: false,
+autoplay: false,
+pip: false,
+autoMini: false,
+screenshot: false,
+setting: true,
+loop: false,
+flip: true,
+playbackRate: true,
+autoSize: false,
+aspectRatio: false,
+fullscreen: true,
+fullscreenWeb: true,
+subtitleOffset: true,
+miniProgressBar: true,
+mutex: false,
+backdrop: true,
+playsInline: false,
+autoPlayback: true,
+airplay: true,
+lock: true,
+fastForward: true,
+theme: BilibiliData.theme,
+lang: navigator.language.toLowerCase(),
+moreVideoAttr: {
         crossOrigin: "anonymous"
       },
-      /** 自定义图标 */
-      icons: ArtPlayerBiliBiliIcon
+icons: ArtPlayerBiliBiliIcon
     };
   };
   const TAG$1 = "[artplayer-plugin-quality]：";
@@ -5084,11 +4081,7 @@
       this.from = from;
       this.updateSetting();
     }
-    /**
-     * 更新设置菜单
-     * @param codeIdConfig 配置
-     */
-    updateSetting(codeIdConfig) {
+updateSetting(codeIdConfig) {
       let setting = this.getSetting();
       if (Array.isArray(codeIdConfig?.acceptCodeIdList)) {
         for (let index = 0; index < setting.selector.length; index++) {
@@ -5126,10 +4119,7 @@
         this.art.setting.add(setting);
       }
     }
-    /**
-     * 获取设置界面的配置
-     */
-    getSetting() {
+getSetting() {
       const that = this;
       let userChooseVideoCodingCode = this.getUserChooseVideoCodingCode();
       let selectorList = [
@@ -5175,24 +4165,15 @@
         }
       };
     }
-    /**
-     * 菜单选项选中后的回调
-     */
-    onSettingSelect(selectValue) {
+onSettingSelect(selectValue) {
     }
     get storageVideoCodingKey() {
       return `bili-${this.from}-artplayer-videoCodingCode`;
     }
-    /**
-     * 设置当前视频编码
-     */
-    setCurrentVideoCodingCode(videoCodingCode) {
+setCurrentVideoCodingCode(videoCodingCode) {
       this.art.storage.set(this.storageVideoCodingKey, videoCodingCode);
     }
-    /**
-     * 获取用户选择的视频编码
-     */
-    getUserChooseVideoCodingCode() {
+getUserChooseVideoCodingCode() {
       let codingCode = this.art.storage.get(this.storageVideoCodingKey) || VideoCodingCodeMap.AV1;
       if (!Object.values(VideoCodingCodeMap).includes(codingCode)) {
         console.error(
@@ -5205,39 +4186,24 @@
   }
   class VideoQuality extends VideoEncoding {
     $data = {
-      /** 请求到的视频画质信息数据 */
-      qualityOption: null,
-      /** 处理后的画质列表 */
-      qualityOptionList: [],
-      /** 请求到的视频的画质编码列表 */
-      qualityCodeIdList: [],
-      /** 当前的画质编码id */
-      currentQualityCodecId: VideoCodingCodeMap["AV1"],
-      /** 当前选中的画质信息 */
-      currentSelectQualityInfo: null,
-      /** 当前选中的画质配置  */
-      currentQualityOption: null
+qualityOption: null,
+qualityOptionList: [],
+qualityCodeIdList: [],
+currentQualityCodecId: VideoCodingCodeMap["AV1"],
+currentSelectQualityInfo: null,
+currentQualityOption: null
     };
     constructor(art, from) {
       super(art, from);
     }
-    /**
-     * 设置当前画质配置数据
-     */
-    setCurrentQualityOption(qualityOption = null) {
+setCurrentQualityOption(qualityOption = null) {
       this.$data.currentQualityOption = null;
       this.$data.currentQualityOption = qualityOption;
     }
-    /**
-     * 获取存储键
-     */
-    getStorageKey(from) {
+getStorageKey(from) {
       return `artplayer-quality-${from}`;
     }
-    /**
-     * 更新画质信息
-     */
-    update(option) {
+update(option) {
       this.$data.qualityOption = null;
       this.$data.qualityOption = option;
       this.$data.qualityOptionList = [];
@@ -5257,10 +4223,7 @@
         this.removeControls();
       }
     }
-    /**
-     * 获取面板配置
-     */
-    getControlsOption() {
+getControlsOption() {
       const that = this;
       let selectorList = this.$data.qualityOptionList.map((itemInfo, index) => {
         return {
@@ -5306,10 +4269,7 @@
       };
       return controlsOption;
     }
-    /**
-     * 添加面板
-     */
-    addControls() {
+addControls() {
       if (this.isAddControls()) {
         this.updateQualityControls();
       } else {
@@ -5317,10 +4277,7 @@
         this.art.controls.add(controlOption);
       }
     }
-    /**
-     * 更新画质信息
-     */
-    getQualityInfo() {
+getQualityInfo() {
       let userChooseVideoCodingCode = this.getUserChooseVideoCodingCode();
       let qualityList = this.$data.qualityOption.qualityList.filter(
         (item) => item.codecid === userChooseVideoCodingCode
@@ -5354,8 +4311,7 @@
       let currentSelectQualityInfo = {
         index: 0,
         html: firstQualityInfo?.html,
-        /** 播放的地址 */
-        url: firstQualityInfo?.url
+url: firstQualityInfo?.url
       };
       this.setCurrentQualityOption(qualityList[0]);
       if (storageQualityInfo) {
@@ -5376,10 +4332,7 @@
       this.$data.currentSelectQualityInfo = currentSelectQualityInfo;
       return currentSelectQualityInfo;
     }
-    /**
-     * 更新画质切换面板
-     */
-    updateQualityControls() {
+updateQualityControls() {
       let controlOption = this.getControlsOption();
       console.log(
         TAG$1 + "更新画质切换面板信息",
@@ -5388,18 +4341,12 @@
       );
       this.art.controls.update(controlOption);
     }
-    /**
-     * 移除画质切换面板
-     */
-    removeControls() {
+removeControls() {
       if (this.isAddControls()) {
         this.art.controls.remove(ArtPlayer_PLUGIN_QUALITY_KEY);
       }
     }
-    /**
-     * 是否已经添加了面板
-     */
-    isAddControls() {
+isAddControls() {
       return Reflect.has(this.art.controls, ArtPlayer_PLUGIN_QUALITY_KEY);
     }
     onSettingSelect(selectValue) {
@@ -5440,12 +4387,9 @@
       isInitCSS: false
     },
     $config: {
-      /** 默认的toast的className */
-      originToast: "art-layer-auto-playback",
-      /** 让Toast隐藏的className */
-      hideClassName: "art-toast-hide-opacity",
-      /** 自定义的toast的class，避免和页面原有的toast冲突 */
-      prefix: "mplayer-toast-gm"
+originToast: "art-layer-auto-playback",
+hideClassName: "art-toast-hide-opacity",
+prefix: "mplayer-toast-gm"
     },
     $el: {
       get $originPlayer() {
@@ -5454,11 +4398,7 @@
         );
       }
     },
-    /**
-     * 弹出吐司
-     * @param config
-     */
-    toast(config) {
+toast(config) {
       if (typeof config === "string") {
         config = {
           text: config
@@ -5478,8 +4418,7 @@
         let $closeBtn = domUtils.createElement("div", {
           className: this.$config.prefix + "-close",
           innerHTML: (
-            /*html*/
-            `
+`
                     <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="22" height="22"><path d="m571.733 512 268.8-268.8c17.067-17.067 17.067-42.667 0-59.733-17.066-17.067-42.666-17.067-59.733 0L512 452.267l-268.8-268.8c-17.067-17.067-42.667-17.067-59.733 0-17.067 17.066-17.067 42.666 0 59.733l268.8 268.8-268.8 268.8c-17.067 17.067-17.067 42.667 0 59.733 8.533 8.534 19.2 12.8 29.866 12.8s21.334-4.266 29.867-12.8l268.8-268.8 268.8 268.8c8.533 8.534 19.2 12.8 29.867 12.8s21.333-4.266 29.866-12.8c17.067-17.066 17.067-42.666 0-59.733L571.733 512z"></path></svg>
                 `
           )
@@ -5544,17 +4483,13 @@
         }
       };
     },
-    /**
-     * 初始化css
-     */
-    initCSS() {
+initCSS() {
       if (this.$flag.isInitCSS) {
         return;
       }
       this.$flag.isInitCSS = true;
       addStyle(
-        /*css*/
-        `
+`
 		.${this.$config.prefix}.mplayer-show {
 			opacity: 1;
 			visibility: visible;
@@ -5610,8 +4545,7 @@
 		`
       );
       addStyle(
-        /*css*/
-        `
+`
         .${this.$config.hideClassName}{
             opacity: 0;
             visibility: hidden;
@@ -5619,12 +4553,7 @@
         `
       );
     },
-    /**
-     * 观察mplayer
-     * 用于关闭页面自己的toast
-     * 动态更新自己的toast位置
-     */
-    mutationMPlayerOriginToast($parent) {
+mutationMPlayerOriginToast($parent) {
       let $mplayer = this.$el.$originPlayer;
       if (!$mplayer) {
         return;
@@ -5645,10 +4574,7 @@
         }
       });
     },
-    /**
-     * 更新页面上的bottom的位置
-     */
-    updatePageToastBottom() {
+updatePageToastBottom() {
       let pageToastList = Array.from(
         document.querySelectorAll(`.${this.$config.prefix}`)
       ).concat(
@@ -5666,17 +4592,10 @@
         });
       }
     },
-    /**
-     * 关闭吐司
-     */
-    closeToast($ele) {
+closeToast($ele) {
       $ele.classList.add(this.$config.hideClassName);
     },
-    /**
-     * 获取事件名称列表
-     * @private
-     */
-    getTransitionendEventNameList() {
+getTransitionendEventNameList() {
       return [
         "webkitTransitionEnd",
         "mozTransitionEnd",
@@ -5685,11 +4604,7 @@
         "transitionend"
       ];
     },
-    /**
-     * 监听过渡结束
-     * @private
-     */
-    setTransitionendEvent($toast, config) {
+setTransitionendEvent($toast, config) {
       let that = this;
       let animationEndNameList = this.getTransitionendEventNameList();
       domUtils.on(
@@ -5742,10 +4657,7 @@
       this.option = option;
       this.addSetting();
     }
-    /**
-     * 添加设置面板菜单
-     */
-    addSetting() {
+addSetting() {
       this.art.setting.add({
         name: this.$key.setting_name,
         icon: "",
@@ -5754,8 +4666,8 @@
           let $leftIcon = $setting.querySelector(
             ".art-setting-item-left-icon"
           );
-          $leftIcon.innerHTML = /*html*/
-          `
+          $leftIcon.innerHTML =
+`
                 <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="24" height="24">
                     <path d="M512.50142 958.397886c-119.320573 0-231.499491-46.465265-315.871087-130.837884C112.258737 743.188406 65.792449 631.010511 65.792449 511.688915c0-119.319549 46.466288-231.499491 130.837884-315.871087C281.002952 111.445208 393.180847 64.979944 512.50142 64.979944s231.499491 46.465265 315.871087 130.837884c84.372619 84.372619 130.837884 196.551538 130.837884 315.871087 0 119.321596-46.465265 231.499491-130.837884 315.871087C744.000911 911.932622 631.821993 958.397886 512.50142 958.397886zM512.50142 105.962334c-223.718271 0-405.726581 182.00831-405.726581 405.726581s182.00831 405.726581 405.726581 405.726581c223.718271 0 405.727605-182.00831 405.727605-405.726581S736.220714 105.962334 512.50142 105.962334z"></path>
                     <path d="M510.150886 775.953647c-18.107403 0-32.745798-14.678304-32.745798-32.785707L477.405087 452.191846c0-18.108426 14.638395-32.785707 32.745798-32.785707 18.107403 0 32.745798 14.678304 32.745798 32.785707l0 290.976094C542.896684 761.275343 528.258289 775.953647 510.150886 775.953647z"></path>
@@ -5781,10 +4693,7 @@
         }
       });
     }
-    /**
-     * 获取layer配置
-     */
-    getLayerOption() {
+getLayerOption() {
       let mimeType, audioHost, audioTime, resolution = {
         key: "Resolution:",
         value: `${this.art.video.videoWidth} x ${this.art.video.videoHeight}`
@@ -5871,8 +4780,7 @@
       return {
         name: this.$key.setting_name,
         html: (
-          /*html*/
-          `
+`
             <div class="art-player-video-statistics">
                 <style>
 					.art-layer-video-statistics{
@@ -5955,8 +4863,7 @@
                 <div class="art-player-video-statistics-panel">
                     ${data2.filter((it) => it != null).map((item) => {
           return (
-            /*html*/
-            `
+`
                         <div class="art-player-video-statistics-panel-item">
                             <div class="art-player-video-statistics-panel-title">${item.key}</div>
                             <div class="art-player-video-statistics-panel-content">${item.value}</div>
@@ -5981,17 +4888,10 @@
         }
       };
     }
-    /**
-     * 判断是否已经注册过layer
-     */
-    isRegisterLayer() {
+isRegisterLayer() {
       return this.$key.setting_name in this.art.layers;
     }
-    /**
-     * 显示layer
-     * @param intervalUpdateInfo 是否定时刷新
-     */
-    showLayer(intervalUpdateInfo) {
+showLayer(intervalUpdateInfo) {
       clearInterval(this.$data.intervalId);
       let option = this.getLayerOption();
       this.art.layers.add(option);
@@ -6000,22 +4900,15 @@
         this.bindUpdateLayerEvent();
       }
     }
-    /**
-     * 更新layer
-     */
-    updateLayer() {
+updateLayer() {
       let option = this.getLayerOption();
       this.art.layers.update(option);
     }
-    /**
-     * 绑定layer更新事件
-     */
-    bindUpdateLayerEvent() {
+bindUpdateLayerEvent() {
       this.art.on("play", this.updateLayerEvent_interval, this);
       this.art.on("restart", this.updateLayerEvent_once, this);
       this.art.on(
-        // @ts-ignore
-        "m4sAudio:loadedmetadata",
+"m4sAudio:loadedmetadata",
         this.updateLayerEvent_once,
         this
       );
@@ -6025,53 +4918,34 @@
         this.updateLayerEvent_interval();
       }
     }
-    /**
-     * 取消绑定layer更新事件
-     */
-    unbindUpdateLayerEvent() {
+unbindUpdateLayerEvent() {
       this.art.off("play", this.updateLayerEvent_interval);
       this.art.off("restart", this.updateLayerEvent_once);
       this.art.off(
-        // @ts-ignore
-        "m4sAudio:loadedmetadata",
+"m4sAudio:loadedmetadata",
         this.updateLayerEvent_once
       );
       this.art.off("pause", this.updateLayerEvent_clear_interval);
       this.art.off("video:ended", this.updateLayerEvent_clear_interval);
     }
-    /**
-     * layer更新事件
-     */
-    updateLayerEvent_interval() {
+updateLayerEvent_interval() {
       clearInterval(this.$data.intervalId);
       this.$data.intervalId = setInterval(() => {
         this.updateLayer();
       }, 1500);
     }
-    /**
-     * layer更新事件
-     */
-    updateLayerEvent_once() {
+updateLayerEvent_once() {
       this.updateLayer();
     }
-    /**
-     * layer停止更新事件
-     */
-    updateLayerEvent_clear_interval() {
+updateLayerEvent_clear_interval() {
       clearInterval(this.$data.intervalId);
     }
-    /**
-     * 关闭layer
-     */
-    closeLayer() {
+closeLayer() {
       clearInterval(this.$data.intervalId);
       this.art.layers.remove(this.$key.setting_name);
       this.unbindUpdateLayerEvent();
     }
-    /**
-     * 更新配置
-     */
-    update(option) {
+update(option) {
       this.option = option;
     }
   }
@@ -6089,34 +4963,22 @@
   const ArtPlayerDanmakuCommonOption = () => {
     return {
       heatmap: false,
-      // 默认弹幕颜色，可以被单独弹幕项覆盖
-      color: "#FFFFFF",
-      // 默认弹幕模式: 0: 滚动，1: 顶部，2: 底部
-      mode: 0,
-      // 弹幕发射器挂载点, 默认为播放器控制栏中部
-      mount: void 0,
-      // 当播放器宽度小于此值时，弹幕发射器置于播放器底部
-      width: 800,
-      // 热力图数据
-      points: [],
-      // 弹幕载入前的过滤器
-      filter: (danmu) => danmu.text.length <= 100,
-      // 弹幕显示前的过滤器，返回 true 则可以发送
-      beforeVisible: () => true,
-      // 是否开启弹幕发射器
-      emitter: false,
-      // 弹幕输入框最大长度, 范围在[1 ~ 1000]
-      maxLength: 50,
-      // 输入框锁定时间，范围在[1 ~ 60]
-      lockTime: 3,
-      // 弹幕主题，支持 dark 和 light，只在自定义挂载时生效
-      theme: utils.isThemeDark() ? "dark" : "light"
-      // OPACITY: {}, // 不透明度配置项
-      // FONT_SIZE: {}, // 弹幕字号配置项
-      // MARGIN: {}, // 显示区域配置项
-      // SPEED: {}, // 弹幕速度配置项
-      // COLOR: [], // 颜色列表配置项
-    };
+color: "#FFFFFF",
+mode: 0,
+mount: void 0,
+width: 800,
+points: [],
+filter: (danmu) => danmu.text.length <= 100,
+beforeVisible: () => true,
+emitter: false,
+maxLength: 50,
+lockTime: 3,
+theme: utils.isThemeDark() ? "dark" : "light"
+
+
+
+
+};
   };
   const generateVideoSelectSetting = (option) => {
     let epList = option.epList || [];
@@ -6173,23 +5035,15 @@
   const BilibiliVideoArtPlayer = {
     $data: {
       art: null,
-      /** 当前的配置项 */
-      currentOption: null
+currentOption: null
     },
-    /**
-     * 重置环境变量
-     */
-    resetEnv(isInit) {
+resetEnv(isInit) {
       if (isInit) {
         Reflect.set(this.$data, "art", null);
       }
       Reflect.set(this.$data, "currentOption", null);
     },
-    /**
-     * 初始化播放器
-     * @param option
-     */
-    async init(option) {
+async init(option) {
       this.resetEnv(true);
       this.$data.currentOption = option;
       const localArtDanmakuOption_KEY = "artplayer-video-danmaku-option";
@@ -6200,10 +5054,8 @@
       const artOption = {
         ...ArtPlayerCommonOption(),
         container: option.container,
-        /** 视频封面 */
-        poster: option.poster,
-        /** 自定义设置列表 */
-        settings: [],
+poster: option.poster,
+settings: [],
         plugins: [
           artplayerPluginToast(),
           artplayPluginQuality({
@@ -6218,25 +5070,16 @@
           artplayerPluginDanmuku({
             ...ArtPlayerDanmakuCommonOption(),
             danmuku: option.danmukuUrl,
-            // 以下为非必填
-            // 弹幕持续时间，范围在[1 ~ 10]
-            speed: localArtDanmakuOption.speed,
-            // 弹幕上下边距，支持像素数字和百分比
-            margin: localArtDanmakuOption["margin"],
-            // 弹幕透明度，范围在[0 ~ 1]
-            opacity: localArtDanmakuOption["opacity"],
-            // 弹幕可见的模式
-            modes: localArtDanmakuOption["modes"],
-            // 弹幕字体大小，支持像素数字和百分比
-            fontSize: localArtDanmakuOption["fontSize"],
-            // 弹幕是否防重叠
-            antiOverlap: localArtDanmakuOption["antiOverlap"],
-            // 是否同步播放速度
-            synchronousPlayback: localArtDanmakuOption["synchronousPlayback"],
-            // 弹幕层是否可见
-            visible: localArtDanmakuOption["visible"],
-            // 手动发送弹幕前的过滤器，返回 true 则可以发送，可以做存库处理
-            beforeEmit(danmu) {
+
+speed: localArtDanmakuOption.speed,
+margin: localArtDanmakuOption["margin"],
+opacity: localArtDanmakuOption["opacity"],
+modes: localArtDanmakuOption["modes"],
+fontSize: localArtDanmakuOption["fontSize"],
+antiOverlap: localArtDanmakuOption["antiOverlap"],
+synchronousPlayback: localArtDanmakuOption["synchronousPlayback"],
+visible: localArtDanmakuOption["visible"],
+beforeEmit(danmu) {
               return new Promise((resolve) => {
                 console.log(danmu);
                 setTimeout(() => {
@@ -6303,11 +5146,7 @@
       artPlayerDanmakuOptionHelper.onConfigChange(this.$data.art);
       return this.$data.art;
     },
-    /**
-     * 更新新的播放信息
-     * @param option
-     */
-    async update(art, option) {
+async update(art, option) {
       this.resetEnv(false);
       this.$data.currentOption = option;
       log$1.info(`更新新的播放信息`, option);
@@ -6319,12 +5158,7 @@
       art.play();
       log$1.info("播放");
     },
-    /**
-     * 更新插件数据
-     * @param art
-     * @param option
-     */
-    updatePluginInfo(art, option) {
+updatePluginInfo(art, option) {
       let plugin_quality = art.plugins[ArtPlayer_PLUGIN_QUALITY_KEY];
       plugin_quality.update({
         from: "video",
@@ -6515,8 +5349,7 @@
       };
     });
     const artPlayerOption = {
-      // @ts-ignore
-      container: null,
+container: null,
       epList: option.epList,
       audioUrl: null,
       url: "",
@@ -6554,17 +5387,13 @@
         this.coverVideoPlayer();
       });
     },
-    /**
-     * 覆盖播放器
-     */
-    coverVideoPlayer() {
+coverVideoPlayer() {
       if ($("#artplayer")) {
         log$1.warn("已使用ArtPlayer覆盖原播放器，更新播放信息");
       } else {
         log$1.info(`覆盖播放器`);
         addStyle(
-          /*css*/
-          `
+`
             /* 隐藏原本的播放器 */
 			${BilibiliData.className.video} .m-video-player .player-container,
 			${BilibiliData.className.mVideo} .m-video-player .player-container{
@@ -6580,8 +5409,7 @@
         let controlsPadding = Panel.getValue("bili-video-artplayer-controlsPadding-left-right", 0);
         if (controlsPadding != 0) {
           addStyle(
-            /*css*/
-            `
+`
 				@media (orientation: landscape) {
 					.art-video-player .art-layers .art-layer-top-wrap,
 					/* 底部 */
@@ -6601,12 +5429,7 @@
       }
       this.updateArtPlayerVideoInfo();
     },
-    /**
-     * 更新播放信息
-     * @param videoInfo
-     * @param isEpChoose 是否是从选集内调用的
-     */
-    updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
+updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
       let that = this;
       let queryMVideoPlayer = () => {
         return $(BilibiliData.className.video + " .m-video-player") || $(BilibiliData.className.mVideo + " .m-video-player");
@@ -6702,8 +5525,7 @@
             const $artContainer = domUtils.createElement("div", {
               className: "artplayer-container",
               innerHTML: (
-                /*html*/
-                `
+`
 								<div id="artplayer"></div>
 							`
               )
@@ -7575,10 +6397,7 @@
   })();
   const MobileCommentModuleStyle = ':root {\r\n	--v_xs: 5px;\r\n	--v_xsx: 4px;\r\n	--v_xxs: 6px;\r\n	--v_sm: 10px;\r\n	--v_smx: 8px;\r\n	--v_xsm: 12px;\r\n	--v_md: 15px;\r\n	--v_mdx: 14px;\r\n	--v_xmd: 16px;\r\n	--v_lg: 20px;\r\n	--v_lgx: 18px;\r\n	--v_xlg: 22px;\r\n	--v_xl: 25px;\r\n	--v_xlx: 24px;\r\n	--v_xxl: 26px;\r\n	--v_fs_1: 24px;\r\n	--v_fs_2: 18px;\r\n	--v_fs_3: 16px;\r\n	--v_fs_4: 14px;\r\n	--v_fs_5: 13px;\r\n	--v_fs_6: 12px;\r\n	--v_lh_xs: 1;\r\n	--v_lh_sm: 1.25;\r\n	--v_lh_md: 1.5;\r\n	--v_lh_lg: 1.75;\r\n	--v_lh_xl: 2;\r\n	--v_height_xs: 16px;\r\n	--v_height_sm: 24px;\r\n	--v_height_md: 32px;\r\n	--v_height_lg: 40px;\r\n	--v_height_xl: 48px;\r\n	--v_radius: 6px;\r\n	--v_radius_sm: 4px;\r\n	--v_radius_md: 8px;\r\n	--v_radius_lg: 10px;\r\n	--v_brand_pink: var(--brand_pink, #ff6699);\r\n	--v_brand_pink_thin: var(--brand_pink_thin, #ffecf1);\r\n	--v_brand_blue: var(--brand_blue, #00aeec);\r\n	--v_brand_blue_thin: var(--brand_blue_thin, #dff6fd);\r\n	--v_stress_red: var(--stress_red, #f85a54);\r\n	--v_stress_red_thin: var(--stress_red_thin, #feecea);\r\n	--v_success_green: var(--success_green, #2ac864);\r\n	--v_success_green_thin: var(--success_green_thin, #e4f8ea);\r\n	--v_operate_orange: var(--operate_orange, #ff7f24);\r\n	--v_operate_orange_thin: var(--operate_orange_thin, #fff0e3);\r\n	--v_pay_yellow: var(--pay_yellow, #ffb027);\r\n	--v_pay_yellow_thin: var(--pay_yellow_thin, #fff6e4);\r\n	--v_bg1: var(--bg1, #ffffff);\r\n	--v_bg2: var(--bg2, #f6f7f8);\r\n	--v_bg3: var(--bg3, #f1f2f3);\r\n	--v_bg1_float: var(--bg1_float, #ffffff);\r\n	--v_bg2_float: var(--bg2_float, #f1f2f3);\r\n	--v_text_white: var(--text_white, #ffffff);\r\n	--v_text1: var(--text1, #18191c);\r\n	--v_text2: var(--text2, #61666d);\r\n	--v_text3: var(--text3, #9499a0);\r\n	--v_text4: var(--text4, #c9ccd0);\r\n	--v_text_link: var(--text_link, #008ac5);\r\n	--v_text_notice: var(--text_notice, #e58900);\r\n	--v_line_light: var(--line_light, #f1f2f3);\r\n	--v_line_regular: var(--line_regular, #e3e5e7);\r\n	--v_line_bold: var(--line_bold, #c9ccd0);\r\n	--v_graph_white: var(--graph_white, #ffffff);\r\n	--v_graph_bg_thin: var(--graph_bg_thin, #f6f7f8);\r\n	--v_graph_bg_regular: var(--graph_bg_regular, #f1f2f3);\r\n	--v_graph_bg_thick: var(--graph_bg_thick, #e3e5e7);\r\n	--v_graph_weak: var(--graph_weak, #c9ccd0);\r\n	--v_graph_medium: var(--graph_medium, #9499a0);\r\n	--v_graph_icon: var(--graph_icon, #61666d);\r\n	--v_shadow: var(--shadow, #000000);\r\n	--v_brand_pink_hover: var(--brand_pink_hover, #ff8cb0);\r\n	--v_brand_pink_active: var(--brand_pink_active, #e84b85);\r\n	--v_brand_pink_disabled: var(--brand_pink_disabled, #ffb3ca);\r\n	--v_brand_blue_hover: var(--brand_blue_hover, #40c5f1);\r\n	--v_brand_blue_active: var(--brand_blue_active, #008ac5);\r\n	--v_brand_blue_disabled: var(--brand_blue_disabled, #80daf6);\r\n	--v_stress_red_hover: var(--stress_red_hover, #fa857f);\r\n	--v_stress_red_active: var(--stress_red_active, #e23d3d);\r\n	--v_stress_red_disabled: var(--stress_red_disabled, #fcafaa);\r\n	--v_text_hover: var(--text_hover, #797f87);\r\n	--v_text_active: var(--text_active, #61666d);\r\n	--v_text_disabled: var(--text_disabled, #c9ccd0);\r\n	--v_line_border: var(--line_border, #c9ccd0);\r\n	--v_line_bolder_hover: var(--line_bolder_hover, #e3e5e7);\r\n	--v_line_bolder_active: var(--line_bolder_active, #aeb3b9);\r\n	--v_line_bolder_disabled: var(--line_bolder_disabled, #f1f2f3);\r\n}\r\n\r\n@font-face {\r\n	font-family: fanscard;\r\n	src: url(//s1.hdslb.com/bfs/static/jinkela/mall-h5/asserts/fansCard.ttf);\r\n}\r\n\r\n.svg-icon {\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n}\r\n\r\n.svg-icon svg {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n\r\n.svg-icon.use-color svg path {\r\n	fill: currentColor;\r\n	color: inherit;\r\n}\r\n\r\n.top-vote-card {\r\n	background-color: var(--graph_bg_thin);\r\n	display: flex;\r\n	justify-content: space-between;\r\n	align-items: center;\r\n	height: 80px;\r\n	width: 100%;\r\n	margin-bottom: 24px;\r\n	padding: 12px 16px 12px 10px;\r\n	border-radius: 6px;\r\n}\r\n\r\n.top-vote-card__multi {\r\n	cursor: pointer;\r\n}\r\n\r\n.top-vote-card__multi:hover .vote-result-text {\r\n	color: var(--brand_blue);\r\n	transition: 0.2s;\r\n}\r\n\r\n.top-vote-card-left {\r\n	width: 40%;\r\n	max-width: calc(40% - 30px);\r\n	margin-right: 20px;\r\n	word-wrap: break-word;\r\n	font-size: 13px;\r\n	line-height: 18px;\r\n	color: var(--text1);\r\n}\r\n\r\n.top-vote-card-left__title {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.top-vote-card-left__title svg {\r\n	margin-right: 2px;\r\n	flex: none;\r\n}\r\n\r\n.top-vote-card-left__title span {\r\n	display: -webkit-box;\r\n	float: none;\r\n	height: 18px;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	word-break: break-word;\r\n	-webkit-box-orient: vertical;\r\n	-webkit-line-clamp: 1;\r\n}\r\n\r\n.top-vote-card-left__join {\r\n	height: 17px;\r\n	display: flex;\r\n	align-items: center;\r\n	margin-top: 4px;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n}\r\n\r\n.top-vote-card-left__join .vote-icon {\r\n	height: 12px;\r\n}\r\n\r\n.top-vote-card-left__join span {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.top-vote-card-right {\r\n	width: 60%;\r\n	font-size: var(--2fde2a28);\r\n	line-height: 17px;\r\n	display: flex;\r\n	--option-height: 40px;\r\n	--option-radius: 6px;\r\n}\r\n\r\n.top-vote-card-right .vote-text__not-vote {\r\n	opacity: 0.9;\r\n}\r\n\r\n.top-vote-card-right .vote-text__not-vote .vui_ellipsis {\r\n	font-weight: 400 !important;\r\n}\r\n\r\n.top-vote-card-right .vote-text :first-child {\r\n	font-weight: 500;\r\n}\r\n\r\n.top-vote-card-right .vote-icon {\r\n	flex: none;\r\n}\r\n\r\n.top-vote-card-right .left-vote-option {\r\n	position: relative;\r\n	display: flex;\r\n	min-width: 120px;\r\n	align-items: center;\r\n	justify-content: space-between;\r\n	background-color: rgba(255, 102, 153, var(--212267a6));\r\n	height: var(--option-height);\r\n	width: var(--38c5ebb3);\r\n	padding-left: 10px;\r\n	border-radius: var(--option-radius) 0 0 var(--option-radius);\r\n	cursor: pointer;\r\n	margin-right: 30px;\r\n	color: var(--332a347e);\r\n	transition: width ease-out 0.2s;\r\n}\r\n\r\n.top-vote-card-right .left-vote-option .skew-vote-option {\r\n	position: absolute;\r\n	right: -20px;\r\n	top: 0;\r\n}\r\n\r\n.top-vote-card-right .left-vote-option .skew-vote-option__fill {\r\n	left: -8px;\r\n	background-color: #f69;\r\n	transform: skew(21deg);\r\n	border-top-right-radius: calc(var(--option-radius) - 2px);\r\n	border-bottom-right-radius: var(--option-radius);\r\n}\r\n\r\n.top-vote-card-right .skew-vote-option {\r\n	height: 40px;\r\n	width: 20px;\r\n	overflow: hidden;\r\n	opacity: var(--212267a6);\r\n	pointer-events: none;\r\n}\r\n\r\n.top-vote-card-right .skew-vote-option__fill {\r\n	pointer-events: all;\r\n	position: absolute;\r\n	top: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n\r\n.top-vote-card-right .right-vote-option {\r\n	position: relative;\r\n	display: flex;\r\n	min-width: 120px;\r\n	align-items: center;\r\n	flex-direction: row-reverse;\r\n	justify-content: space-between;\r\n	background-color: rgba(0, 174, 236, var(--212267a6));\r\n	height: var(--option-height);\r\n	width: var(--4b2970aa);\r\n	padding-right: 10px;\r\n	border-radius: 0 var(--option-radius) var(--option-radius) 0;\r\n	cursor: pointer;\r\n	color: var(--1e587827);\r\n	transition: width ease-out 0.2s;\r\n}\r\n\r\n.top-vote-card-right .right-vote-option .skew-vote-option {\r\n	position: absolute;\r\n	left: -20px;\r\n	top: 0;\r\n}\r\n\r\n.top-vote-card-right .right-vote-option .skew-vote-option__fill {\r\n	left: 8px;\r\n	background-color: #00aeec;\r\n	transform: skew(21deg);\r\n	border-top-left-radius: var(--option-radius);\r\n	border-bottom-left-radius: calc(var(--option-radius) - 2px);\r\n}\r\n\r\n.top-vote-card-right .right-vote-option .vote-text {\r\n	text-align: right;\r\n}\r\n\r\n.top-vote-card-right .had_voted {\r\n	cursor: unset;\r\n}\r\n\r\n.reply-header .reply-notice {\r\n	display: flex;\r\n	align-items: center;\r\n	position: relative;\r\n	min-height: 40px;\r\n	padding: 4px 10px;\r\n	margin-bottom: 16px;\r\n	font-size: 13px;\r\n	border-radius: 2px;\r\n	color: var(--Ye5_u);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-header .reply-notice:after {\r\n	content: "";\r\n	position: absolute;\r\n	width: 100%;\r\n	height: 100%;\r\n	top: 0;\r\n	left: 0;\r\n	background-color: var(--Ye5_u);\r\n	opacity: 0.2;\r\n}\r\n\r\n.reply-header .reply-notice .notice-icon {\r\n	width: 16px;\r\n	height: 16px;\r\n	margin-right: 5px;\r\n}\r\n\r\n.reply-header .reply-notice .notice-content {\r\n	flex: 1;\r\n	padding: 0 5px;\r\n	vertical-align: top;\r\n	word-wrap: break-word;\r\n	word-break: break-all;\r\n}\r\n\r\n.reply-header .reply-notice .notice-close-icon {\r\n	position: relative;\r\n	z-index: 1;\r\n	width: 10px;\r\n	height: 10px;\r\n	margin-left: 5px;\r\n}\r\n\r\n.reply-header .reply-navigation {\r\n	margin-bottom: 22px;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar {\r\n	display: flex;\r\n	align-items: center;\r\n	list-style: none;\r\n	margin: 0;\r\n	padding: 0;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-title {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.reply-header .reply-navigation .nav-bar .nav-title {\r\n		font-size: 20px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.reply-header .reply-navigation .nav-bar .nav-title {\r\n		font-size: 24px;\r\n	}\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-title .nav-title-text {\r\n	color: var(--text1);\r\n	font-family: PingFang SC, HarmonyOS_Medium, Helvetica Neue, Microsoft YaHei,\r\n		sans-serif;\r\n	font-weight: 500;\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n	.reply-header .reply-navigation .nav-bar .nav-title .nav-title-text {\r\n		font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, Helvetica,\r\n			Arial, PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif;\r\n	}\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-title .total-reply {\r\n	margin: 0 36px 0 6px;\r\n	font-weight: 400;\r\n	color: var(--text3);\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.reply-header .reply-navigation .nav-bar .nav-title .total-reply {\r\n		font-size: 13px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.reply-header .reply-navigation .nav-bar .nav-title .total-reply {\r\n		font-size: 14px;\r\n	}\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n	font-family: PingFang SC, HarmonyOS_Medium, Helvetica Neue, Microsoft YaHei,\r\n		sans-serif;\r\n	font-weight: 500;\r\n	color: var(--text1);\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n		font-size: 13px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n		font-size: 16px;\r\n	}\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n	.reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n		font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, Helvetica,\r\n			Arial, PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif;\r\n	}\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort {\r\n	display: flex;\r\n	align-items: center;\r\n	color: var(--text3);\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.reply-header .reply-navigation .nav-bar .nav-sort {\r\n		font-size: 13px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.reply-header .reply-navigation .nav-bar .nav-sort {\r\n		font-size: 16px;\r\n	}\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .part-symbol {\r\n	height: 11px;\r\n	margin: 0 12px;\r\n	border-left: solid 1px;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .hot-sort {\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .hot-sort:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .time-sort {\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .time-sort:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort.hot .hot-sort,\r\n.reply-header .reply-navigation .nav-bar .nav-sort.time .time-sort {\r\n	color: var(--text1);\r\n}\r\n\r\n.reply-header .reply-navigation .nav-operation-warp {\r\n	position: absolute;\r\n	right: 0;\r\n}\r\n\r\n/*\r\n   * @bilibili/userAvatar\r\n   * version: 1.2.0-beta.2. Powered by main-frontend\r\n   * 用户头像公共组件.\r\n   * author: wuxiuran\r\n   */\r\n.bili-avatar {\r\n	display: block;\r\n	position: relative;\r\n	background-image: url(data:image/gif;base64,R0lGODlhtAC0AOYAALzEy+To7rG6wb/Hzd/k6rK7wsPK0bvDybO8w9/j6dDW3NHX3eHl6+Hm7LnByLa+xeDl6+Lm7M/V27vDyt7j6dHX3r/Gzb/HzsLJ0LS9xLW+xbe/xtLY3s/V3OPn7dne5NXb4eDk67jAx7S8w+Dk6rrCybW9xMXM08TL0sLK0Nrf5cXM0tjd48zS2bO7wsrR17W+xLfAx8fO1La/xsbN07K7wbzEytzh573FzNLX3uLn7cDHzsbN1NPZ377Gzb7FzNbc4sjP1dfd49bb4tvg5svR2LfAxsnQ1s7U293h6Nbb4dTa4MrQ19fc4t3i6L7GzMnP1s7U2tXa4M3T2sDIz97i6N7i6dje5MjO1dfc473Ey8HJz9vg57jBx8jP1tPY38PL0cfO1dne5dXa4ePn7sHIz8vS2Nrf5tDW3djd5M3T2cDIztTZ4L3Fy7rCyMTL0czT2bC5wOXp7wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS4zLWMwMTEgNjYuMTQ1NjYxLCAyMDEyLzAyLzA2LTE0OjU2OjI3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M2IChXaW5kb3dzKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo1OTQ4QTFCMzg4NDAxMUU1OTA2NUJGQjgwNzVFMDQ2NSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo1OTQ4QTFCNDg4NDAxMUU1OTA2NUJGQjgwNzVFMDQ2NSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjU5NDhBMUIxODg0MDExRTU5MDY1QkZCODA3NUUwNDY1IiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU5NDhBMUIyODg0MDExRTU5MDY1QkZCODA3NUUwNDY1Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+Af/+/fz7+vn49/b19PPy8fDv7u3s6+rp6Ofm5eTj4uHg397d3Nva2djX1tXU09LR0M/OzczLysnIx8bFxMPCwcC/vr28u7q5uLe2tbSzsrGwr66trKuqqainpqWko6KhoJ+enZybmpmYl5aVlJOSkZCPjo2Mi4qJiIeGhYSDgoGAf359fHt6eXh3dnV0c3JxcG9ubWxramloZ2ZlZGNiYWBfXl1cW1pZWFdWVVRTUlFQT05NTEtKSUhHRkVEQ0JBQD8+PTw7Ojk4NzY1NDMyMTAvLi0sKyopKCcmJSQjIiEgHx4dHBsaGRgXFhUUExIREA8ODQwLCgkIBwYFBAMCAQAAIfkEAAAAAAAsAAAAALQAtAAAB/+AcoKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19sA6SCtTCakBCyuKOLmXKAGOOAhLiDkFoQzCOA9YEDyE5SHCBx9KhdhhMc6EBhMJeXDQMY6GjKIgXCgZR0jIQR4msDRxJRQBHyzjoHwpR0LODRI9keDI0kAAnoI8rMgJoyYnlTkBUEA6KMDSmTsxhTjIEsBAqlWvlowR9BIBCzmf9ANLyCrTrJP/SAzI+WMtW5EncmpIUwkCTpZaqtw9FIBGzgxlIRHgWvLH1MGIDLN8ACRSArQsfRCAnCgAj5wmsjwigbnkk80hA6hezbr1ajkeMoCu7Lq1HIM5C9yQU7v363EQFhxBMeGA8ePIkx+fMEFAzjgFmCtHPuHBcwEAik/fbnwCCiZfQHKzcoLk8/Po06tfr95BC7vWAkgQwb6+/fv4ETqocC2EgfwABihgRzToQM1ZJT0AwIIMNujggxBGKOGEFFYIgHkWYQCBNA0A0BEASOzmDAMS2NBRCh5AE4AMFiGAhIHSeIAEAhYdAQ0HFmkwxDVDmPBQAU2MiCECSiDiAQkhMBAC/wFMNunkk1ASkMCUUzJJAgQMMNDAllxyGUEEXTaQ5ZhjQmDmmRCEcOVRhyhBI0I2RNCMGRZ5cUgO5RWAQAYuCCBADYDW4OeghBZqqJ8FuLAnDBo84OijkDqqwaQwwGDCpRlkOsKmCHTaqQsjAIDFAocEYVEHzDCA4QMkFNIAGAgdcMEAtM5K6621XqDrrrz2uiuuFgQr7LDEFmsBrsjiWgJCYIg3CAnW6ZeiMgtYBEUhEfwQhwEqsFkMGSxw9IOchHjxIwjKBICBRS4R8pkZzHgWhwyFCGHRCcoQMIJFZxAyRBz4NhMADgIUOYgKFjnAQDJLOIeQboTQUAB8y3wgAP8PhHBRwEMCwEUMiw+Z8BhvJVChogMHeEuBbA+NkQysDxmxsCARbPBCNDs8QK4cDBhhUQvJrJHwtHJAAAMS0byQwYZJYRgHxsjM9VAJ3kJgAqrQoAFDCFUdYBEKyUiN0ASENCCCBNF0IIKzcpj4kAFhWwQAIRE4gDY0EjiwsxwePpRC3A+1Qbfd0eS9N2PbAo7QAIPf/YzhhBCFENxRW/T3IHU77gzkg6RgEeXHiB0HBmWfnXYMbK/7tuKjl72B5s10sMHMgqg+OeukD9LA62nPTojtiVf+0A+EMPAA7Mx08ADTgjxhOetzDwLBA1g/04EGzPP9vPBjEwKBBtU7o8D/1oS4jdDloVtE9iAhZBC+JVkg0YS3kQzhgAMoRBEkJgpk0OogMvEb61I2CH29LxJWWMIKROAcAUzACpIIgLYsIoITAGFvkVAAAlAjiADejnseIQQBEHDARlBAAT5gWUemIIkXPKcLGEhD9hyhABdwUA4eDF76HrI+QRCgAAqARADYYACHHUZEjvDAstAzAx54TBEKmBghcgg6Y4iuh3L4YRAbEQEFuGE96HoEA2awHgHIgAg0lCIAP8c6G4gQiIw4wwvIyJ5+QUIB9SkACpCYiCjCx3w6tKJFtCBCEnZmDGUwono20AP6OSIIG2NPAbAwskNo8IbOWx0I10AIEoyg/4RyIMJf2DMDNcwQEiowQCTXU4AjYHAQl/wdG0GIPjmQwH2HCIHT0jMCJtDOElWAwi7RgwNEKGAENwReFYshutz50JCGAJl6HuCFG2YiAl/oW3oQYMwNylKTO0SIM7MIzUL8Jz0bkIE1O8GCLfjoPA/oZjJnGc7WFdAFWyxEtZ4zAhpwwJGhSIAEnrDKjpDKkgWYJzgF+ZBxavEQHlhJRzSAAja80hQkmIIBNGCRGfySEH785gfrWcuHHuIDGajBBnBwAhb8DxYk+MAKLBCFdcJSjbWjJ0PPR4gEwBERViDCR4GhgBrAR5msq6JP8yk+AcDHcwtlpk6XGg0FOJUQUP8d6U4DmYAaMLUZVq3kObUq1YeAbRAJEMBXNUGCV3pgnR94YibCSoixBrKsCDmrINK6VkwoQQNlKAQRJpCBdgmCAQdAgFM6QddBoECneI2DXm+jVk98Jg5hFMRVCDkIF8YBeXMVQCUfG1ViiC5ggqBAZTvhhBhARAWCqMIq0QAbKDgHAVz4RGMFQVqymtYiNCCEavuKiRu41gUGKMIXNyCTAuxgiSOojG5FS4i8lHYYoqMXWn/qiSrkUABSaMASEaKF3ILCqvC5rG+xaxEsuA60mtABHKhQgi2EkQFH2IIBFABQTsiObWGA7G8fYiPMmQ4aamMbFATM3ofcDHOEw5v/3gjBBAYLQ3RFaFzhJjyIIlg4GBgmhA4i/DgOC8LD172wRZggYhJvzsRyqHCKQWyRFdDtwNZbGyHEctcBI8Rk0oMBKJOhABNwbRBUsAgYkiHR7klPA/AlMgyyl0PUGgN4VMOcEYAGDRTorCrjjUMQkmFdhMgMzFB7hhayfFifPYS2yEAxQhCQhB13gWipykBwB3GDNyFkf8cgQkFhO4h/9eAZLYiDwQSBsIfQORkNcJphBUGDDHxlGSoowJ4HYa+H7GAZnkWInegGAA0k5hhKGIEDYDQIUz2Ey8kQgwse8gBrRmBdFzDDAna9gBzkoALADrawh01sYP8a2LxOtrKX/83sZVfA19CuQAucN4E6i5CjCMlAJZGxBYuM2RALoEF1NDADGAigAHrylLo95YJ2o/vd8NbTCDLQqA1sIAYiEEEM9o3vfOvbCPYO+Axm8KhJaQABg0K3AEzwBgngWRAVESAzmrBKBGS2EAFIEwNIQAEKJOBJVAq5yBPQ8ZJ73EpYytKWyKSllbM8S2gKgcxJbnIKHNkQIPBzAQjNjN7GwQQXnwYI3omQazmjCl1oURRYXVU/xyFO0ACCCscmgUszowEc2IIiMSKNBSgSIRuwkNjHTvayN2iYIwj6MxZA9AG5/e3TVDs0WBBmuNv97k+3ozUIwARs4/3vAZpBC4ZaDf8CtMACdDzPuQvwdcBfx0/rEQEAWnBKbYRgCUsAgRSkMIYxLKAHIGjCFVRABC6ogAUg4IADII+QMHDg9bCHfQf29ZARKCD2uLdrHBDQgyawIK4fEAIQNL+EHoB+CJrvwReykAC2xaMHX/80Ij5QEmsbIgJ1j0MYJvFweARglLVfyCHk/JCDGuILLKmBXNkyhII+xOiGACRCrFwV8GeIMyKd6EsHsbKS4ACgQNB4D8NzSBEAZEAGqiEHNzBrOREFhrAELJEBFKMu57FMBcgmrpYTNsB0cpCBHQEXmXYeBYBGkNEAbvYcFxcAXsMSDlhd6WFjkNED6eEDGeN0FgFkguD/BO7HEo82GKKTE+o3CPvEEg7gLdKEHt/GFn2mHnpVZiXRgwQwdeehATYVEommHgIAQSNxHksgCKGmHiwEFgGQdOsRXCH4HPAyPfXRBRwYEiBQH9oWBeixAwEwBffBH1Thc+rxArqXIFZAH/bxA/1lDyFgg+mhARuAHgJgLvchAKdGED7xd9FyHxZ4D23gePmBAIIREkQggJioHmrwEl/4ifXBZvcQAMNEilj4iPOQBZ6oiuixfQRxhLBISs4nDx6QiLV4HxxwD1Kwi/gRWPbghMDIStYnD7tTjPcBa/KgBMp4HxPQfe7AY8+IhdIVDw3gWtVYH/TnDlmwjfaxAVWogg60CI7pkQPxQAbZZ47nUWDvcAWvyI7+N4jocIXyqB4FIH7tEADadI/p8WDtsIT+qB7R6A5IMJBltH7lkFUIiR7uqA7f05DqAQDSWA7/IpHpsXPsUI4YyRJhmA4S1JHpgYPo4AS0J5LPIQI3dw5v2BHnFo/+WAOTZg4yhpLnYX6xEAgAOw==);\r\n	-webkit-background-size: cover;\r\n	background-size: cover;\r\n	border-radius: 50%;\r\n	margin: 0;\r\n	padding: 0;\r\n}\r\n\r\n.bili-avatar * {\r\n	margin: 0;\r\n	padding: 0;\r\n}\r\n\r\n.bili-avatar-face {\r\n	position: absolute;\r\n	top: 50%;\r\n	left: 50%;\r\n	-webkit-transform: translate(-50%, -50%);\r\n	-moz-transform: translate(-50%, -50%);\r\n	-ms-transform: translate(-50%, -50%);\r\n	-o-transform: translate(-50%, -50%);\r\n	transform: translate(-50%, -50%);\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n\r\n.bili-avatar-pendent-dom {\r\n	height: 176.48%;\r\n	width: 176.48%;\r\n	position: absolute;\r\n	top: -38.33%;\r\n	left: -38.33%;\r\n	overflow: hidden;\r\n}\r\n\r\n.bili-avatar-pendent-dom img {\r\n	height: 100%;\r\n	min-width: 100%;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	user-select: none;\r\n}\r\n\r\n.bili-avatar-img {\r\n	border: none;\r\n	display: block;\r\n	-o-object-fit: cover;\r\n	object-fit: cover;\r\n	image-rendering: -webkit-optimize-contrast;\r\n}\r\n\r\n.bili-avatar-img-radius {\r\n	border-radius: 50%;\r\n}\r\n\r\n.bili-avatar-img[src=""],\r\n.bili-avatar-img:not([src]) {\r\n	opacity: 0;\r\n}\r\n\r\n.bili-avatar-img.bili-avatar-img-error {\r\n	display: none;\r\n}\r\n\r\n.bili-avatar-right-icon {\r\n	width: 27.5%;\r\n	height: 27.5%;\r\n	position: absolute;\r\n	right: 0;\r\n	bottom: -1px;\r\n	-webkit-background-size: cover;\r\n	background-size: cover;\r\n	image-rendering: -webkit-optimize-contrast;\r\n}\r\n\r\n.bili-avatar-nft-icon {\r\n	position: absolute;\r\n	width: 27.5%;\r\n	height: 27.5%;\r\n	right: -webkit-calc(27.5% - 1px);\r\n	right: -moz-calc(27.5% - 1px);\r\n	right: calc(27.5% - 1px);\r\n	bottom: -1px;\r\n	-webkit-background-size: cover;\r\n	background-size: cover;\r\n	image-rendering: -webkit-optimize-contrast;\r\n}\r\n\r\n@-webkit-keyframes bili-avatar {\r\n	0% {\r\n		-webkit-transform: translate3d(0, 0, 0);\r\n		transform: translateZ(0);\r\n	}\r\n\r\n	to {\r\n		-webkit-transform: translate3d(-97.5%, 0, 0);\r\n		transform: translate3d(-97.5%, 0, 0);\r\n	}\r\n}\r\n\r\n@-moz-keyframes bili-avatar {\r\n	0% {\r\n		-moz-transform: translate3d(0, 0, 0);\r\n		transform: translateZ(0);\r\n	}\r\n\r\n	to {\r\n		-moz-transform: translate3d(-97.5%, 0, 0);\r\n		transform: translate3d(-97.5%, 0, 0);\r\n	}\r\n}\r\n\r\n@keyframes bili-avatar {\r\n	0% {\r\n		-webkit-transform: translate3d(0, 0, 0);\r\n		-moz-transform: translate3d(0, 0, 0);\r\n		transform: translateZ(0);\r\n	}\r\n\r\n	to {\r\n		-webkit-transform: translate3d(-97.5%, 0, 0);\r\n		-moz-transform: translate3d(-97.5%, 0, 0);\r\n		transform: translate3d(-97.5%, 0, 0);\r\n	}\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-80 {\r\n	width: 22px;\r\n	height: 22px;\r\n	bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-60,\r\n.bili-avatar .bili-avatar-size-50,\r\n.bili-avatar .bili-avatar-size-48 {\r\n	width: 18px;\r\n	height: 18px;\r\n	bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-40,\r\n.bili-avatar .bili-avatar-size-36 {\r\n	width: 14px;\r\n	height: 14px;\r\n	bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-30,\r\n.bili-avatar .bili-avatar-size-24 {\r\n	width: 12px;\r\n	height: 12px;\r\n	bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-80 {\r\n	width: 22px;\r\n	height: 22px;\r\n	bottom: -1px;\r\n	right: -webkit-calc(22px - 1px);\r\n	right: -moz-calc(22px - 1px);\r\n	right: 21px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-60,\r\n.bili-avatar .bili-avatar-size-nft-50,\r\n.bili-avatar .bili-avatar-size-nft-48 {\r\n	width: 18px;\r\n	height: 18px;\r\n	bottom: -1px;\r\n	right: -webkit-calc(18px - 1px);\r\n	right: -moz-calc(18px - 1px);\r\n	right: 17px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-40,\r\n.bili-avatar .bili-avatar-size-nft-36 {\r\n	width: 14px;\r\n	height: 14px;\r\n	bottom: -1px;\r\n	right: -webkit-calc(14px - 1px);\r\n	right: -moz-calc(14px - 1px);\r\n	right: 13px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-30,\r\n.bili-avatar .bili-avatar-size-nft-24 {\r\n	width: 12px;\r\n	height: 12px;\r\n	bottom: -1px;\r\n	right: -webkit-calc(12px - 1px);\r\n	right: -moz-calc(12px - 1px);\r\n	right: 11px;\r\n}\r\n\r\n.reply-image {\r\n	width: var(--3414c33c);\r\n	height: var(--822197ea);\r\n}\r\n\r\n.reply-image.b-img {\r\n	background-color: inherit;\r\n}\r\n\r\n.reply-image.b-img img {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n\r\n.opacity-enter-active,\r\n.opacity-leave-active {\r\n	transition: opacity 0.15s ease;\r\n}\r\n\r\n.opacity-enter-from,\r\n.opacity-leave-to {\r\n	opacity: 0;\r\n}\r\n\r\n.reply-box {\r\n	display: flex;\r\n	flex-direction: column;\r\n}\r\n\r\n.reply-box .box-normal {\r\n	display: flex;\r\n	z-index: 2;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-avatar {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	width: 80px;\r\n	height: 48px;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp {\r\n	position: relative;\r\n	flex: 1;\r\n	transition: 0.2s;\r\n	border: 1px solid var(--line_regular);\r\n	border-radius: 6px;\r\n	background-color: var(--bg3);\r\n	overflow-x: hidden;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp.focus-within,\r\n.reply-box .box-normal .reply-box-warp:hover {\r\n	border-color: var(--line_regular);\r\n	background-color: var(--bg1);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap {\r\n	padding: 8px 0;\r\n	display: flex;\r\n	flex-direction: column;\r\n	width: 100%;\r\n	border-radius: 6px;\r\n	cursor: text;\r\n	overflow: hidden;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info {\r\n	margin-left: 10px;\r\n	margin-bottom: 4px;\r\n	height: 20px;\r\n	font-size: 12px;\r\n	line-height: 17px;\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag {\r\n	flex: none;\r\n	padding: 2px 6px;\r\n	border-radius: 2px;\r\n	margin-right: 4px;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--pink {\r\n	background-color: var(--Pi1);\r\n	color: var(--Pi5);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--blue {\r\n	background-color: var(--brand_blue_thin);\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--gary {\r\n	background-color: var(--graph_bg_regular);\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__text {\r\n	max-width: calc(100% - 68px);\r\n	color: var(--text2);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__close {\r\n	flex: none;\r\n	margin-left: 4px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-input {\r\n	padding: 0 8px;\r\n	width: 100%;\r\n	height: 100%;\r\n	border: 1px solid var(--Ga1);\r\n	border-radius: 6px;\r\n	background-color: var(--bg3);\r\n	font-family: inherit;\r\n	line-height: 20px;\r\n	color: var(--text1);\r\n	resize: none;\r\n	outline: none;\r\n	overflow-y: scroll;\r\n	overflow-x: hidden;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-input.focus,\r\n.reply-box .box-normal .reply-box-warp .reply-input:hover {\r\n	background-color: var(--bg1);\r\n	border-color: var(--graph_weak);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-box-textarea {\r\n	padding: 0 8px;\r\n	width: 100%;\r\n	height: 32px;\r\n	border: none;\r\n	border-radius: 6px;\r\n	background-color: transparent;\r\n	font-family: inherit;\r\n	font-size: 14px;\r\n	line-height: 32px;\r\n	color: var(--text1);\r\n	resize: none;\r\n	outline: none;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-box-textarea::placeholder {\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .image-content-wrap {\r\n	background: transparent;\r\n}\r\n\r\n.reply-box .box-expand {\r\n	display: flex;\r\n	justify-content: space-between;\r\n	align-items: center;\r\n	margin-left: 80px;\r\n	margin-top: 10px;\r\n	z-index: 1;\r\n	height: 32px;\r\n	transition: all 0.2s ease-in-out;\r\n}\r\n\r\n.reply-box .box-expand.hide {\r\n	margin-top: 0;\r\n	height: 0;\r\n	overflow: hidden;\r\n	transition: all 0.2s ease-in-out;\r\n}\r\n\r\n.reply-box .box-expand .box-left {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-emoji {\r\n	width: 32px;\r\n	height: 26px;\r\n	margin-right: 6px;\r\n	position: relative;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-emoji .emoji-btn {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	width: 100%;\r\n	height: 100%;\r\n	border: 1px solid var(--line_regular);\r\n	border-radius: 4px;\r\n	color: var(--text3);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .at-btn {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	width: 32px;\r\n	height: 26px;\r\n	margin-right: 6px;\r\n	border: 1px solid var(--line_regular);\r\n	border-radius: 4px;\r\n	color: var(--text3);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .image-btn {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	width: 32px;\r\n	height: 26px;\r\n	border: 1px solid var(--line_regular);\r\n	border-radius: 4px;\r\n	color: var(--text3);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .image-btn.disabled {\r\n	opacity: 0.4;\r\n}\r\n\r\n.reply-box .box-expand .image-btn .image-upload-input {\r\n	appearance: none;\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n	opacity: 0;\r\n	font-size: 0;\r\n	user-select: auto;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .forward-to-dynamic {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-left: 16px;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-box .box-expand .forward-to-dynamic .forward-input,\r\n.reply-box .box-expand .forward-to-dynamic .forward-label {\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send {\r\n	float: right;\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	width: 70px;\r\n	height: 32px;\r\n	border-radius: 6px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send .send-text {\r\n	position: absolute;\r\n	z-index: 1;\r\n	font-size: 16px;\r\n	color: var(--text_white);\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send:after {\r\n	content: "";\r\n	position: absolute;\r\n	opacity: 0.5;\r\n	width: 100%;\r\n	height: 100%;\r\n	border-radius: 4px;\r\n	background-color: var(--brand_blue);\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send:hover:after {\r\n	opacity: 1;\r\n}\r\n\r\n.reply-box.box-active\r\n	.box-normal\r\n	.reply-box-warp\r\n	.reply-box-textarea.send-active {\r\n	line-height: normal;\r\n}\r\n\r\n.reply-box.box-active .reply-box-send.send-active:after {\r\n	opacity: 1;\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	z-index: 1;\r\n	width: 100%;\r\n	height: 100%;\r\n	border-radius: 6px;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n	background-color: var(--bg3);\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	width: 100%;\r\n	height: 100%;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box.disabled\r\n	.box-normal\r\n	.reply-box-warp\r\n	.disable-mask\r\n	.no-login-mask\r\n	.login-btn {\r\n	padding: 4px 9px;\r\n	margin: 0 3px;\r\n	border-radius: 4px;\r\n	color: var(--text_white);\r\n	background-color: var(--brand_blue);\r\n}\r\n\r\n.reply-box.disabled\r\n	.box-normal\r\n	.reply-box-warp\r\n	.disable-mask\r\n	.no-login-mask\r\n	.login-btn:hover {\r\n	background-color: var(--Lb4);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box.disabled .reply-box-send .send-text {\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-box.disabled .reply-box-send:after {\r\n	opacity: 1;\r\n	background-color: var(--bg3);\r\n}\r\n\r\n.reply-box.fixed-box {\r\n	position: relative;\r\n	z-index: 2;\r\n	padding: 15px 0;\r\n	border-top: 0.5px solid var(--graph_bg_thick);\r\n	background-color: var(--bg1);\r\n}\r\n\r\n.reply-content-container.fold .reply-content {\r\n	display: -webkit-box;\r\n	-webkit-box-orient: vertical;\r\n	-webkit-line-clamp: 4;\r\n}\r\n\r\n.reply-content-container .reply-content {\r\n	color: var(--text1);\r\n	overflow: hidden;\r\n	word-wrap: break-word;\r\n	word-break: break-word;\r\n	white-space: pre-wrap;\r\n	line-height: 24px;\r\n	vertical-align: baseline;\r\n}\r\n\r\n.reply-content-container .reply-content .note-prefix {\r\n	display: inline-flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	padding: 1px 4px;\r\n	border-radius: 4px;\r\n	margin-right: 8px;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n	line-height: 20px;\r\n	vertical-align: bottom;\r\n	background-color: var(--bg2);\r\n}\r\n\r\n.reply-content-container .reply-content .note-prefix .note-icon {\r\n	width: 16px;\r\n	height: 16px;\r\n}\r\n\r\n.reply-content-container .reply-content .top-icon {\r\n	top: -2px;\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	width: 30px;\r\n	height: 18px;\r\n	border: 1px solid var(--brand_pink);\r\n	border-radius: 3px;\r\n	margin-right: 5px;\r\n	font-size: 12px;\r\n	color: var(--brand_pink);\r\n}\r\n\r\n.reply-content-container .reply-content .emoji-small {\r\n	vertical-align: text-bottom;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.reply-content-container .reply-content .emoji-small {\r\n		width: 20px;\r\n		height: 20px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.reply-content-container .reply-content .emoji-small {\r\n		width: 22px;\r\n		height: 22px;\r\n	}\r\n}\r\n\r\n.reply-content-container .reply-content .emoji-large {\r\n	width: 50px;\r\n	height: 50px;\r\n	vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-container .reply-content .icon {\r\n	width: 20px;\r\n	height: 20px;\r\n	vertical-align: text-top;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.reply-content-container .reply-content .icon {\r\n		line-height: 24px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.reply-content-container .reply-content .icon {\r\n		line-height: 26px;\r\n	}\r\n}\r\n\r\n.reply-content-container .reply-content .icon.search-word {\r\n	width: 12px;\r\n	display: inline-block;\r\n	background-size: contain;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n.reply-content-container .reply-content .jump-link {\r\n	vertical-align: baseline;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.reply-content-container .reply-content .jump-link {\r\n		line-height: 24px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.reply-content-container .reply-content .jump-link {\r\n		line-height: 26px;\r\n	}\r\n}\r\n\r\n.reply-content-container .expand-content {\r\n	color: var(--text_link);\r\n	cursor: pointer;\r\n	margin-left: 4px;\r\n}\r\n\r\n.reply-content-container .expand-content:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-item {\r\n	position: relative;\r\n	padding: 8px 0 8px 42px;\r\n	border-radius: 4px;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.sub-reply-item {\r\n		font-size: 15px;\r\n		line-height: 24px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.sub-reply-item {\r\n		font-size: 16px;\r\n		line-height: 26px;\r\n	}\r\n}\r\n\r\n.sub-reply-item.show-reply {\r\n	background-color: #dff6fb;\r\n	animation-name: enterAnimation-jumpReply-1f8a4018;\r\n	animation-duration: 2s;\r\n	animation-delay: 3s;\r\n	animation-fill-mode: forwards;\r\n}\r\n\r\n.sub-reply-item .sub-user-info {\r\n	display: inline-flex;\r\n	align-items: center;\r\n	margin-right: 9px;\r\n	line-height: 24px;\r\n	vertical-align: baseline;\r\n	white-space: nowrap;\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-reply-avatar {\r\n	position: absolute;\r\n	left: 8px;\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-user-name {\r\n	font-family: PingFang SC, HarmonyOS_Medium, Helvetica Neue, Microsoft YaHei,\r\n		sans-serif;\r\n	font-weight: 500;\r\n	margin-right: 5px;\r\n	color: var(--3bab3096);\r\n	cursor: pointer;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.sub-reply-item .sub-user-info .sub-user-name {\r\n		font-size: 13px;\r\n		line-height: 24px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.sub-reply-item .sub-user-info .sub-user-name {\r\n		font-size: 14px;\r\n		line-height: 26px;\r\n	}\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n	.sub-reply-item .sub-user-info .sub-user-name {\r\n		font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, Helvetica,\r\n			Arial, PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif;\r\n	}\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-user-level {\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-up-icon {\r\n	cursor: default;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info {\r\n	display: flex;\r\n	align-items: center;\r\n	position: relative;\r\n	margin-top: 2px;\r\n	font-size: 13px;\r\n	color: var(--text3);\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-time {\r\n	margin-right: var(--7530c1e4);\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-location {\r\n	margin-right: 20px;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-like {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-right: 19px;\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon {\r\n	margin-right: 5px;\r\n	color: #9499a0;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon:hover,\r\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon.liked {\r\n	color: #00aeec;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-right: 19px;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon {\r\n	color: #9499a0;\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon:hover,\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon.disliked {\r\n	color: #00aeec;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-btn {\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-btn:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-operation-warp {\r\n	position: absolute;\r\n	right: 40px;\r\n	opacity: 0;\r\n}\r\n\r\n.sub-reply-item:hover .sub-reply-info .sub-reply-operation-warp {\r\n	opacity: 1;\r\n}\r\n\r\n@keyframes enterAnimation-jumpReply-1f8a4018 {\r\n	0% {\r\n		background-color: #dff6fb;\r\n	}\r\n\r\n	to {\r\n		background-color: #dff6fb00;\r\n	}\r\n}\r\n\r\n.sub-reply-list .view-more {\r\n	padding-left: 8px;\r\n	font-size: 13px;\r\n	color: var(--text3);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-default .view-more-btn {\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-default .view-more-btn:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination {\r\n	color: var(--text1);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-count {\r\n	margin-right: 10px;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-btn {\r\n	margin: 0 4 0 14px;\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-btn:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number {\r\n	margin: 0 4px;\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number:hover,\r\n.sub-reply-list\r\n	.view-more\r\n	.view-more-pagination\r\n	.pagination-page-number.current-page {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-dot {\r\n	margin: 0 4px;\r\n	cursor: default;\r\n}\r\n\r\n.image-exhibition {\r\n	margin-top: 8px;\r\n	user-select: none;\r\n}\r\n\r\n.image-exhibition .preview-image-container {\r\n	max-width: var(--dacbf126);\r\n	display: flex;\r\n	flex-wrap: wrap;\r\n	row-gap: var(--77b1c8ee);\r\n	column-gap: var(--0c349aa2);\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap {\r\n	display: flex;\r\n	justify-content: center;\r\n	position: relative;\r\n	border-radius: var(--7fefecd2);\r\n	overflow: hidden;\r\n	cursor: zoom-in;\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap.vertical {\r\n	flex-direction: column;\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap.extra-long {\r\n	justify-content: start;\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap .more-image {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	position: absolute;\r\n	right: 4px;\r\n	bottom: 4px;\r\n	height: 20px;\r\n	padding: 0 6px;\r\n	border-radius: 4px;\r\n	font-size: 13px;\r\n	color: var(--text_white);\r\n	font-weight: 500;\r\n	line-height: 18px;\r\n	background: rgba(0, 0, 0, 0.7);\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.client-image-item-warp:nth-child(3n + 1) {\r\n	border-bottom-right-radius: 0;\r\n	border-top-right-radius: 0;\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.client-image-item-warp:nth-child(3n + 2) {\r\n	border-radius: 0;\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.client-image-item-warp:nth-child(3n + 3) {\r\n	border-bottom-left-radius: 0;\r\n	border-top-left-radius: 0;\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.client-image-item-warp:nth-last-child(1) {\r\n	border-bottom-right-radius: var(--7fefecd2);\r\n	border-top-right-radius: var(--7fefecd2);\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.expand-image-item-warp:nth-child(1) {\r\n	border-radius: var(--7fefecd2) 0 0 0;\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.expand-image-item-warp:nth-child(3) {\r\n	border-radius: 0 var(--7fefecd2) 0 0;\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.expand-image-item-warp:nth-child(7) {\r\n	border-radius: 0 0 0 var(--7fefecd2);\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.expand-image-item-warp:nth-child(9) {\r\n	border-radius: 0 0 var(--7fefecd2) 0;\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.expand-image-item-warp:nth-child(3n + 2) {\r\n	border-radius: 0;\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.expand-image-item-warp.expand-image-two-rows:nth-child(4) {\r\n	border-radius: 0 0 0 var(--7fefecd2);\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.expand-image-item-warp.expand-image-two-rows:nth-child(6) {\r\n	border-radius: 0 0 var(--7fefecd2) 0;\r\n}\r\n\r\n.reply-user-sailing {\r\n	height: 48px;\r\n}\r\n\r\n.vote-warp {\r\n	display: flex;\r\n	width: 100%;\r\n	height: 80px;\r\n	border: 0.5px solid var(--graph_bg_thick);\r\n	border-radius: 4px;\r\n	margin: 10px 0;\r\n}\r\n\r\n.vote-warp .vote-icon-warp {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	flex-basis: 80px;\r\n	flex-shrink: 0;\r\n	border-top-left-radius: 4px;\r\n	border-bottom-left-radius: 4px;\r\n	background-color: var(--brand_blue_thin);\r\n}\r\n\r\n.vote-warp .vote-icon-warp .vote-icon {\r\n	width: 40px;\r\n	height: 40px;\r\n}\r\n\r\n.vote-warp .vote-container {\r\n	display: flex;\r\n	align-items: center;\r\n	flex: 1;\r\n	border-top-right-radius: 4px;\r\n	border-bottom-right-radius: 4px;\r\n	background-color: var(--bg1);\r\n}\r\n\r\n.vote-warp .vote-container .vote-text-warp {\r\n	flex: 1;\r\n	padding-left: 15px;\r\n}\r\n\r\n.vote-warp .vote-container .vote-text-warp .vote-title {\r\n	font-size: 14px;\r\n	color: var(--text1);\r\n}\r\n\r\n.vote-warp .vote-container .vote-text-warp .vote-desc {\r\n	margin-top: 10px;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n}\r\n\r\n.vote-warp .vote-container .vote-btn-warp {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	flex-basis: 90px;\r\n	flex-shrink: 0;\r\n}\r\n\r\n.vote-warp .vote-container .vote-btn-warp .vote-btn {\r\n	width: 54px;\r\n	height: 28px;\r\n	border-radius: 4px;\r\n	font-size: 13px;\r\n	text-align: center;\r\n	line-height: 28px;\r\n	color: var(--text_white);\r\n	background-color: var(--brand_blue);\r\n	cursor: pointer;\r\n}\r\n\r\n.vote-warp .vote-container .vote-btn-warp .vote-btn:hover {\r\n	background-color: var(--Lb4);\r\n}\r\n\r\n.vote-dialog {\r\n	max-height: 100vh;\r\n	overflow-y: auto;\r\n}\r\n\r\n.vote-dialog::-webkit-scrollbar {\r\n	width: 4px;\r\n	border-radius: 4px;\r\n	background-color: transparent;\r\n}\r\n\r\n.vote-dialog::-webkit-scrollbar-thumb {\r\n	border-radius: 4px;\r\n	background-color: var(--graph_bg_thick);\r\n	transition: 0.3s ease-in-out;\r\n}\r\n\r\n.vote-dialog::-webkit-scrollbar-track {\r\n	border-radius: 4px;\r\n	background-color: transparent;\r\n}\r\n\r\n.vote-dialog .vote-iframe-warp {\r\n	height: 600px;\r\n	padding-top: 10px;\r\n	border-top: 0.5px solid var(--graph_weak);\r\n}\r\n\r\n.vote-dialog .vote-iframe-warp .vote-iframe {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n\r\n.reply-item {\r\n	position: relative;\r\n}\r\n\r\n.reply-item .login-limit-mask {\r\n	display: none;\r\n	position: absolute;\r\n	top: 0;\r\n	right: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n	z-index: 10;\r\n	pointer-events: none;\r\n}\r\n\r\n.reply-item .login-limit-mask .mask-top {\r\n	height: 80%;\r\n	background: linear-gradient(\r\n		180deg,\r\n		rgba(255, 255, 255, 0) 0%,\r\n		var(--bg1) 100%\r\n	);\r\n}\r\n\r\n.reply-item .login-limit-mask .mask-bottom {\r\n	height: 20%;\r\n	background: var(--bg1);\r\n}\r\n\r\n.reply-item.login-limit-reply-end .login-limit-mask {\r\n	display: block;\r\n}\r\n\r\n.reply-item .root-reply-container {\r\n	padding: 22px 0 0 80px;\r\n}\r\n\r\n.reply-item .root-reply-container.show-reply {\r\n	animation-name: enterAnimation-jumpReply-7041f671;\r\n	animation-duration: 5s;\r\n	animation-fill-mode: forwards;\r\n}\r\n\r\n.reply-item .root-reply-container .root-reply-avatar {\r\n	display: flex;\r\n	justify-content: center;\r\n	position: absolute;\r\n	left: 0;\r\n	width: 80px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp {\r\n	flex: 1;\r\n	position: relative;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate {\r\n	position: absolute;\r\n	top: 0;\r\n	right: 0;\r\n	user-select: none;\r\n	transform: translateY(-15px);\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.reply-decorate\r\n	.easter-egg-label {\r\n	width: 82px;\r\n	height: 36px;\r\n	transform: translateY(6px);\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.reply-decorate\r\n	.easter-egg-label\r\n	img {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.reply-decorate\r\n	.selected-reply\r\n	.selected-reply-icon {\r\n	width: var(--213e47ca);\r\n	height: var(--268890ba);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.reply-decorate\r\n	.user-sailing\r\n	.user-sailing-img {\r\n	height: 48px;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.reply-decorate\r\n	.user-sailing\r\n	.user-sailing-text {\r\n	position: absolute;\r\n	right: 0;\r\n	font-size: 13px;\r\n	color: var(--2bd55d12);\r\n	line-height: 16px;\r\n	word-break: keep-all;\r\n	transform: scale(0.7);\r\n	transform-origin: center center;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.reply-decorate\r\n	.user-sailing\r\n	.user-sailing-text\r\n	.sailing-text {\r\n	font-family: fanscard;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-bottom: 4px;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.reply-item .root-reply-container .content-warp .user-info {\r\n		font-size: 13px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.reply-item .root-reply-container .content-warp .user-info {\r\n		font-size: 14px;\r\n	}\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .user-name {\r\n	font-family: PingFang SC, HarmonyOS_Medium, Helvetica Neue, Microsoft YaHei,\r\n		sans-serif;\r\n	font-weight: 500;\r\n	margin-right: 5px;\r\n	color: var(--dc735352);\r\n	cursor: pointer;\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n	.reply-item .root-reply-container .content-warp .user-info .user-name {\r\n		font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, Helvetica,\r\n			Arial, PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif;\r\n	}\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .user-level {\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .up-icon {\r\n	cursor: default;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .contractor-box {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	width: var(--697d5c46);\r\n	height: 12px;\r\n	padding: 2px;\r\n	border-radius: 2px;\r\n	background-color: var(--brand_pink_thin);\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.user-info\r\n	.contractor-box.originalFan {\r\n	border: 0.5px solid var(--brand_pink);\r\n	background-color: transparent;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.user-info\r\n	.contractor-box\r\n	.contractor-text {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	font-size: 16px;\r\n	transform-origin: center center;\r\n	transform: scale(0.5);\r\n	position: absolute;\r\n	color: var(--brand_pink);\r\n	white-space: nowrap;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge {\r\n	display: flex;\r\n	align-items: center;\r\n	height: 14px;\r\n	padding-left: 5px;\r\n	border: 0.5px solid var(--3d3b5a1e);\r\n	border-radius: 10px;\r\n	margin-left: 5px;\r\n	background-image: var(--35269ce2);\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.user-info\r\n	.fan-badge\r\n	.badge-icon-wrap {\r\n	display: flex;\r\n	align-items: center;\r\n	position: relative;\r\n	width: var(--1f5204fd);\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.user-info\r\n	.fan-badge\r\n	.badge-icon-wrap\r\n	.badge-frist-icon {\r\n	position: absolute;\r\n	left: -8px;\r\n	width: 20px;\r\n	height: 20px;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.user-info\r\n	.fan-badge\r\n	.badge-icon-wrap\r\n	.badge-second-icon {\r\n	position: absolute;\r\n	right: 0;\r\n	width: 8px;\r\n	height: 11px;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.user-info\r\n	.fan-badge\r\n	.badge-name-wrap {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	width: var(--4f9eed68);\r\n	height: 100%;\r\n	margin-right: 4px;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.user-info\r\n	.fan-badge\r\n	.badge-name-wrap\r\n	.badge-name {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	font-size: 18px;\r\n	transform-origin: center center;\r\n	transform: scale(0.5);\r\n	position: absolute;\r\n	top: 50%;\r\n	left: 50%;\r\n	color: var(--57e6be72);\r\n	font-weight: 500;\r\n	white-space: nowrap;\r\n	transform: scale(0.5) translate(-50%, -50%);\r\n	transform-origin: 0 0;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.user-info\r\n	.fan-badge\r\n	.badge-level-wrap {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	position: relative;\r\n	width: 11.5px;\r\n	height: 11.5px;\r\n	border-radius: 50%;\r\n	margin-right: 0.5px;\r\n	background-color: var(--59f85baa);\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.user-info\r\n	.fan-badge\r\n	.badge-level-wrap\r\n	.badge-level {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	font-size: 14px;\r\n	transform-origin: center center;\r\n	transform: scale(0.5);\r\n	position: absolute;\r\n	top: 52%;\r\n	left: 50%;\r\n	font-family: Reeji-CloudHuPo-GBK;\r\n	color: var(--103312b6);\r\n	font-weight: 500;\r\n	white-space: nowrap;\r\n	line-height: 1;\r\n	transform: scale(0.5) translate(-50%, -43%);\r\n	transform-origin: 0 0;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info {\r\n	margin-bottom: 4px;\r\n	height: 20px;\r\n	font-size: 12px;\r\n	line-height: 17px;\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag {\r\n	padding: 2px 6px;\r\n	border-radius: 2px;\r\n	margin-right: 4px;\r\n	flex: none;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag--pink {\r\n	background-color: var(--Pi1);\r\n	color: var(--Pi5);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag--blue {\r\n	background-color: var(--brand_blue_thin);\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag--gray {\r\n	background-color: var(--graph_bg_regular);\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__text {\r\n	color: var(--Ga7_u);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply {\r\n	position: relative;\r\n	padding: 2px 0;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.reply-item .root-reply-container .content-warp .root-reply {\r\n		font-size: 15px;\r\n		line-height: 24px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.reply-item .root-reply-container .content-warp .root-reply {\r\n		font-size: 16px;\r\n		line-height: 26px;\r\n	}\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-content-container {\r\n	display: block;\r\n	overflow: hidden;\r\n	width: 100%;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info {\r\n	display: flex;\r\n	align-items: center;\r\n	position: relative;\r\n	margin-top: 2px;\r\n	font-size: 13px;\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-time {\r\n	margin-right: var(--472bae2d);\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-location {\r\n	margin-right: 20px;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-like {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-right: 19px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-like\r\n	.like-icon {\r\n	margin-right: 5px;\r\n	color: #9499a0;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-like\r\n	.like-icon:hover,\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-like\r\n	.like-icon.liked {\r\n	color: #00aeec;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-dislike {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-right: 19px;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-dislike\r\n	.dislike-icon {\r\n	color: #9499a0;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-dislike\r\n	.dislike-icon:hover,\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-dislike\r\n	.dislike-icon.disliked {\r\n	color: #00aeec;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-btn {\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-btn:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-operation-warp {\r\n	position: absolute;\r\n	right: 20px;\r\n	display: none;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-tag-list {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-top: 6px;\r\n	font-size: 12px;\r\n	line-height: 17px;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-tag-list\r\n	.reply-tag-item {\r\n	padding: 2px 6px;\r\n	border-radius: 2px;\r\n	margin-right: 10px;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container:hover\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-operation-warp {\r\n	display: block;\r\n}\r\n\r\n.reply-item .sub-reply-container {\r\n	padding-left: 72px;\r\n}\r\n\r\n.reply-item .reply-box-container {\r\n	padding: 25px 0 10px 80px;\r\n}\r\n\r\n.reply-item .bottom-line {\r\n	margin-left: 80px;\r\n	border-bottom: 1px solid var(--graph_bg_thick);\r\n	margin-top: 14px;\r\n}\r\n\r\n.reply-item .reply-dynamic-card {\r\n	position: absolute;\r\n	z-index: 10;\r\n	top: 30px;\r\n	left: 400px;\r\n}\r\n\r\n@keyframes enterAnimation-jumpReply-7041f671 {\r\n	0% {\r\n		background-color: #dff6fb;\r\n	}\r\n\r\n	to {\r\n		background-color: #dff6fb00;\r\n	}\r\n}\r\n\r\n.reply-list {\r\n	margin-top: 14px;\r\n	padding-bottom: 100px;\r\n}\r\n\r\n.reply-list .reply-end-mark {\r\n	height: 100px;\r\n}\r\n\r\n.reply-list .reply-end,\r\n.reply-list .reply-loading,\r\n.reply-list .view-all-reply {\r\n	margin-top: 20px;\r\n	font-size: 13px;\r\n	color: var(--text3);\r\n	text-align: center;\r\n}\r\n\r\n.reply-list .view-all-reply:hover {\r\n	color: var(--brand_blue);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-list .login-prompt {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	width: calc(100% - 80px);\r\n	height: 50px;\r\n	margin: 16px 0 0 auto;\r\n	border-radius: 6px;\r\n	font-size: 14px;\r\n	color: var(--brand_blue);\r\n	background-color: var(--brand_blue_thin);\r\n	transition: 0.2s;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-list .login-prompt:hover {\r\n	background-color: var(--Lb2);\r\n}\r\n\r\n.user-card {\r\n	position: absolute;\r\n	top: var(--555c4a14);\r\n	left: var(--8468e010);\r\n	z-index: 10;\r\n	width: 366px;\r\n	border: 0.5px solid var(--graph_weak);\r\n	border-radius: 8px;\r\n	background-color: var(--bg1);\r\n	box-shadow: 0 0 30px #0000001a;\r\n}\r\n\r\n.user-card .card-bg {\r\n	width: 100%;\r\n	height: 85px;\r\n	border-radius: 8px 8px 0 0;\r\n	overflow: hidden;\r\n	background-image: var(--71924242);\r\n	background-size: cover;\r\n	background-repeat: no-repeat;\r\n	background-position: center;\r\n}\r\n\r\n.user-card .user-card-avatar {\r\n	display: flex;\r\n	justify-content: center;\r\n	position: absolute;\r\n	width: 70px;\r\n	margin-top: 10px;\r\n	cursor: pointer;\r\n}\r\n\r\n.user-card .card-content {\r\n	display: flex;\r\n	flex-direction: column;\r\n	padding: 12px 20px 16px 70px;\r\n}\r\n\r\n.user-card .card-content .card-user-info {\r\n	display: flex;\r\n	align-items: center;\r\n	color: var(--text1);\r\n	margin-bottom: 10px;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-name {\r\n	max-width: 160px;\r\n	margin-right: 5px;\r\n	font-size: 16px;\r\n	font-weight: 600;\r\n	overflow: hidden;\r\n	white-space: nowrap;\r\n	text-overflow: ellipsis;\r\n	color: var(--text1);\r\n	color: var(--7ba58c95);\r\n	text-decoration: none;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-sex {\r\n	width: 16px;\r\n	height: 16px;\r\n	margin-right: 5px;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-level {\r\n	margin-right: 5px;\r\n	cursor: pointer;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-vip {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	width: var(--7a718880);\r\n	height: 16px;\r\n	padding: 1px 4px;\r\n	border-radius: 2px;\r\n	color: var(--612d8511);\r\n	background-color: var(--29ab308e);\r\n	cursor: default;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-vip .card-vip-text {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	font-size: 20px;\r\n	transform-origin: center center;\r\n	transform: scale(0.5);\r\n	white-space: nowrap;\r\n	font-style: normal;\r\n}\r\n\r\n.user-card .card-content .card-social-info {\r\n	display: flex;\r\n	align-items: center;\r\n	font-size: 12px;\r\n	color: var(--text1);\r\n}\r\n\r\n.user-card .card-content .card-social-info .card-user-attention,\r\n.user-card .card-content .card-social-info .card-user-fans,\r\n.user-card .card-content .card-social-info .card-user-like {\r\n	margin-right: 18px;\r\n	color: inherit;\r\n	text-decoration: none;\r\n}\r\n\r\n.user-card\r\n	.card-content\r\n	.card-social-info\r\n	.card-user-attention\r\n	.social-info-title,\r\n.user-card .card-content .card-social-info .card-user-fans .social-info-title,\r\n.user-card .card-content .card-social-info .card-user-like .social-info-title {\r\n	margin-left: 3px;\r\n	color: var(--text3);\r\n}\r\n\r\n.user-card .card-content .card-verify-info {\r\n	padding-top: 10px;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n}\r\n\r\n.user-card .card-content .card-verify-info .card-verify-icon {\r\n	vertical-align: text-bottom;\r\n	margin-right: 3px;\r\n}\r\n\r\n.user-card .card-content .card-sign {\r\n	padding-top: 8px;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n	word-break: break-all;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp {\r\n	display: flex;\r\n	margin-top: 16px;\r\n	font-size: 14px;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	width: 100px;\r\n	height: 30px;\r\n	border-radius: 4px;\r\n	margin-right: 8px;\r\n	color: var(--text_white);\r\n	background-color: var(--brand_blue);\r\n	transition: 0.4s;\r\n	cursor: pointer;\r\n}\r\n\r\n.user-card\r\n	.card-content\r\n	.card-btn-warp\r\n	.card-attention-btn\r\n	.cancel-attention-text {\r\n	display: none;\r\n	position: absolute;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn.attention {\r\n	color: var(--text2);\r\n	background-color: var(--bg3);\r\n}\r\n\r\n.user-card\r\n	.card-content\r\n	.card-btn-warp\r\n	.card-attention-btn.attention:hover\r\n	.attention-text {\r\n	display: none;\r\n}\r\n\r\n.user-card\r\n	.card-content\r\n	.card-btn-warp\r\n	.card-attention-btn.attention:hover\r\n	.cancel-attention-text {\r\n	display: inline;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-message-btn {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	width: 100px;\r\n	height: 30px;\r\n	border: 1px solid var(--graph_weak);\r\n	border-radius: 4px;\r\n	color: var(--text2);\r\n	cursor: pointer;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-message-btn:hover {\r\n	border-color: var(--brand_blue);\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.dynamic-card {\r\n	display: flex;\r\n	flex-direction: column;\r\n	position: absolute;\r\n	z-index: 10;\r\n	top: var(--7b058890);\r\n	left: 400px;\r\n	width: 710px;\r\n	height: 550px;\r\n	border-radius: 6px;\r\n	background-color: var(--bg1);\r\n	box-shadow: 0 0 25px #00000026;\r\n}\r\n\r\n.dynamic-card .card-header {\r\n	display: flex;\r\n	align-items: center;\r\n	flex-basis: 50px;\r\n	padding: 0 10px;\r\n	border-bottom: 0.5px solid var(--line_light);\r\n}\r\n\r\n.dynamic-card .card-header .card-title {\r\n	flex: 1;\r\n	text-align: center;\r\n	font-size: 16px;\r\n	color: var(--text1);\r\n}\r\n\r\n.dynamic-card .card-header .close-card {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	width: 30px;\r\n	height: 30px;\r\n	border-radius: 6px;\r\n	color: var(--text2);\r\n	transition: 0.2s;\r\n	cursor: pointer;\r\n}\r\n\r\n.dynamic-card .card-header .close-card:hover {\r\n	background-color: var(--bg3);\r\n}\r\n\r\n.dynamic-card .card-content {\r\n	flex: 1;\r\n}\r\n\r\n.dynamic-card .card-content::-webkit-scrollbar {\r\n	width: 4px;\r\n	border-radius: 4px;\r\n	background-color: transparent;\r\n}\r\n\r\n.dynamic-card .card-content::-webkit-scrollbar-thumb {\r\n	border-radius: 4px;\r\n	background-color: var(--graph_bg_thick);\r\n	transition: 0.3s ease-in-out;\r\n}\r\n\r\n.dynamic-card .card-content::-webkit-scrollbar-track {\r\n	border-radius: 4px;\r\n	background-color: transparent;\r\n}\r\n\r\n.dynamic-card .card-content .dynamic-card-iframe {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n\r\n.reply-view-image {\r\n	position: fixed;\r\n	z-index: 999999;\r\n	top: 0;\r\n	left: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n	background: rgba(24, 25, 28, 0.85);\r\n	transform: scale(1);\r\n	user-select: none;\r\n	cursor: default;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	-webkit-user-drag: none;\r\n}\r\n\r\n.reply-view-image,\r\n.reply-view-image * {\r\n	box-sizing: border-box;\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	position: absolute;\r\n	z-index: 2;\r\n	width: 42px;\r\n	height: 42px;\r\n	border-radius: 50%;\r\n	color: var(--text_white);\r\n	background: rgba(0, 0, 0, 0.58);\r\n	transition: 0.2s;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon:hover {\r\n	color: var(--brand_pink);\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon.close-container {\r\n	top: 16px;\r\n	right: 16px;\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon.last-image {\r\n	top: 50%;\r\n	left: 16px;\r\n	transform: translateY(-50%);\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon.next-image {\r\n	top: 50%;\r\n	right: 16px;\r\n	transform: translateY(-50%);\r\n}\r\n\r\n.reply-view-image .show-image-wrap {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	position: absolute;\r\n	width: 100%;\r\n	height: 100%;\r\n	max-height: 100%;\r\n	padding: 0 100px;\r\n	overflow: auto;\r\n}\r\n\r\n.reply-view-image .show-image-wrap .loading-svga {\r\n	position: absolute;\r\n	top: 50%;\r\n	left: 50%;\r\n	transform: translate(-50%, -50%);\r\n	width: 42px;\r\n	height: 42px;\r\n}\r\n\r\n.reply-view-image .show-image-wrap.vertical {\r\n	flex-direction: column;\r\n	justify-content: var(--c186e874);\r\n}\r\n\r\n.reply-view-image .show-image-wrap .image-content {\r\n	width: calc(100vw - 200px);\r\n	max-width: var(--34114ac9);\r\n	-webkit-user-drag: none;\r\n}\r\n\r\n.reply-view-image .preview-list {\r\n	display: flex;\r\n	align-items: center;\r\n	position: absolute;\r\n	left: 50%;\r\n	bottom: 30px;\r\n	z-index: 2;\r\n	padding: 6px 10px;\r\n	border-radius: 8px;\r\n	background: rgba(24, 25, 28, 0.8);\r\n	backdrop-filter: blur(20px);\r\n	transform: translate(-50%);\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box {\r\n	padding: 1px;\r\n	border: 2px solid transparent;\r\n	border-radius: 8px;\r\n	transition: 0.3s;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box.active {\r\n	border-color: var(--brand_pink);\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap {\r\n	display: flex;\r\n	justify-content: center;\r\n	overflow: hidden;\r\n	width: 100%;\r\n	height: 100%;\r\n	border-radius: 6px;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap.vertical {\r\n	flex-direction: column;\r\n}\r\n\r\n.reply-view-image\r\n	.preview-list\r\n	.preview-item-box\r\n	.preview-item-wrap.extra-long {\r\n	justify-content: start;\r\n}\r\n\r\n.reply-view-image\r\n	.preview-list\r\n	.preview-item-box\r\n	.preview-item-wrap\r\n	.item-content {\r\n	-webkit-user-drag: none;\r\n}\r\n\r\n.reply-view-image--transition-enter-active,\r\n.reply-view-image--transition-leave-active {\r\n	transition: all 0.3s ease;\r\n}\r\n\r\n.reply-view-image--transition-enter-from,\r\n.reply-view-image--transition-leave-to {\r\n	transform: scale(0.4);\r\n	opacity: 0;\r\n}\r\n\r\n.reply-warp {\r\n	position: relative;\r\n}\r\n\r\n.reply-warp .fixed-reply-box {\r\n	position: fixed;\r\n	bottom: 0;\r\n	left: var(--3e88ddc5);\r\n	z-index: 10;\r\n	width: var(--d9a0b070);\r\n}\r\n\r\n.reply-warp .fixed-reply-box .reply-box-shadow {\r\n	position: absolute;\r\n	top: -10px;\r\n	z-index: 1;\r\n	width: 100%;\r\n	height: 36px;\r\n	border-radius: 50%;\r\n	background-color: #00000014;\r\n	filter: blur(10px);\r\n}\r\n\r\n.reply-warp .fixed-reply-box--transition-enter-active,\r\n.reply-warp .fixed-reply-box--transition-leave-active {\r\n	transition: opacity 0.5s ease;\r\n}\r\n\r\n.reply-warp .fixed-reply-box--transition-enter-from,\r\n.reply-warp .fixed-reply-box--transition-leave-to {\r\n	opacity: 0;\r\n}\r\n\r\n.bili-comment.browser-pc {\r\n	background-color: var(--bg1);\r\n}\r\n\r\n.bili-comment.browser-pc * {\r\n	font-family: PingFang SC, HarmonyOS_Regular, Helvetica Neue, Microsoft YaHei,\r\n		sans-serif;\r\n	font-weight: 400;\r\n	box-sizing: border-box;\r\n	-webkit-font-smoothing: antialiased;\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n	.bili-comment.browser-pc * {\r\n		font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, Helvetica,\r\n			Arial, PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif;\r\n	}\r\n}\r\n\r\n.bili-comment.browser-pc * ul {\r\n	padding: 0;\r\n	margin: 0;\r\n	list-style: none;\r\n}\r\n\r\n.bili-comment.browser-pc * a {\r\n	text-decoration: none;\r\n	background-color: transparent;\r\n	color: var(--text_link);\r\n	cursor: pointer;\r\n}\r\n\r\n.bili-comment.browser-pc * a:hover {\r\n	color: var(--Lb4);\r\n}\r\n\r\n.bili-comment.browser-pc * i {\r\n	font-style: normal;\r\n}\r\n\r\n.bili-comment.browser-pc * p {\r\n	margin: 0;\r\n	padding: 0;\r\n}\r\n\r\n.bili-comment.browser-pc .comment-container {\r\n	animation-name: enterAnimation-commentContainer;\r\n	animation-duration: 1s;\r\n	animation-fill-mode: forwards;\r\n}\r\n\r\n.reply-operation-client {\r\n	display: inline-flex;\r\n	position: relative;\r\n}\r\n\r\n.reply-operation-client .operation-icon {\r\n	border-radius: 4px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-operation-client .operation-icon:hover {\r\n	background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.reply-operation-client .operation-list {\r\n	display: flex;\r\n	flex-direction: column;\r\n	position: absolute;\r\n	top: 10px;\r\n	right: 0;\r\n	z-index: 10;\r\n	width: 180px;\r\n	padding: 12px 0;\r\n	border-radius: 6px;\r\n	font-size: 14px;\r\n	color: var(--text2);\r\n	background-color: var(--bg1_float);\r\n	box-shadow: 0 0 5px #0003;\r\n}\r\n\r\n.reply-operation-client .operation-list .operation-option {\r\n	display: flex;\r\n	align-items: center;\r\n	height: 40px;\r\n	padding: 0 15px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-operation-client .operation-list .operation-option:hover {\r\n	background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 50%;\r\n	width: auto;\r\n	padding: 10px 20px;\r\n	border: 1px solid var(--graph_bg_thick);\r\n	border-radius: 8px;\r\n	margin-bottom: 100px;\r\n	font-size: 12px;\r\n	line-height: 12px;\r\n	text-align: center;\r\n	white-space: nowrap;\r\n	background-color: var(--bg1);\r\n	box-shadow: 0 0 5px #0003;\r\n	transform: translate(-50%, -100%);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn {\r\n	display: flex;\r\n	justify-content: center;\r\n}\r\n\r\n.reply-operation-client\r\n	.operation-list\r\n	.delete-reply-modal\r\n	.delete-reply-btn\r\n	.comfirm-delete {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	width: 40px;\r\n	height: 20px;\r\n	border-radius: 4px;\r\n	margin-right: 20px;\r\n	color: var(--text_white);\r\n	background-color: var(--brand_blue);\r\n}\r\n\r\n.reply-operation-client\r\n	.operation-list\r\n	.delete-reply-modal\r\n	.delete-reply-btn\r\n	.comfirm-delete:hover {\r\n	background-color: var(--Lb4);\r\n}\r\n\r\n.reply-operation-client\r\n	.operation-list\r\n	.delete-reply-modal\r\n	.delete-reply-btn\r\n	.cancel-delete {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	width: 40px;\r\n	height: 20px;\r\n}\r\n\r\n.reply-operation-client\r\n	.operation-list\r\n	.delete-reply-modal\r\n	.delete-reply-btn\r\n	.cancel-delete:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.select-reply-dialog-client .select-dialog-content {\r\n	text-align: left;\r\n}\r\n\r\n.select-reply-dialog-client .cancel-select-reply {\r\n	width: 130px;\r\n	margin-right: 20px;\r\n}\r\n\r\n.select-reply-dialog-client .comfirm-select-reply {\r\n	width: 130px;\r\n}\r\n\r\n.close-reply-dialog-client .close-reply-dialog-content {\r\n	text-align: left;\r\n}\r\n\r\n.close-reply-dialog-client .cancel-close-reply {\r\n	width: 130px;\r\n	margin-right: 20px;\r\n}\r\n\r\n.close-reply-dialog-client .comfirm-close-reply {\r\n	width: 130px;\r\n}\r\n\r\n.close-danmaku-dialog-client .close-danmaku-dialog-content {\r\n	text-align: left;\r\n}\r\n\r\n.close-danmaku-dialog-client .cancel-close-danmaku {\r\n	width: 130px;\r\n	margin-right: 20px;\r\n}\r\n\r\n.close-danmaku-dialog-client .comfirm-close-danmaku {\r\n	width: 130px;\r\n}\r\n\r\n.blacklist-dialog-client .blacklist-dialog-content {\r\n	text-align: center;\r\n}\r\n\r\n.blacklist-dialog-client .comfirm-pull-blacklist {\r\n	margin-right: 20px;\r\n}\r\n\r\n.reply-header-client .reply-notice {\r\n	display: flex;\r\n	align-items: center;\r\n	position: relative;\r\n	height: 40px;\r\n	padding: 11px 14px;\r\n	margin-bottom: 10px;\r\n	font-size: 12px;\r\n	border-radius: 2px;\r\n	color: var(--text_notice);\r\n	background-color: var(--Or0);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-header-client .reply-notice .notice-content {\r\n	flex: 1;\r\n	position: relative;\r\n	padding: 0 5px;\r\n	line-height: 18px;\r\n	vertical-align: top;\r\n	word-wrap: break-word;\r\n	word-break: break-all;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	transition: 2s;\r\n}\r\n\r\n.reply-header-client .reply-navigation {\r\n	margin: 12px 0;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar {\r\n	display: flex;\r\n	align-items: center;\r\n	position: relative;\r\n	list-style: none;\r\n	margin: 0;\r\n	padding: 0;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-select-reply {\r\n	font-size: 12px;\r\n	color: var(--text1);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort {\r\n	display: flex;\r\n	align-items: center;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .part-symbol {\r\n	height: 10px;\r\n	margin: 0 8px;\r\n	border-left: solid 1px;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .hot-sort {\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .hot-sort:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .time-sort {\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .time-sort:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort.hot .hot-sort,\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort.time .time-sort {\r\n	color: var(--text1);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-operation-warp {\r\n	position: absolute;\r\n	right: 0;\r\n}\r\n\r\n.reply-box-client {\r\n	display: flex;\r\n	flex-direction: column;\r\n}\r\n\r\n.reply-box-client .reply-box-warp {\r\n	position: relative;\r\n	flex: 1;\r\n}\r\n\r\n.reply-box-client .reply-box-warp .reply-box-textarea {\r\n	width: 100%;\r\n	height: 32px;\r\n	padding: 5px 12px;\r\n	border: 1px solid transparent;\r\n	border-radius: 6px;\r\n	line-height: 20px;\r\n	color: var(--text1);\r\n	background-color: var(--bg2);\r\n	resize: none;\r\n	outline: none;\r\n	transition: 0.2s;\r\n}\r\n\r\n.reply-box-client .reply-box-warp .reply-box-textarea::placeholder {\r\n	color: var(--text4);\r\n}\r\n\r\n.reply-box-client .reply-box-warp .reply-box-textarea.focus,\r\n.reply-box-client .reply-box-warp .reply-box-textarea:hover {\r\n	border-color: var(--brand_pink);\r\n}\r\n\r\n.reply-box-client .box-operation-warp {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-top: 10px;\r\n	height: 32px;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-emoji {\r\n	position: relative;\r\n	margin-right: auto;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-emoji .box-emoji-icon {\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	width: 70px;\r\n	height: 100%;\r\n	border-radius: 4px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send .send-text {\r\n	position: absolute;\r\n	z-index: 1;\r\n	color: var(--text_white);\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send:after {\r\n	content: "";\r\n	position: absolute;\r\n	opacity: 0.5;\r\n	width: 100%;\r\n	height: 100%;\r\n	border-radius: 4px;\r\n	background-color: var(--brand_pink);\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send:hover:after {\r\n	opacity: 1;\r\n}\r\n\r\n.reply-box-client.box-active .reply-box-warp .reply-box-textarea {\r\n	height: 60px;\r\n}\r\n\r\n.reply-box-client.box-active .reply-box-send.send-active:after {\r\n	opacity: 1;\r\n}\r\n\r\n.reply-box-client.disabled .reply-box-warp .disable-mask {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	z-index: 1;\r\n	width: 100%;\r\n	height: 100%;\r\n	border-radius: 6px;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n	background-color: var(--bg3);\r\n}\r\n\r\n.reply-box-client.disabled .reply-box-warp .disable-mask .no-login-mask {\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box-client.disabled .box-operation-warp .reply-box-send {\r\n	cursor: not-allowed;\r\n}\r\n\r\n.reply-box-client.disabled .box-operation-warp .reply-box-send .send-text {\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-box-client.disabled .box-operation-warp .reply-box-send:after {\r\n	opacity: 1;\r\n	background-color: var(--bg3);\r\n}\r\n\r\n.note-prefix {\r\n	vertical-align: -3px;\r\n	display: inline-flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	padding: 0 3px;\r\n	line-height: 19px;\r\n	border-radius: 4px;\r\n	margin-right: 6px;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n	background-color: var(--bg2);\r\n}\r\n\r\n.note-prefix .note-icon {\r\n	width: 16px;\r\n	height: 16px;\r\n}\r\n\r\n.reply-content-client {\r\n	color: var(--text1);\r\n	overflow: hidden;\r\n	word-wrap: break-word;\r\n	word-break: break-word;\r\n	white-space: pre-wrap;\r\n	vertical-align: baseline;\r\n	transition: 0.2s;\r\n}\r\n\r\n.reply-content-client.root {\r\n	line-height: 25px;\r\n}\r\n\r\n.reply-content-client.need-view-more {\r\n	display: -webkit-box;\r\n	-webkit-box-orient: vertical;\r\n	overflow: hidden;\r\n}\r\n\r\n.reply-content-client.sub {\r\n	line-height: 20px;\r\n}\r\n\r\n.reply-content-client .top-icon {\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	width: 30px;\r\n	height: 18px;\r\n	border: 1px solid var(--brand_pink);\r\n	border-radius: 3px;\r\n	margin-right: 5px;\r\n	font-size: 12px;\r\n	color: var(--brand_pink);\r\n	vertical-align: 1px;\r\n}\r\n\r\n.reply-content-client .emoji-small {\r\n	width: 20px;\r\n	height: 20px;\r\n	vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-client .emoji-large {\r\n	width: 36px;\r\n	height: 36px;\r\n	vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-client .jump-link {\r\n	vertical-align: baseline;\r\n}\r\n\r\n.reply-content-client .icon {\r\n	width: 20px;\r\n	height: 20px;\r\n	vertical-align: text-top;\r\n}\r\n\r\n.reply-content-client .icon.vote {\r\n	width: 16px;\r\n	height: 16px;\r\n	margin-right: 3px;\r\n	vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-client .icon.search-word {\r\n	width: 12px;\r\n	display: inline-block;\r\n	background-size: contain;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n.view-more-reply {\r\n	font-size: 12px;\r\n	color: var(--text_link);\r\n	line-height: 17px;\r\n	cursor: pointer;\r\n}\r\n\r\n.view-more-reply:hover {\r\n	color: var(--Lb4);\r\n}\r\n\r\n.sub-reply-item-client {\r\n	display: -webkit-box;\r\n	-webkit-box-orient: vertical;\r\n	-webkit-line-clamp: 2;\r\n	position: relative;\r\n	max-height: 42px;\r\n	padding: 3px 0;\r\n	font-size: 14px;\r\n	overflow: hidden;\r\n}\r\n\r\n.sub-reply-item-client .sub-user-info {\r\n	display: inline-flex;\r\n	align-items: center;\r\n	color: var(--text2);\r\n	line-height: 20px;\r\n	vertical-align: baseline;\r\n	white-space: nowrap;\r\n}\r\n\r\n.sub-reply-item-client .sub-user-info .sub-user-name {\r\n	margin-right: 5px;\r\n	font-size: 14px;\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-item-client .sub-user-info .sub-up-icon {\r\n	margin-right: 4px;\r\n	cursor: default;\r\n}\r\n\r\n.sub-reply-list-client {\r\n	border-radius: 4px;\r\n	padding: 7px 10px;\r\n	margin-top: 12px;\r\n	background-color: var(--bg2_float);\r\n}\r\n\r\n.sub-reply-list-client .view-more {\r\n	margin-top: 4px;\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-list-client .view-more .view-more-text {\r\n	font-size: 12px;\r\n	color: var(--text_link);\r\n}\r\n\r\n.sub-reply-list-client .view-more .view-more-text:hover {\r\n	color: var(--Lb4);\r\n}\r\n\r\n.content-warp--blacklist .reply-content {\r\n	display: inline-flex;\r\n	align-items: center;\r\n	padding: 4px;\r\n	border-radius: 4px;\r\n	color: var(--text1);\r\n	background-color: var(--bg2_float);\r\n}\r\n\r\n.content-warp--blacklist .reply-content .ban-icon {\r\n	margin-right: 4px;\r\n}\r\n\r\n.content-warp--blacklist .reply-header {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-bottom: 8px;\r\n}\r\n\r\n.content-warp--blacklist .reply-header .root-reply-avatar {\r\n	display: flex;\r\n	justify-content: center;\r\n	position: absolute;\r\n	left: 0;\r\n	cursor: pointer;\r\n}\r\n\r\n.content-warp--blacklist .reply-header .root-reply-avatar .blacklist-avatar {\r\n	width: 30px;\r\n	height: 30px;\r\n}\r\n\r\n.content-warp--blacklist .reply-header .reply-info .balcklist-name {\r\n	color: var(--text1);\r\n}\r\n\r\n.reply-item-client {\r\n	position: relative;\r\n	padding: 10px 0 14px 42px;\r\n	border-bottom: 1px solid var(--line_light);\r\n}\r\n\r\n.reply-item-client .content-warp {\r\n	flex: 1;\r\n	position: relative;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-bottom: 8px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .root-reply-avatar {\r\n	display: flex;\r\n	justify-content: center;\r\n	position: absolute;\r\n	left: -42px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info {\r\n	display: flex;\r\n	flex-direction: column;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info {\r\n	display: flex;\r\n	align-items: center;\r\n	font-size: 13px;\r\n	color: var(--text2);\r\n}\r\n\r\n.reply-item-client\r\n	.content-warp\r\n	.reply-header\r\n	.reply-info\r\n	.user-info\r\n	.user-name {\r\n	margin-right: 5px;\r\n	color: var(--be794234);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item-client\r\n	.content-warp\r\n	.reply-header\r\n	.reply-info\r\n	.user-info\r\n	.user-level {\r\n	margin-right: 5px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info .up-icon {\r\n	cursor: default;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .reply-time {\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply {\r\n	position: relative;\r\n	font-size: 15px;\r\n	line-height: 25px;\r\n	transition: 0.2s;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp {\r\n	display: flex;\r\n	align-items: center;\r\n	position: relative;\r\n	margin-top: 12px;\r\n	font-size: 13px;\r\n	color: var(--text3);\r\n	line-height: 16px;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-right: 19px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item-client\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.reply-like\r\n	.like-icon {\r\n	margin-right: 5px;\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-item-client\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.reply-like\r\n	.like-icon:hover,\r\n.reply-item-client\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.reply-like\r\n	.like-icon.liked {\r\n	color: var(--brand_pink);\r\n}\r\n\r\n.reply-item-client\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.reply-dislike {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-right: 19px;\r\n}\r\n\r\n.reply-item-client\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.reply-dislike\r\n	.dislike-icon {\r\n	color: var(--text3);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item-client\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.reply-dislike\r\n	.dislike-icon:hover,\r\n.reply-item-client\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.reply-dislike\r\n	.dislike-icon.disliked {\r\n	color: var(--brand_pink);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-icon {\r\n	color: var(--text3);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item-client\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.reply-icon:hover {\r\n	color: var(--brand_pink);\r\n}\r\n\r\n.reply-item-client\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.more-operation {\r\n	display: none;\r\n	position: absolute;\r\n	right: 20px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-item-box {\r\n	margin-top: 12px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-tag-list {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-top: 12px;\r\n	font-size: 12px;\r\n	line-height: 14px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-tag-list .reply-tag-item {\r\n	padding: 5px 6px;\r\n	border-radius: 2px;\r\n	margin-right: 10px;\r\n	color: var(--text2);\r\n	background-color: var(--bg2_float);\r\n}\r\n\r\n.reply-item-client:hover\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.more-operation {\r\n	display: block;\r\n}\r\n\r\n.reply-list {\r\n	position: relative;\r\n	margin-top: 14px;\r\n	padding-bottom: 100px;\r\n}\r\n\r\n.reply-list .reply-empty {\r\n	margin-top: 100px;\r\n	text-align: center;\r\n	font-size: 14px;\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-list .reply-end-mark {\r\n	height: 100px;\r\n}\r\n\r\n.reply-list .reply-end,\r\n.reply-list .reply-loading {\r\n	margin-top: 20px;\r\n	font-size: 13px;\r\n	color: var(--text3);\r\n	text-align: center;\r\n}\r\n\r\n.fixed-reply-box {\r\n	bottom: 0;\r\n	z-index: 20;\r\n	width: 100%;\r\n}\r\n\r\n.fixed-reply-box .reply-box-wrap {\r\n	background-color: var(--bg1);\r\n	padding: 14px 0;\r\n	border-top: 1px solid var(--line_light);\r\n}\r\n\r\n.fixed-reply-box .reply-box-shadow {\r\n	position: absolute;\r\n	top: -10px;\r\n	z-index: -1;\r\n	height: 36px;\r\n	border-radius: 50%;\r\n	background-color: #00000014;\r\n	filter: blur(10px);\r\n	width: calc(100% - 72px);\r\n	left: 50%;\r\n	transform: translate(-50%);\r\n}\r\n\r\n.reply-detail {\r\n	flex: 1;\r\n}\r\n\r\n.reply-detail .reply-header {\r\n	display: flex;\r\n	align-items: center;\r\n	position: sticky;\r\n	z-index: 9;\r\n	top: 0;\r\n	left: 0;\r\n	height: 46px;\r\n	border-bottom: 1px solid var(--line_light);\r\n	margin-bottom: 14px;\r\n	background-color: var(--bg1);\r\n}\r\n\r\n.reply-detail .reply-header .return-icon {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	width: 32px;\r\n	height: 32px;\r\n	border-radius: 4px;\r\n	margin-right: 4px;\r\n	color: var(--text1);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-detail .reply-header .return-icon:hover {\r\n	background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.reply-detail .reply-header .reply-title {\r\n	font-size: 16px;\r\n	font-weight: 600;\r\n	color: var(--text1);\r\n}\r\n\r\n.dialog-reply {\r\n	flex: 1;\r\n}\r\n\r\n.dialog-reply .reply-header {\r\n	display: flex;\r\n	align-items: center;\r\n	position: sticky;\r\n	z-index: 9;\r\n	top: 0;\r\n	left: 0;\r\n	height: 46px;\r\n	border-bottom: 1px solid var(--line_light);\r\n	margin-bottom: 14px;\r\n	background-color: var(--bg1);\r\n}\r\n\r\n.dialog-reply .reply-header .return-icon {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	width: 32px;\r\n	height: 32px;\r\n	border-radius: 4px;\r\n	margin-right: 4px;\r\n	color: var(--text1);\r\n	cursor: pointer;\r\n}\r\n\r\n.dialog-reply .reply-header .return-icon:hover {\r\n	background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.dialog-reply .reply-header .reply-title {\r\n	font-size: 16px;\r\n	font-weight: 600;\r\n	color: var(--text1);\r\n}\r\n\r\n.bili-comment.client {\r\n	background-color: var(--bg1);\r\n}\r\n\r\n.bili-comment.client * {\r\n	box-sizing: border-box;\r\n	font-family: PingFang SC, HarmonyOS_Regular, Helvetica Neue, Microsoft YaHei,\r\n		sans-serif;\r\n	-webkit-font-smoothing: antialiased;\r\n}\r\n\r\n.bili-comment.client * ul {\r\n	list-style: none;\r\n}\r\n\r\n.bili-comment.client * a {\r\n	text-decoration: none;\r\n	background-color: transparent;\r\n	color: var(--text_link);\r\n	cursor: pointer;\r\n}\r\n\r\n.bili-comment.client * a:hover {\r\n	color: var(--Lb4);\r\n}\r\n\r\n.bili-comment.client * i {\r\n	font-style: normal;\r\n}\r\n';
   class GestureBack {
-    /**
-     * 是否正在后退
-     */
-    isBacking = false;
+isBacking = false;
     config;
     constructor(config) {
       this.config = config;
@@ -7592,21 +6411,14 @@
         this.config.win = self;
       }
     }
-    /**
-     * popstate事件函数
-     * @param event
-     */
-    popStateEvent(event) {
+popStateEvent(event) {
       Utils.preventEvent(event);
       if (this.isBacking) {
         return;
       }
       this.quitGestureBackMode(true);
     }
-    /**
-     * 进入手势模式
-     */
-    enterGestureBackMode() {
+enterGestureBackMode() {
       log$1.success("进入手势模式");
       let pushUrl = this.config.hash;
       if (!pushUrl.startsWith("#")) {
@@ -7624,11 +6436,7 @@
         capture: true
       });
     }
-    /**
-     * 退出手势模式
-     * @param isUrlChange 是否是url改变触发的
-     */
-    async quitGestureBackMode(isUrlChange = false) {
+async quitGestureBackMode(isUrlChange = false) {
       this.isBacking = true;
       log$1.success("退出手势模式");
       if (typeof this.config.beforeHistoryBackCallBack === "function") {
@@ -7660,12 +6468,9 @@
   }
   const BilibiliVideo = {
     $data: {
-      /** 是否已添加美化CSS */
-      isAddBeautifyCSS: false,
-      /** 是否已经初始化评论模块 */
-      isInitCommentModule: false,
-      /** 是否已经初始化简介模块 */
-      isInitDescModule: false
+isAddBeautifyCSS: false,
+isInitCommentModule: false,
+isInitDescModule: false
     },
     init() {
       BilibiliVideoPlayer.init();
@@ -7687,16 +6492,12 @@
         });
       });
     },
-    /**
-     * 美化显示
-     */
-    beautify() {
+beautify() {
       log$1.info("美化显示");
       if (!this.$data.isAddBeautifyCSS) {
         this.$data.isAddBeautifyCSS = true;
         addStyle(
-          /*css*/
-          `
+`
 				@charset "UTF-8";
 				${BilibiliData.className.video} .video-list .card-box {
 					--left-card-width: 33%;
@@ -7855,8 +6656,8 @@
             }
             let $upInfo = document.createElement("div");
             $upInfo.className = "gm-up-name";
-            $upInfo.innerHTML = /*html*/
-            `
+            $upInfo.innerHTML =
+`
 						<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
 							<path fill="#999A9E" d="M896 736v-448c0-54.4-41.6-96-96-96h-576C169.6 192 128 233.6 128 288v448c0 54.4 41.6 96 96 96h576c54.4 0 96-41.6 96-96zM800 128C889.6 128 960 198.4 960 288v448c0 89.6-70.4 160-160 160h-576C134.4 896 64 825.6 64 736v-448C64 198.4 134.4 128 224 128h576zM419.2 544V326.4h60.8v240c0 96-57.6 144-147.2 144S192 665.6 192 569.6V326.4h60.8v217.6c0 51.2 3.2 108.8 83.2 108.8s83.2-57.6 83.2-108.8z m288-38.4c28.8 0 60.8-16 60.8-60.8 0-48-28.8-60.8-60.8-60.8H614.4v121.6h92.8z m3.2-179.2c102.4 0 121.6 70.4 121.6 115.2 0 48-19.2 115.2-121.6 115.2H614.4V704h-60.8V326.4h156.8z">
 							</path>
@@ -7900,8 +6701,8 @@
             let $upInfo = document.createElement("div");
             $originCount.appendChild($duration);
             $upInfo.className = "gm-up-name";
-            $upInfo.innerHTML = /*html*/
-            `
+            $upInfo.innerHTML =
+`
 						<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
 							<path fill="#999A9E" d="M896 736v-448c0-54.4-41.6-96-96-96h-576C169.6 192 128 233.6 128 288v448c0 54.4 41.6 96 96 96h576c54.4 0 96-41.6 96-96zM800 128C889.6 128 960 198.4 960 288v448c0 89.6-70.4 160-160 160h-576C134.4 896 64 825.6 64 736v-448C64 198.4 134.4 128 224 128h576zM419.2 544V326.4h60.8v240c0 96-57.6 144-147.2 144S192 665.6 192 569.6V326.4h60.8v217.6c0 51.2 3.2 108.8 83.2 108.8s83.2-57.6 83.2-108.8z m288-38.4c28.8 0 60.8-16 60.8-60.8 0-48-28.8-60.8-60.8-60.8H614.4v121.6h92.8z m3.2-179.2c102.4 0 121.6 70.4 121.6 115.2 0 48-19.2 115.2-121.6 115.2H614.4V704h-60.8V326.4h156.8z">
 							</path>
@@ -7952,14 +6753,10 @@
         }
       });
     },
-    /**
-     * 修复视频底部区域高度
-     */
-    repairVideoBottomAreaHeight() {
+repairVideoBottomAreaHeight() {
       log$1.info("修复视频底部区域高度");
       return addStyle(
-        /*css*/
-        `
+`
 		${BilibiliData.className.video},
 		${BilibiliData.className.mVideo} {
 			/* 修复视频区域底部的高度 */
@@ -7986,10 +6783,7 @@
 		`
       );
     },
-    /**
-     * 修复up主信息区域的点击事件
-     */
-    coverUpWrapper() {
+coverUpWrapper() {
       log$1.info(`修复up主信息区域的点击事件`);
       domUtils.on(
         document,
@@ -8022,10 +6816,7 @@
         }
       );
     },
-    /**
-     * 覆盖视频标题区域的点击事件
-     */
-    coverBottomRecommendVideo() {
+coverBottomRecommendVideo() {
       log$1.info("覆盖 相关视频 点击事件");
       domUtils.on(
         document,
@@ -8059,10 +6850,7 @@
         }
       );
     },
-    /**
-     * 覆盖选集视频列表的点击事件
-     */
-    coverSeasonNew() {
+coverSeasonNew() {
       log$1.info("覆盖 选集视频列表 点击事件");
       function ClickCallBack(event) {
         let $click = event.target;
@@ -8105,10 +6893,7 @@
         }
       );
     },
-    /**
-     * 修复链接跳转
-     */
-    repairLinkJump() {
+repairLinkJump() {
       log$1.info(`修复链接跳转`);
       let lockFn = new utils.LockFunction(() => {
         [
@@ -8130,10 +6915,7 @@
         }
       });
     },
-    /**
-     * 手势返回关闭评论区
-     */
-    gestureReturnToCloseCommentArea() {
+gestureReturnToCloseCommentArea() {
       log$1.info("手势返回关闭评论区，全局监听document点击.sub-reply-preview");
       utils.waitNode("#app").then(($app) => {
         utils.waitVueByInterval(
@@ -8204,10 +6986,7 @@
         });
       });
     },
-    /**
-     * 进入全屏
-     */
-    enterVideoFullScreen() {
+enterVideoFullScreen() {
       utils.waitNode(".mplayer-btn-widescreen", 5e3).then(($btnWideScreen) => {
         if (!$btnWideScreen) {
           log$1.error("获取全屏按钮失败");
@@ -8222,10 +7001,7 @@
         $btnWideScreen.click();
       });
     },
-    /**
-     * 优化滚动显示view
-     */
-    optimizationScroll() {
+optimizationScroll() {
       let $mNavBar = null;
       let $mVideoPlayer = null;
       let $mVideoInfoNew = null;
@@ -8305,10 +7081,7 @@
         }
       );
     },
-    /**
-     * 禁止滑动切换tab
-     */
-    disableSwipeTab() {
+disableSwipeTab() {
       log$1.info(`禁止滑动切换tab`);
       VueUtils.waitVuePropToSet(".m-video-bottom-tab", {
         msg: "等待tab的vue属性touchstart、touchmove、touchend事件，_bindEvents函数",
@@ -8337,20 +7110,14 @@
         }
       });
     },
-    /**
-     * 新增评论模块
-     *
-     * + https://greasyfork.org/zh-CN/scripts/524844-bilibili-mobile-comment-module
-     */
-    addCommentModule() {
+addCommentModule() {
       log$1.info(`新增评论模块`);
       if (!this.$data.isInitCommentModule) {
         this.$data.isInitCommentModule = true;
         CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer);
         addStyle(MobileCommentModuleStyle);
         addStyle(
-          /*css*/
-          `
+`
 				.comment-container{
 					position: relative;
 				}
@@ -8390,8 +7157,7 @@
 			`
         );
         addStyle(
-          /*css*/
-          `
+`
 				.comment-module-show-btn{
 					display: flex;
 					justify-content: center;
@@ -8456,16 +7222,12 @@
         MobileCommentModule.init($commentModuleWrapper);
       });
     },
-    /**
-     * 新增简介模块
-     */
-    addDescModule() {
+addDescModule() {
       log$1.info(`新增简介模块`);
       if (!this.$data.isInitDescModule) {
         this.$data.isInitDescModule = true;
         addStyle(
-          /*css*/
-          `
+`
 				${BilibiliData.className.mVideo} .m-video-info .bottom-wrapper{
 					flex-direction: column;
 					align-items: flex-start;
@@ -8474,8 +7236,7 @@
 			`
         );
         addStyle(
-          /*css*/
-          `
+`
 				.video-desc-wrapper {
 					color: #9499A0;
 					font-size: 14px;
@@ -8548,8 +7309,7 @@
             let $descWrapper = domUtils.createElement("div", {
               className: "video-desc-wrapper",
               innerHTML: (
-                /*html*/
-                `
+`
 							<div class="video-view-info-wrapper">
 								<div class="video-info-icon">
 									<svg
@@ -8684,11 +7444,7 @@
       }
       return $ele.getAttribute("universallink");
     },
-    /**
-     * 直接跳转Url
-     * @param event
-     */
-    jumpToUrl(event) {
+jumpToUrl(event) {
       let $click = event.target;
       let $biliOpenApp = $click.querySelector("bili-open-app") || $click.querySelector("m-open-app");
       if ($biliOpenApp) {
@@ -8706,42 +7462,29 @@
     }
   };
   const BilibiliLogUtils = {
-    /**
-     * 过滤searchParam的敏感数据
-     */
-    filteringSensitiveSearchParamData(data2) {
+filteringSensitiveSearchParamData(data2) {
       const sensitiveData = utils.assign({}, data2, true);
       Reflect.deleteProperty(sensitiveData, "access_key");
       Reflect.deleteProperty(sensitiveData, "access_token");
       return sensitiveData;
     },
-    /**
-     * 请求失败的信息弹窗
-     */
-    failToast(data2) {
+failToast(data2) {
       log$1.error(data2);
       alert(JSON.stringify(data2, null, 4));
     }
   };
   const BilibiliBangumiApi = {
-    /**
-     * 轮询获取番剧播放地址
-     */
-    async getPlayUrl(option) {
+async getPlayUrl(option) {
       let searchParamsData = {
         avid: "",
         cid: "",
         ep_id: "",
-        // 8K 超高清
-        qn: 127,
-        /** 固定值 */
-        fnver: 0,
-        // dash且需求 av1 编码且需求 8K 分辨率
-        fnval: 16 | 1024 | 2048,
-        // mp4格式
-        // fnval: 1,
-        /** 是否允许4K视频 */
-        fourk: 1
+qn: 127,
+fnver: 0,
+fnval: 16 | 1024 | 2048,
+
+
+fourk: 1
       };
       searchParamsData = utils.assign(searchParamsData, option);
       let serverHostList = BilibiliApiProxy.getBangumiProxyHost();
@@ -8805,22 +7548,18 @@
       }
       return result;
     },
-    /**
-     * 获取番剧播放地址-html5，获取的是mp4的
-     */
-    async getPlayUrlHTML5(option) {
+async getPlayUrlHTML5(option) {
       let searchParamsData = {
         avid: "",
         cid: "",
         ep_id: "",
         bsource: ""
-        // qn: 116,
-        // fnver: 0,
-        // fnval: 1,
-        // fourk: 1,
-        // from_client: "BROWSER",
-        // drm_tech_type: 2,
-      };
+
+
+
+
+
+};
       searchParamsData = utils.assign(searchParamsData, option);
       log$1.info(`（原版api）番剧播放地址请求数据`);
       const urlPath = "/pgc/player/web/playurl/html5";
@@ -8999,27 +7738,17 @@
     $data: {
       art: null,
       flv: null,
-      /** 当前的配置项 */
-      currentOption: null,
+currentOption: null,
       from: "bangumi"
     },
-    /**
-     * 重置环境变量
-     */
-    resetEnv(isInit) {
+resetEnv(isInit) {
       if (isInit) {
         Reflect.set(this.$data, "art", null);
         Reflect.set(this.$data, "flv", null);
       }
       Reflect.set(this.$data, "currentOption", null);
     },
-    /**
-     * flv播放
-     *
-     * 切换url时自动调用
-     * @param videoInfoList 可能多个，可能只有一个
-     */
-    flvPlayer() {
+flvPlayer() {
       if (this.$data.currentOption == null) {
         console.error(TAG_FLV + "获取当前配置为空");
         return;
@@ -9063,11 +7792,7 @@
       this.$data.flv.attachMediaElement(this.$data.art.video);
       this.$data.flv.load();
     },
-    /**
-     * 初始化播放器
-     * @param option
-     */
-    async init(option) {
+async init(option) {
       this.resetEnv(true);
       this.$data.currentOption = option;
       const localArtDanmakuOption_KEY = "artplayer-bangumi-danmaku-option";
@@ -9078,8 +7803,7 @@
       const artOption = {
         ...ArtPlayerCommonOption(),
         container: option.container,
-        /** 自定义设置列表 */
-        settings: [],
+settings: [],
         plugins: [
           artplayerPluginToast(),
           artplayPluginQuality({
@@ -9113,25 +7837,16 @@
           artplayerPluginDanmuku({
             ...ArtPlayerDanmakuCommonOption(),
             danmuku: option.danmukuUrl,
-            // 以下为非必填
-            // 弹幕持续时间，范围在[1 ~ 10]
-            speed: localArtDanmakuOption.speed,
-            // 弹幕上下边距，支持像素数字和百分比
-            margin: localArtDanmakuOption["margin"],
-            // 弹幕透明度，范围在[0 ~ 1]
-            opacity: localArtDanmakuOption["opacity"],
-            // 弹幕可见的模式
-            modes: localArtDanmakuOption["modes"],
-            // 弹幕字体大小，支持像素数字和百分比
-            fontSize: localArtDanmakuOption["fontSize"],
-            // 弹幕是否防重叠
-            antiOverlap: localArtDanmakuOption["antiOverlap"],
-            // 是否同步播放速度
-            synchronousPlayback: localArtDanmakuOption["synchronousPlayback"],
-            // 弹幕层是否可见
-            visible: localArtDanmakuOption["visible"],
-            // 手动发送弹幕前的过滤器，返回 true 则可以发送，可以做存库处理
-            beforeEmit(danmu) {
+
+speed: localArtDanmakuOption.speed,
+margin: localArtDanmakuOption["margin"],
+opacity: localArtDanmakuOption["opacity"],
+modes: localArtDanmakuOption["modes"],
+fontSize: localArtDanmakuOption["fontSize"],
+antiOverlap: localArtDanmakuOption["antiOverlap"],
+synchronousPlayback: localArtDanmakuOption["synchronousPlayback"],
+visible: localArtDanmakuOption["visible"],
+beforeEmit(danmu) {
               return new Promise((resolve) => {
                 console.log(danmu);
                 setTimeout(() => {
@@ -9202,12 +7917,7 @@
       artPlayerDanmakuOptionHelper.onConfigChange(this.$data.art);
       return this.$data.art;
     },
-    /**
-     * 更新新的播放信息
-     * @param art
-     * @param option
-     */
-    async update(art, option) {
+async update(art, option) {
       this.resetEnv(false);
       this.$data.currentOption = option;
       log$1.info(`更新新的播放信息`, option);
@@ -9219,12 +7929,7 @@
       art.play();
       log$1.info("播放");
     },
-    /**
-     * 更新插件数据
-     * @param art
-     * @param option
-     */
-    updatePluginInfo(art, option) {
+updatePluginInfo(art, option) {
       let plugin_quality = art.plugins[ArtPlayer_PLUGIN_QUALITY_KEY];
       plugin_quality.update({
         from: BilibiliBangumiArtPlayer.$data.from,
@@ -9293,13 +7998,7 @@
     }
   };
   const ReactUtils = {
-    /**
-     * 等待react某个属性并进行设置
-     * @param $el 需要检测的元素对象
-     * @param reactPropNameOrNameList react属性的名称
-     * @param checkOption 检测的配置项
-     */
-    async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
+async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
       if (!Array.isArray(reactPropNameOrNameList)) {
         reactPropNameOrNameList = [reactPropNameOrNameList];
       }
@@ -9511,8 +8210,8 @@
       if (Array.isArray(bangumiInfo?.clip_info_list)) {
         clip_info_list = bangumiInfo.clip_info_list;
       } else if (Array.isArray(bangumiInfo?.clip_info)) {
-        clip_info_list = // @ts-ignore
-        bangumiInfo.clip_info;
+        clip_info_list =
+bangumiInfo.clip_info;
       }
       if (bangumiInfo.type.toLowerCase() === "flv") {
         isFlv = true;
@@ -9565,8 +8264,8 @@
         return;
       }
       if (Array.isArray(bangumiInfo?.clip_info_list)) {
-        clip_info_list = // @ts-ignore
-        bangumiInfo.clip_info_list;
+        clip_info_list =
+bangumiInfo.clip_info_list;
       } else if (Array.isArray(bangumiInfo?.clip_info)) {
         clip_info_list = bangumiInfo.clip_info;
       }
@@ -9585,8 +8284,7 @@
       };
     });
     const artPlayerOption = {
-      // @ts-ignore
-      container: null,
+container: null,
       epList: EP_LIST,
       cid,
       aid,
@@ -9622,10 +8320,7 @@
     $data: {
       art: null
     },
-    /**
-     * 更新播放器的信息
-     */
-    updateArtPlayerVideoInfo(ep_info, ep_list) {
+updateArtPlayerVideoInfo(ep_info, ep_list) {
       const that = this;
       ReactUtils.waitReactPropsToSet(
         BilibiliData.className.bangumi_new + ` [class^="Player_container"]`,
@@ -9662,8 +8357,7 @@
               const $artPlayerContainer = domUtils.createElement("div", {
                 className: "artplayer-container",
                 innerHTML: (
-                  /*html*/
-                  `
+`
 									<div id="artplayer"></div>
 									`
                 )
@@ -9710,10 +8404,7 @@
       });
       this.coverVideoPlayer();
     },
-    /**
-     * 阻止唤醒App
-     */
-    hookCallApp() {
+hookCallApp() {
       let oldSetTimeout = _unsafeWindow.setTimeout;
       _unsafeWindow.setTimeout = function(...args) {
         let callString = args[0].toString();
@@ -9724,10 +8415,7 @@
         return Reflect.apply(oldSetTimeout, this, args);
       };
     },
-    /**
-     * 覆盖【选集】的点击事件
-     */
-    setChooseEpClickEvent() {
+setChooseEpClickEvent() {
       utils.waitNode(
         BilibiliData.className.bangumi + " .ep-list-pre-wrapper ul.ep-list-pre-container"
       ).then(($preContainer) => {
@@ -9797,12 +8485,7 @@
         }
       );
     },
-    /**
-     * 覆盖【PV&其他】、【预告】、【主题曲】的点击事件
-     *
-     * + https://m.bilibili.com/bangumi/play/ss48852
-     */
-    setClickOtherVideo() {
+setClickOtherVideo() {
       utils.waitNode(
         BilibiliData.className.bangumi + " .section-preview-wrapper ul.ep-list-pre-container"
       ).then(($preContainer) => {
@@ -9854,10 +8537,7 @@
         }
       );
     },
-    /**
-     * 覆盖【更多推荐】番剧的点击事件
-     */
-    setRecommendClickEvent() {
+setRecommendClickEvent() {
       utils.waitNode(
         BilibiliData.className.bangumi + " .recom-wrapper ul.recom-list"
       ).then(($recomList) => {
@@ -9892,16 +8572,12 @@
         }
       );
     },
-    /**
-     * 覆盖视频播放器
-     */
-    coverVideoPlayer() {
+coverVideoPlayer() {
       if (document.querySelector("#artplayer")) {
         log$1.warn("已存在播放器，更新播放信息");
       } else {
         addStyle(
-          /*css*/
-          `
+`
 			.player-wrapper,
 			.open-app-bar,
 			${BilibiliData.className.bangumi_new} [class^="Player_videoWrap"] > div:not(.artplayer-container){
@@ -9924,8 +8600,7 @@
         );
         if (controlsPadding != 0) {
           addStyle(
-            /*css*/
-            `
+`
 				@media (orientation: landscape) {
 					.art-video-player .art-layers .art-layer-top-wrap,
 					/* 底部 */
@@ -9947,10 +8622,7 @@
     }
   };
   const BilibiliSearchApi = {
-    /**
-     * 获取输入框的placeholder的热点关键词
-     */
-    async getSearchInputPlaceholder() {
+async getSearchInputPlaceholder() {
       let getResponse = await httpx.get(
         "https://api.bilibili.com/x/web-interface/wbi/search/default",
         {
@@ -9979,10 +8651,7 @@
       }
       return responseData.data;
     },
-    /**
-     * 从代理服务器拉取番剧搜索结果
-     */
-    async getBangumiSearchResult(config) {
+async getBangumiSearchResult(config) {
       let searchParamsData = {
         search_type: "media_bangumi",
         keyword: config.keyword,
@@ -10030,15 +8699,11 @@
         });
       });
     },
-    /**
-     * 初始化搜索的tab
-     */
-    enableOtherAreaSearchBangumi() {
+enableOtherAreaSearchBangumi() {
       if (!this.$flag_css.enableOtherAreaSearchBangumi) {
         this.$flag_css.enableOtherAreaSearchBangumi = true;
         addStyle(
-          /*css*/
-          `
+`
 			.m-search-result .tabs{
 				overflow: auto;
 				white-space: nowrap;
@@ -10123,8 +8788,7 @@
           let $gmResultPanel = domUtils.createElement("div", {
             className: "gm-result-panel",
             innerHTML: (
-              /*html*/
-              `
+`
 						<div class="gm-list-view">
 							<div class="gm-video-list-box">
 								<div class="gm-video-list">
@@ -10145,17 +8809,13 @@
         });
       });
     },
-    /**
-     * 创建搜索结果项
-     */
-    createSearchResultVideoItem(option) {
+createSearchResultVideoItem(option) {
       let $item = domUtils.createElement(
         "div",
         {
           className: "gm-card-item",
           innerHTML: (
-            /*html*/
-            `
+`
 				<div class="gm-card-container">
 					<div class="gm-card-cover">
 						<div class="gm-card-badges">${option.season_type_name}</div>
@@ -10220,8 +8880,7 @@
       if (option.pubtime) {
         domUtils.append(
           $displayInfo,
-          /*html*/
-          `
+`
 				<span>${utils.formatTime(option.pubtime * 1e3, "yyyy")}</span>
 				`
         );
@@ -10231,16 +8890,14 @@
         if ($displayInfo.children.length) {
           domUtils.append(
             $displayInfo,
-            /*html*/
-            `
+`
 					<span> | </span>
 				`
           );
         }
         domUtils.append(
           $displayInfo,
-          /*html*/
-          `
+`
 					<span>${areas}</span>
 				`
         );
@@ -10249,8 +8906,7 @@
       if (option.media_score && option.media_score.user_count) {
         domUtils.append(
           $mediaScore,
-          /*html*/
-          `
+`
 				<span class="gm-card-media_score-score">${option.media_score?.score || 0}分</span>
 				<span class="gm-card-media_score-user_count">${option.media_score?.user_count || 0}人参与</span>
 				`
@@ -10269,8 +8925,7 @@
           {
             className: "gm-card-ep-conatiner",
             innerHTML: (
-              /*html*/
-              `
+`
 				<div class="gm-card-ep-badges-container">
 					
 				</div>
@@ -10314,10 +8969,7 @@
       });
       return $item;
     },
-    /**
-     * 搜索番剧(从自定义服务器拉取搜索结果)
-     */
-    searchBangumi() {
+searchBangumi() {
     }
   };
   const BilibiliSearchBeautify = {
@@ -10325,17 +8977,13 @@
     init() {
       this.mutationSearchResult();
     },
-    /**
-     * 监听搜索结果改变
-     */
-    mutationSearchResult() {
+mutationSearchResult() {
       if (this.$flag.mutationSearchResult) {
         return;
       }
       this.$flag.mutationSearchResult = true;
       addStyle(
-        /*css*/
-        `
+`
         .bangumi-list{
             padding: 0 10px;
         }
@@ -10373,11 +9021,7 @@
         this.openAppDialog();
       });
     },
-    /**
-     * 该属性会让点击搜索结果弹出打开哔哩哔哩app的弹窗
-     * + __vue__.noCallApp
-     */
-    noCallApp() {
+noCallApp() {
       let lockFn = new utils.LockFunction(() => {
         $$(
           ".video-list .card-box > div:not([data-gm-inject-no-call-app])"
@@ -10407,11 +9051,7 @@
         }
       });
     },
-    /**
-     * 该属性会让点击搜索结果弹出打开哔哩哔哩app的弹窗
-     * + __vue__.openAppDialog
-     */
-    openAppDialog() {
+openAppDialog() {
       let lockFn = new utils.LockFunction(() => {
         $$(
           ".video-list .card-box > div:not([data-gm-inject-openAppDialog])"
@@ -10463,10 +9103,7 @@
         });
       });
     },
-    /**
-     * 覆盖【取消】按钮的点击事件
-     */
-    coverCancel() {
+coverCancel() {
       log$1.info("覆盖【取消】按钮的点击事件");
       domUtils.on(
         document,
@@ -10480,10 +9117,7 @@
         { capture: true }
       );
     },
-    /**
-     * 输入框自动获取焦点
-     */
-    inputAutoFocus() {
+inputAutoFocus() {
       let searchParams = new URLSearchParams(window.location.search);
       if (searchParams.has("keyword")) {
         log$1.warn(`当前在搜索结果页面，不执行输入框自动获取焦点`);
@@ -10501,10 +9135,7 @@
         $input.focus();
       });
     },
-    /**
-     * 覆盖搜索结果点击事件
-     */
-    coverCardResultClickEvent() {
+coverCardResultClickEvent() {
       log$1.info(`覆盖搜索结果点击事件`);
       domUtils.on(
         document,
@@ -10541,24 +9172,15 @@
         return this.blockControlPanel();
       });
     },
-    /**
-     * 屏蔽聊天室
-     */
-    blockChatRoom() {
+blockChatRoom() {
       log$1.info("屏蔽聊天室");
       return CommonUtil.addBlockCSS("#chat-items");
     },
-    /**
-     * 屏蔽xxx进入直播间
-     */
-    blockBrushPrompt() {
+blockBrushPrompt() {
       log$1.info("屏蔽xxx进入直播间");
       return CommonUtil.addBlockCSS("#brush-prompt");
     },
-    /**
-     * 屏蔽底部工具栏
-     */
-    blockControlPanel() {
+blockControlPanel() {
       log$1.info("屏蔽底部工具栏");
       return CommonUtil.addBlockCSS(".control-panel");
     }
@@ -10570,10 +9192,7 @@
         this.preventOpenAppBtn();
       });
     },
-    /**
-     * 阻止触发打开App
-     */
-    preventOpenAppBtn() {
+preventOpenAppBtn() {
       utils.waitNode("body").then(($body) => {
         log$1.info("阻止.open-app-btn元素触发点击事件");
         domUtils.on(
@@ -10624,12 +9243,7 @@
         });
       });
     },
-    /**
-     * isLimit=false
-     *
-     * 作用：自动展开全文
-     */
-    isLimit() {
+isLimit() {
       log$1.info(`等待 观察并覆盖变量isLimit`);
       VueUtils.watchVuePropChange(
         BilibiliData.className.opus,
@@ -10640,10 +9254,7 @@
         }
       );
     },
-    /**
-     * 覆盖函数autoOpenApp
-     */
-    autoOpenApp() {
+autoOpenApp() {
       VueUtils.waitVuePropToSet(BilibiliData.className.opus, {
         msg: "等待 覆盖函数autoOpenApp",
         check(vueInstance) {
@@ -10657,10 +9268,7 @@
         }
       });
     },
-    /**
-     * 覆盖函数go404
-     */
-    go404() {
+go404() {
       VueUtils.waitVuePropToSet(BilibiliData.className.opus, {
         msg: "等待 覆盖函数go404",
         check(vueInstance) {
@@ -10674,11 +9282,7 @@
         }
       });
     },
-    /**
-     * 覆盖对象fallback
-     *
-     */
-    fallback() {
+fallback() {
       VueUtils.waitVuePropToSet(BilibiliData.className.opus, {
         msg: "等待 覆盖对象fallback",
         check(vueInstance) {
@@ -10700,10 +9304,7 @@
         }
       });
     },
-    /**
-     * 覆盖函数dispatch
-     */
-    dispatch(callback) {
+dispatch(callback) {
       let callbackStr = callback.toString();
       for (let index = 0; index < this.$data.dispatchCallBackList.length; index++) {
         const fn = this.$data.dispatchCallBackList[index];
@@ -10756,10 +9357,7 @@
         this.coverHeaderJump();
       });
     },
-    /**
-     * 覆盖话题跳转点击事件
-     */
-    coverTopicJump() {
+coverTopicJump() {
       log$1.info("覆盖话题跳转点击事件");
       domUtils.on(
         document,
@@ -10786,16 +9384,12 @@
         }
       );
     },
-    /**
-     * 自动展开阅读全文
-     */
-    automaticallyExpandToReadFullText() {
+automaticallyExpandToReadFullText() {
       log$1.info("自动展开阅读全文");
       let result = [
         CommonUtil.addBlockCSS(BilibiliData.className.opus + " .opus-read-more"),
         addStyle(
-          /*css*/
-          `
+`
 			${BilibiliData.className.opus} .opus-module-content{
 				overflow: unset !important;
 				max-height: unset !important;
@@ -10805,10 +9399,7 @@
       ];
       return result;
     },
-    /**
-     * 覆盖header点击事件
-     */
-    coverHeaderJump() {
+coverHeaderJump() {
       log$1.info("覆盖header点击事件");
       domUtils.on(
         document,
@@ -10850,10 +9441,7 @@
         this.coverHeaderJump();
       });
     },
-    /**
-     * 覆盖header点击事件
-     */
-    coverHeaderJump() {
+coverHeaderJump() {
       log$1.info("覆盖header点击事件");
       domUtils.on(
         document,
@@ -10879,10 +9467,7 @@
         }
       );
     },
-    /**
-     * 覆盖话题跳转点击事件
-     */
-    coverTopicJump() {
+coverTopicJump() {
       log$1.info("覆盖话题跳转点击事件");
       domUtils.on(
         document,
@@ -10910,10 +9495,7 @@
         }
       );
     },
-    /**
-     * 覆盖@ 跳转
-     */
-    coverAtJump() {
+coverAtJump() {
       log$1.info("覆盖@ 跳转");
       domUtils.on(
         document,
@@ -10935,10 +9517,7 @@
         }
       );
     },
-    /**
-     * 覆盖引用的点击事件
-     */
-    coverReferenceJump() {
+coverReferenceJump() {
       log$1.info("覆盖引用的点击事件");
       domUtils.on(
         document,
@@ -10994,13 +9573,7 @@
     $data: {
       setTimeout: []
     },
-    /**
-     * 劫持webpack
-     * @param webpackName 当前全局变量的webpack名
-     * @param mainCoreData 需要劫持的webpack的顶部core，例如：(window.webpackJsonp = window.webpackJsonp || []).push([["core:0"],{}])
-     * @param checkCallBack 如果mainCoreData匹配上，则调用此回调函数
-     */
-    windowWebPack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
+windowWebPack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
       let originObject = void 0;
       OriginPrototype.Object.defineProperty(_unsafeWindow, webpackName, {
         get() {
@@ -11027,14 +9600,7 @@
         }
       });
     },
-    /**
-     * 劫持全局setTimeout
-     * + 视频页面/video
-     *
-     * window.setTimeout
-     * @param matchStr 需要进行匹配的函数字符串
-     */
-    setTimeout(matchStr) {
+setTimeout(matchStr) {
       this.$data.setTimeout.push(matchStr);
       if (this.$data.setTimeout.length > 1) {
         log$1.info("window.setTimeout hook新增劫持判断参数：" + matchStr);
@@ -11049,12 +9615,7 @@
         return OriginPrototype.setTimeout.apply(this, args);
       };
     },
-    /**
-     * 覆盖元素.launch-app-btn上的openApp
-     *
-     * 页面上有很多
-     */
-    overRideLaunchAppBtn_Vue_openApp() {
+overRideLaunchAppBtn_Vue_openApp() {
       if (this.$isHook.overRideLaunchAppBtn_Vue_openApp) {
         return;
       }
@@ -11094,12 +9655,7 @@
         }
       });
     },
-    /**
-     * 覆盖元素bili-open-app上的opener.open
-     *
-     * 页面上有很多
-     */
-    overRideBiliOpenApp() {
+overRideBiliOpenApp() {
       if (this.$isHook.overRideBiliOpenApp) {
         return;
       }
@@ -11139,10 +9695,7 @@
         }
       });
     },
-    /**
-     * 覆盖页面上的className为wx-tag的元素的点击事件
-     */
-    overRideWxTaghandleClick() {
+overRideWxTaghandleClick() {
       if (this.$isHook.overRideWxTaghandleClick) {
         return;
       }
@@ -11208,16 +9761,12 @@
   };
   const BilibiliRecommend = {
     $flag: {
-      /** 是否已初始化CSS */
-      isInitCSS: false,
-      /** 是否正在加载下一页 */
-      isLoadingNextPage: false
+isInitCSS: false,
+isLoadingNextPage: false
     },
     $data: {
-      /** 监听滚动的观察器 */
-      intersectionObserver: null,
-      /** 加载推荐视频次数 */
-      loadNums: 0
+intersectionObserver: null,
+loadNums: 0
     },
     $ele: {
       $listView: null,
@@ -11243,10 +9792,7 @@
       this.$flag.isInitCSS = true;
       addStyle(BilibiliRecommendCSS);
     },
-    /**
-     * 重置状态
-     */
-    reset() {
+reset() {
       log$1.info("重置状态");
       this.$flag.isLoadingNextPage = false;
       this.removeScrollEvent();
@@ -11254,10 +9800,7 @@
         this.$ele[key] = null;
       });
     },
-    /**
-     * 添加推荐标签
-     */
-    addRecommendTag() {
+addRecommendTag() {
       if (document.querySelector(".channel-menu a.recommend-tag")) {
         return;
       }
@@ -11282,8 +9825,7 @@
       let $recommendView = domUtils.createElement("div", {
         className: "m-recommend-view",
         innerHTML: (
-          /*html*/
-          `
+`
             <div class="list-view">
                 <div class="video-list-box">
                     <div class="video-list">
@@ -11346,16 +9888,10 @@
         $recommendTag.click();
       }
     },
-    /**
-     * 推荐标签的点击事件（切换router）
-     */
-    async recommendClickEvent() {
+async recommendClickEvent() {
       BilibiliUtils.goToUrl("#/recommend/", true);
     },
-    /**
-     * 设置滚动观察事件
-     */
-    setScrollEvent() {
+setScrollEvent() {
       log$1.success("推荐视频监听滚动: IntersectionObserver");
       this.$data.intersectionObserver = new IntersectionObserver(
         async (entries) => {
@@ -11376,17 +9912,11 @@
       );
       this.$data.intersectionObserver.observe(this.$ele.$listViewShim);
     },
-    /**
-     * 移除滚动观察事件
-     */
-    removeScrollEvent() {
+removeScrollEvent() {
       this.$data.intersectionObserver?.disconnect();
       this.$data.intersectionObserver = null;
     },
-    /**
-     * 滚动事件
-     */
-    async scrollEvent() {
+async scrollEvent() {
       let videoInfo = await this.getRecommendVideoInfo();
       if (!videoInfo) {
         return false;
@@ -11420,10 +9950,7 @@
       this.$data.loadNums++;
       return true;
     },
-    /**
-     * 获取推荐视频信息
-     */
-    async getRecommendVideoInfo() {
+async getRecommendVideoInfo() {
       let getData = {
         appkey: AppKeyInfo.ios.appkey,
         access_key: BilibiliQrCodeLogin.getAccessTokenInfo()?.access_token || ""
@@ -11449,11 +9976,7 @@
       }
       return data2.data.items;
     },
-    /**
-     * 获取推荐视频的每一个元素 图文
-     * + picture
-     */
-    getRecommendItemPictureElement(data2) {
+getRecommendItemPictureElement(data2) {
       let goto = data2.goto;
       let param = data2.param;
       let url = "/opus/" + param;
@@ -11507,11 +10030,7 @@
       $vCard["data-picture"] = data2;
       return $vCard;
     },
-    /**
-     * 获取推荐视频的每一个元素
-     * + av
-     */
-    getRecommendItemAVElement(data2) {
+getRecommendItemAVElement(data2) {
       let goto = data2.goto;
       let aid = data2?.player_args?.aid || data2.args.aid;
       let bvid = av2bv(aid);
@@ -11528,8 +10047,7 @@
           className: "v-card",
           href: url,
           innerHTML: (
-            /*html*/
-            `
+`
                 <div class="card">
                     <div class="bfs-img-wrap">
                         <div class="bfs-img b-img">
@@ -11600,14 +10118,10 @@
         BilibiliRecommend.init();
       });
     },
-    /**
-     * 添加视频列表UP主信息
-     */
-    addVideoListUPInfo() {
+addVideoListUPInfo() {
       log$1.info("添加视频列表UP主信息");
       addStyle(
-        /*css*/
-        `
+`
 		${BilibiliData.className.head} .video-list .card-box .gm-up-info {
 			display: flex;
 			justify-content: space-between;
@@ -11642,8 +10156,8 @@
             let duration = vueObj?.info?.duration;
             if (upName && !$vcard.querySelector(".gm-up-info")) {
               let $upInfo = document.createElement("div");
-              $upInfo.innerHTML = /*html*/
-              `
+              $upInfo.innerHTML =
+`
                                     <div class="gm-up-name">
                                         <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
                                             <path fill="#999A9E" d="M896 736v-448c0-54.4-41.6-96-96-96h-576C169.6 192 128 233.6 128 288v448c0 54.4 41.6 96 96 96h576c54.4 0 96-41.6 96-96zM800 128C889.6 128 960 198.4 960 288v448c0 89.6-70.4 160-160 160h-576C134.4 896 64 825.6 64 736v-448C64 198.4 134.4 128 224 128h576zM419.2 544V326.4h60.8v240c0 96-57.6 144-147.2 144S192 665.6 192 569.6V326.4h60.8v217.6c0 51.2 3.2 108.8 83.2 108.8s83.2-57.6 83.2-108.8z m288-38.4c28.8 0 60.8-16 60.8-60.8 0-48-28.8-60.8-60.8-60.8H614.4v121.6h92.8z m3.2-179.2c102.4 0 121.6 70.4 121.6 115.2 0 48-19.2 115.2-121.6 115.2H614.4V704h-60.8V326.4h156.8z">
@@ -11684,16 +10198,12 @@
         });
       });
     },
-    /**
-     * 重构tinyApp右上角的设置按钮图标，改为用户头像什么的
-     */
-    async reconfigurationTinyAppSettingButton() {
+async reconfigurationTinyAppSettingButton() {
       log$1.info(`重构tinyApp右上角的设置按钮图标`);
       if (!this.$flag.isInit_reconfigurationTinyAppSettingButton) {
         this.$flag.isInit_reconfigurationTinyAppSettingButton = true;
         addStyle(
-          /*css*/
-          `
+`
 
 			.nav-bar .right{
 				display: -webkit-box;
@@ -11738,8 +10248,8 @@
         log$1.error("未找到设置按钮图标，无法重构");
         return;
       }
-      $iconConfig.outerHTML = /*html*/
-      `
+      $iconConfig.outerHTML =
+`
 		<div class="gm-face">
 			<div class="gm-face-avatar">
 				<img src="http://i0.hdslb.com/bfs/face/member/noface.jpg">
@@ -11787,16 +10297,12 @@
         }
       });
     },
-    /**
-     * 美化顶部navbar
-     */
-    beautifyTopNavBar() {
+beautifyTopNavBar() {
       log$1.info(`美化顶部navbar`);
       if (!this.$flag.isInit_beautifyTopNavBar_css) {
         this.$flag.isInit_beautifyTopNavBar_css = true;
         addStyle(
-          /*css*/
-          `
+`
 			/* 隐藏logo */
 			.${BilibiliData.className.head} .m-navbar .logo,
 			/* 隐藏原有的搜索图标 */
@@ -11866,8 +10372,7 @@
         let $inputAreaContainer = domUtils.createElement("div", {
           className: "gm-input-area",
           innerHTML: (
-            /*html*/
-            `
+`
 						<i class="iconfont ic_search_tab"></i>
 						<input type="search" placeholder="" readonly="" disabled="">
 					`
@@ -11896,26 +10401,20 @@
     },
     removeAds() {
       CommonUtil.addBlockCSS(
-        /* 底部的打开客户端阅读 */
-        "body>.h5-download-bar"
+"body>.h5-download-bar"
       );
     },
-    /**
-     * 自动展开
-     */
-    autoExpand() {
+autoExpand() {
       log$1.info("自动展开");
       return [
         addStyle(
-          /*css*/
-          `
+`
 			${BilibiliPCData.className.read.mobile} .limit{
 				overflow: unset !important;
 				max-height: unset !important;
 			}`
         ),
-        // 屏蔽 【展开阅读全文】
-        CommonUtil.addBlockCSS(
+CommonUtil.addBlockCSS(
           BilibiliPCData.className.read.mobile + " .read-more"
         )
       ];
@@ -11930,10 +10429,7 @@
         this.coverDynamicStateCardVideo();
       });
     },
-    /**
-     * 修复视频|动态的正确跳转
-     */
-    repairRealJump() {
+repairRealJump() {
       let lockFn = new utils.LockFunction(() => {
         $$(BilibiliData.className.space + " .wx-tag.open-app-wrapper").forEach(
           ($el) => {
@@ -11956,10 +10452,7 @@
       });
       return;
     },
-    /**
-     * 覆盖动态视频的点击事件
-     */
-    coverDynamicStateCardVideo() {
+coverDynamicStateCardVideo() {
       log$1.info(`覆盖动态视频的点击事件`);
       domUtils.on(
         document,
@@ -12002,10 +10495,7 @@
         this.setIsClient();
       });
     },
-    /**
-     * 禁止调用app
-     */
-    noCallApp() {
+noCallApp() {
       VueUtils.waitVuePropToSet("#app", [
         {
           msg: "设置参数 $store.state.common.noCallApp",
@@ -12019,14 +10509,7 @@
         }
       ]);
     },
-    /**
-     * 设置登录
-     *
-     * + $store.state.common.noCallApp
-     * + $store.state.common.userInfo.isLogin
-     * + $store.state.loginInfo.isLogin
-     */
-    setLogin() {
+setLogin() {
       let GM_Cookie = new utils.GM_Cookie();
       let cookie_DedeUserID = GM_Cookie.get("DedeUserID");
       if (cookie_DedeUserID != null) {
@@ -12069,16 +10552,7 @@
         }
       ]);
     },
-    /**
-     * 设置为客户端(不确定是否有用)
-     *
-     * + $store.state.video.isClient
-     * + $store.state.opus.isClient
-     * + $store.state.playlist.isClient
-     * + $store.state.ver.bili
-     * + $store.state.ver.biliVer 2333333
-     */
-    setIsClient() {
+setIsClient() {
       VueUtils.waitVuePropToSet("#app", [
         {
           msg: "设置参数 $store.state.video.isClient",
@@ -12132,12 +10606,7 @@
         }
       ]);
     },
-    /**
-     * 设置为微应用(可以看评论且视频稿件变大)
-     *
-     * + __vue__.$store.state.common.tinyApp `true`
-     */
-    setTinyApp() {
+setTinyApp() {
       VueUtils.waitVuePropToSet("#app", [
         {
           msg: "设置参数 $store.state.common.tinyApp",
@@ -12149,8 +10618,7 @@
             log$1.success("成功设置参数 $store.state.common.tinyApp=true");
             Panel.onceExec("bili-tinyApp-init-css", () => {
               addStyle(
-                /*css*/
-                `
+`
 							.tiny-app .reply-input,.tiny-app .reply-item .info .name .right,.tiny-app .reply-item .info .toolbar,.tiny-app .sub-reply-input {
 								display: block;
 							}
@@ -12172,39 +10640,19 @@
         return this.__storeApiFn;
       }
     },
-    /**
-     * 获取自定义的存储接口
-     * @param type 组件类型
-     */
-    getStorageApi(type) {
+getStorageApi(type) {
       if (!this.hasStorageApi(type)) {
         return;
       }
       return this.$data.storeApiValue.get(type);
     },
-    /**
-     * 判断是否存在自定义的存储接口
-     * @param type 组件类型
-     */
-    hasStorageApi(type) {
+hasStorageApi(type) {
       return this.$data.storeApiValue.has(type);
     },
-    /**
-     * 设置自定义的存储接口
-     * @param type 组件类型
-     * @param storageApiValue 存储接口
-     */
-    setStorageApi(type, storageApiValue) {
+setStorageApi(type, storageApiValue) {
       this.$data.storeApiValue.set(type, storageApiValue);
     },
-    /**
-     * 初始化组件的存储接口属性
-     *
-     * @param type 组件类型
-     * @param config 组件配置，必须包含prop属性
-     * @param storageApiValue 存储接口
-     */
-    initComponentsStorageApi(type, config, storageApiValue) {
+initComponentsStorageApi(type, config, storageApiValue) {
       let propsStorageApi;
       if (this.hasStorageApi(type)) {
         propsStorageApi = this.getStorageApi(type);
@@ -12213,12 +10661,7 @@
       }
       this.setComponentsStorageApiProperty(config, propsStorageApi);
     },
-    /**
-     * 设置组件的存储接口属性
-     * @param config 组件配置，必须包含prop属性
-     * @param storageApiValue 存储接口
-     */
-    setComponentsStorageApiProperty(config, storageApiValue) {
+setComponentsStorageApiProperty(config, storageApiValue) {
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
     }
   };
@@ -12344,10 +10787,7 @@
     constructor(option) {
       this.option = option;
     }
-    /**
-     * 显示视图
-     */
-    async showView() {
+async showView() {
       let $dialog = __pops.confirm({
         title: {
           text: this.option.title,
@@ -12355,8 +10795,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                     <form class="rule-form-container" onsubmit="return false">
                         <ul class="rule-form-ulist"></ul>
                         <input type="submit" style="display: none;" />
@@ -12381,8 +10820,7 @@
           enable: true
         },
         style: (
-          /*css*/
-          `
+`
                 ${__pops.config.cssText.panelCSS}
                 
                 .rule-form-container {
@@ -12472,8 +10910,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                 <div class="filter-container"></div>
                 `
           )
@@ -12491,8 +10928,7 @@
         width: window.innerWidth > 500 ? "350px" : "80vw",
         height: window.innerHeight > 500 ? "300px" : "70vh",
         style: (
-          /*css*/
-          `
+`
             .filter-container{
                 height: 100%;
                 display: flex;
@@ -12558,11 +10994,7 @@
     constructor(option) {
       this.option = option;
     }
-    /**
-     * 显示视图
-     * @param filterCallBack 返回值为false隐藏，true则不隐藏（不处理）
-     */
-    async showView(filterCallBack) {
+async showView(filterCallBack) {
       let $popsConfirm = __pops.confirm({
         title: {
           text: this.option.title,
@@ -12570,8 +11002,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                     <div class="rule-view-container">
                     </div>
                     `
@@ -12693,8 +11124,7 @@
         width: window.innerWidth > 500 ? "500px" : "88vw",
         height: window.innerHeight > 500 ? "500px" : "80vh",
         style: (
-          /*css*/
-          `
+`
             ${__pops.config.cssText.panelCSS}
             
             .rule-item{
@@ -12761,16 +11191,7 @@
         domUtils.text($button, "取消过滤");
       }
     }
-    /**
-     * 显示编辑视图
-     * @param isEdit 是否是编辑状态
-     * @param editData 编辑的数据
-     * @param $parentShadowRoot （可选）关闭弹窗后对ShadowRoot进行操作
-     * @param $editRuleItemElement （可选）关闭弹窗后对规则行进行更新数据
-     * @param updateDataCallBack （可选）关闭添加/编辑弹窗的回调（不更新数据）
-     * @param submitCallBack （可选）添加/修改提交的回调
-     */
-    showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
+showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
       let dialogCloseCallBack = async (isSubmit) => {
         if (isSubmit) {
           if (typeof submitCallBack === "function") {
@@ -12847,10 +11268,7 @@
       });
       editView.showView();
     }
-    /**
-     * 解析弹窗内的各个元素
-     */
-    parseViewElement($shadowRoot) {
+parseViewElement($shadowRoot) {
       let $container = $shadowRoot.querySelector(
         ".rule-view-container"
       );
@@ -12858,16 +11276,11 @@
         ".pops-confirm-btn button.pops-confirm-btn-other"
       );
       return {
-        /** 容器 */
-        $container,
-        /** 左下角的清空按钮 */
-        $deleteBtn
+$container,
+$deleteBtn
       };
     }
-    /**
-     * 解析每一项的元素
-     */
-    parseRuleItemElement($ruleElement) {
+parseRuleItemElement($ruleElement) {
       let $enable = $ruleElement.querySelector(
         ".rule-controls-enable"
       );
@@ -12883,32 +11296,21 @@
         ".rule-controls-delete"
       );
       return {
-        /** 启用开关 */
-        $enable,
-        /** 启用开关的container */
-        $enableSwitch,
-        /** 启用开关的input */
-        $enableSwitchInput,
-        /** 启用开关的core */
-        $enableSwitchCore,
-        /** 编辑按钮 */
-        $edit,
-        /** 删除按钮 */
-        $delete,
-        /** 存储在元素上的数据 */
-        data: Reflect.get($ruleElement, "data-rule")
+$enable,
+$enableSwitch,
+$enableSwitchInput,
+$enableSwitchCore,
+$edit,
+$delete,
+data: Reflect.get($ruleElement, "data-rule")
       };
     }
-    /**
-     * 创建一条规则元素
-     */
-    async createRuleItemElement(data2, $shadowRoot) {
+async createRuleItemElement(data2, $shadowRoot) {
       let name = await this.option.getDataItemName(data2);
       let $ruleItem = domUtils.createElement("div", {
         className: "rule-item",
         innerHTML: (
-          /*html*/
-          `
+`
 			<div class="rule-name">${name}</div>
 			<div class="rule-controls">
 				<div class="rule-controls-enable">
@@ -13017,10 +11419,7 @@
       }
       return $ruleItem;
     }
-    /**
-     * 添加一个规则元素
-     */
-    async appendRuleItemElement($shadowRoot, data2) {
+async appendRuleItemElement($shadowRoot, data2) {
       let { $container } = this.parseViewElement($shadowRoot);
       let $ruleItem = [];
       let iteratorData = Array.isArray(data2) ? data2 : [data2];
@@ -13033,35 +11432,23 @@
       await this.updateDeleteAllBtnText($shadowRoot);
       return $ruleItem;
     }
-    /**
-     * 更新弹窗内容的元素
-     */
-    async updateRuleContaienrElement($shadowRoot) {
+async updateRuleContaienrElement($shadowRoot) {
       this.clearContent($shadowRoot);
       const { $container } = this.parseViewElement($shadowRoot);
       let data2 = await this.option.data();
       await this.appendRuleItemElement($shadowRoot, data2);
       await this.updateDeleteAllBtnText($shadowRoot);
     }
-    /**
-     * 更新规则元素
-     */
-    async updateRuleItemElement(data2, $oldRuleItem, $shadowRoot) {
+async updateRuleItemElement(data2, $oldRuleItem, $shadowRoot) {
       let $newRuleItem = await this.createRuleItemElement(data2, $shadowRoot);
       $oldRuleItem.after($newRuleItem);
       $oldRuleItem.remove();
     }
-    /**
-     * 清空内容
-     */
-    clearContent($shadowRoot) {
+clearContent($shadowRoot) {
       const { $container } = this.parseViewElement($shadowRoot);
       domUtils.html($container, "");
     }
-    /**
-     * 设置删除按钮的文字
-     */
-    setDeleteBtnText($shadowRoot, text, isHTML = false) {
+setDeleteBtnText($shadowRoot, text, isHTML = false) {
       const { $deleteBtn } = this.parseViewElement($shadowRoot);
       if (isHTML) {
         domUtils.html($deleteBtn, text);
@@ -13069,27 +11456,20 @@
         domUtils.text($deleteBtn, text);
       }
     }
-    /**
-     * 更新【清空所有】的按钮的文字
-     * @param $shadowRoot
-     */
-    async updateDeleteAllBtnText($shadowRoot) {
+async updateDeleteAllBtnText($shadowRoot) {
       let data2 = await this.option.data();
       this.setDeleteBtnText($shadowRoot, `清空所有(${data2.length})`);
     }
   }
   const BilibiliComponentDetectionRule = {
     $data: {
-      /** 白名单用户id */
-      whiteList: [],
-      /** 规则数据 */
-      ruleData: []
+whiteList: [],
+ruleData: []
     },
     $key: {
       STORAGE_KEY: "bili-componentDetection-rule"
     },
-    /** 初始化数据 */
-    init() {
+init() {
       this.$data.whiteList = [];
       this.$data.ruleData = [];
       let allData = this.getData();
@@ -13100,10 +11480,7 @@
         this.$data.ruleData.push(data2);
       });
     },
-    /**
-     * 显示视图
-     */
-    showView() {
+showView() {
       let panelHandlerComponents = __pops.config.PanelHandlerComponents();
       function generateStorageApi(data2, handler) {
         return {
@@ -13383,8 +11760,7 @@
               }
             },
             style: (
-              /*css*/
-              `
+`
                     .pops-panel-textarea textarea{
                         height: 150px;
                     }
@@ -13408,10 +11784,7 @@
       });
       ruleView.showView();
     },
-    /**
-     * 获取模板数据
-     */
-    getTemplateData() {
+getTemplateData() {
       return {
         uuid: utils.generateUUID(),
         enable: true,
@@ -13427,24 +11800,13 @@
         }
       };
     },
-    /**
-     * 获取数据
-     */
-    getData() {
+getData() {
       return _GM_getValue(this.$key.STORAGE_KEY, []);
     },
-    /**
-     * 设置数据
-     * @param data
-     */
-    setData(data2) {
+setData(data2) {
       _GM_setValue(this.$key.STORAGE_KEY, data2);
     },
-    /**
-     * 添加数据
-     * @param data
-     */
-    addData(data2) {
+addData(data2) {
       let localData = this.getData();
       let findIndex = localData.findIndex((item) => item.uuid == data2.uuid);
       if (findIndex === -1) {
@@ -13455,11 +11817,7 @@
         return false;
       }
     },
-    /**
-     * 更新数据
-     * @param data
-     */
-    updateData(data2) {
+updateData(data2) {
       let localData = this.getData();
       let index = localData.findIndex((item) => item.uuid == data2.uuid);
       let updateFlag = false;
@@ -13470,11 +11828,7 @@
       this.setData(localData);
       return updateFlag;
     },
-    /**
-     * 删除数据
-     * @param data
-     */
-    deleteData(data2) {
+deleteData(data2) {
       let localData = this.getData();
       let index = localData.findIndex((item) => item.uuid == data2.uuid);
       let deleteFlag = false;
@@ -13485,16 +11839,10 @@
       this.setData(localData);
       return deleteFlag;
     },
-    /**
-     * 清空数据
-     */
-    clearData() {
+clearData() {
       _GM_deleteValue(this.$key.STORAGE_KEY);
     },
-    /**
-     * 导出规则
-     */
-    exportRule(fileName = "rule.json") {
+exportRule(fileName = "rule.json") {
       let allRule = this.getData();
       let blob = new Blob([JSON.stringify(allRule, null, 4)]);
       let blobUrl = window.URL.createObjectURL(blob);
@@ -13506,10 +11854,7 @@
         window.URL.revokeObjectURL(blobUrl);
       }, 1500);
     },
-    /**
-     * 导入规则
-     */
-    importRule() {
+importRule() {
       let $alert = __pops.alert({
         title: {
           text: "请选择导入方式",
@@ -13517,8 +11862,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                     <div class="import-mode" data-mode="local">本地导入</div>
                     <div class="import-mode" data-mode="network">网络导入</div>
                 `
@@ -13528,8 +11872,7 @@
         width: PanelUISize.info.width,
         height: PanelUISize.info.height,
         style: (
-          /*css*/
-          `
+`
                 .import-mode{
                     display: inline-block;
                     margin: 10px;
@@ -13619,10 +11962,8 @@
   };
   const BilibiliComponentDetection = {
     $data: {
-      /** 查询图标svg */
-      searchIcon: (
-        /*html*/
-        `
+searchIcon: (
+`
             <svg viewBox="0 0 24 24" fill="none">
                 <path d="M15.7955 15.8111L21 21M18 10.5C18 14.6421 14.6421 18 10.5 18C6.35786 18 3 14.6421 3 10.5C3 6.35786 6.35786 3 10.5 3C14.6421 3 18 6.35786 18 10.5Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
             </svg>
@@ -13632,8 +11973,7 @@
     init() {
       BilibiliComponentDetectionRule.init();
       addStyle(
-        /*css*/
-        `
+`
             .composition-checkable,
 			.composition-checked{
                 display: inline-flex;
@@ -13797,13 +12137,7 @@
         });
       });
     },
-    /**
-     * 查询用户信息
-     *
-     * 即提取需要判断的信息
-     * @param mid
-     */
-    async queryUserInfo(mid) {
+async queryUserInfo(mid) {
       let followingPN = 1;
       let allFollowingData = [];
       while (true) {
@@ -13857,10 +12191,8 @@
         utils.sleep(250);
       }
       let result = {
-        /** 关注列表信息 */
-        following: [],
-        /** 空间动态信息 */
-        space: []
+following: [],
+space: []
       };
       allFollowingData.forEach((followingData) => {
         result.following.push({
@@ -13891,11 +12223,10 @@
             mid: spaceData.orig.modules.module_author.mid,
             name: spaceData.orig.modules.module_author.name,
             title: (
-              // 转发的内容的标题
-              spaceData.orig.modules.module_dynamic?.major?.archive?.title || null
+spaceData.orig.modules.module_dynamic?.major?.archive?.title || null
             ),
-            desc: spaceData.orig.modules.module_dynamic.desc?.text ?? // 转发的内容的描述
-            spaceData.orig.modules.module_dynamic?.major?.archive?.desc,
+            desc: spaceData.orig.modules.module_dynamic.desc?.text ??
+spaceData.orig.modules.module_dynamic?.major?.archive?.desc,
             pub_ts: spaceData.orig.modules.module_author.pub_ts * 1e3,
             id_str: spaceData.orig.id_str
           };
@@ -13918,16 +12249,11 @@
       });
       return result;
     },
-    /**
-     * 创建查询按钮
-     * @param queryMIDFn 查询mid的函数
-     */
-    createSearchButton(queryMIDFn) {
+createSearchButton(queryMIDFn) {
       let $compositionCheckable = domUtils.createElement("div", {
         className: "composition-checkable",
         innerHTML: (
-          /*html*/
-          `
+`
                 <div class="composition-badge-control">
                     <span class="composition-name-control">
                         ${this.$data.searchIcon}
@@ -13973,16 +12299,11 @@
         $compositionNameControl
       };
     },
-    /**
-     * 创建标签
-     * @param data
-     */
-    createLabel(data2) {
+createLabel(data2) {
       let $label = domUtils.createElement("div", {
         className: "composition-checked",
         innerHTML: (
-          /*html*/
-          `
+`
 				<div class="composition-badge">
 				</div>
 			`
@@ -14028,18 +12349,15 @@
           },
           content: {
             text: (
-              /*html*/
-              `
+`
 						${data2.matchedInfoList.map((it) => {
               let $el = domUtils.createElement("div", {
                 className: "reason-container",
                 innerHTML: (
-                  /*html*/
-                  `
+`
 										<div class="reason-text"><span>原因：</span>${it.reason}</div>
 										<div class="reason-text"><span>匹配：</span>${typeof it.reasonLink === "string" ? (
-                    /*html*/
-                    `
+`
 											<a href="${it.reasonLink}" target="_blank">${it.reasonText}</a>
 										`
                   ) : it.reasonText}</div>
@@ -14050,8 +12368,7 @@
                 let $reasonTime = domUtils.createElement("div", {
                   className: "reason-text",
                   innerHTML: (
-                    /*html*/
-                    `
+`
 										<span>时间：</span>${utils.formatTime(it.reasonTime)}
 										`
                   )
@@ -14076,8 +12393,7 @@
           width: PanelUISize.setting.width,
           height: PanelUISize.setting.height,
           style: (
-            /*css*/
-            `
+`
 					.reason-container{
 						color: #7367F0;
 						margin: 10px 10px;
@@ -14088,11 +12404,7 @@
       });
       return $label;
     },
-    /**
-     * 清空标签
-     * @param $ele
-     */
-    clearLabel($ele) {
+clearLabel($ele) {
       while (true) {
         let $prev = domUtils.prev($ele);
         if (!$prev) {
@@ -14105,13 +12417,7 @@
         }
       }
     },
-    /**
-     * 处理并显示标签
-     * @param mid 用户mid
-     * @param data
-     * @param $searchContainer
-     */
-    handleShowLabel(mid, data2, $searchContainer) {
+handleShowLabel(mid, data2, $searchContainer) {
       if (BilibiliComponentDetectionRule.$data.ruleData.length === 0) {
         Qmsg.warning("未配置规则，请在设置中进行添加");
         return;
@@ -14220,12 +12526,7 @@
     },
     init() {
     },
-    /**
-     * 更新播放信息
-     * @param videoInfo
-     * @param isEpChoose 是否是从选集内调用的
-     */
-    updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
+updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
       const that = this;
       VueUtils.waitVuePropToSet(
         BilibiliData.className.playlist + " .playlist-player",
@@ -14264,8 +12565,7 @@
               const $artPlayerContainer = domUtils.createElement("div", {
                 className: "artplayer-container",
                 innerHTML: (
-                  /*html*/
-                  `
+`
 								<div id="artplayer"></div>
 							`
                 )
@@ -14371,16 +12671,12 @@
     init() {
       this.coverVideoPlayer();
     },
-    /**
-     * 覆盖视频播放器
-     */
-    coverVideoPlayer() {
+coverVideoPlayer() {
       if (document.querySelector("#artplayer")) {
         log$1.warn("已存在播放器，更新播放信息");
       } else {
         addStyle(
-          /*css*/
-          `
+`
 			#app .playlist .playlist-player .player-container{
 				display: none !important;
 			}
@@ -14401,8 +12697,7 @@
       BilibiliVueProp.init();
       Panel.execMenuOnce("bili-allowCopy", () => {
         return addStyle(
-          /*css*/
-          `
+`
 				.v-drawer{
 					-webkit-user-select: unset !important;
 					-moz-user-select: unset !important;
@@ -14477,10 +12772,7 @@
       domUtils.ready(() => {
       });
     },
-    /**
-     * 监听路由变化
-     */
-    listenRouterChange() {
+listenRouterChange() {
       VueUtils.waitVuePropToSet("#app", {
         msg: "监听路由变化",
         check: (vueInstance) => {
@@ -14670,12 +12962,11 @@
                     void 0,
                     "一般用于处理楼层的回复弹窗内无法选中复制问题"
                   )
-                  // UISwitch(
-                  // 	"自动删除Cookie buvid3",
-                  // 	"common_auto_delete_cookie_buvid3",
-                  // 	true
-                  // ),
-                ]
+
+
+
+
+]
               }
             ]
           },
@@ -14717,14 +13008,13 @@
                       "$store.state.ver.biliVer=2333"
                     ].join("<br>")
                   )
-                  // UISwitch(
-                  // 	"tinyApp",
-                  // 	"bili-setTinyApp",
-                  // 	true,
-                  // 	void 0,
-                  // 	"$store.state.common.tinyApp=true"
-                  // ),
-                ]
+
+
+
+
+
+
+]
               }
             ]
           },
@@ -15134,42 +13424,40 @@
                 text: "",
                 type: "forms",
                 forms: [
-                  // UISwitch(
-                  // 	"调整视频底部区域高度",
-                  // 	"bili-video-repairVideoBottomAreaHeight",
-                  // 	true,
-                  // 	void 0,
-                  // 	"添加margin-top"
-                  // ),
-                  // UISwitch(
-                  // 	"美化底部推荐视频",
-                  // 	"bili-video-beautify",
-                  // 	true,
-                  // 	void 0,
-                  // 	"调整底部推荐视频卡片样式类似哔哩哔哩App"
-                  // ),
-                  // UISwitch(
-                  // 	"手势返回关闭评论区",
-                  // 	"bili-video-gestureReturnToCloseCommentArea",
-                  // 	true,
-                  // 	void 0,
-                  // 	"当浏览器手势触发浏览器回退页面时，关闭评论区"
-                  // ),
-                  UISwitch(
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+UISwitch(
                     "强制本页刷新跳转",
                     "bili-video-forceThisPageToRefreshAndRedirect",
                     false,
                     void 0,
                     "用于处理内存泄露问题"
                   ),
-                  // UISwitch(
-                  // 	"修复链接跳转",
-                  // 	"bili-video-repairLinkJump",
-                  // 	true,
-                  // 	void 0,
-                  // 	"如@用户、搜索"
-                  // ),
-                  UISwitch(
+
+
+
+
+
+
+UISwitch(
                     "新增评论模块",
                     "bili-video-addCommentModule",
                     true,
@@ -15185,27 +13473,26 @@
                   )
                 ]
               }
-              // {
-              // 	type: "forms",
-              // 	text: "底部Tab",
-              // 	forms: [
-              // 		UISwitch(
-              // 			"滚动固钉Tab",
-              // 			"bili-video-optimizationScroll",
-              // 			true,
-              // 			void 0,
-              // 			"向下滚动时，自动跳转视频区域大小且对Tab进行吸附处理"
-              // 		),
-              // 		UISwitch(
-              // 			"禁止滑动切换Tab",
-              // 			"bili-video-disableSwipeTab",
-              // 			false,
-              // 			void 0,
-              // 			"禁止左右滑动切换Tab"
-              // 		),
-              // 	],
-              // },
-            ]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+]
           },
           {
             text: "ArtPlayer播放器",
@@ -16106,7 +14393,7 @@
   ]);
   Panel.init();
   Bilibili.init();
-  __pops.config.cssText.index += /*css*/
+  __pops.config.cssText.index +=
 `
 /* bilibili颜色 #FB7299 */
 .pops{
@@ -16114,7 +14401,7 @@
     --bili-color-rgb: 251, 114, 153;
 }
 `  ;
-  __pops.config.cssText.panelCSS += /*css*/
+  __pops.config.cssText.panelCSS +=
 `
 
 .pops-slider{

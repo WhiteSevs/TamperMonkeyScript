@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.24
+// @version      2025.8.27
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -75,36 +75,36 @@
 (function () {
   'use strict';
 
-  var _GM = /* @__PURE__ */ (() => typeof GM != "undefined" ? GM : void 0)();
-  var _GM_addElement = /* @__PURE__ */ (() => typeof GM_addElement != "undefined" ? GM_addElement : void 0)();
-  var _GM_addStyle = /* @__PURE__ */ (() => typeof GM_addStyle != "undefined" ? GM_addStyle : void 0)();
-  var _GM_addValueChangeListener = /* @__PURE__ */ (() => typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
-  var _GM_cookie = /* @__PURE__ */ (() => typeof GM_cookie != "undefined" ? GM_cookie : void 0)();
-  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
-  var _GM_deleteValues = /* @__PURE__ */ (() => typeof GM_deleteValues != "undefined" ? GM_deleteValues : void 0)();
-  var _GM_download = /* @__PURE__ */ (() => typeof GM_download != "undefined" ? GM_download : void 0)();
-  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
-  var _GM_getResourceURL = /* @__PURE__ */ (() => typeof GM_getResourceURL != "undefined" ? GM_getResourceURL : void 0)();
-  var _GM_getTab = /* @__PURE__ */ (() => typeof GM_getTab != "undefined" ? GM_getTab : void 0)();
-  var _GM_getTabs = /* @__PURE__ */ (() => typeof GM_getTabs != "undefined" ? GM_getTabs : void 0)();
-  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
-  var _GM_getValues = /* @__PURE__ */ (() => typeof GM_getValues != "undefined" ? GM_getValues : void 0)();
-  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
-  var _GM_listValues = /* @__PURE__ */ (() => typeof GM_listValues != "undefined" ? GM_listValues : void 0)();
-  var _GM_log = /* @__PURE__ */ (() => typeof GM_log != "undefined" ? GM_log : void 0)();
-  var _GM_notification = /* @__PURE__ */ (() => typeof GM_notification != "undefined" ? GM_notification : void 0)();
-  var _GM_openInTab = /* @__PURE__ */ (() => typeof GM_openInTab != "undefined" ? GM_openInTab : void 0)();
-  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-  var _GM_removeValueChangeListener = /* @__PURE__ */ (() => typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0)();
-  var _GM_saveTab = /* @__PURE__ */ (() => typeof GM_saveTab != "undefined" ? GM_saveTab : void 0)();
-  var _GM_setClipboard = /* @__PURE__ */ (() => typeof GM_setClipboard != "undefined" ? GM_setClipboard : void 0)();
-  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
-  var _GM_setValues = /* @__PURE__ */ (() => typeof GM_setValues != "undefined" ? GM_setValues : void 0)();
-  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-  var _GM_webRequest = /* @__PURE__ */ (() => typeof GM_webRequest != "undefined" ? GM_webRequest : void 0)();
-  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
-  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
-  var _monkeyWindow = /* @__PURE__ */ (() => window)();
+  var _GM = (() => typeof GM != "undefined" ? GM : void 0)();
+  var _GM_addElement = (() => typeof GM_addElement != "undefined" ? GM_addElement : void 0)();
+  var _GM_addStyle = (() => typeof GM_addStyle != "undefined" ? GM_addStyle : void 0)();
+  var _GM_addValueChangeListener = (() => typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
+  var _GM_cookie = (() => typeof GM_cookie != "undefined" ? GM_cookie : void 0)();
+  var _GM_deleteValue = (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
+  var _GM_deleteValues = (() => typeof GM_deleteValues != "undefined" ? GM_deleteValues : void 0)();
+  var _GM_download = (() => typeof GM_download != "undefined" ? GM_download : void 0)();
+  var _GM_getResourceText = (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
+  var _GM_getResourceURL = (() => typeof GM_getResourceURL != "undefined" ? GM_getResourceURL : void 0)();
+  var _GM_getTab = (() => typeof GM_getTab != "undefined" ? GM_getTab : void 0)();
+  var _GM_getTabs = (() => typeof GM_getTabs != "undefined" ? GM_getTabs : void 0)();
+  var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
+  var _GM_getValues = (() => typeof GM_getValues != "undefined" ? GM_getValues : void 0)();
+  var _GM_info = (() => typeof GM_info != "undefined" ? GM_info : void 0)();
+  var _GM_listValues = (() => typeof GM_listValues != "undefined" ? GM_listValues : void 0)();
+  var _GM_log = (() => typeof GM_log != "undefined" ? GM_log : void 0)();
+  var _GM_notification = (() => typeof GM_notification != "undefined" ? GM_notification : void 0)();
+  var _GM_openInTab = (() => typeof GM_openInTab != "undefined" ? GM_openInTab : void 0)();
+  var _GM_registerMenuCommand = (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_removeValueChangeListener = (() => typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0)();
+  var _GM_saveTab = (() => typeof GM_saveTab != "undefined" ? GM_saveTab : void 0)();
+  var _GM_setClipboard = (() => typeof GM_setClipboard != "undefined" ? GM_setClipboard : void 0)();
+  var _GM_setValue = (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
+  var _GM_setValues = (() => typeof GM_setValues != "undefined" ? GM_setValues : void 0)();
+  var _GM_unregisterMenuCommand = (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_webRequest = (() => typeof GM_webRequest != "undefined" ? GM_webRequest : void 0)();
+  var _GM_xmlhttpRequest = (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
+  var _unsafeWindow = (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
+  var _monkeyWindow = (() => window)();
   function CompatibleProcessing() {
     try {
       if (typeof Object.assign !== "function") {
@@ -168,18 +168,14 @@
     }
   }
   const QmsgDefaultConfig = {
-    /** 声明插件名称 */
-    get PLUGIN_NAME() {
+get PLUGIN_NAME() {
       return "qmsg";
     },
-    /** 命名空间，用于css和事件 */
-    get NAMESPACE() {
+get NAMESPACE() {
       return "qmsg";
     },
-    /** 实例配置的固定的默认值，在初始化时会插入值 */
-    INS_DEFAULT: {},
-    /** 实例配置的默认值 */
-    get config() {
+INS_DEFAULT: {},
+get config() {
       return {
         parent: document.body || document.documentElement,
         useShadowRoot: true,
@@ -210,8 +206,7 @@
     }
   };
   const QmsgHeaderCloseIcon = (
-    /*css*/
-    `
+`
 	<svg width="16" height="16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<rect width="48" height="48" fill="white" fill-opacity="0.01"/>
 		<path d="M14 14L34 34" stroke="#909399" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
@@ -220,39 +215,34 @@
   );
   const QmsgIcon = {
     info: (
-      /*css*/
-      `
+`
 		<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
 			<path d="M512 64q190.016 4.992 316.512 131.488T960 512q-4.992 190.016-131.488 316.512T512 960q-190.016-4.992-316.512-131.488T64 512q4.992-190.016 131.488-316.512T512 64zm67.008 275.008q26.016 0 43.008-15.488t16.992-41.504-16.992-41.504-42.496-15.488-42.496 15.488-16.992 41.504 16.992 41.504 42.016 15.488zm12 360q0-6.016.992-16T592 664l-52.992 60.992q-8 8.992-16.512 14.016T508 742.016q-8.992-4-8-14.016l88-276.992q4.992-28-8.992-48t-44.992-24q-35.008.992-76.512 29.504t-72.512 72.512v15.008q-.992 10.016 0 19.008l52.992-60.992q8-8.992 16.512-14.016T468 437.024q10.016 4.992 7.008 16l-87.008 276q-7.008 24.992 7.008 44.512T444 800.032q50.016-.992 84-28.992t63.008-72z" fill="#909399"/>
 		</svg>`
     ),
     warning: (
-      /*css*/
-      `
+`
 
 		<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
 			<path d="M512 64C264.64 64 64 264.64 64 512c0 247.424 200.64 448 448 448 247.488 0 448-200.576 448-448 0-247.36-200.512-448-448-448zm0 704c-26.432 0-48-21.504-48-48s21.568-48 48-48c26.624 0 48 21.504 48 48s-21.376 48-48 48zm48-240c0 26.56-21.376 48-48 48-26.432 0-48-21.44-48-48V304c0-26.56 21.568-48 48-48 26.624 0 48 21.44 48 48v224z" fill="#E6A23C"/>
 		</svg>`
     ),
     error: (
-      /*css*/
-      `
+`
 
 		<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
 			<path d="M512 64C264.58 64 64 264.58 64 512s200.58 448 448 448 448-200.57 448-448S759.42 64 512 64zm158.39 561.14a32 32 0 1 1-45.25 45.26L512 557.26 398.86 670.4a32 32 0 0 1-45.25-45.26L466.75 512 353.61 398.86a32 32 0 0 1 45.25-45.25L512 466.74l113.14-113.13a32 32 0 0 1 45.25 45.25L557.25 512z" fill="#F56C6C"/>
 		</svg>`
     ),
     success: (
-      /*css*/
-      `
+`
 
 		<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
 			<path d="M512 64q190.016 4.992 316.512 131.488T960 512q-4.992 190.016-131.488 316.512T512 960q-190.016-4.992-316.512-131.488T64 512q4.992-190.016 131.488-316.512T512 64zm-56 536l-99.008-99.008q-12-11.008-27.488-11.008t-27.008 11.488-11.488 26.496 11.008 27.008l127.008 127.008q11.008 11.008 27.008 11.008t27.008-11.008l263.008-263.008q15.008-15.008 9.504-36.512t-27.008-27.008-36.512 9.504z" fill="#67C23A"/>
 		</svg>`
     ),
     loading: (
-      /*css*/
-      `
+`
 		<svg class="animate-turn" width="16" height="16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
 			<path fill="#fff" fill-opacity=".01" d="M0 0h48v48H0z"/>
 			<path d="M4 24c0 11.046 8.954 20 20 20s20-8.954 20-20S35.046 4 24 4" stroke="#409eff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
@@ -261,18 +251,8 @@
     )
   };
   const QmsgInstStorage = {
-    /**
-     * 存储的Qmsg实例信息
-     */
-    insInfoList: [],
-    /**
-     * 根据uuid移除Qmsg实例
-     * @param uuid 每个Qmsg实例的uuid
-     * @returns
-     * + true 移除成功
-     * + false 移除失败
-     */
-    remove(uuid) {
+insInfoList: [],
+remove(uuid) {
       let flag = false;
       for (let index = 0; index < QmsgInstStorage.insInfoList.length; index++) {
         if (QmsgInstStorage.insInfoList[index].uuid === uuid) {
@@ -315,13 +295,13 @@
       return cache2(collection, nextNumber);
     };
   };
-  const LAST_NUMBER_WEAK_MAP$3 = /* @__PURE__ */ new WeakMap();
+  const LAST_NUMBER_WEAK_MAP$3 = new WeakMap();
   const cache$3 = createCache$3(LAST_NUMBER_WEAK_MAP$3);
   const generateUniqueNumber$3 = createGenerateUniqueNumber$3(cache$3, LAST_NUMBER_WEAK_MAP$3);
   const isMessagePort$3 = (sender) => {
     return typeof sender.start === "function";
   };
-  const PORT_MAP$3 = /* @__PURE__ */ new WeakMap();
+  const PORT_MAP$3 = new WeakMap();
   const extendBrokerImplementation$3 = (partialBrokerImplementation) => ({
     ...partialBrokerImplementation,
     connect: ({ call }) => {
@@ -345,12 +325,12 @@
       return () => call("isSupported");
     }
   });
-  const ONGOING_REQUESTS$3 = /* @__PURE__ */ new WeakMap();
+  const ONGOING_REQUESTS$3 = new WeakMap();
   const createOrGetOngoingRequests$3 = (sender) => {
     if (ONGOING_REQUESTS$3.has(sender)) {
       return ONGOING_REQUESTS$3.get(sender);
     }
-    const ongoingRequests = /* @__PURE__ */ new Map();
+    const ongoingRequests = new Map();
     ONGOING_REQUESTS$3.set(sender, ongoingRequests);
     return ongoingRequests;
   };
@@ -394,8 +374,8 @@
       return { ...functions };
     };
   };
-  const scheduledIntervalsState$3 = /* @__PURE__ */ new Map([[0, null]]);
-  const scheduledTimeoutsState$3 = /* @__PURE__ */ new Map([[0, null]]);
+  const scheduledIntervalsState$3 = new Map([[0, null]]);
+  const scheduledTimeoutsState$3 = new Map([[0, null]]);
   const wrap$3 = createBroker$3({
     clearInterval: ({ call }) => {
       return (timerId) => {
@@ -491,40 +471,24 @@
   const setInterval$3 = (...args) => loadOrReturnBroker$3().setInterval(...args);
   const setTimeout$1$3 = (...args) => loadOrReturnBroker$3().setTimeout(...args);
   const QmsgUtils = {
-    /**
-     * 生成带插件名的名称
-     * @param args
-     */
-    getNameSpacify(...args) {
+getNameSpacify(...args) {
       let result = QmsgDefaultConfig.NAMESPACE;
       for (let index = 0; index < args.length; ++index) {
         result += "-" + args[index];
       }
       return result;
     },
-    /**
-     * 判断字符是否是数字
-     * @param text 需要判断的字符串
-     */
-    isNumber(text) {
+isNumber(text) {
       let isNumberPattern = /^\d+$/;
       return isNumberPattern.test(text);
     },
-    /**
-     * 获取唯一性的UUID
-     */
-    getUUID() {
+getUUID() {
       return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(value) {
         let randValue = Math.random() * 16 | 0, newValue = value == "x" ? randValue : randValue & 3 | 8;
         return newValue.toString(16);
       });
     },
-    /**
-     * 合并参数为配置信息，用于创建Msg实例
-     * @param content 文本内容
-     * @param config 配置
-     */
-    mergeArgs(content = "", config) {
+mergeArgs(content = "", config) {
       let opts = {};
       if (arguments.length === 0) {
         return opts;
@@ -543,12 +507,7 @@
       }
       return opts;
     },
-    /**
-     * 转换为动态对象
-     * @param obj 需要配置的对象
-     * @param other_obj 获取的其它对象
-     */
-    toDynamicObject(obj, ...other_objs) {
+toDynamicObject(obj, ...other_objs) {
       let __obj__ = Object.assign({}, obj ?? {});
       Object.keys(__obj__).forEach((keyName) => {
         let objValue = __obj__[keyName];
@@ -571,20 +530,14 @@
       });
       return __obj__;
     },
-    /**
-     * 自动使用 Worker 执行 setTimeout
-     */
-    setTimeout(callback, timeout) {
+setTimeout(callback, timeout) {
       try {
         return setTimeout$1$3(callback, timeout);
       } catch (error) {
         return globalThis.setTimeout(callback, timeout);
       }
     },
-    /**
-     * 配合 QmsgUtils.setTimeout 使用
-     */
-    clearTimeout(timeId) {
+clearTimeout(timeId) {
       try {
         if (timeId != null) {
           clearTimeout$2(timeId);
@@ -594,20 +547,14 @@
         globalThis.clearTimeout(timeId);
       }
     },
-    /**
-     * 自动使用 Worker 执行 setInterval
-     */
-    setInterval(callback, timeout) {
+setInterval(callback, timeout) {
       try {
         return setInterval$3(callback, timeout);
       } catch (error) {
         return globalThis.setInterval(callback, timeout);
       }
     },
-    /**
-     * 配合 QmsgUtils.setInterval 使用
-     */
-    clearInterval(timeId) {
+clearInterval(timeId) {
       try {
         if (timeId != null) {
           clearInterval$3(timeId);
@@ -617,10 +564,7 @@
         globalThis.clearInterval(timeId);
       }
     },
-    /**
-     * 设置安全的html
-     */
-    setSafeHTML($el, text) {
+setSafeHTML($el, text) {
       try {
         $el.innerHTML = text;
       } catch (error) {
@@ -636,8 +580,7 @@
     }
   };
   const QmsgAnimation = {
-    /** 状态 & 动画 */
-    $state: {
+$state: {
       opening: "MessageMoveIn",
       done: "",
       closing: "MessageMoveOut"
@@ -658,23 +601,12 @@
         "oanimationend"
       ]
     },
-    /**
-     * 是否支持动画属性
-     * @private
-     */
-    __CAN_ANIMATION__: void 0,
-    /**
-     * 是否支持动画属性
-     */
-    get CAN_ANIMATION() {
+__CAN_ANIMATION__: void 0,
+get CAN_ANIMATION() {
       this.__CAN_ANIMATION__ = this.__CAN_ANIMATION__ ?? this.getStyleAnimationNameValue(document.createElement("div")) != null;
       return this.__CAN_ANIMATION__;
     },
-    /**
-     * 获取元素上的animationName属性
-     * @param element
-     */
-    getStyleAnimationNameValue(element) {
+getStyleAnimationNameValue(element) {
       for (let index = 0; index < this.$name.startNameList.length; index++) {
         let animationName = this.$name.startNameList[index];
         let animationNameValue = element.style[animationName];
@@ -683,12 +615,7 @@
         }
       }
     },
-    /**
-     * 设置元素上的animationName属性
-     * @param element
-     * @param animationNameValue
-     */
-    setStyleAnimationName(element, animationNameValue = "") {
+setStyleAnimationName(element, animationNameValue = "") {
       this.$name.startNameList.forEach((animationName) => {
         if (animationName in element.style) {
           element.style[animationName] = animationNameValue;
@@ -698,8 +625,7 @@
   };
   const QmsgCSS = {
     css: (
-      /*css*/
-      `@charset "utf-8";
+`@charset "utf-8";
       .qmsg.qmsg-wrapper{position:fixed;top:16px;left:0;z-index:50000;display:flex;box-sizing:border-box;margin:0;padding:0;width:100%;color:rgba(0,0,0,.55);list-style:none;font-variant:tabular-nums;font-size:13px;line-height:1;font-feature-settings:"tnum";pointer-events:none;flex-direction:column;}
       .qmsg.qmsg-data-position-center,.qmsg.qmsg-data-position-left,.qmsg.qmsg-data-position-right{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);}
       .qmsg.qmsg-data-position-bottom,.qmsg.qmsg-data-position-bottomleft,.qmsg.qmsg-data-position-bottomright{position:fixed;top:unset;bottom:0;bottom:8px;left:50%;transform:translate(-50%,0);}
@@ -760,10 +686,7 @@
             50%{opacity:.25;transform:translateX(4px);}
       }`
     ),
-    /**
-     * 获取CSS元素
-     */
-    getStyleElement() {
+getStyleElement() {
       let $style = document.createElement("style");
       $style.setAttribute("type", "text/css");
       $style.setAttribute("data-type", QmsgDefaultConfig.PLUGIN_NAME);
@@ -772,38 +695,14 @@
     }
   };
   class QmsgMsg {
-    /**
-     * setTimeout的id
-     */
-    timeId = void 0;
-    /**
-     * 启动时间
-     */
-    startTime;
-    /**
-     * 关闭时间
-     */
-    endTime;
-    /**
-     * Qmsg的配置
-     */
-    setting;
-    /**
-     * uuid
-     */
-    uuid;
-    /**
-     * 当前动画状态
-     */
-    state;
-    /**
-     * 当前相同消息的数量
-     */
-    repeatNum;
-    /**
-     * 主元素
-     */
-    $Qmsg;
+timeId = void 0;
+startTime;
+endTime;
+setting;
+uuid;
+state;
+repeatNum;
+$Qmsg;
     constructor(config, uuid) {
       this.timeId = void 0;
       this.startTime = Date.now();
@@ -823,37 +722,19 @@
         this.setting.afterRender(this);
       }
     }
-    /**
-     * 获取当前配置
-     * @returns
-     */
-    getSetting() {
+getSetting() {
       return this.setting;
     }
-    /**
-     * 获取当前相同的数量
-     * @returns
-     */
-    getRepeatNum() {
+getRepeatNum() {
       return this.repeatNum;
     }
-    /**
-     * 设置repeatNum值
-     * @param num 重复的数量
-     */
-    setRepeatNum(num) {
+setRepeatNum(num) {
       this.repeatNum = num;
     }
-    /**
-     * 设置repeatNum自增
-     */
-    setRepeatNumIncreasing() {
+setRepeatNumIncreasing() {
       this.repeatNum++;
     }
-    /**
-     * 初始化元素
-     */
-    init() {
+init() {
       let QmsgContext = this;
       if (this.setting.customClass && typeof this.setting.customClass === "string") {
         this.$Qmsg.classList.add(this.setting.customClass);
@@ -872,8 +753,8 @@
       }
       let $closeIcon = "";
       if (this.setting.showClose) {
-        $closeIcon = /*html*/
-        `<i class="qmsg-icon qmsg-icon-close ${extraCloseIconClassName}">${$closeSvg}</i>`;
+        $closeIcon =
+`<i class="qmsg-icon qmsg-icon-close ${extraCloseIconClassName}">${$closeSvg}</i>`;
       }
       let $content = document.createElement("span");
       let $positionClassName = QmsgUtils.getNameSpacify("data-position", this.setting.position.toLowerCase());
@@ -906,8 +787,7 @@
       }
       QmsgUtils.setSafeHTML(
         this.$Qmsg,
-        /*html*/
-        `
+`
 			<div class="qmsg-content">
 				<div class="${contentClassName}">
 				${this.setting.showIcon ? `<i class="qmsg-icon">${$svg}</i>` : ""}
@@ -1014,12 +894,7 @@
         this.$Qmsg.addEventListener("touchcancel", leaveEvent);
       }
     }
-    /**
-     * 对timeout进行检测并转换
-     * 当timeout为string时，转换为number
-     * timeout必须在规定范围内
-     */
-    detectionType() {
+detectionType() {
       if (this.setting.timeout != null && typeof this.setting.timeout === "string") {
         this.setting.timeout = parseInt(this.setting.timeout);
       }
@@ -1039,21 +914,13 @@
         this.setting.zIndex = typeof QmsgDefaultConfig.config.zIndex === "function" ? QmsgDefaultConfig.config.zIndex() : QmsgDefaultConfig.config.zIndex;
       }
     }
-    /**
-     * 设置元素动画状态 开启/关闭
-     * @param QmsgMsg
-     * @param state
-     */
-    setState(element, state) {
+setState(element, state) {
       if (!state || !QmsgAnimation.$state[state])
         return;
       this.state = state;
       QmsgAnimation.setStyleAnimationName(element, QmsgAnimation.$state[state]);
     }
-    /**
-     * 设置消息数量统计
-     */
-    setMsgCount() {
+setMsgCount() {
       let countClassName = QmsgUtils.getNameSpacify("count");
       let wrapperClassName = `div.${QmsgUtils.getNameSpacify("data-position", this.setting.position.toLowerCase())} [class^="qmsg-content-"]`;
       let $content = this.$Qmsg.querySelector(wrapperClassName);
@@ -1072,19 +939,13 @@
       QmsgAnimation.setStyleAnimationName($count, "MessageShake");
       this.resetAutoCloseTimer();
     }
-    /**
-     * 清除旧的自动关闭定时器
-     */
-    clearAutoCloseTimer() {
+clearAutoCloseTimer() {
       QmsgUtils.clearTimeout(this.timeId);
       this.timeId = void 0;
       this.startTime = null;
       this.endTime = null;
     }
-    /**
-     * 开始自动关闭定时器
-     */
-    startAutoCloseTimer() {
+startAutoCloseTimer() {
       if (this.setting.autoClose && this.setting.listenEventToPauseAutoClose) {
         this.startTime = Date.now();
         this.endTime = null;
@@ -1093,17 +954,11 @@
         }, this.setting.timeout);
       }
     }
-    /**
-     * 重置自动关闭定时器（会自动清理旧的定时器）
-     */
-    resetAutoCloseTimer() {
+resetAutoCloseTimer() {
       this.clearAutoCloseTimer();
       this.startAutoCloseTimer();
     }
-    /**
-     * 关闭Qmsg（会触发动画）
-     */
-    close() {
+close() {
       this.setState(this.$Qmsg, "closing");
       if (QmsgAnimation.CAN_ANIMATION) {
         QmsgInstStorage.remove(this.uuid);
@@ -1115,38 +970,26 @@
         onCloseCallBack.call(this);
       }
     }
-    /**
-     * 销毁Qmsg
-     */
-    destroy() {
+destroy() {
       this.endTime = Date.now();
       this.$Qmsg.remove();
       QmsgUtils.clearTimeout(this.timeId);
       QmsgInstStorage.remove(this.uuid);
       this.timeId = void 0;
     }
-    /**
-     * 获取内容元素
-     */
-    get $content() {
+get $content() {
       let $content = this.$Qmsg.querySelector("div[class^=qmsg-content-] > span");
       if (!$content) {
         throw new Error("QmsgInst $content is null");
       }
       return $content;
     }
-    /**
-     * 设置内容文本
-     */
-    setText(text) {
+setText(text) {
       let $content = this.$content;
       $content.innerText = text;
       this.setting.content = text;
     }
-    /**
-     * 设置内容超文本
-     */
-    setHTML(text) {
+setHTML(text) {
       let $content = this.$content;
       QmsgUtils.setSafeHTML($content, text);
       this.setting.content = text;
@@ -1197,19 +1040,12 @@
   const QmsgEvent = {
     visibilitychange: {
       eventConfig: {
-        /**
-         * 添加visibilitychange事件监听
-         * 当页面切换时，如果切换前的页面存在Qmsg实例且未关闭，切换后，页面活跃度会降低，导致setTimeout/setInterval失效或丢失事件
-         * 监听visibilitychange，判断切换回来时，如果当前时间-开始时间大于timeout，则关闭
-         * 如果设置了动画，使用close，否则使用destroy
-         */
-        callback() {
+callback() {
           if (document.visibilityState === "visible") {
             for (let index = 0; index < QmsgInstStorage.insInfoList.length; index++) {
               let qmsgInst = QmsgInstStorage.insInfoList[index];
               if (
-                // loading类型不被自动关闭
-                qmsgInst.instance.setting.type !== "loading" && qmsgInst.instance.endTime == null && qmsgInst.instance.startTime != null && Date.now() - qmsgInst.instance.startTime >= qmsgInst.instance.getSetting().timeout
+qmsgInst.instance.setting.type !== "loading" && qmsgInst.instance.endTime == null && qmsgInst.instance.startTime != null && Date.now() - qmsgInst.instance.startTime >= qmsgInst.instance.getSetting().timeout
               ) {
                 qmsgInst.instance.close();
               }
@@ -1234,17 +1070,9 @@
   };
   CompatibleProcessing();
   class Qmsg {
-    /** 数据 */
-    $data;
-    /**
-     * 事件工具类
-     */
-    $eventUtils;
-    /**
-     * 实例化
-     * @param config 配置
-     */
-    constructor(config) {
+$data;
+$eventUtils;
+constructor(config) {
       this.$data = {
         version: "2025.7.28",
         config: QmsgDefaultConfig,
@@ -1255,11 +1083,7 @@
       this.$eventUtils.visibilitychange.addEvent();
       this.config(config);
     }
-    /**
-     * 修改默认配置
-     * @param config 配置
-     */
-    config(config) {
+config(config) {
       if (config == null)
         return;
       if (typeof config !== "object")
@@ -1293,17 +1117,10 @@
       params.autoClose = false;
       return QmsgInstHandler.call(this, params);
     }
-    /**
-     * 根据uuid删除Qmsg实例和元素
-     * @param uuid 唯一值
-     */
-    remove(uuid) {
+remove(uuid) {
       QmsgInstStorage.remove(uuid);
     }
-    /**
-     * 关闭当前Qmsg创建的所有的实例
-     */
-    closeAll() {
+closeAll() {
       for (let index = QmsgInstStorage.insInfoList.length - 1; index >= 0; index--) {
         let item = QmsgInstStorage.insInfoList[index];
         item && item.instance && item.instance.close();
@@ -1312,8 +1129,7 @@
   }
   let qmsg = new Qmsg();
   let WindowApi$1 = class WindowApi {
-    /** 默认的配置 */
-    defaultApi = {
+defaultApi = {
       document,
       window,
       globalThis,
@@ -1324,8 +1140,7 @@
       clearTimeout: globalThis.clearTimeout.bind(globalThis),
       clearInterval: globalThis.clearInterval.bind(globalThis)
     };
-    /** 使用的配置 */
-    api;
+api;
     constructor(option) {
       if (option) {
         if (option.globalThis == null) {
@@ -1399,13 +1214,13 @@
       return cache2(collection, nextNumber);
     };
   };
-  const LAST_NUMBER_WEAK_MAP$2 = /* @__PURE__ */ new WeakMap();
+  const LAST_NUMBER_WEAK_MAP$2 = new WeakMap();
   const cache$2 = createCache$2(LAST_NUMBER_WEAK_MAP$2);
   const generateUniqueNumber$2 = createGenerateUniqueNumber$2(cache$2, LAST_NUMBER_WEAK_MAP$2);
   const isMessagePort$2 = (sender) => {
     return typeof sender.start === "function";
   };
-  const PORT_MAP$2 = /* @__PURE__ */ new WeakMap();
+  const PORT_MAP$2 = new WeakMap();
   const extendBrokerImplementation$2 = (partialBrokerImplementation) => ({
     ...partialBrokerImplementation,
     connect: ({ call }) => {
@@ -1429,12 +1244,12 @@
       return () => call("isSupported");
     }
   });
-  const ONGOING_REQUESTS$2 = /* @__PURE__ */ new WeakMap();
+  const ONGOING_REQUESTS$2 = new WeakMap();
   const createOrGetOngoingRequests$2 = (sender) => {
     if (ONGOING_REQUESTS$2.has(sender)) {
       return ONGOING_REQUESTS$2.get(sender);
     }
-    const ongoingRequests = /* @__PURE__ */ new Map();
+    const ongoingRequests = new Map();
     ONGOING_REQUESTS$2.set(sender, ongoingRequests);
     return ongoingRequests;
   };
@@ -1478,8 +1293,8 @@
       return { ...functions };
     };
   };
-  const scheduledIntervalsState$2 = /* @__PURE__ */ new Map([[0, null]]);
-  const scheduledTimeoutsState$2 = /* @__PURE__ */ new Map([[0, null]]);
+  const scheduledIntervalsState$2 = new Map([[0, null]]);
+  const scheduledTimeoutsState$2 = new Map([[0, null]]);
   const wrap$2 = createBroker$2({
     clearInterval: ({ call }) => {
       return (timerId) => {
@@ -1584,17 +1399,10 @@
       setInterval,
       clearInterval
     }),
-    /**
-     * 判断元素是否已显示或已连接
-     * @param element
-     */
-    isShow(element) {
+isShow(element) {
       return Boolean(element.getClientRects().length);
     },
-    /**
-     * 获取安全的html
-     */
-    getSafeHTML(text) {
+getSafeHTML(text) {
       if (globalThis.trustedTypes) {
         const policy = globalThis.trustedTypes.createPolicy("safe-innerHTML", {
           createHTML: (html) => html
@@ -1604,37 +1412,20 @@
         return text;
       }
     },
-    /**
-     * 在CSP策略下设置innerHTML
-     * @param $el 元素
-     * @param text 文本
-     */
-    setSafeHTML($el, text) {
+setSafeHTML($el, text) {
       $el.innerHTML = this.getSafeHTML(text);
     },
-    /**
-     * 用于显示元素并获取它的高度宽度等其它属性
-     * @param element
-     */
-    showElement(element) {
+showElement(element) {
       let dupNode = element.cloneNode(true);
       dupNode.setAttribute("style", "visibility: hidden !important;display:block !important;");
       this.windowApi.document.documentElement.appendChild(dupNode);
       return {
-        /**
-         * 恢复修改的style
-         */
-        recovery() {
+recovery() {
           dupNode.remove();
         }
       };
     },
-    /**
-     * 获取元素上的Float格式的属性px
-     * @param element
-     * @param styleName style名
-     */
-    getStyleValue(element, styleName) {
+getStyleValue(element, styleName) {
       let view = null;
       let styles = null;
       if (element instanceof CSSStyleDeclaration) {
@@ -1653,11 +1444,7 @@
         return value;
       }
     },
-    /**
-     * 判断是否是window，例如window、self、globalThis
-     * @param target
-     */
-    isWin(target) {
+isWin(target) {
       if (typeof target !== "object") {
         return false;
       }
@@ -1690,32 +1477,21 @@
       }
       return true;
     },
-    /**
-     * 删除对象上的属性
-     * @param target
-     * @param propName
-     */
-    delete(target, propName) {
+delete(target, propName) {
       if (typeof Reflect === "object" && Reflect.deleteProperty) {
         Reflect.deleteProperty(target, propName);
       } else {
         delete target[propName];
       }
     },
-    /**
-     * 自动使用 Worker 执行 setTimeout
-     */
-    setTimeout(callback, timeout = 0) {
+setTimeout(callback, timeout = 0) {
       try {
         return setTimeout$1$2(callback, timeout);
       } catch (error) {
         return this.windowApi.setTimeout(callback, timeout);
       }
     },
-    /**
-     * 配合 .setTimeout 使用
-     */
-    clearTimeout(timeId) {
+clearTimeout(timeId) {
       try {
         if (timeId != null) {
           clearTimeout$1$2(timeId);
@@ -1725,20 +1501,14 @@
         this.windowApi.clearTimeout(timeId);
       }
     },
-    /**
-     * 自动使用 Worker 执行 setInterval
-     */
-    setInterval(callback, timeout = 0) {
+setInterval(callback, timeout = 0) {
       try {
         return setInterval$1$1(callback, timeout);
       } catch (error) {
         return this.windowApi.setInterval(callback, timeout);
       }
     },
-    /**
-     * 配合 .setInterval 使用
-     */
-    clearInterval(timeId) {
+clearInterval(timeId) {
       try {
         if (timeId != null) {
           clearInterval$1$1(timeId);
@@ -1748,25 +1518,18 @@
         this.windowApi.clearInterval(timeId);
       }
     },
-    /**
-     * 判断是否是元素列表
-     * @param $ele
-     */
-    isNodeList($ele) {
+isNodeList($ele) {
       return Array.isArray($ele) || $ele instanceof NodeList;
     },
-    /** 获取 animationend 在各个浏览器的兼容名 */
-    getAnimationEndNameList() {
+getAnimationEndNameList() {
       return ["webkitAnimationEnd", "mozAnimationEnd", "MSAnimationEnd", "oanimationend", "animationend"];
     },
-    /** 获取 transitionend 在各个浏览器的兼容名 */
-    getTransitionEndNameList() {
+getTransitionEndNameList() {
       return ["webkitTransitionEnd", "mozTransitionEnd", "MSTransitionEnd", "otransitionend", "transitionend"];
     }
   };
   const DOMUtilsData = {
-    /** .on添加在元素存储的事件 */
-    SymbolEvents: Symbol("events_" + ((1 + Math.random()) * 65536 | 0).toString(16).substring(1))
+SymbolEvents: Symbol("events_" + ((1 + Math.random()) * 65536 | 0).toString(16).substring(1))
   };
   const OriginPrototype$1 = {
     Object: {
@@ -1980,12 +1743,7 @@
         Reflect.set(elementItem, DOMUtilsData.SymbolEvents, elementEvents);
       });
     }
-    /**
-     * 取消绑定所有的事件
-     * @param element 需要取消绑定的元素|元素数组
-     * @param eventType （可选）需要取消监听的事件
-     */
-    offAll(element, eventType) {
+offAll(element, eventType) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
@@ -2028,15 +1786,7 @@
         });
       });
     }
-    /**
-     * 等待文档加载完成后执行指定的函数
-     * @param callback 需要执行的函数
-     * @example
-     * DOMUtils.ready(function(){
-     *   console.log("文档加载完毕")
-     * })
-     */
-    ready(callback) {
+ready(callback) {
       if (typeof callback !== "function") {
         return;
       }
@@ -2086,21 +1836,7 @@
         addDomReadyListener();
       }
     }
-    /**
-     * 主动触发事件
-     * @param element 需要触发的元素|元素数组|window
-     * @param eventType 需要触发的事件
-     * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-     * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件,默认true
-     * @example
-     * // 触发元素a.xx的click事件
-     * DOMUtils.trigger(document.querySelector("a.xx"),"click")
-     * DOMUtils.trigger("a.xx","click")
-     * // 触发元素a.xx的click、tap、hover事件
-     * DOMUtils.trigger(document.querySelector("a.xx"),"click tap hover")
-     * DOMUtils.trigger("a.xx",["click","tap","hover"])
-     */
-    trigger(element, eventType, details, useDispatchToTriggerEvent = true) {
+trigger(element, eventType, details, useDispatchToTriggerEvent = true) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
@@ -2145,21 +1881,7 @@
         });
       });
     }
-    /**
-     * 绑定或触发元素的click事件
-     * @param element 目标元素
-     * @param handler （可选）事件处理函数
-     * @param details （可选）赋予触发的Event的额外属性
-     * @param useDispatchToTriggerEvent （可选）是否使用dispatchEvent来触发事件,默认true
-     * @example
-     * // 触发元素a.xx的click事件
-     * DOMUtils.click(document.querySelector("a.xx"))
-     * DOMUtils.click("a.xx")
-     * DOMUtils.click("a.xx"，function(){
-     *  console.log("触发click事件成功")
-     * })
-     * */
-    click(element, handler, details, useDispatchToTriggerEvent) {
+click(element, handler, details, useDispatchToTriggerEvent) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
@@ -2179,21 +1901,7 @@
         DOMUtilsContext.on(element, "click", null, handler);
       }
     }
-    /**
-     * 绑定或触发元素的blur事件
-     * @param element 目标元素
-     * @param handler （可选）事件处理函数
-     * @param details （可选）赋予触发的Event的额外属性
-     * @param useDispatchToTriggerEvent （可选）是否使用dispatchEvent来触发事件,默认true
-     * @example
-     * // 触发元素a.xx的blur事件
-     * DOMUtils.blur(document.querySelector("a.xx"))
-     * DOMUtils.blur("a.xx")
-     * DOMUtils.blur("a.xx"，function(){
-     *  console.log("触发blur事件成功")
-     * })
-     * */
-    blur(element, handler, details, useDispatchToTriggerEvent) {
+blur(element, handler, details, useDispatchToTriggerEvent) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
@@ -2213,21 +1921,7 @@
         DOMUtilsContext.on(element, "blur", null, handler);
       }
     }
-    /**
-     * 绑定或触发元素的focus事件
-     * @param element 目标元素
-     * @param handler （可选）事件处理函数
-     * @param details （可选）赋予触发的Event的额外属性
-     * @param useDispatchToTriggerEvent （可选）是否使用dispatchEvent来触发事件,默认true
-     * @example
-     * // 触发元素a.xx的focus事件
-     * DOMUtils.focus(document.querySelector("a.xx"))
-     * DOMUtils.focus("a.xx")
-     * DOMUtils.focus("a.xx"，function(){
-     *  console.log("触发focus事件成功")
-     * })
-     * */
-    focus(element, handler, details, useDispatchToTriggerEvent) {
+focus(element, handler, details, useDispatchToTriggerEvent) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
@@ -2247,21 +1941,7 @@
         DOMUtilsContext.on(element, "focus", null, handler);
       }
     }
-    /**
-     * 当鼠标移入或移出元素时触发事件
-     * @param element 当前元素
-     * @param handler 事件处理函数
-     * @param option 配置
-     * @example
-     * // 监听a.xx元素的移入或移出
-     * DOMUtils.hover(document.querySelector("a.xx"),()=>{
-     *   console.log("移入/移除");
-     * })
-     * DOMUtils.hover("a.xx",()=>{
-     *   console.log("移入/移除");
-     * })
-     */
-    hover(element, handler, option) {
+hover(element, handler, option) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
@@ -2278,13 +1958,7 @@
       DOMUtilsContext.on(element, "mouseenter", null, handler, option);
       DOMUtilsContext.on(element, "mouseleave", null, handler, option);
     }
-    /**
-     * 当动画结束时触发事件
-     * @param element 监听的元素
-     * @param handler 触发的回调函数
-     * @param option 配置项，这里默认配置once为true
-     */
-    animationend(element, handler, option) {
+animationend(element, handler, option) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = DOMUtilsContext.selector(element);
@@ -2306,13 +1980,7 @@
         };
       }
     }
-    /**
-     * 当过渡结束时触发事件
-     * @param element 监听的元素
-     * @param handler 触发的回调函数
-     * @param option 配置项，这里默认配置once为true
-     */
-    transitionend(element, handler, option) {
+transitionend(element, handler, option) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = DOMUtilsContext.selector(element);
@@ -2334,22 +2002,7 @@
         };
       }
     }
-    /**
-     * 当按键松开时触发事件
-     * keydown - > keypress - > keyup
-     * @param element 当前元素
-     * @param handler 事件处理函数
-     * @param option 配置
-     * @example
-     * // 监听a.xx元素的按键松开
-     * DOMUtils.keyup(document.querySelector("a.xx"),()=>{
-     *   console.log("按键松开");
-     * })
-     * DOMUtils.keyup("a.xx",()=>{
-     *   console.log("按键松开");
-     * })
-     */
-    keyup(element, handler, option) {
+keyup(element, handler, option) {
       let DOMUtilsContext = this;
       if (element == null) {
         return;
@@ -2365,22 +2018,7 @@
       }
       DOMUtilsContext.on(element, "keyup", null, handler, option);
     }
-    /**
-     * 当按键按下时触发事件
-     * keydown - > keypress - > keyup
-     * @param element 目标
-     * @param handler 事件处理函数
-     * @param option 配置
-     * @example
-     * // 监听a.xx元素的按键按下
-     * DOMUtils.keydown(document.querySelector("a.xx"),()=>{
-     *   console.log("按键按下");
-     * })
-     * DOMUtils.keydown("a.xx",()=>{
-     *   console.log("按键按下");
-     * })
-     */
-    keydown(element, handler, option) {
+keydown(element, handler, option) {
       let DOMUtilsContext = this;
       if (element == null) {
         return;
@@ -2396,22 +2034,7 @@
       }
       DOMUtilsContext.on(element, "keydown", null, handler, option);
     }
-    /**
-     * 当按键按下时触发事件
-     * keydown - > keypress - > keyup
-     * @param element 目标
-     * @param handler 事件处理函数
-     * @param option 配置
-     * @example
-     * // 监听a.xx元素的按键按下
-     * DOMUtils.keypress(document.querySelector("a.xx"),()=>{
-     *   console.log("按键按下");
-     * })
-     * DOMUtils.keypress("a.xx",()=>{
-     *   console.log("按键按下");
-     * })
-     */
-    keypress(element, handler, option) {
+keypress(element, handler, option) {
       let DOMUtilsContext = this;
       if (element == null) {
         return;
@@ -2427,70 +2050,7 @@
       }
       DOMUtilsContext.on(element, "keypress", null, handler, option);
     }
-    /**
-       * 监听某个元素键盘按键事件或window全局按键事件
-       * 按下有值的键时触发，按下Ctrl\Alt\Shift\Meta是无值键。按下先触发keydown事件，再触发keypress事件。
-       * @param element 需要监听的对象，可以是全局Window或者某个元素
-       * @param eventName 事件名，默认keypress
-       * @param callback 自己定义的回调事件，参数1为当前的key，参数2为组合按键，数组类型，包含ctrl、shift、alt和meta（win键或mac的cmd键）
-       * @param options 监听事件的配置
-       * @example
-          Utils.listenKeyboard(window,(keyName,keyValue,otherKey,event)=>{
-              if(keyName === "Enter"){
-                  console.log("回车按键的值是："+keyValue)
-              }
-              if(otherKey.indexOf("ctrl") && keyName === "Enter" ){
-                  console.log("Ctrl和回车键");
-            }
-          })
-       * @example
-      字母和数字键的键码值(keyCode)
-        按键	键码	按键	键码	按键	键码	按键	键码
-        A	65	J	74	S	83	1	49
-        B	66	K	75	T	84	2	50
-        C	67	L	76	U	85	3	51
-        D	68	M	77	V	86	4	52
-        E	69	N	78	W	87	5	53
-        F	70	O	79	X	88	6	54
-        G	71	P	80	Y	89	7	55
-        H	72	Q	81	Z	90	8	56
-        I	73	R	82	0	48	9	57
-    
-        数字键盘上的键的键码值(keyCode)
-        功能键键码值(keyCode)
-        按键	键码	按键  	键码	按键	键码	按键	键码
-        0	96	8	104	F1	112	F7	118
-        1	97	9	105	F2	113	F8	119
-        2	98	*	106	F3	114	F9	120
-        3	99	+	107	F4	115	F10	121
-        4	100	Enter	108	F5	116	F11	122
-        5	101	-	109	F6	117	F12	123
-        6	102	.	110
-        7	103	/	111
-        
-        控制键键码值(keyCode)
-        按键		键码	按键		键码	按键		键码	按键		键码
-        BackSpace	8	Esc		27	→		39	-_		189
-        Tab		9	Spacebar	32	↓		40	.>		190
-        Clear		12	Page Up		33	Insert		45	/?		191
-        Enter		13	Page Down	34	Delete		46	`~		192
-        Shift		16	End		35	Num Lock	144	[{		219
-        Control		17	Home		36	;:		186	\|		220
-        Alt		18	←		37	=+		187	]}		221
-        Cape Lock	20	↑		38	,<		188	'"		222
-    
-        多媒体键码值(keyCode)
-        按键		键码
-        音量加		175
-        音量减		174
-        停止		179
-        静音		173
-        浏览器		172
-        邮件		180
-        搜索		170
-        收藏		171
-       **/
-    listenKeyboard(element, eventName = "keypress", callback, options) {
+listenKeyboard(element, eventName = "keypress", callback, options) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
@@ -2559,28 +2119,7 @@
         return Array.from(parent.querySelectorAll(selector));
       }
     }
-    /**
-     * 匹配元素，可使用以下的额外语法
-     *
-     * + :contains([text]) 作用: 找到包含指定文本内容的指定元素
-     * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
-     * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
-     * @param $el 元素
-     * @param selector 选择器
-     * @example
-     * DOMUtils.matches("div:contains('测试')")
-     * > true
-     * @example
-     * DOMUtils.matches("div:empty")
-     * > true
-     * @example
-     * DOMUtils.matches("div:regexp('^xxxx$')")
-     * > true
-     * @example
-     * DOMUtils.matches("div:regexp(/^xxx/ig)")
-     * > false
-     */
-    matches($el, selector) {
+matches($el, selector) {
       selector = selector.trim();
       if ($el == null) {
         return false;
@@ -2667,8 +2206,7 @@
     constructor(option) {
       super(option);
     }
-    /** 版本号 */
-    version = "2025.8.11";
+version = "2025.8.11";
     attr(element, attrName, attrValue) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
@@ -2693,25 +2231,7 @@
         element.setAttribute(attrName, attrValue);
       }
     }
-    /**
-     * 创建元素
-     * @param tagName 标签名
-     * @param property 属性
-     * @param attributes 元素上的自定义属性
-     * @example
-     * // 创建一个DIV元素，且属性class为xxx
-     * DOMUtils.createElement("div",undefined,{ class:"xxx" });
-     * > <div class="xxx"></div>
-     * @example
-     * // 创建一个DIV元素
-     * DOMUtils.createElement("div");
-     * > <div></div>
-     * @example
-     * // 创建一个DIV元素
-     * DOMUtils.createElement("div","测试");
-     * > <div>测试</div>
-     */
-    createElement(tagName, property, attributes) {
+createElement(tagName, property, attributes) {
       let DOMUtilsContext = this;
       let tempElement = DOMUtilsContext.windowApi.document.createElement(tagName);
       if (typeof property === "string") {
@@ -2863,10 +2383,7 @@
         }
       }
     }
-    /**
-     * 获取移动元素的transform偏移
-     */
-    getTransform(element, isShow = false) {
+getTransform(element, isShow = false) {
       let DOMUtilsContext = this;
       let transform_left = 0;
       let transform_top = 0;
@@ -2952,16 +2469,7 @@
         }
       }
     }
-    /**
-     * 移除元素的属性
-     * @param element 目标元素
-     * @param attrName 属性名
-     * @example
-     * // 移除元素a.xx的属性data-value
-     * DOMUtils.removeAttr(document.querySelector("a.xx"),"data-value")
-     * DOMUtils.removeAttr("a.xx","data-value")
-     * */
-    removeAttr(element, attrName) {
+removeAttr(element, attrName) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
@@ -2977,16 +2485,7 @@
       }
       element.removeAttribute(attrName);
     }
-    /**
-     * 移除元素class名
-     * @param element 目标元素
-     * @param className 类名
-     * @example
-     * // 移除元素a.xx的className为xx
-     * DOMUtils.removeClass(document.querySelector("a.xx"),"xx")
-     * DOMUtils.removeClass("a.xx","xx")
-     */
-    removeClass(element, className) {
+removeClass(element, className) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
@@ -3011,16 +2510,7 @@
         });
       }
     }
-    /**
-     * 移除元素的属性
-     * @param element 目标元素
-     * @param propName 属性名
-     * @example
-     * // 移除元素a.xx的href属性
-     * DOMUtils.removeProp(document.querySelector("a.xx"),"href")
-     * DOMUtils.removeProp("a.xx","href")
-     * */
-    removeProp(element, propName) {
+removeProp(element, propName) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
@@ -3036,16 +2526,7 @@
       }
       DOMUtilsCommonUtils.delete(element, propName);
     }
-    /**
-     * 将一个元素替换为另一个元素
-     * @param element 目标元素
-     * @param newElement 新元素
-     * @example
-     * // 替换元素a.xx为b.xx
-     * DOMUtils.replaceWith(document.querySelector("a.xx"),document.querySelector("b.xx"))
-     * DOMUtils.replaceWith("a.xx",'<b class="xx"></b>')
-     */
-    replaceWith(element, newElement) {
+replaceWith(element, newElement) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
@@ -3070,16 +2551,7 @@
         element.remove();
       }
     }
-    /**
-     * 给元素添加class
-     * @param element 目标元素
-     * @param className class名
-     * @example
-     * // 元素a.xx的className添加_vue_
-     * DOMUtils.addClass(document.querySelector("a.xx"),"_vue_")
-     * DOMUtils.addClass("a.xx","_vue_")
-     * */
-    addClass(element, className) {
+addClass(element, className) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
@@ -3103,12 +2575,7 @@
         element.classList.add(itemClassName);
       });
     }
-    /**
-     * 判断元素是否存在className
-     * @param element
-     * @param className
-     */
-    hasClass(element, className) {
+hasClass(element, className) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
@@ -3138,16 +2605,7 @@
       }
       return true;
     }
-    /**
-     * 函数在元素内部末尾添加子元素或HTML字符串
-     * @param element 目标元素
-     * @param content 子元素或HTML字符串
-     * @example
-     * // 元素a.xx的内部末尾添加一个元素
-     * DOMUtils.append(document.querySelector("a.xx"),document.querySelector("b.xx"))
-     * DOMUtils.append("a.xx","'<b class="xx"></b>")
-     * */
-    append(element, content) {
+append(element, content) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
@@ -3188,16 +2646,7 @@
         elementAppendChild(element, content);
       }
     }
-    /**
-     * 函数 在元素内部开头添加子元素或HTML字符串
-     * @param element 目标元素
-     * @param content 子元素或HTML字符串
-     * @example
-     * // 元素a.xx内部开头添加一个元素
-     * DOMUtils.prepend(document.querySelector("a.xx"),document.querySelector("b.xx"))
-     * DOMUtils.prepend("a.xx","'<b class="xx"></b>")
-     * */
-    prepend(element, content) {
+prepend(element, content) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
@@ -3227,16 +2676,7 @@
         }
       }
     }
-    /**
-     * 在元素后面添加兄弟元素或HTML字符串
-     * @param element 目标元素
-     * @param content 兄弟元素或HTML字符串
-     * @example
-     * // 元素a.xx后面添加一个元素
-     * DOMUtils.after(document.querySelector("a.xx"),document.querySelector("b.xx"))
-     * DOMUtils.after("a.xx","'<b class="xx"></b>")
-     * */
-    after(element, content) {
+after(element, content) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
@@ -3262,16 +2702,7 @@
         }
       }
     }
-    /**
-     * 在元素前面添加兄弟元素或HTML字符串
-     * @param element 目标元素
-     * @param content 兄弟元素或HTML字符串
-     * @example
-     * // 元素a.xx前面添加一个元素
-     * DOMUtils.before(document.querySelector("a.xx"),document.querySelector("b.xx"))
-     * DOMUtils.before("a.xx","'<b class="xx"></b>")
-     * */
-    before(element, content) {
+before(element, content) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
@@ -3296,16 +2727,7 @@
         }
       }
     }
-    /**
-     * 移除元素
-     * @param element 目标元素
-     * @example
-     * // 元素a.xx前面添加一个元素
-     * DOMUtils.remove(document.querySelector("a.xx"))
-     * DOMUtils.remove(document.querySelectorAll("a.xx"))
-     * DOMUtils.remove("a.xx")
-     * */
-    remove(element) {
+remove(element) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
@@ -3327,15 +2749,7 @@
         element.parentNode.removeChild(element);
       }
     }
-    /**
-     * 移除元素的所有子元素
-     * @param element 目标元素
-     * @example
-     * // 移除元素a.xx元素的所有子元素
-     * DOMUtils.empty(document.querySelector("a.xx"))
-     * DOMUtils.empty("a.xx")
-     * */
-    empty(element) {
+empty(element) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
@@ -3355,16 +2769,7 @@
         element.textContent = "";
       }
     }
-    /**
-     * 获取元素相对于文档的偏移坐标（加上文档的滚动条）
-     * @param element 目标元素
-     * @example
-     * // 获取元素a.xx的对于文档的偏移坐标
-     * DOMUtils.offset(document.querySelector("a.xx"))
-     * DOMUtils.offset("a.xx")
-     * > 0
-     */
-    offset(element) {
+offset(element) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = DOMUtilsContext.selector(element);
@@ -3374,10 +2779,8 @@
       }
       let rect = element.getBoundingClientRect();
       return {
-        /** y轴偏移 */
-        top: rect.top + DOMUtilsContext.windowApi.globalThis.scrollY,
-        /** x轴偏移 */
-        left: rect.left + DOMUtilsContext.windowApi.globalThis.scrollX
+top: rect.top + DOMUtilsContext.windowApi.globalThis.scrollY,
+left: rect.left + DOMUtilsContext.windowApi.globalThis.scrollX
       };
     }
     width(element, isShow = false) {
@@ -3502,19 +2905,7 @@
         return outerHeight;
       }
     }
-    /**
-     * 在一定时间内改变元素的样式属性，实现动画效果
-     * @param element 需要进行动画的元素
-     * @param styles 动画结束时元素的样式属性
-     * @param duration 动画持续时间，单位为毫秒
-     * @param callback 动画结束后执行的函数
-     * @example
-     * // 监听元素a.xx的从显示变为隐藏
-     * DOMUtils.animate(document.querySelector("a.xx"),{ top:100},1000,function(){
-     *   console.log("已往上位移100px")
-     * })
-     */
-    animate(element, styles, duration = 1e3, callback = null) {
+animate(element, styles, duration = 1e3, callback = null) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
@@ -3564,15 +2955,7 @@
         }
       }, 10);
     }
-    /**
-     * 将一个元素包裹在指定的HTML元素中
-     * @param element 要包裹的元素
-     * @param wrapperHTML 要包裹的HTML元素的字符串表示形式
-     * @example
-     * // 将a.xx元素外面包裹一层div
-     * DOMUtils.wrap(document.querySelector("a.xx"),"<div></div>")
-     */
-    wrap(element, wrapperHTML) {
+wrap(element, wrapperHTML) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
@@ -3614,12 +2997,7 @@
       }
       return element.nextElementSibling;
     }
-    /**
-     * 取消挂载在window下的DOMUtils并返回DOMUtils
-     * @example
-     * let DOMUtils = window.DOMUtils.noConflict()
-     */
-    noConflict() {
+noConflict() {
       let DOMUtilsContext = this;
       if (DOMUtilsContext.windowApi.window.DOMUtils) {
         DOMUtilsCommonUtils.delete(window, "DOMUtils");
@@ -3637,17 +3015,7 @@
       }
       return Array.from(element.parentElement.children).filter((child) => child !== element);
     }
-    /**
-     * 获取当前元素的父元素
-     * @param element 当前元素
-     * @returns 父元素
-     * @example
-     * // 获取a.xx元素的父元素
-     * DOMUtils.parent(document.querySelector("a.xx"))
-     * DOMUtils.parent("a.xx")
-     * > <div ...>....</div>
-     */
-    parent(element) {
+parent(element) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = DOMUtilsContext.selector(element);
@@ -3691,14 +3059,7 @@
         return parseHTMLByCreateDom();
       }
     }
-    /**
-     * 序列化表单元素
-     * @param $form 表单元素
-     * @example
-     * DOMUtils.serialize(document.querySelector("form"))
-     * > xxx=xxx&aaa=
-     */
-    serialize($form) {
+serialize($form) {
       const elements = $form.elements;
       let serializedArray = [];
       for (let i2 = 0; i2 < elements.length; i2++) {
@@ -3720,19 +3081,7 @@
       }
       return serializedArray.map((item) => `${encodeURIComponent(item.name)}=${encodeURIComponent(item.value)}`).join("&");
     }
-    /**
-     * 显示元素
-     * @param target 当前元素
-     * @param checkVisiblie 是否检测元素是否显示
-     * + true （默认）如果检测到还未显示，则强制使用display: unset !important;
-     * + false 不检测，直接设置display属性为空
-     * @example
-     * // 显示a.xx元素
-     * DOMUtils.show(document.querySelector("a.xx"))
-     * DOMUtils.show(document.querySelectorAll("a.xx"))
-     * DOMUtils.show("a.xx")
-     */
-    show(target, checkVisiblie = true) {
+show(target, checkVisiblie = true) {
       let DOMUtilsContext = this;
       if (target == null) {
         return;
@@ -3755,19 +3104,7 @@
         }
       }
     }
-    /**
-     * 隐藏元素
-     * @param target 当前元素
-     * @param checkVisiblie 是否检测元素是否显示
-     * + true （默认）如果检测到显示，则强制使用display: none !important;
-     * + false 不检测，直接设置display属性为none
-     * @example
-     * // 隐藏a.xx元素
-     * DOMUtils.hide(document.querySelector("a.xx"))
-     * DOMUtils.hide(document.querySelectorAll("a.xx"))
-     * DOMUtils.hide("a.xx")
-     */
-    hide(target, checkVisiblie = true) {
+hide(target, checkVisiblie = true) {
       let DOMUtilsContext = this;
       if (target == null) {
         return;
@@ -3790,21 +3127,7 @@
         }
       }
     }
-    /**
-     * 淡入元素
-     * @param element 当前元素
-     * @param duration 动画持续时间（毫秒），默认400毫秒
-     * @param callback 动画结束的回调
-     * @example
-     * // 元素a.xx淡入
-     * DOMUtils.fadeIn(document.querySelector("a.xx"),2500,()=>{
-     *   console.log("淡入完毕");
-     * })
-     * DOMUtils.fadeIn("a.xx",undefined,()=>{
-     *   console.log("淡入完毕");
-     * })
-     */
-    fadeIn(element, duration = 400, callback) {
+fadeIn(element, duration = 400, callback) {
       if (element == null) {
         return;
       }
@@ -3839,21 +3162,7 @@
       }
       timer = DOMUtilsContext.windowApi.window.requestAnimationFrame(step);
     }
-    /**
-     * 淡出元素
-     * @param element 当前元素
-     * @param duration 动画持续时间（毫秒），默认400毫秒
-     * @param callback 动画结束的回调
-     * @example
-     * // 元素a.xx淡出
-     * DOMUtils.fadeOut(document.querySelector("a.xx"),2500,()=>{
-     *   console.log("淡出完毕");
-     * })
-     * DOMUtils.fadeOut("a.xx",undefined,()=>{
-     *   console.log("淡出完毕");
-     * })
-     */
-    fadeOut(element, duration = 400, callback) {
+fadeOut(element, duration = 400, callback) {
       let DOMUtilsContext = this;
       if (element == null) {
         return;
@@ -3888,16 +3197,7 @@
       }
       timer = DOMUtilsContext.windowApi.window.requestAnimationFrame(step);
     }
-    /**
-     * 切换元素的显示和隐藏状态
-     * @param element 当前元素
-     * @param checkVisiblie 是否检测元素是否显示
-     * @example
-     * // 如果元素a.xx当前是隐藏，则显示，如果是显示，则隐藏
-     * DOMUtils.toggle(document.querySelector("a.xx"))
-     * DOMUtils.toggle("a.xx")
-     */
-    toggle(element, checkVisiblie) {
+toggle(element, checkVisiblie) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
@@ -3917,23 +3217,10 @@
         DOMUtilsContext.hide(element, checkVisiblie);
       }
     }
-    /**
-     * 创建一个新的DOMUtils实例
-     * @param option
-     * @returns
-     */
-    createDOMUtils(option) {
+createDOMUtils(option) {
       return new DOMUtils(option);
     }
-    /**
-     * 获取文字的位置信息
-     * @param $input 输入框
-     * @param selectionStart 起始位置
-     * @param selectionEnd 结束位置
-     * @example
-     * DOMUtils.getTextBoundingRect(document.querySelector("input"));
-     */
-    getTextBoundingRect($input, selectionStart, selectionEnd) {
+getTextBoundingRect($input, selectionStart, selectionEnd) {
       let DOMUtilsContext = this;
       if (!$input || !("value" in $input))
         return $input;
@@ -4035,22 +3322,16 @@
         return isNumber ? parseFloat(val) : val;
       }
     }
-    /** 获取 animationend 在各个浏览器的兼容名 */
-    getAnimationEndNameList() {
+getAnimationEndNameList() {
       return DOMUtilsCommonUtils.getAnimationEndNameList();
     }
-    /** 获取 transitionend 在各个浏览器的兼容名 */
-    getTransitionEndNameList() {
+getTransitionEndNameList() {
       return DOMUtilsCommonUtils.getTransitionEndNameList();
     }
   };
   let domUtils$2 = new DOMUtils$1();
   class ColorConversion {
-    /**
-     * 判断是否是16进制颜色
-     * @param str
-     */
-    isHex(str) {
+isHex(str) {
       if (typeof str !== "string") {
         return false;
       }
@@ -4059,24 +3340,13 @@
       }
       return true;
     }
-    /**
-     * 16进制颜色转rgba
-     *
-     * 例如：`#ff0000` 转为 `rgba(123,123,123, 0.4)`
-     * @param hex
-     * @param opacity
-     */
-    hexToRgba(hex, opacity) {
+hexToRgba(hex, opacity) {
       if (!this.isHex(hex)) {
         throw new TypeError("输入错误的hex：" + hex);
       }
       return hex && hex.replace(/\s+/g, "").length === 7 ? "rgba(" + parseInt("0x" + hex.slice(1, 3)) + "," + parseInt("0x" + hex.slice(3, 5)) + "," + parseInt("0x" + hex.slice(5, 7)) + "," + opacity + ")" : "";
     }
-    /**
-     * hex转rgb
-     * @param str
-     */
-    hexToRgb(str) {
+hexToRgb(str) {
       if (!this.isHex(str)) {
         throw new TypeError("输入错误的hex：" + str);
       }
@@ -4087,13 +3357,7 @@
       }
       return hxs;
     }
-    /**
-     * rgb转hex
-     * @param redValue
-     * @param greenValue
-     * @param blueValue
-     */
-    rgbToHex(redValue, greenValue, blueValue) {
+rgbToHex(redValue, greenValue, blueValue) {
       let validPattern = /^\d{1,3}$/;
       if (!validPattern.test(redValue.toString()) || !validPattern.test(greenValue.toString()) || !validPattern.test(blueValue.toString()))
         throw new TypeError("输入错误的rgb颜色值");
@@ -4103,12 +3367,7 @@
           hexs[index] = "0" + hexs[index];
       return "#" + hexs.join("");
     }
-    /**
-     * 获取颜色变暗或亮
-     * @param color 颜色
-     * @param level 0~1.0
-     */
-    getDarkColor(color, level) {
+getDarkColor(color, level) {
       if (!this.isHex(color)) {
         throw new TypeError("输入错误的hex：" + color);
       }
@@ -4118,12 +3377,7 @@
       }
       return this.rgbToHex(rgbc[0], rgbc[1], rgbc[2]);
     }
-    /**
-     * 获取颜色变亮
-     * @param color 颜色
-     * @param level 0~1.0
-     */
-    getLightColor(color, level) {
+getLightColor(color, level) {
       if (!this.isHex(color)) {
         throw new TypeError("输入错误的hex：" + color);
       }
@@ -4168,11 +3422,7 @@
     isAscii(unicode) {
       return unicode <= 127 && unicode >= 0;
     }
-    /**
-     * 编码
-     * @param str
-     */
-    encode(str) {
+encode(str) {
       let that = this;
       return [...str].reduce((result, val, i2) => {
         return result + toGBK(val);
@@ -4198,11 +3448,7 @@
         return result;
       }
     }
-    /**
-     * 解码
-     * @param str
-     */
-    decode(str) {
+decode(str) {
       let GBKMatcher = /%[0-9A-F]{2}%[0-9A-F]{2}/;
       let UTFMatcher = /%[0-9A-F]{2}/;
       let utf = true;
@@ -4229,31 +3475,15 @@
       log: true
     };
     const TryCatchCore = {
-      /**
-       *
-       * @param paramDetails 配置
-       * @returns
-       */
-      config(paramDetails) {
+config(paramDetails) {
         defaultDetails = Object.assign(defaultDetails, paramDetails);
         return TryCatchCore;
       },
-      /**
-       * 处理错误
-       * @param handler
-       */
-      error(handler) {
+error(handler) {
         handleError = handler;
         return TryCatchCore;
       },
-      /**
-       * 执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
-       * @param callback 待执行函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
-       * @param __context__ 待执行函数的作用域，用于apply指定
-       * @returns 如果函数有返回值，则返回该返回值；否则返回 tryCatchObj 函数以支持链式调用。
-       * @throws {Error} 如果传入参数不符合要求，则会抛出相应类型的错误。
-       */
-      run(callback, __context__) {
+run(callback, __context__) {
         callbackFunction = callback;
         context = __context__ || this;
         let result = executeTryCatch(callbackFunction, handleError, context);
@@ -4365,17 +3595,7 @@
       }
       return result;
     }
-    /**
-     * 判断对象是否是元素
-     * @param target
-     * @returns
-     * + true 是元素
-     * + false 不是元素
-     * @example
-     * Utils.isDOM(document.querySelector("a"))
-     * > true
-     */
-    isDOM(target) {
+isDOM(target) {
       return target instanceof Node;
     }
     isNotNull(...args) {
@@ -4394,12 +3614,7 @@
       }
       return clone;
     }
-    /**
-     * 覆盖对象中的函数this指向
-     * @param target 需要覆盖的对象
-     * @param [objectThis] 覆盖的this指向，如果为传入，则默认为对象本身
-     */
-    coverObjectFunctionThis(target, objectThis) {
+coverObjectFunctionThis(target, objectThis) {
       if (typeof target !== "object" || target === null) {
         throw new Error("target must be object");
       }
@@ -4451,20 +3666,13 @@
         this.windowApi = Object.assign({}, windowApiOption);
       }
     }
-    /**
-     * 获取Cookie分组
-     */
-    getCookiesList() {
+getCookiesList() {
       if (this.windowApi.document.cookie.trim() === "") {
         return [];
       }
       return this.windowApi.document.cookie.split(";");
     }
-    /**
-     * 获取单个cookie
-     * @param cookieName cookie名
-     */
-    get(cookieName) {
+get(cookieName) {
       if (typeof cookieName !== "string") {
         throw new TypeError("Utils.GMCookie.get 参数cookieName 必须为字符串");
       }
@@ -4494,14 +3702,7 @@
       }
       return findValue;
     }
-    /**
-     *  获取多组Cookie
-     * @param option 配置
-     * @param callback 获取操作后的回调
-     * + cookies object[]
-     * + error string|undefined
-     **/
-    list(option, callback) {
+list(option, callback) {
       if (option == null) {
         throw new Error("Utils.GMCookie.list 参数不能为空");
       }
@@ -4546,11 +3747,7 @@
         }
       }
     }
-    /**
-     *  获取多组Cookie
-     * @param option 配置
-     **/
-    getList(option) {
+getList(option) {
       if (option == null) {
         throw new Error("Utils.GMCookie.list 参数不能为空");
       }
@@ -4587,12 +3784,7 @@
       });
       return resultData;
     }
-    /**
-     * 设置Cookie
-     * @param option 配置
-     * @param callback 设置操作后的回调(成功/失败)
-     */
-    set(option, callback) {
+set(option, callback) {
       let errorInfo;
       try {
         let defaultOption = {
@@ -4603,10 +3795,7 @@
           path: "/",
           secure: true,
           httpOnly: false,
-          /**
-           * Expires in 30 days
-           */
-          expirationDate: Math.floor(Date.now()) + 60 * 60 * 24 * 30
+expirationDate: Math.floor(Date.now()) + 60 * 60 * 24 * 30
         };
         defaultOption = commonUtil.assign(defaultOption, option);
         let life = defaultOption.expirationDate ? defaultOption.expirationDate : Math.floor(Date.now()) + 60 * 60 * 24 * 30;
@@ -4623,12 +3812,7 @@
         }
       }
     }
-    /**
-     * 删除Cookie
-     * @param option 配置
-     * @param callback 删除操作后的回调(成功/失败)
-     */
-    delete(option, callback) {
+delete(option, callback) {
       let errorInfo;
       try {
         let defaultOption = {
@@ -4651,12 +3835,7 @@
         }
       }
     }
-    /**
-     * 解析cookie字符串
-     * 例如：document.cookie
-     * @param cookieStr
-     */
-    parseCookie(cookieStr) {
+parseCookie(cookieStr) {
       if (cookieStr.trim() === "") {
         return [];
       }
@@ -4805,7 +3984,7 @@
           return new SyncThenable();
         }
         const promises = [];
-        const ignoreKeys = /* @__PURE__ */ new Set(["type", "async", "response"]);
+        const ignoreKeys = new Set(["type", "async", "response"]);
         win.__ajaxHooker.hookInsts.forEach(({ hookFns, filters }) => {
           if (this.shouldFilter(filters)) return;
           promises.push(
@@ -4948,14 +4127,13 @@
       }
       toJSON() {
       }
-      // Converting circular structure to JSON
-      addEvent(type, event) {
+addEvent(type, event) {
         if (type.startsWith("on")) {
           this.proxyEvents[type] = typeof event === "function" ? event : null;
         } else {
           if (typeof event === "object" && event !== null) event = event.handleEvent;
           if (typeof event !== "function") return;
-          this.proxyEvents[type] = this.proxyEvents[type] || /* @__PURE__ */ new Set();
+          this.proxyEvents[type] = this.proxyEvents[type] || new Set();
           this.proxyEvents[type].add(event);
         }
       }
@@ -5152,7 +4330,7 @@
       realXHR: win.XMLHttpRequest,
       realFetch: win.fetch,
       realFetchClone: resProto.clone,
-      hookInsts: /* @__PURE__ */ new Set()
+      hookInsts: new Set()
     };
     if (winAh.version !== version) console.warn("检测到不同版本的ajaxHooker，可能发生冲突！");
     win.XMLHttpRequest = winAh.fakeXHR;
@@ -5325,9 +4503,9 @@
           ah = xhr.__ajaxHooker = {
             headers: {},
             hookedEvents: {
-              readystatechange: /* @__PURE__ */ new Set(),
-              load: /* @__PURE__ */ new Set(),
-              loadend: /* @__PURE__ */ new Set()
+              readystatechange: new Set(),
+              load: new Set(),
+              loadend: new Set()
             },
             delegateEvent: xhrDelegateEvent,
             originalGetters: {},
@@ -5498,7 +4676,7 @@
                       }, errorFn);
                       const eventsClone = {};
                       xhrAsyncEvents.forEach((type) => {
-                        eventsClone[type] = /* @__PURE__ */ new Set([...ah.hookedEvents[type]]);
+                        eventsClone[type] = new Set([...ah.hookedEvents[type]]);
                         eventsClone["on" + type] = ah.hookedEvents["on" + type];
                       });
                       ah.delegateEvent = (event) => resPromise.then(() => {
@@ -5639,57 +4817,26 @@
   };
   class GMMenu {
     GM_Api = {
-      /**
-       * 获取存储的数据
-       */
-      getValue: null,
-      /**
-       * 设置数据到存储
-       */
-      setValue: null,
-      /**
-       * 注册菜单
-       */
-      registerMenuCommand: null,
-      /**
-       * 卸载菜单
-       */
-      unregisterMenuCommand: null
+getValue: null,
+setValue: null,
+registerMenuCommand: null,
+unregisterMenuCommand: null
     };
     MenuHandle = {
       context: this,
       $data: {
-        /**
-         * 菜单数据
-         */
-        data: [],
-        /**
-         * 本地存储的键名
-         */
-        key: "GM_Menu_Local_Map"
+data: [],
+key: "GM_Menu_Local_Map"
       },
       $default: {
-        /** 自动刷新网页，默认为true */
-        autoReload: true,
-        /**
-         * 菜单isStoreValue的默认值
-         */
-        isStoreValue: true
+autoReload: true,
+isStoreValue: true
       },
       $emoji: {
-        /**
-         * 菜单enable为true的emoji
-         */
-        success: "✅",
-        /**
-         * 菜单enable为false的emoji
-         */
-        error: "❌"
+success: "✅",
+error: "❌"
       },
-      /**
-       * 初始化数据
-       */
-      init() {
+init() {
         for (let index = 0; index < this.$data.data.length; index++) {
           let menuOption = this.$data.data[index]["data"];
           menuOption.enable = Boolean(this.getLocalMenuData(menuOption.key, menuOption.enable));
@@ -5704,11 +4851,7 @@
           }
         }
       },
-      /**
-       * 注册油猴菜单
-       * @param menuOptions 如果存在，使用它
-       */
-      register(menuOptions) {
+register(menuOptions) {
         let that = this;
         if (menuOptions == null) {
           throw new TypeError("register菜单数据不能为空");
@@ -5728,11 +4871,7 @@
           menuOptions[index].handleData = cloneMenuOptionData;
         }
       },
-      /**
-       * 获取本地存储菜单键值
-       * @param {string} key 键
-       */
-      getLocalMenuData(key, defaultValue) {
+getLocalMenuData(key, defaultValue) {
         let localData = this.context.GM_Api.getValue(this.$data.key, {});
         if (key in localData) {
           return localData[key];
@@ -5740,21 +4879,12 @@
           return defaultValue;
         }
       },
-      /**
-       * 设置本地存储菜单键值
-       * @param key 键
-       * @param value 值
-       */
-      setLocalMenuData(key, value) {
+setLocalMenuData(key, value) {
         let localData = this.context.GM_Api.getValue(this.$data.key, {});
         localData[key] = value;
         this.context.GM_Api.setValue(this.$data.key, localData);
       },
-      /**
-       * 处理初始化配置
-       * @param menuOption
-       */
-      handleInitDetail(menuOption) {
+handleInitDetail(menuOption) {
         menuOption.enable = Boolean(this.getLocalMenuData(menuOption.key, menuOption.enable));
         if (typeof menuOption.showText !== "function") {
           menuOption.showText = (menuText, menuEnable) => {
@@ -5767,11 +4897,7 @@
         }
         return menuOption;
       },
-      /**
-       * 对菜单数据进行处理
-       * @param menuOption
-       */
-      handleMenuData(menuOption) {
+handleMenuData(menuOption) {
         let that = this;
         let menuLocalDataItemKey = menuOption.key;
         let defaultEnable = Boolean(this.getLocalMenuData(menuLocalDataItemKey, menuOption.enable));
@@ -5805,25 +4931,13 @@
           clickCallBack
         };
       },
-      /**
-       * 获取目标菜单配置数据
-       * @param menuKey 菜单-键key
-       */
-      getMenuData(menuKey) {
+getMenuData(menuKey) {
         return this.$data.data.find((item) => item.data.key === menuKey);
       },
-      /**
-       * 获取目标菜单配置
-       * @param menuKey 菜单-键key
-       */
-      getMenuOption(menuKey) {
+getMenuOption(menuKey) {
         return this.$data.data.find((item) => item.data.key === menuKey)?.data;
       },
-      /**
-       * 获取目标菜单处理后的配置
-       * @param menuKey 菜单-键key
-       */
-      getMenuHandledOption(menuKey) {
+getMenuHandledOption(menuKey) {
         return this.$data.data.find((item) => item.handleData.key === menuKey)?.handleData;
       }
     };
@@ -5840,11 +4954,7 @@
       }
       this.add(details?.data || []);
     }
-    /**
-     * 新增菜单数据
-     * @param menuOption
-     */
-    __add(menuOption) {
+__add(menuOption) {
       if (Array.isArray(menuOption)) {
         for (let index = 0; index < menuOption.length; index++) {
           const option = menuOption[index];
@@ -5860,27 +4970,11 @@
         });
       }
     }
-    /**
-     * 新增菜单数据
-     *
-     * 自动调用.update()
-     * @param menuOption
-     */
-    add(menuOption) {
+add(menuOption) {
       this.__add(menuOption);
       this.update();
     }
-    /**
-     * 更新菜单数据
-     *
-     * 实现方式：先取消注册所有已注册的菜单、再依次注册所有菜单项
-     *
-     * 如果菜单不存在，新增菜单项
-     *
-     * 如果菜单已存在，新菜单项覆盖旧的菜单项
-     * @param options 数据
-     */
-    update(options) {
+update(options) {
       let menuOptionList = [];
       if (Array.isArray(options)) {
         menuOptionList = [...menuOptionList, ...options];
@@ -5903,47 +4997,22 @@
       this.MenuHandle.init();
       this.MenuHandle.register(this.MenuHandle.$data.data);
     }
-    /**
-     * 卸载菜单
-     * @param menuId 已注册的菜单id
-     */
-    delete(menuId) {
+delete(menuId) {
       this.GM_Api.unregisterMenuCommand(menuId);
     }
-    /**
-     * 根据键值获取enable值
-     * @param menuKey 菜单-键key
-     * @deprecated
-     */
-    get(menuKey) {
+get(menuKey) {
       return this.getEnable(menuKey);
     }
-    /**
-     * 根据键值获取enable值
-     * @param menuKey 菜单-键key
-     */
-    getEnable(menuKey) {
+getEnable(menuKey) {
       return this.MenuHandle.getMenuHandledOption(menuKey).enable;
     }
-    /**
-     * 根据键值获取text值
-     * @param menuKey 菜单-键key
-     */
-    getText(menuKey) {
+getText(menuKey) {
       return this.MenuHandle.getMenuHandledOption(menuKey).text;
     }
-    /**
-     * 根据键值获取showText函数的值
-     * @param menuKey 菜单-键key
-     */
-    getShowTextValue(menuKey) {
+getShowTextValue(menuKey) {
       return this.MenuHandle.getMenuHandledOption(menuKey).showText(this.getText(menuKey), this.getEnable(menuKey));
     }
-    /**
-     * 获取当前已注册菜单的id
-     * @param menuKey
-     */
-    getMenuId(menuKey) {
+getMenuId(menuKey) {
       let result = null;
       for (let index = 0; index < this.MenuHandle.$data.data.length; index++) {
         const optionData = this.MenuHandle.$data.data[index];
@@ -5954,94 +5023,46 @@
       }
       return result;
     }
-    /**
-     * 根据键值获取accessKey值
-     * @param menuKey 菜单-键key
-     */
-    getAccessKey(menuKey) {
+getAccessKey(menuKey) {
       return this.MenuHandle.getMenuHandledOption(menuKey)?.accessKey;
     }
-    /**
-     * 根据键值获取autoClose值
-     * @param menuKey 菜单-键key
-     */
-    getAutoClose(menuKey) {
+getAutoClose(menuKey) {
       return this.MenuHandle.getMenuHandledOption(menuKey)?.autoClose;
     }
-    /**
-     * 根据键值获取autoReload值
-     * @param menuKey 菜单-键key
-     */
-    getAutoReload(menuKey) {
+getAutoReload(menuKey) {
       return this.MenuHandle.getMenuHandledOption(menuKey)?.autoReload;
     }
-    /**
-     * 根据键值获取callback函数
-     * @param menuKey 菜单-键key
-     */
-    getCallBack(menuKey) {
+getCallBack(menuKey) {
       return this.MenuHandle.getMenuHandledOption(menuKey)?.callback;
     }
-    /**
-     * 获取当enable为true时默认显示在菜单中前面的emoji图标
-     */
-    getEnableTrueEmoji() {
+getEnableTrueEmoji() {
       return this.MenuHandle.$emoji.success;
     }
-    /**
-     * 获取当enable为false时默认显示在菜单中前面的emoji图标
-     */
-    getEnableFalseEmoji() {
+getEnableFalseEmoji() {
       return this.MenuHandle.$emoji.error;
     }
-    /**
-     * 获取本地存储的菜单外部的键名
-     * @param keyName
-     */
-    getLocalStorageKeyName() {
+getLocalStorageKeyName() {
       return this.MenuHandle.$data.key;
     }
-    /**
-     * 设置菜单的值
-     * @param menuKey 菜单-键key
-     * @param value 需要设置的值
-     */
-    setValue(menuKey, value) {
+setValue(menuKey, value) {
       this.MenuHandle.setLocalMenuData(menuKey, value);
     }
-    /**
-     * 设置菜单的值
-     * @param menuKey 菜单-键key
-     * @param value 需要设置的值
-     */
-    setEnable(menuKey, value) {
+setEnable(menuKey, value) {
       this.setValue(menuKey, Boolean(value));
     }
-    /**
-     * 设置当enable为true时默认显示在菜单中前面的emoji图标
-     * @param emojiString
-     */
-    setEnableTrueEmoji(emojiString) {
+setEnableTrueEmoji(emojiString) {
       if (typeof emojiString !== "string") {
         throw new Error("参数emojiString必须是string类型");
       }
       this.MenuHandle.$emoji.success = emojiString;
     }
-    /**
-     * 设置当enable为false时默认显示在菜单中前面的emoji图标
-     * @param emojiString
-     */
-    setEnableFalseEmoji(emojiString) {
+setEnableFalseEmoji(emojiString) {
       if (typeof emojiString !== "string") {
         throw new Error("参数emojiString必须是string类型");
       }
       this.MenuHandle.$emoji.error = emojiString;
     }
-    /**
-     * 设置本地存储的菜单外部的键名
-     * @param keyName
-     */
-    setLocalStorageKeyName(keyName) {
+setLocalStorageKeyName(keyName) {
       if (typeof keyName !== "string") {
         throw new Error("参数keyName必须是string类型");
       }
@@ -6049,10 +5070,7 @@
     }
   }
   class Hooks {
-    /**
-     * 在Function原型上添加自定义方法.hook和.unhook
-     */
-    initEnv() {
+initEnv() {
       Function.prototype.hook = function(realFunc, hookFunc, context) {
         let _context = null;
         let _funcName = null;
@@ -6100,10 +5118,7 @@
         return true;
       };
     }
-    /**
-     * 删除在Function原型上添加的自定义方法.hook和.unhook
-     */
-    cleanEnv() {
+cleanEnv() {
       if (Function.prototype.hasOwnProperty("hook")) {
         Reflect.deleteProperty(Function.prototype, "hook");
       }
@@ -6128,19 +5143,10 @@
       xmlHttpRequest: null
     };
     HttpxRequestHook = {
-      /**
-       * @private
-       */
-      $config: {
+$config: {
         configList: []
       },
-      /**
-       * 发送请求前的回调
-       * 如果返回false则阻止本次返回
-       * @param details 当前的请求配置
-       * @private
-       */
-      async beforeRequestCallBack(details) {
+async beforeRequestCallBack(details) {
         if (typeof details.allowInterceptConfig === "boolean") {
           if (!details.allowInterceptConfig) {
             return details;
@@ -6163,10 +5169,7 @@
         }
         return details;
       },
-      /**
-       * 添加请求前的回调处理配置
-       */
-      add(fn) {
+add(fn) {
         if (typeof fn === "function") {
           let uuid = GenerateUUID();
           this.$config.configList.push({
@@ -6178,11 +5181,7 @@
           console.warn("[Httpx-HttpxRequestHook.addBeforeRequestCallBack] fn is not a function");
         }
       },
-      /**
-       * 删除请求前的回调处理配置
-       * @param id
-       */
-      delete(id) {
+delete(id) {
         if (typeof id === "string") {
           let findIndex = this.$config.configList.findIndex((item) => item.id === id);
           if (findIndex !== -1) {
@@ -6192,26 +5191,15 @@
         }
         return false;
       },
-      /**
-       * 清空设置的请求前的回调处理配置
-       */
-      clearAll() {
+clearAll() {
         this.$config.configList = [];
       }
     };
     HttpxResponseHook = {
-      /**
-       * @private
-       */
-      $config: {
+$config: {
         configList: []
       },
-      /**
-       * 成功的回调
-       * @param response 响应
-       * @param details 请求的配置
-       */
-      async successResponseCallBack(response, details) {
+async successResponseCallBack(response, details) {
         if (typeof details.allowInterceptConfig === "boolean") {
           if (!details.allowInterceptConfig) {
             return details;
@@ -6234,13 +5222,7 @@
         }
         return response;
       },
-      /**
-       * 失败的回调
-       * @param data 配置
-       * @returns
-       * 返回null|undefined就是拦截掉了
-       */
-      async errorResponseCallBack(data) {
+async errorResponseCallBack(data) {
         if (typeof data.details.allowInterceptConfig === "boolean") {
           if (!data.details.allowInterceptConfig) {
             return data;
@@ -6263,10 +5245,7 @@
         }
         return data;
       },
-      /**
-       * 添加请求前的回调处理配置
-       */
-      add(successFn, errorFn) {
+add(successFn, errorFn) {
         let id = GenerateUUID();
         this.$config.configList.push({
           id,
@@ -6275,11 +5254,7 @@
         });
         return id;
       },
-      /**
-       * 删除请求前的回调处理配置
-       * @param id
-       */
-      delete(id) {
+delete(id) {
         if (typeof id === "string") {
           let findIndex = this.$config.configList.findIndex((item) => item.id === id);
           if (findIndex !== -1) {
@@ -6289,19 +5264,13 @@
         }
         return false;
       },
-      /**
-       * 清空设置的请求前的回调处理配置
-       */
-      clearAll() {
+clearAll() {
         this.$config.configList = [];
       }
     };
     HttpxRequestOption = {
       context: this,
-      /**
-       * 对请求的参数进行合并处理
-       */
-      handleBeforeRequestOptionArgs(...args) {
+handleBeforeRequestOptionArgs(...args) {
         let option = {
           url: void 0
         };
@@ -6319,14 +5288,7 @@
         }
         return option;
       },
-      /**
-       * 获取请求配置
-       * @param method 当前请求方法，默认get
-       * @param userRequestOption 用户的请求配置
-       * @param resolve promise回调
-       * @param reject promise抛出错误回调
-       */
-      getRequestOption(method, userRequestOption, resolve, reject) {
+getRequestOption(method, userRequestOption, resolve, reject) {
         let that = this;
         let url = userRequestOption.url || this.context.#defaultRequestOption.url;
         if (typeof url === "string") {
@@ -6343,8 +5305,7 @@
           method: (method || "GET").toString().toUpperCase().trim(),
           timeout: userRequestOption.timeout || this.context.#defaultRequestOption.timeout,
           responseType: userRequestOption.responseType || this.context.#defaultRequestOption.responseType,
-          /* 对象使用深拷贝 */
-          headers: commonUtil.deepClone(this.context.#defaultRequestOption.headers),
+headers: commonUtil.deepClone(this.context.#defaultRequestOption.headers),
           data: userRequestOption.data || this.context.#defaultRequestOption.data,
           redirect: userRequestOption.redirect || this.context.#defaultRequestOption.redirect,
           cookie: userRequestOption.cookie || this.context.#defaultRequestOption.cookie,
@@ -6352,13 +5313,11 @@
           binary: userRequestOption.binary || this.context.#defaultRequestOption.binary,
           nocache: userRequestOption.nocache || this.context.#defaultRequestOption.nocache,
           revalidate: userRequestOption.revalidate || this.context.#defaultRequestOption.revalidate,
-          /* 对象使用深拷贝 */
-          context: commonUtil.deepClone(userRequestOption.context || this.context.#defaultRequestOption.context),
+context: commonUtil.deepClone(userRequestOption.context || this.context.#defaultRequestOption.context),
           overrideMimeType: userRequestOption.overrideMimeType || this.context.#defaultRequestOption.overrideMimeType,
           anonymous: userRequestOption.anonymous || this.context.#defaultRequestOption.anonymous,
           fetch: userRequestOption.fetch || this.context.#defaultRequestOption.fetch,
-          /* 对象使用深拷贝 */
-          fetchInit: commonUtil.deepClone(this.context.#defaultRequestOption.fetchInit),
+fetchInit: commonUtil.deepClone(this.context.#defaultRequestOption.fetchInit),
           allowInterceptConfig: {
             beforeRequest: this.context.#defaultRequestOption.allowInterceptConfig.beforeRequest,
             afterResponseSuccess: this.context.#defaultRequestOption.allowInterceptConfig.afterResponseSuccess,
@@ -6516,11 +5475,7 @@
         }
         return requestOption;
       },
-      /**
-       * 处理发送请求的配置，去除值为undefined、空function的值
-       * @param option 请求配置
-       */
-      removeRequestNullOption(option) {
+removeRequestNullOption(option) {
         Object.keys(option).forEach((keyName) => {
           if (option[keyName] == null || option[keyName] instanceof Function && commonUtil.isNull(option[keyName])) {
             Reflect.deleteProperty(option, keyName);
@@ -6532,11 +5487,7 @@
         }
         return option;
       },
-      /**
-       * 处理fetch的配置
-       * @param option 请求配置
-       */
-      handleFetchOption(option) {
+handleFetchOption(option) {
         let fetchRequestOption = {};
         if ((option.method === "GET" || option.method === "HEAD") && option.data != null) {
           Reflect.deleteProperty(option, "data");
@@ -6574,14 +5525,7 @@
     };
     HttpxResponseCallBack = {
       context: this,
-      /**
-       * onabort请求被取消-触发
-       * @param details 配置
-       * @param resolve promise回调
-       * @param reject promise抛出错误回调
-       * @param argsResult 返回的参数列表
-       */
-      async onAbort(details, resolve, reject, argsResult) {
+async onAbort(details, resolve, reject, argsResult) {
         if (typeof details?.onabort === "function") {
           details.onabort.apply(this, argsResult);
         } else if (typeof this.context.#defaultRequestOption?.onabort === "function") {
@@ -6608,14 +5552,7 @@
           type: "onabort"
         });
       },
-      /**
-       * ontimeout请求超时-触发
-       * @param details 配置
-       * @param resolve 回调
-       * @param reject 抛出错误
-       * @param argsResult 返回的参数列表
-       */
-      async onTimeout(details, resolve, reject, argsResult) {
+async onTimeout(details, resolve, reject, argsResult) {
         if (typeof details?.ontimeout === "function") {
           details.ontimeout.apply(this, argsResult);
         } else if (typeof this.context.#defaultRequestOption?.ontimeout === "function") {
@@ -6642,14 +5579,7 @@
           type: "ontimeout"
         });
       },
-      /**
-       * onerror请求异常-触发
-       * @param details 配置
-       * @param resolve 回调
-       * @param reject 抛出错误
-       * @param argsResult 返回的参数列表
-       */
-      async onError(details, resolve, reject, argsResult) {
+async onError(details, resolve, reject, argsResult) {
         if (typeof details?.onerror === "function") {
           details.onerror.apply(this, argsResult);
         } else if (typeof this.context.#defaultRequestOption?.onerror === "function") {
@@ -6676,14 +5606,7 @@
           type: "onerror"
         });
       },
-      /**
-       * onload加载完毕-触发
-       * @param details 请求的配置
-       * @param resolve 回调
-       * @param reject 抛出错误
-       * @param argsResult 返回的参数列表
-       */
-      async onLoad(details, resolve, reject, argsResult) {
+async onLoad(details, resolve, reject, argsResult) {
         let originResponse = argsResult[0];
         if (commonUtil.isNull(originResponse["responseText"]) && commonUtil.isNotNull(originResponse["response"])) {
           if (typeof originResponse["response"] === "object") {
@@ -6750,36 +5673,21 @@
           this.context.HttpxResponseCallBack.onError(details, resolve, reject, argsResult);
         }
       },
-      /**
-       * onloadstart请求开始-触发
-       * @param details 配置
-       * @param argsResult 返回的参数列表
-       */
-      onLoadStart(details, argsResult) {
+onLoadStart(details, argsResult) {
         if (typeof details?.onloadstart === "function") {
           details.onloadstart.apply(this, argsResult);
         } else if (typeof this.context.#defaultRequestOption?.onloadstart === "function") {
           this.context.#defaultRequestOption.onloadstart.apply(this, argsResult);
         }
       },
-      /**
-       * onreadystatechange准备状态改变-触发
-       * @param details 配置
-       * @param argsResult 返回的参数列表
-       */
-      onReadyStateChange(details, argsResult) {
+onReadyStateChange(details, argsResult) {
         if (typeof details?.onreadystatechange === "function") {
           details.onreadystatechange.apply(this, argsResult);
         } else if (typeof this.context.#defaultRequestOption?.onreadystatechange === "function") {
           this.context.#defaultRequestOption.onreadystatechange.apply(this, argsResult);
         }
       },
-      /**
-       * onprogress上传进度-触发
-       * @param details 配置
-       * @param argsResult 返回的参数列表
-       */
-      onProgress(details, argsResult) {
+onProgress(details, argsResult) {
         if (typeof details?.onprogress === "function") {
           details.onprogress.apply(this, argsResult);
         } else if (typeof this.context.#defaultRequestOption?.onprogress === "function") {
@@ -6789,11 +5697,7 @@
     };
     HttpxRequest = {
       context: this,
-      /**
-       * 发送请求
-       * @param details
-       */
-      async request(details) {
+async request(details) {
         if (this.context.#defaultInitOption.logDetails) {
           console.log("[Httpx-HttpxRequest.request] 请求前的配置👇", details);
         }
@@ -6810,20 +5714,10 @@
           return this.xmlHttpRequest(details);
         }
       },
-      /**
-       * 使用油猴函数GM_xmlhttpRequest发送请求
-       * @param details
-       */
-      xmlHttpRequest(details) {
+xmlHttpRequest(details) {
         return this.context.GM_Api.xmlHttpRequest(details);
       },
-      /**
-       * 使用fetch发送请求
-       * @param option
-       * @param fetchRequestOption
-       * @param abortController
-       */
-      fetch(option, fetchRequestOption, abortController) {
+fetch(option, fetchRequestOption, abortController) {
         fetch(option.url, fetchRequestOption).then(async (fetchResponse) => {
           let httpxResponse = {
             isFetch: true,
@@ -6915,10 +5809,7 @@
         };
       }
     };
-    /**
-     * 默认配置
-     */
-    #defaultRequestOption = {
+#defaultRequestOption = {
       url: void 0,
       timeout: 5e3,
       async: false,
@@ -6957,20 +5848,10 @@
       }
     };
     #defaultInitOption = {
-      /**
-       * `baseURL` 将自动加在 `url` 前面，除非 `url` 是一个绝对 URL。
-       */
-      baseURL: void 0,
-      /**
-       * 当前使用请求时，输出请求的配置，一般用于DEBUG|DEV
-       */
-      logDetails: false
+baseURL: void 0,
+logDetails: false
     };
-    /**
-     * 实例化
-     * @param option 初始化配置
-     */
-    constructor(option = {}) {
+constructor(option = {}) {
       if (typeof option.xmlHttpRequest !== "function") {
         console.warn("[Httpx-constructor] 未传入GM_xmlhttpRequest函数或传入的GM_xmlhttpRequest不是Function，将默认使用window.fetch");
       }
@@ -6979,156 +5860,89 @@
       this.interceptors.response.context = this;
       this.config(option);
     }
-    /**
-     * 覆盖当前配置
-     * @param option
-     */
-    config(option = {}) {
+config(option = {}) {
       if (typeof option.xmlHttpRequest === "function") {
         this.GM_Api.xmlHttpRequest = option.xmlHttpRequest;
       }
       this.#defaultRequestOption = commonUtil.assign(this.#defaultRequestOption, option);
       this.#defaultInitOption = commonUtil.assign(this.#defaultInitOption, option);
     }
-    /**
-     * 拦截器
-     */
-    interceptors = {
-      /**
-       * 请求拦截器
-       */
-      request: {
+interceptors = {
+request: {
         context: null,
-        /**
-         * 添加拦截器
-         * @param fn 设置的请求前回调函数，如果返回配置，则使用返回的配置，如果返回null|undefined，则阻止请求
-         */
-        use(fn) {
+use(fn) {
           if (typeof fn !== "function") {
             console.warn("[Httpx-interceptors-request] 请传入拦截器函数");
             return;
           }
           return this.context.HttpxRequestHook.add(fn);
         },
-        /**
-         * 移除拦截器
-         * @param id 通过use返回的id
-         */
-        eject(id) {
+eject(id) {
           return this.context.HttpxRequestHook.delete(id);
         },
-        /**
-         * 移除所有拦截器
-         */
-        ejectAll() {
+ejectAll() {
           this.context.HttpxRequestHook.clearAll();
         }
       },
-      /**
-       * 响应拦截器
-       */
-      response: {
+response: {
         context: null,
-        /**
-         * 添加拦截器
-         * @param successFn 设置的响应后回调函数，如果返回响应，则使用返回的响应，如果返回null|undefined，则阻止响应
-         * + 2xx 范围内的状态码都会触发该函数
-         * @param errorFn 设置的响应后回调函数，如果返回响应，则使用返回的响应，如果返回null|undefined，则阻止响应
-         * + 超出 2xx 范围的状态码都会触发该函数
-         */
-        use(successFn, errorFn) {
+use(successFn, errorFn) {
           if (typeof successFn !== "function" && typeof errorFn !== "function") {
             console.warn("[Httpx-interceptors-response] 必须传入一个拦截器函数");
             return;
           }
           return this.context.HttpxResponseHook.add(successFn, errorFn);
         },
-        /**
-         * 移除拦截器
-         * @param id 通过use返回的id
-         */
-        eject(id) {
+eject(id) {
           return this.context.HttpxResponseHook.delete(id);
         },
-        /**
-         * 移除所有拦截器
-         */
-        ejectAll() {
+ejectAll() {
           this.context.HttpxResponseHook.clearAll();
         }
       }
     };
-    /**
-     * 修改xmlHttpRequest
-     * @param httpRequest 网络请求函数
-     */
-    setXMLHttpRequest(httpRequest) {
+setXMLHttpRequest(httpRequest) {
       this.GM_Api.xmlHttpRequest = httpRequest;
     }
-    /**
-     * GET 请求
-     * @param url 请求的url
-     * @param details 配置
-     */
-    get(...args) {
+get(...args) {
       let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
       useRequestOption.method = "GET";
       return this.request(useRequestOption, (option) => {
         Reflect.deleteProperty(option, "onprogress");
       });
     }
-    /**
-     * POST 请求
-     */
-    post(...args) {
+post(...args) {
       let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
       useRequestOption.method = "POST";
       return this.request(useRequestOption);
     }
-    /**
-     * HEAD 请求
-     */
-    head(...args) {
+head(...args) {
       let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
       useRequestOption.method = "HEAD";
       return this.request(useRequestOption, (option) => {
         Reflect.deleteProperty(option, "onprogress");
       });
     }
-    /**
-     * OPTIONS 请求
-     */
-    options(...args) {
+options(...args) {
       let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
       useRequestOption.method = "OPTIONS";
       return this.request(useRequestOption, (option) => {
         Reflect.deleteProperty(option, "onprogress");
       });
     }
-    /**
-     * DELETE 请求
-     */
-    delete(...args) {
+delete(...args) {
       let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
       useRequestOption.method = "DELETE";
       return this.request(useRequestOption, (option) => {
         Reflect.deleteProperty(option, "onprogress");
       });
     }
-    /**
-     * PUT 请求
-     */
-    put(...args) {
+put(...args) {
       let userRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
       userRequestOption.method = "PUT";
       return this.request(userRequestOption);
     }
-    /**
-     * 发送请求
-     * @param details 配置
-     * @param beforeRequestOption 处理请求前的配置
-     */
-    request(details, beforeRequestOption) {
+request(details, beforeRequestOption) {
       let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(details);
       let abortFn = null;
       let promise = new globalThis.Promise(async (resolve, reject) => {
@@ -7154,15 +5968,12 @@
     #dbName;
     #storeName;
     #dbVersion;
-    /* websql的版本号，由于ios的问题，版本号的写法不一样 */
-    // #slqVersion = "1";
-    /* 监听IndexDB */
-    #indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
-    /* 缓存数据库，避免同一个页面重复创建和销毁 */
-    #db = {};
-    // #store: IDBObjectStore = null as any;
-    /** 状态码 */
-    #statusCode = {
+
+
+#indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+#db = {};
+
+#statusCode = {
       operationSuccess: {
         code: 200,
         msg: "操作成功"
@@ -7182,12 +5993,7 @@
       deleteAllFailed: { code: 91005, msg: "清空数据库失败" },
       regexpGetFailed: { code: 91006, msg: "正则获取数据失败" }
     };
-    /**
-     * @param dbName 数据存储名，默认为：default_db
-     * @param storeName 表名，默认为：default_form
-     * @param dbVersion indexDB的版本号，默认为：1
-     */
-    constructor(dbName = "default_db", storeName = "default_form", dbVersion = 1) {
+constructor(dbName = "default_db", storeName = "default_form", dbVersion = 1) {
       this.#dbName = dbName;
       this.#storeName = storeName;
       this.#dbVersion = dbVersion;
@@ -7196,22 +6002,13 @@
         throw new TypeError("很抱歉，您的浏览器不支持indexedDB");
       }
     }
-    /**
-     * 创建 “表”
-     * @param dbName 表名
-     */
-    createStore(dbName) {
+createStore(dbName) {
       let txn, store;
       txn = this.#db[dbName].transaction(this.#storeName, "readwrite");
       store = txn.objectStore(this.#storeName);
       return store;
     }
-    /**
-     * 打开数据库
-     * @param callback  回调
-     * @param dbName 数据库名
-     */
-    open(callback, dbName) {
+open(callback, dbName) {
       let that = this;
       if (!that.#db[dbName]) {
         let request = that.#indexedDB.open(dbName, that.#dbVersion);
@@ -7245,12 +6042,7 @@
         callback(store);
       }
     }
-    /**
-     * 保存数据到数据库
-     * @param key 数据key
-     * @param value 数据值
-     */
-    async save(key, value) {
+async save(key, value) {
       let that = this;
       return new Promise((resolve) => {
         let dbName = this.#dbName;
@@ -7287,11 +6079,7 @@
         }, dbName);
       });
     }
-    /**
-     * 判断是否存在该数据
-     * @param key 数据key
-     */
-    async has(key) {
+async has(key) {
       let that = this;
       return new Promise((resolve) => {
         let dbName = this.#dbName;
@@ -7324,11 +6112,7 @@
         }, dbName);
       });
     }
-    /**
-     * 根据key获取值
-     * @param key 数据key
-     */
-    async get(key) {
+async get(key) {
       let that = this;
       return new Promise((resolve) => {
         let dbName = this.#dbName;
@@ -7379,11 +6163,7 @@
         }, dbName);
       });
     }
-    /**
-     * 正则获取数据
-     * @param key 数据key，可以是正则
-     */
-    async regexpGet(key) {
+async regexpGet(key) {
       let list = [];
       let that = this;
       return new Promise((resolve) => {
@@ -7431,11 +6211,7 @@
         }, dbName);
       });
     }
-    /**
-     * 删除数据
-     * @param key 数据key
-     */
-    async delete(key) {
+async delete(key) {
       let that = this;
       return new Promise((resolve) => {
         let dbName = that.#dbName;
@@ -7468,10 +6244,7 @@
         }, dbName);
       });
     }
-    /**
-     * 删除所有数据
-     */
-    async deleteAll() {
+async deleteAll() {
       let that = this;
       return new Promise((resolve) => {
         let dbName = that.#dbName;
@@ -7545,16 +6318,11 @@
     }
   }
   class Log {
-    /** 是否禁用输出的flag */
-    #disable = false;
-    /** 前面的TAG标志 */
-    tag = "Utils.Log";
-    /* 使用的console函数 */
-    #console = null;
-    /* 当前输出的数量 */
-    #logCount = 0;
-    /* 配置 */
-    #details = {
+#disable = false;
+tag = "Utils.Log";
+#console = null;
+#logCount = 0;
+#details = {
       tag: true,
       successColor: "#0000FF",
       errorColor: "#FF0000",
@@ -7564,20 +6332,13 @@
       autoClearConsole: false,
       logMaxCount: 999
     };
-    /**
-     * 颜色配置
-     */
-    #msgColorDetails = [
+#msgColorDetails = [
       "font-weight: bold; color: cornflowerblue",
       "font-weight: bold; color: cornflowerblue",
       "font-weight: bold; color: darkorange",
       "font-weight: bold; color: cornflowerblue"
     ];
-    /**
-     * @param __GM_info 油猴管理器的API GM_info，或者是一个对象，如{"script":{name:"Utils.Log"}}，或者直接是一个字符串，用作tag名
-     * @param console 可指定console对象为unsafeWindow下的console或者是油猴window下的console
-     */
-    constructor(__GM_info, console2 = window.console) {
+constructor(__GM_info, console2 = window.console) {
       if (typeof __GM_info === "string") {
         this.tag = __GM_info;
       } else if (typeof __GM_info === "object" && typeof __GM_info?.script?.name === "string") {
@@ -7585,11 +6346,7 @@
       }
       this.#console = console2;
     }
-    /**
-     * 解析Error的堆栈获取实际调用者的函数名及函数所在的位置
-     * @param stack
-     */
-    parseErrorStack(stack) {
+parseErrorStack(stack) {
       let result = {
         name: "",
         position: ""
@@ -7628,23 +6385,14 @@
       }
       return result;
     }
-    /**
-     * 检测清理控制台
-     */
-    checkClearConsole() {
+checkClearConsole() {
       this.#logCount++;
       if (this.#details.autoClearConsole && this.#logCount > this.#details.logMaxCount) {
         this.#console.clear();
         this.#logCount = 0;
       }
     }
-    /**
-     * 输出内容
-     * @param msg 需要输出的内容
-     * @param color 颜色
-     * @param otherStyle 其它CSS
-     */
-    printContent(msg, color, otherStyle) {
+printContent(msg, color, otherStyle) {
       this.checkClearConsole();
       otherStyle = otherStyle || "";
       let stackSplit = new Error().stack.split("\n");
@@ -7677,57 +6425,27 @@
         this.#console.log(callerPosition);
       }
     }
-    /**
-     * 控制台-普通输出
-     * @param args 需要输出的内容
-     * @example
-     * log.info("输出信息","输出信息2","输出信息3","输出")
-     */
-    info(...args) {
+info(...args) {
       if (this.#disable)
         return;
       this.printContent(args, this.#details.infoColor);
     }
-    /**
-     * 控制台-警告输出
-     * @param args 需要输出的内容
-     * @example
-     * log.warn("输出警告","输出警告2","输出警告3","输出警告4")
-     */
-    warn(...args) {
+warn(...args) {
       if (this.#disable)
         return;
       this.printContent(args, this.#details.warnColor, "background: #FEF6D5;padding: 4px 6px 4px 0px;");
     }
-    /**
-     * 控制台-错误输出
-     * @param args 需要输出的内容
-     * @example
-     * log.error("输出错误","输出错误2","输出错误3","输出错误4")
-     */
-    error(...args) {
+error(...args) {
       if (this.#disable)
         return;
       this.printContent(args, this.#details.errorColor);
     }
-    /**
-     * 控制台-成功输出
-     * @param args 需要输出的内容
-     * @example
-     * log.success("输出成功")
-     */
-    success(...args) {
+success(...args) {
       if (this.#disable)
         return;
       this.printContent(args, this.#details.successColor);
     }
-    /**
-     * 控制台-输出表格
-     * @param msg 需要输出的内容
-     * @example
-     * log.table([{"名字":"example","值":"123"},{"名字":"example2","值":"345"}])
-     */
-    table(msg) {
+table(msg) {
       if (this.#disable)
         return;
       this.checkClearConsole();
@@ -7743,79 +6461,39 @@
         this.#console.log(stackFunctionNamePosition);
       }
     }
-    /**
-     * 配置Log对象的颜色
-     * @param paramDetails 配置信息
-     */
-    config(paramDetails) {
+config(paramDetails) {
       this.#details = Object.assign(this.#details, paramDetails);
     }
-    /** 禁用输出 */
-    disable() {
+disable() {
       this.#disable = true;
     }
-    /** 恢复输出 */
-    recovery() {
+recovery() {
       this.#disable = false;
     }
   }
   class Progress {
     #config = {
-      /**
-       * canvas元素节点
-       */
-      canvasNode: null,
-      /**
-       * 绘制角度
-       */
-      deg: 95,
-      /**
-       * 进度
-       */
-      progress: 0,
-      /**
-       * 绘制的线宽度
-       */
-      lineWidth: 10,
-      /**
-       * 绘制的背景颜色
-       */
-      lineBgColor: "#1e637c",
-      /**
-       * 绘制的线的颜色
-       */
-      lineColor: "#25deff",
-      /**
-       * 绘制的字体颜色
-       */
-      textColor: "#000000",
-      /**
-       * 绘制的字体大小(px)
-       */
-      fontSize: 22,
-      /**
-       * 绘制的圆的半径
-       */
-      circleRadius: 50
+canvasNode: null,
+deg: 95,
+progress: 0,
+lineWidth: 10,
+lineBgColor: "#1e637c",
+lineColor: "#25deff",
+textColor: "#000000",
+fontSize: 22,
+circleRadius: 50
     };
     #ctx = null;
     #width = null;
     #height = null;
-    /**
-     *
-     * @param paramConfig 配置信息
-     */
-    constructor(paramConfig) {
+constructor(paramConfig) {
       this.#config = commonUtil.assign(this.#config, paramConfig);
       if (!(this.#config.canvasNode instanceof HTMLCanvasElement)) {
         throw new Error("Utils.Progress 参数 canvasNode 必须是 HTMLCanvasElement");
       }
       this.init();
     }
-    /**
-     * 初始化
-     */
-    init() {
+init() {
       let ctx = this.#config.canvasNode.getContext("2d");
       if (ctx == null) {
         throw new Error("Utils.Progress 获取画笔失败");
@@ -7832,10 +6510,7 @@
       }
       this.#ctx.lineWidth = this.#config.lineWidth;
     }
-    /**
-     * 绘制
-     */
-    draw() {
+draw() {
       let degActive = this.#config.progress * 360 / 100;
       this.#ctx.clearRect(0, 0, this.#width, this.#height);
       this.#ctx.beginPath();
@@ -7862,16 +6537,10 @@
         this.set(key, value);
       }
     }
-    /**
-     * 获取字典的长度，同this.size
-     */
-    get length() {
+get length() {
       return this.size();
     }
-    /**
-     * 迭代器
-     */
-    get entries() {
+get entries() {
       let that = this;
       return function* () {
         let itemKeys = Object.keys(that.getItems());
@@ -7880,27 +6549,16 @@
         }
       };
     }
-    /**
-     * 是否可遍历
-     */
-    get [Symbol.iterator]() {
+get [Symbol.iterator]() {
       let that = this;
       return function() {
         return that.entries();
       };
     }
-    /**
-     * 检查是否有某一个键
-     * @param key 键
-     */
-    has(key) {
+has(key) {
       return Reflect.has(this.items, key);
     }
-    /**
-     * 检查已有的键中是否以xx开头
-     * @param key 需要匹配的键
-     */
-    startsWith(key) {
+startsWith(key) {
       let allKeys = this.keys();
       for (const keyName of allKeys) {
         if (String(keyName).startsWith(String(key))) {
@@ -7909,11 +6567,7 @@
       }
       return false;
     }
-    /**
-     * 获取以xx开头的键的值
-     * @param key 需要匹配的键
-     */
-    getStartsWith(key) {
+getStartsWith(key) {
       let allKeys = this.keys();
       let result = void 0;
       for (const keyName of allKeys) {
@@ -7924,40 +6578,22 @@
       }
       return result;
     }
-    /**
-     * 为字典添加某一个值
-     * @param key 键
-     * @param val 值，默认为""
-     */
-    set(key, val) {
+set(key, val) {
       if (key === void 0) {
         throw new Error("Utils.Dictionary().set 参数 key 不能为空");
       }
       Reflect.set(this.items, key, val);
     }
-    /**
-     * 删除某一个键
-     * @param key 键
-     */
-    delete(key) {
+delete(key) {
       if (this.has(key)) {
         return Reflect.deleteProperty(this.items, key);
       }
       return false;
     }
-    /**
-     * 获取某个键的值
-     * https://github.com/microsoft/TypeScript/issues/9619
-     * 微软到现在都没有修复has和get的联动
-     * @param key 键
-     */
-    get(key) {
+get(key) {
       return Reflect.get(this.items, key);
     }
-    /**
-     * 返回字典中的所有值
-     */
-    values() {
+values() {
       let resultList = [];
       for (let prop in this.getItems()) {
         if (this.has(prop)) {
@@ -7966,51 +6602,30 @@
       }
       return resultList;
     }
-    /**
-     * 清空字典
-     */
-    clear() {
+clear() {
       this.items = null;
       this.items = {};
     }
-    /**
-     * 获取字典的长度
-     */
-    size() {
+size() {
       return Object.keys(this.getItems()).length;
     }
-    /**
-     * 获取字典所有的键
-     */
-    keys() {
+keys() {
       return Reflect.ownKeys(this.items);
     }
-    /**
-     * 返回字典本身
-     */
-    getItems() {
+getItems() {
       return this.items;
     }
-    /**
-     * 合并另一个字典
-     * @param data 需要合并的字典
-     */
-    concat(data) {
+concat(data) {
       this.items = commonUtil.assign(this.items, data.getItems());
     }
-    /**
-     * 迭代字典
-     * @param callbackfn 回调函数
-     */
-    forEach(callbackfn) {
+forEach(callbackfn) {
       for (const key in this.getItems()) {
         callbackfn(this.get(key), key, this.getItems());
       }
     }
   }
   class WindowApi2 {
-    /** 默认的配置 */
-    defaultApi = {
+defaultApi = {
       document,
       window,
       globalThis,
@@ -8021,8 +6636,7 @@
       clearTimeout: globalThis.clearTimeout.bind(globalThis),
       clearInterval: globalThis.clearInterval.bind(globalThis)
     };
-    /** 使用的配置 */
-    api;
+api;
     constructor(option) {
       if (option) {
         if (option.globalThis == null) {
@@ -8066,36 +6680,19 @@
     }
   }
   const VueUtils = {
-    /** 标签 */
-    ReactiveFlags: {
+ReactiveFlags: {
       IS_REACTIVE: Symbol("isReactive")
     },
-    /**
-     * 判断是否是对象
-     * @param value
-     */
-    isObject(value) {
+isObject(value) {
       return typeof value === "object" && value !== null;
     },
-    /**
-     * 判断是否是函数
-     * @param val
-     */
-    isFunction(val) {
+isFunction(val) {
       return typeof val === "function";
     },
-    /**
-     * 处理对象再次代理，可以直接返回
-     * @param value
-     */
-    isReactive(value) {
+isReactive(value) {
       return !!(value && value[VueUtils.ReactiveFlags.IS_REACTIVE]);
     },
-    /**
-     * 判断是否是数组
-     * @param value
-     */
-    isArray(value) {
+isArray(value) {
       return Array.isArray(value);
     }
   };
@@ -8103,8 +6700,7 @@
     deps = [];
     active = true;
     fn;
-    // private scheduler;
-    constructor(fn, scheduler) {
+constructor(fn, scheduler) {
       this.fn = fn;
     }
     run(cb) {
@@ -8158,16 +6754,12 @@
     }
   }
   class Vue {
-    reactMap = /* @__PURE__ */ new WeakMap();
-    targetMap = /* @__PURE__ */ new WeakMap();
+    reactMap = new WeakMap();
+    targetMap = new WeakMap();
     activeEffect = void 0;
     constructor() {
     }
-    /**
-     * 生成一个被代理的对象
-     * @param target 需要代理的对象
-     */
-    reactive(target) {
+reactive(target) {
       const that = this;
       if (!(typeof target === "object" && target !== null)) {
         return void 0;
@@ -8199,12 +6791,7 @@
       that.reactMap.set(target, proxy);
       return proxy;
     }
-    /**
-     * 观察被reactive的对象值改变
-     * @param source 被观察的对象，这里采用函数返回对象
-     * @param changeCallBack 值改变的回调
-     */
-    watch(source, changeCallBack) {
+watch(source, changeCallBack) {
       let getter;
       if (VueUtils.isReactive(source)) {
         getter = () => this.traversal(source);
@@ -8263,11 +6850,11 @@
         return;
       let depsMap = this.targetMap.get(target);
       if (!depsMap) {
-        this.targetMap.set(target, depsMap = /* @__PURE__ */ new Map());
+        this.targetMap.set(target, depsMap = new Map());
       }
       let dep = depsMap.get(key);
       if (!dep) {
-        depsMap.set(key, dep = /* @__PURE__ */ new Set());
+        depsMap.set(key, dep = new Set());
       }
       this.trackEffect(dep);
     }
@@ -8280,7 +6867,7 @@
         }
       }
     }
-    traversal(value, set = /* @__PURE__ */ new Set()) {
+    traversal(value, set = new Set()) {
       if (!VueUtils.isObject(value))
         return value;
       if (set.has(value)) {
@@ -8324,13 +6911,13 @@
       return cache2(collection, nextNumber);
     };
   };
-  const LAST_NUMBER_WEAK_MAP$1 = /* @__PURE__ */ new WeakMap();
+  const LAST_NUMBER_WEAK_MAP$1 = new WeakMap();
   const cache$1 = createCache$1(LAST_NUMBER_WEAK_MAP$1);
   const generateUniqueNumber$1 = createGenerateUniqueNumber$1(cache$1, LAST_NUMBER_WEAK_MAP$1);
   const isMessagePort$1 = (sender) => {
     return typeof sender.start === "function";
   };
-  const PORT_MAP$1 = /* @__PURE__ */ new WeakMap();
+  const PORT_MAP$1 = new WeakMap();
   const extendBrokerImplementation$1 = (partialBrokerImplementation) => ({
     ...partialBrokerImplementation,
     connect: ({ call }) => {
@@ -8354,12 +6941,12 @@
       return () => call("isSupported");
     }
   });
-  const ONGOING_REQUESTS$1 = /* @__PURE__ */ new WeakMap();
+  const ONGOING_REQUESTS$1 = new WeakMap();
   const createOrGetOngoingRequests$1 = (sender) => {
     if (ONGOING_REQUESTS$1.has(sender)) {
       return ONGOING_REQUESTS$1.get(sender);
     }
-    const ongoingRequests = /* @__PURE__ */ new Map();
+    const ongoingRequests = new Map();
     ONGOING_REQUESTS$1.set(sender, ongoingRequests);
     return ongoingRequests;
   };
@@ -8403,8 +6990,8 @@
       return { ...functions };
     };
   };
-  const scheduledIntervalsState$1 = /* @__PURE__ */ new Map([[0, null]]);
-  const scheduledTimeoutsState$1 = /* @__PURE__ */ new Map([[0, null]]);
+  const scheduledIntervalsState$1 = new Map([[0, null]]);
+  const scheduledTimeoutsState$1 = new Map([[0, null]]);
   const wrap$1 = createBroker$1({
     clearInterval: ({ call }) => {
       return (timerId) => {
@@ -8501,28 +7088,7 @@
   const setTimeout$1$1 = (...args) => loadOrReturnBroker$1().setTimeout(...args);
   // @license      MIT
   class ModuleRaid {
-    /**
-     * moduleRaid constructor
-     *
-     * @example
-     * Constructing an instance without any arguments:
-     * ```ts
-     * const mR = new ModuleRaid()
-     * ```
-     *
-     * Constructing an instance with the optional `opts` object:
-     * ```ts
-     * const mR = new ModuleRaid({ entrypoint: 'webpackChunk_custom_name' })
-     * ```
-     *
-     * @param opts a object containing options to initialize moduleRaid with
-     *  - **opts:**
-     *    - _target_: the window object being searched for
-     *    - _entrypoint_: the Webpack entrypoint present on the global window object
-     *    - _debug_: whether debug mode is enabled or not
-     *    - _strict_: whether strict mode is enabled or not
-     */
-    constructor(opts) {
+constructor(opts) {
       this.moduleID = Math.random().toString(36).substring(7);
       this.functionArguments = [
         [
@@ -8587,33 +7153,17 @@ ${err.stack}`);
       this.replaceGet();
       this.setupPushEvent();
     }
-    /**
-     * Debug logging method, outputs to the console when {@link ModuleRaid.debug} is true
-     *
-     * @param {*} message The message to be logged
-     * @internal
-     */
-    log(message) {
+log(message) {
       if (this.debug) {
         console.warn(`[moduleRaid] ${message}`);
       }
     }
-    /**
-     * Method to set an alternative getter if we weren't able to extract __webpack_require__
-     * from Webpack
-     * @internal
-     */
-    replaceGet() {
+replaceGet() {
       if (this.get === null) {
         this.get = (key) => this.modules[key];
       }
     }
-    /**
-     * Method that will try to inject a module into Webpack or get modules
-     * depending on it's success it might be more or less brute about it
-     * @internal
-     */
-    fillModules() {
+fillModules() {
       if (typeof this.target[this.entrypoint] === "function") {
         this.functionArguments.forEach((argument, index) => {
           try {
@@ -8655,23 +7205,7 @@ ${err.stack}`);
         }
       }
     }
-    /**
-     * Method to hook into `window[this.entrypoint].push` adding a listener for new
-     * chunks being pushed into Webpack
-     *
-     * @example
-     * You can listen for newly pushed packages using the `moduleraid:webpack-push` event
-     * on `document`
-     *
-     * ```ts
-     * document.addEventListener('moduleraid:webpack-push', (e) => {
-     *   // e.detail contains the arguments push() was called with
-     *   console.log(e.detail)
-     * })
-     * ```
-     * @internal
-     */
-    setupPushEvent() {
+setupPushEvent() {
       const originalPush = this.target[this.entrypoint].push;
       this.target[this.entrypoint].push = (...args) => {
         const result = Reflect.apply(originalPush, this.target[this.entrypoint], args);
@@ -8679,17 +7213,7 @@ ${err.stack}`);
         return result;
       };
     }
-    /**
-     * Method to try autodetecting a Webpack JSONP entrypoint based on common naming
-     *
-     * If the default entrypoint, or the entrypoint that's passed to the moduleRaid constructor
-     * already matches, the method exits early
-     *
-     * If `options.strict` has been set in the constructor and the initial entrypoint cannot
-     * be found, this method will error, demanding a strictly set entrypoint
-     * @internal
-     */
-    detectEntrypoint() {
+detectEntrypoint() {
       if (this.target[this.entrypoint] != void 0) {
         return;
       }
@@ -8708,15 +7232,7 @@ ${windowObjects.join(", ")}`);
       this.log(`Entrypoint has been detected at window.${windowObjects[0]} and set for injection`);
       this.entrypoint = windowObjects[0];
     }
-    /**
-     * Recursive object-search function for modules
-     *
-     * @param object the object to search through
-     * @param query the query the object keys/values are searched for
-     * @returns boolean state of `object` containing `query` somewhere in it
-     * @internal
-     */
-    searchObject(object, query) {
+searchObject(object, query) {
       for (const key in object) {
         const value = object[key];
         const lowerCaseQuery = query.toLowerCase();
@@ -8736,30 +7252,7 @@ ${windowObjects.join(", ")}`);
       }
       return false;
     }
-    /**
-     * Method to search through the module object, searching for the fitting content
-     * if a string is supplied
-     *
-     * If query is supplied as a function, everything that returns true when passed
-     * to the query function will be returned
-     *
-     * @example
-     * With a string as query argument:
-     * ```ts
-     * const results = mR.findModule('feature')
-     * // => Array of module results
-     * ```
-     *
-     * With a function as query argument:
-     * ```ts
-     * const results = mR.findModule((module) => { typeof module === 'function' })
-     * // => Array of module results
-     * ```
-     *
-     * @param query query to search the module list for
-     * @return a list of modules fitting the query
-     */
-    findModule(query) {
+findModule(query) {
       const results = [];
       const modules = Object.keys(this.modules);
       if (modules.length === 0) {
@@ -8800,42 +7293,7 @@ ${err.stack}`);
       });
       return results;
     }
-    /**
-     * Method to search through the constructor array, searching for the fitting content
-     * if a string is supplied
-     *
-     * If query is supplied as a function, everything that returns true when passed
-     * to the query function will be returned
-     *
-     * @example
-     * With a string as query argument:
-     * ```ts
-     * const results = mR.findConstructor('feature')
-     * // => Array of constructor/module tuples
-     * ```
-     *
-     * With a function as query argument:
-     * ```ts
-     * const results = mR.findConstructor((constructor) => { constructor.prototype.value !== undefined })
-     * // => Array of constructor/module tuples
-     * ```
-     *
-     * Accessing the resulting data:
-     * ```ts
-     * // With array destructuring (ES6)
-     * const [constructor, module] = results[0]
-     *
-     * // ...or...
-     *
-     * // regular access
-     * const constructor = results[0][0]
-     * const module = results[0][1]
-     * ```
-     *
-     * @param query query to search the constructor list for
-     * @returns a list of constructor/module tuples fitting the query
-     */
-    findConstructor(query) {
+findConstructor(query) {
       const results = [];
       const constructors = Object.keys(this.constructors);
       if (constructors.length === 0) {
@@ -8903,28 +7361,7 @@ ${err.stack}`);
         return Array.from(parent.querySelectorAll(selector));
       }
     }
-    /**
-     * 匹配元素，可使用以下的额外语法
-     *
-     * + :contains([text]) 作用: 找到包含指定文本内容的指定元素
-     * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
-     * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
-     * @param $el 元素
-     * @param selector 选择器
-     * @example
-     * DOMUtils.matches("div:contains('测试')")
-     * > true
-     * @example
-     * DOMUtils.matches("div:empty")
-     * > true
-     * @example
-     * DOMUtils.matches("div:regexp('^xxxx$')")
-     * > true
-     * @example
-     * DOMUtils.matches("div:regexp(/^xxx/ig)")
-     * > false
-     */
-    matches($el, selector) {
+matches($el, selector) {
       selector = selector.trim();
       if ($el == null) {
         return false;
@@ -9013,8 +7450,7 @@ ${err.stack}`);
     constructor(option) {
       this.windowApi = new WindowApi2(option);
     }
-    /** 版本号 */
-    version = "2025.8.21";
+version = "2025.8.21";
     addStyle(cssText) {
       if (typeof cssText !== "string") {
         throw new Error("Utils.addStyle 参数cssText 必须为String类型");
@@ -9033,22 +7469,7 @@ ${err.stack}`);
       }
       return cssNode;
     }
-    /**
-     * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
-     * @param target 目标数据
-     * @param source 源数据
-     * @param isAdd 是否可以追加键，默认false
-     * @example
-     * Utils.assign({"1":1,"2":{"3":3}}, {"2":{"3":4}});
-     * >
-     * {
-            "1": 1,
-            "2": {
-                "3": 4
-            }
-        }
-     */
-    assign = commonUtil.assign.bind(commonUtil);
+assign = commonUtil.assign.bind(commonUtil);
     async asyncReplaceAll(string, pattern, asyncFn) {
       let UtilsContext = this;
       if (typeof string !== "string") {
@@ -9082,16 +7503,7 @@ ${err.stack}`);
       result = await Promise.all(result);
       return result.join("");
     }
-    /**
-     * ajax劫持库，支持xhr和fetch劫持。
-     * + 来源：https://bbs.tampermonkey.net.cn/thread-3284-1-1.html
-     * + 作者：cxxjackie
-     * + 版本：1.4.7
-     * + 旧版本：1.2.4
-     * + 文档：https://scriptcat.org/zh-CN/script-show-page/637/
-     * @param useOldVersion 是否使用旧版本，默认false
-     */
-    ajaxHooker = (useOldVersion = false) => {
+ajaxHooker = (useOldVersion = false) => {
       if (useOldVersion) {
         return AjaxHooker1_2_4();
       } else {
@@ -9126,14 +7538,10 @@ ${err.stack}`);
       let clickPosX = clickEvent?.clientX != null ? clickEvent.clientX : touchEvent.touches[0].clientX;
       let clickPosY = clickEvent?.clientY != null ? clickEvent.clientY : touchEvent.touches[0].clientY;
       let {
-        /* 要检测的元素的相对屏幕的横坐标最左边 */
-        left: elementPosXLeft,
-        /* 要检测的元素的相对屏幕的横坐标最右边 */
-        right: elementPosXRight,
-        /* 要检测的元素的相对屏幕的纵坐标最上边 */
-        top: elementPosYTop,
-        /* 要检测的元素的相对屏幕的纵坐标最下边 */
-        bottom: elementPosYBottom
+left: elementPosXLeft,
+right: elementPosXRight,
+top: elementPosYTop,
+bottom: elementPosYBottom
       } = element.getBoundingClientRect();
       if (clickPosX >= elementPosXLeft && clickPosX <= elementPosXRight && clickPosY >= elementPosYTop && clickPosY <= elementPosYBottom) {
         return true;
@@ -9143,11 +7551,7 @@ ${err.stack}`);
         return false;
       }
     }
-    /**
-     * 复制formData数据
-     * @param formData 需要clone的数据
-     */
-    cloneFormData(formData, filterFn) {
+cloneFormData(formData, filterFn) {
       let clonedFormData = new FormData();
       for (let [key, value] of formData.entries()) {
         let isFilter = typeof filterFn === "function" ? filterFn(key, value) : false;
@@ -9159,7 +7563,7 @@ ${err.stack}`);
       return clonedFormData;
     }
     createOverload() {
-      let fnMap = /* @__PURE__ */ new Map();
+      let fnMap = new Map();
       function overload(...args) {
         let key = args.map((it) => typeof it).join(",");
         let fn = fnMap.get(key);
@@ -9178,16 +7582,8 @@ ${err.stack}`);
       };
       return overload;
     }
-    /**
-     * 颜色转换
-     * @returns
-     */
-    ColorConversion = ColorConversion;
-    /**
-     * 深拷贝
-     * @param obj 对象
-     */
-    deepClone = commonUtil.deepClone.bind(commonUtil);
+ColorConversion = ColorConversion;
+deepClone = commonUtil.deepClone.bind(commonUtil);
     debounce(fn, delay = 0) {
       let timer = null;
       let UtilsContext = this;
@@ -9217,19 +7613,7 @@ ${err.stack}`);
       }
       return result;
     }
-    /**
-     * 字典
-     * @example
-     * let dictionary = new Utils.Dictionary();
-     * let dictionary2 = new Utils.Dictionary();
-     * dictionary.set("test","111");
-     * dictionary.get("test");
-     * > '111'
-     * dictionary.has("test");
-     * > true
-     * dictionary.concat(dictionary2);
-     **/
-    Dictionary = UtilsDictionary;
+Dictionary = UtilsDictionary;
     dispatchEvent(element, eventName, details) {
       let eventNameList = [];
       if (typeof eventName === "string") {
@@ -9330,14 +7714,7 @@ ${err.stack}`);
         yield* that.findElementsWithText(childElement, text, filter);
       }
     }
-    /**
-     * 判断该元素是否可见，如果不可见，向上找它的父元素直至找到可见的元素
-     * @param element
-     * @example
-     * let visibleElement = Utils.findVisibleElement(document.querySelector("a.xx"));
-     * > <HTMLElement>
-     */
-    findVisibleElement(element) {
+findVisibleElement(element) {
       let currentElement = element;
       while (currentElement) {
         let elementRect = currentElement.getBoundingClientRect();
@@ -9404,8 +7781,8 @@ ${err.stack}`);
       }
       return resultValue;
     }
-    formatTime(text = /* @__PURE__ */ new Date(), formatType = "yyyy-MM-dd HH:mm:ss") {
-      let time = text == null ? /* @__PURE__ */ new Date() : new Date(text);
+    formatTime(text = new Date(), formatType = "yyyy-MM-dd HH:mm:ss") {
+      let time = text == null ? new Date() : new Date(text);
       function checkTime(timeNum) {
         if (timeNum < 10)
           return "0" + timeNum;
@@ -9416,20 +7793,13 @@ ${err.stack}`);
       }
       let timeRegexp = {
         yyyy: time.getFullYear(),
-        /* 年 */
-        MM: checkTime(time.getMonth() + 1),
-        /* 月 */
-        dd: checkTime(time.getDate()),
-        /* 日 */
-        HH: checkTime(time.getHours()),
-        /* 时 (24小时制) */
-        hh: checkTime(timeSystemChange(time.getHours())),
-        /* 时 (12小时制) */
-        mm: checkTime(time.getMinutes()),
-        /* 分 */
-        ss: checkTime(time.getSeconds())
-        /* 秒 */
-      };
+MM: checkTime(time.getMonth() + 1),
+dd: checkTime(time.getDate()),
+HH: checkTime(time.getHours()),
+hh: checkTime(timeSystemChange(time.getHours())),
+mm: checkTime(time.getMinutes()),
+ss: checkTime(time.getSeconds())
+};
       Object.keys(timeRegexp).forEach(function(key) {
         let replaecRegexp = new RegExp(key, "g");
         formatType = formatType.replace(replaecRegexp, timeRegexp[key]);
@@ -9441,7 +7811,7 @@ ${err.stack}`);
         throw new Error("Utils.formatToTimeStamp 参数 text 必须为 string 类型");
       }
       if (text.length === 8) {
-        let today = /* @__PURE__ */ new Date();
+        let today = new Date();
         text = today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate() + " " + text;
       }
       text = text.substring(0, 19);
@@ -9449,26 +7819,11 @@ ${err.stack}`);
       let timestamp = new Date(text).getTime();
       return timestamp;
     }
-    /**
-     * gbk格式的url编码,来自https://greasyfork.org/zh-CN/scripts/427726-gbk-url-js
-     * @example
-     * let gbkEncoder = new Utils.GBKEncoder();
-     * gbkEncoder.encode("测试");
-     * > '%B2%E2%CA%D4'
-     * gbkEncoder.decode("%B2%E2%CA%D4");
-     * > 测试
-     */
-    GBKEncoder = GBKEncoder;
-    /**
-     * 获取 transitionend 的在各个浏览器的兼容名
-     */
-    getTransitionEndNameList() {
+GBKEncoder = GBKEncoder;
+getTransitionEndNameList() {
       return ["webkitTransitionEnd", "mozTransitionEnd", "MSTransitionEnd", "otransitionend", "transitionend"];
     }
-    /**
-     * 获取 animationend 的在各个浏览器的兼容名
-     */
-    getAnimationEndNameList() {
+getAnimationEndNameList() {
       return ["webkitAnimationEnd", "mozAnimationEnd", "MSAnimationEnd", "oanimationend", "animationend"];
     }
     getArrayLastValue(targetObj) {
@@ -9565,13 +7920,7 @@ ${err.stack}`);
       }
       return selector;
     }
-    /**
-     * 获取最大值
-     * @example
-     * Utils.getMaxValue([{1:123},{2:345},{3:456}],(index,value)=>{return parseInt(index)})
-     * > 2
-     */
-    getMaxValue(...args) {
+getMaxValue(...args) {
       let result = [...args];
       let newResult = [];
       if (result.length === 0) {
@@ -9678,13 +8027,7 @@ ${err.stack}`);
         return Math.min(...newResult);
       }
     }
-    /**
-     * 获取随机的安卓手机User-Agent
-     * @example
-     * Utils.getRandomAndroidUA();
-     * > 'Mozilla/5.0 (Linux; Android 10; MI 13 Build/OPR1.170623.027; wv) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.3490.40 Mobile Safari/537.36'
-     **/
-    getRandomAndroidUA() {
+getRandomAndroidUA() {
       let UtilsContext = this;
       let mobileNameList = [
         "LDN-LX3",
@@ -9710,25 +8053,7 @@ ${err.stack}`);
       let chromeVersion4 = UtilsContext.getRandomValue(1, 218);
       return `Mozilla/5.0 (Linux; Android ${androidVersion}; ${randomMobile}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVersion1}.${chromeVersion2}.${chromeVersion3}.${chromeVersion4} Mobile Safari/537.36`;
     }
-    /**
-     * 获取随机的电脑端User-Agent
-     * + Mozilla/5.0：以前用于Netscape浏览器，目前大多数浏览器UA都会带有
-     * + Windows NT 13：代表Window11系统
-     * + Windows NT 10.0：代表Window10系统
-     * + Windows NT 6.1：代表windows7系统
-     * + WOW64：Windows-on-Windows 64-bit，32位的应用程序运行于此64位处理器上
-     * + Win64：64位
-     * + AppleWebKit/537.36：浏览器内核
-     * + KHTML：HTML排版引擎
-     * + like Gecko：这不是Geckeo 浏览器，但是运行起来像Geckeo浏览器
-     * + Chrome/106.0.5068.19：Chrome版本号
-     * + Safari/537.36：宣称自己是Safari？
-     * @returns 返回随机字符串
-     * @example
-     * Utils.getRandomPCUA();
-     * > 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.5068.19 Safari/537.36'
-     **/
-    getRandomPCUA() {
+getRandomPCUA() {
       let UtilsContext = this;
       let chromeVersion1 = UtilsContext.getRandomValue(120, 132);
       let chromeVersion2 = UtilsContext.getRandomValue(0, 0);
@@ -9758,14 +8083,7 @@ ${err.stack}`);
         }
       }
     }
-    /**
-     * 获取元素上的使用React框架的实例属性，目前包括reactFiber、reactProps、reactEvents、reactEventHandlers、reactInternalInstance
-     * @param element 需要获取的目标元素
-     * @returns
-     * @example
-     * Utils.getReactObj(document.querySelector("input"))?.reactProps?.onChange({target:{value:"123"}});
-     */
-    getReactObj(element) {
+getReactObj(element) {
       let result = {};
       Object.keys(element).forEach((domPropsName) => {
         if (domPropsName.startsWith("__react")) {
@@ -9778,12 +8096,7 @@ ${err.stack}`);
       });
       return result;
     }
-    /**
-     * 获取对象上的Symbol属性，如果没设置keyName，那么返回一个对象，对象是所有遍历到的Symbol对象
-     * @param target 目标对象
-     * @param keyName （可选）Symbol名或者Symbol对象
-     */
-    getSymbol(target, keyName) {
+getSymbol(target, keyName) {
       if (typeof target !== "object") {
         throw new TypeError("target不是一个对象");
       }
@@ -9810,14 +8123,7 @@ ${err.stack}`);
         return result;
       }
     }
-    /**
-     * 获取文本的字符长度
-     * @param text
-     * @example
-     * Utils.getTextLength("测试文本")
-     * > 12
-     */
-    getTextLength(text) {
+getTextLength(text) {
       let encoder = new TextEncoder();
       let bytes = encoder.encode(text);
       return bytes.length;
@@ -9838,215 +8144,11 @@ ${err.stack}`);
       }
       return `thunder://${this.windowApi.globalThis.btoa("AA" + url + "ZZ")}`;
     }
-    /**
-     * 对于GM_cookie的兼容写法，当无法使用GM_cookie时可以使用这个,但是并不完全兼容，有些写不出来且限制了httponly是无法访问的
-     * @example
-      let GM_cookie = new Utils.GM_Cookie();
-      GM_cookie.list({name:"xxx_cookie_xxx"},function(cookies,error){
-          if (!error) {
-              console.log(cookies);
-              console.log(cookies.value);
-          } else {
-              console.error(error);
-          }
-      });
-      GM_cookie.set({name:"xxx_cookie_test_xxx",value:"这是Cookie测试值"},function(error){
-          if (error) {
-              console.error(error);
-          } else {
-              console.log('Cookie set successfully.');
-          }
-      })
-      GM_cookie.delete({name:"xxx_cookie_test_xxx"},function(error){
-          if (error) {
-              console.error(error);
-          } else {
-              console.log('Cookie set successfully.');
-          }
-      })
-     **/
-    GM_Cookie = UtilsGMCookie;
-    /**
-       * 注册油猴菜单，要求本地存储的键名不能存在其它键名`GM_Menu_Local_Map`会冲突/覆盖
-       * @example
-        let GM_Menu = new Utils.GM_Menu({
-          data: [
-            {
-              menu_key: "menu_key",
-              text: "测试按钮",
-              enable: true,
-              accessKey: "a",
-              autoClose: false,
-              showText(text, enable) {
-                return "[" + (enable ? "√" : "×") + "]" + text;
-              },
-              callback(data) {
-                console.log("点击菜单，值修改为", data.enable);
-              },
-            },
-          ],
-          autoReload: false,
-          GM_getValue,
-          GM_setValue,
-          GM_registerMenuCommand,
-          GM_unregisterMenuCommand,
-        });
-    
-    
-        // 获取某个菜单项的值
-        GM_Menu.get("menu_key");
-        > true
-    
-        // 获取某个菜单项的开启/关闭后显示的文本
-        GM_Menu.getShowTextValue("menu_key");
-        > √测试按钮
-    
-        // 添加键为menu_key2的菜单项
-        GM_Menu.add({
-          key:"menu_key2",
-          text: "测试按钮2",
-          enable: false,
-          showText(text,enable){
-            return "[" + (enable ? "√" : "×") + "]" + text;
-          },
-          callback(data){
-            console.log("点击菜单，值修改为",data.enable);
-          }
-        });
-        // 使用数组的方式添加多个菜单，如menu_key3、menu_key4
-        GM_Menu.add([
-          {
-            key:"menu_key3",
-            text: "测试按钮3",
-            enable: false,
-            showText(text,enable){
-              return "[" + (enable ? "√" : "×") + "]" + text;
-            },
-            callback(data){
-              console.log("点击菜单，值修改为",data.enable);
-            }
-          },
-          {
-            key:"menu_key4",
-            text: "测试按钮4",
-            enable: false,
-            showText(text,enable){
-              return "[" + (enable ? "√" : "×") + "]" + text;
-            },
-            callback(data){
-              console.log("点击菜单，值修改为",data.enable);
-            }
-          }
-        ]);
-    
-        // 更新键为menu_key的显示文字和点击回调
-        GM_Menu.update({
-          menu_key:{
-            text: "更新后的测试按钮",
-            enable: true,
-            showText(text,enable){
-              return "[" + (enable ? "√" : "×") + "]" + text;
-            },
-            callback(data){
-              console.log("点击菜单更新后的测试按钮，新值修改为",data.enable);
-            }
-          }
-        });
-    
-        // 删除键为menu_key的菜单
-        GM_Menu.delete("menu_key");
-       **/
-    GM_Menu = GMMenu;
-    /**
-     * 基于Function prototype，能够勾住和释放任何函数
-     *
-     * .hook
-     * + realFunc {string} 用于保存原始函数的函数名称,用于unHook
-     * + hookFunc {string} 替换的hook函数
-     * + context {object} 目标函数所在对象,用于hook非window对象下的函数，如String.protype.slice,carInstance1
-     * + methodName {string} 匿名函数需显式传入目标函数名eg:this.Begin = function(){....};}
-     *
-     * .unhook
-     * + realFunc {string} 用于保存原始函数的函数名称,用于unHook
-     * + funcName {string} 被Hook的函数名称
-     * + context {object} 目标函数所在对象,用于hook非window对象下的函数，如String.protype.slice,carInstance1
-     * @example
-      let hook = new Utils.Hooks();
-      hook.initEnv();
-      function myFunction(){
-          console.log("我自己需要执行的函数");
-      }
-      function testFunction(){
-          console.log("正常执行的函数");
-      }
-      testFunction.hook(testFunction,myFunction,window);
-     **/
-    Hooks = Hooks;
-    /**
-       * 为减少代码量和回调，把GM_xmlhttpRequest封装
-       * 文档地址: https://www.tampermonkey.net/documentation.php?ext=iikm
-       * 其中onloadstart、onprogress、onreadystatechange是回调形式，onabort、ontimeout、onerror可以设置全局回调函数
-       * @param _GM_xmlHttpRequest_ 油猴中的GM_xmlhttpRequest
-       * @example
-        let httpx = new Utils.Httpx(GM_xmlhttpRequest);
-        let postResp = await httpx.post({
-          url:url,
-          data:JSON.stringify({
-            test:1
-          }),
-          timeout: 5000
-        });
-        console.log(postResp);
-        > {
-          status: true,
-          data: {responseText: "...", response: xxx,...},
-          msg: "请求完毕",
-          type: "onload",
-        }
-    
-        if(postResp === "onload" && postResp.status){
-        // onload
-        }else if(postResp === "ontimeout"){
-        // ontimeout
-        }
-       * @example
-        // 也可以先配置全局参数
-        let httpx = new Utils.Httpx(GM_xmlhttpRequest);
-        httpx.config({
-          timeout: 5000,
-          async: false,
-          responseType: "html",
-          redirect: "follow",
-        })
-        // 优先级为 默认details < 全局details < 单独的details
-       */
-    Httpx = Httpx;
-    /**
-       * 浏览器端的indexedDB操作封装
-       * @example
-        let db = new Utils.indexedDB('web_DB', 'nav_text')
-        let data = {name:'管理员', roleId: 1, type: 1};
-        db.save('list',data).then((resolve)=>{
-            console.log(resolve,'存储成功')
-        })
-    
-        db.get('list').then((resolve)=>{
-            console.log(resolve,'查询成功')
-        })
-    
-        db.getPaging('list',20,10).then((resolve)=>{
-            console.log(resolve,'查询分页偏移第20，一共10行成功');
-        })
-    
-        db.delete('list').then(resolve=>{
-            console.log(resolve,'删除成功---->>>>>>name')
-        })
-    
-        db.deleteAll().then(resolve=>{
-            console.log(resolve,'清除数据库---->>>>>>name')
-        })
-       **/
-    indexedDB = indexedDB;
+GM_Cookie = UtilsGMCookie;
+GM_Menu = GMMenu;
+Hooks = Hooks;
+Httpx = Httpx;
+indexedDB = indexedDB;
     isNativeFunc(target) {
       return Boolean(target.toString().match(/^function .*\(\) { \[native code\] }$/));
     }
@@ -10076,17 +8178,7 @@ ${err.stack}`);
         throw new TypeError("参数1类型错误" + typeof firstArg);
       }
     }
-    /**
-     * 判断对象是否是元素
-     * @param target
-     * @returns
-     * + true 是元素
-     * + false 不是元素
-     * @example
-     * Utils.isDOM(document.querySelector("a"))
-     * > true
-     */
-    isDOM = commonUtil.isDOM.bind(commonUtil);
+isDOM = commonUtil.isDOM.bind(commonUtil);
     isFullscreenEnabled() {
       return !!(this.windowApi.document.fullscreenEnabled || this.windowApi.document.webkitFullScreenEnabled || this.windowApi.document.mozFullScreenEnabled || this.windowApi.document.msFullScreenEnabled);
     }
@@ -10269,79 +8361,12 @@ ${err.stack}`);
       }
       return result;
     }
-    /**
-     * 判断对象是否不为空
-     * @returns {boolean}
-     * + true 不为空
-     * + false 为空
-     * @example
-     * Utils.isNotNull("123");
-     * > true
-     */
-    isNotNull = commonUtil.isNotNull.bind(commonUtil);
-    /**
-     * 判断对象或数据是否为空
-     * + `String`判空的值，如 ""、"null"、"undefined"、"   "
-     * + `Number`判空的值，如 0
-     * + `Object`判空的值，如 {}、null、undefined
-     * + `Array`(存在属性Symbol.iterator)判空的值，如 []
-     * + `Boolean`判空的值，如false
-     * + `Function`判空的值，如()=>{}、(xxx="")=>{}、function(){}、function(xxx=""){}
-     * @returns
-     * + true 为空
-     * + false 不为空
-     * @example
-      Utils.isNull({});
-      > true
-     * @example
-      Utils.isNull([]);
-      > true
-     * @example
-      Utils.isNull(" ");
-      > true
-     * @example
-      Utils.isNull(function(){});
-      > true
-     * @example
-      Utils.isNull(()=>{}));
-      > true
-     * @example
-      Utils.isNull("undefined");
-      > true
-     * @example
-      Utils.isNull("null");
-      > true
-     * @example
-      Utils.isNull(" ", false);
-      > true
-     * @example
-      Utils.isNull([1],[]);
-      > false
-     * @example
-      Utils.isNull([],[1]);
-      > false
-     * @example
-      Utils.isNull(false,[123]);
-      > false
-     **/
-    isNull = commonUtil.isNull.bind(commonUtil);
+isNotNull = commonUtil.isNotNull.bind(commonUtil);
+isNull = commonUtil.isNull.bind(commonUtil);
     isThemeDark() {
       return this.windowApi.globalThis.matchMedia("(prefers-color-scheme: dark)").matches;
     }
-    /**
-     * 判断元素是否在页面中可见
-     * @param element 需要检查的元素，可以是普通元素|数组形式的元素|通过querySelectorAll获取的元素数组
-     * @param inView
-     * + true 在窗口可视区域
-     * + false 不在窗口可视区域
-     * @returns
-     * + true 可见
-     * + false 不可见
-     * @example
-     * Utils.isVisible(document.documentElement)
-     * > true
-     */
-    isVisible(element, inView = false) {
+isVisible(element, inView = false) {
       let needCheckDomList = [];
       if (element instanceof Array || element instanceof NodeList) {
         element = element;
@@ -10420,48 +8445,8 @@ ${err.stack}`);
       });
       return result;
     }
-    /**
-     * 自动锁对象，用于循环判断运行的函数，在循环外new后使用，注意，如果函数内部存在异步操作，需要使用await
-     * @example
-      let lock = new Utils.LockFunction(()=>{console.log(1)}))
-      lock.run();
-      > 1
-     * @example
-      let lock = new Utils.LockFunction(()=>{console.log(1)}),true) -- 异步操作
-      await lock.run();
-      > 1
-     **/
-    LockFunction = LockFunction;
-    /**
-       * 日志对象
-       * @param _GM_info_ 油猴管理器的API GM_info，或者是一个对象，如{"script":{name:"Utils.Log"}}
-       * @example
-        let log = new Utils.Log(GM_info);
-        log.info("普通输出");
-        > 普通输出
-    
-        log.success("成功输出");
-        > 成功输出
-    
-        log.error("错误输出");
-        > 错误输出
-        
-        log.warn("警告输出");
-        > 警告输出
-    
-        log.tag = "自定义tag信息";
-        log.info("自定义info的颜色","#e0e0e0");
-        > 自定义info的颜色
-    
-        log.config({
-          successColor: "#31dc02",
-          errorColor: "#e02d2d",
-          infoColor: "black",
-        })
-        log.success("颜色为#31dc02");
-        > 颜色为#31dc02
-       */
-    Log = Log;
+LockFunction = LockFunction;
+Log = Log;
     mergeArrayToString(data, handleFunc) {
       if (!(data instanceof Array)) {
         throw new Error("Utils.mergeArrayToString 参数 data 必须为 Array 类型");
@@ -10487,44 +8472,16 @@ ${err.stack}`);
     mutationObserver(target, observer_config) {
       let UtilsContext = this;
       let default_obverser_config = {
-        /* 监听到元素有反馈，需执行的函数 */
-        callback: () => {
+callback: () => {
         },
         config: {
-          /**
-           * + true 监听以 target 为根节点的整个子树。包括子树中所有节点的属性，而不仅仅是针对 target
-           * + false (默认) 不生效
-           */
-          subtree: void 0,
-          /**
-           * + true 监听 target 节点中发生的节点的新增与删除（同时，如果 subtree 为 true，会针对整个子树生效）
-           * + false (默认) 不生效
-           */
-          childList: void 0,
-          /**
-           * + true 观察所有监听的节点属性值的变化。默认值为 true，当声明了 attributeFilter 或 attributeOldValue
-           * + false (默认) 不生效
-           */
-          attributes: void 0,
-          /**
-           * 一个用于声明哪些属性名会被监听的数组。如果不声明该属性，所有属性的变化都将触发通知
-           */
-          attributeFilter: void 0,
-          /**
-           * + true 记录上一次被监听的节点的属性变化；可查阅 MutationObserver 中的 Monitoring attribute values 了解关于观察属性变化和属性值记录的详情
-           * + false (默认) 不生效
-           */
-          attributeOldValue: void 0,
-          /**
-           * + true 监听声明的 target 节点上所有字符的变化。默认值为 true，如果声明了 characterDataOldValue
-           * + false (默认) 不生效
-           */
-          characterData: void 0,
-          /**
-           * + true 记录前一个被监听的节点中发生的文本变化
-           * + false (默认) 不生效
-           */
-          characterDataOldValue: void 0
+subtree: void 0,
+childList: void 0,
+attributes: void 0,
+attributeFilter: void 0,
+attributeOldValue: void 0,
+characterData: void 0,
+characterDataOldValue: void 0
         },
         immediate: false
       };
@@ -10553,17 +8510,7 @@ ${err.stack}`);
       }
       return mutationObserver;
     }
-    /**
-     * 使用观察器观察元素出现在视图内，出现的话触发回调
-     * @param target 目标元素
-     * @param callback 触发的回调
-     * @param options 观察器配置
-     * @example
-     * Utils.mutationVisible(document.querySelector("div.xxxx"),(entries,observer)=>{
-     *     console.log("该元素出现在视图内");
-     * }))
-     */
-    mutationVisible(target, callback, options) {
+mutationVisible(target, callback, options) {
       if (typeof IntersectionObserver === "undefined") {
         throw new TypeError("IntersectionObserver is not defined");
       }
@@ -10591,13 +8538,7 @@ ${err.stack}`);
         intersectionObserver.observe(target);
       }
     }
-    /**
-     * 去除全局window下的Utils，返回控制权
-     * @example
-     * let utils = Utils.noConflict();
-     * > ...
-     */
-    noConflict() {
+noConflict() {
       if (this.windowApi.window.Utils) {
         Reflect.deleteProperty(this.windowApi.window, "Utils");
       }
@@ -10776,13 +8717,7 @@ ${err.stack}`);
         });
       }
     }
-    /**
-     * 在canvas元素节点上绘制进度圆圈
-     * @example
-      let progress = new Utils.Process({canvasNode:document.querySelector("canvas")});
-      progress.draw();
-     * **/
-    Progress = Progress;
+Progress = Progress;
     registerTrustClickEvent(isTrustValue = true, filter) {
       function trustEvent(event) {
         return new Proxy(event, {
@@ -10921,10 +8856,7 @@ ${err.stack}`);
         hasClipboardWriteText() {
           return navigator?.clipboard?.writeText != null;
         }
-        /**
-         * 使用textarea和document.execCommand("copy")来复制文字
-         */
-        copyTextByTextArea() {
+copyTextByTextArea() {
           try {
             let copyElement = UtilsContext.windowApi.document.createElement("textarea");
             copyElement.value = this.#copyData;
@@ -10941,10 +8873,7 @@ ${err.stack}`);
             return false;
           }
         }
-        /**
-         * 申请剪贴板权限
-         */
-        requestClipboardPermission() {
+requestClipboardPermission() {
           return new Promise((resolve, reject) => {
             if (navigator.permissions && navigator.permissions.query) {
               navigator.permissions.query({
@@ -10963,10 +8892,7 @@ ${err.stack}`);
             }
           });
         }
-        /**
-         * 使用clipboard直接写入数据到剪贴板
-         */
-        copyDataByClipboard() {
+copyDataByClipboard() {
           return new Promise((resolve, reject) => {
             if (this.isText()) {
               navigator.clipboard.writeText(this.#copyData).then(() => {
@@ -11199,15 +9125,7 @@ ${err.stack}`);
       }
       return newTargetString;
     }
-    /**
-     * 字符串转Object对象，类似'{"test":""}' => {"test":""}
-     * @param data
-     * @param errorCallBack （可选）错误回调
-     * @example
-     * Utils.toJSON("{123:123}")
-     * > {123:123}
-     */
-    toJSON = commonUtil.toJSON.bind(commonUtil);
+toJSON = commonUtil.toJSON.bind(commonUtil);
     toSearchParamsStr(obj, addPrefix) {
       let UtilsContext = this;
       let searhParamsStr = "";
@@ -11227,31 +9145,19 @@ ${err.stack}`);
       }
       return searhParamsStr;
     }
-    /**
-     * 将UrlSearchParams格式的字符串转为对象
-     */
-    searchParamStrToObj(searhParamsStr) {
+searchParamStrToObj(searhParamsStr) {
       if (typeof searhParamsStr !== "string") {
         return {};
       }
       return Object.fromEntries(new URLSearchParams(searhParamsStr));
     }
-    /**
-     * 提供一个封装了 try-catch 的函数，可以执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
-     * @example
-     * Utils.tryCatch().error().run(()=>{console.log(1)});
-     * > 1
-     * @example
-     * Utils.tryCatch().config({log:true}).error((error)=>{console.log(error)}).run(()=>{throw new Error('测试错误')});
-     * > ()=>{throw new Error('测试错误')}出现错误
-     */
-    tryCatch = TryCatch;
+tryCatch = TryCatch;
     uniqueArray(uniqueArrayData = [], compareArrayData, compareFun = (item, item2) => {
       return item === item2;
     }) {
       if (typeof compareArrayData === "function") {
         const compareFn = compareArrayData;
-        const seen = /* @__PURE__ */ new Set();
+        const seen = new Set();
         const result = [];
         for (const item of uniqueArrayData) {
           const identfier = compareFn(item);
@@ -11654,12 +9560,7 @@ ${err.stack}`);
         });
       }
     }
-    /**
-     * 深度获取对象属性
-     * @param target 待获取的对象
-     * @param handler 获取属性的回调
-     */
-    queryProperty(target, handler) {
+queryProperty(target, handler) {
       if (target == null) {
         return;
       }
@@ -11669,12 +9570,7 @@ ${err.stack}`);
       }
       return this.queryProperty(handleResult.data, handler);
     }
-    /**
-     * 异步-深度获取对象属性
-     * @param target 待获取的对象
-     * @param handler 获取属性的回调
-     */
-    async asyncQueryProperty(target, handler) {
+async asyncQueryProperty(target, handler) {
       if (target == null) {
         return;
       }
@@ -11684,26 +9580,10 @@ ${err.stack}`);
       }
       return await this.asyncQueryProperty(handleResult.data, handler);
     }
-    /**
-     * 创建一个新的Utils实例
-     * @param option
-     * @returns
-     */
-    createUtils(option) {
+createUtils(option) {
       return new Utils(option);
     }
-    /**
-     * 将对象转换为FormData
-     * @param data 待转换的对象
-     * @param isEncode 是否对值为string进行编码转换(encodeURIComponent)，默认false
-     * @param valueAutoParseToStr 是否对值强制使用JSON.stringify()转换，默认false
-     * @example
-     * Utils.toFormData({
-     * 	test: "1",
-     *  666: 666,
-     * })
-     */
-    toFormData(data, isEncode = false, valueAutoParseToStr = false) {
+toFormData(data, isEncode = false, valueAutoParseToStr = false) {
       const formData = new FormData();
       Object.keys(data).forEach((key) => {
         let value = data[key];
@@ -11724,14 +9604,7 @@ ${err.stack}`);
       });
       return formData;
     }
-    /**
-     * 将链接转为URL对象，自动补充URL的protocol或者origin
-     * @param text 需要转换的链接字符串
-     * @example
-     * Utils.toUrl("//www.baidu.com/s?word=666");
-     * Utils.toUrl("/s?word=666");
-     */
-    toUrl(text) {
+toUrl(text) {
       if (typeof text !== "string") {
         throw new TypeError("toUrl: text must be string");
       }
@@ -11746,49 +9619,18 @@ ${err.stack}`);
       }
       return new URL(text);
     }
-    /**
-     * 覆盖对象中的函数this指向
-     * @param target 需要覆盖的对象
-     * @param [objectThis] 覆盖的this指向，如果为传入，则默认为对象本身
-     */
-    coverObjectFunctionThis = commonUtil.coverObjectFunctionThis.bind(commonUtil);
-    /**
-     * 生成uuid
-     * @example
-     * Utils.generateUUID()
-     */
-    generateUUID = GenerateUUID;
-    /**
-     * 自定义的动态响应对象
-     * @example
-     * let vue = new Utils.Vue();
-     * let reactive = new vue.reactive({});
-     * vue.watch(()=>reactive["name"], (newValue, oldValue)=>{
-     *     console.log("newValue ==> " + newValue);
-     *     console.log("oldValue ==> " + oldValue);
-     * })
-     * vue["name"] = "测试";
-     * > "测试"
-     */
-    Vue = Vue;
+coverObjectFunctionThis = commonUtil.coverObjectFunctionThis.bind(commonUtil);
+generateUUID = GenerateUUID;
+Vue = Vue;
     ModuleRaid = ModuleRaid;
-    /**
-     * 自动使用 Worker 执行 setTimeout
-     * @param callback 回调函数
-     * @param [timeout=0] 延迟时间，默认为0
-     */
-    workerSetTimeout(callback, timeout = 0) {
+workerSetTimeout(callback, timeout = 0) {
       try {
         return setTimeout$1$1(callback, timeout);
       } catch (error) {
         return this.windowApi.setTimeout(callback, timeout);
       }
     }
-    /**
-     * 配合 .setTimeout 使用
-     * @param timeId setTimeout 返回的`id`
-     */
-    workerClearTimeout(timeId) {
+workerClearTimeout(timeId) {
       try {
         if (timeId != null) {
           clearTimeout$1$1(timeId);
@@ -11798,23 +9640,14 @@ ${err.stack}`);
         this.windowApi.clearTimeout(timeId);
       }
     }
-    /**
-     * 自动使用 Worker 执行 setInterval
-     * @param callback 回调函数
-     * @param timeout 间隔时间，默认为0
-     */
-    workerSetInterval(callback, timeout = 0) {
+workerSetInterval(callback, timeout = 0) {
       try {
         return setInterval$2(callback, timeout);
       } catch (error) {
         return this.windowApi.setInterval(callback, timeout);
       }
     }
-    /**
-     * 配合 .setInterval 使用
-     * @param timeId setInterval 返回的`id`
-     */
-    workerClearInterval(timeId) {
+workerClearInterval(timeId) {
       try {
         if (timeId != null) {
           clearInterval$2(timeId);
@@ -11824,10 +9657,7 @@ ${err.stack}`);
         this.windowApi.clearInterval(timeId);
       }
     }
-    /**
-     * 获取剪贴板信息
-     */
-    async getClipboardInfo() {
+async getClipboardInfo() {
       return new Promise((resolve) => {
         function readClipboardText() {
           navigator.clipboard.readText().then((clipboardText) => {
@@ -11882,18 +9712,12 @@ ${err.stack}`);
   let utils$1 = new Utils();
   const GlobalConfig = {
     config: {},
-    /**
-     * 为所有弹窗设置全局属性
-     */
-    setGlobalConfig(config) {
+setGlobalConfig(config) {
       Reflect.ownKeys(config).forEach((keyName) => {
         Reflect.set(GlobalConfig.config, keyName, Reflect.get(config, keyName));
       });
     },
-    /**
-     * 获取全局配置
-     */
-    getGlobalConfig() {
+getGlobalConfig() {
       let result = {};
       Object.keys(GlobalConfig.config).forEach((keyName) => {
         let configValue = Reflect.get(GlobalConfig.config, keyName);
@@ -11986,33 +9810,16 @@ ${err.stack}`);
   };
   const PopsIcon = {
     $data: PopsIconData,
-    /**
-     * 判断是否存在某个icon
-     * @param iconName 图标名
-     */
-    hasIcon(iconName) {
+hasIcon(iconName) {
       return Object.keys(PopsIcon.$data).includes(iconName);
     },
-    /**
-     * 获取icon
-     * @param iconName 图标名
-     */
-    getIcon(iconName) {
+getIcon(iconName) {
       return PopsIcon.$data[iconName];
     },
-    /**
-     * 删除图标
-     * @param iconName 图标名
-     */
-    deleteIcon(iconName) {
+deleteIcon(iconName) {
       return Reflect.deleteProperty(PopsIcon.$data, iconName);
     },
-    /**
-     * 设置图标
-     * @param iconName 图标名
-     * @param iconHTML 图标html
-     */
-    setIcon(iconName, iconHTML) {
+setIcon(iconName, iconHTML) {
       Reflect.set(PopsIcon.$data, iconName, iconHTML);
     }
   };
@@ -12096,13 +9903,13 @@ ${err.stack}`);
       return cache2(collection, nextNumber);
     };
   };
-  const LAST_NUMBER_WEAK_MAP = /* @__PURE__ */ new WeakMap();
+  const LAST_NUMBER_WEAK_MAP = new WeakMap();
   const cache = createCache(LAST_NUMBER_WEAK_MAP);
   const generateUniqueNumber = createGenerateUniqueNumber(cache, LAST_NUMBER_WEAK_MAP);
   const isMessagePort = (sender) => {
     return typeof sender.start === "function";
   };
-  const PORT_MAP = /* @__PURE__ */ new WeakMap();
+  const PORT_MAP = new WeakMap();
   const extendBrokerImplementation = (partialBrokerImplementation) => ({
     ...partialBrokerImplementation,
     connect: ({ call }) => {
@@ -12126,12 +9933,12 @@ ${err.stack}`);
       return () => call("isSupported");
     }
   });
-  const ONGOING_REQUESTS = /* @__PURE__ */ new WeakMap();
+  const ONGOING_REQUESTS = new WeakMap();
   const createOrGetOngoingRequests = (sender) => {
     if (ONGOING_REQUESTS.has(sender)) {
       return ONGOING_REQUESTS.get(sender);
     }
-    const ongoingRequests = /* @__PURE__ */ new Map();
+    const ongoingRequests = new Map();
     ONGOING_REQUESTS.set(sender, ongoingRequests);
     return ongoingRequests;
   };
@@ -12175,8 +9982,8 @@ ${err.stack}`);
       return { ...functions };
     };
   };
-  const scheduledIntervalsState = /* @__PURE__ */ new Map([[0, null]]);
-  const scheduledTimeoutsState = /* @__PURE__ */ new Map([[0, null]]);
+  const scheduledIntervalsState = new Map([[0, null]]);
+  const scheduledTimeoutsState = new Map([[0, null]]);
   const wrap = createBroker({
     clearInterval: ({ call }) => {
       return (timerId) => {
@@ -12688,11 +10495,7 @@ ${err.stack}`);
   }
   i.STATE_POSSIBLE = 0, i.STATE_START = 4, i.STATE_MOVE = 5, i.STATE_END = 1, i.STATE_CANCELLED = 3, i.STATE_FAILED = 2, i.STATE_RECOGNIZED = 1, i.tap = r$2, i.pan = u, i.swipe = a, i.press = c, i.rotate = i$1, i.pinch = r, i.doubletap = e;
   class PopsUtils {
-    /**
-     * 判断是否是window，例如window、self、globalThis
-     * @param target
-     */
-    isWin(target) {
+isWin(target) {
       if (typeof target !== "object") {
         return false;
       }
@@ -12728,12 +10531,7 @@ ${err.stack}`);
     isDOM(target) {
       return target instanceof Node;
     }
-    /**
-     * 删除对象上的属性
-     * @param target
-     * @param propName
-     */
-    delete(target, propName) {
+delete(target, propName) {
       if (typeof Reflect === "object" && Reflect.deleteProperty) {
         Reflect.deleteProperty(target, propName);
       } else {
@@ -12782,10 +10580,7 @@ ${err.stack}`);
       }
       return target;
     }
-    /**
-     * 生成uuid
-     */
-    getRandomGUID() {
+getRandomGUID() {
       if (typeof PopsCore.globalThis?.crypto?.randomUUID === "function") {
         return PopsCore.globalThis.crypto.randomUUID();
       } else {
@@ -12816,8 +10611,8 @@ ${err.stack}`);
         }
       }
     }
-    formatTime(text = /* @__PURE__ */ new Date(), formatType = "yyyy-MM-dd HH:mm:ss") {
-      let time = text == null ? /* @__PURE__ */ new Date() : new Date(text);
+    formatTime(text = new Date(), formatType = "yyyy-MM-dd HH:mm:ss") {
+      let time = text == null ? new Date() : new Date(text);
       function checkTime(timeNum) {
         if (timeNum < 10)
           return "0" + timeNum;
@@ -12828,20 +10623,13 @@ ${err.stack}`);
       }
       let timeRegexp = {
         yyyy: time.getFullYear(),
-        /* 年 */
-        MM: checkTime(time.getMonth() + 1),
-        /* 月 */
-        dd: checkTime(time.getDate()),
-        /* 日 */
-        HH: checkTime(time.getHours()),
-        /* 时 (24小时制) */
-        hh: checkTime(timeSystemChange(time.getHours())),
-        /* 时 (12小时制) */
-        mm: checkTime(time.getMinutes()),
-        /* 分 */
-        ss: checkTime(time.getSeconds())
-        /* 秒 */
-      };
+MM: checkTime(time.getMonth() + 1),
+dd: checkTime(time.getDate()),
+HH: checkTime(time.getHours()),
+hh: checkTime(timeSystemChange(time.getHours())),
+mm: checkTime(time.getMinutes()),
+ss: checkTime(time.getSeconds())
+};
       Object.keys(timeRegexp).forEach(function(key) {
         let replaecRegexp = new RegExp(key, "g");
         formatType = formatType.replace(replaecRegexp, timeRegexp[key]);
@@ -12882,27 +10670,17 @@ ${err.stack}`);
     AnyTouch = () => {
       return i;
     };
-    /**
-     * 通过navigator.userAgent判断是否是手机访问
-     * @param userAgent
-     */
-    isPhone(userAgent = PopsCore.globalThis.navigator.userAgent) {
+isPhone(userAgent = PopsCore.globalThis.navigator.userAgent) {
       return Boolean(/(iPhone|iPad|iPod|iOS|Android)/i.test(userAgent));
     }
-    /**
-     * 自动使用 Worker 执行 setTimeout
-     */
-    setTimeout(callback, timeout = 0) {
+setTimeout(callback, timeout = 0) {
       try {
         return setTimeout$1(callback, timeout);
       } catch (error) {
         return PopsCore.setTimeout(callback, timeout);
       }
     }
-    /**
-     * 配合 .setTimeout 使用
-     */
-    clearTimeout(timeId) {
+clearTimeout(timeId) {
       try {
         if (timeId != null) {
           clearTimeout$1(timeId);
@@ -12912,20 +10690,14 @@ ${err.stack}`);
         PopsCore.clearTimeout(timeId);
       }
     }
-    /**
-     * 自动使用 Worker 执行 setInterval
-     */
-    setInterval(callback, timeout = 0) {
+setInterval(callback, timeout = 0) {
       try {
         return setInterval$1(callback, timeout);
       } catch (error) {
         return PopsCore.setInterval(callback, timeout);
       }
     }
-    /**
-     * 配合 .setInterval 使用
-     */
-    clearInterval(timeId) {
+clearInterval(timeId) {
       try {
         if (timeId != null) {
           clearInterval$1(timeId);
@@ -12938,10 +10710,7 @@ ${err.stack}`);
   }
   const popsUtils = new PopsUtils();
   const PopsSafeUtils = {
-    /**
-     * 获取安全的html
-     */
-    getSafeHTML(text) {
+getSafeHTML(text) {
       if (globalThis.trustedTypes) {
         const policy = globalThis.trustedTypes.createPolicy("safe-innerHTML", {
           createHTML: (html) => html
@@ -12951,10 +10720,7 @@ ${err.stack}`);
         return text;
       }
     },
-    /**
-     * 设置安全的html
-     */
-    setSafeHTML($el, text) {
+setSafeHTML($el, text) {
       $el.innerHTML = this.getSafeHTML(text);
     }
   };
@@ -13169,12 +10935,7 @@ ${err.stack}`);
         Reflect.set(elementItem, SymbolEvents, elementEvents);
       });
     }
-    /**
-     * 取消绑定所有的事件
-     * @param element 需要取消绑定的元素|元素数组
-     * @param eventType （可选）需要取消监听的事件
-     */
-    offAll(element, eventType) {
+offAll(element, eventType) {
       if (typeof element === "string") {
         element = PopsCore.document.querySelectorAll(element);
       }
@@ -13215,15 +10976,7 @@ ${err.stack}`);
         });
       });
     }
-    /**
-     * 等待文档加载完成后执行指定的函数
-     * @param callback 需要执行的函数
-     * @example
-     * DOMUtils.ready(function(){
-     *   console.log("文档加载完毕")
-     * })
-     */
-    ready(callback) {
+ready(callback) {
       if (typeof callback !== "function") {
         return;
       }
@@ -13272,21 +11025,7 @@ ${err.stack}`);
         addDomReadyListener();
       }
     }
-    /**
-     * 主动触发事件
-     * @param element 需要触发的元素|元素数组|window
-     * @param eventType 需要触发的事件
-     * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-     * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件,默认true
-     * @example
-     * // 触发元素a.xx的click事件
-     * DOMUtils.trigger(document.querySelector("a.xx"),"click")
-     * DOMUtils.trigger("a.xx","click")
-     * // 触发元素a.xx的click、tap、hover事件
-     * DOMUtils.trigger(document.querySelector("a.xx"),"click tap hover")
-     * DOMUtils.trigger("a.xx",["click","tap","hover"])
-     */
-    trigger(element, eventType, details, useDispatchToTriggerEvent = true) {
+trigger(element, eventType, details, useDispatchToTriggerEvent = true) {
       if (typeof element === "string") {
         element = PopsCore.document.querySelector(element);
       }
@@ -13330,21 +11069,7 @@ ${err.stack}`);
         });
       });
     }
-    /**
-     * 绑定或触发元素的click事件
-     * @param element 目标元素
-     * @param handler （可选）事件处理函数
-     * @param details （可选）赋予触发的Event的额外属性
-     * @param useDispatchToTriggerEvent （可选）是否使用dispatchEvent来触发事件,默认true
-     * @example
-     * // 触发元素a.xx的click事件
-     * DOMUtils.click(document.querySelector("a.xx"))
-     * DOMUtils.click("a.xx")
-     * DOMUtils.click("a.xx"，function(){
-     *  console.log("触发click事件成功")
-     * })
-     * */
-    click(element, handler, details, useDispatchToTriggerEvent) {
+click(element, handler, details, useDispatchToTriggerEvent) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = PopsCore.document.querySelector(element);
@@ -13358,21 +11083,7 @@ ${err.stack}`);
         DOMUtilsContext.on(element, "click", null, handler);
       }
     }
-    /**
-     * 绑定或触发元素的blur事件
-     * @param element 目标元素
-     * @param handler （可选）事件处理函数
-     * @param details （可选）赋予触发的Event的额外属性
-     * @param useDispatchToTriggerEvent （可选）是否使用dispatchEvent来触发事件,默认true
-     * @example
-     * // 触发元素a.xx的blur事件
-     * DOMUtils.blur(document.querySelector("a.xx"))
-     * DOMUtils.blur("a.xx")
-     * DOMUtils.blur("a.xx"，function(){
-     *  console.log("触发blur事件成功")
-     * })
-     * */
-    blur(element, handler, details, useDispatchToTriggerEvent) {
+blur(element, handler, details, useDispatchToTriggerEvent) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = PopsCore.document.querySelector(element);
@@ -13386,21 +11097,7 @@ ${err.stack}`);
         DOMUtilsContext.on(element, "blur", null, handler);
       }
     }
-    /**
-     * 绑定或触发元素的focus事件
-     * @param element 目标元素
-     * @param handler （可选）事件处理函数
-     * @param details （可选）赋予触发的Event的额外属性
-     * @param useDispatchToTriggerEvent （可选）是否使用dispatchEvent来触发事件,默认true
-     * @example
-     * // 触发元素a.xx的focus事件
-     * DOMUtils.focus(document.querySelector("a.xx"))
-     * DOMUtils.focus("a.xx")
-     * DOMUtils.focus("a.xx"，function(){
-     *  console.log("触发focus事件成功")
-     * })
-     * */
-    focus(element, handler, details, useDispatchToTriggerEvent) {
+focus(element, handler, details, useDispatchToTriggerEvent) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = PopsCore.document.querySelector(element);
@@ -13414,21 +11111,7 @@ ${err.stack}`);
         DOMUtilsContext.on(element, "focus", null, handler);
       }
     }
-    /**
-     * 当鼠标移入或移出元素时触发事件
-     * @param element 当前元素
-     * @param handler 事件处理函数
-     * @param option 配置
-     * @example
-     * // 监听a.xx元素的移入或移出
-     * DOMUtils.hover(document.querySelector("a.xx"),()=>{
-     *   console.log("移入/移除");
-     * })
-     * DOMUtils.hover("a.xx",()=>{
-     *   console.log("移入/移除");
-     * })
-     */
-    hover(element, handler, option) {
+hover(element, handler, option) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = PopsCore.document.querySelector(element);
@@ -13439,22 +11122,7 @@ ${err.stack}`);
       DOMUtilsContext.on(element, "mouseenter", null, handler, option);
       DOMUtilsContext.on(element, "mouseleave", null, handler, option);
     }
-    /**
-     * 当按键松开时触发事件
-     * keydown - > keypress - > keyup
-     * @param target 当前元素
-     * @param handler 事件处理函数
-     * @param option 配置
-     * @example
-     * // 监听a.xx元素的按键松开
-     * DOMUtils.keyup(document.querySelector("a.xx"),()=>{
-     *   console.log("按键松开");
-     * })
-     * DOMUtils.keyup("a.xx",()=>{
-     *   console.log("按键松开");
-     * })
-     */
-    keyup(target, handler, option) {
+keyup(target, handler, option) {
       let DOMUtilsContext = this;
       if (target == null) {
         return;
@@ -13464,22 +11132,7 @@ ${err.stack}`);
       }
       DOMUtilsContext.on(target, "keyup", null, handler, option);
     }
-    /**
-     * 当按键按下时触发事件
-     * keydown - > keypress - > keyup
-     * @param target 目标
-     * @param handler 事件处理函数
-     * @param option 配置
-     * @example
-     * // 监听a.xx元素的按键按下
-     * DOMUtils.keydown(document.querySelector("a.xx"),()=>{
-     *   console.log("按键按下");
-     * })
-     * DOMUtils.keydown("a.xx",()=>{
-     *   console.log("按键按下");
-     * })
-     */
-    keydown(target, handler, option) {
+keydown(target, handler, option) {
       let DOMUtilsContext = this;
       if (target == null) {
         return;
@@ -13489,22 +11142,7 @@ ${err.stack}`);
       }
       DOMUtilsContext.on(target, "keydown", null, handler, option);
     }
-    /**
-     * 当按键按下时触发事件
-     * keydown - > keypress - > keyup
-     * @param target 目标
-     * @param handler 事件处理函数
-     * @param option 配置
-     * @example
-     * // 监听a.xx元素的按键按下
-     * DOMUtils.keypress(document.querySelector("a.xx"),()=>{
-     *   console.log("按键按下");
-     * })
-     * DOMUtils.keypress("a.xx",()=>{
-     *   console.log("按键按下");
-     * })
-     */
-    keypress(target, handler, option) {
+keypress(target, handler, option) {
       let DOMUtilsContext = this;
       if (target == null) {
         return;
@@ -13569,28 +11207,7 @@ ${err.stack}`);
         return Array.from(PopsCore.document.querySelectorAll(selector));
       }
     }
-    /**
-     * 匹配元素，可使用以下的额外语法
-     *
-     * + :contains([text]) 作用: 找到包含指定文本内容的指定元素
-     * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
-     * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
-     * @param $el 元素
-     * @param selector 选择器
-     * @example
-     * DOMUtils.matches("div:contains('测试')")
-     * > true
-     * @example
-     * DOMUtils.matches("div:empty")
-     * > true
-     * @example
-     * DOMUtils.matches("div:regexp('^xxxx$')")
-     * > true
-     * @example
-     * DOMUtils.matches("div:regexp(/^xxx/ig)")
-     * > false
-     */
-    matches($el, selector) {
+matches($el, selector) {
       selector = selector.trim();
       if ($el == null) {
         return false;
@@ -13674,20 +11291,13 @@ ${err.stack}`);
     }
   }
   class PopsDOMUtils extends PopsDOMUtilsEvent {
-    /** 获取 animationend 在各个浏览器的兼容名 */
-    getAnimationEndNameList() {
+getAnimationEndNameList() {
       return ["webkitAnimationEnd", "mozAnimationEnd", "MSAnimationEnd", "oanimationend", "animationend"];
     }
-    /** 获取 transitionend 在各个浏览器的兼容名 */
-    getTransitionEndNameList() {
+getTransitionEndNameList() {
       return ["webkitTransitionEnd", "mozTransitionEnd", "MSTransitionEnd", "otransitionend", "transitionend"];
     }
-    /**
-     * 实现jQuery中的$().offset();
-     * @param element
-     * @param calcScroll 计算滚动距离
-     */
-    offset(element, calcScroll = true) {
+offset(element, calcScroll = true) {
       let rect = element.getBoundingClientRect();
       let win = element.ownerDocument.defaultView;
       let resultRect = new DOMRect(calcScroll ? parseFloat((rect.left + (win?.pageXOffset || 0)).toString()) : rect.left, calcScroll ? parseFloat((rect.top + (win?.pageYOffset || 0)).toString()) : rect.top, rect.width, rect.height);
@@ -13815,12 +11425,7 @@ ${err.stack}`);
         return outerHeight;
       }
     }
-    /**
-     * 添加className
-     * @param $el 目标元素
-     * @param className className属性
-     */
-    addClassName($el, className) {
+addClassName($el, className) {
       if ($el == null) {
         return;
       }
@@ -13833,12 +11438,7 @@ ${err.stack}`);
       const classNameList = className.split(" ").filter((item) => item.trim() !== "");
       $el.classList.add(...classNameList);
     }
-    /**
-     * 删除className
-     * @param $el 目标元素
-     * @param className className属性
-     */
-    removeClassName($el, className) {
+removeClassName($el, className) {
       if ($el == null) {
         return;
       }
@@ -13851,12 +11451,7 @@ ${err.stack}`);
       const classNameList = className.split(" ").filter((item) => item.trim() !== "");
       $el.classList.remove(...classNameList);
     }
-    /**
-     * 判断元素是否包含某个className
-     * @param $el 目标元素
-     * @param className className属性
-     */
-    containsClassName($el, className) {
+containsClassName($el, className) {
       if ($el == null) {
         return false;
       }
@@ -13907,25 +11502,7 @@ ${err.stack}`);
         }
       }
     }
-    /**
-     * 创建元素
-     * @param tagName 标签名
-     * @param property 属性
-     * @param attributes 元素上的自定义属性
-     * @example
-     * // 创建一个DIV元素，且属性class为xxx
-     * DOMUtils.createElement("div",undefined,{ class:"xxx" });
-     * > <div class="xxx"></div>
-     * @example
-     * // 创建一个DIV元素
-     * DOMUtils.createElement("div");
-     * > <div></div>
-     * @example
-     * // 创建一个DIV元素
-     * DOMUtils.createElement("div","测试");
-     * > <div>测试</div>
-     */
-    createElement(tagName, property, attributes) {
+createElement(tagName, property, attributes) {
       let tempElement = PopsCore.document.createElement(tagName);
       if (typeof property === "string") {
         PopsSafeUtils.setSafeHTML(tempElement, property);
@@ -13956,28 +11533,14 @@ ${err.stack}`);
       });
       return tempElement;
     }
-    /**
-     * 字符串转HTMLElement
-     * @param elementString
-     * @returns
-     */
-    parseTextToDOM(elementString) {
+parseTextToDOM(elementString) {
       elementString = elementString.replace(/^[\n|\s]*/g, "").replace(/[\n|\s]*$/g, "");
       let targetElement = this.createElement("div", {
         innerHTML: elementString
       });
       return targetElement.firstChild;
     }
-    /**
-     * 获取文字的位置信息
-     * @param input 输入框
-     * @param selectionStart 起始位置
-     * @param selectionEnd 结束位置
-     * @param debug 是否是调试模式
-     * + true 不删除临时节点元素
-     * + false 删除临时节点元素
-     */
-    getTextBoundingRect(input, selectionStart, selectionEnd, debug) {
+getTextBoundingRect(input, selectionStart, selectionEnd, debug) {
       if (!input || !("value" in input))
         return input;
       if (typeof selectionStart == "string")
@@ -14063,17 +11626,13 @@ ${err.stack}`);
         body.removeChild(box);
         box = input.getBoundingClientRect();
         var clientTop = docElem.clientTop || body.clientTop || 0, clientLeft = docElem.clientLeft || body.clientLeft || 0, scrollTop = (
-          // @ts-ignore
-          win.pageYOffset || isBoxModel && docElem.scrollTop || body.scrollTop
+win.pageYOffset || isBoxModel && docElem.scrollTop || body.scrollTop
         ), scrollLeft = (
-          // @ts-ignore
-          win.pageXOffset || isBoxModel && docElem.scrollLeft || body.scrollLeft
+win.pageXOffset || isBoxModel && docElem.scrollLeft || body.scrollLeft
         );
         return {
-          // @ts-ignore
-          top: box.top + scrollTop - clientTop,
-          // @ts-ignore
-          left: box.left + scrollLeft - clientLeft
+top: box.top + scrollTop - clientTop,
+left: box.left + scrollLeft - clientLeft
         };
       }
       function getInputCSS(prop, isnumber) {
@@ -14081,12 +11640,7 @@ ${err.stack}`);
         return isnumber ? parseFloat(val) : val;
       }
     }
-    /**
-     * 使用className来隐藏元素
-     * @param ele
-     * @param isImportant 是否使用!important
-     */
-    cssHide(ele, isImportant = false) {
+cssHide(ele, isImportant = false) {
       if (ele == null) {
         return;
       }
@@ -14096,11 +11650,7 @@ ${err.stack}`);
         popsDOMUtils.addClassName(ele, PopsCommonCSSClassName.hide);
       }
     }
-    /**
-     * cssHide的反向使用
-     * @param ele
-     */
-    cssShow(ele) {
+cssShow(ele) {
       if (ele == null) {
         return;
       }
@@ -14131,16 +11681,7 @@ ${err.stack}`);
         return parseHTMLByCreateDom();
       }
     }
-    /**
-     * 函数在元素内部末尾添加子元素或HTML字符串
-     * @param element 目标元素
-     * @param content 子元素或HTML字符串
-     * @example
-     * // 元素a.xx的内部末尾添加一个元素
-     * DOMUtils.append(document.querySelector("a.xx"),document.querySelector("b.xx"))
-     * DOMUtils.append("a.xx","'<b class="xx"></b>")
-     * */
-    append(element, content) {
+append(element, content) {
       if (typeof element === "string") {
         element = PopsCore.document.querySelector(element);
       }
@@ -14167,40 +11708,24 @@ ${err.stack}`);
         elementAppendChild(element, content);
       }
     }
-    /**
-     * 把元素标签添加到head内
-     */
-    appendHead($ele) {
+appendHead($ele) {
       if (PopsCore.document.head) {
         PopsCore.document.head.appendChild($ele);
       } else {
         PopsCore.document.documentElement.appendChild($ele);
       }
     }
-    /**
-     * 把元素添加进body内
-     * @param $ele
-     */
-    appendBody($ele) {
+appendBody($ele) {
       if (PopsCore.document.body) {
         PopsCore.document.body.appendChild($ele);
       } else {
         PopsCore.document.documentElement.appendChild($ele);
       }
     }
-    /**
-     * 判断元素是否已显示或已连接
-     * @param element
-     */
-    isShow(element) {
+isShow(element) {
       return Boolean(element.getClientRects().length);
     }
-    /**
-     * 用于显示元素并获取它的高度宽度等其它属性
-     * @param $ele
-     * @param parent 父元素
-     */
-    showElement($ele, ownParent) {
+showElement($ele, ownParent) {
       let $cloneNode = $ele.cloneNode(true);
       $cloneNode.setAttribute("style", "visibility: hidden !important;display:block !important;");
       let $parent = PopsCore.document.documentElement;
@@ -14216,24 +11741,13 @@ ${err.stack}`);
       }
       $parent.appendChild($cloneNode);
       return {
-        /**
-         * 强制显示的克隆的元素
-         */
-        cloneNode: $cloneNode,
-        /**
-         * 恢复修改的style
-         */
-        recovery() {
+cloneNode: $cloneNode,
+recovery() {
           $cloneNode.remove();
         }
       };
     }
-    /**
-     * 获取元素上的Float格式的属性px
-     * @param element
-     * @param styleName style名
-     */
-    getStyleValue(element, styleName) {
+getStyleValue(element, styleName) {
       let view = null;
       let styles = null;
       if (element instanceof CSSStyleDeclaration) {
@@ -14252,16 +11766,7 @@ ${err.stack}`);
         return value;
       }
     }
-    /**
-     * 在元素前面添加兄弟元素或HTML字符串
-     * @param element 目标元素
-     * @param content 兄弟元素或HTML字符串
-     * @example
-     * // 元素a.xx前面添加一个元素
-     * DOMUtils.before(document.querySelector("a.xx"),document.querySelector("b.xx"))
-     * DOMUtils.before("a.xx","'<b class="xx"></b>")
-     * */
-    before(element, content) {
+before(element, content) {
       if (typeof element === "string") {
         element = PopsCore.document.querySelector(element);
       }
@@ -14274,16 +11779,7 @@ ${err.stack}`);
         element.parentElement.insertBefore(content, element);
       }
     }
-    /**
-     * 在元素后面添加兄弟元素或HTML字符串
-     * @param element 目标元素
-     * @param content 兄弟元素或HTML字符串
-     * @example
-     * // 元素a.xx后面添加一个元素
-     * DOMUtils.after(document.querySelector("a.xx"),document.querySelector("b.xx"))
-     * DOMUtils.after("a.xx","'<b class="xx"></b>")
-     * */
-    after(element, content) {
+after(element, content) {
       if (typeof element === "string") {
         element = PopsCore.document.querySelector(element);
       }
@@ -14296,12 +11792,7 @@ ${err.stack}`);
         element.parentElement.insertBefore(content, element.nextSibling);
       }
     }
-    /**
-     * 获取CSS Rule
-     * @param sheet
-     * @returns
-     */
-    getKeyFrames(sheet) {
+getKeyFrames(sheet) {
       let result = {};
       Object.keys(sheet.cssRules).forEach((key) => {
         if (sheet.cssRules[key].type === 7 && sheet.cssRules[key].name.startsWith("pops-anim-")) {
@@ -14310,14 +11801,7 @@ ${err.stack}`);
       });
       return result;
     }
-    /**
-     * 颜色转换函数
-     * @method hexToRgb hex 颜色转 rgb 颜色
-     * @method rgbToHex rgb 颜色转 Hex 颜色
-     * @method getDarkColor 加深颜色值
-     * @method getLightColor 变浅颜色值
-     */
-    calcColor() {
+calcColor() {
       function useChangeColor() {
         const hexToRgb = (str) => {
           let hexs = "";
@@ -14375,11 +11859,7 @@ ${err.stack}`);
       }
       return useChangeColor();
     }
-    /**
-     * 获取移动元素的transform偏移
-     * @param element 元素
-     */
-    getTransform(element) {
+getTransform(element) {
       let transform_left = 0;
       let transform_top = 0;
       let elementTransform = PopsCore.globalThis.getComputedStyle(element).transform;
@@ -14396,32 +11876,16 @@ ${err.stack}`);
   }
   const popsDOMUtils = new PopsDOMUtils();
   const PopsElementHandler = {
-    /**
-     * 获取遮罩层HTML
-     * @param guid
-     * @param zIndex z-index
-     * @param style
-     */
-    createMask(guid, zIndex = 101, style = "") {
+createMask(guid, zIndex = 101, style = "") {
       zIndex = zIndex - 100;
       if (style.startsWith(";")) {
         style = style.replace(";", "");
       }
       return (
-        /*html*/
-        `<div class="pops-mask" data-guid="${guid}" style="z-index:${zIndex};${style}"></div>`
+`<div class="pops-mask" data-guid="${guid}" style="z-index:${zIndex};${style}"></div>`
       );
     },
-    /**
-     * 获取动画层HTML
-     * @param guid
-     * @param type
-     * @param config
-     * @param html
-     * @param bottomBtnHTML
-     * @param zIndex
-     */
-    createAnim(guid, type, config, html = "", bottomBtnHTML = "", zIndex) {
+createAnim(guid, type, config, html = "", bottomBtnHTML = "", zIndex) {
       let __config = config;
       let popsAnimStyle = "";
       let popsStyle = "";
@@ -14438,19 +11902,13 @@ ${err.stack}`);
       }
       let hasBottomBtn = bottomBtnHTML.trim() === "" ? false : true;
       return (
-        /*html*/
-        `
+`
 		<div class="pops-anim" anim="${__config.animation || ""}" style="${popsAnimStyle}" data-guid="${guid}">${config.style != null ? `<style tyle="text/css">${config.style}</style>` : ""}
 			<div class="pops ${config.class || ""}" data-bottom-btn="${hasBottomBtn}" type-value="${type}" style="${popsStyle}" position="${popsPosition}" data-guid="${guid}">${html}</div>
 		</div>`
       );
     },
-    /**
-     * 获取顶部按钮层HTML
-     * @param type
-     * @param config
-     */
-    createHeader(type, config) {
+createHeader(type, config) {
       if (!config.btn) {
         return "";
       }
@@ -14465,19 +11923,19 @@ ${err.stack}`);
         let topRightButtonHTML = "";
         iframe_config.topRightButton.split("|").forEach((item) => {
           item = item.toLowerCase();
-          topRightButtonHTML += /*html*/
-          `
+          topRightButtonHTML +=
+`
                 <button class="pops-header-control" type="button" data-type="${item}">
                     <i class="pops-icon">${PopsIcon.getIcon(item)}</i>
                 </button>`;
         });
-        resultHTML = /*html*/
-        `
+        resultHTML =
+`
             <div class="pops-header-controls" data-margin>${topRightButtonHTML}</div>`;
       } else {
         if (confirm_config.btn?.close?.enable) {
-          closeHTML = /*html*/
-          `
+          closeHTML =
+`
                 <div class="pops-header-controls">
                     <button class="pops-header-control" type="button" data-type="close" data-header>
                     	<i class="pops-icon">${PopsIcon.getIcon("close")}</i>
@@ -14488,23 +11946,13 @@ ${err.stack}`);
       }
       return resultHTML;
     },
-    /**
-     * 获取标题style
-     * @param type 弹窗类型
-     * @param config 弹窗配置
-     */
-    createHeaderStyle(type, config) {
+createHeaderStyle(type, config) {
       return {
         headerStyle: config?.title?.html ? config?.title?.style || "" : "",
         headerPStyle: config?.title?.html ? "" : config?.title?.style || ""
       };
     },
-    /**
-     * 获取底部按钮层HTML
-     * @param type
-     * @param config
-     */
-    createBottom(type, config) {
+createBottom(type, config) {
       if (config.btn == null) {
         return "";
       }
@@ -14540,11 +11988,11 @@ ${err.stack}`);
             iconHTML = okIcon;
           }
           iconHTML = iconHTML || "";
-          okIconHTML = /*html*/
-          `<i class="pops-bottom-icon" is-loading="${config.btn.ok.iconIsLoading}">${iconHTML}</i>`;
+          okIconHTML =
+`<i class="pops-bottom-icon" is-loading="${config.btn.ok.iconIsLoading}">${iconHTML}</i>`;
         }
-        okHTML = /*html*/
-        `
+        okHTML =
+`
             <button 
 				class="pops-${type}-btn-ok ${okButtonSizeClassName}"
 				type="button"
@@ -14571,11 +12019,11 @@ ${err.stack}`);
             iconHTML = cancelIcon;
           }
           iconHTML = iconHTML || "";
-          cancelIconHTML = /*html*/
-          `<i class="pops-bottom-icon" is-loading="${confirm_config.btn.cancel.iconIsLoading}">${iconHTML}</i>`;
+          cancelIconHTML =
+`<i class="pops-bottom-icon" is-loading="${confirm_config.btn.cancel.iconIsLoading}">${iconHTML}</i>`;
         }
-        cancelHTML = /*html*/
-        `
+        cancelHTML =
+`
             <button
 				class="pops-${type}-btn-cancel ${cancelButtonSizeClassName}"
 				type="button"
@@ -14600,11 +12048,11 @@ ${err.stack}`);
             iconHTML = PopsIcon.getIcon(otherIcon);
           }
           iconHTML = iconHTML || "";
-          otherIconHTML = /*html*/
-          `<i class="pops-bottom-icon" is-loading="${confirm_config.btn.other.iconIsLoading}">${iconHTML}</i>`;
+          otherIconHTML =
+`<i class="pops-bottom-icon" is-loading="${confirm_config.btn.other.iconIsLoading}">${iconHTML}</i>`;
         }
-        ohterHTML = /*html*/
-        `
+        ohterHTML =
+`
             <button
 				class="pops-${type}-btn-other ${otherButtonSizeClassName}"
 				type="button"
@@ -14621,35 +12069,26 @@ ${err.stack}`);
         } else {
           flexStyle += "flex-direction: row;";
         }
-        resultHTML = /*html*/
-        `
+        resultHTML =
+`
             <div class="pops-botttom-btn-controls pops-${type}-btn" style="${btnStyle}">${ohterHTML}<div 
                     class="pops-${type}-btn-merge"
                     style="${flexStyle}">${okHTML}${cancelHTML}</div>
             </div>
             `;
       } else {
-        resultHTML = /*html*/
-        `<div class="pops-botttom-btn-controls pops-${type}-btn" style="${btnStyle}">${okHTML}${cancelHTML}${ohterHTML}</div>`;
+        resultHTML =
+`<div class="pops-botttom-btn-controls pops-${type}-btn" style="${btnStyle}">${okHTML}${cancelHTML}${ohterHTML}</div>`;
       }
       return resultHTML;
     },
-    /**
-     * 获取内容style
-     * @param type 弹窗类型
-     * @param config 弹窗配置
-     */
-    createContentStyle(type, config) {
+createContentStyle(type, config) {
       return {
         contentStyle: config?.content?.html ? config?.content?.style || "" : "",
         contentPStyle: config?.content?.html ? "" : config?.content?.style || ""
       };
     },
-    /**
-     * 将html转换成元素
-     * @param html
-     */
-    parseElement(html) {
+parseElement(html) {
       return popsDOMUtils.parseTextToDOM(html);
     }
   };
@@ -14670,44 +12109,27 @@ ${err.stack}`);
   var panelCSS = '.pops[type-value="panel"] {\n	--pops-bg-color: #f2f2f2;\n	--pops-color: #333333;\n	--panel-title-bg-color: #ffffff;\n\n	--panel-aside-bg-color: #ffffff;\n	--panel-aside-hover-color: rgb(64, 158, 255);\n	--panel-aside-hover-bg-color: rgba(64, 158, 255, 0.1);\n\n	--pops-panel-forms-margin-top-bottom: 10px;\n	--pops-panel-forms-margin-left-right: 20px;\n	--pops-panel-forms-header-icon-size: calc(var(--pops-panel-forms-container-li-padding-left-right) + 1px);\n	--pops-panel-forms-header-padding-top-bottom: 15px;\n	--pops-panel-forms-header-padding-left-right: 10px;\n	--pops-panel-forms-container-item-left-text-gap: 6px;\n	--pops-panel-forms-container-item-left-desc-text-size: 0.8em;\n	--pops-panel-forms-container-item-left-desc-text-color: #6c6c6c;\n	--pops-panel-forms-container-item-bg-color: #ffffff;\n	--pops-panel-forms-container-item-title-color: #333;\n	--pops-panel-forms-container-item-border-radius: 6px;\n	--pops-panel-forms-container-item-margin-top-bottom: 10px;\n	--pops-panel-forms-container-item-margin-left-right: var(--pops-panel-forms-margin-left-right);\n	--pops-panel-forms-container-li-border-color: var(--pops-bd-color);\n	--pops-panel-forms-container-li-padding-top-bottom: 12px;\n	--pops-panel-forms-container-li-padding-left-right: 16px;\n\n	--pops-panel-forms-container-deepMenu-item-active-bg: #e9e9e9;\n}\n.pops[type-value="panel"] {\n	color: var(--pops-color);\n	background: var(--pops-bg-color);\n}\n.pops[type-value] .pops-panel-title {\n	background: var(--panel-title-bg-color);\n}\n\n/* ↓panel的CSS↓ */\naside.pops-panel-aside {\n	box-sizing: border-box;\n	flex-shrink: 0;\n	max-width: 200px;\n	min-width: 100px;\n	height: 100%;\n	background: var(--panel-aside-bg-color);\n	border-right: 1px solid var(--panel-aside-bg-color);\n	font-size: 0.9em;\n	display: flex;\n	flex-direction: column;\n	justify-content: space-between;\n}\naside.pops-panel-aside {\n	user-select: none;\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n}\naside.pops-panel-aside .pops-panel-aside-top-container {\n	overflow: auto;\n}\n.pops-panel-content {\n	display: flex;\n	flex-direction: row;\n	flex: 1;\n	overflow: auto;\n	flex-basis: auto;\n	box-sizing: border-box;\n	min-width: 0;\n	bottom: 0 !important;\n}\nsection.pops-panel-container {\n	width: 100%;\n	overflow: hidden;\n	display: flex;\n	flex-direction: column;\n}\nsection.pops-panel-container .pops-panel-container-header-ul,\nsection.pops-panel-container .pops-panel-deepMenu-container-header-ul {\n	border-bottom: 1px solid rgba(223, 223, 223, var(--pops-bg-opacity));\n	flex: 0 auto;\n}\nsection.pops-panel-container .pops-panel-container-header-ul li,\nsection.pops-panel-container .pops-panel-container-header-ul li.pops-panel-container-header-title-text {\n	display: flex;\n	justify-content: flex-start !important;\n	margin: 0px !important;\n	padding: var(--pops-panel-forms-header-padding-top-bottom)\n		calc(var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right));\n	text-align: left;\n}\nsection.pops-panel-container ul.pops-panel-container-main-ul {\n	overflow: auto;\n	/*flex: 1;*/\n}\naside.pops-panel-aside ul li {\n	margin: 6px 8px;\n	border-radius: 4px;\n	padding: 6px 10px;\n	cursor: default;\n	display: flex;\n	align-items: center;\n	justify-content: flex-start;\n}\naside.pops-panel-aside .pops-is-visited,\naside.pops-panel-aside ul li:not(.pops-panel-disabled-aside-hover-css):hover {\n	color: var(--panel-aside-hover-color);\n	background: var(--panel-aside-hover-bg-color);\n}\nsection.pops-panel-container > ul li:not(.pops-panel-forms-container-item) {\n	display: flex;\n	justify-content: space-between;\n	align-items: center;\n	margin: var(--pops-panel-forms-margin-top-bottom)\n		calc(var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-margin-left-right));\n	gap: 10px;\n}\nsection.pops-panel-container .pops-panel-forms-container-item-header-text {\n	margin: 10px;\n	margin-left: calc(\n		var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right)\n	);\n	font-size: 0.9em;\n	text-align: left;\n	color: var(--pops-panel-forms-container-item-title-color);\n}\nsection.pops-panel-container li.pops-panel-forms-container-item {\n	/* 去除<li>左侧的圆点 */\n	display: block;\n}\nsection.pops-panel-container .pops-panel-forms-container-item ul.pops-panel-forms-container-item-formlist {\n	border-radius: var(--pops-panel-forms-container-item-border-radius);\n	background: var(--pops-panel-forms-container-item-bg-color);\n	margin: var(--pops-panel-forms-container-item-margin-top-bottom) var(--pops-panel-forms-margin-left-right);\n}\nsection.pops-panel-container .pops-panel-forms-container-item ul.pops-panel-forms-container-item-formlist li {\n	display: flex;\n	justify-content: space-between;\n	align-items: center;\n	padding: var(--pops-panel-forms-container-li-padding-top-bottom)\n		var(--pops-panel-forms-container-li-padding-left-right);\n	margin: 0px 0px;\n	border-bottom: 1px solid var(--pops-panel-forms-container-li-border-color);\n	text-align: left;\n}\n/*section.pops-panel-container\n	.pops-panel-forms-container-item\n	ul\n	li.pops-panel-deepMenu-nav-item {\n	padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px;\n	margin: 0px var(--pops-panel-forms-container-li-padding-left-right);\n	border-bottom: 1px solid var(--pops-panel-forms-container-li-border-color);\n}*/\nsection.pops-panel-container\n	.pops-panel-forms-container-item\n	ul.pops-panel-forms-container-item-formlist\n	li:last-child {\n	border: 0px;\n}\n/* 左侧的文字 */\nsection.pops-panel-container .pops-panel-item-left-text {\n	display: flex;\n	flex-direction: column;\n	gap: var(--pops-panel-forms-container-item-left-text-gap);\n}\n\n/* 左侧的主文字 */\n/*section.pops-panel-container .pops-panel-item-left-main-text {\n	\n}*/\n/* 左侧的描述文字 */\nsection.pops-panel-container .pops-panel-item-left-desc-text {\n	font-size: var(--pops-panel-forms-container-item-left-desc-text-size);\n	color: var(--pops-panel-forms-container-item-left-desc-text-color);\n}\n\n/* 折叠面板 */\nsection.pops-panel-container .pops-panel-forms-fold {\n	border-radius: var(--pops-panel-forms-container-item-border-radius);\n	background: var(--pops-panel-forms-container-item-bg-color);\n	margin: var(--pops-panel-forms-margin-top-bottom) var(--pops-panel-forms-margin-left-right);\n}\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-fold-container {\n	display: flex;\n	align-items: center;\n	fill: #6c6c6c;\n	justify-content: space-between;\n	margin: 0px var(--pops-panel-forms-container-li-padding-left-right) !important;\n	padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px !important;\n}\nsection.pops-panel-container .pops-panel-forms-fold[data-fold-enable] .pops-panel-forms-fold-container-icon {\n	transform: rotate(90deg);\n}\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-fold-container-icon {\n	width: 15px;\n	height: 15px;\n	display: flex;\n	align-items: center;\n	transform: rotate(-90deg);\n	transition: transform 0.3s;\n}\n/* 折叠状态 */\nsection.pops-panel-container\n	.pops-panel-forms-fold[data-fold-enable]\n	.pops-panel-forms-container-item-formlist {\n	height: 0;\n}\n/* 非折叠状态 */\nsection.pops-panel-container .pops-panel-forms-fold ul.pops-panel-forms-container-item-formlist {\n	margin: 0;\n}\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-container-item-formlist {\n	transition: height 0.3s;\n	overflow: hidden;\n	border-radius: unset;\n	background: unset;\n	margin: 0;\n	height: calc-size(auto, size);\n}\n/* 折叠面板 */\n\n/* 姑且认为小于600px的屏幕为移动端 */\n@media (max-width: 600px) {\n	/* 兼容移动端CSS */\n	.pops[type-value="panel"] {\n		--pops-panel-forms-margin-left-right: 10px;\n	}\n	.pops[type-value="panel"] {\n		width: 92%;\n		width: 92vw;\n		width: 92dvw;\n	}\n	.pops[type-value="panel"] .pops-panel-content aside.pops-panel-aside {\n		max-width: 20%;\n		min-width: auto;\n	}\n	.pops[type-value="panel"] section.pops-panel-container .pops-panel-forms-container-item > div {\n		text-align: left;\n		--pops-panel-forms-margin-left-right: 0px;\n	}\n	.pops[type-value="panel"] section.pops-panel-container .pops-panel-forms-container-item ul {\n		margin: 0px !important;\n	}\n	.pops[type-value="panel"] section.pops-panel-container > ul > li {\n		margin: 10px 10px;\n	}\n	.pops[type-value="panel"] section.pops-panel-container > ul > li div:nth-child(2) {\n		max-width: 55%;\n	}\n	.pops[type-value="panel"] section.pops-panel-container .pops-panel-select select {\n		min-width: 88px !important;\n		width: -webkit-fill-available;\n		width: -moz-available;\n	}\n	.pops[type-value="panel"] section.pops-panel-container .pops-panel-container-header-ul li {\n		font-size: 16px;\n	}\n	.pops[type-value="panel"] .pops-panel-title p[pops],\n	.pops[type-value="panel"] section.pops-panel-container > ul li,\n	.pops[type-value="panel"] aside.pops-panel-aside ul li {\n		font-size: 14px;\n	}\n}\n/* switch的CSS */\n.pops-panel-switch {\n	--panel-switch-core-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\n	--panel-switch-core-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\n	--panel-switch-circle-color: #dcdfe6;\n	--panel-switch-circle-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n	--panel-switch-checked-circle-color: #409eff;\n	--panel-switch-checked-core-bd-color: rgb(64, 158, 255, var(--pops-bd-opacity));\n	--panel-switch-checked-core-bg-color: rgb(64, 158, 255, var(--pops-bg-opacity));\n}\n.pops-panel-switch {\n	display: inline-flex;\n	flex-direction: row-reverse;\n	align-items: center;\n	position: relative;\n	font-size: 14px;\n	line-height: normal;\n	align-content: center;\n	height: 32px;\n	vertical-align: middle;\n	user-select: none;\n	-webkit-user-select: none;\n	-ms-user-select: none;\n	-moz-user-select: none;\n}\n.pops-panel-switch input.pops-panel-switch__input {\n	position: absolute;\n	width: 0;\n	height: 0;\n	opacity: 0;\n	margin: 0;\n}\n.pops-panel-switch:has(input.pops-panel-switch__input:disabled),\n.pops-panel-switch[data-disabled],\n.pops-panel-switch[data-disabled] .pops-panel-switch__core,\n.pops-panel-switch input.pops-panel-switch__input:disabled + .pops-panel-switch__core {\n	cursor: not-allowed;\n	opacity: 0.6;\n}\n.pops-panel-switch span.pops-panel-switch__core {\n	display: inline-flex;\n	position: relative;\n	align-items: center;\n	min-width: 40px;\n	height: 20px;\n	border: 1px solid var(--panel-switch-core-bd-color);\n	outline: 0;\n	border-radius: 10px;\n	box-sizing: border-box;\n	background: var(--panel-switch-core-bg-color);\n	cursor: pointer;\n	transition:\n		border-color 0.3s,\n		background-color 0.3s;\n}\n.pops-panel-switch .pops-panel-switch__action {\n	position: absolute;\n	left: 1px;\n	border-radius: 100%;\n	transition: all 0.3s;\n	width: 16px;\n	height: 16px;\n	display: flex;\n	justify-content: center;\n	align-items: center;\n	background-color: var(--panel-switch-circle-bg-color);\n	color: var(--panel-switch-circle-color);\n}\n.pops-panel-switch.pops-panel-switch-is-checked span.pops-panel-switch__core {\n	border-color: var(--panel-switch-checked-core-bd-color);\n	background-color: var(--panel-switch-checked-core-bg-color);\n}\n.pops-panel-switch.pops-panel-switch-is-checked .pops-panel-switch__action {\n	left: calc(100% - 17px);\n	color: var(--panel-switch-checked-circle-color);\n}\n/* switch的CSS */\n\n/* slider旧的CSS */\nsection.pops-panel-container .pops-panel-slider:has(> input[type="range"]) {\n	overflow: hidden;\n	height: 25px;\n	line-height: normal;\n	align-content: center;\n	display: flex;\n	align-items: center;\n}\nsection.pops-panel-container .pops-panel-slider input[type="range"] {\n	height: 6px;\n	background: rgb(228, 231, 237, var(--pops-bg-opacity));\n	outline: 0;\n	-webkit-appearance: none;\n	appearance: none;\n	width: 100%;\n}\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-webkit-slider-thumb {\n	width: 20px;\n	height: 20px;\n	border-radius: 50%;\n	border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));\n	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n	box-shadow:\n		0 0 2px rgba(0, 0, 0, 0.3),\n		0 3px 5px rgba(0, 0, 0, 0.2);\n	cursor: pointer;\n	-webkit-appearance: none;\n	appearance: none;\n	border-image: linear-gradient(#409eff, #409eff) 0 fill/9 25 9 0/0 0 0 100vw;\n}\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-thumb {\n	width: 20px;\n	height: 20px;\n	border-radius: 50%;\n	border: 1px solid rgb(64, 159, 255, var(--pops-bd-opacity));\n	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n	box-shadow:\n		0 0 2px rgba(0, 0, 0, 0.3),\n		0 3px 5px rgba(0, 0, 0, 0.2);\n	cursor: pointer;\n	-webkit-appearance: none;\n	appearance: none;\n}\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-progress {\n	height: 6px;\n	border-image: linear-gradient(#409eff, #409eff) 0 fill/9 25 9 0/0 0 0 100vw;\n}\n/* slider旧的CSS */\n\n/* slider的CSS */\n.pops-slider {\n	--pops-slider-color-white: #ffffff;\n	--pops-slider-color-primary: #409eff;\n	--pops-slider-color-info: #909399;\n	--pops-slider-text-color-placeholder: #a8abb2;\n	--pops-slider-border-color-light: #e4e7ed;\n	--pops-slider-border-radius-circle: 100%;\n	--pops-slider-transition-duration-fast: 0.2s;\n\n	--pops-slider-main-bg-color: var(--pops-slider-color-primary);\n	--pops-slider-runway-bg-color: var(--pops-slider-border-color-light);\n	--pops-slider-stop-bg-color: var(--pops-slider-color-white);\n	--pops-slider-disabled-color: var(--pops-slider-text-color-placeholder);\n	--pops-slider-border-radius: 3px;\n	--pops-slider-height: 6px;\n	--pops-slider-button-size: 20px;\n	--pops-slider-button-wrapper-size: 36px;\n	--pops-slider-button-wrapper-offset: -15px;\n}\n\n.pops-slider {\n	width: 100%;\n	height: 32px;\n	display: flex;\n	align-items: center;\n	user-select: none;\n	-webkit-user-select: none;\n	-ms-user-select: none;\n	-moz-user-select: none;\n}\n\n.pops-slider-width {\n	flex: 0 0 52%;\n	margin-left: 10px;\n}\n\n.pops-slider__runway {\n	flex: 1;\n	height: var(--pops-slider-height);\n	background-color: var(--pops-slider-runway-bg-color);\n	border-radius: var(--pops-slider-border-radius);\n	position: relative;\n	cursor: pointer;\n}\n\n.pops-slider__runway.show-input {\n	margin-right: 30px;\n	width: auto;\n}\n\n.pops-slider__runway.pops-slider-is-disabled {\n	cursor: default;\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__bar {\n	background-color: var(--pops-slider-disabled-color);\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button {\n	border-color: var(--pops-slider-disabled-color);\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\n	cursor: not-allowed;\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\n	transform: scale(1);\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\n	cursor: not-allowed;\n}\n\n.pops-slider__input {\n	flex-shrink: 0;\n	width: 130px;\n}\n\n.pops-slider__bar {\n	height: var(--pops-slider-height);\n	background-color: var(--pops-slider-main-bg-color);\n	border-top-left-radius: var(--pops-slider-border-radius);\n	border-bottom-left-radius: var(--pops-slider-border-radius);\n	position: absolute;\n}\n\n.pops-slider__button-wrapper {\n	height: var(--pops-slider-button-wrapper-size);\n	width: var(--pops-slider-button-wrapper-size);\n	position: absolute;\n	z-index: 1;\n	top: var(--pops-slider-button-wrapper-offset);\n	transform: translate(-50%);\n	background-color: transparent;\n	text-align: center;\n	user-select: none;\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n	line-height: normal;\n	outline: none;\n}\n\n.pops-slider__button-wrapper:after {\n	display: inline-block;\n	content: "";\n	height: 100%;\n	vertical-align: middle;\n}\n\n.pops-slider__button:hover,\n.pops-slider__button.hover {\n	cursor: grab;\n}\n\n.pops-slider__button {\n	display: inline-block;\n	width: var(--pops-slider-button-size);\n	height: var(--pops-slider-button-size);\n	vertical-align: middle;\n	border: solid 2px var(--pops-slider-main-bg-color);\n	background-color: var(--pops-slider-color-white);\n	border-radius: 50%;\n	box-sizing: border-box;\n	transition: var(--pops-slider-transition-duration-fast);\n	user-select: none;\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n}\n\n.pops-slider__button:hover,\n.pops-slider__button.hover,\n.pops-slider__button.dragging {\n	transform: scale(1.2);\n}\n\n.pops-slider__button:hover,\n.pops-slider__button.hover {\n	cursor: grab;\n}\n\n.pops-slider__button.dragging {\n	cursor: grabbing;\n}\n\n.pops-slider__stop {\n	position: absolute;\n	height: var(--pops-slider-height);\n	width: var(--pops-slider-height);\n	border-radius: var(--pops-slider-border-radius-circle);\n	background-color: var(--pops-slider-stop-bg-color);\n	transform: translate(-50%);\n}\n\n.pops-slider__marks {\n	top: 0;\n	left: 12px;\n	width: 18px;\n	height: 100%;\n}\n\n.pops-slider__marks-text {\n	position: absolute;\n	transform: translate(-50%);\n	font-size: 14px;\n	color: var(--pops-slider-color-info);\n	margin-top: 15px;\n	white-space: pre;\n}\n\n.pops-slider.is-vertical {\n	position: relative;\n	display: inline-flex;\n	width: auto;\n	height: 100%;\n	flex: 0;\n}\n\n.pops-slider.is-vertical .pops-slider__runway {\n	width: var(--pops-slider-height);\n	height: 100%;\n	margin: 0 16px;\n}\n\n.pops-slider.is-vertical .pops-slider__bar {\n	width: var(--pops-slider-height);\n	height: auto;\n	border-radius: 0 0 3px 3px;\n}\n\n.pops-slider.is-vertical .pops-slider__button-wrapper {\n	top: auto;\n	left: var(--pops-slider-button-wrapper-offset);\n	transform: translateY(50%);\n}\n\n.pops-slider.is-vertical .pops-slider__stop {\n	transform: translateY(50%);\n}\n\n.pops-slider.is-vertical .pops-slider__marks-text {\n	margin-top: 0;\n	left: 15px;\n	transform: translateY(50%);\n}\n\n.pops-slider--large {\n	height: 40px;\n}\n\n.pops-slider--small {\n	height: 24px;\n}\n/* slider的CSS */\n\n/* input的CSS */\n.pops-panel-input {\n	--el-disabled-text-color: #a8abb2;\n	--el-disabled-bg-color: #f5f7fa;\n	--el-disabled-border-color: #e4e7ed;\n\n	--pops-panel-components-input-text-color: #000000;\n	--pops-panel-components-input-text-bg-color: transparent;\n	--pops-panel-components-input-text-default-padding: 8px;\n	--pops-panel-components-input-bd-color: #dcdfe6;\n	--pops-panel-components-input-bg-color: #ffffff;\n	--pops-panel-components-input-hover-bd-color: #c0c4cc;\n	--pops-panel-components-input-focus-bd-color: #409eff;\n	--pops-panel-components-input-suffix-color: #a8abb2;\n	--pops-panel-components-input-suffix-bg-color: #ffffff;\n}\n.pops-panel-input {\n	display: flex;\n	align-items: center;\n	border: 1px solid var(--pops-panel-components-input-bd-color);\n	border-radius: 4px;\n	background-color: var(--pops-panel-components-input-bg-color);\n	position: relative;\n	box-shadow: none;\n}\n.pops-panel-input:hover {\n	border: 1px solid var(--pops-panel-components-input-hover-bd-color);\n}\n.pops-panel-input:has(input:disabled):hover {\n	--pops-panel-components-input-hover-bd-color: var(--pops-panel-components-input-bd-color);\n}\n.pops-panel-input:has(input:focus) {\n	outline: 0;\n	border: 1px solid var(--pops-panel-components-input-focus-bd-color);\n	border-radius: 4px;\n	box-shadow: none;\n}\n.pops-panel-input input {\n	display: inline-flex;\n	justify-content: center;\n	text-align: start;\n	align-items: center;\n	align-content: center;\n	white-space: nowrap;\n	cursor: text;\n	box-sizing: border-box;\n	user-select: none;\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n	vertical-align: middle;\n	-webkit-appearance: none;\n	appearance: none;\n	color: var(--pops-panel-components-input-text-color);\n	background-color: var(--pops-panel-components-input-text-bg-color);\n	outline: 0;\n	transition: 0.1s;\n	border: 0;\n	font-size: 14px;\n	font-weight: 500;\n	line-height: normal;\n	height: 32px;\n	width: 100%;\n	flex: 1;\n	/*margin-right: calc(1em + 8px);*/\n	margin: 0px;\n	padding: var(--pops-panel-components-input-text-default-padding);\n}\n.pops-panel-input span.pops-panel-input__suffix {\n	display: inline-flex;\n	white-space: nowrap;\n	flex-shrink: 0;\n	flex-wrap: nowrap;\n	height: 100%;\n	text-align: center;\n	color: var(--pops-panel-components-input-suffix-color);\n	background: var(--pops-panel-components-input-suffix-bg-color);\n	transition: all 0.3s;\n	pointer-events: none;\n	padding: 0 8px;\n	position: absolute;\n	right: 0px;\n	border-top-right-radius: 4px;\n	border-bottom-right-radius: 4px;\n	border: 1px solid transparent;\n}\n.pops-panel-input span.pops-panel-input__suffix-inner {\n	pointer-events: all;\n	display: inline-flex;\n	align-items: center;\n	justify-content: center;\n}\n/* 如果包含清空图标的按钮，则默认隐藏清空图标，当:hover、:focus、:focus-within、:active时显示清空图标 */\n.pops-panel-input span.pops-panel-input__suffix:has(svg[data-type="circleClose"]) {\n	display: none;\n}\n.pops-panel-input:hover span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\n.pops-panel-input:focus span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\n.pops-panel-input:focus-within span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\n.pops-panel-input:active span.pops-panel-input__suffix:has(svg[data-type="circleClose"]) {\n	display: inline-flex;\n}\n.pops-panel-input .pops-panel-icon {\n	cursor: pointer;\n}\n.pops-panel-input .pops-panel-icon {\n	height: inherit;\n	line-height: normal;\n	align-content: center;\n	display: flex;\n	justify-content: center;\n	align-items: center;\n	transition: all 0.3s;\n}\n.pops-panel-input .pops-panel-icon svg {\n	height: 1em;\n	width: 1em;\n}\n\n.pops-input-disabled {\n	background-color: var(--pops-components-is-disabled-bg-color);\n}\n.pops-panel-input.pops-input-disabled:hover {\n	--pops-panel-components-input-hover-bd-color: var(--pops-panel-components-input-bd-color);\n}\n.pops-panel-input input:disabled,\n.pops-panel-input input:disabled + .pops-panel-input__suffix {\n	user-select: none;\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n	color: var(--el-disabled-text-color);\n	-webkit-text-fill-color: var(--el-disabled-text-color);\n	cursor: not-allowed;\n}\n.pops-panel-input input:disabled + .pops-panel-input__suffix {\n	display: none;\n}\n/* input的CSS */\n\n/* textarea的CSS */\n.pops-panel-textarea {\n	--pops-panel-components-textarea-text-color: #000000;\n	--pops-panel-components-textarea-text-bg-color: #ffffff;\n	--pops-panel-components-textarea-bd-color: #dcdfe6;\n	--pops-panel-components-textarea-hover-bd-color: #c0c4cc;\n	--pops-panel-components-textarea-focus-bd-color: #409eff;\n}\n.pops-panel-textarea textarea {\n	width: 100%;\n	/*vertical-align: bottom;*/\n	position: relative;\n	display: block;\n	resize: none;\n	padding: 5px 11px;\n	/*line-height: 1;*/\n	box-sizing: border-box;\n	font-size: inherit;\n	font-family: inherit;\n	color: var(--pops-panel-components-textarea-text-color);\n	background-color: var(--pops-panel-components-textarea-text-bg-color);\n	background-image: none;\n	-webkit-appearance: none;\n	appearance: none;\n	box-shadow: none;\n	border-radius: 0;\n	transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\n	border: 1px solid var(--pops-panel-components-textarea-bd-color);\n}\n.pops-panel-textarea textarea:hover {\n	border-color: var(--pops-panel-components-textarea-hover-bd-color);\n}\n.pops-panel-textarea:has(textarea:disabled):hover {\n	--pops-panel-components-textarea-hover-bd-color: var(--pops-panel-components-textarea-bd-color);\n}\n.pops-panel-textarea-disable {\n	--pops-panel-components-textarea-text-bg-color: var(--pops-components-is-disabled-bg-color) !important;\n	--pops-panel-components-textarea-text-color: var(--pops-components-is-disabled-text-color);\n}\n.pops-panel-textarea-disable textarea {\n	cursor: not-allowed;\n}\n.pops-panel-textarea textarea:focus {\n	outline: 0;\n	border-color: var(--pops-panel-components-textarea-focus-bd-color);\n}\n/* textarea的CSS */\n\n/* select的CSS */\n.pops-panel-select {\n	--pops-panel-components-select-text-color: #000000;\n	--pops-panel-components-select-bd-color: rgb(184, 184, 184, var(--pops-bd-opacity));\n	--pops-panel-components-select-hover-bd-color: rgb(184, 184, 184, var(--pops-bd-opacity));\n	--pops-panel-components-select-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n}\n.pops-panel-select {\n	border: 0;\n}\n.pops-panel-select select {\n	height: 32px;\n	line-height: normal;\n	align-content: center;\n	min-width: 200px;\n	border: 1px solid var(--pops-panel-components-select-bd-color);\n	border-radius: 5px;\n	text-align: center;\n	outline: 0;\n	color: var(--pops-panel-components-select-text-color);\n	background-color: var(--pops-panel-components-select-bg-color);\n	box-shadow: none;\n}\n.pops-panel-select select:hover {\n	border: 1px solid var(--pops-panel-components-select-hover-bd-color);\n}\n.pops-panel-select-disable {\n	--pops-panel-components-select-text-color: var(--pops-components-is-disabled-text-color);\n	--pops-panel-components-select-bg-color: var(--pops-components-is-disabled-bg-color);\n}\n.pops-panel-select-disable select {\n	cursor: not-allowed;\n}\n.pops-panel-select-disable select:hover {\n	box-shadow: none;\n	--pops-panel-components-select-hover-bd-color: var(--pops-panel-components-select-bd-color);\n}\n.pops-panel-select select:focus {\n	border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));\n	box-shadow: none;\n}\n/* select的CSS */\n\n/* select-multiple的CSS*/\n.pops-panel-select-multiple {\n	--el-border-radius-base: 4px;\n	--el-fill-color-blank: #ffffff;\n	--el-transition-duration: 0.3s;\n	--el-border-color: #cbcbcb;\n	--el-text-color-placeholder: #a8abb2;\n	--color: inherit;\n	--el-select-input-color: #a8abb2;\n	--el-select-input-font-size: 14px;\n	--el-text-color-regular: #606266;\n	--el-color-info: #909399;\n	--el-color-info-light-9: #f4f4f5;\n	--el-color-info-light-8: #e9e9eb;\n	--el-color-primary-light-9: #ecf5ff;\n	--el-color-primary-light-8: #d9ecff;\n	--el-color-primary: #409eff;\n	--el-color-white: #ffffff;\n	width: 200px;\n}\n.pops-panel-select-multiple .el-select__wrapper {\n	display: flex;\n	align-items: center;\n	position: relative;\n	box-sizing: border-box;\n	cursor: pointer;\n	text-align: left;\n	font-size: 14px;\n	padding: 4px 12px;\n	gap: 6px;\n	min-height: 32px;\n	line-height: normal;\n	align-content: center;\n	border-radius: var(--el-border-radius-base);\n	background-color: var(--el-fill-color-blank);\n	transition: var(--el-transition-duration);\n	transform: translateZ(0);\n	border: 1px solid var(--el-border-color);\n}\n.pops-panel-select-multiple .el-select__wrapper.is-focused {\n	--el-border-color: var(--el-color-primary);\n}\n.pops-panel-select-multiple .el-select__selection {\n	position: relative;\n	display: flex;\n	flex-wrap: wrap;\n	align-items: center;\n	flex: 1;\n	min-width: 0;\n	gap: 6px;\n}\n.pops-panel-select-multiple .el-select__selected-item {\n	display: flex;\n	flex-wrap: wrap;\n	-webkit-user-select: none;\n	user-select: none;\n}\n.pops-panel-select-multiple .el-select__selected-item.el-select__choose_tag .el-tag {\n	max-width: 200px;\n}\n.pops-panel-select-multiple .el-select__input-wrapper {\n	max-width: 100%;\n}\n.pops-panel-select-multiple .el-select__selection.is-near {\n	margin-left: -8px;\n}\n.pops-panel-select-multiple .el-select__placeholder {\n	position: absolute;\n	display: block;\n	top: 50%;\n	transform: translateY(-50%);\n	width: 100%;\n	overflow: hidden;\n	text-overflow: ellipsis;\n	white-space: nowrap;\n	color: var(--el-input-text-color, var(--el-text-color-regular));\n}\n.pops-panel-select-multiple .el-select__placeholder.is-transparent {\n	-webkit-user-select: none;\n	user-select: none;\n	color: var(--el-text-color-placeholder);\n}\n.pops-panel-select-multiple .el-select__prefix,\n.pops-panel-select-multiple .el-select__suffix {\n	display: flex;\n	align-items: center;\n	flex-shrink: 0;\n	gap: 6px;\n	color: var(--el-input-icon-color, var(--el-text-color-placeholder));\n}\n.pops-panel-select-multiple .el-icon {\n	--color: inherit;\n	height: 1em;\n	width: 1em;\n	line-height: normal;\n	align-content: center;\n	display: inline-flex;\n	justify-content: center;\n	align-items: center;\n	position: relative;\n	fill: currentColor;\n	color: var(--color);\n	font-size: inherit;\n}\n.pops-panel-select-multiple .el-icon svg {\n	height: 1em;\n	width: 1em;\n}\n.pops-panel-select-multiple .el-select__caret {\n	color: var(--el-select-input-color);\n	font-size: var(--el-select-input-font-size);\n	transition: var(--el-transition-duration);\n	transform: rotate(0);\n	cursor: pointer;\n}\n.pops-panel-select-multiple .el-tag {\n	--el-tag-font-size: 12px;\n	--el-tag-border-radius: 4px;\n	--el-tag-border-radius-rounded: 9999px;\n}\n.pops-panel-select-multiple .el-tag {\n	background-color: var(--el-tag-bg-color);\n	border-color: var(--el-tag-border-color);\n	color: var(--el-tag-text-color);\n	display: inline-flex;\n	justify-content: center;\n	align-items: center;\n	vertical-align: middle;\n	height: 24px;\n	padding: 0 9px;\n	font-size: var(--el-tag-font-size);\n	line-height: normal;\n	align-content: center;\n	border-width: 1px;\n	border-style: solid;\n	border-radius: var(--el-tag-border-radius);\n	box-sizing: border-box;\n	white-space: nowrap;\n	--el-icon-size: 14px;\n	--el-tag-bg-color: var(--el-color-primary-light-9);\n	--el-tag-border-color: var(--el-color-primary-light-8);\n	--el-tag-hover-color: var(--el-color-primary);\n}\n.pops-panel-select-multiple .el-select__selection .el-tag {\n	cursor: pointer;\n	border-color: transparent;\n}\n.pops-panel-select-multiple .el-tag.el-tag--info {\n	--el-tag-bg-color: var(--el-color-info-light-9);\n	--el-tag-border-color: var(--el-color-info-light-8);\n	--el-tag-hover-color: var(--el-color-info);\n}\n.pops-panel-select-multiple .el-tag.el-tag--info {\n	--el-tag-text-color: var(--el-color-info);\n}\n.pops-panel-select-multiple .el-tag.is-closable {\n	padding-right: 5px;\n}\n.pops-panel-select-multiple .el-select__selection .el-tag .el-tag__content {\n	min-width: 0;\n}\n.pops-panel-select-multiple .el-tag .el-tag__close {\n	flex-shrink: 0;\n	color: var(--el-tag-text-color);\n}\n.pops-panel-select-multiple .el-tag .el-tag__close:hover {\n	color: var(--el-color-white);\n	background-color: var(--el-tag-hover-color);\n}\n.pops-panel-select-multiple .el-tag .el-icon {\n	border-radius: 50%;\n	cursor: pointer;\n	font-size: calc(var(--el-icon-size) - 2px);\n	height: var(--el-icon-size);\n	width: var(--el-icon-size);\n}\n.pops-panel-select-multiple .el-tag .el-tag__close {\n	margin-left: 6px;\n}\n.pops-panel-select-multiple .el-select__tags-text {\n	display: block;\n	line-height: normal;\n	align-content: center;\n	overflow: hidden;\n	text-overflow: ellipsis;\n	white-space: nowrap;\n}\n.pops-panel-select-multiple-disable {\n	--el-fill-color-blank: #f5f7fa;\n	--color: #a8abb2;\n	--el-border-color: #cbcbcb;\n}\n.pops-panel-select-multiple-disable .el-tag.el-tag--info {\n	--el-tag-bg-color: #e7e7e7;\n	--el-tag-text-color: var(--pops-components-is-disabled-text-color);\n}\n.pops-panel-select-multiple-disable .el-select__selection .el-tag,\n.pops-panel-select-multiple-disable .el-tag .el-tag__close:hover,\n.pops-panel-select-multiple-disable .el-select__wrapper,\n.pops-panel-select-multiple-disable .el-select__caret {\n	cursor: not-allowed;\n}\n/* select-multiple的CSS*/\n\n/* deepMenu的css */\n.pops-panel-deepMenu-nav-item {\n	cursor: pointer;\n}\n.pops-panel-deepMenu-nav-item:active {\n	background: var(--pops-panel-forms-container-deepMenu-item-active-bg);\n	user-select: none;\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n}\nsection.pops-panel-container .pops-panel-forms-container-item ul li.pops-panel-deepMenu-nav-item:active {\n	padding: var(--pops-panel-forms-container-li-padding-top-bottom)\n		var(--pops-panel-forms-container-li-padding-left-right);\n	margin: 0px;\n}\n/* 去除上个兄弟item的底部边框颜色 */\nsection.pops-panel-container\n	.pops-panel-forms-container-item\n	ul\n	li:has(+ .pops-panel-deepMenu-nav-item:active) {\n	border-bottom: 1px solid transparent;\n}\n/* 第一个和最后一个跟随圆角 */\nsection.pops-panel-container\n	.pops-panel-forms-container-item\n	ul\n	li.pops-panel-deepMenu-nav-item:first-child:active {\n	border-top-left-radius: var(--pops-panel-forms-container-item-border-radius);\n	border-top-right-radius: var(--pops-panel-forms-container-item-border-radius);\n}\nsection.pops-panel-container\n	.pops-panel-forms-container-item\n	ul\n	li.pops-panel-deepMenu-nav-item:last-child:active {\n	border-bottom-left-radius: var(--pops-panel-forms-container-item-border-radius);\n	border-bottom-right-radius: var(--pops-panel-forms-container-item-border-radius);\n}\n.pops-panel-deepMenu-nav-item .pops-panel-deepMenu {\n	display: flex;\n	align-items: center;\n	color: #6c6c6c;\n	fill: #6c6c6c;\n}\n.pops-panel-deepMenu-nav-item .pops-panel-deepMenu-arrowRight-icon {\n	width: 15px;\n	height: 15px;\n	display: flex;\n	align-items: center;\n}\nsection.pops-panel-deepMenu-container\n	.pops-panel-container-header-ul\n	li.pops-panel-deepMenu-container-header {\n	display: flex;\n	align-items: center;\n	width: -webkit-fill-available;\n	width: -moz-available;\n	padding: var(--pops-panel-forms-header-padding-top-bottom)\n		calc(\n			var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right) -\n				var(--pops-panel-forms-header-icon-size)\n		);\n	gap: 0px;\n}\n.pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon {\n	width: var(--pops-panel-forms-header-icon-size);\n	height: var(--pops-panel-forms-header-icon-size);\n	display: flex;\n	align-items: center;\n	cursor: pointer;\n}\n/* 修复safari上图标大小未正常显示 */\n.pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon > svg {\n	width: inherit;\n	height: inherit;\n}\n/* deepMenu的css */\n\n/* 文字对齐 */\n.pops-panel-item-left-desc-text:has(code) {\n	display: flex;\n	align-items: baseline;\n	flex-wrap: wrap;\n}\n\n@media (prefers-color-scheme: dark) {\n	.pops[type-value="panel"] {\n		--pops-bg-color: #000000;\n		--pops-color: #f2f2f2;\n		--panel-title-bg-color: #000000;\n		--panel-aside-bg-color: #262626;\n		--pops-panel-forms-container-item-left-desc-text-color: #6c6c6c;\n		--pops-panel-forms-container-item-bg-color: #262626;\n		--pops-panel-forms-container-item-title-color: #c1c1c1;\n\n		--pops-panel-forms-container-li-border-color: rgb(51, 51, 51, var(--pops-bd-opacity));\n		--pops-panel-forms-container-deepMenu-item-active-bg: #333333;\n	}\n	.pops[type-value="panel"] .pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon {\n		fill: #f2f2f2;\n	}\n\n	/* switch的CSS */\n	.pops-panel-switch {\n		--panel-switch-core-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\n		--panel-switch-core-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\n		--panel-switch-circle-color: #dcdfe6;\n		--panel-switch-circle-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n		--panel-switch-checked-circle-color: #409eff;\n		--panel-switch-checked-core-bd-color: rgb(64, 158, 255, var(--pops-bd-opacity));\n		--panel-switch-checked-core-bg-color: rgb(64, 158, 255, var(--pops-bg-opacity));\n	}\n	/* select的CSS */\n	.pops-panel-select {\n		--pops-panel-components-select-text-color: #f2f2f2;\n		--pops-panel-components-select-bd-color: rgb(51, 51, 51, var(--pops-bd-opacity));\n		--pops-panel-components-select-bg-color: #141414;\n	}\n	/* select-multiple的CSS*/\n	.pops-panel-select-multiple {\n		--el-fill-color-blank: #141414;\n		--el-border-color: #4c4d4f;\n		--el-text-color-placeholder: #a8abb2;\n		--el-select-input-color: #a8abb2;\n		--el-text-color-regular: #606266;\n		--el-color-info: #909399;\n		--el-color-info-light-8: #e9e9eb;\n		--el-color-primary-light-9: #ecf5ff;\n		--el-color-primary-light-8: #d9ecff;\n		--el-color-primary: #409eff;\n		--el-color-white: #ffffff;\n	}\n	.pops-panel-select-multiple .el-tag {\n		--el-color-info-light-9: #202121;\n	}\n	.pops-panel-select-multiple-disable {\n		--el-border-color: rgb(51, 51, 51, var(--pops-bd-opacity));\n	}\n	.pops-panel-select-multiple-disable .el-tag.el-tag--info {\n		--el-tag-bg-color: #2f2f2f;\n	}\n	/* select-multiple的CSS*/\n	/* slider的CSS */\n	.pops-slider {\n		--pops-slider-border-color-light: #414243;\n	}\n	/* input的CSS */\n	.pops-panel-input {\n		--pops-panel-components-input-text-color: #f2f2f2;\n		--pops-panel-components-input-bd-color: #4f5052;\n		--pops-panel-components-input-bg-color: #141414;\n		--pops-panel-components-input-hover-bd-color: #6f7175;\n		--pops-panel-components-input-focus-bd-color: #409eff;\n		--pops-panel-components-input-suffix-color: #a8abb2;\n	}\n	/* textarea的CSS */\n	.pops-panel-textarea {\n		--pops-panel-components-textarea-text-color: #f2f2f2;\n		--pops-panel-components-textarea-text-bg-color: #141414;\n		--pops-panel-components-textarea-bd-color: #4f5052;\n		--pops-panel-components-textarea-hover-bd-color: #6f7175;\n		--pops-panel-components-textarea-focus-bd-color: #409eff;\n	}\n	.pops-panel-textarea-disable {\n		--pops-panel-components-textarea-text-color: var(--pops-components-is-disabled-text-color);\n		--pops-panel-components-textarea-text-bg-color: var(--pops-components-is-disabled-bg-color);\n	}\n	/* slider */\n	.pops-slider {\n		--pops-slider-text-color-placeholder: #8d9095;\n	}\n}\n';
   var rightClickMenuCSS = '.pops-rightClickMenu {\n	--pops-right-context-color: #000000;\n	--pops-right-context-bg-color: rgb(255, 255, 255, 0.733);\n	--pops-right-context-backdrop-filter: blur(10px);\n	--pops-right-context-z-index: 10000;\n	--pops-right-context-bd-radius: 6px;\n	--pops-right-context-menu-shadow-color: rgb(114, 114, 114, 0.251);\n	--pops-right-context-menu-row-bd-radius: 6px;\n	--pops-right-context-menu-row-visited-color: rgb(0, 0, 0, 0.067);\n	--pops-right-context-menu-row-hover-color: rgb(0, 0, 0, 0.067);\n}\n.pops-rightClickMenu * {\n	-webkit-box-sizing: border-box;\n	box-sizing: border-box;\n	margin: 0;\n	padding: 0;\n	-webkit-tap-highlight-color: transparent;\n	scrollbar-width: thin;\n}\n.pops-rightClickMenu {\n	position: fixed;\n	z-index: var(--pops-right-context-z-index);\n	text-align: center;\n	border-radius: var(--pops-right-context-bd-radius);\n	font-size: 16px;\n	font-weight: 500;\n	color: var(--pops-right-context-color);\n	background: var(--pops-right-context-bg-color);\n	box-shadow: 0 0.25rem 0.5rem 0.125rem var(--pops-right-context-menu-shadow-color);\n	-webkit-backdrop-filter: var(--pops-right-context-backdrop-filter);\n	backdrop-filter: var(--pops-right-context-backdrop-filter);\n}\n/* scale动画 */\n.pops-rightClickMenu-anim-scale {\n	transition:\n		opacity 150ms cubic-bezier(0.2, 0, 0.2, 1),\n		transform 150ms cubic-bezier(0.2, 0, 0.2, 1);\n	transform: scale(0.85);\n}\n.pops-rightClickMenu-anim-scale-open {\n	transform: scale(1);\n}\n.pops-rightClickMenu-anim-scale-not-open {\n	opacity: 0;\n}\n/* 展开动画 */\n.pops-rightClickMenu-anim-grid {\n	display: grid;\n	transition: 0.3s;\n	grid-template-rows: 0fr;\n}\n.pops-rightClickMenu-anim-show {\n	grid-template-rows: 1fr;\n}\n.pops-rightClickMenu-is-visited {\n	background: var(--pops-right-context-menu-row-visited-color);\n}\ni.pops-rightClickMenu-icon {\n	height: 1em;\n	width: 1em;\n	line-height: normal;\n	align-content: center;\n	display: inline-flex;\n	justify-content: center;\n	align-items: center;\n	position: relative;\n	fill: currentColor;\n	color: inherit;\n	font-size: inherit;\n	margin-right: 6px;\n}\ni.pops-rightClickMenu-icon[is-loading="true"] {\n	animation: rotating 2s linear infinite;\n}\n.pops-rightClickMenu li:hover {\n	background: var(--pops-right-context-menu-row-hover-color);\n	cursor: pointer;\n}\n.pops-rightClickMenu ul {\n	margin: 0;\n	padding: 0;\n	display: flex;\n	flex-direction: column;\n	align-items: flex-start;\n	justify-content: center;\n	overflow: hidden;\n}\n.pops-rightClickMenu ul li {\n	padding: 5px 10px;\n	margin: 5px 5px;\n	border-radius: var(--pops-right-context-menu-row-bd-radius);\n	display: flex;\n	width: -webkit-fill-available;\n	width: -moz-available;\n	text-align: left;\n	user-select: none;\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n	align-items: center;\n}\n\n@media (prefers-color-scheme: dark) {\n	/*.pops-rightClickMenu {\n		--pops-right-context-menu-shadow-color: #3c3c3c;\n	}*/\n}\n@media (hover: hover) {\n	.pops-rightClickMenu ul li:active {\n		transform: scale(0.98);\n	}\n}\n';
   const PopsCSS = {
-    /** 主CSS */
-    index: indexCSS,
-    /** 九宫格位置CSS */
-    ninePalaceGridPosition: ninePalaceGridPositionCSS,
-    /** 滚动条CSS */
-    scrollbar: scrollbarCSS,
-    /** 按钮CSS */
-    button: buttonCSS,
-    /** 通用的CSS */
-    common: commonCSS,
-    /** 动画 */
-    anim: animCSS,
-    /** pops.alert */
-    alertCSS,
-    /** pops.cponfirm */
-    confirmCSS,
-    /** pops.prompt */
-    promptCSS,
-    /** pops.loading */
-    loadingCSS,
-    /** pops.iframe */
-    iframeCSS,
-    /** pops.tooltip */
-    tooltipCSS,
-    /** pops.drawer */
-    drawerCSS,
-    /** pops.folder */
-    folderCSS,
-    /** pops.folder */
-    panelCSS,
-    /** pops.rightClickMenu */
-    rightClickMenu: rightClickMenuCSS
+index: indexCSS,
+ninePalaceGridPosition: ninePalaceGridPositionCSS,
+scrollbar: scrollbarCSS,
+button: buttonCSS,
+common: commonCSS,
+anim: animCSS,
+alertCSS,
+confirmCSS,
+promptCSS,
+loadingCSS,
+iframeCSS,
+tooltipCSS,
+drawerCSS,
+folderCSS,
+panelCSS,
+rightClickMenu: rightClickMenuCSS
   };
   const PopsAnimation = {
     $data: {},
     $flag: {
-      /** 是否初始化 */
-      isInit: false
+isInit: false
     },
     init() {
       if (!this.$flag.isInit) {
@@ -14722,10 +12144,7 @@ ${err.stack}`);
         }, 50);
       }
     },
-    /**
-     * 判断是否存在某个动画名
-     */
-    hasAnim(name) {
+hasAnim(name) {
       return this.$data.hasOwnProperty(name);
     }
   };
@@ -14739,23 +12158,10 @@ ${err.stack}`);
     panel: [],
     prompt: [],
     rightClickMenu: [],
-    // 没有 searchSuggestion
-    tooltip: []
+tooltip: []
   };
   const PopsInstanceUtils = {
-    /**
-     * 获取页面中最大的z-index的元素信息
-     * @param deviation 获取最大的z-index值的偏移，默认是+1
-     * @param node 进行判断的元素，默认是document
-     * @param ignoreCallBack 执行元素处理时调用的函数，返回false可忽略不想要处理的元素
-     * @example
-     * Utils.getMaxZIndexNodeInfo();
-     * > {
-     *   node: ...,
-     *   zIndex: 1001
-     * }
-     **/
-    getMaxZIndexNodeInfo(deviation = 1, target = PopsCore.document, ignoreCallBack) {
+getMaxZIndexNodeInfo(deviation = 1, target = PopsCore.document, ignoreCallBack) {
       deviation = Number.isNaN(deviation) ? 1 : deviation;
       const maxZIndexCompare = 2 * Math.pow(10, 9);
       let zIndex = 0;
@@ -14798,11 +12204,7 @@ ${err.stack}`);
         zIndex
       };
     },
-    /**
-     * 获取pops所有弹窗中的最大的z-index
-     * @param deviation
-     */
-    getPopsMaxZIndex(deviation = 1) {
+getPopsMaxZIndex(deviation = 1) {
       deviation = Number.isNaN(deviation) ? 1 : deviation;
       const maxZIndex = 2 * Math.pow(10, 9);
       let zIndex = 0;
@@ -14833,23 +12235,10 @@ ${err.stack}`);
       }
       return { zIndex, animElement: maxZIndexNode, isOverMaxZIndex };
     },
-    /**
-     * 获取页面中最大的z-index
-     * @param deviation 获取最大的z-index值的偏移，默认是+1
-     * @example
-     * getMaxZIndex();
-     * > 1001
-     **/
-    getMaxZIndex(deviation = 1) {
+getMaxZIndex(deviation = 1) {
       return this.getMaxZIndexNodeInfo(deviation).zIndex;
     },
-    /**
-     * 删除配置中对应的对象
-     * @param instConfigList 配置实例列表
-     * @param  guid 唯一标识
-     * @param isAll 是否全部删除
-     */
-    removeInstance(instConfigList, guid, isAll = false) {
+removeInstance(instConfigList, guid, isAll = false) {
       function removeItem(instCommonConfig) {
         if (typeof instCommonConfig.beforeRemoveCallBack === "function") {
           instCommonConfig.beforeRemoveCallBack(instCommonConfig);
@@ -14886,16 +12275,7 @@ ${err.stack}`);
       });
       return instConfigList;
     },
-    /**
-     * 隐藏
-     * @param popsType
-     * @param instConfigList
-     * @param guid
-     * @param config
-     * @param animElement
-     * @param maskElement
-     */
-    hide(popsType, instConfigList, guid, config, animElement, maskElement) {
+hide(popsType, instConfigList, guid, config, animElement, maskElement) {
       return new Promise((resolve) => {
         let popsElement = animElement.querySelector(".pops[type-value]");
         if (popsType === "drawer") {
@@ -14919,8 +12299,7 @@ ${err.stack}`);
             instConfigItem.animElement.style.height = "100%";
             instConfigItem.animElement.style["animation-name"] = instConfigItem.animElement.getAttribute("anim") + "-reverse";
             if (PopsAnimation.hasAnim(
-              // @ts-ignore
-              instConfigItem.animElement.style["animation-name"]
+instConfigItem.animElement.style["animation-name"]
             )) {
               let animationendCallBack2 = function() {
                 instConfigItem.animElement.style.display = "none";
@@ -14946,16 +12325,7 @@ ${err.stack}`);
         }
       });
     },
-    /**
-     * 显示
-     * @param popsType
-     * @param instConfigList
-     * @param guid
-     * @param config
-     * @param animElement
-     * @param maskElement
-     */
-    show(popsType, instConfigList, guid, config, animElement, maskElement) {
+show(popsType, instConfigList, guid, config, animElement, maskElement) {
       return new Promise((resolve) => {
         let popsElement = animElement.querySelector(".pops[type-value]");
         if (popsType === "drawer") {
@@ -14981,8 +12351,7 @@ ${err.stack}`);
             instConfigItem.animElement.style.height = "";
             instConfigItem.animElement.style["animation-name"] = instConfigItem.animElement.getAttribute("anim").replace("-reverse", "");
             if (PopsAnimation.hasAnim(
-              // @ts-ignore
-              instConfigItem.animElement.style["animation-name"]
+instConfigItem.animElement.style["animation-name"]
             )) {
               let animationendCallBack2 = function() {
                 popsDOMUtils.off(instConfigItem.animElement, popsDOMUtils.getAnimationEndNameList(), animationendCallBack2, {
@@ -15008,15 +12377,7 @@ ${err.stack}`);
         }
       });
     },
-    /**
-     * 关闭
-     * @param popsType
-     * @param instConfigList
-     * @param guid
-     * @param config
-     * @param animElement
-     */
-    close(popsType, instConfigList, guid, config, animElement) {
+close(popsType, instConfigList, guid, config, animElement) {
       return new Promise((resolve) => {
         let popsElement = animElement.querySelector(".pops[type-value]");
         let drawerConfig = config;
@@ -15057,15 +12418,7 @@ ${err.stack}`);
         }
       });
     },
-    /**
-     * 拖拽元素
-     * 说明：
-     * + 元素的position为absolute或者fixed
-     * + 会为元素的
-     * @param moveElement 需要拖拽的元素
-     * @param options 配置
-     */
-    drag(moveElement, options) {
+drag(moveElement, options) {
       options = Object.assign({
         limit: true,
         extraDistance: 3,
@@ -15183,13 +12536,7 @@ ${err.stack}`);
         });
       }
     },
-    /**
-     * 排序数组
-     * @param getBeforeValueFun
-     * @param getAfterValueFun
-     * @param sortByDesc 排序是否降序，默认降序
-     */
-    sortElementListByProperty(getBeforeValueFun, getAfterValueFun, sortByDesc = true) {
+sortElementListByProperty(getBeforeValueFun, getAfterValueFun, sortByDesc = true) {
       if (typeof sortByDesc !== "boolean") {
         throw new TypeError("参数 sortByDesc 必须为boolean类型");
       }
@@ -15220,10 +12567,7 @@ ${err.stack}`);
     }
   };
   const PopsHandler = {
-    /**
-     * 创建shadow
-     */
-    handlerShadow(config) {
+handlerShadow(config) {
       let $shadowContainer = document.createElement("div");
       $shadowContainer.className = "pops-shadow-container";
       if (config.useShadowRoot) {
@@ -15239,12 +12583,7 @@ ${err.stack}`);
         };
       }
     },
-    /**
-     * 处理初始化
-     * @param $styleParent style元素的父元素
-     * @param css 添加进ShadowRoot的CSS
-     */
-    handleInit($styleParent, css) {
+handleInit($styleParent, css) {
       PopsAnimation.init();
       if (!arguments.length) {
         return;
@@ -15286,13 +12625,7 @@ ${err.stack}`);
         $styleParent.appendChild($css);
       }
     },
-    /**
-     * 处理遮罩层
-     *
-     * + 设置遮罩层的点击事件
-     * @param details 传递的配置
-     */
-    handleMask(details = {}) {
+handleMask(details = {}) {
       let result = {
         maskElement: popsDOMUtils.parseTextToDOM(details.maskHTML)
       };
@@ -15335,127 +12668,36 @@ ${err.stack}`);
       }
       return result;
     },
-    /**
-     * 处理获取元素
-     * @param animElement
-     * @param type
-     */
-    handleQueryElement(animElement, type) {
+handleQueryElement(animElement, type) {
       return {
-        /**
-         * 主元素
-         */
-        popsElement: animElement.querySelector(".pops[type-value"),
-        /**
-         * 确认按钮
-         */
-        btnOkElement: animElement.querySelector(`.pops-${type}-btn-ok`),
-        /**
-         * 取消按钮
-         */
-        btnCancelElement: animElement.querySelector(`.pops-${type}-btn-cancel`),
-        /**
-         * 其它按钮
-         */
-        btnOtherElement: animElement.querySelector(`.pops-${type}-btn-other`),
-        /**
-         * 标题元素
-         */
-        titleElement: animElement.querySelector(`.pops-${type}-title`),
-        /**
-         * 输入框元素
-         */
-        inputElement: animElement.querySelector(`.pops-${type}-content textarea[pops]`) ? animElement.querySelector(`.pops-${type}-content textarea[pops]`) : animElement.querySelector(`.pops-${type}-content input[pops]`),
-        /**
-         * 顶部按钮控制层元素
-         */
-        headerControlsElement: animElement.querySelector(".pops-header-controls"),
-        /**
-         * iframe元素
-         */
-        iframeElement: animElement.querySelector("iframe[pops]"),
-        /**
-         * 加载中元素
-         */
-        loadingElement: animElement.querySelector(".pops-loading"),
-        /**
-         * 内容元素
-         */
-        contentElement: animElement.querySelector(`.pops-${type}-content`),
-        /**
-         * 内容侧边栏容器元素
-         */
-        contentAsideElement: animElement.querySelector(`.pops-${type}-content aside.pops-${type}-aside`),
-        /**
-         * 内容主要区域容器元素
-         */
-        contentSectionContainerElement: animElement.querySelector(`.pops-${type}-content section.pops-${type}-container`),
-        /**
-         * 内容加载中元素
-         */
-        contentLoadingElement: animElement.querySelector(`.pops-${type}-content-global-loading`),
-        /**
-         * 顶部缩小按钮
-         */
-        headerMinBtnElement: animElement.querySelector(".pops-header-control[data-type='min']"),
-        /**
-         * 顶部放大按钮
-         */
-        headerMaxBtnElement: animElement.querySelector(".pops-header-control[data-type='max']"),
-        /**
-         * 顶部恢复原样按钮
-         */
-        headerMiseBtnElement: animElement.querySelector(".pops-header-control[data-type='mise']"),
-        /**
-         * 顶部关闭按钮
-         */
-        headerCloseBtnElement: animElement.querySelector(".pops-header-control[data-type='close']"),
-        /**
-         * 文件夹列表元素
-         */
-        folderListElement: animElement.querySelector(".pops-folder-list"),
-        /**
-         * 文件夹列表顶部元素
-         */
-        folderListHeaderElement: animElement.querySelector(".pops-folder-list .pops-folder-list-table__header-div"),
-        /**
-         * 文件夹列表行元素
-         */
-        folderListHeaderRowElement: animElement.querySelector(".pops-folder-list .pops-folder-list-table__header-div .pops-folder-list-table__header-row"),
-        /**
-         * 文件夹列表tbody元素
-         */
-        folderListBodyElement: animElement.querySelector(".pops-folder-list .pops-folder-list-table__body-div tbody"),
-        /**
-         * 文件夹列表primary元素
-         */
-        folderFileListBreadcrumbPrimaryElement: animElement.querySelector(".pops-folder-list .pops-folder-file-list-breadcrumb-primary"),
-        /**
-         * 文件夹排序按钮-文件名
-         */
-        folderListSortFileNameElement: animElement.querySelector('.pops-folder-list-table__sort[data-sort="fileName"]'),
-        /**
-         * 文件夹排序按钮-修改时间
-         */
-        folderListSortLatestTimeElement: animElement.querySelector('.pops-folder-list-table__sort[data-sort="latestTime"]'),
-        /**
-         * 文件夹排序按钮-文件大小
-         */
-        folderListSortFileSizeElement: animElement.querySelector('.pops-folder-list-table__sort[data-sort="fileSize"]')
+popsElement: animElement.querySelector(".pops[type-value"),
+btnOkElement: animElement.querySelector(`.pops-${type}-btn-ok`),
+btnCancelElement: animElement.querySelector(`.pops-${type}-btn-cancel`),
+btnOtherElement: animElement.querySelector(`.pops-${type}-btn-other`),
+titleElement: animElement.querySelector(`.pops-${type}-title`),
+inputElement: animElement.querySelector(`.pops-${type}-content textarea[pops]`) ? animElement.querySelector(`.pops-${type}-content textarea[pops]`) : animElement.querySelector(`.pops-${type}-content input[pops]`),
+headerControlsElement: animElement.querySelector(".pops-header-controls"),
+iframeElement: animElement.querySelector("iframe[pops]"),
+loadingElement: animElement.querySelector(".pops-loading"),
+contentElement: animElement.querySelector(`.pops-${type}-content`),
+contentAsideElement: animElement.querySelector(`.pops-${type}-content aside.pops-${type}-aside`),
+contentSectionContainerElement: animElement.querySelector(`.pops-${type}-content section.pops-${type}-container`),
+contentLoadingElement: animElement.querySelector(`.pops-${type}-content-global-loading`),
+headerMinBtnElement: animElement.querySelector(".pops-header-control[data-type='min']"),
+headerMaxBtnElement: animElement.querySelector(".pops-header-control[data-type='max']"),
+headerMiseBtnElement: animElement.querySelector(".pops-header-control[data-type='mise']"),
+headerCloseBtnElement: animElement.querySelector(".pops-header-control[data-type='close']"),
+folderListElement: animElement.querySelector(".pops-folder-list"),
+folderListHeaderElement: animElement.querySelector(".pops-folder-list .pops-folder-list-table__header-div"),
+folderListHeaderRowElement: animElement.querySelector(".pops-folder-list .pops-folder-list-table__header-div .pops-folder-list-table__header-row"),
+folderListBodyElement: animElement.querySelector(".pops-folder-list .pops-folder-list-table__body-div tbody"),
+folderFileListBreadcrumbPrimaryElement: animElement.querySelector(".pops-folder-list .pops-folder-file-list-breadcrumb-primary"),
+folderListSortFileNameElement: animElement.querySelector('.pops-folder-list-table__sort[data-sort="fileName"]'),
+folderListSortLatestTimeElement: animElement.querySelector('.pops-folder-list-table__sort[data-sort="latestTime"]'),
+folderListSortFileSizeElement: animElement.querySelector('.pops-folder-list-table__sort[data-sort="fileSize"]')
       };
     },
-    /**
-     * 获取事件配置
-     * @param guid
-     * @param $shadowContainer
-     * @param $shadowRoot
-     * @param mode 当前弹窗类型
-     * @param animElement 动画层
-     * @param popsElement 主元素
-     * @param maskElement 遮罩层
-     * @param config 当前配置
-     */
-    handleEventDetails(guid, $shadowContainer, $shadowRoot, mode, animElement, popsElement, maskElement, config) {
+handleEventDetails(guid, $shadowContainer, $shadowRoot, mode, animElement, popsElement, maskElement, config) {
       return {
         $shadowContainer,
         $shadowRoot,
@@ -15476,16 +12718,7 @@ ${err.stack}`);
         }
       };
     },
-    /**
-     * 获取loading的事件配置
-     * @param guid
-     * @param mode 当前弹窗类型
-     * @param animElement 动画层
-     * @param popsElement 主元素
-     * @param maskElement 遮罩层
-     * @param config 当前配置
-     */
-    handleLoadingEventDetails(guid, mode, animElement, popsElement, maskElement, config) {
+handleLoadingEventDetails(guid, mode, animElement, popsElement, maskElement, config) {
       return {
         element: animElement,
         animElement,
@@ -15504,23 +12737,13 @@ ${err.stack}`);
         }
       };
     },
-    /**
-     * 处理返回的配置，针对popsHandler.handleEventDetails
-     */
-    handleResultDetails(details) {
+handleResultDetails(details) {
       let resultDetails = Object.assign({}, details);
       popsUtils.delete(resultDetails, "type");
       popsUtils.delete(resultDetails, "function");
       return resultDetails;
     },
-    /**
-     * 处理点击事件
-     * @param type 当前按钮类型
-     * @param $btn 按钮元素
-     * @param eventDetails 事件配置，由popsHandler.handleEventDetails创建的
-     * @param callback 点击回调
-     */
-    handleClickEvent(type, $btn, eventDetails, callback) {
+handleClickEvent(type, $btn, eventDetails, callback) {
       popsDOMUtils.on($btn, "click", (event) => {
         let extraParam = {
           type
@@ -15530,13 +12753,7 @@ ${err.stack}`);
         capture: true
       });
     },
-    /**
-     * 全局监听键盘事件
-     * @param keyName 键名|键值
-     * @param otherKeyList 组合按键，数组类型，包含ctrl、shift、alt和meta（win键或mac的cmd键）
-     * @param callback 回调函数
-     */
-    handleKeyboardEvent(keyName, otherKeyList = [], callback) {
+handleKeyboardEvent(keyName, otherKeyList = [], callback) {
       let keyboardEvent = function(event) {
         let _keyName = event.code || event.key;
         let _keyValue = event.charCode || event.keyCode || event.which;
@@ -15569,15 +12786,7 @@ ${err.stack}`);
         }
       };
     },
-    /**
-     * 处理prompt的点击事件
-     * @param type 触发事件类型
-     * @param inputElement 输入框
-     * @param  $btn 按钮元素
-     * @param eventDetails 事件配置，由popsHandler.handleEventDetails创建的
-     * @param callback 点击回调
-     */
-    handlePromptClickEvent(type, inputElement, $btn, eventDetails, callback) {
+handlePromptClickEvent(type, inputElement, $btn, eventDetails, callback) {
       popsDOMUtils.on($btn, "click", (event) => {
         let extraParam = {
           type,
@@ -15588,23 +12797,14 @@ ${err.stack}`);
         capture: true
       });
     },
-    /**
-     * 把配置的z-index配置转为数字
-     * @param zIndex
-     */
-    handleZIndex(zIndex) {
+handleZIndex(zIndex) {
       if (typeof zIndex === "function") {
         return zIndex();
       } else {
         return zIndex;
       }
     },
-    /**
-     * 处理config.only
-     * @param type 当前弹窗类型
-     * @param config 配置
-     */
-    handleOnly(type, config) {
+handleOnly(type, config) {
       if (config.only) {
         if (type === "loading" || type === "tooltip" || type === "rightClickMenu") {
           let inst = PopsInstData[type];
@@ -15631,12 +12831,7 @@ ${err.stack}`);
       }
       return config;
     },
-    /**
-     * 处理把已创建的元素保存到内部环境中
-     * @param type 当前弹窗类型
-     * @param value
-     */
-    handlePush(type, value) {
+handlePush(type, value) {
       PopsInstData[type].push(value);
     }
   };
@@ -15752,8 +12947,7 @@ ${err.stack}`);
         guid,
         popsType,
         config,
-        /*html*/
-        `
+`
 			<div class="pops-title pops-${popsType}-title" style="text-align: ${config.title.position};${headerStyle}">${config.title.html ? config.title.text : `<p pops class="pops-${popsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`}${headerBtnHTML}</div>
 			<div class="pops-content pops-${popsType}-content" style="${contentStyle}">${config.content.html ? config.content.text : `<p pops class="pops-${popsType}-content-text" style="${contentPStyle}">${config.content.text}</p>`}</div>${bottomBtnHTML}`,
         bottomBtnHTML,
@@ -15945,8 +13139,7 @@ ${err.stack}`);
         guid,
         popsType,
         config,
-        /*html*/
-        `
+`
             <div class="pops-title pops-${popsType}-title" style="text-align: ${config.title.position};${headerStyle}">${config.title.html ? config.title.text : `<p pops class="pops-${popsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`}${headerBtnHTML}</div>
                         <div class="pops-content pops-${popsType}-content" style="${contentStyle}">${config.content.html ? config.content.text : `<p pops class="pops-${popsType}-content-text" style="${contentPStyle}">${config.content.text}</p>`}</div>${bottomBtnHTML}`,
         bottomBtnHTML,
@@ -16137,13 +13330,10 @@ ${err.stack}`);
         guid,
         popsType,
         config,
-        /*html*/
-        `
+`
             ${config.title.enable ? (
-        /*html*/
-        `<div class="pops-title pops-${popsType}-title" style="${headerStyle}">${config.title.html ? config.title.text : (
-          /*html*/
-          `<p pops class="pops-${popsType}-title-text" style="width: 100%;text-align: ${config.title.position};${headerPStyle}">${config.title.text}</p>`
+`<div class="pops-title pops-${popsType}-title" style="${headerStyle}">${config.title.html ? config.title.text : (
+`<p pops class="pops-${popsType}-title-text" style="width: 100%;text-align: ${config.title.position};${headerPStyle}">${config.title.text}</p>`
         )}${headerBtnHTML}</div>`
       ) : ""}
             <div class="pops-content pops-${popsType}-content" style="${contentStyle}">${config.content.html ? config.content.text : `<p pops class="pops-${popsType}-content-text" style="${contentPStyle}">${config.content.text}</p>`}</div>${bottomBtnHTML}`,
@@ -16299,11 +13489,9 @@ ${err.stack}`);
         guid,
         PopsType,
         config,
-        /*html*/
-        `
+`
             <div class="pops-content pops-${PopsType}-content">${config.addIndexCSS ? (
-        /*html*/
-        `
+`
                 <style data-model-name="index">${PopsCSS.index}</style>
                 <style data-model-name="anim">${PopsCSS.anim}</style>
                 <style data-model-name="common">${PopsCSS.common}</style>
@@ -16363,8 +13551,7 @@ ${err.stack}`);
       sort: {
         name: "latestTime",
         isDesc: false,
-        // @ts-ignore
-        callback() {
+callback() {
         }
       },
       folder: [
@@ -16376,8 +13563,7 @@ ${err.stack}`);
           latestTime: 0,
           isFolder: true,
           index: 0,
-          // @ts-ignore
-          clickEvent() {
+clickEvent() {
             return [
               {
                 fileName: "测试文件夹2222",
@@ -16387,8 +13573,7 @@ ${err.stack}`);
                 latestTime: 0,
                 isFolder: true,
                 index: 0,
-                // @ts-ignore
-                clickEvent() {
+clickEvent() {
                   return [
                     {
                       fileName: "内部-测试文件.zip",
@@ -16417,8 +13602,7 @@ ${err.stack}`);
           latestTime: 1702039410440,
           isFolder: false,
           index: 1,
-          // @ts-ignore
-          clickEvent() {
+clickEvent() {
             console.log("下载文件：", this.fileName);
             return "https://update.greasyfork.org/scripts/456485/pops.js";
           }
@@ -16615,8 +13799,7 @@ ${err.stack}`);
         guid,
         popsType,
         config,
-        /*html*/
-        `
+`
             <div class="pops-title pops-${popsType}-title" style="text-align: ${config.title.position};${headerStyle}">${config.title.html ? config.title.text : `<p pops class="pops-${popsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`}${headerBtnHTML}</div>
 			<div class="pops-content pops-${popsType}-content ${popsUtils.isPhone() ? "pops-mobile-folder-content" : ""}">
                 <div class="pops-folder-list">
@@ -16718,10 +13901,9 @@ ${err.stack}`);
         popsElement: $pops,
         titleElement: $title,
         contentElement: $content,
-        // folderListElement,
-        // folderListHeaderElement,
-        // folderListHeaderRowElement,
-        folderListBodyElement,
+
+
+folderListBodyElement,
         folderFileListBreadcrumbPrimaryElement,
         headerCloseBtnElement: $btnCloseBtn,
         btnOkElement,
@@ -16797,8 +13979,7 @@ ${err.stack}`);
         fileFormatSize.className = "pops-folder-list-table__body-td";
         PopsSafeUtils.setSafeHTML(
           fileNameElement,
-          /*html*/
-          `
+`
 				<div class="pops-folder-list-file-name cursor-p">
 					<div>
 						<img src="${fileIcon}" alt="${fileType}" class="pops-folder-list-file-icon u-file-icon u-file-icon--list">
@@ -16811,8 +13992,7 @@ ${err.stack}`);
         );
         PopsSafeUtils.setSafeHTML(
           fileTimeElement,
-          /*html*/
-          `
+`
 				<div class="pops-folder-list__time">
 					<span>${latestTime}</span>
 				</div>
@@ -16820,8 +14000,7 @@ ${err.stack}`);
         );
         PopsSafeUtils.setSafeHTML(
           fileFormatSize,
-          /*html*/
-          `
+`
 				<div class="pops-folder-list-format-size">
 					<span>${fileSize}</span>
 				</div>
@@ -16882,8 +14061,7 @@ ${err.stack}`);
         fileNameElement.className = "pops-folder-list-table__body-td";
         PopsSafeUtils.setSafeHTML(
           fileNameElement,
-          /*html*/
-          `
+`
 				<div class="pops-folder-list-file-name pops-mobile-folder-list-file-name cursor-p">
 					<img src="${fileIcon}" alt="${fileType}" class="pops-folder-list-file-icon u-file-icon u-file-icon--list">
 					<div>
@@ -17307,8 +14485,7 @@ ${err.stack}`);
         }
       ]);
       let maskExtraStyle = (
-        // @ts-ignore
-        config.animation != null && config.animation != "" ? "position:absolute;" : ""
+config.animation != null && config.animation != "" ? "position:absolute;" : ""
       );
       let zIndex = PopsHandler.handleZIndex(config.zIndex);
       let maskHTML = PopsElementHandler.createMask(guid, zIndex, maskExtraStyle);
@@ -17320,8 +14497,7 @@ ${err.stack}`);
         guid,
         popsType,
         config,
-        /*html*/
-        `
+`
             <div class="pops-title pops-${popsType}-title" style="text-align: ${config.title.position};${headerStyle}">${config.title.html ? titleText : `<p pops class="pops-${popsType}-title-text" style="${headerPStyle}">${titleText}</p>`}${headerBtnHTML}</div>
 			<div class="pops-content pops-${popsType}-content">
                 <div class="pops-${popsType}-content-global-loading"></div>
@@ -17521,8 +14697,7 @@ ${err.stack}`);
                   className: "panel-switch",
                   text: "switch",
                   type: "switch",
-                  // @ts-ignore
-                  props: {},
+props: {},
                   attributes: [],
                   getValue() {
                     return true;
@@ -17535,8 +14710,7 @@ ${err.stack}`);
                   className: "panel-slider",
                   text: "slider",
                   type: "slider",
-                  // @ts-ignore
-                  props: {},
+props: {},
                   attributes: [],
                   getValue() {
                     return 50;
@@ -17551,8 +14725,7 @@ ${err.stack}`);
                   className: "panel-button",
                   text: "button",
                   type: "button",
-                  // @ts-ignore
-                  props: {},
+props: {},
                   attributes: [],
                   buttonIcon: "view",
                   buttonIconIsLoading: true,
@@ -17566,8 +14739,7 @@ ${err.stack}`);
                   className: "panel-button",
                   text: "button",
                   type: "button",
-                  // @ts-ignore
-                  props: {},
+props: {},
                   attributes: [],
                   buttonIcon: "eleme",
                   buttonIconIsLoading: true,
@@ -17580,8 +14752,7 @@ ${err.stack}`);
                 {
                   className: "panel-button",
                   text: "button",
-                  // @ts-ignore
-                  props: {},
+props: {},
                   type: "button",
                   attributes: [],
                   buttonIcon: "chromeFilled",
@@ -17597,8 +14768,7 @@ ${err.stack}`);
                   text: "button",
                   type: "button",
                   attributes: [],
-                  // @ts-ignore
-                  props: {},
+props: {},
                   buttonIcon: "upload",
                   buttonIconIsLoading: false,
                   buttonType: "info",
@@ -17627,8 +14797,7 @@ ${err.stack}`);
               className: "panel-input",
               text: "input",
               type: "input",
-              // @ts-ignore
-              props: {},
+props: {},
               attributes: [],
               getValue() {
                 return "50";
@@ -17643,8 +14812,7 @@ ${err.stack}`);
               className: "panel-input-password",
               text: "input-password",
               type: "input",
-              // @ts-ignore
-              props: {},
+props: {},
               attributes: [],
               getValue() {
                 return "123456";
@@ -17660,8 +14828,7 @@ ${err.stack}`);
               className: "panel-textarea",
               text: "textarea",
               type: "textarea",
-              // @ts-ignore
-              props: {},
+props: {},
               attributes: [],
               getValue() {
                 return "50";
@@ -17677,8 +14844,7 @@ ${err.stack}`);
               text: "select",
               type: "select",
               disabled: true,
-              // @ts-ignore
-              props: {},
+props: {},
               attributes: [],
               getValue() {
                 return 50;
@@ -17718,8 +14884,7 @@ ${err.stack}`);
               type: "select-multiple",
               text: "select-multiple",
               disabled: true,
-              // @ts-ignore
-              props: {},
+props: {},
               attributes: [],
               placeholder: "请至少选择一个选项",
               getValue() {
@@ -17807,8 +14972,7 @@ ${err.stack}`);
                           className: "panel-switch",
                           text: "switch",
                           type: "switch",
-                          // @ts-ignore
-                          props: {},
+props: {},
                           attributes: [],
                           getValue() {
                             return true;
@@ -17820,8 +14984,7 @@ ${err.stack}`);
                         {
                           className: "panel-slider",
                           text: "slider",
-                          // @ts-ignore
-                          props: {},
+props: {},
                           type: "slider",
                           attributes: [],
                           getValue() {
@@ -17836,8 +14999,7 @@ ${err.stack}`);
                         {
                           className: "panel-button",
                           text: "button",
-                          // @ts-ignore
-                          props: {},
+props: {},
                           type: "button",
                           attributes: [],
                           buttonIcon: "eleme",
@@ -17852,8 +15014,7 @@ ${err.stack}`);
                           className: "panel-button",
                           text: "button",
                           type: "button",
-                          // @ts-ignore
-                          props: {},
+props: {},
                           attributes: [],
                           buttonIcon: "chromeFilled",
                           buttonIconIsLoading: true,
@@ -17866,8 +15027,7 @@ ${err.stack}`);
                         {
                           className: "panel-button",
                           text: "button",
-                          // @ts-ignore
-                          props: {},
+props: {},
                           type: "button",
                           attributes: [],
                           buttonIcon: "upload",
@@ -17886,8 +15046,7 @@ ${err.stack}`);
                   type: "deepMenu",
                   className: "panel-deepMenu2",
                   attributes: {},
-                  //@ts-ignore
-                  props: {},
+props: {},
                   text: "deepMenu2",
                   description: "二级菜单",
                   rightText: "自定义配置",
@@ -17913,8 +15072,7 @@ ${err.stack}`);
                 {
                   className: "panel-switch",
                   text: "switch",
-                  // @ts-ignore
-                  props: {},
+props: {},
                   type: "switch",
                   attributes: [],
                   getValue() {
@@ -17931,8 +15089,7 @@ ${err.stack}`);
         {
           id: "whitesev-panel-bottom-config-1",
           title: (
-            /*html*/
-            `
+`
 					<a rel="nofollow" href="https://www.npmjs.com/package/@whitesev/pops" target="_blank"><img src="https://img.shields.io/npm/v/@whitesev/pops?label=pops" alt="npm pops version"></a>
 				`
           ),
@@ -17944,8 +15101,7 @@ ${err.stack}`);
               "data-value-2": "value2"
             }
           ],
-          // @ts-ignore
-          props: {},
+props: {},
           forms: [],
           clickFirstCallback: function(event, rightHeaderElement, rightContainerElement) {
             return false;
@@ -17961,8 +15117,7 @@ ${err.stack}`);
               "data-value-2": "value2"
             }
           ],
-          // @ts-ignore
-          props: {},
+props: {},
           forms: [],
           clickFirstCallback: function(event, rightHeaderElement, rightContainerElement) {
             return false;
@@ -18009,19 +15164,10 @@ ${err.stack}`);
     };
   };
   const PopsMathFloatUtils = {
-    /**
-     * 判断数字是否是浮点数
-     * @param num
-     */
-    isFloat(num) {
+isFloat(num) {
       return Number(num) === num && num % 1 !== 0;
     },
-    /**
-     * 浮点数加法
-     * @param number1
-     * @param number2
-     */
-    add(number1, number2) {
+add(number1, number2) {
       let number1length, number2length, powValue;
       try {
         number1length = number1.toString().split(".")[1].length;
@@ -18036,12 +15182,7 @@ ${err.stack}`);
       powValue = Math.pow(10, Math.max(number1length, number2length));
       return Math.round(number1 * powValue + number2 * powValue) / powValue;
     },
-    /**
-     * 减法
-     * @param number1
-     * @param number2
-     */
-    sub(number1, number2) {
+sub(number1, number2) {
       let number1length, number2length, powValue;
       try {
         number1length = number1.toString().split(".")[1].length;
@@ -18057,12 +15198,7 @@ ${err.stack}`);
       let fixedValue = number1length >= number2length ? number1length : number2length;
       return (Math.round(number1 * powValue - number2 * powValue) / powValue).toFixed(fixedValue);
     },
-    /**
-     * 除法
-     * @param number1
-     * @param number2
-     */
-    division(number1, number2) {
+division(number1, number2) {
       let number1length, number2length, number1ReplaceValue, number2ReplaceValue;
       try {
         number1length = number1.toString().split(".")[1].length;
@@ -18154,15 +15290,11 @@ ${err.stack}`);
         this.onEvent();
       }
     }
-    /**
-     * 创建提示元素
-     */
-    createToolTip() {
+createToolTip() {
       let $toolTipContainer = popsDOMUtils.createElement("div", {
         className: "pops-tip",
         innerHTML: (
-          /*html*/
-          `
+`
 				<div class="pops-tip-content" style="text-align: center;"></div>
 				<div class="pops-tip-arrow"></div>
 			`
@@ -18193,17 +15325,10 @@ ${err.stack}`);
         $toolTipContent
       };
     }
-    /**
-     * 获取提示的内容
-     */
-    getContent() {
+getContent() {
       return typeof this.$data.config.content === "function" ? this.$data.config.content() : this.$data.config.content;
     }
-    /**
-     * 修改提示的内容
-     * @param text
-     */
-    changeContent(text) {
+changeContent(text) {
       if (text == null) {
         text = this.getContent();
       }
@@ -18219,28 +15344,15 @@ ${err.stack}`);
       }
       PopsSafeUtils.setSafeHTML(this.$el.$content, text);
     }
-    /**
-     * 获取z-index
-     */
-    getZIndex() {
+getZIndex() {
       const zIndex = PopsHandler.handleZIndex(this.$data.config.zIndex);
       return zIndex;
     }
-    /**
-     * 动态修改z-index
-     */
-    changeZIndex() {
+changeZIndex() {
       const zIndex = this.getZIndex();
       this.$el.$toolTip.style.setProperty("z-index", zIndex.toString());
     }
-    /**
-     * 计算 提示框的位置
-     * @param event 触发的事件
-     * @param targetElement 目标元素
-     * @param arrowDistance 箭头和目标元素的距离
-     * @param otherDistance 其它位置的偏移
-     */
-    calcToolTipPosition(targetElement, arrowDistance, otherDistance, event) {
+calcToolTipPosition(targetElement, arrowDistance, otherDistance, event) {
       let offsetInfo = popsDOMUtils.offset(targetElement, !this.$data.config.isFixed);
       let targetElement_width = offsetInfo.width;
       let targetElement_height = offsetInfo.height;
@@ -18302,10 +15414,7 @@ ${err.stack}`);
         }
       };
     }
-    /**
-     * 动态修改tooltip的位置
-     */
-    changePosition(event) {
+changePosition(event) {
       let positionInfo = this.calcToolTipPosition(this.$data.config.target, this.$data.config.arrowDistance, this.$data.config.otherDistance, event);
       let positionKey = this.$data.config.position.toUpperCase();
       let positionDetail = positionInfo[positionKey];
@@ -18318,43 +15427,28 @@ ${err.stack}`);
         console.error("不存在该位置", this.$data.config.position);
       }
     }
-    /**
-     * 事件绑定
-     */
-    onEvent() {
+onEvent() {
       this.onToolTipAnimationFinishEvent();
       this.onShowEvent();
       this.onCloseEvent();
       this.onToolTipMouseEnterEvent();
       this.onToolTipMouseLeaveEvent();
     }
-    /**
-     * 取消事件绑定
-     */
-    offEvent() {
+offEvent() {
       this.offToolTipAnimationFinishEvent();
       this.offShowEvent();
       this.offCloseEvent();
       this.offToolTipMouseEnterEvent();
       this.offToolTipMouseLeaveEvent();
     }
-    /**
-     * 添加关闭的timeId
-     * @param type
-     * @param timeId
-     */
-    addCloseTimeoutId(type, timeId) {
+addCloseTimeoutId(type, timeId) {
       if (type === "MouseEvent") {
         this.$data.timeId_close_MouseEvent.push(timeId);
       } else {
         this.$data.timeId_close_TouchEvent.push(timeId);
       }
     }
-    /**
-     * 清除延迟的timeId
-     * @param type 事件类型
-     */
-    clearCloseTimeoutId(type, timeId) {
+clearCloseTimeoutId(type, timeId) {
       let timeIdList = type === "MouseEvent" ? this.$data.timeId_close_MouseEvent : this.$data.timeId_close_TouchEvent;
       for (let index = 0; index < timeIdList.length; index++) {
         const currentTimeId = timeIdList[index];
@@ -18371,10 +15465,7 @@ ${err.stack}`);
         }
       }
     }
-    /**
-     * 显示提示框
-     */
-    show(...args) {
+show(...args) {
       let event = args[0];
       let eventType = event instanceof MouseEvent ? "MouseEvent" : "TouchEvent";
       this.clearCloseTimeoutId(eventType);
@@ -18400,24 +15491,15 @@ ${err.stack}`);
         this.$data.config.showAfterCallBack(this.$el.$toolTip);
       }
     }
-    /**
-     * 绑定 显示事件
-     */
-    onShowEvent() {
+onShowEvent() {
       popsDOMUtils.on(this.$data.config.target, this.$data.config.triggerShowEventName, this.show, this.$data.config.eventOption);
     }
-    /**
-     * 取消绑定 显示事件
-     */
-    offShowEvent() {
+offShowEvent() {
       popsDOMUtils.off(this.$data.config.target, this.$data.config.triggerShowEventName, this.show, {
         capture: true
       });
     }
-    /**
-     * 关闭提示框
-     */
-    close(...args) {
+close(...args) {
       let event = args[0];
       let eventType = event instanceof MouseEvent ? "MouseEvent" : "TouchEvent";
       if (event && event instanceof MouseEvent) {
@@ -18452,24 +15534,15 @@ ${err.stack}`);
         this.$data.config.closeAfterCallBack(this.$el.$toolTip);
       }
     }
-    /**
-     * 绑定 关闭事件
-     */
-    onCloseEvent() {
+onCloseEvent() {
       popsDOMUtils.on(this.$data.config.target, this.$data.config.triggerCloseEventName, this.close, this.$data.config.eventOption);
     }
-    /**
-     * 取消绑定 关闭事件
-     */
-    offCloseEvent() {
+offCloseEvent() {
       popsDOMUtils.off(this.$data.config.target, this.$data.config.triggerCloseEventName, this.close, {
         capture: true
       });
     }
-    /**
-     * 销毁元素
-     */
-    destory() {
+destory() {
       if (this.$el.$toolTip) {
         this.$el.$shadowRoot.removeChild(this.$el.$toolTip);
       }
@@ -18477,10 +15550,7 @@ ${err.stack}`);
       this.$el.$arrow = null;
       this.$el.$content = null;
     }
-    /**
-     * 动画结束事件
-     */
-    toolTipAnimationFinishEvent() {
+toolTipAnimationFinishEvent() {
       if (!this.$el.$toolTip) {
         return;
       }
@@ -18489,55 +15559,31 @@ ${err.stack}`);
       }
       this.destory();
     }
-    /**
-     * 监听tooltip的动画结束
-     */
-    onToolTipAnimationFinishEvent() {
+onToolTipAnimationFinishEvent() {
       popsDOMUtils.on(this.$el.$toolTip, popsDOMUtils.getAnimationEndNameList(), this.toolTipAnimationFinishEvent);
     }
-    /**
-     * 取消tooltip监听动画结束
-     */
-    offToolTipAnimationFinishEvent() {
+offToolTipAnimationFinishEvent() {
       popsDOMUtils.off(this.$el.$toolTip, popsDOMUtils.getAnimationEndNameList(), this.toolTipAnimationFinishEvent);
     }
-    /**
-     * 鼠标|触摸进入事件
-     */
-    toolTipMouseEnterEvent() {
+toolTipMouseEnterEvent() {
       this.clearCloseTimeoutId("MouseEvent");
       this.clearCloseTimeoutId("TouchEvent");
     }
-    /**
-     * 监听鼠标|触摸事件
-     */
-    onToolTipMouseEnterEvent() {
+onToolTipMouseEnterEvent() {
       this.clearCloseTimeoutId("MouseEvent");
       this.clearCloseTimeoutId("TouchEvent");
       popsDOMUtils.on(this.$el.$toolTip, "mouseenter touchstart", this.toolTipMouseEnterEvent, this.$data.config.eventOption);
     }
-    /**
-     * 取消监听鼠标|触摸事件
-     */
-    offToolTipMouseEnterEvent() {
+offToolTipMouseEnterEvent() {
       popsDOMUtils.off(this.$el.$toolTip, "mouseenter touchstart", this.toolTipMouseEnterEvent, this.$data.config.eventOption);
     }
-    /**
-     * 鼠标|触摸离开事件
-     */
-    toolTipMouseLeaveEvent(event) {
+toolTipMouseLeaveEvent(event) {
       this.close(event);
     }
-    /**
-     * 监听鼠标|触摸离开事件
-     */
-    onToolTipMouseLeaveEvent() {
+onToolTipMouseLeaveEvent() {
       popsDOMUtils.on(this.$el.$toolTip, "mouseleave touchend", this.toolTipMouseLeaveEvent, this.$data.config.eventOption);
     }
-    /**
-     * 取消监听鼠标|触摸离开事件
-     */
-    offToolTipMouseLeaveEvent() {
+offToolTipMouseLeaveEvent() {
       popsDOMUtils.off(this.$el.$toolTip, "mouseleave touchend", this.toolTipMouseLeaveEvent, this.$data.config.eventOption);
     }
   }
@@ -18589,40 +15635,17 @@ ${err.stack}`);
   };
   const PanelHandlerComponents = () => {
     return {
-      /**
-       * 左侧上方的的ul容器
-       */
-      asideULElement: null,
-      /**
-       * 左侧下方的ul容器
-       */
-      asideBottomULElement: null,
-      /**
-       * 右侧主内容的顶部文字ul容器
-       */
-      sectionContainerHeaderULElement: null,
-      /**
-       * 右侧主内容的ul容器
-       */
-      sectionContainerULElement: null,
-      /**
-       * 元素
-       */
-      $el: {
-        /** pops主元素 */
-        $pops: null,
-        /** 内容 */
-        $content: null,
-        /** 左侧容器 */
-        $contentAside: null,
-        /** 右侧容器 */
-        $contentSectionContainer: null
+asideULElement: null,
+asideBottomULElement: null,
+sectionContainerHeaderULElement: null,
+sectionContainerULElement: null,
+$el: {
+$pops: null,
+$content: null,
+$contentAside: null,
+$contentSectionContainer: null
       },
-      /**
-       * 初始化
-       * @param details
-       */
-      init(details) {
+init(details) {
         const PopsType = "panel";
         this.$el = {
           ...details.$el
@@ -18673,36 +15696,21 @@ ${err.stack}`);
           console.error("pops.panel：左侧容器没有项");
         }
       },
-      /**
-       * 清空container容器的元素
-       */
-      clearContainer() {
+clearContainer() {
         Reflect.deleteProperty(this.$el.$contentSectionContainer, "__formConfig__");
         PopsSafeUtils.setSafeHTML(this.sectionContainerHeaderULElement, "");
         PopsSafeUtils.setSafeHTML(this.sectionContainerULElement, "");
         this.$el.$content?.querySelectorAll("section.pops-panel-deepMenu-container").forEach(($el) => $el.remove());
       },
-      /**
-       * 清空左侧容器已访问记录
-       */
-      clearAsideItemIsVisited() {
+clearAsideItemIsVisited() {
         this.$el.$contentAside.querySelectorAll(".pops-is-visited").forEach(($el) => {
           popsDOMUtils.removeClassName($el, "pops-is-visited");
         });
       },
-      /**
-       * 设置左侧容器已访问记录
-       * @param element
-       */
-      setAsideItemIsVisited(element) {
+setAsideItemIsVisited(element) {
         popsDOMUtils.addClassName(element, "pops-is-visited");
       },
-      /**
-       * 为元素添加自定义属性
-       * @param element
-       * @param attributes
-       */
-      setElementAttributes(element, attributes) {
+setElementAttributes(element, attributes) {
         if (attributes == null) {
           return;
         }
@@ -18716,12 +15724,7 @@ ${err.stack}`);
           });
         }
       },
-      /**
-       * 为元素设置(自定义)属性
-       * @param element
-       * @param props
-       */
-      setElementProps(element, props) {
+setElementProps(element, props) {
         if (props == null) {
           return;
         }
@@ -18734,12 +15737,7 @@ ${err.stack}`);
           Reflect.set(element, propName, value);
         });
       },
-      /**
-       * 为元素设置classname
-       * @param element
-       * @param className
-       */
-      setElementClassName(element, className) {
+setElementClassName(element, className) {
         if (className == null) {
           return;
         }
@@ -18757,11 +15755,7 @@ ${err.stack}`);
           });
         }
       },
-      /**
-       * 创建左侧容器元素<li>
-       * @param  asideConfig
-       */
-      createAsideItem(asideConfig) {
+createAsideItem(asideConfig) {
         let $li = document.createElement("li");
         $li.id = asideConfig.id;
         Reflect.set($li, "__forms__", asideConfig.forms);
@@ -18780,12 +15774,7 @@ ${err.stack}`);
         }
         return $li;
       },
-      /**
-       * type ==> switch
-       * 创建中间容器的元素<li>
-       * @param formConfig
-       */
-      createSectionContainerItem_switch(formConfig) {
+createSectionContainerItem_switch(formConfig) {
         let $li = document.createElement("li");
         Reflect.set($li, "__formConfig__", formConfig);
         this.setElementClassName($li, formConfig.className);
@@ -18793,13 +15782,12 @@ ${err.stack}`);
         this.setElementProps($li, formConfig.props);
         let leftDescriptionText = "";
         if (Boolean(formConfig.description)) {
-          leftDescriptionText = /*html*/
-          `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+          leftDescriptionText =
+`<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
         PopsSafeUtils.setSafeHTML(
           $li,
-          /*html*/
-          `
+`
 				<div class="pops-panel-item-left-text">
 					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-switch">
@@ -18829,10 +15817,7 @@ ${err.stack}`);
             }
             this.setClickEvent();
           },
-          /**
-           * 设置点击事件
-           */
-          setClickEvent() {
+setClickEvent() {
             let that = this;
             popsDOMUtils.on(this.$ele.core, "click", function(event) {
               if (that.$ele.input.disabled || that.$ele.switch.hasAttribute("data-disabled")) {
@@ -18845,10 +15830,7 @@ ${err.stack}`);
               }
             });
           },
-          /**
-           * 设置状态
-           */
-          setStatus(isChecked = false) {
+setStatus(isChecked = false) {
             isChecked = Boolean(isChecked);
             this.$ele.input.checked = isChecked;
             if (isChecked) {
@@ -18857,28 +15839,19 @@ ${err.stack}`);
               popsDOMUtils.removeClassName(this.$ele.switch, "pops-panel-switch-is-checked");
             }
           },
-          /**
-           * 根据className来获取逆反值
-           */
-          getStatus() {
+getStatus() {
             let checkedValue = false;
             if (!popsDOMUtils.containsClassName(this.$ele.switch, "pops-panel-switch-is-checked")) {
               checkedValue = true;
             }
             return checkedValue;
           },
-          /**
-           * 禁用复选框
-           */
-          disable() {
+disable() {
             this.$ele.input.disabled = true;
             this.$ele.switch.setAttribute("data-disabled", "true");
             popsDOMUtils.addClassName(this.$ele.itemLeftTextContainer, PopsCommonCSSClassName.textIsDisabled);
           },
-          /**
-           * 取消禁用复选框
-           */
-          notDisable() {
+notDisable() {
             this.$ele.input.disabled = false;
             this.$ele.switch.removeAttribute("data-disabled");
             popsDOMUtils.removeClassName(this.$ele.itemLeftTextContainer, PopsCommonCSSClassName.textIsDisabled);
@@ -18888,12 +15861,7 @@ ${err.stack}`);
         Reflect.set($li, "data-switch", PopsPanelSwitch);
         return $li;
       },
-      /**
-       * type ==> slider
-       * 获取中间容器的元素<li>
-       * @param formConfig
-       */
-      createSectionContainerItem_slider(formConfig) {
+createSectionContainerItem_slider(formConfig) {
         let $li = document.createElement("li");
         Reflect.set($li, "__formConfig__", formConfig);
         this.setElementClassName($li, formConfig.className);
@@ -18905,8 +15873,7 @@ ${err.stack}`);
         }
         PopsSafeUtils.setSafeHTML(
           $li,
-          /*html*/
-          `
+`
 				<div class="pops-panel-item-left-text">
 					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-slider">
@@ -18948,12 +15915,7 @@ ${err.stack}`);
         });
         return $li;
       },
-      /**
-       * type ==> slider
-       * 获取中间容器的元素<li>
-       * @param formConfig
-       */
-      createSectionContainerItem_slider_new(formConfig) {
+createSectionContainerItem_slider_new(formConfig) {
         let $li = document.createElement("li");
         Reflect.set($li, "__formConfig__", formConfig);
         this.setElementClassName($li, formConfig.className);
@@ -18961,13 +15923,12 @@ ${err.stack}`);
         this.setElementProps($li, formConfig.props);
         let leftDescriptionText = "";
         if (Boolean(formConfig.description)) {
-          leftDescriptionText = /*html*/
-          `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+          leftDescriptionText =
+`<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
         PopsSafeUtils.setSafeHTML(
           $li,
-          /*html*/
-          `
+`
 				<div class="pops-panel-item-left-text" style="flex: 1;">
 					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-slider pops-slider-width">
@@ -18981,64 +15942,19 @@ ${err.stack}`);
         );
         const PopsPanelSlider = {
           [Symbol.toStringTag]: "PopsPanelSlider",
-          /**
-           * 值
-           */
-          value: formConfig.getValue(),
-          /**
-           * 最小值
-           */
-          min: formConfig.min,
-          /**
-           * 最大值
-           */
-          max: formConfig.max,
-          /**
-           * 间隔
-           */
-          step: formConfig.step || 1,
+value: formConfig.getValue(),
+min: formConfig.min,
+max: formConfig.max,
+step: formConfig.step || 1,
           $data: {
-            /**
-             * 是否正在移动
-             */
-            isMove: false,
-            /**
-             * 是否已初始化已拖拽的距离
-             */
-            isInitDragPosition: false,
-            /**
-             * 是否正在检测是否停止拖拽
-             */
-            isCheckingStopDragMove: false,
-            /**
-             * 总宽度（px）
-             */
-            totalWidth: 0,
-            /**
-             * 每一块的间隔（px）
-             */
-            stepPx: 0,
-            /**
-             * 已拖拽的距离（px）
-             */
-            dragWidth: 0,
-            /**
-             * 已拖拽的百分比
-             */
-            dragPercent: 0,
-            /**
-             * 每一次块的信息
-             * 例如：当最小值是2，最大值是10，step为2
-             * 那么生成[2,4,6,8,10] 共计5个
-             * 又获取到当前滑块总长度是200px
-             * 那么生成映射
-             * 2 => 0px~40px
-             * 4 => 40px~80px
-             * 6 => 80px~120px
-             * 8 => 120px~160px
-             * 10 => 160px~200px
-             */
-            stepBlockMap: /* @__PURE__ */ new Map(),
+isMove: false,
+isInitDragPosition: false,
+isCheckingStopDragMove: false,
+totalWidth: 0,
+stepPx: 0,
+dragWidth: 0,
+dragPercent: 0,
+stepBlockMap: new Map(),
             tooltip: null
           },
           $ele: {
@@ -19063,13 +15979,7 @@ ${err.stack}`);
               this.disableDrag();
             }
           },
-          /**
-           * 10s内循环获取slider的宽度等信息
-           * 获取到了就可以初始化left的值
-           * @param [checkStepTime=200] 每次检测的间隔时间
-           * @param [maxTime=10000] 最大的检测时间
-           */
-          intervalInit(checkStepTime = 200, maxTime = 1e4) {
+intervalInit(checkStepTime = 200, maxTime = 1e4) {
             if (this.$interval.isCheck) {
               return;
             }
@@ -19101,10 +16011,7 @@ ${err.stack}`);
               clearInterval(interval);
             }, maxTime);
           },
-          /**
-           * 把数据添加到元素上
-           */
-          initEleData() {
+initEleData() {
             this.$ele.slider.setAttribute("data-min", this.min.toString());
             this.$ele.slider.setAttribute("data-max", this.max.toString());
             this.$ele.slider.setAttribute("data-value", this.value.toString());
@@ -19114,16 +16021,10 @@ ${err.stack}`);
             Reflect.set(this.$ele.slider, "data-value", this.value);
             Reflect.set(this.$ele.slider, "data-step", this.step);
           },
-          /**
-           * 初始化滑块的总长度的数据(px)
-           */
-          initTotalWidth() {
+initTotalWidth() {
             this.$data.totalWidth = popsDOMUtils.width(this.$ele.runAway);
           },
-          /**
-           * 初始化每一个块的具体数据信息
-           */
-          initStepMap() {
+initStepMap() {
             let index = 0;
             let blockNums = (this.max - this.min) / this.step;
             this.$data.stepPx = this.$data.totalWidth / blockNums;
@@ -19153,10 +16054,7 @@ ${err.stack}`);
               widthPx += this.$data.stepPx;
             }
           },
-          /**
-           * 初始化每一个块的具体数据信息（浮点）
-           */
-          initFloatStepMap() {
+initFloatStepMap() {
             let index = 0;
             let blockNums = (this.max - this.min) / this.step;
             this.$data.stepPx = this.$data.totalWidth / blockNums;
@@ -19186,10 +16084,7 @@ ${err.stack}`);
               widthPx += this.$data.stepPx;
             }
           },
-          /**
-           * 初始化slider的默认起始left的百分比值
-           */
-          initSliderPosition() {
+initSliderPosition() {
             let percent = 0;
             for (const [, stepBlockInfo] of this.$data.stepBlockMap.entries()) {
               if (stepBlockInfo.value == this.value) {
@@ -19201,28 +16096,15 @@ ${err.stack}`);
             percent = this.formatValue(percent * 100);
             this.setSliderPosition(percent);
           },
-          /**
-           * 判断数字是否是浮点数
-           * @param num
-           */
-          isFloat(num) {
+isFloat(num) {
             return Number(num) === num && num % 1 !== 0;
           },
-          /**
-           * 值改变的回调
-           * @param event
-           * @param value
-           */
-          valueChangeCallBack(event, value) {
+valueChangeCallBack(event, value) {
             if (typeof formConfig.callback === "function") {
               formConfig.callback(event, value);
             }
           },
-          /**
-           * 根据拖拽距离获取滑块应该在的区间和值
-           * @param dragX
-           */
-          getDragInfo(dragX) {
+getDragInfo(dragX) {
             let result = this.$data.stepBlockMap.get(0);
             for (const [, stepBlockInfo] of this.$data.stepBlockMap.entries()) {
               if (stepBlockInfo.pxLeft <= dragX && dragX < stepBlockInfo.pxRight) {
@@ -19232,18 +16114,10 @@ ${err.stack}`);
             }
             return result;
           },
-          /**
-           * 获取滑块的当前脱拖拽占据的百分比
-           * @param dragWidth
-           */
-          getSliderPositonPercent(dragWidth) {
+getSliderPositonPercent(dragWidth) {
             return dragWidth / this.$data.totalWidth;
           },
-          /**
-           * 根据step格式化value
-           * @param num
-           */
-          formatValue(num) {
+formatValue(num) {
             if (PopsMathFloatUtils.isFloat(this.step)) {
               num = parseFloat(num.toFixed(2));
             } else {
@@ -19251,11 +16125,7 @@ ${err.stack}`);
             }
             return num;
           },
-          /**
-           * 设置滑块的位置偏移（left）
-           * @param percent 百分比
-           */
-          setSliderPosition(percent) {
+setSliderPosition(percent) {
             if (parseInt(percent.toString()) === 1) {
               percent = 1;
             }
@@ -19265,30 +16135,18 @@ ${err.stack}`);
             this.$ele.buttonWrapper.style.left = `${percent * 100}%`;
             this.$ele.bar.style.width = `${percent * 100}%`;
           },
-          /**
-           * 禁止拖拽
-           */
-          disableDrag() {
+disableDrag() {
             popsDOMUtils.addClassName(this.$ele.runAway, "pops-slider-is-disabled");
             popsDOMUtils.addClassName(this.$ele.runAway, PopsCommonCSSClassName.textIsDisabled);
           },
-          /**
-           * 允许拖拽
-           */
-          allowDrag() {
+allowDrag() {
             popsDOMUtils.removeClassName(this.$ele.runAway, "pops-slider-is-disabled");
             popsDOMUtils.removeClassName(this.$ele.runAway, PopsCommonCSSClassName.textIsDisabled);
           },
-          /**
-           * 判断当前滑块是否被禁用
-           */
-          isDisabledDrag() {
+isDisabledDrag() {
             return popsDOMUtils.containsClassName(this.$ele.runAway, "pops-slider-is-disabled");
           },
-          /**
-           * 判断当前滑块是否被禁用（配置中判断）
-           */
-          isFormConfigDisabledDrag() {
+isFormConfigDisabledDrag() {
             let isDisabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
             if (typeof isDisabled === "boolean") {
               return isDisabled;
@@ -19296,10 +16154,7 @@ ${err.stack}`);
               return false;
             }
           },
-          /**
-           * 设置进度条点击定位的事件
-           */
-          setRunAwayClickEvent() {
+setRunAwayClickEvent() {
             popsDOMUtils.on(this.$ele.runAway, "click", (event) => {
               if (event.target !== this.$ele.runAway && event.target !== this.$ele.bar) {
                 return;
@@ -19315,10 +16170,7 @@ ${err.stack}`);
               capture: false
             });
           },
-          /**
-           * 拖拽开始的回调，如果返回false，禁止拖拽
-           */
-          dragStartCallBack() {
+dragStartCallBack() {
             if (this.isFormConfigDisabledDrag()) {
               this.disableDrag();
               return false;
@@ -19331,13 +16183,7 @@ ${err.stack}`);
             }
             return true;
           },
-          /**
-           * 拖拽中的回调
-           * @param event 事件
-           * @param dragX 当前拖拽的距离
-           * @param oldValue 旧的值
-           */
-          dragMoveCallBack(event, dragX, oldValue) {
+dragMoveCallBack(event, dragX, oldValue) {
             let dragPercent = 0;
             if (dragX <= 0) {
               dragPercent = 0;
@@ -19357,10 +16203,7 @@ ${err.stack}`);
               this.valueChangeCallBack(event, this.value);
             }
           },
-          /**
-           * 拖拽结束的回调
-           */
-          dragEndCallBack(dragX) {
+dragEndCallBack(dragX) {
             this.$data.isMove = false;
             if (dragX <= 0) {
               this.$data.dragWidth = 0;
@@ -19371,10 +16214,7 @@ ${err.stack}`);
             }
             this.closeToolTip();
           },
-          /**
-           * 设置点击拖拽事件
-           */
-          setPanEvent() {
+setPanEvent() {
             const AnyTouch = popsUtils.AnyTouch();
             this.$tooltip = new AnyTouch(this.$ele.button, {
               preventDefault() {
@@ -19401,22 +16241,13 @@ ${err.stack}`);
               this.dragEndCallBack(currentDragX);
             });
           },
-          /**
-           * 显示悬浮的
-           */
-          showToolTip() {
+showToolTip() {
             this.$data.tooltip.toolTip.show();
           },
-          /**
-           * 关闭悬浮的
-           */
-          closeToolTip() {
+closeToolTip() {
             this.$data.tooltip.toolTip.close();
           },
-          /**
-           * 检测在1000ms内，是否停止了拖拽
-           */
-          checkStopDragMove() {
+checkStopDragMove() {
             if (this.$data.isCheckingStopDragMove) {
               return;
             }
@@ -19433,10 +16264,7 @@ ${err.stack}`);
               clearInterval(interval);
             }, 2e3);
           },
-          /**
-           * 设置拖拽按钮的悬浮事件
-           */
-          setToolTipEvent() {
+setToolTipEvent() {
             function getToolTipContent() {
               if (typeof formConfig.getToolTipContent === "function") {
                 return formConfig.getToolTipContent(PopsPanelSlider.value);
@@ -19484,12 +16312,7 @@ ${err.stack}`);
         Reflect.set($li, "data-slider", PopsPanelSlider);
         return $li;
       },
-      /**
-       * type ==> input
-       * 获取中间容器的元素<li>
-       * @param formConfig
-       */
-      createSectionContainerItem_input(formConfig) {
+createSectionContainerItem_input(formConfig) {
         let $li = document.createElement("li");
         Reflect.set($li, "__formConfig__", formConfig);
         this.setElementClassName($li, formConfig.className);
@@ -19507,8 +16330,7 @@ ${err.stack}`);
         }
         PopsSafeUtils.setSafeHTML(
           $li,
-          /*html*/
-          `
+`
 				<div class="pops-panel-item-left-text">
 					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-input">
@@ -19551,16 +16373,12 @@ ${err.stack}`);
               formConfig.handlerCallBack($li, this.$ele.input);
             }
           },
-          /**
-           * 初始化$ele的配置
-           */
-          initEle() {
+initEle() {
             this.$ele.input.parentElement.insertBefore(this.$ele.inputSpanIcon, this.$ele.input.nextSibling);
             this.$ele.inputSpanIcon.className = "pops-panel-input__suffix";
             PopsSafeUtils.setSafeHTML(
               this.$ele.inputSpanIcon,
-              /*html*/
-              `
+`
 						<span class="pops-panel-input__suffix-inner">
 							<i class="pops-panel-icon"></i>
 						</span>
@@ -19570,59 +16388,32 @@ ${err.stack}`);
             this.$ele.icon = this.$ele.inputSpanIcon.querySelector(".pops-panel-icon");
             popsDOMUtils.addClassName(this.$ele.panelInput, PopsCommonCSSClassName.userSelectNone);
           },
-          /**
-           * 禁用
-           */
-          disable() {
+disable() {
             this.$ele.input.disabled = true;
             popsDOMUtils.addClassName(this.$ele.panelInput, "pops-input-disabled");
             popsDOMUtils.addClassName(this.$ele.itemLeftTextContainer, PopsCommonCSSClassName.textIsDisabled);
           },
-          /**
-           * 取消禁用
-           */
-          notDisable() {
+notDisable() {
             this.$ele.input.disabled = false;
             popsDOMUtils.removeClassName(this.$ele.panelInput, "pops-input-disabled");
             popsDOMUtils.removeClassName(this.$ele.itemLeftTextContainer, PopsCommonCSSClassName.textIsDisabled);
           },
-          /**
-           * 判断是否已被禁用
-           */
-          isDisabled() {
+isDisabled() {
             return this.$ele.input.disabled;
           },
-          /**
-           * 设置输入框内容
-           * @param {string} [value=""] 值
-           */
-          setInputValue(value = "") {
+setInputValue(value = "") {
             this.$ele.input.value = value;
           },
-          /**
-           * 设置input元素的type
-           * @param [typeValue="text"] type值
-           */
-          setInputType(typeValue = "text") {
+setInputType(typeValue = "text") {
             this.$ele.input.setAttribute("type", typeValue);
           },
-          /**
-           * 删除图标按钮
-           */
-          removeCircleIcon() {
+removeCircleIcon() {
             PopsSafeUtils.setSafeHTML(this.$ele.icon, "");
           },
-          /**
-           * 添加清空图标按钮
-           * @param [svgHTML=PopsIcon.getIcon("circleClose")] svg图标，默认为清空的图标
-           */
-          setCircleIcon(svgHTML = PopsIcon.getIcon("circleClose")) {
+setCircleIcon(svgHTML = PopsIcon.getIcon("circleClose")) {
             PopsSafeUtils.setSafeHTML(this.$ele.icon, svgHTML);
           },
-          /**
-           * 添加图标按钮的点击事件
-           */
-          setCircleIconClickEvent() {
+setCircleIconClickEvent() {
             popsDOMUtils.on(this.$ele.icon, "click", void 0, () => {
               if (this.isDisabled()) {
                 return;
@@ -19645,10 +16436,7 @@ ${err.stack}`);
               }
             });
           },
-          /**
-           * 监听输入框内容改变
-           */
-          setInputChangeEvent() {
+setInputChangeEvent() {
             popsDOMUtils.on(this.$ele.input, ["input", "propertychange"], void 0, (event) => {
               this.$data.value = this.$ele.input.value;
               if (!formConfig.isPassword) {
@@ -19673,12 +16461,7 @@ ${err.stack}`);
         Reflect.set($li, "data-input", PopsPanelInput);
         return $li;
       },
-      /**
-       * type ==> textarea
-       * 获取中间容器的元素<li>
-       * @param formConfig
-       */
-      createSectionContainerItem_textarea(formConfig) {
+createSectionContainerItem_textarea(formConfig) {
         let $li = document.createElement("li");
         Reflect.set($li, "__formConfig__", formConfig);
         this.setElementClassName($li, formConfig.className);
@@ -19690,8 +16473,7 @@ ${err.stack}`);
         }
         PopsSafeUtils.setSafeHTML(
           $li,
-          /*html*/
-          `
+`
 				<div class="pops-panel-item-left-text">
 					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-textarea">
@@ -19733,10 +16515,7 @@ ${err.stack}`);
           setValue(value) {
             this.$ele.textarea.value = value;
           },
-          /**
-           * 监听选择内容改变
-           */
-          setChangeEvent() {
+setChangeEvent() {
             popsDOMUtils.on(this.$ele.textarea, ["input", "propertychange"], (event) => {
               let value = this.$ele.textarea.value;
               this.$data.value = value;
@@ -19750,12 +16529,7 @@ ${err.stack}`);
         Reflect.set($li, "data-textarea", PopsPanelTextArea);
         return $li;
       },
-      /**
-       * type ==> select
-       * 获取中间容器的元素<li>
-       * @param formConfig
-       */
-      createSectionContainerItem_select(formConfig) {
+createSectionContainerItem_select(formConfig) {
         const that = this;
         let $li = document.createElement("li");
         Reflect.set($li, "__formConfig__", formConfig);
@@ -19764,13 +16538,12 @@ ${err.stack}`);
         this.setElementProps($li, formConfig.props);
         let leftDescriptionText = "";
         if (Boolean(formConfig.description)) {
-          leftDescriptionText = /*html*/
-          `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+          leftDescriptionText =
+`<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
         PopsSafeUtils.setSafeHTML(
           $li,
-          /*html*/
-          `
+`
 				<div class="pops-panel-item-left-text">
 					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-select">
@@ -19803,50 +16576,26 @@ ${err.stack}`);
               this.disable();
             }
           },
-          /**
-           * 给option元素设置属性
-           * @param $ele
-           * @param key
-           * @param value
-           */
-          setNodeValue($ele, key, value) {
+setNodeValue($ele, key, value) {
             Reflect.set($ele, key, value);
           },
-          /**
-           * 获取option元素上设置的属性
-           * @param $ele
-           * @param value
-           * @param key
-           */
-          getNodeValue($ele, key) {
+getNodeValue($ele, key) {
             return Reflect.get($ele, key);
           },
-          /**
-           * 禁用选项
-           */
-          disable() {
+disable() {
             this.$ele.select.setAttribute("disabled", "true");
             popsDOMUtils.addClassName(this.$ele.panelSelect, "pops-panel-select-disable");
             popsDOMUtils.addClassName(this.$ele.itemLeftTextContainer, PopsCommonCSSClassName.textIsDisabled);
           },
-          /**
-           * 取消禁用
-           */
-          notDisable() {
+notDisable() {
             this.$ele.select.removeAttribute("disabled");
             popsDOMUtils.removeClassName(this.$ele.panelSelect, "pops-panel-select-disable");
             popsDOMUtils.removeClassName(this.$ele.itemLeftTextContainer, PopsCommonCSSClassName.textIsDisabled);
           },
-          /**
-           * 判断是否禁用
-           */
-          isDisabled() {
+isDisabled() {
             return this.$ele.select.hasAttribute("disabled") || popsDOMUtils.containsClassName(this.$ele.panelSelect, "pops-panel-select-disable");
           },
-          /**
-           * 初始化选项
-           */
-          initOption() {
+initOption() {
             formConfig.data.forEach((dataItem) => {
               let optionElement = document.createElement("option");
               this.setNodeValue(optionElement, this.$eleKey.value, dataItem.value);
@@ -19859,22 +16608,17 @@ ${err.stack}`);
               this.$ele.select.appendChild(optionElement);
             });
           },
-          /**
-           * 设置选项选中
-           */
-          setOptionSelected($option) {
+setOptionSelected($option) {
             $option.setAttribute("selected", "true");
           },
-          /** 检测所有option并设置禁用状态 */
-          setSelectOptionsDisableStatus() {
+setSelectOptionsDisableStatus() {
             if (this.$ele.select.options && this.$ele.select.options.length) {
               Array.from(this.$ele.select.options).forEach((optionItem) => {
                 this.setOptionDisableStatus(optionItem);
               });
             }
           },
-          /** 设置禁用状态 */
-          setOptionDisableStatus(optionElement) {
+setOptionDisableStatus(optionElement) {
             let disable = false;
             let optionDisableAttr = this.getNodeValue(optionElement, this.$eleKey.disable);
             if (optionDisableAttr === "function") {
@@ -19887,8 +16631,7 @@ ${err.stack}`);
               optionElement.removeAttribute("disabled");
             }
           },
-          /** 获取option上的信息 */
-          getSelectOptionInfo($option) {
+getSelectOptionInfo($option) {
             let optionValue = this.getNodeValue($option, this.$eleKey.value);
             let optionText = $option.innerText || $option.textContent;
             let optionForms = this.getNodeValue($option, this.$eleKey.forms);
@@ -19899,10 +16642,7 @@ ${err.stack}`);
               $option
             };
           },
-          /**
-           * 监听选择内容改变
-           */
-          setChangeEvent() {
+setChangeEvent() {
             popsDOMUtils.on(this.$ele.select, "change", void 0, (event) => {
               let $isSelectedElement = this.$ele.select[this.$ele.select.selectedIndex];
               let selectInfo = this.getSelectOptionInfo($isSelectedElement);
@@ -19929,10 +16669,7 @@ ${err.stack}`);
               }
             });
           },
-          /**
-           * 监听点击事件
-           */
-          setClickEvent() {
+setClickEvent() {
             popsDOMUtils.on(this.$ele.select, "click", void 0, (event) => {
               this.setSelectOptionsDisableStatus();
               if (typeof formConfig.clickCallBack === "function") {
@@ -19945,12 +16682,7 @@ ${err.stack}`);
         Reflect.set($li, "data-select", PopsPanelSelect);
         return $li;
       },
-      /**
-       * type ==> select-multiple
-       * 获取中间容器的元素<li>
-       * @param formConfig
-       */
-      createSectionContainerItem_select_multiple_new(formConfig) {
+createSectionContainerItem_select_multiple_new(formConfig) {
         let $li = document.createElement("li");
         Reflect.set($li, "__formConfig__", formConfig);
         this.setElementClassName($li, formConfig.className);
@@ -19958,13 +16690,12 @@ ${err.stack}`);
         this.setElementProps($li, formConfig.props);
         let leftDescriptionText = "";
         if (Boolean(formConfig.description)) {
-          leftDescriptionText = /*html*/
-          `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+          leftDescriptionText =
+`<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
         PopsSafeUtils.setSafeHTML(
           $li,
-          /*html*/
-          `
+`
 				<div class="pops-panel-item-left-text">
 					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-select-multiple">
@@ -19993,32 +16724,21 @@ ${err.stack}`);
         const PopsPanelSelectMultiple = {
           [Symbol.toStringTag]: "PopsPanelSelectMultiple",
           $el: {
-            /** 左侧文本容器 */
-            itemLeftTextContainer: $li.querySelector(".pops-panel-item-left-text"),
-            /** 容器 */
-            $container: void 0,
-            /** 包括的容器 */
-            $wrapper: void 0,
-            /** 内容区域 */
-            $section: void 0,
-            /** 手动输入 */
-            $selectedInputWrapper: void 0,
-            /** 灰色提示语 */
-            $selectedPlaceHolderWrapper: void 0,
-            /** 下拉箭头区域 */
-            $suffix: void 0,
-            /** 下拉箭头图标 */
-            $suffixIcon: void 0,
-            /** 下拉列表弹窗的下拉列表容器 */
-            $selectContainer: void 0
+itemLeftTextContainer: $li.querySelector(".pops-panel-item-left-text"),
+$container: void 0,
+$wrapper: void 0,
+$section: void 0,
+$selectedInputWrapper: void 0,
+$selectedPlaceHolderWrapper: void 0,
+$suffix: void 0,
+$suffixIcon: void 0,
+$selectContainer: void 0
           },
           $data: {
-            /** 默认值 */
-            defaultValue: formConfig.getValue(),
+defaultValue: formConfig.getValue(),
             selectInfo: []
           },
-          /** 初始化 */
-          init() {
+init() {
             this.initDefault();
             this.inintEl();
             this.initPlaceHolder();
@@ -20029,8 +16749,7 @@ ${err.stack}`);
               this.disable();
             }
           },
-          /** 初始化默认值 */
-          initDefault() {
+initDefault() {
             formConfig.data.forEach((dataItem) => {
               if (this.$data.defaultValue.includes(dataItem.value)) {
                 this.$data.selectInfo.push({
@@ -20042,8 +16761,7 @@ ${err.stack}`);
               }
             });
           },
-          /** 初始化$el变量 */
-          inintEl() {
+inintEl() {
             this.$el.$container = $li.querySelector(".pops-panel-select-multiple");
             this.$el.$wrapper = $li.querySelector(".el-select__wrapper");
             this.$el.$section = $li.querySelector(".el-select__selection");
@@ -20053,8 +16771,7 @@ ${err.stack}`);
             this.$el.$suffixIcon = $li.querySelector(".el-select__suffix .el-icon");
             this.hideInputWrapper();
           },
-          /** 初始化提示文字 */
-          initPlaceHolder() {
+initPlaceHolder() {
             let placeholder = "";
             if (typeof formConfig.placeholder === "string") {
               placeholder = formConfig.placeholder;
@@ -20069,8 +16786,7 @@ ${err.stack}`);
             });
             this.$el.$selectedPlaceHolderWrapper.appendChild($placeholder);
           },
-          /** 初始化tag元素 */
-          initTagElement() {
+initTagElement() {
             formConfig.data.forEach((dataItem) => {
               let findValue = this.$data.selectInfo.find((item) => item.value === dataItem.value);
               if (findValue) {
@@ -20086,16 +16802,11 @@ ${err.stack}`);
             });
             this.checkTagEmpty();
           },
-          /**
-           * 生成一个tag项
-           * @param data 配置
-           */
-          createSelectedTagItem(data) {
+createSelectedTagItem(data) {
             const $selectedItem = popsDOMUtils.createElement("div", {
               className: "el-select__selected-item el-select__choose_tag",
               innerHTML: (
-                /*html*/
-                `
+`
 						<span class="el-tag is-closable el-tag--info el-tag--default el-tag--light">
 							<span class="el-tag__content">
 								<span class="el-select__tags-text"></span>
@@ -20124,11 +16835,7 @@ ${err.stack}`);
               $closeIcon
             };
           },
-          /**
-           * 添加选中项的tag元素
-           * @param $tag 添加的元素
-           */
-          addSelectedTagItem($tag) {
+addSelectedTagItem($tag) {
             this.setSectionIsNear();
             if (this.$el.$section.contains(this.$el.$selectedInputWrapper)) {
               let $prev = this.$el.$selectedInputWrapper.previousElementSibling;
@@ -20150,30 +16857,19 @@ ${err.stack}`);
             this.hideInputWrapper();
             this.hidePlaceHolderWrapper();
           },
-          /** 更新tag信息 */
-          updateSelectTagItem() {
+updateSelectTagItem() {
             this.$el.$section.querySelectorAll(".el-select__choose_tag").forEach(($ele) => {
               $ele.remove();
             });
             this.initTagElement();
           },
-          /**
-           * 选中的值改变的回调
-           * @param selectedDataList 当前的选中信息
-           */
-          selectValueChangeCallBack(selectedDataList) {
+selectValueChangeCallBack(selectedDataList) {
             this.updateSelectItem();
             if (typeof formConfig.callback === "function") {
               formConfig.callback(selectedDataList || this.$data.selectInfo);
             }
           },
-          /**
-           * 更新选项弹窗内的所有选项元素的状态
-           *
-           * + 更新禁用状态
-           * + 更新选中状态
-           */
-          updateSelectItem() {
+updateSelectItem() {
             this.getAllSelectItemInfo(false).forEach(($selectInfo) => {
               const { data, $select } = $selectInfo;
               this.setSelectItemText(data, $selectInfo.$select);
@@ -20192,35 +16888,18 @@ ${err.stack}`);
               }
             });
           },
-          /**
-           * 设置选项元素选中
-           * @param $select 选项元素
-           */
-          setSelectItemSelected($select) {
+setSelectItemSelected($select) {
             if (this.isSelectItemSelected($select))
               return;
             $select.classList.add("select-item-is-selected");
           },
-          /**
-           * 移除选项元素选中
-           * @param $select 选项元素
-           */
-          removeSelectItemSelected($select) {
+removeSelectItemSelected($select) {
             $select.classList.remove("select-item-is-selected");
           },
-          /**
-           * 判断选项元素是否选中
-           * @param $select
-           */
-          isSelectItemSelected($select) {
+isSelectItemSelected($select) {
             return $select.classList.contains("select-item-is-selected");
           },
-          /**
-           * 添加选中信息
-           * @param dataList 选择项列表的数据
-           * @param $select 选项元素
-           */
-          addSelectedItemInfo(dataList, $select) {
+addSelectedItemInfo(dataList, $select) {
             let info = this.getSelectedItemInfo($select);
             let findValue = dataList.find((item) => item.value === info.value);
             if (!findValue) {
@@ -20233,19 +16912,10 @@ ${err.stack}`);
             }
             this.selectValueChangeCallBack(dataList);
           },
-          /**
-           * 获取选中的项的信息
-           * @param $select 选项元素
-           */
-          getSelectedItemInfo($select) {
+getSelectedItemInfo($select) {
             return Reflect.get($select, "data-info");
           },
-          /**
-           * 移除选中信息
-           * @param dataList 选择项的数据
-           * @param $select 选项元素
-           */
-          removeSelectedItemInfo(dataList, $select) {
+removeSelectedItemInfo(dataList, $select) {
             let info = this.getSelectedItemInfo($select);
             let findIndex = dataList.findIndex((item) => item.value === info.value);
             if (findIndex !== -1) {
@@ -20253,20 +16923,12 @@ ${err.stack}`);
             }
             this.selectValueChangeCallBack(dataList);
           },
-          /**
-           * 获取所有选项的信息
-           * @param [onlySelected=true] 是否仅获取选中的项的信息
-           * + true （默认）仅获取选中项的信息
-           * + false 获取所有选择项的信息
-           */
-          getAllSelectItemInfo(onlySelected = true) {
+getAllSelectItemInfo(onlySelected = true) {
             return Array.from(this.$el.$selectContainer?.querySelectorAll(".select-item") ?? []).map(($select) => {
               let data = this.getSelectedItemInfo($select);
               let result = {
-                /** 选项信息数据 */
-                data,
-                /** 选项元素 */
-                $select
+data,
+$select
               };
               if (onlySelected) {
                 let isSelected = this.isSelectItemSelected($select);
@@ -20281,16 +16943,11 @@ ${err.stack}`);
               return item != null;
             });
           },
-          /**
-           * 创建一个选择项元素
-           * @param data 选择项的数据
-           */
-          createSelectItemElement(data) {
+createSelectItemElement(data) {
             let $select = popsDOMUtils.createElement("li", {
               className: "select-item",
               innerHTML: (
-                /*html*/
-                `
+`
 							<span class="select-item-text"></span>
 						`
               )
@@ -20299,12 +16956,7 @@ ${err.stack}`);
             Reflect.set($select, "data-info", data);
             return $select;
           },
-          /**
-           * 设置选择项的文字
-           * @param data 选择项的数据
-           * @param $select 选择项元素
-           */
-          setSelectItemText(data, $select) {
+setSelectItemText(data, $select) {
             let text = typeof data.text === "function" ? data.text(data.value, this.$data.selectInfo) : data.text;
             let $selectSpan = $select.querySelector(".select-item-text");
             if (data.isHTML) {
@@ -20313,35 +16965,18 @@ ${err.stack}`);
               $selectSpan.innerText = text;
             }
           },
-          /**
-           * 设置选择项的禁用状态
-           * @param $select 选择项元素
-           */
-          setSelectItemDisabled($select) {
+setSelectItemDisabled($select) {
             $select.setAttribute("aria-disabled", "true");
             $select.setAttribute("disabled", "true");
           },
-          /**
-           * 移除选择项的禁用状态
-           * @param $select 选择项元素
-           */
-          removeSelectItemDisabled($select) {
+removeSelectItemDisabled($select) {
             $select.removeAttribute("aria-disabled");
             $select.removeAttribute("disabled");
           },
-          /**
-           * 判断选择项是否禁用
-           * @param $select 选择项元素
-           */
-          isSelectItemDisabled($select) {
+isSelectItemDisabled($select) {
             return $select.hasAttribute("disabled") || $select.ariaDisabled;
           },
-          /**
-           * 设置选择项的点击事件
-           * @param dataList 选中的信息列表
-           * @param $select 选择项元素
-           */
-          setSelectElementClickEvent(dataList, $select) {
+setSelectElementClickEvent(dataList, $select) {
             popsDOMUtils.on($select, "click", (event) => {
               popsDOMUtils.preventEvent(event);
               if (this.isSelectItemDisabled($select)) {
@@ -20363,10 +16998,7 @@ ${err.stack}`);
               }
             });
           },
-          /**
-           * 设置下拉列表的点击事件
-           */
-          setSelectContainerClickEvent() {
+setSelectContainerClickEvent() {
             const that = this;
             popsDOMUtils.on(this.$el.$container, "click", (event) => {
               if (this.isDisabled()) {
@@ -20381,8 +17013,7 @@ ${err.stack}`);
                 },
                 content: {
                   text: (
-                    /*html*/
-                    `
+`
 									<ul class="select-container"></ul>
 									`
                   ),
@@ -20419,8 +17050,7 @@ ${err.stack}`);
                 width: "300px",
                 height: "300px",
                 style: (
-                  /*css*/
-                  `
+`
 								.select-container{
 									--el-font-size-base: 14px;
 									--el-text-color-regular: #606266;
@@ -20497,11 +17127,7 @@ ${err.stack}`);
               this.updateSelectItem();
             });
           },
-          /**
-           * 设置关闭图标的点击事件
-           * @param data 选中的信息
-           */
-          setSelectedItemCloseIconClickEvent(data) {
+setSelectedItemCloseIconClickEvent(data) {
             popsDOMUtils.on(data.$closeIcon, "click", (event) => {
               popsDOMUtils.preventEvent(event);
               if (this.isDisabled()) {
@@ -20527,30 +17153,17 @@ ${err.stack}`);
               capture: true
             });
           },
-          /**
-           * 检测tag是否为空，为空显示placeholder
-           */
-          checkTagEmpty() {
+checkTagEmpty() {
             if (!this.$el.$section.querySelectorAll(".el-select__choose_tag").length) {
               this.showPlaceHolderWrapper();
               this.removeSectionIsNear();
             }
           },
-          /**
-           * 移除选中项元素
-           */
-          removeSelectedTagItem($tag) {
+removeSelectedTagItem($tag) {
             $tag.remove();
             this.checkTagEmpty();
           },
-          /**
-           * 从保存的已选中的信息列表中移除目标信息
-           * @param data 需要移除的信息
-           * @param [triggerValueChangeCallBack=true] 是否触发值改变的回调
-           * + true （默认）触发值改变的回调
-           * + false 不触发值改变的回调
-           */
-          removeSelectedInfo(data, triggerValueChangeCallBack = true) {
+removeSelectedInfo(data, triggerValueChangeCallBack = true) {
             for (let index = 0; index < this.$data.selectInfo.length; index++) {
               const selectInfo = this.$data.selectInfo[index];
               if (selectInfo.value === data.value) {
@@ -20560,47 +17173,32 @@ ${err.stack}`);
             }
             triggerValueChangeCallBack && this.selectValueChangeCallBack();
           },
-          /** 显示输入框 */
-          showInputWrapper() {
+showInputWrapper() {
             popsDOMUtils.cssShow(this.$el.$selectedInputWrapper);
           },
-          /** 隐藏输入框 */
-          hideInputWrapper() {
+hideInputWrapper() {
             popsDOMUtils.cssHide(this.$el.$selectedInputWrapper, true);
           },
-          /** 显示palceholder */
-          showPlaceHolderWrapper() {
+showPlaceHolderWrapper() {
             popsDOMUtils.cssShow(this.$el.$selectedPlaceHolderWrapper);
           },
-          /** 隐藏palceholder */
-          hidePlaceHolderWrapper() {
+hidePlaceHolderWrapper() {
             popsDOMUtils.cssHide(this.$el.$selectedPlaceHolderWrapper, true);
           },
-          /** 设置隐藏section的前面的空白 */
-          setSectionIsNear() {
+setSectionIsNear() {
             this.$el.$section.classList.add("is-near");
           },
-          /** 取消设置隐藏section的前面的空白 */
-          removeSectionIsNear() {
+removeSectionIsNear() {
             this.$el.$section.classList.remove("is-near");
           },
-          /**
-           * 禁用标签
-           */
-          disable() {
+disable() {
             popsDOMUtils.addClassName(this.$el.itemLeftTextContainer, PopsCommonCSSClassName.textIsDisabled);
             popsDOMUtils.addClassName(this.$el.$container, "pops-panel-select-multiple-disable");
           },
-          /**
-           * 判断是否被禁用
-           */
-          isDisabled() {
+isDisabled() {
             return popsDOMUtils.containsClassName(this.$el.$container, "pops-panel-select-multiple-disable");
           },
-          /**
-           * 取消禁用标签
-           */
-          cancleDisable() {
+cancleDisable() {
             popsDOMUtils.removeClassName(this.$el.itemLeftTextContainer, PopsCommonCSSClassName.textIsDisabled);
             popsDOMUtils.removeClassName(this.$el.$container, "pops-panel-select-multiple-disable");
           }
@@ -20609,12 +17207,7 @@ ${err.stack}`);
         Reflect.set($li, "data-select-multiple", PopsPanelSelectMultiple);
         return $li;
       },
-      /**
-       * type ==> button
-       * 获取中间容器的元素<li>
-       * @param formConfig
-       */
-      createSectionContainerItem_button(formConfig) {
+createSectionContainerItem_button(formConfig) {
         let $li = document.createElement("li");
         Reflect.set($li, "__formConfig__", formConfig);
         this.setElementClassName($li, formConfig.className);
@@ -20622,13 +17215,12 @@ ${err.stack}`);
         this.setElementProps($li, formConfig.props);
         let leftDescriptionText = "";
         if (Boolean(formConfig.description)) {
-          leftDescriptionText = /*html*/
-          `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+          leftDescriptionText =
+`<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
         PopsSafeUtils.setSafeHTML(
           $li,
-          /*html*/
-          `
+`
 				<div class="pops-panel-item-left-text">
 					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-button">
@@ -20686,61 +17278,31 @@ ${err.stack}`);
           notDisable() {
             this.$ele.button.removeAttribute("disabled");
           },
-          /**
-           * 隐藏icon图标
-           */
-          hideIcon() {
+hideIcon() {
             this.$ele.panelButton.classList.add("pops-panel-button-no-icon");
           },
-          /**
-           * 显示icon图标
-           */
-          showIcon() {
+showIcon() {
             this.$ele.panelButton.classList.remove("pops-panel-button-no-icon");
           },
-          /**
-           * 设置icon图标的svg
-           */
-          setIconSVG(svgHTML) {
+setIconSVG(svgHTML) {
             PopsSafeUtils.setSafeHTML(this.$ele.icon, svgHTML);
           },
-          /**
-           * 设置icon图标是否旋转
-           * @param status
-           */
-          setIconLoadingStatus(status) {
+setIconLoadingStatus(status) {
             this.$ele.icon.setAttribute("is-loading", Boolean(status).toString());
           },
-          /**
-           * 设置属性上是否存在icon图标
-           */
-          setHasIcon(value) {
+setHasIcon(value) {
             this.$ele.button.setAttribute("data-icon", Boolean(value).toString());
           },
-          /**
-           * 设置按钮类型
-           * @param typeValue
-           */
-          setButtonType(typeValue) {
+setButtonType(typeValue) {
             this.$ele.button.setAttribute("data-type", typeValue);
           },
-          /**
-           * 添加按钮的图标在右边
-           */
-          setIconRight() {
+setIconRight() {
             this.$ele.button.classList.add("pops-panel-button-right-icon");
           },
-          /**
-           * （默认）添加按钮的图标在左边
-           */
-          setIconLeft() {
+setIconLeft() {
             this.$ele.button.classList.remove("pops-panel-button-right-icon");
           },
-          /**
-           * 设置按钮文本
-           * @param text
-           */
-          setButtonText(text) {
+setButtonText(text) {
             PopsSafeUtils.setSafeHTML(this.$ele.spanText, text);
           },
           setClickEvent() {
@@ -20755,12 +17317,7 @@ ${err.stack}`);
         Reflect.set($li, "data-button", PopsPanelButton);
         return $li;
       },
-      /**
-       * type ==> deepMenu
-       * 获取深层容器的元素<li>
-       * @param formConfig
-       */
-      createSectionContainerItem_deepMenu(formConfig) {
+createSectionContainerItem_deepMenu(formConfig) {
         let that = this;
         let $li = document.createElement("li");
         popsDOMUtils.addClassName($li, "pops-panel-deepMenu-nav-item");
@@ -20779,13 +17336,12 @@ ${err.stack}`);
         }
         let rightText = "";
         if (formConfig.rightText) {
-          rightText = /*html*/
-          `<p class="pops-panel-item-right-text">${formConfig.rightText}</p>`;
+          rightText =
+`<p class="pops-panel-item-right-text">${formConfig.rightText}</p>`;
         }
         PopsSafeUtils.setSafeHTML(
           $li,
-          /*html*/
-          `
+`
 				<div class="pops-panel-item-left-text">
 					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-deepMenu">${rightText}${arrowRightIconHTML}</div>
@@ -20801,12 +17357,7 @@ ${err.stack}`);
           init() {
             this.setLiClickEvent();
           },
-          /**
-           * 生成配置每一项的元素
-           * @param $container
-           * @param formItemConfig
-           */
-          initFormItem($container, formItemConfig) {
+initFormItem($container, formItemConfig) {
             let formConfig_forms = formItemConfig;
             if (formConfig_forms.type === "forms") {
               let childForms = formConfig_forms["forms"];
@@ -20821,8 +17372,7 @@ ${err.stack}`);
               if (formConfig_forms.isFold) {
                 PopsSafeUtils.setSafeHTML(
                   formHeaderDivElement,
-                  /*html*/
-                  `
+`
 								<p>${formConfig_forms.text}</p>
 								<i class="pops-panel-forms-fold-container-icon">
 									<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
@@ -20874,12 +17424,7 @@ ${err.stack}`);
               });
             }
           },
-          /**
-           * 前往子菜单
-           * @param event 点击事件
-           * @param liElement 当前的<li>元素
-           */
-          gotoDeepMenu(event, liElement) {
+gotoDeepMenu(event, liElement) {
             let currentSection = liElement.closest("section.pops-panel-container");
             if (currentSection) {
               popsDOMUtils.cssHide(currentSection, true);
@@ -20898,8 +17443,7 @@ ${err.stack}`);
             let $header = popsDOMUtils.createElement("li", {
               className: "pops-panel-container-header-title-text pops-panel-deepMenu-container-header",
               innerHTML: (
-                /*html*/
-                `<p class="pops-panel-deepMenu-container-header-title-text">${headerTitleText}</p>`
+`<p class="pops-panel-deepMenu-container-header-title-text">${headerTitleText}</p>`
               )
             });
             let $headerLeftArrow = popsDOMUtils.createElement("i", {
@@ -20936,8 +17480,7 @@ ${err.stack}`);
             }
             that.triggerRenderRightContainer($deepMenuContainer);
           },
-          /** 设置项的点击事件 */
-          setLiClickEvent() {
+setLiClickEvent() {
             popsDOMUtils.on($li, "click", void 0, async (event) => {
               if (typeof formConfig.clickCallBack === "function") {
                 let result = await formConfig.clickCallBack(event, formConfig);
@@ -20953,12 +17496,7 @@ ${err.stack}`);
         Reflect.set($li, "data-deepMenu", PopsPanelDeepMenu);
         return $li;
       },
-      /**
-       * type ===> own
-       * 获取中间容器的元素<li>
-       * @param formConfig
-       */
-      createSectionContainerItem_own(formConfig) {
+createSectionContainerItem_own(formConfig) {
         let $li = document.createElement("li");
         Reflect.set($li, "__formConfig__", formConfig);
         if (formConfig.className) {
@@ -20967,11 +17505,7 @@ ${err.stack}`);
         $li = formConfig.getLiElementCallBack($li);
         return $li;
       },
-      /**
-       * 获取中间容器的元素<li>
-       * @param formConfig
-       */
-      createSectionContainerItem(formConfig) {
+createSectionContainerItem(formConfig) {
         let formType = formConfig.type;
         if (formType === "switch") {
           return this.createSectionContainerItem_switch(formConfig);
@@ -20995,12 +17529,7 @@ ${err.stack}`);
           console.error("尚未实现的type类型", formConfig);
         }
       },
-      /**
-       * 生成配置项forms
-       * 生成配置每一项的元素
-       * @param formConfig
-       */
-      createSectionContainerItem_forms(formConfig) {
+createSectionContainerItem_forms(formConfig) {
         let that = this;
         let formConfig_forms = formConfig;
         if (formConfig_forms.type === "forms") {
@@ -21016,8 +17545,7 @@ ${err.stack}`);
           if (formConfig_forms.isFold) {
             PopsSafeUtils.setSafeHTML(
               formHeaderDivElement,
-              /*html*/
-              `
+`
 						<p>${formConfig_forms.text}</p>
 						<i class="pops-panel-forms-fold-container-icon">
 							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
@@ -21069,10 +17597,7 @@ ${err.stack}`);
           });
         }
       },
-      /**
-       * 触发触发渲染右侧容器的事件
-       */
-      triggerRenderRightContainer($container) {
+triggerRenderRightContainer($container) {
         let __formConfig__ = Reflect.get($container, "__formConfig__");
         this.$el.$pops.dispatchEvent(new CustomEvent("pops:renderRightContainer", {
           detail: {
@@ -21080,12 +17605,7 @@ ${err.stack}`);
           }
         }));
       },
-      /**
-       *
-       * @param formConfig
-       * @param containerOptions
-       */
-      uListContainerAddItem(formConfig, containerOptions) {
+uListContainerAddItem(formConfig, containerOptions) {
         let itemLiElement = this.createSectionContainerItem(formConfig);
         if (itemLiElement) {
           containerOptions["ulElement"].appendChild(itemLiElement);
@@ -21097,12 +17617,7 @@ ${err.stack}`);
           });
         }
       },
-      /**
-       * 为左侧容器元素添加点击事件
-       * @param asideLiElement 左侧的容器<li>元素
-       * @param asideConfig 配置
-       */
-      setAsideItemClickEvent(asideLiElement, asideConfig) {
+setAsideItemClickEvent(asideLiElement, asideConfig) {
         popsDOMUtils.on(asideLiElement, "click", async (event) => {
           if (typeof asideConfig.clickFirstCallback === "function") {
             let clickFirstCallbackResult = await asideConfig.clickFirstCallback(event, this.sectionContainerHeaderULElement, this.sectionContainerULElement);
@@ -21190,8 +17705,7 @@ ${err.stack}`);
         guid,
         popsType,
         config,
-        /*html*/
-        `
+`
 			<div class="pops-title pops-${popsType}-title" style="text-align: ${config.title.position};${headerStyle}">${config.title.html ? config.title.text : `<p pops class="pops-${popsType}-title-text" class="pops-${popsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`}${headerBtnHTML}</div>
 			<div class="pops-content pops-${popsType}-content">
 				<aside class="pops-${popsType}-aside">
@@ -21416,8 +17930,7 @@ ${err.stack}`);
         guid,
         popsType,
         config,
-        /*html*/
-        `
+`
             <div class="pops-title pops-${popsType}-title" style="text-align: ${config.title.position};${headerStyle}">${config.title.html ? config.title.text : `<p pops class="pops-${popsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`}${headerBtnHTML}</div>
             <div class="pops-content pops-${popsType}-content" style="${contentPStyle}">${config.content.row ? '<textarea name="pops-input-text" pops="" placeholder="' + config.content.placeholder + '"></textarea>' : '<input name="pops-input-text" pops="" placeholder="' + config.content.placeholder + '" type="' + (config.content.password ? "password" : "text") + '">'}</div>${bottomBtnHTML}`,
         bottomBtnHTML,
@@ -21617,15 +18130,8 @@ ${err.stack}`);
         $shadowRoot.appendChild(cssNode);
       }
       const PopsContextMenu = {
-        /**
-         * 根元素
-         */
-        rootElement: null,
-        /**
-         * 全局点击检测
-         * @param event
-         */
-        windowCheckClickEvent(event) {
+rootElement: null,
+windowCheckClickEvent(event) {
           if (!PopsContextMenu.rootElement) {
             return;
           }
@@ -21638,11 +18144,7 @@ ${err.stack}`);
           }
           PopsContextMenu.closeAllMenu(PopsContextMenu.rootElement);
         },
-        /**
-         * target为shadowRoot或shadowRoot内的全局点击检测
-         * @param event
-         */
-        shadowRootCheckClickEvent(event) {
+shadowRootCheckClickEvent(event) {
           if (!PopsContextMenu.rootElement) {
             return;
           }
@@ -21652,10 +18154,7 @@ ${err.stack}`);
           }
           PopsContextMenu.closeAllMenu(PopsContextMenu.rootElement);
         },
-        /**
-         * 添加全局点击检测事件
-         */
-        addWindowCheckClickListener() {
+addWindowCheckClickListener() {
           popsDOMUtils.on(globalThis, "click touchstart", void 0, PopsContextMenu.windowCheckClickEvent, {
             capture: true
           });
@@ -21668,10 +18167,7 @@ ${err.stack}`);
             }
           }
         },
-        /**
-         * 移除全局点击检测事件
-         */
-        removeWindowCheckClickListener() {
+removeWindowCheckClickListener() {
           popsDOMUtils.off(globalThis, "click touchstart", void 0, PopsContextMenu.windowCheckClickEvent, {
             capture: true
           });
@@ -21684,12 +18180,7 @@ ${err.stack}`);
             }
           }
         },
-        /**
-         * contextmenu事件
-         * @param event
-         * @param selectorTarget
-         */
-        contextMenuEvent(event, selectorTarget) {
+contextMenuEvent(event, selectorTarget) {
           if (config.preventDefault) {
             popsDOMUtils.preventEvent(event);
           }
@@ -21712,27 +18203,13 @@ ${err.stack}`);
             });
           }
         },
-        /**
-         * 添加contextmenu事件
-         * @param target 目标
-         * @param selector 子元素选择器
-         */
-        addContextMenuEvent(target, selector) {
+addContextMenuEvent(target, selector) {
           popsDOMUtils.on(target, "contextmenu", selector, PopsContextMenu.contextMenuEvent);
         },
-        /**
-         * 移除contextmenu事件
-         * @param target 目标
-         * @param selector 子元素选择器
-         */
-        removeContextMenuEvent(target, selector) {
+removeContextMenuEvent(target, selector) {
           popsDOMUtils.off(target, "contextmenu", selector, PopsContextMenu.contextMenuEvent);
         },
-        /**
-         * 自动判断是否存在动画，存在动画就执行关闭动画并删除
-         * @param $menu
-         */
-        animationCloseMenu($menu) {
+animationCloseMenu($menu) {
           let transitionEndEvent = (event) => {
             popsDOMUtils.off($menu, popsDOMUtils.getTransitionEndNameList(), transitionEndEvent, {
               capture: true
@@ -21755,11 +18232,7 @@ ${err.stack}`);
             $menu.remove();
           }
         },
-        /**
-         * 关闭所有菜单
-         * @param rootElement
-         */
-        closeAllMenu(rootElement) {
+closeAllMenu(rootElement) {
           if (rootElement == null) {
             return;
           }
@@ -21774,16 +18247,11 @@ ${err.stack}`);
           this.animationCloseMenu(rootElement);
           PopsContextMenu.rootElement = null;
         },
-        /**
-         * 获取菜单容器
-         * @param isChildren 是否是rightClickMenu的某一项的子菜单
-         */
-        createMenuContainerElement(isChildren) {
+createMenuContainerElement(isChildren) {
           let $menu = popsDOMUtils.createElement("div", {
             className: `pops-${popsType}`,
             innerHTML: (
-              /*html*/
-              `<ul class="pops-${popsType}-wrapper"></ul>`
+`<ul class="pops-${popsType}-wrapper"></ul>`
             )
           });
           let zIndex = this.getMenuZIndex();
@@ -21802,19 +18270,10 @@ ${err.stack}`);
           }
           return $menu;
         },
-        /**
-         * 动态获取配的z-index
-         */
-        getMenuZIndex() {
+getMenuZIndex() {
           return PopsHandler.handleZIndex(config.zIndex);
         },
-        /**
-         * 获取left、top偏移
-         * @param menuElement 当前生成的菜单元素
-         * @param mousePosition 鼠标位置信息
-         * @param isMainMenu 是否是主菜单
-         */
-        getOffset(menuElement, mousePosition, parentInfo) {
+getOffset(menuElement, mousePosition, parentInfo) {
           let result = {
             top: 0,
             right: 0,
@@ -21874,13 +18333,7 @@ ${err.stack}`);
           }
           return result;
         },
-        /**
-         * 显示菜单
-         * @param menuEvent 触发的事件
-         * @param _config_
-         * @param menuListenerRootNode 右键菜单监听的元素
-         */
-        showMenu(menuEvent, _config_, menuListenerRootNode) {
+showMenu(menuEvent, _config_, menuListenerRootNode) {
           let menuElement = this.createMenuContainerElement(false);
           Reflect.set(menuElement, "__menuData__", {
             child: []
@@ -21896,16 +18349,7 @@ ${err.stack}`);
           this.handlerShowMenuCSS(menuElement, menuEvent);
           return menuElement;
         },
-        /**
-         * 显示子菜单
-         * @param menuEvent 事件
-         * @param posInfo 位置信息
-         * @param  _config_
-         * @param rootElement 根菜单元素
-         * @param targetLiElement 父li项元素
-         * @param menuListenerRootNode 右键菜单监听的元素
-         */
-        showClildMenu(menuEvent, posInfo, _config_, rootElement, targetLiElement, menuListenerRootNode) {
+showClildMenu(menuEvent, posInfo, _config_, rootElement, targetLiElement, menuListenerRootNode) {
           let menuElement = this.createMenuContainerElement(true);
           Reflect.set(menuElement, "__menuData__", {
             parent: targetLiElement,
@@ -21922,13 +18366,7 @@ ${err.stack}`);
           });
           return menuElement;
         },
-        /**
-         * 处理菜单显示的css样式（添加到页面后）
-         * @param $menu 菜单元素
-         * @param posInfo 菜单位置信息
-         * @param parentInfo 配置子菜单的父级信息
-         */
-        handlerShowMenuCSS($menu, posInfo, parentInfo) {
+handlerShowMenuCSS($menu, posInfo, parentInfo) {
           let offset = this.getOffset($menu, {
             x: posInfo.clientX,
             y: posInfo.clientY
@@ -21944,15 +18382,7 @@ ${err.stack}`);
             popsDOMUtils.addClassName($menu, `pops-${popsType}-anim-scale-open`);
           }
         },
-        /**
-         * 获取菜单项的元素
-         * @param menuEvent 事件
-         * @param rootElement 根元素
-         * @param menuElement 菜单元素
-         * @param _config_ 配置
-         * @param menuListenerRootNode 右键菜单监听的元素
-         */
-        addMenuLiELement(menuEvent, rootElement, menuElement, _config_, menuListenerRootNode) {
+addMenuLiELement(menuEvent, rootElement, menuElement, _config_, menuListenerRootNode) {
           let menuEventTarget = menuEvent.target;
           let menuULElement = menuElement.querySelector("ul");
           _config_.forEach((item) => {
@@ -21960,8 +18390,7 @@ ${err.stack}`);
             if (typeof item.icon === "string" && item.icon.trim() !== "") {
               let iconSVGHTML = PopsIcon.getIcon(item.icon) ?? item.icon;
               let iconElement = popsDOMUtils.parseTextToDOM(
-                /*html*/
-                `<i class="pops-${popsType}-icon" is-loading="${item.iconIsLoading ?? false}">${iconSVGHTML}</i>`
+`<i class="pops-${popsType}-icon" is-loading="${item.iconIsLoading ?? false}">${iconSVGHTML}</i>`
               );
               menuLiElement.appendChild(iconElement);
             }
@@ -22062,10 +18491,8 @@ ${err.stack}`);
       });
     }
     return {
-      // @ts-ignore
-      target: null,
-      // @ts-ignore
-      inputTarget: null,
+target: null,
+inputTarget: null,
       selfDocument: document,
       data,
       deleteIcon: {
@@ -22151,32 +18578,21 @@ ${err.stack}`);
         $shadowRoot.appendChild(cssNode);
       }
       const SearchSuggestion = {
-        /**
-         * 当前的环境，可以是document，可以是shadowroot，默认是document
-         */
-        selfDocument: config.selfDocument,
+selfDocument: config.selfDocument,
         $el: {
-          /** 根元素 */
-          root: null,
-          /** ul元素 */
-          $hintULContainer: null,
-          /** 动态更新CSS */
-          $dynamicCSS: null
+root: null,
+$hintULContainer: null,
+$dynamicCSS: null
         },
         $data: {
-          /** 是否结果为空 */
-          isEmpty: true
+isEmpty: true
         },
-        /** 初始化元素变量 */
-        initEl() {
+initEl() {
           this.$el.root = SearchSuggestion.createSearchSelectElement();
           this.$el.$dynamicCSS = this.$el.root.querySelector("style[data-dynamic]");
           this.$el.$hintULContainer = SearchSuggestion.$el.root.querySelector("ul");
         },
-        /**
-         * 初始化
-         */
-        init(parentElement = document.body || document.documentElement) {
+init(parentElement = document.body || document.documentElement) {
           this.initEl();
           SearchSuggestion.update(this.getData());
           SearchSuggestion.updateStyleSheet();
@@ -22184,21 +18600,14 @@ ${err.stack}`);
           $shadowRoot.appendChild(SearchSuggestion.$el.root);
           parentElement.appendChild($shadowContainer);
         },
-        /**
-         * 获取数据
-         */
-        getData() {
+getData() {
           return typeof config.data === "function" ? config.data() : config.data;
         },
-        /**
-         * 获取显示出搜索建议框的html
-         */
-        createSearchSelectElement() {
+createSearchSelectElement() {
           let $el = popsDOMUtils.createElement("div", {
             className: `pops pops-${popsType}-search-suggestion`,
             innerHTML: (
-              /*html*/
-              `
+`
 						<style>
 							.pops-${popsType}-animation{
 								-moz-animation: searchSelectFalIn 0.5s 1 linear;
@@ -22297,8 +18706,7 @@ ${err.stack}`);
 						</style>
 						<ul class="pops-${popsType}-search-suggestion-hint ${PopsCommonCSSClassName.userSelectNone}">${config.toSearhNotResultHTML}</ul>
 						${config.useArrow ? (
-              /*html*/
-              `<div class="pops-${popsType}-search-suggestion-arrow"></div>`
+`<div class="pops-${popsType}-search-suggestion-arrow"></div>`
             ) : ""}
          				 `
             )
@@ -22317,11 +18725,9 @@ ${err.stack}`);
           }
           return $el;
         },
-        /** 动态获取CSS */
-        getDynamicCSS() {
+getDynamicCSS() {
           return (
-            /*css*/
-            `
+`
 				.pops-${popsType}-search-suggestion{
 					--search-suggestion-bg-color: #ffffff;
 					--search-suggestion-box-shadow-color: rgb(0 0 0 / 20%);
@@ -22385,12 +18791,7 @@ ${err.stack}`);
 				`
           );
         },
-        /**
-         * 获取显示出搜索建议框的每一项的html
-         * @param data 当前项的值
-         * @param index 当前项的下标
-         */
-        createSearchItemLiElement(data, index) {
+createSearchItemLiElement(data, index) {
           let $li = popsDOMUtils.createElement("li", {
             className: `pops-${popsType}-search-suggestion-hint-item`,
             "data-index": index,
@@ -22401,18 +18802,10 @@ ${err.stack}`);
           popsDOMUtils.addClassName($li, PopsCommonCSSClassName.flexYCenter);
           return $li;
         },
-        /**
-         * 获取data-value值
-         * @param data
-         */
-        getItemDataValue(data) {
+getItemDataValue(data) {
           return data;
         },
-        /**
-         * 设置搜索建议框每一项的点击事件
-         * @param $searchItem
-         */
-        setSearchItemClickEvent($searchItem) {
+setSearchItemClickEvent($searchItem) {
           popsDOMUtils.on($searchItem, "click", (event) => {
             popsDOMUtils.preventEvent(event);
             let $click = event.target;
@@ -22433,16 +18826,9 @@ ${err.stack}`);
             capture: true
           });
         },
-        /**
-         * 设置搜索建议框每一项的选中事件
-         * @param liElement
-         */
-        setSearchItemSelectEvent(liElement) {
+setSearchItemSelectEvent(liElement) {
         },
-        /**
-         * 监听输入框内容改变
-         */
-        setInputChangeEvent(option = {
+setInputChangeEvent(option = {
           capture: true
         }) {
           if (!(config.inputTarget instanceof HTMLInputElement || config.inputTarget instanceof HTMLTextAreaElement)) {
@@ -22455,18 +18841,12 @@ ${err.stack}`);
             SearchSuggestion.updateStyleSheet();
           }, option);
         },
-        /**
-         * 移除输入框内容改变的监听
-         */
-        removeInputChangeEvent(option = {
+removeInputChangeEvent(option = {
           capture: true
         }) {
           popsDOMUtils.off(config.inputTarget, "input", void 0, void 0, option);
         },
-        /**
-         * 显示搜索建议框的事件
-         */
-        showEvent() {
+showEvent() {
           SearchSuggestion.updateStyleSheet();
           if (config.toHideWithNotResult) {
             if (SearchSuggestion.$data.isEmpty) {
@@ -22478,10 +18858,7 @@ ${err.stack}`);
             SearchSuggestion.show();
           }
         },
-        /**
-         * 设置显示搜索建议框的事件
-         */
-        setShowEvent(option = {
+setShowEvent(option = {
           capture: true
         }) {
           if (config.followPosition === "target") {
@@ -22494,20 +18871,13 @@ ${err.stack}`);
             throw new Error("未知followPosition：" + config.followPosition);
           }
         },
-        /**
-         * 移除显示搜索建议框的事件
-         */
-        removeShowEvent(option = {
+removeShowEvent(option = {
           capture: true
         }) {
           popsDOMUtils.off([config.target, config.inputTarget], ["focus", "click"], void 0, SearchSuggestion.showEvent, option);
           popsDOMUtils.off([config.inputTarget], ["input"], void 0, SearchSuggestion.showEvent, option);
         },
-        /**
-         * 隐藏搜索建议框的事件
-         * @param event
-         */
-        hideEvent(event) {
+hideEvent(event) {
           if (event.target instanceof Node) {
             if ($shadowContainer.contains(event.target)) {
               return;
@@ -22521,10 +18891,7 @@ ${err.stack}`);
             SearchSuggestion.hide(true);
           }
         },
-        /**
-         * 设置隐藏搜索建议框的事件
-         */
-        setHideEvent(option = {
+setHideEvent(option = {
           capture: true
         }) {
           if (Array.isArray(SearchSuggestion.selfDocument)) {
@@ -22535,10 +18902,7 @@ ${err.stack}`);
             popsDOMUtils.on(SearchSuggestion.selfDocument, ["click", "touchstart"], void 0, SearchSuggestion.hideEvent, option);
           }
         },
-        /**
-         * 移除隐藏搜索建议框的事件
-         */
-        removeHideEvent(option = {
+removeHideEvent(option = {
           capture: true
         }) {
           if (Array.isArray(SearchSuggestion.selfDocument)) {
@@ -22549,33 +18913,23 @@ ${err.stack}`);
             popsDOMUtils.off(SearchSuggestion.selfDocument, ["click", "touchstart"], void 0, SearchSuggestion.hideEvent, option);
           }
         },
-        /**
-         * 设置所有监听
-         */
-        setAllEvent(option = {
+setAllEvent(option = {
           capture: true
         }) {
           SearchSuggestion.setInputChangeEvent(option);
           SearchSuggestion.setHideEvent(option);
           SearchSuggestion.setShowEvent(option);
         },
-        /**
-         * 移除所有监听
-         */
-        removeAllEvent(option = {
+removeAllEvent(option = {
           capture: true
         }) {
           SearchSuggestion.removeInputChangeEvent(option);
           SearchSuggestion.removeHideEvent(option);
           SearchSuggestion.removeShowEvent(option);
         },
-        /**
-         * 获取删除按钮的html
-         */
-        getDeleteIconHTML(size = 16, fill = "#bababa") {
+getDeleteIconHTML(size = 16, fill = "#bababa") {
           return (
-            /*html*/
-            `
+`
 				<svg class="pops-${popsType}-delete-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" fill="${fill}">
 					<path d="M512 883.2A371.2 371.2 0 1 0 140.8 512 371.2 371.2 0 0 0 512 883.2z m0 64a435.2 435.2 0 1 1 435.2-435.2 435.2 435.2 0 0 1-435.2 435.2z"></path>
 					<path d="M557.056 512l122.368 122.368a31.744 31.744 0 1 1-45.056 45.056L512 557.056l-122.368 122.368a31.744 31.744 0 1 1-45.056-45.056L466.944 512 344.576 389.632a31.744 31.744 0 1 1 45.056-45.056L512 466.944l122.368-122.368a31.744 31.744 0 1 1 45.056 45.056z"></path>
@@ -22583,33 +18937,20 @@ ${err.stack}`);
         	`
           );
         },
-        /**
-         * 设置当前正在搜索中的提示
-         */
-        setPromptsInSearch() {
+setPromptsInSearch() {
           let isSearchingElement = popsDOMUtils.createElement("li", {
             className: `pops-${popsType}-search-suggestion-hint-searching-item`,
             innerHTML: config.searchingTip
           });
           SearchSuggestion.$el.$hintULContainer.appendChild(isSearchingElement);
         },
-        /**
-         * 移除正在搜索中的提示
-         */
-        removePromptsInSearch() {
+removePromptsInSearch() {
           SearchSuggestion.$el.$hintULContainer.querySelector(`li.pops-${popsType}-search-suggestion-hint-searching-item`)?.remove();
         },
-        /**
-         * 清空所有的搜索结果
-         */
-        clearAllSearchItemLi() {
+clearAllSearchItemLi() {
           PopsSafeUtils.setSafeHTML(SearchSuggestion.$el.$hintULContainer, "");
         },
-        /**
-         * 更新搜索建议框的位置(top、left)
-         * 因为目标元素可能是动态隐藏的
-         */
-        changeHintULElementPosition(target = config.target ?? config.inputTarget) {
+changeHintULElementPosition(target = config.target ?? config.inputTarget) {
           let targetRect = null;
           if (config.followPosition === "inputCursor") {
             targetRect = popsDOMUtils.getTextBoundingRect(config.inputTarget, config.inputTarget.selectionStart || 0, config.inputTarget.selectionEnd || 0, false);
@@ -22660,11 +19001,7 @@ ${err.stack}`);
           }
           SearchSuggestion.$el.root.style.left = left + "px";
         },
-        /**
-         * 更新搜索建议框的width
-         * 因为目标元素可能是动态隐藏的
-         */
-        changeHintULElementWidth(target = config.target ?? config.inputTarget) {
+changeHintULElementWidth(target = config.target ?? config.inputTarget) {
           let targetRect = target.getBoundingClientRect();
           if (config.followTargetWidth) {
             SearchSuggestion.$el.$hintULContainer.style.width = targetRect.width + "px";
@@ -22672,26 +19009,16 @@ ${err.stack}`);
             SearchSuggestion.$el.$hintULContainer.style.width = config.width;
           }
         },
-        /**
-         * 动态更新CSS
-         */
-        updateDynamicCSS() {
+updateDynamicCSS() {
           let cssText = this.getDynamicCSS();
           PopsSafeUtils.setSafeHTML(this.$el.$dynamicCSS, cssText);
         },
-        /**
-         * 数据项的数量改变时调用
-         */
-        updateStyleSheet() {
+updateStyleSheet() {
           SearchSuggestion.updateDynamicCSS();
           SearchSuggestion.changeHintULElementWidth();
           SearchSuggestion.changeHintULElementPosition();
         },
-        /**
-         * 更新页面显示的搜索结果
-         * @param data
-         */
-        update(data = []) {
+update(data = []) {
           if (!Array.isArray(data)) {
             throw new TypeError("传入的数据不是数组");
           }
@@ -22712,10 +19039,7 @@ ${err.stack}`);
             SearchSuggestion.clear();
           }
         },
-        /**
-         * 清空当前的搜索结果并显示无结果
-         */
-        clear() {
+clear() {
           this.$data.isEmpty = true;
           this.clearAllSearchItemLi();
           this.$el.$hintULContainer.appendChild(popsDOMUtils.parseTextToDOM(config.toSearhNotResultHTML));
@@ -22723,11 +19047,7 @@ ${err.stack}`);
             this.hide();
           }
         },
-        /**
-         * 隐藏搜索建议框
-         * @param useAnimationToHide 是否使用动画隐藏
-         */
-        hide(useAnimationToHide = false) {
+hide(useAnimationToHide = false) {
           if (config.useFoldAnimation) {
             if (!useAnimationToHide) {
               popsDOMUtils.removeClassName(this.$el.root, "el-zoom-in-top-animation");
@@ -22739,10 +19059,7 @@ ${err.stack}`);
             this.$el.root.style.display = "none";
           }
         },
-        /**
-         * 显示搜索建议框
-         */
-        show() {
+show() {
           this.$el.root.style.display = "";
           if (config.useFoldAnimation) {
             popsDOMUtils.addClassName(this.$el.root, "el-zoom-in-top-animation");
@@ -22755,42 +19072,26 @@ ${err.stack}`);
     }
   };
   class Pops {
-    /** 配置 */
-    config = {
-      /** 版本号 */
-      version: "2025.8.17",
+config = {
+version: "2025.8.17",
       cssText: PopsCSS,
-      /** icon图标的svg代码 */
-      iconSVG: PopsIcon.$data,
-      /** 当前已配置的动画@keyframes名字映射(初始化时生成) */
-      animation: PopsAnimation.$data,
-      /** 存储已创建的元素 */
-      instData: PopsInstData,
-      /** 禁止滚动 */
-      forbiddenScroll: {
+iconSVG: PopsIcon.$data,
+animation: PopsAnimation.$data,
+instData: PopsInstData,
+forbiddenScroll: {
         event(event) {
           return popsDOMUtils.preventEvent(event);
         }
       },
-      /** pops使用的工具类 */
-      Utils: popsUtils,
-      /** pops使用的DOM工具类 */
-      DOMUtils: popsDOMUtils,
-      /** pops创建的实例使用的工具类 */
-      InstanceUtils: PopsInstanceUtils,
-      /** pops处理float类型使用的工具类 */
-      MathFloatUtils: PopsMathFloatUtils,
-      /** pops.panel中用于处理各个类型的工具 */
-      PanelHandlerComponents
+Utils: popsUtils,
+DOMUtils: popsDOMUtils,
+InstanceUtils: PopsInstanceUtils,
+MathFloatUtils: PopsMathFloatUtils,
+PanelHandlerComponents
     };
     init() {
     }
-    /**
-     * 释放原有的pops控制权
-     * @example
-     * let pops = window.pops.noConflict()
-     */
-    noConflict() {
+noConflict() {
       if (typeof PopsCore.globalThis.pops === "object") {
         popsUtils.delete(PopsCore.globalThis, "pops");
       }
@@ -22799,126 +19100,58 @@ ${err.stack}`);
       }
       return new Pops();
     }
-    /**
-     * 通过navigator.userAgent判断是否是手机访问
-     * @param userAgent
-     */
-    isPhone(userAgent) {
+isPhone(userAgent) {
       return popsUtils.isPhone(userAgent);
     }
-    /**
-     * 为所有弹窗设置全局属性
-     */
-    GlobalConfig = GlobalConfig;
-    /**
-     * 普通信息框
-     * @param details 配置
-     */
-    alert = (details) => {
+GlobalConfig = GlobalConfig;
+alert = (details) => {
       let dialog = PopsAlert.init(details);
       return dialog;
     };
-    /**
-     * 询问框
-     * @param details 配置
-     */
-    confirm = (details) => {
+confirm = (details) => {
       let dialog = PopsConfirm.init(details);
       return dialog;
     };
-    /**
-     * 输入框
-     * @param details 配置
-     */
-    prompt = (details) => {
+prompt = (details) => {
       let dialog = PopsPrompt.init(details);
       return dialog;
     };
-    /**
-     * 加载层
-     * @param details 配置
-     */
-    loading = (details) => {
+loading = (details) => {
       let popsLoading = PopsLoading.init(details);
       return popsLoading;
     };
-    /**
-     * iframe层
-     * @param details 配置
-     */
-    iframe = (details) => {
+iframe = (details) => {
       let dialog = PopsIframe.init(details);
       return dialog;
     };
-    /**
-     * 提示框
-     * @param details 配置
-     */
-    tooltip = (details) => {
+tooltip = (details) => {
       let popsTooltip = PopsTooltip.init(details);
       return popsTooltip;
     };
-    /**
-     * 抽屉
-     * @param details 配置
-     */
-    drawer = (details) => {
+drawer = (details) => {
       let dialog = PopsDrawer.init(details);
       return dialog;
     };
-    /**
-     * 文件夹
-     * @param details 配置
-     */
-    folder = (details) => {
+folder = (details) => {
       let dialog = PopsFolder.init(details);
       return dialog;
     };
-    /**
-     * 配置面板
-     * @param details 配置
-     */
-    panel = (details) => {
+panel = (details) => {
       let dialog = PopsPanel.init(details);
       return dialog;
     };
-    /**
-     * 右键菜单
-     * @param details 配置
-     */
-    rightClickMenu = (details) => {
+rightClickMenu = (details) => {
       let popsRightClickMenu = PopsRightClickMenu.init(details);
       return popsRightClickMenu;
     };
-    /**
-     * 搜索建议
-     *
-     * 注意：调用后需要主动调用.init()和.setAllEvent()进行初始化
-     * @param details 配置
-     * @example
-     * let $input = document.querySelector("#input");
-     * let searchSuggestion = pops.searchSuggestion({
-     *     target: $input,
-     *     inputTarget: $input,
-     *     getItemHTML: function (item) {
-     *         return item.value;
-     *     }
-     * });
-     * searchSuggestion.init();
-     * searchSuggestion.setAllEvent();
-     */
-    searchSuggestion = (details) => {
+searchSuggestion = (details) => {
       let popsSearchSuggestion = PopsSearchSuggestion.init(details);
       return popsSearchSuggestion;
     };
   }
   const pops = new Pops();
   const CommonUtil2 = {
-    /**
-     * 移除元素（未出现也可以等待出现）
-     * @param selector 元素选择器
-     */
-    waitRemove(...args) {
+waitRemove(...args) {
       args.forEach((selector) => {
         if (typeof selector !== "string") {
           return;
@@ -22928,15 +19161,7 @@ ${err.stack}`);
         });
       });
     },
-    /**
-     * 添加屏蔽CSS
-     * @param args
-     * @example
-     * addBlockCSS("")
-     * addBlockCSS("","")
-     * addBlockCSS(["",""])
-     */
-    addBlockCSS(...args) {
+addBlockCSS(...args) {
       let selectorList = [];
       if (args.length === 0) {
         return;
@@ -22953,16 +19178,7 @@ ${err.stack}`);
       });
       return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
-    /**
-     * 设置GM_getResourceText的style内容
-     * @param resourceMapData 资源数据
-     * @example
-     * setGMResourceCSS({
-     *   keyName: "ViewerCSS",
-     *   url: "https://example.com/example.css",
-     * })
-     */
-    setGMResourceCSS(resourceMapData) {
+setGMResourceCSS(resourceMapData) {
       let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
       if (typeof cssText === "string" && cssText) {
         addStyle(cssText);
@@ -22970,13 +19186,7 @@ ${err.stack}`);
         CommonUtil2.loadStyleLink(resourceMapData.url);
       }
     },
-    /**
-     * 添加<link>标签
-     * @param url
-     * @example
-     * loadStyleLink("https://example.com/example.css")
-     */
-    async loadStyleLink(url) {
+async loadStyleLink(url) {
       let $link = document.createElement("link");
       $link.rel = "stylesheet";
       $link.type = "text/css";
@@ -22985,13 +19195,7 @@ ${err.stack}`);
         document.head.appendChild($link);
       });
     },
-    /**
-     * 添加<script>标签
-     * @param url
-     * @example
-     * loadStyleLink("https://example.com/example.js")
-     */
-    async loadScript(url) {
+async loadScript(url) {
       let $script = document.createElement("script");
       $script.src = url;
       return new Promise((resolve) => {
@@ -23001,25 +19205,7 @@ ${err.stack}`);
         (document.head || document.documentElement).appendChild($script);
       });
     },
-    /**
-     * 将url修复，例如只有search的链接修复为完整的链接
-     *
-     * 注意：不包括http转https
-     * @param url 需要修复的链接
-     * @example
-     * 修复前：`/xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`//xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     */
-    fixUrl(url) {
+fixUrl(url) {
       url = url.trim();
       if (url.match(/^http(s|):\/\//i)) {
         return url;
@@ -23037,17 +19223,7 @@ ${err.stack}`);
         return url;
       }
     },
-    /**
-     * http转https
-     * @param url 需要修复的链接
-     * @example
-     * 修复前：
-     * 修复后：
-     * @example
-     * 修复前：
-     * 修复后：
-     */
-    fixHttps(url) {
+fixHttps(url) {
       if (url.startsWith("https://")) {
         return url;
       }
@@ -23058,17 +19234,10 @@ ${err.stack}`);
       urlInstance.protocol = "https:";
       return urlInstance.toString();
     },
-    /**
-     * 禁止页面滚动，默认锁定html和body
-     * @example
-     * lockScroll();
-     * @example
-     * lockScroll(document.body);
-     */
-    lockScroll(...args) {
+lockScroll(...args) {
       let $hidden = document.createElement("style");
-      $hidden.innerHTML = /*css*/
-      `
+      $hidden.innerHTML =
+`
 			.pops-overflow-hidden-important {
 				overflow: hidden !important;
 			}
@@ -23079,10 +19248,7 @@ ${err.stack}`);
       });
       (document.head || document.documentElement).appendChild($hidden);
       return {
-        /**
-         * 解除锁定
-         */
-        recovery() {
+recovery() {
           $elList.forEach(($el) => {
             $el.classList.remove("pops-overflow-hidden-important");
           });
@@ -23090,10 +19256,7 @@ ${err.stack}`);
         }
       };
     },
-    /**
-     * 获取剪贴板文本
-     */
-    async getClipboardText() {
+async getClipboardText() {
       function readClipboardText(resolve) {
         navigator.clipboard.readText().then((clipboardText) => {
           resolve(clipboardText);
@@ -23104,8 +19267,7 @@ ${err.stack}`);
       }
       function requestPermissionsWithClipboard(resolve) {
         navigator.permissions.query({
-          // @ts-ignore
-          name: "clipboard-read"
+name: "clipboard-read"
         }).then((permissionStatus) => {
           readClipboardText(resolve);
         }).catch((error) => {
@@ -23142,20 +19304,10 @@ ${err.stack}`);
         }
       });
     },
-    /**
-     * html转义
-     * @param unsafe
-     */
-    escapeHtml(unsafe) {
+escapeHtml(unsafe) {
       return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
     },
-    /**
-     * 在规定时间内循环，如果超时或返回false则取消循环
-     * @param fn 循环的函数
-     * @param intervalTime 循环间隔时间
-     * @param [timeout=5000] 循环超时时间
-     */
-    interval(fn, intervalTime, timeout = 5e3) {
+interval(fn, intervalTime, timeout = 5e3) {
       let timeId;
       let maxTimeout = timeout - intervalTime;
       let intervalTimeCount = intervalTime;
@@ -23176,10 +19328,7 @@ ${err.stack}`);
       };
       loop(false);
     },
-    /**
-     * 找到对应的上层元素
-     */
-    findParentNode($el, selector, parentSelector) {
+findParentNode($el, selector, parentSelector) {
       if (parentSelector) {
         let $parent = domUtils$2.closest($el, parentSelector);
         if ($parent) {
@@ -23196,18 +19345,15 @@ ${err.stack}`);
     }
   };
   const PanelSettingConfig = {
-    /** Toast位置 */
-    qmsg_config_position: {
+qmsg_config_position: {
       key: "qmsg-config-position",
       defaultValue: "bottom"
     },
-    /** 最多显示的数量 */
-    qmsg_config_maxnums: {
+qmsg_config_maxnums: {
       key: "qmsg-config-maxnums",
       defaultValue: 3
     },
-    /** 逆序弹出 */
-    qmsg_config_showreverse: {
+qmsg_config_showreverse: {
       key: "qmsg-config-showreverse",
       defaultValue: false
     }
@@ -23285,10 +19431,8 @@ ${err.stack}`);
       return utils$1.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
     },
     mask: {
-      // 开启遮罩层
-      enable: true,
-      // 取消点击遮罩层的事件
-      clickEvent: {
+enable: true,
+clickEvent: {
         toClose: false,
         toHide: false
       }
@@ -23344,10 +19488,7 @@ ${err.stack}`);
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const PanelUISize = {
-    /**
-     * 一般设置界面的尺寸
-     */
-    setting: {
+setting: {
       get width() {
         if (window.innerWidth < 550) {
           return "88vw";
@@ -23367,10 +19508,7 @@ ${err.stack}`);
         }
       }
     },
-    /**
-     * 中等的设置界面
-     */
-    settingMiddle: {
+settingMiddle: {
       get width() {
         return window.innerWidth < 350 ? "88vw" : "350px";
       },
@@ -23378,10 +19516,7 @@ ${err.stack}`);
         return window.innerHeight < 450 ? "88vh" : "450px";
       }
     },
-    /**
-     * 功能丰富，aside铺满了的设置界面，要稍微大一点
-     */
-    settingBig: {
+settingBig: {
       get width() {
         return window.innerWidth < 800 ? "92vw" : "800px";
       },
@@ -23389,10 +19524,7 @@ ${err.stack}`);
         return window.innerHeight < 600 ? "80vh" : "600px";
       }
     },
-    /**
-     * 信息界面，一般用于提示信息之类
-     */
-    info: {
+info: {
       get width() {
         return window.innerWidth < 350 ? "88vw" : "350px";
       },
@@ -23402,25 +19534,9 @@ ${err.stack}`);
     }
   };
   class StorageUtils {
-    /** 存储的键名 */
-    storageKey;
+storageKey;
     listenerData;
-    /**
-     * 存储的键名，可以是多层的，如：a.b.c
-     *
-     * 那就是
-     * {
-     *  "a": {
-     *     "b": {
-     *       "c": {
-     *         ...你的数据
-     *       }
-     *     }
-     *   }
-     * }
-     * @param key
-     */
-    constructor(key) {
+constructor(key) {
       if (typeof key === "string") {
         let trimKey = key.trim();
         if (trimKey == "") {
@@ -23432,10 +19548,7 @@ ${err.stack}`);
       }
       this.listenerData = new utils$1.Dictionary();
     }
-    /**
-     * 获取本地值
-     */
-    getLocalValue() {
+getLocalValue() {
       let localValue = _GM_getValue(this.storageKey);
       if (localValue == null) {
         localValue = {};
@@ -23443,89 +19556,49 @@ ${err.stack}`);
       }
       return localValue;
     }
-    /**
-     * 设置本地值
-     * @param value
-     */
-    setLocalValue(value) {
+setLocalValue(value) {
       _GM_setValue(this.storageKey, value);
     }
-    /**
-     * 设置值
-     * @param key 键
-     * @param value 值
-     */
-    set(key, value) {
+set(key, value) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, value);
     }
-    /**
-     * 获取值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    get(key, defaultValue) {
+get(key, defaultValue) {
       let localValue = this.getLocalValue();
       return Reflect.get(localValue, key) ?? defaultValue;
     }
-    /**
-     * 获取所有值
-     */
-    getAll() {
+getAll() {
       let localValue = this.getLocalValue();
       return localValue;
     }
-    /**
-     * 删除值
-     * @param key 键
-     */
-    delete(key) {
+delete(key) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, void 0);
     }
-    /**
-     * 判断是否存在该值
-     */
-    has(key) {
+has(key) {
       let localValue = this.getLocalValue();
       return Reflect.has(localValue, key);
     }
-    /**
-     * 获取所有键
-     */
-    keys() {
+keys() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue);
     }
-    /**
-     * 获取所有值
-     */
-    values() {
+values() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue).map(
         (key) => Reflect.get(localValue, key)
       );
     }
-    /**
-     * 清空所有值
-     */
-    clear() {
+clear() {
       _GM_deleteValue(this.storageKey);
     }
-    /**
-     * 监听值改变
-     * + .set
-     * + .delete
-     * @param key 监听的键
-     * @param callback 值改变的回调函数
-     */
-    addValueChangeListener(key, callback) {
+addValueChangeListener(key, callback) {
       let listenerId = Math.random();
       let listenerData = this.listenerData.get(key) || [];
       listenerData.push({
@@ -23536,11 +19609,7 @@ ${err.stack}`);
       this.listenerData.set(key, listenerData);
       return listenerId;
     }
-    /**
-     * 移除监听
-     * @param listenerId 监听的id或键名
-     */
-    removeValueChangeListener(listenerId) {
+removeValueChangeListener(listenerId) {
       let flag = false;
       for (const [key, listenerData] of this.listenerData.entries()) {
         for (let index = 0; index < listenerData.length; index++) {
@@ -23555,13 +19624,7 @@ ${err.stack}`);
       }
       return flag;
     }
-    /**
-     * 主动触发监听器
-     * @param key 键
-     * @param oldValue （可选）旧值
-     * @param newValue （可选）新值
-     */
-    triggerValueChangeListener(key, oldValue, newValue) {
+triggerValueChangeListener(key, oldValue, newValue) {
       if (!this.listenerData.has(key)) {
         return;
       }
@@ -23590,10 +19653,7 @@ ${err.stack}`);
   const PopsPanelStorageApi = new StorageUtils(KEY);
   const PanelContent = {
     $data: {
-      /**
-       * @private
-       */
-      __contentConfig: null,
+__contentConfig: null,
       get contentConfig() {
         if (this.__contentConfig == null) {
           this.__contentConfig = new utils.Dictionary();
@@ -23601,36 +19661,20 @@ ${err.stack}`);
         return this.__contentConfig;
       }
     },
-    /**
-     * 设置所有配置项，用于初始化默认的值
-     *
-     * 如果是第一组添加的话，那么它默认就是设置菜单打开的配置
-     * @param configList 配置项
-     */
-    addContentConfig(configList2) {
+addContentConfig(configList2) {
       if (!Array.isArray(configList2)) {
         configList2 = [configList2];
       }
       let index = this.$data.contentConfig.keys().length;
       this.$data.contentConfig.set(index, configList2);
     },
-    /**
-     * 获取所有的配置内容，用于初始化默认的值
-     */
-    getAllContentConfig() {
+getAllContentConfig() {
       return this.$data.contentConfig.values().flat();
     },
-    /**
-     * 获取配置内容
-     * @param index 配置索引
-     */
-    getConfig(index = 0) {
+getConfig(index = 0) {
       return this.$data.contentConfig.get(index) ?? [];
     },
-    /**
-     * 获取默认左侧底部的配置项
-     */
-    getDefaultBottomContentConfig() {
+getDefaultBottomContentConfig() {
       return [
         {
           id: "script-version",
@@ -23671,30 +19715,19 @@ ${err.stack}`);
     init() {
       this.initExtensionsMenu();
     },
-    /**
-     * 初始化菜单项
-     */
-    initExtensionsMenu() {
+initExtensionsMenu() {
       if (!Panel.isTopWindow()) {
         return;
       }
       GM_Menu.add(this.$data.menuOption);
     },
-    /**
-     * 添加菜单项
-     * @param option 菜单配置
-     */
-    addMenuOption(option) {
+addMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
       this.$data.menuOption.push(...option);
     },
-    /**
-     * 更新菜单项（如果该菜单项已存在，则更新，不存在则不做处理）
-     * @param option 菜单配置
-     */
-    updateMenuOption(option) {
+updateMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
@@ -23707,115 +19740,61 @@ ${err.stack}`);
         }
       });
     },
-    /**
-     * 获取菜单项
-     * @param [index=0] 索引
-     */
-    getMenuOption(index = 0) {
+getMenuOption(index = 0) {
       return this.$data.menuOption[index];
     },
-    /**
-     * 删除菜单项
-     * @param [index=0] 索引
-     */
-    deleteMenuOption(index = 0) {
+deleteMenuOption(index = 0) {
       this.$data.menuOption.splice(index, 1);
     }
   };
   const Panel = {
-    /** 数据 */
-    $data: {
-      /**
-       * @private
-       */
-      __contentConfigInitDefaultValue: null,
-      /**
-       * @private
-       */
-      __onceExecMenuData: null,
-      /**
-       * @private
-       */
-      __onceExecData: null,
-      /**
-       * @private
-       */
-      __panelConfig: {},
-      /**
-       * 面板
-       */
-      $panel: null,
-      /**
-       * 面板配置
-       */
-      panelContent: [],
-      /**
-       * 菜单项初始化的默认值
-       */
-      get contentConfigInitDefaultValue() {
+$data: {
+__contentConfigInitDefaultValue: null,
+__onceExecMenuData: null,
+__onceExecData: null,
+__panelConfig: {},
+$panel: null,
+panelContent: [],
+get contentConfigInitDefaultValue() {
         if (this.__contentConfigInitDefaultValue == null) {
           this.__contentConfigInitDefaultValue = new utils.Dictionary();
         }
         return this.__contentConfigInitDefaultValue;
       },
-      /**
-       * 菜单项初始化时禁用的键
-       */
-      contentConfigInitDisabledKeys: [],
-      /**
-       * 成功只执行了一次的菜单项
-       *
-       * + .exec
-       * + .execMenu
-       * + .execMenuOnce
-       */
-      get onceExecMenuData() {
+contentConfigInitDisabledKeys: [],
+get onceExecMenuData() {
         if (this.__onceExecMenuData == null) {
           this.__onceExecMenuData = new utils.Dictionary();
         }
         return this.__onceExecMenuData;
       },
-      /**
-       * 成功只执行了一次的项
-       *
-       * + .onceExec
-       */
-      get onceExecData() {
+get onceExecData() {
         if (this.__onceExecData == null) {
           this.__onceExecData = new utils.Dictionary();
         }
         return this.__onceExecData;
       },
-      /** 脚本名，一般用在设置的标题上 */
-      get scriptName() {
+get scriptName() {
         return SCRIPT_NAME;
       },
-      /**
-       * pops.panel的默认配置
-       */
-      get panelConfig() {
+get panelConfig() {
         return this.__panelConfig;
       },
       set panelConfig(value) {
         this.__panelConfig = value;
       },
-      /** 菜单项的总值在本地数据配置的键名 */
-      key: KEY,
-      /** 菜单项在attributes上配置的菜单键 */
-      attributeKeyName: ATTRIBUTE_KEY,
-      /** 菜单项在attributes上配置的菜单默认值 */
-      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
+key: KEY,
+attributeKeyName: ATTRIBUTE_KEY,
+attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
     },
     init() {
       this.initContentDefaultValue();
       PanelMenu.init();
     },
-    /** 判断是否是顶层窗口 */
-    isTopWindow() {
+isTopWindow() {
       return _unsafeWindow.top === _unsafeWindow.self;
     },
-    /** 初始化菜单项的默认值保存到本地数据中 */
-    initContentDefaultValue() {
+initContentDefaultValue() {
       const initDefaultValue = (config) => {
         if (!config.attributes) {
           return;
@@ -23823,7 +19802,7 @@ ${err.stack}`);
         if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
           return;
         }
-        let menuDefaultConfig = /* @__PURE__ */ new Map();
+        let menuDefaultConfig = new Map();
         let key = config.attributes[ATTRIBUTE_KEY];
         if (key != null) {
           const defaultValue = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
@@ -23879,31 +19858,16 @@ ${err.stack}`);
       }
       this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
     },
-    /**
-     * 设置初始化使用的默认值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    setDefaultValue(key, defaultValue) {
+setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
         log.warn("请检查该key(已存在): " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
-    /**
-     * 设置值
-     * @param key 键
-     * @param value 值
-     */
-    setValue(key, value) {
+setValue(key, value) {
       PopsPanelStorageApi.set(key, value);
     },
-    /**
-     * 获取值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    getValue(key, defaultValue) {
+getValue(key, defaultValue) {
       let localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
         if (this.$data.contentConfigInitDefaultValue.has(key)) {
@@ -23913,66 +19877,25 @@ ${err.stack}`);
       }
       return localValue;
     },
-    /**
-     * 删除值
-     * @param key 键
-     */
-    deleteValue(key) {
+deleteValue(key) {
       PopsPanelStorageApi.delete(key);
     },
-    /**
-     * 判断该键是否存在
-     * @param key 键
-     */
-    hasKey(key) {
+hasKey(key) {
       return PopsPanelStorageApi.has(key);
     },
-    /**
-     * 监听调用setValue、deleteValue
-     * @param key 需要监听的键
-     * @param callback
-     */
-    addValueChangeListener(key, callback) {
+addValueChangeListener(key, callback) {
       let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
         callback(key, __oldValue, __newValue);
       });
       return listenerId;
     },
-    /**
-     * 移除监听
-     * @param listenerId 监听的id
-     */
-    removeValueChangeListener(listenerId) {
+removeValueChangeListener(listenerId) {
       PopsPanelStorageApi.removeValueChangeListener(listenerId);
     },
-    /**
-     * 主动触发菜单值改变的回调
-     * @param key 菜单键
-     * @param newValue 想要触发的新值，默认使用当前值
-     * @param oldValue 想要触发的旧值，默认使用当前值
-     */
-    triggerMenuValueChange(key, newValue, oldValue) {
+triggerMenuValueChange(key, newValue, oldValue) {
       PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
     },
-    /**
-     * 执行菜单
-     *
-     * @param queryKey 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 执行的回调函数
-     * @param checkExec 判断是否执行回调
-     *
-     * （默认）如果想要每个菜单是`与`关系，即每个菜单都判断为开启，那么就判断它们的值&就行
-     *
-     * 如果想要任意菜单存在true再执行，那么判断它们的值|就行
-     *
-     * + 返回值都为`true`，执行回调，如果回调返回了<style>元素，该元素会在监听到值改变时被移除掉
-     * + 返回值有一个为`false`，则不执行回调，且移除之前回调函数返回的<style>元素
-     * @param once 是否只执行一次，默认true
-     *
-     * + true （默认）只执行一次，且会监听键的值改变
-     * + false 不会监听键的值改变
-     */
-    exec(queryKey, callback, checkExec, once = true) {
+exec(queryKey, callback, checkExec, once = true) {
       const that = this;
       let queryKeyFn;
       if (typeof queryKey === "string" || Array.isArray(queryKey)) {
@@ -24077,28 +20000,15 @@ ${err.stack}`);
       });
       valueChangeCallback();
       let result = {
-        /**
-         * 清空菜单执行情况
-         *
-         * + 清空存储的元素列表
-         * + 清空值改变的监听器
-         * + 清空存储的一次执行的键
-         */
-        clear() {
+clear() {
           this.clearStoreStyleElements();
           this.removeValueChangeListener();
           once && that.$data.onceExecMenuData.delete(storageKey);
         },
-        /**
-         * 清空存储的元素列表
-         */
-        clearStoreStyleElements: () => {
+clearStoreStyleElements: () => {
           return clearBeforeStoreValue();
         },
-        /**
-         * 移除值改变的监听器
-         */
-        removeValueChangeListener: () => {
+removeValueChangeListener: () => {
           listenerIdList.forEach((listenerId) => {
             this.removeValueChangeListener(listenerId);
           });
@@ -24106,14 +20016,7 @@ ${err.stack}`);
       };
       return result;
     },
-    /**
-     * 自动判断菜单是否启用，然后执行回调
-     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 回调
-     * @param isReverse 逆反判断菜单启用，默认false
-     * @param once 是否是只执行一次，默认false
-     */
-    execMenu(key, callback, isReverse = false, once = false) {
+execMenu(key, callback, isReverse = false, once = false) {
       return this.exec(
         key,
         (option) => {
@@ -24135,35 +20038,15 @@ ${err.stack}`);
         once
       );
     },
-    /**
-     * 自动判断菜单是否启用，然后执行回调，只会执行一次
-     *
-     * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
-     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 回调
-     * @param isReverse 逆反判断菜单启用，默认false
-     */
-    execMenuOnce(key, callback, isReverse = false) {
+execMenuOnce(key, callback, isReverse = false) {
       return this.execMenu(key, callback, isReverse, true);
     },
-    /**
-     * 移除已执行的仅执行一次的菜单
-     * + .exec
-     * + .execMenu
-     * + .execMenuOnce
-     * @param key 键
-     */
-    deleteExecMenuOnce(key) {
+deleteExecMenuOnce(key) {
       this.$data.onceExecMenuData.delete(key);
       let flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
-    /**
-     * 根据key执行一次，该key不会和execMenu|exec|execMenuOnce已执行的key冲突
-     * @param key 键
-     * @param callback 回调
-     */
-    onceExec(key, callback) {
+onceExec(key, callback) {
       key = this.transformKey(key);
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
@@ -24174,23 +20057,11 @@ ${err.stack}`);
       callback();
       this.$data.onceExecData.set(key, 1);
     },
-    /**
-     * 移除已执行的仅执行一次的菜单
-     * + .onceExec
-     * @param key 键
-     */
-    deleteOnceExec(key) {
+deleteOnceExec(key) {
       key = this.transformKey(key);
       this.$data.onceExecData.delete(key);
     },
-    /**
-     * 显示设置面板
-     * @param content 显示的内容配置
-     * @param [title] 标题
-     * @param [preventDefaultContentConfig=false] 是否阻止默认添加内容配置（版本号），默认false
-     * @param [preventRegisterSearchPlugin=false] 是否阻止默认添加搜索组件，默认false
-     */
-    showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
+showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
       this.$data.$panel = null;
       this.$data.panelContent = [];
       let checkHasBottomVersionContentConfig = content.findIndex((it) => {
@@ -24242,11 +20113,7 @@ ${err.stack}`);
         this.registerConfigSearch({ $panel, content });
       }
     },
-    /**
-     * 注册设置面板的搜索功能（双击左侧选项第一个）
-     * @param config 配置项
-     */
-    registerConfigSearch(config) {
+registerConfigSearch(config) {
       const { $panel, content } = config;
       let asyncQueryProperty = async (target, handler) => {
         if (target == null) {
@@ -24270,10 +20137,8 @@ ${err.stack}`);
           },
           {
             root: null,
-            // 使用视口作为根
-            threshold: 1
-            // 元素完全进入视口时触发
-          }
+threshold: 1
+}
         );
         observer.observe($el);
         $el.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -24294,8 +20159,7 @@ ${err.stack}`);
           },
           content: {
             text: (
-              /*html*/
-              `
+`
 						<div class="search-wrapper">
 							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
 						</div>
@@ -24316,8 +20180,7 @@ ${err.stack}`);
           height: "auto",
           drag: true,
           style: (
-            /*css*/
-            `
+`
 					${__pops.config.cssText.panelCSS}
 
 					.search-wrapper{
@@ -24382,8 +20245,7 @@ ${err.stack}`);
           let $item = domUtils.createElement("div", {
             className: "search-result-item",
             innerHTML: (
-              /*html*/
-              `
+`
 							<div class="search-result-item-path">${searchPath.matchedData?.path}</div>
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
 						`
@@ -24623,8 +20485,7 @@ ${err.stack}`);
         domUtils.createElement("style", {
           type: "text/css",
           textContent: (
-            /*css*/
-            `
+`
 					.pops-flashing{
 						animation: double-blink 1.5s ease-in-out;
 					}
@@ -24650,10 +20511,7 @@ ${err.stack}`);
         })
       );
     },
-    /**
-     * 把key:string[]转为string
-     */
-    transformKey(key) {
+transformKey(key) {
       if (Array.isArray(key)) {
         const keyArray = key.sort();
         return JSON.stringify(keyArray);
@@ -24721,34 +20579,25 @@ ${err.stack}`);
     info: ""
   };
   const TagUtil = {
-    /**
-     * 设置多组tag（自动清除旧tag）
-     */
-    setTagList($el, tagList) {
+setTagList($el, tagList) {
       domUtils.html($el, "");
       let tagHTML = "";
       tagList.forEach((tagItem) => {
-        tagHTML += /*html*/
-        `
+        tagHTML +=
+`
 				<p class="${tagItem.tag}">${tagItem.text ?? ""}</p>
 			`;
       });
       domUtils.html($el, tagHTML);
     },
-    /**
-     * 设置tag（自动清除旧tag）
-     */
-    setTag($el, tag, text) {
+setTag($el, tag, text) {
       TagUtil.clearTag($el);
       domUtils.addClass($el, tag);
       if (typeof text === "string") {
         domUtils.html($el, text);
       }
     },
-    /**
-     * 除旧tag
-     */
-    clearTag($el) {
+clearTag($el) {
       Object.keys(Tag).forEach((tagName) => {
         domUtils.removeClass($el, tagName);
       });
@@ -24761,8 +20610,7 @@ ${err.stack}`);
         let $item = domUtils.createElement("div", {
           className: "pops-panel-item-left-text",
           innerHTML: (
-            /*html*/
-            `
+`
 					<p class="pops-panel-item-left-main-text"></p>
 					<p class="pops-panel-item-left-desc-text"></p>
 				`
@@ -24825,22 +20673,14 @@ ${err.stack}`);
   class TestUIBase {
   }
   class ApiTestBase extends TestUIBase {
-    /**
-     * 是否支持GM函数
-     */
-    isSupportGM() {
+isSupportGM() {
       return typeof _GM === "object" && _GM != null;
     }
   }
   class ApiAsyncTestBase extends ApiTestBase {
   }
   const TamperMonkeyUtils = {
-    /**
-     * 获取文档的超链接文本
-     * @param navName 链接导航锚点名
-     * @param text 超链接显示的文本
-     */
-    getApiDocUrl(navName, text) {
+getApiDocUrl(navName, text) {
       text = text ?? navName;
       return `<a href="https://www.tampermonkey.net/documentation.php?ext=gcal&version=#api:${navName}" target="_blank">${text}</a>`;
     }
@@ -25147,8 +20987,7 @@ ${err.stack}`);
                 });
                 document.body.appendChild($test);
                 $testCSS = await data.fn(
-                  /*css*/
-                  `
+`
 							#${apiNameTag} {
 								background-color: rgb(255, 0, 0);
 							}
@@ -25267,8 +21106,7 @@ ${err.stack}`);
                 tag: "info",
                 afterRender(container) {
                   let $button = domUtils.parseHTML(
-                    /*html*/
-                    `
+`
 										<div class="pops-panel-button pops-panel-button-no-icon">
 											<button class="pops-panel-button_inner" type="button" data-type="default">
 												<i class="pops-bottom-icon" is-loading="false"></i>
@@ -25522,8 +21360,7 @@ ${err.stack}`);
                 description: "点击按钮进行测试",
                 afterRender(container) {
                   let $button = domUtils.parseHTML(
-                    /*html*/
-                    `
+`
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -25559,8 +21396,7 @@ ${err.stack}`);
                               width: PanelUISize.setting.width,
                               height: PanelUISize.setting.height,
                               style: (
-                                /*css*/
-                                `
+`
 															.pops-alert-content{
 																white-space: pre-wrap;
 															}
@@ -25598,8 +21434,7 @@ ${err.stack}`);
                 description: JSON.stringify(newCookieInfo),
                 afterRender(container) {
                   let $button = domUtils.parseHTML(
-                    /*html*/
-                    `
+`
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -25651,8 +21486,7 @@ ${err.stack}`);
                 description: JSON.stringify(deleteCookieInfo),
                 afterRender(container) {
                   let $button = domUtils.parseHTML(
-                    /*html*/
-                    `
+`
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -25772,8 +21606,7 @@ ${err.stack}`);
                 tag: "info",
                 afterRender(container) {
                   let $button = domUtils.parseHTML(
-                    /*html*/
-                    `
+`
 										<div class="pops-panel-button pops-panel-button-no-icon">
 											<button class="pops-panel-button_inner" type="button" data-type="default">
 												<i class="pops-bottom-icon" is-loading="false"></i>
@@ -25885,8 +21718,7 @@ ${err.stack}`);
                 tag: "info",
                 afterRender(container) {
                   let $button = domUtils.parseHTML(
-                    /*html*/
-                    `
+`
 										<div class="pops-panel-button pops-panel-button-no-icon">
 											<button class="pops-panel-button_inner" type="button" data-type="default">
 												<i class="pops-bottom-icon" is-loading="false"></i>
@@ -26340,8 +22172,7 @@ ${err.stack}`);
                 tag: "info",
                 afterRender(container) {
                   let $button = domUtils.parseHTML(
-                    /*html*/
-                    `
+`
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -26505,8 +22336,7 @@ ${err.stack}`);
                 tag: "info",
                 afterRender(container) {
                   let $button = domUtils.parseHTML(
-                    /*html*/
-                    `
+`
 								<div class="pops-panel-button pops-panel-button-no-icon">
 									<button class="pops-panel-button_inner" type="button" data-type="default">
 										<i class="pops-bottom-icon" is-loading="false"></i>
@@ -26673,8 +22503,7 @@ ${err.stack}`);
                   tag: "info",
                   afterRender(container) {
                     let $button = domUtils.parseHTML(
-                      /*html*/
-                      `
+`
 										<div class="pops-panel-button pops-panel-button-no-icon">
 											<button class="pops-panel-button_inner" type="button" data-type="default">
 												<i class="pops-bottom-icon" is-loading="false"></i>
@@ -26721,8 +22550,7 @@ ${err.stack}`);
                 tag: "info",
                 afterRender(container) {
                   let $button = domUtils.parseHTML(
-                    /*html*/
-                    `
+`
 										<div class="pops-panel-button pops-panel-button-no-icon">
 											<button class="pops-panel-button_inner" type="button" data-type="default">
 												<i class="pops-bottom-icon" is-loading="false"></i>
@@ -26765,8 +22593,7 @@ ${err.stack}`);
                 tag: "info",
                 afterRender(container) {
                   let $button = domUtils.parseHTML(
-                    /*html*/
-                    `
+`
 										<div class="pops-panel-button pops-panel-button-no-icon">
 											<button class="pops-panel-button_inner" type="button" data-type="default">
 												<i class="pops-bottom-icon" is-loading="false"></i>
@@ -26875,8 +22702,7 @@ ${err.stack}`);
                 tag: "info",
                 afterRender(container) {
                   let $button = domUtils.parseHTML(
-                    /*html*/
-                    `
+`
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -26914,8 +22740,7 @@ ${err.stack}`);
                 tag: "info",
                 afterRender(container) {
                   let $button = domUtils.parseHTML(
-                    /*html*/
-                    `
+`
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -26959,8 +22784,7 @@ ${err.stack}`);
                 tag: "info",
                 afterRender(container) {
                   let $button = domUtils.parseHTML(
-                    /*html*/
-                    `
+`
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -27206,8 +23030,7 @@ ${err.stack}`);
               tag: "info",
               afterRender(container) {
                 let $button = domUtils.parseHTML(
-                  /*html*/
-                  `
+`
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -27320,8 +23143,7 @@ ${err.stack}`);
                 description: "test GM_log",
                 afterRender(container) {
                   let $button = domUtils.parseHTML(
-                    /*html*/
-                    `
+`
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -27461,8 +23283,7 @@ ${err.stack}`);
                   afterRender(container) {
                     let $target = container.target;
                     let $button = domUtils.parseHTML(
-                      /*html*/
-                      `
+`
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -27510,8 +23331,7 @@ ${err.stack}`);
                     $target = container.target;
                     $info = container.$leftContainer;
                     let $button = domUtils.parseHTML(
-                      /*html*/
-                      `
+`
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -27530,8 +23350,7 @@ ${err.stack}`);
                         let clickTag = "success";
                         domUtils.html(
                           container.$leftText,
-                          /*html*/
-                          `<p class="${clickTag}">${clickText}</p>`
+`<p class="${clickTag}">${clickText}</p>`
                         );
                         isClick = false;
                         isDone = false;
@@ -27604,8 +23423,7 @@ ${err.stack}`);
                     $target = container.target;
                     $info = container.$leftContainer;
                     let $button = domUtils.parseHTML(
-                      /*html*/
-                      `
+`
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -27647,8 +23465,7 @@ ${err.stack}`);
                         }
                         domUtils.html(
                           container.$leftText,
-                          /*html*/
-                          `
+`
 												<p class="${clickTag}">${clickText}</p>
 												<p class="${doneTag}">${doneText}</p>`
                         );
@@ -27743,8 +23560,7 @@ ${err.stack}`);
                     $target = container.target;
                     $info = container.$leftContainer;
                     let $button = domUtils.parseHTML(
-                      /*html*/
-                      `
+`
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -27877,8 +23693,7 @@ ${err.stack}`);
                 afterRender(container) {
                   let $target = container.target;
                   let $button = domUtils.parseHTML(
-                    /*html*/
-                    `
+`
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -27908,8 +23723,7 @@ ${err.stack}`);
                           let support_onclose = "onclose" in result2;
                           domUtils.html(
                             container.$leftText,
-                            /*html*/
-                            `
+`
 													${support_close ? `<p class="success">支持 .close()</p>` : `<p class="error">不支持 .close()</p>`}
 													${support_closed ? `<p class="success">支持 .closed</p>` : `<p class="error">不支持 .closed</p>`}
 													${support_onclose ? `<p class="success">支持设置属性 .onclose</p>` : `<p class="error">不支持设置属性 .onclose</p>`}
@@ -27947,8 +23761,7 @@ ${err.stack}`);
                 afterRender(container) {
                   let $target = container.target;
                   let $button = domUtils.parseHTML(
-                    /*html*/
-                    `
+`
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -28022,8 +23835,7 @@ ${err.stack}`);
                 afterRender(container) {
                   let $target = container.target;
                   let $button = domUtils.parseHTML(
-                    /*html*/
-                    `
+`
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -28094,8 +23906,7 @@ ${err.stack}`);
                 afterRender(container) {
                   let $target = container.target;
                   let $button = domUtils.parseHTML(
-                    /*html*/
-                    `
+`
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -28249,8 +24060,7 @@ ${err.stack}`);
                 tag: "info",
                 afterRender(container) {
                   let $button = domUtils.parseHTML(
-                    /*html*/
-                    `
+`
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -28363,8 +24173,7 @@ ${err.stack}`);
                 tag: "info",
                 afterRender(container) {
                   let $button = domUtils.parseHTML(
-                    /*html*/
-                    `
+`
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -28494,8 +24303,7 @@ ${err.stack}`);
                 tag: "info",
                 afterRender(container) {
                   let $button = domUtils.parseHTML(
-                    /*html*/
-                    `
+`
 										<div class="pops-panel-button pops-panel-button-no-icon">
 											<button class="pops-panel-button_inner" type="button" data-type="default">
 												<i class="pops-bottom-icon" is-loading="false"></i>
@@ -28705,8 +24513,7 @@ ${err.stack}`);
               tag: "info",
               afterRender(container) {
                 let $button = domUtils.parseHTML(
-                  /*html*/
-                  `
+`
 								<div class="pops-panel-button pops-panel-button-no-icon">
 									<button class="pops-panel-button_inner" type="button" data-type="default">
 										<i class="pops-bottom-icon" is-loading="false"></i>
@@ -28887,8 +24694,7 @@ ${err.stack}`);
                   tag: "info",
                   afterRender(container) {
                     let $button = domUtils.parseHTML(
-                      /*html*/
-                      `
+`
 										<div class="pops-panel-button pops-panel-button-no-icon">
 											<button class="pops-panel-button_inner" type="button" data-type="default">
 												<i class="pops-bottom-icon" is-loading="false"></i>
@@ -28992,8 +24798,7 @@ ${err.stack}`);
                 tag: "info",
                 afterRender(container) {
                   let $button = domUtils.parseHTML(
-                    /*html*/
-                    `
+`
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -29095,8 +24900,7 @@ ${err.stack}`);
                 tag: "info",
                 afterRender(container) {
                   let $button = domUtils.parseHTML(
-                    /*html*/
-                    `
+`
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -29461,35 +25265,21 @@ ${err.stack}`);
     }
   };
   const StorageApi = {
-    /**
-     * 存储值
-     * @param key 键
-     * @param value 值
-     */
-    set(key, value) {
+set(key, value) {
       if (GMTotal.setValue.isSupport() && GMTotal.getValue.isSupport() && GMTotal.deleteValue.isSupport()) {
         _GM_setValue(key, value);
       } else {
         LocalStorageApi.set(key, value);
       }
     },
-    /**
-     * 获取值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    get(key, defaultValue) {
+get(key, defaultValue) {
       if (GMTotal.setValue.isSupport() && GMTotal.getValue.isSupport() && GMTotal.deleteValue.isSupport()) {
         return _GM_getValue(key, defaultValue);
       } else {
         return LocalStorageApi.get(key, defaultValue);
       }
     },
-    /**
-     * 删除值
-     * @param key 键
-     */
-    delete(key) {
+delete(key) {
       if (GMTotal.setValue.isSupport() && GMTotal.getValue.isSupport() && GMTotal.deleteValue.isSupport()) {
         _GM_deleteValue(key);
       } else {
@@ -29536,21 +25326,18 @@ ${err.stack}`);
       let $item = domUtils.createElement("div", {
         className: "gm-api-features-item",
         innerHTML: (
-          /*html*/
-          `
+`
 				<div class="gm-api-features-item__label">${config.name}</div>
 				<div class="gm-api-features-item__value">
 					<span style="font-size: 16px; font-weight: 700;">
 						${config.isSupport ? (
-          /*html*/
-          `
+`
 							<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512" fill="currentColor">
 								<path d="M448 71.9c-17.3-13.4-41.5-9.3-54.1 9.1L214 344.2l-99.1-107.3c-14.6-16.6-39.1-17.4-54.7-1.8-15.6 15.5-16.4 41.6-1.7 58.1 0 0 120.4 133.6 137.7 147 17.3 13.4 41.5 9.3 54.1-9.1l206.3-301.7c12.6-18.5 8.7-44.2-8.6-57.5z" fill="#3b9f04"></path>
 							</svg>
 						`
         ) : (
-          /*html*/
-          `
+`
 							<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512" fill="currentColor">
 								<path fill="#FF473E" d="m330.443 256l136.765-136.765c14.058-14.058 14.058-36.85 0-50.908l-23.535-23.535c-14.058-14.058-36.85-14.058-50.908 0L256 181.557L119.235 44.792c-14.058-14.058-36.85-14.058-50.908 0L44.792 68.327c-14.058 14.058-14.058 36.85 0 50.908L181.557 256L44.792 392.765c-14.058 14.058-14.058 36.85 0 50.908l23.535 23.535c14.058 14.058 36.85 14.058 50.908 0L256 330.443l136.765 136.765c14.058 14.058 36.85 14.058 50.908 0l23.535-23.535c14.058-14.058 14.058-36.85 0-50.908L330.443 256z"></path>
 							</svg>
@@ -29700,8 +25487,7 @@ ${err.stack}`);
                     description: "点击按钮进行测试",
                     afterRender(container) {
                       let $button = domUtils.parseHTML(
-                        /*html*/
-                        `
+`
 											<div class="pops-panel-button pops-panel-button-no-icon">
 												<button class="pops-panel-button_inner" type="button" data-type="default">
 													<i class="pops-bottom-icon" is-loading="false"></i>
@@ -29799,8 +25585,7 @@ ${err.stack}`);
                     description: "点击按钮执行该函数",
                     afterRender(container) {
                       let $button = domUtils.parseHTML(
-                        /*html*/
-                        `
+`
 											<div class="pops-panel-button pops-panel-button-no-icon">
 												<button class="pops-panel-button_inner" type="button" data-type="default">
 													<i class="pops-bottom-icon" is-loading="false"></i>
@@ -29876,8 +25661,7 @@ ${err.stack}`);
                     description: "点击按钮执行该函数",
                     afterRender(container) {
                       let $button = domUtils.parseHTML(
-                        /*html*/
-                        `
+`
 											<div class="pops-panel-button pops-panel-button-no-icon">
 												<button class="pops-panel-button_inner" type="button" data-type="default">
 													<i class="pops-bottom-icon" is-loading="false"></i>
@@ -29953,8 +25737,7 @@ ${err.stack}`);
   PanelContent.addContentConfig(configList);
   Panel.$data.panelConfig = {
     style: (
-      /*css*/
-      `
+`
 		.success{
 			color: green;
 		}

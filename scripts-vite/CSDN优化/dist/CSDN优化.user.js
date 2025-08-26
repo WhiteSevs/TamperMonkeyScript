@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.21
+// @version      2025.8.27
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -9,9 +9,9 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*.csdn.net/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @connect      blog.csdn.net
 // @connect      mp-action.csdn.net
@@ -30,22 +30,18 @@
 (function (Qmsg, DOMUtils, Utils, pops) {
   'use strict';
 
-  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
-  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
-  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
-  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
-  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
-  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
-  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
-  var _monkeyWindow = /* @__PURE__ */ (() => window)();
+  var _GM_deleteValue = (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
+  var _GM_getResourceText = (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
+  var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
+  var _GM_info = (() => typeof GM_info != "undefined" ? GM_info : void 0)();
+  var _GM_registerMenuCommand = (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_setValue = (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
+  var _GM_unregisterMenuCommand = (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
+  var _unsafeWindow = (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
+  var _monkeyWindow = (() => window)();
   const CommonUtil = {
-    /**
-     * 移除元素（未出现也可以等待出现）
-     * @param selector 元素选择器
-     */
-    waitRemove(...args) {
+waitRemove(...args) {
       args.forEach((selector) => {
         if (typeof selector !== "string") {
           return;
@@ -55,15 +51,7 @@
         });
       });
     },
-    /**
-     * 添加屏蔽CSS
-     * @param args
-     * @example
-     * addBlockCSS("")
-     * addBlockCSS("","")
-     * addBlockCSS(["",""])
-     */
-    addBlockCSS(...args) {
+addBlockCSS(...args) {
       let selectorList = [];
       if (args.length === 0) {
         return;
@@ -80,16 +68,7 @@
       });
       return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
-    /**
-     * 设置GM_getResourceText的style内容
-     * @param resourceMapData 资源数据
-     * @example
-     * setGMResourceCSS({
-     *   keyName: "ViewerCSS",
-     *   url: "https://example.com/example.css",
-     * })
-     */
-    setGMResourceCSS(resourceMapData) {
+setGMResourceCSS(resourceMapData) {
       let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
       if (typeof cssText === "string" && cssText) {
         addStyle(cssText);
@@ -97,13 +76,7 @@
         CommonUtil.loadStyleLink(resourceMapData.url);
       }
     },
-    /**
-     * 添加<link>标签
-     * @param url
-     * @example
-     * loadStyleLink("https://example.com/example.css")
-     */
-    async loadStyleLink(url) {
+async loadStyleLink(url) {
       let $link = document.createElement("link");
       $link.rel = "stylesheet";
       $link.type = "text/css";
@@ -112,13 +85,7 @@
         document.head.appendChild($link);
       });
     },
-    /**
-     * 添加<script>标签
-     * @param url
-     * @example
-     * loadStyleLink("https://example.com/example.js")
-     */
-    async loadScript(url) {
+async loadScript(url) {
       let $script = document.createElement("script");
       $script.src = url;
       return new Promise((resolve) => {
@@ -128,25 +95,7 @@
         (document.head || document.documentElement).appendChild($script);
       });
     },
-    /**
-     * 将url修复，例如只有search的链接修复为完整的链接
-     *
-     * 注意：不包括http转https
-     * @param url 需要修复的链接
-     * @example
-     * 修复前：`/xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`//xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     */
-    fixUrl(url) {
+fixUrl(url) {
       url = url.trim();
       if (url.match(/^http(s|):\/\//i)) {
         return url;
@@ -164,17 +113,7 @@
         return url;
       }
     },
-    /**
-     * http转https
-     * @param url 需要修复的链接
-     * @example
-     * 修复前：
-     * 修复后：
-     * @example
-     * 修复前：
-     * 修复后：
-     */
-    fixHttps(url) {
+fixHttps(url) {
       if (url.startsWith("https://")) {
         return url;
       }
@@ -185,17 +124,10 @@
       urlInstance.protocol = "https:";
       return urlInstance.toString();
     },
-    /**
-     * 禁止页面滚动，默认锁定html和body
-     * @example
-     * lockScroll();
-     * @example
-     * lockScroll(document.body);
-     */
-    lockScroll(...args) {
+lockScroll(...args) {
       let $hidden = document.createElement("style");
-      $hidden.innerHTML = /*css*/
-      `
+      $hidden.innerHTML =
+`
 			.pops-overflow-hidden-important {
 				overflow: hidden !important;
 			}
@@ -206,10 +138,7 @@
       });
       (document.head || document.documentElement).appendChild($hidden);
       return {
-        /**
-         * 解除锁定
-         */
-        recovery() {
+recovery() {
           $elList.forEach(($el) => {
             $el.classList.remove("pops-overflow-hidden-important");
           });
@@ -217,10 +146,7 @@
         }
       };
     },
-    /**
-     * 获取剪贴板文本
-     */
-    async getClipboardText() {
+async getClipboardText() {
       function readClipboardText(resolve) {
         navigator.clipboard.readText().then((clipboardText) => {
           resolve(clipboardText);
@@ -231,8 +157,7 @@
       }
       function requestPermissionsWithClipboard(resolve) {
         navigator.permissions.query({
-          // @ts-ignore
-          name: "clipboard-read"
+name: "clipboard-read"
         }).then((permissionStatus) => {
           readClipboardText(resolve);
         }).catch((error) => {
@@ -269,20 +194,10 @@
         }
       });
     },
-    /**
-     * html转义
-     * @param unsafe
-     */
-    escapeHtml(unsafe) {
+escapeHtml(unsafe) {
       return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
     },
-    /**
-     * 在规定时间内循环，如果超时或返回false则取消循环
-     * @param fn 循环的函数
-     * @param intervalTime 循环间隔时间
-     * @param [timeout=5000] 循环超时时间
-     */
-    interval(fn, intervalTime, timeout = 5e3) {
+interval(fn, intervalTime, timeout = 5e3) {
       let timeId;
       let maxTimeout = timeout - intervalTime;
       let intervalTimeCount = intervalTime;
@@ -303,10 +218,7 @@
       };
       loop(false);
     },
-    /**
-     * 找到对应的上层元素
-     */
-    findParentNode($el, selector, parentSelector) {
+findParentNode($el, selector, parentSelector) {
       if (parentSelector) {
         let $parent = DOMUtils.closest($el, parentSelector);
         if ($parent) {
@@ -323,18 +235,15 @@
     }
   };
   const PanelSettingConfig = {
-    /** Toast位置 */
-    qmsg_config_position: {
+qmsg_config_position: {
       key: "qmsg-config-position",
       defaultValue: "bottom"
     },
-    /** 最多显示的数量 */
-    qmsg_config_maxnums: {
+qmsg_config_maxnums: {
       key: "qmsg-config-maxnums",
       defaultValue: 3
     },
-    /** 逆序弹出 */
-    qmsg_config_showreverse: {
+qmsg_config_showreverse: {
       key: "qmsg-config-showreverse",
       defaultValue: false
     }
@@ -412,10 +321,8 @@
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
     },
     mask: {
-      // 开启遮罩层
-      enable: true,
-      // 取消点击遮罩层的事件
-      clickEvent: {
+enable: true,
+clickEvent: {
         toClose: false,
         toHide: false
       }
@@ -472,10 +379,7 @@
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const PROPS_STORAGE_API = "data-storage-api";
   const PanelUISize = {
-    /**
-     * 一般设置界面的尺寸
-     */
-    setting: {
+setting: {
       get width() {
         if (window.innerWidth < 550) {
           return "88vw";
@@ -495,35 +399,16 @@
         }
       }
     },
-    /**
-     * 中等的设置界面
-     */
-    settingMiddle: {
+settingMiddle: {
       get width() {
         return window.innerWidth < 350 ? "88vw" : "350px";
       }
     }
   };
   class StorageUtils {
-    /** 存储的键名 */
-    storageKey;
+storageKey;
     listenerData;
-    /**
-     * 存储的键名，可以是多层的，如：a.b.c
-     *
-     * 那就是
-     * {
-     *  "a": {
-     *     "b": {
-     *       "c": {
-     *         ...你的数据
-     *       }
-     *     }
-     *   }
-     * }
-     * @param key
-     */
-    constructor(key) {
+constructor(key) {
       if (typeof key === "string") {
         let trimKey = key.trim();
         if (trimKey == "") {
@@ -535,10 +420,7 @@
       }
       this.listenerData = new Utils.Dictionary();
     }
-    /**
-     * 获取本地值
-     */
-    getLocalValue() {
+getLocalValue() {
       let localValue = _GM_getValue(this.storageKey);
       if (localValue == null) {
         localValue = {};
@@ -546,89 +428,49 @@
       }
       return localValue;
     }
-    /**
-     * 设置本地值
-     * @param value
-     */
-    setLocalValue(value) {
+setLocalValue(value) {
       _GM_setValue(this.storageKey, value);
     }
-    /**
-     * 设置值
-     * @param key 键
-     * @param value 值
-     */
-    set(key, value) {
+set(key, value) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, value);
     }
-    /**
-     * 获取值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    get(key, defaultValue) {
+get(key, defaultValue) {
       let localValue = this.getLocalValue();
       return Reflect.get(localValue, key) ?? defaultValue;
     }
-    /**
-     * 获取所有值
-     */
-    getAll() {
+getAll() {
       let localValue = this.getLocalValue();
       return localValue;
     }
-    /**
-     * 删除值
-     * @param key 键
-     */
-    delete(key) {
+delete(key) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, void 0);
     }
-    /**
-     * 判断是否存在该值
-     */
-    has(key) {
+has(key) {
       let localValue = this.getLocalValue();
       return Reflect.has(localValue, key);
     }
-    /**
-     * 获取所有键
-     */
-    keys() {
+keys() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue);
     }
-    /**
-     * 获取所有值
-     */
-    values() {
+values() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue).map(
         (key) => Reflect.get(localValue, key)
       );
     }
-    /**
-     * 清空所有值
-     */
-    clear() {
+clear() {
       _GM_deleteValue(this.storageKey);
     }
-    /**
-     * 监听值改变
-     * + .set
-     * + .delete
-     * @param key 监听的键
-     * @param callback 值改变的回调函数
-     */
-    addValueChangeListener(key, callback) {
+addValueChangeListener(key, callback) {
       let listenerId = Math.random();
       let listenerData = this.listenerData.get(key) || [];
       listenerData.push({
@@ -639,11 +481,7 @@
       this.listenerData.set(key, listenerData);
       return listenerId;
     }
-    /**
-     * 移除监听
-     * @param listenerId 监听的id或键名
-     */
-    removeValueChangeListener(listenerId) {
+removeValueChangeListener(listenerId) {
       let flag = false;
       for (const [key, listenerData] of this.listenerData.entries()) {
         for (let index = 0; index < listenerData.length; index++) {
@@ -658,13 +496,7 @@
       }
       return flag;
     }
-    /**
-     * 主动触发监听器
-     * @param key 键
-     * @param oldValue （可选）旧值
-     * @param newValue （可选）新值
-     */
-    triggerValueChangeListener(key, oldValue, newValue) {
+triggerValueChangeListener(key, oldValue, newValue) {
       if (!this.listenerData.has(key)) {
         return;
       }
@@ -693,10 +525,7 @@
   const PopsPanelStorageApi = new StorageUtils(KEY);
   const PanelContent = {
     $data: {
-      /**
-       * @private
-       */
-      __contentConfig: null,
+__contentConfig: null,
       get contentConfig() {
         if (this.__contentConfig == null) {
           this.__contentConfig = new utils.Dictionary();
@@ -704,36 +533,20 @@
         return this.__contentConfig;
       }
     },
-    /**
-     * 设置所有配置项，用于初始化默认的值
-     *
-     * 如果是第一组添加的话，那么它默认就是设置菜单打开的配置
-     * @param configList 配置项
-     */
-    addContentConfig(configList) {
+addContentConfig(configList) {
       if (!Array.isArray(configList)) {
         configList = [configList];
       }
       let index = this.$data.contentConfig.keys().length;
       this.$data.contentConfig.set(index, configList);
     },
-    /**
-     * 获取所有的配置内容，用于初始化默认的值
-     */
-    getAllContentConfig() {
+getAllContentConfig() {
       return this.$data.contentConfig.values().flat();
     },
-    /**
-     * 获取配置内容
-     * @param index 配置索引
-     */
-    getConfig(index = 0) {
+getConfig(index = 0) {
       return this.$data.contentConfig.get(index) ?? [];
     },
-    /**
-     * 获取默认左侧底部的配置项
-     */
-    getDefaultBottomContentConfig() {
+getDefaultBottomContentConfig() {
       return [
         {
           id: "script-version",
@@ -774,30 +587,19 @@
     init() {
       this.initExtensionsMenu();
     },
-    /**
-     * 初始化菜单项
-     */
-    initExtensionsMenu() {
+initExtensionsMenu() {
       if (!Panel.isTopWindow()) {
         return;
       }
       GM_Menu.add(this.$data.menuOption);
     },
-    /**
-     * 添加菜单项
-     * @param option 菜单配置
-     */
-    addMenuOption(option) {
+addMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
       this.$data.menuOption.push(...option);
     },
-    /**
-     * 更新菜单项
-     * @param option 菜单配置
-     */
-    updateMenuOption(option) {
+updateMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
@@ -810,115 +612,61 @@
         }
       });
     },
-    /**
-     * 获取菜单项
-     * @param [index=0] 索引
-     */
-    getMenuOption(index = 0) {
+getMenuOption(index = 0) {
       return this.$data.menuOption[index];
     },
-    /**
-     * 删除菜单项
-     * @param [index=0] 索引
-     */
-    deleteMenuOption(index = 0) {
+deleteMenuOption(index = 0) {
       this.$data.menuOption.splice(index, 1);
     }
   };
   const Panel = {
-    /** 数据 */
-    $data: {
-      /**
-       * @private
-       */
-      __contentConfigInitDefaultValue: null,
-      /**
-       * @private
-       */
-      __onceExecMenuData: null,
-      /**
-       * @private
-       */
-      __onceExecData: null,
-      /**
-       * @private
-       */
-      __panelConfig: {},
-      /**
-       * 面板
-       */
-      $panel: null,
-      /**
-       * 面板配置
-       */
-      panelContent: [],
-      /**
-       * 菜单项初始化的默认值
-       */
-      get contentConfigInitDefaultValue() {
+$data: {
+__contentConfigInitDefaultValue: null,
+__onceExecMenuData: null,
+__onceExecData: null,
+__panelConfig: {},
+$panel: null,
+panelContent: [],
+get contentConfigInitDefaultValue() {
         if (this.__contentConfigInitDefaultValue == null) {
           this.__contentConfigInitDefaultValue = new utils.Dictionary();
         }
         return this.__contentConfigInitDefaultValue;
       },
-      /**
-       * 菜单项初始化时禁用的键
-       */
-      contentConfigInitDisabledKeys: [],
-      /**
-       * 成功只执行了一次的菜单项
-       *
-       * + .exec
-       * + .execMenu
-       * + .execMenuOnce
-       */
-      get onceExecMenuData() {
+contentConfigInitDisabledKeys: [],
+get onceExecMenuData() {
         if (this.__onceExecMenuData == null) {
           this.__onceExecMenuData = new utils.Dictionary();
         }
         return this.__onceExecMenuData;
       },
-      /**
-       * 成功只执行了一次的项
-       *
-       * + .onceExec
-       */
-      get onceExecData() {
+get onceExecData() {
         if (this.__onceExecData == null) {
           this.__onceExecData = new utils.Dictionary();
         }
         return this.__onceExecData;
       },
-      /** 脚本名，一般用在设置的标题上 */
-      get scriptName() {
+get scriptName() {
         return SCRIPT_NAME;
       },
-      /**
-       * pops.panel的默认配置
-       */
-      get panelConfig() {
+get panelConfig() {
         return this.__panelConfig;
       },
       set panelConfig(value) {
         this.__panelConfig = value;
       },
-      /** 菜单项的总值在本地数据配置的键名 */
-      key: KEY,
-      /** 菜单项在attributes上配置的菜单键 */
-      attributeKeyName: ATTRIBUTE_KEY,
-      /** 菜单项在attributes上配置的菜单默认值 */
-      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
+key: KEY,
+attributeKeyName: ATTRIBUTE_KEY,
+attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
     },
     init() {
       this.initContentDefaultValue();
       PanelMenu.init();
     },
-    /** 判断是否是顶层窗口 */
-    isTopWindow() {
+isTopWindow() {
       return _unsafeWindow.top === _unsafeWindow.self;
     },
-    /** 初始化菜单项的默认值保存到本地数据中 */
-    initContentDefaultValue() {
+initContentDefaultValue() {
       const initDefaultValue = (config) => {
         if (!config.attributes) {
           return;
@@ -926,7 +674,7 @@
         if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
           return;
         }
-        let menuDefaultConfig = /* @__PURE__ */ new Map();
+        let menuDefaultConfig = new Map();
         let key = config.attributes[ATTRIBUTE_KEY];
         if (key != null) {
           const defaultValue = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
@@ -982,31 +730,16 @@
       }
       this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
     },
-    /**
-     * 设置初始化使用的默认值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    setDefaultValue(key, defaultValue) {
+setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
         log.warn("请检查该key(已存在): " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
-    /**
-     * 设置值
-     * @param key 键
-     * @param value 值
-     */
-    setValue(key, value) {
+setValue(key, value) {
       PopsPanelStorageApi.set(key, value);
     },
-    /**
-     * 获取值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    getValue(key, defaultValue) {
+getValue(key, defaultValue) {
       let localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
         if (this.$data.contentConfigInitDefaultValue.has(key)) {
@@ -1016,66 +749,25 @@
       }
       return localValue;
     },
-    /**
-     * 删除值
-     * @param key 键
-     */
-    deleteValue(key) {
+deleteValue(key) {
       PopsPanelStorageApi.delete(key);
     },
-    /**
-     * 判断该键是否存在
-     * @param key 键
-     */
-    hasKey(key) {
+hasKey(key) {
       return PopsPanelStorageApi.has(key);
     },
-    /**
-     * 监听调用setValue、deleteValue
-     * @param key 需要监听的键
-     * @param callback
-     */
-    addValueChangeListener(key, callback) {
+addValueChangeListener(key, callback) {
       let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
         callback(key, __oldValue, __newValue);
       });
       return listenerId;
     },
-    /**
-     * 移除监听
-     * @param listenerId 监听的id
-     */
-    removeValueChangeListener(listenerId) {
+removeValueChangeListener(listenerId) {
       PopsPanelStorageApi.removeValueChangeListener(listenerId);
     },
-    /**
-     * 主动触发菜单值改变的回调
-     * @param key 菜单键
-     * @param newValue 想要触发的新值，默认使用当前值
-     * @param oldValue 想要触发的旧值，默认使用当前值
-     */
-    triggerMenuValueChange(key, newValue, oldValue) {
+triggerMenuValueChange(key, newValue, oldValue) {
       PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
     },
-    /**
-     * 执行菜单
-     *
-     * @param queryKey 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 执行的回调函数
-     * @param checkExec 判断是否执行回调
-     *
-     * （默认）如果想要每个菜单是`与`关系，即每个菜单都判断为开启，那么就判断它们的值&就行
-     *
-     * 如果想要任意菜单存在true再执行，那么判断它们的值|就行
-     *
-     * + 返回值都为`true`，执行回调，如果回调返回了<style>元素，该元素会在监听到值改变时被移除掉
-     * + 返回值有一个为`false`，则不执行回调，且移除之前回调函数返回的<style>元素
-     * @param once 是否只执行一次，默认true
-     *
-     * + true （默认）只执行一次，且会监听键的值改变
-     * + false 不会监听键的值改变
-     */
-    exec(queryKey, callback, checkExec, once = true) {
+exec(queryKey, callback, checkExec, once = true) {
       const that = this;
       let queryKeyFn;
       if (typeof queryKey === "string" || Array.isArray(queryKey)) {
@@ -1180,28 +872,15 @@
       });
       valueChangeCallback();
       let result = {
-        /**
-         * 清空菜单执行情况
-         *
-         * + 清空存储的元素列表
-         * + 清空值改变的监听器
-         * + 清空存储的一次执行的键
-         */
-        clear() {
+clear() {
           this.clearStoreStyleElements();
           this.removeValueChangeListener();
           once && that.$data.onceExecMenuData.delete(storageKey);
         },
-        /**
-         * 清空存储的元素列表
-         */
-        clearStoreStyleElements: () => {
+clearStoreStyleElements: () => {
           return clearBeforeStoreValue();
         },
-        /**
-         * 移除值改变的监听器
-         */
-        removeValueChangeListener: () => {
+removeValueChangeListener: () => {
           listenerIdList.forEach((listenerId) => {
             this.removeValueChangeListener(listenerId);
           });
@@ -1209,14 +888,7 @@
       };
       return result;
     },
-    /**
-     * 自动判断菜单是否启用，然后执行回调
-     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 回调
-     * @param isReverse 逆反判断菜单启用，默认false
-     * @param once 是否是只执行一次，默认false
-     */
-    execMenu(key, callback, isReverse = false, once = false) {
+execMenu(key, callback, isReverse = false, once = false) {
       return this.exec(
         key,
         (option) => {
@@ -1238,35 +910,15 @@
         once
       );
     },
-    /**
-     * 自动判断菜单是否启用，然后执行回调，只会执行一次
-     *
-     * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
-     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 回调
-     * @param isReverse 逆反判断菜单启用，默认false
-     */
-    execMenuOnce(key, callback, isReverse = false) {
+execMenuOnce(key, callback, isReverse = false) {
       return this.execMenu(key, callback, isReverse, true);
     },
-    /**
-     * 移除已执行的仅执行一次的菜单
-     * + .exec
-     * + .execMenu
-     * + .execMenuOnce
-     * @param key 键
-     */
-    deleteExecMenuOnce(key) {
+deleteExecMenuOnce(key) {
       this.$data.onceExecMenuData.delete(key);
       let flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
-    /**
-     * 根据key执行一次，该key不会和execMenu|exec|execMenuOnce已执行的key冲突
-     * @param key 键
-     * @param callback 回调
-     */
-    onceExec(key, callback) {
+onceExec(key, callback) {
       key = this.transformKey(key);
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
@@ -1277,23 +929,11 @@
       callback();
       this.$data.onceExecData.set(key, 1);
     },
-    /**
-     * 移除已执行的仅执行一次的菜单
-     * + .onceExec
-     * @param key 键
-     */
-    deleteOnceExec(key) {
+deleteOnceExec(key) {
       key = this.transformKey(key);
       this.$data.onceExecData.delete(key);
     },
-    /**
-     * 显示设置面板
-     * @param content 显示的内容配置
-     * @param [title] 标题
-     * @param [preventDefaultContentConfig=false] 是否阻止默认添加内容配置（版本号），默认false
-     * @param [preventRegisterSearchPlugin=false] 是否阻止默认添加搜索组件，默认false
-     */
-    showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
+showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
       this.$data.$panel = null;
       this.$data.panelContent = [];
       let checkHasBottomVersionContentConfig = content.findIndex((it) => {
@@ -1345,11 +985,7 @@
         this.registerConfigSearch({ $panel, content });
       }
     },
-    /**
-     * 注册设置面板的搜索功能（双击左侧选项第一个）
-     * @param config 配置项
-     */
-    registerConfigSearch(config) {
+registerConfigSearch(config) {
       const { $panel, content } = config;
       let asyncQueryProperty = async (target, handler) => {
         if (target == null) {
@@ -1373,10 +1009,8 @@
           },
           {
             root: null,
-            // 使用视口作为根
-            threshold: 1
-            // 元素完全进入视口时触发
-          }
+threshold: 1
+}
         );
         observer.observe($el);
         $el.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1397,8 +1031,7 @@
           },
           content: {
             text: (
-              /*html*/
-              `
+`
 						<div class="search-wrapper">
 							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
 						</div>
@@ -1419,8 +1052,7 @@
           height: "auto",
           drag: true,
           style: (
-            /*css*/
-            `
+`
 					${__pops.config.cssText.panelCSS}
 
 					.search-wrapper{
@@ -1485,8 +1117,7 @@
           let $item = domUtils.createElement("div", {
             className: "search-result-item",
             innerHTML: (
-              /*html*/
-              `
+`
 							<div class="search-result-item-path">${searchPath.matchedData?.path}</div>
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
 						`
@@ -1708,13 +1339,14 @@
           timer = void 0;
           if (isDoubleClick && clickElement === selectorTarget) {
             isDoubleClick = false;
+            clickElement = null;
             dbclick_event(evt);
           } else {
             timer = setTimeout(() => {
               isDoubleClick = false;
             }, 200);
-            clickElement = selectorTarget;
             isDoubleClick = true;
+            clickElement = selectorTarget;
           }
         },
         {
@@ -1725,8 +1357,7 @@
         domUtils.createElement("style", {
           type: "text/css",
           textContent: (
-            /*css*/
-            `
+`
 					.pops-flashing{
 						animation: double-blink 1.5s ease-in-out;
 					}
@@ -1752,10 +1383,7 @@
         })
       );
     },
-    /**
-     * 把key:string[]转为string
-     */
-    transformKey(key) {
+transformKey(key) {
       if (Array.isArray(key)) {
         const keyArray = key.sort();
         return JSON.stringify(keyArray);
@@ -1765,61 +1393,28 @@
     }
   };
   const CSDNRouter = {
-    /**
-     * 判断是否是华为云联盟
-     * + huaweicloud.csdn.net
-     */
-    isHuaWeiCloudBlog() {
+isHuaWeiCloudBlog() {
       return Boolean(/huaweicloud.csdn.net/i.test(window.location.origin));
     },
-    /**
-     * 判断是否是博客
-     * + blog.csdn.net
-     */
-    isBlog() {
+isBlog() {
       return Boolean(/blog.csdn.net/i.test(window.location.origin));
     },
-    /** 
-     * 博客帖子
-     */
-    isBlogArticle() {
+isBlogArticle() {
       return this.isBlog() && window.location.pathname.includes("/article/details/");
     },
-    /**
-     * 判断是否是文库
-     * + wenku.csdn.net
-     */
-    isWenKu() {
+isWenKu() {
       return Boolean(/wenku.csdn.net/i.test(window.location.origin));
     },
-    /**
-     * 判断是否是链接
-     * + link.csdn.net
-     */
-    isLink() {
+isLink() {
       return window.location.hostname === "link.csdn.net";
     },
-    /**
-     * 判断是否是搜索
-     * + so.csdn.net
-     */
-    isSo() {
+isSo() {
       return window.location.hostname === "so.csdn.net";
     },
-    /**
-     * 判断是否是C知道
-     * + so.csdn.net/know
-     * + /chat
-     * + /so/ai
-     */
-    isSoCKnow() {
+isSoCKnow() {
       return this.isSo() && (window.location.pathname.startsWith("/chat") || window.location.pathname.startsWith("/so/ai"));
     },
-    /**
-     * 判断是否是资源页面
-     * + download.csdn.net
-     */
-    isDownload() {
+isDownload() {
       return window.location.hostname === "download.csdn.net";
     }
   };
@@ -1858,10 +1453,7 @@
         }
       );
     },
-    /**
-     * 自动展开内容
-     */
-    autoExpandContent() {
+autoExpandContent() {
       log.info("自动展开全文");
       return [
         CommonUtil.addBlockCSS("div.article-show-more"),
@@ -1874,38 +1466,23 @@
 			`)
       ];
     },
-    /**
-     * 屏蔽云开发者任务挑战活动
-     */
-    shieldCloudDeveloperTaskChallengeEvent() {
+shieldCloudDeveloperTaskChallengeEvent() {
       log.info("屏蔽云开发者任务挑战活动");
       return CommonUtil.addBlockCSS(".luck-draw-modal-warp");
     },
-    /**
-     * 屏蔽左侧悬浮按钮
-     */
-    shieldLeftFloatingButton() {
+shieldLeftFloatingButton() {
       log.info("屏蔽左侧悬浮按钮，包括当前阅读量、点赞按钮、评论按钮、分享按钮");
       return CommonUtil.addBlockCSS("div.toolbar-wrapper.article-interact-bar");
     },
-    /**
-     * 屏蔽右侧栏
-     */
-    blockRightColumn() {
+blockRightColumn() {
       log.info("屏蔽右侧栏，包括相关产品-活动日历-运营活动-热门标签");
       return CommonUtil.addBlockCSS("div.page-home-right.dp-aside-right");
     },
-    /**
-     * 屏蔽底部推荐内容
-     */
-    blockRecommendedContentAtTheBottom() {
+blockRecommendedContentAtTheBottom() {
       log.info("屏蔽底部推荐内容");
       return CommonUtil.addBlockCSS("div.recommend-card-box");
     },
-    /**
-     * 屏蔽底部更多推荐
-     */
-    shieldTheBottomForMoreRecommendations() {
+shieldTheBottomForMoreRecommendations() {
       log.info("屏蔽底部更多推荐");
       return CommonUtil.addBlockCSS("div.more-article");
     }
@@ -1946,16 +1523,13 @@
         });
       });
     },
-    /**
-     * 【添加】前往评论按钮，在返回顶部的下面
-     */
-    addGotoRecommandButton() {
+addGotoRecommandButton() {
       log.info("【添加】前往评论按钮，在返回顶部的上面");
       let gotoRecommandNode = document.createElement("a");
       gotoRecommandNode.className = "option-box";
       gotoRecommandNode.setAttribute("data-type", "gorecommand");
-      gotoRecommandNode.innerHTML = /*html*/
-      `
+      gotoRecommandNode.innerHTML =
+`
 		<img src="https://g.csdnimg.cn/side-toolbar/3.6/images/customer.png" alt="" srcset="">
 		<span class="show-txt" style="opacity:100;">前往<br>评论</span>
 		`;
@@ -1993,14 +1567,10 @@
         );
       });
     },
-    /**
-     * 初始化右侧工具栏的偏移（top、right）
-     */
-    initRightToolbarOffset() {
+initRightToolbarOffset() {
       log.info("初始化右侧工具栏的偏移（top、right）");
       addStyle(
-        /*css*/
-        `
+`
         .csdn-side-toolbar{
           left: unset !important;
         }
@@ -2013,60 +1583,39 @@
         });
       });
     },
-    /**
-     * 屏蔽右侧工具栏
-     */
-    shieldRightToolbar() {
+shieldRightToolbar() {
       log.info("屏蔽右侧工具栏");
       return CommonUtil.addBlockCSS(`div.csdn-side-toolbar`);
     },
-    /**
-     * 【屏蔽】创作中心
-     */
-    shieldCreativeCenter() {
+shieldCreativeCenter() {
       log.info("【屏蔽】创作中心");
       return CommonUtil.addBlockCSS(
         ".csdn-side-toolbar .sidetool-writeguide-box"
       );
     },
-    /**
-     * 【屏蔽】显示/隐藏侧栏
-     */
-    shieldShowOrSidebar() {
+shieldShowOrSidebar() {
       log.info("【屏蔽】显示/隐藏侧栏");
       return CommonUtil.addBlockCSS(".csdn-side-toolbar a.sidecolumn");
     },
-    /**
-     * 【屏蔽】新手引导
-     */
-    shieldBeginnerGuidance() {
+shieldBeginnerGuidance() {
       log.info("【屏蔽】新手引导");
       return CommonUtil.addBlockCSS(
         '.csdn-side-toolbar a.option-box[data-type="guide"]'
       );
     },
-    /**
-     * 【屏蔽】客服
-     */
-    shieldCustomerService() {
+shieldCustomerService() {
       log.info("【屏蔽】客服");
       return CommonUtil.addBlockCSS(
         '.csdn-side-toolbar a.option-box[data-type="cs"]'
       );
     },
-    /**
-     * 【屏蔽】举报
-     */
-    shieldReport() {
+shieldReport() {
       log.info("【屏蔽】举报");
       return CommonUtil.addBlockCSS(
         '.csdn-side-toolbar a.option-box[data-type="report"]'
       );
     },
-    /**
-     * 【屏蔽】返回顶部
-     */
-    shieldBackToTop() {
+shieldBackToTop() {
       log.info("【屏蔽】返回顶部");
       return CommonUtil.addBlockCSS(
         '.csdn-side-toolbar a.option-box[data-type="gotop"]'
@@ -2134,10 +1683,7 @@
         });
       });
     },
-    /**
-     * 点击代码块自动展开
-     */
-    clickPreCodeAutomatically() {
+clickPreCodeAutomatically() {
       log.info("点击代码块自动展开");
       document.addEventListener("click", function(event) {
         let $click = event.target;
@@ -2148,10 +1694,7 @@
         $click.querySelector(".hide-preCode-box")?.remove();
       });
     },
-    /**
-     * 恢复评论到正确位置
-     */
-    restoreComments() {
+restoreComments() {
       log.info("恢复评论到正确位置-第一条评论");
       utils.waitNode(".first-recommend-box").then(($firstRecommendBox) => {
         let recommendBoxElement = document.querySelector(
@@ -2167,10 +1710,7 @@
         recommendBoxElement.insertBefore($secondRecommendBox, recommendBoxElement.firstChild);
       });
     },
-    /**
-     * 标识CSDN下载的链接
-     */
-    identityCSDNDownload() {
+identityCSDNDownload() {
       log.info("标识CSDN下载的链接");
       document.querySelectorAll(".recommend-item-box[data-url*='https://download.csdn.net/']").forEach((item) => {
         if (Panel.getValue("csdn-blog-removeResourceDownloadArticle")) {
@@ -2180,17 +1720,13 @@
         }
       });
     },
-    /**
-     * 全文居中
-     */
-    articleCenter() {
+articleCenter() {
       log.info("全文居中");
       let result = [addStyle(BlogArticleCenterCSS)];
       if (Panel.getValue("csdn-blog-shieldRightDirectoryInformation")) {
         result.push(
           addStyle(
-            /*css*/
-            `
+`
 				#mainBox {
 					margin-right: 0px;
 				}`
@@ -2200,8 +1736,7 @@
       if (Panel.getValue("csdn-blog-shieldLeftBlogContainerAside")) {
         result.push(
           addStyle(
-            /*css*/
-            `
+`
 				#mainBox {
 					margin-left: 0px;
 				}`
@@ -2210,23 +1745,16 @@
       }
       return result;
     },
-    /**
-     * 屏蔽登录弹窗
-     */
-    shieldLoginDialog() {
+shieldLoginDialog() {
       log.info("屏蔽登录弹窗");
       return CommonUtil.addBlockCSS(`.passport-login-container`);
     },
-    /**
-     * 自动展开代码块
-     */
-    autoExpandCodeContent() {
+autoExpandCodeContent() {
       log.info("自动展开代码块");
       return [
         CommonUtil.addBlockCSS("pre.set-code-hide .hide-preCode-box"),
         addStyle(
-          /*css*/
-          `
+`
 			pre.set-code-hide{
 				height: auto !important;
 			}
@@ -2239,14 +1767,10 @@
         )
       ];
     },
-    /**
-     * 自动展开全文
-     */
-    autoExpandContent() {
+autoExpandContent() {
       log.info("自动展开全文");
       return addStyle(
-        /*css*/
-        `
+`
 		/* 自动展开全文 */
 		#article_content,
 		.user-article.user-article-hide {
@@ -2256,63 +1780,38 @@
         `
       );
     },
-    /**
-     * 屏蔽评论区
-     */
-    blockComment() {
+blockComment() {
       log.info("屏蔽评论区");
       return CommonUtil.addBlockCSS(`#pcCommentBox`);
     },
-    /**
-     * 屏蔽底部推荐文章
-     */
-    shieldBottomRecommendArticle() {
+shieldBottomRecommendArticle() {
       log.info("屏蔽底部推荐文章");
       return CommonUtil.addBlockCSS(`main > div.recommend-box`);
     },
-    /**
-     * 屏蔽底部xx技能树
-     */
-    shieldBottomSkillTree() {
+shieldBottomSkillTree() {
       log.info("屏蔽底部xx技能树");
       return CommonUtil.addBlockCSS(`#treeSkill`);
     },
-    /**
-     * 屏蔽底部悬浮工具栏
-     */
-    shieldBottomFloatingToolbar() {
+shieldBottomFloatingToolbar() {
       log.info("屏蔽底部悬浮工具栏");
       return CommonUtil.addBlockCSS(`#toolBarBox`);
     },
-    /**
-     * 屏蔽左侧博客信息
-     */
-    shieldLeftBlogContainerAside() {
+shieldLeftBlogContainerAside() {
       log.info("【屏蔽】左侧博客信息");
       return CommonUtil.addBlockCSS(`aside.blog_container_aside`);
     },
-    /**
-     * 【屏蔽】右侧目录信息
-     */
-    shieldRightDirectoryInformation() {
+shieldRightDirectoryInformation() {
       log.info("【屏蔽】右侧目录信息");
       return CommonUtil.addBlockCSS("#rightAsideConcision", "#rightAside");
     },
-    /**
-     * 屏蔽文章内的选中搜索悬浮提示
-     */
-    shieldArticleSearchTip() {
+shieldArticleSearchTip() {
       log.info("屏蔽文章内的选中搜索悬浮提示");
       return CommonUtil.addBlockCSS(`#articleSearchTip`);
     },
-    /**
-     * 允许选择内容
-     */
-    allowSelectContent() {
+allowSelectContent() {
       log.info("允许选择内容");
       return addStyle(
-        /*css*/
-        `
+`
 		#content_views,
 		#content_views pre,
 		#content_views pre code {
@@ -2338,24 +1837,15 @@
         return this.shieldRightToolBar();
       });
     },
-    /**
-     * 【屏蔽】资源推荐
-     */
-    shieldResourceRecommend() {
+shieldResourceRecommend() {
       log.info("【屏蔽】资源推荐");
       return CommonUtil.addBlockCSS("#recommend");
     },
-    /**
-     * 【屏蔽】右侧用户信息
-     */
-    shieldRightUserInfo() {
+shieldRightUserInfo() {
       log.info("【屏蔽】右侧用户信息");
       return CommonUtil.addBlockCSS(".layout-right");
     },
-    /**
-     * 【屏蔽】右侧悬浮工具栏
-     */
-    shieldRightToolBar() {
+shieldRightToolBar() {
       log.info("【屏蔽】右侧悬浮工具栏");
       return CommonUtil.addBlockCSS(".csdn-side-toolbar");
     }
@@ -2366,12 +1856,7 @@
         this.jumpRedirect();
       });
     },
-    /**
-     * 去除CSDN拦截其它网址的url并自动跳转
-     * @example
-     * https://link.csdn.net/?target=https%3A%2F%2Fjaist.dl.sourceforge.net%2Fproject%2Fportecle%2Fv1.11%2Fportecle-1.11.zip
-     */
-    jumpRedirect() {
+jumpRedirect() {
       try {
         let urlSearchParams = new URLSearchParams(window.location.search);
         const URL_KEY = "target";
@@ -2405,17 +1890,11 @@
         });
       });
     },
-    /**
-     * 添加屏蔽CSS和功能CSS
-     */
-    addCSS() {
+addCSS() {
       log.info("添加屏蔽CSS和功能CSS");
       return [addStyle(BlogShieldCSS), addStyle(BlogCSS)];
     },
-    /**
-     * 去除剪贴板劫持
-     */
-    removeClipboardHijacking() {
+removeClipboardHijacking() {
       log.info("去除剪贴板劫持");
       let $article_copyright = document.querySelector(".article-copyright");
       if ($article_copyright) {
@@ -2431,10 +1910,7 @@
         _unsafeWindow.csdn.copyright.htmlData = "";
       }
     },
-    /**
-     * 取消禁止复制
-     */
-    unBlockCopy() {
+unBlockCopy() {
       log.info("取消禁止复制");
       domUtils.on(
         document,
@@ -2508,10 +1984,7 @@
         }, 250);
       });
     },
-    /**
-     * 屏蔽顶部Toolbar
-     */
-    shieldTopToolbar() {
+shieldTopToolbar() {
       log.info("屏蔽顶部Toolbar");
       return CommonUtil.addBlockCSS("#toolbarBox", "#csdn-toolbar");
     }
@@ -2560,10 +2033,7 @@
         }
       );
     },
-    /**
-     * 【屏蔽】底部加入社区
-     */
-    blockBottomJoinTheCommunity() {
+blockBottomJoinTheCommunity() {
       log.info("【屏蔽】底部加入社区");
       return CommonUtil.addBlockCSS(".user-desc");
     }
@@ -2580,11 +2050,7 @@
     }
   };
   const CSDNFavoriteApi = {
-    /**
-     * 获取收藏夹信息
-     * @param url 当前url
-     */
-    async folderListWithCheck(url) {
+async folderListWithCheck(url) {
       let response = await httpx.get(
         `https://mp-action.csdn.net/interact/wrapper/pc/favorite/v1/api/folderListWithCheck`,
         {
@@ -2611,10 +2077,7 @@
       }
       return data.data.result;
     },
-    /**
-     * 添加到某个收藏夹
-     */
-    async addFavoriteInFolds(requestData) {
+async addFavoriteInFolds(requestData) {
       let response = await httpx.post(
         "https://mp-action.csdn.net/interact/wrapper/pc/favorite/v1/api/addFavoriteInFolds",
         {
@@ -2635,14 +2098,7 @@
       }
       return true;
     },
-    /**
-     * 检查收藏夹信息
-     * @param url
-     * @returns
-     * + true 已收藏
-     * + false 未收藏
-     */
-    async checkFavoriteByUrl(url) {
+async checkFavoriteByUrl(url) {
       debugger;
       let response = await httpx.get(
         `https://mp-action.csdn.net/interact/wrapper/pc/favorite/v1/api/checkFavoriteByUrl`,
@@ -2666,10 +2122,7 @@
       let data = utils.toJSON(response.data.responseText);
       return data.data;
     },
-    /**
-     * 创建收藏夹
-     */
-    async createFolder(config) {
+async createFolder(config) {
       let response = await httpx.post(
         `https://mp-action.csdn.net/interact/wrapper/pc/favorite/v1/api/createFolder`,
         {
@@ -2767,16 +2220,12 @@
         );
       });
     },
-    /**
-     * 屏蔽顶部Toolbar
-     */
-    shieldTopToolbar() {
+shieldTopToolbar() {
       log.info("屏蔽顶部Toolbar");
       return [
         CommonUtil.addBlockCSS("#csdn-toolbar"),
         addStyle(
-          /*css*/
-          `
+`
 			/* 内容顶部要归位 */
 			body #main,
 			.margin_sides{
@@ -2791,10 +2240,7 @@
         )
       ];
     },
-    /**
-     * 重构底部推荐
-     */
-    refactoringRecommendation() {
+refactoringRecommendation() {
       function refactoring() {
         document.querySelectorAll(".container-fluid").forEach((item) => {
           let url = "";
@@ -2855,74 +2301,48 @@
         });
       });
     },
-    /**
-     * 屏蔽底部文章
-     */
-    blockBottomArticle() {
+blockBottomArticle() {
       log.info("屏蔽底部文章");
       return CommonUtil.addBlockCSS("#recommend");
     },
-    /**
-     * 屏蔽评论
-     */
-    blockComment() {
+blockComment() {
       log.info("屏蔽评论");
       return CommonUtil.addBlockCSS("#comment");
     },
-    /**
-     * 去除广告
-     */
-    removeAds() {
+removeAds() {
       log.info("去除广告");
       return [
-        /* 登录窗口 */
-        CommonUtil.waitRemove(".passport-login-container"),
-        /* 打开APP */
-        CommonUtil.waitRemove(".btn_open_app_prompt_box.detail-open-removed"),
-        /* 广告 */
-        CommonUtil.waitRemove(".add-firstAd"),
-        /* 打开CSDN APP 小程序看全文 */
-        CommonUtil.waitRemove("div.feed-Sign-weixin"),
-        /* ios版本提示 */
-        CommonUtil.waitRemove("div.ios-shadowbox")
+CommonUtil.waitRemove(".passport-login-container"),
+CommonUtil.waitRemove(".btn_open_app_prompt_box.detail-open-removed"),
+CommonUtil.waitRemove(".add-firstAd"),
+CommonUtil.waitRemove("div.feed-Sign-weixin"),
+CommonUtil.waitRemove("div.ios-shadowbox")
       ];
     },
-    /**
-     * 不限制代码块最大高度
-     */
-    notLimitCodePreMaxHeight() {
+notLimitCodePreMaxHeight() {
       log.info("不限制代码块最大高度");
       return addStyle(
-        /*css*/
-        `
+`
         pre{
             max-height: unset !important;
         }
         `
       );
     },
-    /**
-     * 不限制评论区最大高度
-     */
-    notLimitCommentMaxHeight() {
+notLimitCommentMaxHeight() {
       log.info("不限制评论区最大高度");
       return addStyle(
-        /*css*/
-        `
+`
         #comment{
           max-height: none !important;
         }
       `
       );
     },
-    /**
-     * 允许选择文字
-     */
-    allowSelectText() {
+allowSelectText() {
       log.info("允许选择文字");
       return addStyle(
-        /*css*/
-        `
+`
         #content_views,
         #content_views pre,
         #content_views pre code{
@@ -2936,14 +2356,10 @@
         `
       );
     },
-    /**
-     * 自动展开内容
-     */
-    autoExpandContent() {
+autoExpandContent() {
       log.info("自动展开内容");
       return addStyle(
-        /*css*/
-        `
+`
         #content_views pre.set-code-hide,
         .article_content{
           height: 100% !important;
@@ -2952,21 +2368,14 @@
         `
       );
     },
-    /**
-     * 屏蔽底部工具栏
-     */
-    blockBottomToolBar() {
+blockBottomToolBar() {
       log.info(`屏蔽底部工具栏`);
       return CommonUtil.addBlockCSS("#operate");
     },
-    /**
-     * 底部工具栏常驻
-     */
-    bottomToolBarAlwaysShow() {
+bottomToolBarAlwaysShow() {
       log.info(`底部工具栏常驻`);
       return addStyle(
-        /*css*/
-        `
+`
 			/* 底部工具栏 */
 			#operate {
 				bottom: 0 !important;
@@ -2974,10 +2383,7 @@
 			`
       );
     },
-    /**
-     * 优化收藏按钮
-     */
-    optimizationCollectButton() {
+optimizationCollectButton() {
       log.info(`优化收藏按钮`);
       utils.waitNode("#operate .collect-btn", 1e4).then(($collectBtn) => {
         if (!$collectBtn) {
@@ -3009,8 +2415,7 @@
                 {
                   className: "csdn-collection-item",
                   innerHTML: (
-                    /*html*/
-                    `
+`
 									<div class="csdn-collection-item_left">
 										<div class="csdn-collection-item_title">
 											<span class="title-m">${data.Name}</span>
@@ -3173,8 +2578,7 @@
               },
               content: {
                 text: (
-                  /*html*/
-                  `
+`
 									<ul class="csdn-collection-items"></ul>
 								`
                 ),
@@ -3192,8 +2596,7 @@
                 enable: true
               },
               style: (
-                /*css*/
-                `
+`
 								.csdn-collection-items{
 									--font-size: 16px;
 								}
@@ -3295,10 +2698,7 @@
         return this.shieldBottomToolbar();
       });
     },
-    /**
-     * 【屏蔽】底部工具栏
-     */
-    shieldBottomToolbar() {
+shieldBottomToolbar() {
       log.info("【屏蔽】底部工具栏");
       return CommonUtil.addBlockCSS(`.page-container > div.btn`);
     }
@@ -3316,16 +2716,12 @@
         }
       );
     },
-    /**
-     * 自动展开资源介绍
-     */
-    automaticallyExpandResourceIntroduction() {
+automaticallyExpandResourceIntroduction() {
       log.info("自动展开资源介绍");
       return [
         CommonUtil.addBlockCSS("label.unfold-font"),
         addStyle(
-          /*css*/
-          `
+`
 			.resource-desc{
 				max-height: unset !important;
 				overflow: unset !important;
@@ -3341,10 +2737,7 @@
     init() {
       this.addCSS();
     },
-    /**
-     * 添加屏蔽CSS
-     */
-    addCSS() {
+addCSS() {
       return [addStyle(ShieldCSS), addStyle(MBlogCSS)];
     }
   };
@@ -3384,39 +2777,19 @@
         return this.__storeApiFn;
       }
     },
-    /**
-     * 获取自定义的存储接口
-     * @param type 组件类型
-     */
-    getStorageApi(type) {
+getStorageApi(type) {
       if (!this.hasStorageApi(type)) {
         return;
       }
       return this.$data.storeApiValue.get(type);
     },
-    /**
-     * 判断是否存在自定义的存储接口
-     * @param type 组件类型
-     */
-    hasStorageApi(type) {
+hasStorageApi(type) {
       return this.$data.storeApiValue.has(type);
     },
-    /**
-     * 设置自定义的存储接口
-     * @param type 组件类型
-     * @param storageApiValue 存储接口
-     */
-    setStorageApi(type, storageApiValue) {
+setStorageApi(type, storageApiValue) {
       this.$data.storeApiValue.set(type, storageApiValue);
     },
-    /**
-     * 初始化组件的存储接口属性
-     *
-     * @param type 组件类型
-     * @param config 组件配置，必须包含prop属性
-     * @param storageApiValue 存储接口
-     */
-    initComponentsStorageApi(type, config, storageApiValue) {
+initComponentsStorageApi(type, config, storageApiValue) {
       let propsStorageApi;
       if (this.hasStorageApi(type)) {
         propsStorageApi = this.getStorageApi(type);
@@ -3425,12 +2798,7 @@
       }
       this.setComponentsStorageApiProperty(config, propsStorageApi);
     },
-    /**
-     * 设置组件的存储接口属性
-     * @param config 组件配置，必须包含prop属性
-     * @param storageApiValue 存储接口
-     */
-    setComponentsStorageApiProperty(config, storageApiValue) {
+setComponentsStorageApiProperty(config, storageApiValue) {
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
     }
   };
@@ -3617,35 +2985,34 @@
           )
         ]
       }
-      // {
-      // 	text: "Cookie配置",
-      // 	type: "forms",
-      // 	forms: [
-      // 		UISwitch(
-      // 			"启用",
-      // 			"httpx-use-cookie-enable",
-      // 			false,
-      // 			void 0,
-      // 			"启用后，将根据下面的配置进行添加cookie"
-      // 		),
-      // 		UISwitch(
-      // 			"使用document.cookie",
-      // 			"httpx-use-document-cookie",
-      // 			false,
-      // 			void 0,
-      // 			"自动根据请求的域名来设置对应的cookie"
-      // 		),
-      // 		UITextArea(
-      // 			"tieba.baidu.com",
-      // 			"httpx-cookie-tieba.baidu.com",
-      // 			"",
-      // 			void 0,
-      // 			void 0,
-      // 			"Cookie格式：xxx=xxxx;xxx=xxxx"
-      // 		),
-      // 	],
-      // },
-    ]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+]
   };
   const UISlider = function(text, key, defaultValue, min, max, changeCallback, getToolTipContent, description, step, valueChangeCallBack) {
     let result = {
@@ -4246,35 +3613,34 @@
           )
         ]
       }
-      // {
-      // 	text: "Cookie配置",
-      // 	type: "forms",
-      // 	forms: [
-      // 		UISwitch(
-      // 			"启用",
-      // 			"httpx-use-cookie-enable",
-      // 			false,
-      // 			void 0,
-      // 			"启用后，将根据下面的配置进行添加cookie"
-      // 		),
-      // 		UISwitch(
-      // 			"使用document.cookie",
-      // 			"httpx-use-document-cookie",
-      // 			false,
-      // 			void 0,
-      // 			"自动根据请求的域名来设置对应的cookie"
-      // 		),
-      // 		UITextArea(
-      // 			"tieba.baidu.com",
-      // 			"httpx-cookie-tieba.baidu.com",
-      // 			"",
-      // 			void 0,
-      // 			void 0,
-      // 			"Cookie格式：xxx=xxxx;xxx=xxxx"
-      // 		),
-      // 	],
-      // },
-    ]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+]
   };
   const MSettingUIBlog = {
     id: "m-panel-blog",

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.21
+// @version      2025.8.27
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -13,18 +13,18 @@
 // @match        *://uf9kyh.smartapps.cn/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/showdown/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
-// @require      https://fastly.jsdelivr.net/npm/vue@3.5.19/dist/vue.global.prod.js
+// @require      https://fastly.jsdelivr.net/npm/vue@3.5.20/dist/vue.global.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-demi@0.14.10/lib/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/pinia@3.0.3/dist/pinia.iife.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-router@4.5.1/dist/vue-router.global.js
-// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@724d3430779a1514a4fec862f6f8a4f98c8e5a2a/lib/Element-Plus/index.js
+// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@aab44c2d00b25ba1d78ffb8ee690c1b41aea01db/lib/Element-Plus/index.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.2/dist/index.iife.min.js
-// @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.10.7/dist/index.min.css
+// @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.11.1/dist/index.min.css
 // @resource     ViewerCSS               https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect      *
 // @connect      www.baidu.com
@@ -52,7 +52,7 @@
 (function (Qmsg, DOMUtils, Utils, pops, vue, Viewer, pinia, iconsVue, vueDemi, vueRouter, ElementPlus) {
   'use strict';
 
-  const o=new Set;const importCSS = async t=>{o.has(t)||o.add(t);};
+  const a=new Set;const importCSS = async t=>{a.has(t)||(a.add(t),(n=>{function r(d){let e=document.createElement("style");if(e.setAttribute("type","text/css"),e.setAttribute("data-type","gm-css"),globalThis.trustedTypes){const l=globalThis.trustedTypes.createPolicy("safe-innerHTML",{createHTML:i=>i});e.innerHTML=l.createHTML(d);}else e.innerHTML=d;return (document.head||document.documentElement).appendChild(e),e}if(typeof GM_addStyle=="function"){GM_addStyle(n);return}r(n);})(t));};
 
   importCSS(' @charset "UTF-8";#small-toolbar[data-v-bd816662]{position:fixed;bottom:0;width:100%;background:#fff;height:.56rem;display:flex;align-items:center;z-index:1000}#small-toolbar .icon[data-v-bd816662]{width:.2rem;height:.2rem}#small-toolbar #reply-editor[data-v-bd816662]{flex:1}#small-toolbar .small-editor-toolbar[data-v-bd816662]{flex:1;margin:10px 15px;width:100%;font-size:.16rem;line-height:.16rem;display:flex;align-items:center;position:relative}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-bd816662]{width:100%;background:#e9e9e9;border-radius:.06rem;padding:.06rem;border:0;outline:none;font-size:.14rem;line-height:.14rem;cursor:default}#small-toolbar .small-editor-toolbar .small-editor-toolbar-emoji-btn[data-v-bd816662]{position:absolute;top:50%;right:.06rem;transform:translateY(-50%)}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-bd816662]:focus,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-bd816662]:visited,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-bd816662]:focus-within,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-bd816662]:focus-visible{border:0;outline:none}#small-toolbar .gm-reply-other-toolbar[data-v-bd816662]{flex:0 auto;display:flex;align-items:safe center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count[data-v-bd816662],#small-toolbar .gm-reply-other-toolbar .reply-good-count[data-v-bd816662]{padding:8px;display:flex;flex-direction:column;align-items:center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count p.text[data-v-bd816662],#small-toolbar .gm-reply-other-toolbar .reply-good-count p.text[data-v-bd816662]{font-size:.1rem}.tiptap p.is-editor-empty:first-child:before{content:attr(data-placeholder);float:left;color:#adb5bd;pointer-events:none;height:0}#reply-editor .tiptap{width:100%;height:100%;outline:0!important;font-size:.16rem}.tiptap-input-image{width:.18rem;height:.18rem}#reply-editor[data-v-515fa91d]{overflow:auto;background-color:#e5e5e5;padding:.06rem;height:100%;border-radius:5px}.icon-active[data-v-16c51a10]{fill:#7557ff}#full-toolbar[data-v-16c51a10]{position:fixed;bottom:0;width:100%;background:#fff;display:flex;align-items:center;z-index:100099;flex-flow:column}#full-toolbar .full-toolbar-top-reply-user[data-v-16c51a10]{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#adb5bd;width:-webkit-fill-available;width:-moz-available;padding-left:.2rem;padding-top:.06rem}#full-toolbar .full-toolbar-top-container[data-v-16c51a10]{display:flex;align-items:end;width:-moz-available;width:-webkit-fill-available;padding:.06rem .1rem;height:.6rem}#full-toolbar .full-toolbar-top-container .full-toolbar-top-left-container[data-v-16c51a10]{display:flex;flex-direction:column;flex:1;overflow:hidden;margin:0px .1rem;height:100%}#full-toolbar .full-toolbar-top-container .full-toolbar-top-right-container[data-v-16c51a10]{flex:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%}#full-toolbar .full-toolbar-bottom-container[data-v-16c51a10]{margin:.06rem 0;padding:0px 0px .06rem;margin-right:auto}#full-toolbar .full-toolbar-bottom-container .full-toolbar-emoji-btn[data-v-16c51a10],#full-toolbar .full-toolbar-bottom-container .full-toolbar-panel-at-btn[data-v-16c51a10]{margin:0 20px;display:flex;flex-direction:column;align-items:center}#full-toolbar .emoji-panel[data-v-16c51a10]{width:100%;height:30vh;background-color:#efefef;overflow:auto}.emoji-panel-huaji[data-v-16c51a10]{padding:.03rem;overflow-y:auto}.emoji-panel-huaji .el-avatar[data-v-16c51a10]{margin:16px}#full-toolbar[data-v-16c51a10]:has(.full-toolbar-top-container[data-full=true]){height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-16c51a10],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) #reply-editor[data-v-16c51a10]{height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-reply-user[data-v-16c51a10],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-right-container[data-v-16c51a10]{display:none}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-16c51a10]{flex-direction:column}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-left-container[data-v-16c51a10]{width:-webkit-fill-available;width:-moz-available}.full-toolbar-top-nav-container[data-v-16c51a10]{display:flex;width:-webkit-fill-available;width:-moz-available;align-items:center;justify-content:space-between;padding:.16rem}#full-toolbar .full-toolbar-top-container{max-height:calc(100vh - .12rem - 40px)}#full-toolbar[data-show-bottom-panel=true] .full-toolbar-top-container{max-height:calc(70vh - .12rem - 40px)}.posts-container-item[data-v-03f2f267]{width:-webkit-fill-available;width:-moz-available}.posts-item-title[data-v-03f2f267]{font-weight:700}.posts-item-title[data-v-03f2f267],.posts-item-content[data-v-03f2f267],.posts-item-media-container[data-v-03f2f267]{margin:10px 0}.posts-item-footer[data-v-03f2f267]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-03f2f267]{text-align:center}.posts-item-footer-icon-container[data-v-03f2f267]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-03f2f267]{padding:0 10px}.posts-container[data-v-c87cf9db]{background:#f2f2f4;padding:10px}.posts-container-item[data-v-c87cf9db]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.posts-item-title[data-v-c87cf9db]{font-weight:700}.posts-item-title[data-v-c87cf9db],.posts-item-content[data-v-c87cf9db],.posts-item-media-container[data-v-c87cf9db]{margin:10px 0}.posts-item-footer[data-v-c87cf9db]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-c87cf9db]{text-align:center}.posts-item-footer-icon-container[data-v-c87cf9db]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-c87cf9db]{padding:0 10px}.follow-forum-container[data-v-fc2491a8]{background:#f2f2f4;padding:10px}.follow-forum-list-container[data-v-fc2491a8]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.follow-forum-item[data-v-fc2491a8]{width:50%;max-width:50%;display:flex;align-items:flex-start;margin:10px 0}.follow-forum-avatar[data-v-fc2491a8]{border-radius:12px}.follow-forum-item-right-container[data-v-fc2491a8]{margin:0 10px;width:inherit;display:flex;flex-direction:column}.follow-forum-item-name[data-v-fc2491a8]{display:flex;align-items:center;width:-webkit-fill-available;width:-moz-available}.follow-forum-item-level[data-level][data-v-fc2491a8]{margin:5px;padding:2px;border-radius:3px;font-size:.6rem;line-height:.6rem;font-weight:700;text-align:center;background:var(--c4fc5984);color:var(--632896fa)}.follow-forum-item-level[data-level="0"][data-v-fc2491a8],.follow-forum-item-level[data-level="1"][data-v-fc2491a8],.follow-forum-item-level[data-level="2"][data-v-fc2491a8],.follow-forum-item-level[data-level="3"][data-v-fc2491a8]{background:var(--67c41881)}.follow-forum-item-level[data-level="4"][data-v-fc2491a8],.follow-forum-item-level[data-level="5"][data-v-fc2491a8],.follow-forum-item-level[data-level="6"][data-v-fc2491a8],.follow-forum-item-level[data-level="7"][data-v-fc2491a8],.follow-forum-item-level[data-level="8"][data-v-fc2491a8],.follow-forum-item-level[data-level="9"][data-v-fc2491a8]{background:var(--67c4278b)}.follow-forum-item-level[data-level="10"][data-v-fc2491a8],.follow-forum-item-level[data-level="11"][data-v-fc2491a8],.follow-forum-item-level[data-level="12"][data-v-fc2491a8],.follow-forum-item-level[data-level="13"][data-v-fc2491a8],.follow-forum-item-level[data-level="14"][data-v-fc2491a8],.follow-forum-item-level[data-level="15"][data-v-fc2491a8]{background:var(--f1cd3cbe)}.follow-forum-item-level[data-level="16"][data-v-fc2491a8],.follow-forum-item-level[data-level="17"][data-v-fc2491a8],.follow-forum-item-level[data-level="18"][data-v-fc2491a8]{background:var(--f1c7c844)}.follow-forum-item-info[data-v-fc2491a8]{word-wrap:break-word}#main[data-v-c9e3d74e]{z-index:1000;width:100%;height:100%}.big-text[data-v-c9e3d74e]{font-weight:700}.top-container[data-v-c9e3d74e]{width:-webkit-fill-available;width:-moz-available;padding:15px 15px 0}.user-info-bg[data-v-c9e3d74e]{width:100%;height:100px}.user-info-bg-main[data-v-c9e3d74e]{width:100%;height:160px;position:absolute;background:url(https://tb2.bdstatic.com/tb/mobile/suser/img/home_card_back_6cdfca5.jpg);background-size:100%;background-repeat:no-repeat}.user-avatar-top-background[data-v-c9e3d74e]{position:absolute;width:100%;height:40%;padding:0;margin:0;border-top-left-radius:12px;border-top-right-radius:12px;background:#fff;transform:translateY(100%)}.user-info-container[data-v-c9e3d74e]{padding:0 10px}.nav-left-arrow-icon[data-v-8128767d]{align-content:center;padding-left:0!important}.nav-title[data-v-8128767d]{font-weight:700;text-align:center;padding:10px}.user-avatar[data-v-8128767d]{text-align:center;padding-bottom:20px}.user-info-item[data-v-8128767d]{display:flex;padding:10px;flex-wrap:wrap}.user-desc-key[data-v-8128767d]{width:60px;display:block}.user-end-text[data-v-8128767d]{padding:0 20px}.user-top[data-v-42d9f9f5]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-42d9f9f5]{align-content:center;padding-left:0!important}.top-title-name[data-v-42d9f9f5]{text-align:center;padding:10px}.user-main[data-v-42d9f9f5]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-42d9f9f5]{padding:0 10px}.user-container .el-scrollbar__view[data-v-42d9f9f5]{height:100%}.user-item[data-v-42d9f9f5]{margin:10px 0}.user-item-row[data-v-42d9f9f5]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-42d9f9f5]{padding:0 10px}.user-name[data-v-42d9f9f5],.user-sign-text[data-v-42d9f9f5]{text-align:left}.user-sign-text[data-v-42d9f9f5]{color:#a2a2a2}.user-follow-btn[data-v-42d9f9f5]{float:right}.user-info[data-v-42d9f9f5]{display:grid}.user-item-row-left[data-v-42d9f9f5]{display:flex}.user-item-row-right[data-v-42d9f9f5]{float:right}.user-top[data-v-205eb1c6]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-205eb1c6]{align-content:center;padding-left:0!important}.top-title-name[data-v-205eb1c6]{text-align:center;padding:10px}.user-main[data-v-205eb1c6]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-205eb1c6]{padding:0 10px}.user-container .el-scrollbar__view[data-v-205eb1c6]{height:100%}.user-item[data-v-205eb1c6]{margin:10px 0}.user-item-row[data-v-205eb1c6]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-205eb1c6]{padding:0 10px;align-content:center}.user-name[data-v-205eb1c6],.user-sign-text[data-v-205eb1c6]{text-align:left}.user-sign-text[data-v-205eb1c6]{color:#a2a2a2}.user-follow-btn[data-v-205eb1c6]{float:right}.user-info[data-v-205eb1c6]{display:grid}.user-item-row-left[data-v-205eb1c6]{display:flex}.user-item-row-right[data-v-205eb1c6]{float:right}.router-view-container[data-v-37c7691d]{padding:20px}.router-view-container .layout-item[data-v-37c7691d]{display:flex;align-items:center;gap:10px;padding:10px 0}.router-view-container .layout-icon img[data-v-37c7691d]{width:100%;height:100%}.router-view-container .layout-text[data-v-37c7691d]{flex:1}.post-list-item[data-v-449f473f]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef}.post-list-item[data-v-449f473f]:last-child{border-bottom:0}.user-info[data-v-449f473f]{display:flex;align-items:center;gap:5px}.user-time[data-v-449f473f]{font-size:.8em;color:#999}.user-avatar img[data-v-449f473f]{width:35px;height:35px;border-radius:50%}.reply-content[data-v-449f473f]{font-size:.9em;color:#4a4a4a}.post-info[data-v-449f473f]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-449f473f]{display:flex;align-items:center;height:100px;width:100%}.post-content[data-v-449f473f]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-image[data-v-449f473f]{width:100px;height:100px}.post-image img[data-v-449f473f]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-449f473f]{color:#999}.bottom-msg[data-v-449f473f]{text-align:center;color:#999;padding:10px 0}.post-list-item[data-v-ec39056c]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef}.post-list-item[data-v-ec39056c]:last-child{border-bottom:0}.user-info[data-v-ec39056c]{display:flex;align-items:center;gap:5px}.user-time[data-v-ec39056c]{font-size:.8em;color:#999}.user-avatar img[data-v-ec39056c]{width:35px;height:35px;border-radius:50%}.reply-content[data-v-ec39056c]{font-size:.9em;color:#4a4a4a}.post-info[data-v-ec39056c]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-ec39056c]{display:flex;align-items:center;height:100px;width:100%}.post-content[data-v-ec39056c]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-info[data-v-ec39056c]:has(.quote-user){flex-direction:column;align-items:start;padding:10px;gap:10px}.post-info:has(.quote-user) .post-content[data-v-ec39056c]{flex:1;align-content:center;padding:0 10px;margin-left:0;background:#fff;height:inherit}.post-image[data-v-ec39056c]{width:100px;height:100px}.post-image img[data-v-ec39056c]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-ec39056c]{color:#999}.bottom-msg[data-v-ec39056c],.bottom-msg[data-v-38eb1bd2]{text-align:center;color:#999;padding:10px 0}.user-top[data-v-3c912918]{--el-header-height: 40px;display:flex;align-items:center;position:fixed;top:0;left:0;right:0;background:#fff}.top-nav-container[data-v-3c912918]{align-items:center;width:100%}.top-title-name[data-v-3c912918]{text-align:center;position:absolute;left:50%;transform:translate(-50%)}.main[data-v-3c912918]{padding:0;margin:40px 0 0} ');
 
@@ -61,50 +61,36 @@
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
   var require_entrance_001 = __commonJS({
-    "entrance-s_yag2TV.js"(exports, module) {
-      var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
-      var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
-      var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
-      var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
-      var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-      var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
-      var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-      var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
-      var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
-      var _monkeyWindow = /* @__PURE__ */ (() => window)();
+    "entrance-CW-nnNLK.js"(exports, module) {
+      var _GM_deleteValue = (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
+      var _GM_getResourceText = (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
+      var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
+      var _GM_info = (() => typeof GM_info != "undefined" ? GM_info : void 0)();
+      var _GM_registerMenuCommand = (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+      var _GM_setValue = (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
+      var _GM_unregisterMenuCommand = (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+      var _GM_xmlhttpRequest = (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
+      var _unsafeWindow = (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
+      var _monkeyWindow = (() => window)();
       const BaiduRouter = {
-        /**
-         * 百度搜索
-         */
-        isSearch() {
+isSearch() {
           return Boolean(
             window.location.href.match(
               /^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/.*/g
             )
           );
         },
-        /**
-         * 百度搜索 - /bh
-         * 百度健康
-         */
-        isSearchBh() {
+isSearchBh() {
           return Boolean(
             this.isSearch() && window.location.pathname.startsWith("/bh")
           );
         },
-        /**
-         * 百度搜索 - /video/page
-         * 视频页
-         */
-        isSearchVideo() {
+isSearchVideo() {
           return Boolean(
             this.isSearch() && window.location.pathname.startsWith("/video/page")
           );
         },
-        /**
-         * 百度搜索主页
-         */
-        isSearchHome() {
+isSearchHome() {
           return Boolean(
             window.location.href.match(
               /^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/$/g
@@ -113,301 +99,179 @@
             )
           );
         },
-        /**
-         * 百度搜索其它卡片搜索结果页面
-         * /sf/vsearch
-         * 例如：视频、笔记、贴吧、图片、资讯、问答、文库...等
-         */
-        isSearchVSearch() {
+isSearchVSearch() {
           return this.isSearch() && window.location.pathname.startsWith("/sf/vsearch");
         },
-        /**
-         * 百度搜索其它卡片搜索结果页面
-         * 图片
-         * /sf/vsearch?pd=image_content
-         */
-        isSearchVSearch_image_content() {
+isSearchVSearch_image_content() {
           let searchParams = new URLSearchParams(window.location.search);
           return this.isSearchVSearch() && searchParams.has("pd", "image_content");
         },
-        /**
-         * 百度搜索其它卡片搜索结果页面
-         * 笔记
-         * /sf/vsearch?pd=note
-         */
-        isSearchVSearch_note() {
+isSearchVSearch_note() {
           let searchParams = new URLSearchParams(window.location.search);
           return this.isSearchVSearch() && searchParams.has("pd", "note");
         },
-        /**
-         * 百度搜索其它卡片搜索结果页面
-         * 问答
-         * /sf/vsearch?pd=wenda_tab
-         */
-        isSearchWenDaTab() {
+isSearchWenDaTab() {
           let searchParams = new URLSearchParams(window.location.search);
           return this.isSearchVSearch() && searchParams.has("pd", "wenda_tab");
         },
-        /**
-         * 百家号
-         */
-        isBaiJiaHao() {
+isBaiJiaHao() {
           return Boolean(
             window.location.href.match(/^http(s|):\/\/baijiahao.baidu.com/g)
           );
         },
-        /**
-         * 贴吧
-         */
-        isTieBa() {
+isTieBa() {
           return Boolean(
             window.location.href.match(
               /^http(s|):\/\/(tieba|ala|static.tieba|nba|fexclick|youhua|tiebaswan).baidu.com/g
             ) || window.location.href.match(/^http(s|):\/\/(www.tieba|jump2.bdimg).com/g)
           );
         },
-        /**
-         * 贴吧 - 帖子
-         */
-        isTieBaPost() {
+isTieBaPost() {
           return Boolean(
             this.isTieBa() && window.location.pathname.startsWith("/p/")
           );
         },
-        /**
-         * 贴吧 - 热帖
-         */
-        isTieBaNewTopic() {
+isTieBaNewTopic() {
           return Boolean(
             this.isTieBa() && window.location.pathname.startsWith("/mo/q/newtopic/topicTemplate")
           );
         },
-        /**
-         * 贴吧 - 热搜榜
-         */
-        isTieBaHottopic() {
+isTieBaHottopic() {
           return Boolean(
             this.isTieBa() && window.location.pathname.startsWith("/hottopic/browse/hottopic")
           );
         },
-        /**
-         * 贴吧 - 搜索结果界面
-         */
-        isTieBaHybrid() {
+isTieBaHybrid() {
           return Boolean(
             this.isTieBa() && window.location.pathname.startsWith("/mo/q/hybrid/search")
           );
         },
-        /**
-         * 贴吧 - 中转链接验证页面
-         */
-        isTieBaCheckUrl() {
+isTieBaCheckUrl() {
           return Boolean(
             this.isTieBa() && window.location.pathname.startsWith("/mo/q/checkurl")
           );
         },
-        /**
-         * 贴吧 - 吧内
-         */
-        isTieBaNei() {
+isTieBaNei() {
           return Boolean(this.isTieBa() && window.location.pathname === "/f");
         },
-        /**
-         * 贴吧 - 首页
-         */
-        isTieBaIndex() {
+isTieBaIndex() {
           return Boolean(
             this.isTieBa() && window.location.pathname.startsWith("/index")
           );
         },
-        /**
-         * 贴吧 - 主页
-         */
-        isTieBaHome() {
+isTieBaHome() {
           return Boolean(
             this.isTieBa() && window.location.pathname.startsWith("/home/main")
           );
         },
-        /**
-         * 贴吧 - 合辑
-         */
-        isTieBaCollectionCenter() {
+isTieBaCollectionCenter() {
           return Boolean(
             this.isTieBa() && window.location.pathname.startsWith(
               "/mo/q/hybrid-main-user/collectionCenter"
             )
           );
         },
-        /**
-         * 百度文库
-         */
-        isWenKu() {
+isWenKu() {
           return Boolean(
             window.location.href.match(/^http(s|):\/\/(wk|tanbi).baidu.com/g)
           );
         },
-        /**
-         * 百度经验
-         */
-        isJingYan() {
+isJingYan() {
           return Boolean(
             window.location.href.match(/^http(s|):\/\/jingyan.baidu.com/g)
           );
         },
-        /**
-         * 百度百科
-         */
-        isBaiKe() {
+isBaiKe() {
           return Boolean(
             window.location.href.match(/^http(s|):\/\/(baike|wapbaike).baidu.com/g)
           );
         },
-        /**
-         * 百度百科 - 他说
-         */
-        isBaiKeTaShuo() {
+isBaiKeTaShuo() {
           return Boolean(
             this.isBaiKe() && window.location.pathname.startsWith("/tashuo")
           );
         },
-        /**
-         * 百度知道
-         */
-        isZhiDao() {
+isZhiDao() {
           return Boolean(
             window.location.href.match(/^http(s|):\/\/zhidao.baidu.com/g)
           );
         },
-        /**
-         * 百度翻译
-         */
-        isFanYi() {
+isFanYi() {
           return Boolean(
             window.location.href.match(/^http(s|):\/\/fanyi.baidu.com/g)
           );
         },
-        /**
-         * 百度翻译 - App
-         */
-        isFanYiApp() {
+isFanYiApp() {
           return Boolean(
             window.location.href.match(/^http(s|):\/\/fanyi-app.baidu.com/g)
           );
         },
-        /**
-         * 百度图片
-         */
-        isImage() {
+isImage() {
           return Boolean(
             window.location.href.match(/^http(s|):\/\/image.baidu.com/g)
           );
         },
-        /**
-         * 百度地图
-         */
-        isMap() {
+isMap() {
           return Boolean(window.location.href.match(/^http(s|):\/\/map.baidu.com/g));
         },
-        /**
-         *
-         */
-        isMbd() {
+isMbd() {
           return Boolean(window.location.href.match(/^http(s|):\/\/mbd.baidu.com/g));
         },
-        /**
-         * 百度好学
-         */
-        isXue() {
+isXue() {
           return Boolean(window.location.href.match(/^http(s|):\/\/xue.baidu.com/g));
         },
-        /**
-         * 爱企查
-         */
-        isAiQiCha() {
+isAiQiCha() {
           return Boolean(
             window.location.href.match(/^http(s|):\/\/aiqicha.baidu.com/g)
           );
         },
-        /**
-         * 百度网盟
-         */
-        isPos() {
+isPos() {
           return Boolean(window.location.href.match(/^http(s|):\/\/pos.baidu.com/g));
         },
-        /**
-         * 好看视频
-         */
-        isHaoKan() {
+isHaoKan() {
           return Boolean(
             window.location.href.match(/^http(s|):\/\/haokan.baidu.com/g)
           );
         },
-        /**
-         * 百度图片搜索
-         */
-        isGraph() {
+isGraph() {
           return Boolean(
             window.location.href.match(/^http(s|):\/\/graph.baidu.com/g)
           );
         },
-        /**
-         * 百度网盘
-         */
-        isPan() {
+isPan() {
           return Boolean(window.location.href.match(/^http(s|):\/\/pan.baidu.com/g));
         },
-        /**
-         * 文心一言
-         */
-        isYiYan() {
+isYiYan() {
           return Boolean(
             window.location.href.match(/^http(s|):\/\/yiyan.baidu.com/g)
           );
         },
-        /**
-         * 搜索AI伙伴
-         */
-        isChat() {
+isChat() {
           return Boolean(window.location.href.match(/^http(s|):\/\/chat.baidu.com/g));
         },
-        /**
-         * 百度教育
-         */
-        isMiniJiaoYu() {
+isMiniJiaoYu() {
           return Boolean(
             window.location.href.match(/^http(s|):\/\/uf9kyh.smartapps.cn/g)
           );
         },
-        /**
-         * 百度教育
-         */
-        isEasyLearn() {
+isEasyLearn() {
           return Boolean(
             window.location.href.match(/^http(s|):\/\/easylearn.baidu.com/g)
           );
         },
-        /**
-         * 百度基木鱼
-         */
-        isISite() {
+isISite() {
           return Boolean(
             window.location.href.match(
               /^http(s|):\/\/isite.baidu.com\/site\/wjz2tdly/g
             )
           );
         },
-        /**
-         * 百度爱学
-         */
-        isAiStudy() {
+isAiStudy() {
           return Boolean(
             window.location.href.match(/^http(s|):\/\/aistudy.baidu.com/g)
           );
         },
-        /**
-         * 贴吧 - 小程序
-         */
-        isSmartApps_Tieba() {
+isSmartApps_Tieba() {
           return Boolean(window.location.hostname === "byokpg.smartapps.baidu.com");
         }
       };
@@ -418,10 +282,7 @@
       const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
       const PROPS_STORAGE_API = "data-storage-api";
       const PanelUISize = {
-        /**
-         * 一般设置界面的尺寸
-         */
-        setting: {
+setting: {
           get width() {
             if (window.innerWidth < 550) {
               return "88vw";
@@ -441,18 +302,12 @@
             }
           }
         },
-        /**
-         * 中等的设置界面
-         */
-        settingMiddle: {
+settingMiddle: {
           get width() {
             return window.innerWidth < 350 ? "88vw" : "350px";
           }
         },
-        /**
-         * 信息界面，一般用于提示信息之类
-         */
-        info: {
+info: {
           get width() {
             return window.innerWidth < 350 ? "88vw" : "350px";
           },
@@ -462,25 +317,9 @@
         }
       };
       class StorageUtils {
-        /** 存储的键名 */
-        storageKey;
+storageKey;
         listenerData;
-        /**
-         * 存储的键名，可以是多层的，如：a.b.c
-         *
-         * 那就是
-         * {
-         *  "a": {
-         *     "b": {
-         *       "c": {
-         *         ...你的数据
-         *       }
-         *     }
-         *   }
-         * }
-         * @param key
-         */
-        constructor(key) {
+constructor(key) {
           if (typeof key === "string") {
             let trimKey = key.trim();
             if (trimKey == "") {
@@ -492,10 +331,7 @@
           }
           this.listenerData = new Utils.Dictionary();
         }
-        /**
-         * 获取本地值
-         */
-        getLocalValue() {
+getLocalValue() {
           let localValue = _GM_getValue(this.storageKey);
           if (localValue == null) {
             localValue = {};
@@ -503,89 +339,49 @@
           }
           return localValue;
         }
-        /**
-         * 设置本地值
-         * @param value
-         */
-        setLocalValue(value) {
+setLocalValue(value) {
           _GM_setValue(this.storageKey, value);
         }
-        /**
-         * 设置值
-         * @param key 键
-         * @param value 值
-         */
-        set(key, value) {
+set(key, value) {
           let oldValue = this.get(key);
           let localValue = this.getLocalValue();
           Reflect.set(localValue, key, value);
           this.setLocalValue(localValue);
           this.triggerValueChangeListener(key, oldValue, value);
         }
-        /**
-         * 获取值
-         * @param key 键
-         * @param defaultValue 默认值
-         */
-        get(key, defaultValue) {
+get(key, defaultValue) {
           let localValue = this.getLocalValue();
           return Reflect.get(localValue, key) ?? defaultValue;
         }
-        /**
-         * 获取所有值
-         */
-        getAll() {
+getAll() {
           let localValue = this.getLocalValue();
           return localValue;
         }
-        /**
-         * 删除值
-         * @param key 键
-         */
-        delete(key) {
+delete(key) {
           let oldValue = this.get(key);
           let localValue = this.getLocalValue();
           Reflect.deleteProperty(localValue, key);
           this.setLocalValue(localValue);
           this.triggerValueChangeListener(key, oldValue, void 0);
         }
-        /**
-         * 判断是否存在该值
-         */
-        has(key) {
+has(key) {
           let localValue = this.getLocalValue();
           return Reflect.has(localValue, key);
         }
-        /**
-         * 获取所有键
-         */
-        keys() {
+keys() {
           let localValue = this.getLocalValue();
           return Reflect.ownKeys(localValue);
         }
-        /**
-         * 获取所有值
-         */
-        values() {
+values() {
           let localValue = this.getLocalValue();
           return Reflect.ownKeys(localValue).map(
             (key) => Reflect.get(localValue, key)
           );
         }
-        /**
-         * 清空所有值
-         */
-        clear() {
+clear() {
           _GM_deleteValue(this.storageKey);
         }
-        /**
-         * 监听值改变
-         * + .set
-         * + .delete
-         * @param key 监听的键
-         * @param callback 值改变的回调函数
-         */
-        addValueChangeListener(key, callback) {
+addValueChangeListener(key, callback) {
           let listenerId = Math.random();
           let listenerData = this.listenerData.get(key) || [];
           listenerData.push({
@@ -596,11 +392,7 @@
           this.listenerData.set(key, listenerData);
           return listenerId;
         }
-        /**
-         * 移除监听
-         * @param listenerId 监听的id或键名
-         */
-        removeValueChangeListener(listenerId) {
+removeValueChangeListener(listenerId) {
           let flag = false;
           for (const [key, listenerData] of this.listenerData.entries()) {
             for (let index = 0; index < listenerData.length; index++) {
@@ -615,13 +407,7 @@
           }
           return flag;
         }
-        /**
-         * 主动触发监听器
-         * @param key 键
-         * @param oldValue （可选）旧值
-         * @param newValue （可选）新值
-         */
-        triggerValueChangeListener(key, oldValue, newValue) {
+triggerValueChangeListener(key, oldValue, newValue) {
           if (!this.listenerData.has(key)) {
             return;
           }
@@ -650,10 +436,7 @@
       const PopsPanelStorageApi = new StorageUtils(KEY);
       const PanelContent = {
         $data: {
-          /**
-           * @private
-           */
-          __contentConfig: null,
+__contentConfig: null,
           get contentConfig() {
             if (this.__contentConfig == null) {
               this.__contentConfig = new utils.Dictionary();
@@ -661,36 +444,20 @@
             return this.__contentConfig;
           }
         },
-        /**
-         * 设置所有配置项，用于初始化默认的值
-         *
-         * 如果是第一组添加的话，那么它默认就是设置菜单打开的配置
-         * @param configList 配置项
-         */
-        addContentConfig(configList) {
+addContentConfig(configList) {
           if (!Array.isArray(configList)) {
             configList = [configList];
           }
           let index = this.$data.contentConfig.keys().length;
           this.$data.contentConfig.set(index, configList);
         },
-        /**
-         * 获取所有的配置内容，用于初始化默认的值
-         */
-        getAllContentConfig() {
+getAllContentConfig() {
           return this.$data.contentConfig.values().flat();
         },
-        /**
-         * 获取配置内容
-         * @param index 配置索引
-         */
-        getConfig(index = 0) {
+getConfig(index = 0) {
           return this.$data.contentConfig.get(index) ?? [];
         },
-        /**
-         * 获取默认左侧底部的配置项
-         */
-        getDefaultBottomContentConfig() {
+getDefaultBottomContentConfig() {
           return [
             {
               id: "script-version",
@@ -731,30 +498,19 @@
         init() {
           this.initExtensionsMenu();
         },
-        /**
-         * 初始化菜单项
-         */
-        initExtensionsMenu() {
+initExtensionsMenu() {
           if (!Panel.isTopWindow()) {
             return;
           }
           GM_Menu.add(this.$data.menuOption);
         },
-        /**
-         * 添加菜单项
-         * @param option 菜单配置
-         */
-        addMenuOption(option) {
+addMenuOption(option) {
           if (!Array.isArray(option)) {
             option = [option];
           }
           this.$data.menuOption.push(...option);
         },
-        /**
-         * 更新菜单项
-         * @param option 菜单配置
-         */
-        updateMenuOption(option) {
+updateMenuOption(option) {
           if (!Array.isArray(option)) {
             option = [option];
           }
@@ -767,27 +523,15 @@
             }
           });
         },
-        /**
-         * 获取菜单项
-         * @param [index=0] 索引
-         */
-        getMenuOption(index = 0) {
+getMenuOption(index = 0) {
           return this.$data.menuOption[index];
         },
-        /**
-         * 删除菜单项
-         * @param [index=0] 索引
-         */
-        deleteMenuOption(index = 0) {
+deleteMenuOption(index = 0) {
           this.$data.menuOption.splice(index, 1);
         }
       };
       const CommonUtil = {
-        /**
-         * 移除元素（未出现也可以等待出现）
-         * @param selector 元素选择器
-         */
-        waitRemove(...args) {
+waitRemove(...args) {
           args.forEach((selector) => {
             if (typeof selector !== "string") {
               return;
@@ -797,15 +541,7 @@
             });
           });
         },
-        /**
-         * 添加屏蔽CSS
-         * @param args
-         * @example
-         * addBlockCSS("")
-         * addBlockCSS("","")
-         * addBlockCSS(["",""])
-         */
-        addBlockCSS(...args) {
+addBlockCSS(...args) {
           let selectorList = [];
           if (args.length === 0) {
             return;
@@ -822,16 +558,7 @@
           });
           return addStyle$1(`${selectorList.join(",\n")}{display: none !important;}`);
         },
-        /**
-         * 设置GM_getResourceText的style内容
-         * @param resourceMapData 资源数据
-         * @example
-         * setGMResourceCSS({
-         *   keyName: "ViewerCSS",
-         *   url: "https://example.com/example.css",
-         * })
-         */
-        setGMResourceCSS(resourceMapData) {
+setGMResourceCSS(resourceMapData) {
           let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
           if (typeof cssText === "string" && cssText) {
             addStyle$1(cssText);
@@ -839,13 +566,7 @@
             CommonUtil.loadStyleLink(resourceMapData.url);
           }
         },
-        /**
-         * 添加<link>标签
-         * @param url
-         * @example
-         * loadStyleLink("https://example.com/example.css")
-         */
-        async loadStyleLink(url) {
+async loadStyleLink(url) {
           let $link = document.createElement("link");
           $link.rel = "stylesheet";
           $link.type = "text/css";
@@ -854,13 +575,7 @@
             document.head.appendChild($link);
           });
         },
-        /**
-         * 添加<script>标签
-         * @param url
-         * @example
-         * loadStyleLink("https://example.com/example.js")
-         */
-        async loadScript(url) {
+async loadScript(url) {
           let $script = document.createElement("script");
           $script.src = url;
           return new Promise((resolve) => {
@@ -870,25 +585,7 @@
             (document.head || document.documentElement).appendChild($script);
           });
         },
-        /**
-         * 将url修复，例如只有search的链接修复为完整的链接
-         *
-         * 注意：不包括http转https
-         * @param url 需要修复的链接
-         * @example
-         * 修复前：`/xxx/xxx?ss=ssss`
-         * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-         * @example
-         * 修复前：`//xxx/xxx?ss=ssss`
-         * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-         * @example
-         * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-         * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-         * @example
-         * 修复前：`xxx/xxx?ss=ssss`
-         * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-         */
-        fixUrl(url) {
+fixUrl(url) {
           url = url.trim();
           if (url.match(/^http(s|):\/\//i)) {
             return url;
@@ -906,17 +603,7 @@
             return url;
           }
         },
-        /**
-         * http转https
-         * @param url 需要修复的链接
-         * @example
-         * 修复前：
-         * 修复后：
-         * @example
-         * 修复前：
-         * 修复后：
-         */
-        fixHttps(url) {
+fixHttps(url) {
           if (url.startsWith("https://")) {
             return url;
           }
@@ -927,17 +614,10 @@
           urlInstance.protocol = "https:";
           return urlInstance.toString();
         },
-        /**
-         * 禁止页面滚动，默认锁定html和body
-         * @example
-         * lockScroll();
-         * @example
-         * lockScroll(document.body);
-         */
-        lockScroll(...args) {
+lockScroll(...args) {
           let $hidden = document.createElement("style");
-          $hidden.innerHTML = /*css*/
-          `
+          $hidden.innerHTML =
+`
 			.pops-overflow-hidden-important {
 				overflow: hidden !important;
 			}
@@ -948,10 +628,7 @@
           });
           (document.head || document.documentElement).appendChild($hidden);
           return {
-            /**
-             * 解除锁定
-             */
-            recovery() {
+recovery() {
               $elList.forEach(($el) => {
                 $el.classList.remove("pops-overflow-hidden-important");
               });
@@ -959,10 +636,7 @@
             }
           };
         },
-        /**
-         * 获取剪贴板文本
-         */
-        async getClipboardText() {
+async getClipboardText() {
           function readClipboardText(resolve) {
             navigator.clipboard.readText().then((clipboardText) => {
               resolve(clipboardText);
@@ -973,8 +647,7 @@
           }
           function requestPermissionsWithClipboard(resolve) {
             navigator.permissions.query({
-              // @ts-ignore
-              name: "clipboard-read"
+name: "clipboard-read"
             }).then((permissionStatus) => {
               readClipboardText(resolve);
             }).catch((error) => {
@@ -1011,20 +684,10 @@
             }
           });
         },
-        /**
-         * html转义
-         * @param unsafe
-         */
-        escapeHtml(unsafe) {
+escapeHtml(unsafe) {
           return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
         },
-        /**
-         * 在规定时间内循环，如果超时或返回false则取消循环
-         * @param fn 循环的函数
-         * @param intervalTime 循环间隔时间
-         * @param [timeout=5000] 循环超时时间
-         */
-        interval(fn, intervalTime, timeout = 5e3) {
+interval(fn, intervalTime, timeout = 5e3) {
           let timeId;
           let maxTimeout = timeout - intervalTime;
           let intervalTimeCount = intervalTime;
@@ -1045,10 +708,7 @@
           };
           loop(false);
         },
-        /**
-         * 找到对应的上层元素
-         */
-        findParentNode($el, selector, parentSelector) {
+findParentNode($el, selector, parentSelector) {
           if (parentSelector) {
             let $parent = DOMUtils.closest($el, parentSelector);
             if ($parent) {
@@ -1065,99 +725,53 @@
         }
       };
       const Panel = {
-        /** 数据 */
-        $data: {
-          /**
-           * @private
-           */
-          __contentConfigInitDefaultValue: null,
-          /**
-           * @private
-           */
-          __onceExecMenuData: null,
-          /**
-           * @private
-           */
-          __onceExecData: null,
-          /**
-           * @private
-           */
-          __panelConfig: {},
-          /**
-           * 面板
-           */
-          $panel: null,
-          /**
-           * 面板配置
-           */
-          panelContent: [],
-          /**
-           * 菜单项初始化的默认值
-           */
-          get contentConfigInitDefaultValue() {
+$data: {
+__contentConfigInitDefaultValue: null,
+__onceExecMenuData: null,
+__onceExecData: null,
+__panelConfig: {},
+$panel: null,
+panelContent: [],
+get contentConfigInitDefaultValue() {
             if (this.__contentConfigInitDefaultValue == null) {
               this.__contentConfigInitDefaultValue = new utils.Dictionary();
             }
             return this.__contentConfigInitDefaultValue;
           },
-          /**
-           * 菜单项初始化时禁用的键
-           */
-          contentConfigInitDisabledKeys: [],
-          /**
-           * 成功只执行了一次的菜单项
-           *
-           * + .exec
-           * + .execMenu
-           * + .execMenuOnce
-           */
-          get onceExecMenuData() {
+contentConfigInitDisabledKeys: [],
+get onceExecMenuData() {
             if (this.__onceExecMenuData == null) {
               this.__onceExecMenuData = new utils.Dictionary();
             }
             return this.__onceExecMenuData;
           },
-          /**
-           * 成功只执行了一次的项
-           *
-           * + .onceExec
-           */
-          get onceExecData() {
+get onceExecData() {
             if (this.__onceExecData == null) {
               this.__onceExecData = new utils.Dictionary();
             }
             return this.__onceExecData;
           },
-          /** 脚本名，一般用在设置的标题上 */
-          get scriptName() {
+get scriptName() {
             return SCRIPT_NAME;
           },
-          /**
-           * pops.panel的默认配置
-           */
-          get panelConfig() {
+get panelConfig() {
             return this.__panelConfig;
           },
           set panelConfig(value) {
             this.__panelConfig = value;
           },
-          /** 菜单项的总值在本地数据配置的键名 */
-          key: KEY,
-          /** 菜单项在attributes上配置的菜单键 */
-          attributeKeyName: ATTRIBUTE_KEY,
-          /** 菜单项在attributes上配置的菜单默认值 */
-          attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
+key: KEY,
+attributeKeyName: ATTRIBUTE_KEY,
+attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
         },
         init() {
           this.initContentDefaultValue();
           PanelMenu.init();
         },
-        /** 判断是否是顶层窗口 */
-        isTopWindow() {
+isTopWindow() {
           return _unsafeWindow.top === _unsafeWindow.self;
         },
-        /** 初始化菜单项的默认值保存到本地数据中 */
-        initContentDefaultValue() {
+initContentDefaultValue() {
           const initDefaultValue = (config) => {
             if (!config.attributes) {
               return;
@@ -1165,7 +779,7 @@
             if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
               return;
             }
-            let menuDefaultConfig = /* @__PURE__ */ new Map();
+            let menuDefaultConfig = new Map();
             let key = config.attributes[ATTRIBUTE_KEY];
             if (key != null) {
               const defaultValue = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
@@ -1221,31 +835,16 @@
           }
           this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
         },
-        /**
-         * 设置初始化使用的默认值
-         * @param key 键
-         * @param defaultValue 默认值
-         */
-        setDefaultValue(key, defaultValue) {
+setDefaultValue(key, defaultValue) {
           if (this.$data.contentConfigInitDefaultValue.has(key)) {
             log.warn("请检查该key(已存在): " + key);
           }
           this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
         },
-        /**
-         * 设置值
-         * @param key 键
-         * @param value 值
-         */
-        setValue(key, value) {
+setValue(key, value) {
           PopsPanelStorageApi.set(key, value);
         },
-        /**
-         * 获取值
-         * @param key 键
-         * @param defaultValue 默认值
-         */
-        getValue(key, defaultValue) {
+getValue(key, defaultValue) {
           let localValue = PopsPanelStorageApi.get(key);
           if (localValue == null) {
             if (this.$data.contentConfigInitDefaultValue.has(key)) {
@@ -1255,66 +854,25 @@
           }
           return localValue;
         },
-        /**
-         * 删除值
-         * @param key 键
-         */
-        deleteValue(key) {
+deleteValue(key) {
           PopsPanelStorageApi.delete(key);
         },
-        /**
-         * 判断该键是否存在
-         * @param key 键
-         */
-        hasKey(key) {
+hasKey(key) {
           return PopsPanelStorageApi.has(key);
         },
-        /**
-         * 监听调用setValue、deleteValue
-         * @param key 需要监听的键
-         * @param callback
-         */
-        addValueChangeListener(key, callback) {
+addValueChangeListener(key, callback) {
           let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
             callback(key, __oldValue, __newValue);
           });
           return listenerId;
         },
-        /**
-         * 移除监听
-         * @param listenerId 监听的id
-         */
-        removeValueChangeListener(listenerId) {
+removeValueChangeListener(listenerId) {
           PopsPanelStorageApi.removeValueChangeListener(listenerId);
         },
-        /**
-         * 主动触发菜单值改变的回调
-         * @param key 菜单键
-         * @param newValue 想要触发的新值，默认使用当前值
-         * @param oldValue 想要触发的旧值，默认使用当前值
-         */
-        triggerMenuValueChange(key, newValue, oldValue) {
+triggerMenuValueChange(key, newValue, oldValue) {
           PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
         },
-        /**
-         * 执行菜单
-         *
-         * @param queryKey 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-         * @param callback 执行的回调函数
-         * @param checkExec 判断是否执行回调
-         *
-         * （默认）如果想要每个菜单是`与`关系，即每个菜单都判断为开启，那么就判断它们的值&就行
-         *
-         * 如果想要任意菜单存在true再执行，那么判断它们的值|就行
-         *
-         * + 返回值都为`true`，执行回调，如果回调返回了<style>元素，该元素会在监听到值改变时被移除掉
-         * + 返回值有一个为`false`，则不执行回调，且移除之前回调函数返回的<style>元素
-         * @param once 是否只执行一次，默认true
-         *
-         * + true （默认）只执行一次，且会监听键的值改变
-         * + false 不会监听键的值改变
-         */
-        exec(queryKey, callback, checkExec, once = true) {
+exec(queryKey, callback, checkExec, once = true) {
           const that = this;
           let queryKeyFn;
           if (typeof queryKey === "string" || Array.isArray(queryKey)) {
@@ -1419,28 +977,15 @@
           });
           valueChangeCallback();
           let result = {
-            /**
-             * 清空菜单执行情况
-             *
-             * + 清空存储的元素列表
-             * + 清空值改变的监听器
-             * + 清空存储的一次执行的键
-             */
-            clear() {
+clear() {
               this.clearStoreStyleElements();
               this.removeValueChangeListener();
               once && that.$data.onceExecMenuData.delete(storageKey);
             },
-            /**
-             * 清空存储的元素列表
-             */
-            clearStoreStyleElements: () => {
+clearStoreStyleElements: () => {
               return clearBeforeStoreValue();
             },
-            /**
-             * 移除值改变的监听器
-             */
-            removeValueChangeListener: () => {
+removeValueChangeListener: () => {
               listenerIdList.forEach((listenerId) => {
                 this.removeValueChangeListener(listenerId);
               });
@@ -1448,14 +993,7 @@
           };
           return result;
         },
-        /**
-         * 自动判断菜单是否启用，然后执行回调
-         * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-         * @param callback 回调
-         * @param isReverse 逆反判断菜单启用，默认false
-         * @param once 是否是只执行一次，默认false
-         */
-        execMenu(key, callback, isReverse = false, once = false) {
+execMenu(key, callback, isReverse = false, once = false) {
           return this.exec(
             key,
             (option) => {
@@ -1477,35 +1015,15 @@
             once
           );
         },
-        /**
-         * 自动判断菜单是否启用，然后执行回调，只会执行一次
-         *
-         * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
-         * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-         * @param callback 回调
-         * @param isReverse 逆反判断菜单启用，默认false
-         */
-        execMenuOnce(key, callback, isReverse = false) {
+execMenuOnce(key, callback, isReverse = false) {
           return this.execMenu(key, callback, isReverse, true);
         },
-        /**
-         * 移除已执行的仅执行一次的菜单
-         * + .exec
-         * + .execMenu
-         * + .execMenuOnce
-         * @param key 键
-         */
-        deleteExecMenuOnce(key) {
+deleteExecMenuOnce(key) {
           this.$data.onceExecMenuData.delete(key);
           let flag = PopsPanelStorageApi.removeValueChangeListener(key);
           return flag;
         },
-        /**
-         * 根据key执行一次，该key不会和execMenu|exec|execMenuOnce已执行的key冲突
-         * @param key 键
-         * @param callback 回调
-         */
-        onceExec(key, callback) {
+onceExec(key, callback) {
           key = this.transformKey(key);
           if (typeof key !== "string") {
             throw new TypeError("key 必须是字符串");
@@ -1516,23 +1034,11 @@
           callback();
           this.$data.onceExecData.set(key, 1);
         },
-        /**
-         * 移除已执行的仅执行一次的菜单
-         * + .onceExec
-         * @param key 键
-         */
-        deleteOnceExec(key) {
+deleteOnceExec(key) {
           key = this.transformKey(key);
           this.$data.onceExecData.delete(key);
         },
-        /**
-         * 显示设置面板
-         * @param content 显示的内容配置
-         * @param [title] 标题
-         * @param [preventDefaultContentConfig=false] 是否阻止默认添加内容配置（版本号），默认false
-         * @param [preventRegisterSearchPlugin=false] 是否阻止默认添加搜索组件，默认false
-         */
-        showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
+showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
           this.$data.$panel = null;
           this.$data.panelContent = [];
           let checkHasBottomVersionContentConfig = content.findIndex((it) => {
@@ -1584,11 +1090,7 @@
             this.registerConfigSearch({ $panel, content });
           }
         },
-        /**
-         * 注册设置面板的搜索功能（双击左侧选项第一个）
-         * @param config 配置项
-         */
-        registerConfigSearch(config) {
+registerConfigSearch(config) {
           const { $panel, content } = config;
           let asyncQueryProperty = async (target, handler) => {
             if (target == null) {
@@ -1612,10 +1114,8 @@
               },
               {
                 root: null,
-                // 使用视口作为根
-                threshold: 1
-                // 元素完全进入视口时触发
-              }
+threshold: 1
+}
             );
             observer.observe($el);
             $el.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1636,8 +1136,7 @@
               },
               content: {
                 text: (
-                  /*html*/
-                  `
+`
 						<div class="search-wrapper">
 							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
 						</div>
@@ -1658,8 +1157,7 @@
               height: "auto",
               drag: true,
               style: (
-                /*css*/
-                `
+`
 					${__pops.config.cssText.panelCSS}
 
 					.search-wrapper{
@@ -1724,8 +1222,7 @@
               let $item = domUtils.createElement("div", {
                 className: "search-result-item",
                 innerHTML: (
-                  /*html*/
-                  `
+`
 							<div class="search-result-item-path">${searchPath.matchedData?.path}</div>
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
 						`
@@ -1947,13 +1444,14 @@
               timer = void 0;
               if (isDoubleClick && clickElement === selectorTarget) {
                 isDoubleClick = false;
+                clickElement = null;
                 dbclick_event(evt);
               } else {
                 timer = setTimeout(() => {
                   isDoubleClick = false;
                 }, 200);
-                clickElement = selectorTarget;
                 isDoubleClick = true;
+                clickElement = selectorTarget;
               }
             },
             {
@@ -1964,8 +1462,7 @@
             domUtils.createElement("style", {
               type: "text/css",
               textContent: (
-                /*css*/
-                `
+`
 					.pops-flashing{
 						animation: double-blink 1.5s ease-in-out;
 					}
@@ -1991,10 +1488,7 @@
             })
           );
         },
-        /**
-         * 把key:string[]转为string
-         */
-        transformKey(key) {
+transformKey(key) {
           if (Array.isArray(key)) {
             const keyArray = key.sort();
             return JSON.stringify(keyArray);
@@ -2014,18 +1508,15 @@
         }
       };
       const PanelSettingConfig = {
-        /** Toast位置 */
-        qmsg_config_position: {
+qmsg_config_position: {
           key: "qmsg-config-position",
           defaultValue: "bottom"
         },
-        /** 最多显示的数量 */
-        qmsg_config_maxnums: {
+qmsg_config_maxnums: {
           key: "qmsg-config-maxnums",
           defaultValue: 3
         },
-        /** 逆序弹出 */
-        qmsg_config_showreverse: {
+qmsg_config_showreverse: {
           key: "qmsg-config-showreverse",
           defaultValue: false
         }
@@ -2103,10 +1594,8 @@
           return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
         },
         mask: {
-          // 开启遮罩层
-          enable: true,
-          // 取消点击遮罩层的事件
-          clickEvent: {
+enable: true,
+clickEvent: {
             toClose: false,
             toHide: false
           }
@@ -2183,12 +1672,7 @@
         loadingViewElement;
         loadingViewHTML;
         loadingViewIconHTML;
-        /**
-         *
-         * @param withIcon 是否添加icon
-         * @param isEnd icon是否添加在后面
-         */
-        constructor(withIcon, isEnd) {
+constructor(withIcon, isEnd) {
           this.config = {
             className: "whitesev-load-view",
             textClassName: "whitesev-load-view-text",
@@ -2197,13 +1681,13 @@
             withInClassName: "whitesev-load-view-icon-within"
           };
           this.loadingViewElement = void 0;
-          this.loadingViewHTML = /*html*/
-          `
+          this.loadingViewHTML =
+`
         <div class="${this.config.className}">
           <span class="${this.config.textClassName}">Loading...</span>
         </div>`.trim();
-          this.loadingViewIconHTML = /*html*/
-          `
+          this.loadingViewIconHTML =
+`
         <div class="${this.config.iconClassName}">
           <div class="${this.config.outSideClassName}"></div>
           <div class="${this.config.withInClassName}"></div>
@@ -2211,16 +1695,12 @@
           this.initCSS();
           this.initLoadingView(withIcon, isEnd);
         }
-        /**
-         * 加载需要的CSS
-         */
-        initCSS() {
+initCSS() {
           if (this.isExistsCSS()) {
             return;
           }
           let loadingViewCSSText = (
-            /*css*/
-            `
+`
       .${this.config.className}{
         margin: 0.08rem;
         background: #fff;
@@ -2303,12 +1783,7 @@
           );
           utils.addStyle(loadingViewCSSText);
         }
-        /**
-         * 初始化loadingView元素
-         * @param withIcon 是否添加icon
-         * @param isEnd icon是否添加在后面
-         */
-        initLoadingView(withIcon = false, isEnd = true) {
+initLoadingView(withIcon = false, isEnd = true) {
           this.setLoadingViewElement();
           let divElement = document.createElement("div");
           divElement.innerHTML = this.loadingViewHTML;
@@ -2328,63 +1803,35 @@
           this.setLoadingViewElement(resultElement);
           return resultElement;
         }
-        /**
-         * 设置LoadingView
-         * @param element
-         */
-        setLoadingViewElement(element) {
+setLoadingViewElement(element) {
           this.loadingViewElement = element;
         }
-        /**
-         * 获取LoadingView
-         */
-        getLoadingViewElement() {
+getLoadingViewElement() {
           if (!this.loadingViewElement) {
             throw new Error("object loadingViewElement is null");
           }
           return this.loadingViewElement;
         }
-        /**
-         * 获取实例化的loadingView的icon
-         */
-        getIconElement() {
+getIconElement() {
           return this.getLoadingViewElement().querySelector(
             "." + this.config.iconClassName
           );
         }
-        /**
-         * 显示LoadingView
-         */
-        show() {
+show() {
           this.getLoadingViewElement().style.display = "";
         }
-        /**
-         * 隐藏LoadingView
-         */
-        hide() {
+hide() {
           this.getLoadingViewElement().style.display = "none";
         }
-        /**
-         * 显示icon
-         */
-        showIcon() {
+showIcon() {
           let iconElement = this.getIconElement();
           iconElement && (iconElement.style.display = "");
         }
-        /**
-         * 隐藏icon
-         */
-        hideIcon() {
+hideIcon() {
           let iconElement = this.getIconElement();
           iconElement && (iconElement.style.display = "none");
         }
-        /**
-         * 设置文本
-         * @param text 文本
-         * @param withIcon 是否设置Icon图标
-         * @param isEnd icon是否添加在后面
-         */
-        setText(text, withIcon = false, isEnd = true) {
+setText(text, withIcon = false, isEnd = true) {
           this.getLoadingViewElement().innerHTML = `<span>${text}</span>`;
           if (withIcon) {
             let iconElement = this.getIconElement();
@@ -2406,52 +1853,30 @@
             this.getIconElement()?.remove();
           }
         }
-        /**
-         * 设置超文本
-         * @param text 文本
-         */
-        setHTML(text) {
+setHTML(text) {
           this.getLoadingViewElement().innerHTML = text;
         }
-        /**
-         * 删除Loading元素
-         */
-        destory() {
+destory() {
           this.getLoadingViewElement()?.remove();
           this.setLoadingViewElement();
         }
-        /**
-         * 删除页面中所有的loadingView
-         */
-        removeAll() {
+removeAll() {
           document.querySelectorAll("." + this.config.className).forEach((item) => item.remove());
         }
-        /**
-         * 判断Loading是否已加载到页面中
-         */
-        isExists() {
+isExists() {
           return Boolean(document.querySelector(`.${this.config.className}`));
         }
-        /**
-         * 判断Loading是否存在Loading图标
-         */
-        isExistsIcon() {
+isExistsIcon() {
           return Boolean(this.getIconElement());
         }
-        /**
-         * 判断Loading中的文本是否存在
-         */
-        isExistsText() {
+isExistsText() {
           return Boolean(
             this.getLoadingViewElement().querySelector(
               `.${this.config.textClassName}`
             )
           );
         }
-        /**
-         * 判断页面中是否存在CSS的style
-         */
-        isExistsCSS() {
+isExistsCSS() {
           return Boolean(
             document.querySelector(
               "style[data-from='loadingView'][type='text/css'][data-author='whitesev']"
@@ -2665,26 +2090,18 @@ div[class^="new-summary-container_"] {\r
             return this.shieldServiceButtonsRow();
           });
         },
-        /**
-         * 【屏蔽】底部其它信息
-         */
-        shieldOtherInfo() {
+shieldOtherInfo() {
           log.info("【屏蔽】底部其它信息");
           return CommonUtil.addBlockCSS(
             'article[class] > div[class^="index_container"]',
-            // 2024.7.31 https://m.baidu.com/bh/m/detail/ar_5737243699133678027
-            '#main > div[class^="index_container"]'
+'#main > div[class^="index_container"]'
           );
         },
-        /**
-         * 【屏蔽】底部工具栏
-         */
-        shieldServiceButtonsRow() {
+shieldServiceButtonsRow() {
           log.info("【屏蔽】底部工具栏");
           return CommonUtil.addBlockCSS(
             'article[class] > div[class^="index_healthServiceButtonsRow"]',
-            // 2024.7.31 https://m.baidu.com/bh/m/detail/ar_5737243699133678027
-            '#main > div[class^="index_interactWrap"]'
+'#main > div[class^="index_interactWrap"]'
           );
         }
       };
@@ -2706,11 +2123,7 @@ div[class^="new-summary-container_"] {\r
           setTimeout: [],
           windowDefine: []
         },
-        /**
-         * 统一管理apply的劫持，防止套娃
-         * @param mode 劫持的类型
-         */
-        functionApply(mode) {
+functionApply(mode) {
           this.$data.functionApply.push(mode);
           if (this.$data.functionApply.length > 1) {
             log.info("Function.property.apply hook新增劫持参数：" + mode);
@@ -2747,13 +2160,7 @@ div[class^="new-summary-container_"] {\r
             return OriginPrototype.Function.apply.call(this, ...args);
           };
         },
-        /**
-         * 统一管理call的劫持，防止套娃
-         * + 百家号(baijiahao.baidu.com)
-         * + 百度地图(map.baidu.com)
-         * @param mode 劫持的类型
-         */
-        functionCall(mode) {
+functionCall(mode) {
           this.$data.functionCall.push(mode);
           if (this.$data.functionCall.length > 1) {
             log.info("Function.property.call hook新增劫持参数：" + mode);
@@ -2806,10 +2213,7 @@ div[class^="new-summary-container_"] {\r
             return result;
           };
         },
-        /**
-         * 劫持全局define
-         */
-        windowDefine(path, requirePathList, callback) {
+windowDefine(path, requirePathList, callback) {
           this.$data.windowDefine.push({
             path,
             requirePathList,
@@ -2848,14 +2252,7 @@ div[class^="new-summary-container_"] {\r
             }
           });
         },
-        /**
-         * 劫持百度搜索某些项的点击事件
-         * + 百度搜索
-         *
-         * Object.defineProperty
-         * @param menuKeyName
-         */
-        objectDefineProperty_search(menuKeyName) {
+objectDefineProperty_search(menuKeyName) {
           if (this.$isHook.objectDefineProperty_search) {
             return;
           }
@@ -2894,14 +2291,7 @@ div[class^="new-summary-container_"] {\r
             return OriginPrototype.Object.defineProperty.call(this, ...arguments);
           };
         },
-        /**
-         * 劫持添加元素，包括script标签、iframe标签，默认劫持iframe的非http链接
-         * + 百度贴吧(tieba.baidu.com)
-         * + 百度地图(map.baidu.com)
-         * Element.prototype.appendChild
-         * @param handleCallBack 处理的回调函数，如果劫持请返回true
-         */
-        elementAppendChild(handleCallBack = function(element) {
+elementAppendChild(handleCallBack = function(element) {
           if (element instanceof HTMLIFrameElement) {
             if (typeof element?.src === "string" && !element.src.startsWith("http")) {
               log.success(["劫持iframe唤醒：" + element.src, element]);
@@ -2924,13 +2314,7 @@ div[class^="new-summary-container_"] {\r
             return OriginPrototype.Element.appendChild.call(this, ...arguments);
           };
         },
-        /**
-         * 劫持jQuery的append的iframe
-         * + 百度地图(map.baidu.com)
-         *
-         * $().append();
-         */
-        windowJQueryAppend() {
+windowJQueryAppend() {
           if (this.$isHook.windowJQueryAppend) {
             return;
           }
@@ -2947,13 +2331,7 @@ div[class^="new-summary-container_"] {\r
             return originAppend.apply(this, arguments);
           };
         },
-        /**
-         * 劫持OpenBox
-         * + 百度搜索
-         *
-         * window.OpenBox
-         */
-        windowOpenBox() {
+windowOpenBox() {
           if (this.$isHook.windowOpenBox) {
             return;
           }
@@ -3004,15 +2382,7 @@ div[class^="new-summary-container_"] {\r
             }
           });
         },
-        /**
-         * 劫持全局setTimeout
-         * + 百度地图
-         * + 百度搜索
-         *
-         * window.setTimeout
-         * @param matchStr 需要进行匹配的函数字符串
-         */
-        setTimeout(matchStr) {
+setTimeout(matchStr) {
           this.$data.setTimeout.push(matchStr);
           if (this.$data.setTimeout.length > 1) {
             log.info("window.setTimeout hook新增劫持判断参数：" + matchStr);
@@ -3030,13 +2400,7 @@ div[class^="new-summary-container_"] {\r
             return OriginPrototype.setTimeout.apply(this, args);
           };
         },
-        /**
-         * 劫持webpack
-         * @param webpackName 当前全局变量的webpack名
-         * @param mainCoreData 需要劫持的webpack的顶部core，例如：(window.webpackJsonp = window.webpackJsonp || []).push([["core:0"],{}])
-         * @param checkCallBack 如果mainCoreData匹配上，则调用此回调函数
-         */
-        windowWebPack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
+windowWebPack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
           let originObject = void 0;
           OriginPrototype.Object.defineProperty(_unsafeWindow, webpackName, {
             get() {
@@ -3063,17 +2427,7 @@ div[class^="new-summary-container_"] {\r
             }
           });
         },
-        /**
-         * 劫持百度贴吧的window.webpackJsonp
-         * 当前 "core:67"
-         * + 百度贴吧(tieba.baidu.com)
-         *
-         * https://tb3.bdstatic.com/tb/wise/wise-main-core/static/js/collect~download~frs~gaokao~index~pb~userpost.e5a81d45.js
-         * tiebaNewWakeup.js v3.0.3
-         * (c) 2018-2023 liugui01
-         * Released under the BaiDuTieBa License.
-         */
-        windowWebpackJsonp_tieba() {
+windowWebpackJsonp_tieba() {
           if (this.$isHook.windowWebpackJsonp_tieba) {
             return;
           }
@@ -3108,12 +2462,7 @@ div[class^="new-summary-container_"] {\r
             }
           );
         },
-        /**
-         * 劫持百度好看视频的window.webpackJsonp
-         * + 百度好看视频(haokan.baidu.com)
-         *
-         */
-        windowWebpackJsonp_haokan() {
+windowWebpackJsonp_haokan() {
           if (this.$isHook.windowWebpackJsonp_haokan) {
             return;
           }
@@ -3141,13 +2490,7 @@ div[class^="new-summary-container_"] {\r
             }
           );
         },
-        /**
-         * 劫持window下的BoxJSBefore对象调用，它的所有的属性都是函数
-         * + 百家号(mbd.baidu.com)
-         *
-         * window.BoxJSBefore
-         */
-        windowBoxJSBefore() {
+windowBoxJSBefore() {
           if (this.$isHook.windowBoxJSBefore) {
             return;
           }
@@ -3165,13 +2508,7 @@ div[class^="new-summary-container_"] {\r
             }
           });
         },
-        /**
-         * 劫持window下的openContentBox对象调用，它的所有的属性都是函数
-         * + 百家号(baijiahao.baidu.com)
-         *
-         * window.openContentBox
-         */
-        window_openContentBox() {
+window_openContentBox() {
           if (this.$isHook.window_openContentBox) {
             return;
           }
@@ -3214,17 +2551,10 @@ div[class^="new-summary-container_"] {\r
         }
       };
       const SearchHandleResultEveryOneSearch = {
-        /**
-         * 是否重构大家都在搜
-         */
-        get refactorEveryoneIsStillSearching() {
+get refactorEveryoneIsStillSearching() {
           return Panel.getValue("baidu_search_refactor_everyone_is_still_searching", false);
         },
-        /**
-         * 处理中间的
-         * @param centerElement
-         */
-        handleCenter(centerElement) {
+handleCenter(centerElement) {
           log.success("大家还在搜: 处理中间的");
           centerElement.forEach(($recommend) => {
             if ($recommend.hasAttribute("gm-refactor-everyone-search-center")) {
@@ -3243,8 +2573,8 @@ div[class^="new-summary-container_"] {\r
             }
             innerBottomSmallElementList.forEach((item) => {
               let searchText = domUtils.text(item).trim();
-              rwListContainerHTML += /*html*/
-              `
+              rwListContainerHTML +=
+`
                 <div class="rw-list-new rw-list-new2" style="padding: 0.06rem;width: 49%;">
                     <a href="javascript:;" onclick="return false;" target="_self" class="whitesev-gm-refactor-everyone-searching">
                     	<span>${searchText}</span>
@@ -3253,8 +2583,7 @@ div[class^="new-summary-container_"] {\r
             });
             domUtils.html(
               $recommend,
-              /*html*/
-              `
+`
                 <div m-service="relative" data-tpl="san" id="relativewords" class="se-relativewords c-container se-relativewords-new c-bg-color-white">
 					<div class="rw-little-title">
 						<div class="c-row">
@@ -3276,11 +2605,7 @@ div[class^="new-summary-container_"] {\r
             });
           });
         },
-        /**
-         * 处理底部的
-         * @param everyOnceList
-         */
-        handleBottom(everyOnceList) {
+handleBottom(everyOnceList) {
           log.success("大家还在搜: 处理底部的");
           everyOnceList.forEach(($everyOne) => {
             if ($everyOne.hasAttribute("gm-refactor-everyone-search-bottom")) {
@@ -3293,8 +2618,7 @@ div[class^="new-summary-container_"] {\r
               let searchText = domUtils.text($searchItem).trim();
               domUtils.html(
                 $searchItem,
-                /*html*/
-                `
+`
 					<a href="javascript:;" onclick="return false;" target="_self" class="whitesev-gm-refactor-everyone-searching">
 						<span>${searchText}</span>
 					</a>`
@@ -3356,10 +2680,7 @@ match-attr##srcid##sp_purc_atom
 // 动态(微博、百度动态...等)
 // match-attr##srcid##rel_ugc_san
 `,
-        /**
-         * 搜索规则
-         */
-        rule: [],
+rule: [],
         init() {
           let localRule = this.getLocalRule();
           if (Panel.getValue("baidu-search-blockNoteLead")) {
@@ -3370,25 +2691,18 @@ match-attr##srcid##sp_purc_atom
           }
           this.rule = this.parseRule(localRule);
         },
-        /** 获取本地存储的自定义拦截规则 */
-        getLocalRule() {
+getLocalRule() {
           let localRule = Panel.getValue("baidu-search-interception-rules", "");
           localRule = localRule.trim();
           return localRule;
         },
-        /** 设置本地存储的自定义拦截规则 */
-        setLocalRule(rule) {
+setLocalRule(rule) {
           Panel.setValue("baidu-search-interception-rules", rule);
         },
-        /** 清空规则 */
-        clearLocalRule() {
+clearLocalRule() {
           Panel.deleteValue("baidu-search-interception-rules");
         },
-        /**
-         * 把规则进行转换
-         * @param localRule
-         */
-        parseRule(localRule) {
+parseRule(localRule) {
           let result = [];
           function parseOneRule(ruleItem) {
             let cRuleItemSplit = ruleItem.split("##");
@@ -3460,12 +2774,7 @@ match-attr##srcid##sp_purc_atom
           });
           return result;
         },
-        /**
-         * 执行自定义规则，拦截返回true
-         * @param element
-         * @param url 真实链接
-         */
-        handleCustomRule(element, url) {
+handleCustomRule(element, url) {
           function handleOneRule(ruleItem) {
             if (ruleItem.mode === "match-href") {
               if (typeof url === "string" && url.match(ruleItem.matchText)) {
@@ -3500,14 +2809,7 @@ match-attr##srcid##sp_purc_atom
       };
       const BaiduHandleResultItem = {
         originURLMap: null,
-        /**
-         * 判断链接是否是百度的中转链接
-         * @param url
-         * @returns
-         * + true 是百度的中转链接
-         * + false 不是百度的中转链接
-         */
-        isBaiDuTransferStation(url) {
+isBaiDuTransferStation(url) {
           try {
             url = decodeURIComponent(url);
             return utils.startsWith(url, "http(s|)://(m[0-9]{0,2}|www).baidu.com/from");
@@ -3516,18 +2818,10 @@ match-attr##srcid##sp_purc_atom
             return false;
           }
         },
-        /**
-         * 判断链接是否是黑名单链接，不进行处理
-         * @param url
-         * @returns
-         * + true 是黑名单url
-         * + false 不是黑名单url
-         */
-        isBlackList(url) {
+isBlackList(url) {
           let blackList = [
             /^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/productcard/,
-            // 貌似是贴吧类
-            /^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/pages\/pb\/pb/,
+/^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/pages\/pb\/pb/,
             /^http(s|):\/\/ks.baidu.com/,
             /^http(s|):\/\/mbd.baidu.com\/ma\/tips/,
             /.recommend_list.baidu.com$/
@@ -3539,12 +2833,7 @@ match-attr##srcid##sp_purc_atom
           }
           return false;
         },
-        /**
-         * 为搜索结果每一条设置原始链接
-         * @param $result 每条结果元素
-         * @param articleURL article的真实url
-         */
-        setArticleOriginUrl($result, articleURL) {
+setArticleOriginUrl($result, articleURL) {
           $result.querySelectorAll("a").forEach(async (item) => {
             if (BaiduHandleResultItem.originURLMap.has(item.href)) {
               articleURL = BaiduHandleResultItem.originURLMap.get(item.href);
@@ -3583,11 +2872,7 @@ match-attr##srcid##sp_purc_atom
             }
           });
         },
-        /**
-         * 解析在JSON数据中的urlParams中真正的链接，如果不存在，返回undefined
-         * @param data 传入 {"urlParams":{...}} 中的urlParams
-         */
-        parseURLParamsOriginURL(data) {
+parseURLParamsOriginURL(data) {
           if (data["originUrl"]) {
             return data["originUrl"];
           } else if (data["log"]) {
@@ -3600,11 +2885,7 @@ match-attr##srcid##sp_purc_atom
             return url;
           }
         },
-        /**
-         * 由于部分真实链接存储在 script 标签中，得取出
-         * @param $target 目标元素
-         */
-        parseScriptDOMOriginUrlMap($target) {
+parseScriptDOMOriginUrlMap($target) {
           let urlMap = new utils.Dictionary();
           $target.querySelectorAll("script[id^='atom-data-']").forEach((item) => {
             let jsonData = utils.toJSON(item.innerHTML);
@@ -3651,11 +2932,7 @@ match-attr##srcid##sp_purc_atom
           });
           return urlMap;
         },
-        /**
-         * 判断链接是不是搜索结果的原始链接
-         * @param url
-         */
-        isNotRlLinkUrl(url) {
+isNotRlLinkUrl(url) {
           if (utils.isNull(url)) {
             return true;
           }
@@ -3670,11 +2947,7 @@ match-attr##srcid##sp_purc_atom
           }
           return false;
         },
-        /**
-         * 解析DOM节点上隐藏在属性中的真正url
-         * @param $target 目标元素
-         */
-        parseOriginUrlFromDataSet($target) {
+parseOriginUrlFromDataSet($target) {
           let url = null;
           let dataLogStr = $target.getAttribute("data-log");
           let $article = $target.querySelector("article");
@@ -3809,20 +3082,12 @@ match-attr##srcid##sp_purc_atom
           }
           return url;
         },
-        /**
-         * 获取每一项的标题元素
-         * @param targetNode 目标项
-         */
-        getItemTitleElement(targetNode) {
+getItemTitleElement(targetNode) {
           return targetNode.querySelector(".c-title-text") || targetNode.querySelector("p.cu-title") || targetNode.querySelector("div[class^=header-wrapper]") || targetNode.querySelector(".c-title");
         },
-        /**
-         * 添加CSDN的CSS
-         */
-        addCSDNFlagCSS() {
+addCSDNFlagCSS() {
           addStyle$1(
-            /*css*/
-            `
+`
         .csdn-flag-component-box{display:flex;margin:0;text-align:left;font-size:0;position:relative;width:260px;margin:5px 0}
         .csdn-flag-component-box a{display:inline-block;font-size:14px}
         .csdn-flag-component-box .praise {
@@ -3848,11 +3113,7 @@ match-attr##srcid##sp_purc_atom
         }`
           );
         },
-        /**
-         * 给元素添加【CSDN】下载标识
-         * @param $result
-         */
-        addCSDNFlag($result) {
+addCSDNFlag($result) {
           if ($result.querySelector(".csdn-flag-component-box")) {
             return;
           }
@@ -3860,16 +3121,12 @@ match-attr##srcid##sp_purc_atom
           if ($titleText) {
             domUtils.append(
               $titleText,
-              /*html*/
-              `<div class="csdn-flag-component-box"><a class="praise" href="javascript:;">CSDN下载</a></div>`
+`<div class="csdn-flag-component-box"><a class="praise" href="javascript:;">CSDN下载</a></div>`
             );
             log.success("插入CSDN下载提示标题");
           }
         },
-        /**
-         * 移除广告、推广
-         */
-        removeAds() {
+removeAds() {
           const TAG = "删除广告 ==> ";
           let isRemoveEveryOneSearch = Panel.getValue("baidu_search_blocking_everyone_is_still_searching");
           let $conterEveryOneSearch = [
@@ -3946,20 +3203,14 @@ match-attr##srcid##sp_purc_atom
             });
           });
         },
-        /**
-         * 重定向顶部的链接，如全部、视频、图片、贴吧、咨询...
-         */
-        redirectTopLink() {
+redirectTopLink() {
           $$(".se-head-tablink a").forEach((item) => {
             if (item.hasAttribute("data-sflink") && !utils.isNull(item.getAttribute("data-sflink")) && BaiduHandleResultItem.isBaiDuTransferStation(item.getAttribute("href")) && item.getAttribute("href") !== item.getAttribute("data-sflink")) {
               item.href = item.getAttribute("data-sflink");
             }
           });
         },
-        /**
-         * 删除script标签中的百度APP提示
-         */
-        replaceScriptBaiDuTip() {
+replaceScriptBaiDuTip() {
           $$("script").forEach((item) => {
             if (item.innerText.match(/define\(\"@molecule\/aftclk\/index\",/g)) {
               item.remove();
@@ -3967,10 +3218,7 @@ match-attr##srcid##sp_purc_atom
             }
           });
         },
-        /**
-         * 替换链接
-         */
-        async replaceLink() {
+async replaceLink() {
           let searchResultList = Array.from($$(".c-result.result"));
           for (const searchResultItem of searchResultList) {
             let resultItemOriginURL = BaiduHandleResultItem.parseOriginUrlFromDataSet(searchResultItem);
@@ -4015,35 +3263,17 @@ match-attr##srcid##sp_purc_atom
         }
       };
       const SearchNextPage = {
-        /**
-         * 初始页面的信息
-         */
-        initPageInfo: null,
-        /**
-         * 本页的信息，自动跟随请求下一页更新数据
-         */
-        pageInfo: null,
-        /**
-         * 本页的下一页的信息
-         */
-        nextPageInfo: null,
-        /**
-         * 观察器
-         */
-        intersectionObserver: null,
+initPageInfo: null,
+pageInfo: null,
+nextPageInfo: null,
+intersectionObserver: null,
         $el: {
-          /**
-           * 结果项的容器元素
-           */
-          get pageController() {
-            return $("#page-controller") || $("#page-bd") || // 问答页面的
-            // https://m.baidu.com/sf/vsearch?pd=wenda_tab&tn=vsearch&pn=10&from=0&word=%E9%B2%8D%E9%B1%BC&sa=vs_np&ms=1&rqid=
-            $("b-superframe-body");
+get pageController() {
+            return $("#page-controller") || $("#page-bd") ||
+
+$("b-superframe-body");
           },
-          /**
-           * 结果项元素，用来把结果元素一个个的添加到该元素内
-           */
-          get results() {
+get results() {
             return $("#results") || $("b-superframe-body .sfa-results");
           }
         },
@@ -4057,8 +3287,7 @@ match-attr##srcid##sp_purc_atom
           }
           this.initPageLineCSS();
           CommonUtil.addBlockCSS(
-            /* 隐藏分页控制器 */
-            "#page-controller"
+"#page-controller"
           );
           loadingView.initLoadingView(true);
           let $loadingViewPrev = this.$el.pageController;
@@ -4070,10 +3299,7 @@ match-attr##srcid##sp_purc_atom
           }
           this.setNextPageLoadingObserver();
         },
-        /**
-         * 设置滚动事件
-         */
-        setNextPageLoadingObserver() {
+setNextPageLoadingObserver() {
           let isLoadingNextPage = false;
           if (typeof IntersectionObserver === "undefined") {
             log.success("监听滚动: scroll");
@@ -4116,10 +3342,7 @@ match-attr##srcid##sp_purc_atom
             );
           }
         },
-        /**
-         * 移除滚动事件
-         */
-        removeNextPageLoadingObserver() {
+removeNextPageLoadingObserver() {
           if (typeof IntersectionObserver === "undefined") {
             domUtils.off(
               document,
@@ -4142,13 +3365,7 @@ match-attr##srcid##sp_purc_atom
             log.info("取消监听滚动: IntersectionObserver", "#f400ff");
           }
         },
-        /**
-         * 把参数pn转换为页码
-         * pn: 10
-         * pageNum: 2
-         * @param pn 10的倍数
-         */
-        parseParamPnToPageNum(pn) {
+parseParamPnToPageNum(pn) {
           pn = parseInt(pn);
           if (isNaN(pn)) {
             throw new TypeError("pn参数解析失败");
@@ -4156,13 +3373,7 @@ match-attr##srcid##sp_purc_atom
           let pageNum = pn / 10 + 1;
           return pageNum;
         },
-        /**
-         * 把页码转为参数pn
-         * pageNum: 2
-         * pn: 10
-         * @param pageNum
-         */
-        parsePageNumToParamPn(pageNum) {
+parsePageNumToParamPn(pageNum) {
           pageNum = parseInt(pageNum.toString());
           if (isNaN(pageNum)) {
             throw new TypeError("页码解析失败");
@@ -4170,10 +3381,7 @@ match-attr##srcid##sp_purc_atom
           let pn = (pageNum - 1) * 10;
           return pn;
         },
-        /**
-         * 解析分页控制器的元素的下一页信息
-         */
-        parseNextPageInfoWithPageController($doc) {
+parseNextPageInfoWithPageController($doc) {
           let $nextPage = $doc.querySelector(".new-nextpage");
           let $nextPageOnly = $doc.querySelector(".new-nextpage-only");
           let nextPageUrl = $nextPage?.getAttribute("href") || $nextPage?.getAttribute("data-sflink") || $nextPageOnly?.getAttribute("href") || $nextPageOnly?.getAttribute("data-sflink");
@@ -4196,13 +3404,7 @@ match-attr##srcid##sp_purc_atom
           }
           return;
         },
-        /**
-         * 修复下一页的url
-         * 有时候获取到的下一页的url的hostname和当前页面的hostname不同
-         * 因为使用的fetch，不能跨域
-         * 所以需要把下一页的url的hostname替换成当前页面的hostname
-         */
-        fixNextPageUrl(url) {
+fixNextPageUrl(url) {
           let urlObj = new URL(url);
           let newUrl = url;
           if (urlObj.hostname !== window.location.hostname) {
@@ -4212,10 +3414,7 @@ match-attr##srcid##sp_purc_atom
           }
           return newUrl;
         },
-        /**
-         * 初始化获取本页的页码信息
-         */
-        getInitPageInfo() {
+getInitPageInfo() {
           let initPageInfo = this.parseNextPageInfoWithPageController(document);
           if (initPageInfo) {
             if (initPageInfo.pageNum === 1) {
@@ -4263,19 +3462,11 @@ match-attr##srcid##sp_purc_atom
             };
           }
         },
-        /**
-         * 添加第xx页的分割线
-         * @param num 分页
-         */
-        appendLineDriver(num) {
+appendLineDriver(num) {
           let currentResultsDOM = SearchNextPage.$el.results;
           currentResultsDOM.appendChild(SearchNextPage.getPageLineElement(num));
         },
-        /**
-         * 滚动事件
-         * @async
-         */
-        async scrollEvent() {
+async scrollEvent() {
           if (this.initPageInfo == null) {
             let pageInfo = this.getInitPageInfo();
             if (!pageInfo) {
@@ -4408,14 +3599,10 @@ match-attr##srcid##sp_purc_atom
             log.error(respData);
           }
         },
-        /**
-         * 初始化页码的CSS
-         */
-        initPageLineCSS() {
+initPageLineCSS() {
           log.info("初始化页码的CSS");
           addStyle$1(
-            /*css*/
-            `
+`
         .whitesev-page-info{-webkit-tap-highlight-color:transparent}
         .whitesev-page-info .whitesev-new-pagenav{display:block;width:auto;color:#333;z-index:1;font-weight:700;text-decoration:none;position:relative;height:52px;line-height:52px}
         .whitesev-page-info .whitesev-new-pagenav{margin:.08rem;background:#fff;word-wrap:break-word;border:0;border-radius:.06rem;text-align:center;text-align:-webkit-center}
@@ -4424,16 +3611,11 @@ match-attr##srcid##sp_purc_atom
         `
           );
         },
-        /**
-         * 获取自定义页码元素
-         * @param pageText 页码
-         */
-        getPageLineElement(pageText) {
+getPageLineElement(pageText) {
           return domUtils.createElement("div", {
             className: "whitesev-page-info result-op",
             innerHTML: (
-              /*html*/
-              `
+`
             <div class="whitesev-new-pagenav">
                 <p>${pageText}</p>
             </div>`
@@ -4442,13 +3624,9 @@ match-attr##srcid##sp_purc_atom
         }
       };
       const SearchNextPage_SearchCraft = {
-        /**
-         * 观察器
-         */
-        intersectionObserver: null,
+intersectionObserver: null,
         $data: {
-          /** 更多结果的CSS选择器 */
-          moreResultSelector: ".infinite-load-wrap .se-infiniteload-text"
+moreResultSelector: ".infinite-load-wrap .se-infiniteload-text"
         },
         init() {
           let isSearchCraft = navigator.userAgent.includes("SearchCraft");
@@ -4459,18 +3637,12 @@ match-attr##srcid##sp_purc_atom
             this.setNextPageInterSectionObserver();
           }
         },
-        /**
-         * 获取【更多结果】按钮
-         */
-        getMoreResultBtn() {
+getMoreResultBtn() {
           return document.querySelector(
             this.$data.moreResultSelector
           );
         },
-        /**
-         * 设置滚动事件
-         */
-        setNextPageInterSectionObserver() {
+setNextPageInterSectionObserver() {
           let isLoadingNextPage = false;
           if (typeof IntersectionObserver === "undefined") {
             log.success("SearchCraft监听滚动: scroll");
@@ -4517,10 +3689,7 @@ match-attr##srcid##sp_purc_atom
             });
           }
         },
-        /**
-         * 移除滚动事件
-         */
-        removeNextPageInterSectionObserver() {
+removeNextPageInterSectionObserver() {
           if (typeof IntersectionObserver === "undefined") {
             domUtils.off(
               document,
@@ -4541,11 +3710,7 @@ match-attr##srcid##sp_purc_atom
             log.info("SearchCraft取消监听滚动: IntersectionObserver", "#f400ff");
           }
         },
-        /**
-         * 滚动事件
-         * @param $nextPage 下一页按钮
-         */
-        async scrollEvent() {
+async scrollEvent() {
           let $moreResult = this.getMoreResultBtn();
           let moreResultStr = $moreResult.innerText;
           if (moreResultStr.includes("更多结果")) {
@@ -4641,11 +3806,7 @@ match-attr##srcid##sp_purc_atom
             );
           });
         },
-        /**
-         * 设置搜索建议自定义click事件
-         * @param elementSelector
-         */
-        mutationObserverFunction(elementSelector) {
+mutationObserverFunction(elementSelector) {
           log.success("设置搜索建议自定义click事件");
           $$(elementSelector).forEach((item) => {
             domUtils.on(item, "click", function(event) {
@@ -4660,13 +3821,7 @@ match-attr##srcid##sp_purc_atom
             });
           });
         },
-        /**
-         * 搜索按钮点击跳转
-         * @param event
-         * @param searchInputElement
-         * @returns
-         */
-        searchBtnJump(event, searchInputElement) {
+searchBtnJump(event, searchInputElement) {
           utils.preventEvent(event);
           window?.stop();
           let redirectURL = window.location.origin + "/s?word=" + searchInputElement.value;
@@ -4675,13 +3830,7 @@ match-attr##srcid##sp_purc_atom
           window.location.href = redirectURL;
           return false;
         },
-        /**
-         * 判决回车搜索事件
-         * @param event
-         * @param searchInputElement
-         * @returns
-         */
-        enterKeyDownEvent(event, searchInputElement) {
+enterKeyDownEvent(event, searchInputElement) {
           if (event.keyCode === 108 || event.keyCode === 13) {
             window?.stop();
             utils.preventEvent(event);
@@ -4702,10 +3851,7 @@ match-attr##srcid##sp_purc_atom
             return this.blockBottomRecommendVideo();
           });
         },
-        /**
-         * 【屏蔽】底部推荐视频
-         */
-        blockBottomRecommendVideo() {
+blockBottomRecommendVideo() {
           log.info("【屏蔽】底部推荐视频");
           return CommonUtil.addBlockCSS(".short-mini-wrapper");
         }
@@ -4717,10 +3863,7 @@ match-attr##srcid##sp_purc_atom
             this.autoJumpToOriginUrl();
           });
         },
-        /**
-         * 自动跳转至原网页
-         */
-        autoJumpToOriginUrl() {
+autoJumpToOriginUrl() {
           utils.waitNode(".sfc-video-page-info-showurl", 1e4).then(($showUrl) => {
             if (!$showUrl) {
               Qmsg.error("未找到.sfc-video-page-info-showurl元素");
@@ -4736,32 +3879,19 @@ match-attr##srcid##sp_purc_atom
         }
       };
       const VueUtils = {
-        /**
-         * 获取vue2实例
-         * @param $el
-         */
-        getVue($el) {
+getVue($el) {
           if ($el == null) {
             return;
           }
           return $el["__vue__"] || $el["__Ivue__"] || $el["__IVue__"];
         },
-        /**
-         * 获取vue3实例
-         * @param $el
-         */
-        getVue3($el) {
+getVue3($el) {
           if ($el == null) {
             return;
           }
           return $el["__vueParentComponent"];
         },
-        /**
-         * 等待vue属性并进行设置
-         * @param $el 目标对象
-         * @param checkOption 需要设置的配置
-         */
-        waitVuePropToSet($el, checkOption) {
+waitVuePropToSet($el, checkOption) {
           if (!Array.isArray(checkOption)) {
             checkOption = [checkOption];
           }
@@ -4828,15 +3958,7 @@ match-attr##srcid##sp_purc_atom
             });
           });
         },
-        /**
-         * 观察vue属性的变化
-         * @param $el 目标对象
-         * @param key 需要观察的属性
-         * @param callback 监听回调
-         * @param watchConfig 监听配置
-         * @param failWait 当检测失败/超时触发该回调
-         */
-        watchVuePropChange($el, key, callback, watchConfig, failWait) {
+watchVuePropChange($el, key, callback, watchConfig, failWait) {
           let config = utils.assign(
             {
               immediate: true,
@@ -4876,13 +3998,7 @@ match-attr##srcid##sp_purc_atom
             });
           });
         },
-        /**
-         * 前往网址
-         * @param $el 包含vue属性的元素
-         * @param path 需要跳转的路径
-         * @param [useRouter=false] 是否强制使用Vue的Router来进行跳转，默认false
-         */
-        goToUrl($el, path, useRouter = false) {
+goToUrl($el, path, useRouter = false) {
           if ($el == null) {
             Qmsg.error("跳转Url: $vueNode为空");
             log.error("跳转Url: $vueNode为空：" + path);
@@ -4919,11 +4035,7 @@ match-attr##srcid##sp_purc_atom
             $router.push(path);
           }
         },
-        /**
-         * 手势返回
-         * @param option 配置
-         */
-        hookGestureReturnByVueRouter(option) {
+hookGestureReturnByVueRouter(option) {
           function popstateEvent() {
             log.success("触发popstate事件");
             resumeBack(true);
@@ -4965,11 +4077,7 @@ match-attr##srcid##sp_purc_atom
             }
           });
         },
-        /**
-         * .sf-image-content-page
-         * __vue__.isBaiduBox
-         */
-        isBaiduBox() {
+isBaiduBox() {
           VueUtils.waitVuePropToSet(".sf-image-content-page", [
             {
               msg: "等待设置属性 __vue__.isBaiduBox",
@@ -4992,10 +4100,7 @@ match-attr##srcid##sp_purc_atom
             this.replaceVSearchLink();
           });
         },
-        /**
-         * 替换链接-vsearch
-         */
-        replaceVSearchLink() {
+replaceVSearchLink() {
           function replaceLink() {
             document.querySelectorAll(
               "#realtime-container  div:not([class])"
@@ -5029,10 +4134,7 @@ match-attr##srcid##sp_purc_atom
             });
           });
         },
-        /**
-         * 监听路由变化
-         */
-        listenRouterChange() {
+listenRouterChange() {
           log.info("监听路由变化");
           const popstateEvent = (event) => {
             console.log(event);
@@ -5042,10 +4144,7 @@ match-attr##srcid##sp_purc_atom
       };
       const searchToolBarCSS = ".search-toolbar-container {\r\n	--back-icon-size: 14px;\r\n	--back-icon-padding-top-bottom: 12px;\r\n	--back-icon-padding-left-right: 14px;\r\n	--empty-icon-size: 14px;\r\n	--container-padding: 10px;\r\n	--input-height: 36px;\r\n	--input-border-height: 2px;\r\n	--suggestion-text-color: #6d6d6d;\r\n	--suggestion-left-icon-size: 26px;\r\n	--suggestion-left-icon-color: #6d6d6d;\r\n	--suggestion-right-icon-size: 22px;\r\n}\r\n.search-toolbar-container {\r\n	position: fixed;\r\n	top: 0;\r\n	right: 0;\r\n	bottom: 0;\r\n	left: 0;\r\n	z-index: 10000;\r\n	width: 100vw;\r\n	opacity: 1;\r\n	visibility: visible;\r\n	transition: all 0.2s;\r\n}\r\n.search-toolbar-inner {\r\n	display: flex;\r\n	flex-direction: column;\r\n	height: 100%;\r\n}\r\n\r\n.search-toolbar {\r\n	display: flex;\r\n	align-items: center;\r\n	padding: var(--container-padding) 0px;\r\n	background: #fff;\r\n	position: sticky;\r\n	bottom: 0;\r\n}\r\n\r\n.search-icon {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n}\r\n.search-icon svg {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n.search-toolbar-back {\r\n	width: var(--back-icon-size);\r\n	height: var(--back-icon-size);\r\n	padding: var(--back-icon-padding-top-bottom)\r\n		var(--back-icon-padding-left-right);\r\n}\r\n.search-form {\r\n	width: 100%;\r\n	border: var(--input-border-height) solid #222;\r\n	height: var(--input-height);\r\n	border-radius: 10px;\r\n	display: flex;\r\n	align-items: center;\r\n	margin-right: 10px;\r\n	position: relative;\r\n}\r\n.search-toolbar-input {\r\n	flex: 1;\r\n	margin: 12px;\r\n	border: 0;\r\n	background: transparent;\r\n}\r\n.search-toolbar-input::-webkit-search-cancel-button {\r\n	-webkit-appearance: none;\r\n}\r\n.search-toolbar-input::-moz-search-clear-button {\r\n	display: none;\r\n}\r\n.search-toolbar-input:focus,\r\n.search-toolbar-input:focus-visible,\r\n.search-toolbar-input:focus-within {\r\n	outline: none;\r\n}\r\n.search-toolbar-input-inner {\r\n	display: flex;\r\n	align-items: center;\r\n	gap: 12px;\r\n	margin-right: 16px;\r\n}\r\n.search-toolbar-empty {\r\n	width: var(--empty-icon-size);\r\n	height: var(--empty-icon-size);\r\n	padding: 2px;\r\n}\r\n.search-form-submit {\r\n	font-size: 14px;\r\n	background: transparent;\r\n	border: 0;\r\n	margin: 0;\r\n	padding: 0;\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n}\r\n.search-form-submit[disabled] {\r\n	color: #6d6d6d;\r\n}\r\n.search-suggestion {\r\n	background: #f2f2f2;\r\n	flex: 1;\r\n	display: flex;\r\n	flex-direction: column-reverse;\r\n	height: 100%;\r\n	height: -webkit-fill-available;\r\n	overflow-y: auto;\r\n}\r\n.search-suggestion-item {\r\n	display: flex;\r\n	align-items: center;\r\n	padding: 8px 16px;\r\n}\r\n.search-suggestion-item-left-icon {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	width: var(--suggestion-left-icon-size);\r\n	height: var(--suggestion-left-icon-size);\r\n}\r\n.search-suggestion-item-left-icon svg {\r\n	fill: var(--suggestion-left-icon-color);\r\n}\r\n.search-suggestion-item-text {\r\n	margin-left: 6px;\r\n	width: 100%;\r\n	text-align: left;\r\n	color: #000000;\r\n	white-space: nowrap;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n	line-height: normal;\r\n}\r\n.search-suggestion-item-text em {\r\n	color: var(--suggestion-text-color);\r\n	font-style: unset;\r\n}\r\n.search-suggestion-item-right-icon {\r\n	display: flex;\r\n	align-items: center;\r\n	width: var(--suggestion-right-icon-size);\r\n	height: var(--suggestion-right-icon-size);\r\n}\r\n";
       class GestureBack {
-        /**
-         * 是否正在后退
-         */
-        isBacking = false;
+isBacking = false;
         config;
         constructor(config) {
           this.config = config;
@@ -5059,21 +4158,14 @@ match-attr##srcid##sp_purc_atom
             this.config.win = self;
           }
         }
-        /**
-         * popstate事件函数
-         * @param event
-         */
-        popStateEvent(event) {
+popStateEvent(event) {
           Utils.preventEvent(event);
           if (this.isBacking) {
             return;
           }
           this.quitGestureBackMode(true);
         }
-        /**
-         * 进入手势模式
-         */
-        enterGestureBackMode() {
+enterGestureBackMode() {
           log.success("进入手势模式");
           let pushUrl = this.config.hash;
           if (!pushUrl.startsWith("#")) {
@@ -5091,11 +4183,7 @@ match-attr##srcid##sp_purc_atom
             capture: true
           });
         }
-        /**
-         * 退出手势模式
-         * @param isUrlChange 是否是url改变触发的
-         */
-        async quitGestureBackMode(isUrlChange = false) {
+async quitGestureBackMode(isUrlChange = false) {
           this.isBacking = true;
           log.success("退出手势模式");
           if (typeof this.config.beforeHistoryBackCallBack === "function") {
@@ -5127,24 +4215,16 @@ match-attr##srcid##sp_purc_atom
       }
       const BaiduSearchToolBar = {
         $el: {
-          /** 搜索框总容器 */
-          $container: null,
+$container: null,
           shadowRoot: null,
           $toolbarContainer: null,
-          /** 搜索框容器 */
-          $toolbar: null,
-          /** 提交表单 */
-          $form: null,
-          /** 输入框 */
-          $input: null,
-          /** 搜索建议 */
-          $suggestion: null,
-          /** 返回按钮 */
-          $back: null,
-          /** 清空图标 */
-          $empty: null,
-          /** 搜索按钮 */
-          $submit: null
+$toolbar: null,
+$form: null,
+$input: null,
+$suggestion: null,
+$back: null,
+$empty: null,
+$submit: null
         },
         $data: {
           gestureBack: new GestureBack({
@@ -5160,15 +4240,11 @@ match-attr##srcid##sp_purc_atom
             this.addToolBar();
           });
         },
-        /**
-         * 添加悬浮搜索按钮
-         */
-        addFloatButton() {
+addFloatButton() {
           let $btn = domUtils.createElement("div", {
             className: "gm-search-toolbar-float-btn",
             innerHTML: (
-              /*html*/
-              `
+`
             <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
                 <path fill="#EFF9FE" d="M478.12 64.88h67.76c103.54-5.49 241.95 13.46 317.81 94.93 81.48 75.86 100.42 214.27 94.94 317.81v67.76c5.48 103.54-13.45 241.95-94.94 317.81-75.86 81.49-214.27 100.42-317.81 94.94h-67.76c-103.54 5.48-241.95-13.45-317.81-94.94-81.48-75.86-100.42-214.27-94.93-317.81v-67.76c-5.48-103.54 13.45-241.95 94.94-317.81 75.85-81.48 214.26-100.42 317.8-94.93z" fill="#56B9F1" p-id="43986"></path><path d="M552.89 392.04c21.84 17.58 35.84 44.49 35.84 74.71 0 2.16-0.18 4.27-0.32 6.39H397.23c-0.14-2.12-0.32-4.24-0.32-6.39 0-30.96 14.73-58.41 37.49-75.95l-11.06-17.62c-1.77-2.81-0.72-6.41 2.34-8.03 3.06-1.62 6.97-0.66 8.73 2.15l10.37 16.52c14.14-8.21 30.51-12.98 48.03-12.98 18.15 0 35.06 5.13 49.53 13.89l8.88-15.38c1.77-3.06 5.68-4.11 8.73-2.34 3.06 1.77 4.11 5.68 2.34 8.73l-9.4 16.3z m-92.04 36.34c-7.06 0-12.79 5.73-12.79 12.79s5.73 12.79 12.79 12.79 12.79-5.73 12.79-12.79-5.73-12.79-12.79-12.79z m63.94 0c-7.06 0-12.79 5.73-12.79 12.79s5.73 12.79 12.79 12.79c7.06 0 12.79-5.73 12.79-12.79s-5.73-12.79-12.79-12.79z m-31.97 134.28c-46.4 0-85.1-32.95-93.99-76.73H586.8c-8.88 43.77-47.58 76.73-93.98 76.73z" fill="#EFF9FE" p-id="43987"></path><path d="M736.53 704.11c-15.9 15.91-41.68 15.91-57.58 0l-74.87-74.9c-79.04 52.39-186.58 43.76-256.22-25.91-79.5-79.54-79.5-208.5 0-288.03 79.5-79.54 208.4-79.54 287.9 0 69.64 69.67 78.26 177.25 25.9 256.33l74.87 74.9c15.9 15.91 15.9 41.7 0 57.61zM582.99 368.07c-50.35-50.37-131.98-50.37-182.33 0s-50.35 132.05 0 182.42c50.35 50.37 131.98 50.37 182.33 0 50.35-50.37 50.35-132.04 0-182.42z">
                 </path>
@@ -5192,8 +4268,7 @@ match-attr##srcid##sp_purc_atom
             );
           });
           addStyle$1(
-            /*css*/
-            `
+`
         .gm-search-toolbar-float-btn {
             --gm-search-toolbar-icon-size: 45px;
             position: fixed;
@@ -5209,10 +4284,7 @@ match-attr##srcid##sp_purc_atom
           document.body.appendChild($btn);
           return $btn;
         },
-        /**
-         * 添加搜索工具栏
-         */
-        addToolBar() {
+addToolBar() {
           let $toolbarInner = domUtils.createElement("div");
           $toolbarInner.className = "gm-search-toolbar";
           $toolbarInner.attachShadow({ mode: "open" });
@@ -5226,8 +4298,7 @@ match-attr##srcid##sp_purc_atom
           let $container = domUtils.createElement("div", {
             className: "search-toolbar-container",
             innerHTML: (
-              /*html*/
-              `
+`
             <div class="search-toolbar-inner">                
                 <div class="search-suggestion"></div>
                 <div class="search-toolbar">
@@ -5278,33 +4349,20 @@ match-attr##srcid##sp_purc_atom
           this.setBackEvent();
           this.setFormEvent();
         },
-        /**
-         * 显示搜索工具栏
-         */
-        showToolBar() {
+showToolBar() {
           this.$el.$toolbarContainer.style.opacity = "";
           this.$el.$toolbarContainer.style.visibility = "";
         },
-        /**
-         * 隐藏搜索工具栏
-         */
-        hideToolBar() {
+hideToolBar() {
           this.$el.$toolbarContainer.style.opacity = "0";
           this.$el.$toolbarContainer.style.visibility = "hidden";
         },
-        /**
-         * 获取当前页面搜索的关键字
-         */
-        getPageSearchText() {
+getPageSearchText() {
           let searchParams = new URLSearchParams(window.location.search);
           let searchText = searchParams.get("word") || searchParams.get("wd");
           return searchText;
         },
-        /**
-         * 获取搜索建议内容
-         * @param text 搜索内容
-         */
-        async getSuggestionText(text) {
+async getSuggestionText(text) {
           let searchParamData = {
             json: 1,
             prod: "wise",
@@ -5327,17 +4385,11 @@ match-attr##srcid##sp_purc_atom
           log.info(`百度搜索联想词：`, suggestionJSON);
           return suggestionJSON.g || [];
         },
-        /**
-         * 初始化当前页面默认的搜索关键字
-         */
-        initDefaultSearchText() {
+initDefaultSearchText() {
           let searchText = this.getPageSearchText();
           this.setInputText(searchText);
         },
-        /**
-         * 监听输入框内容改变
-         */
-        setInputEvent() {
+setInputEvent() {
           domUtils.on(this.$el.$input, ["input", "propertychange"], (event) => {
             if (this.$el.$input.value === "") {
               this.clearSuggestion();
@@ -5386,22 +4438,13 @@ match-attr##srcid##sp_purc_atom
             }, 50)
           );
         },
-        /**
-         * 设置搜索文本内容
-         * @param text 搜索关键字
-         * @param triggerEvent 是否触发事件
-         * @default true
-         */
-        setInputText(text, triggerEvent = true) {
+setInputText(text, triggerEvent = true) {
           this.$el.$input.value = text;
           if (triggerEvent) {
             utils.dispatchEvent(this.$el.$input, "input");
           }
         },
-        /**
-         * 设置返回按钮点击事件
-         */
-        setBackEvent() {
+setBackEvent() {
           domUtils.on(this.$el.$back, "click", (event) => {
             utils.preventEvent(event);
             log.success("点击返回");
@@ -5414,19 +4457,13 @@ match-attr##srcid##sp_purc_atom
             );
           });
         },
-        /**
-         * 设置清空图标点击事件
-         */
-        setEmptyEvent() {
+setEmptyEvent() {
           domUtils.on(this.$el.$empty, "click", (event) => {
             utils.preventEvent(event);
             this.setInputText("");
           });
         },
-        /**
-         * 设置表单事件
-         */
-        setFormEvent() {
+setFormEvent() {
           domUtils.on(this.$el.$form, "submit", (event) => {
             utils.preventEvent(event);
             let searchText = this.$el.$input.value;
@@ -5434,15 +4471,11 @@ match-attr##srcid##sp_purc_atom
             window.location.href = `${window.location.origin}/s?word=${searchText}`;
           });
         },
-        /**
-         * 创建搜索建议元素项
-         */
-        createSuggestionItem(config) {
+createSuggestionItem(config) {
           let $suggestionItem = domUtils.createElement("div", {
             className: "search-suggestion-item",
             innerHTML: (
-              /*html*/
-              `
+`
             <div class="search-suggestion-item-left-icon">
                 <i class="search-icon">
                     <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
@@ -5472,8 +4505,8 @@ match-attr##srcid##sp_purc_atom
             ".search-suggestion-item-right-icon"
           );
           if (config.isHistory) {
-            $leftIconI.innerHTML = /*html*/
-            `
+            $leftIconI.innerHTML =
+`
             <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" style="
                 width: 18px;
                 height: 18px;
@@ -5501,24 +4534,15 @@ match-attr##srcid##sp_purc_atom
           });
           return $suggestionItem;
         },
-        /**
-         * 清除搜索建议
-         */
-        clearSuggestion() {
+clearSuggestion() {
           this.$el.$suggestion.innerHTML = "";
         },
-        /**
-         * 添加搜索建议
-         */
-        addSuggestionItem($ele) {
+addSuggestionItem($ele) {
           this.$el.$suggestion.appendChild($ele);
         }
       };
       const UserCustomStyle = {
-        /**
-         * 获取用户自定义样式
-         */
-        getUserStyle() {
+getUserStyle() {
           return Panel.getValue("baidu-search-user-style", "");
         }
       };
@@ -5591,10 +4615,7 @@ match-attr##srcid##sp_purc_atom
             });
           }
         },
-        /**
-         * 新标签页打开
-         */
-        openResultBlank() {
+openResultBlank() {
           const setNodeVisited = ($el) => {
             domUtils.attr($el, "data-visited", true);
             domUtils.css($el, {
@@ -5700,10 +4721,7 @@ match-attr##srcid##sp_purc_atom
             return this.homepageMinification();
           });
         },
-        /**
-         * 精简主页
-         */
-        homepageMinification() {
+homepageMinification() {
           log.info("插入精简主页CSS规则");
           return addStyle$1(SearchHomeMinificationShieldCSS);
         }
@@ -5749,53 +4767,38 @@ match-attr##srcid##sp_purc_atom
             return this.shieldBottomToolBar();
           });
         },
-        /**
-         * 【屏蔽】推荐文章
-         */
-        shieldRecommendArticle() {
+shieldRecommendArticle() {
           log.info("【屏蔽】推荐文章");
           return [
             CommonUtil.addBlockCSS(
               ".infinite-scroll-component__outerdiv",
               "div#page_wrapper > div > div:nth-child(5)",
               "div:has(+ .infinite-scroll-component__outerdiv)",
-              /* 电脑端的左边的按钮-屏蔽 */
-              "#ssr-content > :last-child",
-              /* 电脑端的右边的推荐-屏蔽 */
-              "#ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(2)"
+"#ssr-content > :last-child",
+"#ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(2)"
             ),
             addStyle$1(
-              /*css*/
-              `
+`
 			/* 电脑端的文章居中 */
 			#ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) {
 				width: 55% !important;
 			}`
             ),
-            /* 某些情况下的CSS */
-            CommonUtil.addBlockCSS(
+CommonUtil.addBlockCSS(
               '#page_wrapper > div.other > div[class=""]:nth-child(4)'
             ),
-            /* 简单UA&链接参数wfr=spide下的精彩推荐 */
-            CommonUtil.addBlockCSS(
+CommonUtil.addBlockCSS(
               '#page_wrapper div.spider > div[class=""]:nth-child(4)',
               'page_wrapper div.spider > div[class=""]:nth-child(5)'
             ),
-            /* Gecko的简单UA下的精彩推荐 */
-            CommonUtil.addBlockCSS('#page_wrapper .searchCraft > div[class=""]')
+CommonUtil.addBlockCSS('#page_wrapper .searchCraft > div[class=""]')
           ];
         },
-        /**
-         * 【屏蔽】用户评论
-         */
-        shieldUserComment() {
+shieldUserComment() {
           log.info("【屏蔽】用户评论");
           return CommonUtil.addBlockCSS("#commentModule");
         },
-        /**
-         * 【屏蔽】底部悬浮工具栏
-         */
-        shieldBottomToolBar() {
+shieldBottomToolBar() {
           log.info("【屏蔽】底部悬浮工具栏");
           return CommonUtil.addBlockCSS("div#wise-invoke-interact-bar");
         }
@@ -5803,84 +4806,41 @@ match-attr##srcid##sp_purc_atom
       const TieBaShieldCSS = ".tb-backflow-defensive,\r\n.fixed-nav-bar-defensive,\r\n.post-cut-guide,\r\n.ertiao-wrap-defensive,\r\n.feed-warp.gray-background,\r\n.pb-page-wrapper.app-view.transition-fade nav:first-child,\r\n.only-lz,\r\n.nav-bar-v2 .nav-bar-bottom,\r\n.more-image-desc,\r\n.fengchao-banner-defensive,\r\n/*.wake-app,*/\r\n.banner-wrapper-defensive,\r\n.open-app,\r\n.topic-share-page-v2 .bav-bar-top,\r\n/* 打开APP查看更多评论 */\r\n.cmt-large-cut-guide,\r\n/* 底部评论滚动栏 */\r\ndiv.diy-guide-wrapper,\r\n/* 底部评论滚动栏上面的空白 */\r\n.individuality,\r\n/* 吧内的广告 */\r\n.tb-threadlist__wrapper .tb-banner-wrapper-defensive,\r\n/* 首页-我的-底部的 年轻人的潮流文化社区 */\r\n.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .desc,\r\n/* 首页-我的-底部的 立即下载 */\r\n.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .download-btn,\r\n/* 帖子内预览图片模式下底部的打开App查看高清大图 */\r\n.img-preview .operate .wake-app,\r\n/* 帖子 ?share=xxx 顶部的 横幅 立即打开 */\r\n#app_container .pblist-part-wrap .top-guide,\r\n#app_container .pblist-part-wrap .top-ad-bg,\r\n/* 帖子 ?share=xxx 底部的 APP内打开 */\r\n#app_container .bottom-guide,\r\n/* 帖子 ?share=xxx 猜你喜欢*/\r\n#app_container .guessyoulikegraphic-wrap,\r\n/* 帖子 ?share=xxx 打开贴吧APP查看全部回复 */\r\n#app_container .pb-share-post-list .open-tb-bar,\r\n/* 吧内 底部 关注本吧，精彩内容不错过 */\r\nuni-app .bottom-guide .btn-wrapper .wake-app ,\r\n/* 吧内 帖子右上角的 APP内查看 */\r\nuni-app .feed-card .open-app-btn,\r\n/* 吧内 视频流的底部的遮罩层 */\r\nuni-app .bottom-guide:has(.mask),\r\n/* 合辑 /mo/q/hybrid-main-user/collectionCenter  打开贴吧App畅享精彩内容  */\r\n.collection-center .app-out-guide-text,\r\n/* 合辑 滚动出现的底部中间的 /mo/q/hybrid-main-user/collectionCenter  打开贴吧App畅享精彩内容 */\r\n.collection-center .app-out-fixed-btn,\r\n/* 合辑 帖子卡片右下角的  打开贴吧App畅享精彩内容  */\r\n.collection-center .guide-text {\r\n	display: none !important;\r\n}\r\nbody.tb-modal-open {\r\n	overflow: auto !important;\r\n}\r\n";
       const UniTieBaShieldCSS = "/* 热门推荐、相关推荐 */\r\nuni-app .recom-layout-container,\r\n/* 热门推荐、相关推荐 */\r\nuni-app #pbRecomContainer,\r\n/* 猜你还想搜（标题） */\r\nuni-app .guess-title,\r\n/* 猜你还想搜 */\r\nuni-app .guess-container,\r\n/* 底部工具栏 来贴吧畅享精彩内容 */\r\nuni-app .operation-chat,\r\n/* 图片右滑最后一个 来贴吧畅享精彩内容 */\r\nuni-app .pic-popup-guide-title,\r\n/* 图片右滑最后一个 下面的按钮 打开APP */\r\nuni-app .operate-group .wake-app:has(.external-btn-class),\r\n/* 顶部右上角的 App内查看 */\r\nuni-app .operate-btn-wake,\r\n/* 吧内 视频卡片左上角的 App内查看 */\r\nuni-app .uni-frs .video-feed .wake-app .video-item .tag-text {\r\n	display: none !important;\r\n}\r\n\r\n/* 评论内容高度 */\r\nuni-app .swiper-content {\r\n	max-height: unset !important;\r\n}\r\n";
       const TiebaUrlHandler = {
-        /**
-         * 根据portrait获取用户头像
-         */
-        getUserAvatar(portrait) {
+getUserAvatar(portrait) {
           let authorImgId = "6LZ1dD3d1sgCo2Kml5_Y_D3";
           return `https://gss0.bdstatic.com/${authorImgId}/sys/portrait/item/${portrait}`;
         },
-        /**
-         * 根据tb|portrait获取用户主页地址
-         */
-        getUserHome(tb) {
+getUserHome(tb) {
           return `https://tieba.baidu.com/home/main?id=${tb}`;
         },
-        /**
-         * 根据(un|userName)获取用户主页地址
-         */
-        getUserHomeByUN(un) {
+getUserHomeByUN(un) {
           return `https://tieba.baidu.com/home/main?un=${un}`;
         },
-        /**
-         * 根据tid/pid获取帖子链接
-         * @param id
-         */
-        getPost(id) {
+getPost(id) {
           return `https://tieba.baidu.com/p/${id}#/`;
         },
-        /**
-         * 获取搜索综合的地址
-         * @param searchText
-         */
-        getHybridSearch(searchText) {
+getHybridSearch(searchText) {
           return `https://tieba.baidu.com/mo/q/hybrid/search?keyword=${searchText}`;
         },
-        /**
-         * 获取贴吧表情图片
-         * @param pathName 原static.baidu.com的pathname
-         * @returns
-         */
-        getImageSmiley(pathName) {
+getImageSmiley(pathName) {
           if (pathName.startsWith("/")) {
             pathName = pathName.replace(/^\//, "");
           }
           return `https://gsp0.baidu.com/5aAHeD3nKhI2p27j8IqW0jdnxx1xbK/${pathName}`;
         },
-        /**
-         * 获取吧的链接
-         * @param kw 吧名
-         * @returns
-         */
-        getForum(kw) {
+getForum(kw) {
           return "https://tieba.baidu.com/f?kw=" + kw;
         },
-        /**
-         * 获取发帖页面的链接
-         * @param fname 吧名
-         * @param fid 吧id
-         * @param tbs tbs值
-         */
-        getPostPage(fname, fid, tbs2) {
+getPostPage(fname, fid, tbs2) {
           return `https://tieba.baidu.com/h5activity/post?fname=${fname}&fid=${fid}&tbs=${tbs2}`;
         },
-        /**
-         * 进吧
-         */
-        getGoToForum() {
+getGoToForum() {
           return "https://tieba.baidu.com/index/tbwise/forum";
         },
-        /**
-         * 我的
-         */
-        getMine() {
+getMine() {
           return "https://tieba.baidu.com/index/tbwise/mine";
         },
-        /**
-         * 获取登录链接
-         * @param [from=window.location.href] 想要登录成功后重定向的地址，默认是当前地址
-         */
-        getLoginUrl(from = window.location.href) {
+getLoginUrl(from = window.location.href) {
           return "https://wappass.baidu.com/passport?login&tpl=tb&u=" + encodeURIComponent(from);
         }
       };
@@ -5890,10 +4850,7 @@ match-attr##srcid##sp_purc_atom
             this.redirectJump();
           });
         },
-        /**
-         * 重定向跳转
-         */
-        redirectJump() {
+redirectJump() {
           log.info("话题热榜-阻止默认跳转");
           domUtils.on(
             document,
@@ -5926,20 +4883,14 @@ match-attr##srcid##sp_purc_atom
             this.openANewTab();
           });
         },
-        /**
-         * 屏蔽广告
-         */
-        blockAds() {
+blockAds() {
           return [
             CommonUtil.addBlockCSS(
-              /* 顶部横幅 */
-              ".tb-index-navbar .fix-nav-guide-bar",
-              /* 底部的百度贴吧app内打开 */
-              ".tb-index-navbar div:has(.fix-nav-bar-bottom)"
+".tb-index-navbar .fix-nav-guide-bar",
+".tb-index-navbar div:has(.fix-nav-bar-bottom)"
             ),
             addStyle$1(
-              /*css*/
-              `
+`
 			/* 把下面的内容往上移 */
 			#app_container ul.navbar-box{
 				top: 0px !important;
@@ -5952,10 +4903,7 @@ match-attr##srcid##sp_purc_atom
             )
           ];
         },
-        /**
-         * 新标签页打开
-         */
-        openANewTab() {
+openANewTab() {
           domUtils.on(
             document,
             "click",
@@ -5977,13 +4925,7 @@ match-attr##srcid##sp_purc_atom
         }
       };
       const TieBaApi = {
-        /**
-         * 根据un|portrait获取个人主页信息
-         *
-         * /home/get/panel
-         * @param userInfo
-         */
-        async getUserHomeInfo(userInfo) {
+async getUserHomeInfo(userInfo) {
           let searchParams = "";
           if (userInfo["un"]) {
             searchParams = `un=${userInfo["un"]}`;
@@ -6011,19 +4953,11 @@ match-attr##srcid##sp_purc_atom
           }
           return data.data;
         },
-        /**
-         * 根据un获取帖子信息
-         *
-         * /home/post
-         * @param un 用户的un(userName)
-         * @param [pn=1] 第xx页
-         */
-        async getUserPosts(un, pn = 1) {
+async getUserPosts(un, pn = 1) {
           let response = await httpx.get(
             `https://tieba.baidu.com/home/post?un=${un}&is_ajax=1&lp=&pn=${pn}`,
             {
-              // 该请求为http，页面为https，会报错
-              fetch: true,
+fetch: true,
               headers: {
                 "User-Agent": utils.getRandomPCUA()
               },
@@ -6082,11 +5016,7 @@ match-attr##srcid##sp_purc_atom
           );
           return result;
         },
-        /**
-         * 根据un获取用户信息
-         * @param un 用户的un(userName)，自动进行gbk编码
-         */
-        async getUserInfo(un) {
+async getUserInfo(un) {
           let gbkEncoder = new utils.GBKEncoder();
           un = gbkEncoder.encode(un);
           let getResp = await httpx.get(
@@ -6105,14 +5035,7 @@ match-attr##srcid##sp_purc_atom
           let data = utils.toJSON(getResp.data.responseText);
           return data;
         },
-        /**
-         * 根据uid获取用户信息
-         *
-         * 注意：该请求是http非安全请求
-         * @param uid
-         * @returns
-         */
-        async getChatUserInfo(uid) {
+async getChatUserInfo(uid) {
           let getResp = await httpx.get(
             `http://tieba.baidu.com/im/pcmsg/query/getUserInfo?chatUid=${uid}`,
             {
@@ -6133,14 +5056,7 @@ match-attr##srcid##sp_purc_atom
           }
           return data.chatUser;
         },
-        /**
-         * 签到吧
-         *
-         * /sign/add
-         * @param forumName 吧名
-         * @param tbs 应该是用户token
-         */
-        async forumSign(forumName, tbs2) {
+async forumSign(forumName, tbs2) {
           log.success(["发送签到请求→", forumName, tbs2]);
           let postResp = await httpx.post("https://tieba.baidu.com/sign/add", {
             data: `ie=utf-8&kw=${forumName}&tbs=${tbs2}`,
@@ -6163,14 +5079,7 @@ match-attr##srcid##sp_purc_atom
           log.success(data);
           return data;
         },
-        /**
-         * 获取用户所有关注的吧
-         * 需要cookie
-         * 如果未登录，那么会获取到空列表
-         *
-         * /mo/q/sug
-         */
-        async getUserAllLikeForum() {
+async getUserAllLikeForum() {
           let response = await httpx.get(
             "https://tieba.baidu.com/mo/q/sug?query=&is_ajax=1&sug=1",
             {
@@ -6192,10 +5101,7 @@ match-attr##srcid##sp_purc_atom
           log.success(data);
           return data["data"]["like_forum"];
         },
-        /**
-         * 获取吧的tbs值
-         */
-        async getForumTbs(forumName) {
+async getForumTbs(forumName) {
           let getResp = await httpx.get(
             `https://tieba.baidu.com/f?kw=${forumName}&ie=utf-8`,
             {
@@ -6216,19 +5122,7 @@ match-attr##srcid##sp_purc_atom
           }
           return PageData[1];
         },
-        /**
-         * 获取帖子内的图片
-         *
-         * /photo/bw/picture/guide
-         * @param forumName
-         * @param tid
-         * @param see_lz
-         * @param from_page
-         * @param alt
-         * @param next
-         * @param prev
-         */
-        async getPictureGuide(forumName, tid, see_lz = 0, from_page = 0, alt = "jview", next = 1e3, prev = 1e3) {
+async getPictureGuide(forumName, tid, see_lz = 0, from_page = 0, alt = "jview", next = 1e3, prev = 1e3) {
           let getResp = await httpx.get(
             `https://tieba.baidu.com/photo/bw/picture/guide?kw=${forumName}&tid=${tid}&see_lz=${see_lz}&from_page=${from_page}&alt=${alt}&next=${next}&prev=${prev}&_=${Date.now()}`,
             {
@@ -6270,10 +5164,7 @@ match-attr##srcid##sp_purc_atom
             this.repairSearch();
           });
         },
-        /**
-         * 解除签到限制
-         */
-        removeForumSignInLimit() {
+removeForumSignInLimit() {
           VueUtils.waitVuePropToSet("uni-app #forumInfoId .sign-wakeup", {
             check(vueInstance) {
               return typeof vueInstance.$root.commonParams.fname === "string";
@@ -6327,10 +5218,7 @@ match-attr##srcid##sp_purc_atom
             }
           });
         },
-        /**
-         * 修复卡片点击跳转
-         */
-        repairCardClickJump() {
+repairCardClickJump() {
           log.info(`修复卡片点击跳转`);
           domUtils.on(
             document,
@@ -6371,14 +5259,7 @@ match-attr##srcid##sp_purc_atom
             }
           );
         },
-        /**
-         * 记住当前用户的看帖排序
-         * + -1 不知道什么作用
-         * + 1  不知道什么作用
-         * + 2  回复
-         * + 3  发布
-         */
-        rememberPostSort() {
+rememberPostSort() {
           let userSortModel = parseInt(
             Panel.getValue("baidu-tieba-sort-model", 3).toString()
           );
@@ -6392,10 +5273,7 @@ match-attr##srcid##sp_purc_atom
             log.info("注入记住当前选择的看帖排序");
           });
         },
-        /**
-         * 过滤重复帖子
-         */
-        filterDuplicatePosts() {
+filterDuplicatePosts() {
           VueUtils.waitVuePropToSet(".tb-threadlist", [
             {
               msg: "等待获取$watch监听帖子列表",
@@ -6444,10 +5322,7 @@ match-attr##srcid##sp_purc_atom
             }
           ]);
         },
-        /**
-         * 阻止唤醒App
-         */
-        hookWakeUp() {
+hookWakeUp() {
           let lockFn = new utils.LockFunction(() => {
             $$("uni-app .wake-app").forEach(($wakeUp) => {
               let vueInstance = VueUtils.getVue($wakeUp);
@@ -6491,13 +5366,9 @@ match-attr##srcid##sp_purc_atom
             }
           });
         },
-        /**
-         * 修复搜索功能的样式
-         */
-        repairSearch() {
+repairSearch() {
           addStyle$1(
-            /*css*/
-            `
+`
 			.nav-bar .more-btn-desc,
 			uni-app .frs-wise-nav-bar .more-btn-desc{
 				font-size: 15px;
@@ -6554,10 +5425,7 @@ match-attr##srcid##sp_purc_atom
         }
       };
       const TiebaCore = {
-        /**
-         * 伪装客户端已调用
-         */
-        clientCallMasquerade() {
+clientCallMasquerade() {
           let originGetItem = _unsafeWindow.localStorage.getItem;
           _unsafeWindow.localStorage.getItem = function(key) {
             if (key === "p_w_app_call" || key === "p_w_launchappcall" || key === "loginWakeModal") {
@@ -6614,18 +5482,12 @@ match-attr##srcid##sp_purc_atom
             });
           }
         },
-        /**
-         * 获取本帖楼主的信息
-         */
-        getLandlordInfo() {
+getLandlordInfo() {
           return $(
             ".main-page-wrap .user-line-wrapper.thread-user-line"
           )?.__vue__?.$props?.author;
         },
-        /**
-         * 获取当前的贴吧名字
-         */
-        getCurrentForumName() {
+getCurrentForumName() {
           let tbMobileViewport = VueUtils.getVue(
             $(".tb-mobile-viewport")
           )?.forum?.name;
@@ -6639,20 +5501,14 @@ match-attr##srcid##sp_purc_atom
           uniAppPostNavBarForumName = uniAppPostNavBarForumName.replace(/吧$/g, "");
           return tbMobileViewport || mainPageWrap || tbForum || appView || uniAppPostNavBarForumName;
         },
-        /**
-         * 获取当前的贴吧的id
-         */
-        getCurrentForumId() {
+getCurrentForumId() {
           let tbMobileViewport = VueUtils.getVue(
             $(".tb-mobile-viewport")
           )?.forum?.id;
           let appView = VueUtils.getVue($(".app-view"))?.forum?.id;
           return tbMobileViewport || appView;
         },
-        /**
-         * 获取当前帖子的tid
-         */
-        getCurrentForumPostTid() {
+getCurrentForumPostTid() {
           let tid = null;
           let appViewVue = VueUtils.getVue($(".app-view"));
           if (appViewVue?.thread?.id !== "" && appViewVue?.thread?.id != null) {
@@ -6662,17 +5518,13 @@ match-attr##srcid##sp_purc_atom
           }
           return tid;
         },
-        /**
-         * 添加滚动到顶部按钮
-         */
-        addScrollTopButton() {
+addScrollTopButton() {
           log.success("添加滚动到顶部按钮");
           let isInsertButton = false;
           let showScrollTopButton = function() {
             isInsertButton = true;
             let buttonElement = domUtils.parseHTML(
-              /*html*/
-              `
+`
 				<div class="tb-totop whitesev-tb-totop">
 				<style>
 					.whitesev-tb-totop{
@@ -6735,10 +5587,7 @@ match-attr##srcid##sp_purc_atom
           );
           window.addEventListener("scroll", checkScroll.run);
         },
-        /**
-         * 添加顶部的楼主头像/名字的点击事件-直接进入楼主的个人主页
-         */
-        addAuthorClickEvent() {
+addAuthorClickEvent() {
           utils.waitNode(
             "div.main-page-wrap .main-thread-content .user-line"
           ).then((element) => {
@@ -6755,11 +5604,7 @@ match-attr##srcid##sp_purc_atom
             });
           });
         },
-        /**
-         * 检测骨架屏
-         * @time 900
-         */
-        checkSkeleton() {
+checkSkeleton() {
           setTimeout(() => {
             let appElement = $("#app");
             if (appElement && appElement.innerHTML === "") {
@@ -6772,10 +5617,7 @@ match-attr##srcid##sp_purc_atom
             }
           }, 900);
         },
-        /**
-         * 自动重定向至主域名
-         */
-        autoJumpToMainHost() {
+autoJumpToMainHost() {
           if (_unsafeWindow.top !== _unsafeWindow.window) {
             return;
           }
@@ -6795,10 +5637,7 @@ match-attr##srcid##sp_purc_atom
           currentSearchText: ""
         },
         $ele: {
-          /**
-           * 输入框
-           */
-          $searchInput: null
+$searchInput: null
         },
         init($input) {
           this.$ele.$searchInput = $input;
@@ -6820,32 +5659,20 @@ match-attr##srcid##sp_purc_atom
             TiebaSearch.quitSearchMode();
           });
         },
-        /**
-         * 进入搜索模式
-         */
-        enterSeachMode() {
+enterSeachMode() {
           domUtils.hide(TiebaSearch.$ele.$selectWrapper);
           TiebaSearch.showSearchContainer();
           setTimeout(() => {
             this.$ele.$searchInput.focus();
           }, 20);
         },
-        /**
-         * 退出搜索模式
-         */
-        quiteSearchMode() {
+quiteSearchMode() {
           TiebaSearch.hideSearchContainer();
         },
-        /**
-         * 获取搜索内容
-         */
-        getSearchText() {
+getSearchText() {
           return this.$ele.$searchInput.value.trim();
         },
-        /**
-         * 帖子外搜索(也就是首页搜索吧)
-         */
-        frontPageSeach() {
+frontPageSeach() {
           log.success("当前是在首页");
           let searchText = this.getSearchText();
           if (utils.isNull(searchText)) {
@@ -6855,10 +5682,7 @@ match-attr##srcid##sp_purc_atom
           let url = "https://tieba.baidu.com/f?ie=utf-8&kw=" + searchText;
           window.open(url, "_blank");
         },
-        /**
-         * 初始化搜索吧
-         */
-        initSearchSuggestion() {
+initSearchSuggestion() {
           let that = this;
           async function getData(inputValue) {
             let result = [];
@@ -6889,8 +5713,7 @@ match-attr##srcid##sp_purc_atom
             getData,
             getItemHTML(item) {
               return (
-                /*html*/
-                `
+`
 				<div class="forum_item">
 					<img class="forum_image" src="${item.fpic}">
 					<div class="forum_right">
@@ -6903,8 +5726,7 @@ match-attr##srcid##sp_purc_atom
               );
             },
             style: (
-              /*css*/
-              `
+`
 			.WhiteSevsSearchSelect .forum_item{
 				display: flex;
 				text-wrap: wrap;
@@ -6957,13 +5779,9 @@ match-attr##srcid##sp_purc_atom
             }
           });
         },
-        /**
-         * 获取搜索建议
-         * @param queryText 搜索内容
-         */
-        async getSuggestion(queryText = "") {
+async getSuggestion(queryText = "") {
           let getResp = await httpx.get({
-            url: `https://tieba.baidu.com/suggestion?query=${queryText}&ie=utf-8&_=${(/* @__PURE__ */ new Date()).getTime()}`,
+            url: `https://tieba.baidu.com/suggestion?query=${queryText}&ie=utf-8&_=${( new Date()).getTime()}`,
             headers: {
               "User-Agent": utils.getRandomPCUA(),
               Accept: "application/json, text/javascript, */*; q=0.01",
@@ -6992,78 +5810,24 @@ match-attr##srcid##sp_purc_atom
           gbkEncoder: new utils.GBKEncoder()
         },
         $data: {
-          /**
-           * 搜索类型，默认0
-           * + 0 本吧
-           * + 1 全局
-           */
-          searchType: 0,
-          /**
-           * 搜索结果类型，默认1
-           * + 0 按时间顺序
-           * + 1 按时间倒序
-           * + 2 按相关性顺序
-           * + 3 只看主题贴
-           */
-          searchModel: 1,
-          /**
-           * 下一页
-           */
-          nextPageUrl: null,
-          /**
-           * 当前搜索的内容
-           */
-          currentSearchText: ""
+searchType: 0,
+searchModel: 1,
+nextPageUrl: null,
+currentSearchText: ""
         },
         $ele: {
-          /**
-           * 页面重构后的搜索按钮
-           */
-          $moreBtnDesc: null,
-          /**
-           * 搜索的容器
-           */
-          $searchContainer: null,
-          /**
-           * 自定义的顶部导航栏
-           */
-          $navTopSearch: null,
-          /**
-           * 返回按钮
-           */
-          $navSearchBack: null,
-          /**
-           * 搜索模式选择的容器
-           */
-          $selectWrapper: null,
-          /**
-           * 搜索模式选择
-           */
-          $select: null,
-          /**
-           * 输入框
-           */
-          $searchInput: null,
-          /**
-           * 搜索按钮
-           */
-          $searchBtn: null,
-          /**
-           * 搜索结果的容器
-           */
-          $searchResultContainer: null,
-          /**
-           * 搜索结果的列表
-           */
-          $searchResultList: null,
-          /**
-           * 选择搜索结果模式
-           */
-          $searchResultModel: null,
-          /**
-           * 以下内容来自xxx吧的搜索结果
-           */
-          $searchResultFrom: null
+$moreBtnDesc: null,
+$searchContainer: null,
+$navTopSearch: null,
+$navSearchBack: null,
+$selectWrapper: null,
+$select: null,
+$searchInput: null,
+$searchBtn: null,
+$searchResultContainer: null,
+$searchResultList: null,
+$searchResultModel: null,
+$searchResultFrom: null
         },
         init() {
           let that = this;
@@ -7079,8 +5843,7 @@ match-attr##srcid##sp_purc_atom
             let $newSearch = domUtils.createElement("div", {
               id: "search",
               innerHTML: (
-                /*html*/
-                `
+`
 					<div id="nav-top-search">
 						<div class="nav-search-container">
 							<div class="nav-search-back">
@@ -7239,16 +6002,14 @@ match-attr##srcid##sp_purc_atom
         },
         addCSS() {
           addStyle$1(
-            /*css*/
-            `
+`
 		.gm-hide {
 			display: none !important;
 		}
 		`
           );
           addStyle$1(
-            /*css*/
-            `
+`
 		.more-btn-desc{
 			margin-right: 10px;
 			font-size: 1em;
@@ -7258,8 +6019,7 @@ match-attr##srcid##sp_purc_atom
 		`
           );
           addStyle$1(
-            /*css*/
-            `
+`
 		#search{
 			--bg-color: #F5F6F8;
 			--ohter-bg-color: #F3F3F5;
@@ -7378,8 +6138,7 @@ match-attr##srcid##sp_purc_atom
 		`
           );
           addStyle$1(
-            /*css*/
-            `
+`
 		.search-result-model .search-result-model-item[data-active]:after {
 			content: " ";
 			background: #7458FA;
@@ -7400,8 +6159,7 @@ match-attr##srcid##sp_purc_atom
 		`
           );
           addStyle$1(
-            /*css*/
-            `
+`
 		#search .search-result-content img.BDE_Smiley{
 			width: .2rem;
 			height: .2rem;
@@ -7431,8 +6189,7 @@ match-attr##srcid##sp_purc_atom
         `
           );
           addStyle$1(
-            /*css*/
-            `
+`
 		#search .search-result-media {
 			display: flex;
 			align-items: center;
@@ -7491,10 +6248,7 @@ match-attr##srcid##sp_purc_atom
 		`
           );
         },
-        /**
-         * 清空搜索结果
-         */
-        clearSearchResult() {
+clearSearchResult() {
           log.success("清空搜索结果");
           Array.from(this.$ele.$searchResultList.children).forEach(($item) => {
             if ($item != this.$context.loading.getLoadingViewElement()) {
@@ -7502,22 +6256,13 @@ match-attr##srcid##sp_purc_atom
             }
           });
         },
-        /**
-         * 显示搜索结果选项
-         */
-        showSearchResultModel() {
+showSearchResultModel() {
           domUtils.show(this.$ele.$searchResultModel);
         },
-        /**
-         * 隐藏搜索结果选项
-         */
-        hideSearchResultModel() {
+hideSearchResultModel() {
           domUtils.hide(this.$ele.$searchResultModel);
         },
-        /**
-         * 显示搜索结果来自xxx
-         */
-        showSearchResultFrom() {
+showSearchResultFrom() {
           domUtils.show(this.$ele.$searchResultFrom);
           let searchKw = "全部吧";
           if (this.$data.searchType === 0) {
@@ -7530,68 +6275,30 @@ match-attr##srcid##sp_purc_atom
           }
           this.$ele.$searchResultFrom.innerText = `以下内容来自${searchKw}的搜索结果`;
         },
-        /**
-         * 隐藏搜索结果来自xxx
-         */
-        hideSearchResultFrom() {
+hideSearchResultFrom() {
           domUtils.hide(this.$ele.$searchResultFrom);
         },
-        /**
-         * 获取进入/退出搜索模式时需要处理的选择器
-         */
-        getEnterOrQuietSearchModeSelectorList() {
+getEnterOrQuietSearchModeSelectorList() {
           return [
-            // 底部评论工具栏
-            "#vite-app",
-            // 帖子的主内容
-            ".main-page-wrap",
-            // 吧内的主内容
-            ".tb-mobile-viewport"
+"#vite-app",
+".main-page-wrap",
+".tb-mobile-viewport"
           ];
         },
-        /**
-         * 进入搜索模式
-         *
-         * 显示输入框，返回按钮什么的
-         *
-         * 如果已在搜索模式（即已显示搜索框），返回undefine，否则成功进入返回true
-         */
-        enterSeachMode() {
+enterSeachMode() {
           this.showSearchContainer();
           setTimeout(() => {
             this.$ele.$searchInput.focus();
           }, 20);
         },
-        /**
-         * 退出搜索模式
-         *
-         * 隐藏输入框，返回按钮
-         *
-         * 如果已不在搜索模式（即已显示搜索框），返回undefine，否则成功退出返回true
-         *
-         * 显示本页主内容
-         */
-        quitSearchMode() {
+quitSearchMode() {
           this.hideSearchContainer();
         },
-        /**
-         * 获取搜索内容
-         */
-        getSearchText() {
+getSearchText() {
           let searchText = this.$ele.$searchInput.value.trim();
           return searchText;
         },
-        /**
-         * 获取搜索结果
-         * @param qw 搜索的关键字
-         * @param pn 当前页码
-         * @param sm 搜索结果排序
-         * @param kw 搜索的目标吧，留空是全部
-         * + 0 按时间顺序
-         * + 1 按时间倒序 如果加上only_thread为1，就是只看主题贴
-         * + 2 按相关性顺序
-         */
-        async getSearchResult(qw = "", pn = 0, sm = 1, kw = "") {
+async getSearchResult(qw = "", pn = 0, sm = 1, kw = "") {
           let param_sm = sm.toString();
           if (sm === 3) {
             param_sm = "1&only_thread=1";
@@ -7708,12 +6415,7 @@ match-attr##srcid##sp_purc_atom
             nextPageUrl
           };
         },
-        /**
-         * 获取搜索结果元素
-         * @param currentSearchText 当前搜索的关键字
-         * @param data 搜索的数据
-         */
-        getSearchItemElement(data) {
+getSearchItemElement(data) {
           let searchText = this.$data.currentSearchText;
           let time = data["time"];
           let newTime = utils.getDaysDifference(
@@ -7738,8 +6440,7 @@ match-attr##srcid##sp_purc_atom
           let $resultElement = domUtils.createElement("div", {
             className: "s_post search_result",
             innerHTML: (
-              /*html*/
-              `
+`
 			<div class="search-result-media">
 				<div class="search-result-media-left">
 				<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAAXNSR0IArs4c6QAAGdBJREFUeF7tXWuT3MZ1Pd0AZmZfXL4pS5Qo2ZEcybG/JFX583FKkT8lKVc5FiU6liWbkimK1GbJfc4MHt2pc283gMHuPHa5qxlRO1XUUksAA9zT93Xu7Qvzb38sPK4+KyMBcwXIymAhN3IFyGrhcQXIiuFxBcgVIKsmgRW7nysfcgXIiklgxW7H/PbT8ioPWSIo3qv4jTH68wqQJaIBwDl3BchyIZj97VcasmR0osmKt3EFyBUgS5bAin/9lYYsGaC2yeLff5KAtON8DTZX57N0QLwJYZ+3KhXfEpGJotNjJv45HN8VqO1kVS4c0PzadL7CY5VAWT4gQdC1UE4FhAdFUCxmrfBpgAiYE6DyGz2I+RUgC1iIRrBxiVvoag/ARO1pAwhgEq72F7lwflDCKRq2wK1d6iFL15DafnTMk40mjOu3/jsaUOrjW8s+/K6rJY0EG9MXf+dMMJWXKubFL76igDgoIPzTaEj9WOJ3fGvFuwnQ2ibIBg1SrE7Sdvzn6GcWF9vlHbk6gPAZRWq6iptVPn0FT5iwGA90TVEAJF7FBDIvBgirBIaIYNnkogre1C5bQWk78ZNmRjVHRdw2T23hTo+dJrVklRz6CgESzMaJCItgODA0bqKwCEYbkMZh16Fx0JSOz2+sXsDlCpCu+a1KWGvhbQJmqo5hqNQG+Bcnf698qeGpMfDewJpUdcg5GFGRRovkGMYBEQnnkSTh2jw+1h28DddbrXLQkk2Wg3FeBWNV2I70gTETwnLwSKwC4ipi5QVEHmsT/q+XP21gRFO8R2KsAu30fAFfjtfvWLWP+e2n+VKXSBRK5HS4sA0SkZP+zogmWKgwqSoE0XsiY1GJ5ujxxhAAFbEKvZKf/A5qiWqV/psx1BCgksjrND/1w0DFe2/zWSsASLwhFYoAIqaJWbQVEJRdoZt2CoQrRfBqivRYBaGCDeZOzZaHNQkqzwtYEFZHzUgz+aKyLGEFweUBEoOTCP/SAWluKNp3Cj3UmQWUEEkZB2scetajP0ixPuhjY81iawOg4ojycMVXQJ4Do7FDXji8PDjEwXGJsgJsbx2lT1A5PUG0hicsFZBJTVw6INH50tw0DpdCUhrEgqveY5AaXLs2wK3tBBvr+hCMs2iIQggw8WSaOqqoj8fA7h6w8/IQx2MPYzOig4IBxUoxWZKHLNeHxGCI5kmcefAPiXVIrYevhrh35zru3rLoZwoAFUgMkPgLwiKOIfiR6Kg1LOZvow6McmBnF/hu5wXGuUM6WBdtoSlblc/SAaFUxdYHR46qRIISaVKin3q8//PtGggKTV1z2VrXSicqDOor6p8EiU6ToISDeMThEfDs+T5298dwdh0Venp2DAgYbgu+lw9UO9ITv/nvD2fvD+n2DcWVNO333ZU273w64iTJ4GnXnRMgTHWIuzf6eO/+JlKJuppPDAlPD1g7gHTOi6wJtbIogKfPD/Bsp4JLNpBXBj5l1JYTQ/VdhL8KmhbyHR/JSCZMrX6qaRo27/m7offSAUkSjXaAFP3EwhX7eOveJt5+I0UaTFPjMVQVZLHPRqaWT8xRJGQOyWT8e+GAb595PHl2CJ8OkDMqsBVKV2n+UlEjMzV9lwRIF8ilA0KfkWYWRTFGZjxu31rDu2+qGCQf72ZJ58jlYi4SH17yGiaIAMYOePykxM7eEIWEEAbGpvAVj0lhqLkCSCnMAY2rmDLREPq92WncPA1ZOUBk4fkCaVJhYz3BB++tyyPTqjP/UMfd+oSS71nte1cwStOQIaBHAj7/80sc5fQjAxSVQZZlqCoP6xI4+pQJQKhqTTI6zVwJkCeCDT26248VrzFXQ7o+oz7xjLTDiYawcD4BSZDD4Ai//ugOBswngnacVIZuAjff6UZtOE04cW0XDI1z4E9f7iJ3A1i7jmGeI03TUGfx8MhVS0KdxiITpplgLfKZ9vxn1pDLBES1o0KCMd55cwt3bxkxVUYMQ6s7oUZmGhW/iEiaY5pVSy0p4ZjNI8HTnRJPvhujcBlskqBwzPRpOFkMywGjgDBEj76lW5OZdic/DkDgkPgS/azCr365pcFnqStTe5AtYlDT0O/BltVPPl9LqqqqicW2wBjhGeNQkZJBH8MC+OKrIY5zminCkIYcJQAClgE0kkt8Xy71qoCcAGpe2HupGoISthrj7be2ce8Ggrliksc/iTiQmG3Xxdw6umq6UM6iH5M2nddQVsBTT73Fsx3gm6dHcDaB8wl8pPqpHa38pwHk1UzWuQE5y0Mveix9R+pH+M2HNwUM5hzCr4t/UWdy0YBM3JuAS15ef5t7C4bC//NoD5VP4WwG5zMlPGO+T59B0jP4kkV9yKIyWdipL3rBsxxH37G9VuKXzMZjbiHZdUDCivUORkJN02T+ERPBs3xr61jxYSHNFyoeYJr8v18NcTgsUZoMDj3hmRtdjTV/DX+XBsi01ppFmwROOz8xQ9y/neH+vYFELCJyPm+LjiIg+mkBco5c5FTIIiCaUogmMOJ68tzh6feH4typJRJiiJrwbzRdvM35vqv9nYvKb2ENWfSC09bqaeenGOL9d9Zx61oiQMTiUn2NEFKq2wiAnFMZpp4WaeHgpCjul0fAF397icIPUJl0EhD6N0OtXRIg05vO9BHnacis81PmHu9vY6uvlbxQEGz49FOSwAUZk8Vhayfahn4EGFXAwz/tocSaaA2FHxv3pEgmz71YUHFW+c3VkLNesCuJeYD8y4fb6FNBguvg+UzDhNiQLFcz4nZa0vrfxQU/7cjoQ+Snw9h7kG/+w8OXqMz6SUB4WwRDtKTR3LNYhvax3QU9FZB5QMSLTtOQRc7PcIR//adtJPKQTd3Oo0IqIRb/gdRr+Dbx9SoGc0aTMQsPvZ6ufNbYmST+/tMDlIYaEoIKr50uDCoWAWSR5z/NwqwGICxK2aZZrgZE1CXY6jpxv2hACETogmctn5EWLH7/8BC5WwMSpo0sIzeAUDuqOSbr3IB8/Ony5mXRh1BD9FGBKviRxmxdVDg13bLVLoTFIaqicUxX8d8PD1GYDVQSd2mIK7xb4K+q1q0tKvxF7KtZJUBiCqKARNdxdkJxkQePxzSABMtIH2IN/vPhgTj1xiRHQPR+ihAmJ4sl6gvf0koAksygqC+7mY0+SYMIdtxpQFEZBYRhL02pfhSQaFipIfR7PwlAYkGpW1haeJmd4UAJEsRcNdEcc5H/+ow+pB8qhREQctCqEq8tIP/8q23023VzyZ5bMXCLhddo6KI/2gdWAwJg6IA/PDpEjsFEvsFc5DUHZIjfvL+FzX5b0LGl55LzD8E1OgCnFcDALh+MgM/+cojC9qUbUrNyTQ7bgIjezK7gnnn1LNmHDPHBgy3c3ArEiPTczk4I4xNejKY0gDinbaskGHf3gT9/zTyElKfSJJHdfc0BGePdN9bwxu3IU4UMXew6y6dkHFX0F9DrcMpqbUIkqZ8nrBwCz3eBr57soyIHbell2tRJKAmEFfFaaQjp91sbHr94b1NbQkX+BKNSQEjDd3yISpWVu7ORe6fbjhYgEmHpTt8vvx7hxYFD6dOQqTeAyHVa5OJrBkiOfjLGr//xhhSnqBBZBAQZXFXJqo2FqgiGOveLAETBld4taNmWGvLHR3vIS6XepcDLdi0X0teQoUe29+IBeTi+YLe0uB8zpPHcCB+8exPXNpV+jw3WtckKWtLcZIs6icTg4l954sg6xA7F3N0j4M9fvpDOE3IYjqk5nXcLkFcsi828W/PxMgHxDqlxuHGtj/feToRCaQChrWoirTYgYsU6HNd5MZGaNndmBUC++nuJ3b0RgAHyqoSXrVvu0gDpblhaMiDUCo/UFvjol5sCSE82SeXafkNb0dGQmoK8KEDirioLjErg0ZcHGBcJ2JDEry/DXsfL0pATzdbL1BDxBd4iNTnu3enj/l3VEna/i66w34ErtI6yurtxXz1TpOZxDChx//b7HN88G6KsUmTpGkofWN0fQEPkGRn2/8dns/eHTGt5rPOBOR2MM88PnRupKZCZA3z4/m2sZezpLeEYhnJjzUSUdfGAsDBGTmo0Bv7y+HscjPtwZh3UEdZGSktj5pC0fQgBkoY5rpvZGdEi8msfsxKAsLe3n4xw59YAb9/ri+dIOs0NjY8IoepCJqtNxXajMm2cjiX1J8+O8fT5Hiq7DW/XULCVNMtQhKaG4NvDbahbvwhAur5vwoech1mdQPeM/b4SvdBXsPG5PMag5/Hegy1sDRj+6i4pLl+pU8SWLUbBrcrh9KZrXdnN+mXHevRJBIOUCAUOjNix+JcXGOYeJluTBjnel3Qvhu3W04LsV33+LoE6V0POG70seh7bPLn5kquNbaWDXoWPPtiU05kFyBY2+pKwv0MTM4paNg7M2OWkbZ9SDaS+lbq3vUk2HQpnBZAvHuc4OBzBJnTk3CvPM9N6S7UsnB9oY+jSASlcgX6awZXMygiIx+Y68IsHa8F0FfCeaZi6+3Zj2+Tu2dYabmVW0rVD3PgnUDFSO2cGmADfPAf+/nQXadaXiqWXfSMWpdM9j4wCf8jPkgHRGSViKrlbyVDsHlV1hPv3NvCzu5m4VjJMVjrZUmn7FSWRPqop1cSuDNvdiSGr46++3wW+fvpCKBJqR06UZAiB6oNs2JEBBT/cZyUAkX2GSGQLQlFUsgXauWM8uH8Td2/EinYVxvGFZFFWe0fyrUFnXRFWjjGTFTqAwt4lGN++QIEUlUlkWkTWG6AoCpkMIaM7JmajKPhxj+FiXVlnB3LJgGjDmQKiIzTSdIAyL5BaIEtKvH1vE9e3gR7LFXHfSOihmihktZ+9DUx0zBxiw5zDAbsvgW+f7mNUGtgsk552Otc07SHPc9k9xXtpO1wTVPO1B0QGyrgS3sZJDgkM7ZjjnnUODRjiZ3e3ce+2kYY6MVfiU+Kggeg7Tus24FF03hwWoOnmk+9GeL5zDGs3UFZGicNUL5wTLboWCTLUVEUgIt4NIPq9F+3sl64hVemR9bhbiaZCp/RIu7/twQrXVaHMD7C9meDNe9dwffP02Ep8dqvhLYbD0QMcjLw476ORR+UHKMoUSTqoB9TEEJdgMPLrZ4mYr26/8WUCslCmfnYreIYzaFpcmG8Vth0znJWVSTvO0KgskFmPaxspNjcSbAwMBn2LQW8yA2mNC6gDVKFFKmD/oEThEjzbOcC4JMfMHCNDyVlaYYtWl1OKK/+npSHcqyfjiaQqgYq5BbUkRk/ec2ulmIXN9QTXNjKklgPPSvTSDJk1yHoc22TE50jdxNH0cDBAISaoLJiJ9MDpo9/tHCMvDQpv4ZNWa2g9b0sjPpmrFVtWY1gX1tllaogsxHlc1hnW+7kOlaRPGN2k3pxf22uSbZXuQ9ze7uPmdgprKlRFrmObpPyukVYSKHT52codOCHCJBmKEnj6/RilS1AZVgatAE8tpL+I1/Fx9lb4XTOcphtlvaY+pJ6HzFXa4umiCWFe4l2B61s9XN/OYE0BL86e4zgMknpCnAKjg82aUX5c0cakojU7OwXGFRvhUsnGS8+5W3pebbK8lnEbDYnL4ycCCJ0mjVUMMcVkkOqQihFXcIkscdjezrC1yZ54zUcISJwOFwWqQlUOS8AhwcIIC7oL6sVejr3DQvyKOHQZfMNgInBlBD/O+WVeJGMEdcfUlEHa57IKs05aAZPFqW5xihxjfybgyjuR2bZujI2NDNev9THoJ6IdYqKE3mCIyhmK+ogN0deEwPI7yyzH4HjosLs/xHBMIXMTNvVAt0xLyyh9S5jR2FQkQ8k4fsfF9B9NxWTpgMRpo9yUL8Ij2Zga9HsW/V6CDUZUfYMeAQrDY3icWHBZ4TEqozPWcWZyHQpXxmeUMEkio/yoLaOxx/GokJ/jghrEzUKaNAoIXB1hDyHP/8G5rE8+L/y8IspMFUOYmVjzSlP4pXARVX09huuTOzIYWWVZgsFaT8b29fqQqIkBDn/K4q10gimjMtUG3cWkEVkkqMJgmBbprhk4tzsH05PQKwFVoR0m45wT50ocD3Pk41Kodw7IpHOvR80KZXK6FOJ8yIuyXeaThyMRUTeca4Q26dRi9K/NYyTgEng6Sk/TQxvC/YLqExIJLS08a6Qs1SYa0bgql4SLK//6Ziaa0O/TZoddbKElSMAL48cb2moyM9e5va1Ph8+qF1uYAdxs1tTrSJmKm4U8MB4BB0c5hkcl8pLPpGSN9muF9y7ErWzheikDhLLtA8OM4DiQYMr91XsWO/9+bkCijeUqoh0XFypzQ3Ql8qMj+xjTEwiNltKE9Hof17aoDdpXErPhyB/FcxdadS3G97QC27wCEhcBM3PvEpiUhSlIiHx0BByPPPYOjlGxPiKztDhqw4vvijOAg9zbw9L1tq2OteW1ydfpoJqmW6Z++0OHsTY0WTNNUicxkhXfUd8qJFakq+k+xXY7J8OPGSURiF5mcP3aBrY2jWTZUlrif5iHdMYYadAThyPPhmWewGefbZXO75QDpawbZheMC2Bvv8DeAZsfuMq0bMZe4NCxBT4oBwlqtBjJmtAeW0/SjmZPzXXU1PbLAWQhngcQNXH6qIzlpRLHor8sATpfNU0kKawpcX17DTe2LPrscg8DAnQG7yRBKPlhuG7Uljj9bSFtOfNBRgCJ36v19ZhvkNJRU0bAaM52X+TYPxyHEi/HbvAJQ4QWcyBDuFQOGnwERrTVaR+3WgsArbc1yP9//LmMhzzBWjbJ7nTmX9+9EVoxnQHtqeyodSWy1GNjLcGdmyl6GZCxgYTfRIrdEjCl2+O4n/Z9TdSZ582jmlEDOQs+UqcPmiLjPILWs4LoSHaGquPBEfB/u2McHw3hmZzanmT+0UrE7yRjICaUIXywQc2QzWafe/PimmDm5wMy/bFkFIUrhK5OmRFXTswTafIb1zdw95ZSsLGJWodIqznjBGqbpDp1WkbE6vdEYKT8LXMx55RQp4U/4bbbQJ/Wg6Ez4cN3C5umURs1U2h4CtsBRTCtHIrNEZEvXnrs7O5jxOGZJCs5FjBEZlxQMWSWEemtRxBWOVqB0E7UlrD5OPiQaEa7JWQ5+bRV2ApzxWIVBawtcPPaOu7e6qHPvIv+3VfIEt3oIoN+OC2OI8JlCnVDl7QdcvuFvfr76aBMCvxkbHpaSN91/gyh20yBLgwVqobAMZMPC4z37rXY9eS7fRznHnlJLzIQ0lLWmNA33G4dmIUgw8ihqR852TMzE5BFwJB2smqMQZbg1s0N3L7BTkTVBG4tyEjkcRky2gqDJyVvCw0HYirC/yvT2miJ/n1ek8GrpM7x2k3uFAf712RjeBNDFGCjsUJ4gTMyyZF9vzvEqOBrN9Zk1lZN4YQIix2a+pkMn6c69UneP0RSku2GqpoYUX0AVviYwcpejmqI9Z7FvbvbuLWt3RyG9Wlm0axJ08WF7kBZeXE+SpDj4u38p1UE9QFnfeYBejJUDlRJ96JCq0z+sr4jA+wdshX1WMaaO8Pey8gcaDwlUWf9hgaabE7Ni+8/aa5bR1knAAkPSqdWlhXSLEEl83UdBj2LIh/L8MrrGxnuv7GJtYFM54O1XjWEbyqQcauNwYlgyIMFk8eYbBYojYKcD5Cz9+4F9rf2QZMaGkgb+VelfXROCzWFDXePvz3G4biCSQZSIla+jcybk5xEygbhPShqMSa7Wswnn+v+kMZ3xObm8JPJjTCmdHTEI0ciM9nHuL29gbfu9tBno3q4LuezUw0IorxOoiVHjcro1BpTIa+kmGeVzhIudY6d140Z3i9/4htil/3M8+VtP/q8sk060TnAf/vmEHtHjBbWxOGTqNCSQGxe1SZzzekmF9oCgGh4ygnUBCOzFYp8iDfv3sKdmwbrmfxaODk5JCxpoSPC23OiqZLbqqOM0FAQBhW/gsxf6dRpGhSt0zwXxrUl+xNTThHSvITR4V+/HmH/qETpOZEulfiNpClDNo3A2BnJXOcEIJqpn4iugsliSz7BMBx2TEa2GuHOjU28dW8grTmMpELThghGtEleLRQilVN8brTSUTMWc8vT1Gj22fMEegLNztfUgNVf0z5AE0s+q/PcrVshsRnyED49flJg5+UQPiE1QRpF370YKSVakBhRxvto+ZDJWxNbyUEszqGXQrSCbyu4sZnhwf0N9KRW0cTwky2ereioLhqd700djUBPB2SeSTq3+gixWbeyTL1MfVftLd0mwTAHiMM335V4urMPJKQp1HwRNFeW9cvK2hefmqnXiBkv7Cz5p7UU+IcHG9KZLi0CMgYu3FJ4TZHQBTG8lbKQLq1ATzXfHR+4/sdziu4V/Q8ZqNM/isYswCVIUdZN6RLpDwiePmwg5XS6v/59H3tHTOf60sStWxkahvgUQDoTBOu9FyUSGTacS2j73jtbAoq8QiI4KpU07eLkW8+YgcfX253Q9kmtf7V5Ga8IyKvM6uBXs0FVFh2jqdiLFB6YySNFybDpi69eYv/YI+tvIi+aV/l1F4P53aNyokAVhchuvxQF+v4Y/bTEg3duC11OEyJbmIX+CIPaT805Z6z4LiDnVI4fw2lSBGUhrOJs+aco3QbKOO3UNB2StUX63aM8ABKnKZC/MdJ+2Tcl0nwXP3/nDq7fiG0v2pRAFjMOrvwxCObS7jEurpoP029qWwWpnyQc2ZHjr9+E4Zp2TUjJbne9+d2jkQCi79OL9l69/yBxuLMFvPMmuzb0W7jVjBv6+Vacq0+LZpsBSKyvUFMef5vj5WElNAtrK5ogt6ibTz4fqqzrFxxGDtpikFb41c8zYW9l/F5CM6aFGO7VuLQI58eE9AIaEgd8kufgwP+vHo9xNKbW6C6tNiD/DzWlRSi59QxkAAAAAElFTkSuQmCC">
@@ -7857,10 +6558,7 @@ match-attr##srcid##sp_purc_atom
           });
           return $resultElement;
         },
-        /**
-         * 添加滚动事件
-         */
-        addScrollEvent() {
+addScrollEvent() {
           log.success("添加滚动事件");
           this.$flag.isSetScrollEvent = true;
           this.$context.lockFunc = new utils.LockFunction(this.scrollEvent, this, 20);
@@ -7870,10 +6568,7 @@ match-attr##srcid##sp_purc_atom
             this.$context.lockFunc.run
           );
         },
-        /**
-         * 移除滚动事件
-         */
-        removeScrollEvent() {
+removeScrollEvent() {
           log.error("移除滚动事件");
           this.$context.loading.hide();
           if (this.$context.lockFunc?.run) {
@@ -7887,10 +6582,7 @@ match-attr##srcid##sp_purc_atom
           this.$flag.isSetScrollEvent = false;
           this.$data.nextPageUrl = null;
         },
-        /**
-         * 显示搜索失败的提示
-         */
-        alertErrorSearch(text) {
+alertErrorSearch(text) {
           __pops.alert({
             title: {
               position: "center",
@@ -7906,11 +6598,7 @@ match-attr##srcid##sp_purc_atom
             }
           });
         },
-        /**
-         * 添加搜索结果到页面中
-         * @param data 搜索结果
-         */
-        setSearchResultToPage(data) {
+setSearchResultToPage(data) {
           for (const searchResultItem of data) {
             domUtils.before(
               this.$context.loading.getLoadingViewElement(),
@@ -7918,10 +6606,7 @@ match-attr##srcid##sp_purc_atom
             );
           }
         },
-        /**
-         * 滚动事件
-         */
-        async scrollEvent(event) {
+async scrollEvent(event) {
           let maxScrollHeight = this.$ele.$searchResultList.scrollHeight - this.$ele.$searchResultList.clientHeight;
           if (this.$ele.$searchResultList.scrollTop + 50 < maxScrollHeight) {
             return;
@@ -7965,18 +6650,12 @@ match-attr##srcid##sp_purc_atom
         hideSearchContainer() {
           domUtils.hide(this.$ele.$searchContainer);
         },
-        /**
-         * 清空旧的搜索内容、滚动事件，重置为默认状态
-         */
-        clearOldSearchResult() {
+clearOldSearchResult() {
           log.success("清空旧的搜索内容、滚动事件，搜索Url");
           this.clearSearchResult();
           this.removeScrollEvent();
         },
-        /**
-         * 帖子内搜索(搜索帖子)
-         * */
-        async postsPageSearch() {
+async postsPageSearch() {
           this.$context.loading.show();
           let searchKw = "";
           if (this.$data.searchType === 0) {
@@ -8011,12 +6690,7 @@ match-attr##srcid##sp_purc_atom
             log.error("搜索结果就1页，不设置scroll监听");
           }
         },
-        /**
-         * 提供对外的搜索链接
-         *
-         * 判断方式为location.search中包含查询关键字gmsearch
-         */
-        execByUrlSearchParams() {
+execByUrlSearchParams() {
           let searchParams = new URLSearchParams(window.location.search);
           const KEY_searchText = "gmsearch";
           const KEY_searchType = "gmsearchtype";
@@ -8058,26 +6732,13 @@ match-attr##srcid##sp_purc_atom
         }
       };
       const TiebaData = {
-        /**
-         * 当前吧名
-         */
-        forumName: void 0,
-        /**
-         * 当前吧名的id
-         */
-        forumId: void 0,
-        /**
-         * 高清图片映射
-         */
-        imageMap: /* @__PURE__ */ new Map()
+forumName: void 0,
+forumId: void 0,
+imageMap: new Map()
       };
       const Toolbar = {
         $data: {},
-        /**
-         * 更新环境参数
-         * 使用$watch好像不生效
-         */
-        updateEnvParam() {
+updateEnvParam() {
           VueUtils.waitVuePropToSet(".main-thread-content .interaction-bar", [
             {
               msg: "获取参数 thread",
@@ -8163,11 +6824,7 @@ match-attr##srcid##sp_purc_atom
             }
           ]);
         },
-        /**
-         * 工具栏的评论按钮的点击事件
-         * @param event
-         */
-        goToReplyArea(event) {
+goToReplyArea(event) {
           let $affixLine = $(".affix-line");
           if (!$affixLine) {
             Qmsg.error("未找到元素.affix-line");
@@ -8180,10 +6837,7 @@ match-attr##srcid##sp_purc_atom
             behavior: "smooth"
           });
         },
-        /**
-         * 工具栏的点赞按钮的点击事件
-         */
-        goodClickEvent() {
+goodClickEvent() {
           log.info("点赞");
           let $good = $(".interaction-item.good");
           if (!$good) {
@@ -8195,17 +6849,11 @@ match-attr##srcid##sp_purc_atom
             this.updateEnvParam();
           }, 500);
         },
-        /**
-         * 发表回复
-         */
-        postMsg(content) {
+postMsg(content) {
         }
       };
       const TiebaPostApi = {
-        /**
-         * 传入用户id或portrait判断是否是贴吧机器人（贴吧包打听）
-         */
-        isRobot(config) {
+isRobot(config) {
           if (config.id != null && (typeof config.id === "number" || typeof config.id === "string")) {
             return config.id.toString() === "6421022725";
           } else if (config.portrait != null && typeof config.portrait === "string") {
@@ -8213,40 +6861,18 @@ match-attr##srcid##sp_purc_atom
           }
           return false;
         },
-        /**
-         * 评论帖子
-         */
-        async apubthread(details) {
+async apubthread(details) {
           let api = "https://tieba.baidu.com/mo/q/apubthread";
           let data = {
-            /**
-             * 回复的内容
-             */
-            co: details.content,
+co: details.content,
             fid: details.fid,
-            /**
-             * 不知道具体值
-             */
-            src: 1,
+src: 1,
             pid: details.pid,
-            /**
-             * 帖子id
-             */
-            z: details.tid,
-            /**
-             * 当前吧名
-             */
-            word: details.forumName,
-            /**
-             * 客户端
-             * "pc_web" | "wap_smart" | "mini_program"
-             */
-            client_type: "wap_smart",
+z: details.tid,
+word: details.forumName,
+client_type: "wap_smart",
             tbs: details.tbs,
-            /**
-             * 不知道具体值
-             */
-            come_from: 1
+come_from: 1
           };
           let formdata = utils.toFormData(data);
           let postResp = await httpx.post(api, {
@@ -8272,30 +6898,18 @@ match-attr##srcid##sp_purc_atom
           }
           return postData["data"];
         },
-        /**
-         * 删除评论
-         */
-        async deleteCommit(data) {
+async deleteCommit(data) {
           let api = "https://tieba.baidu.com/f/commit/post/delete";
           let postData = {
-            // 可能还有个是lzl
-            commit_fr: "pb",
-            // 编码
-            ie: "utf-8",
-            // 贴吧tbs值 PageData.tbs
-            tbs: data.tbs,
-            // 当前吧名 PageData.forum.forum_name
-            kw: data.kw,
-            // forumId PageData.forum.forum_id
-            fid: data.fid,
-            // threadId PageData.thread.thread_id
-            tid: data.tid,
-            // 是否是会员删除？
-            is_vipdel: 1,
-            // 本回复的id comment_id
-            pid: data.pid,
-            // ???不知道是什么
-            is_finf: 1
+commit_fr: "pb",
+ie: "utf-8",
+tbs: data.tbs,
+kw: data.kw,
+fid: data.fid,
+tid: data.tid,
+is_vipdel: 1,
+pid: data.pid,
+is_finf: 1
           };
           let resp = await httpx.post(api, {
             fetch: true,
@@ -8320,14 +6934,7 @@ match-attr##srcid##sp_purc_atom
           }
           return true;
         },
-        /**
-         * 获取评论数据
-         * @param kz 帖子id
-         * @param [pn=1] 评论页码
-         * @param [rn=10] 每页评论数量
-         * @param [only_post=1]
-         */
-        async getPbData(kz, pn = 1, rn = 10, only_post = 1) {
+async getPbData(kz, pn = 1, rn = 10, only_post = 1) {
           let searchParamsData = {
             pn,
             rn,
@@ -8360,11 +6967,7 @@ match-attr##srcid##sp_purc_atom
             post_list
           };
         },
-        /**
-         * 上传图片
-         * @param imageFile 图片文件
-         */
-        async cooluploadpic(imageFile) {
+async cooluploadpic(imageFile) {
           let postData = {
             pic: imageFile
           };
@@ -8397,11 +7000,7 @@ match-attr##srcid##sp_purc_atom
             view_img_url_auth: data["data"]["view_img_url_auth"]
           };
         },
-        /**
-         * 上传图片(PC端)
-         * @param searchParamsData 查询参数
-         */
-        async uploadphotos(searchParamsData) {
+async uploadphotos(searchParamsData) {
           const picWaterType = searchParamsData.picWaterType ?? 1039999;
           const postFormData = new FormData();
           postFormData.set("file", searchParamsData.imageFile);
@@ -8441,10 +7040,7 @@ match-attr##srcid##sp_purc_atom
         }
       };
       const TiebaPageDataHandler = {
-        /**
-         * 从页面中获取forum的id
-         */
-        getForumId() {
+getForumId() {
           let dataBannerInfoStr = $(".recommend-item")?.getAttribute("data-banner-info");
           let dataBannerInfo = utils.toJSON(dataBannerInfoStr);
           if (dataBannerInfo["forum_id"]) {
@@ -8473,8 +7069,7 @@ match-attr##srcid##sp_purc_atom
             return;
           }
           addStyle$1(
-            /*css*/
-            `
+`
 			.affix-container-top-fixed[data-target="${defaultOption.target}"]{
 				position: fixed;
 				top: ${defaultOption.offset}px;
@@ -8519,117 +7114,40 @@ match-attr##srcid##sp_purc_atom
             {
               root: null,
               threshold,
-              // threshold 设置为 1 表示目标元素完全可见时触发回调函数
-              rootMargin
-              // rootMargin 设置为 0px 表示目标元素与视窗之间的距离
-            }
+rootMargin
+}
           );
           observer.observe($affixLine);
         });
       }
       const TiebaComment = {
-        /**
-         * 当前页
-         */
-        page: 1,
-        /**
-         * 当前最大页
-         */
-        maxPage: 1,
-        /**
-         * 楼层数量
-         */
-        floor_num: 1,
-        /**
-         * 滚动监听锁
-         */
-        funcLock: null,
-        /**
-         * tbs值
-         */
-        tbs: null,
-        /**
-         * tid
-         */
-        param_tid: null,
-        /**
-         * 帖子id
-         */
-        param_forum_id: null,
-        /**
-         * 发帖人的id
-         */
-        postAuthorId: null,
-        /**
-         * 本帖子post的id
-         */
-        pid: null,
-        /**
-         * 帖子回复的数量
-         */
-        reply_num: vue.ref(0),
-        /**
-         * 是否已对当前帖子点赞
-         */
-        has_agree: vue.ref(false),
-        /**
-         * 帖子点赞的数量
-         */
-        agree_num: vue.ref(0),
-        /**
-         * 当前已登录用户的信息
-         */
-        userInfo: vue.ref({
-          /**
-           * 用户id
-           */
-          id: null,
-          /**
-           * 是否已登录，如果是0，那么其它数据不存在
-           * + 1 已登录
-           * + 0 未登录
-           */
-          is_login: 0,
-          /**
-           * 用户名
-           */
-          name: null,
-          /**
-           * 显示的用户名
-           */
-          name_show: null,
-          /**
-           * 用户的tb
-           */
-          portrait: null,
-          /**
-           * 显示的用户名
-           */
-          show_nickname: null
+page: 1,
+maxPage: 1,
+floor_num: 1,
+funcLock: null,
+tbs: null,
+param_tid: null,
+param_forum_id: null,
+postAuthorId: null,
+pid: null,
+reply_num: vue.ref(0),
+has_agree: vue.ref(false),
+agree_num: vue.ref(0),
+userInfo: vue.ref({
+id: null,
+is_login: 0,
+name: null,
+name_show: null,
+portrait: null,
+show_nickname: null
         }),
         forumInfo: vue.ref({
-          /**
-           * 当前吧id，简称tid
-           */
-          id: null,
-          /**
-           * 当前吧名，简称kw
-           */
-          name: null
+id: null,
+name: null
         }),
-        /**
-         * 进过百度验证的额外安全参数
-         */
-        extraSearchSignParams: "",
-        /**
-         * vue根元素
-         */
-        vueRootView: null,
-        /**
-         * 判断是否在底部附近的误差值
-         * @type
-         */
-        isNearBottomValue: 250,
+extraSearchSignParams: "",
+vueRootView: null,
+isNearBottomValue: 250,
         init() {
           let urlSignParams = new URLSearchParams(window.location.search);
           if (urlSignParams.has("p_tk") && urlSignParams.has("p_sign") && urlSignParams.has("p_signature")) {
@@ -8703,8 +7221,7 @@ match-attr##srcid##sp_purc_atom
         },
         initCSS() {
           addStyle$1(
-            /*css*/
-            `
+`
 		/* 去除底部高度设定 */
 		.pb-page-wrapper{
 			margin-bottom: 0 !important;
@@ -8934,8 +7451,7 @@ match-attr##srcid##sp_purc_atom
 		`
           );
           addStyle$1(
-            /*css*/
-            `
+`
 		.thread-text .BDE_Smiley {
 			width: .2rem;
 			height: .2rem;
@@ -8955,8 +7471,7 @@ match-attr##srcid##sp_purc_atom
 		}`
           );
           addStyle$1(
-            /*css*/
-            `
+`
 		body > div.main-page-wrap > div.app-view.transition-fade.pb-page-wrapper.mask-hidden > div.placeholder,
 		div.app-view.transition-fade.pb-page-wrapper.mask-hidden .post-item[data-track]{
 			display: none;
@@ -8964,8 +7479,7 @@ match-attr##srcid##sp_purc_atom
           );
           addStyle$1(this.getLevelCSS());
           addStyle$1(
-            /*css*/
-            `
+`
 		/* 更多的按钮 */
 		.user-comment-handler{
 			display: flex;
@@ -8978,10 +7492,7 @@ match-attr##srcid##sp_purc_atom
 		`
           );
         },
-        /**
-         * 设置每条评论右边的更多按钮的事件
-         */
-        setUserCommentHandler() {
+setUserCommentHandler() {
           async function deleteItem(id) {
             let comment_id = id;
             let thread_id = TiebaComment.param_tid;
@@ -9003,8 +7514,7 @@ match-attr##srcid##sp_purc_atom
               },
               content: {
                 text: (
-                  /*html*/
-                  `
+`
 					<div class="handler-container">
 						<div class="reply-content-info">
 							<div class="reply-content-name">${data.user}：</div>
@@ -9044,8 +7554,7 @@ match-attr##srcid##sp_purc_atom
                 }
               },
               style: (
-                /*css*/
-                `
+`
 				.pops[type-value="drawer"]{
 					height: unset !important;
 					max-height: 32%;
@@ -9157,8 +7666,7 @@ match-attr##srcid##sp_purc_atom
                   height: "180px",
                   zIndex: utils.getMaxZIndex(100),
                   style: (
-                    /*css*/
-                    `
+`
 						.pops[type-value="confirm"]{
 							--container-title-height: 0;
 							--container-bottom-btn-height: 40px;
@@ -9285,13 +7793,11 @@ match-attr##srcid##sp_purc_atom
             }
           );
         },
-        /** 用户贴吧等级CSS */
-        getLevelCSS() {
+getLevelCSS() {
           let colorConversion = new utils.ColorConversion();
           let colorLightLevel = 0.7;
           return (
-            /*css*/
-            `
+`
           .forum-level-container{
             display: flex;
             align-items: center;
@@ -9352,14 +7858,7 @@ match-attr##srcid##sp_purc_atom
           `
           );
         },
-        /**
-         * 滚动事件
-         * @param isPrev
-         * @param pageDOM
-         * @param pageCommentList
-         * @returns
-         */
-        scrollEvent(isNext, pageDOM, pageCommentList) {
+scrollEvent(isNext, pageDOM, pageCommentList) {
           log.info("成功获取评论和楼中楼评论");
           let comments = Array.from(
             pageDOM.querySelectorAll(".l_post.l_post_bright")
@@ -9401,18 +7900,12 @@ match-attr##srcid##sp_purc_atom
           }
           TiebaComment.triggerScrollEvent();
         },
-        /**
-         * 主动触发滚动事件
-         */
-        triggerScrollEvent() {
+triggerScrollEvent() {
           setTimeout(() => {
             document.dispatchEvent(new Event("scroll"));
           }, 400);
         },
-        /**
-         * scroll事件触发 自动加载下一页的评论
-         */
-        nextPageScrollEvent: async (event) => {
+nextPageScrollEvent: async (event) => {
           if (event.jsTrigger) ;
           else if (!utils.isNearBottom(TiebaComment.isNearBottomValue)) {
             return;
@@ -9447,10 +7940,7 @@ match-attr##srcid##sp_purc_atom
           }
           TiebaComment.scrollEvent(true, pageDOM, pageCommentList);
         },
-        /**
-         * scroll事件触发 自动加载上一页的评论
-         */
-        prevPageScrollEvent: async (event) => {
+prevPageScrollEvent: async (event) => {
           if (event.jsTrigger) ;
           else if (!utils.isNearBottom(TiebaComment.isNearBottomValue)) {
             return;
@@ -9484,10 +7974,7 @@ match-attr##srcid##sp_purc_atom
           }
           TiebaComment.scrollEvent(false, pageDOM, pageCommentList);
         },
-        /**
-         * 设置自动加载下一页的scrol事件
-         */
-        setNextPageScrollListener() {
+setNextPageScrollListener() {
           TiebaComment.funcLock = new utils.LockFunction(
             TiebaComment.nextPageScrollEvent,
             this
@@ -9496,10 +7983,7 @@ match-attr##srcid##sp_purc_atom
           utils.dispatchEvent(document, "scroll", { jsTrigger: true });
           log.success("scroll监听事件【下一页】");
         },
-        /**
-         * 设置自动加载上一页的scrol事件
-         */
-        setPrevPageScrollListener() {
+setPrevPageScrollListener() {
           TiebaComment.funcLock = new utils.LockFunction(
             TiebaComment.prevPageScrollEvent,
             this
@@ -9508,21 +7992,14 @@ match-attr##srcid##sp_purc_atom
           utils.dispatchEvent(document, "scroll", { jsTrigger: true });
           log.success("scroll监听事件【上一页】");
         },
-        /**
-         * 移除scoll事件
-         */
-        removeScrollListener() {
+removeScrollListener() {
           if (TiebaComment.funcLock) {
             document.removeEventListener("scroll", TiebaComment.funcLock.run);
             log.success("取消绑定scroll", "#f400ff");
           }
         },
-        /**
-         * 获取时间差
-         * @param timeStr
-         */
-        getDifferTime(timeStr) {
-          let currentTime = /* @__PURE__ */ new Date();
+getDifferTime(timeStr) {
+          let currentTime = new Date();
           let timeDifference = currentTime.getTime() - new Date(timeStr.replace(/-/g, "/")).getTime();
           let days = Math.floor(timeDifference / (24 * 3600 * 1e3));
           if (days > 0) {
@@ -9546,12 +8023,7 @@ match-attr##srcid##sp_purc_atom
           }
           return timeStr;
         },
-        /**
-         * 根据dom获取需要插入的评论的html
-         * @param element
-         * @param pageCommentList
-         */
-        getNewCommentInnerElement: (element, pageCommentList) => {
+getNewCommentInnerElement: (element, pageCommentList) => {
           function parseCommentBottomInfo(ele) {
             let $tailWrap = ele.querySelector(".post-tail-wrap");
             let userIpPosition2 = "";
@@ -9655,12 +8127,11 @@ match-attr##srcid##sp_purc_atom
                 let u_user_portrait = pageCommentList.userList[u_user_id]["portrait"];
                 let u_user_home_url = "/home/main?id=" + u_user_portrait;
                 if (builderId == u_user_id) {
-                  u_user_name += /*html*/
-                  `<svg data-v-5b60f30b="" class="landlord"><use xlink:href="#icon_landlord"></use></svg>`;
+                  u_user_name +=
+`<svg data-v-5b60f30b="" class="landlord"><use xlink:href="#icon_landlord"></use></svg>`;
                 }
                 let lzlCommentItemHTML = (
-                  /*html*/
-                  `
+`
 					<div data-v-5b60f30b="" class="lzl-post-item" style="">
 						<div data-v-5b60f30b="" class="text-box">
 							<span data-v-5b60f30b="" class="link username" data-home-url="${u_user_home_url}">${u_user_name}</span>
@@ -9675,8 +8146,8 @@ match-attr##srcid##sp_purc_atom
             );
           }
           if (newUserCommentHTML) {
-            newUserCommentHTML = /*html*/
-            `
+            newUserCommentHTML =
+`
             <div data-v-5b60f30b="" data-v-74eb13e2="" class="lzl-post lzl-post" style="max-height: 2.35rem;overflow-y: hidden;">
               ${newUserCommentHTML}
             </div>
@@ -9687,8 +8158,7 @@ match-attr##srcid##sp_purc_atom
             {
               className: "post-item",
               innerHTML: (
-                /*html*/
-                `
+`
 				<div
 					data-v-188c0e84=""
 					data-v-74eb13e2=""
@@ -9763,11 +8233,7 @@ match-attr##srcid##sp_purc_atom
           newCommentElement.querySelectorAll(".text-content embed.BDE_Music").forEach((ele) => ele.remove());
           return newCommentElement;
         },
-        /**
-         * 根据评论的html插入页面中
-         * @param newCommentDOM
-         */
-        insertNewCommentInnerElement: (newCommentDOM) => {
+insertNewCommentInnerElement: (newCommentDOM) => {
           if (newCommentDOM == null) {
             return;
           }
@@ -9828,8 +8294,7 @@ match-attr##srcid##sp_purc_atom
                 {
                   className: "whitesev-see-all-reply",
                   innerHTML: (
-                    /*html*/
-                    `查看全部${lzlCommentNums}条回复`
+`查看全部${lzlCommentNums}条回复`
                   )
                 },
                 {
@@ -9856,14 +8321,10 @@ match-attr##srcid##sp_purc_atom
             );
           }
         },
-        /**
-         * 初始化评论的弹窗的所有设置包括CSS
-         */
-        initReplyDialogCSS() {
+initReplyDialogCSS() {
           log.success("初始化回复的弹窗");
           addStyle$1(
-            /*css*/
-            `
+`
 		/* 主 */
 		#whitesev-reply-dialog{
 			z-index: 99999;
@@ -10063,14 +8524,11 @@ match-attr##srcid##sp_purc_atom
 		}`
           );
         },
-        /**
-         * 获取楼中楼评论的元素
-         */
-        getLzlItemElement(data) {
+getLzlItemElement(data) {
           let $otherCommentItem = document.createElement("div");
           $otherCommentItem.className = "whitesev-reply-dialog-sheet-other-content-item whitesev-reply-dialog-content-item";
-          $otherCommentItem.innerHTML = /*html*/
-          `
+          $otherCommentItem.innerHTML =
+`
 		<div class="whitesev-reply-dialog-user-line-wrapper" data-portrait="${data.portrait}">
 			<div class="whitesev-reply-dialog-user-line" data-portrait="${data.portrait}">
 				<div class="whitesev-reply-dialog-avatar" style="background-image: url(${data.avatar});"></div>
@@ -10098,11 +8556,7 @@ match-attr##srcid##sp_purc_atom
 		`;
           return $otherCommentItem;
         },
-        /**
-         * 显示评论的弹窗
-         * @param element
-         */
-        showReplyDialog(element) {
+showReplyDialog(element) {
           let contentElement = element.closest("div.post-item");
           let data = {};
           if (contentElement && contentElement["data-whitesev"]) {
@@ -10173,8 +8627,7 @@ match-attr##srcid##sp_purc_atom
           let dialog = domUtils.createElement("div", {
             id: "whitesev-reply-dialog",
             innerHTML: (
-              /*html*/
-              `
+`
             <div class="whitesev-reply-dialog-bg"></div>
             <div class="whitesev-reply-dialog-sheet" style="height: ${document.documentElement.clientHeight * 0.92}px;">
               <div class="whitesev-reply-dialog-sheet-title">
@@ -10355,8 +8808,8 @@ match-attr##srcid##sp_purc_atom
                   isLandlord = true;
                 }
               }
-              commentHTML += /*html*/
-              `
+              commentHTML +=
+`
               <div class="whitesev-reply-dialog-sheet-other-content-item" data-lazy-load-level="true" data-username="${item["userName"]}">
                 <div class="whitesev-reply-dialog-user-line" data-portrait="${item["userPortrait"]}">
                   <div class="whitesev-reply-dialog-avatar" style="background-image: url(${item["userAvatar"]});"></div>
@@ -10418,8 +8871,7 @@ match-attr##srcid##sp_purc_atom
                     );
                     domUtils.append(
                       $userInfo,
-                      /*html*/
-                      `
+`
                                     <div class="forum-level-container">
                                         <span class="forum-level" data-level="${likeForumLevel}">Lv.${likeForumLevel}</span>
                                     </div>`
@@ -10483,16 +8935,10 @@ match-attr##srcid##sp_purc_atom
             }
           }, 0);
         },
-        /**
-         * 获取楼中楼评论
-         * @param tid 帖子id
-         * @param pid 回复主体id
-         * @param pn 当前页
-         */
-        async getLzlCommentReply(tid = "", pid = "", pn = 1) {
+async getLzlCommentReply(tid = "", pid = "", pn = 1) {
           let getResp = await httpx.get({
             url: TiebaUrlHandler.getPost(
-              `comment?tid=${tid}&pid=${pid}&pn=${pn}&t=${(/* @__PURE__ */ new Date()).getTime()}${TiebaComment.extraSearchSignParams}`
+              `comment?tid=${tid}&pid=${pid}&pn=${pn}&t=${( new Date()).getTime()}${TiebaComment.extraSearchSignParams}`
             ),
             headers: {
               "User-Agent": utils.getRandomPCUA(),
@@ -10528,7 +8974,7 @@ match-attr##srcid##sp_purc_atom
             let userReplyTimeStr = item.querySelector("span.lzl_time").innerHTML;
             let userReplyTimeNumber = utils.formatToTimeStamp(userReplyTimeStr);
             let userReplyTime = utils.getDaysDifference(
-              (/* @__PURE__ */ new Date()).getTime(),
+              ( new Date()).getTime(),
               userReplyTimeNumber,
               "auto"
             ) + "前";
@@ -10559,11 +9005,7 @@ match-attr##srcid##sp_purc_atom
             return result;
           }
         },
-        /**
-         * 获取第XX页的评论（不包括楼中楼评论）
-         * @param url
-         */
-        async getPageComment(url) {
+async getPageComment(url) {
           let getDetails = {
             url,
             headers: {
@@ -10621,11 +9063,7 @@ match-attr##srcid##sp_purc_atom
             data: null
           };
         },
-        /**
-         * 获取第XX页的所有评论
-         * @param url
-         */
-        async getPageCommentList(url) {
+async getPageCommentList(url) {
           let getResp = await httpx.get({
             url,
             responseType: "json",
@@ -10650,10 +9088,7 @@ match-attr##srcid##sp_purc_atom
             log.error(getResp);
           }
         },
-        /**
-         * 插入加载中的html
-         */
-        insertLoadingHTML() {
+insertLoadingHTML() {
           if (!loadingView.isExists()) {
             log.info("插入loading");
             loadingView.initLoadingView();
@@ -10666,18 +9101,14 @@ match-attr##srcid##sp_purc_atom
             }
           }
         },
-        /**
-         * 插入只看楼主的按钮
-         */
-        insertOnlyLZ() {
+insertOnlyLZ() {
           let replyRightContainer = $(".reply-right-container");
           if (!replyRightContainer) {
             log.error("元素.reply-right-container不存在");
             return;
           }
           addStyle$1(
-            /*css*/
-            `
+`
           .white-only-lz{
             display: -webkit-flex;
             display: -ms-flexbox;
@@ -10731,18 +9162,14 @@ match-attr##srcid##sp_purc_atom
             }
           });
         },
-        /**
-         * 插入 正序=倒序的按钮
-         */
-        insertReverseBtn() {
+insertReverseBtn() {
           let replySwitchElement = $("#replySwitch");
           if (!replySwitchElement) {
             log.error("元素#replySwitch不存在");
             return;
           }
           addStyle$1(
-            /*css*/
-            `
+`
           .reply-right-container {
             display: flex;
             align-items: center;
@@ -10796,8 +9223,7 @@ match-attr##srcid##sp_purc_atom
           let btnElement = domUtils.createElement("div", {
             className: "btn-comment-reverse-pack",
             innerHTML: (
-              /*html*/
-              `
+`
               <span class="tab-item selected-tab-item" data-positive>正序</span>
               <span class="tab-item" data-reverse>倒序</span>`
             )
@@ -10835,11 +9261,7 @@ match-attr##srcid##sp_purc_atom
             }
           });
         },
-        /**
-         * 查看 正序/倒序
-         * @param [isReverse=false] 是否是倒序，默认false：正序
-         */
-        async initMainComment(isReverse = false) {
+async initMainComment(isReverse = false) {
           let tag = isReverse ? "倒序: " : "正序: ";
           log.info(tag + `查看内容`);
           TiebaComment.param_tid = TiebaCore.getCurrentForumPostTid();
@@ -10902,8 +9324,7 @@ match-attr##srcid##sp_purc_atom
           let pcPageCommentInfo = await TiebaComment.getPageComment(pcPageUrl);
           if (!pcPageCommentInfo.success) {
             loadingView.setHTML(
-              /*html*/
-              `<a href="${pcPageCommentInfo.data}" target="_blank">触发百度安全验证，点击前往验证</a>`
+`<a href="${pcPageCommentInfo.data}" target="_blank">触发百度安全验证，点击前往验证</a>`
             );
             return;
           }
@@ -10968,11 +9389,7 @@ match-attr##srcid##sp_purc_atom
         },
         init() {
         },
-        /**
-         * 观察评论动态加载（包含楼中楼评论）
-         * @param callback 回调
-         */
-        watchComment(callback) {
+watchComment(callback) {
           this.$data.watchCommentCallBack.push(callback);
           if (this.$data.watchCommentCallBack.length > 1) {
             return;
@@ -11035,39 +9452,19 @@ match-attr##srcid##sp_purc_atom
             return this.__storeApiFn;
           }
         },
-        /**
-         * 获取自定义的存储接口
-         * @param type 组件类型
-         */
-        getStorageApi(type) {
+getStorageApi(type) {
           if (!this.hasStorageApi(type)) {
             return;
           }
           return this.$data.storeApiValue.get(type);
         },
-        /**
-         * 判断是否存在自定义的存储接口
-         * @param type 组件类型
-         */
-        hasStorageApi(type) {
+hasStorageApi(type) {
           return this.$data.storeApiValue.has(type);
         },
-        /**
-         * 设置自定义的存储接口
-         * @param type 组件类型
-         * @param storageApiValue 存储接口
-         */
-        setStorageApi(type, storageApiValue) {
+setStorageApi(type, storageApiValue) {
           this.$data.storeApiValue.set(type, storageApiValue);
         },
-        /**
-         * 初始化组件的存储接口属性
-         *
-         * @param type 组件类型
-         * @param config 组件配置，必须包含prop属性
-         * @param storageApiValue 存储接口
-         */
-        initComponentsStorageApi(type, config, storageApiValue) {
+initComponentsStorageApi(type, config, storageApiValue) {
           let propsStorageApi;
           if (this.hasStorageApi(type)) {
             propsStorageApi = this.getStorageApi(type);
@@ -11076,12 +9473,7 @@ match-attr##srcid##sp_purc_atom
           }
           this.setComponentsStorageApiProperty(config, propsStorageApi);
         },
-        /**
-         * 设置组件的存储接口属性
-         * @param config 组件配置，必须包含prop属性
-         * @param storageApiValue 存储接口
-         */
-        setComponentsStorageApiProperty(config, storageApiValue) {
+setComponentsStorageApiProperty(config, storageApiValue) {
           Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
         }
       };
@@ -11169,10 +9561,7 @@ match-attr##srcid##sp_purc_atom
         constructor(option) {
           this.option = option;
         }
-        /**
-         * 显示视图
-         */
-        async showView() {
+async showView() {
           let $dialog = __pops.confirm({
             title: {
               text: this.option.title,
@@ -11180,8 +9569,7 @@ match-attr##srcid##sp_purc_atom
             },
             content: {
               text: (
-                /*html*/
-                `
+`
                     <form class="rule-form-container" onsubmit="return false">
                         <ul class="rule-form-ulist"></ul>
                         <input type="submit" style="display: none;" />
@@ -11206,8 +9594,7 @@ match-attr##srcid##sp_purc_atom
               enable: true
             },
             style: (
-              /*css*/
-              `
+`
                 ${__pops.config.cssText.panelCSS}
                 
                 .rule-form-container {
@@ -11297,8 +9684,7 @@ match-attr##srcid##sp_purc_atom
             },
             content: {
               text: (
-                /*html*/
-                `
+`
                 <div class="filter-container"></div>
                 `
               )
@@ -11316,8 +9702,7 @@ match-attr##srcid##sp_purc_atom
             width: window.innerWidth > 500 ? "350px" : "80vw",
             height: window.innerHeight > 500 ? "300px" : "70vh",
             style: (
-              /*css*/
-              `
+`
             .filter-container{
                 height: 100%;
                 display: flex;
@@ -11383,11 +9768,7 @@ match-attr##srcid##sp_purc_atom
         constructor(option) {
           this.option = option;
         }
-        /**
-         * 显示视图
-         * @param filterCallBack 返回值为false隐藏，true则不隐藏（不处理）
-         */
-        async showView(filterCallBack) {
+async showView(filterCallBack) {
           let $popsConfirm = __pops.confirm({
             title: {
               text: this.option.title,
@@ -11395,8 +9776,7 @@ match-attr##srcid##sp_purc_atom
             },
             content: {
               text: (
-                /*html*/
-                `
+`
                     <div class="rule-view-container">
                     </div>
                     `
@@ -11518,8 +9898,7 @@ match-attr##srcid##sp_purc_atom
             width: window.innerWidth > 500 ? "500px" : "88vw",
             height: window.innerHeight > 500 ? "500px" : "80vh",
             style: (
-              /*css*/
-              `
+`
             ${__pops.config.cssText.panelCSS}
             
             .rule-item{
@@ -11586,16 +9965,7 @@ match-attr##srcid##sp_purc_atom
             domUtils.text($button, "取消过滤");
           }
         }
-        /**
-         * 显示编辑视图
-         * @param isEdit 是否是编辑状态
-         * @param editData 编辑的数据
-         * @param $parentShadowRoot （可选）关闭弹窗后对ShadowRoot进行操作
-         * @param $editRuleItemElement （可选）关闭弹窗后对规则行进行更新数据
-         * @param updateDataCallBack （可选）关闭添加/编辑弹窗的回调（不更新数据）
-         * @param submitCallBack （可选）添加/修改提交的回调
-         */
-        showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
+showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
           let dialogCloseCallBack = async (isSubmit) => {
             if (isSubmit) {
               if (typeof submitCallBack === "function") {
@@ -11672,10 +10042,7 @@ match-attr##srcid##sp_purc_atom
           });
           editView.showView();
         }
-        /**
-         * 解析弹窗内的各个元素
-         */
-        parseViewElement($shadowRoot) {
+parseViewElement($shadowRoot) {
           let $container = $shadowRoot.querySelector(
             ".rule-view-container"
           );
@@ -11683,16 +10050,11 @@ match-attr##srcid##sp_purc_atom
             ".pops-confirm-btn button.pops-confirm-btn-other"
           );
           return {
-            /** 容器 */
-            $container,
-            /** 左下角的清空按钮 */
-            $deleteBtn
+$container,
+$deleteBtn
           };
         }
-        /**
-         * 解析每一项的元素
-         */
-        parseRuleItemElement($ruleElement) {
+parseRuleItemElement($ruleElement) {
           let $enable = $ruleElement.querySelector(
             ".rule-controls-enable"
           );
@@ -11708,32 +10070,21 @@ match-attr##srcid##sp_purc_atom
             ".rule-controls-delete"
           );
           return {
-            /** 启用开关 */
-            $enable,
-            /** 启用开关的container */
-            $enableSwitch,
-            /** 启用开关的input */
-            $enableSwitchInput,
-            /** 启用开关的core */
-            $enableSwitchCore,
-            /** 编辑按钮 */
-            $edit,
-            /** 删除按钮 */
-            $delete,
-            /** 存储在元素上的数据 */
-            data: Reflect.get($ruleElement, "data-rule")
+$enable,
+$enableSwitch,
+$enableSwitchInput,
+$enableSwitchCore,
+$edit,
+$delete,
+data: Reflect.get($ruleElement, "data-rule")
           };
         }
-        /**
-         * 创建一条规则元素
-         */
-        async createRuleItemElement(data, $shadowRoot) {
+async createRuleItemElement(data, $shadowRoot) {
           let name = await this.option.getDataItemName(data);
           let $ruleItem = domUtils.createElement("div", {
             className: "rule-item",
             innerHTML: (
-              /*html*/
-              `
+`
 			<div class="rule-name">${name}</div>
 			<div class="rule-controls">
 				<div class="rule-controls-enable">
@@ -11842,10 +10193,7 @@ match-attr##srcid##sp_purc_atom
           }
           return $ruleItem;
         }
-        /**
-         * 添加一个规则元素
-         */
-        async appendRuleItemElement($shadowRoot, data) {
+async appendRuleItemElement($shadowRoot, data) {
           let { $container } = this.parseViewElement($shadowRoot);
           let $ruleItem = [];
           let iteratorData = Array.isArray(data) ? data : [data];
@@ -11858,35 +10206,23 @@ match-attr##srcid##sp_purc_atom
           await this.updateDeleteAllBtnText($shadowRoot);
           return $ruleItem;
         }
-        /**
-         * 更新弹窗内容的元素
-         */
-        async updateRuleContaienrElement($shadowRoot) {
+async updateRuleContaienrElement($shadowRoot) {
           this.clearContent($shadowRoot);
           const { $container } = this.parseViewElement($shadowRoot);
           let data = await this.option.data();
           await this.appendRuleItemElement($shadowRoot, data);
           await this.updateDeleteAllBtnText($shadowRoot);
         }
-        /**
-         * 更新规则元素
-         */
-        async updateRuleItemElement(data, $oldRuleItem, $shadowRoot) {
+async updateRuleItemElement(data, $oldRuleItem, $shadowRoot) {
           let $newRuleItem = await this.createRuleItemElement(data, $shadowRoot);
           $oldRuleItem.after($newRuleItem);
           $oldRuleItem.remove();
         }
-        /**
-         * 清空内容
-         */
-        clearContent($shadowRoot) {
+clearContent($shadowRoot) {
           const { $container } = this.parseViewElement($shadowRoot);
           domUtils.html($container, "");
         }
-        /**
-         * 设置删除按钮的文字
-         */
-        setDeleteBtnText($shadowRoot, text, isHTML = false) {
+setDeleteBtnText($shadowRoot, text, isHTML = false) {
           const { $deleteBtn } = this.parseViewElement($shadowRoot);
           if (isHTML) {
             domUtils.html($deleteBtn, text);
@@ -11894,11 +10230,7 @@ match-attr##srcid##sp_purc_atom
             domUtils.text($deleteBtn, text);
           }
         }
-        /**
-         * 更新【清空所有】的按钮的文字
-         * @param $shadowRoot
-         */
-        async updateDeleteAllBtnText($shadowRoot) {
+async updateDeleteAllBtnText($shadowRoot) {
           let data = await this.option.data();
           this.setDeleteBtnText($shadowRoot, `清空所有(${data.length})`);
         }
@@ -11910,10 +10242,7 @@ match-attr##srcid##sp_purc_atom
         init() {
           this.execFilter();
         },
-        /**
-         * 执行过滤
-         */
-        execFilter() {
+execFilter() {
           let filterRule = this.getData();
           if (!filterRule.length) {
             return;
@@ -11935,14 +10264,10 @@ match-attr##srcid##sp_purc_atom
               for (let sectionDataIndex = 0; sectionDataIndex < sectionData.length; sectionDataIndex++) {
                 const commentInfo = sectionData[sectionDataIndex];
                 const commentData = {
-                  /** 用户id */
-                  author_id: (commentInfo?.author_id || commentInfo?.author?.id).toString(),
-                  /** 用户显示的名字 */
-                  nameShow: commentInfo?.author?.name_show,
-                  /** 用户发布的内容 */
-                  content: "",
-                  /** 楼层 */
-                  floor: commentInfo?.floor
+author_id: (commentInfo?.author_id || commentInfo?.author?.id).toString(),
+nameShow: commentInfo?.author?.name_show,
+content: "",
+floor: commentInfo?.floor
                 };
                 if (Array.isArray(commentInfo.content)) {
                   commentInfo.content.forEach((item) => {
@@ -11996,10 +10321,7 @@ match-attr##srcid##sp_purc_atom
             }
           });
         },
-        /**
-         * 显示视图
-         */
-        showView() {
+showView() {
           let panelHandlerComponents = __pops.config.PanelHandlerComponents();
           function generateStorageApi(data) {
             return {
@@ -12174,8 +10496,7 @@ match-attr##srcid##sp_purc_atom
                   }
                 },
                 style: (
-                  /*css*/
-                  `
+`
                     .pops-panel-textarea textarea{
                         height: 150px;
                     }
@@ -12211,10 +10532,7 @@ match-attr##srcid##sp_purc_atom
           });
           ruleView.showView();
         },
-        /**
-         * 获取模板数据
-         */
-        getTemplateData() {
+getTemplateData() {
           return {
             uuid: utils.generateUUID(),
             enable: true,
@@ -12224,24 +10542,13 @@ match-attr##srcid##sp_purc_atom
             content: ""
           };
         },
-        /**
-         * 获取数据
-         */
-        getData() {
+getData() {
           return _GM_getValue(this.$key.STORAGE_KEY, []);
         },
-        /**
-         * 设置数据
-         * @param data
-         */
-        setData(data) {
+setData(data) {
           _GM_setValue(this.$key.STORAGE_KEY, data);
         },
-        /**
-         * 添加数据
-         * @param data
-         */
-        addData(data) {
+addData(data) {
           let localData = this.getData();
           let findIndex = localData.findIndex((item) => item.uuid == data.uuid);
           if (findIndex === -1) {
@@ -12252,11 +10559,7 @@ match-attr##srcid##sp_purc_atom
             return false;
           }
         },
-        /**
-         * 更新数据
-         * @param data
-         */
-        updateData(data) {
+updateData(data) {
           let localData = this.getData();
           let index = localData.findIndex((item) => item.uuid == data.uuid);
           let updateFlag = false;
@@ -12267,11 +10570,7 @@ match-attr##srcid##sp_purc_atom
           this.setData(localData);
           return updateFlag;
         },
-        /**
-         * 删除数据
-         * @param data
-         */
-        deleteData(data) {
+deleteData(data) {
           let localData = this.getData();
           let index = localData.findIndex((item) => item.uuid == data.uuid);
           let deleteFlag = false;
@@ -12282,10 +10581,7 @@ match-attr##srcid##sp_purc_atom
           this.setData(localData);
           return deleteFlag;
         },
-        /**
-         * 清空数据
-         */
-        clearData() {
+clearData() {
           _GM_deleteValue(this.$key.STORAGE_KEY);
         }
       };
@@ -12329,16 +10625,13 @@ match-attr##srcid##sp_purc_atom
       };
       const TiebaUniAppComponentDetectionRule = {
         $data: {
-          /** 白名单用户id */
-          whiteList: [],
-          /** 规则数据 */
-          ruleData: []
+whiteList: [],
+ruleData: []
         },
         $key: {
           STORAGE_KEY: "tieba-componentDetection-rule"
         },
-        /** 初始化数据 */
-        init() {
+init() {
           this.$data.whiteList = [];
           this.$data.ruleData = [];
           let allData = this.getData();
@@ -12349,10 +10642,7 @@ match-attr##srcid##sp_purc_atom
             this.$data.ruleData.push(data);
           });
         },
-        /**
-         * 显示视图
-         */
-        showView() {
+showView() {
           let panelHandlerComponents = __pops.config.PanelHandlerComponents();
           function generateStorageApi(data, handler) {
             return {
@@ -12661,8 +10951,7 @@ match-attr##srcid##sp_purc_atom
                   }
                 },
                 style: (
-                  /*css*/
-                  `
+`
                     .pops-panel-textarea textarea{
                         height: 150px;
                     }
@@ -12686,10 +10975,7 @@ match-attr##srcid##sp_purc_atom
           });
           ruleView.showView();
         },
-        /**
-         * 获取模板数据
-         */
-        getTemplateData() {
+getTemplateData() {
           return {
             uuid: utils.generateUUID(),
             enable: true,
@@ -12706,24 +10992,13 @@ match-attr##srcid##sp_purc_atom
             }
           };
         },
-        /**
-         * 获取数据
-         */
-        getData() {
+getData() {
           return _GM_getValue(this.$key.STORAGE_KEY, []);
         },
-        /**
-         * 设置数据
-         * @param data
-         */
-        setData(data) {
+setData(data) {
           _GM_setValue(this.$key.STORAGE_KEY, data);
         },
-        /**
-         * 添加数据
-         * @param data
-         */
-        addData(data) {
+addData(data) {
           let localData = this.getData();
           let findIndex = localData.findIndex((item) => item.uuid == data.uuid);
           if (findIndex === -1) {
@@ -12734,11 +11009,7 @@ match-attr##srcid##sp_purc_atom
             return false;
           }
         },
-        /**
-         * 更新数据
-         * @param data
-         */
-        updateData(data) {
+updateData(data) {
           let localData = this.getData();
           let index = localData.findIndex((item) => item.uuid == data.uuid);
           let updateFlag = false;
@@ -12749,11 +11020,7 @@ match-attr##srcid##sp_purc_atom
           this.setData(localData);
           return updateFlag;
         },
-        /**
-         * 删除数据
-         * @param data
-         */
-        deleteData(data) {
+deleteData(data) {
           let localData = this.getData();
           let index = localData.findIndex((item) => item.uuid == data.uuid);
           let deleteFlag = false;
@@ -12764,16 +11031,10 @@ match-attr##srcid##sp_purc_atom
           this.setData(localData);
           return deleteFlag;
         },
-        /**
-         * 清空数据
-         */
-        clearData() {
+clearData() {
           _GM_deleteValue(this.$key.STORAGE_KEY);
         },
-        /**
-         * 导出规则
-         */
-        exportRule(fileName = "rule.json") {
+exportRule(fileName = "rule.json") {
           let allRule = this.getData();
           let blob = new Blob([JSON.stringify(allRule, null, 4)]);
           let blobUrl = window.URL.createObjectURL(blob);
@@ -12785,10 +11046,7 @@ match-attr##srcid##sp_purc_atom
             window.URL.revokeObjectURL(blobUrl);
           }, 1500);
         },
-        /**
-         * 导入规则
-         */
-        importRule() {
+importRule() {
           let $alert = __pops.alert({
             title: {
               text: "请选择导入方式",
@@ -12796,8 +11054,7 @@ match-attr##srcid##sp_purc_atom
             },
             content: {
               text: (
-                /*html*/
-                `
+`
                     <div class="import-mode" data-mode="local">本地导入</div>
                     <div class="import-mode" data-mode="network">网络导入</div>
                 `
@@ -12807,8 +11064,7 @@ match-attr##srcid##sp_purc_atom
             width: PanelUISize.info.width,
             height: PanelUISize.info.height,
             style: (
-              /*css*/
-              `
+`
                 .import-mode{
                     display: inline-block;
                     margin: 10px;
@@ -12897,13 +11153,7 @@ match-attr##srcid##sp_purc_atom
         }
       };
       const TiebaHomeApi = {
-        /**
-         * 获取某个用户的关注的吧信息
-         * User-Agent默认为移动端
-         * @param un 用户名，不是show_nickname|nameshow
-         * @param pn 第xx页
-         */
-        async getConcern(un, pn = 1) {
+async getConcern(un, pn = 1) {
           let gbkEncoder = new utils.GBKEncoder();
           un = gbkEncoder.encode(un.toString());
           let response = await httpx.get(`https://tieba.baidu.com/home/concern`, {
@@ -12964,14 +11214,7 @@ match-attr##srcid##sp_purc_atom
           log.info("获取用户的关注的吧信息", result);
           return result;
         },
-        /**
-         * 获取用户关注的人
-         * @param un 用户名，不是show_nickname|nameshow
-         * @param offset 根据page_size的偏移，一般是page_size的n倍
-         * @param page_size 限制返回的数量
-         * @returns
-         */
-        async getFollow(un, offset = 12, page_size = 12) {
+async getFollow(un, offset = 12, page_size = 12) {
           let response = await httpx.get(`https://tieba.baidu.com/mo/q/follow`, {
             data: {
               un,
@@ -13021,14 +11264,7 @@ match-attr##srcid##sp_purc_atom
           log.info("获取用户关注的人", result);
           return result;
         },
-        /**
-         * 获取用户的粉丝
-         * @param un 用户名，不是show_nickname|nameshow，是userName
-         * @param offset 根据page_size的偏移，一般是page_size的n倍
-         * @param page_size 限制返回的数量
-         * @returns
-         */
-        async getFans(un, offset = 12, page_size = 12) {
+async getFans(un, offset = 12, page_size = 12) {
           let response = await httpx.get(`https://tieba.baidu.com/mo/q/fans`, {
             data: {
               un,
@@ -13078,12 +11314,7 @@ match-attr##srcid##sp_purc_atom
           log.info("获取用户的粉丝", result);
           return result;
         },
-        /**
-         * 获取发布的帖子
-         * @param un 用户名，不是show_nickname|nameshow，是userName
-         * @param pn 第xx页
-         */
-        async getPost(un, pn = 1) {
+async getPost(un, pn = 1) {
           let response = await httpx.get(`https://tieba.baidu.com/home/post`, {
             fetch: utils.isWebView_Via(),
             data: {
@@ -13148,10 +11379,8 @@ match-attr##srcid##sp_purc_atom
       };
       const TiebaUniAppComponentDetection = {
         $data: {
-          /** 查询图标svg */
-          searchIcon: (
-            /*html*/
-            `
+searchIcon: (
+`
             <svg viewBox="0 0 24 24" fill="none">
                 <path d="M15.7955 15.8111L21 21M18 10.5C18 14.6421 14.6421 18 10.5 18C6.35786 18 3 14.6421 3 10.5C3 6.35786 6.35786 3 10.5 3C14.6421 3 18 6.35786 18 10.5Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
             </svg>
@@ -13162,8 +11391,7 @@ match-attr##srcid##sp_purc_atom
           log.info(`成分检测`);
           TiebaUniAppComponentDetectionRule.init();
           addStyle$1(
-            /*css*/
-            `
+`
 			.composition-checkable{
 				padding: 4px 0px;
 			}
@@ -13252,8 +11480,7 @@ match-attr##srcid##sp_purc_atom
         `
           );
           addStyle$1(
-            /*css*/
-            `
+`
 			
 		`
           );
@@ -13336,13 +11563,7 @@ match-attr##srcid##sp_purc_atom
             });
           });
         },
-        /**
-         * 查询用户所有的信息
-         *
-         * 即提取需要判断的信息
-         * @param userName
-         */
-        async queryUserAllInfo(userName) {
+async queryUserAllInfo(userName) {
           let allFollowingData = [];
           let followPageSize = 12;
           let followOffset = followPageSize * 1;
@@ -13404,25 +11625,17 @@ match-attr##srcid##sp_purc_atom
             await utils.sleep(150);
           }
           let result = {
-            /** 关注列表信息 */
-            following: allFollowingData,
-            /** 关注的吧的信息 */
-            concernForum: allConcernData,
-            /** 发帖/回帖信息 */
-            postInfo: allPostData
+following: allFollowingData,
+concernForum: allConcernData,
+postInfo: allPostData
           };
           return result;
         },
-        /**
-         * 创建查询按钮
-         * @param queryUserInfoFn 查询mid的函数
-         */
-        createSearchButton(queryUserInfoFn) {
+createSearchButton(queryUserInfoFn) {
           let $compositionCheckable = domUtils.createElement("div", {
             className: "composition-checkable",
             innerHTML: (
-              /*html*/
-              `
+`
                 <div class="composition-badge-control">
                     <span class="composition-name-control">
                         ${this.$data.searchIcon}
@@ -13485,16 +11698,11 @@ match-attr##srcid##sp_purc_atom
             $compositionNameControl
           };
         },
-        /**
-         * 创建标签
-         * @param data
-         */
-        createLabel(data) {
+createLabel(data) {
           let $label = domUtils.createElement("div", {
             className: "composition-checked",
             innerHTML: (
-              /*html*/
-              `
+`
 				<div class="composition-badge">
 				</div>
 			`
@@ -13543,18 +11751,15 @@ match-attr##srcid##sp_purc_atom
                 },
                 content: {
                   text: (
-                    /*html*/
-                    `
+`
 						${data.matchedInfoList.map((it) => {
                     let $el = domUtils.createElement("div", {
                       className: "reason-container",
                       innerHTML: (
-                        /*html*/
-                        `
+`
 										<div class="reason-text"><span>原因：</span>${it.reason}</div>
 										<div class="reason-text"><span>匹配：</span>${typeof it.reasonLink === "string" ? (
-                          /*html*/
-                          `
+`
 											<a href="${it.reasonLink}" target="_blank">${it.reasonText}</a>
 										`
                         ) : it.reasonText}</div>
@@ -13565,8 +11770,7 @@ match-attr##srcid##sp_purc_atom
                       let $reasonTime = domUtils.createElement("div", {
                         className: "reason-text",
                         innerHTML: (
-                          /*html*/
-                          `
+`
 										<span>时间：</span>${typeof it.reasonTime === "number" ? utils.formatTime(it.reasonTime) : it.reasonTime}
 										`
                         )
@@ -13591,8 +11795,7 @@ match-attr##srcid##sp_purc_atom
                 width: PanelUISize.setting.width,
                 height: PanelUISize.setting.height,
                 style: (
-                  /*css*/
-                  `
+`
 					.reason-container{
 						color: #7367F0;
 						margin: 10px 10px;
@@ -13605,20 +11808,10 @@ match-attr##srcid##sp_purc_atom
           );
           return $label;
         },
-        /**
-         * 清空标签
-         * @param $ele
-         */
-        clearLabel($ele) {
+clearLabel($ele) {
           $ele.querySelectorAll(".composition-checked").forEach((it) => it.remove());
         },
-        /**
-         * 处理并显示标签
-         * @param userId 用户id
-         * @param data
-         * @param $searchContainer
-         */
-        handleShowLabel(chatUserInfo, data, $searchContainer) {
+handleShowLabel(chatUserInfo, data, $searchContainer) {
           if (TiebaUniAppComponentDetectionRule.$data.ruleData.length === 0) {
             Qmsg.warning("未配置规则，请在设置中进行添加");
             return;
@@ -13745,12 +11938,9 @@ match-attr##srcid##sp_purc_atom
         }
       };
       const GeastureBackHashConfig = {
-        /** 楼中楼回复弹窗 */
-        seeLzlReply: "#/seeLzlReply",
-        /** 图片预览 */
-        previewImage: "#/previewImage",
-        /** Viewer图片预览 */
-        viewerPreviewImage: "#/viewerPreviewImage"
+seeLzlReply: "#/seeLzlReply",
+previewImage: "#/previewImage",
+viewerPreviewImage: "#/viewerPreviewImage"
       };
       const TiebaUniAppPost = {
         init() {
@@ -13775,8 +11965,7 @@ match-attr##srcid##sp_purc_atom
           });
           Panel.execMenuOnce("baidu-tieba-uni-app-comment-item-font-size", () => {
             return addStyle$1(
-              /*css*/
-              `
+`
 				.pb-rich-text{
 					font-size: inherit !important;
 				}
@@ -13849,19 +12038,12 @@ match-attr##srcid##sp_purc_atom
             });
           });
         },
-        /**
-         * 判断页面是否是uni-app
-         */
-        isUniApp() {
+isUniApp() {
           return Boolean($("uni-app"));
         },
-        /**
-         * 允许用户选择文字
-         */
-        allowUserSelect() {
+allowUserSelect() {
           return addStyle$1(
-            /*css*/
-            `
+`
 		html,body{
 			-webkit-user-select: unset !important;
 			-moz-user-select: unset !important;
@@ -13870,13 +12052,9 @@ match-attr##srcid##sp_purc_atom
 		`
           );
         },
-        /**
-         * 修复贴吧请求失败的弹窗（点击无反应）
-         */
-        repairTbErrorPage() {
+repairTbErrorPage() {
           addStyle$1(
-            /*css*/
-            `
+`
 		/* 加载评论失败的弹窗 */
 		.swiper-content .tb-error-page{
 			background: rgba(0, 0, 0, 0.7);
@@ -13886,10 +12064,7 @@ match-attr##srcid##sp_purc_atom
 		`
           );
         },
-        /**
-         * 动态加载移除唤醒按钮，会影响页面点击，比如超链接点击无反应
-         */
-        mutationRemoveWakeUpBtn() {
+mutationRemoveWakeUpBtn() {
           let lockFn = new utils.LockFunction(() => {
             $$(".wake-app-btn").forEach(($ele) => $ele.remove());
           });
@@ -13903,10 +12078,7 @@ match-attr##srcid##sp_purc_atom
             }
           });
         },
-        /**
-         * 覆盖页面的加载更多按钮，可实现加载更多评论
-         */
-        overloadLoadMore() {
+overloadLoadMore() {
           log.info(`uni-app ===> 覆盖页面的加载更多按钮，可实现加载更多评论`);
           utils.waitNode("uni-app .load-more.wake-app", 1e4).then(($el) => {
             if (!$el) {
@@ -13970,16 +12142,12 @@ match-attr##srcid##sp_purc_atom
             });
           });
         },
-        /**
-         * 添加滚动到顶部按钮
-         */
-        addScrollTopButton(enable) {
+addScrollTopButton(enable) {
           if (enable) {
             log.info(`uni-app ===> 添加滚动到顶部按钮`);
             TiebaCore.addScrollTopButton();
             return addStyle$1(
-              /*css*/
-              `
+`
 				.whitesev-tb-totop{
 					display: unset !important;
 					right: 9px !important;
@@ -13993,8 +12161,7 @@ match-attr##srcid##sp_purc_atom
             );
           } else {
             return addStyle$1(
-              /*css*/
-              `
+`
 				.whitesev-tb-totop{
 					display: none;
 				}
@@ -14002,10 +12169,7 @@ match-attr##srcid##sp_purc_atom
             );
           }
         },
-        /**
-         * 修复图片导航列表跳转
-         */
-        repairPicGuideThreadWrapper() {
+repairPicGuideThreadWrapper() {
           log.info(`uni-app ===> 修复图片导航列表跳转`);
           domUtils.on(
             document,
@@ -14030,10 +12194,7 @@ match-attr##srcid##sp_purc_atom
             }
           );
         },
-        /**
-         * 修复点击进入用户主页（包括用户头像、用户名）
-         */
-        repairClickToUserHome() {
+repairClickToUserHome() {
           log.info(`uni-app ===> 修复点击进入用户主页（包括用户头像、用户名）`);
           domUtils.on(
             document,
@@ -14062,10 +12223,7 @@ match-attr##srcid##sp_purc_atom
             }
           );
         },
-        /**
-         * 阻止唤醒app
-         */
-        preventWakeApp() {
+preventWakeApp() {
           log.info(`uni-app ===> 阻止唤醒app`);
           domUtils.on(
             document,
@@ -14074,16 +12232,11 @@ match-attr##srcid##sp_purc_atom
             (event) => {
               let $wakeUp = event.target;
               let ignoreClassNameList = [
-                /* 加载更多（打开App查看更多评论 ） */
-                ".load-more",
-                /* 评论内容 */
-                ".comment-content",
-                /* 图片导航推荐帖子 */
-                ".pic-popup-guide-thread-wrapper .thread-guide-item-wake",
-                /* 用户信息区域 */
-                ".player-line-left",
-                /* 回复输入框区域 */
-                ".pb-reply-textarea-wrapper"
+".load-more",
+".comment-content",
+".pic-popup-guide-thread-wrapper .thread-guide-item-wake",
+".player-line-left",
+".pb-reply-textarea-wrapper"
               ];
               if ($wakeUp.classList) {
                 for (let index = 0; index < ignoreClassNameList.length; index++) {
@@ -14103,10 +12256,7 @@ match-attr##srcid##sp_purc_atom
             }
           );
         },
-        /**
-         * 记住评论排序
-         */
-        rememberChooseSeeCommentSort() {
+rememberChooseSeeCommentSort() {
           log.info(`uni-app ===> 记住评论排序`);
           const KEY2 = "baidu-tieba-uni-app-post-choose-see-comment-sort";
           domUtils.on(
@@ -14157,10 +12307,7 @@ match-attr##srcid##sp_purc_atom
             }
           });
         },
-        /**
-         * 评论去重
-         */
-        filterDuplicateComments() {
+filterDuplicateComments() {
           log.info(`uni-app ===> 评论去重`);
           TiebaUniAppComment.watchComment((commentContainerInfoList, observer) => {
             const commentIdList = [];
@@ -14182,10 +12329,7 @@ match-attr##srcid##sp_purc_atom
             }
           });
         },
-        /**
-         * 屏蔽贴吧机器人（贴吧包打听）
-         */
-        blockTieBaRobot() {
+blockTieBaRobot() {
           log.info(`uni-app ===> 屏蔽贴吧机器人（贴吧包打听）`);
           TiebaUniAppComment.watchComment((commentContainerInfoList, observer) => {
             for (let index = 0; index < commentContainerInfoList.length; index++) {
@@ -14200,10 +12344,7 @@ match-attr##srcid##sp_purc_atom
             }
           });
         },
-        /**
-         * 楼中楼回复弹窗手势返回
-         */
-        optimizationLzlPostBackGestureReturn() {
+optimizationLzlPostBackGestureReturn() {
           log.info(`uni-app ===> 楼中楼回复弹窗手势返回`);
           let gestureBack = new GestureBack({
             hash: GeastureBackHashConfig.seeLzlReply,
@@ -14240,10 +12381,7 @@ match-attr##srcid##sp_purc_atom
             }
           );
         },
-        /**
-         * 图片预览手势返回
-         */
-        optimizationImagePreviewBackGestureReturn() {
+optimizationImagePreviewBackGestureReturn() {
           log.info(`uni-app ===> 图片预览手势返回`);
           let gestureBack = new GestureBack({
             hash: GeastureBackHashConfig.previewImage,
@@ -14278,15 +12416,11 @@ match-attr##srcid##sp_purc_atom
             }
           });
         },
-        /**
-         * 修复搜索功能
-         */
-        repairSearch() {
+repairSearch() {
           log.info(`uni-app ===> 修复搜索功能`);
           let repairCSS = () => {
             addStyle$1(
-              /*css*/
-              `
+`
 				.nav-bar .more-btn-desc,
 				uni-app .frs-wise-nav-bar .more-btn-desc{
 					font-size: 15px;
@@ -14354,10 +12488,7 @@ match-attr##srcid##sp_purc_atom
             repairCSS();
           });
         },
-        /**
-         * 修复超链接跳转
-         */
-        repairAnchorLink() {
+repairAnchorLink() {
           domUtils.on(
             document,
             "click",
@@ -14434,34 +12565,13 @@ match-attr##srcid##sp_purc_atom
       };
       const TiebaReply = {
         $data: {
-          /**
-           * 当前回复类型
-           */
-          type: vue.ref(),
-          /**
-           * 如果type=main，使用该数据
-           */
-          replyMainData: vue.ref(),
-          /**
-           * 如果type=comment，使用该数据
-           */
-          replyCommentData: vue.ref(),
-          /**
-           * 如果type=lzl-comment，使用该数据
-           */
-          replyLzlCommentData: vue.ref(),
-          /**
-           * 是否已登录
-           */
-          isLogin: vue.ref(false),
-          /**
-           * 是否正在发送中
-           */
-          isSending: vue.ref(false),
-          /**
-           * 主动触发显示完整的编辑器
-           */
-          isShowFullEditor: vue.ref(false)
+type: vue.ref(),
+replyMainData: vue.ref(),
+replyCommentData: vue.ref(),
+replyLzlCommentData: vue.ref(),
+isLogin: vue.ref(false),
+isSending: vue.ref(false),
+isShowFullEditor: vue.ref(false)
         },
         $vue: {
           handlerCommentSuccess: null
@@ -14473,10 +12583,7 @@ match-attr##srcid##sp_purc_atom
             this.cover_handlerCommentSuccess();
           });
         },
-        /**
-         * 设置当前回复为发布本帖子的人
-         */
-        setCurrentReplyMainUser() {
+setCurrentReplyMainUser() {
           let commentBoxVueObj = this.getCommentBoxWrapVue();
           if (!commentBoxVueObj) {
             return;
@@ -14499,10 +12606,7 @@ match-attr##srcid##sp_purc_atom
           replyInfo.pid = TiebaComment.pid;
           currentReplyObj.pid = TiebaComment.pid;
         },
-        /**
-         * 设置当前为回复xx用户
-         */
-        setCurrentReplyUser(pid, authorName) {
+setCurrentReplyUser(pid, authorName) {
           let commentBoxVueObj = this.getCommentBoxWrapVue();
           if (!commentBoxVueObj) {
             return;
@@ -14528,10 +12632,7 @@ match-attr##srcid##sp_purc_atom
           currentReplyObj.pid = pid;
           currentReplyObj.authorName = authorName;
         },
-        /**
-         * 设置当前为回复楼中楼用户
-         */
-        setCurrentReplyLzlUser(pid, authorName, lzlId, floor, portrait) {
+setCurrentReplyLzlUser(pid, authorName, lzlId, floor, portrait) {
           let commentBoxVueObj = this.getCommentBoxWrapVue();
           if (!commentBoxVueObj) {
             return;
@@ -14566,10 +12667,7 @@ match-attr##srcid##sp_purc_atom
           currentReplyObj.pid = pid;
           currentReplyObj.portrait = portrait + "?";
         },
-        /**
-         * 设置全局监听点击内容事件
-         */
-        setGlobalContentClick() {
+setGlobalContentClick() {
           let that = this;
           function checkNotTriggerReply(event) {
             let currentComposed = event.composedPath()[0];
@@ -14682,12 +12780,7 @@ match-attr##srcid##sp_purc_atom
             }
           );
         },
-        /**
-         * 将输入框的值设置到原输入框中
-         * @param value 输入的内容
-         * @returns
-         */
-        setInputValue(value) {
+setInputValue(value) {
           let commentBoxVueObj = this.getCommentBoxWrapVue();
           if (!commentBoxVueObj) {
             return;
@@ -14717,10 +12810,7 @@ match-attr##srcid##sp_purc_atom
           }
           commentBoxVueObj.submitTouchend(submitTouchEndEvent);
         },
-        /**
-         * 覆盖函数handlerCommentSuccess
-         */
-        cover_handlerCommentSuccess() {
+cover_handlerCommentSuccess() {
           let that = this;
           VueUtils.waitVuePropToSet(".comment-box-wrap", [
             {
@@ -14738,18 +12828,10 @@ match-attr##srcid##sp_purc_atom
             }
           ]);
         },
-        /**
-         * 获取回复框容器元素
-         */
-        getCommentBoxWrap() {
+getCommentBoxWrap() {
           return $(".comment-box-wrap");
         },
-        /**
-         * 等待评论框容器元素
-         * @param callback
-         * @returns
-         */
-        waitCommentBoxWrap(callback) {
+waitCommentBoxWrap(callback) {
           domUtils.ready(() => {
             utils.waitNode(".comment-box-wrap", 1e4).then(($commentBoxWrap) => {
               if (TiebaUniAppPost.isUniApp()) {
@@ -14767,10 +12849,7 @@ match-attr##srcid##sp_purc_atom
           });
           return;
         },
-        /**
-         * 获取.comment-box-wrap的vue实例
-         */
-        getCommentBoxWrapVue() {
+getCommentBoxWrapVue() {
           let $commentBoxWrap = this.getCommentBoxWrap();
           if (!$commentBoxWrap) {
             log.error("获取不到.comment-box-wrap元素");
@@ -14785,10 +12864,7 @@ match-attr##srcid##sp_purc_atom
           }
           return vueObj;
         },
-        /**
-         * 获取app-view的vue实例
-         */
-        getAppViewVue() {
+getAppViewVue() {
           let $appView = $(".app-view");
           if (!$appView) {
             log.error("获取不到app-view元素");
@@ -14834,22 +12910,14 @@ match-attr##srcid##sp_purc_atom
             this.showLoginWakeModal();
           }
         },
-        /**
-         * 显示登录弹窗
-         */
-        showLoginWakeModal() {
+showLoginWakeModal() {
           let vueObj = this.getAppViewVue();
           if (!vueObj) {
             return;
           }
           vueObj.isShowLoginWakeModal = true;
         },
-        /**
-         * 设置头像点击事件
-         * + 未登录 点击显示登录弹窗提示
-         * + 已登录 点击设置当前回复为当前帖子
-         */
-        setAvatarClickEvent() {
+setAvatarClickEvent() {
           let that = this;
           utils.waitNode(".comment-box-wrap .avatar", 1e4).then(($avatar) => {
             if (!$avatar) {
@@ -14884,29 +12952,22 @@ match-attr##srcid##sp_purc_atom
       };
       const useToolbarStore = pinia.defineStore("ToolbarStore", {
         state: () => ({
-          /** 提示文字 */
-          placeholder: "发帖千百度 文明第一步",
-          /** 显示的 评论数量 */
-          showCommentCount: "0",
-          /** 显示的 点赞数量 */
-          showGoodCount: "0"
+placeholder: "发帖千百度 文明第一步",
+showCommentCount: "0",
+showGoodCount: "0"
         })
       });
       const useToolbarStateStore = pinia.defineStore("ToolbarState", {
         state: () => ({
-          /** 是否显示小工具栏 */
-          isShowSmallToolbar: true,
-          /** 是否显示完整的工具栏 */
-          isShowFullToolbar: false,
-          /** 是否存在内容 */
-          isEmpty: true
+isShowSmallToolbar: true,
+isShowFullToolbar: false,
+isEmpty: true
         })
       });
       const useAccountStore = pinia.defineStore("account", {
         state: () => {
           return {
-            /** 是否已登录 */
-            isLogin: false
+isLogin: false
           };
         },
         actions: {}
@@ -14919,7 +12980,7 @@ match-attr##srcid##sp_purc_atom
       const _hoisted_6$a = { class: "icon icoon-good" };
       const _hoisted_7$8 = ["xlink:href"];
       const _hoisted_8$8 = { class: "text" };
-      const _sfc_main$K = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$K = vue.defineComponent({
         __name: "SmallToolbar",
         emits: ["showFullToolbar"],
         setup(__props, { emit: __emit }) {
@@ -14928,11 +12989,7 @@ match-attr##srcid##sp_purc_atom
           useToolbarStateStore();
           const emits = __emit;
           const ToolbarHandler = {
-            /**
-             * 点击工具栏触发显示完整的工具栏
-             * @param event 
-             */
-            handleShowFullToolbar(event) {
+handleShowFullToolbar(event) {
               utils.preventEvent(event);
               if (!accountStore.isLogin) {
                 TiebaReply.checkLogin();
@@ -14948,13 +13005,13 @@ match-attr##srcid##sp_purc_atom
                   readonly: "",
                   class: "small-editor-toolbar-input",
                   placeholder: vue.unref(toolbarStore).placeholder,
-                  onClick: _cache[0] || (_cache[0] = //@ts-ignore
-                  (...args) => ToolbarHandler.handleShowFullToolbar && ToolbarHandler.handleShowFullToolbar(...args))
+                  onClick: _cache[0] || (_cache[0] =
+(...args) => ToolbarHandler.handleShowFullToolbar && ToolbarHandler.handleShowFullToolbar(...args))
                 }, null, 8, _hoisted_3$b),
                 vue.createElementVNode("div", {
                   class: "small-editor-toolbar-emoji-btn",
-                  onClick: _cache[1] || (_cache[1] = //@ts-ignore
-                  (...args) => ToolbarHandler.handleShowFullToolbar && ToolbarHandler.handleShowFullToolbar(...args))
+                  onClick: _cache[1] || (_cache[1] =
+(...args) => ToolbarHandler.handleShowFullToolbar && ToolbarHandler.handleShowFullToolbar(...args))
                 }, [..._cache[4] || (_cache[4] = [
                   vue.createElementVNode("svg", {
                     class: "icon",
@@ -14976,8 +13033,8 @@ match-attr##srcid##sp_purc_atom
               vue.createElementVNode("div", _hoisted_4$a, [
                 vue.createElementVNode("div", {
                   class: "reply-comment-count",
-                  onClick: _cache[2] || (_cache[2] = //@ts-ignore
-                  (...args) => vue.unref(Toolbar).goToReplyArea && vue.unref(Toolbar).goToReplyArea(...args))
+                  onClick: _cache[2] || (_cache[2] =
+(...args) => vue.unref(Toolbar).goToReplyArea && vue.unref(Toolbar).goToReplyArea(...args))
                 }, [
                   _cache[5] || (_cache[5] = vue.createElementVNode("svg", { class: "icon icoon-comment" }, [
                     vue.createElementVNode("use", { "xlink:href": "#icon_pure_pb_bottom_comment28" })
@@ -14986,8 +13043,8 @@ match-attr##srcid##sp_purc_atom
                 ]),
                 vue.createElementVNode("div", {
                   class: "reply-good-count",
-                  onClick: _cache[3] || (_cache[3] = //@ts-ignore
-                  (...args) => vue.unref(Toolbar).goodClickEvent && vue.unref(Toolbar).goodClickEvent(...args))
+                  onClick: _cache[3] || (_cache[3] =
+(...args) => vue.unref(Toolbar).goodClickEvent && vue.unref(Toolbar).goodClickEvent(...args))
                 }, [
                   (vue.openBlock(), vue.createElementBlock("svg", _hoisted_6$a, [
                     vue.createElementVNode("use", {
@@ -15008,7 +13065,7 @@ match-attr##srcid##sp_purc_atom
         }
         return target;
       };
-      const SmallToolbar = /* @__PURE__ */ _export_sfc$1(_sfc_main$K, [["__scopeId", "data-v-bd816662"]]);
+      const SmallToolbar = _export_sfc$1(_sfc_main$K, [["__scopeId", "data-v-bd816662"]]);
       const configProviderContextKey = Symbol();
       const defaultNamespace = "el";
       const statePrefix = "is-";
@@ -15083,7 +13140,7 @@ match-attr##srcid##sp_purc_atom
         };
       };
       /**
-      * @vue/shared v3.5.19
+      * @vue/shared v3.5.20
       * (c) 2018-present Yuxi (Evan) You and Vue contributors
       * @license MIT
       **/
@@ -15096,7 +13153,7 @@ match-attr##srcid##sp_purc_atom
       const isString$1 = (val) => typeof val === "string";
       const isObject$1 = (val) => val !== null && typeof val === "object";
       const cacheStringFunction = (fn) => {
-        const cache = /* @__PURE__ */ Object.create(null);
+        const cache = Object.create(null);
         return ((str) => {
           const hit = cache[str];
           return hit || (cache[str] = fn(str));
@@ -15429,7 +13486,7 @@ match-attr##srcid##sp_purc_atom
       var objectProto$6 = Object.prototype;
       var hasOwnProperty$5 = objectProto$6.hasOwnProperty;
       var propertyIsEnumerable$1 = objectProto$6.propertyIsEnumerable;
-      var isArguments = baseIsArguments(/* @__PURE__ */ (function() {
+      var isArguments = baseIsArguments( (function() {
         return arguments;
       })()) ? baseIsArguments : function(value) {
         return isObjectLike(value) && hasOwnProperty$5.call(value, "callee") && !propertyIsEnumerable$1.call(value, "callee");
@@ -15475,11 +13532,11 @@ match-attr##srcid##sp_purc_atom
       function arrayLikeKeys(value, inherited) {
         var isArr = isArray(value), isArg = !isArr && isArguments(value), isBuff = !isArr && !isArg && isBuffer(value), isType = !isArr && !isArg && !isBuff && isTypedArray(value), skipIndexes = isArr || isArg || isBuff || isType, result = skipIndexes ? baseTimes(value.length, String) : [], length = result.length;
         for (var key in value) {
-          if (!(skipIndexes && // Safari 9 has enumerable `arguments.length` in strict mode.
-          (key == "length" || // Node.js 0.10 has enumerable non-index properties on buffers.
-          isBuff && (key == "offset" || key == "parent") || // PhantomJS 2 has enumerable non-index properties on typed arrays.
-          isType && (key == "buffer" || key == "byteLength" || key == "byteOffset") || // Skip index properties.
-          isIndex(key, length)))) {
+          if (!(skipIndexes &&
+(key == "length" ||
+isBuff && (key == "offset" || key == "parent") ||
+isType && (key == "buffer" || key == "byteLength" || key == "byteOffset") ||
+isIndex(key, length)))) {
             result.push(key);
           }
         }
@@ -16988,7 +15045,7 @@ match-attr##srcid##sp_purc_atom
         return context;
       };
       const mergeConfig = (a, b) => {
-        const keys = [.../* @__PURE__ */ new Set([...keysOf(a), ...keysOf(b)])];
+        const keys = [... new Set([...keysOf(a), ...keysOf(b)])];
         const obj = {};
         for (const key of keys) {
           obj[key] = b[key] !== void 0 ? b[key] : a[key];
@@ -17102,7 +15159,7 @@ match-attr##srcid##sp_purc_atom
         name: "ElIcon",
         inheritAttrs: false
       });
-      const _sfc_main$J = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$J = vue.defineComponent({
         ...__default__$n,
         props: iconProps,
         setup(__props) {
@@ -17127,7 +15184,7 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      var Icon = /* @__PURE__ */ _export_sfc(_sfc_main$J, [["__file", "icon.vue"]]);
+      var Icon = _export_sfc(_sfc_main$J, [["__file", "icon.vue"]]);
       const ElIcon = withInstall(Icon);
       const iconPropType = definePropType([
         String,
@@ -17273,7 +15330,7 @@ match-attr##srcid##sp_purc_atom
         always: Boolean
       });
       const COMPONENT_NAME$5 = "Thumb";
-      const _sfc_main$I = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$I = vue.defineComponent({
         __name: "thumb",
         props: thumbProps,
         setup(__props) {
@@ -17402,7 +15459,7 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      var Thumb = /* @__PURE__ */ _export_sfc(_sfc_main$I, [["__file", "thumb.vue"]]);
+      var Thumb = _export_sfc(_sfc_main$I, [["__file", "thumb.vue"]]);
       const barProps = buildProps({
         always: {
           type: Boolean,
@@ -17413,7 +15470,7 @@ match-attr##srcid##sp_purc_atom
           required: true
         }
       });
-      const _sfc_main$H = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$H = vue.defineComponent({
         __name: "bar",
         props: barProps,
         setup(__props, { expose }) {
@@ -17471,7 +15528,7 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      var Bar = /* @__PURE__ */ _export_sfc(_sfc_main$H, [["__file", "bar.vue"]]);
+      var Bar = _export_sfc(_sfc_main$H, [["__file", "bar.vue"]]);
       const scrollbarProps = buildProps({
         distance: {
           type: Number,
@@ -17531,7 +15588,7 @@ match-attr##srcid##sp_purc_atom
       const __default__$m = vue.defineComponent({
         name: COMPONENT_NAME$4
       });
-      const _sfc_main$G = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$G = vue.defineComponent({
         ...__default__$m,
         props: scrollbarProps,
         emits: scrollbarEmits,
@@ -17740,7 +15797,7 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      var Scrollbar = /* @__PURE__ */ _export_sfc(_sfc_main$G, [["__file", "scrollbar.vue"]]);
+      var Scrollbar = _export_sfc(_sfc_main$G, [["__file", "scrollbar.vue"]]);
       const ElScrollbar = withInstall(Scrollbar);
       const FOCUS_AFTER_TRAPPED = "focus-trap.focus-after-trapped";
       const FOCUS_AFTER_RELEASED = "focus-trap.focus-after-released";
@@ -18176,7 +16233,7 @@ match-attr##srcid##sp_purc_atom
       function _sfc_render$4(_ctx, _cache, $props, $setup, $data, $options) {
         return vue.renderSlot(_ctx.$slots, "default", { handleKeydown: _ctx.onKeydown });
       }
-      var ElFocusTrap = /* @__PURE__ */ _export_sfc(_sfc_main$F, [["render", _sfc_render$4], ["__file", "focus-trap.vue"]]);
+      var ElFocusTrap = _export_sfc(_sfc_main$F, [["render", _sfc_render$4], ["__file", "focus-trap.vue"]]);
       const teleportProps = buildProps({
         to: {
           type: definePropType([String, Object]),
@@ -18184,7 +16241,7 @@ match-attr##srcid##sp_purc_atom
         },
         disabled: Boolean
       });
-      const _sfc_main$E = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$E = vue.defineComponent({
         __name: "teleport",
         props: teleportProps,
         setup(__props) {
@@ -18198,7 +16255,7 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      var Teleport = /* @__PURE__ */ _export_sfc(_sfc_main$E, [["__file", "teleport.vue"]]);
+      var Teleport = _export_sfc(_sfc_main$E, [["__file", "teleport.vue"]]);
       const ElTeleport = withInstall(Teleport);
       const avatarProps = buildProps({
         size: {
@@ -18232,7 +16289,7 @@ match-attr##srcid##sp_purc_atom
       const __default__$l = vue.defineComponent({
         name: "ElAvatar"
       });
-      const _sfc_main$D = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$D = vue.defineComponent({
         ...__default__$l,
         props: avatarProps,
         emits: avatarEmits,
@@ -18287,7 +16344,7 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      var Avatar = /* @__PURE__ */ _export_sfc(_sfc_main$D, [["__file", "avatar.vue"]]);
+      var Avatar = _export_sfc(_sfc_main$D, [["__file", "avatar.vue"]]);
       const ElAvatar = withInstall(Avatar);
       const backtopProps = {
         visibilityHeight: {
@@ -18347,7 +16404,7 @@ match-attr##srcid##sp_purc_atom
       const __default__$k = vue.defineComponent({
         name: COMPONENT_NAME$3
       });
-      const _sfc_main$C = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$C = vue.defineComponent({
         ...__default__$k,
         props: backtopProps,
         emits: backtopEmits,
@@ -18387,7 +16444,7 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      var Backtop = /* @__PURE__ */ _export_sfc(_sfc_main$C, [["__file", "backtop.vue"]]);
+      var Backtop = _export_sfc(_sfc_main$C, [["__file", "backtop.vue"]]);
       const ElBacktop = withInstall(Backtop);
       const buttonGroupContextKey = Symbol("buttonGroupContextKey");
       const useDeprecated = ({ from, replacement, scope, version, ref: ref2, type = "API" }, condition) => {
@@ -18426,6 +16483,10 @@ match-attr##srcid##sp_purc_atom
         const _round = vue.computed(() => {
           var _a2, _b, _c;
           return (_c = (_b = props.round) != null ? _b : (_a2 = globalConfig2.value) == null ? void 0 : _a2.round) != null ? _c : false;
+        });
+        const _text = vue.computed(() => {
+          var _a2, _b, _c;
+          return (_c = (_b = props.text) != null ? _b : (_a2 = globalConfig2.value) == null ? void 0 : _a2.text) != null ? _c : false;
         });
         const _props = vue.computed(() => {
           if (props.tag === "button") {
@@ -18468,6 +16529,7 @@ match-attr##srcid##sp_purc_atom
           _props,
           _plain,
           _round,
+          _text,
           shouldAddSpace,
           handleClick
         };
@@ -18508,7 +16570,10 @@ match-attr##srcid##sp_purc_atom
           type: Boolean,
           default: void 0
         },
-        text: Boolean,
+        text: {
+          type: Boolean,
+          default: void 0
+        },
         link: Boolean,
         bg: Boolean,
         autofocus: Boolean,
@@ -19023,8 +17088,7 @@ match-attr##srcid##sp_purc_atom
         return Boolean(matchers.CSS_UNIT.exec(String(color)));
       }
       var TinyColor = (
-        /** @class */
-        (function() {
+(function() {
           function TinyColor2(color, opts) {
             if (color === void 0) {
               color = "";
@@ -19474,7 +17538,7 @@ match-attr##srcid##sp_purc_atom
       const __default__$j = vue.defineComponent({
         name: "ElButton"
       });
-      const _sfc_main$B = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$B = vue.defineComponent({
         ...__default__$j,
         props: buttonProps,
         emits: buttonEmits,
@@ -19490,6 +17554,7 @@ match-attr##srcid##sp_purc_atom
             _props,
             _plain,
             _round,
+            _text,
             shouldAddSpace,
             handleClick
           } = useButton(props, emit);
@@ -19502,7 +17567,7 @@ match-attr##srcid##sp_purc_atom
             ns.is("plain", _plain.value),
             ns.is("round", _round.value),
             ns.is("circle", props.circle),
-            ns.is("text", props.text),
+            ns.is("text", _text.value),
             ns.is("link", props.link),
             ns.is("has-bg", props.bg)
           ]);
@@ -19551,7 +17616,7 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      var Button = /* @__PURE__ */ _export_sfc(_sfc_main$B, [["__file", "button.vue"]]);
+      var Button = _export_sfc(_sfc_main$B, [["__file", "button.vue"]]);
       const buttonGroupProps = {
         size: buttonProps.size,
         type: buttonProps.type
@@ -19559,7 +17624,7 @@ match-attr##srcid##sp_purc_atom
       const __default__$i = vue.defineComponent({
         name: "ElButtonGroup"
       });
-      const _sfc_main$A = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$A = vue.defineComponent({
         ...__default__$i,
         props: buttonGroupProps,
         setup(__props) {
@@ -19578,7 +17643,7 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      var ButtonGroup = /* @__PURE__ */ _export_sfc(_sfc_main$A, [["__file", "button-group.vue"]]);
+      var ButtonGroup = _export_sfc(_sfc_main$A, [["__file", "button-group.vue"]]);
       const ElButton = withInstall(Button, {
         ButtonGroup
       });
@@ -19586,7 +17651,7 @@ match-attr##srcid##sp_purc_atom
       function getDefaultExportFromCjs(x) {
         return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, "default") ? x["default"] : x;
       }
-      var PatchFlags = /* @__PURE__ */ ((PatchFlags2) => {
+      var PatchFlags = ((PatchFlags2) => {
         PatchFlags2[PatchFlags2["TEXT"] = 1] = "TEXT";
         PatchFlags2[PatchFlags2["CLASS"] = 2] = "CLASS";
         PatchFlags2[PatchFlags2["STYLE"] = 4] = "STYLE";
@@ -19641,7 +17706,7 @@ match-attr##srcid##sp_purc_atom
       const useOrderedChildren = (vm, childComponentName) => {
         const children = vue.shallowRef({});
         const orderedChildren = vue.shallowRef([]);
-        const nodesMap = /* @__PURE__ */ new WeakMap();
+        const nodesMap = new WeakMap();
         const addChild = (child) => {
           children.value[child.uid] = child;
           vue.triggerRef(children);
@@ -19739,7 +17804,7 @@ match-attr##srcid##sp_purc_atom
       const __default__$h = vue.defineComponent({
         name: "ElCol"
       });
-      const _sfc_main$z = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$z = vue.defineComponent({
         ...__default__$h,
         props: colProps,
         setup(__props) {
@@ -19793,12 +17858,12 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      var Col = /* @__PURE__ */ _export_sfc(_sfc_main$z, [["__file", "col.vue"]]);
+      var Col = _export_sfc(_sfc_main$z, [["__file", "col.vue"]]);
       const ElCol = withInstall(Col);
       const __default__$g = vue.defineComponent({
         name: "ElContainer"
       });
-      const _sfc_main$y = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$y = vue.defineComponent({
         ...__default__$g,
         props: {
           direction: {
@@ -19834,11 +17899,11 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      var Container = /* @__PURE__ */ _export_sfc(_sfc_main$y, [["__file", "container.vue"]]);
+      var Container = _export_sfc(_sfc_main$y, [["__file", "container.vue"]]);
       const __default__$f = vue.defineComponent({
         name: "ElAside"
       });
-      const _sfc_main$x = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$x = vue.defineComponent({
         ...__default__$f,
         props: {
           width: {
@@ -19860,11 +17925,11 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      var Aside = /* @__PURE__ */ _export_sfc(_sfc_main$x, [["__file", "aside.vue"]]);
+      var Aside = _export_sfc(_sfc_main$x, [["__file", "aside.vue"]]);
       const __default__$e = vue.defineComponent({
         name: "ElFooter"
       });
-      const _sfc_main$w = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$w = vue.defineComponent({
         ...__default__$e,
         props: {
           height: {
@@ -19886,11 +17951,11 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      var Footer = /* @__PURE__ */ _export_sfc(_sfc_main$w, [["__file", "footer.vue"]]);
+      var Footer = _export_sfc(_sfc_main$w, [["__file", "footer.vue"]]);
       const __default__$d = vue.defineComponent({
         name: "ElHeader"
       });
-      const _sfc_main$v = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$v = vue.defineComponent({
         ...__default__$d,
         props: {
           height: {
@@ -19916,11 +17981,11 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      var Header = /* @__PURE__ */ _export_sfc(_sfc_main$v, [["__file", "header.vue"]]);
+      var Header = _export_sfc(_sfc_main$v, [["__file", "header.vue"]]);
       const __default__$c = vue.defineComponent({
         name: "ElMain"
       });
-      const _sfc_main$u = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$u = vue.defineComponent({
         ...__default__$c,
         setup(__props) {
           const ns = useNamespace("main");
@@ -19933,7 +17998,7 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      var Main = /* @__PURE__ */ _export_sfc(_sfc_main$u, [["__file", "main.vue"]]);
+      var Main = _export_sfc(_sfc_main$u, [["__file", "main.vue"]]);
       const ElContainer = withInstall(Container, {
         Aside,
         Footer,
@@ -19963,7 +18028,7 @@ match-attr##srcid##sp_purc_atom
       const __default__$b = vue.defineComponent({
         name: "ElDivider"
       });
-      const _sfc_main$t = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$t = vue.defineComponent({
         ...__default__$b,
         props: dividerProps,
         setup(__props) {
@@ -19990,12 +18055,12 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      var Divider = /* @__PURE__ */ _export_sfc(_sfc_main$t, [["__file", "divider.vue"]]);
+      var Divider = _export_sfc(_sfc_main$t, [["__file", "divider.vue"]]);
       const ElDivider = withInstall(Divider);
       const __default__$a = vue.defineComponent({
         name: "ImgEmpty"
       });
-      const _sfc_main$s = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$s = vue.defineComponent({
         ...__default__$a,
         setup(__props) {
           const ns = useNamespace("empty");
@@ -20121,7 +18186,7 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      var ImgEmpty = /* @__PURE__ */ _export_sfc(_sfc_main$s, [["__file", "img-empty.vue"]]);
+      var ImgEmpty = _export_sfc(_sfc_main$s, [["__file", "img-empty.vue"]]);
       const emptyProps = buildProps({
         image: {
           type: String,
@@ -20136,7 +18201,7 @@ match-attr##srcid##sp_purc_atom
       const __default__$9 = vue.defineComponent({
         name: "ElEmpty"
       });
-      const _sfc_main$r = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$r = vue.defineComponent({
         ...__default__$9,
         props: emptyProps,
         setup(__props) {
@@ -20178,7 +18243,7 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      var Empty = /* @__PURE__ */ _export_sfc(_sfc_main$r, [["__file", "empty.vue"]]);
+      var Empty = _export_sfc(_sfc_main$r, [["__file", "empty.vue"]]);
       const ElEmpty = withInstall(Empty);
       const imageViewerProps = buildProps({
         urlList: {
@@ -20227,7 +18292,7 @@ match-attr##srcid##sp_purc_atom
       const __default__$8 = vue.defineComponent({
         name: "ElImageViewer"
       });
-      const _sfc_main$q = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$q = vue.defineComponent({
         ...__default__$8,
         props: imageViewerProps,
         emits: imageViewerEmits,
@@ -20657,7 +18722,7 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      var ImageViewer = /* @__PURE__ */ _export_sfc(_sfc_main$q, [["__file", "image-viewer.vue"]]);
+      var ImageViewer = _export_sfc(_sfc_main$q, [["__file", "image-viewer.vue"]]);
       const ElImageViewer = withInstall(ImageViewer);
       const imageProps = buildProps({
         hideOnClickModal: Boolean,
@@ -20726,7 +18791,7 @@ match-attr##srcid##sp_purc_atom
         name: "ElImage",
         inheritAttrs: false
       });
-      const _sfc_main$p = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$p = vue.defineComponent({
         ...__default__$7,
         props: imageProps,
         emits: imageEmits,
@@ -20937,7 +19002,7 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      var Image = /* @__PURE__ */ _export_sfc(_sfc_main$p, [["__file", "image.vue"]]);
+      var Image = _export_sfc(_sfc_main$p, [["__file", "image.vue"]]);
       const ElImage = withInstall(Image);
       const linkProps = buildProps({
         type: {
@@ -20966,7 +19031,7 @@ match-attr##srcid##sp_purc_atom
       const __default__$6 = vue.defineComponent({
         name: "ElLink"
       });
-      const _sfc_main$o = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$o = vue.defineComponent({
         ...__default__$6,
         props: linkProps,
         emits: linkEmits,
@@ -21026,7 +19091,7 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      var Link = /* @__PURE__ */ _export_sfc(_sfc_main$o, [["__file", "link.vue"]]);
+      var Link = _export_sfc(_sfc_main$o, [["__file", "link.vue"]]);
       const ElLink = withInstall(Link);
       const capitalize = (str) => capitalize$1(str);
       const RowJustify = [
@@ -21060,7 +19125,7 @@ match-attr##srcid##sp_purc_atom
       const __default__$5 = vue.defineComponent({
         name: "ElRow"
       });
-      const _sfc_main$n = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$n = vue.defineComponent({
         ...__default__$5,
         props: rowProps,
         setup(__props) {
@@ -21096,7 +19161,7 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      var Row = /* @__PURE__ */ _export_sfc(_sfc_main$n, [["__file", "row.vue"]]);
+      var Row = _export_sfc(_sfc_main$n, [["__file", "row.vue"]]);
       const ElRow = withInstall(Row);
       const skeletonProps = buildProps({
         animated: Boolean,
@@ -21136,7 +19201,7 @@ match-attr##srcid##sp_purc_atom
       const __default__$4 = vue.defineComponent({
         name: "ElSkeletonItem"
       });
-      const _sfc_main$m = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$m = vue.defineComponent({
         ...__default__$4,
         props: skeletonItemProps,
         setup(__props) {
@@ -21150,7 +19215,7 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      var SkeletonItem = /* @__PURE__ */ _export_sfc(_sfc_main$m, [["__file", "skeleton-item.vue"]]);
+      var SkeletonItem = _export_sfc(_sfc_main$m, [["__file", "skeleton-item.vue"]]);
       const useThrottleRender = (loading, throttle2 = 0) => {
         if (throttle2 === 0)
           return loading;
@@ -21193,7 +19258,7 @@ match-attr##srcid##sp_purc_atom
       const __default__$3 = vue.defineComponent({
         name: "ElSkeleton"
       });
-      const _sfc_main$l = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$l = vue.defineComponent({
         ...__default__$3,
         props: skeletonProps,
         setup(__props, { expose }) {
@@ -21232,7 +19297,7 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      var Skeleton = /* @__PURE__ */ _export_sfc(_sfc_main$l, [["__file", "skeleton.vue"]]);
+      var Skeleton = _export_sfc(_sfc_main$l, [["__file", "skeleton.vue"]]);
       const ElSkeleton = withInstall(Skeleton, {
         SkeletonItem
       });
@@ -21442,7 +19507,7 @@ match-attr##srcid##sp_purc_atom
       const __default__$2 = vue.defineComponent({
         name: COMPONENT_NAME$2
       });
-      const _sfc_main$k = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$k = vue.defineComponent({
         ...__default__$2,
         props: tabBarProps,
         setup(__props, { expose }) {
@@ -21516,7 +19581,7 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      var TabBar = /* @__PURE__ */ _export_sfc(_sfc_main$k, [["__file", "tab-bar.vue"]]);
+      var TabBar = _export_sfc(_sfc_main$k, [["__file", "tab-bar.vue"]]);
       const tabNavProps = buildProps({
         panes: {
           type: definePropType(Array),
@@ -21968,7 +20033,7 @@ match-attr##srcid##sp_purc_atom
       const __default__$1 = vue.defineComponent({
         name: COMPONENT_NAME
       });
-      const _sfc_main$j = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$j = vue.defineComponent({
         ...__default__$1,
         props: tabPaneProps,
         setup(__props) {
@@ -22038,7 +20103,7 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      var TabPane = /* @__PURE__ */ _export_sfc(_sfc_main$j, [["__file", "tab-pane.vue"]]);
+      var TabPane = _export_sfc(_sfc_main$j, [["__file", "tab-pane.vue"]]);
       const ElTabs = withInstall(Tabs$1, {
         TabPane
       });
@@ -22066,7 +20131,7 @@ match-attr##srcid##sp_purc_atom
       const __default__ = vue.defineComponent({
         name: "ElText"
       });
-      const _sfc_main$i = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$i = vue.defineComponent({
         ...__default__,
         props: textProps,
         setup(__props) {
@@ -22124,7 +20189,7 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      var Text = /* @__PURE__ */ _export_sfc(_sfc_main$i, [["__file", "text.vue"]]);
+      var Text = _export_sfc(_sfc_main$i, [["__file", "text.vue"]]);
       const ElText = withInstall(Text);
       function createLoadingComponent(options, appContext) {
         let afterLeaveTimer;
@@ -22437,16 +20502,10 @@ match-attr##srcid##sp_purc_atom
             this.createImageList();
           }
         },
-        /**
-         * 获取图片列表
-         */
-        getImageList() {
+getImageList() {
           return this.$data.imageUrlList;
         },
-        /**
-         * 生成图片列表
-         */
-        createImageList() {
+createImageList() {
           let imageTemplateUrl = "//tb2.bdstatic.com/tb/editor/images/face/i_f";
           let startImageId = 1;
           let endImageId = 55;
@@ -22460,14 +20519,11 @@ match-attr##srcid##sp_purc_atom
       };
       const useTiptapStore = pinia.defineStore("tiptap", {
         state: () => ({
-          /**
-           * 是否异步加载完成实例
-           */
-          isLoaded: false
+isLoaded: false
         })
       });
       const _hoisted_1$e = { id: "reply-editor" };
-      const _sfc_main$h = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$h = vue.defineComponent({
         __name: "Tiptap",
         setup(__props, { expose: __expose }) {
           const tiptapStore = useTiptapStore();
@@ -22516,22 +20572,14 @@ match-attr##srcid##sp_purc_atom
             once: true
           });
           const EditorTools = {
-            /**
-             * 插入图片
-             * @param url 图片链接
-             */
-            insertImage(url) {
+insertImage(url) {
               log.info("Editor: 插入图片 => " + url);
               let tipEditor = editor;
               tipEditor.commands.setImage({
                 src: url
               });
             },
-            /**
-             * 获取输入的内容
-             * （内部进行字符串转换。比如表情转换）
-             */
-            getReplyContentInfo() {
+getReplyContentInfo() {
               log.info("Editor: 获取并解析内容");
               let tipEditor = editor;
               let contentHTML = tipEditor.getHTML();
@@ -22557,19 +20605,12 @@ match-attr##srcid##sp_purc_atom
               log.info(["Editor: 解析的内容 => ", parseData]);
               return parseData;
             },
-            /**
-             * 清空内容
-             */
-            clearContent() {
+clearContent() {
               log.info("Editor: 清空");
               let tipEditor = editor;
               tipEditor.commands.clearContent();
             },
-            /**
-             * 监听编辑器内容改变时，是否为空
-             * @param callback 监听回调
-             */
-            listenEditorContentChangeEmptyState(callback) {
+listenEditorContentChangeEmptyState(callback) {
               log.info("Editor: 设置监听编辑器内容改变时，是否为空");
               let tipEditor = editor;
               tipEditor.on("update", () => {
@@ -22577,11 +20618,7 @@ match-attr##srcid##sp_purc_atom
                 tipEditor.commands.scrollIntoView();
               });
             },
-            /**
-             * 编辑器获取焦点（移动端唤醒键盘）
-             * @param [timeout=0] 延迟时间
-             */
-            setEditorFocus(timeout = 0) {
+setEditorFocus(timeout = 0) {
               log.info("Editor: 获取焦点");
               if (timeout < 0) {
                 let tipEditor = editor;
@@ -22600,7 +20637,7 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      const Tiptap = /* @__PURE__ */ _export_sfc$1(_sfc_main$h, [["__scopeId", "data-v-515fa91d"]]);
+      const Tiptap = _export_sfc$1(_sfc_main$h, [["__scopeId", "data-v-515fa91d"]]);
       const _hoisted_1$d = ["data-show-bottom-panel", "data-show-reply-content"];
       const _hoisted_2$c = ["data-full"];
       const _hoisted_3$a = {
@@ -22616,7 +20653,7 @@ match-attr##srcid##sp_purc_atom
         class: "emoji-panel"
       };
       const _hoisted_10$3 = { class: "emoji-panel-huaji" };
-      const _sfc_main$g = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$g = vue.defineComponent({
         __name: "FullToolbar",
         emits: ["updateContentState", "showSmallToolbar"],
         setup(__props, { expose: __expose, emit: __emit }) {
@@ -22638,43 +20675,35 @@ match-attr##srcid##sp_purc_atom
           };
           EmojiPanel.init();
           const ToolbarHandler = {
-            /** 处理底部panel显示/隐藏 */
-            handleBottomPanelVisible(menuName, state = !currentPanelMenu.value.state) {
+handleBottomPanelVisible(menuName, state = !currentPanelMenu.value.state) {
               currentPanelMenu.value.state = state;
               currentPanelMenu.value.name = menuName;
             },
-            /** 放大、缩小按钮图标的点击事件 */
-            handleEditorHeight() {
+handleEditorHeight() {
               isEnlarge.value = !isEnlarge.value;
             },
-            /** 工具栏 表情 => 表情图片 点击事件 */
-            handleEmojiImageClick(event, url) {
+handleEmojiImageClick(event, url) {
               if (EditorRef.value) {
                 EditorRef.value.insertImage(url);
               }
             },
-            /** 工具栏 表情 点击事件 */
-            handleEmojiIconClick(event) {
+handleEmojiIconClick(event) {
               ToolbarHandler.handleBottomPanelVisible("emoji");
             },
-            /** 工具栏 @ 点击事件 */
-            handleAtIconClick(event) {
+handleAtIconClick(event) {
               ToolbarHandler.handleBottomPanelVisible("at");
             },
-            /** 发表 点击事件 */
-            handlePostMsgClickEvent(event) {
+handlePostMsgClickEvent(event) {
               log.info("点击发表按钮");
               TiebaReply.$data.isSending.value = true;
               TiebaReply.sendMsg(event);
             },
-            /** 按下 发表按钮 */
-            recordOnSubmitTouchStart(event) {
+recordOnSubmitTouchStart(event) {
               let contentInfo = EditorRef.value.getReplyContentInfo();
               TiebaReply.setInputValue(contentInfo.text);
               TiebaReply.sendMsgBefore(event);
             },
-            /** 重置回复的用户，使当前为回复本帖楼主 */
-            resetReplyUser() {
+resetReplyUser() {
               ReplyUser.value = "";
               ReplyUserContent.value = "";
               if (TiebaReply.$data.type.value !== "main") {
@@ -22682,8 +20711,7 @@ match-attr##srcid##sp_purc_atom
                 TiebaReply.setCurrentReplyMainUser();
               }
             },
-            /** 重置编辑器，一般是发表后进行清空操作 */
-            resetToolbar(showSmallToolbar = true) {
+resetToolbar(showSmallToolbar = true) {
               ToolbarHandler.resetReplyUser();
               isEnlarge.value = false;
               EditorRef.value.clearContent();
@@ -22844,8 +20872,8 @@ match-attr##srcid##sp_purc_atom
                     default: vue.withCtx(() => [
                       vue.createElementVNode("div", {
                         class: "full-toolbar-emoji-btn",
-                        onClick: _cache[0] || (_cache[0] = //@ts-ignore
-                        (...args) => ToolbarHandler.handleEmojiIconClick && ToolbarHandler.handleEmojiIconClick(...args))
+                        onClick: _cache[0] || (_cache[0] =
+(...args) => ToolbarHandler.handleEmojiIconClick && ToolbarHandler.handleEmojiIconClick(...args))
                       }, [
                         (vue.openBlock(), vue.createElementBlock("svg", {
                           fill: currentPanelMenu.value.state && currentPanelMenu.value.name === "emoji" ? BtnColor.value : "",
@@ -22890,20 +20918,14 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      const FullToolbar = /* @__PURE__ */ _export_sfc$1(_sfc_main$g, [["__scopeId", "data-v-16c51a10"]]);
+      const FullToolbar = _export_sfc$1(_sfc_main$g, [["__scopeId", "data-v-16c51a10"]]);
       const usePlaceHolder = pinia.defineStore("placeholder", {
         state: () => ({
-          /**
-           * 内容为空时的placeholder
-           */
-          empty: "发帖千百度 文明第一步",
-          /**
-           * 存在内容时的placeholder
-           */
-          hasContent: "[草稿待发送]"
+empty: "发帖千百度 文明第一步",
+hasContent: "[草稿待发送]"
         })
       });
-      const _sfc_main$f = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$f = vue.defineComponent({
         __name: "App",
         setup(__props) {
           const accountStore = useAccountStore();
@@ -22913,11 +20935,7 @@ match-attr##srcid##sp_purc_atom
           const FullToolbarRef = vue.ref();
           const $viteApp = vue.shallowRef();
           const ElementCheckIn = {
-            /**
-             * 判断该元素是否是在小工具栏中
-             * @param $ele 
-             */
-            isContainsInSmallToolbar($ele) {
+isContainsInSmallToolbar($ele) {
               if ($ele == null) {
                 return false;
               }
@@ -22927,11 +20945,7 @@ match-attr##srcid##sp_purc_atom
               }
               return false;
             },
-            /**
-             * 判断该元素是否是在vue根元素内
-             * @param $ele 
-             */
-            isContainsInRootApp($ele) {
+isContainsInRootApp($ele) {
               if ($ele == null) {
                 return false;
               }
@@ -22939,10 +20953,7 @@ match-attr##srcid##sp_purc_atom
             }
           };
           const GlobalEvent = {
-            /**
-             * 设置全局点击事件，点击其它地方，隐藏工具栏
-             */
-            setGlobalTouchClickCheck() {
+setGlobalTouchClickCheck() {
               domUtils.on(document, "touchstart", function(event) {
                 let $click = event.target;
                 if (ElementCheckIn.isContainsInSmallToolbar($click)) {
@@ -22956,20 +20967,13 @@ match-attr##srcid##sp_purc_atom
             }
           };
           const Main2 = {
-            /**
-             * 初始化
-             */
-            init() {
+init() {
               GlobalEvent.setGlobalTouchClickCheck();
               vue.onMounted(() => {
                 $viteApp.value = document.querySelector("#vite-app");
               });
             },
-            /**
-             * 显示完整的工具栏，并隐藏小的工具栏
-             * @param isShowEmoji 是否显示emoji组件，默认false
-             */
-            showFullToolbar(isShowEmoji = false) {
+showFullToolbar(isShowEmoji = false) {
               if (!accountStore.isLogin) {
                 TiebaReply.checkLogin();
                 return;
@@ -22980,19 +20984,12 @@ match-attr##srcid##sp_purc_atom
                 FullToolbarRef.value.handleBottomPanelVisible("emoji", true);
               }
             },
-            /**
-             * 显示隐藏小的工具栏，并完整的工具栏
-             */
-            showSmallToolbar() {
+showSmallToolbar() {
               toolbarStateStore.isShowFullToolbar = false;
               toolbarStateStore.isShowSmallToolbar = true;
               TiebaReply.$data.isShowFullEditor.value = false;
             },
-            /**
-             * 更新编辑器状态
-             * @param state 更新编辑器状态，判断是否输入框为空
-             */
-            updateContentState(state) {
+updateContentState(state) {
               toolbarStateStore.isEmpty = state;
             }
           };
@@ -23101,10 +21098,7 @@ match-attr##srcid##sp_purc_atom
           });
           TiebaReply.init();
         },
-        /**
-         * 注册全局贴吧图片点击预览(只预览通过贴吧上传的图片，非其它图床图片)
-         */
-        optimizeImagePreview() {
+optimizeImagePreview() {
           log.success("优化图片预览");
           CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer);
           let gestureback = null;
@@ -23343,8 +21337,7 @@ match-attr##srcid##sp_purc_atom
             }
           );
           CommonUtil.addBlockCSS(
-            /* 图片右上角的APP专享 */
-            "div.img-sudoku .img-desc"
+"div.img-sudoku .img-desc"
           );
           domUtils.ready(function() {
             utils.waitNode("div.img-sudoku", 1e4).then(($imgSudoKu) => {
@@ -23388,10 +21381,7 @@ match-attr##srcid##sp_purc_atom
             });
           });
         },
-        /**
-         * 初始化帖子内图片信息
-         */
-        initPostImageInfo() {
+initPostImageInfo() {
           let forumName = TiebaCore.getCurrentForumName();
           let tid = TiebaCore.getCurrentForumPostTid();
           if (forumName && tid) {
@@ -23411,11 +21401,7 @@ match-attr##srcid##sp_purc_atom
             });
           }
         },
-        /**
-         * 强制查看-帖子不存在|帖子已被删除|该帖子需要去app内查看哦
-         *
-         */
-        repairErrorThread() {
+repairErrorThread() {
           async function getPageInfo() {
             let getResp = await httpx.get(window.location.href, {
               headers: {
@@ -23489,31 +21475,23 @@ match-attr##srcid##sp_purc_atom
                 disagree_num: 0
               },
               author: {
-                /* author.user_id */
-                id: field.author.user_id,
-                /* author.user_name */
-                name: field.author.user_name,
-                /* author.user_nickname */
-                name_show: field.author.user_nickname,
-                /* author.portrait */
-                portrait: field.author.portrait,
-                /* author.user_nickname */
-                show_nickname: field.author.user_nickname,
+id: field.author.user_id,
+name: field.author.user_name,
+name_show: field.author.user_nickname,
+portrait: field.author.portrait,
+show_nickname: field.author.user_nickname,
                 type: 1,
                 userhide: 0
               },
               content: [
                 {
-                  /* content.content */
-                  text: field.content.content,
-                  /* parseInt(content.type) */
-                  type: parseInt(field.content.type)
+text: field.content.content,
+type: parseInt(field.content.type)
                 }
               ],
               floor: 1,
               game_info: [null],
-              /* content.post_id */
-              id: parseInt(field.content.post_id),
+id: parseInt(field.content.post_id),
               is_bub: 0,
               is_voice: 0,
               is_vote: 0,
@@ -23581,19 +21559,14 @@ match-attr##srcid##sp_purc_atom
               works_info: {}
             };
             appViewVue.forum = {
-              /* PageData.forum.avatar */
-              avatar: pageInfo.PageData.forum.avatar,
-              /* PageData.forum.first_class */
-              first_dir: pageInfo.PageData.forum.first_class || pageInfo.PageData.first_class,
-              /* PageData.forum.id */
-              id: pageInfo.PageData.forum.id || pageInfo.PageData.forum.forum_id || pageInfo.PageData.forum.true_forum_id,
+avatar: pageInfo.PageData.forum.avatar,
+first_dir: pageInfo.PageData.forum.first_class || pageInfo.PageData.first_class,
+id: pageInfo.PageData.forum.id || pageInfo.PageData.forum.forum_id || pageInfo.PageData.forum.true_forum_id,
               is_exists: 1,
               is_forbidden: 0,
               is_forum_merged: 0,
-              /* PageData.forum.name */
-              name: pageInfo.PageData.forum.name || pageInfo.PageData.forum.forum_name,
-              /* PageData.forum.second_class */
-              second_dir: pageInfo.PageData.forum.second_class || pageInfo.PageData.second_class
+name: pageInfo.PageData.forum.name || pageInfo.PageData.forum.forum_name,
+second_dir: pageInfo.PageData.forum.second_class || pageInfo.PageData.second_class
             };
             appViewVue.postNum = 100;
             appViewVue.isErrorThread = false;
@@ -23610,10 +21583,7 @@ match-attr##srcid##sp_purc_atom
             }, 300);
           });
         },
-        /**
-         * 覆盖vue的Router.matcher.match，阻止改变路由后页面__vue__属性也改变导致无法获取属性
-         */
-        overrideVueRouterMatch() {
+overrideVueRouterMatch() {
           VueUtils.waitVuePropToSet(".app-view", [
             {
               msg: "等待获取 root的$router",
@@ -23637,10 +21607,7 @@ match-attr##srcid##sp_purc_atom
         }
       };
       const TiebaHomeData = {
-        /**
-         * 获取移动端用户主页的数据
-         */
-        async getUserData() {
+async getUserData() {
           let userPCHomeInfo = await TiebaHomeData.getUserDataWithPCDoc();
           if (!userPCHomeInfo) {
             return;
@@ -23740,10 +21707,7 @@ match-attr##srcid##sp_purc_atom
             }
           };
         },
-        /**
-         * 获取PC网页中的用户数据
-         */
-        async getUserDataWithPCDoc(url = window.location.href) {
+async getUserDataWithPCDoc(url = window.location.href) {
           let response = await httpx.get(url, {
             headers: {
               Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
@@ -23797,10 +21761,8 @@ match-attr##srcid##sp_purc_atom
               createTime: listItem.querySelector(
                 "ul.new_list > div .n_post_time"
               ).innerText,
-              /* 暂时获取不到 */
-              replyNum: 0,
-              // 媒体数据，一般是图片
-              mediaList: []
+replyNum: 0,
+mediaList: []
             };
             if (listItem.querySelector("ul.new_list > div .n_media")) {
               listItem.querySelectorAll(
@@ -23905,7 +21867,7 @@ match-attr##srcid##sp_purc_atom
       };
       const elLoadingCss = ":root{--el-loading-spinner-size:42px;--el-loading-fullscreen-spinner-size:50px}.el-loading-parent--relative{position:relative!important}.el-loading-parent--hidden{overflow:hidden!important}.el-loading-mask{background-color:var(--el-mask-color);inset:0;margin:0;position:absolute;transition:opacity var(--el-transition-duration);z-index:2000}.el-loading-mask.is-fullscreen{position:fixed}.el-loading-mask.is-fullscreen .el-loading-spinner{margin-top:calc((0px - var(--el-loading-fullscreen-spinner-size))/2)}.el-loading-mask.is-fullscreen .el-loading-spinner .circular{height:var(--el-loading-fullscreen-spinner-size);width:var(--el-loading-fullscreen-spinner-size)}.el-loading-spinner{margin-top:calc((0px - var(--el-loading-spinner-size))/2);position:absolute;text-align:center;top:50%;width:100%}.el-loading-spinner .el-loading-text{color:var(--el-color-primary);font-size:14px;margin:3px 0}.el-loading-spinner .circular{animation:loading-rotate 2s linear infinite;display:inline;height:var(--el-loading-spinner-size);width:var(--el-loading-spinner-size)}.el-loading-spinner .path{animation:loading-dash 1.5s ease-in-out infinite;stroke-dasharray:90,150;stroke-dashoffset:0;stroke-width:2;stroke:var(--el-color-primary);stroke-linecap:round}.el-loading-spinner i{color:var(--el-color-primary)}.el-loading-fade-enter-from,.el-loading-fade-leave-to{opacity:0}@keyframes loading-rotate{to{transform:rotate(1turn)}}@keyframes loading-dash{0%{stroke-dasharray:1,200;stroke-dashoffset:0}50%{stroke-dasharray:90,150;stroke-dashoffset:-40px}to{stroke-dasharray:90,150;stroke-dashoffset:-120px}}";
       importCSS(elLoadingCss);
-      const _sfc_main$e = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$e = vue.defineComponent({
         __name: "App",
         setup(__props) {
           let UserData = vue.ref({});
@@ -23943,8 +21905,6 @@ match-attr##srcid##sp_purc_atom
       importCSS(elMainCss);
       const elTabsCss = '.el-tabs{--el-tabs-header-height:40px;display:flex}.el-tabs__header{align-items:center;display:flex;justify-content:space-between;margin:0 0 15px;padding:0;position:relative}.el-tabs__header-vertical{flex-direction:column}.el-tabs__active-bar{background-color:var(--el-color-primary);bottom:0;height:2px;left:0;list-style:none;position:absolute;transition:width var(--el-transition-duration) var(--el-transition-function-ease-in-out-bezier),transform var(--el-transition-duration) var(--el-transition-function-ease-in-out-bezier);z-index:1}.el-tabs__new-tab{align-items:center;border:1px solid var(--el-border-color);border-radius:3px;color:var(--el-text-color-primary);cursor:pointer;display:flex;flex-shrink:0;font-size:12px;height:20px;justify-content:center;line-height:20px;margin:10px 0 10px 10px;text-align:center;transition:all .15s;width:20px}.el-tabs__new-tab .is-icon-plus{height:inherit;transform:scale(.8);width:inherit}.el-tabs__new-tab .is-icon-plus svg{vertical-align:middle}.el-tabs__new-tab:hover{color:var(--el-color-primary)}.el-tabs__new-tab-vertical{margin-left:0}.el-tabs__nav-wrap{flex:1 auto;margin-bottom:-1px;overflow:hidden;position:relative}.el-tabs__nav-wrap:after{background-color:var(--el-border-color-light);bottom:0;content:"";height:2px;left:0;position:absolute;width:100%;z-index:var(--el-index-normal)}.el-tabs__nav-wrap.is-scrollable{box-sizing:border-box;padding:0 20px}.el-tabs__nav-scroll{overflow:hidden}.el-tabs__nav-next,.el-tabs__nav-prev{color:var(--el-text-color-secondary);cursor:pointer;font-size:12px;line-height:44px;position:absolute;text-align:center;width:20px}.el-tabs__nav-next{right:0}.el-tabs__nav-prev{left:0}.el-tabs__nav{display:flex;float:left;position:relative;transition:transform var(--el-transition-duration);white-space:nowrap;z-index:calc(var(--el-index-normal) + 1)}.el-tabs__nav.is-stretch{display:flex;min-width:100%}.el-tabs__nav.is-stretch>*{flex:1;text-align:center}.el-tabs__item{align-items:center;box-sizing:border-box;color:var(--el-text-color-primary);display:flex;font-size:var(--el-font-size-base);font-weight:500;height:var(--el-tabs-header-height);justify-content:center;list-style:none;padding:0 20px;position:relative}.el-tabs__item:focus,.el-tabs__item:focus:active{outline:none}.el-tabs__item:focus-visible{border-radius:3px;box-shadow:0 0 2px 2px var(--el-color-primary) inset}.el-tabs__item .is-icon-close{border-radius:50%;margin-left:5px;text-align:center;transition:all var(--el-transition-duration) var(--el-transition-function-ease-in-out-bezier)}.el-tabs__item .is-icon-close:before{display:inline-block;transform:scale(.9)}.el-tabs__item .is-icon-close:hover{background-color:var(--el-text-color-placeholder);color:#fff}.el-tabs__item.is-active,.el-tabs__item:hover{color:var(--el-color-primary)}.el-tabs__item:hover{cursor:pointer}.el-tabs__item.is-disabled{color:var(--el-disabled-text-color);cursor:not-allowed}.el-tabs__content{flex-grow:1;overflow:hidden;position:relative}.el-tabs--bottom>.el-tabs__header .el-tabs__item:nth-child(2),.el-tabs--top>.el-tabs__header .el-tabs__item:nth-child(2){padding-left:0}.el-tabs--bottom>.el-tabs__header .el-tabs__item:last-child,.el-tabs--top>.el-tabs__header .el-tabs__item:last-child{padding-right:0}.el-tabs--bottom.el-tabs--border-card>.el-tabs__header .el-tabs__item:nth-child(2),.el-tabs--bottom.el-tabs--card>.el-tabs__header .el-tabs__item:nth-child(2),.el-tabs--top.el-tabs--border-card>.el-tabs__header .el-tabs__item:nth-child(2),.el-tabs--top.el-tabs--card>.el-tabs__header .el-tabs__item:nth-child(2){padding-left:20px}.el-tabs--bottom.el-tabs--border-card>.el-tabs__header .el-tabs__item:last-child,.el-tabs--bottom.el-tabs--card>.el-tabs__header .el-tabs__item:last-child,.el-tabs--top.el-tabs--border-card>.el-tabs__header .el-tabs__item:last-child,.el-tabs--top.el-tabs--card>.el-tabs__header .el-tabs__item:last-child{padding-right:20px}.el-tabs--card>.el-tabs__header{border-bottom:1px solid var(--el-border-color-light);box-sizing:border-box;height:var(--el-tabs-header-height)}.el-tabs--card>.el-tabs__header .el-tabs__nav-wrap:after{content:none}.el-tabs--card>.el-tabs__header .el-tabs__nav{border:1px solid var(--el-border-color-light);border-bottom:none;border-radius:4px 4px 0 0;box-sizing:border-box}.el-tabs--card>.el-tabs__header .el-tabs__active-bar{display:none}.el-tabs--card>.el-tabs__header .el-tabs__item .is-icon-close{font-size:12px;height:14px;overflow:hidden;position:relative;right:-2px;transform-origin:100% 50%;width:0}.el-tabs--card>.el-tabs__header .el-tabs__item{border-bottom:1px solid transparent;border-left:1px solid var(--el-border-color-light);margin-top:-1px;transition:color var(--el-transition-duration) var(--el-transition-function-ease-in-out-bezier),padding var(--el-transition-duration) var(--el-transition-function-ease-in-out-bezier)}.el-tabs--card>.el-tabs__header .el-tabs__item:first-child{border-left:none}.el-tabs--card>.el-tabs__header .el-tabs__item.is-closable:hover{padding-left:13px;padding-right:13px}.el-tabs--card>.el-tabs__header .el-tabs__item.is-closable:hover .is-icon-close{width:14px}.el-tabs--card>.el-tabs__header .el-tabs__item.is-active{border-bottom-color:var(--el-bg-color)}.el-tabs--card>.el-tabs__header .el-tabs__item.is-active.is-closable{padding-left:20px;padding-right:20px}.el-tabs--card>.el-tabs__header .el-tabs__item.is-active.is-closable .is-icon-close{width:14px}.el-tabs--border-card{background:var(--el-bg-color-overlay);border:1px solid var(--el-border-color)}.el-tabs--border-card>.el-tabs__content{padding:15px}.el-tabs--border-card>.el-tabs__header{background-color:var(--el-fill-color-light);border-bottom:1px solid var(--el-border-color-light);margin:0}.el-tabs--border-card>.el-tabs__header .el-tabs__nav-wrap:after{content:none}.el-tabs--border-card>.el-tabs__header .el-tabs__item{border:1px solid transparent;color:var(--el-text-color-secondary);margin-top:-1px;transition:all var(--el-transition-duration) var(--el-transition-function-ease-in-out-bezier)}.el-tabs--border-card>.el-tabs__header .el-tabs__item+.el-tabs__item,.el-tabs--border-card>.el-tabs__header .el-tabs__item:first-child{margin-left:-1px}.el-tabs--border-card>.el-tabs__header .el-tabs__item.is-active{background-color:var(--el-bg-color-overlay);border-left-color:var(--el-border-color);border-right-color:var(--el-border-color);color:var(--el-color-primary)}.el-tabs--border-card>.el-tabs__header .el-tabs__item:not(.is-disabled):hover{color:var(--el-color-primary)}.el-tabs--border-card>.el-tabs__header .el-tabs__item.is-disabled{color:var(--el-disabled-text-color)}.el-tabs--border-card>.el-tabs__header .is-scrollable .el-tabs__item:first-child{margin-left:0}.el-tabs--bottom{flex-direction:column}.el-tabs--bottom .el-tabs__header.is-bottom{margin-bottom:0;margin-top:10px}.el-tabs--bottom.el-tabs--border-card .el-tabs__header.is-bottom{border-bottom:0;border-top:1px solid var(--el-border-color)}.el-tabs--bottom.el-tabs--border-card .el-tabs__nav-wrap.is-bottom{margin-bottom:0;margin-top:-1px}.el-tabs--bottom.el-tabs--border-card .el-tabs__item.is-bottom:not(.is-active){border:1px solid transparent}.el-tabs--bottom.el-tabs--border-card .el-tabs__item.is-bottom{margin:0 -1px -1px}.el-tabs--left,.el-tabs--right{overflow:hidden}.el-tabs--left .el-tabs__header.is-left,.el-tabs--left .el-tabs__header.is-right,.el-tabs--left .el-tabs__nav-scroll,.el-tabs--left .el-tabs__nav-wrap.is-left,.el-tabs--left .el-tabs__nav-wrap.is-right,.el-tabs--right .el-tabs__header.is-left,.el-tabs--right .el-tabs__header.is-right,.el-tabs--right .el-tabs__nav-scroll,.el-tabs--right .el-tabs__nav-wrap.is-left,.el-tabs--right .el-tabs__nav-wrap.is-right{height:100%}.el-tabs--left .el-tabs__active-bar.is-left,.el-tabs--left .el-tabs__active-bar.is-right,.el-tabs--right .el-tabs__active-bar.is-left,.el-tabs--right .el-tabs__active-bar.is-right{bottom:auto;height:auto;top:0;width:2px}.el-tabs--left .el-tabs__nav-wrap.is-left,.el-tabs--left .el-tabs__nav-wrap.is-right,.el-tabs--right .el-tabs__nav-wrap.is-left,.el-tabs--right .el-tabs__nav-wrap.is-right{margin-bottom:0}.el-tabs--left .el-tabs__nav-wrap.is-left>.el-tabs__nav-next,.el-tabs--left .el-tabs__nav-wrap.is-left>.el-tabs__nav-prev,.el-tabs--left .el-tabs__nav-wrap.is-right>.el-tabs__nav-next,.el-tabs--left .el-tabs__nav-wrap.is-right>.el-tabs__nav-prev,.el-tabs--right .el-tabs__nav-wrap.is-left>.el-tabs__nav-next,.el-tabs--right .el-tabs__nav-wrap.is-left>.el-tabs__nav-prev,.el-tabs--right .el-tabs__nav-wrap.is-right>.el-tabs__nav-next,.el-tabs--right .el-tabs__nav-wrap.is-right>.el-tabs__nav-prev{cursor:pointer;height:30px;line-height:30px;text-align:center;width:100%}.el-tabs--left .el-tabs__nav-wrap.is-left>.el-tabs__nav-next i,.el-tabs--left .el-tabs__nav-wrap.is-left>.el-tabs__nav-prev i,.el-tabs--left .el-tabs__nav-wrap.is-right>.el-tabs__nav-next i,.el-tabs--left .el-tabs__nav-wrap.is-right>.el-tabs__nav-prev i,.el-tabs--right .el-tabs__nav-wrap.is-left>.el-tabs__nav-next i,.el-tabs--right .el-tabs__nav-wrap.is-left>.el-tabs__nav-prev i,.el-tabs--right .el-tabs__nav-wrap.is-right>.el-tabs__nav-next i,.el-tabs--right .el-tabs__nav-wrap.is-right>.el-tabs__nav-prev i{transform:rotate(90deg)}.el-tabs--left .el-tabs__nav-wrap.is-left>.el-tabs__nav-prev,.el-tabs--left .el-tabs__nav-wrap.is-right>.el-tabs__nav-prev,.el-tabs--right .el-tabs__nav-wrap.is-left>.el-tabs__nav-prev,.el-tabs--right .el-tabs__nav-wrap.is-right>.el-tabs__nav-prev{left:auto;top:0}.el-tabs--left .el-tabs__nav-wrap.is-left>.el-tabs__nav-next,.el-tabs--left .el-tabs__nav-wrap.is-right>.el-tabs__nav-next,.el-tabs--right .el-tabs__nav-wrap.is-left>.el-tabs__nav-next,.el-tabs--right .el-tabs__nav-wrap.is-right>.el-tabs__nav-next{bottom:0;right:auto}.el-tabs--left .el-tabs__nav-wrap.is-left.is-scrollable,.el-tabs--left .el-tabs__nav-wrap.is-right.is-scrollable,.el-tabs--right .el-tabs__nav-wrap.is-left.is-scrollable,.el-tabs--right .el-tabs__nav-wrap.is-right.is-scrollable{padding:30px 0}.el-tabs--left .el-tabs__nav-wrap.is-left:after,.el-tabs--left .el-tabs__nav-wrap.is-right:after,.el-tabs--right .el-tabs__nav-wrap.is-left:after,.el-tabs--right .el-tabs__nav-wrap.is-right:after{bottom:auto;height:100%;top:0;width:2px}.el-tabs--left .el-tabs__nav.is-left,.el-tabs--left .el-tabs__nav.is-right,.el-tabs--right .el-tabs__nav.is-left,.el-tabs--right .el-tabs__nav.is-right{flex-direction:column}.el-tabs--left .el-tabs__item.is-left,.el-tabs--right .el-tabs__item.is-left{justify-content:flex-end}.el-tabs--left .el-tabs__item.is-right,.el-tabs--right .el-tabs__item.is-right{justify-content:flex-start}.el-tabs--left{flex-direction:row}.el-tabs--left .el-tabs__header.is-left{margin-bottom:0;margin-right:10px}.el-tabs--left .el-tabs__nav-wrap.is-left{margin-right:-1px}.el-tabs--left .el-tabs__active-bar.is-left,.el-tabs--left .el-tabs__nav-wrap.is-left:after{left:auto;right:0}.el-tabs--left .el-tabs__item.is-left{text-align:right}.el-tabs--left.el-tabs--card .el-tabs__active-bar.is-left{display:none}.el-tabs--left.el-tabs--card .el-tabs__item.is-left{border-bottom:none;border-left:none;border-right:1px solid var(--el-border-color-light);border-top:1px solid var(--el-border-color-light);text-align:left}.el-tabs--left.el-tabs--card .el-tabs__item.is-left:first-child{border-right:1px solid var(--el-border-color-light);border-top:none}.el-tabs--left.el-tabs--card .el-tabs__item.is-left.is-active{border:1px solid var(--el-border-color-light);border-bottom:none;border-left:none;border-right:1px solid #fff}.el-tabs--left.el-tabs--card .el-tabs__item.is-left.is-active:first-child{border-top:none}.el-tabs--left.el-tabs--card .el-tabs__item.is-left.is-active:last-child{border-bottom:none}.el-tabs--left.el-tabs--card .el-tabs__nav{border-bottom:1px solid var(--el-border-color-light);border-radius:4px 0 0 4px;border-right:none}.el-tabs--left.el-tabs--card .el-tabs__new-tab{float:none}.el-tabs--left.el-tabs--border-card .el-tabs__header.is-left{border-right:1px solid var(--el-border-color)}.el-tabs--left.el-tabs--border-card .el-tabs__item.is-left{border:1px solid transparent;margin:-1px 0 -1px -1px}.el-tabs--left.el-tabs--border-card .el-tabs__item.is-left.is-active{border-color:rgb(209,219,229) transparent}.el-tabs--left>.el-tabs__content+.el-tabs__header{order:-1}.el-tabs--right .el-tabs__header.is-right{margin-bottom:0;margin-left:10px}.el-tabs--right .el-tabs__nav-wrap.is-right{margin-left:-1px}.el-tabs--right .el-tabs__nav-wrap.is-right:after{left:0;right:auto}.el-tabs--right .el-tabs__active-bar.is-right{left:0}.el-tabs--right.el-tabs--card .el-tabs__active-bar.is-right{display:none}.el-tabs--right.el-tabs--card .el-tabs__item.is-right{border-bottom:none;border-top:1px solid var(--el-border-color-light)}.el-tabs--right.el-tabs--card .el-tabs__item.is-right:first-child{border-left:1px solid var(--el-border-color-light);border-top:none}.el-tabs--right.el-tabs--card .el-tabs__item.is-right.is-active{border:1px solid var(--el-border-color-light);border-bottom:none;border-left:1px solid #fff;border-right:none}.el-tabs--right.el-tabs--card .el-tabs__item.is-right.is-active:first-child{border-top:none}.el-tabs--right.el-tabs--card .el-tabs__item.is-right.is-active:last-child{border-bottom:none}.el-tabs--right.el-tabs--card .el-tabs__nav{border-bottom:1px solid var(--el-border-color-light);border-left:none;border-radius:0 4px 4px 0}.el-tabs--right.el-tabs--border-card .el-tabs__header.is-right{border-left:1px solid var(--el-border-color)}.el-tabs--right.el-tabs--border-card .el-tabs__item.is-right{border:1px solid transparent;margin:-1px -1px -1px 0}.el-tabs--right.el-tabs--border-card .el-tabs__item.is-right.is-active{border-color:rgb(209,219,229) transparent}.el-tabs--top{flex-direction:column}.el-tabs--top>.el-tabs__content+.el-tabs__header{order:-1}.slideInLeft-transition,.slideInRight-transition{display:inline-block}.slideInRight-enter{animation:slideInRight-enter var(--el-transition-duration)}.slideInRight-leave{animation:slideInRight-leave var(--el-transition-duration);left:0;position:absolute;right:0}.slideInLeft-enter{animation:slideInLeft-enter var(--el-transition-duration)}.slideInLeft-leave{animation:slideInLeft-leave var(--el-transition-duration);left:0;position:absolute;right:0}@keyframes slideInRight-enter{0%{opacity:0;transform:translate(100%);transform-origin:0 0}to{opacity:1;transform:translate(0);transform-origin:0 0}}@keyframes slideInRight-leave{0%{opacity:1;transform:translate(0);transform-origin:0 0}to{opacity:0;transform:translate(100%);transform-origin:0 0}}@keyframes slideInLeft-enter{0%{opacity:0;transform:translate(-100%);transform-origin:0 0}to{opacity:1;transform:translate(0);transform-origin:0 0}}@keyframes slideInLeft-leave{0%{opacity:1;transform:translate(0);transform-origin:0 0}to{opacity:0;transform:translate(-100%);transform-origin:0 0}}';
       importCSS(elTabsCss);
-      const elTabPaneCss = "";
-      importCSS(elTabPaneCss);
       const elSpaceCss = ".el-space{display:inline-flex;vertical-align:top}.el-space__item{display:flex;flex-wrap:wrap}.el-space__item>*{flex:1}.el-space--vertical{flex-direction:column}";
       importCSS(elSpaceCss);
       const elLinkCss = '.el-link{--el-link-font-size:var(--el-font-size-base);--el-link-font-weight:var(--el-font-weight-primary);--el-link-text-color:var(--el-text-color-regular);--el-link-hover-text-color:var(--el-color-primary);--el-link-disabled-text-color:var(--el-text-color-placeholder);align-items:center;color:var(--el-link-text-color);cursor:pointer;display:inline-flex;flex-direction:row;font-size:var(--el-link-font-size);font-weight:var(--el-link-font-weight);justify-content:center;outline:none;padding:0;position:relative;text-decoration:none;vertical-align:middle}.el-link.is-hover-underline:hover:after{border-bottom:1px solid var(--el-link-hover-text-color);bottom:0;content:"";height:0;left:0;position:absolute;right:0}.el-link.is-underline:after{border-bottom:1px solid var(--el-link-text-color);bottom:0;content:"";height:0;left:0;position:absolute;right:0}.el-link:hover{color:var(--el-link-hover-text-color)}.el-link:hover:after{border-color:var(--el-link-hover-text-color)}.el-link [class*=el-icon-]+span{margin-left:5px}.el-link__inner{align-items:center;display:inline-flex;justify-content:center}.el-link.el-link--primary{--el-link-text-color:var(--el-color-primary);--el-link-hover-text-color:var(--el-color-primary-light-3);--el-link-disabled-text-color:var(--el-color-primary-light-5)}.el-link.el-link--success{--el-link-text-color:var(--el-color-success);--el-link-hover-text-color:var(--el-color-success-light-3);--el-link-disabled-text-color:var(--el-color-success-light-5)}.el-link.el-link--warning{--el-link-text-color:var(--el-color-warning);--el-link-hover-text-color:var(--el-color-warning-light-3);--el-link-disabled-text-color:var(--el-color-warning-light-5)}.el-link.el-link--danger{--el-link-text-color:var(--el-color-danger);--el-link-hover-text-color:var(--el-color-danger-light-3);--el-link-disabled-text-color:var(--el-color-danger-light-5)}.el-link.el-link--error{--el-link-text-color:var(--el-color-error);--el-link-hover-text-color:var(--el-color-error-light-3);--el-link-disabled-text-color:var(--el-color-error-light-5)}.el-link.el-link--info{--el-link-text-color:var(--el-color-info);--el-link-hover-text-color:var(--el-color-info-light-3);--el-link-disabled-text-color:var(--el-color-info-light-5)}.el-link.is-disabled{color:var(--el-link-disabled-text-color);cursor:not-allowed}.el-link.is-disabled:after{border-color:var(--el-link-disabled-text-color)}';
@@ -24088,7 +22048,7 @@ match-attr##srcid##sp_purc_atom
           _: 1
         });
       }
-      const TemplatePostsItem = /* @__PURE__ */ _export_sfc$1(_sfc_main$d, [["render", _sfc_render$3], ["__scopeId", "data-v-03f2f267"]]);
+      const TemplatePostsItem = _export_sfc$1(_sfc_main$d, [["render", _sfc_render$3], ["__scopeId", "data-v-03f2f267"]]);
       const _hoisted_1$b = { class: "posts-container" };
       const _hoisted_2$a = ["onClick"];
       const _hoisted_3$8 = { class: "posts-item-avatar-container" };
@@ -24108,7 +22068,7 @@ match-attr##srcid##sp_purc_atom
         key: 2,
         style: { "text-align": "center" }
       };
-      const _sfc_main$c = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$c = vue.defineComponent({
         __name: "Posts",
         props: {
           UserData: {}
@@ -24378,7 +22338,7 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      const Posts = /* @__PURE__ */ _export_sfc$1(_sfc_main$c, [["__scopeId", "data-v-c87cf9db"]]);
+      const Posts = _export_sfc$1(_sfc_main$c, [["__scopeId", "data-v-c87cf9db"]]);
       const _sfc_main$b = {};
       const _hoisted_1$a = { style: { "padding": "10px" } };
       const _hoisted_2$9 = { style: { "display": "flex", "align-items": "center", "justify-items": "space-between", "justify-content": "space-between" } };
@@ -24408,7 +22368,7 @@ match-attr##srcid##sp_purc_atom
           });
         }), 64);
       }
-      const TemplateFollowForum = /* @__PURE__ */ _export_sfc$1(_sfc_main$b, [["render", _sfc_render$2]]);
+      const TemplateFollowForum = _export_sfc$1(_sfc_main$b, [["render", _sfc_render$2]]);
       const _hoisted_1$9 = { class: "follow-forum-container" };
       const _hoisted_2$8 = ["onClick"];
       const _hoisted_3$7 = { class: "follow-forum-item-right-container" };
@@ -24418,7 +22378,7 @@ match-attr##srcid##sp_purc_atom
         key: 2,
         style: { "text-align": "center" }
       };
-      const _sfc_main$a = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$a = vue.defineComponent({
         __name: "FollowForum",
         props: {
           UserData: {}
@@ -24595,13 +22555,13 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      const FollowForum = /* @__PURE__ */ _export_sfc$1(_sfc_main$a, [["__scopeId", "data-v-fc2491a8"]]);
+      const FollowForum = _export_sfc$1(_sfc_main$a, [["__scopeId", "data-v-fc2491a8"]]);
       const _hoisted_1$8 = ["data-sex"];
       const _hoisted_2$7 = {
         key: 1,
         style: { "display": "flex", "align-items": "center", "text-wrap": "nowrap" }
       };
-      const _sfc_main$9 = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$9 = vue.defineComponent({
         __name: "Home",
         props: {
           UserData: {}
@@ -24698,8 +22658,7 @@ match-attr##srcid##sp_purc_atom
           };
           const ipHelpEvent = () => {
             ElementPlus.ElMessage({
-              // @ts-ignore
-              showClose: false,
+showClose: false,
               message: "IP属地以运营商信息为准，如有问题可咨询客服",
               center: true,
               plain: true,
@@ -25096,7 +23055,7 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      const Home = /* @__PURE__ */ _export_sfc$1(_sfc_main$9, [["__scopeId", "data-v-c9e3d74e"]]);
+      const Home = _export_sfc$1(_sfc_main$9, [["__scopeId", "data-v-c9e3d74e"]]);
       const _hoisted_1$7 = { class: "user-avatar" };
       const _hoisted_2$6 = { class: "user-info" };
       const _hoisted_3$6 = { class: "user-info-item" };
@@ -25106,7 +23065,7 @@ match-attr##srcid##sp_purc_atom
       const _hoisted_7$5 = { class: "user-info-item" };
       const _hoisted_8$4 = { class: "user-info-item" };
       const _hoisted_9$2 = { class: "user-info-item" };
-      const _sfc_main$8 = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$8 = vue.defineComponent({
         __name: "About",
         props: {
           UserData: {}
@@ -25338,7 +23297,7 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      const About = /* @__PURE__ */ _export_sfc$1(_sfc_main$8, [["__scopeId", "data-v-8128767d"]]);
+      const About = _export_sfc$1(_sfc_main$8, [["__scopeId", "data-v-8128767d"]]);
       const elScrollbarCss = ".el-scrollbar{--el-scrollbar-opacity:.3;--el-scrollbar-bg-color:var(--el-text-color-secondary);--el-scrollbar-hover-opacity:.5;--el-scrollbar-hover-bg-color:var(--el-text-color-secondary);height:100%;overflow:hidden;position:relative}.el-scrollbar__wrap{height:100%;overflow:auto}.el-scrollbar__wrap--hidden-default{scrollbar-width:none}.el-scrollbar__wrap--hidden-default::-webkit-scrollbar{display:none}.el-scrollbar__thumb{background-color:var(--el-scrollbar-bg-color,var(--el-text-color-secondary));border-radius:inherit;cursor:pointer;display:block;height:0;opacity:var(--el-scrollbar-opacity,.3);position:relative;transition:var(--el-transition-duration) background-color;width:0}.el-scrollbar__thumb:hover{background-color:var(--el-scrollbar-hover-bg-color,var(--el-text-color-secondary));opacity:var(--el-scrollbar-hover-opacity,.5)}.el-scrollbar__bar{border-radius:4px;bottom:2px;position:absolute;right:2px;z-index:1}.el-scrollbar__bar.is-vertical{top:2px;width:6px}.el-scrollbar__bar.is-vertical>div{width:100%}.el-scrollbar__bar.is-horizontal{height:6px;left:2px}.el-scrollbar__bar.is-horizontal>div{height:100%}.el-scrollbar-fade-enter-active{transition:opacity .34s ease-out}.el-scrollbar-fade-leave-active{transition:opacity .12s ease-out}.el-scrollbar-fade-enter-from,.el-scrollbar-fade-leave-active{opacity:0}";
       importCSS(elScrollbarCss);
       const _sfc_main$7 = {};
@@ -25397,7 +23356,7 @@ match-attr##srcid##sp_purc_atom
           _: 1
         });
       }
-      const TemplateFollowUser = /* @__PURE__ */ _export_sfc$1(_sfc_main$7, [["render", _sfc_render$1]]);
+      const TemplateFollowUser = _export_sfc$1(_sfc_main$7, [["render", _sfc_render$1]]);
       const _hoisted_1$5 = ["onClick"];
       const _hoisted_2$5 = { class: "user-item-row" };
       const _hoisted_3$5 = { class: "user-item-row-left" };
@@ -25410,7 +23369,7 @@ match-attr##srcid##sp_purc_atom
         style: { "text-align": "center" }
       };
       const pageSize$1 = 12;
-      const _sfc_main$6 = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$6 = vue.defineComponent({
         __name: "Follow",
         props: {
           UserData: {}
@@ -25628,7 +23587,7 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      const Follow = /* @__PURE__ */ _export_sfc$1(_sfc_main$6, [["__scopeId", "data-v-42d9f9f5"]]);
+      const Follow = _export_sfc$1(_sfc_main$6, [["__scopeId", "data-v-42d9f9f5"]]);
       const _hoisted_1$4 = ["onClick"];
       const _hoisted_2$4 = { class: "user-item-row" };
       const _hoisted_3$4 = { class: "user-item-row-left" };
@@ -25641,7 +23600,7 @@ match-attr##srcid##sp_purc_atom
         style: { "text-align": "center" }
       };
       const pageSize = 12;
-      const _sfc_main$5 = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$5 = vue.defineComponent({
         __name: "Fans",
         props: {
           UserData: {}
@@ -25856,13 +23815,12 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      const Fans = /* @__PURE__ */ _export_sfc$1(_sfc_main$5, [["__scopeId", "data-v-205eb1c6"]]);
+      const Fans = _export_sfc$1(_sfc_main$5, [["__scopeId", "data-v-205eb1c6"]]);
       const TiebaRouter = {
         router: null,
         init() {
           this.router = vueRouter.createRouter({
-            // 4. 内部提供了 history 模式的实现。为了简单起见，我们在这里使用 hash 模式。
-            history: vueRouter.createWebHashHistory(),
+history: vueRouter.createWebHashHistory(),
             routes: [
               {
                 path: "/",
@@ -25904,8 +23862,7 @@ match-attr##srcid##sp_purc_atom
           TiebaRouter.init();
           MountVue(_sfc_main$e, [TiebaRouter.router, ElementPlus]);
           addStyle$1(
-            /*css*/
-            `
+`
         #${VUE_ELE_NAME_ID}{
             z-index: 1000;
         }
@@ -25928,10 +23885,7 @@ match-attr##srcid##sp_purc_atom
             this.autoJumpUrl();
           });
         },
-        /**
-         * 跳转链接
-         */
-        autoJumpUrl() {
+autoJumpUrl() {
           log.info(`跳转链接`);
           let url = new URLSearchParams(globalThis.location.search).get("url");
           if (typeof url === "string") {
@@ -25964,10 +23918,7 @@ match-attr##srcid##sp_purc_atom
             this.openBlank();
           });
         },
-        /**
-         * 覆盖openApp函数
-         */
-        coverOpenApp() {
+coverOpenApp() {
           VueUtils.waitVuePropToSet("body > .page-content", {
             msg: "等待元素.page-content用于覆盖openApp函数",
             check(vueIns) {
@@ -25981,10 +23932,7 @@ match-attr##srcid##sp_purc_atom
             }
           });
         },
-        /**
-         * 设置isTiebaApp=true
-         */
-        isTiebaApp() {
+isTiebaApp() {
           VueUtils.waitVuePropToSet("body > .page-content .top-title", {
             msg: "等待元素.top-title",
             check(vueIns) {
@@ -25996,10 +23944,7 @@ match-attr##srcid##sp_purc_atom
             }
           });
         },
-        /**
-         * 覆盖所有帖子的isHarmony=true
-         */
-        coverCard_isHarmony() {
+coverCard_isHarmony() {
           let lockFn = new utils.LockFunction(() => {
             $$(
               ".topic-cards .card-wrapper:not([data-is-cover-harmony])"
@@ -26024,10 +23969,7 @@ match-attr##srcid##sp_purc_atom
             }
           });
         },
-        /**
-         * 新标签页打开链接
-         */
-        openBlank() {
+openBlank() {
           log.info(`新标签页打开链接`);
           domUtils.on(
             document,
@@ -26164,7 +24106,7 @@ match-attr##srcid##sp_purc_atom
           })
         ]);
       }
-      const MsgTab = /* @__PURE__ */ _export_sfc$1(_sfc_main$4, [["render", _sfc_render], ["__scopeId", "data-v-37c7691d"]]);
+      const MsgTab = _export_sfc$1(_sfc_main$4, [["render", _sfc_render], ["__scopeId", "data-v-37c7691d"]]);
       var md5$1 = { exports: {} };
       var crypt = { exports: {} };
       var hasRequiredCrypt;
@@ -26173,16 +24115,13 @@ match-attr##srcid##sp_purc_atom
         hasRequiredCrypt = 1;
         (function() {
           var base64map = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/", crypt$1 = {
-            // Bit-wise rotation left
-            rotl: function(n, b) {
+rotl: function(n, b) {
               return n << b | n >>> 32 - b;
             },
-            // Bit-wise rotation right
-            rotr: function(n, b) {
+rotr: function(n, b) {
               return n << 32 - b | n >>> b;
             },
-            // Swap big-endian to little-endian and vice versa
-            endian: function(n) {
+endian: function(n) {
               if (n.constructor == Number) {
                 return crypt$1.rotl(n, 8) & 16711935 | crypt$1.rotl(n, 24) & 4278255360;
               }
@@ -26190,40 +24129,34 @@ match-attr##srcid##sp_purc_atom
                 n[i] = crypt$1.endian(n[i]);
               return n;
             },
-            // Generate an array of any length of random bytes
-            randomBytes: function(n) {
+randomBytes: function(n) {
               for (var bytes = []; n > 0; n--)
                 bytes.push(Math.floor(Math.random() * 256));
               return bytes;
             },
-            // Convert a byte array to big-endian 32-bit words
-            bytesToWords: function(bytes) {
+bytesToWords: function(bytes) {
               for (var words = [], i = 0, b = 0; i < bytes.length; i++, b += 8)
                 words[b >>> 5] |= bytes[i] << 24 - b % 32;
               return words;
             },
-            // Convert big-endian 32-bit words to a byte array
-            wordsToBytes: function(words) {
+wordsToBytes: function(words) {
               for (var bytes = [], b = 0; b < words.length * 32; b += 8)
                 bytes.push(words[b >>> 5] >>> 24 - b % 32 & 255);
               return bytes;
             },
-            // Convert a byte array to a hex string
-            bytesToHex: function(bytes) {
+bytesToHex: function(bytes) {
               for (var hex = [], i = 0; i < bytes.length; i++) {
                 hex.push((bytes[i] >>> 4).toString(16));
                 hex.push((bytes[i] & 15).toString(16));
               }
               return hex.join("");
             },
-            // Convert a hex string to a byte array
-            hexToBytes: function(hex) {
+hexToBytes: function(hex) {
               for (var bytes = [], c = 0; c < hex.length; c += 2)
                 bytes.push(parseInt(hex.substr(c, 2), 16));
               return bytes;
             },
-            // Convert a byte array to a base-64 string
-            bytesToBase64: function(bytes) {
+bytesToBase64: function(bytes) {
               for (var base64 = [], i = 0; i < bytes.length; i += 3) {
                 var triplet = bytes[i] << 16 | bytes[i + 1] << 8 | bytes[i + 2];
                 for (var j = 0; j < 4; j++)
@@ -26234,8 +24167,7 @@ match-attr##srcid##sp_purc_atom
               }
               return base64.join("");
             },
-            // Convert a base-64 string to a byte array
-            base64ToBytes: function(base64) {
+base64ToBytes: function(base64) {
               base64 = base64.replace(/[^A-Z0-9+\/]/ig, "");
               for (var bytes = [], i = 0, imod4 = 0; i < base64.length; imod4 = ++i % 4) {
                 if (imod4 == 0) continue;
@@ -26254,27 +24186,21 @@ match-attr##srcid##sp_purc_atom
         if (hasRequiredCharenc) return charenc_1;
         hasRequiredCharenc = 1;
         var charenc = {
-          // UTF-8 encoding
-          utf8: {
-            // Convert a string to a byte array
-            stringToBytes: function(str) {
+utf8: {
+stringToBytes: function(str) {
               return charenc.bin.stringToBytes(unescape(encodeURIComponent(str)));
             },
-            // Convert a byte array to a string
-            bytesToString: function(bytes) {
+bytesToString: function(bytes) {
               return decodeURIComponent(escape(charenc.bin.bytesToString(bytes)));
             }
           },
-          // Binary encoding
-          bin: {
-            // Convert a string to a byte array
-            stringToBytes: function(str) {
+bin: {
+stringToBytes: function(str) {
               for (var bytes = [], i = 0; i < str.length; i++)
                 bytes.push(str.charCodeAt(i) & 255);
               return bytes;
             },
-            // Convert a byte array to a string
-            bytesToString: function(bytes) {
+bytesToString: function(bytes) {
               for (var str = [], i = 0; i < bytes.length; i++)
                 str.push(String.fromCharCode(bytes[i]));
               return str.join("");
@@ -26429,7 +24355,7 @@ match-attr##srcid##sp_purc_atom
         return md5$1.exports;
       }
       var md5Exports = requireMd5();
-      const md5 = /* @__PURE__ */ getDefaultExportFromCjs(md5Exports);
+      const md5 = getDefaultExportFromCjs(md5Exports);
       let tbs = "";
       let cuid = () => {
         let __cuid__ = Panel.getValue("baidu_tieba_index_msg_cuid");
@@ -26480,10 +24406,8 @@ match-attr##srcid##sp_purc_atom
           source_platform: "baidu",
           obj_param2: "baiduboxapp",
           browser: "baiduboxapp",
-          // cookie 获取
-          swan_cuid: __cuid__,
-          // cookie 获取
-          cuid: __cuid__,
+swan_cuid: __cuid__,
+cuid: __cuid__,
           randomid: Math.random().toString(36).substr(2) + Date.now()
         };
         let clientParamsObj = {
@@ -26496,11 +24420,7 @@ match-attr##srcid##sp_purc_atom
         return Object.assign({}, clientParamsObj, envSearchParamsObj);
       };
       const TiebaSmallAppApi = {
-        /**
-         * 获取用户信息
-         * @param toastInfo 是否弹出提示
-         */
-        async userInfo(toastInfo = true) {
+async userInfo(toastInfo = true) {
           let response = await httpx.get("https://tieba.baidu.com/mo/q/smallapp/sync", {
             headers: {
               Referer: "https://tieba.baidu.com/",
@@ -26522,13 +24442,7 @@ match-attr##srcid##sp_purc_atom
           }
           return data["data"];
         },
-        /**
-         * 点赞列表信息
-         * @param tbs
-         * @param cuid cookie中的MAWEBCUID，但是该值是httponly
-         * @param id 按id顺序请求
-         */
-        async agreeme(id = "") {
+async agreeme(id = "") {
           let searchParamsObj = {
             rn: "10",
             id
@@ -26552,10 +24466,7 @@ match-attr##srcid##sp_purc_atom
           }
           return data["data"];
         },
-        /**
-         * 回复我的
-         */
-        async replyme(pn = 1) {
+async replyme(pn = 1) {
           let searchParamsObj = {
             pn
           };
@@ -26578,10 +24489,7 @@ match-attr##srcid##sp_purc_atom
           }
           return data["data"];
         },
-        /**
-         * @我的
-         */
-        async atme(pn = 1) {
+async atme(pn = 1) {
           let searchParamsObj = {
             pn
           };
@@ -26632,7 +24540,7 @@ match-attr##srcid##sp_purc_atom
         class: "bottom-msg"
       };
       const _hoisted_17$1 = { class: "bottom-msg" };
-      const _sfc_main$3 = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$3 = vue.defineComponent({
         __name: "Agreeme",
         setup(__props) {
           let id = vue.ref("");
@@ -26756,7 +24664,7 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      const Agreeme = /* @__PURE__ */ _export_sfc$1(_sfc_main$3, [["__scopeId", "data-v-449f473f"]]);
+      const Agreeme = _export_sfc$1(_sfc_main$3, [["__scopeId", "data-v-449f473f"]]);
       const _hoisted_1$1 = { class: "post-list" };
       const _hoisted_2$1 = { class: "post-list-item" };
       const _hoisted_3$1 = ["onClick"];
@@ -26781,7 +24689,7 @@ match-attr##srcid##sp_purc_atom
         class: "bottom-msg"
       };
       const _hoisted_18 = { class: "bottom-msg" };
-      const _sfc_main$2 = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$2 = vue.defineComponent({
         __name: "Replyme",
         setup(__props) {
           let pn = vue.ref(1);
@@ -26915,14 +24823,14 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      const Replyme = /* @__PURE__ */ _export_sfc$1(_sfc_main$2, [["__scopeId", "data-v-ec39056c"]]);
+      const Replyme = _export_sfc$1(_sfc_main$2, [["__scopeId", "data-v-ec39056c"]]);
       const _hoisted_1 = { class: "post-list" };
       const _hoisted_2 = {
         id: "load-more",
         class: "bottom-msg"
       };
       const _hoisted_3 = { class: "bottom-msg" };
-      const _sfc_main$1 = /* @__PURE__ */ vue.defineComponent({
+      const _sfc_main$1 = vue.defineComponent({
         __name: "Atme",
         setup(__props) {
           let pn = vue.ref(1);
@@ -27001,13 +24909,12 @@ match-attr##srcid##sp_purc_atom
           };
         }
       });
-      const Atme = /* @__PURE__ */ _export_sfc$1(_sfc_main$1, [["__scopeId", "data-v-38eb1bd2"]]);
+      const Atme = _export_sfc$1(_sfc_main$1, [["__scopeId", "data-v-38eb1bd2"]]);
       const TiebaMsgTabRouter = {
         router: null,
         init() {
           this.router = vueRouter.createRouter({
-            // 4. 内部提供了 history 模式的实现。为了简单起见，我们在这里使用 hash 模式。
-            history: vueRouter.createWebHashHistory(),
+history: vueRouter.createWebHashHistory(),
             routes: [
               {
                 path: "/",
@@ -27129,7 +25036,7 @@ match-attr##srcid##sp_purc_atom
           };
         }
       };
-      const App = /* @__PURE__ */ _export_sfc$1(_sfc_main, [["__scopeId", "data-v-3c912918"]]);
+      const App = _export_sfc$1(_sfc_main, [["__scopeId", "data-v-3c912918"]]);
       const AppCSS = "";
       const TiebaMsgTab = {
         $data: {
@@ -27141,8 +25048,7 @@ match-attr##srcid##sp_purc_atom
           CommonUtil.addBlockCSS("body > .error-page");
           MountVue(App, [TiebaMsgTabRouter.router, ElementPlus]);
           addStyle$1(
-            /*css*/
-            `
+`
         #${VUE_ELE_NAME_ID}{
             z-index: 1000;
         }
@@ -27168,10 +25074,7 @@ match-attr##srcid##sp_purc_atom
             }
           );
         },
-        /**
-         * 修复卡片点击跳转
-         */
-        repairCardClickJump() {
+repairCardClickJump() {
           log.info(`修复卡片点击跳转`);
           DOMUtils.on(
             document,
@@ -27207,8 +25110,7 @@ match-attr##srcid##sp_purc_atom
           addStyle$1(TieBaShieldCSS);
           addStyle$1(UniTieBaShieldCSS);
           addStyle$1(
-            /*css*/
-            `
+`
 		/* 由于lzl弹窗的z-index是99999，所以，回复框、toast、登录弹窗的z-index要大于99999 */
 		/* 底部回复框 */
         .comment-box-wrap-lzl{
@@ -27257,8 +25159,7 @@ match-attr##srcid##sp_purc_atom
                   }
                   domUtils.after(
                     $navbarBox,
-                    /*html*/
-                    `
+`
 								<li class="navbar-item navbar-item-msgtab" style="margin-right: .24rem;">
 									<a href="${TiebaMsgTab.pathname}">消息</a>
 								</li>
@@ -27307,12 +25208,7 @@ match-attr##srcid##sp_purc_atom
             this.addTopLeftMenu();
           });
         },
-        /**
-         * 初始化贴吧数据
-         *
-         * 例如：吧名，高清图片
-         */
-        initTiebaData() {
+initTiebaData() {
           utils.waitAnyNode([
             ".tb-mobile-viewport",
             ".main-page-wrap",
@@ -27331,13 +25227,9 @@ match-attr##srcid##sp_purc_atom
             }, 250);
           });
         },
-        /**
-         * 替换顶部左侧贴吧按钮为菜单按钮
-         */
-        addTopLeftMenu() {
+addTopLeftMenu() {
           addStyle$1(
-            /*css*/
-            `
+`
 		.logo-wrapper{
 			display: -webkit-box;
 			display: -webkit-flex;
@@ -27357,15 +25249,15 @@ match-attr##srcid##sp_purc_atom
             if (!$ele) {
               return;
             }
-            $ele.outerHTML = /*html*/
-            `
+            $ele.outerHTML =
+`
 				<div class="logo-wrapper">
 					<svg t="1718595396255" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3147" width="24" height="24"><path d="M128 298.666667h768a42.666667 42.666667 0 0 0 0-85.333334H128a42.666667 42.666667 0 0 0 0 85.333334z m768 170.666666H128a42.666667 42.666667 0 0 0 0 85.333334h768a42.666667 42.666667 0 0 0 0-85.333334z m0 256H128a42.666667 42.666667 0 0 0 0 85.333334h768a42.666667 42.666667 0 0 0 0-85.333334z" p-id="3148"></path></svg>
 				</div>
 				`;
             let $logoWrapper = $(".nav-bar-top .logo-wrapper") || $("uni-app .frs-wise-nav-bar .logo-wrapper");
             function getHelloText() {
-              var myDate = /* @__PURE__ */ new Date();
+              var myDate = new Date();
               var i = myDate.getHours();
               if (i < 12) return "早上好!";
               else if (i >= 12 && i < 14) return "中午好!";
@@ -27432,8 +25324,7 @@ match-attr##srcid##sp_purc_atom
                 title: {
                   enable: true,
                   text: (
-                    /*html*/
-                    `
+`
 							<div class="tieba_account_exit">
 								<a href="javascript:;">
 									<span>
@@ -27483,8 +25374,7 @@ match-attr##srcid##sp_purc_atom
                   }
                 },
                 style: (
-                  /*css*/
-                  `
+`
 						.pops{
 							--avatar-size: 60px;
 							--user-info-font-color: #ffffff;
@@ -27643,8 +25533,7 @@ match-attr##srcid##sp_purc_atom
           addStyle$1(WenKuShieldCSS);
           log.info("插入CSS规则");
           addStyle$1(
-            /*css*/
-            `
+`
         /* 上面的工具栏会挡住标题栏 */
         #app-pre .top-card.top-card-top{
             margin-top: 56px !important;
@@ -27670,41 +25559,35 @@ match-attr##srcid##sp_purc_atom
             return this.blockDocumentAssistant();
           });
         },
-        /** 屏蔽会员精选 */
-        shieldVipPicks() {
+shieldVipPicks() {
           log.info("屏蔽会员精选");
           return CommonUtil.addBlockCSS(
             'div[class*="vip-choice_"][data-ait-action="vipChoiceShow"]'
           );
         },
-        /** 屏蔽APP精选 */
-        shieldAppPicks() {
+shieldAppPicks() {
           log.info("屏蔽APP精选");
           return CommonUtil.addBlockCSS(
             'div[class*="app-choice_"][data-ait-action="appChoiceNewShow"]',
             "div.folder-wrap.invite-clipboard[data-clipboard-text]"
           );
         },
-        /** 屏蔽相关文档 */
-        shieldRelatedDocuments() {
+shieldRelatedDocuments() {
           log.info("屏蔽相关文档");
           return CommonUtil.addBlockCSS(
             "div.fold-page-conversion",
             "div.newrecom-list.invite-clipboard[data-clipboard-text]"
           );
         },
-        /** 屏蔽底部工具栏 */
-        shieldBottomToolBar() {
+shieldBottomToolBar() {
           log.info("屏蔽底部工具栏");
           return CommonUtil.addBlockCSS("div.barbottom");
         },
-        /** 屏蔽下一篇按钮 */
-        shieldNextArticleButton() {
+shieldNextArticleButton() {
           log.info("屏蔽下一篇按钮");
           return CommonUtil.addBlockCSS("div.next-page-container");
         },
-        /** 【屏蔽】文档助手 */
-        blockDocumentAssistant() {
+blockDocumentAssistant() {
           log.info("【屏蔽】文档助手");
           return CommonUtil.addBlockCSS(".ai-chat-wrap");
         }
@@ -27725,11 +25608,7 @@ match-attr##srcid##sp_purc_atom
             BaiduBaiKe.automaticallyExpandNextPage();
           });
         },
-        /**
-         * 自动展开下一页
-         * + window.Box
-         */
-        automaticallyExpandNextPage() {
+automaticallyExpandNextPage() {
           log.info("通过劫持window.Box自动展开下一页");
           let old_Box = null;
           OriginPrototype.Object.defineProperty(_unsafeWindow, "Box", {
@@ -27797,10 +25676,7 @@ match-attr##srcid##sp_purc_atom
             this.removeBottomAd();
           });
         },
-        /**
-         * 去除底部广告
-         */
-        removeBottomAd() {
+removeBottomAd() {
           utils.waitNode("#index_tashuo_list").then(($tashuoList) => {
             log.info("去除底部广告");
             utils.mutationObserver($tashuoList, {
@@ -27839,20 +25715,14 @@ match-attr##srcid##sp_purc_atom
             return this.shieldTopFloatToolBar();
           });
         },
-        /**
-         * 移除广告
-         */
-        removeAd() {
+removeAd() {
           log.info("移除广告.ec-ad");
           let $ec_ad = $$(".ec-ad");
           if ($ec_ad.length) {
             domUtils.remove(domUtils.parent($ec_ad));
           }
         },
-        /**
-         * 屏蔽顶部悬浮工具栏
-         */
-        blockRecommendMoreExcitingContent() {
+blockRecommendMoreExcitingContent() {
           log.info("屏蔽顶部悬浮工具栏");
           return CommonUtil.addBlockCSS(
             ".feed-recommend-title",
@@ -27860,17 +25730,11 @@ match-attr##srcid##sp_purc_atom
             ".mm-content-box.mm-content-line.feed-recommend"
           );
         },
-        /**
-         * 屏蔽其他回答
-         */
-        blockOtherAnswers() {
+blockOtherAnswers() {
           log.info("屏蔽其他回答");
           return CommonUtil.addBlockCSS(".replies-container + div");
         },
-        /**
-         * 屏蔽相关问题
-         */
-        blockRelatedIssues() {
+blockRelatedIssues() {
           log.info("屏蔽相关问题");
           return CommonUtil.addBlockCSS(
             "div[id^=wahsd]",
@@ -27878,10 +25742,7 @@ match-attr##srcid##sp_purc_atom
             'div:has(>[id*="-related-list"])'
           );
         },
-        /**
-         * 屏蔽顶部悬浮工具栏
-         */
-        shieldTopFloatToolBar() {
+shieldTopFloatToolBar() {
           log.info("屏蔽顶部悬浮工具栏");
           return CommonUtil.addBlockCSS(
             ".iknow-root-dom-element .question-answer-container .question-answer-layer.fixed"
@@ -27903,24 +25764,15 @@ match-attr##srcid##sp_purc_atom
             this.autoFocus();
           });
         },
-        /**
-         * 屏蔽底部推荐
-         */
-        shieldRecommendBottom() {
+shieldRecommendBottom() {
           log.info("屏蔽底部推荐");
           return CommonUtil.addBlockCSS("section.article.android-style");
         },
-        /**
-         * 屏蔽底部
-         */
-        shieldBottom() {
+shieldBottom() {
           log.info("屏蔽底部");
           return CommonUtil.addBlockCSS(".trans-other-wrap.clearfix");
         },
-        /**
-         * 自动聚焦输入框
-         */
-        autoFocus() {
+autoFocus() {
           utils.waitNode("textarea#j-textarea").then(($textarea) => {
             log.info("自动聚焦输入框");
             setTimeout(() => {
@@ -27948,33 +25800,21 @@ match-attr##srcid##sp_purc_atom
             }
           );
         },
-        /**
-         * 修复内容高度
-         */
-        repairContentHeight() {
+repairContentHeight() {
           utils.waitNode("#page-content").then(($pageContent) => {
             log.info("修复内容高度");
             $pageContent.setAttribute("style", "max-height:unset !important");
           });
         },
-        /**
-         * 隐藏专栏信息
-         */
-        shieldColumnInformation() {
+shieldColumnInformation() {
           log.info("隐藏专栏信息");
           return CommonUtil.addBlockCSS("div.fanyi-zhuan-lan-wrapper");
         },
-        /**
-         * 隐藏推荐
-         */
-        shieldRecommendedForYou() {
+shieldRecommendedForYou() {
           log.info("隐藏推荐");
           return CommonUtil.addBlockCSS("#fr-section");
         },
-        /**
-         * 隐藏需要跟随
-         */
-        shieldINeedToFollowAlong() {
+shieldINeedToFollowAlong() {
           log.info("隐藏需要跟随");
           return CommonUtil.addBlockCSS(".cover-all .daily-bottom");
         }
@@ -28103,10 +25943,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
             return this.shieldBottomToolbar();
           });
         },
-        /**
-         * 屏蔽最热评论
-         */
-        blockExcitingComments() {
+blockExcitingComments() {
           log.info("屏蔽最热评论");
           return CommonUtil.addBlockCSS(
             "div#commentModule",
@@ -28114,34 +25951,23 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
             '#page_wrapper > div > div[class^="borderBottom-"]'
           );
         },
-        /**
-         * 屏蔽最热推荐
-         *
-         * 精彩推荐
-         */
-        blockExcitingRecommendations() {
+blockExcitingRecommendations() {
           log.info("屏蔽最热推荐");
           return [
             CommonUtil.addBlockCSS(
               'div[class^="relateTitle"]',
               ".infinite-scroll-component__outerdiv",
               "div#fuseVideo + div[class]",
-              /* 精彩推荐的文字 */
-              "#content_wrapper + div + div",
-              /* 简单UA下精彩推荐的文字 */
-              "#page_wrapper .searchCraft #content_wrapper + div",
+"#content_wrapper + div + div",
+"#page_wrapper .searchCraft #content_wrapper + div",
               '.fusionWrapper [class^="reco_"]:has(>[class^="recoConatainer_"])'
             ),
             CommonUtil.addBlockCSS(
-              /* Gecko下的简单UA下精彩推荐 */
-              "#page_wrapper > div > div:nth-child(6)"
+"#page_wrapper > div > div:nth-child(6)"
             )
           ];
         },
-        /**
-         * 屏蔽底部工具栏
-         */
-        shieldBottomToolbar() {
+shieldBottomToolbar() {
           log.info("屏蔽底部工具栏");
           return CommonUtil.addBlockCSS("div#wise-invoke-interact-bar");
         }
@@ -28166,27 +25992,18 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
             return this.shieldIndustryHostNews();
           });
         },
-        /**
-         * 伪装为已经弹窗过了
-         */
-        camouflageBottomPopup() {
+camouflageBottomPopup() {
           log.info("伪装为已经弹窗过了");
           _unsafeWindow.localStorage.setItem(
             "coupon_bottom_popup",
-            (/* @__PURE__ */ new Date()).getTime().toString()
+            ( new Date()).getTime().toString()
           );
         },
-        /**
-         * 屏蔽轮播图
-         */
-        shieldCarousel() {
+shieldCarousel() {
           log.info("屏蔽轮播图");
           return CommonUtil.addBlockCSS("div.index-banner-container.van-swipe");
         },
-        /**
-         * 屏蔽行业热点新闻
-         */
-        shieldIndustryHostNews() {
+shieldIndustryHostNews() {
           log.info("屏蔽行业热点新闻");
           return CommonUtil.addBlockCSS(" div.hot-news");
         }
@@ -28225,10 +26042,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
             this.setPlayEvent();
           });
         },
-        /**
-         * 覆盖播放按钮的点击事件
-         */
-        setPlayEvent() {
+setPlayEvent() {
           let playBtn = $(".play-btn");
           let playerShade = $(".video-player-shade");
           log.success("覆盖播放按钮的点击事件");
@@ -28261,34 +26075,21 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
             }
           );
         },
-        /**
-         * 屏蔽可能感兴趣
-         */
-        shieldMayAlsoLike() {
+shieldMayAlsoLike() {
           log.info("屏蔽可能感兴趣");
           return CommonUtil.addBlockCSS("div.top-video-list-container");
         },
-        /**
-         * 屏蔽今日热门
-         */
-        shieldTodayHotList() {
+shieldTodayHotList() {
           log.info("屏蔽今日热门");
           return CommonUtil.addBlockCSS(".hot-rank-video");
         },
-        /**
-         * 屏蔽右侧视频操作
-         */
-        shieldRightVideoAction() {
+shieldRightVideoAction() {
           log.info("屏蔽右侧视频操作");
           return CommonUtil.addBlockCSS(".video-author-info-mask .new-video-action");
         }
       };
       const BaiduGraphApi = {
-        /**
-         * 上传图片
-         * @param event
-         */
-        async uploadImage(event) {
+async uploadImage(event) {
           let uploadImageFile = event.target?.files?.[0];
           if (!uploadImageFile) {
             alert("似乎并未正确上传图片？");
@@ -28352,10 +26153,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
             this.addNewUploadImageButton();
           });
         },
-        /**
-         * 添加上传图片按钮（不可见的）
-         */
-        addNewUploadImageButton() {
+addNewUploadImageButton() {
           log.info("添加上传图片按钮（不可见的）");
           let uploadImageInput = domUtils.createElement(
             "input",
@@ -28371,10 +26169,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           domUtils.on(uploadImageInput, "change", BaiduGraphApi.uploadImage);
           domUtils.append(document.body, uploadImageInput);
         },
-        /**
-         *重构主页的识图一下
-         */
-        repairHomeRecognitionPicture() {
+repairHomeRecognitionPicture() {
           utils.waitNode(
             "#app section.vf-home-booth div.vf-w-button.vf-home-booth-camera"
           ).then(($vfHomeBoothCamera) => {
@@ -28403,10 +26198,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
             domUtils.after($vfHomeBoothCamera, uploadImageDivDOM);
           });
         },
-        /**
-         * 重构主页的往下滑动右下角出现的搜索图标按钮
-         */
-        repairSearchButton() {
+repairSearchButton() {
           utils.waitNode(".vf-home.view-page").then(($viewPage) => {
             log.success("重构主页的往下滑动右下角出现的搜索图标按钮");
             let divHomeCamera = domUtils.createElement("div", {
@@ -28443,10 +26235,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
             );
           });
         },
-        /**
-         * 如果出现识图没结果，重新识别，可能是因为后面参数多了tpl_from=pc的问题
-         */
-        repairSearchNoResult() {
+repairSearchNoResult() {
           utils.waitNode("#app .graph-noresult-text1").then(() => {
             log.info("判断网页参数是否包含tpl_from=pc");
             if (window.location.search.endsWith("&tpl_from=pc")) {
@@ -28457,10 +26246,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
             }
           });
         },
-        /**
-         * 在已搜索出相关结果的界面中的重构【重拍】按钮
-         */
-        repairRetakeButton() {
+repairRetakeButton() {
           utils.waitNode("#viewport .graph-imagecut-banner-ctn").then(($imageCutBanner) => {
             log.info("在已搜索出相关结果的界面中的重构【重拍】按钮");
             let retakeDivDOM = domUtils.createElement("div", {
@@ -28501,13 +26287,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
       };
       const YiYanShieldCSS = "";
       const ReactUtils = {
-        /**
-         * 等待react某个属性并进行设置
-         * @param $el 需要检测的元素对象
-         * @param reactPropNameOrNameList react属性的名称
-         * @param checkOption 检测的配置项
-         */
-        async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
+async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
           if (!Array.isArray(reactPropNameOrNameList)) {
             reactPropNameOrNameList = [reactPropNameOrNameList];
           }
@@ -28606,12 +26386,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
             this.execByUrlSearchParams();
           });
         },
-        /**
-         * 通过处理attachShadow和appendChild原型来去除水印
-         * 屏蔽 AI生成内容仅供参考
-         * 屏蔽 AI作图
-         */
-        blockWaterMark() {
+blockWaterMark() {
           log.info("hook: Element.attachShadow");
           let oldShadow = _unsafeWindow.Element.prototype.attachShadow;
           _unsafeWindow.Element.prototype.attachShadow = function(...args) {
@@ -28643,12 +26418,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
             return oldAppendChild.call(this, element);
           };
         },
-        /**
-         * 提供对外的搜索链接
-         *
-         * 判断方式为location.search中包含查询关键字gmsearch
-         */
-        execByUrlSearchParams() {
+execByUrlSearchParams() {
           let searchParams = new URLSearchParams(window.location.search);
           const KEY_searchText = "gmsearch";
           const KEY_decodeSearchText = "gmdecode";
@@ -28741,10 +26511,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
             });
           });
         },
-        /**
-         * 去除AI的遮罩
-         */
-        removeAiMask() {
+removeAiMask() {
           log.info("去除AI的遮罩");
           CommonUtil.addBlockCSS(
             ".bot-body .watermark",
@@ -28774,12 +26541,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
             return this.blockEveryOneSearch();
           });
         },
-        /**
-         * 注入到iframe
-         * @param [iframeSelector="iframe.swan-web-iframe"] iframe选择器
-         * @param readyCallback 加载完毕的回调
-         */
-        injectIframe(iframeSelector = "iframe.swan-web-iframe", readyCallback) {
+injectIframe(iframeSelector = "iframe.swan-web-iframe", readyCallback) {
           if (!Panel.isTopWindow()) {
             return;
           }
@@ -28798,10 +26560,10 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
                 globalThis: iframe__globalThis,
                 self: iframe__self,
                 top: _unsafeWindow.top,
-                setTimeout: _unsafeWindow.setTimeout,
-                setInterval: _unsafeWindow.setInterval,
-                clearTimeout: _unsafeWindow.clearTimeout,
-                clearInterval: _unsafeWindow.clearInterval
+                setTimeout: _unsafeWindow.setTimeout.bind(_unsafeWindow),
+                setInterval: _unsafeWindow.setInterval.bind(_unsafeWindow),
+                clearTimeout: _unsafeWindow.clearTimeout.bind(_unsafeWindow),
+                clearInterval: _unsafeWindow.clearInterval.bind(_unsafeWindow)
               };
               let iframeDOMUtils = domUtils.createDOMUtils(coreOption);
               let iframeUtils = utils.createUtils(coreOption);
@@ -28815,13 +26577,9 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
             });
           });
         },
-        /**
-         * 【屏蔽】底部下拉菜单
-         */
-        shieldBottomPullDownMenu() {
+shieldBottomPullDownMenu() {
           let hideCSS = (
-            /*css*/
-            `
+`
         #page_loft{
             display: none !important;
         }`
@@ -28833,13 +26591,9 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
             });
           });
         },
-        /**
-         * 【屏蔽】大家还在搜
-         */
-        blockEveryOneSearch() {
+blockEveryOneSearch() {
           let hideCSS = (
-            /*css*/
-            `
+`
         swan-everyone-search-box{
             display: none !important;
         }`
@@ -28896,67 +26650,43 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
             );
           });
         },
-        /**
-         * 屏蔽题卷
-         */
-        shieldQuestionPaper() {
+shieldQuestionPaper() {
           log.info("屏蔽题卷");
           return CommonUtil.addBlockCSS(
             ".question-shijuan-wrap",
-            /* PC端 */
-            ".question-cont .timu-wrap .doc-cont-v2 .left"
+".question-cont .timu-wrap .doc-cont-v2 .left"
           );
         },
-        /**
-         * 屏蔽本卷好题
-         */
-        shieldGoodQuestionsInThisVolume() {
+shieldGoodQuestionsInThisVolume() {
           log.info("屏蔽本卷好题");
           return CommonUtil.addBlockCSS(".exercise-questions-wrap");
         },
-        /**
-         * 屏蔽本卷相关试卷
-         */
-        shieldRelatedTestPapers() {
+shieldRelatedTestPapers() {
           log.info("屏蔽本卷相关试卷");
           return CommonUtil.addBlockCSS(
             ".related-papers-wrap",
-            /* PC端 */
-            ".question-cont .timu-wrap .doc-cont-v2 .right"
+".question-cont .timu-wrap .doc-cont-v2 .right"
           );
         },
-        /**
-         * 屏蔽视频解析
-         */
-        shieldVideoExplanation() {
+shieldVideoExplanation() {
           log.info("屏蔽视频解析");
           return CommonUtil.addBlockCSS(
             ".video-doc-compo",
-            /* PC端 */
-            ".container #questionVideo"
+".container #questionVideo"
           );
         },
-        /**
-         * 屏蔽学霸
-         */
-        shieldXuebaNotes() {
+shieldXuebaNotes() {
           log.info("屏蔽学霸");
           return CommonUtil.addBlockCSS(".note-list");
         },
-        /**
-         * 屏蔽底部工具栏
-         */
-        shieldBottomToolbar() {
+shieldBottomToolbar() {
           log.info("屏蔽底部工具栏");
           return CommonUtil.addBlockCSS(
             ".question-bottom-bar",
             "#app .bgk-question-detail .float-btm"
           );
         },
-        /**
-         * 显示答案内容
-         */
-        showAnswerContent() {
+showAnswerContent() {
           utils.waitNode("div.question-swiper").then(async ($questionSwiper) => {
             log.info("显示答案内容");
             await utils.waitVueByInterval(
@@ -29018,17 +26748,11 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
             };
           });
         },
-        /**
-         * 劫持-今日搜题次数已达上限
-         */
-        hijackUserSearchQuestCount() {
+hijackUserSearchQuestCount() {
           log.info("移除-【今日搜题次数已达上限】的本次存储的记录");
           _unsafeWindow.localStorage.removeItem("user_search_quest_count");
         },
-        /**
-         * 允许使用顶部的输入框
-         */
-        allowUserSearchInput() {
+allowUserSearchInput() {
           utils.waitNode(
             ".search-input .search-box-wrap.search-box",
             1e4
@@ -29079,25 +26803,18 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
             return this.autoExpandFullText();
           });
         },
-        /**
-         * 屏蔽底部工具栏
-         */
-        shieldBottomToolBar() {
+shieldBottomToolBar() {
           log.info("屏蔽底部工具栏");
           return CommonUtil.addBlockCSS(".gt-edu-h5-c-article-bottom");
         },
-        /**
-         * 自动展开全文
-         */
-        autoExpandFullText() {
+autoExpandFullText() {
           log.info("自动展开全文");
           return [
             CommonUtil.addBlockCSS(
               ".gt-edu-h5-c-article-content .content-wrapper .detail-wrapper .unfold-wrapper"
             ),
             addStyle$1(
-              /*css*/
-              `
+`
 			.gt-edu-h5-c-article-content .content-wrapper .detail-wrapper{
 				max-height: unset !important;
 			}
@@ -29130,42 +26847,28 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
             return this.autoExpandFullText();
           });
         },
-        /**
-         * 屏蔽底部免费在线咨询
-         */
-        shieldBottomBarRootContainer() {
+shieldBottomBarRootContainer() {
           log.info("屏蔽底部免费在线咨询");
           return CommonUtil.addBlockCSS(
             ".gt-local-h5-article-bottom-bar-root-container"
           );
         },
-        /**
-         * 屏蔽右侧悬浮按钮-查看更多
-         */
-        shieldRightSeeMoreToolBar() {
+shieldRightSeeMoreToolBar() {
           log.info("屏蔽右侧悬浮按钮-查看更多");
           return CommonUtil.addBlockCSS(".icon-article-list.icon-article-list-exp");
         },
-        /**
-         * 屏蔽底部-大家还在看
-         */
-        shieldArticleBottom() {
+shieldArticleBottom() {
           log.info("屏蔽底部-大家还在看");
           return CommonUtil.addBlockCSS(".article-bottom");
         },
-        /**
-         * 自动展开全文
-         */
-        autoExpandFullText() {
+autoExpandFullText() {
           log.info("自动展开全文");
           return [
             CommonUtil.addBlockCSS(
-              /* 点击查看全文按钮 */
-              ".fold-wrapper"
+".fold-wrapper"
             ),
             addStyle$1(
-              /*css*/
-              `
+`
 			.gt-local-h5-article-detail-article-fold-exp{
 				max-height: unset !important;
 			}
@@ -29181,10 +26884,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
             return this.removeAds();
           });
         },
-        /**
-         * 屏蔽广告
-         */
-        removeAds() {
+removeAds() {
           log.info(`屏蔽广告`);
           let result = [addStyle$1(blockCSS)];
           let selectorList = [
@@ -29600,29 +27300,28 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
                   }
                 ]
               }
-              // {
-              // 	text: "问答",
-              // 	type: "deepMenu",
-              // 	forms: [
-              // 		{
-              // 			text: "",
-              // 			type: "forms",
-              // 			forms: [],
-              // 		},
-              // 	],
-              // },
-              // {
-              // 	text: "笔记",
-              // 	type: "deepMenu",
-              // 	forms: [
-              // 		{
-              // 			text: "",
-              // 			type: "forms",
-              // 			forms: [],
-              // 		},
-              // 	],
-              // },
-            ]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+]
           },
           {
             text: "",
@@ -30125,10 +27824,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
         return result;
       };
       const TiebaPCApi = {
-        /**
-         * 获取用户所有关注的吧
-         */
-        async getUserAllLinkForum() {
+async getUserAllLinkForum() {
           let result = [];
           let gbkEncoder = new utils.GBKEncoder();
           let page = 1;
@@ -30361,21 +28057,20 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
                     text: "功能",
                     type: "forms",
                     forms: [
-                      // UISwitch(
-                      // 	"记住当前选择的看帖排序",
-                      // 	"baidu_tieba_remember_user_post_sort",
-                      // 	true,
-                      // 	void 0,
-                      // 	"记住选择的发布/回复"
-                      // ),
-                      // UISwitch(
-                      // 	"过滤重复帖子",
-                      // 	"baidu_tieba_filterDuplicatePosts",
-                      // 	false,
-                      // 	void 0,
-                      // 	"过滤掉重复id的帖"
-                      // ),
-                      UISwitch(
+
+
+
+
+
+
+
+
+
+
+
+
+
+UISwitch(
                         "解除签到限制",
                         "baidu_tieba_removeForumSignInLimit",
                         true,
@@ -30547,20 +28242,19 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
                       )
                     ]
                   }
-                  // {
-                  // 	type: "forms",
-                  // 	text: "网络请求拦截",
-                  // 	forms: [
-                  // 		UISwitch(
-                  // 			"/mo/q/getUpConfigData",
-                  // 			"baidu-tieba-uni-app-post-intercept-getUpConfigData",
-                  // 			true,
-                  // 			void 0,
-                  // 			"该请求类似于广告配置，建议拦截"
-                  // 		),
-                  // 	],
-                  // },
-                ]
+
+
+
+
+
+
+
+
+
+
+
+
+]
               },
               {
                 text: "主页",
@@ -30581,95 +28275,94 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
                   }
                 ]
               }
-              // {
-              // 	text: "帖内",
-              // 	description: "旧版本设置项，大部分功能已失效",
-              // 	type: "deepMenu",
-              // 	forms: [
-              // 		{
-              // 			text: "功能",
-              // 			type: "forms",
-              // 			forms: [
-              // 				UISwitch(
-              // 					"楼中楼回复弹窗手势返回",
-              // 					"baidu_tieba_lzl_ban_global_back",
-              // 					false,
-              // 					function (event, enable) {
-              // 						if (enable) {
-              // 							alert(
-              // 								"开启后，当在手机浏览器中使用屏幕左滑回退网页操作或者点击浏览器的回退到上一页按钮，不会触发回退上一页操作，而是会关闭当前查看的楼中楼的弹窗。注：某些浏览器不适用"
-              // 							);
-              // 						}
-              // 					},
-              // 					"使浏览器后退变成关闭楼中楼弹窗"
-              // 				),
-              // 				UISwitch(
-              // 					"新增滚动到顶部按钮",
-              // 					"baidu_tieba_add_scroll_top_button_in_forum",
-              // 					true,
-              // 					void 0,
-              // 					"向下滚动的距离>页面高度*2就会出现按钮"
-              // 				),
-              // 				UISwitch(
-              // 					"优化查看评论",
-              // 					"baidu_tieba_optimize_see_comments",
-              // 					true,
-              // 					void 0,
-              // 					"可以查看更多的评论"
-              // 				),
-              // 				UISwitch(
-              // 					"优化评论工具栏",
-              // 					"baidu_tieba_optimize_comments_toolbar",
-              // 					true,
-              // 					void 0,
-              // 					"可以进行评论区回复/楼中楼回复，需开启【优化查看评论】"
-              // 				),
-              // 				UISwitch(
-              // 					"优化图片点击预览",
-              // 					"baidu_tieba_optimize_image_preview",
-              // 					true,
-              // 					void 0,
-              // 					"使用Viewer查看图片"
-              // 				),
-              // 				UISwitch(
-              // 					"强制查看被屏蔽的帖子",
-              // 					"baidu_tieba_repairErrorThread",
-              // 					false,
-              // 					function (event, enable) {
-              // 						if (enable) {
-              // 							window.alert(
-              // 								"开启后，如果查看的帖子显示【贴子不存在或者已被删除】或【该帖子需要去app内查看哦】，且该帖子在PC端可以查看，那么该修复可以生效。"
-              // 							);
-              // 						}
-              // 					},
-              // 					"PC端可以查看帖子该功能才能正确生效"
-              // 				),
-              // 				UISwitch(
-              // 					"点击楼主头像正确跳转主页",
-              // 					"baidu_tieba_clickOnTheOwnerSAvatarToCorrectlyRedirectToTheHomepage",
-              // 					true,
-              // 					void 0,
-              // 					"点击头像正确跳转至用户主页"
-              // 				),
-              // 				UISwitch(
-              // 					"屏蔽机器人",
-              // 					"baidu_tieba_shield_commnets_baodating",
-              // 					true,
-              // 					void 0,
-              // 					"屏蔽【贴吧包打听】机器人，回答的评论都是牛头不对马嘴的"
-              // 				),
-              // 				UISwitch(
-              // 					"显示用户当前吧的等级头衔",
-              // 					"baidu_tieba_show_forum_level",
-              // 					true,
-              // 					void 0,
-              // 					"只对评论和楼中楼的用户进行显示处理"
-              // 				),
-              // 			],
-              // 		},
-              // 	],
-              // },
-            ]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+]
           },
           {
             text: "",
@@ -30754,8 +28447,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
                               showClose: true,
                               isHTML: true,
                               style: (
-                                /*css*/
-                                `
+`
 												.qmsg-content-loading > span{
 													text-align: left;
 												}
@@ -31694,19 +29386,14 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           PanelBaiJiaHaoSettingUI,
           PanelTieBaSettingUI,
           PanelWenKuSettingUI,
-          // PanelJingYanSettingUI,
-          PanelBaiKeSettingUI,
+PanelBaiKeSettingUI,
           PanelZhiDaoSettingUI,
           PanelFanYiSettingUI,
-          // PanelImageSettingUI,
-          PanelMapSettingUI,
-          // PanelXueSettingUI,
-          PanelAiQiChaSettingUI,
-          // PanelPosSettingUI,
-          PanelHaoKanSettingUI,
+PanelMapSettingUI,
+PanelAiQiChaSettingUI,
+PanelHaoKanSettingUI,
           PanelGraphSettingUI,
-          // PanelPanSettingUI,
-          PanelYiYanSettingUI,
+PanelYiYanSettingUI,
           PanelChatSettingUI,
           PanelEasyLearnSettingUI,
           PanelAiStudySettingUI

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.21
+// @version      2025.8.27
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -11,9 +11,9 @@
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@79fb4d854f1e2cdf606339b0dac18d50104e2ebe/lib/js-watermark/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js
@@ -40,23 +40,19 @@
 (function (Qmsg, DOMUtils, Utils, pops, hljs, Viewer) {
   'use strict';
 
-  var _GM = /* @__PURE__ */ (() => typeof GM != "undefined" ? GM : void 0)();
-  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
-  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
-  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
-  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
-  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
-  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
-  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
-  var _monkeyWindow = /* @__PURE__ */ (() => window)();
+  var _GM = (() => typeof GM != "undefined" ? GM : void 0)();
+  var _GM_deleteValue = (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
+  var _GM_getResourceText = (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
+  var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
+  var _GM_info = (() => typeof GM_info != "undefined" ? GM_info : void 0)();
+  var _GM_registerMenuCommand = (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_setValue = (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
+  var _GM_unregisterMenuCommand = (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
+  var _unsafeWindow = (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
+  var _monkeyWindow = (() => window)();
   const CommonUtil = {
-    /**
-     * 移除元素（未出现也可以等待出现）
-     * @param selector 元素选择器
-     */
-    waitRemove(...args) {
+waitRemove(...args) {
       args.forEach((selector) => {
         if (typeof selector !== "string") {
           return;
@@ -66,15 +62,7 @@
         });
       });
     },
-    /**
-     * 添加屏蔽CSS
-     * @param args
-     * @example
-     * addBlockCSS("")
-     * addBlockCSS("","")
-     * addBlockCSS(["",""])
-     */
-    addBlockCSS(...args) {
+addBlockCSS(...args) {
       let selectorList = [];
       if (args.length === 0) {
         return;
@@ -91,16 +79,7 @@
       });
       return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
-    /**
-     * 设置GM_getResourceText的style内容
-     * @param resourceMapData 资源数据
-     * @example
-     * setGMResourceCSS({
-     *   keyName: "ViewerCSS",
-     *   url: "https://example.com/example.css",
-     * })
-     */
-    setGMResourceCSS(resourceMapData) {
+setGMResourceCSS(resourceMapData) {
       let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
       if (typeof cssText === "string" && cssText) {
         addStyle(cssText);
@@ -108,13 +87,7 @@
         CommonUtil.loadStyleLink(resourceMapData.url);
       }
     },
-    /**
-     * 添加<link>标签
-     * @param url
-     * @example
-     * loadStyleLink("https://example.com/example.css")
-     */
-    async loadStyleLink(url) {
+async loadStyleLink(url) {
       let $link = document.createElement("link");
       $link.rel = "stylesheet";
       $link.type = "text/css";
@@ -123,13 +96,7 @@
         document.head.appendChild($link);
       });
     },
-    /**
-     * 添加<script>标签
-     * @param url
-     * @example
-     * loadStyleLink("https://example.com/example.js")
-     */
-    async loadScript(url) {
+async loadScript(url) {
       let $script = document.createElement("script");
       $script.src = url;
       return new Promise((resolve) => {
@@ -139,25 +106,7 @@
         (document.head || document.documentElement).appendChild($script);
       });
     },
-    /**
-     * 将url修复，例如只有search的链接修复为完整的链接
-     *
-     * 注意：不包括http转https
-     * @param url 需要修复的链接
-     * @example
-     * 修复前：`/xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`//xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     */
-    fixUrl(url) {
+fixUrl(url) {
       url = url.trim();
       if (url.match(/^http(s|):\/\//i)) {
         return url;
@@ -175,17 +124,7 @@
         return url;
       }
     },
-    /**
-     * http转https
-     * @param url 需要修复的链接
-     * @example
-     * 修复前：
-     * 修复后：
-     * @example
-     * 修复前：
-     * 修复后：
-     */
-    fixHttps(url) {
+fixHttps(url) {
       if (url.startsWith("https://")) {
         return url;
       }
@@ -196,17 +135,10 @@
       urlInstance.protocol = "https:";
       return urlInstance.toString();
     },
-    /**
-     * 禁止页面滚动，默认锁定html和body
-     * @example
-     * lockScroll();
-     * @example
-     * lockScroll(document.body);
-     */
-    lockScroll(...args) {
+lockScroll(...args) {
       let $hidden = document.createElement("style");
-      $hidden.innerHTML = /*css*/
-      `
+      $hidden.innerHTML =
+`
 			.pops-overflow-hidden-important {
 				overflow: hidden !important;
 			}
@@ -217,10 +149,7 @@
       });
       (document.head || document.documentElement).appendChild($hidden);
       return {
-        /**
-         * 解除锁定
-         */
-        recovery() {
+recovery() {
           $elList.forEach(($el) => {
             $el.classList.remove("pops-overflow-hidden-important");
           });
@@ -228,10 +157,7 @@
         }
       };
     },
-    /**
-     * 获取剪贴板文本
-     */
-    async getClipboardText() {
+async getClipboardText() {
       function readClipboardText(resolve) {
         navigator.clipboard.readText().then((clipboardText) => {
           resolve(clipboardText);
@@ -242,8 +168,7 @@
       }
       function requestPermissionsWithClipboard(resolve) {
         navigator.permissions.query({
-          // @ts-ignore
-          name: "clipboard-read"
+name: "clipboard-read"
         }).then((permissionStatus) => {
           readClipboardText(resolve);
         }).catch((error) => {
@@ -280,20 +205,10 @@
         }
       });
     },
-    /**
-     * html转义
-     * @param unsafe
-     */
-    escapeHtml(unsafe) {
+escapeHtml(unsafe) {
       return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
     },
-    /**
-     * 在规定时间内循环，如果超时或返回false则取消循环
-     * @param fn 循环的函数
-     * @param intervalTime 循环间隔时间
-     * @param [timeout=5000] 循环超时时间
-     */
-    interval(fn, intervalTime, timeout = 5e3) {
+interval(fn, intervalTime, timeout = 5e3) {
       let timeId;
       let maxTimeout = timeout - intervalTime;
       let intervalTimeCount = intervalTime;
@@ -314,10 +229,7 @@
       };
       loop(false);
     },
-    /**
-     * 找到对应的上层元素
-     */
-    findParentNode($el, selector, parentSelector) {
+findParentNode($el, selector, parentSelector) {
       if (parentSelector) {
         let $parent = DOMUtils.closest($el, parentSelector);
         if ($parent) {
@@ -344,28 +256,23 @@
     }
   };
   const PanelSettingConfig = {
-    /** Toast位置 */
-    qmsg_config_position: {
+qmsg_config_position: {
       key: "qmsg-config-position",
       defaultValue: "bottom"
     },
-    /** 最多显示的数量 */
-    qmsg_config_maxnums: {
+qmsg_config_maxnums: {
       key: "qmsg-config-maxnums",
       defaultValue: 3
     },
-    /** 逆序弹出 */
-    qmsg_config_showreverse: {
+qmsg_config_showreverse: {
       key: "qmsg-config-showreverse",
       defaultValue: false
     },
-    /** Cookie配置-启用 */
-    httpx_cookie_manager_enable: {
+httpx_cookie_manager_enable: {
       key: "httpx-use-cookie-enable",
       defaultValue: false
     },
-    /** Cookie配置-使用document.cookie */
-    httpx_cookie_manager_use_document_cookie: {
+httpx_cookie_manager_use_document_cookie: {
       key: "httpx-use-document-cookie",
       defaultValue: false
     }
@@ -443,10 +350,8 @@
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
     },
     mask: {
-      // 开启遮罩层
-      enable: true,
-      // 取消点击遮罩层的事件
-      clickEvent: {
+enable: true,
+clickEvent: {
         toClose: false,
         toHide: false
       }
@@ -503,10 +408,7 @@
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const PROPS_STORAGE_API = "data-storage-api";
   const PanelUISize = {
-    /**
-     * 一般设置界面的尺寸
-     */
-    setting: {
+setting: {
       get width() {
         if (window.innerWidth < 550) {
           return "88vw";
@@ -526,35 +428,16 @@
         }
       }
     },
-    /**
-     * 中等的设置界面
-     */
-    settingMiddle: {
+settingMiddle: {
       get width() {
         return window.innerWidth < 350 ? "88vw" : "350px";
       }
     }
   };
   class StorageUtils {
-    /** 存储的键名 */
-    storageKey;
+storageKey;
     listenerData;
-    /**
-     * 存储的键名，可以是多层的，如：a.b.c
-     *
-     * 那就是
-     * {
-     *  "a": {
-     *     "b": {
-     *       "c": {
-     *         ...你的数据
-     *       }
-     *     }
-     *   }
-     * }
-     * @param key
-     */
-    constructor(key) {
+constructor(key) {
       if (typeof key === "string") {
         let trimKey = key.trim();
         if (trimKey == "") {
@@ -566,10 +449,7 @@
       }
       this.listenerData = new Utils.Dictionary();
     }
-    /**
-     * 获取本地值
-     */
-    getLocalValue() {
+getLocalValue() {
       let localValue = _GM_getValue(this.storageKey);
       if (localValue == null) {
         localValue = {};
@@ -577,89 +457,49 @@
       }
       return localValue;
     }
-    /**
-     * 设置本地值
-     * @param value
-     */
-    setLocalValue(value) {
+setLocalValue(value) {
       _GM_setValue(this.storageKey, value);
     }
-    /**
-     * 设置值
-     * @param key 键
-     * @param value 值
-     */
-    set(key, value) {
+set(key, value) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, value);
     }
-    /**
-     * 获取值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    get(key, defaultValue) {
+get(key, defaultValue) {
       let localValue = this.getLocalValue();
       return Reflect.get(localValue, key) ?? defaultValue;
     }
-    /**
-     * 获取所有值
-     */
-    getAll() {
+getAll() {
       let localValue = this.getLocalValue();
       return localValue;
     }
-    /**
-     * 删除值
-     * @param key 键
-     */
-    delete(key) {
+delete(key) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, void 0);
     }
-    /**
-     * 判断是否存在该值
-     */
-    has(key) {
+has(key) {
       let localValue = this.getLocalValue();
       return Reflect.has(localValue, key);
     }
-    /**
-     * 获取所有键
-     */
-    keys() {
+keys() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue);
     }
-    /**
-     * 获取所有值
-     */
-    values() {
+values() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue).map(
         (key) => Reflect.get(localValue, key)
       );
     }
-    /**
-     * 清空所有值
-     */
-    clear() {
+clear() {
       _GM_deleteValue(this.storageKey);
     }
-    /**
-     * 监听值改变
-     * + .set
-     * + .delete
-     * @param key 监听的键
-     * @param callback 值改变的回调函数
-     */
-    addValueChangeListener(key, callback) {
+addValueChangeListener(key, callback) {
       let listenerId = Math.random();
       let listenerData = this.listenerData.get(key) || [];
       listenerData.push({
@@ -670,11 +510,7 @@
       this.listenerData.set(key, listenerData);
       return listenerId;
     }
-    /**
-     * 移除监听
-     * @param listenerId 监听的id或键名
-     */
-    removeValueChangeListener(listenerId) {
+removeValueChangeListener(listenerId) {
       let flag = false;
       for (const [key, listenerData] of this.listenerData.entries()) {
         for (let index = 0; index < listenerData.length; index++) {
@@ -689,13 +525,7 @@
       }
       return flag;
     }
-    /**
-     * 主动触发监听器
-     * @param key 键
-     * @param oldValue （可选）旧值
-     * @param newValue （可选）新值
-     */
-    triggerValueChangeListener(key, oldValue, newValue) {
+triggerValueChangeListener(key, oldValue, newValue) {
       if (!this.listenerData.has(key)) {
         return;
       }
@@ -724,10 +554,7 @@
   const PopsPanelStorageApi = new StorageUtils(KEY);
   const PanelContent = {
     $data: {
-      /**
-       * @private
-       */
-      __contentConfig: null,
+__contentConfig: null,
       get contentConfig() {
         if (this.__contentConfig == null) {
           this.__contentConfig = new utils.Dictionary();
@@ -735,36 +562,20 @@
         return this.__contentConfig;
       }
     },
-    /**
-     * 设置所有配置项，用于初始化默认的值
-     *
-     * 如果是第一组添加的话，那么它默认就是设置菜单打开的配置
-     * @param configList 配置项
-     */
-    addContentConfig(configList) {
+addContentConfig(configList) {
       if (!Array.isArray(configList)) {
         configList = [configList];
       }
       let index = this.$data.contentConfig.keys().length;
       this.$data.contentConfig.set(index, configList);
     },
-    /**
-     * 获取所有的配置内容，用于初始化默认的值
-     */
-    getAllContentConfig() {
+getAllContentConfig() {
       return this.$data.contentConfig.values().flat();
     },
-    /**
-     * 获取配置内容
-     * @param index 配置索引
-     */
-    getConfig(index = 0) {
+getConfig(index = 0) {
       return this.$data.contentConfig.get(index) ?? [];
     },
-    /**
-     * 获取默认左侧底部的配置项
-     */
-    getDefaultBottomContentConfig() {
+getDefaultBottomContentConfig() {
       return [
         {
           id: "script-version",
@@ -805,30 +616,19 @@
     init() {
       this.initExtensionsMenu();
     },
-    /**
-     * 初始化菜单项
-     */
-    initExtensionsMenu() {
+initExtensionsMenu() {
       if (!Panel.isTopWindow()) {
         return;
       }
       GM_Menu.add(this.$data.menuOption);
     },
-    /**
-     * 添加菜单项
-     * @param option 菜单配置
-     */
-    addMenuOption(option) {
+addMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
       this.$data.menuOption.push(...option);
     },
-    /**
-     * 更新菜单项
-     * @param option 菜单配置
-     */
-    updateMenuOption(option) {
+updateMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
@@ -841,115 +641,61 @@
         }
       });
     },
-    /**
-     * 获取菜单项
-     * @param [index=0] 索引
-     */
-    getMenuOption(index = 0) {
+getMenuOption(index = 0) {
       return this.$data.menuOption[index];
     },
-    /**
-     * 删除菜单项
-     * @param [index=0] 索引
-     */
-    deleteMenuOption(index = 0) {
+deleteMenuOption(index = 0) {
       this.$data.menuOption.splice(index, 1);
     }
   };
   const Panel = {
-    /** 数据 */
-    $data: {
-      /**
-       * @private
-       */
-      __contentConfigInitDefaultValue: null,
-      /**
-       * @private
-       */
-      __onceExecMenuData: null,
-      /**
-       * @private
-       */
-      __onceExecData: null,
-      /**
-       * @private
-       */
-      __panelConfig: {},
-      /**
-       * 面板
-       */
-      $panel: null,
-      /**
-       * 面板配置
-       */
-      panelContent: [],
-      /**
-       * 菜单项初始化的默认值
-       */
-      get contentConfigInitDefaultValue() {
+$data: {
+__contentConfigInitDefaultValue: null,
+__onceExecMenuData: null,
+__onceExecData: null,
+__panelConfig: {},
+$panel: null,
+panelContent: [],
+get contentConfigInitDefaultValue() {
         if (this.__contentConfigInitDefaultValue == null) {
           this.__contentConfigInitDefaultValue = new utils.Dictionary();
         }
         return this.__contentConfigInitDefaultValue;
       },
-      /**
-       * 菜单项初始化时禁用的键
-       */
-      contentConfigInitDisabledKeys: [],
-      /**
-       * 成功只执行了一次的菜单项
-       *
-       * + .exec
-       * + .execMenu
-       * + .execMenuOnce
-       */
-      get onceExecMenuData() {
+contentConfigInitDisabledKeys: [],
+get onceExecMenuData() {
         if (this.__onceExecMenuData == null) {
           this.__onceExecMenuData = new utils.Dictionary();
         }
         return this.__onceExecMenuData;
       },
-      /**
-       * 成功只执行了一次的项
-       *
-       * + .onceExec
-       */
-      get onceExecData() {
+get onceExecData() {
         if (this.__onceExecData == null) {
           this.__onceExecData = new utils.Dictionary();
         }
         return this.__onceExecData;
       },
-      /** 脚本名，一般用在设置的标题上 */
-      get scriptName() {
+get scriptName() {
         return SCRIPT_NAME;
       },
-      /**
-       * pops.panel的默认配置
-       */
-      get panelConfig() {
+get panelConfig() {
         return this.__panelConfig;
       },
       set panelConfig(value) {
         this.__panelConfig = value;
       },
-      /** 菜单项的总值在本地数据配置的键名 */
-      key: KEY,
-      /** 菜单项在attributes上配置的菜单键 */
-      attributeKeyName: ATTRIBUTE_KEY,
-      /** 菜单项在attributes上配置的菜单默认值 */
-      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
+key: KEY,
+attributeKeyName: ATTRIBUTE_KEY,
+attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
     },
     init() {
       this.initContentDefaultValue();
       PanelMenu.init();
     },
-    /** 判断是否是顶层窗口 */
-    isTopWindow() {
+isTopWindow() {
       return _unsafeWindow.top === _unsafeWindow.self;
     },
-    /** 初始化菜单项的默认值保存到本地数据中 */
-    initContentDefaultValue() {
+initContentDefaultValue() {
       const initDefaultValue = (config) => {
         if (!config.attributes) {
           return;
@@ -957,7 +703,7 @@
         if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
           return;
         }
-        let menuDefaultConfig = /* @__PURE__ */ new Map();
+        let menuDefaultConfig = new Map();
         let key = config.attributes[ATTRIBUTE_KEY];
         if (key != null) {
           const defaultValue = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
@@ -1013,31 +759,16 @@
       }
       this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
     },
-    /**
-     * 设置初始化使用的默认值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    setDefaultValue(key, defaultValue) {
+setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
         log.warn("请检查该key(已存在): " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
-    /**
-     * 设置值
-     * @param key 键
-     * @param value 值
-     */
-    setValue(key, value) {
+setValue(key, value) {
       PopsPanelStorageApi.set(key, value);
     },
-    /**
-     * 获取值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    getValue(key, defaultValue) {
+getValue(key, defaultValue) {
       let localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
         if (this.$data.contentConfigInitDefaultValue.has(key)) {
@@ -1047,66 +778,25 @@
       }
       return localValue;
     },
-    /**
-     * 删除值
-     * @param key 键
-     */
-    deleteValue(key) {
+deleteValue(key) {
       PopsPanelStorageApi.delete(key);
     },
-    /**
-     * 判断该键是否存在
-     * @param key 键
-     */
-    hasKey(key) {
+hasKey(key) {
       return PopsPanelStorageApi.has(key);
     },
-    /**
-     * 监听调用setValue、deleteValue
-     * @param key 需要监听的键
-     * @param callback
-     */
-    addValueChangeListener(key, callback) {
+addValueChangeListener(key, callback) {
       let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
         callback(key, __oldValue, __newValue);
       });
       return listenerId;
     },
-    /**
-     * 移除监听
-     * @param listenerId 监听的id
-     */
-    removeValueChangeListener(listenerId) {
+removeValueChangeListener(listenerId) {
       PopsPanelStorageApi.removeValueChangeListener(listenerId);
     },
-    /**
-     * 主动触发菜单值改变的回调
-     * @param key 菜单键
-     * @param newValue 想要触发的新值，默认使用当前值
-     * @param oldValue 想要触发的旧值，默认使用当前值
-     */
-    triggerMenuValueChange(key, newValue, oldValue) {
+triggerMenuValueChange(key, newValue, oldValue) {
       PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
     },
-    /**
-     * 执行菜单
-     *
-     * @param queryKey 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 执行的回调函数
-     * @param checkExec 判断是否执行回调
-     *
-     * （默认）如果想要每个菜单是`与`关系，即每个菜单都判断为开启，那么就判断它们的值&就行
-     *
-     * 如果想要任意菜单存在true再执行，那么判断它们的值|就行
-     *
-     * + 返回值都为`true`，执行回调，如果回调返回了<style>元素，该元素会在监听到值改变时被移除掉
-     * + 返回值有一个为`false`，则不执行回调，且移除之前回调函数返回的<style>元素
-     * @param once 是否只执行一次，默认true
-     *
-     * + true （默认）只执行一次，且会监听键的值改变
-     * + false 不会监听键的值改变
-     */
-    exec(queryKey, callback, checkExec, once = true) {
+exec(queryKey, callback, checkExec, once = true) {
       const that = this;
       let queryKeyFn;
       if (typeof queryKey === "string" || Array.isArray(queryKey)) {
@@ -1211,28 +901,15 @@
       });
       valueChangeCallback();
       let result = {
-        /**
-         * 清空菜单执行情况
-         *
-         * + 清空存储的元素列表
-         * + 清空值改变的监听器
-         * + 清空存储的一次执行的键
-         */
-        clear() {
+clear() {
           this.clearStoreStyleElements();
           this.removeValueChangeListener();
           once && that.$data.onceExecMenuData.delete(storageKey);
         },
-        /**
-         * 清空存储的元素列表
-         */
-        clearStoreStyleElements: () => {
+clearStoreStyleElements: () => {
           return clearBeforeStoreValue();
         },
-        /**
-         * 移除值改变的监听器
-         */
-        removeValueChangeListener: () => {
+removeValueChangeListener: () => {
           listenerIdList.forEach((listenerId) => {
             this.removeValueChangeListener(listenerId);
           });
@@ -1240,14 +917,7 @@
       };
       return result;
     },
-    /**
-     * 自动判断菜单是否启用，然后执行回调
-     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 回调
-     * @param isReverse 逆反判断菜单启用，默认false
-     * @param once 是否是只执行一次，默认false
-     */
-    execMenu(key, callback, isReverse = false, once = false) {
+execMenu(key, callback, isReverse = false, once = false) {
       return this.exec(
         key,
         (option) => {
@@ -1269,35 +939,15 @@
         once
       );
     },
-    /**
-     * 自动判断菜单是否启用，然后执行回调，只会执行一次
-     *
-     * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
-     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 回调
-     * @param isReverse 逆反判断菜单启用，默认false
-     */
-    execMenuOnce(key, callback, isReverse = false) {
+execMenuOnce(key, callback, isReverse = false) {
       return this.execMenu(key, callback, isReverse, true);
     },
-    /**
-     * 移除已执行的仅执行一次的菜单
-     * + .exec
-     * + .execMenu
-     * + .execMenuOnce
-     * @param key 键
-     */
-    deleteExecMenuOnce(key) {
+deleteExecMenuOnce(key) {
       this.$data.onceExecMenuData.delete(key);
       let flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
-    /**
-     * 根据key执行一次，该key不会和execMenu|exec|execMenuOnce已执行的key冲突
-     * @param key 键
-     * @param callback 回调
-     */
-    onceExec(key, callback) {
+onceExec(key, callback) {
       key = this.transformKey(key);
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
@@ -1308,23 +958,11 @@
       callback();
       this.$data.onceExecData.set(key, 1);
     },
-    /**
-     * 移除已执行的仅执行一次的菜单
-     * + .onceExec
-     * @param key 键
-     */
-    deleteOnceExec(key) {
+deleteOnceExec(key) {
       key = this.transformKey(key);
       this.$data.onceExecData.delete(key);
     },
-    /**
-     * 显示设置面板
-     * @param content 显示的内容配置
-     * @param [title] 标题
-     * @param [preventDefaultContentConfig=false] 是否阻止默认添加内容配置（版本号），默认false
-     * @param [preventRegisterSearchPlugin=false] 是否阻止默认添加搜索组件，默认false
-     */
-    showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
+showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
       this.$data.$panel = null;
       this.$data.panelContent = [];
       let checkHasBottomVersionContentConfig = content.findIndex((it) => {
@@ -1376,11 +1014,7 @@
         this.registerConfigSearch({ $panel, content });
       }
     },
-    /**
-     * 注册设置面板的搜索功能（双击左侧选项第一个）
-     * @param config 配置项
-     */
-    registerConfigSearch(config) {
+registerConfigSearch(config) {
       const { $panel, content } = config;
       let asyncQueryProperty = async (target, handler) => {
         if (target == null) {
@@ -1404,10 +1038,8 @@
           },
           {
             root: null,
-            // 使用视口作为根
-            threshold: 1
-            // 元素完全进入视口时触发
-          }
+threshold: 1
+}
         );
         observer.observe($el);
         $el.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1428,8 +1060,7 @@
           },
           content: {
             text: (
-              /*html*/
-              `
+`
 						<div class="search-wrapper">
 							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
 						</div>
@@ -1450,8 +1081,7 @@
           height: "auto",
           drag: true,
           style: (
-            /*css*/
-            `
+`
 					${__pops.config.cssText.panelCSS}
 
 					.search-wrapper{
@@ -1516,8 +1146,7 @@
           let $item = domUtils.createElement("div", {
             className: "search-result-item",
             innerHTML: (
-              /*html*/
-              `
+`
 							<div class="search-result-item-path">${searchPath.matchedData?.path}</div>
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
 						`
@@ -1739,13 +1368,14 @@
           timer = void 0;
           if (isDoubleClick && clickElement === selectorTarget) {
             isDoubleClick = false;
+            clickElement = null;
             dbclick_event(evt);
           } else {
             timer = setTimeout(() => {
               isDoubleClick = false;
             }, 200);
-            clickElement = selectorTarget;
             isDoubleClick = true;
+            clickElement = selectorTarget;
           }
         },
         {
@@ -1756,8 +1386,7 @@
         domUtils.createElement("style", {
           type: "text/css",
           textContent: (
-            /*css*/
-            `
+`
 					.pops-flashing{
 						animation: double-blink 1.5s ease-in-out;
 					}
@@ -1783,10 +1412,7 @@
         })
       );
     },
-    /**
-     * 把key:string[]转为string
-     */
-    transformKey(key) {
+transformKey(key) {
       if (Array.isArray(key)) {
         const keyArray = key.sort();
         return JSON.stringify(keyArray);
@@ -1797,60 +1423,32 @@
   };
   class HttpxCookieManager {
     $data = {
-      /** 是否启用 */
-      get enable() {
+get enable() {
         return Panel.getValue(
           PanelSettingConfig.httpx_cookie_manager_enable.key,
           PanelSettingConfig.httpx_cookie_manager_enable.defaultValue
         );
       },
-      /**
-       * 是否使用document.cookie
-       * + true 使用document.cookie额外添加cookie的header
-       */
-      get useDocumentCookie() {
+get useDocumentCookie() {
         return Panel.getValue(
           PanelSettingConfig.httpx_cookie_manager_use_document_cookie.key,
           PanelSettingConfig.httpx_cookie_manager_use_document_cookie.defaultValue
         );
       },
-      /**
-       * cookie规则，在这里填入
-       * @example
-       * {
-       *     key: "cookie-example-com",
-       *     hostname: "example.com",
-       * }
-       */
-      cookieRule: []
+cookieRule: []
     };
-    /**
-     * cookie规则，在这里填入
-     * @param cookieRule
-     * @example
-     * {
-     *     key: "cookie-example-com",
-     *     hostname: "example.com",
-     * }
-     */
-    constructor(cookieRule) {
+constructor(cookieRule) {
       if (Array.isArray(cookieRule)) {
         this.$data.cookieRule = cookieRule;
       }
     }
-    /**
-     * 补充cookie末尾分号
-     */
-    fixCookieSplit(str) {
+fixCookieSplit(str) {
       if (utils.isNotNull(str) && !str.trim().endsWith(";")) {
         str += ";";
       }
       return str;
     }
-    /**
-     * 合并两个cookie
-     */
-    concatCookie(targetCookie, newCookie) {
+concatCookie(targetCookie, newCookie) {
       if (utils.isNull(targetCookie)) {
         return newCookie;
       }
@@ -1862,12 +1460,7 @@
       }
       return targetCookie.concat(newCookie);
     }
-    /**
-     * 处理cookie
-     * @param details
-     * @returns
-     */
-    handle(details) {
+handle(details) {
       if (details.fetch) {
         return;
       }
@@ -1934,10 +1527,7 @@
     drag: true
   });
   const ElementUtils = {
-    /**
-     * 在左侧菜单注册功能
-     */
-    registerLeftMenu(config) {
+registerLeftMenu(config) {
       utils.waitNode(
         ".comiis_sidenv_box .sidenv_li .comiis_left_Touch",
         1e4
@@ -1949,8 +1539,7 @@
         let $setting = domUtils.createElement("li", {
           className: "comiis_left_Touch",
           innerHTML: (
-            /*html*/
-            `
+`
 						<a href="javascript:;" class="comiis_left_Touch">
 							<i class="comiis_font"></i>
 							${config.name}
@@ -1980,55 +1569,32 @@
         domUtils.append($leftTouch, $setting);
       });
     },
-    /**
-     * 导读中最新、热门、精华、回复、抢沙发的各个帖子【list】
-     */
-    comiisForumList: () => {
+comiisForumList: () => {
       return document.querySelectorAll("li.forumlist_li");
     },
-    /**
-     * 帖子内评论，包括帖子内容主体，第一个就是主体【list】
-     */
-    comiisPostli: () => {
+comiisPostli: () => {
       return document.querySelectorAll(
         "div.comiis_postli.comiis_list_readimgs.nfqsqi"
       );
     },
-    /**
-     * 帖子内评论，包括帖子内容主体，第一个就是主体【list】
-     */
-    comiisMmlist: () => {
+comiisMmlist: () => {
       return document.querySelectorAll(".comiis_mmlist");
     }
   };
   const blackHomeCSS = ".pops-confirm-content {\r\n	display: flex;\r\n	flex-direction: column;\r\n}\r\n.blackhome-user-filter input {\r\n	width: -moz-available;\r\n	width: -webkit-fill-available;\r\n	height: 30px;\r\n	margin: 8px 20px;\r\n	border: 0;\r\n	border-bottom: 1px solid;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n	white-space: nowrap;\r\n}\r\n.blackhome-user-filter input:focus-within {\r\n	outline: none;\r\n}\r\n.blackhome-user-list {\r\n	flex: 1;\r\n	overflow-y: auto;\r\n}\r\n.blackhome-user-list .blackhome-user-item {\r\n	margin: 15px 10px;\r\n	padding: 10px;\r\n	border-radius: 8px;\r\n	box-shadow: 0 0 0.6rem #c8d0e7, -0.2rem -0.2rem 0.5rem #fff;\r\n}\r\n.blackhome-user {\r\n	display: flex;\r\n}\r\n.blackhome-user img {\r\n	width: 45px;\r\n	height: 45px;\r\n	border-radius: 45px;\r\n}\r\n.blackhome-user-info {\r\n	margin-left: 10px;\r\n}\r\n.blackhome-user-info p:nth-child(1) {\r\n	margin-bottom: 5px;\r\n}\r\n.blackhome-user-info p:nth-child(2) {\r\n	font-size: 14px;\r\n}\r\n.blackhome-user-action {\r\n	display: flex;\r\n	margin: 10px 0;\r\n}\r\n.blackhome-user-action p:nth-child(1),\r\n.blackhome-user-action p:nth-child(2) {\r\n	border: 1px solid red;\r\n	color: red;\r\n	border-radius: 4px;\r\n	padding: 2px 4px;\r\n	font-weight: 500;\r\n	font-size: 14px;\r\n	place-self: center;\r\n}\r\n.blackhome-user-action p:nth-child(2) {\r\n	border: 1px solid #ff4b4b;\r\n	color: #ff4b4b;\r\n	margin-left: 8px;\r\n}\r\n.blackhome-user-uuid {\r\n	border: 1px solid #ff7600;\r\n	color: #ff7600;\r\n	border-radius: 4px;\r\n	padding: 2px 4px;\r\n	font-weight: 500;\r\n	font-size: 14px;\r\n	width: fit-content;\r\n	width: -moz-fit-content;\r\n	margin: 10px 0;\r\n}\r\n.blackhome-operator {\r\n	padding: 10px;\r\n	background-color: #efefef;\r\n	border-radius: 6px;\r\n}\r\n.blackhome-operator-user {\r\n	display: flex;\r\n}\r\n.blackhome-operator-user img {\r\n	width: 35px;\r\n	height: 35px;\r\n	border-radius: 35px;\r\n}\r\n.blackhome-operator-user p {\r\n	align-self: center;\r\n	margin-left: 10px;\r\n}\r\n.blackhome-operator-user-info {\r\n	margin: 10px 0;\r\n	font-weight: 500;\r\n}\r\n";
   const MTRegExp = {
-    /** 论坛账号的凭证 */
-    formhash: /formhash=([0-9a-zA-Z]+)/,
-    /** 用户uid */
-    uid: /uid(=|-)(\d+)/,
-    /** 帖子内特殊字体格式 */
-    fontSpecial: /<font.*?>|<\/font>|<strike>|<strong>|<i>|<u>|align=".*?"|<br>[\s]*<br>[\s]*<br>/g,
-    /** 帖子链接的ptid参数 */
-    ptid: /&ptid=([\d]+)/i,
-    /** 帖子链接的pid参数 */
-    pid: /&pid=([\d]+)/i,
-    /** 链接的tid参数 */
-    tid: /&tid=([\d]+)/i
+formhash: /formhash=([0-9a-zA-Z]+)/,
+uid: /uid(=|-)(\d+)/,
+fontSpecial: /<font.*?>|<\/font>|<strike>|<strong>|<i>|<u>|align=".*?"|<br>[\s]*<br>[\s]*<br>/g,
+ptid: /&ptid=([\d]+)/i,
+pid: /&pid=([\d]+)/i,
+tid: /&tid=([\d]+)/i
   };
   const MTUtils = {
-    /**
-     * 根据UID获取小|中|大头像
-     * @param uid
-     * @param size
-     */
-    getAvatar: (uid, size = "middle") => {
+getAvatar: (uid, size = "middle") => {
       return `/uc_server/avatar.php?uid=${uid}&size=${size}&ts=1`;
     },
-    /**
-     * 获取当前已登录的用户的uid
-     */
-    getCurrentUID() {
+getCurrentUID() {
       let discuz_uid = _unsafeWindow.discuz_uid;
       if (typeof discuz_uid === "string") {
         return discuz_uid;
@@ -2043,10 +1609,7 @@
         }
       }
     },
-    /**
-     * 获取账号的formhash
-     */
-    async getFormHash() {
+async getFormHash() {
       let $inputFormHashList = Array.from(
         (top || globalThis).document.querySelectorAll(
           "input[name=formhash]"
@@ -2094,22 +1657,14 @@
         log.error("请求个人主页获取formhash失败", homeResponse);
       }
     },
-    /**
-     * 检测环境模板
-     */
-    envIsMobile() {
+envIsMobile() {
       return (
-        // @ts-ignore
-        (_unsafeWindow.STYLEID || // @ts-ignore
-        window.STYLEID || // @ts-ignore
-        typeof STYLEID !== "undefined" && STYLEID) === "3"
+(_unsafeWindow.STYLEID ||
+window.STYLEID ||
+typeof STYLEID !== "undefined" && STYLEID) === "3"
       );
     },
-    /**
-     * 获取帖子id
-     * @param url
-     */
-    getThreadId: (url) => {
+getThreadId: (url) => {
       let urlMatch = url.match(/thread-([\d]+)-|&tid=([\d]+)/i);
       if (urlMatch) {
         let forumIdList = urlMatch.filter(Boolean);
@@ -2117,28 +1672,19 @@
         return forumId;
       }
     },
-    /**
-     * 获取板块？id
-     */
-    getForumId(url) {
+getForumId(url) {
       let urlMatch = url.match(/&fid=([\d]+)/i);
       if (urlMatch) {
         return urlMatch[urlMatch.length - 1];
       }
     },
-    /**
-     * 获取发布id
-     */
-    getPostId(url) {
+getPostId(url) {
       let urlMatch = url.match(/&pid=([\d]+)/i);
       if (urlMatch) {
         return urlMatch[urlMatch.length - 1];
       }
     },
-    /**
-     * 获取回复id
-     */
-    getRepquote(url) {
+getRepquote(url) {
       let urlMatch = url.match(/&repquote=([\d]+)/i);
       if (urlMatch) {
         return urlMatch[urlMatch.length - 1];
@@ -2152,10 +1698,7 @@
     init() {
       this.registerMenu();
     },
-    /**
-     * 注册菜单
-     */
-    registerMenu() {
+registerMenu() {
       ElementUtils.registerLeftMenu({
         name: "小黑屋",
         iconColor: "#000000",
@@ -2165,10 +1708,7 @@
         }
       });
     },
-    /**
-     * 显示小黑屋dialog
-     */
-    async showBlackHome() {
+async showBlackHome() {
       let $loading = Qmsg.loading("正在获取小黑屋名单中...");
       let blackListInfo = await this.getBlackListInfo("");
       $loading.close();
@@ -2187,8 +1727,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                 <div class="blackhome-user-filter">
                     <input placeholder="过滤用户名/操作人员/UID(可正则)">
                 </div>
@@ -2273,10 +1812,7 @@
       }
       this.$data.cid = nextBlackListInfo.next_cid;
     },
-    /**
-     * 获取小黑屋名单信息
-     */
-    async getBlackListInfo(cid = "") {
+async getBlackListInfo(cid = "") {
       let searchParamsData = {
         mod: "misc",
         action: "showdarkroom",
@@ -2364,17 +1900,13 @@
         data: new_blackListData
       };
     },
-    /**
-     * 创建黑名单节点
-     */
-    createListViewItem(userInfo) {
+createListViewItem(userInfo) {
       let $item = domUtils.createElement(
         "div",
         {
           className: "blackhome-user-item",
           innerHTML: (
-            /*html*/
-            `
+`
                 <div class="blackhome-user-avatar">
                     <div class="blackhome-user">
                     <img src="${MTUtils.getAvatar(
@@ -2435,10 +1967,7 @@
     init() {
       this.registerMenu();
     },
-    /**
-     * 注册菜单
-     */
-    registerMenu() {
+registerMenu() {
       ElementUtils.registerLeftMenu({
         name: "在线用户",
         iconColor: "#2d92ff",
@@ -2448,10 +1977,7 @@
         }
       });
     },
-    /**
-     * 显示在线用户dialog
-     */
-    async showOnlineUser() {
+async showOnlineUser() {
       let $loading = Qmsg.loading("正在获取在线用户名单中...");
       let onlineUserInfo = await this.getOnlineUserListInfo();
       $loading.close();
@@ -2465,8 +1991,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                 <div class="online-user-info">${onlineUserInfo.totalOnline} 人在线 - ${onlineUserInfo.onlineUser} 会员${onlineUserInfo.invisibleUser == 0 ? "" : `(${onlineUserInfo.invisibleUser}隐身)`} - ${onlineUserInfo.noRegisterUser} 位游客</div>
                 <div class="online-user-filter">
                     <input placeholder="过滤用户名/身份/UID(可正则)"></div>
@@ -2522,10 +2047,7 @@
         })
       );
     },
-    /**
-     * 获取在线用户名单信息
-     */
-    async getOnlineUserListInfo() {
+async getOnlineUserListInfo() {
       let searchParamsData = {
         showoldetails: "yes"
       };
@@ -2597,17 +2119,13 @@
       );
       return result;
     },
-    /**
-     * 创建在线用户节点
-     */
-    createListViewItem(userInfo) {
+createListViewItem(userInfo) {
       let $item = DOMUtils.createElement(
         "div",
         {
           className: "online-item",
           innerHTML: (
-            /*html*/
-            `
+`
                 <div class="online-user">
                     <img data-avatar src="${userInfo["avatar"]}" loading="lazy" class="online-user-avatar">
                     <div class="online-user-info">
@@ -2742,10 +2260,7 @@
     init() {
       this.sign();
     },
-    /**
-     * 判断今日是否已签到
-     */
-    checkSignInfo() {
+checkSignInfo() {
       let signInfo = this.getSignInfo();
       let findValue = signInfo.find((it) => {
         return it.hostName === window.location.hostname;
@@ -2758,10 +2273,7 @@
       }
       return false;
     },
-    /**
-     * 设置签到信息
-     */
-    setSignInfo() {
+setSignInfo() {
       let signInfo = {
         hostName: window.location.hostname,
         time: Date.now()
@@ -2776,10 +2288,7 @@
       localSignInfo.push(signInfo);
       _GM_setValue(this.$key.sign, localSignInfo);
     },
-    /**
-     * 获取签到信息
-     */
-    getSignInfo() {
+getSignInfo() {
       let localSignInfo = _GM_getValue(this.$key.sign, []);
       if (!Array.isArray(localSignInfo)) {
         this.clearSignInfo();
@@ -2787,21 +2296,13 @@
       }
       return localSignInfo;
     },
-    /**
-     * 获取域名的签到信息
-     * @param hostName 域名
-     */
-    getHostNameSignInfo(hostName = window.location.hostname) {
+getHostNameSignInfo(hostName = window.location.hostname) {
       let localSignInfo = this.getSignInfo();
       return localSignInfo.find((it) => {
         return it.hostName === hostName;
       });
     },
-    /**
-     * 清空签到信息
-     * @param hostName 域名
-     */
-    clearSignInfo(hostName) {
+clearSignInfo(hostName) {
       if (typeof hostName === "string") {
         let signInfo = this.getSignInfo();
         let findIndex = signInfo.findIndex((it) => {
@@ -2815,10 +2316,7 @@
         _GM_deleteValue(this.$key.sign);
       }
     },
-    /**
-     * 检测是否登录
-     */
-    checkLogin() {
+checkLogin() {
       if (MTUtils.envIsMobile()) {
         let mobile_login_exitBtn = $(
           "a[href*='member.php?mod=logging&action=logout']"
@@ -2829,10 +2327,7 @@
         return Boolean(pc_login);
       }
     },
-    /**
-     * 签到
-     */
-    async sign() {
+async sign() {
       if (this.checkSignInfo()) {
         log.info("今日已签到");
         return;
@@ -2950,8 +2445,7 @@
               let line = lineMatch[lineMatch.length - 1];
               log.success(`金币${con}，排名${line}`);
               Qmsg.info(
-                /*html*/
-                `
+`
 							<div style="display: flex;${!MTUtils.envIsMobile() ? "padding: 20px;" : ""}">
 								<div style="align-self: center;margin-right: 20px;">签到</div>
 								<div>排名 ${line}<br>金币 ${con}</div>
@@ -3045,116 +2539,62 @@
     }
   };
   const MTRouter = {
-    /**
-     * 克米签到页面
-     */
-    isKMiSign() {
+isKMiSign() {
       return window.location.pathname.startsWith("/k_misign-sign.html");
     },
-    /**
-     * 帖子
-     */
-    isPost() {
+isPost() {
       return window.location.pathname.startsWith("/thread-") || window.location.pathname.startsWith("/forum.php") && window.location.search.startsWith("?mod=viewthread");
     },
-    /**
-     * 首页、精华
-     */
-    isPage() {
+isPage() {
       return Boolean(window.location.pathname.match(/^\/page-([0-9]+).html/g));
     },
-    /**
-     * 导读链接
-     */
-    isGuide() {
+isGuide() {
       return window.location.pathname.startsWith("/forum.php") && window.location.search.startsWith("?mod=guide");
     },
-    /**
-     * 板块
-     */
-    isPlate() {
+isPlate() {
       return Boolean(
         window.location.pathname.match(/\/forum-[0-9]{1,2}-[0-9]{1,2}.html/g)
       );
     },
-    /**
-     * 搜索页面
-     */
-    isSearch() {
+isSearch() {
       return window.location.pathname.startsWith("/search.php");
     },
-    /**
-     * 空间
-     */
-    isSpace() {
+isSpace() {
       return window.location.pathname.startsWith("/home.php") && window.location.search.startsWith("?mod=space");
     },
-    /**
-     * 我的个人空间
-     */
-    isMySpace() {
+isMySpace() {
       return window.location.pathname.startsWith("/home.php") && window.location.search.startsWith("?mod=space&do=profile&mycenter");
     },
-    /**
-     * 个人空间页的@点进去
-     */
-    isSpaceWithAt() {
+isSpaceWithAt() {
       return window.location.pathname.startsWith("/space-uid-");
     },
-    /**
-     * 社区列表
-     */
-    isForumList() {
+isForumList() {
       return window.location.pathname.startsWith("/forum.php") && window.location.search.startsWith("?forumlist");
     },
-    /**
-     * 消息提醒
-     */
-    isMessage() {
+isMessage() {
       return window.location.pathname.startsWith("/home.php") && window.location.search.startsWith("?mod=space&do=notice");
     },
-    /**
-     * 消息提醒列表
-     */
-    isMessageList() {
+isMessageList() {
       return window.location.pathname.startsWith("/home.php") && window.location.search.startsWith("?mod=space&do=pm");
     },
-    /**
-     * 积分商城
-     */
-    isPointsMall() {
+isPointsMall() {
       return window.location.pathname.startsWith(
         "/keke_integralmall-keke_integralmall.html"
       ) || window.location.pathname.startsWith("/plugin.php") && window.location.search.startsWith("?id=keke_integralmal");
     },
-    /**
-     * 帖子发布/回复页面
-     */
-    isPostPublish() {
+isPostPublish() {
       return window.location.pathname.startsWith("/forum.php") && window.location.search.startsWith("?mod=post");
     },
-    /**
-     * 投票页面
-     */
-    isPostPublish_voting() {
+isPostPublish_voting() {
       return window.location.pathname.startsWith("/forum.php") && window.location.search.includes("&special=1") || window.location.search.includes("&fid=42");
     },
-    /**
-     * 帖子编辑页面
-     */
-    isPostPublish_edit() {
+isPostPublish_edit() {
       return this.isPostPublish() && window.location.search.includes("&action=edit");
     },
-    /**
-     * 发帖页面，该页面是尚未存入草稿
-     */
-    isPostPublish_newthread() {
+isPostPublish_newthread() {
       return this.isPostPublish() && window.location.search.includes("&action=newthread");
     },
-    /**
-     * 回复编辑页面
-     */
-    isPostPublish_reply() {
+isPostPublish_reply() {
       return this.isPostPublish() && window.location.search.includes("&action=reply");
     }
   };
@@ -3539,12 +2979,10 @@
                   },
                   content: {
                     text: (
-                      /*html*/
-                      `
+`
 									<div class="upload-image-water">${needUploadImageArray.map((item) => {
                       return (
-                        /*html*/
-                        `<img src="${item}" crossoriginNew="anonymous" loading="lazy">`
+`<img src="${item}" crossoriginNew="anonymous" loading="lazy">`
                       );
                     }).join("\n")}
 									</div>
@@ -3576,8 +3014,7 @@
                   width: "88vw",
                   height: "80vh",
                   style: (
-                    /*css*/
-                    `
+`
 								.upload-image-water {
 
 								}
@@ -3595,17 +3032,13 @@
         }
       );
     }
-    /**
-     * 添加图床标签
-     */
-    addTab() {
+addTab() {
       let $picture_key = $("#comiis_pictitle_key");
       let $history = $picture_key.querySelector(
         "a[data-type='history']"
       );
       let tabHTML = (
-        /*html*/
-        `
+`
             <li>
                 <a href="javascript:;" class="comiis-picture-tab" data-type="image-bed">${this.option.name}</a>
             </li>
@@ -3639,8 +3072,7 @@
           {
             className: "comiis_upbox bg_f cl",
             innerHTML: (
-              /*html*/
-              `
+`
 					<ul class="comiis_post_imglist cl" id="imglist_history">	
                     </ul>
 				`
@@ -3657,8 +3089,7 @@
       }
       domUtils.before(
         $historyBox,
-        /*html*/
-        `
+`
             <div class="comiis_upbox bg_f cl" style="display: none;">
                 <ul class="comiis_post_imglist cl" data-chartbed="${this.option.name}">
                     <li class="up_btn">
@@ -3673,14 +3104,10 @@
             `
       );
     }
-    /**
-     * 创建图片缩略图，用于插入
-     */
-    createImageBtnElement(labelName, url) {
+createImageBtnElement(labelName, url) {
       let $li = domUtils.createElement("li", {
         innerHTML: (
-          /*html*/
-          `
+`
             <span class="delImg" data-id="${this.option.id}" data-name="${this.option.name}">
                 <a href="javascript:;">
                     <i class="comiis_font f_g"></i>
@@ -3701,10 +3128,7 @@
       });
       return $li;
     }
-    /**
-     * 初始化历史上传图片列表
-     */
-    initHistoryUploadImageList() {
+initHistoryUploadImageList() {
       let $imglist_history = $(
         "#comiis_pictitle_tab #imglist_history"
       );
@@ -3720,10 +3144,7 @@
       });
       $imglist_history.appendChild($fragment);
     }
-    /**
-     * 设置图片缩略图的删除事件
-     */
-    setImageBtnDeleteEvent($ele, data) {
+setImageBtnDeleteEvent($ele, data) {
       let $delImg = $ele.querySelector(".delImg");
       domUtils.on($delImg, "click", async (event) => {
         let result = await this.option.delImageEvent(event, data);
@@ -3735,10 +3156,7 @@
         }
       });
     }
-    /**
-     * 设置历史图片图片缩略图的删除事件
-     */
-    setHistoryImageBtnDeleteEvent($ele, data) {
+setHistoryImageBtnDeleteEvent($ele, data) {
       let $delImg = $ele.querySelector(".delImg");
       domUtils.on($delImg, "click", async (event) => {
         let findValue = GlobalImageDelete.find((item) => item.id === data.id);
@@ -3754,10 +3172,7 @@
         }
       });
     }
-    /**
-     * 存储历史记录图片
-     */
-    addImage(info) {
+addImage(info) {
       let allData = _GM_getValue(this.$data.STORAGE_KEY, []);
       allData.push({
         id: this.option.id,
@@ -3767,17 +3182,11 @@
       });
       _GM_setValue(this.$data.STORAGE_KEY, allData);
     }
-    /**
-     * 查询所有上传的历史图片
-     */
-    getAllImage() {
+getAllImage() {
       let allData = _GM_getValue(this.$data.STORAGE_KEY, []);
       return allData;
     }
-    /**
-     * 删除历史记录图片
-     */
-    deleteImage(id, data) {
+deleteImage(id, data) {
       let allData = this.getAllImage();
       let findIndex = allData.findIndex(
         (item) => item.id === id && JSON.stringify(item.data) === JSON.stringify(data)
@@ -3866,10 +3275,7 @@
         }
       });
     },
-    /**
-     * 检测是否登录
-     */
-    async checkLogin() {
+async checkLogin() {
       if (!this.$data.account) {
         Qmsg.error(`${this.$config.TAG}请先配置账号`);
         return false;
@@ -3884,11 +3290,7 @@
       }
       return true;
     },
-    /**
-     * 上传图片
-     * @param imageFile
-     */
-    async uploadImage(imageFile) {
+async uploadImage(imageFile) {
       let formData = new FormData();
       formData.append("file", imageFile);
       formData.append("permission", "0");
@@ -3935,11 +3337,7 @@
         };
       });
     },
-    /**
-     * 删除图片
-     * @param imageKey 删除的key
-     */
-    async deleteImage(imageKey) {
+async deleteImage(imageKey) {
       let response = await httpx.delete(
         this.$config.base_url + "/images/" + imageKey,
         {
@@ -4020,10 +3418,7 @@
         }
       });
     },
-    /**
-     * 检测是否登录
-     */
-    async checkLogin() {
+async checkLogin() {
       if (!this.$data.csrf_token) {
         let $loading = Qmsg.loading("正在获取CSRF Token中...");
         let csrf_token = await this.getCSRFToken();
@@ -4035,10 +3430,7 @@
       }
       return true;
     },
-    /**
-     * 获取MT图床的CSRF参数
-     */
-    async getCSRFToken() {
+async getCSRFToken() {
       let response = await httpx.get(this.$config.base_url, {
         allowInterceptConfig: false,
         headers: {
@@ -4060,11 +3452,7 @@
       Qmsg.success(this.$config.TAG + "获取CSRF Token成功");
       return metaCSRFToken;
     },
-    /**
-     * 上传图片
-     * @param imageFile
-     */
-    async uploadImage(imageFile) {
+async uploadImage(imageFile) {
       let formData = new FormData();
       formData.append("strategy_id", "2");
       formData.append("file", imageFile);
@@ -4322,29 +3710,23 @@
             b = 0;
           }
           wr_rgb = "";
-          wr_rgb += // @ts-ignore
-          parseInt(r).toString(16).length == 1 ? (
-            // @ts-ignore
-            0 + parseInt(r).toString(16)
+          wr_rgb +=
+parseInt(r).toString(16).length == 1 ? (
+0 + parseInt(r).toString(16)
           ) : (
-            // @ts-ignore
-            parseInt(r).toString(16)
+parseInt(r).toString(16)
           );
-          wr_rgb += // @ts-ignore
-          parseInt(g).toString(16).length == 1 ? (
-            // @ts-ignore
-            0 + parseInt(g).toString(16)
+          wr_rgb +=
+parseInt(g).toString(16).length == 1 ? (
+0 + parseInt(g).toString(16)
           ) : (
-            // @ts-ignore
-            parseInt(g).toString(16)
+parseInt(g).toString(16)
           );
-          wr_rgb += // @ts-ignore
-          parseInt(b).toString(16).length == 1 ? (
-            // @ts-ignore
-            0 + parseInt(b).toString(16)
+          wr_rgb +=
+parseInt(b).toString(16).length == 1 ? (
+0 + parseInt(b).toString(16)
           ) : (
-            // @ts-ignore
-            parseInt(b).toString(16)
+parseInt(b).toString(16)
           );
           wr_rgb = wr_rgb.toUpperCase();
           wr_code += `[color=#${wr_rgb}]${wr_text.charAt(j)}[/color]`;
@@ -4364,29 +3746,23 @@
           if (g > 255) g = 255;
           if (b > 255) b = 255;
           wr_rgb = "";
-          wr_rgb += // @ts-ignore
-          parseInt(r).toString(16).length == 1 ? (
-            // @ts-ignore
-            0 + parseInt(r).toString(16)
+          wr_rgb +=
+parseInt(r).toString(16).length == 1 ? (
+0 + parseInt(r).toString(16)
           ) : (
-            // @ts-ignore
-            parseInt(r).toString(16)
+parseInt(r).toString(16)
           );
-          wr_rgb += // @ts-ignore
-          parseInt(g).toString(16).length == 1 ? (
-            // @ts-ignore
-            0 + parseInt(g).toString(16)
+          wr_rgb +=
+parseInt(g).toString(16).length == 1 ? (
+0 + parseInt(g).toString(16)
           ) : (
-            // @ts-ignore
-            parseInt(g).toString(16)
+parseInt(g).toString(16)
           );
-          wr_rgb += // @ts-ignore
-          parseInt(b).toString(16).length == 1 ? (
-            // @ts-ignore
-            0 + parseInt(b).toString(16)
+          wr_rgb +=
+parseInt(b).toString(16).length == 1 ? (
+0 + parseInt(b).toString(16)
           ) : (
-            // @ts-ignore
-            parseInt(b).toString(16)
+parseInt(b).toString(16)
           );
           wr_rgb = wr_rgb.toUpperCase();
           wr_code += `[color=#${wr_rgb}]${wr_text.charAt(i - 1)}[/color]`;
@@ -4405,29 +3781,23 @@
           if (g > 255) g = 255;
           if (b > 255) b = 255;
           wr_rgb = "";
-          wr_rgb += // @ts-ignore
-          parseInt(r).toString(16).length == 1 ? (
-            // @ts-ignore
-            0 + parseInt(r).toString(16)
+          wr_rgb +=
+parseInt(r).toString(16).length == 1 ? (
+0 + parseInt(r).toString(16)
           ) : (
-            // @ts-ignore
-            parseInt(r).toString(16)
+parseInt(r).toString(16)
           );
-          wr_rgb += // @ts-ignore
-          parseInt(g).toString(16).length == 1 ? (
-            // @ts-ignore
-            0 + parseInt(g).toString(16)
+          wr_rgb +=
+parseInt(g).toString(16).length == 1 ? (
+0 + parseInt(g).toString(16)
           ) : (
-            // @ts-ignore
-            parseInt(g).toString(16)
+parseInt(g).toString(16)
           );
-          wr_rgb += // @ts-ignore
-          parseInt(b).toString(16).length == 1 ? (
-            // @ts-ignore
-            0 + parseInt(b).toString(16)
+          wr_rgb +=
+parseInt(b).toString(16).length == 1 ? (
+0 + parseInt(b).toString(16)
           ) : (
-            // @ts-ignore
-            parseInt(b).toString(16)
+parseInt(b).toString(16)
           );
           wr_rgb = wr_rgb.toUpperCase();
           wr_code += `[color=#${wr_rgb}]${wr_text.charAt(i - 1)}[/color]`;
@@ -4446,29 +3816,23 @@
           if (g > 255) g = 255;
           if (b > 255) b = 255;
           wr_rgb = "";
-          wr_rgb += // @ts-ignore
-          parseInt(r).toString(16).length == 1 ? (
-            // @ts-ignore
-            0 + parseInt(r).toString(16)
+          wr_rgb +=
+parseInt(r).toString(16).length == 1 ? (
+0 + parseInt(r).toString(16)
           ) : (
-            // @ts-ignore
-            parseInt(r).toString(16)
+parseInt(r).toString(16)
           );
-          wr_rgb += // @ts-ignore
-          parseInt(g).toString(16).length == 1 ? (
-            // @ts-ignore
-            0 + parseInt(g).toString(16)
+          wr_rgb +=
+parseInt(g).toString(16).length == 1 ? (
+0 + parseInt(g).toString(16)
           ) : (
-            // @ts-ignore
-            parseInt(g).toString(16)
+parseInt(g).toString(16)
           );
-          wr_rgb += // @ts-ignore
-          parseInt(255 - b).toString(16).length == 1 ? (
-            // @ts-ignore
-            0 + parseInt(255 - b).toString(16)
+          wr_rgb +=
+parseInt(255 - b).toString(16).length == 1 ? (
+0 + parseInt(255 - b).toString(16)
           ) : (
-            // @ts-ignore
-            parseInt(255 - b).toString(16)
+parseInt(255 - b).toString(16)
           );
           wr_rgb = wr_rgb.toUpperCase();
           wr_code += `[color=#${wr_rgb}]${wr_text.charAt(i - 1)}[/color]`;
@@ -4604,26 +3968,18 @@
       }
     },
     $el: {
-      /** 点赞按钮 */
-      $like: null,
-      /** 发表按钮 */
-      $btn_submit: null,
-      /** 输入框 */
-      $input: null,
-      /** 表单元素 */
-      $form: null,
-      /** 发表|回复按钮 */
-      $fastpostsubmit: null
+$like: null,
+$btn_submit: null,
+$input: null,
+$form: null,
+$fastpostsubmit: null
     },
     init() {
       log.info(`编辑器优化-简略版`);
       addStyle(optimizationCSS$1);
       this.overridePageEditor();
     },
-    /**
-     * 覆盖页面的编辑器
-     */
-    overridePageEditor() {
+overridePageEditor() {
       let $old_commentIcon = document.querySelector(
         "#comiis_foot_memu .comiis_flex li:nth-child(2)"
       );
@@ -4647,28 +4003,24 @@
       let first_smilies = Object.keys(smiliesList[0]).map((key) => {
         let smilies_url = smiliesList[0][key];
         return (
-          /*html*/
-          `<li><a href="javascript:;" onclick="comiis_addsmilies('${key}');"><img loading="lazy" data-src="${smilies_url}" class="vm"></a></li>`
+`<li><a href="javascript:;" onclick="comiis_addsmilies('${key}');"><img loading="lazy" data-src="${smilies_url}" class="vm"></a></li>`
         );
       });
       let second_smilies = Object.keys(smiliesList[1]).map((key) => {
         let smilies_url = smiliesList[1][key];
         return (
-          /*html*/
-          `<li><a href="javascript:;" onclick="comiis_addsmilies('${key}');"><img loading="lazy" data-src="${smilies_url}" class="vm"></a></li>`
+`<li><a href="javascript:;" onclick="comiis_addsmilies('${key}');"><img loading="lazy" data-src="${smilies_url}" class="vm"></a></li>`
         );
       });
       let third_smilies = Object.keys(smiliesList[2]).map((key) => {
         let smilies_url = smiliesList[2][key];
         return (
-          /*html*/
-          `<li><a href="javascript:;" onclick="comiis_addsmilies('${key}');"><img loading="lazy" data-src="${smilies_url}" class="vm"></a></li>`
+`<li><a href="javascript:;" onclick="comiis_addsmilies('${key}');"><img loading="lazy" data-src="${smilies_url}" class="vm"></a></li>`
         );
       });
       domUtils.after(
         $footMenu,
-        /*html*/
-        `
+`
             <div id="comiis_foot_menu_beautify" class="bg_f b_t">
                 <div class="reply_area">
                     <ul>
@@ -4815,11 +4167,7 @@
         MTEditorImageBed_MT.init();
       });
     },
-    /**
-     * 处理错误的响应
-     * @param text
-     */
-    handle_error(text) {
+handle_error(text) {
       let return_status = false;
       let messagetext = domUtils.text(
         domUtils.parseHTML(text, false, false).querySelector("#messagetext")
@@ -4839,10 +4187,7 @@
       });
       return return_status;
     },
-    /**
-     * 监听输入框内容改变
-     */
-    setInputChangeEvent() {
+setInputChangeEvent() {
       const that = this;
       domUtils.on(that.$el.$input, ["input", "propertychange"], function(event) {
         let inputText = that.$el.$input.value;
@@ -4863,10 +4208,7 @@
         domUtils.css(that.$el.$input, "height", that.$el.$input.scrollHeight - 20 + "px");
       });
     },
-    /**
-     * 监听输入框内容改变并保存到indexDB
-     */
-    setInputChangeSaveEvent() {
+setInputChangeSaveEvent() {
       const that = this;
       domUtils.on(this.$el.$input, ["input", "propertychange"], (event) => {
         let inputText = that.$el.$input.value;
@@ -4902,12 +4244,7 @@
         });
       });
     },
-    /**
-     * 把存储回复框的内容设置到输入框中
-     * @param isUserReply 是否是来自点击回复的
-     * @param replyUrl 回复的url
-     */
-    async initReplyText(isUserReply = false, replyUrl = void 0) {
+async initReplyText(isUserReply = false, replyUrl = void 0) {
       const that = this;
       let initResult = await this.$data.db.get("data");
       if (initResult.code === 201) {
@@ -4934,10 +4271,7 @@
         utils.dispatchEvent(this.$el.$input, "input");
       }
     },
-    /**
-     * 设置点赞按钮点击事件
-     */
-    setLikeBtnClickEvent() {
+setLikeBtnClickEvent() {
       domUtils.on(this.$el.$like, "click", async (event) => {
         utils.preventEvent(event);
         if (_unsafeWindow.comiis_recommend_key == 0) {
@@ -5100,10 +4434,7 @@
         return false;
       });
     },
-    /**
-     * 发表按钮|回复按钮点击事件
-     */
-    setSubmitBtnClickEvent() {
+setSubmitBtnClickEvent() {
       const that = this;
       domUtils.on(this.$el.$fastpostsubmit, "click", async (event) => {
         utils.preventEvent(event);
@@ -5200,10 +4531,7 @@
         return false;
       });
     },
-    /**
-     * 全局回复按钮点击事件
-     */
-    setGlobalReplyBtnClickEvent() {
+setGlobalReplyBtnClickEvent() {
       domUtils.on(
         document,
         "click",
@@ -5264,10 +4592,7 @@
         }
       );
     },
-    /**
-     * 全局点击检测事件
-     */
-    setGlobalClickCheckEvent() {
+setGlobalClickCheckEvent() {
       const that = this;
       let forum_url = $("#fastpostform .header_y a").href;
       domUtils.on(document, "click", function(event) {
@@ -5325,10 +4650,7 @@
         }
       });
     },
-    /**
-     * 菜单-图标切换事件
-     */
-    setMenuIconToggleEvent() {
+setMenuIconToggleEvent() {
       domUtils.on(
         "#comiis_foot_menu_beautify_big .menu_icon a i",
         "click",
@@ -5345,10 +4667,7 @@
         }
       );
     },
-    /**
-     * 菜单-图片点击事件
-     */
-    setMenuImageClickEvent() {
+setMenuImageClickEvent() {
       domUtils.on(
         "#comiis_foot_menu_beautify_big .menu_icon a.comiis_pictitle",
         "click",
@@ -5359,10 +4678,7 @@
         }
       );
     },
-    /**
-     * 菜单-图标-切换图片组的事件
-     */
-    setMenuImageToggleEvent() {
+setMenuImageToggleEvent() {
       domUtils.on(
         "#comiis_foot_menu_beautify_big #comiis_pictitle_tab #comiis_pictitle_key",
         "click",
@@ -5378,10 +4694,7 @@
         }
       );
     },
-    /**
-     * 菜单-表情点击事件
-     */
-    setMenuSmileClickEvent() {
+setMenuSmileClickEvent() {
       domUtils.on(
         "#comiis_foot_menu_beautify_big .menu_icon a.comiis_smile",
         "click",
@@ -5402,10 +4715,7 @@
         }
       );
     },
-    /**
-     * 菜单-表情-切换表情组的点击事件
-     */
-    setMenuSmileTabClickEvent() {
+setMenuSmileTabClickEvent() {
       domUtils.on(
         "#comiis_foot_menu_beautify_big #comiis_smilies_key li",
         "click",
@@ -5417,20 +4727,14 @@
         }
       );
     },
-    /**
-     * 菜单-插入点击事件
-     */
-    setMenuInsertClickEvent() {
+setMenuInsertClickEvent() {
       domUtils.on("#comiis_foot_menu_beautify_big .menu_icon a.commis_insert_bbs", "click", (event) => {
         domUtils.hide("#comiis_foot_menu_beautify_big .menu_body #comiis_post_tab", false);
         domUtils.hide("#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab", false);
         domUtils.show("#comiis_foot_menu_beautify_big .menu_body #comiis_insert_ubb_tab", false);
       });
     },
-    /**
-     * 获取回复记录的占用空间
-     */
-    async getReplyRecordSize() {
+async getReplyRecordSize() {
       let result = await this.$data.db.get("data");
       if (result.success) {
         let size = utils.getTextStorageSize(result?.data?.length ? JSON.stringify(result.data) : "");
@@ -5439,18 +4743,10 @@
         return utils.formatByteToSize(0);
       }
     },
-    /**
-     * 清空所有的回复记录
-     */
-    async clearAllReplyRecord() {
+async clearAllReplyRecord() {
       return await this.$data.db.deleteAll();
     },
-    /**
-     * 删除存储的回复框的内容到indexedDB
-     * @param isUserReply 是否是来自点击回复的
-     * @param replyUrl 回复的url
-     */
-    deleteReplyTextStorage(isUserReply = false, replyUrl = void 0) {
+deleteReplyTextStorage(isUserReply = false, replyUrl = void 0) {
       const that = this;
       this.$data.db.get("data").then((result) => {
         if (!result.success || result.code === 201) {
@@ -5471,10 +4767,7 @@
         }
       });
     },
-    /**
-     * 注入UBB代码
-     */
-    setMenuQuickUBB() {
+setMenuQuickUBB() {
       let $tab_list = $("#comiis_insert_ubb_tab_list");
       let ubbCodeMap = MTQuickUBB();
       Reflect.set(ubbCodeMap, "code", {
@@ -5504,8 +4797,7 @@
         let $ubbs = domUtils.createElement("li", {
           className: "quickUBBs",
           innerHTML: (
-            /*html*/
-            `
+`
                     <a href="javascript:;" class="comiis_xifont f_d">
                         <i class="comiis_font"></i>${value["key"]}
                     </a>
@@ -5608,36 +4900,25 @@
         });
       });
     },
-    /**
-     * 自动展开帖子内容
-     */
-    autoExpandContent() {
+autoExpandContent() {
       log.info(`自动展开帖子内容`);
       return addStyle(
-        /*css*/
-        `
+`
         div.comiis_message.bg_f.view_one.b_b.cl.message>div.comiis_messages.comiis_aimg_show.cl{max-height:inherit!important;overflow-y:inherit!important;position:inherit!important}
         .comiis_lookfulltext_bg,.comiis_lookfulltext_key{display:none!important} 
         `
       );
     },
-    /**
-     * 修复图片宽度
-     */
-    repairImageWidth() {
+repairImageWidth() {
       log.info(`修复图片宽度`);
       return addStyle(
-        /*css*/
-        `
+`
         .comiis_messages img{
             max-width: 100% !important;
         }`
       );
     },
-    /**
-     * 移除帖子字体效果
-     */
-    removeFontStyle() {
+removeFontStyle() {
       log.info(`移除帖子字体效果`);
       let $messageTable = $(".comiis_a.comiis_message_table");
       if (!$messageTable) {
@@ -5648,10 +4929,7 @@
         domUtils.html($messageTable).replace(MTRegExp.fontSpecial, "")
       );
     },
-    /**
-     * 移除评论区的字体效果
-     */
-    removeCommentFontStyle() {
+removeCommentFontStyle() {
       log.info(`移除评论区的字体效果`);
       let $fontList = $$("font");
       let $postForumMainContent = $(".comiis_postlist .comiis_postli")?.innerHTML || "";
@@ -5683,10 +4961,7 @@
         }
       });
     },
-    /**
-     * 添加【点评】按钮
-     */
-    addCommentOnBtn() {
+addCommentOnBtn() {
       log.info(`添加【点评】按钮`);
       utils.waitNodeList(
         ".bottom_zhan:not([data-isaddreviews])"
@@ -5706,8 +4981,7 @@
           reviewsUrl = reviewsUrl + reviewsPID;
           var reviewsUserName = $postli.querySelector(".top_user.f_b")?.textContent || "";
           var reviewsNode = domUtils.parseHTML(
-            /*html*/
-            `
+`
 						<a href="${reviewsUrl}" class="f_c dialog">
 							<i class="comiis_font mt_review" style="content: url(&quot;https://s1.ax1x.com/2020/04/26/Jcq8VU.png&quot;); height: 15px;"></i>
 						</a>
@@ -5728,10 +5002,7 @@
         });
       });
     },
-    /**
-     * 自动加载下一页评论
-     */
-    loadNextPageComment() {
+loadNextPageComment() {
       log.info(`自动加载下一页评论`);
       if (document.title.includes("提示信息 - MT论坛")) {
         return;
@@ -5833,8 +5104,7 @@
         lockFn.run();
       }
       let tip_html = (
-        /*html*/
-        `
+`
 		<div class="comiis_multi_box bg_f b_t">
 			<label class="comiis_loadbtn bg_e f_d" id="loading-comment-tip">正在等待页面加载完毕</label>
 		</div>`
@@ -5858,10 +5128,7 @@
         log.info("无多页评论");
       }
     },
-    /**
-     * 代码块优化
-     **/
-    codeQuoteOptimization() {
+codeQuoteOptimization() {
       log.info(`代码块优化`);
       function hljs_smali(hljs2) {
         var smali_instr_low_prio = [
@@ -5978,8 +5245,7 @@
       if (!this.$flag.isSetHljsCSS) {
         hljs.registerLanguage("smali", hljs_smali);
         addStyle(
-          /*css*/
-          `
+`
 			.hljs ol{margin:0 0 0 10px;padding:10px 10px 10px 25px}
 			.hljs li{padding-left:10px;list-style-type:decimal-leading-zero;font-family:Monaco,Consolas,'Lucida Console','Courier New',serif;font-size:12px;line-height:1.8em}
 			.hljs li:hover{background:#2c313c}
@@ -5988,8 +5254,7 @@
 			`
         );
         addStyle(
-          /*css*/
-          `
+`
 			.reader-copy-button{background:#000;background-size:cover;background-repeat:no-repeat;background-position:0;color:#fff;line-height:40px;display:block;text-align:center;border-radius:5px;cursor:pointer;font-size:15px;width:70px;user-select:none}
 			.reader-copy-button i{display:inline-block;margin-right:6px;width:16px;height:16px;background-size:cover;vertical-align:sub;user-select:none}
 			`
@@ -6020,8 +5285,7 @@
           "div",
           {
             innerHTML: (
-              /*html*/
-              `
+`
 					<span class="reader-copy-button">
 						<i>
 						<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -6093,10 +5357,7 @@
         );
       });
     },
-    /**
-     * 图片查看优化
-     */
-    optimizationImagePreview() {
+optimizationImagePreview() {
       log.info(`图片查看优化`);
       function viewIMG(imgList = [], index = 0) {
         let viewerULNodeHTML = "";
@@ -6180,10 +5441,7 @@
         });
       });
     },
-    /**
-     * 附件点击提醒
-     */
-    setAttachmentsClickTip() {
+setAttachmentsClickTip() {
       log.info(`附件点击提醒`);
       function handleClick($ele) {
         if ($ele.hasAttribute("href")) {
@@ -6208,8 +5466,7 @@
               },
               content: {
                 text: (
-                  /*html*/
-                  `<br />确定花费2金币下载附件 <a style="color: #507daf !important;">${attachmentName}</a> ？<br /><br />`
+`<br />确定花费2金币下载附件 <a style="color: #507daf !important;">${attachmentName}</a> ？<br /><br />`
                 ),
                 html: true
               },
@@ -6256,8 +5513,7 @@
   const MTSearch = {
     init() {
       addStyle(
-        /*css*/
-        `
+`
 		/* 去除搜索框的蒙版 */
         #comiis_search_noe{
             display: none !important;
@@ -6280,10 +5536,7 @@
         });
       });
     },
-    /**
-     * 显示搜索历史
-     */
-    async showSearchHistory() {
+async showSearchHistory() {
       log.info(`显示搜索历史`);
       let searchHistoryList = _GM_getValue("search_history", []);
       let $input = $("#scform_srchtxt");
@@ -6340,9 +5593,8 @@
       function add_clear_history() {
         let localHistorySearchText = _GM_getValue("search_history", []);
         let clear_history_innerHTML = (
-          /*html*/
-          `<div class="comiis_p12 f14 bg_f f_c b_b cl" style="padding-bottom:10px">搜索记录个数: ` + localHistorySearchText.length + /*html*/
-          `<button class="btn_clear_search_history" style="
+`<div class="comiis_p12 f14 bg_f f_c b_b cl" style="padding-bottom:10px">搜索记录个数: ` + localHistorySearchText.length +
+`<button class="btn_clear_search_history" style="
                     border: none;
                     float: right;
                     background: red;
@@ -6367,10 +5619,7 @@
       search_event();
       add_clear_history();
     },
-    /**
-     * 修复清空按钮
-     */
-    repairClearBtn() {
+repairClearBtn() {
       utils.waitNode("a.ssclose").then(($empty) => {
         log.info(`修复清空按钮`);
         DOMUtils.on(
@@ -6390,10 +5639,7 @@
         );
       });
     },
-    /**
-     * 搜索框自动获取焦点
-     */
-    searchInputAutoFocus() {
+searchInputAutoFocus() {
       let searchParams = new URLSearchParams(window.location.search);
       if (searchParams.has("kw")) {
         return;
@@ -6415,10 +5661,7 @@
         });
       });
     },
-    /**
-     * 显示【今日签到之星】
-     */
-    async showTodaySignStar() {
+async showTodaySignStar() {
       log.info(`显示【今日签到之星】`);
       let todayStarParent = document.querySelector(
         ".pg_k_misign .comiis_qdinfo"
@@ -6441,8 +5684,8 @@
         "今日签到之星：",
         ""
       );
-      todayStar.innerHTML = /*html*/
-      `
+      todayStar.innerHTML =
+`
 		<li class="f_f" style="display: flex;flex-direction: column;width: 100%;">
 			<span class="comiis_tm">今日签到之星</span>
 			${todaypeople}
@@ -6457,8 +5700,7 @@
       );
       let total_height = comiis_space_box_height + comiis_space_box_padding_bottom + 50;
       addStyle(
-        /*css*/
-        `
+`
 		.comiis_space_box{
 			height: ${total_height}px;
 			background-size: 100% 100%;
@@ -6469,10 +5711,7 @@
       );
       todayStarParent.append(todayStar);
     },
-    /**
-     * 显示【今日最先】
-     */
-    showTodayRanking() {
+showTodayRanking() {
       log.info(`显示【今日最先】`);
       let today_ranking_ele = document.querySelector(
         ".comiis_topnv .comiis_flex .flex"
@@ -6612,8 +5851,8 @@
           let peopleHTML = "";
           latestPeople.reverse();
           latestPeople.forEach((people) => {
-            peopleHTML = peopleHTML + /*html*/
-            `
+            peopleHTML = peopleHTML +
+`
 						<tbody id="autolist_${people["uid"]}">
 			  				<tr>
 								<td class="k_misign_lu">
@@ -6634,8 +5873,7 @@
 			  			</tbody>`;
           });
           let latestHTML = (
-            /*html*/
-            `
+`
 					<li class="styli_h bg_e"></li>
 					<div class="comiis_topnv bg_f b_t b_b">
 						<ul class="comiis_flex">
@@ -6672,8 +5910,7 @@
             if (listtype == "today") {
               data = data.replace(
                 `<li class="flex"><a href="javascript:;" id="k_misignlist_today" onclick="ajaxlist('today');">今日排行</a></li>`,
-                /*html*/
-                `
+`
 								<li class="flex f_0">
 									<em class="bg_0"></em>
 									<a href="javascript:;" id="k_misignlist_today" onclick="ajaxlist('today');">今日排行</a>
@@ -6698,10 +5935,7 @@
         });
       });
     },
-    /**
-     * 修复无法进入空间
-     */
-    repairEnterSpace() {
+repairEnterSpace() {
       log.info(`修复无法进入空间`);
       if (MTRouter.isSpace()) {
         let hrefParamsMatchArray = window.location.href.match(/home.php\?(.+)/gi);
@@ -6716,14 +5950,10 @@
         window.location.href = `${window.location.origin}/home.php?mod=space&uid=${href_params}&do=profile`;
       }
     },
-    /**
-     * 显示帖子回复内容
-     */
-    async showCommentContent() {
+async showCommentContent() {
       log.info(`显示帖子回复内容`);
       addStyle(
-        /*css*/
-        `
+`
 		div.contrete-reply{padding:5px 10px;border-top:1px solid #f3f3f3}
 		div.contrete-reply a{margin:0 10px}
 		`
@@ -6850,8 +6080,7 @@
               href: "javascript:;",
               className: "styli_tit f_c",
               innerHTML: (
-                /*html*/
-                `
+`
                         <i class="comiis_font" style="color: #ffffff;"></i>
                         `
               )
@@ -6894,8 +6123,7 @@
               href: "javascript:;",
               className: "styli_tit f_c",
               innerHTML: (
-                /*html*/
-                `
+`
                         <i class="comiis_font" style="color: #FF9900;"></i>
                         `
               )
@@ -6935,7 +6163,7 @@
       function getTipNums() {
         let needTipNums = 0;
         Array.from(MTPaidThemePost.getTipData()).forEach((item, index) => {
-          if ((/* @__PURE__ */ new Date()).getTime() > item["expirationTimeStamp"] && item["isVisited"] == false) {
+          if (( new Date()).getTime() > item["expirationTimeStamp"] && item["isVisited"] == false) {
             needTipNums += 1;
           }
         });
@@ -6985,8 +6213,7 @@
       if (getTipNums()) {
         domUtils.append(
           ".comiis_left_Touch .paymentsubjectreminder div.flex",
-          /*html*/
-          `
+`
                 <span class="sidenv_num bg_del f_f" style="
                     position: relative;
                     border-radius: 18px;
@@ -7009,10 +6236,7 @@
         }
       });
     },
-    /**
-     * 显示白嫖列表
-     */
-    showView() {
+showView() {
       log.info(`显示白嫖列表`);
       let data = MTPaidThemePost.getTipData();
       __pops.alert({
@@ -7043,12 +6267,12 @@
       data.forEach((item, index) => {
         let timeColor = "#f91212";
         let leftRedBtn = "";
-        if ((/* @__PURE__ */ new Date()).getTime() > item["expirationTimeStamp"]) {
+        if (( new Date()).getTime() > item["expirationTimeStamp"]) {
           timeColor = "#1e90ff";
           if (item["isVisited"]) ;
           else {
-            leftRedBtn = /*html*/
-            `
+            leftRedBtn =
+`
                         <span class="icon_msgs bg_del" style="position: fixed;width: 10px;height: 10px;border-radius: 50%;margin: 10px 0px 0px -15px;"></span>
                     `;
             notVisitedNums = notVisitedNums + 1;
@@ -7056,8 +6280,7 @@
         }
         let contentInfo = {
           content: (
-            /*html*/
-            `
+`
                 <tbody id="autolist">
                     <tr>
                         <td style="width: 100%;">
@@ -7078,7 +6301,7 @@
           ),
           timestamp: item["expirationTimeStamp"]
         };
-        if ((/* @__PURE__ */ new Date()).getTime() > item["expirationTimeStamp"]) {
+        if (( new Date()).getTime() > item["expirationTimeStamp"]) {
           if (leftRedBtn != "") {
             isFreeNotVisitedContentList.push(contentInfo);
           } else {
@@ -7104,8 +6327,8 @@
       isFreeContent = utils.mergeArrayToString(isFreeNotVisitedContentList, "content") + utils.mergeArrayToString(isFreeContentList, "content");
       isPaidContent = utils.mergeArrayToString(isPaidContentList, "content");
       if (notVisitedNums > 0) {
-        notVisitedTipContent = /*html*/
-        `
+        notVisitedTipContent =
+`
             <span class="icon_msgs bg_del f_f" style="
                 display: inline-block;
                 position: absolute;
@@ -7119,8 +6342,7 @@
             ">${notVisitedNums}</span>`;
       }
       let dialogIsFreeContent = (
-        /*html*/
-        `
+`
             <details class="subjectcanvisit" open="">
                 <summary>可白嫖${notVisitedTipContent}</summary>
                 <table id="paymentSubjectReminderIsFreeList" style="overflow: auto;height: inherit;margin: 15px 0px;">
@@ -7130,8 +6352,7 @@
         `
       );
       let dialogIsPaidContent = (
-        /*html*/
-        `
+`
             <details class="subjectnotvisit">
                 <summary>需付费</summary>
                 <table id="paymentSubjectReminderIsPaidList" style="overflow: auto;height: inherit;margin: 15px 0px;">
@@ -7226,10 +6447,7 @@
   };
   const smallWindowCSS = ".pops {\r\n	--icon-width: 24px;\r\n	--right-btn-width: 115px;\r\n}\r\n\r\n.small-window-drag {\r\n	width: 100%;\r\n	position: relative;\r\n	height: 10px;\r\n}\r\n.small-window-drag div {\r\n	width: 50px;\r\n	margin: 0 auto;\r\n	height: 4px;\r\n	background: #d9d9d9;\r\n	border-radius: 15px;\r\n	bottom: 3px;\r\n	position: relative;\r\n}\r\n\r\n.pops[type-value] .pops-drawer-title {\r\n	display: block;\r\n	background: #fff;\r\n	width: 100%;\r\n	box-sizing: border-box;\r\n	padding: 16px 0px;\r\n	border-bottom: 1px solid #d6d6d6;\r\n}\r\n\r\n.small-window-title-container {\r\n	display: flex;\r\n	justify-content: space-between;\r\n	padding: 0px 16px;\r\n}\r\n.small-window-website-icon {\r\n	width: var(--icon-width);\r\n	height: var(--icon-width);\r\n	align-self: center;\r\n	border-radius: 3px;\r\n}\r\n.small-window-title-text-container {\r\n	margin-right: auto;\r\n	max-width: calc(100% - var(--icon-width) - var(--right-btn-width));\r\n	display: flex;\r\n	flex-direction: column;\r\n	gap: 4px;\r\n	padding: 0px 16px;\r\n}\r\n.small-window-title-text,\r\n.small-window-website-host {\r\n	min-width: 150px;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n}\r\n.xtiper_sheet_tit.xtiper_sheet_left {\r\n	display: block;\r\n	background: #fff;\r\n	width: 100%;\r\n	box-sizing: border-box;\r\n}\r\n.small-window-protocol-info {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n.small-window-control {\r\n	display: flex;\r\n	align-items: center;\r\n	align-content: center;\r\n	width: var(--right-btn-width);\r\n	justify-content: center;\r\n	gap: 12px;\r\n}\r\n.small-window-control-image-view,\r\n.small-window-control-open-blank,\r\n.small-window-control-close {\r\n	width: 2rem;\r\n	height: 2rem;\r\n	text-align: center;\r\n	margin: 0 0;\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n}\r\n\r\n.refresh-icon {\r\n	width: 40px;\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	padding: 0px 16px;\r\n}\r\n.refresh-icon-in,\r\n.refresh-icon-out {\r\n	position: absolute;\r\n	border: 5px solid rgba(0, 183, 229, 0.9);\r\n	opacity: 0.9;\r\n	border-radius: 50px;\r\n	box-shadow: 0 0 15px #2187e7;\r\n	width: 20px;\r\n	height: 20px;\r\n	margin: 0 auto;\r\n}\r\n.refresh-icon-out {\r\n	background-color: rgba(0, 0, 0, 0);\r\n	border-right: 5px solid transparent;\r\n	border-left: 5px solid transparent;\r\n	-moz-animation: spinPulse 1s infinite ease-in-out;\r\n	-webkit-animation: spinPulse 1s infinite ease-in-out;\r\n	-o-animation: spinPulse 1s infinite ease-in-out;\r\n	-ms-animation: spinPulse 1s infinite ease-in-out;\r\n}\r\n.refresh-icon-in {\r\n	background: rgba(0, 0, 0, 0) no-repeat center center;\r\n	border-top: 5px solid transparent;\r\n	border-bottom: 5px solid transparent;\r\n	-moz-animation: spinoffPulse 3s infinite linear;\r\n	-webkit-animation: spinoffPulse 3s infinite linear;\r\n	-o-animation: spinoffPulse 3s infinite linear;\r\n	-ms-animation: spinoffPulse 3s infinite linear;\r\n}\r\n@-moz-keyframes spinPulse {\r\n	0% {\r\n		-moz-transform: rotate(160deg);\r\n		opacity: 0;\r\n		box-shadow: 0 0 1px #505050;\r\n	}\r\n	50% {\r\n		-moz-transform: rotate(145deg);\r\n		opacity: 1;\r\n	}\r\n	100% {\r\n		-moz-transform: rotate(-320deg);\r\n		opacity: 0;\r\n	}\r\n}\r\n@-moz-keyframes spinoffPulse {\r\n	0% {\r\n		-moz-transform: rotate(0);\r\n	}\r\n	100% {\r\n		-moz-transform: rotate(360deg);\r\n	}\r\n}\r\n@-webkit-keyframes spinPulse {\r\n	0% {\r\n		-webkit-transform: rotate(160deg);\r\n		opacity: 0;\r\n		box-shadow: 0 0 1px #505050;\r\n	}\r\n	50% {\r\n		-webkit-transform: rotate(145deg);\r\n		opacity: 1;\r\n	}\r\n	100% {\r\n		-webkit-transform: rotate(-320deg);\r\n		opacity: 0;\r\n	}\r\n}\r\n@-webkit-keyframes spinoffPulse {\r\n	0% {\r\n		-webkit-transform: rotate(0);\r\n	}\r\n	100% {\r\n		-webkit-transform: rotate(360deg);\r\n	}\r\n}\r\n@-o-keyframes spinPulse {\r\n	0% {\r\n		-o-transform: rotate(160deg);\r\n		opacity: 0;\r\n		box-shadow: 0 0 1px #505050;\r\n	}\r\n	50% {\r\n		-o-transform: rotate(145deg);\r\n		opacity: 1;\r\n	}\r\n	100% {\r\n		-o-transform: rotate(-320deg);\r\n		opacity: 0;\r\n	}\r\n}\r\n@-o-keyframes spinoffPulse {\r\n	0% {\r\n		-o-transform: rotate(0);\r\n	}\r\n	100% {\r\n		-o-transform: rotate(360deg);\r\n	}\r\n}\r\n@-ms-keyframes spinPulse {\r\n	0% {\r\n		-ms-transform: rotate(160deg);\r\n		opacity: 0;\r\n		box-shadow: 0 0 1px #505050;\r\n	}\r\n	50% {\r\n		-ms-transform: rotate(145deg);\r\n		opacity: 1;\r\n	}\r\n	100% {\r\n		-ms-transform: rotate(-320deg);\r\n		opacity: 0;\r\n	}\r\n}\r\n@-ms-keyframes spinoffPulse {\r\n	0% {\r\n		-ms-transform: rotate(0);\r\n	}\r\n	100% {\r\n		-ms-transform: rotate(360deg);\r\n	}\r\n}\r\n@-moz-keyframes spinPulse {\r\n	0% {\r\n		-moz-transform: rotate(160deg);\r\n		opacity: 0;\r\n		box-shadow: 0 0 1px #505050;\r\n	}\r\n	50% {\r\n		-moz-transform: rotate(145deg);\r\n		opacity: 1;\r\n	}\r\n	100% {\r\n		-moz-transform: rotate(-320deg);\r\n		opacity: 0;\r\n	}\r\n}\r\n@-moz-keyframes spinoffPulse {\r\n	0% {\r\n		-moz-transform: rotate(0);\r\n	}\r\n	100% {\r\n		-moz-transform: rotate(360deg);\r\n	}\r\n}\r\n@-webkit-keyframes spinPulse {\r\n	0% {\r\n		-webkit-transform: rotate(160deg);\r\n		opacity: 0;\r\n		box-shadow: 0 0 1px #505050;\r\n	}\r\n	50% {\r\n		-webkit-transform: rotate(145deg);\r\n		opacity: 1;\r\n	}\r\n	100% {\r\n		-webkit-transform: rotate(-320deg);\r\n		opacity: 0;\r\n	}\r\n}\r\n@-webkit-keyframes spinoffPulse {\r\n	0% {\r\n		-webkit-transform: rotate(0);\r\n	}\r\n	100% {\r\n		-webkit-transform: rotate(360deg);\r\n	}\r\n}\r\n@-o-keyframes spinPulse {\r\n	0% {\r\n		-o-transform: rotate(160deg);\r\n		opacity: 0;\r\n		box-shadow: 0 0 1px #505050;\r\n	}\r\n	50% {\r\n		-o-transform: rotate(145deg);\r\n		opacity: 1;\r\n	}\r\n	100% {\r\n		-o-transform: rotate(-320deg);\r\n		opacity: 0;\r\n	}\r\n}\r\n@-o-keyframes spinoffPulse {\r\n	0% {\r\n		-o-transform: rotate(0);\r\n	}\r\n	100% {\r\n		-o-transform: rotate(360deg);\r\n	}\r\n}\r\n@-ms-keyframes spinPulse {\r\n	0% {\r\n		-ms-transform: rotate(160deg);\r\n		opacity: 0;\r\n		box-shadow: 0 0 1px #505050;\r\n	}\r\n	50% {\r\n		-ms-transform: rotate(145deg);\r\n		opacity: 1;\r\n	}\r\n	100% {\r\n		-ms-transform: rotate(-320deg);\r\n		opacity: 0;\r\n	}\r\n}\r\n@-ms-keyframes spinoffPulse {\r\n	0% {\r\n		-ms-transform: rotate(0);\r\n	}\r\n	100% {\r\n		-ms-transform: rotate(360deg);\r\n	}\r\n}\r\n";
   class GestureBack {
-    /**
-     * 是否正在后退
-     */
-    isBacking = false;
+isBacking = false;
     config;
     constructor(config) {
       this.config = config;
@@ -7243,21 +6461,14 @@
         this.config.win = self;
       }
     }
-    /**
-     * popstate事件函数
-     * @param event
-     */
-    popStateEvent(event) {
+popStateEvent(event) {
       Utils.preventEvent(event);
       if (this.isBacking) {
         return;
       }
       this.quitGestureBackMode(true);
     }
-    /**
-     * 进入手势模式
-     */
-    enterGestureBackMode() {
+enterGestureBackMode() {
       log.success("进入手势模式");
       let pushUrl = this.config.hash;
       if (!pushUrl.startsWith("#")) {
@@ -7275,11 +6486,7 @@
         capture: true
       });
     }
-    /**
-     * 退出手势模式
-     * @param isUrlChange 是否是url改变触发的
-     */
-    async quitGestureBackMode(isUrlChange = false) {
+async quitGestureBackMode(isUrlChange = false) {
       this.isBacking = true;
       log.success("退出手势模式");
       if (typeof this.config.beforeHistoryBackCallBack === "function") {
@@ -7310,51 +6517,39 @@
     }
   }
   const MTSmallWindowIcon = {
-    /** 锁图标 */
-    https: (
-      /*html*/
-      `
+https: (
+`
 		<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="12" height="12" style="margin: 0px 6px 0px 2px;">
 			<path fill="#000000" d="M842.666667 384h-74.666667V277.333333a234.666667 234.666667 0 1 0-469.333333 0v106.666667H224a53.393333 53.393333 0 0 0-53.333333 53.333333v490.666667a53.393333 53.393333 0 0 0 53.333333 53.333333h618.666667a53.393333 53.393333 0 0 0 53.333333-53.333333V437.333333a53.393333 53.393333 0 0 0-53.333333-53.333333zM341.333333 277.333333c0-105.866667 86.133333-192 192-192s192 86.133333 192 192v106.666667H341.333333z"></path>
 		</svg>`
     ),
-    /** 开锁图标 */
-    http: (
-      /*html*/
-      `
+http: (
+`
 		<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="12" height="12">
 		<path fill="#2c2c2c" d="M770.423989 451.309956H368.89432V284.246158c0-80.739434 65.689748-146.429182 146.429182-146.429182S661.738235 203.506724 661.738235 284.246158a43.350032 43.350032 0 0 0 86.700063 0c0-128.547294-104.581952-233.129246-233.122021-233.129246-128.547294 0-233.129246 104.581952-233.129245 233.129246v167.063798h-21.978466a43.350032 43.350032 0 0 0-43.350032 43.350031v437.965371a43.350032 43.350032 0 0 0 43.350032 43.350032h510.215423a43.350032 43.350032 0 0 0 43.350032-43.350032V494.659987a43.350032 43.350032 0 0 0-43.350032-43.350031z"></path>
 		</svg>`
     ),
-    /** 新标签页打开 */
-    openBlank: (
-      /*html*/
-      `
+openBlank: (
+`
 		<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
 			<path d="M192 288A96 96 0 0 1 288 192h128a32 32 0 0 0 0-64h-128A160 160 0 0 0 128 288v448A160 160 0 0 0 288 896h448a160 160 0 0 0 160-160v-128a32 32 0 0 0-64 0v128a96 96 0 0 1-96 96h-448A96 96 0 0 1 192 736v-448z" fill="#000000" fill-opacity=".85"></path>
 			<path d="M608 128a32 32 0 0 0 0 64h178.752L521.344 457.344a32 32 0 1 0 45.312 45.312L832 237.248V416a32 32 0 0 0 64 0v-256a32 32 0 0 0-32-32h-256z" fill="#000000" fill-opacity=".85" p-id="2334"></path>
 		</svg>`
     ),
-    /** 关闭 */
-    close: (
-      /*html*/
-      `
+close: (
+`
 		<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
 			<path d="M0 0h1024v1024H0z" fill="#FF0033" fill-opacity="0" p-id="3329"></path><path d="M240.448 168l2.346667 2.154667 289.92 289.941333 279.253333-279.253333a42.666667 42.666667 0 0 1 62.506667 58.026666l-2.133334 2.346667-279.296 279.210667 279.274667 279.253333a42.666667 42.666667 0 0 1-58.005333 62.528l-2.346667-2.176-279.253333-279.253333-289.92 289.962666a42.666667 42.666667 0 0 1-62.506667-58.005333l2.154667-2.346667 289.941333-289.962666-289.92-289.92a42.666667 42.666667 0 0 1 57.984-62.506667z" fill="#111111" p-id="3330"></path>
 		</svg>`
     ),
-    /** 图片预览 */
-    image: (
-      /*html*/
-      `
+image: (
+`
 		<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
 			<path d="M938.666667 553.92V768c0 64.8-52.533333 117.333333-117.333334 117.333333H202.666667c-64.8 0-117.333333-52.533333-117.333334-117.333333V256c0-64.8 52.533333-117.333333 117.333334-117.333333h618.666666c64.8 0 117.333333 52.533333 117.333334 117.333333v297.92z m-64-74.624V256a53.333333 53.333333 0 0 0-53.333334-53.333333H202.666667a53.333333 53.333333 0 0 0-53.333334 53.333333v344.48A290.090667 290.090667 0 0 1 192 597.333333a286.88 286.88 0 0 1 183.296 65.845334C427.029333 528.384 556.906667 437.333333 704 437.333333c65.706667 0 126.997333 16.778667 170.666667 41.962667z m0 82.24c-5.333333-8.32-21.130667-21.653333-43.648-32.917333C796.768 511.488 753.045333 501.333333 704 501.333333c-121.770667 0-229.130667 76.266667-270.432 188.693334-2.730667 7.445333-7.402667 20.32-13.994667 38.581333-7.68 21.301333-34.453333 28.106667-51.370666 13.056-16.437333-14.634667-28.554667-25.066667-36.138667-31.146667A222.890667 222.890667 0 0 0 192 661.333333c-14.464 0-28.725333 1.365333-42.666667 4.053334V768a53.333333 53.333333 0 0 0 53.333334 53.333333h618.666666a53.333333 53.333333 0 0 0 53.333334-53.333333V561.525333zM320 480a96 96 0 1 1 0-192 96 96 0 0 1 0 192z m0-64a32 32 0 1 0 0-64 32 32 0 0 0 0 64z" fill="#000000"></path>
 		</svg>`
     ),
-    /** 坐标的网站图标 */
-    mt: (
-      /*html*/
-      `
+mt: (
+`
 		<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="24" height="24">
 			<path d="M979.622067 257.689317c22.828607 10.592474 32.873194 37.804173 22.280721 60.63278l-166.009631 359.778848c-10.592474 22.828607-37.804173 32.873194-60.63278 22.280721l-292.3888-134.780097c-22.828607-10.592474-32.873194-37.804173-22.280721-60.63278l166.009631-359.778848c10.592474-22.828607 37.804173-32.873194 60.632781-22.28072l292.388799 134.780096z" fill="#FFBA02" p-id="1715"></path><path d="M658.743166 46.205101v467.529873c0 25.202782-20.637061 45.657214-45.657214 45.657214H145.556078c-25.202782 0-45.657214-20.637061-45.657214-45.657214v-467.529873c0-25.202782 20.637061-45.657214 45.657214-45.657214h467.529874c25.202782 0 45.657214 20.454432 45.657214 45.657214z" fill="#E2E0E2" p-id="1716"></path><path d="M204.910457 236.50437a177.149991 175.871589 0 1 0 354.299982 0 177.149991 175.871589 0 1 0-354.299982 0Z" fill="#3D82FF" p-id="1717"></path><path d="M245.636692 42.369895a9.861958 9.679329 0 1 0 19.723916 0 9.861958 9.679329 0 1 0-19.723916 0Z" fill="#3D82FF" p-id="1718"></path><path d="M501.864978 43.10041a10.409845 10.409845 0 1 0 20.81969 0 10.409845 10.409845 0 1 0-20.81969 0Z" fill="#3D82FF" p-id="1719"></path><path d="M454.774127 104.071054l48.495267-66.347237 16.807334 12.285443-48.495267 66.347237zM248.102182 48.730858l15.77548-11.220717 50.279551 70.691978-15.775481 11.21889zM204.910457 231.390762h354.299982v193.586588h-354.299982z" fill="#3D82FF" p-id="1720"></path><path d="M280.701432 171.853754a26.115927 25.202782 0 1 0 52.231854 0 26.115927 25.202782 0 1 0-52.231854 0Z" fill="#FFFFFF" p-id="1721"></path><path d="M434.109672 171.671125a25.385411 25.202782 0 1 0 50.770822 0 25.385411 25.202782 0 1 0-50.770822 0Z" fill="#FFFFFF" p-id="1722"></path><path d="M394.844468 1023.817371H50.589073c-25.202782 0-45.657214-20.637061-45.657214-45.657214v-686.684502c0-25.202782 20.637061-45.657214 45.657214-45.657214h344.255395c25.202782 0 45.657214 20.637061 45.657214 45.657214v686.684502c0 25.202782-20.454432 45.657214-45.657214 45.657214z" fill="#303030" p-id="1723"></path><path d="M973.230057 342.976993H50.589073c-25.202782 0-45.657214 20.637061-45.657214 45.657214v589.708579c0 25.202782 20.637061 45.657214 45.657214 45.657214h922.640984c25.202782 0 45.657214-20.637061 45.657215-45.657214V388.634207c0-25.202782-20.637061-45.657214-45.657215-45.657214z" fill="#303030" p-id="1724"></path><path d="M392.287664 488.89745L295.311741 394.843588c-18.080257-17.53237-18.445515-46.570358-1.095773-64.650615l68.303192-70.677368c17.53237-18.080257 46.570358-18.445515 64.650616-1.095773l97.158551 94.053862c18.080257 17.53237 18.445515 46.570358 1.095774 64.650615l-68.303193 70.677367c-17.714999 18.080257-46.752987 18.628143-64.833244 1.095774z" fill="#303030" p-id="1725"></path><path d="M266.273753 628.060638v-13.331906l-54.240771-77.434635v316.495808c0 7.305154-2.556804 13.514535-7.670412 18.628144-5.113608 5.113608-11.322989 7.670412-18.628143 7.670412-7.305154 0-13.514535-2.556804-18.628143-7.853041-5.113608-5.113608-7.670412-11.322989-7.670412-18.445515V465.155698h67.755305l64.467987 94.053861 66.476904-94.053861H424.978229v388.634207c0 7.305154-2.739433 13.514535-8.035669 18.628144-5.296237 5.113608-11.688247 7.670412-18.810773 7.670412-7.122525 0-13.149278-2.556804-18.445514-7.853041-5.113608-5.113608-7.853041-11.322989-7.853041-18.445515V538.572499l-53.144997 74.877831v14.610308c0 7.122525-2.556804 13.149278-7.853041 18.445515-5.113608 5.113608-11.322989 7.853041-18.445515 7.853041-7.305154 0-13.514535-2.556804-18.628143-7.853041-4.930979-5.296237-7.487783-11.322989-7.487783-18.445515z" fill="#FFFFFF" p-id="1726"></path><path d="M600.301932 536.563581V465.703585h264.811842v71.407883c0 7.305154-2.556804 13.514535-7.853041 18.628143-5.113608 5.113608-11.322989 7.670412-18.445514 7.670412-7.305154 0-13.514535-2.556804-18.810772-7.853041-5.296237-5.113608-8.03567-11.322989-8.03567-18.445514v-18.993401h-53.144997v335.48921c0 7.305154-2.556804 13.514535-7.853041 18.628143-5.113608 5.113608-11.322989 7.670412-18.445515 7.670412-7.487783 0-13.879793-2.556804-18.993401-7.670412-5.113608-5.113608-7.853041-11.322989-7.853041-18.628143V518.300696h-53.144997v18.445514c0 7.305154-2.556804 13.514535-7.670412 18.628143-5.113608 5.113608-11.322989 7.670412-18.628143 7.670412-7.305154 0-13.514535-2.556804-18.628144-7.670412-4.74835-5.296237-7.305154-11.505618-7.305154-18.810772z" fill="#FFFFFF"></path>
 		</svg>`
@@ -7382,28 +6577,18 @@
         config: { subtree: true, childList: true }
       });
     },
-    /**
-     * 获取页面所有的帖子
-     */
-    getForumList() {
+getForumList() {
       return utils.getNodeListValue(
         ElementUtils.comiisForumList(),
         ElementUtils.comiisPostli(),
         ElementUtils.comiisMmlist()
       );
     },
-    /**
-     * 显示小窗
-     * @param title 标题
-     * @param url 链接
-     * @param imagesList 图片
-     */
-    showSmallWindow(title, url, imagesList = []) {
+showSmallWindow(title, url, imagesList = []) {
       let constructURL = new URL(url);
       let isHTTPS = constructURL.protocol.includes("https:");
       let websiteTitle = (
-        /*html*/
-        `
+`
         <div class="small-window-drag">
             <!-- 这里是拖拽区域 -->
             <div></div>
@@ -7427,8 +6612,7 @@
             </div>
             <div class="small-window-control">
                 ${imagesList.length ? (
-        /*html*/
-        `
+`
                     <i class="small-window-control-image-view">
                         ${MTSmallWindowIcon.image}
                     </i>
@@ -7452,8 +6636,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                 <iframe scrolling="auto" allowtransparency="true" frameborder="0" src="${url}" style="width:100%; height:100%;">
                 </iframe>
                 `
@@ -7579,11 +6762,7 @@
       });
       this.checkIframeReadyState($iframe);
     },
-    /**
-     * 对帖子进行处理，实现点击某个区域打开小窗
-     * @param forumlist
-     */
-    async handleForumPost(forumlist) {
+async handleForumPost(forumlist) {
       forumlist.forEach(($forum) => {
         if ($forum.getAttribute("data-injection-small-window")) {
           return;
@@ -7623,22 +6802,16 @@
         });
       });
     },
-    /**
-     * 检测 iframe是否加载完毕
-     * @param iframe
-     */
-    checkIframeReadyState(iframe) {
+checkIframeReadyState(iframe) {
       this.showRefreshIcon();
       let intervalId = setInterval(() => {
         if (iframe.contentWindow) {
           clearInterval(intervalId);
           let iframeDOMUtils = domUtils.createDOMUtils({
             document: iframe.contentWindow.document,
-            // @ts-ignore
-            window: iframe.contentWindow,
+window: iframe.contentWindow,
             globalThis: iframe.contentWindow,
-            // @ts-ignore
-            self: iframe.contentWindow,
+self: iframe.contentWindow,
             top
           });
           iframeDOMUtils.ready(() => {
@@ -7665,10 +6838,7 @@
         });
       });
     },
-    /**
-     * 显示最新帖子
-     */
-    showLatestPost() {
+showLatestPost() {
       log.info(`显示最新帖子`);
       async function getLatestPostForum() {
         let response = await httpx.get("/forum.php?mod=guide&view=hot", {
@@ -7708,8 +6878,7 @@
           return;
         }
         addStyle(
-          /*css*/
-          `
+`
             div.comiis_mh_kxtxt_owm{
                 margin-top: 10px;
             }
@@ -7761,8 +6930,8 @@
         );
         log.info("导读内容", postInfoList);
         postInfoList.forEach((item) => {
-          latestPostForumHTML += /*html*/
-          `
+          latestPostForumHTML +=
+`
                 <li>
                     <span>新帖</span>
                     <a href="${item.href}" title="${item.title}" target="_blank">${item.title}</a>
@@ -7788,39 +6957,19 @@
         return this.__storeApiFn;
       }
     },
-    /**
-     * 获取自定义的存储接口
-     * @param type 组件类型
-     */
-    getStorageApi(type) {
+getStorageApi(type) {
       if (!this.hasStorageApi(type)) {
         return;
       }
       return this.$data.storeApiValue.get(type);
     },
-    /**
-     * 判断是否存在自定义的存储接口
-     * @param type 组件类型
-     */
-    hasStorageApi(type) {
+hasStorageApi(type) {
       return this.$data.storeApiValue.has(type);
     },
-    /**
-     * 设置自定义的存储接口
-     * @param type 组件类型
-     * @param storageApiValue 存储接口
-     */
-    setStorageApi(type, storageApiValue) {
+setStorageApi(type, storageApiValue) {
       this.$data.storeApiValue.set(type, storageApiValue);
     },
-    /**
-     * 初始化组件的存储接口属性
-     *
-     * @param type 组件类型
-     * @param config 组件配置，必须包含prop属性
-     * @param storageApiValue 存储接口
-     */
-    initComponentsStorageApi(type, config, storageApiValue) {
+initComponentsStorageApi(type, config, storageApiValue) {
       let propsStorageApi;
       if (this.hasStorageApi(type)) {
         propsStorageApi = this.getStorageApi(type);
@@ -7829,12 +6978,7 @@
       }
       this.setComponentsStorageApiProperty(config, propsStorageApi);
     },
-    /**
-     * 设置组件的存储接口属性
-     * @param config 组件配置，必须包含prop属性
-     * @param storageApiValue 存储接口
-     */
-    setComponentsStorageApiProperty(config, storageApiValue) {
+setComponentsStorageApiProperty(config, storageApiValue) {
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
     }
   };
@@ -7916,10 +7060,7 @@
     constructor(option) {
       this.option = option;
     }
-    /**
-     * 显示视图
-     */
-    async showView() {
+async showView() {
       let $dialog = __pops.confirm({
         title: {
           text: this.option.title,
@@ -7927,8 +7068,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                     <form class="rule-form-container" onsubmit="return false">
                         <ul class="rule-form-ulist"></ul>
                         <input type="submit" style="display: none;" />
@@ -7953,8 +7093,7 @@
           enable: true
         },
         style: (
-          /*css*/
-          `
+`
                 ${__pops.config.cssText.panelCSS}
                 
                 .rule-form-container {
@@ -8044,8 +7183,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                 <div class="filter-container"></div>
                 `
           )
@@ -8063,8 +7201,7 @@
         width: window.innerWidth > 500 ? "350px" : "80vw",
         height: window.innerHeight > 500 ? "300px" : "70vh",
         style: (
-          /*css*/
-          `
+`
             .filter-container{
                 height: 100%;
                 display: flex;
@@ -8130,11 +7267,7 @@
     constructor(option) {
       this.option = option;
     }
-    /**
-     * 显示视图
-     * @param filterCallBack 返回值为false隐藏，true则不隐藏（不处理）
-     */
-    async showView(filterCallBack) {
+async showView(filterCallBack) {
       let $popsConfirm = __pops.confirm({
         title: {
           text: this.option.title,
@@ -8142,8 +7275,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                     <div class="rule-view-container">
                     </div>
                     `
@@ -8265,8 +7397,7 @@
         width: window.innerWidth > 500 ? "500px" : "88vw",
         height: window.innerHeight > 500 ? "500px" : "80vh",
         style: (
-          /*css*/
-          `
+`
             ${__pops.config.cssText.panelCSS}
             
             .rule-item{
@@ -8333,16 +7464,7 @@
         domUtils.text($button, "取消过滤");
       }
     }
-    /**
-     * 显示编辑视图
-     * @param isEdit 是否是编辑状态
-     * @param editData 编辑的数据
-     * @param $parentShadowRoot （可选）关闭弹窗后对ShadowRoot进行操作
-     * @param $editRuleItemElement （可选）关闭弹窗后对规则行进行更新数据
-     * @param updateDataCallBack （可选）关闭添加/编辑弹窗的回调（不更新数据）
-     * @param submitCallBack （可选）添加/修改提交的回调
-     */
-    showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
+showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
       let dialogCloseCallBack = async (isSubmit) => {
         if (isSubmit) {
           if (typeof submitCallBack === "function") {
@@ -8419,10 +7541,7 @@
       });
       editView.showView();
     }
-    /**
-     * 解析弹窗内的各个元素
-     */
-    parseViewElement($shadowRoot) {
+parseViewElement($shadowRoot) {
       let $container = $shadowRoot.querySelector(
         ".rule-view-container"
       );
@@ -8430,16 +7549,11 @@
         ".pops-confirm-btn button.pops-confirm-btn-other"
       );
       return {
-        /** 容器 */
-        $container,
-        /** 左下角的清空按钮 */
-        $deleteBtn
+$container,
+$deleteBtn
       };
     }
-    /**
-     * 解析每一项的元素
-     */
-    parseRuleItemElement($ruleElement) {
+parseRuleItemElement($ruleElement) {
       let $enable = $ruleElement.querySelector(
         ".rule-controls-enable"
       );
@@ -8455,32 +7569,21 @@
         ".rule-controls-delete"
       );
       return {
-        /** 启用开关 */
-        $enable,
-        /** 启用开关的container */
-        $enableSwitch,
-        /** 启用开关的input */
-        $enableSwitchInput,
-        /** 启用开关的core */
-        $enableSwitchCore,
-        /** 编辑按钮 */
-        $edit,
-        /** 删除按钮 */
-        $delete,
-        /** 存储在元素上的数据 */
-        data: Reflect.get($ruleElement, "data-rule")
+$enable,
+$enableSwitch,
+$enableSwitchInput,
+$enableSwitchCore,
+$edit,
+$delete,
+data: Reflect.get($ruleElement, "data-rule")
       };
     }
-    /**
-     * 创建一条规则元素
-     */
-    async createRuleItemElement(data, $shadowRoot) {
+async createRuleItemElement(data, $shadowRoot) {
       let name = await this.option.getDataItemName(data);
       let $ruleItem = domUtils.createElement("div", {
         className: "rule-item",
         innerHTML: (
-          /*html*/
-          `
+`
 			<div class="rule-name">${name}</div>
 			<div class="rule-controls">
 				<div class="rule-controls-enable">
@@ -8589,10 +7692,7 @@
       }
       return $ruleItem;
     }
-    /**
-     * 添加一个规则元素
-     */
-    async appendRuleItemElement($shadowRoot, data) {
+async appendRuleItemElement($shadowRoot, data) {
       let { $container } = this.parseViewElement($shadowRoot);
       let $ruleItem = [];
       let iteratorData = Array.isArray(data) ? data : [data];
@@ -8605,35 +7705,23 @@
       await this.updateDeleteAllBtnText($shadowRoot);
       return $ruleItem;
     }
-    /**
-     * 更新弹窗内容的元素
-     */
-    async updateRuleContaienrElement($shadowRoot) {
+async updateRuleContaienrElement($shadowRoot) {
       this.clearContent($shadowRoot);
       const { $container } = this.parseViewElement($shadowRoot);
       let data = await this.option.data();
       await this.appendRuleItemElement($shadowRoot, data);
       await this.updateDeleteAllBtnText($shadowRoot);
     }
-    /**
-     * 更新规则元素
-     */
-    async updateRuleItemElement(data, $oldRuleItem, $shadowRoot) {
+async updateRuleItemElement(data, $oldRuleItem, $shadowRoot) {
       let $newRuleItem = await this.createRuleItemElement(data, $shadowRoot);
       $oldRuleItem.after($newRuleItem);
       $oldRuleItem.remove();
     }
-    /**
-     * 清空内容
-     */
-    clearContent($shadowRoot) {
+clearContent($shadowRoot) {
       const { $container } = this.parseViewElement($shadowRoot);
       domUtils.html($container, "");
     }
-    /**
-     * 设置删除按钮的文字
-     */
-    setDeleteBtnText($shadowRoot, text, isHTML = false) {
+setDeleteBtnText($shadowRoot, text, isHTML = false) {
       const { $deleteBtn } = this.parseViewElement($shadowRoot);
       if (isHTML) {
         domUtils.html($deleteBtn, text);
@@ -8641,11 +7729,7 @@
         domUtils.text($deleteBtn, text);
       }
     }
-    /**
-     * 更新【清空所有】的按钮的文字
-     * @param $shadowRoot
-     */
-    async updateDeleteAllBtnText($shadowRoot) {
+async updateDeleteAllBtnText($shadowRoot) {
       let data = await this.option.data();
       this.setDeleteBtnText($shadowRoot, `清空所有(${data.length})`);
     }
@@ -8672,10 +7756,7 @@
         }
       });
     },
-    /**
-     * 注册菜单
-     */
-    registerMenu() {
+registerMenu() {
       if (this.$data.isRegister) {
         return;
       }
@@ -8689,10 +7770,7 @@
         }
       });
     },
-    /**
-     * 获取模板数据
-     */
-    getTemplateData() {
+getTemplateData() {
       return {
         uuid: utils.generateUUID(),
         enable: true,
@@ -8708,10 +7786,7 @@
         }
       };
     },
-    /**
-     * 显示视图
-     */
-    showView() {
+showView() {
       let panelHandlerComponents = __pops.config.PanelHandlerComponents();
       function generateStorageApi(data) {
         return {
@@ -8964,10 +8039,7 @@
       });
       ruleView.showView();
     },
-    /**
-     * 执行规则
-     */
-    runRule() {
+runRule() {
       let shieldUserList = this.getData();
       function checkIsFilter(postForumInfo) {
         for (const shieldItem of shieldUserList) {
@@ -8996,22 +8068,15 @@
           let $topUser = item.querySelector("a.top_user");
           let uidMatch = $topUser.href.match(MTRegExp.uid);
           let postForumInfo = {
-            /* 用户名 */
-            userName: $topUser.innerText,
-            /* 用户UID */
-            userUID: uidMatch[uidMatch.length - 1].trim(),
-            /* 用户等级 */
-            userLevel: item.querySelector("span.top_lev").innerText.replace("Lv.", ""),
-            /* 帖子Url */
-            postUrl: item.querySelector(".mmlist_li_box a").getAttribute("href") || item.querySelector(".mmlist_li_box a").getAttribute("data-href"),
-            /* 帖子标题 */
-            postTitle: item.querySelector(".mmlist_li_box h2 a")?.innerText || "",
-            /* 帖子内容(缩略) */
-            postContent: item.querySelector(
+userName: $topUser.innerText,
+userUID: uidMatch[uidMatch.length - 1].trim(),
+userLevel: item.querySelector("span.top_lev").innerText.replace("Lv.", ""),
+postUrl: item.querySelector(".mmlist_li_box a").getAttribute("href") || item.querySelector(".mmlist_li_box a").getAttribute("data-href"),
+postTitle: item.querySelector(".mmlist_li_box h2 a")?.innerText || "",
+postContent: item.querySelector(
               ".mmlist_li_box .list_body"
             ).innerText,
-            /* 帖子板块 */
-            postPlateName: (item.querySelector(
+postPlateName: (item.querySelector(
               ".forumlist_li_time a.f_d"
             ) || item.querySelector(
               ".comiis_xznalist_bk.cl"
@@ -9030,22 +8095,15 @@
           let $topUser = item.querySelector("a.top_user");
           let uidMatch = $topUser.href.match(MTRegExp.uid);
           let postForumInfo = {
-            /* 用户名 */
-            userName: $topUser.innerText,
-            /* 用户UID */
-            userUID: uidMatch[uidMatch.length - 1].trim(),
-            /* 用户等级 */
-            userLevel: item.querySelector("a.top_lev").innerText.replace("Lv.", ""),
-            /* 帖子Url */
-            postUrl: void 0,
-            /* 帖子标题 */
-            postTitle: void 0,
-            /* 帖子内容(缩略) */
-            postContent: item.querySelector(
+userName: $topUser.innerText,
+userUID: uidMatch[uidMatch.length - 1].trim(),
+userLevel: item.querySelector("a.top_lev").innerText.replace("Lv.", ""),
+postUrl: void 0,
+postTitle: void 0,
+postContent: item.querySelector(
               ".comiis_message_table"
             ).innerText,
-            /* 帖子板块 */
-            postPlateName: void 0
+postPlateName: void 0
           };
           if (checkIsFilter(postForumInfo)) {
             item.remove();
@@ -9058,23 +8116,16 @@
           (item) => {
             let uidMatch = item.querySelector("a.b_b").href.match(MTRegExp.uid);
             let postForumInfo = {
-              /* 用户名 */
-              userName: item.querySelector("h2").innerText.replace(
+userName: item.querySelector("h2").innerText.replace(
                 item.querySelector("h2 span").innerText,
                 ""
               ).replace(/\s*/, ""),
-              /* 用户UID */
-              userUID: uidMatch[uidMatch.length - 1].trim(),
-              /* 用户等级 */
-              userLevel: void 0,
-              /* 帖子Url */
-              postUrl: item.querySelector("a.b_b").href,
-              /* 帖子标题 */
-              postTitle: void 0,
-              /* 帖子内容(缩略) */
-              postContent: item.querySelector("p.f_c").innerText.trim(),
-              /* 帖子板块 */
-              postPlateName: void 0
+userUID: uidMatch[uidMatch.length - 1].trim(),
+userLevel: void 0,
+postUrl: item.querySelector("a.b_b").href,
+postTitle: void 0,
+postContent: item.querySelector("p.f_c").innerText.trim(),
+postPlateName: void 0
             };
             if (checkIsFilter(postForumInfo)) {
               item.remove();
@@ -9083,24 +8134,13 @@
         );
       }
     },
-    /**
-     * 获取数据
-     */
-    getData() {
+getData() {
       return _GM_getValue(this.$key.STORAGE_KEY, []);
     },
-    /**
-     * 设置数据
-     * @param data
-     */
-    setData(data) {
+setData(data) {
       _GM_setValue(this.$key.STORAGE_KEY, data);
     },
-    /**
-     * 添加数据
-     * @param data
-     */
-    addData(data) {
+addData(data) {
       let localData = this.getData();
       let findIndex = localData.findIndex((item) => item.uuid == data.uuid);
       if (findIndex === -1) {
@@ -9111,11 +8151,7 @@
         return false;
       }
     },
-    /**
-     * 更新数据
-     * @param data
-     */
-    updateData(data) {
+updateData(data) {
       let localData = this.getData();
       let index = localData.findIndex((item) => item.uuid == data.uuid);
       let updateFlag = false;
@@ -9126,11 +8162,7 @@
       this.setData(localData);
       return updateFlag;
     },
-    /**
-     * 删除数据
-     * @param data
-     */
-    deleteData(data) {
+deleteData(data) {
       let localData = this.getData();
       let index = localData.findIndex((item) => item.uuid == data.uuid);
       let deleteFlag = false;
@@ -9141,10 +8173,7 @@
       this.setData(localData);
       return deleteFlag;
     },
-    /**
-     * 清空数据
-     */
-    clearData() {
+clearData() {
       _GM_deleteValue(this.$key.STORAGE_KEY);
     }
   };
@@ -9214,10 +8243,7 @@
         });
       }
     },
-    /**
-     * 注册菜单
-     */
-    registerMenu() {
+registerMenu() {
       ElementUtils.registerLeftMenu({
         name: "评论过滤器",
         icon: "",
@@ -9227,10 +8253,7 @@
         }
       });
     },
-    /**
-     * 执行过滤
-     */
-    runFilter(filterData) {
+runFilter(filterData) {
       let isBlackListUser = function(postForumInfo) {
         for (const userName of filterData["userBlackList"]) {
           if (userName == postForumInfo.userName || userName == postForumInfo.userUID) {
@@ -9297,10 +8320,7 @@
         }
       });
     },
-    /**
-     * 显示视图
-     */
-    showView() {
+showView() {
       const that = this;
       function generateStorageApi(data) {
         return {
@@ -9487,8 +8507,7 @@
                 },
                 content: {
                   text: (
-                    /*html*/
-                    `
+`
                                 ${Array.from(
                     document.querySelectorAll(
                       'link[rel="stylesheet"]'
@@ -9521,8 +8540,7 @@
           };
         },
         style: (
-          /*css*/
-          `
+`
             .pops-panel-item-left-desc-text{
                 line-height: normal;
                 margin-top: 6px;
@@ -9544,10 +8562,7 @@
       });
       view.showView();
     },
-    /**
-     * 获取模板数据
-     */
-    getTemplateData() {
+getTemplateData() {
       return {
         enable: true,
         avatarFlag: false,
@@ -9560,19 +8575,13 @@
         userWhiteList: []
       };
     },
-    /**
-     * 获取数据
-     */
-    getData() {
+getData() {
       return _GM_getValue(
         this.$key.STORAGE_KEY,
         this.getTemplateData()
       );
     },
-    /**
-     * 设置数据
-     */
-    setData(data) {
+setData(data) {
       _GM_setValue(this.$key.STORAGE_KEY, data);
     }
   };
@@ -9584,10 +8593,7 @@
       this.registerMenu();
       this.runRule();
     },
-    /**
-     * 注册菜单
-     */
-    registerMenu() {
+registerMenu() {
       ElementUtils.registerLeftMenu({
         name: "商品上架提醒",
         icon: "",
@@ -9597,10 +8603,7 @@
         }
       });
     },
-    /**
-     * 执行规则
-     */
-    async runRule() {
+async runRule() {
       async function getCurrentProduct() {
         let response = await httpx.get(
           "/keke_integralmall-keke_integralmall.html",
@@ -9665,8 +8668,7 @@
               },
               content: {
                 text: (
-                  /*html*/
-                  `<br />
+`<br />
                             您设置的商品已上架在积分商城中，当前售价 ${productItem["price"]}金币，仅剩${productItem["remainingQuantity"]}件，是否前往购买？
                             <a style="color: red !important;">(如需关闭提醒，请删除该关键字)</a>
                             <br />`
@@ -9704,10 +8706,7 @@
         }
       }
     },
-    /**
-     * 获取模板数据
-     */
-    getTemplateData() {
+getTemplateData() {
       return {
         uuid: utils.generateUUID(),
         enable: true,
@@ -9715,10 +8714,7 @@
         productName: ""
       };
     },
-    /**
-     * 显示视图
-     */
-    showView() {
+showView() {
       let panelHandlerComponents = __pops.config.PanelHandlerComponents();
       function generateStorageApi(data) {
         return {
@@ -9865,24 +8861,13 @@
       });
       ruleView.showView();
     },
-    /**
-     * 获取数据
-     */
-    getData() {
+getData() {
       return _GM_getValue(this.$key.STORAGE_KEY, []);
     },
-    /**
-     * 设置数据
-     * @param data
-     */
-    setData(data) {
+setData(data) {
       _GM_setValue(this.$key.STORAGE_KEY, data);
     },
-    /**
-     * 添加数据
-     * @param data
-     */
-    addData(data) {
+addData(data) {
       let localData = this.getData();
       let findIndex = localData.findIndex((item) => item.uuid == data.uuid);
       if (findIndex === -1) {
@@ -9893,11 +8878,7 @@
         return false;
       }
     },
-    /**
-     * 更新数据
-     * @param data
-     */
-    updateData(data) {
+updateData(data) {
       let localData = this.getData();
       let index = localData.findIndex((item) => item.uuid == data.uuid);
       let updateFlag = false;
@@ -9908,11 +8889,7 @@
       this.setData(localData);
       return updateFlag;
     },
-    /**
-     * 删除数据
-     * @param data
-     */
-    deleteData(data) {
+deleteData(data) {
       let localData = this.getData();
       let index = localData.findIndex((item) => item.uuid == data.uuid);
       let deleteFlag = false;
@@ -9923,10 +8900,7 @@
       this.setData(localData);
       return deleteFlag;
     },
-    /**
-     * 清空数据
-     */
-    clearData() {
+clearData() {
       _GM_deleteValue(this.$key.STORAGE_KEY);
     }
   };
@@ -9955,10 +8929,7 @@
         });
       }
     },
-    /**
-     * 注册菜单
-     */
-    registerMenu() {
+registerMenu() {
       ElementUtils.registerLeftMenu({
         name: "自定义用户标签",
         icon: "",
@@ -9968,10 +8939,7 @@
         }
       });
     },
-    /**
-     * 显示视图
-     */
-    showView() {
+showView() {
       let panelHandlerComponents = __pops.config.PanelHandlerComponents();
       function generateStorageApi(data) {
         return {
@@ -10196,8 +9164,7 @@
               }
             },
             style: (
-              /*css*/
-              `
+`
                     .pops-panel-textarea textarea{
                         height: 150px;
                     }
@@ -10214,10 +9181,7 @@
       });
       ruleView.showView();
     },
-    /**
-     * 执行规则
-     */
-    runRule(ruleDataList) {
+runRule(ruleDataList) {
       let forumList = utils.getNodeListValue(
         ElementUtils.comiisForumList(),
         ElementUtils.comiisPostli(),
@@ -10265,10 +9229,7 @@
         }
       });
     },
-    /**
-     * 获取模板数据
-     */
-    getTemplateData() {
+getTemplateData() {
       return {
         uuid: utils.generateUUID(),
         enable: true,
@@ -10280,24 +9241,13 @@
         labelClickEvent: ""
       };
     },
-    /**
-     * 获取数据
-     */
-    getData() {
+getData() {
       return _GM_getValue(this.$key.STORAGE_KEY, []);
     },
-    /**
-     * 设置数据
-     * @param data
-     */
-    setData(data) {
+setData(data) {
       _GM_setValue(this.$key.STORAGE_KEY, data);
     },
-    /**
-     * 添加数据
-     * @param data
-     */
-    addData(data) {
+addData(data) {
       let localData = this.getData();
       let findIndex = localData.findIndex((item) => item.uuid == data.uuid);
       if (findIndex === -1) {
@@ -10308,11 +9258,7 @@
         return false;
       }
     },
-    /**
-     * 更新数据
-     * @param data
-     */
-    updateData(data) {
+updateData(data) {
       let localData = this.getData();
       let index = localData.findIndex((item) => item.uuid == data.uuid);
       let updateFlag = false;
@@ -10323,11 +9269,7 @@
       this.setData(localData);
       return updateFlag;
     },
-    /**
-     * 删除数据
-     * @param data
-     */
-    deleteData(data) {
+deleteData(data) {
       let localData = this.getData();
       let index = localData.findIndex((item) => item.uuid == data.uuid);
       let deleteFlag = false;
@@ -10338,10 +9280,7 @@
       this.setData(localData);
       return deleteFlag;
     },
-    /**
-     * 清空数据
-     */
-    clearData() {
+clearData() {
       _GM_deleteValue(this.$key.STORAGE_KEY);
     }
   };
@@ -10451,8 +9390,7 @@
       "[抱拳]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq101.gif",
       "[勾引]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq102.gif",
       "[拳头]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq103.gif",
-      // "[差劲]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq104.gif",
-      "[爱你]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq105.gif",
+"[爱你]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq105.gif",
       "[NO]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq106.gif",
       "[OK]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq107.gif",
       "[#呵呵]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_1.png",
@@ -10607,10 +9545,7 @@
     };
   };
   const MTEditorPreview = {
-    /**
-     * 内容转换
-     */
-    parseText(text) {
+parseText(text) {
       const smiliesDictionaries = MTSmiliesDict();
       let attachimgmatch = text.match(/\[attachimg\]([\s\S]+?)\[\/attachimg\]/g);
       if (attachimgmatch) {
@@ -10841,12 +9776,10 @@
             /\[email=[\s\S]*?\]([\s\S]*?)\[\/email\]/
           );
           let _email_ = email_match.length ? (
-            // @ts-ignore
-            email_match[email_match.length - 1]
+email_match[email_match.length - 1]
           ) : "";
           let _content_ = content_match.length ? (
-            // @ts-ignore
-            content_match[content_match.length - 1]
+content_match[content_match.length - 1]
           ) : "";
           if (_email_ || _content_) {
             text = text.replace(
@@ -10864,12 +9797,10 @@
             /\[align=[\s\S]*?\]([\s\S]+?)\[\/align\]/
           );
           let _align_ = align_match.length ? (
-            // @ts-ignore
-            align_match[align_match.length - 1]
+align_match[align_match.length - 1]
           ) : "";
           let _content_ = content_match.length ? (
-            // @ts-ignore
-            content_match[content_match.length - 1]
+content_match[content_match.length - 1]
           ) : "";
           if (_align_ || _content_) {
             text = text.replace(
@@ -10954,10 +9885,7 @@
       }
       return text;
     },
-    /**
-     * 投票的内容转换
-     */
-    parseVoteText() {
+parseVoteText() {
       let chooseColor = [
         "rgb(233, 39, 37)",
         "rgb(242, 123, 33)",
@@ -11050,28 +9978,20 @@
       }
     },
     $key: {
-      /** 尚未发布、尚未存入草稿的序列化内容 */
-      noPublishSerializeText: "mt-editor-no-publish-serialize-text",
-      /** 尚未发布、尚未存入草稿的序列化投票内容 */
-      noPublishVotingSerializeText: "mt-editor-no-publish-voting-serialize-text"
+noPublishSerializeText: "mt-editor-no-publish-serialize-text",
+noPublishVotingSerializeText: "mt-editor-no-publish-voting-serialize-text"
     },
     $el: {
-      /** 标题框 */
-      $title: null,
-      /** 输入框 */
-      $input: null,
-      /** 表单元素 */
-      $form: null
+$title: null,
+$input: null,
+$form: null
     },
     init() {
       log.info(`编辑器优化`);
       addStyle(optimizationCSS);
       this.overridePageEditor();
     },
-    /**
-     * 覆盖页面的编辑器
-     */
-    overridePageEditor() {
+overridePageEditor() {
       const that = this;
       this.$el.$title = $("#needsubject");
       this.$el.$form = $("#postform");
@@ -11101,8 +10021,7 @@
         ".gm_plugin_chartbed .comiis_over_box.comiis_input_style #imglist"
       );
       addStyle(
-        /*css*/
-        `
+`
         #imglist_settings button{
             font-size: 13.333px;
             color: #9baacf;
@@ -11179,10 +10098,7 @@
       this.initCharacterCount();
       this.initSettingImmersionMode();
     },
-    /**
-     * 把存储回复框的内容设置到输入框中
-     */
-    async initReplyText() {
+async initReplyText() {
       const that = this;
       let data = null;
       let save_callback = null;
@@ -11388,10 +10304,7 @@
         }
       }
     },
-    /**
-     * 获取回复记录的占用空间
-     */
-    async getReplyRecordSize() {
+async getReplyRecordSize() {
       let result = await this.$data.db.get("data");
       if (result.success) {
         let size = utils.getTextStorageSize(
@@ -11402,16 +10315,10 @@
         return utils.formatByteToSize(0);
       }
     },
-    /**
-     * 清空所有的回复记录
-     */
-    async clearAllReplyRecord() {
+async clearAllReplyRecord() {
       return await this.$data.db.deleteAll();
     },
-    /**
-     * 删除存储的数据
-     */
-    deleteReplyTextStorage() {
+deleteReplyTextStorage() {
       const that = this;
       this.$data.db.get("data").then((result) => {
         if (!result.success) {
@@ -11437,10 +10344,7 @@
         }
       });
     },
-    /**
-     * 监听输入框内容改变
-     */
-    setInputChangeEvent() {
+setInputChangeEvent() {
       const that = this;
       domUtils.on(
         [this.$el.$input, this.$el.$title].filter(Boolean),
@@ -11563,10 +10467,7 @@
         }
       );
     },
-    /**
-     * 初始化删除按钮
-     */
-    initDeleteBtn() {
+initDeleteBtn() {
       let btn_del = $(".comiis_btnbox .comiis_btn.bg_del");
       if (!btn_del) {
         return;
@@ -11606,10 +10507,7 @@
         });
       });
     },
-    /**
-     * 初始化保存按钮
-     */
-    initSaveBtn() {
+initSaveBtn() {
       let $save = domUtils.selector(
         ".comiis_btnbox button#postsubmit:contains('保存')"
       );
@@ -11635,10 +10533,7 @@
         $save.click();
       });
     },
-    /**
-     * 初始化发表按钮
-     */
-    initPostBtn() {
+initPostBtn() {
       let $post = domUtils.selector(
         ".comiis_btnbox button#postsubmit:contains('发表')"
       );
@@ -11662,10 +10557,7 @@
         $post.click();
       });
     },
-    /**
-     * 初始化回复按钮
-     */
-    initReplyBtn() {
+initReplyBtn() {
       const that = this;
       let $reply = domUtils.selector(
         ".comiis_btnbox button#postsubmit:contains('回复')"
@@ -11690,16 +10582,12 @@
         that.deleteReplyTextStorage();
       });
     },
-    /**
-     * 初始化投票页面
-     */
-    initVotePage() {
+initVotePage() {
       if (!$$(".comiis_scrollTop_box").length) {
         return;
       }
       _unsafeWindow.$("#htmlon").parent().append(
-        /*html*/
-        `
+`
                 <li class="comiis_styli_m f15 comiis_flex b_b">
                     <div class="flex">发表帖子</div>
                     <div class="styli_r">
@@ -11740,10 +10628,7 @@
         window.location.href = window.location.href + "&special=1";
       });
     },
-    /**
-     * 初始化保存草稿按钮
-     */
-    initSaveDraftBtn() {
+initSaveDraftBtn() {
       let $saveDraft = domUtils.selector(
         ".comiis_btnbox button#postsubmit em:contains('保存草稿')"
       );
@@ -11770,10 +10655,7 @@
         $saveDraft.click();
       });
     },
-    /**
-     * 动态修改编辑器的高度
-     */
-    observerChangeEditorHeight() {
+observerChangeEditorHeight() {
       var recordHeight = 0;
       utils.waitNode("#postform > div > div.comiis_post_ico.comiis_minipost_icot").then((element) => {
         utils.mutationObserver(element, {
@@ -11803,20 +10685,14 @@
           },
           config: {
             childList: true,
-            /* 属性的变动 */
-            attributes: true,
-            /* 节点内容或节点文本的变动 */
-            characterData: true,
-            /* 是否将观察器应用于该节点的所有后代节点 */
-            subtree: true
+attributes: true,
+characterData: true,
+subtree: true
           }
         });
       });
     },
-    /**
-     * 监听窗口大小变化
-     */
-    listenResize() {
+listenResize() {
       domUtils.on(window, "resize", function() {
         let needMessageSeeHeight = document.documentElement.clientHeight - $(
           "#postform > div > div.comiis_post_ico.comiis_minipost_icot"
@@ -11839,13 +10715,9 @@
         }
       });
     },
-    /**
-     * 注入选择板块功能
-     */
-    initSelectPostingSection() {
+initSelectPostingSection() {
       addStyle(
-        /*css*/
-        `
+`
             #select-post-section {
                 height: 28px;
                 width: 160px;
@@ -11875,8 +10747,7 @@
       };
       domUtils.before(
         ".comiis_post_from .comiis_wzpost.comiis_input_style .comiis_styli:contains('标题')",
-        /*html*/
-        `
+`
         <li class="comiis_styli_section comiis_flex b_b" style="padding: 10px 12px;font-size: 16px;">
             <div class="styli_section f_c" style="padding-right: 8px;vertical-align: top;">板块</div>
             <div class="flex">
@@ -11935,8 +10806,7 @@
             );
             domUtils.before(
               ".comiis_stylino.comiis_needmessage",
-              /*html*/
-              `
+`
                         <li class="comiis_styli comiis_flex b_b ${otherSelect["className"]}">
                             <div class="styli_tit f_c">分类</div>
                                 <div class="flex comiis_input_style">
@@ -11970,22 +10840,17 @@
       domUtils.val($select, currentSection);
       domUtils.trigger($select, "change");
     },
-    /**
-     * 字符计数
-     */
-    initCharacterCount() {
+initCharacterCount() {
       log.info(`添加功能：字符计数`);
       addStyle(
-        /*css*/
-        `
+`
         .gm_plugin_word_count{display:flex}
         .gm_plugin_word_count::after{content:"/20000"}
         `
       );
       domUtils.append(
         "#comiis_mh_sub .swiper-wrapper.comiis_post_ico",
-        /*html*/
-        `
+`
             <a href="javascript:;" class="swiper-slide gm_plugin_word_count">
                 <p>0</p>
             </a>`
@@ -12007,17 +10872,13 @@
         }
       });
     },
-    /**
-     * 自定义的其它ubb
-     */
-    initUBB() {
+initUBB() {
       if (!$(".comiis_post_urlico")) {
         log.error("未找到插入元素");
         return;
       }
       addStyle(
-        /*css*/
-        `
+`
         #comiis_post_tab .comiis_input_style .comiis_post_urlico li a.f_0{
             color: #53bcf5 !important;
         }
@@ -12048,8 +10909,7 @@
         let $ubbs = domUtils.createElement("li", {
           className: "quickUBBs",
           innerHTML: (
-            /*html*/
-            `
+`
                 <a href="javascript:;" class="comiis_xifont f_d"><i class="comiis_font"></i>${value["key"]}</a>
                 `
           )
@@ -12076,8 +10936,8 @@
         let ubbs_content = document.createElement("li");
         ubbs_content.setAttribute("style", "display: none;");
         ubbs_content.setAttribute("data-key", value["key"]);
-        ubbs_content.innerHTML = /*html*/
-        `
+        ubbs_content.innerHTML =
+`
             <div class="comiis_styli_m f15" style="padding-top:12px;">
                 <div class="bg_e comiis_p5" style="border-radius:4px">
                     <textarea class="comiis_pt kmshow f_c" id="comiis_input_${key}" style="font-size:15px" placeholder="请输入需要${value["key"]}的文字"></textarea>
@@ -12119,14 +10979,10 @@
         });
       });
     },
-    /**
-     * 图片功能
-     */
-    initImage() {
+initImage() {
       log.info(`添加功能：图片`);
       addStyle(
-        /*css*/
-        `
+`
             #comiis_pictitle_tab .comiis_upbox{
                 height: 140px;
                 overflow-y: auto;
@@ -12134,8 +10990,7 @@
             `
       );
       let imageBtnHTML = (
-        /*html*/
-        `
+`
         <a href="javascript:;" class="comiis_pictitle"><i class="comiis_font"><em>图片</em></i></a>`
       );
       domUtils.append(
@@ -12153,8 +11008,7 @@
       });
       domUtils.append(
         "#comiis_post_tab",
-        /*html*/
-        `
+`
             <div id="comiis_pictitle_tab" class="gm_plugin_chartbed" style="display: none">
                 <!-- <div class="comiis_upbox bg_f cl">
                     <ul id="mt-imglist" class="comiis_post_imglist cl">
@@ -12200,15 +11054,11 @@
         MTEditorImageBed_MT.init();
       });
     },
-    /**
-     * 双列预览
-     */
-    initPreview() {
+initPreview() {
       const that = this;
       log.info(`添加功能：双列预览`);
       addStyle(
-        /*css*/
-        `
+`
         .gm_plugin_previewpostforum_html .comiis_message_table{margin-top:10px;font-weight:initial;line-height:24px}
         .gm_plugin_previewpostforum_html .comiis_message_table a{height:auto;float:unset;color:#507daf!important}
         .gm_plugin_previewpostforum_html .comiis_message_table i{text-align:unset;font-size:unset;line-height:unset;padding-top:unset;display:unset}
@@ -12218,8 +11068,7 @@
         `
       );
       let previewBtnHTML = (
-        /*html*/
-        `
+`
         <a href="javascript:;" class="swiper-slide gm_plugin_previewpostforum">
             <i class="comiis_font" style="display: flex;flex-direction: column;padding-top: 1px;">
                 <svg t="1661243615511" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2399" width="22" height="22" fill="currentColor">
@@ -12237,8 +11086,7 @@
       domUtils.css(domUtils.parent(this.$el.$input), "display", "flex");
       domUtils.after(
         this.$el.$input,
-        /*html*/
-        `
+`
             <div class="bg_f cl gm_plugin_previewpostforum_html double-preview" style="display: none;">
               <div class="comiis_over_box comiis_input_style">
                 <div class="comiis_postli comiis_list_readimgs nfqsqi" style="width: 50vw;">
@@ -12280,15 +11128,11 @@
         }
       );
     },
-    /**
-     * 初始化设置功能-使用沉浸模式
-     */
-    initSettingImmersionMode() {
+initSettingImmersionMode() {
       log.info(`初始化设置功能-使用沉浸模式`);
       domUtils.append(
         domUtils.parent("#htmlon"),
-        /*html*/
-        `
+`
             <li class="comiis_styli_m f15 comiis_flex b_b">
                 <div class="flex">使用沉浸输入</div>
                 <div class="styli_r">
@@ -12304,22 +11148,14 @@
         let $click = this;
         let code_obj = domUtils.parent($click).querySelector(".comiis_checkbox");
         let elementList = [
-          /* 板块、标题 */
-          ".comiis_wzpost ul li.comiis_flex",
-          /* 回复别人的quote */
-          ".comiis_wzpost ul li.comiis_styli.kmquote",
-          /* 投票,最多可填写 20 个选项 */
-          domUtils.parent(domUtils.parent("#pollchecked")),
-          /* 投票,增加一项 */
-          "#pollm_c_1",
-          /* 投票,增加一项(编辑状态下) */
-          ".comiis_polloption_add+div.f_0",
-          /* 投票,内容 */
-          ".comiis_wzpost ul li.comiis_thread_content:contains('内容')",
-          /* 顶部header */
-          "div#comiis_head",
-          /* 后面的 */
-          "div#comiis_head+*:not([class])"
+".comiis_wzpost ul li.comiis_flex",
+".comiis_wzpost ul li.comiis_styli.kmquote",
+domUtils.parent(domUtils.parent("#pollchecked")),
+"#pollm_c_1",
+".comiis_polloption_add+div.f_0",
+".comiis_wzpost ul li.comiis_thread_content:contains('内容')",
+"div#comiis_head",
+"div#comiis_head+*:not([class])"
         ];
         if (domUtils.hasClass(code_obj, "comiis_checkbox_close")) {
           elementList.forEach(($ele) => {
@@ -12412,16 +11248,12 @@
         });
       });
     },
-    /**
-     * 显示用户UID
-     */
-    showUserUID() {
+showUserUID() {
       log.info(`显示用户UID`);
       if (!this.$flag.showUserUID_initCSS) {
         this.$flag.showUserUID_initCSS = true;
         addStyle(
-          /*css*/
-          `
+`
 			.postli_top_tximg + h2{
  				height: auto;
 			}
@@ -12482,10 +11314,7 @@
         }
       });
     },
-    /**
-     * 延长cookie有效期
-     */
-    async extendCookieExpire() {
+async extendCookieExpire() {
       log.info(`延长cookie有效期`);
       let cookieList = await _GM.cookie.list({});
       let needExtendCookieNameList = [
@@ -12618,10 +11447,7 @@
       big: false
     },
     $data: {
-      /**
-       * 图片文件最大大小
-       */
-      avatarInfo: {
+avatarInfo: {
         maxSize: 2097152,
         small: {
           width: 48,
@@ -12656,10 +11482,7 @@
         return MTDyncmicAvatar.$el.$bigUpload.files[0];
       }
     },
-    /**
-     * 显示视图
-     */
-    showView() {
+showView() {
       const that = this;
       let $confirm = __pops.confirm({
         title: {
@@ -12668,8 +11491,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                 <div class="avatar-container">
                     <p class="avatar-tip">1. 小头像（图片宽高限制最大尺寸：48×48）</p>
                     <p class="avatar-upload-status" data-type="small">🤡请先上传图片</p>
@@ -12778,8 +11600,7 @@
         width: "88vw",
         height: "500px",
         style: (
-          /*css*/
-          `
+`
             .avatar-container{
                 display: flex;
                 width: -webkit-fill-available;
@@ -12854,10 +11675,7 @@
         }
       );
     },
-    /**
-     * 设置文件改变事件
-     */
-    setUploadChangeEvent($file, $status, sizeInfo, successCallBack) {
+setUploadChangeEvent($file, $status, sizeInfo, successCallBack) {
       domUtils.on($file, "change", (event) => {
         if (!$file.files?.length) {
           return;
@@ -12900,10 +11718,7 @@
         };
       });
     },
-    /**
-     * 获取上传地址
-     */
-    async getUploadUrl() {
+async getUploadUrl() {
       let response = await httpx.get("/home.php?mod=spacecp&ac=avatar", {
         headers: {
           "User-Agent": utils.getRandomPCUA()
@@ -13204,8 +12019,7 @@
                     let $left = domUtils.createElement("div", {
                       className: "pops-panel-item-left-text",
                       innerHTML: (
-                        /*html*/
-                        `
+`
 											<p class="pops-panel-item-left-main-text">头像（有缓存）</p>
 											<p class="pops-panel-item-left-desc-text">小、中、大</p>
 											`
@@ -13214,8 +12028,7 @@
                     let $right = domUtils.createElement("div", {
                       className: "pops-panel-avatar-img",
                       innerHTML: (
-                        /*html*/
-                        `
+`
 											<img 
 												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=small"
 												class="avatar-img" data-size="small">
@@ -13230,8 +12043,7 @@
                     });
                     let $style = domUtils.createElement("style", {
                       innerHTML: (
-                        /*css*/
-                        `
+`
 											.avatar-img {
 												width: 30px;
 												height: 30px;
@@ -13259,8 +12071,7 @@
                     let $left = domUtils.createElement("div", {
                       className: "pops-panel-item-left-text",
                       innerHTML: (
-                        /*html*/
-                        `
+`
 											<p class="pops-panel-item-left-main-text">头像</p>
 											<p class="pops-panel-item-left-desc-text">小、中、大</p>
 											`
@@ -13269,8 +12080,7 @@
                     let $right = domUtils.createElement("div", {
                       className: "pops-panel-avatar-img",
                       innerHTML: (
-                        /*html*/
-                        `
+`
 											<img 
 												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=small&ts=${Date.now()}"
 												class="avatar-img" data-size="small">

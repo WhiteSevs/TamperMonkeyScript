@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.21
+// @version      2025.8.27
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -13,9 +13,9 @@
 // @match        *://card.weibo.com/*
 // @match        *://weibo.com/l/wblive/m/show/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @connect      m.weibo.cn
 // @connect      www.weibo.com
@@ -35,22 +35,18 @@
 (function (Qmsg, DOMUtils, Utils, pops) {
   'use strict';
 
-  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
-  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
-  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
-  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
-  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
-  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
-  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
-  var _monkeyWindow = /* @__PURE__ */ (() => window)();
+  var _GM_deleteValue = (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
+  var _GM_getResourceText = (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
+  var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
+  var _GM_info = (() => typeof GM_info != "undefined" ? GM_info : void 0)();
+  var _GM_registerMenuCommand = (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_setValue = (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
+  var _GM_unregisterMenuCommand = (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
+  var _unsafeWindow = (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
+  var _monkeyWindow = (() => window)();
   const CommonUtil = {
-    /**
-     * 移除元素（未出现也可以等待出现）
-     * @param selector 元素选择器
-     */
-    waitRemove(...args) {
+waitRemove(...args) {
       args.forEach((selector) => {
         if (typeof selector !== "string") {
           return;
@@ -60,15 +56,7 @@
         });
       });
     },
-    /**
-     * 添加屏蔽CSS
-     * @param args
-     * @example
-     * addBlockCSS("")
-     * addBlockCSS("","")
-     * addBlockCSS(["",""])
-     */
-    addBlockCSS(...args) {
+addBlockCSS(...args) {
       let selectorList = [];
       if (args.length === 0) {
         return;
@@ -85,16 +73,7 @@
       });
       return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
-    /**
-     * 设置GM_getResourceText的style内容
-     * @param resourceMapData 资源数据
-     * @example
-     * setGMResourceCSS({
-     *   keyName: "ViewerCSS",
-     *   url: "https://example.com/example.css",
-     * })
-     */
-    setGMResourceCSS(resourceMapData) {
+setGMResourceCSS(resourceMapData) {
       let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
       if (typeof cssText === "string" && cssText) {
         addStyle(cssText);
@@ -102,13 +81,7 @@
         CommonUtil.loadStyleLink(resourceMapData.url);
       }
     },
-    /**
-     * 添加<link>标签
-     * @param url
-     * @example
-     * loadStyleLink("https://example.com/example.css")
-     */
-    async loadStyleLink(url) {
+async loadStyleLink(url) {
       let $link = document.createElement("link");
       $link.rel = "stylesheet";
       $link.type = "text/css";
@@ -117,13 +90,7 @@
         document.head.appendChild($link);
       });
     },
-    /**
-     * 添加<script>标签
-     * @param url
-     * @example
-     * loadStyleLink("https://example.com/example.js")
-     */
-    async loadScript(url) {
+async loadScript(url) {
       let $script = document.createElement("script");
       $script.src = url;
       return new Promise((resolve) => {
@@ -133,25 +100,7 @@
         (document.head || document.documentElement).appendChild($script);
       });
     },
-    /**
-     * 将url修复，例如只有search的链接修复为完整的链接
-     *
-     * 注意：不包括http转https
-     * @param url 需要修复的链接
-     * @example
-     * 修复前：`/xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`//xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     */
-    fixUrl(url) {
+fixUrl(url) {
       url = url.trim();
       if (url.match(/^http(s|):\/\//i)) {
         return url;
@@ -169,17 +118,7 @@
         return url;
       }
     },
-    /**
-     * http转https
-     * @param url 需要修复的链接
-     * @example
-     * 修复前：
-     * 修复后：
-     * @example
-     * 修复前：
-     * 修复后：
-     */
-    fixHttps(url) {
+fixHttps(url) {
       if (url.startsWith("https://")) {
         return url;
       }
@@ -190,17 +129,10 @@
       urlInstance.protocol = "https:";
       return urlInstance.toString();
     },
-    /**
-     * 禁止页面滚动，默认锁定html和body
-     * @example
-     * lockScroll();
-     * @example
-     * lockScroll(document.body);
-     */
-    lockScroll(...args) {
+lockScroll(...args) {
       let $hidden = document.createElement("style");
-      $hidden.innerHTML = /*css*/
-      `
+      $hidden.innerHTML =
+`
 			.pops-overflow-hidden-important {
 				overflow: hidden !important;
 			}
@@ -211,10 +143,7 @@
       });
       (document.head || document.documentElement).appendChild($hidden);
       return {
-        /**
-         * 解除锁定
-         */
-        recovery() {
+recovery() {
           $elList.forEach(($el) => {
             $el.classList.remove("pops-overflow-hidden-important");
           });
@@ -222,10 +151,7 @@
         }
       };
     },
-    /**
-     * 获取剪贴板文本
-     */
-    async getClipboardText() {
+async getClipboardText() {
       function readClipboardText(resolve) {
         navigator.clipboard.readText().then((clipboardText) => {
           resolve(clipboardText);
@@ -236,8 +162,7 @@
       }
       function requestPermissionsWithClipboard(resolve) {
         navigator.permissions.query({
-          // @ts-ignore
-          name: "clipboard-read"
+name: "clipboard-read"
         }).then((permissionStatus) => {
           readClipboardText(resolve);
         }).catch((error) => {
@@ -274,20 +199,10 @@
         }
       });
     },
-    /**
-     * html转义
-     * @param unsafe
-     */
-    escapeHtml(unsafe) {
+escapeHtml(unsafe) {
       return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
     },
-    /**
-     * 在规定时间内循环，如果超时或返回false则取消循环
-     * @param fn 循环的函数
-     * @param intervalTime 循环间隔时间
-     * @param [timeout=5000] 循环超时时间
-     */
-    interval(fn, intervalTime, timeout = 5e3) {
+interval(fn, intervalTime, timeout = 5e3) {
       let timeId;
       let maxTimeout = timeout - intervalTime;
       let intervalTimeCount = intervalTime;
@@ -308,10 +223,7 @@
       };
       loop(false);
     },
-    /**
-     * 找到对应的上层元素
-     */
-    findParentNode($el, selector, parentSelector) {
+findParentNode($el, selector, parentSelector) {
       if (parentSelector) {
         let $parent = DOMUtils.closest($el, parentSelector);
         if ($parent) {
@@ -328,18 +240,15 @@
     }
   };
   const PanelSettingConfig = {
-    /** Toast位置 */
-    qmsg_config_position: {
+qmsg_config_position: {
       key: "qmsg-config-position",
       defaultValue: "bottom"
     },
-    /** 最多显示的数量 */
-    qmsg_config_maxnums: {
+qmsg_config_maxnums: {
       key: "qmsg-config-maxnums",
       defaultValue: 3
     },
-    /** 逆序弹出 */
-    qmsg_config_showreverse: {
+qmsg_config_showreverse: {
       key: "qmsg-config-showreverse",
       defaultValue: false
     }
@@ -417,10 +326,8 @@
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
     },
     mask: {
-      // 开启遮罩层
-      enable: true,
-      // 取消点击遮罩层的事件
-      clickEvent: {
+enable: true,
+clickEvent: {
         toClose: false,
         toHide: false
       }
@@ -477,10 +384,7 @@
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const PROPS_STORAGE_API = "data-storage-api";
   const PanelUISize = {
-    /**
-     * 一般设置界面的尺寸
-     */
-    setting: {
+setting: {
       get width() {
         if (window.innerWidth < 550) {
           return "88vw";
@@ -500,35 +404,16 @@
         }
       }
     },
-    /**
-     * 中等的设置界面
-     */
-    settingMiddle: {
+settingMiddle: {
       get width() {
         return window.innerWidth < 350 ? "88vw" : "350px";
       }
     }
   };
   class StorageUtils {
-    /** 存储的键名 */
-    storageKey;
+storageKey;
     listenerData;
-    /**
-     * 存储的键名，可以是多层的，如：a.b.c
-     *
-     * 那就是
-     * {
-     *  "a": {
-     *     "b": {
-     *       "c": {
-     *         ...你的数据
-     *       }
-     *     }
-     *   }
-     * }
-     * @param key
-     */
-    constructor(key) {
+constructor(key) {
       if (typeof key === "string") {
         let trimKey = key.trim();
         if (trimKey == "") {
@@ -540,10 +425,7 @@
       }
       this.listenerData = new Utils.Dictionary();
     }
-    /**
-     * 获取本地值
-     */
-    getLocalValue() {
+getLocalValue() {
       let localValue = _GM_getValue(this.storageKey);
       if (localValue == null) {
         localValue = {};
@@ -551,89 +433,49 @@
       }
       return localValue;
     }
-    /**
-     * 设置本地值
-     * @param value
-     */
-    setLocalValue(value) {
+setLocalValue(value) {
       _GM_setValue(this.storageKey, value);
     }
-    /**
-     * 设置值
-     * @param key 键
-     * @param value 值
-     */
-    set(key, value) {
+set(key, value) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, value);
     }
-    /**
-     * 获取值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    get(key, defaultValue) {
+get(key, defaultValue) {
       let localValue = this.getLocalValue();
       return Reflect.get(localValue, key) ?? defaultValue;
     }
-    /**
-     * 获取所有值
-     */
-    getAll() {
+getAll() {
       let localValue = this.getLocalValue();
       return localValue;
     }
-    /**
-     * 删除值
-     * @param key 键
-     */
-    delete(key) {
+delete(key) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, void 0);
     }
-    /**
-     * 判断是否存在该值
-     */
-    has(key) {
+has(key) {
       let localValue = this.getLocalValue();
       return Reflect.has(localValue, key);
     }
-    /**
-     * 获取所有键
-     */
-    keys() {
+keys() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue);
     }
-    /**
-     * 获取所有值
-     */
-    values() {
+values() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue).map(
         (key) => Reflect.get(localValue, key)
       );
     }
-    /**
-     * 清空所有值
-     */
-    clear() {
+clear() {
       _GM_deleteValue(this.storageKey);
     }
-    /**
-     * 监听值改变
-     * + .set
-     * + .delete
-     * @param key 监听的键
-     * @param callback 值改变的回调函数
-     */
-    addValueChangeListener(key, callback) {
+addValueChangeListener(key, callback) {
       let listenerId = Math.random();
       let listenerData = this.listenerData.get(key) || [];
       listenerData.push({
@@ -644,11 +486,7 @@
       this.listenerData.set(key, listenerData);
       return listenerId;
     }
-    /**
-     * 移除监听
-     * @param listenerId 监听的id或键名
-     */
-    removeValueChangeListener(listenerId) {
+removeValueChangeListener(listenerId) {
       let flag = false;
       for (const [key, listenerData] of this.listenerData.entries()) {
         for (let index = 0; index < listenerData.length; index++) {
@@ -663,13 +501,7 @@
       }
       return flag;
     }
-    /**
-     * 主动触发监听器
-     * @param key 键
-     * @param oldValue （可选）旧值
-     * @param newValue （可选）新值
-     */
-    triggerValueChangeListener(key, oldValue, newValue) {
+triggerValueChangeListener(key, oldValue, newValue) {
       if (!this.listenerData.has(key)) {
         return;
       }
@@ -698,10 +530,7 @@
   const PopsPanelStorageApi = new StorageUtils(KEY);
   const PanelContent = {
     $data: {
-      /**
-       * @private
-       */
-      __contentConfig: null,
+__contentConfig: null,
       get contentConfig() {
         if (this.__contentConfig == null) {
           this.__contentConfig = new utils.Dictionary();
@@ -709,36 +538,20 @@
         return this.__contentConfig;
       }
     },
-    /**
-     * 设置所有配置项，用于初始化默认的值
-     *
-     * 如果是第一组添加的话，那么它默认就是设置菜单打开的配置
-     * @param configList 配置项
-     */
-    addContentConfig(configList) {
+addContentConfig(configList) {
       if (!Array.isArray(configList)) {
         configList = [configList];
       }
       let index = this.$data.contentConfig.keys().length;
       this.$data.contentConfig.set(index, configList);
     },
-    /**
-     * 获取所有的配置内容，用于初始化默认的值
-     */
-    getAllContentConfig() {
+getAllContentConfig() {
       return this.$data.contentConfig.values().flat();
     },
-    /**
-     * 获取配置内容
-     * @param index 配置索引
-     */
-    getConfig(index = 0) {
+getConfig(index = 0) {
       return this.$data.contentConfig.get(index) ?? [];
     },
-    /**
-     * 获取默认左侧底部的配置项
-     */
-    getDefaultBottomContentConfig() {
+getDefaultBottomContentConfig() {
       return [
         {
           id: "script-version",
@@ -779,30 +592,19 @@
     init() {
       this.initExtensionsMenu();
     },
-    /**
-     * 初始化菜单项
-     */
-    initExtensionsMenu() {
+initExtensionsMenu() {
       if (!Panel.isTopWindow()) {
         return;
       }
       GM_Menu.add(this.$data.menuOption);
     },
-    /**
-     * 添加菜单项
-     * @param option 菜单配置
-     */
-    addMenuOption(option) {
+addMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
       this.$data.menuOption.push(...option);
     },
-    /**
-     * 更新菜单项
-     * @param option 菜单配置
-     */
-    updateMenuOption(option) {
+updateMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
@@ -815,115 +617,61 @@
         }
       });
     },
-    /**
-     * 获取菜单项
-     * @param [index=0] 索引
-     */
-    getMenuOption(index = 0) {
+getMenuOption(index = 0) {
       return this.$data.menuOption[index];
     },
-    /**
-     * 删除菜单项
-     * @param [index=0] 索引
-     */
-    deleteMenuOption(index = 0) {
+deleteMenuOption(index = 0) {
       this.$data.menuOption.splice(index, 1);
     }
   };
   const Panel = {
-    /** 数据 */
-    $data: {
-      /**
-       * @private
-       */
-      __contentConfigInitDefaultValue: null,
-      /**
-       * @private
-       */
-      __onceExecMenuData: null,
-      /**
-       * @private
-       */
-      __onceExecData: null,
-      /**
-       * @private
-       */
-      __panelConfig: {},
-      /**
-       * 面板
-       */
-      $panel: null,
-      /**
-       * 面板配置
-       */
-      panelContent: [],
-      /**
-       * 菜单项初始化的默认值
-       */
-      get contentConfigInitDefaultValue() {
+$data: {
+__contentConfigInitDefaultValue: null,
+__onceExecMenuData: null,
+__onceExecData: null,
+__panelConfig: {},
+$panel: null,
+panelContent: [],
+get contentConfigInitDefaultValue() {
         if (this.__contentConfigInitDefaultValue == null) {
           this.__contentConfigInitDefaultValue = new utils.Dictionary();
         }
         return this.__contentConfigInitDefaultValue;
       },
-      /**
-       * 菜单项初始化时禁用的键
-       */
-      contentConfigInitDisabledKeys: [],
-      /**
-       * 成功只执行了一次的菜单项
-       *
-       * + .exec
-       * + .execMenu
-       * + .execMenuOnce
-       */
-      get onceExecMenuData() {
+contentConfigInitDisabledKeys: [],
+get onceExecMenuData() {
         if (this.__onceExecMenuData == null) {
           this.__onceExecMenuData = new utils.Dictionary();
         }
         return this.__onceExecMenuData;
       },
-      /**
-       * 成功只执行了一次的项
-       *
-       * + .onceExec
-       */
-      get onceExecData() {
+get onceExecData() {
         if (this.__onceExecData == null) {
           this.__onceExecData = new utils.Dictionary();
         }
         return this.__onceExecData;
       },
-      /** 脚本名，一般用在设置的标题上 */
-      get scriptName() {
+get scriptName() {
         return SCRIPT_NAME;
       },
-      /**
-       * pops.panel的默认配置
-       */
-      get panelConfig() {
+get panelConfig() {
         return this.__panelConfig;
       },
       set panelConfig(value) {
         this.__panelConfig = value;
       },
-      /** 菜单项的总值在本地数据配置的键名 */
-      key: KEY,
-      /** 菜单项在attributes上配置的菜单键 */
-      attributeKeyName: ATTRIBUTE_KEY,
-      /** 菜单项在attributes上配置的菜单默认值 */
-      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
+key: KEY,
+attributeKeyName: ATTRIBUTE_KEY,
+attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
     },
     init() {
       this.initContentDefaultValue();
       PanelMenu.init();
     },
-    /** 判断是否是顶层窗口 */
-    isTopWindow() {
+isTopWindow() {
       return _unsafeWindow.top === _unsafeWindow.self;
     },
-    /** 初始化菜单项的默认值保存到本地数据中 */
-    initContentDefaultValue() {
+initContentDefaultValue() {
       const initDefaultValue = (config) => {
         if (!config.attributes) {
           return;
@@ -931,7 +679,7 @@
         if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
           return;
         }
-        let menuDefaultConfig = /* @__PURE__ */ new Map();
+        let menuDefaultConfig = new Map();
         let key = config.attributes[ATTRIBUTE_KEY];
         if (key != null) {
           const defaultValue = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
@@ -987,31 +735,16 @@
       }
       this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
     },
-    /**
-     * 设置初始化使用的默认值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    setDefaultValue(key, defaultValue) {
+setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
         log.warn("请检查该key(已存在): " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
-    /**
-     * 设置值
-     * @param key 键
-     * @param value 值
-     */
-    setValue(key, value) {
+setValue(key, value) {
       PopsPanelStorageApi.set(key, value);
     },
-    /**
-     * 获取值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    getValue(key, defaultValue) {
+getValue(key, defaultValue) {
       let localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
         if (this.$data.contentConfigInitDefaultValue.has(key)) {
@@ -1021,66 +754,25 @@
       }
       return localValue;
     },
-    /**
-     * 删除值
-     * @param key 键
-     */
-    deleteValue(key) {
+deleteValue(key) {
       PopsPanelStorageApi.delete(key);
     },
-    /**
-     * 判断该键是否存在
-     * @param key 键
-     */
-    hasKey(key) {
+hasKey(key) {
       return PopsPanelStorageApi.has(key);
     },
-    /**
-     * 监听调用setValue、deleteValue
-     * @param key 需要监听的键
-     * @param callback
-     */
-    addValueChangeListener(key, callback) {
+addValueChangeListener(key, callback) {
       let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
         callback(key, __oldValue, __newValue);
       });
       return listenerId;
     },
-    /**
-     * 移除监听
-     * @param listenerId 监听的id
-     */
-    removeValueChangeListener(listenerId) {
+removeValueChangeListener(listenerId) {
       PopsPanelStorageApi.removeValueChangeListener(listenerId);
     },
-    /**
-     * 主动触发菜单值改变的回调
-     * @param key 菜单键
-     * @param newValue 想要触发的新值，默认使用当前值
-     * @param oldValue 想要触发的旧值，默认使用当前值
-     */
-    triggerMenuValueChange(key, newValue, oldValue) {
+triggerMenuValueChange(key, newValue, oldValue) {
       PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
     },
-    /**
-     * 执行菜单
-     *
-     * @param queryKey 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 执行的回调函数
-     * @param checkExec 判断是否执行回调
-     *
-     * （默认）如果想要每个菜单是`与`关系，即每个菜单都判断为开启，那么就判断它们的值&就行
-     *
-     * 如果想要任意菜单存在true再执行，那么判断它们的值|就行
-     *
-     * + 返回值都为`true`，执行回调，如果回调返回了<style>元素，该元素会在监听到值改变时被移除掉
-     * + 返回值有一个为`false`，则不执行回调，且移除之前回调函数返回的<style>元素
-     * @param once 是否只执行一次，默认true
-     *
-     * + true （默认）只执行一次，且会监听键的值改变
-     * + false 不会监听键的值改变
-     */
-    exec(queryKey, callback, checkExec, once = true) {
+exec(queryKey, callback, checkExec, once = true) {
       const that = this;
       let queryKeyFn;
       if (typeof queryKey === "string" || Array.isArray(queryKey)) {
@@ -1185,28 +877,15 @@
       });
       valueChangeCallback();
       let result = {
-        /**
-         * 清空菜单执行情况
-         *
-         * + 清空存储的元素列表
-         * + 清空值改变的监听器
-         * + 清空存储的一次执行的键
-         */
-        clear() {
+clear() {
           this.clearStoreStyleElements();
           this.removeValueChangeListener();
           once && that.$data.onceExecMenuData.delete(storageKey);
         },
-        /**
-         * 清空存储的元素列表
-         */
-        clearStoreStyleElements: () => {
+clearStoreStyleElements: () => {
           return clearBeforeStoreValue();
         },
-        /**
-         * 移除值改变的监听器
-         */
-        removeValueChangeListener: () => {
+removeValueChangeListener: () => {
           listenerIdList.forEach((listenerId) => {
             this.removeValueChangeListener(listenerId);
           });
@@ -1214,14 +893,7 @@
       };
       return result;
     },
-    /**
-     * 自动判断菜单是否启用，然后执行回调
-     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 回调
-     * @param isReverse 逆反判断菜单启用，默认false
-     * @param once 是否是只执行一次，默认false
-     */
-    execMenu(key, callback, isReverse = false, once = false) {
+execMenu(key, callback, isReverse = false, once = false) {
       return this.exec(
         key,
         (option) => {
@@ -1243,35 +915,15 @@
         once
       );
     },
-    /**
-     * 自动判断菜单是否启用，然后执行回调，只会执行一次
-     *
-     * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
-     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 回调
-     * @param isReverse 逆反判断菜单启用，默认false
-     */
-    execMenuOnce(key, callback, isReverse = false) {
+execMenuOnce(key, callback, isReverse = false) {
       return this.execMenu(key, callback, isReverse, true);
     },
-    /**
-     * 移除已执行的仅执行一次的菜单
-     * + .exec
-     * + .execMenu
-     * + .execMenuOnce
-     * @param key 键
-     */
-    deleteExecMenuOnce(key) {
+deleteExecMenuOnce(key) {
       this.$data.onceExecMenuData.delete(key);
       let flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
-    /**
-     * 根据key执行一次，该key不会和execMenu|exec|execMenuOnce已执行的key冲突
-     * @param key 键
-     * @param callback 回调
-     */
-    onceExec(key, callback) {
+onceExec(key, callback) {
       key = this.transformKey(key);
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
@@ -1282,23 +934,11 @@
       callback();
       this.$data.onceExecData.set(key, 1);
     },
-    /**
-     * 移除已执行的仅执行一次的菜单
-     * + .onceExec
-     * @param key 键
-     */
-    deleteOnceExec(key) {
+deleteOnceExec(key) {
       key = this.transformKey(key);
       this.$data.onceExecData.delete(key);
     },
-    /**
-     * 显示设置面板
-     * @param content 显示的内容配置
-     * @param [title] 标题
-     * @param [preventDefaultContentConfig=false] 是否阻止默认添加内容配置（版本号），默认false
-     * @param [preventRegisterSearchPlugin=false] 是否阻止默认添加搜索组件，默认false
-     */
-    showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
+showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
       this.$data.$panel = null;
       this.$data.panelContent = [];
       let checkHasBottomVersionContentConfig = content.findIndex((it) => {
@@ -1350,11 +990,7 @@
         this.registerConfigSearch({ $panel, content });
       }
     },
-    /**
-     * 注册设置面板的搜索功能（双击左侧选项第一个）
-     * @param config 配置项
-     */
-    registerConfigSearch(config) {
+registerConfigSearch(config) {
       const { $panel, content } = config;
       let asyncQueryProperty = async (target, handler) => {
         if (target == null) {
@@ -1378,10 +1014,8 @@
           },
           {
             root: null,
-            // 使用视口作为根
-            threshold: 1
-            // 元素完全进入视口时触发
-          }
+threshold: 1
+}
         );
         observer.observe($el);
         $el.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1402,8 +1036,7 @@
           },
           content: {
             text: (
-              /*html*/
-              `
+`
 						<div class="search-wrapper">
 							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
 						</div>
@@ -1424,8 +1057,7 @@
           height: "auto",
           drag: true,
           style: (
-            /*css*/
-            `
+`
 					${__pops.config.cssText.panelCSS}
 
 					.search-wrapper{
@@ -1490,8 +1122,7 @@
           let $item = domUtils.createElement("div", {
             className: "search-result-item",
             innerHTML: (
-              /*html*/
-              `
+`
 							<div class="search-result-item-path">${searchPath.matchedData?.path}</div>
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
 						`
@@ -1713,13 +1344,14 @@
           timer = void 0;
           if (isDoubleClick && clickElement === selectorTarget) {
             isDoubleClick = false;
+            clickElement = null;
             dbclick_event(evt);
           } else {
             timer = setTimeout(() => {
               isDoubleClick = false;
             }, 200);
-            clickElement = selectorTarget;
             isDoubleClick = true;
+            clickElement = selectorTarget;
           }
         },
         {
@@ -1730,8 +1362,7 @@
         domUtils.createElement("style", {
           type: "text/css",
           textContent: (
-            /*css*/
-            `
+`
 					.pops-flashing{
 						animation: double-blink 1.5s ease-in-out;
 					}
@@ -1757,10 +1388,7 @@
         })
       );
     },
-    /**
-     * 把key:string[]转为string
-     */
-    transformKey(key) {
+transformKey(key) {
       if (Array.isArray(key)) {
         const keyArray = key.sort();
         return JSON.stringify(keyArray);
@@ -1782,32 +1410,19 @@
     }
   };
   const VueUtils = {
-    /**
-     * 获取vue2实例
-     * @param $el
-     */
-    getVue($el) {
+getVue($el) {
       if ($el == null) {
         return;
       }
       return $el["__vue__"] || $el["__Ivue__"] || $el["__IVue__"];
     },
-    /**
-     * 获取vue3实例
-     * @param $el
-     */
-    getVue3($el) {
+getVue3($el) {
       if ($el == null) {
         return;
       }
       return $el["__vueParentComponent"];
     },
-    /**
-     * 等待vue属性并进行设置
-     * @param $el 目标对象
-     * @param checkOption 需要设置的配置
-     */
-    waitVuePropToSet($el, checkOption) {
+waitVuePropToSet($el, checkOption) {
       if (!Array.isArray(checkOption)) {
         checkOption = [checkOption];
       }
@@ -1874,15 +1489,7 @@
         });
       });
     },
-    /**
-     * 观察vue属性的变化
-     * @param $el 目标对象
-     * @param key 需要观察的属性
-     * @param callback 监听回调
-     * @param watchConfig 监听配置
-     * @param failWait 当检测失败/超时触发该回调
-     */
-    watchVuePropChange($el, key, callback, watchConfig, failWait) {
+watchVuePropChange($el, key, callback, watchConfig, failWait) {
       let config = utils.assign(
         {
           immediate: true,
@@ -1922,13 +1529,7 @@
         });
       });
     },
-    /**
-     * 前往网址
-     * @param $el 包含vue属性的元素
-     * @param path 需要跳转的路径
-     * @param [useRouter=false] 是否强制使用Vue的Router来进行跳转，默认false
-     */
-    goToUrl($el, path, useRouter = false) {
+goToUrl($el, path, useRouter = false) {
       if ($el == null) {
         Qmsg.error("跳转Url: $vueNode为空");
         log.error("跳转Url: $vueNode为空：" + path);
@@ -1965,11 +1566,7 @@
         $router.push(path);
       }
     },
-    /**
-     * 手势返回
-     * @param option 配置
-     */
-    hookGestureReturnByVueRouter(option) {
+hookGestureReturnByVueRouter(option) {
       function popstateEvent() {
         log.success("触发popstate事件");
         resumeBack(true);
@@ -2002,10 +1599,7 @@
     }
   };
   const WeiBoHook = {
-    /**
-     * 劫持Function.prototype.apply;
-     */
-    hookApply() {
+hookApply() {
       log.info("劫持Function.prototype.apply");
       let originApply = _unsafeWindow.Function.prototype.apply;
       _unsafeWindow.Function.prototype.apply = function(...args) {
@@ -2105,10 +1699,7 @@
         return Reflect.apply(target, this, args);
       };
     },
-    /**
-     * 拦截网络
-     */
-    hookNetWork() {
+hookNetWork() {
       WeiBoNetWorkHook.ajaxHooker.hook(function(request) {
         let requestUrl = CommonUtil.fixUrl(request.url);
         log.info("[ajaxHookr] " + requestUrl);
@@ -2175,13 +1766,7 @@
         }
       });
     },
-    /**
-     * 劫持webpack
-     * @param webpackName 当前全局变量的webpack名
-     * @param mainCoreData 需要劫持的webpack的顶部core，例如：(window.webpackJsonp = window.webpackJsonp || []).push([["core:0"],{}])
-     * @param checkCallBack 如果mainCoreData匹配上，则调用此回调函数
-     */
-    hookWebpack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
+hookWebpack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
       let originObject = void 0;
       Object.defineProperty(_unsafeWindow, webpackName, {
         get() {
@@ -2208,10 +1793,7 @@
         }
       });
     },
-    /**
-     * 拦截Vue Router跳转
-     */
-    hookVueRouter() {
+hookVueRouter() {
       VueUtils.waitVuePropToSet("#app", [
         {
           msg: "等待获取属性 __vue__.$router",
@@ -2257,10 +1839,7 @@
         }
       ]);
     },
-    /**
-     * 禁止Service Worker注册
-     */
-    hookServiceWorkerRegister() {
+hookServiceWorkerRegister() {
       log.info("hook => navigator.serviceWorker.register");
       _unsafeWindow.Object.defineProperty(
         _unsafeWindow.navigator.serviceWorker,
@@ -2276,79 +1855,42 @@
     }
   };
   const WeiBoRouter = {
-    /**
-     * 移动端微博
-     * @returns
-     */
-    isMWeiBo() {
+isMWeiBo() {
       return window.location.hostname === "m.weibo.cn";
     },
-    /**
-     * 移动端微博-首页
-     */
-    isMWeiBoHome() {
+isMWeiBoHome() {
       return this.isMWeiBo() && window.location.pathname === "/";
     },
-    /**
-     * 移动端微博-微博正文
-     */
-    isMWeiBo_detail() {
+isMWeiBo_detail() {
       return this.isMWeiBo() && window.location.pathname.startsWith("/detail/");
     },
-    /**
-     * 移动端微博-微博正文
-     */
-    isMWeiBo_status() {
+isMWeiBo_status() {
       return this.isMWeiBo() && window.location.pathname.startsWith("/status/");
     },
-    /**
-     * 移动端微博-用户主页
-     */
-    isMWeiBo_userHome() {
+isMWeiBo_userHome() {
       return this.isMWeiBo() && window.location.pathname.startsWith("/u/");
     },
-    /**
-     * 移动端微博-搜索
-     */
-    isMWeiBo_search() {
+isMWeiBo_search() {
       return this.isMWeiBo() && window.location.pathname.startsWith("/search");
     },
-    /**
-     * 移动端微博-微博热搜
-     */
-    isMWeiBo_HotSearch() {
+isMWeiBo_HotSearch() {
       let searchParams = new URLSearchParams(globalThis.location.search);
       let containerid = searchParams.get("containerid");
       return this.isMWeiBo() && window.location.pathname.startsWith("/p/index") && typeof containerid === "string" && containerid.startsWith("106003");
     },
-    /**
-     * 话题
-     */
-    isHuaTi() {
+isHuaTi() {
       return window.location.hostname === "huati.weibo.cn";
     },
-    /**
-     * 视频页
-     */
-    isVideo() {
+isVideo() {
       return window.location.hostname === "h5.video.weibo.com";
     },
-    /**
-     * 头条
-     */
-    isCard() {
+isCard() {
       return window.location.hostname === "card.weibo.com";
     },
-    /**
-     * 头条文章
-     */
-    isCardArticle() {
+isCardArticle() {
       return this.isCard() && window.location.pathname.startsWith("/article/");
     },
-    /**
-     * 微博直播页面
-     */
-    isLive() {
+isLive() {
       return window.location.hostname === "weibo.com" && window.location.pathname.startsWith("/l/wblive/m/show/");
     }
   };
@@ -2364,10 +1906,7 @@
         }
       );
     },
-    /**
-     * 伪装微博
-     */
-    isWeibo() {
+isWeibo() {
       log.info("伪装微博");
       VueUtils.waitVuePropToSet("#loadMore", [
         {
@@ -2382,10 +1921,7 @@
         }
       ]);
     },
-    /**
-     * 劫持请求让获取更多名人日历信息
-     */
-    hookNetWorkWithGetMoreCelebrityCalendarInformation() {
+hookNetWorkWithGetMoreCelebrityCalendarInformation() {
       WeiBoNetWorkHook.ajaxHooker.hook((request) => {
         log.info("ajaxHookr: ", request.url);
         if (!request.url.startsWith("/ajax/super/starschedule?")) {
@@ -2418,10 +1954,7 @@
     init() {
       this.hookWebpack();
     },
-    /**
-     * 劫持webpack
-     */
-    hookWebpack() {
+hookWebpack() {
       log.info("劫持webpack");
       WeiBoHook.hookWebpack("webpackJsonp", "chunk-common", (webpackExports) => {
         if (typeof webpackExports?.exports === "object" && typeof webpackExports.exports["a"] === "object" && typeof webpackExports.exports["a"]["gotoApp"] === "function" && Panel.getValue("weibo_video_webpack_gotoApp")) {
@@ -2449,20 +1982,17 @@
         return this.shieldRecommend();
       });
     },
-    /** 【屏蔽】底部工具栏 */
-    shieldBottomToolBar() {
+shieldBottomToolBar() {
       log.info("【屏蔽】底部工具栏");
       return CommonUtil.addBlockCSS(".woo-toolBar");
     },
-    /** 【屏蔽】相关推荐 */
-    shieldRecommend() {
+shieldRecommend() {
       log.info("【屏蔽】相关推荐");
       return CommonUtil.addBlockCSS(
         '#app .woo-panel[class*="Playdetail_card_"]:nth-child(2)'
       );
     },
-    /** 【屏蔽】热门评论 */
-    shieldHotComments() {
+shieldHotComments() {
       log.info("【屏蔽】热门评论");
       return CommonUtil.addBlockCSS(
         '#app .woo-panel[class*="Playdetail_card_"]:nth-child(3)'
@@ -2476,10 +2006,7 @@
         return addStyle(blockAdsCSS);
       });
     },
-    /**
-     * 设置正文显示的时间为绝对时间
-     */
-    setArticleAbsoluteTime() {
+setArticleAbsoluteTime() {
       log.info(`监听并设置正文显示的时间为绝对时间`);
       utils.mutationObserver(document.documentElement, {
         config: {
@@ -2609,10 +2136,7 @@
         });
       });
     },
-    /**
-     * 自动聚焦搜索框
-     */
-    autoFocusSearchInput() {
+autoFocusSearchInput() {
       log.info(`自动聚焦搜索框`);
       utils.waitNode(`.ntop-nav input[type="search"]`).then(($input) => {
         if (!$input) {
@@ -2640,10 +2164,7 @@
         }, 250);
       });
     },
-    /**
-     * 新增新标签页打开按钮
-     */
-    addOpenBlankBtn() {
+addOpenBlankBtn() {
       utils.mutationObserver(document.documentElement, {
         config: {
           subtree: true,
@@ -2662,8 +2183,7 @@
             }
             let $ownDiyBtn = domUtils.createElement("div", {
               innerHTML: (
-                /*html*/
-                `
+`
 								<h4>新标签页打开</h4>
 							`
               )
@@ -2703,11 +2223,7 @@
     }
   };
   const WeiBoApi = {
-    /**
-     * 获取组件播放信息
-     * @param oid 格式：xxxx:xxxxxxxxxxx
-     */
-    async component(oid) {
+async component(oid) {
       let postParams = {
         page: "/tv/show/" + oid
       };
@@ -2800,10 +2316,7 @@
       this.$data.newQualityNameList = [];
       this.$data.newQualityNameList.push(...Object.keys(this.$src));
     }
-    /**
-     * 锁定视频清晰度
-     */
-    lockVideoQuality() {
+lockVideoQuality() {
       let that = this;
       log.info("锁定视频清晰度");
       VueUtils.waitVuePropToSet(".video-player .mwb-video", [
@@ -2890,10 +2403,7 @@
         }
       ]);
     }
-    /**
-     * 解锁更多视频清晰度
-     */
-    async unlockVideoHigherQuality() {
+async unlockVideoHigherQuality() {
       let that = this;
       let taskQueue = [];
       $$(".weibo-media-wraps:not([data-unlock-quality])").forEach(
@@ -3005,15 +2515,11 @@
         this.repairArticleUserHomeJump();
       });
     },
-    /**
-     * 自动展开全文
-     */
-    autoExpandFullArticle() {
+autoExpandFullArticle() {
       log.info("自动展开全文");
       return [
         addStyle(
-          /*css*/
-          `
+`
 			.m-container-max .f-art,
 			.m-container-max .art-con-new{
 				height: unset !important;
@@ -3024,17 +2530,11 @@
         CommonUtil.addBlockCSS(".m-container-max .f-art-opt")
       ];
     },
-    /**
-     * 屏蔽评论
-     */
-    blockComment() {
+blockComment() {
       log.info("【屏蔽】评论");
       return CommonUtil.addBlockCSS(".m-container-max .m-panel1");
     },
-    /**
-     * 修复文章用户主页跳转
-     */
-    repairArticleUserHomeJump() {
+repairArticleUserHomeJump() {
       log.info("修复文章用户主页跳转");
       domUtils.on(
         document,
@@ -3075,17 +2575,11 @@
         });
       });
     },
-    /**
-     * 屏蔽右上角的信息红点（登录后）
-     */
-    blockMessageCount() {
+blockMessageCount() {
       log.info(`屏蔽右上角的信息红点（登录后）`);
       return CommonUtil.addBlockCSS(".nav-right .m-bubble");
     },
-    /**
-     * 新增Tab - 超话
-     */
-    addSupertalkTab() {
+addSupertalkTab() {
       VueUtils.waitVuePropToSet(".main-top", {
         check(vueObj) {
           return Array.isArray(vueObj?.tabs);
@@ -3106,10 +2600,7 @@
         }
       });
     },
-    /**
-     * 新增新标签页打开按钮
-     */
-    addOpenBlankBtn() {
+addOpenBlankBtn() {
       utils.mutationObserver(document.documentElement, {
         config: {
           subtree: true,
@@ -3128,8 +2619,7 @@
             }
             let $ownDiyBtn = domUtils.createElement("div", {
               innerHTML: (
-                /*html*/
-                `
+`
 								<h4>新标签页打开</h4>
 							`
               )
@@ -3172,10 +2662,7 @@
         this.openBlank();
       });
     },
-    /**
-     * 新标签页打开链接
-     */
-    openBlank() {
+openBlank() {
       DOMUtils.on(
         document,
         "click",
@@ -3283,26 +2770,17 @@
         log.error("Router: 未适配 => " + window.location.href);
       }
     },
-    /**
-     * 屏蔽 广告
-     */
-    blockAds() {
+blockAds() {
       log.info(`屏蔽 广告`);
       return addStyle(blockAdsCSS$1);
     },
-    /**
-     * 【屏蔽】底部工具栏
-     */
-    shieldBottomBar() {
+shieldBottomBar() {
       log.info("【屏蔽】底部工具栏");
       return CommonUtil.addBlockCSS(
         "#app div.m-tab-bar.m-bar-panel.m-container-max"
       );
     },
-    /**
-     * 解锁微博视频高画质
-     **/
-    unlockVideoHigherQuality() {
+unlockVideoHigherQuality() {
       let lock = new utils.LockFunction(() => {
         this.$data.weiBoUnlockQuality.unlockVideoHigherQuality();
       }, 15);
@@ -3317,10 +2795,7 @@
         }
       });
     },
-    /**
-     * 设置监听事件，监听点击预览中的图片，从而关闭预览
-     */
-    clickImageToClosePreviewImage() {
+clickImageToClosePreviewImage() {
       let selectorList = [".pswp .pswp__item"];
       selectorList.forEach((selector) => {
         domUtils.on(document, "click", selector, (event) => {
@@ -3346,39 +2821,19 @@
         return this.__storeApiFn;
       }
     },
-    /**
-     * 获取自定义的存储接口
-     * @param type 组件类型
-     */
-    getStorageApi(type) {
+getStorageApi(type) {
       if (!this.hasStorageApi(type)) {
         return;
       }
       return this.$data.storeApiValue.get(type);
     },
-    /**
-     * 判断是否存在自定义的存储接口
-     * @param type 组件类型
-     */
-    hasStorageApi(type) {
+hasStorageApi(type) {
       return this.$data.storeApiValue.has(type);
     },
-    /**
-     * 设置自定义的存储接口
-     * @param type 组件类型
-     * @param storageApiValue 存储接口
-     */
-    setStorageApi(type, storageApiValue) {
+setStorageApi(type, storageApiValue) {
       this.$data.storeApiValue.set(type, storageApiValue);
     },
-    /**
-     * 初始化组件的存储接口属性
-     *
-     * @param type 组件类型
-     * @param config 组件配置，必须包含prop属性
-     * @param storageApiValue 存储接口
-     */
-    initComponentsStorageApi(type, config, storageApiValue) {
+initComponentsStorageApi(type, config, storageApiValue) {
       let propsStorageApi;
       if (this.hasStorageApi(type)) {
         propsStorageApi = this.getStorageApi(type);
@@ -3387,12 +2842,7 @@
       }
       this.setComponentsStorageApiProperty(config, propsStorageApi);
     },
-    /**
-     * 设置组件的存储接口属性
-     * @param config 组件配置，必须包含prop属性
-     * @param storageApiValue 存储接口
-     */
-    setComponentsStorageApiProperty(config, storageApiValue) {
+setComponentsStorageApiProperty(config, storageApiValue) {
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
     }
   };
@@ -4145,8 +3595,7 @@
     SettingUICommon,
     SettingUIHome,
     SettingUIDetail,
-    // SettingUIUserHome,
-    SettingUISearch,
+SettingUISearch,
     SettingUIHuaTi,
     SettingUIVideo,
     SettingUICardArticle,
@@ -4154,8 +3603,7 @@
   ]);
   Panel.$data.panelConfig = {
     style: (
-      /*css*/
-      `
+`
         aside.pops-panel-aside{
             width: auto !important;
         }

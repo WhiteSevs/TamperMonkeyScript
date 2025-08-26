@@ -48,10 +48,10 @@ const BaiduMiniJiaoYu = {
 					globalThis: iframe__globalThis,
 					self: iframe__self,
 					top: unsafeWindow.top!,
-					setTimeout: unsafeWindow.setTimeout,
-					setInterval: unsafeWindow.setInterval,
-					clearTimeout: unsafeWindow.clearTimeout,
-					clearInterval: unsafeWindow.clearInterval,
+					setTimeout: unsafeWindow.setTimeout.bind(unsafeWindow),
+					setInterval: unsafeWindow.setInterval.bind(unsafeWindow),
+					clearTimeout: unsafeWindow.clearTimeout.bind(unsafeWindow),
+					clearInterval: unsafeWindow.clearInterval.bind(unsafeWindow),
 				};
 				let iframeDOMUtils = DOMUtils.createDOMUtils(coreOption);
 				let iframeUtils = utils.createUtils(coreOption);

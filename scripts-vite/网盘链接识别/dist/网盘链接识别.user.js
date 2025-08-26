@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.21
+// @version      2025.8.27
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@7272395d2c4ef6f254ee09724e20de4899098bc0/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @connect      *
@@ -83,24 +83,20 @@
 (function (Qmsg, DOMUtils, Utils, pops, CryptoJS) {
   'use strict';
 
-  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
-  var _GM_download = /* @__PURE__ */ (() => typeof GM_download != "undefined" ? GM_download : void 0)();
-  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
-  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
-  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
-  var _GM_openInTab = /* @__PURE__ */ (() => typeof GM_openInTab != "undefined" ? GM_openInTab : void 0)();
-  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
-  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
-  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
-  var _monkeyWindow = /* @__PURE__ */ (() => window)();
+  var _GM_deleteValue = (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
+  var _GM_download = (() => typeof GM_download != "undefined" ? GM_download : void 0)();
+  var _GM_getResourceText = (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
+  var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
+  var _GM_info = (() => typeof GM_info != "undefined" ? GM_info : void 0)();
+  var _GM_openInTab = (() => typeof GM_openInTab != "undefined" ? GM_openInTab : void 0)();
+  var _GM_registerMenuCommand = (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_setValue = (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
+  var _GM_unregisterMenuCommand = (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
+  var _unsafeWindow = (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
+  var _monkeyWindow = (() => window)();
   const CommonUtil = {
-    /**
-     * 移除元素（未出现也可以等待出现）
-     * @param selector 元素选择器
-     */
-    waitRemove(...args) {
+waitRemove(...args) {
       args.forEach((selector) => {
         if (typeof selector !== "string") {
           return;
@@ -110,15 +106,7 @@
         });
       });
     },
-    /**
-     * 添加屏蔽CSS
-     * @param args
-     * @example
-     * addBlockCSS("")
-     * addBlockCSS("","")
-     * addBlockCSS(["",""])
-     */
-    addBlockCSS(...args) {
+addBlockCSS(...args) {
       let selectorList = [];
       if (args.length === 0) {
         return;
@@ -135,16 +123,7 @@
       });
       return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
-    /**
-     * 设置GM_getResourceText的style内容
-     * @param resourceMapData 资源数据
-     * @example
-     * setGMResourceCSS({
-     *   keyName: "ViewerCSS",
-     *   url: "https://example.com/example.css",
-     * })
-     */
-    setGMResourceCSS(resourceMapData) {
+setGMResourceCSS(resourceMapData) {
       let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
       if (typeof cssText === "string" && cssText) {
         addStyle(cssText);
@@ -152,13 +131,7 @@
         CommonUtil.loadStyleLink(resourceMapData.url);
       }
     },
-    /**
-     * 添加<link>标签
-     * @param url
-     * @example
-     * loadStyleLink("https://example.com/example.css")
-     */
-    async loadStyleLink(url) {
+async loadStyleLink(url) {
       let $link = document.createElement("link");
       $link.rel = "stylesheet";
       $link.type = "text/css";
@@ -167,13 +140,7 @@
         document.head.appendChild($link);
       });
     },
-    /**
-     * 添加<script>标签
-     * @param url
-     * @example
-     * loadStyleLink("https://example.com/example.js")
-     */
-    async loadScript(url) {
+async loadScript(url) {
       let $script = document.createElement("script");
       $script.src = url;
       return new Promise((resolve) => {
@@ -183,25 +150,7 @@
         (document.head || document.documentElement).appendChild($script);
       });
     },
-    /**
-     * 将url修复，例如只有search的链接修复为完整的链接
-     *
-     * 注意：不包括http转https
-     * @param url 需要修复的链接
-     * @example
-     * 修复前：`/xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`//xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     */
-    fixUrl(url) {
+fixUrl(url) {
       url = url.trim();
       if (url.match(/^http(s|):\/\//i)) {
         return url;
@@ -219,17 +168,7 @@
         return url;
       }
     },
-    /**
-     * http转https
-     * @param url 需要修复的链接
-     * @example
-     * 修复前：
-     * 修复后：
-     * @example
-     * 修复前：
-     * 修复后：
-     */
-    fixHttps(url) {
+fixHttps(url) {
       if (url.startsWith("https://")) {
         return url;
       }
@@ -240,17 +179,10 @@
       urlInstance.protocol = "https:";
       return urlInstance.toString();
     },
-    /**
-     * 禁止页面滚动，默认锁定html和body
-     * @example
-     * lockScroll();
-     * @example
-     * lockScroll(document.body);
-     */
-    lockScroll(...args) {
+lockScroll(...args) {
       let $hidden = document.createElement("style");
-      $hidden.innerHTML = /*css*/
-      `
+      $hidden.innerHTML =
+`
 			.pops-overflow-hidden-important {
 				overflow: hidden !important;
 			}
@@ -261,10 +193,7 @@
       });
       (document.head || document.documentElement).appendChild($hidden);
       return {
-        /**
-         * 解除锁定
-         */
-        recovery() {
+recovery() {
           $elList.forEach(($el) => {
             $el.classList.remove("pops-overflow-hidden-important");
           });
@@ -272,10 +201,7 @@
         }
       };
     },
-    /**
-     * 获取剪贴板文本
-     */
-    async getClipboardText() {
+async getClipboardText() {
       function readClipboardText(resolve) {
         navigator.clipboard.readText().then((clipboardText) => {
           resolve(clipboardText);
@@ -286,8 +212,7 @@
       }
       function requestPermissionsWithClipboard(resolve) {
         navigator.permissions.query({
-          // @ts-ignore
-          name: "clipboard-read"
+name: "clipboard-read"
         }).then((permissionStatus) => {
           readClipboardText(resolve);
         }).catch((error) => {
@@ -324,20 +249,10 @@
         }
       });
     },
-    /**
-     * html转义
-     * @param unsafe
-     */
-    escapeHtml(unsafe) {
+escapeHtml(unsafe) {
       return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
     },
-    /**
-     * 在规定时间内循环，如果超时或返回false则取消循环
-     * @param fn 循环的函数
-     * @param intervalTime 循环间隔时间
-     * @param [timeout=5000] 循环超时时间
-     */
-    interval(fn, intervalTime, timeout = 5e3) {
+interval(fn, intervalTime, timeout = 5e3) {
       let timeId;
       let maxTimeout = timeout - intervalTime;
       let intervalTimeCount = intervalTime;
@@ -358,10 +273,7 @@
       };
       loop(false);
     },
-    /**
-     * 找到对应的上层元素
-     */
-    findParentNode($el, selector, parentSelector) {
+findParentNode($el, selector, parentSelector) {
       if (parentSelector) {
         let $parent = DOMUtils.closest($el, parentSelector);
         if ($parent) {
@@ -378,18 +290,15 @@
     }
   };
   const PanelSettingConfig = {
-    /** Toast位置 */
-    qmsg_config_position: {
+qmsg_config_position: {
       key: "qmsg-config-position",
       defaultValue: "bottom"
     },
-    /** 最多显示的数量 */
-    qmsg_config_maxnums: {
+qmsg_config_maxnums: {
       key: "qmsg-config-maxnums",
       defaultValue: 3
     },
-    /** 逆序弹出 */
-    qmsg_config_showreverse: {
+qmsg_config_showreverse: {
       key: "qmsg-config-showreverse",
       defaultValue: false
     }
@@ -467,10 +376,8 @@
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
     },
     mask: {
-      // 开启遮罩层
-      enable: true,
-      // 取消点击遮罩层的事件
-      clickEvent: {
+enable: true,
+clickEvent: {
         toClose: false,
         toHide: false
       }
@@ -527,10 +434,7 @@
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const PROPS_STORAGE_API = "data-storage-api";
   const PanelUISize = {
-    /**
-     * 一般设置界面的尺寸
-     */
-    setting: {
+setting: {
       get width() {
         if (window.innerWidth < 550) {
           return "88vw";
@@ -550,10 +454,7 @@
         }
       }
     },
-    /**
-     * 中等的设置界面
-     */
-    settingMiddle: {
+settingMiddle: {
       get width() {
         return window.innerWidth < 350 ? "88vw" : "350px";
       },
@@ -561,10 +462,7 @@
         return window.innerHeight < 450 ? "88vh" : "450px";
       }
     },
-    /**
-     * 功能丰富，aside铺满了的设置界面，要稍微大一点
-     */
-    settingBig: {
+settingBig: {
       get width() {
         return window.innerWidth < 800 ? "92vw" : "800px";
       },
@@ -572,10 +470,7 @@
         return window.innerHeight < 600 ? "80vh" : "600px";
       }
     },
-    /**
-     * 信息界面，一般用于提示信息之类
-     */
-    info: {
+info: {
       get width() {
         return window.innerWidth < 350 ? "88vw" : "350px";
       },
@@ -585,25 +480,9 @@
     }
   };
   class StorageUtils {
-    /** 存储的键名 */
-    storageKey;
+storageKey;
     listenerData;
-    /**
-     * 存储的键名，可以是多层的，如：a.b.c
-     *
-     * 那就是
-     * {
-     *  "a": {
-     *     "b": {
-     *       "c": {
-     *         ...你的数据
-     *       }
-     *     }
-     *   }
-     * }
-     * @param key
-     */
-    constructor(key) {
+constructor(key) {
       if (typeof key === "string") {
         let trimKey = key.trim();
         if (trimKey == "") {
@@ -615,10 +494,7 @@
       }
       this.listenerData = new Utils.Dictionary();
     }
-    /**
-     * 获取本地值
-     */
-    getLocalValue() {
+getLocalValue() {
       let localValue = _GM_getValue(this.storageKey);
       if (localValue == null) {
         localValue = {};
@@ -626,89 +502,49 @@
       }
       return localValue;
     }
-    /**
-     * 设置本地值
-     * @param value
-     */
-    setLocalValue(value) {
+setLocalValue(value) {
       _GM_setValue(this.storageKey, value);
     }
-    /**
-     * 设置值
-     * @param key 键
-     * @param value 值
-     */
-    set(key, value) {
+set(key, value) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, value);
     }
-    /**
-     * 获取值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    get(key, defaultValue) {
+get(key, defaultValue) {
       let localValue = this.getLocalValue();
       return Reflect.get(localValue, key) ?? defaultValue;
     }
-    /**
-     * 获取所有值
-     */
-    getAll() {
+getAll() {
       let localValue = this.getLocalValue();
       return localValue;
     }
-    /**
-     * 删除值
-     * @param key 键
-     */
-    delete(key) {
+delete(key) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, void 0);
     }
-    /**
-     * 判断是否存在该值
-     */
-    has(key) {
+has(key) {
       let localValue = this.getLocalValue();
       return Reflect.has(localValue, key);
     }
-    /**
-     * 获取所有键
-     */
-    keys() {
+keys() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue);
     }
-    /**
-     * 获取所有值
-     */
-    values() {
+values() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue).map(
         (key) => Reflect.get(localValue, key)
       );
     }
-    /**
-     * 清空所有值
-     */
-    clear() {
+clear() {
       _GM_deleteValue(this.storageKey);
     }
-    /**
-     * 监听值改变
-     * + .set
-     * + .delete
-     * @param key 监听的键
-     * @param callback 值改变的回调函数
-     */
-    addValueChangeListener(key, callback) {
+addValueChangeListener(key, callback) {
       let listenerId = Math.random();
       let listenerData = this.listenerData.get(key) || [];
       listenerData.push({
@@ -719,11 +555,7 @@
       this.listenerData.set(key, listenerData);
       return listenerId;
     }
-    /**
-     * 移除监听
-     * @param listenerId 监听的id或键名
-     */
-    removeValueChangeListener(listenerId) {
+removeValueChangeListener(listenerId) {
       let flag = false;
       for (const [key, listenerData] of this.listenerData.entries()) {
         for (let index = 0; index < listenerData.length; index++) {
@@ -738,13 +570,7 @@
       }
       return flag;
     }
-    /**
-     * 主动触发监听器
-     * @param key 键
-     * @param oldValue （可选）旧值
-     * @param newValue （可选）新值
-     */
-    triggerValueChangeListener(key, oldValue, newValue) {
+triggerValueChangeListener(key, oldValue, newValue) {
       if (!this.listenerData.has(key)) {
         return;
       }
@@ -773,10 +599,7 @@
   const PopsPanelStorageApi = new StorageUtils(KEY);
   const PanelContent = {
     $data: {
-      /**
-       * @private
-       */
-      __contentConfig: null,
+__contentConfig: null,
       get contentConfig() {
         if (this.__contentConfig == null) {
           this.__contentConfig = new utils.Dictionary();
@@ -784,36 +607,20 @@
         return this.__contentConfig;
       }
     },
-    /**
-     * 设置所有配置项，用于初始化默认的值
-     *
-     * 如果是第一组添加的话，那么它默认就是设置菜单打开的配置
-     * @param configList 配置项
-     */
-    addContentConfig(configList) {
+addContentConfig(configList) {
       if (!Array.isArray(configList)) {
         configList = [configList];
       }
       let index = this.$data.contentConfig.keys().length;
       this.$data.contentConfig.set(index, configList);
     },
-    /**
-     * 获取所有的配置内容，用于初始化默认的值
-     */
-    getAllContentConfig() {
+getAllContentConfig() {
       return this.$data.contentConfig.values().flat();
     },
-    /**
-     * 获取配置内容
-     * @param index 配置索引
-     */
-    getConfig(index = 0) {
+getConfig(index = 0) {
       return this.$data.contentConfig.get(index) ?? [];
     },
-    /**
-     * 获取默认左侧底部的配置项
-     */
-    getDefaultBottomContentConfig() {
+getDefaultBottomContentConfig() {
       return [
         {
           id: "script-version",
@@ -854,30 +661,19 @@
     init() {
       this.initExtensionsMenu();
     },
-    /**
-     * 初始化菜单项
-     */
-    initExtensionsMenu() {
+initExtensionsMenu() {
       if (!Panel.isTopWindow()) {
         return;
       }
       GM_Menu.add(this.$data.menuOption);
     },
-    /**
-     * 添加菜单项
-     * @param option 菜单配置
-     */
-    addMenuOption(option) {
+addMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
       this.$data.menuOption.push(...option);
     },
-    /**
-     * 更新菜单项
-     * @param option 菜单配置
-     */
-    updateMenuOption(option) {
+updateMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
@@ -890,115 +686,61 @@
         }
       });
     },
-    /**
-     * 获取菜单项
-     * @param [index=0] 索引
-     */
-    getMenuOption(index = 0) {
+getMenuOption(index = 0) {
       return this.$data.menuOption[index];
     },
-    /**
-     * 删除菜单项
-     * @param [index=0] 索引
-     */
-    deleteMenuOption(index = 0) {
+deleteMenuOption(index = 0) {
       this.$data.menuOption.splice(index, 1);
     }
   };
   const Panel = {
-    /** 数据 */
-    $data: {
-      /**
-       * @private
-       */
-      __contentConfigInitDefaultValue: null,
-      /**
-       * @private
-       */
-      __onceExecMenuData: null,
-      /**
-       * @private
-       */
-      __onceExecData: null,
-      /**
-       * @private
-       */
-      __panelConfig: {},
-      /**
-       * 面板
-       */
-      $panel: null,
-      /**
-       * 面板配置
-       */
-      panelContent: [],
-      /**
-       * 菜单项初始化的默认值
-       */
-      get contentConfigInitDefaultValue() {
+$data: {
+__contentConfigInitDefaultValue: null,
+__onceExecMenuData: null,
+__onceExecData: null,
+__panelConfig: {},
+$panel: null,
+panelContent: [],
+get contentConfigInitDefaultValue() {
         if (this.__contentConfigInitDefaultValue == null) {
           this.__contentConfigInitDefaultValue = new utils.Dictionary();
         }
         return this.__contentConfigInitDefaultValue;
       },
-      /**
-       * 菜单项初始化时禁用的键
-       */
-      contentConfigInitDisabledKeys: [],
-      /**
-       * 成功只执行了一次的菜单项
-       *
-       * + .exec
-       * + .execMenu
-       * + .execMenuOnce
-       */
-      get onceExecMenuData() {
+contentConfigInitDisabledKeys: [],
+get onceExecMenuData() {
         if (this.__onceExecMenuData == null) {
           this.__onceExecMenuData = new utils.Dictionary();
         }
         return this.__onceExecMenuData;
       },
-      /**
-       * 成功只执行了一次的项
-       *
-       * + .onceExec
-       */
-      get onceExecData() {
+get onceExecData() {
         if (this.__onceExecData == null) {
           this.__onceExecData = new utils.Dictionary();
         }
         return this.__onceExecData;
       },
-      /** 脚本名，一般用在设置的标题上 */
-      get scriptName() {
+get scriptName() {
         return SCRIPT_NAME;
       },
-      /**
-       * pops.panel的默认配置
-       */
-      get panelConfig() {
+get panelConfig() {
         return this.__panelConfig;
       },
       set panelConfig(value) {
         this.__panelConfig = value;
       },
-      /** 菜单项的总值在本地数据配置的键名 */
-      key: KEY,
-      /** 菜单项在attributes上配置的菜单键 */
-      attributeKeyName: ATTRIBUTE_KEY,
-      /** 菜单项在attributes上配置的菜单默认值 */
-      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
+key: KEY,
+attributeKeyName: ATTRIBUTE_KEY,
+attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
     },
     init() {
       this.initContentDefaultValue();
       PanelMenu.init();
     },
-    /** 判断是否是顶层窗口 */
-    isTopWindow() {
+isTopWindow() {
       return _unsafeWindow.top === _unsafeWindow.self;
     },
-    /** 初始化菜单项的默认值保存到本地数据中 */
-    initContentDefaultValue() {
+initContentDefaultValue() {
       const initDefaultValue = (config) => {
         if (!config.attributes) {
           return;
@@ -1006,7 +748,7 @@
         if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
           return;
         }
-        let menuDefaultConfig = /* @__PURE__ */ new Map();
+        let menuDefaultConfig = new Map();
         let key = config.attributes[ATTRIBUTE_KEY];
         if (key != null) {
           const defaultValue = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
@@ -1062,31 +804,16 @@
       }
       this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
     },
-    /**
-     * 设置初始化使用的默认值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    setDefaultValue(key, defaultValue) {
+setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
         log.warn("请检查该key(已存在): " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
-    /**
-     * 设置值
-     * @param key 键
-     * @param value 值
-     */
-    setValue(key, value) {
+setValue(key, value) {
       PopsPanelStorageApi.set(key, value);
     },
-    /**
-     * 获取值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    getValue(key, defaultValue) {
+getValue(key, defaultValue) {
       let localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
         if (this.$data.contentConfigInitDefaultValue.has(key)) {
@@ -1096,66 +823,25 @@
       }
       return localValue;
     },
-    /**
-     * 删除值
-     * @param key 键
-     */
-    deleteValue(key) {
+deleteValue(key) {
       PopsPanelStorageApi.delete(key);
     },
-    /**
-     * 判断该键是否存在
-     * @param key 键
-     */
-    hasKey(key) {
+hasKey(key) {
       return PopsPanelStorageApi.has(key);
     },
-    /**
-     * 监听调用setValue、deleteValue
-     * @param key 需要监听的键
-     * @param callback
-     */
-    addValueChangeListener(key, callback) {
+addValueChangeListener(key, callback) {
       let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
         callback(key, __oldValue, __newValue);
       });
       return listenerId;
     },
-    /**
-     * 移除监听
-     * @param listenerId 监听的id
-     */
-    removeValueChangeListener(listenerId) {
+removeValueChangeListener(listenerId) {
       PopsPanelStorageApi.removeValueChangeListener(listenerId);
     },
-    /**
-     * 主动触发菜单值改变的回调
-     * @param key 菜单键
-     * @param newValue 想要触发的新值，默认使用当前值
-     * @param oldValue 想要触发的旧值，默认使用当前值
-     */
-    triggerMenuValueChange(key, newValue, oldValue) {
+triggerMenuValueChange(key, newValue, oldValue) {
       PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
     },
-    /**
-     * 执行菜单
-     *
-     * @param queryKey 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 执行的回调函数
-     * @param checkExec 判断是否执行回调
-     *
-     * （默认）如果想要每个菜单是`与`关系，即每个菜单都判断为开启，那么就判断它们的值&就行
-     *
-     * 如果想要任意菜单存在true再执行，那么判断它们的值|就行
-     *
-     * + 返回值都为`true`，执行回调，如果回调返回了<style>元素，该元素会在监听到值改变时被移除掉
-     * + 返回值有一个为`false`，则不执行回调，且移除之前回调函数返回的<style>元素
-     * @param once 是否只执行一次，默认true
-     *
-     * + true （默认）只执行一次，且会监听键的值改变
-     * + false 不会监听键的值改变
-     */
-    exec(queryKey, callback, checkExec, once = true) {
+exec(queryKey, callback, checkExec, once = true) {
       const that = this;
       let queryKeyFn;
       if (typeof queryKey === "string" || Array.isArray(queryKey)) {
@@ -1260,28 +946,15 @@
       });
       valueChangeCallback();
       let result = {
-        /**
-         * 清空菜单执行情况
-         *
-         * + 清空存储的元素列表
-         * + 清空值改变的监听器
-         * + 清空存储的一次执行的键
-         */
-        clear() {
+clear() {
           this.clearStoreStyleElements();
           this.removeValueChangeListener();
           once && that.$data.onceExecMenuData.delete(storageKey);
         },
-        /**
-         * 清空存储的元素列表
-         */
-        clearStoreStyleElements: () => {
+clearStoreStyleElements: () => {
           return clearBeforeStoreValue();
         },
-        /**
-         * 移除值改变的监听器
-         */
-        removeValueChangeListener: () => {
+removeValueChangeListener: () => {
           listenerIdList.forEach((listenerId) => {
             this.removeValueChangeListener(listenerId);
           });
@@ -1289,14 +962,7 @@
       };
       return result;
     },
-    /**
-     * 自动判断菜单是否启用，然后执行回调
-     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 回调
-     * @param isReverse 逆反判断菜单启用，默认false
-     * @param once 是否是只执行一次，默认false
-     */
-    execMenu(key, callback, isReverse = false, once = false) {
+execMenu(key, callback, isReverse = false, once = false) {
       return this.exec(
         key,
         (option) => {
@@ -1318,35 +984,15 @@
         once
       );
     },
-    /**
-     * 自动判断菜单是否启用，然后执行回调，只会执行一次
-     *
-     * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
-     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 回调
-     * @param isReverse 逆反判断菜单启用，默认false
-     */
-    execMenuOnce(key, callback, isReverse = false) {
+execMenuOnce(key, callback, isReverse = false) {
       return this.execMenu(key, callback, isReverse, true);
     },
-    /**
-     * 移除已执行的仅执行一次的菜单
-     * + .exec
-     * + .execMenu
-     * + .execMenuOnce
-     * @param key 键
-     */
-    deleteExecMenuOnce(key) {
+deleteExecMenuOnce(key) {
       this.$data.onceExecMenuData.delete(key);
       let flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
-    /**
-     * 根据key执行一次，该key不会和execMenu|exec|execMenuOnce已执行的key冲突
-     * @param key 键
-     * @param callback 回调
-     */
-    onceExec(key, callback) {
+onceExec(key, callback) {
       key = this.transformKey(key);
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
@@ -1357,23 +1003,11 @@
       callback();
       this.$data.onceExecData.set(key, 1);
     },
-    /**
-     * 移除已执行的仅执行一次的菜单
-     * + .onceExec
-     * @param key 键
-     */
-    deleteOnceExec(key) {
+deleteOnceExec(key) {
       key = this.transformKey(key);
       this.$data.onceExecData.delete(key);
     },
-    /**
-     * 显示设置面板
-     * @param content 显示的内容配置
-     * @param [title] 标题
-     * @param [preventDefaultContentConfig=false] 是否阻止默认添加内容配置（版本号），默认false
-     * @param [preventRegisterSearchPlugin=false] 是否阻止默认添加搜索组件，默认false
-     */
-    showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
+showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
       this.$data.$panel = null;
       this.$data.panelContent = [];
       let checkHasBottomVersionContentConfig = content.findIndex((it) => {
@@ -1425,11 +1059,7 @@
         this.registerConfigSearch({ $panel, content });
       }
     },
-    /**
-     * 注册设置面板的搜索功能（双击左侧选项第一个）
-     * @param config 配置项
-     */
-    registerConfigSearch(config) {
+registerConfigSearch(config) {
       const { $panel, content } = config;
       let asyncQueryProperty = async (target, handler) => {
         if (target == null) {
@@ -1453,10 +1083,8 @@
           },
           {
             root: null,
-            // 使用视口作为根
-            threshold: 1
-            // 元素完全进入视口时触发
-          }
+threshold: 1
+}
         );
         observer.observe($el);
         $el.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1477,8 +1105,7 @@
           },
           content: {
             text: (
-              /*html*/
-              `
+`
 						<div class="search-wrapper">
 							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
 						</div>
@@ -1499,8 +1126,7 @@
           height: "auto",
           drag: true,
           style: (
-            /*css*/
-            `
+`
 					${__pops.config.cssText.panelCSS}
 
 					.search-wrapper{
@@ -1565,8 +1191,7 @@
           let $item = domUtils.createElement("div", {
             className: "search-result-item",
             innerHTML: (
-              /*html*/
-              `
+`
 							<div class="search-result-item-path">${searchPath.matchedData?.path}</div>
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
 						`
@@ -1788,13 +1413,14 @@
           timer = void 0;
           if (isDoubleClick && clickElement === selectorTarget) {
             isDoubleClick = false;
+            clickElement = null;
             dbclick_event(evt);
           } else {
             timer = setTimeout(() => {
               isDoubleClick = false;
             }, 200);
-            clickElement = selectorTarget;
             isDoubleClick = true;
+            clickElement = selectorTarget;
           }
         },
         {
@@ -1805,8 +1431,7 @@
         domUtils.createElement("style", {
           type: "text/css",
           textContent: (
-            /*css*/
-            `
+`
 					.pops-flashing{
 						animation: double-blink 1.5s ease-in-out;
 					}
@@ -1832,10 +1457,7 @@
         })
       );
     },
-    /**
-     * 把key:string[]转为string
-     */
-    transformKey(key) {
+transformKey(key) {
       if (Array.isArray(key)) {
         const keyArray = key.sort();
         return JSON.stringify(keyArray);
@@ -1845,10 +1467,7 @@
     }
   };
   class Paging {
-    /**
-     * @type {DeepRequired<PagingConfig>}
-     */
-    CONFIG = {
+CONFIG = {
       data: [],
       pageCount: 5,
       pageStep: 3,
@@ -1877,28 +1496,20 @@
       }
     };
     PAGE_CONFIG = {
-      /**
-       * 获取当前所在页
-       * @returns {Number}
-       */
-      getCurrentPage: () => {
+getCurrentPage: () => {
         return this.DOM_CONFIG.getAttributeWithPageId(
-          // @ts-ignore
-          this.DOM_CONFIG.getAttributeWithCurrentPage()
+this.DOM_CONFIG.getAttributeWithCurrentPage()
         );
       },
-      /** 最大页码 */
-      maxPage: 1
+maxPage: 1
     };
     DOM_CONFIG = {
-      /* 整个分页元素 */
-      dataPagingNode: {
+dataPagingNode: {
         localName: "div",
         id: "whitesev-datapaging",
         dom: null
       },
-      /* 第一页按钮 */
-      firstBtnNode: {
+firstBtnNode: {
         localName: "a",
         className: "pg-first",
         svgHTML: `<svg t="1694497357294" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4758" width="20"><path d="M730.639277 211.376748l60.943177 60.943176-301.698894 301.698893L428.940384 513.075641z" p-id="4759"></path><path d="M730.496772 814.924547l60.943176-60.943176-301.698893-301.698893L428.797879 513.225654z" p-id="4760"></path><path d="M298.666667 213.333333h85.333333v597.333334H298.666667z" p-id="4761"></path></svg>`,
@@ -1908,8 +1519,7 @@
           );
         }
       },
-      /* 上一页按钮 */
-      prevBtnNode: {
+prevBtnNode: {
         localName: "a",
         className: "pg-prev",
         svgHTML: `<svg t="1694497840770" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5272" width="20"><path d="M620.322607 151.04875l60.943176 60.943176-362.038672 362.038672L258.283935 513.087422z" p-id="5273"></path><path d="M620.180101 875.252545l60.943177-60.943176-362.038672-362.038672L258.141429 513.213873z" p-id="5274"></path></svg>`,
@@ -1919,8 +1529,7 @@
           );
         }
       },
-      /* 下一页按钮 */
-      nextBtnNode: {
+nextBtnNode: {
         localName: "a",
         className: "pg-next",
         svgHTML: `<svg t="1694497949481" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5465" width="20"><path d="M403.399239 151.02258l-60.943177 60.943177 362.038672 362.038672L765.437911 513.061252z" p-id="5466"></path><path d="M403.576858 875.263008l-60.943176-60.943176 362.038672-362.038672L765.61553 513.224336z" p-id="5467"></path></svg>`,
@@ -1930,8 +1539,7 @@
           );
         }
       },
-      /* 最后一页按钮 */
-      lastBtnNode: {
+lastBtnNode: {
         localName: "a",
         className: "pg-last",
         svgHTML: `<svg t="1694498035538" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2299" width="20"><path d="M516.266667 490.666667L256 230.4 315.733333 170.666667l320 320L315.733333 810.666667 256 750.933333l260.266667-260.266666zM678.4 170.666667h85.333333v640h-85.333333V170.666667z" p-id="2300"></path></svg>`,
@@ -1941,139 +1549,72 @@
           );
         }
       },
-      /**
-       * 设置 元素的 页码 值
-       * @param {HTMLElement} node
-       */
-      // @ts-ignore
-      setAttributeWithPageId: (node, page) => {
+
+setAttributeWithPageId: (node, page) => {
         node.setAttribute("page-id", page);
       },
-      /**
-       * 获取 元素 的页码属性
-       * @param {HTMLElement} node
-       * @returns {number|null}
-       */
-      getAttributeWithPageId: (node) => {
+getAttributeWithPageId: (node) => {
         return node?.getAttribute("page-id") ? (
-          // @ts-ignore
-          parseInt(node.getAttribute("page-id"))
+parseInt(node.getAttribute("page-id"))
         ) : null;
       },
-      /**
-       * 判断 元素 是否存在页码属性
-       * @param {HTMLElement} node
-       * @returns {Boolean}
-       */
-      hasAttributeWithPageId: (node) => {
+hasAttributeWithPageId: (node) => {
         return node.hasAttribute("page-id");
       },
-      /**
-       * 设置 元素的属性 为当前所在页码
-       * @param {HTMLElement} node
-       */
-      setAttributeWithCurrentPage: (node) => {
+setAttributeWithCurrentPage: (node) => {
         node.setAttribute("data-current-page", "");
       },
-      /**
-       * 获取当前页码的元素
-       * @param {HTMLElement?} dataPagingNode
-       * @returns {HTMLElement|null}
-       */
-      getAttributeWithCurrentPage: (dataPagingNode) => {
+getAttributeWithCurrentPage: (dataPagingNode) => {
         return (
-          // @ts-ignore
-          (dataPagingNode || this.DOM_CONFIG.dataPagingNode.dom).querySelector(
+(dataPagingNode || this.DOM_CONFIG.dataPagingNode.dom).querySelector(
             "a[data-current-page]"
           )
         );
       },
-      /**
-       * 判断 元素 是否存在 当前页的属性
-       * @param {HTMLElement} node
-       * @returns
-       */
-      hasAttributeWithCurrentPage: (node) => {
+hasAttributeWithCurrentPage: (node) => {
         return node.hasAttribute("data-current-page");
       },
-      /**
-       * 移除 当前页码的属性
-       * @param {HTMLElement} node
-       */
-      removeAttributeWithCurrentPage: (node) => {
+removeAttributeWithCurrentPage: (node) => {
         node.removeAttribute("data-current-page");
       },
-      /**
-       * 设置 元素 禁用
-       * @param {HTMLElement} node
-       */
-      setAttributeWithDisabled: (node) => {
+setAttributeWithDisabled: (node) => {
         node.setAttribute("disabled", "true");
       },
-      /**
-       * 移除当前页面的禁用的元素
-       * @param {HTMLElement|null} dataPagingNode
-       */
-      removeAllAttributeWithDisabled: (dataPagingNode) => {
+removeAllAttributeWithDisabled: (dataPagingNode) => {
         (dataPagingNode || this.DOM_CONFIG.dataPagingNode.dom).querySelectorAll("a[class][disabled]").forEach((item) => {
           item.removeAttribute("disabled");
         });
       },
-      /**
-       * 获取 第一页 元素节点
-       * @param {HTMLElement?} dataPagingNode
-       * @returns {HTMLElement|null}
-       */
-      getFirstPageNode: (dataPagingNode) => {
+getFirstPageNode: (dataPagingNode) => {
         return (
-          // @ts-ignore
-          (dataPagingNode || this.DOM_CONFIG.dataPagingNode.dom).querySelector(
+(dataPagingNode || this.DOM_CONFIG.dataPagingNode.dom).querySelector(
             "a[page-id='1']"
           )
         );
       },
-      /**
-       * 获取 最后一页 元素节点
-       * @param {HTMLElement?} dataPagingNode
-       * @returns {HTMLElement|null}
-       */
-      getLastPageNode: (dataPagingNode) => {
+getLastPageNode: (dataPagingNode) => {
         return (
-          // @ts-ignore
-          (dataPagingNode || this.DOM_CONFIG.dataPagingNode.dom).querySelector(
+(dataPagingNode || this.DOM_CONFIG.dataPagingNode.dom).querySelector(
             `a[page-id='${this.PAGE_CONFIG.maxPage}']`
           )
         );
       },
-      /**
-       * 获取当前所有的页码元素节点
-       * @param {HTMLElement?} dataPagingNode
-       * @returns {NodeList}
-       */
-      getAllPageNode: (dataPagingNode) => {
+getAllPageNode: (dataPagingNode) => {
         return (
-          // @ts-ignore
-          (dataPagingNode || this.DOM_CONFIG.dataPagingNode.dom).querySelectorAll(
+(dataPagingNode || this.DOM_CONFIG.dataPagingNode.dom).querySelectorAll(
             "a[page-id]"
           )
         );
       }
     };
-    /**
-     * @param {PagingConfig} details
-     */
-    constructor(details) {
+constructor(details) {
       this.changeConfig(details);
     }
-    /**
-     * 添加CSS
-     * @param {Node} target 添加到目标元素
-     */
-    addCSS(target = document.head) {
+addCSS(target = document.head) {
       let cssNode = document.createElement("style");
       cssNode.setAttribute("type", "text/css");
-      cssNode.innerHTML = /*css*/
-      `@charset "utf-8";
+      cssNode.innerHTML =
+`@charset "utf-8";
 		#${this.DOM_CONFIG.dataPagingNode.id} {
 			text-align: center;
 			display: inline-block;
@@ -2134,11 +1675,7 @@
 		`;
       target.appendChild(cssNode);
     }
-    /**
-     * 获取分页元素
-     * @returns {Element}
-     */
-    getDataPagingNode() {
+getDataPagingNode() {
       let that = this;
       let dataPagingNode = document.createElement(
         that.DOM_CONFIG.dataPagingNode.localName
@@ -2254,12 +1791,7 @@
       }
       return dataPagingNode;
     }
-    /**
-     * 设置 第一页 点击事件
-     * @param {HTMLElement} btnNode 元素
-     * @param {HTMLElement} dataPagingNode 分页元素(主)
-     */
-    setFirstBtnClickEvent(btnNode, dataPagingNode) {
+setFirstBtnClickEvent(btnNode, dataPagingNode) {
       let that = this;
       btnNode.onclick = function() {
         let currentNode = that.DOM_CONFIG.getAttributeWithCurrentPage();
@@ -2290,12 +1822,7 @@
         that.CONFIG.pageChangeCallBack(1);
       };
     }
-    /**
-     * 设置 上一页 点击事件
-     * @param {HTMLElement} btnNode 元素
-     * @param {HTMLElement} dataPagingNode 分页元素(主)
-     */
-    setPrevBtnClickEvent(btnNode, dataPagingNode) {
+setPrevBtnClickEvent(btnNode, dataPagingNode) {
       let that = this;
       btnNode.onclick = function() {
         let currentNode = that.DOM_CONFIG.getAttributeWithCurrentPage();
@@ -2304,8 +1831,7 @@
         }
         that.CONFIG.prevBtn.callBack();
         if (that.DOM_CONFIG.hasAttributeWithPageId(
-          // @ts-ignore
-          currentNode.previousElementSibling
+currentNode.previousElementSibling
         )) {
           currentNode.previousElementSibling.click();
         } else {
@@ -2329,25 +1855,18 @@
         }
       };
     }
-    /**
-     * 设置 下一页 点击事件
-     * @param {HTMLElement} btnNode 元素
-     * @param {HTMLElement} dataPagingNode 分页元素(主)
-     */
-    setNextBtnClickEvent(btnNode, dataPagingNode) {
+setNextBtnClickEvent(btnNode, dataPagingNode) {
       let that = this;
       btnNode.onclick = function() {
         let currentNode = that.DOM_CONFIG.getAttributeWithCurrentPage();
         if (
-          // @ts-ignore
-          that.DOM_CONFIG.getAttributeWithPageId(currentNode) === that.PAGE_CONFIG.maxPage
+that.DOM_CONFIG.getAttributeWithPageId(currentNode) === that.PAGE_CONFIG.maxPage
         ) {
           return;
         }
         that.CONFIG.nextBtn.callBack();
         if (
-          // @ts-ignore
-          that.DOM_CONFIG.hasAttributeWithPageId(currentNode.nextElementSibling)
+that.DOM_CONFIG.hasAttributeWithPageId(currentNode.nextElementSibling)
         ) {
           currentNode.nextElementSibling.click();
         } else {
@@ -2365,8 +1884,7 @@
         }
         that.DOM_CONFIG.removeAllAttributeWithDisabled(dataPagingNode);
         if (
-          // @ts-ignore
-          that.DOM_CONFIG.getLastPageNode() && that.PAGE_CONFIG.getCurrentPage() == that.PAGE_CONFIG.maxPage
+that.DOM_CONFIG.getLastPageNode() && that.PAGE_CONFIG.getCurrentPage() == that.PAGE_CONFIG.maxPage
         ) {
           that.DOM_CONFIG.setAttributeWithDisabled(
             that.DOM_CONFIG.nextBtnNode.get()
@@ -2377,18 +1895,12 @@
         }
       };
     }
-    /**
-     * 设置 最后一页 点击事件
-     * @param {HTMLElement} btnNode 元素
-     * @param {HTMLElement} dataPagingNode 分页元素(主)
-     */
-    setLastBtnClickEvent(btnNode, dataPagingNode) {
+setLastBtnClickEvent(btnNode, dataPagingNode) {
       let that = this;
       btnNode.onclick = function() {
         let currentNode = that.DOM_CONFIG.getAttributeWithCurrentPage();
         if (
-          // @ts-ignore
-          that.DOM_CONFIG.getAttributeWithPageId(currentNode) === that.PAGE_CONFIG.maxPage
+that.DOM_CONFIG.getAttributeWithPageId(currentNode) === that.PAGE_CONFIG.maxPage
         ) {
           return;
         }
@@ -2427,13 +1939,7 @@
         that.CONFIG.pageChangeCallBack(that.PAGE_CONFIG.maxPage);
       };
     }
-    /**
-     * 设置 页 点击事件
-     * @param {HTMLElement} btnNode 元素
-     * @param {HTMLElement} dataPagingNode 分页元素(主)
-     * @this {Paging}
-     */
-    setPageBtnClickEvent(btnNode, dataPagingNode) {
+setPageBtnClickEvent(btnNode, dataPagingNode) {
       let that = this;
       btnNode.onclick = function(event) {
         let eventBtnNode = event.target;
@@ -2457,8 +1963,7 @@
           );
         }
         if (
-          // @ts-ignore
-          that.DOM_CONFIG.getLastPageNode() && that.PAGE_CONFIG.getCurrentPage() == that.PAGE_CONFIG.maxPage
+that.DOM_CONFIG.getLastPageNode() && that.PAGE_CONFIG.getCurrentPage() == that.PAGE_CONFIG.maxPage
         ) {
           that.DOM_CONFIG.setAttributeWithDisabled(
             that.DOM_CONFIG.nextBtnNode.get()
@@ -2469,30 +1974,16 @@
         }
       };
     }
-    /**
-     * 把分页添加到某个父元素下
-     * @param {Node} parentNode
-     */
-    append(parentNode) {
+append(parentNode) {
       let that = this;
       that.DOM_CONFIG.dataPagingNode.dom?.remove();
       that.DOM_CONFIG.dataPagingNode.dom = null;
       parentNode.appendChild(that.getDataPagingNode());
     }
-    /**
-     * 动态修改配置，注意，修改后需要.append修改原来的元素
-     * @param {PagingConfig} details 配置
-     */
-    changeConfig(details) {
+changeConfig(details) {
       Object.assign(this.CONFIG, details);
     }
-    /**
-     * 刷新页面
-     * 当总页数5页，当前在第3页，把第3页的数据删完，后面2页的数据会自动往前，需要重新计算数据
-     * 且重新计算的数据的页数大于当前页（第3页）时，当前页不变，若小于当前页（第3页），则当前页为计算好的最大页
-     * @param {PagingConfig["data"]} data 新的数据
-     */
-    refresh(data) {
+refresh(data) {
       if (data.length === this.CONFIG.data.length) {
         return;
       }
@@ -2511,8 +2002,7 @@
   var DataPaging = Paging;
   const _SCRIPT_NAME_ = SCRIPT_NAME || "网盘链接识别";
   const __DataPaging = (
-    // @ts-ignore
-    DataPaging ?? window.DataPaging ?? _unsafeWindow.DataPaging
+DataPaging ?? window.DataPaging ?? _unsafeWindow.DataPaging
   );
   const Cryptojs = CryptoJS ?? window.CryptoJS ?? _unsafeWindow.CryptoJS;
   const PanelComponents = {
@@ -2525,39 +2015,19 @@
         return this.__storeApiFn;
       }
     },
-    /**
-     * 获取自定义的存储接口
-     * @param type 组件类型
-     */
-    getStorageApi(type) {
+getStorageApi(type) {
       if (!this.hasStorageApi(type)) {
         return;
       }
       return this.$data.storeApiValue.get(type);
     },
-    /**
-     * 判断是否存在自定义的存储接口
-     * @param type 组件类型
-     */
-    hasStorageApi(type) {
+hasStorageApi(type) {
       return this.$data.storeApiValue.has(type);
     },
-    /**
-     * 设置自定义的存储接口
-     * @param type 组件类型
-     * @param storageApiValue 存储接口
-     */
-    setStorageApi(type, storageApiValue) {
+setStorageApi(type, storageApiValue) {
       this.$data.storeApiValue.set(type, storageApiValue);
     },
-    /**
-     * 初始化组件的存储接口属性
-     *
-     * @param type 组件类型
-     * @param config 组件配置，必须包含prop属性
-     * @param storageApiValue 存储接口
-     */
-    initComponentsStorageApi(type, config, storageApiValue) {
+initComponentsStorageApi(type, config, storageApiValue) {
       let propsStorageApi;
       if (this.hasStorageApi(type)) {
         propsStorageApi = this.getStorageApi(type);
@@ -2566,12 +2036,7 @@
       }
       this.setComponentsStorageApiProperty(config, propsStorageApi);
     },
-    /**
-     * 设置组件的存储接口属性
-     * @param config 组件配置，必须包含prop属性
-     * @param storageApiValue 存储接口
-     */
-    setComponentsStorageApiProperty(config, storageApiValue) {
+setComponentsStorageApiProperty(config, storageApiValue) {
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
     }
   };
@@ -2690,10 +2155,7 @@
     return result;
   };
   const NetDiskUISizeConfig = {
-    /**
-     * 天翼云需要登录的提示
-     */
-    tianYiYunLoginTip: {
+tianYiYunLoginTip: {
       PC: {
         width: "30vw",
         height: "280px"
@@ -2703,10 +2165,7 @@
         height: "250px"
       }
     },
-    /**
-     * 坚果云需要登录的提示
-     */
-    jianGuoYunLoginTip: {
+jianGuoYunLoginTip: {
       PC: {
         width: "350px",
         height: "200px"
@@ -2716,10 +2175,7 @@
         height: "200px"
       }
     },
-    /**
-     * 设置
-     */
-    settingView: {
+settingView: {
       PC: {
         width: "800px",
         height: "600px"
@@ -2729,10 +2185,7 @@
         height: "80vh"
       }
     },
-    /**
-     * 设置默认值的界面
-     */
-    setDefaultValueView: {
+setDefaultValueView: {
       PC: {
         width: "350px",
         height: "200px"
@@ -2742,10 +2195,7 @@
         height: "200px"
       }
     },
-    /**
-     * (主)网盘链接界面
-     */
-    mainView: {
+mainView: {
       PC: {
         width: "500px",
         height: "100%"
@@ -2755,10 +2205,7 @@
         height: "50vh"
       }
     },
-    /**
-     * (主)网盘链接界面-小窗
-     */
-    mainViewSmallWindow: {
+mainViewSmallWindow: {
       PC: {
         get width() {
           return NetDiskGlobalData.smallWindow["netdisk-ui-small-window-width"].value + "px";
@@ -2772,10 +2219,7 @@
         height: "auto"
       }
     },
-    /**
-     * 单文件直链弹窗
-     */
-    oneFileStaticView: {
+oneFileStaticView: {
       PC: {
         width: "550px",
         height: "350px"
@@ -2785,10 +2229,7 @@
         height: "300px"
       }
     },
-    /**
-     * 多文件直链弹窗
-     */
-    moreFileStaticView: {
+moreFileStaticView: {
       PC: {
         width: "700px",
         height: "600px"
@@ -2798,10 +2239,7 @@
         height: "500px"
       }
     },
-    /**
-     * 新密码、错误密码输入弹窗
-     */
-    inputNewAccessCodeView: {
+inputNewAccessCodeView: {
       PC: {
         width: "400px",
         height: "200px"
@@ -2811,10 +2249,7 @@
         height: "160px"
       }
     },
-    /**
-     * 历史存储记录弹窗
-     */
-    historyMatchView: {
+historyMatchView: {
       PC: {
         width: "50vw",
         height: "65vh"
@@ -2824,10 +2259,7 @@
         height: "60vh"
       }
     },
-    /**
-     * 链接识别规则的弹窗
-     */
-    customRulesView: {
+customRulesView: {
       PC: {
         width: "50vw",
         height: "65vh"
@@ -2837,10 +2269,7 @@
         height: "60vh"
       }
     },
-    /**
-     * 链接识别规则的调试视图
-     */
-    customRuleDebugView: {
+customRuleDebugView: {
       PC: {
         width: "55vw",
         height: "70vh"
@@ -2850,10 +2279,7 @@
         height: "70vh"
       }
     },
-    /**
-     * 主动识别的弹窗
-     */
-    matchPasteTextView: {
+matchPasteTextView: {
       PC: {
         width: "50vw",
         height: "65vh"
@@ -2863,10 +2289,7 @@
         height: "60vh"
       }
     },
-    /**
-     * 访问码规则弹窗
-     */
-    accessCodeRuleView: {
+accessCodeRuleView: {
       PC: {
         width: "50vw",
         height: "65vh"
@@ -2876,10 +2299,7 @@
         height: "60vh"
       }
     },
-    /**
-     * 访问码规则添加/修改/删除
-     */
-    accessCodeRuleEditView: {
+accessCodeRuleEditView: {
       PC: {
         width: "44vw",
         height: "50vh"
@@ -2889,10 +2309,7 @@
         height: "45vh"
       }
     },
-    /**
-     * 网站规则弹窗
-     */
-    websiteRuleView: {
+websiteRuleView: {
       PC: {
         width: "45vw",
         height: "65vh"
@@ -2902,10 +2319,7 @@
         height: "60vh"
       }
     },
-    /**
-     * 添加|编辑网站规则弹窗
-     */
-    websiteEditRuleView: {
+websiteEditRuleView: {
       PC: {
         width: "45vw",
         height: "65vh"
@@ -3063,13 +2477,7 @@
     }
   };
   const ReactUtils = {
-    /**
-     * 等待react某个属性并进行设置
-     * @param $el 需要检测的元素对象
-     * @param reactPropNameOrNameList react属性的名称
-     * @param checkOption 检测的配置项
-     */
-    async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
+async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
       if (!Array.isArray(reactPropNameOrNameList)) {
         reactPropNameOrNameList = [reactPropNameOrNameList];
       }
@@ -3391,30 +2799,25 @@
     }
   };
   const NetDiskRuleDataKEY = {
-    /** 匹配范围 text */
-    matchRange_text: {
+matchRange_text: {
       before: (key) => `${key}-text-match-range-before`,
       after: (key) => `${key}-text-match-range-after`
     },
-    /** 匹配范围 html */
-    matchRange_html: {
+matchRange_html: {
       before: (key) => `${key}-html-match-range-before`,
       after: (key) => `${key}-html-match-range-after`
     },
-    /** 功能 */
-    function: {
+function: {
       enable: (key) => `${key}-enable`,
       checkLinkValidity: (key) => `${key}-check-link-valid`,
       checkLinkValidityHoverTip: (key) => `${key}-check-link-valid-hover-tip`,
       linkClickMode: (key) => `${key}-click-mode`
     },
-    /** 点击动作 新标签页打开 */
-    linkClickMode_openBlank: {
+linkClickMode_openBlank: {
       openBlankAutoFilleAccessCode: (key) => `${key}-open-blank-auto-fill-accesscode`,
       openBlankWithCopyAccessCode: (key) => `${key}-open-blank-with-copy-accesscode`
     },
-    /** Scheme转发 */
-    schemeUri: {
+schemeUri: {
       enable: (key) => `${key}-scheme-uri-enable`,
       isForwardLinearChain: (key) => `${key}-scheme-uri-forward-linear-chain`,
       isForwardBlankLink: (key) => `${key}-scheme-uri-forward-blank-link`,
@@ -3422,95 +2825,49 @@
     }
   };
   const WebsiteRuleDataKey = {
-    /** 功能 */
-    features: {
-      /** 是否启用自定义访问码 */
-      customAccessCodeEnable: (key) => `${key}-custom-accesscode-enable`,
-      /** 自定义访问码 */
-      customAccessCode: (key) => `${key}-custom-accesscode`
+features: {
+customAccessCodeEnable: (key) => `${key}-custom-accesscode-enable`,
+customAccessCode: (key) => `${key}-custom-accesscode`
     }
   };
   const NetDiskRuleData = {
-    /** innerText的提取码间隔 */
-    matchRange_text: {
-      /**
-       * 提取码间隔前的字符长度
-       * @param key 规则键名
-       * @param defaultValue 默认值: 20
-       */
-      before(key, defaultValue = 20) {
+matchRange_text: {
+before(key, defaultValue = 20) {
         const panelData = GeneratePanelStorage(NetDiskRuleDataKEY.matchRange_text.before(key), defaultValue);
         return parseInt(panelData.value.toString());
       },
-      /**
-       * 提取码间隔后的字符长度
-       * @param key 规则键名
-       * @param defaultValue 默认值: 10
-       */
-      after(key, defaultValue = 10) {
+after(key, defaultValue = 10) {
         const panelData = GeneratePanelStorage(NetDiskRuleDataKEY.matchRange_text.after(key), defaultValue);
         return parseInt(panelData.value.toString());
       }
     },
-    /** innerHTML的提取码间隔 */
-    matchRange_html: {
-      /**
-       * 提取码间隔前的字符长度
-       * @param key 规则键名
-       * @param defaultValue 默认值: 100
-       */
-      before(key, defaultValue = 100) {
+matchRange_html: {
+before(key, defaultValue = 100) {
         const panelData = GeneratePanelStorage(NetDiskRuleDataKEY.matchRange_html.before(key), defaultValue);
         return parseInt(panelData.value.toString());
       },
-      /**
-       * 提取码间隔后的字符长度
-       * @param key 规则键名
-       * @param defaultValue 默认值: 15
-       */
-      after(key, defaultValue = 15) {
+after(key, defaultValue = 15) {
         const panelData = GeneratePanelStorage(NetDiskRuleDataKEY.matchRange_html.after(key), defaultValue);
         return parseInt(panelData.value.toString());
       }
     },
-    /** 功能 */
-    function: {
-      /**
-       * 是否启用该规则
-       * @param key 规则键名
-       * @param defaultValue
-       */
-      enable(key, defaultValue = true) {
+function: {
+enable(key, defaultValue = true) {
         const panelData = GeneratePanelStorage(NetDiskRuleDataKEY.function.enable(key), defaultValue);
         return Boolean(panelData.value);
       },
-      /**
-       * 点击动作
-       * @param key 规则键名
-       * @param defaultValue
-       */
-      linkClickMode(key, defaultValue = "copy") {
+linkClickMode(key, defaultValue = "copy") {
         const panelData = GeneratePanelStorage(NetDiskRuleDataKEY.function.linkClickMode(key), defaultValue);
         return panelData.value;
       },
-      /**
-       * 是否进行校验链接有效性
-       * @param key 规则键名
-       * @param defaultValue
-       */
-      checkLinkValidity(key, defaultValue = false) {
+checkLinkValidity(key, defaultValue = false) {
         const panelData = GeneratePanelStorage(
           NetDiskRuleDataKEY.function.checkLinkValidity(key),
           defaultValue
         );
         return Boolean(panelData.value);
       },
-      /**
-       * 是否添加验证结果图标悬停提示
-       * @param key
-       * @param defaultValue
-       */
-      checkLinlValidityHoverTip(key, defaultValue = true) {
+checkLinlValidityHoverTip(key, defaultValue = true) {
         const panelData = GeneratePanelStorage(
           NetDiskRuleDataKEY.function.checkLinkValidityHoverTip(key),
           defaultValue
@@ -3519,24 +2876,14 @@
       }
     },
     linkClickMode_openBlank: {
-      /**
-       * 跳转时自动填充访问码（如果有的话）
-       * @param key 规则键名
-       * @param [defaultValue=true] 默认值: true
-       */
-      openBlankAutoFilleAccessCode(key, defaultValue = true) {
+openBlankAutoFilleAccessCode(key, defaultValue = true) {
         const panelData = GeneratePanelStorage(
           NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankAutoFilleAccessCode(key),
           defaultValue
         );
         return Boolean(panelData.value);
       },
-      /**
-       * 跳转时复制访问码
-       * @param key 规则键名
-       * @param defaultValue
-       */
-      openBlankWithCopyAccessCode(key, defaultValue = false) {
+openBlankWithCopyAccessCode(key, defaultValue = false) {
         const panelData = GeneratePanelStorage(
           NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankWithCopyAccessCode(key),
           defaultValue
@@ -3545,45 +2892,25 @@
       }
     },
     schemeUri: {
-      /**
-       * 是否启用
-       * @param key 规则键名
-       * @param defaultValue
-       */
-      enable(key, defaultValue = false) {
+enable(key, defaultValue = false) {
         const panelData = GeneratePanelStorage(NetDiskRuleDataKEY.schemeUri.enable(key), defaultValue);
         return Boolean(panelData.value);
       },
-      /**
-       * 转发直链（解析出的链接）
-       * @param key 规则键名
-       * @param defaultValue
-       */
-      isForwardLinearChain(key, defaultValue = false) {
+isForwardLinearChain(key, defaultValue = false) {
         const panelData = GeneratePanelStorage(
           NetDiskRuleDataKEY.schemeUri.isForwardLinearChain(key),
           defaultValue
         );
         return Boolean(panelData.value);
       },
-      /**
-       * 转发新标签页链接
-       * @param key 规则键名
-       * @param defaultValue
-       */
-      isForwardBlankLink(key, defaultValue = false) {
+isForwardBlankLink(key, defaultValue = false) {
         const panelData = GeneratePanelStorage(
           NetDiskRuleDataKEY.schemeUri.isForwardBlankLink(key),
           defaultValue
         );
         return Boolean(panelData.value);
       },
-      /**
-       * Uri链接
-       * @param key 规则键名
-       * @param defaultValue
-       */
-      uri(key, defaultValue = "") {
+uri(key, defaultValue = "") {
         const panelData = GeneratePanelStorage(NetDiskRuleDataKEY.schemeUri.uri(key), defaultValue);
         return panelData.value;
       }
@@ -3592,21 +2919,12 @@
   const NetDiskAutoFillAccessCode = {
     key: "tempNetDiskInfo",
     $data: {
-      /**
-       * 当前的网盘数据
-       */
-      netDiskInfo: null,
-      /**
-       * 自动填充访问码是否开启
-       */
-      get enable() {
+netDiskInfo: null,
+get enable() {
         return NetDiskGlobalData.features.autoFillAccessCode.value;
       }
     },
-    /**
-     * 初始化
-     */
-    init() {
+init() {
       if (!this.$data.enable) {
         return;
       }
@@ -3646,91 +2964,31 @@
       }
     },
     netDisk: {
-      /**
-       * 百度网盘
-       */
-      baidu: NetDiskAutoFillAccessCode_baidu,
-      /**
-       * 蓝奏云
-       */
-      lanzou: NetDiskAutoFillAccessCode_lanzou,
-      /**
-       * 天翼云
-       */
-      tianyiyun: NetDiskAutoFillAccessCode_tianyiyun,
-      /**
-       * 中国移动云盘
-       */
-      hecaiyun: NetDiskAutoFillAccessCode_hecaiyun,
-      /**
-       * 阿里云盘
-       */
-      aliyun: NetDiskAutoFillAccessCode_aliyun,
-      /**
-       * 文叔叔
-       * 暂时没找到有密码的链接
-       */
-      wenshushu: () => {
+baidu: NetDiskAutoFillAccessCode_baidu,
+lanzou: NetDiskAutoFillAccessCode_lanzou,
+tianyiyun: NetDiskAutoFillAccessCode_tianyiyun,
+hecaiyun: NetDiskAutoFillAccessCode_hecaiyun,
+aliyun: NetDiskAutoFillAccessCode_aliyun,
+wenshushu: () => {
       },
-      /**
-       * 奶牛
-       * 暂时没找到有密码的链接
-       */
-      nainiu: () => {
+nainiu: () => {
       },
-      /**
-       * 123云盘
-       */
-      _123pan: NetDiskAutoFillAccessCode_123pan,
-      /**
-       * 腾讯微云
-       */
-      weiyun: NetDiskAutoFillAccessCode_weiyun,
-      /**
-       * 迅雷
-       */
-      xunlei: NetDiskAutoFillAccessCode_xunlei,
-      /**
-       * 115网盘
-       */
-      _115pan: NetDiskAutoFillAccessCode_115pan,
-      /**
-       * 城通网盘
-       */
-      chengtong: NetDiskAutoFillAccessCode_chengtong,
-      /**
-       * 夸克网盘
-       */
-      kuake: NetDiskAutoFillAccessCode_kuake,
-      /**
-       * 坚果云
-       * 暂时没找到有密码的链接
-       */
-      jianguoyun: () => {
+_123pan: NetDiskAutoFillAccessCode_123pan,
+weiyun: NetDiskAutoFillAccessCode_weiyun,
+xunlei: NetDiskAutoFillAccessCode_xunlei,
+_115pan: NetDiskAutoFillAccessCode_115pan,
+chengtong: NetDiskAutoFillAccessCode_chengtong,
+kuake: NetDiskAutoFillAccessCode_kuake,
+jianguoyun: () => {
       },
-      /**
-       * OneDrive
-       * 暂时没找到有密码的链接
-       */
-      onedrive: () => {
+onedrive: () => {
       },
-      /**
-       * 360云盘
-       */
-      "360yunpan": NetDiskAutoFillAccessCode_360yunpan
+"360yunpan": NetDiskAutoFillAccessCode_360yunpan
     },
-    /**
-     * 设置值
-     * @param value
-     */
-    setValue(value) {
+setValue(value) {
       _GM_setValue(this.key, value);
     },
-    /**
-     * 添加值
-     * @param netDiskFillOption
-     */
-    addValue(netDiskFillOption) {
+addValue(netDiskFillOption) {
       let accessCode = netDiskFillOption.accessCode;
       if (accessCode == null || typeof accessCode === "string" && accessCode.trim() === "") {
         return;
@@ -3746,10 +3004,7 @@
       localValue.push(netDiskFillOption);
       this.setValue(localValue);
     },
-    /**
-     * 获取值
-     */
-    getValue() {
+getValue() {
       let localValue = _GM_getValue(this.key, []);
       if (!Array.isArray(localValue)) {
         localValue = [localValue];
@@ -3764,8 +3019,7 @@
   };
   const _123pan_Link_Host_Pattern = "(123pan|123865|123684|123652|123912).(com|cn)";
   const NetDiskRule_123pan = {
-    /** 规则 */
-    rule: [
+rule: [
       {
         link_innerText: `${_123pan_Link_Host_Pattern}/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
         link_innerHTML: `${_123pan_Link_Host_Pattern}/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
@@ -3784,8 +3038,7 @@
         copyUrl: "https://123pan.com/s/{#shareCode#}\n密码：{#accessCode#}"
       }
     ],
-    /** 设置项 */
-    setting: {
+setting: {
       name: "123盘",
       key: "_123pan",
       configurationInterface: {
@@ -3852,30 +3105,18 @@
     NetDiskAuthorization_123pan_Authorization.set(authorToken);
   };
   const NetDiskAuthorization = {
-    /**
-     * 运行于ready
-     */
-    init() {
+init() {
       Object.keys(NetDiskAuthorization.netDisk).forEach((keyName) => {
         this.netDisk[keyName]();
       });
     },
     netDisk: {
-      /**
-       * 123网盘，一般用于>100MB的文件直链获取
-       */
-      _123pan: NetDiskAuthorization_123pan,
-      /**
-       * 蓝奏优选
-       */
-      lanzouyx: NetDiskAuthorization_Lanzouyx
+_123pan: NetDiskAuthorization_123pan,
+lanzouyx: NetDiskAuthorization_Lanzouyx
     }
   };
   const NetDiskRuleUtils = {
-    /**
-     * 获取点击动作的默认配置
-     */
-    getDefaultLinkClickMode() {
+getDefaultLinkClickMode() {
       let data = {
         copy: {
           default: false,
@@ -3915,17 +3156,7 @@
       };
       return data;
     },
-    /**
-     * 参数替换，区分大小写
-     *
-     * 例如
-     * + {#shareCode#} => xxxx
-     * + {#accessCode#} => xxxx
-     * + {#$1#} => xxxx
-     * @param text
-     * @param data
-     */
-    replaceParam(text, data = {}) {
+replaceParam(text, data = {}) {
       if (typeof text !== "string") {
         return text;
       }
@@ -3957,18 +3188,10 @@
       });
       return text;
     },
-    /**
-     * 删除掉所有中文
-     * @param text
-     */
-    replaceChinese(text) {
+replaceChinese(text) {
       return text.replace(/[\u4e00-\u9fa5]/g, "");
     },
-    /**
-     * 获取已解码的当前url
-     * @param decodeUrl 当前url
-     */
-    getDecodeComponentUrl(decodeUrl = window.location.href) {
+getDecodeComponentUrl(decodeUrl = window.location.href) {
       try {
         decodeUrl = decodeURIComponent(decodeUrl);
       } catch (error) {
@@ -3979,12 +3202,7 @@
   const NetDiskFilterScheme = {
     protocol: "jumpwsv",
     pathname: "go",
-    /**
-     * 把链接转为scheme的uri链接
-     * @param key 规则名
-     * @param intentData 需要处理的数据
-     */
-    parseDataToSchemeUri(key, intentData) {
+parseDataToSchemeUri(key, intentData) {
       let isEnable = this.isEnableForward(key);
       if (!isEnable) {
         return intentData;
@@ -4002,40 +3220,19 @@
       });
       return schemeUri;
     },
-    /**
-     * 是否启用转发
-     * @param key
-     * @returns
-     */
-    isEnableForward(key) {
+isEnableForward(key) {
       return NetDiskRuleData.schemeUri.enable(key);
     },
-    /**
-     * 是否转发下载链接
-     * @param key
-     */
-    isForwardDownloadLink(key) {
+isForwardDownloadLink(key) {
       return this.isEnableForward(key) && NetDiskRuleData.schemeUri.isForwardLinearChain(key);
     },
-    /**
-     * 是否转发新标签页的链接
-     * @param key
-     */
-    isForwardBlankLink(key) {
+isForwardBlankLink(key) {
       return this.isEnableForward(key) && NetDiskRuleData.schemeUri.isForwardBlankLink(key);
     },
-    /**
-     * 获取转发的uri链接
-     * @param option
-     */
-    getSchemeUri(option) {
+getSchemeUri(option) {
       return `${this.protocol}://${this.pathname}?${utils.toSearchParamsStr(option)}`;
     },
-    /**
-     * 获取1dm的intent的配置
-     * @param intentData
-     */
-    get1DMSchemeUriOption(intentData = "") {
+get1DMSchemeUriOption(intentData = "") {
       return {
         package: "idm.internet.download.manager.plus",
         activity: "idm.internet.download.manager.UrlHandlerDownloader",
@@ -4046,22 +3243,10 @@
     }
   };
   class ParseFileCore {
-    /** 所在规则的下标 */
-    ruleIndex = 0;
-    /** 分享码 */
-    shareCode = "";
-    /** 提取码 */
-    accessCode = "";
-    /**
-     * 入口
-     * @param netDiskInfo 网盘信息
-     * @example
-     *
-     * super.init(netDiskInfo);
-     * const that = this;
-     * let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-     */
-    init(netDiskInfo) {
+ruleIndex = 0;
+shareCode = "";
+accessCode = "";
+init(netDiskInfo) {
       this.ruleIndex = netDiskInfo.ruleIndex;
       this.shareCode = netDiskInfo.shareCode;
       this.accessCode = netDiskInfo.accessCode;
@@ -4156,10 +3341,7 @@
         NetDiskUI.staticView.moreFile("123盘文件解析", folderInfoList);
       }
     }
-    /**
-     * 校验链接有效性
-     */
-    async checkLinkValidity() {
+async checkLinkValidity() {
       const that = this;
       Qmsg.info("正在校验链接有效性");
       let url = `https://www.123pan.com/s/${that.shareCode}`;
@@ -4208,11 +3390,7 @@
         Qmsg.error("校验链接-获取初始化内容失败");
       }
     }
-    /**
-     * 获取文件
-     * @param parentFileId
-     */
-    async getFiles(parentFileId = 0) {
+async getFiles(parentFileId = 0) {
       const that = this;
       const getData = {
         limit: 100,
@@ -4265,11 +3443,7 @@
         Qmsg.error("123盘：未知的JSON格式");
       }
     }
-    /**
-     * 递归算法使用的请求
-     * @param parentFileId
-     */
-    async getFilesByRec(parentFileId) {
+async getFilesByRec(parentFileId) {
       const that = this;
       let getResp = await httpx.get({
         url: `https://www.123pan.com/b/api/share/get?limit=100&next=1&orderBy=share_id&orderDirection=desc&shareKey=${that.shareCode}&SharePwd=${that.accessCode}&ParentFileId=${parentFileId}&Page=1`,
@@ -4289,11 +3463,7 @@
         return jsonData["data"]["InfoList"];
       }
     }
-    /**
-     * 获取文件夹信息
-     * @param infoList
-     */
-    getFolderInfo(infoList, index) {
+getFolderInfo(infoList, index) {
       const that = this;
       let folderInfoList = [];
       let tempFolderInfoList = [];
@@ -4369,22 +3539,12 @@
       folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
       return folderInfoList;
     }
-    /**
-     * 获取单文件下载链接
-     * 123云盘新增了下载验证
-     * @param Etag
-     * @param FileID
-     * @param S3keyFlag
-     * @param ShareKey
-     * @param Size
-     */
-    async getFileDownloadInfo(Etag, FileID, S3keyFlag, ShareKey, Size) {
+async getFileDownloadInfo(Etag, FileID, S3keyFlag, ShareKey, Size) {
       const that = this;
       let authK_V = that.getFileDownloadAuth();
       let headers = {
-        // "App-Version": "3",
-        // Platform: "web",
-        "Content-Type": "application/json;charset=UTF-8",
+
+"Content-Type": "application/json;charset=UTF-8",
         Host: "www.123pan.com",
         Accept: "*/*",
         Referer: "https://www.123pan.com/s/" + ShareKey,
@@ -4425,11 +3585,7 @@
         };
       }
     }
-    /**
-     * 获取单文件下载链接的加密参数
-     * 感谢：https://github.com/qaiu/netdisk-fast-download/
-     */
-    getFileDownloadAuth() {
+getFileDownloadAuth() {
       function encry_time(param) {
         var param_time, param_other = arguments["length"] > 2 && void 0 !== arguments[2] ? arguments[2] : 8;
         if (0 === arguments["length"]) return void 0;
@@ -4459,7 +3615,7 @@
         var param_web = "web";
         var param_type = 3;
         var param_time = Math.round(
-          ((/* @__PURE__ */ new Date()).getTime() + 60 * (/* @__PURE__ */ new Date()).getTimezoneOffset() * 1e3 + 288e5) / 1e3
+          (( new Date()).getTime() + 60 * ( new Date()).getTimezoneOffset() * 1e3 + 288e5) / 1e3
         ).toString();
         var key = "a,d,e,f,g,h,l,m,y,i,j,n,o,p,k,q,r,s,t,u,b,c,v,w,s,z";
         var randomRoundNum = Math["round"](1e7 * Math["random"]());
@@ -4472,44 +3628,33 @@
         var time_f;
         var time_array;
         var time_push;
-        for (var number_item in number_split = key.split(","), time_a = encry_time(param_time), // @ts-ignore
-        time_y = time_a["y"], // @ts-ignore
-        time_m = time_a["m"], // @ts-ignore
-        time_d = time_a["d"], // @ts-ignore
-        time_h = time_a["h"], // @ts-ignore
-        time_f = time_a["f"], time_array = [time_y, time_m, time_d, time_h, time_f].join(""), time_push = [], time_array)
+        for (var number_item in number_split = key.split(","), time_a = encry_time(param_time),
+time_y = time_a["y"],
+time_m = time_a["m"],
+time_d = time_a["d"],
+time_h = time_a["h"],
+time_f = time_a["f"], time_array = [time_y, time_m, time_d, time_h, time_f].join(""), time_push = [], time_array)
           time_push["push"](number_split[Number(time_array[number_item])]);
         var param_no;
         var param_join_s;
         return (
-          // @ts-ignore
-          param_no = encry_join(time_push["join"]("")), param_join_s = encry_join(
+param_no = encry_join(time_push["join"]("")), param_join_s = encry_join(
             ""["concat"](param_time, "|")[
-              // @ts-ignore
-              "concat"
-              // @ts-ignore
-            ](randomRoundNum, "|")["concat"](urlPath, "|")["concat"](param_web, "|")[
-              // @ts-ignore
-              "concat"
-              // @ts-ignore
-            ](param_type, "|")["concat"](param_no)
+"concat"
+](randomRoundNum, "|")["concat"](urlPath, "|")["concat"](param_web, "|")[
+"concat"
+](param_type, "|")["concat"](param_no)
           ), [
             param_no,
             ""["concat"](param_time, "-")[
-              // @ts-ignore
-              "concat"
-              // @ts-ignore
-            ](randomRoundNum, "-")["concat"](param_join_s)
+"concat"
+](randomRoundNum, "-")["concat"](param_join_s)
           ]
         );
       }
       return getSign("/a/api/share/download/info");
     }
-    /**
-     * 将直链的param参数解析成真正的直链
-     * @param url
-     */
-    decodeDownloadUrl(url) {
+decodeDownloadUrl(url) {
       if (url === "") {
         return "";
       }
@@ -4522,14 +3667,8 @@
       expires_in: 7200,
       share_token: ""
     };
-    /**
-     * header请求头 X-Device-Id
-     */
-    X_Device_Id = null;
-    /**
-     * header请求头 X-Canary
-     */
-    X_Canary = "client=web,app=share,version=v2.3.1";
+X_Device_Id = null;
+X_Canary = "client=web,app=share,version=v2.3.1";
     async init(netDiskInfo) {
       super.init(netDiskInfo);
       const that = this;
@@ -4564,11 +3703,7 @@
       log.info("解析完毕");
       NetDiskUI.staticView.moreFile("阿里云盘文件解析", folderInfoList);
     }
-    /**
-     * 弹窗使用-获取文件夹信息
-     * @param infoList
-     */
-    getFolderInfo(infoList, index = 0) {
+getFolderInfo(infoList, index = 0) {
       const that = this;
       let folderInfoList = [];
       let tempFolderInfoList = [];
@@ -4626,14 +3761,7 @@
       log.info("getFilesInfoByRec", folderInfoList);
       return folderInfoList;
     }
-    /**
-     * 列出文件列表
-     * @param share_id
-     * @param parent_file_id 父项，根是root
-     * @param order_by 根据xxx排序
-     * @param order_direction 排序规则(升序/降序)
-     */
-    async list_by_share(share_id, parent_file_id, order_by = "name", order_direction = "DESC") {
+async list_by_share(share_id, parent_file_id, order_by = "name", order_direction = "DESC") {
       const that = this;
       let postResp = await httpx.post("https://api.aliyundrive.com/adrive/v2/file/list_by_share", {
         data: JSON.stringify({
@@ -4666,12 +3794,7 @@
       log.info("列出文件列表：", data);
       return data["items"];
     }
-    /**
-     * 获取文件的下载链接
-     * @param share_id
-     * @param file_id
-     */
-    async get_share_link_download_url(share_id, file_id) {
+async get_share_link_download_url(share_id, file_id) {
       const that = this;
       let postResp = await httpx.post("https://api.aliyundrive.com/v2/file/get_share_link_download_url", {
         data: JSON.stringify({
@@ -4699,11 +3822,7 @@
       log.info("获取文件的下载链接：", data);
       return data["download_url"];
     }
-    /**
-     * 处理请求的错误
-     * @param postResp
-     */
-    handle_request_error(postResp) {
+handle_request_error(postResp) {
       log.error(postResp);
       let errData = utils.toJSON(postResp.data.responseText);
       if (errData["message"] == "") {
@@ -4712,11 +3831,7 @@
         Qmsg.error(errData["message"]);
       }
     }
-    /**
-     * 获取用户鉴权值
-     * 来源：localStorage => token.access_token
-     */
-    getAuthorization() {
+getAuthorization() {
       let token = _unsafeWindow.localStorage.getItem("token");
       if (utils.isNotNull(token) && token != null) {
         let tokenJSON = utils.toJSON(token);
@@ -4728,15 +3843,9 @@
         Qmsg.error("获取access_token失败，请先登录账号！");
       }
     }
-    /**
-     * 获取header请求头 X-Share-Token
-     * 来源：localStorage => shareToken.share_token
-     * @param share_id
-     * @param share_pwd
-     */
-    async get_X_Share_Token(share_id, share_pwd) {
+async get_X_Share_Token(share_id, share_pwd) {
       const that = this;
-      if (/* @__PURE__ */ new Date() < new Date(that.X_Share_Token_Data.expire_time)) {
+      if ( new Date() < new Date(that.X_Share_Token_Data.expire_time)) {
         return that.X_Share_Token_Data.share_token;
       }
       let postResp = await httpx.post("https://api.aliyundrive.com/v2/share_link/get_share_token", {
@@ -4764,10 +3873,7 @@
       log.info("获取share_token：", that.X_Share_Token_Data);
       return that.X_Share_Token_Data["share_token"];
     }
-    /**
-     * 获取header请求头 X-Device-Id
-     */
-    get_X_Device_Id() {
+get_X_Device_Id() {
       for (var alipan_device_id_pattern = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i, alipan_s = [], alipan_l = 0; alipan_l < 256; ++alipan_l)
         alipan_s.push((alipan_l + 256).toString(16).substr(1));
       function alipan_o() {
@@ -4789,10 +3895,7 @@
     }
   }
   class NetDiskParse_Baidu extends ParseFileCore {
-    /**
-     * 入口
-     */
-    async init(netDiskInfo) {
+async init(netDiskInfo) {
       super.init(netDiskInfo);
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       let url = _GM_getValue("baidu-baiduwp-php-url");
@@ -4838,29 +3941,15 @@
     }
   }
   const NetDiskPops = {
-    /**
-     * 普通信息框
-     * @param details 配置
-     * @param sizeConfig 大小配置
-     */
-    alert(details, sizeConfig) {
+alert(details, sizeConfig) {
       details = this.handleDetails(details, sizeConfig);
       return __pops.alert(details);
     },
-    /**
-     * 询问框
-     * @param details 配置
-     * @param sizeConfig 大小配置
-     */
-    confirm(details, sizeConfig) {
+confirm(details, sizeConfig) {
       details = this.handleDetails(details, sizeConfig);
       return __pops.confirm(details);
     },
-    /**
-     * 加载层
-     * @param details 配置
-     */
-    loading(details) {
+loading(details) {
       if (typeof details["animation"] === "undefined") {
         details["animation"] = NetDiskGlobalData.pops.popsAnimation.value;
       }
@@ -4869,53 +3958,31 @@
       }
       return __pops.loading(details);
     },
-    /**
-     * 输入框
-     * @param details 配置
-     * @param sizeConfig 大小配置
-     */
-    prompt(details, sizeConfig) {
+prompt(details, sizeConfig) {
       details = this.handleDetails(details, sizeConfig);
       return __pops.prompt(details);
     },
-    /**
-     * 文件夹
-     * @param details 配置
-     */
-    folder(details, sizeConfig) {
+folder(details, sizeConfig) {
       details = this.handleDetails(details, sizeConfig);
       details["sort"] = {
         name: NetDiskGlobalData.popsFolder["pops-folder-sort-name"].value,
         isDesc: NetDiskGlobalData.popsFolder["pops-folder-sort-is-desc"].value,
-        // @ts-ignore
-        callback(target, event, sortName, sortDesc) {
+callback(target, event, sortName, sortDesc) {
           NetDiskGlobalData.popsFolder["pops-folder-sort-name"].value = sortName;
           NetDiskGlobalData.popsFolder["pops-folder-sort-is-desc"].value = sortDesc;
         }
       };
       return __pops.folder(details);
     },
-    /**
-     * 菜单面板
-     * @param details 配置
-     */
-    panel(details, sizeConfig) {
+panel(details, sizeConfig) {
       details = this.handleDetails(details, sizeConfig);
       return __pops.panel(details);
     },
-    /**
-     * 右键菜单
-     */
-    rightClickMenu(details) {
+rightClickMenu(details) {
       details = this.handleDetails(details);
       return __pops.rightClickMenu(details);
     },
-    /**
-     *
-     * @param details
-     * @param sizeConfig 大小配置
-     */
-    handleDetails(details, sizeConfig) {
+handleDetails(details, sizeConfig) {
       details = Object.assign(
         {
           animation: NetDiskGlobalData.pops.popsAnimation.value,
@@ -4952,8 +4019,7 @@
       }
       if (NetDiskGlobalData.pops.popsAcrylic.value) {
         let acrylicCSS = (
-          /*css*/
-          `
+`
             .pops {
                 --acrylic-opacity: 0.7;
                 --acrylic-color: rgba(232, 232, 232, var(--acrylic-opacity));
@@ -4993,17 +4059,13 @@
   const indexCSS$4 = '.pops[type-value="alert"] .pops-alert-title:has(+ .pops-alert-content .netdisk-url-box-all:empty) {\r\n	border-bottom: none;\r\n}\r\n.netdisk-url-box {\r\n	border-bottom: 1px solid #e4e6eb;\r\n}\r\n.netdisk-url-div {\r\n	display: flex;\r\n	align-items: center;\r\n	width: 100%;\r\n	padding: 5px 0px 5px 0px;\r\n}\r\n.netdisk-icon {\r\n	display: contents;\r\n}\r\n.netdisk-icon .netdisk-icon-img {\r\n	cursor: pointer;\r\n	width: 28px;\r\n	height: 28px;\r\n	min-width: 28px;\r\n	min-height: 28px;\r\n	font-size: 0.8em;\r\n	margin: 0px 10px;\r\n}\r\n.netdisk-url-div .netdisk-icon,\r\n.netdisk-url-div .netdisk-status {\r\n	flex: 0 0 auto;\r\n}\r\n.netdisk-url-div .netdisk-url {\r\n	flex: 1;\r\n}\r\n.netdisk-icon .netdisk-icon-img {\r\n	border-radius: 10px;\r\n	box-shadow: 0 0.3px 0.6px rgb(0 0 0 / 6%), 0 0.7px 1.3px rgb(0 0 0 / 8%), 0 1.3px 2.5px rgb(0 0 0 / 10%),\r\n		0 2.2px 4.5px rgb(0 0 0 / 12%), 0 4.2px 8.4px rgb(0 0 0 / 14%), 0 10px 20px rgb(0 0 0 / 20%);\r\n}\r\n.netdisk-status[data-check-failed] {\r\n	padding: 5px 5px;\r\n}\r\n.netdisk-url {\r\n	padding: 5px 5px;\r\n}\r\n.netdisk-url a {\r\n	color: #ff4848 !important;\r\n	min-height: 28px;\r\n	overflow-x: hidden;\r\n	overflow-y: auto;\r\n	font-size: 0.8em;\r\n	border: none;\r\n	display: flex;\r\n	align-items: center;\r\n	width: 100%;\r\n	height: 100%;\r\n	padding: 0px;\r\n	word-break: break-word;\r\n	text-align: left;\r\n}\r\n.netdisk-status {\r\n	display: none;\r\n}\r\n.netdisk-status[data-check-valid] {\r\n	display: flex;\r\n	align-items: center;\r\n	width: 15px;\r\n	height: 15px;\r\n	color: #000000;\r\n}\r\n\r\n.netdisk-status[data-check-valid="failed"] {\r\n	color: red;\r\n}\r\n\r\n.netdisk-status[data-check-valid="partial-violation"] {\r\n	color: orange;\r\n}\r\n\r\n.netdisk-status[data-check-valid="error"] {\r\n	cursor: pointer;\r\n}\r\n\r\n.netdisk-status[data-check-valid="success"] {\r\n	color: green;\r\n}\r\n\r\n.netdisk-status[data-check-valid="verify"] {\r\n	color: #faad14;\r\n}\r\n\r\n.netdisk-status[data-check-valid="loading"] svg {\r\n	animation: rotating 2s linear infinite;\r\n}\r\n\r\n.netdisk-url-box:has(.netdisk-status[data-check-valid="failed"]) {\r\n	text-decoration: line-through;\r\n}\r\n\r\n.whitesevPop-whitesevPopSetting :focus-visible {\r\n	outline-offset: 0;\r\n	outline: 0;\r\n}\r\n.netdisk-url a[isvisited="true"] {\r\n	color: #8b8888 !important;\r\n}\r\n.netdisk-url a:active {\r\n	box-shadow: 0 0 0 1px #616161 inset;\r\n}\r\n.netdisk-url a:focus-visible {\r\n	outline: 0;\r\n}\r\n.whitesevPop-content p[pop] {\r\n	text-indent: 0;\r\n}\r\n.whitesevPop-button[data-type="primary"] {\r\n	border-color: #2d8cf0;\r\n	background-color: #2d8cf0;\r\n}\r\n';
   const GenerateData = function(key, defaultValue) {
     return {
-      /** 键名 */
-      KEY: key,
-      /** 默认值 */
-      default: defaultValue,
-      /** 获取值 */
-      get value() {
+KEY: key,
+default: defaultValue,
+get value() {
         let currentValue = _GM_getValue(key, defaultValue);
         return currentValue;
       },
-      /** 设置值 */
-      set value(newValue) {
+set value(newValue) {
         _GM_setValue(key, newValue);
       }
     };
@@ -5021,8 +4083,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                 <div class="filter-container"></div>
                 `
           )
@@ -5040,8 +4101,7 @@
         width: window.innerWidth > 500 ? "350px" : "80vw",
         height: window.innerHeight > 500 ? "300px" : "70vh",
         style: (
-          /*css*/
-          `
+`
             .filter-container{
                 height: 100%;
                 display: flex;
@@ -5107,10 +4167,7 @@
     constructor(option) {
       this.option = option;
     }
-    /**
-     * 显示视图
-     */
-    async showView() {
+async showView() {
       let $dialog = __pops.confirm({
         title: {
           text: this.option.title,
@@ -5118,8 +4175,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                     <form class="rule-form-container" onsubmit="return false">
                         <ul class="rule-form-ulist"></ul>
                         <input type="submit" style="display: none;" />
@@ -5144,8 +4200,7 @@
           enable: true
         },
         style: (
-          /*css*/
-          `
+`
                 ${__pops.config.cssText.panelCSS}
                 
                 .rule-form-container {
@@ -5227,19 +4282,15 @@
     constructor(option) {
       this.option = option;
     }
-    /**
-     * 显示视图
-     * @param filterCallBack 返回值为false隐藏，true则不隐藏（不处理）
-     */
-    async showView(filterCallBack) {
+async showView(filterCallBack) {
       const that = this;
       let contentConfigList = this.option.contentConfig;
       contentConfigList.forEach((config) => {
         config.forms = [];
         config.headerTitle = config.headerTitle || config.title;
         if (config.subscribe?.enable) {
-          config.headerTitle = config.headerTitle + /*html*/
-          `
+          config.headerTitle = config.headerTitle +
+`
 					<div class="subscribe-container">
 						<button class="subscribe-btn" type="button" data-type="subscribe" data-has-icon="false" data-righticon="false">
 							<span>${config.subscribe?.title || "订阅"}</span>
@@ -5313,8 +4364,7 @@
                                 },
                                 content: {
                                   text: (
-                                    /*html*/
-                                    `
+`
 																	<div class="subscribe-network-title">
 																		<span>订阅链接名称：</span>
 																		<input type="text" placeholder="输入订阅链接的名称">
@@ -5357,8 +4407,7 @@
                                 width: PanelUISize.setting.width,
                                 height: "auto",
                                 style: (
-                                  /*css*/
-                                  `
+`
 																.pops button[data-type="subscribe"]{
 																	--button-color: #ffffff;
 																	--button-bd-color: #67b279;
@@ -5437,8 +4486,7 @@
                               );
                               domUtils.html(
                                 $subscribeNetworkAddDialog_count,
-                                /*html*/
-                                `
+`
 																<span>规则数量：</span>
 																<span>${subscribeInfo.subscribeData.ruleData.length}</span>
 															`
@@ -5446,8 +4494,7 @@
                               if (typeof subscribeInfo.subscribeData.homePage === "string") {
                                 domUtils.html(
                                   $subscribeNetworkAddDialog_homeUrl,
-                                  /*html*/
-                                  `
+`
 																<span>主页：</span>
 																<a href="${subscribeInfo.subscribeData.homePage}" target="_blank">${subscribeInfo.subscribeData.homePage}</a>
 															`
@@ -5457,8 +4504,7 @@
                               }
                               domUtils.html(
                                 $subscribeNetworkAddDialog_url,
-                                /*html*/
-                                `
+`
 																<span>URL：</span>
 																<a href="${subscribeInfo.data.url}" target="_blank">${subscribeInfo.data.url}</a>
 															`
@@ -5466,8 +4512,7 @@
                               if (subscribeInfo.subscribeData.version != null) {
                                 domUtils.html(
                                   $subscribeNetworkAddDialog_version,
-                                  /*html*/
-                                  `
+`
 																	<span>版本：</span>
 																	<span>${subscribeInfo.subscribeData.version}</span>
 																`
@@ -5478,8 +4523,7 @@
                               if (subscribeInfo.subscribeData.lastModified != null) {
                                 domUtils.html(
                                   $subscribeNetworkAddDialog_lastModified,
-                                  /*html*/
-                                  `
+`
 																	<span>更新时间：</span>
 																	<span>${utils.formatTime(subscribeInfo.subscribeData.lastModified)}</span>
 																`
@@ -5589,8 +4633,7 @@
           text: typeof this.option.title === "function" ? this.option.title() : this.option.title,
           position: "center"
         },
-        // @ts-ignore
-        content: contentConfigList,
+content: contentConfigList,
         btn: {
           close: {
             enable: true,
@@ -5610,8 +4653,7 @@
         width: PanelUISize.settingBig.width,
         height: PanelUISize.settingBig.height,
         style: (
-          /*css*/
-          `
+`
                 ${this.option.style || ""}
                 .pops button[data-type="subscribe"]{
                     --button-color: #ffffff;
@@ -5701,22 +4743,13 @@
         )
       });
     }
-    /**
-     * 进入深层菜单
-     *
-     * 隐藏上一层的<section>，添加本层的<section>
-     * @param $el 当前菜单的元素或<section>
-     * @param headerTitle 标题
-     * @param quiteDeepMenuCallBack 返回上一层回调，一般用于触发外部的渲染更新
-     */
-    enterDeepMenu($el, headerTitle, quiteDeepMenuCallBack) {
+enterDeepMenu($el, headerTitle, quiteDeepMenuCallBack) {
       let $prevSection = $el.matches("section") ? $el : $el.closest("section");
       domUtils.addClass($prevSection, "pops-hide-important");
       let $section = domUtils.createElement("section", {
         className: "pops-panel-container pops-panel-deepMenu-container",
         innerHTML: (
-          /*html*/
-          `
+`
 				<ul class="pops-panel-container-header-ul pops-panel-deepMenu-container-header-ul">
 					<li class="pops-panel-container-header-title-text pops-panel-deepMenu-container-header">
 						<i class="pops-panel-deepMenu-container-left-arrow-icon">${__pops.config.iconSVG.arrowLeft}</i>
@@ -5751,22 +4784,12 @@
         $headerContainer,
         $arrowLeft,
         $rightRuleContainer,
-        /**
-         * 退出菜单
-         */
-        quiteDeepMenu: () => {
+quiteDeepMenu: () => {
           $arrowLeft.click();
         }
       };
     }
-    /**
-     * 创建各个按钮元素
-     * @param $controlsParent 控制按钮的父元素
-     * @param $rightContainer 右侧容器
-     * @param option 配置
-     * @param addButtonCallBack 添加按钮的回调
-     */
-    createButtonControls($controlsParent, $rightContainer, option, addButtonCallBack) {
+createButtonControls($controlsParent, $rightContainer, option, addButtonCallBack) {
       let btnControlsOption = option.btnControls;
       let $ruleControls = domUtils.createElement("li", {
         className: "rule-controls"
@@ -5779,8 +4802,7 @@
           {
             className: "rule-control-add",
             innerHTML: (
-              /*html*/
-              `<span>添加</span>`
+`<span>添加</span>`
             )
           },
           {
@@ -5810,8 +4832,7 @@
           {
             className: "rule-control-filter",
             innerHTML: (
-              /*html*/
-              `<span>过滤</span>`
+`<span>过滤</span>`
             )
           },
           {
@@ -5851,8 +4872,7 @@
               let ruleFilterView = new RuleFilterView(
                 {
                   title: filterTitle,
-                  // @ts-ignore
-                  filterOption: btnControlsOption?.filter?.option || [],
+filterOption: btnControlsOption?.filter?.option || [],
                   execFilterCallBack() {
                     domUtils.text($button, "取消过滤");
                   },
@@ -5881,8 +4901,7 @@
           {
             className: "rule-control-clear-all",
             innerHTML: (
-              /*html*/
-              `<span>清空所有</span>`
+`<span>清空所有</span>`
             )
           },
           {
@@ -5946,8 +4965,7 @@
           {
             className: "rule-control-import",
             innerHTML: (
-              /*html*/
-              `<span>导入</span>`
+`<span>导入</span>`
             )
           },
           {
@@ -5975,8 +4993,7 @@
           {
             className: "rule-control-export",
             innerHTML: (
-              /*html*/
-              `<span>导出</span>`
+`<span>导出</span>`
             )
           },
           {
@@ -6000,8 +5017,7 @@
       let $ruleContainer = domUtils.createElement("div", {
         className: "rule-view-container",
         innerHTML: (
-          /*html*/
-          ``
+``
         )
       });
       domUtils.append($rightContainer, $ruleContainer);
@@ -6015,27 +5031,17 @@
         $ruleControlExport
       };
     }
-    /**
-     * 解析弹窗内的各个元素
-     * @param $el
-     */
-    parseViewElement($el) {
+parseViewElement($el) {
       let $container = $el.querySelector(".rule-view-container");
       let $deleteBtn = $el.querySelector(
         ".rule-control-clear-all"
       );
       return {
-        /** 容器 */
-        $container,
-        /** 左下角的清空按钮 */
-        $deleteBtn
+$container,
+$deleteBtn
       };
     }
-    /**
-     * 解析规则元素
-     * @param $ruleItem 规则元素
-     */
-    parseRuleElement($ruleItem) {
+parseRuleElement($ruleItem) {
       let $enable = $ruleItem.querySelector(
         ".rule-controls-enable"
       );
@@ -6051,37 +5057,22 @@
         ".rule-controls-delete"
       );
       return {
-        /** 启用开关 */
-        $enable,
-        /** 启用开关的container */
-        $enableSwitch,
-        /** 启用开关的input */
-        $enableSwitchInput,
-        /** 启用开关的core */
-        $enableSwitchCore,
-        /** 编辑按钮 */
-        $edit,
-        /** 删除按钮 */
-        $delete,
-        /** 存储在元素上的数据 */
-        data: Reflect.get($ruleItem, "data-rule")
+$enable,
+$enableSwitch,
+$enableSwitchInput,
+$enableSwitchCore,
+$edit,
+$delete,
+data: Reflect.get($ruleItem, "data-rule")
       };
     }
-    /**
-     * 创建规则元素
-     * @param option 规则配置
-     * @param subscribeOption 订阅配置
-     * @param data 规则数据
-     * @param $el 元素
-     */
-    async createRuleElement(option, subscribeOption, data, $el) {
+async createRuleElement(option, subscribeOption, data, $el) {
       let ruleData = data;
       let name = await option.getDataItemName(ruleData);
       let $ruleItem = domUtils.createElement("div", {
         className: "rule-item",
         innerHTML: (
-          /*html*/
-          `
+`
 			<div class="rule-name">${name}</div>
 			<div class="rule-controls">
 				<div class="rule-controls-enable">
@@ -6158,12 +5149,9 @@
             let result = option.btnControls?.ruleEdit?.callback({
               context: this,
               event,
-              // @ts-ignore
-              option,
-              // @ts-ignore
-              subscribeOption,
-              // @ts-ignore
-              ruleData,
+option,
+subscribeOption,
+ruleData,
               $section: $el,
               $ruleItem,
               enterDeepMenu: async (deepMenuOption) => {
@@ -6178,14 +5166,12 @@
                 this.createButtonControls(
                   $deepMenuRightContainer,
                   deepMenuElementInfo.$rightRuleContainer,
-                  // @ts-ignore
-                  deepMenuOption,
+deepMenuOption,
                   void 0
                 );
                 let allRuleData = await deepMenuOption.data();
                 await this.addRuleElement(
-                  // @ts-ignore
-                  deepMenuOption,
+deepMenuOption,
                   void 0,
                   deepMenuElementInfo.$section,
                   allRuleData
@@ -6260,16 +5246,7 @@
       }
       return $ruleItem;
     }
-    /**
-     * 添加一个规则元素
-     * @param option 配置
-     * @param subscribeOption 订阅的配置
-     * @param $el 弹窗的元素
-     * @param data 规则的数据
-     * @param addCallBack 添加元素后的回调
-     * @returns 返回添加的元素
-     */
-    async addRuleElement(option, subscribeOption, $el, data, addCallBack) {
+async addRuleElement(option, subscribeOption, $el, data, addCallBack) {
       let { $container } = this.parseViewElement($el);
       let $ruleItem = [];
       let iteratorData = Array.isArray(data) ? data : [data];
@@ -6290,28 +5267,14 @@
       await this.updateDeleteAllBtnText(option, $el);
       return $ruleItem;
     }
-    /**
-     * 更新弹窗内容的元素
-     * @param option 规则的配置
-     * @param subscribeOption 订阅的配置
-     * @param $el 弹窗的元素
-     */
-    async updateRuleContaienrElement(option, subscribeOption, $el) {
+async updateRuleContaienrElement(option, subscribeOption, $el) {
       this.clearContent($el);
       const { $container } = this.parseViewElement($el);
       let data = await option.data();
       await this.addRuleElement(option, subscribeOption, $el, data);
       await this.updateDeleteAllBtnText(option, $el);
     }
-    /**
-     * 更新规则元素
-     * @param option 规则的配置
-     * @param subscribeOption 订阅的配置
-     * @param data 规则的数据
-     * @param $oldRule 旧的规则元素
-     * @param $el 弹窗的元素
-     */
-    async updateRuleItemElement(option, subscribeOption, data, $oldRule, $el) {
+async updateRuleItemElement(option, subscribeOption, data, $oldRule, $el) {
       let $newRule = await this.createRuleElement(
         option,
         subscribeOption,
@@ -6322,21 +5285,11 @@
       $oldRule.remove();
       return $newRule;
     }
-    /**
-     * 清空内容
-     * @param $el 弹窗的元素
-     */
-    clearContent($el) {
+clearContent($el) {
       const { $container } = this.parseViewElement($el);
       domUtils.html($container, "");
     }
-    /**
-     * 设置删除按钮的文字
-     * @param $el 弹窗的元素
-     * @param text 按钮的文字
-     * @param [isHTML=false] 是否是html
-     */
-    setDeleteBtnText($el, text, isHTML = false) {
+setDeleteBtnText($el, text, isHTML = false) {
       const { $deleteBtn } = this.parseViewElement($el);
       if (isHTML) {
         domUtils.html($deleteBtn, text);
@@ -6344,12 +5297,7 @@
         domUtils.text($deleteBtn, text);
       }
     }
-    /**
-     * 更新【清空所有】的按钮的文字
-     * @param option 规则的配置
-     * @param $el 弹窗的元素
-     */
-    async updateDeleteAllBtnText(option, $el) {
+async updateDeleteAllBtnText(option, $el) {
       let data = await option.data();
       let dataCount = data.length;
       let text = `清空所有`;
@@ -6358,18 +5306,7 @@
       }
       this.setDeleteBtnText($el, text);
     }
-    /**
-     * 显示编辑视图
-     * @param option 规则的配置
-     * @param subscribeOption 订阅的配置
-     * @param isEdit 是否是编辑状态
-     * @param editData 编辑的数据
-     * @param $parent 关闭弹窗后对ShadowRoot进行操作
-     * @param $ruleItem 关闭弹窗后对规则行进行更新数据
-     * @param updateDataCallBack 关闭添加/编辑弹窗的回调（不更新数据）
-     * @param submitCallBack 添加/修改提交的回调
-     */
-    showEditView(option, subscribeOption, isEdit, editData, $parent, $ruleItem, updateDataCallBack, submitCallBack) {
+showEditView(option, subscribeOption, isEdit, editData, $parent, $ruleItem, updateDataCallBack, submitCallBack) {
       let dialogCloseCallBack = async (isSubmit) => {
         if (isSubmit) {
           if (typeof submitCallBack === "function") {
@@ -6465,21 +5402,14 @@
       this.option = option;
       this.storageApi = new StorageUtils(option.STORAGE_API_KEY);
     }
-    /**
-     * 获取所有订阅
-     */
-    getAllSubscribe() {
+getAllSubscribe() {
       let allSubscribe = this.storageApi.get(
         this.option.STORAGE_KEY,
         []
       );
       return allSubscribe;
     }
-    /**
-     * 获取所有订阅内的所有的规则
-     * @param [filterUnEnable=false] 是否过滤掉未启用的规则（包括订阅）
-     */
-    getAllSubscribeRule(filterUnEnable = false) {
+getAllSubscribeRule(filterUnEnable = false) {
       let allSubscribe = this.getAllSubscribe();
       let allSubscribeRule = [];
       for (let index = 0; index < allSubscribe.length; index++) {
@@ -6498,22 +5428,13 @@
       }
       return allSubscribeRule;
     }
-    /**
-     * 获取某个订阅
-     * @param subscribeUUID 订阅的uuid
-     */
-    getSubscribe(subscribeUUID) {
+getSubscribe(subscribeUUID) {
       let findValue = this.getAllSubscribe().find(
         (rule) => rule.uuid == subscribeUUID
       );
       return findValue;
     }
-    /**
-     * 获取某个订阅的规则
-     * @param subscribeUUID 订阅的uuid
-     * @param uuid 规则的uuid
-     */
-    getSubscribeRule(subscribeUUID, uuid) {
+getSubscribeRule(subscribeUUID, uuid) {
       let findSubscribe = this.getSubscribe(subscribeUUID);
       if (findSubscribe) {
         let findRule = findSubscribe.subscribeData.ruleData.find(
@@ -6522,17 +5443,10 @@
         return findRule;
       }
     }
-    /**
-     * 删除所有订阅
-     */
-    deleteAllSubscribe() {
+deleteAllSubscribe() {
       this.storageApi.delete(this.option.STORAGE_KEY);
     }
-    /**
-     * 删除某个订阅
-     * @param config 配置/uuid
-     */
-    deleteSubscribe(config) {
+deleteSubscribe(config) {
       let uuid = typeof config === "string" ? config : config.uuid;
       let allSubscribe = this.getAllSubscribe();
       let findIndex = allSubscribe.findIndex(
@@ -6544,10 +5458,7 @@
       }
       return findIndex !== -1;
     }
-    /**
-     * 清空某个订阅内的规则
-     */
-    clearSubscribe(config) {
+clearSubscribe(config) {
       let uuid = typeof config === "string" ? config : config.uuid;
       let allSubscribe = this.getAllSubscribe();
       let findIndex = allSubscribe.findIndex(
@@ -6561,10 +5472,7 @@
         return false;
       }
     }
-    /**
-     * 新增某个订阅
-     */
-    addSubscribe(subscribe) {
+addSubscribe(subscribe) {
       let flag = false;
       let allSubscribe = this.getAllSubscribe();
       let findIndex = allSubscribe.findIndex(
@@ -6579,10 +5487,7 @@
       }
       return flag;
     }
-    /**
-     * 更新某个订阅
-     */
-    updateSubscribe(subscribe) {
+updateSubscribe(subscribe) {
       let flag = false;
       let allSubscribe = this.getAllSubscribe();
       let findIndex = allSubscribe.findIndex(
@@ -6597,10 +5502,7 @@
       }
       return flag;
     }
-    /**
-     * 更新某个订阅内的某个规则
-     */
-    updateSubscribeRule(subscribeUUID, rule) {
+updateSubscribeRule(subscribeUUID, rule) {
       let flag = false;
       let allSubscribe = this.getAllSubscribe();
       let targetSubscribe = allSubscribe.find(
@@ -6620,12 +5522,7 @@
       }
       return true;
     }
-    /**
-     * 删除某个订阅内的某个规则
-     * @param  subscribeUUID 订阅的uuid
-     * @param  rule 规则
-     */
-    deleteSubscribeRule(subscribeUUID, rule) {
+deleteSubscribeRule(subscribeUUID, rule) {
       let flag = false;
       let allSubscribe = this.getAllSubscribe();
       let findIndex = allSubscribe.findIndex(
@@ -6644,11 +5541,7 @@
       }
       return flag;
     }
-    /**
-     * 获取订阅链接的数据信息
-     * @param url 订阅链接
-     */
-    async getSubscribeInfo(url) {
+async getSubscribeInfo(url) {
       let response = await httpx.get(url, {
         allowInterceptConfig: false,
         timeout: 1e4,
@@ -6688,10 +5581,7 @@
         };
       }
     }
-    /**
-     * 更新所有订阅
-     */
-    async updateAllSubscribe() {
+async updateAllSubscribe() {
       let allSubscribe = this.getAllSubscribe();
       for (let index = 0; index < allSubscribe.length; index++) {
         const subscribeItem = allSubscribe[index];
@@ -6730,11 +5620,7 @@
         }
       }
     }
-    /**
-     * 导入订阅
-     * @param importEndCallBack 导入完毕后的回调
-     */
-    importSubscribe(importEndCallBack) {
+importSubscribe(importEndCallBack) {
       let $alert = __pops.alert({
         title: {
           text: "请选择导入方式",
@@ -6742,8 +5628,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                     <div class="btn-control" data-mode="local">本地导入</div>
                     <div class="btn-control" data-mode="network">网络导入</div>
                     <div class="btn-control" data-mode="clipboard">剪贴板导入</div>
@@ -6767,8 +5652,7 @@
         width: PanelUISize.info.width,
         height: PanelUISize.info.height,
         style: (
-          /*css*/
-          `
+`
                 .btn-control{
                     display: inline-block;
                     margin: 10px;
@@ -6972,10 +5856,7 @@
         }
       });
     }
-    /**
-     * 导出订阅
-     */
-    exportSubscribe(fileName = "rule.json") {
+exportSubscribe(fileName = "rule.json") {
       let $alert = __pops.alert({
         title: {
           text: "请选择导出方式",
@@ -6983,8 +5864,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                     <div class="btn-control" data-mode="only-export-rule-list">导出订阅</div>
                 `
           ),
@@ -7006,8 +5886,7 @@
         width: PanelUISize.info.width,
         height: PanelUISize.info.height,
         style: (
-          /*css*/
-          `
+`
                 .btn-control{
                     display: inline-block;
                     margin: 10px;
@@ -7064,10 +5943,7 @@
       STORAGE_KEY: "character-mapping",
       EXPORT_CONFIG_KEY: "rule-export-config"
     },
-    /**
-     * 获取模板数据
-     */
-    getTemplateData() {
+getTemplateData() {
       return {
         uuid: utils.generateUUID(),
         subscribeUUID: null,
@@ -7083,11 +5959,7 @@
         dynamicData: []
       };
     },
-    /**
-     * 获取规则面板视图的配置
-     * @param quickAddData 用于快速添加数据
-     */
-    getRulePanelViewOption(quickAddData) {
+getRulePanelViewOption(quickAddData) {
       const that = this;
       let panelHandlerComponents = __pops.config.PanelHandlerComponents();
       let addData = () => {
@@ -7118,8 +5990,7 @@
           },
           getDataItemName(subscribeOption) {
             return (
-              /*html*/
-              `
+`
 						<style>
 							.subscribe-rule-title-info-wrapper{
 								display: flex;
@@ -7207,10 +6078,9 @@
                 let subscribeUUID = option.ruleData.uuid;
                 option.enterDeepMenu({
                   headerTitle: (
-                    // 自己重新命名的
-                    option.ruleData.data.title || // 订阅的规则自带的
-                    option.ruleData.subscribeData.title || // 订阅的链接
-                    option.ruleData.data.url
+option.ruleData.data.title ||
+option.ruleData.subscribeData.title ||
+option.ruleData.data.url
                   ),
                   data() {
                     let currentData = CharacterMappingSubscribe.getSubscribe(subscribeUUID);
@@ -7401,8 +6271,7 @@
                         let $dynamicContainer = domUtils.createElement("div", {
                           className: "rule-form-ulist-dynamic",
                           innerHTML: (
-                            /*html*/
-                            `
+`
 												<div class="rule-form-ulist-dynamic__inner">
 
 												</div>
@@ -7433,8 +6302,7 @@
                             {
                               className: "rule-form-ulist-dynamic__inner-container",
                               innerHTML: (
-                                /*html*/
-                                `
+`
 										<div class="dynamic-control-delete">
 											<div class="pops-panel-button pops-panel-button-no-icon">
 												<button class="pops-panel-button_inner" type="button" data-type="danger">
@@ -7828,8 +6696,7 @@
                 let $dynamicContainer = domUtils.createElement("div", {
                   className: "rule-form-ulist-dynamic",
                   innerHTML: (
-                    /*html*/
-                    `
+`
 									<div class="rule-form-ulist-dynamic__inner">
 
 									</div>
@@ -7858,8 +6725,7 @@
                   let $dynamicUListContainer = domUtils.createElement("div", {
                     className: "rule-form-ulist-dynamic__inner-container",
                     innerHTML: (
-                      /*html*/
-                      `
+`
 										<div class="dynamic-control-delete">
 											<div class="pops-panel-button pops-panel-button-no-icon">
 												<button class="pops-panel-button_inner" type="button" data-type="danger">
@@ -8038,12 +6904,7 @@
       };
       return rulePanelViewOption;
     },
-    /**
-     * 根据url获取匹配的规则
-     * @param [filterUnEnable=true] 是否过滤掉未启用的规则
-     * @param url 需要匹配的url
-     */
-    getUrlMatchedRule(filterUnEnable = true, url = window.location.href) {
+getUrlMatchedRule(filterUnEnable = true, url = window.location.href) {
       let allData = this.getData();
       let allSubscribeRule = CharacterMappingSubscribe.getAllSubscribeRule(filterUnEnable);
       allData = allData.concat(allSubscribeRule);
@@ -8054,11 +6915,7 @@
         return Boolean(url.match(rule.data.url));
       });
     },
-    /**
-     * 获取格式化可用的规则
-     * @param url 匹配网址
-     */
-    getMappingData(url = window.location.href) {
+getMappingData(url = window.location.href) {
       let matchedRule = this.getUrlMatchedRule(true, url);
       let replaceMappingData = [];
       matchedRule.forEach((data) => {
@@ -8087,24 +6944,13 @@
       });
       return replaceMappingData;
     },
-    /**
-     * 获取数据
-     */
-    getData() {
+getData() {
       return _GM_getValue(this.$data.STORAGE_KEY, []);
     },
-    /**
-     * 设置数据
-     * @param data
-     */
-    setData(data) {
+setData(data) {
       _GM_setValue(this.$data.STORAGE_KEY, data);
     },
-    /**
-     * 添加数据
-     * @param data
-     */
-    addData(data) {
+addData(data) {
       let localData = this.getData();
       let findIndex = localData.findIndex((item) => item.uuid == data.uuid);
       if (findIndex === -1) {
@@ -8115,11 +6961,7 @@
         return false;
       }
     },
-    /**
-     * 更新数据
-     * @param data
-     */
-    updateData(data) {
+updateData(data) {
       let localData = this.getData();
       let index = localData.findIndex((item) => item.uuid == data.uuid);
       let updateFlag = false;
@@ -8130,11 +6972,7 @@
       this.setData(localData);
       return updateFlag;
     },
-    /**
-     * 删除数据
-     * @param data
-     */
-    deleteData(data) {
+deleteData(data) {
       let localData = this.getData();
       let index = localData.findIndex((item) => item.uuid == data.uuid);
       let deleteFlag = false;
@@ -8145,16 +6983,10 @@
       this.setData(localData);
       return deleteFlag;
     },
-    /**
-     * 清空数据
-     */
-    clearData() {
+clearData() {
       _GM_deleteValue(this.$data.STORAGE_KEY);
     },
-    /**
-     * 导出规则
-     */
-    exportRule(fileName = "rule.json", subscribeFileName = "rule-subscribe.json") {
+exportRule(fileName = "rule.json", subscribeFileName = "rule-subscribe.json") {
       let $alert = NetDiskPops.alert({
         title: {
           text: "请选择导出方式",
@@ -8162,8 +6994,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                     <div class="btn-control" data-mode="only-export-rule-list">导出规则</div>
                     <div class="btn-control" data-mode="export-to-subscribe">导出订阅规则</div>
                 `
@@ -8184,8 +7015,7 @@
         width: PanelUISize.info.width,
         height: PanelUISize.info.height,
         style: (
-          /*css*/
-          `
+`
                 .btn-control{
                     display: inline-block;
                     margin: 10px;
@@ -8285,8 +7115,7 @@
             },
             content: {
               text: (
-                /*html*/
-                `
+`
 							
 						`
               ),
@@ -8314,8 +7143,7 @@
             width: PanelUISize.info.width,
             height: PanelUISize.info.height,
             style: (
-              /*css*/
-              `
+`
 						${__pops.config.cssText.panelCSS}
 
 						.pops-alert-content li{
@@ -8382,11 +7210,7 @@
         }
       });
     },
-    /**
-     * 导入规则
-     * @param importEndCallBack 导入完毕后的回调
-     */
-    importRule(importEndCallBack) {
+importRule(importEndCallBack) {
       let $alert = NetDiskPops.alert({
         title: {
           text: "请选择导入方式",
@@ -8394,8 +7218,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                     <div class="btn-control" data-mode="local">本地导入</div>
                     <div class="btn-control" data-mode="network">网络导入</div>
                     <div class="btn-control" data-mode="clipboard">剪贴板导入</div>
@@ -8417,8 +7240,7 @@
         width: PanelUISize.info.width,
         height: PanelUISize.info.height,
         style: (
-          /*css*/
-          `
+`
                 .btn-control{
                     display: inline-block;
                     margin: 10px;
@@ -8607,18 +7429,11 @@
       this.option = option;
       this.storageApi = new StorageUtils(option.STORAGE_API_KEY);
     }
-    /**
-     * 获取所有订阅
-     */
-    getAllSubscribe() {
+getAllSubscribe() {
       let allSubscribe = this.storageApi.get(this.option.STORAGE_KEY, []);
       return allSubscribe;
     }
-    /**
-     * 获取所有订阅内的所有的规则
-     * @param [filterUnEnable=false] 是否过滤掉未启用的规则（包括订阅）
-     */
-    getAllSubscribeRule(filterUnEnable = false) {
+getAllSubscribeRule(filterUnEnable = false) {
       let allSubscribe = this.getAllSubscribe();
       let allSubscribeRule = [];
       for (let index = 0; index < allSubscribe.length; index++) {
@@ -8637,37 +7452,21 @@
       }
       return allSubscribeRule;
     }
-    /**
-     * 获取某个订阅
-     * @param subscribeUUID 订阅的uuid
-     */
-    getSubscribe(subscribeUUID) {
+getSubscribe(subscribeUUID) {
       let findValue = this.getAllSubscribe().find((rule) => rule.uuid == subscribeUUID);
       return findValue;
     }
-    /**
-     * 获取某个订阅的规则
-     * @param subscribeUUID 订阅的uuid
-     * @param key 规则的键
-     */
-    getSubscribeRule(subscribeUUID, key) {
+getSubscribeRule(subscribeUUID, key) {
       let findSubscribe = this.getSubscribe(subscribeUUID);
       if (findSubscribe) {
         let findRule = findSubscribe.subscribeData.ruleData.find((rule) => rule.key === key);
         return findRule;
       }
     }
-    /**
-     * 删除所有订阅
-     */
-    deleteAllSubscribe() {
+deleteAllSubscribe() {
       this.storageApi.delete(this.option.STORAGE_KEY);
     }
-    /**
-     * 删除某个订阅
-     * @param config 配置/uuid
-     */
-    deleteSubscribe(config) {
+deleteSubscribe(config) {
       let uuid = typeof config === "string" ? config : config.uuid;
       let allSubscribe = this.getAllSubscribe();
       let findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === uuid);
@@ -8677,10 +7476,7 @@
       }
       return findIndex !== -1;
     }
-    /**
-     * 清空某个订阅内的规则
-     */
-    clearSubscribe(config) {
+clearSubscribe(config) {
       let uuid = typeof config === "string" ? config : config.uuid;
       let allSubscribe = this.getAllSubscribe();
       let findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === uuid);
@@ -8692,10 +7488,7 @@
         return false;
       }
     }
-    /**
-     * 新增某个订阅
-     */
-    addSubscribe(subscribe) {
+addSubscribe(subscribe) {
       let flag = false;
       let allSubscribe = this.getAllSubscribe();
       let findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === subscribe.uuid);
@@ -8708,10 +7501,7 @@
       }
       return flag;
     }
-    /**
-     * 更新某个订阅
-     */
-    updateSubscribe(subscribe) {
+updateSubscribe(subscribe) {
       let flag = false;
       let allSubscribe = this.getAllSubscribe();
       let findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === subscribe.uuid);
@@ -8724,10 +7514,7 @@
       }
       return flag;
     }
-    /**
-     * 更新某个订阅内的某个规则
-     */
-    updateSubscribeRule(subscribeUUID, rule) {
+updateSubscribeRule(subscribeUUID, rule) {
       let flag = false;
       let allSubscribe = this.getAllSubscribe();
       let targetSubscribe = allSubscribe.find((subscribeItem) => subscribeItem.uuid === subscribeUUID);
@@ -8745,12 +7532,7 @@
       }
       return true;
     }
-    /**
-     * 删除某个订阅内的某个规则
-     * @param  subscribeUUID 订阅的uuid
-     * @param  rule 规则|规则的键
-     */
-    deleteSubscribeRule(subscribeUUID, rule) {
+deleteSubscribeRule(subscribeUUID, rule) {
       let flag = false;
       let key = typeof rule === "string" ? rule : rule.key;
       let allSubscribe = this.getAllSubscribe();
@@ -8768,11 +7550,7 @@
       }
       return flag;
     }
-    /**
-     * 获取订阅链接的数据信息
-     * @param url 订阅链接
-     */
-    async getSubscribeInfo(url) {
+async getSubscribeInfo(url) {
       let response = await httpx.get(url, {
         allowInterceptConfig: false,
         timeout: 1e4,
@@ -8812,10 +7590,7 @@
         };
       }
     }
-    /**
-     * 更新所有订阅
-     */
-    async updateAllSubscribe() {
+async updateAllSubscribe() {
       let allSubscribe = this.getAllSubscribe();
       for (let index = 0; index < allSubscribe.length; index++) {
         const subscribeItem = allSubscribe[index];
@@ -8852,11 +7627,7 @@
         }
       }
     }
-    /**
-     * 导入订阅
-     * @param importEndCallBack 导入完毕后的回调
-     */
-    importSubscribe(importEndCallBack) {
+importSubscribe(importEndCallBack) {
       let $alert = NetDiskPops.alert({
         title: {
           text: "请选择导入方式",
@@ -8864,8 +7635,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                     <div class="btn-control" data-mode="local">本地导入</div>
                     <div class="btn-control" data-mode="network">网络导入</div>
                     <div class="btn-control" data-mode="clipboard">剪贴板导入</div>
@@ -8887,8 +7657,7 @@
         width: PanelUISize.info.width,
         height: PanelUISize.info.height,
         style: (
-          /*css*/
-          `
+`
                 .btn-control{
                     display: inline-block;
                     margin: 10px;
@@ -9066,10 +7835,7 @@
         }
       });
     }
-    /**
-     * 导出订阅
-     */
-    exportSubscribe(fileName = "rule.json") {
+exportSubscribe(fileName = "rule.json") {
       let $alert = NetDiskPops.alert({
         title: {
           text: "请选择导出方式",
@@ -9077,8 +7843,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                     <div class="btn-control" data-mode="only-export-rule-list">导出订阅</div>
                 `
           ),
@@ -9098,8 +7863,7 @@
         width: PanelUISize.info.width,
         height: PanelUISize.info.height,
         style: (
-          /*css*/
-          `
+`
                 .btn-control{
                     display: inline-block;
                     margin: 10px;
@@ -9154,11 +7918,7 @@
     init() {
       this.updateAllSubscribe();
     },
-    /**
-     * 获取规则管理器视图
-     * @param defaultTab 左侧默认的选项卡，可以是索引下标，也可以是标题
-     */
-    getPanelView(defaultTab = 0) {
+getPanelView(defaultTab = 0) {
       let option = {
         title: "规则管理器",
         contentConfig: [
@@ -9180,28 +7940,18 @@
       );
       return rulePanelView;
     },
-    /**
-     * 显示视图
-     * @param defaultTab 左侧默认的选项卡，可以是索引下标，也可以是标题
-     */
-    showView(defaultTab) {
+showView(defaultTab) {
       let rulePanelView = this.getPanelView(defaultTab);
       rulePanelView.showView();
     },
-    /**
-     * 更新所有订阅
-     */
-    updateAllSubscribe() {
+updateAllSubscribe() {
       NetDiskUserRuleSubscribeRule.updateAllSubscribe();
       WebsiteSubscribeRule.updateAllSubscribe();
       CharacterMappingSubscribe.updateAllSubscribe();
     }
   };
   const NetDiskWorkerUtils = {
-    /**
-     * 检索目标元素内所有可访问的ShadowRoot的所有节点的信息
-     */
-    depthQueryShadowRootAllNode($target) {
+depthQueryShadowRootAllNode($target) {
       let result = [];
       function queryShadowRoot($ele) {
         let $queryChildNodeList = Array.from($ele.querySelectorAll("*"));
@@ -9222,12 +7972,7 @@
       queryShadowRoot($target);
       return result;
     },
-    /**
-     * 删除某些需要忽略的text或html，如：设置、直链弹窗
-     * @param text 需要进行处理的字符串
-     * @param isHTML 是否是html属性
-     */
-    ignoreStrRemove(text, isHTML = false) {
+ignoreStrRemove(text, isHTML = false) {
       let ignoreNodeList = [];
       if (ignoreNodeList.length) {
         ignoreNodeList.forEach(($ignore) => {
@@ -9248,12 +7993,7 @@
       }
       return text;
     },
-    /**
-     * 获取页面上所有文本
-     * @param target 目标元素
-     * @param isCheckShadowRoot 是否检索ShadowRoot
-     */
-    getPageText(target = document.documentElement, isCheckShadowRoot) {
+getPageText(target = document.documentElement, isCheckShadowRoot) {
       let strList = [];
       strList.push(target?.textContent || target?.innerText || "");
       if (isCheckShadowRoot) {
@@ -9270,12 +8010,7 @@
       strList = strList.filter((item) => item !== "");
       return strList;
     },
-    /**
-     * 获取页面上所有超文本
-     * @param target 目标元素
-     * @param isCheckShadowRoot 是否检索ShadowRoot
-     */
-    getPageHTML(target = document.documentElement, isCheckShadowRoot) {
+getPageHTML(target = document.documentElement, isCheckShadowRoot) {
       let strList = [];
       strList.push(target.innerHTML);
       if (isCheckShadowRoot) {
@@ -9292,12 +8027,7 @@
       strList = strList.filter((item) => item !== "");
       return strList;
     },
-    /**
-     * 获取页面上所有input的值
-     * @param target 目标元素
-     * @param isCheckShadowRoot 是否检索ShadowRoot
-     */
-    getInputElementValue(target = document.documentElement, isCheckShadowRoot) {
+getInputElementValue(target = document.documentElement, isCheckShadowRoot) {
       let result = [];
       Array.from(target.querySelectorAll("input")).forEach(($input) => {
         result.push($input.value);
@@ -9317,12 +8047,7 @@
       }
       return result;
     },
-    /**
-     * 获取页面上所有textarea的值
-     * @param target 目标元素
-     * @param isCheckShadowRoot 是否检索ShadowRoot
-     */
-    getTextAreaElementValue(target = document.documentElement, isCheckShadowRoot) {
+getTextAreaElementValue(target = document.documentElement, isCheckShadowRoot) {
       let result = [];
       Array.from(target.querySelectorAll("textarea")).forEach(($textarea) => {
         result.push($textarea.value);
@@ -9342,12 +8067,7 @@
       }
       return result;
     },
-    /**
-     * 获取光标选中的内容
-     *
-     * 获取两种：纯文本和超文本
-     */
-    getSelectContent() {
+getSelectContent() {
       let result = {
         text: "",
         html: ""
@@ -9367,28 +8087,16 @@
   };
   const indexCSS$3 = '.whitesevPopNetDiskHistoryMatch .pops-confirm-content {\r\n	display: flex;\r\n	flex-direction: column;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content ul {\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content li {\r\n	display: flex;\r\n	flex-direction: column;\r\n	justify-content: center;\r\n	border-radius: 10px;\r\n	box-shadow: 0 0.3px 0.6px rgb(0 0 0 / 6%), 0 0.7px 1.3px rgb(0 0 0 / 8%), 0 1.3px 2.5px rgb(0 0 0 / 10%),\r\n		0 2.2px 4.5px rgb(0 0 0 / 12%), 0 4.2px 8.4px rgb(0 0 0 / 14%), 0 10px 20px rgb(0 0 0 / 20%);\r\n	margin: 20px 10px;\r\n	padding: 10px;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-search {\r\n	/*height: 11%;*/\r\n	flex: 0;\r\n	padding: 5px 0px;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-table {\r\n	/*height: calc(85% - 40px);*/\r\n	overflow: auto;\r\n	flex: 1;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-page {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	/*margin-top: 10px;*/\r\n	flex: 0;\r\n	padding: 5px 0px;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-search input {\r\n	border: none;\r\n	border-bottom: 1px solid #000000;\r\n	padding: 0px 5px;\r\n	line-height: normal;\r\n	width: -moz-available;\r\n	width: -webkit-fill-available;\r\n	width: fill-available;\r\n	margin: 5px 5px 0px 5px;\r\n	background: none;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-search input:focus-visible {\r\n	outline: none;\r\n	border-bottom: 1px solid #0009ff;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link {\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link a {\r\n	color: #ff4848;\r\n	font-size: 0.8em;\r\n	border: none;\r\n	word-break: break-word;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link a[isvisited="true"] {\r\n	color: #8b8888;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon {\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon .netdisk-icon-img {\r\n	width: 28px;\r\n	height: 28px;\r\n	min-width: 28px;\r\n	min-height: 28px;\r\n	font-size: 0.8em;\r\n	border-radius: 10px;\r\n	box-shadow: 0 0.3px 0.6px rgb(0 0 0 / 6%), 0 0.7px 1.3px rgb(0 0 0 / 8%), 0 1.3px 2.5px rgb(0 0 0 / 10%),\r\n		0 2.2px 4.5px rgb(0 0 0 / 12%), 0 4.2px 8.4px rgb(0 0 0 / 14%), 0 10px 20px rgb(0 0 0 / 20%);\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url {\r\n	color: #000;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url {\r\n	color: #000;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions button.btn-delete {\r\n	background: #263cf3;\r\n	color: #fff;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions button.btn-delete:active {\r\n	background: #6e7be8;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-add-time,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-update-time,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url-title,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions {\r\n	display: flex;\r\n	margin: 5px 0px;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-add-time p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-update-time p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url-title p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions p {\r\n	min-width: 80px;\r\n	max-width: 80px;\r\n	align-self: center;\r\n}\r\n';
   const NetDiskHistoryMatchView = {
-    /**
-     * 本地存储的keyName
-     */
-    storageKey: "netDiskHistoryMatch",
-    /**
-     * 是否已设置其它DOM事件
-     */
-    isSetOtherEvent: false,
-    /**
-     * 分页
-     */
-    dataPaging: void 0,
-    /**
-     * 显示弹窗
-     */
-    show() {
+storageKey: "netDiskHistoryMatch",
+isSetOtherEvent: false,
+dataPaging: void 0,
+show() {
       let data = this.getStorageData();
       let dataHTML = "";
       let that = this;
       data = this.orderNetDiskHistoryMatchData(data);
-      dataHTML = /*html*/
-      `
+      dataHTML =
+`
         <div class="netdiskrecord-search">
             <input type="text" placeholder="搜索链接/网址/网址标题，按下回车进行搜索（可正则）">
         </div>
@@ -9494,17 +8202,11 @@
         true
       );
     },
-    /**
-     * 获取链接项的容器
-     */
-    getLinkContainer() {
+getLinkContainer() {
       let $linkContainer = NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector(".netdiskrecord-table ul");
       return $linkContainer;
     },
-    /**
-     * 添加链接元素
-     */
-    addLinkElements(data) {
+addLinkElements(data) {
       if (!Array.isArray(data)) {
         data = [data];
       }
@@ -9517,11 +8219,7 @@
       let $linkContainer = this.getLinkContainer();
       $linkContainer.appendChild(documentFragment);
     },
-    /**
-     * 获取显示出的每一项的信息
-     * @param data
-     */
-    createLinkItemElementInfo(data) {
+createLinkItemElementInfo(data) {
       let uiLink = NetDisk.handleLinkShow({
         ruleKeyName: data.ruleKeyName,
         ruleIndex: data.ruleIndex,
@@ -9531,8 +8229,7 @@
       });
       let $liItemContainer = domUtils.createElement("li", {
         innerHTML: (
-          /*html*/
-          `
+`
 			<div class="netdiskrecord-link">
 				<p>链接</p>
 				<a  href="javascript:;" isvisited="false">${uiLink}</a>
@@ -9588,8 +8285,7 @@
         let $topUrl = domUtils.createElement("div", {
           className: "netdiskrecord-top-url",
           innerHTML: (
-            /*html*/
-            `
+`
 				<p>Top网址</p>
 				<a href="${data.topURL}" target="_blank">${data.topURL}</a>
 				`
@@ -9614,26 +8310,16 @@
         html: $liItemContainer.outerHTML
       };
     },
-    /**
-     * 清空链接元素
-     */
-    clearLinkElements() {
+clearLinkElements() {
       let $liItemContainer = this.getLinkContainer();
       domUtils.empty($liItemContainer);
     },
-    /**
-     * 清空分页元素
-     */
-    clearPageNavigator() {
+clearPageNavigator() {
       domUtils.remove(
         NetDiskUI.Alias.historyAlias.$shadowRoot.querySelectorAll(".netdiskrecord-page > *")
       );
     },
-    /**
-     * 设置只执行一次的事件
-     * @param target
-     */
-    setEvent(target) {
+setEvent(target) {
       let that = this;
       NetDiskUI.view.setNetDiskUrlClickEvent(target, ".netdiskrecord-link a");
       domUtils.on(target, "click", ".netdiskrecord-functions button.btn-delete", function(event) {
@@ -9663,22 +8349,13 @@
         that.pageChangeCallBack(data, that.dataPaging.CONFIG.currentPage);
       });
     },
-    /**
-     * 页码改变的回调
-     * @param data
-     * @param page
-     */
-    pageChangeCallBack(data, page) {
+pageChangeCallBack(data, page) {
       let startIndex = (page - 1) * 10;
       let startData = data.slice(startIndex, startIndex + 9);
       this.clearLinkElements();
       this.addLinkElements(startData);
     },
-    /**
-     * 设置分页
-     * @param data
-     */
-    setDataPaging(data) {
+setDataPaging(data) {
       let that = this;
       let dataPaging = new __DataPaging({
         data,
@@ -9697,10 +8374,7 @@
         )
       );
     },
-    /**
-     * 设置搜索框的回车事件
-     */
-    setSearchEvent() {
+setSearchEvent() {
       let isSeaching = false;
       let $searchLoading = void 0;
       let that = this;
@@ -9766,11 +8440,7 @@
         }
       );
     },
-    /**
-     * 排序数据
-     * @param data
-     */
-    orderNetDiskHistoryMatchData(data) {
+orderNetDiskHistoryMatchData(data) {
       let localOrder = NetDiskGlobalData.historyMatch["netdisk-history-match-ordering-rule"].value;
       let isDesc = localOrder.indexOf("降序") !== -1 ? true : false;
       let orderField = localOrder.indexOf("记录时间") !== -1 ? "addTime" : "updateTime";
@@ -9783,15 +8453,7 @@
       );
       return data;
     },
-    /**
-     * 查询访问码
-     * @param ruleKeyName
-     * @param shareCode
-     * @param isNotNull 查询的访问码是否不为空
-     * + true 不能是空的
-     * + false 允许为空
-     */
-    queryAccessCode(ruleKeyName, shareCode, isNotNull) {
+queryAccessCode(ruleKeyName, shareCode, isNotNull) {
       let storageDataList = this.getStorageData();
       for (let index = 0; index < storageDataList.length; index++) {
         const localData = storageDataList[index];
@@ -9803,14 +8465,7 @@
         }
       }
     },
-    /**
-     * 同步访问码
-     * @param ruleKeyName 规则名称
-     * @param ruleIndex 规则的索引下标
-     * @param shareCode 分享码
-     * @param accessCode 新的访问码
-     */
-    syncAccessCode(ruleKeyName, ruleIndex, shareCode, accessCode) {
+syncAccessCode(ruleKeyName, ruleIndex, shareCode, accessCode) {
       if (NetDiskGlobalData.historyMatch.saveMatchNetDisk.value) {
         let flag = NetDiskHistoryMatchView.changeMatchedDataAccessCode(
           ruleKeyName,
@@ -9827,14 +8482,7 @@
       }
       return false;
     },
-    /**
-     * 修改存储的数据的访问码
-     * @param ruleKeyName 规则名称
-     * @param ruleIndex 规则的索引下标
-     * @param shareCode 分享码
-     * @param accessCode 新的访问码
-     */
-    changeMatchedDataAccessCode(ruleKeyName, ruleIndex, shareCode, accessCode) {
+changeMatchedDataAccessCode(ruleKeyName, ruleIndex, shareCode, accessCode) {
       let storageDataList = this.getStorageData();
       let flag = false;
       for (let index = 0; index < storageDataList.length; index++) {
@@ -9850,15 +8498,7 @@
       }
       return flag;
     },
-    /**
-     * 存储匹配到的链接
-     * @param ruleKeyName 规则名称
-     * @param ruleIndex 规则的索引下标
-     * @param shareCode 分享码
-     * @param accessCode 访问码
-     * @param matchText 匹配到的文本
-     */
-    changeMatchedData(ruleKeyName, ruleIndex, shareCode, accessCode, matchText) {
+changeMatchedData(ruleKeyName, ruleIndex, shareCode, accessCode, matchText) {
       if (!NetDiskGlobalData.historyMatch.saveMatchNetDisk.value) {
         return false;
       }
@@ -9917,10 +8557,7 @@
       this.saveStorageData(storageDataList);
       return true;
     },
-    /**
-     * 检测并尝试修复本地的数据
-     */
-    checkAndRepairLocalData() {
+checkAndRepairLocalData() {
       let repairCount = 0;
       let data = _GM_getValue(this.storageKey);
       if (Array.isArray(data)) {
@@ -9931,14 +8568,14 @@
             itemData.matchText = "";
             repairFlag = true;
           }
-          if (typeof itemData.ruleKeyName !== "string" && // @ts-ignore
-          typeof itemData.netDiskName === "string") {
+          if (typeof itemData.ruleKeyName !== "string" &&
+typeof itemData.netDiskName === "string") {
             itemData.ruleKeyName = itemData.netDiskName;
             delete itemData.netDiskName;
             repairFlag = true;
           }
-          if (typeof itemData.ruleIndex !== "number" && // @ts-ignore
-          typeof itemData.netDiskIndex === "number") {
+          if (typeof itemData.ruleIndex !== "number" &&
+typeof itemData.netDiskIndex === "number") {
             itemData.ruleIndex = itemData.netDiskIndex;
             delete itemData.netDiskIndex;
             repairFlag = true;
@@ -9954,10 +8591,7 @@
         repairCount
       };
     },
-    /**
-     * 获取历史匹配到的链接
-     */
-    getStorageData() {
+getStorageData() {
       let data = _GM_getValue(this.storageKey, []);
       if (data == null) {
         data = [];
@@ -9965,17 +8599,10 @@
       }
       return data;
     },
-    /**
-     * 保存数据到本地存储的链接数据
-     */
-    saveStorageData(data) {
+saveStorageData(data) {
       _GM_setValue(this.storageKey, data);
     },
-    /**
-     * 删除存储的某个项
-     * @param dataJSONText
-     */
-    deleteStorageData(dataJSONText) {
+deleteStorageData(dataJSONText) {
       let isSuccess = false;
       let data = this.getStorageData();
       for (let index = 0; index < data.length; index++) {
@@ -9991,39 +8618,24 @@
       }
       return isSuccess;
     },
-    /**
-     * 清空所有配置
-     */
-    clearStorageData() {
+clearStorageData() {
       this.saveStorageData([]);
     }
   };
   const NetDiskWorkerInitError = {
-    /**
-     * 添加不再提示的Host
-     * @param hostName Host名称
-     */
-    addHost(hostName) {
+addHost(hostName) {
       let neverTipHostNameList = this.getList();
       if (!neverTipHostNameList.includes(hostName)) {
         neverTipHostNameList.push(hostName);
       }
       this.updateList(neverTipHostNameList);
     },
-    /**
-     * 查找Host是否已添加
-     * @param hostName Host名称
-     */
-    findHost(hostName) {
+findHost(hostName) {
       let neverTipHostNameList = this.getList();
       let findIndex = neverTipHostNameList.findIndex((it) => it === hostName);
       return findIndex !== -1;
     },
-    /**
-     * 移除不再提示的Host
-     * @param hostName Host名称
-     */
-    removeHost(hostName) {
+removeHost(hostName) {
       let neverTipHostNameList = this.getList();
       let flag = false;
       let findIndex = neverTipHostNameList.findIndex((it) => it === hostName);
@@ -10034,21 +8646,14 @@
       }
       return flag;
     },
-    /**
-     * 获取不再提示的Host列表
-     */
-    getList() {
+getList() {
       let neverTipHostNameList = _GM_getValue(NetDiskWorker.neverTipWorkerInitErrorKey, []);
       if (!Array.isArray(neverTipHostNameList)) {
         neverTipHostNameList = [neverTipHostNameList];
       }
       return neverTipHostNameList;
     },
-    /**
-     * 更新Host列表
-     * @param hostNameList Host名称列表
-     */
-    updateList(hostNameList) {
+updateList(hostNameList) {
       _GM_setValue(NetDiskWorker.neverTipWorkerInitErrorKey, hostNameList);
     }
   };
@@ -10078,37 +8683,23 @@
     }
   };
   const NetDiskWorker = {
-    /** 是否正在匹配中 */
-    isHandleMatch: false,
-    /** 初始化Worker失败的错误的对象实例 */
-    workerInitError: null,
-    /** 不再弹出Worker初始化失败的提示 */
-    neverTipWorkerInitErrorKey: "never-toast-worker-error",
-    /** 触发匹配，但是处于匹配中，计数器保存匹配数，等待完成匹配后再执行一次匹配 */
-    delayNotMatchCount: 0,
-    /** 跨域传递消息的类型 */
-    postMessageType: "worker-init-error",
-    /**
-     * 主动触发监听DOM变化的事件
-     *
-     * 主动设置true将会主动触发识别
-     */
-    dispatchMonitorDOMChange: false,
-    /** worker的Blob链接 */
-    blobUrl: "",
-    /** worker对象 */
-    GM_matchWorker: void 0,
+isHandleMatch: false,
+workerInitError: null,
+neverTipWorkerInitErrorKey: "never-toast-worker-error",
+delayNotMatchCount: 0,
+postMessageType: "worker-init-error",
+dispatchMonitorDOMChange: false,
+blobUrl: "",
+GM_matchWorker: void 0,
     init() {
       this.listenWorkerInitErrorDialog();
       this.initWorkerBlobUrl();
       this.initWorker();
       this.monitorDOMChange();
     },
-    /** 初始化生成Worker的Blob链接 */
-    initWorkerBlobUrl() {
+initWorkerBlobUrl() {
       const handleMatch = (
-        /*js*/
-        `
+`
         (() => {
             function ${NetDiskWorker.handleRegularMatch.toString()}
 
@@ -10144,26 +8735,17 @@
       });
       let workerUrl = globalThis.URL.createObjectURL(workerScript);
       if (
-        // @ts-ignore
-        globalThis.trustedTypes && // @ts-ignore
-        typeof globalThis.trustedTypes.createPolicy === "function"
+globalThis.trustedTypes &&
+typeof globalThis.trustedTypes.createPolicy === "function"
       ) {
         const workerPolicy = globalThis.trustedTypes.createPolicy("workerPolicy", {
-          // @ts-ignore
-          createScriptURL: (url) => url
+createScriptURL: (url) => url
         });
         workerUrl = workerPolicy.createScriptURL(workerUrl);
       }
       NetDiskWorker.blobUrl = workerUrl;
     },
-    /**
-     * 处理规则匹配
-     *
-     * 传入的规则肯定是允许执行匹配的规则
-     * @param workerOptionData 数据
-     * @param callback 成功匹配到的回调
-     */
-    handleRegularMatch(workerOptionData, callback) {
+handleRegularMatch(workerOptionData, callback) {
       const ruleKeyNameList = Object.keys(workerOptionData.matchedRuleOption);
       const matchTextList = [];
       for (let matchTextItem of workerOptionData.textList) {
@@ -10222,21 +8804,14 @@
         }
       }
     },
-    /**
-     * 数组去重
-     * @param arr 待去重的数组
-     */
-    uniqueArr(arr) {
+uniqueArr(arr) {
       return arr.filter((obj, index, selfArray) => {
         return index === selfArray.findIndex((item) => {
           return JSON.stringify(item) === JSON.stringify(obj);
         });
       });
     },
-    /**
-     * 初始化Worker对象
-     */
-    initWorker() {
+initWorker() {
       try {
         NetDiskWorker.GM_matchWorker = new Worker(NetDiskWorker.blobUrl);
         NetDiskWorker.GM_matchWorker.onmessage = NetDiskWorker.onMessage;
@@ -10278,10 +8853,7 @@
         NetDiskWorker.blobUrl = "";
       }
     },
-    /**
-     * 监听Worker初始化失败的弹窗
-     */
-    listenWorkerInitErrorDialog() {
+listenWorkerInitErrorDialog() {
       if (!Panel.isTopWindow()) {
         return;
       }
@@ -10299,8 +8871,7 @@
               },
               content: {
                 text: (
-                  /*html*/
-                  `
+`
 							<div style="padding: 10px;gap: 10px;display: flex;flex-direction: column;">
 								<p>链接：${data.url}</p>
 								<p>来源：${Panel.isTopWindow() ? "top" : "iframe"}</p>
@@ -10402,10 +8973,7 @@
         }
       });
     },
-    /**
-     * 主动触发Worker初始化失败的弹窗
-     */
-    dispatchWorkerInitErrorDialog() {
+dispatchWorkerInitErrorDialog() {
       top?.postMessage(
         {
           type: this.postMessageType,
@@ -10418,11 +8986,7 @@
         "*"
       );
     },
-    /**
-     * 注册油猴菜单-Worker初始化失败但是设置了不再提醒
-     * @param hostname
-     */
-    registerWorkerInitErrorNeverTipToast(hostname) {
+registerWorkerInitErrorNeverTipToast(hostname) {
       let menuText = "💀 Worker初始化失败";
       let menuTextDynamic = () => {
         let flag = NetDiskWorkerInitError.findHost(hostname);
@@ -10458,20 +9022,10 @@
       };
       GM_Menu.update(menuOption);
     },
-    /**
-     * 传递数据给worker内进行处理匹配
-     * @param message 数据
-     * @param options 配置
-     */
-    postMessage(message, options) {
+postMessage(message, options) {
       NetDiskWorker.GM_matchWorker.postMessage(message, options);
     },
-    /**
-     * Worker的onmessage
-     * 这里的this指向会被修改
-     * @param event
-     */
-    onMessage(event) {
+onMessage(event) {
       const data = event.data;
       if (data.data.length) ;
       if (data.options.from === "PasteText" || data.options.from === "ShortCut-Select-Content") {
@@ -10482,18 +9036,10 @@
       }
       NetDiskWorker.successCallBack(data);
     },
-    /**
-     * Worker的onerror
-     * @param error
-     */
-    onError(error) {
+onError(error) {
       NetDiskWorker.errorCallBack(error);
     },
-    /**
-     * worker处理文件匹配后的回调
-     * @param options
-     */
-    successCallBack(options) {
+successCallBack(options) {
       if (!options.data.length) {
         NetDiskWorker.matchingEndCallBack();
         return;
@@ -10501,7 +9047,7 @@
       const handleNetDiskList = [];
       for (const matchData of options.data) {
         NetDisk.$match.matchedInfoRuleKey.add(matchData.ruleKeyName);
-        let matchLinkSet = /* @__PURE__ */ new Set();
+        let matchLinkSet = new Set();
         matchData.data.forEach((item) => {
           matchLinkSet.add(item);
         });
@@ -10618,19 +9164,11 @@
       }
       NetDiskWorker.matchingEndCallBack();
     },
-    /**
-     * Worker失败回调
-     * @param error
-     */
-    errorCallBack(error) {
+errorCallBack(error) {
       NetDiskWorker.matchingEndCallBack(true);
       log.error("Worker Error", error);
     },
-    /**
-     * 匹配结束回调
-     * @param isNow 是否立刻释放锁
-     */
-    matchingEndCallBack(isNow) {
+matchingEndCallBack(isNow) {
       if (isNow) {
         NetDiskWorker.isHandleMatch = false;
         if (NetDiskWorker.delayNotMatchCount > 0) {
@@ -10644,10 +9182,7 @@
         }, delaytime);
       }
     },
-    /**
-     * 监听页面节点内容或节点文本的变动，从而进行匹配网盘链接
-     */
-    monitorDOMChange() {
+monitorDOMChange() {
       const isAddedNodeToMatch = NetDiskGlobalData.match.isAddedNodesToMatch.value;
       const readClipboard = NetDiskGlobalData.match.readClipboard.value;
       const matchRange = NetDiskGlobalData.match.pageMatchRange.value;
@@ -10841,12 +9376,9 @@
         utils.mutationObserver(document.documentElement, {
           callback: observeEvent,
           config: {
-            /* 子节点的变动（新增、删除或者更改） */
-            childList: NetDiskGlobalData.match["mutationObserver-childList"].value,
-            /* 节点内容或节点文本的变动 */
-            characterData: NetDiskGlobalData.match["mutationObserver-characterData"].value,
-            /* 是否将观察器应用于该节点的所有后代节点 */
-            subtree: NetDiskGlobalData.match["mutationObserver-subtree"].value
+childList: NetDiskGlobalData.match["mutationObserver-childList"].value,
+characterData: NetDiskGlobalData.match["mutationObserver-characterData"].value,
+subtree: NetDiskGlobalData.match["mutationObserver-subtree"].value
           }
         });
         this.dispatchMonitorDOMChange = true;
@@ -10875,20 +9407,12 @@
       $matchText: null,
       $button: null
     },
-    /**
-     * 重置环境变量
-     */
-    reset() {
+reset() {
       Object.keys(this.$el).forEach((keyName) => {
         Reflect.deleteProperty(this.$el, keyName);
       });
     },
-    /**
-     * 设置日志输出
-     * @param tag 日志等级
-     * @param args
-     */
-    setLog(tag, ...args) {
+setLog(tag, ...args) {
       let text = "";
       args.forEach((item) => {
         if (text !== "") {
@@ -10911,17 +9435,10 @@
       );
       domUtils.append(this.$el.$log, logElement);
     },
-    /**
-     * 清空日志
-     */
-    clearLog() {
+clearLog() {
       domUtils.empty(this.$el.$log);
     },
-    /**
-     * 显示调试规则的界面
-     * @param ruleJSON
-     */
-    showUI(ruleJSON) {
+showUI(ruleJSON) {
       this.reset();
       if (utils.isNull(ruleJSON.regexp)) {
         Qmsg.error("请先配置regexp");
@@ -10938,8 +9455,7 @@
           },
           content: {
             text: (
-              /*html*/
-              `
+`
                     <div class="custom-rule-container">
                         <textarea class="custom-rule-match-text" placeholder="请输入需要测试匹配的字符串"></textarea>
                         <div class="custom-rule-input-container">
@@ -10963,8 +9479,7 @@
             }
           },
           style: (
-            /*css*/
-            `
+`
                 .custom-rule-container{
                     display: flex;
                     align-items: center;
@@ -11187,13 +9702,7 @@
   };
   const dialogCSS = '.pops[type-value="confirm"] .pops-confirm-content {\r\n	overflow: hidden;\r\n}\r\n/* textarea美化 */\r\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea {\r\n	width: 100%;\r\n	height: 100%;\r\n	border: none;\r\n	outline: none;\r\n	padding: 0;\r\n	margin: 0;\r\n	-webkit-appearance: none;\r\n	-moz-appearance: none;\r\n	appearance: none;\r\n	background-image: none;\r\n	background-color: transparent;\r\n\r\n	display: inline-block;\r\n	resize: vertical;\r\n	padding: 5px 15px;\r\n	line-height: normal;\r\n	box-sizing: border-box;\r\n	border: 1px solid #dcdfe6;\r\n	transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\r\n	appearance: none;\r\n	resize: none;\r\n}\r\n/* 获得焦点 */\r\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea:focus {\r\n	outline: none;\r\n	border-color: #3677f0;\r\n}\r\n/* 提示文字 */\r\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea::placeholder {\r\n	color: #c0c4cc;\r\n}\r\n/* 鼠标hover */\r\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea:hover {\r\n	border-color: #c0c4cc;\r\n}\r\n';
   const NetDiskUserRuleUI = {
-    /**
-     * 添加/编辑规则
-     * @param isEdit
-     * @param ruleKey 当isEdit为true时，传入该值
-     * @param valueChangeCallBack 添加/编辑保存后的值改变的回调
-     */
-    show(isEdit, ruleKey, valueChangeCallBack) {
+show(isEdit, ruleKey, valueChangeCallBack) {
       let titleText = "添加";
       if (isEdit) {
         titleText = "编辑";
@@ -11254,8 +9763,7 @@
           },
           content: {
             text: (
-              /*html*/
-              `<textarea class="netdisk-custom-rules" placeholder="请输入规则配置"></textarea>`
+`<textarea class="netdisk-custom-rules" placeholder="请输入规则配置"></textarea>`
             ),
             html: true
           },
@@ -11299,13 +9807,7 @@
       }
       $ruleInput.value = NetDiskUserRule.getFormatRule(rule);
     },
-    /**
-     * 添加/编辑规则
-     * @param subscribeUUID 订阅的UUID
-     * @param ruleKey 当isEdit为true时，传入该值
-     * @param valueChangeCallBack 添加/编辑保存后的值改变的回调
-     */
-    showSubscribe(subscribeUUID, ruleKey, valueChangeCallBack) {
+showSubscribe(subscribeUUID, ruleKey, valueChangeCallBack) {
       let titleText = "编辑订阅的链接识别规则";
       let $ruleInput = null;
       function saveCallBack(event, isDebug) {
@@ -11357,8 +9859,7 @@
           },
           content: {
             text: (
-              /*html*/
-              `<textarea class="netdisk-custom-rules" placeholder="请输入规则配置"></textarea>`
+`<textarea class="netdisk-custom-rules" placeholder="请输入规则配置"></textarea>`
             ),
             html: true
           },
@@ -11409,11 +9910,7 @@
   const password_svg = '<svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		d="M288 384v-74.666667c0-123.722667 100.266667-224 224-224s224 100.224 224 224v74.666667h10.677333C811.445333 384 864 436.597333 864 501.333333v320c0 64.821333-52.469333 117.333333-117.322667 117.333334H277.333333C212.554667 938.666667 160 886.069333 160 821.333333V501.333333c0-64.821333 52.469333-117.333333 117.322667-117.333333H288z m64 0h320v-74.666667c0-88.426667-71.605333-160-160-160-88.384 0-160 71.626667-160 160v74.666667zM224 501.333333v320c0 29.397333 23.914667 53.333333 53.322667 53.333334H746.666667A53.269333 53.269333 0 0 0 800 821.333333V501.333333c0-29.397333-23.914667-53.333333-53.322667-53.333333H277.333333A53.269333 53.269333 0 0 0 224 501.333333z"></path>\r\n</svg>\r\n';
   const other_svg = '<svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		d="M826.92 857.397H197.08c-33.667 0-60.953-27.287-60.953-60.953V349.46c0-33.666 27.286-60.952 60.952-60.952h121.905v-60.952c0-33.666 27.286-60.953 60.953-60.953h243.809c33.666 0 60.952 27.287 60.952 60.953v60.952H826.921c33.666 0 60.952 27.286 60.952 60.952v446.984c0 33.666-27.286 60.953-60.952 60.953zM644.064 247.873c0-22.43-18.204-40.635-40.634-40.635H400.254c-22.43 0-40.635 18.205-40.635 40.635v40.635h284.444v-40.635z m203.175 121.905c0-22.43-18.204-40.635-40.635-40.635H217.397c-22.43 0-40.635 18.204-40.635 40.635v162.54h304.762v-50.794c0-16.823 13.653-30.476 30.476-30.476s30.476 13.653 30.476 30.476v50.793h304.762v-162.54z m0 203.174H542.476v10.16c0 16.842-13.653 30.475-30.476 30.475s-30.476-13.633-30.476-30.476v-10.159H176.762v203.175c0 22.43 18.204 40.635 40.635 40.635h589.206c22.43 0 40.635-18.205 40.635-40.635V572.952z"></path>\r\n</svg>\r\n';
   const NetDiskRightClickMenu = {
-    /**
-     * 设置标题的右键菜单
-     * @param $el
-     */
-    setGlobalRightClickMenu($el) {
+setGlobalRightClickMenu($el) {
       NetDiskUI.view.registerContextMenu($el, void 0, [
         {
           text: "设置",
@@ -11457,13 +9954,7 @@
         }
       ]);
     },
-    /**
-     * 设置右键菜单
-     * @param $el
-     * @param selector
-     * @param isHistoryView 是否是历史界面的
-     */
-    setRightClickMenu($el, selector, isHistoryView) {
+setRightClickMenu($el, selector, isHistoryView) {
       let showTextList = [
         {
           text: "链接",
@@ -11556,13 +10047,12 @@
                   (option) => {
                     if (isHistoryView) {
                       if (option.isUpdatedMatchedDict) {
-                        let currentTime = (/* @__PURE__ */ new Date()).getTime();
+                        let currentTime = ( new Date()).getTime();
                         let $updateTime = $link.closest("li").querySelector(".netdiskrecord-update-time");
                         domUtils.text($updateTime, utils.formatTime(currentTime));
                         domUtils.attr($link, "data-accesscode", option.accessCode);
                         Qmsg.success(
-                          /*html*/
-                          `
+`
 												<div style="text-align: left;">旧: ${accessCode}</div>
 												<div style="text-align: left;">新: ${option.accessCode}</div>`,
                           {
@@ -11576,8 +10066,7 @@
                       domUtils.attr($link, "data-accesscode", option.accessCode);
                       if (option.isUpdatedMatchedDict) {
                         Qmsg.success(
-                          /*html*/
-                          `
+`
 												<div style="text-align: left;">旧: ${accessCode}</div>
 												<div style="text-align: left;">新: ${option.accessCode}</div>`,
                           {
@@ -11699,10 +10188,7 @@
         NetDiskUI.Alias.uiLinkAlias.show();
       }
     },
-    /**
-     * 创建视图
-     */
-    createView() {
+createView() {
       const NetDiskViewConfig = {
         view: {
           "netdisl-small-window-shrink-status": GenerateData("netdisl-small-window-shrink-status", false),
@@ -11710,8 +10196,7 @@
         }
       };
       const boxAllHTML = (
-        /*html*/
-        `<div class="netdisk-url-box-all"></div>`
+`<div class="netdisk-url-box-all"></div>`
       );
       if (NetDiskGlobalData.features["netdisk-behavior-mode"].value.toLowerCase().includes("smallwindow")) {
         NetDiskUI.Alias.uiLinkAlias = NetDiskPops.alert(
@@ -11744,8 +10229,7 @@
             mask: {
               enable: false
             },
-            // @ts-ignore
-            animation: "",
+animation: "",
             beforeAppendToPageCallBack($shadowRoot, $shadowContainer) {
               let $headerControl = $shadowRoot.querySelector(".pops-header-control");
               let $title = $shadowRoot.querySelector(".pops-alert-title");
@@ -11755,8 +10239,7 @@
                 {
                   className: "pops-header-control",
                   innerHTML: (
-                    /*html*/
-                    `
+`
                                 <i class="pops-icon">
 									<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
 										<path fill="currentColor" d="M290.816 774.144h167.936c12.288 0 20.48 8.192 20.48 20.48s-8.192 20.48-20.48 20.48h-219.136c-12.288 0-20.48-8.192-20.48-20.48v-2.048-206.848c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v163.84l210.944-198.656c8.192-8.192 20.48-8.192 28.672 0s8.192 20.48 0 28.672l-208.896 194.56z m462.848-524.288h-167.936c-12.288 0-20.48-8.192-20.48-20.48s8.192-20.48 20.48-20.48h219.136c12.288 0 20.48 8.192 20.48 20.48v208.896c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-163.84l-210.944 198.656c-8.192 8.192-20.48 8.192-28.672 0s-8.192-20.48 0-28.672l208.896-194.56z m188.416 323.584c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-389.12c0-34.816-26.624-61.44-61.44-61.44h-655.36c-34.816 0-61.44 26.624-61.44 61.44v655.36c0 34.816 26.624 61.44 61.44 61.44h655.36c34.816 0 61.44-26.624 61.44-61.44v-94.208c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v94.208c0 57.344-45.056 102.4-102.4 102.4h-655.36c-57.344 0-102.4-45.056-102.4-102.4v-655.36c0-57.344 45.056-102.4 102.4-102.4h655.36c57.344 0 102.4 45.056 102.4 102.4v389.12z">
@@ -11777,8 +10260,7 @@
                 {
                   className: "pops-header-control",
                   innerHTML: (
-                    /*html*/
-                    `
+`
                                 <i class="pops-icon">
 									<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
 										<path fill="currentColor" d="M618.496 425.984h167.936c12.288 0 20.48 8.192 20.48 20.48s-8.192 20.48-20.48 20.48h-219.136c-12.288 0-20.48-8.192-20.48-20.48v-2.048-206.848c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v163.84l210.944-198.656c8.192-8.192 20.48-8.192 28.672 0s8.192 20.48 0 28.672l-208.896 194.56z m-192.512 172.032h-167.936c-12.288 0-20.48-8.192-20.48-20.48s8.192-20.48 20.48-20.48h219.136c12.288 0 20.48 8.192 20.48 20.48v208.896c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-163.84l-210.944 198.656c-8.192 8.192-20.48 8.192-28.672 0s-8.192-20.48 0-28.672l208.896-194.56z m516.096-24.576c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-389.12c0-34.816-26.624-61.44-61.44-61.44h-655.36c-34.816 0-61.44 26.624-61.44 61.44v655.36c0 34.816 26.624 61.44 61.44 61.44h655.36c34.816 0 61.44-26.624 61.44-61.44v-94.208c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v94.208c0 57.344-45.056 102.4-102.4 102.4h-655.36c-57.344 0-102.4-45.056-102.4-102.4v-655.36c0-57.344 45.056-102.4 102.4-102.4h655.36c57.344 0 102.4 45.056 102.4 102.4v389.12z">
@@ -11838,8 +10320,7 @@
             },
             class: "whitesevPop",
             style: (
-              /*css*/
-              `
+`
                     ${indexCSS$4}
 
                     .pops {
@@ -11940,8 +10421,7 @@
             },
             class: "whitesevPop",
             style: (
-              /*css*/
-              `
+`
                     ${indexCSS$4}
 
                     .pops {
@@ -12002,10 +10482,7 @@
       }
       NetDiskCheckLinkValidity.check(checkInfoList);
     },
-    /**
-     * 初始化事件（在创建视图后）
-     */
-    initViewEvent() {
+initViewEvent() {
       NetDiskRightClickMenu.setRightClickMenu(
         NetDiskUI.Alias.uiLinkAlias.$shadowRoot,
         ".whitesevPop .netdisk-url a"
@@ -12016,26 +10493,15 @@
         NetDiskUI.Alias.uiLinkAlias.$shadowRoot.querySelector(".pops .pops-alert-title > p")
       );
     },
-    /**
-     * 创建在元素属性上的attribute的数据JSON
-     */
-    createElementAttributeRuleInfoJSON(data) {
+createElementAttributeRuleInfoJSON(data) {
       return {
-        /** 网盘 */
-        "data-rule-key": data.ruleKeyName,
-        /** 网盘索引 */
-        "data-rule-index": data.ruleIndex,
-        /** 访问码 */
-        "data-sharecode": data.shareCode,
-        /** 访问码 */
-        "data-accesscode": data.accessCode
+"data-rule-key": data.ruleKeyName,
+"data-rule-index": data.ruleIndex,
+"data-sharecode": data.shareCode,
+"data-accesscode": data.accessCode
       };
     },
-    /**
-     * 解析创建在元素属性上的attribute的数据
-     * @param $ele 元素
-     */
-    praseElementAttributeRuleInfo($ele) {
+praseElementAttributeRuleInfo($ele) {
       let result = {
         ruleKeyName: $ele.getAttribute("data-rule-key"),
         ruleIndex: parseInt($ele.getAttribute("data-rule-index")),
@@ -12048,12 +10514,7 @@
       }
       return result;
     },
-    /**
-     * 创建在元素属性上的attribute的数据
-     * @param data 数据
-     * @param $ele 需要处理的元素
-     */
-    handleElementAttributeRuleInfo(data, $ele) {
+handleElementAttributeRuleInfo(data, $ele) {
       let ruleInfoJSON = this.createElementAttributeRuleInfoJSON(data);
       for (const key in ruleInfoJSON) {
         const value = ruleInfoJSON[key];
@@ -12066,21 +10527,11 @@
         }
       }
     },
-    /**
-     * 创建每一项的网盘元素信息
-     * @param ruleImgSrc 规则图标src
-     * @param ruleKeyName 规则键名
-     * @param ruleIndex 规则的索引下标
-     * @param shareCode 分享码
-     * @param accessCode 访问码
-     * @param uiLinkText 显示出来的链接文本
-     */
-    createViewBoxElementInfo(ruleImgSrc, ruleKeyName, ruleIndex, shareCode, accessCode, uiLinkText) {
+createViewBoxElementInfo(ruleImgSrc, ruleKeyName, ruleIndex, shareCode, accessCode, uiLinkText) {
       let $urlBox = domUtils.createElement("div", {
         className: "netdisk-url-box",
         innerHTML: (
-          /*html*/
-          `
+`
 			<div class="netdisk-url-div">
                 <div class="netdisk-icon">
                     <div class="netdisk-icon-img"></div>
@@ -12129,11 +10580,7 @@
         $link
       };
     },
-    /**
-     * 解析元素上的各个元素
-     * @param $viewBox 元素
-     */
-    parseViewBoxElementInfo($viewBox) {
+parseViewBoxElementInfo($viewBox) {
       let $urlBox = $viewBox.matches(".netdisk-url-box") ? $viewBox : $viewBox.closest(".netdisk-url-box");
       let $urlDiv = $urlBox.querySelector(".netdisk-url-div");
       let $icon = $urlBox.querySelector(".netdisk-icon");
@@ -12151,14 +10598,7 @@
         $link
       };
     },
-    /**
-     * 设置网盘链接的点击事件
-     *
-     * 内部执行点击动作
-     * @param $el 监听的元素
-     * @param childSelector 子元素选择器
-     */
-    setNetDiskUrlClickEvent($el, childSelector) {
+setNetDiskUrlClickEvent($el, childSelector) {
       domUtils.on($el, "click", childSelector, (event) => {
         let $click = event.target;
         $click.setAttribute("isvisited", "true");
@@ -12200,11 +10640,7 @@
         );
       });
     },
-    /**
-     * 网盘链接点击事件
-     * @param option
-     */
-    netDiskUrlClickEvent(option) {
+netDiskUrlClickEvent(option) {
       const { ruleKeyName, ruleIndex, shareCode, accessCode } = option.data;
       let linkClickMode = option.clickMode ?? NetDiskRuleData.function.linkClickMode(option.data.ruleKeyName);
       let closePopup = () => {
@@ -12248,14 +10684,7 @@
         Qmsg.error("未知点击动作：" + linkClickMode);
       }
     },
-    /**
-     * 注册右键菜单
-     * @param target
-     * @param selector
-     * @param showTextList 右键菜单的内容
-     * @param className className属性
-     */
-    registerContextMenu(target, selector, showTextList = [], className = "whitesevSuspensionContextMenu") {
+registerContextMenu(target, selector, showTextList = [], className = "whitesevSuspensionContextMenu") {
       let data = [];
       showTextList.forEach((item) => {
         data.push({
@@ -12278,15 +10707,7 @@
       };
       NetDiskPops.rightClickMenu(detail);
     },
-    /**
-     * 添加新的链接
-     * @param ruleKeyName 规则名称
-     * @param ruleIndex 规则的索引下标
-     * @param shareCode 分享码
-     * @param accessCode 访问码
-     * @param matchText 匹配到的文本
-     */
-    addLinkView(ruleKeyName, ruleIndex, shareCode, accessCode, matchText) {
+addLinkView(ruleKeyName, ruleIndex, shareCode, accessCode, matchText) {
       NetDiskUI.netDiskHistoryMatch.changeMatchedData(ruleKeyName, ruleIndex, shareCode, accessCode, matchText);
       if (!NetDiskUI.Alias.uiLinkAlias) {
         return;
@@ -12319,15 +10740,7 @@
         accessCode
       });
     },
-    /**
-     * 修改已存在的view
-     * @param ruleKeyName 规则名称
-     * @param ruleIndex 规则的索引下标
-     * @param shareCode 分享码
-     * @param accessCode 访问码
-     * @param matchText 匹配到的文本
-     */
-    changeLinkView(ruleKeyName, ruleIndex, shareCode, accessCode, matchText) {
+changeLinkView(ruleKeyName, ruleIndex, shareCode, accessCode, matchText) {
       NetDiskUI.netDiskHistoryMatch.changeMatchedData(ruleKeyName, ruleIndex, shareCode, accessCode, matchText);
       if (!NetDiskUI.Alias.uiLinkAlias) {
         return;
@@ -12350,10 +10763,7 @@
       needChangeDOM.setAttribute("data-accesscode", accessCode);
       domUtils.html(needChangeDOM, uiLink);
     },
-    /**
-     * 设置点击图标按钮导航至该网盘链接所在网页中位置
-     */
-    registerIconGotoPagePosition(targetElement) {
+registerIconGotoPagePosition(targetElement) {
       let findGenerator = void 0;
       let iterator = void 0;
       let prevSearchShareCode = void 0;
@@ -12492,10 +10902,7 @@
     }
   };
   class NetDiskParse_Chengtong extends ParseFileCore {
-    /**
-     * 入口
-     */
-    async init(netDiskInfo) {
+async init(netDiskInfo) {
       super.init(netDiskInfo);
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       let ruleKeyName = "chengtong";
@@ -12528,10 +10935,7 @@
     }
   }
   const MetaDataParser = {
-    /**
-     * 解析文件链接的元数据
-     */
-    async parseFileMetaInfo(url) {
+async parseFileMetaInfo(url) {
       const response = await httpx.get("https://whatslink.info/api/v1/link?url=" + url, {
         headers: {
           Referer: "https://whatslink.info/"
@@ -12549,10 +10953,7 @@
       }
       return data;
     },
-    /**
-     * 显示元数据弹窗
-     */
-    showFileMetaInfoDialog(metaInfo) {
+showFileMetaInfoDialog(metaInfo) {
       NetDiskPops.alert({
         title: {
           text: "元数据信息",
@@ -12560,8 +10961,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
 						<div class="wrapper">
 							<div class="title">Summary</div>
 							<div class="content">
@@ -12572,16 +10972,14 @@
 							</div>
 						</div>
 						${Array.isArray(metaInfo.screenshots) ? (
-            /*html*/
-            `
+`
 							<div class="wrapper">
 								<div class="title">Screenshots</div>
 								<div class="content">
 									<div class="image-list">
 										${metaInfo.screenshots.map(
               (screenshot) => (
-                /*html*/
-                `
+`
 											<div class="img">
 												<img src="${screenshot.screenshot}" alt="img">
 											</div>
@@ -12606,8 +11004,7 @@
         width: PanelUISize.setting.width,
         height: "auto",
         style: (
-          /*css*/
-          `
+`
                 .pops-alert-content{
                     padding: 0 15px;
                 }
@@ -12706,13 +11103,7 @@
         });
       }
     }
-    /**
-     * 解析多文件信息
-     * @param folderInfo
-     * @param hash 文件hash值
-     * @param fileName 文件名
-     */
-    parseMoreFile(folderInfo, hash = "", fileName = "") {
+parseMoreFile(folderInfo, hash = "", fileName = "") {
       const that = this;
       log.info("解析多文件信息", folderInfo);
       let folderInfoList = [];
@@ -12750,10 +11141,7 @@
       });
       return folderInfoList;
     }
-    /**
-     * 获取下载链接所需要的hash值和name
-     */
-    async getRequestDownloadParams() {
+async getRequestDownloadParams() {
       const that = this;
       log.info("获取hash值");
       Qmsg.info("正在获取请求信息");
@@ -12879,16 +11267,11 @@
         Qmsg.error("坚果云: 获取PageInfo失败");
       }
     }
-    /**
-     * 获取下载链接
-     * @param fileHash 文件hash值
-     * @param fileName 文件名
-     */
-    async getFileLink(fileHash = "", fileName = "") {
+async getFileLink(fileHash = "", fileName = "") {
       const that = this;
       fileName = encodeURIComponent(fileName);
       let getResp = await httpx.get({
-        url: `https://www.jianguoyun.com/d/ajax/fileops/pubFileLink?k=${fileHash}&name=${fileName}&wm=false${that.accessCode === "" ? "" : "&pd=" + that.accessCode}&forwin=1&_=${(/* @__PURE__ */ new Date()).getTime()}`,
+        url: `https://www.jianguoyun.com/d/ajax/fileops/pubFileLink?k=${fileHash}&name=${fileName}&wm=false${that.accessCode === "" ? "" : "&pd=" + that.accessCode}&forwin=1&_=${( new Date()).getTime()}`,
         responseType: "json",
         headers: {
           "User-Agent": utils.getRandomPCUA()
@@ -12922,17 +11305,11 @@
         Qmsg.error("坚果云: 处理下载链接异常");
       }
     }
-    /**
-     * 获取文件夹下的文件下载链接
-     * @param fileHash
-     * @param fileName
-     * @param filePath
-     */
-    async getDirLink(fileHash = "", fileName = "", filePath = "/") {
+async getDirLink(fileHash = "", fileName = "", filePath = "/") {
       const that = this;
       fileName = encodeURIComponent(fileName);
       let getResp = await httpx.get({
-        url: `https://www.jianguoyun.com/d/ajax/dirops/pubDIRLink?k=${fileHash}&dn=${fileName}&p=${filePath}&forwin=1&_=${(/* @__PURE__ */ new Date()).getTime()}`,
+        url: `https://www.jianguoyun.com/d/ajax/dirops/pubDIRLink?k=${fileHash}&dn=${fileName}&p=${filePath}&forwin=1&_=${( new Date()).getTime()}`,
         responseType: "json",
         headers: {
           "User-Agent": utils.getRandomPCUA()
@@ -12966,11 +11343,7 @@
         Qmsg.error("坚果云: 处理下载链接异常");
       }
     }
-    /**
-     * 获取文件夹信息
-     * @param hash
-     */
-    async getFolderInfo(hash = "") {
+async getFolderInfo(hash = "") {
       let getResp = await httpx.get({
         url: `https://www.jianguoyun.com/d/ajax/dirops/pubDIRBrowse?hash=${hash}&relPath=%2F&_=${Date.now()}`,
         responseType: "json",
@@ -12991,10 +11364,7 @@
         Qmsg.error("坚果云: 处理多文件信息异常");
       }
     }
-    /**
-     * 前往登录
-     */
-    gotoLogin() {
+gotoLogin() {
       NetDiskPops.confirm(
         {
           title: {
@@ -13023,10 +11393,8 @@
     }
   }
   const NetDiskParse_Lanzou_Config = {
-    /** 蓝奏云默认域名 */
-    DEFAULT_HOST_NAME: "www.lanzout.com",
-    /** 菜单配置项的键名 */
-    MENU_KEY: "lanzou-host-name",
+DEFAULT_HOST_NAME: "www.lanzout.com",
+MENU_KEY: "lanzou-host-name",
     get hostname() {
       let generateData = GeneratePanelStorage(this.MENU_KEY, this.DEFAULT_HOST_NAME);
       return generateData.value;
@@ -13038,36 +11406,20 @@
     return text;
   };
   class NetDiskParse_Lanzou extends ParseFileCore {
-    /**
-     * 路由
-     */
-    router = {
-      /**
-       * 根路径
-       * + /
-       * @param pathName
-       */
-      root(pathName = "") {
+router = {
+root(pathName = "") {
         if (pathName.startsWith("/")) {
           pathName = pathName.replace(/^\//, "");
         }
         return `https://${NetDiskParse_Lanzou_Config.hostname}/${pathName}`;
       },
-      /**
-       * + /tp/
-       * @param pathName
-       */
-      root_tp(pathName = "") {
+root_tp(pathName = "") {
         if (pathName.startsWith("/")) {
           pathName = pathName.replace(/^\//, "");
         }
         return `https://${NetDiskParse_Lanzou_Config.hostname}/tp/${pathName}`;
       },
-      /**
-       * + /s/
-       * @param pathName
-       */
-      root_s(pathName = "") {
+root_s(pathName = "") {
         if (pathName.startsWith("/")) {
           pathName = pathName.replace(/^\//, "");
         }
@@ -13076,94 +11428,52 @@
     };
     regexp = {
       unicode: {
-        /**
-         * 判断该链接是否是中文
-         */
-        match: /[%\u4e00-\u9fa5]+/g,
+match: /[%\u4e00-\u9fa5]+/g,
         tip: "中文链接",
         isUnicode: false
       },
-      /**
-       * 蓝奏文件取消分享
-       */
-      noFile: {
+noFile: {
         match: /div>来晚啦...文件取消分享了<\/div>/g,
         tip: "来晚啦...文件取消分享了"
       },
-      /**
-       * 蓝奏文件链接错误
-       */
-      noExists: {
+noExists: {
         match: /div>文件不存在，或已删除<\/div>/g,
         tip: "文件不存在，或已删除"
       },
-      /**
-       * 链接失效
-       */
-      linkInValid: {
+linkInValid: {
         match: /div>文件链接失效，请获取新链接<\/div>/g,
         tip: "文件链接失效，请获取新链接"
       },
-      /**
-       * 2023-9-19 蓝奏云修改分享规则，需要vip用户才可以分享 apk、ipa 链接
-       */
-      needVipToShare: {
+needVipToShare: {
         match: /class="fbox">非会员.+请先开通会员/gi,
         tip: "该链接为非会员用户分享的文件，目前无法下载"
       },
-      /**
-       * 蓝奏多文件
-       */
-      moreFile: {
+moreFile: {
         match: /<span id=\"filemore\" onclick=\"more\(\);\">/g
       },
-      /**
-       * 蓝奏设置了密码的单文件请求需要的sign值
-       */
-      sign: {
+sign: {
         match: /var[\s]*(posign|postsign|vidksek|skdklds)[\s]*=[\s]*'(.+?)';/
       },
-      /**
-       * 蓝奏文件名
-       */
-      fileName: {
+fileName: {
         match: /<title>(.*)<\/title>/
       },
-      /**
-       * 蓝奏文件大小
-       */
-      fileSize: {
+fileSize: {
         match: /<span class=\"mtt\">\((.*)\)<\/span>/
       },
-      /**
-       * 蓝奏文件直链host
-       */
-      loadDownHost: {
+loadDownHost: {
         match: /var[\s]*(vkjxld)[\s]*=[\s]*'(.+?)'/i
       },
-      /**
-       * 蓝奏文件直链
-       */
-      loadDown: {
+loadDown: {
         match: /var[\s]*(loaddown|oreferr|spototo|domianload|hyggid)[\s]*=[\s]*'(.+?)'/i
       },
-      /**
-       * 蓝奏云之苹果使用类型的文件
-       */
-      appleDown: {
+appleDown: {
         match: /var[\s]*appitem[\s]*=[\s]*'(.+?)'/i
       },
-      /**
-       * 蓝奏云文件上传时间
-       */
-      uploadTime: {
+uploadTime: {
         match: /mt2\"\>时间:<\/span>(.+?)[\s]*<span/i
       }
     };
-    /**
-     * 入口
-     */
-    async init(netDiskInfo) {
+async init(netDiskInfo) {
       super.init(netDiskInfo);
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       this.regexp.unicode.isUnicode = Boolean(shareCode.match(this.regexp.unicode.match));
@@ -13201,10 +11511,7 @@
         }
       }
     }
-    /**
-     * 参数转换
-     */
-    transformFileInfoToInfoList(shareCode, accessCode, fileInfo) {
+transformFileInfoToInfoList(shareCode, accessCode, fileInfo) {
       return [
         ...fileInfo.folders.map((folder) => {
           return {
@@ -13221,8 +11528,7 @@
           return {
             isFolder: false,
             fileName: info.name_all,
-            // @ts-ignore
-            fileSize: info.size,
+fileSize: info.size,
             createTime: info.time,
             latestTime: info.time,
             shareCode: info.id,
@@ -13231,11 +11537,7 @@
         })
       ].filter((it) => it != null);
     }
-    /**
-     * 获取文件夹信息
-     * @param infoList
-     */
-    getFolderInfo(infoList, index) {
+getFolderInfo(infoList, index) {
       const that = this;
       let folderInfoList = [];
       let tempFolderInfoList = [];
@@ -13246,10 +11548,8 @@
             fileName: item.fileName,
             fileSize: 0,
             fileType: "",
-            // @ts-ignore
-            createTime: item.createTime,
-            // @ts-ignore
-            latestTime: item.latestTime,
+createTime: item.createTime,
+latestTime: item.latestTime,
             isFolder: true,
             index,
             clickEvent: async () => {
@@ -13268,10 +11568,8 @@
             fileName: item.fileName,
             fileSize: item.fileSize,
             fileType: "",
-            // @ts-ignore
-            createTime: item.createTime,
-            // @ts-ignore
-            latestTime: item.latestTime,
+createTime: item.createTime,
+latestTime: item.latestTime,
             isFolder: false,
             index,
             clickEvent: async () => {
@@ -13303,10 +11601,7 @@
       folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
       return folderInfoList;
     }
-    /**
-     * 获取文件下载信息
-     */
-    async getFileDownloadInfo(shareCode, accessCode, responseData) {
+async getFileDownloadInfo(shareCode, accessCode, responseData) {
       let fileDownloadInfo = void 0;
       let $pageDoc = domUtils.parseHTML(responseData.responseText, true, true);
       let pageText = deleteAnnotationCode(responseData.responseText);
@@ -13342,8 +11637,7 @@
         let downloadUrl = await this.getLinkByIframe(shareCode, accessCode, iframeUrl, {
           fileName,
           fileSize,
-          // @ts-ignore
-          fileUploadTime
+fileUploadTime
         });
         if (!downloadUrl) {
           return;
@@ -13481,10 +11775,7 @@
       }
       return fileDownloadInfo;
     }
-    /**
-     * 获取链接页面的信息
-     */
-    async getPageInfo(url) {
+async getPageInfo(url) {
       let response = await httpx.get({
         url,
         headers: {
@@ -13521,13 +11812,7 @@
       }
       return response.data;
     }
-    /**
-     * 页面检查，看看是否存在文件失效情况
-     * @param responseData
-     * + true 未失效
-     * + false 已失效
-     */
-    checkPageCode(responseData) {
+checkPageCode(responseData) {
       let pageText = responseData.responseText;
       if (pageText.match(this.regexp.noFile.match)) {
         Qmsg.error(this.regexp.noFile.tip);
@@ -13547,14 +11832,7 @@
       }
       return true;
     }
-    /**
-     * 判断是否是多文件
-     * @param responseData
-     * @returns
-     * + true 多文件
-     * + false 单文件
-     */
-    isMoreFile(responseData) {
+isMoreFile(responseData) {
       let pageText = responseData.responseText;
       if (pageText.match(this.regexp.moreFile.match)) {
         log.info("该链接为多文件");
@@ -13564,11 +11842,7 @@
         return false;
       }
     }
-    /**
-     * 解析组合链接（多个链接组成的链接）
-     * @param response
-     */
-    async parseFiles(shareCode, accessCode) {
+async parseFiles(shareCode, accessCode) {
       let url = this.ruleIndex === 1 ? this.router.root_s(shareCode) : this.router.root(shareCode);
       let pageInfoResponse = await this.getPageInfo(url);
       if (!pageInfoResponse) {
@@ -13663,12 +11937,7 @@
       log.info(result);
       return result;
     }
-    /**
-     * 通过iframe的链接来获取单文件直链
-     * @param urlPathName url路径
-     * @param fileInfo 文件信息
-     */
-    async getLinkByIframe(shareCode, accessCode, urlPathName, fileInfo) {
+async getLinkByIframe(shareCode, accessCode, urlPathName, fileInfo) {
       log.info(urlPathName, fileInfo);
       let iFrameUrl = this.router.root(urlPathName);
       let response = await httpx.get({
@@ -13781,10 +12050,7 @@
         return downloadUrl;
       }
     }
-    /**
-     * 获取kdns的参数
-     */
-    async getKNDS() {
+async getKNDS() {
       let response = await httpx.get("https://down-load.lanrar.com/file/kdns.js", {
         allowInterceptConfig: false
       });
@@ -13794,10 +12060,7 @@
         return 0;
       }
     }
-    /**
-     * 请求filemoreajax.php获取多文件信息
-     */
-    async fileMoreAjax(shareCode, accessCode, config) {
+async fileMoreAjax(shareCode, accessCode, config) {
       let postData = utils.toFormData({
         rep: 0,
         up: 1,
@@ -13894,11 +12157,7 @@
       for (let t = 0; t < this.EncryptList.length; t++) if (e == this.EncryptList[t]) return t;
       return -1;
     },
-    /**
-     * shareCode转id
-     * @param {string} shareCode
-     */
-    idEncrypt(shareCode) {
+idEncrypt(shareCode) {
       let t = 1, n = 0;
       if ("" != shareCode && shareCode.length > 4) {
         let r;
@@ -13910,19 +12169,12 @@
     },
     encrypt(e) {
       const t = Cryptojs.enc.Utf8.parse(this.LanZouDiskApp), n = Cryptojs.enc.Utf8.parse(e), r = Cryptojs.AES.encrypt(n, t, {
-        // @ts-ignore
-        mode: Cryptojs.mode.ECB,
-        // @ts-ignore
-        padding: Cryptojs.pad.Pkcs7
+mode: Cryptojs.mode.ECB,
+padding: Cryptojs.pad.Pkcs7
       });
       return r;
     },
-    /**
-     * 用于时间戳转加密字符串
-     * @param {any} e
-     * @returns
-     */
-    encryptHex(e) {
+encryptHex(e) {
       const t = this.encrypt(e, this.LanZouDiskApp);
       return t.ciphertext.toString().toUpperCase();
     }
@@ -13936,22 +12188,10 @@
       offset: 1,
       limit: 60
     };
-    /**
-     * 获取的uuid
-     */
-    uuid = void 0;
-    /**
-     * 获取的userId
-     **/
-    userId = void 0;
-    /**
-     * 加密后的shareCode
-     */
-    shareCodeId = void 0;
-    /**
-     * 入口
-     */
-    async init(netDiskInfo) {
+uuid = void 0;
+userId = void 0;
+shareCodeId = void 0;
+async init(netDiskInfo) {
       super.init(netDiskInfo);
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       this.shareCodeId = this.getDecodeShareCodeId(shareCode);
@@ -14008,12 +12248,7 @@
         NetDiskUI.staticView.moreFile("蓝奏云优享解析", folderInfoList);
       }
     }
-    /**
-     * 获取直链弹窗的文件夹信息
-     * @param infoList
-     * @param index
-     */
-    parseFolderInfo(infoList, index) {
+parseFolderInfo(infoList, index) {
       const that = this;
       let folderInfoList = [];
       let tempFolderInfoList = [];
@@ -14097,19 +12332,7 @@
       folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
       return folderInfoList;
     }
-    /**
-     * 获取列表信息
-     * @param devType
-     * @param devModel
-     * @param uuid
-     * @param extra
-     * @param timestamp
-     * @param shareId
-     * @param type
-     * @param offset
-     * @param limit
-     */
-    async recommendList(devType = this.$data.devType, devModel = this.$data.devModel, uuid = "", extra = this.$data.extra, timestamp = "", shareId = "", type = this.$data.type, offset = this.$data.offset, limit = this.$data.limit) {
+async recommendList(devType = this.$data.devType, devModel = this.$data.devModel, uuid = "", extra = this.$data.extra, timestamp = "", shareId = "", type = this.$data.type, offset = this.$data.offset, limit = this.$data.limit) {
       let response = await httpx.post(
         `https://api.ilanzou.com/unproved/recommend/list?${utils.toSearchParamsStr({
         devType,
@@ -14150,19 +12373,7 @@
       }
       return data;
     }
-    /**
-     * 获取文件夹信息
-     * @param devType
-     * @param devModel
-     * @param uuid
-     * @param extra
-     * @param timestamp
-     * @param shareId
-     * @param folderId
-     * @param offset
-     * @param limit
-     */
-    async getFolderInfo(devType = this.$data.devType, devModel = this.$data.devModel, uuid = "", extra = this.$data.extra, timestamp = "", shareId = "", folderId = "", offset = this.$data.offset, limit = this.$data.limit) {
+async getFolderInfo(devType = this.$data.devType, devModel = this.$data.devModel, uuid = "", extra = this.$data.extra, timestamp = "", shareId = "", folderId = "", offset = this.$data.offset, limit = this.$data.limit) {
       let response = await httpx.post(
         `https://api.ilanzou.com/unproved/share/list?${utils.toSearchParamsStr({
         devType,
@@ -14198,10 +12409,7 @@
         Qmsg.error(data["msg"]);
       }
     }
-    /**
-     * 获取下载链接
-     */
-    async getDownloadFileUrl(downloadId = "", enable = 1, devType = this.$data.devType, uuid = "", timestamp = "", auth = "", shareId = this.shareCode) {
+async getDownloadFileUrl(downloadId = "", enable = 1, devType = this.$data.devType, uuid = "", timestamp = "", auth = "", shareId = this.shareCode) {
       let url = `https://api.ilanzou.com/unproved/file/redirect?${utils.toSearchParamsStr({
       downloadId,
       enable,
@@ -14213,46 +12421,26 @@
     })}`;
       return url;
     }
-    /**
-     * 获取加密的uuid
-     * @param timestamp
-     */
-    getEncodeUUID(timestamp = 21) {
+getEncodeUUID(timestamp = 21) {
       let r = (e = 21) => crypto.getRandomValues(new Uint8Array(e)).reduce(
         (e2, t) => (t &= 63, e2 += t < 36 ? t.toString(36) : t < 62 ? (t - 26).toString(36).toUpperCase() : t > 62 ? "-" : "_", e2),
         ""
       );
       return r(timestamp);
     }
-    /**
-     * 获取shareCode转换后的id
-     */
-    getDecodeShareCodeId(shareCode) {
+getDecodeShareCodeId(shareCode) {
       return LanZouUtils.idEncrypt(shareCode);
     }
-    /**
-     * 获取加密后的timestamp
-     * @param time
-     */
-    getEncodeTimeStamp(time = Date.now()) {
+getEncodeTimeStamp(time = Date.now()) {
       return LanZouUtils.encryptHex(time);
     }
-    /**
-     * 获取下载文件的参数
-     * @param fileId 文件id
-     * @param userId 用户id
-     * @param uuid 用户登录生成的uuid
-     */
-    getDownloadFileParams(fileId, userId = "", uuid) {
+getDownloadFileParams(fileId, userId = "", uuid) {
       const that = this;
       let nowTime = Date.now();
       let downloadId = LanZouUtils.encryptHex(fileId + "|" + userId), enable = 1, timestamp = that.getEncodeTimeStamp(nowTime), auth = LanZouUtils.encryptHex(fileId + "|" + nowTime);
       return [downloadId, enable, that.$data.devType, uuid, timestamp, auth, that.shareCode];
     }
-    /**
-     * 前往登录
-     */
-    gotoLogin() {
+gotoLogin() {
       NetDiskPops.confirm(
         {
           title: {
@@ -14299,10 +12487,7 @@
     }
   }
   const NetDiskCommonUtils = {
-    /**
-     * 测试是否支持GM_download
-     */
-    isSupport_GM_download() {
+isSupport_GM_download() {
       try {
         return typeof _GM_download === "function";
       } catch (error) {
@@ -14381,12 +12566,7 @@
         });
       }
     }
-    /**
-     * 校验链接有效性并解析获取信息
-     * @param shareCode
-     * @param accessCode
-     */
-    async checkLinkValidity(shareCode, accessCode) {
+async checkLinkValidity(shareCode, accessCode) {
       const that = this;
       let resultJSON = await that.getShareByUniqueUrl(shareCode);
       if (!resultJSON) {
@@ -14448,11 +12628,7 @@
         };
       }
     }
-    /**
-     * 获取直链弹窗的文件夹信息
-     * @returns
-     */
-    getFolderInfo(transferGuid, shareFolderInfoList, shareFileInfoList, index = 0) {
+getFolderInfo(transferGuid, shareFolderInfoList, shareFileInfoList, index = 0) {
       const that = this;
       let folderInfoList = [];
       let tempFolderInfoList = [];
@@ -14516,21 +12692,9 @@
       log.info("getFolderInfo", folderInfoList);
       return folderInfoList;
     }
-    /**
-     * 文件解析
-     * @param shareCode
-     * @param accessCode
-     */
-    async parseMoreFile(shareCode, accessCode) {
+async parseMoreFile(shareCode, accessCode) {
     }
-    /**
-     * 获取文件夹信息
-     * @param transferGuid
-     * @param folderId
-     * @param page
-     * @param size
-     */
-    async getShareFolder(transferGuid, folderId = "", page = 0, size = 100) {
+async getShareFolder(transferGuid, folderId = "", page = 0, size = 100) {
       const that = this;
       let getResp = await httpx.get(
         `https://cowtransfer.com/core/api/transfer/share/folders?transferGuid=${transferGuid}&folderId=${folderId}&page=${page}&size=${size}`,
@@ -14558,15 +12722,7 @@
       }
       return folders;
     }
-    /**
-     * 获取文件信息
-     * @param transferGuid
-     * @param folderId
-     * @param page
-     * @param size
-     * @param subContent
-     */
-    async getShareFiles(transferGuid, folderId = "", page = 0, size = 20, subContent = false) {
+async getShareFiles(transferGuid, folderId = "", page = 0, size = 20, subContent = false) {
       const that = this;
       let getResp = await httpx.get(
         `https://cowtransfer.com/core/api/transfer/share/files?transferGuid=${transferGuid}&folderId=${folderId}&page=${page}&size=${size}&subContent=${subContent}`,
@@ -14594,11 +12750,7 @@
       }
       return files;
     }
-    /**
-     * 获取分享信息
-     * @param {string} shareCode
-     */
-    async getShareByUniqueUrl(shareCode) {
+async getShareByUniqueUrl(shareCode) {
       let url = `https://cowtransfer.com/core/api/transfer/share?uniqueUrl=${shareCode}`;
       let getResp = await httpx.get({
         url,
@@ -14616,13 +12768,7 @@
       log.info("转换的JSON", resultJSON);
       return resultJSON;
     }
-    /**
-     * 获取下载链接
-     * @param shareCode
-     * @param guid
-     * @param id
-     */
-    async getDownloadUrl(shareCode, guid = "", id = "") {
+async getDownloadUrl(shareCode, guid = "", id = "") {
       const that = this;
       let url = `https://cowtransfer.com/core/api/transfer/share/download?transferGuid=${guid}&fileId=${id}`;
       let getResp = await httpx.get({
@@ -14646,13 +12792,7 @@
         return;
       }
     }
-    /**
-     * 获取zip文件的下载链接
-     * @param shareCode
-     * @param guid
-     * @param title 标题
-     */
-    async getZipFileDownloadUrl(shareCode, guid = "", title = "") {
+async getZipFileDownloadUrl(shareCode, guid = "", title = "") {
       const that = this;
       let url = `https://cowtransfer.com/core/api/transfer/share/download?transferGuid=${guid}&title=${title}`;
       let getResp = await httpx.get({
@@ -14676,12 +12816,7 @@
         return;
       }
     }
-    /**
-     * 下载文件
-     * @param fileName 文件名
-     * @param downloadUrl 下载地址
-     */
-    async downloadFile(fileName, downloadUrl) {
+async downloadFile(fileName, downloadUrl) {
       log.info("下载文件：", fileName, downloadUrl);
       if (window.location.hostname === "cowtransfer.com") {
         window.open(downloadUrl, "_blank");
@@ -14750,8 +12885,7 @@
   }
   class NetDiskParse_Tianyiyun extends ParseFileCore {
     shareId = void 0;
-    /* 猜测1是有密码，2是无密码 */
-    shareMode = 1;
+shareMode = 1;
     code = {
       ShareNotFoundFlatDir: "抱歉，该文件的分享平铺目录未找到",
       ShareNotFound: "抱歉，您访问的页面地址有误，或者该页面不存在。",
@@ -14851,10 +12985,7 @@
         }
       }
     }
-    /**
-     * 获取当前登录用户的信息
-     */
-    async getUserBriefInfo(shareCode) {
+async getUserBriefInfo(shareCode) {
       const that = this;
       let response = await httpx.get("https://cloud.189.cn/api/portal/v2/getUserBriefInfo.action", {
         headers: {
@@ -14879,11 +13010,7 @@
         return data;
       }
     }
-    /**
-     * 获取分享信息
-     * @param shareCode
-     */
-    async getShareInfoByCodeV2(shareCode) {
+async getShareInfoByCodeV2(shareCode) {
       const that = this;
       let response = await httpx.post({
         url: "https://cloud.189.cn/api/open/share/getShareInfoByCodeV2.action",
@@ -14921,10 +13048,7 @@
         }
       }
     }
-    /**
-     * 获取shareId
-     */
-    async getShareId(shareCode, accessCode) {
+async getShareId(shareCode, accessCode) {
       let response = await httpx.get({
         url: `https://cloud.189.cn/api/open/share/checkAccessCode.action?shareCode=${shareCode}&accessCode=${accessCode}`,
         headers: {
@@ -14949,24 +13073,14 @@
         log.info(data);
       }
     }
-    /**
-     * 获取随机noCache
-     */
-    getNoCacheValue() {
+getNoCacheValue() {
       let result = "";
       for (let index = 0; index < 17; index++) {
         result += utils.getRandomValue(1, 9);
       }
       return "0." + result;
     }
-    /**
-     * 获取下载链接
-     * @param shareCode
-     * @param accessCode
-     * @param fileId
-     * @param shareId
-     */
-    async getDownloadUrl(shareCode, accessCode, fileId, shareId) {
+async getDownloadUrl(shareCode, accessCode, fileId, shareId) {
       const that = this;
       let response = await httpx.get({
         url: `https://cloud.189.cn/api/open/file/getFileDownloadUrl.action?fileId=${fileId}&dt=1&shareId=${shareId}`,
@@ -15006,11 +13120,7 @@
         log.error(responseData);
       }
     }
-    /**
-     * 天翼云登录弹窗
-     * @param text 弹窗的显示的内容
-     */
-    gotoLogin(text = "") {
+gotoLogin(text = "") {
       NetDiskPops.confirm(
         {
           title: {
@@ -15039,10 +13149,7 @@
         NetDiskUI.popsStyle.tianYiYunLoginTip
       );
     }
-    /**
-     * 解析文件夹信息
-     */
-    async listShareDir(shareCode, accessCode, pageNum = 1, pageSize = 60, fileId, shareDirFileId, isFolder = true, shareId, iconOption = 5, orderBy = "lastOpTime", descending = true) {
+async listShareDir(shareCode, accessCode, pageNum = 1, pageSize = 60, fileId, shareDirFileId, isFolder = true, shareId, iconOption = 5, orderBy = "lastOpTime", descending = true) {
       const that = this;
       const getSearParamData = {
         pageNum,
@@ -15095,10 +13202,7 @@
         }
       }
     }
-    /**
-     * 获取直链弹窗的文件夹信息
-     */
-    getFolderInfo(shareCode, accessCode, dirInfo, index = 0) {
+getFolderInfo(shareCode, accessCode, dirInfo, index = 0) {
       const that = this;
       let folderInfoList = [];
       let tempFolderInfoList = [];
@@ -15166,10 +13270,7 @@
     }
   }
   class NetDiskParse_UC extends ParseFileCore {
-    /**
-     * 入口
-     */
-    async init(netDiskInfo) {
+async init(netDiskInfo) {
       super.init(netDiskInfo);
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       Qmsg.info("检查是否已登录UC网盘");
@@ -15225,10 +13326,7 @@
         return;
       }
     }
-    /**
-     * 判断是否已登录UC网盘
-     */
-    async isLogin() {
+async isLogin() {
       let getResp = await httpx.get("https://drive.uc.cn/", {
         headers: {
           "User-Agent": utils.getRandomPCUA()
@@ -15244,12 +13342,7 @@
         return false;
       }
     }
-    /**
-     * 下载文件
-     * @param fileName 文件名
-     * @param downloadUrl 下载链接
-     */
-    downloadFile(fileName, downloadUrl) {
+downloadFile(fileName, downloadUrl) {
       log.info(`调用【GM_download】下载：`, arguments);
       if (window.location.hostname === "drive.uc.cn") {
         window.open(downloadUrl, "_blank");
@@ -15315,11 +13408,7 @@
         abortDownload = result["abort"];
       }
     }
-    /**
-     * 前往登录
-     * @param text 弹窗的显示的内容
-     */
-    gotoLogin(text = "") {
+gotoLogin(text = "") {
       NetDiskPops.confirm(
         {
           title: {
@@ -15345,12 +13434,7 @@
         NetDiskUI.popsStyle.tianYiYunLoginTip
       );
     }
-    /**
-     * 获取stoken
-     * @param pwd_id 分享码
-     * @param passcode 访问码
-     */
-    async getStoken(pwd_id, passcode) {
+async getStoken(pwd_id, passcode) {
       let response = await httpx.post(
         "https://pc-api.uc.cn/1/clouddrive/share/sharepage/token?entry=ft&fr=pc&pr=UCBrowser",
         {
@@ -15388,22 +13472,9 @@
       }
       return data["data"]["stoken"];
     }
-    /**
-     * 获取stoken
-     * @param pwd_id 分享码
-     * @param passcode 访问码
-     * @param stoken 获取的stoken
-     * @param pdir_fid 父fid，默认为0，如果为文件夹，那么它的fid就是这个值
-     * @param force
-     * @param _page
-     * @param _size=
-     * @param _fetch_banner
-     * @param _fetch_share
-     * @param _fetch_total
-     */
-    async getDetail(pwd_id, passcode, stoken, pdir_fid = 0, force = 0, _page = 1, _size = 50, _fetch_banner = 0, _fetch_share = 0, _fetch_total = 1) {
+async getDetail(pwd_id, passcode, stoken, pdir_fid = 0, force = 0, _page = 1, _size = 50, _fetch_banner = 0, _fetch_share = 0, _fetch_total = 1) {
       let response = await httpx.get(
-        `https://pc-api.uc.cn/1/clouddrive/transfer_share/detail?pr=UCBrowser&fr=h5&pwd_id=${pwd_id}&__t=${(/* @__PURE__ */ new Date()).getTime()}&passcode=${passcode}&stoken=${encodeURIComponent(
+        `https://pc-api.uc.cn/1/clouddrive/transfer_share/detail?pr=UCBrowser&fr=h5&pwd_id=${pwd_id}&__t=${( new Date()).getTime()}&passcode=${passcode}&stoken=${encodeURIComponent(
         stoken
       )}&pdir_fid=${pdir_fid}&force=${force}&_page=${_page}&_size=${_size}&_fetch_banner=${_fetch_banner}&_fetch_share=${_fetch_share}&_fetch_total=${_fetch_total}&_sort=${encodeURIComponent(
         "file_type:asc,file_name:asc"
@@ -15444,14 +13515,7 @@
       }
       return data["data"]["list"];
     }
-    /**
-     * 获取下载信息
-     * @param pwd_id 分享码
-     * @param stoken 获取的stoken
-     * @param fids 通过获取到的detail获取到的fid
-     * @param share_fid_token 通过获取到的detail获取到的share_fid_token
-     */
-    async getDownload(pwd_id, stoken, fid, share_fid_token) {
+async getDownload(pwd_id, stoken, fid, share_fid_token) {
       let response = await httpx.post(
         "https://pc-api.uc.cn/1/clouddrive/file/download?entry=ft&fr=pc&pr=UCBrowser",
         {
@@ -15487,11 +13551,7 @@
       }
       return data["data"];
     }
-    /**
-     * 获取文件夹信息
-     * @param infoList
-     */
-    getFolderInfo(infoList, stoken, index = 0) {
+getFolderInfo(infoList, stoken, index = 0) {
       const that = this;
       let folderInfoList = [];
       let tempFolderInfoList = [];
@@ -15575,10 +13635,7 @@
     }
   }
   class NetDiskParse_Wenshushu extends ParseFileCore {
-    /**
-     * 用于header头x-token
-     */
-    token = void 0;
+token = void 0;
     code = {
       1004: "no token",
       1008: "您没有权限访问",
@@ -15600,11 +13657,7 @@
       }
       await this.getFileNList(pidInfo.bid, pidInfo.pid);
     }
-    /**
-     * 获取token
-     * wss:xxxxxx
-     */
-    async getWssToken() {
+async getWssToken() {
       const that = this;
       let postResp = await httpx.post("https://www.wenshushu.cn/ap/login/anonymous", {
         responseType: "json",
@@ -15631,10 +13684,7 @@
         Qmsg.error("获取wss失败");
       }
     }
-    /**
-     * 获取pid
-     */
-    async getPid() {
+async getPid() {
       const that = this;
       let postResp = await httpx.post({
         url: "https://www.wenshushu.cn/ap/task/mgrtask",
@@ -15668,12 +13718,7 @@
         Qmsg.error("获取pid失败");
       }
     }
-    /**
-     * 获取文件列表信息
-     * @param bid
-     * @param pid
-     */
-    async getFileNList(bid, pid) {
+async getFileNList(bid, pid) {
       const that = this;
       let postResp = await httpx.post("https://www.wenshushu.cn/ap/ufile/nlist", {
         responseType: "json",
@@ -15726,11 +13771,7 @@
         Qmsg.error("获取文件信息失败");
       }
     }
-    /**
-     * 获取下载链接
-     * @param data
-     */
-    async getDownloadUrl(data) {
+async getDownloadUrl(data) {
       const that = this;
       let file_name = data.fname;
       let file_size = utils.formatByteToSize(data.size);
@@ -15777,76 +13818,23 @@
   }
   const NetDiskParse = {
     rule: {
-      /**
-       * 百度网盘
-       */
-      baidu: NetDiskParse_Baidu,
-      /**
-       * 蓝奏云
-       */
-      lanzou: NetDiskParse_Lanzou,
-      /**
-       * 蓝奏云优享
-       */
-      lanzouyx: NetDiskParse_Lanzouyx,
-      /**
-       * 天翼云
-       * + 开发文档：https://id.dlife.cn/html/api_detail_696.html
-       */
-      tianyiyun: NetDiskParse_Tianyiyun,
-      /**
-       * 文叔叔
-       */
-      wenshushu: NetDiskParse_Wenshushu,
-      /**
-       * 123盘
-       */
-      _123pan: NetDiskParse_123pan,
-      /**
-       * 坚果云
-       */
-      jianguoyun: NetDiskParse_Jianguoyun,
-      /**
-       * 奶牛快传
-       * 感谢：https://github.com/qaiu/netdisk-fast-download
-       */
-      nainiu: NetDiskParse_nainiu,
-      /**
-       * UC网盘
-       */
-      uc: NetDiskParse_UC,
-      /**
-       * 阿里云盘
-       */
-      aliyun: NetDiskParse_Aliyun,
-      /**
-       * 城通网盘
-       *
-       * + https://github.com/qinlili23333/ctfileGet
-       */
-      chengtong: NetDiskParse_Chengtong,
-      /**
-       * BT磁力
-       *
-       * @link https://whatslink.info/
-       */
-      magnet: NetDiskParse_magnet,
-      /**
-       * ed2k
-       *
-       * @link https://whatslink.info/
-       */
-      ed2k: NetDiskParse_ed2k
+baidu: NetDiskParse_Baidu,
+lanzou: NetDiskParse_Lanzou,
+lanzouyx: NetDiskParse_Lanzouyx,
+tianyiyun: NetDiskParse_Tianyiyun,
+wenshushu: NetDiskParse_Wenshushu,
+_123pan: NetDiskParse_123pan,
+jianguoyun: NetDiskParse_Jianguoyun,
+nainiu: NetDiskParse_nainiu,
+uc: NetDiskParse_UC,
+aliyun: NetDiskParse_Aliyun,
+chengtong: NetDiskParse_Chengtong,
+magnet: NetDiskParse_magnet,
+ed2k: NetDiskParse_ed2k
     }
   };
   const NetDiskHandlerUtil = {
-    /**
-     * 替换文字
-     * @param matchText 需要替换的文字
-     * @param pattern 需要替换的文字的正则表达式
-     * @param newText 替换为的文字
-     */
-    replaceText(matchText, pattern, newText) {
+replaceText(matchText, pattern, newText) {
       if (Array.isArray(pattern)) {
         for (const patternItem of pattern) {
           matchText = this.replaceText(matchText, patternItem, newText);
@@ -15862,11 +13850,7 @@
     }
   };
   const NetDiskLinkClickModeUtils = {
-    /**
-     * 获取用于跳转的url
-     * @param handlerConfig 配置
-     */
-    getBlankUrl(handlerConfig) {
+getBlankUrl(handlerConfig) {
       let ruleConfig = handlerConfig.debugConfig?.config ?? NetDisk.$rule.ruleOption[handlerConfig.ruleKeyName][handlerConfig.ruleIndex];
       let blankUrl = ruleConfig.blank;
       if (handlerConfig.shareCode) {
@@ -15930,11 +13914,7 @@
       }
       return blankUrl;
     },
-    /**
-     * 获取用于复制到剪贴板的网盘信息
-     * @param handlerConfig 配置
-     */
-    getCopyUrlInfo(handlerConfig) {
+getCopyUrlInfo(handlerConfig) {
       let ruleConfig = handlerConfig.debugConfig?.config ?? NetDisk.$rule.ruleOption[handlerConfig.ruleKeyName][handlerConfig.ruleIndex];
       let copyUrl = ruleConfig["copyUrl"];
       if (handlerConfig.shareCode) {
@@ -16004,15 +13984,7 @@
     }
   };
   const NetDiskLinkClickMode = {
-    /**
-     * 复制到剪贴板
-     * @param ruleKeyName 规则键名
-     * @param ruleIndex 规则的索引下标
-     * @param shareCode 分享码
-     * @param accessCode 提取码
-     * @param toastText 复制成功的提示的文字
-     */
-    copy(ruleKeyName, ruleIndex, shareCode, accessCode, toastText = "已复制") {
+copy(ruleKeyName, ruleIndex, shareCode, accessCode, toastText = "已复制") {
       utils.setClip(
         NetDiskLinkClickModeUtils.getCopyUrlInfo({
           ruleKeyName,
@@ -16030,14 +14002,7 @@
         Qmsg.error("执行复制失败", { consoleLogContent: true });
       });
     },
-    /**
-     * 链接解析
-     * @param ruleKeyName 规则键名
-     * @param ruleIndex 规则的索引下标
-     * @param shareCode 分享码
-     * @param accessCode 提取码
-     */
-    async parseFile(ruleKeyName, ruleIndex, shareCode, accessCode) {
+async parseFile(ruleKeyName, ruleIndex, shareCode, accessCode) {
       log.success(`链接解析：`, [...arguments]);
       if (NetDiskParse.rule[ruleKeyName]) {
         let parseInst = new NetDiskParse.rule[ruleKeyName]();
@@ -16056,16 +14021,7 @@
         Qmsg.error("该链接未配置解析函数");
       }
     },
-    /**
-     * 新标签页打开
-     * @param url 跳转的网址
-     * @param ruleKeyName 规则键名
-     * @param ruleIndex 规则的索引下标
-     * @param shareCode 分享码
-     * @param accessCode 提取码
-     * @param isOpenInBackEnd 是否使用后台打开，默认false
-     */
-    openBlankUrl(url, ruleKeyName, ruleIndex, shareCode, accessCode, isOpenInBackEnd = false) {
+openBlankUrl(url, ruleKeyName, ruleIndex, shareCode, accessCode, isOpenInBackEnd = false) {
       log.success(`新标签页打开${isOpenInBackEnd ? "（后台打开）" : ""}`, [...arguments]);
       if (NetDiskAutoFillAccessCode.$data.enable) {
         NetDiskAutoFillAccessCode.addValue({
@@ -16110,14 +14066,7 @@
         openUrl();
       }
     },
-    /**
-     * 将链接转为Scheme格式并打开
-     * @param ruleKeyName 规则键名
-     * @param ruleIndex 规则的索引下标
-     * @param shareCode
-     * @param accessCode
-     */
-    openBlankWithScheme(ruleKeyName, ruleIndex, shareCode, accessCode) {
+openBlankWithScheme(ruleKeyName, ruleIndex, shareCode, accessCode) {
       log.success("scheme新标签页打开", [...arguments]);
       let url = NetDiskLinkClickModeUtils.getBlankUrl({
         ruleKeyName,
@@ -16130,10 +14079,7 @@
     }
   };
   const NetDiskCheckLinkValidityStatus = {
-    /**
-     * 验证中
-     */
-    loading: {
+loading: {
       code: 1,
       msg: "验证中...",
       setIcon($el) {
@@ -16144,17 +14090,13 @@
         this.setIcon($el);
       }
     },
-    /**
-     * 验证成功
-     */
-    success: {
+success: {
       code: 200,
       msg: "有效",
       setIcon($el) {
         domUtils.html(
           $el,
-          /*html*/
-          `
+`
 				<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
 					<path
 					fill="currentColor"
@@ -16169,17 +14111,13 @@
         NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
       }
     },
-    /**
-     * 网络异常
-     */
-    networkError: {
+networkError: {
       code: -404,
       msg: "网络异常",
       setIcon($el) {
         domUtils.html(
           $el,
-          /*html*/
-          `
+`
 				<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
 					<path
 					fill="currentColor"
@@ -16194,17 +14132,13 @@
         NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
       }
     },
-    /**
-     * 触发安全验证
-     */
-    verify: {
+verify: {
       code: -405,
       msg: "触发安全验证",
       setIcon($el) {
         domUtils.html(
           $el,
-          /*html*/
-          `
+`
 				<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
 					<path 
 						fill="currentColor"
@@ -16220,17 +14154,13 @@
         NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
       }
     },
-    /**
-     * 该链接已失效
-     */
-    failed: {
+failed: {
       code: 0,
       msg: "已失效",
       setIcon($el) {
         domUtils.html(
           $el,
-          /*html*/
-          `
+`
 				<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
 					<path
 						fill="currentColor"
@@ -16245,17 +14175,13 @@
         NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
       }
     },
-    /**
-     * 该链接需要密码
-     */
-    needAccessCode: {
+needAccessCode: {
       code: 201,
       msg: "需要提取码",
       setIcon($el) {
         domUtils.html(
           $el,
-          /*html*/
-          `
+`
 				<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
 					<path
 					fill="currentColor"
@@ -16273,17 +14199,13 @@
         NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
       }
     },
-    /**
-     * 存在部分违规文件
-     */
-    partialViolation: {
+partialViolation: {
       code: 202,
       msg: "存在部分违规文件",
       setIcon($el) {
         domUtils.html(
           $el,
-          /*html*/
-          `
+`
 				<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
 					<path 
 					fill="currentColor"
@@ -16296,17 +14218,13 @@
         this.setIcon($el);
       }
     },
-    /**
-     * 未知状态
-     */
-    unknown: {
+unknown: {
       code: -200,
       msg: "未知检查情况",
       setIcon($el) {
         domUtils.html(
           $el,
-          /*html*/
-          `
+`
 				<svg viewBox="0 0 1025 1024" xmlns="http://www.w3.org/2000/svg">
 					<path
 					fill="currentColor"
@@ -16941,21 +14859,18 @@
       } else if (data.message.includes("ok")) {
         let stoken = data["data"]["stoken"];
         let getSearchParams = {
-          // pr: "ucpro",
-          // fr: "pc",
-          // uc_param_str: "",
-          pwd_id: shareCode,
+
+
+pwd_id: shareCode,
           stoken,
-          // pdir_fid: 0,
-          // force: 0,
-          // _page: 1,
-          // _size: 50,
-          // _fetch_banner: 1,
-          _fetch_share: 1,
-          // _fetch_total: 1,
-          // _sort: "file_type:asc,updated_at:desc",
-          // __dt: 2283,
-          __t: Date.now()
+
+
+
+
+_fetch_share: 1,
+
+
+__t: Date.now()
         };
         let getResponse = await httpx.get(
           `https://drive-h.quark.cn/1/clouddrive/share/sharepage/detail?${utils.toSearchParamsStr(
@@ -17254,9 +15169,8 @@
     lanzou: NetDiskCheckLinkValidity_lanzou,
     lanzouyx: NetDiskCheckLinkValidity_lanzouyx,
     tianyiyun: NetDiskCheckLinkValidity_tianyiyun,
-    // 和彩云校验已失效，需要验证参数
-    // hecaiyun: NetDiskCheckLinkValidity_hecaiyun,
-    aliyun: NetDiskCheckLinkValidity_aliyun,
+
+aliyun: NetDiskCheckLinkValidity_aliyun,
     wenshushu: NetDiskCheckLinkValidity_wenshushu,
     nainiu: NetDiskCheckLinkValidity_nainiu,
     _123pan: NetDiskCheckLinkValidity_123pan,
@@ -17271,41 +15185,22 @@
     "360yunpan": NetDiskCheckLinkValidity_360yunpan
   };
   const NetDiskCheckLinkValidityRequestOption = {
-    // 有效性校验时，如果请求错误，禁止Qmsg弹出
-    allowInterceptConfig: false,
-    // 有效性校验时，如果请求错误，禁止Qmsg弹出
-    onerror() {
+allowInterceptConfig: false,
+onerror() {
     },
-    // 有效性校验时，如果请求错误，禁止Qmsg弹出
-    ontimeout() {
+ontimeout() {
     }
   };
   const NetDiskCheckLinkValidity = {
     $data: {
-      /** 待检测的列表 */
-      subscribeMap: /* @__PURE__ */ new Map(),
-      /** 待检测的列表是否正在消费中（验证有效性中） */
-      subscribeMapConsuming: /* @__PURE__ */ new Map()
+subscribeMap: new Map(),
+subscribeMapConsuming: new Map()
     },
-    /**
-     * 网盘检查的状态码
-     */
-    get status() {
+get status() {
       return NetDiskCheckLinkValidityStatus;
     },
-    /**
-     * 所有的规则的校验函数
-     */
-    ruleCheckValidFunction: AllCheckLinkValidityFunction,
-    /**
-     * 校验链接的有效性，这里是用于订阅-消费
-     * @param $urlBox
-     * @param ruleKeyName
-     * @param ruleIndex
-     * @param shareCode
-     * @param accessCode
-     */
-    async check(checkInfoConfigList) {
+ruleCheckValidFunction: AllCheckLinkValidityFunction,
+async check(checkInfoConfigList) {
       if (!Array.isArray(checkInfoConfigList)) {
         checkInfoConfigList = [checkInfoConfigList];
       }
@@ -17353,12 +15248,7 @@
       };
       await execCheck();
     },
-    /**
-     * 开始校验链接的有效性
-     * @param checkInfo
-     * @param isForceCheck 是否强制检测
-     */
-    async checkLinkValidity(checkInfo, isForceCheck) {
+async checkLinkValidity(checkInfo, isForceCheck) {
       const { $checkValidStatus } = NetDiskView.parseViewBoxElementInfo(checkInfo.$urlBox);
       if (this.isViewCheckValid($checkValidStatus) && !isForceCheck) {
         return;
@@ -17389,12 +15279,7 @@
         Reflect.set($checkValidStatus, "data-httpx-response", checkStatusResult.data);
       }
     },
-    /**
-     * 添加重复检查的点击事件（只触发一次）
-     * @param $ele 目标元素
-     * @param checkInfo 检查信息
-     */
-    setViewAgainCheckClickEvent($ele, checkInfo) {
+setViewAgainCheckClickEvent($ele, checkInfo) {
       domUtils.on(
         $ele,
         "click",
@@ -17414,15 +15299,7 @@
         { once: true }
       );
     },
-    /**
-     * 判断元素当前是否处于验证状态且验证是error或未验证状态
-     *
-     * 简而言之。验证成功的图标点击后将不触发验证请求
-     * + `true` 已验证(成功/需要密码)
-     * + `false` 尚未验证/验证超时/验证网络异常
-     * @param $ele
-     */
-    isViewCheckValid($ele) {
+isViewCheckValid($ele) {
       if (!$ele.hasAttribute("data-check-valid")) {
         return false;
       }
@@ -17431,41 +15308,23 @@
       }
       return true;
     },
-    /**
-     * 设置当前的验证状态
-     * @param $ele
-     * @param value
-     * @param msg
-     */
-    setViewCheckValid($ele, value, msg) {
+setViewCheckValid($ele, value, msg) {
       $ele.setAttribute("data-check-valid", value);
       $ele.setAttribute("data-msg", msg);
       Reflect.set($ele, "data-msg", msg);
     },
-    /**
-     * 取消设置当前的验证状态
-     * @param $ele
-     */
-    removeViewCheckValid($ele) {
+removeViewCheckValid($ele) {
       $ele.removeAttribute("data-check-valid");
       $ele.removeAttribute("data-msg");
       Reflect.deleteProperty($ele, "data-msg");
     },
-    /**
-     * 判断状态码是成功的
-     * @param statusInfo
-     */
-    isStatusSuccess(statusInfo) {
+isStatusSuccess(statusInfo) {
       if (Math.floor(statusInfo.code / 100) === 2) {
         return true;
       }
       return false;
     },
-    /**
-     * 根据code获取code的名字
-     * @param statusInfo
-     */
-    getStatusName(statusInfo) {
+getStatusName(statusInfo) {
       for (const statusName of Object.keys(NetDiskCheckLinkValidityStatus)) {
         let statusNewInfo = NetDiskCheckLinkValidityStatus[statusName];
         if (statusInfo.code === statusNewInfo.code) {
@@ -17473,10 +15332,7 @@
         }
       }
     },
-    /**
-     * 设置鼠标悬浮事件
-     */
-    setCheckStatusElementToolTip(checkInfo) {
+setCheckStatusElementToolTip(checkInfo) {
       if (!NetDiskRuleData.function.checkLinlValidityHoverTip(checkInfo.ruleKeyName)) {
         return;
       }
@@ -17517,13 +15373,8 @@
     }
   };
   const NetDiskRequire = {
-    requiredFileMap: /* @__PURE__ */ new Map(),
-    /**
-     * 网络加载文件
-     * @param url 网络文件路径
-     * @param options
-     */
-    async file(url, options) {
+    requiredFileMap: new Map(),
+async file(url, options) {
       if (utils.isNull(url)) {
         log.error("NetDiskRequire.file的参数path为空", url);
         return false;
@@ -17577,10 +15428,7 @@
         return this.__userRule;
       }
     },
-    /**
-     * 初始化
-     */
-    init() {
+init() {
       let oldUserRule = _GM_getValue("userRule");
       if (Array.isArray(oldUserRule)) {
         _GM_deleteValue("userRule");
@@ -17593,10 +15441,7 @@
         this.$data.userRule.set(item.setting.key, item);
       });
     },
-    /**
-     * 把输入的规则字符串解析为规则对象
-     */
-    parseRuleStrToRule(ruleText) {
+parseRuleStrToRule(ruleText) {
       function checkRegExp(ruleRegExp) {
         if (typeof ruleRegExp["link_innerText"] !== "string") {
           return {
@@ -17738,11 +15583,7 @@
         };
       }
     },
-    /**
-     * 上下文环境
-     * @param rule
-     */
-    getBindContext(rule) {
+getBindContext(rule) {
       return {
         rule,
         NetDiskRequire,
@@ -17762,11 +15603,7 @@
         deleteValue: NetDiskUserRuleBindContextStorageApi.delete.bind(NetDiskUserRuleBindContextStorageApi)
       };
     },
-    /**
-     * 把用户链接识别规则进行转换成脚本规则
-     * @param localRule 用户的规则
-     */
-    parseRule(localRule) {
+parseRule(localRule) {
       function parseUserRuleToScriptRule(ruleKey, userRuleConfig, ruleRegExp) {
         let {
           shareCode,
@@ -18019,8 +15856,7 @@
               init: new AsyncFunction(
                 "netDiskInfo",
                 userRuleItemConfig.checkLinkValidityFunction
-                // 绑定作用域
-              ).bind(context)
+).bind(context)
             });
           } catch (error) {
             log.error(error);
@@ -18033,8 +15869,7 @@
             NetDiskAuthorization.netDisk[ruleKey] = new AsyncFunction(
               userRuleItemConfig.AuthorizationFunction
             ).bind(
-              // 绑定作用域
-              context
+context
             );
           } catch (error) {
             log.error(error);
@@ -18047,8 +15882,7 @@
             NetDiskAutoFillAccessCode.netDisk[ruleKey] = new AsyncFunction(
               "netDiskInfo",
               userRuleItemConfig.AutoFillAccessCodeFunction
-              // 绑定作用域
-            ).bind(context);
+).bind(context);
           } catch (error) {
             log.error(error);
           }
@@ -18073,8 +15907,7 @@
             netDiskRuleConfig.afterRenderUrlBox = new AsyncFunction(
               "option",
               userRuleItemConfig.afterRenderUrlBox
-              // 绑定作用域
-            ).bind(context);
+).bind(context);
           } catch (error) {
             log.error(error);
           }
@@ -18090,25 +15923,16 @@
       }
       return netDiskRuleConfigList;
     },
-    /**
-     * 获取配置
-     */
-    getNetDiskRuleConfig() {
+getNetDiskRuleConfig() {
       return this.$data.userRule.values();
     },
-    /**
-     * 初始化默认值
-     */
-    initDefaultValue(key, value) {
+initDefaultValue(key, value) {
       let localValue = _GM_getValue(key);
       if (localValue == null) {
         _GM_setValue(key, value);
       }
     },
-    /**
-     * 获取模板规则
-     */
-    getTemplateRule() {
+getTemplateRule() {
       let templateRule = {
         key: "规则名",
         icon: "图标链接字符串或图片的base64字符串",
@@ -18132,11 +15956,7 @@
       };
       return templateRule;
     },
-    /**
-     * 获取规则面板视图的配置
-     * @param quickAddData 用于快速添加数据
-     */
-    getRulePanelViewOption(quickAddData) {
+getRulePanelViewOption(quickAddData) {
       const that = this;
       let addData = () => {
         return quickAddData ?? this.getTemplateRule();
@@ -18156,8 +15976,7 @@
           },
           getDataItemName(subscribeOption) {
             return (
-              /*html*/
-              `
+`
 						<style>
 							.subscribe-rule-title-info-wrapper{
 								display: flex;
@@ -18245,10 +16064,9 @@
                 let subscribeUUID = option.ruleData.uuid;
                 option.enterDeepMenu({
                   headerTitle: (
-                    // 自己重新命名的
-                    option.ruleData.data.title || // 订阅的规则自带的
-                    option.ruleData.subscribeData.title || // 订阅的链接
-                    option.ruleData.data.url
+option.ruleData.data.title ||
+option.ruleData.subscribeData.title ||
+option.ruleData.data.url
                   ),
                   data() {
                     let currentData = NetDiskUserRuleSubscribeRule.getSubscribe(subscribeUUID);
@@ -18294,20 +16112,19 @@
                         NetDiskUserRuleSubscribeRule.clearSubscribe(subscribeUUID);
                       }
                     },
-                    // ruleEnable: {
-                    // 	enable: true,
-                    // 	getEnable(data) {
-                    // 		return data.setting.enable;
-                    // 	},
-                    // 	callback(data, enable) {
-                    // 		data.setting.enable = enable;
-                    // 		NetDiskUserRuleSubscribeRule.updateSubscribeRule(
-                    // 			subscribeUUID,
-                    // 			data
-                    // 		);
-                    // 	},
-                    // },
-                    ruleEdit: {
+
+
+
+
+
+
+
+
+
+
+
+
+ruleEdit: {
                       enable: true,
                       callback(option2) {
                         NetDiskUserRuleUI.showSubscribe(
@@ -18413,17 +16230,16 @@
                 );
               }
             },
-            // ruleEnable: {
-            // 	enable: false,
-            // 	getEnable(data) {
-            // 		return data.setting.enable;
-            // 	},
-            // 	callback: (data, enable) => {
-            // 		data.setting.enable = enable;
-            // 		that.updateRule(data.key, data);
-            // 	},
-            // },
-            ruleEdit: {
+
+
+
+
+
+
+
+
+
+ruleEdit: {
               enable: true,
               callback(option) {
                 NetDiskUserRuleUI.show(true, option.ruleData.key, async (rule) => {
@@ -18470,28 +16286,16 @@
       };
       return rulePanelViewOption;
     },
-    /**
-     * 添加规则
-     * @param userRule
-     */
-    addRule(userRule) {
+addRule(userRule) {
       let localRule = this.getAllRule();
       localRule.push(userRule);
       this.setRule(localRule);
     },
-    /**
-     * 设置规则到本地
-     * @param oldRuleKey 旧规则的键名
-     * @param userRule
-     */
-    setRule(userRule) {
+setRule(userRule) {
       userRule = Array.isArray(userRule) ? userRule : [userRule];
       NetDiskUserRuleStorageApi.set(this.$data.STORAGE_KEY, userRule);
     },
-    /**
-     * 更新规则
-     */
-    updateRule(key, rule) {
+updateRule(key, rule) {
       let localRule = this.getAllRule();
       let findRuleIndex = localRule.findIndex((item) => item.key === key);
       if (findRuleIndex !== -1) {
@@ -18502,11 +16306,7 @@
         return false;
       }
     },
-    /**
-     * 删除单条规则
-     * @param ruleKey 规则的key名
-     */
-    deleteRule(ruleKey) {
+deleteRule(ruleKey) {
       let localRule = this.getAllRule();
       let findIndex = localRule.findIndex((rule) => rule.key === ruleKey);
       if (findIndex !== -1) {
@@ -18517,37 +16317,21 @@
         return false;
       }
     },
-    /**
-     * 清空规则
-     */
-    clearRule() {
+clearRule() {
       NetDiskUserRuleStorageApi.delete(this.$data.STORAGE_KEY);
     },
-    /**
-     * 获取本地所有的规则
-     */
-    getAllRule() {
+getAllRule() {
       let result = NetDiskUserRuleStorageApi.get(this.$data.STORAGE_KEY, []);
       return result;
     },
-    /**
-     * 获取规则
-     */
-    getRule(key) {
+getRule(key) {
       let localRule = this.getAllRule();
       return localRule.find((item) => item.key === key);
     },
-    /**
-     * 获取格式化后的规则
-     * @param rule
-     */
-    getFormatRule(rule) {
+getFormatRule(rule) {
       return JSON.stringify(rule || this.getAllRule(), void 0, 4);
     },
-    /**
-     * 导出规则
-     */
-    exportRule(fileName = "rule.json", subscribeFileName = "rule-subscribe.json") {
+exportRule(fileName = "rule.json", subscribeFileName = "rule-subscribe.json") {
       let $alert = NetDiskPops.alert({
         title: {
           text: "请选择导出方式",
@@ -18555,8 +16339,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                     <div class="btn-control" data-mode="only-export-rule-list">导出规则</div>
                     <div class="btn-control" data-mode="export-to-subscribe">导出订阅规则</div>
                 `
@@ -18577,8 +16360,7 @@
         width: PanelUISize.info.width,
         height: PanelUISize.info.height,
         style: (
-          /*css*/
-          `
+`
                 .btn-control{
                     display: inline-block;
                     margin: 10px;
@@ -18675,8 +16457,7 @@
             },
             content: {
               text: (
-                /*html*/
-                `
+`
 							
 						`
               ),
@@ -18704,8 +16485,7 @@
             width: PanelUISize.info.width,
             height: PanelUISize.info.height,
             style: (
-              /*css*/
-              `
+`
 						${__pops.config.cssText.panelCSS}
 
 						.pops-alert-content li{
@@ -18737,11 +16517,7 @@
         }
       });
     },
-    /**
-     * 导入规则
-     * @param importEndCallBack 导入完毕后的回调
-     */
-    importRule(importEndCallBack) {
+importRule(importEndCallBack) {
       let $alert = NetDiskPops.alert({
         title: {
           text: "请选择导入方式",
@@ -18749,8 +16525,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                     <div class="btn-control" data-mode="local">本地导入</div>
                     <div class="btn-control" data-mode="network">网络导入</div>
                     <div class="btn-control" data-mode="clipboard">剪贴板导入</div>
@@ -18772,8 +16547,7 @@
         width: PanelUISize.info.width,
         height: PanelUISize.info.height,
         style: (
-          /*css*/
-          `
+`
                 .btn-control{
                     display: inline-block;
                     margin: 10px;
@@ -18972,8 +16746,7 @@
     }
   };
   const NetDiskRule_baidu = {
-    /** 规则 */
-    rule: [
+rule: [
       {
         link_innerText: `pan.baidu.com/s/[0-9a-zA-Z-_]{6,24}([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码|\\?pwd=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
         link_innerHTML: `pan.baidu.com/s/[0-9a-zA-Z-_]{6,24}([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码|\\?pwd=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
@@ -18997,8 +16770,7 @@
         copyUrl: "https://pan.baidu.com/share/init?surl={#shareCode#}&pwd={#accessCode#}"
       }
     ],
-    /** 设置项 */
-    setting: {
+setting: {
       name: "百度网盘",
       key: "baidu",
       configurationInterface: {
@@ -19029,51 +16801,49 @@
           isForwardBlankLink: true,
           uri: ""
         }
-        // ownFormList: [
-        // 	{
-        // 		text: "第三方解析站",
-        // 		type: "forms",
-        // 		forms: [
-        // 			UISwitch(
-        // 				"启用解析站",
-        // 				"baidu-static-enable",
-        // 				false,
-        // 				void 0,
-        // 				"开源项目：<a href='https://github.com/yuantuo666/baiduwp-php' target='_blank'>https://github.com/yuantuo666/baiduwp-php</a>"
-        // 			),
-        // 			UISwitch(
-        // 				"跳转时复制链接",
-        // 				"baidu-baiduwp-php-copy-url",
-        // 				false,
-        // 				void 0,
-        // 				"跳转至解析站时复制百度网盘链接"
-        // 			),
-        // 			UIInput(
-        // 				"网址",
-        // 				"baidu-baiduwp-php-url",
-        // 				"",
-        // 				"解析站的网址Url",
-        // 				void 0,
-        // 				"使用了baiduwp-php源码的网站，例如：https://www.example.com/"
-        // 			),
-        // 			UIInput(
-        // 				"表单参数",
-        // 				"baidu-baiduwp-php-post-form",
-        // 				"",
-        // 				"解析站的网址Url",
-        // 				void 0,
-        // 				"POST表单，例如：surl={#shareCode#}&pwd={#accessCode#}&password="
-        // 			),
-        // 		],
-        // 	},
-        // ],
-      }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
     }
   };
   const NetDiskRule_lanzou = () => {
     return {
-      /** 规则 */
-      rule: [
+rule: [
         {
           link_innerText: `(lanzou[a-z]{0,1}|lan[a-z]{2}).com/(tp/|u/|)([0-9a-zA-Z_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{3,20})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{3,6}|)`,
           link_innerHTML: `(lanzou[a-z]{0,1}|lan[a-z]{2}).com/(tp/|u/|)([0-9a-zA-Z_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{3,20})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{3,6}|)`,
@@ -19101,8 +16871,7 @@
 密码：{#accessCode#}`
         }
       ],
-      /** 设置项 */
-      setting: {
+setting: {
         name: "蓝奏云",
         key: "lanzou",
         configurationInterface: {
@@ -19161,8 +16930,7 @@
     };
   };
   const NetDiskRule_lanzouyx = {
-    /** 规则 */
-    rule: [
+rule: [
       {
         link_innerText: `ilanzou.com/s/([a-zA-Z0-9_-]{5,22})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码|\\?code=)[\\s\\S]{0,{#matchRange-text-after#}}[a-zA-Z0-9]{3,6}|)`,
         link_innerHTML: `ilanzou.com/s/([a-zA-Z0-9_-]{5,22})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码|\\?code=)[\\s\\S]{0,{#matchRange-html-after#}}[a-zA-Z0-9]{3,6}|)`,
@@ -19175,8 +16943,7 @@
         copyUrl: `https://www.ilanzou.com/s/{#shareCode#}?code={#accessCode#}`
       }
     ],
-    /** 设置项 */
-    setting: {
+setting: {
       name: "蓝奏云优享",
       key: "lanzouyx",
       configurationInterface: {
@@ -19218,8 +16985,7 @@
     }
   };
   const NetDiskRule_tianyiyun = {
-    /** 规则 */
-    rule: [
+rule: [
       {
         link_innerText: `(cloud.189.cn/web/share\\?code=([0-9a-zA-Z_-]){8,14}|cloud.189.cn/t/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
         link_innerHTML: `(cloud.189.cn/web/share\\?code=([0-9a-zA-Z_-]){8,14}|cloud.189.cn/t/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
@@ -19232,8 +16998,7 @@
         copyUrl: "https://cloud.189.cn/t/{#shareCode#}\n密码：{#accessCode#}"
       }
     ],
-    /** 设置项 */
-    setting: {
+setting: {
       name: "天翼云",
       key: "tianyiyun",
       configurationInterface: {
@@ -19275,8 +17040,7 @@
     }
   };
   const NetDiskRule_hecaiyun = {
-    /** 规则 */
-    rule: [
+rule: [
       {
         link_innerText: `caiyun.139.com/m/i\\?([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
         link_innerHTML: `caiyun.139.com/m/i\\?([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
@@ -19311,8 +17075,7 @@
         copyUrl: "https://yun.139.com/link/w/i/{#shareCode#}\n密码：{#accessCode#}"
       }
     ],
-    /** 设置项 */
-    setting: {
+setting: {
       name: "中国移动云盘",
       key: "hecaiyun",
       configurationInterface: {
@@ -19331,8 +17094,7 @@
               default: true
             }
           }
-          // checkLinkValidity: true,
-        },
+},
         linkClickMode_openBlank: {
           openBlankAutoFilleAccessCode: true,
           openBlankWithCopyAccessCode: true
@@ -19346,8 +17108,7 @@
     }
   };
   const NetDiskRule_aliyun = {
-    /** 规则 */
-    rule: [
+rule: [
       {
         link_innerText: `aliyundrive.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
         link_innerHTML: `aliyundrive.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
@@ -19382,8 +17143,7 @@
         copyUrl: "https://www.alipan.com/s/{#shareCode#}\n密码：{#accessCode#}"
       }
     ],
-    /** 设置项 */
-    setting: {
+setting: {
       name: "阿里云",
       key: "aliyun",
       configurationInterface: {
@@ -19425,8 +17185,7 @@
     }
   };
   const NetDiskRule_wenshushu = {
-    /** 规则 */
-    rule: [
+rule: [
       {
         link_innerText: `(wenshushu.cn|wss.ink|ws28.cn|wss1.cn|ws59.cn|wss.cc)/f/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
         link_innerHTML: `(wenshushu.cn|wss.ink|ws28.cn|wss1.cn|ws59.cn|wss.cc)/f/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
@@ -19450,8 +17209,7 @@
         copyUrl: "https://www.wenshushu.cn/k/{#shareCode#}\n密码：{#accessCode#}"
       }
     ],
-    /** 设置项 */
-    setting: {
+setting: {
       name: "文叔叔",
       key: "wenshushu",
       configurationInterface: {
@@ -19493,8 +17251,7 @@
     }
   };
   const NetDiskRule_nainiu = {
-    /** 规则 */
-    rule: [
+rule: [
       {
         link_innerText: `cowtransfer.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
         link_innerHTML: `cowtransfer.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
@@ -19507,8 +17264,7 @@
         copyUrl: "https://cowtransfer.com/s/{#shareCode#}\n密码：{#accessCode#}"
       }
     ],
-    /** 设置项 */
-    setting: {
+setting: {
       name: "奶牛",
       key: "nainiu",
       configurationInterface: {
@@ -19550,8 +17306,7 @@
     }
   };
   const NetDiskRule_weiyun = {
-    /** 规则 */
-    rule: [
+rule: [
       {
         link_innerText: `weiyun.com/[0-9a-zA-Z-_]{7,24}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
         link_innerHTML: `weiyun.com/[0-9a-zA-Z-_]{7,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
@@ -19565,8 +17320,7 @@
         copyUrl: "https://share.weiyun.com/{#shareCode#}\n密码：{#accessCode#}"
       }
     ],
-    /** 设置项 */
-    setting: {
+setting: {
       name: "微云",
       key: "weiyun",
       configurationInterface: {
@@ -19601,8 +17355,7 @@
     }
   };
   const NetDiskRule_xunlei = {
-    /** 规则 */
-    rule: [
+rule: [
       {
         link_innerText: `xunlei.com/s/[0-9a-zA-Z-_]{8,30}([\\s\\S]{0,{#matchRange-text-before#}}(\\?pwd=|访问码|提取码|密码|)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
         link_innerHTML: `xunlei.com/s/[0-9a-zA-Z-_]{8,30}([\\s\\S]{0,{#matchRange-html-before#}}(\\?pwd=|访问码|提取码|密码|)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
@@ -19615,8 +17368,7 @@
         copyUrl: "https://pan.xunlei.com/s/{#shareCode#}?pwd={#accessCode#}"
       }
     ],
-    /** 设置项 */
-    setting: {
+setting: {
       name: "迅雷云盘",
       key: "xunlei",
       configurationInterface: {
@@ -19651,10 +17403,8 @@
     }
   };
   const NetDiskRule_chengtong = {
-    /** 规则 */
-    rule: [
-      /* d ==> https */
-      {
+rule: [
+{
         link_innerText: `(pan.jc-box.com|download.jamcz.com|545c.com)/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
         link_innerHTML: `(pan.jc-box.com|download.jamcz.com|545c.com)/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
         shareCode: /(pan.jc-box.com|download.jamcz.com|545c.com)\/d\/([0-9a-zA-Z\-_]{8,26})/gi,
@@ -19666,8 +17416,7 @@
         blank: "https://{#$1#}/d/{#shareCode#}?p={#accessCode#}",
         copyUrl: "https://{#$1#}/d/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}"
       },
-      /* d ==> http */
-      {
+{
         link_innerText: `ct.ghpym.com(/|/#/)d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
         link_innerHTML: `ct.ghpym.com(/|/#/)d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
         shareCode: /ct.ghpym.com(\/|\/#\/)d\/([0-9a-zA-Z\-_]{8,26})/gi,
@@ -19679,8 +17428,7 @@
         blank: "http://{#$1#}{#$2#}d/{#shareCode#}?p={#accessCode#}",
         copyUrl: "http://{#$1#}{#$2#}d/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}"
       },
-      /* d */
-      {
+{
         link_innerText: `ctfile.com/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
         link_innerHTML: `ctfile.com/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
         shareCode: /ctfile.com\/d\/([0-9a-zA-Z\-_]{8,26})/gi,
@@ -19691,8 +17439,7 @@
         blank: "https://url95.ctfile.com/d/{#shareCode#}?p={#accessCode#}",
         copyUrl: "https://url95.ctfile.com/d/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}"
       },
-      /* file */
-      {
+{
         link_innerText: `(2k.us|u062.com|545c.com|t00y.com|tc5.us)/file/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
         link_innerHTML: `(2k.us|u062.com|545c.com|t00y.com|tc5.us)/file/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
         shareCode: /(2k.us|u062.com|545c.com|t00y.com|tc5.us)\/file\/([0-9a-zA-Z\-_]{8,26})/gi,
@@ -19703,8 +17450,7 @@
         blank: "https://u062.com/file/{#shareCode#}?p={#accessCode#}",
         copyUrl: "https://u062.com/file/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}"
       },
-      /* f ==> http  */
-      {
+{
         link_innerText: `(pan.jc-box.com|545c.com|down.jc-box.com|download.cx05.cc|download.jamcz.com|download.macenjoy.co)/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
         link_innerHTML: `(pan.jc-box.com|545c.com|down.jc-box.com|download.cx05.cc|download.jamcz.com|download.macenjoy.co)/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
         shareCode: /(pan.jc-box.com|545c.com|down.jc-box.com|download.cx05.cc|download.jamcz.com|download.macenjoy.co)\/f\/([0-9a-zA-Z\-_]{8,26})/gi,
@@ -19716,8 +17462,7 @@
         blank: "http://{#$1#}/f/{#shareCode#}?p={#accessCode#}",
         copyUrl: "http://{#$1#}/f/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}"
       },
-      /* f ==> http  */
-      {
+{
         link_innerText: `url[0-9]{2}.com/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
         link_innerHTML: `url[0-9]{2}.com/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
         shareCode: /url[0-9]{2}.com\/f\/([0-9a-zA-Z\-_]{8,26})/gi,
@@ -19729,8 +17474,7 @@
         blank: "http://{#$1#}/f/{#shareCode#}?p={#accessCode#}",
         copyUrl: "http://{#$1#}/f/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}"
       },
-      /* f */
-      {
+{
         link_innerText: `(ctfile.com|089u.com)/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
         link_innerHTML: `(ctfile.com|089u.com)/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
         shareCode: /(ctfile.com|089u.com)\/f\/([0-9a-zA-Z\-_]{8,26})/gi,
@@ -19741,8 +17485,7 @@
         blank: "https://url95.ctfile.com/f/{#shareCode#}?p={#accessCode#}",
         copyUrl: "https://url95.ctfile.com/f/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}"
       },
-      /* dir */
-      {
+{
         link_innerText: `(089u.com|474b.com)/dir/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
         link_innerHTML: `(089u.com|474b.com)/dir/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{6}|)`,
         shareCode: /(089u.com|474b.com)\/dir\/([0-9a-zA-Z\-_]{8,26})/gi,
@@ -19754,8 +17497,7 @@
         copyUrl: "https://089u.com/dir/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}"
       }
     ],
-    /** 设置项 */
-    setting: {
+setting: {
       name: "城通网盘",
       key: "chengtong",
       configurationInterface: {
@@ -19812,8 +17554,7 @@
     }
   };
   const NetDiskRule_kuake = {
-    /** 规则 */
-    rule: [
+rule: [
       {
         link_innerText: `quark.cn/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
         link_innerHTML: `quark.cn/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
@@ -19826,8 +17567,7 @@
         copyUrl: "https://pan.quark.cn/s/{#shareCode#}\n密码：{#accessCode#}"
       }
     ],
-    /** 设置项 */
-    setting: {
+setting: {
       name: "夸克网盘",
       key: "kuake",
       configurationInterface: {
@@ -19862,8 +17602,7 @@
     }
   };
   const NetDiskRule_magnet = {
-    /** 规则 */
-    rule: [
+rule: [
       {
         link_innerText: `magnet:\\?xt=urn:btih:[0-9a-fA-F]{32,40}`,
         link_innerHTML: `magnet:\\?xt=urn:btih:[0-9a-fA-F]{32,40}`,
@@ -19876,8 +17615,7 @@
         copyUrl: "magnet:?xt=urn:btih:{#shareCode#}"
       }
     ],
-    /** 设置项 */
-    setting: {
+setting: {
       name: "BT磁力",
       key: "magnet",
       configurationInterface: {
@@ -19907,8 +17645,7 @@
     }
   };
   const NetDiskRule_jianguoyun = {
-    /** 规则 */
-    rule: [
+rule: [
       {
         link_innerText: `jianguoyun.com/p/[0-9a-zA-Z-_]{16,24}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]+|)`,
         link_innerHTML: `jianguoyun.com/p/[0-9a-zA-Z-_]{16,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]+|)`,
@@ -19921,8 +17658,7 @@
         copyUrl: "https://www.jianguoyun.com/p/{#shareCode#}\n密码：{#accessCode#}"
       }
     ],
-    /** 设置项 */
-    setting: {
+setting: {
       name: "坚果云",
       key: "jianguoyun",
       configurationInterface: {
@@ -19964,8 +17700,7 @@
     }
   };
   const NetDiskRule_onedrive = {
-    /** 规则 */
-    rule: [
+rule: [
       {
         link_innerText: `[0-9a-zA-Z-_]+.sharepoint.com/[0-9a-zA-Z-_:]+/[0-9a-zA-Z-_:]+/personal/[0-9a-zA-Z-_]+/[0-9a-zA-Z-_]+([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=\\?e=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]+|)`,
         link_innerHTML: `[0-9a-zA-Z-_]+.sharepoint.com/[0-9a-zA-Z-_:]+/[0-9a-zA-Z-_:]+/personal/[0-9a-zA-Z-_]+/[0-9a-zA-Z-_]+([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=\\?e=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]+|)`,
@@ -19979,8 +17714,7 @@
         copyUrl: "https://{#$1#}.sharepoint.com/{#$2#}/{#$3#}/personal/{#$4#}/{#shareCode#}\n密码：{#accessCode#}"
       }
     ],
-    /** 设置项 */
-    setting: {
+setting: {
       name: "OneDrive",
       key: "onedrive",
       configurationInterface: {
@@ -20015,8 +17749,7 @@
     }
   };
   const NetDiskRule_uc = {
-    /** 规则 */
-    rule: [
+rule: [
       {
         link_innerText: `(drive|fast).uc.cn/s/[0-9a-zA-Z]{8,24}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]+|)`,
         link_innerHTML: `(drive|fast).uc.cn/s/[0-9a-zA-Z]{8,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]+|)`,
@@ -20029,8 +17762,7 @@
         copyUrl: "https://drive.uc.cn/s/{#shareCode#}\n密码：{#accessCode#}"
       }
     ],
-    /** 设置项 */
-    setting: {
+setting: {
       name: "UC网盘",
       key: "uc",
       configurationInterface: {
@@ -20161,8 +17893,7 @@
     return result;
   };
   const NetDiskRule_115pan = {
-    /** 规则 */
-    rule: [
+rule: [
       {
         link_innerText: `(115.com|115cdn.com|anxia.com)/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
         link_innerHTML: `(115.com|115cdn.com|anxia.com)/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
@@ -20176,8 +17907,7 @@
         copyUrl: "https://{#$1#}/s/{#shareCode#}\n密码：{#accessCode#}"
       }
     ],
-    /** 设置项 */
-    setting: {
+setting: {
       name: "115网盘",
       key: "_115pan",
       configurationInterface: {
@@ -20212,8 +17942,7 @@
     }
   };
   const NetDiskRule_ed2k = {
-    /** 规则 */
-    rule: [
+rule: [
       {
         link_innerText: `ed2k://\\|file\\|[^\\|]+\\|\\d+\\|[a-fA-F0-9]{32}\\|`,
         link_innerHTML: `ed2k://\\|file\\|[^\\|]+\\|\\d+\\|[a-fA-F0-9]{32}\\|`,
@@ -20227,8 +17956,7 @@
         copyUrl: "ed2k://|file|{#$1#}|{#$2#}|{#$3#}|/"
       }
     ],
-    /** 设置项 */
-    setting: {
+setting: {
       name: "ed2k",
       key: "ed2k",
       configurationInterface: {
@@ -20258,8 +17986,7 @@
     }
   };
   const NetDiskRule_360yunpan = {
-    /** 规则 */
-    rule: [
+rule: [
       {
         link_innerText: `[0-9a-z]+.(link.yunpan.com|link.yunpan.360.cn)/lk/surl_[0-9a-zA-Z]{8,24}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]+|)`,
         link_innerHTML: `[0-9a-z]+.(link.yunpan.com|link.yunpan.360.cn)/lk/surl_[0-9a-zA-Z]{8,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]+|)`,
@@ -20285,8 +18012,7 @@
         copyUrl: "https://{#$1#}/lk/surl_{#shareCode#}\n密码：{#accessCode#}"
       }
     ],
-    /** 设置项 */
-    setting: {
+setting: {
       name: "360AI云盘",
       key: "360yunpan",
       configurationInterface: {
@@ -20322,19 +18048,14 @@
     }
   };
   const NetDiskRule = {
-    /** 规则存储的数据 */
-    dataKey: "ruleData",
+dataKey: "ruleData",
     $data: {
-      /** 规则的配置界面信息 */
-      ruleContent: []
+ruleContent: []
     },
     init() {
       this.initRule();
     },
-    /**
-     * 初始化规则的内容
-     */
-    initRule() {
+initRule() {
       let defaultRuleList = [
         NetDiskRule_baidu,
         NetDiskRule_lanzou,
@@ -20389,15 +18110,15 @@
         let viewConfig = this.parseRuleSetting(netDiskRuleConfig);
         let asideTitle = netDiskRuleConfig.setting.name;
         if (NetDiskUI.src.hasIcon(ruleKey)) {
-          asideTitle = /*html*/
-          `
+          asideTitle =
+`
 					<div class="netdisk-aside-icon" style="background-image: url(${NetDiskUI.src.icon[ruleKey]});"></div>
 					<div class="netdisk-aside-text">${ruleName}</div>`;
         }
         let headerTitleText = ruleName;
         if (netDiskRuleConfig.isUserRule) {
-          headerTitleText += /*html*/
-          `
+          headerTitleText +=
+`
 					<div 
 						class="netdisk-custom-rule-edit" 
 						data-key="${ruleKey}" 
@@ -20405,8 +18126,8 @@
 						${typeof netDiskRuleConfig.subscribeUUID === "string" ? `data-subscribe-uuid="${netDiskRuleConfig.subscribeUUID}"` : ""}"
 						
 					>${__pops.config.iconSVG.edit}</div>`;
-          headerTitleText += /*html*/
-          `
+          headerTitleText +=
+`
 					<div
 						class="netdisk-custom-rule-delete"
 						data-key="${ruleKey}"
@@ -20431,14 +18152,7 @@
         });
       });
     },
-    /**
-     * 解析规则的匹配规则
-     *
-     * 解析以下内容
-     *
-     * 1. 替换字符串类型的内部关键字
-     */
-    parseRuleMatchRule(netDiskRuleConfig) {
+parseRuleMatchRule(netDiskRuleConfig) {
       let netDiskMatchRule = netDiskRuleConfig.rule;
       let netDiskMatchRuleHandler = [];
       let ruleKey = netDiskRuleConfig.setting.key;
@@ -20460,16 +18174,7 @@
       }
       return netDiskMatchRuleHandler;
     },
-    /**
-     * 解析规则的设置项
-     *
-     * 解析出以下内容：
-     *
-     * 1. 视图配置
-     * 2. 获取设置的最新的值并进行覆盖
-     * @param netDiskRuleConfig 规则配置
-     */
-    parseRuleSetting(netDiskRuleConfig) {
+parseRuleSetting(netDiskRuleConfig) {
       let formConfigList = [];
       const settingConfig = netDiskRuleConfig.setting.configurationInterface;
       const ruleKey = netDiskRuleConfig.setting.key;
@@ -20767,10 +18472,7 @@
       }
       return formConfigList;
     },
-    /**
-     * 获取规则界面配置的内容
-     */
-    getRulePanelContent() {
+getRulePanelContent() {
       return this.$data.ruleContent;
     }
   };
@@ -20818,8 +18520,7 @@
         $panel,
         content,
         searchDialogStyle: (
-          /*css*/
-          `
+`
 			/* 网盘图标 */
 			.netdisk-aside-icon {
 				width: 20px;
@@ -20834,10 +18535,7 @@
       NetDiskUI.Alias.settingAlias = $panel;
       this.setRuleHeaderControlsClickEvent($panel.$shadowRoot);
     },
-    /**
-     * 设置规则顶部的编辑|删除的点击事件
-     */
-    setRuleHeaderControlsClickEvent($shadowRoot) {
+setRuleHeaderControlsClickEvent($shadowRoot) {
       domUtils.on($shadowRoot, "click", ".netdisk-custom-rule-edit", function(event) {
         let $click = event.target;
         let ruleKey = $click.getAttribute("data-key");
@@ -20900,16 +18598,11 @@
   const indexCSS$2 = ".whitesevSuspension {\r\n	top: 0;\r\n	position: fixed;\r\n	right: 10px;\r\n	border-radius: 12px;\r\n}\r\n.whitesevSuspension .whitesevSuspensionMain {\r\n	background: #fff;\r\n	border: 1px solid #f2f2f2;\r\n	box-shadow: 0 0 15px #e4e4e4;\r\n	box-sizing: border-box;\r\n	border-radius: inherit;\r\n	height: inherit;\r\n	width: inherit;\r\n}\r\n.whitesevSuspension .whitesevSuspensionFloor {\r\n	border-bottom: 1px solid #f2f2f2;\r\n	position: relative;\r\n	box-sizing: border-box;\r\n	border-radius: inherit;\r\n	height: inherit;\r\n	width: inherit;\r\n}\r\n.whitesevSuspension .whitesevSuspensionFloor .netdisk {\r\n	background-position: center center;\r\n	background-size: 115% 115%;\r\n	background-repeat: no-repeat;\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	border-radius: inherit;\r\n	height: inherit;\r\n	width: inherit;\r\n}\r\n.whitesevSuspension .whitesevSuspensionFloor .netdisk:hover {\r\n	transition: all 300ms linear;\r\n	background-color: #e4e4e4;\r\n	transform: scale(1.1);\r\n}\r\n.whitesevPop-content p[pop] {\r\n	height: 100%;\r\n}\r\n";
   const NetDiskSuspensionConfig = {
     position: {
-      /** 悬浮按钮位置的x坐标 */
-      suspensionX: GenerateData("suspensionX", DOMUtils.width(window) - 50),
-      /** 悬浮按钮位置的y坐标 */
-      suspensionY: GenerateData("suspensionY", (DOMUtils.height(window) - 50) / 2),
-      /** 悬浮按钮所在位置的最大x */
-      suspensionMaxX: GenerateData("susponsionMax-x", DOMUtils.width(window) - 50),
-      /** 悬浮按钮所在位置的最小y */
-      suspensionMaxY: GenerateData("suspensionMax-y", DOMUtils.height(window) - 50),
-      /** 悬浮按钮是否在右边 */
-      isRight: GenerateData("isRight", false)
+suspensionX: GenerateData("suspensionX", DOMUtils.width(window) - 50),
+suspensionY: GenerateData("suspensionY", (DOMUtils.height(window) - 50) / 2),
+suspensionMaxX: GenerateData("susponsionMax-x", DOMUtils.width(window) - 50),
+suspensionMaxY: GenerateData("suspensionMax-y", DOMUtils.height(window) - 50),
+isRight: GenerateData("isRight", false)
     },
     mode: {
       current_suspension_smallwindow_mode: GenerateData(
@@ -20920,27 +18613,15 @@
   };
   const NetDiskSuspension = {
     $el: {
-      /**
-       * 按钮元素
-       */
-      $suspension: null,
-      /**
-       * 按钮元素的动态z-index的style元素
-       */
-      $suspensionZIndexStyle: null
+$suspension: null,
+$suspensionZIndexStyle: null
     },
     $data: {
-      /** 是否已显示 */
-      isShow: false,
-      /** 是否已设置所有的事件 */
-      isInitAllEvent: false,
-      /** 是否正在切换背景 */
-      isSwitchBackground: false
+isShow: false,
+isInitAllEvent: false,
+isSwitchBackground: false
     },
-    /**
-     * 初始化
-     */
-    init() {
+init() {
       if (!this.$data.isShow) {
         this.$data.isShow = true;
         this.createElement();
@@ -20955,22 +18636,13 @@
       this.changeBackground();
       this.show();
     },
-    /**
-     * 显示悬浮按钮
-     */
-    show() {
+show() {
       DOMUtils.css(this.$el.$suspension, { display: "" });
     },
-    /**
-     * 隐藏悬浮按钮
-     */
-    hide() {
+hide() {
       DOMUtils.css(this.$el.$suspension, { display: "none" });
     },
-    /**
-     * 创建按钮元素
-     */
-    createElement() {
+createElement() {
       if (NetDiskGlobalData.suspension.size.value < 15) {
         NetDiskGlobalData.suspension.size.value = 15;
       }
@@ -20993,8 +18665,7 @@
           id: "whitesevSuspensionId",
           className: "whitesevSuspension",
           innerHTML: (
-            /*html*/
-            `
+`
 					<style type="text/css">${indexCSS$2}</style>
 					<style type="text/css" data-z-index></style>
 					<div class="whitesevSuspensionMain">
@@ -21017,10 +18688,7 @@
       $shadowRoot.appendChild(this.$el.$suspension);
       (document.body || document.documentElement).appendChild($shadowContainer);
     },
-    /**
-     * 设置 悬浮按钮所有事件
-     */
-    setAllEvent() {
+setAllEvent() {
       let that = this;
       let needDragElement = NetDiskUI.suspension.$el.$suspension;
       let dragNode = new AnyTouch(needDragElement);
@@ -21112,10 +18780,7 @@
       });
       NetDiskRightClickMenu.setGlobalRightClickMenu(needDragElement);
     },
-    /**
-     * 设置window的resize事件监听，来重新设置悬浮按钮的位置
-     */
-    setResizeEventListener() {
+setResizeEventListener() {
       DOMUtils.on(globalThis, "resize", () => {
         let $active = document.activeElement;
         if (utils.isPhone()) {
@@ -21130,11 +18795,7 @@
         this.updatePosition(false);
       });
     },
-    /**
-     * 保存悬浮按钮位置
-     * @param position
-     */
-    savePosition(position) {
+savePosition(position) {
       if (!Panel.isTopWindow()) {
         return;
       }
@@ -21150,11 +18811,7 @@
       NetDiskSuspensionConfig.position.suspensionMaxX.value = NetDiskSuspensionConfig.position.suspensionMaxX.default;
       NetDiskSuspensionConfig.position.suspensionMaxY.value = NetDiskSuspensionConfig.position.suspensionMaxY.default;
     },
-    /**
-     * 更新悬浮按钮位置
-     * @param isTrusted 是否为用户行为触发，如果为true，保存位置信息
-     */
-    updatePosition(isTrusted) {
+updatePosition(isTrusted) {
       const MAX_X = DOMUtils.width(window) - NetDiskGlobalData.suspension.size.value;
       const MAX_Y = DOMUtils.height(window) - NetDiskGlobalData.suspension.size.value;
       const LAST_MAX_X = NetDiskSuspensionConfig.position.suspensionMaxX.value;
@@ -21201,25 +18858,19 @@
         top: suspension_Y + "px"
       });
     },
-    /**
-     * 更新按钮的z-index值
-     */
-    updateZIndex() {
+updateZIndex() {
       let suspendedZIndex = NetDiskGlobalData.suspension["suspended-z-index"].value;
       if (suspendedZIndex <= 0) {
         suspendedZIndex = utils.getMaxValue(4e4, utils.getMaxZIndex(10));
       }
-      this.$el.$suspensionZIndexStyle.innerHTML = /*css*/
-      `
+      this.$el.$suspensionZIndexStyle.innerHTML =
+`
 			#whitesevSuspensionId{
 				z-index: ${suspendedZIndex};
 			}
 		`;
     },
-    /**
-     * 悬浮按钮背景轮播 效果为淡入淡出
-     */
-    changeBackground() {
+changeBackground() {
       if (this.$data.isSwitchBackground) {
         return;
       }
@@ -21268,11 +18919,7 @@
   };
   const indexCSS$1 = ".pops-folder-list .list-name-text {\r\n	max-width: 300px;\r\n}\r\n.netdisk-static-link-onefile .pops-folder-list .list-name-text {\r\n	max-width: 220px;\r\n}\r\n.netdisk-static-link-onefile .pops-mobile-folder-content .pops-folder-list .list-name-text {\r\n	max-width: unset;\r\n}\r\n";
   const NetDiskLinearChainDialogView = {
-    /**
-     * 单文件直链弹窗
-     * @param fileDetails 配置
-     */
-    oneFile(fileDetails) {
+oneFile(fileDetails) {
       log.success("成功获取单文件直链", fileDetails);
       NetDiskPops.folder(
         {
@@ -21284,10 +18931,8 @@
               fileName: fileDetails.fileName,
               fileSize: fileDetails.fileSize,
               fileType: fileDetails.fileType ?? "",
-              // @ts-ignore
-              createTime: fileDetails.fileUploadTime || fileDetails.fileLatestTime,
-              // @ts-ignore
-              latestTime: fileDetails.fileLatestTime || fileDetails.fileUploadTime,
+createTime: fileDetails.fileUploadTime || fileDetails.fileLatestTime,
+latestTime: fileDetails.fileLatestTime || fileDetails.fileUploadTime,
               isFolder: false,
               index: 0,
               async clickEvent() {
@@ -21321,12 +18966,7 @@
         NetDiskUI.popsStyle.oneFileStaticView
       );
     },
-    /**
-     * 多文件直链弹窗
-     * @param title 标题
-     * @param folderInfoList文件夹信息
-     */
-    moreFile(title, folderInfoList = []) {
+moreFile(title, folderInfoList = []) {
       log.success("文件解析信息", folderInfoList);
       NetDiskPops.folder(
         {
@@ -21401,14 +19041,10 @@
               }
               log.info(`${ruleKeyName} 重新输入的密码：${userInputAccessCode}`);
               let callbackOption = {
-                /** 该分享码是否在已匹配的字典中 */
-                isFindInMatchedDict: false,
-                /** 是否成功同步至已匹配的字典 */
-                isUpdatedMatchedDict: false,
-                /** 是否成功同步至历史匹配记录 */
-                isUpdatedHistoryMatched: false,
-                /** 新的访问码 */
-                accessCode: userInputAccessCode
+isFindInMatchedDict: false,
+isUpdatedMatchedDict: false,
+isUpdatedHistoryMatched: false,
+accessCode: userInputAccessCode
               };
               let netDiskDict = NetDisk.$match.matchedInfo.get(ruleKeyName);
               if (netDiskDict.has(shareCode)) {
@@ -21439,8 +19075,7 @@
           text: accessCode == null ? "" : typeof accessCode === "string" ? accessCode : ""
         },
         style: (
-          /*css*/
-          `
+`
 			input{
 				font-size: larger;
 			}
@@ -21467,8 +19102,7 @@
           },
           content: {
             text: (
-              /*html*/
-              `
+`
                     <textarea class="netdisk-match-paste-text"></textarea>
                     `
             ),
@@ -21483,16 +19117,14 @@
                   inputText = NetDiskRuleUtils.replaceChinese(inputText);
                   NetDiskWorker.postMessage({
                     characterMapping: [
-                      // 删除中文
-                      {
+{
                         searchValue: /[\u4e00-\u9fa5]/g,
                         replaceValue: ""
                       }
                     ],
                     textList: [inputText],
                     matchTextRange: NetDiskGlobalData.match.pageMatchRange.value,
-                    // 剪贴板匹配的话直接使用全部规则来进行匹配
-                    matchedRuleOption: NetDisk.$rule.ruleOption,
+matchedRuleOption: NetDisk.$rule.ruleOption,
                     startTime: Date.now(),
                     from: "PasteText"
                   });
@@ -21507,11 +19139,7 @@
       );
       popsConfirm.popsElement.querySelector("textarea").focus();
     },
-    /**
-     * Worker匹配完毕后执行的回调函数
-     * @param data
-     */
-    workerMatchEndCallBack(data) {
+workerMatchEndCallBack(data) {
       if (data.data.length) {
         Qmsg.success(`成功匹配${data.data.length}个，用时${Date.now() - data.startTime}ms`);
       } else {
@@ -21520,63 +19148,20 @@
     }
   };
   const NetDiskUI = {
-    /** 元素对象实例 */
-    Alias: {
-      /**
-       * 链接弹窗的对象
-       */
-      uiLinkAlias: void 0,
-      /**
-       * 历史匹配记录弹窗的对象
-       */
-      historyAlias: void 0,
-      /**
-       * 设置弹窗的对象
-       */
-      settingAlias: void 0
+Alias: {
+uiLinkAlias: void 0,
+historyAlias: void 0,
+settingAlias: void 0
     },
-    /**
-     * 已匹配到的网盘图标字典
-     */
-    isMatchedNetDiskIconMap: /* @__PURE__ */ new Set(),
-    /**
-     * 是否默认禁用弹窗弹出后背景可以滚动
-     */
-    defaultForbiddenScroll: false,
-    /**
-     * 弹窗的配置
-     * 规定格式
-     * {
-     *  PC:{
-     *    width: "",
-     *    height: "",
-     *  },
-     *  Mobile: {
-     *    width: "",
-     *    height: "",
-     *  }
-     * }
-     */
-    popsStyle: NetDiskUISizeConfig,
+isMatchedNetDiskIconMap: new Set(),
+defaultForbiddenScroll: false,
+popsStyle: NetDiskUISizeConfig,
     src: {
-      /**
-       * 图标RESOURCE_ICON
-       * 从图标库中引入并覆盖
-       */
-      icon: {},
-      /**
-       * 判断图标字典中是否存在该键
-       * @param iconKey
-       */
-      hasIcon(iconKey) {
+icon: {},
+hasIcon(iconKey) {
         return Reflect.has(this.icon, iconKey);
       },
-      /**
-       * 添加图标数据
-       * @param iconKey
-       * @param iconValue
-       */
-      addIcon(iconKey, iconValue) {
+addIcon(iconKey, iconValue) {
         if (this.hasIcon(iconKey)) {
           log.warn("图标字典中已存在该icon：" + iconKey);
           return false;
@@ -21585,30 +19170,12 @@
         }
       }
     },
-    /**
-     * 悬浮按钮  双击打开主界面，长按打开设置（不能移动，移动就不打开，只是移动按钮
-     */
-    suspension: NetDiskSuspension,
-    /**
-     * 主视图
-     */
-    view: NetDiskView,
-    /**
-     * 显示直链的弹窗
-     */
-    staticView: NetDiskLinearChainDialogView,
-    /**
-     * 需要重新输入新密码的弹窗
-     */
-    newAccessCodeView: NetDiskNewAccessCodeView,
-    /**
-     * 网盘历史匹配到的记录弹窗
-     */
-    netDiskHistoryMatch: NetDiskHistoryMatchView,
-    /**
-     * 主动识别文本
-     */
-    matchPasteText: NetDiskMatchPasteText
+suspension: NetDiskSuspension,
+view: NetDiskView,
+staticView: NetDiskLinearChainDialogView,
+newAccessCodeView: NetDiskNewAccessCodeView,
+netDiskHistoryMatch: NetDiskHistoryMatchView,
+matchPasteText: NetDiskMatchPasteText
   };
   const panelSettingCSS = "/* 容器 */\r\n.website-rule-container {\r\n}\r\n/* 每一条规则 */\r\n.website-rule-item {\r\n	display: flex;\r\n	align-items: center;\r\n	line-height: normal;\r\n	font-size: 16px;\r\n	padding: 4px 4px;\r\n	gap: 6px;\r\n}\r\n/* 规则名 */\r\n.website-rule-item .website-rule-name {\r\n	flex: 1;\r\n	white-space: nowrap;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n}\r\n/* 操作按钮 */\r\n.website-rule-item .website-controls {\r\n	display: flex;\r\n	align-items: center;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n	white-space: nowrap;\r\n	gap: 8px;\r\n	padding: 0px 4px;\r\n}\r\n/* 编辑和删除按钮 */\r\n.website-rule-item .website-rule-edit,\r\n.website-rule-item .website-rule-delete {\r\n	width: 16px;\r\n	height: 16px;\r\n	cursor: pointer;\r\n}\r\n/* 启用按钮 */\r\n.website-rule-item .website-rule-enable {\r\n}\r\n/* 编辑按钮 */\r\n.website-rule-item .website-rule-edit {\r\n}\r\n/* 删除按钮 */\r\n.website-rule-item .website-rule-delete {\r\n}\r\n";
   function deepCopy(obj) {
@@ -21628,15 +19195,11 @@
     $data: {
       STORAGE_KEY: "rule",
       EXPORT_CONFIG_KEY: "rule-export-config",
-      /** 是否正在显示编辑视图 */
-      isShowEditView: false
+isShowEditView: false
     },
     init() {
     },
-    /**
-     * 获取默认数据
-     */
-    getTemplateData() {
+getTemplateData() {
       return {
         uuid: utils.generateUUID(),
         subscribeUUID: null,
@@ -21646,11 +19209,7 @@
         data: {}
       };
     },
-    /**
-     * 获取规则面板视图的配置
-     * @param quickAddData 用于快速添加数据
-     */
-    getRulePanelViewOption(quickAddData) {
+getRulePanelViewOption(quickAddData) {
       const that = this;
       let panelHandlerComponents = __pops.config.PanelHandlerComponents();
       let addData = () => {
@@ -21680,8 +19239,7 @@
           },
           getDataItemName(subscribeOption) {
             return (
-              /*html*/
-              `
+`
 						<style>
 							.subscribe-rule-title-info-wrapper{
 								display: flex;
@@ -21769,10 +19327,9 @@
                 let subscribeUUID = option.ruleData.uuid;
                 option.enterDeepMenu({
                   headerTitle: (
-                    // 自己重新命名的
-                    option.ruleData.data.title || // 订阅的规则自带的
-                    option.ruleData.subscribeData.title || // 订阅的链接
-                    option.ruleData.data.url
+option.ruleData.data.title ||
+option.ruleData.subscribeData.title ||
+option.ruleData.data.url
                   ),
                   data() {
                     let currentData = WebsiteSubscribeRule.getSubscribe(subscribeUUID);
@@ -21973,8 +19530,7 @@
                                 only: false,
                                 class: "whitesevPopSetting",
                                 style: (
-                                  /*css*/
-                                  `
+`
 																${panelIndexCSS}
 																
 																${panelSettingCSS}
@@ -22296,8 +19852,7 @@
                         only: false,
                         class: "whitesevPopSetting",
                         style: (
-                          /*css*/
-                          `
+`
 											${panelIndexCSS}
 											
 											${panelSettingCSS}
@@ -22413,20 +19968,13 @@
       };
       return rulePanelViewOption;
     },
-    /**
-     * 添加单个规则
-     */
-    addRule(rule) {
+addRule(rule) {
       let allRule = this.getAllRule();
       allRule.push(rule);
       WebsiteRuleStorageApi.set(this.$data.STORAGE_KEY, allRule);
       return true;
     },
-    /**
-     * 根据uuid获取单个规则的数据
-     * @param uuid
-     */
-    getRule(uuid) {
+getRule(uuid) {
       let findValue = this.getAllRule().find((rule) => rule.uuid === uuid);
       if (findValue) {
         return findValue;
@@ -22436,32 +19984,18 @@
       });
       return findSubscribeRule;
     },
-    /**
-     * 根据uuid获取单个规则的存储数据
-     * @param uuid
-     */
-    getRuleData(uuid) {
+getRuleData(uuid) {
       if (typeof uuid === "string") {
         return this.getRule(uuid).data;
       } else {
         return uuid.data;
       }
     },
-    /**
-     * 根据uuid获取单个规则的存储数据的值
-     * @param uuid
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    getRuleDataValue(uuid, key, defaultValue) {
+getRuleDataValue(uuid, key, defaultValue) {
       let ruleData = this.getRuleData(uuid);
       return (ruleData && Reflect.get(ruleData, key)) ?? defaultValue;
     },
-    /**
-     * 更新单个规则
-     * @param rule
-     */
-    updateRule(rule) {
+updateRule(rule) {
       let allRule = this.getAllRule();
       let flag = false;
       for (let index = 0; index < allRule.length; index++) {
@@ -22484,11 +20018,7 @@
       }
       return flag;
     },
-    /**
-     * 删除单个规则
-     * @param uuid 整个规则或者规则的uuid
-     */
-    deleteRule(uuid) {
+deleteRule(uuid) {
       let allRule = this.getAllRule();
       let flag = false;
       let needDeleteRuleUUID = typeof uuid === "string" ? uuid : uuid.uuid;
@@ -22512,25 +20042,14 @@
       }
       return flag;
     },
-    /**
-     * 清空所有规则
-     */
-    deleteAllRule() {
+deleteAllRule() {
       WebsiteRuleStorageApi.delete(this.$data.STORAGE_KEY);
     },
-    /**
-     * 获取所有规则
-     */
-    getAllRule() {
+getAllRule() {
       let allRule = WebsiteRuleStorageApi.get(this.$data.STORAGE_KEY, []);
       return allRule;
     },
-    /**
-     * 根据url获取匹配的规则
-     * @param [filterUnEnable=true] 是否过滤未启用的规则
-     * @param [url=window.location.href] 需要匹配的url
-     */
-    getUrlMatchedRule(filterUnEnable = true, url = window.location.href) {
+getUrlMatchedRule(filterUnEnable = true, url = window.location.href) {
       let allRule = this.getAllRule();
       let allSubscribeRule = WebsiteSubscribeRule.getAllSubscribeRule(true);
       allRule = allRule.concat(allSubscribeRule);
@@ -22547,10 +20066,7 @@
       });
       return matchedRule;
     },
-    /**
-     * 导出规则
-     */
-    exportRule(fileName = "rule.json", subscribeFileName = "rule-subscribe.json") {
+exportRule(fileName = "rule.json", subscribeFileName = "rule-subscribe.json") {
       let $alert = NetDiskPops.alert({
         title: {
           text: "请选择导出方式",
@@ -22558,8 +20074,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                     <div class="btn-control" data-mode="only-export-rule-list">导出规则</div>
                     <div class="btn-control" data-mode="export-to-subscribe">导出订阅规则</div>
                 `
@@ -22580,8 +20095,7 @@
         width: PanelUISize.info.width,
         height: PanelUISize.info.height,
         style: (
-          /*css*/
-          `
+`
                 .btn-control{
                     display: inline-block;
                     margin: 10px;
@@ -22678,8 +20192,7 @@
             },
             content: {
               text: (
-                /*html*/
-                `
+`
 							
 						`
               ),
@@ -22707,8 +20220,7 @@
             width: PanelUISize.info.width,
             height: PanelUISize.info.height,
             style: (
-              /*css*/
-              `
+`
 						${__pops.config.cssText.panelCSS}
 
 						.pops-alert-content li{
@@ -22740,11 +20252,7 @@
         }
       });
     },
-    /**
-     * 导入规则
-     * @param importEndCallBack 导入完毕后的回调
-     */
-    importRule(importEndCallBack) {
+importRule(importEndCallBack) {
       let $alert = NetDiskPops.alert({
         title: {
           text: "请选择导入方式",
@@ -22752,8 +20260,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                     <div class="btn-control" data-mode="local">本地导入</div>
                     <div class="btn-control" data-mode="network">网络导入</div>
                     <div class="btn-control" data-mode="clipboard">剪贴板导入</div>
@@ -22775,8 +20282,7 @@
         width: PanelUISize.info.width,
         height: PanelUISize.info.height,
         style: (
-          /*css*/
-          `
+`
                 .btn-control{
                     display: inline-block;
                     margin: 10px;
@@ -22964,20 +20470,16 @@
   };
   const GenerateProxyStorage = function(key, defaultValue, proxyValueCallBack) {
     return {
-      /** 键名 */
-      KEY: key,
-      /** 默认值 */
-      default: defaultValue,
-      /** 获取值 */
-      get value() {
+KEY: key,
+default: defaultValue,
+get value() {
         let currentValue = _GM_getValue(key, defaultValue);
         if (typeof proxyValueCallBack === "function") {
           return proxyValueCallBack(key, currentValue, defaultValue);
         }
         return currentValue;
       },
-      /** 设置值 */
-      set value(newValue) {
+set value(newValue) {
         _GM_setValue(key, newValue);
       }
     };
@@ -22986,214 +20488,122 @@
     return GenerateProxyStorage(key, defaultValue, WebsiteProxyGlobalValue);
   };
   const NetDiskGlobalData = {
-    /** Toast */
-    toast: {
-      /** 位置 */
-      position: GeneratePanelStorage("qmsg-config-position", "top"),
-      /** 同时最多显示的数量 */
-      maxnums: GeneratePanelStorage("qmsg-config-maxnums", 3),
-      /** 逆序弹出 */
-      showreverse: GeneratePanelStorage("qmsg-config-showreverse", true)
+toast: {
+position: GeneratePanelStorage("qmsg-config-position", "top"),
+maxnums: GeneratePanelStorage("qmsg-config-maxnums", 3),
+showreverse: GeneratePanelStorage("qmsg-config-showreverse", true)
     },
-    /** 弹窗 */
-    pops: {
-      /** 动画 */
-      popsAnimation: GeneratePanelStorage("popsAnimation", "pops-anim-fadein-zoom"),
-      /** 点击弹窗遮罩层是否可以关闭弹窗 */
-      clickMaskToCloseDialog: GeneratePanelStorage("clickMaskToCloseDialog", true),
-      /** 窗口拖拽 */
-      pcDrag: GeneratePanelStorage("pcDrag", true),
-      /** 限制拖拽距离 */
-      pcDragLimit: GeneratePanelStorage("pcDragLimit", true),
-      /** 亚克力效果 */
-      popsAcrylic: GeneratePanelStorage("popsAcrylic", false)
+pops: {
+popsAnimation: GeneratePanelStorage("popsAnimation", "pops-anim-fadein-zoom"),
+clickMaskToCloseDialog: GeneratePanelStorage("clickMaskToCloseDialog", true),
+pcDrag: GeneratePanelStorage("pcDrag", true),
+pcDragLimit: GeneratePanelStorage("pcDragLimit", true),
+popsAcrylic: GeneratePanelStorage("popsAcrylic", false)
     },
-    /** 文件弹窗 */
-    popsFolder: {
-      /** 排序名 */
-      "pops-folder-sort-name": GeneratePanelStorage(
+popsFolder: {
+"pops-folder-sort-name": GeneratePanelStorage(
         "pops-folder-sort-name",
         "fileName"
       ),
-      /** 排序规则 */
-      "pops-folder-sort-is-desc": GeneratePanelStorage("pops-folder-sort-is-desc", false)
+"pops-folder-sort-is-desc": GeneratePanelStorage("pops-folder-sort-is-desc", false)
     },
-    /** 小图标导航 */
-    smallIconNavgiator: {
-      /** 点击定位分享码 */
-      "pops-netdisk-icon-click-event-find-sharecode": GeneratePanelStorage(
+smallIconNavgiator: {
+"pops-netdisk-icon-click-event-find-sharecode": GeneratePanelStorage(
         "pops-netdisk-icon-click-event-find-sharecode",
         true
       ),
-      /** 选中分享码 */
-      "pops-netdisk-icon-click-event-find-sharecode-with-select": GeneratePanelStorage(
+"pops-netdisk-icon-click-event-find-sharecode-with-select": GeneratePanelStorage(
         "pops-netdisk-icon-click-event-find-sharecode-with-select",
         true
       ),
-      /** 循环定位 */
-      "pops-netdisk-icon-click-event-loop-find-sharecode": GeneratePanelStorage(
+"pops-netdisk-icon-click-event-loop-find-sharecode": GeneratePanelStorage(
         "pops-netdisk-icon-click-event-loop-find-sharecode",
         true
       )
     },
-    /** 悬浮按钮 */
-    suspension: {
-      /** 大小 */
-      size: GeneratePanelStorage("size", 50),
-      /** 透明度 */
-      opacity: GeneratePanelStorage("opacity", 1),
-      /** 背景轮播时间 */
-      "randbg-time": GeneratePanelStorage("randbg-time", 1500),
-      /** 背景显示时间 */
-      "randbg-show-time": GeneratePanelStorage("randbg-show-time", 1200),
-      /** 吸附边缘 */
-      "suspended-button-adsorption-edge": GeneratePanelStorage("suspended-button-adsorption-edge", false),
-      /** z-index层级 */
-      "suspended-z-index": GeneratePanelStorage("suspended-z-index", -1)
+suspension: {
+size: GeneratePanelStorage("size", 50),
+opacity: GeneratePanelStorage("opacity", 1),
+"randbg-time": GeneratePanelStorage("randbg-time", 1500),
+"randbg-show-time": GeneratePanelStorage("randbg-show-time", 1200),
+"suspended-button-adsorption-edge": GeneratePanelStorage("suspended-button-adsorption-edge", false),
+"suspended-z-index": GeneratePanelStorage("suspended-z-index", -1)
     },
-    /** 小窗模式 */
-    smallWindow: {
-      /** 宽度 */
-      "netdisk-ui-small-window-width": GeneratePanelStorage("netdisk-ui-small-window-width", 250),
-      /** 高度 */
-      "netdisk-ui-small-window-max-height": GeneratePanelStorage("netdisk-ui-small-window-max-height", 200),
-      /** z-index */
-      "netdisk-link-view-z-index": GeneratePanelStorage("netdisk-link-view-z-index", -1)
+smallWindow: {
+"netdisk-ui-small-window-width": GeneratePanelStorage("netdisk-ui-small-window-width", 250),
+"netdisk-ui-small-window-max-height": GeneratePanelStorage("netdisk-ui-small-window-max-height", 200),
+"netdisk-link-view-z-index": GeneratePanelStorage("netdisk-link-view-z-index", -1)
     },
-    /** 历史匹配记录 */
-    historyMatch: {
-      /** 保存匹配记录 */
-      saveMatchNetDisk: GeneratePanelStorage("saveMatchNetDisk", false),
-      /** 排序规则 */
-      "netdisk-history-match-ordering-rule": GeneratePanelStorage(
+historyMatch: {
+saveMatchNetDisk: GeneratePanelStorage("saveMatchNetDisk", false),
+"netdisk-history-match-ordering-rule": GeneratePanelStorage(
         "netdisk-history-match-ordering-rule",
         "按 更新时间 - 降序"
       ),
-      /** 合并相同链接 */
-      "netdisk-history-match-merge-same-link": GeneratePanelStorage(
+"netdisk-history-match-merge-same-link": GeneratePanelStorage(
         "netdisk-history-match-merge-same-link",
         true
       )
     },
-    /** 匹配设置 */
-    match: {
-      /** 匹配类型 */
-      pageMatchRange: GeneratePanelStorage("pageMatchRange", [
+match: {
+pageMatchRange: GeneratePanelStorage("pageMatchRange", [
         "innerText",
         "innerHTML"
       ]),
-      /** 深入ShadowRoot获取匹配文本 */
-      depthQueryWithShadowRoot: GeneratePanelStorage("depthQueryWithShadowRoot", false),
-      /** 匹配剪贴板 */
-      readClipboard: GeneratePanelStorage("readClipboard", false),
-      /** 匹配当前URL */
-      allowMatchLocationHref: GeneratePanelStorage("allowMatchLocationHref", true),
-      /** 匹配input标签的内容 */
-      toBeMatchedWithInputElementValue: GeneratePanelStorage("to-be-matched-inputElementValue", false),
-      /** 匹配textarea标签的内容 */
-      toBeMatchedTextAreaElementValue: GeneratePanelStorage("to-be-matched-textAreaElementValue", false),
-      /** 匹配网络请求的内容 */
-      toBeMatchedXhrHookResponseText: GeneratePanelStorage("to-be-matched-xhrHookResponseText", false),
-      /** 匹配间隔 */
-      delaytime: GeneratePanelStorage("delaytime", 0.8),
-      /** 添加元素时进行匹配 */
-      isAddedNodesToMatch: GeneratePanelStorage("isAddedNodesToMatch", false),
-      /** 观察器：childList */
-      "mutationObserver-childList": GeneratePanelStorage("mutationObserver-childList", true),
-      /** 观察器：characterData */
-      "mutationObserver-characterData": GeneratePanelStorage("mutationObserver-characterData", true),
-      /** 观察器：subtree */
-      "mutationObserver-subtree": GeneratePanelStorage("mutationObserver-subtree", true)
+depthQueryWithShadowRoot: GeneratePanelStorage("depthQueryWithShadowRoot", false),
+readClipboard: GeneratePanelStorage("readClipboard", false),
+allowMatchLocationHref: GeneratePanelStorage("allowMatchLocationHref", true),
+toBeMatchedWithInputElementValue: GeneratePanelStorage("to-be-matched-inputElementValue", false),
+toBeMatchedTextAreaElementValue: GeneratePanelStorage("to-be-matched-textAreaElementValue", false),
+toBeMatchedXhrHookResponseText: GeneratePanelStorage("to-be-matched-xhrHookResponseText", false),
+delaytime: GeneratePanelStorage("delaytime", 0.8),
+isAddedNodesToMatch: GeneratePanelStorage("isAddedNodesToMatch", false),
+"mutationObserver-childList": GeneratePanelStorage("mutationObserver-childList", true),
+"mutationObserver-characterData": GeneratePanelStorage("mutationObserver-characterData", true),
+"mutationObserver-subtree": GeneratePanelStorage("mutationObserver-subtree", true)
     },
-    /** 功能 */
-    features: {
-      /** 匹配模式 */
-      "netdisk-match-mode": GeneratePanelStorage(
+features: {
+"netdisk-match-mode": GeneratePanelStorage(
         "netdisk-match-mode",
         "MutationObserver"
       ),
-      /** 行为模式 */
-      "netdisk-behavior-mode": GeneratePanelStorage(
+"netdisk-behavior-mode": GeneratePanelStorage(
         "netdisk-behavior-mode",
         "suspension_smallwindow"
       ),
-      /** 自动填充访问码 */
-      autoFillAccessCode: GeneratePanelStorage("autoFillAccessCode", true)
+autoFillAccessCode: GeneratePanelStorage("autoFillAccessCode", true)
     },
-    /** 分享码相关 */
-    shareCode: {
-      /** 相同系数 */
-      excludeIdenticalSharedCodesCoefficient: GeneratePanelStorage("excludeIdenticalSharedCodesCoefficient", 1),
-      /** 排除分享码 */
-      excludeIdenticalSharedCodes: GeneratePanelStorage("excludeIdenticalSharedCodes", false)
+shareCode: {
+excludeIdenticalSharedCodesCoefficient: GeneratePanelStorage("excludeIdenticalSharedCodesCoefficient", 1),
+excludeIdenticalSharedCodes: GeneratePanelStorage("excludeIdenticalSharedCodes", false)
     },
-    /** 访问码 */
-    accessCode: {
-      /** 允许查询历史匹配记录 */
-      allowQueryHistoryMatchingAccessCode: GeneratePanelStorage("allowQueryHistoryMatchingAccessCode", true)
+accessCode: {
+allowQueryHistoryMatchingAccessCode: GeneratePanelStorage("allowQueryHistoryMatchingAccessCode", true)
     }
   };
   const NetDisk = {
     $data: {
-      /**
-       * 是否成功匹配到链接
-       */
-      isMatchedLink: false,
-      /**
-       * 剪贴板内容
-       */
-      clipboardText: ""
+isMatchedLink: false,
+clipboardText: ""
     },
-    /** 匹配信息 */
-    $match: {
-      /**
-       * 匹配到的链接信息
-       *
-       * Worker识别规则 -> 存储识别到的信息（访问码|分享码|规则下标...）
-       */
-      matchedInfo: new Utils.Dictionary(),
-      /**
-       * 黑名单-识别到的信息
-       *
-       * 如果Worker识别到的信息能在这里面找到对应的shareCode，则不会被识别
-       */
-      blackMatchedInfo: new Utils.Dictionary(),
-      /**
-       * （临时）链接字典
-       */
-      tempMatchedInfo: new Utils.Dictionary(),
-      /**
-       * 用于存储已匹配到的网盘规则名
-       * 只有单独的名
-       */
-      matchedInfoRuleKey: /* @__PURE__ */ new Set()
+$match: {
+matchedInfo: new Utils.Dictionary(),
+blackMatchedInfo: new Utils.Dictionary(),
+tempMatchedInfo: new Utils.Dictionary(),
+matchedInfoRuleKey: new Set()
     },
-    /** 规则 */
-    $rule: {
-      /** 执行匹配本文的规则 */
-      ruleOption: {},
-      /** 各个规则的设置项 */
-      ruleSetting: {},
-      /** 各个规则 */
-      rule: []
+$rule: {
+ruleOption: {},
+ruleSetting: {},
+rule: []
     },
-    /** 额外规则，用于辅助处理 */
-    $extraRule: {
-      /**
-       * 使用该正则判断提取到的shareCode是否正确
-       */
-      shareCodeNotMatchRegExpList: [
+$extraRule: {
+shareCodeNotMatchRegExpList: [
         /vipstyle|notexist|ajax|file|download|ptqrshow|xy-privacy/g,
         /comp|web|undefined|1125|unproved|console|account|favicon|setc/g
       ],
-      /**
-       * 使用该正则判断提取到的accessCode是否正确
-       */
-      accessCodeNotMatchRegExpList: [/^(font|http)/gi],
-      /**
-       * 访问码需要去除的正则匹配规则
-       */
-      accessCodeNeedRemoveStr: [
+accessCodeNotMatchRegExpList: [/^(font|http)/gi],
+accessCodeNeedRemoveStr: [
         "：",
         " ",
         ":",
@@ -23206,10 +20616,7 @@
         "?p=",
         "访问码"
       ],
-      /**
-       * 当没有accessCode时，使用该正则去除不需要的字符串
-       */
-      noAccessCodeRegExp: [
+noAccessCodeRegExp: [
         /( |提取码:|\n密码：)/gi,
         /{#accessCode#}/gi,
         /{#encodeURI-accessCode#}|{#encodeURIComponent-accessCode#}/gi,
@@ -23217,16 +20624,10 @@
         /(\?pwd=|&pwd=|\?password=|\?p=)/gi
       ]
     },
-    /**
-     * 初始化
-     */
-    init() {
+init() {
       this.initLinkDict();
     },
-    /**
-     * 初始化字典
-     */
-    initLinkDict() {
+initLinkDict() {
       Object.keys(this.$rule.ruleOption).forEach((ruleKeyName) => {
         this.$match.matchedInfo.set(ruleKeyName, new utils.Dictionary());
         this.$match.blackMatchedInfo.set(ruleKeyName, new utils.Dictionary());
@@ -23273,13 +20674,7 @@
         });
       }
     },
-    /**
-     * 处理链接，将匹配到的链接转为参数和密码存入字典中
-     * @param ruleKeyName 规则键名
-     * @param ruleIndex 规则的索引下标
-     * @param matchText 正在进行匹配的文本
-     */
-    handleLink(handlerConfig) {
+handleLink(handlerConfig) {
       let shareCode = this.handleShareCode(handlerConfig);
       if (utils.isNull(shareCode)) {
         return;
@@ -23294,11 +20689,7 @@
         accessCode
       };
     },
-    /**
-     * 对传入的url进行处理，返回shareCode
-     * @param handlerConfig 配置
-     */
-    handleShareCode(handlerConfig) {
+handleShareCode(handlerConfig) {
       let ruleConfig = handlerConfig?.debugConfig?.config ?? this.$rule.ruleOption[handlerConfig.ruleKeyName][handlerConfig.ruleIndex];
       let shareCodeMatch = handlerConfig.matchText.match(ruleConfig.shareCode)?.filter((item) => utils.isNotNull(item));
       handlerConfig.debugConfig?.logCallBack?.({
@@ -23393,12 +20784,7 @@
       });
       return shareCode;
     },
-    /**
-     * 对传入的url进行处理，返回accessCode
-     * @param handlerConfig 配置
-     * @returns "xxxx" || ""
-     */
-    handleAccessCode(handlerConfig) {
+handleAccessCode(handlerConfig) {
       let ruleConfig = handlerConfig.debugConfig?.config ?? this.$rule.ruleOption[handlerConfig.ruleKeyName][handlerConfig.ruleIndex];
       let accessCode = "";
       if (!ruleConfig.checkAccessCode) {
@@ -23514,11 +20900,7 @@
       });
       return accessCode;
     },
-    /**
-     * 对accessCode二次处理，使用自定义的访问码规则
-     * @param handlerConfig 配置
-     */
-    handleAccessCodeByUserRule(handlerConfig) {
+handleAccessCodeByUserRule(handlerConfig) {
       let ruleConfigList = WebsiteRule.getUrlMatchedRule();
       let result = handlerConfig.accessCode;
       for (let index = 0; index < ruleConfigList.length; index++) {
@@ -23539,11 +20921,7 @@
       }
       return result;
     },
-    /**
-     * 获取在弹窗中显示出的链接
-     * @param handlerConfig 配置
-     */
-    handleLinkShow(handlerConfig) {
+handleLinkShow(handlerConfig) {
       let checkFlag = handlerConfig.debugConfig?.config ? true : this.checkHasRuleOption(handlerConfig.ruleKeyName, handlerConfig.ruleIndex);
       if (!checkFlag) {
         log.error(`BUG: ${handlerConfig.ruleKeyName}不存在，分析参数`, handlerConfig);
@@ -23616,14 +20994,7 @@
       });
       return uiLink;
     },
-    /**
-     *生成链接的存储的对象
-     * @param accessCode 访问码
-     * @param [ruleIndex=0] 规则的索引下标，默认为0
-     * @param isForceAccessCode 是否锁定访问码不允许修改，默认false
-     * @param matchText 匹配到的文本
-     */
-    createLinkStorageInst(accessCode, ruleIndex = 0, isForceAccessCode = false, matchText) {
+createLinkStorageInst(accessCode, ruleIndex = 0, isForceAccessCode = false, matchText) {
       return {
         accessCode,
         ruleIndex,
@@ -23631,10 +21002,7 @@
         matchText
       };
     },
-    /**
-     * 判断规则是否存在
-     */
-    checkHasRuleOption(ruleKeyName, ruleIndex) {
+checkHasRuleOption(ruleKeyName, ruleIndex) {
       let ruleConfig = NetDisk.$rule.ruleOption?.[ruleKeyName];
       if (!Array.isArray(ruleConfig)) {
         return false;
@@ -23648,62 +21016,36 @@
     }
   };
   class ShortCut {
-    /** 存储的键 */
-    key = "short-cut";
-    /** 配置 */
-    $data;
-    /** 是否存在等待按下的按键 */
-    isWaitPress = false;
-    /**
-     * 当前等待按下的按键实例
-     */
-    currentWaitEnterPressInstanceHandler = null;
+key = "short-cut";
+$data;
+isWaitPress = false;
+currentWaitEnterPressInstanceHandler = null;
     constructor(key) {
       if (typeof key === "string") {
         this.key = key;
       }
       this.$data = {
-        /**
-         * 其它实例的快捷键的配置
-         *
-         * 这里一般是用于在录入快捷键时判断是否存在重复的快捷键
-         */
-        otherShortCutOptions: []
+otherShortCutOptions: []
       };
     }
-    /**
-     * 初始化配置默认值
-     */
-    initConfig(key, option) {
+initConfig(key, option) {
       if (this.hasOption(key)) ;
       else {
         this.setOption(key, option);
       }
     }
-    /** 获取存储的键 */
-    getStorageKey() {
+getStorageKey() {
       return this.key;
     }
-    /**
-     * 获取本地存储的所有值
-     */
-    getLocalAllOptions() {
+getLocalAllOptions() {
       return _GM_getValue(this.key, []);
     }
-    /**
-     * 判断是否存在该配置
-     * @param key 键
-     */
-    hasOption(key) {
+hasOption(key) {
       let localOptions = this.getLocalAllOptions();
       let findOption = localOptions.find((item) => item.key === key);
       return !!findOption;
     }
-    /**
-     * 判断是否存在该配置的value值
-     * @param key 键
-     */
-    hasOptionValue(key) {
+hasOptionValue(key) {
       if (this.hasOption(key)) {
         let option = this.getOption(key);
         return !(option?.value == null);
@@ -23711,22 +21053,12 @@
         return false;
       }
     }
-    /**
-     * 获取配置
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    getOption(key, defaultValue) {
+getOption(key, defaultValue) {
       let localOptions = this.getLocalAllOptions();
       let findOption = localOptions.find((item) => item.key === key);
       return findOption ?? defaultValue;
     }
-    /**
-     * 设置配置
-     * @param key 键
-     * @param value 配置
-     */
-    setOption(key, value) {
+setOption(key, value) {
       let localOptions = this.getLocalAllOptions();
       let findIndex = localOptions.findIndex((item) => item.key === key);
       if (findIndex == -1) {
@@ -23739,11 +21071,7 @@
       }
       _GM_setValue(this.key, localOptions);
     }
-    /**
-     * 清空当前已有配置录入的值
-     * @param key
-     */
-    emptyOption(key) {
+emptyOption(key) {
       let result = false;
       let localOptions = this.getLocalAllOptions();
       let findIndex = localOptions.findIndex((item) => item.key === key);
@@ -23754,11 +21082,7 @@
       _GM_setValue(this.key, localOptions);
       return result;
     }
-    /**
-     * 删除配置
-     * @param key 键
-     */
-    deleteOption(key) {
+deleteOption(key) {
       let result = false;
       let localValue = this.getLocalAllOptions();
       let findValueIndex = localValue.findIndex((item) => item.key === key);
@@ -23769,11 +21093,7 @@
       _GM_setValue(this.key, localValue);
       return result;
     }
-    /**
-     * 把配置的快捷键转成文字
-     * @param keyboardValue
-     */
-    translateKeyboardValueToButtonText(keyboardValue) {
+translateKeyboardValueToButtonText(keyboardValue) {
       let result = "";
       keyboardValue.ohterCodeList.forEach((ohterCodeKey) => {
         result += utils.stringTitleToUpperCase(ohterCodeKey, true) + " + ";
@@ -23781,12 +21101,7 @@
       result += utils.stringTitleToUpperCase(keyboardValue.keyName);
       return result;
     }
-    /**
-     * 获取快捷键显示的文字
-     * @param key 本地存储的快捷键键名
-     * @param defaultShowText 默认显示的文字
-     */
-    getShowText(key, defaultShowText) {
+getShowText(key, defaultShowText) {
       if (this.hasOption(key)) {
         let localOption = this.getOption(key);
         if (localOption.value == null) {
@@ -23798,11 +21113,7 @@
         return defaultShowText;
       }
     }
-    /**
-     * 录入快捷键
-     * @param key 本地存储的快捷键键名
-     */
-    async enterShortcutKeys(key) {
+async enterShortcutKeys(key) {
       const that = this;
       return new Promise((resolve) => {
         this.isWaitPress = true;
@@ -23869,20 +21180,12 @@
         };
       });
     }
-    /**
-     * 取消当前的录入快捷键操作
-     */
-    cancelEnterShortcutKeys() {
+cancelEnterShortcutKeys() {
       if (typeof this.currentWaitEnterPressInstanceHandler === "function") {
         this.currentWaitEnterPressInstanceHandler();
       }
     }
-    /**
-     * 初始化全局键盘监听
-     * @param shortCutOption 快捷键配置 一般是{ "键名": { callback: ()=>{}}}，键名是本地存储的自定义快捷键的键名
-     * @param config 配置
-     */
-    initGlobalKeyboardListener(shortCutOption, config) {
+initGlobalKeyboardListener(shortCutOption, config) {
       let localOptions = this.getLocalAllOptions();
       if (!localOptions.length) {
         log.warn("没有设置快捷键");
@@ -24027,8 +21330,7 @@
               characterMapping: [],
               textList: [text, html],
               matchTextRange: NetDiskGlobalData.match.pageMatchRange.value,
-              // 剪贴板匹配的话直接使用全部规则来进行匹配
-              matchedRuleOption: NetDisk.$rule.ruleOption,
+matchedRuleOption: NetDisk.$rule.ruleOption,
               startTime: Date.now(),
               from: "ShortCut-Select-Content"
             });

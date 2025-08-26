@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.21
+// @version      2025.8.27
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、用户状态查看、美化导航、动态头像上传、最新发表、评论过滤器等
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://bbs.binmt.cc/*
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js
@@ -36,25 +36,21 @@
 (function (Qmsg, DOMUtils, Utils, pops, hljs, Viewer) {
   'use strict';
 
-  const o=new Set;const importCSS = async t=>{o.has(t)||o.add(t);};
+  const a=new Set;const importCSS = async t=>{a.has(t)||(a.add(t),(n=>{function r(d){let e=document.createElement("style");if(e.setAttribute("type","text/css"),e.setAttribute("data-type","gm-css"),globalThis.trustedTypes){const l=globalThis.trustedTypes.createPolicy("safe-innerHTML",{createHTML:i=>i});e.innerHTML=l.createHTML(d);}else e.innerHTML=d;return (document.head||document.documentElement).appendChild(e),e}if(typeof GM_addStyle=="function"){GM_addStyle(n);return}r(n);})(t));};
 
-  var _GM = /* @__PURE__ */ (() => typeof GM != "undefined" ? GM : void 0)();
-  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
-  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
-  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
-  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
-  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
-  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
-  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
-  var _monkeyWindow = /* @__PURE__ */ (() => window)();
+  var _GM = (() => typeof GM != "undefined" ? GM : void 0)();
+  var _GM_deleteValue = (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
+  var _GM_getResourceText = (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
+  var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
+  var _GM_info = (() => typeof GM_info != "undefined" ? GM_info : void 0)();
+  var _GM_registerMenuCommand = (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_setValue = (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
+  var _GM_unregisterMenuCommand = (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
+  var _unsafeWindow = (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
+  var _monkeyWindow = (() => window)();
   const CommonUtil = {
-    /**
-     * 移除元素（未出现也可以等待出现）
-     * @param selector 元素选择器
-     */
-    waitRemove(...args) {
+waitRemove(...args) {
       args.forEach((selector) => {
         if (typeof selector !== "string") {
           return;
@@ -64,15 +60,7 @@
         });
       });
     },
-    /**
-     * 添加屏蔽CSS
-     * @param args
-     * @example
-     * addBlockCSS("")
-     * addBlockCSS("","")
-     * addBlockCSS(["",""])
-     */
-    addBlockCSS(...args) {
+addBlockCSS(...args) {
       let selectorList = [];
       if (args.length === 0) {
         return;
@@ -89,16 +77,7 @@
       });
       return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
-    /**
-     * 设置GM_getResourceText的style内容
-     * @param resourceMapData 资源数据
-     * @example
-     * setGMResourceCSS({
-     *   keyName: "ViewerCSS",
-     *   url: "https://example.com/example.css",
-     * })
-     */
-    setGMResourceCSS(resourceMapData) {
+setGMResourceCSS(resourceMapData) {
       let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
       if (typeof cssText === "string" && cssText) {
         addStyle(cssText);
@@ -106,13 +85,7 @@
         CommonUtil.loadStyleLink(resourceMapData.url);
       }
     },
-    /**
-     * 添加<link>标签
-     * @param url
-     * @example
-     * loadStyleLink("https://example.com/example.css")
-     */
-    async loadStyleLink(url) {
+async loadStyleLink(url) {
       let $link = document.createElement("link");
       $link.rel = "stylesheet";
       $link.type = "text/css";
@@ -121,13 +94,7 @@
         document.head.appendChild($link);
       });
     },
-    /**
-     * 添加<script>标签
-     * @param url
-     * @example
-     * loadStyleLink("https://example.com/example.js")
-     */
-    async loadScript(url) {
+async loadScript(url) {
       let $script = document.createElement("script");
       $script.src = url;
       return new Promise((resolve) => {
@@ -137,25 +104,7 @@
         (document.head || document.documentElement).appendChild($script);
       });
     },
-    /**
-     * 将url修复，例如只有search的链接修复为完整的链接
-     *
-     * 注意：不包括http转https
-     * @param url 需要修复的链接
-     * @example
-     * 修复前：`/xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`//xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     */
-    fixUrl(url) {
+fixUrl(url) {
       url = url.trim();
       if (url.match(/^http(s|):\/\//i)) {
         return url;
@@ -173,17 +122,7 @@
         return url;
       }
     },
-    /**
-     * http转https
-     * @param url 需要修复的链接
-     * @example
-     * 修复前：
-     * 修复后：
-     * @example
-     * 修复前：
-     * 修复后：
-     */
-    fixHttps(url) {
+fixHttps(url) {
       if (url.startsWith("https://")) {
         return url;
       }
@@ -194,17 +133,10 @@
       urlInstance.protocol = "https:";
       return urlInstance.toString();
     },
-    /**
-     * 禁止页面滚动，默认锁定html和body
-     * @example
-     * lockScroll();
-     * @example
-     * lockScroll(document.body);
-     */
-    lockScroll(...args) {
+lockScroll(...args) {
       let $hidden = document.createElement("style");
-      $hidden.innerHTML = /*css*/
-      `
+      $hidden.innerHTML =
+`
 			.pops-overflow-hidden-important {
 				overflow: hidden !important;
 			}
@@ -215,10 +147,7 @@
       });
       (document.head || document.documentElement).appendChild($hidden);
       return {
-        /**
-         * 解除锁定
-         */
-        recovery() {
+recovery() {
           $elList.forEach(($el) => {
             $el.classList.remove("pops-overflow-hidden-important");
           });
@@ -226,10 +155,7 @@
         }
       };
     },
-    /**
-     * 获取剪贴板文本
-     */
-    async getClipboardText() {
+async getClipboardText() {
       function readClipboardText(resolve) {
         navigator.clipboard.readText().then((clipboardText) => {
           resolve(clipboardText);
@@ -240,8 +166,7 @@
       }
       function requestPermissionsWithClipboard(resolve) {
         navigator.permissions.query({
-          // @ts-ignore
-          name: "clipboard-read"
+name: "clipboard-read"
         }).then((permissionStatus) => {
           readClipboardText(resolve);
         }).catch((error) => {
@@ -278,20 +203,10 @@
         }
       });
     },
-    /**
-     * html转义
-     * @param unsafe
-     */
-    escapeHtml(unsafe) {
+escapeHtml(unsafe) {
       return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
     },
-    /**
-     * 在规定时间内循环，如果超时或返回false则取消循环
-     * @param fn 循环的函数
-     * @param intervalTime 循环间隔时间
-     * @param [timeout=5000] 循环超时时间
-     */
-    interval(fn, intervalTime, timeout = 5e3) {
+interval(fn, intervalTime, timeout = 5e3) {
       let timeId;
       let maxTimeout = timeout - intervalTime;
       let intervalTimeCount = intervalTime;
@@ -312,10 +227,7 @@
       };
       loop(false);
     },
-    /**
-     * 找到对应的上层元素
-     */
-    findParentNode($el, selector, parentSelector) {
+findParentNode($el, selector, parentSelector) {
       if (parentSelector) {
         let $parent = DOMUtils.closest($el, parentSelector);
         if ($parent) {
@@ -342,18 +254,15 @@
     }
   };
   const PanelSettingConfig = {
-    /** Toast位置 */
-    qmsg_config_position: {
+qmsg_config_position: {
       key: "qmsg-config-position",
       defaultValue: "bottom"
     },
-    /** 最多显示的数量 */
-    qmsg_config_maxnums: {
+qmsg_config_maxnums: {
       key: "qmsg-config-maxnums",
       defaultValue: 3
     },
-    /** 逆序弹出 */
-    qmsg_config_showreverse: {
+qmsg_config_showreverse: {
       key: "qmsg-config-showreverse",
       defaultValue: false
     }
@@ -431,10 +340,8 @@
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
     },
     mask: {
-      // 开启遮罩层
-      enable: true,
-      // 取消点击遮罩层的事件
-      clickEvent: {
+enable: true,
+clickEvent: {
         toClose: false,
         toHide: false
       }
@@ -491,10 +398,7 @@
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const PROPS_STORAGE_API = "data-storage-api";
   const PanelUISize = {
-    /**
-     * 一般设置界面的尺寸
-     */
-    setting: {
+setting: {
       get width() {
         if (window.innerWidth < 550) {
           return "88vw";
@@ -514,18 +418,12 @@
         }
       }
     },
-    /**
-     * 中等的设置界面
-     */
-    settingMiddle: {
+settingMiddle: {
       get width() {
         return window.innerWidth < 350 ? "88vw" : "350px";
       }
     },
-    /**
-     * 功能丰富，aside铺满了的设置界面，要稍微大一点
-     */
-    settingBig: {
+settingBig: {
       get width() {
         return window.innerWidth < 800 ? "92vw" : "800px";
       },
@@ -535,25 +433,9 @@
     }
   };
   class StorageUtils {
-    /** 存储的键名 */
-    storageKey;
+storageKey;
     listenerData;
-    /**
-     * 存储的键名，可以是多层的，如：a.b.c
-     *
-     * 那就是
-     * {
-     *  "a": {
-     *     "b": {
-     *       "c": {
-     *         ...你的数据
-     *       }
-     *     }
-     *   }
-     * }
-     * @param key
-     */
-    constructor(key) {
+constructor(key) {
       if (typeof key === "string") {
         let trimKey = key.trim();
         if (trimKey == "") {
@@ -565,10 +447,7 @@
       }
       this.listenerData = new Utils.Dictionary();
     }
-    /**
-     * 获取本地值
-     */
-    getLocalValue() {
+getLocalValue() {
       let localValue = _GM_getValue(this.storageKey);
       if (localValue == null) {
         localValue = {};
@@ -576,89 +455,49 @@
       }
       return localValue;
     }
-    /**
-     * 设置本地值
-     * @param value
-     */
-    setLocalValue(value) {
+setLocalValue(value) {
       _GM_setValue(this.storageKey, value);
     }
-    /**
-     * 设置值
-     * @param key 键
-     * @param value 值
-     */
-    set(key, value) {
+set(key, value) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, value);
     }
-    /**
-     * 获取值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    get(key, defaultValue) {
+get(key, defaultValue) {
       let localValue = this.getLocalValue();
       return Reflect.get(localValue, key) ?? defaultValue;
     }
-    /**
-     * 获取所有值
-     */
-    getAll() {
+getAll() {
       let localValue = this.getLocalValue();
       return localValue;
     }
-    /**
-     * 删除值
-     * @param key 键
-     */
-    delete(key) {
+delete(key) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, void 0);
     }
-    /**
-     * 判断是否存在该值
-     */
-    has(key) {
+has(key) {
       let localValue = this.getLocalValue();
       return Reflect.has(localValue, key);
     }
-    /**
-     * 获取所有键
-     */
-    keys() {
+keys() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue);
     }
-    /**
-     * 获取所有值
-     */
-    values() {
+values() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue).map(
         (key) => Reflect.get(localValue, key)
       );
     }
-    /**
-     * 清空所有值
-     */
-    clear() {
+clear() {
       _GM_deleteValue(this.storageKey);
     }
-    /**
-     * 监听值改变
-     * + .set
-     * + .delete
-     * @param key 监听的键
-     * @param callback 值改变的回调函数
-     */
-    addValueChangeListener(key, callback) {
+addValueChangeListener(key, callback) {
       let listenerId = Math.random();
       let listenerData = this.listenerData.get(key) || [];
       listenerData.push({
@@ -669,11 +508,7 @@
       this.listenerData.set(key, listenerData);
       return listenerId;
     }
-    /**
-     * 移除监听
-     * @param listenerId 监听的id或键名
-     */
-    removeValueChangeListener(listenerId) {
+removeValueChangeListener(listenerId) {
       let flag = false;
       for (const [key, listenerData] of this.listenerData.entries()) {
         for (let index = 0; index < listenerData.length; index++) {
@@ -688,13 +523,7 @@
       }
       return flag;
     }
-    /**
-     * 主动触发监听器
-     * @param key 键
-     * @param oldValue （可选）旧值
-     * @param newValue （可选）新值
-     */
-    triggerValueChangeListener(key, oldValue, newValue) {
+triggerValueChangeListener(key, oldValue, newValue) {
       if (!this.listenerData.has(key)) {
         return;
       }
@@ -723,10 +552,7 @@
   const PopsPanelStorageApi = new StorageUtils(KEY);
   const PanelContent = {
     $data: {
-      /**
-       * @private
-       */
-      __contentConfig: null,
+__contentConfig: null,
       get contentConfig() {
         if (this.__contentConfig == null) {
           this.__contentConfig = new utils.Dictionary();
@@ -734,36 +560,20 @@
         return this.__contentConfig;
       }
     },
-    /**
-     * 设置所有配置项，用于初始化默认的值
-     *
-     * 如果是第一组添加的话，那么它默认就是设置菜单打开的配置
-     * @param configList 配置项
-     */
-    addContentConfig(configList) {
+addContentConfig(configList) {
       if (!Array.isArray(configList)) {
         configList = [configList];
       }
       let index = this.$data.contentConfig.keys().length;
       this.$data.contentConfig.set(index, configList);
     },
-    /**
-     * 获取所有的配置内容，用于初始化默认的值
-     */
-    getAllContentConfig() {
+getAllContentConfig() {
       return this.$data.contentConfig.values().flat();
     },
-    /**
-     * 获取配置内容
-     * @param index 配置索引
-     */
-    getConfig(index = 0) {
+getConfig(index = 0) {
       return this.$data.contentConfig.get(index) ?? [];
     },
-    /**
-     * 获取默认左侧底部的配置项
-     */
-    getDefaultBottomContentConfig() {
+getDefaultBottomContentConfig() {
       return [
         {
           id: "script-version",
@@ -804,30 +614,19 @@
     init() {
       this.initExtensionsMenu();
     },
-    /**
-     * 初始化菜单项
-     */
-    initExtensionsMenu() {
+initExtensionsMenu() {
       if (!Panel.isTopWindow()) {
         return;
       }
       GM_Menu.add(this.$data.menuOption);
     },
-    /**
-     * 添加菜单项
-     * @param option 菜单配置
-     */
-    addMenuOption(option) {
+addMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
       this.$data.menuOption.push(...option);
     },
-    /**
-     * 更新菜单项
-     * @param option 菜单配置
-     */
-    updateMenuOption(option) {
+updateMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
@@ -840,115 +639,61 @@
         }
       });
     },
-    /**
-     * 获取菜单项
-     * @param [index=0] 索引
-     */
-    getMenuOption(index = 0) {
+getMenuOption(index = 0) {
       return this.$data.menuOption[index];
     },
-    /**
-     * 删除菜单项
-     * @param [index=0] 索引
-     */
-    deleteMenuOption(index = 0) {
+deleteMenuOption(index = 0) {
       this.$data.menuOption.splice(index, 1);
     }
   };
   const Panel = {
-    /** 数据 */
-    $data: {
-      /**
-       * @private
-       */
-      __contentConfigInitDefaultValue: null,
-      /**
-       * @private
-       */
-      __onceExecMenuData: null,
-      /**
-       * @private
-       */
-      __onceExecData: null,
-      /**
-       * @private
-       */
-      __panelConfig: {},
-      /**
-       * 面板
-       */
-      $panel: null,
-      /**
-       * 面板配置
-       */
-      panelContent: [],
-      /**
-       * 菜单项初始化的默认值
-       */
-      get contentConfigInitDefaultValue() {
+$data: {
+__contentConfigInitDefaultValue: null,
+__onceExecMenuData: null,
+__onceExecData: null,
+__panelConfig: {},
+$panel: null,
+panelContent: [],
+get contentConfigInitDefaultValue() {
         if (this.__contentConfigInitDefaultValue == null) {
           this.__contentConfigInitDefaultValue = new utils.Dictionary();
         }
         return this.__contentConfigInitDefaultValue;
       },
-      /**
-       * 菜单项初始化时禁用的键
-       */
-      contentConfigInitDisabledKeys: [],
-      /**
-       * 成功只执行了一次的菜单项
-       *
-       * + .exec
-       * + .execMenu
-       * + .execMenuOnce
-       */
-      get onceExecMenuData() {
+contentConfigInitDisabledKeys: [],
+get onceExecMenuData() {
         if (this.__onceExecMenuData == null) {
           this.__onceExecMenuData = new utils.Dictionary();
         }
         return this.__onceExecMenuData;
       },
-      /**
-       * 成功只执行了一次的项
-       *
-       * + .onceExec
-       */
-      get onceExecData() {
+get onceExecData() {
         if (this.__onceExecData == null) {
           this.__onceExecData = new utils.Dictionary();
         }
         return this.__onceExecData;
       },
-      /** 脚本名，一般用在设置的标题上 */
-      get scriptName() {
+get scriptName() {
         return SCRIPT_NAME;
       },
-      /**
-       * pops.panel的默认配置
-       */
-      get panelConfig() {
+get panelConfig() {
         return this.__panelConfig;
       },
       set panelConfig(value) {
         this.__panelConfig = value;
       },
-      /** 菜单项的总值在本地数据配置的键名 */
-      key: KEY,
-      /** 菜单项在attributes上配置的菜单键 */
-      attributeKeyName: ATTRIBUTE_KEY,
-      /** 菜单项在attributes上配置的菜单默认值 */
-      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
+key: KEY,
+attributeKeyName: ATTRIBUTE_KEY,
+attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
     },
     init() {
       this.initContentDefaultValue();
       PanelMenu.init();
     },
-    /** 判断是否是顶层窗口 */
-    isTopWindow() {
+isTopWindow() {
       return _unsafeWindow.top === _unsafeWindow.self;
     },
-    /** 初始化菜单项的默认值保存到本地数据中 */
-    initContentDefaultValue() {
+initContentDefaultValue() {
       const initDefaultValue = (config) => {
         if (!config.attributes) {
           return;
@@ -956,7 +701,7 @@
         if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
           return;
         }
-        let menuDefaultConfig = /* @__PURE__ */ new Map();
+        let menuDefaultConfig = new Map();
         let key = config.attributes[ATTRIBUTE_KEY];
         if (key != null) {
           const defaultValue = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
@@ -1012,31 +757,16 @@
       }
       this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
     },
-    /**
-     * 设置初始化使用的默认值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    setDefaultValue(key, defaultValue) {
+setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
         log.warn("请检查该key(已存在): " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
-    /**
-     * 设置值
-     * @param key 键
-     * @param value 值
-     */
-    setValue(key, value) {
+setValue(key, value) {
       PopsPanelStorageApi.set(key, value);
     },
-    /**
-     * 获取值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    getValue(key, defaultValue) {
+getValue(key, defaultValue) {
       let localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
         if (this.$data.contentConfigInitDefaultValue.has(key)) {
@@ -1046,66 +776,25 @@
       }
       return localValue;
     },
-    /**
-     * 删除值
-     * @param key 键
-     */
-    deleteValue(key) {
+deleteValue(key) {
       PopsPanelStorageApi.delete(key);
     },
-    /**
-     * 判断该键是否存在
-     * @param key 键
-     */
-    hasKey(key) {
+hasKey(key) {
       return PopsPanelStorageApi.has(key);
     },
-    /**
-     * 监听调用setValue、deleteValue
-     * @param key 需要监听的键
-     * @param callback
-     */
-    addValueChangeListener(key, callback) {
+addValueChangeListener(key, callback) {
       let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
         callback(key, __oldValue, __newValue);
       });
       return listenerId;
     },
-    /**
-     * 移除监听
-     * @param listenerId 监听的id
-     */
-    removeValueChangeListener(listenerId) {
+removeValueChangeListener(listenerId) {
       PopsPanelStorageApi.removeValueChangeListener(listenerId);
     },
-    /**
-     * 主动触发菜单值改变的回调
-     * @param key 菜单键
-     * @param newValue 想要触发的新值，默认使用当前值
-     * @param oldValue 想要触发的旧值，默认使用当前值
-     */
-    triggerMenuValueChange(key, newValue, oldValue) {
+triggerMenuValueChange(key, newValue, oldValue) {
       PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
     },
-    /**
-     * 执行菜单
-     *
-     * @param queryKey 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 执行的回调函数
-     * @param checkExec 判断是否执行回调
-     *
-     * （默认）如果想要每个菜单是`与`关系，即每个菜单都判断为开启，那么就判断它们的值&就行
-     *
-     * 如果想要任意菜单存在true再执行，那么判断它们的值|就行
-     *
-     * + 返回值都为`true`，执行回调，如果回调返回了<style>元素，该元素会在监听到值改变时被移除掉
-     * + 返回值有一个为`false`，则不执行回调，且移除之前回调函数返回的<style>元素
-     * @param once 是否只执行一次，默认true
-     *
-     * + true （默认）只执行一次，且会监听键的值改变
-     * + false 不会监听键的值改变
-     */
-    exec(queryKey, callback, checkExec, once = true) {
+exec(queryKey, callback, checkExec, once = true) {
       const that = this;
       let queryKeyFn;
       if (typeof queryKey === "string" || Array.isArray(queryKey)) {
@@ -1210,28 +899,15 @@
       });
       valueChangeCallback();
       let result = {
-        /**
-         * 清空菜单执行情况
-         *
-         * + 清空存储的元素列表
-         * + 清空值改变的监听器
-         * + 清空存储的一次执行的键
-         */
-        clear() {
+clear() {
           this.clearStoreStyleElements();
           this.removeValueChangeListener();
           once && that.$data.onceExecMenuData.delete(storageKey);
         },
-        /**
-         * 清空存储的元素列表
-         */
-        clearStoreStyleElements: () => {
+clearStoreStyleElements: () => {
           return clearBeforeStoreValue();
         },
-        /**
-         * 移除值改变的监听器
-         */
-        removeValueChangeListener: () => {
+removeValueChangeListener: () => {
           listenerIdList.forEach((listenerId) => {
             this.removeValueChangeListener(listenerId);
           });
@@ -1239,14 +915,7 @@
       };
       return result;
     },
-    /**
-     * 自动判断菜单是否启用，然后执行回调
-     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 回调
-     * @param isReverse 逆反判断菜单启用，默认false
-     * @param once 是否是只执行一次，默认false
-     */
-    execMenu(key, callback, isReverse = false, once = false) {
+execMenu(key, callback, isReverse = false, once = false) {
       return this.exec(
         key,
         (option) => {
@@ -1268,35 +937,15 @@
         once
       );
     },
-    /**
-     * 自动判断菜单是否启用，然后执行回调，只会执行一次
-     *
-     * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
-     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 回调
-     * @param isReverse 逆反判断菜单启用，默认false
-     */
-    execMenuOnce(key, callback, isReverse = false) {
+execMenuOnce(key, callback, isReverse = false) {
       return this.execMenu(key, callback, isReverse, true);
     },
-    /**
-     * 移除已执行的仅执行一次的菜单
-     * + .exec
-     * + .execMenu
-     * + .execMenuOnce
-     * @param key 键
-     */
-    deleteExecMenuOnce(key) {
+deleteExecMenuOnce(key) {
       this.$data.onceExecMenuData.delete(key);
       let flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
-    /**
-     * 根据key执行一次，该key不会和execMenu|exec|execMenuOnce已执行的key冲突
-     * @param key 键
-     * @param callback 回调
-     */
-    onceExec(key, callback) {
+onceExec(key, callback) {
       key = this.transformKey(key);
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
@@ -1307,23 +956,11 @@
       callback();
       this.$data.onceExecData.set(key, 1);
     },
-    /**
-     * 移除已执行的仅执行一次的菜单
-     * + .onceExec
-     * @param key 键
-     */
-    deleteOnceExec(key) {
+deleteOnceExec(key) {
       key = this.transformKey(key);
       this.$data.onceExecData.delete(key);
     },
-    /**
-     * 显示设置面板
-     * @param content 显示的内容配置
-     * @param [title] 标题
-     * @param [preventDefaultContentConfig=false] 是否阻止默认添加内容配置（版本号），默认false
-     * @param [preventRegisterSearchPlugin=false] 是否阻止默认添加搜索组件，默认false
-     */
-    showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
+showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
       this.$data.$panel = null;
       this.$data.panelContent = [];
       let checkHasBottomVersionContentConfig = content.findIndex((it) => {
@@ -1375,11 +1012,7 @@
         this.registerConfigSearch({ $panel, content });
       }
     },
-    /**
-     * 注册设置面板的搜索功能（双击左侧选项第一个）
-     * @param config 配置项
-     */
-    registerConfigSearch(config) {
+registerConfigSearch(config) {
       const { $panel, content } = config;
       let asyncQueryProperty = async (target, handler) => {
         if (target == null) {
@@ -1403,10 +1036,8 @@
           },
           {
             root: null,
-            // 使用视口作为根
-            threshold: 1
-            // 元素完全进入视口时触发
-          }
+threshold: 1
+}
         );
         observer.observe($el);
         $el.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1427,8 +1058,7 @@
           },
           content: {
             text: (
-              /*html*/
-              `
+`
 						<div class="search-wrapper">
 							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
 						</div>
@@ -1449,8 +1079,7 @@
           height: "auto",
           drag: true,
           style: (
-            /*css*/
-            `
+`
 					${__pops.config.cssText.panelCSS}
 
 					.search-wrapper{
@@ -1515,8 +1144,7 @@
           let $item = domUtils.createElement("div", {
             className: "search-result-item",
             innerHTML: (
-              /*html*/
-              `
+`
 							<div class="search-result-item-path">${searchPath.matchedData?.path}</div>
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
 						`
@@ -1738,13 +1366,14 @@
           timer = void 0;
           if (isDoubleClick && clickElement === selectorTarget) {
             isDoubleClick = false;
+            clickElement = null;
             dbclick_event(evt);
           } else {
             timer = setTimeout(() => {
               isDoubleClick = false;
             }, 200);
-            clickElement = selectorTarget;
             isDoubleClick = true;
+            clickElement = selectorTarget;
           }
         },
         {
@@ -1755,8 +1384,7 @@
         domUtils.createElement("style", {
           type: "text/css",
           textContent: (
-            /*css*/
-            `
+`
 					.pops-flashing{
 						animation: double-blink 1.5s ease-in-out;
 					}
@@ -1782,10 +1410,7 @@
         })
       );
     },
-    /**
-     * 把key:string[]转为string
-     */
-    transformKey(key) {
+transformKey(key) {
       if (Array.isArray(key)) {
         const keyArray = key.sort();
         return JSON.stringify(keyArray);
@@ -1907,26 +1532,15 @@
     drag: true
   });
   const MTRegExp = {
-    /** 论坛账号的凭证 */
-    formhash: /formhash=([0-9a-zA-Z]+)/,
-    /** 用户uid */
-    uid: /uid(=|-)(\d+)/,
-    /** 帖子内特殊字体格式 */
-    fontSpecial: /<font.*?>|<\/font>|<strike>|<strong>|<i>|<u>|align=".*?"|<br>[\s]*<br>[\s]*<br>/g
+formhash: /formhash=([0-9a-zA-Z]+)/,
+uid: /uid(=|-)(\d+)/,
+fontSpecial: /<font.*?>|<\/font>|<strike>|<strong>|<i>|<u>|align=".*?"|<br>[\s]*<br>[\s]*<br>/g
   };
   const MTUtils = {
-    /**
-     * 根据UID获取小|中|大头像
-     * @param uid
-     * @param size
-     */
-    getAvatar: (uid, size = "middle") => {
+getAvatar: (uid, size = "middle") => {
       return `/uc_server/avatar.php?uid=${uid}&size=${size}&ts=1`;
     },
-    /**
-     * 获取当前已登录的用户的uid
-     */
-    getCurrentUID() {
+getCurrentUID() {
       let discuz_uid = _unsafeWindow.discuz_uid;
       if (typeof discuz_uid === "string") {
         return discuz_uid;
@@ -1939,10 +1553,7 @@
         }
       }
     },
-    /**
-     * 获取账号的formhash
-     */
-    async getFormHash() {
+async getFormHash() {
       let $inputFormHashList = Array.from(
         (top || globalThis).document.querySelectorAll(
           "input[name=formhash]"
@@ -1990,22 +1601,14 @@
         log.error("请求个人主页获取formhash失败", homeResponse);
       }
     },
-    /**
-     * 检测环境模板
-     */
-    envIsMobile() {
+envIsMobile() {
       return (
-        // @ts-ignore
-        (_unsafeWindow.STYLEID || // @ts-ignore
-        window.STYLEID || // @ts-ignore
-        typeof STYLEID !== "undefined" && STYLEID) === "3"
+(_unsafeWindow.STYLEID ||
+window.STYLEID ||
+typeof STYLEID !== "undefined" && STYLEID) === "3"
       );
     },
-    /**
-     * 获取帖子id
-     * @param url
-     */
-    getThreadId: (url) => {
+getThreadId: (url) => {
       let urlMatch = url.match(/thread-([\d]+)-|&tid=([\d]+)/i);
       if (urlMatch) {
         let forumIdList = urlMatch.filter(Boolean);
@@ -2013,28 +1616,19 @@
         return forumId;
       }
     },
-    /**
-     * 获取板块？id
-     */
-    getForumId(url) {
+getForumId(url) {
       let urlMatch = url.match(/&fid=([\d]+)/i);
       if (urlMatch) {
         return urlMatch[urlMatch.length - 1];
       }
     },
-    /**
-     * 获取发布id
-     */
-    getPostId(url) {
+getPostId(url) {
       let urlMatch = url.match(/&pid=([\d]+)/i);
       if (urlMatch) {
         return urlMatch[urlMatch.length - 1];
       }
     },
-    /**
-     * 获取回复id
-     */
-    getRepquote(url) {
+getRepquote(url) {
       let urlMatch = url.match(/&repquote=([\d]+)/i);
       if (urlMatch) {
         return urlMatch[urlMatch.length - 1];
@@ -2048,10 +1642,7 @@
     init() {
       this.sign();
     },
-    /**
-     * 判断今日是否已签到
-     */
-    checkSignInfo() {
+checkSignInfo() {
       let signInfo = this.getSignInfo();
       let findValue = signInfo.find((it) => {
         return it.hostName === window.location.hostname;
@@ -2064,10 +1655,7 @@
       }
       return false;
     },
-    /**
-     * 设置签到信息
-     */
-    setSignInfo() {
+setSignInfo() {
       let signInfo = {
         hostName: window.location.hostname,
         time: Date.now()
@@ -2082,10 +1670,7 @@
       localSignInfo.push(signInfo);
       _GM_setValue(this.$key.sign, localSignInfo);
     },
-    /**
-     * 获取签到信息
-     */
-    getSignInfo() {
+getSignInfo() {
       let localSignInfo = _GM_getValue(this.$key.sign, []);
       if (!Array.isArray(localSignInfo)) {
         this.clearSignInfo();
@@ -2093,21 +1678,13 @@
       }
       return localSignInfo;
     },
-    /**
-     * 获取域名的签到信息
-     * @param hostName 域名
-     */
-    getHostNameSignInfo(hostName = window.location.hostname) {
+getHostNameSignInfo(hostName = window.location.hostname) {
       let localSignInfo = this.getSignInfo();
       return localSignInfo.find((it) => {
         return it.hostName === hostName;
       });
     },
-    /**
-     * 清空签到信息
-     * @param hostName 域名
-     */
-    clearSignInfo(hostName) {
+clearSignInfo(hostName) {
       if (typeof hostName === "string") {
         let signInfo = this.getSignInfo();
         let findIndex = signInfo.findIndex((it) => {
@@ -2121,10 +1698,7 @@
         _GM_deleteValue(this.$key.sign);
       }
     },
-    /**
-     * 检测是否登录
-     */
-    checkLogin() {
+checkLogin() {
       if (MTUtils.envIsMobile()) {
         let mobile_login_exitBtn = $(
           "a[href*='member.php?mod=logging&action=logout']"
@@ -2135,10 +1709,7 @@
         return Boolean(pc_login);
       }
     },
-    /**
-     * 签到
-     */
-    async sign() {
+async sign() {
       let formHash = await MTUtils.getFormHash();
       if (formHash == null) {
         if ($("#comiis_picshowbox")) {
@@ -2257,8 +1828,7 @@
               let line = lineMatch[lineMatch.length - 1];
               log.success(`金币${con}，排名${line}`);
               Qmsg.info(
-                /*html*/
-                `
+`
 							<div style="display: flex;${!MTUtils.envIsMobile() ? "padding: 20px;" : ""}">
 								<div style="align-self: center;margin-right: 20px;">签到</div>
 								<div>排名 ${line}<br>金币 ${con}</div>
@@ -2352,116 +1922,62 @@
     }
   };
   const MTRouter = {
-    /**
-     * 克米签到页面
-     */
-    isKMiSign() {
+isKMiSign() {
       return window.location.pathname.startsWith("/k_misign-sign.html");
     },
-    /**
-     * 帖子
-     */
-    isPost() {
+isPost() {
       return window.location.pathname.startsWith("/thread-") || window.location.pathname.startsWith("/forum.php") && window.location.search.startsWith("?mod=viewthread");
     },
-    /**
-     * 首页、精华
-     */
-    isPage() {
+isPage() {
       return Boolean(window.location.pathname.match(/^\/page-([0-9]+).html/g));
     },
-    /**
-     * 导读链接
-     */
-    isGuide() {
+isGuide() {
       return window.location.pathname.startsWith("/forum.php") && window.location.search.startsWith("?mod=guide");
     },
-    /**
-     * 板块
-     */
-    isPlate() {
+isPlate() {
       return Boolean(
         window.location.pathname.match(/\/forum-[0-9]{1,2}-[0-9]{1,2}.html/g)
       );
     },
-    /**
-     * 搜索页面
-     */
-    isSearch() {
+isSearch() {
       return window.location.pathname.startsWith("/search.php");
     },
-    /**
-     * 空间
-     */
-    isSpace() {
+isSpace() {
       return window.location.pathname.startsWith("/home.php") && window.location.search.startsWith("?mod=space");
     },
-    /**
-     * 我的个人空间
-     */
-    isMySpace() {
+isMySpace() {
       return window.location.pathname.startsWith("/home.php") && window.location.search.startsWith("?mod=space&do=profile&mycenter");
     },
-    /**
-     * 个人空间页的@点进去
-     */
-    isSpaceWithAt() {
+isSpaceWithAt() {
       return window.location.pathname.startsWith("/space-uid-");
     },
-    /**
-     * 社区列表
-     */
-    isForumList() {
+isForumList() {
       return window.location.pathname.startsWith("/forum.php") && window.location.search.startsWith("?forumlist");
     },
-    /**
-     * 消息提醒
-     */
-    isMessage() {
+isMessage() {
       return window.location.pathname.startsWith("/home.php") && window.location.search.startsWith("?mod=space&do=notice");
     },
-    /**
-     * 消息提醒列表
-     */
-    isMessageList() {
+isMessageList() {
       return window.location.pathname.startsWith("/home.php") && window.location.search.startsWith("?mod=space&do=pm");
     },
-    /**
-     * 积分商城
-     */
-    isPointsMall() {
+isPointsMall() {
       return window.location.pathname.startsWith(
         "/keke_integralmall-keke_integralmall.html"
       ) || window.location.pathname.startsWith("/plugin.php") && window.location.search.startsWith("?id=keke_integralmal");
     },
-    /**
-     * 帖子发布/回复页面
-     */
-    isPostPublish() {
+isPostPublish() {
       return window.location.pathname.startsWith("/forum.php") && window.location.search.startsWith("?mod=post");
     },
-    /**
-     * 投票页面
-     */
-    isPostPublish_voting() {
+isPostPublish_voting() {
       return window.location.pathname.startsWith("/forum.php") && window.location.search.includes("&special=1") || window.location.search.includes("&fid=42");
     },
-    /**
-     * 帖子编辑页面
-     */
-    isPostPublish_edit() {
+isPostPublish_edit() {
       return this.isPostPublish() && window.location.search.includes("&action=edit");
     },
-    /**
-     * 发帖页面，该页面是尚未存入草稿
-     */
-    isPostPublish_newthread() {
+isPostPublish_newthread() {
       return this.isPostPublish() && window.location.search.includes("&action=newthread");
     },
-    /**
-     * 回复编辑页面
-     */
-    isPostPublish_reply() {
+isPostPublish_reply() {
       return this.isPostPublish() && window.location.search.includes("&action=reply");
     }
   };
@@ -2476,10 +1992,7 @@
         });
       });
     },
-    /**
-     * 【快捷收藏】
-     */
-    quickCollentBtn() {
+quickCollentBtn() {
       log.info(`【快捷收藏】`);
       utils.waitNode("#scrolltop", 1e4).then(async ($scrollTop) => {
         if (!$scrollTop) {
@@ -2499,8 +2012,8 @@
         ajaxtarget: "fwin_content_k_favorite"
       })}`;
         let $collect = document.createElement("span");
-        $collect.innerHTML = /*html*/
-        `
+        $collect.innerHTML =
+`
 			<a href="${collectUrl}" 
 				id="k_favorite"
 				onclick="showWindow(this.id, this.href, 'get', 0);"
@@ -2514,10 +2027,7 @@
         domUtils.prepend($scrollTop, $collect);
       });
     },
-    /**
-     * 快捷回复优化
-     */
-    quickReplyOptimization() {
+quickReplyOptimization() {
       utils.waitNode('#scrolltop a[title="快速回复"]', 1e4).then(($ele) => {
         if (!$ele) {
           return;
@@ -2599,15 +2109,11 @@
         });
       });
     },
-    /**
-     * 自动展开帖子内容
-     */
-    autoExpandContent() {
+autoExpandContent() {
       log.info(`自动展开帖子内容`);
       return [
         addStyle(
-          /*css*/
-          `
+`
 				div.comiis_message.bg_f.view_one.b_b.cl.message>div.comiis_messages.comiis_aimg_show.cl{
 					max-height:inherit!important;
 					overflow-y:inherit!important;
@@ -2618,23 +2124,16 @@
         CommonUtil.addBlockCSS(".comiis_lookfulltext_bg", ".comiis_lookfulltext_key")
       ];
     },
-    /**
-     * 修复图片宽度
-     */
-    repairImageWidth() {
+repairImageWidth() {
       log.info(`修复图片宽度`);
       return addStyle(
-        /*css*/
-        `
+`
         .comiis_messages img{
             max-width: 100% !important;
         }`
       );
     },
-    /**
-     * 移除帖子字体效果
-     */
-    removeFontStyle() {
+removeFontStyle() {
       let $messageTable = document.querySelector(".comiis_a.comiis_message_table");
       if (!$messageTable) {
         return;
@@ -2642,10 +2141,7 @@
       log.info(`移除帖子字体效果`);
       domUtils.html($messageTable, domUtils.html($messageTable).replace(MTRegExp.fontSpecial, ""));
     },
-    /**
-     * 移除评论区的字体效果
-     */
-    removeCommentFontStyle() {
+removeCommentFontStyle() {
       log.info(`移除评论区的字体效果`);
       let $fontList = $$("font");
       let $postForumMainContent = $(".comiis_postlist .comiis_postli")?.innerHTML || "";
@@ -2674,10 +2170,7 @@
         }
       });
     },
-    /**
-     * 自动加载下一页评论
-     */
-    loadNextPageComment() {
+loadNextPageComment() {
       log.info(`自动加载下一页评论`);
       if (document.title.includes("提示信息 - MT论坛")) {
         return;
@@ -2744,10 +2237,7 @@
       });
       domUtils.on(document, ["scroll", "wheel"], lockFn.run);
     },
-    /**
-     * 代码块优化
-     **/
-    codeQuoteOptimization() {
+codeQuoteOptimization() {
       log.info(`代码块优化`);
       function hljs_smali(hljs2) {
         var smali_instr_low_prio = [
@@ -2862,8 +2352,7 @@
         };
       }
       addStyle(
-        /*css*/
-        `
+`
 			.hljs{text-align:left}
 			.hljs ol{margin:0 0 0 10px;padding:10px 10px}
 			.hljs li{padding-left:10px;list-style-type:decimal-leading-zero;font-family:Monaco,Consolas,'Lucida Console','Courier New',serif;font-size:12px;line-height:1.8em}
@@ -2930,10 +2419,7 @@
         }
       });
     },
-    /**
-     * 图片查看优化
-     */
-    optimizationImagePreview() {
+optimizationImagePreview() {
       log.info(`图片查看优化`);
       let blackListNoViewIMG = [
         {
@@ -3032,10 +2518,7 @@
         }
       });
     },
-    /**
-     * 附件点击提醒
-     */
-    setAttachmentsClickTip() {
+setAttachmentsClickTip() {
       log.info(`附件点击提醒`);
       function handleClick(item) {
         if (item.hasAttribute("href")) {
@@ -3060,8 +2543,7 @@
               },
               content: {
                 text: (
-                  /*html*/
-                  `<br />确定花费2金币下载附件 <a style="color: #507daf !important;">${attachmentName}</a> ？<br /><br />`
+`<br />确定花费2金币下载附件 <a style="color: #507daf !important;">${attachmentName}</a> ？<br /><br />`
                 ),
                 html: true
               },
@@ -3095,15 +2577,11 @@
         config: { childList: true, subtree: true }
       });
     },
-    /**
-     * 探测用户在线状态
-     */
-    async detectingUserOnlineStatus() {
+async detectingUserOnlineStatus() {
       log.info(`探测用户在线状态`);
       Panel.onceExec("mt-forum-post-detectingUserOnlineStatus", () => {
         addStyle(
-          /*css*/
-          `
+`
 				.gm-user-status-icon{
 					border: 0 !important;
 					float: right !important;
@@ -3156,10 +2634,7 @@
         }
       }
     },
-    /**
-     * 显示用户等级
-     */
-    showUserLevel() {
+showUserLevel() {
       log.info(`显示用户等级`);
       $$(".pls.favatar:not([data-show-user-level])").forEach(($userAvatar) => {
         $userAvatar.setAttribute("data-show-user-level", "true");
@@ -3217,14 +2692,10 @@
         userInfo.appendChild(userLevelText);
       });
     },
-    /**
-     * 隐藏底部信息块
-     */
-    hideBottomInfoBlock() {
+hideBottomInfoBlock() {
       log.info(`隐藏底部信息块`);
       return addStyle(
-        /*css*/
-        `
+`
 			.pls .favatar>*:not([id^="userinfo"]+div){
 				display: none;
 			}
@@ -3247,14 +2718,10 @@
         });
       });
     },
-    /**
-     * 页面美化
-     */
-    beautifyPage() {
+beautifyPage() {
       log.info(`页面美化`);
       addStyle(
-        /*css*/
-        `
+`
 			.xst{font-size:15px}
 			td.author_img{width:50px;padding:15px 0}
 			td.author_img img{width:40px;height:40px;border-radius:50%}
@@ -3273,8 +2740,7 @@
         let $uidAnchor = $tbody.querySelector("td.by>cite>a");
         let uid = $uidAnchor.getAttribute("href").match(/uid-(\d+)/)[1];
         let newHTML = (
-          /*html*/
-          `
+`
 			<td class="author_img">
 				<a href="space-uid-${uid}.html" c="1" mid="${mid}">
 					<img src="${MTUtils.getAvatar(uid, "middle")}">
@@ -3321,39 +2787,19 @@
         return this.__storeApiFn;
       }
     },
-    /**
-     * 获取自定义的存储接口
-     * @param type 组件类型
-     */
-    getStorageApi(type) {
+getStorageApi(type) {
       if (!this.hasStorageApi(type)) {
         return;
       }
       return this.$data.storeApiValue.get(type);
     },
-    /**
-     * 判断是否存在自定义的存储接口
-     * @param type 组件类型
-     */
-    hasStorageApi(type) {
+hasStorageApi(type) {
       return this.$data.storeApiValue.has(type);
     },
-    /**
-     * 设置自定义的存储接口
-     * @param type 组件类型
-     * @param storageApiValue 存储接口
-     */
-    setStorageApi(type, storageApiValue) {
+setStorageApi(type, storageApiValue) {
       this.$data.storeApiValue.set(type, storageApiValue);
     },
-    /**
-     * 初始化组件的存储接口属性
-     *
-     * @param type 组件类型
-     * @param config 组件配置，必须包含prop属性
-     * @param storageApiValue 存储接口
-     */
-    initComponentsStorageApi(type, config, storageApiValue) {
+initComponentsStorageApi(type, config, storageApiValue) {
       let propsStorageApi;
       if (this.hasStorageApi(type)) {
         propsStorageApi = this.getStorageApi(type);
@@ -3362,12 +2808,7 @@
       }
       this.setComponentsStorageApiProperty(config, propsStorageApi);
     },
-    /**
-     * 设置组件的存储接口属性
-     * @param config 组件配置，必须包含prop属性
-     * @param storageApiValue 存储接口
-     */
-    setComponentsStorageApiProperty(config, storageApiValue) {
+setComponentsStorageApiProperty(config, storageApiValue) {
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
     }
   };
@@ -3487,10 +2928,7 @@
     constructor(option) {
       this.option = option;
     }
-    /**
-     * 显示视图
-     */
-    async showView() {
+async showView() {
       let $dialog = __pops.confirm({
         title: {
           text: this.option.title,
@@ -3498,8 +2936,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                     <form class="rule-form-container" onsubmit="return false">
                         <ul class="rule-form-ulist"></ul>
                         <input type="submit" style="display: none;" />
@@ -3524,8 +2961,7 @@
           enable: true
         },
         style: (
-          /*css*/
-          `
+`
                 ${__pops.config.cssText.panelCSS}
                 
                 .rule-form-container {
@@ -3630,10 +3066,7 @@
         });
       }
     },
-    /**
-     * 注册菜单
-     */
-    registerMenu() {
+registerMenu() {
       GM_Menu.add({
         key: "comment-filter",
         text: "⚙ 评论过滤器",
@@ -3647,10 +3080,7 @@
         }
       });
     },
-    /**
-     * 执行过滤
-     */
-    runFilter(filterData) {
+runFilter(filterData) {
       let isBlackListUser = function(postForumInfo) {
         for (const userName of filterData["userBlackList"]) {
           if (userName == postForumInfo.userName || userName == postForumInfo.userUID) {
@@ -3678,8 +3108,7 @@
           userName: $name?.innerText || "",
           userUID: $name?.href?.match(MTRegExp.uid)?.[2]?.trim() || "",
           content: item.querySelector(".plc td.t_f")?.innerText?.trim() || "",
-          // PC端无法实现
-          isAuthor: false
+isAuthor: false
         };
         if (isWhiteListUser(postForumInfo)) {
           return;
@@ -3717,10 +3146,7 @@
         }
       });
     },
-    /**
-     * 显示视图
-     */
-    showView() {
+showView() {
       const that = this;
       function generateStorageApi(data) {
         return {
@@ -3906,8 +3332,7 @@
                 },
                 content: {
                   text: (
-                    /*html*/
-                    `
+`
                                 ${Array.from(
                     document.querySelectorAll(
                       'link[rel="stylesheet"]'
@@ -3920,8 +3345,7 @@
                   html: true
                 },
                 style: (
-                  /*css*/
-                  `
+`
 							.plhin{
 								width: 100%;
 							}
@@ -3945,8 +3369,7 @@
           };
         },
         style: (
-          /*css*/
-          `
+`
             .pops-panel-item-left-desc-text{
                 line-height: normal;
                 margin-top: 6px;
@@ -3964,10 +3387,7 @@
       });
       view.showView();
     },
-    /**
-     * 获取模板数据
-     */
-    getTemplateData() {
+getTemplateData() {
       return {
         enable: true,
         avatarFlag: false,
@@ -3980,19 +3400,13 @@
         userWhiteList: []
       };
     },
-    /**
-     * 获取数据
-     */
-    getData() {
+getData() {
       return _GM_getValue(
         this.$key.STORAGE_KEY,
         this.getTemplateData()
       );
     },
-    /**
-     * 设置数据
-     */
-    setData(data) {
+setData(data) {
       _GM_setValue(this.$key.STORAGE_KEY, data);
     }
   };
@@ -4009,8 +3423,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                 <div class="filter-container"></div>
                 `
           )
@@ -4028,8 +3441,7 @@
         width: window.innerWidth > 500 ? "350px" : "80vw",
         height: window.innerHeight > 500 ? "300px" : "70vh",
         style: (
-          /*css*/
-          `
+`
             .filter-container{
                 height: 100%;
                 display: flex;
@@ -4095,11 +3507,7 @@
     constructor(option) {
       this.option = option;
     }
-    /**
-     * 显示视图
-     * @param filterCallBack 返回值为false隐藏，true则不隐藏（不处理）
-     */
-    async showView(filterCallBack) {
+async showView(filterCallBack) {
       let $popsConfirm = __pops.confirm({
         title: {
           text: this.option.title,
@@ -4107,8 +3515,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                     <div class="rule-view-container">
                     </div>
                     `
@@ -4230,8 +3637,7 @@
         width: window.innerWidth > 500 ? "500px" : "88vw",
         height: window.innerHeight > 500 ? "500px" : "80vh",
         style: (
-          /*css*/
-          `
+`
             ${__pops.config.cssText.panelCSS}
             
             .rule-item{
@@ -4298,16 +3704,7 @@
         domUtils.text($button, "取消过滤");
       }
     }
-    /**
-     * 显示编辑视图
-     * @param isEdit 是否是编辑状态
-     * @param editData 编辑的数据
-     * @param $parentShadowRoot （可选）关闭弹窗后对ShadowRoot进行操作
-     * @param $editRuleItemElement （可选）关闭弹窗后对规则行进行更新数据
-     * @param updateDataCallBack （可选）关闭添加/编辑弹窗的回调（不更新数据）
-     * @param submitCallBack （可选）添加/修改提交的回调
-     */
-    showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
+showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
       let dialogCloseCallBack = async (isSubmit) => {
         if (isSubmit) {
           if (typeof submitCallBack === "function") {
@@ -4384,10 +3781,7 @@
       });
       editView.showView();
     }
-    /**
-     * 解析弹窗内的各个元素
-     */
-    parseViewElement($shadowRoot) {
+parseViewElement($shadowRoot) {
       let $container = $shadowRoot.querySelector(
         ".rule-view-container"
       );
@@ -4395,16 +3789,11 @@
         ".pops-confirm-btn button.pops-confirm-btn-other"
       );
       return {
-        /** 容器 */
-        $container,
-        /** 左下角的清空按钮 */
-        $deleteBtn
+$container,
+$deleteBtn
       };
     }
-    /**
-     * 解析每一项的元素
-     */
-    parseRuleItemElement($ruleElement) {
+parseRuleItemElement($ruleElement) {
       let $enable = $ruleElement.querySelector(
         ".rule-controls-enable"
       );
@@ -4420,32 +3809,21 @@
         ".rule-controls-delete"
       );
       return {
-        /** 启用开关 */
-        $enable,
-        /** 启用开关的container */
-        $enableSwitch,
-        /** 启用开关的input */
-        $enableSwitchInput,
-        /** 启用开关的core */
-        $enableSwitchCore,
-        /** 编辑按钮 */
-        $edit,
-        /** 删除按钮 */
-        $delete,
-        /** 存储在元素上的数据 */
-        data: Reflect.get($ruleElement, "data-rule")
+$enable,
+$enableSwitch,
+$enableSwitchInput,
+$enableSwitchCore,
+$edit,
+$delete,
+data: Reflect.get($ruleElement, "data-rule")
       };
     }
-    /**
-     * 创建一条规则元素
-     */
-    async createRuleItemElement(data, $shadowRoot) {
+async createRuleItemElement(data, $shadowRoot) {
       let name = await this.option.getDataItemName(data);
       let $ruleItem = domUtils.createElement("div", {
         className: "rule-item",
         innerHTML: (
-          /*html*/
-          `
+`
 			<div class="rule-name">${name}</div>
 			<div class="rule-controls">
 				<div class="rule-controls-enable">
@@ -4554,10 +3932,7 @@
       }
       return $ruleItem;
     }
-    /**
-     * 添加一个规则元素
-     */
-    async appendRuleItemElement($shadowRoot, data) {
+async appendRuleItemElement($shadowRoot, data) {
       let { $container } = this.parseViewElement($shadowRoot);
       let $ruleItem = [];
       let iteratorData = Array.isArray(data) ? data : [data];
@@ -4570,35 +3945,23 @@
       await this.updateDeleteAllBtnText($shadowRoot);
       return $ruleItem;
     }
-    /**
-     * 更新弹窗内容的元素
-     */
-    async updateRuleContaienrElement($shadowRoot) {
+async updateRuleContaienrElement($shadowRoot) {
       this.clearContent($shadowRoot);
       const { $container } = this.parseViewElement($shadowRoot);
       let data = await this.option.data();
       await this.appendRuleItemElement($shadowRoot, data);
       await this.updateDeleteAllBtnText($shadowRoot);
     }
-    /**
-     * 更新规则元素
-     */
-    async updateRuleItemElement(data, $oldRuleItem, $shadowRoot) {
+async updateRuleItemElement(data, $oldRuleItem, $shadowRoot) {
       let $newRuleItem = await this.createRuleItemElement(data, $shadowRoot);
       $oldRuleItem.after($newRuleItem);
       $oldRuleItem.remove();
     }
-    /**
-     * 清空内容
-     */
-    clearContent($shadowRoot) {
+clearContent($shadowRoot) {
       const { $container } = this.parseViewElement($shadowRoot);
       domUtils.html($container, "");
     }
-    /**
-     * 设置删除按钮的文字
-     */
-    setDeleteBtnText($shadowRoot, text, isHTML = false) {
+setDeleteBtnText($shadowRoot, text, isHTML = false) {
       const { $deleteBtn } = this.parseViewElement($shadowRoot);
       if (isHTML) {
         domUtils.html($deleteBtn, text);
@@ -4606,11 +3969,7 @@
         domUtils.text($deleteBtn, text);
       }
     }
-    /**
-     * 更新【清空所有】的按钮的文字
-     * @param $shadowRoot
-     */
-    async updateDeleteAllBtnText($shadowRoot) {
+async updateDeleteAllBtnText($shadowRoot) {
       let data = await this.option.data();
       this.setDeleteBtnText($shadowRoot, `清空所有(${data.length})`);
     }
@@ -4623,10 +3982,7 @@
       this.registerMenu();
       this.runRule();
     },
-    /**
-     * 注册菜单
-     */
-    registerMenu() {
+registerMenu() {
       GM_Menu.add({
         key: "product-reminder",
         text: "⚙ 商品上架提醒",
@@ -4640,10 +3996,7 @@
         }
       });
     },
-    /**
-     * 执行规则
-     */
-    async runRule() {
+async runRule() {
       async function getCurrentProduct() {
         let response = await httpx.get(
           "/keke_integralmall-keke_integralmall.html",
@@ -4710,8 +4063,7 @@
               },
               content: {
                 text: (
-                  /*html*/
-                  `<br />
+`<br />
                             您设置的商品已上架在积分商城中，当前售价 ${productItem["price"]}金币，仅剩${productItem["remainingQuantity"]}件，是否前往购买？
                             <a style="color: red !important;">(如需关闭提醒，请删除该关键字)</a>
                             <br />`
@@ -4749,10 +4101,7 @@
         }
       }
     },
-    /**
-     * 获取模板数据
-     */
-    getTemplateData() {
+getTemplateData() {
       return {
         uuid: utils.generateUUID(),
         enable: true,
@@ -4760,10 +4109,7 @@
         productName: ""
       };
     },
-    /**
-     * 显示视图
-     */
-    showView() {
+showView() {
       let panelHandlerComponents = __pops.config.PanelHandlerComponents();
       function generateStorageApi(data) {
         return {
@@ -4910,24 +4256,13 @@
       });
       ruleView.showView();
     },
-    /**
-     * 获取数据
-     */
-    getData() {
+getData() {
       return _GM_getValue(this.$key.STORAGE_KEY, []);
     },
-    /**
-     * 设置数据
-     * @param data
-     */
-    setData(data) {
+setData(data) {
       _GM_setValue(this.$key.STORAGE_KEY, data);
     },
-    /**
-     * 添加数据
-     * @param data
-     */
-    addData(data) {
+addData(data) {
       let localData = this.getData();
       let findIndex = localData.findIndex((item) => item.uuid == data.uuid);
       if (findIndex === -1) {
@@ -4938,11 +4273,7 @@
         return false;
       }
     },
-    /**
-     * 更新数据
-     * @param data
-     */
-    updateData(data) {
+updateData(data) {
       let localData = this.getData();
       let index = localData.findIndex((item) => item.uuid == data.uuid);
       let updateFlag = false;
@@ -4953,11 +4284,7 @@
       this.setData(localData);
       return updateFlag;
     },
-    /**
-     * 删除数据
-     * @param data
-     */
-    deleteData(data) {
+deleteData(data) {
       let localData = this.getData();
       let index = localData.findIndex((item) => item.uuid == data.uuid);
       let deleteFlag = false;
@@ -4968,10 +4295,7 @@
       this.setData(localData);
       return deleteFlag;
     },
-    /**
-     * 清空数据
-     */
-    clearData() {
+clearData() {
       _GM_deleteValue(this.$key.STORAGE_KEY);
     }
   };
@@ -4983,10 +4307,7 @@
     init() {
       this.registerMenu();
     },
-    /**
-     * 注册菜单
-     */
-    registerMenu() {
+registerMenu() {
       GM_Menu.add({
         key: "black-home",
         text: "⚙ 小黑屋",
@@ -5000,10 +4321,7 @@
         }
       });
     },
-    /**
-     * 显示小黑屋dialog
-     */
-    async showBlackHome() {
+async showBlackHome() {
       let $loading = Qmsg.loading("正在获取小黑屋名单中...");
       let blackListInfo = await this.getBlackListInfo("");
       $loading.close();
@@ -5022,8 +4340,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                 <div class="blackhome-user-filter">
                     <input placeholder="过滤用户名/操作人员/UID(可正则)">
                 </div>
@@ -5108,10 +4425,7 @@
       }
       this.$data.cid = nextBlackListInfo.next_cid;
     },
-    /**
-     * 获取小黑屋名单信息
-     */
-    async getBlackListInfo(cid = "") {
+async getBlackListInfo(cid = "") {
       let searchParamsData = {
         mod: "misc",
         action: "showdarkroom",
@@ -5199,17 +4513,13 @@
         data: new_blackListData
       };
     },
-    /**
-     * 创建黑名单节点
-     */
-    createListViewItem(userInfo) {
+createListViewItem(userInfo) {
       let $item = domUtils.createElement(
         "div",
         {
           className: "blackhome-user-item",
           innerHTML: (
-            /*html*/
-            `
+`
                 <div class="blackhome-user-avatar">
                     <div class="blackhome-user">
                     <img src="${MTUtils.getAvatar(
@@ -5270,10 +4580,7 @@
     init() {
       this.registerMenu();
     },
-    /**
-     * 注册菜单
-     */
-    registerMenu() {
+registerMenu() {
       GM_Menu.add({
         key: "online-user",
         text: "⚙ 在线用户",
@@ -5287,10 +4594,7 @@
         }
       });
     },
-    /**
-     * 显示在线用户dialog
-     */
-    async showOnlineUser() {
+async showOnlineUser() {
       let $loading = Qmsg.loading("正在获取在线用户名单中...");
       let onlineUserInfo = await this.getOnlineUserListInfo();
       $loading.close();
@@ -5304,8 +4608,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                 <div class="online-user-info">${onlineUserInfo.totalOnline} 人在线 - ${onlineUserInfo.onlineUser} 会员${onlineUserInfo.invisibleUser == 0 ? "" : `(${onlineUserInfo.invisibleUser}隐身)`} - ${onlineUserInfo.noRegisterUser} 位游客</div>
                 <div class="online-user-filter">
                     <input placeholder="过滤用户名/身份/UID(可正则)"></div>
@@ -5361,10 +4664,7 @@
         })
       );
     },
-    /**
-     * 获取在线用户名单信息
-     */
-    async getOnlineUserListInfo() {
+async getOnlineUserListInfo() {
       let searchParamsData = {
         showoldetails: "yes"
       };
@@ -5436,17 +4736,13 @@
       );
       return result;
     },
-    /**
-     * 创建在线用户节点
-     */
-    createListViewItem(userInfo) {
+createListViewItem(userInfo) {
       let $item = DOMUtils.createElement(
         "div",
         {
           className: "online-item",
           innerHTML: (
-            /*html*/
-            `
+`
                 <div class="online-user">
                     <img data-avatar src="${userInfo["avatar"]}" loading="lazy" class="online-user-avatar">
                     <div class="online-user-info">
@@ -5515,15 +4811,11 @@
         });
       });
     },
-    /**
-     * 新增【最新发表】
-     */
-    addLatestPostBtn() {
+addLatestPostBtn() {
       log.info(`新增【最新发表】`);
       domUtils.append(
         "#comiis_nv .wp.comiis_nvbox.cl ul",
-        /*html*/
-        `
+`
 			<li id="latest_publication">
 				<a href="/forum.php?mod=guide&view=newthread" hidefocus="true" title="最新发表">最新发表</a>
 			</li>
@@ -5538,10 +4830,7 @@
         );
       }
     },
-    /**
-     * 延长cookie有效期
-     */
-    async extendCookieExpire() {
+async extendCookieExpire() {
       log.info(`延长cookie有效期`);
       let cookieList = await _GM.cookie.list({});
       let needExtendCookieNameList = [
@@ -5674,10 +4963,7 @@
       big: false
     },
     $data: {
-      /**
-       * 图片文件最大大小
-       */
-      avatarInfo: {
+avatarInfo: {
         maxSize: 2097152,
         small: {
           width: 48,
@@ -5724,8 +5010,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                 <div class="avatar-container">
                     <p class="avatar-tip">1. 小头像（图片宽高限制最大尺寸：48×48）</p>
                     <p class="avatar-upload-status" data-type="small">🤡请先上传图片</p>
@@ -5830,8 +5115,7 @@
         width: window.innerWidth > 500 ? "500px" : "88vw",
         height: window.innerHeight > 500 ? "500px" : "80vh",
         style: (
-          /*css*/
-          `
+`
             .avatar-container{
                 display: flex;
                 width: -webkit-fill-available;
@@ -5901,10 +5185,7 @@
         this.$upload.big = true;
       });
     },
-    /**
-     * 设置文件改变事件
-     */
-    setUploadChangeEvent($file, $status, sizeInfo, successCallBack) {
+setUploadChangeEvent($file, $status, sizeInfo, successCallBack) {
       domUtils.on($file, "change", (event) => {
         if (!$file.files?.length) {
           return;
@@ -5941,10 +5222,7 @@
         };
       });
     },
-    /**
-     * 获取上传地址
-     */
-    async getUploadUrl() {
+async getUploadUrl() {
       let response = await httpx.get("/home.php?mod=spacecp&ac=avatar", {
         headers: {
           "User-Agent": utils.getRandomPCUA()
@@ -6087,41 +5365,40 @@
               }
             ]
           }
-          // {
-          // 	text: "Cookie配置",
-          // 	type: "deepMenu",
-          // 	forms: [
-          // 		{
-          // 			text: "",
-          // 			type: "forms",
-          // 			forms: [
-          // 				UISwitch(
-          // 					"启用",
-          // 					"httpx-use-cookie-enable",
-          // 					false,
-          // 					void 0,
-          // 					"启用后，将根据下面的配置进行添加cookie"
-          // 				),
-          // 				UISwitch(
-          // 					"使用document.cookie",
-          // 					"httpx-use-document-cookie",
-          // 					false,
-          // 					void 0,
-          // 					"自动根据请求的域名来设置对应的cookie"
-          // 				),
-          // 				UITextArea(
-          // 					"bbs.binmt.cc",
-          // 					"httpx-cookie-bbs.binmt.cc",
-          // 					"",
-          // 					void 0,
-          // 					void 0,
-          // 					"Cookie格式：xxx=xxxx;xxx=xxxx"
-          // 				),
-          // 			],
-          // 		},
-          // 	],
-          // },
-        ]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+]
       },
       {
         text: "",
@@ -6250,8 +5527,7 @@
                     let $left = domUtils.createElement("div", {
                       className: "pops-panel-item-left-text",
                       innerHTML: (
-                        /*html*/
-                        `
+`
 											<p class="pops-panel-item-left-main-text">头像（有缓存）</p>
 											<p class="pops-panel-item-left-desc-text">小、中、大</p>
 											`
@@ -6260,8 +5536,7 @@
                     let $right = domUtils.createElement("div", {
                       className: "pops-panel-avatar-img",
                       innerHTML: (
-                        /*html*/
-                        `
+`
 											<img 
 												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=small"
 												class="avatar-img" data-size="small">
@@ -6276,8 +5551,7 @@
                     });
                     let $style = domUtils.createElement("style", {
                       innerHTML: (
-                        /*css*/
-                        `
+`
 											.avatar-img {
 												width: 30px;
 												height: 30px;
@@ -6305,8 +5579,7 @@
                     let $left = domUtils.createElement("div", {
                       className: "pops-panel-item-left-text",
                       innerHTML: (
-                        /*html*/
-                        `
+`
 											<p class="pops-panel-item-left-main-text">头像</p>
 											<p class="pops-panel-item-left-desc-text">小、中、大</p>
 											`
@@ -6315,8 +5588,7 @@
                     let $right = domUtils.createElement("div", {
                       className: "pops-panel-avatar-img",
                       innerHTML: (
-                        /*html*/
-                        `
+`
 											<img 
 												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=small&ts=${Date.now()}"
 												class="avatar-img" data-size="small">
