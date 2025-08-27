@@ -13,6 +13,46 @@ import fs from "fs";
 import path from "path";
 import pc from "picocolors";
 
+type OwnMonkeyOption = {
+	/**
+	 * 是否是Vue项目
+	 *
+	 * + `true` 启用vue插件依赖
+	 * @default false
+	 */
+	isVueProject?: boolean;
+	/**
+	 * 是否禁用默认的externalGlobals属性
+	 * @default false
+	 */
+	disableExternalGlobals?: boolean;
+	build: {
+		/**
+		 * 本地化的meta文件
+		 *
+		 * 如果设置false，则不创建该文件
+		 * @default true
+		 */
+		metaLocalFileName?: string | boolean | ((fileName: string) => string);
+		/**
+		 * 前提条件，设置了 metaLocalFileName
+		 *
+		 * 将@require的库使用本地引入，用于在.meta.local.user.js
+		 * @example
+		 * ["@whitesev/utils","file:///..."]
+		 */
+		externalGlobalsLocal?: Record<string, string>;
+		/**
+		 * 前提条件，设置了 metaLocalFileName
+		 *
+		 * 将@resource的库使用本地引入，用于在.meta.local.user.js
+		 * @example
+		 * ["ElementPlusResourceCSS","file:///..."]
+		 */
+		externalResourceLocal?: Record<string, string>;
+	};
+};
+
 const baseUtils = new ViteUtils(__dirname);
 /**
  * 生成用户配置
@@ -20,21 +60,9 @@ const baseUtils = new ViteUtils(__dirname);
  */
 const GenerateUserConfig = async (option: {
 	/**
-	 * 是否是Vue项目
-	 *
-	 * + `true` 启用vue插件依赖
-	 */
-	isVueProject?: boolean;
-	/**
 	 * 油猴配置
 	 */
-	monkeyOption: Partial<__MonkeyOption__> & {
-		/**
-		 * 是否禁用默认的externalGlobals属性
-		 * @default false
-		 */
-		disableExternalGlobals?: boolean;
-	};
+	monkeyOption: Partial<__MonkeyOption__> & OwnMonkeyOption;
 	/**
 	 * vite配置
 	 */
@@ -98,6 +126,11 @@ const GenerateUserConfig = async (option: {
 			externalResource: {},
 			cssSideEffects: (cssText: string) => {
 				function addStyle(cssText: string) {
+					// @ts-ignore
+					if (typeof GM_addStyle == "function") {
+						// @ts-ignore
+						return GM_addStyle(cssText);
+					}
 					let $css = document.createElement("style");
 					$css.setAttribute("type", "text/css");
 					$css.setAttribute("data-type", "gm-css");
@@ -113,20 +146,37 @@ const GenerateUserConfig = async (option: {
 					(document.head || document.documentElement).appendChild($css);
 					return $css;
 				}
-				// @ts-ignore
-				if (typeof GM_addStyle == "function") {
-					// @ts-ignore
-					GM_addStyle(cssText);
-					return;
-				}
 				addStyle(cssText);
 			},
+		},
+	};
+	/**
+	 * 默认自定义配置
+	 */
+	let DefaultOwnMonkeyOption: Required<OwnMonkeyOption> = {
+		isVueProject: option.monkeyOption.isVueProject ?? false,
+		disableExternalGlobals: option.monkeyOption.disableExternalGlobals ?? false,
+		build: {
+			metaLocalFileName: option.monkeyOption?.build?.metaLocalFileName ?? true,
+			externalGlobalsLocal: Object.assign(
+				{
+					"@whitesev/utils": `file:///${baseUtils.getAbsolutePath("./../../lib/Utils/dist/index.umd.js")}`,
+					"@whitesev/domutils": `file:///${baseUtils.getAbsolutePath(
+						"./../../lib/DOMUtils/dist/index.umd.js"
+					)}`,
+					"@whitesev/pops": `file:///${baseUtils.getAbsolutePath("./../../lib/pops/dist/index.umd.js")}`,
+					qmsg: `file:///${baseUtils.getAbsolutePath("./../../lib/Qmsg/dist/index.umd.js")}`,
+				},
+				option.monkeyOption?.build?.externalGlobalsLocal ?? {}
+			),
+			externalResourceLocal: Object.assign({}, option.monkeyOption?.build?.externalResourceLocal ?? {}),
 		},
 	};
 	/* -------------以下配置不需要动------------- */
 	/* -------------以下配置不需要动------------- */
 	/* -------------以下配置不需要动------------- */
-	if (option.monkeyOption.disableExternalGlobals) {
+	if (DefaultOwnMonkeyOption.disableExternalGlobals) {
+		delete DefaultOwnMonkeyOption.disableExternalGlobals;
 		delete option.monkeyOption.disableExternalGlobals;
 		if (
 			typeof DefaultMonkeyOption.build?.externalGlobals === "object" &&
@@ -264,7 +314,7 @@ const GenerateUserConfig = async (option: {
 			process.exit(0);
 		}
 	}
-	if (option.isVueProject) {
+	if (DefaultOwnMonkeyOption.isVueProject) {
 		// 添加vue插件
 		BaseUserConfig.plugins!.push(
 			vue(),
@@ -427,6 +477,12 @@ const GenerateUserConfig = async (option: {
 			if (!isBuild) {
 				return;
 			}
+			if (
+				typeof DefaultOwnMonkeyOption.build.metaLocalFileName === "boolean" &&
+				!DefaultOwnMonkeyOption.build.metaLocalFileName
+			) {
+				return;
+			}
 			/**
 			 * 格式化文件大小
 			 * @param bytes 字节数
@@ -444,32 +500,73 @@ const GenerateUserConfig = async (option: {
 				if (!fileName.endsWith(".meta.js")) {
 					continue;
 				}
-				const localMetaFileName = fileName.replace(/\.meta\.js$/g, "");
+				// 读取.meta.js的信息
+				let localMetaFileName = fileName.replace(/\.meta\.js$/gi, "");
 				const chunk = bundle[fileName];
 				const filePath = path.join(options.dir, fileName);
 				let content = fs.readFileSync(filePath, "utf-8");
 				const splitContent = content.split("\n");
 				let insertIndex = -1;
+				let inserRequireSpace = " ";
 				let metaEndIndex = -1;
 				for (let index = splitContent.length - 1; index >= 0; index--) {
 					// 逆序
-					const contentItem = splitContent[index].trim();
-					if (metaEndIndex === -1 && contentItem.startsWith("// ==/UserScript==")) {
+					const metaItem = splitContent[index].trim();
+					if (metaEndIndex === -1 && metaItem.startsWith("// ==/UserScript==")) {
 						metaEndIndex = index;
 					}
-					if (contentItem.startsWith("// @require")) {
+					let requireMatch = metaItem.match(/^\/\/[\s]+@require([\s]+)/i);
+					if (requireMatch) {
+						inserRequireSpace = requireMatch[requireMatch.length - 1];
 						insertIndex = index;
 						break;
-					} else if (insertIndex === -1 && contentItem.startsWith("// ==UserScript==")) {
+					} else if (insertIndex === -1 && metaItem.startsWith("// ==UserScript==")) {
 						// start
 						insertIndex = metaEndIndex;
 					}
 				}
+				for (let index = 0; index < splitContent.length; index++) {
+					let metaItem = splitContent[index];
+					// 把部分库转为本地文件
+					let requireMatch = metaItem.match(/^\/\/[\s]+@require([\s]+)/i);
+					let resourceMatch = metaItem.match(/^\/\/[\s]+@resource([\s]+)/i);
+					if (requireMatch) {
+						metaItem = metaItem.replace(requireMatch[0], "");
+						for (const [requiredMatchKey, requiredUrl] of Object.entries(
+							DefaultOwnMonkeyOption.build.externalGlobalsLocal
+						)) {
+							if (metaItem.includes(requiredMatchKey)) {
+								splitContent[index] = `// @require${inserRequireSpace}${requiredUrl}`;
+								break;
+							}
+						}
+					} else if (resourceMatch) {
+						let insertResourceSpace = resourceMatch[1];
+						let metaEndStr = metaItem.replace(resourceMatch[0], "").trim();
+						let resourceKey = metaEndStr.split(" ")[0];
+						let metaAfterResouceStr = metaEndStr.replace(resourceKey, "").match(/^([\s]+)/)[1];
+						for (const [resourceMatchKey, resourceUrl] of Object.entries(
+							DefaultOwnMonkeyOption.build.externalResourceLocal
+						)) {
+							if (resourceKey === resourceMatchKey) {
+								splitContent[
+									index
+								] = `// @resource${insertResourceSpace}${resourceKey}${metaAfterResouceStr}${resourceUrl}`;
+							}
+						}
+					}
+				}
 				let localMainFilePath = `${options.dir}\\${SCRIPT_NAME}.user.js`;
-				let localMainFileRequire = `// @require            file:///${localMainFilePath}`;
+				let localMainFileRequire = `// @require${inserRequireSpace}file:///${localMainFilePath}`;
 				splitContent.splice(insertIndex + 1, 0, localMainFileRequire);
 
-				let metaLocalFilePath = `${options.dir}\\${localMetaFileName}.meta.local.user.js`;
+				localMetaFileName = `${localMetaFileName}.meta.local.user.js`;
+				if (typeof DefaultOwnMonkeyOption.build.metaLocalFileName === "string") {
+					localMetaFileName = DefaultOwnMonkeyOption.build.metaLocalFileName;
+				} else if (typeof DefaultOwnMonkeyOption.build.metaLocalFileName === "function") {
+					localMetaFileName = DefaultOwnMonkeyOption.build.metaLocalFileName(localMetaFileName);
+				}
+				let metaLocalFilePath = `${options.dir}\\${localMetaFileName}`;
 				fs.writeFileSync(metaLocalFilePath, splitContent.join("\n"));
 
 				const metaLocalFileSize = fs.statSync(metaLocalFilePath).size;
