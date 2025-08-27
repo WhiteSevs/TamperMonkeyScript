@@ -51,14 +51,10 @@ if (document.documentElement) {
 /**
  * 延迟执行，并捕捉异常
  */
-const setTimeoutLog = (
-	handler: (...args: any[]) => void,
-	timeout: number,
-	...args: any[]
-) => {
-	return setTimeout(() => {
+const setTimeoutLog = (handler: (...args: any[]) => IPromise<void>, timeout: number, ...args: any[]) => {
+	return setTimeout(async () => {
 		try {
-			handler(...args);
+			await handler(...args);
 		} catch (error: any) {
 			Qmsg.error(error.toString(), { consoleLogContent: true });
 		}

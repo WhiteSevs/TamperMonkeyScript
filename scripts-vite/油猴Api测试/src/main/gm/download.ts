@@ -30,10 +30,7 @@ export class ApiTest_download extends ApiAsyncTestBase {
 		let result: PopsPanelContentConfig = {
 			id: "aside-" + apiName,
 			title: apiName,
-			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-				apiName,
-				`${apiName} & ${apiAsyncInfo.name}`
-			)}`,
+			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
 			scrollToDefaultView: true,
 			isDefault() {
 				return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -84,8 +81,7 @@ export class ApiTest_download extends ApiAsyncTestBase {
 						text: CommonUtil.escapeHtml("TODO"),
 						tag: "info",
 						afterRender(container) {
-							let $info =
-								container.target?.querySelector<HTMLElement>(".support-info")!;
+							let $info = container.target?.querySelector<HTMLElement>(".support-info")!;
 							try {
 							} catch (error) {
 								console.error(error);

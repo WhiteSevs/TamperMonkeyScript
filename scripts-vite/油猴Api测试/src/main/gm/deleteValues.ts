@@ -9,6 +9,7 @@ import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 import { DOMUtils, utils } from "@/env";
 import Qmsg from "qmsg";
 import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
+import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-forms";
 
 export class ApiTest_deleteValues extends ApiAsyncTestBase {
 	public isSupport() {
@@ -31,10 +32,7 @@ export class ApiTest_deleteValues extends ApiAsyncTestBase {
 		let result: PopsPanelContentConfig = {
 			id: "aside-" + apiName,
 			title: "" + apiName,
-			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-				apiName,
-				`${apiName} & ${apiAsyncInfo.name}`
-			)}`,
+			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
 			scrollToDefaultView: true,
 			isDefault() {
 				return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -76,23 +74,48 @@ export class ApiTest_deleteValues extends ApiAsyncTestBase {
 					text: "功能测试",
 					forms: [],
 				},
+				{
+					type: "forms",
+					text: "功能测试（异步）",
+					forms: [],
+				},
 			],
 		};
 		if (this.isSupport()) {
-			((result["forms"][1] as any).forms as PopsPanelFormsTotalDetails[]).push(
-				(() => {
-					let localStorageDataValue = {
-						GM_deleteValues_key_1: 555,
-						"GM.deleteValues_key_2": 666,
-					};
-					return UIInfo(() => {
-						return {
-							text: "测试存储对象然后删除再读取",
-							description: `${JSON.stringify(localStorageDataValue)}`,
-							tag: "info",
-							afterRender(container) {
-								let $button = DOMUtils.parseHTML(
-									/*html*/ `
+			[
+				{
+					name: apiName,
+					fn: async (...args: any[]) => {
+						return new Promise<any>((resolve) => {
+							// @ts-ignore
+							const ret = GM_deleteValues(...args);
+							resolve(ret);
+						});
+					},
+					formList: (<PopsPanelFormsDetails>result["forms"][1]).forms,
+				},
+				{
+					name: apiAsyncInfo.name,
+					fn: GM.deleteValues,
+					formList: (<PopsPanelFormsDetails>result["forms"][2]).forms,
+				},
+			].forEach((data) => {
+				let apiNameTag = data.name;
+
+				data.formList.push(
+					(() => {
+						let localStorageDataValue = {
+							GM_deleteValues_key_1: 555,
+							"GM.deleteValues_key_2": 666,
+						};
+						return UIInfo(() => {
+							return {
+								text: "测试存储对象然后删除再读取",
+								description: `${JSON.stringify(localStorageDataValue)}`,
+								tag: "info",
+								afterRender(container) {
+									let $button = DOMUtils.parseHTML(
+										/*html*/ `
 										<div class="pops-panel-button pops-panel-button-no-icon">
 											<button class="pops-panel-button_inner" type="button" data-type="default">
 												<i class="pops-bottom-icon" is-loading="false"></i>
@@ -100,48 +123,41 @@ export class ApiTest_deleteValues extends ApiAsyncTestBase {
 											</button>
 										</div>
 									`,
-									false,
-									false
-								);
-								DOMUtils.after(container.$leftContainer, $button);
-								// 点击事件
-								DOMUtils.on($button, "click", (event) => {
-									utils.preventEvent(event);
-									try {
-										GM_setValues(localStorageDataValue);
-										let localKeys = Object.keys(localStorageDataValue);
-										let values = GM_getValues(localKeys);
-										if (
-											JSON.stringify(values) !==
-											JSON.stringify(localStorageDataValue)
-										) {
-											Qmsg.error("写入失败，写入的数据和读取的数据不相同");
-											return;
+										false,
+										false
+									);
+									DOMUtils.after(container.$leftContainer, $button);
+									// 点击事件
+									DOMUtils.on($button, "click", async (event) => {
+										utils.preventEvent(event);
+										try {
+											GM_setValues(localStorageDataValue);
+											let localKeys = Object.keys(localStorageDataValue);
+											let values = GM_getValues(localKeys);
+											if (JSON.stringify(values) !== JSON.stringify(localStorageDataValue)) {
+												Qmsg.error("写入失败，写入的数据和读取的数据不相同");
+												return;
+											}
+											await data.fn(localKeys);
+											let values2 = GM_getValues(localKeys);
+											if (values2 == null) {
+												Qmsg.warning("删除情况未知，因为读取到的数据为null");
+											} else if (typeof values2 === "object" && JSON.stringify(values2) === "{}") {
+												Qmsg.success("删除成功，读取的数据为{}");
+											} else {
+												Qmsg.error("删除情况未知，因为读取到的数据类型不是object");
+												console.log(values2);
+											}
+										} catch (error: any) {
+											Qmsg.error(error.toString(), { consoleLogContent: true });
 										}
-										GM_deleteValues(localKeys);
-										let values2 = GM_getValues(localKeys);
-										if (values2 == null) {
-											Qmsg.warning("删除情况未知，因为读取到的数据为null");
-										} else if (
-											typeof values2 === "object" &&
-											JSON.stringify(values2) === "{}"
-										) {
-											Qmsg.success("删除成功，读取的数据为{}");
-										} else {
-											Qmsg.error(
-												"删除情况未知，因为读取到的数据类型不是object"
-											);
-											console.log(values2);
-										}
-									} catch (error: any) {
-										Qmsg.error(error.toString(), { consoleLogContent: true });
-									}
-								});
-							},
-						};
-					});
-				})()
-			);
+									});
+								},
+							};
+						});
+					})()
+				);
+			});
 		}
 		return result;
 	}

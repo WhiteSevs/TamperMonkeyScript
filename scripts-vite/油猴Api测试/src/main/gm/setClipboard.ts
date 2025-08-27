@@ -10,6 +10,7 @@ import Qmsg from "qmsg";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
+import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-forms";
 
 export class ApiTest_setClipboard extends ApiAsyncTestBase {
 	public isSupport() {
@@ -32,10 +33,7 @@ export class ApiTest_setClipboard extends ApiAsyncTestBase {
 		let result: PopsPanelContentConfig = {
 			id: "aside-" + apiName,
 			title: "" + apiName,
-			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-				apiName,
-				`${apiName} & ${apiAsyncInfo.name}`
-			)}`,
+			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
 			scrollToDefaultView: true,
 			isDefault() {
 				return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -77,58 +75,87 @@ export class ApiTest_setClipboard extends ApiAsyncTestBase {
 					text: "功能测试",
 					forms: [],
 				},
+				{
+					type: "forms",
+					text: "功能测试（异步）",
+					forms: [],
+				},
 			],
 		};
 		if (this.isSupport()) {
-			((result["forms"][1] as any).forms as PopsPanelFormsTotalDetails[]).push(
-				UIInfo(() => {
-					return {
-						text: "复制内容到剪贴板：Test GM_setClipboard",
-						tag: "info",
-						afterRender(container) {
-							let $button = DOMUtils.parseHTML(
-								/*html*/ `
-								<div class="pops-panel-button pops-panel-button-no-icon">
-									<button class="pops-panel-button_inner" type="button" data-type="default">
-										<i class="pops-bottom-icon" is-loading="false"></i>
-										<span class="pops-panel-button-text">点击测试</span>
-									</button>
-								</div>
-							`,
-								false,
-								false
-							);
-							DOMUtils.after(container.$leftContainer, $button);
-							// 点击事件
-							let timeId: number;
-							DOMUtils.on($button, "click", (event) => {
-								try {
-									utils.preventEvent(event);
-									clearTimeout(timeId);
-									Qmsg.info("等待3s内触发成功复制的回调");
-									timeId = setTimeoutLog(() => {
-										TagUtil.setTag(
-											container.$leftText,
-											"error",
-											"不支持触发回调函数"
-										);
-									}, 3000);
-									GM_setClipboard("Test GM_setClipboard", "text", () => {
+			[
+				{
+					name: apiName,
+					fn: async (...args: any[]) => {
+						return new Promise<any>((resolve) => {
+							if (typeof args[2] === "function") {
+								const cb = args[2];
+								args[2] = (...args2: any[]) => {
+									cb(...args2);
+									resolve(undefined);
+								};
+							}
+							// @ts-ignore
+							GM_setClipboard(...args);
+						});
+					},
+					formList: (<PopsPanelFormsDetails>result["forms"][1]).forms,
+				},
+				{
+					name: apiAsyncInfo.name,
+					fn: async (...args: any[]) => {
+						const cb = args[2];
+						// @ts-ignore
+						await GM.setClipboard(...args);
+						if (typeof cb === "function") {
+							cb();
+						}
+					},
+					formList: (<PopsPanelFormsDetails>result["forms"][2]).forms,
+				},
+			].forEach((data) => {
+				data.formList.push(
+					UIInfo(() => {
+						return {
+							text: "复制内容到剪贴板：Test " + data.name,
+							tag: "info",
+							afterRender(container) {
+								let $button = DOMUtils.parseHTML(
+									/*html*/ `
+									<div class="pops-panel-button pops-panel-button-no-icon">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
+											<i class="pops-bottom-icon" is-loading="false"></i>
+											<span class="pops-panel-button-text">点击测试</span>
+										</button>
+									</div>
+								`,
+									false,
+									false
+								);
+								DOMUtils.after(container.$leftContainer, $button);
+								// 点击事件
+								let timeId: number;
+								DOMUtils.on($button, "click", async (event) => {
+									try {
+										utils.preventEvent(event);
 										clearTimeout(timeId);
-										TagUtil.setTag(
-											container.$leftText,
-											"success",
-											"支持触发回调函数"
-										);
-									});
-								} catch (error: any) {
-									Qmsg.error(error.toString(), { consoleLogContent: true });
-								}
-							});
-						},
-					};
-				})
-			);
+										Qmsg.info("等待3s内触发成功复制的回调");
+										timeId = setTimeoutLog(() => {
+											TagUtil.setTag(container.$leftText, "error", "不支持触发回调函数");
+										}, 3000);
+										await data.fn("Test " + data.name, "text", () => {
+											clearTimeout(timeId);
+											TagUtil.setTag(container.$leftText, "success", "支持触发回调函数");
+										});
+									} catch (error: any) {
+										Qmsg.error(error.toString(), { consoleLogContent: true });
+									}
+								});
+							},
+						};
+					})
+				);
+			});
 		}
 		return result;
 	}

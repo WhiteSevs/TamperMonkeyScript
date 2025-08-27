@@ -10,6 +10,7 @@ import { CommonUtil } from "@components/utils/CommonUtil";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 import Qmsg from "qmsg";
 import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
+import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-forms";
 
 export class ApiTest_setValues extends ApiAsyncTestBase {
 	public isSupport() {
@@ -32,10 +33,7 @@ export class ApiTest_setValues extends ApiAsyncTestBase {
 		let result: PopsPanelContentConfig = {
 			id: "aside-" + apiName,
 			title: "" + apiName,
-			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-				apiName,
-				`${apiName} & ${apiAsyncInfo.name}`
-			)}`,
+			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
 			scrollToDefaultView: true,
 			isDefault() {
 				return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -77,20 +75,45 @@ export class ApiTest_setValues extends ApiAsyncTestBase {
 					text: "功能测试",
 					forms: [],
 				},
+				{
+					type: "forms",
+					text: "功能测试（异步）",
+					forms: [],
+				},
 			],
 		};
 		if (this.isSupport()) {
-			((result["forms"][1] as any).forms as PopsPanelFormsTotalDetails[]).push(
-				(() => {
-					let localStorageDataValue = { foo: 1, bar: 2 };
-					return UIInfo(() => {
-						return {
-							text: "测试存储对象",
-							description: JSON.stringify(localStorageDataValue),
-							tag: "info",
-							afterRender(container) {
-								let $button = DOMUtils.parseHTML(
-									/*html*/ `
+			[
+				{
+					name: apiName,
+					fn: async (...args: any[]) => {
+						return new Promise<any>((resolve) => {
+							// @ts-ignore
+							const ret = GM_setValues(...args);
+							resolve(ret);
+						});
+					},
+					formList: (<PopsPanelFormsDetails>result["forms"][1]).forms,
+				},
+				{
+					name: apiAsyncInfo.name,
+					fn: GM.setValues,
+					formList: (<PopsPanelFormsDetails>result["forms"][2]).forms,
+				},
+			].forEach((data) => {
+				let apiNameTag = data.name;
+
+				data.formList.push(
+					(() => {
+						let localStorageDataValue = { foo: 1, bar: 2 };
+						return UIInfo(() => {
+							return {
+								text: "测试存储对象",
+								description: JSON.stringify(localStorageDataValue),
+								tag: "info",
+								afterRender(container) {
+									let $button = DOMUtils.parseHTML(
+										/*html*/ `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -98,25 +121,26 @@ export class ApiTest_setValues extends ApiAsyncTestBase {
 										</button>
 									</div>
 								`,
-									false,
-									false
-								);
-								DOMUtils.after(container.$leftContainer, $button);
-								// 点击事件
-								DOMUtils.on($button, "click", (event) => {
-									utils.preventEvent(event);
-									try {
-										GM_setValues(localStorageDataValue);
-										Qmsg.info("执行写入完毕，请自行查看是否成功写入");
-									} catch (error: any) {
-										Qmsg.error(error.toString(), { consoleLogContent: true });
-									}
-								});
-							},
-						};
-					});
-				})()
-			);
+										false,
+										false
+									);
+									DOMUtils.after(container.$leftContainer, $button);
+									// 点击事件
+									DOMUtils.on($button, "click", async (event) => {
+										utils.preventEvent(event);
+										try {
+											await data.fn(localStorageDataValue);
+											Qmsg.info("执行写入完毕，请自行查看是否成功写入");
+										} catch (error: any) {
+											Qmsg.error(error.toString(), { consoleLogContent: true });
+										}
+									});
+								},
+							};
+						});
+					})()
+				);
+			});
 		}
 		return result;
 	}

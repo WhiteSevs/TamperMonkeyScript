@@ -95,9 +95,7 @@ export const Component_Common = (): PopsPanelContentConfig => {
 		title: "通用",
 		scrollToDefaultView: true,
 		isDefault() {
-			return (
-				StorageApi.get(PanelKeyConfig.asideLastVisit) === "component-common"
-			);
+			return StorageApi.get(PanelKeyConfig.asideLastVisit) === "component-common";
 		},
 		clickCallback(data) {
 			StorageApi.set(PanelKeyConfig.asideLastVisit, "component-common");

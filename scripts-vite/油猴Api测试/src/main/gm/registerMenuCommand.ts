@@ -11,6 +11,7 @@ import { TagUtil, type TagName } from "@/setting/tag";
 import Qmsg from "qmsg";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
+import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-forms";
 
 export class ApiTest_registerMenuCommand extends ApiAsyncTestBase {
 	public isSupport() {
@@ -22,8 +23,7 @@ export class ApiTest_registerMenuCommand extends ApiAsyncTestBase {
 	public getAsyncApiOption() {
 		return {
 			name: "GM.registerMenuCommand",
-			isSupport:
-				this.isSupportGM() && typeof GM.registerMenuCommand === "function",
+			isSupport: this.isSupportGM() && typeof GM.registerMenuCommand === "function",
 		};
 	}
 	public getUIOption() {
@@ -34,10 +34,7 @@ export class ApiTest_registerMenuCommand extends ApiAsyncTestBase {
 		let result: PopsPanelContentConfig = {
 			id: "aside-" + apiName,
 			title: "" + apiName,
-			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-				apiName,
-				`${apiName} & ${apiAsyncInfo.name}`
-			)}`,
+			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
 			scrollToDefaultView: true,
 			isDefault() {
 				return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -79,18 +76,41 @@ export class ApiTest_registerMenuCommand extends ApiAsyncTestBase {
 					text: "功能测试",
 					forms: [],
 				},
+				{
+					type: "forms",
+					text: "功能测试（异步）",
+					forms: [],
+				},
 			],
 		};
 		if (this.isSupport()) {
-			((result["forms"][1] as any).forms as PopsPanelFormsTotalDetails[]).push(
-				UIInfo(() => {
-					try {
-						return {
-							text: "注册菜单 ==> Test Menu",
-							tag: "info",
-							afterRender(container) {
-								let $button = DOMUtils.parseHTML(
-									/*html*/ `
+			[
+				{
+					name: apiName,
+					fn: async (...args: any[]) => {
+						return new Promise<any>((resolve) => {
+							// @ts-ignore
+							const ret = GM_registerMenuCommand(...args);
+							resolve(ret);
+						});
+					},
+					formList: (<PopsPanelFormsDetails>result["forms"][1]).forms,
+				},
+				{
+					name: apiAsyncInfo.name,
+					fn: GM.registerMenuCommand,
+					formList: (<PopsPanelFormsDetails>result["forms"][2]).forms,
+				},
+			].forEach((data) => {
+				data.formList.push(
+					UIInfo(() => {
+						try {
+							return {
+								text: "注册菜单 ==> Test Menu",
+								tag: "info",
+								afterRender(container) {
+									let $button = DOMUtils.parseHTML(
+										/*html*/ `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -98,47 +118,37 @@ export class ApiTest_registerMenuCommand extends ApiAsyncTestBase {
 										</button>
 									</div>
 								`,
-									false,
-									false
-								);
-								DOMUtils.after(container.$leftContainer, $button);
-								// 点击事件
-								let timeId: number;
-								let intervalId: number;
-								DOMUtils.on($button, "click", (event) => {
-									try {
-										utils.preventEvent(event);
-										clearTimeout(timeId);
-										clearInterval(intervalId);
-										DOMUtils.text(container.$leftDesc, this.text);
-										DOMUtils.show(container.$leftDesc, false);
-
-										let intervalCheckCount = 10;
-										let setCheckText = () => {
-											let result = `已执行注册菜单，请在${intervalCheckCount}s内点击菜单项`;
-											intervalCheckCount--;
-											return result;
-										};
-										TagUtil.setTag(container.$leftText, "info", setCheckText());
-										intervalId = setInterval(() => {
-											TagUtil.setTag(
-												container.$leftText,
-												"info",
-												setCheckText()
-											);
-										}, 1000);
-										timeId = setTimeoutLog(() => {
+										false,
+										false
+									);
+									DOMUtils.after(container.$leftContainer, $button);
+									// 点击事件
+									let timeId: number;
+									let intervalId: number;
+									DOMUtils.on($button, "click", async (event) => {
+										try {
+											utils.preventEvent(event);
+											clearTimeout(timeId);
 											clearInterval(intervalId);
-											TagUtil.setTag(
-												container.$leftText,
-												"error",
-												"测试超时，未触发回调"
-											);
-										}, 10 * 1000);
+											DOMUtils.text(container.$leftDesc, this.text);
+											DOMUtils.show(container.$leftDesc, false);
 
-										const menuCommandId = GM_registerMenuCommand(
-											"Test Menu",
-											(event) => {
+											let intervalCheckCount = 10;
+											let setCheckText = () => {
+												let result = `已执行注册菜单，请在${intervalCheckCount}s内点击菜单项`;
+												intervalCheckCount--;
+												return result;
+											};
+											TagUtil.setTag(container.$leftText, "info", setCheckText());
+											intervalId = setInterval(() => {
+												TagUtil.setTag(container.$leftText, "info", setCheckText());
+											}, 1000);
+											timeId = setTimeoutLog(() => {
+												clearInterval(intervalId);
+												TagUtil.setTag(container.$leftText, "error", "测试超时，未触发回调");
+											}, 10 * 1000);
+
+											const menuCommandId = await data.fn("Test Menu", (event: any) => {
 												try {
 													clearInterval(intervalId);
 													clearTimeout(timeId);
@@ -162,10 +172,7 @@ export class ApiTest_registerMenuCommand extends ApiAsyncTestBase {
 															text: "支持点击回调但是没有event参数",
 														});
 													}
-													if (
-														typeof menuCommandId === "number" ||
-														typeof menuCommandId === "string"
-													) {
+													if (typeof menuCommandId === "number" || typeof menuCommandId === "string") {
 														checkResultText.push({
 															tag: "success",
 															text: "函数返回值是string|number",
@@ -173,51 +180,43 @@ export class ApiTest_registerMenuCommand extends ApiAsyncTestBase {
 													} else {
 														checkResultText.push({
 															tag: "error",
-															text:
-																"函数返回值不是string|number：" +
-																typeof menuCommandId,
+															text: "函数返回值不是string|number：" + typeof menuCommandId,
 														});
 													}
 													DOMUtils.html(
 														container.$leftText,
-														checkResultText
-															.map(
-																(it) => `<p class="${it.tag}">${it.text}</p>`
-															)
-															.join("\n")
+														checkResultText.map((it) => `<p class="${it.tag}">${it.text}</p>`).join("\n")
 													);
 												} catch (error: any) {
 													Qmsg.error(error.toString(), {
 														consoleLogContent: true,
 													});
 												}
-											}
-										);
-									} catch (error: any) {
-										Qmsg.error(error.toString(), { consoleLogContent: true });
-									}
-								});
-							},
-						};
-					} catch (error) {
-						console.error(error);
-						return {
-							text: "执行错误 " + error,
-							tag: "error",
-						};
-					} finally {
-					}
-				}),
-				UIInfo(() => {
-					try {
-						return {
-							text: "注册并更新菜单 ==> Test Update Menu",
-							description:
-								"请自行验证是否成功更新菜单文字为：Test Update Menu Success!!!",
-							tag: "info",
-							afterRender(container) {
-								let $button = DOMUtils.parseHTML(
-									/*html*/ `
+											});
+										} catch (error: any) {
+											Qmsg.error(error.toString(), { consoleLogContent: true });
+										}
+									});
+								},
+							};
+						} catch (error) {
+							console.error(error);
+							return {
+								text: "执行错误 " + error,
+								tag: "error",
+							};
+						} finally {
+						}
+					}),
+					UIInfo(() => {
+						try {
+							return {
+								text: "注册并更新菜单 ==> Test Update Menu",
+								description: "请自行验证是否成功更新菜单文字为：Test Update Menu Success!!!",
+								tag: "info",
+								afterRender(container) {
+									let $button = DOMUtils.parseHTML(
+										/*html*/ `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -225,51 +224,45 @@ export class ApiTest_registerMenuCommand extends ApiAsyncTestBase {
 										</button>
 									</div>
 								`,
-									false,
-									false
-								);
-								DOMUtils.after(container.$leftContainer, $button);
-								// 点击事件
-								let timeId: number;
-								DOMUtils.on($button, "click", (event) => {
-									try {
-										utils.preventEvent(event);
-										clearTimeout(timeId);
+										false,
+										false
+									);
+									DOMUtils.after(container.$leftContainer, $button);
+									// 点击事件
+									let timeId: number;
+									DOMUtils.on($button, "click", async (event) => {
+										try {
+											utils.preventEvent(event);
+											clearTimeout(timeId);
 
-										const menuCommandId = GM_registerMenuCommand(
-											"Test Update Menu",
-											(event) => {}
-										);
-										Qmsg.info("已注册菜单，3s后自动更新", {
-											timeout: 3000,
-										});
-										clearTimeout(timeId);
-										timeId = setTimeoutLog(() => {
-											GM_registerMenuCommand(
-												"Test Update Menu Success!!!",
-												() => {},
-												{
+											const menuCommandId = await data.fn("Test Update Menu", (event: any) => {});
+											Qmsg.info("已注册菜单，3s后自动更新", {
+												timeout: 3000,
+											});
+											clearTimeout(timeId);
+											timeId = setTimeoutLog(async () => {
+												await data.fn("Test Update Menu Success!!!", () => {}, {
 													id: menuCommandId,
-												}
-											);
-											Qmsg.success("已执行更新菜单命令，请自行验证");
-										}, 3000);
-									} catch (error: any) {
-										Qmsg.error(error.toString(), { consoleLogContent: true });
-									}
-								});
-							},
-						};
-					} catch (error) {
-						console.error(error);
-						return {
-							text: "执行错误 " + error,
-							tag: "error",
-						};
-					} finally {
-					}
-				})
-			);
+												});
+												Qmsg.success("已执行更新菜单命令，请自行验证");
+											}, 3000);
+										} catch (error: any) {
+											Qmsg.error(error.toString(), { consoleLogContent: true });
+										}
+									});
+								},
+							};
+						} catch (error) {
+							console.error(error);
+							return {
+								text: "执行错误 " + error,
+								tag: "error",
+							};
+						} finally {
+						}
+					})
+				);
+			});
 		}
 		return result;
 	}

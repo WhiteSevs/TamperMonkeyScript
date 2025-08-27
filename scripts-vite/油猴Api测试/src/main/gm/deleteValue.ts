@@ -9,6 +9,7 @@ import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 import { DOMUtils, utils } from "@/env";
 import Qmsg from "qmsg";
 import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
+import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-forms";
 
 export class ApiTest_deleteValue extends ApiAsyncTestBase {
 	public isSupport() {
@@ -31,10 +32,7 @@ export class ApiTest_deleteValue extends ApiAsyncTestBase {
 		let result: PopsPanelContentConfig = {
 			id: "aside-" + apiName,
 			title: "" + apiName,
-			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-				apiName,
-				`${apiName} & ${apiAsyncInfo.name}`
-			)}`,
+			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
 			scrollToDefaultView: true,
 			isDefault() {
 				return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -76,21 +74,46 @@ export class ApiTest_deleteValue extends ApiAsyncTestBase {
 					text: "功能测试",
 					forms: [],
 				},
+				{
+					type: "forms",
+					text: "功能测试（异步）",
+					forms: [],
+				},
 			],
 		};
 		if (this.isSupport()) {
-			((result["forms"][1] as any).forms as PopsPanelFormsTotalDetails[]).push(
-				(() => {
-					let localStorageDataKey = "Test GM_deleteValue null";
-					let localStorageDataValue = null;
-					return UIInfo(() => {
-						return {
-							text: "测试存储null值并删除",
-							description: `"${localStorageDataKey}": ${localStorageDataValue}`,
-							tag: "info",
-							afterRender(container) {
-								let $button = DOMUtils.parseHTML(
-									/*html*/ `
+			[
+				{
+					name: apiName,
+					fn: async (...args: any[]) => {
+						return new Promise<any>((resolve) => {
+							// @ts-ignore
+							const ret = GM_deleteValue(...args);
+							resolve(ret);
+						});
+					},
+					formList: (<PopsPanelFormsDetails>result["forms"][1]).forms,
+				},
+				{
+					name: apiAsyncInfo.name,
+					fn: GM.deleteValue,
+					formList: (<PopsPanelFormsDetails>result["forms"][2]).forms,
+				},
+			].forEach((data) => {
+				let apiNameTag = data.name;
+
+				data.formList.push(
+					(() => {
+						let localStorageDataKey = `Test ${apiNameTag} null`;
+						let localStorageDataValue = null;
+						return UIInfo(() => {
+							return {
+								text: "测试存储null值并删除",
+								description: `"${localStorageDataKey}": ${localStorageDataValue}`,
+								tag: "info",
+								afterRender(container) {
+									let $button = DOMUtils.parseHTML(
+										/*html*/ `
 										<div class="pops-panel-button pops-panel-button-no-icon">
 											<button class="pops-panel-button_inner" type="button" data-type="default">
 												<i class="pops-bottom-icon" is-loading="false"></i>
@@ -98,31 +121,32 @@ export class ApiTest_deleteValue extends ApiAsyncTestBase {
 											</button>
 										</div>
 									`,
-									false,
-									false
-								);
-								DOMUtils.after(container.$leftContainer, $button);
-								// 点击事件
-								DOMUtils.on($button, "click", (event) => {
-									utils.preventEvent(event);
-									try {
-										GM_setValue(localStorageDataKey, localStorageDataValue);
-										GM_deleteValue(localStorageDataKey);
-										let value = GM_getValue(localStorageDataKey);
-										if (typeof value === "object" && value === null) {
-											Qmsg.error("该值未删除，读取的值：" + value);
-										} else {
-											Qmsg.success("成功删除该值");
+										false,
+										false
+									);
+									DOMUtils.after(container.$leftContainer, $button);
+									// 点击事件
+									DOMUtils.on($button, "click", async (event) => {
+										utils.preventEvent(event);
+										try {
+											GM_setValue(localStorageDataKey, localStorageDataValue);
+											await data.fn(localStorageDataKey);
+											let value = GM_getValue(localStorageDataKey);
+											if (typeof value === "object" && value === null) {
+												Qmsg.error("该值未删除，读取的值：" + value);
+											} else {
+												Qmsg.success("成功删除该值");
+											}
+										} catch (error: any) {
+											Qmsg.error(error.toString(), { consoleLogContent: true });
 										}
-									} catch (error: any) {
-										Qmsg.error(error.toString(), { consoleLogContent: true });
-									}
-								});
-							},
-						};
-					});
-				})()
-			);
+									});
+								},
+							};
+						});
+					})()
+				);
+			});
 		}
 		return result;
 	}

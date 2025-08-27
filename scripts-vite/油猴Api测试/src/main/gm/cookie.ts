@@ -10,6 +10,7 @@ import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { UIInfo } from "@/setting/components/ui-info";
 import { PanelUISize } from "@components/setting/panel-ui-size";
+import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-forms";
 
 interface GmCookieSetOptions {
 	url?: string;
@@ -27,10 +28,7 @@ interface GmCookieSetOptions {
 }
 export class ApiTest_cookie extends ApiAsyncTestBase {
 	public isSupport() {
-		return (
-			(typeof GM_cookie === "object" || typeof GM_cookie === "function") &&
-			GM_cookie != null
-		);
+		return (typeof GM_cookie === "object" || typeof GM_cookie === "function") && GM_cookie != null;
 	}
 	public getApiOption() {
 		let isSupport = this.isSupport();
@@ -45,7 +43,9 @@ export class ApiTest_cookie extends ApiAsyncTestBase {
 	}
 	public getAsyncApiOption() {
 		let isSupportAsync =
-			this.isSupportGM() && typeof GM.cookie === "object" && GM.cookie != null;
+			this.isSupportGM() &&
+			(typeof GM.cookie === "object" || typeof GM.cookie === "function") &&
+			GM.cookie != null;
 		return {
 			name: "GM.cookie",
 			isSupport: isSupportAsync,
@@ -97,10 +97,14 @@ export class ApiTest_cookie extends ApiAsyncTestBase {
 					text: "功能测试",
 					forms: [],
 				},
+				{
+					type: "forms",
+					text: "功能测试（异步）",
+					forms: [],
+				},
 			],
 		};
-		let firstFormList = (result["forms"][0] as any)
-			.forms as PopsPanelFormsTotalDetails[];
+		let firstFormList = (result["forms"][0] as any).forms as PopsPanelFormsTotalDetails[];
 		if (this.isSupport()) {
 			firstFormList.push(
 				UIInfo(() => {
@@ -187,16 +191,68 @@ export class ApiTest_cookie extends ApiAsyncTestBase {
 				value: "1",
 				expirationDate: (Date.now() + 24 * 60 * 60 * 1000) / 1000,
 			};
-			((result["forms"][1] as any).forms as PopsPanelFormsTotalDetails[]).push(
-				UIInfo(() => {
-					try {
-						return {
-							text: CommonUtil.escapeHtml("测试list获取所有Cookie"),
-							tag: "info",
-							description: "点击按钮进行测试",
-							afterRender(container) {
-								let $button = DOMUtils.parseHTML(
-									/*html*/ `
+
+			[
+				{
+					name: apiName,
+					list: async (...args: any[]) => {
+						return new Promise<any>((resolve, reject) => {
+							const [details, cb] = args;
+							GM_cookie.list(details, (cookies, error) => {
+								if (error) {
+									reject(error);
+								} else {
+									resolve(cookies);
+								}
+							});
+						});
+					},
+					set: async (...args: any[]) => {
+						return new Promise<any>((resolve, reject) => {
+							const [details, cb] = args;
+							GM_cookie.set(details, (error) => {
+								if (error) {
+									reject(error);
+								} else {
+									resolve(undefined);
+								}
+							});
+						});
+					},
+					delete: async (...args: any[]) => {
+						return new Promise<any>((resolve, reject) => {
+							const [details, cb] = args;
+							GM_cookie.delete(details, (error) => {
+								if (error) {
+									reject(error);
+								} else {
+									resolve(undefined);
+								}
+							});
+						});
+					},
+					formList: (<PopsPanelFormsDetails>result["forms"][1]).forms,
+				},
+				{
+					name: apiAsyncInfo.name,
+					list: GM.cookie?.list,
+					set: GM.cookie?.set,
+					delete: GM.cookie?.delete,
+					formList: (<PopsPanelFormsDetails>result["forms"][2]).forms,
+				},
+			].forEach((data) => {
+				let apiNameTag = data.name;
+
+				data.formList.push(
+					UIInfo(() => {
+						try {
+							return {
+								text: CommonUtil.escapeHtml("测试list获取所有Cookie"),
+								tag: "info",
+								description: "点击按钮进行测试",
+								afterRender(container) {
+									let $button = DOMUtils.parseHTML(
+										/*html*/ `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -204,71 +260,66 @@ export class ApiTest_cookie extends ApiAsyncTestBase {
 										</button>
 									</div>
 									`,
-									false,
-									false
-								);
-								DOMUtils.on($button, "click", (event) => {
-									try {
-										utils.preventEvent(event);
-										GM_cookie.list({}, (cookies, error) => {
+										false,
+										false
+									);
+									DOMUtils.on($button, "click", async (event) => {
+										try {
+											utils.preventEvent(event);
+											const cookies = await data.list({});
 											console.log(cookies);
-											if (error) {
-												Qmsg.error(error);
-											} else {
-												if (Array.isArray(cookies)) {
-													pops.alert({
-														title: {
-															text: "GM_cookie.list",
-															position: "center",
-														},
-														content: {
-															text: JSON.stringify(cookies, null, 4),
-															html: true,
-														},
-														drag: true,
-														mask: {
-															enable: true,
-														},
-														width: PanelUISize.setting.width,
-														height: PanelUISize.setting.height,
-														style: /*css*/ `
+											if (Array.isArray(cookies)) {
+												pops.alert({
+													title: {
+														text: data.name + ".list",
+														position: "center",
+													},
+													content: {
+														text: JSON.stringify(cookies, null, 4),
+														html: true,
+													},
+													drag: true,
+													mask: {
+														enable: true,
+													},
+													width: PanelUISize.setting.width,
+													height: PanelUISize.setting.height,
+													style: /*css*/ `
 															.pops-alert-content{
 																white-space: pre-wrap;
 															}
 														`,
-													});
-												} else {
-													alert("获取的cookie信息不是数组");
-												}
+												});
+											} else {
+												alert("获取的cookie信息不是数组");
 											}
-										});
-									} catch (error: any) {
-										Qmsg.error(error.toString(), {
-											consoleLogContent: true,
-										});
-									}
-								});
-								DOMUtils.after(container.$leftContainer, $button);
-							},
-						};
-					} catch (error) {
-						console.error(error);
-						return {
-							text: "执行错误 " + error,
-							tag: "error",
-						};
-					} finally {
-					}
-				}),
-				UIInfo(() => {
-					try {
-						return {
-							text: CommonUtil.escapeHtml("测试set新增Cookie"),
-							tag: "info",
-							description: JSON.stringify(newCookieInfo),
-							afterRender(container) {
-								let $button = DOMUtils.parseHTML(
-									/*html*/ `
+										} catch (error: any) {
+											Qmsg.error(error.toString(), {
+												consoleLogContent: true,
+											});
+										}
+									});
+									DOMUtils.after(container.$leftContainer, $button);
+								},
+							};
+						} catch (error) {
+							console.error(error);
+							return {
+								text: "执行错误 " + error,
+								tag: "error",
+							};
+						} finally {
+						}
+					}),
+					UIInfo(() => {
+						try {
+							return {
+								text: CommonUtil.escapeHtml("测试set新增Cookie"),
+								tag: "info",
+								description: JSON.stringify(newCookieInfo),
+								afterRender(container) {
+									let $button = DOMUtils.parseHTML(
+										/*html*/ `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -276,51 +327,44 @@ export class ApiTest_cookie extends ApiAsyncTestBase {
 										</button>
 									</div>
 									`,
-									false,
-									false
-								);
-								DOMUtils.on($button, "click", (event) => {
-									try {
-										utils.preventEvent(event);
-										GM_cookie.set(newCookieInfo, (error) => {
-											if (error) {
-												Qmsg.error(error, {
-													consoleLogContent: true,
-												});
-											} else {
-												Qmsg.success("set cookie success");
-											}
-										});
-									} catch (error: any) {
-										Qmsg.error(error.toString(), {
-											consoleLogContent: true,
-										});
-									}
-								});
-								DOMUtils.after(container.$leftContainer, $button);
-							},
-						};
-					} catch (error) {
-						console.error(error);
-						return {
-							text: "执行错误 " + error,
-							tag: "error",
-						};
-					} finally {
-					}
-				}),
-				UIInfo(() => {
-					try {
-						let deleteCookieInfo = {
-							name: "test",
-						};
-						return {
-							text: CommonUtil.escapeHtml("测试delete删除Cookie"),
-							tag: "info",
-							description: JSON.stringify(deleteCookieInfo),
-							afterRender(container) {
-								let $button = DOMUtils.parseHTML(
-									/*html*/ `
+										false,
+										false
+									);
+									DOMUtils.on($button, "click", async (event) => {
+										try {
+											utils.preventEvent(event);
+											await data.set(newCookieInfo);
+											Qmsg.success(data.name + " set cookie success");
+										} catch (error: any) {
+											Qmsg.error(error.toString(), {
+												consoleLogContent: true,
+											});
+										}
+									});
+									DOMUtils.after(container.$leftContainer, $button);
+								},
+							};
+						} catch (error) {
+							console.error(error);
+							return {
+								text: "执行错误 " + error,
+								tag: "error",
+							};
+						} finally {
+						}
+					}),
+					UIInfo(() => {
+						try {
+							let deleteCookieInfo = {
+								name: "test",
+							};
+							return {
+								text: CommonUtil.escapeHtml("测试delete删除Cookie"),
+								tag: "info",
+								description: JSON.stringify(deleteCookieInfo),
+								afterRender(container) {
+									let $button = DOMUtils.parseHTML(
+										/*html*/ `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -328,40 +372,34 @@ export class ApiTest_cookie extends ApiAsyncTestBase {
 										</button>
 									</div>
 									`,
-									false,
-									false
-								);
-								DOMUtils.on($button, "click", (event) => {
-									try {
-										utils.preventEvent(event);
-										GM_cookie.delete(deleteCookieInfo, (error) => {
-											if (error) {
-												Qmsg.error(error, {
-													consoleLogContent: true,
-												});
-											} else {
-												Qmsg.success("delete cookie success");
-											}
-										});
-									} catch (error: any) {
-										Qmsg.error(error.toString(), {
-											consoleLogContent: true,
-										});
-									}
-								});
-								DOMUtils.after(container.$leftContainer, $button);
-							},
-						};
-					} catch (error) {
-						console.error(error);
-						return {
-							text: "执行错误 " + error,
-							tag: "error",
-						};
-					} finally {
-					}
-				})
-			);
+										false,
+										false
+									);
+									DOMUtils.on($button, "click", async (event) => {
+										try {
+											utils.preventEvent(event);
+											await data.delete(deleteCookieInfo);
+											Qmsg.success(data.name + " delete cookie success");
+										} catch (error: any) {
+											Qmsg.error(error.toString(), {
+												consoleLogContent: true,
+											});
+										}
+									});
+									DOMUtils.after(container.$leftContainer, $button);
+								},
+							};
+						} catch (error) {
+							console.error(error);
+							return {
+								text: "执行错误 " + error,
+								tag: "error",
+							};
+						} finally {
+						}
+					})
+				);
+			});
 		}
 		return result;
 	}

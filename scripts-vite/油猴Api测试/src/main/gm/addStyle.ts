@@ -29,10 +29,7 @@ export class ApiTest_addStyle extends ApiAsyncTestBase {
 		let result: PopsPanelContentConfig = {
 			id: "aside-GM_addStyle" + apiName,
 			title: apiName,
-			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-				apiName,
-				`${apiName} & ${apiAsyncInfo.name}`
-			)}`,
+			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
 			scrollToDefaultView: true,
 			isDefault() {
 				return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;

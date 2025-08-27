@@ -7,6 +7,7 @@ import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/t
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
+import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-forms";
 
 export class ApiTest_getResourceText extends ApiAsyncTestBase {
 	public isSupport() {
@@ -29,10 +30,7 @@ export class ApiTest_getResourceText extends ApiAsyncTestBase {
 		let result: PopsPanelContentConfig = {
 			id: "aside-" + apiName,
 			title: "" + apiName,
-			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-				apiName,
-				`${apiName} & ${apiAsyncInfo.name}`
-			)}`,
+			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
 			scrollToDefaultView: true,
 			isDefault() {
 				return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -74,36 +72,59 @@ export class ApiTest_getResourceText extends ApiAsyncTestBase {
 					text: "功能测试",
 					forms: [],
 				},
+				{
+					type: "forms",
+					text: "功能测试（异步）",
+					forms: [],
+				},
 			],
 		};
 		if (this.isSupport()) {
-			((result["forms"][1] as any).forms as PopsPanelFormsTotalDetails[]).push(
-				UIInfo(() => {
-					try {
-						let resourceText = GM_getResourceText("ViewerCSS");
-						if (typeof resourceText === "string") {
+			[
+				{
+					name: apiName,
+					fn: async (...args: any[]) => {
+						return new Promise<any>((resolve) => {
+							// @ts-ignore
+							const ret = GM_getResourceText(...args);
+							resolve(ret);
+						});
+					},
+					formList: (<PopsPanelFormsDetails>result["forms"][1]).forms,
+				},
+				{
+					name: apiAsyncInfo.name,
+					fn: GM.getResourceText,
+					formList: (<PopsPanelFormsDetails>result["forms"][2]).forms,
+				},
+			].forEach((data) => {
+				let apiNameTag = data.name.replace(".", "__async__");
+				data.formList.push(
+					UIInfo(async () => {
+						try {
+							let resourceText = await data.fn("ViewerCSS");
+							if (typeof resourceText === "string") {
+								return {
+									text: CommonUtil.escapeHtml("支持通过@resource引用资源字符串"),
+									tag: "success",
+								};
+							} else {
+								return {
+									text: CommonUtil.escapeHtml(data.name + " return is not string"),
+									tag: "error",
+								};
+							}
+						} catch (error) {
+							console.error(error);
 							return {
-								text: CommonUtil.escapeHtml("支持通过@resource引用资源字符串"),
-								tag: "success",
-							};
-						} else {
-							return {
-								text: CommonUtil.escapeHtml(
-									"GM_getResourceText return is not string"
-								),
+								text: "执行错误 " + error,
 								tag: "error",
 							};
+						} finally {
 						}
-					} catch (error) {
-						console.error(error);
-						return {
-							text: "执行错误 " + error,
-							tag: "error",
-						};
-					} finally {
-					}
-				})
-			);
+					})
+				);
+			});
 		}
 		return result;
 	}

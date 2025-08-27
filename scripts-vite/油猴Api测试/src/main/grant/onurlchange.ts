@@ -71,14 +71,8 @@ export class GrantTest_onurlchange extends ApiTestBase {
 												clearTimeout(timeId);
 												// 该值为null，而非undefined
 												if (monkeyWindow.onurlchange === null) {
-													monkeyWindow.removeEventListener(
-														"urlchange",
-														urlChangeEvent
-													);
-													monkeyWindow.addEventListener(
-														"urlchange",
-														urlChangeEvent
-													);
+													monkeyWindow.removeEventListener("urlchange", urlChangeEvent);
+													monkeyWindow.addEventListener("urlchange", urlChangeEvent);
 													window.history.pushState({}, "", "#/onurlchange");
 													timeId = setTimeout(() => {
 														Qmsg.error("urlchange event is not trigger");

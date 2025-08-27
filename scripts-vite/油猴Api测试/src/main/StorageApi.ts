@@ -5,8 +5,7 @@ import { GMTotal } from "./GMTotal";
 const LocalStorageApi = {
 	$storageKey: "gm-api-test-storage-config",
 	set(key: string, value: any) {
-		let config =
-			window.localStorage.getItem(LocalStorageApi.$storageKey) ?? "{}";
+		let config = window.localStorage.getItem(LocalStorageApi.$storageKey) ?? "{}";
 		let configJSON = utils.toJSON(config);
 		configJSON[key] = value;
 		window.localStorage.setItem(
@@ -17,14 +16,12 @@ const LocalStorageApi = {
 		);
 	},
 	get<K extends any>(key: string, defaultValue?: K): K {
-		let config =
-			window.localStorage.getItem(LocalStorageApi.$storageKey) ?? "{}";
+		let config = window.localStorage.getItem(LocalStorageApi.$storageKey) ?? "{}";
 		let configJSON = utils.toJSON(config);
 		return configJSON[key] ?? defaultValue;
 	},
 	delete(key: string) {
-		let config =
-			window.localStorage.getItem(LocalStorageApi.$storageKey) ?? "{}";
+		let config = window.localStorage.getItem(LocalStorageApi.$storageKey) ?? "{}";
 		let configJSON = utils.toJSON(config);
 		Reflect.deleteProperty(configJSON, key);
 		window.localStorage.setItem(
@@ -43,11 +40,7 @@ export const StorageApi = {
 	 * @param value 值
 	 */
 	set(key: string, value: any) {
-		if (
-			GMTotal.setValue.isSupport() &&
-			GMTotal.getValue.isSupport() &&
-			GMTotal.deleteValue.isSupport()
-		) {
+		if (GMTotal.setValue.isSupport() && GMTotal.getValue.isSupport() && GMTotal.deleteValue.isSupport()) {
 			GM_setValue(key, value);
 		} else {
 			LocalStorageApi.set(key, value);
@@ -59,11 +52,7 @@ export const StorageApi = {
 	 * @param defaultValue 默认值
 	 */
 	get<K extends any>(key: string, defaultValue?: K): K {
-		if (
-			GMTotal.setValue.isSupport() &&
-			GMTotal.getValue.isSupport() &&
-			GMTotal.deleteValue.isSupport()
-		) {
+		if (GMTotal.setValue.isSupport() && GMTotal.getValue.isSupport() && GMTotal.deleteValue.isSupport()) {
 			return GM_getValue(key, defaultValue);
 		} else {
 			return LocalStorageApi.get(key, defaultValue);
@@ -74,11 +63,7 @@ export const StorageApi = {
 	 * @param key 键
 	 */
 	delete(key: string) {
-		if (
-			GMTotal.setValue.isSupport() &&
-			GMTotal.getValue.isSupport() &&
-			GMTotal.deleteValue.isSupport()
-		) {
+		if (GMTotal.setValue.isSupport() && GMTotal.getValue.isSupport() && GMTotal.deleteValue.isSupport()) {
 			GM_deleteValue(key);
 		} else {
 			LocalStorageApi.delete(key);

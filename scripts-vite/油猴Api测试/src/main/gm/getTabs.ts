@@ -33,10 +33,7 @@ export class ApiTest_getTabs extends ApiAsyncTestBase {
 		let result: PopsPanelContentConfig = {
 			id: "aside-" + apiName,
 			title: "" + apiName,
-			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-				apiName,
-				`${apiName} & ${apiAsyncInfo.name}`
-			)}`,
+			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
 			scrollToDefaultView: true,
 			isDefault() {
 				return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -128,11 +125,41 @@ export class ApiTest_getTabs extends ApiAsyncTestBase {
 								);
 								DOMUtils.after(container.$leftContainer, $button);
 								// 点击事件
+								let timeId: number;
 								DOMUtils.on($button, "click", async (event) => {
 									try {
 										utils.preventEvent(event);
+										clearTimeout(timeId);
+										TagUtil.setTag(container.$leftText, "error", "等待3s内触发回调函数");
+										timeId = setTimeoutLog(() => {
+											TagUtil.setTag(container.$leftText, "error", "超时，不支持触发回调函数");
+										}, 3000);
 										let tabs = await data.fn();
+										clearTimeout(timeId);
 										console.log(data.name + " callback tabs", tabs);
+										if (typeof tabs === "object" && tabs != null) {
+											TagUtil.setTagList(container.$leftText, [
+												{
+													tag: "success",
+													text: "支持触发回调函数",
+												},
+												{
+													tag: "success",
+													text: "入参tab为object类型",
+												},
+											]);
+										} else {
+											TagUtil.setTagList(container.$leftText, [
+												{
+													tag: "success",
+													text: "支持触发回调函数",
+												},
+												{
+													tag: "error",
+													text: "入参tab不为object类型",
+												},
+											]);
+										}
 										alert(JSON.stringify(tabs));
 									} catch (error: any) {
 										Qmsg.error(error.toString(), { consoleLogContent: true });

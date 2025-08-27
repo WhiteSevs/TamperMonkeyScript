@@ -38,15 +38,9 @@ export const UIInfo = (
 		},
 		async afterAddToUListCallBack(formConfig, container) {
 			let $target = container.target!;
-			let $leftContainer = $target.querySelector<HTMLElement>(
-				".pops-panel-item-left-text"
-			)!;
-			let $text = $target.querySelector<HTMLElement>(
-				".pops-panel-item-left-main-text"
-			)!;
-			let $desc = $target.querySelector<HTMLElement>(
-				".pops-panel-item-left-desc-text"
-			)!;
+			let $leftContainer = $target.querySelector<HTMLElement>(".pops-panel-item-left-text")!;
+			let $text = $target.querySelector<HTMLElement>(".pops-panel-item-left-main-text")!;
+			let $desc = $target.querySelector<HTMLElement>(".pops-panel-item-left-desc-text")!;
 			let detail = await config();
 			if (detail.tag == null) {
 				DOMUtils.html($text, detail.text);

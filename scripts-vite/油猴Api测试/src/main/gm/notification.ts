@@ -1,9 +1,4 @@
-import {
-	GM,
-	GM_notification,
-	type GmNotificationControl,
-	type GmNotificationOptions,
-} from "ViteGM";
+import { GM, GM_notification, type GmNotificationControl, type GmNotificationOptions } from "ViteGM";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
@@ -37,10 +32,7 @@ export class ApiTest_notification extends ApiAsyncTestBase {
 		let result: PopsPanelContentConfig = {
 			id: "aside-" + apiName,
 			title: "" + apiName,
-			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-				apiName,
-				`${apiName} & ${apiAsyncInfo.name}`
-			)}`,
+			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
 			scrollToDefaultView: true,
 			isDefault() {
 				return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -193,10 +185,7 @@ export class ApiTest_notification extends ApiAsyncTestBase {
 											clearTimeout(timeId);
 											let clickText = "测试成功，触发";
 											let clickTag: TagName = "success";
-											DOMUtils.html(
-												container.$leftText,
-												/*html*/ `<p class="${clickTag}">${clickText}</p>`
-											);
+											DOMUtils.html(container.$leftText, /*html*/ `<p class="${clickTag}">${clickText}</p>`);
 
 											// 重置参数
 											isClick = false;
@@ -216,17 +205,9 @@ export class ApiTest_notification extends ApiAsyncTestBase {
 												calcTimeCount--;
 												return result;
 											};
-											TagUtil.setTag(
-												container.$leftText,
-												"info",
-												tipInfoText()
-											);
+											TagUtil.setTag(container.$leftText, "info", tipInfoText());
 											timeId = setTimeoutLog(() => {
-												TagUtil.setTag(
-													container.$leftText,
-													"error",
-													"测试超时，未触发ondone回调"
-												);
+												TagUtil.setTag(container.$leftText, "error", "测试超时，未触发ondone回调");
 											}, timeCount * 1000);
 											const clicked = await data.fn({
 												title: `测试 ${data.name} 标题`,
@@ -342,11 +323,7 @@ export class ApiTest_notification extends ApiAsyncTestBase {
 											DOMUtils.show(container.$leftDesc, false);
 											timeId = setTimeoutLog(() => {
 												clearInterval(intervalId);
-												TagUtil.setTag(
-													container.$leftText,
-													"error",
-													"测试超时，未触发回调"
-												);
+												TagUtil.setTag(container.$leftText, "error", "测试超时，未触发回调");
 											}, timeCount * 1000);
 											intervalId = setInterval(() => {
 												DOMUtils.text(container.$leftText, tipInfoText());
@@ -359,10 +336,7 @@ export class ApiTest_notification extends ApiAsyncTestBase {
 													// The userscript is still running, so don't open example.com
 													console.log(event);
 													isClick = true;
-													if (
-														event &&
-														typeof event.preventDefault === "function"
-													) {
+													if (event && typeof event.preventDefault === "function") {
 														isPrevent = true;
 														event.preventDefault();
 													}

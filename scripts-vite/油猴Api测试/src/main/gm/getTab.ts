@@ -6,7 +6,7 @@ import { UIInfo } from "@/setting/components/ui-info";
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
-import { DOMUtils, setTimeoutLog, utils } from "@/env";
+import { DOMUtils, log, setTimeoutLog, utils } from "@/env";
 import Qmsg from "qmsg";
 import { TagUtil } from "@/setting/tag";
 import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
@@ -33,10 +33,7 @@ export class ApiTest_getTab extends ApiAsyncTestBase {
 		let result: PopsPanelContentConfig = {
 			id: "aside-" + apiName,
 			title: "" + apiName,
-			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-				apiName,
-				`${apiName} & ${apiAsyncInfo.name}`
-			)}`,
+			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
 			scrollToDefaultView: true,
 			isDefault() {
 				return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -133,17 +130,9 @@ export class ApiTest_getTab extends ApiAsyncTestBase {
 									utils.preventEvent(event);
 									try {
 										clearTimeout(timeId);
-										TagUtil.setTag(
-											container.$leftText,
-											"error",
-											"等待3s内触发回调函数"
-										);
+										TagUtil.setTag(container.$leftText, "error", "等待3s内触发回调函数");
 										timeId = setTimeoutLog(() => {
-											TagUtil.setTag(
-												container.$leftText,
-												"error",
-												"超时，不支持触发回调函数"
-											);
+											TagUtil.setTag(container.$leftText, "error", "超时，不支持触发回调函数");
 										}, 3000);
 										let tab = await data.fn();
 										clearTimeout(timeId);

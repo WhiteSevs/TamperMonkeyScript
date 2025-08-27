@@ -10,6 +10,7 @@ import { CommonUtil } from "@components/utils/CommonUtil";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 import Qmsg from "qmsg";
 import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
+import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-forms";
 
 export class ApiTest_listValues extends ApiAsyncTestBase {
 	public isSupport() {
@@ -32,10 +33,7 @@ export class ApiTest_listValues extends ApiAsyncTestBase {
 		let result: PopsPanelContentConfig = {
 			id: "aside-" + apiName,
 			title: "" + apiName,
-			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-				apiName,
-				`${apiName} & ${apiAsyncInfo.name}`
-			)}`,
+			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
 			scrollToDefaultView: true,
 			isDefault() {
 				return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -77,17 +75,42 @@ export class ApiTest_listValues extends ApiAsyncTestBase {
 					text: "功能测试",
 					forms: [],
 				},
+				{
+					type: "forms",
+					text: "功能测试（异步）",
+					forms: [],
+				},
 			],
 		};
 		if (this.isSupport()) {
-			((result["forms"][1] as any).forms as PopsPanelFormsTotalDetails[]).push(
-				UIInfo(() => {
-					return {
-						text: "查看存储的所有键名",
-						tag: "info",
-						afterRender(container) {
-							let $button = DOMUtils.parseHTML(
-								/*html*/ `
+			[
+				{
+					name: apiName,
+					fn: async (...args: any[]) => {
+						return new Promise<any>((resolve) => {
+							// @ts-ignore
+							const ret = GM_listValues(...args);
+							resolve(ret);
+						});
+					},
+					formList: (<PopsPanelFormsDetails>result["forms"][1]).forms,
+				},
+				{
+					name: apiAsyncInfo.name,
+					fn: GM.listValues,
+					formList: (<PopsPanelFormsDetails>result["forms"][2]).forms,
+				},
+			].forEach((data) => {
+				let apiNameTag = data.name;
+
+				data.formList.push(
+					UIInfo(() => {
+						return {
+							text: "查看存储的所有键名",
+							tag: "info",
+							afterRender(container) {
+								let $button = DOMUtils.parseHTML(
+									/*html*/ `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -95,35 +118,35 @@ export class ApiTest_listValues extends ApiAsyncTestBase {
 										</button>
 									</div>
 								`,
-								false,
-								false
-							);
-							DOMUtils.after(container.$leftContainer, $button);
-							// 点击事件
-							DOMUtils.on($button, "click", (event) => {
-								utils.preventEvent(event);
-								try {
-									let data = GM_listValues();
-									if (Array.isArray(data)) {
-										let isNotTotalStr = data.find(
-											(it) => typeof it !== "string"
-										);
-										if (isNotTotalStr) {
-											Qmsg.error("返回值数组中存在非string类型");
+									false,
+									false
+								);
+								DOMUtils.after(container.$leftContainer, $button);
+								// 点击事件
+								DOMUtils.on($button, "click", async (event) => {
+									utils.preventEvent(event);
+									try {
+										let ret = await data.fn();
+										console.log(data.name + " call result", ret);
+										if (Array.isArray(ret)) {
+											let isNotTotalStr = ret.find((it) => typeof it !== "string");
+											if (isNotTotalStr) {
+												Qmsg.error("返回值数组中存在非string类型");
+											} else {
+												alert(JSON.stringify(ret, null, 4));
+											}
 										} else {
-											alert(JSON.stringify(data, null, 4));
+											Qmsg.error("返回值不是数组");
 										}
-									} else {
-										Qmsg.error("返回值不是数组");
+									} catch (error: any) {
+										Qmsg.error(error.toString(), { consoleLogContent: true });
 									}
-								} catch (error: any) {
-									Qmsg.error(error.toString(), { consoleLogContent: true });
-								}
-							});
-						},
-					};
-				})
-			);
+								});
+							},
+						};
+					})
+				);
+			});
 		}
 		return result;
 	}

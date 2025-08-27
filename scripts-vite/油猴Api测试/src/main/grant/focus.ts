@@ -72,9 +72,7 @@ export class GrantTest_focus extends ApiTestBase {
 												once: true,
 											});
 											try {
-												Qmsg.info(
-													"请切换至其它Tab页面，切换完毕3秒后会自动调用该函数"
-												);
+												Qmsg.info("请切换至其它Tab页面，切换完毕3秒后会自动调用该函数");
 											} catch (error: any) {
 												Qmsg.error(error.toString(), {
 													consoleLogContent: true,

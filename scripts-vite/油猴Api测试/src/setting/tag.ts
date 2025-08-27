@@ -13,10 +13,7 @@ export const TagUtil = {
 	/**
 	 * 设置多组tag（自动清除旧tag）
 	 */
-	setTagList(
-		$el: HTMLElement,
-		tagList: { tag: keyof typeof Tag; text?: string }[]
-	) {
+	setTagList($el: HTMLElement, tagList: { tag: keyof typeof Tag; text?: string }[]) {
 		DOMUtils.html($el, "");
 		let tagHTML = "";
 		tagList.forEach((tagItem) => {

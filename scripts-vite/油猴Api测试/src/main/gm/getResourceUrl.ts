@@ -30,10 +30,7 @@ export class ApiTest_getResourceUrl extends ApiAsyncTestBase {
 		let result: PopsPanelContentConfig = {
 			id: "aside-" + apiName,
 			title: "" + apiName,
-			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-				apiName,
-				`${apiName} & ${apiAsyncInfo.name}`
-			)}`,
+			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
 			scrollToDefaultView: true,
 			isDefault() {
 				return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -107,9 +104,7 @@ export class ApiTest_getResourceUrl extends ApiAsyncTestBase {
 							let resourceBase64Data = await data.fn("ViewerCSS");
 							if (typeof resourceBase64Data !== "string") {
 								return {
-									text: CommonUtil.escapeHtml(
-										`${data.name} return is not string`
-									),
+									text: CommonUtil.escapeHtml(`${data.name} return is not string`),
 									tag: "error",
 								};
 							}
@@ -121,9 +116,7 @@ export class ApiTest_getResourceUrl extends ApiAsyncTestBase {
 									)
 								) {
 									return {
-										text: CommonUtil.escapeHtml(
-											"支持通过@resource引用资源并进行base64编码"
-										),
+										text: CommonUtil.escapeHtml("支持通过@resource引用资源并进行base64编码"),
 										tag: "success",
 									};
 								} else {
@@ -136,9 +129,7 @@ export class ApiTest_getResourceUrl extends ApiAsyncTestBase {
 								}
 							} else {
 								return {
-									text: CommonUtil.escapeHtml(
-										"支持通过@resource引用资源，但是未对资源进行base64编码"
-									),
+									text: CommonUtil.escapeHtml("支持通过@resource引用资源，但是未对资源进行base64编码"),
 									tag: "warn",
 								};
 							}

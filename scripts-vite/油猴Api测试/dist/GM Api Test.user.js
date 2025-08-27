@@ -20564,9 +20564,9 @@ transformKey(key) {
 注入速度等级：0`;
   }
   const setTimeoutLog = (handler, timeout, ...args) => {
-    return setTimeout(() => {
+    return setTimeout(async () => {
       try {
-        handler(...args);
+        await handler(...args);
       } catch (error) {
         qmsg.error(error.toString(), { consoleLogContent: true });
       }
@@ -20621,15 +20621,9 @@ clearTag($el) {
       },
       async afterAddToUListCallBack(formConfig, container) {
         let $target = container.target;
-        let $leftContainer = $target.querySelector(
-          ".pops-panel-item-left-text"
-        );
-        let $text = $target.querySelector(
-          ".pops-panel-item-left-main-text"
-        );
-        let $desc = $target.querySelector(
-          ".pops-panel-item-left-desc-text"
-        );
+        let $leftContainer = $target.querySelector(".pops-panel-item-left-text");
+        let $text = $target.querySelector(".pops-panel-item-left-main-text");
+        let $desc = $target.querySelector(".pops-panel-item-left-desc-text");
         let detail = await config();
         if (detail.tag == null) {
           domUtils.html($text, detail.text);
@@ -20909,10 +20903,7 @@ getApiDocUrl(navName, text) {
       let result = {
         id: "aside-GM_addStyle" + apiName,
         title: apiName,
-        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-        apiName,
-        `${apiName} & ${apiAsyncInfo.name}`
-      )}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -21052,10 +21043,7 @@ getApiDocUrl(navName, text) {
       let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-        apiName,
-        `${apiName} & ${apiAsyncInfo.name}`
-      )}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -21092,20 +21080,43 @@ getApiDocUrl(navName, text) {
             type: "forms",
             text: "功能测试",
             forms: []
+          },
+          {
+            type: "forms",
+            text: "功能测试（异步）",
+            forms: []
           }
         ]
       };
       if (this.isSupport()) {
-        result["forms"][1].forms.push(
-          (() => {
-            let localStorageDataKey = apiName + "_key_1";
-            return UIInfo(() => {
-              return {
-                text: "测试监听数据存储改变",
-                description: ``,
-                tag: "info",
-                afterRender(container) {
-                  let $button = domUtils.parseHTML(
+        [
+          {
+            name: apiName,
+            fn: async (...args) => {
+              return new Promise((resolve) => {
+                const ret = _GM_addValueChangeListener(...args);
+                resolve(ret);
+              });
+            },
+            formList: result["forms"][1].forms
+          },
+          {
+            name: apiAsyncInfo.name,
+            fn: _GM.addValueChangeListener,
+            formList: result["forms"][2].forms
+          }
+        ].forEach((data) => {
+          let apiNameTag = data.name;
+          data.formList.push(
+            (() => {
+              let localStorageDataKey = apiNameTag + "_key_1";
+              return UIInfo(() => {
+                return {
+                  text: "测试监听数据存储改变",
+                  description: ``,
+                  tag: "info",
+                  afterRender(container) {
+                    let $button = domUtils.parseHTML(
 `
 										<div class="pops-panel-button pops-panel-button-no-icon">
 											<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -21114,98 +21125,97 @@ getApiDocUrl(navName, text) {
 											</button>
 										</div>
 									`,
-                    false,
-                    false
-                  );
-                  domUtils.after(container.$leftContainer, $button);
-                  let timeoutId = void 0;
-                  let listenerId = void 0;
-                  let tagTextList = [];
-                  domUtils.on($button, "click", (event) => {
-                    utils.preventEvent(event);
-                    try {
-                      tagTextList = [];
-                      clearTimeout(timeoutId);
-                      TagUtil.setTag(container.$leftText, "info", "等待触发回调");
-                      domUtils.text(container.$leftDesc, this.text);
-                      domUtils.show(container.$leftDesc, false);
-                      let delaySetValue = utils.formatTime(Date.now());
-                      listenerId = listenerId ?? _GM_addValueChangeListener(
-                        localStorageDataKey,
-                        function(key, oldValue, newValue, remote) {
-                          console.log(arguments);
-                          clearTimeout(timeoutId);
+                      false,
+                      false
+                    );
+                    domUtils.after(container.$leftContainer, $button);
+                    let timeoutId = void 0;
+                    let listenerId = void 0;
+                    let tagTextList = [];
+                    domUtils.on($button, "click", async (event) => {
+                      utils.preventEvent(event);
+                      try {
+                        tagTextList = [];
+                        clearTimeout(timeoutId);
+                        TagUtil.setTag(container.$leftText, "info", "等待触发回调");
+                        domUtils.text(container.$leftDesc, this.text);
+                        domUtils.show(container.$leftDesc, false);
+                        let delaySetValue = utils.formatTime(Date.now());
+                        listenerId = listenerId ?? await data.fn(
+                          localStorageDataKey,
+                          function(key, oldValue, newValue, remote) {
+                            console.log(arguments);
+                            clearTimeout(timeoutId);
+                            tagTextList.push({
+                              tag: "success",
+                              text: "支持触发回调"
+                            });
+                            if (typeof key !== "string") {
+                              tagTextList.push({
+                                tag: "error",
+                                text: `不支持回调参数key，当前类型：${typeof key}`
+                              });
+                            } else {
+                              tagTextList.push({
+                                tag: "success",
+                                text: `支持回调参数key，当前类型：${typeof key}`
+                              });
+                            }
+                            if (typeof newValue !== typeof delaySetValue) {
+                              tagTextList.push({
+                                tag: "error",
+                                text: `不支持回调参数newValue，当前类型：${typeof delaySetValue}`
+                              });
+                            } else {
+                              tagTextList.push({
+                                tag: "success",
+                                text: `支持回调参数newValue，当前类型：${typeof delaySetValue}`
+                              });
+                            }
+                            if (typeof remote !== "boolean") {
+                              tagTextList.push({
+                                tag: "error",
+                                text: `不支持回调参数remote，当前类型：${typeof remote}`
+                              });
+                            } else {
+                              tagTextList.push({
+                                tag: "success",
+                                text: `支持回调参数remote，当前类型：${typeof remote}`
+                              });
+                            }
+                            TagUtil.setTagList(container.$leftText, tagTextList);
+                          }
+                        );
+                        console.log(data.name + " listenerId：" + listenerId + " typeof：" + typeof listenerId);
+                        if (typeof listenerId !== "number" && typeof listenerId !== "string") {
+                          tagTextList.push({
+                            tag: "warn",
+                            text: "listenerId类型不是number或string"
+                          });
+                        } else {
                           tagTextList.push({
                             tag: "success",
-                            text: "支持触发回调"
+                            text: "listenerId类型：" + typeof listenerId
                           });
-                          if (typeof key !== "string") {
-                            tagTextList.push({
-                              tag: "error",
-                              text: `不支持回调参数key，当前类型：${typeof key}`
-                            });
-                          } else {
-                            tagTextList.push({
-                              tag: "success",
-                              text: `支持回调参数key，当前类型：${typeof key}`
-                            });
-                          }
-                          if (typeof newValue !== typeof delaySetValue) {
-                            tagTextList.push({
-                              tag: "error",
-                              text: `不支持回调参数newValue，当前类型：${typeof delaySetValue}`
-                            });
-                          } else {
-                            tagTextList.push({
-                              tag: "success",
-                              text: `支持回调参数newValue，当前类型：${typeof delaySetValue}`
-                            });
-                          }
-                          if (typeof remote !== "boolean") {
-                            tagTextList.push({
-                              tag: "error",
-                              text: `不支持回调参数remote，当前类型：${typeof remote}`
-                            });
-                          } else {
-                            tagTextList.push({
-                              tag: "success",
-                              text: `支持回调参数remote，当前类型：${typeof remote}`
-                            });
-                          }
-                          TagUtil.setTagList(container.$leftText, tagTextList);
                         }
-                      );
-                      console.log(
-                        "GM_addValueChangeListener listenerId：" + listenerId + " typeof：" + typeof listenerId
-                      );
-                      if (typeof listenerId !== "number" && typeof listenerId !== "string") {
-                        tagTextList.push({
-                          tag: "warn",
-                          text: "listenerId类型不是number或string"
-                        });
-                      } else {
-                        tagTextList.push({
-                          tag: "success",
-                          text: "listenerId类型：" + typeof listenerId
-                        });
+                        timeoutId = setTimeout(() => {
+                          tagTextList.push({
+                            tag: "error",
+                            text: "不支持触发回调"
+                          });
+                          TagUtil.setTagList(container.$leftText, tagTextList);
+                        }, 3e3);
+                        _GM_setValue(localStorageDataKey, delaySetValue);
+                      } catch (error) {
+                        qmsg.error(error.toString(), { consoleLogContent: true });
                       }
-                      timeoutId = setTimeout(() => {
-                        tagTextList.push({
-                          tag: "error",
-                          text: "不支持触发回调"
-                        });
-                        TagUtil.setTagList(container.$leftText, tagTextList);
-                      }, 3e3);
-                      _GM_setValue(localStorageDataKey, delaySetValue);
-                    } catch (error) {
-                      qmsg.error(error.toString(), { consoleLogContent: true });
-                    }
-                  });
-                }
-              };
-            });
-          })()
-        );
+                    });
+                  }
+                };
+              });
+            })()
+          );
+        });
       }
       return result;
     }
@@ -21226,7 +21236,7 @@ getApiDocUrl(navName, text) {
       return "GM_cookie";
     }
     getAsyncApiOption() {
-      let isSupportAsync = this.isSupportGM() && typeof _GM.cookie === "object" && _GM.cookie != null;
+      let isSupportAsync = this.isSupportGM() && (typeof _GM.cookie === "object" || typeof _GM.cookie === "function") && _GM.cookie != null;
       return {
         name: "GM.cookie",
         isSupport: isSupportAsync,
@@ -21272,6 +21282,11 @@ getApiDocUrl(navName, text) {
           {
             type: "forms",
             text: "功能测试",
+            forms: []
+          },
+          {
+            type: "forms",
+            text: "功能测试（异步）",
             forms: []
           }
         ]
@@ -21351,15 +21366,65 @@ getApiDocUrl(navName, text) {
           value: "1",
           expirationDate: (Date.now() + 24 * 60 * 60 * 1e3) / 1e3
         };
-        result["forms"][1].forms.push(
-          UIInfo(() => {
-            try {
-              return {
-                text: CommonUtil2.escapeHtml("测试list获取所有Cookie"),
-                tag: "info",
-                description: "点击按钮进行测试",
-                afterRender(container) {
-                  let $button = domUtils.parseHTML(
+        [
+          {
+            name: apiName,
+            list: async (...args) => {
+              return new Promise((resolve, reject) => {
+                const [details, cb] = args;
+                _GM_cookie.list(details, (cookies, error) => {
+                  if (error) {
+                    reject(error);
+                  } else {
+                    resolve(cookies);
+                  }
+                });
+              });
+            },
+            set: async (...args) => {
+              return new Promise((resolve, reject) => {
+                const [details, cb] = args;
+                _GM_cookie.set(details, (error) => {
+                  if (error) {
+                    reject(error);
+                  } else {
+                    resolve(void 0);
+                  }
+                });
+              });
+            },
+            delete: async (...args) => {
+              return new Promise((resolve, reject) => {
+                const [details, cb] = args;
+                _GM_cookie.delete(details, (error) => {
+                  if (error) {
+                    reject(error);
+                  } else {
+                    resolve(void 0);
+                  }
+                });
+              });
+            },
+            formList: result["forms"][1].forms
+          },
+          {
+            name: apiAsyncInfo.name,
+            list: _GM.cookie?.list,
+            set: _GM.cookie?.set,
+            delete: _GM.cookie?.delete,
+            formList: result["forms"][2].forms
+          }
+        ].forEach((data) => {
+          data.name;
+          data.formList.push(
+            UIInfo(() => {
+              try {
+                return {
+                  text: CommonUtil2.escapeHtml("测试list获取所有Cookie"),
+                  tag: "info",
+                  description: "点击按钮进行测试",
+                  afterRender(container) {
+                    let $button = domUtils.parseHTML(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -21368,72 +21433,67 @@ getApiDocUrl(navName, text) {
 										</button>
 									</div>
 									`,
-                    false,
-                    false
-                  );
-                  domUtils.on($button, "click", (event) => {
-                    try {
-                      utils.preventEvent(event);
-                      _GM_cookie.list({}, (cookies, error) => {
+                      false,
+                      false
+                    );
+                    domUtils.on($button, "click", async (event) => {
+                      try {
+                        utils.preventEvent(event);
+                        const cookies = await data.list({});
                         console.log(cookies);
-                        if (error) {
-                          qmsg.error(error);
-                        } else {
-                          if (Array.isArray(cookies)) {
-                            __pops.alert({
-                              title: {
-                                text: "GM_cookie.list",
-                                position: "center"
-                              },
-                              content: {
-                                text: JSON.stringify(cookies, null, 4),
-                                html: true
-                              },
-                              drag: true,
-                              mask: {
-                                enable: true
-                              },
-                              width: PanelUISize.setting.width,
-                              height: PanelUISize.setting.height,
-                              style: (
+                        if (Array.isArray(cookies)) {
+                          __pops.alert({
+                            title: {
+                              text: data.name + ".list",
+                              position: "center"
+                            },
+                            content: {
+                              text: JSON.stringify(cookies, null, 4),
+                              html: true
+                            },
+                            drag: true,
+                            mask: {
+                              enable: true
+                            },
+                            width: PanelUISize.setting.width,
+                            height: PanelUISize.setting.height,
+                            style: (
 `
 															.pops-alert-content{
 																white-space: pre-wrap;
 															}
 														`
-                              )
-                            });
-                          } else {
-                            alert("获取的cookie信息不是数组");
-                          }
+                            )
+                          });
+                        } else {
+                          alert("获取的cookie信息不是数组");
                         }
-                      });
-                    } catch (error) {
-                      qmsg.error(error.toString(), {
-                        consoleLogContent: true
-                      });
-                    }
-                  });
-                  domUtils.after(container.$leftContainer, $button);
-                }
-              };
-            } catch (error) {
-              console.error(error);
-              return {
-                text: "执行错误 " + error,
-                tag: "error"
-              };
-            } finally {
-            }
-          }),
-          UIInfo(() => {
-            try {
-              return {
-                text: CommonUtil2.escapeHtml("测试set新增Cookie"),
-                tag: "info",
-                description: JSON.stringify(newCookieInfo),
-                afterRender(container) {
-                  let $button = domUtils.parseHTML(
+                      } catch (error) {
+                        qmsg.error(error.toString(), {
+                          consoleLogContent: true
+                        });
+                      }
+                    });
+                    domUtils.after(container.$leftContainer, $button);
+                  }
+                };
+              } catch (error) {
+                console.error(error);
+                return {
+                  text: "执行错误 " + error,
+                  tag: "error"
+                };
+              } finally {
+              }
+            }),
+            UIInfo(() => {
+              try {
+                return {
+                  text: CommonUtil2.escapeHtml("测试set新增Cookie"),
+                  tag: "info",
+                  description: JSON.stringify(newCookieInfo),
+                  afterRender(container) {
+                    let $button = domUtils.parseHTML(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -21442,50 +21502,43 @@ getApiDocUrl(navName, text) {
 										</button>
 									</div>
 									`,
-                    false,
-                    false
-                  );
-                  domUtils.on($button, "click", (event) => {
-                    try {
-                      utils.preventEvent(event);
-                      _GM_cookie.set(newCookieInfo, (error) => {
-                        if (error) {
-                          qmsg.error(error, {
-                            consoleLogContent: true
-                          });
-                        } else {
-                          qmsg.success("set cookie success");
-                        }
-                      });
-                    } catch (error) {
-                      qmsg.error(error.toString(), {
-                        consoleLogContent: true
-                      });
-                    }
-                  });
-                  domUtils.after(container.$leftContainer, $button);
-                }
-              };
-            } catch (error) {
-              console.error(error);
-              return {
-                text: "执行错误 " + error,
-                tag: "error"
-              };
-            } finally {
-            }
-          }),
-          UIInfo(() => {
-            try {
-              let deleteCookieInfo = {
-                name: "test"
-              };
-              return {
-                text: CommonUtil2.escapeHtml("测试delete删除Cookie"),
-                tag: "info",
-                description: JSON.stringify(deleteCookieInfo),
-                afterRender(container) {
-                  let $button = domUtils.parseHTML(
+                      false,
+                      false
+                    );
+                    domUtils.on($button, "click", async (event) => {
+                      try {
+                        utils.preventEvent(event);
+                        await data.set(newCookieInfo);
+                        qmsg.success(data.name + " set cookie success");
+                      } catch (error) {
+                        qmsg.error(error.toString(), {
+                          consoleLogContent: true
+                        });
+                      }
+                    });
+                    domUtils.after(container.$leftContainer, $button);
+                  }
+                };
+              } catch (error) {
+                console.error(error);
+                return {
+                  text: "执行错误 " + error,
+                  tag: "error"
+                };
+              } finally {
+              }
+            }),
+            UIInfo(() => {
+              try {
+                let deleteCookieInfo = {
+                  name: "test"
+                };
+                return {
+                  text: CommonUtil2.escapeHtml("测试delete删除Cookie"),
+                  tag: "info",
+                  description: JSON.stringify(deleteCookieInfo),
+                  afterRender(container) {
+                    let $button = domUtils.parseHTML(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -21494,40 +21547,34 @@ getApiDocUrl(navName, text) {
 										</button>
 									</div>
 									`,
-                    false,
-                    false
-                  );
-                  domUtils.on($button, "click", (event) => {
-                    try {
-                      utils.preventEvent(event);
-                      _GM_cookie.delete(deleteCookieInfo, (error) => {
-                        if (error) {
-                          qmsg.error(error, {
-                            consoleLogContent: true
-                          });
-                        } else {
-                          qmsg.success("delete cookie success");
-                        }
-                      });
-                    } catch (error) {
-                      qmsg.error(error.toString(), {
-                        consoleLogContent: true
-                      });
-                    }
-                  });
-                  domUtils.after(container.$leftContainer, $button);
-                }
-              };
-            } catch (error) {
-              console.error(error);
-              return {
-                text: "执行错误 " + error,
-                tag: "error"
-              };
-            } finally {
-            }
-          })
-        );
+                      false,
+                      false
+                    );
+                    domUtils.on($button, "click", async (event) => {
+                      try {
+                        utils.preventEvent(event);
+                        await data.delete(deleteCookieInfo);
+                        qmsg.success(data.name + " delete cookie success");
+                      } catch (error) {
+                        qmsg.error(error.toString(), {
+                          consoleLogContent: true
+                        });
+                      }
+                    });
+                    domUtils.after(container.$leftContainer, $button);
+                  }
+                };
+              } catch (error) {
+                console.error(error);
+                return {
+                  text: "执行错误 " + error,
+                  tag: "error"
+                };
+              } finally {
+              }
+            })
+          );
+        });
       }
       return result;
     }
@@ -21551,10 +21598,7 @@ getApiDocUrl(navName, text) {
       let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-        apiName,
-        `${apiName} & ${apiAsyncInfo.name}`
-      )}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -21591,21 +21635,44 @@ getApiDocUrl(navName, text) {
             type: "forms",
             text: "功能测试",
             forms: []
+          },
+          {
+            type: "forms",
+            text: "功能测试（异步）",
+            forms: []
           }
         ]
       };
       if (this.isSupport()) {
-        result["forms"][1].forms.push(
-          (() => {
-            let localStorageDataKey = "Test GM_deleteValue null";
-            let localStorageDataValue = null;
-            return UIInfo(() => {
-              return {
-                text: "测试存储null值并删除",
-                description: `"${localStorageDataKey}": ${localStorageDataValue}`,
-                tag: "info",
-                afterRender(container) {
-                  let $button = domUtils.parseHTML(
+        [
+          {
+            name: apiName,
+            fn: async (...args) => {
+              return new Promise((resolve) => {
+                const ret = _GM_deleteValue(...args);
+                resolve(ret);
+              });
+            },
+            formList: result["forms"][1].forms
+          },
+          {
+            name: apiAsyncInfo.name,
+            fn: _GM.deleteValue,
+            formList: result["forms"][2].forms
+          }
+        ].forEach((data) => {
+          let apiNameTag = data.name;
+          data.formList.push(
+            (() => {
+              let localStorageDataKey = `Test ${apiNameTag} null`;
+              let localStorageDataValue = null;
+              return UIInfo(() => {
+                return {
+                  text: "测试存储null值并删除",
+                  description: `"${localStorageDataKey}": ${localStorageDataValue}`,
+                  tag: "info",
+                  afterRender(container) {
+                    let $button = domUtils.parseHTML(
 `
 										<div class="pops-panel-button pops-panel-button-no-icon">
 											<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -21614,30 +21681,31 @@ getApiDocUrl(navName, text) {
 											</button>
 										</div>
 									`,
-                    false,
-                    false
-                  );
-                  domUtils.after(container.$leftContainer, $button);
-                  domUtils.on($button, "click", (event) => {
-                    utils.preventEvent(event);
-                    try {
-                      _GM_setValue(localStorageDataKey, localStorageDataValue);
-                      _GM_deleteValue(localStorageDataKey);
-                      let value = _GM_getValue(localStorageDataKey);
-                      if (typeof value === "object" && value === null) {
-                        qmsg.error("该值未删除，读取的值：" + value);
-                      } else {
-                        qmsg.success("成功删除该值");
+                      false,
+                      false
+                    );
+                    domUtils.after(container.$leftContainer, $button);
+                    domUtils.on($button, "click", async (event) => {
+                      utils.preventEvent(event);
+                      try {
+                        _GM_setValue(localStorageDataKey, localStorageDataValue);
+                        await data.fn(localStorageDataKey);
+                        let value = _GM_getValue(localStorageDataKey);
+                        if (typeof value === "object" && value === null) {
+                          qmsg.error("该值未删除，读取的值：" + value);
+                        } else {
+                          qmsg.success("成功删除该值");
+                        }
+                      } catch (error) {
+                        qmsg.error(error.toString(), { consoleLogContent: true });
                       }
-                    } catch (error) {
-                      qmsg.error(error.toString(), { consoleLogContent: true });
-                    }
-                  });
-                }
-              };
-            });
-          })()
-        );
+                    });
+                  }
+                };
+              });
+            })()
+          );
+        });
       }
       return result;
     }
@@ -21661,10 +21729,7 @@ getApiDocUrl(navName, text) {
       let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-        apiName,
-        `${apiName} & ${apiAsyncInfo.name}`
-      )}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -21701,23 +21766,46 @@ getApiDocUrl(navName, text) {
             type: "forms",
             text: "功能测试",
             forms: []
+          },
+          {
+            type: "forms",
+            text: "功能测试（异步）",
+            forms: []
           }
         ]
       };
       if (this.isSupport()) {
-        result["forms"][1].forms.push(
-          (() => {
-            let localStorageDataValue = {
-              GM_deleteValues_key_1: 555,
-              "GM.deleteValues_key_2": 666
-            };
-            return UIInfo(() => {
-              return {
-                text: "测试存储对象然后删除再读取",
-                description: `${JSON.stringify(localStorageDataValue)}`,
-                tag: "info",
-                afterRender(container) {
-                  let $button = domUtils.parseHTML(
+        [
+          {
+            name: apiName,
+            fn: async (...args) => {
+              return new Promise((resolve) => {
+                const ret = _GM_deleteValues(...args);
+                resolve(ret);
+              });
+            },
+            formList: result["forms"][1].forms
+          },
+          {
+            name: apiAsyncInfo.name,
+            fn: _GM.deleteValues,
+            formList: result["forms"][2].forms
+          }
+        ].forEach((data) => {
+          data.name;
+          data.formList.push(
+            (() => {
+              let localStorageDataValue = {
+                GM_deleteValues_key_1: 555,
+                "GM.deleteValues_key_2": 666
+              };
+              return UIInfo(() => {
+                return {
+                  text: "测试存储对象然后删除再读取",
+                  description: `${JSON.stringify(localStorageDataValue)}`,
+                  tag: "info",
+                  afterRender(container) {
+                    let $button = domUtils.parseHTML(
 `
 										<div class="pops-panel-button pops-panel-button-no-icon">
 											<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -21726,41 +21814,40 @@ getApiDocUrl(navName, text) {
 											</button>
 										</div>
 									`,
-                    false,
-                    false
-                  );
-                  domUtils.after(container.$leftContainer, $button);
-                  domUtils.on($button, "click", (event) => {
-                    utils.preventEvent(event);
-                    try {
-                      _GM_setValues(localStorageDataValue);
-                      let localKeys = Object.keys(localStorageDataValue);
-                      let values = _GM_getValues(localKeys);
-                      if (JSON.stringify(values) !== JSON.stringify(localStorageDataValue)) {
-                        qmsg.error("写入失败，写入的数据和读取的数据不相同");
-                        return;
+                      false,
+                      false
+                    );
+                    domUtils.after(container.$leftContainer, $button);
+                    domUtils.on($button, "click", async (event) => {
+                      utils.preventEvent(event);
+                      try {
+                        _GM_setValues(localStorageDataValue);
+                        let localKeys = Object.keys(localStorageDataValue);
+                        let values = _GM_getValues(localKeys);
+                        if (JSON.stringify(values) !== JSON.stringify(localStorageDataValue)) {
+                          qmsg.error("写入失败，写入的数据和读取的数据不相同");
+                          return;
+                        }
+                        await data.fn(localKeys);
+                        let values2 = _GM_getValues(localKeys);
+                        if (values2 == null) {
+                          qmsg.warning("删除情况未知，因为读取到的数据为null");
+                        } else if (typeof values2 === "object" && JSON.stringify(values2) === "{}") {
+                          qmsg.success("删除成功，读取的数据为{}");
+                        } else {
+                          qmsg.error("删除情况未知，因为读取到的数据类型不是object");
+                          console.log(values2);
+                        }
+                      } catch (error) {
+                        qmsg.error(error.toString(), { consoleLogContent: true });
                       }
-                      _GM_deleteValues(localKeys);
-                      let values2 = _GM_getValues(localKeys);
-                      if (values2 == null) {
-                        qmsg.warning("删除情况未知，因为读取到的数据为null");
-                      } else if (typeof values2 === "object" && JSON.stringify(values2) === "{}") {
-                        qmsg.success("删除成功，读取的数据为{}");
-                      } else {
-                        qmsg.error(
-                          "删除情况未知，因为读取到的数据类型不是object"
-                        );
-                        console.log(values2);
-                      }
-                    } catch (error) {
-                      qmsg.error(error.toString(), { consoleLogContent: true });
-                    }
-                  });
-                }
-              };
-            });
-          })()
-        );
+                    });
+                  }
+                };
+              });
+            })()
+          );
+        });
       }
       return result;
     }
@@ -21784,10 +21871,7 @@ getApiDocUrl(navName, text) {
       let result = {
         id: "aside-" + apiName,
         title: apiName,
-        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-        apiName,
-        `${apiName} & ${apiAsyncInfo.name}`
-      )}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -21862,10 +21946,7 @@ getApiDocUrl(navName, text) {
       let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-        apiName,
-        `${apiName} & ${apiAsyncInfo.name}`
-      )}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -21902,37 +21983,59 @@ getApiDocUrl(navName, text) {
             type: "forms",
             text: "功能测试",
             forms: []
+          },
+          {
+            type: "forms",
+            text: "功能测试（异步）",
+            forms: []
           }
         ]
       };
       if (this.isSupport()) {
-        result["forms"][1].forms.push(
-          UIInfo(() => {
-            try {
-              let resourceText = _GM_getResourceText("ViewerCSS");
-              if (typeof resourceText === "string") {
+        [
+          {
+            name: apiName,
+            fn: async (...args) => {
+              return new Promise((resolve) => {
+                const ret = _GM_getResourceText(...args);
+                resolve(ret);
+              });
+            },
+            formList: result["forms"][1].forms
+          },
+          {
+            name: apiAsyncInfo.name,
+            fn: _GM.getResourceText,
+            formList: result["forms"][2].forms
+          }
+        ].forEach((data) => {
+          data.name.replace(".", "__async__");
+          data.formList.push(
+            UIInfo(async () => {
+              try {
+                let resourceText = await data.fn("ViewerCSS");
+                if (typeof resourceText === "string") {
+                  return {
+                    text: CommonUtil2.escapeHtml("支持通过@resource引用资源字符串"),
+                    tag: "success"
+                  };
+                } else {
+                  return {
+                    text: CommonUtil2.escapeHtml(data.name + " return is not string"),
+                    tag: "error"
+                  };
+                }
+              } catch (error) {
+                console.error(error);
                 return {
-                  text: CommonUtil2.escapeHtml("支持通过@resource引用资源字符串"),
-                  tag: "success"
-                };
-              } else {
-                return {
-                  text: CommonUtil2.escapeHtml(
-                    "GM_getResourceText return is not string"
-                  ),
+                  text: "执行错误 " + error,
                   tag: "error"
                 };
+              } finally {
               }
-            } catch (error) {
-              console.error(error);
-              return {
-                text: "执行错误 " + error,
-                tag: "error"
-              };
-            } finally {
-            }
-          })
-        );
+            })
+          );
+        });
       }
       return result;
     }
@@ -21956,10 +22059,7 @@ getApiDocUrl(navName, text) {
       let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-        apiName,
-        `${apiName} & ${apiAsyncInfo.name}`
-      )}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -22029,9 +22129,7 @@ getApiDocUrl(navName, text) {
                 let resourceBase64Data = await data.fn("ViewerCSS");
                 if (typeof resourceBase64Data !== "string") {
                   return {
-                    text: CommonUtil2.escapeHtml(
-                      `${data.name} return is not string`
-                    ),
+                    text: CommonUtil2.escapeHtml(`${data.name} return is not string`),
                     tag: "error"
                   };
                 }
@@ -22041,9 +22139,7 @@ getApiDocUrl(navName, text) {
                     "data:text/css;base64,LyohCiAqIFZpZXdlci5qcyB2MS4xMS43CiAqIGh0dHBzOi8vZmVuZ3"
                   )) {
                     return {
-                      text: CommonUtil2.escapeHtml(
-                        "支持通过@resource引用资源并进行base64编码"
-                      ),
+                      text: CommonUtil2.escapeHtml("支持通过@resource引用资源并进行base64编码"),
                       tag: "success"
                     };
                   } else {
@@ -22056,9 +22152,7 @@ getApiDocUrl(navName, text) {
                   }
                 } else {
                   return {
-                    text: CommonUtil2.escapeHtml(
-                      "支持通过@resource引用资源，但是未对资源进行base64编码"
-                    ),
+                    text: CommonUtil2.escapeHtml("支持通过@resource引用资源，但是未对资源进行base64编码"),
                     tag: "warn"
                   };
                 }
@@ -22096,10 +22190,7 @@ getApiDocUrl(navName, text) {
       let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-        apiName,
-        `${apiName} & ${apiAsyncInfo.name}`
-      )}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -22189,17 +22280,9 @@ getApiDocUrl(navName, text) {
                     utils.preventEvent(event);
                     try {
                       clearTimeout(timeId);
-                      TagUtil.setTag(
-                        container.$leftText,
-                        "error",
-                        "等待3s内触发回调函数"
-                      );
+                      TagUtil.setTag(container.$leftText, "error", "等待3s内触发回调函数");
                       timeId = setTimeoutLog(() => {
-                        TagUtil.setTag(
-                          container.$leftText,
-                          "error",
-                          "超时，不支持触发回调函数"
-                        );
+                        TagUtil.setTag(container.$leftText, "error", "超时，不支持触发回调函数");
                       }, 3e3);
                       let tab = await data.fn();
                       clearTimeout(timeId);
@@ -22260,10 +22343,7 @@ getApiDocUrl(navName, text) {
       let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-        apiName,
-        `${apiName} & ${apiAsyncInfo.name}`
-      )}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -22348,11 +22428,41 @@ getApiDocUrl(navName, text) {
                     false
                   );
                   domUtils.after(container.$leftContainer, $button);
+                  let timeId;
                   domUtils.on($button, "click", async (event) => {
                     try {
                       utils.preventEvent(event);
+                      clearTimeout(timeId);
+                      TagUtil.setTag(container.$leftText, "error", "等待3s内触发回调函数");
+                      timeId = setTimeoutLog(() => {
+                        TagUtil.setTag(container.$leftText, "error", "超时，不支持触发回调函数");
+                      }, 3e3);
                       let tabs = await data.fn();
+                      clearTimeout(timeId);
                       console.log(data.name + " callback tabs", tabs);
+                      if (typeof tabs === "object" && tabs != null) {
+                        TagUtil.setTagList(container.$leftText, [
+                          {
+                            tag: "success",
+                            text: "支持触发回调函数"
+                          },
+                          {
+                            tag: "success",
+                            text: "入参tab为object类型"
+                          }
+                        ]);
+                      } else {
+                        TagUtil.setTagList(container.$leftText, [
+                          {
+                            tag: "success",
+                            text: "支持触发回调函数"
+                          },
+                          {
+                            tag: "error",
+                            text: "入参tab不为object类型"
+                          }
+                        ]);
+                      }
                       alert(JSON.stringify(tabs));
                     } catch (error) {
                       qmsg.error(error.toString(), { consoleLogContent: true });
@@ -22386,10 +22496,7 @@ getApiDocUrl(navName, text) {
       let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-        apiName,
-        `${apiName} & ${apiAsyncInfo.name}`
-      )}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -22426,80 +22533,150 @@ getApiDocUrl(navName, text) {
             type: "forms",
             text: "功能测试",
             forms: []
+          },
+          {
+            type: "forms",
+            text: "功能测试（异步）",
+            forms: []
           }
         ]
       };
       if (this.isSupport()) {
-        result["forms"][1].forms.push(
-          ...[
-            {
-              key: "Test GM_getValue boolean",
-              value: true,
-              text: function() {
-                return `存储boolean类型并读取`;
-              },
-              desc: function() {
-                return `"${this.key}": ${this.value}`;
-              }
+        [
+          {
+            name: apiName,
+            fn: async (...args) => {
+              return new Promise((resolve) => {
+                const ret = _GM_getValue(...args);
+                resolve(ret);
+              });
             },
-            {
-              key: "Test GM_getValue number",
-              value: 1,
-              text: function() {
-                return `存储number类型并读取`;
+            formList: result["forms"][1].forms
+          },
+          {
+            name: apiAsyncInfo.name,
+            fn: _GM.getValue,
+            formList: result["forms"][2].forms
+          }
+        ].forEach((data) => {
+          let apiNameTag = data.name;
+          data.formList.push(
+            ...[
+              {
+                key: `Test ${apiNameTag} boolean`,
+                value: true,
+                text: function() {
+                  return `存储boolean类型并读取`;
+                },
+                desc: function() {
+                  return `"${this.key}": ${this.value}`;
+                }
               },
-              desc: function() {
-                return `"${this.key}": ${this.value}`;
-              }
-            },
-            {
-              key: "Test GM_getValue string",
-              value: "测试字符串",
-              text: function() {
-                return `存储string类型并读取`;
+              {
+                key: `Test ${apiNameTag} number`,
+                value: 1,
+                text: function() {
+                  return `存储number类型并读取`;
+                },
+                desc: function() {
+                  return `"${this.key}": ${this.value}`;
+                }
               },
-              desc: function() {
-                return `"${this.key}": "${this.value}"`;
-              }
-            },
-            {
-              key: "Test GM_getValue undefined",
-              value: void 0,
-              text: function() {
-                return `存储undefined类型并读取`;
+              {
+                key: `Test ${apiNameTag} string`,
+                value: "测试字符串",
+                text: function() {
+                  return `存储string类型并读取`;
+                },
+                desc: function() {
+                  return `"${this.key}": "${this.value}"`;
+                }
               },
-              desc: function() {
-                return `"${this.key}": ${this.value}`;
-              }
-            },
-            {
-              key: "Test GM_getValue null",
-              value: null,
-              text: function() {
-                return `存储object类型的null并读取`;
+              {
+                key: `Test ${apiNameTag} undefined`,
+                value: void 0,
+                text: function() {
+                  return `存储undefined类型并读取`;
+                },
+                desc: function() {
+                  return `"${this.key}": ${this.value}`;
+                }
               },
-              desc: function() {
-                return `"${this.key}": ${this.value}`;
-              }
-            },
-            {
-              key: "Test GM_getValue object",
-              value: { "object key": "object value" },
-              text: function() {
-                return `存储object类型并读取`;
+              {
+                key: `Test ${apiNameTag} null`,
+                value: null,
+                text: function() {
+                  return `存储object类型的null并读取`;
+                },
+                desc: function() {
+                  return `"${this.key}": ${this.value}`;
+                }
               },
-              desc: function() {
-                return `"${this.key}": ${JSON.stringify(this.value)}`;
+              {
+                key: `Test ${apiNameTag} object`,
+                value: { "object key": "object value" },
+                text: function() {
+                  return `存储object类型并读取`;
+                },
+                desc: function() {
+                  return `"${this.key}": ${JSON.stringify(this.value)}`;
+                }
               }
-            }
-          ].map((it) => {
-            return (() => {
-              let localStorageDataKey = it.key;
-              let localStorageDataValue = it.value;
+            ].map((it) => {
+              return (() => {
+                let localStorageDataKey = it.key;
+                let localStorageDataValue = it.value;
+                return UIInfo(() => {
+                  return {
+                    text: it.text(),
+                    description: it.desc(),
+                    tag: "info",
+                    afterRender(container) {
+                      let $button = domUtils.parseHTML(
+`
+										<div class="pops-panel-button pops-panel-button-no-icon">
+											<button class="pops-panel-button_inner" type="button" data-type="default">
+												<i class="pops-bottom-icon" is-loading="false"></i>
+												<span class="pops-panel-button-text">点击测试</span>
+											</button>
+										</div>
+									`,
+                        false,
+                        false
+                      );
+                      domUtils.after(container.$leftContainer, $button);
+                      domUtils.on($button, "click", async (event) => {
+                        utils.preventEvent(event);
+                        try {
+                          _GM_setValue(localStorageDataKey, localStorageDataValue);
+                          let value = await data.fn(localStorageDataKey);
+                          if (typeof value === typeof localStorageDataValue) {
+                            if (localStorageDataValue === null && localStorageDataValue != value) {
+                              qmsg.error(
+                                "读取成功，但存储类型和读取类型不同，存储类型为null，但读取类型不为null"
+                              );
+                              return;
+                            }
+                            qmsg.success("读取成功，存储类型和读取类型一致");
+                          } else {
+                            qmsg.error("读取成功，但存储类型和读取类型不同");
+                          }
+                        } catch (error) {
+                          qmsg.error(error.toString(), { consoleLogContent: true });
+                        }
+                      });
+                    }
+                  };
+                });
+              })();
+            }),
+            (() => {
+              let localStorageDataKey = `Test ${apiNameTag} null with defaultValue`;
+              let localStorageDefaultValue = 123;
               return UIInfo(() => {
                 return {
-                  text: it.text(),
-                  description: it.desc(),
+                  text: "存储object类型的null，读取时指定默认值为" + localStorageDefaultValue,
+                  description: `${apiNameTag}("${localStorageDataKey}", ${localStorageDefaultValue})`,
                   tag: "info",
                   afterRender(container) {
                     let $button = domUtils.parseHTML(
@@ -22515,21 +22692,15 @@ getApiDocUrl(navName, text) {
                       false
                     );
                     domUtils.after(container.$leftContainer, $button);
-                    domUtils.on($button, "click", (event) => {
+                    domUtils.on($button, "click", async (event) => {
                       utils.preventEvent(event);
                       try {
-                        _GM_setValue(localStorageDataKey, localStorageDataValue);
-                        let value = _GM_getValue(localStorageDataKey);
-                        if (typeof value === typeof localStorageDataValue) {
-                          if (localStorageDataValue === null && localStorageDataValue != value) {
-                            qmsg.error(
-                              "读取成功，但存储类型和读取类型不同，存储类型为null，但读取类型不为null"
-                            );
-                            return;
-                          }
-                          qmsg.success("读取成功，存储类型和读取类型一致");
+                        await data.fn(localStorageDataKey, null);
+                        let value = await data.fn(localStorageDataKey, localStorageDefaultValue);
+                        if (typeof value === "object" && value == null) {
+                          qmsg.success("读取的值是存储的值：" + value);
                         } else {
-                          qmsg.error("读取成功，但存储类型和读取类型不同");
+                          qmsg.error("读取的值不是存储的值：" + value);
                         }
                       } catch (error) {
                         qmsg.error(error.toString(), { consoleLogContent: true });
@@ -22538,18 +22709,17 @@ getApiDocUrl(navName, text) {
                   }
                 };
               });
-            })();
-          }),
-          (() => {
-            let localStorageDataKey = "Test GM_getValue null with defaultValue";
-            let localStorageDefaultValue = 123;
-            return UIInfo(() => {
-              return {
-                text: "存储object类型的null，读取时指定默认值为" + localStorageDefaultValue,
-                description: `GM_getValue("${localStorageDataKey}", ${localStorageDefaultValue})`,
-                tag: "info",
-                afterRender(container) {
-                  let $button = domUtils.parseHTML(
+            })(),
+            (() => {
+              let localStorageDataKey = `Test ${apiNameTag} defaultValue`;
+              let localStorageDefaultValue = 123;
+              return UIInfo(() => {
+                return {
+                  text: "不存储，测试调用默认值",
+                  description: `${apiNameTag}("${localStorageDataKey}", ${localStorageDefaultValue})`,
+                  tag: "info",
+                  afterRender(container) {
+                    let $button = domUtils.parseHTML(
 `
 										<div class="pops-panel-button pops-panel-button-no-icon">
 											<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -22558,74 +22728,29 @@ getApiDocUrl(navName, text) {
 											</button>
 										</div>
 									`,
-                    false,
-                    false
-                  );
-                  domUtils.after(container.$leftContainer, $button);
-                  domUtils.on($button, "click", (event) => {
-                    utils.preventEvent(event);
-                    try {
-                      _GM_setValue(localStorageDataKey, null);
-                      let value = _GM_getValue(
-                        localStorageDataKey,
-                        localStorageDefaultValue
-                      );
-                      if (typeof value === "object" && value == null) {
-                        qmsg.success("读取的值是存储的值：" + value);
-                      } else {
-                        qmsg.error("读取的值不是存储的值：" + value);
+                      false,
+                      false
+                    );
+                    domUtils.after(container.$leftContainer, $button);
+                    domUtils.on($button, "click", async (event) => {
+                      utils.preventEvent(event);
+                      try {
+                        let value = await data.fn(localStorageDataKey, localStorageDefaultValue);
+                        if (typeof value === typeof localStorageDefaultValue) {
+                          qmsg.success("读取的值是默认值：" + value);
+                        } else {
+                          qmsg.error("读取的值不是默认值：" + value);
+                        }
+                      } catch (error) {
+                        qmsg.error(error.toString(), { consoleLogContent: true });
                       }
-                    } catch (error) {
-                      qmsg.error(error.toString(), { consoleLogContent: true });
-                    }
-                  });
-                }
-              };
-            });
-          })(),
-          (() => {
-            let localStorageDataKey = "Test GM_getValue defaultValue";
-            let localStorageDefaultValue = 123;
-            return UIInfo(() => {
-              return {
-                text: "不存储，测试调用默认值",
-                description: `GM_getValue("${localStorageDataKey}", ${localStorageDefaultValue})`,
-                tag: "info",
-                afterRender(container) {
-                  let $button = domUtils.parseHTML(
-`
-										<div class="pops-panel-button pops-panel-button-no-icon">
-											<button class="pops-panel-button_inner" type="button" data-type="default">
-												<i class="pops-bottom-icon" is-loading="false"></i>
-												<span class="pops-panel-button-text">点击测试</span>
-											</button>
-										</div>
-									`,
-                    false,
-                    false
-                  );
-                  domUtils.after(container.$leftContainer, $button);
-                  domUtils.on($button, "click", (event) => {
-                    utils.preventEvent(event);
-                    try {
-                      let value = _GM_getValue(
-                        localStorageDataKey,
-                        localStorageDefaultValue
-                      );
-                      if (typeof value === typeof localStorageDefaultValue) {
-                        qmsg.success("读取的值是默认值：" + value);
-                      } else {
-                        qmsg.error("读取的值不是默认值：" + value);
-                      }
-                    } catch (error) {
-                      qmsg.error(error.toString(), { consoleLogContent: true });
-                    }
-                  });
-                }
-              };
-            });
-          })()
-        );
+                    });
+                  }
+                };
+              });
+            })()
+          );
+        });
       }
       return result;
     }
@@ -22649,10 +22774,7 @@ getApiDocUrl(navName, text) {
       let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-        apiName,
-        `${apiName} & ${apiAsyncInfo.name}`
-      )}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -22689,19 +22811,42 @@ getApiDocUrl(navName, text) {
             type: "forms",
             text: "功能测试",
             forms: []
+          },
+          {
+            type: "forms",
+            text: "功能测试（异步）",
+            forms: []
           }
         ]
       };
       if (this.isSupport()) {
-        result["forms"][1].forms.push(
-          (() => {
-            return UIInfo(() => {
-              return {
-                text: "测试直接读取",
-                description: "没有入参",
-                tag: "info",
-                afterRender(container) {
-                  let $button = domUtils.parseHTML(
+        [
+          {
+            name: apiName,
+            fn: async (...args) => {
+              return new Promise((resolve) => {
+                const ret = _GM_getValues(...args);
+                resolve(ret);
+              });
+            },
+            formList: result["forms"][1].forms
+          },
+          {
+            name: apiAsyncInfo.name,
+            fn: _GM.getValues,
+            formList: result["forms"][2].forms
+          }
+        ].forEach((data) => {
+          let apiNameTag = data.name;
+          data.formList.push(
+            (() => {
+              return UIInfo(() => {
+                return {
+                  text: "测试直接读取",
+                  description: "没有入参",
+                  tag: "info",
+                  afterRender(container) {
+                    let $button = domUtils.parseHTML(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -22710,80 +22855,36 @@ getApiDocUrl(navName, text) {
 										</button>
 									</div>
 								`,
-                    false,
-                    false
-                  );
-                  domUtils.after(container.$leftContainer, $button);
-                  domUtils.on($button, "click", (event) => {
-                    utils.preventEvent(event);
-                    try {
-                      let value = _GM_getValues();
-                      qmsg.info("请在控制台查看读取的数据");
-                      console.log(value);
-                    } catch (error) {
-                      qmsg.error(error.toString(), { consoleLogContent: true });
-                    }
-                  });
-                }
-              };
-            });
-          })(),
-          (() => {
-            return UIInfo(() => {
-              let localStorageDataValue = {
-                "GM_getValues-test-key-non-exists-1": 1111,
-                "GM_getValues-test-key-non-exists-2": 2222
-              };
-              return {
-                text: "测试读取不存在的数据",
-                description: "数据默认值：" + JSON.stringify(localStorageDataValue),
-                tag: "info",
-                afterRender(container) {
-                  let $button = domUtils.parseHTML(
-`
-									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="button" data-type="default">
-											<i class="pops-bottom-icon" is-loading="false"></i>
-											<span class="pops-panel-button-text">点击测试</span>
-										</button>
-									</div>
-								`,
-                    false,
-                    false
-                  );
-                  domUtils.after(container.$leftContainer, $button);
-                  domUtils.on($button, "click", (event) => {
-                    utils.preventEvent(event);
-                    try {
-                      let value = _GM_getValues(localStorageDataValue);
-                      console.log(value);
-                      if (value == null) {
-                        qmsg.error("读取失败，读取的数据为null");
-                      } else if (JSON.stringify(value) === JSON.stringify(localStorageDataValue)) {
-                        qmsg.success("读取成功，读取的数据和默认值相同");
-                      } else {
-                        qmsg.error("读取成功，但读取的数据和默认值不同");
+                      false,
+                      false
+                    );
+                    domUtils.after(container.$leftContainer, $button);
+                    domUtils.on($button, "click", async (event) => {
+                      utils.preventEvent(event);
+                      try {
+                        let value = await data.fn();
+                        qmsg.info("请在控制台查看读取的数据");
+                        console.log(value);
+                      } catch (error) {
+                        qmsg.error(error.toString(), { consoleLogContent: true });
                       }
-                    } catch (error) {
-                      qmsg.error(error.toString(), { consoleLogContent: true });
-                    }
-                  });
-                }
-              };
-            });
-          })(),
-          (() => {
-            let localStorageDataValue = {
-              "GM_getValues-test-key-1": 1,
-              "GM_getValues-test-key-2": 2
-            };
-            return UIInfo(() => {
-              return {
-                text: "测试存储对象并读取",
-                description: JSON.stringify(localStorageDataValue),
-                tag: "info",
-                afterRender(container) {
-                  let $button = domUtils.parseHTML(
+                    });
+                  }
+                };
+              });
+            })(),
+            (() => {
+              return UIInfo(() => {
+                let localStorageDataValue = utils.toJSON(`{
+								"${apiNameTag}-test-key-non-exists-1": 1111,
+								"${apiNameTag}-test-key-non-exists-2": 2222,
+							}`);
+                return {
+                  text: "测试读取不存在的数据",
+                  description: "数据默认值：" + JSON.stringify(localStorageDataValue),
+                  tag: "info",
+                  afterRender(container) {
+                    let $button = domUtils.parseHTML(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -22792,33 +22893,78 @@ getApiDocUrl(navName, text) {
 										</button>
 									</div>
 								`,
-                    false,
-                    false
-                  );
-                  domUtils.after(container.$leftContainer, $button);
-                  domUtils.on($button, "click", (event) => {
-                    utils.preventEvent(event);
-                    try {
-                      _GM_setValues(localStorageDataValue);
-                      let keys = Object.keys(localStorageDataValue);
-                      let value = _GM_getValues(keys);
-                      console.log(value);
-                      if (value == null) {
-                        qmsg.error("读取失败，读取的数据为null");
-                      } else if (JSON.stringify(value) === JSON.stringify(localStorageDataValue)) {
-                        qmsg.success("读取成功，写入的数据和读取的数据相同");
-                      } else {
-                        qmsg.error("读取成功，但写入的数据和读取的数据不同");
+                      false,
+                      false
+                    );
+                    domUtils.after(container.$leftContainer, $button);
+                    domUtils.on($button, "click", async (event) => {
+                      utils.preventEvent(event);
+                      try {
+                        let value = await data.fn(localStorageDataValue);
+                        console.log(value);
+                        if (value == null) {
+                          qmsg.error("读取失败，读取的数据为null");
+                        } else if (JSON.stringify(value) === JSON.stringify(localStorageDataValue)) {
+                          qmsg.success("读取成功，读取的数据和默认值相同");
+                        } else {
+                          qmsg.error("读取成功，但读取的数据和默认值不同");
+                        }
+                      } catch (error) {
+                        qmsg.error(error.toString(), { consoleLogContent: true });
                       }
-                    } catch (error) {
-                      qmsg.error(error.toString(), { consoleLogContent: true });
-                    }
-                  });
-                }
-              };
-            });
-          })()
-        );
+                    });
+                  }
+                };
+              });
+            })(),
+            (() => {
+              let localStorageDataValue = utils.toJSON(`{
+							"${apiNameTag}-test-key-1": 1,
+							"${apiNameTag}-test-key-2": 2,
+						}`);
+              return UIInfo(() => {
+                return {
+                  text: "测试存储对象并读取",
+                  description: JSON.stringify(localStorageDataValue),
+                  tag: "info",
+                  afterRender(container) {
+                    let $button = domUtils.parseHTML(
+`
+										<div class="pops-panel-button pops-panel-button-no-icon">
+											<button class="pops-panel-button_inner" type="button" data-type="default">
+												<i class="pops-bottom-icon" is-loading="false"></i>
+												<span class="pops-panel-button-text">点击测试</span>
+											</button>
+										</div>
+									`,
+                      false,
+                      false
+                    );
+                    domUtils.after(container.$leftContainer, $button);
+                    domUtils.on($button, "click", async (event) => {
+                      utils.preventEvent(event);
+                      try {
+                        _GM_setValues(localStorageDataValue);
+                        let keys = Object.keys(localStorageDataValue);
+                        let value = await data.fn(keys);
+                        console.log(value);
+                        if (value == null) {
+                          qmsg.error("读取失败，读取的数据为null");
+                        } else if (JSON.stringify(value) === JSON.stringify(localStorageDataValue)) {
+                          qmsg.success("读取成功，写入的数据和读取的数据相同");
+                        } else {
+                          qmsg.error("读取成功，但写入的数据和读取的数据不同");
+                        }
+                      } catch (error) {
+                        qmsg.error(error.toString(), { consoleLogContent: true });
+                      }
+                    });
+                  }
+                };
+              });
+            })()
+          );
+        });
       }
       return result;
     }
@@ -22879,83 +23025,102 @@ getApiDocUrl(navName, text) {
             type: "forms",
             text: "功能测试",
             forms: []
+          },
+          {
+            type: "forms",
+            text: "功能测试（GM）",
+            forms: []
           }
         ]
       };
       if (this.isSupport()) {
-        result["forms"][1].forms.push(
-          ...[
-            {
-              value: _GM_info?.downloadMode,
-              type: "string",
-              text: "GM_info.downloadMode",
-              notExistsTag: "error"
-            },
-            {
-              value: _GM_info?.scriptHandler,
-              type: "string",
-              text: "GM_info.scriptHandler"
-            },
-            {
-              value: _GM_info?.scriptMetaStr,
-              type: "string",
-              text: "GM_info.scriptMetaStr"
-            },
-            {
-              value: _GM_info?.version,
-              type: "string",
-              text: "GM_info.version"
-            },
-            {
-              value: _GM_info?.script,
-              type: "object",
-              text: "GM_info.script"
-            },
-            {
-              value: _GM_info?.script?.name,
-              type: "string",
-              text: "GM_info.script.name"
-            },
-            {
-              value: _GM_info?.script?.author,
-              type: "string",
-              text: "GM_info.script.author"
-            },
-            {
-              value: _GM_info?.script?.description,
-              type: "string",
-              text: "GM_info.script.description"
-            },
-            {
-              value: _GM_info?.script?.version,
-              type: "string",
-              text: "GM_info.script.version"
-            }
-          ].map(
-            (it) => UIInfo(() => {
-              try {
-                if (it.value != null && typeof it.value === it.type) {
-                  return {
-                    text: "支持 " + it.text + " 类型：" + it.type,
-                    tag: "success"
-                  };
-                } else {
-                  return {
-                    text: "不支持 " + it.text + " 类型：" + it.type,
-                    tag: it.notExistsTag ?? "error"
-                  };
-                }
-              } catch (error) {
-                console.error(error);
-                return {
-                  text: "执行错误 " + error,
-                  tag: "error"
-                };
-              } finally {
+        [
+          {
+            name: apiName,
+            fn: _GM_info,
+            formList: result["forms"][1].forms
+          },
+          {
+            name: apiAsyncInfo.name,
+            fn: _GM.info,
+            formList: result["forms"][2].forms
+          }
+        ].forEach((data) => {
+          data.name;
+          data.formList.push(
+            ...[
+              {
+                value: data.fn?.downloadMode,
+                type: "string",
+                text: `${data.name}.downloadMode`,
+                notExistsTag: "error"
+              },
+              {
+                value: data.fn?.scriptHandler,
+                type: "string",
+                text: `${data.name}.scriptHandler`
+              },
+              {
+                value: data.fn?.scriptMetaStr,
+                type: "string",
+                text: `${data.name}.scriptMetaStr`
+              },
+              {
+                value: data.fn?.version,
+                type: "string",
+                text: `${data.name}.version`
+              },
+              {
+                value: data.fn?.script,
+                type: "object",
+                text: `${data.name}.script`
+              },
+              {
+                value: data.fn?.script?.name,
+                type: "string",
+                text: `${data.name}.script.name`
+              },
+              {
+                value: data.fn?.script?.author,
+                type: "string",
+                text: `${data.name}.script.author`
+              },
+              {
+                value: data.fn?.script?.description,
+                type: "string",
+                text: `${data.name}.script.description`
+              },
+              {
+                value: data.fn?.script?.version,
+                type: "string",
+                text: `${data.name}.script.version`
               }
-            })
-          )
-        );
+            ].map(
+              (it) => UIInfo(() => {
+                try {
+                  if (it.value != null && typeof it.value === it.type) {
+                    return {
+                      text: "支持 " + it.text + " 类型：" + it.type,
+                      tag: "success"
+                    };
+                  } else {
+                    return {
+                      text: "不支持 " + it.text + " 类型：" + it.type,
+                      tag: it.notExistsTag ?? "error"
+                    };
+                  }
+                } catch (error) {
+                  console.error(error);
+                  return {
+                    text: "执行错误 " + error,
+                    tag: "error"
+                  };
+                } finally {
+                }
+              })
+            )
+          );
+        });
       }
       return result;
     }
@@ -22979,10 +23144,7 @@ getApiDocUrl(navName, text) {
       let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-        apiName,
-        `${apiName} & ${apiAsyncInfo.name}`
-      )}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -23019,17 +23181,40 @@ getApiDocUrl(navName, text) {
             type: "forms",
             text: "功能测试",
             forms: []
+          },
+          {
+            type: "forms",
+            text: "功能测试（异步）",
+            forms: []
           }
         ]
       };
       if (this.isSupport()) {
-        result["forms"][1].forms.push(
-          UIInfo(() => {
-            return {
-              text: "查看存储的所有键名",
-              tag: "info",
-              afterRender(container) {
-                let $button = domUtils.parseHTML(
+        [
+          {
+            name: apiName,
+            fn: async (...args) => {
+              return new Promise((resolve) => {
+                const ret = _GM_listValues(...args);
+                resolve(ret);
+              });
+            },
+            formList: result["forms"][1].forms
+          },
+          {
+            name: apiAsyncInfo.name,
+            fn: _GM.listValues,
+            formList: result["forms"][2].forms
+          }
+        ].forEach((data) => {
+          data.name;
+          data.formList.push(
+            UIInfo(() => {
+              return {
+                text: "查看存储的所有键名",
+                tag: "info",
+                afterRender(container) {
+                  let $button = domUtils.parseHTML(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -23038,34 +23223,34 @@ getApiDocUrl(navName, text) {
 										</button>
 									</div>
 								`,
-                  false,
-                  false
-                );
-                domUtils.after(container.$leftContainer, $button);
-                domUtils.on($button, "click", (event) => {
-                  utils.preventEvent(event);
-                  try {
-                    let data = _GM_listValues();
-                    if (Array.isArray(data)) {
-                      let isNotTotalStr = data.find(
-                        (it) => typeof it !== "string"
-                      );
-                      if (isNotTotalStr) {
-                        qmsg.error("返回值数组中存在非string类型");
+                    false,
+                    false
+                  );
+                  domUtils.after(container.$leftContainer, $button);
+                  domUtils.on($button, "click", async (event) => {
+                    utils.preventEvent(event);
+                    try {
+                      let ret = await data.fn();
+                      console.log(data.name + " call result", ret);
+                      if (Array.isArray(ret)) {
+                        let isNotTotalStr = ret.find((it) => typeof it !== "string");
+                        if (isNotTotalStr) {
+                          qmsg.error("返回值数组中存在非string类型");
+                        } else {
+                          alert(JSON.stringify(ret, null, 4));
+                        }
                       } else {
-                        alert(JSON.stringify(data, null, 4));
+                        qmsg.error("返回值不是数组");
                       }
-                    } else {
-                      qmsg.error("返回值不是数组");
+                    } catch (error) {
+                      qmsg.error(error.toString(), { consoleLogContent: true });
                     }
-                  } catch (error) {
-                    qmsg.error(error.toString(), { consoleLogContent: true });
-                  }
-                });
-              }
-            };
-          })
-        );
+                  });
+                }
+              };
+            })
+          );
+        });
       }
       return result;
     }
@@ -23089,10 +23274,7 @@ getApiDocUrl(navName, text) {
       let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-        apiName,
-        `${apiName} & ${apiAsyncInfo.name}`
-      )}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -23129,20 +23311,43 @@ getApiDocUrl(navName, text) {
             type: "forms",
             text: "功能测试",
             forms: []
+          },
+          {
+            type: "forms",
+            text: "功能测试（异步）",
+            forms: []
           }
         ]
       };
       if (this.isSupport()) {
-        result["forms"][1].forms.push(
-          UIInfo(() => {
-            try {
-              let logText = "test GM_log";
-              return {
-                text: CommonUtil2.escapeHtml("请在控制台查看输出"),
-                tag: "info",
-                description: "test GM_log",
-                afterRender(container) {
-                  let $button = domUtils.parseHTML(
+        [
+          {
+            name: apiName,
+            fn: async (...args) => {
+              return new Promise((resolve) => {
+                const ret = _GM_log(...args);
+                resolve(ret);
+              });
+            },
+            formList: result["forms"][1].forms
+          },
+          {
+            name: apiAsyncInfo.name,
+            fn: _GM.log,
+            formList: result["forms"][2].forms
+          }
+        ].forEach((data) => {
+          data.name;
+          data.formList.push(
+            UIInfo(() => {
+              try {
+                let logText = "test " + data.name;
+                return {
+                  text: CommonUtil2.escapeHtml("请在控制台查看输出"),
+                  tag: "info",
+                  description: "test " + data.name,
+                  afterRender(container) {
+                    let $button = domUtils.parseHTML(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -23151,30 +23356,31 @@ getApiDocUrl(navName, text) {
 										</button>
 									</div>
 								`,
-                    false,
-                    false
-                  );
-                  domUtils.on($button, "click", (event) => {
-                    utils.preventEvent(event);
-                    try {
-                      _GM_log(logText);
-                    } catch (error) {
-                      qmsg.error(error.toString(), { consoleLogContent: true });
-                    }
-                  });
-                  domUtils.after(container.$leftContainer, $button);
-                }
-              };
-            } catch (error) {
-              console.error(error);
-              return {
-                text: "执行错误 " + error,
-                tag: "error"
-              };
-            } finally {
-            }
-          })
-        );
+                      false,
+                      false
+                    );
+                    domUtils.on($button, "click", async (event) => {
+                      utils.preventEvent(event);
+                      try {
+                        await data.fn(logText);
+                      } catch (error) {
+                        qmsg.error(error.toString(), { consoleLogContent: true });
+                      }
+                    });
+                    domUtils.after(container.$leftContainer, $button);
+                  }
+                };
+              } catch (error) {
+                console.error(error);
+                return {
+                  text: "执行错误 " + error,
+                  tag: "error"
+                };
+              } finally {
+              }
+            })
+          );
+        });
       }
       return result;
     }
@@ -23198,10 +23404,7 @@ getApiDocUrl(navName, text) {
       let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-        apiName,
-        `${apiName} & ${apiAsyncInfo.name}`
-      )}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -23369,17 +23572,9 @@ getApiDocUrl(navName, text) {
                           calcTimeCount--;
                           return result2;
                         };
-                        TagUtil.setTag(
-                          container.$leftText,
-                          "info",
-                          tipInfoText()
-                        );
+                        TagUtil.setTag(container.$leftText, "info", tipInfoText());
                         timeId = setTimeoutLog(() => {
-                          TagUtil.setTag(
-                            container.$leftText,
-                            "error",
-                            "测试超时，未触发ondone回调"
-                          );
+                          TagUtil.setTag(container.$leftText, "error", "测试超时，未触发ondone回调");
                         }, timeCount * 1e3);
                         const clicked = await data.fn({
                           title: `测试 ${data.name} 标题`,
@@ -23493,11 +23688,7 @@ getApiDocUrl(navName, text) {
                         domUtils.show(container.$leftDesc, false);
                         timeId = setTimeoutLog(() => {
                           clearInterval(intervalId);
-                          TagUtil.setTag(
-                            container.$leftText,
-                            "error",
-                            "测试超时，未触发回调"
-                          );
+                          TagUtil.setTag(container.$leftText, "error", "测试超时，未触发回调");
                         }, timeCount * 1e3);
                         intervalId = setInterval(() => {
                           domUtils.text(container.$leftText, tipInfoText());
@@ -23640,10 +23831,7 @@ getApiDocUrl(navName, text) {
       let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-        apiName,
-        `${apiName} & ${apiAsyncInfo.name}`
-      )}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -23680,19 +23868,41 @@ getApiDocUrl(navName, text) {
             type: "forms",
             text: "功能测试",
             forms: []
+          },
+          {
+            type: "forms",
+            text: "功能测试（异步）",
+            forms: []
           }
         ]
       };
       if (this.isSupport()) {
-        result["forms"][1].forms.push(
-          UIInfo(() => {
-            try {
-              return {
-                text: "后台打开：https://www.example.com/",
-                tag: "info",
-                afterRender(container) {
-                  let $target = container.target;
-                  let $button = domUtils.parseHTML(
+        [
+          {
+            name: apiName,
+            fn: async (...args) => {
+              return new Promise((resolve) => {
+                const ret = _GM_openInTab(...args);
+                resolve(ret);
+              });
+            },
+            formList: result["forms"][1].forms
+          },
+          {
+            name: apiAsyncInfo.name,
+            fn: _GM.openInTab,
+            formList: result["forms"][2].forms
+          }
+        ].forEach((data) => {
+          data.formList.push(
+            UIInfo(() => {
+              try {
+                return {
+                  text: "后台打开：https://www.example.com/",
+                  tag: "info",
+                  afterRender(container) {
+                    let $target = container.target;
+                    let $button = domUtils.parseHTML(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -23701,66 +23911,58 @@ getApiDocUrl(navName, text) {
 										</button>
 									</div>
 									`,
-                    false,
-                    false
-                  );
-                  domUtils.on($button, "click", (event) => {
-                    try {
-                      utils.preventEvent(event);
-                      domUtils.text(container.$leftDesc, this.text);
-                      domUtils.show(container.$leftDesc, false);
-                      let result2 = _GM_openInTab("https://www.example.com/");
-                      if (typeof result2 === "object") {
-                        if (result2 == null) {
-                          TagUtil.setTag(
-                            container.$leftText,
-                            "error",
-                            "返回值为null"
-                          );
-                        } else {
-                          let support_close = "close" in result2 && typeof result2.close === "function";
-                          let support_closed = "closed" in result2 && typeof result2.closed === "boolean";
-                          let support_onclose = "onclose" in result2;
-                          domUtils.html(
-                            container.$leftText,
+                      false,
+                      false
+                    );
+                    domUtils.on($button, "click", async (event) => {
+                      try {
+                        utils.preventEvent(event);
+                        domUtils.text(container.$leftDesc, this.text);
+                        domUtils.show(container.$leftDesc, false);
+                        let result2 = await data.fn("https://www.example.com/");
+                        if (typeof result2 === "object") {
+                          if (result2 == null) {
+                            TagUtil.setTag(container.$leftText, "error", "返回值为null");
+                          } else {
+                            let support_close = "close" in result2 && typeof result2.close === "function";
+                            let support_closed = "closed" in result2 && typeof result2.closed === "boolean";
+                            let support_onclose = "onclose" in result2;
+                            domUtils.html(
+                              container.$leftText,
 `
 													${support_close ? `<p class="success">支持 .close()</p>` : `<p class="error">不支持 .close()</p>`}
 													${support_closed ? `<p class="success">支持 .closed</p>` : `<p class="error">不支持 .closed</p>`}
 													${support_onclose ? `<p class="success">支持设置属性 .onclose</p>` : `<p class="error">不支持设置属性 .onclose</p>`}
 										`
-                          );
+                            );
+                          }
+                        } else {
+                          TagUtil.setTag(container.$leftText, "error", "返回值不是对象：" + typeof result2);
                         }
-                      } else {
-                        TagUtil.setTag(
-                          container.$leftText,
-                          "error",
-                          "返回值不是对象：" + typeof result2
-                        );
+                      } catch (error) {
+                        qmsg.error(error.toString(), { consoleLogContent: true });
                       }
-                    } catch (error) {
-                      qmsg.error(error.toString(), { consoleLogContent: true });
-                    }
-                  });
-                  domUtils.after(container.$leftContainer, $button);
-                }
-              };
-            } catch (error) {
-              console.error(error);
-              return {
-                text: "执行错误 " + error,
-                tag: "error"
-              };
-            }
-          }),
-          UIInfo(() => {
-            try {
-              return {
-                text: "配置 active: true",
-                description: "",
-                tag: "info",
-                afterRender(container) {
-                  let $target = container.target;
-                  let $button = domUtils.parseHTML(
+                    });
+                    domUtils.after(container.$leftContainer, $button);
+                  }
+                };
+              } catch (error) {
+                console.error(error);
+                return {
+                  text: "执行错误 " + error,
+                  tag: "error"
+                };
+              }
+            }),
+            UIInfo(() => {
+              try {
+                return {
+                  text: "配置 active: true",
+                  description: "",
+                  tag: "info",
+                  afterRender(container) {
+                    let $target = container.target;
+                    let $button = domUtils.parseHTML(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -23769,72 +23971,60 @@ getApiDocUrl(navName, text) {
 										</button>
 									</div>
 									`,
-                    false,
-                    false
-                  );
-                  let timeId;
-                  let blurEvent = () => {
-                    clearTimeout(timeId);
-                    TagUtil.setTag(
-                      container.$leftText,
-                      "success",
-                      "测试新标签页打开成功"
+                      false,
+                      false
                     );
-                  };
-                  domUtils.on($button, "click", (event) => {
-                    try {
-                      utils.preventEvent(event);
-                      domUtils.off(_unsafeWindow, "blur", blurEvent, {
-                        capture: true
-                      });
+                    let timeId;
+                    let blurEvent = () => {
                       clearTimeout(timeId);
-                      TagUtil.setTag(
-                        container.$leftText,
-                        "info",
-                        "等待页面失去焦点..."
-                      );
-                      domUtils.text(container.$leftDesc, this.text);
-                      domUtils.show(container.$leftDesc, false);
-                      domUtils.on(_unsafeWindow, "blur", blurEvent, {
-                        capture: true,
-                        once: true
-                      });
-                      _GM_openInTab("https://www.example.com/", {
-                        active: true
-                      });
-                      timeId = setTimeoutLog(() => {
+                      TagUtil.setTag(container.$leftText, "success", "测试新标签页打开成功");
+                    };
+                    domUtils.on($button, "click", async (event) => {
+                      try {
+                        utils.preventEvent(event);
                         domUtils.off(_unsafeWindow, "blur", blurEvent, {
                           capture: true
                         });
-                        TagUtil.setTag(
-                          container.$leftText,
-                          "error",
-                          "测试超时，未打开新标签页并获取焦点"
-                        );
-                      }, 3e3);
-                    } catch (error) {
-                      qmsg.error(error.toString(), { consoleLogContent: true });
-                    }
-                  });
-                  domUtils.after(container.$leftContainer, $button);
-                }
-              };
-            } catch (error) {
-              console.error(error);
-              return {
-                text: "执行错误 " + error,
-                tag: "error"
-              };
-            }
-          }),
-          UIInfo(() => {
-            try {
-              return {
-                text: "测试调用返回值 .close()",
-                tag: "info",
-                afterRender(container) {
-                  let $target = container.target;
-                  let $button = domUtils.parseHTML(
+                        clearTimeout(timeId);
+                        TagUtil.setTag(container.$leftText, "info", "等待页面失去焦点...");
+                        domUtils.text(container.$leftDesc, this.text);
+                        domUtils.show(container.$leftDesc, false);
+                        domUtils.on(_unsafeWindow, "blur", blurEvent, {
+                          capture: true,
+                          once: true
+                        });
+                        await data.fn("https://www.example.com/", {
+                          active: true
+                        });
+                        timeId = setTimeoutLog(() => {
+                          domUtils.off(_unsafeWindow, "blur", blurEvent, {
+                            capture: true
+                          });
+                          TagUtil.setTag(container.$leftText, "error", "测试超时，未打开新标签页并获取焦点");
+                        }, 3e3);
+                      } catch (error) {
+                        qmsg.error(error.toString(), { consoleLogContent: true });
+                      }
+                    });
+                    domUtils.after(container.$leftContainer, $button);
+                  }
+                };
+              } catch (error) {
+                console.error(error);
+                return {
+                  text: "执行错误 " + error,
+                  tag: "error"
+                };
+              }
+            }),
+            UIInfo(() => {
+              try {
+                return {
+                  text: "测试调用返回值 .close()",
+                  tag: "info",
+                  afterRender(container) {
+                    let $target = container.target;
+                    let $button = domUtils.parseHTML(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -23843,69 +24033,53 @@ getApiDocUrl(navName, text) {
 										</button>
 									</div>
 								`,
-                    false,
-                    false
-                  );
-                  let timeId;
-                  domUtils.on($button, "click", (event) => {
-                    try {
-                      utils.preventEvent(event);
-                      clearTimeout(timeId);
-                      TagUtil.setTag(
-                        container.$leftText,
-                        "info",
-                        "等待调用 .close()"
-                      );
-                      domUtils.text(container.$leftDesc, this.text);
-                      domUtils.show(container.$leftDesc, false);
-                      let result2 = _GM_openInTab("https://www.example.com/");
-                      if (result2 && typeof result2?.close === "function") {
-                        timeId = setTimeoutLog(() => {
-                          try {
-                            result2.close();
-                            TagUtil.setTag(
-                              container.$leftText,
-                              "success",
-                              "成功调用 .close()"
-                            );
-                          } catch (error) {
-                            TagUtil.setTag(
-                              container.$leftText,
-                              "error",
-                              "调用 .close() 方法失败 " + error
-                            );
-                          }
-                        }, 1e3);
-                      } else {
-                        TagUtil.setTag(
-                          container.$leftText,
-                          "error",
-                          "返回对象中不支持 .close() 方法"
-                        );
+                      false,
+                      false
+                    );
+                    let timeId;
+                    domUtils.on($button, "click", async (event) => {
+                      try {
+                        utils.preventEvent(event);
+                        clearTimeout(timeId);
+                        TagUtil.setTag(container.$leftText, "info", "等待调用 .close()");
+                        domUtils.text(container.$leftDesc, this.text);
+                        domUtils.show(container.$leftDesc, false);
+                        let result2 = await data.fn("https://www.example.com/");
+                        if (result2 && typeof result2?.close === "function") {
+                          timeId = setTimeoutLog(() => {
+                            try {
+                              result2.close();
+                              TagUtil.setTag(container.$leftText, "success", "成功调用 .close()");
+                            } catch (error) {
+                              TagUtil.setTag(container.$leftText, "error", "调用 .close() 方法失败 " + error);
+                            }
+                          }, 1e3);
+                        } else {
+                          TagUtil.setTag(container.$leftText, "error", "返回对象中不支持 .close() 方法");
+                        }
+                      } catch (error) {
+                        qmsg.error(error.toString(), { consoleLogContent: true });
                       }
-                    } catch (error) {
-                      qmsg.error(error.toString(), { consoleLogContent: true });
-                    }
-                  });
-                  domUtils.after(container.$leftContainer, $button);
-                }
-              };
-            } catch (error) {
-              console.error(error);
-              return {
-                text: "执行错误 " + error,
-                tag: "error"
-              };
-            }
-          }),
-          UIInfo(() => {
-            try {
-              return {
-                text: "测试监听关闭是否生效 .onclose",
-                tag: "info",
-                afterRender(container) {
-                  let $target = container.target;
-                  let $button = domUtils.parseHTML(
+                    });
+                    domUtils.after(container.$leftContainer, $button);
+                  }
+                };
+              } catch (error) {
+                console.error(error);
+                return {
+                  text: "执行错误 " + error,
+                  tag: "error"
+                };
+              }
+            }),
+            UIInfo(() => {
+              try {
+                return {
+                  text: "测试监听关闭是否生效 .onclose",
+                  tag: "info",
+                  afterRender(container) {
+                    let $target = container.target;
+                    let $button = domUtils.parseHTML(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -23914,77 +24088,58 @@ getApiDocUrl(navName, text) {
 										</button>
 									</div>
 								`,
-                    false,
-                    false
-                  );
-                  let timeId;
-                  let timeId2;
-                  domUtils.on($button, "click", (event) => {
-                    try {
-                      utils.preventEvent(event);
-                      clearTimeout(timeId2);
-                      clearTimeout(timeId);
-                      TagUtil.setTag(
-                        container.$leftText,
-                        "info",
-                        "等待触发监听 .onclose"
-                      );
-                      domUtils.text(container.$leftDesc, this.text);
-                      domUtils.show(container.$leftDesc, false);
-                      let result2 = _GM_openInTab("https://www.example.com/");
-                      if (typeof result2 === "object" && result2 != null) {
-                        result2.onclose = () => {
-                          clearTimeout(timeId);
-                          clearTimeout(timeId2);
-                          TagUtil.setTag(
-                            container.$leftText,
-                            "success",
-                            "成功触发 .onclose"
-                          );
-                        };
+                      false,
+                      false
+                    );
+                    let timeId;
+                    let timeId2;
+                    domUtils.on($button, "click", async (event) => {
+                      try {
+                        utils.preventEvent(event);
+                        clearTimeout(timeId2);
+                        clearTimeout(timeId);
+                        TagUtil.setTag(container.$leftText, "info", "等待触发监听 .onclose");
+                        domUtils.text(container.$leftDesc, this.text);
+                        domUtils.show(container.$leftDesc, false);
+                        let result2 = await data.fn("https://www.example.com/");
+                        if (typeof result2 === "object" && result2 != null) {
+                          result2.onclose = () => {
+                            clearTimeout(timeId);
+                            clearTimeout(timeId2);
+                            TagUtil.setTag(container.$leftText, "success", "成功触发 .onclose");
+                          };
+                        }
+                        if (result2 && typeof result2?.close === "function") {
+                          timeId = setTimeoutLog(() => {
+                            try {
+                              result2.close();
+                              timeId2 = setTimeoutLog(() => {
+                                TagUtil.setTag(container.$leftText, "error", "测试超时，未触发回调 .onclose");
+                              }, 2e3);
+                            } catch (error) {
+                              TagUtil.setTag(container.$leftText, "error", "调用 .close() 方法失败 " + error);
+                            }
+                          }, 1e3);
+                        } else {
+                          TagUtil.setTag(container.$leftText, "error", "返回对象中不支持 .close() 方法");
+                        }
+                      } catch (error) {
+                        qmsg.error(error.toString(), { consoleLogContent: true });
                       }
-                      if (result2 && typeof result2?.close === "function") {
-                        timeId = setTimeoutLog(() => {
-                          try {
-                            result2.close();
-                            timeId2 = setTimeoutLog(() => {
-                              TagUtil.setTag(
-                                container.$leftText,
-                                "error",
-                                "测试超时，未触发回调 .onclose"
-                              );
-                            }, 2e3);
-                          } catch (error) {
-                            TagUtil.setTag(
-                              container.$leftText,
-                              "error",
-                              "调用 .close() 方法失败 " + error
-                            );
-                          }
-                        }, 1e3);
-                      } else {
-                        TagUtil.setTag(
-                          container.$leftText,
-                          "error",
-                          "返回对象中不支持 .close() 方法"
-                        );
-                      }
-                    } catch (error) {
-                      qmsg.error(error.toString(), { consoleLogContent: true });
-                    }
-                  });
-                  domUtils.after(container.$leftContainer, $button);
-                }
-              };
-            } catch (error) {
-              console.error(error);
-              return {
-                text: "执行错误 " + error,
-                tag: "error"
-              };
-            }
-          })
-        );
+                    });
+                    domUtils.after(container.$leftContainer, $button);
+                  }
+                };
+              } catch (error) {
+                console.error(error);
+                return {
+                  text: "执行错误 " + error,
+                  tag: "error"
+                };
+              }
+            })
+          );
+        });
       }
       return result;
     }
@@ -24008,10 +24163,7 @@ getApiDocUrl(navName, text) {
       let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-        apiName,
-        `${apiName} & ${apiAsyncInfo.name}`
-      )}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -24048,18 +24200,40 @@ getApiDocUrl(navName, text) {
             type: "forms",
             text: "功能测试",
             forms: []
+          },
+          {
+            type: "forms",
+            text: "功能测试（异步）",
+            forms: []
           }
         ]
       };
       if (this.isSupport()) {
-        result["forms"][1].forms.push(
-          UIInfo(() => {
-            try {
-              return {
-                text: "注册菜单 ==> Test Menu",
-                tag: "info",
-                afterRender(container) {
-                  let $button = domUtils.parseHTML(
+        [
+          {
+            name: apiName,
+            fn: async (...args) => {
+              return new Promise((resolve) => {
+                const ret = _GM_registerMenuCommand(...args);
+                resolve(ret);
+              });
+            },
+            formList: result["forms"][1].forms
+          },
+          {
+            name: apiAsyncInfo.name,
+            fn: _GM.registerMenuCommand,
+            formList: result["forms"][2].forms
+          }
+        ].forEach((data) => {
+          data.formList.push(
+            UIInfo(() => {
+              try {
+                return {
+                  text: "注册菜单 ==> Test Menu",
+                  tag: "info",
+                  afterRender(container) {
+                    let $button = domUtils.parseHTML(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -24068,44 +24242,34 @@ getApiDocUrl(navName, text) {
 										</button>
 									</div>
 								`,
-                    false,
-                    false
-                  );
-                  domUtils.after(container.$leftContainer, $button);
-                  let timeId;
-                  let intervalId;
-                  domUtils.on($button, "click", (event) => {
-                    try {
-                      utils.preventEvent(event);
-                      clearTimeout(timeId);
-                      clearInterval(intervalId);
-                      domUtils.text(container.$leftDesc, this.text);
-                      domUtils.show(container.$leftDesc, false);
-                      let intervalCheckCount = 10;
-                      let setCheckText = () => {
-                        let result2 = `已执行注册菜单，请在${intervalCheckCount}s内点击菜单项`;
-                        intervalCheckCount--;
-                        return result2;
-                      };
-                      TagUtil.setTag(container.$leftText, "info", setCheckText());
-                      intervalId = setInterval(() => {
-                        TagUtil.setTag(
-                          container.$leftText,
-                          "info",
-                          setCheckText()
-                        );
-                      }, 1e3);
-                      timeId = setTimeoutLog(() => {
+                      false,
+                      false
+                    );
+                    domUtils.after(container.$leftContainer, $button);
+                    let timeId;
+                    let intervalId;
+                    domUtils.on($button, "click", async (event) => {
+                      try {
+                        utils.preventEvent(event);
+                        clearTimeout(timeId);
                         clearInterval(intervalId);
-                        TagUtil.setTag(
-                          container.$leftText,
-                          "error",
-                          "测试超时，未触发回调"
-                        );
-                      }, 10 * 1e3);
-                      const menuCommandId = _GM_registerMenuCommand(
-                        "Test Menu",
-                        (event2) => {
+                        domUtils.text(container.$leftDesc, this.text);
+                        domUtils.show(container.$leftDesc, false);
+                        let intervalCheckCount = 10;
+                        let setCheckText = () => {
+                          let result2 = `已执行注册菜单，请在${intervalCheckCount}s内点击菜单项`;
+                          intervalCheckCount--;
+                          return result2;
+                        };
+                        TagUtil.setTag(container.$leftText, "info", setCheckText());
+                        intervalId = setInterval(() => {
+                          TagUtil.setTag(container.$leftText, "info", setCheckText());
+                        }, 1e3);
+                        timeId = setTimeoutLog(() => {
+                          clearInterval(intervalId);
+                          TagUtil.setTag(container.$leftText, "error", "测试超时，未触发回调");
+                        }, 10 * 1e3);
+                        const menuCommandId = await data.fn("Test Menu", (event2) => {
                           try {
                             clearInterval(intervalId);
                             clearTimeout(timeId);
@@ -24139,40 +24303,37 @@ getApiDocUrl(navName, text) {
                             }
                             domUtils.html(
                               container.$leftText,
-                              checkResultText.map(
-                                (it) => `<p class="${it.tag}">${it.text}</p>`
-                              ).join("\n")
+                              checkResultText.map((it) => `<p class="${it.tag}">${it.text}</p>`).join("\n")
                             );
                           } catch (error) {
                             qmsg.error(error.toString(), {
                               consoleLogContent: true
                             });
                           }
-                        }
-                      );
-                    } catch (error) {
-                      qmsg.error(error.toString(), { consoleLogContent: true });
-                    }
-                  });
-                }
-              };
-            } catch (error) {
-              console.error(error);
-              return {
-                text: "执行错误 " + error,
-                tag: "error"
-              };
-            } finally {
-            }
-          }),
-          UIInfo(() => {
-            try {
-              return {
-                text: "注册并更新菜单 ==> Test Update Menu",
-                description: "请自行验证是否成功更新菜单文字为：Test Update Menu Success!!!",
-                tag: "info",
-                afterRender(container) {
-                  let $button = domUtils.parseHTML(
+                        });
+                      } catch (error) {
+                        qmsg.error(error.toString(), { consoleLogContent: true });
+                      }
+                    });
+                  }
+                };
+              } catch (error) {
+                console.error(error);
+                return {
+                  text: "执行错误 " + error,
+                  tag: "error"
+                };
+              } finally {
+              }
+            }),
+            UIInfo(() => {
+              try {
+                return {
+                  text: "注册并更新菜单 ==> Test Update Menu",
+                  description: "请自行验证是否成功更新菜单文字为：Test Update Menu Success!!!",
+                  tag: "info",
+                  afterRender(container) {
+                    let $button = domUtils.parseHTML(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -24181,51 +24342,45 @@ getApiDocUrl(navName, text) {
 										</button>
 									</div>
 								`,
-                    false,
-                    false
-                  );
-                  domUtils.after(container.$leftContainer, $button);
-                  let timeId;
-                  domUtils.on($button, "click", (event) => {
-                    try {
-                      utils.preventEvent(event);
-                      clearTimeout(timeId);
-                      const menuCommandId = _GM_registerMenuCommand(
-                        "Test Update Menu",
-                        (event2) => {
-                        }
-                      );
-                      qmsg.info("已注册菜单，3s后自动更新", {
-                        timeout: 3e3
-                      });
-                      clearTimeout(timeId);
-                      timeId = setTimeoutLog(() => {
-                        _GM_registerMenuCommand(
-                          "Test Update Menu Success!!!",
-                          () => {
-                          },
-                          {
+                      false,
+                      false
+                    );
+                    domUtils.after(container.$leftContainer, $button);
+                    let timeId;
+                    domUtils.on($button, "click", async (event) => {
+                      try {
+                        utils.preventEvent(event);
+                        clearTimeout(timeId);
+                        const menuCommandId = await data.fn("Test Update Menu", (event2) => {
+                        });
+                        qmsg.info("已注册菜单，3s后自动更新", {
+                          timeout: 3e3
+                        });
+                        clearTimeout(timeId);
+                        timeId = setTimeoutLog(async () => {
+                          await data.fn("Test Update Menu Success!!!", () => {
+                          }, {
                             id: menuCommandId
-                          }
-                        );
-                        qmsg.success("已执行更新菜单命令，请自行验证");
-                      }, 3e3);
-                    } catch (error) {
-                      qmsg.error(error.toString(), { consoleLogContent: true });
-                    }
-                  });
-                }
-              };
-            } catch (error) {
-              console.error(error);
-              return {
-                text: "执行错误 " + error,
-                tag: "error"
-              };
-            } finally {
-            }
-          })
-        );
+                          });
+                          qmsg.success("已执行更新菜单命令，请自行验证");
+                        }, 3e3);
+                      } catch (error) {
+                        qmsg.error(error.toString(), { consoleLogContent: true });
+                      }
+                    });
+                  }
+                };
+              } catch (error) {
+                console.error(error);
+                return {
+                  text: "执行错误 " + error,
+                  tag: "error"
+                };
+              } finally {
+              }
+            })
+          );
+        });
       }
       return result;
     }
@@ -24249,10 +24404,7 @@ getApiDocUrl(navName, text) {
       let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-        apiName,
-        `${apiName} & ${apiAsyncInfo.name}`
-      )}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -24289,20 +24441,43 @@ getApiDocUrl(navName, text) {
             type: "forms",
             text: "功能测试",
             forms: []
+          },
+          {
+            type: "forms",
+            text: "功能测试（异步）",
+            forms: []
           }
         ]
       };
       if (this.isSupport()) {
-        result["forms"][1].forms.push(
-          (() => {
-            let localStorageDataKey = apiName + "_key_1";
-            return UIInfo(() => {
-              return {
-                text: "测试移除监听器",
-                description: ``,
-                tag: "info",
-                afterRender(container) {
-                  let $button = domUtils.parseHTML(
+        [
+          {
+            name: apiName,
+            fn: async (...args) => {
+              return new Promise((resolve) => {
+                const ret = _GM_removeValueChangeListener(...args);
+                resolve(ret);
+              });
+            },
+            formList: result["forms"][1].forms
+          },
+          {
+            name: apiAsyncInfo.name,
+            fn: _GM.removeValueChangeListener,
+            formList: result["forms"][2].forms
+          }
+        ].forEach((data) => {
+          data.name;
+          data.formList.push(
+            (() => {
+              let localStorageDataKey = apiName + "_key_1";
+              return UIInfo(() => {
+                return {
+                  text: "测试移除监听器",
+                  description: ``,
+                  tag: "info",
+                  afterRender(container) {
+                    let $button = domUtils.parseHTML(
 `
 										<div class="pops-panel-button pops-panel-button-no-icon">
 											<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -24311,50 +24486,47 @@ getApiDocUrl(navName, text) {
 											</button>
 										</div>
 									`,
-                    false,
-                    false
-                  );
-                  domUtils.after(container.$leftContainer, $button);
-                  let tagTextList = [];
-                  domUtils.on($button, "click", (event) => {
-                    utils.preventEvent(event);
-                    try {
-                      tagTextList = [];
-                      TagUtil.setTag(
-                        container.$leftText,
-                        "info",
-                        "等待移除监听器"
-                      );
-                      domUtils.text(container.$leftDesc, this.text);
-                      domUtils.show(container.$leftDesc, false);
-                      let delaySetValue = utils.formatTime(Date.now());
-                      let listenerId = _GM_addValueChangeListener(
-                        localStorageDataKey,
-                        function(key, oldValue, newValue, remote) {
-                          console.log(arguments);
-                          tagTextList.push({
-                            tag: "error",
-                            text: "未成功移除监听器"
-                          });
-                          TagUtil.setTagList(container.$leftText, tagTextList);
-                        }
-                      );
-                      _GM_removeValueChangeListener(listenerId);
-                      tagTextList.push({
-                        tag: "success",
-                        text: "支持移除监听器"
-                      });
-                      TagUtil.setTagList(container.$leftText, tagTextList);
-                      _GM_setValue(localStorageDataKey, delaySetValue);
-                    } catch (error) {
-                      qmsg.error(error.toString(), { consoleLogContent: true });
-                    }
-                  });
-                }
-              };
-            });
-          })()
-        );
+                      false,
+                      false
+                    );
+                    domUtils.after(container.$leftContainer, $button);
+                    let tagTextList = [];
+                    domUtils.on($button, "click", async (event) => {
+                      utils.preventEvent(event);
+                      try {
+                        tagTextList = [];
+                        TagUtil.setTag(container.$leftText, "info", "等待移除监听器");
+                        domUtils.text(container.$leftDesc, this.text);
+                        domUtils.show(container.$leftDesc, false);
+                        let delaySetValue = utils.formatTime(Date.now());
+                        let listenerId = _GM_addValueChangeListener(
+                          localStorageDataKey,
+                          function(key, oldValue, newValue, remote) {
+                            console.log(arguments);
+                            tagTextList.push({
+                              tag: "error",
+                              text: "未成功移除监听器"
+                            });
+                            TagUtil.setTagList(container.$leftText, tagTextList);
+                          }
+                        );
+                        await data.fn(listenerId);
+                        tagTextList.push({
+                          tag: "success",
+                          text: "支持移除监听器"
+                        });
+                        TagUtil.setTagList(container.$leftText, tagTextList);
+                        _GM_setValue(localStorageDataKey, delaySetValue);
+                      } catch (error) {
+                        qmsg.error(error.toString(), { consoleLogContent: true });
+                      }
+                    });
+                  }
+                };
+              });
+            })()
+          );
+        });
       }
       return result;
     }
@@ -24378,10 +24550,7 @@ getApiDocUrl(navName, text) {
       let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-        apiName,
-        `${apiName} & ${apiAsyncInfo.name}`
-      )}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -24462,10 +24631,7 @@ getApiDocUrl(navName, text) {
       let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-        apiName,
-        `${apiName} & ${apiAsyncInfo.name}`
-      )}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -24502,58 +24668,85 @@ getApiDocUrl(navName, text) {
             type: "forms",
             text: "功能测试",
             forms: []
+          },
+          {
+            type: "forms",
+            text: "功能测试（异步）",
+            forms: []
           }
         ]
       };
       if (this.isSupport()) {
-        result["forms"][1].forms.push(
-          UIInfo(() => {
-            return {
-              text: "复制内容到剪贴板：Test GM_setClipboard",
-              tag: "info",
-              afterRender(container) {
-                let $button = domUtils.parseHTML(
-`
-								<div class="pops-panel-button pops-panel-button-no-icon">
-									<button class="pops-panel-button_inner" type="button" data-type="default">
-										<i class="pops-bottom-icon" is-loading="false"></i>
-										<span class="pops-panel-button-text">点击测试</span>
-									</button>
-								</div>
-							`,
-                  false,
-                  false
-                );
-                domUtils.after(container.$leftContainer, $button);
-                let timeId;
-                domUtils.on($button, "click", (event) => {
-                  try {
-                    utils.preventEvent(event);
-                    clearTimeout(timeId);
-                    qmsg.info("等待3s内触发成功复制的回调");
-                    timeId = setTimeoutLog(() => {
-                      TagUtil.setTag(
-                        container.$leftText,
-                        "error",
-                        "不支持触发回调函数"
-                      );
-                    }, 3e3);
-                    _GM_setClipboard("Test GM_setClipboard", "text", () => {
-                      clearTimeout(timeId);
-                      TagUtil.setTag(
-                        container.$leftText,
-                        "success",
-                        "支持触发回调函数"
-                      );
-                    });
-                  } catch (error) {
-                    qmsg.error(error.toString(), { consoleLogContent: true });
-                  }
-                });
+        [
+          {
+            name: apiName,
+            fn: async (...args) => {
+              return new Promise((resolve) => {
+                if (typeof args[2] === "function") {
+                  const cb = args[2];
+                  args[2] = (...args2) => {
+                    cb(...args2);
+                    resolve(void 0);
+                  };
+                }
+                _GM_setClipboard(...args);
+              });
+            },
+            formList: result["forms"][1].forms
+          },
+          {
+            name: apiAsyncInfo.name,
+            fn: async (...args) => {
+              const cb = args[2];
+              await _GM.setClipboard(...args);
+              if (typeof cb === "function") {
+                cb();
               }
-            };
-          })
-        );
+            },
+            formList: result["forms"][2].forms
+          }
+        ].forEach((data) => {
+          data.formList.push(
+            UIInfo(() => {
+              return {
+                text: "复制内容到剪贴板：Test " + data.name,
+                tag: "info",
+                afterRender(container) {
+                  let $button = domUtils.parseHTML(
+`
+									<div class="pops-panel-button pops-panel-button-no-icon">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
+											<i class="pops-bottom-icon" is-loading="false"></i>
+											<span class="pops-panel-button-text">点击测试</span>
+										</button>
+									</div>
+								`,
+                    false,
+                    false
+                  );
+                  domUtils.after(container.$leftContainer, $button);
+                  let timeId;
+                  domUtils.on($button, "click", async (event) => {
+                    try {
+                      utils.preventEvent(event);
+                      clearTimeout(timeId);
+                      qmsg.info("等待3s内触发成功复制的回调");
+                      timeId = setTimeoutLog(() => {
+                        TagUtil.setTag(container.$leftText, "error", "不支持触发回调函数");
+                      }, 3e3);
+                      await data.fn("Test " + data.name, "text", () => {
+                        clearTimeout(timeId);
+                        TagUtil.setTag(container.$leftText, "success", "支持触发回调函数");
+                      });
+                    } catch (error) {
+                      qmsg.error(error.toString(), { consoleLogContent: true });
+                    }
+                  });
+                }
+              };
+            })
+          );
+        });
       }
       return result;
     }
@@ -24577,10 +24770,7 @@ getApiDocUrl(navName, text) {
       let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-        apiName,
-        `${apiName} & ${apiAsyncInfo.name}`
-      )}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -24617,83 +24807,106 @@ getApiDocUrl(navName, text) {
             type: "forms",
             text: "功能测试",
             forms: []
+          },
+          {
+            type: "forms",
+            text: "功能测试（异步）",
+            forms: []
           }
         ]
       };
       if (this.isSupport()) {
-        result["forms"][1].forms.push(
-          ...[
-            {
-              key: "Test GM_setValue boolean",
-              value: true,
-              text: function() {
-                return `存储boolean类型`;
-              },
-              desc: function() {
-                return `"${this.key}": ${this.value}`;
-              }
+        [
+          {
+            name: apiName,
+            fn: async (...args) => {
+              return new Promise((resolve) => {
+                const ret = _GM_setValue(...args);
+                resolve(ret);
+              });
             },
-            {
-              key: "Test GM_setValue number",
-              value: 1,
-              text: function() {
-                return `存储number类型`;
+            formList: result["forms"][1].forms
+          },
+          {
+            name: apiAsyncInfo.name,
+            fn: _GM.setValue,
+            formList: result["forms"][2].forms
+          }
+        ].forEach((data) => {
+          let apiNameTag = data.name;
+          data.formList.push(
+            ...[
+              {
+                key: `Test ${apiNameTag} boolean`,
+                value: true,
+                text: function() {
+                  return `存储boolean类型`;
+                },
+                desc: function() {
+                  return `"${this.key}": ${this.value}`;
+                }
               },
-              desc: function() {
-                return `"${this.key}": ${this.value}`;
-              }
-            },
-            {
-              key: "Test GM_setValue string",
-              value: "测试字符串",
-              text: function() {
-                return `存储string类型`;
+              {
+                key: `Test ${apiNameTag} number`,
+                value: 1,
+                text: function() {
+                  return `存储number类型`;
+                },
+                desc: function() {
+                  return `"${this.key}": ${this.value}`;
+                }
               },
-              desc: function() {
-                return `"${this.key}": "${this.value}"`;
-              }
-            },
-            {
-              key: "Test GM_setValue undefined",
-              value: void 0,
-              text: function() {
-                return `存储undefined类型`;
+              {
+                key: `Test ${apiNameTag} string`,
+                value: "测试字符串",
+                text: function() {
+                  return `存储string类型`;
+                },
+                desc: function() {
+                  return `"${this.key}": "${this.value}"`;
+                }
               },
-              desc: function() {
-                return `"${this.key}": ${this.value}`;
-              }
-            },
-            {
-              key: "Test GM_setValue null",
-              value: null,
-              text: function() {
-                return `存储object类型的null`;
+              {
+                key: `Test ${apiNameTag} undefined`,
+                value: void 0,
+                text: function() {
+                  return `存储undefined类型`;
+                },
+                desc: function() {
+                  return `"${this.key}": ${this.value}`;
+                }
               },
-              desc: function() {
-                return `"${this.key}": ${this.value}`;
-              }
-            },
-            {
-              key: "Test GM_setValue object",
-              value: { "object key": "object value" },
-              text: function() {
-                return `存储object类型`;
+              {
+                key: `Test ${apiNameTag} null`,
+                value: null,
+                text: function() {
+                  return `存储object类型的null`;
+                },
+                desc: function() {
+                  return `"${this.key}": ${this.value}`;
+                }
               },
-              desc: function() {
-                return `"${this.key}": ${JSON.stringify(this.value)}`;
+              {
+                key: `Test ${apiNameTag} object`,
+                value: { "object key": "object value" },
+                text: function() {
+                  return `存储object类型`;
+                },
+                desc: function() {
+                  return `"${this.key}": ${JSON.stringify(this.value)}`;
+                }
               }
-            }
-          ].map((it) => {
-            return (() => {
-              let localStorageDataKey = it.key;
-              let localStorageDataValue = it.value;
-              return UIInfo(() => {
-                return {
-                  text: it.text(),
-                  description: it.desc(),
-                  tag: "info",
-                  afterRender(container) {
-                    let $button = domUtils.parseHTML(
+            ].map((it) => {
+              return (() => {
+                let localStorageDataKey = it.key;
+                let localStorageDataValue = it.value;
+                return UIInfo(() => {
+                  return {
+                    text: it.text(),
+                    description: it.desc(),
+                    tag: "info",
+                    afterRender(container) {
+                      let $button = domUtils.parseHTML(
 `
 										<div class="pops-panel-button pops-panel-button-no-icon">
 											<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -24702,25 +24915,26 @@ getApiDocUrl(navName, text) {
 											</button>
 										</div>
 									`,
-                      false,
-                      false
-                    );
-                    domUtils.after(container.$leftContainer, $button);
-                    domUtils.on($button, "click", (event) => {
-                      utils.preventEvent(event);
-                      try {
-                        _GM_setValue(localStorageDataKey, localStorageDataValue);
-                        qmsg.info("执行写入完毕，请自行查看是否成功写入");
-                      } catch (error) {
-                        qmsg.error(error.toString(), { consoleLogContent: true });
-                      }
-                    });
-                  }
-                };
-              });
-            })();
-          })
-        );
+                        false,
+                        false
+                      );
+                      domUtils.after(container.$leftContainer, $button);
+                      domUtils.on($button, "click", async (event) => {
+                        utils.preventEvent(event);
+                        try {
+                          await data.fn(localStorageDataKey, localStorageDataValue);
+                          qmsg.info("执行写入完毕，请自行查看是否成功写入");
+                        } catch (error) {
+                          qmsg.error(error.toString(), { consoleLogContent: true });
+                        }
+                      });
+                    }
+                  };
+                });
+              })();
+            })
+          );
+        });
       }
       return result;
     }
@@ -24744,10 +24958,7 @@ getApiDocUrl(navName, text) {
       let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-        apiName,
-        `${apiName} & ${apiAsyncInfo.name}`
-      )}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -24784,20 +24995,43 @@ getApiDocUrl(navName, text) {
             type: "forms",
             text: "功能测试",
             forms: []
+          },
+          {
+            type: "forms",
+            text: "功能测试（异步）",
+            forms: []
           }
         ]
       };
       if (this.isSupport()) {
-        result["forms"][1].forms.push(
-          (() => {
-            let localStorageDataValue = { foo: 1, bar: 2 };
-            return UIInfo(() => {
-              return {
-                text: "测试存储对象",
-                description: JSON.stringify(localStorageDataValue),
-                tag: "info",
-                afterRender(container) {
-                  let $button = domUtils.parseHTML(
+        [
+          {
+            name: apiName,
+            fn: async (...args) => {
+              return new Promise((resolve) => {
+                const ret = _GM_setValues(...args);
+                resolve(ret);
+              });
+            },
+            formList: result["forms"][1].forms
+          },
+          {
+            name: apiAsyncInfo.name,
+            fn: _GM.setValues,
+            formList: result["forms"][2].forms
+          }
+        ].forEach((data) => {
+          data.name;
+          data.formList.push(
+            (() => {
+              let localStorageDataValue = { foo: 1, bar: 2 };
+              return UIInfo(() => {
+                return {
+                  text: "测试存储对象",
+                  description: JSON.stringify(localStorageDataValue),
+                  tag: "info",
+                  afterRender(container) {
+                    let $button = domUtils.parseHTML(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -24806,24 +25040,25 @@ getApiDocUrl(navName, text) {
 										</button>
 									</div>
 								`,
-                    false,
-                    false
-                  );
-                  domUtils.after(container.$leftContainer, $button);
-                  domUtils.on($button, "click", (event) => {
-                    utils.preventEvent(event);
-                    try {
-                      _GM_setValues(localStorageDataValue);
-                      qmsg.info("执行写入完毕，请自行查看是否成功写入");
-                    } catch (error) {
-                      qmsg.error(error.toString(), { consoleLogContent: true });
-                    }
-                  });
-                }
-              };
-            });
-          })()
-        );
+                      false,
+                      false
+                    );
+                    domUtils.after(container.$leftContainer, $button);
+                    domUtils.on($button, "click", async (event) => {
+                      utils.preventEvent(event);
+                      try {
+                        await data.fn(localStorageDataValue);
+                        qmsg.info("执行写入完毕，请自行查看是否成功写入");
+                      } catch (error) {
+                        qmsg.error(error.toString(), { consoleLogContent: true });
+                      }
+                    });
+                  }
+                };
+              });
+            })()
+          );
+        });
       }
       return result;
     }
@@ -24847,10 +25082,7 @@ getApiDocUrl(navName, text) {
       let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-        apiName,
-        `${apiName} & ${apiAsyncInfo.name}`
-      )}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -24887,19 +25119,41 @@ getApiDocUrl(navName, text) {
             type: "forms",
             text: "功能测试",
             forms: []
+          },
+          {
+            type: "forms",
+            text: "功能测试（异步）",
+            forms: []
           }
         ]
       };
       if (this.isSupport()) {
-        result["forms"][1].forms.push(
-          UIInfo(() => {
-            try {
-              return {
-                text: "注册并卸载菜单 ==> Test UnRegister Menu",
-                description: "请自行验证是否成功卸载菜单",
-                tag: "info",
-                afterRender(container) {
-                  let $button = domUtils.parseHTML(
+        [
+          {
+            name: apiName,
+            fn: async (...args) => {
+              return new Promise((resolve) => {
+                const ret = _GM_unregisterMenuCommand(...args);
+                resolve(ret);
+              });
+            },
+            formList: result["forms"][1].forms
+          },
+          {
+            name: apiAsyncInfo.name,
+            fn: _GM.unregisterMenuCommand,
+            formList: result["forms"][2].forms
+          }
+        ].forEach((data) => {
+          data.formList.push(
+            UIInfo(() => {
+              try {
+                return {
+                  text: "注册并卸载菜单 ==> Test UnRegister Menu",
+                  description: "请自行验证是否成功卸载菜单",
+                  tag: "info",
+                  afterRender(container) {
+                    let $button = domUtils.parseHTML(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -24908,44 +25162,42 @@ getApiDocUrl(navName, text) {
 										</button>
 									</div>
 								`,
-                    false,
-                    false
-                  );
-                  domUtils.after(container.$leftContainer, $button);
-                  let timeId;
-                  domUtils.on($button, "click", (event) => {
-                    try {
-                      utils.preventEvent(event);
-                      clearTimeout(timeId);
-                      const menuCommandId = _GM_registerMenuCommand(
-                        "Test UnRegister Menu",
-                        (event2) => {
-                        }
-                      );
-                      qmsg.info("已注册菜单，10s后自动执行卸载", {
-                        timeout: 5 * 1e3
-                      });
-                      clearTimeout(timeId);
-                      timeId = setTimeoutLog(() => {
-                        _GM_unregisterMenuCommand(menuCommandId);
-                        qmsg.success("已执行卸载菜单命令，请自行验证");
-                      }, 10 * 1e3);
-                    } catch (error) {
-                      qmsg.error(error.toString(), { consoleLogContent: true });
-                    }
-                  });
-                }
-              };
-            } catch (error) {
-              console.error(error);
-              return {
-                text: "执行错误 " + error,
-                tag: "error"
-              };
-            } finally {
-            }
-          })
-        );
+                      false,
+                      false
+                    );
+                    domUtils.after(container.$leftContainer, $button);
+                    let timeId;
+                    domUtils.on($button, "click", (event) => {
+                      try {
+                        utils.preventEvent(event);
+                        clearTimeout(timeId);
+                        const menuCommandId = _GM_registerMenuCommand("Test UnRegister Menu", (event2) => {
+                        });
+                        qmsg.info("已注册菜单，10s后自动执行卸载", {
+                          timeout: 10 * 1e3
+                        });
+                        clearTimeout(timeId);
+                        timeId = setTimeoutLog(async () => {
+                          await data.fn(menuCommandId);
+                          qmsg.success("已执行卸载菜单命令，请自行验证");
+                        }, 10 * 1e3);
+                      } catch (error) {
+                        qmsg.error(error.toString(), { consoleLogContent: true });
+                      }
+                    });
+                  }
+                };
+              } catch (error) {
+                console.error(error);
+                return {
+                  text: "执行错误 " + error,
+                  tag: "error"
+                };
+              } finally {
+              }
+            })
+          );
+        });
       }
       return result;
     }
@@ -25040,10 +25292,7 @@ getApiDocUrl(navName, text) {
       let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-        apiName,
-        `${apiName} & ${apiAsyncInfo.name}`
-      )}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -25124,10 +25373,7 @@ getApiDocUrl(navName, text) {
       let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-        apiName,
-        `${apiName} & ${apiAsyncInfo.name}`
-      )}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -25509,14 +25755,8 @@ delete(key) {
                           utils.preventEvent(event);
                           clearTimeout(timeId);
                           if (_monkeyWindow.onurlchange === null) {
-                            _monkeyWindow.removeEventListener(
-                              "urlchange",
-                              urlChangeEvent
-                            );
-                            _monkeyWindow.addEventListener(
-                              "urlchange",
-                              urlChangeEvent
-                            );
+                            _monkeyWindow.removeEventListener("urlchange", urlChangeEvent);
+                            _monkeyWindow.addEventListener("urlchange", urlChangeEvent);
                             window.history.pushState({}, "", "#/onurlchange");
                             timeId = setTimeout(() => {
                               qmsg.error("urlchange event is not trigger");
@@ -25687,9 +25927,7 @@ delete(key) {
                           once: true
                         });
                         try {
-                          qmsg.info(
-                            "请切换至其它Tab页面，切换完毕3秒后会自动调用该函数"
-                          );
+                          qmsg.info("请切换至其它Tab页面，切换完毕3秒后会自动调用该函数");
                         } catch (error) {
                           qmsg.error(error.toString(), {
                             consoleLogContent: true
