@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.27
+// @version      2025.8.29
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -49,21 +49,29 @@
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const PROPS_STORAGE_API = "data-storage-api";
+  const PanelSizeUtil = {
+get width() {
+      return globalThis.innerWidth;
+    },
+get height() {
+      return globalThis.innerHeight;
+    }
+  };
   const PanelUISize = {
 setting: {
       get width() {
-        if (window.innerWidth < 550) {
+        if (PanelSizeUtil.width < 550) {
           return "88vw";
-        } else if (window.innerWidth < 700) {
+        } else if (PanelSizeUtil.width < 700) {
           return "550px";
         } else {
           return "700px";
         }
       },
       get height() {
-        if (window.innerHeight < 450) {
+        if (PanelSizeUtil.height < 450) {
           return "70vh";
-        } else if (window.innerHeight < 550) {
+        } else if (PanelSizeUtil.height < 550) {
           return "450px";
         } else {
           return "550px";
@@ -72,15 +80,15 @@ setting: {
     },
 settingMiddle: {
       get width() {
-        return window.innerWidth < 350 ? "88vw" : "350px";
+        return PanelSizeUtil.width < 350 ? "88vw" : "350px";
       }
     },
 info: {
       get width() {
-        return window.innerWidth < 350 ? "88vw" : "350px";
+        return PanelSizeUtil.width < 350 ? "88vw" : "350px";
       },
       get height() {
-        return window.innerHeight < 250 ? "88vh" : "250px";
+        return PanelSizeUtil.height < 250 ? "88vh" : "250px";
       }
     }
   };
@@ -3903,6 +3911,7 @@ async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
       Panel.execMenuOnce("dy-video-disableRightToolbarTransform", () => {
         return this.disableRightToolbarTransform();
       });
+      DouYinVideoPlayer.chooseQuality(Panel.getValue("chooseVideoDefinition"));
       domUtils.ready(() => {
         DouYinVideoPlayer.chooseQuality(Panel.getValue("chooseVideoDefinition"));
         Panel.execMenuOnce("mobileMode", () => {
@@ -4142,7 +4151,7 @@ chooseQuality(mode = 0) {
         setTimeout(() => {
           clearInterval(intervalId);
         }, 10 * 1e3);
-        log.success("设置当前视频的清晰度: " + mode);
+        log.success("设置当前视频的清晰度: " + choose.gearName);
       } else {
         log.error("该清晰度不存在: " + mode);
       }
@@ -6379,11 +6388,7 @@ async showView(filterCallBack) {
             type: "primary",
             text: "添加",
             callback: async (event) => {
-              this.showEditView(
-                false,
-                await this.option.getAddData(),
-                $popsConfirm.$shadowRoot
-              );
+              this.showEditView(false, await this.option.getAddData(), $popsConfirm.$shadowRoot);
             }
           },
           close: {
@@ -6402,9 +6407,7 @@ async showView(filterCallBack) {
               }
               let getAllRuleElement = () => {
                 return Array.from(
-                  $popsConfirm.$shadowRoot.querySelectorAll(
-                    ".rule-view-container .rule-item"
-                  )
+                  $popsConfirm.$shadowRoot.querySelectorAll(".rule-view-container .rule-item")
                 );
               };
               let $button = event.target.closest(".pops-confirm-btn").querySelector(".pops-confirm-btn-cancel span");
@@ -6533,22 +6536,20 @@ async showView(filterCallBack) {
       let changeButtonText = false;
       for (let index = 0; index < allData.length; index++) {
         let item = allData[index];
-        let $ruleItemList = await this.appendRuleItemElement(
-          $popsConfirm.$shadowRoot,
-          item
-        );
-        let flag = typeof filterCallBack === "function" ? filterCallBack(item) : true;
-        if (!flag) {
+        let $ruleItemList = await this.appendRuleItemElement($popsConfirm.$shadowRoot, item);
+        let isNotFilterFlag = true;
+        if (typeof filterCallBack === "function") {
+          isNotFilterFlag = filterCallBack(item);
+        } else if (typeof filterCallBack === "number" && !isNaN(filterCallBack)) {
+          isNotFilterFlag = await this.option.bottomControls?.filter?.option[filterCallBack]?.filterCallBack(item) ?? isNotFilterFlag;
+        }
+        if (!isNotFilterFlag) {
           changeButtonText = true;
-          $ruleItemList.forEach(($el) => {
-            domUtils.hide($el, false);
-          });
+          domUtils.hide($ruleItemList, false);
         }
       }
       if (changeButtonText) {
-        let $button = $popsConfirm.$shadowRoot.querySelector(
-          ".pops-confirm-btn-cancel span"
-        );
+        let $button = $popsConfirm.$shadowRoot.querySelector(".pops-confirm-btn-cancel span");
         domUtils.text($button, "取消过滤");
       }
     }
@@ -6597,24 +6598,13 @@ showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDa
           }
         },
         onsubmit: async ($form, data) => {
-          let result = await this.option.itemControls.edit.onsubmit(
-            $form,
-            isEdit,
-            data
-          );
+          let result = await this.option.itemControls.edit.onsubmit($form, isEdit, data);
           if (result.success) {
             if (isEdit) {
               Qmsg.success("修改成功");
-              $parentShadowRoot && await this.updateRuleItemElement(
-                result.data,
-                $editRuleItemElement,
-                $parentShadowRoot
-              );
+              $parentShadowRoot && await this.updateRuleItemElement(result.data, $editRuleItemElement, $parentShadowRoot);
             } else {
-              $parentShadowRoot && await this.appendRuleItemElement(
-                $parentShadowRoot,
-                result.data
-              );
+              $parentShadowRoot && await this.appendRuleItemElement($parentShadowRoot, result.data);
             }
           } else {
             if (isEdit) {
@@ -6630,9 +6620,7 @@ showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDa
       editView.showView();
     }
 parseViewElement($shadowRoot) {
-      let $container = $shadowRoot.querySelector(
-        ".rule-view-container"
-      );
+      let $container = $shadowRoot.querySelector(".rule-view-container");
       let $deleteBtn = $shadowRoot.querySelector(
         ".pops-confirm-btn button.pops-confirm-btn-other"
       );
@@ -6642,20 +6630,12 @@ $deleteBtn
       };
     }
 parseRuleItemElement($ruleElement) {
-      let $enable = $ruleElement.querySelector(
-        ".rule-controls-enable"
-      );
+      let $enable = $ruleElement.querySelector(".rule-controls-enable");
       let $enableSwitch = $enable.querySelector(".pops-panel-switch");
-      let $enableSwitchInput = $enable.querySelector(
-        ".pops-panel-switch__input"
-      );
-      let $enableSwitchCore = $enable.querySelector(
-        ".pops-panel-switch__core"
-      );
+      let $enableSwitchInput = $enable.querySelector(".pops-panel-switch__input");
+      let $enableSwitchCore = $enable.querySelector(".pops-panel-switch__core");
       let $edit = $ruleElement.querySelector(".rule-controls-edit");
-      let $delete = $ruleElement.querySelector(
-        ".rule-controls-delete"
-      );
+      let $delete = $ruleElement.querySelector(".rule-controls-delete");
       return {
 $enable,
 $enableSwitch,
@@ -6695,14 +6675,7 @@ async createRuleItemElement(data, $shadowRoot) {
       });
       Reflect.set($ruleItem, "data-rule", data);
       let switchCheckedClassName = "pops-panel-switch-is-checked";
-      const {
-        $enable,
-        $enableSwitch,
-        $enableSwitchCore,
-        $enableSwitchInput,
-        $delete,
-        $edit
-      } = this.parseRuleItemElement($ruleItem);
+      const { $enable, $enableSwitch, $enableSwitchCore, $enableSwitchInput, $delete, $edit } = this.parseRuleItemElement($ruleItem);
       if (this.option.itemControls.enable.enable) {
         domUtils.on($enableSwitchCore, "click", async (event) => {
           let isChecked = false;
@@ -6750,9 +6723,7 @@ async createRuleItemElement(data, $shadowRoot) {
                 enable: true,
                 callback: async (popsEvent) => {
                   log.success("删除数据");
-                  let flag = await this.option.itemControls.delete.deleteCallBack(
-                    data
-                  );
+                  let flag = await this.option.itemControls.delete.deleteCallBack(data);
                   if (flag) {
                     Qmsg.success("成功删除该数据");
                     $ruleItem.remove();
@@ -7612,9 +7583,7 @@ execFilter() {
           let scopeNameList = Array.isArray(scopeName) ? scopeName : [scopeName];
           let matchedFilterOptionList = filterOptionList.filter(
             (it) => it.enable && (it.data.scope.includes("all") || Array.from(scopeNameList).findIndex(
-              (item) => it.data.scope.includes(
-                item
-              )
+              (item) => it.data.scope.includes(item)
             ) !== -1)
           );
           return matchedFilterOptionList;
@@ -7623,9 +7592,7 @@ execFilter() {
           if (that.$data.isReverse) {
             awemeFilterInfoResult.isFilter = !awemeFilterInfoResult.isFilter;
             if (typeof awemeFilterInfoResult.transformAwemeInfo.awemeId === "string" && awemeFilterInfoResult.matchedFilterOption) {
-              let filterOptionList = that.$data.isFilterAwemeInfoList.get(
-                awemeFilterInfoResult.transformAwemeInfo.awemeId
-              ) || [];
+              let filterOptionList = that.$data.isFilterAwemeInfoList.get(awemeFilterInfoResult.transformAwemeInfo.awemeId) || [];
               filterOptionList.push(awemeFilterInfoResult.matchedFilterOption);
               that.$data.isFilterAwemeInfoList.set(
                 awemeFilterInfoResult.transformAwemeInfo.awemeId,
@@ -7634,13 +7601,10 @@ execFilter() {
             }
           }
           if (typeof awemeFilterInfoResult.transformAwemeInfo.awemeId === "string") {
-            DouYinVideoFilter.$data.awemeInfoMap.set(
-              awemeFilterInfoResult.transformAwemeInfo.awemeId,
-              {
-                awemeInfo: awemeFilterInfoResult.awemeInfo,
-                transformAwemeInfo: awemeFilterInfoResult.transformAwemeInfo
-              }
-            );
+            DouYinVideoFilter.$data.awemeInfoMap.set(awemeFilterInfoResult.transformAwemeInfo.awemeId, {
+              awemeInfo: awemeFilterInfoResult.awemeInfo,
+              transformAwemeInfo: awemeFilterInfoResult.transformAwemeInfo
+            });
           }
         };
         let xhr_hook_callback_1 = (scopeName, request) => {
@@ -7654,16 +7618,10 @@ execFilter() {
             if (Array.isArray(aweme_list)) {
               for (let index = 0; index < aweme_list.length; index++) {
                 let awemeInfo = aweme_list[index] || {};
-                let filterResult = filterBase.checkAwemeInfoIsFilter(
-                  filterOptionList,
-                  awemeInfo
-                );
+                let filterResult = filterBase.checkAwemeInfoIsFilter(filterOptionList, awemeInfo);
                 checkFilterCallBack(filterResult);
                 if (filterResult.isFilter) {
-                  filterBase.sendDislikeVideo(
-                    filterResult.matchedFilterOption,
-                    awemeInfo
-                  );
+                  filterBase.sendDislikeVideo(filterResult.matchedFilterOption, awemeInfo);
                   filterBase.removeAweme(aweme_list, index--);
                 }
               }
@@ -7686,16 +7644,10 @@ execFilter() {
                 if (typeof awemeItem?.["cell_room"] === "object" && awemeItem?.["cell_room"] != null) {
                   awemeInfo["cell_room"] = awemeItem?.["cell_room"];
                 }
-                let filterResult = filterBase.checkAwemeInfoIsFilter(
-                  filterOptionList,
-                  awemeInfo
-                );
+                let filterResult = filterBase.checkAwemeInfoIsFilter(filterOptionList, awemeInfo);
                 checkFilterCallBack(filterResult);
                 if (filterResult.isFilter) {
-                  filterBase.sendDislikeVideo(
-                    filterResult.matchedFilterOption,
-                    awemeInfo
-                  );
+                  filterBase.sendDislikeVideo(filterResult.matchedFilterOption, awemeInfo);
                   filterBase.removeAweme(aweme_list, index--);
                 }
               }
@@ -7714,19 +7666,11 @@ execFilter() {
             if (Array.isArray(cards)) {
               for (let index = 0; index < cards.length; index++) {
                 let awemeItem = cards[index];
-                let awemeInfo = utils.toJSON(
-                  awemeItem?.["aweme"] || "{}"
-                );
-                let filterResult = filterBase.checkAwemeInfoIsFilter(
-                  filterOptionList,
-                  awemeInfo
-                );
+                let awemeInfo = utils.toJSON(awemeItem?.["aweme"] || "{}");
+                let filterResult = filterBase.checkAwemeInfoIsFilter(filterOptionList, awemeInfo);
                 checkFilterCallBack(filterResult);
                 if (filterResult.isFilter) {
-                  filterBase.sendDislikeVideo(
-                    filterResult.matchedFilterOption,
-                    awemeInfo
-                  );
+                  filterBase.sendDislikeVideo(filterResult.matchedFilterOption, awemeInfo);
                   filterBase.removeAweme(cards, index--);
                 }
               }
@@ -7752,16 +7696,10 @@ execFilter() {
                   if (Array.isArray(awemeMixInfoItems)) {
                     for (let mixIndex = 0; mixIndex < awemeMixInfoItems.length; mixIndex++) {
                       let mixItem = awemeMixInfoItems[mixIndex];
-                      let filterResult = filterBase.checkAwemeInfoIsFilter(
-                        filterOptionList,
-                        mixItem
-                      );
+                      let filterResult = filterBase.checkAwemeInfoIsFilter(filterOptionList, mixItem);
                       checkFilterCallBack(filterResult);
                       if (filterResult.isFilter) {
-                        filterBase.sendDislikeVideo(
-                          filterResult.matchedFilterOption,
-                          mixItem
-                        );
+                        filterBase.sendDislikeVideo(filterResult.matchedFilterOption, mixItem);
                         filterBase.removeAweme(awemeMixInfoItems, mixIndex--);
                       }
                     }
@@ -7770,16 +7708,10 @@ execFilter() {
                     }
                   }
                 } else {
-                  let filterResult = filterBase.checkAwemeInfoIsFilter(
-                    filterOptionList,
-                    awemeInfo
-                  );
+                  let filterResult = filterBase.checkAwemeInfoIsFilter(filterOptionList, awemeInfo);
                   checkFilterCallBack(filterResult);
                   if (filterResult.isFilter) {
-                    filterBase.sendDislikeVideo(
-                      filterResult.matchedFilterOption,
-                      awemeInfo
-                    );
+                    filterBase.sendDislikeVideo(filterResult.matchedFilterOption, awemeInfo);
                     filterBase.removeAweme(aweme_list, index--);
                   }
                 }
@@ -7850,21 +7782,11 @@ addParseButton() {
           return;
         }
         let transformAwemeInfo;
-        let transformAwemeInfoWithPage = filterBase.parseAwemeInfoDictData(
-          awemeInfo,
-          false
-        );
+        let transformAwemeInfoWithPage = filterBase.parseAwemeInfoDictData(awemeInfo, false);
         log.info(["视频页面原始awemeInfo：", awemeInfo]);
-        log.info([
-          "视频页面解析出的transformAwemeInfo：",
-          transformAwemeInfoWithPage
-        ]);
-        if (typeof transformAwemeInfoWithPage.awemeId === "string" && DouYinVideoFilter.$data.awemeInfoMap.has(
-          transformAwemeInfoWithPage.awemeId
-        )) {
-          let awemeInfoMapData = DouYinVideoFilter.$data.awemeInfoMap.get(
-            transformAwemeInfoWithPage.awemeId
-          );
+        log.info(["视频页面解析出的transformAwemeInfo：", transformAwemeInfoWithPage]);
+        if (typeof transformAwemeInfoWithPage.awemeId === "string" && DouYinVideoFilter.$data.awemeInfoMap.has(transformAwemeInfoWithPage.awemeId)) {
+          let awemeInfoMapData = DouYinVideoFilter.$data.awemeInfoMap.get(transformAwemeInfoWithPage.awemeId);
           transformAwemeInfo = awemeInfoMapData.transformAwemeInfo;
           log.info([`视频网络接口解析出的Info：`, awemeInfoMapData]);
         } else {
@@ -7931,12 +7853,11 @@ addParseButton() {
         });
       };
       let lockFn = new utils.LockFunction(() => {
-        $$(
-          ".basePlayerContainer xg-right-grid:not(:has(.gm-video-filter-parse-btn))"
-        ).forEach(($xgRightGrid) => {
-          let $gmFilterParseBtn = domUtils.createElement("xg-icon", {
-            className: "gm-video-filter-parse-btn",
-            innerHTML: (
+        $$(".basePlayerContainer xg-right-grid:not(:has(.gm-video-filter-parse-btn))").forEach(
+          ($xgRightGrid) => {
+            let $gmFilterParseBtn = domUtils.createElement("xg-icon", {
+              className: "gm-video-filter-parse-btn",
+              innerHTML: (
 `
 						<div class="xgplayer-icon">
 							<span role="img" class="semi-icon semi-icon-default">
@@ -7961,17 +7882,16 @@ addParseButton() {
 						</div>
 						<div class="xg-tips">解析信息</div>
 					`
-            )
-          });
-          domUtils.on($gmFilterParseBtn, "click", (event) => {
-            utils.preventEvent(event);
-            let $basePlayerContainer = $xgRightGrid.closest(
-              ".basePlayerContainer"
-            );
-            awemeInfoClickCallBack($basePlayerContainer);
-          });
-          domUtils.prepend($xgRightGrid, $gmFilterParseBtn);
-        });
+              )
+            });
+            domUtils.on($gmFilterParseBtn, "click", (event) => {
+              utils.preventEvent(event);
+              let $basePlayerContainer = $xgRightGrid.closest(".basePlayerContainer");
+              awemeInfoClickCallBack($basePlayerContainer);
+            });
+            domUtils.prepend($xgRightGrid, $gmFilterParseBtn);
+          }
+        );
       });
       utils.mutationObserver(document, {
         config: {
@@ -8038,30 +7958,11 @@ getRuleViewInstance() {
                 data = this.getTemplateData();
               }
               let enable_template = UISwitch("启用", "enable", true);
-              Reflect.set(
-                enable_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data)
-              );
-              let $enable = panelHandlerComponents.createSectionContainerItem_switch(
-                enable_template
-              );
-              let name_template = UIInput(
-                "规则名称",
-                "name",
-                "",
-                "",
-                void 0,
-                "必填"
-              );
-              Reflect.set(
-                name_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data)
-              );
-              let $name = panelHandlerComponents.createSectionContainerItem_input(
-                name_template
-              );
+              Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+              let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+              let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
+              Reflect.set(name_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+              let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
               let scope_template = UISelectMultiple(
                 "作用域",
                 "scope",
@@ -8113,14 +8014,8 @@ getRuleViewInstance() {
                 void 0,
                 "选择需要在xxx上生效的作用域"
               );
-              Reflect.set(
-                scope_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data.data)
-              );
-              let $scope = panelHandlerComponents.createSectionContainerItem_select_multiple_new(
-                scope_template
-              );
+              Reflect.set(scope_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
+              let $scope = panelHandlerComponents.createSectionContainerItem_select_multiple_new(scope_template);
               let douYinVideoHandlerInfoKey = [
                 "isLive",
                 "isAds",
@@ -8167,42 +8062,19 @@ getRuleViewInstance() {
                   void 0,
                   "选择需要的属性名 "
                 );
-                Reflect.set(
-                  ruleName_template.props,
-                  PROPS_STORAGE_API,
-                  generateStorageApi(storageData)
-                );
-                let $ruleName2 = panelHandlerComponents.createSectionContainerItem_select_multiple_new(
-                  ruleName_template
-                );
+                Reflect.set(ruleName_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
+                let $ruleName2 = panelHandlerComponents.createSectionContainerItem_select_multiple_new(ruleName_template);
                 let ruleValue_template = UITextArea(
                   "属性值",
                   "ruleValue",
                   "",
                   "如果是字符串，可正则，注意转义"
                 );
-                Reflect.set(
-                  ruleValue_template.props,
-                  PROPS_STORAGE_API,
-                  generateStorageApi(storageData)
-                );
-                let $ruleValue2 = panelHandlerComponents.createSectionContainerItem_textarea(
-                  ruleValue_template
-                );
-                let remarks_template = UITextArea(
-                  "备注",
-                  "remarks",
-                  "",
-                  ""
-                );
-                Reflect.set(
-                  remarks_template.props,
-                  PROPS_STORAGE_API,
-                  generateStorageApi(storageData)
-                );
-                let $remarks2 = panelHandlerComponents.createSectionContainerItem_textarea(
-                  remarks_template
-                );
+                Reflect.set(ruleValue_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
+                let $ruleValue2 = panelHandlerComponents.createSectionContainerItem_textarea(ruleValue_template);
+                let remarks_template = UITextArea("备注", "remarks", "", "");
+                Reflect.set(remarks_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
+                let $remarks2 = panelHandlerComponents.createSectionContainerItem_textarea(remarks_template);
                 return {
                   $ruleName: $ruleName2,
                   $ruleValue: $ruleValue2,
@@ -8228,9 +8100,7 @@ getRuleViewInstance() {
               let $dynamicInner = $dynamicContainer.querySelector(
                 ".rule-form-ulist-dynamic__inner"
               );
-              let $addDynamicButton = $dynamicContainer.querySelector(
-                ".pops-panel-button"
-              );
+              let $addDynamicButton = $dynamicContainer.querySelector(".pops-panel-button");
               let addDynamicElementItem = (dynamicData = {
                 ruleName: [],
                 ruleValue: "",
@@ -8254,24 +8124,18 @@ getRuleViewInstance() {
 								`
                   )
                 });
-                let $dynamicDelete = $dynamicUListContainer.querySelector(
-                  ".dynamic-control-delete"
-                );
+                let $dynamicDelete = $dynamicUListContainer.querySelector(".dynamic-control-delete");
                 domUtils.on($dynamicDelete, "click", (event) => {
                   utils.preventEvent(event);
                   $dynamicUListContainer.remove();
                   if (Array.isArray(data.dynamicData)) {
-                    let findIndex = data.dynamicData.findIndex(
-                      (it) => it == dynamicData
-                    );
+                    let findIndex = data.dynamicData.findIndex((it) => it == dynamicData);
                     if (findIndex !== -1) {
                       data.dynamicData.splice(findIndex, 1);
                     }
                   }
                 });
-                let $dynamicUList = $dynamicUListContainer.querySelector(
-                  ".dynamic-forms"
-                );
+                let $dynamicUList = $dynamicUListContainer.querySelector(".dynamic-forms");
                 let {
                   $ruleName: $dynamic_ruleName,
                   $ruleValue: $dynamic_ruleValue,
@@ -8305,9 +8169,7 @@ $ruleName,
               return $fragment;
             },
             onsubmit: ($form, isEdit, editData) => {
-              let $ulist_li = $form.querySelectorAll(
-                ".rule-form-ulist > li"
-              );
+              let $ulist_li = $form.querySelectorAll(".rule-form-ulist > li");
               let data = this.getTemplateData();
               if (isEdit) {
                 data.uuid = editData.uuid;
@@ -8333,9 +8195,7 @@ $ruleName,
                   log.error(`${key}不在数据中`);
                 }
               });
-              $form.querySelectorAll(
-                ".rule-form-ulist-dynamic__inner-container"
-              ).forEach(($inner) => {
+              $form.querySelectorAll(".rule-form-ulist-dynamic__inner-container").forEach(($inner) => {
                 let dynamicData = {};
                 $inner.querySelectorAll(".dynamic-forms > li").forEach(($li) => {
                   let formConfig = Reflect.get($li, "__formConfig__");
@@ -8348,10 +8208,7 @@ $ruleName,
                   }
                   let storageApi = Reflect.get($li, PROPS_STORAGE_API);
                   let key = Reflect.get(attrs, ATTRIBUTE_KEY);
-                  let defaultValue = Reflect.get(
-                    attrs,
-                    ATTRIBUTE_DEFAULT_VALUE
-                  );
+                  let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
                   let value = storageApi.get(key, defaultValue);
                   Reflect.set(dynamicData, key, value);
                 });
@@ -8458,12 +8315,20 @@ $ruleName,
                 name: "过滤-已启用",
                 filterCallBack(data) {
                   return data.enable;
+                },
+                callback(event, closeDialog) {
+                  Panel.setValue("dy-video-ui-rule-filter-option-index", 0);
+                  return true;
                 }
               },
               {
                 name: "过滤-未启用",
                 filterCallBack(data) {
                   return !data.enable;
+                },
+                callback(event, closeDialog) {
+                  Panel.setValue("dy-video-ui-rule-filter-option-index", 1);
+                  return true;
                 }
               }
             ]
@@ -8480,7 +8345,7 @@ $ruleName,
     },
 showView() {
       let ruleView = this.getRuleViewInstance();
-      ruleView.showView();
+      ruleView.showView(Panel.getValue("dy-video-ui-rule-filter-option-index"));
     },
 getTemplateData() {
       return {

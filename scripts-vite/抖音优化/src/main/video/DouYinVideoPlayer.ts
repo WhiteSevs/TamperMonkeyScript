@@ -92,6 +92,7 @@ export const DouYinVideoPlayer = {
 		Panel.execMenuOnce("dy-video-disableRightToolbarTransform", () => {
 			return this.disableRightToolbarTransform();
 		});
+		DouYinVideoPlayer.chooseQuality(Panel.getValue("chooseVideoDefinition"));
 		DOMUtils.ready(() => {
 			DouYinVideoPlayer.chooseQuality(Panel.getValue("chooseVideoDefinition"));
 			Panel.execMenuOnce("mobileMode", () => {
@@ -360,7 +361,7 @@ export const DouYinVideoPlayer = {
 			setTimeout(() => {
 				clearInterval(intervalId);
 			}, 10 * 1000);
-			log.success("设置当前视频的清晰度: " + mode);
+			log.success("设置当前视频的清晰度: " + choose.gearName);
 		} else {
 			log.error("该清晰度不存在: " + mode);
 		}
