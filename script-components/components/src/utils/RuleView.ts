@@ -140,9 +140,9 @@ export class RuleView<T> {
 	}
 	/**
 	 * 显示视图
-	 * @param filterCallBack 返回值为false隐藏，true则不隐藏（不处理）
+	 * @param filterCallBack 返回值为false隐藏，true则不隐藏（不处理），如果值为number，则使用自定义的过滤规则内的配置项
 	 */
-	async showView(filterCallBack?: (data: T) => boolean) {
+	async showView(filterCallBack?: ((data: T) => boolean) | number) {
 		let $popsConfirm = pops.confirm({
 			title: {
 				text: this.option.title,
@@ -164,11 +164,7 @@ export class RuleView<T> {
 					type: "primary",
 					text: "添加",
 					callback: async (event) => {
-						this.showEditView(
-							false,
-							await this.option.getAddData(),
-							$popsConfirm.$shadowRoot
-						);
+						this.showEditView(false, await this.option.getAddData(), $popsConfirm.$shadowRoot);
 					},
 				},
 				close: {
@@ -182,10 +178,7 @@ export class RuleView<T> {
 					type: "default",
 					text: "过滤",
 					callback: (details, event) => {
-						if (
-							typeof this.option?.bottomControls?.filter?.callback ===
-							"function"
-						) {
+						if (typeof this.option?.bottomControls?.filter?.callback === "function") {
 							this.option.bottomControls.filter.callback();
 						}
 						/**
@@ -193,9 +186,7 @@ export class RuleView<T> {
 						 */
 						let getAllRuleElement = () => {
 							return Array.from(
-								$popsConfirm.$shadowRoot.querySelectorAll<HTMLDivElement>(
-									".rule-view-container .rule-item"
-								)
+								$popsConfirm.$shadowRoot.querySelectorAll<HTMLDivElement>(".rule-view-container .rule-item")
 							);
 						};
 						let $button = (event.target as HTMLElement)
@@ -245,10 +236,7 @@ export class RuleView<T> {
 									enable: true,
 									callback: async (popsEvent) => {
 										log.success("清空所有");
-										if (
-											typeof this.option?.bottomControls?.clear?.callback ===
-											"function"
-										) {
+										if (typeof this.option?.bottomControls?.clear?.callback === "function") {
 											this.option.bottomControls.clear.callback();
 										}
 										let data = await this.option.data();
@@ -324,27 +312,28 @@ export class RuleView<T> {
             `,
 		});
 		let allData = await this.option.data();
+
+		// 执行过滤规则
 		let changeButtonText = false;
 		for (let index = 0; index < allData.length; index++) {
 			let item = allData[index];
-			let $ruleItemList = await this.appendRuleItemElement(
-				$popsConfirm.$shadowRoot,
-				item
-			);
-			let flag =
-				typeof filterCallBack === "function" ? filterCallBack(item) : true;
-			if (!flag) {
+			let $ruleItemList = await this.appendRuleItemElement($popsConfirm.$shadowRoot, item);
+			let isNotFilterFlag = true;
+			if (typeof filterCallBack === "function") {
+				isNotFilterFlag = filterCallBack(item);
+			} else if (typeof filterCallBack === "number" && !isNaN(filterCallBack)) {
+				isNotFilterFlag =
+					(await this.option.bottomControls?.filter?.option[filterCallBack]?.filterCallBack(item)) ??
+					isNotFilterFlag;
+			}
+			if (!isNotFilterFlag) {
 				// 隐藏元素
 				changeButtonText = true;
-				$ruleItemList.forEach(($el) => {
-					DOMUtils.hide($el, false);
-				});
+				DOMUtils.hide($ruleItemList, false);
 			}
 		}
 		if (changeButtonText) {
-			let $button = $popsConfirm.$shadowRoot.querySelector<HTMLSpanElement>(
-				".pops-confirm-btn-cancel span"
-			)!;
+			let $button = $popsConfirm.$shadowRoot.querySelector<HTMLSpanElement>(".pops-confirm-btn-cancel span")!;
 			DOMUtils.text($button, "取消过滤");
 		}
 	}
@@ -410,30 +399,18 @@ export class RuleView<T> {
 				},
 			},
 			onsubmit: async ($form, data) => {
-				let result = await this.option.itemControls.edit.onsubmit(
-					$form,
-					isEdit,
-					data
-				);
+				let result = await this.option.itemControls.edit.onsubmit($form, isEdit, data);
 				if (result.success) {
 					if (isEdit) {
 						Qmsg.success("修改成功");
 						// 当前是编辑规则
 						// 给外面的弹窗更新元素
 						$parentShadowRoot &&
-							(await this.updateRuleItemElement(
-								result.data,
-								$editRuleItemElement!,
-								$parentShadowRoot
-							));
+							(await this.updateRuleItemElement(result.data, $editRuleItemElement!, $parentShadowRoot));
 					} else {
 						// 当前是添加规则
 						// 给外面的弹窗添加元素
-						$parentShadowRoot &&
-							(await this.appendRuleItemElement(
-								$parentShadowRoot,
-								result.data
-							));
+						$parentShadowRoot && (await this.appendRuleItemElement($parentShadowRoot, result.data));
 					}
 				} else {
 					// if (isEdit) {
@@ -455,9 +432,7 @@ export class RuleView<T> {
 	 * 解析弹窗内的各个元素
 	 */
 	parseViewElement($shadowRoot: ShadowRoot | HTMLElement) {
-		let $container = $shadowRoot.querySelector<HTMLElement>(
-			".rule-view-container"
-		)!;
+		let $container = $shadowRoot.querySelector<HTMLElement>(".rule-view-container")!;
 		let $deleteBtn = $shadowRoot.querySelector<HTMLButtonElement>(
 			".pops-confirm-btn button.pops-confirm-btn-other"
 		)!;
@@ -472,23 +447,14 @@ export class RuleView<T> {
 	 * 解析每一项的元素
 	 */
 	parseRuleItemElement($ruleElement: ShadowRoot | HTMLElement) {
-		let $enable = $ruleElement.querySelector<HTMLElement>(
-			".rule-controls-enable"
-		)!;
-		let $enableSwitch =
-			$enable.querySelector<HTMLElement>(".pops-panel-switch")!;
-		let $enableSwitchInput = $enable.querySelector<HTMLInputElement>(
-			".pops-panel-switch__input"
-		)!;
-		let $enableSwitchCore = $enable.querySelector<HTMLElement>(
-			".pops-panel-switch__core"
-		);
+		let $enable = $ruleElement.querySelector<HTMLElement>(".rule-controls-enable")!;
+		let $enableSwitch = $enable.querySelector<HTMLElement>(".pops-panel-switch")!;
+		let $enableSwitchInput = $enable.querySelector<HTMLInputElement>(".pops-panel-switch__input")!;
+		let $enableSwitchCore = $enable.querySelector<HTMLElement>(".pops-panel-switch__core");
 		/** 编辑按钮 */
 		let $edit = $ruleElement.querySelector<HTMLElement>(".rule-controls-edit")!;
 		/** 删除按钮 */
-		let $delete = $ruleElement.querySelector<HTMLElement>(
-			".rule-controls-delete"
-		)!;
+		let $delete = $ruleElement.querySelector<HTMLElement>(".rule-controls-delete")!;
 
 		return {
 			/** 启用开关 */
@@ -540,14 +506,8 @@ export class RuleView<T> {
 		/** 开关切换的className */
 		let switchCheckedClassName = "pops-panel-switch-is-checked";
 
-		const {
-			$enable,
-			$enableSwitch,
-			$enableSwitchCore,
-			$enableSwitchInput,
-			$delete,
-			$edit,
-		} = this.parseRuleItemElement($ruleItem);
+		const { $enable, $enableSwitch, $enableSwitchCore, $enableSwitchInput, $delete, $edit } =
+			this.parseRuleItemElement($ruleItem);
 		if (this.option.itemControls.enable.enable) {
 			// 给switch添加点击事件
 			DOMUtils.on($enableSwitchCore, "click", async (event) => {
@@ -602,9 +562,7 @@ export class RuleView<T> {
 							enable: true,
 							callback: async (popsEvent) => {
 								log.success("删除数据");
-								let flag = await this.option.itemControls.delete.deleteCallBack(
-									data
-								);
+								let flag = await this.option.itemControls.delete.deleteCallBack(data);
 								if (flag) {
 									Qmsg.success("成功删除该数据");
 									// 移除该条元素
@@ -637,10 +595,7 @@ export class RuleView<T> {
 	/**
 	 * 添加一个规则元素
 	 */
-	async appendRuleItemElement(
-		$shadowRoot: ShadowRoot | HTMLElement,
-		data: T | T[]
-	) {
+	async appendRuleItemElement($shadowRoot: ShadowRoot | HTMLElement, data: T | T[]) {
 		let { $container } = this.parseViewElement($shadowRoot);
 		let $ruleItem: HTMLElement[] = [];
 		// 添加到页面中
@@ -667,11 +622,7 @@ export class RuleView<T> {
 	/**
 	 * 更新规则元素
 	 */
-	async updateRuleItemElement(
-		data: T,
-		$oldRuleItem: HTMLDivElement,
-		$shadowRoot: ShadowRoot | HTMLElement
-	) {
+	async updateRuleItemElement(data: T, $oldRuleItem: HTMLDivElement, $shadowRoot: ShadowRoot | HTMLElement) {
 		let $newRuleItem = await this.createRuleItemElement(data, $shadowRoot);
 		$oldRuleItem.after($newRuleItem);
 		$oldRuleItem.remove();
@@ -686,11 +637,7 @@ export class RuleView<T> {
 	/**
 	 * 设置删除按钮的文字
 	 */
-	setDeleteBtnText(
-		$shadowRoot: ShadowRoot | HTMLElement,
-		text: string,
-		isHTML: boolean = false
-	) {
+	setDeleteBtnText($shadowRoot: ShadowRoot | HTMLElement, text: string, isHTML: boolean = false) {
 		const { $deleteBtn } = this.parseViewElement($shadowRoot);
 		if (isHTML) {
 			DOMUtils.html($deleteBtn, text);

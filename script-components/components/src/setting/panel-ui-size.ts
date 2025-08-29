@@ -1,21 +1,23 @@
+import { PanelSizeUtil } from "./panel-size-util";
+
 export const PanelUISize = {
 	/**
 	 * 一般设置界面的尺寸
 	 */
 	setting: {
 		get width() {
-			if (window.innerWidth < 550) {
+			if (PanelSizeUtil.width < 550) {
 				return "88vw";
-			} else if (window.innerWidth < 700) {
+			} else if (PanelSizeUtil.width < 700) {
 				return "550px";
 			} else {
 				return "700px";
 			}
 		},
 		get height() {
-			if (window.innerHeight < 450) {
+			if (PanelSizeUtil.height < 450) {
 				return "70vh";
-			} else if (window.innerHeight < 550) {
+			} else if (PanelSizeUtil.height < 550) {
 				return "450px";
 			} else {
 				return "550px";
@@ -27,10 +29,10 @@ export const PanelUISize = {
 	 */
 	settingMiddle: {
 		get width() {
-			return window.innerWidth < 350 ? "88vw" : "350px";
+			return PanelSizeUtil.width < 350 ? "88vw" : "350px";
 		},
 		get height() {
-			return window.innerHeight < 450 ? "88vh" : "450px";
+			return PanelSizeUtil.height < 450 ? "88vh" : "450px";
 		},
 	},
 	/**
@@ -38,10 +40,10 @@ export const PanelUISize = {
 	 */
 	settingBig: {
 		get width() {
-			return window.innerWidth < 800 ? "92vw" : "800px";
+			return PanelSizeUtil.width < 800 ? "92vw" : "800px";
 		},
 		get height() {
-			return window.innerHeight < 600 ? "80vh" : "600px";
+			return PanelSizeUtil.height < 600 ? "80vh" : "600px";
 		},
 	},
 	/**
@@ -49,10 +51,10 @@ export const PanelUISize = {
 	 */
 	info: {
 		get width() {
-			return window.innerWidth < 350 ? "88vw" : "350px";
+			return PanelSizeUtil.width < 350 ? "88vw" : "350px";
 		},
 		get height() {
-			return window.innerHeight < 250 ? "88vh" : "250px";
+			return PanelSizeUtil.height < 250 ? "88vh" : "250px";
 		},
 	},
 };
