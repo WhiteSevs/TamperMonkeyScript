@@ -53,5 +53,18 @@ export const PanelUI_globalSetting: PopsPanelContentConfig = {
 				),
 			],
 		},
+		{
+			type: "forms",
+			text: "其它设置",
+			forms: [
+				UISwitch(
+					"面板尺寸跟随浏览器窗口尺寸",
+					"panel-ui-size-follow-browser-window",
+					false,
+					void 0,
+					"如果开启，设置面板的宽高将使用outerWidth和outerHeight获取，如果关闭，则使用innerWidth和innerHeight获取"
+				),
+			],
+		},
 	],
 };

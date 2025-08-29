@@ -6,6 +6,7 @@ import { PanelUI_eruda } from "./setting/view/eruda";
 import { PanelUI_vConsole } from "./setting/view/vConsole";
 import { PanelUI_pagespy } from "./setting/view/pagespy";
 import { PanelUI_chii } from "./setting/view/chii";
+import { PanelSizeUtil } from "@components/setting/panel-size-util";
 
 PanelContent.addContentConfig([
 	PanelUI_globalSetting,
@@ -28,3 +29,5 @@ Panel.$data.panelConfig = {
 };
 Panel.init();
 WebSiteDebug.init();
+
+PanelSizeUtil.followBrowserSize = Boolean(Panel.getValue("panel-ui-size-follow-browser-window", false));

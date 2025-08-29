@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网页调试
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.27
+// @version      2025.8.28
 // @author       WhiteSevs
 // @description  内置多种网页调试工具，包括：Eruda、vConsole、PageSpy、Chii，可在设置菜单中进行详细配置
 // @license      GPL-3.0-only
@@ -394,21 +394,30 @@ clickEvent: {
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const PROPS_STORAGE_API = "data-storage-api";
+  const PanelSizeUtil = {
+followBrowserSize: false,
+get width() {
+      return PanelSizeUtil.followBrowserSize ? globalThis.outerWidth : globalThis.innerWidth;
+    },
+get height() {
+      return PanelSizeUtil.followBrowserSize ? globalThis.outerHeight : globalThis.innerHeight;
+    }
+  };
   const PanelUISize = {
 setting: {
       get width() {
-        if (window.innerWidth < 550) {
+        if (PanelSizeUtil.width < 550) {
           return "88vw";
-        } else if (window.innerWidth < 700) {
+        } else if (PanelSizeUtil.width < 700) {
           return "550px";
         } else {
           return "700px";
         }
       },
       get height() {
-        if (window.innerHeight < 450) {
+        if (PanelSizeUtil.height < 450) {
           return "70vh";
-        } else if (window.innerHeight < 550) {
+        } else if (PanelSizeUtil.height < 550) {
           return "450px";
         } else {
           return "550px";
@@ -417,15 +426,15 @@ setting: {
     },
 settingMiddle: {
       get width() {
-        return window.innerWidth < 350 ? "88vw" : "350px";
+        return PanelSizeUtil.width < 350 ? "88vw" : "350px";
       }
     },
 info: {
       get width() {
-        return window.innerWidth < 350 ? "88vw" : "350px";
+        return PanelSizeUtil.width < 350 ? "88vw" : "350px";
       },
       get height() {
-        return window.innerHeight < 250 ? "88vh" : "250px";
+        return PanelSizeUtil.height < 250 ? "88vh" : "250px";
       }
     }
   };
@@ -2889,6 +2898,19 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             "关闭后将会在脚本菜单注册按钮，有3种状态【加载并显示调试工具】、【隐藏调试工具】、【显示调试工具】"
           )
         ]
+      },
+      {
+        type: "forms",
+        text: "其它设置",
+        forms: [
+          UISwitch(
+            "面板尺寸跟随浏览器窗口尺寸",
+            "panel-ui-size-follow-browser-window",
+            false,
+            void 0,
+            "如果开启，设置面板的宽高将使用outerWidth和outerHeight获取，如果关闭，则使用innerWidth和innerHeight获取"
+          )
+        ]
       }
     ]
   };
@@ -4075,5 +4097,6 @@ setComponentsStorageApiProperty(config, storageApiValue) {
   };
   Panel.init();
   WebSiteDebug.init();
+  PanelSizeUtil.followBrowserSize = Boolean(Panel.getValue("panel-ui-size-follow-browser-window", false));
 
 })(Qmsg, DOMUtils, Utils, pops);
