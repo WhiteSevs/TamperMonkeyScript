@@ -18,7 +18,7 @@
 	"dependencies": {
 		"@mgdn/bvid": "^0.3.0",
 		"@whitesev/domutils": "^1.6.5",
-		"@whitesev/pops": "^2.3.6",
+		"@whitesev/pops": "^2.3.7",
 		"@whitesev/utils": "^2.7.5",
 		"artplayer": "^5.2.5",
 		"artplayer-plugin-danmuku": "^5.1.8",
