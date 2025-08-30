@@ -646,6 +646,7 @@ class PopsDOMUtilsEvent {
 	 * })
 	 */
 	ready<T extends Function>(callback: T) {
+		const that = this;
 		if (typeof callback !== "function") {
 			return;
 		}
@@ -692,7 +693,7 @@ class PopsDOMUtilsEvent {
 		function addDomReadyListener() {
 			for (let index = 0; index < targetList.length; index++) {
 				let item = targetList[index];
-				item.target.addEventListener(item.eventType, item.callback);
+				that.on(item.target, item.eventType, item.callback);
 			}
 		}
 		/**
@@ -701,7 +702,7 @@ class PopsDOMUtilsEvent {
 		function removeDomReadyListener() {
 			for (let index = 0; index < targetList.length; index++) {
 				let item = targetList[index];
-				item.target.removeEventListener(item.eventType, item.callback);
+				that.off(item.target, item.eventType, item.callback);
 			}
 		}
 		if (checkDOMReadyState()) {
@@ -1079,9 +1080,7 @@ class PopsDOMUtilsEvent {
 				eventNameList = [eventNameList];
 			}
 			eventNameList.forEach((eventName) => {
-				(element as HTMLElement).addEventListener(eventName, stopEvent, {
-					capture: Boolean(capture),
-				});
+				this.on(element as HTMLElement, eventName, stopEvent, { capture: Boolean(capture) });
 			});
 		}
 	}

@@ -302,67 +302,128 @@ export const PopsFolder = {
 		if ($mask != null) {
 			$anim.after($mask);
 		}
-		/* 添加文件信息 */
-		config.folder.sort();
-		/**
-		 * 创建文件夹元素
-		 * @param fileName
-		 * @param latestTime
-		 * @param [fileSize="-"]
-		 * @param isFolder
-		 */
-		function createFolderRowElement(
-			fileName: string,
-			latestTime: string | number = "-",
-			fileSize: string | number = "-",
-			isFolder: boolean = false
-		) {
-			let origin_fileName = fileName;
-			let origin_latestTime = latestTime;
-			let origin_fileSize = fileSize;
+		class PopsFolder {
+			init() {
+				config.folder.sort();
+				this.initFolderView(config.folder);
+				/* 将数据存到全部文件的属性_config_中 */
 
-			let folderELement = popsDOMUtils.createElement("tr");
+				let allFilesElement = folderFileListBreadcrumbPrimaryElement.querySelector<HTMLDivElement>(
+					".pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:first-child"
+				)!;
 
-			let fileNameElement = popsDOMUtils.createElement("td");
-
-			let fileTimeElement = popsDOMUtils.createElement("td");
-
-			let fileFormatSize = popsDOMUtils.createElement("td");
-			let fileType = "";
-			let fileIcon = Folder_ICON.folder;
-			if (isFolder) {
-				/* 文件夹 */
-				latestTime = "";
-				fileSize = "";
-			} else {
-				/* 文件 */
-				fileIcon = "";
-				if (typeof latestTime === "number") {
-					latestTime = popsUtils.formatTime(latestTime);
-				}
-				if (typeof fileSize === "number") {
-					fileSize = popsUtils.formatByteToSize(fileSize) as string;
-				}
-				for (let keyName in Folder_ICON) {
-					if (fileName.toLowerCase().endsWith("." + keyName)) {
-						fileType = keyName;
-
-						fileIcon = (Folder_ICON as any)[keyName];
-						break;
+				Reflect.set(allFilesElement, "_config_", config.folder);
+				/* 设置点击顶部的全部文件事件 */
+				popsDOMUtils.on<MouseEvent | PointerEvent>(allFilesElement, "click", (event) => {
+					this.setBreadcrumbClickEvent(event, true, config.folder);
+				});
+				// 文件名的点击排序
+				popsDOMUtils.on<MouseEvent | PointerEvent>(
+					folderListSortFileNameElement.closest("th"),
+					"click",
+					(event) => {
+						this.arrowToSortFolderInfoView(folderListSortFileNameElement, event, "fileName");
+					},
+					{
+						capture: true,
 					}
-				}
-				if (!Boolean(fileIcon)) {
-					fileType = "Null";
-					fileIcon = Folder_ICON.Null;
+				);
+				// 修改事件的点击排序
+				popsDOMUtils.on(
+					folderListSortLatestTimeElement.closest("th"),
+					"click",
+					(event) => {
+						this.arrowToSortFolderInfoView(folderListSortLatestTimeElement, event, "latestTime");
+					},
+					{
+						capture: true,
+					}
+				);
+				// 文件大小的点击排序
+				popsDOMUtils.on(
+					folderListSortFileSizeElement.closest("th"),
+					"click",
+					(event) => {
+						this.arrowToSortFolderInfoView(folderListSortFileSizeElement, event, "fileSize");
+					},
+					{
+						capture: true,
+					}
+				);
+				/* 设置默认触发的arrow */
+				if (config.sort.name === "fileName") {
+					popsDOMUtils.trigger(folderListSortFileNameElement, "click", {
+						notChangeSortRule: true,
+					});
+				} else if (config.sort.name === "latestTime") {
+					popsDOMUtils.trigger(folderListSortLatestTimeElement, "click", {
+						notChangeSortRule: true,
+					});
+				} else if (config.sort.name === "fileSize") {
+					popsDOMUtils.trigger(folderListSortFileSizeElement, "click", {
+						notChangeSortRule: true,
+					});
 				}
 			}
-			folderELement.className = "pops-folder-list-table__body-row";
-			fileNameElement.className = "pops-folder-list-table__body-td";
-			fileTimeElement.className = "pops-folder-list-table__body-td";
-			fileFormatSize.className = "pops-folder-list-table__body-td";
-			PopsSafeUtils.setSafeHTML(
-				fileNameElement,
-				/*html*/ `
+			/**
+			 * 创建文件夹元素
+			 * @param fileName 文件名
+			 * @param latestTime 修改时间
+			 * @param [fileSize="-"] 文件大小
+			 * @param isFolder 是否是文件夹
+			 */
+			createFolderRowElement(
+				fileName: string,
+				latestTime: string | number = "-",
+				fileSize: string | number = "-",
+				isFolder: boolean = false
+			) {
+				let origin_fileName = fileName;
+				let origin_latestTime = latestTime;
+				let origin_fileSize = fileSize;
+
+				let folderElement = popsDOMUtils.createElement("tr");
+
+				let fileNameElement = popsDOMUtils.createElement("td");
+
+				let fileTimeElement = popsDOMUtils.createElement("td");
+
+				let fileFormatSize = popsDOMUtils.createElement("td");
+				let fileType = "";
+				let fileIcon = Folder_ICON.folder;
+				if (isFolder) {
+					/* 文件夹 */
+					latestTime = "";
+					fileSize = "";
+				} else {
+					/* 文件 */
+					fileIcon = "";
+					if (typeof latestTime === "number") {
+						latestTime = popsUtils.formatTime(latestTime);
+					}
+					if (typeof fileSize === "number") {
+						fileSize = popsUtils.formatByteToSize(fileSize) as string;
+					}
+					for (let keyName in Folder_ICON) {
+						if (fileName.toLowerCase().endsWith("." + keyName)) {
+							fileType = keyName;
+
+							fileIcon = (Folder_ICON as any)[keyName];
+							break;
+						}
+					}
+					if (!Boolean(fileIcon)) {
+						fileType = "Null";
+						fileIcon = Folder_ICON.Null;
+					}
+				}
+				folderElement.className = "pops-folder-list-table__body-row";
+				fileNameElement.className = "pops-folder-list-table__body-td";
+				fileTimeElement.className = "pops-folder-list-table__body-td";
+				fileFormatSize.className = "pops-folder-list-table__body-td";
+				PopsSafeUtils.setSafeHTML(
+					fileNameElement,
+					/*html*/ `
 				<div class="pops-folder-list-file-name cursor-p">
 					<div>
 						<img src="${fileIcon}" alt="${fileType}" class="pops-folder-list-file-icon u-file-icon u-file-icon--list">
@@ -372,96 +433,100 @@ export const PopsFolder = {
 					</div>
 				</div>
             `
-			);
-			PopsSafeUtils.setSafeHTML(
-				fileTimeElement,
-				/*html*/ `
+				);
+				PopsSafeUtils.setSafeHTML(
+					fileTimeElement,
+					/*html*/ `
 				<div class="pops-folder-list__time">
 					<span>${latestTime}</span>
 				</div>
 				`
-			);
-			PopsSafeUtils.setSafeHTML(
-				fileFormatSize,
-				/*html*/ `
+				);
+				PopsSafeUtils.setSafeHTML(
+					fileFormatSize,
+					/*html*/ `
 				<div class="pops-folder-list-format-size">
 					<span>${fileSize}</span>
 				</div>
 				`
-			);
+				);
 
-			/* 存储原来的值 */
-			let __value__ = {
-				fileName: origin_fileName,
-				latestTime: origin_latestTime,
-				fileSize: origin_fileSize,
-				isFolder: isFolder,
-			};
+				/* 存储原来的值 */
+				let __value__ = {
+					fileName: origin_fileName,
+					latestTime: origin_latestTime,
+					fileSize: origin_fileSize,
+					isFolder: isFolder,
+				};
 
-			Reflect.set(fileNameElement, "__value__", __value__);
-			Reflect.set(fileTimeElement, "__value__", __value__);
-			Reflect.set(fileFormatSize, "__value__", __value__);
-			Reflect.set(folderELement, "__value__", __value__);
+				Reflect.set(fileNameElement, "__value__", __value__);
+				Reflect.set(fileTimeElement, "__value__", __value__);
+				Reflect.set(fileFormatSize, "__value__", __value__);
+				Reflect.set(folderElement, "__value__", __value__);
 
-			folderELement.appendChild(fileNameElement);
-			folderELement.appendChild(fileTimeElement);
-			folderELement.appendChild(fileFormatSize);
-			return {
-				folderELement,
-				fileNameElement,
-				fileTimeElement,
-				fileFormatSize,
-			};
-		}
-		/**
-		 * 创建移动端文件夹元素
-		 */
-		function createMobileFolderRowElement(
-			fileName: string,
-			latestTime: number | string = "-",
-			fileSize: number | string = "-",
-			isFolder: boolean = false
-		) {
-			let origin_fileName = fileName;
-			let origin_latestTime = latestTime;
-			let origin_fileSize = fileSize;
+				folderElement.appendChild(fileNameElement);
+				folderElement.appendChild(fileTimeElement);
+				folderElement.appendChild(fileFormatSize);
+				return {
+					folderElement,
+					fileNameElement,
+					fileTimeElement,
+					fileFormatSize,
+				};
+			}
+			/**
+			 * 创建移动端文件夹元素
+			 * @param fileName 文件名
+			 * @param latestTime 创建时间
+			 * @param [fileSize="-"] 文件大小
+			 * @param isFolder 是否是文件夹
+			 */
+			createFolderRowElementByMobile(
+				fileName: string,
+				latestTime: number | string = "-",
+				fileSize: number | string = "-",
+				isFolder: boolean = false
+			) {
+				let origin_fileName = fileName;
+				let origin_latestTime = latestTime;
+				let origin_fileSize = fileSize;
 
-			let folderELement = popsDOMUtils.createElement("tr");
+				let folderElement = popsDOMUtils.createElement("tr");
 
-			let fileNameElement = popsDOMUtils.createElement("td");
-			let fileType = "";
-			let fileIcon = Folder_ICON.folder;
-			if (isFolder) {
-				/* 文件夹 */
-				latestTime = "";
-				fileSize = "";
-			} else {
-				/* 文件 */
-				fileIcon = "";
-				if (typeof latestTime === "number") {
-					latestTime = popsUtils.formatTime(latestTime);
-				}
-				if (typeof fileSize === "number") {
-					fileSize = popsUtils.formatByteToSize(fileSize) as string;
-				}
-				for (let keyName in Folder_ICON) {
-					if (fileName.toLowerCase().endsWith("." + keyName)) {
-						fileType = keyName;
+				let fileNameElement = popsDOMUtils.createElement("td");
+				let fileType = "";
+				let fileIcon = Folder_ICON.folder;
+				if (isFolder) {
+					/* 文件夹 */
+					latestTime = "";
+					fileSize = "";
+				} else {
+					/* 文件 */
+					fileIcon = "";
+					if (typeof latestTime === "number") {
+						latestTime = popsUtils.formatTime(latestTime);
+					}
+					if (typeof fileSize === "number") {
+						fileSize = popsUtils.formatByteToSize(fileSize) as string;
+					}
+					for (let keyName in Folder_ICON) {
+						if (fileName.toLowerCase().endsWith("." + keyName)) {
+							fileType = keyName;
 
-						fileIcon = (Folder_ICON as any)[keyName];
-						break;
+							fileIcon = (Folder_ICON as any)[keyName];
+							break;
+						}
+					}
+					if (!Boolean(fileIcon)) {
+						fileType = "Null";
+						fileIcon = Folder_ICON.Null;
 					}
 				}
-				if (!Boolean(fileIcon)) {
-					fileType = "Null";
-					fileIcon = Folder_ICON.Null;
-				}
-			}
-			folderELement.className = "pops-folder-list-table__body-row";
-			fileNameElement.className = "pops-folder-list-table__body-td";
-			PopsSafeUtils.setSafeHTML(
-				fileNameElement,
-				/*html*/ `
+				folderElement.className = "pops-folder-list-table__body-row";
+				fileNameElement.className = "pops-folder-list-table__body-td";
+				PopsSafeUtils.setSafeHTML(
+					fileNameElement,
+					/*html*/ `
 				<div class="pops-folder-list-file-name pops-mobile-folder-list-file-name cursor-p">
 					<img src="${fileIcon}" alt="${fileType}" class="pops-folder-list-file-icon u-file-icon u-file-icon--list">
 					<div>
@@ -470,153 +535,149 @@ export const PopsFolder = {
 					</div>
 				</div>
 			`
-			);
-			/* 存储原来的值 */
-			let __value__ = {
-				fileName: origin_fileName,
-				latestTime: origin_latestTime,
-				fileSize: origin_fileSize,
-				isFolder: isFolder,
-			};
-			Reflect.set(fileNameElement, "__value__", __value__);
-			Reflect.set(folderELement, "__value__", __value__);
-			folderELement.appendChild(fileNameElement);
-			return {
-				folderELement,
-				fileNameElement,
-			};
-		}
-		/**
-		 * 清空每行的元素
-		 */
-		function clearFolderRow() {
-			PopsSafeUtils.setSafeHTML(folderListBodyElement, "");
-		}
-		/**
-		 * 创建顶部导航的箭头图标
-		 */
-		function createHeaderArrowIcon() {
-			let iconArrowElement = popsDOMUtils.createElement("div", {
-				className: "iconArrow",
-			});
-			return iconArrowElement;
-		}
-		/**
-		 * 添加顶部导航
-		 * @param folderName 文件夹名
-		 * @param folderDataConfig 文件夹配置
-		 */
-		function createHeaderFileLinkNavgiation(folderName: string, folderDataConfig: PopsFolderDataConfig) {
-			let spanElement = popsDOMUtils.createElement(
-				"span",
-				{
-					className: "pops-folder-file-list-breadcrumb-allFiles cursor-p",
-					innerHTML: `<a>${folderName}</a>`,
-					_config_: folderDataConfig,
-				},
-				{
-					title: folderName,
-				}
-			);
-			return spanElement;
-		}
-		/**
-		 * 顶部导航的点击事件
-		 * @param event
-		 * @param isTop 是否是全部文件按钮
-		 * @param folderDataConfigList 配置
-		 */
-
-		function breadcrumbAllFilesElementClickEvent(
-			event: Event,
-			isTop: boolean,
-			folderDataConfigList: PopsFolderDataConfig[]
-		) {
-			clearFolderRow();
-			/* 获取当前的导航元素 */
-			let $click = event.target as HTMLElement;
-			let currentBreadcrumb = $click.closest<HTMLSpanElement>(
-				"span.pops-folder-file-list-breadcrumb-allFiles"
-			);
-			if (currentBreadcrumb) {
-				while (currentBreadcrumb.nextElementSibling) {
-					currentBreadcrumb.nextElementSibling.remove();
-				}
-			} else {
-				console.error("获取导航按钮失败");
-			}
-			let loadingMask = PopsLoading.init({
-				parent: $content,
-				content: {
-					text: "获取文件列表中...",
-				},
-				mask: {
-					enable: true,
-					clickEvent: {
-						toClose: false,
-						toHide: false,
-					},
-				},
-				addIndexCSS: false,
-			});
-			addFolderElement(folderDataConfigList);
-			loadingMask.close();
-		}
-		/**
-		 * 刷新文件列表界面信息
-		 * @param event
-		 * @param folderDataConfig
-		 */
-		async function refreshFolderInfoClickEvent(
-			event: MouseEvent | PointerEvent,
-			folderDataConfig: PopsFolderDataConfig
-		) {
-			clearFolderRow();
-			let loadingMask = PopsLoading.init({
-				parent: $content,
-				content: {
-					text: "获取文件列表中...",
-				},
-
-				mask: {
-					enable: true,
-				},
-				addIndexCSS: false,
-			});
-			if (typeof folderDataConfig.clickEvent === "function") {
-				let childConfig = await folderDataConfig.clickEvent(event, folderDataConfig);
-				/* 添加顶部导航的箭头 */
-				folderFileListBreadcrumbPrimaryElement.appendChild(createHeaderArrowIcon());
-				/* 添加顶部导航的链接文字 */
-				let breadcrumbAllFilesElement = createHeaderFileLinkNavgiation(
-					folderDataConfig.fileName,
-					childConfig as any
 				);
-
-				folderFileListBreadcrumbPrimaryElement.appendChild(breadcrumbAllFilesElement);
-				/* 设置顶部导航点击事件 */
-
-				popsDOMUtils.on<MouseEvent | PointerEvent>(breadcrumbAllFilesElement, "click", function (event) {
-					breadcrumbAllFilesElementClickEvent(event, false, childConfig as PopsFolderDataConfig[]);
-				});
-
-				addFolderElement(childConfig as PopsFolderDataConfig[]);
+				/* 存储原来的值 */
+				let __value__ = {
+					fileName: origin_fileName,
+					latestTime: origin_latestTime,
+					fileSize: origin_fileSize,
+					isFolder: isFolder,
+				};
+				Reflect.set(fileNameElement, "__value__", __value__);
+				Reflect.set(folderElement, "__value__", __value__);
+				folderElement.appendChild(fileNameElement);
+				return {
+					folderElement,
+					fileNameElement,
+				};
 			}
-			loadingMask.close();
-		}
-		/**
-		 * 设置文件点击事件
-		 * @param targetElement
-		 * @param _config_
-		 */
-		function setFileClickEvent(targetElement: HTMLElement, _config_: PopsFolderDataConfig) {
-			popsDOMUtils.on<MouseEvent | PointerEvent>(targetElement, "click", async function (event) {
-				event?.preventDefault();
-				event?.stopPropagation();
-				event?.stopImmediatePropagation();
-				let linkElement = targetElement.querySelector("a")!;
-				if (typeof _config_.clickEvent === "function") {
-					let downloadInfo = await _config_.clickEvent(event, _config_)!;
+			/**
+			 * 清空文件夹信息页面
+			 */
+			clearFolderInfoView() {
+				PopsSafeUtils.setSafeHTML(folderListBodyElement, "");
+			}
+			/**
+			 * 创建顶部导航的箭头图标
+			 */
+			createHeaderArrowIcon() {
+				let $arrowIcon = popsDOMUtils.createElement("div", {
+					className: "iconArrow",
+				});
+				return $arrowIcon;
+			}
+			/**
+			 * 添加顶部导航元素
+			 * @param folderName 文件夹名
+			 * @param folderDataConfig 文件夹配置
+			 */
+			createBreadcrumb(folderName: string, folderDataConfig: PopsFolderDataConfig) {
+				let $breadcrumb = popsDOMUtils.createElement(
+					"span",
+					{
+						className: "pops-folder-file-list-breadcrumb-allFiles cursor-p",
+						innerHTML: `<a>${folderName}</a>`,
+						_config_: folderDataConfig,
+					},
+					{
+						title: folderName,
+					}
+				);
+				return $breadcrumb;
+			}
+			/**
+			 * 顶部导航的点击事件
+			 * @param clickEvent
+			 * @param isTop 是否是全部文件按钮
+			 * @param dataConfigList 配置
+			 */
+			setBreadcrumbClickEvent(
+				clickEvent: MouseEvent | PointerEvent,
+				isTop: boolean,
+				dataConfigList: PopsFolderDataConfig[]
+			) {
+				this.clearFolderInfoView();
+				/* 获取当前的导航元素 */
+				let $click = clickEvent.target as HTMLElement;
+				let currentBreadcrumb = $click.closest<HTMLSpanElement>(
+					"span.pops-folder-file-list-breadcrumb-allFiles"
+				);
+				if (currentBreadcrumb) {
+					while (currentBreadcrumb.nextElementSibling) {
+						currentBreadcrumb.nextElementSibling.remove();
+					}
+				} else {
+					console.error("获取导航按钮失败");
+				}
+				let loadingMask = PopsLoading.init({
+					parent: $content,
+					content: {
+						text: "获取文件列表中...",
+					},
+					mask: {
+						enable: true,
+						clickEvent: {
+							toClose: false,
+							toHide: false,
+						},
+					},
+					addIndexCSS: false,
+				});
+				this.initFolderView(dataConfigList);
+				loadingMask.close();
+			}
+			/**
+			 * 文件夹的点击事件 - 进入文件夹
+			 *
+			 * 先情况页面元素
+			 * @param clickEvent
+			 * @param dataConfig
+			 */
+			async enterFolder(clickEvent: MouseEvent | PointerEvent, dataConfig: PopsFolderDataConfig) {
+				this.clearFolderInfoView();
+				let loadingMask = PopsLoading.init({
+					parent: $content,
+					content: {
+						text: "获取文件列表中...",
+					},
+					mask: {
+						enable: true,
+					},
+					addIndexCSS: false,
+				});
+				if (typeof dataConfig.clickEvent === "function") {
+					let childConfig = await dataConfig.clickEvent(clickEvent, dataConfig);
+					/* 添加顶部导航的箭头 */
+					folderFileListBreadcrumbPrimaryElement.appendChild(this.createHeaderArrowIcon());
+					/* 添加顶部导航的链接文字 */
+					let breadcrumbAllFilesElement = this.createBreadcrumb(dataConfig.fileName, childConfig as any);
+
+					folderFileListBreadcrumbPrimaryElement.appendChild(breadcrumbAllFilesElement);
+					/* 设置顶部导航点击事件 */
+
+					popsDOMUtils.on<MouseEvent | PointerEvent>(breadcrumbAllFilesElement, "click", (event) => {
+						this.setBreadcrumbClickEvent(event, false, childConfig as PopsFolderDataConfig[]);
+					});
+
+					this.initFolderView(childConfig as PopsFolderDataConfig[]);
+				}
+				loadingMask.close();
+			}
+			/**
+			 * 文件的点击事件 - 下载文件
+			 * @param $target
+			 * @param dataConfig
+			 */
+			async downloadFile(
+				clickEvent: MouseEvent | PointerEvent,
+				$row: HTMLElement,
+				dataConfig: PopsFolderDataConfig
+			) {
+				popsDOMUtils.preventEvent(clickEvent);
+
+				let $link = $row.querySelector("a")!;
+				if (typeof dataConfig.clickEvent === "function") {
+					let downloadInfo = await dataConfig.clickEvent(clickEvent, dataConfig)!;
 					if (
 						downloadInfo != null &&
 						typeof downloadInfo === "object" &&
@@ -624,8 +685,8 @@ export const PopsFolder = {
 						typeof downloadInfo.url === "string" &&
 						downloadInfo.url.trim() !== ""
 					) {
-						linkElement.setAttribute("href", downloadInfo.url);
-						linkElement.setAttribute("target", "_blank");
+						$link.setAttribute("href", downloadInfo.url);
+						$link.setAttribute("target", "_blank");
 						if (downloadInfo.autoDownload) {
 							if (downloadInfo.mode == null || (downloadInfo as any).mode === "") {
 								/* 未设置mode的话默认为aBlank */
@@ -672,244 +733,197 @@ export const PopsFolder = {
 						}
 					}
 				}
-			});
-		}
-		/**
-		 * 对配置进行排序
-		 * @param folderDataConfigList
-		 * @param sortName 比较的属性，默认fileName
-		 * @param isDesc 是否降序，默认false（升序）
-		 */
-		function sortFolderConfig(
-			folderDataConfigList: PopsFolderDataConfig[],
-			sortName: "fileName" | "fileSize" | "latestTime" = "fileName",
-			isDesc = false
-		) {
-			if (sortName === "fileName") {
-				// 如果是以文件名排序，文件夹优先放前面
-				let onlyFolderDataConfigList = folderDataConfigList.filter((value) => {
-					return value.isFolder;
-				});
-				let onlyFileDataConfigList = folderDataConfigList.filter((value) => {
-					return !value.isFolder;
-				});
-				// 文件夹排序
-				onlyFolderDataConfigList.sort((leftConfig, rightConfig) => {
-					let beforeVal = leftConfig[sortName].toString();
-					let afterVal = rightConfig[sortName].toString();
-					let compareVal = beforeVal.localeCompare(afterVal);
-					if (isDesc) {
-						/* 降序 */
-						if (compareVal > 0) {
-							compareVal = -1;
-						} else if (compareVal < 0) {
-							compareVal = 1;
-						}
-					}
-					return compareVal;
-				});
-				// 文件名排序
-				onlyFileDataConfigList.sort((leftConfig, rightConfig) => {
-					let beforeVal = leftConfig[sortName].toString();
-					let afterVal = rightConfig[sortName].toString();
-					let compareVal = beforeVal.localeCompare(afterVal);
-					if (isDesc) {
-						/* 降序 */
-						if (compareVal > 0) {
-							compareVal = -1;
-						} else if (compareVal < 0) {
-							compareVal = 1;
-						}
-					}
-					return compareVal;
-				});
-				if (isDesc) {
-					// 降序，文件夹在下面
-					return [...onlyFileDataConfigList, ...onlyFolderDataConfigList];
-				} else {
-					// 升序，文件夹在上面
-					return [...onlyFolderDataConfigList, ...onlyFileDataConfigList];
-				}
-			} else {
-				folderDataConfigList.sort((beforeConfig, afterConfig) => {
-					let beforeVal = beforeConfig[sortName];
-					let afterVal = afterConfig[sortName];
-					if (sortName === "fileSize") {
-						/* 文件大小，进行Float转换 */
-						beforeVal = parseFloat(beforeVal.toString());
-						afterVal = parseFloat(afterVal.toString());
-					} else if (sortName === "latestTime") {
-						/* 文件时间 */
-						beforeVal = new Date(beforeVal).getTime();
-						afterVal = new Date(afterVal).getTime();
-					}
-					if (beforeVal > afterVal) {
-						if (isDesc) {
-							/* 降序 */
-							return -1;
-						} else {
-							return 1;
-						}
-					} else if (beforeVal < afterVal) {
-						if (isDesc) {
-							/* 降序 */
-							return 1;
-						} else {
-							return -1;
-						}
-					} else {
-						return 0;
-					}
-				});
-				return folderDataConfigList;
 			}
-		}
-		/**
-		 * 添加元素
-		 * @param _config_
-		 */
-		function addFolderElement(_config_: PopsFolderDataConfig[]) {
-			sortFolderConfig(_config_, config.sort.name, config.sort.isDesc);
-			_config_.forEach((item) => {
-				if (item["isFolder"]) {
-					let { folderELement, fileNameElement } = popsUtils.isPhone()
-						? createMobileFolderRowElement(item["fileName"], "", "", true)
-						: createFolderRowElement(item["fileName"], "", "", true);
-
-					popsDOMUtils.on<MouseEvent | PointerEvent>(fileNameElement, "click", (event) => {
-						refreshFolderInfoClickEvent(event, item);
-					});
-
-					folderListBodyElement.appendChild(folderELement);
-				} else {
-					let { folderELement, fileNameElement } = popsUtils.isPhone()
-						? createMobileFolderRowElement(item["fileName"], item.latestTime, item.fileSize, false)
-						: createFolderRowElement(item["fileName"], item.latestTime, item.fileSize, false);
-					setFileClickEvent(fileNameElement, item);
-
-					folderListBodyElement.appendChild(folderELement);
-				}
-			});
-		}
-		addFolderElement(config.folder);
-		/* 将数据存到全部文件的属性_config_中 */
-
-		let allFilesElement = folderFileListBreadcrumbPrimaryElement.querySelector<HTMLDivElement>(
-			".pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:first-child"
-		)!;
-
-		(allFilesElement as any)._config_ = config.folder;
-		/* 设置点击顶部的全部文件事件 */
-
-		popsDOMUtils.on<MouseEvent | PointerEvent>(allFilesElement, "click", (event) => {
-			breadcrumbAllFilesElementClickEvent(event, true, config.folder);
-		});
-
-		/* 移除所有的当前排序的arrow */
-		function removeAllArrowActive() {
-			[
-				...Array.from(
-					folderListSortFileNameElement.querySelectorAll<HTMLElement>(".pops-folder-icon-active")
-				),
-				...Array.from(
-					folderListSortLatestTimeElement.querySelectorAll<HTMLElement>(".pops-folder-icon-active")
-				),
-				...Array.from(
-					folderListSortFileSizeElement.querySelectorAll<HTMLElement>(".pops-folder-icon-active")
-				),
-			].forEach((ele) => ele.classList.remove("pops-folder-icon-active"));
-		}
-		/* 设置当前的排序的arrow */
-
-		function changeArrowActive(arrowUp: HTMLElement, arrowDown: HTMLElement, isDesc: boolean) {
-			removeAllArrowActive();
-			if (isDesc) {
-				arrowDown.classList.add("pops-folder-icon-active");
-			} else {
-				arrowUp.classList.add("pops-folder-icon-active");
-			}
-		}
-		/**
-		 * 排序按钮的点击事件
-		 * @param {PointerEvent} target
-		 * @param {HTMLElement} event
-		 * @param {string} sortName
-		 */
-		function arrowSortClickEvent(target: HTMLDivElement, event: MouseEvent | PointerEvent, sortName: string) {
-			if (!(event as any)["notChangeSortRule"]) {
-				(config as any).sort.name = sortName;
-				config.sort.isDesc = !config.sort.isDesc;
-			}
-
-			let arrowUp = target.querySelector<HTMLDivElement>(".pops-folder-icon-arrow-up")!;
-			let arrowDown = target.querySelector<HTMLDivElement>(".pops-folder-icon-arrow-down")!;
-			changeArrowActive(arrowUp, arrowDown, config.sort.isDesc);
-			if (
-				typeof config.sort.callback === "function" &&
-				config.sort.callback(target, event, config.sort.name, config.sort.isDesc)
+			/**
+			 * 对配置进行排序
+			 * @param folderDataConfigList
+			 * @param sortName 比较的属性，默认fileName
+			 * @param isDesc 是否降序，默认false（升序）
+			 */
+			sortFolderConfig(
+				folderDataConfigList: PopsFolderDataConfig[],
+				sortName: "fileName" | "fileSize" | "latestTime" = "fileName",
+				isDesc = false
 			) {
-				return;
+				if (sortName === "fileName") {
+					// 如果是以文件名排序，文件夹优先放前面
+					let onlyFolderDataConfigList = folderDataConfigList.filter((value) => {
+						return value.isFolder;
+					});
+					let onlyFileDataConfigList = folderDataConfigList.filter((value) => {
+						return !value.isFolder;
+					});
+					// 文件夹排序
+					onlyFolderDataConfigList.sort((leftConfig, rightConfig) => {
+						let beforeVal = leftConfig[sortName].toString();
+						let afterVal = rightConfig[sortName].toString();
+						let compareVal = beforeVal.localeCompare(afterVal);
+						if (isDesc) {
+							/* 降序 */
+							if (compareVal > 0) {
+								compareVal = -1;
+							} else if (compareVal < 0) {
+								compareVal = 1;
+							}
+						}
+						return compareVal;
+					});
+					// 文件名排序
+					onlyFileDataConfigList.sort((leftConfig, rightConfig) => {
+						let beforeVal = leftConfig[sortName].toString();
+						let afterVal = rightConfig[sortName].toString();
+						let compareVal = beforeVal.localeCompare(afterVal);
+						if (isDesc) {
+							/* 降序 */
+							if (compareVal > 0) {
+								compareVal = -1;
+							} else if (compareVal < 0) {
+								compareVal = 1;
+							}
+						}
+						return compareVal;
+					});
+					if (isDesc) {
+						// 降序，文件夹在下面
+						return [...onlyFileDataConfigList, ...onlyFolderDataConfigList];
+					} else {
+						// 升序，文件夹在上面
+						return [...onlyFolderDataConfigList, ...onlyFileDataConfigList];
+					}
+				} else {
+					folderDataConfigList.sort((beforeConfig, afterConfig) => {
+						let beforeVal = beforeConfig[sortName];
+						let afterVal = afterConfig[sortName];
+						if (sortName === "fileSize") {
+							/* 文件大小，进行Float转换 */
+							beforeVal = parseFloat(beforeVal.toString());
+							afterVal = parseFloat(afterVal.toString());
+						} else if (sortName === "latestTime") {
+							/* 文件时间 */
+							beforeVal = new Date(beforeVal).getTime();
+							afterVal = new Date(afterVal).getTime();
+						}
+						if (beforeVal > afterVal) {
+							if (isDesc) {
+								/* 降序 */
+								return -1;
+							} else {
+								return 1;
+							}
+						} else if (beforeVal < afterVal) {
+							if (isDesc) {
+								/* 降序 */
+								return 1;
+							} else {
+								return -1;
+							}
+						} else {
+							return 0;
+						}
+					});
+					return folderDataConfigList;
+				}
 			}
+			/**
+			 * 添加文件夹/文件行元素
+			 * @param dataConfig 配置
+			 */
+			initFolderView(dataConfig: PopsFolderDataConfig[]) {
+				// 先对文件夹、文件进行排序
+				this.sortFolderConfig(dataConfig, config.sort.name, config.sort.isDesc);
+				dataConfig.forEach((item) => {
+					if (item.isFolder) {
+						let { folderElement, fileNameElement } = popsUtils.isPhone()
+							? this.createFolderRowElementByMobile(item.fileName, "", "", true)
+							: this.createFolderRowElement(item.fileName, "", "", true);
+						// 文件夹 - 点击事件
+						popsDOMUtils.on<MouseEvent | PointerEvent>(fileNameElement, "click", (event) => {
+							// 进入文件夹
+							this.enterFolder(event, item);
+						});
 
-			let childrenList: PopsFolderDataConfig[] = [];
+						folderListBodyElement.appendChild(folderElement);
+					} else {
+						let { folderElement, fileNameElement } = popsUtils.isPhone()
+							? this.createFolderRowElementByMobile(item.fileName, item.latestTime, item.fileSize, false)
+							: this.createFolderRowElement(item.fileName, item.latestTime, item.fileSize, false);
+						// 文件 - 点击事件
+						popsDOMUtils.on<MouseEvent | PointerEvent>(fileNameElement, "click", (event) => {
+							// 下载文件
+							this.downloadFile(event, fileNameElement, item);
+						});
 
-			Array.from(folderListBodyElement.children).forEach((trElement) => {
-				let __value__ = (trElement as any)["__value__"];
-				__value__["target"] = trElement;
-				childrenList.push(__value__);
-			});
-			let sortedConfigList = sortFolderConfig(childrenList, config.sort.name, config.sort.isDesc);
-			sortedConfigList.forEach((item) => {
-				folderListBodyElement.appendChild((item as any).target);
-			});
+						folderListBodyElement.appendChild(folderElement);
+					}
+				});
+			}
+			/**
+			 * 移除所有箭头的被访问状态
+			 */
+			removeArrowActiveStatus() {
+				[
+					...Array.from(
+						folderListSortFileNameElement.querySelectorAll<HTMLElement>(".pops-folder-icon-active")
+					),
+					...Array.from(
+						folderListSortLatestTimeElement.querySelectorAll<HTMLElement>(".pops-folder-icon-active")
+					),
+					...Array.from(
+						folderListSortFileSizeElement.querySelectorAll<HTMLElement>(".pops-folder-icon-active")
+					),
+				].forEach((ele) => ele.classList.remove("pops-folder-icon-active"));
+			}
+			/**
+			 * 修改导航箭头的状态
+			 */
+			changeArrowActive(arrowUp: HTMLElement, arrowDown: HTMLElement, isDesc: boolean) {
+				this.removeArrowActiveStatus();
+				if (isDesc) {
+					arrowDown.classList.add("pops-folder-icon-active");
+				} else {
+					arrowUp.classList.add("pops-folder-icon-active");
+				}
+			}
+			/**
+			 * 排序按钮的点击事件
+			 * @param target
+			 * @param event
+			 * @param sortName
+			 */
+			arrowToSortFolderInfoView(target: HTMLDivElement, event: MouseEvent | PointerEvent, sortName: string) {
+				const notChangeSortRule = Reflect.get(event, "notChangeSortRule");
+				if (!notChangeSortRule) {
+					(config as any).sort.name = sortName;
+					config.sort.isDesc = !config.sort.isDesc;
+				}
+
+				let arrowUp = target.querySelector<HTMLDivElement>(".pops-folder-icon-arrow-up")!;
+				let arrowDown = target.querySelector<HTMLDivElement>(".pops-folder-icon-arrow-down")!;
+				this.changeArrowActive(arrowUp, arrowDown, config.sort.isDesc);
+				if (
+					typeof config.sort.callback === "function" &&
+					config.sort.callback(target, event, config.sort.name, config.sort.isDesc)
+				) {
+					return;
+				}
+
+				let childrenList: PopsFolderDataConfig[] = [];
+
+				Array.from(folderListBodyElement.children).forEach((trElement) => {
+					let __value__ = Reflect.get(trElement, "__value__");
+					Reflect.set(__value__, "target", trElement);
+					childrenList.push(__value__);
+				});
+				let sortedConfigList = this.sortFolderConfig(childrenList, config.sort.name, config.sort.isDesc);
+				sortedConfigList.forEach((item) => {
+					folderListBodyElement.appendChild((item as any).target);
+				});
+			}
 		}
-		/* 设置当前排序的图标按钮 */
-		popsDOMUtils.on<MouseEvent | PointerEvent>(
-			folderListSortFileNameElement.closest("th"),
-			"click",
-			function (event) {
-				arrowSortClickEvent(folderListSortFileNameElement, event, "fileName");
-			},
-			{
-				capture: true,
-			}
-		);
-		popsDOMUtils.on(
-			folderListSortLatestTimeElement.closest("th"),
-			"click",
-			void 0,
-			function (event) {
-				arrowSortClickEvent(folderListSortLatestTimeElement, event, "latestTime");
-			},
-			{
-				capture: true,
-			}
-		);
-		popsDOMUtils.on(
-			folderListSortFileSizeElement.closest("th"),
-			"click",
-			void 0,
-			function (event) {
-				arrowSortClickEvent(folderListSortFileSizeElement, event, "fileSize");
-			},
-			{
-				capture: true,
-			}
-		);
-		/* 设置默认触发的arrow */
-		if (config.sort.name === "fileName") {
-			popsDOMUtils.trigger(folderListSortFileNameElement, "click", {
-				notChangeSortRule: true,
-			});
-		} else if (config.sort.name === "latestTime") {
-			popsDOMUtils.trigger(folderListSortLatestTimeElement, "click", {
-				notChangeSortRule: true,
-			});
-		} else if (config.sort.name === "fileSize") {
-			popsDOMUtils.trigger(folderListSortFileSizeElement, "click", {
-				notChangeSortRule: true,
-			});
-		}
+
+		const popsFolder = new PopsFolder();
+		popsFolder.init();
+		Reflect.set($pops, "data-pops-folder", popsFolder);
 		/* 拖拽 */
 		if (config.drag) {
 			PopsInstanceUtils.drag($pops, {
