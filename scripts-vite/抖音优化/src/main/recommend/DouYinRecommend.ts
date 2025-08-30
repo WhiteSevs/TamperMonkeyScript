@@ -19,13 +19,21 @@ export const DouYinRecommend = {
 		/**
 		 * 获取当前播放的视频
 		 */
-		let queryActiveVideo = (withAttr: boolean = false) => {
+		let queryActiveVideo = (
+			/**
+			 * @default false
+			 */
+			withAttr: boolean = false
+		) => {
 			return $<HTMLVideoElement>(
 				`.page-recommend-container:not(:has([data-e2e="feed-live"])) [data-e2e="feed-active-video"] video${
 					withAttr ? `:not([${attrFlagName}])` : ""
 				}`
 			);
 		};
+		/**
+		 * 切换视频
+		 */
 		let switchActiveVideo = () => {
 			if (Panel.getValue("dy-keyboard-hook-pageUpAndDown")) {
 				Qmsg.error("自动连播切换失败，请勿禁用↑↓翻页快捷键");
@@ -54,27 +62,39 @@ export const DouYinRecommend = {
 				return;
 			}
 			$activeVideo.setAttribute(attrFlagName, "true");
-			let intervalId: number;
+			let currentVideoSrc = $activeVideo.src;
 			DOMUtils.on(
 				$activeVideo,
 				"ended",
 				(evt) => {
 					log.success(`视频播放完毕，切换至下一个视频`);
 					utils.preventEvent(evt);
+					currentVideoSrc = $activeVideo.src;
+					/**
+					 * 当前是否是合集播放
+					 */
+					let isSlideMode = Boolean($activeVideo.closest("#slideMode"));
 					CommonUtil.interval(
 						(isTimeout) => {
 							if (isTimeout) {
 								log.error(`切换视频超时，切换失败`);
 								return false;
 							}
-							let $switchActiveVideo = queryActiveVideo(false);
-							// if ($switchActiveVideo == null) {
-							// 	log.error(`切换视频失败，没有找到当前正在播放的视频`);
-							// 	return;
-							// }
-							if ($activeVideo !== $switchActiveVideo) {
-								log.success("切换视频成功");
-								return false;
+							let $playingVideo = queryActiveVideo();
+							let playingSrc = $playingVideo?.src!;
+							// 不是同一video元素
+							// 是同一video元素,但是src不同(这个时候是在合集页面里播放的)
+							if (isSlideMode) {
+								// 在合集里，这时候播放视频使用的是同一个video元素
+								if (playingSrc && $activeVideo === $playingVideo && currentVideoSrc !== playingSrc) {
+									log.success("合集-切换视频成功");
+									return false;
+								}
+							} else {
+								if ($activeVideo !== $playingVideo) {
+									log.success("切换视频成功");
+									return false;
+								}
 							}
 							// 切换失败
 							// 继续切换
