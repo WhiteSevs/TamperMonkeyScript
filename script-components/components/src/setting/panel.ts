@@ -811,7 +811,7 @@ const Panel = {
     					align-items: center;
 					}
 					.search-result-item-description{
-						font-size: 0.8rem;
+						font-size: 0.8em;
 						color: #6c6c6c;
 					}
 					${config.searchDialogStyle ?? ""}
