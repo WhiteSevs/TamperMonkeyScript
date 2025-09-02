@@ -109,7 +109,7 @@ export const PopsSearchSuggestion = {
 					{
 						className: `pops pops-${popsType}-search-suggestion`,
 						innerHTML: /*html*/ `
-						<style>
+						<style type="text/css">
 							.pops-${popsType}-animation{
 								-moz-animation: searchSelectFalIn 0.5s 1 linear;
 								-webkit-animation: searchSelectFalIn 0.5s 1 linear;
@@ -117,7 +117,7 @@ export const PopsSearchSuggestion = {
 								-ms-animation: searchSelectFalIn 0.5s 1 linear;
 							}
 						</style>
-						<style>
+						<style type="text/css">
 							.pops-${popsType}-search-suggestion-arrow{
 								--suggestion-arrow-box-shadow-left-color: rgba(0, 0, 0, 0.24);
 								--suggestion-arrow-box-shadow-right-color: rgba(0, 0, 0, 0.12);
@@ -183,7 +183,7 @@ export const PopsSearchSuggestion = {
 								content: "";
 							}
 						</style>
-						<style data-dynamic="true">
+						<style type="text/css" data-dynamic="true">
 							${this.getDynamicCSS()}
 						</style>
 						<style>
@@ -204,6 +204,9 @@ export const PopsSearchSuggestion = {
 								opacity: 1;
 								transform: scaleY(1);
 							}
+						</style>
+						<style type="text/css" data-user-css>
+							${config.style || ""}
 						</style>
 						<ul class="pops-${popsType}-search-suggestion-hint ${PopsCommonCSSClassName.userSelectNone}">${
 							config.toSearhNotResultHTML

@@ -36,7 +36,7 @@ class Pops {
 	/** 配置 */
 	config = {
 		/** 版本号 */
-		version: "2025.8.30",
+		version: "2025.9.2",
 		cssText: PopsCSS,
 		/** icon图标的svg代码 */
 		iconSVG: PopsIcon.$data,
