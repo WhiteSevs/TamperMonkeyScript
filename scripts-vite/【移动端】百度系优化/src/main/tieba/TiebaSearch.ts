@@ -117,8 +117,7 @@ const TiebaSearchSuggestion = {
 			},
 			topDistance: 4,
 			itemClickCallBack(event, liElement, data) {
-				window.location.href =
-					"https://tieba.baidu.com/f?ie=utf-8&kw=" + data.fname;
+				window.location.href = "https://tieba.baidu.com/f?ie=utf-8&kw=" + data.fname;
 			},
 			getData: getData,
 			getItemHTML(item) {
@@ -298,7 +297,7 @@ const TiebaSearch = {
 		let that = this;
 		utils
 			.waitAnyNode<HTMLDivElement>(
-				[".more-btn-desc", "uni-app .frs-wise-nav-bar .forum-name"],
+				[".more-btn-desc", "uni-app .frs-wise-nav-bar .forum-name", ".tbm-status .right-area"],
 				10000
 			)
 			.then(($oldMoreBtnDesc) => {
@@ -345,41 +344,19 @@ const TiebaSearch = {
 				DOMUtils.hide($newSearch);
 
 				this.$ele.$searchContainer = $newSearch;
-				this.$ele.$navTopSearch = $newSearch.querySelector(
-					"#nav-top-search"
-				) as HTMLDivElement;
-				this.$ele.$navSearchBack = $newSearch.querySelector(
-					".nav-search-back"
-				) as HTMLDivElement;
-				(this.$ele.$selectWrapper = $newSearch.querySelector(
-					".nav-search-select-wrapper"
-				) as HTMLDivElement),
-					(this.$ele.$select = $newSearch.querySelector(
-						".nav-search-select"
-					) as HTMLSelectElement);
-				this.$ele.$searchInput = $newSearch.querySelector(
-					"#tieba-search"
-				) as HTMLInputElement;
-				this.$ele.$searchBtn = $newSearch.querySelector(
-					".nav-search-btn"
-				) as HTMLDivElement;
-				this.$ele.$searchResultContainer = $newSearch.querySelector(
-					".search-result"
-				) as HTMLDivElement;
-				this.$ele.$searchResultList = $newSearch.querySelector(
-					".search-result-list"
-				) as HTMLDivElement;
-				this.$ele.$searchResultModel = $newSearch.querySelector(
-					".search-result-model"
-				) as HTMLDivElement;
-				this.$ele.$searchResultFrom = $newSearch.querySelector(
-					".search-result-from-info"
-				) as HTMLDivElement;
+				this.$ele.$navTopSearch = $newSearch.querySelector("#nav-top-search") as HTMLDivElement;
+				this.$ele.$navSearchBack = $newSearch.querySelector(".nav-search-back") as HTMLDivElement;
+				(this.$ele.$selectWrapper = $newSearch.querySelector(".nav-search-select-wrapper") as HTMLDivElement),
+					(this.$ele.$select = $newSearch.querySelector(".nav-search-select") as HTMLSelectElement);
+				this.$ele.$searchInput = $newSearch.querySelector("#tieba-search") as HTMLInputElement;
+				this.$ele.$searchBtn = $newSearch.querySelector(".nav-search-btn") as HTMLDivElement;
+				this.$ele.$searchResultContainer = $newSearch.querySelector(".search-result") as HTMLDivElement;
+				this.$ele.$searchResultList = $newSearch.querySelector(".search-result-list") as HTMLDivElement;
+				this.$ele.$searchResultModel = $newSearch.querySelector(".search-result-model") as HTMLDivElement;
+				this.$ele.$searchResultFrom = $newSearch.querySelector(".search-result-from-info") as HTMLDivElement;
 				// 初始化加载下一页
 				this.$context.loading.initLoadingView(true);
-				this.$ele.$searchResultList.appendChild(
-					this.$context.loading.getLoadingViewElement()
-				);
+				this.$ele.$searchResultList.appendChild(this.$context.loading.getLoadingViewElement());
 				// 设置搜索结果项
 				let $searchResultModelItem = this.$ele.$searchResultModel.querySelector(
 					`.search-result-model-item[data-model="${this.$data.searchModel}"]`
@@ -391,10 +368,7 @@ const TiebaSearch = {
 				/* 用于判断是否已设置点击事件 */
 				let searchParams = new URLSearchParams(window.location.search);
 				this.$ele.$moreBtnDesc = $(".more-btn-desc") as HTMLDivElement;
-				if (
-					BaiduRouter.isTieBaNei() &&
-					utils.isNotNull(searchParams.get("kw"))
-				) {
+				if (BaiduRouter.isTieBaNei() && utils.isNotNull(searchParams.get("kw"))) {
 					/* 吧内 -> 搜索帖子 */
 					DOMUtils.on(this.$ele.$moreBtnDesc, "click", () => {
 						this.enterSeachMode();
@@ -425,9 +399,7 @@ const TiebaSearch = {
 					}
 					if (Panel.getValue("baidu_tieba_use_hybrid_search")) {
 						// 使用搜索综合
-						window.location.href = TiebaUrlHandler.getHybridSearch(
-							this.getSearchText()
-						);
+						window.location.href = TiebaUrlHandler.getHybridSearch(this.getSearchText());
 						return;
 					}
 					this.$data.currentSearchText = searchText;
@@ -437,16 +409,12 @@ const TiebaSearch = {
 				DOMUtils.on(this.$ele.$searchBtn, "click", () => {
 					searchEvent();
 				});
-				DOMUtils.listenKeyboard(
-					this.$ele.$searchInput,
-					"keypress",
-					(keyName) => {
-						if (keyName !== "Enter") {
-							return;
-						}
-						searchEvent();
+				DOMUtils.listenKeyboard(this.$ele.$searchInput, "keypress", (keyName) => {
+					if (keyName !== "Enter") {
+						return;
 					}
-				);
+					searchEvent();
+				});
 				// 设置返回按钮的点击事件-退出搜索模式
 				DOMUtils.on(this.$ele.$navSearchBack, "click", () => {
 					this.quitSearchMode();
@@ -467,25 +435,20 @@ const TiebaSearch = {
 					}
 				});
 				// 设置搜索结果选择模式
-				DOMUtils.on(
-					this.$ele.$searchResultModel,
-					"click",
-					".search-result-model-item",
-					(event) => {
-						let $click = event.target as HTMLDivElement;
-						log.success("设置当前搜索结果模式：" + $click.innerText);
-						// 设置当前选项的访问状态
-						this.$ele.$searchResultModel
-							.querySelectorAll(".search-result-model-item")
-							.forEach((ele) => ele.removeAttribute("data-active"));
-						$click.setAttribute("data-active", "true");
-						let searchModelText = $click.getAttribute("data-model") as string;
-						let searchModel = parseInt(searchModelText);
-						this.$data.searchModel = searchModel;
-						this.clearOldSearchResult();
-						this.postsPageSearch();
-					}
-				);
+				DOMUtils.on(this.$ele.$searchResultModel, "click", ".search-result-model-item", (event) => {
+					let $click = event.target as HTMLDivElement;
+					log.success("设置当前搜索结果模式：" + $click.innerText);
+					// 设置当前选项的访问状态
+					this.$ele.$searchResultModel
+						.querySelectorAll(".search-result-model-item")
+						.forEach((ele) => ele.removeAttribute("data-active"));
+					$click.setAttribute("data-active", "true");
+					let searchModelText = $click.getAttribute("data-model") as string;
+					let searchModel = parseInt(searchModelText);
+					this.$data.searchModel = searchModel;
+					this.clearOldSearchResult();
+					this.postsPageSearch();
+				});
 
 				Panel.execMenuOnce("baidu_tieba-execByUrlSearchParams", () => {
 					this.execByUrlSearchParams();
@@ -851,9 +814,7 @@ const TiebaSearch = {
 			log.success(`搜索内容gbk编码转换: ${originText} => ${qw}`);
 			url = `https://tieba.baidu.com/f/search/res?isnew=1&kw=${kw}&qw=${qw}&un=&rn=10&pn=${pn}&sd=&ed=&sm=${param_sm}`;
 		}
-		log.success(
-			`当前请求第 ${new URLSearchParams(new URL(url).search).get("pn")} 页`
-		);
+		log.success(`当前请求第 ${new URLSearchParams(new URL(url).search).get("pn")} 页`);
 		let searchResponse = await httpx.get(url, {
 			fetch: true,
 			headers: {
@@ -880,9 +841,7 @@ const TiebaSearch = {
 			}
 			if (
 				responseText.match("wappass.baidu.com") ||
-				responseText.match(
-					"https://seccaptcha.baidu.com/v1/webapi/verint/svcp.html"
-				)
+				responseText.match("https://seccaptcha.baidu.com/v1/webapi/verint/svcp.html")
 			) {
 				let wappassUrl = responseText?.match(/href="(.*?)"/)?.[1] as string;
 				log.error("触发百度校验: " + wappassUrl);
@@ -922,60 +881,44 @@ const TiebaSearch = {
 		 */
 		let result = <SearchResultInfo[]>[];
 		// 获取下一页的URL
-		let nextPageUrl = (
-			searchDoc.querySelector(".pager-search a.next") as HTMLAnchorElement
-		)?.href;
-		searchDoc
-			.querySelectorAll<HTMLDivElement>(".s_main .s_post_list .s_post")
-			.forEach(($s_post) => {
-				if ($s_post.id === "post_user" || $s_post.id === "no_head") {
-					return;
-				}
-				// 链接
-				let postItemUrl = (
-					$s_post.querySelector("span.p_title a") as HTMLAnchorElement
-				).href;
-				// 标题
-				let postItemTitle = (
-					$s_post.querySelector("span.p_title a") as HTMLAnchorElement
-				).innerHTML;
-				// 内容
-				let postItemContent = (
-					$s_post.querySelector(".p_content") as HTMLDivElement
-				).innerHTML;
-				// 发布的吧发布的吧
-				let postItemForumName = (
-					$s_post.querySelector("a.p_forum font.p_violet") as HTMLElement
-				).textContent;
-				// 作者
-				let postItemAuthor = (
-					$s_post.querySelector("a[href^='/home'] font.p_violet") ||
-					$s_post.querySelectorAll("font.p_violet")[1]
-				).textContent as string;
-				// 作者个人空间Url
-				let postItemAuthorHomeUrl =
-					"https://tieba.baidu.com/home/main?un=" +
-					this.$context.gbkEncoder.encode(postItemAuthor);
-				// 发布时间
-				let postItemTime = ($s_post.querySelector(".p_date") as HTMLElement)
-					.textContent;
-				let imgList: string[] = [];
-				$s_post
-					.querySelectorAll<HTMLImageElement>("img.p_pic")
-					.forEach((pictureImg) =>
-						imgList.push(pictureImg.getAttribute("original") || pictureImg.src)
-					);
-				result.push({
-					url: postItemUrl,
-					title: postItemTitle,
-					content: postItemContent,
-					forum: postItemForumName,
-					author: postItemAuthor,
-					authorHomeUrl: postItemAuthorHomeUrl,
-					time: postItemTime,
-					media: imgList,
-				});
+		let nextPageUrl = (searchDoc.querySelector(".pager-search a.next") as HTMLAnchorElement)?.href;
+		searchDoc.querySelectorAll<HTMLDivElement>(".s_main .s_post_list .s_post").forEach(($s_post) => {
+			if ($s_post.id === "post_user" || $s_post.id === "no_head") {
+				return;
+			}
+			// 链接
+			let postItemUrl = ($s_post.querySelector("span.p_title a") as HTMLAnchorElement).href;
+			// 标题
+			let postItemTitle = ($s_post.querySelector("span.p_title a") as HTMLAnchorElement).innerHTML;
+			// 内容
+			let postItemContent = ($s_post.querySelector(".p_content") as HTMLDivElement).innerHTML;
+			// 发布的吧发布的吧
+			let postItemForumName = ($s_post.querySelector("a.p_forum font.p_violet") as HTMLElement).textContent;
+			// 作者
+			let postItemAuthor = (
+				$s_post.querySelector("a[href^='/home'] font.p_violet") ||
+				$s_post.querySelectorAll("font.p_violet")[1]
+			).textContent as string;
+			// 作者个人空间Url
+			let postItemAuthorHomeUrl =
+				"https://tieba.baidu.com/home/main?un=" + this.$context.gbkEncoder.encode(postItemAuthor);
+			// 发布时间
+			let postItemTime = ($s_post.querySelector(".p_date") as HTMLElement).textContent;
+			let imgList: string[] = [];
+			$s_post
+				.querySelectorAll<HTMLImageElement>("img.p_pic")
+				.forEach((pictureImg) => imgList.push(pictureImg.getAttribute("original") || pictureImg.src));
+			result.push({
+				url: postItemUrl,
+				title: postItemTitle,
+				content: postItemContent,
+				forum: postItemForumName,
+				author: postItemAuthor,
+				authorHomeUrl: postItemAuthorHomeUrl,
+				time: postItemTime,
+				media: imgList,
 			});
+		});
 		if (result.length === 0) {
 			return {
 				success: false,
@@ -997,16 +940,8 @@ const TiebaSearch = {
 		let searchText = this.$data.currentSearchText;
 		let time = data["time"] as string;
 		// 转换时间
-		let newTime = utils.getDaysDifference(
-			utils.formatToTimeStamp(time),
-			void 0,
-			"auto"
-		);
-		if (
-			newTime.endsWith("小时") ||
-			newTime.endsWith("分钟") ||
-			newTime.endsWith("秒")
-		) {
+		let newTime = utils.getDaysDifference(utils.formatToTimeStamp(time), void 0, "auto");
+		if (newTime.endsWith("小时") || newTime.endsWith("分钟") || newTime.endsWith("秒")) {
 			/* 今天内的时间全都转换成xx时|分|秒前 */
 			time = newTime + "前";
 		}
@@ -1060,21 +995,11 @@ const TiebaSearch = {
 		let $userNameElement = $resultElement.querySelector(
 			".search-result-media-body-author-name"
 		) as HTMLElement;
-		let $mediaElement = $resultElement.querySelector(
-			".search-result-media"
-		) as HTMLElement;
-		let $titleElement = $resultElement.querySelector(
-			".search-result-title"
-		) as HTMLElement;
-		let $contentElement = $resultElement.querySelector(
-			".search-result-content"
-		) as HTMLElement;
-		let $contentSpanElement = $resultElement.querySelector(
-			".search-result-content-span"
-		) as HTMLSpanElement;
-		let $bottomToolBarElement = $resultElement.querySelector(
-			".search-result-bottom-toolbar"
-		) as HTMLElement;
+		let $mediaElement = $resultElement.querySelector(".search-result-media") as HTMLElement;
+		let $titleElement = $resultElement.querySelector(".search-result-title") as HTMLElement;
+		let $contentElement = $resultElement.querySelector(".search-result-content") as HTMLElement;
+		let $contentSpanElement = $resultElement.querySelector(".search-result-content-span") as HTMLSpanElement;
+		let $bottomToolBarElement = $resultElement.querySelector(".search-result-bottom-toolbar") as HTMLElement;
 		/* 获取用户信息，替换用户头像 */
 		if (Panel.getValue("baidu_tieba_search_opt_user_info")) {
 			TieBaApi.getUserHomeInfo({
@@ -1083,9 +1008,7 @@ const TiebaSearch = {
 				if (!userHomeInfo) {
 					return;
 				}
-				$userAvatarElement.src = TiebaUrlHandler.getUserAvatar(
-					userHomeInfo["portrait"]
-				);
+				$userAvatarElement.src = TiebaUrlHandler.getUserAvatar(userHomeInfo["portrait"]);
 				$userNameElement.innerText = userHomeInfo["show_nickname"];
 			});
 		}
@@ -1116,16 +1039,12 @@ const TiebaSearch = {
 		// 解析图片链接
 		let repetitiveImageList: string[] = [];
 		$resultElement
-			.querySelectorAll<HTMLImageElement>(
-				".search-result-content img.BDE_Image"
-			)
+			.querySelectorAll<HTMLImageElement>(".search-result-content img.BDE_Image")
 			.forEach(($BDE_Image) => {
 				/* 高清图片下标 */
-				let originalImageIndex = (data["media"] as string[]).findIndex(
-					(src) => {
-						return src.includes($BDE_Image.src);
-					}
-				);
+				let originalImageIndex = (data["media"] as string[]).findIndex((src) => {
+					return src.includes($BDE_Image.src);
+				});
 				if (originalImageIndex !== -1) {
 					/* 存在对应的高清图片链接 */
 					let originalImage = data["media"][originalImageIndex];
@@ -1149,9 +1068,7 @@ const TiebaSearch = {
 		$contentSpanElement.appendChild(imageContainerElement);
 		/* 对贴吧表情进行处理，搜索到的表情是http的，换成https */
 		$resultElement
-			.querySelectorAll<HTMLImageElement>(
-				".search-result-content img.BDE_Smiley"
-			)
+			.querySelectorAll<HTMLImageElement>(".search-result-content img.BDE_Smiley")
 			.forEach(($BDE_Smiley) => {
 				if (!$BDE_Smiley.src.startsWith("http://static.tieba.baidu.com")) {
 					return;
@@ -1168,11 +1085,7 @@ const TiebaSearch = {
 		log.success("添加滚动事件");
 		this.$flag.isSetScrollEvent = true;
 		this.$context.lockFunc = new utils.LockFunction(this.scrollEvent, this, 20);
-		DOMUtils.on(
-			this.$ele.$searchResultList,
-			"scroll",
-			this.$context.lockFunc.run
-		);
+		DOMUtils.on(this.$ele.$searchResultList, "scroll", this.$context.lockFunc.run);
 	},
 	/**
 	 * 移除滚动事件
@@ -1181,11 +1094,7 @@ const TiebaSearch = {
 		log.error("移除滚动事件");
 		this.$context.loading.hide();
 		if (this.$context.lockFunc?.run) {
-			DOMUtils.off(
-				this.$ele.$searchResultList,
-				"scroll",
-				this.$context.lockFunc.run
-			);
+			DOMUtils.off(this.$ele.$searchResultList, "scroll", this.$context.lockFunc.run);
 		}
 		this.$context.lockFunc = null;
 		this.$flag.isSetScrollEvent = false;
@@ -1226,9 +1135,7 @@ const TiebaSearch = {
 	 * 滚动事件
 	 */
 	async scrollEvent(event: Event) {
-		let maxScrollHeight =
-			this.$ele.$searchResultList.scrollHeight -
-			this.$ele.$searchResultList.clientHeight;
+		let maxScrollHeight = this.$ele.$searchResultList.scrollHeight - this.$ele.$searchResultList.clientHeight;
 		if (this.$ele.$searchResultList.scrollTop + 50 < maxScrollHeight) {
 			return;
 		}
@@ -1366,9 +1273,7 @@ const TiebaSearch = {
 					$searchResultModelItem.setAttribute("data-active", "true");
 				}
 			} else {
-				log.error(
-					`未知searchParams的 ${KEY_searchModel} 参数值：${searchModel}`
-				);
+				log.error(`未知searchParams的 ${KEY_searchModel} 参数值：${searchModel}`);
 			}
 		}
 		this.$ele.$moreBtnDesc.click();

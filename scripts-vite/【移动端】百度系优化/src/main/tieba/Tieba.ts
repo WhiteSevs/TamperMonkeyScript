@@ -21,6 +21,7 @@ import { TiebaMsgTab } from "./msgtab/TiebaMsgTab";
 import { TiebaUrlHandler } from "./handler/TiebaUrlHandler";
 import { TiebaCollectionCenter } from "./collection-center/TiebaCollectionCenter";
 import { TiebaSmallAppApi } from "./api/TiebaSmallAppApi";
+import { TiebaHybridUsergrowBaseCommentFocus } from "./hybrid-usergrow-base/TiebaHybridUsergrowBaseCommentFocus";
 
 /**
  * 百度贴吧
@@ -91,10 +92,7 @@ export const BaiduTieBa = {
 					TiebaMsgTab.init();
 				} else {
 					utils
-						.waitNode<HTMLElement>(
-							".tb-index-navbar .navbar-box li:nth-child(2)",
-							10000
-						)
+						.waitNode<HTMLElement>(".tb-index-navbar .navbar-box li:nth-child(2)", 10000)
 						.then(($navbarBox) => {
 							if (!$navbarBox) {
 								return;
@@ -141,6 +139,9 @@ export const BaiduTieBa = {
 			/* 吧内 */
 			log.success("Router: 吧内");
 			TiebaBaNei.init();
+		} else if (BaiduRouter.isTieBaHybridUserGrowBase()) {
+			log.success(`Router: 评论聚合`);
+			TiebaHybridUsergrowBaseCommentFocus.init();
 		} else if (BaiduRouter.isTieBaHome()) {
 			/* 主页 */
 			log.success("Router: 用户主页");
@@ -175,11 +176,7 @@ export const BaiduTieBa = {
 	 */
 	initTiebaData() {
 		utils
-			.waitAnyNode<HTMLDivElement>([
-				".tb-mobile-viewport",
-				".main-page-wrap",
-				".forum-name .name",
-			])
+			.waitAnyNode<HTMLDivElement>([".tb-mobile-viewport", ".main-page-wrap", ".forum-name .name"])
 			.then(async () => {
 				let interval = setInterval(() => {
 					TiebaData.forumName = TiebaCore.getCurrentForumName();
@@ -209,24 +206,20 @@ export const BaiduTieBa = {
 		`);
 		utils
 			.waitAnyNode<HTMLDivElement>(
-				[
-					".nav-bar-top .logo-wrapper",
-					"uni-app .frs-wise-nav-bar .logo-wrapper",
-				],
+				[".nav-bar-top .logo-wrapper", "uni-app .frs-wise-nav-bar .logo-wrapper", ".tbm-status .left-area"],
 				10000
 			)
 			.then(($ele) => {
 				if (!$ele) {
 					return;
 				}
+				let $parent = DOMUtils.parent($ele);
 				$ele.outerHTML = /*html*/ `
 				<div class="logo-wrapper">
 					<svg t="1718595396255" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3147" width="24" height="24"><path d="M128 298.666667h768a42.666667 42.666667 0 0 0 0-85.333334H128a42.666667 42.666667 0 0 0 0 85.333334z m768 170.666666H128a42.666667 42.666667 0 0 0 0 85.333334h768a42.666667 42.666667 0 0 0 0-85.333334z m0 256H128a42.666667 42.666667 0 0 0 0 85.333334h768a42.666667 42.666667 0 0 0 0-85.333334z" p-id="3148"></path></svg>
 				</div>
 				`;
-				let $logoWrapper =
-					$<HTMLDivElement>(".nav-bar-top .logo-wrapper") ||
-					$<HTMLDivElement>("uni-app .frs-wise-nav-bar .logo-wrapper");
+				let $logoWrapper = $parent.querySelector<HTMLElement>(".logo-wrapper")!;
 				function getHelloText() {
 					var myDate = new Date();
 					var i = myDate.getHours();
@@ -259,8 +252,7 @@ export const BaiduTieBa = {
 						clickCallBack(event: MouseEvent | PointerEvent) {
 							let userInput = prompt("请输入需要搜索的内容");
 							if (userInput) {
-								window.location.href =
-									TiebaUrlHandler.getHybridSearch(userInput);
+								window.location.href = TiebaUrlHandler.getHybridSearch(userInput);
 							}
 						},
 					},
@@ -291,11 +283,15 @@ export const BaiduTieBa = {
 						},
 					});
 				}
-				DOMUtils.on($logoWrapper!, "click", () => {
-					let $drawer = pops.drawer({
-						title: {
-							enable: true,
-							text: /*html*/ `
+				DOMUtils.on(
+					$logoWrapper!,
+					"click",
+					(evt) => {
+						utils.preventEvent(evt);
+						let $drawer = pops.drawer({
+							title: {
+								enable: true,
+								text: /*html*/ `
 							<div class="tieba_account_exit">
 								<a href="javascript:;">
 									<span>
@@ -315,35 +311,35 @@ export const BaiduTieBa = {
                                 <p class="tieba_user_nologin_tip_bottom">登录后更精彩...</p>
                             </a>
 							`,
-							html: true,
-							style: "",
-						},
-						content: {
-							text: '<ul class="tieba-menu-list"></ul>',
-							html: true,
-							style: "",
-						},
-						btn: {
-							ok: {
-								enable: false,
+								html: true,
+								style: "",
 							},
-							cancel: {
-								enable: false,
+							content: {
+								text: '<ul class="tieba-menu-list"></ul>',
+								html: true,
+								style: "",
 							},
-							close: {
-								enable: false,
+							btn: {
+								ok: {
+									enable: false,
+								},
+								cancel: {
+									enable: false,
+								},
+								close: {
+									enable: false,
+								},
 							},
-						},
-						only: true,
-						size: "66%",
-						direction: "left",
-						mask: {
-							enable: true,
-							clickEvent: {
-								toClose: true,
+							only: true,
+							size: "66%",
+							direction: "left",
+							mask: {
+								enable: true,
+								clickEvent: {
+									toClose: true,
+								},
 							},
-						},
-						style: /*css*/ `
+							style: /*css*/ `
 						.pops{
 							--avatar-size: 60px;
 							--user-info-font-color: #ffffff;
@@ -437,79 +433,67 @@ export const BaiduTieBa = {
 							white-space: nowrap;
 						}
 						`,
-					});
-					let isLogin = false;
-					let $tieba_user =
-						$drawer.$shadowRoot.querySelector<HTMLDivElement>(".tieba_user");
-					let $menuList =
-						$drawer.$shadowRoot.querySelector<HTMLDivElement>(
-							".tieba-menu-list"
-						)!;
-					let $avatar = $drawer.$shadowRoot.querySelector<HTMLImageElement>(
-						".tieba_account_avatar"
-					)!;
-					let $userInfo =
-						$drawer.$shadowRoot.querySelector<HTMLDivElement>(
-							".tieba-user-info"
-						)!;
-					let $tieba_user_nologin_tip_center =
-						$drawer.$shadowRoot.querySelector<HTMLDivElement>(
+						});
+						let isLogin = false;
+						let $tieba_user = $drawer.$shadowRoot.querySelector<HTMLDivElement>(".tieba_user");
+						let $menuList = $drawer.$shadowRoot.querySelector<HTMLDivElement>(".tieba-menu-list")!;
+						let $avatar = $drawer.$shadowRoot.querySelector<HTMLImageElement>(".tieba_account_avatar")!;
+						let $userInfo = $drawer.$shadowRoot.querySelector<HTMLDivElement>(".tieba-user-info")!;
+						let $tieba_user_nologin_tip_center = $drawer.$shadowRoot.querySelector<HTMLDivElement>(
 							".tieba_user_nologin_tip_center"
 						)!;
-					let $tieba_user_nologin_tip_bottom =
-						$drawer.$shadowRoot.querySelector<HTMLDivElement>(
+						let $tieba_user_nologin_tip_bottom = $drawer.$shadowRoot.querySelector<HTMLDivElement>(
 							".tieba_user_nologin_tip_bottom"
 						)!;
 
-					menuListInfo.forEach((menuItemInfo) => {
-						let $menuItem = document.createElement("li");
-						$menuItem.classList.add("tieba-menu-item");
-						$menuItem.setAttribute("data-to", menuItemInfo["data-to"]);
-						$menuItem.innerHTML = `
+						menuListInfo.forEach((menuItemInfo) => {
+							let $menuItem = document.createElement("li");
+							$menuItem.classList.add("tieba-menu-item");
+							$menuItem.setAttribute("data-to", menuItemInfo["data-to"]);
+							$menuItem.innerHTML = `
 						<i class="tieba-menu-icon">
 							${menuItemInfo.icon}
 						</i>
 						<p class="teba-menu-text">${menuItemInfo.text}</p>
 						`;
-						DOMUtils.on($menuItem, "click", (event) => {
-							menuItemInfo.clickCallBack(event);
+							DOMUtils.on($menuItem, "click", (event) => {
+								menuItemInfo.clickCallBack(event);
+							});
+							$menuList.appendChild($menuItem);
 						});
-						$menuList.appendChild($menuItem);
-					});
 
-					// 填充当前已登录的用户的信息
-					TiebaSmallAppApi.userInfo(false).then((userInfo) => {
-						if (!userInfo) {
-							return;
-						}
-						$avatar.src = TiebaUrlHandler.getUserAvatar("null");
-						if (
-							typeof userInfo.user?.is_login === "boolean" &&
-							!userInfo.user?.is_login
-						) {
-							// 未登录
-						} else {
-							isLogin = true;
-							// 已登录
-							let showName =
-								userInfo.user.show_nickname ||
-								userInfo.user.name_show ||
-								userInfo.user.user_nickname ||
-								userInfo.user.user_name;
-							let portrait = userInfo.user.portrait;
-							$avatar.src = TiebaUrlHandler.getUserAvatar(portrait);
-							$tieba_user_nologin_tip_center.innerText = showName;
-							DOMUtils.hide($tieba_user_nologin_tip_bottom);
-						}
-					});
+						// 填充当前已登录的用户的信息
+						TiebaSmallAppApi.userInfo(false).then((userInfo) => {
+							if (!userInfo) {
+								return;
+							}
+							$avatar.src = TiebaUrlHandler.getUserAvatar("null");
+							if (typeof userInfo.user?.is_login === "boolean" && !userInfo.user?.is_login) {
+								// 未登录
+							} else {
+								isLogin = true;
+								// 已登录
+								let showName =
+									userInfo.user.show_nickname ||
+									userInfo.user.name_show ||
+									userInfo.user.user_nickname ||
+									userInfo.user.user_name;
+								let portrait = userInfo.user.portrait;
+								$avatar.src = TiebaUrlHandler.getUserAvatar(portrait);
+								$tieba_user_nologin_tip_center.innerText = showName;
+								DOMUtils.hide($tieba_user_nologin_tip_bottom);
+							}
+						});
 
-					DOMUtils.on($tieba_user, "click", () => {
-						if (isLogin) {
-							return;
-						}
-						window.open(TiebaUrlHandler.getLoginUrl(), "_blank");
-					});
-				});
+						DOMUtils.on($tieba_user, "click", () => {
+							if (isLogin) {
+								return;
+							}
+							window.open(TiebaUrlHandler.getLoginUrl(), "_blank");
+						});
+					},
+					{ capture: true }
+				);
 			});
 	},
 };

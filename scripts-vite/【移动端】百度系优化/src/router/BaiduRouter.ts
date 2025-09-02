@@ -3,41 +3,29 @@ export const BaiduRouter = {
 	 * 百度搜索
 	 */
 	isSearch() {
-		return Boolean(
-			window.location.href.match(
-				/^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/.*/g
-			)
-		);
+		return Boolean(window.location.href.match(/^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/.*/g));
 	},
 	/**
 	 * 百度搜索 - /bh
 	 * 百度健康
 	 */
 	isSearchBh() {
-		return Boolean(
-			this.isSearch() && window.location.pathname.startsWith("/bh")
-		);
+		return Boolean(this.isSearch() && window.location.pathname.startsWith("/bh"));
 	},
 	/**
 	 * 百度搜索 - /video/page
 	 * 视频页
 	 */
 	isSearchVideo() {
-		return Boolean(
-			this.isSearch() && window.location.pathname.startsWith("/video/page")
-		);
+		return Boolean(this.isSearch() && window.location.pathname.startsWith("/video/page"));
 	},
 	/**
 	 * 百度搜索主页
 	 */
 	isSearchHome() {
 		return Boolean(
-			window.location.href.match(
-				/^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/$/g
-			) ||
-				window.location.href.match(
-					/^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/(\?ref=|\?tn=|\?from=|#\/)/g
-				)
+			window.location.href.match(/^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/$/g) ||
+				window.location.href.match(/^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/(\?ref=|\?tn=|\?from=|#\/)/g)
 		);
 	},
 	/**
@@ -46,9 +34,7 @@ export const BaiduRouter = {
 	 * 例如：视频、笔记、贴吧、图片、资讯、问答、文库...等
 	 */
 	isSearchVSearch() {
-		return (
-			this.isSearch() && window.location.pathname.startsWith("/sf/vsearch")
-		);
+		return this.isSearch() && window.location.pathname.startsWith("/sf/vsearch");
 	},
 	/**
 	 * 百度搜索其它卡片搜索结果页面
@@ -81,9 +67,7 @@ export const BaiduRouter = {
 	 * 百家号
 	 */
 	isBaiJiaHao() {
-		return Boolean(
-			window.location.href.match(/^http(s|):\/\/baijiahao.baidu.com/g)
-		);
+		return Boolean(window.location.href.match(/^http(s|):\/\/baijiahao.baidu.com/g));
 	},
 	/**
 	 * 贴吧
@@ -92,52 +76,46 @@ export const BaiduRouter = {
 		return Boolean(
 			window.location.href.match(
 				/^http(s|):\/\/(tieba|ala|static.tieba|nba|fexclick|youhua|tiebaswan).baidu.com/g
-			) ||
-				window.location.href.match(/^http(s|):\/\/(www.tieba|jump2.bdimg).com/g)
+			) || window.location.href.match(/^http(s|):\/\/(www.tieba|jump2.bdimg).com/g)
 		);
 	},
 	/**
 	 * 贴吧 - 帖子
 	 */
 	isTieBaPost() {
-		return Boolean(
-			this.isTieBa() && window.location.pathname.startsWith("/p/")
-		);
+		return Boolean(this.isTieBa() && window.location.pathname.startsWith("/p/"));
 	},
 	/**
 	 * 贴吧 - 热帖
 	 */
 	isTieBaNewTopic() {
-		return Boolean(
-			this.isTieBa() &&
-				window.location.pathname.startsWith("/mo/q/newtopic/topicTemplate")
-		);
+		return Boolean(this.isTieBa() && window.location.pathname.startsWith("/mo/q/newtopic/topicTemplate"));
 	},
 	/**
 	 * 贴吧 - 热搜榜
 	 */
 	isTieBaHottopic() {
-		return Boolean(
-			this.isTieBa() &&
-				window.location.pathname.startsWith("/hottopic/browse/hottopic")
-		);
+		return Boolean(this.isTieBa() && window.location.pathname.startsWith("/hottopic/browse/hottopic"));
 	},
 	/**
 	 * 贴吧 - 搜索结果界面
 	 */
 	isTieBaHybrid() {
+		return Boolean(this.isTieBa() && window.location.pathname.startsWith("/mo/q/hybrid/search"));
+	},
+	/**
+	 * 贴吧 - 评论聚合页面
+	 */
+	isTieBaHybridUserGrowBase() {
 		return Boolean(
-			this.isTieBa() &&
-				window.location.pathname.startsWith("/mo/q/hybrid/search")
+			this.isTieBa() && window.location.pathname.startsWith("/mo/q/hybrid-usergrow-base/commentFocus")
 		);
 	},
 	/**
 	 * 贴吧 - 中转链接验证页面
 	 */
 	isTieBaCheckUrl() {
-		return Boolean(
-			this.isTieBa() && window.location.pathname.startsWith("/mo/q/checkurl")
-		);
+		return Boolean(this.isTieBa() && window.location.pathname.startsWith("/mo/q/checkurl"));
 	},
 	/**
 	 * 贴吧 - 吧内
@@ -149,92 +127,69 @@ export const BaiduRouter = {
 	 * 贴吧 - 首页
 	 */
 	isTieBaIndex() {
-		return Boolean(
-			this.isTieBa() && window.location.pathname.startsWith("/index")
-		);
+		return Boolean(this.isTieBa() && window.location.pathname.startsWith("/index"));
 	},
 	/**
 	 * 贴吧 - 主页
 	 */
 	isTieBaHome() {
-		return Boolean(
-			this.isTieBa() && window.location.pathname.startsWith("/home/main")
-		);
+		return Boolean(this.isTieBa() && window.location.pathname.startsWith("/home/main"));
 	},
 	/**
 	 * 贴吧 - 合辑
 	 */
 	isTieBaCollectionCenter() {
 		return Boolean(
-			this.isTieBa() &&
-				window.location.pathname.startsWith(
-					"/mo/q/hybrid-main-user/collectionCenter"
-				)
+			this.isTieBa() && window.location.pathname.startsWith("/mo/q/hybrid-main-user/collectionCenter")
 		);
 	},
 	/**
 	 * 百度文库
 	 */
 	isWenKu() {
-		return Boolean(
-			window.location.href.match(/^http(s|):\/\/(wk|tanbi).baidu.com/g)
-		);
+		return Boolean(window.location.href.match(/^http(s|):\/\/(wk|tanbi).baidu.com/g));
 	},
 	/**
 	 * 百度经验
 	 */
 	isJingYan() {
-		return Boolean(
-			window.location.href.match(/^http(s|):\/\/jingyan.baidu.com/g)
-		);
+		return Boolean(window.location.href.match(/^http(s|):\/\/jingyan.baidu.com/g));
 	},
 	/**
 	 * 百度百科
 	 */
 	isBaiKe() {
-		return Boolean(
-			window.location.href.match(/^http(s|):\/\/(baike|wapbaike).baidu.com/g)
-		);
+		return Boolean(window.location.href.match(/^http(s|):\/\/(baike|wapbaike).baidu.com/g));
 	},
 	/**
 	 * 百度百科 - 他说
 	 */
 	isBaiKeTaShuo() {
-		return Boolean(
-			this.isBaiKe() && window.location.pathname.startsWith("/tashuo")
-		);
+		return Boolean(this.isBaiKe() && window.location.pathname.startsWith("/tashuo"));
 	},
 	/**
 	 * 百度知道
 	 */
 	isZhiDao() {
-		return Boolean(
-			window.location.href.match(/^http(s|):\/\/zhidao.baidu.com/g)
-		);
+		return Boolean(window.location.href.match(/^http(s|):\/\/zhidao.baidu.com/g));
 	},
 	/**
 	 * 百度翻译
 	 */
 	isFanYi() {
-		return Boolean(
-			window.location.href.match(/^http(s|):\/\/fanyi.baidu.com/g)
-		);
+		return Boolean(window.location.href.match(/^http(s|):\/\/fanyi.baidu.com/g));
 	},
 	/**
 	 * 百度翻译 - App
 	 */
 	isFanYiApp() {
-		return Boolean(
-			window.location.href.match(/^http(s|):\/\/fanyi-app.baidu.com/g)
-		);
+		return Boolean(window.location.href.match(/^http(s|):\/\/fanyi-app.baidu.com/g));
 	},
 	/**
 	 * 百度图片
 	 */
 	isImage() {
-		return Boolean(
-			window.location.href.match(/^http(s|):\/\/image.baidu.com/g)
-		);
+		return Boolean(window.location.href.match(/^http(s|):\/\/image.baidu.com/g));
 	},
 	/**
 	 * 百度地图
@@ -258,9 +213,7 @@ export const BaiduRouter = {
 	 * 爱企查
 	 */
 	isAiQiCha() {
-		return Boolean(
-			window.location.href.match(/^http(s|):\/\/aiqicha.baidu.com/g)
-		);
+		return Boolean(window.location.href.match(/^http(s|):\/\/aiqicha.baidu.com/g));
 	},
 	/**
 	 * 百度网盟
@@ -272,17 +225,13 @@ export const BaiduRouter = {
 	 * 好看视频
 	 */
 	isHaoKan() {
-		return Boolean(
-			window.location.href.match(/^http(s|):\/\/haokan.baidu.com/g)
-		);
+		return Boolean(window.location.href.match(/^http(s|):\/\/haokan.baidu.com/g));
 	},
 	/**
 	 * 百度图片搜索
 	 */
 	isGraph() {
-		return Boolean(
-			window.location.href.match(/^http(s|):\/\/graph.baidu.com/g)
-		);
+		return Boolean(window.location.href.match(/^http(s|):\/\/graph.baidu.com/g));
 	},
 	/**
 	 * 百度网盘
@@ -294,9 +243,7 @@ export const BaiduRouter = {
 	 * 文心一言
 	 */
 	isYiYan() {
-		return Boolean(
-			window.location.href.match(/^http(s|):\/\/yiyan.baidu.com/g)
-		);
+		return Boolean(window.location.href.match(/^http(s|):\/\/yiyan.baidu.com/g));
 	},
 	/**
 	 * 搜索AI伙伴
@@ -308,35 +255,25 @@ export const BaiduRouter = {
 	 * 百度教育
 	 */
 	isMiniJiaoYu() {
-		return Boolean(
-			window.location.href.match(/^http(s|):\/\/uf9kyh.smartapps.cn/g)
-		);
+		return Boolean(window.location.href.match(/^http(s|):\/\/uf9kyh.smartapps.cn/g));
 	},
 	/**
 	 * 百度教育
 	 */
 	isEasyLearn() {
-		return Boolean(
-			window.location.href.match(/^http(s|):\/\/easylearn.baidu.com/g)
-		);
+		return Boolean(window.location.href.match(/^http(s|):\/\/easylearn.baidu.com/g));
 	},
 	/**
 	 * 百度基木鱼
 	 */
 	isISite() {
-		return Boolean(
-			window.location.href.match(
-				/^http(s|):\/\/isite.baidu.com\/site\/wjz2tdly/g
-			)
-		);
+		return Boolean(window.location.href.match(/^http(s|):\/\/isite.baidu.com\/site\/wjz2tdly/g));
 	},
 	/**
 	 * 百度爱学
 	 */
 	isAiStudy() {
-		return Boolean(
-			window.location.href.match(/^http(s|):\/\/aistudy.baidu.com/g)
-		);
+		return Boolean(window.location.href.match(/^http(s|):\/\/aistudy.baidu.com/g));
 	},
 	/**
 	 * 贴吧 - 小程序

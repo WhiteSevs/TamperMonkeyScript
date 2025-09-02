@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.27
+// @version      2025.9.2
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -15,7 +15,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/showdown/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/vue@3.5.20/dist/vue.global.prod.js
@@ -52,7 +52,7 @@
 (function (Qmsg, DOMUtils, Utils, pops, vue, Viewer, pinia, iconsVue, vueDemi, vueRouter, ElementPlus) {
   'use strict';
 
-  const a=new Set;const importCSS = async t=>{a.has(t)||(a.add(t),(n=>{function r(d){let e=document.createElement("style");if(e.setAttribute("type","text/css"),e.setAttribute("data-type","gm-css"),globalThis.trustedTypes){const l=globalThis.trustedTypes.createPolicy("safe-innerHTML",{createHTML:i=>i});e.innerHTML=l.createHTML(d);}else e.innerHTML=d;return (document.head||document.documentElement).appendChild(e),e}if(typeof GM_addStyle=="function"){GM_addStyle(n);return}r(n);})(t));};
+  const d=new Set;const importCSS = async t=>{d.has(t)||(d.add(t),(a=>{function r(n){if(typeof GM_addStyle=="function")return GM_addStyle(n);let e=document.createElement("style");if(e.setAttribute("type","text/css"),e.setAttribute("data-type","gm-css"),globalThis.trustedTypes){const l=globalThis.trustedTypes.createPolicy("safe-innerHTML",{createHTML:i=>i});e.innerHTML=l.createHTML(n);}else e.innerHTML=n;return (document.head||document.documentElement).appendChild(e),e}r(a);})(t));};
 
   importCSS(' @charset "UTF-8";#small-toolbar[data-v-bd816662]{position:fixed;bottom:0;width:100%;background:#fff;height:.56rem;display:flex;align-items:center;z-index:1000}#small-toolbar .icon[data-v-bd816662]{width:.2rem;height:.2rem}#small-toolbar #reply-editor[data-v-bd816662]{flex:1}#small-toolbar .small-editor-toolbar[data-v-bd816662]{flex:1;margin:10px 15px;width:100%;font-size:.16rem;line-height:.16rem;display:flex;align-items:center;position:relative}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-bd816662]{width:100%;background:#e9e9e9;border-radius:.06rem;padding:.06rem;border:0;outline:none;font-size:.14rem;line-height:.14rem;cursor:default}#small-toolbar .small-editor-toolbar .small-editor-toolbar-emoji-btn[data-v-bd816662]{position:absolute;top:50%;right:.06rem;transform:translateY(-50%)}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-bd816662]:focus,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-bd816662]:visited,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-bd816662]:focus-within,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-bd816662]:focus-visible{border:0;outline:none}#small-toolbar .gm-reply-other-toolbar[data-v-bd816662]{flex:0 auto;display:flex;align-items:safe center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count[data-v-bd816662],#small-toolbar .gm-reply-other-toolbar .reply-good-count[data-v-bd816662]{padding:8px;display:flex;flex-direction:column;align-items:center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count p.text[data-v-bd816662],#small-toolbar .gm-reply-other-toolbar .reply-good-count p.text[data-v-bd816662]{font-size:.1rem}.tiptap p.is-editor-empty:first-child:before{content:attr(data-placeholder);float:left;color:#adb5bd;pointer-events:none;height:0}#reply-editor .tiptap{width:100%;height:100%;outline:0!important;font-size:.16rem}.tiptap-input-image{width:.18rem;height:.18rem}#reply-editor[data-v-515fa91d]{overflow:auto;background-color:#e5e5e5;padding:.06rem;height:100%;border-radius:5px}.icon-active[data-v-16c51a10]{fill:#7557ff}#full-toolbar[data-v-16c51a10]{position:fixed;bottom:0;width:100%;background:#fff;display:flex;align-items:center;z-index:100099;flex-flow:column}#full-toolbar .full-toolbar-top-reply-user[data-v-16c51a10]{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#adb5bd;width:-webkit-fill-available;width:-moz-available;padding-left:.2rem;padding-top:.06rem}#full-toolbar .full-toolbar-top-container[data-v-16c51a10]{display:flex;align-items:end;width:-moz-available;width:-webkit-fill-available;padding:.06rem .1rem;height:.6rem}#full-toolbar .full-toolbar-top-container .full-toolbar-top-left-container[data-v-16c51a10]{display:flex;flex-direction:column;flex:1;overflow:hidden;margin:0px .1rem;height:100%}#full-toolbar .full-toolbar-top-container .full-toolbar-top-right-container[data-v-16c51a10]{flex:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%}#full-toolbar .full-toolbar-bottom-container[data-v-16c51a10]{margin:.06rem 0;padding:0px 0px .06rem;margin-right:auto}#full-toolbar .full-toolbar-bottom-container .full-toolbar-emoji-btn[data-v-16c51a10],#full-toolbar .full-toolbar-bottom-container .full-toolbar-panel-at-btn[data-v-16c51a10]{margin:0 20px;display:flex;flex-direction:column;align-items:center}#full-toolbar .emoji-panel[data-v-16c51a10]{width:100%;height:30vh;background-color:#efefef;overflow:auto}.emoji-panel-huaji[data-v-16c51a10]{padding:.03rem;overflow-y:auto}.emoji-panel-huaji .el-avatar[data-v-16c51a10]{margin:16px}#full-toolbar[data-v-16c51a10]:has(.full-toolbar-top-container[data-full=true]){height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-16c51a10],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) #reply-editor[data-v-16c51a10]{height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-reply-user[data-v-16c51a10],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-right-container[data-v-16c51a10]{display:none}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-16c51a10]{flex-direction:column}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-left-container[data-v-16c51a10]{width:-webkit-fill-available;width:-moz-available}.full-toolbar-top-nav-container[data-v-16c51a10]{display:flex;width:-webkit-fill-available;width:-moz-available;align-items:center;justify-content:space-between;padding:.16rem}#full-toolbar .full-toolbar-top-container{max-height:calc(100vh - .12rem - 40px)}#full-toolbar[data-show-bottom-panel=true] .full-toolbar-top-container{max-height:calc(70vh - .12rem - 40px)}.posts-container-item[data-v-03f2f267]{width:-webkit-fill-available;width:-moz-available}.posts-item-title[data-v-03f2f267]{font-weight:700}.posts-item-title[data-v-03f2f267],.posts-item-content[data-v-03f2f267],.posts-item-media-container[data-v-03f2f267]{margin:10px 0}.posts-item-footer[data-v-03f2f267]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-03f2f267]{text-align:center}.posts-item-footer-icon-container[data-v-03f2f267]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-03f2f267]{padding:0 10px}.posts-container[data-v-c87cf9db]{background:#f2f2f4;padding:10px}.posts-container-item[data-v-c87cf9db]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.posts-item-title[data-v-c87cf9db]{font-weight:700}.posts-item-title[data-v-c87cf9db],.posts-item-content[data-v-c87cf9db],.posts-item-media-container[data-v-c87cf9db]{margin:10px 0}.posts-item-footer[data-v-c87cf9db]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-c87cf9db]{text-align:center}.posts-item-footer-icon-container[data-v-c87cf9db]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-c87cf9db]{padding:0 10px}.follow-forum-container[data-v-fc2491a8]{background:#f2f2f4;padding:10px}.follow-forum-list-container[data-v-fc2491a8]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.follow-forum-item[data-v-fc2491a8]{width:50%;max-width:50%;display:flex;align-items:flex-start;margin:10px 0}.follow-forum-avatar[data-v-fc2491a8]{border-radius:12px}.follow-forum-item-right-container[data-v-fc2491a8]{margin:0 10px;width:inherit;display:flex;flex-direction:column}.follow-forum-item-name[data-v-fc2491a8]{display:flex;align-items:center;width:-webkit-fill-available;width:-moz-available}.follow-forum-item-level[data-level][data-v-fc2491a8]{margin:5px;padding:2px;border-radius:3px;font-size:.6rem;line-height:.6rem;font-weight:700;text-align:center;background:var(--c4fc5984);color:var(--632896fa)}.follow-forum-item-level[data-level="0"][data-v-fc2491a8],.follow-forum-item-level[data-level="1"][data-v-fc2491a8],.follow-forum-item-level[data-level="2"][data-v-fc2491a8],.follow-forum-item-level[data-level="3"][data-v-fc2491a8]{background:var(--67c41881)}.follow-forum-item-level[data-level="4"][data-v-fc2491a8],.follow-forum-item-level[data-level="5"][data-v-fc2491a8],.follow-forum-item-level[data-level="6"][data-v-fc2491a8],.follow-forum-item-level[data-level="7"][data-v-fc2491a8],.follow-forum-item-level[data-level="8"][data-v-fc2491a8],.follow-forum-item-level[data-level="9"][data-v-fc2491a8]{background:var(--67c4278b)}.follow-forum-item-level[data-level="10"][data-v-fc2491a8],.follow-forum-item-level[data-level="11"][data-v-fc2491a8],.follow-forum-item-level[data-level="12"][data-v-fc2491a8],.follow-forum-item-level[data-level="13"][data-v-fc2491a8],.follow-forum-item-level[data-level="14"][data-v-fc2491a8],.follow-forum-item-level[data-level="15"][data-v-fc2491a8]{background:var(--f1cd3cbe)}.follow-forum-item-level[data-level="16"][data-v-fc2491a8],.follow-forum-item-level[data-level="17"][data-v-fc2491a8],.follow-forum-item-level[data-level="18"][data-v-fc2491a8]{background:var(--f1c7c844)}.follow-forum-item-info[data-v-fc2491a8]{word-wrap:break-word}#main[data-v-c9e3d74e]{z-index:1000;width:100%;height:100%}.big-text[data-v-c9e3d74e]{font-weight:700}.top-container[data-v-c9e3d74e]{width:-webkit-fill-available;width:-moz-available;padding:15px 15px 0}.user-info-bg[data-v-c9e3d74e]{width:100%;height:100px}.user-info-bg-main[data-v-c9e3d74e]{width:100%;height:160px;position:absolute;background:url(https://tb2.bdstatic.com/tb/mobile/suser/img/home_card_back_6cdfca5.jpg);background-size:100%;background-repeat:no-repeat}.user-avatar-top-background[data-v-c9e3d74e]{position:absolute;width:100%;height:40%;padding:0;margin:0;border-top-left-radius:12px;border-top-right-radius:12px;background:#fff;transform:translateY(100%)}.user-info-container[data-v-c9e3d74e]{padding:0 10px}.nav-left-arrow-icon[data-v-8128767d]{align-content:center;padding-left:0!important}.nav-title[data-v-8128767d]{font-weight:700;text-align:center;padding:10px}.user-avatar[data-v-8128767d]{text-align:center;padding-bottom:20px}.user-info-item[data-v-8128767d]{display:flex;padding:10px;flex-wrap:wrap}.user-desc-key[data-v-8128767d]{width:60px;display:block}.user-end-text[data-v-8128767d]{padding:0 20px}.user-top[data-v-42d9f9f5]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-42d9f9f5]{align-content:center;padding-left:0!important}.top-title-name[data-v-42d9f9f5]{text-align:center;padding:10px}.user-main[data-v-42d9f9f5]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-42d9f9f5]{padding:0 10px}.user-container .el-scrollbar__view[data-v-42d9f9f5]{height:100%}.user-item[data-v-42d9f9f5]{margin:10px 0}.user-item-row[data-v-42d9f9f5]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-42d9f9f5]{padding:0 10px}.user-name[data-v-42d9f9f5],.user-sign-text[data-v-42d9f9f5]{text-align:left}.user-sign-text[data-v-42d9f9f5]{color:#a2a2a2}.user-follow-btn[data-v-42d9f9f5]{float:right}.user-info[data-v-42d9f9f5]{display:grid}.user-item-row-left[data-v-42d9f9f5]{display:flex}.user-item-row-right[data-v-42d9f9f5]{float:right}.user-top[data-v-205eb1c6]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-205eb1c6]{align-content:center;padding-left:0!important}.top-title-name[data-v-205eb1c6]{text-align:center;padding:10px}.user-main[data-v-205eb1c6]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-205eb1c6]{padding:0 10px}.user-container .el-scrollbar__view[data-v-205eb1c6]{height:100%}.user-item[data-v-205eb1c6]{margin:10px 0}.user-item-row[data-v-205eb1c6]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-205eb1c6]{padding:0 10px;align-content:center}.user-name[data-v-205eb1c6],.user-sign-text[data-v-205eb1c6]{text-align:left}.user-sign-text[data-v-205eb1c6]{color:#a2a2a2}.user-follow-btn[data-v-205eb1c6]{float:right}.user-info[data-v-205eb1c6]{display:grid}.user-item-row-left[data-v-205eb1c6]{display:flex}.user-item-row-right[data-v-205eb1c6]{float:right}.router-view-container[data-v-37c7691d]{padding:20px}.router-view-container .layout-item[data-v-37c7691d]{display:flex;align-items:center;gap:10px;padding:10px 0}.router-view-container .layout-icon img[data-v-37c7691d]{width:100%;height:100%}.router-view-container .layout-text[data-v-37c7691d]{flex:1}.post-list-item[data-v-449f473f]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef}.post-list-item[data-v-449f473f]:last-child{border-bottom:0}.user-info[data-v-449f473f]{display:flex;align-items:center;gap:5px}.user-time[data-v-449f473f]{font-size:.8em;color:#999}.user-avatar img[data-v-449f473f]{width:35px;height:35px;border-radius:50%}.reply-content[data-v-449f473f]{font-size:.9em;color:#4a4a4a}.post-info[data-v-449f473f]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-449f473f]{display:flex;align-items:center;height:100px;width:100%}.post-content[data-v-449f473f]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-image[data-v-449f473f]{width:100px;height:100px}.post-image img[data-v-449f473f]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-449f473f]{color:#999}.bottom-msg[data-v-449f473f]{text-align:center;color:#999;padding:10px 0}.post-list-item[data-v-ec39056c]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef}.post-list-item[data-v-ec39056c]:last-child{border-bottom:0}.user-info[data-v-ec39056c]{display:flex;align-items:center;gap:5px}.user-time[data-v-ec39056c]{font-size:.8em;color:#999}.user-avatar img[data-v-ec39056c]{width:35px;height:35px;border-radius:50%}.reply-content[data-v-ec39056c]{font-size:.9em;color:#4a4a4a}.post-info[data-v-ec39056c]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-ec39056c]{display:flex;align-items:center;height:100px;width:100%}.post-content[data-v-ec39056c]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-info[data-v-ec39056c]:has(.quote-user){flex-direction:column;align-items:start;padding:10px;gap:10px}.post-info:has(.quote-user) .post-content[data-v-ec39056c]{flex:1;align-content:center;padding:0 10px;margin-left:0;background:#fff;height:inherit}.post-image[data-v-ec39056c]{width:100px;height:100px}.post-image img[data-v-ec39056c]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-ec39056c]{color:#999}.bottom-msg[data-v-ec39056c],.bottom-msg[data-v-38eb1bd2]{text-align:center;color:#999;padding:10px 0}.user-top[data-v-3c912918]{--el-header-height: 40px;display:flex;align-items:center;position:fixed;top:0;left:0;right:0;background:#fff}.top-nav-container[data-v-3c912918]{align-items:center;width:100%}.top-title-name[data-v-3c912918]{text-align:center;position:absolute;left:50%;transform:translate(-50%)}.main[data-v-3c912918]{padding:0;margin:40px 0 0} ');
 
@@ -61,7 +61,7 @@
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
   var require_entrance_001 = __commonJS({
-    "entrance-CW-nnNLK.js"(exports, module) {
+    "entrance-C4WwLlIB.js"(exports, module) {
       var _GM_deleteValue = (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
       var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
@@ -74,29 +74,17 @@
       var _monkeyWindow = (() => window)();
       const BaiduRouter = {
 isSearch() {
-          return Boolean(
-            window.location.href.match(
-              /^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/.*/g
-            )
-          );
+          return Boolean(window.location.href.match(/^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/.*/g));
         },
 isSearchBh() {
-          return Boolean(
-            this.isSearch() && window.location.pathname.startsWith("/bh")
-          );
+          return Boolean(this.isSearch() && window.location.pathname.startsWith("/bh"));
         },
 isSearchVideo() {
-          return Boolean(
-            this.isSearch() && window.location.pathname.startsWith("/video/page")
-          );
+          return Boolean(this.isSearch() && window.location.pathname.startsWith("/video/page"));
         },
 isSearchHome() {
           return Boolean(
-            window.location.href.match(
-              /^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/$/g
-            ) || window.location.href.match(
-              /^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/(\?ref=|\?tn=|\?from=|#\/)/g
-            )
+            window.location.href.match(/^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/$/g) || window.location.href.match(/^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/(\?ref=|\?tn=|\?from=|#\/)/g)
           );
         },
 isSearchVSearch() {
@@ -115,9 +103,7 @@ isSearchWenDaTab() {
           return this.isSearchVSearch() && searchParams.has("pd", "wenda_tab");
         },
 isBaiJiaHao() {
-          return Boolean(
-            window.location.href.match(/^http(s|):\/\/baijiahao.baidu.com/g)
-          );
+          return Boolean(window.location.href.match(/^http(s|):\/\/baijiahao.baidu.com/g));
         },
 isTieBa() {
           return Boolean(
@@ -127,89 +113,62 @@ isTieBa() {
           );
         },
 isTieBaPost() {
-          return Boolean(
-            this.isTieBa() && window.location.pathname.startsWith("/p/")
-          );
+          return Boolean(this.isTieBa() && window.location.pathname.startsWith("/p/"));
         },
 isTieBaNewTopic() {
-          return Boolean(
-            this.isTieBa() && window.location.pathname.startsWith("/mo/q/newtopic/topicTemplate")
-          );
+          return Boolean(this.isTieBa() && window.location.pathname.startsWith("/mo/q/newtopic/topicTemplate"));
         },
 isTieBaHottopic() {
-          return Boolean(
-            this.isTieBa() && window.location.pathname.startsWith("/hottopic/browse/hottopic")
-          );
+          return Boolean(this.isTieBa() && window.location.pathname.startsWith("/hottopic/browse/hottopic"));
         },
 isTieBaHybrid() {
+          return Boolean(this.isTieBa() && window.location.pathname.startsWith("/mo/q/hybrid/search"));
+        },
+isTieBaHybridUserGrowBase() {
           return Boolean(
-            this.isTieBa() && window.location.pathname.startsWith("/mo/q/hybrid/search")
+            this.isTieBa() && window.location.pathname.startsWith("/mo/q/hybrid-usergrow-base/commentFocus")
           );
         },
 isTieBaCheckUrl() {
-          return Boolean(
-            this.isTieBa() && window.location.pathname.startsWith("/mo/q/checkurl")
-          );
+          return Boolean(this.isTieBa() && window.location.pathname.startsWith("/mo/q/checkurl"));
         },
 isTieBaNei() {
           return Boolean(this.isTieBa() && window.location.pathname === "/f");
         },
 isTieBaIndex() {
-          return Boolean(
-            this.isTieBa() && window.location.pathname.startsWith("/index")
-          );
+          return Boolean(this.isTieBa() && window.location.pathname.startsWith("/index"));
         },
 isTieBaHome() {
-          return Boolean(
-            this.isTieBa() && window.location.pathname.startsWith("/home/main")
-          );
+          return Boolean(this.isTieBa() && window.location.pathname.startsWith("/home/main"));
         },
 isTieBaCollectionCenter() {
           return Boolean(
-            this.isTieBa() && window.location.pathname.startsWith(
-              "/mo/q/hybrid-main-user/collectionCenter"
-            )
+            this.isTieBa() && window.location.pathname.startsWith("/mo/q/hybrid-main-user/collectionCenter")
           );
         },
 isWenKu() {
-          return Boolean(
-            window.location.href.match(/^http(s|):\/\/(wk|tanbi).baidu.com/g)
-          );
+          return Boolean(window.location.href.match(/^http(s|):\/\/(wk|tanbi).baidu.com/g));
         },
 isJingYan() {
-          return Boolean(
-            window.location.href.match(/^http(s|):\/\/jingyan.baidu.com/g)
-          );
+          return Boolean(window.location.href.match(/^http(s|):\/\/jingyan.baidu.com/g));
         },
 isBaiKe() {
-          return Boolean(
-            window.location.href.match(/^http(s|):\/\/(baike|wapbaike).baidu.com/g)
-          );
+          return Boolean(window.location.href.match(/^http(s|):\/\/(baike|wapbaike).baidu.com/g));
         },
 isBaiKeTaShuo() {
-          return Boolean(
-            this.isBaiKe() && window.location.pathname.startsWith("/tashuo")
-          );
+          return Boolean(this.isBaiKe() && window.location.pathname.startsWith("/tashuo"));
         },
 isZhiDao() {
-          return Boolean(
-            window.location.href.match(/^http(s|):\/\/zhidao.baidu.com/g)
-          );
+          return Boolean(window.location.href.match(/^http(s|):\/\/zhidao.baidu.com/g));
         },
 isFanYi() {
-          return Boolean(
-            window.location.href.match(/^http(s|):\/\/fanyi.baidu.com/g)
-          );
+          return Boolean(window.location.href.match(/^http(s|):\/\/fanyi.baidu.com/g));
         },
 isFanYiApp() {
-          return Boolean(
-            window.location.href.match(/^http(s|):\/\/fanyi-app.baidu.com/g)
-          );
+          return Boolean(window.location.href.match(/^http(s|):\/\/fanyi-app.baidu.com/g));
         },
 isImage() {
-          return Boolean(
-            window.location.href.match(/^http(s|):\/\/image.baidu.com/g)
-          );
+          return Boolean(window.location.href.match(/^http(s|):\/\/image.baidu.com/g));
         },
 isMap() {
           return Boolean(window.location.href.match(/^http(s|):\/\/map.baidu.com/g));
@@ -221,55 +180,37 @@ isXue() {
           return Boolean(window.location.href.match(/^http(s|):\/\/xue.baidu.com/g));
         },
 isAiQiCha() {
-          return Boolean(
-            window.location.href.match(/^http(s|):\/\/aiqicha.baidu.com/g)
-          );
+          return Boolean(window.location.href.match(/^http(s|):\/\/aiqicha.baidu.com/g));
         },
 isPos() {
           return Boolean(window.location.href.match(/^http(s|):\/\/pos.baidu.com/g));
         },
 isHaoKan() {
-          return Boolean(
-            window.location.href.match(/^http(s|):\/\/haokan.baidu.com/g)
-          );
+          return Boolean(window.location.href.match(/^http(s|):\/\/haokan.baidu.com/g));
         },
 isGraph() {
-          return Boolean(
-            window.location.href.match(/^http(s|):\/\/graph.baidu.com/g)
-          );
+          return Boolean(window.location.href.match(/^http(s|):\/\/graph.baidu.com/g));
         },
 isPan() {
           return Boolean(window.location.href.match(/^http(s|):\/\/pan.baidu.com/g));
         },
 isYiYan() {
-          return Boolean(
-            window.location.href.match(/^http(s|):\/\/yiyan.baidu.com/g)
-          );
+          return Boolean(window.location.href.match(/^http(s|):\/\/yiyan.baidu.com/g));
         },
 isChat() {
           return Boolean(window.location.href.match(/^http(s|):\/\/chat.baidu.com/g));
         },
 isMiniJiaoYu() {
-          return Boolean(
-            window.location.href.match(/^http(s|):\/\/uf9kyh.smartapps.cn/g)
-          );
+          return Boolean(window.location.href.match(/^http(s|):\/\/uf9kyh.smartapps.cn/g));
         },
 isEasyLearn() {
-          return Boolean(
-            window.location.href.match(/^http(s|):\/\/easylearn.baidu.com/g)
-          );
+          return Boolean(window.location.href.match(/^http(s|):\/\/easylearn.baidu.com/g));
         },
 isISite() {
-          return Boolean(
-            window.location.href.match(
-              /^http(s|):\/\/isite.baidu.com\/site\/wjz2tdly/g
-            )
-          );
+          return Boolean(window.location.href.match(/^http(s|):\/\/isite.baidu.com\/site\/wjz2tdly/g));
         },
 isAiStudy() {
-          return Boolean(
-            window.location.href.match(/^http(s|):\/\/aistudy.baidu.com/g)
-          );
+          return Boolean(window.location.href.match(/^http(s|):\/\/aistudy.baidu.com/g));
         },
 isSmartApps_Tieba() {
           return Boolean(window.location.hostname === "byokpg.smartapps.baidu.com");
@@ -281,21 +222,29 @@ isSmartApps_Tieba() {
       const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
       const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
       const PROPS_STORAGE_API = "data-storage-api";
+      const PanelSizeUtil = {
+get width() {
+          return globalThis.innerWidth;
+        },
+get height() {
+          return globalThis.innerHeight;
+        }
+      };
       const PanelUISize = {
 setting: {
           get width() {
-            if (window.innerWidth < 550) {
+            if (PanelSizeUtil.width < 550) {
               return "88vw";
-            } else if (window.innerWidth < 700) {
+            } else if (PanelSizeUtil.width < 700) {
               return "550px";
             } else {
               return "700px";
             }
           },
           get height() {
-            if (window.innerHeight < 450) {
+            if (PanelSizeUtil.height < 450) {
               return "70vh";
-            } else if (window.innerHeight < 550) {
+            } else if (PanelSizeUtil.height < 550) {
               return "450px";
             } else {
               return "550px";
@@ -304,15 +253,15 @@ setting: {
         },
 settingMiddle: {
           get width() {
-            return window.innerWidth < 350 ? "88vw" : "350px";
+            return PanelSizeUtil.width < 350 ? "88vw" : "350px";
           }
         },
 info: {
           get width() {
-            return window.innerWidth < 350 ? "88vw" : "350px";
+            return PanelSizeUtil.width < 350 ? "88vw" : "350px";
           },
           get height() {
-            return window.innerHeight < 250 ? "88vh" : "250px";
+            return PanelSizeUtil.height < 250 ? "88vh" : "250px";
           }
         }
       };
@@ -1191,7 +1140,7 @@ threshold: 1
     					align-items: center;
 					}
 					.search-result-item-description{
-						font-size: 0.8rem;
+						font-size: 0.8em;
 						color: #6c6c6c;
 					}
 					${config.searchDialogStyle ?? ""}
@@ -5832,7 +5781,7 @@ $searchResultFrom: null
         init() {
           let that = this;
           utils.waitAnyNode(
-            [".more-btn-desc", "uni-app .frs-wise-nav-bar .forum-name"],
+            [".more-btn-desc", "uni-app .frs-wise-nav-bar .forum-name", ".tbm-status .right-area"],
             1e4
           ).then(($oldMoreBtnDesc) => {
             if (!$oldMoreBtnDesc) {
@@ -5879,39 +5828,17 @@ $searchResultFrom: null
             document.body.appendChild($newSearch);
             domUtils.hide($newSearch);
             this.$ele.$searchContainer = $newSearch;
-            this.$ele.$navTopSearch = $newSearch.querySelector(
-              "#nav-top-search"
-            );
-            this.$ele.$navSearchBack = $newSearch.querySelector(
-              ".nav-search-back"
-            );
-            this.$ele.$selectWrapper = $newSearch.querySelector(
-              ".nav-search-select-wrapper"
-            ), this.$ele.$select = $newSearch.querySelector(
-              ".nav-search-select"
-            );
-            this.$ele.$searchInput = $newSearch.querySelector(
-              "#tieba-search"
-            );
-            this.$ele.$searchBtn = $newSearch.querySelector(
-              ".nav-search-btn"
-            );
-            this.$ele.$searchResultContainer = $newSearch.querySelector(
-              ".search-result"
-            );
-            this.$ele.$searchResultList = $newSearch.querySelector(
-              ".search-result-list"
-            );
-            this.$ele.$searchResultModel = $newSearch.querySelector(
-              ".search-result-model"
-            );
-            this.$ele.$searchResultFrom = $newSearch.querySelector(
-              ".search-result-from-info"
-            );
+            this.$ele.$navTopSearch = $newSearch.querySelector("#nav-top-search");
+            this.$ele.$navSearchBack = $newSearch.querySelector(".nav-search-back");
+            this.$ele.$selectWrapper = $newSearch.querySelector(".nav-search-select-wrapper"), this.$ele.$select = $newSearch.querySelector(".nav-search-select");
+            this.$ele.$searchInput = $newSearch.querySelector("#tieba-search");
+            this.$ele.$searchBtn = $newSearch.querySelector(".nav-search-btn");
+            this.$ele.$searchResultContainer = $newSearch.querySelector(".search-result");
+            this.$ele.$searchResultList = $newSearch.querySelector(".search-result-list");
+            this.$ele.$searchResultModel = $newSearch.querySelector(".search-result-model");
+            this.$ele.$searchResultFrom = $newSearch.querySelector(".search-result-from-info");
             this.$context.loading.initLoadingView(true);
-            this.$ele.$searchResultList.appendChild(
-              this.$context.loading.getLoadingViewElement()
-            );
+            this.$ele.$searchResultList.appendChild(this.$context.loading.getLoadingViewElement());
             let $searchResultModelItem = this.$ele.$searchResultModel.querySelector(
               `.search-result-model-item[data-model="${this.$data.searchModel}"]`
             );
@@ -5940,9 +5867,7 @@ $searchResultFrom: null
                 return;
               }
               if (Panel.getValue("baidu_tieba_use_hybrid_search")) {
-                window.location.href = TiebaUrlHandler.getHybridSearch(
-                  this.getSearchText()
-                );
+                window.location.href = TiebaUrlHandler.getHybridSearch(this.getSearchText());
                 return;
               }
               this.$data.currentSearchText = searchText;
@@ -5952,16 +5877,12 @@ $searchResultFrom: null
             domUtils.on(this.$ele.$searchBtn, "click", () => {
               searchEvent();
             });
-            domUtils.listenKeyboard(
-              this.$ele.$searchInput,
-              "keypress",
-              (keyName) => {
-                if (keyName !== "Enter") {
-                  return;
-                }
-                searchEvent();
+            domUtils.listenKeyboard(this.$ele.$searchInput, "keypress", (keyName) => {
+              if (keyName !== "Enter") {
+                return;
               }
-            );
+              searchEvent();
+            });
             domUtils.on(this.$ele.$navSearchBack, "click", () => {
               this.quitSearchMode();
               this.removeScrollEvent();
@@ -5979,22 +5900,17 @@ $searchResultFrom: null
                 log.error("未知选择模式");
               }
             });
-            domUtils.on(
-              this.$ele.$searchResultModel,
-              "click",
-              ".search-result-model-item",
-              (event) => {
-                let $click = event.target;
-                log.success("设置当前搜索结果模式：" + $click.innerText);
-                this.$ele.$searchResultModel.querySelectorAll(".search-result-model-item").forEach((ele) => ele.removeAttribute("data-active"));
-                $click.setAttribute("data-active", "true");
-                let searchModelText = $click.getAttribute("data-model");
-                let searchModel = parseInt(searchModelText);
-                this.$data.searchModel = searchModel;
-                this.clearOldSearchResult();
-                this.postsPageSearch();
-              }
-            );
+            domUtils.on(this.$ele.$searchResultModel, "click", ".search-result-model-item", (event) => {
+              let $click = event.target;
+              log.success("设置当前搜索结果模式：" + $click.innerText);
+              this.$ele.$searchResultModel.querySelectorAll(".search-result-model-item").forEach((ele) => ele.removeAttribute("data-active"));
+              $click.setAttribute("data-active", "true");
+              let searchModelText = $click.getAttribute("data-model");
+              let searchModel = parseInt(searchModelText);
+              this.$data.searchModel = searchModel;
+              this.clearOldSearchResult();
+              this.postsPageSearch();
+            });
             Panel.execMenuOnce("baidu_tieba-execByUrlSearchParams", () => {
               this.execByUrlSearchParams();
             });
@@ -6316,9 +6232,7 @@ async getSearchResult(qw = "", pn = 0, sm = 1, kw = "") {
             log.success(`搜索内容gbk编码转换: ${originText} => ${qw}`);
             url = `https://tieba.baidu.com/f/search/res?isnew=1&kw=${kw}&qw=${qw}&un=&rn=10&pn=${pn}&sd=&ed=&sm=${param_sm}`;
           }
-          log.success(
-            `当前请求第 ${new URLSearchParams(new URL(url).search).get("pn")} 页`
-          );
+          log.success(`当前请求第 ${new URLSearchParams(new URL(url).search).get("pn")} 页`);
           let searchResponse = await httpx.get(url, {
             fetch: true,
             headers: {
@@ -6342,9 +6256,7 @@ async getSearchResult(qw = "", pn = 0, sm = 1, kw = "") {
                 error: "获取内容为空，可能触发了百度校验，请刷新网页再试"
               };
             }
-            if (responseText.match("wappass.baidu.com") || responseText.match(
-              "https://seccaptcha.baidu.com/v1/webapi/verint/svcp.html"
-            )) {
+            if (responseText.match("wappass.baidu.com") || responseText.match("https://seccaptcha.baidu.com/v1/webapi/verint/svcp.html")) {
               let wappassUrl = responseText?.match(/href="(.*?)"/)?.[1];
               log.error("触发百度校验: " + wappassUrl);
               window.location.href = wappassUrl;
@@ -6389,9 +6301,7 @@ async getSearchResult(qw = "", pn = 0, sm = 1, kw = "") {
             let postItemAuthorHomeUrl = "https://tieba.baidu.com/home/main?un=" + this.$context.gbkEncoder.encode(postItemAuthor);
             let postItemTime = $s_post.querySelector(".p_date").textContent;
             let imgList = [];
-            $s_post.querySelectorAll("img.p_pic").forEach(
-              (pictureImg) => imgList.push(pictureImg.getAttribute("original") || pictureImg.src)
-            );
+            $s_post.querySelectorAll("img.p_pic").forEach((pictureImg) => imgList.push(pictureImg.getAttribute("original") || pictureImg.src));
             result.push({
               url: postItemUrl,
               title: postItemTitle,
@@ -6418,11 +6328,7 @@ async getSearchResult(qw = "", pn = 0, sm = 1, kw = "") {
 getSearchItemElement(data) {
           let searchText = this.$data.currentSearchText;
           let time = data["time"];
-          let newTime = utils.getDaysDifference(
-            utils.formatToTimeStamp(time),
-            void 0,
-            "auto"
-          );
+          let newTime = utils.getDaysDifference(utils.formatToTimeStamp(time), void 0, "auto");
           if (newTime.endsWith("小时") || newTime.endsWith("分钟") || newTime.endsWith("秒")) {
             time = newTime + "前";
           }
@@ -6471,21 +6377,11 @@ getSearchItemElement(data) {
           let $userNameElement = $resultElement.querySelector(
             ".search-result-media-body-author-name"
           );
-          let $mediaElement = $resultElement.querySelector(
-            ".search-result-media"
-          );
-          let $titleElement = $resultElement.querySelector(
-            ".search-result-title"
-          );
-          let $contentElement = $resultElement.querySelector(
-            ".search-result-content"
-          );
-          let $contentSpanElement = $resultElement.querySelector(
-            ".search-result-content-span"
-          );
-          let $bottomToolBarElement = $resultElement.querySelector(
-            ".search-result-bottom-toolbar"
-          );
+          let $mediaElement = $resultElement.querySelector(".search-result-media");
+          let $titleElement = $resultElement.querySelector(".search-result-title");
+          let $contentElement = $resultElement.querySelector(".search-result-content");
+          let $contentSpanElement = $resultElement.querySelector(".search-result-content-span");
+          let $bottomToolBarElement = $resultElement.querySelector(".search-result-bottom-toolbar");
           if (Panel.getValue("baidu_tieba_search_opt_user_info")) {
             TieBaApi.getUserHomeInfo({
               un: data["author"]
@@ -6493,9 +6389,7 @@ getSearchItemElement(data) {
               if (!userHomeInfo) {
                 return;
               }
-              $userAvatarElement.src = TiebaUrlHandler.getUserAvatar(
-                userHomeInfo["portrait"]
-              );
+              $userAvatarElement.src = TiebaUrlHandler.getUserAvatar(userHomeInfo["portrait"]);
               $userNameElement.innerText = userHomeInfo["show_nickname"];
             });
           }
@@ -6520,14 +6414,10 @@ getSearchItemElement(data) {
               }
             );
           });
-          $resultElement.querySelectorAll(
-            ".search-result-content img.BDE_Image"
-          ).forEach(($BDE_Image) => {
-            let originalImageIndex = data["media"].findIndex(
-              (src) => {
-                return src.includes($BDE_Image.src);
-              }
-            );
+          $resultElement.querySelectorAll(".search-result-content img.BDE_Image").forEach(($BDE_Image) => {
+            let originalImageIndex = data["media"].findIndex((src) => {
+              return src.includes($BDE_Image.src);
+            });
             if (originalImageIndex !== -1) {
               let originalImage = data["media"][originalImageIndex];
               $BDE_Image.src = originalImage;
@@ -6547,9 +6437,7 @@ getSearchItemElement(data) {
             );
           });
           $contentSpanElement.appendChild(imageContainerElement);
-          $resultElement.querySelectorAll(
-            ".search-result-content img.BDE_Smiley"
-          ).forEach(($BDE_Smiley) => {
+          $resultElement.querySelectorAll(".search-result-content img.BDE_Smiley").forEach(($BDE_Smiley) => {
             if (!$BDE_Smiley.src.startsWith("http://static.tieba.baidu.com")) {
               return;
             }
@@ -6562,21 +6450,13 @@ addScrollEvent() {
           log.success("添加滚动事件");
           this.$flag.isSetScrollEvent = true;
           this.$context.lockFunc = new utils.LockFunction(this.scrollEvent, this, 20);
-          domUtils.on(
-            this.$ele.$searchResultList,
-            "scroll",
-            this.$context.lockFunc.run
-          );
+          domUtils.on(this.$ele.$searchResultList, "scroll", this.$context.lockFunc.run);
         },
 removeScrollEvent() {
           log.error("移除滚动事件");
           this.$context.loading.hide();
           if (this.$context.lockFunc?.run) {
-            domUtils.off(
-              this.$ele.$searchResultList,
-              "scroll",
-              this.$context.lockFunc.run
-            );
+            domUtils.off(this.$ele.$searchResultList, "scroll", this.$context.lockFunc.run);
           }
           this.$context.lockFunc = null;
           this.$flag.isSetScrollEvent = false;
@@ -6722,9 +6602,7 @@ execByUrlSearchParams() {
                 $searchResultModelItem.setAttribute("data-active", "true");
               }
             } else {
-              log.error(
-                `未知searchParams的 ${KEY_searchModel} 参数值：${searchModel}`
-              );
+              log.error(`未知searchParams的 ${KEY_searchModel} 参数值：${searchModel}`);
             }
           }
           this.$ele.$moreBtnDesc.click();
@@ -9792,11 +9670,7 @@ async showView(filterCallBack) {
                 type: "primary",
                 text: "添加",
                 callback: async (event) => {
-                  this.showEditView(
-                    false,
-                    await this.option.getAddData(),
-                    $popsConfirm.$shadowRoot
-                  );
+                  this.showEditView(false, await this.option.getAddData(), $popsConfirm.$shadowRoot);
                 }
               },
               close: {
@@ -9815,9 +9689,7 @@ async showView(filterCallBack) {
                   }
                   let getAllRuleElement = () => {
                     return Array.from(
-                      $popsConfirm.$shadowRoot.querySelectorAll(
-                        ".rule-view-container .rule-item"
-                      )
+                      $popsConfirm.$shadowRoot.querySelectorAll(".rule-view-container .rule-item")
                     );
                   };
                   let $button = event.target.closest(".pops-confirm-btn").querySelector(".pops-confirm-btn-cancel span");
@@ -9946,22 +9818,20 @@ async showView(filterCallBack) {
           let changeButtonText = false;
           for (let index = 0; index < allData.length; index++) {
             let item = allData[index];
-            let $ruleItemList = await this.appendRuleItemElement(
-              $popsConfirm.$shadowRoot,
-              item
-            );
-            let flag = typeof filterCallBack === "function" ? filterCallBack(item) : true;
-            if (!flag) {
+            let $ruleItemList = await this.appendRuleItemElement($popsConfirm.$shadowRoot, item);
+            let isNotFilterFlag = true;
+            if (typeof filterCallBack === "function") {
+              isNotFilterFlag = filterCallBack(item);
+            } else if (typeof filterCallBack === "number" && !isNaN(filterCallBack)) {
+              isNotFilterFlag = await this.option.bottomControls?.filter?.option[filterCallBack]?.filterCallBack(item) ?? isNotFilterFlag;
+            }
+            if (!isNotFilterFlag) {
               changeButtonText = true;
-              $ruleItemList.forEach(($el) => {
-                domUtils.hide($el, false);
-              });
+              domUtils.hide($ruleItemList, false);
             }
           }
           if (changeButtonText) {
-            let $button = $popsConfirm.$shadowRoot.querySelector(
-              ".pops-confirm-btn-cancel span"
-            );
+            let $button = $popsConfirm.$shadowRoot.querySelector(".pops-confirm-btn-cancel span");
             domUtils.text($button, "取消过滤");
           }
         }
@@ -10010,24 +9880,13 @@ showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDa
               }
             },
             onsubmit: async ($form, data) => {
-              let result = await this.option.itemControls.edit.onsubmit(
-                $form,
-                isEdit,
-                data
-              );
+              let result = await this.option.itemControls.edit.onsubmit($form, isEdit, data);
               if (result.success) {
                 if (isEdit) {
                   Qmsg.success("修改成功");
-                  $parentShadowRoot && await this.updateRuleItemElement(
-                    result.data,
-                    $editRuleItemElement,
-                    $parentShadowRoot
-                  );
+                  $parentShadowRoot && await this.updateRuleItemElement(result.data, $editRuleItemElement, $parentShadowRoot);
                 } else {
-                  $parentShadowRoot && await this.appendRuleItemElement(
-                    $parentShadowRoot,
-                    result.data
-                  );
+                  $parentShadowRoot && await this.appendRuleItemElement($parentShadowRoot, result.data);
                 }
               } else {
                 if (isEdit) {
@@ -10043,9 +9902,7 @@ showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDa
           editView.showView();
         }
 parseViewElement($shadowRoot) {
-          let $container = $shadowRoot.querySelector(
-            ".rule-view-container"
-          );
+          let $container = $shadowRoot.querySelector(".rule-view-container");
           let $deleteBtn = $shadowRoot.querySelector(
             ".pops-confirm-btn button.pops-confirm-btn-other"
           );
@@ -10055,20 +9912,12 @@ $deleteBtn
           };
         }
 parseRuleItemElement($ruleElement) {
-          let $enable = $ruleElement.querySelector(
-            ".rule-controls-enable"
-          );
+          let $enable = $ruleElement.querySelector(".rule-controls-enable");
           let $enableSwitch = $enable.querySelector(".pops-panel-switch");
-          let $enableSwitchInput = $enable.querySelector(
-            ".pops-panel-switch__input"
-          );
-          let $enableSwitchCore = $enable.querySelector(
-            ".pops-panel-switch__core"
-          );
+          let $enableSwitchInput = $enable.querySelector(".pops-panel-switch__input");
+          let $enableSwitchCore = $enable.querySelector(".pops-panel-switch__core");
           let $edit = $ruleElement.querySelector(".rule-controls-edit");
-          let $delete = $ruleElement.querySelector(
-            ".rule-controls-delete"
-          );
+          let $delete = $ruleElement.querySelector(".rule-controls-delete");
           return {
 $enable,
 $enableSwitch,
@@ -10108,14 +9957,7 @@ async createRuleItemElement(data, $shadowRoot) {
           });
           Reflect.set($ruleItem, "data-rule", data);
           let switchCheckedClassName = "pops-panel-switch-is-checked";
-          const {
-            $enable,
-            $enableSwitch,
-            $enableSwitchCore,
-            $enableSwitchInput,
-            $delete,
-            $edit
-          } = this.parseRuleItemElement($ruleItem);
+          const { $enable, $enableSwitch, $enableSwitchCore, $enableSwitchInput, $delete, $edit } = this.parseRuleItemElement($ruleItem);
           if (this.option.itemControls.enable.enable) {
             domUtils.on($enableSwitchCore, "click", async (event) => {
               let isChecked = false;
@@ -10163,9 +10005,7 @@ async createRuleItemElement(data, $shadowRoot) {
                     enable: true,
                     callback: async (popsEvent) => {
                       log.success("删除数据");
-                      let flag = await this.option.itemControls.delete.deleteCallBack(
-                        data
-                      );
+                      let flag = await this.option.itemControls.delete.deleteCallBack(data);
                       if (flag) {
                         Qmsg.success("成功删除该数据");
                         $ruleItem.remove();
@@ -25105,6 +24945,48 @@ repairCardClickJump() {
           );
         }
       };
+      const TiebaHybridUsergrowBaseCommentFocus = {
+        init() {
+          Panel.onceExec("tieba-hybrid-usergrow-base-block-ads", () => {
+            return this.blockAds();
+          });
+          domUtils.ready(() => {
+            Panel.onceExec("tieba-hybrid-usergrow-base-prevent_openTiebaApp", () => {
+              this.prevent_openTiebaApp();
+            });
+          });
+        },
+blockAds() {
+          return CommonUtil.addBlockCSS(
+".tbm-status .fix-guide-btn",
+".tbm-status .relate-list"
+          );
+        },
+prevent_openTiebaApp() {
+          log.info(`阻止打开app`);
+          VueUtils.waitVuePropToSet(".tbm-status", {
+            check(vueInst, $el) {
+              return Array.isArray(vueInst?.$children) && vueInst?.$children?.length > 0;
+            },
+            set(vueInst, $el) {
+              let disable_openTiebaApp = ($children) => {
+                if (!Array.isArray($children)) return;
+                for (const $childrenItem of $children) {
+                  if (typeof $childrenItem.openTiebaApp === "function") {
+                    $childrenItem.openTiebaApp = () => {
+                      log.success(`成功阻止打开app`);
+                    };
+                  }
+                  if (Array.isArray($childrenItem.$children)) {
+                    disable_openTiebaApp($childrenItem.$children);
+                  }
+                }
+              };
+              disable_openTiebaApp(vueInst.$children);
+            }
+          });
+        }
+      };
       const BaiduTieBa = {
         init() {
           addStyle$1(TieBaShieldCSS);
@@ -25147,10 +25029,7 @@ repairCardClickJump() {
                 log.info(`Router: 魔改自定义的消息页面`);
                 TiebaMsgTab.init();
               } else {
-                utils.waitNode(
-                  ".tb-index-navbar .navbar-box li:nth-child(2)",
-                  1e4
-                ).then(($navbarBox) => {
+                utils.waitNode(".tb-index-navbar .navbar-box li:nth-child(2)", 1e4).then(($navbarBox) => {
                   if (!$navbarBox) {
                     return;
                   }
@@ -25186,6 +25065,9 @@ repairCardClickJump() {
           } else if (BaiduRouter.isTieBaNei()) {
             log.success("Router: 吧内");
             TiebaBaNei.init();
+          } else if (BaiduRouter.isTieBaHybridUserGrowBase()) {
+            log.success(`Router: 评论聚合`);
+            TiebaHybridUsergrowBaseCommentFocus.init();
           } else if (BaiduRouter.isTieBaHome()) {
             log.success("Router: 用户主页");
             TiebaHome.init();
@@ -25209,11 +25091,7 @@ repairCardClickJump() {
           });
         },
 initTiebaData() {
-          utils.waitAnyNode([
-            ".tb-mobile-viewport",
-            ".main-page-wrap",
-            ".forum-name .name"
-          ]).then(async () => {
+          utils.waitAnyNode([".tb-mobile-viewport", ".main-page-wrap", ".forum-name .name"]).then(async () => {
             let interval = setInterval(() => {
               TiebaData.forumName = TiebaCore.getCurrentForumName();
               TiebaData.forumId = TiebaCore.getCurrentForumId();
@@ -25240,22 +25118,20 @@ addTopLeftMenu() {
 		`
           );
           utils.waitAnyNode(
-            [
-              ".nav-bar-top .logo-wrapper",
-              "uni-app .frs-wise-nav-bar .logo-wrapper"
-            ],
+            [".nav-bar-top .logo-wrapper", "uni-app .frs-wise-nav-bar .logo-wrapper", ".tbm-status .left-area"],
             1e4
           ).then(($ele) => {
             if (!$ele) {
               return;
             }
+            let $parent = domUtils.parent($ele);
             $ele.outerHTML =
 `
 				<div class="logo-wrapper">
 					<svg t="1718595396255" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3147" width="24" height="24"><path d="M128 298.666667h768a42.666667 42.666667 0 0 0 0-85.333334H128a42.666667 42.666667 0 0 0 0 85.333334z m768 170.666666H128a42.666667 42.666667 0 0 0 0 85.333334h768a42.666667 42.666667 0 0 0 0-85.333334z m0 256H128a42.666667 42.666667 0 0 0 0 85.333334h768a42.666667 42.666667 0 0 0 0-85.333334z" p-id="3148"></path></svg>
 				</div>
 				`;
-            let $logoWrapper = $(".nav-bar-top .logo-wrapper") || $("uni-app .frs-wise-nav-bar .logo-wrapper");
+            let $logoWrapper = $parent.querySelector(".logo-wrapper");
             function getHelloText() {
               var myDate = new Date();
               var i = myDate.getHours();
@@ -25319,11 +25195,15 @@ addTopLeftMenu() {
                 }
               });
             }
-            domUtils.on($logoWrapper, "click", () => {
-              let $drawer = __pops.drawer({
-                title: {
-                  enable: true,
-                  text: (
+            domUtils.on(
+              $logoWrapper,
+              "click",
+              (evt) => {
+                utils.preventEvent(evt);
+                let $drawer = __pops.drawer({
+                  title: {
+                    enable: true,
+                    text: (
 `
 							<div class="tieba_account_exit">
 								<a href="javascript:;">
@@ -25344,36 +25224,36 @@ addTopLeftMenu() {
                                 <p class="tieba_user_nologin_tip_bottom">登录后更精彩...</p>
                             </a>
 							`
-                  ),
-                  html: true,
-                  style: ""
-                },
-                content: {
-                  text: '<ul class="tieba-menu-list"></ul>',
-                  html: true,
-                  style: ""
-                },
-                btn: {
-                  ok: {
-                    enable: false
+                    ),
+                    html: true,
+                    style: ""
                   },
-                  cancel: {
-                    enable: false
+                  content: {
+                    text: '<ul class="tieba-menu-list"></ul>',
+                    html: true,
+                    style: ""
                   },
-                  close: {
-                    enable: false
-                  }
-                },
-                only: true,
-                size: "66%",
-                direction: "left",
-                mask: {
-                  enable: true,
-                  clickEvent: {
-                    toClose: true
-                  }
-                },
-                style: (
+                  btn: {
+                    ok: {
+                      enable: false
+                    },
+                    cancel: {
+                      enable: false
+                    },
+                    close: {
+                      enable: false
+                    }
+                  },
+                  only: true,
+                  size: "66%",
+                  direction: "left",
+                  mask: {
+                    enable: true,
+                    clickEvent: {
+                      toClose: true
+                    }
+                  },
+                  style: (
 `
 						.pops{
 							--avatar-size: 60px;
@@ -25468,62 +25348,58 @@ addTopLeftMenu() {
 							white-space: nowrap;
 						}
 						`
-                )
-              });
-              let isLogin = false;
-              let $tieba_user = $drawer.$shadowRoot.querySelector(".tieba_user");
-              let $menuList = $drawer.$shadowRoot.querySelector(
-                ".tieba-menu-list"
-              );
-              let $avatar = $drawer.$shadowRoot.querySelector(
-                ".tieba_account_avatar"
-              );
-              $drawer.$shadowRoot.querySelector(
-                ".tieba-user-info"
-              );
-              let $tieba_user_nologin_tip_center = $drawer.$shadowRoot.querySelector(
-                ".tieba_user_nologin_tip_center"
-              );
-              let $tieba_user_nologin_tip_bottom = $drawer.$shadowRoot.querySelector(
-                ".tieba_user_nologin_tip_bottom"
-              );
-              menuListInfo.forEach((menuItemInfo) => {
-                let $menuItem = document.createElement("li");
-                $menuItem.classList.add("tieba-menu-item");
-                $menuItem.setAttribute("data-to", menuItemInfo["data-to"]);
-                $menuItem.innerHTML = `
+                  )
+                });
+                let isLogin = false;
+                let $tieba_user = $drawer.$shadowRoot.querySelector(".tieba_user");
+                let $menuList = $drawer.$shadowRoot.querySelector(".tieba-menu-list");
+                let $avatar = $drawer.$shadowRoot.querySelector(".tieba_account_avatar");
+                $drawer.$shadowRoot.querySelector(".tieba-user-info");
+                let $tieba_user_nologin_tip_center = $drawer.$shadowRoot.querySelector(
+                  ".tieba_user_nologin_tip_center"
+                );
+                let $tieba_user_nologin_tip_bottom = $drawer.$shadowRoot.querySelector(
+                  ".tieba_user_nologin_tip_bottom"
+                );
+                menuListInfo.forEach((menuItemInfo) => {
+                  let $menuItem = document.createElement("li");
+                  $menuItem.classList.add("tieba-menu-item");
+                  $menuItem.setAttribute("data-to", menuItemInfo["data-to"]);
+                  $menuItem.innerHTML = `
 						<i class="tieba-menu-icon">
 							${menuItemInfo.icon}
 						</i>
 						<p class="teba-menu-text">${menuItemInfo.text}</p>
 						`;
-                domUtils.on($menuItem, "click", (event) => {
-                  menuItemInfo.clickCallBack(event);
+                  domUtils.on($menuItem, "click", (event) => {
+                    menuItemInfo.clickCallBack(event);
+                  });
+                  $menuList.appendChild($menuItem);
                 });
-                $menuList.appendChild($menuItem);
-              });
-              TiebaSmallAppApi.userInfo(false).then((userInfo) => {
-                if (!userInfo) {
-                  return;
-                }
-                $avatar.src = TiebaUrlHandler.getUserAvatar("null");
-                if (typeof userInfo.user?.is_login === "boolean" && !userInfo.user?.is_login) ;
-                else {
-                  isLogin = true;
-                  let showName = userInfo.user.show_nickname || userInfo.user.name_show || userInfo.user.user_nickname || userInfo.user.user_name;
-                  let portrait = userInfo.user.portrait;
-                  $avatar.src = TiebaUrlHandler.getUserAvatar(portrait);
-                  $tieba_user_nologin_tip_center.innerText = showName;
-                  domUtils.hide($tieba_user_nologin_tip_bottom);
-                }
-              });
-              domUtils.on($tieba_user, "click", () => {
-                if (isLogin) {
-                  return;
-                }
-                window.open(TiebaUrlHandler.getLoginUrl(), "_blank");
-              });
-            });
+                TiebaSmallAppApi.userInfo(false).then((userInfo) => {
+                  if (!userInfo) {
+                    return;
+                  }
+                  $avatar.src = TiebaUrlHandler.getUserAvatar("null");
+                  if (typeof userInfo.user?.is_login === "boolean" && !userInfo.user?.is_login) ;
+                  else {
+                    isLogin = true;
+                    let showName = userInfo.user.show_nickname || userInfo.user.name_show || userInfo.user.user_nickname || userInfo.user.user_name;
+                    let portrait = userInfo.user.portrait;
+                    $avatar.src = TiebaUrlHandler.getUserAvatar(portrait);
+                    $tieba_user_nologin_tip_center.innerText = showName;
+                    domUtils.hide($tieba_user_nologin_tip_bottom);
+                  }
+                });
+                domUtils.on($tieba_user, "click", () => {
+                  if (isLogin) {
+                    return;
+                  }
+                  window.open(TiebaUrlHandler.getLoginUrl(), "_blank");
+                });
+              },
+              { capture: true }
+            );
           });
         }
       };

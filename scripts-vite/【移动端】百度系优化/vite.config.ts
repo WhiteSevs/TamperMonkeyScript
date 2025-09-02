@@ -8,8 +8,8 @@ const pkg = Utils.getPackageJSON();
 
 let userConfig = await GenerateUserConfig({
 	__dirname: __dirname,
-	isVueProject: true,
 	monkeyOption: {
+		isVueProject: true,
 		userscript: {
 			name: "【移动端】百度系优化",
 			// GM_xmlhttpRequest允许访问的域
@@ -51,10 +51,7 @@ let userConfig = await GenerateUserConfig({
 			},
 			// import资源文件的映射
 			externalResource: {
-				"viewerjs/dist/viewer.css": cdn.jsdelivrFastly(
-					"Viewer",
-					"dist/viewer.min.css"
-				),
+				"viewerjs/dist/viewer.css": cdn.jsdelivrFastly("Viewer", "dist/viewer.min.css"),
 			},
 		},
 	},
