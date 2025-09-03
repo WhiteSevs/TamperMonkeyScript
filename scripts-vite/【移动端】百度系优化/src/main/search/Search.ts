@@ -40,8 +40,8 @@ const BaiduSearch = {
 			// 视频页
 			BaiduSearchVideo.init();
 		} else {
-			BaiduSearchHook.init();
 			/* 默认的百度搜索 */
+			BaiduSearchHook.init();
 			addStyle(SearchShieldCSS);
 			BaiduHandleResultItem.addCSDNFlagCSS();
 			log.info("插入CSS规则");
@@ -157,7 +157,6 @@ const BaiduSearch = {
 		};
 		/**
 		 * 搜索结果点击事件
-		 * @param event
 		 */
 		const globalResultClickEvent = (
 			event: PointerEvent | MouseEvent | Event,
@@ -166,6 +165,7 @@ const BaiduSearch = {
 			let url: null | string = null;
 			let $click = event.composedPath()[0] as HTMLElement;
 			// .c-result.result
+			// 搜索结果项
 			let $result = $selectorTarget;
 
 			if ($click) {
@@ -188,6 +188,14 @@ const BaiduSearch = {
 				let isFold = CommonUtil.findParentNode($click, ".cos-fold-switch");
 				if (isFold) {
 					log.warn(["该点击来自折叠，不点击跳转", { event, $click, $result }]);
+					return;
+				}
+				// 右下角的更多按钮
+				let isRightBottomMoreBtn =
+					CommonUtil.findParentNode($click, ".cosc-feedback") ||
+					CommonUtil.findParentNode($click, `[data-tool*='"feedback"'][data-tool*='您遇到了什么问题']`);
+				if (isRightBottomMoreBtn) {
+					log.warn(["该点击来自右下角的更多按钮，不点击跳转", { event, $click, $result }]);
 					return;
 				}
 				if ($click.closest("a")) {

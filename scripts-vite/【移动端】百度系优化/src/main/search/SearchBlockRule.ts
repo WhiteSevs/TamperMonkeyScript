@@ -1,11 +1,7 @@
 import { log } from "@/env";
 import { Panel } from "@components/setting/panel";
 
-type BaiDuSearchRuleMode =
-	| "match-href"
-	| "match-attr"
-	| "contains-child"
-	| "remove-child";
+type BaiDuSearchRuleMode = "match-href" | "match-attr" | "contains-child" | "remove-child";
 interface BaiDuSearchRuleDetail {
 	mode: BaiDuSearchRuleMode;
 	matchText?: string | RegExp;
@@ -47,6 +43,8 @@ match-href##^http(s|)://b2b.baidu.com
 match-attr##srcid##sp_purc_san
 // 全网热卖
 match-attr##srcid##sp_purc_atom
+// 百度本地生活
+match-attr##srcid##jy_bdb_in_store_service_2nd
 
 
 // 搜索聚合
@@ -121,10 +119,7 @@ match-attr##srcid##sp_purc_atom
 					attr: attrName,
 					matchText: new RegExp(attrValueMatch),
 				};
-			} else if (
-				ruleNameLowerCase === "contains-child" ||
-				ruleNameLowerCase === "remove-child"
-			) {
+			} else if (ruleNameLowerCase === "contains-child" || ruleNameLowerCase === "remove-child") {
 				return {
 					rule: ruleItem,
 					mode: ruleNameLowerCase as BaiDuSearchRuleMode,
@@ -174,18 +169,13 @@ match-attr##srcid##sp_purc_atom
 	handleCustomRule(element: HTMLDivElement, url?: string) {
 		function handleOneRule(ruleItem: BaiduSearchRuleConfig) {
 			if (ruleItem.mode === "match-href") {
-				if (
-					typeof url === "string" &&
-					url.match(ruleItem.matchText as RegExp)
-				) {
+				if (typeof url === "string" && url.match(ruleItem.matchText as RegExp)) {
 					return true;
 				}
 			} else if (ruleItem.mode === "match-attr") {
 				if (
 					element.hasAttribute(ruleItem.attr as string) &&
-					element
-						.getAttribute(ruleItem.attr as string)
-						?.match(ruleItem.matchText as RegExp)
+					element.getAttribute(ruleItem.attr as string)?.match(ruleItem.matchText as RegExp)
 				) {
 					return true;
 				}

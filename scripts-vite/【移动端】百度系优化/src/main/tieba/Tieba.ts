@@ -140,7 +140,7 @@ export const BaiduTieBa = {
 			log.success("Router: 吧内");
 			TiebaBaNei.init();
 		} else if (BaiduRouter.isTieBaHybridUserGrowBase()) {
-			log.success(`Router: 评论聚合`);
+			log.success(`Router: 评论聚合页`);
 			TiebaHybridUsergrowBaseCommentFocus.init();
 		} else if (BaiduRouter.isTieBaHome()) {
 			/* 主页 */
@@ -201,7 +201,7 @@ export const BaiduTieBa = {
 			display: -webkit-flex;
 			display: -ms-flexbox;
 			display: flex;
-			margin-left: 0.13rem;
+			margin: 0px 0.13rem;
 		}	
 		`);
 		utils

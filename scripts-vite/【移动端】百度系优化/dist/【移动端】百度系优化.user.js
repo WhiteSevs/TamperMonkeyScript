@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.2
+// @version      2025.9.3
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -61,7 +61,7 @@
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
   var require_entrance_001 = __commonJS({
-    "entrance-C4WwLlIB.js"(exports, module) {
+    "entrance-BifYLpSZ.js"(exports, module) {
       var _GM_deleteValue = (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
       var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
@@ -2618,6 +2618,8 @@ match-href##^http(s|)://b2b.baidu.com
 match-attr##srcid##sp_purc_san
 // 全网热卖
 match-attr##srcid##sp_purc_atom
+// 百度本地生活
+match-attr##srcid##jy_bdb_in_store_service_2nd
 
 
 // 搜索聚合
@@ -4209,12 +4211,9 @@ addFloatButton() {
               this.$el.$input.focus();
               this.$el.$input.select();
             }, 150);
-            Panel.execMenu(
-              "baidu-search-global-searchToolBar-gesture-back",
-              () => {
-                this.$data.gestureBack.enterGestureBackMode();
-              }
-            );
+            Panel.execMenu("baidu-search-global-searchToolBar-gesture-back", () => {
+              this.$data.gestureBack.enterGestureBackMode();
+            });
           });
           addStyle$1(
 `
@@ -4276,20 +4275,12 @@ addToolBar() {
           });
           this.$el.$toolbarContainer = $container;
           this.$el.$toolbar = $container.querySelector(".search-toolbar");
-          this.$el.$input = $container.querySelector(
-            ".search-toolbar-input"
-          );
+          this.$el.$input = $container.querySelector(".search-toolbar-input");
           this.$el.$form = $container.querySelector(".search-form");
           this.$el.$suggestion = $container.querySelector(".search-suggestion");
-          this.$el.$back = $container.querySelector(
-            ".search-toolbar-back"
-          );
-          this.$el.$empty = $container.querySelector(
-            ".search-toolbar-empty"
-          );
-          this.$el.$submit = $container.querySelector(
-            ".search-form-submit"
-          );
+          this.$el.$back = $container.querySelector(".search-toolbar-back");
+          this.$el.$empty = $container.querySelector(".search-toolbar-empty");
+          this.$el.$submit = $container.querySelector(".search-form-submit");
           shadowRoot.appendChild($container);
           this.hideToolBar();
           document.body.appendChild($toolbarInner);
@@ -4318,10 +4309,18 @@ async getSuggestionText(text) {
             callback: "baidusug",
             wd: text
           };
+          let allowApiHostName = ["m.baidu.com", "www.baidu.com"];
+          let apiHostName = "m.baidu.com";
+          let useFetch = true;
+          if (allowApiHostName.includes(window.location.hostname)) {
+            apiHostName = window.location.hostname;
+          } else {
+            useFetch = false;
+          }
           let response = await httpx.get(
-            `https://m.baidu.com/sugrec?${utils.toSearchParamsStr(searchParamData)}`,
+            `https://${apiHostName}/sugrec?${utils.toSearchParamsStr(searchParamData)}`,
             {
-              fetch: true,
+              fetch: useFetch,
               allowInterceptConfig: false
             }
           );
@@ -4358,20 +4357,8 @@ setInputEvent() {
                 return;
               }
               let suggestionList = await this.getSuggestionText(searchText);
-              if (!suggestionList) {
-                return;
-              }
-              if (suggestionList.length) {
+              if (Array.isArray(suggestionList) && suggestionList.length) {
                 this.clearSuggestion();
-                if (searchText.trim() !== "") {
-                  this.addSuggestionItem(
-                    this.createSuggestionItem({
-                      searchText,
-                      suggestionText: searchText,
-                      isHistory: true
-                    })
-                  );
-                }
                 suggestionList.forEach((item) => {
                   if (item.type === "sug") {
                     this.addSuggestionItem(
@@ -4398,12 +4385,9 @@ setBackEvent() {
             utils.preventEvent(event);
             log.success("点击返回");
             this.hideToolBar();
-            Panel.execMenu(
-              "baidu-search-global-searchToolBar-gesture-back",
-              () => {
-                this.$data.gestureBack.quitGestureBackMode();
-              }
-            );
+            Panel.execMenu("baidu-search-global-searchToolBar-gesture-back", () => {
+              this.$data.gestureBack.quitGestureBackMode();
+            });
           });
         },
 setEmptyEvent() {
@@ -4443,16 +4427,10 @@ createSuggestionItem(config) {
             `
             )
           });
-          let $leftIcon = $suggestionItem.querySelector(
-            ".search-suggestion-item-left-icon"
-          );
+          let $leftIcon = $suggestionItem.querySelector(".search-suggestion-item-left-icon");
           let $leftIconI = $leftIcon.querySelector(".search-icon");
-          let $text = $suggestionItem.querySelector(
-            ".search-suggestion-item-text"
-          );
-          let $rightIcon = $suggestionItem.querySelector(
-            ".search-suggestion-item-right-icon"
-          );
+          let $text = $suggestionItem.querySelector(".search-suggestion-item-text");
+          let $rightIcon = $suggestionItem.querySelector(".search-suggestion-item-right-icon");
           if (config.isHistory) {
             $leftIconI.innerHTML =
 `
@@ -4464,10 +4442,7 @@ createSuggestionItem(config) {
             </svg>
             `;
           }
-          let searchText = config.suggestionText.replaceAll(
-            config.searchText,
-            `<em>${config.searchText}</em>`
-          );
+          let searchText = config.suggestionText.replaceAll(config.searchText, `<em>${config.searchText}</em>`);
           $text.innerHTML = searchText;
           domUtils.on($leftIcon, "click", (event) => {
             utils.preventEvent(event);
@@ -4601,6 +4576,11 @@ openResultBlank() {
               let isFold = CommonUtil.findParentNode($click, ".cos-fold-switch");
               if (isFold) {
                 log.warn(["该点击来自折叠，不点击跳转", { event, $click, $result }]);
+                return;
+              }
+              let isRightBottomMoreBtn = CommonUtil.findParentNode($click, ".cosc-feedback") || CommonUtil.findParentNode($click, `[data-tool*='"feedback"'][data-tool*='您遇到了什么问题']`);
+              if (isRightBottomMoreBtn) {
+                log.warn(["该点击来自右下角的更多按钮，不点击跳转", { event, $click, $result }]);
                 return;
               }
               if ($click.closest("a")) {
@@ -5399,19 +5379,15 @@ clientCallMasquerade() {
             "t_w_pop_slient_",
             "auto_slient_wakeup_",
             "index_home_thread_guide-",
-            "search_w_pop_slient-"
+            "search_w_pop_slient-",
+            "q_w_pop_slient_",
+            "q_w_slient_",
+            "undefined_"
           ];
           masqueradeParamsList.forEach((masqueradeParam) => {
-            window.localStorage.setItem(
-              masqueradeParam + utils.formatTime(void 0, "yyyy-MM-dd"),
-              "1"
-            );
+            window.localStorage.setItem(masqueradeParam + utils.formatTime(void 0, "yyyy-MM-dd"), "1");
           });
-          let masqueradeParamsList2 = [
-            "auto_slient_wake_",
-            "f_w_silencePopup_",
-            "f_w_silence_"
-          ];
+          let masqueradeParamsList2 = ["auto_slient_wake_", "f_w_silencePopup_", "f_w_silence_"];
           masqueradeParamsList2.forEach((masqueradeParam) => {
             window.localStorage.setItem(
               masqueradeParam + utils.formatTime(void 0, "yyyy-MM-dd"),
@@ -5432,18 +5408,12 @@ clientCallMasquerade() {
           }
         },
 getLandlordInfo() {
-          return $(
-            ".main-page-wrap .user-line-wrapper.thread-user-line"
-          )?.__vue__?.$props?.author;
+          return $(".main-page-wrap .user-line-wrapper.thread-user-line")?.__vue__?.$props?.author;
         },
 getCurrentForumName() {
-          let tbMobileViewport = VueUtils.getVue(
-            $(".tb-mobile-viewport")
-          )?.forum?.name;
+          let tbMobileViewport = VueUtils.getVue($(".tb-mobile-viewport"))?.forum?.name;
           let mainPageWrap = VueUtils.getVue($(".main-page-wrap"))?.$children[0]?.$children[0]?.forum?.name;
-          let tbForum = VueUtils.getVue(
-            $(".tb-mobile-viewport .tb-forum")
-          )?.forum?.name;
+          let tbForum = VueUtils.getVue($(".tb-mobile-viewport .tb-forum"))?.forum?.name;
           let appView = VueUtils.getVue($(".app-view"))?.forum?.name;
           let $uniAppPostNavBarForumName = $("uni-app .nav-bar .forum-name") || $("uni-app .forum-name");
           let uniAppPostNavBarForumName = $uniAppPostNavBarForumName?.textContent || "";
@@ -5451,9 +5421,7 @@ getCurrentForumName() {
           return tbMobileViewport || mainPageWrap || tbForum || appView || uniAppPostNavBarForumName;
         },
 getCurrentForumId() {
-          let tbMobileViewport = VueUtils.getVue(
-            $(".tb-mobile-viewport")
-          )?.forum?.id;
+          let tbMobileViewport = VueUtils.getVue($(".tb-mobile-viewport"))?.forum?.id;
           let appView = VueUtils.getVue($(".app-view"))?.forum?.id;
           return tbMobileViewport || appView;
         },
@@ -5537,9 +5505,7 @@ addScrollTopButton() {
           window.addEventListener("scroll", checkScroll.run);
         },
 addAuthorClickEvent() {
-          utils.waitNode(
-            "div.main-page-wrap .main-thread-content .user-line"
-          ).then((element) => {
+          utils.waitNode("div.main-page-wrap .main-thread-content .user-line").then((element) => {
             log.info("添加顶部的楼主头像/名字的点击事件-直接进入楼主的个人主页");
             domUtils.on(element, "click", function() {
               let vueInfo = VueUtils.getVue(element.parentElement) || VueUtils.getVue(element.closest(".user-line-wrapper"));
@@ -5574,10 +5540,7 @@ autoJumpToMainHost() {
             return;
           }
           let replacePattern = new RegExp(`^${window.location.origin}`);
-          window.location.href = window.location.href.replace(
-            replacePattern,
-            "https://tieba.baidu.com"
-          );
+          window.location.href = window.location.href.replace(replacePattern, "https://tieba.baidu.com");
         }
       };
       const TiebaSearchSuggestion = {
@@ -25066,7 +25029,7 @@ prevent_openTiebaApp() {
             log.success("Router: 吧内");
             TiebaBaNei.init();
           } else if (BaiduRouter.isTieBaHybridUserGrowBase()) {
-            log.success(`Router: 评论聚合`);
+            log.success(`Router: 评论聚合页`);
             TiebaHybridUsergrowBaseCommentFocus.init();
           } else if (BaiduRouter.isTieBaHome()) {
             log.success("Router: 用户主页");
@@ -25113,7 +25076,7 @@ addTopLeftMenu() {
 			display: -webkit-flex;
 			display: -ms-flexbox;
 			display: flex;
-			margin-left: 0.13rem;
+			margin: 0px 0.13rem;
 		}	
 		`
           );
@@ -25964,196 +25927,6 @@ shieldRightVideoAction() {
           return CommonUtil.addBlockCSS(".video-author-info-mask .new-video-action");
         }
       };
-      const BaiduGraphApi = {
-async uploadImage(event) {
-          let uploadImageFile = event.target?.files?.[0];
-          if (!uploadImageFile) {
-            alert("似乎并未正确上传图片？");
-            return;
-          }
-          let $input = event.target;
-          let formData = new FormData();
-          formData.append("image", uploadImageFile);
-          formData.append("tn", "pc");
-          formData.append("from", "pc");
-          formData.append("image_source", "PC_UPLOAD_FILE");
-          formData.append("sdkParams", "undefined");
-          let postResp = await httpx.post({
-            url: `https://graph.baidu.com/upload?uptime=${Date.now()}`,
-            data: formData,
-            fetch: true,
-            responseType: "json",
-            headers: {
-              "User-Agent": utils.getRandomPCUA(),
-              Origin: "https://graph.baidu.com",
-              Referer: "https://graph.baidu.com/pcpage/index?tpl_from=pc",
-              Accept: "*/*"
-            }
-          });
-          $input.value = "";
-          log.success(postResp);
-          if (!postResp.status || postResp.data.status !== 200) {
-            alert("图片上传失败，详情请看控制台");
-            return;
-          }
-          let imageJSONData = utils.toJSON(postResp.data.responseText);
-          log.success(imageJSONData);
-          if (imageJSONData["status"] !== 0) {
-            alert("图片API返回信息中status不为0，详情请看控制台");
-          }
-          if (window.location.pathname === "/s") {
-            window.location.href = imageJSONData["data"]["url"];
-          } else {
-            window.open(imageJSONData["data"]["url"], "_blank");
-          }
-        }
-      };
-      const GraphShieldCSS = "#app section.vf-home-booth div.vf-w-button.vf-home-booth-camera,\r\n#viewport .graph-imagecut-banner-invoke,\r\n/* 往下滑动右下角的搜索图标按钮 */\r\n#app .vf-home-camera {\r\n  display: none !important;\r\n}\r\n";
-      const BaiduGraph = {
-        init() {
-          addStyle$1(GraphShieldCSS);
-          log.info("插入CSS规则");
-          Panel.execMenu("baidu-graph-repairHomeRecognitionPicture", () => {
-            this.repairHomeRecognitionPicture();
-          });
-          Panel.execMenu("baidu-graph-baidu-graph-repairSearchButton", () => {
-            this.repairSearchButton();
-          });
-          Panel.execMenu("baidu-graph-baidu-graph-repairSearchNoResult", () => {
-            this.repairSearchNoResult();
-          });
-          Panel.execMenu("baidu-graph-baidu-graph-repairRetakeButton", () => {
-            this.repairRetakeButton();
-          });
-          domUtils.ready(() => {
-            this.addNewUploadImageButton();
-          });
-        },
-addNewUploadImageButton() {
-          log.info("添加上传图片按钮（不可见的）");
-          let uploadImageInput = domUtils.createElement(
-            "input",
-            {
-              id: "whitesev-upload-image"
-            },
-            {
-              type: "file",
-              accept: "image/*",
-              style: "display: none"
-            }
-          );
-          domUtils.on(uploadImageInput, "change", BaiduGraphApi.uploadImage);
-          domUtils.append(document.body, uploadImageInput);
-        },
-repairHomeRecognitionPicture() {
-          utils.waitNode(
-            "#app section.vf-home-booth div.vf-w-button.vf-home-booth-camera"
-          ).then(($vfHomeBoothCamera) => {
-            log.success("重构主页的识图一下");
-            let uploadImageDivDOM = domUtils.createElement("div", {
-              className: "vf-home-booth-camera"
-            });
-            domUtils.css(uploadImageDivDOM, {
-              position: "absolute",
-              bottom: "-.42rem",
-              left: "50%",
-              width: "2.2rem",
-              height: ".74rem",
-              "background-image": "url(https://imgn0.bdstatic.com/image/mobile/n/static/wiseik/static/img/camera_5e72a3a.png)",
-              "background-repeat": "no-repeat",
-              "background-size": "cover",
-              "background-position": "top",
-              "-webkit-transform": "translateX(-50%)",
-              "-ms-transform": "translateX(-50%)",
-              transform: "translateX(-50%)",
-              "-webkit-tap-highlight-color": "transparent"
-            });
-            domUtils.on(uploadImageDivDOM, "click", function() {
-              $("input#whitesev-upload-image").click();
-            });
-            domUtils.after($vfHomeBoothCamera, uploadImageDivDOM);
-          });
-        },
-repairSearchButton() {
-          utils.waitNode(".vf-home.view-page").then(($viewPage) => {
-            log.success("重构主页的往下滑动右下角出现的搜索图标按钮");
-            let divHomeCamera = domUtils.createElement("div", {
-              className: "whitesev-vf-home-camera"
-            });
-            domUtils.css(divHomeCamera, {
-              display: "none",
-              position: "fixed",
-              right: ".1rem",
-              bottom: ".48rem",
-              height: ".74rem",
-              width: ".74rem",
-              "border-radius": "3px",
-              background: "url(https://imgn0.bdstatic.com/image/mobile/n/static/wiseik/static/img/cameraBtn_c19ac1e.png) no-repeat 50%/100% auto",
-              "text-align": "center"
-            });
-            domUtils.on(divHomeCamera, "click", function() {
-              $("input#whitesev-upload-image").click();
-            });
-            domUtils.append($viewPage, divHomeCamera);
-            utils.watchObject(
-              $viewPage.__vue__,
-              "showBottomCamera",
-              () => {
-                return false;
-              },
-              (_value_) => {
-                if (_value_) {
-                  domUtils.show(divHomeCamera);
-                } else {
-                  domUtils.hide(divHomeCamera);
-                }
-              }
-            );
-          });
-        },
-repairSearchNoResult() {
-          utils.waitNode("#app .graph-noresult-text1").then(() => {
-            log.info("判断网页参数是否包含tpl_from=pc");
-            if (window.location.search.endsWith("&tpl_from=pc")) {
-              window.location.href = window.location.href.replace(
-                /&tpl_from=pc$/gi,
-                ""
-              );
-            }
-          });
-        },
-repairRetakeButton() {
-          utils.waitNode("#viewport .graph-imagecut-banner-ctn").then(($imageCutBanner) => {
-            log.info("在已搜索出相关结果的界面中的重构【重拍】按钮");
-            let retakeDivDOM = domUtils.createElement("div", {
-              className: "retake-image",
-              textContent: "重拍"
-            });
-            domUtils.css(retakeDivDOM, {
-              position: "absolute",
-              top: "50%",
-              right: "0",
-              padding: "0 .17rem",
-              "font-size": "16px",
-              "line-height": "60px",
-              color: "#000",
-              "-webkit-transform": "translateY(-50%)",
-              transform: "translateY(-50%)"
-            });
-            domUtils.on(retakeDivDOM, "click", function(event) {
-              utils.preventEvent(event);
-              $("input#whitesev-upload-image").click();
-              domUtils.trigger(
-                $("input#whitesev-upload-image"),
-                "click"
-              );
-            });
-            setTimeout(() => {
-              domUtils.append($imageCutBanner, retakeDivDOM);
-            }, 2e3);
-          });
-        }
-      };
       const PanShieldCSS = "/* 失败页底部广告推荐 */\r\ndiv.share-error-ad,\r\n/* 左侧导航栏底部下载百度网盘APP横栏 */\r\n#app div.download-app,\r\n/* 失败页-小飞机送惊喜 */\r\ndiv.errorWrap div.share-plane,\r\n/* 保存到网盘右上角的领红包图标 */\r\nimg.sharelist-savebutton-hb-tip {\r\n  display: none !important;\r\n}\r\n";
       const BaiduPan = {
         init() {
@@ -26849,7 +26622,6 @@ removeAds() {
             BaiduHaoKan.init();
           } else if (BaiduRouter.isGraph()) {
             log.success("Router: 百度识图");
-            BaiduGraph.init();
           } else if (BaiduRouter.isPan()) {
             log.success("Router: 百度网盘");
             BaiduPan.init();
@@ -28921,51 +28693,6 @@ UISwitch(
           }
         ]
       };
-      const PanelGraphSettingUI = {
-        id: "baidu-panel-config-graph",
-        title: "识图",
-        headerTitle: "百度识图<br />graph.baidu.com",
-        isDefault() {
-          return BaiduRouter.isGraph();
-        },
-        scrollToDefaultView: true,
-        forms: [
-          {
-            text: "功能",
-            type: "forms",
-            forms: [
-              UISwitch(
-                "【重构】识图一下",
-                "baidu-graph-repairHomeRecognitionPicture",
-                true,
-                void 0,
-                "重构主页的识图一下，就可以直接点击上传图片进行搜索（Api已失效）"
-              ),
-              UISwitch(
-                "【重构】搜索按钮",
-                "baidu-graph-repairSearchButton",
-                true,
-                void 0,
-                "重构主页的往下滑动右下角出现的搜索图标按钮"
-              ),
-              UISwitch(
-                "【重构】重拍",
-                "baidu-graph-repairRetakeButton",
-                true,
-                void 0,
-                "在已搜索出相关结果的界面中的重构【重拍】按钮"
-              ),
-              UISwitch(
-                "修复搜索无结果",
-                "baidu-graph-repairSearchNoResult",
-                true,
-                void 0,
-                "如果出现识图没结果，重新识别，可能是因为后面参数多了tpl_from=pc的问题"
-              )
-            ]
-          }
-        ]
-      };
       const PanelYiYanSettingUI = {
         id: "baidu-panel-config-yiyan",
         title: "文心一言",
@@ -29268,7 +28995,7 @@ PanelBaiKeSettingUI,
 PanelMapSettingUI,
 PanelAiQiChaSettingUI,
 PanelHaoKanSettingUI,
-          PanelGraphSettingUI,
+
 PanelYiYanSettingUI,
           PanelChatSettingUI,
           PanelEasyLearnSettingUI,

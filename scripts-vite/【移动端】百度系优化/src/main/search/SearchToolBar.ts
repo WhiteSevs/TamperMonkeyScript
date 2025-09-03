@@ -60,13 +60,10 @@ export const BaiduSearchToolBar = {
 				this.$el.$input.select();
 			}, 150);
 
-			Panel.execMenu(
-				"baidu-search-global-searchToolBar-gesture-back",
-				() => {
-					// 手势返回
-					this.$data.gestureBack.enterGestureBackMode();
-				}
-			);
+			Panel.execMenu("baidu-search-global-searchToolBar-gesture-back", () => {
+				// 手势返回
+				this.$data.gestureBack.enterGestureBackMode();
+			});
 		});
 
 		addStyle(/*css*/ `
@@ -132,23 +129,13 @@ export const BaiduSearchToolBar = {
             `,
 		});
 		this.$el.$toolbarContainer = $container;
-		this.$el.$toolbar =
-			$container.querySelector<HTMLDivElement>(".search-toolbar")!;
-		this.$el.$input = $container.querySelector<HTMLInputElement>(
-			".search-toolbar-input"
-		)!;
+		this.$el.$toolbar = $container.querySelector<HTMLDivElement>(".search-toolbar")!;
+		this.$el.$input = $container.querySelector<HTMLInputElement>(".search-toolbar-input")!;
 		this.$el.$form = $container.querySelector<HTMLFormElement>(".search-form")!;
-		this.$el.$suggestion =
-			$container.querySelector<HTMLDivElement>(".search-suggestion")!;
-		this.$el.$back = $container.querySelector<HTMLDivElement>(
-			".search-toolbar-back"
-		)!;
-		this.$el.$empty = $container.querySelector<HTMLDivElement>(
-			".search-toolbar-empty"
-		)!;
-		this.$el.$submit = $container.querySelector<HTMLButtonElement>(
-			".search-form-submit"
-		)!;
+		this.$el.$suggestion = $container.querySelector<HTMLDivElement>(".search-suggestion")!;
+		this.$el.$back = $container.querySelector<HTMLDivElement>(".search-toolbar-back")!;
+		this.$el.$empty = $container.querySelector<HTMLDivElement>(".search-toolbar-empty")!;
+		this.$el.$submit = $container.querySelector<HTMLButtonElement>(".search-form-submit")!;
 
 		shadowRoot.appendChild($container);
 		// 添加到页面
@@ -192,10 +179,18 @@ export const BaiduSearchToolBar = {
 			callback: "baidusug",
 			wd: text,
 		};
+		let allowApiHostName = ["m.baidu.com", "www.baidu.com"];
+		let apiHostName = "m.baidu.com";
+		let useFetch = true;
+		if (allowApiHostName.includes(window.location.hostname)) {
+			apiHostName = window.location.hostname;
+		} else {
+			useFetch = false;
+		}
 		let response = await httpx.get(
-			`https://m.baidu.com/sugrec?${utils.toSearchParamsStr(searchParamData)}`,
+			`https://${apiHostName}/sugrec?${utils.toSearchParamsStr(searchParamData)}`,
 			{
-				fetch: true,
+				fetch: useFetch,
 				allowInterceptConfig: false,
 			}
 		);
@@ -203,9 +198,7 @@ export const BaiduSearchToolBar = {
 			log.error("获取百度搜索建议失败", response);
 			return;
 		}
-		let suggestion = response.data.responseText
-			.replace(/^baidusug\(/, "")
-			.replace(/\)$/, "");
+		let suggestion = response.data.responseText.replace(/^baidusug\(/, "").replace(/\)$/, "");
 		let suggestionJSON = utils.toJSON(suggestion) as {
 			g: {
 				q: string;
@@ -253,21 +246,18 @@ export const BaiduSearchToolBar = {
 					return;
 				}
 				let suggestionList = await this.getSuggestionText(searchText);
-				if (!suggestionList) {
-					return;
-				}
-				if (suggestionList.length) {
+				if (Array.isArray(suggestionList) && suggestionList.length) {
 					// 清空搜索结果
 					this.clearSuggestion();
-					if (searchText.trim() !== "") {
-						this.addSuggestionItem(
-							this.createSuggestionItem({
-								searchText: searchText,
-								suggestionText: searchText,
-								isHistory: true,
-							})
-						);
-					}
+					// if (searchText.trim() !== "") {
+					// 	this.addSuggestionItem(
+					// 		this.createSuggestionItem({
+					// 			searchText: searchText,
+					// 			suggestionText: searchText,
+					// 			isHistory: true,
+					// 		})
+					// 	);
+					// }
 					suggestionList.forEach((item) => {
 						if (item.type === "sug") {
 							this.addSuggestionItem(
@@ -303,13 +293,10 @@ export const BaiduSearchToolBar = {
 			utils.preventEvent(event);
 			log.success("点击返回");
 			this.hideToolBar();
-			Panel.execMenu(
-				"baidu-search-global-searchToolBar-gesture-back",
-				() => {
-					// 退出手势模式
-					this.$data.gestureBack.quitGestureBackMode();
-				}
-			);
+			Panel.execMenu("baidu-search-global-searchToolBar-gesture-back", () => {
+				// 退出手势模式
+				this.$data.gestureBack.quitGestureBackMode();
+			});
 		});
 	},
 	/**
@@ -363,16 +350,10 @@ export const BaiduSearchToolBar = {
             </div>
             `,
 		});
-		let $leftIcon = $suggestionItem.querySelector<HTMLDivElement>(
-			".search-suggestion-item-left-icon"
-		)!;
+		let $leftIcon = $suggestionItem.querySelector<HTMLDivElement>(".search-suggestion-item-left-icon")!;
 		let $leftIconI = $leftIcon.querySelector<HTMLElement>(".search-icon")!;
-		let $text = $suggestionItem.querySelector<HTMLDivElement>(
-			".search-suggestion-item-text"
-		)!;
-		let $rightIcon = $suggestionItem.querySelector<HTMLDivElement>(
-			".search-suggestion-item-right-icon"
-		)!;
+		let $text = $suggestionItem.querySelector<HTMLDivElement>(".search-suggestion-item-text")!;
+		let $rightIcon = $suggestionItem.querySelector<HTMLDivElement>(".search-suggestion-item-right-icon")!;
 		if (config.isHistory) {
 			// 切换图标为历史
 			$leftIconI.innerHTML = /*html*/ `
@@ -385,10 +366,7 @@ export const BaiduSearchToolBar = {
             `;
 		}
 		// 处理搜索关键字灰色
-		let searchText = config.suggestionText.replaceAll(
-			config.searchText,
-			`<em>${config.searchText}</em>`
-		);
+		let searchText = config.suggestionText.replaceAll(config.searchText, `<em>${config.searchText}</em>`);
 		$text.innerHTML = searchText;
 		DOMUtils.on($leftIcon, "click", (event) => {
 			utils.preventEvent(event);

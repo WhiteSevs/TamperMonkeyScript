@@ -21,11 +21,7 @@ export const TiebaCore = {
 		let originGetItem = unsafeWindow.localStorage.getItem;
 		/* 劫持localStorage */
 		unsafeWindow.localStorage.getItem = function (key) {
-			if (
-				key === "p_w_app_call" ||
-				key === "p_w_launchappcall" ||
-				key === "loginWakeModal"
-			) {
+			if (key === "p_w_app_call" || key === "p_w_launchappcall" || key === "loginWakeModal") {
 				log.info("伪装客户端已调用 " + key);
 				return JSON.stringify({
 					value: 1,
@@ -59,18 +55,14 @@ export const TiebaCore = {
 			"auto_slient_wakeup_",
 			"index_home_thread_guide-",
 			"search_w_pop_slient-",
+			"q_w_pop_slient_",
+			"q_w_slient_",
+			"undefined_",
 		];
 		masqueradeParamsList.forEach((masqueradeParam) => {
-			window.localStorage.setItem(
-				masqueradeParam + utils.formatTime(void 0, "yyyy-MM-dd"),
-				"1"
-			);
+			window.localStorage.setItem(masqueradeParam + utils.formatTime(void 0, "yyyy-MM-dd"), "1");
 		});
-		let masqueradeParamsList2 = [
-			"auto_slient_wake_",
-			"f_w_silencePopup_",
-			"f_w_silence_",
-		];
+		let masqueradeParamsList2 = ["auto_slient_wake_", "f_w_silencePopup_", "f_w_silence_"];
 		masqueradeParamsList2.forEach((masqueradeParam) => {
 			window.localStorage.setItem(
 				masqueradeParam + utils.formatTime(void 0, "yyyy-MM-dd"),
@@ -83,10 +75,7 @@ export const TiebaCore = {
 		for (let index = 0; index < window.localStorage.length; index++) {
 			let keyName = window.localStorage.key(index) as string;
 			[...masqueradeParamsList, ...masqueradeParamsList2].forEach((item) => {
-				if (
-					keyName.startsWith(item) &&
-					!keyName.endsWith(utils.formatTime(void 0, "yyyy-MM-dd"))
-				) {
+				if (keyName.startsWith(item) && !keyName.endsWith(utils.formatTime(void 0, "yyyy-MM-dd"))) {
 					log.success("删除过期键 ===> " + keyName);
 					window.localStorage.removeItem(keyName);
 				}
@@ -97,47 +86,30 @@ export const TiebaCore = {
 	 * 获取本帖楼主的信息
 	 */
 	getLandlordInfo() {
-		return (
-			$(
-				".main-page-wrap .user-line-wrapper.thread-user-line"
-			) as NestedObjectWithToString
-		)?.__vue__?.$props?.author as LandlordInfo;
+		return ($(".main-page-wrap .user-line-wrapper.thread-user-line") as NestedObjectWithToString)?.__vue__
+			?.$props?.author as LandlordInfo;
 	},
 	/**
 	 * 获取当前的贴吧名字
 	 */
 	getCurrentForumName(): string {
-		let tbMobileViewport = VueUtils.getVue(
-			$<HTMLElement>(".tb-mobile-viewport")!
-		)?.forum?.name;
-		let mainPageWrap = VueUtils.getVue($<HTMLElement>(".main-page-wrap")!)
-			?.$children[0]?.$children[0]?.forum?.name;
-		let tbForum = VueUtils.getVue(
-			$<HTMLElement>(".tb-mobile-viewport .tb-forum")!
-		)?.forum?.name;
+		let tbMobileViewport = VueUtils.getVue($<HTMLElement>(".tb-mobile-viewport")!)?.forum?.name;
+		let mainPageWrap = VueUtils.getVue($<HTMLElement>(".main-page-wrap")!)?.$children[0]?.$children[0]?.forum
+			?.name;
+		let tbForum = VueUtils.getVue($<HTMLElement>(".tb-mobile-viewport .tb-forum")!)?.forum?.name;
 		let appView = VueUtils.getVue($<HTMLElement>(".app-view")!)?.forum?.name;
 		let $uniAppPostNavBarForumName =
-			$<HTMLDivElement>("uni-app .nav-bar .forum-name") ||
-			$<HTMLElement>("uni-app .forum-name");
+			$<HTMLDivElement>("uni-app .nav-bar .forum-name") || $<HTMLElement>("uni-app .forum-name");
 
-		let uniAppPostNavBarForumName =
-			$uniAppPostNavBarForumName?.textContent || "";
+		let uniAppPostNavBarForumName = $uniAppPostNavBarForumName?.textContent || "";
 		uniAppPostNavBarForumName = uniAppPostNavBarForumName.replace(/吧$/g, "");
-		return (
-			tbMobileViewport ||
-			mainPageWrap ||
-			tbForum ||
-			appView ||
-			uniAppPostNavBarForumName
-		);
+		return tbMobileViewport || mainPageWrap || tbForum || appView || uniAppPostNavBarForumName;
 	},
 	/**
 	 * 获取当前的贴吧的id
 	 */
 	getCurrentForumId(): number {
-		let tbMobileViewport = VueUtils.getVue(
-			$<HTMLElement>(".tb-mobile-viewport")!
-		)?.forum?.id;
+		let tbMobileViewport = VueUtils.getVue($<HTMLElement>(".tb-mobile-viewport")!)?.forum?.id;
 		let appView = VueUtils.getVue($<HTMLElement>(".app-view")!)?.forum?.id;
 		return tbMobileViewport || appView;
 	},
@@ -211,13 +183,9 @@ export const TiebaCore = {
 		};
 		let checkScroll = new utils.LockFunction(
 			function () {
-				let scrollTop =
-					window.document.documentElement.scrollTop ||
-					window.document.body.scrollTop;
+				let scrollTop = window.document.documentElement.scrollTop || window.document.body.scrollTop;
 				let scrollHeight =
-					window.innerHeight ||
-					document.documentElement.clientHeight ||
-					window.document.body.clientHeight;
+					window.innerHeight || document.documentElement.clientHeight || window.document.body.clientHeight;
 				if (scrollTop > scrollHeight * 2) {
 					/* 页面中不存在该按钮元素才显示 */
 					if (!isInsertButton) {
@@ -237,25 +205,20 @@ export const TiebaCore = {
 	 * 添加顶部的楼主头像/名字的点击事件-直接进入楼主的个人主页
 	 */
 	addAuthorClickEvent() {
-		utils
-			.waitNode<HTMLDivElement>(
-				"div.main-page-wrap .main-thread-content .user-line"
-			)
-			.then((element) => {
-				log.info("添加顶部的楼主头像/名字的点击事件-直接进入楼主的个人主页");
-				DOMUtils.on(element, "click", function () {
-					let vueInfo =
-						VueUtils.getVue(element.parentElement) ||
-						VueUtils.getVue(element.closest(".user-line-wrapper"));
-					let authorInfo = vueInfo?.author;
-					if (!authorInfo) {
-						log.error(["获取贴主信息失败", vueInfo]);
-						return;
-					}
-					log.success(["贴主信息", authorInfo]);
-					window.open(`/home/main?id=${authorInfo.portrait}`);
-				});
+		utils.waitNode<HTMLDivElement>("div.main-page-wrap .main-thread-content .user-line").then((element) => {
+			log.info("添加顶部的楼主头像/名字的点击事件-直接进入楼主的个人主页");
+			DOMUtils.on(element, "click", function () {
+				let vueInfo =
+					VueUtils.getVue(element.parentElement) || VueUtils.getVue(element.closest(".user-line-wrapper"));
+				let authorInfo = vueInfo?.author;
+				if (!authorInfo) {
+					log.error(["获取贴主信息失败", vueInfo]);
+					return;
+				}
+				log.success(["贴主信息", authorInfo]);
+				window.open(`/home/main?id=${authorInfo.portrait}`);
 			});
+		});
 	},
 	/**
 	 * 检测骨架屏
@@ -285,9 +248,6 @@ export const TiebaCore = {
 			return;
 		}
 		let replacePattern = new RegExp(`^${window.location.origin}`);
-		window.location.href = window.location.href.replace(
-			replacePattern,
-			"https://tieba.baidu.com"
-		);
+		window.location.href = window.location.href.replace(replacePattern, "https://tieba.baidu.com");
 	},
 };

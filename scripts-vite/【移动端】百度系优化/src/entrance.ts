@@ -53,7 +53,7 @@ import { PanelPanSettingUI } from "./setting/view/pan/PanelPanSettingUI";
 		PanelAiQiChaSettingUI,
 		// PanelPosSettingUI,
 		PanelHaoKanSettingUI,
-		PanelGraphSettingUI,
+		// PanelGraphSettingUI,
 		// PanelPanSettingUI,
 		PanelYiYanSettingUI,
 		PanelChatSettingUI,

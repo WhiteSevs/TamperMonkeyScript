@@ -5,6 +5,7 @@ import GraphShieldCSS from "./shield.css?raw";
 
 const BaiduGraph = {
 	init() {
+		return;
 		addStyle(GraphShieldCSS);
 		log.info("插入CSS规则");
 		Panel.execMenu("baidu-graph-repairHomeRecognitionPicture", () => {
@@ -48,9 +49,7 @@ const BaiduGraph = {
 	 */
 	repairHomeRecognitionPicture() {
 		utils
-			.waitNode<HTMLDivElement>(
-				"#app section.vf-home-booth div.vf-w-button.vf-home-booth-camera"
-			)
+			.waitNode<HTMLDivElement>("#app section.vf-home-booth div.vf-w-button.vf-home-booth-camera")
 			.then(($vfHomeBoothCamera) => {
 				log.success("重构主页的识图一下");
 				let uploadImageDivDOM = DOMUtils.createElement("div", {
@@ -127,10 +126,7 @@ const BaiduGraph = {
 		utils.waitNode<HTMLElement>("#app .graph-noresult-text1").then(() => {
 			log.info("判断网页参数是否包含tpl_from=pc");
 			if (window.location.search.endsWith("&tpl_from=pc")) {
-				window.location.href = window.location.href.replace(
-					/&tpl_from=pc$/gi,
-					""
-				);
+				window.location.href = window.location.href.replace(/&tpl_from=pc$/gi, "");
 			}
 		});
 	},
@@ -138,37 +134,32 @@ const BaiduGraph = {
 	 * 在已搜索出相关结果的界面中的重构【重拍】按钮
 	 */
 	repairRetakeButton() {
-		utils
-			.waitNode<HTMLDivElement>("#viewport .graph-imagecut-banner-ctn")
-			.then(($imageCutBanner) => {
-				log.info("在已搜索出相关结果的界面中的重构【重拍】按钮");
-				let retakeDivDOM = DOMUtils.createElement("div", {
-					className: "retake-image",
-					textContent: "重拍",
-				});
-				DOMUtils.css(retakeDivDOM, {
-					position: "absolute",
-					top: "50%",
-					right: "0",
-					padding: "0 .17rem",
-					"font-size": "16px",
-					"line-height": "60px",
-					color: "#000",
-					"-webkit-transform": "translateY(-50%)",
-					transform: "translateY(-50%)",
-				});
-				DOMUtils.on(retakeDivDOM, "click", function (event) {
-					utils.preventEvent(event);
-					($("input#whitesev-upload-image") as HTMLInputElement).click();
-					DOMUtils.trigger(
-						$("input#whitesev-upload-image") as HTMLInputElement,
-						"click"
-					);
-				});
-				setTimeout(() => {
-					DOMUtils.append($imageCutBanner, retakeDivDOM);
-				}, 2000);
+		utils.waitNode<HTMLDivElement>("#viewport .graph-imagecut-banner-ctn").then(($imageCutBanner) => {
+			log.info("在已搜索出相关结果的界面中的重构【重拍】按钮");
+			let retakeDivDOM = DOMUtils.createElement("div", {
+				className: "retake-image",
+				textContent: "重拍",
 			});
+			DOMUtils.css(retakeDivDOM, {
+				position: "absolute",
+				top: "50%",
+				right: "0",
+				padding: "0 .17rem",
+				"font-size": "16px",
+				"line-height": "60px",
+				color: "#000",
+				"-webkit-transform": "translateY(-50%)",
+				transform: "translateY(-50%)",
+			});
+			DOMUtils.on(retakeDivDOM, "click", function (event) {
+				utils.preventEvent(event);
+				($("input#whitesev-upload-image") as HTMLInputElement).click();
+				DOMUtils.trigger($("input#whitesev-upload-image") as HTMLInputElement, "click");
+			});
+			setTimeout(() => {
+				DOMUtils.append($imageCutBanner, retakeDivDOM);
+			}, 2000);
+		});
 	},
 };
 
