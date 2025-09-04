@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.27
+// @version      2025.9.4
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@79fb4d854f1e2cdf606339b0dac18d50104e2ebe/lib/js-watermark/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.4.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js
@@ -407,21 +407,29 @@ clickEvent: {
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const PROPS_STORAGE_API = "data-storage-api";
+  const PanelSizeUtil = {
+get width() {
+      return globalThis.innerWidth;
+    },
+get height() {
+      return globalThis.innerHeight;
+    }
+  };
   const PanelUISize = {
 setting: {
       get width() {
-        if (window.innerWidth < 550) {
+        if (PanelSizeUtil.width < 550) {
           return "88vw";
-        } else if (window.innerWidth < 700) {
+        } else if (PanelSizeUtil.width < 700) {
           return "550px";
         } else {
           return "700px";
         }
       },
       get height() {
-        if (window.innerHeight < 450) {
+        if (PanelSizeUtil.height < 450) {
           return "70vh";
-        } else if (window.innerHeight < 550) {
+        } else if (PanelSizeUtil.height < 550) {
           return "450px";
         } else {
           return "550px";
@@ -430,7 +438,7 @@ setting: {
     },
 settingMiddle: {
       get width() {
-        return window.innerWidth < 350 ? "88vw" : "350px";
+        return PanelSizeUtil.width < 350 ? "88vw" : "350px";
       }
     }
   };
@@ -1115,7 +1123,7 @@ threshold: 1
     					align-items: center;
 					}
 					.search-result-item-description{
-						font-size: 0.8rem;
+						font-size: 0.8em;
 						color: #6c6c6c;
 					}
 					${config.searchDialogStyle ?? ""}
@@ -5541,32 +5549,35 @@ async showSearchHistory() {
       let searchHistoryList = _GM_getValue("search_history", []);
       let $input = $("#scform_srchtxt");
       let $submit = $("#searchform");
-      let suggestion = __pops.searchSuggestion({
-        target: $input,
-        inputTarget: $input,
-        data: searchHistoryList,
-        getItemHTML: function(item) {
-          return item;
-        },
-        getData(inputValue) {
-          return searchHistoryList.filter((item) => {
-            return item.includes(inputValue);
-          });
-        },
-        deleteIcon: {
-          enable: true,
-          callback(event, liElement, data) {
-            let findIndex = searchHistoryList.findIndex((item) => item === data);
+      const searchSuggestionData = searchHistoryList.map((item) => {
+        return {
+          value: item,
+          enableDeleteButton: true,
+          deleteButtonClickCallback(event, $dataItem, dataItem, config) {
+            let findIndex = searchHistoryList.findIndex((item2) => item2 === dataItem.value);
             if (findIndex !== -1) {
               searchHistoryList.splice(findIndex, 1);
               _GM_setValue("search_history", searchHistoryList);
             }
-            liElement.remove();
+            $dataItem.remove();
+          },
+          itemView(dateItem, $parent, config) {
+            return dateItem.value;
+          },
+          clickCallback(event, $dataItem, dataItem, config) {
+            $input.value = dataItem.value;
+            $submit.submit();
           }
-        },
-        itemClickCallBack(event, liElement, data) {
-          $input.value = data;
-          $submit.submit();
+        };
+      });
+      let suggestion = __pops.searchSuggestion({
+        target: $input,
+        inputTarget: $input,
+        data: searchSuggestionData,
+        inputTargetChangeRefreshShowDataCallback(inputValue, data, config) {
+          return searchSuggestionData.filter((item) => {
+            return item.value.includes(inputValue);
+          });
         }
       });
       suggestion.init();
@@ -5576,10 +5587,7 @@ async showSearchHistory() {
         DOMUtils.on($submit2, "click", function() {
           let searchText = $input.value;
           if (searchText != "") {
-            let localHistorySearchText = _GM_getValue(
-              "search_history",
-              []
-            );
+            let localHistorySearchText = _GM_getValue("search_history", []);
             if (localHistorySearchText.includes(searchText)) {
               log.info(`已有该搜索历史记录`);
             } else {
@@ -5605,10 +5613,7 @@ async showSearchHistory() {
                     width: 20vw;
                 ">清理记录</button></div>`
         );
-        DOMUtils.before(
-          document.querySelector(".comiis_p12"),
-          clear_history_innerHTML
-        );
+        DOMUtils.before(document.querySelector(".comiis_p12"), clear_history_innerHTML);
         let $searchHistory = document.querySelector(".btn_clear_search_history");
         DOMUtils.on($searchHistory, "click", (event) => {
           utils.preventEvent(event);
@@ -7291,11 +7296,7 @@ async showView(filterCallBack) {
             type: "primary",
             text: "添加",
             callback: async (event) => {
-              this.showEditView(
-                false,
-                await this.option.getAddData(),
-                $popsConfirm.$shadowRoot
-              );
+              this.showEditView(false, await this.option.getAddData(), $popsConfirm.$shadowRoot);
             }
           },
           close: {
@@ -7314,9 +7315,7 @@ async showView(filterCallBack) {
               }
               let getAllRuleElement = () => {
                 return Array.from(
-                  $popsConfirm.$shadowRoot.querySelectorAll(
-                    ".rule-view-container .rule-item"
-                  )
+                  $popsConfirm.$shadowRoot.querySelectorAll(".rule-view-container .rule-item")
                 );
               };
               let $button = event.target.closest(".pops-confirm-btn").querySelector(".pops-confirm-btn-cancel span");
@@ -7445,22 +7444,20 @@ async showView(filterCallBack) {
       let changeButtonText = false;
       for (let index = 0; index < allData.length; index++) {
         let item = allData[index];
-        let $ruleItemList = await this.appendRuleItemElement(
-          $popsConfirm.$shadowRoot,
-          item
-        );
-        let flag = typeof filterCallBack === "function" ? filterCallBack(item) : true;
-        if (!flag) {
+        let $ruleItemList = await this.appendRuleItemElement($popsConfirm.$shadowRoot, item);
+        let isNotFilterFlag = true;
+        if (typeof filterCallBack === "function") {
+          isNotFilterFlag = filterCallBack(item);
+        } else if (typeof filterCallBack === "number" && !isNaN(filterCallBack)) {
+          isNotFilterFlag = await this.option.bottomControls?.filter?.option[filterCallBack]?.filterCallBack(item) ?? isNotFilterFlag;
+        }
+        if (!isNotFilterFlag) {
           changeButtonText = true;
-          $ruleItemList.forEach(($el) => {
-            domUtils.hide($el, false);
-          });
+          domUtils.hide($ruleItemList, false);
         }
       }
       if (changeButtonText) {
-        let $button = $popsConfirm.$shadowRoot.querySelector(
-          ".pops-confirm-btn-cancel span"
-        );
+        let $button = $popsConfirm.$shadowRoot.querySelector(".pops-confirm-btn-cancel span");
         domUtils.text($button, "取消过滤");
       }
     }
@@ -7509,24 +7506,13 @@ showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDa
           }
         },
         onsubmit: async ($form, data) => {
-          let result = await this.option.itemControls.edit.onsubmit(
-            $form,
-            isEdit,
-            data
-          );
+          let result = await this.option.itemControls.edit.onsubmit($form, isEdit, data);
           if (result.success) {
             if (isEdit) {
               Qmsg.success("修改成功");
-              $parentShadowRoot && await this.updateRuleItemElement(
-                result.data,
-                $editRuleItemElement,
-                $parentShadowRoot
-              );
+              $parentShadowRoot && await this.updateRuleItemElement(result.data, $editRuleItemElement, $parentShadowRoot);
             } else {
-              $parentShadowRoot && await this.appendRuleItemElement(
-                $parentShadowRoot,
-                result.data
-              );
+              $parentShadowRoot && await this.appendRuleItemElement($parentShadowRoot, result.data);
             }
           } else {
             if (isEdit) {
@@ -7542,9 +7528,7 @@ showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDa
       editView.showView();
     }
 parseViewElement($shadowRoot) {
-      let $container = $shadowRoot.querySelector(
-        ".rule-view-container"
-      );
+      let $container = $shadowRoot.querySelector(".rule-view-container");
       let $deleteBtn = $shadowRoot.querySelector(
         ".pops-confirm-btn button.pops-confirm-btn-other"
       );
@@ -7554,20 +7538,12 @@ $deleteBtn
       };
     }
 parseRuleItemElement($ruleElement) {
-      let $enable = $ruleElement.querySelector(
-        ".rule-controls-enable"
-      );
+      let $enable = $ruleElement.querySelector(".rule-controls-enable");
       let $enableSwitch = $enable.querySelector(".pops-panel-switch");
-      let $enableSwitchInput = $enable.querySelector(
-        ".pops-panel-switch__input"
-      );
-      let $enableSwitchCore = $enable.querySelector(
-        ".pops-panel-switch__core"
-      );
+      let $enableSwitchInput = $enable.querySelector(".pops-panel-switch__input");
+      let $enableSwitchCore = $enable.querySelector(".pops-panel-switch__core");
       let $edit = $ruleElement.querySelector(".rule-controls-edit");
-      let $delete = $ruleElement.querySelector(
-        ".rule-controls-delete"
-      );
+      let $delete = $ruleElement.querySelector(".rule-controls-delete");
       return {
 $enable,
 $enableSwitch,
@@ -7607,14 +7583,7 @@ async createRuleItemElement(data, $shadowRoot) {
       });
       Reflect.set($ruleItem, "data-rule", data);
       let switchCheckedClassName = "pops-panel-switch-is-checked";
-      const {
-        $enable,
-        $enableSwitch,
-        $enableSwitchCore,
-        $enableSwitchInput,
-        $delete,
-        $edit
-      } = this.parseRuleItemElement($ruleItem);
+      const { $enable, $enableSwitch, $enableSwitchCore, $enableSwitchInput, $delete, $edit } = this.parseRuleItemElement($ruleItem);
       if (this.option.itemControls.enable.enable) {
         domUtils.on($enableSwitchCore, "click", async (event) => {
           let isChecked = false;
@@ -7662,9 +7631,7 @@ async createRuleItemElement(data, $shadowRoot) {
                 enable: true,
                 callback: async (popsEvent) => {
                   log.success("删除数据");
-                  let flag = await this.option.itemControls.delete.deleteCallBack(
-                    data
-                  );
+                  let flag = await this.option.itemControls.delete.deleteCallBack(data);
                   if (flag) {
                     Qmsg.success("成功删除该数据");
                     $ruleItem.remove();

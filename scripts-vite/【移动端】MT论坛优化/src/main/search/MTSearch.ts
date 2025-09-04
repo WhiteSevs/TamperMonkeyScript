@@ -1,6 +1,7 @@
 import { $, addStyle, log, pops, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
 import DOMUtils from "@whitesev/domutils";
+import type { PopsSearchSuggestionData } from "@whitesev/pops/dist/types/src/components/searchSuggestion/types";
 import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 
@@ -36,32 +37,35 @@ export const MTSearch = {
 		let searchHistoryList = GM_getValue<string[]>("search_history", []);
 		let $input = $<HTMLInputElement>("#scform_srchtxt")!;
 		let $submit = $<HTMLFormElement>("#searchform")!;
-		let suggestion = pops.searchSuggestion({
-			target: $input,
-			inputTarget: $input,
-			data: searchHistoryList,
-			getItemHTML: function (item: string): string {
-				return item;
-			},
-			getData(inputValue) {
-				return searchHistoryList.filter((item) => {
-					return item.includes(inputValue);
-				});
-			},
-			deleteIcon: {
-				enable: true,
-				callback(event, liElement, data) {
-					let findIndex = searchHistoryList.findIndex((item) => item === data);
+		const searchSuggestionData: PopsSearchSuggestionData[] = searchHistoryList.map((item) => {
+			return {
+				value: item,
+				enableDeleteButton: true,
+				deleteButtonClickCallback(event, $dataItem, dataItem, config) {
+					let findIndex = searchHistoryList.findIndex((item) => item === dataItem.value);
 					if (findIndex !== -1) {
 						searchHistoryList.splice(findIndex, 1);
 						GM_setValue("search_history", searchHistoryList);
 					}
-					liElement.remove();
+					$dataItem.remove();
 				},
-			},
-			itemClickCallBack(event, liElement, data) {
-				$input.value = data;
-				$submit.submit();
+				itemView(dateItem, $parent, config) {
+					return dateItem.value;
+				},
+				clickCallback(event, $dataItem, dataItem, config) {
+					$input.value = dataItem.value;
+					$submit.submit();
+				},
+			};
+		});
+		let suggestion = pops.searchSuggestion({
+			target: $input,
+			inputTarget: $input,
+			data: searchSuggestionData,
+			inputTargetChangeRefreshShowDataCallback(inputValue, data, config) {
+				return searchSuggestionData.filter((item) => {
+					return item.value.includes(inputValue);
+				});
 			},
 		});
 		suggestion.init();
@@ -74,10 +78,7 @@ export const MTSearch = {
 			DOMUtils.on($submit, "click", function () {
 				let searchText = $input.value;
 				if (searchText != "") {
-					let localHistorySearchText = GM_getValue<string[]>(
-						"search_history",
-						[]
-					);
+					let localHistorySearchText = GM_getValue<string[]>("search_history", []);
 					if (localHistorySearchText.includes(searchText)) {
 						log.info(`已有该搜索历史记录`);
 					} else {
@@ -107,10 +108,7 @@ export const MTSearch = {
                     min-width: 20vw;
                     width: 20vw;
                 ">清理记录</button></div>`;
-			DOMUtils.before(
-				document.querySelector<HTMLElement>(".comiis_p12")!,
-				clear_history_innerHTML
-			);
+			DOMUtils.before(document.querySelector<HTMLElement>(".comiis_p12")!, clear_history_innerHTML);
 			let $searchHistory = document.querySelector(".btn_clear_search_history")!;
 			DOMUtils.on($searchHistory, "click", (event) => {
 				utils.preventEvent(event);
@@ -132,8 +130,7 @@ export const MTSearch = {
 				$empty,
 				"click",
 				(event) => {
-					let $input =
-						document.querySelector<HTMLInputElement>("#scform_srchtxt");
+					let $input = document.querySelector<HTMLInputElement>("#scform_srchtxt");
 					if ($input) {
 						$input.value = "";
 					} else {

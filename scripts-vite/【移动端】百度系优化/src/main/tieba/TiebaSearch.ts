@@ -8,6 +8,7 @@ import { CommonUtil } from "@components/utils/CommonUtil";
 import { TieBaApi } from "./api/TiebaApi";
 import { TiebaUrlHandler } from "./handler/TiebaUrlHandler";
 import { BaiduRouter } from "@/router/BaiduRouter";
+import type { PopsSearchSuggestionData } from "@whitesev/pops/dist/types/src/components/searchSuggestion/types";
 
 interface SearchResultInfo {
 	url: string;
@@ -93,17 +94,52 @@ const TiebaSearchSuggestion = {
 	 */
 	initSearchSuggestion() {
 		let that = this;
-		async function getData(inputValue: string) {
-			let result: any[] = [];
+		/**
+		 * 获取搜索建议数据
+		 * @param inputValue 输入框内容
+		 */
+		let querySearchSuggesiton = async (inputValue: string): Promise<PopsSearchSuggestionData[]> => {
+			let result: PopsSearchSuggestionData[] = [];
 			log.success("搜索中...");
 			let suggestionData = await that.getSuggestion(inputValue);
 			if (utils.isNull(suggestionData)) {
 				return result;
 			}
 			log.success(suggestionData);
-			result = suggestionData?.query_match.search_data || [];
-			return result;
-		}
+			const search_data: {
+				fname: string;
+				forum_id: number;
+				fpic: string;
+				member_num: number;
+				thread_num: number;
+				forum_desc: string;
+				sug_type: number;
+				fclass1: string;
+				fclass2: string;
+			}[] = suggestionData?.query_match.search_data || [];
+			const searchSuggestionData: PopsSearchSuggestionData[] = search_data.map((item) => {
+				return {
+					value: item.fname,
+					enableDeleteButton: false,
+					itemView(dateItem, $parent, config) {
+						return /*html*/ `
+						<div class="forum_item">
+							<img class="forum_image" src="${item.fpic}">
+							<div class="forum_right">
+								<div class="forum_name">${item.fname}</div>
+								<div class="forum_desc">${item.forum_desc}</div>
+								<div class="forum_member">${item.member_num}</div>
+								<div class="forum_thread">${item.thread_num}</div>
+							</div>
+						</div>`;
+					},
+					clickCallback(event, $dataItem, dataItem, config) {
+						window.location.href = "https://tieba.baidu.com/f?ie=utf-8&kw=" + item.fname;
+					},
+				};
+			});
+			return searchSuggestionData;
+		};
 		let searchSuggestion = pops.searchSuggestion({
 			selfDocument: document,
 			className: "WhiteSevsSearchSelect",
@@ -112,25 +148,9 @@ const TiebaSearchSuggestion = {
 			data: [],
 			isAbsolute: false,
 			followTargetWidth: true,
-			deleteIcon: {
-				enable: false,
-			},
 			topDistance: 4,
-			itemClickCallBack(event, liElement, data) {
-				window.location.href = "https://tieba.baidu.com/f?ie=utf-8&kw=" + data.fname;
-			},
-			getData: getData,
-			getItemHTML(item) {
-				return /*html*/ `
-				<div class="forum_item">
-					<img class="forum_image" src="${item.fpic}">
-					<div class="forum_right">
-						<div class="forum_name">${item.fname}</div>
-						<div class="forum_desc">${item.forum_desc}</div>
-						<div class="forum_member">${item.member_num}</div>
-						<div class="forum_thread">${item.thread_num}</div>
-					</div>
-				</div>`;
+			inputTargetChangeRefreshShowDataCallback: (inputValue, data, config) => {
+				return querySearchSuggesiton(inputValue);
 			},
 			style: /*css*/ `
 			.WhiteSevsSearchSelect .forum_item{
@@ -178,7 +198,7 @@ const TiebaSearchSuggestion = {
 		searchSuggestion.init();
 		searchSuggestion.setAllEvent();
 		log.info("初始化默认搜索...");
-		getData("").then((result) => {
+		querySearchSuggesiton("").then((result) => {
 			if (result.length) {
 				searchSuggestion.update(result);
 			}
@@ -189,7 +209,7 @@ const TiebaSearchSuggestion = {
 	 * @param queryText 搜索内容
 	 */
 	async getSuggestion(queryText = "") {
-		let getResp = await httpx.get({
+		let response = await httpx.get({
 			url: `https://tieba.baidu.com/suggestion?query=${queryText}&ie=utf-8&_=${new Date().getTime()}`,
 			headers: {
 				"User-Agent": utils.getRandomPCUA(),
@@ -198,11 +218,11 @@ const TiebaSearchSuggestion = {
 				Referer: window.location.href,
 			},
 		});
-		if (!getResp.status) {
+		if (!response.status) {
 			return;
 		}
-		let respData = getResp.data;
-		return utils.toJSON(respData.responseText);
+		let data = utils.toJSON(response.data.responseText);
+		return data;
 	},
 };
 

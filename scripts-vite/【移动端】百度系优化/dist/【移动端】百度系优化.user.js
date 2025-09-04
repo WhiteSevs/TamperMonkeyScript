@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.3
+// @version      2025.9.4
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -15,10 +15,10 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/showdown/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.4.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
-// @require      https://fastly.jsdelivr.net/npm/vue@3.5.20/dist/vue.global.prod.js
+// @require      https://fastly.jsdelivr.net/npm/vue@3.5.21/dist/vue.global.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-demi@0.14.10/lib/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/pinia@3.0.3/dist/pinia.iife.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-router@4.5.1/dist/vue-router.global.js
@@ -61,7 +61,7 @@
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
   var require_entrance_001 = __commonJS({
-    "entrance-BifYLpSZ.js"(exports, module) {
+    "entrance-DOzC36bO.js"(exports, module) {
       var _GM_deleteValue = (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
       var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
@@ -5596,7 +5596,7 @@ frontPageSeach() {
         },
 initSearchSuggestion() {
           let that = this;
-          async function getData(inputValue) {
+          let querySearchSuggesiton = async (inputValue) => {
             let result = [];
             log.success("搜索中...");
             let suggestionData = await that.getSuggestion(inputValue);
@@ -5604,9 +5604,32 @@ initSearchSuggestion() {
               return result;
             }
             log.success(suggestionData);
-            result = suggestionData?.query_match.search_data || [];
-            return result;
-          }
+            const search_data = suggestionData?.query_match.search_data || [];
+            const searchSuggestionData = search_data.map((item) => {
+              return {
+                value: item.fname,
+                enableDeleteButton: false,
+                itemView(dateItem, $parent, config) {
+                  return (
+`
+						<div class="forum_item">
+							<img class="forum_image" src="${item.fpic}">
+							<div class="forum_right">
+								<div class="forum_name">${item.fname}</div>
+								<div class="forum_desc">${item.forum_desc}</div>
+								<div class="forum_member">${item.member_num}</div>
+								<div class="forum_thread">${item.thread_num}</div>
+							</div>
+						</div>`
+                  );
+                },
+                clickCallback(event, $dataItem, dataItem, config) {
+                  window.location.href = "https://tieba.baidu.com/f?ie=utf-8&kw=" + item.fname;
+                }
+              };
+            });
+            return searchSuggestionData;
+          };
           let searchSuggestion = __pops.searchSuggestion({
             selfDocument: document,
             className: "WhiteSevsSearchSelect",
@@ -5615,27 +5638,9 @@ initSearchSuggestion() {
             data: [],
             isAbsolute: false,
             followTargetWidth: true,
-            deleteIcon: {
-              enable: false
-            },
             topDistance: 4,
-            itemClickCallBack(event, liElement, data) {
-              window.location.href = "https://tieba.baidu.com/f?ie=utf-8&kw=" + data.fname;
-            },
-            getData,
-            getItemHTML(item) {
-              return (
-`
-				<div class="forum_item">
-					<img class="forum_image" src="${item.fpic}">
-					<div class="forum_right">
-						<div class="forum_name">${item.fname}</div>
-						<div class="forum_desc">${item.forum_desc}</div>
-						<div class="forum_member">${item.member_num}</div>
-						<div class="forum_thread">${item.thread_num}</div>
-					</div>
-				</div>`
-              );
+            inputTargetChangeRefreshShowDataCallback: (inputValue, data, config) => {
+              return querySearchSuggesiton(inputValue);
             },
             style: (
 `
@@ -5685,14 +5690,14 @@ initSearchSuggestion() {
           searchSuggestion.init();
           searchSuggestion.setAllEvent();
           log.info("初始化默认搜索...");
-          getData("").then((result) => {
+          querySearchSuggesiton("").then((result) => {
             if (result.length) {
               searchSuggestion.update(result);
             }
           });
         },
 async getSuggestion(queryText = "") {
-          let getResp = await httpx.get({
+          let response = await httpx.get({
             url: `https://tieba.baidu.com/suggestion?query=${queryText}&ie=utf-8&_=${( new Date()).getTime()}`,
             headers: {
               "User-Agent": utils.getRandomPCUA(),
@@ -5701,11 +5706,11 @@ async getSuggestion(queryText = "") {
               Referer: window.location.href
             }
           });
-          if (!getResp.status) {
+          if (!response.status) {
             return;
           }
-          let respData = getResp.data;
-          return utils.toJSON(respData.responseText);
+          let data = utils.toJSON(response.data.responseText);
+          return data;
         }
       };
       const TiebaSearch = {
@@ -12943,7 +12948,7 @@ handleShowFullToolbar(event) {
         };
       };
       /**
-      * @vue/shared v3.5.20
+      * @vue/shared v3.5.21
       * (c) 2018-present Yuxi (Evan) You and Vue contributors
       * @license MIT
       **/
@@ -12962,10 +12967,10 @@ handleShowFullToolbar(event) {
           return hit || (cache[str] = fn(str));
         });
       };
-      const camelizeRE = /-(\w)/g;
+      const camelizeRE = /-\w/g;
       const camelize = cacheStringFunction(
         (str) => {
-          return str.replace(camelizeRE, (_, c) => c ? c.toUpperCase() : "");
+          return str.replace(camelizeRE, (c) => c.slice(1).toUpperCase());
         }
       );
       const hyphenateRE = /\B([A-Z])/g;
