@@ -1,11 +1,27 @@
-import type { PopsSearchSuggestionDetails } from "./types/index";
+import type { PopsSearchSuggestionData, PopsSearchSuggestionDetails } from "./types/index";
 
-export const searchSuggestionConfig = (): DeepRequired<PopsSearchSuggestionDetails> => {
-	const data: any[] = [];
+export const searchSuggestionConfig = (): DeepRequired<PopsSearchSuggestionDetails<any>> => {
+	const data: DeepRequired<PopsSearchSuggestionData>[] = [];
 	for (let index = 0; index < 10; index++) {
 		data.push({
 			value: `测试${index}`,
 			text: `测试${index}-html`,
+			enableDeleteButton: true,
+			deleteButtonClickCallback(event, $dataItem, dataItem, config) {
+				console.log("删除当前项", [event, $dataItem, dataItem, config]);
+				return true;
+			},
+			itemView(dateItem, $parent) {
+				return dateItem.text;
+			},
+			clickCallback(event, $dataItem, dataItem, config) {
+				console.log("item项的点击回调", [event, $dataItem, data, config]);
+				// config.inputTarget!.value = dataItem.value;
+				return index % 2 === 0 ? true : false;
+			},
+			selectCallback(event, $dataItem, dataItem, config) {
+				console.log("item项的选中回调", [event, $dataItem, data, config]);
+			},
 		});
 	}
 	return {
@@ -15,14 +31,6 @@ export const searchSuggestionConfig = (): DeepRequired<PopsSearchSuggestionDetai
 		inputTarget: null,
 		selfDocument: document,
 		data: data,
-		deleteIcon: {
-			enable: true,
-			callback(event, liElement, dataItem) {
-				console.log("删除当前项", [event, liElement, dataItem]);
-				data.splice(data.indexOf(dataItem), 1);
-				liElement.remove();
-			},
-		},
 		useShadowRoot: true,
 		className: "",
 		isAbsolute: true,
@@ -40,19 +48,9 @@ export const searchSuggestionConfig = (): DeepRequired<PopsSearchSuggestionDetai
 		toSearhNotResultHTML: '<li data-none="true">暂无其它数据</li>',
 		toHideWithNotResult: false,
 		followPosition: "target",
-		getItemHTML(item) {
-			return item.text ?? item;
-		},
-		async getData(value, data) {
+		async inputTargetChangeRefreshShowDataCallback(value, data) {
 			console.log("当前输入框的值是：", value);
 			return data.filter((it) => it.value.includes(value));
-		},
-		itemClickCallBack(event, liElement, data) {
-			console.log("item项的点击回调", [event, liElement, data]);
-			this.inputTarget.value = data.value;
-		},
-		selectCallBack(event, liElement, data) {
-			console.log("item项的选中回调", [event, liElement, data]);
 		},
 		style: "",
 	};

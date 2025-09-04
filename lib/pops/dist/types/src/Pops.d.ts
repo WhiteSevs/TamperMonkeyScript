@@ -151,6 +151,9 @@ declare class Pops {
                 transformLeft: number;
                 transformTop: number;
             };
+            onInput($el: HTMLInputElement | HTMLTextAreaElement, callback: (evt: InputEvent) => void | Promise<void>, option?: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsEventListenerOption | boolean): {
+                off: () => void;
+            };
             on<T extends import("./types/PopsDOMUtilsEventType").PopsDOMUtils_EventType>(element: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsElementEventType, eventType: T | T[], callback: (this: HTMLElement, event: import("./types/PopsDOMUtilsEventType").PopsDOMUtils_Event[T]) => void, option?: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsEventListenerOption | boolean): void;
             on<T extends Event>(element: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsElementEventType, eventType: string | string[], callback: (this: HTMLElement, event: T) => void, option?: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsEventListenerOption | boolean): void;
             on<T extends import("./types/PopsDOMUtilsEventType").PopsDOMUtils_EventType>(element: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsElementEventType, eventType: T | T[], selector: string | string[] | undefined | null, callback: (this: HTMLElement, event: import("./types/PopsDOMUtilsEventType").PopsDOMUtils_Event[T], selectorTarget: HTMLElement) => void, option?: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsEventListenerOption | boolean): void;
@@ -21409,16 +21412,20 @@ declare class Pops {
             $hintULContainer: HTMLUListElement;
             $dynamicCSS: HTMLStyleElement;
         };
+        $evt: {
+            offInputChangeEvtHandler: Function[];
+        };
         $data: {
             isEmpty: boolean;
         };
-        initEl(): void;
         init(parentElement?: HTMLElement): void;
-        getData(): any[];
+        initEl(): void;
+        getData(): import("./components/searchSuggestion/types/index").PopsSearchSuggestionData<T>[];
+        setData(data: import("./components/searchSuggestion/types/index").PopsSearchSuggestionData<T>[]): void;
         createSearchSelectElement(): HTMLDivElement;
         getDynamicCSS(): string;
-        createSearchItemLiElement(data: any, index: number): HTMLLIElement;
-        getItemDataValue(data: any): any;
+        getItemDataValue(data: import("./components/searchSuggestion/types/index").PopsSearchSuggestionData<T>): import("./components/searchSuggestion/types/index").PopsSearchSuggestionData<T>;
+        createSearchItemLiElement(dataItem: import("./components/searchSuggestion/types/index").PopsSearchSuggestionData<T>, dateItemIndex: number): HTMLLIElement;
         setSearchItemClickEvent($searchItem: HTMLLIElement): void;
         setSearchItemSelectEvent(liElement: HTMLLIElement): void;
         setInputChangeEvent(option?: AddEventListenerOptions): void;
@@ -21431,16 +21438,16 @@ declare class Pops {
         removeHideEvent(option?: AddEventListenerOptions): void;
         setAllEvent(option?: AddEventListenerOptions): void;
         removeAllEvent(option?: AddEventListenerOptions): void;
-        getDeleteIconHTML(size?: number, fill?: string): string;
+        createItemDeleteIcon(size?: number, fill?: string): HTMLElement;
         setPromptsInSearch(): void;
         removePromptsInSearch(): void;
-        clearAllSearchItemLi(): void;
-        changeHintULElementPosition(target?: HTMLElement): void;
+        changeHintULElementPosition(target?: HTMLElement, checkPositonAgain?: Boolean): void;
         changeHintULElementWidth(target?: HTMLElement): void;
         updateDynamicCSS(): void;
         updateStyleSheet(): void;
-        update(data?: any[]): void;
-        clear(): void;
+        addItem($item: HTMLElement | DocumentFragment): void;
+        update(updateData?: import("./components/searchSuggestion/types/index").PopsSearchSuggestionData<T>[]): void;
+        clear(onlyClearView?: boolean): void;
         hide(useAnimationToHide?: boolean): void;
         show(): void;
     };

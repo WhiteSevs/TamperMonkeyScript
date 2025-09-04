@@ -1,5 +1,108 @@
 import type { PopsCommonConfig } from "../../../types/components";
 
+export type PopsSearchSuggestionData<T = any> = {
+	/**
+	 * 值
+	 */
+	value: T;
+	/**
+	 * 显示的文本
+	 */
+	text: string;
+	/**
+	 * 是否启用右侧的删除按钮
+	 * @default true
+	 */
+	enableDeleteButton?: boolean;
+	/**
+	 * 删除按钮的点击回调
+	 * @returns
+	 *
+	 * + true 移除该元素并且从data中移除该数据， 如果data是函数返回数组的话，那么不会生效
+	 */
+	deleteButtonClickCallback?: (
+		/**
+		 * 点击事件
+		 */
+		event: MouseEvent | PointerEvent,
+		/**
+		 * 当前项的元素
+		 */
+		$dataItem: HTMLLIElement,
+		/**
+		 * 数据项
+		 */
+		dataItem: PopsSearchSuggestionData<T>,
+		/**
+		 * 当前配置
+		 */
+		config: PopsSearchSuggestionDetails<T>
+	) => void | Boolean | Promise<void | Boolean>;
+	/**
+	 * 获取每一项的html，在显示的时候会调用该函数
+	 *
+	 * 它的父元素是一个\<li>元素
+	 */
+	itemView: (
+		/**
+		 * 数据项
+		 */
+		dateItem: PopsSearchSuggestionData<T>,
+		/**
+		 * 父元素\<li>
+		 */
+		$parent: HTMLLIElement,
+		/**
+		 * 当前配置
+		 */
+		config: PopsSearchSuggestionDetails<T>
+	) => HTMLElement | string;
+	/**
+	 * 每一项的点击回调
+	 * @returns
+	 *
+	 * + true 如果设置了inputTarget且类型是input或textarea的话，那么将自动设置目标值为当前点击项的value值
+	 */
+	clickCallback?: (
+		/**
+		 * 点击事件
+		 */
+		event: MouseEvent | PointerEvent,
+		/**
+		 * 当前项的元素
+		 */
+		$dataItem: HTMLLIElement,
+		/**
+		 * 数据项
+		 */
+		dataItem: PopsSearchSuggestionData<T>,
+		/**
+		 * 当前配置
+		 */
+		config: PopsSearchSuggestionDetails<T>
+	) => void | Boolean | Promise<void | Boolean>;
+	/**
+	 * 键盘的上下键选择的回调
+	 */
+	selectCallback?: (
+		/**
+		 * 键盘事件
+		 */
+		event: KeyboardEvent,
+		/**
+		 * 当前项的元素
+		 */
+		$dataItem: HTMLLIElement,
+		/**
+		 * 数据项
+		 */
+		dataItem: PopsSearchSuggestionData<T>,
+		/**
+		 * 当前配置
+		 */
+		config: PopsSearchSuggestionDetails<T>
+	) => void;
+};
 /**
  * 搜索建议悬浮窗
  * pops.searchSuggestion
@@ -17,32 +120,25 @@ export interface PopsSearchSuggestionDetails<T = any>
 	target: HTMLElement;
 	/**
 	 * 目标input元素，监听它的focus/click/input事件
+	 *
+	 * 如果未填，那么自动使用target的值
+	 * @default config.target
 	 */
 	inputTarget?: HTMLInputElement | HTMLTextAreaElement;
 	/**
 	 * 数据
 	 */
-	data: T[] | (() => T[]);
-	/**
-	 * 右边的删除按钮图标
-	 */
-	deleteIcon?: {
-		/**
-		 * 是否启用
-		 * @default true
-		 */
-		enable?: boolean;
-		/**
-		 * 点击回调
-		 */
-		callback?: (event: MouseEvent | PointerEvent, $dataItem: HTMLLIElement, dataItem: T) => void;
-	};
+	data: PopsSearchSuggestionData<T>[] | (() => PopsSearchSuggestionData<T>[]);
 	/**
 	 * 自定义的className
+	 * @default ""
 	 */
 	className?: string;
 	/**
-	 * position是否使用absolut，否则是relative
+	 * 建议框的position位置
+	 *
+	 * + `true`：absolute
+	 * + `false`：relative
 	 * @default true
 	 */
 	isAbsolute?: boolean;
@@ -92,7 +188,7 @@ export interface PopsSearchSuggestionDetails<T = any>
 	 */
 	positionTopToReverse?: boolean;
 	/**
-	 * 搜索中的提示
+	 * 搜索中的提示，可以是html
 	 *
 	 * 前提：inputTarget是input/textarea
 	 *
@@ -105,42 +201,43 @@ export interface PopsSearchSuggestionDetails<T = any>
 	 * 前提：inputTarget是input/textarea
 	 *
 	 * 触发change事件，且没有搜索到数据，则显示此结果项
+	 *
+	 * 如果该值是函数，需要返回的\<li>元素属性上存在data-none="true"
+	 * @example
+	 * <li data-none="true">暂无结果</li>
 	 */
-	toSearhNotResultHTML?: string;
+	toSearhNotResultHTML?: string | (() => HTMLLIElement);
 	/**
-	 * 没有搜索结果是否隐藏提示框
+	 * 当没有搜索结果时，是否隐藏建议框
 	 * @default false
 	 */
 	toHideWithNotResult?: boolean;
 	/**
 	 * 跟随目标的位置
+	 *
+	 * + `target`：跟随config.target的位置
+	 * + `input`：跟随config.inputTarget的位置
+	 * + `inputCursor`：跟随config.inputTarget的输入框光标位置
+	 *
 	 * @default "target"
 	 */
 	followPosition?: "target" | "input" | "inputCursor";
 	/**
-	 * 获取每一项的html，在显示的时候会调用该函数
-	 *
-	 * 它的父元素是一个<li>标签
-	 */
-	getItemHTML: (dataItem: T) => string;
-	/**
 	 * 当config.target触发input时自动调用该函数来获取数据
-	 * @param inputValue 当前输入框的值
-	 * @param data 当前数据
+	 * @returns 返回是需要显示的数据
 	 */
-	getData?: (inputValue: string, data: T[]) => Promise<T[]> | T[];
-	/**
-	 * 每一项的点击回调
-	 * @param event 触发的事件
-	 * @param $dataItem 每一项的元素
-	 * @param dataItem config.data的点击项的值
-	 */
-	itemClickCallBack?: (event: MouseEvent | PointerEvent, $dataItem: HTMLLIElement, dataItem: T) => void;
-	/**
-	 * 键盘的上下键选择的回调
-	 * @param event 触发的事件
-	 * @param $dataItem 每一项的元素
-	 * @param dataItem config.data的选中项的值
-	 */
-	selectCallBack?: (event: MouseEvent, $dataItem: HTMLLIElement, dataItem: T) => void;
+	inputTargetChangeRefreshShowDataCallback?: (
+		/**
+		 * 当前输入框的值
+		 */
+		inputValue: string,
+		/**
+		 * config.data的数据
+		 */
+		data: PopsSearchSuggestionData<T>[],
+		/**
+		 * 当前配置
+		 */
+		config: PopsSearchSuggestionDetails<T>
+	) => Promise<PopsSearchSuggestionData<T>[]> | PopsSearchSuggestionData<T>[];
 }

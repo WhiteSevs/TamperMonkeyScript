@@ -36,7 +36,7 @@ class Pops {
 	/** 配置 */
 	config = {
 		/** 版本号 */
-		version: "2025.9.2",
+		version: "2025.9.4",
 		cssText: PopsCSS,
 		/** icon图标的svg代码 */
 		iconSVG: PopsIcon.$data,
@@ -199,7 +199,7 @@ class Pops {
 	 * searchSuggestion.setAllEvent();
 	 */
 	searchSuggestion = <T = any>(details: PopsSearchSuggestionDetails<T>) => {
-		let popsSearchSuggestion = PopsSearchSuggestion.init(details);
+		let popsSearchSuggestion = PopsSearchSuggestion.init<T>(details);
 		return popsSearchSuggestion;
 	};
 }

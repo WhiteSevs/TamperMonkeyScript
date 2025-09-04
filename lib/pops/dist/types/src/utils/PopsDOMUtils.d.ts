@@ -750,6 +750,12 @@ declare class PopsDOMUtils extends PopsDOMUtilsEvent {
         transformLeft: number;
         transformTop: number;
     };
+    /**
+     * 监input、textarea的输入框值改变的事件
+     */
+    onInput($el: HTMLInputElement | HTMLTextAreaElement, callback: (evt: InputEvent) => void | Promise<void>, option?: PopsDOMUtilsEventListenerOption | boolean): {
+        off: () => void;
+    };
 }
 declare const popsDOMUtils: PopsDOMUtils;
 export { popsDOMUtils };

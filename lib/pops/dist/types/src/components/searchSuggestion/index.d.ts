@@ -1,6 +1,6 @@
-import type { PopsSearchSuggestionDetails } from "./types/index";
+import type { PopsSearchSuggestionData, PopsSearchSuggestionDetails } from "./types/index";
 export declare const PopsSearchSuggestion: {
-    init(details: PopsSearchSuggestionDetails): {
+    init<T>(details: PopsSearchSuggestionDetails<T>): {
         /**
          * 当前的环境，可以是document，可以是shadowroot，默认是document
          */
@@ -13,40 +13,53 @@ export declare const PopsSearchSuggestion: {
             /** 动态更新CSS */
             $dynamicCSS: HTMLStyleElement;
         };
+        $evt: {
+            offInputChangeEvtHandler: Function[];
+        };
         $data: {
             /** 是否结果为空 */
             isEmpty: boolean;
         };
-        /** 初始化元素变量 */
-        initEl(): void;
         /**
          * 初始化
+         * @param parentElement 父元素
          */
         init(parentElement?: HTMLElement): void;
         /**
+         * 初始化元素变量
+         */
+        initEl(): void;
+        /**
          * 获取数据
          */
-        getData(): any[];
+        getData(): PopsSearchSuggestionData<T>[];
+        /**
+         * 更新数据
+         * @param data 数据
+         */
+        setData(data: PopsSearchSuggestionData<T>[]): void;
         /**
          * 获取显示出搜索建议框的html
          */
         createSearchSelectElement(): HTMLDivElement;
-        /** 动态获取CSS */
+        /**
+         * 动态获取CSS
+         */
         getDynamicCSS(): string;
         /**
-         * 获取显示出搜索建议框的每一项的html
-         * @param data 当前项的值
-         * @param index 当前项的下标
-         */
-        createSearchItemLiElement(data: any, index: number): HTMLLIElement;
-        /**
          * 获取data-value值
-         * @param data
+         * @param data 数据项
          */
-        getItemDataValue(data: any): any;
+        getItemDataValue(data: PopsSearchSuggestionData<T>): PopsSearchSuggestionData<T>;
+        /**
+         * 获取显示出搜索建议框的每一项的html
+         * @param dataItem 当前项的值
+         * @param dateItemIndex 当前项的下标
+         */
+        createSearchItemLiElement(dataItem: PopsSearchSuggestionData<T>, dateItemIndex: number): HTMLLIElement;
         /**
          * 设置搜索建议框每一项的点击事件
-         * @param $searchItem
+         * @param $searchItem 当前项的元素
          */
         setSearchItemClickEvent($searchItem: HTMLLIElement): void;
         /**
@@ -98,7 +111,7 @@ export declare const PopsSearchSuggestion: {
         /**
          * 获取删除按钮的html
          */
-        getDeleteIconHTML(size?: number, fill?: string): string;
+        createItemDeleteIcon(size?: number, fill?: string): HTMLElement;
         /**
          * 设置当前正在搜索中的提示
          */
@@ -108,17 +121,16 @@ export declare const PopsSearchSuggestion: {
          */
         removePromptsInSearch(): void;
         /**
-         * 清空所有的搜索结果
-         */
-        clearAllSearchItemLi(): void;
-        /**
          * 更新搜索建议框的位置(top、left)
          * 因为目标元素可能是动态隐藏的
+         * @param target 目标元素
+         * @param checkPositonAgain 是否在更新位置信息后检测更新位置信息，默认true
          */
-        changeHintULElementPosition(target?: HTMLElement): void;
+        changeHintULElementPosition(target?: HTMLElement, checkPositonAgain?: Boolean): void;
         /**
          * 更新搜索建议框的width
          * 因为目标元素可能是动态隐藏的
+         * @param target 目标元素
          */
         changeHintULElementWidth(target?: HTMLElement): void;
         /**
@@ -127,17 +139,27 @@ export declare const PopsSearchSuggestion: {
         updateDynamicCSS(): void;
         /**
          * 数据项的数量改变时调用
+         *
+         * - 更新css
+         * - 更新建议框的宽度
+         * - 更新建议框的位置
          */
         updateStyleSheet(): void;
         /**
-         * 更新页面显示的搜索结果
-         * @param data
+         * 添加搜索结果元素
+         * @param $item 项元素
          */
-        update(data?: any[]): void;
+        addItem($item: HTMLElement | DocumentFragment): void;
+        /**
+         * 更新页面显示的搜索结果
+         * @param updateData
+         */
+        update(updateData?: PopsSearchSuggestionData<T>[]): void;
         /**
          * 清空当前的搜索结果并显示无结果
+         * @param [onlyClearView=false] 是否仅清空元素，默认false
          */
-        clear(): void;
+        clear(onlyClearView?: boolean): void;
         /**
          * 隐藏搜索建议框
          * @param useAnimationToHide 是否使用动画隐藏

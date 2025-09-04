@@ -2439,6 +2439,40 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 			transformTop: transform_top,
 		};
 	}
+	/**
+	 * 监input、textarea的输入框值改变的事件
+	 */
+	onInput(
+		$el: HTMLInputElement | HTMLTextAreaElement,
+		callback: (evt: InputEvent) => void | Promise<void>,
+		option?: PopsDOMUtilsEventListenerOption | boolean
+	) {
+		let isComposite = false;
+		let __callback = async (event: InputEvent) => {
+			if (isComposite) return;
+			await callback(event);
+		};
+		let __composition_start_callback = () => {
+			isComposite = true;
+		};
+		let __composition_end_callback = () => {
+			isComposite = false;
+			this.trigger($el, "input", {
+				isComposite,
+			});
+		};
+		this.on($el, "input", __callback, option);
+		this.on($el, "compositionstart", __composition_start_callback, option);
+		this.on($el, "compositionend", __composition_end_callback, option);
+
+		return {
+			off: () => {
+				this.off($el, "input", __callback, option);
+				this.off($el, "compositionstart", __composition_start_callback, option);
+				this.off($el, "compositionend", __composition_end_callback, option);
+			},
+		};
+	}
 }
 
 const popsDOMUtils = new PopsDOMUtils();

@@ -4,13 +4,13 @@ import { popsUtils } from "../../utils/PopsUtils";
 import { searchSuggestionConfig as PopsSearchSuggestionConfig } from "./config";
 import { GlobalConfig } from "../../config/GlobalConfig";
 import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
-import type { PopsSearchSuggestionDetails } from "./types/index";
+import type { PopsSearchSuggestionData, PopsSearchSuggestionDetails } from "./types/index";
 import { PopsCSS } from "../../PopsCSS";
 import type { PopsType } from "../../types/main";
 import { PopsCommonCSSClassName } from "../../config/CommonCSSClassName";
 
 export const PopsSearchSuggestion = {
-	init(details: PopsSearchSuggestionDetails) {
+	init<T>(details: PopsSearchSuggestionDetails<T>) {
 		const guid = popsUtils.getRandomGUID();
 		// 设置当前类型
 		const popsType: PopsType = "searchSuggestion";
@@ -26,7 +26,7 @@ export const PopsSearchSuggestion = {
 			config.inputTarget = config.target as HTMLInputElement;
 		}
 		if (details.data) {
-			config.data = details.data;
+			(<PopsSearchSuggestionDetails<T>["data"]>config.data) = details.data;
 		}
 
 		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
@@ -72,22 +72,20 @@ export const PopsSearchSuggestion = {
 				/** 动态更新CSS */
 				$dynamicCSS: null as any as HTMLStyleElement,
 			},
+			$evt: {
+				offInputChangeEvtHandler: [] as Function[],
+			},
 			$data: {
 				/** 是否结果为空 */
 				isEmpty: true,
 			},
-			/** 初始化元素变量 */
-			initEl() {
-				this.$el.root = SearchSuggestion.createSearchSelectElement();
-				this.$el.$dynamicCSS = this.$el.root.querySelector<HTMLStyleElement>("style[data-dynamic]")!;
-				this.$el.$hintULContainer = SearchSuggestion.$el.root.querySelector<HTMLUListElement>("ul")!;
-			},
 			/**
 			 * 初始化
+			 * @param parentElement 父元素
 			 */
 			init(parentElement = document.body || document.documentElement) {
-				this.initEl();
-				SearchSuggestion.update(this.getData());
+				SearchSuggestion.initEl();
+				SearchSuggestion.update(SearchSuggestion.getData());
 				SearchSuggestion.updateStyleSheet();
 
 				SearchSuggestion.hide();
@@ -95,10 +93,28 @@ export const PopsSearchSuggestion = {
 				parentElement.appendChild($shadowContainer);
 			},
 			/**
+			 * 初始化元素变量
+			 */
+			initEl() {
+				SearchSuggestion.$el.root = SearchSuggestion.createSearchSelectElement();
+				Reflect.set(SearchSuggestion.$el.root, "data-SearchSuggestion", SearchSuggestion);
+				SearchSuggestion.$el.$dynamicCSS =
+					SearchSuggestion.$el.root.querySelector<HTMLStyleElement>("style[data-dynamic]")!;
+				SearchSuggestion.$el.$hintULContainer =
+					SearchSuggestion.$el.root.querySelector<HTMLUListElement>("ul")!;
+			},
+			/**
 			 * 获取数据
 			 */
-			getData() {
+			getData(): PopsSearchSuggestionData<T>[] {
 				return typeof config.data === "function" ? config.data() : config.data;
+			},
+			/**
+			 * 更新数据
+			 * @param data 数据
+			 */
+			setData(data: PopsSearchSuggestionData<T>[]) {
+				(<PopsSearchSuggestionDetails<T>["data"]>config.data) = data;
 			},
 			/**
 			 * 获取显示出搜索建议框的html
@@ -184,7 +200,7 @@ export const PopsSearchSuggestion = {
 							}
 						</style>
 						<style type="text/css" data-dynamic="true">
-							${this.getDynamicCSS()}
+							${SearchSuggestion.getDynamicCSS()}
 						</style>
 						<style>
 							.el-zoom-in-top-animation{
@@ -230,7 +246,9 @@ export const PopsSearchSuggestion = {
 				}
 				return $el;
 			},
-			/** 动态获取CSS */
+			/**
+			 * 动态获取CSS
+			 */
 			getDynamicCSS() {
 				return /*css*/ `
 				.pops-${popsType}-search-suggestion{
@@ -296,56 +314,84 @@ export const PopsSearchSuggestion = {
 				`;
 			},
 			/**
-			 * 获取显示出搜索建议框的每一项的html
-			 * @param data 当前项的值
-			 * @param index 当前项的下标
+			 * 获取data-value值
+			 * @param data 数据项
 			 */
-			createSearchItemLiElement(data: any, index: number) {
+			getItemDataValue(data: PopsSearchSuggestionData<T>) {
+				return data;
+			},
+			/**
+			 * 获取显示出搜索建议框的每一项的html
+			 * @param dataItem 当前项的值
+			 * @param dateItemIndex 当前项的下标
+			 */
+			createSearchItemLiElement(dataItem: PopsSearchSuggestionData<T>, dateItemIndex: number) {
+				const dataValue = SearchSuggestion.getItemDataValue(dataItem);
 				let $li = popsDOMUtils.createElement("li", {
 					className: `pops-${popsType}-search-suggestion-hint-item`,
-					"data-index": index,
-					"data-value": SearchSuggestion.getItemDataValue(data),
-					innerHTML: `${config.getItemHTML(data)}${
-						config.deleteIcon.enable ? SearchSuggestion.getDeleteIconHTML() : ""
-					}`,
+					"data-index": dateItemIndex,
+					"data-value": dataValue,
 				});
+				Reflect.set($li, "data-index", dateItemIndex);
+				Reflect.set($li, "data-value", dataValue);
+				// 项内容
+				let $itemInner = dataItem.itemView(dataItem, $li, config);
+				if (typeof $itemInner === "string") {
+					PopsSafeUtils.setSafeHTML($li, $itemInner);
+				} else {
+					popsDOMUtils.append($li, $itemInner);
+				}
+				// 删除按钮
+				const enableDeleteButton = dataItem.enableDeleteButton;
+				if (typeof enableDeleteButton === "boolean" && enableDeleteButton) {
+					let $deleteIcon = SearchSuggestion.createItemDeleteIcon();
+					popsDOMUtils.append($li, $deleteIcon);
+				}
 				popsDOMUtils.addClassName($li, PopsCommonCSSClassName.flexCenter);
 				popsDOMUtils.addClassName($li, PopsCommonCSSClassName.flexYCenter);
 				return $li;
 			},
 			/**
-			 * 获取data-value值
-			 * @param data
-			 */
-			getItemDataValue(data: any) {
-				return data;
-			},
-			/**
 			 * 设置搜索建议框每一项的点击事件
-			 * @param $searchItem
+			 * @param $searchItem 当前项的元素
 			 */
 			setSearchItemClickEvent($searchItem: HTMLLIElement) {
 				popsDOMUtils.on(
 					$searchItem,
 					"click",
-					(event) => {
+					async (event) => {
 						popsDOMUtils.preventEvent(event);
 						let $click = event.target as HTMLLIElement;
-						let dataValue = Reflect.get($searchItem, "data-value");
+						const data = SearchSuggestion.getData();
+						const dataItem = Reflect.get($searchItem, "data-value") as PopsSearchSuggestionData<T>;
 						let isDelete = Boolean($click.closest(`.pops-${popsType}-delete-icon`));
 						if (isDelete) {
 							// 删除
-							if (typeof config.deleteIcon.callback === "function") {
-								config.deleteIcon.callback(event, $searchItem, dataValue);
+							if (typeof dataItem.deleteButtonClickCallback === "function") {
+								let result = await dataItem.deleteButtonClickCallback(event, $searchItem, dataItem, config);
+								if (typeof result === "boolean" && result) {
+									data.splice(data.indexOf(dataItem), 1);
+									$searchItem.remove();
+								}
 							}
-							if (!this.$el.$hintULContainer.children.length) {
+							if (!SearchSuggestion.$el.$hintULContainer.children.length) {
 								/* 全删完了 */
-								this.clear();
+								SearchSuggestion.clear();
 							}
 							SearchSuggestion.updateStyleSheet();
 						} else {
 							// 点击选择项
-							config.itemClickCallBack(event, $searchItem, dataValue);
+							if (typeof dataItem.clickCallback === "function") {
+								let result = await dataItem.clickCallback(event, $searchItem, dataItem, config);
+								if (typeof result === "boolean" && result) {
+									if (
+										config.inputTarget instanceof HTMLInputElement ||
+										config.inputTarget instanceof HTMLTextAreaElement
+									) {
+										config.inputTarget.value = String(dataItem.value);
+									}
+								}
+							}
 						}
 					},
 					{
@@ -392,17 +438,21 @@ export const PopsSearchSuggestion = {
 				/* 禁用输入框自动提示 */
 				config.inputTarget.setAttribute("autocomplete", "off");
 				/* 内容改变事件 */
-				popsDOMUtils.on(
+				const listenerHandler = popsDOMUtils.onInput(
 					config.inputTarget,
-					"input",
-					void 0,
 					async (event) => {
-						let getListResult = await config.getData(config.inputTarget.value, this.getData());
-						SearchSuggestion.update(getListResult);
+						const data = SearchSuggestion.getData();
+						let queryDataResult = await config.inputTargetChangeRefreshShowDataCallback(
+							config.inputTarget.value,
+							data,
+							config
+						);
+						SearchSuggestion.update(queryDataResult);
 						SearchSuggestion.updateStyleSheet();
 					},
 					option
 				);
+				SearchSuggestion.$evt.offInputChangeEvtHandler.push(listenerHandler.off);
 			},
 			/**
 			 * 移除输入框内容改变的监听
@@ -412,7 +462,12 @@ export const PopsSearchSuggestion = {
 					capture: true,
 				}
 			) {
-				popsDOMUtils.off(config.inputTarget, "input", void 0, void 0, option);
+				for (let index = 0; index < SearchSuggestion.$evt.offInputChangeEvtHandler.length; index++) {
+					const handler = SearchSuggestion.$evt.offInputChangeEvtHandler[index];
+					handler();
+					SearchSuggestion.$evt.offInputChangeEvtHandler.splice(index, 1);
+					index--;
+				}
 			},
 			/**
 			 * 显示搜索建议框的事件
@@ -585,23 +640,24 @@ export const PopsSearchSuggestion = {
 			/**
 			 * 获取删除按钮的html
 			 */
-			getDeleteIconHTML(size = 16, fill = "#bababa") {
-				return /*html*/ `
-				<svg class="pops-${popsType}-delete-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" fill="${fill}">
-					<path d="M512 883.2A371.2 371.2 0 1 0 140.8 512 371.2 371.2 0 0 0 512 883.2z m0 64a435.2 435.2 0 1 1 435.2-435.2 435.2 435.2 0 0 1-435.2 435.2z"></path>
-					<path d="M557.056 512l122.368 122.368a31.744 31.744 0 1 1-45.056 45.056L512 557.056l-122.368 122.368a31.744 31.744 0 1 1-45.056-45.056L466.944 512 344.576 389.632a31.744 31.744 0 1 1 45.056-45.056L512 466.944l122.368-122.368a31.744 31.744 0 1 1 45.056 45.056z"></path>
-				</svg>
-        	`;
+			createItemDeleteIcon(size = 16, fill = "#bababa") {
+				let $svg = popsDOMUtils.parseTextToDOM(/*html*/ `
+					<svg class="pops-${popsType}-delete-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" fill="${fill}">
+						<path d="M512 883.2A371.2 371.2 0 1 0 140.8 512 371.2 371.2 0 0 0 512 883.2z m0 64a435.2 435.2 0 1 1 435.2-435.2 435.2 435.2 0 0 1-435.2 435.2z"></path>
+						<path d="M557.056 512l122.368 122.368a31.744 31.744 0 1 1-45.056 45.056L512 557.056l-122.368 122.368a31.744 31.744 0 1 1-45.056-45.056L466.944 512 344.576 389.632a31.744 31.744 0 1 1 45.056-45.056L512 466.944l122.368-122.368a31.744 31.744 0 1 1 45.056 45.056z"></path>
+					</svg>
+        			`);
+				return $svg;
 			},
 			/**
 			 * 设置当前正在搜索中的提示
 			 */
 			setPromptsInSearch() {
-				let isSearchingElement = popsDOMUtils.createElement("li", {
+				let $isSearching = popsDOMUtils.createElement("li", {
 					className: `pops-${popsType}-search-suggestion-hint-searching-item`,
 					innerHTML: config.searchingTip,
 				});
-				SearchSuggestion.$el.$hintULContainer.appendChild(isSearchingElement);
+				SearchSuggestion.addItem($isSearching);
 			},
 			/**
 			 * 移除正在搜索中的提示
@@ -612,16 +668,15 @@ export const PopsSearchSuggestion = {
 					?.remove();
 			},
 			/**
-			 * 清空所有的搜索结果
-			 */
-			clearAllSearchItemLi() {
-				PopsSafeUtils.setSafeHTML(SearchSuggestion.$el.$hintULContainer, "");
-			},
-			/**
 			 * 更新搜索建议框的位置(top、left)
 			 * 因为目标元素可能是动态隐藏的
+			 * @param target 目标元素
+			 * @param checkPositonAgain 是否在更新位置信息后检测更新位置信息，默认true
 			 */
-			changeHintULElementPosition(target = config.target ?? config.inputTarget) {
+			changeHintULElementPosition(
+				target = config.target ?? config.inputTarget,
+				checkPositonAgain: Boolean = true
+			) {
 				let targetRect: DOMRect | null = null;
 				if (config.followPosition === "inputCursor") {
 					targetRect = popsDOMUtils.getTextBoundingRect(
@@ -650,6 +705,12 @@ export const PopsSearchSuggestion = {
 					// 需目标高度+搜索建议框高度大于文档高度，则显示在上面
 					let targetBottom = targetRect.bottom;
 					let searchSuggestionContainerHeight = popsDOMUtils.height(SearchSuggestion.$el.$hintULContainer);
+					console.log(
+						targetBottom,
+						searchSuggestionContainerHeight,
+						targetBottom + searchSuggestionContainerHeight,
+						documentHeight
+					);
 					if (targetBottom + searchSuggestionContainerHeight > documentHeight) {
 						// 在上面
 						position = "top";
@@ -688,10 +749,20 @@ export const PopsSearchSuggestion = {
 					left = left + documentWidth - hintUIWidth;
 				}
 				SearchSuggestion.$el.root.style.left = left + "px";
+
+				// 如果更新前在下面的话且高度超出了屏幕
+				// 这时候会有滚动条，会造成位置偏移
+				// 更新后的位置却在上面，这时候的位置信息不对齐
+				// 需重新更新位置
+				// 此情况一般是config.position === "auto"
+				if (checkPositonAgain) {
+					SearchSuggestion.changeHintULElementPosition(target, !checkPositonAgain);
+				}
 			},
 			/**
 			 * 更新搜索建议框的width
 			 * 因为目标元素可能是动态隐藏的
+			 * @param target 目标元素
 			 */
 			changeHintULElementWidth(target = config.target ?? config.inputTarget) {
 				let targetRect = target.getBoundingClientRect();
@@ -705,11 +776,15 @@ export const PopsSearchSuggestion = {
 			 * 动态更新CSS
 			 */
 			updateDynamicCSS() {
-				let cssText = this.getDynamicCSS();
-				PopsSafeUtils.setSafeHTML(this.$el.$dynamicCSS, cssText);
+				let cssText = SearchSuggestion.getDynamicCSS();
+				PopsSafeUtils.setSafeHTML(SearchSuggestion.$el.$dynamicCSS, cssText);
 			},
 			/**
 			 * 数据项的数量改变时调用
+			 *
+			 * - 更新css
+			 * - 更新建议框的宽度
+			 * - 更新建议框的位置
 			 */
 			updateStyleSheet() {
 				// 更新z-index
@@ -720,29 +795,37 @@ export const PopsSearchSuggestion = {
 				SearchSuggestion.changeHintULElementPosition();
 			},
 			/**
-			 * 更新页面显示的搜索结果
-			 * @param data
+			 * 添加搜索结果元素
+			 * @param $item 项元素
 			 */
-			update(data: any[] = []) {
-				if (!Array.isArray(data)) {
+			addItem($item: HTMLElement | DocumentFragment) {
+				SearchSuggestion.$el.$hintULContainer.appendChild($item);
+			},
+			/**
+			 * 更新页面显示的搜索结果
+			 * @param updateData
+			 */
+			update(updateData: PopsSearchSuggestionData<T>[] = []) {
+				if (!Array.isArray(updateData)) {
 					throw new TypeError("传入的数据不是数组");
 				}
-				config.data = data;
+				const data = updateData;
 				/* 清空已有的搜索结果 */
-				if (config.data.length) {
+				if (data.length) {
 					SearchSuggestion.$data.isEmpty = false;
-
 					if (config.toHideWithNotResult) {
 						SearchSuggestion.show();
 					}
-					SearchSuggestion.clearAllSearchItemLi();
+					SearchSuggestion.clear(true);
 					/* 添加进ul中 */
-					config.data.forEach((item, index) => {
-						let itemElement = SearchSuggestion.createSearchItemLiElement(item, index);
-						SearchSuggestion.setSearchItemClickEvent(itemElement);
-						SearchSuggestion.setSearchItemSelectEvent(itemElement);
-						SearchSuggestion.$el.$hintULContainer.appendChild(itemElement);
+					let fragment = document.createDocumentFragment();
+					data.forEach((item, index) => {
+						let $item = SearchSuggestion.createSearchItemLiElement(item, index);
+						SearchSuggestion.setSearchItemClickEvent($item);
+						SearchSuggestion.setSearchItemSelectEvent($item);
+						fragment.appendChild($item);
 					});
+					SearchSuggestion.addItem(fragment);
 				} else {
 					/* 清空 */
 					SearchSuggestion.clear();
@@ -750,13 +833,23 @@ export const PopsSearchSuggestion = {
 			},
 			/**
 			 * 清空当前的搜索结果并显示无结果
+			 * @param [onlyClearView=false] 是否仅清空元素，默认false
 			 */
-			clear() {
-				this.$data.isEmpty = true;
-				this.clearAllSearchItemLi();
-				this.$el.$hintULContainer.appendChild(popsDOMUtils.parseTextToDOM(config.toSearhNotResultHTML));
+			clear(onlyClearView: boolean = false) {
+				PopsSafeUtils.setSafeHTML(SearchSuggestion.$el.$hintULContainer, "");
+				if (onlyClearView) {
+					return;
+				}
+				SearchSuggestion.$data.isEmpty = true;
+				let $noResult;
+				if (typeof config.toSearhNotResultHTML === "string") {
+					$noResult = popsDOMUtils.parseTextToDOM(config.toSearhNotResultHTML);
+				} else {
+					$noResult = config.toSearhNotResultHTML();
+				}
+				SearchSuggestion.addItem($noResult);
 				if (config.toHideWithNotResult) {
-					this.hide();
+					SearchSuggestion.hide();
 				}
 			},
 			/**
@@ -767,24 +860,24 @@ export const PopsSearchSuggestion = {
 				if (config.useFoldAnimation) {
 					if (!useAnimationToHide) {
 						// 去掉动画
-						popsDOMUtils.removeClassName(this.$el.root, "el-zoom-in-top-animation");
+						popsDOMUtils.removeClassName(SearchSuggestion.$el.root, "el-zoom-in-top-animation");
 					}
-					popsDOMUtils.addClassName(this.$el.root, "el-zoom-in-top-animation");
-					popsDOMUtils.addClassName(this.$el.root, "el-zoom-in-top-animation-hide");
-					popsDOMUtils.removeClassName(this.$el.root, "el-zoom-in-top-animation-show");
+					popsDOMUtils.addClassName(SearchSuggestion.$el.root, "el-zoom-in-top-animation");
+					popsDOMUtils.addClassName(SearchSuggestion.$el.root, "el-zoom-in-top-animation-hide");
+					popsDOMUtils.removeClassName(SearchSuggestion.$el.root, "el-zoom-in-top-animation-show");
 				} else {
-					this.$el.root.style.display = "none";
+					SearchSuggestion.$el.root.style.display = "none";
 				}
 			},
 			/**
 			 * 显示搜索建议框
 			 */
 			show() {
-				this.$el.root.style.display = "";
+				SearchSuggestion.$el.root.style.display = "";
 				if (config.useFoldAnimation) {
-					popsDOMUtils.addClassName(this.$el.root, "el-zoom-in-top-animation");
-					popsDOMUtils.removeClassName(this.$el.root, "el-zoom-in-top-animation-hide");
-					popsDOMUtils.addClassName(this.$el.root, "el-zoom-in-top-animation-show");
+					popsDOMUtils.addClassName(SearchSuggestion.$el.root, "el-zoom-in-top-animation");
+					popsDOMUtils.removeClassName(SearchSuggestion.$el.root, "el-zoom-in-top-animation-hide");
+					popsDOMUtils.addClassName(SearchSuggestion.$el.root, "el-zoom-in-top-animation-show");
 				}
 			},
 		};
