@@ -705,12 +705,6 @@ export const PopsSearchSuggestion = {
 					// 需目标高度+搜索建议框高度大于文档高度，则显示在上面
 					let targetBottom = targetRect.bottom;
 					let searchSuggestionContainerHeight = popsDOMUtils.height(SearchSuggestion.$el.$hintULContainer);
-					console.log(
-						targetBottom,
-						searchSuggestionContainerHeight,
-						targetBottom + searchSuggestionContainerHeight,
-						documentHeight
-					);
 					if (targetBottom + searchSuggestionContainerHeight > documentHeight) {
 						// 在上面
 						position = "top";

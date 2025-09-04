@@ -5,14 +5,13 @@ export const searchSuggestionConfig = (): DeepRequired<PopsSearchSuggestionDetai
 	for (let index = 0; index < 10; index++) {
 		data.push({
 			value: `测试${index}`,
-			text: `测试${index}-html`,
 			enableDeleteButton: true,
 			deleteButtonClickCallback(event, $dataItem, dataItem, config) {
 				console.log("删除当前项", [event, $dataItem, dataItem, config]);
 				return true;
 			},
 			itemView(dateItem, $parent) {
-				return dateItem.text;
+				return `测试${index}-html`;
 			},
 			clickCallback(event, $dataItem, dataItem, config) {
 				console.log("item项的点击回调", [event, $dataItem, data, config]);

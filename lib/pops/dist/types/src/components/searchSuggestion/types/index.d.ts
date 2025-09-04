@@ -5,10 +5,6 @@ export type PopsSearchSuggestionData<T = any> = {
      */
     value: T;
     /**
-     * 显示的文本
-     */
-    text: string;
-    /**
      * 是否启用右侧的删除按钮
      * @default true
      */
