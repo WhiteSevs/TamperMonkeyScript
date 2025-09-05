@@ -84,6 +84,7 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
 									void 0,
 									"自动点击关闭聊天室按钮"
 								),
+								UISwitch("禁用鼠标滚轮切换直播间", "live-prevent-wheel-switchLiveRoom", false, void 0, ""),
 							],
 						},
 						{
@@ -241,6 +242,7 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
 								UISwitch("刷新", "dy-live-refresh", false, void 0, "E"),
 								UISwitch("屏幕旋转", "dy-live-screenRotation", false, void 0, "D"),
 								UISwitch("开启小窗模式", "dy-live-enableSmallWindowMode", false, void 0, "U"),
+								UISwitch("切换直播间", "dy-live-switchLiveRoom", false, void 0, "↑↓"),
 							],
 						},
 					],

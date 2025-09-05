@@ -251,6 +251,10 @@ export const DouYinHook = {
 							{
 								enableKey: "dy-live-enableSmallWindowMode",
 								code: ["KeyU"],
+							},
+							{
+								enableKey: "dy-live-switchLiveRoom",
+								code: ["ArrowUp", "ArrowDown"],
 							}
 						);
 					}

@@ -76,9 +76,11 @@ export const DouYinVideoPlayer = {
 			return this.changeBackgroundColor(option.value[1]);
 		});
 		Panel.execMenuOnce("repairProgressBar", () => {
+			let result: HTMLStyleElement[] = [];
 			Panel.onceExec("repairProgressBar", () => {
-				this.repairVideoProgressBar();
+				result.push(...this.repairVideoProgressBar());
 			});
+			return result;
 		});
 		Panel.execMenuOnce("dy-video-gestureBackCloseComment", () => {
 			this.gestureBackCloseComment();
@@ -789,7 +791,7 @@ export const DouYinVideoPlayer = {
 		/* 屏蔽底部视频工具栏右侧的?帮助反馈按钮 */
 		result.push(CommonUtil.addBlockCSS("img#douyin-temp-sidebar")!, addStyle(MobileCSS));
 		Panel.onceExec("repairProgressBar", () => {
-			this.repairVideoProgressBar();
+			result.push(...this.repairVideoProgressBar());
 		});
 		return result;
 	},
@@ -798,13 +800,21 @@ export const DouYinVideoPlayer = {
 	 */
 	repairVideoProgressBar() {
 		log.info("修复进度条按钮");
-		addStyle(/*css*/ `
-		/* 禁止触发touch事件，因为会影响到按钮点击不到 */
-		xg-outer,
-		xg-inners {
-			pointer-events: none;
-		}
-		`);
+		let result: HTMLStyleElement[] = [
+			addStyle(/*css*/ `
+			/* 禁止触发touch事件，因为会影响到按钮点击不到 */
+			xg-outer,
+			xg-inners {
+				pointer-events: none;
+			}
+			`),
+		];
+		/**
+		 * 检测是否启用
+		 */
+		let checkEnable = () => {
+			return Panel.getValue("mobileMode") || Panel.getValue("repairProgressBar");
+		};
 		DOMUtils.ready(() => {
 			// 让拖拽进度条的按钮拖拽时修改进度条高度
 			DOMUtils.on(
@@ -812,6 +822,9 @@ export const DouYinVideoPlayer = {
 				"touchstart",
 				"xg-progress",
 				(event, selectorTarget) => {
+					if (!checkEnable()) {
+						return;
+					}
 					let $click = selectorTarget;
 					let $xg_outer = $click.querySelector<HTMLElement>("xg-outer");
 					if ($xg_outer) {
@@ -828,6 +841,9 @@ export const DouYinVideoPlayer = {
 				"touchend",
 				"xg-progress",
 				(event, selectorTarget) => {
+					if (!checkEnable()) {
+						return;
+					}
 					let $click = selectorTarget;
 					let $xg_outer = $click.querySelector<HTMLElement>("xg-outer");
 					if ($xg_outer) {
@@ -839,6 +855,8 @@ export const DouYinVideoPlayer = {
 				}
 			);
 		});
+
+		return result;
 	},
 	/**
 	 * 修改视频背景颜色

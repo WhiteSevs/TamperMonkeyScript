@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.30
+// @version      2025.9.5
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.4.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
@@ -967,7 +967,7 @@ threshold: 1
     					align-items: center;
 					}
 					.search-result-item-description{
-						font-size: 0.8rem;
+						font-size: 0.8em;
 						color: #6c6c6c;
 					}
 					${config.searchDialogStyle ?? ""}
@@ -2341,6 +2341,10 @@ disableShortCut() {
                 {
                   enableKey: "dy-live-enableSmallWindowMode",
                   code: ["KeyU"]
+                },
+                {
+                  enableKey: "dy-live-switchLiveRoom",
+                  code: ["ArrowUp", "ArrowDown"]
                 }
               );
             }
@@ -3895,9 +3899,11 @@ async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
         return this.changeBackgroundColor(option.value[1]);
       });
       Panel.execMenuOnce("repairProgressBar", () => {
+        let result = [];
         Panel.onceExec("repairProgressBar", () => {
-          this.repairVideoProgressBar();
+          result.push(...this.repairVideoProgressBar());
         });
+        return result;
       });
       Panel.execMenuOnce("dy-video-gestureBackCloseComment", () => {
         this.gestureBackCloseComment();
@@ -4469,27 +4475,35 @@ mobileMode() {
       DouYin.initialScale();
       result.push(CommonUtil.addBlockCSS("img#douyin-temp-sidebar"), addStyle(MobileCSS$1));
       Panel.onceExec("repairProgressBar", () => {
-        this.repairVideoProgressBar();
+        result.push(...this.repairVideoProgressBar());
       });
       return result;
     },
 repairVideoProgressBar() {
       log.info("修复进度条按钮");
-      addStyle(
+      let result = [
+        addStyle(
 `
-		/* 禁止触发touch事件，因为会影响到按钮点击不到 */
-		xg-outer,
-		xg-inners {
-			pointer-events: none;
-		}
-		`
-      );
+			/* 禁止触发touch事件，因为会影响到按钮点击不到 */
+			xg-outer,
+			xg-inners {
+				pointer-events: none;
+			}
+			`
+        )
+      ];
+      let checkEnable = () => {
+        return Panel.getValue("mobileMode") || Panel.getValue("repairProgressBar");
+      };
       domUtils.ready(() => {
         domUtils.on(
           document.body,
           "touchstart",
           "xg-progress",
           (event, selectorTarget) => {
+            if (!checkEnable()) {
+              return;
+            }
             let $click = selectorTarget;
             let $xg_outer = $click.querySelector("xg-outer");
             if ($xg_outer) {
@@ -4505,6 +4519,9 @@ repairVideoProgressBar() {
           "touchend",
           "xg-progress",
           (event, selectorTarget) => {
+            if (!checkEnable()) {
+              return;
+            }
             let $click = selectorTarget;
             let $xg_outer = $click.querySelector("xg-outer");
             if ($xg_outer) {
@@ -4516,6 +4533,7 @@ repairVideoProgressBar() {
           }
         );
       });
+      return result;
     },
 changeBackgroundColor(color) {
       log.info("修改视频背景颜色");
@@ -5278,6 +5296,24 @@ showParseDialog() {
       });
       Panel.execMenuOnce("live-parsePlayerInstance", () => {
         DouYinLivePlayerInstance.initMenu();
+      });
+      Panel.execMenuOnce("live-prevent-wheel-switchLiveRoom", () => {
+        domUtils.on(
+          document,
+          ["wheel", "mousewheel"],
+          (evt) => {
+            if (!Panel.getValue("live-prevent-wheel-switchLiveRoom")) {
+              return;
+            }
+            if (!DouYinRouter.isLive()) {
+              return;
+            }
+            utils.preventEvent(evt);
+          },
+          {
+            capture: true
+          }
+        );
       });
       domUtils.ready(() => {
         Panel.execMenu("live-chooseQuality", (option) => {
@@ -10395,7 +10431,8 @@ value: -2
                     false,
                     void 0,
                     "自动点击关闭聊天室按钮"
-                  )
+                  ),
+                  UISwitch("禁用鼠标滚轮切换直播间", "live-prevent-wheel-switchLiveRoom", false, void 0, "")
                 ]
               },
               {
@@ -10551,7 +10588,8 @@ value: -2
                 forms: [
                   UISwitch("刷新", "dy-live-refresh", false, void 0, "E"),
                   UISwitch("屏幕旋转", "dy-live-screenRotation", false, void 0, "D"),
-                  UISwitch("开启小窗模式", "dy-live-enableSmallWindowMode", false, void 0, "U")
+                  UISwitch("开启小窗模式", "dy-live-enableSmallWindowMode", false, void 0, "U"),
+                  UISwitch("切换直播间", "dy-live-switchLiveRoom", false, void 0, "↑↓")
                 ]
               }
             ]

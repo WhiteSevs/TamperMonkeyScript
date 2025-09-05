@@ -6,6 +6,7 @@ import { ReactUtils } from "@components/utils/ReactUtils";
 import { DouYinLiveBlock } from "./DouYinLiveBlock";
 import { DouYinLivePlayerInstance } from "./DouYinLivePlayerInstance";
 import { DouYinLiveShortCut } from "./DouYinLiveShortCut";
+import { DouYinRouter } from "@/router/DouYinRouter";
 
 export const VideoQualityMap: {
 	[key: string]: {
@@ -77,6 +78,24 @@ export const DouYinLive = {
 		});
 		Panel.execMenuOnce("live-parsePlayerInstance", () => {
 			DouYinLivePlayerInstance.initMenu();
+		});
+		Panel.execMenuOnce("live-prevent-wheel-switchLiveRoom", () => {
+			DOMUtils.on(
+				document,
+				["wheel", "mousewheel"],
+				(evt) => {
+					if (!Panel.getValue("live-prevent-wheel-switchLiveRoom")) {
+						return;
+					}
+					if (!DouYinRouter.isLive()) {
+						return;
+					}
+					utils.preventEvent(evt);
+				},
+				{
+					capture: true,
+				}
+			);
 		});
 		DOMUtils.ready(() => {
 			Panel.execMenu("live-chooseQuality", (option) => {
