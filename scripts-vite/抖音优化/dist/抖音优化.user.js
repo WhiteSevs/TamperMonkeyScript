@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.5
+// @version      2025.9.6
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -4927,19 +4927,11 @@ shielChatRoomVipSeats() {
     },
 shieldUserLevelIcon() {
       log.info("【屏蔽】用户等级图标");
-      return [
-        CommonUtil.addBlockCSS(
-          '#chatroom .webcast-chatroom___item span:has(>img[src*="level"])'
-        )
-      ];
+      return [CommonUtil.addBlockCSS('#chatroom .webcast-chatroom___item span:has(>img[src*="level"])')];
     },
 shieldUserVIPIcon() {
       log.info("【屏蔽】VIP图标");
-      return [
-        CommonUtil.addBlockCSS(
-          '#chatroom .webcast-chatroom___item span:has(>img[src*="subscribe"])'
-        )
-      ];
+      return [CommonUtil.addBlockCSS('#chatroom .webcast-chatroom___item span:has(>img[src*="subscribe"])')];
     },
 shieldUserFansIcon() {
       log.info("【屏蔽】粉丝牌");
@@ -4969,11 +4961,7 @@ shieldMessage() {
     },
 blockDownloadClient() {
       log.info(`【屏蔽】右键菜单-下载客户端`);
-      return [
-        CommonUtil.addBlockCSS(
-          '.__menu_container_className:has(>a[href*="douyin-pc-web"])'
-        )
-      ];
+      return [CommonUtil.addBlockCSS('.__menu_container_className:has(>a[href*="douyin-pc-web"])')];
     }
   };
   const DouYinLiveBlock = {
@@ -5010,7 +4998,8 @@ shieldGiftColumn() {
 'div[data-e2e="living-container"] >div> div:has(>pace-island >.gitBarOptimizeEnabled)',
 'div[data-e2e="living-container"] xg-controls > div:has(div[data-e2e="gifts-container"]):not(:has(video))',
 "#BottomLayout",
-".douyin-player .douyin-player-controls >div:nth-child(2):has(> .gitBarOptimizeEnabled )"
+".douyin-player .douyin-player-controls >div:nth-child(2):has(> .gitBarOptimizeEnabled )",
+`div[data-e2e="living-container"] >div div:has(>pace-island>.gitBarOptimizeEnabled)`
         ),
         addStyle(
 `
@@ -5044,9 +5033,7 @@ shieldTopToolBarInfo() {
 shieldGiftEffects() {
       domUtils.ready(() => {
         utils.waitNode(() => {
-          return domUtils.selector(
-            "xg-icon.pluginContainer > div:contains('屏蔽礼物特效')"
-          ) || domUtils.selector(
+          return domUtils.selector("xg-icon.pluginContainer > div:contains('屏蔽礼物特效')") || domUtils.selector(
             `xg-icon[classname*="pluginContainer"] > div:contains('屏蔽礼物特效')`
           ) || domUtils.selector(
             '.douyin-player-controls-right > slot > div:has([data-e2e="effect-switch"])'
@@ -5097,9 +5084,7 @@ shieldDanmu() {
     },
 block_exhibition_banner_dylive_tooltip() {
       log.info(`【屏蔽】点亮展馆帮主播集星`);
-      return [
-        CommonUtil.addBlockCSS('[data-e2e="exhibition-banner"] .dylive-tooltip')
-      ];
+      return [CommonUtil.addBlockCSS('[data-e2e="exhibition-banner"] .dylive-tooltip')];
     }
   };
   const DouYinLivePlayerInstance = {

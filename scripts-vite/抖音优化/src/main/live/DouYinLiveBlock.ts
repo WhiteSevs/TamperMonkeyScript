@@ -60,22 +60,14 @@ export const DouYinLiveBlock_ChatRoom = {
 	 */
 	shieldUserLevelIcon() {
 		log.info("【屏蔽】用户等级图标");
-		return [
-			CommonUtil.addBlockCSS(
-				'#chatroom .webcast-chatroom___item span:has(>img[src*="level"])'
-			),
-		];
+		return [CommonUtil.addBlockCSS('#chatroom .webcast-chatroom___item span:has(>img[src*="level"])')];
 	},
 	/**
 	 * 【屏蔽】VIP图标
 	 */
 	shieldUserVIPIcon() {
 		log.info("【屏蔽】VIP图标");
-		return [
-			CommonUtil.addBlockCSS(
-				'#chatroom .webcast-chatroom___item span:has(>img[src*="subscribe"])'
-			),
-		];
+		return [CommonUtil.addBlockCSS('#chatroom .webcast-chatroom___item span:has(>img[src*="subscribe"])')];
 	},
 	/**
 	 * 【屏蔽】粉丝牌
@@ -118,11 +110,7 @@ export const DouYinLiveBlock_VideoAreaRightMenu = {
 	 */
 	blockDownloadClient() {
 		log.info(`【屏蔽】右键菜单-下载客户端`);
-		return [
-			CommonUtil.addBlockCSS(
-				'.__menu_container_className:has(>a[href*="douyin-pc-web"])'
-			),
-		];
+		return [CommonUtil.addBlockCSS('.__menu_container_className:has(>a[href*="douyin-pc-web"])')];
 	},
 };
 
@@ -176,7 +164,9 @@ export const DouYinLiveBlock = {
 				// 2025.6.29 新版
 				"#BottomLayout",
 				// 2025.7.23 新版 全屏下的礼物栏
-				".douyin-player .douyin-player-controls >div:nth-child(2):has(> .gitBarOptimizeEnabled )"
+				".douyin-player .douyin-player-controls >div:nth-child(2):has(> .gitBarOptimizeEnabled )",
+				// 2025.9.6 新版
+				`div[data-e2e="living-container"] >div div:has(>pace-island>.gitBarOptimizeEnabled)`
 			),
 			addStyle(/*css*/ `
             /* 去除全屏状态下的礼物栏后，上面的工具栏bottom也去除 */
@@ -230,9 +220,7 @@ export const DouYinLiveBlock = {
 			utils
 				.waitNode(() => {
 					return (
-						DOMUtils.selector<HTMLElement>(
-							"xg-icon.pluginContainer > div:contains('屏蔽礼物特效')"
-						) ||
+						DOMUtils.selector<HTMLElement>("xg-icon.pluginContainer > div:contains('屏蔽礼物特效')") ||
 						DOMUtils.selector<HTMLElement>(
 							`xg-icon[classname*="pluginContainer"] > div:contains('屏蔽礼物特效')`
 						) ||
@@ -247,8 +235,7 @@ export const DouYinLiveBlock = {
 						return;
 					}
 					let { reactFiber } = utils.getReactObj($el);
-					let onClick =
-						reactFiber?.memoizedProps?.children?.[1]?.props?.onClick;
+					let onClick = reactFiber?.memoizedProps?.children?.[1]?.props?.onClick;
 					if (typeof onClick === "function") {
 						log.info(`调用【屏蔽】礼物特效按钮的onClick函数`);
 						onClick();
@@ -305,8 +292,6 @@ export const DouYinLiveBlock = {
 	 */
 	block_exhibition_banner_dylive_tooltip() {
 		log.info(`【屏蔽】点亮展馆帮主播集星`);
-		return [
-			CommonUtil.addBlockCSS('[data-e2e="exhibition-banner"] .dylive-tooltip'),
-		];
+		return [CommonUtil.addBlockCSS('[data-e2e="exhibition-banner"] .dylive-tooltip')];
 	},
 };
