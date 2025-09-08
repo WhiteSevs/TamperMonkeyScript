@@ -413,7 +413,7 @@ export declare class DOMUtilsEvent {
      * > div.xxx
      */
     selector<K extends keyof HTMLElementTagNameMap>(selector: K, parent?: Element | Document | DocumentFragment | ShadowRoot): HTMLElementTagNameMap[K] | undefined;
-    selector<E extends Element = Element>(selector: string, parent?: Element | Document | DocumentFragment | ShadowRoot): E | undefined;
+    selector<E extends Element = HTMLElement>(selector: string, parent?: Element | Document | DocumentFragment | ShadowRoot): E | undefined;
     /**
      * 选择器，可使用以下的额外语法
      *
@@ -436,7 +436,7 @@ export declare class DOMUtilsEvent {
      * > [div.xxx]
      */
     selectorAll<K extends keyof HTMLElementTagNameMap>(selector: K, parent?: Element | Document | DocumentFragment | ShadowRoot): HTMLElementTagNameMap[K][];
-    selectorAll<E extends Element = Element>(selector: string, parent?: Element | Document | DocumentFragment | ShadowRoot): E[];
+    selectorAll<E extends Element = HTMLElement>(selector: string, parent?: Element | Document | DocumentFragment | ShadowRoot): E[];
     /**
      * 匹配元素，可使用以下的额外语法
      *

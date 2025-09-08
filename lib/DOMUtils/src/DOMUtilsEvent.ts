@@ -1296,11 +1296,11 @@ export class DOMUtilsEvent {
 		selector: K,
 		parent?: Element | Document | DocumentFragment | ShadowRoot
 	): HTMLElementTagNameMap[K] | undefined;
-	selector<E extends Element = Element>(
+	selector<E extends Element = HTMLElement>(
 		selector: string,
 		parent?: Element | Document | DocumentFragment | ShadowRoot
 	): E | undefined;
-	selector<E extends Element = Element>(
+	selector<E extends Element = HTMLElement>(
 		selector: string,
 		parent?: Element | Document | DocumentFragment | ShadowRoot
 	) {
@@ -1331,11 +1331,11 @@ export class DOMUtilsEvent {
 		selector: K,
 		parent?: Element | Document | DocumentFragment | ShadowRoot
 	): HTMLElementTagNameMap[K][];
-	selectorAll<E extends Element = Element>(
+	selectorAll<E extends Element = HTMLElement>(
 		selector: string,
 		parent?: Element | Document | DocumentFragment | ShadowRoot
 	): E[];
-	selectorAll<E extends Element = Element>(
+	selectorAll<E extends Element = HTMLElement>(
 		selector: string,
 		parent?: Element | Document | DocumentFragment | ShadowRoot
 	) {

@@ -93,6 +93,52 @@ class DOMUtils extends DOMUtilsEvent {
 			| string,
 		/** 自定义属性 */
 		attributes?: DOMUtilsCreateElementAttributesMap
+	): HTMLElementTagNameMap[K];
+	/**
+	 * 创建元素
+	 * @param tagName 自定义的标签名
+	 * @param property 属性
+	 * @param attributes 元素上的自定义属性
+	 * @example
+	 * // 创建一个custom-div元素，且属性class为xxx
+	 * DOMUtils.createElement("custom-div",undefined,{ class:"xxx" });
+	 * > <custom-div class="xxx"></custom-div>
+	 * @example
+	 * // 创建一个custom-div元素
+	 * DOMUtils.createElement("custom-div");
+	 * > <custom-div></custom-div>
+	 * @example
+	 * // 创建一个custom-div元素
+	 * DOMUtils.createElement("custom-div","测试");
+	 * > <custom-div>测试</custom-div>
+	 */
+	createElement(
+		/** 元素名 */
+		tagName: string,
+		/** 属性 */
+		property?:
+			| ({
+					[P in keyof HTMLElement]?: HTMLElement[P];
+			  } & {
+					[key: string]: any;
+			  })
+			| string,
+		/** 自定义属性 */
+		attributes?: DOMUtilsCreateElementAttributesMap
+	): HTMLElement;
+	createElement<K extends keyof HTMLElementTagNameMap>(
+		/** 元素名 */
+		tagName: K,
+		/** 属性 */
+		property?:
+			| ({
+					[P in keyof HTMLElementTagNameMap[K]]?: HTMLElementTagNameMap[K][P];
+			  } & {
+					[key: string]: any;
+			  })
+			| string,
+		/** 自定义属性 */
+		attributes?: DOMUtilsCreateElementAttributesMap
 	): HTMLElementTagNameMap[K] {
 		let DOMUtilsContext = this;
 		let tempElement = DOMUtilsContext.windowApi.document.createElement(tagName);
@@ -127,7 +173,6 @@ class DOMUtils extends DOMUtilsEvent {
 		});
 		return tempElement;
 	}
-
 	/**
 	 * 获取元素的样式属性值
 	 * @param element 目标元素
@@ -653,7 +698,7 @@ class DOMUtils extends DOMUtilsEvent {
 			element.className = "";
 		} else {
 			if (!Array.isArray(className)) {
-				className = className.split(" ");
+				className = className.trim().split(" ");
 			}
 			className.forEach((itemClassName) => {
 				element.classList.remove(itemClassName);
