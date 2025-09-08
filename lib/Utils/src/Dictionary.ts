@@ -1,13 +1,9 @@
-import { CommonUtil } from "./CommonUtil";
-
-export class UtilsDictionary<K extends string | number | symbol, V extends unknown> {
-	private items: {
-		[key: string | number | symbol]: V;
-	};
+export class UtilsDictionary<K extends unknown, V extends any> {
+	private items: Map<K, V>;
 	constructor();
 	constructor(key: K, value: V);
 	constructor(key?: K, value?: V) {
-		this.items = {};
+		this.items = new Map();
 		if (key != null) {
 			this.set(key, value!);
 		}
@@ -44,35 +40,16 @@ export class UtilsDictionary<K extends string | number | symbol, V extends unkno
 	 * @param key 键
 	 */
 	has(key: K): boolean {
-		return Reflect.has(this.items, key as PropertyKey);
+		return this.items.has(key);
 	}
 	/**
-	 * 检查已有的键中是否以xx开头
-	 * @param key 需要匹配的键
+	 * 获取某个键的值
+	 * https://github.com/microsoft/TypeScript/issues/9619
+	 * 微软到现在都没有实现has和get的联动
+	 * @param key 键
 	 */
-	startsWith(key: K): boolean {
-		let allKeys = this.keys();
-		for (const keyName of allKeys) {
-			if (String(keyName).startsWith(String(key))) {
-				return true;
-			}
-		}
-		return false;
-	}
-	/**
-	 * 获取以xx开头的键的值
-	 * @param key 需要匹配的键
-	 */
-	getStartsWith(key: K): V | undefined {
-		let allKeys = this.keys();
-		let result: V | undefined = void 0;
-		for (const keyName of allKeys) {
-			if (String(keyName).startsWith(String(key))) {
-				result = this.get(keyName as K)!;
-				break;
-			}
-		}
-		return result;
+	get(key: K): V {
+		return this.items.get(key) as V;
 	}
 	/**
 	 * 为字典添加某一个值
@@ -83,57 +60,44 @@ export class UtilsDictionary<K extends string | number | symbol, V extends unkno
 		if (key === void 0) {
 			throw new Error("Utils.Dictionary().set 参数 key 不能为空");
 		}
-		Reflect.set(this.items, key as PropertyKey, val);
+		this.items.set(key, val);
 	}
 	/**
 	 * 删除某一个键
 	 * @param key 键
+	 * @returns
+	 * + true：键存在且成功删除
+	 * + false：键不存在
 	 */
 	delete(key: K): boolean {
 		if (this.has(key)) {
-			return Reflect.deleteProperty(this.items, key as string);
+			return this.items.delete(key);
 		}
 		return false;
 	}
 	/**
-	 * 获取某个键的值
-	 * https://github.com/microsoft/TypeScript/issues/9619
-	 * 微软到现在都没有修复has和get的联动
-	 * @param key 键
+	 * 获取字典所有的键
 	 */
-	get(key: K): V {
-		return Reflect.get(this.items, key as PropertyKey) as V;
+	keys(): K[] {
+		return this.items.keys().toArray();
 	}
 	/**
 	 * 返回字典中的所有值
 	 */
 	values(): V[] {
-		let resultList: V[] = [];
-		for (let prop in this.getItems()) {
-			if (this.has(prop as K)) {
-				resultList.push(this.get(prop as K)!);
-			}
-		}
-		return resultList;
+		return this.items.values().toArray();
 	}
 	/**
 	 * 清空字典
 	 */
 	clear() {
-		this.items = null as any;
-		this.items = {};
+		this.items.clear();
 	}
 	/**
 	 * 获取字典的长度
 	 */
 	size(): number {
-		return Object.keys(this.getItems()).length;
-	}
-	/**
-	 * 获取字典所有的键
-	 */
-	keys(): (string | symbol)[] {
-		return Reflect.ownKeys(this.items);
+		return this.items.size;
 	}
 	/**
 	 * 返回字典本身
@@ -146,15 +110,45 @@ export class UtilsDictionary<K extends string | number | symbol, V extends unkno
 	 * @param data 需要合并的字典
 	 */
 	concat(data: UtilsDictionary<K, V>) {
-		this.items = CommonUtil.assign(this.items, data.getItems());
+		data.forEach((value, key) => {
+			this.items.set(key, value);
+		});
 	}
 	/**
 	 * 迭代字典
 	 * @param callbackfn 回调函数
 	 */
 	forEach(callbackfn: (value: V, key: K, dictionary: UtilsDictionary<K, V>) => void) {
-		for (const key in this.getItems()) {
-			callbackfn(this.get(key as any) as V, key as K, this.getItems() as any);
+		this.items.forEach((value, key, self) => {
+			callbackfn(value, key, this);
+		});
+	}
+	/**
+	 * 检查已有的键中是否以xx开头
+	 * @param key 需要匹配的键
+	 */
+	startsWith(key: string): boolean {
+		const keys = this.keys();
+		for (const keyName of keys) {
+			if (String(keyName).startsWith(key)) {
+				return true;
+			}
 		}
+		return false;
+	}
+	/**
+	 * 获取以xx开头的键的值
+	 * @param key 需要匹配的键
+	 */
+	getStartsWith(key: K): V | undefined {
+		let result: V | undefined = void 0;
+		const keys = this.keys();
+		for (const keyName of keys) {
+			if (String(keyName).startsWith(String(key))) {
+				result = this.get(keyName as K);
+				break;
+			}
+		}
+		return result;
 	}
 }

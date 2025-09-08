@@ -35,7 +35,7 @@ class Utils {
 		this.windowApi = new WindowApi(option);
 	}
 	/** 版本号 */
-	version = "2025.8.21";
+	version = "2025.9.8";
 	/**
 	 * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
 	 * @param cssText css字符串
@@ -462,7 +462,6 @@ class Utils {
 			linkElement.click();
 		}
 	}
-
 	/**
 	 * 选中页面中的文字，类似Ctrl+F的选中
 	 * @param str （可选）需要寻找的字符串，默认为空
@@ -532,28 +531,28 @@ class Utils {
 		filter?: (element: T) => boolean
 	) {
 		let that = this;
-		if ((element as HTMLElement).outerHTML.includes(text)) {
-			if ((element as HTMLElement).children.length === 0) {
+		if ((<HTMLElement>element).outerHTML.includes(text)) {
+			if ((<HTMLElement>element).children.length === 0) {
 				let filterResult = typeof filter === "function" ? filter(element) : false;
 				if (!filterResult) {
 					yield element as any;
 				}
 			} else {
 				let textElement = Array.from(element.childNodes).filter((ele) => ele.nodeType === Node.TEXT_NODE);
-				for (let ele of textElement) {
-					if ((ele as any).textContent.includes(text)) {
+				for (let $child of textElement) {
+					if ((<HTMLElement>$child).textContent.includes(text)) {
 						let filterResult = typeof filter === "function" ? filter(element) : false;
 						if (!filterResult) {
-							yield ele;
+							yield $child;
 						}
 					}
 				}
 			}
 		}
 
-		for (let index = 0; index < (element as HTMLElement).children.length; index++) {
-			let childElement = (element as HTMLElement).children[index] as any;
-			yield* that.findElementsWithText(childElement, text, filter);
+		for (let index = 0; index < (<HTMLElement>element).children.length; index++) {
+			let $child = (<HTMLElement>element).children[index] as any;
+			yield* that.findElementsWithText($child, text, filter);
 		}
 	}
 	/**
