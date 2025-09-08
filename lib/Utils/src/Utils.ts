@@ -28,6 +28,7 @@ import {
 import { ModuleRaid } from "./ModuleRaid";
 import { domUtils } from "./DOMUtils";
 import { CommonUtil } from "./CommonUtil";
+import type { ReactInstance } from "./types/React";
 
 class Utils {
 	private windowApi: typeof WindowApi.prototype;
@@ -1337,22 +1338,20 @@ class Utils {
 	 * @example
 	 * Utils.getReactObj(document.querySelector("input"))?.reactProps?.onChange({target:{value:"123"}});
 	 */
-	getReactObj(element: HTMLElement | Element): {
-		reactFiber?: any;
-		reactProps?: any;
-		reactEvents?: any;
-		reactEventHandlers?: any;
-		reactInternalInstance?: any;
-		reactContainer?: any;
-	} {
+	getReactObj(element: HTMLElement | Element): ReactInstance {
 		let result = {};
-		Object.keys(element).forEach((domPropsName) => {
+		if (element == null) {
+			return result;
+		}
+		const keys = Object.keys(element);
+		keys.forEach((domPropsName) => {
 			if (domPropsName.startsWith("__react")) {
-				let propsName = domPropsName.replace(/__(.+)\$.+/i, "$1");
+				const propsName = domPropsName.replace(/__(.+)\$.+/i, "$1");
+				const propsValue = Reflect.get(element, domPropsName);
 				if (propsName in result) {
 					new Error("重复属性 " + domPropsName);
 				} else {
-					(result as any)[propsName] = (element as any)[domPropsName];
+					Reflect.set(result, propsName, propsValue);
 				}
 			}
 		});

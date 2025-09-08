@@ -15,6 +15,7 @@ import { Vue } from "./Vue";
 import { type ArgsType, type JSTypeNames, type UtilsOwnObject } from "./types/global";
 import type { WindowApiOption } from "./types/WindowApi";
 import { ModuleRaid } from "./ModuleRaid";
+import type { ReactInstance } from "./types/React";
 declare class Utils {
     private windowApi;
     constructor(option?: WindowApiOption);
@@ -529,14 +530,7 @@ declare class Utils {
      * @example
      * Utils.getReactObj(document.querySelector("input"))?.reactProps?.onChange({target:{value:"123"}});
      */
-    getReactObj(element: HTMLElement | Element): {
-        reactFiber?: any;
-        reactProps?: any;
-        reactEvents?: any;
-        reactEventHandlers?: any;
-        reactInternalInstance?: any;
-        reactContainer?: any;
-    };
+    getReactObj(element: HTMLElement | Element): ReactInstance;
     /**
      * 获取对象上的Symbol属性，如果没设置keyName，那么返回一个对象，对象是所有遍历到的Symbol对象
      * @param target 目标对象
