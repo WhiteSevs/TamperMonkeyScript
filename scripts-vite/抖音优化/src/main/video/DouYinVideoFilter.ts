@@ -1,4 +1,4 @@
-import { $$, addStyle, DOMUtils, httpx, log, pops, utils } from "@/env";
+import { $$, addStyle, DOMUtils, log, pops, utils } from "@/env";
 import { UIInput } from "@components/setting/components/ui-input";
 import { UISelectMultiple } from "@components/setting/components/ui-select-multiple";
 import { UISwitch } from "@components/setting/components/ui-switch";
@@ -6,12 +6,7 @@ import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, PROPS_STORAGE_API } from "@comp
 import { RuleView } from "@components/utils/RuleView";
 import { RuleStorage } from "@components/utils/RuleStorage";
 import Qmsg from "qmsg";
-import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
-import {
-	DouYinVideoFilterBase,
-	type DouYinVideoAwemeInfo,
-	type DouYinVideoHandlerInfo,
-} from "./DouYinVideoFilterBase";
+import { DouYinVideoFilterBase } from "./DouYinVideoFilterBase";
 import { Panel } from "@components/setting/panel";
 import { DouYinNetWorkHook } from "@/hook/DouYinNetWorkHook";
 import { CommonUtil } from "@components/utils/CommonUtil";
@@ -21,6 +16,7 @@ import Utils from "@whitesev/utils";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import type { UtilsAjaxHookRequestOptions } from "@whitesev/utils/dist/types/src/types/ajaxHooker";
 import type { PopsPanelSelectMultipleDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-selectMultiple";
+import type { DouYinVideoAwemeInfo, DouYinVideoHandlerInfo } from "./DouYinVideoType";
 
 type DouYinVideoFilterOptionScope =
 	| "all"
@@ -397,19 +393,19 @@ export const DouYinVideoFilter = {
 		let filterBase = new DouYinVideoFilterBase();
 
 		// 按钮的点击回调
-		let awemeInfoClickCallBack = ($basePlayerContainer: HTMLElement) => {
+		let awemeInfoClickCallBack = ($container: HTMLElement) => {
 			let that = this;
-			let reactFiber = utils.getReactObj($basePlayerContainer)?.reactFiber;
+			let reactFiber = utils.getReactObj($container)?.reactFiber;
 			let awemeInfo =
-				reactFiber?.return?.memoizedProps?.awemeInfo || reactFiber?.return?.return?.memoizedProps?.awemeInfo;
+				reactFiber?.return?.memoizedProps?.awemeInfo ||
+				reactFiber?.return?.return?.memoizedProps?.awemeInfo ||
+				reactFiber?.return?.memoizedProps?.originData;
 			if (awemeInfo == null) {
-				Qmsg.error("未获取到awemeInfo信息", { consoleLogContent: true });
+				Qmsg.error("未获取到awemeInfo信息");
 				return;
 			}
 			if (typeof awemeInfo !== "object") {
-				Qmsg.error("获取到的awemeInfo信息不是对象", {
-					consoleLogContent: true,
-				});
+				Qmsg.error("获取到的awemeInfo信息不是对象");
 				return;
 			}
 			let transformAwemeInfo: DouYinVideoHandlerInfo;
@@ -485,13 +481,14 @@ export const DouYinVideoFilter = {
 			`,
 			});
 		};
-		let lockFn = new utils.LockFunction(() => {
-			$$<HTMLElement>(".basePlayerContainer xg-right-grid:not(:has(.gm-video-filter-parse-btn))").forEach(
-				($xgRightGrid) => {
-					// @ts-ignore
-					let $gmFilterParseBtn = DOMUtils.createElement("xg-icon", {
-						className: "gm-video-filter-parse-btn",
-						innerHTML: /*html*/ `
+		/**
+		 * 创建解析按钮
+		 */
+		let createFilterParseButton = () => {
+			// @ts-ignore
+			return DOMUtils.createElement("xg-icon", {
+				className: "gm-video-filter-parse-btn",
+				innerHTML: /*html*/ `
 						<div class="xgplayer-icon">
 							<span role="img" class="semi-icon semi-icon-default">
 								<svg
@@ -514,12 +511,36 @@ export const DouYinVideoFilter = {
 							</span>
 						</div>
 						<div class="xg-tips">解析信息</div>
-					`,
-					});
+				`,
+			}) as HTMLElement;
+		};
+		let lockFn = new utils.LockFunction(() => {
+			if (DouYinRouter.isLive()) {
+				return;
+			}
+			// 普通视频
+			$$<HTMLElement>(".basePlayerContainer xg-right-grid:not(:has(.gm-video-filter-parse-btn))").forEach(
+				($xgRightGrid) => {
+					let $gmFilterParseBtn = createFilterParseButton();
 					DOMUtils.on($gmFilterParseBtn, "click", (event) => {
 						utils.preventEvent(event);
 						let $basePlayerContainer = $xgRightGrid.closest<HTMLElement>(".basePlayerContainer")!;
 						awemeInfoClickCallBack($basePlayerContainer);
+					});
+					DOMUtils.prepend($xgRightGrid, $gmFilterParseBtn);
+				}
+			);
+			// 直播间
+			$$<HTMLElement>('[data-e2e="feed-live"] xg-right-grid:not(:has(.gm-video-filter-parse-btn))').forEach(
+				($xgRightGrid) => {
+					if (!utils.isVisible($xgRightGrid, false)) {
+						return;
+					}
+					let $gmFilterParseBtn = createFilterParseButton();
+					DOMUtils.on($gmFilterParseBtn, "click", (event) => {
+						utils.preventEvent(event);
+						let $liveContainer = $xgRightGrid.closest<HTMLElement>('[data-e2e="feed-live"]')!;
+						awemeInfoClickCallBack($liveContainer);
 					});
 					DOMUtils.prepend($xgRightGrid, $gmFilterParseBtn);
 				}
@@ -720,6 +741,11 @@ export const DouYinVideoFilter = {
 							"diggCount",
 							"shareCount",
 							"duration",
+							"liveStreamRoomId",
+							"liveStreamRoomTitle",
+							"liveStreamNickName",
+							"liveStreamRoomUserCount",
+							"liveStreamRoomDynamicSpliceLabel",
 						];
 
 						/**
@@ -1037,6 +1063,9 @@ export const DouYinVideoFilter = {
 							},
 						},
 					],
+					cancelFilterCallback(config) {
+						Panel.deleteValue("dy-video-ui-rule-filter-option-index");
+					},
 				},
 				clear: {
 					enable: true,

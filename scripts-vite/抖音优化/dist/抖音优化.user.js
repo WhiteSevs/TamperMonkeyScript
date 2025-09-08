@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.6
+// @version      2025.9.8
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -10,8 +10,8 @@
 // @match        *://*.douyin.com/*
 // @match        *://*.iesdouyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.4.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @connect      *
@@ -555,6 +555,13 @@ initContentDefaultValue() {
         if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
           return;
         }
+        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
+        if (typeof __attr_init__ === "function") {
+          let __attr_result__ = __attr_init__();
+          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
+            return;
+          }
+        }
         let menuDefaultConfig = new Map();
         let key = config.attributes[ATTRIBUTE_KEY];
         if (key != null) {
@@ -570,13 +577,6 @@ initContentDefaultValue() {
         if (!menuDefaultConfig.size) {
           log.warn(["请先配置键", config]);
           return;
-        }
-        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
-        if (typeof __attr_init__ === "function") {
-          let __attr_result__ = __attr_init__();
-          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
-            return;
-          }
         }
         if (config.type === "switch") {
           let disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
@@ -3119,6 +3119,9 @@ shieldSearchFloatingBar() {
           )
         );
       }
+      if (DouYinRouter.isUser()) {
+        result.push(CommonUtil.addBlockCSS('div>div>div:has(>[data-e2e="searchbar-button"])'));
+      }
       return result;
     },
 shieldCloseFullScreenButton() {
@@ -3133,6 +3136,13 @@ shieldCloseFullScreenButton() {
         result.push(
           CommonUtil.addBlockCSS(
             '#douyin-right-container div>div:has(>svg>path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
+          )
+        );
+      }
+      if (DouYinRouter.isUser()) {
+        result.push(
+          CommonUtil.addBlockCSS(
+            'div>div>div:has(>svg>path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
           )
         );
       }
@@ -4353,7 +4363,7 @@ hookDownloadButtonToParseVideo() {
             return;
           }
           try {
-            let awemeInfo = rectFiber.return.memoizedProps.awemeInfo;
+            let awemeInfo = rectFiber?.return?.memoizedProps?.awemeInfo;
             if (!awemeInfo) {
               Qmsg.error("获取awemeInfo属性失败", { consoleLogContent: true });
               return;
@@ -5413,7 +5423,7 @@ unlockImageQuality() {
                 return reactInst?.reactFiber?.["key"];
               },
               getCurrentQualityList() {
-                return parentReactInst?.reactFiber?.return?.memoizedProps?.qualityList || parentReactInst?.reactProps?.["children"]["ref"]["current"];
+                return parentReactInst?.reactFiber?.return?.memoizedProps?.qualityList || parentReactInst?.reactProps?.["children"]?.["ref"]?.["current"];
               },
               setCurrentQuality(quality) {
                 let setCurrentQuality = parentReactInst?.reactFiber?.return?.memoizedProps?.qualityHandler?.setCurrentQuality || parentReactInst?.reactFiber?.child?.memoizedProps?.qualityHandler?.setCurrentQuality || parentReactInst?.reactFiber?.return?.memoizedProps?.qualityHandler?.setCurrentQuality || parentReactInst?.reactProps?.["children"]?.["ref"]?.["current"]?.setCurrentQuality;
@@ -6422,9 +6432,12 @@ async showView(filterCallBack) {
             enable: this.option?.bottomControls?.filter?.enable || false,
             type: "default",
             text: "过滤",
-            callback: (details, event) => {
+            callback: async (details, event) => {
               if (typeof this.option?.bottomControls?.filter?.callback === "function") {
-                this.option.bottomControls.filter.callback();
+                let result = await this.option.bottomControls.filter.callback();
+                if (typeof result === "boolean" && !result) {
+                  return;
+                }
               }
               let getAllRuleElement = () => {
                 return Array.from(
@@ -6433,6 +6446,13 @@ async showView(filterCallBack) {
               };
               let $button = event.target.closest(".pops-confirm-btn").querySelector(".pops-confirm-btn-cancel span");
               if (domUtils.text($button).includes("取消")) {
+                let cancelFilterResult = await this.option?.bottomControls?.filter?.cancelFilterCallback?.({
+                  $button,
+                  getAllRuleElement
+                });
+                if (typeof cancelFilterResult === "boolean" && !cancelFilterResult) {
+                  return;
+                }
                 getAllRuleElement().forEach(($el) => {
                   domUtils.show($el, false);
                 });
@@ -6441,8 +6461,9 @@ async showView(filterCallBack) {
                 let ruleFilterView = new RuleFilterView({
                   title: this.option.bottomControls?.filter?.title ?? "过滤规则",
                   filterOption: this.option.bottomControls?.filter?.option || [],
-                  execFilterCallBack() {
+                  execFilterCallBack: async () => {
                     domUtils.text($button, "取消过滤");
+                    await this.option.bottomControls?.filter?.execFilterCallBack?.();
                   },
                   getAllRuleInfo: () => {
                     return getAllRuleElement().map(($el) => {
@@ -7205,6 +7226,11 @@ awemeInfo?.["videoTag"] || awemeInfo?.["video_tag"]
       let awemeId = (
 awemeInfo?.["aweme_id"] || awemeInfo?.["awemeId"]
       );
+      let liveStreamRoomId = void 0;
+      let liveStreamRoomTitle = void 0;
+      let liveStreamNickName = void 0;
+      let liveStreamRoomUserCount = void 0;
+      let liveStreamRoomDynamicSpliceLabel = void 0;
       if (typeof videoTagInstance === "object" && Array.isArray(videoTagInstance)) {
         videoTagInstance.forEach((item) => {
           let tagName = item?.["tagName"] || item?.["tag_name"];
@@ -7220,11 +7246,38 @@ awemeInfo?.["aweme_id"] || awemeInfo?.["awemeId"]
           }
         });
       }
-      if (typeof awemeInfo["cellRoom"] === "object" ||
-typeof awemeInfo["cell_room"] === "object") {
+      const cell_room = awemeInfo?.["cellRoom"] ||
+awemeInfo?.["cell_room"];
+      if (typeof cell_room === "object" && cell_room != null) {
         isLive = true;
         if (showLog) {
           log.success("直播间：cellRoom is not null");
+        }
+        let rawDataJSON = cell_room["rawdata"];
+        if (typeof rawDataJSON === "string") {
+          rawDataJSON = utils.toJSON(rawDataJSON);
+        }
+        if (typeof rawDataJSON === "object" && rawDataJSON != null) {
+          liveStreamRoomId = rawDataJSON?.["owner"]?.["web_rid"];
+          liveStreamRoomTitle = rawDataJSON?.["title"];
+          liveStreamNickName = rawDataJSON?.["owner"]?.["nickname"];
+          liveStreamRoomUserCount = rawDataJSON?.["user_count"];
+          liveStreamRoomDynamicSpliceLabel = rawDataJSON?.["dynamic_label"]?.["splice_label"]?.["text"];
+          if (typeof liveStreamRoomId !== "string") {
+            liveStreamRoomId = void 0;
+          }
+          if (typeof liveStreamRoomTitle !== "string") {
+            liveStreamRoomTitle = void 0;
+          }
+          if (typeof liveStreamNickName !== "string") {
+            liveStreamNickName = void 0;
+          }
+          if (typeof liveStreamRoomUserCount !== "number") {
+            liveStreamRoomUserCount = void 0;
+          }
+          if (typeof liveStreamRoomDynamicSpliceLabel !== "string") {
+            liveStreamRoomDynamicSpliceLabel = void 0;
+          }
         }
       }
       if (awemeInfo["isAds"] ||
@@ -7348,6 +7401,11 @@ awemeInfo?.["authorInfo"]?.["enterpriseVerifyReason"] || ""
         diggCount,
         shareCount,
         duration,
+        liveStreamRoomId,
+        liveStreamRoomTitle,
+        liveStreamNickName,
+        liveStreamRoomUserCount,
+        liveStreamRoomDynamicSpliceLabel,
         isLive,
         isAds,
         isSeriesInfo,
@@ -7788,18 +7846,16 @@ addParseButton() {
 		`
       );
       let filterBase = new DouYinVideoFilterBase();
-      let awemeInfoClickCallBack = ($basePlayerContainer) => {
+      let awemeInfoClickCallBack = ($container) => {
         let that = this;
-        let reactFiber = utils.getReactObj($basePlayerContainer)?.reactFiber;
-        let awemeInfo = reactFiber?.return?.memoizedProps?.awemeInfo || reactFiber?.return?.return?.memoizedProps?.awemeInfo;
+        let reactFiber = utils.getReactObj($container)?.reactFiber;
+        let awemeInfo = reactFiber?.return?.memoizedProps?.awemeInfo || reactFiber?.return?.return?.memoizedProps?.awemeInfo || reactFiber?.return?.memoizedProps?.originData;
         if (awemeInfo == null) {
-          Qmsg.error("未获取到awemeInfo信息", { consoleLogContent: true });
+          Qmsg.error("未获取到awemeInfo信息");
           return;
         }
         if (typeof awemeInfo !== "object") {
-          Qmsg.error("获取到的awemeInfo信息不是对象", {
-            consoleLogContent: true
-          });
+          Qmsg.error("获取到的awemeInfo信息不是对象");
           return;
         }
         let transformAwemeInfo;
@@ -7873,12 +7929,10 @@ addParseButton() {
           )
         });
       };
-      let lockFn = new utils.LockFunction(() => {
-        $$(".basePlayerContainer xg-right-grid:not(:has(.gm-video-filter-parse-btn))").forEach(
-          ($xgRightGrid) => {
-            let $gmFilterParseBtn = domUtils.createElement("xg-icon", {
-              className: "gm-video-filter-parse-btn",
-              innerHTML: (
+      let createFilterParseButton = () => {
+        return domUtils.createElement("xg-icon", {
+          className: "gm-video-filter-parse-btn",
+          innerHTML: (
 `
 						<div class="xgplayer-icon">
 							<span role="img" class="semi-icon semi-icon-default">
@@ -7902,13 +7956,35 @@ addParseButton() {
 							</span>
 						</div>
 						<div class="xg-tips">解析信息</div>
-					`
-              )
-            });
+				`
+          )
+        });
+      };
+      let lockFn = new utils.LockFunction(() => {
+        if (DouYinRouter.isLive()) {
+          return;
+        }
+        $$(".basePlayerContainer xg-right-grid:not(:has(.gm-video-filter-parse-btn))").forEach(
+          ($xgRightGrid) => {
+            let $gmFilterParseBtn = createFilterParseButton();
             domUtils.on($gmFilterParseBtn, "click", (event) => {
               utils.preventEvent(event);
               let $basePlayerContainer = $xgRightGrid.closest(".basePlayerContainer");
               awemeInfoClickCallBack($basePlayerContainer);
+            });
+            domUtils.prepend($xgRightGrid, $gmFilterParseBtn);
+          }
+        );
+        $$('[data-e2e="feed-live"] xg-right-grid:not(:has(.gm-video-filter-parse-btn))').forEach(
+          ($xgRightGrid) => {
+            if (!utils.isVisible($xgRightGrid, false)) {
+              return;
+            }
+            let $gmFilterParseBtn = createFilterParseButton();
+            domUtils.on($gmFilterParseBtn, "click", (event) => {
+              utils.preventEvent(event);
+              let $liveContainer = $xgRightGrid.closest('[data-e2e="feed-live"]');
+              awemeInfoClickCallBack($liveContainer);
             });
             domUtils.prepend($xgRightGrid, $gmFilterParseBtn);
           }
@@ -8066,7 +8142,12 @@ getRuleViewInstance() {
                 "commentCount",
                 "diggCount",
                 "shareCount",
-                "duration"
+                "duration",
+                "liveStreamRoomId",
+                "liveStreamRoomTitle",
+                "liveStreamNickName",
+                "liveStreamRoomUserCount",
+                "liveStreamRoomDynamicSpliceLabel"
               ];
               let getDynamicProp = (storageData) => {
                 let ruleNameDefaultValue = Array.isArray(storageData["ruleName"]) ? storageData["ruleName"] : [storageData["ruleName"]];
@@ -8352,7 +8433,10 @@ $ruleName,
                   return true;
                 }
               }
-            ]
+            ],
+            cancelFilterCallback(config) {
+              Panel.deleteValue("dy-video-ui-rule-filter-option-index");
+            }
           },
           clear: {
             enable: true,
@@ -8743,12 +8827,9 @@ coverGlobalClick() {
       Panel.execMenuOnce("m-dy-share-note-coverRecommend", () => {
         this.coverRecommend();
       });
-      Panel.execMenuOnce(
-        "m-dy-share-note-coverExcitingGraphicsAndText",
-        () => {
-          this.coverExcitingGraphicsAndText();
-        }
-      );
+      Panel.execMenuOnce("m-dy-share-note-coverExcitingGraphicsAndText", () => {
+        this.coverExcitingGraphicsAndText();
+      });
     },
 blockRecommend() {
       log.info("【屏蔽】相关推荐");
@@ -8777,7 +8858,7 @@ coverRecommend() {
             Qmsg.error("获取reactFiber失败");
             return;
           }
-          let awemeId = rectFiber.return.memoizedProps.awemeId;
+          let awemeId = rectFiber?.return?.memoizedProps.awemeId;
           let url = DouYinUrlUtils.getNoteUrl(awemeId);
           window.open(url, "_blank");
         },
@@ -8799,7 +8880,7 @@ coverUser() {
             Qmsg.error("获取reactFiber失败");
             return;
           }
-          let sec_id = rectFiber.return.return.memoizedProps.video.authorInfo.sec_uid;
+          let sec_id = rectFiber?.return?.return?.memoizedProps?.video?.authorInfo?.sec_uid;
           let url = DouYinUrlUtils.getUserHomeUrl(sec_id);
           window.open(url, "_blank");
         },
@@ -8822,7 +8903,7 @@ coverHashTag() {
             return;
           }
           let index = rectFiber.index;
-          let splitStrArr = rectFiber.return.return.return.return.memoizedProps.video.splitStrArr;
+          let splitStrArr = rectFiber?.return?.return?.return?.return?.memoizedProps?.video?.splitStrArr;
           let currentSplitStr = splitStrArr[index];
           let hashtagId = currentSplitStr["hashtagId"];
           let url = DouYinUrlUtils.getHashTagUrl(hashtagId);
@@ -8846,7 +8927,7 @@ coverMusic() {
             Qmsg.error("获取reactFiber失败");
             return;
           }
-          let musicId = rectFiber.return.return.memoizedProps.video.musicId;
+          let musicId = rectFiber?.return?.return?.memoizedProps?.video?.musicId;
           let url = DouYinUrlUtils.getMusicUrl(musicId);
           window.open(url, "_blank");
         },
@@ -8868,20 +8949,16 @@ coverExcitingGraphicsAndText() {
             Qmsg.error("获取reactFiber失败");
             return;
           }
-          let itemData = rectFiber.return.memoizedProps.itemData;
+          let itemData = rectFiber?.return?.memoizedProps?.itemData;
           let awemeId = itemData["awemeId"];
           let url = DouYinUrlUtils.getNoteUrl(awemeId);
           window.open(url, "_blank");
         },
         { capture: true }
       );
-      domUtils.on(
-        document,
-        "click",
-        ".related-title-con",
-        (event) => utils.preventEvent(event),
-        { capture: true }
-      );
+      domUtils.on(document, "click", ".related-title-con", (event) => utils.preventEvent(event), {
+        capture: true
+      });
     }
   };
   const blockCSS$1 = "/* 顶部 打开看看 登录 */\r\n.page-reflow-challenge .header,\r\n/* 底部的 打开抖音App看更多内容 */\r\n.page-reflow-challenge .bottom-btn__con {\r\n	display: none !important;\r\n}\r\n\r\n.page-reflow-challenge {\r\n	padding-top: 0 !important;\r\n}\r\n";
@@ -8924,7 +9001,7 @@ coverVideoCard() {
             Qmsg.error("获取reactFiber失败");
             return;
           }
-          let listData = rectFiber.return.return.return.memoizedProps.listData;
+          let listData = rectFiber?.return?.return?.return?.memoizedProps.listData;
           let index = rectFiber.index;
           let currentList = listData[index];
           let url = DouYinUrlUtils.getVideoUrl(currentList["aweme_id"]);
@@ -8959,7 +9036,7 @@ coverVideoCard() {
             Qmsg.error("获取reactFiber失败");
             return;
           }
-          let listData = rectFiber.return.return.return.memoizedProps.listData;
+          let listData = rectFiber?.return?.return?.return?.memoizedProps.listData;
           let index = rectFiber.index;
           let currentList = listData[index];
           let url = DouYinUrlUtils.getVideoUrl(currentList["aweme_id"]);

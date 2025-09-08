@@ -235,7 +235,7 @@ export const DouYinLive = {
 						getCurrentQualityList(): string[] {
 							return (
 								parentReactInst?.reactFiber?.return?.memoizedProps?.qualityList ||
-								parentReactInst?.reactProps?.["children"]["ref"]["current"]
+								parentReactInst?.reactProps?.["children"]?.["ref"]?.["current"]
 							);
 						},
 						setCurrentQuality(quality: string) {

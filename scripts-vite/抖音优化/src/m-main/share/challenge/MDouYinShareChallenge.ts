@@ -49,7 +49,7 @@ export const MDouYinShareChallenge = {
 					Qmsg.error("获取reactFiber失败");
 					return;
 				}
-				let listData = rectFiber.return.return.return.memoizedProps.listData;
+				let listData = rectFiber?.return?.return?.return?.memoizedProps.listData;
 				let index = rectFiber.index;
 				let currentList = listData[index];
 				let url = DouYinUrlUtils.getVideoUrl(currentList["aweme_id"]);

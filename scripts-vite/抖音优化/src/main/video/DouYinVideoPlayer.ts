@@ -12,9 +12,9 @@ import { GestureBack } from "@components/utils/GestureBack";
 import { DouYinGestureBackHashConfig } from "../DouYinGestureBackConfig";
 import { DouYinVideoPlayerBlockMouseHoverTip } from "./DouYinVideoPlayerBlockMouseHoverTip";
 import { CommonUtil } from "@components/utils/CommonUtil";
-import type { DouYinVideoAwemeInfo } from "./DouYinVideoFilterBase";
 import { DouYinVideoElementAutoHide } from "./DouYinVideoElementAutoHide";
 import { ReactUtils } from "@components/utils/ReactUtils";
+import type { DouYinVideoAwemeInfo } from "./DouYinVideoType";
 
 /**
  * 视频播放器的播放速度
@@ -620,7 +620,7 @@ export const DouYinVideoPlayer = {
 					return;
 				}
 				try {
-					let awemeInfo = rectFiber.return.memoizedProps.awemeInfo;
+					let awemeInfo = rectFiber?.return?.memoizedProps?.awemeInfo;
 					if (!awemeInfo) {
 						Qmsg.error("获取awemeInfo属性失败", { consoleLogContent: true });
 						return;

@@ -65,6 +65,11 @@
 | diggCount                    | Number  | 点赞数量                             | 比较方式`>`、`>=`、`=`、`<=`、`<`    |
 | shareCount                   | Number  | 分享数量                             | 比较方式`>`、`>=`、`=`、`<=`、`<`    |
 | duration                     | Number  | 视频时长(ms)                         | 比较方式`>`、`>=`、`=`、`<=`、`<`    |
+| liveStreamRoomId             | String  | 直播间房间号                         |                                      |
+| liveStreamRoomTitle          | String  | 直播间标题                           |                                      |
+| liveStreamNickName           | String  | 直播间的主播昵称                     |                                      |
+| liveStreamRoomUserCount      | Number  | 直播间人数                           | 比较方式`>`、`>=`、`=`、`<=`、`<`    |
+| liveStreamRoomDynamicSpliceLabel             | String  | 直播间标签？                         |                                      |
 | isLive                       | Boolean | 是否是直播                           | 填入的值为`true`或`false`            |
 | isAds                        | Boolean | 是否是广告                           | 填入的值为`true`或`false`            |
 | isSeriesInfo                 | Boolean | 是否是系列信息，例如：`短剧`         | 填入的值为`true`或`false`            |
