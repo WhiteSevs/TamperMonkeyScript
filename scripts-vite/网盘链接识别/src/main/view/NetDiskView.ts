@@ -853,11 +853,11 @@ export const NetDiskView = {
 					log.success("定位元素", iterator);
 					if (
 						iterator.value.nodeType === Node.ELEMENT_NODE &&
-						(iterator.value as HTMLElement).getClientRects().length
+						(<HTMLElement>iterator.value).getClientRects().length
 					) {
 						/* 可见 */
 						/* 滚动到该元素 */
-						(iterator.value as HTMLElement).scrollIntoView({
+						(<HTMLElement>iterator.value).scrollIntoView({
 							behavior: "smooth",
 							block: "center",
 							inline: "nearest",
@@ -868,13 +868,13 @@ export const NetDiskView = {
 						) {
 							/* 开启功能 */
 							let elementText =
-								(iterator.value as HTMLElement).innerText || (iterator.value as HTMLElement).textContent!;
+								(<HTMLElement>iterator.value).innerText || (<HTMLElement>iterator.value).textContent!;
 							let childTextNode: ChildNode | undefined = void 0;
 							let startIndex: number | undefined = void 0;
 							let endIndex: number | undefined = void 0;
 							if (elementText.includes(dataSharecode)) {
 								/* 文字包含shareCode */
-								let textNodeList = Array.from((iterator.value as HTMLElement).childNodes).filter(
+								let textNodeList = Array.from((<HTMLElement>iterator.value).childNodes).filter(
 									(ele) => ele.nodeType === Node.TEXT_NODE
 								);
 								for (const textNode of textNodeList) {
@@ -890,7 +890,7 @@ export const NetDiskView = {
 								utils.selectElementText(iterator.value, childTextNode!, startIndex, endIndex);
 							} catch (error) {
 								log.error(error);
-								utils.selectElementText(iterator.value as HTMLElement);
+								utils.selectElementText(<HTMLElement>iterator.value);
 							}
 						}
 					} else if (
@@ -955,8 +955,8 @@ export const NetDiskView = {
 						log.error("无法定位该元素位置", iterator.value);
 						const tagName = (
 							iterator.value.nodeName ||
-							(iterator.value as HTMLElement).localName ||
-							(iterator.value as HTMLElement).tagName
+							(<HTMLElement>iterator.value).localName ||
+							(<HTMLElement>iterator.value).tagName
 						).toLowerCase();
 						Qmsg.error(
 							`无法定位该元素位置，类型：${CommonUtil.escapeHtml("<")}${tagName}${CommonUtil.escapeHtml(

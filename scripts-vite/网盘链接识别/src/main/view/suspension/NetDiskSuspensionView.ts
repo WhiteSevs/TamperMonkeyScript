@@ -428,11 +428,14 @@ export const NetDiskSuspension = {
 			suspendedZIndex = utils.getMaxValue(40000, utils.getMaxZIndex(10));
 		}
 		/* 动态生成z-index */
-		this.$el.$suspensionZIndexStyle.innerHTML = /*css*/ `
+		DOMUtils.html(
+			this.$el.$suspensionZIndexStyle,
+			/*css*/ `
 			#whitesevSuspensionId{
 				z-index: ${suspendedZIndex};
 			}
-		`;
+			`
+		);
 	},
 	/**
 	 * 悬浮按钮背景轮播 效果为淡入淡出

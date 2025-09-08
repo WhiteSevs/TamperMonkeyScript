@@ -47,12 +47,15 @@ export const NetDiskCheckLinkValidity_onedrive: NetDiskCheckLinkValidityEntrance
 		if (utils.isNotNull(responseText)) {
 			try {
 				let respDOM = DOMUtils.parseHTML(responseText, true, true);
-				let title = respDOM.querySelector("title")?.innerHTML;
-				if (title?.includes("错误")) {
-					return {
-						...NetDiskCheckLinkValidityStatus.failed,
-						data: response,
-					};
+				let $title = respDOM.querySelector("title");
+				if ($title) {
+					let title = DOMUtils.html($title);
+					if (title.includes("错误")) {
+						return {
+							...NetDiskCheckLinkValidityStatus.failed,
+							data: response,
+						};
+					}
 				}
 			} catch (error) {}
 		}

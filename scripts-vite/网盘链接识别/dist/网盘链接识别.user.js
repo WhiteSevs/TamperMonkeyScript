@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.27
+// @version      2025.9.8
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@7272395d2c4ef6f254ee09724e20de4899098bc0/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.4.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @connect      *
@@ -433,21 +433,29 @@ clickEvent: {
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const PROPS_STORAGE_API = "data-storage-api";
+  const PanelSizeUtil = {
+get width() {
+      return globalThis.innerWidth;
+    },
+get height() {
+      return globalThis.innerHeight;
+    }
+  };
   const PanelUISize = {
 setting: {
       get width() {
-        if (window.innerWidth < 550) {
+        if (PanelSizeUtil.width < 550) {
           return "88vw";
-        } else if (window.innerWidth < 700) {
+        } else if (PanelSizeUtil.width < 700) {
           return "550px";
         } else {
           return "700px";
         }
       },
       get height() {
-        if (window.innerHeight < 450) {
+        if (PanelSizeUtil.height < 450) {
           return "70vh";
-        } else if (window.innerHeight < 550) {
+        } else if (PanelSizeUtil.height < 550) {
           return "450px";
         } else {
           return "550px";
@@ -456,26 +464,26 @@ setting: {
     },
 settingMiddle: {
       get width() {
-        return window.innerWidth < 350 ? "88vw" : "350px";
+        return PanelSizeUtil.width < 350 ? "88vw" : "350px";
       },
       get height() {
-        return window.innerHeight < 450 ? "88vh" : "450px";
+        return PanelSizeUtil.height < 450 ? "88vh" : "450px";
       }
     },
 settingBig: {
       get width() {
-        return window.innerWidth < 800 ? "92vw" : "800px";
+        return PanelSizeUtil.width < 800 ? "92vw" : "800px";
       },
       get height() {
-        return window.innerHeight < 600 ? "80vh" : "600px";
+        return PanelSizeUtil.height < 600 ? "80vh" : "600px";
       }
     },
 info: {
       get width() {
-        return window.innerWidth < 350 ? "88vw" : "350px";
+        return PanelSizeUtil.width < 350 ? "88vw" : "350px";
       },
       get height() {
-        return window.innerHeight < 250 ? "88vh" : "250px";
+        return PanelSizeUtil.height < 250 ? "88vh" : "250px";
       }
     }
   };
@@ -748,6 +756,13 @@ initContentDefaultValue() {
         if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
           return;
         }
+        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
+        if (typeof __attr_init__ === "function") {
+          let __attr_result__ = __attr_init__();
+          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
+            return;
+          }
+        }
         let menuDefaultConfig = new Map();
         let key = config.attributes[ATTRIBUTE_KEY];
         if (key != null) {
@@ -763,13 +778,6 @@ initContentDefaultValue() {
         if (!menuDefaultConfig.size) {
           log.warn(["请先配置键", config]);
           return;
-        }
-        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
-        if (typeof __attr_init__ === "function") {
-          let __attr_result__ = __attr_init__();
-          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
-            return;
-          }
         }
         if (config.type === "switch") {
           let disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
@@ -1160,7 +1168,7 @@ threshold: 1
     					align-items: center;
 					}
 					.search-result-item-description{
-						font-size: 0.8rem;
+						font-size: 0.8em;
 						color: #6c6c6c;
 					}
 					${config.searchDialogStyle ?? ""}
@@ -15002,12 +15010,15 @@ __t: Date.now()
       if (utils.isNotNull(responseText)) {
         try {
           let respDOM = domUtils.parseHTML(responseText, true, true);
-          let title = respDOM.querySelector("title")?.innerHTML;
-          if (title?.includes("错误")) {
-            return {
-              ...NetDiskCheckLinkValidityStatus.failed,
-              data: response
-            };
+          let $title = respDOM.querySelector("title");
+          if ($title) {
+            let title = domUtils.html($title);
+            if (title.includes("错误")) {
+              return {
+                ...NetDiskCheckLinkValidityStatus.failed,
+                data: response
+              };
+            }
           }
         } catch (error) {
         }
@@ -18863,12 +18874,14 @@ updateZIndex() {
       if (suspendedZIndex <= 0) {
         suspendedZIndex = utils.getMaxValue(4e4, utils.getMaxZIndex(10));
       }
-      this.$el.$suspensionZIndexStyle.innerHTML =
+      DOMUtils.html(
+        this.$el.$suspensionZIndexStyle,
 `
 			#whitesevSuspensionId{
 				z-index: ${suspendedZIndex};
 			}
-		`;
+			`
+      );
     },
 changeBackground() {
       if (this.$data.isSwitchBackground) {
