@@ -13,7 +13,7 @@ export type RuleFilterViewOption<T> = {
 			$el: HTMLElement;
 		}[]
 	>;
-	/** 执行过滤的回调 */
+	/** 执行过滤完毕后的回调 */
 	execFilterCallBack?: () => IPromise<void>;
 	/** 过滤配置 */
 	filterOption: {

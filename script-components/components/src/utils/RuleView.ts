@@ -128,8 +128,25 @@ type RuleViewOption<T> = {
 			title?: RuleFilterViewOption<T>["title"];
 			/** 自定义的过滤类型 */
 			option: RuleFilterViewOption<T>["filterOption"];
-			/** 点击回调 */
-			callback?: () => void;
+			/**
+			 * 点击回调
+			 * @returns
+			 * + false 阻止默认行为
+			 */
+			callback?: () => IPromise<void | boolean>;
+			/**
+			 * 执行过滤完毕后的回调
+			 */
+			execFilterCallBack?: () => IPromise<void>;
+			/**
+			 * 取消过滤的回调
+			 * @returns
+			 * + false 阻止默认行为
+			 */
+			cancelFilterCallback?: (config: {
+				$button: HTMLElement;
+				getAllRuleElement: () => HTMLElement[];
+			}) => IPromise<void | boolean>;
 		};
 	};
 };
@@ -177,9 +194,12 @@ export class RuleView<T> {
 					enable: this.option?.bottomControls?.filter?.enable || false,
 					type: "default",
 					text: "过滤",
-					callback: (details, event) => {
+					callback: async (details, event) => {
 						if (typeof this.option?.bottomControls?.filter?.callback === "function") {
-							this.option.bottomControls.filter.callback();
+							let result = await this.option.bottomControls.filter.callback();
+							if (typeof result === "boolean" && !result) {
+								return;
+							}
 						}
 						/**
 						 * 获取所有的规则元素
@@ -193,6 +213,13 @@ export class RuleView<T> {
 							.closest<HTMLElement>(".pops-confirm-btn")!
 							.querySelector<HTMLSpanElement>(".pops-confirm-btn-cancel span")!;
 						if (DOMUtils.text($button).includes("取消")) {
+							let cancelFilterResult = await this.option?.bottomControls?.filter?.cancelFilterCallback?.({
+								$button,
+								getAllRuleElement,
+							});
+							if (typeof cancelFilterResult === "boolean" && !cancelFilterResult) {
+								return;
+							}
 							getAllRuleElement().forEach(($el) => {
 								DOMUtils.show($el, false);
 							});
@@ -201,8 +228,9 @@ export class RuleView<T> {
 							let ruleFilterView = new RuleFilterView<T>({
 								title: this.option.bottomControls?.filter?.title ?? "过滤规则",
 								filterOption: this.option.bottomControls?.filter?.option || [],
-								execFilterCallBack() {
+								execFilterCallBack: async () => {
 									DOMUtils.text($button, "取消过滤");
+									await this.option.bottomControls?.filter?.execFilterCallBack?.();
 								},
 								getAllRuleInfo: () => {
 									return getAllRuleElement().map(($el) => {

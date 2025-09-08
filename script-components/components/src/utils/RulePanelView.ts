@@ -80,6 +80,15 @@ type RulePanelBtnControlsOption<T> = {
 		 * + false 阻止默认行为
 		 */
 		callback?: () => IPromise<void | boolean>;
+		/**
+		 * 取消过滤的回调
+		 * @returns
+		 * + false 阻止默认行为
+		 */
+		cancelFilterCallback?: (config: {
+			$button: HTMLElement;
+			getAllRuleElement: () => HTMLElement[];
+		}) => IPromise<void | boolean>;
 	};
 	/**
 	 * 清空所有按钮
@@ -120,9 +129,7 @@ type RulePanelBtnControlsOption<T> = {
 		 * @returns
 		 * + false 阻止默认行为
 		 */
-		callback?: (option: {
-			event: MouseEvent | PointerEvent;
-		}) => IPromise<void | boolean>;
+		callback?: (option: { event: MouseEvent | PointerEvent }) => IPromise<void | boolean>;
 	};
 	/**
 	 * 规则的开启/关闭按钮
@@ -254,10 +261,7 @@ type RulePanelBtnControlsOption<T> = {
 /**
  * 规则视图的内容配置
  */
-export type RulePanelContentOption<T> = Omit<
-	PopsPanelContentConfig,
-	"forms"
-> & {
+export type RulePanelContentOption<T> = Omit<PopsPanelContentConfig, "forms"> & {
 	/**
 	 * 订阅配置
 	 */
@@ -385,9 +389,7 @@ type RulePanelRuleOption<T> = {
 /**
  * 规则面版的各种规则配置
  */
-type RulePanelAnyOption<T> =
-	| RulePanelRuleOption<T>
-	| RulePanelSubscribeOption<T>;
+type RulePanelAnyOption<T> = RulePanelRuleOption<T> | RulePanelSubscribeOption<T>;
 
 export class RulePanelView<T> {
 	option: RulePanelOption<T>;
@@ -398,9 +400,7 @@ export class RulePanelView<T> {
 	 * 显示视图
 	 * @param filterCallBack 返回值为false隐藏，true则不隐藏（不处理）
 	 */
-	async showView(
-		filterCallBack?: (data: T | RuleSubscribeOption<T>) => boolean
-	) {
+	async showView(filterCallBack?: (data: T | RuleSubscribeOption<T>) => boolean) {
 		const that = this;
 		let contentConfigList = this.option.contentConfig;
 		contentConfigList.forEach((config) => {
@@ -419,18 +419,13 @@ export class RulePanelView<T> {
 					</div>`;
 			}
 			let originCallBack = config.clickCallback;
-			config.clickCallback = async (
-				event,
-				$panelRightHeader,
-				$panelRightContainer
-			) => {
+			config.clickCallback = async (event, $panelRightHeader, $panelRightContainer) => {
 				if (typeof originCallBack === "function") {
 					originCallBack(event, $panelRightContainer, $panelRightContainer);
 				}
 				if (config.subscribe && config.subscribe.enable) {
 					// 存在订阅按钮
-					let $subscribe =
-						$panelRightHeader.querySelector<HTMLElement>(".subscribe-btn")!;
+					let $subscribe = $panelRightHeader.querySelector<HTMLElement>(".subscribe-btn")!;
 					const subscribeOption = config.subscribe!;
 					DOMUtils.on($subscribe, "click", async (event) => {
 						utils.preventEvent(event);
@@ -441,16 +436,11 @@ export class RulePanelView<T> {
 							subscribeOption?.headerTitle || subscribeOption?.title || "订阅",
 							() => {
 								// 触发渲染更新
-								this.updateRuleContaienrElement(
-									config.ruleOption,
-									subscribeOption,
-									$panelRightContainer
-								);
+								this.updateRuleContaienrElement(config.ruleOption, subscribeOption, $panelRightContainer);
 							}
 						);
 						/** 订阅容器 */
-						let $subscribeRightContainer =
-							deepMenuElementInfo.$rightRuleContainer;
+						let $subscribeRightContainer = deepMenuElementInfo.$rightRuleContainer;
 						let subscribeCreateViewElementInfo = this.createButtonControls(
 							$subscribeRightContainer,
 							$subscribeRightContainer,
@@ -481,10 +471,7 @@ export class RulePanelView<T> {
 												log.info(`订阅：` + subscribeUrl);
 												let $loading = Qmsg.loading("正在获取订阅信息...");
 												try {
-													let subscribeInfoResult =
-														await subscribeOption?.getSubscribeInfo(
-															subscribeUrl
-														)!;
+													let subscribeInfoResult = await subscribeOption?.getSubscribeInfo(subscribeUrl)!;
 													if (subscribeInfoResult.data) {
 														eventDetails.close();
 														let subscribeInfo = subscribeInfoResult.data;
@@ -516,9 +503,7 @@ export class RulePanelView<T> {
 																	text: "添加",
 																	type: "subscribe",
 																	callback: async (eventDetails, event) => {
-																		let addFlag = await subscribeOption.addData(
-																			subscribeInfo
-																		);
+																		let addFlag = await subscribeOption.addData(subscribeInfo);
 																		if (!addFlag) {
 																			Qmsg.error("该订阅已存在", {
 																				consoleLogContent: true,
@@ -608,19 +593,13 @@ export class RulePanelView<T> {
 																".subscribe-network-last-modified"
 															)!;
 
-														DOMUtils.val(
-															$subscribeNetworkAddDialog_title_input,
-															title
-														);
+														DOMUtils.val($subscribeNetworkAddDialog_title_input, title);
 														DOMUtils.on(
 															$subscribeNetworkAddDialog_title_input,
 															["input", "propertychange"],
 															(event) => {
-																let inputValue = DOMUtils.val(
-																	$subscribeNetworkAddDialog_title_input
-																);
-																subscribeInfo.data.title =
-																	inputValue === "" ? void 0 : inputValue;
+																let inputValue = DOMUtils.val($subscribeNetworkAddDialog_title_input);
+																subscribeInfo.data.title = inputValue === "" ? void 0 : inputValue;
 															}
 														);
 														DOMUtils.html(
@@ -631,10 +610,7 @@ export class RulePanelView<T> {
 															`
 														);
 														// 主页地址
-														if (
-															typeof subscribeInfo.subscribeData.homePage ===
-															"string"
-														) {
+														if (typeof subscribeInfo.subscribeData.homePage === "string") {
 															DOMUtils.html(
 																$subscribeNetworkAddDialog_homeUrl,
 																/*html*/ `
@@ -665,9 +641,7 @@ export class RulePanelView<T> {
 														} else {
 															$subscribeNetworkAddDialog_version.remove();
 														}
-														if (
-															subscribeInfo.subscribeData.lastModified != null
-														) {
+														if (subscribeInfo.subscribeData.lastModified != null) {
 															DOMUtils.html(
 																$subscribeNetworkAddDialog_lastModified,
 																/*html*/ `
@@ -700,24 +674,17 @@ export class RulePanelView<T> {
 									width: PanelUISize.info.width,
 									height: "auto",
 								});
-								let $promptInput =
-									$prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
-								let $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(
-									".pops-prompt-btn-ok "
-								)!;
+								let $promptInput = $prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
+								let $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(".pops-prompt-btn-ok ")!;
 								// 添加输入监听
-								DOMUtils.on(
-									$promptInput,
-									["input", "propertychange"],
-									(event) => {
-										let promptValue = DOMUtils.val($promptInput);
-										if (promptValue === "") {
-											DOMUtils.attr($promptOk, "disabled", "true");
-										} else {
-											DOMUtils.removeAttr($promptOk, "disabled");
-										}
+								DOMUtils.on($promptInput, ["input", "propertychange"], (event) => {
+									let promptValue = DOMUtils.val($promptInput);
+									if (promptValue === "") {
+										DOMUtils.attr($promptOk, "disabled", "true");
+									} else {
+										DOMUtils.removeAttr($promptOk, "disabled");
 									}
-								);
+								});
 								DOMUtils.listenKeyboard(
 									$promptInput,
 									"keydown",
@@ -768,10 +735,7 @@ export class RulePanelView<T> {
 					$panelRightContainer,
 					allData,
 					(ruleItemData, $rule) => {
-						let flag =
-							typeof filterCallBack === "function"
-								? filterCallBack(ruleItemData)
-								: true;
+						let flag = typeof filterCallBack === "function" ? filterCallBack(ruleItemData) : true;
 						if (!flag) {
 							// 隐藏元素
 							changeButtonText = true;
@@ -780,19 +744,13 @@ export class RulePanelView<T> {
 					}
 				);
 				if (changeButtonText && ruleCreateViewElementInfo.$ruleControlFilter) {
-					DOMUtils.text(
-						ruleCreateViewElementInfo.$ruleControlFilter,
-						"取消过滤"
-					);
+					DOMUtils.text(ruleCreateViewElementInfo.$ruleControlFilter, "取消过滤");
 				}
 			};
 		});
 		let $panel = pops.panel({
 			title: {
-				text:
-					typeof this.option.title === "function"
-						? this.option.title()
-						: this.option.title,
+				text: typeof this.option.title === "function" ? this.option.title() : this.option.title,
 				position: "center",
 			},
 			// @ts-ignore
@@ -912,11 +870,7 @@ export class RulePanelView<T> {
 	 * @param headerTitle 标题
 	 * @param quiteDeepMenuCallBack 返回上一层回调，一般用于触发外部的渲染更新
 	 */
-	enterDeepMenu(
-		$el: HTMLElement,
-		headerTitle: string,
-		quiteDeepMenuCallBack: () => void
-	) {
+	enterDeepMenu($el: HTMLElement, headerTitle: string, quiteDeepMenuCallBack: () => void) {
 		/** 前一个菜单元素 */
 		let $prevSection = $el.matches("section") ? $el : $el.closest("section")!;
 		// 二级菜单，先隐藏旧的
@@ -936,17 +890,11 @@ export class RulePanelView<T> {
 
 		DOMUtils.after($prevSection, $section);
 		/** 标题容器 */
-		let $headerContainer = $section.querySelector<HTMLElement>(
-			".pops-panel-deepMenu-container-header-ul"
-		)!;
+		let $headerContainer = $section.querySelector<HTMLElement>(".pops-panel-deepMenu-container-header-ul")!;
 		/** 返回上一层按钮 */
-		let $arrowLeft = $section.querySelector<HTMLElement>(
-			".pops-panel-deepMenu-container-left-arrow-icon"
-		)!;
+		let $arrowLeft = $section.querySelector<HTMLElement>(".pops-panel-deepMenu-container-left-arrow-icon")!;
 		/** 右侧规则容器 */
-		let $rightRuleContainer = $section.querySelector<HTMLElement>(
-			".pops-panel-container-main-ul"
-		)!;
+		let $rightRuleContainer = $section.querySelector<HTMLElement>(".pops-panel-container-main-ul")!;
 
 		DOMUtils.on($arrowLeft, "click", (event) => {
 			utils.preventEvent(event);
@@ -1051,15 +999,18 @@ export class RulePanelView<T> {
 				 * 获取所有的规则元素
 				 */
 				let getAllRuleElement = () => {
-					return Array.from(
-						$rightContainer.querySelectorAll<HTMLElement>(
-							".rule-view-container .rule-item"
-						)
-					);
+					return Array.from($rightContainer.querySelectorAll<HTMLElement>(".rule-view-container .rule-item"));
 				};
 				let $button = $ruleControlFilter;
 				if ($button) {
 					if (DOMUtils.text($button).includes("取消")) {
+						let cancelFilterResult = await btnControlsOption?.filter?.cancelFilterCallback?.({
+							$button,
+							getAllRuleElement,
+						});
+						if (typeof cancelFilterResult === "boolean" && !cancelFilterResult) {
+							return;
+						}
 						getAllRuleElement().forEach(($el) => {
 							DOMUtils.show($el, false);
 						});
@@ -1071,26 +1022,22 @@ export class RulePanelView<T> {
 						} else if (typeof btnControlsOption?.filter?.title === "string") {
 							filterTitle = btnControlsOption?.filter?.title;
 						}
-						let ruleFilterView = new RuleFilterView<T | RuleSubscribeOption<T>>(
-							{
-								title: filterTitle,
-								// @ts-ignore
-								filterOption: btnControlsOption?.filter?.option || [],
-								execFilterCallBack() {
-									DOMUtils.text($button, "取消过滤");
-								},
-								getAllRuleInfo: () => {
-									return getAllRuleElement().map(($el) => {
-										return {
-											data: this.parseRuleElement<T | RuleSubscribeOption<T>>(
-												$el
-											).data,
-											$el: $el,
-										};
-									});
-								},
-							}
-						);
+						let ruleFilterView = new RuleFilterView<T | RuleSubscribeOption<T>>({
+							title: filterTitle,
+							// @ts-ignore
+							filterOption: btnControlsOption?.filter?.option || [],
+							execFilterCallBack() {
+								DOMUtils.text($button, "取消过滤");
+							},
+							getAllRuleInfo: () => {
+								return getAllRuleElement().map(($el) => {
+									return {
+										data: this.parseRuleElement<T | RuleSubscribeOption<T>>($el).data,
+										$el: $el,
+									};
+								});
+							},
+						});
 						ruleFilterView.showView();
 					}
 				}
@@ -1245,9 +1192,7 @@ export class RulePanelView<T> {
 	 */
 	parseViewElement($el: ShadowRoot | HTMLElement) {
 		let $container = $el.querySelector<HTMLElement>(".rule-view-container")!;
-		let $deleteBtn = $el.querySelector<HTMLButtonElement>(
-			".rule-control-clear-all"
-		)!;
+		let $deleteBtn = $el.querySelector<HTMLButtonElement>(".rule-control-clear-all")!;
 		return {
 			/** 容器 */
 			$container: $container,
@@ -1260,23 +1205,14 @@ export class RulePanelView<T> {
 	 * @param $ruleItem 规则元素
 	 */
 	parseRuleElement<T>($ruleItem: ShadowRoot | HTMLElement) {
-		let $enable = $ruleItem.querySelector<HTMLElement>(
-			".rule-controls-enable"
-		)!;
-		let $enableSwitch =
-			$enable.querySelector<HTMLElement>(".pops-panel-switch")!;
-		let $enableSwitchInput = $enable.querySelector<HTMLInputElement>(
-			".pops-panel-switch__input"
-		)!;
-		let $enableSwitchCore = $enable.querySelector<HTMLElement>(
-			".pops-panel-switch__core"
-		);
+		let $enable = $ruleItem.querySelector<HTMLElement>(".rule-controls-enable")!;
+		let $enableSwitch = $enable.querySelector<HTMLElement>(".pops-panel-switch")!;
+		let $enableSwitchInput = $enable.querySelector<HTMLInputElement>(".pops-panel-switch__input")!;
+		let $enableSwitchCore = $enable.querySelector<HTMLElement>(".pops-panel-switch__core");
 		/** 编辑按钮 */
 		let $edit = $ruleItem.querySelector<HTMLElement>(".rule-controls-edit")!;
 		/** 删除按钮 */
-		let $delete = $ruleItem.querySelector<HTMLElement>(
-			".rule-controls-delete"
-		)!;
+		let $delete = $ruleItem.querySelector<HTMLElement>(".rule-controls-delete")!;
 
 		return {
 			/** 启用开关 */
@@ -1337,14 +1273,8 @@ export class RulePanelView<T> {
 		/** 开关切换的className */
 		let switchCheckedClassName = "pops-panel-switch-is-checked";
 
-		const {
-			$enable,
-			$enableSwitch,
-			$enableSwitchCore,
-			$enableSwitchInput,
-			$delete,
-			$edit,
-		} = this.parseRuleElement($ruleItem);
+		const { $enable, $enableSwitch, $enableSwitchCore, $enableSwitchInput, $delete, $edit } =
+			this.parseRuleElement($ruleItem);
 		if (option.btnControls?.ruleEnable?.enable) {
 			// 给switch添加点击事件
 			DOMUtils.on($enableSwitchCore, "click", async (event) => {
@@ -1365,9 +1295,7 @@ export class RulePanelView<T> {
 				if (isChecked && subscribeOption) {
 					// 更新订阅
 					let subscribeData = data as RuleSubscribeOption<T>;
-					let subscribeInfo = await subscribeOption.getSubscribeInfo(
-						subscribeData.data.url
-					)!;
+					let subscribeInfo = await subscribeOption.getSubscribeInfo(subscribeData.data.url)!;
 					if (subscribeInfo.data) {
 						let subscribeNewItem = subscribeInfo.data;
 						// 同步uuid
@@ -1422,8 +1350,7 @@ export class RulePanelView<T> {
 								}
 							);
 							/** 二级菜单容器 */
-							let $deepMenuRightContainer =
-								deepMenuElementInfo.$rightRuleContainer;
+							let $deepMenuRightContainer = deepMenuElementInfo.$rightRuleContainer;
 							let deepMenuCreateViewElementInfo = this.createButtonControls(
 								$deepMenuRightContainer,
 								deepMenuElementInfo.$rightRuleContainer,
@@ -1447,20 +1374,12 @@ export class RulePanelView<T> {
 						return;
 					}
 				}
-				this.showEditView(
-					option,
-					subscribeOption,
-					true,
-					ruleData,
-					$el,
-					$ruleItem,
-					(newData) => {
-						// @ts-ignore
-						ruleData = null;
-						// @ts-ignore
-						ruleData = newData;
-					}
-				);
+				this.showEditView(option, subscribeOption, true, ruleData, $el, $ruleItem, (newData) => {
+					// @ts-ignore
+					ruleData = null;
+					// @ts-ignore
+					ruleData = newData;
+				});
 			});
 		} else {
 			$edit.remove();
@@ -1483,10 +1402,7 @@ export class RulePanelView<T> {
 							enable: true,
 							callback: async (popsEvent) => {
 								log.success("删除数据");
-								let flag =
-									await option?.btnControls?.ruleDelete?.deleteCallBack(
-										ruleData
-									);
+								let flag = await option?.btnControls?.ruleDelete?.deleteCallBack(ruleData);
 								if (flag) {
 									Qmsg.success("成功删除该数据");
 									// 移除该条元素
@@ -1540,12 +1456,7 @@ export class RulePanelView<T> {
 		let documentFragment = document.createDocumentFragment();
 		for (let index = 0; index < iteratorData.length; index++) {
 			let item = iteratorData[index];
-			let $item = await this.createRuleElement(
-				option,
-				subscribeOption,
-				item,
-				$el
-			);
+			let $item = await this.createRuleElement(option, subscribeOption, item, $el);
 			documentFragment.appendChild($item);
 			addCallBack?.(item, $item);
 			$ruleItem.push($item);
@@ -1586,12 +1497,7 @@ export class RulePanelView<T> {
 		$oldRule: HTMLElement,
 		$el: ShadowRoot | HTMLElement
 	) {
-		let $newRule = await this.createRuleElement(
-			option,
-			subscribeOption,
-			data,
-			$el
-		);
+		let $newRule = await this.createRuleElement(option, subscribeOption, data, $el);
 		$oldRule.after($newRule);
 		$oldRule.remove();
 		return $newRule;
@@ -1610,11 +1516,7 @@ export class RulePanelView<T> {
 	 * @param text 按钮的文字
 	 * @param [isHTML=false] 是否是html
 	 */
-	setDeleteBtnText(
-		$el: ShadowRoot | HTMLElement,
-		text: string,
-		isHTML: boolean = false
-	) {
+	setDeleteBtnText($el: ShadowRoot | HTMLElement, text: string, isHTML: boolean = false) {
 		const { $deleteBtn } = this.parseViewElement($el);
 		if (isHTML) {
 			DOMUtils.html($deleteBtn, text);
@@ -1627,10 +1529,7 @@ export class RulePanelView<T> {
 	 * @param option 规则的配置
 	 * @param $el 弹窗的元素
 	 */
-	async updateDeleteAllBtnText(
-		option: RulePanelAnyOption<T>,
-		$el: ShadowRoot | HTMLElement
-	) {
+	async updateDeleteAllBtnText(option: RulePanelAnyOption<T>, $el: ShadowRoot | HTMLElement) {
 		let data = await option.data();
 		let dataCount = data.length;
 		let text = `清空所有`;
@@ -1667,9 +1566,7 @@ export class RulePanelView<T> {
 		let dialogCloseCallBack = async (isSubmit: boolean) => {
 			if (isSubmit) {
 				if (typeof submitCallBack === "function") {
-					let newData = await option.getData(
-						editData as T & RuleSubscribeOption<T>
-					);
+					let newData = await option.getData(editData as T & RuleSubscribeOption<T>);
 					submitCallBack(newData);
 				}
 			} else {
@@ -1678,9 +1575,7 @@ export class RulePanelView<T> {
 					await option.deleteData(editData as T & RuleSubscribeOption<T>);
 				}
 				if (typeof updateDataCallBack === "function") {
-					let newData = await option.getData(
-						editData as T & RuleSubscribeOption<T>
-					);
+					let newData = await option.getData(editData as T & RuleSubscribeOption<T>);
 					updateDataCallBack(newData);
 				}
 			}
@@ -1692,10 +1587,7 @@ export class RulePanelView<T> {
 			},
 			dialogCloseCallBack: dialogCloseCallBack,
 			getView: async (data) => {
-				return await option.btnControls?.ruleEdit?.getView?.(
-					data as T & RuleSubscribeOption<T>,
-					isEdit
-				)!;
+				return await option.btnControls?.ruleEdit?.getView?.(data as T & RuleSubscribeOption<T>, isEdit)!;
 			},
 			btn: {
 				ok: {
@@ -1727,23 +1619,11 @@ export class RulePanelView<T> {
 						// 当前是编辑规则
 						// 给外面的弹窗更新元素
 						$parent &&
-							(await this.updateRuleItemElement(
-								option,
-								subscribeOption,
-								result.data,
-								$ruleItem!,
-								$parent
-							));
+							(await this.updateRuleItemElement(option, subscribeOption, result.data, $ruleItem!, $parent));
 					} else {
 						// 当前是添加规则
 						// 给外面的弹窗添加元素
-						$parent &&
-							(await this.addRuleElement(
-								option,
-								subscribeOption,
-								$parent,
-								result.data
-							));
+						$parent && (await this.addRuleElement(option, subscribeOption, $parent, result.data));
 					}
 				} else {
 					// if (isEdit) {
