@@ -79,34 +79,34 @@ export declare interface ReactFiberNode {
 	 * 用于存储组件的更新状态，比如新的状态、属性或者 context 的变化。通过 updateQueue ，React 可以跟踪组件的更新并在合适的时机执行更新。
 	 */
 	updateQueue: any;
-	[key: string | symbol]: any;
+	[key: string | symbol | number]: any;
 }
 
 export declare interface ReactProps {
 	$$typeof: symbol;
-	children: (boolean | ReactProps)[] | ReactProps;
+	children: ReactProps;
 	key: string | null;
 	ref: any;
 	props: ReactProps;
 	type: string;
 	_owner: any;
-	[key: string | symbol]: any;
+	[key: string | symbol | number]: any;
 }
 
 export declare interface ReactEvents {
-	[key: string | symbol]: any;
+	[key: string | symbol | number]: any;
 }
 
 export declare interface ReactEventHandlers {
-	[key: string | symbol]: any;
+	[key: string | symbol | number]: any;
 }
 
 export declare interface ReactInternalInstance {
-	[key: string | symbol]: any;
+	[key: string | symbol | number]: any;
 }
 
 export declare interface ReactContainer {
-	[key: string | symbol]: any;
+	[key: string | symbol | number]: any;
 }
 
 export declare interface ReactInstance {
