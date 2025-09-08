@@ -82,7 +82,7 @@ export class ApiTest_cookie extends ApiAsyncTestBase {
 						UIInfo(() =>
 							this.isSupport()
 								? {
-										text: "支持 " + apiName,
+										text: `支持 ${apiName}，类型 ${typeof GM_cookie}`,
 										tag: "success",
 								  }
 								: {

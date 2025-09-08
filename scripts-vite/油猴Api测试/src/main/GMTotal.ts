@@ -28,6 +28,7 @@ import { ApiTest_unsafeWindow } from "./gm/unsafeWindow";
 import { ApiTest_webRequest } from "./gm/webRequest";
 import { ApiTest_xmlHttpRequest } from "./gm/xmlHttpRequest";
 import { ApiTest_GM } from "./gm/GM";
+import { ApiTest_audio } from "./gm/audio";
 
 export const GMTotal = {
 	unsafeWindow: new ApiTest_unsafeWindow(),
@@ -59,4 +60,5 @@ export const GMTotal = {
 	xmlHttpRequest: new ApiTest_xmlHttpRequest(),
 	webRequest: new ApiTest_webRequest(),
 	cookie: new ApiTest_cookie(),
+	audio: new ApiTest_audio(),
 };

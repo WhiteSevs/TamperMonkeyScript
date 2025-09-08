@@ -8,28 +8,29 @@ import { GrantTest_close } from "./main/grant/close";
 import { GrantTest_focus } from "./main/grant/focus";
 import { PanelMenu } from "@components/setting/panel-menu";
 
-let showPanel = () => {
-	Panel.showPanel(PanelContent.getConfig(0), void 0, void 0, true);
-};
-let defaultMenuOption = PanelMenu.getMenuOption(0);
-defaultMenuOption.callback = () => {
-	showPanel();
-};
-PanelMenu.updateMenuOption(defaultMenuOption);
-let configList: PopsPanelContentConfig[] = [Component_Common()];
-Object.keys(GMTotal).forEach((keyName) => {
-	let value = GMTotal[keyName as keyof typeof GMTotal];
-	let option = value.getUIOption();
-	if (option) {
-		configList.push(option);
-	}
-});
-configList.push(new GrantTest_onurlchange().getUIOption());
-configList.push(new GrantTest_close().getUIOption());
-configList.push(new GrantTest_focus().getUIOption());
-PanelContent.addContentConfig(configList);
-Panel.$data.panelConfig = {
-	style: /*css*/ `
+if (Panel.isTopWindow()) {
+	let showPanel = () => {
+		Panel.showPanel(PanelContent.getConfig(0), void 0, void 0, true);
+	};
+	let defaultMenuOption = PanelMenu.getMenuOption(0);
+	defaultMenuOption.callback = () => {
+		showPanel();
+	};
+	PanelMenu.updateMenuOption(defaultMenuOption);
+	let configList: PopsPanelContentConfig[] = [Component_Common()];
+	Object.keys(GMTotal).forEach((keyName) => {
+		let value = GMTotal[keyName as keyof typeof GMTotal];
+		let option = value.getUIOption();
+		if (option) {
+			configList.push(option);
+		}
+	});
+	configList.push(new GrantTest_onurlchange().getUIOption());
+	configList.push(new GrantTest_close().getUIOption());
+	configList.push(new GrantTest_focus().getUIOption());
+	PanelContent.addContentConfig(configList);
+	Panel.$data.panelConfig = {
+		style: /*css*/ `
 		.success{
 			color: green;
 		}
@@ -75,7 +76,8 @@ Panel.$data.panelConfig = {
 			align-items: center;
 		}
 	`,
-};
-Panel.init();
-// 直接自动显示面板
-showPanel();
+	};
+	Panel.init();
+	// 直接自动显示面板
+	showPanel();
+}

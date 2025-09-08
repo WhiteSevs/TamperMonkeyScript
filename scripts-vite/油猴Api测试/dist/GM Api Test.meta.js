@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.27
+// @version      2025.9.8
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -14,6 +14,7 @@
 // @grant        GM.addElement
 // @grant        GM.addStyle
 // @grant        GM.addValueChangeListener
+// @grant        GM.audio
 // @grant        GM.cookie
 // @grant        GM.deleteValue
 // @grant        GM.deleteValues
@@ -41,6 +42,7 @@
 // @grant        GM_addElement
 // @grant        GM_addStyle
 // @grant        GM_addValueChangeListener
+// @grant        GM_audio
 // @grant        GM_cookie
 // @grant        GM_deleteValue
 // @grant        GM_deleteValues

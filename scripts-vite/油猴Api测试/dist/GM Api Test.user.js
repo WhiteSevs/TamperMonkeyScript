@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.27
+// @version      2025.9.8
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -14,6 +14,7 @@
 // @grant        GM.addElement
 // @grant        GM.addStyle
 // @grant        GM.addValueChangeListener
+// @grant        GM.audio
 // @grant        GM.cookie
 // @grant        GM.deleteValue
 // @grant        GM.deleteValues
@@ -41,6 +42,7 @@
 // @grant        GM_addElement
 // @grant        GM_addStyle
 // @grant        GM_addValueChangeListener
+// @grant        GM_audio
 // @grant        GM_cookie
 // @grant        GM_deleteValue
 // @grant        GM_deleteValues
@@ -103,6 +105,7 @@
   var _GM_unregisterMenuCommand = (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
   var _GM_webRequest = (() => typeof GM_webRequest != "undefined" ? GM_webRequest : void 0)();
   var _GM_xmlhttpRequest = (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
+  var _GM_audio = (() => typeof GM_audio != "undefined" ? GM_audio : void 0)();
   var _unsafeWindow = (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = (() => window)();
   function CompatibleProcessing() {
@@ -2231,7 +2234,7 @@ version = "2025.8.11";
         element.setAttribute(attrName, attrValue);
       }
     }
-createElement(tagName, property, attributes) {
+    createElement(tagName, property, attributes) {
       let DOMUtilsContext = this;
       let tempElement = DOMUtilsContext.windowApi.document.createElement(tagName);
       if (typeof property === "string") {
@@ -2503,7 +2506,7 @@ removeClass(element, className) {
         element.className = "";
       } else {
         if (!Array.isArray(className)) {
-          className = className.split(" ");
+          className = className.trim().split(" ");
         }
         className.forEach((itemClassName) => {
           element.classList.remove(itemClassName);
@@ -6532,7 +6535,7 @@ draw() {
   class UtilsDictionary {
     items;
     constructor(key, value) {
-      this.items = {};
+      this.items = new Map();
       if (key != null) {
         this.set(key, value);
       }
@@ -6556,72 +6559,67 @@ get [Symbol.iterator]() {
       };
     }
 has(key) {
-      return Reflect.has(this.items, key);
+      return this.items.has(key);
+    }
+get(key) {
+      return this.items.get(key);
+    }
+set(key, val) {
+      if (key === void 0) {
+        throw new Error("Utils.Dictionary().set 参数 key 不能为空");
+      }
+      this.items.set(key, val);
+    }
+delete(key) {
+      if (this.has(key)) {
+        return this.items.delete(key);
+      }
+      return false;
+    }
+keys() {
+      return this.items.keys().toArray();
+    }
+values() {
+      return this.items.values().toArray();
+    }
+clear() {
+      this.items.clear();
+    }
+size() {
+      return this.items.size;
+    }
+getItems() {
+      return this.items;
+    }
+concat(data) {
+      data.forEach((value, key) => {
+        this.items.set(key, value);
+      });
+    }
+forEach(callbackfn) {
+      this.items.forEach((value, key, self2) => {
+        callbackfn(value, key, this);
+      });
     }
 startsWith(key) {
-      let allKeys = this.keys();
-      for (const keyName of allKeys) {
-        if (String(keyName).startsWith(String(key))) {
+      const keys = this.keys();
+      for (const keyName of keys) {
+        if (String(keyName).startsWith(key)) {
           return true;
         }
       }
       return false;
     }
 getStartsWith(key) {
-      let allKeys = this.keys();
       let result = void 0;
-      for (const keyName of allKeys) {
+      const keys = this.keys();
+      for (const keyName of keys) {
         if (String(keyName).startsWith(String(key))) {
           result = this.get(keyName);
           break;
         }
       }
       return result;
-    }
-set(key, val) {
-      if (key === void 0) {
-        throw new Error("Utils.Dictionary().set 参数 key 不能为空");
-      }
-      Reflect.set(this.items, key, val);
-    }
-delete(key) {
-      if (this.has(key)) {
-        return Reflect.deleteProperty(this.items, key);
-      }
-      return false;
-    }
-get(key) {
-      return Reflect.get(this.items, key);
-    }
-values() {
-      let resultList = [];
-      for (let prop in this.getItems()) {
-        if (this.has(prop)) {
-          resultList.push(this.get(prop));
-        }
-      }
-      return resultList;
-    }
-clear() {
-      this.items = null;
-      this.items = {};
-    }
-size() {
-      return Object.keys(this.getItems()).length;
-    }
-keys() {
-      return Reflect.ownKeys(this.items);
-    }
-getItems() {
-      return this.items;
-    }
-concat(data) {
-      this.items = commonUtil.assign(this.items, data.getItems());
-    }
-forEach(callbackfn) {
-      for (const key in this.getItems()) {
-        callbackfn(this.get(key), key, this.getItems());
-      }
     }
   }
   class WindowApi2 {
@@ -7450,7 +7448,7 @@ matches($el, selector) {
     constructor(option) {
       this.windowApi = new WindowApi2(option);
     }
-version = "2025.8.21";
+version = "2025.9.8";
     addStyle(cssText) {
       if (typeof cssText !== "string") {
         throw new Error("Utils.addStyle 参数cssText 必须为String类型");
@@ -7699,19 +7697,19 @@ Dictionary = UtilsDictionary;
           }
         } else {
           let textElement = Array.from(element.childNodes).filter((ele) => ele.nodeType === Node.TEXT_NODE);
-          for (let ele of textElement) {
-            if (ele.textContent.includes(text)) {
+          for (let $child of textElement) {
+            if ($child.textContent.includes(text)) {
               let filterResult = typeof filter === "function" ? filter(element) : false;
               if (!filterResult) {
-                yield ele;
+                yield $child;
               }
             }
           }
         }
       }
       for (let index = 0; index < element.children.length; index++) {
-        let childElement = element.children[index];
-        yield* that.findElementsWithText(childElement, text, filter);
+        let $child = element.children[index];
+        yield* that.findElementsWithText($child, text, filter);
       }
     }
 findVisibleElement(element) {
@@ -8085,12 +8083,17 @@ getRandomPCUA() {
     }
 getReactObj(element) {
       let result = {};
-      Object.keys(element).forEach((domPropsName) => {
+      if (element == null) {
+        return result;
+      }
+      const keys = Object.keys(element);
+      keys.forEach((domPropsName) => {
         if (domPropsName.startsWith("__react")) {
-          let propsName = domPropsName.replace(/__(.+)\$.+/i, "$1");
+          const propsName = domPropsName.replace(/__(.+)\$.+/i, "$1");
+          const propsValue = Reflect.get(element, domPropsName);
           if (propsName in result) ;
           else {
-            result[propsName] = element[domPropsName];
+            Reflect.set(result, propsName, propsValue);
           }
         }
       });
@@ -10977,6 +10980,7 @@ offAll(element, eventType) {
       });
     }
 ready(callback) {
+      const that = this;
       if (typeof callback !== "function") {
         return;
       }
@@ -11010,13 +11014,13 @@ ready(callback) {
       function addDomReadyListener() {
         for (let index = 0; index < targetList.length; index++) {
           let item = targetList[index];
-          item.target.addEventListener(item.eventType, item.callback);
+          that.on(item.target, item.eventType, item.callback);
         }
       }
       function removeDomReadyListener() {
         for (let index = 0; index < targetList.length; index++) {
           let item = targetList[index];
-          item.target.removeEventListener(item.eventType, item.callback);
+          that.off(item.target, item.eventType, item.callback);
         }
       }
       if (checkDOMReadyState()) {
@@ -11166,9 +11170,7 @@ keypress(target, handler, option) {
           eventNameList = [eventNameList];
         }
         eventNameList.forEach((eventName) => {
-          element.addEventListener(eventName, stopEvent, {
-            capture: Boolean(capture)
-          });
+          this.on(element, eventName, stopEvent, { capture: Boolean(capture) });
         });
       }
     }
@@ -11871,6 +11873,33 @@ getTransform(element) {
       return {
         transformLeft: transform_left,
         transformTop: transform_top
+      };
+    }
+onInput($el, callback, option) {
+      let isComposite = false;
+      let __callback = async (event) => {
+        if (isComposite)
+          return;
+        await callback(event);
+      };
+      let __composition_start_callback = () => {
+        isComposite = true;
+      };
+      let __composition_end_callback = () => {
+        isComposite = false;
+        this.trigger($el, "input", {
+          isComposite
+        });
+      };
+      this.on($el, "input", __callback, option);
+      this.on($el, "compositionstart", __composition_start_callback, option);
+      this.on($el, "compositionend", __composition_end_callback, option);
+      return {
+        off: () => {
+          this.off($el, "input", __callback, option);
+          this.off($el, "compositionstart", __composition_start_callback, option);
+          this.off($el, "compositionend", __composition_end_callback, option);
+        }
       };
     }
   }
@@ -13939,46 +13968,83 @@ folderListBodyElement,
       if ($mask != null) {
         $anim.after($mask);
       }
-      config.folder.sort();
-      function createFolderRowElement(fileName, latestTime = "-", fileSize = "-", isFolder = false) {
-        let origin_fileName = fileName;
-        let origin_latestTime = latestTime;
-        let origin_fileSize = fileSize;
-        let folderELement = popsDOMUtils.createElement("tr");
-        let fileNameElement = popsDOMUtils.createElement("td");
-        let fileTimeElement = popsDOMUtils.createElement("td");
-        let fileFormatSize = popsDOMUtils.createElement("td");
-        let fileType = "";
-        let fileIcon = Folder_ICON.folder;
-        if (isFolder) {
-          latestTime = "";
-          fileSize = "";
-        } else {
-          fileIcon = "";
-          if (typeof latestTime === "number") {
-            latestTime = popsUtils.formatTime(latestTime);
-          }
-          if (typeof fileSize === "number") {
-            fileSize = popsUtils.formatByteToSize(fileSize);
-          }
-          for (let keyName in Folder_ICON) {
-            if (fileName.toLowerCase().endsWith("." + keyName)) {
-              fileType = keyName;
-              fileIcon = Folder_ICON[keyName];
-              break;
-            }
-          }
-          if (!Boolean(fileIcon)) {
-            fileType = "Null";
-            fileIcon = Folder_ICON.Null;
+      class PopsFolder2 {
+        init() {
+          config.folder.sort();
+          this.initFolderView(config.folder);
+          let allFilesElement = folderFileListBreadcrumbPrimaryElement.querySelector(".pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:first-child");
+          Reflect.set(allFilesElement, "_config_", config.folder);
+          popsDOMUtils.on(allFilesElement, "click", (event) => {
+            this.setBreadcrumbClickEvent(event, true, config.folder);
+          });
+          popsDOMUtils.on(folderListSortFileNameElement.closest("th"), "click", (event) => {
+            this.arrowToSortFolderInfoView(folderListSortFileNameElement, event, "fileName");
+          }, {
+            capture: true
+          });
+          popsDOMUtils.on(folderListSortLatestTimeElement.closest("th"), "click", (event) => {
+            this.arrowToSortFolderInfoView(folderListSortLatestTimeElement, event, "latestTime");
+          }, {
+            capture: true
+          });
+          popsDOMUtils.on(folderListSortFileSizeElement.closest("th"), "click", (event) => {
+            this.arrowToSortFolderInfoView(folderListSortFileSizeElement, event, "fileSize");
+          }, {
+            capture: true
+          });
+          if (config.sort.name === "fileName") {
+            popsDOMUtils.trigger(folderListSortFileNameElement, "click", {
+              notChangeSortRule: true
+            });
+          } else if (config.sort.name === "latestTime") {
+            popsDOMUtils.trigger(folderListSortLatestTimeElement, "click", {
+              notChangeSortRule: true
+            });
+          } else if (config.sort.name === "fileSize") {
+            popsDOMUtils.trigger(folderListSortFileSizeElement, "click", {
+              notChangeSortRule: true
+            });
           }
         }
-        folderELement.className = "pops-folder-list-table__body-row";
-        fileNameElement.className = "pops-folder-list-table__body-td";
-        fileTimeElement.className = "pops-folder-list-table__body-td";
-        fileFormatSize.className = "pops-folder-list-table__body-td";
-        PopsSafeUtils.setSafeHTML(
-          fileNameElement,
+createFolderRowElement(fileName, latestTime = "-", fileSize = "-", isFolder = false) {
+          let origin_fileName = fileName;
+          let origin_latestTime = latestTime;
+          let origin_fileSize = fileSize;
+          let folderElement = popsDOMUtils.createElement("tr");
+          let fileNameElement = popsDOMUtils.createElement("td");
+          let fileTimeElement = popsDOMUtils.createElement("td");
+          let fileFormatSize = popsDOMUtils.createElement("td");
+          let fileType = "";
+          let fileIcon = Folder_ICON.folder;
+          if (isFolder) {
+            latestTime = "";
+            fileSize = "";
+          } else {
+            fileIcon = "";
+            if (typeof latestTime === "number") {
+              latestTime = popsUtils.formatTime(latestTime);
+            }
+            if (typeof fileSize === "number") {
+              fileSize = popsUtils.formatByteToSize(fileSize);
+            }
+            for (let keyName in Folder_ICON) {
+              if (fileName.toLowerCase().endsWith("." + keyName)) {
+                fileType = keyName;
+                fileIcon = Folder_ICON[keyName];
+                break;
+              }
+            }
+            if (!Boolean(fileIcon)) {
+              fileType = "Null";
+              fileIcon = Folder_ICON.Null;
+            }
+          }
+          folderElement.className = "pops-folder-list-table__body-row";
+          fileNameElement.className = "pops-folder-list-table__body-td";
+          fileTimeElement.className = "pops-folder-list-table__body-td";
+          fileFormatSize.className = "pops-folder-list-table__body-td";
+          PopsSafeUtils.setSafeHTML(
+            fileNameElement,
 `
 				<div class="pops-folder-list-file-name cursor-p">
 					<div>
@@ -13989,78 +14055,78 @@ folderListBodyElement,
 					</div>
 				</div>
             `
-        );
-        PopsSafeUtils.setSafeHTML(
-          fileTimeElement,
+          );
+          PopsSafeUtils.setSafeHTML(
+            fileTimeElement,
 `
 				<div class="pops-folder-list__time">
 					<span>${latestTime}</span>
 				</div>
 				`
-        );
-        PopsSafeUtils.setSafeHTML(
-          fileFormatSize,
+          );
+          PopsSafeUtils.setSafeHTML(
+            fileFormatSize,
 `
 				<div class="pops-folder-list-format-size">
 					<span>${fileSize}</span>
 				</div>
 				`
-        );
-        let __value__ = {
-          fileName: origin_fileName,
-          latestTime: origin_latestTime,
-          fileSize: origin_fileSize,
-          isFolder
-        };
-        Reflect.set(fileNameElement, "__value__", __value__);
-        Reflect.set(fileTimeElement, "__value__", __value__);
-        Reflect.set(fileFormatSize, "__value__", __value__);
-        Reflect.set(folderELement, "__value__", __value__);
-        folderELement.appendChild(fileNameElement);
-        folderELement.appendChild(fileTimeElement);
-        folderELement.appendChild(fileFormatSize);
-        return {
-          folderELement,
-          fileNameElement,
-          fileTimeElement,
-          fileFormatSize
-        };
-      }
-      function createMobileFolderRowElement(fileName, latestTime = "-", fileSize = "-", isFolder = false) {
-        let origin_fileName = fileName;
-        let origin_latestTime = latestTime;
-        let origin_fileSize = fileSize;
-        let folderELement = popsDOMUtils.createElement("tr");
-        let fileNameElement = popsDOMUtils.createElement("td");
-        let fileType = "";
-        let fileIcon = Folder_ICON.folder;
-        if (isFolder) {
-          latestTime = "";
-          fileSize = "";
-        } else {
-          fileIcon = "";
-          if (typeof latestTime === "number") {
-            latestTime = popsUtils.formatTime(latestTime);
-          }
-          if (typeof fileSize === "number") {
-            fileSize = popsUtils.formatByteToSize(fileSize);
-          }
-          for (let keyName in Folder_ICON) {
-            if (fileName.toLowerCase().endsWith("." + keyName)) {
-              fileType = keyName;
-              fileIcon = Folder_ICON[keyName];
-              break;
+          );
+          let __value__ = {
+            fileName: origin_fileName,
+            latestTime: origin_latestTime,
+            fileSize: origin_fileSize,
+            isFolder
+          };
+          Reflect.set(fileNameElement, "__value__", __value__);
+          Reflect.set(fileTimeElement, "__value__", __value__);
+          Reflect.set(fileFormatSize, "__value__", __value__);
+          Reflect.set(folderElement, "__value__", __value__);
+          folderElement.appendChild(fileNameElement);
+          folderElement.appendChild(fileTimeElement);
+          folderElement.appendChild(fileFormatSize);
+          return {
+            folderElement,
+            fileNameElement,
+            fileTimeElement,
+            fileFormatSize
+          };
+        }
+createFolderRowElementByMobile(fileName, latestTime = "-", fileSize = "-", isFolder = false) {
+          let origin_fileName = fileName;
+          let origin_latestTime = latestTime;
+          let origin_fileSize = fileSize;
+          let folderElement = popsDOMUtils.createElement("tr");
+          let fileNameElement = popsDOMUtils.createElement("td");
+          let fileType = "";
+          let fileIcon = Folder_ICON.folder;
+          if (isFolder) {
+            latestTime = "";
+            fileSize = "";
+          } else {
+            fileIcon = "";
+            if (typeof latestTime === "number") {
+              latestTime = popsUtils.formatTime(latestTime);
+            }
+            if (typeof fileSize === "number") {
+              fileSize = popsUtils.formatByteToSize(fileSize);
+            }
+            for (let keyName in Folder_ICON) {
+              if (fileName.toLowerCase().endsWith("." + keyName)) {
+                fileType = keyName;
+                fileIcon = Folder_ICON[keyName];
+                break;
+              }
+            }
+            if (!Boolean(fileIcon)) {
+              fileType = "Null";
+              fileIcon = Folder_ICON.Null;
             }
           }
-          if (!Boolean(fileIcon)) {
-            fileType = "Null";
-            fileIcon = Folder_ICON.Null;
-          }
-        }
-        folderELement.className = "pops-folder-list-table__body-row";
-        fileNameElement.className = "pops-folder-list-table__body-td";
-        PopsSafeUtils.setSafeHTML(
-          fileNameElement,
+          folderElement.className = "pops-folder-list-table__body-row";
+          fileNameElement.className = "pops-folder-list-table__body-td";
+          PopsSafeUtils.setSafeHTML(
+            fileNameElement,
 `
 				<div class="pops-folder-list-file-name pops-mobile-folder-list-file-name cursor-p">
 					<img src="${fileIcon}" alt="${fileType}" class="pops-folder-list-file-icon u-file-icon u-file-icon--list">
@@ -14070,103 +14136,100 @@ folderListBodyElement,
 					</div>
 				</div>
 			`
-        );
-        let __value__ = {
-          fileName: origin_fileName,
-          latestTime: origin_latestTime,
-          fileSize: origin_fileSize,
-          isFolder
-        };
-        Reflect.set(fileNameElement, "__value__", __value__);
-        Reflect.set(folderELement, "__value__", __value__);
-        folderELement.appendChild(fileNameElement);
-        return {
-          folderELement,
-          fileNameElement
-        };
-      }
-      function clearFolderRow() {
-        PopsSafeUtils.setSafeHTML(folderListBodyElement, "");
-      }
-      function createHeaderArrowIcon() {
-        let iconArrowElement = popsDOMUtils.createElement("div", {
-          className: "iconArrow"
-        });
-        return iconArrowElement;
-      }
-      function createHeaderFileLinkNavgiation(folderName, folderDataConfig) {
-        let spanElement = popsDOMUtils.createElement("span", {
-          className: "pops-folder-file-list-breadcrumb-allFiles cursor-p",
-          innerHTML: `<a>${folderName}</a>`,
-          _config_: folderDataConfig
-        }, {
-          title: folderName
-        });
-        return spanElement;
-      }
-      function breadcrumbAllFilesElementClickEvent(event, isTop, folderDataConfigList) {
-        clearFolderRow();
-        let $click = event.target;
-        let currentBreadcrumb = $click.closest("span.pops-folder-file-list-breadcrumb-allFiles");
-        if (currentBreadcrumb) {
-          while (currentBreadcrumb.nextElementSibling) {
-            currentBreadcrumb.nextElementSibling.remove();
-          }
-        } else {
-          console.error("获取导航按钮失败");
+          );
+          let __value__ = {
+            fileName: origin_fileName,
+            latestTime: origin_latestTime,
+            fileSize: origin_fileSize,
+            isFolder
+          };
+          Reflect.set(fileNameElement, "__value__", __value__);
+          Reflect.set(folderElement, "__value__", __value__);
+          folderElement.appendChild(fileNameElement);
+          return {
+            folderElement,
+            fileNameElement
+          };
         }
-        let loadingMask = PopsLoading.init({
-          parent: $content,
-          content: {
-            text: "获取文件列表中..."
-          },
-          mask: {
-            enable: true,
-            clickEvent: {
-              toClose: false,
-              toHide: false
-            }
-          },
-          addIndexCSS: false
-        });
-        addFolderElement(folderDataConfigList);
-        loadingMask.close();
-      }
-      async function refreshFolderInfoClickEvent(event, folderDataConfig) {
-        clearFolderRow();
-        let loadingMask = PopsLoading.init({
-          parent: $content,
-          content: {
-            text: "获取文件列表中..."
-          },
-          mask: {
-            enable: true
-          },
-          addIndexCSS: false
-        });
-        if (typeof folderDataConfig.clickEvent === "function") {
-          let childConfig = await folderDataConfig.clickEvent(event, folderDataConfig);
-          folderFileListBreadcrumbPrimaryElement.appendChild(createHeaderArrowIcon());
-          let breadcrumbAllFilesElement = createHeaderFileLinkNavgiation(folderDataConfig.fileName, childConfig);
-          folderFileListBreadcrumbPrimaryElement.appendChild(breadcrumbAllFilesElement);
-          popsDOMUtils.on(breadcrumbAllFilesElement, "click", function(event2) {
-            breadcrumbAllFilesElementClickEvent(event2, false, childConfig);
+clearFolderInfoView() {
+          PopsSafeUtils.setSafeHTML(folderListBodyElement, "");
+        }
+createHeaderArrowIcon() {
+          let $arrowIcon = popsDOMUtils.createElement("div", {
+            className: "iconArrow"
           });
-          addFolderElement(childConfig);
+          return $arrowIcon;
         }
-        loadingMask.close();
-      }
-      function setFileClickEvent(targetElement, _config_) {
-        popsDOMUtils.on(targetElement, "click", async function(event) {
-          event?.preventDefault();
-          event?.stopPropagation();
-          event?.stopImmediatePropagation();
-          let linkElement = targetElement.querySelector("a");
-          if (typeof _config_.clickEvent === "function") {
-            let downloadInfo = await _config_.clickEvent(event, _config_);
+createBreadcrumb(folderName, folderDataConfig) {
+          let $breadcrumb = popsDOMUtils.createElement("span", {
+            className: "pops-folder-file-list-breadcrumb-allFiles cursor-p",
+            innerHTML: `<a>${folderName}</a>`,
+            _config_: folderDataConfig
+          }, {
+            title: folderName
+          });
+          return $breadcrumb;
+        }
+setBreadcrumbClickEvent(clickEvent, isTop, dataConfigList) {
+          this.clearFolderInfoView();
+          let $click = clickEvent.target;
+          let currentBreadcrumb = $click.closest("span.pops-folder-file-list-breadcrumb-allFiles");
+          if (currentBreadcrumb) {
+            while (currentBreadcrumb.nextElementSibling) {
+              currentBreadcrumb.nextElementSibling.remove();
+            }
+          } else {
+            console.error("获取导航按钮失败");
+          }
+          let loadingMask = PopsLoading.init({
+            parent: $content,
+            content: {
+              text: "获取文件列表中..."
+            },
+            mask: {
+              enable: true,
+              clickEvent: {
+                toClose: false,
+                toHide: false
+              }
+            },
+            addIndexCSS: false
+          });
+          this.initFolderView(dataConfigList);
+          loadingMask.close();
+        }
+async enterFolder(clickEvent, dataConfig) {
+          this.clearFolderInfoView();
+          let loadingMask = PopsLoading.init({
+            parent: $content,
+            content: {
+              text: "获取文件列表中..."
+            },
+            mask: {
+              enable: true
+            },
+            addIndexCSS: false
+          });
+          if (typeof dataConfig.clickEvent === "function") {
+            let childConfig = await dataConfig.clickEvent(clickEvent, dataConfig);
+            folderFileListBreadcrumbPrimaryElement.appendChild(this.createHeaderArrowIcon());
+            let breadcrumbAllFilesElement = this.createBreadcrumb(dataConfig.fileName, childConfig);
+            folderFileListBreadcrumbPrimaryElement.appendChild(breadcrumbAllFilesElement);
+            popsDOMUtils.on(breadcrumbAllFilesElement, "click", (event) => {
+              this.setBreadcrumbClickEvent(event, false, childConfig);
+            });
+            this.initFolderView(childConfig);
+          }
+          loadingMask.close();
+        }
+async downloadFile(clickEvent, $row, dataConfig) {
+          popsDOMUtils.preventEvent(clickEvent);
+          let $link = $row.querySelector("a");
+          if (typeof dataConfig.clickEvent === "function") {
+            let downloadInfo = await dataConfig.clickEvent(clickEvent, dataConfig);
             if (downloadInfo != null && typeof downloadInfo === "object" && !Array.isArray(downloadInfo) && typeof downloadInfo.url === "string" && downloadInfo.url.trim() !== "") {
-              linkElement.setAttribute("href", downloadInfo.url);
-              linkElement.setAttribute("target", "_blank");
+              $link.setAttribute("href", downloadInfo.url);
+              $link.setAttribute("target", "_blank");
               if (downloadInfo.autoDownload) {
                 if (downloadInfo.mode == null || downloadInfo.mode === "") {
                   downloadInfo.mode = "aBlank";
@@ -14202,164 +14265,136 @@ folderListBodyElement,
               }
             }
           }
-        });
-      }
-      function sortFolderConfig(folderDataConfigList, sortName = "fileName", isDesc = false) {
-        if (sortName === "fileName") {
-          let onlyFolderDataConfigList = folderDataConfigList.filter((value) => {
-            return value.isFolder;
-          });
-          let onlyFileDataConfigList = folderDataConfigList.filter((value) => {
-            return !value.isFolder;
-          });
-          onlyFolderDataConfigList.sort((leftConfig, rightConfig) => {
-            let beforeVal = leftConfig[sortName].toString();
-            let afterVal = rightConfig[sortName].toString();
-            let compareVal = beforeVal.localeCompare(afterVal);
-            if (isDesc) {
-              if (compareVal > 0) {
-                compareVal = -1;
-              } else if (compareVal < 0) {
-                compareVal = 1;
-              }
-            }
-            return compareVal;
-          });
-          onlyFileDataConfigList.sort((leftConfig, rightConfig) => {
-            let beforeVal = leftConfig[sortName].toString();
-            let afterVal = rightConfig[sortName].toString();
-            let compareVal = beforeVal.localeCompare(afterVal);
-            if (isDesc) {
-              if (compareVal > 0) {
-                compareVal = -1;
-              } else if (compareVal < 0) {
-                compareVal = 1;
-              }
-            }
-            return compareVal;
-          });
-          if (isDesc) {
-            return [...onlyFileDataConfigList, ...onlyFolderDataConfigList];
-          } else {
-            return [...onlyFolderDataConfigList, ...onlyFileDataConfigList];
-          }
-        } else {
-          folderDataConfigList.sort((beforeConfig, afterConfig) => {
-            let beforeVal = beforeConfig[sortName];
-            let afterVal = afterConfig[sortName];
-            if (sortName === "fileSize") {
-              beforeVal = parseFloat(beforeVal.toString());
-              afterVal = parseFloat(afterVal.toString());
-            } else if (sortName === "latestTime") {
-              beforeVal = new Date(beforeVal).getTime();
-              afterVal = new Date(afterVal).getTime();
-            }
-            if (beforeVal > afterVal) {
-              if (isDesc) {
-                return -1;
-              } else {
-                return 1;
-              }
-            } else if (beforeVal < afterVal) {
-              if (isDesc) {
-                return 1;
-              } else {
-                return -1;
-              }
-            } else {
-              return 0;
-            }
-          });
-          return folderDataConfigList;
         }
-      }
-      function addFolderElement(_config_) {
-        sortFolderConfig(_config_, config.sort.name, config.sort.isDesc);
-        _config_.forEach((item) => {
-          if (item["isFolder"]) {
-            let { folderELement, fileNameElement } = popsUtils.isPhone() ? createMobileFolderRowElement(item["fileName"], "", "", true) : createFolderRowElement(item["fileName"], "", "", true);
-            popsDOMUtils.on(fileNameElement, "click", (event) => {
-              refreshFolderInfoClickEvent(event, item);
+sortFolderConfig(folderDataConfigList, sortName = "fileName", isDesc = false) {
+          if (sortName === "fileName") {
+            let onlyFolderDataConfigList = folderDataConfigList.filter((value) => {
+              return value.isFolder;
             });
-            folderListBodyElement.appendChild(folderELement);
+            let onlyFileDataConfigList = folderDataConfigList.filter((value) => {
+              return !value.isFolder;
+            });
+            onlyFolderDataConfigList.sort((leftConfig, rightConfig) => {
+              let beforeVal = leftConfig[sortName].toString();
+              let afterVal = rightConfig[sortName].toString();
+              let compareVal = beforeVal.localeCompare(afterVal);
+              if (isDesc) {
+                if (compareVal > 0) {
+                  compareVal = -1;
+                } else if (compareVal < 0) {
+                  compareVal = 1;
+                }
+              }
+              return compareVal;
+            });
+            onlyFileDataConfigList.sort((leftConfig, rightConfig) => {
+              let beforeVal = leftConfig[sortName].toString();
+              let afterVal = rightConfig[sortName].toString();
+              let compareVal = beforeVal.localeCompare(afterVal);
+              if (isDesc) {
+                if (compareVal > 0) {
+                  compareVal = -1;
+                } else if (compareVal < 0) {
+                  compareVal = 1;
+                }
+              }
+              return compareVal;
+            });
+            if (isDesc) {
+              return [...onlyFileDataConfigList, ...onlyFolderDataConfigList];
+            } else {
+              return [...onlyFolderDataConfigList, ...onlyFileDataConfigList];
+            }
           } else {
-            let { folderELement, fileNameElement } = popsUtils.isPhone() ? createMobileFolderRowElement(item["fileName"], item.latestTime, item.fileSize, false) : createFolderRowElement(item["fileName"], item.latestTime, item.fileSize, false);
-            setFileClickEvent(fileNameElement, item);
-            folderListBodyElement.appendChild(folderELement);
+            folderDataConfigList.sort((beforeConfig, afterConfig) => {
+              let beforeVal = beforeConfig[sortName];
+              let afterVal = afterConfig[sortName];
+              if (sortName === "fileSize") {
+                beforeVal = parseFloat(beforeVal.toString());
+                afterVal = parseFloat(afterVal.toString());
+              } else if (sortName === "latestTime") {
+                beforeVal = new Date(beforeVal).getTime();
+                afterVal = new Date(afterVal).getTime();
+              }
+              if (beforeVal > afterVal) {
+                if (isDesc) {
+                  return -1;
+                } else {
+                  return 1;
+                }
+              } else if (beforeVal < afterVal) {
+                if (isDesc) {
+                  return 1;
+                } else {
+                  return -1;
+                }
+              } else {
+                return 0;
+              }
+            });
+            return folderDataConfigList;
           }
-        });
-      }
-      addFolderElement(config.folder);
-      let allFilesElement = folderFileListBreadcrumbPrimaryElement.querySelector(".pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:first-child");
-      allFilesElement._config_ = config.folder;
-      popsDOMUtils.on(allFilesElement, "click", (event) => {
-        breadcrumbAllFilesElementClickEvent(event, true, config.folder);
-      });
-      function removeAllArrowActive() {
-        [
-          ...Array.from(folderListSortFileNameElement.querySelectorAll(".pops-folder-icon-active")),
-          ...Array.from(folderListSortLatestTimeElement.querySelectorAll(".pops-folder-icon-active")),
-          ...Array.from(folderListSortFileSizeElement.querySelectorAll(".pops-folder-icon-active"))
-        ].forEach((ele) => ele.classList.remove("pops-folder-icon-active"));
-      }
-      function changeArrowActive(arrowUp, arrowDown, isDesc) {
-        removeAllArrowActive();
-        if (isDesc) {
-          arrowDown.classList.add("pops-folder-icon-active");
-        } else {
-          arrowUp.classList.add("pops-folder-icon-active");
+        }
+initFolderView(dataConfig) {
+          this.sortFolderConfig(dataConfig, config.sort.name, config.sort.isDesc);
+          dataConfig.forEach((item) => {
+            if (item.isFolder) {
+              let { folderElement, fileNameElement } = popsUtils.isPhone() ? this.createFolderRowElementByMobile(item.fileName, "", "", true) : this.createFolderRowElement(item.fileName, "", "", true);
+              popsDOMUtils.on(fileNameElement, "click", (event) => {
+                this.enterFolder(event, item);
+              });
+              folderListBodyElement.appendChild(folderElement);
+            } else {
+              let { folderElement, fileNameElement } = popsUtils.isPhone() ? this.createFolderRowElementByMobile(item.fileName, item.latestTime, item.fileSize, false) : this.createFolderRowElement(item.fileName, item.latestTime, item.fileSize, false);
+              popsDOMUtils.on(fileNameElement, "click", (event) => {
+                this.downloadFile(event, fileNameElement, item);
+              });
+              folderListBodyElement.appendChild(folderElement);
+            }
+          });
+        }
+removeArrowActiveStatus() {
+          [
+            ...Array.from(folderListSortFileNameElement.querySelectorAll(".pops-folder-icon-active")),
+            ...Array.from(folderListSortLatestTimeElement.querySelectorAll(".pops-folder-icon-active")),
+            ...Array.from(folderListSortFileSizeElement.querySelectorAll(".pops-folder-icon-active"))
+          ].forEach((ele) => ele.classList.remove("pops-folder-icon-active"));
+        }
+changeArrowActive(arrowUp, arrowDown, isDesc) {
+          this.removeArrowActiveStatus();
+          if (isDesc) {
+            arrowDown.classList.add("pops-folder-icon-active");
+          } else {
+            arrowUp.classList.add("pops-folder-icon-active");
+          }
+        }
+arrowToSortFolderInfoView(target, event, sortName) {
+          const notChangeSortRule = Reflect.get(event, "notChangeSortRule");
+          if (!notChangeSortRule) {
+            config.sort.name = sortName;
+            config.sort.isDesc = !config.sort.isDesc;
+          }
+          let arrowUp = target.querySelector(".pops-folder-icon-arrow-up");
+          let arrowDown = target.querySelector(".pops-folder-icon-arrow-down");
+          this.changeArrowActive(arrowUp, arrowDown, config.sort.isDesc);
+          if (typeof config.sort.callback === "function" && config.sort.callback(target, event, config.sort.name, config.sort.isDesc)) {
+            return;
+          }
+          let childrenList = [];
+          Array.from(folderListBodyElement.children).forEach((trElement) => {
+            let __value__ = Reflect.get(trElement, "__value__");
+            Reflect.set(__value__, "target", trElement);
+            childrenList.push(__value__);
+          });
+          let sortedConfigList = this.sortFolderConfig(childrenList, config.sort.name, config.sort.isDesc);
+          sortedConfigList.forEach((item) => {
+            folderListBodyElement.appendChild(item.target);
+          });
         }
       }
-      function arrowSortClickEvent(target, event, sortName) {
-        if (!event["notChangeSortRule"]) {
-          config.sort.name = sortName;
-          config.sort.isDesc = !config.sort.isDesc;
-        }
-        let arrowUp = target.querySelector(".pops-folder-icon-arrow-up");
-        let arrowDown = target.querySelector(".pops-folder-icon-arrow-down");
-        changeArrowActive(arrowUp, arrowDown, config.sort.isDesc);
-        if (typeof config.sort.callback === "function" && config.sort.callback(target, event, config.sort.name, config.sort.isDesc)) {
-          return;
-        }
-        let childrenList = [];
-        Array.from(folderListBodyElement.children).forEach((trElement) => {
-          let __value__ = trElement["__value__"];
-          __value__["target"] = trElement;
-          childrenList.push(__value__);
-        });
-        let sortedConfigList = sortFolderConfig(childrenList, config.sort.name, config.sort.isDesc);
-        sortedConfigList.forEach((item) => {
-          folderListBodyElement.appendChild(item.target);
-        });
-      }
-      popsDOMUtils.on(folderListSortFileNameElement.closest("th"), "click", function(event) {
-        arrowSortClickEvent(folderListSortFileNameElement, event, "fileName");
-      }, {
-        capture: true
-      });
-      popsDOMUtils.on(folderListSortLatestTimeElement.closest("th"), "click", void 0, function(event) {
-        arrowSortClickEvent(folderListSortLatestTimeElement, event, "latestTime");
-      }, {
-        capture: true
-      });
-      popsDOMUtils.on(folderListSortFileSizeElement.closest("th"), "click", void 0, function(event) {
-        arrowSortClickEvent(folderListSortFileSizeElement, event, "fileSize");
-      }, {
-        capture: true
-      });
-      if (config.sort.name === "fileName") {
-        popsDOMUtils.trigger(folderListSortFileNameElement, "click", {
-          notChangeSortRule: true
-        });
-      } else if (config.sort.name === "latestTime") {
-        popsDOMUtils.trigger(folderListSortLatestTimeElement, "click", {
-          notChangeSortRule: true
-        });
-      } else if (config.sort.name === "fileSize") {
-        popsDOMUtils.trigger(folderListSortFileSizeElement, "click", {
-          notChangeSortRule: true
-        });
-      }
+      const popsFolder = new PopsFolder2();
+      popsFolder.init();
+      Reflect.set($pops, "data-pops-folder", popsFolder);
       if (config.drag) {
         PopsInstanceUtils.drag($pops, {
           dragElement: $title,
@@ -18487,7 +18522,21 @@ addMenuLiELement(menuEvent, rootElement, menuElement, _config_, menuListenerRoot
     for (let index = 0; index < 10; index++) {
       data.push({
         value: `测试${index}`,
-        text: `测试${index}-html`
+        enableDeleteButton: true,
+        deleteButtonClickCallback(event, $dataItem, dataItem, config) {
+          console.log("删除当前项", [event, $dataItem, dataItem, config]);
+          return true;
+        },
+        itemView(dateItem, $parent) {
+          return `测试${index}-html`;
+        },
+        clickCallback(event, $dataItem, dataItem, config) {
+          console.log("item项的点击回调", [event, $dataItem, data, config]);
+          return index % 2 === 0 ? true : false;
+        },
+        selectCallback(event, $dataItem, dataItem, config) {
+          console.log("item项的选中回调", [event, $dataItem, data, config]);
+        }
       });
     }
     return {
@@ -18495,14 +18544,6 @@ target: null,
 inputTarget: null,
       selfDocument: document,
       data,
-      deleteIcon: {
-        enable: true,
-        callback(event, liElement, dataItem) {
-          console.log("删除当前项", [event, liElement, dataItem]);
-          data.splice(data.indexOf(dataItem), 1);
-          liElement.remove();
-        }
-      },
       useShadowRoot: true,
       className: "",
       isAbsolute: true,
@@ -18520,19 +18561,9 @@ inputTarget: null,
       toSearhNotResultHTML: '<li data-none="true">暂无其它数据</li>',
       toHideWithNotResult: false,
       followPosition: "target",
-      getItemHTML(item) {
-        return item.text ?? item;
-      },
-      async getData(value, data2) {
+      async inputTargetChangeRefreshShowDataCallback(value, data2) {
         console.log("当前输入框的值是：", value);
         return data2.filter((it) => it.value.includes(value));
-      },
-      itemClickCallBack(event, liElement, data2) {
-        console.log("item项的点击回调", [event, liElement, data2]);
-        this.inputTarget.value = data2.value;
-      },
-      selectCallBack(event, liElement, data2) {
-        console.log("item项的选中回调", [event, liElement, data2]);
       },
       style: ""
     };
@@ -18584,31 +18615,38 @@ root: null,
 $hintULContainer: null,
 $dynamicCSS: null
         },
+        $evt: {
+          offInputChangeEvtHandler: []
+        },
         $data: {
 isEmpty: true
         },
-initEl() {
-          this.$el.root = SearchSuggestion.createSearchSelectElement();
-          this.$el.$dynamicCSS = this.$el.root.querySelector("style[data-dynamic]");
-          this.$el.$hintULContainer = SearchSuggestion.$el.root.querySelector("ul");
-        },
 init(parentElement = document.body || document.documentElement) {
-          this.initEl();
-          SearchSuggestion.update(this.getData());
+          SearchSuggestion.initEl();
+          SearchSuggestion.update(SearchSuggestion.getData());
           SearchSuggestion.updateStyleSheet();
           SearchSuggestion.hide();
           $shadowRoot.appendChild(SearchSuggestion.$el.root);
           parentElement.appendChild($shadowContainer);
         },
+initEl() {
+          SearchSuggestion.$el.root = SearchSuggestion.createSearchSelectElement();
+          Reflect.set(SearchSuggestion.$el.root, "data-SearchSuggestion", SearchSuggestion);
+          SearchSuggestion.$el.$dynamicCSS = SearchSuggestion.$el.root.querySelector("style[data-dynamic]");
+          SearchSuggestion.$el.$hintULContainer = SearchSuggestion.$el.root.querySelector("ul");
+        },
 getData() {
           return typeof config.data === "function" ? config.data() : config.data;
+        },
+setData(data) {
+          config.data = data;
         },
 createSearchSelectElement() {
           let $el = popsDOMUtils.createElement("div", {
             className: `pops pops-${popsType}-search-suggestion`,
             innerHTML: (
 `
-						<style>
+						<style type="text/css">
 							.pops-${popsType}-animation{
 								-moz-animation: searchSelectFalIn 0.5s 1 linear;
 								-webkit-animation: searchSelectFalIn 0.5s 1 linear;
@@ -18616,7 +18654,7 @@ createSearchSelectElement() {
 								-ms-animation: searchSelectFalIn 0.5s 1 linear;
 							}
 						</style>
-						<style>
+						<style type="text/css">
 							.pops-${popsType}-search-suggestion-arrow{
 								--suggestion-arrow-box-shadow-left-color: rgba(0, 0, 0, 0.24);
 								--suggestion-arrow-box-shadow-right-color: rgba(0, 0, 0, 0.12);
@@ -18682,8 +18720,8 @@ createSearchSelectElement() {
 								content: "";
 							}
 						</style>
-						<style data-dynamic="true">
-							${this.getDynamicCSS()}
+						<style type="text/css" data-dynamic="true">
+							${SearchSuggestion.getDynamicCSS()}
 						</style>
 						<style>
 							.el-zoom-in-top-animation{
@@ -18703,6 +18741,9 @@ createSearchSelectElement() {
 								opacity: 1;
 								transform: scaleY(1);
 							}
+						</style>
+						<style type="text/css" data-user-css>
+							${config.style || ""}
 						</style>
 						<ul class="pops-${popsType}-search-suggestion-hint ${PopsCommonCSSClassName.userSelectNone}">${config.toSearhNotResultHTML}</ul>
 						${config.useArrow ? (
@@ -18791,36 +18832,61 @@ getDynamicCSS() {
 				`
           );
         },
-createSearchItemLiElement(data, index) {
+getItemDataValue(data) {
+          return data;
+        },
+createSearchItemLiElement(dataItem, dateItemIndex) {
+          const dataValue = SearchSuggestion.getItemDataValue(dataItem);
           let $li = popsDOMUtils.createElement("li", {
             className: `pops-${popsType}-search-suggestion-hint-item`,
-            "data-index": index,
-            "data-value": SearchSuggestion.getItemDataValue(data),
-            innerHTML: `${config.getItemHTML(data)}${config.deleteIcon.enable ? SearchSuggestion.getDeleteIconHTML() : ""}`
+            "data-index": dateItemIndex,
+            "data-value": dataValue
           });
+          Reflect.set($li, "data-index", dateItemIndex);
+          Reflect.set($li, "data-value", dataValue);
+          let $itemInner = dataItem.itemView(dataItem, $li, config);
+          if (typeof $itemInner === "string") {
+            PopsSafeUtils.setSafeHTML($li, $itemInner);
+          } else {
+            popsDOMUtils.append($li, $itemInner);
+          }
+          const enableDeleteButton = dataItem.enableDeleteButton;
+          if (typeof enableDeleteButton === "boolean" && enableDeleteButton) {
+            let $deleteIcon = SearchSuggestion.createItemDeleteIcon();
+            popsDOMUtils.append($li, $deleteIcon);
+          }
           popsDOMUtils.addClassName($li, PopsCommonCSSClassName.flexCenter);
           popsDOMUtils.addClassName($li, PopsCommonCSSClassName.flexYCenter);
           return $li;
         },
-getItemDataValue(data) {
-          return data;
-        },
 setSearchItemClickEvent($searchItem) {
-          popsDOMUtils.on($searchItem, "click", (event) => {
+          popsDOMUtils.on($searchItem, "click", async (event) => {
             popsDOMUtils.preventEvent(event);
             let $click = event.target;
-            let dataValue = Reflect.get($searchItem, "data-value");
+            const data = SearchSuggestion.getData();
+            const dataItem = Reflect.get($searchItem, "data-value");
             let isDelete = Boolean($click.closest(`.pops-${popsType}-delete-icon`));
             if (isDelete) {
-              if (typeof config.deleteIcon.callback === "function") {
-                config.deleteIcon.callback(event, $searchItem, dataValue);
+              if (typeof dataItem.deleteButtonClickCallback === "function") {
+                let result = await dataItem.deleteButtonClickCallback(event, $searchItem, dataItem, config);
+                if (typeof result === "boolean" && result) {
+                  data.splice(data.indexOf(dataItem), 1);
+                  $searchItem.remove();
+                }
               }
-              if (!this.$el.$hintULContainer.children.length) {
-                this.clear();
+              if (!SearchSuggestion.$el.$hintULContainer.children.length) {
+                SearchSuggestion.clear();
               }
               SearchSuggestion.updateStyleSheet();
             } else {
-              config.itemClickCallBack(event, $searchItem, dataValue);
+              if (typeof dataItem.clickCallback === "function") {
+                let result = await dataItem.clickCallback(event, $searchItem, dataItem, config);
+                if (typeof result === "boolean" && result) {
+                  if (config.inputTarget instanceof HTMLInputElement || config.inputTarget instanceof HTMLTextAreaElement) {
+                    config.inputTarget.value = String(dataItem.value);
+                  }
+                }
+              }
             }
           }, {
             capture: true
@@ -18835,16 +18901,23 @@ setInputChangeEvent(option = {
             return;
           }
           config.inputTarget.setAttribute("autocomplete", "off");
-          popsDOMUtils.on(config.inputTarget, "input", void 0, async (event) => {
-            let getListResult = await config.getData(config.inputTarget.value, this.getData());
-            SearchSuggestion.update(getListResult);
+          const listenerHandler = popsDOMUtils.onInput(config.inputTarget, async (event) => {
+            const data = SearchSuggestion.getData();
+            let queryDataResult = await config.inputTargetChangeRefreshShowDataCallback(config.inputTarget.value, data, config);
+            SearchSuggestion.update(queryDataResult);
             SearchSuggestion.updateStyleSheet();
           }, option);
+          SearchSuggestion.$evt.offInputChangeEvtHandler.push(listenerHandler.off);
         },
 removeInputChangeEvent(option = {
           capture: true
         }) {
-          popsDOMUtils.off(config.inputTarget, "input", void 0, void 0, option);
+          for (let index = 0; index < SearchSuggestion.$evt.offInputChangeEvtHandler.length; index++) {
+            const handler = SearchSuggestion.$evt.offInputChangeEvtHandler[index];
+            handler();
+            SearchSuggestion.$evt.offInputChangeEvtHandler.splice(index, 1);
+            index--;
+          }
         },
 showEvent() {
           SearchSuggestion.updateStyleSheet();
@@ -18927,30 +19000,28 @@ removeAllEvent(option = {
           SearchSuggestion.removeHideEvent(option);
           SearchSuggestion.removeShowEvent(option);
         },
-getDeleteIconHTML(size = 16, fill = "#bababa") {
-          return (
+createItemDeleteIcon(size = 16, fill = "#bababa") {
+          let $svg = popsDOMUtils.parseTextToDOM(
 `
-				<svg class="pops-${popsType}-delete-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" fill="${fill}">
-					<path d="M512 883.2A371.2 371.2 0 1 0 140.8 512 371.2 371.2 0 0 0 512 883.2z m0 64a435.2 435.2 0 1 1 435.2-435.2 435.2 435.2 0 0 1-435.2 435.2z"></path>
-					<path d="M557.056 512l122.368 122.368a31.744 31.744 0 1 1-45.056 45.056L512 557.056l-122.368 122.368a31.744 31.744 0 1 1-45.056-45.056L466.944 512 344.576 389.632a31.744 31.744 0 1 1 45.056-45.056L512 466.944l122.368-122.368a31.744 31.744 0 1 1 45.056 45.056z"></path>
-				</svg>
-        	`
+					<svg class="pops-${popsType}-delete-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" fill="${fill}">
+						<path d="M512 883.2A371.2 371.2 0 1 0 140.8 512 371.2 371.2 0 0 0 512 883.2z m0 64a435.2 435.2 0 1 1 435.2-435.2 435.2 435.2 0 0 1-435.2 435.2z"></path>
+						<path d="M557.056 512l122.368 122.368a31.744 31.744 0 1 1-45.056 45.056L512 557.056l-122.368 122.368a31.744 31.744 0 1 1-45.056-45.056L466.944 512 344.576 389.632a31.744 31.744 0 1 1 45.056-45.056L512 466.944l122.368-122.368a31.744 31.744 0 1 1 45.056 45.056z"></path>
+					</svg>
+        			`
           );
+          return $svg;
         },
 setPromptsInSearch() {
-          let isSearchingElement = popsDOMUtils.createElement("li", {
+          let $isSearching = popsDOMUtils.createElement("li", {
             className: `pops-${popsType}-search-suggestion-hint-searching-item`,
             innerHTML: config.searchingTip
           });
-          SearchSuggestion.$el.$hintULContainer.appendChild(isSearchingElement);
+          SearchSuggestion.addItem($isSearching);
         },
 removePromptsInSearch() {
           SearchSuggestion.$el.$hintULContainer.querySelector(`li.pops-${popsType}-search-suggestion-hint-searching-item`)?.remove();
         },
-clearAllSearchItemLi() {
-          PopsSafeUtils.setSafeHTML(SearchSuggestion.$el.$hintULContainer, "");
-        },
-changeHintULElementPosition(target = config.target ?? config.inputTarget) {
+changeHintULElementPosition(target = config.target ?? config.inputTarget, checkPositonAgain = true) {
           let targetRect = null;
           if (config.followPosition === "inputCursor") {
             targetRect = popsDOMUtils.getTextBoundingRect(config.inputTarget, config.inputTarget.selectionStart || 0, config.inputTarget.selectionEnd || 0, false);
@@ -19000,6 +19071,9 @@ changeHintULElementPosition(target = config.target ?? config.inputTarget) {
             left = left + documentWidth - hintUIWidth;
           }
           SearchSuggestion.$el.root.style.left = left + "px";
+          if (checkPositonAgain) {
+            SearchSuggestion.changeHintULElementPosition(target, !checkPositonAgain);
+          }
         },
 changeHintULElementWidth(target = config.target ?? config.inputTarget) {
           let targetRect = target.getBoundingClientRect();
@@ -19010,61 +19084,75 @@ changeHintULElementWidth(target = config.target ?? config.inputTarget) {
           }
         },
 updateDynamicCSS() {
-          let cssText = this.getDynamicCSS();
-          PopsSafeUtils.setSafeHTML(this.$el.$dynamicCSS, cssText);
+          let cssText = SearchSuggestion.getDynamicCSS();
+          PopsSafeUtils.setSafeHTML(SearchSuggestion.$el.$dynamicCSS, cssText);
         },
 updateStyleSheet() {
           SearchSuggestion.updateDynamicCSS();
           SearchSuggestion.changeHintULElementWidth();
           SearchSuggestion.changeHintULElementPosition();
         },
-update(data = []) {
-          if (!Array.isArray(data)) {
+addItem($item) {
+          SearchSuggestion.$el.$hintULContainer.appendChild($item);
+        },
+update(updateData = []) {
+          if (!Array.isArray(updateData)) {
             throw new TypeError("传入的数据不是数组");
           }
-          config.data = data;
-          if (config.data.length) {
+          const data = updateData;
+          if (data.length) {
             SearchSuggestion.$data.isEmpty = false;
             if (config.toHideWithNotResult) {
               SearchSuggestion.show();
             }
-            SearchSuggestion.clearAllSearchItemLi();
-            config.data.forEach((item, index) => {
-              let itemElement = SearchSuggestion.createSearchItemLiElement(item, index);
-              SearchSuggestion.setSearchItemClickEvent(itemElement);
-              SearchSuggestion.setSearchItemSelectEvent(itemElement);
-              SearchSuggestion.$el.$hintULContainer.appendChild(itemElement);
+            SearchSuggestion.clear(true);
+            let fragment = document.createDocumentFragment();
+            data.forEach((item, index) => {
+              let $item = SearchSuggestion.createSearchItemLiElement(item, index);
+              SearchSuggestion.setSearchItemClickEvent($item);
+              SearchSuggestion.setSearchItemSelectEvent($item);
+              fragment.appendChild($item);
             });
+            SearchSuggestion.addItem(fragment);
           } else {
             SearchSuggestion.clear();
           }
         },
-clear() {
-          this.$data.isEmpty = true;
-          this.clearAllSearchItemLi();
-          this.$el.$hintULContainer.appendChild(popsDOMUtils.parseTextToDOM(config.toSearhNotResultHTML));
+clear(onlyClearView = false) {
+          PopsSafeUtils.setSafeHTML(SearchSuggestion.$el.$hintULContainer, "");
+          if (onlyClearView) {
+            return;
+          }
+          SearchSuggestion.$data.isEmpty = true;
+          let $noResult;
+          if (typeof config.toSearhNotResultHTML === "string") {
+            $noResult = popsDOMUtils.parseTextToDOM(config.toSearhNotResultHTML);
+          } else {
+            $noResult = config.toSearhNotResultHTML();
+          }
+          SearchSuggestion.addItem($noResult);
           if (config.toHideWithNotResult) {
-            this.hide();
+            SearchSuggestion.hide();
           }
         },
 hide(useAnimationToHide = false) {
           if (config.useFoldAnimation) {
             if (!useAnimationToHide) {
-              popsDOMUtils.removeClassName(this.$el.root, "el-zoom-in-top-animation");
+              popsDOMUtils.removeClassName(SearchSuggestion.$el.root, "el-zoom-in-top-animation");
             }
-            popsDOMUtils.addClassName(this.$el.root, "el-zoom-in-top-animation");
-            popsDOMUtils.addClassName(this.$el.root, "el-zoom-in-top-animation-hide");
-            popsDOMUtils.removeClassName(this.$el.root, "el-zoom-in-top-animation-show");
+            popsDOMUtils.addClassName(SearchSuggestion.$el.root, "el-zoom-in-top-animation");
+            popsDOMUtils.addClassName(SearchSuggestion.$el.root, "el-zoom-in-top-animation-hide");
+            popsDOMUtils.removeClassName(SearchSuggestion.$el.root, "el-zoom-in-top-animation-show");
           } else {
-            this.$el.root.style.display = "none";
+            SearchSuggestion.$el.root.style.display = "none";
           }
         },
 show() {
-          this.$el.root.style.display = "";
+          SearchSuggestion.$el.root.style.display = "";
           if (config.useFoldAnimation) {
-            popsDOMUtils.addClassName(this.$el.root, "el-zoom-in-top-animation");
-            popsDOMUtils.removeClassName(this.$el.root, "el-zoom-in-top-animation-hide");
-            popsDOMUtils.addClassName(this.$el.root, "el-zoom-in-top-animation-show");
+            popsDOMUtils.addClassName(SearchSuggestion.$el.root, "el-zoom-in-top-animation");
+            popsDOMUtils.removeClassName(SearchSuggestion.$el.root, "el-zoom-in-top-animation-hide");
+            popsDOMUtils.addClassName(SearchSuggestion.$el.root, "el-zoom-in-top-animation-show");
           }
         }
       };
@@ -19073,7 +19161,7 @@ show() {
   };
   class Pops {
 config = {
-version: "2025.8.17",
+version: "2025.9.4",
       cssText: PopsCSS,
 iconSVG: PopsIcon.$data,
 animation: PopsAnimation.$data,
@@ -19487,21 +19575,29 @@ clickEvent: {
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
+  const PanelSizeUtil = {
+get width() {
+      return globalThis.innerWidth;
+    },
+get height() {
+      return globalThis.innerHeight;
+    }
+  };
   const PanelUISize = {
 setting: {
       get width() {
-        if (window.innerWidth < 550) {
+        if (PanelSizeUtil.width < 550) {
           return "88vw";
-        } else if (window.innerWidth < 700) {
+        } else if (PanelSizeUtil.width < 700) {
           return "550px";
         } else {
           return "700px";
         }
       },
       get height() {
-        if (window.innerHeight < 450) {
+        if (PanelSizeUtil.height < 450) {
           return "70vh";
-        } else if (window.innerHeight < 550) {
+        } else if (PanelSizeUtil.height < 550) {
           return "450px";
         } else {
           return "550px";
@@ -19510,26 +19606,26 @@ setting: {
     },
 settingMiddle: {
       get width() {
-        return window.innerWidth < 350 ? "88vw" : "350px";
+        return PanelSizeUtil.width < 350 ? "88vw" : "350px";
       },
       get height() {
-        return window.innerHeight < 450 ? "88vh" : "450px";
+        return PanelSizeUtil.height < 450 ? "88vh" : "450px";
       }
     },
 settingBig: {
       get width() {
-        return window.innerWidth < 800 ? "92vw" : "800px";
+        return PanelSizeUtil.width < 800 ? "92vw" : "800px";
       },
       get height() {
-        return window.innerHeight < 600 ? "80vh" : "600px";
+        return PanelSizeUtil.height < 600 ? "80vh" : "600px";
       }
     },
 info: {
       get width() {
-        return window.innerWidth < 350 ? "88vw" : "350px";
+        return PanelSizeUtil.width < 350 ? "88vw" : "350px";
       },
       get height() {
-        return window.innerHeight < 250 ? "88vh" : "250px";
+        return PanelSizeUtil.height < 250 ? "88vh" : "250px";
       }
     }
   };
@@ -19661,12 +19757,12 @@ __contentConfig: null,
         return this.__contentConfig;
       }
     },
-addContentConfig(configList2) {
-      if (!Array.isArray(configList2)) {
-        configList2 = [configList2];
+addContentConfig(configList) {
+      if (!Array.isArray(configList)) {
+        configList = [configList];
       }
       let index = this.$data.contentConfig.keys().length;
-      this.$data.contentConfig.set(index, configList2);
+      this.$data.contentConfig.set(index, configList);
     },
 getAllContentConfig() {
       return this.$data.contentConfig.values().flat();
@@ -19802,6 +19898,13 @@ initContentDefaultValue() {
         if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
           return;
         }
+        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
+        if (typeof __attr_init__ === "function") {
+          let __attr_result__ = __attr_init__();
+          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
+            return;
+          }
+        }
         let menuDefaultConfig = new Map();
         let key = config.attributes[ATTRIBUTE_KEY];
         if (key != null) {
@@ -19818,13 +19921,6 @@ initContentDefaultValue() {
           log.warn(["请先配置键", config]);
           return;
         }
-        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
-        if (typeof __attr_init__ === "function") {
-          let __attr_result__ = __attr_init__();
-          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
-            return;
-          }
-        }
         if (config.type === "switch") {
           let disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
           if (typeof disabled === "boolean" && disabled) {
@@ -19835,9 +19931,9 @@ initContentDefaultValue() {
           this.setDefaultValue(__key, __defaultValue);
         }
       };
-      const loopInitDefaultValue = (configList2) => {
-        for (let index = 0; index < configList2.length; index++) {
-          let configItem = configList2[index];
+      const loopInitDefaultValue = (configList) => {
+        for (let index = 0; index < configList.length; index++) {
+          let configItem = configList[index];
           initDefaultValue(configItem);
           let child_forms = configItem.forms;
           if (child_forms && Array.isArray(child_forms)) {
@@ -20214,7 +20310,7 @@ threshold: 1
     					align-items: center;
 					}
 					.search-result-item-description{
-						font-size: 0.8rem;
+						font-size: 0.8em;
 						color: #6c6c6c;
 					}
 					${config.searchDialogStyle ?? ""}
@@ -20323,9 +20419,9 @@ threshold: 1
         let execSearch = (searchText) => {
           const searchTextRegExp = new RegExp(searchText, "i");
           const searchConfigResult = [];
-          const loopContentConfig = (configList2, path) => {
-            for (let index = 0; index < configList2.length; index++) {
-              const configItem = configList2[index];
+          const loopContentConfig = (configList, path) => {
+            for (let index = 0; index < configList.length; index++) {
+              const configItem = configList[index];
               let child_forms = configItem.forms;
               if (child_forms && Array.isArray(child_forms)) {
                 const deepMenuPath = utils.deepClone(path);
@@ -21270,7 +21366,7 @@ getApiDocUrl(navName, text) {
             forms: [
               UIInfo(
                 () => this.isSupport() ? {
-                  text: "支持 " + apiName,
+                  text: `支持 ${apiName}，类型 ${typeof _GM_cookie}`,
                   tag: "success"
                 } : {
                   text: "不支持 " + apiName,
@@ -25449,6 +25545,548 @@ getApiDocUrl(navName, text) {
       return void 0;
     }
   }
+  class ApiTest_audio extends ApiAsyncTestBase {
+    isSupport() {
+      return (typeof _GM_audio === "object" || typeof _GM_audio === "function") && _GM_audio != null && typeof _GM_audio?.setMute === "function" && typeof _GM_audio?.getState === "function" && typeof _GM_audio?.addStateChangeListener === "function" && typeof _GM_audio?.removeStateChangeListener === "function";
+    }
+    getApiOption() {
+      let isSupport = this.isSupport();
+      return {
+        isSupport_setMute: isSupport && typeof _GM_audio?.setMute === "function",
+        isSupport_getState: isSupport && typeof _GM_audio?.getState === "function",
+        isSupport_addStateChangeListener: isSupport && typeof _GM_audio?.addStateChangeListener === "function",
+        isSupport_removeStateChangeListener: isSupport && typeof _GM_audio?.removeStateChangeListener === "function"
+      };
+    }
+    getApiName() {
+      return "GM_audio";
+    }
+    getAsyncApiOption() {
+      let isSupportAsync = this.isSupportGM() && (typeof _GM.audio === "object" || typeof _GM.audio === "function") && _GM.audio != null && typeof _GM.audio?.setMute === "function" && typeof _GM.audio?.getState === "function" && typeof _GM.audio?.addStateChangeListener === "function" && typeof _GM.audio?.removeStateChangeListener === "function";
+      return {
+        name: "GM.audio",
+        isSupport: isSupportAsync,
+        isSupport_setMute: isSupportAsync && typeof _GM.audio?.setMute === "function",
+        isSupport_getState: isSupportAsync && typeof _GM.audio?.getState === "function",
+        isSupport_addStateChangeListener: isSupportAsync && typeof _GM.audio?.addStateChangeListener === "function",
+        isSupport_removeStateChangeListener: isSupportAsync && typeof _GM.audio?.removeStateChangeListener === "function"
+      };
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let apiInfo = this.getApiOption();
+      let apiAsyncInfo = this.getAsyncApiOption();
+      let result = {
+        id: "aside-" + apiName,
+        title: "" + apiName,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
+        apiName + ".setMute",
+        `${apiName} & ${apiAsyncInfo.name}`
+      )}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        clickCallback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "函数测试",
+            forms: [
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: `支持 ${apiName}，类型：${typeof _GM_audio}`,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              )
+            ]
+          },
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: []
+          },
+          {
+            type: "forms",
+            text: "功能测试（异步）",
+            forms: []
+          }
+        ]
+      };
+      let firstFormList = result["forms"][0].forms;
+      if (this.isSupport()) {
+        firstFormList.push(
+          UIInfo(() => {
+            return apiInfo.isSupport_setMute ? {
+              text: `支持 ${apiName}.setMute`,
+              tag: "success"
+            } : {
+              text: `不支持 ${apiName}.setMute`,
+              tag: "error"
+            };
+          }),
+          UIInfo(() => {
+            return apiInfo.isSupport_getState ? {
+              text: `支持 ${apiName}.getState`,
+              tag: "success"
+            } : {
+              text: `不支持 ${apiName}.getState`,
+              tag: "error"
+            };
+          }),
+          UIInfo(() => {
+            return apiInfo.isSupport_addStateChangeListener ? {
+              text: `支持 ${apiName}.addStateChangeListener`,
+              tag: "success"
+            } : {
+              text: `不支持 ${apiName}.addStateChangeListener`,
+              tag: "error"
+            };
+          }),
+          UIInfo(() => {
+            return apiInfo.isSupport_removeStateChangeListener ? {
+              text: `支持 ${apiName}.removeStateChangeListener`,
+              tag: "success"
+            } : {
+              text: `不支持 ${apiName}.removeStateChangeListener`,
+              tag: "error"
+            };
+          })
+        );
+      }
+      if (apiAsyncInfo.isSupport) {
+        firstFormList.push(
+          UIInfo(() => {
+            return apiAsyncInfo.isSupport_setMute ? {
+              text: `支持 ${apiAsyncInfo.name}.setMute`,
+              tag: "success"
+            } : {
+              text: `不支持 ${apiAsyncInfo.name}.setMute`,
+              tag: "error"
+            };
+          }),
+          UIInfo(() => {
+            return apiAsyncInfo.isSupport_getState ? {
+              text: `支持 ${apiAsyncInfo.name}.getState`,
+              tag: "success"
+            } : {
+              text: `不支持 ${apiAsyncInfo.name}.getState`,
+              tag: "error"
+            };
+          }),
+          UIInfo(() => {
+            return apiAsyncInfo.isSupport_addStateChangeListener ? {
+              text: `支持 ${apiAsyncInfo.name}.addStateChangeListener`,
+              tag: "success"
+            } : {
+              text: `不支持 ${apiAsyncInfo.name}.addStateChangeListener`,
+              tag: "error"
+            };
+          }),
+          UIInfo(() => {
+            return apiAsyncInfo.isSupport_removeStateChangeListener ? {
+              text: `支持 ${apiAsyncInfo.name}.removeStateChangeListener`,
+              tag: "success"
+            } : {
+              text: `不支持 ${apiAsyncInfo.name}.removeStateChangeListener`,
+              tag: "error"
+            };
+          })
+        );
+      } else {
+        firstFormList.push(
+          UIInfo(() => {
+            return { text: "不支持 " + apiAsyncInfo.name, tag: "error" };
+          })
+        );
+      }
+      if (this.isSupport()) {
+        [
+          {
+            name: apiName,
+            setMute: async (...args) => {
+              return new Promise((resolve, reject) => {
+                const [details, cb] = args;
+                _GM_audio.setMute(details, (error) => {
+                  if (error) {
+                    reject(error);
+                  } else {
+                    resolve(void 0);
+                  }
+                });
+              });
+            },
+            getState: async (...args) => {
+              return new Promise((resolve, reject) => {
+                const [details, cb] = args;
+                _GM_audio.getState((info) => {
+                  if (!info) reject(new Error("failed to read state"));
+                  resolve(info);
+                });
+              });
+            },
+            addStateChangeListener: async (...args) => {
+              return new Promise((resolve, reject) => {
+                const [cb] = args;
+                _GM_audio.addStateChangeListener(cb, (err) => {
+                  if (err) {
+                    reject(err);
+                  } else {
+                    resolve(void 0);
+                  }
+                });
+              });
+            },
+            removeStateChangeListener: async (...args) => {
+              return new Promise((resolve, reject) => {
+                const [cb] = args;
+                _GM_audio.removeStateChangeListener(cb, (err) => {
+                  if (err) {
+                    reject(err);
+                  } else {
+                    resolve(void 0);
+                  }
+                });
+              });
+            },
+            formList: result["forms"][1].forms
+          },
+          {
+            name: apiAsyncInfo.name,
+            setMute: async (...args) => {
+              const [details] = args;
+              const stat = await _GM.audio?.setMute(details);
+              return stat;
+            },
+            getState: async (...args) => {
+              const stat = await _GM.audio?.getState();
+              if (typeof stat === "object" && stat != null) {
+                if (typeof stat?.isMuted !== "boolean") {
+                  throw new Error("GM.audio.getState 返回值类型错误");
+                }
+                return stat;
+              } else {
+                throw new Error("返回值不是一个对象");
+              }
+            },
+            addStateChangeListener: _GM.audio?.addStateChangeListener,
+            removeStateChangeListener: _GM.audio?.removeStateChangeListener,
+            formList: result["forms"][2].forms
+          }
+        ].forEach((data) => {
+          data.name;
+          data.formList.push(
+            UIInfo(() => {
+              try {
+                return {
+                  text: CommonUtil2.escapeHtml("测试设置当前tab静音"),
+                  tag: "info",
+                  description: "点击按钮进行测试",
+                  afterRender(container) {
+                    let $button = domUtils.parseHTML(
+`
+                                        <div class="pops-panel-button pops-panel-button-no-icon">
+                                            <button class="pops-panel-button_inner" type="button" data-type="default">
+                                                <i class="pops-bottom-icon" is-loading="false"></i>
+                                                <span class="pops-panel-button-text">点击执行</span>
+                                            </button>
+                                        </div>
+                                        `,
+                      false,
+                      false
+                    );
+                    domUtils.on($button, "click", async (event) => {
+                      try {
+                        utils.preventEvent(event);
+                        const stat = await data.setMute({ isMuted: true });
+                        console.log(data.name + ".setMute result：", stat);
+                        if (stat === void 0) {
+                          TagUtil.setTag(container.$leftText, "success", "执行成功");
+                        } else {
+                          TagUtil.setTag(container.$leftText, "warn", "执行成功，但返回值类型不同：" + stat);
+                        }
+                        domUtils.text(container.$leftDesc, this.text);
+                        domUtils.show(container.$leftDesc, false);
+                      } catch (error) {
+                        qmsg.error(error.toString(), {
+                          consoleLogContent: true
+                        });
+                      }
+                    });
+                    domUtils.after(container.$leftContainer, $button);
+                  }
+                };
+              } catch (error) {
+                console.error(error);
+                return {
+                  text: "执行错误 " + error,
+                  tag: "error"
+                };
+              } finally {
+              }
+            }),
+            UIInfo(() => {
+              try {
+                return {
+                  text: CommonUtil2.escapeHtml("测试取消当前tab静音"),
+                  tag: "info",
+                  description: "点击按钮进行测试",
+                  afterRender(container) {
+                    let $button = domUtils.parseHTML(
+`
+                                        <div class="pops-panel-button pops-panel-button-no-icon">
+                                            <button class="pops-panel-button_inner" type="button" data-type="default">
+                                                <i class="pops-bottom-icon" is-loading="false"></i>
+                                                <span class="pops-panel-button-text">点击执行</span>
+                                            </button>
+                                        </div>
+                                        `,
+                      false,
+                      false
+                    );
+                    domUtils.on($button, "click", async (event) => {
+                      try {
+                        utils.preventEvent(event);
+                        const state = await data.setMute({ isMuted: false });
+                        console.log(data.name + ".setMute result：", state);
+                        if (state === void 0) {
+                          TagUtil.setTag(container.$leftText, "success", "执行成功");
+                        } else {
+                          TagUtil.setTag(container.$leftText, "warn", "执行成功，但返回值类型不同：" + state);
+                        }
+                        domUtils.text(container.$leftDesc, this.text);
+                        domUtils.show(container.$leftDesc, false);
+                      } catch (error) {
+                        qmsg.error(error.toString(), {
+                          consoleLogContent: true
+                        });
+                      }
+                    });
+                    domUtils.after(container.$leftContainer, $button);
+                  }
+                };
+              } catch (error) {
+                console.error(error);
+                return {
+                  text: "执行错误 " + error,
+                  tag: "error"
+                };
+              } finally {
+              }
+            }),
+            UIInfo(() => {
+              try {
+                return {
+                  text: CommonUtil2.escapeHtml("获取当前tab静音状态信息"),
+                  tag: "info",
+                  description: "点击按钮进行测试",
+                  afterRender(container) {
+                    let $button = domUtils.parseHTML(
+`
+									<div class="pops-panel-button pops-panel-button-no-icon">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
+											<i class="pops-bottom-icon" is-loading="false"></i>
+											<span class="pops-panel-button-text">点击执行</span>
+										</button>
+									</div>
+									`,
+                      false,
+                      false
+                    );
+                    domUtils.on($button, "click", async (event) => {
+                      try {
+                        utils.preventEvent(event);
+                        const stateInfo = await data.getState();
+                        console.log(data.name + ".getState result：", stateInfo);
+                        if (typeof stateInfo === "object" && stateInfo !== null) {
+                          const propSupport = [];
+                          if (typeof stateInfo?.isMuted === "boolean") {
+                            propSupport.push(
+`
+                                                        <p class="support-info success">支持属性：isMuted，当前类型：${typeof stateInfo?.isMuted}</p>    
+                                                    `
+                            );
+                          } else {
+                            propSupport.push(
+`
+                                                        <p class="support-info error">不支持属性：isMuted，当前类型：${typeof stateInfo?.isMuted}</p>    
+                                                    `
+                            );
+                          }
+                          if ("muteReason" in stateInfo && typeof stateInfo?.muteReason === "string" || stateInfo?.muteReason === void 0) {
+                            propSupport.push(
+`
+                                                        <p class="support-info success">支持属性：muteReason，当前类型：${typeof stateInfo?.muteReason}</p>    
+                                                    `
+                            );
+                          } else {
+                            propSupport.push(
+`
+                                                        <p class="support-info error">不支持属性：muteReason，当前类型：${typeof stateInfo?.muteReason}</p>    
+                                                    `
+                            );
+                          }
+                          if (typeof stateInfo?.isAudible === "boolean") {
+                            propSupport.push(
+`
+                                                        <p class="support-info success">支持属性：isAudible，当前类型：${typeof stateInfo?.isAudible}</p>
+                                                    `
+                            );
+                          } else {
+                            propSupport.push(
+`
+                                                        <p class="support-info error">不支持属性：isAudible，当前类型：${typeof stateInfo?.isAudible}</p>
+                                                    `
+                            );
+                          }
+                          TagUtil.setTag(container.$leftText, "success", propSupport.join("\n"));
+                        } else {
+                          TagUtil.setTag(container.$leftText, "error", "返回值类型错误：" + typeof stateInfo);
+                        }
+                        domUtils.text(container.$leftDesc, this.text);
+                        domUtils.show(container.$leftDesc, false);
+                        alert(JSON.stringify(stateInfo, null, 4));
+                      } catch (error) {
+                        qmsg.error(error.toString(), {
+                          consoleLogContent: true
+                        });
+                      }
+                    });
+                    domUtils.after(container.$leftContainer, $button);
+                  }
+                };
+              } catch (error) {
+                console.error(error);
+                return {
+                  text: "执行错误 " + error,
+                  tag: "error"
+                };
+              } finally {
+              }
+            }),
+            UIInfo(() => {
+              try {
+                return {
+                  text: CommonUtil2.escapeHtml("测试监听静音状态改变"),
+                  tag: "info",
+                  description: "点击按钮进行测试",
+                  afterRender(container) {
+                    let $button = domUtils.parseHTML(
+`
+									<div class="pops-panel-button pops-panel-button-no-icon">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
+											<i class="pops-bottom-icon" is-loading="false"></i>
+											<span class="pops-panel-button-text">点击执行</span>
+										</button>
+									</div>
+									`,
+                      false,
+                      false
+                    );
+                    let timeId;
+                    domUtils.on($button, "click", async (event) => {
+                      try {
+                        utils.preventEvent(event);
+                        await data.addStateChangeListener((statusInfo) => {
+                          console.log(
+                            data.name + ".addStateChangeListener callback change value：",
+                            statusInfo
+                          );
+                          alert(JSON.stringify(statusInfo, null, 4));
+                        });
+                        await utils.sleep(500);
+                        await data.setMute({ isMuted: true });
+                        await utils.sleep(500);
+                        await data.setMute({ isMuted: false });
+                      } catch (error) {
+                        qmsg.error(error.toString(), {
+                          consoleLogContent: true
+                        });
+                      }
+                    });
+                    domUtils.after(container.$leftContainer, $button);
+                  }
+                };
+              } catch (error) {
+                console.error(error);
+                return {
+                  text: "执行错误 " + error,
+                  tag: "error"
+                };
+              } finally {
+              }
+            }),
+            UIInfo(() => {
+              try {
+                return {
+                  text: CommonUtil2.escapeHtml("测试移除监听器"),
+                  tag: "info",
+                  description: "点击按钮进行测试",
+                  afterRender(container) {
+                    let $button = domUtils.parseHTML(
+`
+									<div class="pops-panel-button pops-panel-button-no-icon">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
+											<i class="pops-bottom-icon" is-loading="false"></i>
+											<span class="pops-panel-button-text">点击执行</span>
+										</button>
+									</div>
+									`,
+                      false,
+                      false
+                    );
+                    let isSuccessRemove = true;
+                    let $loading;
+                    domUtils.on($button, "click", async (event) => {
+                      try {
+                        utils.preventEvent(event);
+                        let listener = (statusInfo) => {
+                          isSuccessRemove = false;
+                          qmsg.error("移除监听器失败");
+                        };
+                        $loading = qmsg.loading("处理监听器中...");
+                        await data.addStateChangeListener(listener);
+                        await data.removeStateChangeListener(listener);
+                        $loading.setText("等待500ms，设置当前Tab静音");
+                        await utils.sleep(500);
+                        await data.setMute({ isMuted: true });
+                        $loading.setText("等待500ms，设置当前Tab取消静音");
+                        await utils.sleep(500);
+                        await data.setMute({ isMuted: false });
+                        $loading.close();
+                        if (isSuccessRemove) {
+                          qmsg.success("移除监听器成功");
+                        }
+                      } catch (error) {
+                        $loading?.close();
+                        qmsg.error(error.toString(), {
+                          consoleLogContent: true
+                        });
+                      }
+                    });
+                    domUtils.after(container.$leftContainer, $button);
+                  }
+                };
+              } catch (error) {
+                console.error(error);
+                return {
+                  text: "执行错误 " + error,
+                  tag: "error"
+                };
+              } finally {
+              }
+            })
+          );
+        });
+      }
+      return result;
+    }
+  }
   const GMTotal = {
     unsafeWindow: new ApiTest_unsafeWindow(),
     GM: new ApiTest_GM(),
@@ -25478,7 +26116,8 @@ getApiDocUrl(navName, text) {
     removeValueChangeListener: new ApiTest_removeValueChangeListener(),
     xmlHttpRequest: new ApiTest_xmlHttpRequest(),
     webRequest: new ApiTest_webRequest(),
-    cookie: new ApiTest_cookie()
+    cookie: new ApiTest_cookie(),
+    audio: new ApiTest_audio()
   };
   const LocalStorageApi = {
     $storageKey: "gm-api-test-storage-config",
@@ -25953,28 +26592,29 @@ delete(key) {
       return result;
     }
   }
-  let showPanel = () => {
-    Panel.showPanel(PanelContent.getConfig(0), void 0, void 0, true);
-  };
-  let defaultMenuOption = PanelMenu.getMenuOption(0);
-  defaultMenuOption.callback = () => {
-    showPanel();
-  };
-  PanelMenu.updateMenuOption(defaultMenuOption);
-  let configList = [Component_Common()];
-  Object.keys(GMTotal).forEach((keyName) => {
-    let value = GMTotal[keyName];
-    let option = value.getUIOption();
-    if (option) {
-      configList.push(option);
-    }
-  });
-  configList.push(new GrantTest_onurlchange().getUIOption());
-  configList.push(new GrantTest_close().getUIOption());
-  configList.push(new GrantTest_focus().getUIOption());
-  PanelContent.addContentConfig(configList);
-  Panel.$data.panelConfig = {
-    style: (
+  if (Panel.isTopWindow()) {
+    let showPanel = () => {
+      Panel.showPanel(PanelContent.getConfig(0), void 0, void 0, true);
+    };
+    let defaultMenuOption = PanelMenu.getMenuOption(0);
+    defaultMenuOption.callback = () => {
+      showPanel();
+    };
+    PanelMenu.updateMenuOption(defaultMenuOption);
+    let configList = [Component_Common()];
+    Object.keys(GMTotal).forEach((keyName) => {
+      let value = GMTotal[keyName];
+      let option = value.getUIOption();
+      if (option) {
+        configList.push(option);
+      }
+    });
+    configList.push(new GrantTest_onurlchange().getUIOption());
+    configList.push(new GrantTest_close().getUIOption());
+    configList.push(new GrantTest_focus().getUIOption());
+    PanelContent.addContentConfig(configList);
+    Panel.$data.panelConfig = {
+      style: (
 `
 		.success{
 			color: green;
@@ -26021,9 +26661,10 @@ delete(key) {
 			align-items: center;
 		}
 	`
-    )
-  };
-  Panel.init();
-  showPanel();
+      )
+    };
+    Panel.init();
+    showPanel();
+  }
 
 })();
