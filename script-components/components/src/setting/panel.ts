@@ -147,6 +147,15 @@ const Panel = {
 				return;
 			}
 
+			/* 调用初始化方法，返回false则阻止默认行为 */
+			let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
+			if (typeof __attr_init__ === "function") {
+				let __attr_result__ = __attr_init__();
+				if (typeof __attr_result__ === "boolean" && !__attr_result__) {
+					return;
+				}
+			}
+
 			/**
 			 * 初始化配置对象，每个是需要配置的键值对
 			 *
@@ -173,15 +182,6 @@ const Panel = {
 			if (!menuDefaultConfig.size) {
 				log.warn(["请先配置键", config]);
 				return;
-			}
-
-			/* 调用初始化方法，返回false则阻止默认行为 */
-			let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
-			if (typeof __attr_init__ === "function") {
-				let __attr_result__ = __attr_init__();
-				if (typeof __attr_result__ === "boolean" && !__attr_result__) {
-					return;
-				}
 			}
 			if (config.type === "switch") {
 				let disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
