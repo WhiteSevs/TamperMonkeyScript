@@ -92,6 +92,10 @@ export declare const PopsHandler: {
          */
         contentElement: HTMLDivElement;
         /**
+         * panel的右侧容器元素
+         */
+        panelSectionWrapper: HTMLDivElement;
+        /**
          * 内容侧边栏容器元素
          */
         contentAsideElement: HTMLDivElement;

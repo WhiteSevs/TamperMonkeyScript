@@ -78,10 +78,12 @@ export const PopsPanel = {
 					<ul class="pops-${popsType}-aside-top-container"></ul>
 					<ul class="pops-${popsType}-aside-bottom-container"></ul>
 				</aside>
-				<section class="pops-${popsType}-container">
-					<ul class="pops-${popsType}-container-header-ul"></ul>
-					<ul class="pops-${popsType}-container-main-ul"></ul>
-				</section>
+				<div class="pops-${popsType}-section-wrapper">
+					<section class="pops-${popsType}-container">
+						<ul class="pops-${popsType}-container-header-ul"></ul>
+						<ul class="pops-${popsType}-container-main-ul"></ul>
+					</section>
+				</div>
 			</div>`,
 			"",
 			zIndex
@@ -96,6 +98,7 @@ export const PopsPanel = {
 			headerCloseBtnElement: $headerCloseBtn,
 			titleElement: $title,
 			contentElement: $content,
+			panelSectionWrapper: $panelSectionWrapper,
 			contentAsideElement: $contentAside,
 			contentSectionContainerElement: $contentSectionContainer,
 		} = PopsHandler.handleQueryElement($anim, popsType);
@@ -157,6 +160,7 @@ export const PopsPanel = {
 			$el: {
 				$pops: $pops,
 				$content: $content,
+				$sectionWrapper: $panelSectionWrapper,
 				$contentAside: $contentAside,
 				$contentSectionContainer: $contentSectionContainer,
 			},

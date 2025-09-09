@@ -517,6 +517,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
 		height: window.innerHeight < 450 ? "70vh" : "500px",
 		position: "center",
 		animation: "pops-anim-fadein-zoom",
+		useDeepMenuSwtichAnimation: true,
 		zIndex: 10000,
 		drag: false,
 		dragLimit: true,

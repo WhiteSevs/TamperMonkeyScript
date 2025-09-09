@@ -251,6 +251,10 @@ export const PopsHandler = {
 			 */
 			contentElement: animElement.querySelector<HTMLDivElement>(`.pops-${type}-content`)!,
 			/**
+			 * panel的右侧容器元素
+			 */
+			panelSectionWrapper: animElement.querySelector<HTMLDivElement>(`.pops-${type}-section-wrapper`)!,
+			/**
 			 * 内容侧边栏容器元素
 			 */
 			contentAsideElement: animElement.querySelector<HTMLDivElement>(

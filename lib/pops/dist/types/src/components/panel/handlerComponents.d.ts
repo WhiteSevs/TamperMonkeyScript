@@ -38,11 +38,14 @@ export declare const PanelHandlerComponents: () => {
         $pops: HTMLElement;
         /** 内容 */
         $content: HTMLElement;
+        /** section元素的包裹容器 */
+        $sectionWrapper: HTMLElement;
         /** 左侧容器 */
         $contentAside: HTMLElement;
         /** 右侧容器 */
         $contentSectionContainer: HTMLElement;
     };
+    $config: Required<PopsPanelDetails>;
     /**
      * 初始化
      * @param details
@@ -52,6 +55,7 @@ export declare const PanelHandlerComponents: () => {
         $el: {
             $pops: HTMLElement;
             $content: HTMLElement;
+            $sectionWrapper: HTMLElement;
             $contentAside: HTMLElement;
             $contentSectionContainer: HTMLElement;
         };
@@ -60,6 +64,10 @@ export declare const PanelHandlerComponents: () => {
      * 清空container容器的元素
      */
     clearContainer(): void;
+    /**
+     * 清空deepMenu的容器元素
+     */
+    clearDeepMenuContainer(): void;
     /**
      * 清空左侧容器已访问记录
      */

@@ -143,4 +143,11 @@ export interface PopsPanelDetails extends PopsTitleConfig, PopsDragConfig, PopsC
      * @default false
      */
     isMobile?: boolean;
+    /**
+     * 是否使用深度菜单切换动画
+     *
+     * 如果浏览器不支持`document.startViewTransition`函数，那么即使使用`useDeepMenuSwtichAnimation`为true，那么不会使用动画
+     * @default true
+     */
+    useDeepMenuSwtichAnimation: true;
 }

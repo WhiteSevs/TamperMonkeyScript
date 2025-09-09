@@ -57,11 +57,14 @@ export const PanelHandlerComponents = () => {
 			$pops: null as any as HTMLElement,
 			/** 内容 */
 			$content: null as any as HTMLElement,
+			/** section元素的包裹容器 */
+			$sectionWrapper: null as any as HTMLElement,
 			/** 左侧容器 */
 			$contentAside: null as any as HTMLElement,
 			/** 右侧容器 */
 			$contentSectionContainer: null as any as HTMLElement,
 		},
+		$config: {} as Required<PopsPanelDetails>,
 		/**
 		 * 初始化
 		 * @param details
@@ -71,6 +74,7 @@ export const PanelHandlerComponents = () => {
 			$el: {
 				$pops: HTMLElement;
 				$content: HTMLElement;
+				$sectionWrapper: HTMLElement;
 				$contentAside: HTMLElement;
 				$contentSectionContainer: HTMLElement;
 			};
@@ -79,6 +83,7 @@ export const PanelHandlerComponents = () => {
 			this.$el = {
 				...details.$el,
 			};
+			this.$config = details.config;
 
 			this.asideULElement = this.$el.$contentAside.querySelector<HTMLUListElement>(
 				`ul.pops-${PopsType}-aside-top-container`
@@ -156,7 +161,13 @@ export const PanelHandlerComponents = () => {
 			Reflect.deleteProperty(this.$el.$contentSectionContainer, "__formConfig__");
 			PopsSafeUtils.setSafeHTML(this.sectionContainerHeaderULElement, "");
 			PopsSafeUtils.setSafeHTML(this.sectionContainerULElement, "");
-			this.$el.$content
+			this.clearDeepMenuContainer();
+		},
+		/**
+		 * 清空deepMenu的容器元素
+		 */
+		clearDeepMenuContainer() {
+			this.$el.$sectionWrapper
 				?.querySelectorAll("section.pops-panel-deepMenu-container")
 				.forEach(($el) => $el.remove());
 		},
@@ -2553,17 +2564,14 @@ export const PanelHandlerComponents = () => {
 				 * @param event 点击事件
 				 * @param liElement 当前的<li>元素
 				 */
-				gotoDeepMenu(event: Event, liElement: HTMLLIElement) {
+				async gotoDeepMenu(event: Event, liElement: HTMLLIElement) {
 					/** 当前所在的容器 */
-					let currentSection = liElement.closest<HTMLElement>("section.pops-panel-container");
-					if (currentSection) {
-						popsDOMUtils.cssHide(currentSection, true);
-					}
+					let $currentSection = liElement.closest<HTMLElement>("section.pops-panel-container")!;
 					// 子菜单的容器
-					let $deepMenuContainer = popsDOMUtils.createElement("section", {
+					let $deepMenuSection = popsDOMUtils.createElement("section", {
 						className: "pops-panel-container pops-panel-deepMenu-container",
 					});
-					Reflect.set($deepMenuContainer, "__formConfig__", formConfig);
+					Reflect.set($deepMenuSection, "__formConfig__", formConfig);
 					let $deepMenuHeaderUL = popsDOMUtils.createElement("ul", {
 						className: "pops-panel-container-header-ul pops-panel-deepMenu-container-header-ul",
 					});
@@ -2576,47 +2584,118 @@ export const PanelHandlerComponents = () => {
 						className: "pops-panel-container-header-title-text pops-panel-deepMenu-container-header",
 						innerHTML: /*html*/ `<p class="pops-panel-deepMenu-container-header-title-text">${headerTitleText}</p>`,
 					});
+					// 返回箭头
 					let $headerLeftArrow = popsDOMUtils.createElement("i", {
 						className: "pops-panel-deepMenu-container-left-arrow-icon",
 						innerHTML: PopsIcon.getIcon("arrowLeft")!,
 					});
-					popsDOMUtils.on(
-						$headerLeftArrow,
-						"click",
-						(event) => {
-							popsDOMUtils.preventEvent(event);
-							// 返回上一层菜单
-							let $prev = <HTMLElement>$deepMenuContainer.previousElementSibling;
-							popsDOMUtils.cssShow($prev);
-							$deepMenuContainer.remove();
-							that.triggerRenderRightContainer($prev);
-						},
-						{
-							once: true,
-						}
-					);
-					$header.firstElementChild?.insertAdjacentElement("beforebegin", $headerLeftArrow);
-					$deepMenuHeaderUL.appendChild($header);
-					$deepMenuContainer.appendChild($deepMenuHeaderUL);
-					$deepMenuContainer.appendChild($deepMenuMain);
+					// 动画配置
+					const animOptions: KeyframeAnimationOptions = {
+						// 150 220 300
+						duration: 220,
+						easing: "ease-in-out",
+					};
+					// 进入动画
+					const enterViewTransition = () => {
+						// 隐藏旧的容器
+						popsDOMUtils.cssHide($currentSection, true);
+						popsDOMUtils.on(
+							$headerLeftArrow,
+							"click",
+							async (event) => {
+								popsDOMUtils.preventEvent(event);
+								// 返回动画
+								const leaveViewTransition = () => {
+									const $prev = $currentSection;
+									popsDOMUtils.cssShow($prev);
+									$deepMenuSection.remove();
+								};
+								// 返回上一层菜单
+								if (that.$config.useDeepMenuSwtichAnimation && document.startViewTransition) {
+									const leaveTransition = document.startViewTransition(leaveViewTransition);
+									await leaveTransition.ready;
+									// 向右移出
+									await Promise.all([
+										$deepMenuSection.animate(
+											[
+												{
+													// from
+													transform: "translateX(0)",
+												},
+												{
+													// to
+													transform: "translateX(100%)",
+												},
+											],
+											animOptions
+										).finished,
+										// 向右移入
+										$currentSection.animate(
+											[
+												{
+													// from
+													transform: "translateX(-100%)",
+												},
+												{
+													// to
+													transform: "translateX(0)",
+												},
+											],
+											animOptions
+										).finished,
+									]);
+									await leaveTransition.finished;
+								} else {
+									leaveViewTransition();
+								}
+								that.triggerRenderRightContainer($currentSection);
+							},
+							{
+								once: true,
+							}
+						);
+						popsDOMUtils.before($header.firstElementChild!, $headerLeftArrow);
+						$deepMenuHeaderUL.appendChild($header);
+						$deepMenuSection.appendChild($deepMenuHeaderUL);
+						$deepMenuSection.appendChild($deepMenuMain);
 
-					if (formConfig.forms && Array.isArray(formConfig.forms)) {
-						for (let index = 0; index < formConfig.forms.length; index++) {
-							let formItemConfig = formConfig.forms[index];
-							this.initFormItem($deepMenuMain, formItemConfig);
+						if (formConfig.forms && Array.isArray(formConfig.forms)) {
+							for (let index = 0; index < formConfig.forms.length; index++) {
+								let formItemConfig = formConfig.forms[index];
+								this.initFormItem($deepMenuMain, formItemConfig);
+							}
 						}
+						that.$el.$sectionWrapper.appendChild($deepMenuSection);
+					};
+					if (that.$config.useDeepMenuSwtichAnimation && document.startViewTransition) {
+						const transition = document.startViewTransition(enterViewTransition);
+						await transition.ready;
+						await $deepMenuSection.animate(
+							[
+								{
+									// from
+									transform: "translateX(100%)",
+								},
+								{
+									// to
+									transform: "translateX(0)",
+								},
+							],
+							animOptions
+						).finished;
+						await transition.finished;
+					} else {
+						enterViewTransition();
 					}
-					that.$el.$content?.appendChild($deepMenuContainer);
-
 					if (typeof formConfig.afterEnterDeepMenuCallBack === "function") {
 						formConfig.afterEnterDeepMenuCallBack(formConfig, {
-							sectionContainer: $deepMenuContainer,
+							sectionContainer: $deepMenuSection,
 							sectionContainerHeaderContainer: $deepMenuHeaderUL,
 							sectionContainerHeader: $header,
 							sectionBodyContainer: $deepMenuMain,
 						});
 					}
-					that.triggerRenderRightContainer($deepMenuContainer);
+					that.triggerRenderRightContainer($deepMenuSection);
 				},
 				/** 设置项的点击事件 */
 				setLiClickEvent() {
@@ -2627,7 +2706,7 @@ export const PanelHandlerComponents = () => {
 								return;
 							}
 						}
-						this.gotoDeepMenu(event, $li);
+						await this.gotoDeepMenu(event, $li);
 					});
 				},
 			};

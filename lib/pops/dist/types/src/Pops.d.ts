@@ -228,19 +228,23 @@ declare class Pops {
             $el: {
                 $pops: HTMLElement;
                 $content: HTMLElement;
+                $sectionWrapper: HTMLElement;
                 $contentAside: HTMLElement;
                 $contentSectionContainer: HTMLElement;
             };
+            $config: Required<PopsPanelDetails>;
             init(details: {
                 config: Required<PopsPanelDetails>;
                 $el: {
                     $pops: HTMLElement;
                     $content: HTMLElement;
+                    $sectionWrapper: HTMLElement;
                     $contentAside: HTMLElement;
                     $contentSectionContainer: HTMLElement;
                 };
             }): void;
             clearContainer(): void;
+            clearDeepMenuContainer(): void;
             clearAsideItemIsVisited(): void;
             setAsideItemIsVisited(element: HTMLElement): void;
             setElementAttributes(element: HTMLElement, attributes?: any): void;

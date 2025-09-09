@@ -35,6 +35,7 @@
 }
 
 /* ↓panel的CSS↓ */
+/* 左侧的列表 */
 aside.pops-panel-aside {
 	box-sizing: border-box;
 	flex-shrink: 0;
@@ -57,6 +58,22 @@ aside.pops-panel-aside {
 aside.pops-panel-aside .pops-panel-aside-top-container {
 	overflow: auto;
 }
+aside.pops-panel-aside ul li {
+	margin: 6px 8px;
+	border-radius: 4px;
+	padding: 6px 10px;
+	cursor: default;
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+}
+aside.pops-panel-aside .pops-is-visited,
+aside.pops-panel-aside ul li:not(.pops-panel-disabled-aside-hover-css):hover {
+	color: var(--panel-aside-hover-color);
+	background: var(--panel-aside-hover-bg-color);
+}
+/* 左侧的列表 */
+
 .pops-panel-content {
 	display: flex;
 	flex-direction: row;
@@ -67,6 +84,14 @@ aside.pops-panel-aside .pops-panel-aside-top-container {
 	min-width: 0;
 	bottom: 0 !important;
 }
+
+.pops-panel-section-wrapper {
+	width: 100%;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
 section.pops-panel-container {
 	width: 100%;
 	overflow: hidden;
@@ -90,20 +115,6 @@ section.pops-panel-container .pops-panel-container-header-ul li.pops-panel-conta
 section.pops-panel-container ul.pops-panel-container-main-ul {
 	overflow: auto;
 	/*flex: 1;*/
-}
-aside.pops-panel-aside ul li {
-	margin: 6px 8px;
-	border-radius: 4px;
-	padding: 6px 10px;
-	cursor: default;
-	display: flex;
-	align-items: center;
-	justify-content: flex-start;
-}
-aside.pops-panel-aside .pops-is-visited,
-aside.pops-panel-aside ul li:not(.pops-panel-disabled-aside-hover-css):hover {
-	color: var(--panel-aside-hover-color);
-	background: var(--panel-aside-hover-bg-color);
 }
 section.pops-panel-container > ul li:not(.pops-panel-forms-container-item) {
 	display: flex;
