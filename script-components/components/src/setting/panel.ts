@@ -48,7 +48,15 @@ const Panel = {
 		/**
 		 * @private
 		 */
-		__onceExecMenuData: null as UtilsDictionary<string, number> | null,
+		__onceExecMenuData: null as UtilsDictionary<
+			string,
+			{
+				reload(): void;
+				clear(): void;
+				clearStoreStyleElements: () => void;
+				removeValueChangeListener: () => void;
+			}
+		> | null,
 		/**
 		 * @private
 		 */
@@ -87,7 +95,7 @@ const Panel = {
 		 */
 		get onceExecMenuData() {
 			if (this.__onceExecMenuData == null) {
-				this.__onceExecMenuData = new utils.Dictionary<string, number>();
+				this.__onceExecMenuData = new utils.Dictionary();
 			}
 			return this.__onceExecMenuData;
 		},
@@ -98,7 +106,7 @@ const Panel = {
 		 */
 		get onceExecData() {
 			if (this.__onceExecData == null) {
-				this.__onceExecData = new utils.Dictionary<string, number>();
+				this.__onceExecData = new utils.Dictionary();
 			}
 			return this.__onceExecData;
 		},
@@ -361,9 +369,8 @@ const Panel = {
 			// 仅执行一次
 			if (this.$data.onceExecMenuData.has(storageKey)) {
 				// log.warn(`${storageKey} 键已执行过，请勿重复执行`);
-				return;
+				return this.$data.onceExecMenuData.get(storageKey)!;
 			}
-			this.$data.onceExecMenuData.set(storageKey, 1);
 		}
 		/**
 		 * 存储菜单返回的值
@@ -392,8 +399,11 @@ const Panel = {
 				}
 			});
 			if (value) {
+				// 执行
 				storeValueList = storeValueList.concat(dynamicResultList);
 			} else {
+				// 不执行
+				// 移除已添加的元素
 				for (let index = 0; index < dynamicResultList.length; index++) {
 					let $css = dynamicResultList[index];
 					$css.remove();
@@ -432,8 +442,15 @@ const Panel = {
 			}
 			return flag;
 		};
-		/** 值改变触发的回调 */
-		let valueChangeCallback = (valueOption?: { key: string; newValue: any; oldValue: any }) => {
+		/**
+		 * 值改变触发的回调
+		 */
+		let valueChangeCallback = (
+			/**
+			 * 值改变的参数
+			 */
+			valueOption?: { key: string; newValue: any; oldValue: any }
+		) => {
 			let execFlag = checkMenuExec();
 			let resultList: HTMLStyleElement[] = [];
 			if (execFlag) {
@@ -469,6 +486,8 @@ const Panel = {
 			// 存储元素列表
 			storeValueList = [...resultList];
 		};
+		// 仅执行一次
+		// 那么需要添加值改变监听
 		once &&
 			keyList.forEach((key) => {
 				let listenerId = this.addValueChangeListener(key, (key, newValue, oldValue) => {
@@ -483,6 +502,16 @@ const Panel = {
 		valueChangeCallback();
 
 		let result = {
+			/**
+			 * 重载菜单执行
+			 *
+			 * 当Router改变时，某些对应Router判断才生效的css需要重新执行才会添加
+			 *
+			 * 调用该函数会无视once的值
+			 */
+			reload() {
+				valueChangeCallback();
+			},
 			/**
 			 * 清空菜单执行情况
 			 *
@@ -511,6 +540,7 @@ const Panel = {
 			},
 		};
 
+		this.$data.onceExecMenuData.set(storageKey, result);
 		return result;
 	},
 	/**
