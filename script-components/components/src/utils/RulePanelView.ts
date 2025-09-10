@@ -283,6 +283,13 @@ export type RulePanelOption<T> = {
 	className?: string;
 	/** 自定义样式 */
 	style?: string;
+	/**
+	 * 是否使用深度菜单切换动画
+	 *
+	 * 如果浏览器不支持`document.startViewTransition`函数，那么即使使用`useDeepMenuSwtichAnimation`为true，那么不会使用动画
+	 * @default true
+	 */
+	useDeepMenuSwtichAnimation?: boolean;
 };
 
 /**
@@ -431,7 +438,7 @@ export class RulePanelView<T> {
 						utils.preventEvent(event);
 						// 订阅
 						await subscribeOption?.callback?.();
-						let deepMenuElementInfo = this.enterDeepMenu(
+						let deepMenuElementInfo = await this.enterDeepMenu(
 							$panelRightContainer,
 							subscribeOption?.headerTitle || subscribeOption?.title || "订阅",
 							() => {
@@ -870,12 +877,16 @@ export class RulePanelView<T> {
 	 * @param headerTitle 标题
 	 * @param quiteDeepMenuCallBack 返回上一层回调，一般用于触发外部的渲染更新
 	 */
-	enterDeepMenu($el: HTMLElement, headerTitle: string, quiteDeepMenuCallBack: () => void) {
+	async enterDeepMenu($el: HTMLElement, headerTitle: string, quiteDeepMenuCallBack: () => void) {
+		// 动画配置
+		const animOptions: KeyframeAnimationOptions = {
+			// 150 220 300
+			duration: 220,
+			easing: "ease-in-out",
+		};
 		/** 前一个菜单元素 */
-		let $prevSection = $el.matches("section") ? $el : $el.closest("section")!;
-		// 二级菜单，先隐藏旧的
-		DOMUtils.addClass($prevSection, "pops-hide-important");
-		let $section = DOMUtils.createElement("section", {
+		const $currentSection = $el.matches("section") ? $el : $el.closest("section")!;
+		const $deepMenuSection = DOMUtils.createElement("section", {
 			className: "pops-panel-container pops-panel-deepMenu-container",
 			innerHTML: /*html*/ `
 				<ul class="pops-panel-container-header-ul pops-panel-deepMenu-container-header-ul">
@@ -887,29 +898,95 @@ export class RulePanelView<T> {
 				<ul class="pops-panel-container-main-ul"></ul>
 			`,
 		});
-
-		DOMUtils.after($prevSection, $section);
 		/** 标题容器 */
-		let $headerContainer = $section.querySelector<HTMLElement>(".pops-panel-deepMenu-container-header-ul")!;
+		const $headerContainer = $deepMenuSection.querySelector<HTMLElement>(
+			".pops-panel-deepMenu-container-header-ul"
+		)!;
 		/** 返回上一层按钮 */
-		let $arrowLeft = $section.querySelector<HTMLElement>(".pops-panel-deepMenu-container-left-arrow-icon")!;
+		const $arrowLeft = $deepMenuSection.querySelector<HTMLElement>(
+			".pops-panel-deepMenu-container-left-arrow-icon"
+		)!;
 		/** 右侧规则容器 */
-		let $rightRuleContainer = $section.querySelector<HTMLElement>(".pops-panel-container-main-ul")!;
+		const $rightRuleContainer = $deepMenuSection.querySelector<HTMLElement>(".pops-panel-container-main-ul")!;
 
-		DOMUtils.on($arrowLeft, "click", (event) => {
+		DOMUtils.on($arrowLeft, "click", async (event) => {
 			utils.preventEvent(event);
 			// 回退
-			// 获取元素的前一个元素
-			let $before = DOMUtils.prev($section);
-
-			DOMUtils.remove($section);
-			if ($before) {
-				DOMUtils.removeClass($before, "pops-hide-important");
+			// 返回动画
+			const leaveViewTransition = () => {
+				const $prev = $currentSection;
+				DOMUtils.removeClass($prev, "pops-hide-important");
+				DOMUtils.remove($deepMenuSection);
+				quiteDeepMenuCallBack();
+			};
+			if (this.option.useDeepMenuSwtichAnimation && document.startViewTransition) {
+				const leaveTransition = document.startViewTransition(leaveViewTransition);
+				await leaveTransition.ready;
+				// 向右移出
+				await Promise.all([
+					$deepMenuSection.animate(
+						[
+							{
+								// from
+								transform: "translateX(0)",
+							},
+							{
+								// to
+								transform: "translateX(100%)",
+							},
+						],
+						animOptions
+					).finished,
+					// 向右移入
+					$currentSection.animate(
+						[
+							{
+								// from
+								transform: "translateX(-100%)",
+							},
+							{
+								// to
+								transform: "translateX(0)",
+							},
+						],
+						animOptions
+					).finished,
+				]);
+				await leaveTransition.finished;
+			} else {
+				leaveViewTransition();
 			}
-			quiteDeepMenuCallBack();
 		});
+		// 进入动画
+		const enterViewTransition = () => {
+			// 二级菜单，先隐藏旧的
+			DOMUtils.addClass($currentSection, "pops-hide-important");
+			// 添加新的
+			DOMUtils.after($currentSection, $deepMenuSection);
+		};
+
+		if (this.option.useDeepMenuSwtichAnimation && document.startViewTransition) {
+			const transition = document.startViewTransition(enterViewTransition);
+			await transition.ready;
+			await $deepMenuSection.animate(
+				[
+					{
+						// from
+						transform: "translateX(100%)",
+					},
+					{
+						// to
+						transform: "translateX(0)",
+					},
+				],
+				animOptions
+			).finished;
+			await transition.finished;
+		} else {
+			enterViewTransition();
+		}
 		return {
-			$section,
+			$section: $deepMenuSection,
 			$headerContainer,
 			$arrowLeft,
 			$rightRuleContainer,
@@ -1341,7 +1418,7 @@ export class RulePanelView<T> {
 						$section: $el as HTMLElement,
 						$ruleItem: $ruleItem,
 						enterDeepMenu: async (deepMenuOption) => {
-							let deepMenuElementInfo = this.enterDeepMenu(
+							let deepMenuElementInfo = await this.enterDeepMenu(
 								$el as HTMLElement,
 								deepMenuOption.headerTitle || "",
 								() => {
