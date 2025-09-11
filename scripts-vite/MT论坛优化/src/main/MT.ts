@@ -39,9 +39,6 @@ export const MT = {
 			Panel.onceExec("mt-onlineUser", () => {
 				MTOnlineUser.init();
 			});
-			Panel.execMenuOnce("mt-link-text-to-hyperlink", () => {
-				MTIdentifyLinks();
-			});
 			Panel.execMenuOnce("mt-addLatestPostBtn", () => {
 				this.addLatestPostBtn();
 			});
@@ -51,6 +48,12 @@ export const MT = {
 			Panel.execMenu("mt-extend-cookie-expire", () => {
 				this.extendCookieExpire();
 			});
+			if (!MTRouter.isPostPublish_edit()) {
+				// 不在帖子编辑页面执行链接识别
+				Panel.execMenuOnce("mt-link-text-to-hyperlink", () => {
+					MTIdentifyLinks();
+				});
+			}
 		});
 	},
 	/**

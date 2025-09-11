@@ -9,10 +9,10 @@ export const MTRouter = {
 	 * 帖子
 	 */
 	isPost() {
+		const searchParams = new URLSearchParams(window.location.search);
 		return (
 			window.location.pathname.startsWith("/thread-") ||
-			(window.location.pathname.startsWith("/forum.php") &&
-				window.location.search.startsWith("?mod=viewthread"))
+			(window.location.pathname.startsWith("/forum.php") && searchParams.has("mod", "viewthread"))
 		);
 	},
 	/**
@@ -25,18 +25,14 @@ export const MTRouter = {
 	 * 导读链接
 	 */
 	isGuide() {
-		return (
-			window.location.pathname.startsWith("/forum.php") &&
-			window.location.search.startsWith("?mod=guide")
-		);
+		const searchParams = new URLSearchParams(window.location.search);
+		return window.location.pathname.startsWith("/forum.php") && searchParams.has("mod", "guide");
 	},
 	/**
 	 * 板块
 	 */
 	isPlate() {
-		return Boolean(
-			window.location.pathname.match(/\/forum-[0-9]{1,2}-[0-9]{1,2}.html/g)
-		);
+		return Boolean(window.location.pathname.match(/\/forum-[0-9]{1,2}-[0-9]{1,2}.html/g));
 	},
 	/**
 	 * 搜索页面
@@ -48,18 +44,19 @@ export const MTRouter = {
 	 * 空间
 	 */
 	isSpace() {
-		return (
-			window.location.pathname.startsWith("/home.php") &&
-			window.location.search.startsWith("?mod=space")
-		);
+		const searchParams = new URLSearchParams(window.location.search);
+		return window.location.pathname.startsWith("/home.php") && searchParams.has("mod", "space");
 	},
 	/**
 	 * 我的个人空间
 	 */
 	isMySpace() {
+		const searchParams = new URLSearchParams(window.location.search);
 		return (
 			window.location.pathname.startsWith("/home.php") &&
-			window.location.search.startsWith("?mod=space&do=profile&mycenter")
+			searchParams.has("mod", "space") &&
+			searchParams.has("do", "profile") &&
+			searchParams.has("mycenter")
 		);
 	},
 	/**
@@ -72,83 +69,77 @@ export const MTRouter = {
 	 * 社区列表
 	 */
 	isForumList() {
-		return (
-			window.location.pathname.startsWith("/forum.php") &&
-			window.location.search.startsWith("?forumlist")
-		);
+		const searchParams = new URLSearchParams(window.location.search);
+		return window.location.pathname.startsWith("/forum.php") && searchParams.has("forumlist");
 	},
 	/**
 	 * 消息提醒
 	 */
 	isMessage() {
+		const searchParams = new URLSearchParams(window.location.search);
 		return (
 			window.location.pathname.startsWith("/home.php") &&
-			window.location.search.startsWith("?mod=space&do=notice")
+			searchParams.has("mod", "space") &&
+			searchParams.has("do", "notice")
 		);
 	},
 	/**
 	 * 消息提醒列表
 	 */
 	isMessageList() {
+		const searchParams = new URLSearchParams(window.location.search);
 		return (
 			window.location.pathname.startsWith("/home.php") &&
-			window.location.search.startsWith("?mod=space&do=pm")
+			searchParams.has("mod", "space") &&
+			searchParams.has("do", "pm")
 		);
 	},
 	/**
 	 * 积分商城
 	 */
 	isPointsMall() {
+		const searchParams = new URLSearchParams(window.location.search);
 		return (
-			window.location.pathname.startsWith(
-				"/keke_integralmall-keke_integralmall.html"
-			) ||
-			(window.location.pathname.startsWith("/plugin.php") &&
-				window.location.search.startsWith("?id=keke_integralmal"))
+			window.location.pathname.startsWith("/keke_integralmall-keke_integralmall.html") ||
+			(window.location.pathname.startsWith("/plugin.php") && searchParams.has("id", "keke_integralmal"))
 		);
 	},
 	/**
 	 * 帖子发布/回复页面
 	 */
 	isPostPublish() {
-		return (
-			window.location.pathname.startsWith("/forum.php") &&
-			window.location.search.startsWith("?mod=post")
-		);
+		const searchParams = new URLSearchParams(window.location.search);
+		return window.location.pathname.startsWith("/forum.php") && searchParams.has("mod", "post");
 	},
 	/**
 	 * 投票页面
 	 */
 	isPostPublish_voting() {
+		const searchParams = new URLSearchParams(window.location.search);
 		return (
-			(window.location.pathname.startsWith("/forum.php") &&
-				window.location.search.includes("&special=1")) ||
-			window.location.search.includes("&fid=42")
+			(window.location.pathname.startsWith("/forum.php") && searchParams.has("special", "1")) ||
+			searchParams.has("fid", "42")
 		);
 	},
 	/**
 	 * 帖子编辑页面
 	 */
 	isPostPublish_edit() {
-		return (
-			this.isPostPublish() && window.location.search.includes("&action=edit")
-		);
+		const searchParams = new URLSearchParams(window.location.search);
+		return this.isPostPublish() && searchParams.has("action", "edit");
 	},
 	/**
 	 * 发帖页面，该页面是尚未存入草稿
 	 */
 	isPostPublish_newthread() {
-		return (
-			this.isPostPublish() &&
-			window.location.search.includes("&action=newthread")
-		);
+		const searchParams = new URLSearchParams(window.location.search);
+		return this.isPostPublish() && searchParams.has("action", "newthread");
 	},
 	/**
 	 * 回复编辑页面
 	 */
 	isPostPublish_reply() {
-		return (
-			this.isPostPublish() && window.location.search.includes("&action=reply")
-		);
+		const searchParams = new URLSearchParams(window.location.search);
+		return this.isPostPublish() && searchParams.has("action", "reply");
 	},
 };

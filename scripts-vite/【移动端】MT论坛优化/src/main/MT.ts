@@ -40,12 +40,7 @@ export const MT = {
 			});
 		}
 
-		if (
-			MTRouter.isSearch() ||
-			MTRouter.isGuide() ||
-			MTRouter.isSpace() ||
-			MTRouter.isPlate()
-		) {
+		if (MTRouter.isSearch() || MTRouter.isGuide() || MTRouter.isSpace() || MTRouter.isPlate()) {
 			Panel.execMenuOnce("mt-small-window", () => {
 				MTSmallWindow.init();
 			});
@@ -95,15 +90,18 @@ export const MT = {
 			Panel.execMenuOnce("mt-customizeUserLabels", () => {
 				MTCustomizeUserLabels.init();
 			});
-			Panel.execMenuOnce("mt-link-text-to-hyperlink", () => {
-				MTIdentifyLinks();
-			});
 			Panel.execMenu("mt-auto-sign", () => {
 				MTAutoSignIn.init();
 			});
 			Panel.execMenu("mt-extend-cookie-expire", () => {
 				this.extendCookieExpire();
 			});
+			if (!MTRouter.isPostPublish_edit()) {
+				// 不在帖子编辑页面执行链接识别
+				Panel.execMenuOnce("mt-link-text-to-hyperlink", () => {
+					MTIdentifyLinks();
+				});
+			}
 		});
 	},
 	/**
@@ -184,12 +182,7 @@ export const MT = {
 	async extendCookieExpire() {
 		log.info(`延长cookie有效期`);
 		let cookieList = await GM.cookie.list({});
-		let needExtendCookieNameList: string[] = [
-			"_auth",
-			"_saltkey",
-			"_client_created",
-			"_client_token",
-		];
+		let needExtendCookieNameList: string[] = ["_auth", "_saltkey", "_client_created", "_client_token"];
 		cookieList.forEach(async (cookieItem) => {
 			if (cookieItem.session) {
 				return;
@@ -205,9 +198,7 @@ export const MT = {
 				// 过期时间大于30天，无需延长
 				return;
 			}
-			let flag = needExtendCookieNameList.find((it) =>
-				cookieItem.name.endsWith(it)
-			);
+			let flag = needExtendCookieNameList.find((it) => cookieItem.name.endsWith(it));
 			if (!flag) {
 				return;
 			}

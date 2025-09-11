@@ -1488,104 +1488,131 @@ transformKey(key) {
     }
   };
   const MTIdentifyLinks = () => {
-    var clearLink, excludedTags, filter, linkMixInit, linkPack, linkify, observePage, observer, setLink, url_regexp, xpath;
-    url_regexp = /((https?:\/\/|www\.)[\x21-\x7e]+[\w\/]|(\w[\w._-]+\.(com|cn|org|net|info|tv|cc))(\/[\x21-\x7e]*[\w\/])?|ed2k:\/\/[\x21-\x7e]+\|\/|thunder:\/\/[\x21-\x7e]+=)/gi;
-    clearLink = function(a) {
-      var b;
-      a = null != (b = a.originalTarget) ? b : a.target;
-      if (null != a && "a" === a.localName && -1 !== a.className.indexOf("texttolink") && (b = a.getAttribute("href"), 0 !== b.indexOf("http") && 0 !== b.indexOf("ed2k://") && 0 !== b.indexOf("thunder://")))
-        return a.setAttribute("href", "http://" + b);
+    const HANDLER_CLASS_NAME = "texttolink";
+    const url_regexp = /((https?:\/\/|www\.)[\x21-\x7e]+[\w\/]|(\w[\w._-]+\.(com|cn|org|net|info|tv|cc))(\/[\x21-\x7e]*[\w\/])?|ed2k:\/\/[\x21-\x7e]+\|\/|thunder:\/\/[\x21-\x7e]+=)/gi;
+    const handleClearLink = function(event) {
+      let targetElement = event.originalTarget ?? event.target;
+      let url;
+      if (null != targetElement && "a" === targetElement.localName && -1 !== targetElement.className.indexOf(HANDLER_CLASS_NAME) && (url = targetElement.getAttribute("href"), typeof url === "string" && 0 !== url.indexOf("http") && 0 !== url.indexOf("ed2k://") && 0 !== url.indexOf("thunder://"))) {
+        return targetElement.setAttribute("href", "http://" + targetElement);
+      }
     };
-    document.addEventListener("mouseover", clearLink);
-    setLink = function(a) {
-      if (typeof a != "object") {
+    const setLink = function(textNode) {
+      if (typeof textNode != "object" || textNode == null) {
         return;
       }
-      if (null != a && typeof a.parentNode !== "undefined" && typeof a.parentNode.className !== "undefined" && typeof a.parentNode.className.indexOf === "function" && -1 === a.parentNode.className.indexOf("texttolink") && "#cdata-section" !== a.nodeName) {
-        var b = a.textContent.replace(
+      const textContent = textNode?.textContent;
+      const $parent = textNode?.parentNode;
+      if ($parent == null) {
+        return;
+      }
+      if (
+-1 === $parent?.className?.indexOf?.(HANDLER_CLASS_NAME) && "#cdata-section" !== textNode.nodeName && typeof textContent === "string"
+      ) {
+        const modifiedContent = textContent.replace(
           url_regexp,
-          '<a href="$1" target="_blank" class="texttolink">$1</a>'
+          `<a href="$1" target="_blank" class="${HANDLER_CLASS_NAME}">$1</a>`
         );
-        if (a.textContent.length !== b.length) {
-          var c = document.createElement("span");
-          c.innerHTML = b;
-          console.log(`识别: ${c.querySelector("a")}`);
-          return a.parentNode.replaceChild(c, a);
+        if (textContent.length !== modifiedContent.length) {
+          const spanElement = document.createElement("span");
+          domUtils.html(spanElement, modifiedContent);
+          const $url = spanElement.querySelector("a");
+          const url = $url.href;
+          console.log(`识别: ${url}`);
+          const isSpanParent = $parent.nodeName.toLowerCase() === "span";
+          if (isSpanParent) {
+            return $parent.replaceChild($url, textNode);
+          } else {
+            return $parent.replaceChild(spanElement, textNode);
+          }
         }
       }
     };
-    excludedTags = "a svg canvas applet input button area pre embed frame frameset head iframe img option map meta noscript object script style textarea code".split(
+    const excludedTags = "a svg canvas applet input button area pre embed frame frameset head iframe img option map meta noscript object script style textarea code".split(
       " "
     );
-    xpath = `//text()[not(ancestor::${excludedTags.join(
-    ") and not(ancestor::"
-  )})]`;
-    filter = new RegExp(`^(${excludedTags.join("|")})$`, "i");
-    linkPack = function(a, b) {
-      var c, d;
-      if (b + 1e4 < a.snapshotLength) {
-        var e = c = b;
-        for (d = b + 1e4; b <= d ? c <= d : c >= d; e = b <= d ? ++c : --c)
-          setLink(a.snapshotItem(e));
+    const xpath = `//text()[not(ancestor::${excludedTags.join(") and not(ancestor::")})]`;
+    const filter = new RegExp(`^(${excludedTags.join("|")})$`, "i");
+    const processLinksInBatches = function(textNodesSnapshot, startIndex) {
+      let currentIndex, endIndex;
+      if (startIndex + 1e4 < textNodesSnapshot.snapshotLength) {
+        let start = currentIndex = startIndex;
+        for (endIndex = startIndex + 1e4; startIndex <= endIndex ? currentIndex <= endIndex : currentIndex >= endIndex; start = startIndex <= endIndex ? ++currentIndex : --currentIndex) {
+          setLink(textNodesSnapshot.snapshotItem(start));
+        }
         setTimeout(function() {
-          return linkPack(a, b + 1e4);
+          return processLinksInBatches(textNodesSnapshot, startIndex + 1e4);
         }, 15);
-      } else
-        for (e = c = b, d = a.snapshotLength; b <= d ? c <= d : c >= d; e = b <= d ? ++c : --c)
-          setLink(a.snapshotItem(e));
+      } else {
+        let start;
+        for (start = currentIndex = startIndex, endIndex = textNodesSnapshot.snapshotLength; startIndex <= endIndex ? currentIndex <= endIndex : currentIndex >= endIndex; start = startIndex <= endIndex ? ++currentIndex : --currentIndex) {
+          setLink(textNodesSnapshot.snapshotItem(start));
+        }
+      }
     };
-    linkify = function(a) {
-      a = document.evaluate(
+    const linkifyText = function(element) {
+      const textNodesSnapshot = document.evaluate(
         xpath,
-        a,
+        element,
         null,
         XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE,
         null
       );
-      return linkPack(a, 0);
+      return processLinksInBatches(textNodesSnapshot, 0);
     };
-    observePage = function(a) {
-      for (a = document.createTreeWalker(
-        a,
-        NodeFilter.SHOW_TEXT,
-        {
-          acceptNode: function(a2) {
-            if (!filter.test(a2.parentNode.localName))
-              return NodeFilter.FILTER_ACCEPT;
+    const observePageChanges = function(rootElement) {
+      for (const treeWalker = document.createTreeWalker(rootElement, NodeFilter.SHOW_TEXT, {
+        acceptNode: function(node) {
+          const localName = node?.parentNode?.localName;
+          if (!filter.test(localName)) {
+            return NodeFilter.FILTER_ACCEPT;
+          } else {
+            return NodeFilter.FILTER_SKIP;
           }
-        },
-        false
-      ); a.nextNode(); )
-        setLink(a.currentNode);
+        }
+      }); treeWalker.nextNode(); ) {
+        setLink(treeWalker.currentNode);
+      }
     };
-    observer = new window.MutationObserver(function(a) {
-      var b, c;
-      var d = 0;
-      for (b = a.length; d < b; d++) {
-        var e = a[d];
-        if ("childList" === e.type) {
-          var g = e.addedNodes;
-          var f = 0;
-          for (c = g.length; f < c; f++) e = g[f], observePage(e);
+    let lockFn = new utils.LockFunction((mutations) => {
+      for (const mutation of mutations) {
+        if ("childList" === mutation.type) {
+          const addedNodes = mutation.addedNodes;
+          for (let nodeIndex = 0; nodeIndex < addedNodes.length; nodeIndex++) {
+            const node = addedNodes[nodeIndex];
+            observePageChanges(node);
+          }
         }
       }
     });
-    linkMixInit = function() {
-      return linkify(document.body), observer.observe(document.body, {
-        childList: true,
-        subtree: true
+    const initLinkProcessing = function() {
+      linkifyText(document.body);
+      const mutationObserver = utils.mutationObserver(document.body, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        callback: (mutations) => {
+          lockFn.run(mutations);
+        }
       });
+      return mutationObserver;
     };
-    var clearlinkF = function(a) {
-      var url = a.getAttribute("href");
-      if (0 !== url.indexOf("http") && 0 !== url.indexOf("ed2k://") && 0 !== url.indexOf("thunder://"))
-        return a.setAttribute("href", "http://" + url);
-    }, clearlinkE = function() {
-      for (var a = document.getElementsByClassName("texttolink"), b = 0; b < a.length; b++)
-        clearlinkF(a[b]);
+    const clearLinkHelper = function(linkElement) {
+      const url = linkElement.getAttribute("href");
+      if (typeof url === "string" && 0 !== url.indexOf("http") && 0 !== url.indexOf("ed2k://") && 0 !== url.indexOf("thunder://")) {
+        return linkElement.setAttribute("href", "http://" + url);
+      }
     };
-    setTimeout(clearlinkE, 1500);
-    setTimeout(linkMixInit, 100);
+    const clearAllLinks = function() {
+      const linkElements = Array.from(document.getElementsByClassName(HANDLER_CLASS_NAME));
+      for (const $link of linkElements) {
+        clearLinkHelper($link);
+      }
+    };
+    document.addEventListener("mouseover", handleClearLink);
+    setTimeout(clearAllLinks, 1500);
+    setTimeout(initLinkProcessing, 100);
   };
   {
     CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer);
@@ -1994,59 +2021,68 @@ isKMiSign() {
       return window.location.pathname.startsWith("/k_misign-sign.html");
     },
 isPost() {
-      return window.location.pathname.startsWith("/thread-") || window.location.pathname.startsWith("/forum.php") && window.location.search.startsWith("?mod=viewthread");
+      const searchParams = new URLSearchParams(window.location.search);
+      return window.location.pathname.startsWith("/thread-") || window.location.pathname.startsWith("/forum.php") && searchParams.has("mod", "viewthread");
     },
 isPage() {
       return Boolean(window.location.pathname.match(/^\/page-([0-9]+).html/g));
     },
 isGuide() {
-      return window.location.pathname.startsWith("/forum.php") && window.location.search.startsWith("?mod=guide");
+      const searchParams = new URLSearchParams(window.location.search);
+      return window.location.pathname.startsWith("/forum.php") && searchParams.has("mod", "guide");
     },
 isPlate() {
-      return Boolean(
-        window.location.pathname.match(/\/forum-[0-9]{1,2}-[0-9]{1,2}.html/g)
-      );
+      return Boolean(window.location.pathname.match(/\/forum-[0-9]{1,2}-[0-9]{1,2}.html/g));
     },
 isSearch() {
       return window.location.pathname.startsWith("/search.php");
     },
 isSpace() {
-      return window.location.pathname.startsWith("/home.php") && window.location.search.startsWith("?mod=space");
+      const searchParams = new URLSearchParams(window.location.search);
+      return window.location.pathname.startsWith("/home.php") && searchParams.has("mod", "space");
     },
 isMySpace() {
-      return window.location.pathname.startsWith("/home.php") && window.location.search.startsWith("?mod=space&do=profile&mycenter");
+      const searchParams = new URLSearchParams(window.location.search);
+      return window.location.pathname.startsWith("/home.php") && searchParams.has("mod", "space") && searchParams.has("do", "profile") && searchParams.has("mycenter");
     },
 isSpaceWithAt() {
       return window.location.pathname.startsWith("/space-uid-");
     },
 isForumList() {
-      return window.location.pathname.startsWith("/forum.php") && window.location.search.startsWith("?forumlist");
+      const searchParams = new URLSearchParams(window.location.search);
+      return window.location.pathname.startsWith("/forum.php") && searchParams.has("forumlist");
     },
 isMessage() {
-      return window.location.pathname.startsWith("/home.php") && window.location.search.startsWith("?mod=space&do=notice");
+      const searchParams = new URLSearchParams(window.location.search);
+      return window.location.pathname.startsWith("/home.php") && searchParams.has("mod", "space") && searchParams.has("do", "notice");
     },
 isMessageList() {
-      return window.location.pathname.startsWith("/home.php") && window.location.search.startsWith("?mod=space&do=pm");
+      const searchParams = new URLSearchParams(window.location.search);
+      return window.location.pathname.startsWith("/home.php") && searchParams.has("mod", "space") && searchParams.has("do", "pm");
     },
 isPointsMall() {
-      return window.location.pathname.startsWith(
-        "/keke_integralmall-keke_integralmall.html"
-      ) || window.location.pathname.startsWith("/plugin.php") && window.location.search.startsWith("?id=keke_integralmal");
+      const searchParams = new URLSearchParams(window.location.search);
+      return window.location.pathname.startsWith("/keke_integralmall-keke_integralmall.html") || window.location.pathname.startsWith("/plugin.php") && searchParams.has("id", "keke_integralmal");
     },
 isPostPublish() {
-      return window.location.pathname.startsWith("/forum.php") && window.location.search.startsWith("?mod=post");
+      const searchParams = new URLSearchParams(window.location.search);
+      return window.location.pathname.startsWith("/forum.php") && searchParams.has("mod", "post");
     },
 isPostPublish_voting() {
-      return window.location.pathname.startsWith("/forum.php") && window.location.search.includes("&special=1") || window.location.search.includes("&fid=42");
+      const searchParams = new URLSearchParams(window.location.search);
+      return window.location.pathname.startsWith("/forum.php") && searchParams.has("special", "1") || searchParams.has("fid", "42");
     },
 isPostPublish_edit() {
-      return this.isPostPublish() && window.location.search.includes("&action=edit");
+      const searchParams = new URLSearchParams(window.location.search);
+      return this.isPostPublish() && searchParams.has("action", "edit");
     },
 isPostPublish_newthread() {
-      return this.isPostPublish() && window.location.search.includes("&action=newthread");
+      const searchParams = new URLSearchParams(window.location.search);
+      return this.isPostPublish() && searchParams.has("action", "newthread");
     },
 isPostPublish_reply() {
-      return this.isPostPublish() && window.location.search.includes("&action=reply");
+      const searchParams = new URLSearchParams(window.location.search);
+      return this.isPostPublish() && searchParams.has("action", "reply");
     }
   };
   const MTForumPostRightToolBar = {
@@ -4838,9 +4874,6 @@ createListViewItem(userInfo) {
         Panel.onceExec("mt-onlineUser", () => {
           MTOnlineUser.init();
         });
-        Panel.execMenuOnce("mt-link-text-to-hyperlink", () => {
-          MTIdentifyLinks();
-        });
         Panel.execMenuOnce("mt-addLatestPostBtn", () => {
           this.addLatestPostBtn();
         });
@@ -4850,6 +4883,11 @@ createListViewItem(userInfo) {
         Panel.execMenu("mt-extend-cookie-expire", () => {
           this.extendCookieExpire();
         });
+        if (!MTRouter.isPostPublish_edit()) {
+          Panel.execMenuOnce("mt-link-text-to-hyperlink", () => {
+            MTIdentifyLinks();
+          });
+        }
       });
     },
 addLatestPostBtn() {

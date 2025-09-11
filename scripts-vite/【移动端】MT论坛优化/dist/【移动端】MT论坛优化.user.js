@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.11
+// @version      2025.9.11.20
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -2222,104 +2222,131 @@ createListViewItem(userInfo) {
     }
   };
   const MTIdentifyLinks = () => {
-    var clearLink, excludedTags, filter, linkMixInit, linkPack, linkify, observePage, observer, setLink, url_regexp, xpath;
-    url_regexp = /((https?:\/\/|www\.)[\x21-\x7e]+[\w\/]|(\w[\w._-]+\.(com|cn|org|net|info|tv|cc))(\/[\x21-\x7e]*[\w\/])?|ed2k:\/\/[\x21-\x7e]+\|\/|thunder:\/\/[\x21-\x7e]+=)/gi;
-    clearLink = function(a) {
-      var b;
-      a = null != (b = a.originalTarget) ? b : a.target;
-      if (null != a && "a" === a.localName && -1 !== a.className.indexOf("texttolink") && (b = a.getAttribute("href"), 0 !== b.indexOf("http") && 0 !== b.indexOf("ed2k://") && 0 !== b.indexOf("thunder://")))
-        return a.setAttribute("href", "http://" + b);
+    const HANDLER_CLASS_NAME = "texttolink";
+    const url_regexp = /((https?:\/\/|www\.)[\x21-\x7e]+[\w\/]|(\w[\w._-]+\.(com|cn|org|net|info|tv|cc))(\/[\x21-\x7e]*[\w\/])?|ed2k:\/\/[\x21-\x7e]+\|\/|thunder:\/\/[\x21-\x7e]+=)/gi;
+    const handleClearLink = function(event) {
+      let targetElement = event.originalTarget ?? event.target;
+      let url;
+      if (null != targetElement && "a" === targetElement.localName && -1 !== targetElement.className.indexOf(HANDLER_CLASS_NAME) && (url = targetElement.getAttribute("href"), typeof url === "string" && 0 !== url.indexOf("http") && 0 !== url.indexOf("ed2k://") && 0 !== url.indexOf("thunder://"))) {
+        return targetElement.setAttribute("href", "http://" + targetElement);
+      }
     };
-    document.addEventListener("mouseover", clearLink);
-    setLink = function(a) {
-      if (typeof a != "object") {
+    const setLink = function(textNode) {
+      if (typeof textNode != "object" || textNode == null) {
         return;
       }
-      if (null != a && typeof a.parentNode !== "undefined" && typeof a.parentNode.className !== "undefined" && typeof a.parentNode.className.indexOf === "function" && -1 === a.parentNode.className.indexOf("texttolink") && "#cdata-section" !== a.nodeName) {
-        var b = a.textContent.replace(
+      const textContent = textNode?.textContent;
+      const $parent = textNode?.parentNode;
+      if ($parent == null) {
+        return;
+      }
+      if (
+-1 === $parent?.className?.indexOf?.(HANDLER_CLASS_NAME) && "#cdata-section" !== textNode.nodeName && typeof textContent === "string"
+      ) {
+        const modifiedContent = textContent.replace(
           url_regexp,
-          '<a href="$1" target="_blank" class="texttolink">$1</a>'
+          `<a href="$1" target="_blank" class="${HANDLER_CLASS_NAME}">$1</a>`
         );
-        if (a.textContent.length !== b.length) {
-          var c = document.createElement("span");
-          c.innerHTML = b;
-          console.log(`识别: ${c.querySelector("a")}`);
-          return a.parentNode.replaceChild(c, a);
+        if (textContent.length !== modifiedContent.length) {
+          const spanElement = document.createElement("span");
+          domUtils.html(spanElement, modifiedContent);
+          const $url = spanElement.querySelector("a");
+          const url = $url.href;
+          console.log(`识别: ${url}`);
+          const isSpanParent = $parent.nodeName.toLowerCase() === "span";
+          if (isSpanParent) {
+            return $parent.replaceChild($url, textNode);
+          } else {
+            return $parent.replaceChild(spanElement, textNode);
+          }
         }
       }
     };
-    excludedTags = "a svg canvas applet input button area pre embed frame frameset head iframe img option map meta noscript object script style textarea code".split(
+    const excludedTags = "a svg canvas applet input button area pre embed frame frameset head iframe img option map meta noscript object script style textarea code".split(
       " "
     );
-    xpath = `//text()[not(ancestor::${excludedTags.join(
-    ") and not(ancestor::"
-  )})]`;
-    filter = new RegExp(`^(${excludedTags.join("|")})$`, "i");
-    linkPack = function(a, b) {
-      var c, d;
-      if (b + 1e4 < a.snapshotLength) {
-        var e = c = b;
-        for (d = b + 1e4; b <= d ? c <= d : c >= d; e = b <= d ? ++c : --c)
-          setLink(a.snapshotItem(e));
+    const xpath = `//text()[not(ancestor::${excludedTags.join(") and not(ancestor::")})]`;
+    const filter = new RegExp(`^(${excludedTags.join("|")})$`, "i");
+    const processLinksInBatches = function(textNodesSnapshot, startIndex) {
+      let currentIndex, endIndex;
+      if (startIndex + 1e4 < textNodesSnapshot.snapshotLength) {
+        let start = currentIndex = startIndex;
+        for (endIndex = startIndex + 1e4; startIndex <= endIndex ? currentIndex <= endIndex : currentIndex >= endIndex; start = startIndex <= endIndex ? ++currentIndex : --currentIndex) {
+          setLink(textNodesSnapshot.snapshotItem(start));
+        }
         setTimeout(function() {
-          return linkPack(a, b + 1e4);
+          return processLinksInBatches(textNodesSnapshot, startIndex + 1e4);
         }, 15);
-      } else
-        for (e = c = b, d = a.snapshotLength; b <= d ? c <= d : c >= d; e = b <= d ? ++c : --c)
-          setLink(a.snapshotItem(e));
+      } else {
+        let start;
+        for (start = currentIndex = startIndex, endIndex = textNodesSnapshot.snapshotLength; startIndex <= endIndex ? currentIndex <= endIndex : currentIndex >= endIndex; start = startIndex <= endIndex ? ++currentIndex : --currentIndex) {
+          setLink(textNodesSnapshot.snapshotItem(start));
+        }
+      }
     };
-    linkify = function(a) {
-      a = document.evaluate(
+    const linkifyText = function(element) {
+      const textNodesSnapshot = document.evaluate(
         xpath,
-        a,
+        element,
         null,
         XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE,
         null
       );
-      return linkPack(a, 0);
+      return processLinksInBatches(textNodesSnapshot, 0);
     };
-    observePage = function(a) {
-      for (a = document.createTreeWalker(
-        a,
-        NodeFilter.SHOW_TEXT,
-        {
-          acceptNode: function(a2) {
-            if (!filter.test(a2.parentNode.localName))
-              return NodeFilter.FILTER_ACCEPT;
+    const observePageChanges = function(rootElement) {
+      for (const treeWalker = document.createTreeWalker(rootElement, NodeFilter.SHOW_TEXT, {
+        acceptNode: function(node) {
+          const localName = node?.parentNode?.localName;
+          if (!filter.test(localName)) {
+            return NodeFilter.FILTER_ACCEPT;
+          } else {
+            return NodeFilter.FILTER_SKIP;
           }
-        },
-        false
-      ); a.nextNode(); )
-        setLink(a.currentNode);
+        }
+      }); treeWalker.nextNode(); ) {
+        setLink(treeWalker.currentNode);
+      }
     };
-    observer = new window.MutationObserver(function(a) {
-      var b, c;
-      var d = 0;
-      for (b = a.length; d < b; d++) {
-        var e = a[d];
-        if ("childList" === e.type) {
-          var g = e.addedNodes;
-          var f = 0;
-          for (c = g.length; f < c; f++) e = g[f], observePage(e);
+    let lockFn = new utils.LockFunction((mutations) => {
+      for (const mutation of mutations) {
+        if ("childList" === mutation.type) {
+          const addedNodes = mutation.addedNodes;
+          for (let nodeIndex = 0; nodeIndex < addedNodes.length; nodeIndex++) {
+            const node = addedNodes[nodeIndex];
+            observePageChanges(node);
+          }
         }
       }
     });
-    linkMixInit = function() {
-      return linkify(document.body), observer.observe(document.body, {
-        childList: true,
-        subtree: true
+    const initLinkProcessing = function() {
+      linkifyText(document.body);
+      const mutationObserver = utils.mutationObserver(document.body, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        callback: (mutations) => {
+          lockFn.run(mutations);
+        }
       });
+      return mutationObserver;
     };
-    var clearlinkF = function(a) {
-      var url = a.getAttribute("href");
-      if (0 !== url.indexOf("http") && 0 !== url.indexOf("ed2k://") && 0 !== url.indexOf("thunder://"))
-        return a.setAttribute("href", "http://" + url);
-    }, clearlinkE = function() {
-      for (var a = document.getElementsByClassName("texttolink"), b = 0; b < a.length; b++)
-        clearlinkF(a[b]);
+    const clearLinkHelper = function(linkElement) {
+      const url = linkElement.getAttribute("href");
+      if (typeof url === "string" && 0 !== url.indexOf("http") && 0 !== url.indexOf("ed2k://") && 0 !== url.indexOf("thunder://")) {
+        return linkElement.setAttribute("href", "http://" + url);
+      }
     };
-    setTimeout(clearlinkE, 1500);
-    setTimeout(linkMixInit, 100);
+    const clearAllLinks = function() {
+      const linkElements = Array.from(document.getElementsByClassName(HANDLER_CLASS_NAME));
+      for (const $link of linkElements) {
+        clearLinkHelper($link);
+      }
+    };
+    document.addEventListener("mouseover", handleClearLink);
+    setTimeout(clearAllLinks, 1500);
+    setTimeout(initLinkProcessing, 100);
   };
   const MTAutoSignIn = {
     $key: {
@@ -2611,59 +2638,68 @@ isKMiSign() {
       return window.location.pathname.startsWith("/k_misign-sign.html");
     },
 isPost() {
-      return window.location.pathname.startsWith("/thread-") || window.location.pathname.startsWith("/forum.php") && window.location.search.startsWith("?mod=viewthread");
+      const searchParams = new URLSearchParams(window.location.search);
+      return window.location.pathname.startsWith("/thread-") || window.location.pathname.startsWith("/forum.php") && searchParams.has("mod", "viewthread");
     },
 isPage() {
       return Boolean(window.location.pathname.match(/^\/page-([0-9]+).html/g));
     },
 isGuide() {
-      return window.location.pathname.startsWith("/forum.php") && window.location.search.startsWith("?mod=guide");
+      const searchParams = new URLSearchParams(window.location.search);
+      return window.location.pathname.startsWith("/forum.php") && searchParams.has("mod", "guide");
     },
 isPlate() {
-      return Boolean(
-        window.location.pathname.match(/\/forum-[0-9]{1,2}-[0-9]{1,2}.html/g)
-      );
+      return Boolean(window.location.pathname.match(/\/forum-[0-9]{1,2}-[0-9]{1,2}.html/g));
     },
 isSearch() {
       return window.location.pathname.startsWith("/search.php");
     },
 isSpace() {
-      return window.location.pathname.startsWith("/home.php") && window.location.search.startsWith("?mod=space");
+      const searchParams = new URLSearchParams(window.location.search);
+      return window.location.pathname.startsWith("/home.php") && searchParams.has("mod", "space");
     },
 isMySpace() {
-      return window.location.pathname.startsWith("/home.php") && window.location.search.startsWith("?mod=space&do=profile&mycenter");
+      const searchParams = new URLSearchParams(window.location.search);
+      return window.location.pathname.startsWith("/home.php") && searchParams.has("mod", "space") && searchParams.has("do", "profile") && searchParams.has("mycenter");
     },
 isSpaceWithAt() {
       return window.location.pathname.startsWith("/space-uid-");
     },
 isForumList() {
-      return window.location.pathname.startsWith("/forum.php") && window.location.search.startsWith("?forumlist");
+      const searchParams = new URLSearchParams(window.location.search);
+      return window.location.pathname.startsWith("/forum.php") && searchParams.has("forumlist");
     },
 isMessage() {
-      return window.location.pathname.startsWith("/home.php") && window.location.search.startsWith("?mod=space&do=notice");
+      const searchParams = new URLSearchParams(window.location.search);
+      return window.location.pathname.startsWith("/home.php") && searchParams.has("mod", "space") && searchParams.has("do", "notice");
     },
 isMessageList() {
-      return window.location.pathname.startsWith("/home.php") && window.location.search.startsWith("?mod=space&do=pm");
+      const searchParams = new URLSearchParams(window.location.search);
+      return window.location.pathname.startsWith("/home.php") && searchParams.has("mod", "space") && searchParams.has("do", "pm");
     },
 isPointsMall() {
-      return window.location.pathname.startsWith(
-        "/keke_integralmall-keke_integralmall.html"
-      ) || window.location.pathname.startsWith("/plugin.php") && window.location.search.startsWith("?id=keke_integralmal");
+      const searchParams = new URLSearchParams(window.location.search);
+      return window.location.pathname.startsWith("/keke_integralmall-keke_integralmall.html") || window.location.pathname.startsWith("/plugin.php") && searchParams.has("id", "keke_integralmal");
     },
 isPostPublish() {
-      return window.location.pathname.startsWith("/forum.php") && window.location.search.startsWith("?mod=post");
+      const searchParams = new URLSearchParams(window.location.search);
+      return window.location.pathname.startsWith("/forum.php") && searchParams.has("mod", "post");
     },
 isPostPublish_voting() {
-      return window.location.pathname.startsWith("/forum.php") && window.location.search.includes("&special=1") || window.location.search.includes("&fid=42");
+      const searchParams = new URLSearchParams(window.location.search);
+      return window.location.pathname.startsWith("/forum.php") && searchParams.has("special", "1") || searchParams.has("fid", "42");
     },
 isPostPublish_edit() {
-      return this.isPostPublish() && window.location.search.includes("&action=edit");
+      const searchParams = new URLSearchParams(window.location.search);
+      return this.isPostPublish() && searchParams.has("action", "edit");
     },
 isPostPublish_newthread() {
-      return this.isPostPublish() && window.location.search.includes("&action=newthread");
+      const searchParams = new URLSearchParams(window.location.search);
+      return this.isPostPublish() && searchParams.has("action", "newthread");
     },
 isPostPublish_reply() {
-      return this.isPostPublish() && window.location.search.includes("&action=reply");
+      const searchParams = new URLSearchParams(window.location.search);
+      return this.isPostPublish() && searchParams.has("action", "reply");
     }
   };
   const optimizationCSS$1 = '#comiis_foot_menu_beautify {\r\n	position: fixed;\r\n	display: inline-flex;\r\n	z-index: 90;\r\n	left: 0;\r\n	right: 0;\r\n	bottom: 0;\r\n	width: 100%;\r\n	height: 48px;\r\n	overflow: hidden;\r\n	align-content: center;\r\n	justify-content: center;\r\n	align-items: center;\r\n}\r\n#comiis_foot_menu_beautify_big {\r\n	position: fixed;\r\n	display: inline-flex;\r\n	flex-direction: column;\r\n	z-index: 92;\r\n	left: 0;\r\n	right: 0;\r\n	bottom: 0;\r\n	width: 100%;\r\n	min-height: 120px;\r\n	overflow: hidden;\r\n	align-content: center;\r\n	justify-content: center;\r\n	align-items: center;\r\n}\r\n#comiis_foot_menu_beautify input.bg_e.f_c::-webkit-input-placeholder {\r\n	padding-left: 10px;\r\n	color: #999;\r\n}\r\n#comiis_foot_menu_beautify input.bg_e.f_c::-moz-input-placeholder {\r\n	padding-left: 10px;\r\n	color: #999;\r\n}\r\n#comiis_foot_menu_beautify .reply_area ul li a {\r\n	display: block;\r\n	width: 22px;\r\n	height: 22px;\r\n	padding: 4px 8px;\r\n	margin: 8px 0;\r\n	position: relative;\r\n}\r\n#comiis_foot_menu_beautify .reply_area ul {\r\n	display: inline-flex;\r\n	align-content: center;\r\n	align-items: center;\r\n	justify-content: center;\r\n}\r\n#comiis_foot_menu_beautify .reply_area,\r\n#comiis_foot_menu_beautify .reply_area ul {\r\n	width: 100%;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li a i {\r\n	width: 22px;\r\n	height: 22px;\r\n	line-height: 22px;\r\n	font-size: 22px;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li a span {\r\n	position: absolute;\r\n	display: block;\r\n	font-size: 10px;\r\n	height: 14px;\r\n	line-height: 14px;\r\n	padding: 0 6px;\r\n	right: -8px;\r\n	top: 4px;\r\n	overflow: hidden;\r\n	border-radius: 20px;\r\n}\r\n#comiis_foot_menu_beautify li[data-attr="回帖"] input {\r\n	border: transparent;\r\n	border-radius: 15px;\r\n	height: 30px;\r\n	width: 100%;\r\n}\r\n#comiis_foot_menu_beautify_big .comiis_smiley_box {\r\n	padding: 6px 6px 0;\r\n}\r\n#comiis_foot_menu_beautify_big .reply_area {\r\n	margin: 10px 0 5px 0;\r\n}\r\n#comiis_foot_menu_beautify_big .reply_area ul {\r\n	display: inline-flex;\r\n	align-content: center;\r\n	justify-content: center;\r\n	align-items: flex-end;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="回帖"] {\r\n	width: 75vw;\r\n	margin-right: 15px;\r\n}\r\n#comiis_foot_menu_beautify_big .reply_user_content {\r\n	width: 75vw;\r\n	word-wrap: break-word;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	margin: 8px 10px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] .fastpostform_new {\r\n	text-align: center;\r\n	margin-bottom: 28px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] .fastpostform_new i {\r\n	font-size: 22px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] input {\r\n	width: 60px;\r\n	height: 30px;\r\n	border: transparent;\r\n	color: #fff;\r\n	background: #d1c9fc;\r\n	border-radius: 30px;\r\n	margin-bottom: 6px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] input[data-text="true"] {\r\n	background: #7a61fb;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="回帖"] textarea {\r\n	padding: 10px 10px 10px 10px;\r\n	border: transparent;\r\n	border-radius: 6px;\r\n	min-height: 70px;\r\n	max-height: 180px;\r\n	background: #e9e8ec;\r\n	overflow-y: auto;\r\n	width: -webkit-fill-available;\r\n	width: -moz-available;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li[data-attr="回帖"] {\r\n	width: 65%;\r\n	margin: 0 3%;\r\n	text-align: center;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li:not(first-child) {\r\n	width: 7%;\r\n	text-align: -webkit-center;\r\n	text-align: center;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area {\r\n	width: 100%;\r\n	text-align: center;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area .menu_icon a {\r\n	margin: 0 20px;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area i {\r\n	font-size: 24px;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area #comiis_insert_ubb_tab i {\r\n	font-size: 16px;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area .menu_body {\r\n	background: #f4f4f4;\r\n}\r\n#comiis_foot_menu_beautify_big\r\n	.other_area\r\n	.menu_body\r\n	.comiis_smiley_box\r\n	.comiis_optimization {\r\n	max-height: 140px;\r\n	overflow-y: auto;\r\n	flex-direction: column;\r\n}\r\n#comiis_foot_menu_beautify_big\r\n	.other_area\r\n	.menu_body\r\n	.comiis_smiley_box\r\n	.bqbox_t {\r\n	background: #fff;\r\n}\r\n#comiis_foot_menu_beautify_big\r\n	.other_area\r\n	.menu_body\r\n	.comiis_smiley_box\r\n	.bqbox_t\r\n	ul#comiis_smilies_key\r\n	li\r\n	a.bg_f.b_l.b_r {\r\n	background: #f4f4f4 !important;\r\n}\r\n#comiis_foot_menu_beautify_big\r\n	.menu_body\r\n	#comiis_pictitle_tab\r\n	#comiis_pictitle_key {\r\n	display: -webkit-box;\r\n	top: 0;\r\n	left: 0;\r\n	height: 42px;\r\n	line-height: 42px;\r\n	overflow: hidden;\r\n	overflow-x: auto;\r\n}\r\n#comiis_foot_menu_beautify_big\r\n	.menu_body\r\n	#comiis_pictitle_tab\r\n	#comiis_pictitle_key\r\n	li {\r\n	padding: 0 10px;\r\n}\r\n#comiis_foot_menu_beautify_big\r\n	.menu_body\r\n	#comiis_insert_ubb_tab\r\n	.comiis_input_style,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab .comiis_upbox {\r\n	height: 140px;\r\n	overflow-y: auto;\r\n	flex-direction: column;\r\n}\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_hello,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_kggzs,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_mt,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_z4a {\r\n	display: none;\r\n}\r\n@media screen and (max-width: 350px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 14.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 350px) and (max-width: 400px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 12.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 400px) and (max-width: 450px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 11%;\r\n	}\r\n}\r\n@media screen and (min-width: 450px) and (max-width: 500px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 10%;\r\n	}\r\n}\r\n@media screen and (min-width: 500px) and (max-width: 550px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 9.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 550px) and (max-width: 600px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 9%;\r\n	}\r\n}\r\n@media screen and (min-width: 600px) and (max-width: 650px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 8.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 650px) and (max-width: 700px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 8%;\r\n	}\r\n}\r\n@media screen and (min-width: 700px) and (max-width: 750px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 7.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 750px) and (max-width: 800px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 7%;\r\n	}\r\n}\r\n@media screen and (min-width: 800px) and (max-width: 850px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 6.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 850px) and (max-width: 1200px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 6%;\r\n	}\r\n}\r\n@media screen and (min-width: 1200px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 4.5%;\r\n	}\r\n}\r\n#imglist_settings button {\r\n	font-size: 13.333px;\r\n	color: #9baacf;\r\n	outline: 0;\r\n	border: none;\r\n	height: 35px;\r\n	width: 80px;\r\n	border-radius: 10px;\r\n	box-shadow: 0.3rem 0.3rem 0.6rem #c8d0e7, -0.2rem -0.2rem 0.5rem #fff;\r\n	font-weight: 800;\r\n	line-height: 40px;\r\n	background: #efefef;\r\n	padding: 0;\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n}\r\n#imglist_settings button:active {\r\n	box-shadow: inset 0.2rem 0.2rem 0.5rem #c8d0e7,\r\n		inset -0.2rem -0.2rem 0.5rem #fff !important;\r\n	color: #638ffb !important;\r\n}\r\n\r\n#comiis_head .header_y {\r\n	display: flex;\r\n	align-content: center;\r\n	align-items: center;\r\n	justify-content: flex-end;\r\n	height: 100%;\r\n}\r\n#comiis_head .header_y input {\r\n	border: transparent;\r\n	background: 0 0;\r\n	text-align: center;\r\n	margin: 0 5px;\r\n}\r\n#comiis_head .header_y input[value="删除"] {\r\n	color: #d00;\r\n}\r\n#comiis_head .header_y input[value="保存"] {\r\n	color: #b0ff6a;\r\n}\r\n#comiis_head .header_y input[value="保存草稿"] {\r\n	color: #f90;\r\n}\r\n#comiis_head .header_y input[value="发表"] {\r\n	color: #b0ff6a;\r\n}\r\n#comiis_head .header_y input[value="回复"] {\r\n	color: #b0ff6a;\r\n}\r\n#comiis_post_tab {\r\n	color: #000;\r\n}\r\n#comiis_pictitle_tab #imglist input {\r\n	display: none;\r\n}\r\n\r\n.comiis_post_imglist .delImg {\r\n	position: absolute;\r\n	top: -5px;\r\n	left: -5px;\r\n}\r\n\r\n.comiis_post_imglist .p_img a {\r\n	float: left;\r\n	height: 36px;\r\n}\r\n#imglist .p_img a {\r\n	float: left;\r\n	height: 36px;\r\n}\r\n#imglist .del a {\r\n	padding: 0;\r\n}\r\n';
@@ -11275,15 +11311,17 @@ domUtils.parent(domUtils.parent("#pollchecked")),
         Panel.execMenuOnce("mt-customizeUserLabels", () => {
           MTCustomizeUserLabels.init();
         });
-        Panel.execMenuOnce("mt-link-text-to-hyperlink", () => {
-          MTIdentifyLinks();
-        });
         Panel.execMenu("mt-auto-sign", () => {
           MTAutoSignIn.init();
         });
         Panel.execMenu("mt-extend-cookie-expire", () => {
           this.extendCookieExpire();
         });
+        if (!MTRouter.isPostPublish_edit()) {
+          Panel.execMenuOnce("mt-link-text-to-hyperlink", () => {
+            MTIdentifyLinks();
+          });
+        }
       });
     },
 showUserUID() {
@@ -11355,12 +11393,7 @@ showUserUID() {
 async extendCookieExpire() {
       log.info(`延长cookie有效期`);
       let cookieList = await _GM.cookie.list({});
-      let needExtendCookieNameList = [
-        "_auth",
-        "_saltkey",
-        "_client_created",
-        "_client_token"
-      ];
+      let needExtendCookieNameList = ["_auth", "_saltkey", "_client_created", "_client_token"];
       cookieList.forEach(async (cookieItem) => {
         if (cookieItem.session) {
           return;
@@ -11374,9 +11407,7 @@ async extendCookieExpire() {
         if (expireTime - nowTime > _30days) {
           return;
         }
-        let flag = needExtendCookieNameList.find(
-          (it) => cookieItem.name.endsWith(it)
-        );
+        let flag = needExtendCookieNameList.find((it) => cookieItem.name.endsWith(it));
         if (!flag) {
           return;
         }
