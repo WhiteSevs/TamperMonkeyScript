@@ -41,13 +41,9 @@ type ExecMenuCallBackOption = {
 const Panel = {
 	/** 数据 */
 	$data: {
-		/**
-		 * @private
-		 */
+		/** @private */
 		__contentConfigInitDefaultValue: null as UtilsDictionary<string, any> | null,
-		/**
-		 * @private
-		 */
+		/** @private */
 		__onceExecMenuData: null as UtilsDictionary<
 			string,
 			{
@@ -57,13 +53,11 @@ const Panel = {
 				removeValueChangeListener: () => void;
 			}
 		> | null,
-		/**
-		 * @private
-		 */
+		/** @private */
+		__urlChangeReloadMenuExecOnce: null as UtilsDictionary<string, Function> | null,
+		/** @private */
 		__onceExecData: null as UtilsDictionary<string, number> | null,
-		/**
-		 * @private
-		 */
+		/** @private */
 		__panelConfig: {} as Partial<PopsPanelDetails>,
 		/**
 		 * 面板
@@ -98,6 +92,17 @@ const Panel = {
 				this.__onceExecMenuData = new utils.Dictionary();
 			}
 			return this.__onceExecMenuData;
+		},
+		/**
+		 * 菜单项在url改变时需要重新加载的菜单回调
+		 *
+		 * + .execMenuOnce
+		 */
+		get urlChangeReloadMenuExecOnce() {
+			if (this.__urlChangeReloadMenuExecOnce == null) {
+				this.__urlChangeReloadMenuExecOnce = new utils.Dictionary();
+			}
+			return this.__urlChangeReloadMenuExecOnce;
 		},
 		/**
 		 * 成功只执行了一次的项
@@ -586,13 +591,30 @@ const Panel = {
 	 * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
 	 * @param callback 回调
 	 * @param isReverse 逆反判断菜单启用，默认false
+	 * @param listenUrlChange 监听url改变，重载菜单执行，默认为false，注意，如果用此函数执行了监听Router改变，请设置该值false，否则会反复触发
 	 */
 	execMenuOnce(
 		key: string | string[],
 		callback: (option: ExecMenuCallBackOption) => any | any[],
-		isReverse = false
+		isReverse = false,
+		listenUrlChange: boolean = false
 	) {
-		return this.execMenu(key, callback, isReverse, true);
+		const result = this.execMenu(key, callback, isReverse, true);
+		if (listenUrlChange) {
+			if (result) {
+				const urlChangeEvent = () => {
+					result.reload();
+				};
+				this.removeUrlChangeWithExecMenuOnceListener(key);
+				this.addUrlChangeWithExecMenuOnceListener(key, urlChangeEvent);
+				const originClear = result.clear;
+				result.clear = () => {
+					originClear();
+					this.removeUrlChangeWithExecMenuOnceListener(key);
+				};
+			}
+		}
+		return result;
 	},
 	/**
 	 * 移除已执行的仅执行一次的菜单
@@ -601,8 +623,10 @@ const Panel = {
 	 * + .execMenuOnce
 	 * @param key 键
 	 */
-	deleteExecMenuOnce(key: string) {
+	deleteExecMenuOnce(key: string | string[]) {
+		key = this.transformKey(key);
 		this.$data.onceExecMenuData.delete(key);
+		this.$data.urlChangeReloadMenuExecOnce.delete(key);
 		let flag = PopsPanelStorageApi.removeValueChangeListener(key);
 		return flag;
 	},
@@ -631,6 +655,32 @@ const Panel = {
 	deleteOnceExec(key: string | string[]) {
 		key = this.transformKey(key);
 		this.$data.onceExecData.delete(key);
+	},
+	/**
+	 * 添加主动触发url改变的监听
+	 * @param key 键
+	 * @param callback 回调
+	 */
+	addUrlChangeWithExecMenuOnceListener(key: string | string[], callback: () => void) {
+		key = this.transformKey(key);
+		this.$data.urlChangeReloadMenuExecOnce.set(key, callback);
+	},
+	/**
+	 * 移除主动触发url改变的监听
+	 * @param key 键
+	 */
+	removeUrlChangeWithExecMenuOnceListener(key: string | string[]) {
+		key = this.transformKey(key);
+		this.$data.urlChangeReloadMenuExecOnce.delete(key);
+	},
+	/**
+	 * 主动触发url改变的监听
+	 * @param config 配置
+	 */
+	triggerUrlChangeWithExecMenuOnceEvent(config?: { url: string; beforeUrl: string }) {
+		this.$data.urlChangeReloadMenuExecOnce.forEach((callback, key) => {
+			callback(config);
+		});
 	},
 	/**
 	 * 显示设置面板
