@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.8
+// @version      2025.9.11
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、用户状态查看、美化导航、动态头像上传、最新发表、评论过滤器等
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://bbs.binmt.cc/*
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.4.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.4.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js
@@ -58,6 +58,26 @@ waitRemove(...args) {
         utils.waitNodeList(selector).then((nodeList) => {
           nodeList.forEach(($el) => $el.remove());
         });
+      });
+    },
+createBlockCSSNode(...args) {
+      let selectorList = [];
+      if (args.length === 0) {
+        return;
+      }
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
+        return;
+      }
+      args.forEach((selector) => {
+        if (Array.isArray(selector)) {
+          selectorList = selectorList.concat(selector);
+        } else {
+          selectorList.push(selector);
+        }
+      });
+      return DOMUtils.createElement("style", {
+        type: "text/css",
+        innerHTML: `${selectorList.join(",\n")}{display: none !important;}`
       });
     },
 addBlockCSS(...args) {
@@ -658,6 +678,7 @@ deleteMenuOption(index = 0) {
 $data: {
 __contentConfigInitDefaultValue: null,
 __onceExecMenuData: null,
+__urlChangeReloadMenuExecOnce: null,
 __onceExecData: null,
 __panelConfig: {},
 $panel: null,
@@ -674,6 +695,12 @@ get onceExecMenuData() {
           this.__onceExecMenuData = new utils.Dictionary();
         }
         return this.__onceExecMenuData;
+      },
+get urlChangeReloadMenuExecOnce() {
+        if (this.__urlChangeReloadMenuExecOnce == null) {
+          this.__urlChangeReloadMenuExecOnce = new utils.Dictionary();
+        }
+        return this.__urlChangeReloadMenuExecOnce;
       },
 get onceExecData() {
         if (this.__onceExecData == null) {
@@ -827,9 +854,8 @@ exec(queryKey, callback, checkExec, once = true) {
       let storageKey = JSON.stringify(keyList);
       if (once) {
         if (this.$data.onceExecMenuData.has(storageKey)) {
-          return;
+          return this.$data.onceExecMenuData.get(storageKey);
         }
-        this.$data.onceExecMenuData.set(storageKey, 1);
       }
       let storeValueList = [];
       let listenerIdList = [];
@@ -907,6 +933,9 @@ exec(queryKey, callback, checkExec, once = true) {
       });
       valueChangeCallback();
       let result = {
+reload() {
+          valueChangeCallback();
+        },
 clear() {
           this.clearStoreStyleElements();
           this.removeValueChangeListener();
@@ -921,6 +950,7 @@ removeValueChangeListener: () => {
           });
         }
       };
+      this.$data.onceExecMenuData.set(storageKey, result);
       return result;
     },
 execMenu(key, callback, isReverse = false, once = false) {
@@ -945,11 +975,28 @@ execMenu(key, callback, isReverse = false, once = false) {
         once
       );
     },
-execMenuOnce(key, callback, isReverse = false) {
-      return this.execMenu(key, callback, isReverse, true);
+execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
+      const result = this.execMenu(key, callback, isReverse, true);
+      if (listenUrlChange) {
+        if (result) {
+          const urlChangeEvent = () => {
+            result.reload();
+          };
+          this.removeUrlChangeWithExecMenuOnceListener(key);
+          this.addUrlChangeWithExecMenuOnceListener(key, urlChangeEvent);
+          const originClear = result.clear;
+          result.clear = () => {
+            originClear();
+            this.removeUrlChangeWithExecMenuOnceListener(key);
+          };
+        }
+      }
+      return result;
     },
 deleteExecMenuOnce(key) {
+      key = this.transformKey(key);
       this.$data.onceExecMenuData.delete(key);
+      this.$data.urlChangeReloadMenuExecOnce.delete(key);
       let flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
@@ -967,6 +1014,19 @@ onceExec(key, callback) {
 deleteOnceExec(key) {
       key = this.transformKey(key);
       this.$data.onceExecData.delete(key);
+    },
+addUrlChangeWithExecMenuOnceListener(key, callback) {
+      key = this.transformKey(key);
+      this.$data.urlChangeReloadMenuExecOnce.set(key, callback);
+    },
+removeUrlChangeWithExecMenuOnceListener(key) {
+      key = this.transformKey(key);
+      this.$data.urlChangeReloadMenuExecOnce.delete(key);
+    },
+triggerUrlChangeWithExecMenuOnceEvent(config) {
+      this.$data.urlChangeReloadMenuExecOnce.forEach((callback, key) => {
+        callback(config);
+      });
     },
 showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
       this.$data.$panel = null;
@@ -3552,9 +3612,12 @@ async showView(filterCallBack) {
             enable: this.option?.bottomControls?.filter?.enable || false,
             type: "default",
             text: "过滤",
-            callback: (details, event) => {
+            callback: async (details, event) => {
               if (typeof this.option?.bottomControls?.filter?.callback === "function") {
-                this.option.bottomControls.filter.callback();
+                let result = await this.option.bottomControls.filter.callback();
+                if (typeof result === "boolean" && !result) {
+                  return;
+                }
               }
               let getAllRuleElement = () => {
                 return Array.from(
@@ -3563,6 +3626,13 @@ async showView(filterCallBack) {
               };
               let $button = event.target.closest(".pops-confirm-btn").querySelector(".pops-confirm-btn-cancel span");
               if (domUtils.text($button).includes("取消")) {
+                let cancelFilterResult = await this.option?.bottomControls?.filter?.cancelFilterCallback?.({
+                  $button,
+                  getAllRuleElement
+                });
+                if (typeof cancelFilterResult === "boolean" && !cancelFilterResult) {
+                  return;
+                }
                 getAllRuleElement().forEach(($el) => {
                   domUtils.show($el, false);
                 });
@@ -3571,8 +3641,9 @@ async showView(filterCallBack) {
                 let ruleFilterView = new RuleFilterView({
                   title: this.option.bottomControls?.filter?.title ?? "过滤规则",
                   filterOption: this.option.bottomControls?.filter?.option || [],
-                  execFilterCallBack() {
+                  execFilterCallBack: async () => {
                     domUtils.text($button, "取消过滤");
+                    await this.option.bottomControls?.filter?.execFilterCallBack?.();
                   },
                   getAllRuleInfo: () => {
                     return getAllRuleElement().map(($el) => {

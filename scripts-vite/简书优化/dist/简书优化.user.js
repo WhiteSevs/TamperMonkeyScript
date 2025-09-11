@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         简书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.27
+// @version      2025.9.11
 // @author       WhiteSevs
 // @description  支持手机端和PC端、屏蔽广告、优化浏览体验、重定向链接、全文居中、自动展开全文、允许复制文字、劫持唤醒/跳转App、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://*.jianshu.com/*
 // @match        *://*.jianshu.io/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.4.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @connect      *
 // @grant        GM_deleteValue
@@ -95,21 +95,29 @@ footer > div > div {\r
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const PROPS_STORAGE_API = "data-storage-api";
+  const PanelSizeUtil = {
+get width() {
+      return globalThis.innerWidth;
+    },
+get height() {
+      return globalThis.innerHeight;
+    }
+  };
   const PanelUISize = {
 setting: {
       get width() {
-        if (window.innerWidth < 550) {
+        if (PanelSizeUtil.width < 550) {
           return "88vw";
-        } else if (window.innerWidth < 700) {
+        } else if (PanelSizeUtil.width < 700) {
           return "550px";
         } else {
           return "700px";
         }
       },
       get height() {
-        if (window.innerHeight < 450) {
+        if (PanelSizeUtil.height < 450) {
           return "70vh";
-        } else if (window.innerHeight < 550) {
+        } else if (PanelSizeUtil.height < 550) {
           return "450px";
         } else {
           return "550px";
@@ -118,7 +126,7 @@ setting: {
     },
 settingMiddle: {
       get width() {
-        return window.innerWidth < 350 ? "88vw" : "350px";
+        return PanelSizeUtil.width < 350 ? "88vw" : "350px";
       }
     }
   };
@@ -347,6 +355,26 @@ waitRemove(...args) {
         });
       });
     },
+createBlockCSSNode(...args) {
+      let selectorList = [];
+      if (args.length === 0) {
+        return;
+      }
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
+        return;
+      }
+      args.forEach((selector) => {
+        if (Array.isArray(selector)) {
+          selectorList = selectorList.concat(selector);
+        } else {
+          selectorList.push(selector);
+        }
+      });
+      return DOMUtils.createElement("style", {
+        type: "text/css",
+        innerHTML: `${selectorList.join(",\n")}{display: none !important;}`
+      });
+    },
 addBlockCSS(...args) {
       let selectorList = [];
       if (args.length === 0) {
@@ -534,6 +562,7 @@ findParentNode($el, selector, parentSelector) {
 $data: {
 __contentConfigInitDefaultValue: null,
 __onceExecMenuData: null,
+__urlChangeReloadMenuExecOnce: null,
 __onceExecData: null,
 __panelConfig: {},
 $panel: null,
@@ -550,6 +579,12 @@ get onceExecMenuData() {
           this.__onceExecMenuData = new utils.Dictionary();
         }
         return this.__onceExecMenuData;
+      },
+get urlChangeReloadMenuExecOnce() {
+        if (this.__urlChangeReloadMenuExecOnce == null) {
+          this.__urlChangeReloadMenuExecOnce = new utils.Dictionary();
+        }
+        return this.__urlChangeReloadMenuExecOnce;
       },
 get onceExecData() {
         if (this.__onceExecData == null) {
@@ -585,6 +620,13 @@ initContentDefaultValue() {
         if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
           return;
         }
+        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
+        if (typeof __attr_init__ === "function") {
+          let __attr_result__ = __attr_init__();
+          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
+            return;
+          }
+        }
         let menuDefaultConfig = new Map();
         let key = config.attributes[ATTRIBUTE_KEY];
         if (key != null) {
@@ -600,13 +642,6 @@ initContentDefaultValue() {
         if (!menuDefaultConfig.size) {
           log.warn(["请先配置键", config]);
           return;
-        }
-        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
-        if (typeof __attr_init__ === "function") {
-          let __attr_result__ = __attr_init__();
-          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
-            return;
-          }
         }
         if (config.type === "switch") {
           let disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
@@ -703,9 +738,8 @@ exec(queryKey, callback, checkExec, once = true) {
       let storageKey = JSON.stringify(keyList);
       if (once) {
         if (this.$data.onceExecMenuData.has(storageKey)) {
-          return;
+          return this.$data.onceExecMenuData.get(storageKey);
         }
-        this.$data.onceExecMenuData.set(storageKey, 1);
       }
       let storeValueList = [];
       let listenerIdList = [];
@@ -783,6 +817,9 @@ exec(queryKey, callback, checkExec, once = true) {
       });
       valueChangeCallback();
       let result = {
+reload() {
+          valueChangeCallback();
+        },
 clear() {
           this.clearStoreStyleElements();
           this.removeValueChangeListener();
@@ -797,6 +834,7 @@ removeValueChangeListener: () => {
           });
         }
       };
+      this.$data.onceExecMenuData.set(storageKey, result);
       return result;
     },
 execMenu(key, callback, isReverse = false, once = false) {
@@ -821,11 +859,28 @@ execMenu(key, callback, isReverse = false, once = false) {
         once
       );
     },
-execMenuOnce(key, callback, isReverse = false) {
-      return this.execMenu(key, callback, isReverse, true);
+execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
+      const result = this.execMenu(key, callback, isReverse, true);
+      if (listenUrlChange) {
+        if (result) {
+          const urlChangeEvent = () => {
+            result.reload();
+          };
+          this.removeUrlChangeWithExecMenuOnceListener(key);
+          this.addUrlChangeWithExecMenuOnceListener(key, urlChangeEvent);
+          const originClear = result.clear;
+          result.clear = () => {
+            originClear();
+            this.removeUrlChangeWithExecMenuOnceListener(key);
+          };
+        }
+      }
+      return result;
     },
 deleteExecMenuOnce(key) {
+      key = this.transformKey(key);
       this.$data.onceExecMenuData.delete(key);
+      this.$data.urlChangeReloadMenuExecOnce.delete(key);
       let flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
@@ -843,6 +898,19 @@ onceExec(key, callback) {
 deleteOnceExec(key) {
       key = this.transformKey(key);
       this.$data.onceExecData.delete(key);
+    },
+addUrlChangeWithExecMenuOnceListener(key, callback) {
+      key = this.transformKey(key);
+      this.$data.urlChangeReloadMenuExecOnce.set(key, callback);
+    },
+removeUrlChangeWithExecMenuOnceListener(key) {
+      key = this.transformKey(key);
+      this.$data.urlChangeReloadMenuExecOnce.delete(key);
+    },
+triggerUrlChangeWithExecMenuOnceEvent(config) {
+      this.$data.urlChangeReloadMenuExecOnce.forEach((callback, key) => {
+        callback(config);
+      });
     },
 showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
       this.$data.$panel = null;
@@ -997,7 +1065,7 @@ threshold: 1
     					align-items: center;
 					}
 					.search-result-item-description{
-						font-size: 0.8rem;
+						font-size: 0.8em;
 						color: #6c6c6c;
 					}
 					${config.searchDialogStyle ?? ""}

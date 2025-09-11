@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.8
+// @version      2025.9.11
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@7272395d2c4ef6f254ee09724e20de4899098bc0/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.4.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.4.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @connect      *
@@ -104,6 +104,26 @@ waitRemove(...args) {
         utils.waitNodeList(selector).then((nodeList) => {
           nodeList.forEach(($el) => $el.remove());
         });
+      });
+    },
+createBlockCSSNode(...args) {
+      let selectorList = [];
+      if (args.length === 0) {
+        return;
+      }
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
+        return;
+      }
+      args.forEach((selector) => {
+        if (Array.isArray(selector)) {
+          selectorList = selectorList.concat(selector);
+        } else {
+          selectorList.push(selector);
+        }
+      });
+      return DOMUtils.createElement("style", {
+        type: "text/css",
+        innerHTML: `${selectorList.join(",\n")}{display: none !important;}`
       });
     },
 addBlockCSS(...args) {
@@ -705,6 +725,7 @@ deleteMenuOption(index = 0) {
 $data: {
 __contentConfigInitDefaultValue: null,
 __onceExecMenuData: null,
+__urlChangeReloadMenuExecOnce: null,
 __onceExecData: null,
 __panelConfig: {},
 $panel: null,
@@ -721,6 +742,12 @@ get onceExecMenuData() {
           this.__onceExecMenuData = new utils.Dictionary();
         }
         return this.__onceExecMenuData;
+      },
+get urlChangeReloadMenuExecOnce() {
+        if (this.__urlChangeReloadMenuExecOnce == null) {
+          this.__urlChangeReloadMenuExecOnce = new utils.Dictionary();
+        }
+        return this.__urlChangeReloadMenuExecOnce;
       },
 get onceExecData() {
         if (this.__onceExecData == null) {
@@ -874,9 +901,8 @@ exec(queryKey, callback, checkExec, once = true) {
       let storageKey = JSON.stringify(keyList);
       if (once) {
         if (this.$data.onceExecMenuData.has(storageKey)) {
-          return;
+          return this.$data.onceExecMenuData.get(storageKey);
         }
-        this.$data.onceExecMenuData.set(storageKey, 1);
       }
       let storeValueList = [];
       let listenerIdList = [];
@@ -954,6 +980,9 @@ exec(queryKey, callback, checkExec, once = true) {
       });
       valueChangeCallback();
       let result = {
+reload() {
+          valueChangeCallback();
+        },
 clear() {
           this.clearStoreStyleElements();
           this.removeValueChangeListener();
@@ -968,6 +997,7 @@ removeValueChangeListener: () => {
           });
         }
       };
+      this.$data.onceExecMenuData.set(storageKey, result);
       return result;
     },
 execMenu(key, callback, isReverse = false, once = false) {
@@ -992,11 +1022,28 @@ execMenu(key, callback, isReverse = false, once = false) {
         once
       );
     },
-execMenuOnce(key, callback, isReverse = false) {
-      return this.execMenu(key, callback, isReverse, true);
+execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
+      const result = this.execMenu(key, callback, isReverse, true);
+      if (listenUrlChange) {
+        if (result) {
+          const urlChangeEvent = () => {
+            result.reload();
+          };
+          this.removeUrlChangeWithExecMenuOnceListener(key);
+          this.addUrlChangeWithExecMenuOnceListener(key, urlChangeEvent);
+          const originClear = result.clear;
+          result.clear = () => {
+            originClear();
+            this.removeUrlChangeWithExecMenuOnceListener(key);
+          };
+        }
+      }
+      return result;
     },
 deleteExecMenuOnce(key) {
+      key = this.transformKey(key);
       this.$data.onceExecMenuData.delete(key);
+      this.$data.urlChangeReloadMenuExecOnce.delete(key);
       let flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
@@ -1014,6 +1061,19 @@ onceExec(key, callback) {
 deleteOnceExec(key) {
       key = this.transformKey(key);
       this.$data.onceExecData.delete(key);
+    },
+addUrlChangeWithExecMenuOnceListener(key, callback) {
+      key = this.transformKey(key);
+      this.$data.urlChangeReloadMenuExecOnce.set(key, callback);
+    },
+removeUrlChangeWithExecMenuOnceListener(key) {
+      key = this.transformKey(key);
+      this.$data.urlChangeReloadMenuExecOnce.delete(key);
+    },
+triggerUrlChangeWithExecMenuOnceEvent(config) {
+      this.$data.urlChangeReloadMenuExecOnce.forEach((callback, key) => {
+        callback(config);
+      });
     },
 showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
       this.$data.$panel = null;
@@ -4316,15 +4376,11 @@ async showView(filterCallBack) {
             domUtils.on($subscribe, "click", async (event2) => {
               utils.preventEvent(event2);
               await subscribeOption?.callback?.();
-              let deepMenuElementInfo = this.enterDeepMenu(
+              let deepMenuElementInfo = await this.enterDeepMenu(
                 $panelRightContainer,
                 subscribeOption?.headerTitle || subscribeOption?.title || "订阅",
                 () => {
-                  this.updateRuleContaienrElement(
-                    config.ruleOption,
-                    subscribeOption,
-                    $panelRightContainer
-                  );
+                  this.updateRuleContaienrElement(config.ruleOption, subscribeOption, $panelRightContainer);
                 }
               );
               let $subscribeRightContainer = deepMenuElementInfo.$rightRuleContainer;
@@ -4358,9 +4414,7 @@ async showView(filterCallBack) {
                           log.info(`订阅：` + subscribeUrl);
                           let $loading = Qmsg.loading("正在获取订阅信息...");
                           try {
-                            let subscribeInfoResult = await subscribeOption?.getSubscribeInfo(
-                              subscribeUrl
-                            );
+                            let subscribeInfoResult = await subscribeOption?.getSubscribeInfo(subscribeUrl);
                             if (subscribeInfoResult.data) {
                               eventDetails.close();
                               let subscribeInfo = subscribeInfoResult.data;
@@ -4391,9 +4445,7 @@ async showView(filterCallBack) {
                                     text: "添加",
                                     type: "subscribe",
                                     callback: async (eventDetails2, event4) => {
-                                      let addFlag = await subscribeOption.addData(
-                                        subscribeInfo
-                                      );
+                                      let addFlag = await subscribeOption.addData(subscribeInfo);
                                       if (!addFlag) {
                                         Qmsg.error("该订阅已存在", {
                                           consoleLogContent: true
@@ -4478,17 +4530,12 @@ async showView(filterCallBack) {
                               let $subscribeNetworkAddDialog_lastModified = $subscribeNetworkAddDialog.$shadowRoot.querySelector(
                                 ".subscribe-network-last-modified"
                               );
-                              domUtils.val(
-                                $subscribeNetworkAddDialog_title_input,
-                                title
-                              );
+                              domUtils.val($subscribeNetworkAddDialog_title_input, title);
                               domUtils.on(
                                 $subscribeNetworkAddDialog_title_input,
                                 ["input", "propertychange"],
                                 (event4) => {
-                                  let inputValue = domUtils.val(
-                                    $subscribeNetworkAddDialog_title_input
-                                  );
+                                  let inputValue = domUtils.val($subscribeNetworkAddDialog_title_input);
                                   subscribeInfo.data.title = inputValue === "" ? void 0 : inputValue;
                                 }
                               );
@@ -4562,21 +4609,15 @@ async showView(filterCallBack) {
                     height: "auto"
                   });
                   let $promptInput = $prompt.$shadowRoot.querySelector("input");
-                  let $promptOk = $prompt.$shadowRoot.querySelector(
-                    ".pops-prompt-btn-ok "
-                  );
-                  domUtils.on(
-                    $promptInput,
-                    ["input", "propertychange"],
-                    (event3) => {
-                      let promptValue = domUtils.val($promptInput);
-                      if (promptValue === "") {
-                        domUtils.attr($promptOk, "disabled", "true");
-                      } else {
-                        domUtils.removeAttr($promptOk, "disabled");
-                      }
+                  let $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok ");
+                  domUtils.on($promptInput, ["input", "propertychange"], (event3) => {
+                    let promptValue = domUtils.val($promptInput);
+                    if (promptValue === "") {
+                      domUtils.attr($promptOk, "disabled", "true");
+                    } else {
+                      domUtils.removeAttr($promptOk, "disabled");
                     }
-                  );
+                  });
                   domUtils.listenKeyboard(
                     $promptInput,
                     "keydown",
@@ -4629,10 +4670,7 @@ async showView(filterCallBack) {
             }
           );
           if (changeButtonText && ruleCreateViewElementInfo.$ruleControlFilter) {
-            domUtils.text(
-              ruleCreateViewElementInfo.$ruleControlFilter,
-              "取消过滤"
-            );
+            domUtils.text(ruleCreateViewElementInfo.$ruleControlFilter, "取消过滤");
           }
         };
       });
@@ -4751,10 +4789,13 @@ content: contentConfigList,
         )
       });
     }
-enterDeepMenu($el, headerTitle, quiteDeepMenuCallBack) {
-      let $prevSection = $el.matches("section") ? $el : $el.closest("section");
-      domUtils.addClass($prevSection, "pops-hide-important");
-      let $section = domUtils.createElement("section", {
+async enterDeepMenu($el, headerTitle, quiteDeepMenuCallBack) {
+      const animOptions = {
+duration: 220,
+        easing: "ease-in-out"
+      };
+      const $currentSection = $el.matches("section") ? $el : $el.closest("section");
+      const $deepMenuSection = domUtils.createElement("section", {
         className: "pops-panel-container pops-panel-deepMenu-container",
         innerHTML: (
 `
@@ -4768,27 +4809,77 @@ enterDeepMenu($el, headerTitle, quiteDeepMenuCallBack) {
 			`
         )
       });
-      domUtils.after($prevSection, $section);
-      let $headerContainer = $section.querySelector(
+      const $headerContainer = $deepMenuSection.querySelector(
         ".pops-panel-deepMenu-container-header-ul"
       );
-      let $arrowLeft = $section.querySelector(
+      const $arrowLeft = $deepMenuSection.querySelector(
         ".pops-panel-deepMenu-container-left-arrow-icon"
       );
-      let $rightRuleContainer = $section.querySelector(
-        ".pops-panel-container-main-ul"
-      );
-      domUtils.on($arrowLeft, "click", (event) => {
+      const $rightRuleContainer = $deepMenuSection.querySelector(".pops-panel-container-main-ul");
+      domUtils.on($arrowLeft, "click", async (event) => {
         utils.preventEvent(event);
-        let $before = domUtils.prev($section);
-        domUtils.remove($section);
-        if ($before) {
-          domUtils.removeClass($before, "pops-hide-important");
+        const leaveViewTransition = () => {
+          const $prev = $currentSection;
+          domUtils.removeClass($prev, "pops-hide-important");
+          domUtils.remove($deepMenuSection);
+          quiteDeepMenuCallBack();
+        };
+        if (this.option.useDeepMenuSwtichAnimation && document.startViewTransition) {
+          const leaveTransition = document.startViewTransition(leaveViewTransition);
+          await leaveTransition.ready;
+          await Promise.all([
+            $deepMenuSection.animate(
+              [
+                {
+transform: "translateX(0)"
+                },
+                {
+transform: "translateX(100%)"
+                }
+              ],
+              animOptions
+            ).finished,
+$currentSection.animate(
+              [
+                {
+transform: "translateX(-100%)"
+                },
+                {
+transform: "translateX(0)"
+                }
+              ],
+              animOptions
+            ).finished
+          ]);
+          await leaveTransition.finished;
+        } else {
+          leaveViewTransition();
         }
-        quiteDeepMenuCallBack();
       });
+      const enterViewTransition = () => {
+        domUtils.addClass($currentSection, "pops-hide-important");
+        domUtils.after($currentSection, $deepMenuSection);
+      };
+      if (this.option.useDeepMenuSwtichAnimation && document.startViewTransition) {
+        const transition = document.startViewTransition(enterViewTransition);
+        await transition.ready;
+        await $deepMenuSection.animate(
+          [
+            {
+transform: "translateX(100%)"
+            },
+            {
+transform: "translateX(0)"
+            }
+          ],
+          animOptions
+        ).finished;
+        await transition.finished;
+      } else {
+        enterViewTransition();
+      }
       return {
-        $section,
+        $section: $deepMenuSection,
         $headerContainer,
         $arrowLeft,
         $rightRuleContainer,
@@ -4857,15 +4948,18 @@ createButtonControls($controlsParent, $rightContainer, option, addButtonCallBack
             return;
           }
           let getAllRuleElement = () => {
-            return Array.from(
-              $rightContainer.querySelectorAll(
-                ".rule-view-container .rule-item"
-              )
-            );
+            return Array.from($rightContainer.querySelectorAll(".rule-view-container .rule-item"));
           };
           let $button = $ruleControlFilter;
           if ($button) {
             if (domUtils.text($button).includes("取消")) {
+              let cancelFilterResult = await btnControlsOption?.filter?.cancelFilterCallback?.({
+                $button,
+                getAllRuleElement
+              });
+              if (typeof cancelFilterResult === "boolean" && !cancelFilterResult) {
+                return;
+              }
               getAllRuleElement().forEach(($el) => {
                 domUtils.show($el, false);
               });
@@ -4877,25 +4971,21 @@ createButtonControls($controlsParent, $rightContainer, option, addButtonCallBack
               } else if (typeof btnControlsOption?.filter?.title === "string") {
                 filterTitle = btnControlsOption?.filter?.title;
               }
-              let ruleFilterView = new RuleFilterView(
-                {
-                  title: filterTitle,
+              let ruleFilterView = new RuleFilterView({
+                title: filterTitle,
 filterOption: btnControlsOption?.filter?.option || [],
-                  execFilterCallBack() {
-                    domUtils.text($button, "取消过滤");
-                  },
-                  getAllRuleInfo: () => {
-                    return getAllRuleElement().map(($el) => {
-                      return {
-                        data: this.parseRuleElement(
-                          $el
-                        ).data,
-                        $el
-                      };
-                    });
-                  }
+                execFilterCallBack() {
+                  domUtils.text($button, "取消过滤");
+                },
+                getAllRuleInfo: () => {
+                  return getAllRuleElement().map(($el) => {
+                    return {
+                      data: this.parseRuleElement($el).data,
+                      $el
+                    };
+                  });
                 }
-              );
+              });
               ruleFilterView.showView();
             }
           }
@@ -5041,29 +5131,19 @@ filterOption: btnControlsOption?.filter?.option || [],
     }
 parseViewElement($el) {
       let $container = $el.querySelector(".rule-view-container");
-      let $deleteBtn = $el.querySelector(
-        ".rule-control-clear-all"
-      );
+      let $deleteBtn = $el.querySelector(".rule-control-clear-all");
       return {
 $container,
 $deleteBtn
       };
     }
 parseRuleElement($ruleItem) {
-      let $enable = $ruleItem.querySelector(
-        ".rule-controls-enable"
-      );
+      let $enable = $ruleItem.querySelector(".rule-controls-enable");
       let $enableSwitch = $enable.querySelector(".pops-panel-switch");
-      let $enableSwitchInput = $enable.querySelector(
-        ".pops-panel-switch__input"
-      );
-      let $enableSwitchCore = $enable.querySelector(
-        ".pops-panel-switch__core"
-      );
+      let $enableSwitchInput = $enable.querySelector(".pops-panel-switch__input");
+      let $enableSwitchCore = $enable.querySelector(".pops-panel-switch__core");
       let $edit = $ruleItem.querySelector(".rule-controls-edit");
-      let $delete = $ruleItem.querySelector(
-        ".rule-controls-delete"
-      );
+      let $delete = $ruleItem.querySelector(".rule-controls-delete");
       return {
 $enable,
 $enableSwitch,
@@ -5104,14 +5184,7 @@ async createRuleElement(option, subscribeOption, data, $el) {
       });
       Reflect.set($ruleItem, "data-rule", ruleData);
       let switchCheckedClassName = "pops-panel-switch-is-checked";
-      const {
-        $enable,
-        $enableSwitch,
-        $enableSwitchCore,
-        $enableSwitchInput,
-        $delete,
-        $edit
-      } = this.parseRuleElement($ruleItem);
+      const { $enable, $enableSwitch, $enableSwitchCore, $enableSwitchInput, $delete, $edit } = this.parseRuleElement($ruleItem);
       if (option.btnControls?.ruleEnable?.enable) {
         domUtils.on($enableSwitchCore, "click", async (event) => {
           let isChecked = false;
@@ -5126,9 +5199,7 @@ async createRuleElement(option, subscribeOption, data, $el) {
           await option?.btnControls?.ruleEnable?.callback(ruleData, isChecked);
           if (isChecked && subscribeOption) {
             let subscribeData = data;
-            let subscribeInfo = await subscribeOption.getSubscribeInfo(
-              subscribeData.data.url
-            );
+            let subscribeInfo = await subscribeOption.getSubscribeInfo(subscribeData.data.url);
             if (subscribeInfo.data) {
               let subscribeNewItem = subscribeInfo.data;
               subscribeNewItem.uuid = subscribeData.uuid;
@@ -5163,7 +5234,7 @@ ruleData,
               $section: $el,
               $ruleItem,
               enterDeepMenu: async (deepMenuOption) => {
-                let deepMenuElementInfo = this.enterDeepMenu(
+                let deepMenuElementInfo = await this.enterDeepMenu(
                   $el,
                   deepMenuOption.headerTitle || "",
                   () => {
@@ -5190,18 +5261,10 @@ deepMenuOption,
               return;
             }
           }
-          this.showEditView(
-            option,
-            subscribeOption,
-            true,
-            ruleData,
-            $el,
-            $ruleItem,
-            (newData) => {
-              ruleData = null;
-              ruleData = newData;
-            }
-          );
+          this.showEditView(option, subscribeOption, true, ruleData, $el, $ruleItem, (newData) => {
+            ruleData = null;
+            ruleData = newData;
+          });
         });
       } else {
         $edit.remove();
@@ -5223,9 +5286,7 @@ deepMenuOption,
                 enable: true,
                 callback: async (popsEvent) => {
                   log.success("删除数据");
-                  let flag = await option?.btnControls?.ruleDelete?.deleteCallBack(
-                    ruleData
-                  );
+                  let flag = await option?.btnControls?.ruleDelete?.deleteCallBack(ruleData);
                   if (flag) {
                     Qmsg.success("成功删除该数据");
                     $ruleItem.remove();
@@ -5261,12 +5322,7 @@ async addRuleElement(option, subscribeOption, $el, data, addCallBack) {
       let documentFragment = document.createDocumentFragment();
       for (let index = 0; index < iteratorData.length; index++) {
         let item = iteratorData[index];
-        let $item = await this.createRuleElement(
-          option,
-          subscribeOption,
-          item,
-          $el
-        );
+        let $item = await this.createRuleElement(option, subscribeOption, item, $el);
         documentFragment.appendChild($item);
         addCallBack?.(item, $item);
         $ruleItem.push($item);
@@ -5283,12 +5339,7 @@ async updateRuleContaienrElement(option, subscribeOption, $el) {
       await this.updateDeleteAllBtnText(option, $el);
     }
 async updateRuleItemElement(option, subscribeOption, data, $oldRule, $el) {
-      let $newRule = await this.createRuleElement(
-        option,
-        subscribeOption,
-        data,
-        $el
-      );
+      let $newRule = await this.createRuleElement(option, subscribeOption, data, $el);
       $oldRule.after($newRule);
       $oldRule.remove();
       return $newRule;
@@ -5318,9 +5369,7 @@ showEditView(option, subscribeOption, isEdit, editData, $parent, $ruleItem, upda
       let dialogCloseCallBack = async (isSubmit) => {
         if (isSubmit) {
           if (typeof submitCallBack === "function") {
-            let newData = await option.getData(
-              editData
-            );
+            let newData = await option.getData(editData);
             submitCallBack(newData);
           }
         } else {
@@ -5328,9 +5377,7 @@ showEditView(option, subscribeOption, isEdit, editData, $parent, $ruleItem, upda
             await option.deleteData(editData);
           }
           if (typeof updateDataCallBack === "function") {
-            let newData = await option.getData(
-              editData
-            );
+            let newData = await option.getData(editData);
             updateDataCallBack(newData);
           }
         }
@@ -5342,10 +5389,7 @@ showEditView(option, subscribeOption, isEdit, editData, $parent, $ruleItem, upda
         },
         dialogCloseCallBack,
         getView: async (data) => {
-          return await option.btnControls?.ruleEdit?.getView?.(
-            data,
-            isEdit
-          );
+          return await option.btnControls?.ruleEdit?.getView?.(data, isEdit);
         },
         btn: {
           ok: {
@@ -5374,20 +5418,9 @@ showEditView(option, subscribeOption, isEdit, editData, $parent, $ruleItem, upda
           if (result.success) {
             if (isEdit) {
               Qmsg.success("修改成功");
-              $parent && await this.updateRuleItemElement(
-                option,
-                subscribeOption,
-                result.data,
-                $ruleItem,
-                $parent
-              );
+              $parent && await this.updateRuleItemElement(option, subscribeOption, result.data, $ruleItem, $parent);
             } else {
-              $parent && await this.addRuleElement(
-                option,
-                subscribeOption,
-                $parent,
-                result.data
-              );
+              $parent && await this.addRuleElement(option, subscribeOption, $parent, result.data);
             }
           } else {
             if (isEdit) {
@@ -10779,7 +10812,7 @@ registerIconGotoPagePosition(targetElement) {
         targetElement,
         "click",
         ".whitesevPop .netdisk-icon .netdisk-icon-img",
-        function(event, selectorTarget) {
+        (event, selectorTarget) => {
           let $click = selectorTarget;
           let dataSharecode = $click.getAttribute("data-sharecode");
           if (!NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode"].value) {

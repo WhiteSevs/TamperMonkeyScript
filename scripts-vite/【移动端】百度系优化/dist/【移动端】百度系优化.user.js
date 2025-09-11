@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.4
+// @version      2025.9.11
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -13,18 +13,18 @@
 // @match        *://uf9kyh.smartapps.cn/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/showdown/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.4.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.4.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/vue@3.5.21/dist/vue.global.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-demi@0.14.10/lib/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/pinia@3.0.3/dist/pinia.iife.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-router@4.5.1/dist/vue-router.global.js
-// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@aab44c2d00b25ba1d78ffb8ee690c1b41aea01db/lib/Element-Plus/index.js
+// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@7a79e1a38c1cef84bb4713a3898e95f7a7fb962f/lib/Element-Plus/index.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.2/dist/index.iife.min.js
-// @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.11.1/dist/index.min.css
+// @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.11.2/dist/index.min.css
 // @resource     ViewerCSS               https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect      *
 // @connect      www.baidu.com
@@ -61,7 +61,7 @@
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
   var require_entrance_001 = __commonJS({
-    "entrance-DOzC36bO.js"(exports, module) {
+    "entrance-CkCcIgfs.js"(exports, module) {
       var _GM_deleteValue = (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
       var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
@@ -490,6 +490,26 @@ waitRemove(...args) {
             });
           });
         },
+createBlockCSSNode(...args) {
+          let selectorList = [];
+          if (args.length === 0) {
+            return;
+          }
+          if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
+            return;
+          }
+          args.forEach((selector) => {
+            if (Array.isArray(selector)) {
+              selectorList = selectorList.concat(selector);
+            } else {
+              selectorList.push(selector);
+            }
+          });
+          return DOMUtils.createElement("style", {
+            type: "text/css",
+            innerHTML: `${selectorList.join(",\n")}{display: none !important;}`
+          });
+        },
 addBlockCSS(...args) {
           let selectorList = [];
           if (args.length === 0) {
@@ -677,6 +697,7 @@ findParentNode($el, selector, parentSelector) {
 $data: {
 __contentConfigInitDefaultValue: null,
 __onceExecMenuData: null,
+__urlChangeReloadMenuExecOnce: null,
 __onceExecData: null,
 __panelConfig: {},
 $panel: null,
@@ -693,6 +714,12 @@ get onceExecMenuData() {
               this.__onceExecMenuData = new utils.Dictionary();
             }
             return this.__onceExecMenuData;
+          },
+get urlChangeReloadMenuExecOnce() {
+            if (this.__urlChangeReloadMenuExecOnce == null) {
+              this.__urlChangeReloadMenuExecOnce = new utils.Dictionary();
+            }
+            return this.__urlChangeReloadMenuExecOnce;
           },
 get onceExecData() {
             if (this.__onceExecData == null) {
@@ -728,6 +755,13 @@ initContentDefaultValue() {
             if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
               return;
             }
+            let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
+            if (typeof __attr_init__ === "function") {
+              let __attr_result__ = __attr_init__();
+              if (typeof __attr_result__ === "boolean" && !__attr_result__) {
+                return;
+              }
+            }
             let menuDefaultConfig = new Map();
             let key = config.attributes[ATTRIBUTE_KEY];
             if (key != null) {
@@ -743,13 +777,6 @@ initContentDefaultValue() {
             if (!menuDefaultConfig.size) {
               log.warn(["请先配置键", config]);
               return;
-            }
-            let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
-            if (typeof __attr_init__ === "function") {
-              let __attr_result__ = __attr_init__();
-              if (typeof __attr_result__ === "boolean" && !__attr_result__) {
-                return;
-              }
             }
             if (config.type === "switch") {
               let disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
@@ -846,9 +873,8 @@ exec(queryKey, callback, checkExec, once = true) {
           let storageKey = JSON.stringify(keyList);
           if (once) {
             if (this.$data.onceExecMenuData.has(storageKey)) {
-              return;
+              return this.$data.onceExecMenuData.get(storageKey);
             }
-            this.$data.onceExecMenuData.set(storageKey, 1);
           }
           let storeValueList = [];
           let listenerIdList = [];
@@ -926,6 +952,9 @@ exec(queryKey, callback, checkExec, once = true) {
           });
           valueChangeCallback();
           let result = {
+reload() {
+              valueChangeCallback();
+            },
 clear() {
               this.clearStoreStyleElements();
               this.removeValueChangeListener();
@@ -940,6 +969,7 @@ removeValueChangeListener: () => {
               });
             }
           };
+          this.$data.onceExecMenuData.set(storageKey, result);
           return result;
         },
 execMenu(key, callback, isReverse = false, once = false) {
@@ -964,11 +994,28 @@ execMenu(key, callback, isReverse = false, once = false) {
             once
           );
         },
-execMenuOnce(key, callback, isReverse = false) {
-          return this.execMenu(key, callback, isReverse, true);
+execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
+          const result = this.execMenu(key, callback, isReverse, true);
+          if (listenUrlChange) {
+            if (result) {
+              const urlChangeEvent = () => {
+                result.reload();
+              };
+              this.removeUrlChangeWithExecMenuOnceListener(key);
+              this.addUrlChangeWithExecMenuOnceListener(key, urlChangeEvent);
+              const originClear = result.clear;
+              result.clear = () => {
+                originClear();
+                this.removeUrlChangeWithExecMenuOnceListener(key);
+              };
+            }
+          }
+          return result;
         },
 deleteExecMenuOnce(key) {
+          key = this.transformKey(key);
           this.$data.onceExecMenuData.delete(key);
+          this.$data.urlChangeReloadMenuExecOnce.delete(key);
           let flag = PopsPanelStorageApi.removeValueChangeListener(key);
           return flag;
         },
@@ -986,6 +1033,19 @@ onceExec(key, callback) {
 deleteOnceExec(key) {
           key = this.transformKey(key);
           this.$data.onceExecData.delete(key);
+        },
+addUrlChangeWithExecMenuOnceListener(key, callback) {
+          key = this.transformKey(key);
+          this.$data.urlChangeReloadMenuExecOnce.set(key, callback);
+        },
+removeUrlChangeWithExecMenuOnceListener(key) {
+          key = this.transformKey(key);
+          this.$data.urlChangeReloadMenuExecOnce.delete(key);
+        },
+triggerUrlChangeWithExecMenuOnceEvent(config) {
+          this.$data.urlChangeReloadMenuExecOnce.forEach((callback, key) => {
+            callback(config);
+          });
         },
 showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
           this.$data.$panel = null;
@@ -9651,9 +9711,12 @@ async showView(filterCallBack) {
                 enable: this.option?.bottomControls?.filter?.enable || false,
                 type: "default",
                 text: "过滤",
-                callback: (details, event) => {
+                callback: async (details, event) => {
                   if (typeof this.option?.bottomControls?.filter?.callback === "function") {
-                    this.option.bottomControls.filter.callback();
+                    let result = await this.option.bottomControls.filter.callback();
+                    if (typeof result === "boolean" && !result) {
+                      return;
+                    }
                   }
                   let getAllRuleElement = () => {
                     return Array.from(
@@ -9662,6 +9725,13 @@ async showView(filterCallBack) {
                   };
                   let $button = event.target.closest(".pops-confirm-btn").querySelector(".pops-confirm-btn-cancel span");
                   if (domUtils.text($button).includes("取消")) {
+                    let cancelFilterResult = await this.option?.bottomControls?.filter?.cancelFilterCallback?.({
+                      $button,
+                      getAllRuleElement
+                    });
+                    if (typeof cancelFilterResult === "boolean" && !cancelFilterResult) {
+                      return;
+                    }
                     getAllRuleElement().forEach(($el) => {
                       domUtils.show($el, false);
                     });
@@ -9670,8 +9740,9 @@ async showView(filterCallBack) {
                     let ruleFilterView = new RuleFilterView({
                       title: this.option.bottomControls?.filter?.title ?? "过滤规则",
                       filterOption: this.option.bottomControls?.filter?.option || [],
-                      execFilterCallBack() {
+                      execFilterCallBack: async () => {
                         domUtils.text($button, "取消过滤");
+                        await this.option.bottomControls?.filter?.execFilterCallBack?.();
                       },
                       getAllRuleInfo: () => {
                         return getAllRuleElement().map(($el) => {
@@ -14565,7 +14636,6 @@ isIndex(key, length)))) {
             month10: "October",
             month11: "November",
             month12: "December",
-            week: "week",
             weeks: {
               sun: "Sun",
               mon: "Mon",
@@ -14668,7 +14738,8 @@ isIndex(key, length)))) {
           tour: {
             next: "Next",
             previous: "Previous",
-            finish: "Finish"
+            finish: "Finish",
+            close: "Close this dialog"
           },
           tree: {
             emptyText: "No Data"
@@ -15071,6 +15142,11 @@ isIndex(key, length)))) {
         const form = vue.inject(formContextKey, void 0);
         return vue.computed(() => disabled.value || vue.unref(fallback) || (form == null ? void 0 : form.disabled) || false);
       };
+      const isHTMLElement = (e) => {
+        if (typeof Element === "undefined")
+          return false;
+        return e instanceof Element;
+      };
       const isFocusable = (element) => {
         if (element.tabIndex > 0 || element.tabIndex === 0 && element.getAttribute("tabIndex") !== null) {
           return true;
@@ -15093,6 +15169,19 @@ isIndex(key, length)))) {
           default: {
             return false;
           }
+        }
+      };
+      const focusElement = (el, options) => {
+        if (!el || !el.focus)
+          return;
+        let cleanup = false;
+        if (isHTMLElement(el) && !isFocusable(el) && !el.getAttribute("tabindex")) {
+          el.setAttribute("tabindex", "-1");
+          cleanup = true;
+        }
+        el.focus(options);
+        if (isHTMLElement(el) && cleanup) {
+          el.removeAttribute("tabindex");
         }
       };
       const GAP = 4;
@@ -15667,20 +15756,12 @@ isIndex(key, length)))) {
         return element instanceof HTMLInputElement && "select" in element;
       };
       const tryFocus = (element, shouldSelect) => {
-        if (element && element.focus) {
+        if (element) {
           const prevFocusedElement = document.activeElement;
-          let cleanup = false;
-          if (isElement(element) && !isFocusable(element) && !element.getAttribute("tabindex")) {
-            element.setAttribute("tabindex", "-1");
-            cleanup = true;
-          }
-          element.focus({ preventScroll: true });
+          focusElement(element, { preventScroll: true });
           lastAutomatedFocusTimestamp.value = window.performance.now();
           if (element !== prevFocusedElement && isSelectable(element) && shouldSelect) {
             element.select();
-          }
-          if (isElement(element) && cleanup) {
-            element.removeAttribute("tabindex");
           }
         }
       };
@@ -16008,6 +16089,8 @@ isIndex(key, length)))) {
               }
               trapContainer.removeEventListener(FOCUS_AFTER_RELEASED, releaseOnFocus);
               focusableStack.remove(focusLayer);
+              lastFocusBeforeTrapped = null;
+              lastFocusAfterTrapped = null;
             }
           }
           vue.onMounted(() => {
@@ -17673,11 +17756,12 @@ isIndex(key, length)))) {
       });
       const _sfc_main$y = vue.defineComponent({
         ...__default__$g,
-        props: {
+        props: buildProps({
           direction: {
-            type: String
+            type: String,
+            values: ["horizontal", "vertical"]
           }
-        },
+        }),
         setup(__props) {
           const props = __props;
           const slots = vue.useSlots();
@@ -19436,7 +19520,8 @@ isIndex(key, length)))) {
           const isFocus = vue.ref(false);
           const focusable = vue.ref(true);
           const tracker = vue.shallowRef();
-          const sizeName = vue.computed(() => ["top", "bottom"].includes(rootTabs.props.tabPosition) ? "width" : "height");
+          const isHorizontal = vue.computed(() => ["top", "bottom"].includes(rootTabs.props.tabPosition));
+          const sizeName = vue.computed(() => isHorizontal.value ? "width" : "height");
           const navStyle = vue.computed(() => {
             const dir = sizeName.value === "width" ? "X" : "Y";
             return {
@@ -19473,13 +19558,12 @@ isIndex(key, length)))) {
             if (!activeTab)
               return;
             const navScroll = navScroll$.value;
-            const isHorizontal = ["top", "bottom"].includes(rootTabs.props.tabPosition);
             const activeTabBounding = activeTab.getBoundingClientRect();
             const navScrollBounding = navScroll.getBoundingClientRect();
-            const maxOffset = isHorizontal ? nav.offsetWidth - navScrollBounding.width : nav.offsetHeight - navScrollBounding.height;
+            const maxOffset = isHorizontal.value ? nav.offsetWidth - navScrollBounding.width : nav.offsetHeight - navScrollBounding.height;
             const currentOffset = navOffset.value;
             let newOffset = currentOffset;
-            if (isHorizontal) {
+            if (isHorizontal.value) {
               if (activeTabBounding.left < navScrollBounding.left) {
                 newOffset = currentOffset - (navScrollBounding.left - activeTabBounding.left);
               }

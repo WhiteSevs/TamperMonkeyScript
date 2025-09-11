@@ -825,7 +825,7 @@ export const NetDiskView = {
 			targetElement,
 			"click",
 			".whitesevPop .netdisk-icon .netdisk-icon-img",
-			function (event, selectorTarget) {
+			(event, selectorTarget) => {
 				let $click = selectorTarget;
 				let dataSharecode = $click.getAttribute("data-sharecode")!;
 				if (!NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode"].value) {
