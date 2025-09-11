@@ -29,30 +29,70 @@ export const BlockTopNavigator = {
 				return mainValue;
 			}
 		);
-		Panel.execMenuOnce("shieldClientTip", () => {
-			return this.shieldClientTip();
-		});
-		Panel.execMenuOnce("shieldFillingBricksAndStones", () => {
-			return this.shieldFillingBricksAndStones();
-		});
-		Panel.execMenuOnce("shieldClient", () => {
-			return this.shieldClient();
-		});
-		Panel.execMenuOnce("shieldQuickAccess", () => {
-			return this.shieldQuickAccess();
-		});
-		Panel.execMenuOnce("shieldNotifitation", () => {
-			return this.shieldNotifitation();
-		});
-		Panel.execMenuOnce("shieldPrivateMessage", () => {
-			return this.shieldPrivateMessage();
-		});
-		Panel.execMenuOnce("shieldSubmission", () => {
-			return this.shieldSubmission();
-		});
-		Panel.execMenuOnce("shieldWallpaper", () => {
-			return this.shieldWallpaper();
-		});
+		Panel.execMenuOnce(
+			"shieldClientTip",
+			() => {
+				return this.shieldClientTip();
+			},
+			void 0,
+			true
+		);
+		Panel.execMenuOnce(
+			"shieldFillingBricksAndStones",
+			() => {
+				return this.shieldFillingBricksAndStones();
+			},
+			void 0,
+			true
+		);
+		Panel.execMenuOnce(
+			"shieldClient",
+			() => {
+				return this.shieldClient();
+			},
+			void 0,
+			true
+		);
+		Panel.execMenuOnce(
+			"shieldQuickAccess",
+			() => {
+				return this.shieldQuickAccess();
+			},
+			void 0,
+			true
+		);
+		Panel.execMenuOnce(
+			"shieldNotifitation",
+			() => {
+				return this.shieldNotifitation();
+			},
+			void 0,
+			true
+		);
+		Panel.execMenuOnce(
+			"shieldPrivateMessage",
+			() => {
+				return this.shieldPrivateMessage();
+			},
+			void 0,
+			true
+		);
+		Panel.execMenuOnce(
+			"shieldSubmission",
+			() => {
+				return this.shieldSubmission();
+			},
+			void 0,
+			true
+		);
+		Panel.execMenuOnce(
+			"shieldWallpaper",
+			() => {
+				return this.shieldWallpaper();
+			},
+			void 0,
+			true
+		);
 		Panel.execMenuOnce("shieldBottomQuestionButton", () => {
 			return this.shieldBottomQuestionButton();
 		});
@@ -202,17 +242,10 @@ export const BlockTopNavigator = {
 		);
 		if (DouYinRouter.isSearch()) {
 			// 搜索页面
-			result.push(
-				CommonUtil.addBlockCSS("div:has(>div>div>.quick-access-nav-icon)")
-			);
-			utils
-				.waitNode(
-					'li.semi-dropdown-item[role="menuitem"]:contains("快捷访问")',
-					10000
-				)
-				.then(($semi) => {
-					$semi?.remove();
-				});
+			result.push(CommonUtil.addBlockCSS("div:has(>div>div>.quick-access-nav-icon)"));
+			utils.waitNode('li.semi-dropdown-item[role="menuitem"]:contains("快捷访问")', 10000).then(($semi) => {
+				$semi?.remove();
+			});
 		} else if (DouYinRouter.isLive()) {
 			// 直播页面
 		}
@@ -413,8 +446,6 @@ export const BlockTopNavigator = {
 	 */
 	shieldAISearch() {
 		log.info(`【屏蔽】AI搜索/抖音`);
-		return CommonUtil.addBlockCSS(
-			`#douyin-header header div:has(>svg g[clip-path*="aiSearch"])`
-		);
+		return CommonUtil.addBlockCSS(`#douyin-header header div:has(>svg g[clip-path*="aiSearch"])`);
 	},
 };

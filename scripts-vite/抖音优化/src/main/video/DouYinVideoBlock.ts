@@ -424,12 +424,22 @@ export const DouYinVideoBlock = {
 		Panel.execMenuOnce("shieldRightExpandCommentButton", () => {
 			return this.shieldRightExpandCommentButton();
 		});
-		Panel.execMenuOnce("shieldSearchFloatingBar", () => {
-			return this.shieldSearchFloatingBar();
-		});
-		Panel.execMenuOnce("shieldCloseFullScreenButton", () => {
-			return this.shieldCloseFullScreenButton();
-		});
+		Panel.execMenuOnce(
+			"shieldSearchFloatingBar",
+			() => {
+				return this.shieldSearchFloatingBar();
+			},
+			void 0,
+			true
+		);
+		Panel.execMenuOnce(
+			"shieldCloseFullScreenButton",
+			() => {
+				return this.shieldCloseFullScreenButton();
+			},
+			void 0,
+			true
+		);
 		Panel.execMenuOnce("dy-video-blockShopInfo", () => {
 			return this.blockShopInfo();
 		});
@@ -474,13 +484,17 @@ export const DouYinVideoBlock = {
 			result.push(
 				CommonUtil.addBlockCSS(
 					// 2024.7.30
-					'#douyin-right-container> div>div>div> div:has( div> input[data-e2e="searchbar-input"])'
+					'#douyin-right-container > div > div > div > div:has( div> input[data-e2e="searchbar-input"])'
 				)
 			);
 		}
 		if (DouYinRouter.isUser()) {
 			// 用户页面的
-			result.push(CommonUtil.addBlockCSS('div>div>div:has(>[data-e2e="searchbar-button"])'));
+			result.push(
+				CommonUtil.addBlockCSS(
+					'#douyin-right-container > div > div > div > div:has( div> input[data-e2e="searchbar-input"])'
+				)
+			);
 		}
 		return result;
 	},
@@ -493,14 +507,14 @@ export const DouYinVideoBlock = {
 		result.push(
 			CommonUtil.addBlockCSS(
 				// 2024.7.16
-				'.playerContainer .slider-video>div>div:has(path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
+				'.playerContainer .slider-video > div > div:has(path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
 			)
 		);
 		if (DouYinRouter.isSearch() || DouYinRouter.isDiscover()) {
 			// 搜索页面
 			result.push(
 				CommonUtil.addBlockCSS(
-					'#douyin-right-container div>div:has(>svg>path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
+					'#douyin-right-container  div > div:has( > svg > path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
 				)
 			);
 		}
@@ -508,7 +522,7 @@ export const DouYinVideoBlock = {
 			// 用户页面
 			result.push(
 				CommonUtil.addBlockCSS(
-					'div>div>div:has(>svg>path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
+					'#douyin-right-container  div > div > div:has( > svg > path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
 				)
 			);
 		}

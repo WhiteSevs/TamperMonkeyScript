@@ -19,6 +19,7 @@ import { DouYinVideoFilter } from "./video/DouYinVideoFilter";
 import { DouYinNote } from "./note/DouYinNote";
 import { DouYinNetWorkHook } from "@/hook/DouYinNetWorkHook";
 import { DouYinRecommend } from "./recommend/DouYinRecommend";
+import Qmsg from "qmsg";
 
 export const DouYin = {
 	init() {
@@ -46,8 +47,17 @@ export const DouYin = {
 		BlockTopNavigator.init();
 		BlockSearchFrame.init();
 
-		Panel.execMenuOnce("dy-common-listenRouterChange", () => {
-			this.listenRouterChange();
+		Panel.execMenuOnce(
+			"dy-common-listenRouterChange",
+			() => {
+				this.listenRouterChange();
+			},
+			false,
+			false
+		);
+
+		Panel.execMenuOnce("dy-search-click-to-new-tab", () => {
+			this.navSearchClickToNewTab();
 		});
 
 		if (DouYinRouter.isLive()) {
@@ -143,10 +153,55 @@ export const DouYin = {
 	 */
 	listenRouterChange() {
 		log.info(`监听Router重载`);
+		let url = window.location.href;
 		DOMUtils.on(window, "wb_url_change", (event) => {
-			let currentUrl = window.location.href;
+			const beforeUrl = url;
+			const currentUrl = window.location.href;
+			url = currentUrl;
 			log.info(`Router Change：` + currentUrl);
+			Panel.triggerUrlChangeWithExecMenuOnceEvent({
+				url: currentUrl,
+				beforeUrl: beforeUrl,
+			});
 			this.init();
 		});
+	},
+	/**
+	 * 新标签页打开搜索结果
+	 */
+	navSearchClickToNewTab() {
+		log.info(`新标签页打开搜索结果`);
+		DOMUtils.on(
+			document,
+			"click",
+			[
+				'div[data-click="doubleClick"]:has(input[data-e2e="searchbar-input"]) button[data-e2e="searchbar-button"]',
+				'a[href*="douyin.com/search/"]',
+			],
+			(evt, selectorTarget) => {
+				utils.preventEvent(evt);
+				const $click = evt.composedPath()[0] as HTMLElement;
+				let url: string | undefined;
+				if (selectorTarget instanceof HTMLAnchorElement) {
+					// 视频区域的点击信息
+					url = selectorTarget.href;
+				} else {
+					// 顶部搜索框的搜索按钮
+					const $doubleClick = selectorTarget.closest<HTMLElement>('div[data-click="doubleClick"]');
+					if (!$doubleClick) {
+						Qmsg.error("未找到搜索框元素");
+						return;
+					}
+					const $input = $doubleClick.querySelector<HTMLInputElement>("input")!;
+					const searchValue = $input.value;
+					url = `https://www.douyin.com/search/${encodeURIComponent(searchValue)}`;
+				}
+				log.info(`新标签页打开搜索：${url}`);
+				window.open(url, "_blank");
+			},
+			{
+				capture: true,
+			}
+		);
 	},
 };

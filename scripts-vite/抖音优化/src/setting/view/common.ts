@@ -160,13 +160,26 @@ export const PanelCommonConfig: PopsPanelContentConfig = {
 									void 0,
 									"Safari使用，移除顶部横幅【Open in the 抖音 app】"
 								),
-								UISwitch("监听Router改变", "dy-common-listenRouterChange", true, void 0, "功能重载"),
+								UISwitch(
+									"监听Router改变",
+									"dy-common-listenRouterChange",
+									true,
+									void 0,
+									"当地址栏改变时，功能重载，建议开启"
+								),
 								UISwitch(
 									"移除某些Cookie",
 									"dy-cookie-remove__ac__",
 									false,
 									void 0,
 									"阻止触发验证弹窗（maybe）"
+								),
+								UISwitch(
+									"新标签页打开搜索结果",
+									"dy-search-click-to-new-tab",
+									false,
+									void 0,
+									"点击搜索框的<code>搜索</code>按钮时，点击视频区域的<code>#话题</code>时，新标签页打开"
 								),
 							],
 						},

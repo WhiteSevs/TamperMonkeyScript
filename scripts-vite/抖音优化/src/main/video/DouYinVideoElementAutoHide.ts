@@ -1,10 +1,12 @@
 import { $, addStyle, DOMUtils, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
 
-export const DouYinVideoElementAutoHide = (
-	delayTimeKey: string,
-	selectors: string[]
-) => {
+/**
+ * 自动隐藏元素
+ * @param delayTimeKey 延迟时间
+ * @param selectors 选择器
+ */
+export const DouYinVideoElementAutoHide = (delayTimeKey: string, selectors: string[]) => {
 	let isInjectAttrName = "data-is-inject-mouse-hide";
 	let opacityShowAttrName = "data-opacity-show";
 	let opacityHideAttrName = "data-opacity-hide";
@@ -40,12 +42,9 @@ export const DouYinVideoElementAutoHide = (
 		}
 	};
 	let $style = addStyle(styleCSS());
-	let listenerId = Panel.addValueChangeListener(
-		delayTimeKey,
-		(key, oldValue, newValue) => {
-			DOMUtils.html($style, styleCSS(newValue));
-		}
-	);
+	let listenerId = Panel.addValueChangeListener(delayTimeKey, (key, oldValue, newValue) => {
+		DOMUtils.html($style, styleCSS(newValue));
+	});
 	let lockFn = new utils.LockFunction(() => {
 		/** 视频信息列表 */
 		selectors.forEach((selector) => {

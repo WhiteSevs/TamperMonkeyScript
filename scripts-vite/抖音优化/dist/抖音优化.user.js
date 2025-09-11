@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.8
+// @version      2025.9.11
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.4.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.4.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
@@ -317,6 +317,26 @@ waitRemove(...args) {
         });
       });
     },
+createBlockCSSNode(...args) {
+      let selectorList = [];
+      if (args.length === 0) {
+        return;
+      }
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
+        return;
+      }
+      args.forEach((selector) => {
+        if (Array.isArray(selector)) {
+          selectorList = selectorList.concat(selector);
+        } else {
+          selectorList.push(selector);
+        }
+      });
+      return DOMUtils.createElement("style", {
+        type: "text/css",
+        innerHTML: `${selectorList.join(",\n")}{display: none !important;}`
+      });
+    },
 addBlockCSS(...args) {
       let selectorList = [];
       if (args.length === 0) {
@@ -504,6 +524,7 @@ findParentNode($el, selector, parentSelector) {
 $data: {
 __contentConfigInitDefaultValue: null,
 __onceExecMenuData: null,
+__urlChangeReloadMenuExecOnce: null,
 __onceExecData: null,
 __panelConfig: {},
 $panel: null,
@@ -520,6 +541,12 @@ get onceExecMenuData() {
           this.__onceExecMenuData = new utils.Dictionary();
         }
         return this.__onceExecMenuData;
+      },
+get urlChangeReloadMenuExecOnce() {
+        if (this.__urlChangeReloadMenuExecOnce == null) {
+          this.__urlChangeReloadMenuExecOnce = new utils.Dictionary();
+        }
+        return this.__urlChangeReloadMenuExecOnce;
       },
 get onceExecData() {
         if (this.__onceExecData == null) {
@@ -673,9 +700,8 @@ exec(queryKey, callback, checkExec, once = true) {
       let storageKey = JSON.stringify(keyList);
       if (once) {
         if (this.$data.onceExecMenuData.has(storageKey)) {
-          return;
+          return this.$data.onceExecMenuData.get(storageKey);
         }
-        this.$data.onceExecMenuData.set(storageKey, 1);
       }
       let storeValueList = [];
       let listenerIdList = [];
@@ -753,6 +779,9 @@ exec(queryKey, callback, checkExec, once = true) {
       });
       valueChangeCallback();
       let result = {
+reload() {
+          valueChangeCallback();
+        },
 clear() {
           this.clearStoreStyleElements();
           this.removeValueChangeListener();
@@ -767,6 +796,7 @@ removeValueChangeListener: () => {
           });
         }
       };
+      this.$data.onceExecMenuData.set(storageKey, result);
       return result;
     },
 execMenu(key, callback, isReverse = false, once = false) {
@@ -791,11 +821,28 @@ execMenu(key, callback, isReverse = false, once = false) {
         once
       );
     },
-execMenuOnce(key, callback, isReverse = false) {
-      return this.execMenu(key, callback, isReverse, true);
+execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
+      const result = this.execMenu(key, callback, isReverse, true);
+      if (listenUrlChange) {
+        if (result) {
+          const urlChangeEvent = () => {
+            result.reload();
+          };
+          this.removeUrlChangeWithExecMenuOnceListener(key);
+          this.addUrlChangeWithExecMenuOnceListener(key, urlChangeEvent);
+          const originClear = result.clear;
+          result.clear = () => {
+            originClear();
+            this.removeUrlChangeWithExecMenuOnceListener(key);
+          };
+        }
+      }
+      return result;
     },
 deleteExecMenuOnce(key) {
+      key = this.transformKey(key);
       this.$data.onceExecMenuData.delete(key);
+      this.$data.urlChangeReloadMenuExecOnce.delete(key);
       let flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
@@ -813,6 +860,19 @@ onceExec(key, callback) {
 deleteOnceExec(key) {
       key = this.transformKey(key);
       this.$data.onceExecData.delete(key);
+    },
+addUrlChangeWithExecMenuOnceListener(key, callback) {
+      key = this.transformKey(key);
+      this.$data.urlChangeReloadMenuExecOnce.set(key, callback);
+    },
+removeUrlChangeWithExecMenuOnceListener(key) {
+      key = this.transformKey(key);
+      this.$data.urlChangeReloadMenuExecOnce.delete(key);
+    },
+triggerUrlChangeWithExecMenuOnceEvent(config) {
+      this.$data.urlChangeReloadMenuExecOnce.forEach((callback, key) => {
+        callback(config);
+      });
     },
 showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
       this.$data.$panel = null;
@@ -1481,30 +1541,70 @@ isFriend() {
           return mainValue;
         }
       );
-      Panel.execMenuOnce("shieldClientTip", () => {
-        return this.shieldClientTip();
-      });
-      Panel.execMenuOnce("shieldFillingBricksAndStones", () => {
-        return this.shieldFillingBricksAndStones();
-      });
-      Panel.execMenuOnce("shieldClient", () => {
-        return this.shieldClient();
-      });
-      Panel.execMenuOnce("shieldQuickAccess", () => {
-        return this.shieldQuickAccess();
-      });
-      Panel.execMenuOnce("shieldNotifitation", () => {
-        return this.shieldNotifitation();
-      });
-      Panel.execMenuOnce("shieldPrivateMessage", () => {
-        return this.shieldPrivateMessage();
-      });
-      Panel.execMenuOnce("shieldSubmission", () => {
-        return this.shieldSubmission();
-      });
-      Panel.execMenuOnce("shieldWallpaper", () => {
-        return this.shieldWallpaper();
-      });
+      Panel.execMenuOnce(
+        "shieldClientTip",
+        () => {
+          return this.shieldClientTip();
+        },
+        void 0,
+        true
+      );
+      Panel.execMenuOnce(
+        "shieldFillingBricksAndStones",
+        () => {
+          return this.shieldFillingBricksAndStones();
+        },
+        void 0,
+        true
+      );
+      Panel.execMenuOnce(
+        "shieldClient",
+        () => {
+          return this.shieldClient();
+        },
+        void 0,
+        true
+      );
+      Panel.execMenuOnce(
+        "shieldQuickAccess",
+        () => {
+          return this.shieldQuickAccess();
+        },
+        void 0,
+        true
+      );
+      Panel.execMenuOnce(
+        "shieldNotifitation",
+        () => {
+          return this.shieldNotifitation();
+        },
+        void 0,
+        true
+      );
+      Panel.execMenuOnce(
+        "shieldPrivateMessage",
+        () => {
+          return this.shieldPrivateMessage();
+        },
+        void 0,
+        true
+      );
+      Panel.execMenuOnce(
+        "shieldSubmission",
+        () => {
+          return this.shieldSubmission();
+        },
+        void 0,
+        true
+      );
+      Panel.execMenuOnce(
+        "shieldWallpaper",
+        () => {
+          return this.shieldWallpaper();
+        },
+        void 0,
+        true
+      );
       Panel.execMenuOnce("shieldBottomQuestionButton", () => {
         return this.shieldBottomQuestionButton();
       });
@@ -1630,13 +1730,8 @@ shieldQuickAccess() {
         )
       );
       if (DouYinRouter.isSearch()) {
-        result.push(
-          CommonUtil.addBlockCSS("div:has(>div>div>.quick-access-nav-icon)")
-        );
-        utils.waitNode(
-          'li.semi-dropdown-item[role="menuitem"]:contains("快捷访问")',
-          1e4
-        ).then(($semi) => {
+        result.push(CommonUtil.addBlockCSS("div:has(>div>div>.quick-access-nav-icon)"));
+        utils.waitNode('li.semi-dropdown-item[role="menuitem"]:contains("快捷访问")', 1e4).then(($semi) => {
           $semi?.remove();
         });
       } else if (DouYinRouter.isLive()) ;
@@ -1780,9 +1875,7 @@ shieldRightMenuLoginAvatar() {
     },
 shieldAISearch() {
       log.info(`【屏蔽】AI搜索/抖音`);
-      return CommonUtil.addBlockCSS(
-        `#douyin-header header div:has(>svg g[clip-path*="aiSearch"])`
-      );
+      return CommonUtil.addBlockCSS(`#douyin-header header div:has(>svg g[clip-path*="aiSearch"])`);
     }
   };
   const BlockSearchFrame = {
@@ -3074,12 +3167,22 @@ shieldMoreButton() {
       Panel.execMenuOnce("shieldRightExpandCommentButton", () => {
         return this.shieldRightExpandCommentButton();
       });
-      Panel.execMenuOnce("shieldSearchFloatingBar", () => {
-        return this.shieldSearchFloatingBar();
-      });
-      Panel.execMenuOnce("shieldCloseFullScreenButton", () => {
-        return this.shieldCloseFullScreenButton();
-      });
+      Panel.execMenuOnce(
+        "shieldSearchFloatingBar",
+        () => {
+          return this.shieldSearchFloatingBar();
+        },
+        void 0,
+        true
+      );
+      Panel.execMenuOnce(
+        "shieldCloseFullScreenButton",
+        () => {
+          return this.shieldCloseFullScreenButton();
+        },
+        void 0,
+        true
+      );
       Panel.execMenuOnce("dy-video-blockShopInfo", () => {
         return this.blockShopInfo();
       });
@@ -3115,12 +3218,16 @@ shieldSearchFloatingBar() {
       if (DouYinRouter.isSearch() || DouYinRouter.isDiscover()) {
         result.push(
           CommonUtil.addBlockCSS(
-'#douyin-right-container> div>div>div> div:has( div> input[data-e2e="searchbar-input"])'
+'#douyin-right-container > div > div > div > div:has( div> input[data-e2e="searchbar-input"])'
           )
         );
       }
       if (DouYinRouter.isUser()) {
-        result.push(CommonUtil.addBlockCSS('div>div>div:has(>[data-e2e="searchbar-button"])'));
+        result.push(
+          CommonUtil.addBlockCSS(
+            '#douyin-right-container > div > div > div > div:has( div> input[data-e2e="searchbar-input"])'
+          )
+        );
       }
       return result;
     },
@@ -3129,20 +3236,20 @@ shieldCloseFullScreenButton() {
       let result = [];
       result.push(
         CommonUtil.addBlockCSS(
-'.playerContainer .slider-video>div>div:has(path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
+'.playerContainer .slider-video > div > div:has(path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
         )
       );
       if (DouYinRouter.isSearch() || DouYinRouter.isDiscover()) {
         result.push(
           CommonUtil.addBlockCSS(
-            '#douyin-right-container div>div:has(>svg>path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
+            '#douyin-right-container  div > div:has( > svg > path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
           )
         );
       }
       if (DouYinRouter.isUser()) {
         result.push(
           CommonUtil.addBlockCSS(
-            'div>div>div:has(>svg>path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
+            '#douyin-right-container  div > div > div:has( > svg > path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
           )
         );
       }
@@ -3713,12 +3820,9 @@ blockFullScreenMouseHoverTip() {
       }
     };
     let $style = addStyle(styleCSS());
-    let listenerId = Panel.addValueChangeListener(
-      delayTimeKey,
-      (key, oldValue, newValue) => {
-        domUtils.html($style, styleCSS(newValue));
-      }
-    );
+    let listenerId = Panel.addValueChangeListener(delayTimeKey, (key, oldValue, newValue) => {
+      domUtils.html($style, styleCSS(newValue));
+    });
     let lockFn = new utils.LockFunction(() => {
       selectors.forEach((selector) => {
         let $el = $(`${selector}:not([${isInjectAttrName}])`);
@@ -8586,8 +8690,16 @@ automaticContinuousPlayback() {
       BlockLeftNavigator.init();
       BlockTopNavigator.init();
       BlockSearchFrame.init();
-      Panel.execMenuOnce("dy-common-listenRouterChange", () => {
-        this.listenRouterChange();
+      Panel.execMenuOnce(
+        "dy-common-listenRouterChange",
+        () => {
+          this.listenRouterChange();
+        },
+        false,
+        false
+      );
+      Panel.execMenuOnce("dy-search-click-to-new-tab", () => {
+        this.navSearchClickToNewTab();
       });
       if (DouYinRouter.isLive()) {
         log.info("Router: 直播");
@@ -8662,11 +8774,51 @@ removeMetaAppleItunesApp() {
     },
 listenRouterChange() {
       log.info(`监听Router重载`);
+      let url = window.location.href;
       domUtils.on(window, "wb_url_change", (event) => {
-        let currentUrl = window.location.href;
+        const beforeUrl = url;
+        const currentUrl = window.location.href;
+        url = currentUrl;
         log.info(`Router Change：` + currentUrl);
+        Panel.triggerUrlChangeWithExecMenuOnceEvent({
+          url: currentUrl,
+          beforeUrl
+        });
         this.init();
       });
+    },
+navSearchClickToNewTab() {
+      log.info(`新标签页打开搜索结果`);
+      domUtils.on(
+        document,
+        "click",
+        [
+          'div[data-click="doubleClick"]:has(input[data-e2e="searchbar-input"]) button[data-e2e="searchbar-button"]',
+          'a[href*="douyin.com/search/"]'
+        ],
+        (evt, selectorTarget) => {
+          utils.preventEvent(evt);
+          evt.composedPath()[0];
+          let url;
+          if (selectorTarget instanceof HTMLAnchorElement) {
+            url = selectorTarget.href;
+          } else {
+            const $doubleClick = selectorTarget.closest('div[data-click="doubleClick"]');
+            if (!$doubleClick) {
+              Qmsg.error("未找到搜索框元素");
+              return;
+            }
+            const $input = $doubleClick.querySelector("input");
+            const searchValue = $input.value;
+            url = `https://www.douyin.com/search/${encodeURIComponent(searchValue)}`;
+          }
+          log.info(`新标签页打开搜索：${url}`);
+          window.open(url, "_blank");
+        },
+        {
+          capture: true
+        }
+      );
     }
   };
   const MDouYinRouter = {
@@ -9313,13 +9465,26 @@ coverVideoCard() {
                     void 0,
                     "Safari使用，移除顶部横幅【Open in the 抖音 app】"
                   ),
-                  UISwitch("监听Router改变", "dy-common-listenRouterChange", true, void 0, "功能重载"),
+                  UISwitch(
+                    "监听Router改变",
+                    "dy-common-listenRouterChange",
+                    true,
+                    void 0,
+                    "当地址栏改变时，功能重载，建议开启"
+                  ),
                   UISwitch(
                     "移除某些Cookie",
                     "dy-cookie-remove__ac__",
                     false,
                     void 0,
                     "阻止触发验证弹窗（maybe）"
+                  ),
+                  UISwitch(
+                    "新标签页打开搜索结果",
+                    "dy-search-click-to-new-tab",
+                    false,
+                    void 0,
+                    "点击搜索框的<code>搜索</code>按钮时，点击视频区域的<code>#话题</code>时，新标签页打开"
                   )
                 ]
               },
