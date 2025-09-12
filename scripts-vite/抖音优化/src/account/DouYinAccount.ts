@@ -11,6 +11,10 @@ export const DouYinAccount = {
 	 */
 	disguiseLogin() {
 		log.info("伪装登录");
+		CommonUtil.addBlockCSS(
+			// 视频清晰度上面的弹出的 当前观看xxx画质，登录即可畅想xxx画质
+			".login-tooltip-slot"
+		);
 		DouYinNetWorkHook.hookUserNoLoginResponse();
 		const WAIT_TIME = 20000;
 		let uid = parseInt((Math.random() * 1000000).toString());
