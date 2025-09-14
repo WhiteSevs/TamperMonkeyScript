@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.11
+// @version      2025.9.14
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -6577,10 +6577,10 @@ delete(key) {
       return false;
     }
 keys() {
-      return this.items.keys().toArray();
+      return Array.from(this.items.keys());
     }
 values() {
-      return this.items.values().toArray();
+      return Array.from(this.items.values());
     }
 clear() {
       this.items.clear();
@@ -7448,7 +7448,7 @@ matches($el, selector) {
     constructor(option) {
       this.windowApi = new WindowApi2(option);
     }
-version = "2025.9.8";
+version = "2025.9.14";
     addStyle(cssText) {
       if (typeof cssText !== "string") {
         throw new Error("Utils.addStyle 参数cssText 必须为String类型");
