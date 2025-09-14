@@ -36,7 +36,7 @@ class Utils {
 		this.windowApi = new WindowApi(option);
 	}
 	/** 版本号 */
-	version = "2025.9.8";
+	version = "2025.9.14";
 	/**
 	 * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
 	 * @param cssText css字符串

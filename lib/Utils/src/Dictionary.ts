@@ -79,13 +79,13 @@ export class UtilsDictionary<K extends unknown, V extends any> {
 	 * 获取字典所有的键
 	 */
 	keys(): K[] {
-		return this.items.keys().toArray();
+		return Array.from(this.items.keys());
 	}
 	/**
 	 * 返回字典中的所有值
 	 */
 	values(): V[] {
-		return this.items.values().toArray();
+		return Array.from(this.items.values());
 	}
 	/**
 	 * 清空字典
