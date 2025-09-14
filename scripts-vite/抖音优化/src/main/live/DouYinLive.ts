@@ -64,19 +64,19 @@ export const DouYinLive = {
 		Panel.execMenuOnce("live-danmu-shield-rule-enable", () => {
 			return DouYinLiveMessage.filterMessage();
 		});
-		Panel.execMenu("live-unlockImageQuality", () => {
-			this.unlockImageQuality();
-		});
+		// Panel.execMenu("live-unlockImageQuality", () => {
+		// 	this.unlockImageQuality();
+		// });
 		Panel.execMenuOnce("live-waitToRemovePauseDialog", () => {
 			this.waitToRemovePauseDialog();
 		});
 		Panel.execMenu("live-pauseVideo", () => {
-			this.pauseVideo();
+			this.disableVideoAutoPlay();
 		});
 		Panel.exec(["live-bgColor-enable", "live-changeBackgroundColor"], () => {
 			return this.changeBackgroundColor();
 		});
-		Panel.execMenuOnce("live-parsePlayerInstance", () => {
+		Panel.onceExec("live-parsePlayerInstance", () => {
 			DouYinLivePlayerInstance.initMenu();
 		});
 		Panel.execMenuOnce("live-prevent-wheel-switchLiveRoom", () => {
@@ -355,9 +355,9 @@ export const DouYinLive = {
 		});
 	},
 	/**
-	 * 暂停视频
+	 * 禁止自动播放视频
 	 */
-	pauseVideo() {
+	disableVideoAutoPlay() {
 		utils
 			.waitAnyNode<HTMLVideoElement>(
 				['.basicPlayer[data-e2e="basicPlayer"] video', "#PlayerLayout .douyin-player video"],
@@ -367,30 +367,46 @@ export const DouYinLive = {
 				if (!$video) {
 					return;
 				}
-				log.info("禁止自动播放视频(直播)");
 				$video.autoplay = false;
-				$video.pause();
+				if (!$video.paused && $video.readyState >= 2) {
+					$video.pause();
+				}
 				let timeout = 3000;
-
-				/**
-				 * 移除监听
-				 */
-				let removeListener = () => {
-					DOMUtils.off($video, "play", playListener, {
-						capture: true,
-					});
-				};
 				// 在firefox中video会重载，如果只触发一次，它依旧会自动播放
 				let playListener = (evt: Event) => {
 					utils.preventEvent(evt);
 					$video.autoplay = false;
 					$video.pause();
+					log.success("成功禁止自动播放视频(直播)");
 				};
 				DOMUtils.on($video, "play", playListener, {
 					capture: true,
 				});
 				setTimeout(() => {
-					removeListener();
+					DOMUtils.off($video, "play", playListener, {
+						capture: true,
+					});
+					log.info(`移除监听自动播放`);
+					DOMUtils.on(
+						$video,
+						"play",
+						() => {
+							// 如果长时间暂停会导致点击播放时不加载直播
+							// 此bug仅在firefox上复现
+							// 临时解决方法：监听play事件重载视频
+							log.info(`播放-视频重载`);
+							let keydownEvent = new KeyboardEvent("keydown", {
+								bubbles: true,
+								cancelable: true,
+								key: "E",
+								code: "KeyE",
+							});
+							document.dispatchEvent(keydownEvent);
+						},
+						{
+							once: true,
+						}
+					);
 				}, timeout);
 			});
 	},

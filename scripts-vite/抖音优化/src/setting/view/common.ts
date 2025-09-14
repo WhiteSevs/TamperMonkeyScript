@@ -8,13 +8,11 @@ import { AutoOpenOrClose } from "../utils/all-open-or-close";
  * 获取渲染的显卡信息，可能是核显，也可能是独显
  */
 function getGPU() {
-	const canvas = document.createElement("canvas"),
-		gl = canvas.getContext("experimental-webgl")!,
-		// @ts-ignore
-		debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
-	// @ts-ignore
-	const info = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) as string;
-	// console.warn(debugInfo.UNMASKED_RENDERER_WEBGL, info);
+	const isFirefox = /Firefox/.test(window.navigator.userAgent);
+	const canvas = document.createElement("canvas");
+	const gl = (canvas.getContext("webgl") || canvas.getContext("experimental-webgl")) as WebGLRenderingContext;
+	const debugRenderInfo = isFirefox ? null : gl.getExtension("WEBGL_debug_renderer_info");
+	const info: string = gl.getParameter(debugRenderInfo?.UNMASKED_RENDERER_WEBGL ?? gl?.RENDERER);
 	return info;
 }
 export const PanelCommonConfig: PopsPanelContentConfig = {

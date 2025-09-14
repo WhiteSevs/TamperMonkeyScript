@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.12
+// @version      2025.9.14
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -5392,19 +5392,16 @@ showParseDialog() {
       Panel.execMenuOnce("live-danmu-shield-rule-enable", () => {
         return DouYinLiveMessage.filterMessage();
       });
-      Panel.execMenu("live-unlockImageQuality", () => {
-        this.unlockImageQuality();
-      });
       Panel.execMenuOnce("live-waitToRemovePauseDialog", () => {
         this.waitToRemovePauseDialog();
       });
       Panel.execMenu("live-pauseVideo", () => {
-        this.pauseVideo();
+        this.disableVideoAutoPlay();
       });
       Panel.exec(["live-bgColor-enable", "live-changeBackgroundColor"], () => {
         return this.changeBackgroundColor();
       });
-      Panel.execMenuOnce("live-parsePlayerInstance", () => {
+      Panel.onceExec("live-parsePlayerInstance", () => {
         DouYinLivePlayerInstance.initMenu();
       });
       Panel.execMenuOnce("live-prevent-wheel-switchLiveRoom", () => {
@@ -5631,7 +5628,7 @@ waitToRemovePauseDialog() {
         });
       });
     },
-pauseVideo() {
+disableVideoAutoPlay() {
       utils.waitAnyNode(
         ['.basicPlayer[data-e2e="basicPlayer"] video', "#PlayerLayout .douyin-player video"],
         1e4
@@ -5639,25 +5636,42 @@ pauseVideo() {
         if (!$video) {
           return;
         }
-        log.info("禁止自动播放视频(直播)");
         $video.autoplay = false;
-        $video.pause();
+        if (!$video.paused && $video.readyState >= 2) {
+          $video.pause();
+        }
         let timeout = 3e3;
-        let removeListener = () => {
-          domUtils.off($video, "play", playListener, {
-            capture: true
-          });
-        };
         let playListener = (evt) => {
           utils.preventEvent(evt);
           $video.autoplay = false;
           $video.pause();
+          log.success("成功禁止自动播放视频(直播)");
         };
         domUtils.on($video, "play", playListener, {
           capture: true
         });
         setTimeout(() => {
-          removeListener();
+          domUtils.off($video, "play", playListener, {
+            capture: true
+          });
+          log.info(`移除监听自动播放`);
+          domUtils.on(
+            $video,
+            "play",
+            () => {
+              log.info(`播放-视频重载`);
+              let keydownEvent = new KeyboardEvent("keydown", {
+                bubbles: true,
+                cancelable: true,
+                key: "E",
+                code: "KeyE"
+              });
+              document.dispatchEvent(keydownEvent);
+            },
+            {
+              once: true
+            }
+          );
         }, timeout);
       });
     },
@@ -9327,8 +9341,11 @@ coverVideoCard() {
     afterEnterDeepMenuCallBack
   };
   function getGPU() {
-    const canvas = document.createElement("canvas"), gl = canvas.getContext("experimental-webgl"), debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
-    const info = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+    const isFirefox = /Firefox/.test(window.navigator.userAgent);
+    const canvas = document.createElement("canvas");
+    const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+    const debugRenderInfo = isFirefox ? null : gl.getExtension("WEBGL_debug_renderer_info");
+    const info = gl.getParameter(debugRenderInfo?.UNMASKED_RENDERER_WEBGL ?? gl?.RENDERER);
     return info;
   }
   const PanelCommonConfig = {
@@ -10628,14 +10645,13 @@ value: -2
                     void 0,
                     "自行选择清晰度"
                   ),
-                  UISwitch(
-                    "解锁画质选择（已失效，请关闭该功能）",
-                    "live-unlockImageQuality",
-                    true,
-                    void 0,
-                    "未登录的情况下选择原画实际上是未登录的情况下最高选择的画质"
-                  ),
-                  UISwitch(
+
+
+
+
+
+
+UISwitch(
                     "自动进入网页全屏",
                     "live-autoEnterElementFullScreen",
                     false,
@@ -10650,13 +10666,6 @@ value: -2
                     "自动监听并检测弹窗"
                   ),
                   UISwitch("禁止自动播放", "live-pauseVideo", false, void 0, "3秒内禁止任何形式的播放"),
-                  UISwitch(
-                    "解析直播信息",
-                    "live-parsePlayerInstance",
-                    true,
-                    void 0,
-                    "开启后将在油猴菜单中新增菜单【⚙ PlayerInstance】，可解析当前的直播信息"
-                  ),
                   UISwitch(
                     "禁用双击点赞",
                     "dy-live-disableDoubleClickLike",

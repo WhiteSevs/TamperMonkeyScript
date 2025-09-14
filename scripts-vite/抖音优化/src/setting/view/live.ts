@@ -41,13 +41,13 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
 									void 0,
 									"自行选择清晰度"
 								),
-								UISwitch(
-									"解锁画质选择（已失效，请关闭该功能）",
-									"live-unlockImageQuality",
-									true,
-									void 0,
-									"未登录的情况下选择原画实际上是未登录的情况下最高选择的画质"
-								),
+								// UISwitch(
+								// 	"解锁画质选择（已失效，请关闭该功能）",
+								// 	"live-unlockImageQuality",
+								// 	false,
+								// 	void 0,
+								// 	"未登录的情况下选择原画实际上是未登录的情况下最高选择的画质"
+								// ),
 								UISwitch(
 									"自动进入网页全屏",
 									"live-autoEnterElementFullScreen",
@@ -63,13 +63,6 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
 									"自动监听并检测弹窗"
 								),
 								UISwitch("禁止自动播放", "live-pauseVideo", false, void 0, "3秒内禁止任何形式的播放"),
-								UISwitch(
-									"解析直播信息",
-									"live-parsePlayerInstance",
-									true,
-									void 0,
-									"开启后将在油猴菜单中新增菜单【⚙ PlayerInstance】，可解析当前的直播信息"
-								),
 								UISwitch(
 									"禁用双击点赞",
 									"dy-live-disableDoubleClickLike",
