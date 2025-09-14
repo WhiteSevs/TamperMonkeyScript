@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.14
+// @version      2025.9.14.16
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -5637,9 +5637,7 @@ disableVideoAutoPlay() {
           return;
         }
         $video.autoplay = false;
-        if (!$video.paused && $video.readyState >= 2) {
-          $video.pause();
-        }
+        $video.pause();
         let timeout = 3e3;
         let playListener = (evt) => {
           utils.preventEvent(evt);
@@ -5647,10 +5645,20 @@ disableVideoAutoPlay() {
           $video.pause();
           log.success("成功禁止自动播放视频(直播)");
         };
+        domUtils.offAll($video, "play");
         domUtils.on($video, "play", playListener, {
           capture: true
         });
-        setTimeout(() => {
+        let reloadVideo = () => {
+          let keydownEvent = new KeyboardEvent("keydown", {
+            bubbles: true,
+            cancelable: true,
+            key: "E",
+            code: "KeyE"
+          });
+          document.body.dispatchEvent(keydownEvent);
+        };
+        let cb = () => {
           domUtils.off($video, "play", playListener, {
             capture: true
           });
@@ -5658,21 +5666,17 @@ disableVideoAutoPlay() {
           domUtils.on(
             $video,
             "play",
-            () => {
+            (evt) => {
               log.info(`播放-视频重载`);
-              let keydownEvent = new KeyboardEvent("keydown", {
-                bubbles: true,
-                cancelable: true,
-                key: "E",
-                code: "KeyE"
-              });
-              document.dispatchEvent(keydownEvent);
+              reloadVideo();
             },
             {
-              once: true
+              once: true,
+              capture: true
             }
           );
-        }, timeout);
+        };
+        setTimeout(cb, timeout);
       });
     },
 changeBackgroundColor() {

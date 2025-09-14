@@ -368,9 +368,7 @@ export const DouYinLive = {
 					return;
 				}
 				$video.autoplay = false;
-				if (!$video.paused && $video.readyState >= 2) {
-					$video.pause();
-				}
+				$video.pause();
 				let timeout = 3000;
 				// 在firefox中video会重载，如果只触发一次，它依旧会自动播放
 				let playListener = (evt: Event) => {
@@ -379,10 +377,20 @@ export const DouYinLive = {
 					$video.pause();
 					log.success("成功禁止自动播放视频(直播)");
 				};
+				DOMUtils.offAll($video, "play");
 				DOMUtils.on($video, "play", playListener, {
 					capture: true,
 				});
-				setTimeout(() => {
+				let reloadVideo = () => {
+					let keydownEvent = new KeyboardEvent("keydown", {
+						bubbles: true,
+						cancelable: true,
+						key: "E",
+						code: "KeyE",
+					});
+					document.body.dispatchEvent(keydownEvent);
+				};
+				let cb = () => {
 					DOMUtils.off($video, "play", playListener, {
 						capture: true,
 					});
@@ -390,24 +398,20 @@ export const DouYinLive = {
 					DOMUtils.on(
 						$video,
 						"play",
-						() => {
+						(evt) => {
 							// 如果长时间暂停会导致点击播放时不加载直播
 							// 此bug仅在firefox上复现
 							// 临时解决方法：监听play事件重载视频
 							log.info(`播放-视频重载`);
-							let keydownEvent = new KeyboardEvent("keydown", {
-								bubbles: true,
-								cancelable: true,
-								key: "E",
-								code: "KeyE",
-							});
-							document.dispatchEvent(keydownEvent);
+							reloadVideo();
 						},
 						{
 							once: true,
+							capture: true,
 						}
 					);
-				}, timeout);
+				};
+				setTimeout(cb, timeout);
 			});
 	},
 	/**
