@@ -395,21 +395,37 @@ export const DouYinLive = {
 						capture: true,
 					});
 					log.info(`移除监听自动播放`);
+					let listenPlayVideo = () => {
+						DOMUtils.offAll($video, "play");
+						DOMUtils.on(
+							$video,
+							"play",
+							(evt) => {
+								// 如果长时间暂停会导致点击播放时不加载直播
+								// 此bug仅在firefox上复现
+								// 临时解决方法：监听play事件重载视频
+								log.info(`播放-视频重载`);
+								reloadVideo();
+							},
+							{
+								once: true,
+								capture: true,
+							}
+						);
+					};
 					DOMUtils.on(
 						$video,
-						"play",
+						"pause",
 						(evt) => {
-							// 如果长时间暂停会导致点击播放时不加载直播
-							// 此bug仅在firefox上复现
-							// 临时解决方法：监听play事件重载视频
-							log.info(`播放-视频重载`);
-							reloadVideo();
+							// 第2、3、4...次暂停一段时间后再播放依旧卡屏（不加载，依旧firefox）
+							// 监听暂停，监听播放
+							listenPlayVideo();
 						},
 						{
-							once: true,
 							capture: true,
 						}
 					);
+					listenPlayVideo();
 				};
 				setTimeout(cb, timeout);
 			});
