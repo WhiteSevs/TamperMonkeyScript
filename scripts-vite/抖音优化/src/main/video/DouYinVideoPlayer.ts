@@ -136,6 +136,10 @@ export const DouYinVideoPlayer = {
 			xg-video-container.xg-video-container{
 				bottom: 0px !important;
 			}
+			/* 图文的图片全屏 */
+			.basePlayerContainer  .focusPanel .dySwiperSlide img[src]{
+				height: 100% !important;
+			}
         `)
 		);
 		return result;

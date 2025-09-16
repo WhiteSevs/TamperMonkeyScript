@@ -378,6 +378,7 @@ export const DouYinLive = {
 					log.success("成功禁止自动播放视频(直播)");
 				};
 				DOMUtils.offAll($video, "play");
+				DOMUtils.offAll($video, "pause");
 				DOMUtils.on($video, "play", playListener, {
 					capture: true,
 				});
