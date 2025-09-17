@@ -18,12 +18,12 @@ export declare class UtilsGMCookie {
      * + cookies object[]
      * + error string|undefined
      **/
-    list(option: UtilsGMCookieListOptions | {}, callback?: (data: UtilsGMCookieResult[], error?: Error) => void): void;
+    list(option: UtilsGMCookieListOptions | object, callback?: (data: UtilsGMCookieResult[], error?: Error) => void): void;
     /**
      *  获取多组Cookie
      * @param option 配置
      **/
-    getList(option: UtilsGMCookieListOptions | {}): UtilsGMCookieResult[];
+    getList(option: UtilsGMCookieListOptions | object): UtilsGMCookieResult[];
     /**
      * 设置Cookie
      * @param option 配置

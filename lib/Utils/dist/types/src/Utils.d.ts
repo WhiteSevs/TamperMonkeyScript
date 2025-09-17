@@ -31,20 +31,20 @@ declare class Utils {
      */
     addStyle(cssText: string): HTMLStyleElement;
     /**
-     * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
-     * @param target 目标数据
-     * @param source 源数据
-     * @param isAdd 是否可以追加键，默认false
-     * @example
-     * Utils.assign({"1":1,"2":{"3":3}}, {"2":{"3":4}});
-     * >
-     * {
-            "1": 1,
-            "2": {
-                "3": 4
-            }
-        }
-     */
+       * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
+       * @param target 目标数据
+       * @param source 源数据
+       * @param isAdd 是否可以追加键，默认false
+       * @example
+       * Utils.assign({"1":1,"2":{"3":3}}, {"2":{"3":4}});
+       * >
+       * {
+              "1": 1,
+              "2": {
+                  "3": 4
+              }
+          }
+       */
     assign: <T1, T2 extends object, T3 extends boolean>(target: T1, source: T2, isAdd?: T3 | undefined) => T3 extends true ? T1 & T2 : T1;
     /**
      * 异步替换字符串
@@ -343,7 +343,7 @@ declare class Utils {
      * Utils.getArrayLastValue([1,2,3,4,5]);
      * > 5
      */
-    getArrayLastValue<R extends any>(targetObj: NodeList | any[]): R;
+    getArrayLastValue<R = unknown>(targetObj: NodeList | any[]): R;
     /**
      * 应用场景: 当想获取的元素可能是不同的选择器的时候，按顺序优先级获取
      * 参数类型可以是Element或者是Function
@@ -498,7 +498,7 @@ declare class Utils {
      * Utils.getRandomValue(1,9,6,99)
      * > 6
      */
-    getRandomValue<T extends any>(...args: T[]): T;
+    getRandomValue<T>(...args: T[]): T;
     /**
      * 获取随机值
      * @example
@@ -508,7 +508,7 @@ declare class Utils {
      * Utils.getRandomValue({1:"结果1",2:"结果2",3:"结果3"}})
      * > 结果2
      */
-    getRandomValue<T extends any>(val: T[] | UtilsOwnObject<T>): T;
+    getRandomValue<T>(val: T[] | UtilsOwnObject<T>): T;
     /**
      * 获取两个数之间随机值
      * @example
@@ -522,7 +522,7 @@ declare class Utils {
      * Utils.getRandomValue({1:1},{2:2})
      * > {1: 1}
      */
-    getRandomValue<T extends any>(val_1: UtilsOwnObject<T>, val_2: UtilsOwnObject<T>): T;
+    getRandomValue<T>(val_1: UtilsOwnObject<T>, val_2: UtilsOwnObject<T>): T;
     /**
      * 获取元素上的使用React框架的实例属性，目前包括reactFiber、reactProps、reactEvents、reactEventHandlers、reactInternalInstance
      * @param element 需要获取的目标元素
@@ -562,213 +562,213 @@ declare class Utils {
      */
     getThunderUrl(url: string): string;
     /**
-     * 对于GM_cookie的兼容写法，当无法使用GM_cookie时可以使用这个,但是并不完全兼容，有些写不出来且限制了httponly是无法访问的
-     * @example
-      let GM_cookie = new Utils.GM_Cookie();
-      GM_cookie.list({name:"xxx_cookie_xxx"},function(cookies,error){
-          if (!error) {
-              console.log(cookies);
-              console.log(cookies.value);
-          } else {
-              console.error(error);
-          }
-      });
-      GM_cookie.set({name:"xxx_cookie_test_xxx",value:"这是Cookie测试值"},function(error){
-          if (error) {
-              console.error(error);
-          } else {
-              console.log('Cookie set successfully.');
-          }
-      })
-      GM_cookie.delete({name:"xxx_cookie_test_xxx"},function(error){
-          if (error) {
-              console.error(error);
-          } else {
-              console.log('Cookie set successfully.');
-          }
-      })
-     **/
+       * 对于GM_cookie的兼容写法，当无法使用GM_cookie时可以使用这个,但是并不完全兼容，有些写不出来且限制了httponly是无法访问的
+       * @example
+        let GM_cookie = new Utils.GM_Cookie();
+        GM_cookie.list({name:"xxx_cookie_xxx"},function(cookies,error){
+            if (!error) {
+                console.log(cookies);
+                console.log(cookies.value);
+            } else {
+                console.error(error);
+            }
+        });
+        GM_cookie.set({name:"xxx_cookie_test_xxx",value:"这是Cookie测试值"},function(error){
+            if (error) {
+                console.error(error);
+            } else {
+                console.log('Cookie set successfully.');
+            }
+        })
+        GM_cookie.delete({name:"xxx_cookie_test_xxx"},function(error){
+            if (error) {
+                console.error(error);
+            } else {
+                console.log('Cookie set successfully.');
+            }
+        })
+       **/
     GM_Cookie: typeof UtilsGMCookie;
     /**
-     * 注册油猴菜单，要求本地存储的键名不能存在其它键名`GM_Menu_Local_Map`会冲突/覆盖
-     * @example
-      let GM_Menu = new Utils.GM_Menu({
-        data: [
+       * 注册油猴菜单，要求本地存储的键名不能存在其它键名`GM_Menu_Local_Map`会冲突/覆盖
+       * @example
+        let GM_Menu = new Utils.GM_Menu({
+          data: [
+            {
+              menu_key: "menu_key",
+              text: "测试按钮",
+              enable: true,
+              accessKey: "a",
+              autoClose: false,
+              showText(text, enable) {
+                return "[" + (enable ? "√" : "×") + "]" + text;
+              },
+              callback(data) {
+                console.log("点击菜单，值修改为", data.enable);
+              },
+            },
+          ],
+          autoReload: false,
+          GM_getValue,
+          GM_setValue,
+          GM_registerMenuCommand,
+          GM_unregisterMenuCommand,
+        });
+    
+    
+        // 获取某个菜单项的值
+        GM_Menu.get("menu_key");
+        > true
+    
+        // 获取某个菜单项的开启/关闭后显示的文本
+        GM_Menu.getShowTextValue("menu_key");
+        > √测试按钮
+    
+        // 添加键为menu_key2的菜单项
+        GM_Menu.add({
+          key:"menu_key2",
+          text: "测试按钮2",
+          enable: false,
+          showText(text,enable){
+            return "[" + (enable ? "√" : "×") + "]" + text;
+          },
+          callback(data){
+            console.log("点击菜单，值修改为",data.enable);
+          }
+        });
+        // 使用数组的方式添加多个菜单，如menu_key3、menu_key4
+        GM_Menu.add([
           {
-            menu_key: "menu_key",
-            text: "测试按钮",
-            enable: true,
-            accessKey: "a",
-            autoClose: false,
-            showText(text, enable) {
+            key:"menu_key3",
+            text: "测试按钮3",
+            enable: false,
+            showText(text,enable){
               return "[" + (enable ? "√" : "×") + "]" + text;
             },
-            callback(data) {
-              console.log("点击菜单，值修改为", data.enable);
+            callback(data){
+              console.log("点击菜单，值修改为",data.enable);
+            }
+          },
+          {
+            key:"menu_key4",
+            text: "测试按钮4",
+            enable: false,
+            showText(text,enable){
+              return "[" + (enable ? "√" : "×") + "]" + text;
             },
-          },
-        ],
-        autoReload: false,
-        GM_getValue,
-        GM_setValue,
-        GM_registerMenuCommand,
-        GM_unregisterMenuCommand,
-      });
-  
-  
-      // 获取某个菜单项的值
-      GM_Menu.get("menu_key");
-      > true
-  
-      // 获取某个菜单项的开启/关闭后显示的文本
-      GM_Menu.getShowTextValue("menu_key");
-      > √测试按钮
-  
-      // 添加键为menu_key2的菜单项
-      GM_Menu.add({
-        key:"menu_key2",
-        text: "测试按钮2",
-        enable: false,
-        showText(text,enable){
-          return "[" + (enable ? "√" : "×") + "]" + text;
-        },
-        callback(data){
-          console.log("点击菜单，值修改为",data.enable);
-        }
-      });
-      // 使用数组的方式添加多个菜单，如menu_key3、menu_key4
-      GM_Menu.add([
-        {
-          key:"menu_key3",
-          text: "测试按钮3",
-          enable: false,
-          showText(text,enable){
-            return "[" + (enable ? "√" : "×") + "]" + text;
-          },
-          callback(data){
-            console.log("点击菜单，值修改为",data.enable);
+            callback(data){
+              console.log("点击菜单，值修改为",data.enable);
+            }
           }
-        },
-        {
-          key:"menu_key4",
-          text: "测试按钮4",
-          enable: false,
-          showText(text,enable){
-            return "[" + (enable ? "√" : "×") + "]" + text;
-          },
-          callback(data){
-            console.log("点击菜单，值修改为",data.enable);
+        ]);
+    
+        // 更新键为menu_key的显示文字和点击回调
+        GM_Menu.update({
+          menu_key:{
+            text: "更新后的测试按钮",
+            enable: true,
+            showText(text,enable){
+              return "[" + (enable ? "√" : "×") + "]" + text;
+            },
+            callback(data){
+              console.log("点击菜单更新后的测试按钮，新值修改为",data.enable);
+            }
           }
-        }
-      ]);
-  
-      // 更新键为menu_key的显示文字和点击回调
-      GM_Menu.update({
-        menu_key:{
-          text: "更新后的测试按钮",
-          enable: true,
-          showText(text,enable){
-            return "[" + (enable ? "√" : "×") + "]" + text;
-          },
-          callback(data){
-            console.log("点击菜单更新后的测试按钮，新值修改为",data.enable);
-          }
-        }
-      });
-  
-      // 删除键为menu_key的菜单
-      GM_Menu.delete("menu_key");
-     **/
+        });
+    
+        // 删除键为menu_key的菜单
+        GM_Menu.delete("menu_key");
+       **/
     GM_Menu: typeof GMMenu;
     /**
-     * 基于Function prototype，能够勾住和释放任何函数
-     *
-     * .hook
-     * + realFunc {string} 用于保存原始函数的函数名称,用于unHook
-     * + hookFunc {string} 替换的hook函数
-     * + context {object} 目标函数所在对象,用于hook非window对象下的函数，如String.protype.slice,carInstance1
-     * + methodName {string} 匿名函数需显式传入目标函数名eg:this.Begin = function(){....};}
-     *
-     * .unhook
-     * + realFunc {string} 用于保存原始函数的函数名称,用于unHook
-     * + funcName {string} 被Hook的函数名称
-     * + context {object} 目标函数所在对象,用于hook非window对象下的函数，如String.protype.slice,carInstance1
-     * @example
-      let hook = new Utils.Hooks();
-      hook.initEnv();
-      function myFunction(){
-          console.log("我自己需要执行的函数");
-      }
-      function testFunction(){
-          console.log("正常执行的函数");
-      }
-      testFunction.hook(testFunction,myFunction,window);
-     **/
+       * 基于Function prototype，能够勾住和释放任何函数
+       *
+       * .hook
+       * + realFunc {string} 用于保存原始函数的函数名称,用于unHook
+       * + hookFunc {string} 替换的hook函数
+       * + context {object} 目标函数所在对象,用于hook非window对象下的函数，如String.protype.slice,carInstance1
+       * + methodName {string} 匿名函数需显式传入目标函数名eg:this.Begin = function(){....};}
+       *
+       * .unhook
+       * + realFunc {string} 用于保存原始函数的函数名称,用于unHook
+       * + funcName {string} 被Hook的函数名称
+       * + context {object} 目标函数所在对象,用于hook非window对象下的函数，如String.protype.slice,carInstance1
+       * @example
+        let hook = new Utils.Hooks();
+        hook.initEnv();
+        function myFunction(){
+            console.log("我自己需要执行的函数");
+        }
+        function testFunction(){
+            console.log("正常执行的函数");
+        }
+        testFunction.hook(testFunction,myFunction,window);
+       **/
     Hooks: typeof Hooks;
     /**
-     * 为减少代码量和回调，把GM_xmlhttpRequest封装
-     * 文档地址: https://www.tampermonkey.net/documentation.php?ext=iikm
-     * 其中onloadstart、onprogress、onreadystatechange是回调形式，onabort、ontimeout、onerror可以设置全局回调函数
-     * @param _GM_xmlHttpRequest_ 油猴中的GM_xmlhttpRequest
-     * @example
-      let httpx = new Utils.Httpx(GM_xmlhttpRequest);
-      let postResp = await httpx.post({
-        url:url,
-        data:JSON.stringify({
-          test:1
-        }),
-        timeout: 5000
-      });
-      console.log(postResp);
-      > {
-        status: true,
-        data: {responseText: "...", response: xxx,...},
-        msg: "请求完毕",
-        type: "onload",
-      }
-  
-      if(postResp === "onload" && postResp.status){
-      // onload
-      }else if(postResp === "ontimeout"){
-      // ontimeout
-      }
-     * @example
-      // 也可以先配置全局参数
-      let httpx = new Utils.Httpx(GM_xmlhttpRequest);
-      httpx.config({
-        timeout: 5000,
-        async: false,
-        responseType: "html",
-        redirect: "follow",
-      })
-      // 优先级为 默认details < 全局details < 单独的details
-     */
+       * 为减少代码量和回调，把GM_xmlhttpRequest封装
+       * 文档地址: https://www.tampermonkey.net/documentation.php?ext=iikm
+       * 其中onloadstart、onprogress、onreadystatechange是回调形式，onabort、ontimeout、onerror可以设置全局回调函数
+       * @param _GM_xmlHttpRequest_ 油猴中的GM_xmlhttpRequest
+       * @example
+        let httpx = new Utils.Httpx(GM_xmlhttpRequest);
+        let postResp = await httpx.post({
+          url:url,
+          data:JSON.stringify({
+            test:1
+          }),
+          timeout: 5000
+        });
+        console.log(postResp);
+        > {
+          status: true,
+          data: {responseText: "...", response: xxx,...},
+          msg: "请求完毕",
+          type: "onload",
+        }
+    
+        if(postResp === "onload" && postResp.status){
+        // onload
+        }else if(postResp === "ontimeout"){
+        // ontimeout
+        }
+       * @example
+        // 也可以先配置全局参数
+        let httpx = new Utils.Httpx(GM_xmlhttpRequest);
+        httpx.config({
+          timeout: 5000,
+          async: false,
+          responseType: "html",
+          redirect: "follow",
+        })
+        // 优先级为 默认details < 全局details < 单独的details
+       */
     Httpx: typeof Httpx;
     /**
-     * 浏览器端的indexedDB操作封装
-     * @example
-      let db = new Utils.indexedDB('web_DB', 'nav_text')
-      let data = {name:'管理员', roleId: 1, type: 1};
-      db.save('list',data).then((resolve)=>{
-          console.log(resolve,'存储成功')
-      })
-  
-      db.get('list').then((resolve)=>{
-          console.log(resolve,'查询成功')
-      })
-  
-      db.getPaging('list',20,10).then((resolve)=>{
-          console.log(resolve,'查询分页偏移第20，一共10行成功');
-      })
-  
-      db.delete('list').then(resolve=>{
-          console.log(resolve,'删除成功---->>>>>>name')
-      })
-  
-      db.deleteAll().then(resolve=>{
-          console.log(resolve,'清除数据库---->>>>>>name')
-      })
-     **/
+       * 浏览器端的indexedDB操作封装
+       * @example
+        let db = new Utils.indexedDB('web_DB', 'nav_text')
+        let data = {name:'管理员', roleId: 1, type: 1};
+        db.save('list',data).then((resolve)=>{
+            console.log(resolve,'存储成功')
+        })
+    
+        db.get('list').then((resolve)=>{
+            console.log(resolve,'查询成功')
+        })
+    
+        db.getPaging('list',20,10).then((resolve)=>{
+            console.log(resolve,'查询分页偏移第20，一共10行成功');
+        })
+    
+        db.delete('list').then(resolve=>{
+            console.log(resolve,'删除成功---->>>>>>name')
+        })
+    
+        db.deleteAll().then(resolve=>{
+            console.log(resolve,'清除数据库---->>>>>>name')
+        })
+       **/
     indexedDB: typeof indexedDB;
     /**
      * 判断目标函数是否是Native Code
@@ -780,7 +780,7 @@ declare class Utils {
      * Utils.isNativeFunc(window.location.assign)
      * > true
      */
-    isNativeFunc(target: Function): boolean;
+    isNativeFunc(target: (...args: any[]) => any): boolean;
     /**
      * 判断当前的位置是否位于页面底部附近
      * @param nearBottomHeight （可选）判断在底部的误差值，默认：50
@@ -852,50 +852,50 @@ declare class Utils {
         (...args: any[]): boolean;
     };
     /**
-     * 判断对象或数据是否为空
-     * + `String`判空的值，如 ""、"null"、"undefined"、"   "
-     * + `Number`判空的值，如 0
-     * + `Object`判空的值，如 {}、null、undefined
-     * + `Array`(存在属性Symbol.iterator)判空的值，如 []
-     * + `Boolean`判空的值，如false
-     * + `Function`判空的值，如()=>{}、(xxx="")=>{}、function(){}、function(xxx=""){}
-     * @returns
-     * + true 为空
-     * + false 不为空
-     * @example
-      Utils.isNull({});
-      > true
-     * @example
-      Utils.isNull([]);
-      > true
-     * @example
-      Utils.isNull(" ");
-      > true
-     * @example
-      Utils.isNull(function(){});
-      > true
-     * @example
-      Utils.isNull(()=>{}));
-      > true
-     * @example
-      Utils.isNull("undefined");
-      > true
-     * @example
-      Utils.isNull("null");
-      > true
-     * @example
-      Utils.isNull(" ", false);
-      > true
-     * @example
-      Utils.isNull([1],[]);
-      > false
-     * @example
-      Utils.isNull([],[1]);
-      > false
-     * @example
-      Utils.isNull(false,[123]);
-      > false
-     **/
+       * 判断对象或数据是否为空
+       * + `String`判空的值，如 ""、"null"、"undefined"、"   "
+       * + `Number`判空的值，如 0
+       * + `Object`判空的值，如 {}、null、undefined
+       * + `Array`(存在属性Symbol.iterator)判空的值，如 []
+       * + `Boolean`判空的值，如false
+       * + `Function`判空的值，如()=>{}、(xxx="")=>{}、function(){}、function(xxx=""){}
+       * @returns
+       * + true 为空
+       * + false 不为空
+       * @example
+        Utils.isNull({});
+        > true
+       * @example
+        Utils.isNull([]);
+        > true
+       * @example
+        Utils.isNull(" ");
+        > true
+       * @example
+        Utils.isNull(function(){});
+        > true
+       * @example
+        Utils.isNull(()=>{}));
+        > true
+       * @example
+        Utils.isNull("undefined");
+        > true
+       * @example
+        Utils.isNull("null");
+        > true
+       * @example
+        Utils.isNull(" ", false);
+        > true
+       * @example
+        Utils.isNull([1],[]);
+        > false
+       * @example
+        Utils.isNull([],[1]);
+        > false
+       * @example
+        Utils.isNull(false,[123]);
+        > false
+       **/
     isNull: {
         <T>(value: T | undefined | null): value is null | undefined;
         (...args: any[]): boolean;
@@ -946,48 +946,48 @@ declare class Utils {
      * Utils.parseObjectToArray({"工具类":"jsonToArray","return","Array"});
      * > ['jsonToArray', 'Array']
      **/
-    parseObjectToArray<T extends any>(target: T): T[keyof T][];
+    parseObjectToArray<T>(target: T): T[keyof T][];
     /**
-     * 自动锁对象，用于循环判断运行的函数，在循环外new后使用，注意，如果函数内部存在异步操作，需要使用await
-     * @example
-      let lock = new Utils.LockFunction(()=>{console.log(1)}))
-      lock.run();
-      > 1
-     * @example
-      let lock = new Utils.LockFunction(()=>{console.log(1)}),true) -- 异步操作
-      await lock.run();
-      > 1
-     **/
+       * 自动锁对象，用于循环判断运行的函数，在循环外new后使用，注意，如果函数内部存在异步操作，需要使用await
+       * @example
+        let lock = new Utils.LockFunction(()=>{console.log(1)}))
+        lock.run();
+        > 1
+       * @example
+        let lock = new Utils.LockFunction(()=>{console.log(1)}),true) -- 异步操作
+        await lock.run();
+        > 1
+       **/
     LockFunction: typeof LockFunction;
     /**
-     * 日志对象
-     * @param _GM_info_ 油猴管理器的API GM_info，或者是一个对象，如{"script":{name:"Utils.Log"}}
-     * @example
-      let log = new Utils.Log(GM_info);
-      log.info("普通输出");
-      > 普通输出
-  
-      log.success("成功输出");
-      > 成功输出
-  
-      log.error("错误输出");
-      > 错误输出
-      
-      log.warn("警告输出");
-      > 警告输出
-  
-      log.tag = "自定义tag信息";
-      log.info("自定义info的颜色","#e0e0e0");
-      > 自定义info的颜色
-  
-      log.config({
-        successColor: "#31dc02",
-        errorColor: "#e02d2d",
-        infoColor: "black",
-      })
-      log.success("颜色为#31dc02");
-      > 颜色为#31dc02
-     */
+       * 日志对象
+       * @param _GM_info_ 油猴管理器的API GM_info，或者是一个对象，如{"script":{name:"Utils.Log"}}
+       * @example
+        let log = new Utils.Log(GM_info);
+        log.info("普通输出");
+        > 普通输出
+    
+        log.success("成功输出");
+        > 成功输出
+    
+        log.error("错误输出");
+        > 错误输出
+        
+        log.warn("警告输出");
+        > 警告输出
+    
+        log.tag = "自定义tag信息";
+        log.info("自定义info的颜色","#e0e0e0");
+        > 自定义info的颜色
+    
+        log.config({
+          successColor: "#31dc02",
+          errorColor: "#e02d2d",
+          infoColor: "black",
+        })
+        log.success("颜色为#31dc02");
+        > 颜色为#31dc02
+       */
     Log: typeof Log;
     /**
      * 合并数组内的JSON的值字符串
@@ -997,27 +997,27 @@ declare class Utils {
      * Utils.mergeArrayToString([{"name":"数组内数据部分字段合并成字符串->"},{"name":"mergeToString"}],(item)=>{return item["name"]});
      * > '数组内数据部分字段合并成字符串->mergeToString'
      **/
-    mergeArrayToString<T extends any>(data: T[], handleFunc?: ((val: T) => T) | keyof T): string;
+    mergeArrayToString<T>(data: T[], handleFunc?: ((val: T) => T) | keyof T): string;
     /**
-     * 监听页面元素改变并处理
-     * @param target 需要监听的元素，如果不存在，可以等待它出现
-     * @param observer_config MutationObserver的配置
-     * @example
-      Utils.mutationObserver(document.querySelector("div.xxxx"),{
-        "callback":(mutations, observer)=>{},
-        "config":{childList:true,attributes:true}
-      });
-     * @example
-      Utils.mutationObserver(document.querySelectorAll("div.xxxx"),{
+       * 监听页面元素改变并处理
+       * @param target 需要监听的元素，如果不存在，可以等待它出现
+       * @param observer_config MutationObserver的配置
+       * @example
+        Utils.mutationObserver(document.querySelector("div.xxxx"),{
+          "callback":(mutations, observer)=>{},
+          "config":{childList:true,attributes:true}
+        });
+       * @example
+        Utils.mutationObserver(document.querySelectorAll("div.xxxx"),{
+          "callback":(mutations, observer)=>{},
+          "config":{childList:true,attributes:true}}
+        );
+       * @example
+        Utils.mutationObserver($("div.xxxx"),{
         "callback":(mutations, observer)=>{},
         "config":{childList:true,attributes:true}}
-      );
-     * @example
-      Utils.mutationObserver($("div.xxxx"),{
-      "callback":(mutations, observer)=>{},
-      "config":{childList:true,attributes:true}}
-      );
-     **/
+        );
+       **/
     mutationObserver(target: HTMLElement | Node | NodeList | Document, observer_config: {
         /**
          * observer的配置
@@ -1051,37 +1051,37 @@ declare class Utils {
      */
     noConflict(): Utils;
     /**
-     * 恢复/释放该对象内的为function，让它无效/有效
-     * @param needReleaseObject 需要操作的对象
-     * @param needReleaseName 需要操作的对象的名字
-     * @param functionNameList （可选）需要释放的方法，默认：全部方法
-     * @param release （可选）
-     * + true (默认) 释放该对象下的某些方法
-     * + false 恢复该对象下的某些方法
-     * @example
-      // 释放该方法
-      Utils.noConflictFunc(console,"console",["log"],true);
-      console.log;
-      > () => {}
-  
-     * @example
-      // 恢复该方法
-      Utils.noConflictFunc(console,"console",["log"],false);
-      console.log;
-      > ƒ log() { [native code] }
-  
-     * @example
-      // 释放所有方法
-      Utils.noConflictFunc(console,"console",[],true);
-      console.debug;
-      > () => {}
-  
-     * @example
-      // 恢复所有方法
-      Utils.noConflictFunc(console,"console",[],false);
-      console.debug;
-      > ƒ log() { [native code] }
-     **/
+       * 恢复/释放该对象内的为function，让它无效/有效
+       * @param needReleaseObject 需要操作的对象
+       * @param needReleaseName 需要操作的对象的名字
+       * @param functionNameList （可选）需要释放的方法，默认：全部方法
+       * @param release （可选）
+       * + true (默认) 释放该对象下的某些方法
+       * + false 恢复该对象下的某些方法
+       * @example
+        // 释放该方法
+        Utils.noConflictFunc(console,"console",["log"],true);
+        console.log;
+        > () => {}
+    
+       * @example
+        // 恢复该方法
+        Utils.noConflictFunc(console,"console",["log"],false);
+        console.log;
+        > ƒ log() { [native code] }
+    
+       * @example
+        // 释放所有方法
+        Utils.noConflictFunc(console,"console",[],true);
+        console.debug;
+        > () => {}
+    
+       * @example
+        // 恢复所有方法
+        Utils.noConflictFunc(console,"console",[],false);
+        console.debug;
+        > ƒ log() { [native code] }
+       **/
     noConflictFunc(needReleaseObject: object, needReleaseName: string, functionNameList?: any[], release?: boolean): void;
     /**
      * base64转blob
@@ -1196,11 +1196,11 @@ declare class Utils {
      */
     preventEvent(element: HTMLElement, eventNameList?: string | string[], capture?: boolean): boolean;
     /**
-     * 在canvas元素节点上绘制进度圆圈
-     * @example
-      let progress = new Utils.Process({canvasNode:document.querySelector("canvas")});
-      progress.draw();
-     * **/
+       * 在canvas元素节点上绘制进度圆圈
+       * @example
+        let progress = new Utils.Process({canvasNode:document.querySelector("canvas")});
+        progress.draw();
+       * **/
     Progress: typeof Progress;
     /**
      * 劫持Event的isTrust为true，注入时刻，ducument-start
@@ -1290,11 +1290,11 @@ declare class Utils {
     enterFullScreen(element: HTMLElement, options?: FullscreenOptions): void;
     /**
      * 使浏览器退出全屏
-     * @param element （可选）目标元素，默认：document.documentElement
+     * @param $el （可选）目标元素，默认：document.documentElement
      * @example
      * Utils.exitFullScreen();
      */
-    exitFullScreen(element?: HTMLElement): Promise<void>;
+    exitFullScreen($el?: HTMLElement | HTMLDocument | Document): Promise<void>;
     /**
      * 数组按照内部某个值的大小比对排序，如[{"time":"2022-1-1"},{"time":"2022-2-2"}]
      * @param data 数据|获取数据的方法
@@ -1310,7 +1310,7 @@ declare class Utils {
      * Utils.sortListByProperty([{"time":"2022-1-1"},{"time":"2022-2-2"}],(item)=>{return item["time"]},false)
      * > [{time: '2022-1-1'},{time: '2022-2-2'}]
      **/
-    sortListByProperty<T extends any>(data: T[], getPropertyValueFunc: string | ((value: T) => any), sortByDesc?: boolean): T[];
+    sortListByProperty<T>(data: T[], getPropertyValueFunc: string | ((value: T) => any), sortByDesc?: boolean): T[];
     /**
      * 字符串转正则，用于把字符串中不规范的字符进行转义
      * @param targetString 需要进行转换的字符串
@@ -1372,7 +1372,7 @@ declare class Utils {
     /**
      * 将UrlSearchParams格式的字符串转为对象
      */
-    searchParamStrToObj<T extends any>(searhParamsStr?: string | null | undefined): T;
+    searchParamStrToObj<T>(searhParamsStr?: string | null | undefined): T;
     /**
      * 提供一个封装了 try-catch 的函数，可以执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
      * @example
@@ -1384,8 +1384,8 @@ declare class Utils {
      */
     tryCatch: (...args: any) => {
         config(paramDetails: import("./types/TryCatch").UtilsTryCatchConfig): /*elided*/ any;
-        error(handler: ((...args: any[]) => any) | string | Function): /*elided*/ any;
-        run<A extends any[], R>(callback: ((...args: A) => R) | string | Function, __context__?: any): import("./types/TryCatch").UtilsTryCatchType;
+        error(handler: ((...args: any[]) => any) | string | ((...args: any[]) => any)): /*elided*/ any;
+        run<A extends any[], R>(callback: ((...args: A) => R) | string | ((...args: any[]) => any), __context__?: any): import("./types/TryCatch").UtilsTryCatchType;
     };
     /**
      * 数组去重，去除重复的值
@@ -1405,7 +1405,7 @@ declare class Utils {
      * Utils.uniqueArray([{"key":1,"value":2},{"key":2}],[{"key":1}],(item,item2)=>{return item["key"] === item2["key"] ? true:false});
      * > [{"key": 2}]
      **/
-    uniqueArray<T extends any, TT extends any>(uniqueArrayData?: T[], compareArrayData?: TT[], compareFun?: (item1: T, item2: TT) => boolean): any[];
+    uniqueArray<T, TT>(uniqueArrayData?: T[], compareArrayData?: TT[], compareFun?: (item1: T, item2: TT) => boolean): any[];
     /**
      * 数组去重，去除不需要的值
      * @param uniqueArrayData 需要过滤的数组
@@ -1422,7 +1422,7 @@ declare class Utils {
      * @example
      * await Utils.waitArrayLoopToEnd([callback,callback,callback],xxxcallback);
      **/
-    waitArrayLoopToEnd(data: any[] | HTMLElement[], handleFunc: Function): Promise<void[]>;
+    waitArrayLoopToEnd(data: any[] | HTMLElement[], handleFunc: (...args: any[]) => any): Promise<void[]>;
     /**
      * 等待任意事件成立
      *
@@ -1439,7 +1439,7 @@ declare class Utils {
      *   }
      * })
      */
-    wait<T extends any>(checkFn: (...args: any[]) => {
+    wait<T>(checkFn: (...args: any[]) => {
         /**
          * 是否检测成功
          */
@@ -1449,7 +1449,7 @@ declare class Utils {
          */
         data: T;
     }, timeout?: null | undefined, parent?: Node | Element | Document | HTMLElement): Promise<T>;
-    wait<T extends any>(checkFn: (...args: any[]) => {
+    wait<T>(checkFn: (...args: any[]) => {
         /**
          * 是否检测成功
          */
@@ -1468,8 +1468,8 @@ declare class Utils {
      *  console.log($div); // $div => HTMLDivELement | null
      * })
      */
-    waitNode<K extends any>(selectorFn: () => K | null | undefined): Promise<K>;
-    waitNode<K extends any>(selectorFn: () => K | null | undefined, timeout: number): Promise<K | null | undefined>;
+    waitNode<K>(selectorFn: () => K | null | undefined): Promise<K>;
+    waitNode<K>(selectorFn: () => K | null | undefined, timeout: number): Promise<K | null | undefined>;
     /**
      * 等待元素出现
      * @param selector CSS选择器
@@ -1704,7 +1704,7 @@ declare class Utils {
      * > "test success set"
      *
      */
-    waitProperty<T extends any>(checkObj: any | (() => any), checkPropertyName: string): Promise<T>;
+    waitProperty<T>(checkObj: any | (() => any), checkPropertyName: string): Promise<T>;
     /**
      * 在规定时间内等待对象上的属性出现
      * @param checkObj 检查的对象
@@ -1715,7 +1715,7 @@ declare class Utils {
      * await Utils.waitPropertyByInterval(window,"test");
      * console.log("test success set");
      */
-    waitPropertyByInterval<T extends any>(checkObj: any | (() => any), checkPropertyName: string | ((obj: any) => boolean), intervalTimer?: number, maxTime?: number): Promise<T>;
+    waitPropertyByInterval<T>(checkObj: any | (() => any), checkPropertyName: string | ((obj: any) => boolean), intervalTimer?: number, maxTime?: number): Promise<T>;
     /**
      * 在规定时间内等待元素上的__vue__属性或者__vue__属性上的某个值出现出现
      * @param element 目标元素
@@ -1757,7 +1757,7 @@ declare class Utils {
      * @param target 待获取的对象
      * @param handler 获取属性的回调
      */
-    queryProperty<T extends any = any>(target: any, handler: (target: T) => {
+    queryProperty<T = any>(target: any, handler: (target: T) => {
         /**
          * 是否是需要的属性
          * + `true` 将目标值赋值给data
@@ -1774,7 +1774,7 @@ declare class Utils {
      * @param target 待获取的对象
      * @param handler 获取属性的回调
      */
-    asyncQueryProperty<T extends any = any>(target: any, handler: (target: T) => {
+    asyncQueryProperty<T = any>(target: any, handler: (target: T) => {
         /**
          * 是否是需要的属性
          * + true 将目标值赋值给data
@@ -1856,7 +1856,7 @@ declare class Utils {
      * @param callback 回调函数
      * @param [timeout=0] 延迟时间，默认为0
      */
-    workerSetTimeout(callback: Function, timeout?: number): number;
+    workerSetTimeout(callback: (...args: any[]) => any, timeout?: number): number;
     /**
      * 配合 .setTimeout 使用
      * @param timeId setTimeout 返回的`id`
@@ -1867,7 +1867,7 @@ declare class Utils {
      * @param callback 回调函数
      * @param timeout 间隔时间，默认为0
      */
-    workerSetInterval(callback: Function, timeout?: number): number;
+    workerSetInterval(callback: (...args: any[]) => any, timeout?: number): number;
     /**
      * 配合 .setInterval 使用
      * @param timeId setInterval 返回的`id`
@@ -1887,5 +1887,5 @@ declare class Utils {
         content: string;
     }>;
 }
-declare let utils: Utils;
+declare const utils: Utils;
 export { utils as Utils };

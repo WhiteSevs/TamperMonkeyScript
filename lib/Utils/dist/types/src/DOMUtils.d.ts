@@ -91,5 +91,5 @@ declare class DOMUtils {
     closest<K extends keyof HTMLElementTagNameMap>($el: HTMLElement | Element, selector: string): HTMLElementTagNameMap[K] | null;
     closest<E extends Element = Element>($el: HTMLElement | Element, selector: string): E | null;
 }
-declare let domUtils: DOMUtils;
+declare const domUtils: DOMUtils;
 export { domUtils };

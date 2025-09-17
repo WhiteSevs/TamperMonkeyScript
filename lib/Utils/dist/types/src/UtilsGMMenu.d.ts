@@ -76,7 +76,7 @@ export declare class GMMenu {
      * 根据键值获取callback函数
      * @param menuKey 菜单-键key
      */
-    getCallBack(menuKey: string): Function | undefined;
+    getCallBack(menuKey: string): ((...args: any[]) => any) | undefined;
     /**
      * 获取当enable为true时默认显示在菜单中前面的emoji图标
      */

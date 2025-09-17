@@ -7,10 +7,6 @@ export declare class Progress {
      */
     constructor(paramConfig: ProgressParamConfig);
     /**
-     * 初始化
-     */
-    private init;
-    /**
      * 绘制
      */
     draw(): void;

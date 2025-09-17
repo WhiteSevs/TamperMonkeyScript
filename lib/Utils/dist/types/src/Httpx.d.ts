@@ -69,7 +69,7 @@ export declare class Httpx {
      * 修改xmlHttpRequest
      * @param httpRequest 网络请求函数
      */
-    setXMLHttpRequest(httpRequest: Function): void;
+    setXMLHttpRequest(httpRequest: (...args: any[]) => any): void;
     /**
      * GET 请求
      * @param details 配置
@@ -171,5 +171,5 @@ export declare class Httpx {
      * @param details 配置
      * @param beforeRequestOption 处理请求前的配置
      */
-    request<T extends HttpxRequestOption>(details: T, beforeRequestOption?: (option: Required<T>) => void): HttpxPromise<HttpxResponse<T>>;
+    request<T extends HttpxRequestOption>(details: T, beforeRequestOption?: (option: Required<T | HttpxRequestOption>) => void): HttpxPromise<HttpxResponse<T>>;
 }

@@ -1,4 +1,4 @@
-export declare class UtilsDictionary<K extends unknown, V extends any> {
+export declare class UtilsDictionary<K, V> {
     private items;
     constructor();
     constructor(key: K, value: V);

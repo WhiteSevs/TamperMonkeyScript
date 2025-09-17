@@ -22,7 +22,7 @@ export declare class indexedDB {
      * @param key 数据key
      * @param value 数据值
      */
-    save<T extends any>(key: string, value: T): Promise<{
+    save<T = any>(key: string, value: T): Promise<{
         /** 本操作是否成功 */
         success: boolean;
         /** 状态码 */
@@ -56,7 +56,7 @@ export declare class indexedDB {
      * 根据key获取值
      * @param key 数据key
      */
-    get<T extends any>(key: string): Promise<{
+    get<T = any>(key: string): Promise<{
         /** 本操作是否成功 */
         success: boolean;
         /** 状态码 */
@@ -80,7 +80,7 @@ export declare class indexedDB {
      * 正则获取数据
      * @param key 数据key，可以是正则
      */
-    regexpGet<T extends any>(key: string | RegExp): Promise<{
+    regexpGet<T = any>(key: string | RegExp): Promise<{
         /** 本操作是否成功 */
         success: boolean;
         /** 状态码 */
