@@ -29,9 +29,9 @@ pnpm add qmsg
 <!-- your html -->
 <script src="https://fastly.jsdelivr.net/npm/qmsg@latest/dist/index.umd.min.js"></script>
 <script>
-	var configs = {};
-	// configs 为配置参数，可省略
-	Qmsg.info("这是提示消息", configs);
+  var configs = {};
+  // configs 为配置参数，可省略
+  Qmsg.info("这是提示消息", configs);
 </script>
 ```
 
@@ -47,8 +47,8 @@ pnpm add qmsg
 
 ```js
 Qmsg.config({
-	showClose: true,
-	timeout: 5000,
+  showClose: true,
+  timeout: 5000,
 });
 ```
 
@@ -104,14 +104,14 @@ Qmsg.loading();
 ```js
 Qmsg.loading("我是加载条");
 Qmsg.info("给你个眼神，你懂得", {
-	showClose: true,
-	onClose: function () {
-		console.log("我懂了");
-	},
+  showClose: true,
+  onClose: function () {
+    console.log("我懂了");
+  },
 });
 Qmsg.error({
-	content: "1+1=3",
-	timeout: 5000,
+  content: "1+1=3",
+  timeout: 5000,
 });
 ```
 
@@ -127,12 +127,12 @@ loadingMsg.close();
 
 ```js
 Qmsg.loading("我是加载条", {
-	autoClose: true,
+  autoClose: true,
 });
 // 或者
 Qmsg.loading({
-	autoClose: true,
-	content: "我是加载条",
+  autoClose: true,
+  content: "我是加载条",
 });
 ```
 
@@ -173,21 +173,19 @@ aMsg.setText("这是进行修改的info消息");
 对已弹出的内容进行修改
 
 ```js
-aMsg.setHTML(
-	"<a href='javascript:;' target='_blank'>这是进行修改的info消息超链接</a>"
-);
+aMsg.setHTML("<a href='javascript:;' target='_blank'>这是进行修改的info消息超链接</a>");
 ```
 
 **关闭左边的图标显示**
 
 ```js
 Qmsg.config({
-	showIcon: false,
+  showIcon: false,
 });
 Qmsg.info("这个没有图标");
 // 或者
 Qmsg.info("这个没有图标", {
-	showIcon: false,
+  showIcon: false,
 });
 ```
 
@@ -195,38 +193,38 @@ Qmsg.info("这个没有图标", {
 
 ```js
 Qmsg.info("左上角", {
-	position: "topleft",
+  position: "topleft",
 });
 
 Qmsg.info("顶部", {
-	position: "top",
+  position: "top",
 });
 
 Qmsg.info("右上角", {
-	position: "topright",
+  position: "topright",
 });
 
 Qmsg.info("左边", {
-	position: "left",
+  position: "left",
 });
 
 Qmsg.info("中间", {
-	position: "center",
+  position: "center",
 });
 
 Qmsg.info("右边", {
-	position: "right",
+  position: "right",
 });
 
 Qmsg.info("左下角", {
-	position: "bottomleft",
+  position: "bottomleft",
 });
 
 Qmsg.info("底部", {
-	position: "bottom",
+  position: "bottom",
 });
 
 Qmsg.info("右下角", {
-	position: "bottomright",
+  position: "bottomright",
 });
 ```

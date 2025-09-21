@@ -25,11 +25,11 @@ export declare const QmsgUtils: {
      * @param obj 需要配置的对象
      * @param other_obj 获取的其它对象
      */
-    toDynamicObject<T1 extends unknown, T2 extends any[]>(obj: T1, ...other_objs: T2): T1 & (T2 extends Array<infer U> ? U : never);
+    toDynamicObject<T1, T2 extends any[]>(obj: T1, ...other_objs: T2): T1 & (T2 extends Array<infer U> ? U : never);
     /**
      * 自动使用 Worker 执行 setTimeout
      */
-    setTimeout(callback: Function, timeout: number): number;
+    setTimeout(callback: (...args: any[]) => any, timeout: number): number;
     /**
      * 配合 QmsgUtils.setTimeout 使用
      */
@@ -37,7 +37,7 @@ export declare const QmsgUtils: {
     /**
      * 自动使用 Worker 执行 setInterval
      */
-    setInterval(callback: Function, timeout: number): number;
+    setInterval(callback: (...args: any[]) => any, timeout: number): number;
     /**
      * 配合 QmsgUtils.setInterval 使用
      */

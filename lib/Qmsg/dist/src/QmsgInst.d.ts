@@ -39,12 +39,10 @@ export declare class QmsgMsg {
     constructor(config: QmsgConfig, uuid: string);
     /**
      * 获取当前配置
-     * @returns
      */
     getSetting(): Required<QmsgConfig>;
     /**
      * 获取当前相同的数量
-     * @returns
      */
     getRepeatNum(): number;
     /**

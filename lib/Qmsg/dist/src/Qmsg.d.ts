@@ -5,8 +5,7 @@ import { QmsgEvent } from "./QmsgEvent";
 import type { QmsgMsg } from "./QmsgInst";
 import type { QmsgConfig } from "./QmsgConfig";
 /** 实例配置（可选） */
-export interface QmsgConfigPartial extends Partial<QmsgConfig> {
-}
+export type QmsgConfigPartial = Partial<QmsgConfig>;
 type QmsgConfigContent = string | boolean | number | symbol | Function | bigint | null | undefined;
 declare class Qmsg {
     /** 数据 */
@@ -125,5 +124,5 @@ declare class Qmsg {
      */
     closeAll(): void;
 }
-declare let qmsg: Qmsg;
+declare const qmsg: Qmsg;
 export { qmsg as Qmsg };

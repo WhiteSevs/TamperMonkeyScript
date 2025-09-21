@@ -1,47 +1,47 @@
 {
-	"compilerOptions": {
-		// es最新版
-		"target": "ESNext",
-		// 运行环境: es6、浏览器
-		"lib": ["ESNext", "DOM"],
-		// 允许 JavaScript 文件成为程序的一部分。使用checkJS从这些文件中获取错误的选项。
-		"allowJs": true,
-		// 在经过类型检查的 JavaScript 文件中启用错误报告。
-		"checkJs": true,
-		// 当模块没有默认导出时允许“从 y 导入 x”。
-		"allowSyntheticDefaultImports": true,
-		// 指定生成什么模块代码。
-		"module": "esnext",
-		// 指定 TypeScript 如何从给定的模块说明符查找文件。
-		"moduleResolution": "bundler",
-		// 启用严格模式
-		"strict": true,
-		// 当类型检查时，考虑null and undefined.
-		"strictNullChecks": true,
-		// 发出额外的 JavaScript 以简化对导入 CommonJS 模块的支持。这使得allowSyntheticDefaultImports为了类型兼容性
-		"esModuleInterop": true,
-		// 跳过默认库检查
-		"skipDefaultLibCheck": false,
-		// 跳过库检查
-		"skipLibCheck": false,
-		// 输出目录
-		"outDir": "./dist",
-		// 输出.d.ts声明文件
-		"declaration": true,
-		// 指定生成的声明文件的输出目录。
-		//"declarationDir": "dist/types",
-		// 为发出的 JavaScript 文件创建源映射文件。
-		"sourceMap": true,
-		"mapRoot": "./",
-		// 指定多个文件夹，其作用类似于./node_modules/@types.
-		"typeRoots": ["./src/types"],
-		// 当未读取局部变量时启用错误报告。
-		"noUnusedLocals": true,
-		//未读取函数参数时引发错误
-		"noUnusedParameters": false,
-		// 删除未使用的导入
-		"importsNotUsedAsValues": "remove"
-	},
-	// 包含src下的所有文件
-	"include": ["src/**/*", "index.ts"]
+  "compilerOptions": {
+    // es最新版
+    "target": "ESNext",
+    // 运行环境: es6、浏览器
+    "lib": ["ESNext", "DOM"],
+    // 允许 JavaScript 文件成为程序的一部分。使用checkJS从这些文件中获取错误的选项。
+    "allowJs": true,
+    // 在经过类型检查的 JavaScript 文件中启用错误报告。
+    "checkJs": true,
+    // 当模块没有默认导出时允许“从 y 导入 x”。
+    "allowSyntheticDefaultImports": true,
+    // 指定生成什么模块代码。
+    "module": "esnext",
+    // 指定 TypeScript 如何从给定的模块说明符查找文件。
+    "moduleResolution": "bundler",
+    // 启用严格模式
+    "strict": true,
+    // 当类型检查时，考虑null and undefined.
+    "strictNullChecks": true,
+    // 发出额外的 JavaScript 以简化对导入 CommonJS 模块的支持。这使得allowSyntheticDefaultImports为了类型兼容性
+    "esModuleInterop": true,
+    // 跳过默认库检查
+    "skipDefaultLibCheck": false,
+    // 跳过库检查
+    "skipLibCheck": false,
+    // 输出目录
+    "outDir": "./dist",
+    // 输出.d.ts声明文件
+    "declaration": true,
+    // 指定生成的声明文件的输出目录。
+    //"declarationDir": "dist/types",
+    // 为发出的 JavaScript 文件创建源映射文件。
+    "sourceMap": true,
+    "mapRoot": "./",
+    // 指定多个文件夹，其作用类似于./node_modules/@types.
+    "typeRoots": ["./src/types"],
+    // 当未读取局部变量时启用错误报告。
+    "noUnusedLocals": true,
+    //未读取函数参数时引发错误
+    "noUnusedParameters": true,
+    // 删除未使用的导入
+    "importsNotUsedAsValues": "remove"
+  },
+  // 包含src下的所有文件
+  "include": ["src/**/*", "index.ts", "eslint.config.mjs"]
 }

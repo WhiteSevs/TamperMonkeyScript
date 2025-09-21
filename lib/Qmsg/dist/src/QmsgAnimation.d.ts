@@ -17,11 +17,11 @@ export declare const QmsgAnimation: {
      * 是否支持动画属性
      * @private
      */
-    __CAN_ANIMATION__: Boolean | undefined;
+    __CAN_ANIMATION__: boolean | undefined;
     /**
      * 是否支持动画属性
      */
-    readonly CAN_ANIMATION: Boolean;
+    readonly CAN_ANIMATION: boolean;
     /**
      * 获取元素上的animationName属性
      * @param element
