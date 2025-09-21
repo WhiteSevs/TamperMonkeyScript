@@ -26,8 +26,665 @@
 // ==/UserScript==
 
 (function (w, X, C, S) {
-	'use strict';
+  "use strict";
 
-	var Y=Object.defineProperty;var J=(e,t,n)=>t in e?Y(e,t,{enumerable:true,configurable:true,writable:true,value:n}):e[t]=n;var k=(e,t,n)=>J(e,typeof t!="symbol"?t+"":t,n);var ee=typeof GM_deleteValue<"u"?GM_deleteValue:void 0,F=typeof GM_getValue<"u"?GM_getValue:void 0,A=typeof GM_info<"u"?GM_info:void 0,te=typeof GM_registerMenuCommand<"u"?GM_registerMenuCommand:void 0,K=typeof GM_setValue<"u"?GM_setValue:void 0,ne=typeof GM_unregisterMenuCommand<"u"?GM_unregisterMenuCommand:void 0,ae=typeof GM_xmlhttpRequest<"u"?GM_xmlhttpRequest:void 0,x=typeof unsafeWindow<"u"?unsafeWindow:void 0,le=window;const f={qmsg_config_position:{key:"qmsg-config-position",defaultValue:"bottom"},qmsg_config_maxnums:{key:"qmsg-config-maxnums",defaultValue:3},qmsg_config_showreverse:{key:"qmsg-config-showreverse",defaultValue:false},httpx_cookie_manager_enable:{key:"httpx-use-cookie-enable",defaultValue:false},httpx_cookie_manager_use_document_cookie:{key:"httpx-use-document-cookie",defaultValue:false}},d=C.noConflict();X.noConflict();const N=S,_=new d.Log(A,x.console||le.console);var U;let I=((U=A==null?void 0:A.script)==null?void 0:U.name)||void 0;S.config.Utils.AnyTouch();const H=false;_.config({debug:H,logMaxCount:1e3,autoClearConsole:true,tag:true});w.config(Object.defineProperties({html:true,autoClose:true,showClose:false},{position:{get(){return h.getValue(f.qmsg_config_position.key,f.qmsg_config_position.defaultValue)}},maxNums:{get(){return h.getValue(f.qmsg_config_maxnums.key,f.qmsg_config_maxnums.defaultValue)}},showReverse:{get(){return h.getValue(f.qmsg_config_showreverse.key,f.qmsg_config_showreverse.defaultValue)}},zIndex:{get(){let e=C.getMaxZIndex(),t=S.config.InstanceUtils.getPopsMaxZIndex().zIndex;return C.getMaxValue(e,t)+100}}}));N.GlobalConfig.setGlobalConfig({zIndex:()=>{let e=C.getMaxZIndex(void 0,void 0,n=>{var a;if((a=n==null?void 0:n.classList)!=null&&a.contains("qmsg-shadow-container")||n!=null&&n.closest("qmsg")&&n.getRootNode()instanceof ShadowRoot)return  false}),t=S.config.InstanceUtils.getPopsMaxZIndex().zIndex;return C.getMaxValue(e,t)+100},mask:{enable:true,clickEvent:{toClose:false,toHide:false}}});const ie=new d.GM_Menu({GM_getValue:F,GM_setValue:K,GM_registerMenuCommand:te,GM_unregisterMenuCommand:ne}),B=new d.Httpx({xmlHttpRequest:ae,logDetails:H});B.interceptors.request.use(e=>e);B.interceptors.response.use(void 0,e=>(_.error("拦截器-请求错误",e),e.type==="onabort"?w.warning("请求取消",{consoleLogContent:true}):e.type==="onerror"?w.error("请求异常",{consoleLogContent:true}):e.type==="ontimeout"?w.error("请求超时",{consoleLogContent:true}):w.error("其它错误",{consoleLogContent:true}),e));x.Object.defineProperty,x.Function.prototype.apply,x.Function.prototype.call,x.Element.prototype.appendChild,x.setTimeout;d.addStyle.bind(d);document.querySelector.bind(document);document.querySelectorAll.bind(document);new d.GM_Cookie;const W="GM_Panel",oe="data-init",b="data-key",L="data-default-value",se="data-init-more-value",E="data-storage-api",O={setting:{get width(){return window.innerWidth<550?"88vw":window.innerWidth<700?"550px":"700px"},get height(){return window.innerHeight<450?"70vh":window.innerHeight<550?"450px":"550px"}}};class re{constructor(t){k(this,"storageKey");k(this,"listenerData");if(typeof t=="string"){let n=t.trim();if(n=="")throw new Error("key参数不能为空字符串");this.storageKey=n;}else throw new Error("key参数类型错误，必须是字符串");this.listenerData=new C.Dictionary;}getLocalValue(){let t=F(this.storageKey);return t==null&&(t={},this.setLocalValue(t)),t}setLocalValue(t){K(this.storageKey,t);}set(t,n){let a=this.get(t),l=this.getLocalValue();Reflect.set(l,t,n),this.setLocalValue(l),this.triggerValueChangeListener(t,a,n);}get(t,n){let a=this.getLocalValue();return Reflect.get(a,t)??n}getAll(){return this.getLocalValue()}delete(t){let n=this.get(t),a=this.getLocalValue();Reflect.deleteProperty(a,t),this.setLocalValue(a),this.triggerValueChangeListener(t,n,void 0);}has(t){let n=this.getLocalValue();return Reflect.has(n,t)}keys(){let t=this.getLocalValue();return Reflect.ownKeys(t)}values(){let t=this.getLocalValue();return Reflect.ownKeys(t).map(n=>Reflect.get(t,n))}clear(){ee(this.storageKey);}addValueChangeListener(t,n){let a=Math.random(),l=this.listenerData.get(t)||[];return l.push({id:a,key:t,callback:n}),this.listenerData.set(t,l),a}removeValueChangeListener(t){let n=false;for(const[a,l]of this.listenerData.entries()){for(let i=0;i<l.length;i++){const o=l[i];(typeof t=="string"&&o.key===t||typeof t=="number"&&o.id===t)&&(l.splice(i,1),i--,n=true);}this.listenerData.set(a,l);}return n}triggerValueChangeListener(t,n,a){if(!this.listenerData.has(t))return;let l=this.listenerData.get(t);for(let i=0;i<l.length;i++){const o=l[i];if(typeof o.callback=="function"){let u=this.get(t),s,r;typeof n<"u"&&arguments.length>=2?r=n:r=u,typeof a<"u"&&arguments.length>2?s=a:s=u,o.callback(t,r,s);}}}}const y=new re(W),T={$data:{__contentConfig:null,get contentConfig(){return this.__contentConfig==null&&(this.__contentConfig=new d.Dictionary),this.__contentConfig}},addContentConfig(e){Array.isArray(e)||(e=[e]);let t=this.$data.contentConfig.keys().length;this.$data.contentConfig.set(t,e);},getAllContentConfig(){return this.$data.contentConfig.values().flat()},getConfig(e=0){return this.$data.contentConfig.get(e)??[]}},ue={$data:{__menuOption:[{key:"show_pops_panel_setting",text:"⚙ 设置",autoReload:false,isStoreValue:false,showText(e){return e},callback:()=>{h.showPanel(T.getConfig(0));}}],get menuOption(){return this.__menuOption}},init(){this.initExtensionsMenu();},initExtensionsMenu(){h.isTopWindow()&&ie.add(this.$data.menuOption);},addMenuOption(e){Array.isArray(e)||(e=[e]),this.$data.menuOption.push(...e);},updateMenuOption(e){Array.isArray(e)||(e=[e]),e.forEach(t=>{let n=this.$data.menuOption.findIndex(a=>a.key===t.key);n!==-1&&(this.$data.menuOption[n]=t);});},getMenuOption(e){return this.$data.menuOption[e]}},h={$data:{__configDefaultValueData:null,__onceExecMenuData:null,__onceExecData:null,__panelConfig:{},$panel:null,get configDefaultValueData(){return this.__configDefaultValueData==null&&(this.__configDefaultValueData=new d.Dictionary),this.__configDefaultValueData},get onceExecMenuData(){return this.__onceExecMenuData==null&&(this.__onceExecMenuData=new d.Dictionary),this.__onceExecMenuData},get onceExecData(){return this.__onceExecData==null&&(this.__onceExecData=new d.Dictionary),this.__onceExecData},get scriptName(){return I},get panelConfig(){return this.__panelConfig},set panelConfig(e){this.__panelConfig=e;},key:W,attributeKeyName:b,attributeDefaultValueName:L},init(){this.initContentDefaultValue(),ue.init();},isTopWindow(){return x.top===x.self},initContentDefaultValue(){const e=a=>{if(!a.attributes||a.type==="button"||a.type==="forms"||a.type==="deepMenu")return;let l={},i=a.attributes[b];i!=null&&(l[i]=a.attributes[L]);let o=a.attributes[oe];if(typeof o=="function"){let r=o();if(typeof r=="boolean"&&!r)return}let u=a.attributes[se];u&&typeof u=="object"&&Object.assign(l,u);let s=Object.keys(l);if(!s.length){_.warn(["请先配置键",a]);return}s.forEach(r=>{let m=l[r];this.setDefaultValue(r,m);});},t=a=>{for(let l=0;l<a.length;l++){let i=a[l];e(i);let o=i.forms;o&&Array.isArray(o)&&t(o);}},n=[...T.getAllContentConfig()];for(let a=0;a<n.length;a++){let l=n[a];if(!l.forms)continue;const i=l.forms;i&&Array.isArray(i)&&t(i);}},setDefaultValue(e,t){this.$data.configDefaultValueData.has(e)&&_.warn("请检查该key(已存在): "+e),this.$data.configDefaultValueData.set(e,t);},setValue(e,t){y.set(e,t);},getValue(e,t){let n=y.get(e);return n??(this.$data.configDefaultValueData.has(e)?this.$data.configDefaultValueData.get(e):t)},deleteValue(e){y.delete(e);},hasKey(e){return y.has(e)},addValueChangeListener(e,t){return y.addValueChangeListener(e,(a,l,i)=>{t(e,i,l);})},removeValueChangeListener(e){y.removeValueChangeListener(e);},triggerMenuValueChange(e,t,n){y.triggerValueChangeListener(e,n,t);},deleteExecMenuOnce(e){return this.$data.onceExecMenuData.delete(e),y.removeValueChangeListener(e)},deleteOnceExec(e){this.$data.onceExecData.delete(e);},exec(e,t,n,a=true){const l=this;let i;typeof e=="string"||Array.isArray(e)?i=()=>e:i=e;let o=false,u=i(),s=[];Array.isArray(u)?(o=true,s=u):s.push(u);let r=s.find(c=>!this.$data.configDefaultValueData.has(c));if(r){_.warn(`${r} 键不存在`);return}let m=JSON.stringify(s);if(a){if(this.$data.onceExecMenuData.has(m))return;this.$data.onceExecMenuData.set(m,1);}let p=[],G=[],j=(c,g)=>{let V=[];g instanceof HTMLStyleElement?V=[g]:Array.isArray(g)&&(V=[...g.filter(v=>v!=null&&v instanceof HTMLStyleElement)]),p=p.concat(V);},z=c=>this.getValue(c),R=()=>{for(let c=0;c<p.length;c++)p[c].remove(),p.splice(c,1),c--;},Q=()=>{let c=false;return typeof n=="function"?c=n(s):c=s.every(g=>z(g)),c},q=c=>{let g=Q(),V=[];if(g){let v=s.map(M=>this.getValue(M)),D=t({addStyleElement:(...M)=>j(true,...M),value:o?v:v[0]});D instanceof HTMLStyleElement?V.push(D):Array.isArray(D)&&V.push(...D.filter(M=>M!=null&&M instanceof HTMLStyleElement));}R(),p=[...V];};return a&&s.forEach(c=>{let g=this.addValueChangeListener(c,(V,v,D)=>{q();});G.push(g);}),q(),{clear(){this.clearStoreStyleElements(),this.removeValueChangeListener(),a&&l.$data.onceExecMenuData.delete(m);},clearStoreStyleElements:()=>R(),removeValueChangeListener:()=>{G.forEach(c=>{this.removeValueChangeListener(c);});}}},execMenu(e,t,n=false){return this.exec(e,a=>t(a),a=>a.every(i=>{let o=!!this.getValue(i);return n&&(o=!o),o}),false)},execMenuOnce(e,t){return this.exec(e,t,n=>n.every(l=>!!this.getValue(l)),true)},onceExec(e,t){if(typeof e!="string")throw new TypeError("key 必须是字符串");this.$data.onceExecData.has(e)||(t(),this.$data.onceExecData.set(e,1));},showPanel(e,t=`${I}-设置`){let n=N.panel({title:{text:`${I}-设置`,position:"center",html:false,style:""},content:e,btn:{close:{enable:true,callback:(a,l)=>{a.close(),this.$data.$panel=null;}}},mask:{enable:true,clickEvent:{toClose:true,toHide:false},clickCallBack:(a,l)=>{a(),this.$data.$panel=null;}},width:O.setting.width,height:O.setting.height,drag:true,only:true,...this.$data.panelConfig});this.$data.$panel=n;}},ce={init(){_.info("demo site init");}},Z={$data:{__storeApiFn:null,get storeApiValue(){return this.__storeApiFn||(this.__storeApiFn=new C.Dictionary),this.__storeApiFn}},getStorageApi(e){if(this.hasStorageApi(e))return this.$data.storeApiValue.get(e)},hasStorageApi(e){return this.$data.storeApiValue.has(e)},setStorageApi(e,t){this.$data.storeApiValue.set(e,t);},setComponentsStorageApiProperty(e,t,n){let a;this.hasStorageApi(e)?a=this.getStorageApi(e):a=n,Reflect.set(t.props,E,a);}},$=function(e,t,n,a,l,i){let o={text:e,type:"switch",description:l,attributes:{},props:{},getValue(){return !!this.props[E].get(t,n)},callback(u,s){let r=!!s;_.success(`${r?"开启":"关闭"} ${e}`),this.props[E].set(t,r);},afterAddToUListCallBack:i};return Reflect.set(o.attributes,b,t),Reflect.set(o.attributes,L,n),Z.setComponentsStorageApiProperty("switch",o,{get(u,s){return h.getValue(u,s)},set(u,s){h.setValue(u,s);}}),o},P=function(e,t,n,a,l,i){let o=[];typeof a=="function"?o=a():o=a;let u={text:e,type:"select",description:i,attributes:{},props:{},getValue(){return this.props[E].get(t,n)},callback(s,r,m){let p=r;_.info(`选择：${m}`),this.props[E].set(t,p),typeof l=="function"&&l(s,p,m);},data:o};return Reflect.set(u.attributes,b,t),Reflect.set(u.attributes,L,n),Z.setComponentsStorageApiProperty("select",u,{get(s,r){return h.getValue(s,r)},set(s,r){h.setValue(s,r);}}),u},fe={id:"view-general",title:"通用",forms:[{text:"Toast配置",type:"forms",forms:[P("Toast位置",f.qmsg_config_position.key,f.qmsg_config_position.defaultValue,[{value:"topleft",text:"左上角"},{value:"top",text:"顶部"},{value:"topright",text:"右上角"},{value:"left",text:"左边"},{value:"center",text:"中间"},{value:"right",text:"右边"},{value:"bottomleft",text:"左下角"},{value:"bottom",text:"底部"},{value:"bottomright",text:"右下角"}],(e,t,n)=>{_.info("设置当前Qmsg弹出位置"+n);},"Toast显示在页面九宫格的位置"),P("最多显示的数量",f.qmsg_config_maxnums.key,f.qmsg_config_maxnums.defaultValue,[{value:1,text:"1"},{value:2,text:"2"},{value:3,text:"3"},{value:4,text:"4"},{value:5,text:"5"}],void 0,"限制Toast显示的数量"),$("逆序弹出",f.qmsg_config_showreverse.key,f.qmsg_config_showreverse.defaultValue,void 0,"修改Toast弹出的顺序")]},{text:"Cookie配置",type:"forms",forms:[$("启用",f.httpx_cookie_manager_enable.key,f.httpx_cookie_manager_enable.defaultValue,void 0,"Api请求时会自动使用下面的Cookie设置"),$("使用document.cookie",f.httpx_cookie_manager_use_document_cookie.key,f.httpx_cookie_manager_use_document_cookie.defaultValue,void 0,"会自动根据请求的域名来使用cookie")]}]};T.addContentConfig([fe]);h.init();ce.init();
-
+  var Y = Object.defineProperty;
+  var J = (e, t, n) =>
+    t in e ? Y(e, t, { enumerable: true, configurable: true, writable: true, value: n }) : (e[t] = n);
+  var k = (e, t, n) => J(e, typeof t != "symbol" ? t + "" : t, n);
+  var ee = typeof GM_deleteValue < "u" ? GM_deleteValue : void 0,
+    F = typeof GM_getValue < "u" ? GM_getValue : void 0,
+    A = typeof GM_info < "u" ? GM_info : void 0,
+    te = typeof GM_registerMenuCommand < "u" ? GM_registerMenuCommand : void 0,
+    K = typeof GM_setValue < "u" ? GM_setValue : void 0,
+    ne = typeof GM_unregisterMenuCommand < "u" ? GM_unregisterMenuCommand : void 0,
+    ae = typeof GM_xmlhttpRequest < "u" ? GM_xmlhttpRequest : void 0,
+    x = typeof unsafeWindow < "u" ? unsafeWindow : void 0,
+    le = window;
+  const f = {
+      qmsg_config_position: { key: "qmsg-config-position", defaultValue: "bottom" },
+      qmsg_config_maxnums: { key: "qmsg-config-maxnums", defaultValue: 3 },
+      qmsg_config_showreverse: { key: "qmsg-config-showreverse", defaultValue: false },
+      httpx_cookie_manager_enable: { key: "httpx-use-cookie-enable", defaultValue: false },
+      httpx_cookie_manager_use_document_cookie: { key: "httpx-use-document-cookie", defaultValue: false },
+    },
+    d = C.noConflict();
+  X.noConflict();
+  const N = S,
+    _ = new d.Log(A, x.console || le.console);
+  var U;
+  let I = ((U = A == null ? void 0 : A.script) == null ? void 0 : U.name) || void 0;
+  S.config.Utils.AnyTouch();
+  const H = false;
+  _.config({ debug: H, logMaxCount: 1e3, autoClearConsole: true, tag: true });
+  w.config(
+    Object.defineProperties(
+      { html: true, autoClose: true, showClose: false },
+      {
+        position: {
+          get() {
+            return h.getValue(f.qmsg_config_position.key, f.qmsg_config_position.defaultValue);
+          },
+        },
+        maxNums: {
+          get() {
+            return h.getValue(f.qmsg_config_maxnums.key, f.qmsg_config_maxnums.defaultValue);
+          },
+        },
+        showReverse: {
+          get() {
+            return h.getValue(f.qmsg_config_showreverse.key, f.qmsg_config_showreverse.defaultValue);
+          },
+        },
+        zIndex: {
+          get() {
+            let e = C.getMaxZIndex(),
+              t = S.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+            return C.getMaxValue(e, t) + 100;
+          },
+        },
+      }
+    )
+  );
+  N.GlobalConfig.setGlobalConfig({
+    zIndex: () => {
+      let e = C.getMaxZIndex(void 0, void 0, (n) => {
+          var a;
+          if (
+            ((a = n == null ? void 0 : n.classList) != null && a.contains("qmsg-shadow-container")) ||
+            (n != null && n.closest("qmsg") && n.getRootNode() instanceof ShadowRoot)
+          )
+            return false;
+        }),
+        t = S.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+      return C.getMaxValue(e, t) + 100;
+    },
+    mask: { enable: true, clickEvent: { toClose: false, toHide: false } },
+  });
+  const ie = new d.GM_Menu({
+      GM_getValue: F,
+      GM_setValue: K,
+      GM_registerMenuCommand: te,
+      GM_unregisterMenuCommand: ne,
+    }),
+    B = new d.Httpx({ xmlHttpRequest: ae, logDetails: H });
+  B.interceptors.request.use((e) => e);
+  B.interceptors.response.use(
+    void 0,
+    (e) => (
+      _.error("拦截器-请求错误", e),
+      e.type === "onabort"
+        ? w.warning("请求取消", { consoleLogContent: true })
+        : e.type === "onerror"
+          ? w.error("请求异常", { consoleLogContent: true })
+          : e.type === "ontimeout"
+            ? w.error("请求超时", { consoleLogContent: true })
+            : w.error("其它错误", { consoleLogContent: true }),
+      e
+    )
+  );
+  (x.Object.defineProperty,
+    x.Function.prototype.apply,
+    x.Function.prototype.call,
+    x.Element.prototype.appendChild,
+    x.setTimeout);
+  d.addStyle.bind(d);
+  document.querySelector.bind(document);
+  document.querySelectorAll.bind(document);
+  new d.GM_Cookie();
+  const W = "GM_Panel",
+    oe = "data-init",
+    b = "data-key",
+    L = "data-default-value",
+    se = "data-init-more-value",
+    E = "data-storage-api",
+    O = {
+      setting: {
+        get width() {
+          return window.innerWidth < 550 ? "88vw" : window.innerWidth < 700 ? "550px" : "700px";
+        },
+        get height() {
+          return window.innerHeight < 450 ? "70vh" : window.innerHeight < 550 ? "450px" : "550px";
+        },
+      },
+    };
+  class re {
+    constructor(t) {
+      k(this, "storageKey");
+      k(this, "listenerData");
+      if (typeof t == "string") {
+        let n = t.trim();
+        if (n == "") throw new Error("key参数不能为空字符串");
+        this.storageKey = n;
+      } else throw new Error("key参数类型错误，必须是字符串");
+      this.listenerData = new C.Dictionary();
+    }
+    getLocalValue() {
+      let t = F(this.storageKey);
+      return (t == null && ((t = {}), this.setLocalValue(t)), t);
+    }
+    setLocalValue(t) {
+      K(this.storageKey, t);
+    }
+    set(t, n) {
+      let a = this.get(t),
+        l = this.getLocalValue();
+      (Reflect.set(l, t, n), this.setLocalValue(l), this.triggerValueChangeListener(t, a, n));
+    }
+    get(t, n) {
+      let a = this.getLocalValue();
+      return Reflect.get(a, t) ?? n;
+    }
+    getAll() {
+      return this.getLocalValue();
+    }
+    delete(t) {
+      let n = this.get(t),
+        a = this.getLocalValue();
+      (Reflect.deleteProperty(a, t), this.setLocalValue(a), this.triggerValueChangeListener(t, n, void 0));
+    }
+    has(t) {
+      let n = this.getLocalValue();
+      return Reflect.has(n, t);
+    }
+    keys() {
+      let t = this.getLocalValue();
+      return Reflect.ownKeys(t);
+    }
+    values() {
+      let t = this.getLocalValue();
+      return Reflect.ownKeys(t).map((n) => Reflect.get(t, n));
+    }
+    clear() {
+      ee(this.storageKey);
+    }
+    addValueChangeListener(t, n) {
+      let a = Math.random(),
+        l = this.listenerData.get(t) || [];
+      return (l.push({ id: a, key: t, callback: n }), this.listenerData.set(t, l), a);
+    }
+    removeValueChangeListener(t) {
+      let n = false;
+      for (const [a, l] of this.listenerData.entries()) {
+        for (let i = 0; i < l.length; i++) {
+          const o = l[i];
+          ((typeof t == "string" && o.key === t) || (typeof t == "number" && o.id === t)) &&
+            (l.splice(i, 1), i--, (n = true));
+        }
+        this.listenerData.set(a, l);
+      }
+      return n;
+    }
+    triggerValueChangeListener(t, n, a) {
+      if (!this.listenerData.has(t)) return;
+      let l = this.listenerData.get(t);
+      for (let i = 0; i < l.length; i++) {
+        const o = l[i];
+        if (typeof o.callback == "function") {
+          let u = this.get(t),
+            s,
+            r;
+          (typeof n < "u" && arguments.length >= 2 ? (r = n) : (r = u),
+            typeof a < "u" && arguments.length > 2 ? (s = a) : (s = u),
+            o.callback(t, r, s));
+        }
+      }
+    }
+  }
+  const y = new re(W),
+    T = {
+      $data: {
+        __contentConfig: null,
+        get contentConfig() {
+          return (this.__contentConfig == null && (this.__contentConfig = new d.Dictionary()), this.__contentConfig);
+        },
+      },
+      addContentConfig(e) {
+        Array.isArray(e) || (e = [e]);
+        let t = this.$data.contentConfig.keys().length;
+        this.$data.contentConfig.set(t, e);
+      },
+      getAllContentConfig() {
+        return this.$data.contentConfig.values().flat();
+      },
+      getConfig(e = 0) {
+        return this.$data.contentConfig.get(e) ?? [];
+      },
+    },
+    ue = {
+      $data: {
+        __menuOption: [
+          {
+            key: "show_pops_panel_setting",
+            text: "⚙ 设置",
+            autoReload: false,
+            isStoreValue: false,
+            showText(e) {
+              return e;
+            },
+            callback: () => {
+              h.showPanel(T.getConfig(0));
+            },
+          },
+        ],
+        get menuOption() {
+          return this.__menuOption;
+        },
+      },
+      init() {
+        this.initExtensionsMenu();
+      },
+      initExtensionsMenu() {
+        h.isTopWindow() && ie.add(this.$data.menuOption);
+      },
+      addMenuOption(e) {
+        (Array.isArray(e) || (e = [e]), this.$data.menuOption.push(...e));
+      },
+      updateMenuOption(e) {
+        (Array.isArray(e) || (e = [e]),
+          e.forEach((t) => {
+            let n = this.$data.menuOption.findIndex((a) => a.key === t.key);
+            n !== -1 && (this.$data.menuOption[n] = t);
+          }));
+      },
+      getMenuOption(e) {
+        return this.$data.menuOption[e];
+      },
+    },
+    h = {
+      $data: {
+        __configDefaultValueData: null,
+        __onceExecMenuData: null,
+        __onceExecData: null,
+        __panelConfig: {},
+        $panel: null,
+        get configDefaultValueData() {
+          return (
+            this.__configDefaultValueData == null && (this.__configDefaultValueData = new d.Dictionary()),
+            this.__configDefaultValueData
+          );
+        },
+        get onceExecMenuData() {
+          return (
+            this.__onceExecMenuData == null && (this.__onceExecMenuData = new d.Dictionary()),
+            this.__onceExecMenuData
+          );
+        },
+        get onceExecData() {
+          return (this.__onceExecData == null && (this.__onceExecData = new d.Dictionary()), this.__onceExecData);
+        },
+        get scriptName() {
+          return I;
+        },
+        get panelConfig() {
+          return this.__panelConfig;
+        },
+        set panelConfig(e) {
+          this.__panelConfig = e;
+        },
+        key: W,
+        attributeKeyName: b,
+        attributeDefaultValueName: L,
+      },
+      init() {
+        (this.initContentDefaultValue(), ue.init());
+      },
+      isTopWindow() {
+        return x.top === x.self;
+      },
+      initContentDefaultValue() {
+        const e = (a) => {
+            if (!a.attributes || a.type === "button" || a.type === "forms" || a.type === "deepMenu") return;
+            let l = {},
+              i = a.attributes[b];
+            i != null && (l[i] = a.attributes[L]);
+            let o = a.attributes[oe];
+            if (typeof o == "function") {
+              let r = o();
+              if (typeof r == "boolean" && !r) return;
+            }
+            let u = a.attributes[se];
+            u && typeof u == "object" && Object.assign(l, u);
+            let s = Object.keys(l);
+            if (!s.length) {
+              _.warn(["请先配置键", a]);
+              return;
+            }
+            s.forEach((r) => {
+              let m = l[r];
+              this.setDefaultValue(r, m);
+            });
+          },
+          t = (a) => {
+            for (let l = 0; l < a.length; l++) {
+              let i = a[l];
+              e(i);
+              let o = i.forms;
+              o && Array.isArray(o) && t(o);
+            }
+          },
+          n = [...T.getAllContentConfig()];
+        for (let a = 0; a < n.length; a++) {
+          let l = n[a];
+          if (!l.forms) continue;
+          const i = l.forms;
+          i && Array.isArray(i) && t(i);
+        }
+      },
+      setDefaultValue(e, t) {
+        (this.$data.configDefaultValueData.has(e) && _.warn("请检查该key(已存在): " + e),
+          this.$data.configDefaultValueData.set(e, t));
+      },
+      setValue(e, t) {
+        y.set(e, t);
+      },
+      getValue(e, t) {
+        let n = y.get(e);
+        return n ?? (this.$data.configDefaultValueData.has(e) ? this.$data.configDefaultValueData.get(e) : t);
+      },
+      deleteValue(e) {
+        y.delete(e);
+      },
+      hasKey(e) {
+        return y.has(e);
+      },
+      addValueChangeListener(e, t) {
+        return y.addValueChangeListener(e, (a, l, i) => {
+          t(e, i, l);
+        });
+      },
+      removeValueChangeListener(e) {
+        y.removeValueChangeListener(e);
+      },
+      triggerMenuValueChange(e, t, n) {
+        y.triggerValueChangeListener(e, n, t);
+      },
+      deleteExecMenuOnce(e) {
+        return (this.$data.onceExecMenuData.delete(e), y.removeValueChangeListener(e));
+      },
+      deleteOnceExec(e) {
+        this.$data.onceExecData.delete(e);
+      },
+      exec(e, t, n, a = true) {
+        const l = this;
+        let i;
+        typeof e == "string" || Array.isArray(e) ? (i = () => e) : (i = e);
+        let o = false,
+          u = i(),
+          s = [];
+        Array.isArray(u) ? ((o = true), (s = u)) : s.push(u);
+        let r = s.find((c) => !this.$data.configDefaultValueData.has(c));
+        if (r) {
+          _.warn(`${r} 键不存在`);
+          return;
+        }
+        let m = JSON.stringify(s);
+        if (a) {
+          if (this.$data.onceExecMenuData.has(m)) return;
+          this.$data.onceExecMenuData.set(m, 1);
+        }
+        let p = [],
+          G = [],
+          j = (c, g) => {
+            let V = [];
+            (g instanceof HTMLStyleElement
+              ? (V = [g])
+              : Array.isArray(g) && (V = [...g.filter((v) => v != null && v instanceof HTMLStyleElement)]),
+              (p = p.concat(V)));
+          },
+          z = (c) => this.getValue(c),
+          R = () => {
+            for (let c = 0; c < p.length; c++) (p[c].remove(), p.splice(c, 1), c--);
+          },
+          Q = () => {
+            let c = false;
+            return (typeof n == "function" ? (c = n(s)) : (c = s.every((g) => z(g))), c);
+          },
+          q = (c) => {
+            let g = Q(),
+              V = [];
+            if (g) {
+              let v = s.map((M) => this.getValue(M)),
+                D = t({ addStyleElement: (...M) => j(true, ...M), value: o ? v : v[0] });
+              D instanceof HTMLStyleElement
+                ? V.push(D)
+                : Array.isArray(D) && V.push(...D.filter((M) => M != null && M instanceof HTMLStyleElement));
+            }
+            (R(), (p = [...V]));
+          };
+        return (
+          a &&
+            s.forEach((c) => {
+              let g = this.addValueChangeListener(c, (V, v, D) => {
+                q();
+              });
+              G.push(g);
+            }),
+          q(),
+          {
+            clear() {
+              (this.clearStoreStyleElements(),
+                this.removeValueChangeListener(),
+                a && l.$data.onceExecMenuData.delete(m));
+            },
+            clearStoreStyleElements: () => R(),
+            removeValueChangeListener: () => {
+              G.forEach((c) => {
+                this.removeValueChangeListener(c);
+              });
+            },
+          }
+        );
+      },
+      execMenu(e, t, n = false) {
+        return this.exec(
+          e,
+          (a) => t(a),
+          (a) =>
+            a.every((i) => {
+              let o = !!this.getValue(i);
+              return (n && (o = !o), o);
+            }),
+          false
+        );
+      },
+      execMenuOnce(e, t) {
+        return this.exec(e, t, (n) => n.every((l) => !!this.getValue(l)), true);
+      },
+      onceExec(e, t) {
+        if (typeof e != "string") throw new TypeError("key 必须是字符串");
+        this.$data.onceExecData.has(e) || (t(), this.$data.onceExecData.set(e, 1));
+      },
+      showPanel(e, t = `${I}-设置`) {
+        let n = N.panel({
+          title: { text: `${I}-设置`, position: "center", html: false, style: "" },
+          content: e,
+          btn: {
+            close: {
+              enable: true,
+              callback: (a, l) => {
+                (a.close(), (this.$data.$panel = null));
+              },
+            },
+          },
+          mask: {
+            enable: true,
+            clickEvent: { toClose: true, toHide: false },
+            clickCallBack: (a, l) => {
+              (a(), (this.$data.$panel = null));
+            },
+          },
+          width: O.setting.width,
+          height: O.setting.height,
+          drag: true,
+          only: true,
+          ...this.$data.panelConfig,
+        });
+        this.$data.$panel = n;
+      },
+    },
+    ce = {
+      init() {
+        _.info("demo site init");
+      },
+    },
+    Z = {
+      $data: {
+        __storeApiFn: null,
+        get storeApiValue() {
+          return (this.__storeApiFn || (this.__storeApiFn = new C.Dictionary()), this.__storeApiFn);
+        },
+      },
+      getStorageApi(e) {
+        if (this.hasStorageApi(e)) return this.$data.storeApiValue.get(e);
+      },
+      hasStorageApi(e) {
+        return this.$data.storeApiValue.has(e);
+      },
+      setStorageApi(e, t) {
+        this.$data.storeApiValue.set(e, t);
+      },
+      setComponentsStorageApiProperty(e, t, n) {
+        let a;
+        (this.hasStorageApi(e) ? (a = this.getStorageApi(e)) : (a = n), Reflect.set(t.props, E, a));
+      },
+    },
+    $ = function (e, t, n, a, l, i) {
+      let o = {
+        text: e,
+        type: "switch",
+        description: l,
+        attributes: {},
+        props: {},
+        getValue() {
+          return !!this.props[E].get(t, n);
+        },
+        callback(u, s) {
+          let r = !!s;
+          (_.success(`${r ? "开启" : "关闭"} ${e}`), this.props[E].set(t, r));
+        },
+        afterAddToUListCallBack: i,
+      };
+      return (
+        Reflect.set(o.attributes, b, t),
+        Reflect.set(o.attributes, L, n),
+        Z.setComponentsStorageApiProperty("switch", o, {
+          get(u, s) {
+            return h.getValue(u, s);
+          },
+          set(u, s) {
+            h.setValue(u, s);
+          },
+        }),
+        o
+      );
+    },
+    P = function (e, t, n, a, l, i) {
+      let o = [];
+      typeof a == "function" ? (o = a()) : (o = a);
+      let u = {
+        text: e,
+        type: "select",
+        description: i,
+        attributes: {},
+        props: {},
+        getValue() {
+          return this.props[E].get(t, n);
+        },
+        callback(s, r, m) {
+          let p = r;
+          (_.info(`选择：${m}`), this.props[E].set(t, p), typeof l == "function" && l(s, p, m));
+        },
+        data: o,
+      };
+      return (
+        Reflect.set(u.attributes, b, t),
+        Reflect.set(u.attributes, L, n),
+        Z.setComponentsStorageApiProperty("select", u, {
+          get(s, r) {
+            return h.getValue(s, r);
+          },
+          set(s, r) {
+            h.setValue(s, r);
+          },
+        }),
+        u
+      );
+    },
+    fe = {
+      id: "view-general",
+      title: "通用",
+      forms: [
+        {
+          text: "Toast配置",
+          type: "forms",
+          forms: [
+            P(
+              "Toast位置",
+              f.qmsg_config_position.key,
+              f.qmsg_config_position.defaultValue,
+              [
+                { value: "topleft", text: "左上角" },
+                { value: "top", text: "顶部" },
+                { value: "topright", text: "右上角" },
+                { value: "left", text: "左边" },
+                { value: "center", text: "中间" },
+                { value: "right", text: "右边" },
+                { value: "bottomleft", text: "左下角" },
+                { value: "bottom", text: "底部" },
+                { value: "bottomright", text: "右下角" },
+              ],
+              (e, t, n) => {
+                _.info("设置当前Qmsg弹出位置" + n);
+              },
+              "Toast显示在页面九宫格的位置"
+            ),
+            P(
+              "最多显示的数量",
+              f.qmsg_config_maxnums.key,
+              f.qmsg_config_maxnums.defaultValue,
+              [
+                { value: 1, text: "1" },
+                { value: 2, text: "2" },
+                { value: 3, text: "3" },
+                { value: 4, text: "4" },
+                { value: 5, text: "5" },
+              ],
+              void 0,
+              "限制Toast显示的数量"
+            ),
+            $(
+              "逆序弹出",
+              f.qmsg_config_showreverse.key,
+              f.qmsg_config_showreverse.defaultValue,
+              void 0,
+              "修改Toast弹出的顺序"
+            ),
+          ],
+        },
+        {
+          text: "Cookie配置",
+          type: "forms",
+          forms: [
+            $(
+              "启用",
+              f.httpx_cookie_manager_enable.key,
+              f.httpx_cookie_manager_enable.defaultValue,
+              void 0,
+              "Api请求时会自动使用下面的Cookie设置"
+            ),
+            $(
+              "使用document.cookie",
+              f.httpx_cookie_manager_use_document_cookie.key,
+              f.httpx_cookie_manager_use_document_cookie.defaultValue,
+              void 0,
+              "会自动根据请求的域名来使用cookie"
+            ),
+          ],
+        },
+      ],
+    };
+  T.addContentConfig([fe]);
+  h.init();
+  ce.init();
 })(Qmsg, DOMUtils, Utils, pops);
