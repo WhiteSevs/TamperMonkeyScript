@@ -1,18 +1,20 @@
 {
-	"name": "greasyfork-optimization",
-	"description": "自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮",
-	"private": true,
-	"version": "0.0.0",
-	"type": "module",
-	"scripts": {
-		"dev": "vue-tsc --noEmit && vite --force",
-		"build": "vue-tsc --noEmit && vite build",
-		"build:min": "vue-tsc --noEmit && vite build --minify",
-		"build:all": "vue-tsc --noEmit && vite build && vite build --minify --no-empty-outDir",
-		"build:all-new": "del .\\SCRIPT_VERSION.json && pnpm run build:all",
-		"build:watch": "vue-tsc --noEmit && vite build --watch",
-		"build:no-cache": "pnpm store prune && vue-tsc --noEmit && vite build",
-		"preview": "vite preview --host 0.0.0.0",
-		"clear": "del .\\SCRIPT_VERSION.json && del .\\vite.config.ts.timestamp* && pnpm store prune"
-	}
+  "name": "greasyfork-optimization",
+  "description": "自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "check": "vue-tsc",
+    "dev": "vue-tsc --noEmit && vite --force",
+    "format": "prettier . --write",
+    "build": "vue-tsc --noEmit && vite build",
+    "build:min": "vue-tsc --noEmit && vite build --minify",
+    "build:all": "vue-tsc --noEmit && vite build && vite build --minify --no-empty-outDir",
+    "build:all-new": "del .\\SCRIPT_VERSION.json && pnpm run build:all",
+    "build:watch": "vue-tsc --noEmit && vite build --watch",
+    "build:no-cache": "pnpm store prune && vue-tsc --noEmit && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "clear": "del .\\SCRIPT_VERSION.json && del .\\vite.config.ts.timestamp* && pnpm store prune"
+  }
 }
