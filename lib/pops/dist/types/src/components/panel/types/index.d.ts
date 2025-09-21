@@ -9,7 +9,7 @@ import type { PopsPanelButtonDetails } from "./components-button";
 import type { PopsPanelDeepMenuDetails } from "./components-deepMenu";
 import type { PopsPanelOwnDetails } from "./components-own";
 import type { PopsHeaderCloseButtonDetails } from "../../../types/button";
-import { PopsPanelSelectMultipleDetails } from "./components-selectMultiple";
+import type { PopsPanelSelectMultipleDetails } from "./components-selectMultiple";
 /** panel的各种类型的配置项 */
 export type PopsPanelFormsTotalDetails = PopsPanelSwitchDetails | PopsPanelSliderDetails | PopsPanelInputDetails | PopsPanelTextAreaDetails | PopsPanelSelectDetails<any> | PopsPanelSelectMultipleDetails<any> | PopsPanelButtonDetails | PopsPanelDeepMenuDetails | PopsPanelOwnDetails;
 /**

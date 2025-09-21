@@ -1,112 +1,112 @@
 .pops-rightClickMenu {
-	--pops-right-context-color: #000000;
-	--pops-right-context-bg-color: rgb(255, 255, 255, 0.733);
-	--pops-right-context-backdrop-filter: blur(10px);
-	--pops-right-context-z-index: 10000;
-	--pops-right-context-bd-radius: 6px;
-	--pops-right-context-menu-shadow-color: rgb(114, 114, 114, 0.251);
-	--pops-right-context-menu-row-bd-radius: 6px;
-	--pops-right-context-menu-row-visited-color: rgb(0, 0, 0, 0.067);
-	--pops-right-context-menu-row-hover-color: rgb(0, 0, 0, 0.067);
+  --pops-right-context-color: #000000;
+  --pops-right-context-bg-color: rgb(255, 255, 255, 0.733);
+  --pops-right-context-backdrop-filter: blur(10px);
+  --pops-right-context-z-index: 10000;
+  --pops-right-context-bd-radius: 6px;
+  --pops-right-context-menu-shadow-color: rgb(114, 114, 114, 0.251);
+  --pops-right-context-menu-row-bd-radius: 6px;
+  --pops-right-context-menu-row-visited-color: rgb(0, 0, 0, 0.067);
+  --pops-right-context-menu-row-hover-color: rgb(0, 0, 0, 0.067);
 }
 .pops-rightClickMenu * {
-	-webkit-box-sizing: border-box;
-	box-sizing: border-box;
-	margin: 0;
-	padding: 0;
-	-webkit-tap-highlight-color: transparent;
-	scrollbar-width: thin;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  scrollbar-width: thin;
 }
 .pops-rightClickMenu {
-	position: fixed;
-	z-index: var(--pops-right-context-z-index);
-	text-align: center;
-	border-radius: var(--pops-right-context-bd-radius);
-	font-size: 16px;
-	font-weight: 500;
-	color: var(--pops-right-context-color);
-	background: var(--pops-right-context-bg-color);
-	box-shadow: 0 0.25rem 0.5rem 0.125rem var(--pops-right-context-menu-shadow-color);
-	-webkit-backdrop-filter: var(--pops-right-context-backdrop-filter);
-	backdrop-filter: var(--pops-right-context-backdrop-filter);
+  position: fixed;
+  z-index: var(--pops-right-context-z-index);
+  text-align: center;
+  border-radius: var(--pops-right-context-bd-radius);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--pops-right-context-color);
+  background: var(--pops-right-context-bg-color);
+  box-shadow: 0 0.25rem 0.5rem 0.125rem var(--pops-right-context-menu-shadow-color);
+  -webkit-backdrop-filter: var(--pops-right-context-backdrop-filter);
+  backdrop-filter: var(--pops-right-context-backdrop-filter);
 }
 /* scale动画 */
 .pops-rightClickMenu-anim-scale {
-	transition:
-		opacity 150ms cubic-bezier(0.2, 0, 0.2, 1),
-		transform 150ms cubic-bezier(0.2, 0, 0.2, 1);
-	transform: scale(0.85);
+  transition:
+    opacity 150ms cubic-bezier(0.2, 0, 0.2, 1),
+    transform 150ms cubic-bezier(0.2, 0, 0.2, 1);
+  transform: scale(0.85);
 }
 .pops-rightClickMenu-anim-scale-open {
-	transform: scale(1);
+  transform: scale(1);
 }
 .pops-rightClickMenu-anim-scale-not-open {
-	opacity: 0;
+  opacity: 0;
 }
 /* 展开动画 */
 .pops-rightClickMenu-anim-grid {
-	display: grid;
-	transition: 0.3s;
-	grid-template-rows: 0fr;
+  display: grid;
+  transition: 0.3s;
+  grid-template-rows: 0fr;
 }
 .pops-rightClickMenu-anim-show {
-	grid-template-rows: 1fr;
+  grid-template-rows: 1fr;
 }
 .pops-rightClickMenu-is-visited {
-	background: var(--pops-right-context-menu-row-visited-color);
+  background: var(--pops-right-context-menu-row-visited-color);
 }
 i.pops-rightClickMenu-icon {
-	height: 1em;
-	width: 1em;
-	line-height: normal;
-	align-content: center;
-	display: inline-flex;
-	justify-content: center;
-	align-items: center;
-	position: relative;
-	fill: currentColor;
-	color: inherit;
-	font-size: inherit;
-	margin-right: 6px;
+  height: 1em;
+  width: 1em;
+  line-height: normal;
+  align-content: center;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  fill: currentColor;
+  color: inherit;
+  font-size: inherit;
+  margin-right: 6px;
 }
 i.pops-rightClickMenu-icon[is-loading="true"] {
-	animation: rotating 2s linear infinite;
+  animation: rotating 2s linear infinite;
 }
 .pops-rightClickMenu li:hover {
-	background: var(--pops-right-context-menu-row-hover-color);
-	cursor: pointer;
+  background: var(--pops-right-context-menu-row-hover-color);
+  cursor: pointer;
 }
 .pops-rightClickMenu ul {
-	margin: 0;
-	padding: 0;
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	justify-content: center;
-	overflow: hidden;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  overflow: hidden;
 }
 .pops-rightClickMenu ul li {
-	padding: 5px 10px;
-	margin: 5px 5px;
-	border-radius: var(--pops-right-context-menu-row-bd-radius);
-	display: flex;
-	width: -webkit-fill-available;
-	width: -moz-available;
-	text-align: left;
-	user-select: none;
-	-webkit-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	align-items: center;
+  padding: 5px 10px;
+  margin: 5px 5px;
+  border-radius: var(--pops-right-context-menu-row-bd-radius);
+  display: flex;
+  width: -webkit-fill-available;
+  width: -moz-available;
+  text-align: left;
+  align-items: center;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 @media (prefers-color-scheme: dark) {
-	/*.pops-rightClickMenu {
+  /*.pops-rightClickMenu {
 		--pops-right-context-menu-shadow-color: #3c3c3c;
 	}*/
 }
 @media (hover: hover) {
-	.pops-rightClickMenu ul li:active {
-		transform: scale(0.98);
-	}
+  .pops-rightClickMenu ul li:active {
+    transform: scale(0.98);
+  }
 }

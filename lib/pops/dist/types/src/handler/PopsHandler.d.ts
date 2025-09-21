@@ -7,8 +7,8 @@ import type { PopsLoadingDetails } from "../components/loading/types";
 import type { PopsPanelDetails } from "../components/panel/types";
 import type { PopsPromptDetails } from "../components/prompt/types/index";
 import type { PopsCommonConfig } from "../types/components";
-import { PopsEventDetails, PopsHandlerEventDetails } from "../types/event";
-import { PopsInstCommonConfig } from "../types/inst";
+import type { PopsEventDetails, PopsHandlerEventDetails } from "../types/event";
+import type { PopsInstCommonConfig } from "../types/inst";
 import type { PopsInstStoreType, PopsType, PopsSupportAnimDetailsType, PopsSupportOnlyDetails } from "../types/main";
 export declare const PopsHandler: {
     /**
@@ -181,7 +181,7 @@ export declare const PopsHandler: {
     /**
      * 处理返回的配置，针对popsHandler.handleEventDetails
      */
-    handleResultDetails<T extends unknown>(details: T): Omit<T, "type" | "function">;
+    handleResultDetails<T>(details: T): Omit<T, "type" | "function">;
     /**
      * 处理点击事件
      * @param type 当前按钮类型

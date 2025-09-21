@@ -1,2 +1,6 @@
 /** GM中的unsafeWindow */
-declare var unsafeWindow: Window & typeof globalThis;
+declare const unsafeWindow: Window & typeof globalThis;
+
+declare interface Window {
+  trustedTypes: any;
+}

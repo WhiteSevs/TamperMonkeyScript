@@ -31,177 +31,174 @@ import { popsDOMUtils } from "./utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "./utils/PopsInstanceUtils";
 import { PopsMathFloatUtils } from "./utils/PopsMathUtils";
 import { popsUtils } from "./utils/PopsUtils";
+import { version } from "../package.json";
 
 class Pops {
-	/** 配置 */
-	config = {
-		/** 版本号 */
-		version: "2025.9.4",
-		cssText: PopsCSS,
-		/** icon图标的svg代码 */
-		iconSVG: PopsIcon.$data,
-		/** 当前已配置的动画@keyframes名字映射(初始化时生成) */
-		animation: PopsAnimation.$data,
-		/** 存储已创建的元素 */
-		instData: PopsInstData,
-		/** 禁止滚动 */
-		forbiddenScroll: {
-			event(event: Event) {
-				return popsDOMUtils.preventEvent(event);
-			},
-		},
-		/** pops使用的工具类 */
-		Utils: popsUtils,
-		/** pops使用的DOM工具类 */
-		DOMUtils: popsDOMUtils,
-		/** pops创建的实例使用的工具类 */
-		InstanceUtils: PopsInstanceUtils,
-		/** pops处理float类型使用的工具类 */
-		MathFloatUtils: PopsMathFloatUtils,
-		/** pops.panel中用于处理各个类型的工具 */
-		PanelHandlerComponents: PanelHandlerComponents,
-	};
-	init() {}
-	/**
-	 * 释放原有的pops控制权
-	 * @example
-	 * let pops = window.pops.noConflict()
-	 */
-	noConflict() {
-		if (typeof (PopsCore.globalThis as any).pops === "object") {
-			popsUtils.delete(PopsCore.globalThis, "pops");
-		}
-		if (
-			typeof unsafeWindow === "object" &&
-			unsafeWindow != null &&
-			typeof (unsafeWindow as any).pops === "object"
-		) {
-			popsUtils.delete(unsafeWindow, "pops");
-		}
-		return new Pops();
-	}
-	/**
-	 * 通过navigator.userAgent判断是否是手机访问
-	 * @param userAgent
-	 */
-	isPhone(userAgent?: string) {
-		return popsUtils.isPhone(userAgent);
-	}
-	/**
-	 * 为所有弹窗设置全局属性
-	 */
-	GlobalConfig = GlobalConfig;
-	/**
-	 * 普通信息框
-	 * @param details 配置
-	 */
-	alert = (details: PopsAlertDetails) => {
-		let dialog = PopsAlert.init(details);
-		return dialog;
-	};
+  /** 配置 */
+  config = {
+    /** 版本号 */
+    version: version,
+    cssText: PopsCSS,
+    /** icon图标的svg代码 */
+    iconSVG: PopsIcon.$data,
+    /** 当前已配置的动画@keyframes名字映射(初始化时生成) */
+    animation: PopsAnimation.$data,
+    /** 存储已创建的元素 */
+    instData: PopsInstData,
+    /** 禁止滚动 */
+    forbiddenScroll: {
+      event(event: Event) {
+        return popsDOMUtils.preventEvent(event);
+      },
+    },
+    /** pops使用的工具类 */
+    Utils: popsUtils,
+    /** pops使用的DOM工具类 */
+    DOMUtils: popsDOMUtils,
+    /** pops创建的实例使用的工具类 */
+    InstanceUtils: PopsInstanceUtils,
+    /** pops处理float类型使用的工具类 */
+    MathFloatUtils: PopsMathFloatUtils,
+    /** pops.panel中用于处理各个类型的工具 */
+    PanelHandlerComponents: PanelHandlerComponents,
+  };
+  init() {}
+  /**
+   * 释放原有的pops控制权
+   * @example
+   * let pops = window.pops.noConflict()
+   */
+  noConflict() {
+    if (typeof (PopsCore.globalThis as any).pops === "object") {
+      popsUtils.delete(PopsCore.globalThis, "pops");
+    }
+    if (typeof unsafeWindow === "object" && unsafeWindow != null && typeof (unsafeWindow as any).pops === "object") {
+      popsUtils.delete(unsafeWindow, "pops");
+    }
+    return new Pops();
+  }
+  /**
+   * 通过navigator.userAgent判断是否是手机访问
+   * @param userAgent
+   */
+  isPhone(userAgent?: string) {
+    return popsUtils.isPhone(userAgent);
+  }
+  /**
+   * 为所有弹窗设置全局属性
+   */
+  GlobalConfig = GlobalConfig;
+  /**
+   * 普通信息框
+   * @param details 配置
+   */
+  alert = (details: PopsAlertDetails) => {
+    const dialog = PopsAlert.init(details);
+    return dialog;
+  };
 
-	/**
-	 * 询问框
-	 * @param details 配置
-	 */
-	confirm = (details: PopsConfirmDetails) => {
-		let dialog = PopsConfirm.init(details);
-		return dialog;
-	};
+  /**
+   * 询问框
+   * @param details 配置
+   */
+  confirm = (details: PopsConfirmDetails) => {
+    const dialog = PopsConfirm.init(details);
+    return dialog;
+  };
 
-	/**
-	 * 输入框
-	 * @param details 配置
-	 */
-	prompt = (details: PopsPromptDetails) => {
-		let dialog = PopsPrompt.init(details);
-		return dialog;
-	};
+  /**
+   * 输入框
+   * @param details 配置
+   */
+  prompt = (details: PopsPromptDetails) => {
+    const dialog = PopsPrompt.init(details);
+    return dialog;
+  };
 
-	/**
-	 * 加载层
-	 * @param details 配置
-	 */
-	loading = (details: PopsLoadingDetails) => {
-		let popsLoading = PopsLoading.init(details);
-		return popsLoading;
-	};
+  /**
+   * 加载层
+   * @param details 配置
+   */
+  loading = (details: PopsLoadingDetails) => {
+    const popsLoading = PopsLoading.init(details);
+    return popsLoading;
+  };
 
-	/**
-	 * iframe层
-	 * @param details 配置
-	 */
-	iframe = (details: PopsIframeDetails) => {
-		let dialog = PopsIframe.init(details);
-		return dialog;
-	};
+  /**
+   * iframe层
+   * @param details 配置
+   */
+  iframe = (details: PopsIframeDetails) => {
+    const dialog = PopsIframe.init(details);
+    return dialog;
+  };
 
-	/**
-	 * 提示框
-	 * @param details 配置
-	 */
-	tooltip = (details: PopsToolTipDetails) => {
-		let popsTooltip = PopsTooltip.init(details);
-		return popsTooltip;
-	};
+  /**
+   * 提示框
+   * @param details 配置
+   */
+  tooltip = (details: PopsToolTipDetails) => {
+    const popsTooltip = PopsTooltip.init(details);
+    return popsTooltip;
+  };
 
-	/**
-	 * 抽屉
-	 * @param details 配置
-	 */
-	drawer = (details: PopsDrawerDetails) => {
-		let dialog = PopsDrawer.init(details);
-		return dialog;
-	};
+  /**
+   * 抽屉
+   * @param details 配置
+   */
+  drawer = (details: PopsDrawerDetails) => {
+    const dialog = PopsDrawer.init(details);
+    return dialog;
+  };
 
-	/**
-	 * 文件夹
-	 * @param details 配置
-	 */
-	folder = (details: PopsFolderDetails) => {
-		let dialog = PopsFolder.init(details);
-		return dialog;
-	};
+  /**
+   * 文件夹
+   * @param details 配置
+   */
+  folder = (details: PopsFolderDetails) => {
+    const dialog = PopsFolder.init(details);
+    return dialog;
+  };
 
-	/**
-	 * 配置面板
-	 * @param details 配置
-	 */
-	panel = (details: PopsPanelDetails) => {
-		let dialog = PopsPanel.init(details);
-		return dialog;
-	};
+  /**
+   * 配置面板
+   * @param details 配置
+   */
+  panel = (details: PopsPanelDetails) => {
+    const dialog = PopsPanel.init(details);
+    return dialog;
+  };
 
-	/**
-	 * 右键菜单
-	 * @param details 配置
-	 */
-	rightClickMenu = (details: PopsRightClickMenuDetails) => {
-		let popsRightClickMenu = PopsRightClickMenu.init(details);
-		return popsRightClickMenu;
-	};
+  /**
+   * 右键菜单
+   * @param details 配置
+   */
+  rightClickMenu = (details: PopsRightClickMenuDetails) => {
+    const popsRightClickMenu = PopsRightClickMenu.init(details);
+    return popsRightClickMenu;
+  };
 
-	/**
-	 * 搜索建议
-	 *
-	 * 注意：调用后需要主动调用.init()和.setAllEvent()进行初始化
-	 * @param details 配置
-	 * @example
-	 * let $input = document.querySelector("#input");
-	 * let searchSuggestion = pops.searchSuggestion({
-	 *     target: $input,
-	 *     inputTarget: $input,
-	 *     getItemHTML: function (item) {
-	 *         return item.value;
-	 *     }
-	 * });
-	 * searchSuggestion.init();
-	 * searchSuggestion.setAllEvent();
-	 */
-	searchSuggestion = <T = any>(details: PopsSearchSuggestionDetails<T>) => {
-		let popsSearchSuggestion = PopsSearchSuggestion.init<T>(details);
-		return popsSearchSuggestion;
-	};
+  /**
+   * 搜索建议
+   *
+   * 注意：调用后需要主动调用.init()和.setAllEvent()进行初始化
+   * @param details 配置
+   * @example
+   * let $input = document.querySelector("#input");
+   * let searchSuggestion = pops.searchSuggestion({
+   *     target: $input,
+   *     inputTarget: $input,
+   *     getItemHTML: function (item) {
+   *         return item.value;
+   *     }
+   * });
+   * searchSuggestion.init();
+   * searchSuggestion.setAllEvent();
+   */
+  searchSuggestion = <T = any>(details: PopsSearchSuggestionDetails<T>) => {
+    const popsSearchSuggestion = PopsSearchSuggestion.init<T>(details);
+    return popsSearchSuggestion;
+  };
 }
 
 const pops = new Pops();

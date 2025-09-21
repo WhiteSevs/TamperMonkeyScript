@@ -1,6 +1,6 @@
 import { DOMUtilsEvent } from "./DOMUtilsEvent";
 import type { DOMUtilsCreateElementAttributesMap } from "./types/DOMUtilsEvent";
-import { ParseHTMLReturnType, type DOMUtilsTargetElementType } from "./types/global";
+import { type ParseHTMLReturnType, type DOMUtilsTargetElementType } from "./types/global";
 import type { WindowApiOption } from "./types/WindowApi";
 declare class DOMUtils extends DOMUtilsEvent {
     constructor(option?: WindowApiOption);
@@ -240,7 +240,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.val("a.xx","data-value")
      * > undefined
      * */
-    prop<T extends any>(element: DOMUtilsTargetElementType | DocumentFragment, propName: string): T;
+    prop<T>(element: DOMUtilsTargetElementType | DocumentFragment, propName: string): T;
     /**
      * 设置元素的属性值
      * @param element 目标元素
@@ -251,7 +251,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.val(document.querySelector("a.xx"),"data-value",1)
      * DOMUtils.val("a.xx","data-value",1)
      * */
-    prop<T extends any>(element: DOMUtilsTargetElementType | DocumentFragment, propName: string, propValue: T): void;
+    prop<T>(element: DOMUtilsTargetElementType | DocumentFragment, propName: string, propValue: T): void;
     /**
      * 移除元素的属性
      * @param element 目标元素
@@ -509,7 +509,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * // 获取a.xx元素所有兄弟元素
      * DOMUtils.siblings(document.querySelector("a.xx"))
      * DOMUtils.siblings("a.xx")
-     * > (3) [div.logo-wrapper, div.forum-block, div.more-btn-desc]
+     * > (3)[div.logo-wrapper, div.forum-block, div.more-btn-desc]
      */
     siblings(element: HTMLElement | string): HTMLElement[];
     /**
@@ -657,5 +657,5 @@ declare class DOMUtils extends DOMUtilsEvent {
     /** 获取 transitionend 在各个浏览器的兼容名 */
     getTransitionEndNameList(): string[];
 }
-declare let domUtils: DOMUtils;
+declare const domUtils: DOMUtils;
 export { domUtils as DOMUtils };

@@ -31,7 +31,7 @@ export type PopsSearchSuggestionData<T = any> = {
     /**
      * 当前配置
      */
-    config: PopsSearchSuggestionDetails<T>) => void | Boolean | Promise<void | Boolean>;
+    config: PopsSearchSuggestionDetails<T>) => void | boolean | Promise<void | boolean>;
     /**
      * 获取每一项的html，在显示的时候会调用该函数
      *
@@ -72,7 +72,7 @@ export type PopsSearchSuggestionData<T = any> = {
     /**
      * 当前配置
      */
-    config: PopsSearchSuggestionDetails<T>) => void | Boolean | Promise<void | Boolean>;
+    config: PopsSearchSuggestionDetails<T>) => void | boolean | Promise<void | boolean>;
     /**
      * 键盘的上下键选择的回调
      */

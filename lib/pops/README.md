@@ -1,8 +1,8 @@
 # 弹窗库
 
-+ 最新版本：[![npm version](https://img.shields.io/npm/v/@whitesev/pops)](https://www.npmjs.com/package/@whitesev/pops)
+- 最新版本：[![npm version](https://img.shields.io/npm/v/@whitesev/pops)](https://www.npmjs.com/package/@whitesev/pops)
 
-```js
+````js
 
 ## pops.isPhone
 
@@ -11,7 +11,7 @@
 ```js
 pops.iPhone()
 -> true
-```
+````
 
 ## pops.alert
 
@@ -19,15 +19,15 @@ pops.iPhone()
 
 ```js
 pops.alert({
-    content: {
-        text: "普通信息框",
+  content: {
+    text: "普通信息框",
+  },
+  mask: {
+    enable: true,
+    clickEvent: {
+      toClose: true,
     },
-    mask: {
-        enable: true,
-        clickEvent:{
-            toClose: true
-        }
-    },
+  },
 });
 ```
 
@@ -39,15 +39,15 @@ pops.alert({
 
 ```js
 pops.confirm({
-    content: {
-        text: "询问框",
+  content: {
+    text: "询问框",
+  },
+  mask: {
+    enable: true,
+    clickEvent: {
+      toClose: true,
     },
-    mask: {
-        enable: true,
-        clickEvent:{
-            toClose: true
-        }
-    },
+  },
 });
 ```
 
@@ -59,15 +59,15 @@ pops.confirm({
 
 ```js
 pops.drawer({
-    content: {
-        text: "抽屉层",
+  content: {
+    text: "抽屉层",
+  },
+  mask: {
+    enable: true,
+    clickEvent: {
+      toClose: true,
     },
-    mask: {
-        enable: true,
-        clickEvent:{
-            toClose: true
-        }
-    },
+  },
 });
 ```
 
@@ -79,28 +79,30 @@ pops.drawer({
 
 ```js
 pops.folder({
-    title: {
-        text: "文件夹层",
+  title: {
+    text: "文件夹层",
+  },
+  folder: [
+    {
+      fileName: "测试文件.apk",
+      fileSize: 30125682,
+      fileType: "apk",
+      createTime: 1702036410440,
+      latestTime: 1702039410440,
+      isFolder: false,
+      index: 1,
+      clickEvent() {
+        console.log("下载文件：", this.fileName);
+        return "https://update.greasyfork.org/scripts/456485/pops.js";
+      },
     },
-    folder: [{
-        fileName: "测试文件.apk",
-        fileSize: 30125682,
-        fileType: "apk",
-        createTime: 1702036410440,
-        latestTime: 1702039410440,
-        isFolder: false,
-        index: 1,
-        clickEvent() {
-            console.log("下载文件：", this.fileName);
-            return "https://update.greasyfork.org/scripts/456485/pops.js";
-        },
-    }],
-    mask: {
-        enable: true,
-        clickEvent:{
-            toClose: true
-        }
+  ],
+  mask: {
+    enable: true,
+    clickEvent: {
+      toClose: true,
     },
+  },
 });
 ```
 
@@ -112,16 +114,16 @@ iframe层
 
 ```js
 pops.iframe({
-    url: window.location.href,
-    title: {
-        text: "iframe层"
+  url: window.location.href,
+  title: {
+    text: "iframe层",
+  },
+  mask: {
+    enable: true,
+    clickEvent: {
+      toClose: true,
     },
-    mask: {
-        enable: true,
-        clickEvent:{
-            toClose: true
-        }
-    },
+  },
 });
 ```
 
@@ -135,17 +137,17 @@ pops.iframe({
 
 ```js
 pops.loading({
-    parent: document.body,
-    content: {
-        text: "加载中...",
-        icon: "loading",
+  parent: document.body,
+  content: {
+    text: "加载中...",
+    icon: "loading",
+  },
+  mask: {
+    enable: true,
+    clickEvent: {
+      toClose: true,
     },
-    mask: {
-        enable: true,
-        clickEvent:{
-            toClose: true
-        }
-    },
+  },
 });
 ```
 
@@ -157,22 +159,24 @@ pops.loading({
 
 ```js
 pops.panel({
-    title: {
-        text: "面板层",
+  title: {
+    text: "面板层",
+  },
+  content: [
+    {
+      id: "whitesev-panel-config",
+      title: "菜单配置",
+      headerTitle: "菜单配置",
+      isDefault: true,
+      forms: [],
     },
-    content: [{
-        id: "whitesev-panel-config",
-        title: "菜单配置",
-        headerTitle: "菜单配置",
-        isDefault: true,
-        forms: []
-    }],
-    mask: {
-        enable: true,
-        clickEvent:{
-            toClose: true
-        }
+  ],
+  mask: {
+    enable: true,
+    clickEvent: {
+      toClose: true,
     },
+  },
 });
 ```
 
@@ -184,15 +188,15 @@ pops.panel({
 
 ```js
 pops.prompt({
-    content: {
-        text: "输入框的内容",
+  content: {
+    text: "输入框的内容",
+  },
+  mask: {
+    enable: true,
+    clickEvent: {
+      toClose: true,
     },
-    mask: {
-        enable: true,
-        clickEvent:{
-            toClose: true
-        }
-    },
+  },
 });
 ```
 
@@ -204,15 +208,17 @@ pops.prompt({
 
 ```js
 pops.rightClickMenu({
-    target: document.documentElement,
-    data: [{
-        icon: pops.config.iconSVG.search,
-        iconIsLoading: false,
-        text: "右键菜单",
-        callback(event) {
-            console.log("点击：" + this.text, event);
-        },
-    },]
+  target: document.documentElement,
+  data: [
+    {
+      icon: pops.config.iconSVG.search,
+      iconIsLoading: false,
+      text: "右键菜单",
+      callback(event) {
+        console.log("点击：" + this.text, event);
+      },
+    },
+  ],
 });
 ```
 
@@ -224,8 +230,8 @@ pops.rightClickMenu({
 
 ```js
 pops.tooltip({
-    target: document.querySelector("#user-container"),
-    content: "鼠标悬浮提示内容",
+  target: document.querySelector("#user-container"),
+  content: "鼠标悬浮提示内容",
 });
 ```
 
@@ -235,8 +241,8 @@ pops.tooltip({
 
 ```js
 let suggestion = pops.searchSuggestion({
-    target: document.querySelector("input"),
-})
+  target: document.querySelector("input"),
+});
 suggestion.init();
 ```
 

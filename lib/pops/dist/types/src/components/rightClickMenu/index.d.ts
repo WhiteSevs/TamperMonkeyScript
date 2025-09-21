@@ -1225,6 +1225,7 @@ export declare const PopsRightClickMenu: {
                         <K extends keyof WindowEventMap>(type: K, listener: (this: Window, ev: WindowEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
                         (type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
                     } & typeof removeEventListener;
+                    trustedTypes: any;
                     dispatchEvent: ((event: Event) => boolean) & typeof dispatchEvent;
                     cancelAnimationFrame: ((handle: number) => void) & typeof cancelAnimationFrame;
                     requestAnimationFrame: ((callback: FrameRequestCallback) => number) & typeof requestAnimationFrame;
@@ -6478,7 +6479,6 @@ export declare const PopsRightClickMenu: {
                         DisposableStack: DisposableStackConstructor;
                         AsyncDisposableStack: AsyncDisposableStackConstructor;
                         Float16Array: Float16ArrayConstructor;
-                        unsafeWindow: /*elided*/ any;
                         undefined: undefined;
                     };
                     eval: typeof eval;
@@ -10574,7 +10574,6 @@ export declare const PopsRightClickMenu: {
                     DisposableStack: DisposableStackConstructor;
                     AsyncDisposableStack: AsyncDisposableStackConstructor;
                     Float16Array: Float16ArrayConstructor;
-                    unsafeWindow: /*elided*/ any;
                     undefined: undefined;
                 };
                 readonly speechSynthesis: {
@@ -11281,6 +11280,7 @@ export declare const PopsRightClickMenu: {
                         <K extends keyof WindowEventMap>(type: K, listener: (this: Window, ev: WindowEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
                         (type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
                     } & typeof removeEventListener;
+                    trustedTypes: any;
                     dispatchEvent: ((event: Event) => boolean) & typeof dispatchEvent;
                     cancelAnimationFrame: ((handle: number) => void) & typeof cancelAnimationFrame;
                     requestAnimationFrame: ((callback: FrameRequestCallback) => number) & typeof requestAnimationFrame;
@@ -16534,7 +16534,6 @@ export declare const PopsRightClickMenu: {
                         DisposableStack: DisposableStackConstructor;
                         AsyncDisposableStack: AsyncDisposableStackConstructor;
                         Float16Array: Float16ArrayConstructor;
-                        unsafeWindow: /*elided*/ any;
                         undefined: undefined;
                     };
                     eval: typeof eval;
@@ -20630,7 +20629,6 @@ export declare const PopsRightClickMenu: {
                     DisposableStack: DisposableStackConstructor;
                     AsyncDisposableStack: AsyncDisposableStackConstructor;
                     Float16Array: Float16ArrayConstructor;
-                    unsafeWindow: /*elided*/ any;
                     undefined: undefined;
                 };
                 alert: (message?: any) => void;
@@ -20677,6 +20675,7 @@ export declare const PopsRightClickMenu: {
                     <K extends keyof WindowEventMap>(type: K, listener: (this: Window, ev: WindowEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
                     (type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
                 };
+                trustedTypes: any;
                 dispatchEvent: (event: Event) => boolean;
                 cancelAnimationFrame: (handle: number) => void;
                 requestAnimationFrame: (callback: FrameRequestCallback) => number;

@@ -1,62 +1,71 @@
 {
-	"name": "@whitesev/pops",
-	"version": "2.4.5",
-	"description": "弹窗库",
-	"type": "module",
-	"homepage": "https://github.com/WhiteSevs/TamperMonkeyScript/tree/master/lib/pops#readme",
-	"bugs": {
-		"url": "https://github.com/WhiteSevs/TamperMonkeyScript/issues"
-	},
-	"main": "dist/index.cjs.js",
-	"module": "dist/index.esm.js",
-	"types": "dist/types/index.d.ts",
-	"jsdelivr": "dist/index.umd.js",
-	"exports": {
-		"./dist/*": "./dist/*",
-		"./package.json": "./package.json",
-		".": {
-			"import": "./dist/index.esm.js",
-			"require": "./dist/index.cjs.js",
-			"types": "./dist/types/index.d.ts"
-		}
-	},
-	"files": [
-		"dist"
-	],
-	"scripts": {
-		"dev": "pnpm run format & npx rollup -c -w",
-		"build": "pnpm run format & npx rollup -c",
-		"build:all": "pnpm run format & npx rollup -c",
-		"build:all-new": "pnpm run format & npx rollup -c",
-		"format": "npx prettier -w src/**/*.ts src/**/*.css",
-		"release": "npm publish"
-	},
-	"publishConfig": {
-		"registry": "https://registry.npmjs.org/"
-	},
-	"keywords": [
-		"typescript",
-		"pops",
-		"dialog",
-		"弹窗",
-		"TamperMonkey",
-		"VioletMonkey",
-		"ScriptCat"
-	],
-	"author": "WhiteSev",
-	"license": "MIT",
-	"dependencies": {
-		"any-touch": "^2.2.0",
-		"worker-timers": "^8.0.23"
-	},
-	"devDependencies": {
-		"@rollup/plugin-commonjs": "^28.0.6",
-		"@rollup/plugin-node-resolve": "^16.0.1",
-		"@rollup/plugin-typescript": "12.1.4",
-		"rollup": "^4.45.0",
-		"rollup-plugin-clear": "^2.0.7",
-		"rollup-plugin-import-css": "^4.0.1",
-		"tslib": "^2.8.1",
-		"typescript": "^5.8.3"
-	}
+  "name": "@whitesev/pops",
+  "version": "2.4.6",
+  "description": "弹窗库",
+  "type": "module",
+  "homepage": "https://github.com/WhiteSevs/TamperMonkeyScript/tree/master/lib/pops#readme",
+  "bugs": {
+    "url": "https://github.com/WhiteSevs/TamperMonkeyScript/issues"
+  },
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/types/index.d.ts",
+  "jsdelivr": "dist/index.umd.js",
+  "exports": {
+    "./dist/*": "./dist/*",
+    "./package.json": "./package.json",
+    ".": {
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.cjs.js",
+      "types": "./dist/types/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier . --write",
+    "dev": "pnpm run format && pnpm run lint && rollup -c -w",
+    "build": "pnpm run format && pnpm run lint && rollup -c"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "keywords": [
+    "typescript",
+    "pops",
+    "dialog",
+    "弹窗",
+    "TamperMonkey",
+    "VioletMonkey",
+    "ScriptCat"
+  ],
+  "author": "WhiteSev",
+  "license": "MIT",
+  "dependencies": {
+    "any-touch": "^2.2.0",
+    "worker-timers": "^8.0.23"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.36.0",
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-typescript": "12.1.4",
+    "browserslist": "^4.26.2",
+    "caniuse-lite": "^1.0.30001743",
+    "eslint": "^9.36.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-compat": "^6.0.2",
+    "eslint-plugin-prettier": "^5.5.4",
+    "globals": "^16.4.0",
+    "rollup": "^4.45.0",
+    "rollup-plugin-clear": "^2.0.7",
+    "rollup-plugin-import-css": "^4.0.1",
+    "tslib": "^2.8.1",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.44.0"
+  }
 }

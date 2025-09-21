@@ -47,7 +47,7 @@ export declare const DOMUtilsCommonUtils: {
     /**
      * 自动使用 Worker 执行 setTimeout
      */
-    setTimeout(callback: Function, timeout?: number): number;
+    setTimeout(callback: (...args: any[]) => any, timeout?: number): number;
     /**
      * 配合 .setTimeout 使用
      */
@@ -55,7 +55,7 @@ export declare const DOMUtilsCommonUtils: {
     /**
      * 自动使用 Worker 执行 setInterval
      */
-    setInterval(callback: Function, timeout?: number): number;
+    setInterval(callback: (...args: any[]) => any, timeout?: number): number;
     /**
      * 配合 .setInterval 使用
      */

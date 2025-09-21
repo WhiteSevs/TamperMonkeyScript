@@ -1,0 +1,5 @@
+# 支持的浏览器配置
+chrome >= 88
+edge >= 88
+firefox >= 88
+safari >= 16

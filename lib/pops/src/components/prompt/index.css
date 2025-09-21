@@ -1,34 +1,34 @@
 .pops[type-value="prompt"] {
-	--input-color: #000000;
-	--input-bg-color: none;
-	--input-placeholder-color: #a1a4ac;
+  --input-color: #000000;
+  --input-bg-color: none;
+  --input-placeholder-color: #a1a4ac;
 }
 .pops[type-value="prompt"] input[pops],
 .pops[type-value="prompt"] textarea[pops] {
-	width: 100%;
-	height: 100%;
-	outline: 0;
-	border: 0;
-	color: var(--input-color);
-	background-color: var(--input-bg-color);
+  width: 100%;
+  height: 100%;
+  outline: 0;
+  border: 0;
+  color: var(--input-color);
+  background-color: var(--input-bg-color);
 }
 
 .pops[type-value="prompt"] input[pops] {
-	padding: 5px 10px;
+  padding: 5px 10px;
 }
 .pops[type-value="prompt"] textarea[pops] {
-	padding: 5px 10px;
-	resize: none;
+  padding: 5px 10px;
+  resize: none;
 }
 
 .pops[type-value="prompt"] input[pops]::placeholder,
 .pops[type-value="prompt"] textarea[pops]::placeholder {
-	color: var(--input-placeholder-color);
+  color: var(--input-placeholder-color);
 }
 @media (prefers-color-scheme: dark) {
-	.pops[type-value="prompt"] {
-		--input-color: #ffffff;
-		--input-bg-color: #333333;
-		--input-placeholder-color: #8d9095;
-	}
+  .pops[type-value="prompt"] {
+    --input-color: #ffffff;
+    --input-bg-color: #333333;
+    --input-placeholder-color: #8d9095;
+  }
 }
