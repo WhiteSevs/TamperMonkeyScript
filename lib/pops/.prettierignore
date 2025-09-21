@@ -1,0 +1,8 @@
+# Lock files
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+dist
+node_modules
+.prettierrc
+# Ignore source files

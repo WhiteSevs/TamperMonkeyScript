@@ -14,27 +14,27 @@ import type { PopsPanelSliderDetails } from "../components/panel/types/component
 import type { PopsPanelSwitchDetails } from "../components/panel/types/components-switch";
 import type { PopsPanelTextAreaDetails } from "../components/panel/types/components-textarea";
 import type { PopsPromptDetails } from "../components/prompt/types/index";
-import { PopsRightClickMenuDetails } from "../components/rightClickMenu/types";
-import { PopsToolTipDetails } from "../components/tooltip/types/index";
+import type { PopsRightClickMenuDetails } from "../components/rightClickMenu/types";
+import type { PopsToolTipDetails } from "../components/tooltip/types/index";
 import type { PopsSearchSuggestionDetails } from "../components/searchSuggestion/types";
 
-export interface PopsUtilsOwnObject<V extends any> {
-	[key: string]: V | PopsUtilsOwnObject<V>;
+export interface PopsUtilsOwnObject<V> {
+  [key: string]: V | PopsUtilsOwnObject<V>;
 }
 
 /** pops所有的类型配置 11个*/
 export interface PopsDetails {
-	alert: PopsAlertDetails;
-	confirm: PopsConfirmDetails;
-	prompt: PopsPromptDetails;
-	loading: PopsLoadingDetails;
-	iframe: PopsIframeDetails;
-	tooltip: PopsToolTipDetails;
-	drawer: PopsDrawerDetails;
-	folder: PopsFolderDetails;
-	panel: PopsPanelDetails;
-	rightClickMenu: PopsRightClickMenuDetails;
-	searchSuggestion: PopsSearchSuggestionDetails;
+  alert: PopsAlertDetails;
+  confirm: PopsConfirmDetails;
+  prompt: PopsPromptDetails;
+  loading: PopsLoadingDetails;
+  iframe: PopsIframeDetails;
+  tooltip: PopsToolTipDetails;
+  drawer: PopsDrawerDetails;
+  folder: PopsFolderDetails;
+  panel: PopsPanelDetails;
+  rightClickMenu: PopsRightClickMenuDetails;
+  searchSuggestion: PopsSearchSuggestionDetails;
 }
 
 /** pops的类型 */
@@ -54,8 +54,8 @@ export type PopsSupportAnimDetailsType = keyof PopsSupportAnimDetails;
 
 /** pops弹窗支持标题栏的配置 */
 export type PopsSupportHeaderTitleDetails = Pick<
-	PopsDetails,
-	"alert" | "confirm" | "prompt" | "iframe" | "drawer" | "folder" | "panel"
+  PopsDetails,
+  "alert" | "confirm" | "prompt" | "iframe" | "drawer" | "folder" | "panel"
 >;
 
 /** pops弹窗支持标题栏的类型 */
@@ -68,47 +68,44 @@ export type PopsSupportBottomBtnDetails = Pick<PopsDetails, "alert" | "confirm" 
 export type PopsSupportBottomBtnDetailsType = keyof PopsSupportHeaderTitleDetails;
 
 /** pops支持中间内容的配置 */
-export type PopsSupportContentDetails = Pick<
-	PopsDetails,
-	"alert" | "confirm" | "prompt" | "drawer" | "loading"
->;
+export type PopsSupportContentDetails = Pick<PopsDetails, "alert" | "confirm" | "prompt" | "drawer" | "loading">;
 
 /** pops支持中间内容的类型 */
 export type PopsSupportContentDetailsType = keyof PopsSupportContentDetails;
 
 /** panel的各种类型的配置项 */
 export type PopsPanelFormsTotalDetails =
-	| PopsPanelSwitchDetails
-	| PopsPanelSliderDetails
-	| PopsPanelInputDetails
-	| PopsPanelTextAreaDetails
-	| PopsPanelSelectDetails<any>
-	| PopsPanelButtonDetails
-	| PopsPanelDeepMenuDetails
-	| PopsPanelOwnDetails;
+  | PopsPanelSwitchDetails
+  | PopsPanelSliderDetails
+  | PopsPanelInputDetails
+  | PopsPanelTextAreaDetails
+  | PopsPanelSelectDetails<any>
+  | PopsPanelButtonDetails
+  | PopsPanelDeepMenuDetails
+  | PopsPanelOwnDetails;
 
 /**
  * pops.xxx的调用返回值
  */
 export interface PopsCallResult {
-	/** 唯一标识id */
-	guid: string;
-	/** 影子元素 */
-	$shadowContainer: HTMLDivElement;
-	/** 影子元素的根节点 */
-	$shadowRoot: ShadowRoot | HTMLElement;
-	/** 元素 */
-	element: HTMLDivElement;
-	/** 动画层元素 */
-	animElement: HTMLDivElement;
-	/** pops元素 */
-	popsElement: HTMLDivElement;
-	/** 遮罩层元素 */
-	maskElement?: HTMLDivElement;
-	/** 关闭弹窗 */
-	close(): void;
-	/** 隐藏弹窗 */
-	hide(): void;
-	/** 显示弹窗 */
-	show(): void;
+  /** 唯一标识id */
+  guid: string;
+  /** 影子元素 */
+  $shadowContainer: HTMLDivElement;
+  /** 影子元素的根节点 */
+  $shadowRoot: ShadowRoot | HTMLElement;
+  /** 元素 */
+  element: HTMLDivElement;
+  /** 动画层元素 */
+  animElement: HTMLDivElement;
+  /** pops元素 */
+  popsElement: HTMLDivElement;
+  /** 遮罩层元素 */
+  maskElement?: HTMLDivElement;
+  /** 关闭弹窗 */
+  close(): void;
+  /** 隐藏弹窗 */
+  hide(): void;
+  /** 显示弹窗 */
+  show(): void;
 }

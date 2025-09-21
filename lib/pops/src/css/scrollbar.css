@@ -1,22 +1,22 @@
 /* ::-webkit-scrollbar 是非标准的css */
 /* https://caniuse.com/?search=%20%3A%3A-webkit-scrollbar */
 .pops ::-webkit-scrollbar {
-	width: 6px;
-	height: 0;
+  width: 6px;
+  height: 0;
 }
 
 /* 滚动条轨道 */
 .pops ::-webkit-scrollbar-track {
-	width: 0;
+  width: 0;
 }
 /* 滚动条滑块 */
 .pops ::-webkit-scrollbar-thumb {
-	min-height: 28px;
-	border-radius: 2em;
-	background: rgb(204, 204, 204, var(--pops-bg-opacity, 1));
-	background-clip: padding-box;
+  min-height: 28px;
+  border-radius: 2em;
+  background: rgb(204, 204, 204, var(--pops-bg-opacity, 1));
+  background-clip: padding-box;
 }
 /* 滚动条滑块 */
 .pops ::-webkit-scrollbar-thumb:hover {
-	background: rgb(178, 178, 178, var(--pops-bg-opacity, 1));
+  background: rgb(178, 178, 178, var(--pops-bg-opacity, 1));
 }

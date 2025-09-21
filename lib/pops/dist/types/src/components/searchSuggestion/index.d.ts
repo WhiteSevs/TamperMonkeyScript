@@ -14,7 +14,7 @@ export declare const PopsSearchSuggestion: {
             $dynamicCSS: HTMLStyleElement;
         };
         $evt: {
-            offInputChangeEvtHandler: Function[];
+            offInputChangeEvtHandler: ((...args: any[]) => any)[];
         };
         $data: {
             /** 是否结果为空 */
@@ -126,7 +126,7 @@ export declare const PopsSearchSuggestion: {
          * @param target 目标元素
          * @param checkPositonAgain 是否在更新位置信息后检测更新位置信息，默认true
          */
-        changeHintULElementPosition(target?: HTMLElement, checkPositonAgain?: Boolean): void;
+        changeHintULElementPosition(target?: HTMLElement, checkPositonAgain?: boolean): void;
         /**
          * 更新搜索建议框的width
          * 因为目标元素可能是动态隐藏的

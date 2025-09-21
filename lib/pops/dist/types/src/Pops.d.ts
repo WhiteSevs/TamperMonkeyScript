@@ -98,9 +98,9 @@ declare class Pops {
             formatByteToSize<T extends boolean>(byteSize: number | string, addType?: T | undefined): T extends true ? string : number;
             AnyTouch: () => typeof import("any-touch").default;
             isPhone(userAgent?: string): boolean;
-            setTimeout(callback: Function, timeout?: number): number;
+            setTimeout(callback: (...args: any[]) => any, timeout?: number): number;
             clearTimeout(timeId: number | undefined): void;
-            setInterval(callback: Function, timeout?: number): number;
+            setInterval(callback: (...args: any[]) => any, timeout?: number): number;
             clearInterval(timeId: number | undefined): void;
         };
         /** pops使用的DOM工具类 */
@@ -164,7 +164,7 @@ declare class Pops {
             off<T extends Event>(element: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsElementEventType, eventType: string | string[], selector?: string | string[] | undefined | null, callback?: ((this: HTMLElement, event: T, selectorTarget: HTMLElement) => void) | undefined, option?: EventListenerOptions | boolean, filter?: (value: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsEventListenerOptionsAttribute, index: number, array: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
             offAll(element: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsElementEventType, eventType?: string): void;
             offAll(element: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsElementEventType, eventType?: import("./types/PopsDOMUtilsEventType").PopsDOMUtils_EventType | import("./types/PopsDOMUtilsEventType").PopsDOMUtils_EventType[]): void;
-            ready<T extends Function>(callback: T): void;
+            ready<T extends (...args: any[]) => any>(callback: T): void;
             trigger(element: HTMLElement | string | NodeList | any[] | Window | Document, eventType: string | string[], details?: object, useDispatchToTriggerEvent?: boolean): void;
             trigger(element: HTMLElement | string | NodeList | any[] | Window | Document, eventType: import("./types/PopsDOMUtilsEventType").PopsDOMUtils_EventType | import("./types/PopsDOMUtilsEventType").PopsDOMUtils_EventType[], details?: object, useDispatchToTriggerEvent?: boolean): void;
             click(element: HTMLElement | string | Window, handler?: (event: import("./types/PopsDOMUtilsEventType").PopsDOMUtils_Event["click"]) => void, details?: any, useDispatchToTriggerEvent?: boolean): void;
@@ -210,7 +210,7 @@ declare class Pops {
                 endCallBack?: (moveElement: HTMLElement, left: number, top: number) => void;
                 preventEvent?: (event: TouchEvent | PointerEvent) => boolean;
             }): void;
-            sortElementListByProperty<T extends unknown, R>(getBeforeValueFun: (value: T) => R, getAfterValueFun: (value: T) => R, sortByDesc?: boolean): (after_obj: T, before_obj: T) => 1 | 0 | -1;
+            sortElementListByProperty<T, R>(getBeforeValueFun: (value: T) => R, getAfterValueFun: (value: T) => R, sortByDesc?: boolean): (after_obj: T, before_obj: T) => 1 | 0 | -1;
         };
         /** pops处理float类型使用的工具类 */
         MathFloatUtils: {
@@ -1651,6 +1651,7 @@ declare class Pops {
                         <K extends keyof WindowEventMap>(type: K, listener: (this: Window, ev: WindowEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
                         (type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
                     } & typeof removeEventListener;
+                    trustedTypes: any;
                     dispatchEvent: ((event: Event) => boolean) & typeof dispatchEvent;
                     cancelAnimationFrame: ((handle: number) => void) & typeof cancelAnimationFrame;
                     requestAnimationFrame: ((callback: FrameRequestCallback) => number) & typeof requestAnimationFrame;
@@ -6904,7 +6905,6 @@ declare class Pops {
                         DisposableStack: DisposableStackConstructor;
                         AsyncDisposableStack: AsyncDisposableStackConstructor;
                         Float16Array: Float16ArrayConstructor;
-                        unsafeWindow: /*elided*/ any;
                         undefined: undefined;
                     };
                     eval: typeof eval;
@@ -11000,7 +11000,6 @@ declare class Pops {
                     DisposableStack: DisposableStackConstructor;
                     AsyncDisposableStack: AsyncDisposableStackConstructor;
                     Float16Array: Float16ArrayConstructor;
-                    unsafeWindow: /*elided*/ any;
                     undefined: undefined;
                 };
                 readonly speechSynthesis: {
@@ -11707,6 +11706,7 @@ declare class Pops {
                         <K extends keyof WindowEventMap>(type: K, listener: (this: Window, ev: WindowEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
                         (type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
                     } & typeof removeEventListener;
+                    trustedTypes: any;
                     dispatchEvent: ((event: Event) => boolean) & typeof dispatchEvent;
                     cancelAnimationFrame: ((handle: number) => void) & typeof cancelAnimationFrame;
                     requestAnimationFrame: ((callback: FrameRequestCallback) => number) & typeof requestAnimationFrame;
@@ -16960,7 +16960,6 @@ declare class Pops {
                         DisposableStack: DisposableStackConstructor;
                         AsyncDisposableStack: AsyncDisposableStackConstructor;
                         Float16Array: Float16ArrayConstructor;
-                        unsafeWindow: /*elided*/ any;
                         undefined: undefined;
                     };
                     eval: typeof eval;
@@ -21056,7 +21055,6 @@ declare class Pops {
                     DisposableStack: DisposableStackConstructor;
                     AsyncDisposableStack: AsyncDisposableStackConstructor;
                     Float16Array: Float16ArrayConstructor;
-                    unsafeWindow: /*elided*/ any;
                     undefined: undefined;
                 };
                 alert: (message?: any) => void;
@@ -21103,6 +21101,7 @@ declare class Pops {
                     <K extends keyof WindowEventMap>(type: K, listener: (this: Window, ev: WindowEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
                     (type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
                 };
+                trustedTypes: any;
                 dispatchEvent: (event: Event) => boolean;
                 cancelAnimationFrame: (handle: number) => void;
                 requestAnimationFrame: (callback: FrameRequestCallback) => number;
@@ -21417,7 +21416,7 @@ declare class Pops {
             $dynamicCSS: HTMLStyleElement;
         };
         $evt: {
-            offInputChangeEvtHandler: Function[];
+            offInputChangeEvtHandler: ((...args: any[]) => any)[];
         };
         $data: {
             isEmpty: boolean;
@@ -21445,7 +21444,7 @@ declare class Pops {
         createItemDeleteIcon(size?: number, fill?: string): HTMLElement;
         setPromptsInSearch(): void;
         removePromptsInSearch(): void;
-        changeHintULElementPosition(target?: HTMLElement, checkPositonAgain?: Boolean): void;
+        changeHintULElementPosition(target?: HTMLElement, checkPositonAgain?: boolean): void;
         changeHintULElementWidth(target?: HTMLElement): void;
         updateDynamicCSS(): void;
         updateStyleSheet(): void;

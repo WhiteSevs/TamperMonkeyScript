@@ -166,7 +166,7 @@ declare class PopsDOMUtilsEvent {
      *   console.log("文档加载完毕")
      * })
      */
-    ready<T extends Function>(callback: T): void;
+    ready<T extends (...args: any[]) => any>(callback: T): void;
     /**
      * 主动触发事件
      * @param element 需要触发的元素|元素数组|window

@@ -102,5 +102,5 @@ export declare const PopsInstanceUtils: {
      * @param getAfterValueFun
      * @param sortByDesc 排序是否降序，默认降序
      */
-    sortElementListByProperty<T extends unknown, R>(getBeforeValueFun: (value: T) => R, getAfterValueFun: (value: T) => R, sortByDesc?: boolean): (after_obj: T, before_obj: T) => 1 | 0 | -1;
+    sortElementListByProperty<T, R>(getBeforeValueFun: (value: T) => R, getAfterValueFun: (value: T) => R, sortByDesc?: boolean): (after_obj: T, before_obj: T) => 1 | 0 | -1;
 };

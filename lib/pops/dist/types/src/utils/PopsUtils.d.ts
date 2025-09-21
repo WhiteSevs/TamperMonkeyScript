@@ -23,20 +23,20 @@ declare class PopsUtils {
      */
     delete(target: any, propName: any): void;
     /**
-     * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
-     * @param target 目标数据
-     * @param source 源数据
-     * @param isAdd 是否可以追加键，默认false
-     * @example
-     * Utils.assign({"1":1,"2":{"3":3}}, {"2":{"3":4}});
-     * >
-     * {
-            "1": 1,
-            "2": {
-                "3": 4
-            }
-        }
-     */
+       * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
+       * @param target 目标数据
+       * @param source 源数据
+       * @param isAdd 是否可以追加键，默认false
+       * @example
+       * Utils.assign({"1":1,"2":{"3":3}}, {"2":{"3":4}});
+       * >
+       * {
+              "1": 1,
+              "2": {
+                  "3": 4
+              }
+          }
+       */
     assign<T1, T2 extends object, T3 extends boolean>(target: T1, source: T2, isAdd?: T3): T3 extends true ? T1 & T2 : T1;
     /**
      * 生成uuid
@@ -121,7 +121,7 @@ declare class PopsUtils {
     /**
      * 自动使用 Worker 执行 setTimeout
      */
-    setTimeout(callback: Function, timeout?: number): number;
+    setTimeout(callback: (...args: any[]) => any, timeout?: number): number;
     /**
      * 配合 .setTimeout 使用
      */
@@ -129,7 +129,7 @@ declare class PopsUtils {
     /**
      * 自动使用 Worker 执行 setInterval
      */
-    setInterval(callback: Function, timeout?: number): number;
+    setInterval(callback: (...args: any[]) => any, timeout?: number): number;
     /**
      * 配合 .setInterval 使用
      */
