@@ -1,44 +1,44 @@
 /* 去除顶部的padding距离 */
 #douyin-right-container {
-	padding-top: 0;
+  padding-top: 0;
 }
 /* 放大放大顶部的综合、视频、用户等header的宽度 */
 #search-content-area > div > div:nth-child(1) > div:nth-child(1) {
-	width: 100vw;
+  width: 100vw;
 }
 /* 放大顶部的综合、视频、用户等header */
 #search-content-area > div > div:nth-child(1) > div:nth-child(1) > div {
-	transform: scale(0.8);
+  transform: scale(0.8);
 }
 /* 视频宽度 */
 ul[data-e2e="scroll-list"] {
-	padding: 0px 10px;
+  padding: 0px 10px;
 }
 #sliderVideo {
-	width: -webkit-fill-available;
+  width: -webkit-fill-available;
 }
 /* 距离是顶部导航栏的高度 */
 #search-content-area {
-	margin-top: 65px;
+  margin-top: 65px;
 }
 /* 从其它页面进入搜索页面，例如路径是/root/search，会出现返回按钮 */
-#douyin-header header{
-	flex-direction: row-reverse !important;
+#douyin-header header {
+  flex-direction: row-reverse !important;
 }
 #douyin-header header > div:nth-child(2) {
-	position: unset !important;
+  position: unset !important;
 }
 /* 调整视频列表的宽度 */
 @media screen and (max-width: 550px) {
-	#sliderVideo {
-		width: 100%;
-	}
-	/* 调整顶部搜索框的宽度 */
-	#component-header
-		div[data-click="doubleClick"]
-		> div[data-click="doubleClick"]
-		> div:has(input[data-e2e="searchbar-input"]) {
-		width: -webkit-fill-available;
-		padding-right: 0;
-	}
+  #sliderVideo {
+    width: 100%;
+  }
+  /* 调整顶部搜索框的宽度 */
+  #component-header
+    div[data-click="doubleClick"]
+    > div[data-click="doubleClick"]
+    > div:has(input[data-e2e="searchbar-input"]) {
+    width: -webkit-fill-available;
+    padding-right: 0;
+  }
 }

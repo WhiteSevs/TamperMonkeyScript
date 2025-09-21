@@ -2,9 +2,9 @@
 .container .adapt-login-header,
 /* 底部中间的 App内打开 */
 .container .float-button-con {
-	display: none !important;
+  display: none !important;
 }
 
 .gallery-container {
-	margin-top: 10px !important;
+  margin-top: 10px !important;
 }

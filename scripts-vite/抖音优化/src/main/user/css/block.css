@@ -1,4 +1,4 @@
 /* 资料右边的 下载桌面客户端，桌面快捷访问 */
 div[data-e2e="user-detail"] div:has(> div > a[href*="douyin-pc"]) {
-	display: none !important;
+  display: none !important;
 }

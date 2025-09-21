@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.16
+// @version      2025.9.21
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -10,10 +10,10 @@
 // @match        *://*.douyin.com/*
 // @match        *://*.iesdouyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.8.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.4.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.8.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.4.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.1/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
 // @grant        GM_deleteValue
@@ -1959,12 +1959,7 @@ document_addEventListener(handler) {
         let options = args[2];
         for (let index = 0; index < that.$data.document_addEventListener.length; index++) {
           const callback = that.$data.document_addEventListener[index];
-          const result = Reflect.apply(callback, this, [
-            target,
-            eventName,
-            listener,
-            options
-          ]);
+          const result = Reflect.apply(callback, this, [target, eventName, listener, options]);
           if (typeof result === "function") {
             args[1] = result;
             weakMap.set(listener, {
@@ -1984,11 +1979,7 @@ document_addEventListener(handler) {
         let listener = args[1];
         let options = args[2];
         if (weakMap.has(listener)) {
-          const {
-            eventName: __eventName__,
-            fn: __listener__,
-            options: __options__
-          } = weakMap.get(listener);
+          const { eventName: __eventName__, fn: __listener__, options: __options__ } = weakMap.get(listener);
           let flag = false;
           if (eventName === __eventName__) {
             if (typeof options === "boolean" && options === __options__) {
@@ -2023,12 +2014,7 @@ element_addEventListener(handler) {
         let options = args[2];
         for (let index = 0; index < that.$data.element_addEventListener.length; index++) {
           const callback = that.$data.element_addEventListener[index];
-          const result = Reflect.apply(callback, this, [
-            target,
-            eventName,
-            listener,
-            options
-          ]);
+          const result = Reflect.apply(callback, this, [target, eventName, listener, options]);
           if (typeof result === "function") {
             args[1] = result;
             weakMap.set(listener, {
@@ -2048,11 +2034,7 @@ element_addEventListener(handler) {
         let listener = args[1];
         let options = args[2];
         if (weakMap.has(listener)) {
-          const {
-            eventName: __eventName__,
-            fn: __listener__,
-            options: __options__
-          } = weakMap.get(listener);
+          const { eventName: __eventName__, fn: __listener__, options: __options__ } = weakMap.get(listener);
           let flag = false;
           if (__eventName__ === eventName) {
             if (typeof options === "boolean" && options === __options__) {
@@ -2748,9 +2730,7 @@ enterpriseVerifyReason: "",
     },
 watchLoginDialogToClose() {
       log.info("监听登录弹窗并关闭");
-      let result = [
-        CommonUtil.addBlockCSS('body > div[id^="login-full-panel-"]')
-      ];
+      let result = [CommonUtil.addBlockCSS('body > div[id^="login-full-panel-"]')];
       let lockFn = new utils.LockFunction(() => {
         if (!Panel.getValue("watchLoginDialogToClose")) {
           return;
@@ -2775,18 +2755,14 @@ watchLoginDialogToClose() {
             );
           }
         }
-        let $ohterDialog = $(
-          "body > div > div:contains('为保障更好的访问体验，请在登录后继续使用抖音')"
-        );
+        let $ohterDialog = $("body > div > div:contains('为保障更好的访问体验，请在登录后继续使用抖音')");
         if ($ohterDialog) {
           let reactInst = utils.getReactObj($ohterDialog);
           let onClick = reactInst?.reactProps?.onClick;
           if (typeof onClick === "function") {
             onClick(new Event("click"));
           } else {
-            log.error(
-              "监听到【为保障更好的访问体验，请在登录后继续使用抖音】但是关闭失败，原因：未获取到onClick函数"
-            );
+            log.error("监听到【为保障更好的访问体验，请在登录后继续使用抖音】但是关闭失败，原因：未获取到onClick函数");
           }
         }
       });
@@ -2807,9 +2783,7 @@ watchCommentDialogToClose() {
         if (!$cardLoginGuide) {
           return;
         }
-        let $close = $cardLoginGuide.querySelector(
-          ".related-video-card-login-guide__footer-close"
-        );
+        let $close = $cardLoginGuide.querySelector(".related-video-card-login-guide__footer-close");
         if (!$close) {
           log.error("监听到评论区的登录遮罩层但是未获取到关闭按钮");
           return;
@@ -2844,7 +2818,7 @@ isVerticalScreen() {
       return !window.screen.orientation.type.includes("landscape");
     }
   };
-  const MobileCSS$1 = '/* 竖屏且高度小于550px */\r\n@media screen and (max-width: 550px) and (orientation: portrait) {\r\n	/* 右侧工具栏放大 */\r\n	.basePlayerContainer .positionBox {\r\n		bottom: 80px !important;\r\n		padding-right: 5px !important;\r\n		scale: unset !important;\r\n		transform: scale3d(1.12, 1.12, 1.12) !important;\r\n	}\r\n	/* 右侧工具栏的svg再放大 */\r\n	.basePlayerContainer .positionBox svg {\r\n		transform: scale3d(1.12, 1.12, 1.12);\r\n	}\r\n	/* 重置关注按钮的scale */\r\n	.basePlayerContainer\r\n		.positionBox\r\n		.dy-tip-container\r\n		div[data-e2e="feed-follow-icon"]\r\n		svg {\r\n		scale: unset !important;\r\n	}\r\n\r\n	/* 调整顶部搜索框的宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: 150px;\r\n		padding-right: 0;\r\n		max-width: unset;\r\n		flex: 1;\r\n	}\r\n	/* 搜索框获取焦点时自动放大宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]:focus) {\r\n		width: 100vw;\r\n		width: 100dvw;\r\n	}\r\n	/* 搜索页面 搜索详情的宽度、视频结果列表的宽度 */\r\n	#search-content-area > div,\r\n	#search-content-area > div div:has(+ #search-result-container),\r\n	#search-content-area > div #search-result-container {\r\n		width: 100%;\r\n		width: -webkit-fill-available;\r\n	}\r\n	/* 搜索页面 视频右侧的工具栏缩小 */\r\n	#search-content-area .basePlayerContainer .positionBox {\r\n		bottom: 28px !important;\r\n		transform: scale3d(0.6, 0.6, 0.6) !important;\r\n	}\r\n	/* 搜索页面 搜索出的用户信息换行 */\r\n	#search-content-area\r\n		#search-result-container\r\n		ul[data-e2e="scroll-list"]\r\n		li\r\n		.search-result-card\r\n		> div\r\n		> div {\r\n		flex-wrap: wrap;\r\n	}\r\n	/* 搜索页面 搜索结果筛选选项 综合、视频、用户、直播的超出宽度换行 */\r\n	#search-content-area div:has(> div > div > span[data-key="general"]) {\r\n		overflow: auto;\r\n		gap: 10px;\r\n	}\r\n	/* 搜索页面 搜索结果筛选选项 */\r\n	#search-content-area div:has(> span[data-key="general"]) {\r\n		gap: 10px;\r\n	}\r\n	/* 搜索页面 搜索结果筛选选项弹窗修复 */\r\n	#search-content-area div:has(> div > span[data-key="general"]) {\r\n		position: unset !important;\r\n	}\r\n	/* 搜索页面 搜索结果筛选选项 */\r\n	#search-content-area div:has(> span[data-key="general"]) > * {\r\n		white-space: nowrap !important;\r\n		width: auto !important;\r\n		width: fit-content !important;\r\n		margin-left: 0px !important;\r\n		margin-right: 0px !important;\r\n	}\r\n	/* 去除设置min-width超出浏览器宽度的问题 */\r\n	body {\r\n		min-width: 100% !important;\r\n	}\r\n	/* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n	#douyin-right-container #douyin-header {\r\n		width: 100%;\r\n	}\r\n	/* 去除设置 */\r\n	#douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n		min-width: 100%;\r\n	}\r\n\r\n	/* /video/xxx页面 */\r\n	/* 点赞、评论、分享偏移 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.basePlayerContainer\r\n		.positionBox {\r\n		padding-right: 30px !important;\r\n	}\r\n	/* 底部工具栏右侧的按钮 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.xgplayer.xgplayer-pc\r\n		.xg-right-grid {\r\n		margin-right: 35px !important;\r\n	}\r\n	/* 评论区全屏 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		> div:has(.comment-mainContent[data-e2e="comment-list"]),\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		> div\r\n		> div:has(.comment-mainContent[data-e2e="comment-list"]) {\r\n		width: 100vw !important;\r\n	}\r\n\r\n	/* 设置视频区域的高度 */\r\n	#slidelist {\r\n		width: 100vw;\r\n		height: calc(100vh - var(--header-height)) !important;\r\n	}\r\n	/* 修正网页全屏下的视频高度 */\r\n	#slidelist[class*="isCssFullScreen"] {\r\n		height: 100vh !important;\r\n	}\r\n	/* 去除视频区域右侧偏移 */\r\n	.is-mobile-pc div[data-e2e="slideList"] {\r\n		padding-right: 0px !important;\r\n		height: 100% !important;\r\n		min-height: 100% !important;\r\n	}\r\n}\r\n\r\n/* 横屏且高度小于550px */\r\n@media screen and (max-height: 550px) and (orientation: landscape) {\r\n	/* 右侧工具栏缩小 */\r\n	.basePlayerContainer .positionBox {\r\n		transform: scale(0.95) !important;\r\n		bottom: 42px !important;\r\n		padding-right: 10px !important;\r\n	}\r\n	/* 右侧工具栏的svg再缩小 */\r\n	.basePlayerContainer .positionBox svg {\r\n		transform: scale3d(0.95, 0.95, 0.95);\r\n	}\r\n	/* 修复全屏下不显示视频底部的控制栏 */\r\n	.isCssFullScreen [data-e2e="slideList"] {\r\n		min-height: auto !important;\r\n	}\r\n}\r\n';
+  const MobileCSS$1 = '/* 竖屏且高度小于550px */\r\n@media screen and (max-width: 550px) and (orientation: portrait) {\r\n  /* 右侧工具栏放大 */\r\n  .basePlayerContainer .positionBox {\r\n    bottom: 80px !important;\r\n    padding-right: 5px !important;\r\n    scale: unset !important;\r\n    transform: scale3d(1.12, 1.12, 1.12) !important;\r\n  }\r\n  /* 右侧工具栏的svg再放大 */\r\n  .basePlayerContainer .positionBox svg {\r\n    transform: scale3d(1.12, 1.12, 1.12);\r\n  }\r\n  /* 重置关注按钮的scale */\r\n  .basePlayerContainer .positionBox .dy-tip-container div[data-e2e="feed-follow-icon"] svg {\r\n    scale: unset !important;\r\n  }\r\n\r\n  /* 调整顶部搜索框的宽度 */\r\n  #douyin-header\r\n    div[data-click="doubleClick"]\r\n    > div[data-click="doubleClick"]\r\n    > div:has(input[data-e2e="searchbar-input"]) {\r\n    width: 150px;\r\n    padding-right: 0;\r\n    max-width: unset;\r\n    flex: 1;\r\n  }\r\n  /* 搜索框获取焦点时自动放大宽度 */\r\n  #douyin-header\r\n    div[data-click="doubleClick"]\r\n    > div[data-click="doubleClick"]\r\n    > div:has(input[data-e2e="searchbar-input"]:focus) {\r\n    width: 100vw;\r\n    width: 100dvw;\r\n  }\r\n  /* 搜索页面 搜索详情的宽度、视频结果列表的宽度 */\r\n  #search-content-area > div,\r\n  #search-content-area > div div:has(+ #search-result-container),\r\n  #search-content-area > div #search-result-container {\r\n    width: 100%;\r\n    width: -webkit-fill-available;\r\n  }\r\n  /* 搜索页面 视频右侧的工具栏缩小 */\r\n  #search-content-area .basePlayerContainer .positionBox {\r\n    bottom: 28px !important;\r\n    transform: scale3d(0.6, 0.6, 0.6) !important;\r\n  }\r\n  /* 搜索页面 搜索出的用户信息换行 */\r\n  #search-content-area #search-result-container ul[data-e2e="scroll-list"] li .search-result-card > div > div {\r\n    flex-wrap: wrap;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 综合、视频、用户、直播的超出宽度换行 */\r\n  #search-content-area div:has(> div > div > span[data-key="general"]) {\r\n    overflow: auto;\r\n    gap: 10px;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 */\r\n  #search-content-area div:has(> span[data-key="general"]) {\r\n    gap: 10px;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项弹窗修复 */\r\n  #search-content-area div:has(> div > span[data-key="general"]) {\r\n    position: unset !important;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 */\r\n  #search-content-area div:has(> span[data-key="general"]) > * {\r\n    white-space: nowrap !important;\r\n    width: auto !important;\r\n    width: fit-content !important;\r\n    margin-left: 0px !important;\r\n    margin-right: 0px !important;\r\n  }\r\n  /* 去除设置min-width超出浏览器宽度的问题 */\r\n  body {\r\n    min-width: 100% !important;\r\n  }\r\n  /* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n  #douyin-right-container #douyin-header {\r\n    width: 100%;\r\n  }\r\n  /* 去除设置 */\r\n  #douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n    min-width: 100%;\r\n  }\r\n\r\n  /* /video/xxx页面 */\r\n  /* 点赞、评论、分享偏移 */\r\n  div[data-e2e="video-detail"] .leftContainer .basePlayerContainer .positionBox {\r\n    padding-right: 30px !important;\r\n  }\r\n  /* 底部工具栏右侧的按钮 */\r\n  div[data-e2e="video-detail"] .leftContainer .xgplayer.xgplayer-pc .xg-right-grid {\r\n    margin-right: 35px !important;\r\n  }\r\n  /* 评论区全屏 */\r\n  div[data-e2e="video-detail"] .leftContainer > div:has(.comment-mainContent[data-e2e="comment-list"]),\r\n  div[data-e2e="video-detail"] .leftContainer > div > div:has(.comment-mainContent[data-e2e="comment-list"]) {\r\n    width: 100vw !important;\r\n  }\r\n\r\n  /* 设置视频区域的高度 */\r\n  #slidelist {\r\n    width: 100vw;\r\n    height: calc(100vh - var(--header-height)) !important;\r\n  }\r\n  /* 修正网页全屏下的视频高度 */\r\n  #slidelist[class*="isCssFullScreen"] {\r\n    height: 100vh !important;\r\n  }\r\n  /* 去除视频区域右侧偏移 */\r\n  .is-mobile-pc div[data-e2e="slideList"] {\r\n    padding-right: 0px !important;\r\n    height: 100% !important;\r\n    min-height: 100% !important;\r\n  }\r\n}\r\n\r\n/* 横屏且高度小于550px */\r\n@media screen and (max-height: 550px) and (orientation: landscape) {\r\n  /* 右侧工具栏缩小 */\r\n  .basePlayerContainer .positionBox {\r\n    transform: scale(0.95) !important;\r\n    bottom: 42px !important;\r\n    padding-right: 10px !important;\r\n  }\r\n  /* 右侧工具栏的svg再缩小 */\r\n  .basePlayerContainer .positionBox svg {\r\n    transform: scale3d(0.95, 0.95, 0.95);\r\n  }\r\n  /* 修复全屏下不显示视频底部的控制栏 */\r\n  .isCssFullScreen [data-e2e="slideList"] {\r\n    min-height: auto !important;\r\n  }\r\n}\r\n';
   const DouYinVideoBlock_Comment = {
     init() {
       Panel.execMenuOnce("dy-video-shieldUserCommentToolBar", () => {
@@ -2877,6 +2851,9 @@ shieldUserCommentEveryOneAllSearch() {
       Panel.execMenuOnce("dy-video-bottom-shieldVideoUnderTitleTag", () => {
         return this.shieldVideoUnderTitleTag();
       });
+      Panel.execMenuOnce("dy-video-blockAIIdentifyTheScreen", () => {
+        return this.blockAIIdentifyTheScreen();
+      });
       Panel.execMenuOnce("dy-video-blockClickUpdateReminder", () => {
         return this.blockClickUpdateReminder();
       });
@@ -2894,20 +2871,19 @@ blockClickRecommend() {
     },
 blobkTitleTopTag() {
       log.info(`【屏蔽】视频标题上的标签`);
-      return CommonUtil.addBlockCSS(
-        "span:has(+#video-info-wrap):has(img)",
-        "span:has(+div #video-info-wrap):has(img)"
-      );
+      return CommonUtil.addBlockCSS("span:has(+#video-info-wrap):has(img)", "span:has(+div #video-info-wrap):has(img)");
     },
 shieldVideoUnderTitleTag() {
       log.info(`【屏蔽】视频标题下的标签`);
       return [CommonUtil.addBlockCSS("#video-info-wrap .under-title-tag")];
     },
+blockAIIdentifyTheScreen() {
+      log.info(`【屏蔽】识别画面`);
+      return [CommonUtil.addBlockCSS('.under-title-tag + div:has(svg g[filter*="url(#icon_ai_svg__filter)"])')];
+    },
 blockClickUpdateReminder() {
       let lockFn = new utils.LockFunction(() => {
-        let $reminder = $$(
-          ".basePlayerContainer div:has(>div>div):contains('及时接收作品更新提醒')"
-        );
+        let $reminder = $$(".basePlayerContainer div:has(>div>div):contains('及时接收作品更新提醒')");
         if ($reminder.length) {
           for (const $reminderItem of $reminder) {
             const $basePlayerContainer = $reminderItem.closest(".basePlayerContainer");
@@ -2986,9 +2962,7 @@ DouYinVideoPlayer.removeStyleBottom(),
     },
 shieldBottomVideoToolbarDanmuContainer() {
       log.info("【屏蔽】底部视频工具栏的弹幕容器");
-      return [
-        CommonUtil.addBlockCSS('xg-controls xg-inner-controls .danmakuContainer[data-e2e="danmaku-container"]')
-      ];
+      return [CommonUtil.addBlockCSS('xg-controls xg-inner-controls .danmakuContainer[data-e2e="danmaku-container"]')];
     },
 autoPlay() {
       log.info(`【屏蔽】连播`);
@@ -3078,7 +3052,7 @@ blockAIDouYin() {
       log.info(`【屏蔽】AI抖音`);
       return CommonUtil.addBlockCSS(
         '.immersive-player-switch-on-hide-interaction-area>div:has(>svg path[d="M8.175 4.88C8.318 2.458 10.38.548 12.815.665l.12.008a4.428 4.428 0 0 1 3.08 1.586 4.354 4.354 0 0 1 1.014 2.948l-.005.108c-.016.282-.06.556-.129.82l-.113.444 1.927-.499.111-.027c2.335-.543 4.733.81 5.362 3.105l.05.182a4.351 4.351 0 0 1-.524 3.23l-.06.096a4.409 4.409 0 0 1-2.514 1.87l-.105.028h-.001a4.336 4.336 0 0 1-.827.133l-.458.03 1.075 1.67.06.096c1.221 2.003.705 4.63-1.222 5.957l-.095.063a4.44 4.44 0 0 1-3.424.605l-.11-.027a4.41 4.41 0 0 1-2.568-1.795l-.06-.09-.056-.09a4.355 4.355 0 0 1-.326-.65l-.17-.421-1.263 1.528c-1.53 1.85-4.265 2.207-6.162.774l-.09-.07a4.376 4.376 0 0 1-1.636-3.044l-.008-.112a4.361 4.361 0 0 1 .994-3.061 4.64 4.64 0 0 1 .592-.59l.352-.293-1.856-.722c-2.28-.886-3.468-3.423-2.606-5.68v-.001A4.407 4.407 0 0 1 3.68 6.245a4.448 4.448 0 0 1 3.991.37l.386.24.118-1.975zm4.57-2.218a2.413 2.413 0 0 0-2.547 2.165v.01l-.463 7.542a.046.046 0 0 1-.053.041l-.011-.003-.163-.064h-.001l-2.109-.821c.165-.28.28-.606.31-.978l.006-.09A2.422 2.422 0 0 0 6.475 8.23l-.081-.043-.104-.049a2.42 2.42 0 0 0-1.479-.153l-.102.024a2.403 2.403 0 0 0-1.652 1.446 2.396 2.396 0 0 0 1.285 3.076l.01.004 7.082 2.769a.044.044 0 0 1 .02.068l-.112.134v.001l-1.44 1.74a2.312 2.312 0 0 0-.775-.568l-.067-.03-.086-.033c-.856-.319-1.842-.147-2.517.48l-.066.064a2.38 2.38 0 0 0-.692 1.538c-.047.744.252 1.5.876 2.01a2.428 2.428 0 0 0 3.339-.265l.003-.004.003-.004 4.84-5.833a.046.046 0 0 1 .04-.016c.012 0 .022.005.03.012l.007.009.092.146.001.001 1.22 1.893c-.28.122-.547.302-.78.555l-.049.054v.001c-.64.74-.793 1.807-.337 2.682.282.545.737.927 1.257 1.13a2.418 2.418 0 0 0 2.19-.206 2.393 2.393 0 0 0 .78-3.24l-.002-.004-.003-.004-4.09-6.373-.001-.001-.005-.009a.043.043 0 0 1 .032-.055l.17-.044 2.195-.569c.032.325.133.654.328.974a2.445 2.445 0 0 0 2.462 1.146l.112-.022a2.405 2.405 0 0 0 1.358-.818l.29-.442a2.375 2.375 0 0 0 .206-1.621l-.018-.073a2.415 2.415 0 0 0-2.858-1.737l-.009.002-7.369 1.894h-.002a.043.043 0 0 1-.039-.009.043.043 0 0 1-.016-.037l.013-.204v-.002l.132-2.212c.32.07.67.077 1.034-.009.955-.225 1.708-.997 1.859-1.972a2.371 2.371 0 0 0-.296-1.56l-.055-.09a2.41 2.41 0 0 0-1.82-1.106l-.075-.005z"])',
-'.xgplayer div:has(>svg path[d="M8.175 4.88C8.318 2.458 10.38.548 12.815.665l.12.008a4.428 4.428 0 0 1 3.08 1.586 4.354 4.354 0 0 1 1.014 2.948l-.005.108c-.016.282-.06.556-.129.82l-.113.444 1.927-.499.111-.027c2.335-.543 4.733.81 5.362 3.105l.05.182a4.351 4.351 0 0 1-.524 3.23l-.06.096a4.409 4.409 0 0 1-2.514 1.87l-.105.028h-.001a4.336 4.336 0 0 1-.827.133l-.458.03 1.075 1.67.06.096c1.221 2.003.705 4.63-1.222 5.957l-.095.063a4.44 4.44 0 0 1-3.424.605l-.11-.027a4.41 4.41 0 0 1-2.568-1.795l-.06-.09-.056-.09a4.355 4.355 0 0 1-.326-.65l-.17-.421-1.263 1.528c-1.53 1.85-4.265 2.207-6.162.774l-.09-.07a4.376 4.376 0 0 1-1.636-3.044l-.008-.112a4.361 4.361 0 0 1 .994-3.061 4.64 4.64 0 0 1 .592-.59l.352-.293-1.856-.722c-2.28-.886-3.468-3.423-2.606-5.68v-.001A4.407 4.407 0 0 1 3.68 6.245a4.448 4.448 0 0 1 3.991.37l.386.24.118-1.975zm4.57-2.218a2.413 2.413 0 0 0-2.547 2.165v.01l-.463 7.542a.046.046 0 0 1-.053.041l-.011-.003-.163-.064h-.001l-2.109-.821c.165-.28.28-.606.31-.978l.006-.09A2.422 2.422 0 0 0 6.475 8.23l-.081-.043-.104-.049a2.42 2.42 0 0 0-1.479-.153l-.102.024a2.403 2.403 0 0 0-1.652 1.446 2.396 2.396 0 0 0 1.285 3.076l.01.004 7.082 2.769a.044.044 0 0 1 .02.068l-.112.134v.001l-1.44 1.74a2.312 2.312 0 0 0-.775-.568l-.067-.03-.086-.033c-.856-.319-1.842-.147-2.517.48l-.066.064a2.38 2.38 0 0 0-.692 1.538c-.047.744.252 1.5.876 2.01a2.428 2.428 0 0 0 3.339-.265l.003-.004.003-.004 4.84-5.833a.046.046 0 0 1 .04-.016c.012 0 .022.005.03.012l.007.009.092.146.001.001 1.22 1.893c-.28.122-.547.302-.78.555l-.049.054v.001c-.64.74-.793 1.807-.337 2.682.282.545.737.927 1.257 1.13a2.418 2.418 0 0 0 2.19-.206 2.393 2.393 0 0 0 .78-3.24l-.002-.004-.003-.004-4.09-6.373-.001-.001-.005-.009a.043.043 0 0 1 .032-.055l.17-.044 2.195-.569c.032.325.133.654.328.974a2.445 2.445 0 0 0 2.462 1.146l.112-.022a2.405 2.405 0 0 0 1.358-.818l.29-.442a2.375 2.375 0 0 0 .206-1.621l-.018-.073a2.415 2.415 0 0 0-2.858-1.737l-.009.002-7.369 1.894h-.002a.043.043 0 0 1-.039-.009.043.043 0 0 1-.016-.037l.013-.204v-.002l.132-2.212c.32.07.67.077 1.034-.009.955-.225 1.708-.997 1.859-1.972a2.371 2.371 0 0 0-.296-1.56l-.055-.09a2.41 2.41 0 0 0-1.82-1.106l-.075-.005z"])',
+'.xgplayer div:has(>svg path[d="d="M22.94 21.309l.58 1.364a45.819 45.819 0 0 0 2.125 4.34l.528.947-.108.056-1.077.543-.102.052-.054-.102-.576-1.087a44.077 44.077 0 0 1-.22-.423 7.704 7.704 0 0 0-3.902.001c-.087.169-.154.3-.219.422l-.576 1.087-.054.102-.102-.052-1.077-.543-.108-.056.059-.106.468-.841a45.902 45.902 0 0 0 2.125-4.34l.58-1.364.038-.086.091.017c.482.086.97.086 1.451 0l.093-.017.037.086zm6.011-.019a3.731 3.731 0 0 0-.173.9c-.022.342-.034.69-.034 1.035v3.067c0 .345.012.694.034 1.035l.022.227c.029.226.08.452.151.673l.05.153h-1.92l.049-.153c.095-.295.153-.597.173-.9.022-.345.033-.694.033-1.035v-3.067c0-.34-.01-.689-.033-1.034a3.753 3.753 0 0 0-.173-.9l-.05-.154h1.921l-.05.153zM17.161 5.395l.123.008a4.527 4.527 0 0 1 3.14 1.602 4.367 4.367 0 0 1 1.033 2.978l-.005.109c-.015.284-.063.56-.13.828l-.117.447 1.964-.504.113-.027c2.38-.549 4.824.818 5.465 3.136l.05.184a4.368 4.368 0 0 1-.534 3.265l-.06.097a4.495 4.495 0 0 1-1.965 1.674c-3.71 1.444-5.893-1.51-6.663-3.187l.134-.034 2.236-.575c.033.329.136.661.333.984a2.5 2.5 0 0 0 2.51 1.157l.113-.021a2.456 2.456 0 0 0 1.384-.825l.297-.448a2.37 2.37 0 0 0 .209-1.637l-.018-.075c-.334-1.268-1.63-2.035-2.914-1.753h-.01l-7.51 1.916h-.022a.056.056 0 0 1-.02-.01.048.048 0 0 1-.017-.037l.014-.205.136-2.238c.327.071.682.079 1.054-.008.973-.227 1.74-1.006 1.894-1.992a2.371 2.371 0 0 0-.303-1.578l-.055-.09a2.46 2.46 0 0 0-1.855-1.118l-.076-.006c-1.323-.076-2.469.897-2.596 2.188v.009l-.47 7.62a.047.047 0 0 1-.053.04l-.013-.002-.166-.065-2.15-.83c.169-.284.285-.612.316-.987l.007-.092a2.443 2.443 0 0 0-1.263-2.256l-.084-.043-.105-.048a2.482 2.482 0 0 0-1.508-.155l-.104.024a2.443 2.443 0 0 0-1.683 1.46c-.487 1.219.104 2.59 1.31 3.109l.008.003 7.22 2.797c.03.012.036.048.02.068l-.114.136-1.467 1.759a2.335 2.335 0 0 0-.79-.573l-.068-.03-.086-.034c-.873-.321-1.878-.147-2.566.484l-.069.065a2.407 2.407 0 0 0 .188 3.584 2.49 2.49 0 0 0 3.404-.268l.006-.006 3.485-4.165v3.166l-.5.607v-.004l-1.29 1.543c-1.559 1.868-4.346 2.229-6.28.782l-.092-.07a4.41 4.41 0 0 1-1.668-3.076l-.009-.113a4.384 4.384 0 0 1 1.619-3.688l.357-.297-1.892-.729c-2.323-.895-3.535-3.457-2.656-5.739a4.475 4.475 0 0 1 2.565-2.555 4.577 4.577 0 0 1 4.068.373l.393.244.12-1.995h-.001c.146-2.447 2.248-4.375 4.728-4.258zm4.679 17.909a45.987 45.987 0 0 1-.964 2.191 9.16 9.16 0 0 1 2.417 0 45.878 45.878 0 0 1-.963-2.191l-.245-.6-.245.6z""])',
 '.immersive-player-switch-on-hide-interaction-area > div:has(> div >svg >defs+ g[clip-path*="__lottie_element_"])'
       );
     },
@@ -3530,15 +3504,7 @@ initGlobalKeyboardListener(shortCutOption, config) {
   const DouYinVideoPlayerShortCut = {
     shortCut: new ShortCut("video-short-cut"),
     $data: {
-      rateMap: [
-        "0.75",
-        "1",
-        "1.25",
-        "1.5",
-        "1.75",
-        "2",
-        "3"
-      ]
+      rateMap: ["0.75", "1", "1.25", "1.5", "1.75", "2", "3"]
     },
     init() {
       this.shortCut.initGlobalKeyboardListener(this.getShortCutMap());
@@ -3550,11 +3516,9 @@ initGlobalKeyboardListener(shortCutOption, config) {
           callback() {
             log.info("触发快捷键 ==> 调用倍速：小");
             let currentRate = _unsafeWindow.sessionStorage.getItem("player_playbackratio") ?? "1";
-            let findIndex = DouYinVideoPlayerShortCut.$data.rateMap.findIndex(
-              (rate) => {
-                return rate === currentRate;
-              }
-            );
+            let findIndex = DouYinVideoPlayerShortCut.$data.rateMap.findIndex((rate) => {
+              return rate === currentRate;
+            });
             if (findIndex === 0) {
               log.warn("触发快捷键 ==> 已是最小倍速: " + currentRate);
               return;
@@ -3569,11 +3533,9 @@ initGlobalKeyboardListener(shortCutOption, config) {
           callback() {
             log.info("触发快捷键 ==> 调用倍速：大");
             let currentRate = _unsafeWindow.sessionStorage.getItem("player_playbackratio") ?? "1";
-            let findIndex = DouYinVideoPlayerShortCut.$data.rateMap.findIndex(
-              (rate) => {
-                return rate === currentRate;
-              }
-            );
+            let findIndex = DouYinVideoPlayerShortCut.$data.rateMap.findIndex((rate) => {
+              return rate === currentRate;
+            });
             if (findIndex === DouYinVideoPlayerShortCut.$data.rateMap.length - 1) {
               log.warn("触发快捷键 ==> 已是最大倍速: " + currentRate);
               return;
@@ -4871,40 +4833,20 @@ initRule() {
 change() {
       this.execMessageFilter(
         [
-          ...Array.from(
-            $$(
-              "xg-danmu.xgplayer-danmu > div > div:not([data-is-filter])"
-            )
-          ),
-          ...Array.from(
-            $$(
-              "#DanmakuLayout .danmu > div > div:not([data-is-filter])"
-            )
-          )
+          ...Array.from($$("xg-danmu.xgplayer-danmu > div > div:not([data-is-filter])")),
+          ...Array.from($$("#DanmakuLayout .danmu > div > div:not([data-is-filter])"))
         ],
         "弹幕"
       );
       this.execMessageFilter(
-        Array.from(
-          $$(
-            "#chatroom .webcast-chatroom .webcast-chatroom___item:not([data-is-filter])"
-          )
-        ),
+        Array.from($$("#chatroom .webcast-chatroom .webcast-chatroom___item:not([data-is-filter])")),
         "聊天室"
       );
       if (Panel.getValue("live-message-shield-emoji-chat")) {
         domUtils.hide(
           [
-            ...Array.from(
-              $$(
-                "xg-danmu.xgplayer-danmu > div:has(>img):not([data-is-filter])"
-              )
-            ),
-            ...Array.from(
-              $$(
-                "#DanmakuLayout .danmu > div > div:has(>img):not([data-is-filter])"
-              )
-            )
+            ...Array.from($$("xg-danmu.xgplayer-danmu > div:has(>img):not([data-is-filter])")),
+            ...Array.from($$("#DanmakuLayout .danmu > div > div:has(>img):not([data-is-filter])"))
           ],
           false
         );
@@ -4945,9 +4887,7 @@ execMessageFilter(messageQueue, from) {
         }
         if (!flag && typeof biz_scene === "string") {
           if (biz_scene === "common_text_game_score") {
-            if (Panel.getValue(
-              "live-message-shield-biz_scene-common_text_game_score"
-            )) {
+            if (Panel.getValue("live-message-shield-biz_scene-common_text_game_score")) {
               flag = true;
             }
           }
@@ -5162,11 +5102,7 @@ shieldTopToolBarInfo() {
 shieldGiftEffects() {
       domUtils.ready(() => {
         utils.waitNode(() => {
-          return domUtils.selector("xg-icon.pluginContainer > div:contains('屏蔽礼物特效')") || domUtils.selector(
-            `xg-icon[classname*="pluginContainer"] > div:contains('屏蔽礼物特效')`
-          ) || domUtils.selector(
-            '.douyin-player-controls-right > slot > div:has([data-e2e="effect-switch"])'
-          );
+          return domUtils.selector("xg-icon.pluginContainer > div:contains('屏蔽礼物特效')") || domUtils.selector(`xg-icon[classname*="pluginContainer"] > div:contains('屏蔽礼物特效')`) || domUtils.selector('.douyin-player-controls-right > slot > div:has([data-e2e="effect-switch"])');
         }, 1e4).then(($el) => {
           if (!$el) {
             log.error("【屏蔽】礼物特效失败，原因：获取按钮超时");
@@ -5232,9 +5168,7 @@ initMenu() {
           return text;
         },
         callback: () => {
-          let $playerIns = $(
-            `[id^="living_room_player_container"]`
-          );
+          let $playerIns = $(`[id^="living_room_player_container"]`);
           if (!$playerIns) {
             log.error("获取playerInstance所在的元素失败");
             Qmsg.error("获取playerInstance所在的元素失败");
@@ -5739,7 +5673,7 @@ redirectUrlHomeToRoot() {
       }
     }
   };
-  const MobileCSS = '/* 去除顶部的padding距离 */\r\n#douyin-right-container {\r\n	padding-top: 0;\r\n}\r\n/* 放大放大顶部的综合、视频、用户等header的宽度 */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) {\r\n	width: 100vw;\r\n}\r\n/* 放大顶部的综合、视频、用户等header */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) > div {\r\n	transform: scale(0.8);\r\n}\r\n/* 视频宽度 */\r\nul[data-e2e="scroll-list"] {\r\n	padding: 0px 10px;\r\n}\r\n#sliderVideo {\r\n	width: -webkit-fill-available;\r\n}\r\n/* 距离是顶部导航栏的高度 */\r\n#search-content-area {\r\n	margin-top: 65px;\r\n}\r\n/* 从其它页面进入搜索页面，例如路径是/root/search，会出现返回按钮 */\r\n#douyin-header header{\r\n	flex-direction: row-reverse !important;\r\n}\r\n#douyin-header header > div:nth-child(2) {\r\n	position: unset !important;\r\n}\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n	#sliderVideo {\r\n		width: 100%;\r\n	}\r\n	/* 调整顶部搜索框的宽度 */\r\n	#component-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: -webkit-fill-available;\r\n		padding-right: 0;\r\n	}\r\n}\r\n';
+  const MobileCSS = '/* 去除顶部的padding距离 */\r\n#douyin-right-container {\r\n  padding-top: 0;\r\n}\r\n/* 放大放大顶部的综合、视频、用户等header的宽度 */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) {\r\n  width: 100vw;\r\n}\r\n/* 放大顶部的综合、视频、用户等header */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) > div {\r\n  transform: scale(0.8);\r\n}\r\n/* 视频宽度 */\r\nul[data-e2e="scroll-list"] {\r\n  padding: 0px 10px;\r\n}\r\n#sliderVideo {\r\n  width: -webkit-fill-available;\r\n}\r\n/* 距离是顶部导航栏的高度 */\r\n#search-content-area {\r\n  margin-top: 65px;\r\n}\r\n/* 从其它页面进入搜索页面，例如路径是/root/search，会出现返回按钮 */\r\n#douyin-header header {\r\n  flex-direction: row-reverse !important;\r\n}\r\n#douyin-header header > div:nth-child(2) {\r\n  position: unset !important;\r\n}\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n  #sliderVideo {\r\n    width: 100%;\r\n  }\r\n  /* 调整顶部搜索框的宽度 */\r\n  #component-header\r\n    div[data-click="doubleClick"]\r\n    > div[data-click="doubleClick"]\r\n    > div:has(input[data-e2e="searchbar-input"]) {\r\n    width: -webkit-fill-available;\r\n    padding-right: 0;\r\n  }\r\n}\r\n';
   const DouYinSearchHideElement = {
     init() {
       Panel.execMenuOnce("douyin-search-shieldReleatedSearches", () => {
@@ -6024,27 +5958,19 @@ shieldLeftNavigator() {
     },
 block_tab_home() {
       log.info("【屏蔽】精选");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-discover)'
-      );
+      return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-discover)');
     },
 block_tab_recommend() {
       log.info("【屏蔽】推荐");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-recommend)'
-      );
+      return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-recommend)');
     },
 block_tab_follow() {
       log.info("【屏蔽】关注");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-follow)'
-      );
+      return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-follow)');
     },
 block_tab_friend() {
       log.info("【屏蔽】朋友");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-friend)'
-      );
+      return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-friend)');
     },
 block_tab_user_self() {
       log.info("【屏蔽】我的");
@@ -6072,21 +5998,15 @@ block_tab_user_self_record() {
     },
 block_tab_live() {
       log.info("【屏蔽】直播");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-live)'
-      );
+      return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-live)');
     },
 block_tab_vs() {
       log.info("【屏蔽】放映厅");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-vs)'
-      );
+      return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-vs)');
     },
 block_tab_series() {
       log.info(`短剧`);
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-series)'
-      );
+      return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-series)');
     },
 block_tab_ai_search() {
       log.info(`【屏蔽】AI搜索`);
@@ -6096,37 +6016,27 @@ block_tab_ai_search() {
     },
 block_tab_channel_300203() {
       log.info("【屏蔽】知识");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300203)'
-      );
+      return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300203)');
     },
 block_tab_channel_300205() {
       log.info("【屏蔽】游戏");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300205)'
-      );
+      return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300205)');
     },
 block_tab_channel_300206() {
       log.info("【屏蔽】二次元");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300206)'
-      );
+      return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300206)');
     },
 block_tab_channel_300209() {
       log.info("【屏蔽】音乐");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300209)'
-      );
+      return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300209)');
     },
 block_tab_channel_300204() {
       log.info("【屏蔽】美食");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300204)'
-      );
+      return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300204)');
     }
   };
-  const blockCSS$8 = '/* 从顶部往下弹出的下载抖音电脑版的drawer提示 */\r\n#douyin-web-download-guide-container\r\n/* 视频信息区域的 及时接收作品更新提醒 下载电脑客户端 */\r\n/* 但是这个CSS又会屏蔽右键菜单 */\r\n/*.basePlayerContainer xg-bar.xg-right-bar + div:not(:has(>svg))*/ ,\r\n/* 下载客户端，使用壁纸 */\r\ndiv:has(+#wallpaper-modal),\r\n/* 下载客户端，实时接收消息通知 */\r\n/* 下载客户端，实时接收好友消息 */\r\ndiv:has(> a[download*="douyin-downloade"]):has(+.popShadowAnimation),\r\ndiv:has(> a[download*="douyin-downloade"]):has(+div>[data-e2e="listDlgTest-container"]),\r\n/* 客户端登录访问更便捷 */\r\ndiv:has(> a[download*="douyin-downloade"]):has(+.userMenuPanelShadowAnimation),\r\n/* 前往电脑客户端，即享下载视频 */\r\n[data-e2e="video-share-container"] div:has(>div>div> a[download*="douyin-downloader"]):first-child,\r\n/* so.douyin.com的广告item */\r\n.card-item:has(.h5-ad-video-card),\r\n.card-item:has([data-is-ad="true"]) {\r\n	display: none !important;\r\n}\r\n';
-  const blockCSS$7 = '/* 资料右边的 下载桌面客户端，桌面快捷访问 */\r\ndiv[data-e2e="user-detail"] div:has(> div > a[href*="douyin-pc"]) {\r\n	display: none !important;\r\n}\r\n';
+  const blockCSS$8 = '/* 从顶部往下弹出的下载抖音电脑版的drawer提示 */\r\n#douyin-web-download-guide-container\r\n/* 视频信息区域的 及时接收作品更新提醒 下载电脑客户端 */\r\n/* 但是这个CSS又会屏蔽右键菜单 */\r\n/*.basePlayerContainer xg-bar.xg-right-bar + div:not(:has(>svg))*/ ,\r\n/* 下载客户端，使用壁纸 */\r\ndiv:has(+#wallpaper-modal),\r\n/* 下载客户端，实时接收消息通知 */\r\n/* 下载客户端，实时接收好友消息 */\r\ndiv:has(> a[download*="douyin-downloade"]):has(+.popShadowAnimation),\r\ndiv:has(> a[download*="douyin-downloade"]):has(+div>[data-e2e="listDlgTest-container"]),\r\n/* 客户端登录访问更便捷 */\r\ndiv:has(> a[download*="douyin-downloade"]):has(+.userMenuPanelShadowAnimation),\r\n/* 前往电脑客户端，即享下载视频 */\r\n[data-e2e="video-share-container"] div:has(>div>div> a[download*="douyin-downloader"]):first-child,\r\n/* so.douyin.com的广告item */\r\n.card-item:has(.h5-ad-video-card),\r\n.card-item:has([data-is-ad="true"]) {\r\n  display: none !important;\r\n}\r\n';
+  const blockCSS$7 = '/* 资料右边的 下载桌面客户端，桌面快捷访问 */\r\ndiv[data-e2e="user-detail"] div:has(> div > a[href*="douyin-pc"]) {\r\n  display: none !important;\r\n}\r\n';
   const DouYinUser = {
     init() {
       addStyle(blockCSS$7);
@@ -6137,45 +6047,39 @@ block_tab_channel_300204() {
       });
     },
 addShowUserUID() {
-      ReactUtils.waitReactPropsToSet(
-        `[data-e2e="user-detail"] [data-e2e="user-info"]`,
-        "reactFiber",
-        {
-          msg: "显示UID",
-          check(reactInstance) {
-            return typeof reactInstance?.return?.memoizedProps?.userInfo?.uid === "string";
-          },
-          set(reactInstance, $target) {
-            let uid = reactInstance?.return?.memoizedProps?.userInfo?.uid;
-            domUtils.remove(
-              $target.querySelectorAll(".gm-user-uid")
-            );
-            let $userUID = domUtils.createElement(
-              "p",
-              {
-                className: "gm-user-uid",
-                innerHTML: (
+      ReactUtils.waitReactPropsToSet(`[data-e2e="user-detail"] [data-e2e="user-info"]`, "reactFiber", {
+        msg: "显示UID",
+        check(reactInstance) {
+          return typeof reactInstance?.return?.memoizedProps?.userInfo?.uid === "string";
+        },
+        set(reactInstance, $target) {
+          let uid = reactInstance?.return?.memoizedProps?.userInfo?.uid;
+          domUtils.remove($target.querySelectorAll(".gm-user-uid"));
+          let $userUID = domUtils.createElement(
+            "p",
+            {
+              className: "gm-user-uid",
+              innerHTML: (
 `
 							<span>UID：${uid}</span>
 						`
-                )
-              },
-              {
-                style: "color: var(--color-text-t3);margin-right: 20px;font-size: 12px;line-height: 20px;cursor: pointer;"
-              }
-            );
-            domUtils.on($userUID, "click", (event) => {
-              utils.preventEvent(event);
-              utils.setClip(uid);
-              Qmsg.success("复制成功");
-            });
-            $target.appendChild($userUID);
-          }
+              )
+            },
+            {
+              style: "color: var(--color-text-t3);margin-right: 20px;font-size: 12px;line-height: 20px;cursor: pointer;"
+            }
+          );
+          domUtils.on($userUID, "click", (event) => {
+            utils.preventEvent(event);
+            utils.setClip(uid);
+            Qmsg.success("复制成功");
+          });
+          $target.appendChild($userUID);
         }
-      );
+      });
     }
   };
-  const blockCSS$6 = '/* 单个视频页面右侧的 下载客户端，桌面快捷访问 */\r\ndiv[data-e2e="video-detail"]\r\n	div\r\n	> :has(> div:last-child > a[href*="douyin-pc-web"]) {\r\n	display: none !important;\r\n}\r\n';
+  const blockCSS$6 = '/* 单个视频页面右侧的 下载客户端，桌面快捷访问 */\r\ndiv[data-e2e="video-detail"] div > :has(> div:last-child > a[href*="douyin-pc-web"]) {\r\n  display: none !important;\r\n}\r\n';
   const DouYinVideo = {
     init() {
       addStyle(blockCSS$6);
@@ -6238,18 +6142,14 @@ setComponentsStorageApiProperty(config, storageApiValue) {
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi(
-      "input",
-      result,
-      {
-        get(key2, defaultValue2) {
-          return Panel.getValue(key2, defaultValue2);
-        },
-        set(key2, value) {
-          Panel.setValue(key2, value);
-        }
+    PanelComponents.initComponentsStorageApi("input", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
       }
-    );
+    });
     return result;
   };
   const UISelectMultiple = function(text, key, defaultValue, data, selectCallBack, description, placeholder = "请至少选择一个选项", selectConfirmDialogDetails, valueChangeCallBack) {
@@ -7687,13 +7587,7 @@ checkAwemeInfoIsFilter(rule, awemeInfo) {
                 ]);
               }
             } else {
-              log.success([
-                `视频过滤器 ==> ${filterOption.name}`,
-                transformAwemeInfo,
-                details,
-                awemeInfo,
-                filterOption
-              ]);
+              log.success([`视频过滤器 ==> ${filterOption.name}`, transformAwemeInfo, details, awemeInfo, filterOption]);
             }
           }
           if (flag) {
@@ -7825,10 +7719,7 @@ execFilter() {
             if (typeof awemeFilterInfoResult.transformAwemeInfo.awemeId === "string" && awemeFilterInfoResult.matchedFilterOption) {
               let filterOptionList = that.$data.isFilterAwemeInfoList.get(awemeFilterInfoResult.transformAwemeInfo.awemeId) || [];
               filterOptionList.push(awemeFilterInfoResult.matchedFilterOption);
-              that.$data.isFilterAwemeInfoList.set(
-                awemeFilterInfoResult.transformAwemeInfo.awemeId,
-                filterOptionList
-              );
+              that.$data.isFilterAwemeInfoList.set(awemeFilterInfoResult.transformAwemeInfo.awemeId, filterOptionList);
             }
           }
           if (typeof awemeFilterInfoResult.transformAwemeInfo.awemeId === "string") {
@@ -8318,12 +8209,7 @@ getRuleViewInstance() {
                 );
                 Reflect.set(ruleName_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
                 let $ruleName2 = panelHandlerComponents.createSectionContainerItem_select_multiple_new(ruleName_template);
-                let ruleValue_template = UITextArea(
-                  "属性值",
-                  "ruleValue",
-                  "",
-                  "如果是字符串，可正则，注意转义"
-                );
+                let ruleValue_template = UITextArea("属性值", "ruleValue", "", "如果是字符串，可正则，注意转义");
                 Reflect.set(ruleValue_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
                 let $ruleValue2 = panelHandlerComponents.createSectionContainerItem_textarea(ruleValue_template);
                 let remarks_template = UITextArea("备注", "remarks", "", "");
@@ -8351,9 +8237,7 @@ getRuleViewInstance() {
 							`
                 )
               });
-              let $dynamicInner = $dynamicContainer.querySelector(
-                ".rule-form-ulist-dynamic__inner"
-              );
+              let $dynamicInner = $dynamicContainer.querySelector(".rule-form-ulist-dynamic__inner");
               let $addDynamicButton = $dynamicContainer.querySelector(".pops-panel-button");
               let addDynamicElementItem = (dynamicData = {
                 ruleName: [],
@@ -8619,7 +8503,7 @@ ruleName: "nickname",
       };
     }
   };
-  const blockCSS$5 = '/* 右侧视频信息里的 下载客户端，桌面快捷访问 */\r\n[data-e2e="note-detail"]\r\n	div:has(> [data-e2e="user-info"])\r\n	> div:has(a[download*="douyin-downloader"]) {\r\n	display: none !important;\r\n}\r\n';
+  const blockCSS$5 = '/* 右侧视频信息里的 下载客户端，桌面快捷访问 */\r\n[data-e2e="note-detail"] div:has(> [data-e2e="user-info"]) > div:has(a[download*="douyin-downloader"]) {\r\n  display: none !important;\r\n}\r\n';
   const DouYinNote = {
     init() {
       addStyle(blockCSS$5);
@@ -8889,7 +8773,7 @@ isShareChallenge() {
       return this.isMDouYin() && window.location.pathname.startsWith("/share/challenge/");
     }
   };
-  const blockCSS$4 = "/* 顶部 打开看看 登录 */\r\n.adapt-login-header,\r\n/* 上面屏蔽后的空白区域 */\r\n.user-card .nav-bar-placeholder,\r\n/* 视频区域底部的【打开抖音App看更多内容】 */\r\n.select-list .img-button{\r\n    display: none !important;\r\n}";
+  const blockCSS$4 = "/* 顶部 打开看看 登录 */\r\n.adapt-login-header,\r\n/* 上面屏蔽后的空白区域 */\r\n.user-card .nav-bar-placeholder,\r\n/* 视频区域底部的【打开抖音App看更多内容】 */\r\n.select-list .img-button {\r\n  display: none !important;\r\n}\r\n";
   const DouYinUrlUtils = {
 getVideoUrl(videoId) {
       return "https://www.douyin.com/video/" + videoId;
@@ -8975,8 +8859,8 @@ coverPostListContainer() {
       );
     }
   };
-  const blockCSS$3 = "/* 顶部 打开看看 登录 */\r\n.adapt-login-header,\r\n/* 视频描述信息区域中的 打开抖音看精彩视频 */\r\n.footer .img-button,\r\n/* 登录页面 */\r\n.login-page ,\r\n/* 底部左下角 打开抖音看精彩视频 */\r\n.footer .bottom-btn-con-new,\r\n/* 合集 打开抖音看精彩视频 */\r\n.container .end-page-info-button {\r\n	display: none !important;\r\n}\r\n";
-  const beautifyCSS = ".video-container {\r\n	height: 100% !important;\r\n	margin-top: 0 !important;\r\n}\r\n.footer {\r\n	bottom: 50px !important;\r\n}\r\n.mix-info {\r\n	bottom: 0px !important;\r\n}\r\n";
+  const blockCSS$3 = "/* 顶部 打开看看 登录 */\r\n.adapt-login-header,\r\n/* 视频描述信息区域中的 打开抖音看精彩视频 */\r\n.footer .img-button,\r\n/* 登录页面 */\r\n.login-page ,\r\n/* 底部左下角 打开抖音看精彩视频 */\r\n.footer .bottom-btn-con-new,\r\n/* 合集 打开抖音看精彩视频 */\r\n.container .end-page-info-button {\r\n  display: none !important;\r\n}\r\n";
+  const beautifyCSS = ".video-container {\r\n  height: 100% !important;\r\n  margin-top: 0 !important;\r\n}\r\n.footer {\r\n  bottom: 50px !important;\r\n}\r\n.mix-info {\r\n  bottom: 0px !important;\r\n}\r\n";
   const MDouYinShareVideo = {
     init() {
       addStyle(blockCSS$3);
@@ -9002,7 +8886,7 @@ coverGlobalClick() {
       });
     }
   };
-  const blockCSS$2 = "/* 顶部 打开看看 登录 */\r\n.container .adapt-login-header,\r\n/* 底部中间的 App内打开 */\r\n.container .float-button-con {\r\n	display: none !important;\r\n}\r\n\r\n.gallery-container {\r\n	margin-top: 10px !important;\r\n}\r\n";
+  const blockCSS$2 = "/* 顶部 打开看看 登录 */\r\n.container .adapt-login-header,\r\n/* 底部中间的 App内打开 */\r\n.container .float-button-con {\r\n  display: none !important;\r\n}\r\n\r\n.gallery-container {\r\n  margin-top: 10px !important;\r\n}\r\n";
   const MDouYinShareNote = {
     init() {
       addStyle(blockCSS$2);
@@ -9161,7 +9045,7 @@ coverExcitingGraphicsAndText() {
       });
     }
   };
-  const blockCSS$1 = "/* 顶部 打开看看 登录 */\r\n.page-reflow-challenge .header,\r\n/* 底部的 打开抖音App看更多内容 */\r\n.page-reflow-challenge .bottom-btn__con {\r\n	display: none !important;\r\n}\r\n\r\n.page-reflow-challenge {\r\n	padding-top: 0 !important;\r\n}\r\n";
+  const blockCSS$1 = "/* 顶部 打开看看 登录 */\r\n.page-reflow-challenge .header,\r\n/* 底部的 打开抖音App看更多内容 */\r\n.page-reflow-challenge .bottom-btn__con {\r\n  display: none !important;\r\n}\r\n\r\n.page-reflow-challenge {\r\n  padding-top: 0 !important;\r\n}\r\n";
   const MDouYinShareChallenge = {
     init() {
       addStyle(blockCSS$1);
@@ -9213,7 +9097,7 @@ coverVideoCard() {
       );
     }
   };
-  const blockCSS = "/* 顶部 打开App，发现更多内容 */\r\n.page-reflow-music .header,\r\n/* ↑屏蔽后的 顶部空白区域 */\r\n.page-reflow-music .banner-placeholder ,\r\n/* 底部 打开抖音App看更多内容 */\r\n.page-reflow-music .bottom-btn__con {\r\n	display: none !important;\r\n}\r\n";
+  const blockCSS = "/* 顶部 打开App，发现更多内容 */\r\n.page-reflow-music .header,\r\n/* ↑屏蔽后的 顶部空白区域 */\r\n.page-reflow-music .banner-placeholder ,\r\n/* 底部 打开抖音App看更多内容 */\r\n.page-reflow-music .bottom-btn__con {\r\n  display: none !important;\r\n}\r\n";
   const MDouYinShareMusic = {
     init() {
       addStyle(blockCSS);
@@ -9318,20 +9202,12 @@ coverVideoCard() {
     return result;
   };
   const afterEnterDeepMenuCallBack = (formConfig, container) => {
-    let $oneClickOpen = container.sectionBodyContainer.querySelector(
-      ".keyboard-oneClickOpen"
-    );
-    let $oneClickClose = container.sectionBodyContainer.querySelector(
-      ".keyboard-oneClickClose"
-    );
+    let $oneClickOpen = container.sectionBodyContainer.querySelector(".keyboard-oneClickOpen");
+    let $oneClickClose = container.sectionBodyContainer.querySelector(".keyboard-oneClickClose");
     let clickCallBack = (isOpen) => {
       container.sectionBodyContainer?.querySelectorAll(".pops-panel-switch").forEach(($ele) => {
-        let $input = $ele.querySelector(
-          ".pops-panel-switch__input"
-        );
-        let $checkbox = $ele.querySelector(
-          ".pops-panel-switch__core"
-        );
+        let $input = $ele.querySelector(".pops-panel-switch__input");
+        let $checkbox = $ele.querySelector(".pops-panel-switch__core");
         if (isOpen) {
           if (!$input.checked) {
             $checkbox.click();
@@ -9523,13 +9399,7 @@ coverVideoCard() {
                     void 0,
                     "当地址栏改变时，功能重载，建议开启"
                   ),
-                  UISwitch(
-                    "移除某些Cookie",
-                    "dy-cookie-remove__ac__",
-                    false,
-                    void 0,
-                    "阻止触发验证弹窗（maybe）"
-                  ),
+                  UISwitch("移除某些Cookie", "dy-cookie-remove__ac__", false, void 0, "阻止触发验证弹窗（maybe）"),
                   UISwitch(
                     "新标签页打开搜索结果",
                     "dy-search-click-to-new-tab",
@@ -9542,9 +9412,7 @@ coverVideoCard() {
               {
                 text: "Url重定向",
                 type: "forms",
-                forms: [
-                  UISwitch("重定向/home", "douyin-redirect-url-home-to-root", false, void 0, "/home => /")
-                ]
+                forms: [UISwitch("重定向/home", "douyin-redirect-url-home-to-root", false, void 0, "/home => /")]
               }
             ]
           },
@@ -9632,13 +9500,7 @@ coverVideoCard() {
                   UISwitch("【屏蔽】左侧导航栏", "shieldLeftNavigator", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】精选", "shieldLeftNavigator-tab-home", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】推荐", "shieldLeftNavigator-tab-recommend", false, void 0, "屏蔽元素"),
-                  UISwitch(
-                    "【屏蔽】AI搜索/抖音",
-                    "shieldLeftNavigator-tab-ai-search",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
+                  UISwitch("【屏蔽】AI搜索/抖音", "shieldLeftNavigator-tab-ai-search", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】关注", "shieldLeftNavigator-tab-follow", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】朋友", "shieldLeftNavigator-tab-friend", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】我的", "shieldLeftNavigator-tab-user_self", false, void 0, "屏蔽元素"),
@@ -9723,13 +9585,7 @@ UISwitch("【屏蔽】直播", "shieldLeftNavigator-tab-live", false, void 0, "�
                   UISwitch("【屏蔽】投稿", "shieldSubmission", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】壁纸", "shieldWallpaper", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】更多", "shield-topNav-rightMenu-more", false, void 0, "屏蔽元素"),
-                  UISwitch(
-                    "【屏蔽】登录头像",
-                    "shield-topNav-rightMenu-loginAvatar",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
+                  UISwitch("【屏蔽】登录头像", "shield-topNav-rightMenu-loginAvatar", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】AI搜索", "shield-topNav-ai-search", false, void 0, "屏蔽元素")
                 ]
               }
@@ -9980,13 +9836,7 @@ value: -2
                     void 0,
                     "修复移动端不能点击拖拽和定位进度的问题（仅移动端使用）"
                   ),
-                  UISwitch(
-                    "禁用双击点赞",
-                    "dy-video-disableDoubleClickLike",
-                    false,
-                    void 0,
-                    "禁止视频区域双击点赞"
-                  ),
+                  UISwitch("禁用双击点赞", "dy-video-disableDoubleClickLike", false, void 0, "禁止视频区域双击点赞"),
                   UISwitch(
                     "手势返回关闭评论区",
                     "dy-video-gestureBackCloseComment",
@@ -10009,13 +9859,7 @@ value: -2
                     void 0,
                     "分享->复制链接，复制的内容仅为链接，不包含其它"
                   ),
-                  UISwitch(
-                    "评论区移到中间",
-                    "changeCommentToBottom",
-                    true,
-                    void 0,
-                    "修改评论区为中间弹出而非右侧区域"
-                  ),
+                  UISwitch("评论区移到中间", "changeCommentToBottom", true, void 0, "修改评论区为中间弹出而非右侧区域"),
                   UISwitch(
                     "↑自适应评论区位置",
                     "douyin-video-autoCheckChangeCommentToBottom",
@@ -10038,13 +9882,7 @@ value: -2
                     "双击视频自动进入网页全屏，检测间隔250ms"
                   ),
                   UISwitch("移除video的bottom偏移", "dy-video-removeStyle-bottom", false, void 0, ""),
-                  UISwitch(
-                    "禁用右侧工具栏的transform",
-                    "dy-video-disableRightToolbarTransform",
-                    false,
-                    void 0,
-                    ""
-                  )
+                  UISwitch("禁用右侧工具栏的transform", "dy-video-disableRightToolbarTransform", false, void 0, "")
                 ]
               },
               {
@@ -10278,9 +10116,7 @@ value: -2
                     DouYinVideoFilter.$data.videoFilterRuleStorage.importRules();
                   }),
                   UIButton("数据导出", "导出自定义规则数据", "导出", void 0, false, false, "primary", () => {
-                    DouYinVideoFilter.$data.videoFilterRuleStorage.exportRules(
-                      _SCRIPT_NAME_ + "-视频过滤规则.json"
-                    );
+                    DouYinVideoFilter.$data.videoFilterRuleStorage.exportRules(_SCRIPT_NAME_ + "-视频过滤规则.json");
                   })
                 ]
               }
@@ -10316,7 +10152,7 @@ value: -2
                   UISwitch("【屏蔽】分享", "shieldSharenButton", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】听抖音", "shieldListenDouYinButton", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】看相关", "shieldRelatedRecommendationsButton", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】更多", "shieldMoreButton", false, void 0, "...按钮，屏蔽元素")
+                  UISwitch("【屏蔽】更多", "shieldMoreButton", false, void 0, "<code>...</code>按钮")
                 ]
               },
               {
@@ -10358,7 +10194,8 @@ value: -2
                     void 0,
                     "屏蔽元素"
                   ),
-                  UISwitch("【屏蔽】作者声明", "dy-video-blockAuthorDeclaration", false, void 0, "屏蔽元素")
+                  UISwitch("【屏蔽】作者声明", "dy-video-blockAuthorDeclaration", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】识别画面", "dy-video-blockAIIdentifyTheScreen", false, void 0, "屏蔽元素")
                 ]
               },
               {
@@ -10377,48 +10214,18 @@ value: -2
                   UISwitch("【屏蔽】清屏", "shieldBottomVideoToolbar-clearScreen", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】清晰度", "shieldBottomVideoToolbar-playclarity", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】倍速", "shieldBottomVideoToolbar-playback", false, void 0, "屏蔽元素"),
-                  UISwitch(
-                    "【屏蔽】稍后再看",
-                    "shieldBottomVideoToolbar-watchLater",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
+                  UISwitch("【屏蔽】稍后再看", "shieldBottomVideoToolbar-watchLater", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】小窗模式", "shieldBottomVideoToolbar-miniMode", false, void 0, "屏蔽元素"),
-                  UISwitch(
-                    "【屏蔽】网页全屏",
-                    "shieldBottomVideoToolbar-pageFullScreen",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】进入全屏",
-                    "shieldBottomVideoToolbar-fullScreen",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  )
+                  UISwitch("【屏蔽】网页全屏", "shieldBottomVideoToolbar-pageFullScreen", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】进入全屏", "shieldBottomVideoToolbar-fullScreen", false, void 0, "屏蔽元素")
                 ]
               },
               {
                 text: "其它",
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "【屏蔽】右侧的展开评论按钮",
-                    "shieldRightExpandCommentButton",
-                    true,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】搜索悬浮栏",
-                    "shieldSearchFloatingBar",
-                    true,
-                    void 0,
-                    "屏蔽元素，一般出现在左上角"
-                  ),
+                  UISwitch("【屏蔽】右侧的展开评论按钮", "shieldRightExpandCommentButton", true, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】搜索悬浮栏", "shieldSearchFloatingBar", true, void 0, "屏蔽元素，一般出现在左上角"),
                   UISwitch(
                     "【屏蔽】网页全屏关闭按钮",
                     "shieldCloseFullScreenButton",
@@ -10446,13 +10253,7 @@ value: -2
                 text: AutoOpenOrClose.text,
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "【屏蔽】评论工具栏",
-                    "dy-video-shieldUserCommentToolBar",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
+                  UISwitch("【屏蔽】评论工具栏", "dy-video-shieldUserCommentToolBar", false, void 0, "屏蔽元素"),
                   UISwitch(
                     "【屏蔽】大家都在搜",
                     "dy-video-shieldUserCommentEveryOneAllSearch",
@@ -10555,13 +10356,7 @@ value: -2
                     void 0,
                     "屏蔽右边的相关搜索"
                   ),
-                  UISwitch(
-                    "【屏蔽】AI问一问",
-                    "douyin-search-blockAIAsk",
-                    false,
-                    void 0,
-                    "相关搜索上面的问一问"
-                  )
+                  UISwitch("【屏蔽】AI问一问", "douyin-search-blockAIAsk", false, void 0, "相关搜索上面的问一问")
                 ]
               }
             ]
@@ -10689,20 +10484,8 @@ UISwitch(
                     "自动监听并检测弹窗"
                   ),
                   UISwitch("禁止自动播放", "live-pauseVideo", false, void 0, "3秒内禁止任何形式的播放"),
-                  UISwitch(
-                    "禁用双击点赞",
-                    "dy-live-disableDoubleClickLike",
-                    false,
-                    void 0,
-                    "禁止直播视频区域双击点赞"
-                  ),
-                  UISwitch(
-                    "自动关闭聊天室",
-                    "dy-live-autoCloseChatRoom",
-                    false,
-                    void 0,
-                    "自动点击关闭聊天室按钮"
-                  ),
+                  UISwitch("禁用双击点赞", "dy-live-disableDoubleClickLike", false, void 0, "禁止直播视频区域双击点赞"),
+                  UISwitch("自动关闭聊天室", "dy-live-autoCloseChatRoom", false, void 0, "自动点击关闭聊天室按钮"),
                   UISwitch("禁用鼠标滚轮切换直播间", "live-prevent-wheel-switchLiveRoom", false, void 0, "")
                 ]
               },
@@ -10953,13 +10736,7 @@ UISwitch(
         text: "功能",
         type: "forms",
         forms: [
-          UISwitch(
-            "显示UID",
-            "dy-user-addShowUserUID",
-            true,
-            void 0,
-            "在用户信息区域下方显示当前用户的uid"
-          )
+          UISwitch("显示UID", "dy-user-addShowUserUID", true, void 0, "在用户信息区域下方显示当前用户的uid")
 
 
 
@@ -11025,20 +10802,8 @@ UISwitch(
                 text: "",
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "视频合集",
-                    "m-dy-share-user-coverPlayletList",
-                    true,
-                    void 0,
-                    "正确跳转视频合集页面"
-                  ),
-                  UISwitch(
-                    "视频列表",
-                    "m-dy-share-user-coverPostListContainer",
-                    true,
-                    void 0,
-                    "正确跳转视频页面"
-                  )
+                  UISwitch("视频合集", "m-dy-share-user-coverPlayletList", true, void 0, "正确跳转视频合集页面"),
+                  UISwitch("视频列表", "m-dy-share-user-coverPostListContainer", true, void 0, "正确跳转视频页面")
                 ]
               }
             ]
@@ -11064,41 +10829,11 @@ UISwitch(
                 text: "",
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "精彩图文",
-                    "m-dy-share-note-coverExcitingGraphicsAndText",
-                    true,
-                    void 0,
-                    "正确跳转笔记页面"
-                  ),
-                  UISwitch(
-                    "用户",
-                    "m-dy-share-note-coverUser",
-                    true,
-                    void 0,
-                    "正确跳转用户主页"
-                  ),
-                  UISwitch(
-                    "话题",
-                    "m-dy-share-note-coverHashTag",
-                    true,
-                    void 0,
-                    "正确跳转相关话题"
-                  ),
-                  UISwitch(
-                    "音乐",
-                    "m-dy-share-note-coverMusic",
-                    true,
-                    void 0,
-                    "正确跳转相关音乐"
-                  ),
-                  UISwitch(
-                    "相关推荐",
-                    "m-dy-share-note-coverRecommend",
-                    true,
-                    void 0,
-                    "正确跳转笔记页面"
-                  )
+                  UISwitch("精彩图文", "m-dy-share-note-coverExcitingGraphicsAndText", true, void 0, "正确跳转笔记页面"),
+                  UISwitch("用户", "m-dy-share-note-coverUser", true, void 0, "正确跳转用户主页"),
+                  UISwitch("话题", "m-dy-share-note-coverHashTag", true, void 0, "正确跳转相关话题"),
+                  UISwitch("音乐", "m-dy-share-note-coverMusic", true, void 0, "正确跳转相关音乐"),
+                  UISwitch("相关推荐", "m-dy-share-note-coverRecommend", true, void 0, "正确跳转笔记页面")
                 ]
               }
             ]
@@ -11111,27 +10846,9 @@ UISwitch(
                 text: "",
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "【屏蔽】评论",
-                    "m-dy-share-note-blockComment",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】相关推荐",
-                    "m-dy-share-note-blockRecommend",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】底部工具栏",
-                    "m-dy-share-note-blockFooterToobar",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  )
+                  UISwitch("【屏蔽】评论", "m-dy-share-note-blockComment", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】相关推荐", "m-dy-share-note-blockRecommend", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】底部工具栏", "m-dy-share-note-blockFooterToobar", false, void 0, "屏蔽元素")
                 ]
               }
             ]
@@ -11157,20 +10874,8 @@ UISwitch(
                 text: "",
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "顶部区域",
-                    "m-dy-share-challenge-coverTopJump",
-                    true,
-                    void 0,
-                    "阻止跳转至下载页面"
-                  ),
-                  UISwitch(
-                    "视频卡片",
-                    "m-dy-share-challenge-coverVideoCard",
-                    true,
-                    void 0,
-                    "正确跳转视频页面"
-                  )
+                  UISwitch("顶部区域", "m-dy-share-challenge-coverTopJump", true, void 0, "阻止跳转至下载页面"),
+                  UISwitch("视频卡片", "m-dy-share-challenge-coverVideoCard", true, void 0, "正确跳转视频页面")
                 ]
               }
             ]
@@ -11195,15 +10900,7 @@ UISwitch(
               {
                 text: "",
                 type: "forms",
-                forms: [
-                  UISwitch(
-                    "全局点击",
-                    "m-dy-share-video-coverGlobalClick",
-                    true,
-                    void 0,
-                    "阻止跳转至下载页"
-                  )
-                ]
+                forms: [UISwitch("全局点击", "m-dy-share-video-coverGlobalClick", true, void 0, "阻止跳转至下载页")]
               }
             ]
           }
@@ -11227,15 +10924,7 @@ UISwitch(
               {
                 text: "",
                 type: "forms",
-                forms: [
-                  UISwitch(
-                    "视频卡片",
-                    "m-dy-share-music-coverVideoCard",
-                    true,
-                    void 0,
-                    "正确跳转视频页面"
-                  )
-                ]
+                forms: [UISwitch("视频卡片", "m-dy-share-music-coverVideoCard", true, void 0, "正确跳转视频页面")]
               }
             ]
           }
@@ -11286,10 +10975,7 @@ UISwitch(
       return text;
     },
     callback: () => {
-      Panel.showPanel(
-        PanelContent.getConfig(1),
-        `${Panel.$data.scriptName}-移动端设置`
-      );
+      Panel.showPanel(PanelContent.getConfig(1), `${Panel.$data.scriptName}-移动端设置`);
     }
   });
   Panel.init();

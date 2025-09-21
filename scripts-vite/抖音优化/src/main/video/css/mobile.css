@@ -1,156 +1,135 @@
 /* 竖屏且高度小于550px */
 @media screen and (max-width: 550px) and (orientation: portrait) {
-	/* 右侧工具栏放大 */
-	.basePlayerContainer .positionBox {
-		bottom: 80px !important;
-		padding-right: 5px !important;
-		scale: unset !important;
-		transform: scale3d(1.12, 1.12, 1.12) !important;
-	}
-	/* 右侧工具栏的svg再放大 */
-	.basePlayerContainer .positionBox svg {
-		transform: scale3d(1.12, 1.12, 1.12);
-	}
-	/* 重置关注按钮的scale */
-	.basePlayerContainer
-		.positionBox
-		.dy-tip-container
-		div[data-e2e="feed-follow-icon"]
-		svg {
-		scale: unset !important;
-	}
+  /* 右侧工具栏放大 */
+  .basePlayerContainer .positionBox {
+    bottom: 80px !important;
+    padding-right: 5px !important;
+    scale: unset !important;
+    transform: scale3d(1.12, 1.12, 1.12) !important;
+  }
+  /* 右侧工具栏的svg再放大 */
+  .basePlayerContainer .positionBox svg {
+    transform: scale3d(1.12, 1.12, 1.12);
+  }
+  /* 重置关注按钮的scale */
+  .basePlayerContainer .positionBox .dy-tip-container div[data-e2e="feed-follow-icon"] svg {
+    scale: unset !important;
+  }
 
-	/* 调整顶部搜索框的宽度 */
-	#douyin-header
-		div[data-click="doubleClick"]
-		> div[data-click="doubleClick"]
-		> div:has(input[data-e2e="searchbar-input"]) {
-		width: 150px;
-		padding-right: 0;
-		max-width: unset;
-		flex: 1;
-	}
-	/* 搜索框获取焦点时自动放大宽度 */
-	#douyin-header
-		div[data-click="doubleClick"]
-		> div[data-click="doubleClick"]
-		> div:has(input[data-e2e="searchbar-input"]:focus) {
-		width: 100vw;
-		width: 100dvw;
-	}
-	/* 搜索页面 搜索详情的宽度、视频结果列表的宽度 */
-	#search-content-area > div,
-	#search-content-area > div div:has(+ #search-result-container),
-	#search-content-area > div #search-result-container {
-		width: 100%;
-		width: -webkit-fill-available;
-	}
-	/* 搜索页面 视频右侧的工具栏缩小 */
-	#search-content-area .basePlayerContainer .positionBox {
-		bottom: 28px !important;
-		transform: scale3d(0.6, 0.6, 0.6) !important;
-	}
-	/* 搜索页面 搜索出的用户信息换行 */
-	#search-content-area
-		#search-result-container
-		ul[data-e2e="scroll-list"]
-		li
-		.search-result-card
-		> div
-		> div {
-		flex-wrap: wrap;
-	}
-	/* 搜索页面 搜索结果筛选选项 综合、视频、用户、直播的超出宽度换行 */
-	#search-content-area div:has(> div > div > span[data-key="general"]) {
-		overflow: auto;
-		gap: 10px;
-	}
-	/* 搜索页面 搜索结果筛选选项 */
-	#search-content-area div:has(> span[data-key="general"]) {
-		gap: 10px;
-	}
-	/* 搜索页面 搜索结果筛选选项弹窗修复 */
-	#search-content-area div:has(> div > span[data-key="general"]) {
-		position: unset !important;
-	}
-	/* 搜索页面 搜索结果筛选选项 */
-	#search-content-area div:has(> span[data-key="general"]) > * {
-		white-space: nowrap !important;
-		width: auto !important;
-		width: fit-content !important;
-		margin-left: 0px !important;
-		margin-right: 0px !important;
-	}
-	/* 去除设置min-width超出浏览器宽度的问题 */
-	body {
-		min-width: 100% !important;
-	}
-	/* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */
-	#douyin-right-container #douyin-header {
-		width: 100%;
-	}
-	/* 去除设置 */
-	#douyin-right-container #douyin-header > div[data-click="doubleClick"] {
-		min-width: 100%;
-	}
+  /* 调整顶部搜索框的宽度 */
+  #douyin-header
+    div[data-click="doubleClick"]
+    > div[data-click="doubleClick"]
+    > div:has(input[data-e2e="searchbar-input"]) {
+    width: 150px;
+    padding-right: 0;
+    max-width: unset;
+    flex: 1;
+  }
+  /* 搜索框获取焦点时自动放大宽度 */
+  #douyin-header
+    div[data-click="doubleClick"]
+    > div[data-click="doubleClick"]
+    > div:has(input[data-e2e="searchbar-input"]:focus) {
+    width: 100vw;
+    width: 100dvw;
+  }
+  /* 搜索页面 搜索详情的宽度、视频结果列表的宽度 */
+  #search-content-area > div,
+  #search-content-area > div div:has(+ #search-result-container),
+  #search-content-area > div #search-result-container {
+    width: 100%;
+    width: -webkit-fill-available;
+  }
+  /* 搜索页面 视频右侧的工具栏缩小 */
+  #search-content-area .basePlayerContainer .positionBox {
+    bottom: 28px !important;
+    transform: scale3d(0.6, 0.6, 0.6) !important;
+  }
+  /* 搜索页面 搜索出的用户信息换行 */
+  #search-content-area #search-result-container ul[data-e2e="scroll-list"] li .search-result-card > div > div {
+    flex-wrap: wrap;
+  }
+  /* 搜索页面 搜索结果筛选选项 综合、视频、用户、直播的超出宽度换行 */
+  #search-content-area div:has(> div > div > span[data-key="general"]) {
+    overflow: auto;
+    gap: 10px;
+  }
+  /* 搜索页面 搜索结果筛选选项 */
+  #search-content-area div:has(> span[data-key="general"]) {
+    gap: 10px;
+  }
+  /* 搜索页面 搜索结果筛选选项弹窗修复 */
+  #search-content-area div:has(> div > span[data-key="general"]) {
+    position: unset !important;
+  }
+  /* 搜索页面 搜索结果筛选选项 */
+  #search-content-area div:has(> span[data-key="general"]) > * {
+    white-space: nowrap !important;
+    width: auto !important;
+    width: fit-content !important;
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+  }
+  /* 去除设置min-width超出浏览器宽度的问题 */
+  body {
+    min-width: 100% !important;
+  }
+  /* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */
+  #douyin-right-container #douyin-header {
+    width: 100%;
+  }
+  /* 去除设置 */
+  #douyin-right-container #douyin-header > div[data-click="doubleClick"] {
+    min-width: 100%;
+  }
 
-	/* /video/xxx页面 */
-	/* 点赞、评论、分享偏移 */
-	div[data-e2e="video-detail"]
-		.leftContainer
-		.basePlayerContainer
-		.positionBox {
-		padding-right: 30px !important;
-	}
-	/* 底部工具栏右侧的按钮 */
-	div[data-e2e="video-detail"]
-		.leftContainer
-		.xgplayer.xgplayer-pc
-		.xg-right-grid {
-		margin-right: 35px !important;
-	}
-	/* 评论区全屏 */
-	div[data-e2e="video-detail"]
-		.leftContainer
-		> div:has(.comment-mainContent[data-e2e="comment-list"]),
-	div[data-e2e="video-detail"]
-		.leftContainer
-		> div
-		> div:has(.comment-mainContent[data-e2e="comment-list"]) {
-		width: 100vw !important;
-	}
+  /* /video/xxx页面 */
+  /* 点赞、评论、分享偏移 */
+  div[data-e2e="video-detail"] .leftContainer .basePlayerContainer .positionBox {
+    padding-right: 30px !important;
+  }
+  /* 底部工具栏右侧的按钮 */
+  div[data-e2e="video-detail"] .leftContainer .xgplayer.xgplayer-pc .xg-right-grid {
+    margin-right: 35px !important;
+  }
+  /* 评论区全屏 */
+  div[data-e2e="video-detail"] .leftContainer > div:has(.comment-mainContent[data-e2e="comment-list"]),
+  div[data-e2e="video-detail"] .leftContainer > div > div:has(.comment-mainContent[data-e2e="comment-list"]) {
+    width: 100vw !important;
+  }
 
-	/* 设置视频区域的高度 */
-	#slidelist {
-		width: 100vw;
-		height: calc(100vh - var(--header-height)) !important;
-	}
-	/* 修正网页全屏下的视频高度 */
-	#slidelist[class*="isCssFullScreen"] {
-		height: 100vh !important;
-	}
-	/* 去除视频区域右侧偏移 */
-	.is-mobile-pc div[data-e2e="slideList"] {
-		padding-right: 0px !important;
-		height: 100% !important;
-		min-height: 100% !important;
-	}
+  /* 设置视频区域的高度 */
+  #slidelist {
+    width: 100vw;
+    height: calc(100vh - var(--header-height)) !important;
+  }
+  /* 修正网页全屏下的视频高度 */
+  #slidelist[class*="isCssFullScreen"] {
+    height: 100vh !important;
+  }
+  /* 去除视频区域右侧偏移 */
+  .is-mobile-pc div[data-e2e="slideList"] {
+    padding-right: 0px !important;
+    height: 100% !important;
+    min-height: 100% !important;
+  }
 }
 
 /* 横屏且高度小于550px */
 @media screen and (max-height: 550px) and (orientation: landscape) {
-	/* 右侧工具栏缩小 */
-	.basePlayerContainer .positionBox {
-		transform: scale(0.95) !important;
-		bottom: 42px !important;
-		padding-right: 10px !important;
-	}
-	/* 右侧工具栏的svg再缩小 */
-	.basePlayerContainer .positionBox svg {
-		transform: scale3d(0.95, 0.95, 0.95);
-	}
-	/* 修复全屏下不显示视频底部的控制栏 */
-	.isCssFullScreen [data-e2e="slideList"] {
-		min-height: auto !important;
-	}
+  /* 右侧工具栏缩小 */
+  .basePlayerContainer .positionBox {
+    transform: scale(0.95) !important;
+    bottom: 42px !important;
+    padding-right: 10px !important;
+  }
+  /* 右侧工具栏的svg再缩小 */
+  .basePlayerContainer .positionBox svg {
+    transform: scale3d(0.95, 0.95, 0.95);
+  }
+  /* 修复全屏下不显示视频底部的控制栏 */
+  .isCssFullScreen [data-e2e="slideList"] {
+    min-height: auto !important;
+  }
 }

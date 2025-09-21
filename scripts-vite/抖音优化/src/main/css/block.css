@@ -16,5 +16,5 @@ div:has(> a[download*="douyin-downloade"]):has(+.userMenuPanelShadowAnimation),
 /* so.douyin.com的广告item */
 .card-item:has(.h5-ad-video-card),
 .card-item:has([data-is-ad="true"]) {
-	display: none !important;
+  display: none !important;
 }

@@ -22,186 +22,184 @@ import { DouYinRecommend } from "./recommend/DouYinRecommend";
 import Qmsg from "qmsg";
 
 export const DouYin = {
-	init() {
-		Panel.onceExec("dy-global-block-css", () => {
-			return this.removeAds();
-		});
-		DouYinGestureBackClearHash();
-		DouYinHook.init();
-		DouYinVideoFilter.init();
-		DouYinNetWorkHook.init();
-		DouYinRedirect.init();
-		Panel.execMenuOnce("watchLoginDialogToClose", () => {
-			DouYinAccount.watchLoginDialogToClose();
-		});
-		Panel.execMenuOnce("disguiseLogin", () => {
-			DouYinAccount.disguiseLogin();
-		});
-		Panel.execMenuOnce("dy-initialScale", () => {
-			this.initialScale();
-		});
-		Panel.execMenu("dy-apple-removeMetaAppleItunesApp", () => {
-			this.removeMetaAppleItunesApp();
-		});
-		BlockLeftNavigator.init();
-		BlockTopNavigator.init();
-		BlockSearchFrame.init();
+  init() {
+    Panel.onceExec("dy-global-block-css", () => {
+      return this.removeAds();
+    });
+    DouYinGestureBackClearHash();
+    DouYinHook.init();
+    DouYinVideoFilter.init();
+    DouYinNetWorkHook.init();
+    DouYinRedirect.init();
+    Panel.execMenuOnce("watchLoginDialogToClose", () => {
+      DouYinAccount.watchLoginDialogToClose();
+    });
+    Panel.execMenuOnce("disguiseLogin", () => {
+      DouYinAccount.disguiseLogin();
+    });
+    Panel.execMenuOnce("dy-initialScale", () => {
+      this.initialScale();
+    });
+    Panel.execMenu("dy-apple-removeMetaAppleItunesApp", () => {
+      this.removeMetaAppleItunesApp();
+    });
+    BlockLeftNavigator.init();
+    BlockTopNavigator.init();
+    BlockSearchFrame.init();
 
-		Panel.execMenuOnce(
-			"dy-common-listenRouterChange",
-			() => {
-				this.listenRouterChange();
-			},
-			false,
-			false
-		);
+    Panel.execMenuOnce(
+      "dy-common-listenRouterChange",
+      () => {
+        this.listenRouterChange();
+      },
+      false,
+      false
+    );
 
-		Panel.execMenuOnce("dy-search-click-to-new-tab", () => {
-			this.navSearchClickToNewTab();
-		});
+    Panel.execMenuOnce("dy-search-click-to-new-tab", () => {
+      this.navSearchClickToNewTab();
+    });
 
-		if (DouYinRouter.isLive()) {
-			log.info("Router: 直播");
-			DouYinLive.init();
-		} else if (DouYinRouter.isIndex()) {
-			DouYinVideoPlayer.init();
+    if (DouYinRouter.isLive()) {
+      log.info("Router: 直播");
+      DouYinLive.init();
+    } else if (DouYinRouter.isIndex()) {
+      DouYinVideoPlayer.init();
 
-			if (DouYinRouter.isRecommend()) {
-				log.info(`Router: 推荐`);
-				DouYinRecommend.init();
-			} else if (DouYinRouter.isSearch()) {
-				log.info("Router: 搜索");
-				DouYinSearch.init();
-			} else if (DouYinRouter.isUser()) {
-				log.info(`Router: 用户页面`);
-				DouYinUser.init();
-			} else if (DouYinRouter.isVideo()) {
-				log.info(`Router: 单个视频页面`);
-				DouYinVideo.init();
-			} else if (DouYinRouter.isChannel()) {
-				log.info(`Router: Channel页面`);
-				DouYinChannel.init();
-			} else if (DouYinRouter.isNote()) {
-				log.info(`Router:  笔记页面`);
-				DouYinNote.init();
-			} else {
-				log.warn("子router: " + window.location.href);
-			}
-		} else if (window.location.hostname.startsWith("lf-zt.douyin.com")) {
-			// ignore
-		} else {
-			log.error("未适配router: " + window.location.href);
-		}
-	},
-	/**
-	 * 移除ads
-	 */
-	removeAds() {
-		utils
-			.waitNode<HTMLElement>(
-				() =>
-					DOMUtils.selector<HTMLElement>(
-						'#douyin-navigation [data-e2e="douyin-navigation"] > div > div > div:regexp("下载抖音精选|条条都是宝藏视频")'
-					),
-				10000
-			)
-			.then(($el) => {
-				if (!$el) {
-					return;
-				}
-				DOMUtils.remove($el);
-			});
-		return [addStyle(blockCSS)];
-	},
-	/**
-	 * 固定meta viewport缩放倍率为1
-	 */
-	initialScale() {
-		log.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>");
-		DOMUtils.ready(() => {
-			let meta = DOMUtils.createElement(
-				"meta",
-				{},
-				{
-					name: "viewport",
-					content: "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover",
-				}
-			);
-			DOMUtils.remove("meta[name='viewport']");
-			utils.waitNode("head").then(() => {
-				document.head.appendChild(meta);
-			});
-		});
-	},
-	/**
-	 * 移除<meta>标签name="apple-itunes-app"
-	 */
-	removeMetaAppleItunesApp() {
-		utils
-			.waitNodeList<NodeListOf<HTMLMeterElement>>(['meta[name="apple-itunes-app"]'], 10000)
-			.then(($metaList) => {
-				if (!$metaList) {
-					return;
-				}
-				$metaList.forEach(($meta) => {
-					$meta.remove();
-				});
-			});
-	},
-	/**
-	 * 监听Router重载
-	 */
-	listenRouterChange() {
-		log.info(`监听Router重载`);
-		let url = window.location.href;
-		DOMUtils.on(window, "wb_url_change", (event) => {
-			const beforeUrl = url;
-			const currentUrl = window.location.href;
-			url = currentUrl;
-			log.info(`Router Change：` + currentUrl);
-			Panel.triggerUrlChangeWithExecMenuOnceEvent({
-				url: currentUrl,
-				beforeUrl: beforeUrl,
-			});
-			this.init();
-		});
-	},
-	/**
-	 * 新标签页打开搜索结果
-	 */
-	navSearchClickToNewTab() {
-		log.info(`新标签页打开搜索结果`);
-		DOMUtils.on(
-			document,
-			"click",
-			[
-				'div[data-click="doubleClick"]:has(input[data-e2e="searchbar-input"]) button[data-e2e="searchbar-button"]',
-				'a[href*="douyin.com/search/"]',
-			],
-			(evt, selectorTarget) => {
-				utils.preventEvent(evt);
-				const $click = evt.composedPath()[0] as HTMLElement;
-				let url: string | undefined;
-				if (selectorTarget instanceof HTMLAnchorElement) {
-					// 视频区域的点击信息
-					url = selectorTarget.href;
-				} else {
-					// 顶部搜索框的搜索按钮
-					const $doubleClick = selectorTarget.closest<HTMLElement>('div[data-click="doubleClick"]');
-					if (!$doubleClick) {
-						Qmsg.error("未找到搜索框元素");
-						return;
-					}
-					const $input = $doubleClick.querySelector<HTMLInputElement>("input")!;
-					const searchValue = $input.value;
-					url = `https://www.douyin.com/search/${encodeURIComponent(searchValue)}`;
-				}
-				log.info(`新标签页打开搜索：${url}`);
-				window.open(url, "_blank");
-			},
-			{
-				capture: true,
-			}
-		);
-	},
+      if (DouYinRouter.isRecommend()) {
+        log.info(`Router: 推荐`);
+        DouYinRecommend.init();
+      } else if (DouYinRouter.isSearch()) {
+        log.info("Router: 搜索");
+        DouYinSearch.init();
+      } else if (DouYinRouter.isUser()) {
+        log.info(`Router: 用户页面`);
+        DouYinUser.init();
+      } else if (DouYinRouter.isVideo()) {
+        log.info(`Router: 单个视频页面`);
+        DouYinVideo.init();
+      } else if (DouYinRouter.isChannel()) {
+        log.info(`Router: Channel页面`);
+        DouYinChannel.init();
+      } else if (DouYinRouter.isNote()) {
+        log.info(`Router:  笔记页面`);
+        DouYinNote.init();
+      } else {
+        log.warn("子router: " + window.location.href);
+      }
+    } else if (window.location.hostname.startsWith("lf-zt.douyin.com")) {
+      // ignore
+    } else {
+      log.error("未适配router: " + window.location.href);
+    }
+  },
+  /**
+   * 移除ads
+   */
+  removeAds() {
+    utils
+      .waitNode<HTMLElement>(
+        () =>
+          DOMUtils.selector<HTMLElement>(
+            '#douyin-navigation [data-e2e="douyin-navigation"] > div > div > div:regexp("下载抖音精选|条条都是宝藏视频")'
+          ),
+        10000
+      )
+      .then(($el) => {
+        if (!$el) {
+          return;
+        }
+        DOMUtils.remove($el);
+      });
+    return [addStyle(blockCSS)];
+  },
+  /**
+   * 固定meta viewport缩放倍率为1
+   */
+  initialScale() {
+    log.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>");
+    DOMUtils.ready(() => {
+      let meta = DOMUtils.createElement(
+        "meta",
+        {},
+        {
+          name: "viewport",
+          content: "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover",
+        }
+      );
+      DOMUtils.remove("meta[name='viewport']");
+      utils.waitNode("head").then(() => {
+        document.head.appendChild(meta);
+      });
+    });
+  },
+  /**
+   * 移除<meta>标签name="apple-itunes-app"
+   */
+  removeMetaAppleItunesApp() {
+    utils.waitNodeList<NodeListOf<HTMLMeterElement>>(['meta[name="apple-itunes-app"]'], 10000).then(($metaList) => {
+      if (!$metaList) {
+        return;
+      }
+      $metaList.forEach(($meta) => {
+        $meta.remove();
+      });
+    });
+  },
+  /**
+   * 监听Router重载
+   */
+  listenRouterChange() {
+    log.info(`监听Router重载`);
+    let url = window.location.href;
+    DOMUtils.on(window, "wb_url_change", (event) => {
+      const beforeUrl = url;
+      const currentUrl = window.location.href;
+      url = currentUrl;
+      log.info(`Router Change：` + currentUrl);
+      Panel.triggerUrlChangeWithExecMenuOnceEvent({
+        url: currentUrl,
+        beforeUrl: beforeUrl,
+      });
+      this.init();
+    });
+  },
+  /**
+   * 新标签页打开搜索结果
+   */
+  navSearchClickToNewTab() {
+    log.info(`新标签页打开搜索结果`);
+    DOMUtils.on(
+      document,
+      "click",
+      [
+        'div[data-click="doubleClick"]:has(input[data-e2e="searchbar-input"]) button[data-e2e="searchbar-button"]',
+        'a[href*="douyin.com/search/"]',
+      ],
+      (evt, selectorTarget) => {
+        utils.preventEvent(evt);
+        const $click = evt.composedPath()[0] as HTMLElement;
+        let url: string | undefined;
+        if (selectorTarget instanceof HTMLAnchorElement) {
+          // 视频区域的点击信息
+          url = selectorTarget.href;
+        } else {
+          // 顶部搜索框的搜索按钮
+          const $doubleClick = selectorTarget.closest<HTMLElement>('div[data-click="doubleClick"]');
+          if (!$doubleClick) {
+            Qmsg.error("未找到搜索框元素");
+            return;
+          }
+          const $input = $doubleClick.querySelector<HTMLInputElement>("input")!;
+          const searchValue = $input.value;
+          url = `https://www.douyin.com/search/${encodeURIComponent(searchValue)}`;
+        }
+        log.info(`新标签页打开搜索：${url}`);
+        window.open(url, "_blank");
+      },
+      {
+        capture: true,
+      }
+    );
+  },
 };

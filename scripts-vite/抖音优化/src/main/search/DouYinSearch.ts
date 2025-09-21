@@ -6,28 +6,28 @@ import { Panel } from "@components/setting/panel";
 import { DouYinRouter } from "@/router/DouYinRouter";
 
 export const DouYinSearch = {
-	init() {
-		DouYinSearchHideElement.init();
-		Panel.execMenuOnce("mobileMode", () => {
-			return this.mobileMode();
-		});
-		Panel.execMenuOnce("dy-search-disableClickToEnterFullScreen", () => {
-			this.disableClickToEnterFullScreen();
-		});
-		Panel.execMenuOnce("live-setSearchResultFilterWithVideoStyle", (option) => {
-			return this.setSearchResultFilterWithVideoStyle(option.value);
-		});
-	},
-	/**
-	 * 手机模式
-	 * (由通用统一调用，勿放在本函数的init内)
-	 */
-	mobileMode() {
-		log.info("搜索-手机模式");
-		let result: HTMLStyleElement[] = [];
-		result.push(addStyle(MobileCSS));
-		result.push(
-			addStyle(/*css*/ `
+  init() {
+    DouYinSearchHideElement.init();
+    Panel.execMenuOnce("mobileMode", () => {
+      return this.mobileMode();
+    });
+    Panel.execMenuOnce("dy-search-disableClickToEnterFullScreen", () => {
+      this.disableClickToEnterFullScreen();
+    });
+    Panel.execMenuOnce("live-setSearchResultFilterWithVideoStyle", (option) => {
+      return this.setSearchResultFilterWithVideoStyle(option.value);
+    });
+  },
+  /**
+   * 手机模式
+   * (由通用统一调用，勿放在本函数的init内)
+   */
+  mobileMode() {
+    log.info("搜索-手机模式");
+    let result: HTMLStyleElement[] = [];
+    result.push(addStyle(MobileCSS));
+    result.push(
+      addStyle(/*css*/ `
 			@media screen and (max-width: 550px){
 				div#search-body-container {
 					display: flex;
@@ -78,112 +78,112 @@ export const DouYinSearch = {
 				}
 			}
 		`)
-		);
-		/* 评论区展开才会出现 */
-		utils.waitNode<HTMLDivElement>("#relatedVideoCard").then(($relatedVideoCard) => {
-			log.info("评论区展开的className：" + $relatedVideoCard.className);
-			result.push(
-				addStyle(/*css*/ `
+    );
+    /* 评论区展开才会出现 */
+    utils.waitNode<HTMLDivElement>("#relatedVideoCard").then(($relatedVideoCard) => {
+      log.info("评论区展开的className：" + $relatedVideoCard.className);
+      result.push(
+        addStyle(/*css*/ `
 					html[data-vertical-screen]
 						#sliderVideo[data-e2e="feed-active-video"]
 						#videoSideBar:has(#relatedVideoCard[class="${$relatedVideoCard.className}"]) {
 							width: 100vw !important;
 					}`)
-			);
-		});
+      );
+    });
 
-		return result;
-	},
-	/**
-	 * 禁止点击视频区域进入全屏
-	 */
-	disableClickToEnterFullScreen() {
-		log.info("搜索-禁止点击视频区域进入全屏");
-		// 这个是对应 图文视频
-		DOMUtils.on(
-			document,
-			"click",
-			".focusPanel",
-			(event, selectorTarget) => {
-				if (!DouYinRouter.isSearch()) {
-					return;
-				}
-				utils.preventEvent(event);
-				let $click = selectorTarget;
-				let $parent = $click.parentElement?.parentElement as HTMLElement;
-				let $video = $parent.querySelector("video");
-				if ($video) {
-					if ($video.paused) {
-						$video.play();
-						log.info(".focusPanel：播放视频");
-					} else {
-						$video.pause();
-						log.info(".focusPanel：暂停视频");
-					}
-				} else {
-					Qmsg.error(".focusPanel未找到 video标签", {
-						isHTML: false,
-					});
-				}
-			},
-			{
-				capture: true,
-			}
-		);
-		// 这个是对应 纯视频
-		DOMUtils.on(
-			document,
-			"click",
-			"#sliderVideo video",
-			(event, selectorTarget) => {
-				if (!DouYinRouter.isSearch()) {
-					return;
-				}
-				utils.preventEvent(event);
-				let $video = selectorTarget as HTMLVideoElement;
-				if ($video.paused) {
-					$video.play();
-					log.info("#sliderVideo video：播放视频");
-				} else {
-					$video.pause();
-					log.info("#sliderVideo video：暂停视频");
-				}
-			},
-			{
-				capture: true,
-			}
-		);
-	},
-	/**
-	 * 设置搜索结果-按视频过滤的显示样式
-	 * @param lineMode 单列/双列
-	 */
-	setSearchResultFilterWithVideoStyle(lineMode: "one" | "double" = "one") {
-		log.info(`设置搜索结果-按视频过滤的显示样式：${lineMode}`);
-		if (lineMode === "one") {
-			cookieManager.set({
-				name: "SEARCH_RESULT_LIST_TYPE",
-				value: encodeURIComponent(`"single"`),
-			});
-			return addStyle(/*css*/ `
+    return result;
+  },
+  /**
+   * 禁止点击视频区域进入全屏
+   */
+  disableClickToEnterFullScreen() {
+    log.info("搜索-禁止点击视频区域进入全屏");
+    // 这个是对应 图文视频
+    DOMUtils.on(
+      document,
+      "click",
+      ".focusPanel",
+      (event, selectorTarget) => {
+        if (!DouYinRouter.isSearch()) {
+          return;
+        }
+        utils.preventEvent(event);
+        let $click = selectorTarget;
+        let $parent = $click.parentElement?.parentElement as HTMLElement;
+        let $video = $parent.querySelector("video");
+        if ($video) {
+          if ($video.paused) {
+            $video.play();
+            log.info(".focusPanel：播放视频");
+          } else {
+            $video.pause();
+            log.info(".focusPanel：暂停视频");
+          }
+        } else {
+          Qmsg.error(".focusPanel未找到 video标签", {
+            isHTML: false,
+          });
+        }
+      },
+      {
+        capture: true,
+      }
+    );
+    // 这个是对应 纯视频
+    DOMUtils.on(
+      document,
+      "click",
+      "#sliderVideo video",
+      (event, selectorTarget) => {
+        if (!DouYinRouter.isSearch()) {
+          return;
+        }
+        utils.preventEvent(event);
+        let $video = selectorTarget as HTMLVideoElement;
+        if ($video.paused) {
+          $video.play();
+          log.info("#sliderVideo video：播放视频");
+        } else {
+          $video.pause();
+          log.info("#sliderVideo video：暂停视频");
+        }
+      },
+      {
+        capture: true,
+      }
+    );
+  },
+  /**
+   * 设置搜索结果-按视频过滤的显示样式
+   * @param lineMode 单列/双列
+   */
+  setSearchResultFilterWithVideoStyle(lineMode: "one" | "double" = "one") {
+    log.info(`设置搜索结果-按视频过滤的显示样式：${lineMode}`);
+    if (lineMode === "one") {
+      cookieManager.set({
+        name: "SEARCH_RESULT_LIST_TYPE",
+        value: encodeURIComponent(`"single"`),
+      });
+      return addStyle(/*css*/ `
 			@media screen and (max-width: 800px){
 				.search-horizontal-new-layout ul[data-e2e="scroll-list"] li{
 					width: calc(100% - 21px);
 				}
 			}
 			`);
-		} else if (lineMode === "double") {
-			cookieManager.set({
-				name: "SEARCH_RESULT_LIST_TYPE",
-				value: encodeURIComponent(`"multi"`),
-			});
-			return addStyle(/*css*/ `	
+    } else if (lineMode === "double") {
+      cookieManager.set({
+        name: "SEARCH_RESULT_LIST_TYPE",
+        value: encodeURIComponent(`"multi"`),
+      });
+      return addStyle(/*css*/ `	
 			@media screen and (max-width: 800px){
 				.search-horizontal-new-layout ul[data-e2e="scroll-list"] li{
 					width: calc(50% - 21px);
 				}
 			}
 			`);
-		}
-	},
+    }
+  },
 };

@@ -17,38 +17,35 @@ import { PanelMenu } from "@components/setting/panel-menu";
 import { PanelRecommendConfig } from "./setting/view/recommend";
 
 PanelContent.addContentConfig([
-	PanelCommonConfig,
-	PanelVideoConfig,
-	PanelRecommendConfig,
-	PanelSearchConfig,
-	PanelLiveConfig,
-	PanelUserConfig,
+  PanelCommonConfig,
+  PanelVideoConfig,
+  PanelRecommendConfig,
+  PanelSearchConfig,
+  PanelLiveConfig,
+  PanelUserConfig,
 ]);
 PanelContent.addContentConfig([
-	MPanelShareUserConfig,
-	MPanelShareNoteConfig,
-	MPanelShareChallengeConfig,
-	MPanelShareVideoConfig,
-	MPanelShareMusicConfig,
+  MPanelShareUserConfig,
+  MPanelShareNoteConfig,
+  MPanelShareChallengeConfig,
+  MPanelShareVideoConfig,
+  MPanelShareMusicConfig,
 ]);
 PanelMenu.addMenuOption({
-	key: "show_pops_m_panel_setting",
-	text: "⚙ 移动端设置",
-	autoReload: false,
-	isStoreValue: false,
-	showText(text: string) {
-		return text;
-	},
-	callback: () => {
-		Panel.showPanel(
-			PanelContent.getConfig(1),
-			`${Panel.$data.scriptName}-移动端设置`
-		);
-	},
+  key: "show_pops_m_panel_setting",
+  text: "⚙ 移动端设置",
+  autoReload: false,
+  isStoreValue: false,
+  showText(text: string) {
+    return text;
+  },
+  callback: () => {
+    Panel.showPanel(PanelContent.getConfig(1), `${Panel.$data.scriptName}-移动端设置`);
+  },
 });
 Panel.init();
 if (MDouYinRouter.isMDouYin()) {
-	MDouYin.init();
+  MDouYin.init();
 } else {
-	DouYin.init();
+  DouYin.init();
 }

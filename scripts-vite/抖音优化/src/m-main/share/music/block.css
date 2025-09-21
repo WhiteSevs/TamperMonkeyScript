@@ -4,5 +4,5 @@
 .page-reflow-music .banner-placeholder ,
 /* 底部 打开抖音App看更多内容 */
 .page-reflow-music .bottom-btn__con {
-	display: none !important;
+  display: none !important;
 }
