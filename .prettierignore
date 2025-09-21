@@ -1,0 +1,14 @@
+# Lock files
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+dist
+node_modules
+.prettierrc
+assets
+gm-api-fit
+lib
+.github
+.idea
+.vscode
+# Ignore source files
