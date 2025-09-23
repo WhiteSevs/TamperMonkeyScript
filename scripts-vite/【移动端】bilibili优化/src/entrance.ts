@@ -17,42 +17,42 @@ import { SettingUITopicDetail } from "./setting/view/TopicDetail";
 import { Panel } from "@components/setting/panel";
 
 PanelContent.addContentConfig([
-	SettingUICommon,
-	SettingUIHead,
-	SettingUIVideo,
-	SettingUIOpus,
-	SettingUIDynamic,
-	SettingUIBangumi,
-	SettingUITopicDetail,
-	SettingUISearch,
-	SettingUISpace,
-	SettingUILive,
+  SettingUICommon,
+  SettingUIHead,
+  SettingUIVideo,
+  SettingUIOpus,
+  SettingUIDynamic,
+  SettingUIBangumi,
+  SettingUITopicDetail,
+  SettingUISearch,
+  SettingUISpace,
+  SettingUILive,
 ]);
 PanelMenu.addMenuOption([
-	{
-		key: "go_to_login",
-		text: "🛠 前往登录",
-		autoReload: false,
-		isStoreValue: false,
-		showText(text) {
-			return text;
-		},
-		callback() {
-			BilibiliUtils.goToLogin();
-		},
-	},
-	{
-		key: "go_to_login_to_parse_access_key",
-		text: "🛠 扫码并解析access_key",
-		autoReload: false,
-		isStoreValue: false,
-		showText(text) {
-			return text;
-		},
-		callback() {
-			BilibiliQrCodeLogin.init();
-		},
-	},
+  {
+    key: "go_to_login",
+    text: "🛠 前往登录",
+    autoReload: false,
+    isStoreValue: false,
+    showText(text) {
+      return text;
+    },
+    callback() {
+      BilibiliUtils.goToLogin();
+    },
+  },
+  {
+    key: "go_to_login_to_parse_access_key",
+    text: "🛠 扫码并解析access_key",
+    autoReload: false,
+    isStoreValue: false,
+    showText(text) {
+      return text;
+    },
+    callback() {
+      BilibiliQrCodeLogin.init();
+    },
+  },
 ]);
 Panel.init();
 Bilibili.init();

@@ -15,89 +15,87 @@ import { Panel } from "@components/setting/panel";
  * @returns
  */
 const fixCover = (url: string) => {
-	if (url.startsWith("http://")) {
-		url = url.replace(/^http/, "https");
-	}
-	return url;
+  if (url.startsWith("http://")) {
+    url = url.replace(/^http/, "https");
+  }
+  return url;
 };
 
 export const BilibiliRecommend = {
-	$flag: {
-		/** 是否已初始化CSS */
-		isInitCSS: false,
-		/** 是否正在加载下一页 */
-		isLoadingNextPage: false,
-	},
-	$data: {
-		/** 监听滚动的观察器 */
-		intersectionObserver: null as IntersectionObserver | null,
-		/** 加载推荐视频次数 */
-		loadNums: 0,
-	},
-	$ele: {
-		$listView: null as any as HTMLDivElement,
-		$videoListBox: null as any as HTMLDivElement,
-		$videoList: null as any as HTMLDivElement,
-		$cardBox: null as any as HTMLDivElement,
-		$listViewShim: null as any as HTMLDivElement,
-	},
-	$cardGoto: {
-		av: "av",
-		picture: "picture",
-	},
-	init() {
-		this.setCSS();
-		// this.reset();
-		DOMUtils.ready(() => {
-			this.addRecommendTag();
-		});
-	},
-	setCSS() {
-		if (this.$flag.isInitCSS) {
-			return;
-		}
-		this.$flag.isInitCSS = true;
-		addStyle(BilibiliRecommendCSS);
-	},
-	/**
-	 * 重置状态
-	 */
-	reset() {
-		log.info("重置状态");
-		this.$flag.isLoadingNextPage = false;
-		this.removeScrollEvent();
-		Object.keys(this.$ele).forEach((key) => {
-			(this.$ele as any)[key] = null;
-		});
-	},
-	/**
-	 * 添加推荐标签
-	 */
-	addRecommendTag() {
-		if (document.querySelector(".channel-menu a.recommend-tag")) {
-			return;
-		}
-		let $vSwitcher = document.querySelector<HTMLUListElement>(
-			".channel-menu .v-switcher"
-		);
-		if (!$vSwitcher) {
-			log.error("添加推荐标签失败，原因：.channel-menu .v-switcher不存在");
-			Qmsg.error("添加推荐标签失败，原因：.channel-menu .v-switcher不存在");
-			return;
-		}
-		let $recommendTag = DOMUtils.createElement(
-			"a",
-			{
-				className: "v-switcher__header__tabs__item recommend-tag",
-				innerHTML: "<span>推荐</span>",
-			},
-			{
-				href: "javascript:;",
-			}
-		);
-		let $recommendView = DOMUtils.createElement("div", {
-			className: "m-recommend-view",
-			innerHTML: /*html*/ `
+  $flag: {
+    /** 是否已初始化CSS */
+    isInitCSS: false,
+    /** 是否正在加载下一页 */
+    isLoadingNextPage: false,
+  },
+  $data: {
+    /** 监听滚动的观察器 */
+    intersectionObserver: null as IntersectionObserver | null,
+    /** 加载推荐视频次数 */
+    loadNums: 0,
+  },
+  $ele: {
+    $listView: null as any as HTMLDivElement,
+    $videoListBox: null as any as HTMLDivElement,
+    $videoList: null as any as HTMLDivElement,
+    $cardBox: null as any as HTMLDivElement,
+    $listViewShim: null as any as HTMLDivElement,
+  },
+  $cardGoto: {
+    av: "av",
+    picture: "picture",
+  },
+  init() {
+    this.setCSS();
+    // this.reset();
+    DOMUtils.ready(() => {
+      this.addRecommendTag();
+    });
+  },
+  setCSS() {
+    if (this.$flag.isInitCSS) {
+      return;
+    }
+    this.$flag.isInitCSS = true;
+    addStyle(BilibiliRecommendCSS);
+  },
+  /**
+   * 重置状态
+   */
+  reset() {
+    log.info("重置状态");
+    this.$flag.isLoadingNextPage = false;
+    this.removeScrollEvent();
+    Object.keys(this.$ele).forEach((key) => {
+      (this.$ele as any)[key] = null;
+    });
+  },
+  /**
+   * 添加推荐标签
+   */
+  addRecommendTag() {
+    if (document.querySelector(".channel-menu a.recommend-tag")) {
+      return;
+    }
+    let $vSwitcher = document.querySelector<HTMLUListElement>(".channel-menu .v-switcher");
+    if (!$vSwitcher) {
+      log.error("添加推荐标签失败，原因：.channel-menu .v-switcher不存在");
+      Qmsg.error("添加推荐标签失败，原因：.channel-menu .v-switcher不存在");
+      return;
+    }
+    let $recommendTag = DOMUtils.createElement(
+      "a",
+      {
+        className: "v-switcher__header__tabs__item recommend-tag",
+        innerHTML: "<span>推荐</span>",
+      },
+      {
+        href: "javascript:;",
+      }
+    );
+    let $recommendView = DOMUtils.createElement("div", {
+      className: "m-recommend-view",
+      innerHTML: /*html*/ `
             <div class="list-view">
                 <div class="video-list-box">
                     <div class="video-list">
@@ -111,181 +109,160 @@ export const BilibiliRecommend = {
 				</div>
             </div>
             `,
-		});
-		this.$ele.$listView = $recommendView.querySelector(
-			".list-view"
-		) as HTMLDivElement;
-		this.$ele.$videoListBox = $recommendView.querySelector(
-			".video-list-box"
-		) as HTMLDivElement;
-		this.$ele.$videoList = $recommendView.querySelector(
-			".video-list"
-		) as HTMLDivElement;
-		this.$ele.$cardBox = $recommendView.querySelector(
-			".card-box"
-		) as HTMLDivElement;
-		this.$ele.$listViewShim = $recommendView.querySelector(
-			".list-view__shim"
-		) as HTMLDivElement;
+    });
+    this.$ele.$listView = $recommendView.querySelector(".list-view") as HTMLDivElement;
+    this.$ele.$videoListBox = $recommendView.querySelector(".video-list-box") as HTMLDivElement;
+    this.$ele.$videoList = $recommendView.querySelector(".video-list") as HTMLDivElement;
+    this.$ele.$cardBox = $recommendView.querySelector(".card-box") as HTMLDivElement;
+    this.$ele.$listViewShim = $recommendView.querySelector(".list-view__shim") as HTMLDivElement;
 
-		this.$ele.$listViewShim.style.cssText = `z-index:-1;user-select:none;pointer-events:none;background:transparent;left:0;bottom:0;width:100%;height:200px;`;
-		let $myHead = document.querySelector<HTMLDivElement>("#app .m-head");
-		if ($myHead) {
-			$myHead.appendChild($recommendView);
-		}
-		DOMUtils.on($recommendTag, "click", (event) => {
-			utils.preventEvent(event);
-			$recommendTag.classList.add("is-avtive");
-			this.recommendClickEvent();
-		});
-		DOMUtils.on(
-			$vSwitcher,
-			"click",
-			() => {
-				$recommendTag.classList.remove("is-avtive");
-			},
-			{
-				capture: true,
-			}
-		);
-		DOMUtils.on(this.$ele.$cardBox, "click", ".v-card", (event) => {
-			utils.preventEvent(event);
-			let $click = event.target as HTMLAnchorElement;
-			// BilibiliUtils.goToUrl($click.href, true);
-			window.open($click.href, "_blank");
-		});
-		DOMUtils.before($vSwitcher, $recommendTag);
-		// DOMUtils.before($parent.firstChild as HTMLAnchorElement, $recommendTag);
-		this.setScrollEvent();
-		// 如果hash值正好是设定的，那么，主动触发一下，因为可能是刷新的
-		if (window.location.hash === "#/recommend/") {
-			log.info("当前hash为推荐视频，出动触发");
-			$recommendTag.click();
-		}
-	},
-	/**
-	 * 推荐标签的点击事件（切换router）
-	 */
-	async recommendClickEvent() {
-		BilibiliUtils.goToUrl("#/recommend/", true);
-	},
-	/**
-	 * 设置滚动观察事件
-	 */
-	setScrollEvent() {
-		log.success("推荐视频监听滚动: IntersectionObserver");
-		this.$data.intersectionObserver = new IntersectionObserver(
-			async (entries) => {
-				if (!this.$flag.isLoadingNextPage && entries[0].isIntersecting) {
-					this.$flag.isLoadingNextPage = true;
-					let flag = await this.scrollEvent();
-					this.$flag.isLoadingNextPage = false;
-					if (this.$data.loadNums <= 1 && flag) {
-						DOMUtils.hide(this.$ele.$listViewShim, false);
-						await utils.sleep(500);
-						DOMUtils.show(this.$ele.$listViewShim, false);
-					} else {
-						DOMUtils.show(this.$ele.$listViewShim, false);
-					}
-				}
-			},
-			{ threshold: 0, rootMargin: "0px 0px 0px 0px" }
-		);
-		this.$data.intersectionObserver.observe(this.$ele.$listViewShim);
-	},
-	/**
-	 * 移除滚动观察事件
-	 */
-	removeScrollEvent() {
-		this.$data.intersectionObserver?.disconnect();
-		this.$data.intersectionObserver = null;
-	},
-	/**
-	 * 滚动事件
-	 */
-	async scrollEvent() {
-		let videoInfo = await this.getRecommendVideoInfo();
-		if (!videoInfo) {
-			return false;
-		}
-		log.success("获取推荐视频信息", videoInfo);
-		let $fragment = document.createDocumentFragment();
-		let allowLoadPictureCard = Panel.getValue(
-			"bili-head-recommend-push-graphic"
-		);
-		videoInfo.forEach((videoInfoItem) => {
-			let $ele = null;
-			if (videoInfoItem.goto === this.$cardGoto.av) {
-				$ele = this.getRecommendItemAVElement(
-					videoInfoItem as Required<android.AppRecItem>
-				);
-			} else if (videoInfoItem.goto === this.$cardGoto.picture) {
-				/* 应该是专栏/动态 */
-				/* 图文 */
-				if (allowLoadPictureCard) {
-					$ele = this.getRecommendItemPictureElement(
-						videoInfoItem as Required<android.AppRecItem>
-					);
-				} else {
-					return;
-				}
-			} else {
-				log.error("该goto暂未适配", videoInfoItem);
-				return;
-			}
-			$fragment.appendChild($ele);
-		});
-		this.$ele.$cardBox.appendChild($fragment);
-		this.$data.loadNums++;
-		return true;
-	},
-	/**
-	 * 获取推荐视频信息
-	 */
-	async getRecommendVideoInfo() {
-		let getData = {
-			appkey: AppKeyInfo.ios.appkey,
-			access_key: BilibiliQrCodeLogin.getAccessTokenInfo()?.access_token || "",
-		};
-		let Api = "https://app.bilibili.com/x/v2/feed/index";
-		let getResp = await httpx.get(
-			Api + "?" + utils.toSearchParamsStr(getData),
-			{
-				headers: {
-					"Content-Type": "application/x-www-form-urlencoded",
-				},
-			}
-		);
-		if (!getResp.status) {
-			return;
-		}
-		let data = utils.toJSON<android.AppRecommendJson>(
-			getResp.data.responseText
-		);
-		if (!BilibiliApiResponseCheck.isWebApiSuccess(data)) {
-			Qmsg.error(data["message"]);
-			return;
-		}
-		return data.data.items;
-	},
-	/**
-	 * 获取推荐视频的每一个元素 图文
-	 * + picture
-	 */
-	getRecommendItemPictureElement(data: Required<android.AppRecItem>) {
-		let goto = data.goto;
-		let param = data.param;
-		let url = "/opus/" + param;
-		let upName = data.args.up_name;
-		let title = data.title;
-		let cover = fixCover(data.cover);
-		let likeCount = data.cover_left_text_1;
-		let $vCard = DOMUtils.createElement(
-			"a",
-			{
-				className: "v-card",
-				href: url,
-				innerHTML: `
+    this.$ele.$listViewShim.style.cssText = `z-index:-1;user-select:none;pointer-events:none;background:transparent;left:0;bottom:0;width:100%;height:200px;`;
+    let $myHead = document.querySelector<HTMLDivElement>("#app .m-head");
+    if ($myHead) {
+      $myHead.appendChild($recommendView);
+    }
+    DOMUtils.on($recommendTag, "click", (event) => {
+      utils.preventEvent(event);
+      $recommendTag.classList.add("is-avtive");
+      this.recommendClickEvent();
+    });
+    DOMUtils.on(
+      $vSwitcher,
+      "click",
+      () => {
+        $recommendTag.classList.remove("is-avtive");
+      },
+      {
+        capture: true,
+      }
+    );
+    DOMUtils.on(this.$ele.$cardBox, "click", ".v-card", (event) => {
+      utils.preventEvent(event);
+      let $click = event.target as HTMLAnchorElement;
+      // BilibiliUtils.goToUrl($click.href, true);
+      window.open($click.href, "_blank");
+    });
+    DOMUtils.before($vSwitcher, $recommendTag);
+    // DOMUtils.before($parent.firstChild as HTMLAnchorElement, $recommendTag);
+    this.setScrollEvent();
+    // 如果hash值正好是设定的，那么，主动触发一下，因为可能是刷新的
+    if (window.location.hash === "#/recommend/") {
+      log.info("当前hash为推荐视频，出动触发");
+      $recommendTag.click();
+    }
+  },
+  /**
+   * 推荐标签的点击事件（切换router）
+   */
+  async recommendClickEvent() {
+    BilibiliUtils.goToUrl("#/recommend/", true);
+  },
+  /**
+   * 设置滚动观察事件
+   */
+  setScrollEvent() {
+    log.success("推荐视频监听滚动: IntersectionObserver");
+    this.$data.intersectionObserver = new IntersectionObserver(
+      async (entries) => {
+        if (!this.$flag.isLoadingNextPage && entries[0].isIntersecting) {
+          this.$flag.isLoadingNextPage = true;
+          let flag = await this.scrollEvent();
+          this.$flag.isLoadingNextPage = false;
+          if (this.$data.loadNums <= 1 && flag) {
+            DOMUtils.hide(this.$ele.$listViewShim, false);
+            await utils.sleep(500);
+            DOMUtils.show(this.$ele.$listViewShim, false);
+          } else {
+            DOMUtils.show(this.$ele.$listViewShim, false);
+          }
+        }
+      },
+      { threshold: 0, rootMargin: "0px 0px 0px 0px" }
+    );
+    this.$data.intersectionObserver.observe(this.$ele.$listViewShim);
+  },
+  /**
+   * 移除滚动观察事件
+   */
+  removeScrollEvent() {
+    this.$data.intersectionObserver?.disconnect();
+    this.$data.intersectionObserver = null;
+  },
+  /**
+   * 滚动事件
+   */
+  async scrollEvent() {
+    let videoInfo = await this.getRecommendVideoInfo();
+    if (!videoInfo) {
+      return false;
+    }
+    log.success("获取推荐视频信息", videoInfo);
+    let $fragment = document.createDocumentFragment();
+    let allowLoadPictureCard = Panel.getValue("bili-head-recommend-push-graphic");
+    videoInfo.forEach((videoInfoItem) => {
+      let $ele = null;
+      if (videoInfoItem.goto === this.$cardGoto.av) {
+        $ele = this.getRecommendItemAVElement(videoInfoItem as Required<android.AppRecItem>);
+      } else if (videoInfoItem.goto === this.$cardGoto.picture) {
+        /* 应该是专栏/动态 */
+        /* 图文 */
+        if (allowLoadPictureCard) {
+          $ele = this.getRecommendItemPictureElement(videoInfoItem as Required<android.AppRecItem>);
+        } else {
+          return;
+        }
+      } else {
+        log.error("该goto暂未适配", videoInfoItem);
+        return;
+      }
+      $fragment.appendChild($ele);
+    });
+    this.$ele.$cardBox.appendChild($fragment);
+    this.$data.loadNums++;
+    return true;
+  },
+  /**
+   * 获取推荐视频信息
+   */
+  async getRecommendVideoInfo() {
+    let getData = {
+      appkey: AppKeyInfo.ios.appkey,
+      access_key: BilibiliQrCodeLogin.getAccessTokenInfo()?.access_token || "",
+    };
+    let Api = "https://app.bilibili.com/x/v2/feed/index";
+    let getResp = await httpx.get(Api + "?" + utils.toSearchParamsStr(getData), {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    });
+    if (!getResp.status) {
+      return;
+    }
+    let data = utils.toJSON<android.AppRecommendJson>(getResp.data.responseText);
+    if (!BilibiliApiResponseCheck.isWebApiSuccess(data)) {
+      Qmsg.error(data["message"]);
+      return;
+    }
+    return data.data.items;
+  },
+  /**
+   * 获取推荐视频的每一个元素 图文
+   * + picture
+   */
+  getRecommendItemPictureElement(data: Required<android.AppRecItem>) {
+    let goto = data.goto;
+    let param = data.param;
+    let url = "/opus/" + param;
+    let upName = data.args.up_name;
+    let title = data.title;
+    let cover = fixCover(data.cover);
+    let likeCount = data.cover_left_text_1;
+    let $vCard = DOMUtils.createElement(
+      "a",
+      {
+        className: "v-card",
+        href: url,
+        innerHTML: `
                 <div class="card">
                     <div class="bfs-img-wrap">
                         <div class="bfs-img b-img">
@@ -316,38 +293,38 @@ export const BilibiliRecommend = {
                     </div>
                 </div>
                 `,
-			},
-			{
-				"data-param": param,
-				"data-title": title,
-				"data-goto": goto,
-			}
-		);
-		($vCard as any)["data-picture"] = data;
+      },
+      {
+        "data-param": param,
+        "data-title": title,
+        "data-goto": goto,
+      }
+    );
+    ($vCard as any)["data-picture"] = data;
 
-		return $vCard;
-	},
-	/**
-	 * 获取推荐视频的每一个元素
-	 * + av
-	 */
-	getRecommendItemAVElement(data: Required<android.AppRecItem>) {
-		let goto = data.goto;
-		let aid = data?.player_args?.aid || data.args.aid;
-		let bvid = av2bv(aid!);
-		let url = "/video/" + bvid;
-		let upName = data.args.up_name;
-		let title = data.title;
-		let cover = fixCover(data.cover);
-		let playCount = data.cover_left_text_1;
-		let commentCount = data.cover_left_text_2;
-		let videoTime = data.cover_right_text;
-		let $vCard = DOMUtils.createElement(
-			"a",
-			{
-				className: "v-card",
-				href: url,
-				innerHTML: /*html*/ `
+    return $vCard;
+  },
+  /**
+   * 获取推荐视频的每一个元素
+   * + av
+   */
+  getRecommendItemAVElement(data: Required<android.AppRecItem>) {
+    let goto = data.goto;
+    let aid = data?.player_args?.aid || data.args.aid;
+    let bvid = av2bv(aid!);
+    let url = "/video/" + bvid;
+    let upName = data.args.up_name;
+    let title = data.title;
+    let cover = fixCover(data.cover);
+    let playCount = data.cover_left_text_1;
+    let commentCount = data.cover_left_text_2;
+    let videoTime = data.cover_right_text;
+    let $vCard = DOMUtils.createElement(
+      "a",
+      {
+        className: "v-card",
+        href: url,
+        innerHTML: /*html*/ `
                 <div class="card">
                     <div class="bfs-img-wrap">
                         <div class="bfs-img b-img">
@@ -390,15 +367,15 @@ export const BilibiliRecommend = {
                     </div>
                 </div>
                 `,
-			},
-			{
-				"data-aid": aid,
-				"data-title": title,
-				"data-goto": goto,
-			}
-		);
-		($vCard as any)["data-video"] = data;
+      },
+      {
+        "data-aid": aid,
+        "data-title": title,
+        "data-goto": goto,
+      }
+    );
+    ($vCard as any)["data-video"] = data;
 
-		return $vCard;
-	},
+    return $vCard;
+  },
 };

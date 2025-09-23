@@ -1,137 +1,130 @@
 import { BilibiliVideoApi } from "@/api/BilibiliVideoApi";
-import { DOMUtils } from "@/env";
 import Artplayer from "artplayer";
-import type { Events } from "artplayer/types/events";
+import type { Events } from "artplayer";
 
 /** 配置信息 */
 export type ArtPlayerPluginTopToolBarOption = {
-	/** 是否显示容器 @default false */
-	showWrap?: boolean;
-	/** 是否显示右侧视图 */
-	showRight?: boolean;
-	/** 是否显示右侧下面的follow */
-	showRightFollow?: boolean;
-	/** 视频标题文字 */
-	title?: string;
-	/** 是否显示标题 @default false */
-	showTitle?: boolean;
-	onlineInfoParams: {
-		/** 视频的aid */
-		aid: number | string;
-		/** 视频的cid */
-		cid: number | string;
-	} & {
-		/** 视频的bvid */
-		bvid: string;
-		/** 视频的cid */
-		cid: number | string;
-	};
-	/** 是否显示在线观看人数 @default false */
-	showOnlineTotal?: boolean;
+  /** 是否显示容器 @default false */
+  showWrap?: boolean;
+  /** 是否显示右侧视图 */
+  showRight?: boolean;
+  /** 是否显示右侧下面的follow */
+  showRightFollow?: boolean;
+  /** 视频标题文字 */
+  title?: string;
+  /** 是否显示标题 @default false */
+  showTitle?: boolean;
+  onlineInfoParams: {
+    /** 视频的aid */
+    aid: number | string;
+    /** 视频的cid */
+    cid: number | string;
+  } & {
+    /** 视频的bvid */
+    bvid: string;
+    /** 视频的cid */
+    cid: number | string;
+  };
+  /** 是否显示在线观看人数 @default false */
+  showOnlineTotal?: boolean;
 };
 
 export type ArtPlayerPluginTopToolBarResult = {
-	name: string;
-	/**
-	 * 更新参数时调用
-	 * @param option
-	 */
-	update(option: ArtPlayerPluginTopToolBarOption): void;
+  name: string;
+  /**
+   * 更新参数时调用
+   * @param option
+   */
+  update(option: ArtPlayerPluginTopToolBarOption): void;
 };
 
 const TAG = "[artplayer-plugin-TopToolBar]：";
 
 /** 工具函数 */
 const TopToolBarUtils = {
-	/** 显示元素，有个问题，不能单纯的使用display，会卡死 */
-	show($el: HTMLElement) {
-		if (!$el) {
-			return;
-		}
-		// $el.classList.remove("art-common-hide");
-	},
-	/** 隐藏元素 */
-	hide($el: HTMLElement) {
-		if (!$el) {
-			return;
-		}
-		// $el.classList.add("art-common-hide");
-	},
+  /** 显示元素，有个问题，不能单纯的使用display，会卡死 */
+  show($el: HTMLElement) {
+    if (!$el) {
+      return;
+    }
+    // $el.classList.remove("art-common-hide");
+  },
+  /** 隐藏元素 */
+  hide($el: HTMLElement) {
+    if (!$el) {
+      return;
+    }
+    // $el.classList.add("art-common-hide");
+  },
 };
 
 /** 事件 */
 const TopToolBarEvent = {
-	events: {
-		control: (state) => {
-			if (!state) {
-				return;
-			}
-			TopToolBar.updateOnlineTotal({
-				showOnlineTotal: TopToolBar.$data.option.showOnlineTotal!,
-				onlineInfoParams: TopToolBar.$data.option.onlineInfoParams,
-			});
-		},
-	} as {
-		[key in keyof Events]?: (...args: Events[key]) => unknown;
-	},
-	/**
-	 * 绑定事件
-	 */
-	bind() {
-		Object.keys(this.events).forEach((eventName) => {
-			TopToolBar.art.on(
-				eventName as keyof Events,
-				(this.events as any)[eventName as keyof Events]
-			);
-		});
-	},
-	/**
-	 * 取消绑定事件
-	 */
-	unbind() {
-		Object.keys(this.events).forEach((eventName) => {
-			TopToolBar.art.off(
-				eventName as keyof Events,
-				(this.events as any)[eventName as keyof Events]
-			);
-		});
-	},
+  events: {
+    control: (state) => {
+      if (!state) {
+        return;
+      }
+      TopToolBar.updateOnlineTotal({
+        showOnlineTotal: TopToolBar.$data.option.showOnlineTotal!,
+        onlineInfoParams: TopToolBar.$data.option.onlineInfoParams,
+      });
+    },
+  } as {
+    [key in keyof Events]?: (...args: Events[key]) => unknown;
+  },
+  /**
+   * 绑定事件
+   */
+  bind() {
+    Object.keys(this.events).forEach((eventName) => {
+      TopToolBar.art.on(eventName as keyof Events, (this.events as any)[eventName as keyof Events]);
+    });
+  },
+  /**
+   * 取消绑定事件
+   */
+  unbind() {
+    Object.keys(this.events).forEach((eventName) => {
+      TopToolBar.art.off(eventName as keyof Events, (this.events as any)[eventName as keyof Events]);
+    });
+  },
 };
 
 const TopToolBar = {
-	art: null as any as Artplayer,
-	$el: {
-		/** 容器 */
-		$topWrap: null as any as HTMLElement,
-		$topTitle: null as any as HTMLElement,
-		/** 视频标题 */
-		$topTitleText: null as any as HTMLDivElement,
-		/** 视频标题的下面的容器 */
-		$topTitleFollow: null as any as HTMLDivElement,
-		/** 视频标题下面的在线观看人数 */
-		$topTitleFollowText: null as any as HTMLDivElement,
-		/** 右侧容器 */
-		$topRight: null as any as HTMLDivElement,
-		/** 右侧容器的下面的容器 */
-		$topRightFollow: null as any as HTMLDivElement,
-	},
-	$data: {
-		/** 是否已初始化 */
-		isInit: false,
-		__option: {} as ArtPlayerPluginTopToolBarOption,
-		/** 配置 */
-		option: {} as ArtPlayerPluginTopToolBarOption,
-	},
-	$key: {
-		plugin_KEY: "plugin-bilibili-topToolBar",
-	},
-	/**
-	 * 初始化
-	 */
-	init(option: ArtPlayerPluginTopToolBarOption) {
-		this.art.layers.add({
-			name: "top-wrap",
-			html: /*html*/ `
+  art: null as any as Artplayer,
+  $el: {
+    /** 容器 */
+    $topWrap: null as any as HTMLElement,
+    $topTitle: null as any as HTMLElement,
+    /** 视频标题 */
+    $topTitleText: null as any as HTMLDivElement,
+    /** 视频标题的下面的容器 */
+    $topTitleFollow: null as any as HTMLDivElement,
+    /** 视频标题下面的在线观看人数 */
+    $topTitleFollowText: null as any as HTMLDivElement,
+    /** 右侧容器 */
+    $topRight: null as any as HTMLDivElement,
+    /** 右侧容器的下面的容器 */
+    $topRightFollow: null as any as HTMLDivElement,
+  },
+  $data: {
+    /** 是否已初始化 */
+    isInit: false,
+    __option: {} as ArtPlayerPluginTopToolBarOption,
+    /** 配置 */
+    option: {} as ArtPlayerPluginTopToolBarOption,
+  },
+  $key: {
+    plugin_KEY: "plugin-bilibili-topToolBar",
+  },
+  /**
+   * 初始化
+   */
+  init(option: ArtPlayerPluginTopToolBarOption) {
+    this.art.layers.add({
+      name: "top-wrap",
+      html: /*html*/ `
             <div class="art-player-top-wrap">
                 <div class="art-player-top-title">
                     <!-- 番剧名，第xx集 -->
@@ -146,192 +139,178 @@ const TopToolBar = {
                 </div>
             </div>
             `,
-			mounted: async function ($topWrap) {
-				TopToolBar.$el.$topWrap = $topWrap;
-				TopToolBar.$el.$topTitle = $topWrap.querySelector(
-					".art-player-top-title"
-				)!;
-				TopToolBar.$el.$topTitleText = $topWrap.querySelector(
-					".art-player-top-title-text"
-				)!;
-				TopToolBar.$el.$topTitleFollow = $topWrap.querySelector(
-					".art-player-top-follow"
-				)!;
-				TopToolBar.$el.$topTitleFollowText = $topWrap.querySelector(
-					".art-player-top-follow-text"
-				)!;
-				TopToolBar.$el.$topRight = $topWrap.querySelector(
-					".art-player-top-right"
-				)!;
-				TopToolBar.$el.$topRightFollow = $topWrap.querySelector(
-					".art-player-top-right-follow"
-				)!;
-				// 先隐藏视频标题
-				TopToolBarUtils.hide(TopToolBar.$el.$topTitleFollow);
-				// 更新总视图
-				TopToolBar.update(option);
-				// 绑定事件
-				TopToolBarEvent.bind();
-			},
-		});
-	},
-	/**
-	 * 更新配置
-	 */
-	update(option: ArtPlayerPluginTopToolBarOption) {
-		if (!this.$data.isInit) {
-			this.$data.isInit = true;
-			Object.defineProperties(this.$data.option, {
-				/** 是否显示容器 @default false */
-				showWrap: {
-					set(this: ArtPlayerPluginTopToolBarOption, value) {
-						TopToolBar.$data.__option.showWrap = value;
-						// 更新容器状态
-						if (value) {
-							TopToolBarUtils.show(TopToolBar.$el.$topWrap);
-						} else {
-							TopToolBarUtils.hide(TopToolBar.$el.$topWrap);
-						}
-					},
-					get(this: ArtPlayerPluginTopToolBarOption) {
-						return TopToolBar.$data.__option.showWrap;
-					},
-				},
-				/** 是否显示标题 @default false */
-				showTitle: {
-					set(this: ArtPlayerPluginTopToolBarOption, value) {
-						TopToolBar.$data.__option.showTitle = value;
-						// 更新标题显示状态
-						if (value) {
-							TopToolBarUtils.show(TopToolBar.$el.$topTitle);
-						} else {
-							TopToolBarUtils.hide(TopToolBar.$el.$topTitle);
-						}
-					},
-					get(this: ArtPlayerPluginTopToolBarOption) {
-						return TopToolBar.$data.__option.showTitle;
-					},
-				},
-				/** 视频标题文字 */
-				title: {
-					set(this: ArtPlayerPluginTopToolBarOption, value) {
-						TopToolBar.$data.__option.title = value;
-						// 更新标题显示的文字
-						if (typeof value === "string") {
-							TopToolBar.$el.$topTitleText.innerText = value;
-						}
-					},
-					get(this: ArtPlayerPluginTopToolBarOption) {
-						return TopToolBar.$data.__option.title;
-					},
-				},
-				/** 是否显示在线观看人数 @default false */
-				showOnlineTotal: {
-					set(this: ArtPlayerPluginTopToolBarOption, value) {
-						TopToolBar.$data.__option.showOnlineTotal = value;
-						// 更新在线观看人数显示状态
-						if (value) {
-							TopToolBarUtils.show(TopToolBar.$el.$topTitleFollow);
-						} else {
-							TopToolBarUtils.hide(TopToolBar.$el.$topTitleFollow);
-						}
-					},
-					get(this: ArtPlayerPluginTopToolBarOption) {
-						return TopToolBar.$data.__option.showOnlineTotal;
-					},
-				},
-				/** 在线人数请求参数信息 */
-				onlineInfoParams: {
-					set(this: ArtPlayerPluginTopToolBarOption, value) {
-						TopToolBar.$data.__option.onlineInfoParams = value;
-						// 更新在线人数参数信息
-						TopToolBar.updateOnlineTotal({
-							showOnlineTotal: this.showOnlineTotal,
-							onlineInfoParams: value,
-						});
-					},
-					get(this: ArtPlayerPluginTopToolBarOption) {
-						return TopToolBar.$data.__option.onlineInfoParams;
-					},
-				},
-				/** 是否显示右侧视图 */
-				showRight: {
-					set(this: ArtPlayerPluginTopToolBarOption, value) {
-						TopToolBar.$data.__option.showRight = value;
-						// 更新右侧视图显示状态
-						if (value) {
-							TopToolBarUtils.show(TopToolBar.$el.$topRight);
-						} else {
-							TopToolBarUtils.hide(TopToolBar.$el.$topRight);
-						}
-					},
-					get(this: ArtPlayerPluginTopToolBarOption) {
-						return TopToolBar.$data.__option.showRight;
-					},
-				},
-				/** 是否显示右侧下面的follow */
-				showRightFollow: {
-					set(this: ArtPlayerPluginTopToolBarOption, value) {
-						TopToolBar.$data.__option.showRightFollow = value;
-						// 更新右侧下面的follow显示状态
-						if (value) {
-							TopToolBarUtils.show(TopToolBar.$el.$topRightFollow);
-						} else {
-							TopToolBarUtils.hide(TopToolBar.$el.$topRightFollow);
-						}
-					},
-					get(this: ArtPlayerPluginTopToolBarOption) {
-						return TopToolBar.$data.__option.showRightFollow;
-					},
-				},
-			});
-		}
-		Object.assign(this.$data.option, option);
-	},
-	/**
-	 * 更新在线观看人数
-	 */
-	async updateOnlineTotal(option: {
-		showOnlineTotal: ArtPlayerPluginTopToolBarOption["showOnlineTotal"];
-		onlineInfoParams: ArtPlayerPluginTopToolBarOption["onlineInfoParams"];
-	}) {
-		if (!option.showOnlineTotal) {
-			return;
-		}
-		// 请求在线观看人数
-		let onlineTotalInfo = await BilibiliVideoApi.onlineTotal({
-			aid: option.onlineInfoParams.aid,
-			bvid: option.onlineInfoParams.bvid,
-			cid: option.onlineInfoParams.cid,
-		});
-		if (!onlineTotalInfo) {
-			return;
-		}
-		// 更新在线观看人数
-		TopToolBar.$el.$topTitleFollowText.innerText = `${
-			onlineTotalInfo["total"] || onlineTotalInfo["count"] || 0
-		}人正在看`;
-		// console.log(
-		// 	TAG + `更新在线观看人数，请求的数据 ==> ${JSON.stringify(
-		// 		onlineTotalInfo
-		// 	)}`
-		// );
-	},
+      mounted: async function ($topWrap) {
+        TopToolBar.$el.$topWrap = $topWrap;
+        TopToolBar.$el.$topTitle = $topWrap.querySelector(".art-player-top-title")!;
+        TopToolBar.$el.$topTitleText = $topWrap.querySelector(".art-player-top-title-text")!;
+        TopToolBar.$el.$topTitleFollow = $topWrap.querySelector(".art-player-top-follow")!;
+        TopToolBar.$el.$topTitleFollowText = $topWrap.querySelector(".art-player-top-follow-text")!;
+        TopToolBar.$el.$topRight = $topWrap.querySelector(".art-player-top-right")!;
+        TopToolBar.$el.$topRightFollow = $topWrap.querySelector(".art-player-top-right-follow")!;
+        // 先隐藏视频标题
+        TopToolBarUtils.hide(TopToolBar.$el.$topTitleFollow);
+        // 更新总视图
+        TopToolBar.update(option);
+        // 绑定事件
+        TopToolBarEvent.bind();
+      },
+    });
+  },
+  /**
+   * 更新配置
+   */
+  update(option: ArtPlayerPluginTopToolBarOption) {
+    if (!this.$data.isInit) {
+      this.$data.isInit = true;
+      Object.defineProperties(this.$data.option, {
+        /** 是否显示容器 @default false */
+        showWrap: {
+          set(this: ArtPlayerPluginTopToolBarOption, value) {
+            TopToolBar.$data.__option.showWrap = value;
+            // 更新容器状态
+            if (value) {
+              TopToolBarUtils.show(TopToolBar.$el.$topWrap);
+            } else {
+              TopToolBarUtils.hide(TopToolBar.$el.$topWrap);
+            }
+          },
+          get(this: ArtPlayerPluginTopToolBarOption) {
+            return TopToolBar.$data.__option.showWrap;
+          },
+        },
+        /** 是否显示标题 @default false */
+        showTitle: {
+          set(this: ArtPlayerPluginTopToolBarOption, value) {
+            TopToolBar.$data.__option.showTitle = value;
+            // 更新标题显示状态
+            if (value) {
+              TopToolBarUtils.show(TopToolBar.$el.$topTitle);
+            } else {
+              TopToolBarUtils.hide(TopToolBar.$el.$topTitle);
+            }
+          },
+          get(this: ArtPlayerPluginTopToolBarOption) {
+            return TopToolBar.$data.__option.showTitle;
+          },
+        },
+        /** 视频标题文字 */
+        title: {
+          set(this: ArtPlayerPluginTopToolBarOption, value) {
+            TopToolBar.$data.__option.title = value;
+            // 更新标题显示的文字
+            if (typeof value === "string") {
+              TopToolBar.$el.$topTitleText.innerText = value;
+            }
+          },
+          get(this: ArtPlayerPluginTopToolBarOption) {
+            return TopToolBar.$data.__option.title;
+          },
+        },
+        /** 是否显示在线观看人数 @default false */
+        showOnlineTotal: {
+          set(this: ArtPlayerPluginTopToolBarOption, value) {
+            TopToolBar.$data.__option.showOnlineTotal = value;
+            // 更新在线观看人数显示状态
+            if (value) {
+              TopToolBarUtils.show(TopToolBar.$el.$topTitleFollow);
+            } else {
+              TopToolBarUtils.hide(TopToolBar.$el.$topTitleFollow);
+            }
+          },
+          get(this: ArtPlayerPluginTopToolBarOption) {
+            return TopToolBar.$data.__option.showOnlineTotal;
+          },
+        },
+        /** 在线人数请求参数信息 */
+        onlineInfoParams: {
+          set(this: ArtPlayerPluginTopToolBarOption, value) {
+            TopToolBar.$data.__option.onlineInfoParams = value;
+            // 更新在线人数参数信息
+            TopToolBar.updateOnlineTotal({
+              showOnlineTotal: this.showOnlineTotal,
+              onlineInfoParams: value,
+            });
+          },
+          get(this: ArtPlayerPluginTopToolBarOption) {
+            return TopToolBar.$data.__option.onlineInfoParams;
+          },
+        },
+        /** 是否显示右侧视图 */
+        showRight: {
+          set(this: ArtPlayerPluginTopToolBarOption, value) {
+            TopToolBar.$data.__option.showRight = value;
+            // 更新右侧视图显示状态
+            if (value) {
+              TopToolBarUtils.show(TopToolBar.$el.$topRight);
+            } else {
+              TopToolBarUtils.hide(TopToolBar.$el.$topRight);
+            }
+          },
+          get(this: ArtPlayerPluginTopToolBarOption) {
+            return TopToolBar.$data.__option.showRight;
+          },
+        },
+        /** 是否显示右侧下面的follow */
+        showRightFollow: {
+          set(this: ArtPlayerPluginTopToolBarOption, value) {
+            TopToolBar.$data.__option.showRightFollow = value;
+            // 更新右侧下面的follow显示状态
+            if (value) {
+              TopToolBarUtils.show(TopToolBar.$el.$topRightFollow);
+            } else {
+              TopToolBarUtils.hide(TopToolBar.$el.$topRightFollow);
+            }
+          },
+          get(this: ArtPlayerPluginTopToolBarOption) {
+            return TopToolBar.$data.__option.showRightFollow;
+          },
+        },
+      });
+    }
+    Object.assign(this.$data.option, option);
+  },
+  /**
+   * 更新在线观看人数
+   */
+  async updateOnlineTotal(option: {
+    showOnlineTotal: ArtPlayerPluginTopToolBarOption["showOnlineTotal"];
+    onlineInfoParams: ArtPlayerPluginTopToolBarOption["onlineInfoParams"];
+  }) {
+    if (!option.showOnlineTotal) {
+      return;
+    }
+    // 请求在线观看人数
+    let onlineTotalInfo = await BilibiliVideoApi.onlineTotal({
+      aid: option.onlineInfoParams.aid,
+      bvid: option.onlineInfoParams.bvid,
+      cid: option.onlineInfoParams.cid,
+    });
+    if (!onlineTotalInfo) {
+      return;
+    }
+    // 更新在线观看人数
+    TopToolBar.$el.$topTitleFollowText.innerText = `${
+      onlineTotalInfo["total"] || onlineTotalInfo["count"] || 0
+    }人正在看`;
+    // console.log(
+    // 	TAG + `更新在线观看人数，请求的数据 ==> ${JSON.stringify(
+    // 		onlineTotalInfo
+    // 	)}`
+    // );
+  },
 };
 
-export const artplayerPluginTopToolBar = (
-	option: ArtPlayerPluginTopToolBarOption
-) => {
-	return (art: Artplayer): ArtPlayerPluginTopToolBarResult => {
-		TopToolBar.art = art;
-		TopToolBar.init(option);
-		return {
-			name: TopToolBar.$key.plugin_KEY,
-			update(option: ArtPlayerPluginTopToolBarOption) {
-				TopToolBar.update(option);
-			},
-		};
-	};
+export const artplayerPluginTopToolBar = (option: ArtPlayerPluginTopToolBarOption) => {
+  return (art: Artplayer): ArtPlayerPluginTopToolBarResult => {
+    TopToolBar.art = art;
+    TopToolBar.init(option);
+    return {
+      name: TopToolBar.$key.plugin_KEY,
+      update(option: ArtPlayerPluginTopToolBarOption) {
+        TopToolBar.update(option);
+      },
+    };
+  };
 };
 
 /**

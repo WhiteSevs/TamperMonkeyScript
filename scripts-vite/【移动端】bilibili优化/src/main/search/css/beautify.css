@@ -1,133 +1,130 @@
 #app .m-search {
-	--card-img-width: 90px;
-	--card-img-height: calc(var(--card-img-width) * 1.33);
-	--card-desc-color: #808080;
-	--card-desc-size: 0.8em;
-	--card-badge-item-size: 0.7em;
-	--card-badge-item-padding: 0.1em 0.2em;
-	--card-badge-item-border-radius: 3px;
-	--card-ep-item-border-radius: 4px;
-	--card-ep-item-padding-top-bottom: 13px;
-	--card-ep-item-padding-left-right: 13px;
-	--card-ep-item-badge-padding: 2px;
+  --card-img-width: 90px;
+  --card-img-height: calc(var(--card-img-width) * 1.33);
+  --card-desc-color: #808080;
+  --card-desc-size: 0.8em;
+  --card-badge-item-size: 0.7em;
+  --card-badge-item-padding: 0.1em 0.2em;
+  --card-badge-item-border-radius: 3px;
+  --card-ep-item-border-radius: 4px;
+  --card-ep-item-padding-top-bottom: 13px;
+  --card-ep-item-padding-left-right: 13px;
+  --card-ep-item-badge-padding: 2px;
 }
 .gm-result-panel {
-	padding-top: 23.46667vmin;
-	background: #f4f4f4;
+  padding-top: 23.46667vmin;
+  background: #f4f4f4;
 }
 .gm-card-cover {
-	position: relative;
+  position: relative;
 }
 .gm-card-cover img {
-	width: var(--card-img-width);
-	height: var(--card-img-height);
-	border-radius: 8px;
+  width: var(--card-img-width);
+  height: var(--card-img-height);
+  border-radius: 8px;
 }
 .gm-card-container {
-	display: flex;
-	gap: 15px;
+  display: flex;
+  gap: 15px;
 }
 
 .gm-card-box {
-	padding: 0px 10px;
+  padding: 0px 10px;
 }
 
 .gm-card-item em {
-	color: var(--bili-color);
-	font-style: unset;
+  color: var(--bili-color);
+  font-style: unset;
 }
 
 .gm-card-title {
-	font-family: 微软雅黑;
-	font-size: 1em;
+  font-family: 微软雅黑;
+  font-size: 1em;
 }
 
 .gm-card-display-info,
 .gm-card-styles,
 span.gm-card-media_score-user_count {
-	font-size: var(--card-desc-size);
-	color: var(--card-desc-color);
+  font-size: var(--card-desc-size);
+  color: var(--card-desc-color);
 }
 
 .gm-card-info-container {
-	display: flex;
-	flex-direction: column;
-	gap: 3px;
-	justify-content: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  justify-content: flex-start;
 }
 .gm-card-info {
-	display: flex;
-	flex-direction: column;
-	justify-content: space-between;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 span.gm-card-media_score-score {
-	color: #f77c2e;
-	font-size: 1.2em;
-	font-weight: bold;
+  color: #f77c2e;
+  font-size: 1.2em;
+  font-weight: bold;
 }
 
 .gm-card-media_score {
-	display: flex;
-	align-items: flex-end;
-	gap: 0.5em;
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5em;
 }
 .gm-card-item {
-	padding: 1.6vmin;
-	background: #fff;
-	margin: 10px 0px;
-	border-radius: 6px;
-	display: flex;
-	flex-direction: column;
-	gap: 15px;
-	overflow: hidden;
+  padding: 1.6vmin;
+  background: #fff;
+  margin: 10px 0px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  overflow: hidden;
 }
 .gm-card-badges {
-	background: var(--bili-color);
-	color: #fff;
-	padding: 3px;
-	font-size: 12px;
-	border-radius: 3px;
-	white-space: nowrap;
-	position: absolute;
-	top: 5px;
-	right: 5px;
+  background: var(--bili-color);
+  color: #fff;
+  padding: 3px;
+  font-size: 12px;
+  border-radius: 3px;
+  white-space: nowrap;
+  position: absolute;
+  top: 5px;
+  right: 5px;
 }
 .gm-card-badge-info-item {
-	font-size: var(--card-badge-item-size);
-	padding: var(--card-badge-item-padding);
-	border-radius: var(--card-badge-item-border-radius);
+  font-size: var(--card-badge-item-size);
+  padding: var(--card-badge-item-padding);
+  border-radius: var(--card-badge-item-border-radius);
 }
 .gm-card-eps {
-	display: flex;
-	overflow: auto;
-	gap: 10px;
+  display: flex;
+  overflow: auto;
+  gap: 10px;
 }
 
 .gm-card-ep-conatiner {
-	text-align: center;
-	white-space: nowrap;
-	padding: var(--card-ep-item-padding-top-bottom)
-		var(--card-ep-item-padding-left-right);
-	background: #edeff3;
-	border-radius: var(--card-ep-item-border-radius);
-	font-size: 14px;
-	position: relative;
+  text-align: center;
+  white-space: nowrap;
+  padding: var(--card-ep-item-padding-top-bottom) var(--card-ep-item-padding-left-right);
+  background: #edeff3;
+  border-radius: var(--card-ep-item-border-radius);
+  font-size: 14px;
+  position: relative;
 }
 
 .gm-card-ep-badges-container {
-	position: absolute;
-	top: 0;
-	right: 0;
-	font-size: calc(
-		var(--card-ep-item-padding-top-bottom) - var(--card-ep-item-badge-padding)
-	);
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: calc(var(--card-ep-item-padding-top-bottom) - var(--card-ep-item-badge-padding));
 }
 
 .gm-card-ep-badge-top-right {
-	border-top-right-radius: var(--card-ep-item-border-radius);
-	border-bottom-left-radius: var(--card-ep-item-border-radius);
-	padding: var(--card-ep-item-badge-padding);
+  border-top-right-radius: var(--card-ep-item-border-radius);
+  border-bottom-left-radius: var(--card-ep-item-border-radius);
+  padding: var(--card-ep-item-badge-padding);
 }
 .gm-card-ep-info-container {
-	min-width: 30px;
+  min-width: 30px;
 }

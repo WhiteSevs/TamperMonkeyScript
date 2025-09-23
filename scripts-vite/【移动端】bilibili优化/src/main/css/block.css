@@ -3,7 +3,7 @@
 /* 视频标题上面的 打开App，流畅又高清 */
 .m-video2-awaken-btn,
 .openapp-dialog {
-	display: none !important;
+  display: none !important;
 }
 
 /* ------ 全局匹配 ------ */
@@ -13,46 +13,44 @@
 .m-head .launch-app-btn.home-float-openapp,
 /* 打开App，看你感兴趣的视频 */
 .m-head m-open-app {
-	display: none !important;
+  display: none !important;
 }
 
 /* 主页 */
 /* 打开App，看你感兴趣的视频 */
 .m-home .launch-app-btn.home-float-openapp {
-	display: none !important;
+  display: none !important;
 }
 
 /* 空间 */
 /* 底部 打开App */
 .m-space .launch-app-btn.m-space-float-openapp,
 .m-space .launch-app-btn.m-nav-openapp,
-.m-space m-open-app:has(>.m-fixed-openapp) {
-	display: none !important;
+.m-space m-open-app:has(> .m-fixed-openapp) {
+  display: none !important;
 }
 
 /* 视频 */
 /* 打开App，流畅又高清 */
-#app
-	.video
-	.launch-app-btn.m-video-main-launchapp:has([class^="m-video2-awaken"]),
+#app .video .launch-app-btn.m-video-main-launchapp:has([class^="m-video2-awaken"]),
 #app .video .launch-app-btn.m-nav-openapp,
 #app .video .mplayer-widescreen-callapp,
 #app .video .launch-app-btn.m-float-openapp,
 #app .video .m-video-season-panel .launch-app-btn .open-app {
-	display: none !important;
+  display: none !important;
 }
 
 /* 直播 */
 #app.LIVE .open-app-btn.bili-btn-warp {
-	display: none !important;
+  display: none !important;
 }
 
 /* 动态 */
 /* 右上角 下载App */
 #app .m-dynamic .launch-app-btn.m-nav-openapp,
 #app .m-dynamic .dynamic-float-openapp.dynamic-float-btn,
-#app .m-dynamic m-open-app:has(>.m-fixed-openapp) {
-	display: none !important;
+#app .m-dynamic m-open-app:has(> .m-fixed-openapp) {
+  display: none !important;
 }
 
 /* 专栏 */
@@ -64,44 +62,44 @@
 #app .m-opus .m-navbar .m-nav-openapp,
 /* 底部悬浮 打开App，查看更多精彩内容 */
 #app .m-opus m-open-app.m-open-app.fixed-openapp {
-	display: none !important;
+  display: none !important;
 }
 
 /* 话题 */
 /* 右上角 下载App */
 #app .topic-detail .launch-app-btn.m-nav-openapp,
 #app .topic-detail .launch-app-btn.m-topic-float-openapp {
-	display: none !important;
+  display: none !important;
 }
 
 /* 番剧 */
 /* 右上角 下载App */
 #app.main-container bili-open-app.btn-download {
-	display: none !important;
+  display: none !important;
 }
 /* 番剧的react页面的 */
 /* 下载 App */
 #__next m-open-app[class^="TopBar_download"],
 /* 右下角悬浮的 */
 #__next m-open-app:has([class^="GoApp"]) {
-	display: none !important;
+  display: none !important;
 }
 /* 高清更流畅，App内打开观看 */
-#__next m-open-app[class^="MainButton_btnWrap"]{
-	visibility: hidden !important;
+#__next m-open-app[class^="MainButton_btnWrap"] {
+  visibility: hidden !important;
 }
 
 /* read mobile */
 /* 所有的bili-open-app元素 */
 #app .read-app-main bili-open-app {
-	display: none !important;
+  display: none !important;
 }
 
 /* 播放列表 */
 #app .playlist > .open-app-wp {
-	display: none !important;
+  display: none !important;
 }
 /* 修复因屏蔽了广告导致的往上偏移 */
 #app .playlist > .open-app-wp + div {
-	padding-top: 56.25%;
+  padding-top: 56.25%;
 }

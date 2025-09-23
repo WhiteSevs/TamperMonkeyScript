@@ -1,98 +1,98 @@
 /* 设置播放器基础宽高 */
 #artplayer {
-	width: 100%;
-	height: 100%;
+  width: 100%;
+  height: 100%;
 }
 /* 通用隐藏class */
 .art-video-player .art-common-hide {
-	display: none !important;
+  display: none !important;
 }
 /* 设置播放器基础宽高 */
 .art-video-player {
-	width: 100% !important;
+  width: 100% !important;
 }
 /* 播放时隐藏进度条 */
 .art-hide-cursor .art-progress {
-	display: none !important;
+  display: none !important;
 }
 /* 不知道为什么背景模糊了 */
 .art-video-player.art-backdrop .art-settings {
-	backdrop-filter: unset !important;
+  backdrop-filter: unset !important;
 }
 /* 底部的设置菜单当前选中的提示文字设置文字溢出省略号 */
 .art-settings .art-setting-item .art-setting-item-right-tooltip {
-	max-width: 100px;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	overflow: hidden;
+  max-width: 100px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 /* 竖屏 宽度小于400px */
 @media (orientation: portrait) and (max-width: 400px) {
-	/* 修正小屏下宽度溢出 */
-	.art-controls .art-control {
-		max-width: 60px;
-		white-space: pre-wrap;
-	}
+  /* 修正小屏下宽度溢出 */
+  .art-controls .art-control {
+    max-width: 60px;
+    white-space: pre-wrap;
+  }
 }
 
 /* 竖屏 宽度小于550px */
 @media (orientation: portrait) and (max-width: 550px) {
-	/* 隐藏 弹幕设置按钮 */
-	.artplayer-plugin-danmuku .apd-config ,
+  /* 隐藏 弹幕设置按钮 */
+  .artplayer-plugin-danmuku .apd-config ,
     /* 隐藏 弹幕输入框 */
 	.artplayer-plugin-danmuku .apd-emitter {
-		display: none !important;
-	}
-	/* 弹幕库靠右对齐 */
-	.artplayer-plugin-danmuku {
-		justify-content: right;
-	}
+    display: none !important;
+  }
+  /* 弹幕库靠右对齐 */
+  .artplayer-plugin-danmuku {
+    justify-content: right;
+  }
 }
 /* 横屏 */
 @media (orientation: landscape) {
-	/* 限制弹幕输入框的最大宽度 */
-	.artplayer-plugin-danmuku .apd-emitter {
-		max-width: 260px;
-	}
+  /* 限制弹幕输入框的最大宽度 */
+  .artplayer-plugin-danmuku .apd-emitter {
+    max-width: 260px;
+  }
 }
 
 /* 插件-在线观看人数  */
 .art-lock .art-layer-top-wrap {
-	/* 启用了锁定功能，隐藏底部控制栏，所以这个也同步 */
-	display: none !important;
+  /* 启用了锁定功能，隐藏底部控制栏，所以这个也同步 */
+  display: none !important;
 }
 .art-layer-top-wrap {
-	--layer-top-wrap-follow-text-font-size: 0.8em;
-	--layer-top-wrap-follow-icon-size: 1em;
-	width: 100%;
-	position: absolute;
-	top: 0px;
-	right: 0px;
-	color: #fff;
-	display: -webkit-box;
-	display: -ms-flexbox;
-	display: flex;
-	left: 0;
-	-webkit-transition: all 0.2s ease-in-out;
-	transition: all 0.2s ease-in-out;
-	width: 100%;
-	background: linear-gradient(to bottom, #000, transparent);
-	padding: 10px calc(var(--art-padding));
-	z-index: 60;
+  --layer-top-wrap-follow-text-font-size: 0.8em;
+  --layer-top-wrap-follow-icon-size: 1em;
+  width: 100%;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  color: #fff;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  left: 0;
+  -webkit-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+  width: 100%;
+  background: linear-gradient(to bottom, #000, transparent);
+  padding: 10px calc(var(--art-padding));
+  z-index: 60;
 }
 .art-player-top-wrap {
-	width: 100%;
+  width: 100%;
 }
 .art-player-top-wrap .art-player-top-title-text {
-	white-space: nowrap;
-	text-overflow: ellipsis;
-	overflow: hidden;
-	max-width: 100%;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 100%;
 }
 /* 面板隐藏时，顶部toolbar也隐藏 */
 .art-hide-cursor .art-layer-top-wrap {
-	transform: translateY(-60px);
+  transform: translateY(-60px);
 }
 /*.art-layer-top-wrap .art-player-top-wrap {
 }
@@ -100,26 +100,26 @@
 }*/
 /* 下面的当前在线观看人数 */
 .art-layer-top-wrap .art-player-top-follow {
-	margin-top: var(--art-padding);
-	gap: var(--layer-top-wrap-follow-text-font-size);
-	font-size: var(--layer-top-wrap-follow-text-font-size);
-	display: flex;
-	align-items: center;
-	position: absolute;
+  margin-top: var(--art-padding);
+  gap: var(--layer-top-wrap-follow-text-font-size);
+  font-size: var(--layer-top-wrap-follow-text-font-size);
+  display: flex;
+  align-items: center;
+  position: absolute;
 }
 .art-layer-top-wrap .art-player-top-follow .art-player-top-follow-icon {
-	width: var(--layer-top-wrap-follow-icon-size);
-	height: var(--layer-top-wrap-follow-icon-size);
+  width: var(--layer-top-wrap-follow-icon-size);
+  height: var(--layer-top-wrap-follow-icon-size);
 }
 .art-layer-top-wrap .art-player-top-follow-text {
-	text-wrap: nowrap;
+  text-wrap: nowrap;
 }
 /* 插件-在线观看人数  */
 
 /* 插件-锁定 */
 .art-video-player .art-layers .art-layer.art-layer-lock {
-	/* 放在右边 */
-	right: 0;
-	left: calc(100% - 20px - var(--art-lock-size) - var(--art-lock-left-size));
+  /* 放在右边 */
+  right: 0;
+  left: calc(100% - 20px - var(--art-lock-size) - var(--art-lock-left-size));
 }
 /* 插件-锁定 */
