@@ -144,6 +144,9 @@ export const CommonUtil = {
    */
   fixUrl(url: string) {
     url = url.trim();
+    if (url.startsWith("data:")) {
+      return url;
+    }
     if (url.match(/^http(s|):\/\//i)) {
       return url;
     } else if (url.startsWith("//")) {
@@ -168,11 +171,11 @@ export const CommonUtil = {
    * http转https
    * @param url 需要修复的链接
    * @example
-   * 修复前：
-   * 修复后：
+   * 修复前：https://xxx.xxx.xxx/
+   * 修复后：https://xxx.xxx.xxx/
    * @example
-   * 修复前：
-   * 修复后：
+   * 修复前：http://xxx.xxx.xxx/
+   * 修复后：https://xxx.xxx.xxx/
    */
   fixHttps(url: string) {
     if (url.startsWith("https://")) {
@@ -183,9 +186,15 @@ export const CommonUtil = {
       // 不是http链接
       return url;
     }
-    let urlInstance = new URL(url);
-    urlInstance.protocol = "https:";
-    return urlInstance.toString();
+    try {
+      let urlInstance = new URL(url);
+      urlInstance.protocol = "https:";
+      return urlInstance.toString();
+    } catch {
+      // 异常的url链接
+      // 例如：data:application
+      return url;
+    }
   },
   /**
    * 禁止页面滚动，默认锁定html和body
