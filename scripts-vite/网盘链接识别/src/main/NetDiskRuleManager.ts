@@ -10,52 +10,50 @@ import { NetDiskUserRuleSubscribeRule } from "./rule/user-rule/NetDiskUserRuleSu
  * 规则管理器
  */
 export const NetDiskRuleManager = {
-	init() {
-		this.updateAllSubscribe();
-	},
-	/**
-	 * 获取规则管理器视图
-	 * @param defaultTab 左侧默认的选项卡，可以是索引下标，也可以是标题
-	 */
-	getPanelView(defaultTab: number | string = 0) {
-		let option: RulePanelOption<any> = {
-			title: "规则管理器",
-			contentConfig: [
-				NetDiskUserRule.getRulePanelViewOption(),
-				WebsiteRule.getRulePanelViewOption(),
-				CharacterMapping.getRulePanelViewOption(),
-			],
-		};
-		option.contentConfig = option.contentConfig.map((it, index) => {
-			if (
-				(typeof defaultTab === "number" && defaultTab === index) ||
-				(typeof defaultTab === "string" && defaultTab === it.title)
-			) {
-				it.isDefault = true;
-			} else {
-				it.isDefault = false;
-			}
-			return it;
-		});
-		let rulePanelView = new RulePanelView<NetDiskUserCustomRule | WebsiteRuleOption | CharacterMappingOption>(
-			option
-		);
-		return rulePanelView;
-	},
-	/**
-	 * 显示视图
-	 * @param defaultTab 左侧默认的选项卡，可以是索引下标，也可以是标题
-	 */
-	showView(defaultTab?: number | string) {
-		let rulePanelView = this.getPanelView(defaultTab);
-		rulePanelView.showView();
-	},
-	/**
-	 * 更新所有订阅
-	 */
-	updateAllSubscribe() {
-		NetDiskUserRuleSubscribeRule.updateAllSubscribe();
-		WebsiteSubscribeRule.updateAllSubscribe();
-		CharacterMappingSubscribe.updateAllSubscribe();
-	},
+  init() {
+    this.updateAllSubscribe();
+  },
+  /**
+   * 获取规则管理器视图
+   * @param defaultTab 左侧默认的选项卡，可以是索引下标，也可以是标题
+   */
+  getPanelView(defaultTab: number | string = 0) {
+    let option: RulePanelOption<any> = {
+      title: "规则管理器",
+      contentConfig: [
+        NetDiskUserRule.getRulePanelViewOption(),
+        WebsiteRule.getRulePanelViewOption(),
+        CharacterMapping.getRulePanelViewOption(),
+      ],
+    };
+    option.contentConfig = option.contentConfig.map((it, index) => {
+      if (
+        (typeof defaultTab === "number" && defaultTab === index) ||
+        (typeof defaultTab === "string" && defaultTab === it.title)
+      ) {
+        it.isDefault = true;
+      } else {
+        it.isDefault = false;
+      }
+      return it;
+    });
+    let rulePanelView = new RulePanelView<NetDiskUserCustomRule | WebsiteRuleOption | CharacterMappingOption>(option);
+    return rulePanelView;
+  },
+  /**
+   * 显示视图
+   * @param defaultTab 左侧默认的选项卡，可以是索引下标，也可以是标题
+   */
+  showView(defaultTab?: number | string) {
+    let rulePanelView = this.getPanelView(defaultTab);
+    rulePanelView.showView();
+  },
+  /**
+   * 更新所有订阅
+   */
+  updateAllSubscribe() {
+    NetDiskUserRuleSubscribeRule.updateAllSubscribe();
+    WebsiteSubscribeRule.updateAllSubscribe();
+    CharacterMappingSubscribe.updateAllSubscribe();
+  },
 };

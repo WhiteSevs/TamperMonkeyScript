@@ -1,40 +1,40 @@
 .pops[type-value="confirm"] .pops-confirm-content {
-	overflow: hidden;
+  overflow: hidden;
 }
 /* textarea美化 */
 .pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea {
-	width: 100%;
-	height: 100%;
-	border: none;
-	outline: none;
-	padding: 0;
-	margin: 0;
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	appearance: none;
-	background-image: none;
-	background-color: transparent;
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  padding: 0;
+  margin: 0;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: none;
+  background-color: transparent;
 
-	display: inline-block;
-	resize: vertical;
-	padding: 5px 15px;
-	line-height: normal;
-	box-sizing: border-box;
-	border: 1px solid #dcdfe6;
-	transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
-	appearance: none;
-	resize: none;
+  display: inline-block;
+  resize: vertical;
+  padding: 5px 15px;
+  line-height: normal;
+  box-sizing: border-box;
+  border: 1px solid #dcdfe6;
+  transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+  appearance: none;
+  resize: none;
 }
 /* 获得焦点 */
 .pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea:focus {
-	outline: none;
-	border-color: #3677f0;
+  outline: none;
+  border-color: #3677f0;
 }
 /* 提示文字 */
 .pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea::placeholder {
-	color: #c0c4cc;
+  color: #c0c4cc;
 }
 /* 鼠标hover */
 .pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea:hover {
-	border-color: #c0c4cc;
+  border-color: #c0c4cc;
 }

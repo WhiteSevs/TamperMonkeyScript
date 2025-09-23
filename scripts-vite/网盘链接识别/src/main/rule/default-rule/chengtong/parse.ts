@@ -1,42 +1,42 @@
 import { log, utils } from "@/env";
 import { ParseFileCore } from "@/main/parse/NetDiskParseAbstract";
-import { NetDiskView } from "@/main/view/NetDiskView";
+import { NetDiskLinkViewEvent } from "@/main/view/link-view/NetDiskLinkViewEvent";
 import Qmsg from "qmsg";
 import { GM_getValue } from "ViteGM";
 
 export class NetDiskParse_Chengtong extends ParseFileCore {
-	/**
-	 * 入口
-	 */
-	async init(netDiskInfo: ParseFileInitConfig) {
-		super.init(netDiskInfo);
-		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-		let ruleKeyName = "chengtong";
-		if (ruleIndex !== 3) {
-			log.warn(`解析站暂时只支持单文件解析，非单文件链接的点击动作为新标签页打开`);
-			NetDiskView.netDiskUrlClickEvent({
-				data: {
-					ruleKeyName: ruleKeyName,
-					ruleIndex: ruleIndex,
-					shareCode: shareCode,
-					accessCode: accessCode,
-				},
-				clickMode: "openBlank",
-			});
-			return;
-		}
-		let apiHost = GM_getValue<string>("chengtong-parse-file-api-host");
-		if (utils.isNull(apiHost)) {
-			Qmsg.error("请先配置文件解析接口地址");
-			return;
-		}
-		if (!apiHost.endsWith("/")) {
-			apiHost += "/";
-		}
-		let url = apiHost + "?file=" + shareCode;
-		if (utils.isNotNull(accessCode)) {
-			url += "&pass=" + accessCode;
-		}
-		window.open(url, "_blank");
-	}
+  /**
+   * 入口
+   */
+  async init(netDiskInfo: ParseFileInitConfig) {
+    super.init(netDiskInfo);
+    let { ruleIndex, shareCode, accessCode } = netDiskInfo;
+    let ruleKeyName = "chengtong";
+    if (ruleIndex !== 3) {
+      log.warn(`解析站暂时只支持单文件解析，非单文件链接的点击动作为新标签页打开`);
+      NetDiskLinkViewEvent.netDiskUrlClickEvent({
+        data: {
+          ruleKeyName: ruleKeyName,
+          ruleIndex: ruleIndex,
+          shareCode: shareCode,
+          accessCode: accessCode,
+        },
+        clickMode: "openBlank",
+      });
+      return;
+    }
+    let apiHost = GM_getValue<string>("chengtong-parse-file-api-host");
+    if (utils.isNull(apiHost)) {
+      Qmsg.error("请先配置文件解析接口地址");
+      return;
+    }
+    if (!apiHost.endsWith("/")) {
+      apiHost += "/";
+    }
+    let url = apiHost + "?file=" + shareCode;
+    if (utils.isNotNull(accessCode)) {
+      url += "&pass=" + accessCode;
+    }
+    window.open(url, "_blank");
+  }
 }

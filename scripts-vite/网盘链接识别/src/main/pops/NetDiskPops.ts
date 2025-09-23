@@ -1,4 +1,4 @@
-import { NetDiskUI } from "../ui/NetDiskUI";
+import { NetDiskView } from "../view/NetDiskView";
 import { pops, utils } from "@/env";
 import type { PopsPanelDetails } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { PopsLoadingDetails } from "@whitesev/pops/dist/types/src/components/loading/types/index";
@@ -8,164 +8,159 @@ import { PopsAlertDetails } from "@whitesev/pops/dist/types/src/components/alert
 import { PopsPromptDetails } from "@whitesev/pops/dist/types/src/components/prompt/types/index";
 import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 import { PopsRightClickMenuDetails } from "@whitesev/pops/dist/types/src/components/rightClickMenu/types/index";
+import type { PopsAnimation } from "@whitesev/pops/dist/types/src/types/animation";
 
 export type PopsSizeConfig = {
-	/** PC端 */
-	PC: {
-		/** 宽度，不建议使用dvw或dvh，因为这个api有点新 */
-		width: string | (() => string);
-		/** 高度，不建议使用dvw或dvh，因为这个api有点新 */
-		height: string | (() => string);
-	};
-	/** 移动端 */
-	Mobile: {
-		/** 宽度，不建议使用dvw或dvh，因为这个api有点新 */
-		width: string | (() => string);
-		/** 高度，不建议使用dvw或dvh，因为这个api有点新 */
-		height: string | (() => string);
-	};
+  /** PC端 */
+  PC: {
+    /** 宽度，不建议使用dvw或dvh，因为这个api有点新 */
+    width: string | (() => string);
+    /** 高度，不建议使用dvw或dvh，因为这个api有点新 */
+    height: string | (() => string);
+  };
+  /** 移动端 */
+  Mobile: {
+    /** 宽度，不建议使用dvw或dvh，因为这个api有点新 */
+    width: string | (() => string);
+    /** 高度，不建议使用dvw或dvh，因为这个api有点新 */
+    height: string | (() => string);
+  };
 };
 
 type NetDiskPopsDetails<T> = Omit<T, "width" | "height"> & {
-	/** 宽度 */
-	width?: string;
-	/** 高度 */
-	height?: string;
+  /** 宽度 */
+  width?: string;
+  /** 高度 */
+  height?: string;
 };
 
 /** pops弹窗 */
 export const NetDiskPops = {
-	/**
-	 * 普通信息框
-	 * @param details 配置
-	 * @param sizeConfig 大小配置
-	 */
-	alert(details: NetDiskPopsDetails<PopsAlertDetails>, sizeConfig?: PopsSizeConfig) {
-		details = this.handleDetails(details, sizeConfig);
-		// @ts-ignore
-		return pops.alert(details);
-	},
-	/**
-	 * 询问框
-	 * @param details 配置
-	 * @param sizeConfig 大小配置
-	 */
-	confirm(details: NetDiskPopsDetails<PopsConfirmDetails>, sizeConfig?: PopsSizeConfig) {
-		details = this.handleDetails(details, sizeConfig);
-		// @ts-ignore
-		return pops.confirm(details);
-	},
-	/**
-	 * 加载层
-	 * @param details 配置
-	 */
-	loading(details: NetDiskPopsDetails<PopsLoadingDetails>) {
-		if (typeof details["animation"] === "undefined") {
-			// @ts-ignore
-			details["animation"] = NetDiskGlobalData.pops.popsAnimation.value;
-		}
-		if (typeof details["forbiddenScroll"] === "undefined") {
-			details["forbiddenScroll"] = NetDiskUI.defaultForbiddenScroll;
-		}
-		return pops.loading(details);
-	},
-	/**
-	 * 输入框
-	 * @param details 配置
-	 * @param sizeConfig 大小配置
-	 */
-	prompt(details: NetDiskPopsDetails<PopsPromptDetails>, sizeConfig?: PopsSizeConfig) {
-		details = this.handleDetails(details, sizeConfig);
-		// @ts-ignore
-		return pops.prompt(details);
-	},
-	/**
-	 * 文件夹
-	 * @param details 配置
-	 */
-	folder(details: Omit<NetDiskPopsDetails<PopsFolderDetails>, "sort">, sizeConfig?: PopsSizeConfig) {
-		details = this.handleDetails(details, sizeConfig);
-		// @ts-ignore
-		details["sort"] = {
-			name: NetDiskGlobalData.popsFolder["pops-folder-sort-name"].value,
-			isDesc: NetDiskGlobalData.popsFolder["pops-folder-sort-is-desc"].value,
-			// @ts-ignore
-			callback(target, event, sortName, sortDesc) {
-				NetDiskGlobalData.popsFolder["pops-folder-sort-name"].value = sortName;
-				NetDiskGlobalData.popsFolder["pops-folder-sort-is-desc"].value = sortDesc;
-			},
-		};
-		// @ts-ignore
-		return pops.folder(details);
-	},
-	/**
-	 * 菜单面板
-	 * @param details 配置
-	 */
-	panel(details: NetDiskPopsDetails<PopsPanelDetails>, sizeConfig?: PopsSizeConfig) {
-		details = this.handleDetails(details, sizeConfig);
-		// @ts-ignore
-		return pops.panel(details);
-	},
-	/**
-	 * 右键菜单
-	 */
-	rightClickMenu(details: NetDiskPopsDetails<PopsRightClickMenuDetails>) {
-		details = this.handleDetails(details);
-		return pops.rightClickMenu(details);
-	},
-	/**
-	 *
-	 * @param details
-	 * @param sizeConfig 大小配置
-	 */
-	handleDetails(details: any, sizeConfig?: PopsSizeConfig) {
-		details = Object.assign(
-			{
-				animation: NetDiskGlobalData.pops.popsAnimation.value,
-				drag: NetDiskGlobalData.pops.pcDrag.value,
-				dragLimit: NetDiskGlobalData.pops.pcDragLimit.value,
-				forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
-			},
-			details
-		);
-		if (sizeConfig != null) {
-			if (pops.isPhone()) {
-				// 移动端
-				let popsWidth =
-					typeof sizeConfig.Mobile.width === "function" ? sizeConfig.Mobile.width() : sizeConfig.Mobile.width;
-				let popsHeight =
-					typeof sizeConfig.Mobile.height === "function"
-						? sizeConfig.Mobile.height()
-						: sizeConfig.Mobile.height;
-				details.width = popsWidth;
-				details.height = popsHeight;
-			} else {
-				// PC端
-				let popsWidth =
-					typeof sizeConfig.PC.width === "function" ? sizeConfig.PC.width() : sizeConfig.PC.width;
-				let popsHeight =
-					typeof sizeConfig.PC.height === "function" ? sizeConfig.PC.height() : sizeConfig.PC.height;
-				details.width = popsWidth;
-				details.height = popsHeight;
-			}
-		}
-		// 设置遮罩层
-		if (details.mask == null) {
-			details.mask = {};
-		}
-		if (typeof details.mask.enable !== "boolean") {
-			details.mask.enable = true;
-		}
-		if (details.mask.clickEvent == null) {
-			details.mask.clickEvent = {};
-		}
-		if (typeof details.mask.clickEvent.toClose !== "boolean") {
-			details.mask.clickEvent.toClose = NetDiskGlobalData.pops.clickMaskToCloseDialog.value;
-		}
-		// 亚克力效果
-		if (NetDiskGlobalData.pops.popsAcrylic.value) {
-			let acrylicCSS = /*css*/ `
+  /**
+   * 普通信息框
+   * @param details 配置
+   * @param sizeConfig 大小配置
+   */
+  alert(details: NetDiskPopsDetails<PopsAlertDetails>, sizeConfig?: PopsSizeConfig) {
+    const config = this.handleDetails(details, sizeConfig);
+    return pops.alert(config);
+  },
+  /**
+   * 询问框
+   * @param details 配置
+   * @param sizeConfig 大小配置
+   */
+  confirm(details: NetDiskPopsDetails<PopsConfirmDetails>, sizeConfig?: PopsSizeConfig) {
+    const config = this.handleDetails(details, sizeConfig);
+    return pops.confirm(config);
+  },
+  /**
+   * 加载层
+   * @param details 配置
+   */
+  loading(details: NetDiskPopsDetails<PopsLoadingDetails>) {
+    if (typeof details["animation"] === "undefined") {
+      details["animation"] = NetDiskGlobalData.pops.popsAnimation.value as PopsAnimation;
+    }
+    if (typeof details["forbiddenScroll"] === "undefined") {
+      details["forbiddenScroll"] = NetDiskView.$data.isForbiddenScrollByDefault;
+    }
+    return pops.loading(details);
+  },
+  /**
+   * 输入框
+   * @param details 配置
+   * @param sizeConfig 大小配置
+   */
+  prompt(details: NetDiskPopsDetails<PopsPromptDetails>, sizeConfig?: PopsSizeConfig) {
+    const config = this.handleDetails(details, sizeConfig);
+    return pops.prompt(config);
+  },
+  /**
+   * 文件夹
+   * @param details 配置
+   */
+  folder(details: Omit<NetDiskPopsDetails<PopsFolderDetails>, "sort">, sizeConfig?: PopsSizeConfig) {
+    const config = this.handleDetails(details, sizeConfig) as PopsFolderDetails;
+    config["sort"] = {
+      name: NetDiskGlobalData.popsFolder["pops-folder-sort-name"].value,
+      isDesc: NetDiskGlobalData.popsFolder["pops-folder-sort-is-desc"].value,
+      callback(target, event, sortName, sortDesc) {
+        NetDiskGlobalData.popsFolder["pops-folder-sort-name"].value = sortName;
+        NetDiskGlobalData.popsFolder["pops-folder-sort-is-desc"].value = sortDesc;
+      },
+    };
+    return pops.folder(config);
+  },
+  /**
+   * 菜单面板
+   * @param details 配置
+   */
+  panel(details: NetDiskPopsDetails<PopsPanelDetails>, sizeConfig?: PopsSizeConfig) {
+    const config = this.handleDetails(details, sizeConfig);
+    return pops.panel(config);
+  },
+  /**
+   * 右键菜单
+   */
+  rightClickMenu(details: NetDiskPopsDetails<PopsRightClickMenuDetails>) {
+    const config = this.handleDetails(details);
+    return pops.rightClickMenu(config);
+  },
+  /**
+   *
+   * @param details
+   * @param sizeConfig 大小配置
+   */
+  handleDetails<T = any>(
+    details: T,
+    sizeConfig?: PopsSizeConfig
+  ): T & {
+    width: string;
+    height: string;
+  } {
+    details = Object.assign(
+      {
+        animation: NetDiskGlobalData.pops.popsAnimation.value,
+        drag: NetDiskGlobalData.pops.pcDrag.value,
+        dragLimit: NetDiskGlobalData.pops.pcDragLimit.value,
+        forbiddenScroll: NetDiskView.$data.isForbiddenScrollByDefault,
+      },
+      details
+    );
+    if (sizeConfig != null) {
+      if (pops.isPhone()) {
+        // 移动端
+        let popsWidth =
+          typeof sizeConfig.Mobile.width === "function" ? sizeConfig.Mobile.width() : sizeConfig.Mobile.width;
+        let popsHeight =
+          typeof sizeConfig.Mobile.height === "function" ? sizeConfig.Mobile.height() : sizeConfig.Mobile.height;
+        (<any>details).width = popsWidth;
+        (<any>details).height = popsHeight;
+      } else {
+        // PC端
+        let popsWidth = typeof sizeConfig.PC.width === "function" ? sizeConfig.PC.width() : sizeConfig.PC.width;
+        let popsHeight = typeof sizeConfig.PC.height === "function" ? sizeConfig.PC.height() : sizeConfig.PC.height;
+        (<any>details).width = popsWidth;
+        (<any>details).height = popsHeight;
+      }
+    }
+    // 设置遮罩层
+    if ((<any>details).mask == null) {
+      (<any>details).mask = {};
+    }
+    if (typeof (<any>details).mask.enable !== "boolean") {
+      (<any>details).mask.enable = true;
+    }
+    if ((<any>details).mask.clickEvent == null) {
+      (<any>details).mask.clickEvent = {};
+    }
+    if (typeof (<any>details).mask.clickEvent.toClose !== "boolean") {
+      (<any>details).mask.clickEvent.toClose = NetDiskGlobalData.pops.clickMaskToCloseDialog.value;
+    }
+    // 亚克力效果
+    if (NetDiskGlobalData.pops.popsAcrylic.value) {
+      let acrylicCSS = /*css*/ `
             .pops {
                 --acrylic-opacity: 0.7;
                 --acrylic-color: rgba(232, 232, 232, var(--acrylic-opacity));
@@ -185,21 +180,21 @@ export const NetDiskPops = {
 				--container-item-bg-color: var(--acrylic-color);
             }
             `;
-			if (typeof details.style === "string") {
-				details.style += acrylicCSS;
-			} else {
-				details.style = acrylicCSS;
-			}
-		}
-		// 设置z-index获取方式
-		details.zIndex = () => {
-			/** 偏移量 */
-			const deviation = 10;
-			let maxZIndex = utils.getMaxZIndex(deviation);
-			let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex(deviation).zIndex;
-			let zIndex = utils.getMaxValue(99999, maxZIndex, popsMaxZIndex) + deviation;
-			return zIndex;
-		};
-		return details;
-	},
+      if (typeof (<any>details).style === "string") {
+        (<any>details).style += acrylicCSS;
+      } else {
+        (<any>details).style = acrylicCSS;
+      }
+    }
+    // 设置z-index获取方式
+    (<any>details).zIndex = () => {
+      /** 偏移量 */
+      const deviation = 10;
+      let maxZIndex = utils.getMaxZIndex(deviation);
+      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex(deviation).zIndex;
+      let zIndex = utils.getMaxValue(99999, maxZIndex, popsMaxZIndex) + deviation;
+      return zIndex;
+    };
+    return <any>details;
+  },
 };

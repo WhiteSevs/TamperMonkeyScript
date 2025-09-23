@@ -4,52 +4,52 @@ import { NetDiskPops } from "../pops/NetDiskPops";
 import { PanelUISize } from "@components/setting/panel-ui-size";
 
 type MetaInfo = {
-	type: string;
-	file_type: string;
-	name: string;
-	size: number;
-	count: number;
-	error: string | null;
-	screenshots:
-		| {
-				time: number;
-				screenshot: string;
-		  }[]
-		| null;
+  type: string;
+  file_type: string;
+  name: string;
+  size: number;
+  count: number;
+  error: string | null;
+  screenshots:
+    | {
+        time: number;
+        screenshot: string;
+      }[]
+    | null;
 };
 export const MetaDataParser = {
-	/**
-	 * 解析文件链接的元数据
-	 */
-	async parseFileMetaInfo(url: string) {
-		const response = await httpx.get("https://whatslink.info/api/v1/link?url=" + url, {
-			headers: {
-				Referer: "https://whatslink.info/",
-			},
-			allowInterceptConfig: false,
-		});
-		let data = utils.toJSON<MetaInfo>(response.data.responseText);
-		if (!response.status) {
-			if (typeof data.error === "string" && data.error.trim() !== "") {
-				Qmsg.error(data.error);
-				return;
-			}
-			Qmsg.error("请求失败");
-			return;
-		}
-		return data;
-	},
-	/**
-	 * 显示元数据弹窗
-	 */
-	showFileMetaInfoDialog(metaInfo: MetaInfo) {
-		NetDiskPops.alert({
-			title: {
-				text: "元数据信息",
-				position: "center",
-			},
-			content: {
-				text: /*html*/ `
+  /**
+   * 解析文件链接的元数据
+   */
+  async parseFileMetaInfo(url: string) {
+    const response = await httpx.get("https://whatslink.info/api/v1/link?url=" + url, {
+      headers: {
+        Referer: "https://whatslink.info/",
+      },
+      allowInterceptConfig: false,
+    });
+    let data = utils.toJSON<MetaInfo>(response.data.responseText);
+    if (!response.status) {
+      if (typeof data.error === "string" && data.error.trim() !== "") {
+        Qmsg.error(data.error);
+        return;
+      }
+      Qmsg.error("请求失败");
+      return;
+    }
+    return data;
+  },
+  /**
+   * 显示元数据弹窗
+   */
+  showFileMetaInfoDialog(metaInfo: MetaInfo) {
+    NetDiskPops.alert({
+      title: {
+        text: "元数据信息",
+        position: "center",
+      },
+      content: {
+        text: /*html*/ `
 						<div class="wrapper">
 							<div class="title">Summary</div>
 							<div class="content">
@@ -60,39 +60,39 @@ export const MetaDataParser = {
 							</div>
 						</div>
 						${
-							Array.isArray(metaInfo.screenshots)
-								? /*html*/ `
+              Array.isArray(metaInfo.screenshots)
+                ? /*html*/ `
 							<div class="wrapper">
 								<div class="title">Screenshots</div>
 								<div class="content">
 									<div class="image-list">
 										${metaInfo.screenshots
-											.map(
-												(screenshot: any) => /*html*/ `
+                      .map(
+                        (screenshot: any) => /*html*/ `
 											<div class="img">
 												<img src="${screenshot.screenshot}" alt="img">
 											</div>
 										`
-											)
-											.join("")}
+                      )
+                      .join("")}
 										
 									</div>
 								</div>
 							</div>
 						`
-								: ""
-						}
+                : ""
+            }
 						`,
-				html: true,
-			},
-			btn: {
-				ok: {
-					enable: false,
-				},
-			},
-			width: PanelUISize.setting.width,
-			height: "auto",
-			style: /*css*/ `
+        html: true,
+      },
+      btn: {
+        ok: {
+          enable: false,
+        },
+      },
+      width: PanelUISize.setting.width,
+      height: "auto",
+      style: /*css*/ `
                 .pops-alert-content{
                     padding: 0 15px;
                 }
@@ -128,6 +128,6 @@ export const MetaDataParser = {
                     cursor: pointer;
                 }
             `,
-		});
-	},
+    });
+  },
 };

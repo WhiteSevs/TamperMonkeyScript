@@ -7,23 +7,23 @@ import { WebsiteRule } from "./WebsiteRule";
  * @param defaultValue 默认值
  */
 export const WebsiteProxyGlobalValue = <T>(key: string, value: T, defaultValue: T): T => {
-	// 注意：这里不能用this，因为会被修改指向
-	if (WebsiteRule.$data.isShowEditView) {
-		// 当前是添加|修改规则界面，直接获取全局默认的值
-		return value;
-	}
-	let matchedUrlRuleList = WebsiteRule.getUrlMatchedRule();
+  // 注意：这里不能用this，因为会被修改指向
+  if (WebsiteRule.$data.isShowEditView) {
+    // 当前是添加|修改规则界面，直接获取全局默认的值
+    return value ?? defaultValue;
+  }
+  let matchedUrlRuleList = WebsiteRule.getUrlMatchedRule();
 
-	let findValue = matchedUrlRuleList.find((item) => {
-		let data = WebsiteRule.getRuleData(item);
-		// 判断存储的数据中是否存在该键
-		return Reflect.has(data, key);
-	});
-	if (findValue) {
-		// 从规则数据中取值
-		return Reflect.get(WebsiteRule.getRuleData(findValue), key);
-	} else {
-		// 从全局数据中取值
-		return value;
-	}
+  let findValue = matchedUrlRuleList.find((item) => {
+    let data = WebsiteRule.getRuleData(item);
+    // 判断存储的数据中是否存在该键
+    return Reflect.has(data, key);
+  });
+  if (findValue) {
+    // 从规则数据中取值
+    return Reflect.get(WebsiteRule.getRuleData(findValue), key);
+  } else {
+    // 从全局数据中取值
+    return value ?? defaultValue;
+  }
 };

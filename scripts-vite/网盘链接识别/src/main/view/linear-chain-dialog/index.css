@@ -1,9 +1,9 @@
 .pops-folder-list .list-name-text {
-	max-width: 300px;
+  max-width: 300px;
 }
 .netdisk-static-link-onefile .pops-folder-list .list-name-text {
-	max-width: 220px;
+  max-width: 220px;
 }
 .netdisk-static-link-onefile .pops-mobile-folder-content .pops-folder-list .list-name-text {
-	max-width: unset;
+  max-width: unset;
 }
