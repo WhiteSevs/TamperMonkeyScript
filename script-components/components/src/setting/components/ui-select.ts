@@ -1,15 +1,8 @@
 import type { PopsPanelSelectDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-select";
-import {
-	ATTRIBUTE_DEFAULT_VALUE,
-	ATTRIBUTE_KEY,
-	PROPS_STORAGE_API,
-} from "../panel-config";
+import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, PROPS_STORAGE_API } from "../panel-config";
 import { log } from "../../base.env";
 import { Panel } from "../panel";
-import {
-	PanelComponents,
-	type PanelComponentsStorageApiValue,
-} from "../panel-components";
+import { PanelComponents, type PanelComponentsStorageApiValue } from "../panel-components";
 
 /**
  * 下拉列表
@@ -22,93 +15,77 @@ import {
  * @param valueChangeCallBack （可选）选择列表的某项后且存储值后的回调
  */
 export const UISelect = function <T extends any>(
-	text: string,
-	key: string,
-	defaultValue: T,
-	data:
-		| {
-				value: T;
-				text: string;
-				disable?(value: T): boolean;
-		  }[]
-		| (() => {
-				value: T;
-				text: string;
-				disable?(value: T): boolean;
-		  }[]),
-	selectCallBack?:
-		| ((
-				event: PointerEvent | TouchEvent,
-				isSelectedValue: T,
-				isSelectedText: string
-		  ) => void | boolean)
-		| undefined,
-	description?: string,
-	valueChangeCallBack?:
-		| ((
-				event: PointerEvent | TouchEvent,
-				isSelectedValue: T,
-				isSelectedText: string
-		  ) => void | boolean)
-		| undefined
+  text: string,
+  key: string,
+  defaultValue: T,
+  data:
+    | {
+        value: T;
+        text: string;
+        disable?(value: T): boolean;
+      }[]
+    | (() => {
+        value: T;
+        text: string;
+        disable?(value: T): boolean;
+      }[]),
+  selectCallBack?:
+    | ((event: PointerEvent | TouchEvent, isSelectedValue: T, isSelectedText: string) => void | boolean)
+    | undefined,
+  description?: string,
+  valueChangeCallBack?:
+    | ((event: PointerEvent | TouchEvent, isSelectedValue: T, isSelectedText: string) => void | boolean)
+    | undefined
 ): PopsPanelSelectDetails<T> {
-	let selectData: {
-		value: T;
-		text: string;
-		disable?(value: T): boolean;
-	}[] = [];
-	if (typeof data === "function") {
-		selectData = data();
-	} else {
-		selectData = data;
-	}
-	let result: PopsPanelSelectDetails<T> = {
-		text: text,
-		type: "select",
-		description: description,
-		attributes: {},
-		props: {},
-		getValue() {
-			let storageApiValue = this.props![
-				PROPS_STORAGE_API as keyof typeof this.props
-			] as PanelComponentsStorageApiValue;
-			return storageApiValue.get(key, defaultValue);
-		},
-		callback(event, isSelectedValue, isSelectedText) {
-			let value = isSelectedValue;
-			log.info(`选择：${isSelectedText}`);
+  let selectData: {
+    value: T;
+    text: string;
+    disable?(value: T): boolean;
+  }[] = [];
+  if (typeof data === "function") {
+    selectData = data();
+  } else {
+    selectData = data;
+  }
+  let result: PopsPanelSelectDetails<T> = {
+    text: text,
+    type: "select",
+    description: description,
+    attributes: {},
+    props: {},
+    getValue() {
+      let storageApiValue = this.props![PROPS_STORAGE_API as keyof typeof this.props] as PanelComponentsStorageApiValue;
+      return storageApiValue.get(key, defaultValue);
+    },
+    callback(event, isSelectedValue, isSelectedText) {
+      let value = isSelectedValue;
+      log.info(`选择：${isSelectedText}`);
 
-			if (typeof selectCallBack === "function") {
-				let result = selectCallBack(event, value, isSelectedText);
-				if (result) {
-					return;
-				}
-			}
-			let storageApiValue = this.props![
-				PROPS_STORAGE_API as keyof typeof this.props
-			] as PanelComponentsStorageApiValue;
-			storageApiValue.set(key, value);
+      if (typeof selectCallBack === "function") {
+        let result = selectCallBack(event, value, isSelectedText);
+        if (result) {
+          return;
+        }
+      }
+      let storageApiValue = this.props![PROPS_STORAGE_API as keyof typeof this.props] as PanelComponentsStorageApiValue;
+      storageApiValue.set(key, value);
 
-			if (typeof valueChangeCallBack === "function") {
-				valueChangeCallBack(event, value, isSelectedText);
-			}
-		},
-		data: selectData,
-	};
-	Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
-	Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+      if (typeof valueChangeCallBack === "function") {
+        valueChangeCallBack(event, value, isSelectedText);
+      }
+    },
+    data: selectData,
+  };
+  Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
+  Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
 
-	PanelComponents.initComponentsStorageApi(
-		"select",
-		result as Required<PopsPanelSelectDetails<T>>,
-		{
-			get<T>(key: string, defaultValue: T) {
-				return Panel.getValue(key, defaultValue);
-			},
-			set(key: string, value: any) {
-				Panel.setValue(key, value);
-			},
-		}
-	);
-	return result;
+  PanelComponents.initComponentsStorageApi("select", result as Required<PopsPanelSelectDetails<T>>, {
+    get<T>(key: string, defaultValue: T) {
+      return Panel.getValue(key, defaultValue);
+    },
+    set(key: string, value: any) {
+      Panel.setValue(key, value);
+    },
+  });
+  return result;
 };

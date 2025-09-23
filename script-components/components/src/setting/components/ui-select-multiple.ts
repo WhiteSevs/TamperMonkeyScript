@@ -1,16 +1,9 @@
 import type { PopsPanelSelectMultipleDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-selectMultiple";
 import type { PopsAlertDetails } from "@whitesev/pops/dist/types/src/components/alert/types/index";
-import {
-	ATTRIBUTE_DEFAULT_VALUE,
-	ATTRIBUTE_KEY,
-	PROPS_STORAGE_API,
-} from "../panel-config";
+import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, PROPS_STORAGE_API } from "../panel-config";
 import { Panel } from "../panel";
 import { log } from "../../base.env";
-import {
-	PanelComponents,
-	type PanelComponentsStorageApiValue,
-} from "../panel-components";
+import { PanelComponents, type PanelComponentsStorageApiValue } from "../panel-components";
 
 /**
  * 下拉列表-多选
@@ -24,85 +17,67 @@ import {
  * @param valueChangeCallBack （可选）选择列表的某项后且存储值后的回调
  */
 export const UISelectMultiple = function <T>(
-	text: string,
-	key: string,
-	defaultValue: T[],
-	data:
-		| PopsPanelSelectMultipleDetails<T>["data"]
-		| (() => PopsPanelSelectMultipleDetails<T>["data"]),
-	selectCallBack?:
-		| ((
-				selectInfo: PopsPanelSelectMultipleDetails<T>["data"]
-		  ) => void | boolean)
-		| undefined,
-	description?: string,
-	placeholder = "请至少选择一个选项",
-	selectConfirmDialogDetails?: Partial<PopsAlertDetails>,
-	valueChangeCallBack?:
-		| ((
-				selectInfo: PopsPanelSelectMultipleDetails<T>["data"]
-		  ) => void | boolean)
-		| undefined
+  text: string,
+  key: string,
+  defaultValue: T[],
+  data: PopsPanelSelectMultipleDetails<T>["data"] | (() => PopsPanelSelectMultipleDetails<T>["data"]),
+  selectCallBack?: ((selectInfo: PopsPanelSelectMultipleDetails<T>["data"]) => void | boolean) | undefined,
+  description?: string,
+  placeholder = "请至少选择一个选项",
+  selectConfirmDialogDetails?: Partial<PopsAlertDetails>,
+  valueChangeCallBack?: ((selectInfo: PopsPanelSelectMultipleDetails<T>["data"]) => void | boolean) | undefined
 ): PopsPanelSelectMultipleDetails<T> {
-	let selectData: PopsPanelSelectMultipleDetails<T>["data"] = [];
-	if (typeof data === "function") {
-		selectData = data();
-	} else {
-		selectData = data;
-	}
-	let result: PopsPanelSelectMultipleDetails<T> = {
-		text: text,
-		type: "select-multiple",
-		description: description,
-		placeholder: placeholder,
-		attributes: {},
-		props: {},
-		getValue() {
-			let storageApiValue = this.props![
-				PROPS_STORAGE_API as keyof typeof this.props
-			] as PanelComponentsStorageApiValue;
-			return storageApiValue.get(key, defaultValue);
-		},
-		selectConfirmDialogDetails: selectConfirmDialogDetails,
-		callback(selectInfo) {
-			let storageApiValue = this.props![
-				PROPS_STORAGE_API as keyof typeof this.props
-			] as PanelComponentsStorageApiValue;
-			let value: T[] = [];
-			selectInfo.forEach((selectedInfo) => {
-				value.push(selectedInfo.value);
-			});
-			log.info(`多选-选择：`, value);
+  let selectData: PopsPanelSelectMultipleDetails<T>["data"] = [];
+  if (typeof data === "function") {
+    selectData = data();
+  } else {
+    selectData = data;
+  }
+  let result: PopsPanelSelectMultipleDetails<T> = {
+    text: text,
+    type: "select-multiple",
+    description: description,
+    placeholder: placeholder,
+    attributes: {},
+    props: {},
+    getValue() {
+      let storageApiValue = this.props![PROPS_STORAGE_API as keyof typeof this.props] as PanelComponentsStorageApiValue;
+      return storageApiValue.get(key, defaultValue);
+    },
+    selectConfirmDialogDetails: selectConfirmDialogDetails,
+    callback(selectInfo) {
+      let storageApiValue = this.props![PROPS_STORAGE_API as keyof typeof this.props] as PanelComponentsStorageApiValue;
+      let value: T[] = [];
+      selectInfo.forEach((selectedInfo) => {
+        value.push(selectedInfo.value);
+      });
+      log.info(`多选-选择：`, value);
 
-			if (typeof selectCallBack === "function") {
-				let result = selectCallBack(selectInfo);
-				if (result) {
-					return;
-				}
-			}
-			storageApiValue.set(key, value);
+      if (typeof selectCallBack === "function") {
+        let result = selectCallBack(selectInfo);
+        if (result) {
+          return;
+        }
+      }
+      storageApiValue.set(key, value);
 
-			if (typeof valueChangeCallBack === "function") {
-				valueChangeCallBack(selectInfo);
-			}
-		},
-		data: selectData,
-	};
+      if (typeof valueChangeCallBack === "function") {
+        valueChangeCallBack(selectInfo);
+      }
+    },
+    data: selectData,
+  };
 
-	Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
-	Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+  Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
+  Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
 
-	PanelComponents.initComponentsStorageApi(
-		"select-multiple",
-		result as Required<PopsPanelSelectMultipleDetails<T>>,
-		{
-			get<T>(key: string, defaultValue: T) {
-				return Panel.getValue(key, defaultValue);
-			},
-			set(key: string, value: any) {
-				Panel.setValue(key, value);
-			},
-		}
-	);
-	return result;
+  PanelComponents.initComponentsStorageApi("select-multiple", result as Required<PopsPanelSelectMultipleDetails<T>>, {
+    get<T>(key: string, defaultValue: T) {
+      return Panel.getValue(key, defaultValue);
+    },
+    set(key: string, value: any) {
+      Panel.setValue(key, value);
+    },
+  });
+  return result;
 };

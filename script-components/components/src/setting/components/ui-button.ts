@@ -19,44 +19,39 @@ import { ATTRIBUTE_INIT } from "../panel-config";
  * @param disable （可选）是否禁用该按钮
  */
 export const UIButton = function (
-	text: string,
-	description: string | undefined,
-	buttonText: string | (() => string),
-	buttonIcon: PopsIconType | undefined,
-	buttonIsRightIcon: boolean | undefined,
-	buttonIconIsLoading: boolean | undefined,
-	buttonType: PopsButtonStyleType,
-	clickCallBack?: ((event: MouseEvent | PointerEvent) => void) | undefined,
-	afterAddToUListCallBack?:
-		| ((
-				formConfig: PopsPanelFormsTotalDetails,
-				container: PopsPanelRightAsideContainerOptions
-		  ) => void)
-		| undefined,
-	disable?: boolean | undefined | (() => boolean)
+  text: string,
+  description: string | undefined,
+  buttonText: string | (() => string),
+  buttonIcon: PopsIconType | undefined,
+  buttonIsRightIcon: boolean | undefined,
+  buttonIconIsLoading: boolean | undefined,
+  buttonType: PopsButtonStyleType,
+  clickCallBack?: ((event: MouseEvent | PointerEvent) => void) | undefined,
+  afterAddToUListCallBack?:
+    | ((formConfig: PopsPanelFormsTotalDetails, container: PopsPanelRightAsideContainerOptions) => void)
+    | undefined,
+  disable?: boolean | undefined | (() => boolean)
 ): PopsPanelButtonDetails {
-	let result: PopsPanelButtonDetails = {
-		text: text,
-		type: "button",
-		attributes: {},
-		props: {},
-		description: description,
-		buttonIcon: buttonIcon,
-		buttonIsRightIcon: buttonIsRightIcon,
-		buttonIconIsLoading: buttonIconIsLoading,
-		buttonType: buttonType,
-		buttonText: buttonText,
-		callback(event: MouseEvent | PointerEvent) {
-			if (typeof clickCallBack === "function") {
-				clickCallBack(event);
-			}
-		},
-		afterAddToUListCallBack: afterAddToUListCallBack,
-	};
-	Reflect.set(result.attributes!, ATTRIBUTE_INIT, () => {
-		result.disable = Boolean(
-			typeof disable === "function" ? disable() : disable
-		);
-	});
-	return result;
+  let result: PopsPanelButtonDetails = {
+    text: text,
+    type: "button",
+    attributes: {},
+    props: {},
+    description: description,
+    buttonIcon: buttonIcon,
+    buttonIsRightIcon: buttonIsRightIcon,
+    buttonIconIsLoading: buttonIconIsLoading,
+    buttonType: buttonType,
+    buttonText: buttonText,
+    callback(event: MouseEvent | PointerEvent) {
+      if (typeof clickCallBack === "function") {
+        clickCallBack(event);
+      }
+    },
+    afterAddToUListCallBack: afterAddToUListCallBack,
+  };
+  Reflect.set(result.attributes!, ATTRIBUTE_INIT, () => {
+    result.disable = Boolean(typeof disable === "function" ? disable() : disable);
+  });
+  return result;
 };

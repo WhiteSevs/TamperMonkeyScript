@@ -2,16 +2,9 @@ import type { PopsPanelSwitchDetails } from "@whitesev/pops/dist/types/src/compo
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import type { PopsPanelRightAsideContainerOptions } from "@whitesev/pops/dist/types/src/components/panel/types/components-common";
 import { log } from "../../base.env";
-import {
-	ATTRIBUTE_DEFAULT_VALUE,
-	ATTRIBUTE_KEY,
-	PROPS_STORAGE_API,
-} from "../panel-config";
+import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, PROPS_STORAGE_API } from "../panel-config";
 import { Panel } from "../panel";
-import {
-	PanelComponents,
-	type PanelComponentsStorageApiValue,
-} from "../panel-components";
+import { PanelComponents, type PanelComponentsStorageApiValue } from "../panel-components";
 
 /**
  * 获取checkbox按钮配置
@@ -25,75 +18,60 @@ import {
  * @param valueChangeCallBack （可选）在存储值后触发该回调
  */
 export const UISwitch = function (
-	text: string,
-	key: string,
-	defaultValue: boolean | undefined,
-	clickCallBack?:
-		| ((event: MouseEvent | PointerEvent, value: boolean) => boolean | void)
-		| undefined,
-	description?: string | undefined,
-	afterAddToUListCallBack?:
-		| ((
-				formConfig: PopsPanelFormsTotalDetails,
-				container: PopsPanelRightAsideContainerOptions
-		  ) => void)
-		| undefined,
-	disabled?: boolean | (() => boolean) | undefined,
-	valueChangeCallBack?:
-		| ((event: MouseEvent | PointerEvent, value: boolean) => boolean | void)
-		| undefined
+  text: string,
+  key: string,
+  defaultValue: boolean | undefined,
+  clickCallBack?: ((event: MouseEvent | PointerEvent, value: boolean) => boolean | void) | undefined,
+  description?: string | undefined,
+  afterAddToUListCallBack?:
+    | ((formConfig: PopsPanelFormsTotalDetails, container: PopsPanelRightAsideContainerOptions) => void)
+    | undefined,
+  disabled?: boolean | (() => boolean) | undefined,
+  valueChangeCallBack?: ((event: MouseEvent | PointerEvent, value: boolean) => boolean | void) | undefined
 ) {
-	let result: PopsPanelSwitchDetails = {
-		text: text,
-		type: "switch",
-		description: description,
-		disabled: disabled,
-		attributes: {},
-		props: {},
-		getValue() {
-			let storageApiValue = this.props![
-				PROPS_STORAGE_API as keyof typeof this.props
-			] as PanelComponentsStorageApiValue;
-			let value = storageApiValue.get(key, defaultValue)!;
+  let result: PopsPanelSwitchDetails = {
+    text: text,
+    type: "switch",
+    description: description,
+    disabled: disabled,
+    attributes: {},
+    props: {},
+    getValue() {
+      let storageApiValue = this.props![PROPS_STORAGE_API as keyof typeof this.props] as PanelComponentsStorageApiValue;
+      let value = storageApiValue.get(key, defaultValue)!;
 
-			return value;
-		},
-		callback(event: MouseEvent | PointerEvent, __value: boolean) {
-			let value = Boolean(__value);
-			log.success(`${value ? "开启" : "关闭"} ${text}`);
-			if (typeof clickCallBack === "function") {
-				let result = clickCallBack(event, value);
-				if (result) {
-					return;
-				}
-			}
+      return value;
+    },
+    callback(event: MouseEvent | PointerEvent, __value: boolean) {
+      let value = Boolean(__value);
+      log.success(`${value ? "开启" : "关闭"} ${text}`);
+      if (typeof clickCallBack === "function") {
+        let result = clickCallBack(event, value);
+        if (result) {
+          return;
+        }
+      }
 
-			let storageApiValue = this.props![
-				PROPS_STORAGE_API as keyof typeof this.props
-			] as PanelComponentsStorageApiValue;
-			storageApiValue.set(key, value);
+      let storageApiValue = this.props![PROPS_STORAGE_API as keyof typeof this.props] as PanelComponentsStorageApiValue;
+      storageApiValue.set(key, value);
 
-			if (typeof valueChangeCallBack === "function") {
-				valueChangeCallBack(event, value);
-			}
-		},
-		afterAddToUListCallBack: afterAddToUListCallBack,
-	};
+      if (typeof valueChangeCallBack === "function") {
+        valueChangeCallBack(event, value);
+      }
+    },
+    afterAddToUListCallBack: afterAddToUListCallBack,
+  };
 
-	Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
-	Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+  Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
+  Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
 
-	PanelComponents.initComponentsStorageApi(
-		"switch",
-		result as Required<PopsPanelSwitchDetails>,
-		{
-			get<T>(key: string, defaultValue: T) {
-				return Panel.getValue(key, defaultValue);
-			},
-			set(key: string, value: boolean) {
-				Panel.setValue(key, value);
-			},
-		}
-	);
-	return result;
+  PanelComponents.initComponentsStorageApi("switch", result as Required<PopsPanelSwitchDetails>, {
+    get<T>(key: string, defaultValue: T) {
+      return Panel.getValue(key, defaultValue);
+    },
+    set(key: string, value: boolean) {
+      Panel.setValue(key, value);
+    },
+  });
+  return result;
 };

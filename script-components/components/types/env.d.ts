@@ -7,8 +7,8 @@
  * }
  */
 type NestedObjectWithToString = {
-	[key: string]: any | NestedObjectWithToString;
-	toString(): any;
+  [key: string]: any | NestedObjectWithToString;
+  toString(): any;
 };
 
 /**
@@ -26,20 +26,19 @@ declare type ArrayElementType<T> = T extends Array<infer U> ? U : never;
 /**
  * 让对象的某个属性必选
  */
-declare type RequiredProperty<T, K extends keyof T> = Omit<T, K> &
-	Required<Pick<T, K>>;
+declare type RequiredProperty<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
 
 /**
  * 让对象的某个属性非空
  */
 declare type NonNullableProperty<T, K extends keyof T> = Omit<T, K> & {
-	[P in K]-?: NonNullable<T[P]>;
+  [P in K]-?: NonNullable<T[P]>;
 };
 /**
  * 修复无法识别.vue文件的问题
  */
 declare module "*.vue" {
-	import { defineComponent } from "vue";
-	const Component: ReturnType<typeof defineComponent>;
-	export default Component;
+  import { defineComponent } from "vue";
+  const Component: ReturnType<typeof defineComponent>;
+  export default Component;
 }

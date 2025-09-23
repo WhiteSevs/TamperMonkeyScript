@@ -1,23 +1,23 @@
 {
-	"$schema": "http://json-schema.org/draft-04/schema#",
-	"compilerOptions": {
-		"target": "ESNext",
-		"useDefineForClassFields": true,
-		"module": "ESNext",
-		"moduleResolution": "Node",
-		"strict": true,
-		"jsx": "preserve",
-		"resolveJsonModule": true,
-		"isolatedModules": true,
-		"esModuleInterop": true,
-		"lib": ["ESNext", "DOM"],
-		"skipLibCheck": true,
-		"noEmit": true,
-		"allowJs": true,
-		"checkJs": true,
-		"allowSyntheticDefaultImports": true,
-		"importsNotUsedAsValues": "remove",
-		"sourceMap": false,
-		"typeRoots": ["types"]
-	}
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "compilerOptions": {
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "strict": true,
+    "jsx": "preserve",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "lib": ["ESNext", "DOM"],
+    "skipLibCheck": true,
+    "noEmit": true,
+    "allowJs": true,
+    "checkJs": true,
+    "allowSyntheticDefaultImports": true,
+    "importsNotUsedAsValues": "remove",
+    "sourceMap": false,
+    "typeRoots": ["types"]
+  }
 }
