@@ -131,8 +131,8 @@ export const DOMUtilsCommonUtils = {
    * @param propName
    */
   delete(target: any, propName: any) {
-    if (typeof Reflect === "object" && Reflect.deleteProperty) {
-      Reflect.deleteProperty(target, propName);
+    if (typeof Reflect === "object" && Reflect != null && Reflect.deleteProperty) {
+      return Reflect.deleteProperty(target, propName);
     } else {
       delete target[propName];
     }

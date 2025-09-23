@@ -910,7 +910,7 @@ class DOMUtils extends DOMUtilsEvent {
       if ($firstChild == null) {
         element.prepend(content);
       } else {
-        element.insertBefore(content, element.firstChild);
+        element.insertBefore(content, $firstChild);
       }
     }
   }
@@ -947,7 +947,7 @@ class DOMUtils extends DOMUtilsEvent {
         // 任意一个不行
         element.after(content);
       } else {
-        element!.parentElement!.insertBefore(content, element.nextSibling);
+        $parent.insertBefore(content, $nextSlibling);
       }
     }
   }

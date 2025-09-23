@@ -43,7 +43,7 @@ export declare const DOMUtilsCommonUtils: {
      * @param target
      * @param propName
      */
-    delete(target: any, propName: any): void;
+    delete(target: any, propName: any): boolean | undefined;
     /**
      * 自动使用 Worker 执行 setTimeout
      */

@@ -437,13 +437,12 @@ class PopsDOMUtilsEvent {
       const currentParam: EventListenerOptions | boolean = args1[startIndex];
       if (typeof currentParam === "boolean") {
         option.capture = currentParam;
-      } else if (typeof currentParam === "object" && "capture" in currentParam) {
+      } else if (typeof currentParam === "object" && currentParam != null && "capture" in currentParam) {
         option.capture = currentParam.capture;
       }
       return option;
     }
     const DOMUtilsContext = this;
-
     // eslint-disable-next-line prefer-rest-params
     const args = arguments;
     if (typeof element === "string") {
@@ -505,18 +504,24 @@ class PopsDOMUtilsEvent {
       // 目标函数、事件名、子元素选择器
       isRemoveAll = true;
     }
+    if (args.length === 5 && typeof args[4] === "function" && typeof filter !== "function") {
+      // 目标函数、事件名、回调函数、事件配置、过滤函数
+      filter = option as (
+        value: PopsDOMUtilsEventListenerOptionsAttribute,
+        index: number,
+        array: PopsDOMUtilsEventListenerOptionsAttribute[]
+      ) => boolean;
+    }
     elementList.forEach((elementItem) => {
       /* 获取对象上的事件 */
       const elementEvents: {
         [key: string]: PopsDOMUtilsEventListenerOptionsAttribute[];
       } = Reflect.get(elementItem, SymbolEvents) || {};
       eventTypeList.forEach((eventName) => {
-        let handlers = elementEvents[eventName] || [];
-        if (typeof filter === "function") {
-          handlers = handlers.filter(filter);
-        }
-        for (let index = 0; index < handlers.length; index++) {
-          const handler = handlers[index];
+        const handlers = elementEvents[eventName] || [];
+        const filterHandler = typeof filter === "function" ? handlers.filter(filter) : handlers;
+        for (let index = 0; index < filterHandler.length; index++) {
+          const handler = filterHandler[index];
           let flag = true;
           if (flag && listenerCallBack && handler.originCallBack !== listenerCallBack) {
             // callback不同
@@ -528,13 +533,20 @@ class PopsDOMUtilsEvent {
               flag = false;
             }
           }
-          if (flag && listenerOption.capture !== handler.option.capture) {
+          if (
+            flag &&
+            typeof handler.option.capture === "boolean" &&
+            listenerOption.capture !== handler.option.capture
+          ) {
             // 事件的配置项不同
             flag = false;
           }
           if (flag || isRemoveAll) {
             elementItem.removeEventListener(eventName, handler.callback, handler.option);
-            handlers.splice(index--, 1);
+            const findIndex = handlers.findIndex((item) => item === handler);
+            if (findIndex !== -1) {
+              handlers.splice(findIndex, 1);
+            }
           }
         }
         if (handlers.length === 0) {
