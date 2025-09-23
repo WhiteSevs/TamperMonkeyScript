@@ -1,5 +1,6 @@
-# v1.4.0
+# v1.4.1
 
 ## Feat
 
-- 移除配置项`html`。
+- 项目新增`prettier`和`eslint`配置
+- 修复`demo`中的演示文件不渲染svg的问题
