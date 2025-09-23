@@ -18,8 +18,9 @@
   },
   "dependencies": {
     "@mgdn/bvid": "^0.3.0",
-    "@whitesev/domutils": "^1.6.7",
-    "@whitesev/pops": "^2.4.6",
+    "@whitesev/data-paging": "^0.0.1",
+    "@whitesev/domutils": "^1.6.8",
+    "@whitesev/pops": "^2.4.7",
     "@whitesev/utils": "^2.8.2",
     "artplayer": "^5.3.0",
     "artplayer-plugin-danmuku": "^5.2.0",
