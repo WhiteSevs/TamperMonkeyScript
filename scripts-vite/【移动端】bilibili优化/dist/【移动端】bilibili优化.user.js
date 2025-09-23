@@ -14019,10 +14019,10 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
             text: "功能",
             forms: [
               {
-                text: "加速CDN设置（dash）",
+                text: "加速CDN设置",
                 type: "forms",
                 forms: [
-                  UISwitch("启用", "bili-live-cdn-hook", false, void 0, "开启后，劫持请求并替换返回的视频流CDN"),
+                  UISwitch("启用", "bili-live-cdn-hook", false, void 0, "开启后，劫持网络请求并替换返回的视频流CDN"),
                   UISelect(
                     "直播视频流-UPOS服务器设置",
                     "bili-live-uposServerSelect",
