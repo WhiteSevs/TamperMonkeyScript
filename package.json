@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@mgdn/bvid": "^0.3.0",
-    "@whitesev/data-paging": "^0.0.1",
+    "@whitesev/data-paging": "^0.0.2",
     "@whitesev/domutils": "^1.6.8",
     "@whitesev/pops": "^2.4.7",
     "@whitesev/utils": "^2.8.2",
