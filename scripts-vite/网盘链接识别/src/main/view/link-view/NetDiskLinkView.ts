@@ -423,9 +423,6 @@ export const NetDiskLinkView = {
           data: this.$inst.dataPaging.CONFIG.data,
           refreshView: true,
           page: enableDataPaging ? page : void 0,
-          filter(dataItem) {
-            return true;
-          },
         });
       },
     });
@@ -521,31 +518,45 @@ export const NetDiskLinkView = {
      * @default true
      */
     isCheckValid?: boolean;
-    /**
-     * 过滤数据
-     * @returns
-     * + true 留下
-     * + false 删除
-     */
-    filter?: (dataItem: LinkViewData) => IPromise<boolean>;
   }) {
     const { refreshView, page, isCheckValid } = config;
     let { data } = config;
+    if (!data.length) {
+      console.warn("data is empty");
+      return;
+    }
+    if (refreshView) {
+      // 清空旧视图
+      this.clearLinkView();
+    }
     let documentFragment = document.createDocumentFragment();
     /**
      * 用于验证链接有效性的数据
      */
     const checkValidInfoList: NetDiskCheckLinkValidityInfoConfig[] = [];
+    // 当前下标
+    let currentIndex = 0;
+    // 最大数量
+    let maxCount = data.length;
+    // 当前数量
+    let count = 0;
     if (typeof page === "number") {
-      let startIndex = (page - 1) * 10;
-      let startData = data.slice(startIndex, startIndex + 9);
-      data = startData;
+      // 分页限制
+      const dataCount = NetDiskGlobalData.smallWindow["netdisk-ui-link-view-data-paging-show-data-count"].value;
+      maxCount = dataCount;
+      currentIndex = (page - 1) * dataCount;
     }
-    for (const dataItem of data) {
-      const filterResult = await config.filter?.(dataItem);
-      if (typeof filterResult === "boolean" && !filterResult) {
-        continue;
+    while (true) {
+      if (currentIndex > data.length - 1) {
+        // 下标越界
+        break;
       }
+      if (count >= maxCount) {
+        // 超出分页限制数量
+        break;
+      }
+      const dataItem = data[currentIndex];
+
       const { ruleKeyName, netDiskDictData: netDiskData, shareCode } = dataItem;
       let uiLink = NetDisk.handleLinkShow({
         ruleKeyName: ruleKeyName,
@@ -574,10 +585,9 @@ export const NetDiskLinkView = {
         accessCode: netDiskData.accessCode,
       });
       documentFragment.appendChild(boxViewInfo.$urlBox);
-    }
-    if (refreshView) {
-      // 清空旧视图
-      this.clearLinkView();
+
+      currentIndex++;
+      count++;
     }
     // 添加元素
     this.$el.$urlBoxAll.appendChild(documentFragment);
