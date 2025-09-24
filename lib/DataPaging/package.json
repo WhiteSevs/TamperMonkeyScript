@@ -1,6 +1,6 @@
 {
   "name": "@whitesev/data-paging",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "description": "数据分页导航UI组件",
   "main": "dist/index.cjs.js",

@@ -11,7 +11,10 @@ export class Paging<T> {
      * 获取当前所在页
      */
     currentPage: () => {
-      return this.DOM_CONFIG.getAttributeWithPageId(this.DOM_CONFIG.getAttributeWithCurrentPage()!)!;
+      const $page = this.DOM_CONFIG.getAttributeWithCurrentPage();
+      const page = this.DOM_CONFIG.getAttributeWithPageId($page!)!;
+      // 如果未获取到元素，那么固定页码为1
+      return page ?? 1;
     },
     /** 最大页码 */
     maxPage: 1,
