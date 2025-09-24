@@ -452,7 +452,13 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   void 0,
                   "屏蔽元素"
                 ),
-                UISwitch("【屏蔽】作者声明", "dy-video-blockAuthorDeclaration", false, void 0, "屏蔽元素"),
+                UISwitch(
+                  "【屏蔽】作者声明",
+                  "dy-video-blockAuthorDeclaration",
+                  false,
+                  void 0,
+                  "例如：<code>作者声明：虚构演绎，仅供娱乐</code>"
+                ),
                 UISwitch("【屏蔽】识别画面", "dy-video-blockAIIdentifyTheScreen", false, void 0, "屏蔽元素"),
               ],
             },

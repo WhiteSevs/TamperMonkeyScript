@@ -1,8 +1,8 @@
 import { unsafeWindow } from "ViteGM";
 import { DOMUtils, log, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
-import { Hook } from "./Hook";
 import { DouYinRouter } from "@/router/DouYinRouter";
+import { Hook } from "@components/hook/Hook";
 
 export const DouYinHook = {
   $data: {
@@ -78,6 +78,15 @@ export const DouYinHook = {
    */
   disableShortCut() {
     type KeyboardOtherCodeName = "ctrl" | "alt" | "meta" | "shift";
+    /**
+     * 检测是否是在.pops组件库内的输入控件（input、textarea）内
+     */
+    const isInPopsComponentsRequireInputNode = ($el: Element | null | undefined) => {
+      if ($el == null) return false;
+      const isInputNode = ["input", "textarea"].includes($el?.tagName?.toLowerCase());
+      const isInPops = $el?.closest(".pops") && $el?.getRootNode() instanceof ShadowRoot;
+      return isInputNode && isInPops;
+    };
     Hook.document_addEventListener((target, eventName, listener, option) => {
       if (["keydown", "keypress", "keyup"].includes(eventName) && typeof listener === "function") {
         return function (this: Document, ...eventArgs: any[]) {
@@ -102,6 +111,14 @@ export const DouYinHook = {
           if (event.shiftKey) {
             otherCodeList.push("shift");
           }
+
+          const $active = document.activeElement;
+          const $shadowRootActive = $active?.shadowRoot?.activeElement;
+          if (isInPopsComponentsRequireInputNode($active) || isInPopsComponentsRequireInputNode($shadowRootActive)) {
+            // 在输入框内时，禁止触发快捷键
+            return;
+          }
+
           let keyboardConfigList: {
             enableKey: string;
             code: string[];
