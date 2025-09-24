@@ -94,7 +94,6 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   void 0,
                   "自动监听并检测弹窗"
                 ),
-                UISwitch("视频解析", "parseVideo", true, void 0, "分享->下载（灰色的也可点击）"),
                 UISwitch(
                   "修改复制链接内容",
                   "dy-video-hookCopyLinkButton",
@@ -126,6 +125,26 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                 ),
                 UISwitch("移除video的bottom偏移", "dy-video-removeStyle-bottom", false, void 0, ""),
                 UISwitch("禁用右侧工具栏的transform", "dy-video-disableRightToolbarTransform", false, void 0, ""),
+              ],
+            },
+            {
+              type: "forms",
+              text: "解析下载",
+              forms: [
+                UISwitch(
+                  "视频解析",
+                  "parseVideo",
+                  true,
+                  void 0,
+                  "点击视频右侧工具栏的分享按钮-下载（无视<code>该视频不支持下载</code>的提示）"
+                ),
+                UISwitch(
+                  "弹出下载重命名文件名弹窗",
+                  "dy-video-popupDownloadRenameFileName",
+                  false,
+                  void 0,
+                  "当点击下载时，如果启用该功能，则弹出下载重命名文件名弹窗，可自定义文件名"
+                ),
               ],
             },
             {

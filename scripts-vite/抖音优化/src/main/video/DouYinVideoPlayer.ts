@@ -531,6 +531,17 @@ export const DouYinVideoPlayer = {
               return false;
             }
           };
+          const popupDownloadRenameFileName = Panel.getValue("dy-video-popupDownloadRenameFileName");
+          if (popupDownloadRenameFileName) {
+            const renameFileName = globalThis.prompt("请确认下载的文件名", fileName);
+            if (typeof renameFileName === "string") {
+              log.info(`重命名下载的文件名：${fileName} -> ${renameFileName}`);
+              fileName = renameFileName;
+            } else {
+              Qmsg.info("取消下载");
+              return;
+            }
+          }
           if (!isSupport_GM_download()) {
             log.error("当前脚本环境不支持API 【GM_download】");
             window.open(url, "_blank");
