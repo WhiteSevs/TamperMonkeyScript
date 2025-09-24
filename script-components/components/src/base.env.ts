@@ -37,7 +37,7 @@ const DEBUG = import.meta.env.DEV ?? false;
 /* 配置控制台日志 */
 log.config({
   debug: false,
-  logMaxCount: 1000,
+  logMaxCount: DEBUG ? 10000 : 250,
   autoClearConsole: true,
   tag: true,
 });
