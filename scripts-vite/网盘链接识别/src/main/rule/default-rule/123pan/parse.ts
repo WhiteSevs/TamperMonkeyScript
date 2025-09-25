@@ -5,6 +5,8 @@ import { NetDiskView } from "../../../view/NetDiskView";
 import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
 import { ParseFileCore } from "../../../parse/NetDiskParseAbstract";
 import { NetDiskAuthorization_123pan_Authorization } from "./authorization";
+import { NetDiskCheckLinkValidity_123pan } from "./checkLinkValidity";
+import { NetDiskCheckLinkValidityStatus } from "@/main/check-valid/NetDiskCheckLinkValidityStatus";
 
 export class NetDiskParse_123pan extends ParseFileCore {
   panelList = [];
@@ -31,10 +33,16 @@ export class NetDiskParse_123pan extends ParseFileCore {
     let { ruleIndex, shareCode, accessCode } = netDiskInfo;
     this.panelList = [];
     this.Authorization = NetDiskAuthorization_123pan_Authorization.get();
-    let checkLinkValidityStatus = await this.checkLinkValidity();
-    if (!checkLinkValidityStatus) {
+    let checkLinkValidityStatus = await NetDiskCheckLinkValidity_123pan.init(netDiskInfo);
+    if (
+      checkLinkValidityStatus.code !== NetDiskCheckLinkValidityStatus.success.code &&
+      checkLinkValidityStatus.code !== NetDiskCheckLinkValidityStatus.needAccessCode.code
+    ) {
+      Qmsg.error(checkLinkValidityStatus.msg);
       return;
     }
+    // 成功
+    // 需要密码
     let infoLists = await this.getFiles();
     if (!infoLists) {
       return;
@@ -103,22 +111,21 @@ export class NetDiskParse_123pan extends ParseFileCore {
    */
   async checkLinkValidity() {
     const that = this;
-    Qmsg.info("正在校验链接有效性");
+    Qmsg.info("正在进行链接有效性校验");
     let url = `https://www.123pan.com/s/${that.shareCode}`;
 
-    let getResp = await httpx.get({
+    let response = await httpx.get({
       url: url,
       headers: {
         "User-Agent": utils.getRandomPCUA(),
         Referer: "https://www.123pan.com",
       },
     });
-    log.info(getResp);
-    if (!getResp.status) {
+    log.info(response);
+    if (!response.status) {
       return false;
     }
-    let respData = getResp.data;
-    let g_initialPropsMatch = respData.responseText.match(/window.g_initialProps[\s]*=[\s]*\{(.+?)\};/s);
+    let g_initialPropsMatch = response.data.responseText.match(/window.g_initialProps[\s]*=[\s]*\{(.+?)\};/s);
     if (g_initialPropsMatch) {
       log.info(g_initialPropsMatch);
       let g_initialProps = utils.toJSON(`{${g_initialPropsMatch[g_initialPropsMatch.length - 1]}}`);

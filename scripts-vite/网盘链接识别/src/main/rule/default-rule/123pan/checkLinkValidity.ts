@@ -1,8 +1,5 @@
 import { httpx, utils } from "@/env";
-import {
-  NetDiskCheckLinkValidity,
-  NetDiskCheckLinkValidityRequestOption,
-} from "../../../check-valid/NetDiskCheckLinkValidity";
+import { NetDiskCheckLinkValidityRequestOption } from "../../../check-valid/NetDiskCheckLinkValidity";
 import { NetDiskCheckLinkValidityStatus } from "@/main/check-valid/NetDiskCheckLinkValidityStatus";
 
 export const NetDiskCheckLinkValidity_123pan: NetDiskCheckLinkValidityEntranceInstance = {
@@ -25,9 +22,17 @@ export const NetDiskCheckLinkValidity_123pan: NetDiskCheckLinkValidityEntranceIn
       };
     }
     let data = utils.toJSON(response.data.responseText);
-    if (response.data.responseText.includes("分享页面不存在") || data["code"] !== 0) {
+    if (response.data.responseText.includes("分享页面不存在")) {
       return {
         ...NetDiskCheckLinkValidityStatus.failed,
+        msg: "分享页面不存在",
+        data: data,
+      };
+    }
+    if (data["code"] !== 0) {
+      return {
+        ...NetDiskCheckLinkValidityStatus.failed,
+        msg: typeof data.message === "string" ? data.message : NetDiskCheckLinkValidityStatus.failed.msg,
         data: data,
       };
     }
