@@ -32,11 +32,11 @@ div[class*="relateTitle"] span[class*="subTitle"],
 [class^="alertModalContainer-"],
 /* 视频下面的广告推荐 */
 #hcgContainer > div:has([data-log-view*='"isAds":true']) {
-	display: none !important;
+  display: none !important;
 }
 /* 展开阅读 */
 #page_wrapper #dynamicItem,
 /* 手机版-展开阅读 */
 #mainContentContainer {
-	height: auto !important;
+  height: auto !important;
 }

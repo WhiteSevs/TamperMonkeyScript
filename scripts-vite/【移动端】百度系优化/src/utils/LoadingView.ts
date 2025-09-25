@@ -1,50 +1,50 @@
 import { utils } from "@/env";
 
 class LoadingView {
-	config: {
-		className: string;
-		textClassName: string;
-		iconClassName: string;
-		outSideClassName: string;
-		withInClassName: string;
-	};
-	loadingViewElement?: HTMLDivElement;
-	loadingViewHTML: string;
-	loadingViewIconHTML: string;
-	/**
-	 *
-	 * @param withIcon 是否添加icon
-	 * @param isEnd icon是否添加在后面
-	 */
-	constructor(withIcon?: boolean, isEnd?: boolean) {
-		this.config = {
-			className: "whitesev-load-view",
-			textClassName: "whitesev-load-view-text",
-			iconClassName: "whitesev-load-view-icon",
-			outSideClassName: "whitesev-load-view-icon-outside",
-			withInClassName: "whitesev-load-view-icon-within",
-		};
-		this.loadingViewElement = void 0;
-		this.loadingViewHTML = /*html*/ `
+  config: {
+    className: string;
+    textClassName: string;
+    iconClassName: string;
+    outSideClassName: string;
+    withInClassName: string;
+  };
+  loadingViewElement?: HTMLDivElement;
+  loadingViewHTML: string;
+  loadingViewIconHTML: string;
+  /**
+   *
+   * @param withIcon 是否添加icon
+   * @param isEnd icon是否添加在后面
+   */
+  constructor(withIcon?: boolean, isEnd?: boolean) {
+    this.config = {
+      className: "whitesev-load-view",
+      textClassName: "whitesev-load-view-text",
+      iconClassName: "whitesev-load-view-icon",
+      outSideClassName: "whitesev-load-view-icon-outside",
+      withInClassName: "whitesev-load-view-icon-within",
+    };
+    this.loadingViewElement = void 0;
+    this.loadingViewHTML = /*html*/ `
         <div class="${this.config.className}">
           <span class="${this.config.textClassName}">Loading...</span>
         </div>`.trim();
-		this.loadingViewIconHTML = /*html*/ `
+    this.loadingViewIconHTML = /*html*/ `
         <div class="${this.config.iconClassName}">
           <div class="${this.config.outSideClassName}"></div>
           <div class="${this.config.withInClassName}"></div>
         </div>`.trim();
-		this.initCSS();
-		this.initLoadingView(withIcon, isEnd);
-	}
-	/**
-	 * 加载需要的CSS
-	 */
-	initCSS() {
-		if (this.isExistsCSS()) {
-			return;
-		}
-		let loadingViewCSSText = /*css*/ `
+    this.initCSS();
+    this.initLoadingView(withIcon, isEnd);
+  }
+  /**
+   * 加载需要的CSS
+   */
+  initCSS() {
+    if (this.isExistsCSS()) {
+      return;
+    }
+    let loadingViewCSSText = /*css*/ `
       .${this.config.className}{
         margin: 0.08rem;
         background: #fff;
@@ -124,165 +124,147 @@ class LoadingView {
       100%{-ms-transform:rotate(360deg)}
       }
       `;
-		utils.addStyle(loadingViewCSSText);
-	}
-	/**
-	 * 初始化loadingView元素
-	 * @param withIcon 是否添加icon
-	 * @param isEnd icon是否添加在后面
-	 */
-	initLoadingView(withIcon: boolean = false, isEnd: boolean = true) {
-		this.setLoadingViewElement();
-		let divElement = document.createElement("div");
-		divElement.innerHTML = this.loadingViewHTML;
-		let resultElement = divElement.firstChild as HTMLDivElement;
-		if (withIcon) {
-			let iconElement = document.createElement("div");
-			iconElement.innerHTML = this.loadingViewIconHTML;
-			if (isEnd) {
-				resultElement.appendChild(iconElement.firstChild as HTMLDivElement);
-			} else {
-				resultElement.insertBefore(
-					iconElement.firstChild as HTMLDivElement,
-					resultElement.firstChild
-				);
-			}
-		}
-		this.setLoadingViewElement(resultElement);
-		return resultElement;
-	}
-	/**
-	 * 设置LoadingView
-	 * @param element
-	 */
-	setLoadingViewElement(element?: HTMLDivElement) {
-		this.loadingViewElement = element;
-	}
-	/**
-	 * 获取LoadingView
-	 */
-	getLoadingViewElement() {
-		if (!this.loadingViewElement) {
-			throw new Error("object loadingViewElement is null");
-		}
-		return this.loadingViewElement;
-	}
-	/**
-	 * 获取实例化的loadingView的icon
-	 */
-	getIconElement() {
-		return this.getLoadingViewElement().querySelector(
-			"." + this.config.iconClassName
-		) as HTMLElement | null;
-	}
-	/**
-	 * 显示LoadingView
-	 */
-	show() {
-		this.getLoadingViewElement().style.display = "";
-	}
-	/**
-	 * 隐藏LoadingView
-	 */
-	hide() {
-		this.getLoadingViewElement().style.display = "none";
-	}
-	/**
-	 * 显示icon
-	 */
-	showIcon() {
-		let iconElement = this.getIconElement();
-		iconElement && (iconElement.style.display = "");
-	}
-	/**
-	 * 隐藏icon
-	 */
-	hideIcon() {
-		let iconElement = this.getIconElement();
-		iconElement && (iconElement.style.display = "none");
-	}
-	/**
-	 * 设置文本
-	 * @param text 文本
-	 * @param withIcon 是否设置Icon图标
-	 * @param isEnd icon是否添加在后面
-	 */
-	setText(text: string, withIcon: boolean = false, isEnd: boolean = true) {
-		this.getLoadingViewElement().innerHTML = `<span>${text}</span>`;
-		if (withIcon) {
-			let iconElement = this.getIconElement();
-			if (!iconElement) {
-				let divElement = document.createElement("div");
-				divElement.innerHTML = this.loadingViewIconHTML;
-				iconElement = divElement.firstChild as HTMLDivElement;
-				if (isEnd) {
-					this.getLoadingViewElement().appendChild(iconElement);
-				} else {
-					this.getLoadingViewElement().insertBefore(
-						iconElement,
-						this.getLoadingViewElement().firstChild
-					);
-				}
-			}
-			iconElement.style.display = "";
-		} else {
-			this.getIconElement()?.remove();
-		}
-	}
-	/**
-	 * 设置超文本
-	 * @param text 文本
-	 */
-	setHTML(text: string) {
-		this.getLoadingViewElement().innerHTML = text;
-	}
-	/**
-	 * 删除Loading元素
-	 */
-	destory() {
-		this.getLoadingViewElement()?.remove();
-		this.setLoadingViewElement();
-	}
-	/**
-	 * 删除页面中所有的loadingView
-	 */
-	removeAll() {
-		document
-			.querySelectorAll("." + this.config.className)
-			.forEach((item) => item.remove());
-	}
-	/**
-	 * 判断Loading是否已加载到页面中
-	 */
-	isExists() {
-		return Boolean(document.querySelector(`.${this.config.className}`));
-	}
-	/**
-	 * 判断Loading是否存在Loading图标
-	 */
-	isExistsIcon() {
-		return Boolean(this.getIconElement());
-	}
-	/**
-	 * 判断Loading中的文本是否存在
-	 */
-	isExistsText() {
-		return Boolean(
-			this.getLoadingViewElement().querySelector(
-				`.${this.config.textClassName}`
-			)
-		);
-	}
-	/**
-	 * 判断页面中是否存在CSS的style
-	 */
-	isExistsCSS() {
-		return Boolean(
-			document.querySelector(
-				"style[data-from='loadingView'][type='text/css'][data-author='whitesev']"
-			)
-		);
-	}
+    utils.addStyle(loadingViewCSSText);
+  }
+  /**
+   * 初始化loadingView元素
+   * @param withIcon 是否添加icon
+   * @param isEnd icon是否添加在后面
+   */
+  initLoadingView(withIcon: boolean = false, isEnd: boolean = true) {
+    this.setLoadingViewElement();
+    let divElement = document.createElement("div");
+    divElement.innerHTML = this.loadingViewHTML;
+    let resultElement = divElement.firstChild as HTMLDivElement;
+    if (withIcon) {
+      let iconElement = document.createElement("div");
+      iconElement.innerHTML = this.loadingViewIconHTML;
+      if (isEnd) {
+        resultElement.appendChild(iconElement.firstChild as HTMLDivElement);
+      } else {
+        resultElement.insertBefore(iconElement.firstChild as HTMLDivElement, resultElement.firstChild);
+      }
+    }
+    this.setLoadingViewElement(resultElement);
+    return resultElement;
+  }
+  /**
+   * 设置LoadingView
+   * @param element
+   */
+  setLoadingViewElement(element?: HTMLDivElement) {
+    this.loadingViewElement = element;
+  }
+  /**
+   * 获取LoadingView
+   */
+  getLoadingViewElement() {
+    if (!this.loadingViewElement) {
+      throw new Error("object loadingViewElement is null");
+    }
+    return this.loadingViewElement;
+  }
+  /**
+   * 获取实例化的loadingView的icon
+   */
+  getIconElement() {
+    return this.getLoadingViewElement().querySelector("." + this.config.iconClassName) as HTMLElement | null;
+  }
+  /**
+   * 显示LoadingView
+   */
+  show() {
+    this.getLoadingViewElement().style.display = "";
+  }
+  /**
+   * 隐藏LoadingView
+   */
+  hide() {
+    this.getLoadingViewElement().style.display = "none";
+  }
+  /**
+   * 显示icon
+   */
+  showIcon() {
+    let iconElement = this.getIconElement();
+    iconElement && (iconElement.style.display = "");
+  }
+  /**
+   * 隐藏icon
+   */
+  hideIcon() {
+    let iconElement = this.getIconElement();
+    iconElement && (iconElement.style.display = "none");
+  }
+  /**
+   * 设置文本
+   * @param text 文本
+   * @param withIcon 是否设置Icon图标
+   * @param isEnd icon是否添加在后面
+   */
+  setText(text: string, withIcon: boolean = false, isEnd: boolean = true) {
+    this.getLoadingViewElement().innerHTML = `<span>${text}</span>`;
+    if (withIcon) {
+      let iconElement = this.getIconElement();
+      if (!iconElement) {
+        let divElement = document.createElement("div");
+        divElement.innerHTML = this.loadingViewIconHTML;
+        iconElement = divElement.firstChild as HTMLDivElement;
+        if (isEnd) {
+          this.getLoadingViewElement().appendChild(iconElement);
+        } else {
+          this.getLoadingViewElement().insertBefore(iconElement, this.getLoadingViewElement().firstChild);
+        }
+      }
+      iconElement.style.display = "";
+    } else {
+      this.getIconElement()?.remove();
+    }
+  }
+  /**
+   * 设置超文本
+   * @param text 文本
+   */
+  setHTML(text: string) {
+    this.getLoadingViewElement().innerHTML = text;
+  }
+  /**
+   * 删除Loading元素
+   */
+  destory() {
+    this.getLoadingViewElement()?.remove();
+    this.setLoadingViewElement();
+  }
+  /**
+   * 删除页面中所有的loadingView
+   */
+  removeAll() {
+    document.querySelectorAll("." + this.config.className).forEach((item) => item.remove());
+  }
+  /**
+   * 判断Loading是否已加载到页面中
+   */
+  isExists() {
+    return Boolean(document.querySelector(`.${this.config.className}`));
+  }
+  /**
+   * 判断Loading是否存在Loading图标
+   */
+  isExistsIcon() {
+    return Boolean(this.getIconElement());
+  }
+  /**
+   * 判断Loading中的文本是否存在
+   */
+  isExistsText() {
+    return Boolean(this.getLoadingViewElement().querySelector(`.${this.config.textClassName}`));
+  }
+  /**
+   * 判断页面中是否存在CSS的style
+   */
+  isExistsCSS() {
+    return Boolean(document.querySelector("style[data-from='loadingView'][type='text/css'][data-author='whitesev']"));
+  }
 }
 
 export { LoadingView };

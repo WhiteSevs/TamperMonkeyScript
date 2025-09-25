@@ -1,9 +1,9 @@
 html,
 body {
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 }
-.user-info-tabs>.el-tabs__header {
+.user-info-tabs > .el-tabs__header {
   margin: 0 0 5px;
 }
 
@@ -12,13 +12,13 @@ body {
   max-width: 100%;
   min-width: 100%;
   text-align: center;
-  color: #7558FE;
+  color: #7558fe;
 }
 
 span[data-sex="1"] {
-  color: #37B8D5;
+  color: #37b8d5;
 }
 
 span[data-sex="2"] {
-  color: #FF8787;
+  color: #ff8787;
 }

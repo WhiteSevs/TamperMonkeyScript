@@ -2,5 +2,5 @@
 swan-slient-wake-popup,
 /* 帖子内底部的推荐帖子 */
 swan-recommend-list {
-	display: none !important;
+  display: none !important;
 }

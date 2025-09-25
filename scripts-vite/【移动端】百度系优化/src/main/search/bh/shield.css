@@ -2,5 +2,5 @@
 div[class^="index_brandEntry"],
 /* 底部的推荐的广告 */
 .moduleItemWrap:has([data-ad-id]) {
-	display: none !important;
+  display: none !important;
 }

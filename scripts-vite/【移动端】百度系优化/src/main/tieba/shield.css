@@ -47,8 +47,8 @@ uni-app .bottom-guide:has(.mask),
 .collection-center .app-out-fixed-btn,
 /* 合辑 帖子卡片右下角的  打开贴吧App畅享精彩内容  */
 .collection-center .guide-text {
-	display: none !important;
+  display: none !important;
 }
 body.tb-modal-open {
-	overflow: auto !important;
+  overflow: auto !important;
 }

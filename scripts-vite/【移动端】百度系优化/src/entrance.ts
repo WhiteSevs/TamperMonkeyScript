@@ -26,41 +26,37 @@ import { PanelPosSettingUI } from "./setting/view/pos/PanelPosSettingUI";
 import { PanelPanSettingUI } from "./setting/view/pan/PanelPanSettingUI";
 
 (() => {
-	if (typeof unsafeWindow.BaiduOptimizationScriptRunCount === "number") {
-		unsafeWindow.BaiduOptimizationScriptRunCount++;
-		log.warn(
-			"阻止脚本容器反复执行本脚本 " +
-				unsafeWindow.BaiduOptimizationScriptRunCount +
-				" 次"
-		);
-		return;
-	}
-	unsafeWindow.BaiduOptimizationScriptRunCount = 0;
+  if (typeof unsafeWindow.BaiduOptimizationScriptRunCount === "number") {
+    unsafeWindow.BaiduOptimizationScriptRunCount++;
+    log.warn("阻止脚本容器反复执行本脚本 " + unsafeWindow.BaiduOptimizationScriptRunCount + " 次");
+    return;
+  }
+  unsafeWindow.BaiduOptimizationScriptRunCount = 0;
 
-	PanelContent.addContentConfig([
-		PanelCommonSettingUI,
-		PanelSearchSettingUI,
-		PanelBaiJiaHaoSettingUI,
-		PanelTieBaSettingUI,
-		PanelWenKuSettingUI,
-		// PanelJingYanSettingUI,
-		PanelBaiKeSettingUI,
-		PanelZhiDaoSettingUI,
-		PanelFanYiSettingUI,
-		// PanelImageSettingUI,
-		PanelMapSettingUI,
-		// PanelXueSettingUI,
-		PanelAiQiChaSettingUI,
-		// PanelPosSettingUI,
-		PanelHaoKanSettingUI,
-		// PanelGraphSettingUI,
-		// PanelPanSettingUI,
-		PanelYiYanSettingUI,
-		PanelChatSettingUI,
-		PanelEasyLearnSettingUI,
-		PanelAiStudySettingUI,
-	]);
+  PanelContent.addContentConfig([
+    PanelCommonSettingUI,
+    PanelSearchSettingUI,
+    PanelBaiJiaHaoSettingUI,
+    PanelTieBaSettingUI,
+    PanelWenKuSettingUI,
+    // PanelJingYanSettingUI,
+    PanelBaiKeSettingUI,
+    PanelZhiDaoSettingUI,
+    PanelFanYiSettingUI,
+    // PanelImageSettingUI,
+    PanelMapSettingUI,
+    // PanelXueSettingUI,
+    PanelAiQiChaSettingUI,
+    // PanelPosSettingUI,
+    PanelHaoKanSettingUI,
+    // PanelGraphSettingUI,
+    // PanelPanSettingUI,
+    PanelYiYanSettingUI,
+    PanelChatSettingUI,
+    PanelEasyLearnSettingUI,
+    PanelAiStudySettingUI,
+  ]);
 
-	Panel.init();
-	Baidu.init();
+  Panel.init();
+  Baidu.init();
 })();

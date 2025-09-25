@@ -24,168 +24,166 @@ div[srcid="sigma_celebrity_rela"],
 div:has(p.ivk-private-p),
 /* 智能卡片的 更多 按钮 */
 .c-result-content div[rl-type="stop"]:has(div[data-module="lgsd"]) {
-	display: none !important;
+  display: none !important;
 }
 /* 搜索框 */
 .searchboxtop.newsearch-white-style .se-form {
-	border-color: #4e6ef2 !important;
+  border-color: #4e6ef2 !important;
 }
 /* 百度一下 按钮 */
 .searchboxtop.newsearch-white-style .se-bn {
-	color: #fff !important;
-	background: #4e6ef2 !important;
+  color: #fff !important;
+  background: #4e6ef2 !important;
 }
 .se-head-logo .se-logo img {
-	display: inherit !important;
+  display: inherit !important;
 }
 /* 选项卡，如综合、笔记、视频等 */
 .se-head-tablink {
-	border-bottom: 1px solid #e6e6e6 !important;
-	/*background-color: #fff !important;*/
-	background-color: transparent !important;
+  border-bottom: 1px solid #e6e6e6 !important;
+  /*background-color: #fff !important;*/
+  background-color: transparent !important;
 }
 
 a.se-tabitem span {
-	color: #000 !important;
+  color: #000 !important;
 }
 /*div.c-peak-layer{
    display:none !important;
  } 百度关键字背景*/
 .se-tablink-scroll-wrapper .se-tab-cur:after {
-	border-bottom: 2px solid #38f !important;
+  border-bottom: 2px solid #38f !important;
 }
 .c-tags-scroll.c-padding-x {
-	display: none !important;
+  display: none !important;
 }
 .white-bdsearch-isredirecrt {
-	display: inline-flex;
-	background: #43ba76;
-	color: #fff;
-	width: 28px;
-	font-size: 16px;
-	line-height: 25px;
-	justify-content: center;
-	align-items: center;
-	border-radius: 5px;
-	margin: 0 auto;
-	margin-right: 6px;
+  display: inline-flex;
+  background: #43ba76;
+  color: #fff;
+  width: 28px;
+  font-size: 16px;
+  line-height: 25px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+  margin: 0 auto;
+  margin-right: 6px;
 }
 /* 修复图片显示问题 */
 .image-strong-card div[class*="image-content__"] > div {
-	display: inline-block;
-	overflow: hidden;
-	vertical-align: top;
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
 }
 .c-result-content div[class*="tieba-newxml-forum-img-class__"] {
-	display: -webkit-box;
-	display: -webkit-flex;
-	display: flex;
-	-webkit-box-align: center;
-	-moz-box-align: center;
-	-webkit-align-items: center;
-	align-items: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -moz-box-align: center;
+  -webkit-align-items: center;
+  align-items: center;
 }
 
 .c-result-content div[class*="tieba-newxml-forum-img__"] {
-	width: 0.553rem;
-	height: 0.553rem;
+  width: 0.553rem;
+  height: 0.553rem;
 }
 
 .c-result-content div[class*="tieba-newxml-forum-img__"] img {
-	width: 100%;
-	height: 100%;
-	border-radius: 0.09rem;
+  width: 100%;
+  height: 100%;
+  border-radius: 0.09rem;
 }
 .c-result-content div[class*="tieba-newxml-forum-class__"] {
-	display: -webkit-flex;
-	display: flex;
-	-webkit-box-orient: vertical;
-	-moz-box-orient: vertical;
-	-webkit-box-direction: normal;
-	-moz-box-direction: normal;
-	-webkit-flex-direction: column;
-	-moz-flex-direction: column;
-	flex-direction: column;
-	-webkit-box-pack: center;
-	-moz-box-pack: center;
-	-webkit-justify-content: center;
-	-moz-justify-content: center;
-	justify-content: center;
-	max-width: 2.2rem;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -moz-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -moz-box-direction: normal;
+  -webkit-flex-direction: column;
+  -moz-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-pack: center;
+  -moz-box-pack: center;
+  -webkit-justify-content: center;
+  -moz-justify-content: center;
+  justify-content: center;
+  max-width: 2.2rem;
 }
 .c-result-content div[class*="c-img-content-btn__"] {
-	position: absolute;
-	right: 0;
-	width: 0.55rem;
-	text-align: center;
-	line-height: 0.28rem;
-	border: 1px solid rgba(31, 31, 31, 0.5);
-	border-radius: 0.15rem;
-	font-family: PingFangSC-Medium;
-	font-size: 0.13rem;
-	color: #1f1f1f;
+  position: absolute;
+  right: 0;
+  width: 0.55rem;
+  text-align: center;
+  line-height: 0.28rem;
+  border: 1px solid rgba(31, 31, 31, 0.5);
+  border-radius: 0.15rem;
+  font-family: PingFangSC-Medium;
+  font-size: 0.13rem;
+  color: #1f1f1f;
 }
 .c-result-content div[class*="tieba-newxml-thread-comment-user__"] {
-	display: -webkit-flex;
-	display: flex;
-	-webkit-box-align: center;
-	-moz-box-align: center;
-	-webkit-align-items: center;
-	-moz-align-items: center;
-	align-items: center;
-	margin-top: 0.03rem;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -moz-box-align: center;
+  -webkit-align-items: center;
+  -moz-align-items: center;
+  align-items: center;
+  margin-top: 0.03rem;
 }
 .c-result-content div[class*="tieba-newxml-thread-comment-user__"] img {
-	width: 0.16rem;
-	height: 0.16rem;
-	border-radius: 50%;
+  width: 0.16rem;
+  height: 0.16rem;
+  border-radius: 50%;
 }
 .c-result-content div[class*="tieba-newxml-thread-comment-user__"] span {
-	margin-right: 0.08rem;
+  margin-right: 0.08rem;
 }
 .whitesev-gm-refactor-everyone-searching {
-	width: 100%;
-	box-sizing: border-box;
-	height: 2.857em;
-	line-height: 2.857;
-	background-color: #f5f6f9;
-	border-color: #f5f6f9;
-	padding: 0 0.08rem;
-	/*vertical-align: middle;*/
-	outline: 0;
-	font-size: 14px;
-	overflow: hidden;
-	border-radius: 9px;
-	text-align: center;
-	text-decoration: none;
-	-webkit-tap-highlight-color: transparent;
-	-moz-tap-highlight-color: transparent;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	-webkit-box-orient: horizontal;
-	-moz-box-orient: horizontal;
-	-webkit-box-align: stretch;
-	-moz-box-align: stretch;
-	display: block;
-	justify-content: space-between;
-	-webkit-justify-content: space-between;
-	-moz-justify-content: space-between;
-	-webkit-align-items: stretch;
-	-moz-align-items: stretch;
-	align-items: stretch;
-	flex-wrap: nowrap;
-	-webkit-flex-wrap: nowrap;
-	-moz-flex-wrap: nowrap;
+  width: 100%;
+  box-sizing: border-box;
+  height: 2.857em;
+  line-height: 2.857;
+  background-color: #f5f6f9;
+  border-color: #f5f6f9;
+  padding: 0 0.08rem;
+  /*vertical-align: middle;*/
+  outline: 0;
+  font-size: 14px;
+  overflow: hidden;
+  border-radius: 9px;
+  text-align: center;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  -moz-tap-highlight-color: transparent;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  -webkit-box-orient: horizontal;
+  -moz-box-orient: horizontal;
+  -webkit-box-align: stretch;
+  -moz-box-align: stretch;
+  display: block;
+  justify-content: space-between;
+  -webkit-justify-content: space-between;
+  -moz-justify-content: space-between;
+  -webkit-align-items: stretch;
+  -moz-align-items: stretch;
+  align-items: stretch;
+  flex-wrap: nowrap;
+  -webkit-flex-wrap: nowrap;
+  -moz-flex-wrap: nowrap;
 }
 
 /* 让搜索中某些视频的阶段可以横向滚动 */
 div[class^="new-summary-container_"] {
-	overflow: auto;
+  overflow: auto;
 }
 
 /* 智能卡片 展开更多，这里是拼音 */
-.c-result-content
-	div[class*="multi-pinyin_"]
-	div[class*="multi-pinyin-item"][style*="display: none"] {
-	display: block !important;
+.c-result-content div[class*="multi-pinyin_"] div[class*="multi-pinyin-item"][style*="display: none"] {
+  display: block !important;
 }

@@ -16,10 +16,10 @@ uni-app .operate-group .wake-app:has(.external-btn-class),
 uni-app .operate-btn-wake,
 /* 吧内 视频卡片左上角的 App内查看 */
 uni-app .uni-frs .video-feed .wake-app .video-item .tag-text {
-	display: none !important;
+  display: none !important;
 }
 
 /* 评论内容高度 */
 uni-app .swiper-content {
-	max-height: unset !important;
+  max-height: unset !important;
 }

@@ -6,16 +6,16 @@ import ElementPlus from "element-plus";
 import { Panel } from "@components/setting/panel";
 
 const TiebaHome = {
-	$data: {
-		appName: "vite-app",
-	},
-	init() {
-		if (!Panel.getValue("baidu-tieba-beautify-home-page")) {
-			return;
-		}
-		TiebaRouter.init();
-		MountVue(App, [TiebaRouter.router, ElementPlus]);
-		addStyle(/*css*/ `
+  $data: {
+    appName: "vite-app",
+  },
+  init() {
+    if (!Panel.getValue("baidu-tieba-beautify-home-page")) {
+      return;
+    }
+    TiebaRouter.init();
+    MountVue(App, [TiebaRouter.router, ElementPlus]);
+    addStyle(/*css*/ `
         #${VUE_ELE_NAME_ID}{
             z-index: 1000;
         }
@@ -28,8 +28,8 @@ const TiebaHome = {
             display: unset;
         }
         `);
-		addStyle(AppCSS);
-	},
+    addStyle(AppCSS);
+  },
 };
 
 export { TiebaHome };

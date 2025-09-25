@@ -6,17 +6,17 @@ import App from "./App.vue";
 import AppCSS from "./css/App.css?raw";
 
 export const TiebaMsgTab = {
-	$data: {
-		appName: "vite-app",
-	},
-	pathname: "/index/tbwise/msgtab",
-	init() {
-		TiebaMsgTabRouter.init();
-		// 屏蔽错误提示
-		CommonUtil.addBlockCSS("body > .error-page");
+  $data: {
+    appName: "vite-app",
+  },
+  pathname: "/index/tbwise/msgtab",
+  init() {
+    TiebaMsgTabRouter.init();
+    // 屏蔽错误提示
+    CommonUtil.addBlockCSS("body > .error-page");
 
-		MountVue(App, [TiebaMsgTabRouter.router, ElementPlus]);
-		addStyle(/*css*/ `
+    MountVue(App, [TiebaMsgTabRouter.router, ElementPlus]);
+    addStyle(/*css*/ `
         #${VUE_ELE_NAME_ID}{
             z-index: 1000;
         }
@@ -29,6 +29,6 @@ export const TiebaMsgTab = {
             display: unset;
         }
         `);
-		addStyle(AppCSS);
-	},
+    addStyle(AppCSS);
+  },
 };

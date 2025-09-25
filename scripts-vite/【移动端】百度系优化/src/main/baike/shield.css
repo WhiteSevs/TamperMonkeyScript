@@ -4,5 +4,5 @@
 #BK_before_content_wrapper > div:has(a[onclick*="page"]) ,
 /* 底部的广告 */
 .BK-after-content-wrapper>div:has(a[onclick*="page"]) {
-	display: none !important;
+  display: none !important;
 }
