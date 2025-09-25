@@ -12,3 +12,4 @@ lib
 .idea
 .vscode
 # Ignore source files
+**/dist/*
