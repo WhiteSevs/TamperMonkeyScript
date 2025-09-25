@@ -255,21 +255,27 @@ export const NetDiskSuspension = {
    * 设置window的resize事件监听，来重新设置悬浮按钮的位置
    */
   setResizeEventListener() {
+    let isMobileInputKeyboard = ($el: Element | null | undefined) => {
+      const localName = $el?.localName?.toLowerCase?.();
+      if (typeof localName === "string" && ["input", "textarea"].includes(localName)) {
+        /* 可能是移动端的输入框弹出的键盘导致的resize */
+        return true;
+      } else if ($el?.getAttribute?.("contenteditable") === "true" || $el?.closest?.("[contenteditable='true']")) {
+        /* 可能是移动端的输入框弹出的键盘导致的resize */
+        return true;
+      }
+      return false;
+    };
     DOMUtils.on(globalThis, "resize", () => {
-      let $active = document.activeElement as HTMLElement;
       if (utils.isPhone()) {
-        if (["input", "textarea"].includes($active.localName)) {
-          /* 可能是移动端的输入框弹出的键盘导致的resize */
+        let $active = document.activeElement;
+        let $activeShadowRoot = $active?.shadowRoot?.activeElement;
+        if (isMobileInputKeyboard($activeShadowRoot ?? $active)) {
           return;
-        } else if (
-          ($active.hasAttribute("contenteditable") && $active.getAttribute("contenteditable") === "true") ||
-          $active.closest("[contenteditable='true']")
-        ) {
-          /* 可能是移动端的输入框弹出的键盘导致的resize */
-          return;
-        } else if (!document.hasFocus()) {
+        }
+        if (!document.hasFocus()) {
           /* 页面失焦 */
-          return;
+          return true;
         }
       }
       this.updatePosition(false);
