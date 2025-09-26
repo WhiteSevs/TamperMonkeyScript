@@ -8,3 +8,4 @@ node_modules
 # Ignore source files
 src/ajaxHooker
 ModuleRaid.js
+dist/*
