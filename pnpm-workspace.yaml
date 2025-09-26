@@ -1,8 +1,6 @@
 packages:
-  - "scripts-vite/*"
-  - "scripts-vite-example/*"
-  - "script-components/*"
-  - "!lib"
+  - 'scripts-vite/**'
+  - '!lib/**'
 
 ignoredBuiltDependencies:
   - esbuild
