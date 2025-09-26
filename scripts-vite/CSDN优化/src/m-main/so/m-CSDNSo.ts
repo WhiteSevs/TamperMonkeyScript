@@ -1,9 +1,5 @@
 const M_CSDNSo = {
-    init() {
+  init() {},
+};
 
-    }
-}
-
-export {
-    M_CSDNSo
-}
+export { M_CSDNSo };
