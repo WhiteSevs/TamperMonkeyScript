@@ -6,10 +6,11 @@ dist
 node_modules
 .prettierrc
 assets
-gm-api-fit
-lib
+lib/*
+y.pub
 .github
 .idea
 .vscode
 # Ignore source files
 **/dist/*
+pnpm-workspace.yaml
