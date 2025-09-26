@@ -1226,7 +1226,7 @@ class Utils {
     /* 手机型号 */
     const randomMobile = UtilsContext.getRandomValue(mobileNameList);
     /* chrome大版本号 */
-    const chromeVersion1 = UtilsContext.getRandomValue(120, 132);
+    const chromeVersion1 = UtilsContext.getRandomValue(130, 140);
     const chromeVersion2 = UtilsContext.getRandomValue(0, 0);
     const chromeVersion3 = UtilsContext.getRandomValue(2272, 6099);
     const chromeVersion4 = UtilsContext.getRandomValue(1, 218);
@@ -1253,7 +1253,7 @@ class Utils {
   getRandomPCUA(): string {
     const UtilsContext = this;
     /* chrome大版本号 */
-    const chromeVersion1 = UtilsContext.getRandomValue(120, 132);
+    const chromeVersion1 = UtilsContext.getRandomValue(130, 140);
     const chromeVersion2 = UtilsContext.getRandomValue(0, 0);
     const chromeVersion3 = UtilsContext.getRandomValue(2272, 6099);
     const chromeVersion4 = UtilsContext.getRandomValue(1, 218);
@@ -1330,7 +1330,7 @@ class Utils {
         const propsName = domPropsName.replace(/__(.+)\$.+/i, "$1");
         const propsValue = Reflect.get(element, domPropsName);
         if (propsName in result) {
-          new Error(`重复属性 ${domPropsName}`);
+          console.error(`重复属性 ${domPropsName}`);
         } else {
           Reflect.set(result, propsName, propsValue);
         }
@@ -3209,7 +3209,7 @@ class Utils {
     }
   }
   /**
-   * 数组按照内部某个值的大小比对排序，如[{"time":"2022-1-1"},{"time":"2022-2-2"}]
+   * 数组按照内部某个值的大小比对排序，该函数会改变原数组
    * @param data 数据|获取数据的方法
    * @param getPropertyValueFunc 数组内部项的某个属性的值的方法，参数为这个项
    * @param sortByDesc （可选）排序方式
@@ -3241,9 +3241,8 @@ class Utils {
     };
     /**
      * 排序方法
-     * @param {any} after_obj
-     * @param {any} before_obj
-     * @returns
+     * @param after_obj
+     * @param before_obj
      */
     const sortFunc = function (after_obj: any, before_obj: any) {
       const beforeValue = getObjValue(before_obj); /*  前 */
@@ -3268,7 +3267,7 @@ class Utils {
     };
     /**
      * 排序元素方法
-     * @param  nodeList 元素列表
+     * @param nodeList 元素列表
      * @param getNodeListFunc 获取元素列表的函数
      */
     const sortNodeFunc = function (nodeList: NodeListOf<HTMLElement>, getNodeListFunc: () => NodeListOf<HTMLElement>) {
@@ -3300,13 +3299,13 @@ class Utils {
     let getDataFunc = null;
     if (data instanceof Function) {
       getDataFunc = data;
-      data = (data as any)();
+      data = (<any>data)();
     }
     if (Array.isArray(data)) {
       data.sort(sortFunc);
-    } else if ((data as any) instanceof NodeList || UtilsContext.isJQuery(data)) {
-      sortNodeFunc(data as any, getDataFunc as any);
-      result = (getDataFunc as any)();
+    } else if (<any>data instanceof NodeList || UtilsContext.isJQuery(data)) {
+      sortNodeFunc(<any>data, <any>getDataFunc);
+      result = (<any>getDataFunc)();
     } else {
       throw new Error("Utils.sortListByProperty 参数 data 必须为 Array|NodeList|jQuery 类型");
     }
@@ -3318,7 +3317,7 @@ class Utils {
    * @param flags 正则标志
    */
   stringToRegular(targetString: string | RegExp, flags?: "g" | "i" | "m" | "u" | "y" | string): RegExp;
-  stringToRegular(targetString: string | RegExp, flags: "g" | "i" | "m" | "u" | "y" | string = "ig"): RegExp {
+  stringToRegular(targetString: string | RegExp, flags: "g" | "i" | "m" | "u" | "y" | string = "gi"): RegExp {
     let reg;
     flags = flags.toLowerCase();
     if (typeof targetString === "string") {
