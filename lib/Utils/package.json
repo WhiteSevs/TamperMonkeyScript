@@ -23,6 +23,9 @@
     "./index.ts"
   ],
   "scripts": {
+    "install": "pnpm install --ignore-workspace",
+    "outdated": "pnpm outdated --ignore-workspace",
+    "publish": "pnpm publish --no-git-checks",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier . --write",
