@@ -1,7 +1,5 @@
-const OriginPrototype = {
+export const OriginPrototype = {
   Object: {
     defineProperty: Object.defineProperty,
   },
 };
-
-export { OriginPrototype };

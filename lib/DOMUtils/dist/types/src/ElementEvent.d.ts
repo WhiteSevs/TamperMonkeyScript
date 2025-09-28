@@ -1,10 +1,15 @@
+import { ElementAnimate } from "./ElementAnimate";
 import type { DOMUtils_Event, DOMUtils_EventType, DOMUtilsElementEventType, DOMUtilsEventListenerOption, DOMUtilsEventListenerOptionsAttribute } from "./types/DOMUtilsEvent";
 import type { DOMUtilsTargetElementType } from "./types/global";
 import type { WindowApiOption } from "./types/WindowApi";
 import { WindowApi } from "./WindowApi";
-export declare class DOMUtilsEvent {
+declare class ElementEvent extends ElementAnimate {
     windowApi: typeof WindowApi.prototype;
     constructor(windowApiOption?: WindowApiOption);
+    /** 获取 animationend 在各个浏览器的兼容名 */
+    getAnimationEndNameList(): string[];
+    /** 获取 transitionend 在各个浏览器的兼容名 */
+    getTransitionEndNameList(): string[];
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
@@ -192,7 +197,7 @@ export declare class DOMUtilsEvent {
      * @param element 需要触发的元素|元素数组|window
      * @param eventType 需要触发的事件
      * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-     * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true
+     * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，false的话就直接触发获取使用DOMUtils进行监听的事件
      * @example
      * // 触发元素a.xx的click事件
      * DOMUtils.trigger(document.querySelector("a.xx"),"click")
@@ -395,91 +400,21 @@ export declare class DOMUtilsEvent {
         removeListen(): void;
     };
     /**
-     * 选择器，可使用以下的额外语法
-     *
-     * + :contains([text]) 作用: 找到包含指定文本内容的指定元素
-     * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
-     * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
-     * @param selector 选择器
-     * @param parent 指定父元素
+     * 阻止事件传递
+     * @param event 要阻止传递的事件
      * @example
-     * DOMUtils.selector("div:contains('测试')")
-     * > div.xxx
-     * @example
-     * DOMUtils.selector("div:empty")
-     * > div.xxx
-     * @example
-     * DOMUtils.selector("div:regexp('^xxxx$')")
-     * > div.xxx
+     * DOMUtils.preventEvent(event);
      */
-    selector<K extends keyof HTMLElementTagNameMap>(selector: K, parent?: Element | Document | DocumentFragment | ShadowRoot): HTMLElementTagNameMap[K] | undefined;
-    selector<E extends Element = HTMLElement>(selector: string, parent?: Element | Document | DocumentFragment | ShadowRoot): E | undefined;
+    preventEvent(event: Event): boolean;
     /**
-     * 选择器，可使用以下的额外语法
-     *
-     * + :contains([text]) 作用: 找到包含指定文本内容的指定元素
-     * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
-     * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
-     * @param selector 选择器
-     * @param parent 指定父元素
+     * 通过监听事件来主动阻止事件的传递
+     * @param $el 要进行处理的元素
+     * @param eventNameList （可选）要阻止的事件名|列表
+     * @param capture （可选）是否捕获，默认false
      * @example
-     * DOMUtils.selectorAll("div:contains('测试')")
-     * > [div.xxx]
-     * @example
-     * DOMUtils.selectorAll("div:empty")
-     * > [div.xxx]
-     * @example
-     * DOMUtils.selectorAll("div:regexp('^xxxx$')")
-     * > [div.xxx]
-     * @example
-     * DOMUtils.selectorAll("div:regexp(/^xxx/ig)")
-     * > [div.xxx]
+     * DOMUtils.preventEvent(document.querySelector("a"),"click")
      */
-    selectorAll<K extends keyof HTMLElementTagNameMap>(selector: K, parent?: Element | Document | DocumentFragment | ShadowRoot): HTMLElementTagNameMap[K][];
-    selectorAll<E extends Element = HTMLElement>(selector: string, parent?: Element | Document | DocumentFragment | ShadowRoot): E[];
-    /**
-     * 匹配元素，可使用以下的额外语法
-     *
-     * + :contains([text]) 作用: 找到包含指定文本内容的指定元素
-     * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
-     * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
-     * @param $el 元素
-     * @param selector 选择器
-     * @example
-     * DOMUtils.matches("div:contains('测试')")
-     * > true
-     * @example
-     * DOMUtils.matches("div:empty")
-     * > true
-     * @example
-     * DOMUtils.matches("div:regexp('^xxxx$')")
-     * > true
-     * @example
-     * DOMUtils.matches("div:regexp(/^xxx/ig)")
-     * > false
-     */
-    matches($el: HTMLElement | Element | null | undefined, selector: string): boolean;
-    /**
-     * 根据选择器获取上层元素，可使用以下的额外语法
-     *
-     * + :contains([text]) 作用: 找到包含指定文本内容的指定元素
-     * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
-     * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
-     * @param $el 元素
-     * @param selector 选择器
-     * @example
-     * DOMUtils.closest("div:contains('测试')")
-     * > div.xxx
-     * @example
-     * DOMUtils.closest("div:empty")
-     * > div.xxx
-     * @example
-     * DOMUtils.closest("div:regexp('^xxxx$')")
-     * > div.xxxx
-     * @example
-     * DOMUtils.closest("div:regexp(/^xxx/ig)")
-     * > null
-     */
-    closest<K extends keyof HTMLElementTagNameMap>($el: HTMLElement | Element, selector: string): HTMLElementTagNameMap[K] | null;
-    closest<E extends Element = Element>($el: HTMLElement | Element, selector: string): E | null;
+    preventEvent($el: HTMLElement, eventNameList?: string | string[], capture?: boolean): void;
 }
+declare const elementEvent: ElementEvent;
+export { elementEvent, ElementEvent };

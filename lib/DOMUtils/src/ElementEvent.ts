@@ -1,6 +1,7 @@
-import { DOMUtilsCommonUtils } from "./DOMUtilsCommonUtils";
-import { DOMUtilsData } from "./DOMUtilsData";
-import { OriginPrototype } from "./DOMUtilsOriginPrototype";
+import { CommonUtils } from "./CommonUtils";
+import { GlobalData } from "./GlobalData";
+import { ElementAnimate } from "./ElementAnimate";
+import { OriginPrototype } from "./OriginPrototype";
 import type {
   DOMUtils_Event,
   DOMUtils_EventType,
@@ -12,10 +13,19 @@ import type { DOMUtilsTargetElementType } from "./types/global";
 import type { WindowApiOption } from "./types/WindowApi";
 import { WindowApi } from "./WindowApi";
 
-export class DOMUtilsEvent {
+class ElementEvent extends ElementAnimate {
   windowApi: typeof WindowApi.prototype;
   constructor(windowApiOption?: WindowApiOption) {
+    super(windowApiOption);
     this.windowApi = new WindowApi(windowApiOption);
+  }
+  /** 获取 animationend 在各个浏览器的兼容名 */
+  getAnimationEndNameList() {
+    return CommonUtils.getAnimationEndNameList();
+  }
+  /** 获取 transitionend 在各个浏览器的兼容名 */
+  getTransitionEndNameList() {
+    return CommonUtils.getTransitionEndNameList();
   }
   /**
    * 绑定事件
@@ -173,11 +183,11 @@ export class DOMUtilsEvent {
       return option;
     }
 
-    const DOMUtilsContext = this;
+    const that = this;
     // eslint-disable-next-line prefer-rest-params
     const args = arguments;
     if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+      element = that.selectorAll(element);
     }
     if (element == null) {
       return;
@@ -230,7 +240,7 @@ export class DOMUtilsEvent {
      */
     function checkOptionOnceToRemoveEventListener() {
       if (listenerOption.once) {
-        DOMUtilsContext.off(element, eventType as any, selector as any, callback as any, option);
+        that.off(element, eventType as any, selector as any, callback as any, option);
       }
     }
     elementList.forEach((elementItem) => {
@@ -246,19 +256,19 @@ export class DOMUtilsEvent {
             ? (event.composedPath()[0] as HTMLElement)
             : (event.target as HTMLElement);
           let totalParent = elementItem;
-          if (DOMUtilsCommonUtils.isWin(totalParent)) {
-            if (totalParent === (DOMUtilsContext.windowApi.document as any as HTMLElement)) {
-              totalParent = DOMUtilsContext.windowApi.document.documentElement;
+          if (CommonUtils.isWin(totalParent)) {
+            if (totalParent === (that.windowApi.document as any as HTMLElement)) {
+              totalParent = that.windowApi.document.documentElement;
             }
           }
           const findValue = selectorList.find((selectorItem) => {
             // 判断目标元素是否匹配选择器
-            if (DOMUtilsContext.matches(eventTarget, selectorItem)) {
+            if (that.matches(eventTarget, selectorItem)) {
               /* 当前目标可以被selector所匹配到 */
               return true;
             }
             /* 在上层与主元素之间寻找可以被selector所匹配到的 */
-            const $closestMatches = DOMUtilsContext.closest<HTMLElement>(eventTarget, selectorItem);
+            const $closestMatches = that.closest<HTMLElement>(eventTarget, selectorItem);
             if ($closestMatches && totalParent?.contains($closestMatches)) {
               eventTarget = $closestMatches;
               return true;
@@ -292,7 +302,7 @@ export class DOMUtilsEvent {
         /* 获取对象上的事件 */
         const elementEvents: {
           [k: string]: DOMUtilsEventListenerOptionsAttribute[];
-        } = Reflect.get(elementItem, DOMUtilsData.SymbolEvents) || {};
+        } = Reflect.get(elementItem, GlobalData.domEventSymbol) || {};
         /* 初始化对象上的xx事件 */
         elementEvents[eventName] = elementEvents[eventName] || [];
         elementEvents[eventName].push({
@@ -302,7 +312,7 @@ export class DOMUtilsEvent {
           originCallBack: listenerCallBack,
         });
         /* 覆盖事件 */
-        Reflect.set(elementItem, DOMUtilsData.SymbolEvents, elementEvents);
+        Reflect.set(elementItem, GlobalData.domEventSymbol, elementEvents);
       });
     });
   }
@@ -445,21 +455,21 @@ export class DOMUtilsEvent {
       }
       return option;
     }
-    const DOMUtilsContext = this;
+    const that = this;
     // eslint-disable-next-line prefer-rest-params
     const args = arguments;
     if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+      element = that.selectorAll(element);
     }
     if (element == null) {
       return;
     }
-    let elementList: HTMLElement[] = [];
+    let $elList: HTMLElement[] = [];
     if (element instanceof NodeList || Array.isArray(element)) {
       element = element as HTMLElement[];
-      elementList = [...element];
+      $elList = [...element];
     } else {
-      elementList.push(element as HTMLElement);
+      $elList.push(element as HTMLElement);
     }
     let eventTypeList: string[] = [];
     if (Array.isArray(eventType)) {
@@ -515,11 +525,11 @@ export class DOMUtilsEvent {
         array: DOMUtilsEventListenerOptionsAttribute[]
       ) => boolean;
     }
-    elementList.forEach((elementItem) => {
+    $elList.forEach(($elItem) => {
       /* 获取对象上的事件 */
       const elementEvents: {
         [key: string]: DOMUtilsEventListenerOptionsAttribute[];
-      } = Reflect.get(elementItem, DOMUtilsData.SymbolEvents) || {};
+      } = Reflect.get($elItem, GlobalData.domEventSymbol) || {};
       eventTypeList.forEach((eventName) => {
         const handlers = elementEvents[eventName] || [];
         const filterHandler = typeof filter === "function" ? handlers.filter(filter) : handlers;
@@ -545,7 +555,7 @@ export class DOMUtilsEvent {
             flag = false;
           }
           if (flag || isRemoveAll) {
-            elementItem.removeEventListener(eventName, handler.callback, handler.option);
+            $elItem.removeEventListener(eventName, handler.callback, handler.option);
             const findIndex = handlers.findIndex((item) => item === handler);
             if (findIndex !== -1) {
               handlers.splice(findIndex, 1);
@@ -554,10 +564,10 @@ export class DOMUtilsEvent {
         }
         if (handlers.length === 0) {
           /* 如果没有任意的handler，那么删除该属性 */
-          DOMUtilsCommonUtils.delete(elementEvents, eventType);
+          CommonUtils.delete(elementEvents, eventType);
         }
       });
-      Reflect.set(elementItem, DOMUtilsData.SymbolEvents, elementEvents);
+      Reflect.set($elItem, GlobalData.domEventSymbol, elementEvents);
     });
   }
   /**
@@ -578,18 +588,18 @@ export class DOMUtilsEvent {
    * @param eventType （可选）需要取消监听的事件
    */
   offAll(element: DOMUtilsElementEventType, eventType?: DOMUtils_EventType | DOMUtils_EventType[] | string) {
-    const DOMUtilsContext = this;
+    const that = this;
     if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+      element = that.selectorAll(element);
     }
     if (element == null) {
       return;
     }
-    let elementList: HTMLElement[] = [];
+    let $elList: HTMLElement[] = [];
     if (element instanceof NodeList || Array.isArray(element)) {
-      elementList = [...(element as HTMLElement[])];
+      $elList = [...(element as HTMLElement[])];
     } else {
-      elementList.push(element as HTMLElement);
+      $elList.push(element as HTMLElement);
     }
 
     let eventTypeList: string[] = [];
@@ -598,12 +608,15 @@ export class DOMUtilsEvent {
     } else if (typeof eventType === "string") {
       eventTypeList = eventTypeList.concat(eventType.split(" "));
     }
-    elementList.forEach((elementItem) => {
-      Object.getOwnPropertySymbols(elementItem).forEach((symbolEvents) => {
-        if (!symbolEvents.toString().startsWith("Symbol(events_")) {
+    $elList.forEach(($elItem) => {
+      const symbolList = [...new Set([...Object.getOwnPropertySymbols($elItem), GlobalData.domEventSymbol])];
+      symbolList.forEach((symbolItem) => {
+        if (!symbolItem.toString().startsWith("Symbol(events_")) {
           return;
         }
-        const elementEvents = (elementItem as any)[symbolEvents] || {};
+        const elementEvents: {
+          [key: string]: DOMUtilsEventListenerOptionsAttribute[];
+        } = Reflect.get($elItem, symbolItem) || {};
         const iterEventNameList = eventTypeList.length ? eventTypeList : Object.keys(elementEvents);
         iterEventNameList.forEach((eventName) => {
           const handlers: DOMUtilsEventListenerOptionsAttribute[] = elementEvents[eventName];
@@ -611,12 +624,12 @@ export class DOMUtilsEvent {
             return;
           }
           for (const handler of handlers) {
-            elementItem.removeEventListener(eventName, handler.callback, {
+            $elItem.removeEventListener(eventName, handler.callback, {
               capture: handler["option"]["capture"],
             });
           }
-          const events = Reflect.get(elementItem, symbolEvents);
-          DOMUtilsCommonUtils.delete(events, eventName);
+          const events = Reflect.get($elItem, symbolItem);
+          CommonUtils.delete(events, eventName);
         });
       });
     });
@@ -634,16 +647,16 @@ export class DOMUtilsEvent {
     if (typeof callback !== "function") {
       return;
     }
-    const DOMUtilsContext = this;
+    const that = this;
     /**
      * 检测文档是否加载完毕
      */
     function checkDOMReadyState() {
       try {
         if (
-          DOMUtilsContext.windowApi.document.readyState === "complete" ||
-          (DOMUtilsContext.windowApi.document.readyState !== "loading" &&
-            !(DOMUtilsContext.windowApi.document.documentElement as any).doScroll)
+          that.windowApi.document.readyState === "complete" ||
+          (that.windowApi.document.readyState !== "loading" &&
+            !(that.windowApi.document.documentElement as any).doScroll)
         ) {
           return true;
         } else {
@@ -663,12 +676,12 @@ export class DOMUtilsEvent {
 
     const targetList = [
       {
-        target: DOMUtilsContext.windowApi.document,
+        target: that.windowApi.document,
         eventType: "DOMContentLoaded",
         callback: completed,
       },
       {
-        target: DOMUtilsContext.windowApi.window,
+        target: that.windowApi.window,
         eventType: "load",
         callback: completed,
       },
@@ -693,7 +706,7 @@ export class DOMUtilsEvent {
     }
     if (checkDOMReadyState()) {
       /* 检查document状态 */
-      DOMUtilsCommonUtils.setTimeout(callback);
+      CommonUtils.setTimeout(callback);
     } else {
       /* 添加监听 */
       addDomReadyListener();
@@ -724,7 +737,7 @@ export class DOMUtilsEvent {
    * @param element 需要触发的元素|元素数组|window
    * @param eventType 需要触发的事件
    * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-   * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true
+   * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，false的话就直接触发获取使用DOMUtils进行监听的事件
    * @example
    * // 触发元素a.xx的click事件
    * DOMUtils.trigger(document.querySelector("a.xx"),"click")
@@ -744,7 +757,7 @@ export class DOMUtilsEvent {
    * @param element 需要触发的元素|元素数组|window
    * @param eventType 需要触发的事件
    * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-   * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件,默认true
+   * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true
    * @example
    * // 触发元素a.xx的click事件
    * DOMUtils.trigger(document.querySelector("a.xx"),"click")
@@ -759,19 +772,19 @@ export class DOMUtilsEvent {
     details?: object,
     useDispatchToTriggerEvent: boolean = true
   ) {
-    const DOMUtilsContext = this;
+    const that = this;
     if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+      element = that.selectorAll(element);
     }
     if (element == null) {
       return;
     }
-    let elementList = [];
+    let $elList = [];
     if (element instanceof NodeList || Array.isArray(element)) {
       element = element as HTMLElement[];
-      elementList = [...element];
+      $elList = [...element];
     } else {
-      elementList = [element];
+      $elList = [element];
     }
     let eventTypeList: string[] = [];
     if (Array.isArray(eventType)) {
@@ -780,27 +793,33 @@ export class DOMUtilsEvent {
       eventTypeList = eventType.split(" ");
     }
 
-    elementList.forEach((elementItem) => {
+    $elList.forEach(($elItem) => {
       /* 获取对象上的事件 */
-      const events = elementItem[DOMUtilsData.SymbolEvents] || {};
-      eventTypeList.forEach((_eventType_) => {
+      const elementEvents: {
+        [key: string]: DOMUtilsEventListenerOptionsAttribute[];
+      } = Reflect.get($elItem, GlobalData.domEventSymbol) || {};
+      eventTypeList.forEach((__eventType) => {
         let event: Event = null as any;
         if (details && details instanceof Event) {
           event = details;
         } else {
-          event = new Event(_eventType_);
+          // 构造事件
+          event = new Event(__eventType);
           if (details) {
             Object.keys(details).forEach((keyName) => {
-              (event as any)[keyName] = (details as any)[keyName];
+              const value = Reflect.get(details, keyName);
+              // 在event上添加属性
+              Reflect.set(event, keyName, value);
             });
           }
         }
-        if (useDispatchToTriggerEvent == false && _eventType_ in events) {
-          events[_eventType_].forEach((eventsItem: any) => {
+        if (useDispatchToTriggerEvent == false && __eventType in elementEvents) {
+          // 直接调用监听的事件
+          elementEvents[__eventType].forEach((eventsItem: any) => {
             eventsItem.callback(event);
           });
         } else {
-          elementItem.dispatchEvent(event);
+          $elItem.dispatchEvent(event);
         }
       });
     });
@@ -826,24 +845,24 @@ export class DOMUtilsEvent {
     details?: any,
     useDispatchToTriggerEvent?: boolean
   ) {
-    const DOMUtilsContext = this;
+    const that = this;
     if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+      element = that.selectorAll(element);
     }
     if (element == null) {
       return;
     }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
+    if (CommonUtils.isNodeList(element)) {
       // 设置
       element.forEach(($ele) => {
-        DOMUtilsContext.click($ele as HTMLElement, handler, details, useDispatchToTriggerEvent);
+        that.click($ele as HTMLElement, handler, details, useDispatchToTriggerEvent);
       });
       return;
     }
     if (handler == null) {
-      DOMUtilsContext.trigger(element, "click", details, useDispatchToTriggerEvent);
+      that.trigger(element, "click", details, useDispatchToTriggerEvent);
     } else {
-      DOMUtilsContext.on(element, "click", null, handler);
+      that.on(element, "click", null, handler);
     }
   }
   /**
@@ -866,24 +885,24 @@ export class DOMUtilsEvent {
     details?: object,
     useDispatchToTriggerEvent?: boolean
   ) {
-    const DOMUtilsContext = this;
+    const that = this;
     if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+      element = that.selectorAll(element);
     }
     if (element == null) {
       return;
     }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
+    if (CommonUtils.isNodeList(element)) {
       // 设置
       element.forEach(($ele) => {
-        DOMUtilsContext.focus($ele as HTMLElement, handler, details, useDispatchToTriggerEvent);
+        that.focus($ele as HTMLElement, handler, details, useDispatchToTriggerEvent);
       });
       return;
     }
     if (handler === null) {
-      DOMUtilsContext.trigger(element, "blur", details, useDispatchToTriggerEvent);
+      that.trigger(element, "blur", details, useDispatchToTriggerEvent);
     } else {
-      DOMUtilsContext.on(element, "blur", null, handler as (event: Event) => void);
+      that.on(element, "blur", null, handler as (event: Event) => void);
     }
   }
   /**
@@ -906,24 +925,24 @@ export class DOMUtilsEvent {
     details?: object,
     useDispatchToTriggerEvent?: boolean
   ) {
-    const DOMUtilsContext = this;
+    const that = this;
     if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+      element = that.selectorAll(element);
     }
     if (element == null) {
       return;
     }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
+    if (CommonUtils.isNodeList(element)) {
       // 设置
       element.forEach(($ele) => {
-        DOMUtilsContext.focus($ele as HTMLElement, handler, details, useDispatchToTriggerEvent);
+        that.focus($ele as HTMLElement, handler, details, useDispatchToTriggerEvent);
       });
       return;
     }
     if (handler == null) {
-      DOMUtilsContext.trigger(element, "focus", details, useDispatchToTriggerEvent);
+      that.trigger(element, "focus", details, useDispatchToTriggerEvent);
     } else {
-      DOMUtilsContext.on(element, "focus", null, handler);
+      that.on(element, "focus", null, handler);
     }
   }
   /**
@@ -945,22 +964,22 @@ export class DOMUtilsEvent {
     handler: (this: HTMLElement, event: DOMUtils_Event["hover"]) => void,
     option?: boolean | DOMUtilsEventListenerOption
   ) {
-    const DOMUtilsContext = this;
+    const that = this;
     if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+      element = that.selectorAll(element);
     }
     if (element == null) {
       return;
     }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
+    if (CommonUtils.isNodeList(element)) {
       // 设置
       element.forEach(($ele) => {
-        DOMUtilsContext.hover($ele as HTMLElement, handler, option);
+        that.hover($ele as HTMLElement, handler, option);
       });
       return;
     }
-    DOMUtilsContext.on(element, "mouseenter", null, handler, option);
-    DOMUtilsContext.on(element, "mouseleave", null, handler, option);
+    that.on(element, "mouseenter", null, handler, option);
+    that.on(element, "mouseleave", null, handler, option);
   }
   /**
    * 当动画结束时触发事件
@@ -973,30 +992,23 @@ export class DOMUtilsEvent {
     handler: (this: HTMLElement, event: DOMUtils_Event["animationend"]) => void,
     option?: boolean | DOMUtilsEventListenerOption
   ) {
-    const DOMUtilsContext = this;
+    const that = this;
     if (typeof element === "string") {
-      element = DOMUtilsContext.selector(element)!;
+      element = that.selector(element)!;
     }
     if (element == null) {
       return;
     }
-    // if (DOMUtilsCommonUtils.isNodeList(element)) {
-    // 	// 设置
-    // 	element.forEach(($ele) => {
-    // 		DOMUtilsContext.animationend($ele as HTMLElement, handler, option);
-    // 	});
-    // 	return;
-    // }
     const defaultOption: DOMUtilsEventListenerOption = {
       once: true,
     };
     Object.assign(defaultOption, option || {});
-    const eventNameList = DOMUtilsCommonUtils.getAnimationEndNameList();
-    DOMUtilsContext.on(element, eventNameList, null, handler, defaultOption);
+    const eventNameList = CommonUtils.getAnimationEndNameList();
+    that.on(element, eventNameList, null, handler, defaultOption);
     if (!defaultOption.once) {
       return {
         off() {
-          DOMUtilsContext.off(element, eventNameList, null, handler, defaultOption);
+          that.off(element, eventNameList, null, handler, defaultOption);
         },
       };
     }
@@ -1012,30 +1024,23 @@ export class DOMUtilsEvent {
     handler: (this: HTMLElement, event: DOMUtils_Event["transitionend"]) => void,
     option?: boolean | DOMUtilsEventListenerOption
   ) {
-    const DOMUtilsContext = this;
+    const that = this;
     if (typeof element === "string") {
-      element = DOMUtilsContext.selector(element)!;
+      element = that.selector(element)!;
     }
     if (element == null) {
       return;
     }
-    // if (DOMUtilsCommonUtils.isNodeList(element)) {
-    // 	// 设置
-    // 	element.forEach(($ele) => {
-    // 		DOMUtilsContext.transitionend($ele as HTMLElement, handler, option);
-    // 	});
-    // 	return;
-    // }
     const defaultOption: DOMUtilsEventListenerOption = {
       once: true,
     };
     Object.assign(defaultOption, option || {});
-    const eventNameList = DOMUtilsCommonUtils.getTransitionEndNameList();
-    DOMUtilsContext.on(element, eventNameList, null, handler, defaultOption);
+    const eventNameList = CommonUtils.getTransitionEndNameList();
+    that.on(element, eventNameList, null, handler, defaultOption);
     if (!defaultOption.once) {
       return {
         off() {
-          DOMUtilsContext.off(element, eventNameList, null, handler, defaultOption);
+          that.off(element, eventNameList, null, handler, defaultOption);
         },
       };
     }
@@ -1060,21 +1065,21 @@ export class DOMUtilsEvent {
     handler: (this: HTMLElement, event: DOMUtils_Event["keyup"]) => void,
     option?: boolean | DOMUtilsEventListenerOption
   ) {
-    const DOMUtilsContext = this;
+    const that = this;
     if (element == null) {
       return;
     }
     if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+      element = that.selectorAll(element);
     }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
+    if (CommonUtils.isNodeList(element)) {
       // 设置
       element.forEach(($ele) => {
-        DOMUtilsContext.keyup($ele as HTMLElement, handler, option);
+        that.keyup($ele as HTMLElement, handler, option);
       });
       return;
     }
-    DOMUtilsContext.on(element, "keyup", null, handler, option);
+    that.on(element, "keyup", null, handler, option);
   }
   /**
    * 当按键按下时触发事件
@@ -1096,21 +1101,21 @@ export class DOMUtilsEvent {
     handler: (this: HTMLElement, event: DOMUtils_Event["keydown"]) => void,
     option?: boolean | DOMUtilsEventListenerOption
   ) {
-    const DOMUtilsContext = this;
+    const that = this;
     if (element == null) {
       return;
     }
     if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+      element = that.selectorAll(element);
     }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
+    if (CommonUtils.isNodeList(element)) {
       // 设置
       element.forEach(($ele) => {
-        DOMUtilsContext.keydown($ele as HTMLElement, handler, option);
+        that.keydown($ele as HTMLElement, handler, option);
       });
       return;
     }
-    DOMUtilsContext.on(element, "keydown", null, handler, option);
+    that.on(element, "keydown", null, handler, option);
   }
   /**
    * 当按键按下时触发事件
@@ -1132,21 +1137,21 @@ export class DOMUtilsEvent {
     handler: (this: HTMLElement, event: DOMUtils_Event["keypress"]) => void,
     option?: boolean | DOMUtilsEventListenerOption
   ) {
-    const DOMUtilsContext = this;
+    const that = this;
     if (element == null) {
       return;
     }
     if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+      element = that.selectorAll(element);
     }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
+    if (CommonUtils.isNodeList(element)) {
       // 设置
       element.forEach(($ele) => {
-        DOMUtilsContext.keypress($ele as HTMLElement, handler, option);
+        that.keypress($ele as HTMLElement, handler, option);
       });
       return;
     }
-    DOMUtilsContext.on(element, "keypress", null, handler, option);
+    that.on(element, "keypress", null, handler, option);
   }
   /**
      * 监听某个元素键盘按键事件或window全局按键事件
@@ -1219,9 +1224,9 @@ export class DOMUtilsEvent {
   ): {
     removeListen(): void;
   } {
-    const DOMUtilsContext = this;
+    const that = this;
     if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+      element = that.selectorAll(element);
     }
     const keyboardEventCallBack = function (event: KeyboardEvent) {
       /** 键名 */
@@ -1246,258 +1251,58 @@ export class DOMUtilsEvent {
         callback(keyName, keyValue, otherCodeList, event);
       }
     };
-    DOMUtilsContext.on(element, eventName, keyboardEventCallBack, options);
+    that.on(element, eventName, keyboardEventCallBack, options);
     return {
       removeListen: () => {
-        DOMUtilsContext.off(element, eventName, keyboardEventCallBack, options);
+        that.off(element, eventName, keyboardEventCallBack, options);
       },
     };
   }
   /**
-   * 选择器，可使用以下的额外语法
-   *
-   * + :contains([text]) 作用: 找到包含指定文本内容的指定元素
-   * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
-   * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
-   * @param selector 选择器
-   * @param parent 指定父元素
+   * 阻止事件传递
+   * @param event 要阻止传递的事件
    * @example
-   * DOMUtils.selector("div:contains('测试')")
-   * > div.xxx
-   * @example
-   * DOMUtils.selector("div:empty")
-   * > div.xxx
-   * @example
-   * DOMUtils.selector("div:regexp('^xxxx$')")
-   * > div.xxx
+   * DOMUtils.preventEvent(event);
    */
-  selector<K extends keyof HTMLElementTagNameMap>(
-    selector: K,
-    parent?: Element | Document | DocumentFragment | ShadowRoot
-  ): HTMLElementTagNameMap[K] | undefined;
-  selector<E extends Element = HTMLElement>(
-    selector: string,
-    parent?: Element | Document | DocumentFragment | ShadowRoot
-  ): E | undefined;
-  selector<E extends Element = HTMLElement>(
-    selector: string,
-    parent?: Element | Document | DocumentFragment | ShadowRoot
-  ) {
-    return this.selectorAll<E>(selector, parent)[0];
-  }
+  preventEvent(event: Event): boolean;
   /**
-   * 选择器，可使用以下的额外语法
-   *
-   * + :contains([text]) 作用: 找到包含指定文本内容的指定元素
-   * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
-   * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
-   * @param selector 选择器
-   * @param parent 指定父元素
+   * 通过监听事件来主动阻止事件的传递
+   * @param $el 要进行处理的元素
+   * @param eventNameList （可选）要阻止的事件名|列表
+   * @param capture （可选）是否捕获，默认false
    * @example
-   * DOMUtils.selectorAll("div:contains('测试')")
-   * > [div.xxx]
-   * @example
-   * DOMUtils.selectorAll("div:empty")
-   * > [div.xxx]
-   * @example
-   * DOMUtils.selectorAll("div:regexp('^xxxx$')")
-   * > [div.xxx]
-   * @example
-   * DOMUtils.selectorAll("div:regexp(/^xxx/ig)")
-   * > [div.xxx]
+   * DOMUtils.preventEvent(document.querySelector("a"),"click")
    */
-  selectorAll<K extends keyof HTMLElementTagNameMap>(
-    selector: K,
-    parent?: Element | Document | DocumentFragment | ShadowRoot
-  ): HTMLElementTagNameMap[K][];
-  selectorAll<E extends Element = HTMLElement>(
-    selector: string,
-    parent?: Element | Document | DocumentFragment | ShadowRoot
-  ): E[];
-  selectorAll<E extends Element = HTMLElement>(
-    selector: string,
-    parent?: Element | Document | DocumentFragment | ShadowRoot
-  ) {
-    const context = this;
-    parent = parent || context.windowApi.document;
-    selector = selector.trim();
-    if (selector.match(/[^\s]{1}:empty$/gi)) {
-      // empty 语法
-      selector = selector.replace(/:empty$/gi, "");
-      return Array.from(parent.querySelectorAll<E>(selector)).filter(($ele) => {
-        return $ele?.innerHTML?.trim() === "";
-      });
-    } else if (selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) || selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)) {
-      // contains 语法
-      const textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
-      const text = textMatch![2];
-      selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
-      return Array.from(parent.querySelectorAll<E>(selector)).filter(($ele) => {
-        // @ts-ignore
-        return ($ele?.textContent || $ele?.innerText)?.includes(text);
-      });
-    } else if (selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) || selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)) {
-      // regexp 语法
-      const textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
-      let pattern = textMatch![2];
-      const flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
-      let flags = "";
-      if (flagMatch) {
-        pattern = pattern.replace(/("|'),[\s]*("|')([igm]{0,3})$/gi, "");
-        flags = flagMatch[3];
-      }
-      const regexp = new RegExp(pattern, flags);
-      selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
-      return Array.from(parent.querySelectorAll<E>(selector)).filter(($ele) => {
-        // @ts-ignore
-        return Boolean(($ele?.textContent || $ele?.innerText)?.match(regexp));
-      });
-    } else {
-      // 普通语法
-      return Array.from(parent.querySelectorAll<E>(selector));
-    }
-  }
-  /**
-   * 匹配元素，可使用以下的额外语法
-   *
-   * + :contains([text]) 作用: 找到包含指定文本内容的指定元素
-   * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
-   * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
-   * @param $el 元素
-   * @param selector 选择器
-   * @example
-   * DOMUtils.matches("div:contains('测试')")
-   * > true
-   * @example
-   * DOMUtils.matches("div:empty")
-   * > true
-   * @example
-   * DOMUtils.matches("div:regexp('^xxxx$')")
-   * > true
-   * @example
-   * DOMUtils.matches("div:regexp(/^xxx/ig)")
-   * > false
-   */
-  matches($el: HTMLElement | Element | null | undefined, selector: string): boolean {
-    selector = selector.trim();
-    if ($el == null) {
+  preventEvent($el: HTMLElement, eventNameList?: string | string[], capture?: boolean): void;
+  preventEvent(...args: any[]) {
+    /**
+     * 阻止事件的默认行为发生，并阻止事件传播
+     */
+    const stopEvent = (event: Event) => {
+      /* 阻止事件的默认行为发生。例如，当点击一个链接时，浏览器会默认打开链接的URL */
+      event?.preventDefault();
+      /* 停止事件的传播，阻止它继续向更上层的元素冒泡，事件将不会再传播给其他的元素 */
+      event?.stopPropagation();
+      /* 阻止事件传播，并且还能阻止元素上的其他事件处理程序被触发 */
+      event?.stopImmediatePropagation();
       return false;
-    }
-
-    if (selector.match(/[^\s]{1}:empty$/gi)) {
-      // empty 语法
-      selector = selector.replace(/:empty$/gi, "");
-      return $el.matches(selector) && $el?.innerHTML?.trim() === "";
-    } else if (selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) || selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)) {
-      // contains 语法
-      const textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
-      const text = textMatch![2];
-      selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
-      // @ts-ignore
-      let content = $el?.textContent || $el?.innerText;
-      if (typeof content !== "string") {
-        content = "";
-      }
-      return $el.matches(selector) && content?.includes(text);
-    } else if (selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) || selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)) {
-      // regexp 语法
-      const textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
-      let pattern = textMatch![2];
-      const flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
-      let flags = "";
-      if (flagMatch) {
-        pattern = pattern.replace(/("|'),[\s]*("|')([igm]{0,3})$/gi, "");
-        flags = flagMatch[3];
-      }
-      const regexp = new RegExp(pattern, flags);
-      selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
-      // @ts-ignore
-      let content = $el?.textContent || $el?.innerText;
-      if (typeof content !== "string") {
-        content = "";
-      }
-      return $el.matches(selector) && Boolean(content?.match(regexp));
+    };
+    if (args.length === 1) {
+      /* 直接阻止事件 */
+      return stopEvent(args[0]);
     } else {
-      // 普通语法
-      return $el.matches(selector);
-    }
-  }
-  /**
-   * 根据选择器获取上层元素，可使用以下的额外语法
-   *
-   * + :contains([text]) 作用: 找到包含指定文本内容的指定元素
-   * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
-   * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
-   * @param $el 元素
-   * @param selector 选择器
-   * @example
-   * DOMUtils.closest("div:contains('测试')")
-   * > div.xxx
-   * @example
-   * DOMUtils.closest("div:empty")
-   * > div.xxx
-   * @example
-   * DOMUtils.closest("div:regexp('^xxxx$')")
-   * > div.xxxx
-   * @example
-   * DOMUtils.closest("div:regexp(/^xxx/ig)")
-   * > null
-   */
-  closest<K extends keyof HTMLElementTagNameMap>(
-    $el: HTMLElement | Element,
-    selector: string
-  ): HTMLElementTagNameMap[K] | null;
-  closest<E extends Element = Element>($el: HTMLElement | Element, selector: string): E | null;
-  closest<E extends Element = Element>($el: HTMLElement | Element, selector: string): E | null {
-    selector = selector.trim();
-
-    if (selector.match(/[^\s]{1}:empty$/gi)) {
-      // empty 语法
-      selector = selector.replace(/:empty$/gi, "");
-      const $closest = $el?.closest<E>(selector);
-      if ($closest && $closest?.innerHTML?.trim() === "") {
-        return $closest;
+      const $el: HTMLElement = args[0];
+      let eventNameList: string | string[] = args[1];
+      const capture: boolean = args[2];
+      /* 添加对应的事件来阻止触发 */
+      if (typeof eventNameList === "string") {
+        eventNameList = [eventNameList];
       }
-      return null;
-    } else if (selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) || selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)) {
-      // contains 语法
-      const textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
-      const text = textMatch![2];
-      selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
-      const $closest = $el?.closest<E>(selector);
-      if ($closest) {
-        // @ts-ignore
-        const content = $el?.textContent || $el?.innerText;
-        if (typeof content === "string" && content.includes(text)) {
-          return $closest;
-        }
-      }
-      return null;
-    } else if (selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) || selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)) {
-      // regexp 语法
-      const textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
-      let pattern = textMatch![2];
-      const flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
-      let flags = "";
-      if (flagMatch) {
-        pattern = pattern.replace(/("|'),[\s]*("|')([igm]{0,3})$/gi, "");
-        flags = flagMatch[3];
-      }
-      const regexp = new RegExp(pattern, flags);
-      selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
-      const $closest = $el?.closest<E>(selector);
-      if ($closest) {
-        // @ts-ignore
-        const content = $el?.textContent || $el?.innerText;
-        if (typeof content === "string" && content.match(regexp)) {
-          return $closest;
-        }
-      }
-      return null;
-    } else {
-      // 普通语法
-      const $closest = $el?.closest<E>(selector);
-      return $closest;
+      this.on($el, eventNameList, stopEvent, { capture: Boolean(capture) });
     }
   }
 }
+
+const elementEvent = new ElementEvent();
+
+export { elementEvent, ElementEvent };

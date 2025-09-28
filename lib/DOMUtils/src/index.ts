@@ -1,19 +1,32 @@
-import { DOMUtilsCommonUtils } from "./DOMUtilsCommonUtils";
-import { DOMUtilsEvent } from "./DOMUtilsEvent";
+import { CommonUtils } from "./CommonUtils";
 import type { DOMUtilsCreateElementAttributesMap } from "./types/DOMUtilsEvent";
-import { type ParseHTMLReturnType, type DOMUtilsTargetElementType } from "./types/global";
+import { type DOMUtilsTargetElementType } from "./types/global";
 import type { WindowApiOption } from "./types/WindowApi";
-import { version } from "./../package.json";
+import { version } from "../package.json";
+import { ElementHandler } from "./ElementHandler";
 
-class DOMUtils extends DOMUtilsEvent {
+class DOMUtils extends ElementHandler {
   constructor(option?: WindowApiOption) {
     super(option);
   }
   /** 版本号 */
   version = version;
   /**
+   * 取消挂载在window下的DOMUtils并返回DOMUtils
+   * @example
+   * let DOMUtils = window.DOMUtils.noConflict()
+   */
+  noConflict() {
+    const that = this;
+    if (that.windowApi.window.DOMUtils) {
+      CommonUtils.delete(window, "DOMUtils");
+    }
+    that.windowApi.window.DOMUtils = this;
+    return this;
+  }
+  /**
    * 获取元素的属性值
-   * @param element 目标元素
+   * @param $el 目标元素
    * @param attrName 属性名
    * @example
    * // 获取a.xx元素的href属性
@@ -21,10 +34,10 @@ class DOMUtils extends DOMUtilsEvent {
    * DOMUtils.attr("a.xx","href");
    * > https://xxxx....
    */
-  attr(element: DOMUtilsTargetElementType | Element, attrName: string): string;
+  attr($el: DOMUtilsTargetElementType | Element, attrName: string): string;
   /**
    * 设置元素的属性值
-   * @param element 目标元素
+   * @param $el 目标元素
    * @param attrName 属性名
    * @param attrValue 属性值
    * @example
@@ -32,31 +45,31 @@ class DOMUtils extends DOMUtilsEvent {
    * DOMUtils.attr(document.querySelector("a.xx"),"href","abcd");
    * DOMUtils.attr("a.xx","href","abcd");
    */
-  attr(element: DOMUtilsTargetElementType | Element, attrName: string, attrValue: string | boolean | number): void;
-  attr(element: DOMUtilsTargetElementType | Element, attrName: string, attrValue?: any) {
-    const DOMUtilsContext = this;
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+  attr($el: DOMUtilsTargetElementType | Element, attrName: string, attrValue: string | boolean | number): void;
+  attr($el: DOMUtilsTargetElementType | Element, attrName: string, attrValue?: any) {
+    const that = this;
+    if (typeof $el === "string") {
+      $el = that.selectorAll($el);
     }
-    if (element == null) {
+    if ($el == null) {
       return;
     }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
+    if (CommonUtils.isNodeList($el)) {
       if (attrValue == null) {
         // 获取属性
-        return DOMUtilsContext.attr(element[0] as HTMLElement, attrName, attrValue);
+        return that.attr($el[0] as HTMLElement, attrName, attrValue);
       } else {
         // 设置属性
-        element.forEach(($ele) => {
-          DOMUtilsContext.attr($ele as HTMLElement, attrName, attrValue);
+        $el.forEach(($elItem) => {
+          that.attr($elItem as HTMLElement, attrName, attrValue);
         });
         return;
       }
     }
     if (attrValue == null) {
-      return element.getAttribute(attrName);
+      return $el.getAttribute(attrName);
     } else {
-      element.setAttribute(attrName, attrValue);
+      $el.setAttribute(attrName, attrValue);
     }
   }
   /**
@@ -137,11 +150,11 @@ class DOMUtils extends DOMUtilsEvent {
     /** 自定义属性 */
     attributes?: DOMUtilsCreateElementAttributesMap
   ): HTMLElementTagNameMap[K] {
-    const DOMUtilsContext = this;
-    const tempElement = DOMUtilsContext.windowApi.document.createElement(tagName);
+    const that = this;
+    const $el = that.windowApi.document.createElement(tagName);
     if (typeof property === "string") {
-      DOMUtilsContext.html(tempElement, property);
-      return tempElement;
+      that.html($el, property);
+      return $el;
     }
     if (property == null) {
       property = {};
@@ -152,10 +165,10 @@ class DOMUtils extends DOMUtilsEvent {
     Object.keys(property).forEach((key) => {
       const value = property[key];
       if (key === "innerHTML") {
-        DOMUtilsContext.html(tempElement, value);
+        that.html($el, value);
         return;
       }
-      (tempElement as any)[key] = value;
+      (<any>$el)[key] = value;
     });
     Object.keys(attributes).forEach((key) => {
       let value = attributes[key];
@@ -166,13 +179,13 @@ class DOMUtils extends DOMUtilsEvent {
         /* function转字符串 */
         value = value.toString();
       }
-      tempElement.setAttribute(key, value);
+      $el.setAttribute(key, value);
     });
-    return tempElement;
+    return $el;
   }
   /**
    * 获取元素的样式属性值
-   * @param element 目标元素
+   * @param $el 目标元素
    * @param property 样式属性名或包含多个属性名和属性值的对象
    * @example
    * // 获取元素a.xx的CSS属性display
@@ -180,10 +193,10 @@ class DOMUtils extends DOMUtilsEvent {
    * DOMUtils.css("a.xx","display");
    * > "none"
    * */
-  css(element: DOMUtilsTargetElementType, property: keyof Omit<CSSStyleDeclaration, "zIndex"> | "z-index"): string;
+  css($el: DOMUtilsTargetElementType, property: keyof Omit<CSSStyleDeclaration, "zIndex"> | "z-index"): string;
   /**
    * 获取元素的样式属性值
-   * @param element 目标元素
+   * @param $el 目标元素
    * @param property 样式属性名或包含多个属性名和属性值的对象
    * @example
    * // 获取元素a.xx的CSS属性display
@@ -191,10 +204,10 @@ class DOMUtils extends DOMUtilsEvent {
    * DOMUtils.css("a.xx","display");
    * > "none"
    * */
-  css(element: DOMUtilsTargetElementType, property: string): string;
+  css($el: DOMUtilsTargetElementType, property: string): string;
   /**
    * 设置元素的样式属性
-   * @param element 目标元素
+   * @param $el 目标元素
    * @param property 样式属性名或包含多个属性名和属性值的对象
    * @param value 样式属性值
    * @example
@@ -209,13 +222,13 @@ class DOMUtils extends DOMUtilsEvent {
    * DOMUtils.css(document.querySelector("a.xx"),"top",10);
    * */
   css(
-    element: DOMUtilsTargetElementType,
+    $el: DOMUtilsTargetElementType,
     property: (keyof Omit<CSSStyleDeclaration, "zIndex"> | "z-index") & string,
     value: string | number
   ): string;
   /**
    * 设置元素的样式属性
-   * @param element 目标元素
+   * @param $el 目标元素
    * @param property 样式属性名或包含多个属性名和属性值的对象
    * @param value 样式属性值
    * @example
@@ -228,7 +241,7 @@ class DOMUtils extends DOMUtilsEvent {
    * DOMUtils.css(document.querySelector("a.xx"),{ top: 10 });
    * */
   css(
-    element: DOMUtilsTargetElementType,
+    $el: DOMUtilsTargetElementType,
     property:
       | {
           [P in keyof Omit<CSSStyleDeclaration, "zIndex">]?: CSSStyleDeclaration[P];
@@ -241,7 +254,7 @@ class DOMUtils extends DOMUtilsEvent {
         }
   ): string;
   css(
-    element: DOMUtilsTargetElementType,
+    $el: DOMUtilsTargetElementType,
     property:
       | keyof Omit<CSSStyleDeclaration, "zIndex">
       | string
@@ -250,7 +263,7 @@ class DOMUtils extends DOMUtilsEvent {
         },
     value?: string | number
   ) {
-    const DOMUtilsContext = this;
+    const that = this;
     /**
      * 把纯数字没有px的加上
      */
@@ -264,28 +277,28 @@ class DOMUtils extends DOMUtilsEvent {
       }
       return propertyValue;
     }
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+    if (typeof $el === "string") {
+      $el = that.selectorAll($el);
     }
-    if (element == null) {
+    if ($el == null) {
       return;
     }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
+    if (CommonUtils.isNodeList($el)) {
       if (typeof property === "string") {
         if (value == null) {
           // 获取属性
-          return DOMUtilsContext.css(element[0] as HTMLElement, property);
+          return that.css($el[0] as HTMLElement, property);
         } else {
           // 设置属性
-          element.forEach(($ele) => {
-            DOMUtilsContext.css($ele as HTMLElement, property);
+          $el.forEach(($elItem) => {
+            that.css($elItem as HTMLElement, property);
           });
           return;
         }
       } else if (typeof property === "object") {
         // 设置属性
-        element.forEach(($ele) => {
-          DOMUtilsContext.css($ele as HTMLElement, property as object);
+        $el.forEach(($elItem) => {
+          that.css($elItem as HTMLElement, property as object);
         });
         return;
       }
@@ -297,15 +310,15 @@ class DOMUtils extends DOMUtilsEvent {
           .trim()
           .replace(/!important$/gi, "")
           .trim();
-        element.style.setProperty(propertyName, propertyValue, "important");
+        $el.style.setProperty(propertyName, propertyValue, "important");
       } else {
         propertyValue = handlePixe(propertyName, propertyValue);
-        element.style.setProperty(propertyName, propertyValue);
+        $el.style.setProperty(propertyName, propertyValue);
       }
     };
     if (typeof property === "string") {
       if (value == null) {
-        return DOMUtilsContext.windowApi.globalThis.getComputedStyle(element).getPropertyValue(property);
+        return that.windowApi.globalThis.getComputedStyle($el).getPropertyValue(property);
       } else {
         setStyleProperty(property, value);
       }
@@ -321,7 +334,7 @@ class DOMUtils extends DOMUtilsEvent {
   }
   /**
    * 获取元素的文本内容，优先返回textContent
-   * @param element 目标元素
+   * @param $el 目标元素
    * @returns 如果传入了text，则返回undefined；否则返回文本内容
    * @example
    * // 设置元素a.xx的文本内容为abcd
@@ -329,10 +342,10 @@ class DOMUtils extends DOMUtilsEvent {
    * DOMUtils.text("a.xx","abcd")
    * DOMUtils.text("a.xx",document.querySelector("b"))
    * */
-  text(element: DOMUtilsTargetElementType | Element | DocumentFragment | Node): string;
+  text($el: DOMUtilsTargetElementType | Element | DocumentFragment | Node): string;
   /**
    * 设置元素的文本内容
-   * @param element 目标元素
+   * @param $el 目标元素
    * @param text （可选）文本内容
    * @returns 如果传入了text，则返回undefined；否则返回文本内容
    * @example
@@ -342,43 +355,42 @@ class DOMUtils extends DOMUtilsEvent {
    * DOMUtils.text("a.xx",document.querySelector("b"))
    * */
   text(
-    element: DOMUtilsTargetElementType | Element | DocumentFragment | Node,
+    $el: DOMUtilsTargetElementType | Element | DocumentFragment | Node,
     text: string | HTMLElement | Element | number
   ): void;
-  text(element: DOMUtilsTargetElementType | Element | DocumentFragment | Node, text?: any) {
-    const DOMUtilsContext = this;
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+  text($el: DOMUtilsTargetElementType | Element | DocumentFragment | Node, text?: any) {
+    const that = this;
+    if (typeof $el === "string") {
+      $el = that.selectorAll($el);
     }
-    if (element == null) {
+    if ($el == null) {
       return;
     }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
+    if (CommonUtils.isNodeList($el)) {
       if (text == null) {
         // 获取
-        return DOMUtilsContext.text(element[0] as HTMLElement);
+        return that.text($el[0] as HTMLElement);
       } else {
         // 设置
-        element.forEach(($ele) => {
-          DOMUtilsContext.text($ele as HTMLElement, text);
+        $el.forEach(($elItem) => {
+          that.text($elItem as HTMLElement, text);
         });
       }
       return;
     }
     if (text == null) {
-      return element.textContent || (<HTMLElement>element).innerText;
+      return $el.textContent || (<HTMLElement>$el).innerText;
     } else {
       if (text instanceof Node) {
         text = text.textContent || (text as HTMLElement).innerText;
       }
-      if ("textContent" in element) {
-        element.textContent = text as string;
-      } else if ("innerText" in element) {
-        (element as HTMLElement).innerText = text as string;
+      if ("textContent" in $el) {
+        $el.textContent = text as string;
+      } else if ("innerText" in $el) {
+        ($el as HTMLElement).innerText = text as string;
       }
     }
   }
-
   /**
    * 设置元素的HTML内容
    * @param element 目标元素
@@ -393,7 +405,7 @@ class DOMUtils extends DOMUtilsEvent {
   html(element: DOMUtilsTargetElementType, html: string | HTMLElement | Element | number): void;
   /**
    * 获取元素的HTML内容
-   * @param element 目标元素
+   * @param $el 目标元素
    * @param html （可选）HTML内容|元素
    * @returns 如果传入了html，则返回undefined；否则返回HTML内容
    * @example
@@ -402,37 +414,37 @@ class DOMUtils extends DOMUtilsEvent {
    * DOMUtils.html("a.xx","<b>abcd</b>")
    * DOMUtils.html("a.xx",document.querySelector("b"))
    * */
-  html(element: DOMUtilsTargetElementType): string;
-  html(element: DOMUtilsTargetElementType, html?: any) {
-    const DOMUtilsContext = this;
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+  html($el: DOMUtilsTargetElementType): string;
+  html($el: DOMUtilsTargetElementType, html?: any) {
+    const that = this;
+    if (typeof $el === "string") {
+      $el = that.selectorAll($el);
     }
-    if (element == null) {
+    if ($el == null) {
       return;
     }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
+    if (CommonUtils.isNodeList($el)) {
       if (html == null) {
         // 获取
-        return DOMUtilsContext.html(element[0] as HTMLElement);
+        return that.html($el[0] as HTMLElement);
       } else {
         // 设置
-        element.forEach(($ele) => {
-          DOMUtilsContext.html($ele as HTMLElement, html);
+        $el.forEach(($elItem) => {
+          that.html($elItem as HTMLElement, html);
         });
       }
       return;
     }
     if (html == null) {
       // 获取
-      return element.innerHTML;
+      return $el.innerHTML;
     } else {
       // 设置
       if (html instanceof Element) {
         html = html.innerHTML;
       }
-      if ("innerHTML" in element) {
-        DOMUtilsCommonUtils.setSafeHTML(element, html);
+      if ("innerHTML" in $el) {
+        CommonUtils.setSafeHTML($el, html);
       }
     }
   }
@@ -440,23 +452,23 @@ class DOMUtils extends DOMUtilsEvent {
    * 获取移动元素的transform偏移
    */
   getTransform(
-    element: HTMLElement,
+    $el: HTMLElement,
     isShow: boolean = false
   ): {
     transformLeft: number;
     transformTop: number;
   } {
-    const DOMUtilsContext = this;
+    const that = this;
     let transform_left = 0;
     let transform_top = 0;
-    if (!(isShow || (!isShow && DOMUtilsCommonUtils.isShow(element)))) {
+    if (!(isShow || (!isShow && CommonUtils.isShow($el)))) {
       /* 未显示 */
-      const { recovery } = DOMUtilsCommonUtils.showElement(element);
-      const transformInfo = DOMUtilsContext.getTransform(element, true);
+      const { recovery } = CommonUtils.forceShow($el);
+      const transformInfo = that.getTransform($el, true);
       recovery();
       return transformInfo;
     }
-    const elementTransform = DOMUtilsContext.windowApi.globalThis.getComputedStyle(element).transform;
+    const elementTransform = that.windowApi.globalThis.getComputedStyle($el).transform;
     if (elementTransform != null && elementTransform !== "none" && elementTransform !== "") {
       const elementTransformSplit = elementTransform.match(/\((.+)\)/)?.[1].split(",");
       if (elementTransformSplit) {
@@ -475,7 +487,7 @@ class DOMUtils extends DOMUtilsEvent {
 
   /**
    * 设置元素的value属性值
-   * @param element 目标元素
+   * @param $el 目标元素
    * @param value （可选）value属性值
    * @returns 如果传入了value，则返回undefined；否则返回value属性值
    * > true
@@ -485,7 +497,7 @@ class DOMUtils extends DOMUtilsEvent {
    * DOMUtils.val("input.xx",true)
    * */
   val(
-    element:
+    $el:
       | HTMLInputElement
       | HTMLTextAreaElement
       | HTMLSelectElement
@@ -496,13 +508,13 @@ class DOMUtils extends DOMUtilsEvent {
   ): void;
   /**
    * 获取value属性值
-   * @param element 目标元素
+   * @param $el 目标元素
    * @example
    * // 获取元素textarea的值
    * DOMUtils.val(document.querySelector("textarea.xx"))
    * */
   val(
-    element:
+    $el:
       | HTMLInputElement
       | HTMLTextAreaElement
       | HTMLSelectElement
@@ -512,14 +524,14 @@ class DOMUtils extends DOMUtilsEvent {
   ): string;
   /**
    * 获取value属性值
-   * @param element 目标元素
+   * @param $el 目标元素
    * @example
    * // 获取元素input.xx的复选框值
    * DOMUtils.val(document.querySelector("input.xx"))
    * DOMUtils.val("input.xx")
    * */
   val(
-    element:
+    $el:
       | HTMLInputElement
       | HTMLTextAreaElement
       | HTMLSelectElement
@@ -527,7 +539,7 @@ class DOMUtils extends DOMUtilsEvent {
       | NodeListOf<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ): boolean | string;
   val(
-    element:
+    $el:
       | HTMLInputElement
       | HTMLTextAreaElement
       | HTMLSelectElement
@@ -536,45 +548,44 @@ class DOMUtils extends DOMUtilsEvent {
       | NodeListOf<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
     value?: string | boolean | number
   ) {
-    const DOMUtilsContext = this;
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+    const that = this;
+    if (typeof $el === "string") {
+      $el = that.selectorAll($el);
     }
-    if (element == null) {
+    if ($el == null) {
       return;
     }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
+    if (CommonUtils.isNodeList($el)) {
       if (value == null) {
         // 获取
-        return DOMUtilsContext.val(element[0] as HTMLInputElement);
+        return that.val($el[0] as HTMLInputElement);
       } else {
         // 设置
-        element.forEach(($ele) => {
-          DOMUtilsContext.val($ele as HTMLInputElement, value);
+        $el.forEach(($elItem) => {
+          that.val($elItem as HTMLInputElement, value);
         });
       }
       return;
     }
     if (value == null) {
       // 获取
-      if (element.localName === "input" && (element.type === "checkbox" || element.type === "radio")) {
-        return (element as HTMLInputElement).checked;
+      if ($el.localName === "input" && ($el.type === "checkbox" || $el.type === "radio")) {
+        return ($el as HTMLInputElement).checked;
       } else {
-        return element.value;
+        return $el.value;
       }
     } else {
       // 设置
-      if (element.localName === "input" && (element.type === "checkbox" || element.type === "radio")) {
-        (element as HTMLInputElement).checked = !!value;
+      if ($el.localName === "input" && ($el.type === "checkbox" || $el.type === "radio")) {
+        ($el as HTMLInputElement).checked = !!value;
       } else {
-        element.value = value as string;
+        $el.value = value as string;
       }
     }
   }
-
   /**
    * 获取元素的属性值
-   * @param element 目标元素
+   * @param $el 目标元素
    * @param propName 属性名
    * @param propValue 属性值
    * @example
@@ -583,10 +594,10 @@ class DOMUtils extends DOMUtilsEvent {
    * DOMUtils.val("a.xx","data-value")
    * > undefined
    * */
-  prop<T>(element: DOMUtilsTargetElementType | DocumentFragment, propName: string): T;
+  prop<T>($el: DOMUtilsTargetElementType | DocumentFragment, propName: string): T;
   /**
    * 设置元素的属性值
-   * @param element 目标元素
+   * @param $el 目标元素
    * @param propName 属性名
    * @param propValue 属性值
    * @example
@@ -594,181 +605,146 @@ class DOMUtils extends DOMUtilsEvent {
    * DOMUtils.val(document.querySelector("a.xx"),"data-value",1)
    * DOMUtils.val("a.xx","data-value",1)
    * */
-  prop<T>(element: DOMUtilsTargetElementType | DocumentFragment, propName: string, propValue: T): void;
-  prop(element: DOMUtilsTargetElementType | DocumentFragment, propName: string, propValue?: any) {
-    const DOMUtilsContext = this;
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+  prop<T>($el: DOMUtilsTargetElementType | DocumentFragment, propName: string, propValue: T): void;
+  prop($el: DOMUtilsTargetElementType | DocumentFragment, propName: string, propValue?: any) {
+    const that = this;
+    if (typeof $el === "string") {
+      $el = that.selectorAll($el);
     }
-    if (element == null) {
+    if ($el == null) {
       return;
     }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
+    if (CommonUtils.isNodeList($el)) {
       if (propValue == null) {
         // 获取
-        return DOMUtilsContext.prop(element[0] as HTMLElement, propName);
+        return that.prop($el[0] as HTMLElement, propName);
       } else {
         // 设置
-        element.forEach(($ele) => {
-          DOMUtilsContext.prop($ele as HTMLElement, propName, propValue);
+        $el.forEach(($elItem) => {
+          that.prop($elItem as HTMLElement, propName, propValue);
         });
       }
       return;
     }
     if (propValue == null) {
-      return Reflect.get(element, propName);
+      return Reflect.get($el, propName);
     } else {
-      if (element instanceof Element && propName === "innerHTML") {
-        DOMUtilsContext.html(element, propValue);
+      if ($el instanceof Element && propName === "innerHTML") {
+        that.html($el, propValue);
       } else {
-        Reflect.set(element, propName, propValue);
+        Reflect.set($el, propName, propValue);
       }
     }
   }
   /**
    * 移除元素的属性
-   * @param element 目标元素
+   * @param $el 目标元素
    * @param attrName 属性名
    * @example
    * // 移除元素a.xx的属性data-value
    * DOMUtils.removeAttr(document.querySelector("a.xx"),"data-value")
    * DOMUtils.removeAttr("a.xx","data-value")
    * */
-  removeAttr(element: DOMUtilsTargetElementType | Element, attrName: string) {
-    const DOMUtilsContext = this;
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+  removeAttr($el: DOMUtilsTargetElementType | Element, attrName: string) {
+    const that = this;
+    if (typeof $el === "string") {
+      $el = that.selectorAll($el);
     }
-    if (element == null) {
+    if ($el == null) {
       return;
     }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
+    if (CommonUtils.isNodeList($el)) {
       // 设置
-      element.forEach(($ele) => {
-        DOMUtilsContext.removeAttr($ele as HTMLElement, attrName);
+      $el.forEach(($elItem) => {
+        that.removeAttr($elItem as HTMLElement, attrName);
       });
       return;
     }
-    element.removeAttribute(attrName);
+    $el.removeAttribute(attrName);
   }
   /**
    * 移除元素class名
-   * @param element 目标元素
+   * @param $el 目标元素
    * @param className 类名
    * @example
    * // 移除元素a.xx的className为xx
    * DOMUtils.removeClass(document.querySelector("a.xx"),"xx")
    * DOMUtils.removeClass("a.xx","xx")
    */
-  removeClass(element: DOMUtilsTargetElementType | Element, className?: string | string[] | undefined | null) {
-    const DOMUtilsContext = this;
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+  removeClass($el: DOMUtilsTargetElementType | Element, className?: string | string[] | undefined | null) {
+    const that = this;
+    if (typeof $el === "string") {
+      $el = that.selectorAll($el);
     }
-    if (element == null) {
+    if ($el == null) {
       return;
     }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
+    if (CommonUtils.isNodeList($el)) {
       // 设置
-      element.forEach(($ele) => {
-        DOMUtilsContext.removeClass($ele as HTMLElement, className);
+      $el.forEach(($elItem) => {
+        that.removeClass($elItem as HTMLElement, className);
       });
       return;
     }
     if (className == null) {
       // 清空全部className
-      element.className = "";
+      $el.className = "";
     } else {
       if (!Array.isArray(className)) {
         className = className.trim().split(" ");
       }
       className.forEach((itemClassName) => {
-        element.classList.remove(itemClassName);
+        $el.classList.remove(itemClassName);
       });
     }
   }
   /**
    * 移除元素的属性
-   * @param element 目标元素
+   * @param $el 目标元素
    * @param propName 属性名
    * @example
    * // 移除元素a.xx的href属性
    * DOMUtils.removeProp(document.querySelector("a.xx"),"href")
    * DOMUtils.removeProp("a.xx","href")
    * */
-  removeProp(element: DOMUtilsTargetElementType | DocumentFragment, propName: string) {
-    const DOMUtilsContext = this;
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+  removeProp($el: DOMUtilsTargetElementType | DocumentFragment, propName: string) {
+    const that = this;
+    if (typeof $el === "string") {
+      $el = that.selectorAll($el);
     }
-    if (element == null) {
+    if ($el == null) {
       return;
     }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
+    if (CommonUtils.isNodeList($el)) {
       // 设置
-      element.forEach(($ele) => {
-        DOMUtilsContext.removeProp($ele as HTMLElement, propName);
+      $el.forEach(($elItem) => {
+        that.removeProp($elItem as HTMLElement, propName);
       });
       return;
     }
-    DOMUtilsCommonUtils.delete(element, propName);
-  }
-  /**
-   * 将一个元素替换为另一个元素
-   * @param element 目标元素
-   * @param newElement 新元素
-   * @example
-   * // 替换元素a.xx为b.xx
-   * DOMUtils.replaceWith(document.querySelector("a.xx"),document.querySelector("b.xx"))
-   * DOMUtils.replaceWith("a.xx",'<b class="xx"></b>')
-   */
-  replaceWith(element: DOMUtilsTargetElementType, newElement: HTMLElement | string | Node) {
-    const DOMUtilsContext = this;
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
-    }
-    if (element == null) {
-      return;
-    }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
-      // 设置
-      element.forEach(($ele) => {
-        DOMUtilsContext.replaceWith($ele as HTMLElement, newElement);
-      });
-      return;
-    }
-    if (typeof newElement === "string") {
-      newElement = DOMUtilsContext.parseHTML(newElement, false, false);
-    }
-    const $parent = element.parentElement;
-    if ($parent) {
-      $parent.replaceChild(newElement as Node, element);
-    } else {
-      DOMUtilsContext.after(element, newElement as HTMLElement);
-      element.remove();
-    }
+    CommonUtils.delete($el, propName);
   }
   /**
    * 给元素添加class
-   * @param element 目标元素
+   * @param $el 目标元素
    * @param className class名
    * @example
    * // 元素a.xx的className添加_vue_
    * DOMUtils.addClass(document.querySelector("a.xx"),"_vue_")
    * DOMUtils.addClass("a.xx","_vue_")
    * */
-  addClass(element: DOMUtilsTargetElementType | Element, className: string | string[]) {
-    const DOMUtilsContext = this;
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+  addClass($el: DOMUtilsTargetElementType | Element, className: string | string[]) {
+    const that = this;
+    if (typeof $el === "string") {
+      $el = that.selectorAll($el);
     }
-    if (element == null) {
+    if ($el == null) {
       return;
     }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
+    if (CommonUtils.isNodeList($el)) {
       // 设置
-      element.forEach(($ele) => {
-        DOMUtilsContext.addClass($ele as HTMLElement, className);
+      $el.forEach(($elItem) => {
+        that.addClass($elItem as HTMLElement, className);
       });
       return;
     }
@@ -779,31 +755,31 @@ class DOMUtils extends DOMUtilsEvent {
       if (itemClassName.trim() == "") {
         return;
       }
-      element.classList.add(itemClassName);
+      $el.classList.add(itemClassName);
     });
   }
   /**
    * 判断元素是否存在className
-   * @param element
+   * @param $el
    * @param className
    */
-  hasClass(element: DOMUtilsTargetElementType | Element, className: string | string[]): boolean {
-    const DOMUtilsContext = this;
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+  hasClass($el: DOMUtilsTargetElementType | Element, className: string | string[]): boolean {
+    const that = this;
+    if (typeof $el === "string") {
+      $el = that.selectorAll($el);
     }
-    if (element == null) {
+    if ($el == null) {
       return false;
     }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
+    if (CommonUtils.isNodeList($el)) {
       let flag = true;
-      for (let index = 0; index < element.length; index++) {
-        const $ele = element[index] as HTMLElement;
-        flag = flag && DOMUtilsContext.hasClass($ele, className);
+      for (let index = 0; index < $el.length; index++) {
+        const $elItem = $el[index] as HTMLElement;
+        flag = flag && that.hasClass($elItem, className);
       }
       return flag;
     }
-    if (!element?.classList) {
+    if (!$el?.classList) {
       return false;
     }
     if (!Array.isArray(className)) {
@@ -811,7 +787,7 @@ class DOMUtils extends DOMUtilsEvent {
     }
     for (let index = 0; index < className.length; index++) {
       const item = className[index].trim();
-      if (!element.classList.contains(item)) {
+      if (!$el.classList.contains(item)) {
         return false;
       }
     }
@@ -819,7 +795,7 @@ class DOMUtils extends DOMUtilsEvent {
   }
   /**
    * 函数在元素内部末尾添加子元素或HTML字符串
-   * @param element 目标元素
+   * @param $el 目标元素
    * @param content 子元素或HTML字符串
    * @example
    * // 元素a.xx的内部末尾添加一个元素
@@ -827,21 +803,21 @@ class DOMUtils extends DOMUtilsEvent {
    * DOMUtils.append("a.xx","'<b class="xx"></b>")
    * */
   append(
-    element: DOMUtilsTargetElementType | DocumentFragment,
+    $el: DOMUtilsTargetElementType | DocumentFragment,
     content: HTMLElement | string | (HTMLElement | string | Element)[] | NodeList
   ) {
-    const DOMUtilsContext = this;
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+    const that = this;
+    if (typeof $el === "string") {
+      $el = that.selectorAll($el);
     }
-    if (element == null) {
+    if ($el == null) {
       return;
     }
 
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
+    if (CommonUtils.isNodeList($el)) {
       // 设置
-      element.forEach(($ele) => {
-        DOMUtilsContext.append($ele as HTMLElement, content);
+      $el.forEach(($elItem) => {
+        that.append($elItem as HTMLElement, content);
       });
       return;
     }
@@ -849,11 +825,11 @@ class DOMUtils extends DOMUtilsEvent {
       if (typeof content === "string") {
         if (ele instanceof DocumentFragment) {
           if (typeof text === "string") {
-            text = DOMUtilsContext.parseHTML(text, true, false);
+            text = that.toElement(text, true, false);
           }
           ele.appendChild(text);
         } else {
-          ele.insertAdjacentHTML("beforeend", DOMUtilsCommonUtils.getSafeHTML(text as string));
+          ele.insertAdjacentHTML("beforeend", CommonUtils.createSafeHTML(text as string));
         }
       } else {
         ele.appendChild(text as HTMLElement);
@@ -861,91 +837,91 @@ class DOMUtils extends DOMUtilsEvent {
     }
     if (Array.isArray(content) || content instanceof NodeList) {
       /* 数组 */
-      const fragment = DOMUtilsContext.windowApi.document.createDocumentFragment();
+      const fragment = that.windowApi.document.createDocumentFragment();
       content.forEach((ele) => {
         if (typeof ele === "string") {
           // 转为元素
-          ele = DOMUtilsContext.parseHTML(ele, true, false);
+          ele = that.toElement(ele, true, false);
         }
         fragment.appendChild(ele);
       });
-      element.appendChild(fragment);
+      $el.appendChild(fragment);
     } else {
-      elementAppendChild(element, content);
+      elementAppendChild($el, content);
     }
   }
   /**
    * 函数 在元素内部开头添加子元素或HTML字符串
-   * @param element 目标元素
+   * @param $el 目标元素
    * @param content 子元素或HTML字符串
    * @example
    * // 元素a.xx内部开头添加一个元素
    * DOMUtils.prepend(document.querySelector("a.xx"),document.querySelector("b.xx"))
    * DOMUtils.prepend("a.xx","'<b class="xx"></b>")
    * */
-  prepend(element: DOMUtilsTargetElementType | DocumentFragment, content: HTMLElement | string) {
-    const DOMUtilsContext = this;
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+  prepend($el: DOMUtilsTargetElementType | DocumentFragment, content: HTMLElement | string) {
+    const that = this;
+    if (typeof $el === "string") {
+      $el = that.selectorAll($el);
     }
-    if (element == null) {
+    if ($el == null) {
       return;
     }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
+    if (CommonUtils.isNodeList($el)) {
       // 设置
-      element.forEach(($ele) => {
-        DOMUtilsContext.prepend($ele as HTMLElement, content);
+      $el.forEach(($elItem) => {
+        that.prepend($elItem as HTMLElement, content);
       });
       return;
     }
     if (typeof content === "string") {
-      if (element instanceof DocumentFragment) {
-        content = DOMUtilsContext.parseHTML(content, true, false);
-        element.prepend(content);
+      if ($el instanceof DocumentFragment) {
+        content = that.toElement(content, true, false);
+        $el.prepend(content);
       } else {
-        element.insertAdjacentHTML("afterbegin", DOMUtilsCommonUtils.getSafeHTML(content));
+        $el.insertAdjacentHTML("afterbegin", CommonUtils.createSafeHTML(content));
       }
     } else {
-      const $firstChild = element.firstChild;
+      const $firstChild = $el.firstChild;
       if ($firstChild == null) {
-        element.prepend(content);
+        $el.prepend(content);
       } else {
-        element.insertBefore(content, $firstChild);
+        $el.insertBefore(content, $firstChild);
       }
     }
   }
   /**
    * 在元素后面添加兄弟元素或HTML字符串
-   * @param element 目标元素
+   * @param $el 目标元素
    * @param content 兄弟元素或HTML字符串
    * @example
    * // 元素a.xx后面添加一个元素
    * DOMUtils.after(document.querySelector("a.xx"),document.querySelector("b.xx"))
    * DOMUtils.after("a.xx","'<b class="xx"></b>")
    * */
-  after(element: DOMUtilsTargetElementType, content: HTMLElement | string) {
-    const DOMUtilsContext = this;
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+  after($el: DOMUtilsTargetElementType, content: HTMLElement | string) {
+    const that = this;
+    if (typeof $el === "string") {
+      $el = that.selectorAll($el);
     }
-    if (element == null) {
+    if ($el == null) {
       return;
     }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
+    if (CommonUtils.isNodeList($el)) {
       // 设置
-      element.forEach(($ele) => {
-        DOMUtilsContext.after($ele as HTMLElement, content);
+      $el.forEach(($elItem) => {
+        that.after($elItem as HTMLElement, content);
       });
       return;
     }
     if (typeof content === "string") {
-      element.insertAdjacentHTML("afterend", DOMUtilsCommonUtils.getSafeHTML(content));
+      $el.insertAdjacentHTML("afterend", CommonUtils.createSafeHTML(content));
     } else {
-      const $parent = element.parentElement;
-      const $nextSlibling = element.nextSibling;
+      const $parent = $el.parentElement;
+      const $nextSlibling = $el.nextSibling;
       if (!$parent || $nextSlibling) {
         // 任意一个不行
-        element.after(content);
+        $el.after(content);
       } else {
         $parent.insertBefore(content, $nextSlibling);
       }
@@ -953,128 +929,128 @@ class DOMUtils extends DOMUtilsEvent {
   }
   /**
    * 在元素前面添加兄弟元素或HTML字符串
-   * @param element 目标元素
+   * @param $el 目标元素
    * @param content 兄弟元素或HTML字符串
    * @example
    * // 元素a.xx前面添加一个元素
    * DOMUtils.before(document.querySelector("a.xx"),document.querySelector("b.xx"))
    * DOMUtils.before("a.xx","'<b class="xx"></b>")
    * */
-  before(element: DOMUtilsTargetElementType, content: HTMLElement | string) {
-    const DOMUtilsContext = this;
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+  before($el: DOMUtilsTargetElementType, content: HTMLElement | string) {
+    const that = this;
+    if (typeof $el === "string") {
+      $el = that.selectorAll($el);
     }
-    if (element == null) {
+    if ($el == null) {
       return;
     }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
+    if (CommonUtils.isNodeList($el)) {
       // 设置
-      element.forEach(($ele) => {
-        DOMUtilsContext.before($ele as HTMLElement, content);
+      $el.forEach(($elItem) => {
+        that.before($elItem as HTMLElement, content);
       });
       return;
     }
     if (typeof content === "string") {
-      element.insertAdjacentHTML("beforebegin", DOMUtilsCommonUtils.getSafeHTML(content));
+      $el.insertAdjacentHTML("beforebegin", CommonUtils.createSafeHTML(content));
     } else {
-      const $parent = element.parentElement;
+      const $parent = $el.parentElement;
       if (!$parent) {
-        element.before(content);
+        $el.before(content);
       } else {
-        $parent.insertBefore(content, element);
+        $parent.insertBefore(content, $el);
       }
     }
   }
   /**
    * 移除元素
-   * @param element 目标元素
+   * @param $el 目标元素
    * @example
    * // 元素a.xx前面添加一个元素
    * DOMUtils.remove(document.querySelector("a.xx"))
    * DOMUtils.remove(document.querySelectorAll("a.xx"))
    * DOMUtils.remove("a.xx")
    * */
-  remove(element: DOMUtilsTargetElementType | Element) {
-    const DOMUtilsContext = this;
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+  remove($el: DOMUtilsTargetElementType | Element) {
+    const that = this;
+    if (typeof $el === "string") {
+      $el = that.selectorAll($el);
     }
-    if (element == null) {
+    if ($el == null) {
       return;
     }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
-      element.forEach(($ele) => {
-        DOMUtilsContext.remove($ele as HTMLElement);
+    if (CommonUtils.isNodeList($el)) {
+      $el.forEach(($elItem) => {
+        that.remove($elItem as HTMLElement);
       });
       return;
     }
-    if (typeof element.remove === "function") {
-      element.remove();
-    } else if (element.parentElement) {
-      element.parentElement.removeChild(element);
-    } else if (element.parentNode) {
-      element.parentNode.removeChild(element);
+    if (typeof $el.remove === "function") {
+      $el.remove();
+    } else if ($el.parentElement) {
+      $el.parentElement.removeChild($el);
+    } else if ($el.parentNode) {
+      $el.parentNode.removeChild($el);
     }
   }
   /**
    * 移除元素的所有子元素
-   * @param element 目标元素
+   * @param $el 目标元素
    * @example
    * // 移除元素a.xx元素的所有子元素
    * DOMUtils.empty(document.querySelector("a.xx"))
    * DOMUtils.empty("a.xx")
    * */
-  empty(element: DOMUtilsTargetElementType | Element) {
-    const DOMUtilsContext = this;
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+  empty($el: DOMUtilsTargetElementType | Element) {
+    const that = this;
+    if (typeof $el === "string") {
+      $el = that.selectorAll($el);
     }
-    if (element == null) {
+    if ($el == null) {
       return;
     }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
+    if (CommonUtils.isNodeList($el)) {
       // 设置
-      element.forEach(($ele) => {
-        DOMUtilsContext.empty($ele as HTMLElement);
+      $el.forEach(($elItem) => {
+        that.empty($elItem as HTMLElement);
       });
       return;
     }
-    if (element.innerHTML) {
-      element.innerHTML = "";
-    } else if (element.textContent) {
-      element.textContent = "";
+    if ($el.innerHTML) {
+      $el.innerHTML = "";
+    } else if ($el.textContent) {
+      $el.textContent = "";
     }
   }
   /**
    * 获取元素相对于文档的偏移坐标（加上文档的滚动条）
-   * @param element 目标元素
+   * @param $el 目标元素
    * @example
    * // 获取元素a.xx的对于文档的偏移坐标
    * DOMUtils.offset(document.querySelector("a.xx"))
    * DOMUtils.offset("a.xx")
    * > 0
    */
-  offset(element: HTMLElement | string) {
-    const DOMUtilsContext = this;
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selector(element) as HTMLElement;
+  offset($el: HTMLElement | string) {
+    const that = this;
+    if (typeof $el === "string") {
+      $el = that.selector($el) as HTMLElement;
     }
-    if (element == null) {
+    if ($el == null) {
       return;
     }
 
-    const rect = element.getBoundingClientRect();
+    const rect = $el.getBoundingClientRect();
     return {
       /** y轴偏移 */
-      top: rect.top + DOMUtilsContext.windowApi.globalThis.scrollY,
+      top: rect.top + that.windowApi.globalThis.scrollY,
       /** x轴偏移 */
-      left: rect.left + DOMUtilsContext.windowApi.globalThis.scrollX,
+      left: rect.left + that.windowApi.globalThis.scrollX,
     };
   }
   /**
    * 获取元素的宽度
-   * @param element 要获取宽度的元素
+   * @param $el 要获取宽度的元素
    * @param value 宽度值
    * @param isShow 是否已进行isShow，避免爆堆栈
    * @returns 元素的宽度，单位为像素
@@ -1091,43 +1067,43 @@ class DOMUtils extends DOMUtilsEvent {
    * DOMUtils.width(document.querySelector("a.xx"),200)
    * DOMUtils.width("a.xx",200)
    */
-  width(element: HTMLElement | string | Window | typeof globalThis | Document, isShow?: boolean): number;
-  width(element: HTMLElement | string | Window | typeof globalThis | Document, isShow: boolean = false): number {
-    const DOMUtilsContext = this;
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selector<HTMLElement>(element)!;
+  width($el: HTMLElement | string | Window | typeof globalThis | Document, isShow?: boolean): number;
+  width($el: HTMLElement | string | Window | typeof globalThis | Document, isShow: boolean = false): number {
+    const that = this;
+    if (typeof $el === "string") {
+      $el = that.selector<HTMLElement>($el)!;
     }
-    if (DOMUtilsCommonUtils.isWin(element)) {
-      return DOMUtilsContext.windowApi.window.document.documentElement.clientWidth;
+    if (CommonUtils.isWin($el)) {
+      return that.windowApi.window.document.documentElement.clientWidth;
     }
-    if ((element as HTMLElement).nodeType === 9) {
+    if (($el as HTMLElement).nodeType === 9) {
       /* Document文档节点 */
-      element = element as Document;
+      $el = $el as Document;
       return Math.max(
-        element.body.scrollWidth,
-        element.documentElement.scrollWidth,
-        element.body.offsetWidth,
-        element.documentElement.offsetWidth,
-        element.documentElement.clientWidth
+        $el.body.scrollWidth,
+        $el.documentElement.scrollWidth,
+        $el.body.offsetWidth,
+        $el.documentElement.offsetWidth,
+        $el.documentElement.clientWidth
       );
     }
-    if (isShow || (!isShow && DOMUtilsCommonUtils.isShow(element as HTMLElement))) {
+    if (isShow || (!isShow && CommonUtils.isShow($el as HTMLElement))) {
       /* 已显示 */
       /* 不从style中获取对应的宽度，因为可能使用了class定义了width !important */
-      element = element as HTMLElement;
+      $el = $el as HTMLElement;
       /* 如果element.style.width为空  则从css里面获取是否定义了width信息如果定义了 则读取css里面定义的宽度width */
-      if (parseFloat(DOMUtilsCommonUtils.getStyleValue(element, "width").toString()) > 0) {
-        return parseFloat(DOMUtilsCommonUtils.getStyleValue(element, "width").toString());
+      if (parseFloat(CommonUtils.getStyleValue($el, "width").toString()) > 0) {
+        return parseFloat(CommonUtils.getStyleValue($el, "width").toString());
       }
 
       /* 如果从css里获取到的值不是大于0  可能是auto 则通过offsetWidth来进行计算 */
-      if (element.offsetWidth > 0) {
-        const borderLeftWidth = DOMUtilsCommonUtils.getStyleValue(element, "borderLeftWidth");
-        const borderRightWidth = DOMUtilsCommonUtils.getStyleValue(element, "borderRightWidth");
-        const paddingLeft = DOMUtilsCommonUtils.getStyleValue(element, "paddingLeft");
-        const paddingRight = DOMUtilsCommonUtils.getStyleValue(element, "paddingRight");
+      if ($el.offsetWidth > 0) {
+        const borderLeftWidth = CommonUtils.getStyleValue($el, "borderLeftWidth");
+        const borderRightWidth = CommonUtils.getStyleValue($el, "borderRightWidth");
+        const paddingLeft = CommonUtils.getStyleValue($el, "paddingLeft");
+        const paddingRight = CommonUtils.getStyleValue($el, "paddingRight");
         const backHeight =
-          parseFloat(element.offsetWidth.toString()) -
+          parseFloat($el.offsetWidth.toString()) -
           parseFloat(borderLeftWidth.toString()) -
           parseFloat(borderRightWidth.toString()) -
           parseFloat(paddingLeft.toString()) -
@@ -1137,9 +1113,9 @@ class DOMUtils extends DOMUtilsEvent {
       return 0;
     } else {
       /* 未显示 */
-      element = element as HTMLElement;
-      const { recovery } = DOMUtilsCommonUtils.showElement(element);
-      const width = DOMUtilsContext.width(element, true);
+      $el = $el as HTMLElement;
+      const { recovery } = CommonUtils.forceShow($el);
+      const width = that.width($el, true);
       recovery();
       return width;
     }
@@ -1147,7 +1123,7 @@ class DOMUtils extends DOMUtilsEvent {
 
   /**
    * 获取元素的高度
-   * @param element 要获取高度的元素
+   * @param $el 要获取高度的元素
    * @param isShow 是否已进行isShow，避免爆堆栈
    * @returns 元素的高度，单位为像素
    * @example
@@ -1163,43 +1139,43 @@ class DOMUtils extends DOMUtilsEvent {
    * DOMUtils.height(document.querySelector("a.xx"),200)
    * DOMUtils.height("a.xx",200)
    */
-  height(element: HTMLElement | string | Window | typeof globalThis | Document, isShow?: boolean): number;
-  height(element: HTMLElement | string | Window | typeof globalThis | Document, isShow: boolean = false): number {
-    const DOMUtilsContext = this;
-    if (DOMUtilsCommonUtils.isWin(element)) {
-      return DOMUtilsContext.windowApi.window.document.documentElement.clientHeight;
+  height($el: HTMLElement | string | Window | typeof globalThis | Document, isShow?: boolean): number;
+  height($el: HTMLElement | string | Window | typeof globalThis | Document, isShow: boolean = false): number {
+    const that = this;
+    if (CommonUtils.isWin($el)) {
+      return that.windowApi.window.document.documentElement.clientHeight;
     }
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selector(element) as HTMLElement;
+    if (typeof $el === "string") {
+      $el = that.selector($el) as HTMLElement;
     }
-    if ((element as Document).nodeType === 9) {
-      element = element as Document;
+    if (($el as Document).nodeType === 9) {
+      $el = $el as Document;
       /* Document文档节点 */
       return Math.max(
-        element.body.scrollHeight,
-        element.documentElement.scrollHeight,
-        element.body.offsetHeight,
-        element.documentElement.offsetHeight,
-        element.documentElement.clientHeight
+        $el.body.scrollHeight,
+        $el.documentElement.scrollHeight,
+        $el.body.offsetHeight,
+        $el.documentElement.offsetHeight,
+        $el.documentElement.clientHeight
       );
     }
-    if (isShow || (!isShow && DOMUtilsCommonUtils.isShow(element as HTMLElement))) {
-      element = element as HTMLElement;
+    if (isShow || (!isShow && CommonUtils.isShow($el as HTMLElement))) {
+      $el = $el as HTMLElement;
       /* 已显示 */
       /* 从style中获取对应的高度，因为可能使用了class定义了width !important */
       /* 如果element.style.height为空  则从css里面获取是否定义了height信息如果定义了 则读取css里面定义的高度height */
-      if (parseFloat(DOMUtilsCommonUtils.getStyleValue(element, "height").toString()) > 0) {
-        return parseFloat(DOMUtilsCommonUtils.getStyleValue(element, "height").toString());
+      if (parseFloat(CommonUtils.getStyleValue($el, "height").toString()) > 0) {
+        return parseFloat(CommonUtils.getStyleValue($el, "height").toString());
       }
 
       /* 如果从css里获取到的值不是大于0  可能是auto 则通过offsetHeight来进行计算 */
-      if (element.offsetHeight > 0) {
-        const borderTopWidth = DOMUtilsCommonUtils.getStyleValue(element, "borderTopWidth");
-        const borderBottomWidth = DOMUtilsCommonUtils.getStyleValue(element, "borderBottomWidth");
-        const paddingTop = DOMUtilsCommonUtils.getStyleValue(element, "paddingTop");
-        const paddingBottom = DOMUtilsCommonUtils.getStyleValue(element, "paddingBottom");
+      if ($el.offsetHeight > 0) {
+        const borderTopWidth = CommonUtils.getStyleValue($el, "borderTopWidth");
+        const borderBottomWidth = CommonUtils.getStyleValue($el, "borderBottomWidth");
+        const paddingTop = CommonUtils.getStyleValue($el, "paddingTop");
+        const paddingBottom = CommonUtils.getStyleValue($el, "paddingBottom");
         const backHeight =
-          parseFloat(element.offsetHeight.toString()) -
+          parseFloat($el.offsetHeight.toString()) -
           parseFloat(borderTopWidth.toString()) -
           parseFloat(borderBottomWidth.toString()) -
           parseFloat(paddingTop.toString()) -
@@ -1209,16 +1185,16 @@ class DOMUtils extends DOMUtilsEvent {
       return 0;
     } else {
       /* 未显示 */
-      element = element as HTMLElement;
-      const { recovery } = DOMUtilsCommonUtils.showElement(element);
-      const height = DOMUtilsContext.height(element, true);
+      $el = $el as HTMLElement;
+      const { recovery } = CommonUtils.forceShow($el);
+      const height = that.height($el, true);
       recovery();
       return height;
     }
   }
   /**
    * 获取元素的外部宽度（包括边框和外边距）
-   * @param element 要获取外部宽度的元素
+   * @param $el 要获取外部宽度的元素
    * @param [isShow=false] 是否已进行isShow，避免爆堆栈
    * @returns 元素的外部宽度，单位为像素
    * @example
@@ -1230,31 +1206,31 @@ class DOMUtils extends DOMUtilsEvent {
    * DOMUtils.outerWidth(window)
    * > 400
    */
-  outerWidth(element: HTMLElement | string | Window | typeof globalThis | Document, isShow?: boolean): number;
-  outerWidth(element: HTMLElement | string | Window | typeof globalThis | Document, isShow: boolean = false): number {
-    const DOMUtilsContext = this;
-    if (DOMUtilsCommonUtils.isWin(element)) {
-      return DOMUtilsContext.windowApi.window.innerWidth;
+  outerWidth($el: HTMLElement | string | Window | typeof globalThis | Document, isShow?: boolean): number;
+  outerWidth($el: HTMLElement | string | Window | typeof globalThis | Document, isShow: boolean = false): number {
+    const that = this;
+    if (CommonUtils.isWin($el)) {
+      return that.windowApi.window.innerWidth;
     }
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selector(element) as HTMLElement;
+    if (typeof $el === "string") {
+      $el = that.selector($el) as HTMLElement;
     }
-    element = element as HTMLElement;
-    if (isShow || (!isShow && DOMUtilsCommonUtils.isShow(element))) {
-      const style = DOMUtilsContext.windowApi.globalThis.getComputedStyle(element, null);
-      const marginLeft = DOMUtilsCommonUtils.getStyleValue(style, "marginLeft");
-      const marginRight = DOMUtilsCommonUtils.getStyleValue(style, "marginRight");
-      return element.offsetWidth + marginLeft + marginRight;
+    $el = $el as HTMLElement;
+    if (isShow || (!isShow && CommonUtils.isShow($el))) {
+      const style = that.windowApi.globalThis.getComputedStyle($el, null);
+      const marginLeft = CommonUtils.getStyleValue(style, "marginLeft");
+      const marginRight = CommonUtils.getStyleValue(style, "marginRight");
+      return $el.offsetWidth + marginLeft + marginRight;
     } else {
-      const { recovery } = DOMUtilsCommonUtils.showElement(element);
-      const outerWidth = DOMUtilsContext.outerWidth(element, true);
+      const { recovery } = CommonUtils.forceShow($el);
+      const outerWidth = that.outerWidth($el, true);
       recovery();
       return outerWidth;
     }
   }
   /**
    * 获取元素的外部高度（包括边框和外边距）
-   * @param {HTMLElement|string} element 要获取外部高度的元素
+   * @param {HTMLElement|string} $el 要获取外部高度的元素
    * @param {boolean} [isShow=false] 是否已进行isShow，避免爆堆栈
    * @returns {number} 元素的外部高度，单位为像素
    * @example
@@ -1266,139 +1242,102 @@ class DOMUtils extends DOMUtilsEvent {
    * DOMUtils.outerHeight(window)
    * > 700
    */
-  outerHeight(element: HTMLElement | string | Window | typeof globalThis | Document, isShow?: boolean): number;
-  outerHeight(element: HTMLElement | string | Window | typeof globalThis | Document, isShow: boolean = false): number {
-    const DOMUtilsContext = this;
-    if (DOMUtilsCommonUtils.isWin(element)) {
-      return DOMUtilsContext.windowApi.window.innerHeight;
+  outerHeight($el: HTMLElement | string | Window | typeof globalThis | Document, isShow?: boolean): number;
+  outerHeight($el: HTMLElement | string | Window | typeof globalThis | Document, isShow: boolean = false): number {
+    const that = this;
+    if (CommonUtils.isWin($el)) {
+      return that.windowApi.window.innerHeight;
     }
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selector(element) as HTMLElement;
+    if (typeof $el === "string") {
+      $el = that.selector($el) as HTMLElement;
     }
-    element = element as HTMLElement;
-    if (isShow || (!isShow && DOMUtilsCommonUtils.isShow(element))) {
-      const style = DOMUtilsContext.windowApi.globalThis.getComputedStyle(element, null);
-      const marginTop = DOMUtilsCommonUtils.getStyleValue(style, "marginTop");
-      const marginBottom = DOMUtilsCommonUtils.getStyleValue(style, "marginBottom");
-      return element.offsetHeight + marginTop + marginBottom;
+    $el = $el as HTMLElement;
+    if (isShow || (!isShow && CommonUtils.isShow($el))) {
+      const style = that.windowApi.globalThis.getComputedStyle($el, null);
+      const marginTop = CommonUtils.getStyleValue(style, "marginTop");
+      const marginBottom = CommonUtils.getStyleValue(style, "marginBottom");
+      return $el.offsetHeight + marginTop + marginBottom;
     } else {
-      const { recovery } = DOMUtilsCommonUtils.showElement(element);
-      const outerHeight = DOMUtilsContext.outerHeight(element, true);
+      const { recovery } = CommonUtils.forceShow($el);
+      const outerHeight = that.outerHeight($el, true);
       recovery();
       return outerHeight;
     }
   }
   /**
-   * 在一定时间内改变元素的样式属性，实现动画效果
-   * @param element 需要进行动画的元素
-   * @param styles 动画结束时元素的样式属性
-   * @param duration 动画持续时间，单位为毫秒
-   * @param callback 动画结束后执行的函数
+   * 将一个元素替换为另一个元素
+   * @param $el 目标元素
+   * @param $newEl 新元素
    * @example
-   * // 监听元素a.xx的从显示变为隐藏
-   * DOMUtils.animate(document.querySelector("a.xx"),{ top:100},1000,function(){
-   *   console.log("已往上位移100px")
-   * })
+   * // 替换元素a.xx为b.xx
+   * DOMUtils.replaceWith(document.querySelector("a.xx"),document.querySelector("b.xx"))
+   * DOMUtils.replaceWith("a.xx",'<b class="xx"></b>')
    */
-  animate(
-    element: DOMUtilsTargetElementType,
-    styles: CSSStyleDeclaration,
-    duration: number = 1000,
-    callback: (() => void) | undefined | null = null
-  ) {
-    const DOMUtilsContext = this;
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+  replaceWith($el: DOMUtilsTargetElementType, $newEl: HTMLElement | string | Node) {
+    const that = this;
+    if (typeof $el === "string") {
+      $el = that.selectorAll($el);
     }
-    if (element == null) {
+    if ($el == null) {
       return;
     }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
+    if (CommonUtils.isNodeList($el)) {
       // 设置
-      element.forEach(($ele) => {
-        DOMUtilsContext.animate($ele as HTMLElement, styles, duration, callback);
+      $el.forEach(($elItem) => {
+        that.replaceWith($elItem as HTMLElement, $newEl);
       });
       return;
     }
-    if (typeof duration !== "number" || duration <= 0) {
-      throw new TypeError("duration must be a positive number");
+    if (typeof $newEl === "string") {
+      $newEl = that.toElement($newEl, false, false);
     }
-    if (typeof callback !== "function" && callback !== void 0) {
-      throw new TypeError("callback must be a function or null");
+    const $parent = $el.parentElement;
+    if ($parent) {
+      $parent.replaceChild($newEl as Node, $el);
+    } else {
+      that.after($el, $newEl as HTMLElement);
+      $el.remove();
     }
-    if (typeof styles !== "object" || styles === void 0) {
-      throw new TypeError("styles must be an object");
-    }
-    if (Object.keys(styles).length === 0) {
-      throw new Error("styles must contain at least one property");
-    }
-    const start = performance.now();
-    const from: {
-      [prop: string]: any;
-    } = {};
-    const to: {
-      [prop: string]: any;
-    } = {};
-    for (const prop in styles) {
-      from[prop] = element.style[prop] || DOMUtilsContext.windowApi.globalThis.getComputedStyle(element)[prop];
-      to[prop] = styles[prop];
-    }
-    const timer = DOMUtilsCommonUtils.setInterval(function () {
-      const timePassed = performance.now() - start;
-      let progress = timePassed / duration;
-      if (progress > 1) {
-        progress = 1;
-      }
-      for (const prop in styles) {
-        element.style[prop] = from[prop] + (to[prop] - from[prop]) * progress + "px";
-      }
-      if (progress === 1) {
-        DOMUtilsCommonUtils.clearInterval(timer);
-        if (callback) {
-          callback();
-        }
-      }
-    }, 10);
   }
   /**
    * 将一个元素包裹在指定的HTML元素中
-   * @param element 要包裹的元素
+   * @param $el 要包裹的元素
    * @param wrapperHTML 要包裹的HTML元素的字符串表示形式
    * @example
    * // 将a.xx元素外面包裹一层div
    * DOMUtils.wrap(document.querySelector("a.xx"),"<div></div>")
    */
-  wrap(element: DOMUtilsTargetElementType, wrapperHTML: string) {
-    const DOMUtilsContext = this;
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+  wrap($el: DOMUtilsTargetElementType, wrapperHTML: string) {
+    const that = this;
+    if (typeof $el === "string") {
+      $el = that.selectorAll($el);
     }
-    if (element == null) {
+    if ($el == null) {
       return;
     }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
+    if (CommonUtils.isNodeList($el)) {
       // 设置
-      element.forEach(($ele) => {
-        DOMUtilsContext.wrap($ele as HTMLElement, wrapperHTML);
+      $el.forEach(($elItem) => {
+        that.wrap($elItem as HTMLElement, wrapperHTML);
       });
       return;
     }
-    element = element as HTMLElement;
+    $el = $el as HTMLElement;
     // 创建一个新的div元素，并将wrapperHTML作为其innerHTML
-    const wrapper = DOMUtilsContext.windowApi.document.createElement("div");
-    DOMUtilsContext.html(wrapper, wrapperHTML);
+    const $wrapper = that.windowApi.document.createElement("div");
+    that.html($wrapper, wrapperHTML);
 
-    const wrapperFirstChild = wrapper.firstChild as HTMLElement;
+    const wrapperFirstChild = $wrapper.firstChild as HTMLElement;
     // 将要包裹的元素插入目标元素前面
-    const parentElement = element.parentElement as HTMLElement;
-    parentElement.insertBefore(wrapperFirstChild, element);
+    const parentElement = $el.parentElement as HTMLElement;
+    parentElement.insertBefore(wrapperFirstChild, $el);
 
     // 将要包裹的元素移动到wrapper中
-    wrapperFirstChild.appendChild(element);
+    wrapperFirstChild.appendChild($el);
   }
   /**
    * 获取当前元素的前一个兄弟元素
-   * @param element 当前元素
+   * @param $el 当前元素
    * @returns 前一个兄弟元素
    * @example
    * // 获取a.xx元素前一个兄弟元素
@@ -1406,21 +1345,20 @@ class DOMUtils extends DOMUtilsEvent {
    * DOMUtils.prev("a.xx")
    * > <div ...>....</div>
    */
-  prev(element: HTMLElement | string): HTMLElement;
-  prev(element: HTMLElement | string) {
-    const DOMUtilsContext = this;
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selector(element) as HTMLElement;
+  prev($el: HTMLElement | string): HTMLElement;
+  prev($el: HTMLElement | string) {
+    const that = this;
+    if (typeof $el === "string") {
+      $el = that.selector($el) as HTMLElement;
     }
-    if (element == null) {
+    if ($el == null) {
       return;
     }
-    return element.previousElementSibling as HTMLElement;
+    return $el.previousElementSibling as HTMLElement;
   }
-
   /**
    * 获取当前元素的后一个兄弟元素
-   * @param element 当前元素
+   * @param $el 当前元素
    * @returns 后一个兄弟元素
    * @example
    * // 获取a.xx元素前一个兄弟元素
@@ -1428,29 +1366,16 @@ class DOMUtils extends DOMUtilsEvent {
    * DOMUtils.next("a.xx")
    * > <div ...>....</div>
    */
-  next(element: HTMLElement | string): HTMLElement;
-  next(element: HTMLElement | string) {
-    const DOMUtilsContext = this;
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selector(element) as HTMLElement;
+  next($el: HTMLElement | string): HTMLElement;
+  next($el: HTMLElement | string) {
+    const that = this;
+    if (typeof $el === "string") {
+      $el = that.selector($el) as HTMLElement;
     }
-    if (element == null) {
+    if ($el == null) {
       return;
     }
-    return element.nextElementSibling as HTMLElement;
-  }
-  /**
-   * 取消挂载在window下的DOMUtils并返回DOMUtils
-   * @example
-   * let DOMUtils = window.DOMUtils.noConflict()
-   */
-  noConflict() {
-    const DOMUtilsContext = this;
-    if ((DOMUtilsContext.windowApi.window as any).DOMUtils) {
-      DOMUtilsCommonUtils.delete(window, "DOMUtils");
-    }
-    (DOMUtilsContext.windowApi.window as any).DOMUtils = this;
-    return this;
+    return $el.nextElementSibling as HTMLElement;
   }
   /**
    * 获取当前元素的所有兄弟元素
@@ -1463,21 +1388,21 @@ class DOMUtils extends DOMUtilsEvent {
    * > (3)[div.logo-wrapper, div.forum-block, div.more-btn-desc]
    */
   siblings(element: HTMLElement | string): HTMLElement[];
-  siblings(element: HTMLElement | string) {
-    const DOMUtilsContext = this;
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selector(element) as HTMLElement;
+  siblings($el: HTMLElement | string) {
+    const that = this;
+    if (typeof $el === "string") {
+      $el = that.selector($el) as HTMLElement;
     }
-    if (element == null) {
+    if ($el == null) {
       return;
     }
-    return Array.from((element.parentElement as HTMLElement).children as HTMLCollectionOf<HTMLElement>).filter(
-      (child) => child !== element
+    return Array.from(($el.parentElement as HTMLElement).children as HTMLCollectionOf<HTMLElement>).filter(
+      ($child) => $child !== $el
     );
   }
   /**
    * 获取当前元素的父元素
-   * @param element 当前元素
+   * @param $el 当前元素
    * @returns 父元素
    * @example
    * // 获取a.xx元素的父元素
@@ -1485,10 +1410,10 @@ class DOMUtils extends DOMUtilsEvent {
    * DOMUtils.parent("a.xx")
    * > <div ...>....</div>
    */
-  parent(element: HTMLElement | string): HTMLElement;
+  parent($el: HTMLElement | string): HTMLElement;
   /**
    * 获取当前元素的父元素
-   * @param element 当前元素
+   * @param $el 当前元素
    * @returns 父元素
    * @example
    * // 获取a.xx元素的父元素
@@ -1496,10 +1421,10 @@ class DOMUtils extends DOMUtilsEvent {
    * DOMUtils.parent("a.xx")
    * > <div ...>....</div>
    */
-  parent(element: HTMLElement[] | NodeList): HTMLElement[];
+  parent($el: HTMLElement[] | NodeList): HTMLElement[];
   /**
    * 获取当前元素的父元素
-   * @param element 当前元素
+   * @param $el 当前元素
    * @returns 父元素
    * @example
    * // 获取a.xx元素的父元素
@@ -1507,22 +1432,22 @@ class DOMUtils extends DOMUtilsEvent {
    * DOMUtils.parent("a.xx")
    * > <div ...>....</div>
    */
-  parent(element: HTMLElement | Element | Node | NodeList | string | HTMLElement[]) {
-    const DOMUtilsContext = this;
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selector<HTMLElement>(element)!;
+  parent($el: HTMLElement | Element | Node | NodeList | string | HTMLElement[]) {
+    const that = this;
+    if (typeof $el === "string") {
+      $el = that.selector<HTMLElement>($el)!;
     }
-    if (element == null) {
+    if ($el == null) {
       return;
     }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
+    if (CommonUtils.isNodeList($el)) {
       const resultArray: HTMLElement[] = [];
-      element.forEach(($ele) => {
-        resultArray.push(DOMUtilsContext.parent($ele as HTMLElement));
+      $el.forEach(($elItem) => {
+        resultArray.push(that.parent($elItem as HTMLElement));
       });
       return resultArray;
     } else {
-      return element.parentElement;
+      return $el.parentElement;
     }
   }
   /**
@@ -1538,28 +1463,28 @@ class DOMUtils extends DOMUtilsEvent {
    * 如果useParser为false，返回一个DIV元素的firstChild
    * @example
    * // 将字符串转为Element元素
-   * DOMUtils.parseHTML("<a href='xxxx'></a>")
+   * DOMUtils.toElement("<a href='xxxx'></a>")
    * > <a href="xxxx"></a>
    * @example
    * // 使用DOMParser将字符串转为Element元素
-   * DOMUtils.parseHTML("<a href='xxxx'></a>",true)
+   * DOMUtils.toElement("<a href='xxxx'></a>",true)
    * > <a href="xxxx"></a>
    * @example
    * // 由于需要转换的元素是多个元素，将字符串转为完整的Element元素
-   * DOMUtils.parseHTML("<a href='xxxx'></a><a href='xxxx'></a>",false, true)
+   * DOMUtils.toElement("<a href='xxxx'></a><a href='xxxx'></a>",false, true)
    * > <div><a href="xxxx"></a><a href='xxxx'></a></div>
    * @example
    * // 由于需要转换的元素是多个元素，使用DOMParser将字符串转为完整的Element元素
-   * DOMUtils.parseHTML("<a href='xxxx'></a><a href='xxxx'></a>",true, true)
+   * DOMUtils.toElement("<a href='xxxx'></a><a href='xxxx'></a>",true, true)
    * > #document
    */
-  parseHTML<T1 extends boolean, T2 extends boolean>(
+  toElement<T1 extends boolean, T2 extends boolean>(
     html: string,
     useParser?: T1,
     isComplete?: T2
-  ): ParseHTMLReturnType<T1, T2>;
-  parseHTML(html: string, useParser = false, isComplete = false) {
-    const DOMUtilsContext = this;
+  ): T1 extends true ? (T2 extends true ? Document : HTMLElement) : HTMLElement;
+  toElement(html: string, useParser = false, isComplete = false) {
+    const that = this;
     // 去除html前后的空格
     html = html.trim();
     function parseHTMLByDOMParser() {
@@ -1571,12 +1496,12 @@ class DOMUtils extends DOMUtilsEvent {
       }
     }
     function parseHTMLByCreateDom() {
-      const tempDIV = DOMUtilsContext.windowApi.document.createElement("div");
-      DOMUtilsContext.html(tempDIV, html);
+      const $el = that.windowApi.document.createElement("div");
+      that.html($el, html);
       if (isComplete) {
-        return tempDIV;
+        return $el;
       } else {
-        return tempDIV.firstChild;
+        return $el.firstElementChild ?? $el.firstChild;
       }
     }
     if (useParser) {
@@ -1625,206 +1550,6 @@ class DOMUtils extends DOMUtilsEvent {
       .join("&");
   }
   /**
-   * 显示元素
-   * @param target 当前元素
-   * @param checkVisiblie 是否检测元素是否显示
-   * + true （默认）如果检测到还未显示，则强制使用display: unset !important;
-   * + false 不检测，直接设置display属性为空
-   * @example
-   * // 显示a.xx元素
-   * DOMUtils.show(document.querySelector("a.xx"))
-   * DOMUtils.show(document.querySelectorAll("a.xx"))
-   * DOMUtils.show("a.xx")
-   */
-  show(target: DOMUtilsTargetElementType, checkVisiblie: boolean = true) {
-    const DOMUtilsContext = this;
-    if (target == null) {
-      return;
-    }
-    if (typeof target === "string") {
-      target = DOMUtilsContext.selectorAll(target);
-    }
-    if (target instanceof NodeList || target instanceof Array) {
-      target = target as HTMLElement[];
-      for (const element of target) {
-        DOMUtilsContext.show(element, checkVisiblie);
-      }
-    } else {
-      target = target as HTMLElement;
-      target.style.display = "";
-      if (checkVisiblie) {
-        if (!DOMUtilsCommonUtils.isShow(target)) {
-          /* 仍然是不显示，尝试使用强覆盖 */
-          target.style.setProperty("display", "unset", "important");
-        }
-      }
-    }
-  }
-  /**
-   * 隐藏元素
-   * @param target 当前元素
-   * @param checkVisiblie 是否检测元素是否显示
-   * + true （默认）如果检测到显示，则强制使用display: none !important;
-   * + false 不检测，直接设置display属性为none
-   * @example
-   * // 隐藏a.xx元素
-   * DOMUtils.hide(document.querySelector("a.xx"))
-   * DOMUtils.hide(document.querySelectorAll("a.xx"))
-   * DOMUtils.hide("a.xx")
-   */
-  hide(target: DOMUtilsTargetElementType, checkVisiblie: boolean = true) {
-    const DOMUtilsContext = this;
-    if (target == null) {
-      return;
-    }
-    if (typeof target === "string") {
-      target = DOMUtilsContext.selectorAll(target);
-    }
-    if (target instanceof NodeList || target instanceof Array) {
-      target = target as HTMLElement[];
-      for (const element of target) {
-        DOMUtilsContext.hide(element, checkVisiblie);
-      }
-    } else {
-      target = target as HTMLElement;
-      target.style.display = "none";
-      if (checkVisiblie) {
-        if (DOMUtilsCommonUtils.isShow(target)) {
-          /* 仍然是显示，尝试使用强覆盖 */
-          target.style.setProperty("display", "none", "important");
-        }
-      }
-    }
-  }
-  /**
-   * 淡入元素
-   * @param element 当前元素
-   * @param duration 动画持续时间（毫秒），默认400毫秒
-   * @param callback 动画结束的回调
-   * @example
-   * // 元素a.xx淡入
-   * DOMUtils.fadeIn(document.querySelector("a.xx"),2500,()=>{
-   *   console.log("淡入完毕");
-   * })
-   * DOMUtils.fadeIn("a.xx",undefined,()=>{
-   *   console.log("淡入完毕");
-   * })
-   */
-  fadeIn(element: DOMUtilsTargetElementType, duration: number = 400, callback?: () => void) {
-    if (element == null) {
-      return;
-    }
-    const DOMUtilsContext = this;
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
-    }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
-      // 设置
-      element.forEach(($ele) => {
-        DOMUtilsContext.fadeIn($ele as HTMLElement, duration, callback);
-      });
-      return;
-    }
-    element.style.opacity = "0";
-    element.style.display = "";
-    let start: number = null as any;
-    let timer: number = null as any;
-    function step(timestamp: number) {
-      if (!start) start = timestamp;
-      const progress = timestamp - start;
-      element = element as HTMLElement;
-      element.style.opacity = Math.min(progress / duration, 1).toString();
-      if (progress < duration) {
-        DOMUtilsContext.windowApi.window.requestAnimationFrame(step);
-      } else {
-        if (callback && typeof callback === "function") {
-          callback();
-        }
-        DOMUtilsContext.windowApi.window.cancelAnimationFrame(timer);
-      }
-    }
-    timer = DOMUtilsContext.windowApi.window.requestAnimationFrame(step);
-  }
-  /**
-   * 淡出元素
-   * @param element 当前元素
-   * @param duration 动画持续时间（毫秒），默认400毫秒
-   * @param callback 动画结束的回调
-   * @example
-   * // 元素a.xx淡出
-   * DOMUtils.fadeOut(document.querySelector("a.xx"),2500,()=>{
-   *   console.log("淡出完毕");
-   * })
-   * DOMUtils.fadeOut("a.xx",undefined,()=>{
-   *   console.log("淡出完毕");
-   * })
-   */
-  fadeOut(element: DOMUtilsTargetElementType, duration: number = 400, callback?: () => void) {
-    const DOMUtilsContext = this;
-    if (element == null) {
-      return;
-    }
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
-    }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
-      // 设置
-      element.forEach(($ele) => {
-        DOMUtilsContext.fadeOut($ele as HTMLElement, duration, callback);
-      });
-      return;
-    }
-    element.style.opacity = "1";
-    let start: number = null as any;
-    let timer: number = null as any;
-    function step(timestamp: number) {
-      if (!start) start = timestamp;
-      const progress = timestamp - start;
-      element = element as HTMLElement;
-      element.style.opacity = Math.max(1 - progress / duration, 0).toString();
-      if (progress < duration) {
-        DOMUtilsContext.windowApi.window.requestAnimationFrame(step);
-      } else {
-        element.style.display = "none";
-        if (typeof callback === "function") {
-          callback();
-        }
-        DOMUtilsContext.windowApi.window.cancelAnimationFrame(timer);
-      }
-    }
-    timer = DOMUtilsContext.windowApi.window.requestAnimationFrame(step);
-  }
-  /**
-   * 切换元素的显示和隐藏状态
-   * @param element 当前元素
-   * @param checkVisiblie 是否检测元素是否显示
-   * @example
-   * // 如果元素a.xx当前是隐藏，则显示，如果是显示，则隐藏
-   * DOMUtils.toggle(document.querySelector("a.xx"))
-   * DOMUtils.toggle("a.xx")
-   */
-  toggle(element: DOMUtilsTargetElementType, checkVisiblie?: boolean) {
-    const DOMUtilsContext = this;
-    if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
-    }
-    if (element == null) {
-      return;
-    }
-    if (DOMUtilsCommonUtils.isNodeList(element)) {
-      // 设置
-      element.forEach(($ele) => {
-        DOMUtilsContext.toggle($ele as HTMLElement);
-      });
-      return;
-    }
-    if (DOMUtilsContext.windowApi.globalThis.getComputedStyle(element).getPropertyValue("display") === "none") {
-      DOMUtilsContext.show(element, checkVisiblie);
-    } else {
-      DOMUtilsContext.hide(element, checkVisiblie);
-    }
-  }
-  /**
    * 创建一个新的DOMUtils实例
    * @param option
    * @returns
@@ -1845,7 +1570,7 @@ class DOMUtils extends DOMUtilsEvent {
     selectionStart?: number | string,
     selectionEnd?: number | string
   ): DOMRect {
-    const DOMUtilsContext = this;
+    const that = this;
     // Basic parameter validation
     if (!$input || !("value" in $input)) return $input;
     if (selectionStart == null) {
@@ -1914,7 +1639,7 @@ class DOMUtils extends DOMUtilsEvent {
     // 不能为空，不然获取不到高度
     const text = $input.value || "G",
       textLen = text.length,
-      fakeClone = DOMUtilsContext.windowApi.document.createElement("div");
+      fakeClone = that.windowApi.document.createElement("div");
     if (selectionStart > 0) appendPart(0, selectionStart);
     const fakeRange = appendPart(selectionStart, selectionEnd);
     if (textLen > selectionEnd) appendPart(selectionEnd, textLen);
@@ -1928,7 +1653,7 @@ class DOMUtils extends DOMUtilsEvent {
     fakeClone.style.left = leftPos + "px";
     fakeClone.style.width = width + "px";
     fakeClone.style.height = height + "px";
-    DOMUtilsContext.windowApi.document.body.appendChild(fakeClone);
+    that.windowApi.document.body.appendChild(fakeClone);
     const returnValue = fakeRange.getBoundingClientRect(); //Get rect
 
     fakeClone?.parentNode?.removeChild(fakeClone); //Remove temp
@@ -1942,7 +1667,7 @@ class DOMUtils extends DOMUtilsEvent {
      * @returns
      */
     function appendPart(start: number, end: number) {
-      const span = DOMUtilsContext.windowApi.document.createElement("span");
+      const span = that.windowApi.document.createElement("span");
       span.style.cssText = cssDefaultStyles; //Force styles to prevent unexpected results
       span.textContent = text.substring(start, end);
       fakeClone.appendChild(span);
@@ -1950,10 +1675,10 @@ class DOMUtils extends DOMUtilsEvent {
     }
     // Computing offset position
     function getInputOffset() {
-      const body = DOMUtilsContext.windowApi.document.body,
-        win = DOMUtilsContext.windowApi.document.defaultView!,
-        docElem = DOMUtilsContext.windowApi.document.documentElement,
-        $box = DOMUtilsContext.windowApi.document.createElement("div");
+      const body = that.windowApi.document.body,
+        win = that.windowApi.document.defaultView!,
+        docElem = that.windowApi.document.documentElement,
+        $box = that.windowApi.document.createElement("div");
       $box.style.paddingLeft = $box.style.width = "1px";
       body.appendChild($box);
       const isBoxModel = $box.offsetWidth == 2;
@@ -1975,7 +1700,7 @@ class DOMUtils extends DOMUtilsEvent {
      * @returns
      */
     function getInputCSS<T extends boolean>(prop: string, isNumber: T): T extends true ? number : string {
-      const val = DOMUtilsContext.windowApi.document.defaultView!.getComputedStyle($input, null).getPropertyValue(prop);
+      const val = that.windowApi.document.defaultView!.getComputedStyle($input, null).getPropertyValue(prop);
       if (isNumber) {
         return parseFloat(val) as T extends true ? number : string;
       } else {
@@ -1983,13 +1708,209 @@ class DOMUtils extends DOMUtilsEvent {
       }
     }
   }
-  /** 获取 animationend 在各个浏览器的兼容名 */
-  getAnimationEndNameList() {
-    return DOMUtilsCommonUtils.getAnimationEndNameList();
+  /**
+   * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
+   * @param cssText css字符串
+   * @returns 返回添加的CSS标签
+   * @example
+   * DOMUtils.addStyle("html{}");
+   * > <style type="text/css">html{}</style>
+   */
+  addStyle(cssText: string): HTMLStyleElement;
+  addStyle(cssText: string): HTMLStyleElement {
+    if (typeof cssText !== "string") {
+      throw new Error("DOMUtils.addStyle 参数cssText 必须为String类型");
+    }
+    const $css = this.createElement("style", {
+      type: "text/css",
+      innerHTML: cssText,
+    });
+    if (this.windowApi.document.head) {
+      /* 插入head最后 */
+      this.windowApi.document.head.appendChild($css);
+    } else if (this.windowApi.document.documentElement.childNodes.length === 0) {
+      /* 插入#html后 */
+      this.windowApi.document.documentElement.appendChild($css);
+    } else {
+      /* 插入#html第一个元素前 */
+      this.windowApi.document.documentElement.insertBefore($css, this.windowApi.document.documentElement.childNodes[0]);
+    }
+    return $css;
   }
-  /** 获取 transitionend 在各个浏览器的兼容名 */
-  getTransitionEndNameList() {
-    return DOMUtilsCommonUtils.getTransitionEndNameList();
+  /**
+   * 检测点击的地方是否在该元素区域内
+   * @param $el 需要检测的元素
+   * @returns
+   * + true 点击在元素上
+   * + false 未点击在元素上
+   * @example
+   * DOMUtils.checkUserClickInNode(document.querySelector(".xxx"));
+   * > false
+   **/
+  checkUserClickInNode($el: Element | Node | HTMLElement) {
+    const that = this;
+    if (!CommonUtils.isDOM($el)) {
+      throw new Error("Utils.checkUserClickInNode 参数 targetNode 必须为 Element|Node 类型");
+    }
+    const clickEvent = that.windowApi.window.event as PointerEvent;
+    const touchEvent = that.windowApi.window.event as TouchEvent;
+    const $click = clickEvent?.composedPath()?.[0] as HTMLElement;
+
+    // 点击的x坐标
+    const clickPosX = clickEvent?.clientX != null ? clickEvent.clientX : touchEvent.touches[0].clientX;
+    // 点击的y坐标
+    const clickPosY = clickEvent?.clientY != null ? clickEvent.clientY : touchEvent.touches[0].clientY;
+    const {
+      /* 要检测的元素的相对屏幕的横坐标最左边 */
+      left: elementPosXLeft,
+      /* 要检测的元素的相对屏幕的横坐标最右边 */
+      right: elementPosXRight,
+      /* 要检测的元素的相对屏幕的纵坐标最上边 */
+      top: elementPosYTop,
+      /* 要检测的元素的相对屏幕的纵坐标最下边 */
+      bottom: elementPosYBottom,
+    } = (<HTMLElement>$el).getBoundingClientRect();
+    if (
+      clickPosX >= elementPosXLeft &&
+      clickPosX <= elementPosXRight &&
+      clickPosY >= elementPosYTop &&
+      clickPosY <= elementPosYBottom
+    ) {
+      return true;
+    } else if (($click && $el.contains($click)) || $click == $el) {
+      /* 这种情况是应对在界面中隐藏的元素，getBoundingClientRect获取的都是0 */
+      return true;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * 删除某个父元素，父元素可能在上层或上上层或上上上层...
+   * @param $el 当前元素
+   * @param parentSelector 判断是否满足父元素，参数为当前处理的父元素，满足返回true，否则false
+   * @returns
+   * + true 已删除
+   * + false 未删除
+   * @example
+   * DOMUtils.deleteParentNode(document.querySelector("a"),".xxx");
+   * > true
+   **/
+  deleteParentNode($el: Node | HTMLElement | Element | null, parentSelector: string): boolean;
+  deleteParentNode($el: Node | HTMLElement | Element | null, parentSelector: string) {
+    if ($el == null) {
+      return;
+    }
+    if (!CommonUtils.isDOM($el)) {
+      throw new Error("DOMUtils.deleteParentNode 参数 target 必须为 Node|HTMLElement 类型");
+    }
+    if (typeof parentSelector !== "string") {
+      throw new Error("DOMUtils.deleteParentNode 参数 targetSelector 必须为 string 类型");
+    }
+    let result = false;
+    const $parent = domUtils.closest($el as HTMLElement, parentSelector);
+    if ($parent) {
+      this.remove($parent);
+      result = true;
+    }
+    return result;
+  }
+  /**
+   * 定位元素上的字符串，返回一个迭代器
+   * @param $el 目标元素
+   * @param text 需要定位的字符串
+   * @param filter （可选）过滤器函数，返回值为true是排除该元素
+   * @example
+   * let textIterator = DOMUtils.findElementsWithText(document.documentElement,"xxxx");
+   * textIterator.next();
+   * > {value: ?HTMLElement, done: boolean, next: Function}
+   */
+  findElementsWithText<T extends HTMLElement | Element | Node>(
+    $el: T,
+    text: string,
+    filter?: (element: T) => boolean
+  ): Generator<HTMLElement | ChildNode, void, any>;
+  *findElementsWithText<T extends HTMLElement | Element | Node>(
+    $el: T,
+    text: string,
+    filter?: (element: T) => boolean
+  ) {
+    const that = this;
+    if ((<HTMLElement>$el).outerHTML.includes(text)) {
+      if ((<HTMLElement>$el).children.length === 0) {
+        const filterResult = typeof filter === "function" ? filter($el) : false;
+        if (!filterResult) {
+          yield $el as any;
+        }
+      } else {
+        const $text = Array.from($el.childNodes).filter(($child) => $child.nodeType === Node.TEXT_NODE);
+        for (const $child of $text) {
+          if ((<HTMLElement>$child).textContent.includes(text)) {
+            const filterResult = typeof filter === "function" ? filter($el) : false;
+            if (!filterResult) {
+              yield $child;
+            }
+          }
+        }
+      }
+    }
+
+    for (let index = 0; index < (<HTMLElement>$el).children.length; index++) {
+      const $child = (<HTMLElement>$el).children[index] as T;
+      yield* that.findElementsWithText($child, text, filter);
+    }
+  }
+  /**
+   * 寻找可见元素，如果元素不可见，则向上找它的父元素直至找到，如果父元素不存在则返回null
+   * @param $el
+   * @example
+   * let visibleElement = DOMUtils.findVisibleElement(document.querySelector("a.xx"));
+   * > <HTMLElement>
+   */
+  findVisibleElement($el: HTMLElement | Element | Node) {
+    let $current = $el as HTMLElement;
+    while ($current) {
+      const rect = $current.getBoundingClientRect();
+      if ((rect as any).length) {
+        return $current;
+      }
+      $current = $current.parentElement as HTMLElement;
+    }
+    return null;
+  }
+  /**
+   * 将元素上的文本或元素使用光标进行选中
+   *
+   * 注意，如果设置startIndex和endIndex，且元素上并无可选则的坐标，那么会报错
+   * @param $el 目标元素
+   * @param childTextNode 目标元素下的#text元素
+   * @param startIndex （可选）开始坐标，可为空
+   * @param endIndex （可选）结束坐标，可为空
+   * @example
+   * DOMUtils.setElementSelection(document.querySelector("span"));
+   */
+  setElementSelection(
+    $el: HTMLElement | Element | Node,
+    childTextNode?: ChildNode,
+    startIndex?: number,
+    endIndex?: number
+  ): void {
+    const range = this.windowApi.document.createRange();
+    range.selectNodeContents($el);
+    if (childTextNode) {
+      if (childTextNode.nodeType !== Node.TEXT_NODE) {
+        throw new TypeError("childTextNode必须是#text元素");
+      }
+      if (startIndex != null && endIndex != null) {
+        range.setStart(childTextNode, startIndex);
+        range.setEnd(childTextNode, endIndex);
+      }
+    }
+
+    const selection = this.windowApi.globalThis.getSelection();
+    if (selection) {
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
   }
 }
 

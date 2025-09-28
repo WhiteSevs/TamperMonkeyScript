@@ -1,2 +1,2 @@
-import { DOMUtils } from "./src/DOMUtils";
+import { DOMUtils } from "./src";
 export default DOMUtils;

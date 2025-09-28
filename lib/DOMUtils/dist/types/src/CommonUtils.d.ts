@@ -1,16 +1,17 @@
 import { WindowApi } from "./WindowApi";
 /** 通用工具类 */
-export declare const DOMUtilsCommonUtils: {
+export declare const CommonUtils: {
     windowApi: WindowApi;
     /**
      * 判断元素是否已显示或已连接
-     * @param element
+     * @param $el
      */
-    isShow(element: HTMLElement): boolean;
+    isShow($el: HTMLElement): boolean;
     /**
-     * 获取安全的html
+     * 创建安全的html
+     * @param text 字符串
      */
-    getSafeHTML(text: string): any;
+    createSafeHTML(text: string): any;
     /**
      * 在CSP策略下设置innerHTML
      * @param $el 元素
@@ -18,10 +19,10 @@ export declare const DOMUtilsCommonUtils: {
      */
     setSafeHTML($el: HTMLElement, text: string): void;
     /**
-     * 用于显示元素并获取它的高度宽度等其它属性
-     * @param element
+     * 用于强制显示元素并获取它的高度宽度等其它属性
+     * @param $el
      */
-    showElement(element: HTMLElement): {
+    forceShow($el: HTMLElement): {
         /**
          * 恢复修改的style
          */
@@ -38,6 +39,17 @@ export declare const DOMUtilsCommonUtils: {
      * @param target
      */
     isWin(target: any): boolean;
+    /**
+     * 判断对象是否是元素
+     * @param $el
+     * @returns
+     * + true 是元素
+     * + false 不是元素
+     * @example
+     * DOMUtilsCommonUtils.isDOM(document.querySelector("a"))
+     * > true
+     */
+    isDOM($el: any): boolean;
     /**
      * 删除对象上的属性
      * @param target

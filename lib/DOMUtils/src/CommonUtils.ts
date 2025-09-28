@@ -7,7 +7,7 @@ import {
 } from "worker-timers";
 
 /** 通用工具类 */
-export const DOMUtilsCommonUtils = {
+export const CommonUtils = {
   windowApi: new WindowApi({
     document: document,
     window: window,
@@ -19,15 +19,16 @@ export const DOMUtilsCommonUtils = {
   }),
   /**
    * 判断元素是否已显示或已连接
-   * @param element
+   * @param $el
    */
-  isShow(element: HTMLElement) {
-    return Boolean(element.getClientRects().length);
+  isShow($el: HTMLElement) {
+    return Boolean($el.getClientRects().length);
   },
   /**
-   * 获取安全的html
+   * 创建安全的html
+   * @param text 字符串
    */
-  getSafeHTML(text: string) {
+  createSafeHTML(text: string) {
     if (window.trustedTypes) {
       const policy = window.trustedTypes.createPolicy("safe-innerHTML", {
         createHTML: (html: string) => html,
@@ -44,14 +45,14 @@ export const DOMUtilsCommonUtils = {
    */
   setSafeHTML($el: HTMLElement, text: string) {
     // 创建 TrustedHTML 策略（需 CSP 允许）
-    $el.innerHTML = this.getSafeHTML(text);
+    $el.innerHTML = this.createSafeHTML(text);
   },
   /**
-   * 用于显示元素并获取它的高度宽度等其它属性
-   * @param element
+   * 用于强制显示元素并获取它的高度宽度等其它属性
+   * @param $el
    */
-  showElement(element: HTMLElement) {
-    const dupNode = element.cloneNode(true) as HTMLElement;
+  forceShow($el: HTMLElement) {
+    const dupNode = $el.cloneNode(true) as HTMLElement;
     dupNode.setAttribute("style", "visibility: hidden !important;display:block !important;");
     this.windowApi.document.documentElement.appendChild(dupNode);
     return {
@@ -124,6 +125,19 @@ export const DOMUtilsCommonUtils = {
       return false;
     }
     return true;
+  },
+  /**
+   * 判断对象是否是元素
+   * @param $el
+   * @returns
+   * + true 是元素
+   * + false 不是元素
+   * @example
+   * DOMUtilsCommonUtils.isDOM(document.querySelector("a"))
+   * > true
+   */
+  isDOM($el: any): boolean {
+    return $el instanceof Node;
   },
   /**
    * 删除对象上的属性
