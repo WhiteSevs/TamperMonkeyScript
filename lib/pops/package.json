@@ -1,6 +1,6 @@
 {
   "name": "@whitesev/pops",
-  "version": "2.4.7",
+  "version": "2.5.0",
   "description": "弹窗库",
   "type": "module",
   "homepage": "https://github.com/WhiteSevs/TamperMonkeyScript/tree/master/lib/pops#readme",
@@ -55,6 +55,7 @@
     "@rollup/plugin-commonjs": "^28.0.6",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "12.1.4",
     "browserslist": "^4.26.2",
     "caniuse-lite": "^1.0.30001743",
