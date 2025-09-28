@@ -2,6 +2,9 @@ import type { UtilsGMMenuConstructorOptions, UtilsGMMenuOption } from "./types/U
 export declare class GMMenu {
     private GM_Api;
     private MenuHandle;
+    /**
+     * @param details 菜单配置
+     */
     constructor(details: UtilsGMMenuConstructorOptions);
     /**
      * 新增菜单数据
@@ -31,12 +34,6 @@ export declare class GMMenu {
      * @param menuId 已注册的菜单id
      */
     delete(menuId: number): void;
-    /**
-     * 根据键值获取enable值
-     * @param menuKey 菜单-键key
-     * @deprecated
-     */
-    get(menuKey: string): boolean;
     /**
      * 根据键值获取enable值
      * @param menuKey 菜单-键key

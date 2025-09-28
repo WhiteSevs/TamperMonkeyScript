@@ -12,7 +12,6 @@ import { Log } from "./Log";
 import { Progress } from "./Progress";
 import { TryCatch } from "./TryCatch";
 import { UtilsDictionary } from "./Dictionary";
-import type { DOMUtils_EventType } from "./types/Event";
 import type { UtilsAjaxHookResult } from "./types/ajaxHooker";
 import { GenerateUUID } from "./UtilsCommon";
 import { WindowApi } from "./WindowApi";
@@ -38,41 +37,6 @@ class Utils {
   }
   /** 版本号 */
   version = version;
-  /**
-   * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
-   * @param cssText css字符串
-   * @returns 返回添加的CSS标签
-   * @example
-   * Utils.GM_addStyle("html{}");
-   * > <style type="text/css">html{}</style>
-   */
-  addStyle(cssText: string): HTMLStyleElement;
-  addStyle(cssText: string) {
-    if (typeof cssText !== "string") {
-      throw new Error("Utils.addStyle 参数cssText 必须为String类型");
-    }
-    const cssNode = this.windowApi.document.createElement("style");
-    cssNode.setAttribute("type", "text/css");
-    cssNode.innerHTML = cssText;
-    if (this.windowApi.document.head) {
-      /* 插入head最后 */
-      this.windowApi.document.head.appendChild(cssNode);
-    } else if (this.windowApi.document.body) {
-      /* 插入body后 */
-      this.windowApi.document.body.appendChild(cssNode);
-    } else if (this.windowApi.document.documentElement.childNodes.length === 0) {
-      /* 插入#html第一个元素后 */
-      this.windowApi.document.documentElement.appendChild(cssNode);
-    } else {
-      /* 插入head前面 */
-      this.windowApi.document.documentElement.insertBefore(
-        cssNode,
-        this.windowApi.document.documentElement.childNodes[0]
-      );
-    }
-    return cssNode;
-  }
-
   /** 
      * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
      * @param target 目标数据
@@ -101,7 +65,7 @@ class Utils {
     asyncFn: (item: string) => Promise<string>
   ): Promise<string>;
   async asyncReplaceAll(string: string, pattern: RegExp | string, asyncFn: (item: string) => Promise<string>) {
-    const UtilsContext = this;
+    const that = this;
     if (typeof string !== "string") {
       throw new TypeError("string必须是字符串");
     }
@@ -110,7 +74,7 @@ class Utils {
     }
     let reg;
     if (typeof pattern === "string") {
-      reg = new RegExp(UtilsContext.parseStringToRegExpString(pattern), "g");
+      reg = new RegExp(that.toRegExpStr(pattern), "g");
     } else if (pattern instanceof RegExp) {
       if (!pattern.global) {
         throw new TypeError("pattern必须是全局匹配");
@@ -140,7 +104,7 @@ class Utils {
    * ajax劫持库，支持xhr和fetch劫持。
    * + 来源：https://bbs.tampermonkey.net.cn/thread-3284-1-1.html
    * + 作者：cxxjackie
-   * + 版本：1.4.7
+   * + 版本：1.4.8
    * + 旧版本：1.2.4
    * + 文档：https://scriptcat.org/zh-CN/script-show-page/637/
    * @param useOldVersion 是否使用旧版本，默认false
@@ -183,54 +147,6 @@ class Utils {
     };
     canvasElement.dispatchEvent(new MouseEvent("mousedown", eventInit));
     canvasElement.dispatchEvent(new MouseEvent("mouseup", eventInit));
-  }
-  /**
-   * 【手机】检测点击的地方是否在该元素区域内
-   * @param element 需要检测的元素
-   * @returns
-   * + true 点击在元素上
-   * + false 未点击在元素上
-   * @example
-   * Utils.checkUserClickInNode(document.querySelector(".xxx"));
-   * > false
-   **/
-  checkUserClickInNode(element: Element | Node | HTMLElement): boolean;
-  checkUserClickInNode(element: Element | Node | HTMLElement) {
-    const UtilsContext = this;
-    if (!UtilsContext.isDOM(element)) {
-      throw new Error("Utils.checkUserClickInNode 参数 targetNode 必须为 Element|Node 类型");
-    }
-    const clickEvent = UtilsContext.windowApi.window.event as PointerEvent;
-    const touchEvent = UtilsContext.windowApi.window.event as TouchEvent;
-    const $click = clickEvent?.composedPath()?.[0] as HTMLElement;
-
-    // 点击的x坐标
-    const clickPosX = clickEvent?.clientX != null ? clickEvent.clientX : touchEvent.touches[0].clientX;
-    // 点击的y坐标
-    const clickPosY = clickEvent?.clientY != null ? clickEvent.clientY : touchEvent.touches[0].clientY;
-    const {
-      /* 要检测的元素的相对屏幕的横坐标最左边 */
-      left: elementPosXLeft,
-      /* 要检测的元素的相对屏幕的横坐标最右边 */
-      right: elementPosXRight,
-      /* 要检测的元素的相对屏幕的纵坐标最上边 */
-      top: elementPosYTop,
-      /* 要检测的元素的相对屏幕的纵坐标最下边 */
-      bottom: elementPosYBottom,
-    } = (element as HTMLElement).getBoundingClientRect();
-    if (
-      clickPosX >= elementPosXLeft &&
-      clickPosX <= elementPosXRight &&
-      clickPosY >= elementPosYTop &&
-      clickPosY <= elementPosYBottom
-    ) {
-      return true;
-    } else if (($click && element.contains($click)) || $click == element) {
-      /* 这种情况是应对在界面中隐藏的元素，getBoundingClientRect获取的都是0 */
-      return true;
-    } else {
-      return false;
-    }
   }
   /**
    * 复制formData数据
@@ -316,46 +232,14 @@ class Utils {
   debounce<A extends any[], R>(fn: (...args: A) => R, delay?: number): (...args: A) => void;
   debounce<A extends any[], R>(fn: (...args: A) => R, delay = 0) {
     let timer: any = null as any;
-    const UtilsContext = this;
+    const that = this;
     return function (...args: A) {
-      UtilsContext.workerClearTimeout(timer);
-      timer = UtilsContext.workerSetTimeout(function () {
-        fn.apply(UtilsContext, args);
+      that.workerClearTimeout(timer);
+      timer = that.workerSetTimeout(function () {
+        fn.apply(that, args);
       }, delay);
     };
   }
-  /**
-   * 删除某个父元素，父元素可能在上层或上上层或上上上层...
-   * @param element 当前元素
-   * @param targetSelector 判断是否满足父元素，参数为当前处理的父元素，满足返回true，否则false
-   * @returns
-   * + true 已删除
-   * + false 未删除
-   * @example
-   * Utils.deleteParentNode(document.querySelector("a"),".xxx");
-   * > true
-   **/
-  deleteParentNode(element: Node | HTMLElement | Element | null, targetSelector: string): boolean;
-  deleteParentNode(element: Node | HTMLElement | Element | null, targetSelector: string) {
-    const UtilsContext = this;
-    if (element == null) {
-      return;
-    }
-    if (!UtilsContext.isDOM(element)) {
-      throw new Error("Utils.deleteParentNode 参数 target 必须为 Node|HTMLElement 类型");
-    }
-    if (typeof targetSelector !== "string") {
-      throw new Error("Utils.deleteParentNode 参数 targetSelector 必须为 string 类型");
-    }
-    let result = false;
-    const needRemoveDOM = domUtils.closest(element as HTMLElement, targetSelector);
-    if (needRemoveDOM) {
-      needRemoveDOM.remove();
-      result = true;
-    }
-    return result;
-  }
-
   /**
    * 字典
    * @example
@@ -370,53 +254,6 @@ class Utils {
    **/
   Dictionary = UtilsDictionary;
   /**
-   * 主动触发事件
-   * @param element 元素
-   * @param eventName 事件名称，可以是字符串，也可是字符串格式的列表
-   * @param details （可选）赋予触发的Event的额外属性
-   * + true 使用Proxy代理Event并设置获取isTrusted永远为True
-   * + false (默认) 不对Event进行Proxy代理
-   * @example
-   * Utils.dispatchEvent(document.querySelector("input","input"))
-   */
-  dispatchEvent(
-    element: HTMLElement | Document,
-    eventName: DOMUtils_EventType | DOMUtils_EventType[],
-    details?: any
-  ): void;
-  /**
-   * 主动触发事件
-   * @param element 元素
-   * @param eventName 事件名称，可以是字符串，也可是字符串格式的列表
-   * @param details （可选）赋予触发的Event的额外属性
-   * + true 使用Proxy代理Event并设置获取isTrusted永远为True
-   * + false (默认) 不对Event进行Proxy代理
-   * @example
-   * Utils.dispatchEvent(document.querySelector("input","input"))
-   */
-  dispatchEvent(element: HTMLElement | Document, eventName: string, details?: any): void;
-  dispatchEvent(
-    element: HTMLElement | Document,
-    eventName: DOMUtils_EventType | DOMUtils_EventType[] | string,
-    details?: any
-  ) {
-    // let UtilsContext = this;
-    let eventNameList: string[] = [];
-    if (typeof eventName === "string") {
-      eventNameList = [eventName];
-    }
-    if (Array.isArray(eventName)) {
-      eventNameList = [...eventName];
-    }
-    eventNameList.forEach((_eventName_) => {
-      const event = new Event(_eventName_);
-      if (details) {
-        Object.assign(event, details);
-      }
-      element.dispatchEvent(event);
-    });
-  }
-  /**
    * 下载base64格式的数据
    * @param base64Data	需要转换的base64数据
    * @param fileName	需要保存的文件名
@@ -426,7 +263,7 @@ class Utils {
    **/
   downloadBase64(base64Data: string, fileName: string, isIFrame?: boolean): void;
   downloadBase64(base64Data: string, fileName: string, isIFrame = false) {
-    const UtilsContext = this;
+    const that = this;
     if (typeof base64Data !== "string") {
       throw new Error("Utils.downloadBase64 参数 base64Data 必须为 string 类型");
     }
@@ -435,13 +272,13 @@ class Utils {
     }
     if (isIFrame) {
       /* 使用iframe */
-      const iframeElement = this.windowApi.document.createElement("iframe");
-      iframeElement.style.display = "none";
-      iframeElement.src = base64Data;
-      this.windowApi.document.body.appendChild(iframeElement);
-      UtilsContext.workerSetTimeout(() => {
-        iframeElement!.contentWindow!.document.execCommand("SaveAs", true, fileName);
-        this.windowApi.document.body.removeChild(iframeElement);
+      const $iframe = this.windowApi.document.createElement("iframe");
+      $iframe.style.display = "none";
+      $iframe.src = base64Data;
+      (this.windowApi.document.body || this.windowApi.document.documentElement).appendChild($iframe);
+      that.workerSetTimeout(() => {
+        $iframe!.contentWindow!.document.execCommand("SaveAs", true, fileName);
+        (this.windowApi.document.body || this.windowApi.document.documentElement).removeChild($iframe);
       }, 100);
     } else {
       /* 使用A标签 */
@@ -499,69 +336,6 @@ class Utils {
       return;
     }
     return strFound ? true : false;
-  }
-  /**
-   * 定位元素上的字符串，返回一个迭代器
-   * @param element 目标元素
-   * @param text 需要定位的字符串
-   * @param filter （可选）过滤器函数，返回值为true是排除该元素
-   * @example
-   * let textIterator = Utils.findElementsWithText(document.documentElement,"xxxx");
-   * textIterator.next();
-   * > {value: ?HTMLElement, done: boolean, next: Function}
-   */
-  findElementsWithText<T extends HTMLElement | Element | Node>(
-    element: T,
-    text: string,
-    filter?: (element: T) => boolean
-  ): Generator<HTMLElement | ChildNode, void, any>;
-  *findElementsWithText<T extends HTMLElement | Element | Node>(
-    element: T,
-    text: string,
-    filter?: (element: T) => boolean
-  ) {
-    const that = this;
-    if ((<HTMLElement>element).outerHTML.includes(text)) {
-      if ((<HTMLElement>element).children.length === 0) {
-        const filterResult = typeof filter === "function" ? filter(element) : false;
-        if (!filterResult) {
-          yield element as any;
-        }
-      } else {
-        const textElement = Array.from(element.childNodes).filter((ele) => ele.nodeType === Node.TEXT_NODE);
-        for (const $child of textElement) {
-          if ((<HTMLElement>$child).textContent.includes(text)) {
-            const filterResult = typeof filter === "function" ? filter(element) : false;
-            if (!filterResult) {
-              yield $child;
-            }
-          }
-        }
-      }
-    }
-
-    for (let index = 0; index < (<HTMLElement>element).children.length; index++) {
-      const $child = (<HTMLElement>element).children[index] as any;
-      yield* that.findElementsWithText($child, text, filter);
-    }
-  }
-  /**
-   * 判断该元素是否可见，如果不可见，向上找它的父元素直至找到可见的元素
-   * @param element
-   * @example
-   * let visibleElement = Utils.findVisibleElement(document.querySelector("a.xx"));
-   * > <HTMLElement>
-   */
-  findVisibleElement(element: HTMLElement | Element | Node) {
-    let currentElement = element as HTMLElement;
-    while (currentElement) {
-      const elementRect = currentElement.getBoundingClientRect();
-      if ((elementRect as any).length) {
-        return currentElement;
-      }
-      currentElement = currentElement.parentElement as HTMLElement;
-    }
-    return null;
   }
   /**
    * 格式化byte为KB、MB、GB、TB、PB、EB、ZB、YB、BB、NB、DB
@@ -649,9 +423,9 @@ class Utils {
   getNonNullValue(...args: any[]): any;
   getNonNullValue(...args: any[]) {
     let resultValue = args[args.length - 1];
-    const UtilsContext = this;
+    const that = this;
     for (const argValue of args) {
-      if (UtilsContext.isNotNull(argValue)) {
+      if (that.isNotNull(argValue)) {
         resultValue = argValue;
         break;
       }
@@ -802,18 +576,6 @@ class Utils {
    */
   GBKEncoder = GBKEncoder;
   /**
-   * 获取 transitionend 的在各个浏览器的兼容名
-   */
-  getTransitionEndNameList() {
-    return ["webkitTransitionEnd", "mozTransitionEnd", "MSTransitionEnd", "otransitionend", "transitionend"];
-  }
-  /**
-   * 获取 animationend 的在各个浏览器的兼容名
-   */
-  getAnimationEndNameList() {
-    return ["webkitAnimationEnd", "mozAnimationEnd", "MSAnimationEnd", "oanimationend", "animationend"];
-  }
-  /**
    * 获取NodeList或Array对象中的最后一个的值
    * @param targetObj
    * @returns
@@ -825,8 +587,8 @@ class Utils {
    * > 5
    */
   getArrayLastValue<R = unknown>(targetObj: NodeList | any[]): R;
-  getArrayLastValue(targetObj: NodeList | any[]) {
-    return targetObj[targetObj.length - 1];
+  getArrayLastValue(target: NodeList | any[]) {
+    return target[target.length - 1];
   }
   /**
    * 应用场景: 当想获取的元素可能是不同的选择器的时候，按顺序优先级获取
@@ -846,7 +608,7 @@ class Utils {
     for (let arg of args) {
       if (typeof arg === "function") {
         /* 方法 */
-        (arg as any) = arg();
+        (<any>arg) = arg();
       }
       if (arg != null) {
         result = arg;
@@ -943,35 +705,6 @@ class Utils {
     return diffValue;
   }
   /**
-   * 获取元素的选择器字符串
-   * @param element
-   * @example
-   * Utils.getElementSelector(document.querySelector("a"))
-   * > '.....'
-   */
-  getElementSelector(element: HTMLElement): string;
-  getElementSelector(element: HTMLElement): string {
-    const UtilsContext = this;
-    if (!element) return void 0 as any as string;
-    if (!element.parentElement) return void 0 as any as string;
-    /* 如果元素有id属性，则直接返回id选择器 */
-    if (element.id) return `#${element.id}`;
-
-    /* 递归地获取父元素的选择器 */
-    let selector = UtilsContext.getElementSelector(element.parentElement);
-    if (!selector) {
-      return element.tagName.toLowerCase();
-    }
-    /* 如果有多个相同类型的兄弟元素，则需要添加索引 */
-    if (element.parentElement.querySelectorAll(element.tagName).length > 1) {
-      const index = Array.prototype.indexOf.call(element.parentElement.children, element) + 1;
-      selector += ` > ${element.tagName.toLowerCase()}:nth-child(${index})`;
-    } else {
-      selector += ` > ${element.tagName.toLowerCase()}`;
-    }
-    return selector;
-  }
-  /**
    * 获取最大值
    * @example
    * Utils.getMaxValue(1,3,5,7,9)
@@ -1057,7 +790,7 @@ class Utils {
     zIndex: number;
   } {
     deviation = Number.isNaN(deviation) ? 1 : deviation;
-    const UtilsContext = this;
+    const that = this;
     // 最大值 2147483647
     // const maxZIndex = Math.pow(2, 31) - 1;
     // 比较值 2000000000
@@ -1086,7 +819,7 @@ class Utils {
         }
       }
       /** 元素的样式 */
-      const nodeStyle = UtilsContext.windowApi.window.getComputedStyle($ele);
+      const nodeStyle = that.windowApi.window.getComputedStyle($ele);
       /* 不对position为static和display为none的元素进行获取它们的z-index */
       if (isVisibleNode(nodeStyle)) {
         const nodeZIndex = parseInt(nodeStyle.zIndex);
@@ -1204,7 +937,7 @@ class Utils {
    * > 'Mozilla/5.0 (Linux; Android 10; MI 13 Build/OPR1.170623.027; wv) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.3490.40 Mobile Safari/537.36'
    **/
   getRandomAndroidUA(): string {
-    const UtilsContext = this;
+    const that = this;
     const mobileNameList = [
       "LDN-LX3",
       "RNE-L03",
@@ -1222,14 +955,14 @@ class Utils {
       "MI 13 Build/OPR1.170623.027; wv",
     ];
     /* 安卓版本 */
-    const androidVersion = UtilsContext.getRandomValue(12, 14);
+    const androidVersion = that.getRandomValue(12, 14);
     /* 手机型号 */
-    const randomMobile = UtilsContext.getRandomValue(mobileNameList);
+    const randomMobile = that.getRandomValue(mobileNameList);
     /* chrome大版本号 */
-    const chromeVersion1 = UtilsContext.getRandomValue(130, 140);
-    const chromeVersion2 = UtilsContext.getRandomValue(0, 0);
-    const chromeVersion3 = UtilsContext.getRandomValue(2272, 6099);
-    const chromeVersion4 = UtilsContext.getRandomValue(1, 218);
+    const chromeVersion1 = that.getRandomValue(130, 140);
+    const chromeVersion2 = that.getRandomValue(0, 0);
+    const chromeVersion3 = that.getRandomValue(2272, 6099);
+    const chromeVersion4 = that.getRandomValue(1, 218);
     return `Mozilla/5.0 (Linux; Android ${androidVersion}; ${randomMobile}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVersion1}.${chromeVersion2}.${chromeVersion3}.${chromeVersion4} Mobile Safari/537.36`;
   }
   /**
@@ -1251,12 +984,12 @@ class Utils {
    * > 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.5068.19 Safari/537.36'
    **/
   getRandomPCUA(): string {
-    const UtilsContext = this;
+    const that = this;
     /* chrome大版本号 */
-    const chromeVersion1 = UtilsContext.getRandomValue(130, 140);
-    const chromeVersion2 = UtilsContext.getRandomValue(0, 0);
-    const chromeVersion3 = UtilsContext.getRandomValue(2272, 6099);
-    const chromeVersion4 = UtilsContext.getRandomValue(1, 218);
+    const chromeVersion1 = that.getRandomValue(130, 140);
+    const chromeVersion2 = that.getRandomValue(0, 0);
+    const chromeVersion3 = that.getRandomValue(2272, 6099);
+    const chromeVersion4 = that.getRandomValue(1, 218);
     return `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVersion1}.${chromeVersion2}.${chromeVersion3}.${chromeVersion4} Safari/537.36`;
   }
   /**
@@ -1317,9 +1050,9 @@ class Utils {
    * @param element 需要获取的目标元素
    * @returns
    * @example
-   * Utils.getReactObj(document.querySelector("input"))?.reactProps?.onChange({target:{value:"123"}});
+   * Utils.getReactInstance(document.querySelector("input"))?.reactProps?.onChange({target:{value:"123"}});
    */
-  getReactObj(element: HTMLElement | Element): ReactInstance {
+  getReactInstance(element: HTMLElement | Element): ReactInstance {
     const result = {};
     if (element == null) {
       return result;
@@ -1394,8 +1127,8 @@ class Utils {
    */
   getTextStorageSize<T extends boolean>(text: string, addType?: T): T extends true ? string : number;
   getTextStorageSize(text: string, addType = true) {
-    const UtilsContext = this;
-    return UtilsContext.formatByteToSize(UtilsContext.getTextLength(text), addType);
+    const that = this;
+    return that.formatByteToSize(that.getTextLength(text), addType);
   }
   /**
    * 获取迅雷协议的Url
@@ -2052,12 +1785,12 @@ class Utils {
   isWebView_Via(): boolean;
   isWebView_Via(): boolean {
     let result = true;
-    const UtilsContext = this;
+    const that = this;
     if (typeof (this.windowApi.top.window as any).via === "object") {
       for (const key in Object.values((this.windowApi.top.window as any).via)) {
         if (Reflect.has((this.windowApi.top.window as any).via, key)) {
           const objValueFunc = (this.windowApi.top.window as any).via[key];
-          if (typeof objValueFunc === "function" && UtilsContext.isNativeFunc(objValueFunc)) {
+          if (typeof objValueFunc === "function" && that.isNativeFunc(objValueFunc)) {
             result = true;
           } else {
             result = false;
@@ -2082,12 +1815,12 @@ class Utils {
   isWebView_X(): boolean;
   isWebView_X(): boolean {
     let result = true;
-    const UtilsContext = this;
+    const that = this;
     if (typeof (this.windowApi.top.window as any).mbrowser === "object") {
       for (const key in Object.values((this.windowApi.top.window as any).mbrowser)) {
         if (Reflect.has((this.windowApi.top.window as any).mbrowser, key)) {
           const objValueFunc = (this.windowApi.top.window as any).mbrowser[key];
-          if (typeof objValueFunc === "function" && UtilsContext.isNativeFunc(objValueFunc)) {
+          if (typeof objValueFunc === "function" && that.isNativeFunc(objValueFunc)) {
             result = true;
           } else {
             result = false;
@@ -2114,8 +1847,10 @@ class Utils {
       throw new Error("Utils.parseObjectToArray 参数 target 必须为 object 类型");
     }
     let result: T[keyof T][] = [];
-    Object.keys(target!).forEach(function (keyName) {
-      result = result.concat(target![keyName as any as keyof T]);
+    const keys = Object.keys(target!);
+    keys.forEach(function (keyName) {
+      const value = Reflect.get(target!, keyName);
+      result = result.concat(value);
     });
     return result;
   }
@@ -2195,25 +1930,25 @@ class Utils {
     return content;
   }
   /**
-     * 监听页面元素改变并处理
-     * @param target 需要监听的元素，如果不存在，可以等待它出现
-     * @param observer_config MutationObserver的配置
-     * @example
-      Utils.mutationObserver(document.querySelector("div.xxxx"),{
-        "callback":(mutations, observer)=>{},
-        "config":{childList:true,attributes:true}
-      });
-     * @example
-      Utils.mutationObserver(document.querySelectorAll("div.xxxx"),{
-        "callback":(mutations, observer)=>{},
-        "config":{childList:true,attributes:true}}
-      );
-     * @example
-      Utils.mutationObserver($("div.xxxx"),{
+   * 监听页面元素改变并处理
+   * @param target 需要监听的元素，如果不存在，可以等待它出现
+   * @param observer_config MutationObserver的配置
+   * @example
+    Utils.mutationObserver(document.querySelector("div.xxxx"),{
+      "callback":(mutations, observer)=>{},
+      "config":{childList:true,attributes:true}
+    });
+    * @example
+    Utils.mutationObserver(document.querySelectorAll("div.xxxx"),{
       "callback":(mutations, observer)=>{},
       "config":{childList:true,attributes:true}}
-      );
-     **/
+    );
+    * @example
+    Utils.mutationObserver($("div.xxxx"),{
+    "callback":(mutations, observer)=>{},
+    "config":{childList:true,attributes:true}}
+    );
+    **/
   mutationObserver(
     target: HTMLElement | Node | NodeList | Document,
     observer_config: {
@@ -2248,7 +1983,7 @@ class Utils {
       callback: MutationCallback;
     }
   ): MutationObserver {
-    const UtilsContext = this;
+    const that = this;
 
     const default_obverser_config = {
       /* 监听到元素有反馈，需执行的函数 */
@@ -2291,7 +2026,7 @@ class Utils {
       },
       immediate: false,
     };
-    observer_config = UtilsContext.assign(default_obverser_config, observer_config);
+    observer_config = that.assign(default_obverser_config, observer_config);
     const windowMutationObserver =
       this.windowApi.window.MutationObserver ||
       (this.windowApi.window as any).webkitMutationObserver ||
@@ -2311,7 +2046,7 @@ class Utils {
       target.forEach((item) => {
         mutationObserver.observe(item, observer_config.config);
       });
-    } else if (UtilsContext.isJQuery(target)) {
+    } else if (that.isJQuery(target)) {
       /* 传入的参数是jQuery对象 */
       (target as any).each((_: any, item: any) => {
         mutationObserver.observe(item, observer_config.config);
@@ -2421,7 +2156,7 @@ class Utils {
     functionNameList: any[] = [],
     release: boolean = true
   ): void {
-    const UtilsContext = this;
+    const that = this;
     if (typeof needReleaseObject !== "object") {
       throw new Error("Utils.noConflictFunc 参数 needReleaseObject 必须为 object 类型");
     }
@@ -2436,11 +2171,11 @@ class Utils {
      * 释放所有
      */
     function releaseAll() {
-      if (typeof (UtilsContext.windowApi.window as any)[needReleaseKey] !== "undefined") {
+      if (typeof (that.windowApi.window as any)[needReleaseKey] !== "undefined") {
         /* 已存在 */
         return;
       }
-      (UtilsContext.windowApi.window as any)[needReleaseKey] = UtilsContext.deepClone(needReleaseObject);
+      (that.windowApi.window as any)[needReleaseKey] = that.deepClone(needReleaseObject);
       Object.values(needReleaseObject).forEach((value) => {
         if (typeof value === "function") {
           (needReleaseObject as any)[value.name] = () => {};
@@ -2454,13 +2189,11 @@ class Utils {
       Array.from(functionNameList).forEach((item) => {
         Object.values(needReleaseObject).forEach((value) => {
           if (typeof value === "function") {
-            if (typeof (UtilsContext.windowApi.window as any)[needReleaseKey] === "undefined") {
-              (UtilsContext.windowApi.window as any)[needReleaseKey] = {};
+            if (typeof (that.windowApi.window as any)[needReleaseKey] === "undefined") {
+              (that.windowApi.window as any)[needReleaseKey] = {};
             }
             if (item === value.name) {
-              (UtilsContext.windowApi.window as any)[needReleaseKey][value.name] = (needReleaseObject as any)[
-                value.name
-              ];
+              (that.windowApi.window as any)[needReleaseKey][value.name] = (needReleaseObject as any)[value.name];
               (needReleaseObject as any)[value.name] = () => {};
             }
           }
@@ -2471,27 +2204,27 @@ class Utils {
      * 恢复所有
      */
     function recoveryAll() {
-      if (typeof (UtilsContext.windowApi.window as any)[needReleaseKey] === "undefined") {
+      if (typeof (that.windowApi.window as any)[needReleaseKey] === "undefined") {
         /* 未存在 */
         return;
       }
-      Object.assign(needReleaseObject, (UtilsContext.windowApi.window as any)[needReleaseKey]);
-      Reflect.deleteProperty(UtilsContext.windowApi.window as any, "needReleaseKey");
+      Object.assign(needReleaseObject, (that.windowApi.window as any)[needReleaseKey]);
+      Reflect.deleteProperty(that.windowApi.window as any, "needReleaseKey");
     }
 
     /**
      * 恢复单个
      */
     function recoveryOne() {
-      if (typeof (UtilsContext.windowApi.window as any)[needReleaseKey] === "undefined") {
+      if (typeof (that.windowApi.window as any)[needReleaseKey] === "undefined") {
         /* 未存在 */
         return;
       }
       Array.from(functionNameList).forEach((item) => {
-        if ((UtilsContext.windowApi.window as any)[needReleaseKey][item]) {
-          (needReleaseObject as any)[item] = (UtilsContext.windowApi.window as any)[needReleaseKey][item];
-          Reflect.deleteProperty((UtilsContext.windowApi.window as any)[needReleaseKey], item);
-          if (Object.keys((UtilsContext.windowApi.window as any)[needReleaseKey]).length === 0) {
+        if ((that.windowApi.window as any)[needReleaseKey][item]) {
+          (needReleaseObject as any)[item] = (that.windowApi.window as any)[needReleaseKey][item];
+          Reflect.deleteProperty((that.windowApi.window as any)[needReleaseKey], item);
+          if (Object.keys((that.windowApi.window as any)[needReleaseKey]).length === 0) {
             Reflect.deleteProperty(window, needReleaseKey);
           }
         }
@@ -2687,69 +2420,41 @@ class Utils {
     return parser.parseFromString(text, mimeType);
   }
   /**
+   * 字符串转正则，用于把字符串中不规范的字符进行转义
+   * @param text 需要进行转换的字符串
+   * @param flags （可选）正则标志，默认`gi`
+   * @example
+   * Utils.toRegExp("^替换$");
+   * > /^替换$/gi
+   */
+  toRegExp(text: string | RegExp, flags: "g" | "i" | "m" | "u" | "y" | string = "gi"): RegExp {
+    let regExp;
+    flags = flags.toLowerCase();
+    if (typeof text === "string") {
+      const pattern = this.toRegExpStr(text);
+      regExp = new RegExp(pattern, flags);
+    } else if ((text as any) instanceof RegExp) {
+      regExp = text;
+    } else {
+      throw new Error("Utils.toRegExp 参数text必须是string|Regexp类型");
+    }
+    return regExp;
+  }
+  /**
    * 将字符串进行正则转义
    * 例如：^替换$
    * 转换：\^替换\$
+   * @param text 需要转义的字符串
+   * @example
+   * Utils.toRegExpStr("^替换$");
+   * > \^替换\$
    */
-  parseStringToRegExpString(text: string): string;
-  parseStringToRegExpString(text: string): string {
+  toRegExpStr(text: string): string {
     if (typeof text !== "string") {
-      throw new TypeError("string必须是字符串");
+      throw new TypeError("toRegExpStr 参数text必须是string类型");
     }
-    const regString = text.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&");
-    return regString;
-  }
-  /**
-   * 阻止事件传递
-   * @param element 要进行处理的元素
-   * @param eventNameList （可选）要阻止的事件名|列表
-   * @param capture （可选）是否捕获，默认false
-   * @example
-   * Utils.preventEvent(document.querySelector("a"),"click")
-   * @example
-   * Utils.preventEvent(event);
-   */
-  preventEvent(event: Event): boolean;
-  /**
-   * 阻止事件传递
-   * @param element 要进行处理的元素
-   * @param eventNameList （可选）要阻止的事件名|列表
-   * @param capture （可选）是否捕获，默认false
-   * @example
-   * Utils.preventEvent(document.querySelector("a"),"click")
-   * @example
-   * Utils.preventEvent(event);
-   */
-  preventEvent(element: HTMLElement, eventNameList?: string | string[], capture?: boolean): boolean;
-  preventEvent(
-    element: HTMLElement | Event,
-    eventNameList: string | string[] = [],
-    capture?: boolean
-  ): boolean | undefined {
-    function stopEvent(event: Event) {
-      /* 阻止事件的默认行为发生。例如，当点击一个链接时，浏览器会默认打开链接的URL */
-      event?.preventDefault();
-      /* 停止事件的传播，阻止它继续向更上层的元素冒泡，事件将不会再传播给其他的元素 */
-      event?.stopPropagation();
-      /* 阻止事件传播，并且还能阻止元素上的其他事件处理程序被触发 */
-      event?.stopImmediatePropagation();
-      return false;
-    }
-    if (arguments.length === 1) {
-      /* 直接阻止事件 */
-      // eslint-disable-next-line prefer-rest-params
-      return stopEvent(arguments[0]);
-    } else {
-      /* 添加对应的事件来阻止触发 */
-      if (typeof eventNameList === "string") {
-        eventNameList = [eventNameList];
-      }
-      eventNameList.forEach((eventName) => {
-        (element as HTMLElement).addEventListener(eventName, stopEvent, {
-          capture: Boolean(capture),
-        });
-      });
-    }
+    const regExpStr = text.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&");
+    return regExpStr;
   }
   /**
      * 在canvas元素节点上绘制进度圆圈
@@ -2759,14 +2464,14 @@ class Utils {
      * **/
   Progress = Progress;
   /**
-   * 劫持Event的isTrust为true，注入时刻，ducument-start
+   * 劫持所有Event的isTrust为true，脚本注入时刻请设置为`ducument-start`
    * @param isTrustValue （可选）让isTrusted为true
-   * @param filter （可选）过滤出需要的事件名，true为需要，false为不需要
+   * @param filter （可选）过滤出需要的事件名，返回值true为需要，返回值false为不需要，默认click事件为需要的
    * @example
-   * Utils.registerTrustClickEvent()
+   * Utils.hookEvent_isTrusted()
    */
-  registerTrustClickEvent(isTrustValue?: boolean, filter?: (typeName: string) => boolean): void;
-  registerTrustClickEvent(isTrustValue: boolean = true, filter?: (typeName: string) => boolean): void {
+  hookEvent_isTrusted(isTrustValue?: boolean, filter?: (typeName: string) => boolean): void;
+  hookEvent_isTrusted(isTrustValue: boolean = true, filter?: (typeName: string) => boolean): void {
     function trustEvent(event: Event) {
       return new Proxy(event, {
         get: function (target, property) {
@@ -2836,67 +2541,28 @@ class Utils {
     return isNegative ? -reversedNum : reversedNum;
   }
   /**
-   * 将元素上的文本或元素使用光标进行选中
-   *
-   * 注意，如果设置startIndex和endIndex，且元素上并无可选则的坐标，那么会报错
-   * @param element 目标元素
-   * @param childTextNode 目标元素下的#text元素
-   * @param startIndex （可选）开始坐标，可为空
-   * @param endIndex （可选）结束坐标，可为空
-   */
-  selectElementText(
-    element: HTMLElement | Element | Node,
-    childTextNode?: ChildNode,
-    startIndex?: number,
-    endIndex?: number
-  ): void;
-  selectElementText(
-    element: HTMLElement | Element | Node,
-    childTextNode?: ChildNode,
-    startIndex?: number,
-    endIndex?: number
-  ): void {
-    const range = this.windowApi.document.createRange();
-    range.selectNodeContents(element);
-    if (childTextNode) {
-      if (childTextNode.nodeType !== Node.TEXT_NODE) {
-        throw new TypeError("childTextNode必须是#text元素");
-      }
-      if (startIndex != null && endIndex != null) {
-        range.setStart(childTextNode, startIndex);
-        range.setEnd(childTextNode, endIndex);
-      }
-    }
-
-    const selection = this.windowApi.globalThis.getSelection();
-    if (selection) {
-      selection.removeAllRanges();
-      selection.addRange(range);
-    }
-  }
-  /**
    * 复制到剪贴板
    * @param data 需要复制到剪贴板的文本
    * @param info （可选）默认：text/plain
    * @example
-   * Utils.setClip({1:2});
+   * Utils.copy({1:2});
    * > {"1":2}
    * @example
-   * Utils.setClip( ()=>{
+   * Utils.copy( ()=>{
    *   console.log(1)
    * });
    * > ()=>{console.log(1)}
    * @example
-   * Utils.setClip("xxxx");
+   * Utils.copy("xxxx");
    * > xxxx
    * @example
-   * Utils.setClip("xxxx","html");
+   * Utils.copy("xxxx","html");
    * > xxxx
    * @example
-   * Utils.setClip("xxxx","text/plain");
+   * Utils.copy("xxxx","text/plain");
    * > xxxx
    **/
-  setClip(
+  copy(
     data: any,
     info?:
       | {
@@ -2905,7 +2571,7 @@ class Utils {
         }
       | string
   ): Promise<boolean>;
-  setClip(
+  copy(
     data: any,
     info:
       | {
@@ -2932,7 +2598,7 @@ class Utils {
     } else {
       textType = "text/plain";
     }
-    const UtilsContext = this;
+    const that = this;
     class UtilsClipboard {
       #resolve;
       #copyData;
@@ -2981,15 +2647,15 @@ class Utils {
        */
       copyTextByTextArea() {
         try {
-          const copyElement = UtilsContext.windowApi.document.createElement("textarea");
+          const copyElement = that.windowApi.document.createElement("textarea");
           copyElement.value = this.#copyData;
           copyElement.setAttribute("type", "text");
           copyElement.setAttribute("style", "opacity:0;position:absolute;");
           copyElement.setAttribute("readonly", "readonly");
-          UtilsContext.windowApi.document.body.appendChild(copyElement);
+          that.windowApi.document.body.appendChild(copyElement);
           copyElement.select();
-          UtilsContext.windowApi.document.execCommand("copy");
-          UtilsContext.windowApi.document.body.removeChild(copyElement);
+          that.windowApi.document.execCommand("copy");
+          that.windowApi.document.body.removeChild(copyElement);
           return true;
         } catch (error) {
           console.error("复制失败，error👉", error);
@@ -3056,15 +2722,97 @@ class Utils {
     }
     return new Promise((resolve) => {
       const utilsClipboard = new UtilsClipboard(resolve, data, textType);
-      if (UtilsContext.windowApi.document.hasFocus()) {
+      if (that.windowApi.document.hasFocus()) {
         utilsClipboard.init();
       } else {
-        UtilsContext.windowApi.window.addEventListener(
+        that.windowApi.window.addEventListener(
           "focus",
           () => {
             utilsClipboard.init();
           },
           { once: true }
+        );
+      }
+    });
+  }
+  /**
+   * 获取剪贴板信息
+   * @example
+   * await Utils.getClipboardInfo();
+   * > { error: null, content: "剪贴板内容" }
+   */
+  async getClipboardInfo() {
+    return new Promise<{
+      /**
+       * 错误信息，如果为null，则表示读取成功
+       */
+      error: Error | null;
+      /**
+       * 剪贴板内容
+       */
+      content: string;
+    }>((resolve) => {
+      /** 读取剪贴板 */
+      function readClipboardText() {
+        navigator.clipboard
+          .readText()
+          .then((clipboardText) => {
+            resolve({
+              error: null,
+              content: clipboardText,
+            });
+          })
+          .catch((error: TypeError) => {
+            resolve({
+              error: error,
+              content: "",
+            });
+          });
+      }
+      /** 申请读取剪贴板的权限 */
+      function requestPermissionsWithClipboard() {
+        navigator.permissions
+          .query({
+            name: "clipboard-read" as any as PermissionName,
+          })
+          .then(() => {
+            readClipboardText();
+          })
+          .catch(() => {
+            /* 该权限申请Api可能在该环境下不生效，尝试直接读取剪贴板 */
+            readClipboardText();
+          });
+      }
+      /**
+       * 检查当前环境是否支持读取剪贴板Api
+       */
+      function checkClipboardApi() {
+        if (typeof navigator?.clipboard?.readText !== "function") {
+          return false;
+        }
+        if (typeof navigator?.permissions?.query !== "function") {
+          return false;
+        }
+        return true;
+      }
+      if (!checkClipboardApi()) {
+        resolve({
+          error: new Error("当前环境不支持读取剪贴板Api"),
+          content: "",
+        });
+        return;
+      }
+      if (document.hasFocus()) {
+        requestPermissionsWithClipboard();
+      } else {
+        window.addEventListener(
+          "focus",
+          () => {
+            requestPermissionsWithClipboard();
+          },
+          {
+            once: true,
+          }
         );
       }
     });
@@ -3082,7 +2830,7 @@ class Utils {
    **/
   setTimeout(callback: (() => void) | string, delayTime?: number): Promise<any>;
   setTimeout(callback: (() => void) | string, delayTime: number = 0): Promise<any> {
-    const UtilsContext = this;
+    const that = this;
     if (typeof callback !== "function" && typeof callback !== "string") {
       throw new TypeError("Utils.setTimeout 参数 callback 必须为 function|string 类型");
     }
@@ -3090,8 +2838,8 @@ class Utils {
       throw new TypeError("Utils.setTimeout 参数 delayTime 必须为 number 类型");
     }
     return new Promise((resolve) => {
-      UtilsContext.workerSetTimeout(() => {
-        resolve(UtilsContext.tryCatch().run(callback));
+      that.workerSetTimeout(() => {
+        resolve(that.tryCatch().run(callback));
       }, delayTime);
     });
   }
@@ -3103,12 +2851,12 @@ class Utils {
    **/
   sleep(delayTime?: number): Promise<void>;
   sleep(delayTime: number = 0): Promise<void> {
-    const UtilsContext = this;
+    const that = this;
     if (typeof delayTime !== "number") {
       throw new Error("Utils.sleep 参数 delayTime 必须为 number 类型");
     }
     return new Promise((resolve) => {
-      UtilsContext.workerSetTimeout(() => {
+      that.workerSetTimeout(() => {
         resolve(void 0);
       }, delayTime);
     });
@@ -3124,10 +2872,10 @@ class Utils {
    */
   dragSlider(selector: string | Element | Node, offsetX?: number): void;
   dragSlider(selector: string | Element | Node, offsetX: number = this.windowApi.window.innerWidth): void {
-    const UtilsContext = this;
+    const that = this;
     function initMouseEvent(eventName: string, offSetX: number, offSetY: number) {
       const win = typeof unsafeWindow === "undefined" ? globalThis : unsafeWindow;
-      const mouseEvent = UtilsContext.windowApi.document.createEvent("MouseEvents");
+      const mouseEvent = that.windowApi.document.createEvent("MouseEvents");
       mouseEvent.initMouseEvent(
         eventName,
         true,
@@ -3229,7 +2977,7 @@ class Utils {
     getPropertyValueFunc: string | ((value: T) => any),
     sortByDesc: boolean = true
   ): T[] {
-    const UtilsContext = this;
+    const that = this;
     if (typeof getPropertyValueFunc !== "function" && typeof getPropertyValueFunc !== "string") {
       throw new Error("Utils.sortListByProperty 参数 getPropertyValueFunc 必须为 function|string 类型");
     }
@@ -3303,31 +3051,13 @@ class Utils {
     }
     if (Array.isArray(data)) {
       data.sort(sortFunc);
-    } else if (<any>data instanceof NodeList || UtilsContext.isJQuery(data)) {
+    } else if (<any>data instanceof NodeList || that.isJQuery(data)) {
       sortNodeFunc(<any>data, <any>getDataFunc);
       result = (<any>getDataFunc)();
     } else {
       throw new Error("Utils.sortListByProperty 参数 data 必须为 Array|NodeList|jQuery 类型");
     }
     return result;
-  }
-  /**
-   * 字符串转正则，用于把字符串中不规范的字符进行转义
-   * @param targetString 需要进行转换的字符串
-   * @param flags 正则标志
-   */
-  stringToRegular(targetString: string | RegExp, flags?: "g" | "i" | "m" | "u" | "y" | string): RegExp;
-  stringToRegular(targetString: string | RegExp, flags: "g" | "i" | "m" | "u" | "y" | string = "gi"): RegExp {
-    let reg;
-    flags = flags.toLowerCase();
-    if (typeof targetString === "string") {
-      reg = new RegExp(targetString.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"), flags);
-    } else if ((targetString as any) instanceof RegExp) {
-      reg = targetString;
-    } else {
-      throw new Error("Utils.stringToRegular 参数targetString必须是string|Regexp类型");
-    }
-    return reg;
   }
   /**
    * 字符串首字母转大写
@@ -3354,7 +3084,7 @@ class Utils {
    */
   startsWith(target: string, searchString: string | RegExp | string[], position?: number): boolean;
   startsWith(target: string, searchString: string | RegExp | string[], position: number = 0): boolean {
-    const UtilsContext = this;
+    const that = this;
     if (position > target.length) {
       /* 超出目标字符串的长度 */
       return false;
@@ -3368,7 +3098,7 @@ class Utils {
     } else if (Array.isArray(searchString)) {
       let flag = false;
       for (const searcStr of searchString) {
-        if (!UtilsContext.startsWith(target, searcStr, position)) {
+        if (!that.startsWith(target, searcStr, position)) {
           flag = true;
           break;
         }
@@ -3379,16 +3109,15 @@ class Utils {
   }
   /**
    * 字符串首字母转小写
-   * @param targetString 目标字符串
+   * @param text 目标字符串
    * @param otherStrToLowerCase （可选）剩余部分字符串转大写，默认false
    */
-  stringTitleToLowerCase(targetString: string, otherStrToUpperCase?: boolean): string;
-  stringTitleToLowerCase(targetString: string, otherStrToUpperCase: boolean = false): string {
-    let newTargetString = targetString.slice(0, 1).toLowerCase();
-    if (otherStrToUpperCase) {
-      newTargetString = newTargetString + targetString.slice(1).toUpperCase();
+  firstLetterToLowercase(text: string, otherToUpperCase: boolean = false): string {
+    let newTargetString = text.slice(0, 1).toLowerCase();
+    if (otherToUpperCase) {
+      newTargetString = newTargetString + text.slice(1).toUpperCase();
     } else {
-      newTargetString = newTargetString + targetString.slice(1);
+      newTargetString = newTargetString + text.slice(1);
     }
     return newTargetString;
   }
@@ -3424,14 +3153,14 @@ class Utils {
    */
   toSearchParamsStr(obj: object | object[], addPrefix?: boolean): string;
   toSearchParamsStr(obj: object | object[], addPrefix?: boolean): string {
-    const UtilsContext = this;
+    const that = this;
     let searhParamsStr = "";
     if (Array.isArray(obj)) {
       obj.forEach((item) => {
         if (searhParamsStr === "") {
-          searhParamsStr += UtilsContext.toSearchParamsStr(item);
+          searhParamsStr += that.toSearchParamsStr(item);
         } else {
-          searhParamsStr += `&${UtilsContext.toSearchParamsStr(item)}`;
+          searhParamsStr += `&${that.toSearchParamsStr(item)}`;
         }
       });
     } else {
@@ -3449,7 +3178,7 @@ class Utils {
     if (typeof searhParamsStr !== "string") {
       return {} as any as T;
     }
-    return Object.fromEntries(new URLSearchParams(searhParamsStr) as any) as any;
+    return Object.fromEntries(new URLSearchParams(searhParamsStr) as any) as T;
   }
   /**
    * 提供一个封装了 try-catch 的函数，可以执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
@@ -3531,705 +3260,21 @@ class Utils {
    * @example
    * await Utils.waitArrayLoopToEnd([callback,callback,callback],xxxcallback);
    **/
-  waitArrayLoopToEnd(data: any[] | HTMLElement[], handleFunc: (...args: any[]) => any): Promise<void[]>;
   waitArrayLoopToEnd(data: any[] | HTMLElement[], handleFunc: (...args: any[]) => any): Promise<void[]> {
-    const UtilsContext = this;
+    const that = this;
     if (typeof handleFunc !== "function" && typeof handleFunc !== "string") {
       throw new Error("Utils.waitArrayLoopToEnd 参数 handleDataFunction 必须为 function|string 类型");
     }
     return Promise.all(
       Array.from(data).map(async (item, index) => {
-        await UtilsContext.tryCatch(index, item).run(handleFunc);
+        await that.tryCatch(index, item).run(handleFunc);
       })
     );
   }
   /**
-   * 等待任意事件成立
-   *
-   * 运行方式为根据页面元素的改变而触发回调
-   * @param checkFn 检测的函数
-   * @param timeout 超时时间，默认0
-   * @param parent （可选）父元素，默认document
-   * @example
-   * Utils.wait(()=> {
-   *   let $test = document.querySelector("#test");
-   *   return {
-   *     success: $test !== null,
-   *     data:  $test
-   *   }
-   * })
-   */
-  wait<T>(
-    checkFn: (...args: any[]) => {
-      /**
-       * 是否检测成功
-       */
-      success: boolean;
-      /**
-       * 返回的值
-       */
-      data: T;
-    },
-    timeout?: null | undefined,
-    parent?: Node | Element | Document | HTMLElement
-  ): Promise<T>;
-  wait<T>(
-    checkFn: (...args: any[]) => {
-      /**
-       * 是否检测成功
-       */
-      success: boolean;
-      /**
-       * 返回的值
-       */
-      data: T;
-    },
-    timeout?: number,
-    parent?: Node | Element | Document | HTMLElement
-  ): Promise<T | null>;
-  wait<T>(
-    checkFn: (...args: any[]) => {
-      /**
-       * 是否检测成功
-       */
-      success: boolean;
-      /**
-       * 返回的值
-       */
-      data: T;
-    },
-    timeout?: number | null | undefined,
-    parent?: Node | Element | Document | HTMLElement
-  ): Promise<T | null> {
-    const UtilsContext = this;
-    const __timeout__ = typeof timeout === "number" ? timeout : 0;
-    return new Promise((resolve) => {
-      const observer = UtilsContext.mutationObserver(parent || UtilsContext.windowApi.document, {
-        config: {
-          subtree: true,
-          childList: true,
-          attributes: true,
-        },
-        immediate: true,
-        callback(_, __observer__) {
-          const result = checkFn();
-          if (result.success) {
-            // 取消观察器
-            if (typeof __observer__?.disconnect === "function") {
-              __observer__.disconnect();
-            }
-            resolve(result.data);
-          }
-        },
-      });
-      if (__timeout__ > 0) {
-        UtilsContext.workerSetTimeout(() => {
-          // 取消观察器
-          if (typeof observer?.disconnect === "function") {
-            observer.disconnect();
-          }
-          resolve(null as T);
-        }, __timeout__);
-      }
-    });
-  }
-  /**
-   * 等待元素出现
-   * @param selectorFn 获取元素的函数
-   * @param timeout 超时时间，默认0
-   * @example
-   * Utils.waitNode(()=>document.querySelector("div"), 1000).then( $div =>{
-   *  console.log($div); // $div => HTMLDivELement | null
-   * })
-   */
-  waitNode<K>(selectorFn: () => K | null | undefined): Promise<K>;
-  waitNode<K>(selectorFn: () => K | null | undefined, timeout: number): Promise<K | null | undefined>;
-  /**
-   * 等待元素出现
-   * @param selector CSS选择器
-   * @param parent （可选）父元素，默认document
-   * @example
-   * Utils.waitNode("div").then( $div =>{
-   *  console.log($div); // div => HTMLDivELement
-   * })
-   * Utils.waitNode("div", document).then( $div =>{
-   *  console.log($div); // div => HTMLDivELement
-   * })
-   */
-  waitNode<K extends keyof HTMLElementTagNameMap>(
-    selector: K,
-    parent?: Node | Element | Document | HTMLElement
-  ): Promise<HTMLElementTagNameMap[K]>;
-  waitNode<T extends Element>(selector: string, parent?: Node | Element | Document | HTMLElement): Promise<T>;
-  /**
-   * 等待元素出现
-   * @param selectorList CSS选择器数组
-   * @param parent （可选）父元素，默认document
-   * @example
-   * Utils.waitNode(["div"]).then( ([$div]) =>{
-   *  console.log($div); // div => HTMLDivELement[]
-   * })
-   * Utils.waitNode(["div"], document).then( ([$div]) =>{
-   *  console.log($div); // div => HTMLDivELement[]
-   * })
-   */
-  waitNode<K extends keyof HTMLElementTagNameMap>(
-    selectorList: K[],
-    parent?: Node | Element | Document | HTMLElement
-  ): Promise<HTMLElementTagNameMap[K][]>;
-  waitNode<T extends Element[]>(selectorList: string[], parent?: Node | Element | Document | HTMLElement): Promise<T>;
-  /**
-   * 等待元素出现
-   * @param selector CSS选择器
-   * @param parent 父元素，默认document
-   * @param timeout 超时时间，默认0
-   * @example
-   * Utils.waitNode("div", document, 1000).then( $div =>{
-   *  console.log($div); // $div => HTMLDivELement | null
-   * })
-   */
-  waitNode<K extends keyof HTMLElementTagNameMap>(
-    selector: K,
-    parent: Node | Element | Document | HTMLElement,
-    timeout: number
-  ): Promise<HTMLElementTagNameMap[K] | null>;
-  waitNode<T extends Element>(
-    selector: string,
-    parent: Node | Element | Document | HTMLElement,
-    timeout: number
-  ): Promise<T | null>;
-  /**
-   * 等待元素出现
-   * @param selectorList CSS选择器数组
-   * @param parent 父元素，默认document
-   * @param timeout 超时时间，默认0
-   * @example
-   * Utils.waitNode(["div"], document, 1000).then( ([$div]) =>{
-   *  console.log($div); // $div => HTMLDivELement[] | null
-   * })
-   */
-  waitNode<K extends keyof HTMLElementTagNameMap>(
-    selectorList: K[],
-    parent: Node | Element | Document | HTMLElement,
-    timeout: number
-  ): Promise<HTMLElementTagNameMap[K] | null>;
-  waitNode<T extends Element[]>(
-    selectorList: string[],
-    parent: Node | Element | Document | HTMLElement,
-    timeout: number
-  ): Promise<T | null>;
-  /**
-   * 等待元素出现
-   * @param selector CSS选择器
-   * @param timeout 超时时间，默认0
-   * @example
-   * Utils.waitNode("div", 1000).then( $div =>{
-   *  console.log($div); // $div => HTMLDivELement | null
-   * })
-   */
-  waitNode<K extends keyof HTMLElementTagNameMap>(
-    selector: K,
-    timeout: number
-  ): Promise<HTMLElementTagNameMap[K] | null>;
-  waitNode<T extends Element>(selector: string, timeout: number): Promise<T | null>;
-  /**
-   * 等待元素出现
-   * @param selectorList CSS选择器数组
-   * @param timeout 超时时间，默认0
-   * @example
-   * Utils.waitNode(["div"], 1000).then( [$div] =>{
-   *  console.log($div); // $div => HTMLDivELement[] | null
-   * })
-   */
-  waitNode<K extends keyof HTMLElementTagNameMap>(
-    selectorList: K[],
-    timeout: number
-  ): Promise<HTMLElementTagNameMap[K] | null>;
-  waitNode<T extends Element[]>(selectorList: string[], timeout: number): Promise<T | null>;
-  waitNode<T extends Element | Element[]>(...args: any[]): Promise<T | null> {
-    // 过滤掉undefined
-    args = args.filter((arg) => arg !== void 0);
-    const UtilsContext = this;
-    // 选择器
-    const selector = args[0] as unknown as string | string[] | ((...args: any[]) => any);
-    // 父元素（监听的元素）
-    let parent: Element = UtilsContext.windowApi.document as any as Element;
-    // 超时时间
-    let timeout = 0;
-    if (typeof args[0] !== "string" && !Array.isArray(args[0]) && typeof args[0] !== "function") {
-      throw new TypeError("Utils.waitNode 第一个参数必须是string|string[]|Function");
-    }
-    if (args.length === 1) {
-      // 上面已做处理
-    } else if (args.length === 2) {
-      const secondParam = args[1];
-      if (typeof secondParam === "number") {
-        // "div",10000
-        timeout = secondParam;
-      } else if (typeof secondParam === "object" && secondParam instanceof Node) {
-        // "div",document
-        parent = secondParam as any as Element;
-      } else {
-        throw new TypeError("Utils.waitNode 第二个参数必须是number|Node");
-      }
-    } else if (args.length === 3) {
-      // "div",document,10000
-      // 第二个参数，parent
-      const secondParam = args[1];
-      // 第三个参数，timeout
-      const thirdParam = args[2];
-      if (typeof secondParam === "object" && secondParam instanceof Node) {
-        parent = secondParam as any as Element;
-        if (typeof thirdParam === "number") {
-          timeout = thirdParam;
-        } else {
-          throw new TypeError("Utils.waitNode 第三个参数必须是number");
-        }
-      } else {
-        throw new TypeError("Utils.waitNode 第二个参数必须是Node");
-      }
-    } else {
-      throw new TypeError("Utils.waitNode 参数个数错误");
-    }
-    function getNode() {
-      if (Array.isArray(selector)) {
-        const result: T[] = [];
-        for (let index = 0; index < selector.length; index++) {
-          const node = domUtils.selector(selector[index]);
-          if (node) {
-            result.push(node as any);
-          }
-        }
-        if (result.length === selector.length) {
-          return result;
-        }
-      } else if (typeof selector === "function") {
-        return selector();
-      } else {
-        return domUtils.selector(selector, parent);
-      }
-    }
-    return UtilsContext.wait(
-      () => {
-        const node = getNode();
-        if (node) {
-          return {
-            success: true,
-            data: node,
-          };
-        } else {
-          return {
-            success: false,
-            data: node,
-          };
-        }
-      },
-      timeout,
-      parent
-    );
-  }
-  /**
-   * 等待任意元素出现
-   * @param selectorList CSS选择器数组
-   * @param parent （可选）监听的父元素
-   * @example
-   * Utils.waitAnyNode(["div","div"]).then( $div =>{
-   *  console.log($div); // $div => HTMLDivELement 这里是第一个
-   * })
-   * Utils.waitAnyNode(["a","div"], document).then( $a =>{
-   *  console.log($a); // $a => HTMLAnchorElement 这里是第一个
-   * })
-   */
-  waitAnyNode<K extends keyof HTMLElementTagNameMap>(
-    selectorList: K[],
-    parent?: Node | Element | Document | HTMLElement
-  ): Promise<HTMLElementTagNameMap[K]>;
-  waitAnyNode<T extends Element>(selectorList: string[], parent?: Node | Element | Document | HTMLElement): Promise<T>;
-  /**
-   * 等待任意元素出现
-   * @param selectorList CSS选择器数组
-   * @param parent 父元素，默认document
-   * @param timeout 超时时间，默认0
-   * @example
-   * Utils.waitAnyNode(["div","div"], document, 10000).then( $div =>{
-   *  console.log($div); // $div => HTMLDivELement | null
-   * })
-   */
-  waitAnyNode<K extends keyof HTMLElementTagNameMap>(
-    selectorList: K[],
-    parent: Node | Element | Document | HTMLElement,
-    timeout: number
-  ): Promise<HTMLElementTagNameMap[K] | null>;
-  waitAnyNode<T extends Element>(
-    selectorList: string[],
-    parent: Node | Element | Document | HTMLElement,
-    timeout: number
-  ): Promise<T | null>;
-  /**
-   * 等待任意元素出现
-   * @param selectorList CSS选择器数组
-   * @param timeout 超时时间，默认0
-   * @example
-   * Utils.waitAnyNode(["div","div"], 10000).then( $div =>{
-   *  console.log($div); // $div => HTMLDivELement | null
-   * })
-   */
-  waitAnyNode<K extends keyof HTMLElementTagNameMap>(
-    selectorList: K[],
-    timeout: number
-  ): Promise<HTMLElementTagNameMap[K] | null>;
-  waitAnyNode<T extends Element>(selectorList: string[], timeout: number): Promise<T | null>;
-  waitAnyNode<T extends Element>(...args: any[]): Promise<T | null> {
-    // 过滤掉undefined
-    args = args.filter((arg) => arg !== void 0);
-    const UtilsContext = this;
-    // 选择器
-    const selectorList = args[0] as unknown as string[];
-    // 父元素（监听的元素）
-    let parent: Element = UtilsContext.windowApi.document as any as Element;
-    // 超时时间
-    let timeout = 0;
-    if (typeof args[0] !== "object" && !Array.isArray(args[0])) {
-      throw new TypeError("Utils.waitAnyNode 第一个参数必须是string[]");
-    }
-    if (args.length === 1) {
-      // 上面已做处理
-    } else if (args.length === 2) {
-      const secondParam = args[1];
-      if (typeof secondParam === "number") {
-        // "div",10000
-        timeout = secondParam;
-      } else if (typeof secondParam === "object" && secondParam instanceof Node) {
-        // "div",document
-        parent = secondParam as any as Element;
-      } else {
-        throw new TypeError("Utils.waitAnyNode 第二个参数必须是number|Node");
-      }
-    } else if (args.length === 3) {
-      // "div",document,10000
-      // 第二个参数，parent
-      const secondParam = args[1];
-      // 第三个参数，timeout
-      const thirdParam = args[2];
-      if (typeof secondParam === "object" && secondParam instanceof Node) {
-        parent = secondParam as any as Element;
-        if (typeof thirdParam === "number") {
-          timeout = thirdParam;
-        } else {
-          throw new TypeError("Utils.waitAnyNode 第三个参数必须是number");
-        }
-      } else {
-        throw new TypeError("Utils.waitAnyNode 第二个参数必须是Node");
-      }
-    } else {
-      throw new TypeError("Utils.waitAnyNode 参数个数错误");
-    }
-    const promiseList = selectorList.map((selector) => {
-      return UtilsContext.waitNode<T>(selector, parent, timeout);
-    });
-    return Promise.any(promiseList);
-  }
-  /**
-   * 等待元素数组出现
-   * @param selector CSS选择器
-   * @param parent （可选）监听的父元素
-   * @example
-   * Utils.waitNodeList("div").then( $result =>{
-   *  console.log($result); // $result => NodeListOf<HTMLDivElement>
-   * })
-   * Utils.waitNodeList("div", document).then( $result =>{
-   *  console.log($result); // $result => NodeListOf<HTMLDivElement>
-   * })
-   */
-  waitNodeList<T extends keyof HTMLElementTagNameMap>(
-    selector: T,
-    parent?: Node | Element | Document | HTMLElement
-  ): Promise<NodeListOf<HTMLElementTagNameMap[T]>>;
-  waitNodeList<T extends NodeListOf<Element>>(
-    selector: string,
-    parent?: Node | Element | Document | HTMLElement
-  ): Promise<T>;
-  /**
-   * 等待元素数组出现
-   * @param selectorList CSS选择器数组
-   * @param parent （可选）监听的父元素
-   * @example
-   * Utils.waitNodeList(["div"]).then( $result =>{
-   *  console.log($result); // $result => NodeListOf<HTMLDivElement>[]
-   * })
-   * Utils.waitNodeList(["div"], document).then( $result =>{
-   *  console.log($result); // $result => NodeListOf<HTMLDivElement>[]
-   * })
-   */
-  waitNodeList<K extends keyof HTMLElementTagNameMap>(
-    selectorList: K[],
-    parent?: Node | Element | Document | HTMLElement
-  ): Promise<NodeListOf<HTMLElementTagNameMap[K]>[]>;
-  waitNodeList<T extends NodeListOf<Element>[]>(
-    selectorList: string[],
-    parent?: Node | Element | Document | HTMLElement
-  ): Promise<T>;
-  /**
-   * 等待元素数组出现
-   * @param selector CSS选择器
-   * @param parent 监听的父元素
-   * @param timeout 超时时间，默认0
-   * @example
-   * Utils.waitNodeList("div", document, 10000).then( $result =>{
-   *  console.log($result); // $result => NodeListOf<HTMLDivElement> | null
-   * })
-   */
-  waitNodeList<T extends NodeListOf<Element>>(
-    selector: string,
-    parent: Node | Element | Document | HTMLElement,
-    timeout: number
-  ): Promise<T | null>;
-  waitNodeList<K extends keyof HTMLElementTagNameMap>(
-    selector: K,
-    parent: Node | Element | Document | HTMLElement,
-    timeout: number
-  ): Promise<NodeListOf<HTMLElementTagNameMap[K]> | null>;
-  /**
-   * 等待元素数组出现
-   * @param selectorList CSS选择器数组
-   * @param parent 监听的父元素
-   * @param timeout 超时时间，默认0
-   * @example
-   * Utils.waitNodeList(["div"], document, 10000).then( $result =>{
-   *  console.log($result); // $result => NodeListOf<HTMLDivElement>[] | null
-   * })
-   */
-  waitNodeList<K extends keyof HTMLElementTagNameMap>(
-    selectorList: K[],
-    parent: Node | Element | Document | HTMLElement,
-    timeout: number
-  ): Promise<NodeListOf<HTMLElementTagNameMap[K]>[] | null>;
-  waitNodeList<T extends NodeListOf<Element>[]>(
-    selectorList: string[],
-    parent: Node | Element | Document | HTMLElement,
-    timeout: number
-  ): Promise<T | null>;
-  /**
-   * 等待元素数组出现
-   * @param selector CSS选择器数组
-   * @param timeout 超时时间，默认0
-   * @example
-   * Utils.waitNodeList("div", 10000).then( $result =>{
-   *  console.log($result); // $result => NodeListOf<HTMLDivElement> | null
-   * })
-   */
-  waitNodeList<K extends keyof HTMLElementTagNameMap>(
-    selector: K[],
-    timeout: number
-  ): Promise<NodeListOf<HTMLElementTagNameMap[K]> | null>;
-  waitNodeList<T extends NodeListOf<Element>>(selector: string[], timeout: number): Promise<T | null>;
-  /**
-   * 等待元素数组出现
-   * @param selectorList CSS选择器数组
-   * @param timeout 超时时间，默认0
-   * @example
-   * Utils.waitNodeList(["div"], 10000).then( $result =>{
-   *  console.log($result); // $result => NodeListOf<HTMLDivElement>[] | null
-   * })
-   */
-  waitNodeList<K extends keyof HTMLElementTagNameMap>(
-    selectorList: K[],
-    timeout: number
-  ): Promise<NodeListOf<HTMLElementTagNameMap[K]>[] | null>;
-  waitNodeList<T extends NodeListOf<Element>>(selectorList: string[], timeout: number): Promise<T[] | null>;
-  waitNodeList<T extends NodeListOf<Element> | NodeListOf<Element>[]>(...args: any[]): Promise<T | null> {
-    // 过滤掉undefined
-    args = args.filter((arg) => arg !== void 0);
-    const UtilsContext = this;
-    // 选择器数组
-    const selector = args[0] as unknown as string | string[];
-    // 父元素（监听的元素）
-    let parent: Element = UtilsContext.windowApi.document as any as Element;
-    // 超时时间
-    let timeout = 0;
-    if (typeof args[0] !== "string" && !Array.isArray(args[0])) {
-      throw new TypeError("Utils.waitNodeList 第一个参数必须是string|string[]");
-    }
-    if (args.length === 1) {
-      // 上面已做处理
-    } else if (args.length === 2) {
-      const secondParam = args[1];
-      if (typeof secondParam === "number") {
-        // "div",10000
-        timeout = secondParam;
-      } else if (typeof secondParam === "object" && secondParam instanceof Node) {
-        // "div",document
-        parent = secondParam as any as Element;
-      } else {
-        throw new TypeError("Utils.waitNodeList 第二个参数必须是number|Node");
-      }
-    } else if (args.length === 3) {
-      // "div",document,10000
-      // 第二个参数，parent
-      const secondParam = args[1];
-      // 第三个参数，timeout
-      const thirdParam = args[2];
-      if (typeof secondParam === "object" && secondParam instanceof Node) {
-        parent = secondParam as any as Element;
-        if (typeof thirdParam === "number") {
-          timeout = thirdParam;
-        } else {
-          throw new TypeError("Utils.waitNodeList 第三个参数必须是number");
-        }
-      } else {
-        throw new TypeError("Utils.waitNodeList 第二个参数必须是Node");
-      }
-    } else {
-      throw new TypeError("Utils.waitNodeList 参数个数错误");
-    }
-    function getNodeList() {
-      if (Array.isArray(selector)) {
-        const result: T[] = [];
-        for (let index = 0; index < selector.length; index++) {
-          const nodeList = domUtils.selectorAll(selector[index], parent);
-          if (nodeList.length) {
-            result.push(nodeList as any as T);
-          }
-        }
-        if (result.length === selector.length) {
-          return result;
-        }
-      } else {
-        const nodeList = domUtils.selectorAll(selector, parent);
-        if (nodeList.length) {
-          return nodeList;
-        }
-      }
-    }
-    return UtilsContext.wait<any>(
-      () => {
-        const node = getNodeList();
-        if (node) {
-          return {
-            success: true,
-            data: node,
-          };
-        } else {
-          return {
-            success: false,
-            data: node,
-          };
-        }
-      },
-      timeout,
-      parent
-    );
-  }
-  /**
-   * 等待任意元素数组出现
-   * @param selectorList CSS选择器数组
-   * @param parent （可选）监听的父元素
-   * @example
-   * Utils.waitAnyNodeList(["div","a"]).then( $result =>{
-   *  console.log($result); // $result => NodeListOf<HTMLDivElement>
-   * })
-   * Utils.waitAnyNodeList(["div","a"], document).then( $result =>{
-   *  console.log($result); // $result => NodeListOf<HTMLDivElement>
-   * })
-   */
-  waitAnyNodeList<K extends keyof HTMLElementTagNameMap>(
-    selectorList: K[],
-    parent?: Node | Element | Document | HTMLElement
-  ): Promise<NodeListOf<HTMLElementTagNameMap[K]>>;
-  waitAnyNodeList<T extends Element>(
-    selectorList: string[],
-    parent?: Node | Element | Document | HTMLElement
-  ): Promise<NodeListOf<T>>;
-  /**
-   * 等待任意元素数组出现
-   * @param selectorList CSS选择器数组
-   * @param parent 父元素，默认document
-   * @param timeout 超时时间，默认0
-   * @example
-   * Utils.waitAnyNodeList(["div","a"], document, 10000).then( $result =>{
-   *  console.log($result); // $result => NodeListOf<HTMLDivElement> | null
-   * })
-   */
-  waitAnyNodeList<K extends keyof HTMLElementTagNameMap>(
-    selectorList: K[],
-    parent: Node | Element | Document | HTMLElement,
-    timeout: number
-  ): Promise<NodeListOf<HTMLElementTagNameMap[K]> | null>;
-  waitAnyNodeList<T extends Element>(
-    selectorList: string[],
-    parent: Node | Element | Document | HTMLElement,
-    timeout: number
-  ): Promise<NodeListOf<T> | null>;
-  /**
-   * 等待任意元素出现
-   * @param selectorList CSS选择器数组
-   * @param timeout 超时时间，默认0
-   * @example
-   * Utils.waitAnyNodeList(["div","div"], 10000).then( $result =>{
-   *  console.log($result); // $result => NodeListOf<HTMLDivElement> | null
-   * })
-   */
-  waitAnyNodeList<K extends keyof HTMLElementTagNameMap>(
-    selectorList: K[],
-    timeout: number
-  ): Promise<NodeListOf<HTMLElementTagNameMap[K]> | null>;
-  waitAnyNodeList<T extends Element>(selectorList: string[], timeout: number): Promise<NodeListOf<T> | null>;
-  waitAnyNodeList<T extends Element>(...args: any[]): Promise<NodeListOf<T> | null> {
-    // 过滤掉undefined
-    args = args.filter((arg) => arg !== void 0);
-    const UtilsContext = this;
-    // 选择器数组
-    const selectorList = args[0] as unknown as string[];
-    // 父元素（监听的元素）
-    let parent: Element = UtilsContext.windowApi.document as any as Element;
-    // 超时时间
-    let timeout = 0;
-    if (!Array.isArray(args[0])) {
-      throw new TypeError("Utils.waitAnyNodeList 第一个参数必须是string[]");
-    }
-    if (args.length === 1) {
-      // 上面已做处理
-    } else if (args.length === 2) {
-      const secondParam = args[1];
-      if (typeof secondParam === "number") {
-        // "div",10000
-        timeout = secondParam;
-      } else if (typeof secondParam === "object" && secondParam instanceof Node) {
-        // "div",document
-        parent = secondParam as any as Element;
-      } else {
-        throw new TypeError("Utils.waitAnyNodeList 第二个参数必须是number|Node");
-      }
-    } else if (args.length === 3) {
-      // "div",document,10000
-      // 第二个参数，parent
-      const secondParam = args[1];
-      // 第三个参数，timeout
-      const thirdParam = args[2];
-      if (typeof secondParam === "object" && secondParam instanceof Node) {
-        parent = secondParam as any as Element;
-        if (typeof thirdParam === "number") {
-          timeout = thirdParam;
-        } else {
-          throw new TypeError("Utils.waitAnyNodeList 第三个参数必须是number");
-        }
-      } else {
-        throw new TypeError("Utils.waitAnyNodeList 第二个参数必须是Node");
-      }
-    } else {
-      throw new TypeError("Utils.waitAnyNodeList 参数个数错误");
-    }
-
-    const promiseList = selectorList.map((selector) => {
-      return UtilsContext.waitNodeList<NodeListOf<T>>(selector, parent, timeout);
-    });
-    return Promise.any(promiseList);
-  }
-
-  /**
-   * 等待对象上的属性出现
-   * @param checkObj 检查的对象
-   * @param checkPropertyName 检查的对象的属性名
+   * 使用`Object.defineProperty`等待对象上的属性出现
+   * @param target 检查的对象
+   * @param propertyName 检查的对象的属性名
    * @example
    * await Utils.waitProperty(window,"test");
    * console.log("test success set");
@@ -4238,17 +3283,18 @@ class Utils {
    * > "test success set"
    *
    */
-  waitProperty<T>(checkObj: any | (() => any), checkPropertyName: string): Promise<T>;
-  waitProperty<T>(checkObj: any | (() => any), checkPropertyName: string): Promise<T> {
+  waitProperty<T>(target: any, propertyName: string): Promise<T>;
+  waitProperty<T>(checkFn: () => any, propertyName: string): Promise<T>;
+  waitProperty<T>(target: any | (() => any), propertyName: string): Promise<T> {
     return new Promise((resolve) => {
-      let obj = checkObj;
-      if (typeof checkObj === "function") {
-        obj = checkObj();
+      let obj = target;
+      if (typeof target === "function") {
+        obj = target();
       }
-      if (Reflect.has(obj, checkPropertyName)) {
-        resolve((obj as any)[checkPropertyName]);
+      if (Reflect.has(obj, propertyName)) {
+        resolve((obj as any)[propertyName]);
       } else {
-        Object.defineProperty(obj, checkPropertyName, {
+        Object.defineProperty(obj, propertyName, {
           set: function (value) {
             try {
               resolve(value);
@@ -4262,56 +3308,96 @@ class Utils {
   }
   /**
    * 在规定时间内等待对象上的属性出现
-   * @param checkObj 检查的对象
-   * @param checkPropertyName 检查的对象的属性名
+   * @param target 检查的对象
+   * @param propertyName 检查的对象的属性名
    * @param intervalTimer （可选）检查间隔时间（ms），默认250ms
    * @param maxTime （可选）限制在多长时间内，默认-1(不限制时间)
    * @example
    * await Utils.waitPropertyByInterval(window,"test");
    * console.log("test success set");
    */
+  waitPropertyByInterval<T>(target: any, propertyName: string, intervalTimer?: number, maxTime?: number): Promise<T>;
+  /**
+   * 在规定时间内等待对象上的属性出现
+   * @param target 检查的对象
+   * @param checkFn 检查属性是否在对象上
+   * @param intervalTimer （可选）检查间隔时间（ms），默认250ms
+   * @param maxTime （可选）限制在多长时间内，默认-1(不限制时间)
+   * @example
+   * await Utils.waitPropertyByInterval(window,() => "test" in window);
+   * console.log("test success set");
+   */
   waitPropertyByInterval<T>(
-    checkObj: any | (() => any),
-    checkPropertyName: string | ((obj: any) => boolean),
+    target: any,
+    checkFn: (inst: any) => boolean,
+    intervalTimer?: number,
+    maxTime?: number
+  ): Promise<T>;
+  /**
+   * 在规定时间内等待对象上的属性出现
+   * @param queryTarget 获取对象的函数
+   * @param propertyName 检查的对象的属性名
+   * @param intervalTimer （可选）检查间隔时间（ms），默认250ms
+   * @param maxTime （可选）限制在多长时间内，默认-1(不限制时间)
+   * @example
+   * await Utils.waitPropertyByInterval(() => window,"test");
+   * console.log("test success set");
+   */
+  waitPropertyByInterval<T>(
+    queryTarget: () => any,
+    propertyName: string,
+    intervalTimer?: number,
+    maxTime?: number
+  ): Promise<T>;
+  /**
+   * 在规定时间内等待对象上的属性出现
+   * @param queryTarget 获取对象的函数
+   * @param checkFn 检查属性是否在对象上
+   * @param intervalTimer （可选）检查间隔时间（ms），默认250ms
+   * @param maxTime （可选）限制在多长时间内，默认-1(不限制时间)
+   * @example
+   * await Utils.waitPropertyByInterval(() => window,() => "test" in window);
+   * console.log("test success set");
+   */
+  waitPropertyByInterval<T>(
+    queryTarget: () => any,
+    checkFn: (inst: any) => boolean,
     intervalTimer?: number,
     maxTime?: number
   ): Promise<T>;
   waitPropertyByInterval<T>(
-    checkObj: any | (() => any),
-    checkPropertyName: string | ((obj: any) => boolean),
+    checkFn: any | (() => any),
+    propertyName: string | ((inst: any) => boolean),
     intervalTimer: number = 250,
     maxTime: number = -1
   ): Promise<T> {
-    const UtilsContext = this;
-    if (checkObj == null) {
+    const that = this;
+    if (checkFn == null) {
       throw new TypeError("checkObj 不能为空对象 ");
     }
     let isResolve = false;
     return new Promise((resolve, reject) => {
-      const interval = UtilsContext.workerSetInterval(() => {
-        let obj = checkObj;
-        if (typeof checkObj === "function") {
-          obj = checkObj();
+      const interval = that.workerSetInterval(() => {
+        let inst = checkFn;
+        if (typeof checkFn === "function") {
+          inst = checkFn();
         }
-        if (typeof obj !== "object") {
+        if (typeof inst !== "object") {
           return;
         }
-        if (obj == null) {
+        if (inst == null) {
           return;
         }
-        if (
-          (typeof checkPropertyName === "function" && checkPropertyName(obj)) ||
-          Reflect.has(obj, checkPropertyName as string)
-        ) {
+        if ((typeof propertyName === "function" && propertyName(inst)) || Reflect.has(inst, propertyName as string)) {
           isResolve = true;
-          UtilsContext.workerClearInterval(interval);
-          resolve((obj as any)[checkPropertyName as string]);
+          that.workerClearInterval(interval);
+          resolve((inst as any)[propertyName as string]);
         }
       }, intervalTimer);
       if (maxTime !== -1) {
-        UtilsContext.workerSetTimeout(() => {
+        that.workerSetTimeout(() => {
           if (!isResolve) {
-            UtilsContext.workerClearInterval(interval);
+            that.workerClearInterval(interval);
             reject();
           }
         }, maxTime);
@@ -4330,8 +3416,8 @@ class Utils {
    * function(){
    *    return document.querySelector("a.xx")
    * },
-   * function(__vue__){
-   *    return Boolean(__vue__.xxx == null);
+   * function(vueInst){
+   *    return Boolean(vueInst.xxx == null);
    * },
    * 250,
    * 10000,
@@ -4346,20 +3432,20 @@ class Utils {
     vueName?: "__vue__" | string
   ): Promise<boolean>;
   async waitVueByInterval(
-    element: HTMLElement | (() => any),
+    $el: HTMLElement | (() => any),
     propertyName: string | ((__vue__: any) => boolean),
     timer = 250,
     maxTime = -1,
     vueName = "__vue__"
   ) {
-    if (element == null) {
+    if ($el == null) {
       throw new Error("Utils.waitVueByInterval 参数element 不能为空");
     }
     let flag = false;
-    const UtilsContext = this;
+    const that = this;
     try {
-      await UtilsContext.waitPropertyByInterval(
-        element,
+      await that.waitPropertyByInterval(
+        $el,
         function (targetElement) {
           if (targetElement == null) {
             return false;
@@ -4370,15 +3456,15 @@ class Utils {
           if (propertyName == null) {
             return true;
           }
-          const vueObject = targetElement[vueName];
+          const $vueEl = targetElement[vueName];
           if (typeof propertyName === "string") {
-            if (propertyName in vueObject) {
+            if (propertyName in $vueEl) {
               flag = true;
               return true;
             }
           } else {
             /* Function */
-            if (propertyName(vueObject)) {
+            if (propertyName($vueEl)) {
               flag = true;
               return true;
             }
@@ -4388,14 +3474,13 @@ class Utils {
         timer,
         maxTime
       );
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
+    } catch {
       return flag;
     }
     return flag;
   }
   /**
-   * 观察对象的set、get
+   * 使用`Object.defineProperty`观察对象的set、get
    * @param target 观察的对象
    * @param propertyName 观察的对象的属性名
    * @param getCallBack （可选）触发get的回调，可以自定义返回特定值
@@ -4685,85 +3770,6 @@ class Utils {
     } finally {
       this.windowApi.clearInterval(timeId);
     }
-  }
-  /**
-   * 获取剪贴板信息
-   */
-  async getClipboardInfo() {
-    return new Promise<{
-      /**
-       * 错误信息，如果为null，则表示读取成功
-       */
-      error: Error | null;
-      /**
-       * 剪贴板内容
-       */
-      content: string;
-    }>((resolve) => {
-      /** 读取剪贴板 */
-      function readClipboardText() {
-        navigator.clipboard
-          .readText()
-          .then((clipboardText) => {
-            resolve({
-              error: null,
-              content: clipboardText,
-            });
-          })
-          .catch((error: TypeError) => {
-            resolve({
-              error: error,
-              content: "",
-            });
-          });
-      }
-      /** 申请读取剪贴板的权限 */
-      function requestPermissionsWithClipboard() {
-        navigator.permissions
-          .query({
-            name: "clipboard-read" as any as PermissionName,
-          })
-          .then(() => {
-            readClipboardText();
-          })
-          .catch(() => {
-            /* 该权限申请Api可能在该环境下不生效，尝试直接读取剪贴板 */
-            readClipboardText();
-          });
-      }
-      /**
-       * 检查当前环境是否支持读取剪贴板Api
-       */
-      function checkClipboardApi() {
-        if (typeof navigator?.clipboard?.readText !== "function") {
-          return false;
-        }
-        if (typeof navigator?.permissions?.query !== "function") {
-          return false;
-        }
-        return true;
-      }
-      if (!checkClipboardApi()) {
-        resolve({
-          error: new Error("当前环境不支持读取剪贴板Api"),
-          content: "",
-        });
-        return;
-      }
-      if (document.hasFocus()) {
-        requestPermissionsWithClipboard();
-      } else {
-        window.addEventListener(
-          "focus",
-          () => {
-            requestPermissionsWithClipboard();
-          },
-          {
-            once: true,
-          }
-        );
-      }
-    });
   }
 }
 

@@ -70,7 +70,7 @@ export class GMMenu {
     },
     /**
      * 注册油猴菜单
-     * @param menuOptions 如果存在，使用它
+     * @param menuOptions （可选）菜单配置
      */
     register(menuOptions?: UtilsGMMenuOptionData[]) {
       const that = this;
@@ -94,7 +94,8 @@ export class GMMenu {
     },
     /**
      * 获取本地存储菜单键值
-     * @param {string} key 键
+     * @param key 键
+     * @param defaultValue 默认值
      */
     getLocalMenuData(key: string, defaultValue: boolean): boolean {
       const localData = this.context.GM_Api.getValue(this.$data.key, {});
@@ -116,7 +117,7 @@ export class GMMenu {
     },
     /**
      * 处理初始化配置
-     * @param menuOption
+     * @param menuOption 菜单配置
      */
     handleInitDetail(menuOption: Required<UtilsGMMenuOption>) {
       menuOption.enable = Boolean(this.getLocalMenuData(menuOption.key, menuOption.enable));
@@ -133,7 +134,7 @@ export class GMMenu {
     },
     /**
      * 对菜单数据进行处理
-     * @param menuOption
+     * @param menuOption 菜单配置
      */
     handleMenuData(menuOption: Required<UtilsGMMenuOption>) {
       const that = this;
@@ -221,6 +222,9 @@ export class GMMenu {
       return this.$data.data.find((item) => item!.handleData!.key === menuKey)?.handleData;
     },
   };
+  /**
+   * @param details 菜单配置
+   */
   constructor(details: UtilsGMMenuConstructorOptions) {
     this.GM_Api.getValue = details.GM_getValue;
     this.GM_Api.setValue = details.GM_setValue;
@@ -304,14 +308,6 @@ export class GMMenu {
    */
   delete(menuId: number) {
     this.GM_Api.unregisterMenuCommand(menuId);
-  }
-  /**
-   * 根据键值获取enable值
-   * @param menuKey 菜单-键key
-   * @deprecated
-   */
-  get(menuKey: string): boolean {
-    return this.getEnable(menuKey);
   }
   /**
    * 根据键值获取enable值

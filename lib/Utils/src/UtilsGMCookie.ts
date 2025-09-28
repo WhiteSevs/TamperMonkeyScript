@@ -67,11 +67,26 @@ export class UtilsGMCookie {
    * + cookies object[]
    * + error string|undefined
    **/
-  list(option: UtilsGMCookieListOptions | object, callback?: (data: UtilsGMCookieResult[], error?: Error) => void) {
+  list(option: UtilsGMCookieListOptions | object): {
+    cookies: UtilsGMCookieResult[];
+    error?: Error;
+  };
+  list(
+    option: UtilsGMCookieListOptions | object,
+    callback?: (data: UtilsGMCookieResult[], error?: Error) => void
+  ): void;
+  list(
+    option: UtilsGMCookieListOptions | object,
+    callback?: (data: UtilsGMCookieResult[], error?: Error) => void
+  ): {
+    cookies: UtilsGMCookieResult[];
+    error?: Error;
+  } | void {
     if (option == null) {
       throw new Error("Utils.GMCookie.list 参数不能为空");
     }
     const resultData: UtilsGMCookieResult[] = [];
+    let error;
     try {
       let defaultOption: Required<UtilsGMCookieListOptions> = {
         url: this.windowApi.window.location.href,
@@ -106,13 +121,16 @@ export class UtilsGMCookie {
           });
         }
       });
-      if (typeof callback === "function") {
-        callback(resultData);
-      }
-    } catch (error) {
-      if (typeof callback === "function") {
-        callback(resultData, error as Error);
-      }
+    } catch (e) {
+      error = e;
+    }
+    if (typeof callback === "function") {
+      callback(resultData, error as Error);
+    } else {
+      return {
+        cookies: resultData,
+        error: error as Error,
+      };
     }
   }
   /**

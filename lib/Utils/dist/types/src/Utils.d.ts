@@ -9,7 +9,6 @@ import { LockFunction } from "./LockFunction";
 import { Log } from "./Log";
 import { Progress } from "./Progress";
 import { UtilsDictionary } from "./Dictionary";
-import type { DOMUtils_EventType } from "./types/Event";
 import type { UtilsAjaxHookResult } from "./types/ajaxHooker";
 import { Vue } from "./Vue";
 import { type ArgsType, type JSTypeNames, type UtilsOwnObject } from "./types/global";
@@ -21,15 +20,6 @@ declare class Utils {
     constructor(option?: WindowApiOption);
     /** 版本号 */
     version: string;
-    /**
-     * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
-     * @param cssText css字符串
-     * @returns 返回添加的CSS标签
-     * @example
-     * Utils.GM_addStyle("html{}");
-     * > <style type="text/css">html{}</style>
-     */
-    addStyle(cssText: string): HTMLStyleElement;
     /**
        * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
        * @param target 目标数据
@@ -57,7 +47,7 @@ declare class Utils {
      * ajax劫持库，支持xhr和fetch劫持。
      * + 来源：https://bbs.tampermonkey.net.cn/thread-3284-1-1.html
      * + 作者：cxxjackie
-     * + 版本：1.4.7
+     * + 版本：1.4.8
      * + 旧版本：1.2.4
      * + 文档：https://scriptcat.org/zh-CN/script-show-page/637/
      * @param useOldVersion 是否使用旧版本，默认false
@@ -71,17 +61,6 @@ declare class Utils {
      * @param view 触发的事件目标
      */
     canvasClickByPosition(canvasElement: HTMLCanvasElement, clientX?: number | string, clientY?: number | string, view?: Window & typeof globalThis): void;
-    /**
-     * 【手机】检测点击的地方是否在该元素区域内
-     * @param element 需要检测的元素
-     * @returns
-     * + true 点击在元素上
-     * + false 未点击在元素上
-     * @example
-     * Utils.checkUserClickInNode(document.querySelector(".xxx"));
-     * > false
-     **/
-    checkUserClickInNode(element: Element | Node | HTMLElement): boolean;
     /**
      * 复制formData数据
      * @param formData 需要clone的数据
@@ -130,18 +109,6 @@ declare class Utils {
      */
     debounce<A extends any[], R>(fn: (...args: A) => R, delay?: number): (...args: A) => void;
     /**
-     * 删除某个父元素，父元素可能在上层或上上层或上上上层...
-     * @param element 当前元素
-     * @param targetSelector 判断是否满足父元素，参数为当前处理的父元素，满足返回true，否则false
-     * @returns
-     * + true 已删除
-     * + false 未删除
-     * @example
-     * Utils.deleteParentNode(document.querySelector("a"),".xxx");
-     * > true
-     **/
-    deleteParentNode(element: Node | HTMLElement | Element | null, targetSelector: string): boolean;
-    /**
      * 字典
      * @example
      * let dictionary = new Utils.Dictionary();
@@ -154,28 +121,6 @@ declare class Utils {
      * dictionary.concat(dictionary2);
      **/
     Dictionary: typeof UtilsDictionary;
-    /**
-     * 主动触发事件
-     * @param element 元素
-     * @param eventName 事件名称，可以是字符串，也可是字符串格式的列表
-     * @param details （可选）赋予触发的Event的额外属性
-     * + true 使用Proxy代理Event并设置获取isTrusted永远为True
-     * + false (默认) 不对Event进行Proxy代理
-     * @example
-     * Utils.dispatchEvent(document.querySelector("input","input"))
-     */
-    dispatchEvent(element: HTMLElement | Document, eventName: DOMUtils_EventType | DOMUtils_EventType[], details?: any): void;
-    /**
-     * 主动触发事件
-     * @param element 元素
-     * @param eventName 事件名称，可以是字符串，也可是字符串格式的列表
-     * @param details （可选）赋予触发的Event的额外属性
-     * + true 使用Proxy代理Event并设置获取isTrusted永远为True
-     * + false (默认) 不对Event进行Proxy代理
-     * @example
-     * Utils.dispatchEvent(document.querySelector("input","input"))
-     */
-    dispatchEvent(element: HTMLElement | Document, eventName: string, details?: any): void;
     /**
      * 下载base64格式的数据
      * @param base64Data	需要转换的base64数据
@@ -200,25 +145,6 @@ declare class Utils {
      * > true
      **/
     findWebPageVisibleText(str?: string, caseSensitive?: boolean): boolean | void;
-    /**
-     * 定位元素上的字符串，返回一个迭代器
-     * @param element 目标元素
-     * @param text 需要定位的字符串
-     * @param filter （可选）过滤器函数，返回值为true是排除该元素
-     * @example
-     * let textIterator = Utils.findElementsWithText(document.documentElement,"xxxx");
-     * textIterator.next();
-     * > {value: ?HTMLElement, done: boolean, next: Function}
-     */
-    findElementsWithText<T extends HTMLElement | Element | Node>(element: T, text: string, filter?: (element: T) => boolean): Generator<HTMLElement | ChildNode, void, any>;
-    /**
-     * 判断该元素是否可见，如果不可见，向上找它的父元素直至找到可见的元素
-     * @param element
-     * @example
-     * let visibleElement = Utils.findVisibleElement(document.querySelector("a.xx"));
-     * > <HTMLElement>
-     */
-    findVisibleElement(element: HTMLElement | Element | Node): HTMLElement | null;
     /**
      * 格式化byte为KB、MB、GB、TB、PB、EB、ZB、YB、BB、NB、DB
      * @param byteSize 字节
@@ -325,14 +251,6 @@ declare class Utils {
      */
     GBKEncoder: typeof GBKEncoder;
     /**
-     * 获取 transitionend 的在各个浏览器的兼容名
-     */
-    getTransitionEndNameList(): string[];
-    /**
-     * 获取 animationend 的在各个浏览器的兼容名
-     */
-    getAnimationEndNameList(): string[];
-    /**
      * 获取NodeList或Array对象中的最后一个的值
      * @param targetObj
      * @returns
@@ -383,14 +301,6 @@ declare class Utils {
      * > 0
      */
     getDaysDifference(timestamp1?: number, timestamp2?: number, type?: "年" | "月" | "天" | "时" | "分" | "秒"): number;
-    /**
-     * 获取元素的选择器字符串
-     * @param element
-     * @example
-     * Utils.getElementSelector(document.querySelector("a"))
-     * > '.....'
-     */
-    getElementSelector(element: HTMLElement): string;
     /**
      * 获取最大值
      * @example
@@ -528,9 +438,9 @@ declare class Utils {
      * @param element 需要获取的目标元素
      * @returns
      * @example
-     * Utils.getReactObj(document.querySelector("input"))?.reactProps?.onChange({target:{value:"123"}});
+     * Utils.getReactInstance(document.querySelector("input"))?.reactProps?.onChange({target:{value:"123"}});
      */
-    getReactObj(element: HTMLElement | Element): ReactInstance;
+    getReactInstance(element: HTMLElement | Element): ReactInstance;
     /**
      * 获取对象上的Symbol属性，如果没设置keyName，那么返回一个对象，对象是所有遍历到的Symbol对象
      * @param target 目标对象
@@ -999,25 +909,25 @@ declare class Utils {
      **/
     mergeArrayToString<T>(data: T[], handleFunc?: ((val: T) => T) | keyof T): string;
     /**
-       * 监听页面元素改变并处理
-       * @param target 需要监听的元素，如果不存在，可以等待它出现
-       * @param observer_config MutationObserver的配置
-       * @example
-        Utils.mutationObserver(document.querySelector("div.xxxx"),{
-          "callback":(mutations, observer)=>{},
-          "config":{childList:true,attributes:true}
-        });
-       * @example
-        Utils.mutationObserver(document.querySelectorAll("div.xxxx"),{
-          "callback":(mutations, observer)=>{},
-          "config":{childList:true,attributes:true}}
-        );
-       * @example
-        Utils.mutationObserver($("div.xxxx"),{
+     * 监听页面元素改变并处理
+     * @param target 需要监听的元素，如果不存在，可以等待它出现
+     * @param observer_config MutationObserver的配置
+     * @example
+      Utils.mutationObserver(document.querySelector("div.xxxx"),{
+        "callback":(mutations, observer)=>{},
+        "config":{childList:true,attributes:true}
+      });
+      * @example
+      Utils.mutationObserver(document.querySelectorAll("div.xxxx"),{
         "callback":(mutations, observer)=>{},
         "config":{childList:true,attributes:true}}
-        );
-       **/
+      );
+      * @example
+      Utils.mutationObserver($("div.xxxx"),{
+      "callback":(mutations, observer)=>{},
+      "config":{childList:true,attributes:true}}
+      );
+      **/
     mutationObserver(target: HTMLElement | Node | NodeList | Document, observer_config: {
         /**
          * observer的配置
@@ -1168,33 +1078,24 @@ declare class Utils {
      */
     parseFromString(text: string, mimeType?: "text/html" | "text/xml" | "application/xml" | "application/xhtml+xml" | "image/svg+xml"): HTMLElement | XMLDocument | SVGElement;
     /**
+     * 字符串转正则，用于把字符串中不规范的字符进行转义
+     * @param text 需要进行转换的字符串
+     * @param flags （可选）正则标志，默认`gi`
+     * @example
+     * Utils.toRegExp("^替换$");
+     * > /^替换$/gi
+     */
+    toRegExp(text: string | RegExp, flags?: "g" | "i" | "m" | "u" | "y" | string): RegExp;
+    /**
      * 将字符串进行正则转义
      * 例如：^替换$
      * 转换：\^替换\$
+     * @param text 需要转义的字符串
+     * @example
+     * Utils.toRegExpStr("^替换$");
+     * > \^替换\$
      */
-    parseStringToRegExpString(text: string): string;
-    /**
-     * 阻止事件传递
-     * @param element 要进行处理的元素
-     * @param eventNameList （可选）要阻止的事件名|列表
-     * @param capture （可选）是否捕获，默认false
-     * @example
-     * Utils.preventEvent(document.querySelector("a"),"click")
-     * @example
-     * Utils.preventEvent(event);
-     */
-    preventEvent(event: Event): boolean;
-    /**
-     * 阻止事件传递
-     * @param element 要进行处理的元素
-     * @param eventNameList （可选）要阻止的事件名|列表
-     * @param capture （可选）是否捕获，默认false
-     * @example
-     * Utils.preventEvent(document.querySelector("a"),"click")
-     * @example
-     * Utils.preventEvent(event);
-     */
-    preventEvent(element: HTMLElement, eventNameList?: string | string[], capture?: boolean): boolean;
+    toRegExpStr(text: string): string;
     /**
        * 在canvas元素节点上绘制进度圆圈
        * @example
@@ -1203,54 +1104,60 @@ declare class Utils {
        * **/
     Progress: typeof Progress;
     /**
-     * 劫持Event的isTrust为true，注入时刻，ducument-start
+     * 劫持所有Event的isTrust为true，脚本注入时刻请设置为`ducument-start`
      * @param isTrustValue （可选）让isTrusted为true
-     * @param filter （可选）过滤出需要的事件名，true为需要，false为不需要
+     * @param filter （可选）过滤出需要的事件名，返回值true为需要，返回值false为不需要，默认click事件为需要的
      * @example
-     * Utils.registerTrustClickEvent()
+     * Utils.hookEvent_isTrusted()
      */
-    registerTrustClickEvent(isTrustValue?: boolean, filter?: (typeName: string) => boolean): void;
+    hookEvent_isTrusted(isTrustValue?: boolean, filter?: (typeName: string) => boolean): void;
     /**
      * 将数字进行正/负转换
      * @param num 需要进行转换的数字
      */
     reverseNumber(num: number): number;
     /**
-     * 将元素上的文本或元素使用光标进行选中
-     *
-     * 注意，如果设置startIndex和endIndex，且元素上并无可选则的坐标，那么会报错
-     * @param element 目标元素
-     * @param childTextNode 目标元素下的#text元素
-     * @param startIndex （可选）开始坐标，可为空
-     * @param endIndex （可选）结束坐标，可为空
-     */
-    selectElementText(element: HTMLElement | Element | Node, childTextNode?: ChildNode, startIndex?: number, endIndex?: number): void;
-    /**
      * 复制到剪贴板
      * @param data 需要复制到剪贴板的文本
      * @param info （可选）默认：text/plain
      * @example
-     * Utils.setClip({1:2});
+     * Utils.copy({1:2});
      * > {"1":2}
      * @example
-     * Utils.setClip( ()=>{
+     * Utils.copy( ()=>{
      *   console.log(1)
      * });
      * > ()=>{console.log(1)}
      * @example
-     * Utils.setClip("xxxx");
+     * Utils.copy("xxxx");
      * > xxxx
      * @example
-     * Utils.setClip("xxxx","html");
+     * Utils.copy("xxxx","html");
      * > xxxx
      * @example
-     * Utils.setClip("xxxx","text/plain");
+     * Utils.copy("xxxx","text/plain");
      * > xxxx
      **/
-    setClip(data: any, info?: {
+    copy(data: any, info?: {
         type: string;
         mimetype: string;
     } | string): Promise<boolean>;
+    /**
+     * 获取剪贴板信息
+     * @example
+     * await Utils.getClipboardInfo();
+     * > { error: null, content: "剪贴板内容" }
+     */
+    getClipboardInfo(): Promise<{
+        /**
+         * 错误信息，如果为null，则表示读取成功
+         */
+        error: Error | null;
+        /**
+         * 剪贴板内容
+         */
+        content: string;
+    }>;
     /**
      * 【异步函数】等待N秒执行函数
      * @param callback 待执行的函数(字符串)
@@ -1296,7 +1203,7 @@ declare class Utils {
      */
     exitFullScreen($el?: HTMLElement | HTMLDocument | Document): Promise<void>;
     /**
-     * 数组按照内部某个值的大小比对排序，如[{"time":"2022-1-1"},{"time":"2022-2-2"}]
+     * 数组按照内部某个值的大小比对排序，该函数会改变原数组
      * @param data 数据|获取数据的方法
      * @param getPropertyValueFunc 数组内部项的某个属性的值的方法，参数为这个项
      * @param sortByDesc （可选）排序方式
@@ -1311,12 +1218,6 @@ declare class Utils {
      * > [{time: '2022-1-1'},{time: '2022-2-2'}]
      **/
     sortListByProperty<T>(data: T[], getPropertyValueFunc: string | ((value: T) => any), sortByDesc?: boolean): T[];
-    /**
-     * 字符串转正则，用于把字符串中不规范的字符进行转义
-     * @param targetString 需要进行转换的字符串
-     * @param flags 正则标志
-     */
-    stringToRegular(targetString: string | RegExp, flags?: "g" | "i" | "m" | "u" | "y" | string): RegExp;
     /**
      * 字符串首字母转大写
      * @param targetString 目标字符串
@@ -1334,10 +1235,10 @@ declare class Utils {
     startsWith(target: string, searchString: string | RegExp | string[], position?: number): boolean;
     /**
      * 字符串首字母转小写
-     * @param targetString 目标字符串
+     * @param text 目标字符串
      * @param otherStrToLowerCase （可选）剩余部分字符串转大写，默认false
      */
-    stringTitleToLowerCase(targetString: string, otherStrToUpperCase?: boolean): string;
+    firstLetterToLowercase(text: string, otherToUpperCase?: boolean): string;
     /**
      * 字符串转Object对象，类似'{"test":""}' => {"test":""}
      * @param data
@@ -1424,278 +1325,9 @@ declare class Utils {
      **/
     waitArrayLoopToEnd(data: any[] | HTMLElement[], handleFunc: (...args: any[]) => any): Promise<void[]>;
     /**
-     * 等待任意事件成立
-     *
-     * 运行方式为根据页面元素的改变而触发回调
-     * @param checkFn 检测的函数
-     * @param timeout 超时时间，默认0
-     * @param parent （可选）父元素，默认document
-     * @example
-     * Utils.wait(()=> {
-     *   let $test = document.querySelector("#test");
-     *   return {
-     *     success: $test !== null,
-     *     data:  $test
-     *   }
-     * })
-     */
-    wait<T>(checkFn: (...args: any[]) => {
-        /**
-         * 是否检测成功
-         */
-        success: boolean;
-        /**
-         * 返回的值
-         */
-        data: T;
-    }, timeout?: null | undefined, parent?: Node | Element | Document | HTMLElement): Promise<T>;
-    wait<T>(checkFn: (...args: any[]) => {
-        /**
-         * 是否检测成功
-         */
-        success: boolean;
-        /**
-         * 返回的值
-         */
-        data: T;
-    }, timeout?: number, parent?: Node | Element | Document | HTMLElement): Promise<T | null>;
-    /**
-     * 等待元素出现
-     * @param selectorFn 获取元素的函数
-     * @param timeout 超时时间，默认0
-     * @example
-     * Utils.waitNode(()=>document.querySelector("div"), 1000).then( $div =>{
-     *  console.log($div); // $div => HTMLDivELement | null
-     * })
-     */
-    waitNode<K>(selectorFn: () => K | null | undefined): Promise<K>;
-    waitNode<K>(selectorFn: () => K | null | undefined, timeout: number): Promise<K | null | undefined>;
-    /**
-     * 等待元素出现
-     * @param selector CSS选择器
-     * @param parent （可选）父元素，默认document
-     * @example
-     * Utils.waitNode("div").then( $div =>{
-     *  console.log($div); // div => HTMLDivELement
-     * })
-     * Utils.waitNode("div", document).then( $div =>{
-     *  console.log($div); // div => HTMLDivELement
-     * })
-     */
-    waitNode<K extends keyof HTMLElementTagNameMap>(selector: K, parent?: Node | Element | Document | HTMLElement): Promise<HTMLElementTagNameMap[K]>;
-    waitNode<T extends Element>(selector: string, parent?: Node | Element | Document | HTMLElement): Promise<T>;
-    /**
-     * 等待元素出现
-     * @param selectorList CSS选择器数组
-     * @param parent （可选）父元素，默认document
-     * @example
-     * Utils.waitNode(["div"]).then( ([$div]) =>{
-     *  console.log($div); // div => HTMLDivELement[]
-     * })
-     * Utils.waitNode(["div"], document).then( ([$div]) =>{
-     *  console.log($div); // div => HTMLDivELement[]
-     * })
-     */
-    waitNode<K extends keyof HTMLElementTagNameMap>(selectorList: K[], parent?: Node | Element | Document | HTMLElement): Promise<HTMLElementTagNameMap[K][]>;
-    waitNode<T extends Element[]>(selectorList: string[], parent?: Node | Element | Document | HTMLElement): Promise<T>;
-    /**
-     * 等待元素出现
-     * @param selector CSS选择器
-     * @param parent 父元素，默认document
-     * @param timeout 超时时间，默认0
-     * @example
-     * Utils.waitNode("div", document, 1000).then( $div =>{
-     *  console.log($div); // $div => HTMLDivELement | null
-     * })
-     */
-    waitNode<K extends keyof HTMLElementTagNameMap>(selector: K, parent: Node | Element | Document | HTMLElement, timeout: number): Promise<HTMLElementTagNameMap[K] | null>;
-    waitNode<T extends Element>(selector: string, parent: Node | Element | Document | HTMLElement, timeout: number): Promise<T | null>;
-    /**
-     * 等待元素出现
-     * @param selectorList CSS选择器数组
-     * @param parent 父元素，默认document
-     * @param timeout 超时时间，默认0
-     * @example
-     * Utils.waitNode(["div"], document, 1000).then( ([$div]) =>{
-     *  console.log($div); // $div => HTMLDivELement[] | null
-     * })
-     */
-    waitNode<K extends keyof HTMLElementTagNameMap>(selectorList: K[], parent: Node | Element | Document | HTMLElement, timeout: number): Promise<HTMLElementTagNameMap[K] | null>;
-    waitNode<T extends Element[]>(selectorList: string[], parent: Node | Element | Document | HTMLElement, timeout: number): Promise<T | null>;
-    /**
-     * 等待元素出现
-     * @param selector CSS选择器
-     * @param timeout 超时时间，默认0
-     * @example
-     * Utils.waitNode("div", 1000).then( $div =>{
-     *  console.log($div); // $div => HTMLDivELement | null
-     * })
-     */
-    waitNode<K extends keyof HTMLElementTagNameMap>(selector: K, timeout: number): Promise<HTMLElementTagNameMap[K] | null>;
-    waitNode<T extends Element>(selector: string, timeout: number): Promise<T | null>;
-    /**
-     * 等待元素出现
-     * @param selectorList CSS选择器数组
-     * @param timeout 超时时间，默认0
-     * @example
-     * Utils.waitNode(["div"], 1000).then( [$div] =>{
-     *  console.log($div); // $div => HTMLDivELement[] | null
-     * })
-     */
-    waitNode<K extends keyof HTMLElementTagNameMap>(selectorList: K[], timeout: number): Promise<HTMLElementTagNameMap[K] | null>;
-    waitNode<T extends Element[]>(selectorList: string[], timeout: number): Promise<T | null>;
-    /**
-     * 等待任意元素出现
-     * @param selectorList CSS选择器数组
-     * @param parent （可选）监听的父元素
-     * @example
-     * Utils.waitAnyNode(["div","div"]).then( $div =>{
-     *  console.log($div); // $div => HTMLDivELement 这里是第一个
-     * })
-     * Utils.waitAnyNode(["a","div"], document).then( $a =>{
-     *  console.log($a); // $a => HTMLAnchorElement 这里是第一个
-     * })
-     */
-    waitAnyNode<K extends keyof HTMLElementTagNameMap>(selectorList: K[], parent?: Node | Element | Document | HTMLElement): Promise<HTMLElementTagNameMap[K]>;
-    waitAnyNode<T extends Element>(selectorList: string[], parent?: Node | Element | Document | HTMLElement): Promise<T>;
-    /**
-     * 等待任意元素出现
-     * @param selectorList CSS选择器数组
-     * @param parent 父元素，默认document
-     * @param timeout 超时时间，默认0
-     * @example
-     * Utils.waitAnyNode(["div","div"], document, 10000).then( $div =>{
-     *  console.log($div); // $div => HTMLDivELement | null
-     * })
-     */
-    waitAnyNode<K extends keyof HTMLElementTagNameMap>(selectorList: K[], parent: Node | Element | Document | HTMLElement, timeout: number): Promise<HTMLElementTagNameMap[K] | null>;
-    waitAnyNode<T extends Element>(selectorList: string[], parent: Node | Element | Document | HTMLElement, timeout: number): Promise<T | null>;
-    /**
-     * 等待任意元素出现
-     * @param selectorList CSS选择器数组
-     * @param timeout 超时时间，默认0
-     * @example
-     * Utils.waitAnyNode(["div","div"], 10000).then( $div =>{
-     *  console.log($div); // $div => HTMLDivELement | null
-     * })
-     */
-    waitAnyNode<K extends keyof HTMLElementTagNameMap>(selectorList: K[], timeout: number): Promise<HTMLElementTagNameMap[K] | null>;
-    waitAnyNode<T extends Element>(selectorList: string[], timeout: number): Promise<T | null>;
-    /**
-     * 等待元素数组出现
-     * @param selector CSS选择器
-     * @param parent （可选）监听的父元素
-     * @example
-     * Utils.waitNodeList("div").then( $result =>{
-     *  console.log($result); // $result => NodeListOf<HTMLDivElement>
-     * })
-     * Utils.waitNodeList("div", document).then( $result =>{
-     *  console.log($result); // $result => NodeListOf<HTMLDivElement>
-     * })
-     */
-    waitNodeList<T extends keyof HTMLElementTagNameMap>(selector: T, parent?: Node | Element | Document | HTMLElement): Promise<NodeListOf<HTMLElementTagNameMap[T]>>;
-    waitNodeList<T extends NodeListOf<Element>>(selector: string, parent?: Node | Element | Document | HTMLElement): Promise<T>;
-    /**
-     * 等待元素数组出现
-     * @param selectorList CSS选择器数组
-     * @param parent （可选）监听的父元素
-     * @example
-     * Utils.waitNodeList(["div"]).then( $result =>{
-     *  console.log($result); // $result => NodeListOf<HTMLDivElement>[]
-     * })
-     * Utils.waitNodeList(["div"], document).then( $result =>{
-     *  console.log($result); // $result => NodeListOf<HTMLDivElement>[]
-     * })
-     */
-    waitNodeList<K extends keyof HTMLElementTagNameMap>(selectorList: K[], parent?: Node | Element | Document | HTMLElement): Promise<NodeListOf<HTMLElementTagNameMap[K]>[]>;
-    waitNodeList<T extends NodeListOf<Element>[]>(selectorList: string[], parent?: Node | Element | Document | HTMLElement): Promise<T>;
-    /**
-     * 等待元素数组出现
-     * @param selector CSS选择器
-     * @param parent 监听的父元素
-     * @param timeout 超时时间，默认0
-     * @example
-     * Utils.waitNodeList("div", document, 10000).then( $result =>{
-     *  console.log($result); // $result => NodeListOf<HTMLDivElement> | null
-     * })
-     */
-    waitNodeList<T extends NodeListOf<Element>>(selector: string, parent: Node | Element | Document | HTMLElement, timeout: number): Promise<T | null>;
-    waitNodeList<K extends keyof HTMLElementTagNameMap>(selector: K, parent: Node | Element | Document | HTMLElement, timeout: number): Promise<NodeListOf<HTMLElementTagNameMap[K]> | null>;
-    /**
-     * 等待元素数组出现
-     * @param selectorList CSS选择器数组
-     * @param parent 监听的父元素
-     * @param timeout 超时时间，默认0
-     * @example
-     * Utils.waitNodeList(["div"], document, 10000).then( $result =>{
-     *  console.log($result); // $result => NodeListOf<HTMLDivElement>[] | null
-     * })
-     */
-    waitNodeList<K extends keyof HTMLElementTagNameMap>(selectorList: K[], parent: Node | Element | Document | HTMLElement, timeout: number): Promise<NodeListOf<HTMLElementTagNameMap[K]>[] | null>;
-    waitNodeList<T extends NodeListOf<Element>[]>(selectorList: string[], parent: Node | Element | Document | HTMLElement, timeout: number): Promise<T | null>;
-    /**
-     * 等待元素数组出现
-     * @param selector CSS选择器数组
-     * @param timeout 超时时间，默认0
-     * @example
-     * Utils.waitNodeList("div", 10000).then( $result =>{
-     *  console.log($result); // $result => NodeListOf<HTMLDivElement> | null
-     * })
-     */
-    waitNodeList<K extends keyof HTMLElementTagNameMap>(selector: K[], timeout: number): Promise<NodeListOf<HTMLElementTagNameMap[K]> | null>;
-    waitNodeList<T extends NodeListOf<Element>>(selector: string[], timeout: number): Promise<T | null>;
-    /**
-     * 等待元素数组出现
-     * @param selectorList CSS选择器数组
-     * @param timeout 超时时间，默认0
-     * @example
-     * Utils.waitNodeList(["div"], 10000).then( $result =>{
-     *  console.log($result); // $result => NodeListOf<HTMLDivElement>[] | null
-     * })
-     */
-    waitNodeList<K extends keyof HTMLElementTagNameMap>(selectorList: K[], timeout: number): Promise<NodeListOf<HTMLElementTagNameMap[K]>[] | null>;
-    waitNodeList<T extends NodeListOf<Element>>(selectorList: string[], timeout: number): Promise<T[] | null>;
-    /**
-     * 等待任意元素数组出现
-     * @param selectorList CSS选择器数组
-     * @param parent （可选）监听的父元素
-     * @example
-     * Utils.waitAnyNodeList(["div","a"]).then( $result =>{
-     *  console.log($result); // $result => NodeListOf<HTMLDivElement>
-     * })
-     * Utils.waitAnyNodeList(["div","a"], document).then( $result =>{
-     *  console.log($result); // $result => NodeListOf<HTMLDivElement>
-     * })
-     */
-    waitAnyNodeList<K extends keyof HTMLElementTagNameMap>(selectorList: K[], parent?: Node | Element | Document | HTMLElement): Promise<NodeListOf<HTMLElementTagNameMap[K]>>;
-    waitAnyNodeList<T extends Element>(selectorList: string[], parent?: Node | Element | Document | HTMLElement): Promise<NodeListOf<T>>;
-    /**
-     * 等待任意元素数组出现
-     * @param selectorList CSS选择器数组
-     * @param parent 父元素，默认document
-     * @param timeout 超时时间，默认0
-     * @example
-     * Utils.waitAnyNodeList(["div","a"], document, 10000).then( $result =>{
-     *  console.log($result); // $result => NodeListOf<HTMLDivElement> | null
-     * })
-     */
-    waitAnyNodeList<K extends keyof HTMLElementTagNameMap>(selectorList: K[], parent: Node | Element | Document | HTMLElement, timeout: number): Promise<NodeListOf<HTMLElementTagNameMap[K]> | null>;
-    waitAnyNodeList<T extends Element>(selectorList: string[], parent: Node | Element | Document | HTMLElement, timeout: number): Promise<NodeListOf<T> | null>;
-    /**
-     * 等待任意元素出现
-     * @param selectorList CSS选择器数组
-     * @param timeout 超时时间，默认0
-     * @example
-     * Utils.waitAnyNodeList(["div","div"], 10000).then( $result =>{
-     *  console.log($result); // $result => NodeListOf<HTMLDivElement> | null
-     * })
-     */
-    waitAnyNodeList<K extends keyof HTMLElementTagNameMap>(selectorList: K[], timeout: number): Promise<NodeListOf<HTMLElementTagNameMap[K]> | null>;
-    waitAnyNodeList<T extends Element>(selectorList: string[], timeout: number): Promise<NodeListOf<T> | null>;
-    /**
-     * 等待对象上的属性出现
-     * @param checkObj 检查的对象
-     * @param checkPropertyName 检查的对象的属性名
+     * 使用`Object.defineProperty`等待对象上的属性出现
+     * @param target 检查的对象
+     * @param propertyName 检查的对象的属性名
      * @example
      * await Utils.waitProperty(window,"test");
      * console.log("test success set");
@@ -1704,18 +1336,52 @@ declare class Utils {
      * > "test success set"
      *
      */
-    waitProperty<T>(checkObj: any | (() => any), checkPropertyName: string): Promise<T>;
+    waitProperty<T>(target: any, propertyName: string): Promise<T>;
+    waitProperty<T>(checkFn: () => any, propertyName: string): Promise<T>;
     /**
      * 在规定时间内等待对象上的属性出现
-     * @param checkObj 检查的对象
-     * @param checkPropertyName 检查的对象的属性名
+     * @param target 检查的对象
+     * @param propertyName 检查的对象的属性名
      * @param intervalTimer （可选）检查间隔时间（ms），默认250ms
      * @param maxTime （可选）限制在多长时间内，默认-1(不限制时间)
      * @example
      * await Utils.waitPropertyByInterval(window,"test");
      * console.log("test success set");
      */
-    waitPropertyByInterval<T>(checkObj: any | (() => any), checkPropertyName: string | ((obj: any) => boolean), intervalTimer?: number, maxTime?: number): Promise<T>;
+    waitPropertyByInterval<T>(target: any, propertyName: string, intervalTimer?: number, maxTime?: number): Promise<T>;
+    /**
+     * 在规定时间内等待对象上的属性出现
+     * @param target 检查的对象
+     * @param checkFn 检查属性是否在对象上
+     * @param intervalTimer （可选）检查间隔时间（ms），默认250ms
+     * @param maxTime （可选）限制在多长时间内，默认-1(不限制时间)
+     * @example
+     * await Utils.waitPropertyByInterval(window,() => "test" in window);
+     * console.log("test success set");
+     */
+    waitPropertyByInterval<T>(target: any, checkFn: (inst: any) => boolean, intervalTimer?: number, maxTime?: number): Promise<T>;
+    /**
+     * 在规定时间内等待对象上的属性出现
+     * @param queryTarget 获取对象的函数
+     * @param propertyName 检查的对象的属性名
+     * @param intervalTimer （可选）检查间隔时间（ms），默认250ms
+     * @param maxTime （可选）限制在多长时间内，默认-1(不限制时间)
+     * @example
+     * await Utils.waitPropertyByInterval(() => window,"test");
+     * console.log("test success set");
+     */
+    waitPropertyByInterval<T>(queryTarget: () => any, propertyName: string, intervalTimer?: number, maxTime?: number): Promise<T>;
+    /**
+     * 在规定时间内等待对象上的属性出现
+     * @param queryTarget 获取对象的函数
+     * @param checkFn 检查属性是否在对象上
+     * @param intervalTimer （可选）检查间隔时间（ms），默认250ms
+     * @param maxTime （可选）限制在多长时间内，默认-1(不限制时间)
+     * @example
+     * await Utils.waitPropertyByInterval(() => window,() => "test" in window);
+     * console.log("test success set");
+     */
+    waitPropertyByInterval<T>(queryTarget: () => any, checkFn: (inst: any) => boolean, intervalTimer?: number, maxTime?: number): Promise<T>;
     /**
      * 在规定时间内等待元素上的__vue__属性或者__vue__属性上的某个值出现出现
      * @param element 目标元素
@@ -1728,8 +1394,8 @@ declare class Utils {
      * function(){
      *    return document.querySelector("a.xx")
      * },
-     * function(__vue__){
-     *    return Boolean(__vue__.xxx == null);
+     * function(vueInst){
+     *    return Boolean(vueInst.xxx == null);
      * },
      * 250,
      * 10000,
@@ -1738,7 +1404,7 @@ declare class Utils {
      */
     waitVueByInterval(element: HTMLElement | (() => any), propertyName: string | ((__vue__: any) => boolean), timer?: number, maxTime?: number, vueName?: "__vue__" | string): Promise<boolean>;
     /**
-     * 观察对象的set、get
+     * 使用`Object.defineProperty`观察对象的set、get
      * @param target 观察的对象
      * @param propertyName 观察的对象的属性名
      * @param getCallBack （可选）触发get的回调，可以自定义返回特定值
@@ -1873,19 +1539,6 @@ declare class Utils {
      * @param timeId setInterval 返回的`id`
      */
     workerClearInterval(timeId: number | undefined): void;
-    /**
-     * 获取剪贴板信息
-     */
-    getClipboardInfo(): Promise<{
-        /**
-         * 错误信息，如果为null，则表示读取成功
-         */
-        error: Error | null;
-        /**
-         * 剪贴板内容
-         */
-        content: string;
-    }>;
 }
 declare const utils: Utils;
 export { utils as Utils };
