@@ -3,7 +3,7 @@ import { DOMUtils, log, utils } from "../base.env";
 /**
  * react在元素上储存的实例对象
  */
-type ReactInst = ReturnType<typeof utils.getReactObj>;
+type ReactInst = ReturnType<typeof utils.getReactInstance>;
 /**
  * 等待react实例的属性的配置
  */
@@ -66,7 +66,7 @@ export const ReactUtils = {
       return __target__;
     }
     if (typeof $el === "string") {
-      let $ele = await utils.waitNode($el, 10000);
+      let $ele = await DOMUtils.waitNode($el, 10000);
       if (!$ele) {
         return;
       }
@@ -97,7 +97,7 @@ export const ReactUtils = {
             $el: $targetEl,
           };
         }
-        let reactInst = utils.getReactObj($targetEl);
+        let reactInst = utils.getReactInstance($targetEl);
         if (reactInst == null) {
           return {
             status: false,

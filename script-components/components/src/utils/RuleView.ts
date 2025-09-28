@@ -559,7 +559,7 @@ export class RuleView<T> {
     if (this.option.itemControls.edit.enable) {
       // 给编辑按钮添加点击事件
       DOMUtils.on($edit, "click", (event) => {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         this.showEditView(true, data, $shadowRoot, $ruleItem, (newData) => {
           // @ts-ignore
           data = null;
@@ -572,7 +572,7 @@ export class RuleView<T> {
     if (this.option.itemControls.delete.enable) {
       // 给删除按钮添加点击事件
       DOMUtils.on($delete, "click", (event) => {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         let $askDialog = pops.confirm({
           title: {
             text: "提示",

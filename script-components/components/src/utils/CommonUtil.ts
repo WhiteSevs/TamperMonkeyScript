@@ -12,7 +12,7 @@ export const CommonUtil = {
       if (typeof selector !== "string") {
         return;
       }
-      utils.waitNodeList<NodeListOf<HTMLElement>>(selector).then((nodeList) => {
+      DOMUtils.waitNodeList<NodeListOf<HTMLElement>>(selector).then((nodeList) => {
         nodeList.forEach(($el) => $el.remove());
       });
     });

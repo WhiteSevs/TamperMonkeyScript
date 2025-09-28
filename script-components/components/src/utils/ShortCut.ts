@@ -326,7 +326,7 @@ export class ShortCut {
             return;
           }
           if (config?.isPrevent) {
-            utils.preventEvent(event);
+            DOMUtils.preventEvent(event);
           }
           /** 获取本地存储的已有的配置 */
           localOptions = that.getLocalAllOptions();
@@ -383,7 +383,7 @@ export class ShortCut {
       Object.keys(ElementShortCutOption).forEach(async (localKey) => {
         let option = ElementShortCutOption[localKey];
         if (typeof option.target === "string") {
-          utils.waitNode(option.target, 10000).then(($ele) => {
+          DOMUtils.waitNode(option.target, 10000).then(($ele) => {
             if (!$ele) {
               return;
             }

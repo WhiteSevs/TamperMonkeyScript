@@ -439,7 +439,7 @@ export class RuleSubscribe<
     };
     // 本地导入
     DOMUtils.on($local, "click", (event) => {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       $alert.close();
       let $input = DOMUtils.createElement("input", {
         type: "file",
@@ -460,7 +460,7 @@ export class RuleSubscribe<
     });
     // 网络导入
     DOMUtils.on($network, "click", (event) => {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       $alert.close();
       let $prompt = pops.prompt({
         title: {
@@ -529,15 +529,15 @@ export class RuleSubscribe<
         if (keyName === "Enter" && otherCodeList.length === 0) {
           let value = DOMUtils.val($promptInput);
           if (value !== "") {
-            utils.dispatchEvent($promptOk, "click");
+            DOMUtils.trigger($promptOk, "click");
           }
         }
       });
-      utils.dispatchEvent($promptInput, "input");
+      DOMUtils.trigger($promptInput, "input");
     });
     // 剪贴板导入
     DOMUtils.on($clipboard, "click", async (event) => {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       $alert.close();
       let clipboardText = await CommonUtil.getClipboardText();
       if (clipboardText.trim() === "") {
@@ -616,7 +616,7 @@ export class RuleSubscribe<
     };
     // 仅导出订阅
     DOMUtils.on($onlyExportRuleList, "click", (event) => {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       try {
         let allRule = this.getAllSubscribe();
         if (allRule.length === 0) {

@@ -834,7 +834,7 @@ const Panel = {
      * 双击触发的事件
      */
     let dbclick_event = (evt: MouseEvent | PointerEvent | TouchEvent, selectorTarget: HTMLElement) => {
-      utils.preventEvent(evt);
+      DOMUtils.preventEvent(evt);
       let $alert = pops.alert({
         title: {
           text: "搜索配置",
@@ -956,7 +956,7 @@ const Panel = {
             if (target?.next) {
               // 还在里面
               // 那这里的是deepMenu
-              let $findDeepMenu = await utils.waitNode(() => {
+              let $findDeepMenu = await DOMUtils.waitNode(() => {
                 return Array.from(
                   $panel.$shadowRoot.querySelectorAll<HTMLElement>(".pops-panel-deepMenu-nav-item")
                 ).find(($deepMenu) => {
@@ -981,7 +981,7 @@ const Panel = {
                 data: target.next,
               };
             } else {
-              let $findTargetMenu = await utils.waitNode(() => {
+              let $findTargetMenu = await DOMUtils.waitNode(() => {
                 return Array.from(
                   $panel.$shadowRoot.querySelectorAll<HTMLLIElement>(`li:not(.pops-panel-deepMenu-nav-item)`)
                 ).find(($menuItem) => {
@@ -1144,7 +1144,7 @@ const Panel = {
         $searchInput,
         "input",
         utils.debounce((evt2) => {
-          utils.preventEvent(evt2);
+          DOMUtils.preventEvent(evt2);
           let searchText = DOMUtils.val($searchInput).trim();
           if (searchText === "") {
             // 不执行搜索

@@ -42,7 +42,7 @@ export class GestureBack {
    * @param event
    */
   popStateEvent(event: Event) {
-    utils.preventEvent(event);
+    DOMUtils.preventEvent(event);
     if (this.isBacking) {
       return;
     }

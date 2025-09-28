@@ -112,7 +112,7 @@ export class RuleFilterView<T> {
         $alert.close();
       };
       DOMUtils.on($button, "click", async (event) => {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         if (typeof filterOption.callback === "function") {
           let result = await filterOption.callback(event, execFilterAndCloseDialog);
           if (!result) {

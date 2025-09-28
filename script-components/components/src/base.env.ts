@@ -17,7 +17,7 @@ import { CommonUtil } from "./utils/CommonUtil";
 import { GM_RESOURCE_MAPPING } from "./GM_Resource_Mapping";
 import { createApp } from "vue";
 import { PanelSettingConfig } from "./setting/panel-setting-config";
-import type { QmsgConfig, QmsgPosition } from "qmsg/dist/src/QmsgConfig";
+import type { QmsgPosition } from "qmsg/dist/src/QmsgConfig";
 
 const utils = Utils.noConflict();
 const domUtils = DOMUtils.noConflict();
@@ -162,7 +162,7 @@ const OriginPrototype = {
 /**
  * 添加样式
  */
-const addStyle = utils.addStyle.bind(utils);
+const addStyle = domUtils.addStyle.bind(domUtils);
 
 /**
  * 元素选择器
