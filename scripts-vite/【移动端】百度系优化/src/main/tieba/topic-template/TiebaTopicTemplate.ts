@@ -21,7 +21,7 @@ export const TiebaTopicTemplate = {
       ".topic-share-item",
       function (event) {
         /* 设置正确跳转帖子 */
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         window?.stop();
         let clickNode = event.target;
         let pid = VueUtils.getVue(clickNode)?.item.tid;

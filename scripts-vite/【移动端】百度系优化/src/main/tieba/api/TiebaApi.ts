@@ -271,7 +271,7 @@ const TieBaApi = {
       has_more: Boolean(data.data.page.has_more),
       data: [] as HomePostsInfo[],
     };
-    let contentDoc = DOMUtils.parseHTML(data.data.content, true, true);
+    let contentDoc = DOMUtils.toElement(data.data.content, true, true);
     Array.from(contentDoc.querySelectorAll(".list_item")).forEach((liElement) => {
       let postInfo: HomePostsInfo = {
         url: (liElement.querySelector("a.list_item_link") as HTMLAnchorElement).href,

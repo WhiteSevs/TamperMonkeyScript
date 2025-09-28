@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.26
+// @version      2025.9.28
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -13,18 +13,18 @@
 // @match        *://uf9kyh.smartapps.cn/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/showdown/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.8.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.4.7/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
-// @require      https://fastly.jsdelivr.net/npm/vue@3.5.21/dist/vue.global.prod.js
+// @require      https://fastly.jsdelivr.net/npm/vue@3.5.22/dist/vue.global.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-demi@0.14.10/lib/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/pinia@3.0.3/dist/pinia.iife.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-router@4.5.1/dist/vue-router.global.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@7a79e1a38c1cef84bb4713a3898e95f7a7fb962f/lib/Element-Plus/index.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.2/dist/index.iife.min.js
-// @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.11.2/dist/index.min.css
+// @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.11.4/dist/index.min.css
 // @resource     ViewerCSS               https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect      *
 // @connect      www.baidu.com
@@ -54,14 +54,14 @@
 
   const d=new Set;const importCSS = async t=>{d.has(t)||(d.add(t),(a=>{function r(n){if(typeof GM_addStyle=="function")return GM_addStyle(n);let e=document.createElement("style");if(e.setAttribute("type","text/css"),e.setAttribute("data-type","gm-css"),globalThis.trustedTypes){const l=globalThis.trustedTypes.createPolicy("safe-innerHTML",{createHTML:i=>i});e.innerHTML=l.createHTML(n);}else e.innerHTML=n;return (document.head||document.documentElement).appendChild(e),e}r(a);})(t));};
 
-  importCSS(' @charset "UTF-8";#small-toolbar[data-v-f16be0b3]{position:fixed;bottom:0;width:100%;background:#fff;height:.56rem;display:flex;align-items:center;z-index:1000}#small-toolbar .icon[data-v-f16be0b3]{width:.2rem;height:.2rem}#small-toolbar #reply-editor[data-v-f16be0b3]{flex:1}#small-toolbar .small-editor-toolbar[data-v-f16be0b3]{flex:1;margin:10px 15px;width:100%;font-size:.16rem;line-height:.16rem;display:flex;align-items:center;position:relative}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-f16be0b3]{width:100%;background:#e9e9e9;border-radius:.06rem;padding:.06rem;border:0;outline:none;font-size:.14rem;line-height:.14rem;cursor:default}#small-toolbar .small-editor-toolbar .small-editor-toolbar-emoji-btn[data-v-f16be0b3]{position:absolute;top:50%;right:.06rem;transform:translateY(-50%)}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-f16be0b3]:focus,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-f16be0b3]:visited,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-f16be0b3]:focus-within,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-f16be0b3]:focus-visible{border:0;outline:none}#small-toolbar .gm-reply-other-toolbar[data-v-f16be0b3]{flex:0 auto;display:flex;align-items:safe center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count[data-v-f16be0b3],#small-toolbar .gm-reply-other-toolbar .reply-good-count[data-v-f16be0b3]{padding:8px;display:flex;flex-direction:column;align-items:center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count p.text[data-v-f16be0b3],#small-toolbar .gm-reply-other-toolbar .reply-good-count p.text[data-v-f16be0b3]{font-size:.1rem}.tiptap p.is-editor-empty:first-child:before{content:attr(data-placeholder);float:left;color:#adb5bd;pointer-events:none;height:0}#reply-editor .tiptap{width:100%;height:100%;outline:0!important;font-size:.16rem}.tiptap-input-image{width:.18rem;height:.18rem}#reply-editor[data-v-661335ab]{overflow:auto;background-color:#e5e5e5;padding:.06rem;height:100%;border-radius:5px}.icon-active[data-v-6550ea22]{fill:#7557ff}#full-toolbar[data-v-6550ea22]{position:fixed;bottom:0;width:100%;background:#fff;display:flex;align-items:center;z-index:100099;flex-flow:column}#full-toolbar .full-toolbar-top-reply-user[data-v-6550ea22]{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#adb5bd;width:-webkit-fill-available;width:-moz-available;padding-left:.2rem;padding-top:.06rem}#full-toolbar .full-toolbar-top-container[data-v-6550ea22]{display:flex;align-items:end;width:-moz-available;width:-webkit-fill-available;padding:.06rem .1rem;height:.6rem}#full-toolbar .full-toolbar-top-container .full-toolbar-top-left-container[data-v-6550ea22]{display:flex;flex-direction:column;flex:1;overflow:hidden;margin:0px .1rem;height:100%}#full-toolbar .full-toolbar-top-container .full-toolbar-top-right-container[data-v-6550ea22]{flex:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%}#full-toolbar .full-toolbar-bottom-container[data-v-6550ea22]{margin:.06rem 0;padding:0px 0px .06rem;margin-right:auto}#full-toolbar .full-toolbar-bottom-container .full-toolbar-emoji-btn[data-v-6550ea22],#full-toolbar .full-toolbar-bottom-container .full-toolbar-panel-at-btn[data-v-6550ea22]{margin:0 20px;display:flex;flex-direction:column;align-items:center}#full-toolbar .emoji-panel[data-v-6550ea22]{width:100%;height:30vh;background-color:#efefef;overflow:auto}.emoji-panel-huaji[data-v-6550ea22]{padding:.03rem;overflow-y:auto}.emoji-panel-huaji .el-avatar[data-v-6550ea22]{margin:16px}#full-toolbar[data-v-6550ea22]:has(.full-toolbar-top-container[data-full=true]){height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-6550ea22],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) #reply-editor[data-v-6550ea22]{height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-reply-user[data-v-6550ea22],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-right-container[data-v-6550ea22]{display:none}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-6550ea22]{flex-direction:column}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-left-container[data-v-6550ea22]{width:-webkit-fill-available;width:-moz-available}.full-toolbar-top-nav-container[data-v-6550ea22]{display:flex;width:-webkit-fill-available;width:-moz-available;align-items:center;justify-content:space-between;padding:.16rem}#full-toolbar .full-toolbar-top-container{max-height:calc(100vh - .12rem - 40px)}#full-toolbar[data-show-bottom-panel=true] .full-toolbar-top-container{max-height:calc(70vh - .12rem - 40px)}.posts-container-item[data-v-3116157a]{width:-webkit-fill-available;width:-moz-available}.posts-item-title[data-v-3116157a]{font-weight:700}.posts-item-title[data-v-3116157a],.posts-item-content[data-v-3116157a],.posts-item-media-container[data-v-3116157a]{margin:10px 0}.posts-item-footer[data-v-3116157a]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-3116157a]{text-align:center}.posts-item-footer-icon-container[data-v-3116157a]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-3116157a]{padding:0 10px}.posts-container[data-v-0e1c9a71]{background:#f2f2f4;padding:10px}.posts-container-item[data-v-0e1c9a71]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.posts-item-title[data-v-0e1c9a71]{font-weight:700}.posts-item-title[data-v-0e1c9a71],.posts-item-content[data-v-0e1c9a71],.posts-item-media-container[data-v-0e1c9a71]{margin:10px 0}.posts-item-footer[data-v-0e1c9a71]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-0e1c9a71]{text-align:center}.posts-item-footer-icon-container[data-v-0e1c9a71]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-0e1c9a71]{padding:0 10px}.follow-forum-container[data-v-020ff19b]{background:#f2f2f4;padding:10px}.follow-forum-list-container[data-v-020ff19b]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.follow-forum-item[data-v-020ff19b]{width:50%;max-width:50%;display:flex;align-items:flex-start;margin:10px 0}.follow-forum-avatar[data-v-020ff19b]{border-radius:12px}.follow-forum-item-right-container[data-v-020ff19b]{margin:0 10px;width:inherit;display:flex;flex-direction:column}.follow-forum-item-name[data-v-020ff19b]{display:flex;align-items:center;width:-webkit-fill-available;width:-moz-available}.follow-forum-item-level[data-level][data-v-020ff19b]{margin:5px;padding:2px;border-radius:3px;font-size:.6rem;line-height:.6rem;font-weight:700;text-align:center;background:var(--19470dbc);color:var(--c2cd12fe)}.follow-forum-item-level[data-level="0"][data-v-020ff19b],.follow-forum-item-level[data-level="1"][data-v-020ff19b],.follow-forum-item-level[data-level="2"][data-v-020ff19b],.follow-forum-item-level[data-level="3"][data-v-020ff19b]{background:var(--64a62dc3)}.follow-forum-item-level[data-level="4"][data-v-020ff19b],.follow-forum-item-level[data-level="5"][data-v-020ff19b],.follow-forum-item-level[data-level="6"][data-v-020ff19b],.follow-forum-item-level[data-level="7"][data-v-020ff19b],.follow-forum-item-level[data-level="8"][data-v-020ff19b],.follow-forum-item-level[data-level="9"][data-v-020ff19b]{background:var(--64a63ccd)}.follow-forum-item-level[data-level="10"][data-v-020ff19b],.follow-forum-item-level[data-level="11"][data-v-020ff19b],.follow-forum-item-level[data-level="12"][data-v-020ff19b],.follow-forum-item-level[data-level="13"][data-v-020ff19b],.follow-forum-item-level[data-level="14"][data-v-020ff19b],.follow-forum-item-level[data-level="15"][data-v-020ff19b]{background:var(--5869a33a)}.follow-forum-item-level[data-level="16"][data-v-020ff19b],.follow-forum-item-level[data-level="17"][data-v-020ff19b],.follow-forum-item-level[data-level="18"][data-v-020ff19b]{background:var(--58642ec0)}.follow-forum-item-info[data-v-020ff19b]{word-wrap:break-word}#main[data-v-3ef72ac6]{z-index:1000;width:100%;height:100%}.big-text[data-v-3ef72ac6]{font-weight:700}.top-container[data-v-3ef72ac6]{width:-webkit-fill-available;width:-moz-available;padding:15px 15px 0}.user-info-bg[data-v-3ef72ac6]{width:100%;height:100px}.user-info-bg-main[data-v-3ef72ac6]{width:100%;height:160px;position:absolute;background:url(https://tb2.bdstatic.com/tb/mobile/suser/img/home_card_back_6cdfca5.jpg);background-size:100%;background-repeat:no-repeat}.user-avatar-top-background[data-v-3ef72ac6]{position:absolute;width:100%;height:40%;padding:0;margin:0;border-top-left-radius:12px;border-top-right-radius:12px;background:#fff;transform:translateY(100%)}.user-info-container[data-v-3ef72ac6]{padding:0 10px}.nav-left-arrow-icon[data-v-9d6dd989]{align-content:center;padding-left:0!important}.nav-title[data-v-9d6dd989]{font-weight:700;text-align:center;padding:10px}.user-avatar[data-v-9d6dd989]{text-align:center;padding-bottom:20px}.user-info-item[data-v-9d6dd989]{display:flex;padding:10px;flex-wrap:wrap}.user-desc-key[data-v-9d6dd989]{width:60px;display:block}.user-end-text[data-v-9d6dd989]{padding:0 20px}.user-top[data-v-7fba962d]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-7fba962d]{align-content:center;padding-left:0!important}.top-title-name[data-v-7fba962d]{text-align:center;padding:10px}.user-main[data-v-7fba962d]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-7fba962d]{padding:0 10px}.user-container .el-scrollbar__view[data-v-7fba962d]{height:100%}.user-item[data-v-7fba962d]{margin:10px 0}.user-item-row[data-v-7fba962d]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-7fba962d]{padding:0 10px}.user-name[data-v-7fba962d],.user-sign-text[data-v-7fba962d]{text-align:left}.user-sign-text[data-v-7fba962d]{color:#a2a2a2}.user-follow-btn[data-v-7fba962d]{float:right}.user-info[data-v-7fba962d]{display:grid}.user-item-row-left[data-v-7fba962d]{display:flex}.user-item-row-right[data-v-7fba962d]{float:right}.user-top[data-v-16d11114]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-16d11114]{align-content:center;padding-left:0!important}.top-title-name[data-v-16d11114]{text-align:center;padding:10px}.user-main[data-v-16d11114]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-16d11114]{padding:0 10px}.user-container .el-scrollbar__view[data-v-16d11114]{height:100%}.user-item[data-v-16d11114]{margin:10px 0}.user-item-row[data-v-16d11114]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-16d11114]{padding:0 10px;align-content:center}.user-name[data-v-16d11114],.user-sign-text[data-v-16d11114]{text-align:left}.user-sign-text[data-v-16d11114]{color:#a2a2a2}.user-follow-btn[data-v-16d11114]{float:right}.user-info[data-v-16d11114]{display:grid}.user-item-row-left[data-v-16d11114]{display:flex}.user-item-row-right[data-v-16d11114]{float:right}.router-view-container[data-v-8524ef32]{padding:20px}.router-view-container .layout-item[data-v-8524ef32]{display:flex;align-items:center;gap:10px;padding:10px 0}.router-view-container .layout-icon img[data-v-8524ef32]{width:100%;height:100%}.router-view-container .layout-text[data-v-8524ef32]{flex:1}.post-list-item[data-v-b35f58f8]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef}.post-list-item[data-v-b35f58f8]:last-child{border-bottom:0}.user-info[data-v-b35f58f8]{display:flex;align-items:center;gap:5px}.user-time[data-v-b35f58f8]{font-size:.8em;color:#999}.user-avatar img[data-v-b35f58f8]{width:35px;height:35px;border-radius:50%}.reply-content[data-v-b35f58f8]{font-size:.9em;color:#4a4a4a}.post-info[data-v-b35f58f8]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-b35f58f8]{display:flex;align-items:center;height:100px;width:100%}.post-content[data-v-b35f58f8]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-image[data-v-b35f58f8]{width:100px;height:100px}.post-image img[data-v-b35f58f8]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-b35f58f8]{color:#999}.bottom-msg[data-v-b35f58f8]{text-align:center;color:#999;padding:10px 0}.post-list-item[data-v-e527f680]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef}.post-list-item[data-v-e527f680]:last-child{border-bottom:0}.user-info[data-v-e527f680]{display:flex;align-items:center;gap:5px}.user-time[data-v-e527f680]{font-size:.8em;color:#999}.user-avatar img[data-v-e527f680]{width:35px;height:35px;border-radius:50%}.reply-content[data-v-e527f680]{font-size:.9em;color:#4a4a4a}.post-info[data-v-e527f680]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-e527f680]{display:flex;align-items:center;height:100px;width:100%}.post-content[data-v-e527f680]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-info[data-v-e527f680]:has(.quote-user){flex-direction:column;align-items:start;padding:10px;gap:10px}.post-info:has(.quote-user) .post-content[data-v-e527f680]{flex:1;align-content:center;padding:0 10px;margin-left:0;background:#fff;height:inherit}.post-image[data-v-e527f680]{width:100px;height:100px}.post-image img[data-v-e527f680]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-e527f680]{color:#999}.bottom-msg[data-v-e527f680],.bottom-msg[data-v-3f3b546a]{text-align:center;color:#999;padding:10px 0}.user-top[data-v-21d9b8e4]{--el-header-height: 40px;display:flex;align-items:center;position:fixed;top:0;left:0;right:0;background:#fff}.top-nav-container[data-v-21d9b8e4]{align-items:center;width:100%}.top-title-name[data-v-21d9b8e4]{text-align:center;position:absolute;left:50%;transform:translate(-50%)}.main[data-v-21d9b8e4]{padding:0;margin:40px 0 0} ');
+  importCSS(' @charset "UTF-8";#small-toolbar[data-v-b2773fdf]{position:fixed;bottom:0;width:100%;background:#fff;height:.56rem;display:flex;align-items:center;z-index:1000}#small-toolbar .icon[data-v-b2773fdf]{width:.2rem;height:.2rem}#small-toolbar #reply-editor[data-v-b2773fdf]{flex:1}#small-toolbar .small-editor-toolbar[data-v-b2773fdf]{flex:1;margin:10px 15px;width:100%;font-size:.16rem;line-height:.16rem;display:flex;align-items:center;position:relative}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]{width:100%;background:#e9e9e9;border-radius:.06rem;padding:.06rem;border:0;outline:none;font-size:.14rem;line-height:.14rem;cursor:default}#small-toolbar .small-editor-toolbar .small-editor-toolbar-emoji-btn[data-v-b2773fdf]{position:absolute;top:50%;right:.06rem;transform:translateY(-50%)}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:focus,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:visited,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:focus-within,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:focus-visible{border:0;outline:none}#small-toolbar .gm-reply-other-toolbar[data-v-b2773fdf]{flex:0 auto;display:flex;align-items:safe center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count[data-v-b2773fdf],#small-toolbar .gm-reply-other-toolbar .reply-good-count[data-v-b2773fdf]{padding:8px;display:flex;flex-direction:column;align-items:center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count p.text[data-v-b2773fdf],#small-toolbar .gm-reply-other-toolbar .reply-good-count p.text[data-v-b2773fdf]{font-size:.1rem}.tiptap p.is-editor-empty:first-child:before{content:attr(data-placeholder);float:left;color:#adb5bd;pointer-events:none;height:0}#reply-editor .tiptap{width:100%;height:100%;outline:0!important;font-size:.16rem}.tiptap-input-image{width:.18rem;height:.18rem}#reply-editor[data-v-661335ab]{overflow:auto;background-color:#e5e5e5;padding:.06rem;height:100%;border-radius:5px}.icon-active[data-v-6550ea22]{fill:#7557ff}#full-toolbar[data-v-6550ea22]{position:fixed;bottom:0;width:100%;background:#fff;display:flex;align-items:center;z-index:100099;flex-flow:column}#full-toolbar .full-toolbar-top-reply-user[data-v-6550ea22]{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#adb5bd;width:-webkit-fill-available;width:-moz-available;padding-left:.2rem;padding-top:.06rem}#full-toolbar .full-toolbar-top-container[data-v-6550ea22]{display:flex;align-items:end;width:-moz-available;width:-webkit-fill-available;padding:.06rem .1rem;height:.6rem}#full-toolbar .full-toolbar-top-container .full-toolbar-top-left-container[data-v-6550ea22]{display:flex;flex-direction:column;flex:1;overflow:hidden;margin:0px .1rem;height:100%}#full-toolbar .full-toolbar-top-container .full-toolbar-top-right-container[data-v-6550ea22]{flex:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%}#full-toolbar .full-toolbar-bottom-container[data-v-6550ea22]{margin:.06rem 0;padding:0px 0px .06rem;margin-right:auto}#full-toolbar .full-toolbar-bottom-container .full-toolbar-emoji-btn[data-v-6550ea22],#full-toolbar .full-toolbar-bottom-container .full-toolbar-panel-at-btn[data-v-6550ea22]{margin:0 20px;display:flex;flex-direction:column;align-items:center}#full-toolbar .emoji-panel[data-v-6550ea22]{width:100%;height:30vh;background-color:#efefef;overflow:auto}.emoji-panel-huaji[data-v-6550ea22]{padding:.03rem;overflow-y:auto}.emoji-panel-huaji .el-avatar[data-v-6550ea22]{margin:16px}#full-toolbar[data-v-6550ea22]:has(.full-toolbar-top-container[data-full=true]){height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-6550ea22],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) #reply-editor[data-v-6550ea22]{height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-reply-user[data-v-6550ea22],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-right-container[data-v-6550ea22]{display:none}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-6550ea22]{flex-direction:column}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-left-container[data-v-6550ea22]{width:-webkit-fill-available;width:-moz-available}.full-toolbar-top-nav-container[data-v-6550ea22]{display:flex;width:-webkit-fill-available;width:-moz-available;align-items:center;justify-content:space-between;padding:.16rem}#full-toolbar .full-toolbar-top-container{max-height:calc(100vh - .12rem - 40px)}#full-toolbar[data-show-bottom-panel=true] .full-toolbar-top-container{max-height:calc(70vh - .12rem - 40px)}.posts-container-item[data-v-3116157a]{width:-webkit-fill-available;width:-moz-available}.posts-item-title[data-v-3116157a]{font-weight:700}.posts-item-title[data-v-3116157a],.posts-item-content[data-v-3116157a],.posts-item-media-container[data-v-3116157a]{margin:10px 0}.posts-item-footer[data-v-3116157a]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-3116157a]{text-align:center}.posts-item-footer-icon-container[data-v-3116157a]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-3116157a]{padding:0 10px}.posts-container[data-v-0e1c9a71]{background:#f2f2f4;padding:10px}.posts-container-item[data-v-0e1c9a71]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.posts-item-title[data-v-0e1c9a71]{font-weight:700}.posts-item-title[data-v-0e1c9a71],.posts-item-content[data-v-0e1c9a71],.posts-item-media-container[data-v-0e1c9a71]{margin:10px 0}.posts-item-footer[data-v-0e1c9a71]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-0e1c9a71]{text-align:center}.posts-item-footer-icon-container[data-v-0e1c9a71]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-0e1c9a71]{padding:0 10px}.follow-forum-container[data-v-020ff19b]{background:#f2f2f4;padding:10px}.follow-forum-list-container[data-v-020ff19b]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.follow-forum-item[data-v-020ff19b]{width:50%;max-width:50%;display:flex;align-items:flex-start;margin:10px 0}.follow-forum-avatar[data-v-020ff19b]{border-radius:12px}.follow-forum-item-right-container[data-v-020ff19b]{margin:0 10px;width:inherit;display:flex;flex-direction:column}.follow-forum-item-name[data-v-020ff19b]{display:flex;align-items:center;width:-webkit-fill-available;width:-moz-available}.follow-forum-item-level[data-level][data-v-020ff19b]{margin:5px;padding:2px;border-radius:3px;font-size:.6rem;line-height:.6rem;font-weight:700;text-align:center;background:var(--v19470dbc);color:var(--c2cd12fe)}.follow-forum-item-level[data-level="0"][data-v-020ff19b],.follow-forum-item-level[data-level="1"][data-v-020ff19b],.follow-forum-item-level[data-level="2"][data-v-020ff19b],.follow-forum-item-level[data-level="3"][data-v-020ff19b]{background:var(--v64a62dc3)}.follow-forum-item-level[data-level="4"][data-v-020ff19b],.follow-forum-item-level[data-level="5"][data-v-020ff19b],.follow-forum-item-level[data-level="6"][data-v-020ff19b],.follow-forum-item-level[data-level="7"][data-v-020ff19b],.follow-forum-item-level[data-level="8"][data-v-020ff19b],.follow-forum-item-level[data-level="9"][data-v-020ff19b]{background:var(--v64a63ccd)}.follow-forum-item-level[data-level="10"][data-v-020ff19b],.follow-forum-item-level[data-level="11"][data-v-020ff19b],.follow-forum-item-level[data-level="12"][data-v-020ff19b],.follow-forum-item-level[data-level="13"][data-v-020ff19b],.follow-forum-item-level[data-level="14"][data-v-020ff19b],.follow-forum-item-level[data-level="15"][data-v-020ff19b]{background:var(--v5869a33a)}.follow-forum-item-level[data-level="16"][data-v-020ff19b],.follow-forum-item-level[data-level="17"][data-v-020ff19b],.follow-forum-item-level[data-level="18"][data-v-020ff19b]{background:var(--v58642ec0)}.follow-forum-item-info[data-v-020ff19b]{word-wrap:break-word}#main[data-v-0eef167d]{z-index:1000;width:100%;height:100%}.big-text[data-v-0eef167d]{font-weight:700}.top-container[data-v-0eef167d]{width:-webkit-fill-available;width:-moz-available;padding:15px 15px 0}.user-info-bg[data-v-0eef167d]{width:100%;height:100px}.user-info-bg-main[data-v-0eef167d]{width:100%;height:160px;position:absolute;background:url(https://tb2.bdstatic.com/tb/mobile/suser/img/home_card_back_6cdfca5.jpg);background-size:100%;background-repeat:no-repeat}.user-avatar-top-background[data-v-0eef167d]{position:absolute;width:100%;height:40%;padding:0;margin:0;border-top-left-radius:12px;border-top-right-radius:12px;background:#fff;transform:translateY(100%)}.user-info-container[data-v-0eef167d]{padding:0 10px}.nav-left-arrow-icon[data-v-9d6dd989]{align-content:center;padding-left:0!important}.nav-title[data-v-9d6dd989]{font-weight:700;text-align:center;padding:10px}.user-avatar[data-v-9d6dd989]{text-align:center;padding-bottom:20px}.user-info-item[data-v-9d6dd989]{display:flex;padding:10px;flex-wrap:wrap}.user-desc-key[data-v-9d6dd989]{width:60px;display:block}.user-end-text[data-v-9d6dd989]{padding:0 20px}.user-top[data-v-7fba962d]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-7fba962d]{align-content:center;padding-left:0!important}.top-title-name[data-v-7fba962d]{text-align:center;padding:10px}.user-main[data-v-7fba962d]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-7fba962d]{padding:0 10px}.user-container .el-scrollbar__view[data-v-7fba962d]{height:100%}.user-item[data-v-7fba962d]{margin:10px 0}.user-item-row[data-v-7fba962d]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-7fba962d]{padding:0 10px}.user-name[data-v-7fba962d],.user-sign-text[data-v-7fba962d]{text-align:left}.user-sign-text[data-v-7fba962d]{color:#a2a2a2}.user-follow-btn[data-v-7fba962d]{float:right}.user-info[data-v-7fba962d]{display:grid}.user-item-row-left[data-v-7fba962d]{display:flex}.user-item-row-right[data-v-7fba962d]{float:right}.user-top[data-v-16d11114]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-16d11114]{align-content:center;padding-left:0!important}.top-title-name[data-v-16d11114]{text-align:center;padding:10px}.user-main[data-v-16d11114]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-16d11114]{padding:0 10px}.user-container .el-scrollbar__view[data-v-16d11114]{height:100%}.user-item[data-v-16d11114]{margin:10px 0}.user-item-row[data-v-16d11114]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-16d11114]{padding:0 10px;align-content:center}.user-name[data-v-16d11114],.user-sign-text[data-v-16d11114]{text-align:left}.user-sign-text[data-v-16d11114]{color:#a2a2a2}.user-follow-btn[data-v-16d11114]{float:right}.user-info[data-v-16d11114]{display:grid}.user-item-row-left[data-v-16d11114]{display:flex}.user-item-row-right[data-v-16d11114]{float:right}.router-view-container[data-v-8524ef32]{padding:20px}.router-view-container .layout-item[data-v-8524ef32]{display:flex;align-items:center;gap:10px;padding:10px 0}.router-view-container .layout-icon img[data-v-8524ef32]{width:100%;height:100%}.router-view-container .layout-text[data-v-8524ef32]{flex:1}.post-list-item[data-v-b35f58f8]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef}.post-list-item[data-v-b35f58f8]:last-child{border-bottom:0}.user-info[data-v-b35f58f8]{display:flex;align-items:center;gap:5px}.user-time[data-v-b35f58f8]{font-size:.8em;color:#999}.user-avatar img[data-v-b35f58f8]{width:35px;height:35px;border-radius:50%}.reply-content[data-v-b35f58f8]{font-size:.9em;color:#4a4a4a}.post-info[data-v-b35f58f8]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-b35f58f8]{display:flex;align-items:center;height:100px;width:100%}.post-content[data-v-b35f58f8]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-image[data-v-b35f58f8]{width:100px;height:100px}.post-image img[data-v-b35f58f8]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-b35f58f8]{color:#999}.bottom-msg[data-v-b35f58f8]{text-align:center;color:#999;padding:10px 0}.post-list-item[data-v-e527f680]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef}.post-list-item[data-v-e527f680]:last-child{border-bottom:0}.user-info[data-v-e527f680]{display:flex;align-items:center;gap:5px}.user-time[data-v-e527f680]{font-size:.8em;color:#999}.user-avatar img[data-v-e527f680]{width:35px;height:35px;border-radius:50%}.reply-content[data-v-e527f680]{font-size:.9em;color:#4a4a4a}.post-info[data-v-e527f680]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-e527f680]{display:flex;align-items:center;height:100px;width:100%}.post-content[data-v-e527f680]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-info[data-v-e527f680]:has(.quote-user){flex-direction:column;align-items:start;padding:10px;gap:10px}.post-info:has(.quote-user) .post-content[data-v-e527f680]{flex:1;align-content:center;padding:0 10px;margin-left:0;background:#fff;height:inherit}.post-image[data-v-e527f680]{width:100px;height:100px}.post-image img[data-v-e527f680]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-e527f680]{color:#999}.bottom-msg[data-v-e527f680],.bottom-msg[data-v-3f3b546a]{text-align:center;color:#999;padding:10px 0}.user-top[data-v-21d9b8e4]{--el-header-height: 40px;display:flex;align-items:center;position:fixed;top:0;left:0;right:0;background:#fff}.top-nav-container[data-v-21d9b8e4]{align-items:center;width:100%}.top-title-name[data-v-21d9b8e4]{text-align:center;position:absolute;left:50%;transform:translate(-50%)}.main[data-v-21d9b8e4]{padding:0;margin:40px 0 0} ');
 
   var __getOwnPropNames = Object.getOwnPropertyNames;
   var __commonJS = (cb, mod) => function __require() {
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
   var require_entrance_001 = __commonJS({
-    "entrance-CUtpOLBp.js"(exports, module) {
+    "entrance-Dvs_Abup.js"(exports, module) {
       var _GM_deleteValue = (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
       var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
@@ -477,7 +477,7 @@ waitRemove(...args) {
             if (typeof selector !== "string") {
               return;
             }
-            utils.waitNodeList(selector).then((nodeList) => {
+            DOMUtils.waitNodeList(selector).then((nodeList) => {
               nodeList.forEach(($el) => $el.remove());
             });
           });
@@ -1139,7 +1139,7 @@ threshold: 1
             $el.classList.add(flashingClassName);
           };
           let dbclick_event = (evt, selectorTarget) => {
-            utils.preventEvent(evt);
+            domUtils.preventEvent(evt);
             let $alert = __pops.alert({
               title: {
                 text: "搜索配置",
@@ -1255,7 +1255,7 @@ threshold: 1
                 $targetAsideItem.click();
                 asyncQueryProperty(pathInfo.next, async (target) => {
                   if (target?.next) {
-                    let $findDeepMenu = await utils.waitNode(() => {
+                    let $findDeepMenu = await domUtils.waitNode(() => {
                       return Array.from(
                         $panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")
                       ).find(($deepMenu) => {
@@ -1277,7 +1277,7 @@ threshold: 1
                       data: target.next
                     };
                   } else {
-                    let $findTargetMenu = await utils.waitNode(() => {
+                    let $findTargetMenu = await domUtils.waitNode(() => {
                       return Array.from(
                         $panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)
                       ).find(($menuItem) => {
@@ -1427,7 +1427,7 @@ threshold: 1
               $searchInput,
               "input",
               utils.debounce((evt2) => {
-                utils.preventEvent(evt2);
+                domUtils.preventEvent(evt2);
                 let searchText = domUtils.val($searchInput).trim();
                 if (searchText === "") {
                   clearSearchResult();
@@ -1649,7 +1649,7 @@ clickEvent: {
         },
         setTimeout: _unsafeWindow.setTimeout
       };
-      const addStyle$1 = utils.addStyle.bind(utils);
+      const addStyle$1 = domUtils.addStyle.bind(domUtils);
       const $ = DOMUtils.selector.bind(DOMUtils);
       const $$ = DOMUtils.selectorAll.bind(DOMUtils);
       const VUE_ELE_NAME_ID = "vite-app";
@@ -1789,7 +1789,7 @@ initCSS() {
       }
       `
           );
-          utils.addStyle(loadingViewCSSText);
+          domUtils.addStyle(loadingViewCSSText);
         }
 initLoadingView(withIcon = false, isEnd = true) {
           this.setLoadingViewElement();
@@ -2261,7 +2261,7 @@ objectDefineProperty_search(menuKeyName) {
                     domUtils.trigger(document, "click", event, false);
                     return;
                   }
-                  utils.preventEvent(event);
+                  domUtils.preventEvent(event);
                   if (Panel.getValue("baidu_search_hijack__onClick_to_blank")) {
                     log.success("新标签页打开: " + linkProps2.href);
                     window.open(linkProps2.href, "_blank");
@@ -2584,7 +2584,7 @@ handleCenter(centerElement) {
             domUtils.on($recommend, "click", ".rw-list-new", (event, selectorTarget) => {
               let searchText = domUtils.text(selectorTarget.querySelector("span")).trim();
               log.success("中间 点击大家还在搜 ==> " + searchText);
-              utils.preventEvent(event);
+              domUtils.preventEvent(event);
               window.location.href = `https://m.baidu.com/s?word=${searchText}`;
             });
           });
@@ -2616,7 +2616,7 @@ handleBottom(everyOnceList) {
             domUtils.on($everyOne, "click", ".rw-list-new", (event, selectorTarget) => {
               let searchText = selectorTarget.querySelector("span")?.textContent?.trim();
               log.success("底部 点击大家还在搜 ==> " + searchText);
-              utils.preventEvent(event);
+              domUtils.preventEvent(event);
               window.location.href = `https://m.baidu.com/s?word=${selectorTarget?.textContent?.trim()}`;
             });
           });
@@ -3220,7 +3220,7 @@ async replaceLink() {
             if (searchResultItem.getAttribute("tpl") === "wenda_abstract" && searchResultItem.getAttribute("preventClick") == null) {
               searchResultItem.setAttribute("preventClick", "true");
               domUtils.on(searchResultItem, "click", (event) => {
-                utils.preventEvent(event);
+                domUtils.preventEvent(event);
                 let clickNode = event.target;
                 if (clickNode.localName && clickNode.localName === "sup" && clickNode.getAttribute("rl-type") === "stop") {
                   return;
@@ -3483,7 +3483,7 @@ async scrollEvent() {
           let respData = getResp.data;
           if (getResp.status) {
             log.success("响应的finalUrl: " + respData["finalUrl"]);
-            let nextPageDoc = domUtils.parseHTML(respData.responseText, true, true);
+            let nextPageDoc = domUtils.toElement(respData.responseText, true, true);
             let scriptAtomData = domUtils.createElement("div");
             nextPageDoc.querySelectorAll("script[id^=atom-data]").forEach((item) => {
               scriptAtomData.appendChild(item);
@@ -3632,7 +3632,7 @@ setNextPageInterSectionObserver() {
               }
             );
           } else {
-            utils.waitNode(this.$data.moreResultSelector, 1e4).then(($moreResult) => {
+            domUtils.waitNode(this.$data.moreResultSelector, 1e4).then(($moreResult) => {
               if (!$moreResult) {
                 log.error("SearchCraft监听滚动失败：【更多结果】按钮");
                 return;
@@ -3700,7 +3700,7 @@ async scrollEvent() {
           let searchBtn2Selector = "#se-bn2";
           let searchInput_HOME_Selector = "#index-kw";
           let searchBtn_HOME_Selector = "#index-bn";
-          utils.waitNode(suggestListSelector).then((element) => {
+          domUtils.waitNode(suggestListSelector).then((element) => {
             utils.mutationObserver(element, {
               callback: () => {
                 SearchInputEvent.mutationObserverFunction(suggestListBtnSelectorList);
@@ -3708,7 +3708,7 @@ async scrollEvent() {
               config: { childList: true, attributes: true }
             });
           });
-          utils.waitNode(suggestList2Selector).then((element) => {
+          domUtils.waitNode(suggestList2Selector).then((element) => {
             utils.mutationObserver(element, {
               callback: () => {
                 SearchInputEvent.mutationObserverFunction(suggestListBtn2SelectorList);
@@ -3716,7 +3716,7 @@ async scrollEvent() {
               config: { childList: true, attributes: true }
             });
           });
-          utils.waitNode(suggestList_HOME_Selector).then((element) => {
+          domUtils.waitNode(suggestList_HOME_Selector).then((element) => {
             utils.mutationObserver(element, {
               callback: () => {
                 SearchInputEvent.mutationObserverFunction(suggestListBtn_HOME_SelectorList);
@@ -3759,7 +3759,7 @@ mutationObserverFunction(elementSelector) {
           log.success("设置搜索建议自定义click事件");
           $$(elementSelector).forEach((item) => {
             domUtils.on(item, "click", function(event) {
-              utils.preventEvent(event);
+              domUtils.preventEvent(event);
               window?.stop();
               let searchText = event.target.textContent;
               let redirectURL = window.location.origin + "/s?word=" + searchText;
@@ -3771,7 +3771,7 @@ mutationObserverFunction(elementSelector) {
           });
         },
 searchBtnJump(event, searchInputElement) {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           window?.stop();
           let redirectURL = window.location.origin + "/s?word=" + searchInputElement.value;
           log.success("点击按钮跳转搜索 -> " + searchInputElement.value);
@@ -3782,7 +3782,7 @@ searchBtnJump(event, searchInputElement) {
 enterKeyDownEvent(event, searchInputElement) {
           if (event.keyCode === 108 || event.keyCode === 13) {
             window?.stop();
-            utils.preventEvent(event);
+            domUtils.preventEvent(event);
             let redirectURL = window.location.origin + "/s?word=" + searchInputElement.value;
             log.success("回车键跳转搜索 -> " + searchInputElement.value);
             log.success(redirectURL);
@@ -3813,7 +3813,7 @@ blockBottomRecommendVideo() {
           });
         },
 autoJumpToOriginUrl() {
-          utils.waitNode(".sfc-video-page-info-showurl", 1e4).then(($showUrl) => {
+          domUtils.waitNode(".sfc-video-page-info-showurl", 1e4).then(($showUrl) => {
             if (!$showUrl) {
               Qmsg.error("未找到.sfc-video-page-info-showurl元素");
               return;
@@ -4065,7 +4065,7 @@ replaceVSearchLink() {
               }
             });
           }
-          utils.waitNode("#realtime-container .c-infinite-scroll").then((element) => {
+          domUtils.waitNode("#realtime-container .c-infinite-scroll").then((element) => {
             let replaceVSearchLinkLonkFunction = new utils.LockFunction(replaceLink, 600);
             utils.mutationObserver(element, {
               config: {
@@ -4103,7 +4103,7 @@ isBacking = false;
           }
         }
 popStateEvent(event) {
-          Utils.preventEvent(event);
+          domUtils.preventEvent(event);
           if (this.isBacking) {
             return;
           }
@@ -4197,7 +4197,7 @@ addFloatButton() {
             )
           });
           domUtils.on($btn, "click", (event) => {
-            utils.preventEvent(event);
+            domUtils.preventEvent(event);
             this.showToolBar();
             this.initDefaultSearchText();
             setTimeout(() => {
@@ -4367,12 +4367,12 @@ setInputEvent() {
 setInputText(text, triggerEvent = true) {
           this.$el.$input.value = text;
           if (triggerEvent) {
-            utils.dispatchEvent(this.$el.$input, "input");
+            domUtils.trigger(this.$el.$input, "input");
           }
         },
 setBackEvent() {
           domUtils.on(this.$el.$back, "click", (event) => {
-            utils.preventEvent(event);
+            domUtils.preventEvent(event);
             log.success("点击返回");
             this.hideToolBar();
             Panel.execMenu("baidu-search-global-searchToolBar-gesture-back", () => {
@@ -4382,13 +4382,13 @@ setBackEvent() {
         },
 setEmptyEvent() {
           domUtils.on(this.$el.$empty, "click", (event) => {
-            utils.preventEvent(event);
+            domUtils.preventEvent(event);
             this.setInputText("");
           });
         },
 setFormEvent() {
           domUtils.on(this.$el.$form, "submit", (event) => {
-            utils.preventEvent(event);
+            domUtils.preventEvent(event);
             let searchText = this.$el.$input.value;
             log.success("提交表单 搜索 ==> " + searchText);
             window.location.href = `${window.location.origin}/s?word=${searchText}`;
@@ -4435,15 +4435,15 @@ createSuggestionItem(config) {
           let searchText = config.suggestionText.replaceAll(config.searchText, `<em>${config.searchText}</em>`);
           $text.innerHTML = searchText;
           domUtils.on($leftIcon, "click", (event) => {
-            utils.preventEvent(event);
+            domUtils.preventEvent(event);
           });
           domUtils.on($text, "click", (event) => {
-            utils.preventEvent(event);
+            domUtils.preventEvent(event);
             this.setInputText(config.suggestionText, false);
             this.$el.$submit.click();
           });
           domUtils.on($rightIcon, "click", (event) => {
-            utils.preventEvent(event);
+            domUtils.preventEvent(event);
             this.setInputText(config.suggestionText);
           });
           return $suggestionItem;
@@ -4492,7 +4492,7 @@ getUserStyle() {
                   }
                 }, 600);
                 let removeAdsLockFunction = new utils.LockFunction(BaiduHandleResultItem.removeAds, 600);
-                utils.waitNode("div#page.search-page").then(($searchPage) => {
+                domUtils.waitNode("div#page.search-page").then(($searchPage) => {
                   utils.mutationObserver($searchPage, {
                     callback: async () => {
                       if (baidu_search_handle_search_result_enable) {
@@ -4620,7 +4620,7 @@ openResultBlank() {
                 return;
               }
             }
-            utils.preventEvent(event);
+            domUtils.preventEvent(event);
             log.success(["新标签页打开-来自click事件", url]);
             changeVisitedNodeColor($click, $result);
             window.open(url, "_blank");
@@ -4774,7 +4774,7 @@ redirectJump() {
             "click",
             ".topic-share-item",
             function(event) {
-              utils.preventEvent(event);
+              domUtils.preventEvent(event);
               window?.stop();
               let clickNode = event.target;
               let pid = VueUtils.getVue(clickNode)?.item.tid;
@@ -4826,7 +4826,7 @@ openANewTab() {
             "click",
             ".scroll-list-wrapper .threadcardclass",
             function(event) {
-              utils.preventEvent(event);
+              domUtils.preventEvent(event);
               let clickNode = event.target;
               let tid = VueUtils.getVue(clickNode)?.tid;
               if (utils.isNull(tid)) {
@@ -4890,7 +4890,7 @@ fetch: true,
             has_more: Boolean(data.data.page.has_more),
             data: []
           };
-          let contentDoc = domUtils.parseHTML(data.data.content, true, true);
+          let contentDoc = domUtils.toElement(data.data.content, true, true);
           Array.from(contentDoc.querySelectorAll(".list_item")).forEach((liElement) => {
             let postInfo = {
               url: liElement.querySelector("a.list_item_link").href,
@@ -5059,7 +5059,7 @@ removeForumSignInLimit() {
               let isLogin = () => {
                 return vueInstance.$root.commonParams.uid != null;
               };
-              utils.waitNode("uni-app #forumInfoId .sign-wakeup .sign-wakeup-text").then((element) => {
+              domUtils.waitNode("uni-app #forumInfoId .sign-wakeup .sign-wakeup-text").then((element) => {
                 if (isLogin()) {
                   domUtils.text(element, "点击签到");
                 } else {
@@ -5070,7 +5070,7 @@ removeForumSignInLimit() {
                   $signWakeUp,
                   "click",
                   async function(event) {
-                    utils.preventEvent(event);
+                    domUtils.preventEvent(event);
                     if (isLogin()) {
                       log.info(`已登录-签到`);
                       let fname = vueInstance.$root.commonParams.fname;
@@ -5108,7 +5108,7 @@ repairCardClickJump() {
               "uni-app .swiperItemWrapper > div > div"
             ],
             function(event) {
-              utils.preventEvent(event);
+              domUtils.preventEvent(event);
               let vueInstance = VueUtils.getVue(event.target);
               let pbUrl = vueInstance?.pbUrl;
               let collectH5Url = vueInstance?.collectH5Url;
@@ -5139,7 +5139,7 @@ repairCardClickJump() {
         },
 rememberPostSort() {
           let userSortModel = parseInt(Panel.getValue("baidu-tieba-sort-model", 3).toString());
-          utils.waitNode(".tb-page__main .tb-sort .tab-pack").then((element) => {
+          domUtils.waitNode(".tb-page__main .tb-sort .tab-pack").then((element) => {
             let originChange = VueUtils.getVue(element)?.change;
             originChange(userSortModel);
             element.__vue__.change = function(index) {
@@ -5237,7 +5237,7 @@ hookWakeUp() {
           document.addEventListener("click", (event) => {
             let vueInstance = VueUtils.getVue(event.target);
             if (vueInstance?.isOpenApp) {
-              utils.preventEvent(event);
+              domUtils.preventEvent(event);
               log.success("阻止点击唤醒App .wake-up");
             }
           });
@@ -5387,7 +5387,7 @@ addScrollTopButton() {
           let isInsertButton = false;
           let showScrollTopButton = function() {
             isInsertButton = true;
-            let buttonElement = domUtils.parseHTML(
+            let buttonElement = domUtils.toElement(
 `
 				<div class="tb-totop whitesev-tb-totop">
 				<style>
@@ -5452,7 +5452,7 @@ addScrollTopButton() {
           window.addEventListener("scroll", checkScroll.run);
         },
 addAuthorClickEvent() {
-          utils.waitNode("div.main-page-wrap .main-thread-content .user-line").then((element) => {
+          domUtils.waitNode("div.main-page-wrap .main-thread-content .user-line").then((element) => {
             log.info("添加顶部的楼主头像/名字的点击事件-直接进入楼主的个人主页");
             domUtils.on(element, "click", function() {
               let vueInfo = VueUtils.getVue(element.parentElement) || VueUtils.getVue(element.closest(".user-line-wrapper"));
@@ -5695,7 +5695,7 @@ $searchResultFrom: null
         },
         init() {
           let that = this;
-          utils.waitAnyNode(
+          domUtils.waitAnyNode(
             [".more-btn-desc", "uni-app .frs-wise-nav-bar .forum-name", ".tbm-status .right-area"],
             1e4
           ).then(($oldMoreBtnDesc) => {
@@ -6195,7 +6195,7 @@ async getSearchResult(qw = "", pn = 0, sm = 1, kw = "") {
             };
           }
           log.success(searchResponse);
-          let searchDoc = domUtils.parseHTML(responseText, true, true);
+          let searchDoc = domUtils.toElement(responseText, true, true);
           if (searchDoc.querySelector(".search_noresult")) {
             return {
               success: false,
@@ -6317,7 +6317,7 @@ getSearchItemElement(data) {
               item.element,
               "click",
               function(event) {
-                utils.preventEvent(event);
+                domUtils.preventEvent(event);
                 globalThis.open(item.url, "_blank");
               },
               {
@@ -6491,7 +6491,7 @@ execByUrlSearchParams() {
             let searchType = searchParams.get(KEY_searchType);
             if (["0", "1"].includes(searchType)) {
               this.$ele.$select.selectedIndex = parseInt(searchType);
-              utils.dispatchEvent(this.$ele.$select, "change");
+              domUtils.trigger(this.$ele.$select, "change");
             } else {
               log.error(`未知searchParams的 ${KEY_searchType} 参数值：${searchType}`);
             }
@@ -6836,7 +6836,7 @@ getForumId() {
         if (utils.isNull(defaultOption)) {
           throw new TypeError("target不能为空");
         }
-        utils.waitNode(defaultOption.target, 1e4).then(($target) => {
+        domUtils.waitNode(defaultOption.target, 1e4).then(($target) => {
           if (!$target) {
             return;
           }
@@ -6929,10 +6929,10 @@ isNearBottomValue: 250,
             });
             log.error(["百度验证后的参数👇", TiebaComment.extraSearchSignParams]);
           }
-          utils.waitNode(".main-page-wrap").then(() => {
+          domUtils.waitNode(".main-page-wrap").then(() => {
             TiebaComment.insertLoadingHTML();
           });
-          utils.waitAnyNode([
+          domUtils.waitAnyNode([
             ".recommend-item[data-banner-info]",
             "div.app-view.transition-fade.pb-page-wrapper.mask-hidden .post-item"
           ]).then(() => {
@@ -6941,7 +6941,7 @@ isNearBottomValue: 250,
             TiebaComment.initMainComment(false);
             TiebaComment.insertReverseBtn();
             TiebaComment.insertOnlyLZ();
-            utils.waitNode('.nav-bar-v2-fixed[main-type="forum"]').then(($navBar) => {
+            domUtils.waitNode('.nav-bar-v2-fixed[main-type="forum"]').then(($navBar) => {
               setAffix({
                 target: "#replySwitch",
                 position: "top",
@@ -7464,7 +7464,7 @@ setUserCommentHandler() {
             }
           }
           domUtils.on(document, "click", ".post-item .user-comment-handler", function(event) {
-            utils.preventEvent(event);
+            domUtils.preventEvent(event);
             let $click = event.target;
             let $item = $click.closest(".post-item");
             let $textContent = $item.querySelector(".text-content");
@@ -7508,7 +7508,7 @@ setUserCommentHandler() {
             });
           });
           domUtils.on(document, "click", "#whitesev-reply-dialog .user-comment-handler", function(event) {
-            utils.preventEvent(event);
+            domUtils.preventEvent(event);
             let $click = event.target;
             let $item = $click.closest(".whitesev-reply-dialog-sheet-other-content-item");
             let $textContent = $item.querySelector(".whitesev-reply-dialog-user-comment");
@@ -7702,13 +7702,13 @@ prevPageScrollEvent: async (event) => {
 setNextPageScrollListener() {
           TiebaComment.funcLock = new utils.LockFunction(TiebaComment.nextPageScrollEvent, this);
           document.addEventListener("scroll", TiebaComment.funcLock.run);
-          utils.dispatchEvent(document, "scroll", { jsTrigger: true });
+          domUtils.trigger(document, "scroll", { jsTrigger: true });
           log.success("scroll监听事件【下一页】");
         },
 setPrevPageScrollListener() {
           TiebaComment.funcLock = new utils.LockFunction(TiebaComment.prevPageScrollEvent, this);
           document.addEventListener("scroll", TiebaComment.funcLock.run);
-          utils.dispatchEvent(document, "scroll", { jsTrigger: true });
+          domUtils.trigger(document, "scroll", { jsTrigger: true });
           log.success("scroll监听事件【上一页】");
         },
 removeScrollListener() {
@@ -7953,7 +7953,7 @@ insertNewCommentInnerElement: (newCommentDOM) => {
           newCommentDOM.querySelectorAll(".tbfe-1px-border.avatar").forEach((item) => {
             if (item.hasAttribute("data-home-url")) {
               item.onclick = function(event) {
-                utils.preventEvent(event);
+                domUtils.preventEvent(event);
                 window.open(item.getAttribute("data-home-url"), "_blank");
               };
             }
@@ -7961,7 +7961,7 @@ insertNewCommentInnerElement: (newCommentDOM) => {
           newCommentDOM.querySelectorAll(".user-info .username").forEach((item) => {
             if (item.hasAttribute("data-home-url")) {
               item.onclick = function(event) {
-                utils.preventEvent(event);
+                domUtils.preventEvent(event);
                 window.open(item.getAttribute("data-home-url"), "_blank");
               };
             }
@@ -8008,7 +8008,7 @@ insertNewCommentInnerElement: (newCommentDOM) => {
                 }
               );
               domUtils.on(seeAllReplyElement, "click", (event) => {
-                utils.preventEvent(event);
+                domUtils.preventEvent(event);
                 lzlPostElement.click();
               });
               domUtils.after(lzlPostElement, seeAllReplyElement);
@@ -8017,7 +8017,7 @@ insertNewCommentInnerElement: (newCommentDOM) => {
               lzlPostElement,
               "click",
               (event) => {
-                utils.preventEvent(event);
+                domUtils.preventEvent(event);
                 log.success(`点击查看全部回复`);
                 TiebaComment.showReplyDialog(lzlPostElement);
               },
@@ -8372,7 +8372,7 @@ showReplyDialog(element) {
           dialogOhterContentElement.appendChild($ohterCommentFragment);
           let isClosingDialog = false;
           function popstateEvent(event) {
-            utils.preventEvent(event);
+            domUtils.preventEvent(event);
             if (isClosingDialog) {
               return;
             }
@@ -8405,8 +8405,8 @@ showReplyDialog(element) {
           }
           function closeDialog(event) {
             dialog.removeAttribute("data-on");
-            domUtils.on(dialog, utils.getTransitionEndNameList(), function() {
-              domUtils.off(dialog, utils.getTransitionEndNameList());
+            domUtils.on(dialog, domUtils.getTransitionEndNameList(), function() {
+              domUtils.off(dialog, domUtils.getTransitionEndNameList());
               log.success("关闭楼中楼回复弹窗_click");
               dialog.remove();
               if (Panel.getValue("baidu_tieba_lzl_ban_global_back")) {
@@ -8416,8 +8416,8 @@ showReplyDialog(element) {
           }
           function closeDialogByUrlChange() {
             dialog.removeAttribute("data-on");
-            domUtils.on(dialog, utils.getTransitionEndNameList(), function() {
-              domUtils.off(dialog, utils.getTransitionEndNameList());
+            domUtils.on(dialog, domUtils.getTransitionEndNameList(), function() {
+              domUtils.off(dialog, domUtils.getTransitionEndNameList());
               log.success("关闭楼中楼回复弹窗_urlchange");
               dialog.remove();
             });
@@ -8425,14 +8425,14 @@ showReplyDialog(element) {
           domUtils.on(dialog.querySelector(".whitesev-reply-dialog-close"), "click", closeDialog);
           domUtils.on(dialog.querySelector(".whitesev-reply-dialog-bg"), "click", closeDialog);
           domUtils.on(dialog, "click", ".whitesev-reply-dialog-avatar", function(event) {
-            utils.preventEvent(event);
+            domUtils.preventEvent(event);
             window.open(
               "/home/main?id=" + event.target?.closest(".whitesev-reply-dialog-user-line")?.getAttribute("data-portrait"),
               "_blank"
             );
           });
           domUtils.on(dialog, "click", ".whitesev-reply-dialog-user-info", function(event) {
-            utils.preventEvent(event);
+            domUtils.preventEvent(event);
             window.open(
               "/home/main?id=" + event.target?.closest(".whitesev-reply-dialog-user-line")?.getAttribute("data-portrait"),
               "_blank"
@@ -8592,7 +8592,7 @@ async getLzlCommentReply(tid = "", pid = "", pn = 1) {
           }
           let respData = getResp.data;
           log.success(respData);
-          let parseDOM = domUtils.parseHTML(respData.responseText, false, true);
+          let parseDOM = domUtils.toElement(respData.responseText, false, true);
           let lzlPostList = Array.from(parseDOM.querySelectorAll("li.lzl_single_post"));
           if (!lzlPostList.length) {
             return "暂无更多回复";
@@ -8650,7 +8650,7 @@ async getPageComment(url) {
           let respData = getResp.data;
           log.success(["获取评论", getResp]);
           if (getResp.status) {
-            let pageCommentHTMLElement = domUtils.parseHTML(respData.responseText, true, true);
+            let pageCommentHTMLElement = domUtils.toElement(respData.responseText, true, true);
             if (pageCommentHTMLElement.title === "百度安全验证" || respData.finalUrl.startsWith("https://wappass.baidu.com")) {
               log.error("触发百度安全验证 👇" + respData.finalUrl);
               log.error(respData);
@@ -8896,7 +8896,7 @@ async initMainComment(isReverse = false) {
           TiebaComment.param_forum_id = TiebaPageDataHandler.getForumId();
           if (!TiebaComment.param_forum_id) {
             log.warn(tag + "param_forum_id参数不存在，尝试从其它地方获取，max-time: 5s");
-            let recommendItemElement = await utils.waitNode(".recommend-item", 5e3);
+            let recommendItemElement = await domUtils.waitNode(".recommend-item", 5e3);
             if (recommendItemElement) {
               log.info(tag + "等待.recommend-item的data-banner-info属性，max-time: 10s");
               await utils.waitPropertyByInterval(
@@ -9002,7 +9002,7 @@ watchComment(callback) {
           if (this.$data.watchCommentCallBack.length > 1) {
             return;
           }
-          utils.waitNode("uni-view#tab-list", 1e4).then(($tabList) => {
+          domUtils.waitNode("uni-view#tab-list", 1e4).then(($tabList) => {
             if (!$tabList) {
               return;
             }
@@ -9340,7 +9340,7 @@ async showView() {
               $alert.close();
             };
             domUtils.on($button, "click", async (event) => {
-              utils.preventEvent(event);
+              domUtils.preventEvent(event);
               if (typeof filterOption.callback === "function") {
                 let result = await filterOption.callback(event, execFilterAndCloseDialog);
                 if (!result) {
@@ -9701,7 +9701,7 @@ async createRuleItemElement(data, $shadowRoot) {
           }
           if (this.option.itemControls.edit.enable) {
             domUtils.on($edit, "click", (event) => {
-              utils.preventEvent(event);
+              domUtils.preventEvent(event);
               this.showEditView(true, data, $shadowRoot, $ruleItem, (newData) => {
                 data = null;
                 data = newData;
@@ -9712,7 +9712,7 @@ async createRuleItemElement(data, $shadowRoot) {
           }
           if (this.option.itemControls.delete.enable) {
             domUtils.on($delete, "click", (event) => {
-              utils.preventEvent(event);
+              domUtils.preventEvent(event);
               let $askDialog = __pops.confirm({
                 title: {
                   text: "提示",
@@ -10484,7 +10484,7 @@ importRule() {
           let $local = $alert.$shadowRoot.querySelector(".import-mode[data-mode='local']");
           let $network = $alert.$shadowRoot.querySelector(".import-mode[data-mode='network']");
           domUtils.on($local, "click", (event) => {
-            utils.preventEvent(event);
+            domUtils.preventEvent(event);
             $alert.close();
             let $input = domUtils.createElement("input", {
               type: "file",
@@ -10511,7 +10511,7 @@ importRule() {
             $input.click();
           });
           domUtils.on($network, "click", (event) => {
-            utils.preventEvent(event);
+            domUtils.preventEvent(event);
             $alert.close();
             __pops.prompt({
               title: {
@@ -10580,7 +10580,7 @@ async getConcern(un, pn = 1) {
           if (utils.isNull(data.data.content)) {
             return;
           }
-          let $doc = domUtils.parseHTML(data.data.content, true, true);
+          let $doc = domUtils.toElement(data.data.content, true, true);
           let resultDataList = [];
           $doc.querySelectorAll(".home_concern_forum_item").forEach(($li) => {
             let $url = $li.querySelector("a.home_concern_forum_item_link");
@@ -10632,7 +10632,7 @@ async getFollow(un, offset = 12, page_size = 12) {
           if (utils.isNull(data.data.content)) {
             return;
           }
-          let $doc = domUtils.parseHTML(data.data.content, true, true);
+          let $doc = domUtils.toElement(data.data.content, true, true);
           let resultDataList = [];
           $doc.querySelectorAll(".uloader_grid_item_user").forEach(($url) => {
             let url = $url.href;
@@ -10680,7 +10680,7 @@ async getFans(un, offset = 12, page_size = 12) {
           if (utils.isNull(data.data.content)) {
             return;
           }
-          let $doc = domUtils.parseHTML(data.data.content, true, true);
+          let $doc = domUtils.toElement(data.data.content, true, true);
           let resultDataList = [];
           $doc.querySelectorAll(".uloader_grid_item_user").forEach(($url) => {
             let url = $url.href;
@@ -10729,7 +10729,7 @@ async getPost(un, pn = 1) {
           if (utils.isNull(data.data.content)) {
             return;
           }
-          let $doc = domUtils.parseHTML(data.data.content, true, true);
+          let $doc = domUtils.toElement(data.data.content, true, true);
           let resultDataList = [];
           $doc.querySelectorAll(".list_item").forEach(($listItem) => {
             let url = $listItem.querySelector(".list_item_link").href;
@@ -11017,7 +11017,7 @@ createSearchButton(queryUserInfoFn) {
             $badge,
             "click",
             async (event) => {
-              utils.preventEvent(event);
+              domUtils.preventEvent(event);
               if ($compositionCheckable.hasAttribute("data-is-searching")) {
                 log.error("正在搜索中，请稍后再试");
                 return;
@@ -11101,7 +11101,7 @@ createLabel(data) {
             $badge,
             "click",
             (event) => {
-              utils.preventEvent(event);
+              domUtils.preventEvent(event);
               __pops.alert({
                 title: {
                   text: "识别信息",
@@ -11414,7 +11414,7 @@ mutationRemoveWakeUpBtn() {
         },
 overloadLoadMore() {
           log.info(`uni-app ===> 覆盖页面的加载更多按钮，可实现加载更多评论`);
-          utils.waitNode("uni-app .load-more.wake-app", 1e4).then(($el) => {
+          domUtils.waitNode("uni-app .load-more.wake-app", 1e4).then(($el) => {
             if (!$el) {
               return;
             }
@@ -11425,7 +11425,7 @@ overloadLoadMore() {
             "click",
             "uni-app .load-more",
             (event) => {
-              utils.preventEvent(event);
+              domUtils.preventEvent(event);
               let $loadMore = event.target;
               let vue3Ins = VueUtils.getVue3($loadMore);
               let vue2Ins = VueUtils.getVue($loadMore);
@@ -11471,8 +11471,8 @@ overloadLoadMore() {
             }
           );
           domUtils.ready(() => {
-            utils.waitNode("uni-app .load-more", 1e4).then(($loadMore) => {
-              utils.dispatchEvent(document, "scroll");
+            domUtils.waitNode("uni-app .load-more", 1e4).then(($loadMore) => {
+              domUtils.trigger(document, "scroll");
             });
           });
         },
@@ -11510,7 +11510,7 @@ repairPicGuideThreadWrapper() {
             "click",
             ".pic-popup-guide-thread-wrapper .thread-guide-item-wake",
             (event) => {
-              utils.preventEvent(event);
+              domUtils.preventEvent(event);
               let $click = event.target;
               let vue2Ins = VueUtils.getVue($click);
               let vue3Ins = VueUtils.getVue3($click);
@@ -11531,7 +11531,7 @@ repairPicGuideThreadWrapper() {
 repairClickToUserHome() {
           log.info(`uni-app ===> 修复点击进入用户主页（包括用户头像、用户名）`);
           domUtils.on(document, "click", ".player-line-left", (event, selectorTarget) => {
-            utils.preventEvent(event);
+            domUtils.preventEvent(event);
             let $click = selectorTarget;
             let vue3Ins = VueUtils.getVue3($click);
             if (typeof vue3Ins?.props?.playerInfo?.portrait === "string") {
@@ -11578,7 +11578,7 @@ preventWakeApp() {
                   }
                 }
               }
-              utils.preventEvent(event);
+              domUtils.preventEvent(event);
             },
             {
               capture: true
@@ -11594,7 +11594,7 @@ rememberChooseSeeCommentSort() {
             _GM_setValue(KEY2, chooseSortText);
             log.info(`切换评论排序：${chooseSortText}`);
           });
-          utils.waitNode("uni-view.reply-top .switch-tab .tab-item", 1e4).then(($tabItem) => {
+          domUtils.waitNode("uni-view.reply-top .switch-tab .tab-item", 1e4).then(($tabItem) => {
             if (!$tabItem) {
               return;
             }
@@ -11720,7 +11720,7 @@ optimizationImagePreviewBackGestureReturn() {
             let $parent = $click.parentElement;
             if ($parent.localName === "uni-image" && $parent.classList.contains("pb-image")) {
               gestureBack.enterGestureBackMode();
-              utils.waitNode(".img-preview .back-icon-con", 1e4).then(($backIcon) => {
+              domUtils.waitNode(".img-preview .back-icon-con", 1e4).then(($backIcon) => {
                 if (!$backIcon) {
                   return;
                 }
@@ -11790,7 +11790,7 @@ repairSearch() {
 				`
             );
           };
-          utils.waitNode(".nav-bar .nav-bar-forum-info", 1e4).then(($navBarForumInfo) => {
+          domUtils.waitNode(".nav-bar .nav-bar-forum-info", 1e4).then(($navBarForumInfo) => {
             if (!$navBarForumInfo) {
               return;
             }
@@ -11811,7 +11811,7 @@ repairAnchorLink() {
               let $click = event.composedPath()[0];
               if ($click.nodeType === Node.ELEMENT_NODE && $click.classList) {
                 if ($click.classList.contains("pb-link")) {
-                  utils.preventEvent(event);
+                  domUtils.preventEvent(event);
                   let vue3Ins = VueUtils.getVue3($click);
                   let vue2Ins = VueUtils.getVue($click);
                   let link = vue3Ins?.props?.content?.link || vue2Ins?.content?.link;
@@ -11855,7 +11855,7 @@ repairAnchorLink() {
                     }
                   }
                 } else if ($click.classList.contains("pb-at")) {
-                  utils.preventEvent(event);
+                  domUtils.preventEvent(event);
                   log.info("点击@");
                   let vue3Ins = VueUtils.getVue3($click);
                   let vueIns = VueUtils.getVue($click);
@@ -12091,7 +12091,7 @@ setInputValue(value) {
             commentBoxVueObj.inputValue = value;
             if (commentBoxVueObj.commentRef && commentBoxVueObj.commentRef instanceof HTMLInputElement) {
               commentBoxVueObj.commentRef.value = value;
-              utils.dispatchEvent(commentBoxVueObj.commentRef, "input");
+              domUtils.trigger(commentBoxVueObj.commentRef, "input");
             }
           } catch (error) {
             Qmsg.error("设置输入框值失败");
@@ -12135,7 +12135,7 @@ getCommentBoxWrap() {
         },
 waitCommentBoxWrap(callback) {
           domUtils.ready(() => {
-            utils.waitNode(".comment-box-wrap", 1e4).then(($commentBoxWrap) => {
+            domUtils.waitNode(".comment-box-wrap", 1e4).then(($commentBoxWrap) => {
               if (TiebaUniAppPost.isUniApp()) {
                 return;
               }
@@ -12221,7 +12221,7 @@ showLoginWakeModal() {
         },
 setAvatarClickEvent() {
           let that = this;
-          utils.waitNode(".comment-box-wrap .avatar", 1e4).then(($avatar) => {
+          domUtils.waitNode(".comment-box-wrap .avatar", 1e4).then(($avatar) => {
             if (!$avatar) {
               log.error("获取回复框头像元素.comment-box-wrap .avatar失败");
               return;
@@ -12231,7 +12231,7 @@ setAvatarClickEvent() {
               let vueObj = VueUtils.getVue($commentBoxWrap);
               if (!vueObj) {
                 log.error("获取回复框容器元素的vue属性失败");
-                utils.preventEvent(event);
+                domUtils.preventEvent(event);
                 return;
               }
               if (vueObj.isLogin) {
@@ -12292,7 +12292,7 @@ isLogin: false
           const emits = __emit;
           const ToolbarHandler = {
 handleShowFullToolbar(event) {
-              utils.preventEvent(event);
+              domUtils.preventEvent(event);
               if (!accountStore.isLogin) {
                 TiebaReply.checkLogin();
                 return;
@@ -12367,7 +12367,7 @@ handleShowFullToolbar(event) {
         }
         return target;
       };
-      const SmallToolbar = _export_sfc$1(_sfc_main$K, [["__scopeId", "data-v-f16be0b3"]]);
+      const SmallToolbar = _export_sfc$1(_sfc_main$K, [["__scopeId", "data-v-b2773fdf"]]);
       const configProviderContextKey = Symbol();
       const defaultNamespace = "el";
       const statePrefix = "is-";
@@ -12442,7 +12442,7 @@ handleShowFullToolbar(event) {
         };
       };
       /**
-      * @vue/shared v3.5.21
+      * @vue/shared v3.5.22
       * (c) 2018-present Yuxi (Evan) You and Vue contributors
       * @license MIT
       **/
@@ -13176,6 +13176,32 @@ isIndex(key, length)))) {
         }
         return result;
       }
+      function baseClamp(number, lower, upper) {
+        if (number === number) {
+          if (upper !== void 0) {
+            number = number <= upper ? number : upper;
+          }
+          if (lower !== void 0) {
+            number = number >= lower ? number : lower;
+          }
+        }
+        return number;
+      }
+      function clamp$1(number, lower, upper) {
+        if (upper === void 0) {
+          upper = lower;
+          lower = void 0;
+        }
+        if (upper !== void 0) {
+          upper = toNumber(upper);
+          upper = upper === upper ? upper : 0;
+        }
+        if (lower !== void 0) {
+          lower = toNumber(lower);
+          lower = lower === lower ? lower : 0;
+        }
+        return baseClamp(toNumber(number), lower, upper);
+      }
       function stackClear() {
         this.__data__ = new ListCache();
         this.size = 0;
@@ -13694,6 +13720,7 @@ isIndex(key, length)))) {
       var _a;
       const isClient = typeof window !== "undefined";
       const isString = (val) => typeof val === "string";
+      const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
       const noop = () => {
       };
       isClient && ((_a = window == null ? void 0 : window.navigator) == null ? void 0 : _a.userAgent) && /iP(ad|hone|od)/.test(window.navigator.userAgent);
@@ -13882,6 +13909,43 @@ isIndex(key, length)))) {
         return {
           isSupported,
           stop
+        };
+      }
+      function useElementSize(target, initialSize = { width: 0, height: 0 }, options = {}) {
+        const { window: window2 = defaultWindow, box = "content-box" } = options;
+        const isSVG = vueDemi.computed(() => {
+          var _a2, _b;
+          return (_b = (_a2 = unrefElement(target)) == null ? void 0 : _a2.namespaceURI) == null ? void 0 : _b.includes("svg");
+        });
+        const width = vueDemi.ref(initialSize.width);
+        const height = vueDemi.ref(initialSize.height);
+        useResizeObserver(target, ([entry]) => {
+          const boxSize = box === "border-box" ? entry.borderBoxSize : box === "content-box" ? entry.contentBoxSize : entry.devicePixelContentBoxSize;
+          if (window2 && isSVG.value) {
+            const $elem = unrefElement(target);
+            if ($elem) {
+              const styles = window2.getComputedStyle($elem);
+              width.value = parseFloat(styles.width);
+              height.value = parseFloat(styles.height);
+            }
+          } else {
+            if (boxSize) {
+              const formatBoxSize = Array.isArray(boxSize) ? boxSize : [boxSize];
+              width.value = formatBoxSize.reduce((acc, { inlineSize }) => acc + inlineSize, 0);
+              height.value = formatBoxSize.reduce((acc, { blockSize }) => acc + blockSize, 0);
+            } else {
+              width.value = entry.contentRect.width;
+              height.value = entry.contentRect.height;
+            }
+          }
+        }, options);
+        vueDemi.watch(() => unrefElement(target), (ele) => {
+          width.value = ele ? initialSize.width : 0;
+          height.value = ele ? initialSize.height : 0;
+        });
+        return {
+          width,
+          height
         };
       }
       function useIntersectionObserver(target, callback, options = {}) {
@@ -14274,7 +14338,13 @@ isIndex(key, length)))) {
             Function
           ]),
           default: void 0,
-          validator: (val) => isFunction$1(val) ? !val() : !val
+          validator: (val) => {
+            val = isFunction$1(val) ? val() : val;
+            if (isArray$1(val)) {
+              return val.every((item) => !item);
+            }
+            return !val;
+          }
         }
       });
       const keysOf = (arr) => Object.keys(arr);
@@ -14362,6 +14432,8 @@ isIndex(key, length)))) {
         }
         return target;
       };
+      const rAF = (fn) => isClient ? window.requestAnimationFrame(fn) : setTimeout(fn, 16);
+      const cAF = (handle) => isClient ? window.cancelAnimationFrame(handle) : clearTimeout(handle);
       const classNameToArray = (cls = "") => cls.split(" ").filter((item) => !!item.trim());
       const addClass = (el, cls) => {
         if (!el || !cls.trim())
@@ -14493,6 +14565,8 @@ isIndex(key, length)))) {
         Object,
         Function
       ]);
+      const isFirefox = () => isClient && /firefox/i.test(window.navigator.userAgent);
+      const isAndroid = () => isClient && /android/i.test(window.navigator.userAgent);
       const mutable = (val) => val;
       const ariaProps = buildProps({
         ariaLabel: String,
@@ -15276,11 +15350,40 @@ isIndex(key, length)))) {
         esc: "Escape",
         delete: "Delete",
         backspace: "Backspace",
-        numpadEnter: "NumpadEnter"
+        numpadEnter: "NumpadEnter",
+        pageUp: "PageUp",
+        pageDown: "PageDown",
+        home: "Home",
+        end: "End"
+      };
+      const getEventCode = (event) => {
+        if (event.code && event.code !== "Unidentified")
+          return event.code;
+        const key = getEventKey(event);
+        if (key) {
+          if (Object.values(EVENT_CODE).includes(key))
+            return key;
+          switch (key) {
+            case " ":
+              return EVENT_CODE.space;
+            default:
+              return "";
+          }
+        }
+        return "";
+      };
+      const getEventKey = (event) => {
+        let key = event.key && event.key !== "Unidentified" ? event.key : "";
+        if (!key && event.type === "keyup" && isAndroid()) {
+          const target = event.target;
+          key = target.value.charAt(target.selectionStart - 1);
+        }
+        return key;
       };
       let registeredEscapeHandlers = [];
       const cachedHandler = (event) => {
-        if (event.code === EVENT_CODE.esc) {
+        const code = getEventCode(event);
+        if (code === EVENT_CODE.esc) {
           registeredEscapeHandlers.forEach((registeredHandler) => registeredHandler(event));
         }
       };
@@ -15344,8 +15447,9 @@ isIndex(key, length)))) {
               return;
             if (focusLayer.paused)
               return;
-            const { code, altKey, ctrlKey, metaKey, currentTarget, shiftKey } = e;
+            const { altKey, ctrlKey, metaKey, currentTarget, shiftKey } = e;
             const { loop } = props;
+            const code = getEventCode(e);
             const isTabbing = code === EVENT_CODE.tab && !altKey && !ctrlKey && !metaKey;
             const currentFocusingEl = document.activeElement;
             if (isTabbing && currentFocusingEl) {
@@ -17586,6 +17690,10 @@ isIndex(key, length)))) {
           type: Number,
           default: 1.2
         },
+        scale: {
+          type: Number,
+          default: 1
+        },
         minScale: {
           type: Number,
           default: 0.2
@@ -17601,6 +17709,7 @@ isIndex(key, length)))) {
       });
       const imageViewerEmits = {
         close: () => true,
+        error: (evt) => evt instanceof Event,
         switch: (index) => isNumber(index),
         rotate: (deg) => isNumber(deg)
       };
@@ -17630,13 +17739,18 @@ isIndex(key, length)))) {
           const ns = useNamespace("image-viewer");
           const { nextZIndex } = useZIndex();
           const wrapper = vue.ref();
-          const imgRefs = vue.ref([]);
+          const imgRef = vue.ref();
           const scopeEventListener = vue.effectScope();
+          const scaleClamped = vue.computed(() => {
+            const { scale, minScale, maxScale } = props;
+            return clamp(scale, minScale, maxScale);
+          });
           const loading = vue.ref(true);
+          const loadError = vue.ref(false);
           const activeIndex = vue.ref(props.initialIndex);
           const mode = vue.shallowRef(modes.CONTAIN);
           const transform = vue.ref({
-            scale: 1,
+            scale: scaleClamped.value,
             deg: 0,
             offsetX: 0,
             offsetY: 0,
@@ -17687,7 +17801,8 @@ isIndex(key, length)))) {
           }
           function registerEventListener() {
             const keydownHandler = throttle((e) => {
-              switch (e.code) {
+              const code = getEventCode(e);
+              switch (code) {
                 case EVENT_CODE.esc:
                   props.closeOnPressEscape && hide();
                   break;
@@ -17727,7 +17842,9 @@ isIndex(key, length)))) {
             loading.value = false;
           }
           function handleImgError(e) {
+            loadError.value = true;
             loading.value = false;
+            emit("error", e);
             e.target.alt = t("el.image.error");
           }
           function handleMouseDown(e) {
@@ -17752,7 +17869,7 @@ isIndex(key, length)))) {
           }
           function reset() {
             transform.value = {
-              scale: 1,
+              scale: scaleClamped.value,
               deg: 0,
               offsetX: 0,
               offsetY: 0,
@@ -17760,7 +17877,7 @@ isIndex(key, length)))) {
             };
           }
           function toggleMode() {
-            if (loading.value)
+            if (loading.value || loadError.value)
               return;
             const modeNames = keysOf(modes);
             const modeValues = Object.values(modes);
@@ -17771,6 +17888,7 @@ isIndex(key, length)))) {
             reset();
           }
           function setActiveItem(index) {
+            loadError.value = false;
             const len = props.urlList.length;
             activeIndex.value = (index + len) % len;
           }
@@ -17785,7 +17903,7 @@ isIndex(key, length)))) {
             setActiveItem(activeIndex.value + 1);
           }
           function handleActions(action, options = {}) {
-            if (loading.value)
+            if (loading.value || loadError.value)
               return;
             const { minScale, maxScale } = props;
             const { zoomRate, rotateDeg, enableTransition } = {
@@ -17838,9 +17956,12 @@ isIndex(key, length)))) {
               return false;
             }
           }
+          vue.watch(() => scaleClamped.value, (val) => {
+            transform.value.scale = val;
+          });
           vue.watch(currentImg, () => {
             vue.nextTick(() => {
-              const $img = imgRefs.value[0];
+              const $img = imgRef.value;
               if (!($img == null ? void 0 : $img.complete)) {
                 loading.value = true;
               }
@@ -18006,22 +18127,22 @@ isIndex(key, length)))) {
                           vue.createElementVNode("div", {
                             class: vue.normalizeClass(vue.unref(ns).e("canvas"))
                           }, [
-                            (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(_ctx.urlList, (url, i) => {
-                              return vue.openBlock(), vue.createElementBlock(vue.Fragment, { key: i }, [
-                                i === activeIndex.value ? (vue.openBlock(), vue.createElementBlock("img", {
-                                  key: 0,
-                                  ref_for: true,
-                                  ref: (el) => imgRefs.value[i] = el,
-                                  src: url,
-                                  style: vue.normalizeStyle(vue.unref(imgStyle)),
-                                  class: vue.normalizeClass(vue.unref(ns).e("img")),
-                                  crossorigin: _ctx.crossorigin,
-                                  onLoad: handleImgLoad,
-                                  onError: handleImgError,
-                                  onMousedown: handleMouseDown
-                                }, null, 46, ["src", "crossorigin"])) : vue.createCommentVNode("v-if", true)
-                              ], 64);
-                            }), 128))
+                            loadError.value && _ctx.$slots["viewer-error"] ? vue.renderSlot(_ctx.$slots, "viewer-error", {
+                              key: 0,
+                              activeIndex: activeIndex.value,
+                              src: vue.unref(currentImg)
+                            }) : (vue.openBlock(), vue.createElementBlock("img", {
+                              ref_key: "imgRef",
+                              ref: imgRef,
+                              key: vue.unref(currentImg),
+                              src: vue.unref(currentImg),
+                              style: vue.normalizeStyle(vue.unref(imgStyle)),
+                              class: vue.normalizeClass(vue.unref(ns).e("img")),
+                              crossorigin: _ctx.crossorigin,
+                              onLoad: handleImgLoad,
+                              onError: handleImgError,
+                              onMousedown: handleMouseDown
+                            }, null, 46, ["src", "crossorigin"]))
                           ], 2),
                           vue.renderSlot(_ctx.$slots, "default")
                         ]),
@@ -18081,6 +18202,10 @@ isIndex(key, length)))) {
         zoomRate: {
           type: Number,
           default: 1.2
+        },
+        scale: {
+          type: Number,
+          default: 1
         },
         minScale: {
           type: Number,
@@ -18288,6 +18413,7 @@ isIndex(key, length)))) {
                   "max-scale": _ctx.maxScale,
                   "show-progress": _ctx.showProgress,
                   "url-list": _ctx.previewSrcList,
+                  scale: _ctx.scale,
                   crossorigin: _ctx.crossorigin,
                   "hide-on-click-modal": _ctx.hideOnClickModal,
                   teleported: _ctx.previewTeleported,
@@ -18310,8 +18436,14 @@ isIndex(key, length)))) {
                     fn: vue.withCtx((progress) => [
                       vue.renderSlot(_ctx.$slots, "progress", vue.normalizeProps(vue.guardReactiveProps(progress)))
                     ])
+                  } : void 0,
+                  _ctx.$slots["viewer-error"] ? {
+                    name: "viewer-error",
+                    fn: vue.withCtx((viewerError) => [
+                      vue.renderSlot(_ctx.$slots, "viewer-error", vue.normalizeProps(vue.guardReactiveProps(viewerError)))
+                    ])
                   } : void 0
-                ]), 1032, ["z-index", "initial-index", "infinite", "zoom-rate", "min-scale", "max-scale", "show-progress", "url-list", "crossorigin", "hide-on-click-modal", "teleported", "close-on-press-escape"])) : vue.createCommentVNode("v-if", true)
+                ]), 1032, ["z-index", "initial-index", "infinite", "zoom-rate", "min-scale", "max-scale", "show-progress", "url-list", "scale", "crossorigin", "hide-on-click-modal", "teleported", "close-on-press-escape"])) : vue.createCommentVNode("v-if", true)
               ], 64)) : vue.createCommentVNode("v-if", true)
             ], 16);
           };
@@ -18478,6 +18610,38 @@ isIndex(key, length)))) {
       });
       var Row = _export_sfc(_sfc_main$n, [["__file", "row.vue"]]);
       const ElRow = withInstall(Row);
+      const HORIZONTAL = "horizontal";
+      const VERTICAL = "vertical";
+      const LayoutKeys = {
+        [HORIZONTAL]: "deltaX",
+        [VERTICAL]: "deltaY"
+      };
+      const useWheel = ({ atEndEdge, atStartEdge, layout }, onWheelDelta) => {
+        let frameHandle;
+        let offset = 0;
+        const hasReachedEdge = (offset2) => {
+          const edgeReached = offset2 < 0 && atStartEdge.value || offset2 > 0 && atEndEdge.value;
+          return edgeReached;
+        };
+        const onWheel = (e) => {
+          cAF(frameHandle);
+          const newOffset = e[LayoutKeys[layout.value]];
+          if (hasReachedEdge(offset) && hasReachedEdge(offset + newOffset))
+            return;
+          offset += newOffset;
+          if (!isFirefox()) {
+            e.preventDefault();
+          }
+          frameHandle = rAF(() => {
+            onWheelDelta(offset);
+            offset = 0;
+          });
+        };
+        return {
+          hasReachedEdge,
+          onWheel
+        };
+      };
       const skeletonProps = buildProps({
         animated: Boolean,
         count: {
@@ -18951,6 +19115,30 @@ isIndex(key, length)))) {
               transform: `translate${dir}(-${navOffset.value}px)`
             };
           });
+          const {
+            width: navContainerWidth,
+            height: navContainerHeight
+          } = useElementSize(navScroll$);
+          const {
+            width: navWidth,
+            height: navHeight
+          } = useElementSize(nav$, {
+            width: 0,
+            height: 0
+          }, {
+            box: "border-box"
+          });
+          const navContainerSize = vue.computed(() => isHorizontal.value ? navContainerWidth.value : navContainerHeight.value);
+          const navSize = vue.computed(() => isHorizontal.value ? navWidth.value : navHeight.value);
+          const {
+            onWheel
+          } = useWheel({
+            atStartEdge: vue.computed(() => navOffset.value <= 0),
+            atEndEdge: vue.computed(() => navSize.value - navOffset.value <= navContainerSize.value),
+            layout: vue.computed(() => isHorizontal.value ? "horizontal" : "vertical")
+          }, (offset) => {
+            navOffset.value = clamp$1(navOffset.value + offset, 0, navSize.value - navContainerSize.value);
+          });
           const scrollPrev = () => {
             if (!navScroll$.value)
               return;
@@ -18964,12 +19152,12 @@ isIndex(key, length)))) {
           const scrollNext = () => {
             if (!navScroll$.value || !nav$.value)
               return;
-            const navSize = nav$.value[`offset${capitalize(sizeName.value)}`];
+            const navSize2 = nav$.value[`offset${capitalize(sizeName.value)}`];
             const containerSize = navScroll$.value[`offset${capitalize(sizeName.value)}`];
             const currentOffset = navOffset.value;
-            if (navSize - currentOffset <= containerSize)
+            if (navSize2 - currentOffset <= containerSize)
               return;
-            const newOffset = navSize - currentOffset > containerSize * 2 ? currentOffset + containerSize : navSize - containerSize;
+            const newOffset = navSize2 - currentOffset > containerSize * 2 ? currentOffset + containerSize : navSize2 - containerSize;
             navOffset.value = newOffset;
           };
           const scrollToActiveTab = async () => {
@@ -19009,15 +19197,15 @@ isIndex(key, length)))) {
             if (!nav$.value || !navScroll$.value)
               return;
             props.stretch && ((_a2 = tabBarRef.value) == null ? void 0 : _a2.update());
-            const navSize = nav$.value[`offset${capitalize(sizeName.value)}`];
+            const navSize2 = nav$.value[`offset${capitalize(sizeName.value)}`];
             const containerSize = navScroll$.value[`offset${capitalize(sizeName.value)}`];
             const currentOffset = navOffset.value;
-            if (containerSize < navSize) {
+            if (containerSize < navSize2) {
               scrollable.value = scrollable.value || {};
               scrollable.value.prev = currentOffset;
-              scrollable.value.next = currentOffset + containerSize < navSize;
-              if (navSize - currentOffset < containerSize) {
-                navOffset.value = navSize - containerSize;
+              scrollable.value.next = currentOffset + containerSize < navSize2;
+              if (navSize2 - currentOffset < containerSize) {
+                navOffset.value = navSize2 - containerSize;
               }
             } else {
               scrollable.value = false;
@@ -19027,8 +19215,9 @@ isIndex(key, length)))) {
             }
           };
           const changeTab = (event) => {
+            const code = getEventCode(event);
             let step = 0;
-            switch (event.code) {
+            switch (code) {
               case EVENT_CODE.left:
               case EVENT_CODE.up:
                 step = -1;
@@ -19111,7 +19300,7 @@ isIndex(key, length)))) {
               const uid = pane.uid;
               const disabled = pane.props.disabled;
               const tabName = (_b = (_a2 = pane.props.name) != null ? _a2 : pane.index) != null ? _b : `${index}`;
-              const closable = !disabled && (pane.isClosable || props.editable);
+              const closable = !disabled && (pane.isClosable || pane.props.closable !== false && props.editable);
               pane.index = `${index}`;
               const btnClose = closable ? vue.createVNode(ElIcon, {
                 "class": "is-icon-close",
@@ -19137,7 +19326,8 @@ isIndex(key, length)))) {
                   emit("tabClick", pane, tabName, ev);
                 },
                 "onKeydown": (ev) => {
-                  if (closable && (ev.code === EVENT_CODE.delete || ev.code === EVENT_CODE.backspace)) {
+                  const code = getEventCode(ev);
+                  if (closable && (code === EVENT_CODE.delete || code === EVENT_CODE.backspace)) {
                     emit("tabRemove", pane, ev);
                   }
                 }
@@ -19155,7 +19345,8 @@ isIndex(key, length)))) {
               "ref": nav$,
               "style": navStyle.value,
               "role": "tablist",
-              "onKeydown": changeTab
+              "onKeydown": changeTab,
+              "onWheel": onWheel
             }, [...[!props.type ? vue.createVNode(TabBar, {
               "ref": tabBarRef,
               "tabs": [...props.panes],
@@ -19260,6 +19451,11 @@ isIndex(key, length)))) {
             emit("edit", void 0, "add");
             emit("tabAdd");
           };
+          const handleKeydown = (event) => {
+            const code = getEventCode(event);
+            if ([EVENT_CODE.enter, EVENT_CODE.numpadEnter].includes(code))
+              handleTabAdd();
+          };
           const swapChildren = (vnode) => {
             const actualFirstChild = vnode.el.firstChild;
             const firstChild = ["bottom", "right"].includes(props.tabPosition) ? vnode.children[0].el : vnode.children[1].el;
@@ -19292,10 +19488,7 @@ isIndex(key, length)))) {
               "class": [ns.e("new-tab"), isVertical.value && ns.e("new-tab-vertical")],
               "tabindex": "0",
               "onClick": handleTabAdd,
-              "onKeydown": (ev) => {
-                if ([EVENT_CODE.enter, EVENT_CODE.numpadEnter].includes(ev.code))
-                  handleTabAdd();
-              }
+              "onKeydown": handleKeydown
             }, [addSlot ? vue.renderSlot(slots, "add-icon") : vue.createVNode(ElIcon, {
               "class": ns.is("icon-plus")
             }, {
@@ -19340,7 +19533,10 @@ isIndex(key, length)))) {
         name: {
           type: [String, Number]
         },
-        closable: Boolean,
+        closable: {
+          type: Boolean,
+          default: void 0
+        },
         disabled: Boolean,
         lazy: Boolean
       });
@@ -19361,7 +19557,10 @@ isIndex(key, length)))) {
           const ns = useNamespace("tab-pane");
           const paneRef = vue.ref();
           const index = vue.ref();
-          const isClosable = vue.computed(() => props.closable || tabsRoot.props.closable);
+          const isClosable = vue.computed(() => {
+            var _a2;
+            return (_a2 = props.closable) != null ? _a2 : tabsRoot.props.closable;
+          });
           const active = computedEager(() => {
             var _a2;
             return tabsRoot.currentName.value === ((_a2 = props.name) != null ? _a2 : index.value);
@@ -19621,7 +19820,7 @@ isIndex(key, length)))) {
         };
       }
       let fullscreenInstance = void 0;
-      const Loading = function(options = {}) {
+      const Loading = function(options = {}, context) {
         if (!isClient)
           return void 0;
         const resolved = resolveOptions(options);
@@ -19636,7 +19835,7 @@ isIndex(key, length)))) {
             if (resolved.fullscreen)
               fullscreenInstance = void 0;
           }
-        }, Loading._context);
+        }, context != null ? context : Loading._context);
         addStyle(resolved, resolved.parent, instance);
         addClassList(resolved, resolved.parent, instance);
         resolved.parent.vLoadingAddClassList = () => addClassList(resolved, resolved.parent, instance);
@@ -20507,7 +20706,7 @@ optimizeImagePreview() {
                 return;
               }
               if (currentClickImageUrl?.match(/^http(s|):\/\/(tiebapic|imgsa).baidu.com\/forum/g)) {
-                utils.preventEvent(event);
+                domUtils.preventEvent(event);
                 log.info(`点击图片👇`);
                 log.info($click);
                 if ($clickParent.className === "img-box") {
@@ -20644,12 +20843,12 @@ optimizeImagePreview() {
 "div.img-sudoku .img-desc"
           );
           domUtils.ready(function() {
-            utils.waitNode("div.img-sudoku", 1e4).then(($imgSudoKu) => {
+            domUtils.waitNode("div.img-sudoku", 1e4).then(($imgSudoKu) => {
               if (!$imgSudoKu) {
                 log.error("未找到元素 div.img-sudoku");
                 return;
               }
-              utils.waitNode("img", $imgSudoKu, 1e4).then((childImg) => {
+              domUtils.waitNode("img", $imgSudoKu, 1e4).then((childImg) => {
                 if (!childImg) {
                   log.error("未找到元素 div.img-sudoku img");
                   return;
@@ -20709,7 +20908,7 @@ repairErrorThread() {
               return;
             }
             log.info(getResp);
-            let pageDOM = domUtils.parseHTML(getResp.data.responseText, true, true);
+            let pageDOM = domUtils.toElement(getResp.data.responseText, true, true);
             let postListFirstElement = pageDOM.querySelector("#j_p_postlist .l_post");
             if (!postListFirstElement) {
               log.error("未找到#j_p_postlist .l_post元素");
@@ -20802,7 +21001,7 @@ id: parseInt(field.content.post_id),
             secondData.floor = 3;
             return [firstData, secondData];
           }
-          utils.waitNode(".app-view", 1e4).then(async ($appView) => {
+          domUtils.waitNode(".app-view", 1e4).then(async ($appView) => {
             if (!$appView) {
               log.error("元素.app-view不存在");
               return;
@@ -21001,7 +21200,7 @@ async getUserDataWithPCDoc(url = window.location.href) {
           if (!response.status) {
             return;
           }
-          let $doc = domUtils.parseHTML(response.data.responseText, true, true);
+          let $doc = domUtils.toElement(response.data.responseText, true, true);
           let level = "0";
           let postNum = 0;
           let ipLocation = "未知";
@@ -21442,11 +21641,11 @@ mediaList: []
                           vue.createElementVNode("div", _hoisted_4$7, [
                             vue.createVNode(_component_el_avatar, {
                               size: 35,
-                              src: _ctx.UserData.avatar
+                              src: __props.UserData.avatar
                             }, null, 8, ["src"])
                           ]),
                           vue.createElementVNode("div", _hoisted_5$7, [
-                            vue.createElementVNode("div", _hoisted_6$7, vue.toDisplayString(_ctx.UserData.showName), 1),
+                            vue.createElementVNode("div", _hoisted_6$7, vue.toDisplayString(__props.UserData.showName), 1),
                             vue.createElementVNode("div", _hoisted_7$6, [
                               vue.createVNode(_component_el_text, {
                                 type: "info",
@@ -21653,12 +21852,12 @@ mediaList: []
         },
         setup(__props) {
           vue.useCssVars((_ctx) => ({
-            "19470dbc": vue.unref(levelBgColor),
+            "v19470dbc": vue.unref(levelBgColor),
             "c2cd12fe": vue.unref(levelColor),
-            "64a62dc3": vue.unref(levelColor0_3),
-            "64a63ccd": vue.unref(levelColor4_9),
-            "5869a33a": vue.unref(levelColor10_15),
-            "58642ec0": vue.unref(levelColor16_18)
+            "v64a62dc3": vue.unref(levelColor0_3),
+            "v64a63ccd": vue.unref(levelColor4_9),
+            "v5869a33a": vue.unref(levelColor10_15),
+            "v58642ec0": vue.unref(levelColor16_18)
           }));
           const props = __props;
           let showIsLoading = vue.ref(true);
@@ -21828,7 +22027,7 @@ mediaList: []
           let loadStatus = vue.ref(false);
           let activeName = vue.ref("帖子");
           const copyIdEvent = () => {
-            utils.setClip(props.UserData.id).then((result) => {
+            utils.copy(props.UserData.id).then((result) => {
               if (result) {
                 Qmsg.success("复制成功");
               } else {
@@ -21880,7 +22079,7 @@ mediaList: []
               Qmsg.error("未找到页面原始的取消关注按钮");
               return;
             }
-            utils.waitNode(".dia_wrapper", 1e4).then(($ele) => {
+            domUtils.waitNode(".dia_wrapper", 1e4).then(($ele) => {
               if (!$ele) {
                 return;
               }
@@ -21896,7 +22095,7 @@ mediaList: []
                 }
               );
             });
-            utils.waitNode(".userinfo_relation .btn-attention", 1e4).then(($ele) => {
+            domUtils.waitNode(".userinfo_relation .btn-attention", 1e4).then(($ele) => {
               if (!$ele) {
                 return;
               }
@@ -22308,7 +22507,7 @@ showClose: false,
           };
         }
       });
-      const Home = _export_sfc$1(_sfc_main$9, [["__scopeId", "data-v-3ef72ac6"]]);
+      const Home = _export_sfc$1(_sfc_main$9, [["__scopeId", "data-v-0eef167d"]]);
       const _hoisted_1$7 = { class: "user-avatar" };
       const _hoisted_2$6 = { class: "user-info" };
       const _hoisted_3$6 = { class: "user-info-item" };
@@ -23249,7 +23448,7 @@ openBlank() {
               }
               let cardType = vueIns.cardType;
               if (cardType === "hot-thread") {
-                utils.preventEvent(event);
+                domUtils.preventEvent(event);
                 let id = vueIns?.cardData?.id;
                 if (typeof id !== "number") {
                   Qmsg.error("获取帖子id失败", { consoleLogContent: true });
@@ -24351,7 +24550,7 @@ repairCardClickJump() {
             "click",
             ".collection-center .image-card",
             (event, selectorTarget) => {
-              utils.preventEvent(event);
+              DOMUtils.preventEvent(event);
               let vueInstance = VueUtils.getVue(selectorTarget);
               if (!vueInstance) {
                 Qmsg.error("获取vue实例失败", { consoleLogContent: true });
@@ -24457,7 +24656,7 @@ prevent_openTiebaApp() {
                 log.info(`Router: 魔改自定义的消息页面`);
                 TiebaMsgTab.init();
               } else {
-                utils.waitNode(".tb-index-navbar .navbar-box li:nth-child(2)", 1e4).then(($navbarBox) => {
+                domUtils.waitNode(".tb-index-navbar .navbar-box li:nth-child(2)", 1e4).then(($navbarBox) => {
                   if (!$navbarBox) {
                     return;
                   }
@@ -24519,19 +24718,21 @@ prevent_openTiebaApp() {
           });
         },
 initTiebaData() {
-          utils.waitAnyNode([".tb-mobile-viewport", ".main-page-wrap", ".forum-name .name"]).then(async () => {
-            let interval = setInterval(() => {
-              TiebaData.forumName = TiebaCore.getCurrentForumName();
-              TiebaData.forumId = TiebaCore.getCurrentForumId();
-              if (TiebaData.forumName) {
-                log.info("当前吧：" + TiebaData.forumName);
-                if (Panel.getValue("baidu_tieba_optimize_image_preview")) {
-                  TiebaPost.initPostImageInfo();
+          domUtils.waitAnyNode([".tb-mobile-viewport", ".main-page-wrap", ".forum-name .name"]).then(
+            async () => {
+              let interval = setInterval(() => {
+                TiebaData.forumName = TiebaCore.getCurrentForumName();
+                TiebaData.forumId = TiebaCore.getCurrentForumId();
+                if (TiebaData.forumName) {
+                  log.info("当前吧：" + TiebaData.forumName);
+                  if (Panel.getValue("baidu_tieba_optimize_image_preview")) {
+                    TiebaPost.initPostImageInfo();
+                  }
+                  clearInterval(interval);
                 }
-                clearInterval(interval);
-              }
-            }, 250);
-          });
+              }, 250);
+            }
+          );
         },
 addTopLeftMenu() {
           addStyle$1(
@@ -24545,7 +24746,7 @@ addTopLeftMenu() {
 		}	
 		`
           );
-          utils.waitAnyNode(
+          domUtils.waitAnyNode(
             [".nav-bar-top .logo-wrapper", "uni-app .frs-wise-nav-bar .logo-wrapper", ".tbm-status .left-area"],
             1e4
           ).then(($ele) => {
@@ -24627,7 +24828,7 @@ addTopLeftMenu() {
               $logoWrapper,
               "click",
               (evt) => {
-                utils.preventEvent(evt);
+                domUtils.preventEvent(evt);
                 let $drawer = __pops.drawer({
                   title: {
                     enable: true,
@@ -24979,7 +25180,7 @@ hookBox() {
           });
         },
 removeBottomAd() {
-          utils.waitNode("#index_tashuo_list").then(($tashuoList) => {
+          domUtils.waitNode("#index_tashuo_list").then(($tashuoList) => {
             log.info("去除底部广告");
             utils.mutationObserver($tashuoList, {
               callback() {
@@ -25066,7 +25267,7 @@ shieldBottom() {
           return CommonUtil.addBlockCSS(".trans-other-wrap.clearfix");
         },
 autoFocus() {
-          utils.waitNode("textarea#j-textarea").then(($textarea) => {
+          domUtils.waitNode("textarea#j-textarea").then(($textarea) => {
             log.info("自动聚焦输入框");
             setTimeout(() => {
               $textarea.focus();
@@ -25091,7 +25292,7 @@ autoFocus() {
           });
         },
 repairContentHeight() {
-          utils.waitNode("#page-content").then(($pageContent) => {
+          domUtils.waitNode("#page-content").then(($pageContent) => {
             log.info("修复内容高度");
             $pageContent.setAttribute("style", "max-height:unset !important");
           });
@@ -25329,11 +25530,11 @@ setPlayEvent() {
             playBtn,
             "click",
             function(event) {
-              utils.preventEvent(event);
+              domUtils.preventEvent(event);
               domUtils.hide(playerShade);
               let currentPageSee = $(".video-player .video-player-pause-btns .continue");
               setTimeout(() => {
-                utils.getReactObj(currentPageSee)["reactEventHandlers"]?.["onClick"]();
+                utils.getReactInstance(currentPageSee)["reactEventHandlers"]?.["onClick"]();
                 Panel.execMenu("baidu_haokan_play_video_and_automatically_enter_full_screen", () => {
                   if (utils.isFullscreenEnabled()) {
                     let videoElement = $("#video video.hplayer-video");
@@ -25388,7 +25589,7 @@ async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
             return __target__;
           }
           if (typeof $el === "string") {
-            let $ele = await utils.waitNode($el, 1e4);
+            let $ele = await domUtils.waitNode($el, 1e4);
             if (!$ele) {
               return;
             }
@@ -25407,7 +25608,7 @@ async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
                   $el: $targetEl
                 };
               }
-              let reactInst = utils.getReactObj($targetEl);
+              let reactInst = utils.getReactInstance($targetEl);
               if (reactInst == null) {
                 return {
                   status: false,
@@ -25613,7 +25814,7 @@ injectIframe(iframeSelector = "iframe.swan-web-iframe", readyCallback) {
             return;
           }
           domUtils.ready(() => {
-            utils.waitNode(iframeSelector, 1e4).then(($iframe) => {
+            domUtils.waitNode(iframeSelector, 1e4).then(($iframe) => {
               if (!$iframe) {
                 return;
               }
@@ -25654,7 +25855,7 @@ shieldBottomPullDownMenu() {
           this.injectIframe(void 0, (iframeGlobal) => {
             iframeGlobal.DOMUtils.ready(() => {
               log.info("【屏蔽】底部下拉菜单");
-              iframeGlobal.utils.addStyle(hideCSS);
+              iframeGlobal.DOMUtils.addStyle(hideCSS);
             });
           });
         },
@@ -25668,7 +25869,7 @@ blockEveryOneSearch() {
           this.injectIframe(void 0, (iframeGlobal) => {
             iframeGlobal.DOMUtils.ready(() => {
               log.info("【屏蔽】大家还在搜");
-              iframeGlobal.utils.addStyle(hideCSS);
+              iframeGlobal.DOMUtils.addStyle(hideCSS);
             });
           });
         }
@@ -25742,7 +25943,7 @@ shieldBottomToolbar() {
           return CommonUtil.addBlockCSS(".question-bottom-bar", "#app .bgk-question-detail .float-btm");
         },
 showAnswerContent() {
-          utils.waitNode("div.question-swiper").then(async ($questionSwiper) => {
+          domUtils.waitNode("div.question-swiper").then(async ($questionSwiper) => {
             log.info("显示答案内容");
             await utils.waitVueByInterval(
               $questionSwiper,
@@ -25808,7 +26009,7 @@ hijackUserSearchQuestCount() {
           _unsafeWindow.localStorage.removeItem("user_search_quest_count");
         },
 allowUserSearchInput() {
-          utils.waitNode(".search-input .search-box-wrap.search-box", 1e4).then(async ($searchBox) => {
+          domUtils.waitNode(".search-input .search-box-wrap.search-box", 1e4).then(async ($searchBox) => {
             if (!$searchBox) {
               log.error("元素.search-input .search-box-wrap.search-box未出现");
               return;
@@ -26725,7 +26926,7 @@ async getUserAllLinkForum() {
             if (!getResponse.status) {
               break;
             }
-            let doc = domUtils.parseHTML(getResponse.data.responseText, true, true);
+            let doc = domUtils.toElement(getResponse.data.responseText, true, true);
             let linkForumInfoList = Array.from(doc.querySelectorAll(".forum_table span[balvname]")).map((item) => {
               let forumName = item.getAttribute("balvname");
               let forumId = item.getAttribute("balvid");

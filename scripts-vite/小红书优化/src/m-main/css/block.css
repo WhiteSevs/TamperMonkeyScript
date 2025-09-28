@@ -14,5 +14,5 @@
 .not-found-container .nav-bar-box-expand:has(.share-info-box):has(.launch-btn),
 /* 404页面 底部的-App内打开 */
 .not-found-container #fmp {
-	display: none !important;
+  display: none !important;
 }

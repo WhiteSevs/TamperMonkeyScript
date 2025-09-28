@@ -1167,7 +1167,7 @@ export const NetDiskUserRule = {
     };
     // 仅导出规则
     DOMUtils.on($onlyExportRuleList, "click", (event) => {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       try {
         let allRule = this.getAllRule();
         if (allRule.length === 0) {
@@ -1182,7 +1182,7 @@ export const NetDiskUserRule = {
     });
     // 导出为订阅规则
     DOMUtils.on($exportToSubscribe, "click", (event) => {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       const that = this;
       $alert.close();
       try {
@@ -1433,7 +1433,7 @@ export const NetDiskUserRule = {
     };
     // 本地导入
     DOMUtils.on($local, "click", (event) => {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       $alert.close();
       let $input = DOMUtils.createElement("input", {
         type: "file",
@@ -1454,7 +1454,7 @@ export const NetDiskUserRule = {
     });
     // 网络导入
     DOMUtils.on($network, "click", (event) => {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       $alert.close();
       let $prompt = NetDiskPops.prompt({
         title: {
@@ -1521,15 +1521,15 @@ export const NetDiskUserRule = {
         if (keyName === "Enter" && otherCodeList.length === 0) {
           let value = DOMUtils.val($promptInput);
           if (value !== "") {
-            utils.dispatchEvent($promptOk, "click");
+            DOMUtils.trigger($promptOk, "click");
           }
         }
       });
-      utils.dispatchEvent($promptInput, "input");
+      DOMUtils.trigger($promptInput, "input");
     });
     // 剪贴板导入
     DOMUtils.on($clipboard, "click", async (event) => {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       $alert.close();
       let clipboardInfo = await utils.getClipboardInfo();
       if (clipboardInfo.error != null) {

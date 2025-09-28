@@ -21,7 +21,7 @@
    * 复制id的点击事件
    */
   const copyIdEvent = () => {
-    utils.setClip(props.UserData.id).then((result) => {
+    utils.copy(props.UserData.id).then((result) => {
       if (result) {
         Qmsg.success("复制成功");
       } else {
@@ -81,7 +81,7 @@
       Qmsg.error("未找到页面原始的取消关注按钮");
       return;
     }
-    utils.waitNode<HTMLDivElement>(".dia_wrapper", 10000).then(($ele) => {
+    DOMUtils.waitNode<HTMLDivElement>(".dia_wrapper", 10000).then(($ele) => {
       if (!$ele) {
         return;
       }
@@ -97,7 +97,7 @@
         }
       );
     });
-    utils.waitNode<HTMLDivElement>(".userinfo_relation .btn-attention", 10000).then(($ele) => {
+    DOMUtils.waitNode<HTMLDivElement>(".userinfo_relation .btn-attention", 10000).then(($ele) => {
       if (!$ele) {
         return;
       }

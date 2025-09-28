@@ -58,7 +58,7 @@ export const SearchHandleResultEveryOneSearch = {
       DOMUtils.on($recommend, "click", ".rw-list-new", (event, selectorTarget) => {
         let searchText = DOMUtils.text(selectorTarget.querySelector("span")!).trim();
         log.success("中间 点击大家还在搜 ==> " + searchText);
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         window.location.href = `https://m.baidu.com/s?word=${searchText}`;
       });
     });
@@ -94,7 +94,7 @@ export const SearchHandleResultEveryOneSearch = {
       DOMUtils.on($everyOne, "click", ".rw-list-new", (event, selectorTarget) => {
         let searchText = selectorTarget.querySelector("span")?.textContent?.trim();
         log.success("底部 点击大家还在搜 ==> " + searchText);
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         window.location.href = `https://m.baidu.com/s?word=${selectorTarget?.textContent?.trim()}`;
       });
     });

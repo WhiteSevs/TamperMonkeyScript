@@ -10,21 +10,21 @@ import { Component_Guide } from "./setting/view/guide";
 import { ElementUtils } from "./utils/ElementUtils";
 
 PanelContent.addContentConfig([
-	Component_Common,
-	Component_ForumPost,
-	Component_Search,
-	Component_Sign,
-	Component_Space,
-	Component_Guide,
+  Component_Common,
+  Component_ForumPost,
+  Component_Search,
+  Component_Sign,
+  Component_Space,
+  Component_Guide,
 ]);
 Panel.init();
 ElementUtils.registerLeftMenu({
-	name: "MT论坛脚本设置",
-	icon: "",
-	iconColor: "#ff0505",
-	iconSize: "23px",
-	callback: () => {
-		Panel.showPanel(PanelContent.getConfig(0));
-	},
+  name: "MT论坛脚本设置",
+  icon: "",
+  iconColor: "#ff0505",
+  iconSize: "23px",
+  callback: () => {
+    Panel.showPanel(PanelContent.getConfig(0));
+  },
 });
 MT.init();

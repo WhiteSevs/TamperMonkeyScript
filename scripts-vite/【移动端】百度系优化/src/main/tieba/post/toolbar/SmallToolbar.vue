@@ -45,7 +45,7 @@
 <script setup lang="ts">
   import { Toolbar } from "../Toolbar";
   import { TiebaComment } from "../TiebaComment";
-  import { utils } from "@/env";
+  import { DOMUtils, utils } from "@/env";
   import { TiebaReply } from "../TiebaReply";
   import useToolbarStore from "../stores/ToolbarStore";
   import useToolbarStateStore from "../stores/ToolbarStateStore";
@@ -65,7 +65,7 @@
      */
     handleShowFullToolbar(event: MouseEvent) {
       // 阻止事件冒泡/默认行为
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       if (!accountStore.isLogin) {
         TiebaReply.checkLogin();
         return;

@@ -1,3 +1,3 @@
 export const PanelKeyConfig = {
-	asideLastVisit: "aside-last-visit",
+  asideLastVisit: "aside-last-visit",
 };

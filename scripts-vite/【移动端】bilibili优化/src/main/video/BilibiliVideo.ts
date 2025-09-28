@@ -199,9 +199,8 @@ export const BilibiliVideo = {
 			`);
     }
 
-    utils
-      .waitNode<HTMLDivElement>(BilibiliData.className.video + " .bottom-tab .list-view .card-box", 10000)
-      .then(($cardBox) => {
+    DOMUtils.waitNode<HTMLDivElement>(BilibiliData.className.video + " .bottom-tab .list-view .card-box", 10000).then(
+      ($cardBox) => {
         if (!$cardBox) {
           log.error("$cardBox is null");
           return;
@@ -351,7 +350,8 @@ export const BilibiliVideo = {
         } else {
           log.error("未找到视频根节点");
         }
-      });
+      }
+    );
   },
   /**
    * 修复视频底部区域高度
@@ -450,7 +450,7 @@ export const BilibiliVideo = {
         }
         log.info("相关视频的bvid: " + bvid);
         BilibiliUtils.goToUrl(BilibiliUrl.getVideoUrl(bvid));
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
       },
       {
         capture: true,
@@ -476,7 +476,7 @@ export const BilibiliVideo = {
       }
       log.info("相关视频的bvid: " + bvid);
       BilibiliUtils.goToUrl(BilibiliUrl.getVideoUrl(bvid));
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
     }
     DOMUtils.on<MouseEvent | PointerEvent>(
       document,
@@ -531,7 +531,7 @@ export const BilibiliVideo = {
    */
   gestureReturnToCloseCommentArea() {
     log.info("手势返回关闭评论区，全局监听document点击.sub-reply-preview");
-    utils.waitNode<HTMLDivElement>("#app").then(($app) => {
+    DOMUtils.waitNode<HTMLDivElement>("#app").then(($app) => {
       utils
         .waitVueByInterval(
           $app,
@@ -596,7 +596,7 @@ export const BilibiliVideo = {
           return true;
         },
       });
-      utils.waitNode<HTMLDivElement>(".dialog-close-icon").then(($dialogCloseIcon) => {
+      DOMUtils.waitNode<HTMLDivElement>(".dialog-close-icon").then(($dialogCloseIcon) => {
         DOMUtils.on(
           $dialogCloseIcon,
           "click",
@@ -615,7 +615,7 @@ export const BilibiliVideo = {
    * 进入全屏
    */
   enterVideoFullScreen() {
-    utils.waitNode<HTMLElement>(".mplayer-btn-widescreen", 5000).then(($btnWideScreen) => {
+    DOMUtils.waitNode<HTMLElement>(".mplayer-btn-widescreen", 5000).then(($btnWideScreen) => {
       if (!$btnWideScreen) {
         log.error("获取全屏按钮失败");
         Qmsg.error("获取全屏按钮失败");
@@ -830,7 +830,7 @@ export const BilibiliVideo = {
 				}
 			`);
     }
-    utils.waitNode<HTMLElement>(".m-video-info", 10000).then(($videoInfo) => {
+    DOMUtils.waitNode<HTMLElement>(".m-video-info", 10000).then(($videoInfo) => {
       if (!$videoInfo) {
         log.error(`获取视频信息元素失败`);
         return;
@@ -866,14 +866,14 @@ export const BilibiliVideo = {
       });
       // 显示评论模块
       DOMUtils.on($commentModuleShowBtn, "click", (event) => {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         DOMUtils.css($commentModuleWrapper, { display: "block" });
         DOMUtils.css($closeCommentModuleBtn, { display: "flex" });
         gestureBack.enterGestureBackMode();
       });
       // 隐藏评论模块
       DOMUtils.on($closeCommentModuleBtn, "click", (event) => {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         DOMUtils.css($commentModuleWrapper, { display: "" });
         DOMUtils.css($closeCommentModuleBtn, { display: "" });
         gestureBack.quitGestureBackMode(false);

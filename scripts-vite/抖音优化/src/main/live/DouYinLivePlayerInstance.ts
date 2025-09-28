@@ -78,7 +78,7 @@ export const DouYinLivePlayerInstance = {
    * 解析元素上的播放器实例
    */
   parseElementPlayerIns($ele: HTMLElement) {
-    let react = utils.getReactObj($ele);
+    let react = utils.getReactInstance($ele);
     return react?.reactFiber?.child?.child?.memoizedProps?.playerInstance as null | DouYinLivePlayerInstance;
   },
   /**

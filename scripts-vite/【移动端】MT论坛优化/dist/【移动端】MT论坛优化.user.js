@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.14
+// @version      2025.9.28
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -11,10 +11,10 @@
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@79fb4d854f1e2cdf606339b0dac18d50104e2ebe/lib/js-watermark/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.8.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.4.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js
 // @resource     HljsCSS    https://fastly.jsdelivr.net/npm/highlight.js@11.11.1/styles/github-dark.min.css
@@ -57,7 +57,7 @@ waitRemove(...args) {
         if (typeof selector !== "string") {
           return;
         }
-        utils.waitNodeList(selector).then((nodeList) => {
+        DOMUtils.waitNodeList(selector).then((nodeList) => {
           nodeList.forEach(($el) => $el.remove());
         });
       });
@@ -128,6 +128,9 @@ async loadScript(url) {
     },
 fixUrl(url) {
       url = url.trim();
+      if (url.startsWith("data:")) {
+        return url;
+      }
       if (url.match(/^http(s|):\/\//i)) {
         return url;
       } else if (url.startsWith("//")) {
@@ -151,9 +154,13 @@ fixHttps(url) {
       if (!url.startsWith("http://")) {
         return url;
       }
-      let urlInstance = new URL(url);
-      urlInstance.protocol = "https:";
-      return urlInstance.toString();
+      try {
+        let urlInstance = new URL(url);
+        urlInstance.protocol = "https:";
+        return urlInstance.toString();
+      } catch {
+        return url;
+      }
     },
 lockScroll(...args) {
       let $hidden = document.createElement("style");
@@ -300,16 +307,13 @@ httpx_cookie_manager_use_document_cookie: {
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
   const __pops = pops;
-  const log = new utils.Log(
-    _GM_info,
-    _unsafeWindow.console || _monkeyWindow.console
-  );
+  const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
   let SCRIPT_NAME = _GM_info?.script?.name || void 0;
   pops.config.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
-    debug: DEBUG,
-    logMaxCount: 1e3,
+    debug: false,
+    logMaxCount: 250,
     autoClearConsole: true,
     tag: true
   });
@@ -417,7 +421,7 @@ clickEvent: {
     },
     setTimeout: _unsafeWindow.setTimeout
   });
-  const addStyle = utils.addStyle.bind(utils);
+  const addStyle = domUtils.addStyle.bind(domUtils);
   const $ = DOMUtils.selector.bind(DOMUtils);
   const $$ = DOMUtils.selectorAll.bind(DOMUtils);
   new utils.GM_Cookie();
@@ -520,9 +524,7 @@ keys() {
     }
 values() {
       let localValue = this.getLocalValue();
-      return Reflect.ownKeys(localValue).map(
-        (key) => Reflect.get(localValue, key)
-      );
+      return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
     }
 clear() {
       _GM_deleteValue(this.storageKey);
@@ -799,6 +801,9 @@ setDefaultValue(key, defaultValue) {
         log.warn("请检查该key(已存在): " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
+    },
+getDefaultValue(key) {
+      return this.$data.contentConfigInitDefaultValue.get(key);
     },
 setValue(key, value) {
       PopsPanelStorageApi.set(key, value);
@@ -1120,7 +1125,7 @@ threshold: 1
         $el.classList.add(flashingClassName);
       };
       let dbclick_event = (evt, selectorTarget) => {
-        utils.preventEvent(evt);
+        domUtils.preventEvent(evt);
         let $alert = __pops.alert({
           title: {
             text: "搜索配置",
@@ -1236,7 +1241,7 @@ threshold: 1
             $targetAsideItem.click();
             asyncQueryProperty(pathInfo.next, async (target) => {
               if (target?.next) {
-                let $findDeepMenu = await utils.waitNode(() => {
+                let $findDeepMenu = await domUtils.waitNode(() => {
                   return Array.from(
                     $panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")
                   ).find(($deepMenu) => {
@@ -1258,7 +1263,7 @@ threshold: 1
                   data: target.next
                 };
               } else {
-                let $findTargetMenu = await utils.waitNode(() => {
+                let $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from(
                     $panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)
                   ).find(($menuItem) => {
@@ -1408,7 +1413,7 @@ threshold: 1
           $searchInput,
           "input",
           utils.debounce((evt2) => {
-            utils.preventEvent(evt2);
+            domUtils.preventEvent(evt2);
             let searchText = domUtils.val($searchInput).trim();
             if (searchText === "") {
               clearSearchResult();
@@ -1541,9 +1546,7 @@ handle(details) {
         url = window.location.protocol + url;
       }
       let urlObj = new URL(url);
-      if (this.$data.useDocumentCookie && urlObj.hostname.endsWith(
-        window.location.hostname.split(".").slice(-2).join(".")
-      )) {
+      if (this.$data.useDocumentCookie && urlObj.hostname.endsWith(window.location.hostname.split(".").slice(-2).join("."))) {
         ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
       }
       for (let index = 0; index < this.$data.cookieRule.length; index++) {
@@ -1558,10 +1561,7 @@ handle(details) {
       }
       if (utils.isNotNull(ownCookie)) {
         if (details.headers && details.headers["Cookie"]) {
-          details.headers.Cookie = this.concatCookie(
-            details.headers.Cookie,
-            ownCookie
-          );
+          details.headers.Cookie = this.concatCookie(details.headers.Cookie, ownCookie);
         } else {
           details.headers["Cookie"] = ownCookie;
         }
@@ -1596,10 +1596,7 @@ handle(details) {
   });
   const ElementUtils = {
 registerLeftMenu(config) {
-      utils.waitNode(
-        ".comiis_sidenv_box .sidenv_li .comiis_left_Touch",
-        1e4
-      ).then(($leftTouch) => {
+      domUtils.waitNode(".comiis_sidenv_box .sidenv_li .comiis_left_Touch", 1e4).then(($leftTouch) => {
         if (!$leftTouch) {
           log.error("注册左侧面板菜单失败，原因：该元素不存在");
           return;
@@ -1629,7 +1626,7 @@ registerLeftMenu(config) {
           $icon.style.fontSize = config.iconSize;
         }
         domUtils.on($setting, "click", (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           if (typeof config.callback === "function") {
             config.callback();
           }
@@ -1641,15 +1638,13 @@ comiisForumList: () => {
       return document.querySelectorAll("li.forumlist_li");
     },
 comiisPostli: () => {
-      return document.querySelectorAll(
-        "div.comiis_postli.comiis_list_readimgs.nfqsqi"
-      );
+      return document.querySelectorAll("div.comiis_postli.comiis_list_readimgs.nfqsqi");
     },
 comiisMmlist: () => {
       return document.querySelectorAll(".comiis_mmlist");
     }
   };
-  const blackHomeCSS = ".pops-confirm-content {\r\n	display: flex;\r\n	flex-direction: column;\r\n}\r\n.blackhome-user-filter input {\r\n	width: -moz-available;\r\n	width: -webkit-fill-available;\r\n	height: 30px;\r\n	margin: 8px 20px;\r\n	border: 0;\r\n	border-bottom: 1px solid;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n	white-space: nowrap;\r\n}\r\n.blackhome-user-filter input:focus-within {\r\n	outline: none;\r\n}\r\n.blackhome-user-list {\r\n	flex: 1;\r\n	overflow-y: auto;\r\n}\r\n.blackhome-user-list .blackhome-user-item {\r\n	margin: 15px 10px;\r\n	padding: 10px;\r\n	border-radius: 8px;\r\n	box-shadow: 0 0 0.6rem #c8d0e7, -0.2rem -0.2rem 0.5rem #fff;\r\n}\r\n.blackhome-user {\r\n	display: flex;\r\n}\r\n.blackhome-user img {\r\n	width: 45px;\r\n	height: 45px;\r\n	border-radius: 45px;\r\n}\r\n.blackhome-user-info {\r\n	margin-left: 10px;\r\n}\r\n.blackhome-user-info p:nth-child(1) {\r\n	margin-bottom: 5px;\r\n}\r\n.blackhome-user-info p:nth-child(2) {\r\n	font-size: 14px;\r\n}\r\n.blackhome-user-action {\r\n	display: flex;\r\n	margin: 10px 0;\r\n}\r\n.blackhome-user-action p:nth-child(1),\r\n.blackhome-user-action p:nth-child(2) {\r\n	border: 1px solid red;\r\n	color: red;\r\n	border-radius: 4px;\r\n	padding: 2px 4px;\r\n	font-weight: 500;\r\n	font-size: 14px;\r\n	place-self: center;\r\n}\r\n.blackhome-user-action p:nth-child(2) {\r\n	border: 1px solid #ff4b4b;\r\n	color: #ff4b4b;\r\n	margin-left: 8px;\r\n}\r\n.blackhome-user-uuid {\r\n	border: 1px solid #ff7600;\r\n	color: #ff7600;\r\n	border-radius: 4px;\r\n	padding: 2px 4px;\r\n	font-weight: 500;\r\n	font-size: 14px;\r\n	width: fit-content;\r\n	width: -moz-fit-content;\r\n	margin: 10px 0;\r\n}\r\n.blackhome-operator {\r\n	padding: 10px;\r\n	background-color: #efefef;\r\n	border-radius: 6px;\r\n}\r\n.blackhome-operator-user {\r\n	display: flex;\r\n}\r\n.blackhome-operator-user img {\r\n	width: 35px;\r\n	height: 35px;\r\n	border-radius: 35px;\r\n}\r\n.blackhome-operator-user p {\r\n	align-self: center;\r\n	margin-left: 10px;\r\n}\r\n.blackhome-operator-user-info {\r\n	margin: 10px 0;\r\n	font-weight: 500;\r\n}\r\n";
+  const blackHomeCSS = ".pops-confirm-content {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n.blackhome-user-filter input {\r\n  width: -moz-available;\r\n  width: -webkit-fill-available;\r\n  height: 30px;\r\n  margin: 8px 20px;\r\n  border: 0;\r\n  border-bottom: 1px solid;\r\n  text-overflow: ellipsis;\r\n  overflow: hidden;\r\n  white-space: nowrap;\r\n}\r\n.blackhome-user-filter input:focus-within {\r\n  outline: none;\r\n}\r\n.blackhome-user-list {\r\n  flex: 1;\r\n  overflow-y: auto;\r\n}\r\n.blackhome-user-list .blackhome-user-item {\r\n  margin: 15px 10px;\r\n  padding: 10px;\r\n  border-radius: 8px;\r\n  box-shadow:\r\n    0 0 0.6rem #c8d0e7,\r\n    -0.2rem -0.2rem 0.5rem #fff;\r\n}\r\n.blackhome-user {\r\n  display: flex;\r\n}\r\n.blackhome-user img {\r\n  width: 45px;\r\n  height: 45px;\r\n  border-radius: 45px;\r\n}\r\n.blackhome-user-info {\r\n  margin-left: 10px;\r\n}\r\n.blackhome-user-info p:nth-child(1) {\r\n  margin-bottom: 5px;\r\n}\r\n.blackhome-user-info p:nth-child(2) {\r\n  font-size: 14px;\r\n}\r\n.blackhome-user-action {\r\n  display: flex;\r\n  margin: 10px 0;\r\n}\r\n.blackhome-user-action p:nth-child(1),\r\n.blackhome-user-action p:nth-child(2) {\r\n  border: 1px solid red;\r\n  color: red;\r\n  border-radius: 4px;\r\n  padding: 2px 4px;\r\n  font-weight: 500;\r\n  font-size: 14px;\r\n  place-self: center;\r\n}\r\n.blackhome-user-action p:nth-child(2) {\r\n  border: 1px solid #ff4b4b;\r\n  color: #ff4b4b;\r\n  margin-left: 8px;\r\n}\r\n.blackhome-user-uuid {\r\n  border: 1px solid #ff7600;\r\n  color: #ff7600;\r\n  border-radius: 4px;\r\n  padding: 2px 4px;\r\n  font-weight: 500;\r\n  font-size: 14px;\r\n  width: fit-content;\r\n  width: -moz-fit-content;\r\n  margin: 10px 0;\r\n}\r\n.blackhome-operator {\r\n  padding: 10px;\r\n  background-color: #efefef;\r\n  border-radius: 6px;\r\n}\r\n.blackhome-operator-user {\r\n  display: flex;\r\n}\r\n.blackhome-operator-user img {\r\n  width: 35px;\r\n  height: 35px;\r\n  border-radius: 35px;\r\n}\r\n.blackhome-operator-user p {\r\n  align-self: center;\r\n  margin-left: 10px;\r\n}\r\n.blackhome-operator-user-info {\r\n  margin: 10px 0;\r\n  font-weight: 500;\r\n}\r\n";
   const MTRegExp = {
 formhash: /formhash=([0-9a-zA-Z]+)/,
 uid: /uid(=|-)(\d+)/,
@@ -1667,9 +1662,7 @@ getCurrentUID() {
       if (typeof discuz_uid === "string") {
         return discuz_uid;
       }
-      let $exit = document.querySelector(
-        '.sidenv_exit a[href*="uid="]'
-      );
+      let $exit = document.querySelector('.sidenv_exit a[href*="uid="]');
       if ($exit) {
         let uidMatch = $exit.href.match(/uid=([0-9]+)/);
         if (uidMatch) {
@@ -1679,9 +1672,7 @@ getCurrentUID() {
     },
 async getFormHash() {
       let $inputFormHashList = Array.from(
-        (top || globalThis).document.querySelectorAll(
-          "input[name=formhash]"
-        )
+        (top || globalThis).document.querySelectorAll("input[name=formhash]")
       );
       for (let index = 0; index < $inputFormHashList.length; index++) {
         const $input = $inputFormHashList[index];
@@ -1691,9 +1682,7 @@ async getFormHash() {
         }
       }
       let $anchorFormHashList = Array.from(
-        (top || globalThis).document.querySelectorAll(
-          'a[href*="formhash="]'
-        )
+        (top || globalThis).document.querySelectorAll('a[href*="formhash="]')
       );
       for (let index = 0; index < $anchorFormHashList.length; index++) {
         const $anchorFormHash = $anchorFormHashList[index];
@@ -1711,10 +1700,8 @@ async getFormHash() {
       });
       if (homeResponse.status) {
         let homeText = homeResponse.data.responseText;
-        let homeDoc = domUtils.parseHTML(homeText, true, true);
-        let $formhash = homeDoc.querySelector(
-          "input[name=formhash]"
-        );
+        let homeDoc = domUtils.toElement(homeText, true, true);
+        let $formhash = homeDoc.querySelector("input[name=formhash]");
         if ($formhash) {
           let formHash = $formhash.value;
           if (utils.isNotNull(formHash)) {
@@ -1825,7 +1812,7 @@ async showBlackHome() {
               } else {
                 Qmsg.success(`成功获取 ${nextBlackListInfo2.data.length}条数据`);
               }
-              utils.dispatchEvent($filterInput, "input");
+              domUtils.trigger($filterInput, "input");
             }
           },
           cancel: {
@@ -1836,12 +1823,8 @@ async showBlackHome() {
         height: "82vh",
         style: blackHomeCSS
       });
-      let $list = $confirm.$shadowRoot.querySelector(
-        ".blackhome-user-list"
-      );
-      let $filterInput = $confirm.$shadowRoot.querySelector(
-        ".blackhome-user-filter input"
-      );
+      let $list = $confirm.$shadowRoot.querySelector(".blackhome-user-list");
+      let $filterInput = $confirm.$shadowRoot.querySelector(".blackhome-user-filter input");
       blackListInfo.data.forEach((item) => {
         let $item = this.createListViewItem(item);
         $list.appendChild($item);
@@ -1887,15 +1870,12 @@ async getBlackListInfo(cid = "") {
         cid,
         ajaxdata: "json"
       };
-      let response = await httpx.get(
-        `/forum.php?${utils.toSearchParamsStr(searchParamsData)}`,
-        {
-          headers: {
-            "User-Agent": utils.getRandomPCUA()
-          },
-          responseType: "json"
-        }
-      );
+      let response = await httpx.get(`/forum.php?${utils.toSearchParamsStr(searchParamsData)}`, {
+        headers: {
+          "User-Agent": utils.getRandomPCUA()
+        },
+        responseType: "json"
+      });
       if (!response.status) {
         return;
       }
@@ -1906,21 +1886,15 @@ async getBlackListInfo(cid = "") {
       let new_blackListData = [];
       let new_blackListData_noTime = [];
       blackListData.forEach((item) => {
-        let date = item["dateline"].match(
-          /([0-9]{4}-[0-9]{1,2}-[0-9]{1,2}[\s]*[0-9]{1,2}:[0-9]{1,2})/g
-        );
+        let date = item["dateline"].match(/([0-9]{4}-[0-9]{1,2}-[0-9]{1,2}[\s]*[0-9]{1,2}:[0-9]{1,2})/g);
         if (date == null) {
           let _time_ = parseInt((Date.now() / 1e3).toString());
           let _time_after_count_ = 0;
           let sec_data = item["dateline"].match(/([0-9]+|半)[\s\S]*秒前/);
           let min_data = item["dateline"].match(/([0-9]+|半)[\s\S]*分钟前/);
           let hour_data = item["dateline"].match(/([0-9]+|半)[\s\S]*小时前/);
-          let yesterday_time_data = item["dateline"].match(
-            /昨天[\s\S]*(\d{2}):(\d{2})/
-          );
-          let before_yesterday_time_data = item["dateline"].match(
-            /前天[\s\S]*(\d{2}):(\d{2})/
-          );
+          let yesterday_time_data = item["dateline"].match(/昨天[\s\S]*(\d{2}):(\d{2})/);
+          let before_yesterday_time_data = item["dateline"].match(/前天[\s\S]*(\d{2}):(\d{2})/);
           let day_data = item["dateline"].match(/([0-9]+|半)[\s\S]*天前/);
           if (sec_data) {
             sec_data = sec_data[sec_data.length - 1];
@@ -1977,10 +1951,7 @@ createListViewItem(userInfo) {
 `
                 <div class="blackhome-user-avatar">
                     <div class="blackhome-user">
-                    <img src="${MTUtils.getAvatar(
-            userInfo["uid"],
-            "big"
-          )}" loading="lazy">
+                    <img src="${MTUtils.getAvatar(userInfo["uid"], "big")}" loading="lazy">
                     <div class="blackhome-user-info">
                         <p>${userInfo["username"]}</p>
                         <p>${userInfo["dateline"]}</p>
@@ -1993,10 +1964,7 @@ createListViewItem(userInfo) {
                     <div class="blackhome-user-uuid">UID: ${userInfo["uid"]}</div>
                     <div class="blackhome-operator">
                     <div class="blackhome-operator-user">
-                        <img loading="lazy" src="${MTUtils.getAvatar(
-            userInfo["operatorid"],
-            "big"
-          )}">
+                        <img loading="lazy" src="${MTUtils.getAvatar(userInfo["operatorid"], "big")}">
                         <p>${userInfo["operator"]}</p>
                     </div>
                     <div class="blackhome-operator-user-info">
@@ -2015,21 +1983,15 @@ createListViewItem(userInfo) {
         }
       );
       domUtils.on($item, "click", ".blackhome-user img", function() {
-        window.open(
-          `home.php?mod=space&uid=${userInfo.uid}&do=profile`,
-          "_blank"
-        );
+        window.open(`home.php?mod=space&uid=${userInfo.uid}&do=profile`, "_blank");
       });
       domUtils.on($item, "click", ".blackhome-operator-user img", function() {
-        window.open(
-          `home.php?mod=space&uid=${userInfo.operatorid}&do=profile`,
-          "_blank"
-        );
+        window.open(`home.php?mod=space&uid=${userInfo.operatorid}&do=profile`, "_blank");
       });
       return $item;
     }
   };
-  const onlineUserCSS = '.pops-alert-content{\r\n	display: flex;\r\n	flex-direction: column;\r\n}\r\n.pops-alert-content > .online-user-info{\r\n	text-align: center;\r\n	padding: 0px 6px;\r\n}\r\n.online-user-filter input {\r\n	width: -webkit-fill-available;\r\n	width: -moz-available;\r\n	height: 30px;\r\n	margin: 8px 20px;\r\n	border: 0;\r\n	border-bottom: 1px solid;\r\n}\r\n.online-user-filter input:focus-within {\r\n	outline: none;\r\n}\r\n.online-user-list {\r\n	flex: 1;\r\n	overflow-y: auto;\r\n}\r\n.online-user-list li {\r\n	margin: 18px 0;\r\n}\r\n.online-user {\r\n	display: flex;\r\n	margin: 2px 20px;\r\n	align-items: center;\r\n}\r\n.online-user img[data-avatar] {\r\n	width: 45px;\r\n	height: 45px;\r\n	border-radius: 45px;\r\n}\r\n.online-user-list .online-user-info {\r\n	margin: 2px 14px;\r\n}\r\n.online-user-list .online-user-info p[data-name] {\r\n	margin-bottom: 4px;\r\n}\r\n.online-user-list .online-user-info span[data-sf] {\r\n	border-radius: 4px;\r\n	padding: 2px 4px;\r\n	font-weight: 500;\r\n	font-size: 14px;\r\n}\r\n.online-user-list .online-user-info span[data-uid] {\r\n	border: 1px solid #ff7600;\r\n	color: #ff7600;\r\n	border-radius: 4px;\r\n	padding: 2px 4px;\r\n	font-weight: 500;\r\n	font-size: 14px;\r\n	width: fit-content;\r\n	width: -moz-fit-content;\r\n	margin: 10px 0;\r\n}\r\n.online-user-list .online-user-info span[data-sf="会员"] {\r\n	color: #88b500;\r\n	border: 1px solid #88b500;\r\n}\r\n.online-user-list .online-user-info span[data-sf="版主"] {\r\n	color: #2db5e3;\r\n	border: 1px solid #2db5e3;\r\n}\r\n.online-user-list .online-user-info span[data-sf="超级版主"] {\r\n	color: #e89e38;\r\n	border: 1px solid #e89e38;\r\n}\r\n.online-user-list .online-user-info span[data-sf="管理员"] {\r\n	color: #ff5416;\r\n	border: 1px solid #ff5416;\r\n}\r\n';
+  const onlineUserCSS = '.pops-alert-content {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n.pops-alert-content > .online-user-info {\r\n  text-align: center;\r\n  padding: 0px 6px;\r\n}\r\n.online-user-filter input {\r\n  width: -webkit-fill-available;\r\n  width: -moz-available;\r\n  height: 30px;\r\n  margin: 8px 20px;\r\n  border: 0;\r\n  border-bottom: 1px solid;\r\n}\r\n.online-user-filter input:focus-within {\r\n  outline: none;\r\n}\r\n.online-user-list {\r\n  flex: 1;\r\n  overflow-y: auto;\r\n}\r\n.online-user-list li {\r\n  margin: 18px 0;\r\n}\r\n.online-user {\r\n  display: flex;\r\n  margin: 2px 20px;\r\n  align-items: center;\r\n}\r\n.online-user img[data-avatar] {\r\n  width: 45px;\r\n  height: 45px;\r\n  border-radius: 45px;\r\n}\r\n.online-user-list .online-user-info {\r\n  margin: 2px 14px;\r\n}\r\n.online-user-list .online-user-info p[data-name] {\r\n  margin-bottom: 4px;\r\n}\r\n.online-user-list .online-user-info span[data-sf] {\r\n  border-radius: 4px;\r\n  padding: 2px 4px;\r\n  font-weight: 500;\r\n  font-size: 14px;\r\n}\r\n.online-user-list .online-user-info span[data-uid] {\r\n  border: 1px solid #ff7600;\r\n  color: #ff7600;\r\n  border-radius: 4px;\r\n  padding: 2px 4px;\r\n  font-weight: 500;\r\n  font-size: 14px;\r\n  width: fit-content;\r\n  width: -moz-fit-content;\r\n  margin: 10px 0;\r\n}\r\n.online-user-list .online-user-info span[data-sf="会员"] {\r\n  color: #88b500;\r\n  border: 1px solid #88b500;\r\n}\r\n.online-user-list .online-user-info span[data-sf="版主"] {\r\n  color: #2db5e3;\r\n  border: 1px solid #2db5e3;\r\n}\r\n.online-user-list .online-user-info span[data-sf="超级版主"] {\r\n  color: #e89e38;\r\n  border: 1px solid #e89e38;\r\n}\r\n.online-user-list .online-user-info span[data-sf="管理员"] {\r\n  color: #ff5416;\r\n  border: 1px solid #ff5416;\r\n}\r\n';
   const MTOnlineUser = {
     $data: {},
     init() {
@@ -2079,9 +2041,7 @@ async showOnlineUser() {
         style: onlineUserCSS
       });
       let $list = $alert.$shadowRoot.querySelector(".online-user-list");
-      let $filterInput = $alert.$shadowRoot.querySelector(
-        ".online-user-filter input"
-      );
+      let $filterInput = $alert.$shadowRoot.querySelector(".online-user-filter input");
       onlineUserInfo.data.forEach((item) => {
         let $item = this.createListViewItem(item);
         $list.appendChild($item);
@@ -2119,21 +2079,15 @@ async getOnlineUserListInfo() {
       let searchParamsData = {
         showoldetails: "yes"
       };
-      let response = await httpx.get(
-        `/forum.php?${utils.toSearchParamsStr(searchParamsData)}`,
-        {
-          headers: {
-            "User-Agent": utils.getRandomPCUA()
-          }
+      let response = await httpx.get(`/forum.php?${utils.toSearchParamsStr(searchParamsData)}`, {
+        headers: {
+          "User-Agent": utils.getRandomPCUA()
         }
-      );
+      });
       if (!response.status) {
         return;
       }
-      let pageHTML = utils.parseFromString(
-        response.data.responseText,
-        "text/html"
-      );
+      let pageHTML = utils.parseFromString(response.data.responseText, "text/html");
       let result = {
         data: [],
         totalOnline: 0,
@@ -2169,22 +2123,10 @@ async getOnlineUserListInfo() {
         });
       });
       let onlineInfo = pageHTML.querySelector("#online div.bm_h span.xs1").textContent;
-      result.totalOnline = utils.parseInt(
-        onlineInfo.match(/([0-9]*)\s*人在线/i),
-        0
-      );
-      result.onlineUser = utils.parseInt(
-        onlineInfo.match(/([0-9]*)\s*会员/i),
-        0
-      );
-      result.noRegisterUser = utils.parseInt(
-        onlineInfo.match(/([0-9]*)\s*位游客/i),
-        0
-      );
-      result.invisibleUser = utils.parseInt(
-        onlineInfo.match(/([0-9]*)\s*隐身/i),
-        0
-      );
+      result.totalOnline = utils.parseInt(onlineInfo.match(/([0-9]*)\s*人在线/i), 0);
+      result.onlineUser = utils.parseInt(onlineInfo.match(/([0-9]*)\s*会员/i), 0);
+      result.noRegisterUser = utils.parseInt(onlineInfo.match(/([0-9]*)\s*位游客/i), 0);
+      result.invisibleUser = utils.parseInt(onlineInfo.match(/([0-9]*)\s*隐身/i), 0);
       return result;
     },
 createListViewItem(userInfo) {
@@ -2212,11 +2154,8 @@ createListViewItem(userInfo) {
         }
       );
       DOMUtils.on($item, "click", ".online-user-avatar", (event) => {
-        utils.preventEvent(event);
-        window.open(
-          `home.php?mod=space&uid=${userInfo.uid}&do=profile`,
-          "_blank"
-        );
+        DOMUtils.preventEvent(event);
+        window.open(`home.php?mod=space&uid=${userInfo.uid}&do=profile`, "_blank");
       });
       return $item;
     }
@@ -2285,13 +2224,7 @@ createListViewItem(userInfo) {
       }
     };
     const linkifyText = function(element) {
-      const textNodesSnapshot = document.evaluate(
-        xpath,
-        element,
-        null,
-        XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE,
-        null
-      );
+      const textNodesSnapshot = document.evaluate(xpath, element, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
       return processLinksInBatches(textNodesSnapshot, 0);
     };
     const observePageChanges = function(rootElement) {
@@ -2413,9 +2346,7 @@ clearSignInfo(hostName) {
     },
 checkLogin() {
       if (MTUtils.envIsMobile()) {
-        let mobile_login_exitBtn = $(
-          "a[href*='member.php?mod=logging&action=logout']"
-        );
+        let mobile_login_exitBtn = $("a[href*='member.php?mod=logging&action=logout']");
         return Boolean(mobile_login_exitBtn);
       } else {
         let pc_login = $("#comiis_key");
@@ -2460,9 +2391,7 @@ async sign() {
           width: "88vw",
           height: "300px"
         });
-        let $content = $alert.$shadowRoot.querySelector(
-          ".pops-alert-content"
-        );
+        let $content = $alert.$shadowRoot.querySelector(".pops-alert-content");
         $content.innerText = content;
       };
       let sign_plugin = [
@@ -2476,16 +2405,13 @@ async sign() {
               inajax: 1,
               ajaxtarget: "midaben_sign"
             };
-            let response = await httpx.get(
-              `/k_misign-sign.html?${utils.toSearchParamsStr(searchParamsData)}`,
-              {
-                fetch: useFetch,
-                headers: {
-                  "User-Agent": userAgent
-                },
-                allowInterceptConfig: false
-              }
-            );
+            let response = await httpx.get(`/k_misign-sign.html?${utils.toSearchParamsStr(searchParamsData)}`, {
+              fetch: useFetch,
+              headers: {
+                "User-Agent": userAgent
+              },
+              allowInterceptConfig: false
+            });
             if (!response.status) {
               Qmsg.error("签到：网络异常，请求失败", {
                 consoleLogContent: true
@@ -2496,11 +2422,7 @@ async sign() {
             log.info("签到信息：", response);
             let responseText = response.data.responseText;
             let CDATA = utils.parseCDATA(responseText);
-            let CDATAElement = domUtils.parseHTML(
-              `<div>${CDATA}</div>`,
-              true,
-              false
-            );
+            let CDATAElement = domUtils.toElement(`<div>${CDATA}</div>`, true, false);
             let content = domUtils.text(CDATAElement);
             if (content.includes("需要先登录")) {
               Qmsg.error("签到：请先登录账号", {
@@ -2517,15 +2439,10 @@ async sign() {
             } else if (content.includes("今日已签") || content.includes("今日已经签到")) {
               Qmsg.info("签到：" + content);
               return;
-            } else if (responseText.includes(
-              "您当前的访问请求当中含有非法字符，已经被系统拒绝"
-            )) {
-              Qmsg.error(
-                "签到: 您当前的访问请求当中含有非法字符，已经被系统拒绝",
-                {
-                  timeout: 6e3
-                }
-              );
+            } else if (responseText.includes("您当前的访问请求当中含有非法字符，已经被系统拒绝")) {
+              Qmsg.error("签到: 您当前的访问请求当中含有非法字符，已经被系统拒绝", {
+                timeout: 6e3
+              });
               return;
             } else if (useFetch && "location" in utils.toJSON(responseText)) {
               Qmsg.success("签到: 签到成功");
@@ -2564,25 +2481,22 @@ async sign() {
               infloat: 1,
               inajax: 1
             };
-            let response = await httpx.post(
-              `/plugin.php?${utils.toSearchParamsStr(searchParamsData)}`,
-              {
-                data: {
-                  formhash: formHash,
-                  qdxq: "kx",
-                  qdmode: 3,
-                  todaysay: "",
-                  fastreply: 0
-                },
-                processData: true,
-                fetch: useFetch,
-                headers: {
-                  "User-Agent": userAgent,
-                  "Content-Type": "application/x-www-form-urlencoded"
-                },
-                allowInterceptConfig: false
-              }
-            );
+            let response = await httpx.post(`/plugin.php?${utils.toSearchParamsStr(searchParamsData)}`, {
+              data: {
+                formhash: formHash,
+                qdxq: "kx",
+                qdmode: 3,
+                todaysay: "",
+                fastreply: 0
+              },
+              processData: true,
+              fetch: useFetch,
+              headers: {
+                "User-Agent": userAgent,
+                "Content-Type": "application/x-www-form-urlencoded"
+              },
+              allowInterceptConfig: false
+            });
             if (!response.status) {
               Qmsg.error("签到：网络异常，请求失败", {
                 consoleLogContent: true
@@ -2617,15 +2531,9 @@ async sign() {
           log.error("签到：检查签到插件是否启用的请求失败", checkResponse);
           continue;
         }
-        let pluginDoc = domUtils.parseHTML(
-          checkResponse.data.responseText,
-          true,
-          true
-        );
+        let pluginDoc = domUtils.toElement(checkResponse.data.responseText, true, true);
         if (pluginDoc.querySelector("#messagetext") || checkResponse.data.responseText.includes("插件不存在或已关闭")) {
-          log.error(
-            `插件：${signPluginItem.checkPluginEnableUrl} 未启用或不存在`
-          );
+          log.error(`插件：${signPluginItem.checkPluginEnableUrl} 未启用或不存在`);
           continue;
         }
         await signPluginItem.sign();
@@ -2702,7 +2610,7 @@ isPostPublish_reply() {
       return this.isPostPublish() && searchParams.has("action", "reply");
     }
   };
-  const optimizationCSS$1 = '#comiis_foot_menu_beautify {\r\n	position: fixed;\r\n	display: inline-flex;\r\n	z-index: 90;\r\n	left: 0;\r\n	right: 0;\r\n	bottom: 0;\r\n	width: 100%;\r\n	height: 48px;\r\n	overflow: hidden;\r\n	align-content: center;\r\n	justify-content: center;\r\n	align-items: center;\r\n}\r\n#comiis_foot_menu_beautify_big {\r\n	position: fixed;\r\n	display: inline-flex;\r\n	flex-direction: column;\r\n	z-index: 92;\r\n	left: 0;\r\n	right: 0;\r\n	bottom: 0;\r\n	width: 100%;\r\n	min-height: 120px;\r\n	overflow: hidden;\r\n	align-content: center;\r\n	justify-content: center;\r\n	align-items: center;\r\n}\r\n#comiis_foot_menu_beautify input.bg_e.f_c::-webkit-input-placeholder {\r\n	padding-left: 10px;\r\n	color: #999;\r\n}\r\n#comiis_foot_menu_beautify input.bg_e.f_c::-moz-input-placeholder {\r\n	padding-left: 10px;\r\n	color: #999;\r\n}\r\n#comiis_foot_menu_beautify .reply_area ul li a {\r\n	display: block;\r\n	width: 22px;\r\n	height: 22px;\r\n	padding: 4px 8px;\r\n	margin: 8px 0;\r\n	position: relative;\r\n}\r\n#comiis_foot_menu_beautify .reply_area ul {\r\n	display: inline-flex;\r\n	align-content: center;\r\n	align-items: center;\r\n	justify-content: center;\r\n}\r\n#comiis_foot_menu_beautify .reply_area,\r\n#comiis_foot_menu_beautify .reply_area ul {\r\n	width: 100%;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li a i {\r\n	width: 22px;\r\n	height: 22px;\r\n	line-height: 22px;\r\n	font-size: 22px;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li a span {\r\n	position: absolute;\r\n	display: block;\r\n	font-size: 10px;\r\n	height: 14px;\r\n	line-height: 14px;\r\n	padding: 0 6px;\r\n	right: -8px;\r\n	top: 4px;\r\n	overflow: hidden;\r\n	border-radius: 20px;\r\n}\r\n#comiis_foot_menu_beautify li[data-attr="回帖"] input {\r\n	border: transparent;\r\n	border-radius: 15px;\r\n	height: 30px;\r\n	width: 100%;\r\n}\r\n#comiis_foot_menu_beautify_big .comiis_smiley_box {\r\n	padding: 6px 6px 0;\r\n}\r\n#comiis_foot_menu_beautify_big .reply_area {\r\n	margin: 10px 0 5px 0;\r\n}\r\n#comiis_foot_menu_beautify_big .reply_area ul {\r\n	display: inline-flex;\r\n	align-content: center;\r\n	justify-content: center;\r\n	align-items: flex-end;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="回帖"] {\r\n	width: 75vw;\r\n	margin-right: 15px;\r\n}\r\n#comiis_foot_menu_beautify_big .reply_user_content {\r\n	width: 75vw;\r\n	word-wrap: break-word;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	margin: 8px 10px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] .fastpostform_new {\r\n	text-align: center;\r\n	margin-bottom: 28px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] .fastpostform_new i {\r\n	font-size: 22px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] input {\r\n	width: 60px;\r\n	height: 30px;\r\n	border: transparent;\r\n	color: #fff;\r\n	background: #d1c9fc;\r\n	border-radius: 30px;\r\n	margin-bottom: 6px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] input[data-text="true"] {\r\n	background: #7a61fb;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="回帖"] textarea {\r\n	padding: 10px 10px 10px 10px;\r\n	border: transparent;\r\n	border-radius: 6px;\r\n	min-height: 70px;\r\n	max-height: 180px;\r\n	background: #e9e8ec;\r\n	overflow-y: auto;\r\n	width: -webkit-fill-available;\r\n	width: -moz-available;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li[data-attr="回帖"] {\r\n	width: 65%;\r\n	margin: 0 3%;\r\n	text-align: center;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li:not(first-child) {\r\n	width: 7%;\r\n	text-align: -webkit-center;\r\n	text-align: center;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area {\r\n	width: 100%;\r\n	text-align: center;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area .menu_icon a {\r\n	margin: 0 20px;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area i {\r\n	font-size: 24px;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area #comiis_insert_ubb_tab i {\r\n	font-size: 16px;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area .menu_body {\r\n	background: #f4f4f4;\r\n}\r\n#comiis_foot_menu_beautify_big\r\n	.other_area\r\n	.menu_body\r\n	.comiis_smiley_box\r\n	.comiis_optimization {\r\n	max-height: 140px;\r\n	overflow-y: auto;\r\n	flex-direction: column;\r\n}\r\n#comiis_foot_menu_beautify_big\r\n	.other_area\r\n	.menu_body\r\n	.comiis_smiley_box\r\n	.bqbox_t {\r\n	background: #fff;\r\n}\r\n#comiis_foot_menu_beautify_big\r\n	.other_area\r\n	.menu_body\r\n	.comiis_smiley_box\r\n	.bqbox_t\r\n	ul#comiis_smilies_key\r\n	li\r\n	a.bg_f.b_l.b_r {\r\n	background: #f4f4f4 !important;\r\n}\r\n#comiis_foot_menu_beautify_big\r\n	.menu_body\r\n	#comiis_pictitle_tab\r\n	#comiis_pictitle_key {\r\n	display: -webkit-box;\r\n	top: 0;\r\n	left: 0;\r\n	height: 42px;\r\n	line-height: 42px;\r\n	overflow: hidden;\r\n	overflow-x: auto;\r\n}\r\n#comiis_foot_menu_beautify_big\r\n	.menu_body\r\n	#comiis_pictitle_tab\r\n	#comiis_pictitle_key\r\n	li {\r\n	padding: 0 10px;\r\n}\r\n#comiis_foot_menu_beautify_big\r\n	.menu_body\r\n	#comiis_insert_ubb_tab\r\n	.comiis_input_style,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab .comiis_upbox {\r\n	height: 140px;\r\n	overflow-y: auto;\r\n	flex-direction: column;\r\n}\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_hello,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_kggzs,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_mt,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_z4a {\r\n	display: none;\r\n}\r\n@media screen and (max-width: 350px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 14.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 350px) and (max-width: 400px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 12.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 400px) and (max-width: 450px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 11%;\r\n	}\r\n}\r\n@media screen and (min-width: 450px) and (max-width: 500px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 10%;\r\n	}\r\n}\r\n@media screen and (min-width: 500px) and (max-width: 550px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 9.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 550px) and (max-width: 600px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 9%;\r\n	}\r\n}\r\n@media screen and (min-width: 600px) and (max-width: 650px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 8.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 650px) and (max-width: 700px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 8%;\r\n	}\r\n}\r\n@media screen and (min-width: 700px) and (max-width: 750px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 7.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 750px) and (max-width: 800px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 7%;\r\n	}\r\n}\r\n@media screen and (min-width: 800px) and (max-width: 850px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 6.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 850px) and (max-width: 1200px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 6%;\r\n	}\r\n}\r\n@media screen and (min-width: 1200px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 4.5%;\r\n	}\r\n}\r\n#imglist_settings button {\r\n	font-size: 13.333px;\r\n	color: #9baacf;\r\n	outline: 0;\r\n	border: none;\r\n	height: 35px;\r\n	width: 80px;\r\n	border-radius: 10px;\r\n	box-shadow: 0.3rem 0.3rem 0.6rem #c8d0e7, -0.2rem -0.2rem 0.5rem #fff;\r\n	font-weight: 800;\r\n	line-height: 40px;\r\n	background: #efefef;\r\n	padding: 0;\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n}\r\n#imglist_settings button:active {\r\n	box-shadow: inset 0.2rem 0.2rem 0.5rem #c8d0e7,\r\n		inset -0.2rem -0.2rem 0.5rem #fff !important;\r\n	color: #638ffb !important;\r\n}\r\n\r\n#comiis_head .header_y {\r\n	display: flex;\r\n	align-content: center;\r\n	align-items: center;\r\n	justify-content: flex-end;\r\n	height: 100%;\r\n}\r\n#comiis_head .header_y input {\r\n	border: transparent;\r\n	background: 0 0;\r\n	text-align: center;\r\n	margin: 0 5px;\r\n}\r\n#comiis_head .header_y input[value="删除"] {\r\n	color: #d00;\r\n}\r\n#comiis_head .header_y input[value="保存"] {\r\n	color: #b0ff6a;\r\n}\r\n#comiis_head .header_y input[value="保存草稿"] {\r\n	color: #f90;\r\n}\r\n#comiis_head .header_y input[value="发表"] {\r\n	color: #b0ff6a;\r\n}\r\n#comiis_head .header_y input[value="回复"] {\r\n	color: #b0ff6a;\r\n}\r\n#comiis_post_tab {\r\n	color: #000;\r\n}\r\n#comiis_pictitle_tab #imglist input {\r\n	display: none;\r\n}\r\n\r\n.comiis_post_imglist .delImg {\r\n	position: absolute;\r\n	top: -5px;\r\n	left: -5px;\r\n}\r\n\r\n.comiis_post_imglist .p_img a {\r\n	float: left;\r\n	height: 36px;\r\n}\r\n#imglist .p_img a {\r\n	float: left;\r\n	height: 36px;\r\n}\r\n#imglist .del a {\r\n	padding: 0;\r\n}\r\n';
+  const optimizationCSS$1 = '#comiis_foot_menu_beautify {\r\n  position: fixed;\r\n  display: inline-flex;\r\n  z-index: 90;\r\n  left: 0;\r\n  right: 0;\r\n  bottom: 0;\r\n  width: 100%;\r\n  height: 48px;\r\n  overflow: hidden;\r\n  align-content: center;\r\n  justify-content: center;\r\n  align-items: center;\r\n}\r\n#comiis_foot_menu_beautify_big {\r\n  position: fixed;\r\n  display: inline-flex;\r\n  flex-direction: column;\r\n  z-index: 92;\r\n  left: 0;\r\n  right: 0;\r\n  bottom: 0;\r\n  width: 100%;\r\n  min-height: 120px;\r\n  overflow: hidden;\r\n  align-content: center;\r\n  justify-content: center;\r\n  align-items: center;\r\n}\r\n#comiis_foot_menu_beautify input.bg_e.f_c::-webkit-input-placeholder {\r\n  padding-left: 10px;\r\n  color: #999;\r\n}\r\n#comiis_foot_menu_beautify input.bg_e.f_c::-moz-input-placeholder {\r\n  padding-left: 10px;\r\n  color: #999;\r\n}\r\n#comiis_foot_menu_beautify .reply_area ul li a {\r\n  display: block;\r\n  width: 22px;\r\n  height: 22px;\r\n  padding: 4px 8px;\r\n  margin: 8px 0;\r\n  position: relative;\r\n}\r\n#comiis_foot_menu_beautify .reply_area ul {\r\n  display: inline-flex;\r\n  align-content: center;\r\n  align-items: center;\r\n  justify-content: center;\r\n}\r\n#comiis_foot_menu_beautify .reply_area,\r\n#comiis_foot_menu_beautify .reply_area ul {\r\n  width: 100%;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li a i {\r\n  width: 22px;\r\n  height: 22px;\r\n  line-height: 22px;\r\n  font-size: 22px;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li a span {\r\n  position: absolute;\r\n  display: block;\r\n  font-size: 10px;\r\n  height: 14px;\r\n  line-height: 14px;\r\n  padding: 0 6px;\r\n  right: -8px;\r\n  top: 4px;\r\n  overflow: hidden;\r\n  border-radius: 20px;\r\n}\r\n#comiis_foot_menu_beautify li[data-attr="回帖"] input {\r\n  border: transparent;\r\n  border-radius: 15px;\r\n  height: 30px;\r\n  width: 100%;\r\n}\r\n#comiis_foot_menu_beautify_big .comiis_smiley_box {\r\n  padding: 6px 6px 0;\r\n}\r\n#comiis_foot_menu_beautify_big .reply_area {\r\n  margin: 10px 0 5px 0;\r\n}\r\n#comiis_foot_menu_beautify_big .reply_area ul {\r\n  display: inline-flex;\r\n  align-content: center;\r\n  justify-content: center;\r\n  align-items: flex-end;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="回帖"] {\r\n  width: 75vw;\r\n  margin-right: 15px;\r\n}\r\n#comiis_foot_menu_beautify_big .reply_user_content {\r\n  width: 75vw;\r\n  word-wrap: break-word;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  white-space: nowrap;\r\n  margin: 8px 10px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] .fastpostform_new {\r\n  text-align: center;\r\n  margin-bottom: 28px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] .fastpostform_new i {\r\n  font-size: 22px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] input {\r\n  width: 60px;\r\n  height: 30px;\r\n  border: transparent;\r\n  color: #fff;\r\n  background: #d1c9fc;\r\n  border-radius: 30px;\r\n  margin-bottom: 6px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] input[data-text="true"] {\r\n  background: #7a61fb;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="回帖"] textarea {\r\n  padding: 10px 10px 10px 10px;\r\n  border: transparent;\r\n  border-radius: 6px;\r\n  min-height: 70px;\r\n  max-height: 180px;\r\n  background: #e9e8ec;\r\n  overflow-y: auto;\r\n  width: -webkit-fill-available;\r\n  width: -moz-available;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li[data-attr="回帖"] {\r\n  width: 65%;\r\n  margin: 0 3%;\r\n  text-align: center;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li:not(first-child) {\r\n  width: 7%;\r\n  text-align: -webkit-center;\r\n  text-align: center;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area {\r\n  width: 100%;\r\n  text-align: center;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area .menu_icon a {\r\n  margin: 0 20px;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area i {\r\n  font-size: 24px;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area #comiis_insert_ubb_tab i {\r\n  font-size: 16px;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area .menu_body {\r\n  background: #f4f4f4;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area .menu_body .comiis_smiley_box .comiis_optimization {\r\n  max-height: 140px;\r\n  overflow-y: auto;\r\n  flex-direction: column;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area .menu_body .comiis_smiley_box .bqbox_t {\r\n  background: #fff;\r\n}\r\n#comiis_foot_menu_beautify_big\r\n  .other_area\r\n  .menu_body\r\n  .comiis_smiley_box\r\n  .bqbox_t\r\n  ul#comiis_smilies_key\r\n  li\r\n  a.bg_f.b_l.b_r {\r\n  background: #f4f4f4 !important;\r\n}\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #comiis_pictitle_key {\r\n  display: -webkit-box;\r\n  top: 0;\r\n  left: 0;\r\n  height: 42px;\r\n  line-height: 42px;\r\n  overflow: hidden;\r\n  overflow-x: auto;\r\n}\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #comiis_pictitle_key li {\r\n  padding: 0 10px;\r\n}\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_insert_ubb_tab .comiis_input_style,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab .comiis_upbox {\r\n  height: 140px;\r\n  overflow-y: auto;\r\n  flex-direction: column;\r\n}\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_hello,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_kggzs,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_mt,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_z4a {\r\n  display: none;\r\n}\r\n@media screen and (max-width: 350px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 14.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 350px) and (max-width: 400px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 12.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 400px) and (max-width: 450px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 11%;\r\n  }\r\n}\r\n@media screen and (min-width: 450px) and (max-width: 500px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 10%;\r\n  }\r\n}\r\n@media screen and (min-width: 500px) and (max-width: 550px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 9.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 550px) and (max-width: 600px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 9%;\r\n  }\r\n}\r\n@media screen and (min-width: 600px) and (max-width: 650px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 8.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 650px) and (max-width: 700px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 8%;\r\n  }\r\n}\r\n@media screen and (min-width: 700px) and (max-width: 750px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 7.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 750px) and (max-width: 800px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 7%;\r\n  }\r\n}\r\n@media screen and (min-width: 800px) and (max-width: 850px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 6.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 850px) and (max-width: 1200px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 6%;\r\n  }\r\n}\r\n@media screen and (min-width: 1200px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 4.5%;\r\n  }\r\n}\r\n#imglist_settings button {\r\n  font-size: 13.333px;\r\n  color: #9baacf;\r\n  outline: 0;\r\n  border: none;\r\n  height: 35px;\r\n  width: 80px;\r\n  border-radius: 10px;\r\n  box-shadow:\r\n    0.3rem 0.3rem 0.6rem #c8d0e7,\r\n    -0.2rem -0.2rem 0.5rem #fff;\r\n  font-weight: 800;\r\n  line-height: 40px;\r\n  background: #efefef;\r\n  padding: 0;\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n}\r\n#imglist_settings button:active {\r\n  box-shadow:\r\n    inset 0.2rem 0.2rem 0.5rem #c8d0e7,\r\n    inset -0.2rem -0.2rem 0.5rem #fff !important;\r\n  color: #638ffb !important;\r\n}\r\n\r\n#comiis_head .header_y {\r\n  display: flex;\r\n  align-content: center;\r\n  align-items: center;\r\n  justify-content: flex-end;\r\n  height: 100%;\r\n}\r\n#comiis_head .header_y input {\r\n  border: transparent;\r\n  background: 0 0;\r\n  text-align: center;\r\n  margin: 0 5px;\r\n}\r\n#comiis_head .header_y input[value="删除"] {\r\n  color: #d00;\r\n}\r\n#comiis_head .header_y input[value="保存"] {\r\n  color: #b0ff6a;\r\n}\r\n#comiis_head .header_y input[value="保存草稿"] {\r\n  color: #f90;\r\n}\r\n#comiis_head .header_y input[value="发表"] {\r\n  color: #b0ff6a;\r\n}\r\n#comiis_head .header_y input[value="回复"] {\r\n  color: #b0ff6a;\r\n}\r\n#comiis_post_tab {\r\n  color: #000;\r\n}\r\n#comiis_pictitle_tab #imglist input {\r\n  display: none;\r\n}\r\n\r\n.comiis_post_imglist .delImg {\r\n  position: absolute;\r\n  top: -5px;\r\n  left: -5px;\r\n}\r\n\r\n.comiis_post_imglist .p_img a {\r\n  float: left;\r\n  height: 36px;\r\n}\r\n#imglist .p_img a {\r\n  float: left;\r\n  height: 36px;\r\n}\r\n#imglist .del a {\r\n  padding: 0;\r\n}\r\n';
   const MTEditorSmilies = () => {
     return [
       {
@@ -2981,18 +2889,12 @@ isPostPublish_reply() {
         callback: this.option.delImageEvent.bind(this)
       });
       this.addTab();
-      domUtils.on(
-        `.comiis_post_imglist[data-chartbed="${this.option.name}"] .up_btn a`,
-        "click",
-        async (event) => {
-          let result = await this.option.uploadBtnClickEvent(event);
-          if (result) {
-            $(
-              `.comiis_post_imglist[data-chartbed="${this.option.name}"] input[type="file"]`
-            ).click();
-          }
+      domUtils.on(`.comiis_post_imglist[data-chartbed="${this.option.name}"] .up_btn a`, "click", async (event) => {
+        let result = await this.option.uploadBtnClickEvent(event);
+        if (result) {
+          $(`.comiis_post_imglist[data-chartbed="${this.option.name}"] input[type="file"]`).click();
         }
-      );
+      });
       domUtils.on(
         `.comiis_post_imglist[data-chartbed="${this.option.name}"] input[type="file"]`,
         "change",
@@ -3002,23 +2904,14 @@ isPostPublish_reply() {
             $file.value = "";
           };
           let upload_callback = async (uploadFiles) => {
-            let uploadInfo = await this.option.fileChangeEvent(
-              event,
-              uploadFiles
-            );
+            let uploadInfo = await this.option.fileChangeEvent(event, uploadFiles);
             clear_input();
             if (uploadInfo.success) {
               uploadInfo.data.forEach((imageInfo) => {
                 this.addImage(imageInfo);
-                let $thumbImage = this.createImageBtnElement(
-                  "插入",
-                  imageInfo.url
-                );
+                let $thumbImage = this.createImageBtnElement("插入", imageInfo.url);
                 this.setImageBtnDeleteEvent($thumbImage, imageInfo);
-                domUtils.append(
-                  `.comiis_post_imglist[data-chartbed="${this.option.name}"]`,
-                  $thumbImage
-                );
+                domUtils.append(`.comiis_post_imglist[data-chartbed="${this.option.name}"]`, $thumbImage);
               });
             }
           };
@@ -3039,34 +2932,17 @@ isPostPublish_reply() {
                     var watermark = new window.Watermark();
                     await watermark.setFile(item);
                     watermark.addText({
-                      text: [
-                        Panel.getValue("mt-image-bed-watermark-text")
-                      ],
-                      color: Panel.getValue(
-                        "mt-image-bed-watermark-text-color"
-                      ),
-                      fontSize: Panel.getValue(
-                        "mt-image-bed-watermark-font-size"
-                      ),
-                      globalAlpha: Panel.getValue(
-                        "mt-image-bed-watermark-font-opacity"
-                      ),
-                      xMoveDistance: Panel.getValue(
-                        "mt-image-bed-watermark-left-right-margin"
-                      ),
-                      yMoveDistance: Panel.getValue(
-                        "mt-image-bed-watermark-top-bottom-margin"
-                      ),
-                      rotateAngle: Panel.getValue(
-                        "mt-image-bed-watermark-rotate"
-                      )
+                      text: [Panel.getValue("mt-image-bed-watermark-text")],
+                      color: Panel.getValue("mt-image-bed-watermark-text-color"),
+                      fontSize: Panel.getValue("mt-image-bed-watermark-font-size"),
+                      globalAlpha: Panel.getValue("mt-image-bed-watermark-font-opacity"),
+                      xMoveDistance: Panel.getValue("mt-image-bed-watermark-left-right-margin"),
+                      yMoveDistance: Panel.getValue("mt-image-bed-watermark-top-bottom-margin"),
+                      rotateAngle: Panel.getValue("mt-image-bed-watermark-rotate")
                     });
                     needUploadImageArray.push(watermark.render("png"));
                     needUploadImageFileArray.push(
-                      utils.parseBase64ToFile(
-                        watermark.render("png"),
-                        "WaterMark_" + item.name
-                      )
+                      utils.parseBase64ToFile(watermark.render("png"), "WaterMark_" + item.name)
                     );
                   }
                 })
@@ -3138,9 +3014,7 @@ isPostPublish_reply() {
     }
 addTab() {
       let $picture_key = $("#comiis_pictitle_key");
-      let $history = $picture_key.querySelector(
-        "a[data-type='history']"
-      );
+      let $history = $picture_key.querySelector("a[data-type='history']");
       let tabHTML = (
 `
             <li>
@@ -3167,9 +3041,9 @@ addTab() {
       }
       domUtils.before($history.parentElement, tabHTML);
       let $box = $("#comiis_pictitle_tab .bqbox_t");
-      let $historyBox = Array.from(
-        $$("#comiis_pictitle_tab .comiis_upbox")
-      ).find((item) => Boolean(item.querySelector("#imglist_history")));
+      let $historyBox = Array.from($$("#comiis_pictitle_tab .comiis_upbox")).find(
+        (item) => Boolean(item.querySelector("#imglist_history"))
+      );
       if (!$historyBox) {
         $historyBox = domUtils.createElement(
           "div",
@@ -3187,9 +3061,9 @@ addTab() {
           }
         );
         domUtils.before($box, $historyBox);
-        $historyBox = Array.from(
-          $$("#comiis_pictitle_tab .comiis_upbox")
-        ).find((item) => Boolean(item.querySelector("#imglist_history")));
+        $historyBox = Array.from($$("#comiis_pictitle_tab .comiis_upbox")).find(
+          (item) => Boolean(item.querySelector("#imglist_history"))
+        );
       }
       domUtils.before(
         $historyBox,
@@ -3233,16 +3107,11 @@ createImageBtnElement(labelName, url) {
       return $li;
     }
 initHistoryUploadImageList() {
-      let $imglist_history = $(
-        "#comiis_pictitle_tab #imglist_history"
-      );
+      let $imglist_history = $("#comiis_pictitle_tab #imglist_history");
       $imglist_history.innerHTML = "";
       let $fragment = document.createDocumentFragment();
       this.getAllImage().forEach((item) => {
-        let $thumbImage = this.createImageBtnElement(
-          item.labelName,
-          item.data.url
-        );
+        let $thumbImage = this.createImageBtnElement(item.labelName, item.data.url);
         this.setHistoryImageBtnDeleteEvent($thumbImage, item);
         $fragment.appendChild($thumbImage);
       });
@@ -3292,9 +3161,7 @@ getAllImage() {
     }
 deleteImage(id, data) {
       let allData = this.getAllImage();
-      let findIndex = allData.findIndex(
-        (item) => item.id === id && JSON.stringify(item.data) === JSON.stringify(data)
-      );
+      let findIndex = allData.findIndex((item) => item.id === id && JSON.stringify(item.data) === JSON.stringify(data));
       if (findIndex != -1) {
         allData.splice(findIndex, 1);
         _GM_setValue(this.$data.STORAGE_KEY, allData);
@@ -3442,20 +3309,17 @@ async uploadImage(imageFile) {
       });
     },
 async deleteImage(imageKey) {
-      let response = await httpx.delete(
-        this.$config.base_url + "/images/" + imageKey,
-        {
-          timeout: 15e3,
-          headers: {
-            Accept: "application/json",
-            Authorization: `Bearer ${this.$data.token}`,
-            "User-Agent": utils.getRandomPCUA(),
-            Referer: `${this.$config.base_url}/`,
-            Origin: this.$config.base_url
-          },
-          allowInterceptConfig: false
-        }
-      );
+      let response = await httpx.delete(this.$config.base_url + "/images/" + imageKey, {
+        timeout: 15e3,
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${this.$data.token}`,
+          "User-Agent": utils.getRandomPCUA(),
+          Referer: `${this.$config.base_url}/`,
+          Origin: this.$config.base_url
+        },
+        allowInterceptConfig: false
+      });
       if (response.data.status in this.$code) {
         Qmsg.error(this.$config.TAG + this.$code[response.data.status]);
         return false;
@@ -3547,7 +3411,7 @@ async getCSRFToken() {
         Qmsg.error(this.$config.TAG + "获取CSRF Token失败，网络异常");
         return;
       }
-      let doc = domUtils.parseHTML(response.data.responseText, true, true);
+      let doc = domUtils.toElement(response.data.responseText, true, true);
       let metaCSRFToken = doc.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
       if (!metaCSRFToken) {
         return;
@@ -4084,15 +3948,9 @@ $fastpostsubmit: null
       this.overridePageEditor();
     },
 overridePageEditor() {
-      let $old_commentIcon = document.querySelector(
-        "#comiis_foot_memu .comiis_flex li:nth-child(2)"
-      );
-      let $old_linkIcon = document.querySelector(
-        "#comiis_foot_memu .comiis_flex li:nth-child(3)"
-      );
-      let $old_collectIcon = document.querySelector(
-        "#comiis_foot_memu .comiis_flex li:nth-child(4)"
-      );
+      let $old_commentIcon = document.querySelector("#comiis_foot_memu .comiis_flex li:nth-child(2)");
+      let $old_linkIcon = document.querySelector("#comiis_foot_memu .comiis_flex li:nth-child(3)");
+      let $old_collectIcon = document.querySelector("#comiis_foot_memu .comiis_flex li:nth-child(4)");
       this.$el.$form = document.querySelector("#fastpostform");
       this.$data.forum_action = this.$el.$form.getAttribute("action");
       let forum_serialize = domUtils.serialize(this.$el.$form);
@@ -4274,7 +4132,7 @@ overridePageEditor() {
 handle_error(text) {
       let return_status = false;
       let messagetext = domUtils.text(
-        domUtils.parseHTML(text, false, false).querySelector("#messagetext")
+        domUtils.toElement(text, false, false).querySelector("#messagetext")
       );
       if (!messagetext || typeof messagetext === "string" && messagetext.trim() == "") {
         return return_status;
@@ -4303,10 +4161,7 @@ setInputChangeEvent() {
           );
         } else {
           that.$el.$btn_submit.setAttribute("data-text", "true");
-          $("#comiis_foot_menu_beautify li[data-attr='回帖'] input")?.setAttribute(
-            "placeholder",
-            "[草稿待发送]"
-          );
+          $("#comiis_foot_menu_beautify li[data-attr='回帖'] input")?.setAttribute("placeholder", "[草稿待发送]");
         }
         domUtils.css(that.$el.$input, "height", "70px");
         domUtils.css(that.$el.$input, "height", that.$el.$input.scrollHeight - 20 + "px");
@@ -4372,12 +4227,12 @@ async initReplyText(isUserReply = false, replyUrl = void 0) {
       });
       if (localReplyData) {
         domUtils.val(this.$el.$input, localReplyData.text);
-        utils.dispatchEvent(this.$el.$input, "input");
+        domUtils.trigger(this.$el.$input, "input");
       }
     },
 setLikeBtnClickEvent() {
       domUtils.on(this.$el.$like, "click", async (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         if (_unsafeWindow.comiis_recommend_key == 0) {
           _unsafeWindow.comiis_recommend_key = 1;
           let response = await httpx.get(this.$el.$like.href + "&inajax=1", {
@@ -4398,16 +4253,13 @@ setLikeBtnClickEvent() {
           let resultText = xmlDoc.lastChild?.firstChild?.nodeValue;
           if (resultText.includes("您已评价过本主题")) {
             let tid = this.$el.$like.href.match(MTRegExp.tid)[1];
-            let response2 = await httpx.get(
-              `plugin.php?id=comiis_app&comiis=re_recommend&tid=${tid}&inajax=1`,
-              {
-                headers: {
-                  Accept: "application/xml, text/xml, */*; q=0.01"
-                },
-                fetch: true,
-                allowInterceptConfig: false
-              }
-            );
+            let response2 = await httpx.get(`plugin.php?id=comiis_app&comiis=re_recommend&tid=${tid}&inajax=1`, {
+              headers: {
+                Accept: "application/xml, text/xml, */*; q=0.01"
+              },
+              fetch: true,
+              allowInterceptConfig: false
+            });
             if (!response2.status) {
               Qmsg.error("取消点赞失败，网络异常");
               return;
@@ -4424,10 +4276,7 @@ setLikeBtnClickEvent() {
             }
             if (recommend_num > 1) {
               domUtils.text(".comiis_recommend_num", recommend_num - Number(_unsafeWindow.allowrecommend));
-              domUtils.text(
-                ".comiis_recommend_nums",
-                "+" + (recommend_num - Number(_unsafeWindow.allowrecommend))
-              );
+              domUtils.text(".comiis_recommend_nums", "+" + (recommend_num - Number(_unsafeWindow.allowrecommend)));
             } else {
               domUtils.remove("#comiis_recommend_num");
               domUtils.text(".comiis_recommend_nums", "");
@@ -4509,10 +4358,7 @@ setLikeBtnClickEvent() {
               );
             }
             domUtils.text(".comiis_recommend_num", comiis_recommend_num + Number(_unsafeWindow.allowrecommend));
-            domUtils.text(
-              ".comiis_recommend_nums",
-              "+" + (comiis_recommend_num + Number(_unsafeWindow.allowrecommend))
-            );
+            domUtils.text(".comiis_recommend_nums", "+" + (comiis_recommend_num + Number(_unsafeWindow.allowrecommend)));
             domUtils.html(".comiis_recommend_addkey i", "&#xe654;");
             domUtils.removeClass(".comiis_recommend_color", "f_b");
             domUtils.addClass(".comiis_recommend_color", "f_a");
@@ -4541,7 +4387,7 @@ setLikeBtnClickEvent() {
 setSubmitBtnClickEvent() {
       const that = this;
       domUtils.on(this.$el.$fastpostsubmit, "click", async (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         var $message = $("#needmessage");
         var message = domUtils.val($message);
         message = encodeURIComponent(message);
@@ -4583,21 +4429,14 @@ setSubmitBtnClickEvent() {
           $("#comiis_head")?.click();
           domUtils.hide("#comiis_foot_menu_beautify_big .reply_user_content", false);
           domUtils.attr('#comiis_foot_menu_beautify_big li[data-attr="发表"] input', "data-text", "false");
-          domUtils.attr(
-            "#comiis_foot_menu_beautify li[data-attr='回帖'] input",
-            "placeholder",
-            "发帖千百度，文明第一步"
-          );
+          domUtils.attr("#comiis_foot_menu_beautify li[data-attr='回帖'] input", "placeholder", "发帖千百度，文明第一步");
           this.deleteReplyTextStorage();
         } else {
           let data = domUtils.attr("#comiis_foot_menu_beautify_big .reply_user_content", "data-reply-serialize") + message;
           $$("#imglist input[type='hidden']").forEach((item) => {
             data = `${data}&${item.getAttribute("name")}=`;
           });
-          let replyUrl = domUtils.attr(
-            "#comiis_foot_menu_beautify_big .reply_user_content",
-            "data-reply-action"
-          );
+          let replyUrl = domUtils.attr("#comiis_foot_menu_beautify_big .reply_user_content", "data-reply-action");
           let response = await httpx.post(replyUrl + "&handlekey=fastposts&loc=1&inajax=1", {
             allowInterceptConfig: false,
             fetch: true,
@@ -4622,11 +4461,7 @@ setSubmitBtnClickEvent() {
           $("#comiis_head").click();
           domUtils.val('#comiis_foot_menu_beautify_big li[data-attr="发表"] input', "发表");
           domUtils.attr('#comiis_foot_menu_beautify_big li[data-attr="发表"] input', "data-text", "false");
-          domUtils.attr(
-            "#comiis_foot_menu_beautify li[data-attr='回帖'] input",
-            "placeholder",
-            "发帖千百度，文明第一步"
-          );
+          domUtils.attr("#comiis_foot_menu_beautify li[data-attr='回帖'] input", "placeholder", "发帖千百度，文明第一步");
           window.scrollTo({
             top: domUtils.height(document)
           });
@@ -4641,7 +4476,7 @@ setGlobalReplyBtnClickEvent() {
         "click",
         '.comiis_postli_times .dialog[href*="reply"]',
         async (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           let $reply = event.target;
           domUtils.attr("#comiis_foot_menu_beautify_big", "data-model", "reply");
           let response = await httpx.get(domUtils.attr($reply, "datahref") || $reply.href + "&inajax=1", {
@@ -4657,34 +4492,21 @@ setGlobalReplyBtnClickEvent() {
           if (this.handle_error(xmlText)) {
             return;
           }
-          let requestDOM = domUtils.parseHTML(`<div>${xmlText}</div>`, true, false);
+          let requestDOM = domUtils.toElement(`<div>${xmlText}</div>`, true, false);
           let reply_url = requestDOM.querySelector(".comiis_tip .tip_tit a")?.getAttribute("href");
           let reply_user = domUtils.text(requestDOM.querySelector(".comiis_tip span.f_0"));
-          let reply_content = domUtils.val(
-            requestDOM.querySelector("input[name='noticeauthormsg']")
-          );
+          let reply_content = domUtils.val(requestDOM.querySelector("input[name='noticeauthormsg']"));
           let reply_action = domUtils.attr(requestDOM.querySelector("#postforms"), "action");
           let reply_serialize = domUtils.serialize(requestDOM.querySelector("#postforms"));
-          domUtils.text(
-            "#comiis_foot_menu_beautify_big .reply_user_content",
-            `回复 ${reply_user}: ${reply_content}`
-          );
+          domUtils.text("#comiis_foot_menu_beautify_big .reply_user_content", `回复 ${reply_user}: ${reply_content}`);
           domUtils.show("#comiis_foot_menu_beautify_big .reply_user_content", false);
           $("#comiis_foot_menu_beautify li[data-attr='回帖'] input")?.click();
           domUtils.focus("#comiis_foot_menu_beautify li[data-attr='回帖'] input");
           domUtils.val("#fastpostsubmitline input", "回复");
           domUtils.attr("#comiis_foot_menu_beautify_big .fastpostform_new a", "href", reply_url);
           domUtils.attr("#comiis_foot_menu_beautify_big .reply_user_content", "data-reply-url", reply_url);
-          domUtils.attr(
-            "#comiis_foot_menu_beautify_big .reply_user_content",
-            "data-reply-action",
-            reply_action
-          );
-          domUtils.attr(
-            "#comiis_foot_menu_beautify_big .reply_user_content",
-            "data-reply-serialize",
-            reply_serialize
-          );
+          domUtils.attr("#comiis_foot_menu_beautify_big .reply_user_content", "data-reply-action", reply_action);
+          domUtils.attr("#comiis_foot_menu_beautify_big .reply_user_content", "data-reply-serialize", reply_serialize);
           tempReplyBtnNode = $reply;
           domUtils.val("#needmessage", domUtils.attr($reply, "data-text") || "");
           Panel.execMenu("mt-forum-post-editorOptimizationNormal-recordInputText", () => {
@@ -4710,7 +4532,7 @@ setGlobalClickCheckEvent() {
           domUtils.hide("#comiis_foot_menu_beautify", false);
           domUtils.show("#comiis_foot_menu_beautify_big", false);
           domUtils.focus("#needmessage");
-        } else if (window.event && !utils.checkUserClickInNode($("#comiis_foot_menu_beautify_big"))) {
+        } else if (window.event && !domUtils.checkUserClickInNode($("#comiis_foot_menu_beautify_big"))) {
           log.info(`点击的其它区域，隐藏大编辑器，显示小编辑器`);
           domUtils.show("#comiis_foot_menu_beautify", false);
           domUtils.hide("#comiis_foot_menu_beautify_big", false);
@@ -4720,21 +4542,9 @@ setGlobalClickCheckEvent() {
             domUtils.attr("#comiis_foot_menu_beautify_big .fastpostform_new a", "href", forum_url);
             domUtils.text("#comiis_foot_menu_beautify_big .reply_area .reply_user_content");
             domUtils.hide("#comiis_foot_menu_beautify_big .reply_area .reply_user_content", false);
-            domUtils.attr(
-              "#comiis_foot_menu_beautify_big .reply_area .reply_user_content",
-              "data-reply-url",
-              ""
-            );
-            domUtils.attr(
-              "#comiis_foot_menu_beautify_big .reply_area .reply_user_content",
-              "data-reply-action",
-              ""
-            );
-            domUtils.attr(
-              "#comiis_foot_menu_beautify_big .reply_area .reply_user_content",
-              "data-reply-serialize",
-              ""
-            );
+            domUtils.attr("#comiis_foot_menu_beautify_big .reply_area .reply_user_content", "data-reply-url", "");
+            domUtils.attr("#comiis_foot_menu_beautify_big .reply_area .reply_user_content", "data-reply-action", "");
+            domUtils.attr("#comiis_foot_menu_beautify_big .reply_area .reply_user_content", "data-reply-serialize", "");
             if (tempReplyBtnNode) {
               domUtils.attr(tempReplyBtnNode, "data-text", domUtils.val("#needmessage"));
               domUtils.val("#needmessage", "");
@@ -4755,21 +4565,17 @@ setGlobalClickCheckEvent() {
       });
     },
 setMenuIconToggleEvent() {
-      domUtils.on(
-        "#comiis_foot_menu_beautify_big .menu_icon a i",
-        "click",
-        function(event) {
-          let $click = this;
-          if ($click.classList.contains("f_0")) {
-            domUtils.hide("#comiis_foot_menu_beautify_big .menu_body", false);
-            domUtils.removeClass("#comiis_foot_menu_beautify_big .menu_icon a i", "f_0");
-          } else {
-            domUtils.show("#comiis_foot_menu_beautify_big .menu_body", false);
-            domUtils.removeClass("#comiis_foot_menu_beautify_big .menu_icon a i", "f_0");
-            domUtils.addClass($click, "f_0");
-          }
+      domUtils.on("#comiis_foot_menu_beautify_big .menu_icon a i", "click", function(event) {
+        let $click = this;
+        if ($click.classList.contains("f_0")) {
+          domUtils.hide("#comiis_foot_menu_beautify_big .menu_body", false);
+          domUtils.removeClass("#comiis_foot_menu_beautify_big .menu_icon a i", "f_0");
+        } else {
+          domUtils.show("#comiis_foot_menu_beautify_big .menu_body", false);
+          domUtils.removeClass("#comiis_foot_menu_beautify_big .menu_icon a i", "f_0");
+          domUtils.addClass($click, "f_0");
         }
-      );
+      });
     },
 setMenuImageClickEvent() {
       domUtils.on(
@@ -4789,10 +4595,7 @@ setMenuImageToggleEvent() {
         "li",
         function(event) {
           let $click = event.target;
-          domUtils.removeClass(
-            "#comiis_foot_menu_beautify_big #comiis_pictitle_tab #comiis_pictitle_key li",
-            "bg_f"
-          );
+          domUtils.removeClass("#comiis_foot_menu_beautify_big #comiis_pictitle_tab #comiis_pictitle_key li", "bg_f");
           domUtils.addClass($click, "bg_f");
           _unsafeWindow.$("#comiis_foot_menu_beautify_big #comiis_pictitle_tab div.comiis_upbox").hide().eq(_unsafeWindow.$($click).index()).fadeIn();
         }
@@ -4820,16 +4623,12 @@ setMenuSmileClickEvent() {
       );
     },
 setMenuSmileTabClickEvent() {
-      domUtils.on(
-        "#comiis_foot_menu_beautify_big #comiis_smilies_key li",
-        "click",
-        function(event) {
-          let $click = this;
-          domUtils.removeClass("#comiis_foot_menu_beautify_big #comiis_smilies_key li a");
-          domUtils.addClass($click.querySelector("a"), "bg_f b_l b_r");
-          _unsafeWindow.$("#comiis_post_tab div.swiper-wrapper.bqbox_c.comiis_optimization .swiper-slide").hide().eq(_unsafeWindow.$($click).index()).fadeIn();
-        }
-      );
+      domUtils.on("#comiis_foot_menu_beautify_big #comiis_smilies_key li", "click", function(event) {
+        let $click = this;
+        domUtils.removeClass("#comiis_foot_menu_beautify_big #comiis_smilies_key li a");
+        domUtils.addClass($click.querySelector("a"), "bg_f b_l b_r");
+        _unsafeWindow.$("#comiis_post_tab div.swiper-wrapper.bqbox_c.comiis_optimization .swiper-slide").hide().eq(_unsafeWindow.$($click).index()).fadeIn();
+      });
     },
 setMenuInsertClickEvent() {
       domUtils.on("#comiis_foot_menu_beautify_big .menu_icon a.commis_insert_bbs", "click", (event) => {
@@ -4909,14 +4708,8 @@ setMenuQuickUBB() {
           )
         });
         domUtils.on($ubbs, "click", (event) => {
-          domUtils.removeClass(
-            "#comiis_insert_ubb_tab div.comiis_post_urlico ul li.quickUBBs a.comiis_xifont",
-            "f_0"
-          );
-          domUtils.addClass(
-            "#comiis_insert_ubb_tab div.comiis_post_urlico ul li.quickUBBs a.comiis_xifont",
-            "f_d"
-          );
+          domUtils.removeClass("#comiis_insert_ubb_tab div.comiis_post_urlico ul li.quickUBBs a.comiis_xifont", "f_0");
+          domUtils.addClass("#comiis_insert_ubb_tab div.comiis_post_urlico ul li.quickUBBs a.comiis_xifont", "f_d");
           let $font = $ubbs.querySelector(".comiis_xifont");
           domUtils.removeClass($font, "f_d");
           domUtils.removeClass($font, "f_d");
@@ -5028,10 +4821,7 @@ removeFontStyle() {
       if (!$messageTable) {
         return;
       }
-      domUtils.html(
-        $messageTable,
-        domUtils.html($messageTable).replace(MTRegExp.fontSpecial, "")
-      );
+      domUtils.html($messageTable, domUtils.html($messageTable).replace(MTRegExp.fontSpecial, ""));
     },
 removeCommentFontStyle() {
       log.info(`移除评论区的字体效果`);
@@ -5047,10 +4837,7 @@ removeCommentFontStyle() {
         });
         $$(".comiis_message.message").forEach(($message) => {
           if ($postForumMainContent.includes($message.innerHTML)) {
-            $message.innerHTML = $message.innerHTML.replace(
-              MTRegExp.fontSpecial,
-              ""
-            );
+            $message.innerHTML = $message.innerHTML.replace(MTRegExp.fontSpecial, "");
             let $next = $message.nextElementSibling;
             if ($next && $next.localName === "strike") {
               $next.outerHTML = $next.outerHTML.replace(/^<strike>(\n|)/g, "").replace(/<\/strike>$/g, "");
@@ -5067,9 +4854,7 @@ removeCommentFontStyle() {
     },
 addCommentOnBtn() {
       log.info(`添加【点评】按钮`);
-      utils.waitNodeList(
-        ".bottom_zhan:not([data-isaddreviews])"
-      ).then(($bottomZhanList) => {
+      domUtils.waitNodeList(".bottom_zhan:not([data-isaddreviews])").then(($bottomZhanList) => {
         $bottomZhanList.forEach(($bottmZhan) => {
           $bottmZhan.setAttribute("data-isaddreviews", "true");
           var replyNode = $bottmZhan.querySelector("a");
@@ -5084,7 +4869,7 @@ addCommentOnBtn() {
           var reviewsPID = $postli.getAttribute("id")?.replace("pid", "&pid=");
           reviewsUrl = reviewsUrl + reviewsPID;
           var reviewsUserName = $postli.querySelector(".top_user.f_b")?.textContent || "";
-          var reviewsNode = domUtils.parseHTML(
+          var reviewsNode = domUtils.toElement(
 `
 						<a href="${reviewsUrl}" class="f_c dialog">
 							<i class="comiis_font mt_review" style="content: url(&quot;https://s1.ax1x.com/2020/04/26/Jcq8VU.png&quot;); height: 15px;"></i>
@@ -5094,7 +4879,7 @@ addCommentOnBtn() {
             false
           );
           domUtils.on(reviewsNode, "click", function() {
-            utils.waitNode("div[id=ntcmsg_popmenu]>div>span.f_c").then((element) => {
+            domUtils.waitNode("div[id=ntcmsg_popmenu]>div>span.f_c").then((element) => {
               try {
                 element.innerText = "点评 " + reviewsUserName;
               } catch (err) {
@@ -5121,9 +4906,7 @@ loadNextPageComment() {
         let $loadingCommentTip = getLoadingCommentTip();
         let $loadingCommentTipParent = getLoadingCommentTipParent();
         domUtils.css($loadingCommentTipParent, "display", "");
-        let $nextPage = Array.from(
-          post_comments_list.querySelectorAll("a[href]")
-        ).find((item) => {
+        let $nextPage = Array.from(post_comments_list.querySelectorAll("a[href]")).find((item) => {
           return item.textContent?.trim() === "下一页";
         });
         let next_page_url = $nextPage.href;
@@ -5150,23 +4933,15 @@ loadNextPageComment() {
           if (!response.status) {
             return;
           }
-          let nextPageDoc = domUtils.parseHTML(
-            response.data.responseText,
-            true,
-            true
-          );
+          let nextPageDoc = domUtils.toElement(response.data.responseText, true, true);
           let $kqide = $(".comiis_postlist.kqide");
-          let $nextPage_kqide = nextPageDoc.querySelector(
-            ".comiis_postlist.kqide"
-          );
+          let $nextPage_kqide = nextPageDoc.querySelector(".comiis_postlist.kqide");
           let $getNextPage = nextPageDoc.querySelector(".nxt");
           let queryNextPageUrl = $getNextPage?.getAttribute("href") || $getNextPage?.href;
           if (queryNextPageUrl) {
             log.success("成功获取到下一页评论");
             if (queryNextPageUrl === next_page_url) {
-              log.warn(
-                "获取到下一页评论的url和上次请求的url相同，判定为已加载完全部评论，移除监听事件"
-              );
+              log.warn("获取到下一页评论的url和上次请求的url相同，判定为已加载完全部评论，移除监听事件");
               removeLoadNextCommentsListener();
               return;
             }
@@ -5179,9 +4954,7 @@ loadNextPageComment() {
           if ($pageStrong) {
             let $pageSelect = $("#select_a");
             if ($pageSelect) {
-              let $pageText = Array.from($pageSelect.childNodes).find(
-                (item) => item.nodeName === "#text"
-              );
+              let $pageText = Array.from($pageSelect.childNodes).find((item) => item.nodeName === "#text");
               if ($pageText) {
                 $pageText.textContent = `第 ${$pageStrong.textContent} 页`;
               }
@@ -5213,7 +4986,7 @@ loadNextPageComment() {
 			<label class="comiis_loadbtn bg_e f_d" id="loading-comment-tip">正在等待页面加载完毕</label>
 		</div>`
       );
-      let $tip = domUtils.parseHTML(tip_html, true, false);
+      let $tip = domUtils.toElement(tip_html, true, false);
       let $bodybox = $(".comiis_bodybox");
       domUtils.append($bodybox, $tip);
       let commentsEle = $(".comiis_pltit span.f_d") || $("#comiis_foot_memu .comiis_kmvnum");
@@ -5224,7 +4997,7 @@ loadNextPageComment() {
       }
       let commentsNum = parseInt(commentsEle.textContent);
       if (commentsNum >= 10) {
-        utils.waitNode(".comiis_page.bg_f").then(($nextPage) => {
+        domUtils.waitNode(".comiis_page.bg_f").then(($nextPage) => {
           autoLoadNextPageComments($nextPage);
         });
       } else {
@@ -5363,21 +5136,14 @@ codeQuoteOptimization() {
 			.reader-copy-button i{display:inline-block;margin-right:6px;width:16px;height:16px;background-size:cover;vertical-align:sub;user-select:none}
 			`
         );
-        domUtils.on(
-          document,
-          "click",
-          ".reader-copy-button",
-          async function(event) {
-            utils.preventEvent(event);
-            let $click = event.target;
-            let codeElement = $(
-              $click.getAttribute("data-code-selector")
-            );
-            await utils.setClip(codeElement.outerText || codeElement.innerText);
-            Qmsg.success("已复制到剪贴板");
-            return false;
-          }
-        );
+        domUtils.on(document, "click", ".reader-copy-button", async function(event) {
+          domUtils.preventEvent(event);
+          let $click = event.target;
+          let codeElement = $($click.getAttribute("data-code-selector"));
+          await utils.copy(codeElement.outerText || codeElement.innerText);
+          Qmsg.success("已复制到剪贴板");
+          return false;
+        });
       }
       let comiis_blockcode = $$(".comiis_blockcode.comiis_bodybg");
       comiis_blockcode.forEach(($comiis_bodybg) => {
@@ -5424,9 +5190,7 @@ codeQuoteOptimization() {
           }
           ele.innerHTML = hljs.highlight(ele.oldValue, { language }).value.replace(/\\n$/gi, "");
         }
-        let codeLanguage = hljs.highlightAuto(
-          $comiis_bodybg.textContent
-        ).language;
+        let codeLanguage = hljs.highlightAuto($comiis_bodybg.textContent).language;
         let selectElementParentDiv = document.createElement("div");
         let selectElement = document.createElement("select");
         let selectLanguageList = hljs.listLanguages().sort();
@@ -5449,16 +5213,13 @@ codeQuoteOptimization() {
             setElementHighlight(liElement, changeCodeLanguage);
           });
         });
-        utils.preventEvent(selectElement, "click");
+        domUtils.preventEvent(selectElement, "click");
         selectElementParentDiv.appendChild(selectElement);
         $temp.append(selectElementParentDiv);
-        utils.dispatchEvent(selectElement, "change");
+        domUtils.trigger(selectElement, "change");
         $comiis_bodybg.className = "hljs";
         $comiis_bodybg.firstChild.removeAttribute("class");
-        $temp.querySelector(".reader-copy-button").setAttribute(
-          "data-code-selector",
-          utils.getElementSelector($comiis_bodybg)
-        );
+        $temp.querySelector(".reader-copy-button").setAttribute("data-code-selector", domUtils.getElementSelector($comiis_bodybg));
       });
     },
 optimizationImagePreview() {
@@ -5502,9 +5263,7 @@ optimizationImagePreview() {
           pathName: "/uc_server/avatar.php"
         }
       ];
-      utils.waitNodeList(
-        "div.comiis_postlist.kqide .comiis_postli:not([data-isHandlingViewIMG])"
-      ).then((nodeList) => {
+      domUtils.waitNodeList("div.comiis_postlist.kqide .comiis_postli:not([data-isHandlingViewIMG])").then((nodeList) => {
         nodeList.forEach((item) => {
           item.setAttribute("data-isHandlingViewIMG", "true");
           let clickShowIMGList = [];
@@ -5602,12 +5361,12 @@ setAttachmentsClickTip() {
         },
         config: { childList: true, subtree: true }
       });
-      utils.waitNodeList(".attnm a").then((nodeList) => {
+      domUtils.waitNodeList(".attnm a").then((nodeList) => {
         nodeList.forEach((item) => {
           handleClick(item);
         });
       });
-      utils.waitNodeList(".comiis_attach a").then((nodeList) => {
+      domUtils.waitNodeList(".comiis_attach a").then((nodeList) => {
         nodeList.forEach((item) => {
           handleClick(item);
         });
@@ -5712,7 +5471,7 @@ async showSearchHistory() {
         DOMUtils.before(document.querySelector(".comiis_p12"), clear_history_innerHTML);
         let $searchHistory = document.querySelector(".btn_clear_search_history");
         DOMUtils.on($searchHistory, "click", (event) => {
-          utils.preventEvent(event);
+          DOMUtils.preventEvent(event);
           _GM_deleteValue("search_history");
           window.location.reload();
         });
@@ -5721,7 +5480,7 @@ async showSearchHistory() {
       add_clear_history();
     },
 repairClearBtn() {
-      utils.waitNode("a.ssclose").then(($empty) => {
+      DOMUtils.waitNode("a.ssclose").then(($empty) => {
         log.info(`修复清空按钮`);
         DOMUtils.on(
           $empty,
@@ -5745,7 +5504,7 @@ searchInputAutoFocus() {
       if (searchParams.has("kw")) {
         return;
       }
-      utils.waitNode("#scform_srchtxt").then(($input) => {
+      DOMUtils.waitNode("#scform_srchtxt").then(($input) => {
         log.info(`搜索框自动获取焦点`);
         $input.focus();
       });
@@ -5764,9 +5523,7 @@ searchInputAutoFocus() {
     },
 async showTodaySignStar() {
       log.info(`显示【今日签到之星】`);
-      let todayStarParent = document.querySelector(
-        ".pg_k_misign .comiis_qdinfo"
-      );
+      let todayStarParent = document.querySelector(".pg_k_misign .comiis_qdinfo");
       let todayStar = document.createElement("ul");
       let response = await httpx.get("/k_misign-sign.html", {
         headers: {
@@ -5776,15 +5533,12 @@ async showTodaySignStar() {
       if (!response.status) {
         return;
       }
-      let doc = domUtils.parseHTML(response.data.responseText, true, true);
+      let doc = domUtils.toElement(response.data.responseText, true, true);
       let todatastarele = doc.querySelector("#pt span.xg1");
       if (!todatastarele) {
         return;
       }
-      let todaypeople = domUtils.text(todatastarele).replace(
-        "今日签到之星：",
-        ""
-      );
+      let todaypeople = domUtils.text(todatastarele).replace("今日签到之星：", "");
       todayStar.innerHTML =
 `
 		<li class="f_f" style="display: flex;flex-direction: column;width: 100%;">
@@ -5793,9 +5547,7 @@ async showTodaySignStar() {
 		</li>
 		`;
       let $comiisSpaceBox = document.querySelector(".comiis_space_box");
-      let comiis_space_box_height = parseInt(
-        getComputedStyle($comiisSpaceBox, null)["height"].replace("px", "")
-      );
+      let comiis_space_box_height = parseInt(getComputedStyle($comiisSpaceBox, null)["height"].replace("px", ""));
       let comiis_space_box_padding_bottom = parseInt(
         getComputedStyle($comiisSpaceBox, null)["paddingBottom"].replace("px", "")
       );
@@ -5814,9 +5566,7 @@ async showTodaySignStar() {
     },
 showTodayRanking() {
       log.info(`显示【今日最先】`);
-      let today_ranking_ele = document.querySelector(
-        ".comiis_topnv .comiis_flex .flex"
-      );
+      let today_ranking_ele = document.querySelector(".comiis_topnv .comiis_flex .flex");
       let $li = domUtils.createElement("li", {
         className: "flex"
       });
@@ -5834,22 +5584,17 @@ showTodayRanking() {
       $li.appendChild($todayLatest);
       domUtils.after(today_ranking_ele, $li);
       let getMaxPage = async (urlextra2) => {
-        let response = await httpx.get(
-          `/k_misign-sign.html?operation=${urlextra2}`,
-          {
-            responseType: "html",
-            headers: {
-              "User-Agent": utils.getRandomPCUA()
-            }
+        let response = await httpx.get(`/k_misign-sign.html?operation=${urlextra2}`, {
+          responseType: "html",
+          headers: {
+            "User-Agent": utils.getRandomPCUA()
           }
-        );
+        });
         if (!response.status) {
           return;
         }
-        let doc = domUtils.parseHTML(response.data.responseText, true, true);
-        let last_page = doc.querySelector(
-          "#J_list_detail .pg span"
-        );
+        let doc = domUtils.toElement(response.data.responseText, true, true);
+        let last_page = doc.querySelector("#J_list_detail .pg span");
         if (last_page && typeof last_page.title != "undefined") {
           let last_page_match = last_page.title.match(/([0-9]+)/);
           if (last_page_match && last_page_match.length == 2) {
@@ -5862,22 +5607,17 @@ showTodayRanking() {
         }
       };
       let getPagePeople = async (page) => {
-        let response = await httpx.get(
-          `/k_misign-sign.html?operation=list&op=&page=${page}`,
-          {
-            responseType: "html",
-            headers: {
-              "User-Agent": utils.getRandomPCUA()
-            }
+        let response = await httpx.get(`/k_misign-sign.html?operation=list&op=&page=${page}`, {
+          responseType: "html",
+          headers: {
+            "User-Agent": utils.getRandomPCUA()
           }
-        );
+        });
         if (!response.status) {
           return;
         }
-        let doc = domUtils.parseHTML(response.data.responseText, true, true);
-        let peoples = doc.querySelectorAll(
-          "#J_list_detail tbody tr"
-        );
+        let doc = domUtils.toElement(response.data.responseText, true, true);
+        let peoples = doc.querySelectorAll("#J_list_detail tbody tr");
         let ret_array = [];
         if (peoples.length == 2 && peoples[0].textContent.indexOf("暂无内容") != -1) {
           return ret_array;
@@ -6068,7 +5808,7 @@ async showCommentContent() {
         if (!response.status) {
           return;
         }
-        let doc = domUtils.parseHTML(response.data.responseText, true, true);
+        let doc = domUtils.toElement(response.data.responseText, true, true);
         let resultList = [];
         doc.querySelectorAll("#delform tr.bw0_all+tr").forEach((item) => {
           let replyData = [];
@@ -6135,9 +5875,7 @@ async showCommentContent() {
       var pcReplyJSON = formatPCReply(pcReplyArray);
       let forumList = getForumList();
       forumList.forEach((forumListItem, forumListItemIndex) => {
-        let praiseNode = forumListItem.querySelector(
-          ".comiis_xznalist_bottom a"
-        );
+        let praiseNode = forumListItem.querySelector(".comiis_xznalist_bottom a");
         let forumTid = praiseNode.getAttribute("tid");
         if (!forumTid) {
           Qmsg.error("获取帖子tid失败");
@@ -6148,10 +5886,7 @@ async showCommentContent() {
           return;
         }
         pcReplyJSON[forumTid]["data"].forEach((forumListReplyHTMLItem) => {
-          domUtils.append(
-            forumListItem,
-            `<div class="contrete-reply">${forumListReplyHTMLItem}</div>`
-          );
+          domUtils.append(forumListItem, `<div class="contrete-reply">${forumListReplyHTMLItem}</div>`);
         });
       });
     }
@@ -6199,11 +5934,9 @@ async showCommentContent() {
                 btn: {
                   ok: {
                     callback: function() {
-                      let findIndex = setTipForumPostList.findIndex(
-                        (item, index) => {
-                          return window.location.href.match(item["url"]);
-                        }
-                      );
+                      let findIndex = setTipForumPostList.findIndex((item, index) => {
+                        return window.location.href.match(item["url"]);
+                      });
                       if (findIndex !== -1) {
                         setTipForumPostList.splice(findIndex, 1);
                         MTPaidThemePost.setTipData(setTipForumPostList);
@@ -6232,9 +5965,7 @@ async showCommentContent() {
             domUtils.on($tipBtn, "click", () => {
               let $_kmren = document.querySelector(".kmren");
               let $_kmren_parent = domUtils.parent($_kmren);
-              let expirationTimeMatch = domUtils.text($_kmren_parent).replace(/\t|\n/g, "").match(
-                /[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}[\s]{1}[0-9]{1,2}:[0-9]{1,2}/
-              );
+              let expirationTimeMatch = domUtils.text($_kmren_parent).replace(/\t|\n/g, "").match(/[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}[\s]{1}[0-9]{1,2}:[0-9]{1,2}/);
               if (!expirationTimeMatch || expirationTimeMatch.length == 0) {
                 Qmsg.error("获取付费主题到期时间失败");
                 return;
@@ -6255,9 +5986,7 @@ async showCommentContent() {
               }, 1500);
             });
           }
-          let $header_y = document.querySelector(
-            ".comiis_head.f_top .header_y"
-          );
+          let $header_y = document.querySelector(".comiis_head.f_top .header_y");
           domUtils.append($header_y, $tipBtn);
         }
       }
@@ -6271,44 +6000,28 @@ async showCommentContent() {
         return needTipNums;
       }
       if (MTRouter.isMySpace() || MTRouter.isGuide() || MTRouter.isForumList() || MTRouter.isPlate()) {
-        let redBtn2 = document.querySelector(
-          ".icon_msgs.bg_del.f_f"
-        );
+        let redBtn2 = document.querySelector(".icon_msgs.bg_del.f_f");
         let tipNums2 = 0;
         if (redBtn2) {
           tipNums2 = parseInt(domUtils.text(redBtn2));
           domUtils.html(redBtn2, (tipNums2 + getTipNums()).toString());
-          domUtils.append(
-            ".comiis_head .header_z .kmuser em",
-            `<span class="icon_msgs bg_del"></span>`
-          );
+          domUtils.append(".comiis_head .header_z .kmuser em", `<span class="icon_msgs bg_del"></span>`);
         } else {
           let tipnums = getTipNums();
           if (tipnums) {
-            domUtils.append(
-              ".comiis_head .header_z .kmuser em",
-              `<span class="icon_msgs bg_del"></span>`
-            );
+            domUtils.append(".comiis_head .header_z .kmuser em", `<span class="icon_msgs bg_del"></span>`);
           }
         }
       }
-      let redBtn = document.querySelector(
-        ".sidenv_num.bg_del.f_f"
-      );
+      let redBtn = document.querySelector(".sidenv_num.bg_del.f_f");
       let tipNums = 0;
       if (redBtn) {
         tipNums = parseInt(domUtils.text(redBtn));
-        domUtils.html(
-          ".sidenv_num.bg_del.f_f",
-          (tipNums + getTipNums()).toString()
-        );
+        domUtils.html(".sidenv_num.bg_del.f_f", (tipNums + getTipNums()).toString());
       } else {
         let tipnums = getTipNums();
         if (tipnums) {
-          domUtils.before(
-            ".sidenv_user em",
-            `<span class="sidenv_num bg_del f_f">${tipnums}</span>`
-          );
+          domUtils.before(".sidenv_user em", `<span class="sidenv_num bg_del f_f">${tipnums}</span>`);
         }
       }
       if (getTipNums()) {
@@ -6415,11 +6128,7 @@ showView() {
       log.info("可白嫖但未访问：", isFreeNotVisitedContentList);
       log.info("可白嫖：", isFreeContentList);
       log.info("未到白嫖时间：", isPaidContentList);
-      utils.sortListByProperty(
-        isFreeNotVisitedContentList,
-        "expirationTimeStamp",
-        false
-      );
+      utils.sortListByProperty(isFreeNotVisitedContentList, "expirationTimeStamp", false);
       utils.sortListByProperty(isFreeContentList, "timestamp", false);
       utils.sortListByProperty(isPaidContentList, "timestamp", false);
       log.info("排序后——可白嫖但未访问：", isFreeNotVisitedContentList);
@@ -6467,40 +6176,34 @@ showView() {
       domUtils.append($msgcon, dialogIsFreeContent);
       domUtils.append($msgcon, dialogIsPaidContent);
       domUtils.css($msgcon, "height", "400px");
-      domUtils.on(
-        document.querySelector(".delsubjecttip i.comiis_font"),
-        "click",
-        (event) => {
-          let $click = event.target;
-          let $parent = domUtils.parent($click);
-          var t_index = parseInt($parent.getAttribute("t-index"));
-          __pops.confirm({
-            title: {
-              text: "提示",
-              position: "center"
-            },
-            content: {
-              text: "<p>确定移出付费主题白嫖列表？</p>",
-              html: true
-            },
-            btn: {
-              ok: {
-                callback: (details) => {
-                  data.splice(t_index, 1);
-                  MTPaidThemePost.setTipData(data);
-                  utils.deleteParentNode($click, "tr");
-                  details.close();
-                }
+      domUtils.on(document.querySelector(".delsubjecttip i.comiis_font"), "click", (event) => {
+        let $click = event.target;
+        let $parent = domUtils.parent($click);
+        var t_index = parseInt($parent.getAttribute("t-index"));
+        __pops.confirm({
+          title: {
+            text: "提示",
+            position: "center"
+          },
+          content: {
+            text: "<p>确定移出付费主题白嫖列表？</p>",
+            html: true
+          },
+          btn: {
+            ok: {
+              callback: (details) => {
+                data.splice(t_index, 1);
+                MTPaidThemePost.setTipData(data);
+                domUtils.deleteParentNode($click, "tr");
+                details.close();
               }
-            },
-            width: "80vw",
-            height: "300px"
-          });
-        }
-      );
-      let $paymentSubjectReminderIsFreeList = document.querySelector(
-        "#paymentSubjectReminderIsFreeList"
-      );
+            }
+          },
+          width: "80vw",
+          height: "300px"
+        });
+      });
+      let $paymentSubjectReminderIsFreeList = document.querySelector("#paymentSubjectReminderIsFreeList");
       domUtils.on($paymentSubjectReminderIsFreeList, "click", "a", (event) => {
         let $click = event.target;
         var tIndex = parseInt($click.getAttribute("t-index"));
@@ -6517,9 +6220,7 @@ showView() {
           $paymentSubjectReminderIsFreeList,
           $click?.parentElement?.parentElement?.parentElement?.parentElement?.parentElement
         );
-        let $del = document.querySelector(
-          ".subjectcanvisit summary span.icon_msgs.bg_del.f_f"
-        );
+        let $del = document.querySelector(".subjectcanvisit summary span.icon_msgs.bg_del.f_f");
         let notVisitedNumsStr = domUtils.text($del);
         let notVisitedNums2 = parseInt(notVisitedNumsStr) - 1;
         if (notVisitedNums2 > 0) {
@@ -6528,9 +6229,7 @@ showView() {
           $del.remove();
         }
       });
-      let $paymentSubjectReminderIsPaidList = document.querySelector(
-        "paymentSubjectReminderIsPaidList"
-      );
+      let $paymentSubjectReminderIsPaidList = document.querySelector("paymentSubjectReminderIsPaidList");
       domUtils.on($paymentSubjectReminderIsPaidList, "click", "a", (event) => {
         let $click = event.target;
         $click.getAttribute("t-index");
@@ -6546,7 +6245,7 @@ showView() {
       _GM_setValue(this.$key.tipData, data);
     }
   };
-  const smallWindowCSS = ".pops {\r\n	--icon-width: 24px;\r\n	--right-btn-width: 115px;\r\n}\r\n\r\n.small-window-drag {\r\n	width: 100%;\r\n	position: relative;\r\n	height: 10px;\r\n}\r\n.small-window-drag div {\r\n	width: 50px;\r\n	margin: 0 auto;\r\n	height: 4px;\r\n	background: #d9d9d9;\r\n	border-radius: 15px;\r\n	bottom: 3px;\r\n	position: relative;\r\n}\r\n\r\n.pops[type-value] .pops-drawer-title {\r\n	display: block;\r\n	background: #fff;\r\n	width: 100%;\r\n	box-sizing: border-box;\r\n	padding: 16px 0px;\r\n	border-bottom: 1px solid #d6d6d6;\r\n}\r\n\r\n.small-window-title-container {\r\n	display: flex;\r\n	justify-content: space-between;\r\n	padding: 0px 16px;\r\n}\r\n.small-window-website-icon {\r\n	width: var(--icon-width);\r\n	height: var(--icon-width);\r\n	align-self: center;\r\n	border-radius: 3px;\r\n}\r\n.small-window-title-text-container {\r\n	margin-right: auto;\r\n	max-width: calc(100% - var(--icon-width) - var(--right-btn-width));\r\n	display: flex;\r\n	flex-direction: column;\r\n	gap: 4px;\r\n	padding: 0px 16px;\r\n}\r\n.small-window-title-text,\r\n.small-window-website-host {\r\n	min-width: 150px;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n}\r\n.xtiper_sheet_tit.xtiper_sheet_left {\r\n	display: block;\r\n	background: #fff;\r\n	width: 100%;\r\n	box-sizing: border-box;\r\n}\r\n.small-window-protocol-info {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n.small-window-control {\r\n	display: flex;\r\n	align-items: center;\r\n	align-content: center;\r\n	width: var(--right-btn-width);\r\n	justify-content: center;\r\n	gap: 12px;\r\n}\r\n.small-window-control-image-view,\r\n.small-window-control-open-blank,\r\n.small-window-control-close {\r\n	width: 2rem;\r\n	height: 2rem;\r\n	text-align: center;\r\n	margin: 0 0;\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n}\r\n\r\n.refresh-icon {\r\n	width: 40px;\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	padding: 0px 16px;\r\n}\r\n.refresh-icon-in,\r\n.refresh-icon-out {\r\n	position: absolute;\r\n	border: 5px solid rgba(0, 183, 229, 0.9);\r\n	opacity: 0.9;\r\n	border-radius: 50px;\r\n	box-shadow: 0 0 15px #2187e7;\r\n	width: 20px;\r\n	height: 20px;\r\n	margin: 0 auto;\r\n}\r\n.refresh-icon-out {\r\n	background-color: rgba(0, 0, 0, 0);\r\n	border-right: 5px solid transparent;\r\n	border-left: 5px solid transparent;\r\n	-moz-animation: spinPulse 1s infinite ease-in-out;\r\n	-webkit-animation: spinPulse 1s infinite ease-in-out;\r\n	-o-animation: spinPulse 1s infinite ease-in-out;\r\n	-ms-animation: spinPulse 1s infinite ease-in-out;\r\n}\r\n.refresh-icon-in {\r\n	background: rgba(0, 0, 0, 0) no-repeat center center;\r\n	border-top: 5px solid transparent;\r\n	border-bottom: 5px solid transparent;\r\n	-moz-animation: spinoffPulse 3s infinite linear;\r\n	-webkit-animation: spinoffPulse 3s infinite linear;\r\n	-o-animation: spinoffPulse 3s infinite linear;\r\n	-ms-animation: spinoffPulse 3s infinite linear;\r\n}\r\n@-moz-keyframes spinPulse {\r\n	0% {\r\n		-moz-transform: rotate(160deg);\r\n		opacity: 0;\r\n		box-shadow: 0 0 1px #505050;\r\n	}\r\n	50% {\r\n		-moz-transform: rotate(145deg);\r\n		opacity: 1;\r\n	}\r\n	100% {\r\n		-moz-transform: rotate(-320deg);\r\n		opacity: 0;\r\n	}\r\n}\r\n@-moz-keyframes spinoffPulse {\r\n	0% {\r\n		-moz-transform: rotate(0);\r\n	}\r\n	100% {\r\n		-moz-transform: rotate(360deg);\r\n	}\r\n}\r\n@-webkit-keyframes spinPulse {\r\n	0% {\r\n		-webkit-transform: rotate(160deg);\r\n		opacity: 0;\r\n		box-shadow: 0 0 1px #505050;\r\n	}\r\n	50% {\r\n		-webkit-transform: rotate(145deg);\r\n		opacity: 1;\r\n	}\r\n	100% {\r\n		-webkit-transform: rotate(-320deg);\r\n		opacity: 0;\r\n	}\r\n}\r\n@-webkit-keyframes spinoffPulse {\r\n	0% {\r\n		-webkit-transform: rotate(0);\r\n	}\r\n	100% {\r\n		-webkit-transform: rotate(360deg);\r\n	}\r\n}\r\n@-o-keyframes spinPulse {\r\n	0% {\r\n		-o-transform: rotate(160deg);\r\n		opacity: 0;\r\n		box-shadow: 0 0 1px #505050;\r\n	}\r\n	50% {\r\n		-o-transform: rotate(145deg);\r\n		opacity: 1;\r\n	}\r\n	100% {\r\n		-o-transform: rotate(-320deg);\r\n		opacity: 0;\r\n	}\r\n}\r\n@-o-keyframes spinoffPulse {\r\n	0% {\r\n		-o-transform: rotate(0);\r\n	}\r\n	100% {\r\n		-o-transform: rotate(360deg);\r\n	}\r\n}\r\n@-ms-keyframes spinPulse {\r\n	0% {\r\n		-ms-transform: rotate(160deg);\r\n		opacity: 0;\r\n		box-shadow: 0 0 1px #505050;\r\n	}\r\n	50% {\r\n		-ms-transform: rotate(145deg);\r\n		opacity: 1;\r\n	}\r\n	100% {\r\n		-ms-transform: rotate(-320deg);\r\n		opacity: 0;\r\n	}\r\n}\r\n@-ms-keyframes spinoffPulse {\r\n	0% {\r\n		-ms-transform: rotate(0);\r\n	}\r\n	100% {\r\n		-ms-transform: rotate(360deg);\r\n	}\r\n}\r\n@-moz-keyframes spinPulse {\r\n	0% {\r\n		-moz-transform: rotate(160deg);\r\n		opacity: 0;\r\n		box-shadow: 0 0 1px #505050;\r\n	}\r\n	50% {\r\n		-moz-transform: rotate(145deg);\r\n		opacity: 1;\r\n	}\r\n	100% {\r\n		-moz-transform: rotate(-320deg);\r\n		opacity: 0;\r\n	}\r\n}\r\n@-moz-keyframes spinoffPulse {\r\n	0% {\r\n		-moz-transform: rotate(0);\r\n	}\r\n	100% {\r\n		-moz-transform: rotate(360deg);\r\n	}\r\n}\r\n@-webkit-keyframes spinPulse {\r\n	0% {\r\n		-webkit-transform: rotate(160deg);\r\n		opacity: 0;\r\n		box-shadow: 0 0 1px #505050;\r\n	}\r\n	50% {\r\n		-webkit-transform: rotate(145deg);\r\n		opacity: 1;\r\n	}\r\n	100% {\r\n		-webkit-transform: rotate(-320deg);\r\n		opacity: 0;\r\n	}\r\n}\r\n@-webkit-keyframes spinoffPulse {\r\n	0% {\r\n		-webkit-transform: rotate(0);\r\n	}\r\n	100% {\r\n		-webkit-transform: rotate(360deg);\r\n	}\r\n}\r\n@-o-keyframes spinPulse {\r\n	0% {\r\n		-o-transform: rotate(160deg);\r\n		opacity: 0;\r\n		box-shadow: 0 0 1px #505050;\r\n	}\r\n	50% {\r\n		-o-transform: rotate(145deg);\r\n		opacity: 1;\r\n	}\r\n	100% {\r\n		-o-transform: rotate(-320deg);\r\n		opacity: 0;\r\n	}\r\n}\r\n@-o-keyframes spinoffPulse {\r\n	0% {\r\n		-o-transform: rotate(0);\r\n	}\r\n	100% {\r\n		-o-transform: rotate(360deg);\r\n	}\r\n}\r\n@-ms-keyframes spinPulse {\r\n	0% {\r\n		-ms-transform: rotate(160deg);\r\n		opacity: 0;\r\n		box-shadow: 0 0 1px #505050;\r\n	}\r\n	50% {\r\n		-ms-transform: rotate(145deg);\r\n		opacity: 1;\r\n	}\r\n	100% {\r\n		-ms-transform: rotate(-320deg);\r\n		opacity: 0;\r\n	}\r\n}\r\n@-ms-keyframes spinoffPulse {\r\n	0% {\r\n		-ms-transform: rotate(0);\r\n	}\r\n	100% {\r\n		-ms-transform: rotate(360deg);\r\n	}\r\n}\r\n";
+  const smallWindowCSS = ".pops {\r\n  --icon-width: 24px;\r\n  --right-btn-width: 115px;\r\n}\r\n\r\n.small-window-drag {\r\n  width: 100%;\r\n  position: relative;\r\n  height: 10px;\r\n}\r\n.small-window-drag div {\r\n  width: 50px;\r\n  margin: 0 auto;\r\n  height: 4px;\r\n  background: #d9d9d9;\r\n  border-radius: 15px;\r\n  bottom: 3px;\r\n  position: relative;\r\n}\r\n\r\n.pops[type-value] .pops-drawer-title {\r\n  display: block;\r\n  background: #fff;\r\n  width: 100%;\r\n  box-sizing: border-box;\r\n  padding: 16px 0px;\r\n  border-bottom: 1px solid #d6d6d6;\r\n}\r\n\r\n.small-window-title-container {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  padding: 0px 16px;\r\n}\r\n.small-window-website-icon {\r\n  width: var(--icon-width);\r\n  height: var(--icon-width);\r\n  align-self: center;\r\n  border-radius: 3px;\r\n}\r\n.small-window-title-text-container {\r\n  margin-right: auto;\r\n  max-width: calc(100% - var(--icon-width) - var(--right-btn-width));\r\n  display: flex;\r\n  flex-direction: column;\r\n  gap: 4px;\r\n  padding: 0px 16px;\r\n}\r\n.small-window-title-text,\r\n.small-window-website-host {\r\n  min-width: 150px;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  white-space: nowrap;\r\n}\r\n.xtiper_sheet_tit.xtiper_sheet_left {\r\n  display: block;\r\n  background: #fff;\r\n  width: 100%;\r\n  box-sizing: border-box;\r\n}\r\n.small-window-protocol-info {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n.small-window-control {\r\n  display: flex;\r\n  align-items: center;\r\n  align-content: center;\r\n  width: var(--right-btn-width);\r\n  justify-content: center;\r\n  gap: 12px;\r\n}\r\n.small-window-control-image-view,\r\n.small-window-control-open-blank,\r\n.small-window-control-close {\r\n  width: 2rem;\r\n  height: 2rem;\r\n  text-align: center;\r\n  margin: 0 0;\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n}\r\n\r\n.refresh-icon {\r\n  width: 40px;\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  padding: 0px 16px;\r\n}\r\n.refresh-icon-in,\r\n.refresh-icon-out {\r\n  position: absolute;\r\n  border: 5px solid rgba(0, 183, 229, 0.9);\r\n  opacity: 0.9;\r\n  border-radius: 50px;\r\n  box-shadow: 0 0 15px #2187e7;\r\n  width: 20px;\r\n  height: 20px;\r\n  margin: 0 auto;\r\n}\r\n.refresh-icon-out {\r\n  background-color: rgba(0, 0, 0, 0);\r\n  border-right: 5px solid transparent;\r\n  border-left: 5px solid transparent;\r\n  -moz-animation: spinPulse 1s infinite ease-in-out;\r\n  -webkit-animation: spinPulse 1s infinite ease-in-out;\r\n  -o-animation: spinPulse 1s infinite ease-in-out;\r\n  -ms-animation: spinPulse 1s infinite ease-in-out;\r\n}\r\n.refresh-icon-in {\r\n  background: rgba(0, 0, 0, 0) no-repeat center center;\r\n  border-top: 5px solid transparent;\r\n  border-bottom: 5px solid transparent;\r\n  -moz-animation: spinoffPulse 3s infinite linear;\r\n  -webkit-animation: spinoffPulse 3s infinite linear;\r\n  -o-animation: spinoffPulse 3s infinite linear;\r\n  -ms-animation: spinoffPulse 3s infinite linear;\r\n}\r\n@-moz-keyframes spinPulse {\r\n  0% {\r\n    -moz-transform: rotate(160deg);\r\n    opacity: 0;\r\n    box-shadow: 0 0 1px #505050;\r\n  }\r\n  50% {\r\n    -moz-transform: rotate(145deg);\r\n    opacity: 1;\r\n  }\r\n  100% {\r\n    -moz-transform: rotate(-320deg);\r\n    opacity: 0;\r\n  }\r\n}\r\n@-moz-keyframes spinoffPulse {\r\n  0% {\r\n    -moz-transform: rotate(0);\r\n  }\r\n  100% {\r\n    -moz-transform: rotate(360deg);\r\n  }\r\n}\r\n@-webkit-keyframes spinPulse {\r\n  0% {\r\n    -webkit-transform: rotate(160deg);\r\n    opacity: 0;\r\n    box-shadow: 0 0 1px #505050;\r\n  }\r\n  50% {\r\n    -webkit-transform: rotate(145deg);\r\n    opacity: 1;\r\n  }\r\n  100% {\r\n    -webkit-transform: rotate(-320deg);\r\n    opacity: 0;\r\n  }\r\n}\r\n@-webkit-keyframes spinoffPulse {\r\n  0% {\r\n    -webkit-transform: rotate(0);\r\n  }\r\n  100% {\r\n    -webkit-transform: rotate(360deg);\r\n  }\r\n}\r\n@-o-keyframes spinPulse {\r\n  0% {\r\n    -o-transform: rotate(160deg);\r\n    opacity: 0;\r\n    box-shadow: 0 0 1px #505050;\r\n  }\r\n  50% {\r\n    -o-transform: rotate(145deg);\r\n    opacity: 1;\r\n  }\r\n  100% {\r\n    -o-transform: rotate(-320deg);\r\n    opacity: 0;\r\n  }\r\n}\r\n@-o-keyframes spinoffPulse {\r\n  0% {\r\n    -o-transform: rotate(0);\r\n  }\r\n  100% {\r\n    -o-transform: rotate(360deg);\r\n  }\r\n}\r\n@-ms-keyframes spinPulse {\r\n  0% {\r\n    -ms-transform: rotate(160deg);\r\n    opacity: 0;\r\n    box-shadow: 0 0 1px #505050;\r\n  }\r\n  50% {\r\n    -ms-transform: rotate(145deg);\r\n    opacity: 1;\r\n  }\r\n  100% {\r\n    -ms-transform: rotate(-320deg);\r\n    opacity: 0;\r\n  }\r\n}\r\n@-ms-keyframes spinoffPulse {\r\n  0% {\r\n    -ms-transform: rotate(0);\r\n  }\r\n  100% {\r\n    -ms-transform: rotate(360deg);\r\n  }\r\n}\r\n@-moz-keyframes spinPulse {\r\n  0% {\r\n    -moz-transform: rotate(160deg);\r\n    opacity: 0;\r\n    box-shadow: 0 0 1px #505050;\r\n  }\r\n  50% {\r\n    -moz-transform: rotate(145deg);\r\n    opacity: 1;\r\n  }\r\n  100% {\r\n    -moz-transform: rotate(-320deg);\r\n    opacity: 0;\r\n  }\r\n}\r\n@-moz-keyframes spinoffPulse {\r\n  0% {\r\n    -moz-transform: rotate(0);\r\n  }\r\n  100% {\r\n    -moz-transform: rotate(360deg);\r\n  }\r\n}\r\n@-webkit-keyframes spinPulse {\r\n  0% {\r\n    -webkit-transform: rotate(160deg);\r\n    opacity: 0;\r\n    box-shadow: 0 0 1px #505050;\r\n  }\r\n  50% {\r\n    -webkit-transform: rotate(145deg);\r\n    opacity: 1;\r\n  }\r\n  100% {\r\n    -webkit-transform: rotate(-320deg);\r\n    opacity: 0;\r\n  }\r\n}\r\n@-webkit-keyframes spinoffPulse {\r\n  0% {\r\n    -webkit-transform: rotate(0);\r\n  }\r\n  100% {\r\n    -webkit-transform: rotate(360deg);\r\n  }\r\n}\r\n@-o-keyframes spinPulse {\r\n  0% {\r\n    -o-transform: rotate(160deg);\r\n    opacity: 0;\r\n    box-shadow: 0 0 1px #505050;\r\n  }\r\n  50% {\r\n    -o-transform: rotate(145deg);\r\n    opacity: 1;\r\n  }\r\n  100% {\r\n    -o-transform: rotate(-320deg);\r\n    opacity: 0;\r\n  }\r\n}\r\n@-o-keyframes spinoffPulse {\r\n  0% {\r\n    -o-transform: rotate(0);\r\n  }\r\n  100% {\r\n    -o-transform: rotate(360deg);\r\n  }\r\n}\r\n@-ms-keyframes spinPulse {\r\n  0% {\r\n    -ms-transform: rotate(160deg);\r\n    opacity: 0;\r\n    box-shadow: 0 0 1px #505050;\r\n  }\r\n  50% {\r\n    -ms-transform: rotate(145deg);\r\n    opacity: 1;\r\n  }\r\n  100% {\r\n    -ms-transform: rotate(-320deg);\r\n    opacity: 0;\r\n  }\r\n}\r\n@-ms-keyframes spinoffPulse {\r\n  0% {\r\n    -ms-transform: rotate(0);\r\n  }\r\n  100% {\r\n    -ms-transform: rotate(360deg);\r\n  }\r\n}\r\n";
   class GestureBack {
 isBacking = false;
     config;
@@ -6563,7 +6262,7 @@ isBacking = false;
       }
     }
 popStateEvent(event) {
-      Utils.preventEvent(event);
+      domUtils.preventEvent(event);
       if (this.isBacking) {
         return;
       }
@@ -6769,22 +6468,12 @@ showSmallWindow(title, url, imagesList = []) {
         borderRadius: 18,
         style: smallWindowCSS
       });
-      let $webSiteIcon = $drawer.$shadowRoot.querySelector(
-        ".small-window-website-icon"
-      );
+      let $webSiteIcon = $drawer.$shadowRoot.querySelector(".small-window-website-icon");
       let $refreshIcon = $drawer.$shadowRoot.querySelector(".refresh-icon");
-      let $imageIcon = $drawer.$shadowRoot.querySelector(
-        ".small-window-control-image-view"
-      );
-      let $openBlankIcon = $drawer.$shadowRoot.querySelector(
-        ".small-window-control-open-blank"
-      );
-      let $closeIcon = $drawer.$shadowRoot.querySelector(
-        ".small-window-control-close"
-      );
-      let $titleText = $drawer.$shadowRoot.querySelector(
-        ".small-window-title-text"
-      );
+      let $imageIcon = $drawer.$shadowRoot.querySelector(".small-window-control-image-view");
+      let $openBlankIcon = $drawer.$shadowRoot.querySelector(".small-window-control-open-blank");
+      let $closeIcon = $drawer.$shadowRoot.querySelector(".small-window-control-close");
+      let $titleText = $drawer.$shadowRoot.querySelector(".small-window-title-text");
       this.$el.$refreshIcon = $refreshIcon;
       this.$el.$webSiteIcon = $webSiteIcon;
       let $iframe = $drawer.$shadowRoot.querySelector("iframe");
@@ -6817,22 +6506,18 @@ showSmallWindow(title, url, imagesList = []) {
       });
       getureBack.enterGestureBackMode();
       domUtils.on($titleText, "click", (event) => {
-        utils.preventEvent(event);
-        utils.setClip(`『${title}』 - ${url}`);
+        domUtils.preventEvent(event);
+        utils.copy(`『${title}』 - ${url}`);
         Qmsg.success("已复制链接");
       });
       domUtils.on($imageIcon, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         log.info(`查看图片`, imagesList);
         var viewerULNodeHTML = "";
         imagesList.forEach((item) => {
           viewerULNodeHTML += `<li><img data-src="${item}"></li>`;
         });
-        var viewerULNode = domUtils.parseHTML(
-          `<ul>${viewerULNodeHTML}</ul>`,
-          false,
-          false
-        );
+        var viewerULNode = domUtils.toElement(`<ul>${viewerULNodeHTML}</ul>`, false, false);
         let viewer = new Viewer(viewerULNode, {
           inline: false,
           url: "data-src",
@@ -6849,15 +6534,15 @@ showSmallWindow(title, url, imagesList = []) {
         viewer.show();
       });
       domUtils.on($closeIcon, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         getureBack.quitGestureBackMode();
       });
       domUtils.on($openBlankIcon, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         window.open(url, "_blank");
       });
       domUtils.on($webSiteIcon, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         $iframe.contentWindow.location.reload();
         this.checkIframeReadyState($iframe);
       });
@@ -6868,13 +6553,9 @@ async handleForumPost(forumlist) {
         if ($forum.getAttribute("data-injection-small-window")) {
           return;
         }
-        let title = domUtils.text(
-          $forum.querySelector(".mmlist_li_box h2 a")
-        );
+        let title = domUtils.text($forum.querySelector(".mmlist_li_box h2 a"));
         if (title == "" || title == null) {
-          title = domUtils.text(
-            $forum.querySelector(".mmlist_li_box a")
-          );
+          title = domUtils.text($forum.querySelector(".mmlist_li_box a"));
         }
         title = title.trim();
         let url = $forum.querySelector(".mmlist_li_box a").href;
@@ -6950,16 +6631,12 @@ showLatestPost() {
           Qmsg.error("获取轮播失败");
           return;
         }
-        if (response.data.responseText.indexOf(
-          '<script src="/_guard/auto.js"><\/script>'
-        ) !== -1) {
+        if (response.data.responseText.indexOf('<script src="/_guard/auto.js"><\/script>') !== -1) {
           Qmsg.error("获取轮播失败 未知的/_guard/auto.js文件");
           return;
         }
-        var doc = DOMUtils.parseHTML(response.data.responseText, true, true);
-        var postForumList = doc.querySelectorAll(
-          'div.comiis_mh_kxtxt div[id*="comiis_mh_kxtxt"] ul'
-        );
+        var doc = DOMUtils.toElement(response.data.responseText, true, true);
+        var postForumList = doc.querySelectorAll('div.comiis_mh_kxtxt div[id*="comiis_mh_kxtxt"] ul');
         if (postForumList.length === 0) {
           Qmsg.error("获取轮播失败");
           return;
@@ -7022,9 +6699,7 @@ showLatestPost() {
           postInfoList,
           (item) => {
             var forumPostNumMatch = item["href"].match(/thread-(.+?)-/i);
-            let forumPostNum = parseInt(
-              forumPostNumMatch[forumPostNumMatch.length - 1]
-            );
+            let forumPostNum = parseInt(forumPostNumMatch[forumPostNumMatch.length - 1]);
             return forumPostNum;
           },
           true
@@ -7038,9 +6713,7 @@ showLatestPost() {
                     <a href="${item.href}" title="${item.title}" target="_blank">${item.title}</a>
                 </li>`;
         });
-        let $comiis_xznlist = document.querySelector(
-          ".comiis_forumlist.comiis_xznlist"
-        );
+        let $comiis_xznlist = document.querySelector(".comiis_forumlist.comiis_xznlist");
         DOMUtils.before(
           $comiis_xznlist,
           `<div class="comiis_mh_kxtxt bg_f comiis_mh_kxtxt_owm"><ul>${latestPostForumHTML}</ul></div>`
@@ -7105,18 +6778,14 @@ setComponentsStorageApiProperty(config, storageApiValue) {
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi(
-      "input",
-      result,
-      {
-        get(key2, defaultValue2) {
-          return Panel.getValue(key2, defaultValue2);
-        },
-        set(key2, value) {
-          Panel.setValue(key2, value);
-        }
+    PanelComponents.initComponentsStorageApi("input", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
       }
-    );
+    });
     return result;
   };
   const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack, disabled, valueChangeCallBack) {
@@ -7142,18 +6811,14 @@ setComponentsStorageApiProperty(config, storageApiValue) {
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi(
-      "switch",
-      result,
-      {
-        get(key2, defaultValue2) {
-          return Panel.getValue(key2, defaultValue2);
-        },
-        set(key2, value) {
-          Panel.setValue(key2, value);
-        }
+    PanelComponents.initComponentsStorageApi("switch", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
       }
-    );
+    });
     return result;
   };
   class RuleEditView {
@@ -7252,12 +6917,8 @@ async showView() {
         width: typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
         height: typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh"
       });
-      let $form = $dialog.$shadowRoot.querySelector(
-        ".rule-form-container"
-      );
-      $dialog.$shadowRoot.querySelector(
-        "input[type=submit]"
-      );
+      let $form = $dialog.$shadowRoot.querySelector(".rule-form-container");
+      $dialog.$shadowRoot.querySelector("input[type=submit]");
       let $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
       let view = await this.option.getView(await this.option.data());
       $ulist.appendChild(view);
@@ -7346,12 +7007,9 @@ async showView() {
           $alert.close();
         };
         domUtils.on($button, "click", async (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           if (typeof filterOption.callback === "function") {
-            let result = await filterOption.callback(
-              event,
-              execFilterAndCloseDialog
-            );
+            let result = await filterOption.callback(event, execFilterAndCloseDialog);
             if (!result) {
               return;
             }
@@ -7636,9 +7294,7 @@ showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDa
     }
 parseViewElement($shadowRoot) {
       let $container = $shadowRoot.querySelector(".rule-view-container");
-      let $deleteBtn = $shadowRoot.querySelector(
-        ".pops-confirm-btn button.pops-confirm-btn-other"
-      );
+      let $deleteBtn = $shadowRoot.querySelector(".pops-confirm-btn button.pops-confirm-btn-other");
       return {
 $container,
 $deleteBtn
@@ -7712,7 +7368,7 @@ async createRuleItemElement(data, $shadowRoot) {
       }
       if (this.option.itemControls.edit.enable) {
         domUtils.on($edit, "click", (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           this.showEditView(true, data, $shadowRoot, $ruleItem, (newData) => {
             data = null;
             data = newData;
@@ -7723,7 +7379,7 @@ async createRuleItemElement(data, $shadowRoot) {
       }
       if (this.option.itemControls.delete.enable) {
         domUtils.on($delete, "click", (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           let $askDialog = __pops.confirm({
             title: {
               text: "提示",
@@ -7913,142 +7569,32 @@ showView() {
                 data = this.getTemplateData();
               }
               let enable_template = UISwitch("启用", "enable", true);
-              Reflect.set(
-                enable_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data)
-              );
-              let $enable = panelHandlerComponents.createSectionContainerItem_switch(
-                enable_template
-              );
-              let name_template = UIInput(
-                "规则名称",
-                "name",
-                "",
-                "",
-                void 0,
-                "必填"
-              );
-              Reflect.set(
-                name_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data)
-              );
-              let $name = panelHandlerComponents.createSectionContainerItem_input(
-                name_template
-              );
-              let data_userName_template = UIInput(
-                "用户名",
-                "userName",
-                "",
-                "",
-                void 0,
-                "可正则"
-              );
-              Reflect.set(
-                data_userName_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data.data)
-              );
-              let $data_userName = panelHandlerComponents.createSectionContainerItem_input(
-                data_userName_template
-              );
-              let data_userUID_template = UIInput(
-                "用户UID",
-                "userUID",
-                "",
-                "",
-                void 0,
-                "可正则"
-              );
-              Reflect.set(
-                data_userUID_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data.data)
-              );
-              let $data_userUID = panelHandlerComponents.createSectionContainerItem_input(
-                data_userUID_template
-              );
-              let data_userLevel_template = UIInput(
-                "用户等级",
-                "userLevel",
-                "",
-                "",
-                void 0,
-                "可正则"
-              );
-              Reflect.set(
-                data_userLevel_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data.data)
-              );
-              let $data_userLevel = panelHandlerComponents.createSectionContainerItem_input(
-                data_userLevel_template
-              );
-              let data_postUrl_template = UIInput(
-                "帖子url",
-                "postUrl",
-                "",
-                "",
-                void 0,
-                "可正则"
-              );
-              Reflect.set(
-                data_postUrl_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data.data)
-              );
-              let $data_postUrl = panelHandlerComponents.createSectionContainerItem_input(
-                data_postUrl_template
-              );
-              let data_postTitle_template = UIInput(
-                "帖子标题",
-                "postTitle",
-                "",
-                "",
-                void 0,
-                "可正则"
-              );
-              Reflect.set(
-                data_postTitle_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data.data)
-              );
-              let $data_postTitle = panelHandlerComponents.createSectionContainerItem_input(
-                data_postTitle_template
-              );
-              let data_postContent_template = UIInput(
-                "帖子内容",
-                "postContent",
-                "",
-                "",
-                void 0,
-                "可正则"
-              );
-              Reflect.set(
-                data_postContent_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data.data)
-              );
-              let $data_postContent = panelHandlerComponents.createSectionContainerItem_input(
-                data_postContent_template
-              );
-              let data_postPlateName_template = UIInput(
-                "帖子所在的板块名",
-                "postPlateName",
-                "",
-                "",
-                void 0,
-                "可正则"
-              );
-              Reflect.set(
-                data_postPlateName_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data.data)
-              );
-              let $data_postPlateName = panelHandlerComponents.createSectionContainerItem_input(
-                data_postPlateName_template
-              );
+              Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+              let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+              let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
+              Reflect.set(name_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+              let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+              let data_userName_template = UIInput("用户名", "userName", "", "", void 0, "可正则");
+              Reflect.set(data_userName_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
+              let $data_userName = panelHandlerComponents.createSectionContainerItem_input(data_userName_template);
+              let data_userUID_template = UIInput("用户UID", "userUID", "", "", void 0, "可正则");
+              Reflect.set(data_userUID_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
+              let $data_userUID = panelHandlerComponents.createSectionContainerItem_input(data_userUID_template);
+              let data_userLevel_template = UIInput("用户等级", "userLevel", "", "", void 0, "可正则");
+              Reflect.set(data_userLevel_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
+              let $data_userLevel = panelHandlerComponents.createSectionContainerItem_input(data_userLevel_template);
+              let data_postUrl_template = UIInput("帖子url", "postUrl", "", "", void 0, "可正则");
+              Reflect.set(data_postUrl_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
+              let $data_postUrl = panelHandlerComponents.createSectionContainerItem_input(data_postUrl_template);
+              let data_postTitle_template = UIInput("帖子标题", "postTitle", "", "", void 0, "可正则");
+              Reflect.set(data_postTitle_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
+              let $data_postTitle = panelHandlerComponents.createSectionContainerItem_input(data_postTitle_template);
+              let data_postContent_template = UIInput("帖子内容", "postContent", "", "", void 0, "可正则");
+              Reflect.set(data_postContent_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
+              let $data_postContent = panelHandlerComponents.createSectionContainerItem_input(data_postContent_template);
+              let data_postPlateName_template = UIInput("帖子所在的板块名", "postPlateName", "", "", void 0, "可正则");
+              Reflect.set(data_postPlateName_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
+              let $data_postPlateName = panelHandlerComponents.createSectionContainerItem_input(data_postPlateName_template);
               $fragment.appendChild($enable);
               $fragment.appendChild($name);
               $fragment.appendChild($data_userName);
@@ -8061,9 +7607,7 @@ showView() {
               return $fragment;
             },
             onsubmit: ($form, isEdit, editData) => {
-              let $ulist_li = $form.querySelectorAll(
-                ".rule-form-ulist > li"
-              );
+              let $ulist_li = $form.querySelectorAll(".rule-form-ulist > li");
               let data = this.getTemplateData();
               if (isEdit) {
                 data.uuid = editData.uuid;
@@ -8147,19 +7691,11 @@ userUID: uidMatch[uidMatch.length - 1].trim(),
 userLevel: item.querySelector("span.top_lev").innerText.replace("Lv.", ""),
 postUrl: item.querySelector(".mmlist_li_box a").getAttribute("href") || item.querySelector(".mmlist_li_box a").getAttribute("data-href"),
 postTitle: item.querySelector(".mmlist_li_box h2 a")?.innerText || "",
-postContent: item.querySelector(
-              ".mmlist_li_box .list_body"
-            ).innerText,
-postPlateName: (item.querySelector(
-              ".forumlist_li_time a.f_d"
-            ) || item.querySelector(
-              ".comiis_xznalist_bk.cl"
-            )).innerText.replace(//g, "").replace(/\s*/g, "").replace(/来自/g, "")
+postContent: item.querySelector(".mmlist_li_box .list_body").innerText,
+postPlateName: (item.querySelector(".forumlist_li_time a.f_d") || item.querySelector(".comiis_xznalist_bk.cl")).innerText.replace(//g, "").replace(/\s*/g, "").replace(/来自/g, "")
           };
           if (utils.isNull(postForumInfo.postPlateName)) {
-            postForumInfo.postPlateName = document.querySelector(
-              "#comiis_wx_title_box"
-            ).innerText;
+            postForumInfo.postPlateName = document.querySelector("#comiis_wx_title_box").innerText;
           }
           if (checkIsFilter(postForumInfo)) {
             item.remove();
@@ -8174,9 +7710,7 @@ userUID: uidMatch[uidMatch.length - 1].trim(),
 userLevel: item.querySelector("a.top_lev").innerText.replace("Lv.", ""),
 postUrl: void 0,
 postTitle: void 0,
-postContent: item.querySelector(
-              ".comiis_message_table"
-            ).innerText,
+postContent: item.querySelector(".comiis_message_table").innerText,
 postPlateName: void 0
           };
           if (checkIsFilter(postForumInfo)) {
@@ -8186,26 +7720,21 @@ postPlateName: void 0
       }
       if (MTRouter.isMessageList()) {
         this.getData();
-        $$(".comiis_pms_box .comiis_pmlist ul li").forEach(
-          (item) => {
-            let uidMatch = item.querySelector("a.b_b").href.match(MTRegExp.uid);
-            let postForumInfo = {
-userName: item.querySelector("h2").innerText.replace(
-                item.querySelector("h2 span").innerText,
-                ""
-              ).replace(/\s*/, ""),
+        $$(".comiis_pms_box .comiis_pmlist ul li").forEach((item) => {
+          let uidMatch = item.querySelector("a.b_b").href.match(MTRegExp.uid);
+          let postForumInfo = {
+userName: item.querySelector("h2").innerText.replace(item.querySelector("h2 span").innerText, "").replace(/\s*/, ""),
 userUID: uidMatch[uidMatch.length - 1].trim(),
 userLevel: void 0,
 postUrl: item.querySelector("a.b_b").href,
 postTitle: void 0,
 postContent: item.querySelector("p.f_c").innerText.trim(),
 postPlateName: void 0
-            };
-            if (checkIsFilter(postForumInfo)) {
-              item.remove();
-            }
+          };
+          if (checkIsFilter(postForumInfo)) {
+            item.remove();
           }
-        );
+        });
       }
     },
 getData() {
@@ -8275,18 +7804,14 @@ clearData() {
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi(
-      "switch",
-      result,
-      {
-        get(key2, defaultValue2) {
-          return Panel.getValue(key2, defaultValue2);
-        },
-        set(key2, value) {
-          Panel.setValue(key2, value);
-        }
+    PanelComponents.initComponentsStorageApi("switch", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
       }
-    );
+    });
     return result;
   };
   const MTCommentFilter = {
@@ -8424,51 +7949,21 @@ showView() {
         getView: (data) => {
           let $fragment = document.createDocumentFragment();
           let enable_template = UISwitch("启用", "enable", true);
-          Reflect.set(
-            enable_template.props,
-            PROPS_STORAGE_API,
-            generateStorageApi(data)
-          );
-          let $enable = panelHandlerComponents.createSectionContainerItem_switch(
-            enable_template
-          );
-          let replyFlag_template = UISwitch(
-            "处理回复引用",
-            "replyFlag",
-            false,
-            void 0,
-            "移除引用"
-          );
-          Reflect.set(
-            replyFlag_template.props,
-            PROPS_STORAGE_API,
-            generateStorageApi(data)
-          );
-          let $replyFlag = panelHandlerComponents.createSectionContainerItem_switch(
-            replyFlag_template
-          );
+          Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+          let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+          let replyFlag_template = UISwitch("处理回复引用", "replyFlag", false, void 0, "移除引用");
+          Reflect.set(replyFlag_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+          let $replyFlag = panelHandlerComponents.createSectionContainerItem_switch(replyFlag_template);
           let avatarFlag_template = UISwitch("处理作者评论", "avatarFlag", false);
-          Reflect.set(
-            avatarFlag_template.props,
-            PROPS_STORAGE_API,
-            generateStorageApi(data)
-          );
-          let $avatarFlag = panelHandlerComponents.createSectionContainerItem_switch(
-            avatarFlag_template
-          );
+          Reflect.set(avatarFlag_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+          let $avatarFlag = panelHandlerComponents.createSectionContainerItem_switch(avatarFlag_template);
           let viewthreadFlag_template = UISwitch(
             '处理从"搜索页面"或"我的帖子提醒页面"进入的网站',
             "viewthreadFlag",
             false
           );
-          Reflect.set(
-            viewthreadFlag_template.props,
-            PROPS_STORAGE_API,
-            generateStorageApi(data)
-          );
-          let $viewthreadFlag = panelHandlerComponents.createSectionContainerItem_switch(
-            viewthreadFlag_template
-          );
+          Reflect.set(viewthreadFlag_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+          let $viewthreadFlag = panelHandlerComponents.createSectionContainerItem_switch(viewthreadFlag_template);
           let minLength_template = UIInput(
             "匹配的评论内容长度最小值",
             "minLength",
@@ -8478,14 +7973,8 @@ showView() {
             "",
             true
           );
-          Reflect.set(
-            minLength_template.props,
-            PROPS_STORAGE_API,
-            generateStorageApi(data)
-          );
-          let $minLength = panelHandlerComponents.createSectionContainerItem_input(
-            minLength_template
-          );
+          Reflect.set(minLength_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+          let $minLength = panelHandlerComponents.createSectionContainerItem_input(minLength_template);
           let keywordLength = UIInput(
             "匹配的评论内容长度最大值",
             "keywordLength",
@@ -8495,56 +7984,17 @@ showView() {
             "",
             true
           );
-          Reflect.set(
-            keywordLength.props,
-            PROPS_STORAGE_API,
-            generateStorageApi(data)
-          );
-          let $keywordLength = panelHandlerComponents.createSectionContainerItem_input(
-            keywordLength
-          );
-          let keywords_template = UITextArea(
-            "评论关键字",
-            "keywords",
-            "",
-            "多个关键字换行分割"
-          );
-          Reflect.set(
-            keywords_template.props,
-            PROPS_STORAGE_API,
-            generateStorageApi(data)
-          );
-          let $keywords = panelHandlerComponents.createSectionContainerItem_textarea(
-            keywords_template
-          );
-          let userBlackList_template = UITextArea(
-            "黑名单用户",
-            "userBlackList",
-            "",
-            "多个用户换行分割"
-          );
-          Reflect.set(
-            userBlackList_template.props,
-            PROPS_STORAGE_API,
-            generateStorageApi(data)
-          );
-          let $userBlackList = panelHandlerComponents.createSectionContainerItem_textarea(
-            userBlackList_template
-          );
-          let userWhiteList_template = UITextArea(
-            "白名单用户",
-            "userWhiteList",
-            "",
-            "多个用户换行分割"
-          );
-          Reflect.set(
-            userWhiteList_template.props,
-            PROPS_STORAGE_API,
-            generateStorageApi(data)
-          );
-          let $userWhiteList = panelHandlerComponents.createSectionContainerItem_textarea(
-            userWhiteList_template
-          );
+          Reflect.set(keywordLength.props, PROPS_STORAGE_API, generateStorageApi(data));
+          let $keywordLength = panelHandlerComponents.createSectionContainerItem_input(keywordLength);
+          let keywords_template = UITextArea("评论关键字", "keywords", "", "多个关键字换行分割");
+          Reflect.set(keywords_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+          let $keywords = panelHandlerComponents.createSectionContainerItem_textarea(keywords_template);
+          let userBlackList_template = UITextArea("黑名单用户", "userBlackList", "", "多个用户换行分割");
+          Reflect.set(userBlackList_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+          let $userBlackList = panelHandlerComponents.createSectionContainerItem_textarea(userBlackList_template);
+          let userWhiteList_template = UITextArea("白名单用户", "userWhiteList", "", "多个用户换行分割");
+          Reflect.set(userWhiteList_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+          let $userWhiteList = panelHandlerComponents.createSectionContainerItem_textarea(userWhiteList_template);
           $fragment.append(
             $enable,
             $replyFlag,
@@ -8582,11 +8032,7 @@ showView() {
                 content: {
                   text: (
 `
-                                ${Array.from(
-                    document.querySelectorAll(
-                      'link[rel="stylesheet"]'
-                    )
-                  ).map((item) => item.outerHTML).join("\n")}
+                                ${Array.from(document.querySelectorAll('link[rel="stylesheet"]')).map((item) => item.outerHTML).join("\n")}
 
                                 ${this.$el.isFilterElementHTML.join("\n")}
                                 `
@@ -8650,10 +8096,7 @@ getTemplateData() {
       };
     },
 getData() {
-      return _GM_getValue(
-        this.$key.STORAGE_KEY,
-        this.getTemplateData()
-      );
+      return _GM_getValue(this.$key.STORAGE_KEY, this.getTemplateData());
     },
 setData(data) {
       _GM_setValue(this.$key.STORAGE_KEY, data);
@@ -8679,38 +8122,21 @@ registerMenu() {
     },
 async runRule() {
       async function getCurrentProduct() {
-        let response = await httpx.get(
-          "/keke_integralmall-keke_integralmall.html",
-          {
-            fetch: true,
-            allowInterceptConfig: false
-          }
-        );
+        let response = await httpx.get("/keke_integralmall-keke_integralmall.html", {
+          fetch: true,
+          allowInterceptConfig: false
+        });
         if (!response.status) {
           Qmsg.error("【积分商城】获取数据失败");
           return;
         }
         let productInfoList = [];
-        let doc = domUtils.parseHTML(response.data.responseText, true, true);
+        let doc = domUtils.toElement(response.data.responseText, true, true);
         doc.querySelectorAll(".task-list-wrapper li.col-xs-12").forEach(($taskList) => {
           productInfoList.push({
-            name: domUtils.text(
-              $taskList.querySelector(
-                ".mall-info a > *:first-child"
-              )
-            ) || domUtils.text(
-              $taskList.querySelector(".mall-info a")
-            ),
-            price: domUtils.text(
-              $taskList.querySelector(
-                ".mall-info span.discount-price i"
-              )
-            ),
-            endTime: domUtils.text(
-              $taskList.querySelector(
-                ".mall-info #time_hz span.time"
-              )
-            ),
+            name: domUtils.text($taskList.querySelector(".mall-info a > *:first-child")) || domUtils.text($taskList.querySelector(".mall-info a")),
+            price: domUtils.text($taskList.querySelector(".mall-info span.discount-price i")),
+            endTime: domUtils.text($taskList.querySelector(".mall-info #time_hz span.time")),
             remainingQuantity: parseInt(
               $taskList.querySelector(".mall-info .mall-count .count-r")?.innerText?.replace(/仅剩|件/gi, "") || "0"
             )
@@ -8731,9 +8157,7 @@ async runRule() {
       }
       for (const productItem of productList) {
         for (const reminderOption of allData) {
-          if (reminderOption.enable && productItem["name"].match(
-            new RegExp(reminderOption["productName"], "i")
-          ) && !isNaN(productItem["remainingQuantity"]) && productItem["remainingQuantity"] > 0) {
+          if (reminderOption.enable && productItem["name"].match(new RegExp(reminderOption["productName"], "i")) && !isNaN(productItem["remainingQuantity"]) && productItem["remainingQuantity"] > 0) {
             log.success(`成功匹配对应商品`, reminderOption, productItem);
             __pops.confirm({
               title: {
@@ -8841,53 +8265,19 @@ showView() {
                 data = this.getTemplateData();
               }
               let enable_template = UISwitch("启用", "enable", true);
-              Reflect.set(
-                enable_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data)
-              );
-              let $enable = panelHandlerComponents.createSectionContainerItem_switch(
-                enable_template
-              );
-              let name_template = UIInput(
-                "规则名称",
-                "name",
-                "",
-                "",
-                void 0,
-                "必填"
-              );
-              Reflect.set(
-                name_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data)
-              );
-              let $name = panelHandlerComponents.createSectionContainerItem_input(
-                name_template
-              );
-              let productName_template = UIInput(
-                "商品名",
-                "productName",
-                "",
-                "",
-                void 0,
-                "可正则，需手动转义"
-              );
-              Reflect.set(
-                productName_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data)
-              );
-              let $productName = panelHandlerComponents.createSectionContainerItem_input(
-                productName_template
-              );
+              Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+              let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+              let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
+              Reflect.set(name_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+              let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+              let productName_template = UIInput("商品名", "productName", "", "", void 0, "可正则，需手动转义");
+              Reflect.set(productName_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+              let $productName = panelHandlerComponents.createSectionContainerItem_input(productName_template);
               $fragment.append($enable, $name, $productName);
               return $fragment;
             },
             onsubmit: ($form, isEdit, editData) => {
-              let $ulist_li = $form.querySelectorAll(
-                ".rule-form-ulist > li"
-              );
+              let $ulist_li = $form.querySelectorAll(".rule-form-ulist > li");
               let data = this.getTemplateData();
               if (isEdit) {
                 data.uuid = editData.uuid;
@@ -9066,76 +8456,20 @@ showView() {
                 data = this.getTemplateData();
               }
               let enable_template = UISwitch("启用", "enable", true);
-              Reflect.set(
-                enable_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data)
-              );
-              let $enable = panelHandlerComponents.createSectionContainerItem_switch(
-                enable_template
-              );
-              let name_template = UIInput(
-                "规则名称",
-                "name",
-                "",
-                "",
-                void 0,
-                "必填"
-              );
-              Reflect.set(
-                name_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data)
-              );
-              let $name = panelHandlerComponents.createSectionContainerItem_input(
-                name_template
-              );
-              let userUID_template = UIInput(
-                "用户UID",
-                "userUID",
-                "",
-                "",
-                void 0,
-                "必填，可正则，注意转义"
-              );
-              Reflect.set(
-                userUID_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data)
-              );
-              let $userUID = panelHandlerComponents.createSectionContainerItem_input(
-                userUID_template
-              );
-              let labelName_template = UIInput(
-                "标签名",
-                "labelName",
-                "",
-                "",
-                void 0,
-                "必填"
-              );
-              Reflect.set(
-                labelName_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data)
-              );
-              let $labelName = panelHandlerComponents.createSectionContainerItem_input(
-                labelName_template
-              );
-              let labelColor_template = UIInput(
-                "标签颜色",
-                "labelColor",
-                "",
-                ""
-              );
-              Reflect.set(
-                labelColor_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data)
-              );
-              let $labelColor = panelHandlerComponents.createSectionContainerItem_input(
-                labelColor_template
-              );
+              Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+              let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+              let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
+              Reflect.set(name_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+              let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+              let userUID_template = UIInput("用户UID", "userUID", "", "", void 0, "必填，可正则，注意转义");
+              Reflect.set(userUID_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+              let $userUID = panelHandlerComponents.createSectionContainerItem_input(userUID_template);
+              let labelName_template = UIInput("标签名", "labelName", "", "", void 0, "必填");
+              Reflect.set(labelName_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+              let $labelName = panelHandlerComponents.createSectionContainerItem_input(labelName_template);
+              let labelColor_template = UIInput("标签颜色", "labelColor", "", "");
+              Reflect.set(labelColor_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+              let $labelColor = panelHandlerComponents.createSectionContainerItem_input(labelColor_template);
               let $labelColor_input = $labelColor.querySelector("input");
               $labelColor.querySelector(".pops-panel-input__suffix")?.remove();
               $labelColor_input.setAttribute("type", "color");
@@ -9144,49 +8478,17 @@ showView() {
                 padding: "unset",
                 width: "80px"
               });
-              let labelStyle_template = UIInput(
-                "标签CSS",
-                "labelStyle",
-                "",
-                ""
-              );
-              Reflect.set(
-                labelStyle_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data)
-              );
-              let $labelStyle = panelHandlerComponents.createSectionContainerItem_input(
-                labelStyle_template
-              );
-              let labelClickEvent_template = UITextArea(
-                "标签点击事件",
-                "labelClickEvent",
-                "",
-                ""
-              );
-              Reflect.set(
-                labelClickEvent_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data)
-              );
-              let $labelClickEvent = panelHandlerComponents.createSectionContainerItem_textarea(
-                labelClickEvent_template
-              );
-              $fragment.append(
-                $enable,
-                $name,
-                $userUID,
-                $labelName,
-                $labelColor,
-                $labelStyle,
-                $labelClickEvent
-              );
+              let labelStyle_template = UIInput("标签CSS", "labelStyle", "", "");
+              Reflect.set(labelStyle_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+              let $labelStyle = panelHandlerComponents.createSectionContainerItem_input(labelStyle_template);
+              let labelClickEvent_template = UITextArea("标签点击事件", "labelClickEvent", "", "");
+              Reflect.set(labelClickEvent_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+              let $labelClickEvent = panelHandlerComponents.createSectionContainerItem_textarea(labelClickEvent_template);
+              $fragment.append($enable, $name, $userUID, $labelName, $labelColor, $labelStyle, $labelClickEvent);
               return $fragment;
             },
             onsubmit: ($form, isEdit, editData) => {
-              let $ulist_li = $form.querySelectorAll(
-                ".rule-form-ulist > li"
-              );
+              let $ulist_li = $form.querySelectorAll(".rule-form-ulist > li");
               let data = this.getTemplateData();
               if (isEdit) {
                 data.uuid = editData.uuid;
@@ -9278,9 +8580,7 @@ runRule(ruleDataList) {
         }).filter((item) => item != null);
         if (mt_uid_array.length) {
           let mt_uid = mt_uid_array[0];
-          let ownLabelList = ruleDataList.filter(
-            (item) => item.enable && mt_uid.match(new RegExp(item.userUID))
-          );
+          let ownLabelList = ruleDataList.filter((item) => item.enable && mt_uid.match(new RegExp(item.userUID)));
           if (!ownLabelList.length) {
             return;
           }
@@ -9293,7 +8593,7 @@ runRule(ruleDataList) {
                     background: ${labelOption.labelColor} !important;${labelOption.labelStyle || ""}`;
             $label.innerHTML = labelOption.labelName;
             domUtils.on($label, "click", async (event) => {
-              utils.preventEvent(event);
+              domUtils.preventEvent(event);
               if (utils.isNotNull(labelOption.labelClickEvent)) {
                 _unsafeWindow.eval(labelOption.labelClickEvent);
               }
@@ -9358,7 +8658,7 @@ clearData() {
       _GM_deleteValue(this.$key.STORAGE_KEY);
     }
   };
-  const optimizationCSS = '.f_c,\r\n.f_c a,\r\n.ntc_body {\r\n	color: #000 !important;\r\n}\r\ninput::placeholder,\r\ntextarea::placeholder {\r\n	color: #cfcfcf;\r\n}\r\n#needsubject::placeholder {\r\n	font-weight: 700;\r\n}\r\n#postform #comiis_mh_sub {\r\n	height: 60px;\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n#postform #comiis_post_tab {\r\n	display: inherit;\r\n	width: 100%;\r\n}\r\n#postform .comiis_sendbtn {\r\n	padding: 0 12px;\r\n	display: flex !important;\r\n	-webkit-box-align: center;\r\n	-moz-box-align: center;\r\n	align-items: center;\r\n}\r\n#postform .f_f {\r\n	color: #fff !important;\r\n}\r\n#postform #comiis_post_tab .bg_f.b_b.cl:nth-child(2) .comiis_atlist a:hover,\r\n#postform #comiis_post_tab .bg_f.b_b.cl:nth-child(2) .comiis_atlist a:link,\r\n#postform #comiis_post_tab .bg_f.b_b.cl:nth-child(2) .comiis_atlist a:visited {\r\n	color: #333 !important;\r\n}\r\n#postform .comiis_post_from .comiis_post_ico.comiis_minipost_icot {\r\n	position: fixed;\r\n	display: inline-table;\r\n	z-index: 90;\r\n	left: 0;\r\n	right: 0;\r\n	bottom: 0;\r\n	width: 100%;\r\n	overflow: hidden;\r\n	padding: 0;\r\n}\r\n#postform .comiis_post_from #comiis_post_tab .comiis_bqbox {\r\n	height: 200px;\r\n}\r\n#postform .comiis_post_from #comiis_post_tab .comiis_smiley_box {\r\n	height: 150px;\r\n}\r\n#postform\r\n	.comiis_post_from\r\n	#comiis_post_tab\r\n	.comiis_input_style\r\n	.comiis_post_urlico {\r\n	overflow-y: auto;\r\n	height: 110px;\r\n}\r\n#postform\r\n	.comiis_post_from\r\n	#comiis_post_tab\r\n	.comiis_smiley_box\r\n	.comiis_optimization {\r\n	display: block;\r\n	overflow-y: auto;\r\n	height: 100%;\r\n}\r\n#postform #comiis_post_tab .comiis_input_style .comiis_xifont {\r\n	width: -webkit-fill-available;\r\n	width: -moz-available;\r\n}\r\n#postform #comiis_post_tab .comiis_input_style .comiis_xifont i.comiis_font {\r\n	font-size: 16px;\r\n	line-height: inherit;\r\n	padding-top: 0;\r\n}\r\n#postform #comiis_post_tab .comiis_input_style .styli_h10 {\r\n	display: none;\r\n}\r\n.gm_plugin_chartbed .comiis_chartbed_hello,\r\n.gm_plugin_chartbed .comiis_chartbed_history,\r\n.gm_plugin_chartbed .comiis_chartbed_kggzs,\r\n.gm_plugin_chartbed .comiis_chartbed_luntan,\r\n.gm_plugin_chartbed .comiis_chartbed_mt,\r\n.gm_plugin_chartbed .comiis_chartbed_z4a {\r\n	height: 140px;\r\n	overflow-y: auto;\r\n	flex-direction: column;\r\n}\r\n#comiis_pictitle_key {\r\n	display: -webkit-box;\r\n	top: 0;\r\n	left: 0;\r\n	height: 42px;\r\n	line-height: 42px;\r\n	overflow: hidden;\r\n	overflow-x: auto;\r\n	background: #f8f8f8;\r\n}\r\n#comiis_pictitle_key a {\r\n	color: #333 !important;\r\n	padding: 0 10px;\r\n}\r\n#comiis_mh_sub {\r\n	height: auto !important;\r\n}\r\n#comiis_mh_sub .swiper-wrapper.comiis_post_ico {\r\n	flex-flow: wrap;\r\n}\r\n#comiis_mh_sub a {\r\n	margin: 5px 0;\r\n}\r\n#comiis_post_tab .comiis_over_box {\r\n	max-height: 225px;\r\n}\r\n@media screen and (max-width: 350px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 14.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 350px) and (max-width: 400px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 12.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 400px) and (max-width: 450px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 11%;\r\n	}\r\n}\r\n@media screen and (min-width: 450px) and (max-width: 500px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 10%;\r\n	}\r\n}\r\n@media screen and (min-width: 500px) and (max-width: 550px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 9.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 550px) and (max-width: 600px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 9%;\r\n	}\r\n}\r\n@media screen and (min-width: 600px) and (max-width: 650px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 8.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 650px) and (max-width: 700px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 8%;\r\n	}\r\n}\r\n@media screen and (min-width: 700px) and (max-width: 750px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 7.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 750px) and (max-width: 800px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 7%;\r\n	}\r\n}\r\n@media screen and (min-width: 800px) and (max-width: 850px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 6.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 850px) and (max-width: 1200px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 6%;\r\n	}\r\n}\r\n@media screen and (min-width: 1200px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 4.5%;\r\n	}\r\n}\r\n\r\n#comiis_head .header_y {\r\n	display: flex;\r\n	align-content: center;\r\n	align-items: center;\r\n	justify-content: flex-end;\r\n	height: 100%;\r\n}\r\n#comiis_head .header_y input {\r\n	border: transparent;\r\n	background: 0 0;\r\n	text-align: center;\r\n	margin: 0 5px;\r\n}\r\n#comiis_head .header_y input[value="删除"] {\r\n	color: #d00;\r\n}\r\n#comiis_head .header_y input[value="保存"] {\r\n	color: #b0ff6a;\r\n}\r\n#comiis_head .header_y input[value="保存草稿"] {\r\n	color: #f90;\r\n}\r\n#comiis_head .header_y input[value="发表"] {\r\n	color: #b0ff6a;\r\n}\r\n#comiis_head .header_y input[value="回复"] {\r\n	color: #b0ff6a;\r\n}\r\n#comiis_post_tab {\r\n	color: #000;\r\n}\r\n.gm_plugin_chartbed .delImg a,\r\n.gm_plugin_chartbed .p_img a {\r\n	padding: 0;\r\n}\r\n.gm_plugin_chartbed .delImg a i {\r\n	line-height: inherit;\r\n}\r\n#filedata,\r\n#filedata_hello,\r\n#filedata_kggzs,\r\n#filedata_mt {\r\n	display: none;\r\n}\r\n\r\n#comiis_mh_sub {\r\n	height: 40px;\r\n}\r\n#imglist .del a {\r\n	padding: 0;\r\n}\r\n.comiis_post_from.mt15 {\r\n	margin-top: unset !important;\r\n}\r\n';
+  const optimizationCSS = '.f_c,\r\n.f_c a,\r\n.ntc_body {\r\n  color: #000 !important;\r\n}\r\ninput::placeholder,\r\ntextarea::placeholder {\r\n  color: #cfcfcf;\r\n}\r\n#needsubject::placeholder {\r\n  font-weight: 700;\r\n}\r\n#postform #comiis_mh_sub {\r\n  height: 60px;\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n#postform #comiis_post_tab {\r\n  display: inherit;\r\n  width: 100%;\r\n}\r\n#postform .comiis_sendbtn {\r\n  padding: 0 12px;\r\n  display: flex !important;\r\n  -webkit-box-align: center;\r\n  -moz-box-align: center;\r\n  align-items: center;\r\n}\r\n#postform .f_f {\r\n  color: #fff !important;\r\n}\r\n#postform #comiis_post_tab .bg_f.b_b.cl:nth-child(2) .comiis_atlist a:hover,\r\n#postform #comiis_post_tab .bg_f.b_b.cl:nth-child(2) .comiis_atlist a:link,\r\n#postform #comiis_post_tab .bg_f.b_b.cl:nth-child(2) .comiis_atlist a:visited {\r\n  color: #333 !important;\r\n}\r\n#postform .comiis_post_from .comiis_post_ico.comiis_minipost_icot {\r\n  position: fixed;\r\n  display: inline-table;\r\n  z-index: 90;\r\n  left: 0;\r\n  right: 0;\r\n  bottom: 0;\r\n  width: 100%;\r\n  overflow: hidden;\r\n  padding: 0;\r\n}\r\n#postform .comiis_post_from #comiis_post_tab .comiis_bqbox {\r\n  height: 200px;\r\n}\r\n#postform .comiis_post_from #comiis_post_tab .comiis_smiley_box {\r\n  height: 150px;\r\n}\r\n#postform .comiis_post_from #comiis_post_tab .comiis_input_style .comiis_post_urlico {\r\n  overflow-y: auto;\r\n  height: 110px;\r\n}\r\n#postform .comiis_post_from #comiis_post_tab .comiis_smiley_box .comiis_optimization {\r\n  display: block;\r\n  overflow-y: auto;\r\n  height: 100%;\r\n}\r\n#postform #comiis_post_tab .comiis_input_style .comiis_xifont {\r\n  width: -webkit-fill-available;\r\n  width: -moz-available;\r\n}\r\n#postform #comiis_post_tab .comiis_input_style .comiis_xifont i.comiis_font {\r\n  font-size: 16px;\r\n  line-height: inherit;\r\n  padding-top: 0;\r\n}\r\n#postform #comiis_post_tab .comiis_input_style .styli_h10 {\r\n  display: none;\r\n}\r\n.gm_plugin_chartbed .comiis_chartbed_hello,\r\n.gm_plugin_chartbed .comiis_chartbed_history,\r\n.gm_plugin_chartbed .comiis_chartbed_kggzs,\r\n.gm_plugin_chartbed .comiis_chartbed_luntan,\r\n.gm_plugin_chartbed .comiis_chartbed_mt,\r\n.gm_plugin_chartbed .comiis_chartbed_z4a {\r\n  height: 140px;\r\n  overflow-y: auto;\r\n  flex-direction: column;\r\n}\r\n#comiis_pictitle_key {\r\n  display: -webkit-box;\r\n  top: 0;\r\n  left: 0;\r\n  height: 42px;\r\n  line-height: 42px;\r\n  overflow: hidden;\r\n  overflow-x: auto;\r\n  background: #f8f8f8;\r\n}\r\n#comiis_pictitle_key a {\r\n  color: #333 !important;\r\n  padding: 0 10px;\r\n}\r\n#comiis_mh_sub {\r\n  height: auto !important;\r\n}\r\n#comiis_mh_sub .swiper-wrapper.comiis_post_ico {\r\n  flex-flow: wrap;\r\n}\r\n#comiis_mh_sub a {\r\n  margin: 5px 0;\r\n}\r\n#comiis_post_tab .comiis_over_box {\r\n  max-height: 225px;\r\n}\r\n@media screen and (max-width: 350px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 14.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 350px) and (max-width: 400px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 12.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 400px) and (max-width: 450px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 11%;\r\n  }\r\n}\r\n@media screen and (min-width: 450px) and (max-width: 500px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 10%;\r\n  }\r\n}\r\n@media screen and (min-width: 500px) and (max-width: 550px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 9.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 550px) and (max-width: 600px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 9%;\r\n  }\r\n}\r\n@media screen and (min-width: 600px) and (max-width: 650px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 8.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 650px) and (max-width: 700px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 8%;\r\n  }\r\n}\r\n@media screen and (min-width: 700px) and (max-width: 750px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 7.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 750px) and (max-width: 800px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 7%;\r\n  }\r\n}\r\n@media screen and (min-width: 800px) and (max-width: 850px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 6.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 850px) and (max-width: 1200px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 6%;\r\n  }\r\n}\r\n@media screen and (min-width: 1200px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 4.5%;\r\n  }\r\n}\r\n\r\n#comiis_head .header_y {\r\n  display: flex;\r\n  align-content: center;\r\n  align-items: center;\r\n  justify-content: flex-end;\r\n  height: 100%;\r\n}\r\n#comiis_head .header_y input {\r\n  border: transparent;\r\n  background: 0 0;\r\n  text-align: center;\r\n  margin: 0 5px;\r\n}\r\n#comiis_head .header_y input[value="删除"] {\r\n  color: #d00;\r\n}\r\n#comiis_head .header_y input[value="保存"] {\r\n  color: #b0ff6a;\r\n}\r\n#comiis_head .header_y input[value="保存草稿"] {\r\n  color: #f90;\r\n}\r\n#comiis_head .header_y input[value="发表"] {\r\n  color: #b0ff6a;\r\n}\r\n#comiis_head .header_y input[value="回复"] {\r\n  color: #b0ff6a;\r\n}\r\n#comiis_post_tab {\r\n  color: #000;\r\n}\r\n.gm_plugin_chartbed .delImg a,\r\n.gm_plugin_chartbed .p_img a {\r\n  padding: 0;\r\n}\r\n.gm_plugin_chartbed .delImg a i {\r\n  line-height: inherit;\r\n}\r\n#filedata,\r\n#filedata_hello,\r\n#filedata_kggzs,\r\n#filedata_mt {\r\n  display: none;\r\n}\r\n\r\n#comiis_mh_sub {\r\n  height: 40px;\r\n}\r\n#imglist .del a {\r\n  padding: 0;\r\n}\r\n.comiis_post_from.mt15 {\r\n  margin-top: unset !important;\r\n}\r\n';
   const MTSmiliesDict = () => {
     return {
       "[呵呵]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq001.gif",
@@ -9669,27 +8969,17 @@ parseText(text) {
           let urlNameMatch = item.match(/\[url=[\s\S]*?\]([\s\S]*?)\[\/url\]/);
           let _url_ = urlMatch ? urlMatch[urlMatch.length - 1] : "";
           let _url_name_ = urlNameMatch ? urlNameMatch[urlNameMatch.length - 1] : "";
-          text = text.replace(
-            item,
-            `<a href="${_url_}" target="_blank">${_url_name_}</a>`
-          );
+          text = text.replace(item, `<a href="${_url_}" target="_blank">${_url_name_}</a>`);
         });
       }
       let color = text.match(/\[color\=[\s\S]*?\]([\s\S]*?)\[\/color\]/g);
       if (color) {
         color.forEach((item) => {
-          let colorValueMatch = item.match(
-            /\[color=([\s\S]*?)\][\s\S]*\[\/color\]/
-          );
-          let colorTextMatch = item.match(
-            /\[color=[\s\S]*?\]([\s\S]*?)\[\/color\]/
-          );
+          let colorValueMatch = item.match(/\[color=([\s\S]*?)\][\s\S]*\[\/color\]/);
+          let colorTextMatch = item.match(/\[color=[\s\S]*?\]([\s\S]*?)\[\/color\]/);
           let colorValue = colorValueMatch ? colorValueMatch[colorValueMatch.length - 1] : "";
           let colorText = colorTextMatch ? colorTextMatch[colorTextMatch.length - 1] : "";
-          text = text.replace(
-            item,
-            `<font color="${colorValue}">${colorText}</font>`
-          );
+          text = text.replace(item, `<font color="${colorValue}">${colorText}</font>`);
         });
       }
       let size = text.match(/\[size\=[\s\S]*?\]([\s\S]*?)\[\/size\]/g);
@@ -9699,10 +8989,7 @@ parseText(text) {
           let sizeTextMatch = item.match(/\[size=[\s\S]*?\]([\s\S]*?)\[\/size\]/);
           let sizeValue = sizeValueMatch ? sizeValueMatch[sizeValueMatch.length - 1] : "";
           let sizeText = sizeTextMatch ? sizeTextMatch[sizeTextMatch.length - 1] : "";
-          text = text.replace(
-            item,
-            `<font size="${sizeValue}">${sizeText}</font>`
-          );
+          text = text.replace(item, `<font size="${sizeValue}">${sizeText}</font>`);
         });
       }
       let img = text.match(/\[img(|\=[\s\S]+?)\]([\s\S]*?)\[\/img\]/g);
@@ -9718,9 +9005,7 @@ parseText(text) {
           }
           widthInfo = widthInfo ? widthInfo : "";
           heightInfo = heightInfo ? heightInfo : "";
-          let match_content = item.match(
-            /\[img\]([\s\S]*?)\[\/img\]|\[img=[\s\S]*?\]([\s\S]*?)\[\/img\]/
-          );
+          let match_content = item.match(/\[img\]([\s\S]*?)\[\/img\]|\[img=[\s\S]*?\]([\s\S]*?)\[\/img\]/);
           let content = "";
           if (match_content) {
             if (match_content[match_content.length - 1] == null) {
@@ -9749,9 +9034,7 @@ parseText(text) {
       let hide2 = text.match(/\[hide=[\s\S]*?\]([\s\S]*?)\[\/hide\]/g);
       if (hide2) {
         hide2.forEach((item) => {
-          let match_content = item.match(
-            /\[hide=([\s\S]*?)\]([\s\S]*?)\[\/hide\]/
-          );
+          let match_content = item.match(/\[hide=([\s\S]*?)\]([\s\S]*?)\[\/hide\]/);
           let other_info = match_content ? match_content[match_content.length - 2] : "";
           other_info = other_info.split(",");
           let integral_big_can_see = other_info.length == 2 ? other_info[1] : "";
@@ -9777,10 +9060,7 @@ parseText(text) {
         free.forEach((item) => {
           let match_content = item.match(/\[free\]([\s\S]*?)\[\/free\]/);
           let content = match_content ? match_content[match_content.length - 1] : "";
-          text = text.replace(
-            item,
-            `<div class="comiis_quote bg_h f_c"><blockquote>${content}</blockquote></div>`
-          );
+          text = text.replace(item, `<div class="comiis_quote bg_h f_c"><blockquote>${content}</blockquote></div>`);
         });
       }
       let strong = text.match(/\[b\]([\s\S]*?)\[\/b\]/g);
@@ -9820,19 +9100,14 @@ parseText(text) {
         smilies.forEach((item) => {
           let smiliesMatchSrc = smiliesDictionaries[item];
           if (smiliesMatchSrc) {
-            text = text.replace(
-              item,
-              `<img loading="lazy" src="${smiliesMatchSrc}" border="0" alt="" smilieid="">`
-            );
+            text = text.replace(item, `<img loading="lazy" src="${smiliesMatchSrc}" border="0" alt="" smilieid="">`);
           }
         });
       }
       let media = text.match(/\[media=[\s\S]+?\][\s\S]+?\[\/media\]/g);
       if (media) {
         media.forEach((item) => {
-          let match_content = item.match(
-            /\[media=[\s\S]*?\]([\s\S]*?)\[\/media\]/
-          );
+          let match_content = item.match(/\[media=[\s\S]*?\]([\s\S]*?)\[\/media\]/);
           let content = match_content ? match_content[match_content.length - 1] : "";
           if (content) {
             text = text.replace(
@@ -9846,9 +9121,7 @@ parseText(text) {
       if (email) {
         email.forEach((item) => {
           let email_match = item.match(/\[email=([\s\S]*?)\][\s\S]*?\[\/email\]/);
-          let content_match = item.match(
-            /\[email=[\s\S]*?\]([\s\S]*?)\[\/email\]/
-          );
+          let content_match = item.match(/\[email=[\s\S]*?\]([\s\S]*?)\[\/email\]/);
           let _email_ = email_match.length ? (
 email_match[email_match.length - 1]
           ) : "";
@@ -9856,10 +9129,7 @@ email_match[email_match.length - 1]
 content_match[content_match.length - 1]
           ) : "";
           if (_email_ || _content_) {
-            text = text.replace(
-              item,
-              `<a href="mailto:${_email_}">${_content_}</a>`
-            );
+            text = text.replace(item, `<a href="mailto:${_email_}">${_content_}</a>`);
           }
         });
       }
@@ -9867,9 +9137,7 @@ content_match[content_match.length - 1]
       if (align) {
         align.forEach((item) => {
           let align_match = item.match(/\[align=([\s\S]*?)\][\s\S]+?\[\/align\]/);
-          let content_match = item.match(
-            /\[align=[\s\S]*?\]([\s\S]+?)\[\/align\]/
-          );
+          let content_match = item.match(/\[align=[\s\S]*?\]([\s\S]+?)\[\/align\]/);
           let _align_ = align_match.length ? (
 align_match[align_match.length - 1]
           ) : "";
@@ -9877,10 +9145,7 @@ align_match[align_match.length - 1]
 content_match[content_match.length - 1]
           ) : "";
           if (_align_ || _content_) {
-            text = text.replace(
-              item,
-              `<div align="${_align_}">${_content_}</div>`
-            );
+            text = text.replace(item, `<div align="${_align_}">${_content_}</div>`);
           }
         });
       }
@@ -9923,12 +9188,8 @@ content_match[content_match.length - 1]
       let list = text.match(/\[list=[\s\S]+?\][\s\S]+?\[\/list\]/g);
       if (list) {
         list.forEach((item) => {
-          let list_model_match = item.match(
-            /\[list=([\s\S]*?)\][\s\S]*?\[\/list\]/
-          );
-          let list_content_match = item.match(
-            /\[list=[\s\S]*?\]([\s\S]*?)\[\/list\]/
-          );
+          let list_model_match = item.match(/\[list=([\s\S]*?)\][\s\S]*?\[\/list\]/);
+          let list_content_match = item.match(/\[list=[\s\S]*?\]([\s\S]*?)\[\/list\]/);
           let list_model = list_model_match ? list_model_match[list_model_match.length - 1] : "";
           let list_type = "";
           if (list_model === "a") {
@@ -9951,10 +9212,7 @@ content_match[content_match.length - 1]
             content = newContent;
           }
           content = content.replace(/\n/g, "");
-          text = text.replace(
-            item,
-            `<ul type="${list_model}" class="${list_type}">${content}</ul>`
-          );
+          text = text.replace(item, `<ul type="${list_model}" class="${list_type}">${content}</ul>`);
         });
       }
       return text;
@@ -10074,9 +9332,7 @@ overridePageEditor() {
       domUtils.css("#postform .comiis_post_from.mt15", {
         "margin-top": "0px !important"
       });
-      let comiis_post_tab = _unsafeWindow.$(
-        "#postform .comiis_post_from #comiis_post_tab"
-      );
+      let comiis_post_tab = _unsafeWindow.$("#postform .comiis_post_from #comiis_post_tab");
       _unsafeWindow.$("#postform .comiis_post_from .comiis_post_ico").append(comiis_post_tab);
       comiis_post_tab.remove();
       _unsafeWindow.textarea_scrollHeight = () => {
@@ -10085,15 +9341,13 @@ overridePageEditor() {
       _unsafeWindow.$.fn.extend({
         comiis_delete: function(...args) {
           let result = comiis_delete.call(this, ...args);
-          utils.dispatchEvent(that.$el.$input, "input");
+          domUtils.trigger(that.$el.$input, "input");
           return result;
         }
       });
       domUtils.hide(".comiis_btnbox", false);
       this.initVotePage();
-      _unsafeWindow.$(
-        ".gm_plugin_chartbed .comiis_over_box.comiis_input_style #imglist"
-      );
+      _unsafeWindow.$(".gm_plugin_chartbed .comiis_over_box.comiis_input_style #imglist");
       addStyle(
 `
         #imglist_settings button{
@@ -10127,9 +9381,7 @@ overridePageEditor() {
       let fatie_toupiao = parseInt(domUtils.css("#comiis_sub", "height")) || 0;
       let extra_margin_bottom = $("#pollm_c_1") ? 60 : 0;
       let title_height = parseInt(domUtils.css(".comiis_styli.comiis_flex", "height")) || 0;
-      let nav_bottom_height = parseInt(
-        domUtils.css(".comiis_post_ico.comiis_minipost_icot", "height")
-      ) || 0;
+      let nav_bottom_height = parseInt(domUtils.css(".comiis_post_ico.comiis_minipost_icot", "height")) || 0;
       domUtils.css(
         "#needmessage",
         "height",
@@ -10139,11 +9391,7 @@ overridePageEditor() {
       if (MTRouter.isPostPublish_edit() && domUtils.val("#needsubject") === "") {
         domUtils.hide(".comiis_styli.comiis_flex", false);
       } else {
-        domUtils.attr(
-          "#needsubject",
-          "placeholder",
-          "请输入完整的帖子标题 (1-80个字)"
-        );
+        domUtils.attr("#needsubject", "placeholder", "请输入完整的帖子标题 (1-80个字)");
       }
       domUtils.attr("#needmessage", "placeholder", "来吧，尽情发挥吧...");
       if (typeof _unsafeWindow.comiis_addsmilies == "function") {
@@ -10152,9 +9400,7 @@ overridePageEditor() {
           _unsafeWindow.$("#needmessage")[0].dispatchEvent(new Event("input"));
         };
       }
-      if (Panel.getValue(
-        "mt-forum-post-editorOptimizationNormal-recordInputText"
-      ) || Panel.getValue("mt-forum-post-editorOptimization-recordInputText")) {
+      if (Panel.getValue("mt-forum-post-editorOptimizationNormal-recordInputText") || Panel.getValue("mt-forum-post-editorOptimization-recordInputText")) {
         this.setInputChangeEvent();
         this.initReplyText();
       }
@@ -10181,9 +9427,7 @@ async initReplyText() {
         log.info(`新发布帖子的页面`);
         if (MTRouter.isPostPublish_voting()) {
           log.info(`投票页面`);
-          data = _GM_getValue(
-            this.$key.noPublishVotingSerializeText
-          );
+          data = _GM_getValue(this.$key.noPublishVotingSerializeText);
           delete_callback = () => {
             _GM_deleteValue(that.$key.noPublishVotingSerializeText);
           };
@@ -10196,9 +9440,7 @@ async initReplyText() {
         }
       } else if (MTRouter.isPostPublish_edit()) {
         log.info(`草稿的页面`);
-        log.info(
-          `type：${this.$data.type} tid：${this.$data.tid} pid：${this.$data.pid}`
-        );
+        log.info(`type：${this.$data.type} tid：${this.$data.tid} pid：${this.$data.pid}`);
         let initResult = await this.$data.db.get("data");
         if (initResult.code === 201) {
           await this.$data.db.save("data", []);
@@ -10217,9 +9459,7 @@ async initReplyText() {
           if (findValue) {
             data = findValue.data;
             delete_callback = async () => {
-              let deleteQuery = await this.$data.db.get(
-                "data"
-              );
+              let deleteQuery = await this.$data.db.get("data");
               if (deleteQuery.data) {
                 let deleteFindIndex = deleteQuery.data.findIndex((item) => {
                   if (item.type !== that.$data.type) {
@@ -10232,10 +9472,7 @@ async initReplyText() {
                 });
                 if (deleteFindIndex != -1) {
                   deleteQuery.data.splice(deleteFindIndex, 1);
-                  await this.$data.db.save(
-                    "data",
-                    deleteQuery.data
-                  );
+                  await this.$data.db.save("data", deleteQuery.data);
                 }
               }
             };
@@ -10243,9 +9480,7 @@ async initReplyText() {
         }
       } else if (MTRouter.isPostPublish_reply()) {
         log.info(`回复页面`);
-        if (Panel.getValue(
-          "mt-forum-post-editorOptimizationNormal-recordInputText"
-        )) {
+        if (Panel.getValue("mt-forum-post-editorOptimizationNormal-recordInputText")) {
           let initResult = await MTEditorOptimizationNormal.$data.db.get("data");
           if (initResult.code === 201) {
             await this.$data.db.save("data", []);
@@ -10266,63 +9501,42 @@ async initReplyText() {
       }
       if (MTRouter.isPostPublish_voting()) {
         save_callback = () => {
-          let $title = that.$el.$form.querySelector(
-            "input[name='subject']"
-          );
-          let $content = that.$el.$form.querySelector(
-            "textarea[name='message']"
-          );
-          let $maxchoices = that.$el.$form.querySelector(
-            "input[name='maxchoices']"
-          );
-          let $expiration = that.$el.$form.querySelector(
-            "input[name='expiration']"
-          );
-          let $visibilitypoll = that.$el.$form.querySelector(
-            "input[name='visibilitypoll']"
-          );
-          let $overt = that.$el.$form.querySelector(
-            "input[name='overt']"
-          );
+          let $title = that.$el.$form.querySelector("input[name='subject']");
+          let $content = that.$el.$form.querySelector("textarea[name='message']");
+          let $maxchoices = that.$el.$form.querySelector("input[name='maxchoices']");
+          let $expiration = that.$el.$form.querySelector("input[name='expiration']");
+          let $visibilitypoll = that.$el.$form.querySelector("input[name='visibilitypoll']");
+          let $overt = that.$el.$form.querySelector("input[name='overt']");
           domUtils.val($title, data.title);
           domUtils.val($content, data.content);
           domUtils.val($maxchoices, data.maxchoices);
           domUtils.val($expiration, data.expiration);
-          domUtils.val(
-            $visibilitypoll,
-            data.visibilitypoll
-          );
+          domUtils.val($visibilitypoll, data.visibilitypoll);
           domUtils.val($overt, data.overt);
-          utils.dispatchEvent($title, "input");
-          utils.dispatchEvent($content, "input");
-          utils.dispatchEvent($maxchoices, "input");
-          utils.dispatchEvent($expiration, "input");
-          utils.dispatchEvent($visibilitypoll, "input");
-          utils.dispatchEvent($overt, "input");
+          domUtils.trigger($title, "input");
+          domUtils.trigger($content, "input");
+          domUtils.trigger($maxchoices, "input");
+          domUtils.trigger($expiration, "input");
+          domUtils.trigger($visibilitypoll, "input");
+          domUtils.trigger($overt, "input");
           return true;
         };
       } else {
         if (MTRouter.isPostPublish_reply()) {
           save_callback = () => {
-            let $content = that.$el.$form.querySelector(
-              "textarea[name='message']"
-            );
+            let $content = that.$el.$form.querySelector("textarea[name='message']");
             domUtils.val($content, data.text);
-            utils.dispatchEvent($content, "input");
+            domUtils.trigger($content, "input");
             return true;
           };
         } else {
           save_callback = () => {
-            let $title = that.$el.$form.querySelector(
-              "input[name='subject']"
-            );
-            let $content = that.$el.$form.querySelector(
-              "textarea[name='message']"
-            );
+            let $title = that.$el.$form.querySelector("input[name='subject']");
+            let $content = that.$el.$form.querySelector("textarea[name='message']");
             domUtils.val($title, data.title);
             domUtils.val($content, data.content);
-            utils.dispatchEvent($title, "input");
-            utils.dispatchEvent($content, "input");
+            domUtils.trigger($title, "input");
+            domUtils.trigger($content, "input");
             return true;
           };
         }
@@ -10381,9 +9595,7 @@ async initReplyText() {
 async getReplyRecordSize() {
       let result = await this.$data.db.get("data");
       if (result.success) {
-        let size = utils.getTextStorageSize(
-          result?.data?.length ? JSON.stringify(result.data) : ""
-        );
+        let size = utils.getTextStorageSize(result?.data?.length ? JSON.stringify(result.data) : "");
         return size;
       } else {
         return utils.formatByteToSize(0);
@@ -10420,126 +9632,100 @@ deleteReplyTextStorage() {
     },
 setInputChangeEvent() {
       const that = this;
-      domUtils.on(
-        [this.$el.$input, this.$el.$title].filter(Boolean),
-        ["input", "propertychange"],
-        function(event) {
-          let data = null;
+      domUtils.on([this.$el.$input, this.$el.$title].filter(Boolean), ["input", "propertychange"], function(event) {
+        let data = null;
+        if (MTRouter.isPostPublish_voting()) {
+          let $title = that.$el.$form.querySelector("input[name='subject']");
+          let $content = that.$el.$form.querySelector("textarea[name='message']");
+          let $maxchoices = that.$el.$form.querySelector("input[name='maxchoices']");
+          let $expiration = that.$el.$form.querySelector("input[name='expiration']");
+          let $visibilitypoll = that.$el.$form.querySelector("input[name='visibilitypoll']");
+          let $overt = that.$el.$form.querySelector("input[name='overt']");
+          data = {
+            title: $title.value,
+            maxchoices: $maxchoices.value,
+            expiration: $expiration.value,
+            visibilitypoll: $visibilitypoll.checked,
+            overt: $overt.checked,
+            content: $content.value
+          };
+        } else {
+          let $title = that.$el.$form.querySelector("input[name='subject']");
+          let $content = that.$el.$form.querySelector("textarea[name='message']");
+          data = {
+            title: $title?.value,
+            content: $content.value
+          };
+        }
+        if (MTRouter.isPostPublish_newthread()) {
+          log.info(`内容改变 ==> 新发布帖子的页面`);
           if (MTRouter.isPostPublish_voting()) {
-            let $title = that.$el.$form.querySelector(
-              "input[name='subject']"
-            );
-            let $content = that.$el.$form.querySelector(
-              "textarea[name='message']"
-            );
-            let $maxchoices = that.$el.$form.querySelector(
-              "input[name='maxchoices']"
-            );
-            let $expiration = that.$el.$form.querySelector(
-              "input[name='expiration']"
-            );
-            let $visibilitypoll = that.$el.$form.querySelector(
-              "input[name='visibilitypoll']"
-            );
-            let $overt = that.$el.$form.querySelector(
-              "input[name='overt']"
-            );
-            data = {
-              title: $title.value,
-              maxchoices: $maxchoices.value,
-              expiration: $expiration.value,
-              visibilitypoll: $visibilitypoll.checked,
-              overt: $overt.checked,
-              content: $content.value
-            };
+            _GM_setValue(that.$key.noPublishVotingSerializeText, data);
           } else {
-            let $title = that.$el.$form.querySelector(
-              "input[name='subject']"
-            );
-            let $content = that.$el.$form.querySelector(
-              "textarea[name='message']"
-            );
-            data = {
-              title: $title?.value,
-              content: $content.value
-            };
+            _GM_setValue(that.$key.noPublishSerializeText, data);
           }
-          if (MTRouter.isPostPublish_newthread()) {
-            log.info(`内容改变 ==> 新发布帖子的页面`);
-            if (MTRouter.isPostPublish_voting()) {
-              _GM_setValue(that.$key.noPublishVotingSerializeText, data);
-            } else {
-              _GM_setValue(that.$key.noPublishSerializeText, data);
+        } else if (MTRouter.isPostPublish_edit()) {
+          log.info(`内容改变 ==> 草稿的页面`);
+          that.$data.db.get("data").then((result) => {
+            if (!result.success) {
+              console.warn(result);
+              return;
             }
-          } else if (MTRouter.isPostPublish_edit()) {
-            log.info(`内容改变 ==> 草稿的页面`);
-            that.$data.db.get("data").then((result) => {
-              if (!result.success) {
+            let localDataIndex = result.data.findIndex((item) => {
+              if (item.type !== that.$data.type) {
+                return;
+              }
+              if (item.tid !== that.$data.tid || item.pid !== that.$data.pid) {
+                return;
+              }
+              return true;
+            });
+            if (localDataIndex !== -1) {
+              result.data.splice(localDataIndex, 1);
+            }
+            result.data.push({
+              url: window.location.href,
+              data,
+              pid: that.$data.pid,
+              tid: that.$data.tid,
+              type: that.$data.type
+            });
+            that.$data.db.save("data", result.data).then((result2) => {
+            });
+          });
+        } else if (MTRouter.isPostPublish_reply()) {
+          log.info(`内容改变 ==> 回复页面`);
+          Panel.execMenu("mt-forum-post-editorOptimizationNormal-recordInputText", () => {
+            MTEditorOptimizationNormal.$data.db.get("data").then((result) => {
+              if (!result.success || result.code === 201) {
                 console.warn(result);
                 return;
               }
               let localDataIndex = result.data.findIndex((item) => {
-                if (item.type !== that.$data.type) {
-                  return;
-                }
-                if (item.tid !== that.$data.tid || item.pid !== that.$data.pid) {
-                  return;
-                }
-                return true;
+                return item.forumId === that.$data.tid && item.repquote === MTUtils.getRepquote(window.location.href);
               });
               if (localDataIndex !== -1) {
-                result.data.splice(localDataIndex, 1);
-              }
-              result.data.push({
-                url: window.location.href,
-                data,
-                pid: that.$data.pid,
-                tid: that.$data.tid,
-                type: that.$data.type
-              });
-              that.$data.db.save("data", result.data).then((result2) => {
-              });
-            });
-          } else if (MTRouter.isPostPublish_reply()) {
-            log.info(`内容改变 ==> 回复页面`);
-            Panel.execMenu(
-              "mt-forum-post-editorOptimizationNormal-recordInputText",
-              () => {
-                MTEditorOptimizationNormal.$data.db.get("data").then((result) => {
-                  if (!result.success || result.code === 201) {
-                    console.warn(result);
-                    return;
-                  }
-                  let localDataIndex = result.data.findIndex((item) => {
-                    return item.forumId === that.$data.tid && item.repquote === MTUtils.getRepquote(window.location.href);
+                if (data.content == null || data.content === "") {
+                  result.data.splice(localDataIndex, 1);
+                } else {
+                  result.data[localDataIndex] = utils.assign(result.data[localDataIndex], {
+                    text: data.content
                   });
-                  if (localDataIndex !== -1) {
-                    if (data.content == null || data.content === "") {
-                      result.data.splice(localDataIndex, 1);
-                    } else {
-                      result.data[localDataIndex] = utils.assign(
-                        result.data[localDataIndex],
-                        {
-                          text: data.content
-                        }
-                      );
-                    }
-                  } else {
-                    result.data.push({
-                      forumId: that.$data.tid,
-                      url: window.location.href,
-                      repquote: MTUtils.getRepquote(window.location.href),
-                      text: data.content
-                    });
-                  }
-                  MTEditorOptimizationNormal.$data.db.save("data", result.data).then((result2) => {
-                  });
+                }
+              } else {
+                result.data.push({
+                  forumId: that.$data.tid,
+                  url: window.location.href,
+                  repquote: MTUtils.getRepquote(window.location.href),
+                  text: data.content
                 });
               }
-            );
-          }
+              MTEditorOptimizationNormal.$data.db.save("data", result.data).then((result2) => {
+              });
+            });
+          });
         }
-      );
+      });
     },
 initDeleteBtn() {
       let btn_del = $(".comiis_btnbox .comiis_btn.bg_del");
@@ -10582,9 +9768,7 @@ initDeleteBtn() {
       });
     },
 initSaveBtn() {
-      let $save = domUtils.selector(
-        ".comiis_btnbox button#postsubmit:contains('保存')"
-      );
+      let $save = domUtils.selector(".comiis_btnbox button#postsubmit:contains('保存')");
       if (!$save) {
         return;
       }
@@ -10608,9 +9792,7 @@ initSaveBtn() {
       });
     },
 initPostBtn() {
-      let $post = domUtils.selector(
-        ".comiis_btnbox button#postsubmit:contains('发表')"
-      );
+      let $post = domUtils.selector(".comiis_btnbox button#postsubmit:contains('发表')");
       if (!$post) {
         return;
       }
@@ -10633,9 +9815,7 @@ initPostBtn() {
     },
 initReplyBtn() {
       const that = this;
-      let $reply = domUtils.selector(
-        ".comiis_btnbox button#postsubmit:contains('回复')"
-      );
+      let $reply = domUtils.selector(".comiis_btnbox button#postsubmit:contains('回复')");
       if (!$reply) {
         return;
       }
@@ -10703,9 +9883,7 @@ initVotePage() {
       });
     },
 initSaveDraftBtn() {
-      let $saveDraft = domUtils.selector(
-        ".comiis_btnbox button#postsubmit em:contains('保存草稿')"
-      );
+      let $saveDraft = domUtils.selector(".comiis_btnbox button#postsubmit em:contains('保存草稿')");
       if (!$saveDraft) {
         return;
       }
@@ -10722,39 +9900,29 @@ initSaveDraftBtn() {
       );
       $("#needsubject");
       domUtils.append($header, $btn);
-      domUtils.selector(
-        ".comiis_scrollTop_box .swiper-slide a:contains('发表帖子')"
-      );
+      domUtils.selector(".comiis_scrollTop_box .swiper-slide a:contains('发表帖子')");
       domUtils.on($btn, "click", function() {
         $saveDraft.click();
       });
     },
 observerChangeEditorHeight() {
       var recordHeight = 0;
-      utils.waitNode("#postform > div > div.comiis_post_ico.comiis_minipost_icot").then((element) => {
+      domUtils.waitNode("#postform > div > div.comiis_post_ico.comiis_minipost_icot").then((element) => {
         utils.mutationObserver(element, {
           callback: (mutations) => {
-            var $tar = $(
-              "#postform > div > div.comiis_post_ico.comiis_minipost_icot"
-            );
+            var $tar = $("#postform > div > div.comiis_post_ico.comiis_minipost_icot");
             let height = window.getComputedStyle($tar).getPropertyValue("height");
             if (height.toString() === recordHeight.toString()) {
               return;
             }
             recordHeight = parseInt(height);
-            let needMessageSeeHeight = document.documentElement.clientHeight - $(
-              "#postform > div > div.comiis_post_ico.comiis_minipost_icot"
-            ).getBoundingClientRect().height - $("#needmessage").getBoundingClientRect().top;
+            let needMessageSeeHeight = document.documentElement.clientHeight - $("#postform > div > div.comiis_post_ico.comiis_minipost_icot").getBoundingClientRect().height - $("#needmessage").getBoundingClientRect().top;
             if (needMessageSeeHeight - 5 < 100) {
               _unsafeWindow.$("#needmessage").css("height", "100px");
-              _unsafeWindow.$(
-                ".gm_plugin_previewpostforum_html.double-preview .comiis_over_box"
-              ).css("height", "100px");
+              _unsafeWindow.$(".gm_plugin_previewpostforum_html.double-preview .comiis_over_box").css("height", "100px");
             } else {
               _unsafeWindow.$("#needmessage").css("height", needMessageSeeHeight - 5 + "px");
-              _unsafeWindow.$(
-                ".gm_plugin_previewpostforum_html.double-preview .comiis_over_box"
-              ).css("height", needMessageSeeHeight - 5 + "px");
+              _unsafeWindow.$(".gm_plugin_previewpostforum_html.double-preview .comiis_over_box").css("height", needMessageSeeHeight - 5 + "px");
             }
           },
           config: {
@@ -10768,16 +9936,10 @@ subtree: true
     },
 listenResize() {
       domUtils.on(window, "resize", function() {
-        let needMessageSeeHeight = document.documentElement.clientHeight - $(
-          "#postform > div > div.comiis_post_ico.comiis_minipost_icot"
-        ).getBoundingClientRect().height - $("#needmessage").getBoundingClientRect().top;
+        let needMessageSeeHeight = document.documentElement.clientHeight - $("#postform > div > div.comiis_post_ico.comiis_minipost_icot").getBoundingClientRect().height - $("#needmessage").getBoundingClientRect().top;
         if (needMessageSeeHeight - 5 < 100) {
           domUtils.css("#needmessage", "height", "100px");
-          domUtils.css(
-            ".gm_plugin_previewpostforum_html.double-preview .comiis_over_box",
-            "height",
-            "100px"
-          );
+          domUtils.css(".gm_plugin_previewpostforum_html.double-preview .comiis_over_box", "height", "100px");
         } else {
           log.info("设置输入框、预览高度", needMessageSeeHeight - 5);
           domUtils.css("#needmessage", "height", needMessageSeeHeight - 5 + "px");
@@ -10875,9 +10037,7 @@ initSelectPostingSection() {
           };
           let otherSelect = classifyClassNameDict[section_dict[fid]];
           if (otherSelect) {
-            domUtils.remove(
-              domUtils.parent(".comiis_post_from .styli_tit:contains('分类')")
-            );
+            domUtils.remove(domUtils.parent(".comiis_post_from .styli_tit:contains('分类')"));
             domUtils.before(
               ".comiis_stylino.comiis_needmessage",
 `
@@ -10901,9 +10061,7 @@ initSelectPostingSection() {
             );
           } else {
             Object.keys(classifyClassNameDict).forEach((key) => {
-              domUtils.remove(
-                ".comiis_post_from ." + classifyClassNameDict[key]["className"]
-              );
+              domUtils.remove(".comiis_post_from ." + classifyClassNameDict[key]["className"]);
             });
           }
           domUtils.attr("#postform", "action", postSection);
@@ -10933,10 +10091,7 @@ initCharacterCount() {
         let userInputText = this.$el.$input.value;
         let userInputTextLength = utils.getTextLength(userInputText);
         let parsedText = MTEditorPreview.parseText(userInputText);
-        domUtils.html(
-          ".gm_plugin_previewpostforum_html .comiis_message_table",
-          parsedText
-        );
+        domUtils.html(".gm_plugin_previewpostforum_html .comiis_message_table", parsedText);
         let wordCountDom = $(".gm_plugin_word_count p");
         domUtils.text(wordCountDom, userInputTextLength);
         if (userInputTextLength > 2e4 || userInputTextLength < 10) {
@@ -10963,22 +10118,12 @@ initUBB() {
       let contentEle = $("#comiis_post_qydiv > ul");
       let childNums = $$("#comiis_post_qydiv ul li").length;
       ExtendJQueryFn();
-      domUtils.on(
-        "#comiis_post_tab .comiis_input_style .comiis_post_urlico li",
-        "click",
-        function() {
-          domUtils.removeClass(
-            "#comiis_post_tab .comiis_input_style .comiis_post_urlico li a",
-            "f_0"
-          );
-          domUtils.addClass(
-            "#comiis_post_tab .comiis_input_style .comiis_post_urlico li a",
-            "f_d"
-          );
-          domUtils.attr(this.querySelector("a"), "class", "comiis_xifont f_0");
-          _unsafeWindow.$("#comiis_post_qydiv ul li").hide().eq(_unsafeWindow.$(this).index()).fadeIn();
-        }
-      );
+      domUtils.on("#comiis_post_tab .comiis_input_style .comiis_post_urlico li", "click", function() {
+        domUtils.removeClass("#comiis_post_tab .comiis_input_style .comiis_post_urlico li a", "f_0");
+        domUtils.addClass("#comiis_post_tab .comiis_input_style .comiis_post_urlico li a", "f_d");
+        domUtils.attr(this.querySelector("a"), "class", "comiis_xifont f_0");
+        _unsafeWindow.$("#comiis_post_qydiv ul li").hide().eq(_unsafeWindow.$(this).index()).fadeIn();
+      });
       _unsafeWindow.$.each(ubbCode, function(key, value) {
         let $ubbs = domUtils.createElement("li", {
           className: "quickUBBs",
@@ -10989,16 +10134,12 @@ initUBB() {
           )
         });
         domUtils.on($ubbs, "click", (event) => {
-          let bottomEle = $(
-            `#comiis_post_qydiv li[data-key='${value.key}']`
-          );
+          let bottomEle = $(`#comiis_post_qydiv li[data-key='${value.key}']`);
           if (!bottomEle) {
             log.error("未找到该元素");
             return;
           }
-          $$(
-            "#comiis_post_tab div.comiis_post_urlico ul li a.comiis_xifont"
-          ).forEach(($ele) => {
+          $$("#comiis_post_tab div.comiis_post_urlico ul li a.comiis_xifont").forEach(($ele) => {
             $ele.className = "comiis_xifont f_d";
           });
           let $childAnchor = $ubbs.querySelector("a");
@@ -11039,16 +10180,10 @@ initUBB() {
           }
           _unsafeWindow.$("#needmessage").insertAtCaret(text);
           if (currentUBBObj.hasOwnProperty("cursorL")) {
-            _unsafeWindow.$("#needmessage").moveCursorToCenterByTextWithLeft(
-              currentUBBObj["cursorL"],
-              currentUBBObj["cursorLength"]
-            );
+            _unsafeWindow.$("#needmessage").moveCursorToCenterByTextWithLeft(currentUBBObj["cursorL"], currentUBBObj["cursorLength"]);
           }
           if (currentUBBObj.hasOwnProperty("cursorR")) {
-            _unsafeWindow.$("#needmessage").moveCursorToCenterByTextWithRight(
-              currentUBBObj["cursorR"],
-              currentUBBObj["cursorLength"]
-            );
+            _unsafeWindow.$("#needmessage").moveCursorToCenterByTextWithRight(currentUBBObj["cursorR"], currentUBBObj["cursorLength"]);
           }
         });
       });
@@ -11067,10 +10202,7 @@ initImage() {
 `
         <a href="javascript:;" class="comiis_pictitle"><i class="comiis_font"><em>图片</em></i></a>`
       );
-      domUtils.append(
-        "#comiis_mh_sub .swiper-wrapper.comiis_post_ico",
-        imageBtnHTML
-      );
+      domUtils.append("#comiis_mh_sub .swiper-wrapper.comiis_post_ico", imageBtnHTML);
       domUtils.on(".comiis_pictitle", "click", function() {
         let $click = this;
         let $font = $click.querySelector("i.comiis_font");
@@ -11107,20 +10239,12 @@ initImage() {
       domUtils.on("#imglist .comiis_font", "click", (event) => {
         $("#filedata").click();
       });
-      domUtils.on(
-        "#comiis_pictitle_tab #comiis_pictitle_key",
-        "click",
-        "li",
-        function(event) {
-          let $click = event.target;
-          domUtils.removeClass(
-            "#comiis_pictitle_tab #comiis_pictitle_key li",
-            "bg_f"
-          );
-          domUtils.addClass($click, "bg_f");
-          _unsafeWindow.$("#comiis_pictitle_tab div.comiis_upbox").hide().eq(_unsafeWindow.$($click).index()).fadeIn();
-        }
-      );
+      domUtils.on("#comiis_pictitle_tab #comiis_pictitle_key", "click", "li", function(event) {
+        let $click = event.target;
+        domUtils.removeClass("#comiis_pictitle_tab #comiis_pictitle_key li", "bg_f");
+        domUtils.addClass($click, "bg_f");
+        _unsafeWindow.$("#comiis_pictitle_tab div.comiis_upbox").hide().eq(_unsafeWindow.$($click).index()).fadeIn();
+      });
       Panel.execMenuOnce("mt-image-bed-hello-enable", () => {
         MTEditorImageBed_Hello.init();
       });
@@ -11153,10 +10277,7 @@ initPreview() {
             </i>
         </a>`
       );
-      domUtils.append(
-        "#comiis_mh_sub .swiper-wrapper.comiis_post_ico",
-        previewBtnHTML
-      );
+      domUtils.append("#comiis_mh_sub .swiper-wrapper.comiis_post_ico", previewBtnHTML);
       domUtils.css(domUtils.parent(this.$el.$input), "display", "flex");
       domUtils.after(
         this.$el.$input,
@@ -11173,34 +10294,25 @@ initPreview() {
               </div>
             </div>`
       );
-      domUtils.on(
-        ".gm_plugin_previewpostforum",
-        "click",
-        function(event) {
-          let $click = this;
-          if ($$("#polldatas").length) {
-            MTEditorPreview.parseVoteText();
-          }
-          let $font = $click.querySelector("i.comiis_font");
-          if (!$font.classList.contains("f_0")) {
-            domUtils.show(".gm_plugin_previewpostforum_html", false);
-            let parsedText = MTEditorPreview.parseText(
-              domUtils.val(that.$el.$input)
-            );
-            domUtils.html(
-              ".gm_plugin_previewpostforum_html .comiis_message_table",
-              parsedText
-            );
-            domUtils.css(
-              ".gm_plugin_previewpostforum_html.double-preview .comiis_over_box.comiis_input_style",
-              "height",
-              domUtils.css(that.$el.$input, "height")
-            );
-          } else {
-            domUtils.hide(".gm_plugin_previewpostforum_html", false);
-          }
+      domUtils.on(".gm_plugin_previewpostforum", "click", function(event) {
+        let $click = this;
+        if ($$("#polldatas").length) {
+          MTEditorPreview.parseVoteText();
         }
-      );
+        let $font = $click.querySelector("i.comiis_font");
+        if (!$font.classList.contains("f_0")) {
+          domUtils.show(".gm_plugin_previewpostforum_html", false);
+          let parsedText = MTEditorPreview.parseText(domUtils.val(that.$el.$input));
+          domUtils.html(".gm_plugin_previewpostforum_html .comiis_message_table", parsedText);
+          domUtils.css(
+            ".gm_plugin_previewpostforum_html.double-preview .comiis_over_box.comiis_input_style",
+            "height",
+            domUtils.css(that.$el.$input, "height")
+          );
+        } else {
+          domUtils.hide(".gm_plugin_previewpostforum_html", false);
+        }
+      });
     },
 initSettingImmersionMode() {
       log.info(`初始化设置功能-使用沉浸模式`);
@@ -11367,8 +10479,8 @@ showUserUID() {
               uid_control.style.cssText = `background: #FF7600 !important;`;
               uid_control.innerHTML = "UID:" + mt_uid;
               domUtils.on(uid_control, "click", async (event) => {
-                utils.preventEvent(event);
-                let status = await utils.setClip(mt_uid);
+                domUtils.preventEvent(event);
+                let status = await utils.copy(mt_uid);
                 if (status) {
                   Qmsg.success(`${mt_uid}已复制`);
                 } else {
@@ -11456,18 +10568,14 @@ async extendCookieExpire() {
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi(
-      "select",
-      result,
-      {
-        get(key2, defaultValue2) {
-          return Panel.getValue(key2, defaultValue2);
-        },
-        set(key2, value) {
-          Panel.setValue(key2, value);
-        }
+    PanelComponents.initComponentsStorageApi("select", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
       }
-    );
+    });
     return result;
   };
   const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack, disable) {
@@ -11490,9 +10598,7 @@ async extendCookieExpire() {
       afterAddToUListCallBack
     };
     Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
-      result.disable = Boolean(
-        disable
-      );
+      result.disable = Boolean(disable);
     });
     return result;
   };
@@ -11620,9 +10726,7 @@ showView() {
                 };
                 Object.keys(avatarInfo).forEach((keyName) => {
                   let value = avatarInfo[keyName];
-                  value.base64 = value.base64.substring(
-                    value.base64.indexOf(",") + 1
-                  );
+                  value.base64 = value.base64.substring(value.base64.indexOf(",") + 1);
                 });
                 let formData = new FormData();
                 formData.append("Filedata", this.$avatar.big || "");
@@ -11646,9 +10750,7 @@ showView() {
                 if (!response.status) {
                   return;
                 }
-                if (response.data.responseText.indexOf(
-                  "window.parent.postMessage('success','*')"
-                ) != -1) {
+                if (response.data.responseText.indexOf("window.parent.postMessage('success','*')") != -1) {
                   $confirm.close();
                   Qmsg.success("上传成功");
                 } else {
@@ -11701,48 +10803,27 @@ showView() {
             `
         )
       });
-      this.$el.$smallUpload = $confirm.$shadowRoot.querySelector(
-        ".avatar-upload[data-type='small']"
-      );
+      this.$el.$smallUpload = $confirm.$shadowRoot.querySelector(".avatar-upload[data-type='small']");
       this.$el.$middleUpload = $confirm.$shadowRoot.querySelector(
         ".avatar-upload[data-type='middle']"
       );
-      this.$el.$bigUpload = $confirm.$shadowRoot.querySelector(
-        ".avatar-upload[data-type='big']"
-      );
+      this.$el.$bigUpload = $confirm.$shadowRoot.querySelector(".avatar-upload[data-type='big']");
       this.$el.$smallStatus = $confirm.$shadowRoot.querySelector(
         ".avatar-upload-status[data-type='small']"
       );
       this.$el.$middleStatus = $confirm.$shadowRoot.querySelector(
         ".avatar-upload-status[data-type='middle']"
       );
-      this.$el.$bigStatus = $confirm.$shadowRoot.querySelector(
-        ".avatar-upload-status[data-type='big']"
-      );
-      this.setUploadChangeEvent(
-        this.$el.$smallUpload,
-        this.$el.$smallStatus,
-        this.$data.avatarInfo.small,
-        () => {
-          this.$upload.small = true;
-        }
-      );
-      this.setUploadChangeEvent(
-        this.$el.$middleUpload,
-        this.$el.$middleStatus,
-        this.$data.avatarInfo.middle,
-        () => {
-          this.$upload.middle = true;
-        }
-      );
-      this.setUploadChangeEvent(
-        this.$el.$bigUpload,
-        this.$el.$bigStatus,
-        this.$data.avatarInfo.big,
-        () => {
-          this.$upload.big = true;
-        }
-      );
+      this.$el.$bigStatus = $confirm.$shadowRoot.querySelector(".avatar-upload-status[data-type='big']");
+      this.setUploadChangeEvent(this.$el.$smallUpload, this.$el.$smallStatus, this.$data.avatarInfo.small, () => {
+        this.$upload.small = true;
+      });
+      this.setUploadChangeEvent(this.$el.$middleUpload, this.$el.$middleStatus, this.$data.avatarInfo.middle, () => {
+        this.$upload.middle = true;
+      });
+      this.setUploadChangeEvent(this.$el.$bigUpload, this.$el.$bigStatus, this.$data.avatarInfo.big, () => {
+        this.$upload.big = true;
+      });
     },
 setUploadChangeEvent($file, $status, sizeInfo, successCallBack) {
       domUtils.on($file, "change", (event) => {
@@ -11762,10 +10843,7 @@ setUploadChangeEvent($file, $status, sizeInfo, successCallBack) {
             if ($image.width > sizeInfo.width || $image.height > sizeInfo.height) {
               $file.value = "";
               $status.setAttribute("data-success", "false");
-              domUtils.text(
-                $status,
-                `🤡校验失败 ==> 图片尺寸不符合，宽：${$image.width} 高：${$image.height}`
-              );
+              domUtils.text($status, `🤡校验失败 ==> 图片尺寸不符合，宽：${$image.width} 高：${$image.height}`);
               return;
             }
             if (fileSize > MTDyncmicAvatar.$data.avatarInfo.maxSize) {
@@ -11778,10 +10856,7 @@ setUploadChangeEvent($file, $status, sizeInfo, successCallBack) {
               return;
             }
             $status.setAttribute("data-success", "true");
-            domUtils.text(
-              $status,
-              `🤣 通过 宽:${$image.width} 高:${$image.height} 大小(byte):${fileSize}`
-            );
+            domUtils.text($status, `🤣 通过 宽:${$image.width} 高:${$image.height} 大小(byte):${fileSize}`);
             successCallBack();
           };
         };
@@ -11800,9 +10875,7 @@ async getUploadUrl() {
         Qmsg.error("动态头像：获取上传地址失败");
         return;
       }
-      let dataMatch = response.data.responseText.match(
-        /var[\s]*data[\s]*=[\s]*"(.+?)"/
-      );
+      let dataMatch = response.data.responseText.match(/var[\s]*data[\s]*=[\s]*"(.+?)"/);
       if (dataMatch == null || dataMatch.length != 2) {
         Qmsg.error("动态头像：获取变量data失败");
         return;
@@ -11819,10 +10892,7 @@ async getUploadUrl() {
       }
       let uploadUrl = data_split[srcIndex + 1];
       let uploadUrlInst = new URL(uploadUrl);
-      uploadUrlInst.pathname = uploadUrlInst.pathname.replace(
-        "/images/camera.swf",
-        "/index.php"
-      );
+      uploadUrlInst.pathname = uploadUrlInst.pathname.replace("/images/camera.swf", "/index.php");
       uploadUrlInst.searchParams.delete("inajax");
       uploadUrlInst.searchParams.set("m", "user");
       uploadUrlInst.searchParams.set("a", "rectavatar");
@@ -11924,13 +10994,7 @@ async getUploadUrl() {
                     void 0,
                     "限制Toast显示的数量"
                   ),
-                  UISwitch(
-                    "逆序弹出",
-                    "qmsg-config-showreverse",
-                    false,
-                    void 0,
-                    "修改Toast弹出的顺序"
-                  )
+                  UISwitch("逆序弹出", "qmsg-config-showreverse", false, void 0, "修改Toast弹出的顺序")
                 ]
               }
             ]
@@ -11943,13 +11007,7 @@ async getUploadUrl() {
                 text: "",
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "启用",
-                    "httpx-use-cookie-enable",
-                    false,
-                    void 0,
-                    "启用后，将根据下面的配置进行添加cookie"
-                  ),
+                  UISwitch("启用", "httpx-use-cookie-enable", false, void 0, "启用后，将根据下面的配置进行添加cookie"),
                   UISwitch(
                     "使用document.cookie",
                     "httpx-use-document-cookie",
@@ -11990,27 +11048,9 @@ async getUploadUrl() {
                     void 0,
                     "自动把符合超链接格式的文字转为超链接"
                   ),
-                  UISwitch(
-                    "显示用户UID",
-                    "mt-show-user-uid",
-                    true,
-                    void 0,
-                    "格式为UID：xxx"
-                  ),
-                  UISwitch(
-                    "小窗模式",
-                    "mt-small-window",
-                    true,
-                    void 0,
-                    "开启后点击帖子右侧区域为小窗打开"
-                  ),
-                  UISwitch(
-                    "延长登录Cookie过期时间",
-                    "mt-extend-cookie-expire",
-                    false,
-                    void 0,
-                    "减少频繁登录账号的问题"
-                  )
+                  UISwitch("显示用户UID", "mt-show-user-uid", true, void 0, "格式为UID：xxx"),
+                  UISwitch("小窗模式", "mt-small-window", true, void 0, "开启后点击帖子右侧区域为小窗打开"),
+                  UISwitch("延长登录Cookie过期时间", "mt-extend-cookie-expire", false, void 0, "减少频繁登录账号的问题")
                 ]
               }
             ]
@@ -12023,20 +11063,8 @@ async getUploadUrl() {
                 type: "forms",
                 text: "",
                 forms: [
-                  UISwitch(
-                    "小黑屋",
-                    "mt-black-home",
-                    true,
-                    void 0,
-                    "将会在左侧面板添加【小黑屋】菜单"
-                  ),
-                  UISwitch(
-                    "在线用户",
-                    "mt-online-user",
-                    true,
-                    void 0,
-                    "将会在左侧面板添加【在线用户】菜单"
-                  ),
+                  UISwitch("小黑屋", "mt-black-home", true, void 0, "将会在左侧面板添加【小黑屋】菜单"),
+                  UISwitch("在线用户", "mt-online-user", true, void 0, "将会在左侧面板添加【在线用户】菜单"),
                   UISwitch(
                     "付费主题白嫖提醒",
                     "mt-post-paidThemePost",
@@ -12044,13 +11072,7 @@ async getUploadUrl() {
                     void 0,
                     "将会在左侧面板添加【付费主题白嫖提醒】菜单"
                   ),
-                  UISwitch(
-                    "我的屏蔽",
-                    "mt-ownBlock",
-                    true,
-                    void 0,
-                    "将会在左侧面板添加【我的屏蔽】菜单"
-                  ),
+                  UISwitch("我的屏蔽", "mt-ownBlock", true, void 0, "将会在左侧面板添加【我的屏蔽】菜单"),
                   UISwitch(
                     "商品上架提醒",
                     "mt-productListingReminder",
@@ -12065,13 +11087,7 @@ async getUploadUrl() {
                     void 0,
                     "将会在左侧面板添加【自定义用户标签】菜单"
                   ),
-                  UISwitch(
-                    "评论过滤器",
-                    "mt-post-comment-filter",
-                    true,
-                    void 0,
-                    "将会在左侧面板添加【评论过滤器】菜单"
-                  )
+                  UISwitch("评论过滤器", "mt-post-comment-filter", true, void 0, "将会在左侧面板添加【评论过滤器】菜单")
                 ]
               }
             ]
@@ -12122,15 +11138,9 @@ async getUploadUrl() {
 										`
                       )
                     });
-                    $right.querySelector(
-                      ".avatar-img[data-size='small']"
-                    );
-                    $right.querySelector(
-                      ".avatar-img[data-size='middle']"
-                    );
-                    $right.querySelector(
-                      ".avatar-img[data-size='big']"
-                    );
+                    $right.querySelector(".avatar-img[data-size='small']");
+                    $right.querySelector(".avatar-img[data-size='middle']");
+                    $right.querySelector(".avatar-img[data-size='big']");
                     $li.appendChild($left);
                     $li.appendChild($right);
                     $li.appendChild($style);
@@ -12204,13 +11214,7 @@ async getUploadUrl() {
                 text: "",
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "自动展开内容",
-                    "mt-forum-post-autoExpandContent",
-                    true,
-                    void 0,
-                    "注入CSS展开帖子的内容"
-                  ),
+                  UISwitch("自动展开内容", "mt-forum-post-autoExpandContent", true, void 0, "注入CSS展开帖子的内容"),
                   UISwitch(
                     "修复图片宽度",
                     "mt-forum-post-repairImageWidth",
@@ -12218,20 +11222,8 @@ async getUploadUrl() {
                     void 0,
                     "修复图片宽度超出页面宽度的问题"
                   ),
-                  UISwitch(
-                    "移除帖子字体效果",
-                    "mt-forum-post-removeFontStyle",
-                    false,
-                    void 0,
-                    ""
-                  ),
-                  UISwitch(
-                    "移除评论区的字体效果",
-                    "mt-forum-post-removeCommentFontStyle",
-                    false,
-                    void 0,
-                    ""
-                  ),
+                  UISwitch("移除帖子字体效果", "mt-forum-post-removeFontStyle", false, void 0, ""),
+                  UISwitch("移除评论区的字体效果", "mt-forum-post-removeCommentFontStyle", false, void 0, ""),
                   UISwitch(
                     "添加【点评】按钮",
                     "mt-forum-post-addCommentOnBtn",
@@ -12253,13 +11245,7 @@ async getUploadUrl() {
                     void 0,
                     "自动检测代码块语言并设置关键字高亮"
                   ),
-                  UISwitch(
-                    "图片查看优化",
-                    "mt-forum-post-optimizationImagePreview",
-                    true,
-                    void 0,
-                    "使用Viewer查看图片"
-                  )
+                  UISwitch("图片查看优化", "mt-forum-post-optimizationImagePreview", true, void 0, "使用Viewer查看图片")
                 ]
               }
             ]
@@ -12272,13 +11258,7 @@ async getUploadUrl() {
                 type: "forms",
                 text: "",
                 forms: [
-                  UISwitch(
-                    "自动加载下一页评论",
-                    "mt-forum-post-loadNextPageComment",
-                    true,
-                    void 0,
-                    ""
-                  ),
+                  UISwitch("自动加载下一页评论", "mt-forum-post-loadNextPageComment", true, void 0, ""),
                   UISwitch(
                     "同步加载的地址",
                     "mt-forum-post-syncNextPageUrl",
@@ -12298,13 +11278,7 @@ async getUploadUrl() {
                 type: "forms",
                 text: "",
                 forms: [
-                  UISwitch(
-                    "启用",
-                    "mt-forum-post-editorOptimizationNormal",
-                    true,
-                    void 0,
-                    "优化样式，插入bbcode代码等"
-                  ),
+                  UISwitch("启用", "mt-forum-post-editorOptimizationNormal", true, void 0, "优化样式，插入bbcode代码等"),
                   UISwitch(
                     "自动保存输入记录",
                     "mt-forum-post-editorOptimizationNormal-recordInputText",
@@ -12323,9 +11297,7 @@ async getUploadUrl() {
                     async (event) => {
                       let $click = event.target;
                       let $li = $click.closest("li");
-                      let $desc = $li.querySelector(
-                        ".pops-panel-item-left-desc-text"
-                      );
+                      let $desc = $li.querySelector(".pops-panel-item-left-desc-text");
                       let result = await MTEditorOptimizationNormal.clearAllReplyRecord();
                       if (result.success) {
                         Qmsg.success("清理成功");
@@ -12338,13 +11310,8 @@ async getUploadUrl() {
                       }
                     },
                     async (formCOnfig, container) => {
-                      let $desc = container.target.querySelector(
-                        ".pops-panel-item-left-desc-text"
-                      );
-                      domUtils.text(
-                        $desc,
-                        `当前占用空间大小：${await MTEditorOptimizationNormal.getReplyRecordSize()}`
-                      );
+                      let $desc = container.target.querySelector(".pops-panel-item-left-desc-text");
+                      domUtils.text($desc, `当前占用空间大小：${await MTEditorOptimizationNormal.getReplyRecordSize()}`);
                     }
                   )
                 ]
@@ -12384,28 +11351,18 @@ async getUploadUrl() {
                     async (event) => {
                       let $click = event.target;
                       let $li = $click.closest("li");
-                      let $desc = $li.querySelector(
-                        ".pops-panel-item-left-desc-text"
-                      );
+                      let $desc = $li.querySelector(".pops-panel-item-left-desc-text");
                       let result = await MTEditorOptimization.clearAllReplyRecord();
                       if (result.success) {
                         Qmsg.success("清理成功");
-                        domUtils.text(
-                          $desc,
-                          `当前占用空间大小：${await MTEditorOptimization.getReplyRecordSize()}`
-                        );
+                        domUtils.text($desc, `当前占用空间大小：${await MTEditorOptimization.getReplyRecordSize()}`);
                       } else {
                         Qmsg.error("清理失败 " + result.msg);
                       }
                     },
                     async (formCOnfig, container) => {
-                      let $desc = container.target.querySelector(
-                        ".pops-panel-item-left-desc-text"
-                      );
-                      domUtils.text(
-                        $desc,
-                        `当前占用空间大小：${await MTEditorOptimization.getReplyRecordSize()}`
-                      );
+                      let $desc = container.target.querySelector(".pops-panel-item-left-desc-text");
+                      domUtils.text($desc, `当前占用空间大小：${await MTEditorOptimization.getReplyRecordSize()}`);
                     }
                   )
                 ]
@@ -12420,67 +11377,22 @@ async getUploadUrl() {
                 type: "forms",
                 text: `<a href="https://www.helloimg.com/" target="_blank">Hello图床</a>`,
                 forms: [
-                  UISwitch(
-                    "启用",
-                    "mt-image-bed-hello-enable",
-                    false,
-                    void 0,
-                    "启用Hello图床"
-                  ),
-                  UIInput(
-                    "账号",
-                    "mt-image-bed-hello-account",
-                    "",
-                    "",
-                    void 0,
-                    "必填"
-                  ),
-                  UIInput(
-                    "密码",
-                    "mt-image-bed-hello-password",
-                    "",
-                    "",
-                    void 0,
-                    "必填",
-                    false,
-                    true
-                  ),
-                  UIInput(
-                    "token",
-                    "mt-image-bed-hello-token",
-                    "",
-                    "",
-                    void 0,
-                    "必填",
-                    false,
-                    true
-                  )
+                  UISwitch("启用", "mt-image-bed-hello-enable", false, void 0, "启用Hello图床"),
+                  UIInput("账号", "mt-image-bed-hello-account", "", "", void 0, "必填"),
+                  UIInput("密码", "mt-image-bed-hello-password", "", "", void 0, "必填", false, true),
+                  UIInput("token", "mt-image-bed-hello-token", "", "", void 0, "必填", false, true)
                 ]
               },
               {
                 type: "forms",
                 text: `<a href="https://img.binmt.cc/" target="_blank">MT图床</a>`,
-                forms: [
-                  UISwitch(
-                    "启用",
-                    "mt-image-bed-mt-enable",
-                    true,
-                    void 0,
-                    "启用MT图床"
-                  )
-                ]
+                forms: [UISwitch("启用", "mt-image-bed-mt-enable", true, void 0, "启用MT图床")]
               },
               {
                 type: "forms",
                 text: "图片水印",
                 forms: [
-                  UISwitch(
-                    "启用",
-                    "mt-image-bed-watermark-enable",
-                    false,
-                    void 0,
-                    "开启后会为图床图片添加文字水印"
-                  ),
+                  UISwitch("启用", "mt-image-bed-watermark-enable", false, void 0, "开启后会为图床图片添加文字水印"),
                   UISwitch(
                     "自动添加水印",
                     "mt-image-bed-watermark-autoAddWaterMark",
@@ -12500,9 +11412,7 @@ async getUploadUrl() {
                     false,
                     (formConfig, container) => {
                       let $input = container.target?.querySelector("input");
-                      let $suffix = container.target?.querySelector(
-                        ".pops-panel-input__suffix"
-                      );
+                      let $suffix = container.target?.querySelector(".pops-panel-input__suffix");
                       domUtils.hide($suffix, false);
                       $input.setAttribute("type", "color");
                       domUtils.css($input, {
@@ -12512,51 +11422,11 @@ async getUploadUrl() {
                       });
                     }
                   ),
-                  UIInput(
-                    "大小",
-                    "mt-image-bed-watermark-font-size",
-                    16,
-                    void 0,
-                    void 0,
-                    void 0,
-                    true
-                  ),
-                  UIInput(
-                    "透明度",
-                    "mt-image-bed-watermark-font-opacity",
-                    1,
-                    void 0,
-                    void 0,
-                    void 0,
-                    true
-                  ),
-                  UIInput(
-                    "左右间距",
-                    "mt-image-bed-watermark-left-right-margin",
-                    80,
-                    void 0,
-                    void 0,
-                    void 0,
-                    true
-                  ),
-                  UIInput(
-                    "上下间距",
-                    "mt-image-bed-watermark-top-bottom-margin",
-                    80,
-                    void 0,
-                    void 0,
-                    void 0,
-                    true
-                  ),
-                  UIInput(
-                    "旋转角度",
-                    "mt-image-bed-watermark-rotate",
-                    45,
-                    void 0,
-                    void 0,
-                    void 0,
-                    true
-                  )
+                  UIInput("大小", "mt-image-bed-watermark-font-size", 16, void 0, void 0, void 0, true),
+                  UIInput("透明度", "mt-image-bed-watermark-font-opacity", 1, void 0, void 0, void 0, true),
+                  UIInput("左右间距", "mt-image-bed-watermark-left-right-margin", 80, void 0, void 0, void 0, true),
+                  UIInput("上下间距", "mt-image-bed-watermark-top-bottom-margin", 80, void 0, void 0, void 0, true),
+                  UIInput("旋转角度", "mt-image-bed-watermark-rotate", 45, void 0, void 0, void 0, true)
                 ]
               }
             ]
@@ -12573,27 +11443,9 @@ async getUploadUrl() {
         type: "forms",
         text: "",
         forms: [
-          UISwitch(
-            "显示搜索历史",
-            "mt-search-showSearchHistory",
-            true,
-            void 0,
-            "自动记住搜索历史并显示"
-          ),
-          UISwitch(
-            "修复清空按钮",
-            "mt-search-repairClearBtn",
-            true,
-            void 0,
-            "修复点击清空按钮不清空输入框的问题"
-          ),
-          UISwitch(
-            "搜索框自动获取焦点",
-            "mt-search-searchInputAutoFocus",
-            true,
-            void 0,
-            ""
-          )
+          UISwitch("显示搜索历史", "mt-search-showSearchHistory", true, void 0, "自动记住搜索历史并显示"),
+          UISwitch("修复清空按钮", "mt-search-repairClearBtn", true, void 0, "修复点击清空按钮不清空输入框的问题"),
+          UISwitch("搜索框自动获取焦点", "mt-search-searchInputAutoFocus", true, void 0, "")
         ]
       }
     ]
@@ -12606,20 +11458,8 @@ async getUploadUrl() {
         text: "功能",
         type: "forms",
         forms: [
-          UISwitch(
-            "显示【今日签到之星】",
-            "mt-sign-showTodaySignStar",
-            true,
-            void 0,
-            "在签到按钮上面显示今日签到之星"
-          ),
-          UISwitch(
-            "显示【今日最先】",
-            "mt-sign-showTodayRanking",
-            true,
-            void 0,
-            "在签到排名上面新增【今日最先】"
-          )
+          UISwitch("显示【今日签到之星】", "mt-sign-showTodaySignStar", true, void 0, "在签到按钮上面显示今日签到之星"),
+          UISwitch("显示【今日最先】", "mt-sign-showTodayRanking", true, void 0, "在签到排名上面新增【今日最先】")
         ]
       },
       {
@@ -12631,9 +11471,7 @@ async getUploadUrl() {
           UIButton(
             "签到信息",
             `上次签到时间：${(() => {
-            let signInfo = MTAutoSignIn.getHostNameSignInfo(
-              window.location.hostname
-            );
+            let signInfo = MTAutoSignIn.getHostNameSignInfo(window.location.hostname);
             if (signInfo) {
               return Utils.formatTime(signInfo.time);
             } else {
@@ -12696,20 +11534,8 @@ async getUploadUrl() {
         type: "forms",
         text: "",
         forms: [
-          UISwitch(
-            "修复无法进入空间",
-            "mt-space-repairEnterSpace",
-            true,
-            void 0,
-            "修复链接错误导致不能进入空间的问题"
-          ),
-          UISwitch(
-            "显示帖子回复内容",
-            "mt-space-showCommentContent",
-            true,
-            void 0,
-            "在帖子-回复下面显示具体评论的内容"
-          )
+          UISwitch("修复无法进入空间", "mt-space-repairEnterSpace", true, void 0, "修复链接错误导致不能进入空间的问题"),
+          UISwitch("显示帖子回复内容", "mt-space-showCommentContent", true, void 0, "在帖子-回复下面显示具体评论的内容")
         ]
       }
     ]
@@ -12721,15 +11547,7 @@ async getUploadUrl() {
       {
         type: "forms",
         text: "",
-        forms: [
-          UISwitch(
-            "显示最新帖子",
-            "mt-guide-showLatestPost",
-            true,
-            void 0,
-            "在最上面显示最新发布的帖子"
-          )
-        ]
+        forms: [UISwitch("显示最新帖子", "mt-guide-showLatestPost", true, void 0, "在最上面显示最新发布的帖子")]
       }
     ]
   };

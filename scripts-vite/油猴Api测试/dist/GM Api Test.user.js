@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.14
+// @version      2025.9.28
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -114,9 +114,9 @@
         Object.assign = function(target) {
           target = Object(target);
           if (arguments.length > 1) {
-            let sourceList = [...arguments].splice(1, arguments.length - 1);
+            const sourceList = [...arguments].splice(1, arguments.length - 1);
             sourceList.forEach((sourceItem) => {
-              for (var sourceKey in sourceItem) {
+              for (const sourceKey in sourceItem) {
                 if (Object.prototype.hasOwnProperty.call(sourceItem, sourceKey)) {
                   target[sourceKey] = sourceItem[sourceKey];
                 }
@@ -133,10 +133,10 @@
       if (!("classList" in document.documentElement)) {
         Object.defineProperty(HTMLElement.prototype, "classList", {
           get: function() {
-            var self2 = this;
+            const self2 = this;
             function update(fn) {
               return function(value) {
-                var classes = self2.className.split(/\s+/g), index = classes.indexOf(value);
+                const classes = self2.className.split(/\s+/g), index = classes.indexOf(value);
                 fn(classes, index, value);
                 self2.className = classes.join(" ");
               };
@@ -467,7 +467,7 @@ remove(uuid) {
       return broker;
     };
   };
-  const worker$3 = `(()=>{var e={455:function(e,t){!function(e){"use strict";var t=function(e){return function(t){var r=e(t);return t.add(r),r}},r=function(e){return function(t,r){return e.set(t,r),r}},n=void 0===Number.MAX_SAFE_INTEGER?9007199254740991:Number.MAX_SAFE_INTEGER,o=536870912,s=2*o,a=function(e,t){return function(r){var a=t.get(r),i=void 0===a?r.size:a<s?a+1:0;if(!r.has(i))return e(r,i);if(r.size<o){for(;r.has(i);)i=Math.floor(Math.random()*s);return e(r,i)}if(r.size>n)throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");for(;r.has(i);)i=Math.floor(Math.random()*n);return e(r,i)}},i=new WeakMap,u=r(i),c=a(u,i),l=t(c);e.addUniqueNumber=l,e.generateUniqueNumber=c}(t)}},t={};function r(n){var o=t[n];if(void 0!==o)return o.exports;var s=t[n]={exports:{}};return e[n].call(s.exports,s,s.exports,r),s.exports}(()=>{"use strict";const e=-32603,t=-32602,n=-32601,o=(e,t)=>Object.assign(new Error(e),{status:t}),s=t=>o('The handler of the method called "'.concat(t,'" returned an unexpected result.'),e),a=(t,r)=>async({data:{id:a,method:i,params:u}})=>{const c=r[i];try{if(void 0===c)throw(e=>o('The requested method called "'.concat(e,'" is not supported.'),n))(i);const r=void 0===u?c():c(u);if(void 0===r)throw(t=>o('The handler of the method called "'.concat(t,'" returned no required result.'),e))(i);const l=r instanceof Promise?await r:r;if(null===a){if(void 0!==l.result)throw s(i)}else{if(void 0===l.result)throw s(i);const{result:e,transferables:r=[]}=l;t.postMessage({id:a,result:e},r)}}catch(e){const{message:r,status:n=-32603}=e;t.postMessage({error:{code:n,message:r},id:a})}};var i=r(455);const u=new Map,c=(e,r,n)=>({...r,connect:({port:t})=>{t.start();const n=e(t,r),o=(0,i.generateUniqueNumber)(u);return u.set(o,(()=>{n(),t.close(),u.delete(o)})),{result:o}},disconnect:({portId:e})=>{const r=u.get(e);if(void 0===r)throw(e=>o('The specified parameter called "portId" with the given value "'.concat(e,'" does not identify a port connected to this worker.'),t))(e);return r(),{result:null}},isSupported:async()=>{if(await new Promise((e=>{const t=new ArrayBuffer(0),{port1:r,port2:n}=new MessageChannel;r.onmessage=({data:t})=>e(null!==t),n.postMessage(t,[t])}))){const e=n();return{result:e instanceof Promise?await e:e}}return{result:!1}}}),l=(e,t,r=()=>!0)=>{const n=c(l,t,r),o=a(e,n);return e.addEventListener("message",o),()=>e.removeEventListener("message",o)},d=(e,t)=>r=>{const n=t.get(r);if(void 0===n)return Promise.resolve(!1);const[o,s]=n;return e(o),t.delete(r),s(!1),Promise.resolve(!0)},f=(e,t,r,n)=>(o,s,a)=>{const i=o+s-t.timeOrigin,u=i-t.now();return new Promise((t=>{e.set(a,[r(n,u,i,e,t,a),t])}))},m=new Map,h=d(globalThis.clearTimeout,m),p=new Map,v=d(globalThis.clearTimeout,p),w=((e,t)=>{const r=(n,o,s,a)=>{const i=n-e.now();i>0?o.set(a,[t(r,i,n,o,s,a),s]):(o.delete(a),s(!0))};return r})(performance,globalThis.setTimeout),g=f(m,performance,globalThis.setTimeout,w),T=f(p,performance,globalThis.setTimeout,w);l(self,{clear:async({timerId:e,timerType:t})=>({result:await("interval"===t?h(e):v(e))}),set:async({delay:e,now:t,timerId:r,timerType:n})=>({result:await("interval"===n?g:T)(e,t,r)})})})()})();`;
+  const worker$3 = `(()=>{var e={455:function(e,t){!function(e){"use strict";var t=function(e){return function(t){var r=e(t);return t.add(r),r}},r=function(e){return function(t,r){return e.set(t,r),r}},n=void 0===Number.MAX_SAFE_INTEGER?9007199254740991:Number.MAX_SAFE_INTEGER,o=536870912,s=2*o,a=function(e,t){return function(r){var a=t.get(r),i=void 0===a?r.size:a<s?a+1:0;if(!r.has(i))return e(r,i);if(r.size<o){for(;r.has(i);)i=Math.floor(Math.random()*s);return e(r,i)}if(r.size>n)throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");for(;r.has(i);)i=Math.floor(Math.random()*n);return e(r,i)}},i=new WeakMap,u=r(i),c=a(u,i),l=t(c);e.addUniqueNumber=l,e.generateUniqueNumber=c}(t)}},t={};function r(n){var o=t[n];if(void 0!==o)return o.exports;var s=t[n]={exports:{}};return e[n].call(s.exports,s,s.exports,r),s.exports}(()=>{"use strict";const e=-32603,t=-32602,n=-32601,o=(e,t)=>Object.assign(new Error(e),{status:t}),s=t=>o('The handler of the method called "'.concat(t,'" returned an unexpected result.'),e),a=(t,r)=>async({data:{id:a,method:i,params:u}})=>{const c=r[i];try{if(void 0===c)throw(e=>o('The requested method called "'.concat(e,'" is not supported.'),n))(i);const r=void 0===u?c():c(u);if(void 0===r)throw(t=>o('The handler of the method called "'.concat(t,'" returned no required result.'),e))(i);const l=r instanceof Promise?await r:r;if(null===a){if(void 0!==l.result)throw s(i)}else{if(void 0===l.result)throw s(i);const{result:e,transferables:r=[]}=l;t.postMessage({id:a,result:e},r)}}catch(e){const{message:r,status:n=-32603}=e;t.postMessage({error:{code:n,message:r},id:a})}};var i=r(455);const u=new Map,c=(e,r,n)=>({...r,connect:({port:t})=>{t.start();const n=e(t,r),o=(0,i.generateUniqueNumber)(u);return u.set(o,()=>{n(),t.close(),u.delete(o)}),{result:o}},disconnect:({portId:e})=>{const r=u.get(e);if(void 0===r)throw(e=>o('The specified parameter called "portId" with the given value "'.concat(e,'" does not identify a port connected to this worker.'),t))(e);return r(),{result:null}},isSupported:async()=>{if(await new Promise(e=>{const t=new ArrayBuffer(0),{port1:r,port2:n}=new MessageChannel;r.onmessage=({data:t})=>e(null!==t),n.postMessage(t,[t])})){const e=n();return{result:e instanceof Promise?await e:e}}return{result:!1}}}),l=(e,t,r=()=>!0)=>{const n=c(l,t,r),o=a(e,n);return e.addEventListener("message",o),()=>e.removeEventListener("message",o)},d=(e,t)=>r=>{const n=t.get(r);if(void 0===n)return Promise.resolve(!1);const[o,s]=n;return e(o),t.delete(r),s(!1),Promise.resolve(!0)},f=(e,t,r,n)=>(o,s,a)=>{const i=o+s-t.timeOrigin,u=i-t.now();return new Promise(t=>{e.set(a,[r(n,u,i,e,t,a),t])})},m=new Map,h=d(globalThis.clearTimeout,m),p=new Map,v=d(globalThis.clearTimeout,p),w=((e,t)=>{const r=(n,o,s,a)=>{const i=n-e.now();i>0?o.set(a,[t(r,i,n,o,s,a),s]):(o.delete(a),s(!0))};return r})(performance,globalThis.setTimeout),g=f(m,performance,globalThis.setTimeout,w),T=f(p,performance,globalThis.setTimeout,w);l(self,{clear:async({timerId:e,timerType:t})=>({result:await("interval"===t?h(e):v(e))}),set:async({delay:e,now:t,timerId:r,timerType:n})=>({result:await("interval"===n?g:T)(e,t,r)})})})()})();`;
   const loadOrReturnBroker$3 = createLoadOrReturnBroker$3(load$3, worker$3);
   const clearInterval$3 = (timerId) => loadOrReturnBroker$3().clearInterval(timerId);
   const clearTimeout$2 = (timerId) => loadOrReturnBroker$3().clearTimeout(timerId);
@@ -482,17 +482,17 @@ getNameSpacify(...args) {
       return result;
     },
 isNumber(text) {
-      let isNumberPattern = /^\d+$/;
+      const isNumberPattern = /^\d+$/;
       return isNumberPattern.test(text);
     },
 getUUID() {
       return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(value) {
-        let randValue = Math.random() * 16 | 0, newValue = value == "x" ? randValue : randValue & 3 | 8;
+        const randValue = Math.random() * 16 | 0, newValue = value == "x" ? randValue : randValue & 3 | 8;
         return newValue.toString(16);
       });
     },
 mergeArgs(content = "", config) {
-      let opts = {};
+      const opts = {};
       if (arguments.length === 0) {
         return opts;
       }
@@ -511,16 +511,16 @@ mergeArgs(content = "", config) {
       return opts;
     },
 toDynamicObject(obj, ...other_objs) {
-      let __obj__ = Object.assign({}, obj ?? {});
+      const __obj__ = Object.assign({}, obj ?? {});
       Object.keys(__obj__).forEach((keyName) => {
         let objValue = __obj__[keyName];
         Object.defineProperty(__obj__, keyName, {
           get() {
-            let findIndex = other_objs.findIndex((other_obj) => {
+            const findIndex = other_objs.findIndex((other_obj) => {
               return typeof other_obj === "object" && other_obj != null && other_obj.hasOwnProperty.call(other_obj, keyName);
             });
             if (findIndex !== -1) {
-              let other_objValue = other_objs[findIndex][keyName];
+              const other_objValue = other_objs[findIndex][keyName];
               return other_objValue;
             } else {
               return objValue;
@@ -536,7 +536,7 @@ toDynamicObject(obj, ...other_objs) {
 setTimeout(callback, timeout) {
       try {
         return setTimeout$1$3(callback, timeout);
-      } catch (error) {
+      } catch {
         return globalThis.setTimeout(callback, timeout);
       }
     },
@@ -545,7 +545,7 @@ clearTimeout(timeId) {
         if (timeId != null) {
           clearTimeout$2(timeId);
         }
-      } catch (error) {
+      } catch {
       } finally {
         globalThis.clearTimeout(timeId);
       }
@@ -553,7 +553,7 @@ clearTimeout(timeId) {
 setInterval(callback, timeout) {
       try {
         return setInterval$3(callback, timeout);
-      } catch (error) {
+      } catch {
         return globalThis.setInterval(callback, timeout);
       }
     },
@@ -562,7 +562,7 @@ clearInterval(timeId) {
         if (timeId != null) {
           clearInterval$3(timeId);
         }
-      } catch (error) {
+      } catch {
       } finally {
         globalThis.clearInterval(timeId);
       }
@@ -570,7 +570,7 @@ clearInterval(timeId) {
 setSafeHTML($el, text) {
       try {
         $el.innerHTML = text;
-      } catch (error) {
+      } catch {
         if (globalThis.trustedTypes) {
           const policy = globalThis.trustedTypes.createPolicy("safe-innerHTML", {
             createHTML: (html) => html
@@ -589,20 +589,8 @@ $state: {
       closing: "MessageMoveOut"
     },
     $name: {
-      startNameList: [
-        "animationName",
-        "WebkitAnimationName",
-        "MozAnimationName",
-        "msAnimationName",
-        "OAnimationName"
-      ],
-      endNameList: [
-        "animationend",
-        "webkitAnimationEnd",
-        "mozAnimationEnd",
-        "MSAnimationEnd",
-        "oanimationend"
-      ]
+      startNameList: ["animationName", "WebkitAnimationName", "MozAnimationName", "msAnimationName", "OAnimationName"],
+      endNameList: ["animationend", "webkitAnimationEnd", "mozAnimationEnd", "MSAnimationEnd", "oanimationend"]
     },
 __CAN_ANIMATION__: void 0,
 get CAN_ANIMATION() {
@@ -611,8 +599,8 @@ get CAN_ANIMATION() {
     },
 getStyleAnimationNameValue(element) {
       for (let index = 0; index < this.$name.startNameList.length; index++) {
-        let animationName = this.$name.startNameList[index];
-        let animationNameValue = element.style[animationName];
+        const animationName = this.$name.startNameList[index];
+        const animationNameValue = element.style[animationName];
         if (animationNameValue != null) {
           return animationNameValue;
         }
@@ -626,74 +614,19 @@ setStyleAnimationName(element, animationNameValue = "") {
       });
     }
   };
+  const css_text$1 = '@charset "utf-8";\r\n.qmsg.qmsg-wrapper {\r\n  position: fixed;\r\n  top: 16px;\r\n  left: 0;\r\n  z-index: 50000;\r\n  display: flex;\r\n  box-sizing: border-box;\r\n  margin: 0;\r\n  padding: 0;\r\n  width: 100%;\r\n  color: rgba(0, 0, 0, 0.55);\r\n  list-style: none;\r\n  font-variant: tabular-nums;\r\n  font-size: 13px;\r\n  line-height: 1;\r\n  font-feature-settings: "tnum";\r\n  pointer-events: none;\r\n  flex-direction: column;\r\n}\r\n.qmsg.qmsg-data-position-center,\r\n.qmsg.qmsg-data-position-left,\r\n.qmsg.qmsg-data-position-right {\r\n  position: fixed;\r\n  top: 50%;\r\n  left: 50%;\r\n  transform: translate(-50%, -50%);\r\n}\r\n.qmsg.qmsg-data-position-bottom,\r\n.qmsg.qmsg-data-position-bottomleft,\r\n.qmsg.qmsg-data-position-bottomright {\r\n  position: fixed;\r\n  top: unset;\r\n  bottom: 0;\r\n  bottom: 8px;\r\n  left: 50%;\r\n  transform: translate(-50%, 0);\r\n}\r\n.qmsg.qmsg-data-position-bottomleft .qmsg-item,\r\n.qmsg.qmsg-data-position-left .qmsg-item,\r\n.qmsg.qmsg-data-position-topleft .qmsg-item {\r\n  text-align: left;\r\n}\r\n.qmsg.qmsg-data-position-bottom .qmsg-item,\r\n.qmsg.qmsg-data-position-center .qmsg-item,\r\n.qmsg.qmsg-data-position-top .qmsg-item {\r\n  text-align: center;\r\n}\r\n.qmsg.qmsg-data-position-bottomright .qmsg-item,\r\n.qmsg.qmsg-data-position-right .qmsg-item,\r\n.qmsg.qmsg-data-position-topright .qmsg-item {\r\n  text-align: right;\r\n}\r\n.qmsg .qmsg-item {\r\n  position: relative;\r\n  padding: 8px;\r\n  text-align: center;\r\n  -webkit-animation-duration: 0.3s;\r\n  animation-duration: 0.3s;\r\n}\r\n.qmsg .qmsg-item .qmsg-count {\r\n  position: absolute;\r\n  top: -4px;\r\n  left: -4px;\r\n  display: inline-block;\r\n  height: 16px;\r\n  min-width: 16px;\r\n  border-radius: 2px;\r\n  background-color: red;\r\n  color: #fff;\r\n  text-align: center;\r\n  font-size: 12px;\r\n  line-height: 16px;\r\n  -webkit-animation-duration: 0.3s;\r\n  animation-duration: 0.3s;\r\n}\r\n.qmsg .qmsg-item:first-child {\r\n  margin-top: -8px;\r\n}\r\n.qmsg .qmsg-content {\r\n  position: relative;\r\n  display: inline-block;\r\n  padding: 10px 12px;\r\n  max-width: 80%;\r\n  min-width: 40px;\r\n  border-radius: 4px;\r\n  background: #fff;\r\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);\r\n  text-align: center;\r\n  pointer-events: all;\r\n}\r\n.qmsg .qmsg-content [class^="qmsg-content-"] {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n.qmsg .qmsg-icon {\r\n  position: relative;\r\n  top: 1px;\r\n  display: inline-block;\r\n  margin-right: 8px;\r\n  color: inherit;\r\n  vertical-align: -0.125em;\r\n  text-align: center;\r\n  text-transform: none;\r\n  font-style: normal;\r\n  font-size: 16px;\r\n  line-height: 0;\r\n  text-rendering: optimizeLegibility;\r\n  -webkit-font-smoothing: antialiased;\r\n  -moz-osx-font-smoothing: grayscale;\r\n}\r\n.qmsg .qmsg-icon svg {\r\n  display: inline-block;\r\n}\r\n.qmsg .qmsg-content .qmsg-show-more-content {\r\n  display: flex;\r\n  align-items: center;\r\n  white-space: unset;\r\n  overflow: unset;\r\n  text-overflow: unset;\r\n  padding-right: unset;\r\n}\r\n.qmsg .qmsg-content-info .qmsg-icon {\r\n  color: #1890ff;\r\n}\r\n.qmsg .qmsg-icon-close {\r\n  margin: 0;\r\n  margin-left: 8px;\r\n  padding: 0;\r\n  outline: 0;\r\n  border: none;\r\n  background-color: transparent;\r\n  color: rgba(0, 0, 0, 0.45);\r\n  font-size: 12px;\r\n  cursor: pointer;\r\n  transition: color 0.3s;\r\n}\r\n.qmsg .qmsg-icon-close:hover > svg path {\r\n  stroke: #555;\r\n}\r\n.qmsg .qmsg-icon-close.qmsg-show-more-content {\r\n  position: unset;\r\n  overflow: unset;\r\n  padding-left: 6px;\r\n  margin-right: 0;\r\n}\r\n.qmsg .animate-turn {\r\n  animation: MessageTurn 1s linear infinite;\r\n  -webkit-animation: MessageTurn 1s linear infinite;\r\n}\r\n';
+  const css_text = "@keyframes MessageTurn {\r\n  0% {\r\n    -webkit-transform: rotate(0);\r\n  }\r\n  25% {\r\n    -webkit-transform: rotate(90deg);\r\n  }\r\n  50% {\r\n    -webkit-transform: rotate(180deg);\r\n  }\r\n  75% {\r\n    -webkit-transform: rotate(270deg);\r\n  }\r\n  100% {\r\n    -webkit-transform: rotate(360deg);\r\n  }\r\n}\r\n@-webkit-keyframes MessageTurn {\r\n  0% {\r\n    -webkit-transform: rotate(0);\r\n  }\r\n  25% {\r\n    -webkit-transform: rotate(90deg);\r\n  }\r\n  50% {\r\n    -webkit-transform: rotate(180deg);\r\n  }\r\n  75% {\r\n    -webkit-transform: rotate(270deg);\r\n  }\r\n  100% {\r\n    -webkit-transform: rotate(360deg);\r\n  }\r\n}\r\n@-webkit-keyframes MessageMoveOut {\r\n  0% {\r\n    max-height: 150px;\r\n    opacity: 1;\r\n  }\r\n  to {\r\n    max-height: 0;\r\n    opacity: 0;\r\n  }\r\n}\r\n@keyframes MessageMoveOut {\r\n  0% {\r\n    max-height: 150px;\r\n    opacity: 1;\r\n  }\r\n  to {\r\n    max-height: 0;\r\n    opacity: 0;\r\n  }\r\n}\r\n@-webkit-keyframes MessageMoveIn {\r\n  0% {\r\n    opacity: 0;\r\n    transform: translateY(-100%);\r\n    transform-origin: 0 0;\r\n  }\r\n  to {\r\n    opacity: 1;\r\n    transform: translateY(0);\r\n    transform-origin: 0 0;\r\n  }\r\n}\r\n@keyframes MessageMoveIn {\r\n  0% {\r\n    opacity: 0;\r\n    transform: translateY(-100%);\r\n    transform-origin: 0 0;\r\n  }\r\n  to {\r\n    opacity: 1;\r\n    transform: translateY(0);\r\n    transform-origin: 0 0;\r\n  }\r\n}\r\n@-webkit-keyframes MessageShake {\r\n  0%,\r\n  100% {\r\n    opacity: 1;\r\n    transform: translateX(0);\r\n  }\r\n  25%,\r\n  75% {\r\n    opacity: 0.75;\r\n    transform: translateX(-4px);\r\n  }\r\n  50% {\r\n    opacity: 0.25;\r\n    transform: translateX(4px);\r\n  }\r\n}\r\n@keyframes MessageShake {\r\n  0%,\r\n  100% {\r\n    opacity: 1;\r\n    transform: translateX(0);\r\n  }\r\n  25%,\r\n  75% {\r\n    opacity: 0.75;\r\n    transform: translateX(-4px);\r\n  }\r\n  50% {\r\n    opacity: 0.25;\r\n    transform: translateX(4px);\r\n  }\r\n}\r\n";
   const QmsgCSS = {
-    css: (
-`@charset "utf-8";
-      .qmsg.qmsg-wrapper{position:fixed;top:16px;left:0;z-index:50000;display:flex;box-sizing:border-box;margin:0;padding:0;width:100%;color:rgba(0,0,0,.55);list-style:none;font-variant:tabular-nums;font-size:13px;line-height:1;font-feature-settings:"tnum";pointer-events:none;flex-direction:column;}
-      .qmsg.qmsg-data-position-center,.qmsg.qmsg-data-position-left,.qmsg.qmsg-data-position-right{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);}
-      .qmsg.qmsg-data-position-bottom,.qmsg.qmsg-data-position-bottomleft,.qmsg.qmsg-data-position-bottomright{position:fixed;top:unset;bottom:0;bottom:8px;left:50%;transform:translate(-50%,0);}
-      .qmsg.qmsg-data-position-bottomleft .qmsg-item,.qmsg.qmsg-data-position-left .qmsg-item,.qmsg.qmsg-data-position-topleft .qmsg-item{text-align:left;}
-      .qmsg.qmsg-data-position-bottom .qmsg-item,.qmsg.qmsg-data-position-center .qmsg-item,.qmsg.qmsg-data-position-top .qmsg-item{text-align:center;}
-      .qmsg.qmsg-data-position-bottomright .qmsg-item,.qmsg.qmsg-data-position-right .qmsg-item,.qmsg.qmsg-data-position-topright .qmsg-item{text-align:right;}
-      .qmsg .qmsg-item{position:relative;padding:8px;text-align:center;-webkit-animation-duration:.3s;animation-duration:.3s;}
-      .qmsg .qmsg-item .qmsg-count{position:absolute;top:-4px;left:-4px;display:inline-block;height:16px;min-width:16px;border-radius:2px;background-color:red;color:#fff;text-align:center;font-size:12px;line-height:16px;-webkit-animation-duration:.3s;animation-duration:.3s;}
-      .qmsg .qmsg-item:first-child{margin-top:-8px;}
-      .qmsg .qmsg-content{position:relative;display:inline-block;padding:10px 12px;max-width:80%;min-width:40px;border-radius:4px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.15);text-align:center;pointer-events:all;}
-      .qmsg .qmsg-content [class^=qmsg-content-]{display:flex;align-items:center;}
-      .qmsg .qmsg-icon{position:relative;top:1px;display:inline-block;margin-right:8px;color:inherit;vertical-align:-.125em;text-align:center;text-transform:none;font-style:normal;font-size:16px;line-height:0;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
-      .qmsg .qmsg-icon svg{display:inline-block;}
-      .qmsg .qmsg-content .qmsg-show-more-content{display:flex;align-items:center;white-space:unset;overflow:unset;text-overflow:unset;padding-right:unset}
-      .qmsg .qmsg-content-info .qmsg-icon{color:#1890ff;}
-      .qmsg .qmsg-icon-close{margin:0;margin-left:8px;padding:0;outline:0;border:none;background-color:transparent;color:rgba(0,0,0,.45);font-size:12px;cursor:pointer;transition:color .3s;}
-      .qmsg .qmsg-icon-close:hover>svg path{stroke:#555;}
-      .qmsg .qmsg-icon-close.qmsg-show-more-content{position:unset;overflow:unset;padding-left:6px;margin-right:0}
-      .qmsg .animate-turn{animation:MessageTurn 1s linear infinite;-webkit-animation:MessageTurn 1s linear infinite;}
-      @keyframes MessageTurn{
-            0%{-webkit-transform:rotate(0);}
-            25%{-webkit-transform:rotate(90deg);}
-            50%{-webkit-transform:rotate(180deg);}
-            75%{-webkit-transform:rotate(270deg);}
-            100%{-webkit-transform:rotate(360deg);}
-      }
-      @-webkit-keyframes MessageTurn{
-            0%{-webkit-transform:rotate(0);}
-            25%{-webkit-transform:rotate(90deg);}
-            50%{-webkit-transform:rotate(180deg);}
-            75%{-webkit-transform:rotate(270deg);}
-            100%{-webkit-transform:rotate(360deg);}
-      }
-      @-webkit-keyframes MessageMoveOut{
-            0%{max-height:150px;opacity:1;}
-            to{max-height:0;opacity:0;}
-      }
-      @keyframes MessageMoveOut{
-            0%{max-height:150px;opacity:1;}
-            to{max-height:0;opacity:0;}
-      }
-      @-webkit-keyframes MessageMoveIn{
-            0%{opacity:0;transform:translateY(-100%);transform-origin:0 0;}
-            to{opacity:1;transform:translateY(0);transform-origin:0 0;}
-      }
-      @keyframes MessageMoveIn{
-            0%{opacity:0;transform:translateY(-100%);transform-origin:0 0;}
-            to{opacity:1;transform:translateY(0);transform-origin:0 0;}
-      }
-      @-webkit-keyframes MessageShake{
-            0%,100%{opacity:1;transform:translateX(0);}
-            25%,75%{opacity:.75;transform:translateX(-4px);}
-            50%{opacity:.25;transform:translateX(4px);}
-      }
-      @keyframes MessageShake{
-            0%,100%{opacity:1;transform:translateX(0);}
-            25%,75%{opacity:.75;transform:translateX(-4px);}
-            50%{opacity:.25;transform:translateX(4px);}
-      }`
-    ),
+    css: `
+    ${css_text$1}
+
+    ${css_text}
+  `,
 getStyleElement() {
-      let $style = document.createElement("style");
+      const $style = document.createElement("style");
       $style.setAttribute("type", "text/css");
       $style.setAttribute("data-type", QmsgDefaultConfig.PLUGIN_NAME);
-      QmsgUtils.setSafeHTML($style, this.css);
+      QmsgUtils.setSafeHTML($style, QmsgCSS.css);
       return $style;
     }
   };
@@ -717,7 +650,7 @@ $Qmsg;
       this.repeatNum = 1;
       this.detectionType();
       this.init();
-      let consoleLogContent = typeof this.setting.consoleLogContent === "function" ? this.setting.consoleLogContent(this) : this.setting.consoleLogContent;
+      const consoleLogContent = typeof this.setting.consoleLogContent === "function" ? this.setting.consoleLogContent(this) : this.setting.consoleLogContent;
       if (consoleLogContent) {
         console.log(this.setting.content);
       }
@@ -738,18 +671,18 @@ setRepeatNumIncreasing() {
       this.repeatNum++;
     }
 init() {
-      let QmsgContext = this;
+      const QmsgContext = this;
       if (this.setting.customClass && typeof this.setting.customClass === "string") {
         this.$Qmsg.classList.add(this.setting.customClass);
       }
-      let $svg = QmsgIcon[this.setting.type || "info"];
+      const $svg = QmsgIcon[this.setting.type || "info"];
       let contentClassName = QmsgUtils.getNameSpacify("content-" + this.setting.type || "info");
       if (this.setting.showClose) {
         contentClassName += " " + QmsgUtils.getNameSpacify("content-with-close");
       }
-      let content = this.setting.content || "";
+      const content = this.setting.content || "";
       let extraCloseIconClassName = "";
-      let $closeSvg = QmsgHeaderCloseIcon;
+      const $closeSvg = QmsgHeaderCloseIcon;
       if (this.setting.showMoreContent) {
         contentClassName += "qmsg-show-more-content";
         extraCloseIconClassName += "qmsg-show-more-content";
@@ -759,9 +692,9 @@ init() {
         $closeIcon =
 `<i class="qmsg-icon qmsg-icon-close ${extraCloseIconClassName}">${$closeSvg}</i>`;
       }
-      let $content = document.createElement("span");
-      let $positionClassName = QmsgUtils.getNameSpacify("data-position", this.setting.position.toLowerCase());
-      let isHTML = this.setting.isHTML;
+      const $content = document.createElement("span");
+      const $positionClassName = QmsgUtils.getNameSpacify("data-position", this.setting.position.toLowerCase());
+      const isHTML = this.setting.isHTML;
       if (isHTML) {
         QmsgUtils.setSafeHTML($content, content);
       } else {
@@ -800,7 +733,7 @@ init() {
 			</div>
 			`
       );
-      let $contentContainer = this.$Qmsg.querySelector(".qmsg-content");
+      const $contentContainer = this.$Qmsg.querySelector(".qmsg-content");
       this.$Qmsg.classList.add(QmsgUtils.getNameSpacify("item"));
       this.$Qmsg.setAttribute(QmsgUtils.getNameSpacify("uuid"), this.uuid);
       let $shadowContainer;
@@ -820,7 +753,7 @@ init() {
         }
         $shadowRoot.appendChild(QmsgCSS.getStyleElement());
         if (this.setting.style != null) {
-          let __$ownStyle__ = document.createElement("style");
+          const __$ownStyle__ = document.createElement("style");
           __$ownStyle__.setAttribute("type", "text/css");
           __$ownStyle__.setAttribute("data-id", this.uuid);
           QmsgUtils.setSafeHTML(__$ownStyle__, this.setting.style);
@@ -852,15 +785,15 @@ init() {
       $wrapper.appendChild(this.$Qmsg);
       this.setState(this.$Qmsg, "opening");
       if (this.setting.showClose) {
-        let $closeIcon2 = this.$Qmsg.querySelector(".qmsg-icon-close");
+        const $closeIcon2 = this.$Qmsg.querySelector(".qmsg-icon-close");
         if ($closeIcon2) {
-          $closeIcon2.addEventListener("click", (evt) => {
+          $closeIcon2.addEventListener("click", (_event) => {
             QmsgContext.close();
           });
         }
       }
-      let animationendEvent = (event) => {
-        let animationNameValue = QmsgAnimation.getStyleAnimationNameValue(QmsgContext.$Qmsg);
+      const animationendEvent = (_event) => {
+        const animationNameValue = QmsgAnimation.getStyleAnimationNameValue(QmsgContext.$Qmsg);
         if (animationNameValue === QmsgAnimation.$state.closing) {
           QmsgContext.endTime = Date.now();
           QmsgContext.destroy();
@@ -872,10 +805,10 @@ init() {
       });
       if (this.setting.autoClose && this.setting.listenEventToPauseAutoClose) {
         this.resetAutoCloseTimer();
-        let enterEvent = (event) => {
+        const enterEvent = (_event) => {
           this.clearAutoCloseTimer();
         };
-        let leaveEvent = (event) => {
+        const leaveEvent = (_event) => {
           if (this.timeId != null) {
             console.warn("QmsgInst timeId is not null，mouseenter may be not first trigger，timeId：" + this.timeId);
             return;
@@ -924,9 +857,9 @@ setState(element, state) {
       QmsgAnimation.setStyleAnimationName(element, QmsgAnimation.$state[state]);
     }
 setMsgCount() {
-      let countClassName = QmsgUtils.getNameSpacify("count");
-      let wrapperClassName = `div.${QmsgUtils.getNameSpacify("data-position", this.setting.position.toLowerCase())} [class^="qmsg-content-"]`;
-      let $content = this.$Qmsg.querySelector(wrapperClassName);
+      const countClassName = QmsgUtils.getNameSpacify("count");
+      const wrapperClassName = `div.${QmsgUtils.getNameSpacify("data-position", this.setting.position.toLowerCase())} [class^="qmsg-content-"]`;
+      const $content = this.$Qmsg.querySelector(wrapperClassName);
       if (!$content) {
         throw new Error("QmsgInst $content is null");
       }
@@ -936,7 +869,7 @@ setMsgCount() {
         $count.classList.add(countClassName);
         $content.appendChild($count);
       }
-      let repeatNum = this.getRepeatNum();
+      const repeatNum = this.getRepeatNum();
       QmsgUtils.setSafeHTML($count, repeatNum.toString());
       QmsgAnimation.setStyleAnimationName($count);
       QmsgAnimation.setStyleAnimationName($count, "MessageShake");
@@ -968,7 +901,7 @@ close() {
       } else {
         this.destroy();
       }
-      let onCloseCallBack = this.setting.onClose;
+      const onCloseCallBack = this.setting.onClose;
       if (onCloseCallBack && typeof onCloseCallBack === "function") {
         onCloseCallBack.call(this);
       }
@@ -981,64 +914,64 @@ destroy() {
       this.timeId = void 0;
     }
 get $content() {
-      let $content = this.$Qmsg.querySelector("div[class^=qmsg-content-] > span");
+      const $content = this.$Qmsg.querySelector("div[class^=qmsg-content-] > span");
       if (!$content) {
         throw new Error("QmsgInst $content is null");
       }
       return $content;
     }
 setText(text) {
-      let $content = this.$content;
+      const $content = this.$content;
       $content.innerText = text;
       this.setting.content = text;
     }
 setHTML(text) {
-      let $content = this.$content;
+      const $content = this.$content;
       QmsgUtils.setSafeHTML($content, text);
       this.setting.content = text;
     }
   }
   function QmsgInstHandler(config = {}) {
-    let optionString = JSON.stringify(config);
+    const optionString = JSON.stringify(config);
     let findQmsgItemInfo = QmsgInstStorage.insInfoList.find((item) => {
       return item.config === optionString;
     });
-    let QmsgInstance = findQmsgItemInfo?.instance;
-    if (QmsgInstance == null) {
-      let uuid = QmsgUtils.getUUID();
-      let qmsgInstStorageInfo = {
+    let qmsgInst = findQmsgItemInfo?.instance;
+    if (qmsgInst == null) {
+      const uuid = QmsgUtils.getUUID();
+      const qmsgInstStorageInfo = {
         uuid,
         config: optionString,
         instance: new QmsgMsg(config, uuid)
       };
       QmsgInstStorage.insInfoList.push(qmsgInstStorageInfo);
-      let QmsgListLength = QmsgInstStorage.insInfoList.length;
-      let maxNums = qmsgInstStorageInfo.instance.getSetting().maxNums;
+      const QmsgListLength = QmsgInstStorage.insInfoList.length;
+      const maxNums = qmsgInstStorageInfo.instance.getSetting().maxNums;
       if (QmsgListLength > maxNums) {
         for (let index = 0; index < QmsgListLength - maxNums; index++) {
-          let item = QmsgInstStorage.insInfoList[index];
+          const item = QmsgInstStorage.insInfoList[index];
           item && item.instance.getSetting().autoClose && item.instance.close();
         }
       }
       findQmsgItemInfo = qmsgInstStorageInfo;
-      QmsgInstance = qmsgInstStorageInfo.instance;
+      qmsgInst = qmsgInstStorageInfo.instance;
     } else {
-      if (!QmsgInstance.getRepeatNum()) {
-        QmsgInstance.setRepeatNum(2);
+      if (!qmsgInst.getRepeatNum()) {
+        qmsgInst.setRepeatNum(2);
       } else {
-        if (QmsgInstance.getRepeatNum() >= 99) ;
+        if (qmsgInst.getRepeatNum() >= 99) ;
         else {
-          QmsgInstance.setRepeatNumIncreasing();
+          qmsgInst.setRepeatNumIncreasing();
         }
       }
-      QmsgInstance.setMsgCount();
+      qmsgInst.setMsgCount();
     }
-    if (QmsgInstance) {
-      QmsgInstance.$Qmsg.setAttribute("data-count", QmsgInstance?.getRepeatNum().toString());
+    if (qmsgInst) {
+      qmsgInst.$Qmsg.setAttribute("data-count", qmsgInst?.getRepeatNum().toString());
     } else {
       throw new Error("QmsgInst is null");
     }
-    return QmsgInstance;
+    return qmsgInst;
   }
   const QmsgEvent = {
     visibilitychange: {
@@ -1046,7 +979,7 @@ setHTML(text) {
 callback() {
           if (document.visibilityState === "visible") {
             for (let index = 0; index < QmsgInstStorage.insInfoList.length; index++) {
-              let qmsgInst = QmsgInstStorage.insInfoList[index];
+              const qmsgInst = QmsgInstStorage.insInfoList[index];
               if (
 qmsgInst.instance.setting.type !== "loading" && qmsgInst.instance.endTime == null && qmsgInst.instance.startTime != null && Date.now() - qmsgInst.instance.startTime >= qmsgInst.instance.getSetting().timeout
               ) {
@@ -1071,13 +1004,14 @@ qmsgInst.instance.setting.type !== "loading" && qmsgInst.instance.endTime == nul
       }
     }
   };
+  const version$3 = "1.5.0";
   CompatibleProcessing();
   class Qmsg {
 $data;
 $eventUtils;
 constructor(config) {
       this.$data = {
-        version: "2025.7.28",
+        version: version$3,
         config: QmsgDefaultConfig,
         icon: QmsgIcon,
         instanceStorage: QmsgInstStorage
@@ -1095,27 +1029,27 @@ config(config) {
       QmsgDefaultConfig.INS_DEFAULT = config;
     }
     info(content, config) {
-      let params = QmsgUtils.mergeArgs(content, config);
+      const params = QmsgUtils.mergeArgs(content, config);
       params.type = "info";
       return QmsgInstHandler.call(this, params);
     }
     warning(content, config) {
-      let params = QmsgUtils.mergeArgs(content, config);
+      const params = QmsgUtils.mergeArgs(content, config);
       params.type = "warning";
       return QmsgInstHandler.call(this, params);
     }
     success(content, config) {
-      let params = QmsgUtils.mergeArgs(content, config);
+      const params = QmsgUtils.mergeArgs(content, config);
       params.type = "success";
       return QmsgInstHandler.call(this, params);
     }
     error(content, config) {
-      let params = QmsgUtils.mergeArgs(content, config);
+      const params = QmsgUtils.mergeArgs(content, config);
       params.type = "error";
       return QmsgInstHandler.call(this, params);
     }
     loading(content, config) {
-      let params = QmsgUtils.mergeArgs(content, config);
+      const params = QmsgUtils.mergeArgs(content, config);
       params.type = "loading";
       params.autoClose = false;
       return QmsgInstHandler.call(this, params);
@@ -1125,12 +1059,12 @@ remove(uuid) {
     }
 closeAll() {
       for (let index = QmsgInstStorage.insInfoList.length - 1; index >= 0; index--) {
-        let item = QmsgInstStorage.insInfoList[index];
+        const item = QmsgInstStorage.insInfoList[index];
         item && item.instance && item.instance.close();
       }
     }
   }
-  let qmsg = new Qmsg();
+  const qmsg = new Qmsg();
   let WindowApi$1 = class WindowApi {
 defaultApi = {
       document,
@@ -1392,7 +1326,7 @@ api;
   const clearTimeout$1$2 = (timerId) => loadOrReturnBroker$2().clearTimeout(timerId);
   const setInterval$1$1 = (...args) => loadOrReturnBroker$2().setInterval(...args);
   const setTimeout$1$2 = (...args) => loadOrReturnBroker$2().setTimeout(...args);
-  const DOMUtilsCommonUtils = {
+  const CommonUtils = {
     windowApi: new WindowApi$1({
       document,
       window,
@@ -1402,12 +1336,12 @@ api;
       setInterval,
       clearInterval
     }),
-isShow(element) {
-      return Boolean(element.getClientRects().length);
+isShow($el) {
+      return Boolean($el.getClientRects().length);
     },
-getSafeHTML(text) {
-      if (globalThis.trustedTypes) {
-        const policy = globalThis.trustedTypes.createPolicy("safe-innerHTML", {
+createSafeHTML(text) {
+      if (window.trustedTypes) {
+        const policy = window.trustedTypes.createPolicy("safe-innerHTML", {
           createHTML: (html) => html
         });
         return policy.createHTML(text);
@@ -1416,10 +1350,10 @@ getSafeHTML(text) {
       }
     },
 setSafeHTML($el, text) {
-      $el.innerHTML = this.getSafeHTML(text);
+      $el.innerHTML = this.createSafeHTML(text);
     },
-showElement(element) {
-      let dupNode = element.cloneNode(true);
+forceShow($el) {
+      const dupNode = $el.cloneNode(true);
       dupNode.setAttribute("style", "visibility: hidden !important;display:block !important;");
       this.windowApi.document.documentElement.appendChild(dupNode);
       return {
@@ -1440,7 +1374,7 @@ getStyleValue(element, styleName) {
         }
         styles = view.getComputedStyle(element);
       }
-      let value = parseFloat(styles[styleName]);
+      const value = parseFloat(styles[styleName]);
       if (isNaN(value)) {
         return 0;
       } else {
@@ -1480,9 +1414,12 @@ isWin(target) {
       }
       return true;
     },
+isDOM($el) {
+      return $el instanceof Node;
+    },
 delete(target, propName) {
-      if (typeof Reflect === "object" && Reflect.deleteProperty) {
-        Reflect.deleteProperty(target, propName);
+      if (typeof Reflect === "object" && Reflect != null && Reflect.deleteProperty) {
+        return Reflect.deleteProperty(target, propName);
       } else {
         delete target[propName];
       }
@@ -1490,7 +1427,7 @@ delete(target, propName) {
 setTimeout(callback, timeout = 0) {
       try {
         return setTimeout$1$2(callback, timeout);
-      } catch (error) {
+      } catch {
         return this.windowApi.setTimeout(callback, timeout);
       }
     },
@@ -1499,7 +1436,7 @@ clearTimeout(timeId) {
         if (timeId != null) {
           clearTimeout$1$2(timeId);
         }
-      } catch (error) {
+      } catch {
       } finally {
         this.windowApi.clearTimeout(timeId);
       }
@@ -1507,7 +1444,7 @@ clearTimeout(timeId) {
 setInterval(callback, timeout = 0) {
       try {
         return setInterval$1$1(callback, timeout);
-      } catch (error) {
+      } catch {
         return this.windowApi.setInterval(callback, timeout);
       }
     },
@@ -1516,7 +1453,7 @@ clearInterval(timeId) {
         if (timeId != null) {
           clearInterval$1$1(timeId);
         }
-      } catch (error) {
+      } catch {
       } finally {
         this.windowApi.clearInterval(timeId);
       }
@@ -1531,22 +1468,848 @@ getTransitionEndNameList() {
       return ["webkitTransitionEnd", "mozTransitionEnd", "MSTransitionEnd", "otransitionend", "transitionend"];
     }
   };
-  const DOMUtilsData = {
-SymbolEvents: Symbol("events_" + ((1 + Math.random()) * 65536 | 0).toString(16).substring(1))
+  const version$2 = "1.7.0";
+  const GlobalData = {
+domEventSymbol: Symbol("events_" + ((1 + Math.random()) * 65536 | 0).toString(16).substring(1))
   };
+  class ElementSelector {
+    windowApi;
+    constructor(windowApiOption) {
+      this.windowApi = new WindowApi$1(windowApiOption);
+    }
+    selector(selector, parent) {
+      return this.selectorAll(selector, parent)[0];
+    }
+    selectorAll(selector, parent) {
+      const context = this;
+      parent = parent || context.windowApi.document;
+      selector = selector.trim();
+      if (selector.match(/[^\s]{1}:empty$/gi)) {
+        selector = selector.replace(/:empty$/gi, "");
+        return Array.from(parent.querySelectorAll(selector)).filter(($ele) => {
+          return $ele?.innerHTML?.trim() === "";
+        });
+      } else if (selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) || selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)) {
+        const textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
+        const text = textMatch[2];
+        selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
+        return Array.from(parent.querySelectorAll(selector)).filter(($ele) => {
+          return ($ele?.textContent || $ele?.innerText)?.includes(text);
+        });
+      } else if (selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) || selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)) {
+        const textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
+        let pattern = textMatch[2];
+        const flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
+        let flags = "";
+        if (flagMatch) {
+          pattern = pattern.replace(/("|'),[\s]*("|')([igm]{0,3})$/gi, "");
+          flags = flagMatch[3];
+        }
+        const regexp = new RegExp(pattern, flags);
+        selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
+        return Array.from(parent.querySelectorAll(selector)).filter(($ele) => {
+          return Boolean(($ele?.textContent || $ele?.innerText)?.match(regexp));
+        });
+      } else {
+        return Array.from(parent.querySelectorAll(selector));
+      }
+    }
+matches($el, selector) {
+      selector = selector.trim();
+      if ($el == null) {
+        return false;
+      }
+      if (selector.match(/[^\s]{1}:empty$/gi)) {
+        selector = selector.replace(/:empty$/gi, "");
+        return $el.matches(selector) && $el?.innerHTML?.trim() === "";
+      } else if (selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) || selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)) {
+        const textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
+        const text = textMatch[2];
+        selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
+        let content = $el?.textContent || $el?.innerText;
+        if (typeof content !== "string") {
+          content = "";
+        }
+        return $el.matches(selector) && content?.includes(text);
+      } else if (selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) || selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)) {
+        const textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
+        let pattern = textMatch[2];
+        const flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
+        let flags = "";
+        if (flagMatch) {
+          pattern = pattern.replace(/("|'),[\s]*("|')([igm]{0,3})$/gi, "");
+          flags = flagMatch[3];
+        }
+        const regexp = new RegExp(pattern, flags);
+        selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
+        let content = $el?.textContent || $el?.innerText;
+        if (typeof content !== "string") {
+          content = "";
+        }
+        return $el.matches(selector) && Boolean(content?.match(regexp));
+      } else {
+        return $el.matches(selector);
+      }
+    }
+    closest($el, selector) {
+      selector = selector.trim();
+      if (selector.match(/[^\s]{1}:empty$/gi)) {
+        selector = selector.replace(/:empty$/gi, "");
+        const $closest = $el?.closest(selector);
+        if ($closest && $closest?.innerHTML?.trim() === "") {
+          return $closest;
+        }
+        return null;
+      } else if (selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) || selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)) {
+        const textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
+        const text = textMatch[2];
+        selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
+        const $closest = $el?.closest(selector);
+        if ($closest) {
+          const content = $el?.textContent || $el?.innerText;
+          if (typeof content === "string" && content.includes(text)) {
+            return $closest;
+          }
+        }
+        return null;
+      } else if (selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) || selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)) {
+        const textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
+        let pattern = textMatch[2];
+        const flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
+        let flags = "";
+        if (flagMatch) {
+          pattern = pattern.replace(/("|'),[\s]*("|')([igm]{0,3})$/gi, "");
+          flags = flagMatch[3];
+        }
+        const regexp = new RegExp(pattern, flags);
+        selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
+        const $closest = $el?.closest(selector);
+        if ($closest) {
+          const content = $el?.textContent || $el?.innerText;
+          if (typeof content === "string" && content.match(regexp)) {
+            return $closest;
+          }
+        }
+        return null;
+      } else {
+        const $closest = $el?.closest(selector);
+        return $closest;
+      }
+    }
+  }
+  const elementSelector = new ElementSelector();
+  const isDOM = function($el) {
+    return $el instanceof Node;
+  };
+  let Utils$1 = class Utils {
+    windowApi;
+    constructor(option) {
+      this.windowApi = new WindowApi$1(option);
+    }
+isJQuery(target) {
+      let result = false;
+      if (typeof jQuery === "object" && target instanceof jQuery) {
+        result = true;
+      }
+      if (target == null) {
+        return false;
+      }
+      if (typeof target === "object") {
+        const jQueryProps = [
+          "add",
+          "addBack",
+          "addClass",
+          "after",
+          "ajaxComplete",
+          "ajaxError",
+          "ajaxSend",
+          "ajaxStart",
+          "ajaxStop",
+          "ajaxSuccess",
+          "animate",
+          "append",
+          "appendTo",
+          "attr",
+          "before",
+          "bind",
+          "blur",
+          "change",
+          "children",
+          "clearQueue",
+          "click",
+          "clone",
+          "closest",
+          "constructor",
+          "contents",
+          "contextmenu",
+          "css",
+          "data",
+          "dblclick",
+          "delay",
+          "delegate",
+          "dequeue",
+          "each",
+          "empty",
+          "end",
+          "eq",
+          "extend",
+          "fadeIn",
+          "fadeOut",
+          "fadeTo",
+          "fadeToggle",
+          "filter",
+          "find",
+          "first",
+          "focus",
+          "focusin",
+          "focusout",
+          "get",
+          "has",
+          "hasClass",
+          "height",
+          "hide",
+          "hover",
+          "html",
+          "index",
+          "init",
+          "innerHeight",
+          "innerWidth",
+          "insertAfter",
+          "insertBefore",
+          "is",
+          "jquery",
+          "keydown",
+          "keypress",
+          "keyup",
+          "last",
+          "load",
+          "map",
+          "mousedown",
+          "mouseenter",
+          "mouseleave",
+          "mousemove",
+          "mouseout",
+          "mouseover",
+          "mouseup",
+          "next",
+          "nextAll",
+          "not",
+          "off",
+          "offset",
+          "offsetParent",
+          "on",
+          "one",
+          "outerHeight",
+          "outerWidth",
+          "parent",
+          "parents",
+          "position",
+          "prepend",
+          "prependTo",
+          "prev",
+          "prevAll",
+          "prevUntil",
+          "promise",
+          "prop",
+          "pushStack",
+          "queue",
+          "ready",
+          "remove",
+          "removeAttr",
+          "removeClass",
+          "removeData",
+          "removeProp",
+          "replaceAll",
+          "replaceWith",
+          "resize",
+          "scroll",
+          "scrollLeft",
+          "scrollTop",
+          "select",
+          "show",
+          "siblings",
+          "slice",
+          "slideDown",
+          "slideToggle",
+          "slideUp",
+          "sort",
+          "splice",
+          "text",
+          "toArray",
+          "toggle",
+          "toggleClass",
+          "trigger",
+          "triggerHandler",
+          "unbind",
+          "width",
+          "wrap"
+        ];
+        for (const jQueryPropsName of jQueryProps) {
+          if (!(jQueryPropsName in target)) {
+            result = false;
+            break;
+          } else {
+            result = true;
+          }
+        }
+      }
+      return result;
+    }
+    assign(target = {}, source = {}, isAdd = false) {
+      const UtilsContext = this;
+      if (Array.isArray(source)) {
+        const canTraverse = source.filter((item) => {
+          return typeof item === "object";
+        });
+        if (!canTraverse.length) {
+          return source;
+        }
+      }
+      if (source == null) {
+        return target;
+      }
+      if (target == null) {
+        target = {};
+      }
+      if (isAdd) {
+        for (const sourceKeyName in source) {
+          const targetKeyName = sourceKeyName;
+          const targetValue = Reflect.get(target, targetKeyName);
+          const sourceValue = Reflect.get(source, sourceKeyName);
+          if (typeof sourceValue === "object" && sourceValue != null && sourceKeyName in target && !isDOM(sourceValue)) {
+            Reflect.set(target, sourceKeyName, UtilsContext.assign(targetValue, sourceValue, isAdd));
+            continue;
+          }
+          Reflect.set(target, sourceKeyName, sourceValue);
+        }
+      } else {
+        for (const targetKeyName in target) {
+          if (targetKeyName in source) {
+            const targetValue = Reflect.get(target, targetKeyName);
+            const sourceValue = Reflect.get(source, targetKeyName);
+            if (typeof sourceValue === "object" && sourceValue != null && !isDOM(sourceValue) && Object.keys(sourceValue).length) {
+              Reflect.set(target, targetKeyName, UtilsContext.assign(targetValue, sourceValue, isAdd));
+              continue;
+            }
+            Reflect.set(target, targetKeyName, sourceValue);
+          }
+        }
+      }
+      return target;
+    }
+    mutationObserver(target, observer_config) {
+      const that = this;
+      const default_obverser_config = {
+callback: () => {
+        },
+        config: {
+subtree: void 0,
+childList: void 0,
+attributes: void 0,
+attributeFilter: void 0,
+attributeOldValue: void 0,
+characterData: void 0,
+characterDataOldValue: void 0
+        },
+        immediate: false
+      };
+      observer_config = that.assign(default_obverser_config, observer_config);
+      const windowMutationObserver = this.windowApi.window.MutationObserver || this.windowApi.window.webkitMutationObserver || this.windowApi.window.MozMutationObserver;
+      const mutationObserver = new windowMutationObserver(function(mutations, observer) {
+        if (typeof observer_config.callback === "function") {
+          observer_config.callback(mutations, observer);
+        }
+      });
+      if (Array.isArray(target) || target instanceof NodeList) {
+        target.forEach((item) => {
+          mutationObserver.observe(item, observer_config.config);
+        });
+      } else if (that.isJQuery(target)) {
+        target.each((_, item) => {
+          mutationObserver.observe(item, observer_config.config);
+        });
+      } else {
+        mutationObserver.observe(target, observer_config.config);
+      }
+      if (observer_config.immediate) {
+        if (typeof observer_config.callback === "function") {
+          observer_config.callback([], mutationObserver);
+        }
+      }
+      return mutationObserver;
+    }
+  };
+  const utils$2 = new Utils$1();
+  class ElementWait extends ElementSelector {
+    windowApi;
+    constructor(windowApiOption) {
+      super(windowApiOption);
+      this.windowApi = new WindowApi$1(windowApiOption);
+    }
+    wait(checkFn, timeout, parent) {
+      const UtilsContext = this;
+      const __timeout__ = typeof timeout === "number" ? timeout : 0;
+      return new Promise((resolve) => {
+        const observer = utils$2.mutationObserver(parent || UtilsContext.windowApi.document, {
+          config: {
+            subtree: true,
+            childList: true,
+            attributes: true
+          },
+          immediate: true,
+          callback(_, __observer__) {
+            const result = checkFn();
+            if (result.success) {
+              if (typeof __observer__?.disconnect === "function") {
+                __observer__.disconnect();
+              }
+              resolve(result.data);
+            }
+          }
+        });
+        if (__timeout__ > 0) {
+          CommonUtils.setTimeout(() => {
+            if (typeof observer?.disconnect === "function") {
+              observer.disconnect();
+            }
+            resolve(null);
+          }, __timeout__);
+        }
+      });
+    }
+    waitNode(...args) {
+      args = args.filter((arg) => arg !== void 0);
+      const UtilsContext = this;
+      const selector = args[0];
+      let parent = UtilsContext.windowApi.document;
+      let timeout = 0;
+      if (typeof args[0] !== "string" && !Array.isArray(args[0]) && typeof args[0] !== "function") {
+        throw new TypeError("Utils.waitNode 第一个参数必须是string|string[]|Function");
+      }
+      if (args.length === 1) ;
+      else if (args.length === 2) {
+        const secondParam = args[1];
+        if (typeof secondParam === "number") {
+          timeout = secondParam;
+        } else if (typeof secondParam === "object" && secondParam instanceof Node) {
+          parent = secondParam;
+        } else {
+          throw new TypeError("Utils.waitNode 第二个参数必须是number|Node");
+        }
+      } else if (args.length === 3) {
+        const secondParam = args[1];
+        const thirdParam = args[2];
+        if (typeof secondParam === "object" && secondParam instanceof Node) {
+          parent = secondParam;
+          if (typeof thirdParam === "number") {
+            timeout = thirdParam;
+          } else {
+            throw new TypeError("Utils.waitNode 第三个参数必须是number");
+          }
+        } else {
+          throw new TypeError("Utils.waitNode 第二个参数必须是Node");
+        }
+      } else {
+        throw new TypeError("Utils.waitNode 参数个数错误");
+      }
+      function getNode() {
+        if (Array.isArray(selector)) {
+          const result = [];
+          for (let index = 0; index < selector.length; index++) {
+            const node = elementSelector.selector(selector[index]);
+            if (node) {
+              result.push(node);
+            }
+          }
+          if (result.length === selector.length) {
+            return result;
+          }
+        } else if (typeof selector === "function") {
+          return selector();
+        } else {
+          return elementSelector.selector(selector, parent);
+        }
+      }
+      return UtilsContext.wait(() => {
+        const node = getNode();
+        if (node) {
+          return {
+            success: true,
+            data: node
+          };
+        } else {
+          return {
+            success: false,
+            data: node
+          };
+        }
+      }, timeout, parent);
+    }
+    waitAnyNode(...args) {
+      args = args.filter((arg) => arg !== void 0);
+      const UtilsContext = this;
+      const selectorList = args[0];
+      let parent = UtilsContext.windowApi.document;
+      let timeout = 0;
+      if (typeof args[0] !== "object" && !Array.isArray(args[0])) {
+        throw new TypeError("Utils.waitAnyNode 第一个参数必须是string[]");
+      }
+      if (args.length === 1) ;
+      else if (args.length === 2) {
+        const secondParam = args[1];
+        if (typeof secondParam === "number") {
+          timeout = secondParam;
+        } else if (typeof secondParam === "object" && secondParam instanceof Node) {
+          parent = secondParam;
+        } else {
+          throw new TypeError("Utils.waitAnyNode 第二个参数必须是number|Node");
+        }
+      } else if (args.length === 3) {
+        const secondParam = args[1];
+        const thirdParam = args[2];
+        if (typeof secondParam === "object" && secondParam instanceof Node) {
+          parent = secondParam;
+          if (typeof thirdParam === "number") {
+            timeout = thirdParam;
+          } else {
+            throw new TypeError("Utils.waitAnyNode 第三个参数必须是number");
+          }
+        } else {
+          throw new TypeError("Utils.waitAnyNode 第二个参数必须是Node");
+        }
+      } else {
+        throw new TypeError("Utils.waitAnyNode 参数个数错误");
+      }
+      const promiseList = selectorList.map((selector) => {
+        return UtilsContext.waitNode(selector, parent, timeout);
+      });
+      return Promise.any(promiseList);
+    }
+    waitNodeList(...args) {
+      args = args.filter((arg) => arg !== void 0);
+      const UtilsContext = this;
+      const selector = args[0];
+      let parent = UtilsContext.windowApi.document;
+      let timeout = 0;
+      if (typeof args[0] !== "string" && !Array.isArray(args[0])) {
+        throw new TypeError("Utils.waitNodeList 第一个参数必须是string|string[]");
+      }
+      if (args.length === 1) ;
+      else if (args.length === 2) {
+        const secondParam = args[1];
+        if (typeof secondParam === "number") {
+          timeout = secondParam;
+        } else if (typeof secondParam === "object" && secondParam instanceof Node) {
+          parent = secondParam;
+        } else {
+          throw new TypeError("Utils.waitNodeList 第二个参数必须是number|Node");
+        }
+      } else if (args.length === 3) {
+        const secondParam = args[1];
+        const thirdParam = args[2];
+        if (typeof secondParam === "object" && secondParam instanceof Node) {
+          parent = secondParam;
+          if (typeof thirdParam === "number") {
+            timeout = thirdParam;
+          } else {
+            throw new TypeError("Utils.waitNodeList 第三个参数必须是number");
+          }
+        } else {
+          throw new TypeError("Utils.waitNodeList 第二个参数必须是Node");
+        }
+      } else {
+        throw new TypeError("Utils.waitNodeList 参数个数错误");
+      }
+      function getNodeList() {
+        if (Array.isArray(selector)) {
+          const result = [];
+          for (let index = 0; index < selector.length; index++) {
+            const nodeList = elementSelector.selectorAll(selector[index], parent);
+            if (nodeList.length) {
+              result.push(nodeList);
+            }
+          }
+          if (result.length === selector.length) {
+            return result;
+          }
+        } else {
+          const nodeList = elementSelector.selectorAll(selector, parent);
+          if (nodeList.length) {
+            return nodeList;
+          }
+        }
+      }
+      return UtilsContext.wait(() => {
+        const node = getNodeList();
+        if (node) {
+          return {
+            success: true,
+            data: node
+          };
+        } else {
+          return {
+            success: false,
+            data: node
+          };
+        }
+      }, timeout, parent);
+    }
+    waitAnyNodeList(...args) {
+      args = args.filter((arg) => arg !== void 0);
+      const UtilsContext = this;
+      const selectorList = args[0];
+      let parent = UtilsContext.windowApi.document;
+      let timeout = 0;
+      if (!Array.isArray(args[0])) {
+        throw new TypeError("Utils.waitAnyNodeList 第一个参数必须是string[]");
+      }
+      if (args.length === 1) ;
+      else if (args.length === 2) {
+        const secondParam = args[1];
+        if (typeof secondParam === "number") {
+          timeout = secondParam;
+        } else if (typeof secondParam === "object" && secondParam instanceof Node) {
+          parent = secondParam;
+        } else {
+          throw new TypeError("Utils.waitAnyNodeList 第二个参数必须是number|Node");
+        }
+      } else if (args.length === 3) {
+        const secondParam = args[1];
+        const thirdParam = args[2];
+        if (typeof secondParam === "object" && secondParam instanceof Node) {
+          parent = secondParam;
+          if (typeof thirdParam === "number") {
+            timeout = thirdParam;
+          } else {
+            throw new TypeError("Utils.waitAnyNodeList 第三个参数必须是number");
+          }
+        } else {
+          throw new TypeError("Utils.waitAnyNodeList 第二个参数必须是Node");
+        }
+      } else {
+        throw new TypeError("Utils.waitAnyNodeList 参数个数错误");
+      }
+      const promiseList = selectorList.map((selector) => {
+        return UtilsContext.waitNodeList(selector, parent, timeout);
+      });
+      return Promise.any(promiseList);
+    }
+  }
+  new ElementWait();
+  class ElementAnimate extends ElementWait {
+    windowApi;
+    constructor(windowApiOption) {
+      super(windowApiOption);
+      this.windowApi = new WindowApi$1(windowApiOption);
+    }
+animate(element, styles, duration = 1e3, callback = null) {
+      const context = this;
+      if (typeof element === "string") {
+        element = elementSelector.selectorAll(element);
+      }
+      if (element == null) {
+        return;
+      }
+      if (CommonUtils.isNodeList(element)) {
+        element.forEach(($ele) => {
+          context.animate($ele, styles, duration, callback);
+        });
+        return;
+      }
+      if (typeof duration !== "number" || duration <= 0) {
+        throw new TypeError("duration must be a positive number");
+      }
+      if (typeof callback !== "function" && callback !== void 0) {
+        throw new TypeError("callback must be a function or null");
+      }
+      if (typeof styles !== "object" || styles === void 0) {
+        throw new TypeError("styles must be an object");
+      }
+      if (Object.keys(styles).length === 0) {
+        throw new Error("styles must contain at least one property");
+      }
+      const start = performance.now();
+      const from = {};
+      const to = {};
+      for (const prop in styles) {
+        from[prop] = element.style[prop] || context.windowApi.globalThis.getComputedStyle(element)[prop];
+        to[prop] = styles[prop];
+      }
+      const timer = CommonUtils.setInterval(function() {
+        const timePassed = performance.now() - start;
+        let progress = timePassed / duration;
+        if (progress > 1) {
+          progress = 1;
+        }
+        for (const prop in styles) {
+          element.style[prop] = from[prop] + (to[prop] - from[prop]) * progress + "px";
+        }
+        if (progress === 1) {
+          CommonUtils.clearInterval(timer);
+          if (callback) {
+            callback();
+          }
+        }
+      }, 10);
+    }
+show(target, checkVisiblie = true) {
+      const context = this;
+      if (target == null) {
+        return;
+      }
+      if (typeof target === "string") {
+        target = elementSelector.selectorAll(target);
+      }
+      if (target instanceof NodeList || target instanceof Array) {
+        target = target;
+        for (const element of target) {
+          context.show(element, checkVisiblie);
+        }
+      } else {
+        target = target;
+        target.style.display = "";
+        if (checkVisiblie) {
+          if (!CommonUtils.isShow(target)) {
+            target.style.setProperty("display", "unset", "important");
+          }
+        }
+      }
+    }
+hide(target, checkVisiblie = true) {
+      const context = this;
+      if (target == null) {
+        return;
+      }
+      if (typeof target === "string") {
+        target = elementSelector.selectorAll(target);
+      }
+      if (target instanceof NodeList || target instanceof Array) {
+        target = target;
+        for (const element of target) {
+          context.hide(element, checkVisiblie);
+        }
+      } else {
+        target = target;
+        target.style.display = "none";
+        if (checkVisiblie) {
+          if (CommonUtils.isShow(target)) {
+            target.style.setProperty("display", "none", "important");
+          }
+        }
+      }
+    }
+fadeIn(element, duration = 400, callback) {
+      if (element == null) {
+        return;
+      }
+      const context = this;
+      if (typeof element === "string") {
+        element = elementSelector.selectorAll(element);
+      }
+      if (CommonUtils.isNodeList(element)) {
+        element.forEach(($ele) => {
+          context.fadeIn($ele, duration, callback);
+        });
+        return;
+      }
+      element.style.opacity = "0";
+      element.style.display = "";
+      let start = null;
+      let timer = null;
+      function step(timestamp) {
+        if (!start)
+          start = timestamp;
+        const progress = timestamp - start;
+        element = element;
+        element.style.opacity = Math.min(progress / duration, 1).toString();
+        if (progress < duration) {
+          context.windowApi.window.requestAnimationFrame(step);
+        } else {
+          if (callback && typeof callback === "function") {
+            callback();
+          }
+          context.windowApi.window.cancelAnimationFrame(timer);
+        }
+      }
+      timer = context.windowApi.window.requestAnimationFrame(step);
+    }
+fadeOut(element, duration = 400, callback) {
+      const context = this;
+      if (element == null) {
+        return;
+      }
+      if (typeof element === "string") {
+        element = elementSelector.selectorAll(element);
+      }
+      if (CommonUtils.isNodeList(element)) {
+        element.forEach(($ele) => {
+          context.fadeOut($ele, duration, callback);
+        });
+        return;
+      }
+      element.style.opacity = "1";
+      let start = null;
+      let timer = null;
+      function step(timestamp) {
+        if (!start)
+          start = timestamp;
+        const progress = timestamp - start;
+        element = element;
+        element.style.opacity = Math.max(1 - progress / duration, 0).toString();
+        if (progress < duration) {
+          context.windowApi.window.requestAnimationFrame(step);
+        } else {
+          element.style.display = "none";
+          if (typeof callback === "function") {
+            callback();
+          }
+          context.windowApi.window.cancelAnimationFrame(timer);
+        }
+      }
+      timer = context.windowApi.window.requestAnimationFrame(step);
+    }
+toggle(element, checkVisiblie) {
+      const context = this;
+      if (typeof element === "string") {
+        element = elementSelector.selectorAll(element);
+      }
+      if (element == null) {
+        return;
+      }
+      if (CommonUtils.isNodeList(element)) {
+        element.forEach(($ele) => {
+          context.toggle($ele);
+        });
+        return;
+      }
+      if (context.windowApi.globalThis.getComputedStyle(element).getPropertyValue("display") === "none") {
+        context.show(element, checkVisiblie);
+      } else {
+        context.hide(element, checkVisiblie);
+      }
+    }
+  }
+  new ElementAnimate();
   const OriginPrototype$1 = {
     Object: {
       defineProperty: Object.defineProperty
     }
   };
-  class DOMUtilsEvent {
+  class ElementEvent extends ElementAnimate {
     windowApi;
     constructor(windowApiOption) {
+      super(windowApiOption);
       this.windowApi = new WindowApi$1(windowApiOption);
+    }
+getAnimationEndNameList() {
+      return CommonUtils.getAnimationEndNameList();
+    }
+getTransitionEndNameList() {
+      return CommonUtils.getTransitionEndNameList();
     }
     on(element, eventType, selector, callback, option) {
       function getOption(args2, startIndex, option2) {
-        let currentParam = args2[startIndex];
+        const currentParam = args2[startIndex];
         if (typeof currentParam === "boolean") {
           option2.capture = currentParam;
           if (typeof args2[startIndex + 1] === "boolean") {
@@ -1563,10 +2326,10 @@ SymbolEvents: Symbol("events_" + ((1 + Math.random()) * 65536 | 0).toString(16).
         }
         return option2;
       }
-      let DOMUtilsContext = this;
-      let args = arguments;
+      const that = this;
+      const args = arguments;
       if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+        element = that.selectorAll(element);
       }
       if (element == null) {
         return;
@@ -1605,7 +2368,7 @@ SymbolEvents: Symbol("events_" + ((1 + Math.random()) * 65536 | 0).toString(16).
       }
       function checkOptionOnceToRemoveEventListener() {
         if (listenerOption.once) {
-          DOMUtilsContext.off(element, eventType, selector, callback, option);
+          that.off(element, eventType, selector, callback, option);
         }
       }
       elementList.forEach((elementItem) => {
@@ -1613,16 +2376,16 @@ SymbolEvents: Symbol("events_" + ((1 + Math.random()) * 65536 | 0).toString(16).
           if (selectorList.length) {
             let eventTarget = listenerOption.isComposedPath ? event.composedPath()[0] : event.target;
             let totalParent = elementItem;
-            if (DOMUtilsCommonUtils.isWin(totalParent)) {
-              if (totalParent === DOMUtilsContext.windowApi.document) {
-                totalParent = DOMUtilsContext.windowApi.document.documentElement;
+            if (CommonUtils.isWin(totalParent)) {
+              if (totalParent === that.windowApi.document) {
+                totalParent = that.windowApi.document.documentElement;
               }
             }
-            let findValue = selectorList.find((selectorItem) => {
-              if (DOMUtilsContext.matches(eventTarget, selectorItem)) {
+            const findValue = selectorList.find((selectorItem) => {
+              if (that.matches(eventTarget, selectorItem)) {
                 return true;
               }
-              let $closestMatches = DOMUtilsContext.closest(eventTarget, selectorItem);
+              const $closestMatches = that.closest(eventTarget, selectorItem);
               if ($closestMatches && totalParent?.contains($closestMatches)) {
                 eventTarget = $closestMatches;
                 return true;
@@ -1636,7 +2399,7 @@ SymbolEvents: Symbol("events_" + ((1 + Math.random()) * 65536 | 0).toString(16).
                     return eventTarget;
                   }
                 });
-              } catch (error) {
+              } catch {
               }
               listenerCallBack.call(eventTarget, event, eventTarget);
               checkOptionOnceToRemoveEventListener();
@@ -1648,7 +2411,7 @@ SymbolEvents: Symbol("events_" + ((1 + Math.random()) * 65536 | 0).toString(16).
         }
         eventTypeList.forEach((eventName) => {
           elementItem.addEventListener(eventName, domUtilsEventCallBack, listenerOption);
-          let elementEvents = Reflect.get(elementItem, DOMUtilsData.SymbolEvents) || {};
+          const elementEvents = Reflect.get(elementItem, GlobalData.domEventSymbol) || {};
           elementEvents[eventName] = elementEvents[eventName] || [];
           elementEvents[eventName].push({
             selector: selectorList,
@@ -1656,34 +2419,34 @@ SymbolEvents: Symbol("events_" + ((1 + Math.random()) * 65536 | 0).toString(16).
             callback: domUtilsEventCallBack,
             originCallBack: listenerCallBack
           });
-          Reflect.set(elementItem, DOMUtilsData.SymbolEvents, elementEvents);
+          Reflect.set(elementItem, GlobalData.domEventSymbol, elementEvents);
         });
       });
     }
     off(element, eventType, selector, callback, option, filter) {
       function getOption(args1, startIndex, option2) {
-        let currentParam = args1[startIndex];
+        const currentParam = args1[startIndex];
         if (typeof currentParam === "boolean") {
           option2.capture = currentParam;
-        } else if (typeof currentParam === "object" && "capture" in currentParam) {
+        } else if (typeof currentParam === "object" && currentParam != null && "capture" in currentParam) {
           option2.capture = currentParam.capture;
         }
         return option2;
       }
-      let DOMUtilsContext = this;
-      let args = arguments;
+      const that = this;
+      const args = arguments;
       if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+        element = that.selectorAll(element);
       }
       if (element == null) {
         return;
       }
-      let elementList = [];
+      let $elList = [];
       if (element instanceof NodeList || Array.isArray(element)) {
         element = element;
-        elementList = [...element];
+        $elList = [...element];
       } else {
-        elementList.push(element);
+        $elList.push(element);
       }
       let eventTypeList = [];
       if (Array.isArray(eventType)) {
@@ -1713,15 +2476,16 @@ SymbolEvents: Symbol("events_" + ((1 + Math.random()) * 65536 | 0).toString(16).
       } else if (args.length === 3 && typeof args[2] === "string" || Array.isArray(args[2])) {
         isRemoveAll = true;
       }
-      elementList.forEach((elementItem) => {
-        let elementEvents = Reflect.get(elementItem, DOMUtilsData.SymbolEvents) || {};
+      if (args.length === 5 && typeof args[4] === "function" && typeof filter !== "function") {
+        filter = option;
+      }
+      $elList.forEach(($elItem) => {
+        const elementEvents = Reflect.get($elItem, GlobalData.domEventSymbol) || {};
         eventTypeList.forEach((eventName) => {
-          let handlers = elementEvents[eventName] || [];
-          if (typeof filter === "function") {
-            handlers = handlers.filter(filter);
-          }
-          for (let index = 0; index < handlers.length; index++) {
-            let handler = handlers[index];
+          const handlers = elementEvents[eventName] || [];
+          const filterHandler = typeof filter === "function" ? handlers.filter(filter) : handlers;
+          for (let index = 0; index < filterHandler.length; index++) {
+            const handler = filterHandler[index];
             let flag = true;
             if (flag && listenerCallBack && handler.originCallBack !== listenerCallBack) {
               flag = false;
@@ -1731,34 +2495,37 @@ SymbolEvents: Symbol("events_" + ((1 + Math.random()) * 65536 | 0).toString(16).
                 flag = false;
               }
             }
-            if (flag && listenerOption.capture !== handler.option.capture) {
+            if (flag && typeof handler.option.capture === "boolean" && listenerOption.capture !== handler.option.capture) {
               flag = false;
             }
             if (flag || isRemoveAll) {
-              elementItem.removeEventListener(eventName, handler.callback, handler.option);
-              handlers.splice(index--, 1);
+              $elItem.removeEventListener(eventName, handler.callback, handler.option);
+              const findIndex = handlers.findIndex((item) => item === handler);
+              if (findIndex !== -1) {
+                handlers.splice(findIndex, 1);
+              }
             }
           }
           if (handlers.length === 0) {
-            DOMUtilsCommonUtils.delete(elementEvents, eventType);
+            CommonUtils.delete(elementEvents, eventType);
           }
         });
-        Reflect.set(elementItem, DOMUtilsData.SymbolEvents, elementEvents);
+        Reflect.set($elItem, GlobalData.domEventSymbol, elementEvents);
       });
     }
 offAll(element, eventType) {
-      let DOMUtilsContext = this;
+      const that = this;
       if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+        element = that.selectorAll(element);
       }
       if (element == null) {
         return;
       }
-      let elementList = [];
+      let $elList = [];
       if (element instanceof NodeList || Array.isArray(element)) {
-        elementList = [...element];
+        $elList = [...element];
       } else {
-        elementList.push(element);
+        $elList.push(element);
       }
       let eventTypeList = [];
       if (Array.isArray(eventType)) {
@@ -1766,25 +2533,26 @@ offAll(element, eventType) {
       } else if (typeof eventType === "string") {
         eventTypeList = eventTypeList.concat(eventType.split(" "));
       }
-      elementList.forEach((elementItem) => {
-        Object.getOwnPropertySymbols(elementItem).forEach((symbolEvents) => {
-          if (!symbolEvents.toString().startsWith("Symbol(events_")) {
+      $elList.forEach(($elItem) => {
+        const symbolList = [... new Set([...Object.getOwnPropertySymbols($elItem), GlobalData.domEventSymbol])];
+        symbolList.forEach((symbolItem) => {
+          if (!symbolItem.toString().startsWith("Symbol(events_")) {
             return;
           }
-          let elementEvents = elementItem[symbolEvents] || {};
-          let iterEventNameList = eventTypeList.length ? eventTypeList : Object.keys(elementEvents);
+          const elementEvents = Reflect.get($elItem, symbolItem) || {};
+          const iterEventNameList = eventTypeList.length ? eventTypeList : Object.keys(elementEvents);
           iterEventNameList.forEach((eventName) => {
-            let handlers = elementEvents[eventName];
+            const handlers = elementEvents[eventName];
             if (!handlers) {
               return;
             }
             for (const handler of handlers) {
-              elementItem.removeEventListener(eventName, handler.callback, {
+              $elItem.removeEventListener(eventName, handler.callback, {
                 capture: handler["option"]["capture"]
               });
             }
-            let events = Reflect.get(elementItem, symbolEvents);
-            DOMUtilsCommonUtils.delete(events, eventName);
+            const events = Reflect.get($elItem, symbolItem);
+            CommonUtils.delete(events, eventName);
           });
         });
       });
@@ -1793,15 +2561,15 @@ ready(callback) {
       if (typeof callback !== "function") {
         return;
       }
-      let DOMUtilsContext = this;
+      const that = this;
       function checkDOMReadyState() {
         try {
-          if (DOMUtilsContext.windowApi.document.readyState === "complete" || DOMUtilsContext.windowApi.document.readyState !== "loading" && !DOMUtilsContext.windowApi.document.documentElement.doScroll) {
+          if (that.windowApi.document.readyState === "complete" || that.windowApi.document.readyState !== "loading" && !that.windowApi.document.documentElement.doScroll) {
             return true;
           } else {
             return false;
           }
-        } catch (error) {
+        } catch {
           return false;
         }
       }
@@ -1809,50 +2577,50 @@ ready(callback) {
         removeDomReadyListener();
         callback();
       }
-      let targetList = [
+      const targetList = [
         {
-          target: DOMUtilsContext.windowApi.document,
+          target: that.windowApi.document,
           eventType: "DOMContentLoaded",
           callback: completed
         },
         {
-          target: DOMUtilsContext.windowApi.window,
+          target: that.windowApi.window,
           eventType: "load",
           callback: completed
         }
       ];
       function addDomReadyListener() {
         for (let index = 0; index < targetList.length; index++) {
-          let item = targetList[index];
+          const item = targetList[index];
           item.target.addEventListener(item.eventType, item.callback);
         }
       }
       function removeDomReadyListener() {
         for (let index = 0; index < targetList.length; index++) {
-          let item = targetList[index];
+          const item = targetList[index];
           item.target.removeEventListener(item.eventType, item.callback);
         }
       }
       if (checkDOMReadyState()) {
-        DOMUtilsCommonUtils.setTimeout(callback);
+        CommonUtils.setTimeout(callback);
       } else {
         addDomReadyListener();
       }
     }
 trigger(element, eventType, details, useDispatchToTriggerEvent = true) {
-      let DOMUtilsContext = this;
+      const that = this;
       if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+        element = that.selectorAll(element);
       }
       if (element == null) {
         return;
       }
-      let elementList = [];
+      let $elList = [];
       if (element instanceof NodeList || Array.isArray(element)) {
         element = element;
-        elementList = [...element];
+        $elList = [...element];
       } else {
-        elementList = [element];
+        $elList = [element];
       }
       let eventTypeList = [];
       if (Array.isArray(eventType)) {
@@ -1860,111 +2628,112 @@ trigger(element, eventType, details, useDispatchToTriggerEvent = true) {
       } else if (typeof eventType === "string") {
         eventTypeList = eventType.split(" ");
       }
-      elementList.forEach((elementItem) => {
-        let events = elementItem[DOMUtilsData.SymbolEvents] || {};
-        eventTypeList.forEach((_eventType_) => {
+      $elList.forEach(($elItem) => {
+        const elementEvents = Reflect.get($elItem, GlobalData.domEventSymbol) || {};
+        eventTypeList.forEach((__eventType) => {
           let event = null;
           if (details && details instanceof Event) {
             event = details;
           } else {
-            event = new Event(_eventType_);
+            event = new Event(__eventType);
             if (details) {
               Object.keys(details).forEach((keyName) => {
-                event[keyName] = details[keyName];
+                const value = Reflect.get(details, keyName);
+                Reflect.set(event, keyName, value);
               });
             }
           }
-          if (useDispatchToTriggerEvent == false && _eventType_ in events) {
-            events[_eventType_].forEach((eventsItem) => {
+          if (useDispatchToTriggerEvent == false && __eventType in elementEvents) {
+            elementEvents[__eventType].forEach((eventsItem) => {
               eventsItem.callback(event);
             });
           } else {
-            elementItem.dispatchEvent(event);
+            $elItem.dispatchEvent(event);
           }
         });
       });
     }
 click(element, handler, details, useDispatchToTriggerEvent) {
-      let DOMUtilsContext = this;
+      const that = this;
       if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+        element = that.selectorAll(element);
       }
       if (element == null) {
         return;
       }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
+      if (CommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
-          DOMUtilsContext.click($ele, handler, details, useDispatchToTriggerEvent);
+          that.click($ele, handler, details, useDispatchToTriggerEvent);
         });
         return;
       }
       if (handler == null) {
-        DOMUtilsContext.trigger(element, "click", details, useDispatchToTriggerEvent);
+        that.trigger(element, "click", details, useDispatchToTriggerEvent);
       } else {
-        DOMUtilsContext.on(element, "click", null, handler);
+        that.on(element, "click", null, handler);
       }
     }
 blur(element, handler, details, useDispatchToTriggerEvent) {
-      let DOMUtilsContext = this;
+      const that = this;
       if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+        element = that.selectorAll(element);
       }
       if (element == null) {
         return;
       }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
+      if (CommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
-          DOMUtilsContext.focus($ele, handler, details, useDispatchToTriggerEvent);
+          that.focus($ele, handler, details, useDispatchToTriggerEvent);
         });
         return;
       }
       if (handler === null) {
-        DOMUtilsContext.trigger(element, "blur", details, useDispatchToTriggerEvent);
+        that.trigger(element, "blur", details, useDispatchToTriggerEvent);
       } else {
-        DOMUtilsContext.on(element, "blur", null, handler);
+        that.on(element, "blur", null, handler);
       }
     }
 focus(element, handler, details, useDispatchToTriggerEvent) {
-      let DOMUtilsContext = this;
+      const that = this;
       if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+        element = that.selectorAll(element);
       }
       if (element == null) {
         return;
       }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
+      if (CommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
-          DOMUtilsContext.focus($ele, handler, details, useDispatchToTriggerEvent);
+          that.focus($ele, handler, details, useDispatchToTriggerEvent);
         });
         return;
       }
       if (handler == null) {
-        DOMUtilsContext.trigger(element, "focus", details, useDispatchToTriggerEvent);
+        that.trigger(element, "focus", details, useDispatchToTriggerEvent);
       } else {
-        DOMUtilsContext.on(element, "focus", null, handler);
+        that.on(element, "focus", null, handler);
       }
     }
 hover(element, handler, option) {
-      let DOMUtilsContext = this;
+      const that = this;
       if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+        element = that.selectorAll(element);
       }
       if (element == null) {
         return;
       }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
+      if (CommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
-          DOMUtilsContext.hover($ele, handler, option);
+          that.hover($ele, handler, option);
         });
         return;
       }
-      DOMUtilsContext.on(element, "mouseenter", null, handler, option);
-      DOMUtilsContext.on(element, "mouseleave", null, handler, option);
+      that.on(element, "mouseenter", null, handler, option);
+      that.on(element, "mouseleave", null, handler, option);
     }
 animationend(element, handler, option) {
-      let DOMUtilsContext = this;
+      const that = this;
       if (typeof element === "string") {
-        element = DOMUtilsContext.selector(element);
+        element = that.selector(element);
       }
       if (element == null) {
         return;
@@ -1973,20 +2742,20 @@ animationend(element, handler, option) {
         once: true
       };
       Object.assign(defaultOption, option || {});
-      const eventNameList = DOMUtilsCommonUtils.getAnimationEndNameList();
-      DOMUtilsContext.on(element, eventNameList, null, handler, defaultOption);
+      const eventNameList = CommonUtils.getAnimationEndNameList();
+      that.on(element, eventNameList, null, handler, defaultOption);
       if (!defaultOption.once) {
         return {
           off() {
-            DOMUtilsContext.off(element, eventNameList, null, handler, defaultOption);
+            that.off(element, eventNameList, null, handler, defaultOption);
           }
         };
       }
     }
 transitionend(element, handler, option) {
-      let DOMUtilsContext = this;
+      const that = this;
       if (typeof element === "string") {
-        element = DOMUtilsContext.selector(element);
+        element = that.selector(element);
       }
       if (element == null) {
         return;
@@ -1995,73 +2764,73 @@ transitionend(element, handler, option) {
         once: true
       };
       Object.assign(defaultOption, option || {});
-      const eventNameList = DOMUtilsCommonUtils.getTransitionEndNameList();
-      DOMUtilsContext.on(element, eventNameList, null, handler, defaultOption);
+      const eventNameList = CommonUtils.getTransitionEndNameList();
+      that.on(element, eventNameList, null, handler, defaultOption);
       if (!defaultOption.once) {
         return {
           off() {
-            DOMUtilsContext.off(element, eventNameList, null, handler, defaultOption);
+            that.off(element, eventNameList, null, handler, defaultOption);
           }
         };
       }
     }
 keyup(element, handler, option) {
-      let DOMUtilsContext = this;
+      const that = this;
       if (element == null) {
         return;
       }
       if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+        element = that.selectorAll(element);
       }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
+      if (CommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
-          DOMUtilsContext.keyup($ele, handler, option);
+          that.keyup($ele, handler, option);
         });
         return;
       }
-      DOMUtilsContext.on(element, "keyup", null, handler, option);
+      that.on(element, "keyup", null, handler, option);
     }
 keydown(element, handler, option) {
-      let DOMUtilsContext = this;
+      const that = this;
       if (element == null) {
         return;
       }
       if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+        element = that.selectorAll(element);
       }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
+      if (CommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
-          DOMUtilsContext.keydown($ele, handler, option);
+          that.keydown($ele, handler, option);
         });
         return;
       }
-      DOMUtilsContext.on(element, "keydown", null, handler, option);
+      that.on(element, "keydown", null, handler, option);
     }
 keypress(element, handler, option) {
-      let DOMUtilsContext = this;
+      const that = this;
       if (element == null) {
         return;
       }
       if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+        element = that.selectorAll(element);
       }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
+      if (CommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
-          DOMUtilsContext.keypress($ele, handler, option);
+          that.keypress($ele, handler, option);
         });
         return;
       }
-      DOMUtilsContext.on(element, "keypress", null, handler, option);
+      that.on(element, "keypress", null, handler, option);
     }
 listenKeyboard(element, eventName = "keypress", callback, options) {
-      let DOMUtilsContext = this;
+      const that = this;
       if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+        element = that.selectorAll(element);
       }
-      let keyboardEventCallBack = function(event) {
-        let keyName = event.key || event.code;
-        let keyValue = event.charCode || event.keyCode || event.which;
-        let otherCodeList = [];
+      const keyboardEventCallBack = function(event) {
+        const keyName = event.key || event.code;
+        const keyValue = event.charCode || event.keyCode || event.which;
+        const otherCodeList = [];
         if (event.ctrlKey) {
           otherCodeList.push("ctrl");
         }
@@ -2078,168 +2847,105 @@ listenKeyboard(element, eventName = "keypress", callback, options) {
           callback(keyName, keyValue, otherCodeList, event);
         }
       };
-      DOMUtilsContext.on(element, eventName, keyboardEventCallBack, options);
+      that.on(element, eventName, keyboardEventCallBack, options);
       return {
         removeListen: () => {
-          DOMUtilsContext.off(element, eventName, keyboardEventCallBack, options);
+          that.off(element, eventName, keyboardEventCallBack, options);
         }
       };
     }
-    selector(selector, parent) {
-      return this.selectorAll(selector, parent)[0];
-    }
-    selectorAll(selector, parent) {
-      const context = this;
-      parent = parent || context.windowApi.document;
-      selector = selector.trim();
-      if (selector.match(/[^\s]{1}:empty$/gi)) {
-        selector = selector.replace(/:empty$/gi, "");
-        return Array.from(parent.querySelectorAll(selector)).filter(($ele) => {
-          return $ele?.innerHTML?.trim() === "";
-        });
-      } else if (selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) || selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)) {
-        let textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
-        let text = textMatch[2];
-        selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
-        return Array.from(parent.querySelectorAll(selector)).filter(($ele) => {
-          return ($ele?.textContent || $ele?.innerText)?.includes(text);
-        });
-      } else if (selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) || selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)) {
-        let textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
-        let pattern = textMatch[2];
-        let flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
-        let flags = "";
-        if (flagMatch) {
-          pattern = pattern.replace(/("|'),[\s]*("|')([igm]{0,3})$/gi, "");
-          flags = flagMatch[3];
-        }
-        let regexp = new RegExp(pattern, flags);
-        selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
-        return Array.from(parent.querySelectorAll(selector)).filter(($ele) => {
-          return Boolean(($ele?.textContent || $ele?.innerText)?.match(regexp));
-        });
-      } else {
-        return Array.from(parent.querySelectorAll(selector));
-      }
-    }
-matches($el, selector) {
-      selector = selector.trim();
-      if ($el == null) {
+    preventEvent(...args) {
+      const stopEvent = (event) => {
+        event?.preventDefault();
+        event?.stopPropagation();
+        event?.stopImmediatePropagation();
         return false;
-      }
-      if (selector.match(/[^\s]{1}:empty$/gi)) {
-        selector = selector.replace(/:empty$/gi, "");
-        return $el.matches(selector) && $el?.innerHTML?.trim() === "";
-      } else if (selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) || selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)) {
-        let textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
-        let text = textMatch[2];
-        selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
-        let content = $el?.textContent || $el?.innerText;
-        if (typeof content !== "string") {
-          content = "";
-        }
-        return $el.matches(selector) && content?.includes(text);
-      } else if (selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) || selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)) {
-        let textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
-        let pattern = textMatch[2];
-        let flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
-        let flags = "";
-        if (flagMatch) {
-          pattern = pattern.replace(/("|'),[\s]*("|')([igm]{0,3})$/gi, "");
-          flags = flagMatch[3];
-        }
-        let regexp = new RegExp(pattern, flags);
-        selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
-        let content = $el?.textContent || $el?.innerText;
-        if (typeof content !== "string") {
-          content = "";
-        }
-        return $el.matches(selector) && Boolean(content?.match(regexp));
+      };
+      if (args.length === 1) {
+        return stopEvent(args[0]);
       } else {
-        return $el.matches(selector);
-      }
-    }
-    closest($el, selector) {
-      selector = selector.trim();
-      if (selector.match(/[^\s]{1}:empty$/gi)) {
-        selector = selector.replace(/:empty$/gi, "");
-        let $closest = $el?.closest(selector);
-        if ($closest && $closest?.innerHTML?.trim() === "") {
-          return $closest;
+        const $el = args[0];
+        let eventNameList = args[1];
+        const capture = args[2];
+        if (typeof eventNameList === "string") {
+          eventNameList = [eventNameList];
         }
-        return null;
-      } else if (selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) || selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)) {
-        let textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
-        let text = textMatch[2];
-        selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
-        let $closest = $el?.closest(selector);
-        if ($closest) {
-          let content = $el?.textContent || $el?.innerText;
-          if (typeof content === "string" && content.includes(text)) {
-            return $closest;
-          }
-        }
-        return null;
-      } else if (selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) || selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)) {
-        let textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
-        let pattern = textMatch[2];
-        let flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
-        let flags = "";
-        if (flagMatch) {
-          pattern = pattern.replace(/("|'),[\s]*("|')([igm]{0,3})$/gi, "");
-          flags = flagMatch[3];
-        }
-        let regexp = new RegExp(pattern, flags);
-        selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
-        let $closest = $el?.closest(selector);
-        if ($closest) {
-          let content = $el?.textContent || $el?.innerText;
-          if (typeof content === "string" && content.match(regexp)) {
-            return $closest;
-          }
-        }
-        return null;
-      } else {
-        let $closest = $el?.closest(selector);
-        return $closest;
+        this.on($el, eventNameList, stopEvent, { capture: Boolean(capture) });
       }
     }
   }
-  let DOMUtils$1 = class DOMUtils extends DOMUtilsEvent {
+  new ElementEvent();
+  class ElementHandler extends ElementEvent {
+    windowApi;
+    constructor(windowApiOption) {
+      super(windowApiOption);
+      this.windowApi = new WindowApi$1(windowApiOption);
+    }
+getElementSelector($el) {
+      const that = this;
+      if (!$el)
+        return void 0;
+      if (!$el.parentElement)
+        return void 0;
+      if ($el.id)
+        return `#${$el.id}`;
+      let selector = that.getElementSelector($el.parentElement);
+      if (!selector) {
+        return $el.tagName.toLowerCase();
+      }
+      if ($el.parentElement.querySelectorAll($el.tagName).length > 1) {
+        const index = Array.prototype.indexOf.call($el.parentElement.children, $el) + 1;
+        selector += ` > ${$el.tagName.toLowerCase()}:nth-child(${index})`;
+      } else {
+        selector += ` > ${$el.tagName.toLowerCase()}`;
+      }
+      return selector;
+    }
+  }
+  new ElementHandler();
+  let DOMUtils$1 = class DOMUtils extends ElementHandler {
     constructor(option) {
       super(option);
     }
-version = "2025.8.11";
-    attr(element, attrName, attrValue) {
-      let DOMUtilsContext = this;
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+version = version$2;
+noConflict() {
+      const that = this;
+      if (that.windowApi.window.DOMUtils) {
+        CommonUtils.delete(window, "DOMUtils");
       }
-      if (element == null) {
+      that.windowApi.window.DOMUtils = this;
+      return this;
+    }
+    attr($el, attrName, attrValue) {
+      const that = this;
+      if (typeof $el === "string") {
+        $el = that.selectorAll($el);
+      }
+      if ($el == null) {
         return;
       }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
+      if (CommonUtils.isNodeList($el)) {
         if (attrValue == null) {
-          return DOMUtilsContext.attr(element[0], attrName, attrValue);
+          return that.attr($el[0], attrName, attrValue);
         } else {
-          element.forEach(($ele) => {
-            DOMUtilsContext.attr($ele, attrName, attrValue);
+          $el.forEach(($elItem) => {
+            that.attr($elItem, attrName, attrValue);
           });
           return;
         }
       }
       if (attrValue == null) {
-        return element.getAttribute(attrName);
+        return $el.getAttribute(attrName);
       } else {
-        element.setAttribute(attrName, attrValue);
+        $el.setAttribute(attrName, attrValue);
       }
     }
     createElement(tagName, property, attributes) {
-      let DOMUtilsContext = this;
-      let tempElement = DOMUtilsContext.windowApi.document.createElement(tagName);
+      const that = this;
+      const $el = that.windowApi.document.createElement(tagName);
       if (typeof property === "string") {
-        DOMUtilsContext.html(tempElement, property);
-        return tempElement;
+        that.html($el, property);
+        return $el;
       }
       if (property == null) {
         property = {};
@@ -2248,12 +2954,12 @@ version = "2025.8.11";
         attributes = {};
       }
       Object.keys(property).forEach((key) => {
-        let value = property[key];
+        const value = property[key];
         if (key === "innerHTML") {
-          DOMUtilsContext.html(tempElement, value);
+          that.html($el, value);
           return;
         }
-        tempElement[key] = value;
+        $el[key] = value;
       });
       Object.keys(attributes).forEach((key) => {
         let value = attributes[key];
@@ -2262,14 +2968,14 @@ version = "2025.8.11";
         } else if (typeof value === "function") {
           value = value.toString();
         }
-        tempElement.setAttribute(key, value);
+        $el.setAttribute(key, value);
       });
-      return tempElement;
+      return $el;
     }
-    css(element, property, value) {
-      let DOMUtilsContext = this;
+    css($el, property, value) {
+      const that = this;
       function handlePixe(propertyName, propertyValue) {
-        let allowAddPixe = ["width", "height", "top", "left", "right", "bottom", "font-size"];
+        const allowAddPixe = ["width", "height", "top", "left", "right", "bottom", "font-size"];
         if (typeof propertyValue === "number") {
           propertyValue = propertyValue.toString();
         }
@@ -2278,127 +2984,127 @@ version = "2025.8.11";
         }
         return propertyValue;
       }
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+      if (typeof $el === "string") {
+        $el = that.selectorAll($el);
       }
-      if (element == null) {
+      if ($el == null) {
         return;
       }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
+      if (CommonUtils.isNodeList($el)) {
         if (typeof property === "string") {
           if (value == null) {
-            return DOMUtilsContext.css(element[0], property);
+            return that.css($el[0], property);
           } else {
-            element.forEach(($ele) => {
-              DOMUtilsContext.css($ele, property);
+            $el.forEach(($elItem) => {
+              that.css($elItem, property);
             });
             return;
           }
         } else if (typeof property === "object") {
-          element.forEach(($ele) => {
-            DOMUtilsContext.css($ele, property);
+          $el.forEach(($elItem) => {
+            that.css($elItem, property);
           });
           return;
-        } else ;
+        }
         return;
       }
-      let setStyleProperty = (propertyName, propertyValue) => {
+      const setStyleProperty = (propertyName, propertyValue) => {
         if (typeof propertyValue === "string" && propertyValue.trim().endsWith("!important")) {
           propertyValue = propertyValue.trim().replace(/!important$/gi, "").trim();
-          element.style.setProperty(propertyName, propertyValue, "important");
+          $el.style.setProperty(propertyName, propertyValue, "important");
         } else {
           propertyValue = handlePixe(propertyName, propertyValue);
-          element.style.setProperty(propertyName, propertyValue);
+          $el.style.setProperty(propertyName, propertyValue);
         }
       };
       if (typeof property === "string") {
         if (value == null) {
-          return DOMUtilsContext.windowApi.globalThis.getComputedStyle(element).getPropertyValue(property);
+          return that.windowApi.globalThis.getComputedStyle($el).getPropertyValue(property);
         } else {
           setStyleProperty(property, value);
         }
       } else if (typeof property === "object") {
-        for (let prop in property) {
-          let value2 = property[prop];
+        for (const prop in property) {
+          const value2 = property[prop];
           setStyleProperty(prop, value2);
         }
       } else {
         throw new TypeError("property must be string or object");
       }
     }
-    text(element, text) {
-      let DOMUtilsContext = this;
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+    text($el, text) {
+      const that = this;
+      if (typeof $el === "string") {
+        $el = that.selectorAll($el);
       }
-      if (element == null) {
+      if ($el == null) {
         return;
       }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
+      if (CommonUtils.isNodeList($el)) {
         if (text == null) {
-          return DOMUtilsContext.text(element[0]);
+          return that.text($el[0]);
         } else {
-          element.forEach(($ele) => {
-            DOMUtilsContext.text($ele, text);
+          $el.forEach(($elItem) => {
+            that.text($elItem, text);
           });
         }
         return;
       }
       if (text == null) {
-        return element.textContent || element.innerText;
+        return $el.textContent || $el.innerText;
       } else {
         if (text instanceof Node) {
           text = text.textContent || text.innerText;
         }
-        if ("textContent" in element) {
-          element.textContent = text;
-        } else if ("innerText" in element) {
-          element.innerText = text;
+        if ("textContent" in $el) {
+          $el.textContent = text;
+        } else if ("innerText" in $el) {
+          $el.innerText = text;
         }
       }
     }
-    html(element, html) {
-      let DOMUtilsContext = this;
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+    html($el, html) {
+      const that = this;
+      if (typeof $el === "string") {
+        $el = that.selectorAll($el);
       }
-      if (element == null) {
+      if ($el == null) {
         return;
       }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
+      if (CommonUtils.isNodeList($el)) {
         if (html == null) {
-          return DOMUtilsContext.html(element[0]);
+          return that.html($el[0]);
         } else {
-          element.forEach(($ele) => {
-            DOMUtilsContext.html($ele, html);
+          $el.forEach(($elItem) => {
+            that.html($elItem, html);
           });
         }
         return;
       }
       if (html == null) {
-        return element.innerHTML;
+        return $el.innerHTML;
       } else {
         if (html instanceof Element) {
           html = html.innerHTML;
         }
-        if ("innerHTML" in element) {
-          DOMUtilsCommonUtils.setSafeHTML(element, html);
+        if ("innerHTML" in $el) {
+          CommonUtils.setSafeHTML($el, html);
         }
       }
     }
-getTransform(element, isShow = false) {
-      let DOMUtilsContext = this;
+getTransform($el, isShow = false) {
+      const that = this;
       let transform_left = 0;
       let transform_top = 0;
-      if (!(isShow || !isShow && DOMUtilsCommonUtils.isShow(element))) {
-        let { recovery } = DOMUtilsCommonUtils.showElement(element);
-        let transformInfo = DOMUtilsContext.getTransform(element, true);
+      if (!(isShow || !isShow && CommonUtils.isShow($el))) {
+        const { recovery } = CommonUtils.forceShow($el);
+        const transformInfo = that.getTransform($el, true);
         recovery();
         return transformInfo;
       }
-      let elementTransform = DOMUtilsContext.windowApi.globalThis.getComputedStyle(element).transform;
+      const elementTransform = that.windowApi.globalThis.getComputedStyle($el).transform;
       if (elementTransform != null && elementTransform !== "none" && elementTransform !== "") {
-        let elementTransformSplit = elementTransform.match(/\((.+)\)/)?.[1].split(",");
+        const elementTransformSplit = elementTransform.match(/\((.+)\)/)?.[1].split(",");
         if (elementTransformSplit) {
           transform_left = Math.abs(parseInt(elementTransformSplit[4]));
           transform_top = Math.abs(parseInt(elementTransformSplit[5]));
@@ -2412,159 +3118,134 @@ getTransform(element, isShow = false) {
         transformTop: transform_top
       };
     }
-    val(element, value) {
-      let DOMUtilsContext = this;
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+    val($el, value) {
+      const that = this;
+      if (typeof $el === "string") {
+        $el = that.selectorAll($el);
       }
-      if (element == null) {
+      if ($el == null) {
         return;
       }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
+      if (CommonUtils.isNodeList($el)) {
         if (value == null) {
-          return DOMUtilsContext.val(element[0]);
+          return that.val($el[0]);
         } else {
-          element.forEach(($ele) => {
-            DOMUtilsContext.val($ele, value);
+          $el.forEach(($elItem) => {
+            that.val($elItem, value);
           });
         }
         return;
       }
       if (value == null) {
-        if (element.localName === "input" && (element.type === "checkbox" || element.type === "radio")) {
-          return element.checked;
+        if ($el.localName === "input" && ($el.type === "checkbox" || $el.type === "radio")) {
+          return $el.checked;
         } else {
-          return element.value;
+          return $el.value;
         }
       } else {
-        if (element.localName === "input" && (element.type === "checkbox" || element.type === "radio")) {
-          element.checked = !!value;
+        if ($el.localName === "input" && ($el.type === "checkbox" || $el.type === "radio")) {
+          $el.checked = !!value;
         } else {
-          element.value = value;
+          $el.value = value;
         }
       }
     }
-    prop(element, propName, propValue) {
-      let DOMUtilsContext = this;
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+    prop($el, propName, propValue) {
+      const that = this;
+      if (typeof $el === "string") {
+        $el = that.selectorAll($el);
       }
-      if (element == null) {
+      if ($el == null) {
         return;
       }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
+      if (CommonUtils.isNodeList($el)) {
         if (propValue == null) {
-          return DOMUtilsContext.prop(element[0], propName);
+          return that.prop($el[0], propName);
         } else {
-          element.forEach(($ele) => {
-            DOMUtilsContext.prop($ele, propName, propValue);
+          $el.forEach(($elItem) => {
+            that.prop($elItem, propName, propValue);
           });
         }
         return;
       }
       if (propValue == null) {
-        return Reflect.get(element, propName);
+        return Reflect.get($el, propName);
       } else {
-        if (element instanceof Element && propName === "innerHTML") {
-          DOMUtilsContext.html(element, propValue);
+        if ($el instanceof Element && propName === "innerHTML") {
+          that.html($el, propValue);
         } else {
-          Reflect.set(element, propName, propValue);
+          Reflect.set($el, propName, propValue);
         }
       }
     }
-removeAttr(element, attrName) {
-      let DOMUtilsContext = this;
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+removeAttr($el, attrName) {
+      const that = this;
+      if (typeof $el === "string") {
+        $el = that.selectorAll($el);
       }
-      if (element == null) {
+      if ($el == null) {
         return;
       }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
-        element.forEach(($ele) => {
-          DOMUtilsContext.removeAttr($ele, attrName);
+      if (CommonUtils.isNodeList($el)) {
+        $el.forEach(($elItem) => {
+          that.removeAttr($elItem, attrName);
         });
         return;
       }
-      element.removeAttribute(attrName);
+      $el.removeAttribute(attrName);
     }
-removeClass(element, className) {
-      let DOMUtilsContext = this;
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+removeClass($el, className) {
+      const that = this;
+      if (typeof $el === "string") {
+        $el = that.selectorAll($el);
       }
-      if (element == null) {
+      if ($el == null) {
         return;
       }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
-        element.forEach(($ele) => {
-          DOMUtilsContext.removeClass($ele, className);
+      if (CommonUtils.isNodeList($el)) {
+        $el.forEach(($elItem) => {
+          that.removeClass($elItem, className);
         });
         return;
       }
       if (className == null) {
-        element.className = "";
+        $el.className = "";
       } else {
         if (!Array.isArray(className)) {
           className = className.trim().split(" ");
         }
         className.forEach((itemClassName) => {
-          element.classList.remove(itemClassName);
+          $el.classList.remove(itemClassName);
         });
       }
     }
-removeProp(element, propName) {
-      let DOMUtilsContext = this;
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+removeProp($el, propName) {
+      const that = this;
+      if (typeof $el === "string") {
+        $el = that.selectorAll($el);
       }
-      if (element == null) {
+      if ($el == null) {
         return;
       }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
-        element.forEach(($ele) => {
-          DOMUtilsContext.removeProp($ele, propName);
+      if (CommonUtils.isNodeList($el)) {
+        $el.forEach(($elItem) => {
+          that.removeProp($elItem, propName);
         });
         return;
       }
-      DOMUtilsCommonUtils.delete(element, propName);
+      CommonUtils.delete($el, propName);
     }
-replaceWith(element, newElement) {
-      let DOMUtilsContext = this;
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+addClass($el, className) {
+      const that = this;
+      if (typeof $el === "string") {
+        $el = that.selectorAll($el);
       }
-      if (element == null) {
+      if ($el == null) {
         return;
       }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
-        element.forEach(($ele) => {
-          DOMUtilsContext.replaceWith($ele, newElement);
-        });
-        return;
-      }
-      if (typeof newElement === "string") {
-        newElement = DOMUtilsContext.parseHTML(newElement, false, false);
-      }
-      let $parent = element.parentElement;
-      if ($parent) {
-        $parent.replaceChild(newElement, element);
-      } else {
-        DOMUtilsContext.after(element, newElement);
-        element.remove();
-      }
-    }
-addClass(element, className) {
-      let DOMUtilsContext = this;
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
-      }
-      if (element == null) {
-        return;
-      }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
-        element.forEach(($ele) => {
-          DOMUtilsContext.addClass($ele, className);
+      if (CommonUtils.isNodeList($el)) {
+        $el.forEach(($elItem) => {
+          that.addClass($elItem, className);
         });
         return;
       }
@@ -2575,26 +3256,26 @@ addClass(element, className) {
         if (itemClassName.trim() == "") {
           return;
         }
-        element.classList.add(itemClassName);
+        $el.classList.add(itemClassName);
       });
     }
-hasClass(element, className) {
-      let DOMUtilsContext = this;
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+hasClass($el, className) {
+      const that = this;
+      if (typeof $el === "string") {
+        $el = that.selectorAll($el);
       }
-      if (element == null) {
+      if ($el == null) {
         return false;
       }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
+      if (CommonUtils.isNodeList($el)) {
         let flag = true;
-        for (let index = 0; index < element.length; index++) {
-          const $ele = element[index];
-          flag = flag && DOMUtilsContext.hasClass($ele, className);
+        for (let index = 0; index < $el.length; index++) {
+          const $elItem = $el[index];
+          flag = flag && that.hasClass($elItem, className);
         }
         return flag;
       }
-      if (!element?.classList) {
+      if (!$el?.classList) {
         return false;
       }
       if (!Array.isArray(className)) {
@@ -2602,23 +3283,23 @@ hasClass(element, className) {
       }
       for (let index = 0; index < className.length; index++) {
         const item = className[index].trim();
-        if (!element.classList.contains(item)) {
+        if (!$el.classList.contains(item)) {
           return false;
         }
       }
       return true;
     }
-append(element, content) {
-      let DOMUtilsContext = this;
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+append($el, content) {
+      const that = this;
+      if (typeof $el === "string") {
+        $el = that.selectorAll($el);
       }
-      if (element == null) {
+      if ($el == null) {
         return;
       }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
-        element.forEach(($ele) => {
-          DOMUtilsContext.append($ele, content);
+      if (CommonUtils.isNodeList($el)) {
+        $el.forEach(($elItem) => {
+          that.append($elItem, content);
         });
         return;
       }
@@ -2626,421 +3307,376 @@ append(element, content) {
         if (typeof content === "string") {
           if (ele instanceof DocumentFragment) {
             if (typeof text === "string") {
-              text = DOMUtilsContext.parseHTML(text, true, false);
+              text = that.toElement(text, true, false);
             }
             ele.appendChild(text);
           } else {
-            ele.insertAdjacentHTML("beforeend", DOMUtilsCommonUtils.getSafeHTML(text));
+            ele.insertAdjacentHTML("beforeend", CommonUtils.createSafeHTML(text));
           }
         } else {
           ele.appendChild(text);
         }
       }
       if (Array.isArray(content) || content instanceof NodeList) {
-        let fragment = DOMUtilsContext.windowApi.document.createDocumentFragment();
+        const fragment = that.windowApi.document.createDocumentFragment();
         content.forEach((ele) => {
           if (typeof ele === "string") {
-            ele = DOMUtilsContext.parseHTML(ele, true, false);
+            ele = that.toElement(ele, true, false);
           }
           fragment.appendChild(ele);
         });
-        element.appendChild(fragment);
+        $el.appendChild(fragment);
       } else {
-        elementAppendChild(element, content);
+        elementAppendChild($el, content);
       }
     }
-prepend(element, content) {
-      let DOMUtilsContext = this;
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+prepend($el, content) {
+      const that = this;
+      if (typeof $el === "string") {
+        $el = that.selectorAll($el);
       }
-      if (element == null) {
+      if ($el == null) {
         return;
       }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
-        element.forEach(($ele) => {
-          DOMUtilsContext.prepend($ele, content);
+      if (CommonUtils.isNodeList($el)) {
+        $el.forEach(($elItem) => {
+          that.prepend($elItem, content);
         });
         return;
       }
       if (typeof content === "string") {
-        if (element instanceof DocumentFragment) {
-          content = DOMUtilsContext.parseHTML(content, true, false);
-          element.prepend(content);
+        if ($el instanceof DocumentFragment) {
+          content = that.toElement(content, true, false);
+          $el.prepend(content);
         } else {
-          element.insertAdjacentHTML("afterbegin", DOMUtilsCommonUtils.getSafeHTML(content));
+          $el.insertAdjacentHTML("afterbegin", CommonUtils.createSafeHTML(content));
         }
       } else {
-        let $firstChild = element.firstChild;
+        const $firstChild = $el.firstChild;
         if ($firstChild == null) {
-          element.prepend(content);
+          $el.prepend(content);
         } else {
-          element.insertBefore(content, element.firstChild);
+          $el.insertBefore(content, $firstChild);
         }
       }
     }
-after(element, content) {
-      let DOMUtilsContext = this;
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+after($el, content) {
+      const that = this;
+      if (typeof $el === "string") {
+        $el = that.selectorAll($el);
       }
-      if (element == null) {
+      if ($el == null) {
         return;
       }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
-        element.forEach(($ele) => {
-          DOMUtilsContext.after($ele, content);
+      if (CommonUtils.isNodeList($el)) {
+        $el.forEach(($elItem) => {
+          that.after($elItem, content);
         });
         return;
       }
       if (typeof content === "string") {
-        element.insertAdjacentHTML("afterend", DOMUtilsCommonUtils.getSafeHTML(content));
+        $el.insertAdjacentHTML("afterend", CommonUtils.createSafeHTML(content));
       } else {
-        let $parent = element.parentElement;
-        let $nextSlibling = element.nextSibling;
+        const $parent = $el.parentElement;
+        const $nextSlibling = $el.nextSibling;
         if (!$parent || $nextSlibling) {
-          element.after(content);
+          $el.after(content);
         } else {
-          element.parentElement.insertBefore(content, element.nextSibling);
+          $parent.insertBefore(content, $nextSlibling);
         }
       }
     }
-before(element, content) {
-      let DOMUtilsContext = this;
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+before($el, content) {
+      const that = this;
+      if (typeof $el === "string") {
+        $el = that.selectorAll($el);
       }
-      if (element == null) {
+      if ($el == null) {
         return;
       }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
-        element.forEach(($ele) => {
-          DOMUtilsContext.before($ele, content);
+      if (CommonUtils.isNodeList($el)) {
+        $el.forEach(($elItem) => {
+          that.before($elItem, content);
         });
         return;
       }
       if (typeof content === "string") {
-        element.insertAdjacentHTML("beforebegin", DOMUtilsCommonUtils.getSafeHTML(content));
+        $el.insertAdjacentHTML("beforebegin", CommonUtils.createSafeHTML(content));
       } else {
-        let $parent = element.parentElement;
+        const $parent = $el.parentElement;
         if (!$parent) {
-          element.before(content);
+          $el.before(content);
         } else {
-          $parent.insertBefore(content, element);
+          $parent.insertBefore(content, $el);
         }
       }
     }
-remove(element) {
-      let DOMUtilsContext = this;
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+remove($el) {
+      const that = this;
+      if (typeof $el === "string") {
+        $el = that.selectorAll($el);
       }
-      if (element == null) {
+      if ($el == null) {
         return;
       }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
-        element.forEach(($ele) => {
-          DOMUtilsContext.remove($ele);
+      if (CommonUtils.isNodeList($el)) {
+        $el.forEach(($elItem) => {
+          that.remove($elItem);
         });
         return;
       }
-      if (typeof element.remove === "function") {
-        element.remove();
-      } else if (element.parentElement) {
-        element.parentElement.removeChild(element);
-      } else if (element.parentNode) {
-        element.parentNode.removeChild(element);
+      if (typeof $el.remove === "function") {
+        $el.remove();
+      } else if ($el.parentElement) {
+        $el.parentElement.removeChild($el);
+      } else if ($el.parentNode) {
+        $el.parentNode.removeChild($el);
       }
     }
-empty(element) {
-      let DOMUtilsContext = this;
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+empty($el) {
+      const that = this;
+      if (typeof $el === "string") {
+        $el = that.selectorAll($el);
       }
-      if (element == null) {
+      if ($el == null) {
         return;
       }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
-        element.forEach(($ele) => {
-          DOMUtilsContext.empty($ele);
+      if (CommonUtils.isNodeList($el)) {
+        $el.forEach(($elItem) => {
+          that.empty($elItem);
         });
         return;
       }
-      if (element.innerHTML) {
-        element.innerHTML = "";
-      } else if (element.textContent) {
-        element.textContent = "";
+      if ($el.innerHTML) {
+        $el.innerHTML = "";
+      } else if ($el.textContent) {
+        $el.textContent = "";
       }
     }
-offset(element) {
-      let DOMUtilsContext = this;
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selector(element);
+offset($el) {
+      const that = this;
+      if (typeof $el === "string") {
+        $el = that.selector($el);
       }
-      if (element == null) {
+      if ($el == null) {
         return;
       }
-      let rect = element.getBoundingClientRect();
+      const rect = $el.getBoundingClientRect();
       return {
-top: rect.top + DOMUtilsContext.windowApi.globalThis.scrollY,
-left: rect.left + DOMUtilsContext.windowApi.globalThis.scrollX
+top: rect.top + that.windowApi.globalThis.scrollY,
+left: rect.left + that.windowApi.globalThis.scrollX
       };
     }
-    width(element, isShow = false) {
-      let DOMUtilsContext = this;
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selector(element);
+    width($el, isShow = false) {
+      const that = this;
+      if (typeof $el === "string") {
+        $el = that.selector($el);
       }
-      if (element == null) {
-        return;
+      if (CommonUtils.isWin($el)) {
+        return that.windowApi.window.document.documentElement.clientWidth;
       }
-      if (DOMUtilsCommonUtils.isWin(element)) {
-        return DOMUtilsContext.windowApi.window.document.documentElement.clientWidth;
+      if ($el.nodeType === 9) {
+        $el = $el;
+        return Math.max($el.body.scrollWidth, $el.documentElement.scrollWidth, $el.body.offsetWidth, $el.documentElement.offsetWidth, $el.documentElement.clientWidth);
       }
-      if (element.nodeType === 9) {
-        element = element;
-        return Math.max(element.body.scrollWidth, element.documentElement.scrollWidth, element.body.offsetWidth, element.documentElement.offsetWidth, element.documentElement.clientWidth);
-      }
-      if (isShow || !isShow && DOMUtilsCommonUtils.isShow(element)) {
-        element = element;
-        if (parseFloat(DOMUtilsCommonUtils.getStyleValue(element, "width").toString()) > 0) {
-          return parseFloat(DOMUtilsCommonUtils.getStyleValue(element, "width").toString());
+      if (isShow || !isShow && CommonUtils.isShow($el)) {
+        $el = $el;
+        if (parseFloat(CommonUtils.getStyleValue($el, "width").toString()) > 0) {
+          return parseFloat(CommonUtils.getStyleValue($el, "width").toString());
         }
-        if (element.offsetWidth > 0) {
-          let borderLeftWidth = DOMUtilsCommonUtils.getStyleValue(element, "borderLeftWidth");
-          let borderRightWidth = DOMUtilsCommonUtils.getStyleValue(element, "borderRightWidth");
-          let paddingLeft = DOMUtilsCommonUtils.getStyleValue(element, "paddingLeft");
-          let paddingRight = DOMUtilsCommonUtils.getStyleValue(element, "paddingRight");
-          let backHeight = parseFloat(element.offsetWidth.toString()) - parseFloat(borderLeftWidth.toString()) - parseFloat(borderRightWidth.toString()) - parseFloat(paddingLeft.toString()) - parseFloat(paddingRight.toString());
+        if ($el.offsetWidth > 0) {
+          const borderLeftWidth = CommonUtils.getStyleValue($el, "borderLeftWidth");
+          const borderRightWidth = CommonUtils.getStyleValue($el, "borderRightWidth");
+          const paddingLeft = CommonUtils.getStyleValue($el, "paddingLeft");
+          const paddingRight = CommonUtils.getStyleValue($el, "paddingRight");
+          const backHeight = parseFloat($el.offsetWidth.toString()) - parseFloat(borderLeftWidth.toString()) - parseFloat(borderRightWidth.toString()) - parseFloat(paddingLeft.toString()) - parseFloat(paddingRight.toString());
           return parseFloat(backHeight.toString());
         }
         return 0;
       } else {
-        element = element;
-        let { recovery } = DOMUtilsCommonUtils.showElement(element);
-        let width = DOMUtilsContext.width(element, true);
+        $el = $el;
+        const { recovery } = CommonUtils.forceShow($el);
+        const width = that.width($el, true);
         recovery();
         return width;
       }
     }
-    height(element, isShow = false) {
-      let DOMUtilsContext = this;
-      if (DOMUtilsCommonUtils.isWin(element)) {
-        return DOMUtilsContext.windowApi.window.document.documentElement.clientHeight;
+    height($el, isShow = false) {
+      const that = this;
+      if (CommonUtils.isWin($el)) {
+        return that.windowApi.window.document.documentElement.clientHeight;
       }
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selector(element);
+      if (typeof $el === "string") {
+        $el = that.selector($el);
       }
-      if (element == null) {
-        return;
+      if ($el.nodeType === 9) {
+        $el = $el;
+        return Math.max($el.body.scrollHeight, $el.documentElement.scrollHeight, $el.body.offsetHeight, $el.documentElement.offsetHeight, $el.documentElement.clientHeight);
       }
-      if (element.nodeType === 9) {
-        element = element;
-        return Math.max(element.body.scrollHeight, element.documentElement.scrollHeight, element.body.offsetHeight, element.documentElement.offsetHeight, element.documentElement.clientHeight);
-      }
-      if (isShow || !isShow && DOMUtilsCommonUtils.isShow(element)) {
-        element = element;
-        if (parseFloat(DOMUtilsCommonUtils.getStyleValue(element, "height").toString()) > 0) {
-          return parseFloat(DOMUtilsCommonUtils.getStyleValue(element, "height").toString());
+      if (isShow || !isShow && CommonUtils.isShow($el)) {
+        $el = $el;
+        if (parseFloat(CommonUtils.getStyleValue($el, "height").toString()) > 0) {
+          return parseFloat(CommonUtils.getStyleValue($el, "height").toString());
         }
-        if (element.offsetHeight > 0) {
-          let borderTopWidth = DOMUtilsCommonUtils.getStyleValue(element, "borderTopWidth");
-          let borderBottomWidth = DOMUtilsCommonUtils.getStyleValue(element, "borderBottomWidth");
-          let paddingTop = DOMUtilsCommonUtils.getStyleValue(element, "paddingTop");
-          let paddingBottom = DOMUtilsCommonUtils.getStyleValue(element, "paddingBottom");
-          let backHeight = parseFloat(element.offsetHeight.toString()) - parseFloat(borderTopWidth.toString()) - parseFloat(borderBottomWidth.toString()) - parseFloat(paddingTop.toString()) - parseFloat(paddingBottom.toString());
+        if ($el.offsetHeight > 0) {
+          const borderTopWidth = CommonUtils.getStyleValue($el, "borderTopWidth");
+          const borderBottomWidth = CommonUtils.getStyleValue($el, "borderBottomWidth");
+          const paddingTop = CommonUtils.getStyleValue($el, "paddingTop");
+          const paddingBottom = CommonUtils.getStyleValue($el, "paddingBottom");
+          const backHeight = parseFloat($el.offsetHeight.toString()) - parseFloat(borderTopWidth.toString()) - parseFloat(borderBottomWidth.toString()) - parseFloat(paddingTop.toString()) - parseFloat(paddingBottom.toString());
           return parseFloat(backHeight.toString());
         }
         return 0;
       } else {
-        element = element;
-        let { recovery } = DOMUtilsCommonUtils.showElement(element);
-        let height = DOMUtilsContext.height(element, true);
+        $el = $el;
+        const { recovery } = CommonUtils.forceShow($el);
+        const height = that.height($el, true);
         recovery();
         return height;
       }
     }
-    outerWidth(element, isShow = false) {
-      let DOMUtilsContext = this;
-      if (DOMUtilsCommonUtils.isWin(element)) {
-        return DOMUtilsContext.windowApi.window.innerWidth;
+    outerWidth($el, isShow = false) {
+      const that = this;
+      if (CommonUtils.isWin($el)) {
+        return that.windowApi.window.innerWidth;
       }
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selector(element);
+      if (typeof $el === "string") {
+        $el = that.selector($el);
       }
-      if (element == null) {
-        return;
-      }
-      element = element;
-      if (isShow || !isShow && DOMUtilsCommonUtils.isShow(element)) {
-        let style = DOMUtilsContext.windowApi.globalThis.getComputedStyle(element, null);
-        let marginLeft = DOMUtilsCommonUtils.getStyleValue(style, "marginLeft");
-        let marginRight = DOMUtilsCommonUtils.getStyleValue(style, "marginRight");
-        return element.offsetWidth + marginLeft + marginRight;
+      $el = $el;
+      if (isShow || !isShow && CommonUtils.isShow($el)) {
+        const style = that.windowApi.globalThis.getComputedStyle($el, null);
+        const marginLeft = CommonUtils.getStyleValue(style, "marginLeft");
+        const marginRight = CommonUtils.getStyleValue(style, "marginRight");
+        return $el.offsetWidth + marginLeft + marginRight;
       } else {
-        let { recovery } = DOMUtilsCommonUtils.showElement(element);
-        let outerWidth = DOMUtilsContext.outerWidth(element, true);
+        const { recovery } = CommonUtils.forceShow($el);
+        const outerWidth = that.outerWidth($el, true);
         recovery();
         return outerWidth;
       }
     }
-    outerHeight(element, isShow = false) {
-      let DOMUtilsContext = this;
-      if (DOMUtilsCommonUtils.isWin(element)) {
-        return DOMUtilsContext.windowApi.window.innerHeight;
+    outerHeight($el, isShow = false) {
+      const that = this;
+      if (CommonUtils.isWin($el)) {
+        return that.windowApi.window.innerHeight;
       }
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selector(element);
+      if (typeof $el === "string") {
+        $el = that.selector($el);
       }
-      if (element == null) {
-        return;
-      }
-      element = element;
-      if (isShow || !isShow && DOMUtilsCommonUtils.isShow(element)) {
-        let style = DOMUtilsContext.windowApi.globalThis.getComputedStyle(element, null);
-        let marginTop = DOMUtilsCommonUtils.getStyleValue(style, "marginTop");
-        let marginBottom = DOMUtilsCommonUtils.getStyleValue(style, "marginBottom");
-        return element.offsetHeight + marginTop + marginBottom;
+      $el = $el;
+      if (isShow || !isShow && CommonUtils.isShow($el)) {
+        const style = that.windowApi.globalThis.getComputedStyle($el, null);
+        const marginTop = CommonUtils.getStyleValue(style, "marginTop");
+        const marginBottom = CommonUtils.getStyleValue(style, "marginBottom");
+        return $el.offsetHeight + marginTop + marginBottom;
       } else {
-        let { recovery } = DOMUtilsCommonUtils.showElement(element);
-        let outerHeight = DOMUtilsContext.outerHeight(element, true);
+        const { recovery } = CommonUtils.forceShow($el);
+        const outerHeight = that.outerHeight($el, true);
         recovery();
         return outerHeight;
       }
     }
-animate(element, styles, duration = 1e3, callback = null) {
-      let DOMUtilsContext = this;
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+replaceWith($el, $newEl) {
+      const that = this;
+      if (typeof $el === "string") {
+        $el = that.selectorAll($el);
       }
-      if (element == null) {
+      if ($el == null) {
         return;
       }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
-        element.forEach(($ele) => {
-          DOMUtilsContext.animate($ele, styles, duration, callback);
+      if (CommonUtils.isNodeList($el)) {
+        $el.forEach(($elItem) => {
+          that.replaceWith($elItem, $newEl);
         });
         return;
       }
-      if (typeof duration !== "number" || duration <= 0) {
-        throw new TypeError("duration must be a positive number");
+      if (typeof $newEl === "string") {
+        $newEl = that.toElement($newEl, false, false);
       }
-      if (typeof callback !== "function" && callback !== void 0) {
-        throw new TypeError("callback must be a function or null");
+      const $parent = $el.parentElement;
+      if ($parent) {
+        $parent.replaceChild($newEl, $el);
+      } else {
+        that.after($el, $newEl);
+        $el.remove();
       }
-      if (typeof styles !== "object" || styles === void 0) {
-        throw new TypeError("styles must be an object");
-      }
-      if (Object.keys(styles).length === 0) {
-        throw new Error("styles must contain at least one property");
-      }
-      let start = performance.now();
-      let from = {};
-      let to = {};
-      for (let prop in styles) {
-        from[prop] = element.style[prop] || DOMUtilsContext.windowApi.globalThis.getComputedStyle(element)[prop];
-        to[prop] = styles[prop];
-      }
-      let timer = DOMUtilsCommonUtils.setInterval(function() {
-        let timePassed = performance.now() - start;
-        let progress = timePassed / duration;
-        if (progress > 1) {
-          progress = 1;
-        }
-        for (let prop in styles) {
-          element.style[prop] = from[prop] + (to[prop] - from[prop]) * progress + "px";
-        }
-        if (progress === 1) {
-          DOMUtilsCommonUtils.clearInterval(timer);
-          if (callback) {
-            callback();
-          }
-        }
-      }, 10);
     }
-wrap(element, wrapperHTML) {
-      let DOMUtilsContext = this;
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+wrap($el, wrapperHTML) {
+      const that = this;
+      if (typeof $el === "string") {
+        $el = that.selectorAll($el);
       }
-      if (element == null) {
+      if ($el == null) {
         return;
       }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
-        element.forEach(($ele) => {
-          DOMUtilsContext.wrap($ele, wrapperHTML);
+      if (CommonUtils.isNodeList($el)) {
+        $el.forEach(($elItem) => {
+          that.wrap($elItem, wrapperHTML);
         });
         return;
       }
-      element = element;
-      let wrapper = DOMUtilsContext.windowApi.document.createElement("div");
-      DOMUtilsContext.html(wrapper, wrapperHTML);
-      let wrapperFirstChild = wrapper.firstChild;
-      let parentElement = element.parentElement;
-      parentElement.insertBefore(wrapperFirstChild, element);
-      wrapperFirstChild.appendChild(element);
+      $el = $el;
+      const $wrapper = that.windowApi.document.createElement("div");
+      that.html($wrapper, wrapperHTML);
+      const wrapperFirstChild = $wrapper.firstChild;
+      const parentElement = $el.parentElement;
+      parentElement.insertBefore(wrapperFirstChild, $el);
+      wrapperFirstChild.appendChild($el);
     }
-    prev(element) {
-      let DOMUtilsContext = this;
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selector(element);
+    prev($el) {
+      const that = this;
+      if (typeof $el === "string") {
+        $el = that.selector($el);
       }
-      if (element == null) {
+      if ($el == null) {
         return;
       }
-      return element.previousElementSibling;
+      return $el.previousElementSibling;
     }
-    next(element) {
-      let DOMUtilsContext = this;
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selector(element);
+    next($el) {
+      const that = this;
+      if (typeof $el === "string") {
+        $el = that.selector($el);
       }
-      if (element == null) {
+      if ($el == null) {
         return;
       }
-      return element.nextElementSibling;
+      return $el.nextElementSibling;
     }
-noConflict() {
-      let DOMUtilsContext = this;
-      if (DOMUtilsContext.windowApi.window.DOMUtils) {
-        DOMUtilsCommonUtils.delete(window, "DOMUtils");
+    siblings($el) {
+      const that = this;
+      if (typeof $el === "string") {
+        $el = that.selector($el);
       }
-      DOMUtilsContext.windowApi.window.DOMUtils = this;
-      return this;
-    }
-    siblings(element) {
-      let DOMUtilsContext = this;
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selector(element);
-      }
-      if (element == null) {
+      if ($el == null) {
         return;
       }
-      return Array.from(element.parentElement.children).filter((child) => child !== element);
+      return Array.from($el.parentElement.children).filter(($child) => $child !== $el);
     }
-parent(element) {
-      let DOMUtilsContext = this;
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selector(element);
+parent($el) {
+      const that = this;
+      if (typeof $el === "string") {
+        $el = that.selector($el);
       }
-      if (element == null) {
+      if ($el == null) {
         return;
       }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
-        let resultArray = [];
-        element.forEach(($ele) => {
-          resultArray.push(DOMUtilsContext.parent($ele));
+      if (CommonUtils.isNodeList($el)) {
+        const resultArray = [];
+        $el.forEach(($elItem) => {
+          resultArray.push(that.parent($elItem));
         });
         return resultArray;
       } else {
-        return element.parentElement;
+        return $el.parentElement;
       }
     }
-    parseHTML(html, useParser = false, isComplete = false) {
-      let DOMUtilsContext = this;
+    toElement(html, useParser = false, isComplete = false) {
+      const that = this;
       html = html.trim();
       function parseHTMLByDOMParser() {
-        let parser = new DOMParser();
+        const parser = new DOMParser();
         if (isComplete) {
           return parser.parseFromString(html, "text/html");
         } else {
@@ -3048,12 +3684,12 @@ parent(element) {
         }
       }
       function parseHTMLByCreateDom() {
-        let tempDIV = DOMUtilsContext.windowApi.document.createElement("div");
-        DOMUtilsContext.html(tempDIV, html);
+        const $el = that.windowApi.document.createElement("div");
+        that.html($el, html);
         if (isComplete) {
-          return tempDIV;
+          return $el;
         } else {
-          return tempDIV.firstChild;
+          return $el.firstElementChild ?? $el.firstChild;
         }
       }
       if (useParser) {
@@ -3064,7 +3700,7 @@ parent(element) {
     }
 serialize($form) {
       const elements = $form.elements;
-      let serializedArray = [];
+      const serializedArray = [];
       for (let i2 = 0; i2 < elements.length; i2++) {
         const element = elements[i2];
         if (element.name && !element.disabled && (element.checked || ["text", "hidden", "password", "textarea", "select-one", "select-multiple"].includes(element.type))) {
@@ -3084,147 +3720,11 @@ serialize($form) {
       }
       return serializedArray.map((item) => `${encodeURIComponent(item.name)}=${encodeURIComponent(item.value)}`).join("&");
     }
-show(target, checkVisiblie = true) {
-      let DOMUtilsContext = this;
-      if (target == null) {
-        return;
-      }
-      if (typeof target === "string") {
-        target = DOMUtilsContext.selectorAll(target);
-      }
-      if (target instanceof NodeList || target instanceof Array) {
-        target = target;
-        for (const element of target) {
-          DOMUtilsContext.show(element, checkVisiblie);
-        }
-      } else {
-        target = target;
-        target.style.display = "";
-        if (checkVisiblie) {
-          if (!DOMUtilsCommonUtils.isShow(target)) {
-            target.style.setProperty("display", "unset", "important");
-          }
-        }
-      }
-    }
-hide(target, checkVisiblie = true) {
-      let DOMUtilsContext = this;
-      if (target == null) {
-        return;
-      }
-      if (typeof target === "string") {
-        target = DOMUtilsContext.selectorAll(target);
-      }
-      if (target instanceof NodeList || target instanceof Array) {
-        target = target;
-        for (const element of target) {
-          DOMUtilsContext.hide(element, checkVisiblie);
-        }
-      } else {
-        target = target;
-        target.style.display = "none";
-        if (checkVisiblie) {
-          if (DOMUtilsCommonUtils.isShow(target)) {
-            target.style.setProperty("display", "none", "important");
-          }
-        }
-      }
-    }
-fadeIn(element, duration = 400, callback) {
-      if (element == null) {
-        return;
-      }
-      let DOMUtilsContext = this;
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
-      }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
-        element.forEach(($ele) => {
-          DOMUtilsContext.fadeIn($ele, duration, callback);
-        });
-        return;
-      }
-      element.style.opacity = "0";
-      element.style.display = "";
-      let start = null;
-      let timer = null;
-      function step(timestamp) {
-        if (!start)
-          start = timestamp;
-        let progress = timestamp - start;
-        element = element;
-        element.style.opacity = Math.min(progress / duration, 1).toString();
-        if (progress < duration) {
-          DOMUtilsContext.windowApi.window.requestAnimationFrame(step);
-        } else {
-          if (callback && typeof callback === "function") {
-            callback();
-          }
-          DOMUtilsContext.windowApi.window.cancelAnimationFrame(timer);
-        }
-      }
-      timer = DOMUtilsContext.windowApi.window.requestAnimationFrame(step);
-    }
-fadeOut(element, duration = 400, callback) {
-      let DOMUtilsContext = this;
-      if (element == null) {
-        return;
-      }
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
-      }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
-        element.forEach(($ele) => {
-          DOMUtilsContext.fadeOut($ele, duration, callback);
-        });
-        return;
-      }
-      element.style.opacity = "1";
-      let start = null;
-      let timer = null;
-      function step(timestamp) {
-        if (!start)
-          start = timestamp;
-        let progress = timestamp - start;
-        element = element;
-        element.style.opacity = Math.max(1 - progress / duration, 0).toString();
-        if (progress < duration) {
-          DOMUtilsContext.windowApi.window.requestAnimationFrame(step);
-        } else {
-          element.style.display = "none";
-          if (typeof callback === "function") {
-            callback();
-          }
-          DOMUtilsContext.windowApi.window.cancelAnimationFrame(timer);
-        }
-      }
-      timer = DOMUtilsContext.windowApi.window.requestAnimationFrame(step);
-    }
-toggle(element, checkVisiblie) {
-      let DOMUtilsContext = this;
-      if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
-      }
-      if (element == null) {
-        return;
-      }
-      if (DOMUtilsCommonUtils.isNodeList(element)) {
-        element.forEach(($ele) => {
-          DOMUtilsContext.toggle($ele);
-        });
-        return;
-      }
-      if (DOMUtilsContext.windowApi.globalThis.getComputedStyle(element).getPropertyValue("display") === "none") {
-        DOMUtilsContext.show(element, checkVisiblie);
-      } else {
-        DOMUtilsContext.hide(element, checkVisiblie);
-      }
-    }
 createDOMUtils(option) {
       return new DOMUtils(option);
     }
 getTextBoundingRect($input, selectionStart, selectionEnd) {
-      let DOMUtilsContext = this;
+      const that = this;
       if (!$input || !("value" in $input))
         return $input;
       if (selectionStart == null) {
@@ -3252,14 +3752,17 @@ getTextBoundingRect($input, selectionStart, selectionEnd) {
       else
         selectionEnd = Math.min($input.value.length, selectionEnd);
       if (typeof $input.createTextRange == "function") {
-        let range = $input.createTextRange();
+        const range = $input.createTextRange();
         range.collapse(true);
         range.moveStart("character", selectionStart);
         range.moveEnd("character", selectionEnd - selectionStart);
         return range.getBoundingClientRect();
       }
-      let offset = getInputOffset(), topPos = offset.top, leftPos = offset.left, width = getInputCSS("width", true), height = getInputCSS("height", true);
-      let cssDefaultStyles = "white-space:pre;padding:0;margin:0;", listOfModifiers = [
+      const offset = getInputOffset(), width = getInputCSS("width", true), height = getInputCSS("height", true);
+      let topPos = offset.top;
+      let leftPos = offset.left;
+      let cssDefaultStyles = "white-space:pre;padding:0;margin:0;";
+      const listOfModifiers = [
         "direction",
         "font-family",
         "font-size",
@@ -3281,13 +3784,13 @@ getTextBoundingRect($input, selectionStart, selectionEnd) {
       leftPos += getInputCSS("border-left-width", true);
       leftPos += 1;
       for (let index = 0; index < listOfModifiers.length; index++) {
-        let property = listOfModifiers[index];
-        cssDefaultStyles += property + ":" + getInputCSS(property) + ";";
+        const property = listOfModifiers[index];
+        cssDefaultStyles += property + ":" + getInputCSS(property, false) + ";";
       }
-      let text = $input.value || "G", textLen = text.length, fakeClone = DOMUtilsContext.windowApi.document.createElement("div");
+      const text = $input.value || "G", textLen = text.length, fakeClone = that.windowApi.document.createElement("div");
       if (selectionStart > 0)
         appendPart(0, selectionStart);
-      var fakeRange = appendPart(selectionStart, selectionEnd);
+      const fakeRange = appendPart(selectionStart, selectionEnd);
       if (textLen > selectionEnd)
         appendPart(selectionEnd, textLen);
       fakeClone.style.cssText = cssDefaultStyles;
@@ -3296,127 +3799,244 @@ getTextBoundingRect($input, selectionStart, selectionEnd) {
       fakeClone.style.left = leftPos + "px";
       fakeClone.style.width = width + "px";
       fakeClone.style.height = height + "px";
-      DOMUtilsContext.windowApi.document.body.appendChild(fakeClone);
-      var returnValue = fakeRange.getBoundingClientRect();
+      that.windowApi.document.body.appendChild(fakeClone);
+      const returnValue = fakeRange.getBoundingClientRect();
       fakeClone?.parentNode?.removeChild(fakeClone);
       return returnValue;
       function appendPart(start, end) {
-        var span = DOMUtilsContext.windowApi.document.createElement("span");
+        const span = that.windowApi.document.createElement("span");
         span.style.cssText = cssDefaultStyles;
         span.textContent = text.substring(start, end);
         fakeClone.appendChild(span);
         return span;
       }
       function getInputOffset() {
-        let body = DOMUtilsContext.windowApi.document.body, win = DOMUtilsContext.windowApi.document.defaultView, docElem = DOMUtilsContext.windowApi.document.documentElement, $box = DOMUtilsContext.windowApi.document.createElement("div");
+        const body = that.windowApi.document.body, win = that.windowApi.document.defaultView, docElem = that.windowApi.document.documentElement, $box = that.windowApi.document.createElement("div");
         $box.style.paddingLeft = $box.style.width = "1px";
         body.appendChild($box);
-        var isBoxModel = $box.offsetWidth == 2;
+        const isBoxModel = $box.offsetWidth == 2;
         body.removeChild($box);
-        let $boxRect = $input.getBoundingClientRect();
-        var clientTop = docElem.clientTop || body.clientTop || 0, clientLeft = docElem.clientLeft || body.clientLeft || 0, scrollTop = win.pageYOffset || isBoxModel && docElem.scrollTop || body.scrollTop, scrollLeft = win.pageXOffset || isBoxModel && docElem.scrollLeft || body.scrollLeft;
+        const $boxRect = $input.getBoundingClientRect();
+        const clientTop = docElem.clientTop || body.clientTop || 0, clientLeft = docElem.clientLeft || body.clientLeft || 0, scrollTop = win.pageYOffset || isBoxModel && docElem.scrollTop || body.scrollTop, scrollLeft = win.pageXOffset || isBoxModel && docElem.scrollLeft || body.scrollLeft;
         return {
           top: $boxRect.top + scrollTop - clientTop,
           left: $boxRect.left + scrollLeft - clientLeft
         };
       }
       function getInputCSS(prop, isNumber) {
-        var val = DOMUtilsContext.windowApi.document.defaultView.getComputedStyle($input, null).getPropertyValue(prop);
-        return isNumber ? parseFloat(val) : val;
+        const val = that.windowApi.document.defaultView.getComputedStyle($input, null).getPropertyValue(prop);
+        if (isNumber) {
+          return parseFloat(val);
+        } else {
+          return val;
+        }
       }
     }
-getAnimationEndNameList() {
-      return DOMUtilsCommonUtils.getAnimationEndNameList();
+    addStyle(cssText) {
+      if (typeof cssText !== "string") {
+        throw new Error("DOMUtils.addStyle 参数cssText 必须为String类型");
+      }
+      const $css = this.createElement("style", {
+        type: "text/css",
+        innerHTML: cssText
+      });
+      if (this.windowApi.document.head) {
+        this.windowApi.document.head.appendChild($css);
+      } else if (this.windowApi.document.documentElement.childNodes.length === 0) {
+        this.windowApi.document.documentElement.appendChild($css);
+      } else {
+        this.windowApi.document.documentElement.insertBefore($css, this.windowApi.document.documentElement.childNodes[0]);
+      }
+      return $css;
     }
-getTransitionEndNameList() {
-      return DOMUtilsCommonUtils.getTransitionEndNameList();
+checkUserClickInNode($el) {
+      const that = this;
+      if (!CommonUtils.isDOM($el)) {
+        throw new Error("Utils.checkUserClickInNode 参数 targetNode 必须为 Element|Node 类型");
+      }
+      const clickEvent = that.windowApi.window.event;
+      const touchEvent = that.windowApi.window.event;
+      const $click = clickEvent?.composedPath()?.[0];
+      const clickPosX = clickEvent?.clientX != null ? clickEvent.clientX : touchEvent.touches[0].clientX;
+      const clickPosY = clickEvent?.clientY != null ? clickEvent.clientY : touchEvent.touches[0].clientY;
+      const {
+left: elementPosXLeft,
+right: elementPosXRight,
+top: elementPosYTop,
+bottom: elementPosYBottom
+      } = $el.getBoundingClientRect();
+      if (clickPosX >= elementPosXLeft && clickPosX <= elementPosXRight && clickPosY >= elementPosYTop && clickPosY <= elementPosYBottom) {
+        return true;
+      } else if ($click && $el.contains($click) || $click == $el) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    deleteParentNode($el, parentSelector) {
+      if ($el == null) {
+        return;
+      }
+      if (!CommonUtils.isDOM($el)) {
+        throw new Error("DOMUtils.deleteParentNode 参数 target 必须为 Node|HTMLElement 类型");
+      }
+      if (typeof parentSelector !== "string") {
+        throw new Error("DOMUtils.deleteParentNode 参数 targetSelector 必须为 string 类型");
+      }
+      let result = false;
+      const $parent = domUtils$2.closest($el, parentSelector);
+      if ($parent) {
+        this.remove($parent);
+        result = true;
+      }
+      return result;
+    }
+    *findElementsWithText($el, text, filter) {
+      const that = this;
+      if ($el.outerHTML.includes(text)) {
+        if ($el.children.length === 0) {
+          const filterResult = typeof filter === "function" ? filter($el) : false;
+          if (!filterResult) {
+            yield $el;
+          }
+        } else {
+          const $text = Array.from($el.childNodes).filter(($child) => $child.nodeType === Node.TEXT_NODE);
+          for (const $child of $text) {
+            if ($child.textContent.includes(text)) {
+              const filterResult = typeof filter === "function" ? filter($el) : false;
+              if (!filterResult) {
+                yield $child;
+              }
+            }
+          }
+        }
+      }
+      for (let index = 0; index < $el.children.length; index++) {
+        const $child = $el.children[index];
+        yield* that.findElementsWithText($child, text, filter);
+      }
+    }
+findVisibleElement($el) {
+      let $current = $el;
+      while ($current) {
+        const rect = $current.getBoundingClientRect();
+        if (rect.length) {
+          return $current;
+        }
+        $current = $current.parentElement;
+      }
+      return null;
+    }
+setElementSelection($el, childTextNode, startIndex, endIndex) {
+      const range = this.windowApi.document.createRange();
+      range.selectNodeContents($el);
+      if (childTextNode) {
+        if (childTextNode.nodeType !== Node.TEXT_NODE) {
+          throw new TypeError("childTextNode必须是#text元素");
+        }
+        if (startIndex != null && endIndex != null) {
+          range.setStart(childTextNode, startIndex);
+          range.setEnd(childTextNode, endIndex);
+        }
+      }
+      const selection = this.windowApi.globalThis.getSelection();
+      if (selection) {
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
     }
   };
-  let domUtils$2 = new DOMUtils$1();
+  const domUtils$2 = new DOMUtils$1();
   class ColorConversion {
 isHex(str) {
       if (typeof str !== "string") {
         return false;
       }
-      if (!str.match(/^(\#|)[0-9a-fA-F]{6}$/)) {
+      if (!str.match(/^(#|)[0-9a-fA-F]{6}$/)) {
         return false;
       }
       return true;
     }
 hexToRgba(hex, opacity) {
       if (!this.isHex(hex)) {
-        throw new TypeError("输入错误的hex：" + hex);
+        throw new TypeError(`输入错误的hex：${hex}`);
       }
-      return hex && hex.replace(/\s+/g, "").length === 7 ? "rgba(" + parseInt("0x" + hex.slice(1, 3)) + "," + parseInt("0x" + hex.slice(3, 5)) + "," + parseInt("0x" + hex.slice(5, 7)) + "," + opacity + ")" : "";
+      return hex && hex.replace(/\s+/g, "").length === 7 ? `rgba(${parseInt(`0x${hex.slice(1, 3)}`)},${parseInt(`0x${hex.slice(3, 5)}`)},${parseInt(`0x${hex.slice(5, 7)}`)},${opacity})` : "";
     }
 hexToRgb(str) {
       if (!this.isHex(str)) {
-        throw new TypeError("输入错误的hex：" + str);
+        throw new TypeError(`输入错误的hex：${str}`);
       }
       str = str.replace("#", "");
-      let hxs = str.match(/../g);
+      const hxs = str.match(/../g);
       for (let index = 0; index < 3; index++) {
-        hxs[index] = parseInt(hxs[index], 16);
+        const value = parseInt(hxs[index], 16);
+        Reflect.set(hxs, index, value);
       }
       return hxs;
     }
 rgbToHex(redValue, greenValue, blueValue) {
-      let validPattern = /^\d{1,3}$/;
+      const validPattern = /^\d{1,3}$/;
       if (!validPattern.test(redValue.toString()) || !validPattern.test(greenValue.toString()) || !validPattern.test(blueValue.toString()))
         throw new TypeError("输入错误的rgb颜色值");
-      let hexs = [redValue.toString(16), greenValue.toString(16), blueValue.toString(16)];
+      const hexs = [redValue.toString(16), greenValue.toString(16), blueValue.toString(16)];
       for (let index = 0; index < 3; index++)
         if (hexs[index].length == 1)
-          hexs[index] = "0" + hexs[index];
-      return "#" + hexs.join("");
+          hexs[index] = `0${hexs[index]}`;
+      return `#${hexs.join("")}`;
     }
 getDarkColor(color, level) {
       if (!this.isHex(color)) {
-        throw new TypeError("输入错误的hex：" + color);
+        throw new TypeError(`输入错误的hex：${color}`);
       }
-      let rgbc = this.hexToRgb(color);
+      const rgbc = this.hexToRgb(color);
       for (let index = 0; index < 3; index++) {
-        rgbc[index] = Math.floor(rgbc[index] * (1 - level));
+        const rgbcItemValue = rgbc[index];
+        const value = Math.floor(Number(rgbcItemValue) * (1 - Number(level)));
+        Reflect.set(rgbc, index, value);
       }
       return this.rgbToHex(rgbc[0], rgbc[1], rgbc[2]);
     }
 getLightColor(color, level) {
       if (!this.isHex(color)) {
-        throw new TypeError("输入错误的hex：" + color);
+        throw new TypeError(`输入错误的hex：${color}`);
       }
-      let rgbc = this.hexToRgb(color);
+      const rgbc = this.hexToRgb(color);
       for (let index = 0; index < 3; index++) {
-        rgbc[index] = Math.floor((255 - rgbc[index]) * level + rgbc[index]);
+        const rgbcItemValue = Number(rgbc[index]);
+        const value = Math.floor(255 - rgbcItemValue * level + rgbcItemValue);
+        Reflect.set(rgbc, index, value);
       }
       return this.rgbToHex(rgbc[0], rgbc[1], rgbc[2]);
     }
   }
   class GBKEncoder {
-    #data = [];
+    #data;
     #U2Ghash = {};
     #G2Uhash = {};
     constructor() {
-      let dataText = this.handleText("4e:020405060f12171f20212326292e2f313335373c40414244464a5155575a5b6263646567686a6b6c6d6e6f727475767778797a7b7c7d7f808182838485878a#909697999c9d9ea3aaafb0b1b4b6b7b8b9bcbdbec8cccfd0d2dadbdce0e2e6e7e9edeeeff1f4f8f9fafcfe,4f:00020304050607080b0c12131415161c1d212328292c2d2e31333537393b3e3f40414244454748494a4b4c525456616266686a6b6d6e7172757778797a7d8081828586878a8c8e909293959698999a9c9e9fa1a2a4abadb0b1b2b3b4b6b7b8b9babbbcbdbec0c1c2c6c7c8c9cbcccdd2d3d4d5d6d9dbe0e2e4e5e7ebecf0f2f4f5f6f7f9fbfcfdff,50:000102030405060708090a#0b0e1011131516171b1d1e20222324272b2f303132333435363738393b3d3f404142444546494a4b4d5051525354565758595b5d5e5f6061626364666768696a6b6d6e6f70717273747578797a7c7d818283848687898a8b8c8e8f909192939495969798999a9b9c9d9e9fa0a1a2a4a6aaabadaeafb0b1b3b4b5b6b7b8b9bcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdced0d1d2d3d4d5d7d8d9dbdcdddedfe0e1e2e3e4e5e8e9eaebeff0f1f2f4f6f7f8f9fafcfdfeff,51:00010203040508#090a0c0d0e0f1011131415161718191a1b1c1d1e1f2022232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e42474a4c4e4f5052535758595b5d5e5f606163646667696a6f727a7e7f838486878a8b8e8f90919394989a9d9e9fa1a3a6a7a8a9aaadaeb4b8b9babebfc1c2c3c5c8cacdced0d2d3d4d5d6d7d8d9dadcdedfe2e3e5e6e7e8e9eaeceef1f2f4f7fe,52:0405090b0c0f101314151c1e1f2122232526272a2c2f313234353c3e4445464748494b4e4f5253555758#595a5b5d5f6062636466686b6c6d6e7071737475767778797a7b7c7e808384858687898a8b8c8d8e8f91929495969798999a9ca4a5a6a7aeafb0b4b5b6b7b8b9babbbcbdc0c1c2c4c5c6c8cacccdcecfd1d3d4d5d7d9dadbdcdddee0e1e2e3e5e6e7e8e9eaebecedeeeff1f2f3f4f5f6f7f8fbfcfd,53:0102030407090a0b0c0e11121314181b1c1e1f2224252728292b2c2d2f3031323334353637383c3d404244464b4c4d505458595b5d65686a6c6d7276797b7c7d7e80818387888a8e8f#90919293949697999b9c9ea0a1a4a7aaabacadafb0b1b2b3b4b5b7b8b9babcbdbec0c3c4c5c6c7cecfd0d2d3d5dadcdddee1e2e7f4fafeff,54:000205070b1418191a1c2224252a303336373a3d3f4142444547494c4d4e4f515a5d5e5f6061636567696a6b6c6d6e6f7074797a7e7f8183858788898a8d919397989c9e9fa0a1a2a5aeb0b2b5b6b7b9babcbec3c5cacbd6d8dbe0e1e2e3e4ebeceff0f1f4f5f6f7f8f9fbfe,55:0002030405080a0b0c0d0e121315161718191a1c1d1e1f212526#28292b2d3234353638393a3b3d40424547484b4c4d4e4f515253545758595a5b5d5e5f60626368696b6f7071727374797a7d7f85868c8d8e9092939596979a9b9ea0a1a2a3a4a5a6a8a9aaabacadaeafb0b2b4b6b8babcbfc0c1c2c3c6c7c8cacbcecfd0d5d7d8d9dadbdee0e2e7e9edeef0f1f4f6f8f9fafbfcff,56:0203040506070a0b0d1011121314151617191a1c1d202122252628292a2b2e2f30333537383a3c3d3e404142434445464748494a4b4f5051525355565a5b5d5e5f6061#636566676d6e6f70727374757778797a7d7e7f80818283848788898a8b8c8d9091929495969798999a9b9c9d9e9fa0a1a2a4a5a6a7a8a9aaabacadaeb0b1b2b3b4b5b6b8b9babbbdbebfc0c1c2c3c4c5c6c7c8c9cbcccdcecfd0d1d2d3d5d6d8d9dce3e5e6e7e8e9eaeceeeff2f3f6f7f8fbfc,57:00010205070b0c0d0e0f101112131415161718191a1b1d1e202122242526272b313234353637383c3d3f414344454648494b52535455565859626365676c6e707172747578797a7d7e7f80#818788898a8d8e8f90919495969798999a9c9d9e9fa5a8aaacafb0b1b3b5b6b7b9babbbcbdbebfc0c1c4c5c6c7c8c9cacccdd0d1d3d6d7dbdcdee1e2e3e5e6e7e8e9eaebeceef0f1f2f3f5f6f7fbfcfeff,58:0103040508090a0c0e0f101213141617181a1b1c1d1f222325262728292b2c2d2e2f31323334363738393a3b3c3d3e3f4041424345464748494a4b4e4f505253555657595a5b5c5d5f6061626364666768696a6d6e6f707172737475767778797a7b7c7d7f82848687888a8b8c#8d8e8f909194959697989b9c9da0a1a2a3a4a5a6a7aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbdbebfc0c2c3c4c6c7c8c9cacbcccdcecfd0d2d3d4d6d7d8d9dadbdcdddedfe0e1e2e3e5e6e7e8e9eaedeff1f2f4f5f7f8fafbfcfdfeff,59:000103050608090a0b0c0e1011121317181b1d1e2021222326282c30323335363b3d3e3f404345464a4c4d505253595b5c5d5e5f616364666768696a6b6c6d6e6f70717275777a7b7c7e7f8085898b8c8e8f90919495989a9b9c9d9fa0a1a2a6#a7acadb0b1b3b4b5b6b7b8babcbdbfc0c1c2c3c4c5c7c8c9cccdcecfd5d6d9dbdedfe0e1e2e4e6e7e9eaebedeeeff0f1f2f3f4f5f6f7f8fafcfdfe,5a:00020a0b0d0e0f101214151617191a1b1d1e2122242627282a2b2c2d2e2f3033353738393a3b3d3e3f414243444547484b4c4d4e4f5051525354565758595b5c5d5e5f60616364656668696b6c6d6e6f7071727378797b7c7d7e808182838485868788898a8b8c8d8e8f9091939495969798999c9d9e9fa0a1a2a3a4a5a6a7a8a9abac#adaeafb0b1b4b6b7b9babbbcbdbfc0c3c4c5c6c7c8cacbcdcecfd0d1d3d5d7d9dadbdddedfe2e4e5e7e8eaecedeeeff0f2f3f4f5f6f7f8f9fafbfcfdfeff,5b:0001020304050607080a0b0c0d0e0f10111213141518191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303133353638393a3b3c3d3e3f4142434445464748494a4b4c4d4e4f52565e606167686b6d6e6f7274767778797b7c7e7f82868a8d8e90919294969fa7a8a9acadaeafb1b2b7babbbcc0c1c3c8c9cacbcdcecf#d1d4d5d6d7d8d9dadbdce0e2e3e6e7e9eaebecedeff1f2f3f4f5f6f7fdfe,5c:0002030507080b0c0d0e10121317191b1e1f2021232628292a2b2d2e2f303233353637434446474c4d5253545657585a5b5c5d5f62646768696a6b6c6d70727374757677787b7c7d7e808384858687898a8b8e8f9293959d9e9fa0a1a4a5a6a7a8aaaeafb0b2b4b6b9babbbcbec0c2c3c5c6c7c8c9cacccdcecfd0d1d3d4d5d6d7d8dadbdcdddedfe0e2e3e7e9ebeceeeff1f2f3f4f5f6f7f8f9fafcfdfeff,5d:00#01040508090a0b0c0d0f10111213151718191a1c1d1f2021222325282a2b2c2f3031323335363738393a3b3c3f4041424344454648494d4e4f5051525354555657595a5c5e5f6061626364656667686a6d6e7071727375767778797a7b7c7d7e7f8081838485868788898a8b8c8d8e8f9091929394959697989a9b9c9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b8b9babbbcbdbebfc0c1c2c3c4c6c7c8c9cacbcccecfd0d1d2d3d4d5d6d7d8d9dadcdfe0e3e4eaeced#f0f5f6f8f9fafbfcff,5e:000407090a0b0d0e1213171e1f20212223242528292a2b2c2f303233343536393a3e3f404143464748494a4b4d4e4f50515253565758595a5c5d5f60636465666768696a6b6c6d6e6f70717577797e8182838588898c8d8e92989b9da1a2a3a4a8a9aaabacaeafb0b1b2b4babbbcbdbfc0c1c2c3c4c5c6c7c8cbcccdcecfd0d4d5d7d8d9dadcdddedfe0e1e2e3e4e5e6e7e9ebecedeeeff0f1f2f3f5f8f9fbfcfd,5f:050607090c0d0e10121416191a1c1d1e21222324#282b2c2e30323334353637383b3d3e3f4142434445464748494a4b4c4d4e4f5154595a5b5c5e5f60636567686b6e6f72747576787a7d7e7f83868d8e8f919394969a9b9d9e9fa0a2a3a4a5a6a7a9abacafb0b1b2b3b4b6b8b9babbbebfc0c1c2c7c8cacbced3d4d5dadbdcdedfe2e3e5e6e8e9eceff0f2f3f4f6f7f9fafc,60:0708090b0c10111317181a1e1f2223242c2d2e3031323334363738393a3d3e404445464748494a4c4e4f5153545657585b5c5e5f606165666e71727475777e80#8182858687888a8b8e8f909193959798999c9ea1a2a4a5a7a9aaaeb0b3b5b6b7b9babdbebfc0c1c2c3c4c7c8c9cccdcecfd0d2d3d4d6d7d9dbdee1e2e3e4e5eaf1f2f5f7f8fbfcfdfeff,61:02030405070a0b0c1011121314161718191b1c1d1e21222528292a2c2d2e2f303132333435363738393a3b3c3d3e4041424344454647494b4d4f50525354565758595a5b5c5e5f606163646566696a6b6c6d6e6f717273747678797a7b7c7d7e7f808182838485868788898a8c8d8f9091929395#969798999a9b9c9e9fa0a1a2a3a4a5a6aaabadaeafb0b1b2b3b4b5b6b8b9babbbcbdbfc0c1c3c4c5c6c7c9cccdcecfd0d3d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e7e8e9eaebecedeeeff0f1f2f3f4f6f7f8f9fafbfcfdfe,62:00010203040507091314191c1d1e2023262728292b2d2f303132353638393a3b3c424445464a4f50555657595a5c5d5e5f6061626465687172747577787a7b7d818283858687888b8c8d8e8f9094999c9d9ea3a6a7a9aaadaeafb0b2b3b4b6b7b8babec0c1#c3cbcfd1d5dddee0e1e4eaebf0f2f5f8f9fafb,63:00030405060a0b0c0d0f10121314151718191c2627292c2d2e30313334353637383b3c3e3f40414447484a51525354565758595a5b5c5d60646566686a6b6c6f707273747578797c7d7e7f81838485868b8d9193949597999a9b9c9d9e9fa1a4a6abafb1b2b5b6b9bbbdbfc0c1c2c3c5c7c8cacbccd1d3d4d5d7d8d9dadbdcdddfe2e4e5e6e7e8ebeceeeff0f1f3f5f7f9fafbfcfe,64:0304060708090a0d0e111215161718191a1d1f222324#252728292b2e2f3031323335363738393b3c3e404243494b4c4d4e4f505153555657595a5b5c5d5f60616263646566686a6b6c6e6f70717273747576777b7c7d7e7f8081838688898a8b8c8d8e8f90939497989a9b9c9d9fa0a1a2a3a5a6a7a8aaabafb1b2b3b4b6b9bbbdbebfc1c3c4c6c7c8c9cacbcccfd1d3d4d5d6d9dadbdcdddfe0e1e3e5e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff,65:01020304050607080a0b0c0d0e0f10111314151617191a1b1c1d1e1f2021#222324262728292a2c2d30313233373a3c3d404142434446474a4b4d4e5052535457585a5c5f606164656768696a6d6e6f7173757678797a7b7c7d7e7f8081828384858688898a8d8e8f92949596989a9d9ea0a2a3a6a8aaacaeb1b2b3b4b5b6b7b8babbbebfc0c2c7c8c9cacdd0d1d3d4d5d8d9dadbdcdddedfe1e3e4eaebf2f3f4f5f8f9fbfcfdfeff,66:0104050708090b0d1011121617181a1b1c1e2122232426292a2b2c2e3032333738393a3b3d3f40424445464748494a4d4e505158#595b5c5d5e6062636567696a6b6c6d7172737578797b7c7d7f808183858688898a8b8d8e8f909293949598999a9b9c9e9fa0a1a2a3a4a5a6a9aaabacadafb0b1b2b3b5b6b7b8babbbcbdbfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8dadedfe0e1e2e3e4e5e7e8eaebecedeeeff1f5f6f8fafbfd,67:010203040506070c0e0f1112131618191a1c1e20212223242527292e303233363738393b3c3e3f414445474a4b4d5254555758595a5b5d62636466676b6c6e717476#78797a7b7d8082838586888a8c8d8e8f9192939496999b9fa0a1a4a6a9acaeb1b2b4b9babbbcbdbebfc0c2c5c6c7c8c9cacbcccdced5d6d7dbdfe1e3e4e6e7e8eaebedeef2f5f6f7f8f9fafbfcfe,68:01020304060d1012141518191a1b1c1e1f20222324252627282b2c2d2e2f30313435363a3b3f474b4d4f52565758595a5b5c5d5e5f6a6c6d6e6f707172737578797a7b7c7d7e7f8082848788898a8b8c8d8e90919294959698999a9b9c9d9e9fa0a1a3a4a5a9aaabacaeb1b2b4b6b7b8#b9babbbcbdbebfc1c3c4c5c6c7c8cacccecfd0d1d3d4d6d7d9dbdcdddedfe1e2e4e5e6e7e8e9eaebecedeff2f3f4f6f7f8fbfdfeff,69:00020304060708090a0c0f11131415161718191a1b1c1d1e21222325262728292a2b2c2e2f313233353637383a3b3c3e4041434445464748494a4b4c4d4e4f50515253555658595b5c5f616264656768696a6c6d6f7072737475767a7b7d7e7f8183858a8b8c8e8f909192939697999a9d9e9fa0a1a2a3a4a5a6a9aaacaeafb0b2b3b5b6b8b9babcbd#bebfc0c2c3c4c5c6c7c8c9cbcdcfd1d2d3d5d6d7d8d9dadcdddee1e2e3e4e5e6e7e8e9eaebeceeeff0f1f3f4f5f6f7f8f9fafbfcfe,6a:000102030405060708090b0c0d0e0f10111213141516191a1b1c1d1e20222324252627292b2c2d2e30323334363738393a3b3c3f40414243454648494a4b4c4d4e4f515253545556575a5c5d5e5f60626364666768696a6b6c6d6e6f70727374757677787a7b7d7e7f81828385868788898a8b8c8d8f929394959698999a9b9c9d9e9fa1a2a3a4a5a6#a7a8aaadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff,6b:000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f252628292a2b2c2d2e2f303133343536383b3c3d3f4041424445484a4b4d4e4f5051525354555657585a5b5c5d5e5f606168696b6c6d6e6f7071727374757677787a7d7e7f808588#8c8e8f909194959798999c9d9e9fa0a2a3a4a5a6a7a8a9abacadaeafb0b1b2b6b8b9babbbcbdbec0c3c4c6c7c8c9caccced0d1d8dadcdddedfe0e2e3e4e5e6e7e8e9ecedeef0f1f2f4f6f7f8fafbfcfeff,6c:000102030408090a0b0c0e12171c1d1e2023252b2c2d31333637393a3b3c3e3f434445484b4c4d4e4f5152535658595a62636566676b6c6d6e6f71737577787a7b7c7f8084878a8b8d8e9192959697989a9c9d9ea0a2a8acafb0b4b5b6b7bac0c1c2c3c6c7c8cbcdcecfd1d2d8#d9dadcdddfe4e6e7e9ecedf2f4f9ff,6d:000203050608090a0d0f101113141516181c1d1f20212223242628292c2d2f30343637383a3f404244494c50555657585b5d5f6162646567686b6c6d707172737576797a7b7d7e7f8081838486878a8b8d8f9092969798999a9ca2a5acadb0b1b3b4b6b7b9babbbcbdbec1c2c3c8c9cacdcecfd0d2d3d4d5d7dadbdcdfe2e3e5e7e8e9eaedeff0f2f4f5f6f8fafdfeff,6e:0001020304060708090b0f12131518191b1c1e1f222627282a2c2e30313335#3637393b3c3d3e3f40414245464748494a4b4c4f5051525557595a5c5d5e606162636465666768696a6c6d6f707172737475767778797a7b7c7d8081828487888a8b8c8d8e91929394959697999a9b9d9ea0a1a3a4a6a8a9abacadaeb0b3b5b8b9bcbebfc0c3c4c5c6c8c9cacccdced0d2d6d8d9dbdcdde3e7eaebecedeeeff0f1f2f3f5f6f7f8fafbfcfdfeff,6f:000103040507080a0b0c0d0e101112161718191a1b1c1d1e1f212223252627282c2e303234353738393a3b3c3d3f404142#43444548494a4c4e4f5051525354555657595a5b5d5f60616364656768696a6b6c6f707173757677797b7d7e7f808182838586878a8b8f909192939495969798999a9b9d9e9fa0a2a3a4a5a6a8a9aaabacadaeafb0b1b2b4b5b7b8babbbcbdbebfc1c3c4c5c6c7c8cacbcccdcecfd0d3d4d5d6d7d8d9dadbdcdddfe2e3e4e5e6e7e8e9eaebecedf0f1f2f3f4f5f6f7f8f9fafbfcfdfeff,70:000102030405060708090a0b0c0d0e0f1012131415161718191c1d1e1f2021222425262728292a#2b2c2d2e2f30313233343637383a3b3c3d3e3f404142434445464748494a4b4d4e505152535455565758595a5b5c5d5f606162636465666768696a6e7172737477797a7b7d818283848687888b8c8d8f90919397989a9b9e9fa0a1a2a3a4a5a6a7a8a9aab0b2b4b5b6babebfc4c5c6c7c9cbcccdcecfd0d1d2d3d4d5d6d7dadcdddee0e1e2e3e5eaeef0f1f2f3f4f5f6f8fafbfcfeff,71:0001020304050607080b0c0d0e0f111214171b1c1d1e1f2021222324252728292a2b2c2d2e323334#353738393a3b3c3d3e3f4041424344464748494b4d4f505152535455565758595a5b5d5f6061626365696a6b6c6d6f707174757677797b7c7e7f8081828385868788898b8c8d8e909192939596979a9b9c9d9ea1a2a3a4a5a6a7a9aaabadaeafb0b1b2b4b6b7b8babbbcbdbebfc0c1c2c4c5c6c7c8c9cacbcccdcfd0d1d2d3d6d7d8d9dadbdcdddedfe1e2e3e4e6e8e9eaebecedeff0f1f2f3f4f5f6f7f8fafbfcfdfeff,72:0001020304050708090a0b0c0d0e0f101112131415161718191a#1b1c1e1f2021222324252627292b2d2e2f3233343a3c3e40414243444546494a4b4e4f505153545557585a5c5e60636465686a6b6c6d707173747677787b7c7d828385868788898c8e9091939495969798999a9b9c9d9ea0a1a2a3a4a5a6a7a8a9aaabaeb1b2b3b5babbbcbdbebfc0c5c6c7c9cacbcccfd1d3d4d5d6d8dadb#95$,30:000102,00b702:c9c7,00a830:0305,2014ff5e20:162618191c1d,30:141508090a0b0c0d0e0f16171011,00:b1d7f7,22:362728110f2a2908371aa52520,231222:992b2e614c483d1d606e6f64651e3534,26:4240,00b020:3233,2103ff0400a4ff:e0e1,203000a7211626:0605,25:cbcfcec7c6a1a0b3b2,203b21:92909193,30:13#95$,21:70717273747576777879#4$,24:88898a8b8c8d8e8f909192939495969798999a9b7475767778797a7b7c7d7e7f808182838485868760616263646566676869##,32:20212223242526272829##,21:606162636465666768696a6b#97$,ff:010203e505060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5de3#95$,30:4142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293#106$a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6#103$,03:9192939495969798999a9b9c9d9e9fa0a1a3a4a5a6a7a8a9#6$b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c3c4c5c6c7c8c9#5$,fe:3536393a3f403d3e41424344##3b3c373831#3334#104$,04:10111213141501161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f#13$30313233343551363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f#11$,02:cacbd9,20:13152535,21:050996979899,22:151f23526667bf,25:505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f7071727381828384858687#88898a8b8c8d8e8f939495bcbde2e3e4e5,2609229530:121d1e#9$,010100e101ce00e0011300e9011b00e8012b00ed01d000ec014d00f301d200f2016b00fa01d400f901:d6d8dadc,00:fcea,0251e7c701:4448,e7c802:61#2$,31:05060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20212223242526272829#19$,30:212223242526272829,32a333:8e8f9c9d9ea1c4ced1d2d5,fe30ff:e2e4#,212132:31#,20:10#1$,30:fc9b9cfdfe069d9e,fe:494a4b4c4d4e4f50515254555657595a5b5c5d5e5f6061#626364656668696a6b,e7:e7e8e9eaebecedeeeff0f1f2f3,30:07#11$,25:000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b#13$,72:dcdddfe2e3e4e5e6e7eaebf5f6f9fdfeff,73:00020405060708090b0c0d0f1011121418191a1f2023242627282d2f30323335363a3b3c3d404142434445464748#494a4b4c4e4f515354555658595a5b5c5d5e5f6162636465666768696a6b6e7071#92$72737475767778797a7b7c7d7f808182838586888a8c8d8f90929394959798999a9c9d9ea0a1a3a4a5a6a7a8aaacadb1b4b5b6b8b9bcbdbebfc1c3c4c5c6c7#cbccced2d3d4d5d6d7d8dadbdcdddfe1e2e3e4e6e8eaebeceeeff0f1f3f4f5f6f7#92$f8f9fafbfcfdfeff,74:0001020407080b0c0d0e1112131415161718191c1d1e1f2021232427292b2d2f31323738393a3b3d3e3f4042434445464748494a4b4c4d#4e4f505152535456585d606162636465666768696a6b6c6e6f717273747578797a#92$7b7c7d7f8284858688898a8c8d8f9192939495969798999a9b9d9fa0a1a2a3a4a5a6aaabacadaeafb0b1b2b3b4b5b6b7b8b9bbbcbdbebfc0c1c2c3c4c5c6c7#c8c9cacbcccdcecfd0d1d3d4d5d6d7d8d9dadbdddfe1e5e7e8e9eaebecedf0f1f2#92$f3f5f8f9fafbfcfdfe,75:0001020305060708090a0b0c0e1012141516171b1d1e202122232426272a2e3436393c3d3f414243444647494a4d5051525355565758#5d5e5f60616263646768696b6c6d6e6f7071737576777a7b7c7d7e808182848587#92$88898a8c8d8e909395989b9c9ea2a6a7a8a9aaadb6b7babbbfc0c1c6cbcccecfd0d1d3d7d9dadcdddfe0e1e5e9ecedeeeff2f3f5f6f7f8fafbfdfe,76:02040607#08090b0d0e0f11121314161a1c1d1e212327282c2e2f31323637393a3b3d414244#92$45464748494a4b4e4f50515253555758595a5b5d5f6061626465666768696a6c6d6e7071727374757677797a7c7f80818385898a8c8d8f9092949597989a9b#9c9d9e9fa0a1a2a3a5a6a7a8a9aaabacadafb0b3b5b6b7b8b9babbbcbdbec0c1c3,554a963f57c3632854ce550954c076:914c,853c77ee827e788d72319698978d6c285b894ffa630966975cb880fa684880ae660276ce51f9655671ac7ff1888450b2596561ca6fb382ad634c625253ed54277b06516b75a45df462d48dcb9776628a8019575d97387f627238767d67cf767e64464f708d2562dc7a17659173ed642c6273822c9881677f724862:6ecc,4f3474e3534a529e7eca90a65e2e6886699c81807ed168d278c5868c9551508d8c2482de80de53058912526576:c4c7c9cbccd3d5d9dadcdddee0e1e2e3e4e6e7e8e9eaebecedf0f3f5f6f7fafbfdff,77:00020305060a0c0e0f1011121314151617181b1c1d1e21232425272a2b#2c2e3031323334393b3d3e3f4244454648494a4b4c4d4e4f52535455565758595c,858496f94fdd582199715b9d62:b1a5,66b48c799c8d7206676f789160b253:5117,8f8880cc8d1d94a1500d72c8590760eb711988ab595482ef672c7b285d297ef7752d6cf58e668ff8903c9f3b6bd491197b145f7c78a784d6853d6b:d5d9d6,5e:0187,75f995ed655d5f:0ac5,8f9f58c181c2907f965b97ad8fb97f168d2c62414fbf53:d85e,8f:a8a9ab,904d68075f6a819888689cd6618b522b762a5f6c658c6fd26ee85bbe644851:75b0,67c44e1979c9997c70b377:5d5e5f606467696a6d6e6f7071727374757677787a7b7c818283868788898a8b8f90939495969798999a9b9c9d9ea1a3a4a6a8abadaeafb1b2b4b6b7b8b9ba#bcbec0c1c2c3c4c5c6c7c8c9cacbcccecfd0d1d2d3d4d5d6d8d9dadddedfe0e1e4,75c55e7673bb83e064ad62e894b56ce2535a52c3640f94c27b944f2f5e1b823681:168a,6e246cca9a736355535c54fa886557e04e0d5e036b657c3f90e8601664e6731c88c16750624d8d22776c8e2991c75f6983dc8521991053c286956b8b60:ede8,707f82:cd31,4ed36ca785cf64cd7cd969fd66f9834953957b564fa7518c6d4b5c428e6d63d253c983:2c36,67e578b4643d5bdf5c945dee8be762c667f48c7a640063ba8749998b8c177f2094f24ea7961098a4660c731677:e6e8eaeff0f1f2f4f5f7f9fafbfc,78:0304050607080a0b0e0f101315191b1e20212224282a2b2e2f31323335363d3f414243444648494a4b4d4f51535458595a#5b5c5e5f606162636465666768696f7071727374757678797a7b7d7e7f80818283,573a5c1d5e38957f507f80a05382655e7545553150218d856284949e671d56326f6e5de2543570928f66626f64a463a35f7b6f8890f481e38fb05c1866685ff16c8996488d81886c649179f057ce6a59621054484e587a0b60e96f848bda627f901e9a8b79e4540375f4630153196c608fdf5f1b9a70803b9f7f4f885c3a8d647fc565a570bd51:45b2,866b5d075ba062bd916c75748e0c7a2061017b794ec77ef877854e1181ed521d51fa6a7153a88e87950496cf6ec19664695a78:848586888a8b8f9092949596999d9ea0a2a4a6a8a9aaabacadaeafb5b6b7b8babbbcbdbfc0c2c3c4c6c7c8cccdcecfd1d2d3d6d7d8dadbdcdddedfe0e1e2e3#e4e5e6e7e9eaebedeeeff0f1f3f5f6f8f9fbfcfdfeff,79:00020304060708090a0b0c,784050a877d7641089e6590463e35ddd7a7f693d4f20823955984e3275ae7a975e:628a,95ef521b5439708a6376952457826625693f918755076df37eaf882262337ef075b5832878c196cc8f9e614874f78bcd6b64523a8d506b21806a847156f153064e:ce1b,51d17c97918b7c074fc38e7f7be17a9c64675d1450ac810676017cb96dec7fe067515b:58f8,78cb64:ae13,63:aa2b,9519642d8fbe7b5476296253592754466b7950a362345e266b864ee38d37888b5f85902e79:0d0e0f1011121415161718191a1b1c1d1f2021222325262728292a2b2c2d2e2f3031323335363738393d3f42434445474a4b4c4d4e4f505152545558596163#6466696a6b6c6e70717273747576797b7c7d7e7f8283868788898b8c8d8e909192,6020803d62c54e39535590f863b880c665e66c2e4f4660ee6de18bde5f3986cb5f536321515a83616863520063638e4850125c9b79775bfc52307a3b60bc905376d75f:b797,76848e6c706f767b7b4977aa51f3909358244f4e6ef48fea654c7b1b72c46da47fdf5ae162b55e95573084827b2c5e1d5f1f90127f1498a063826ec7789870b95178975b57ab75354f4375385e9760e659606dc06bbf788953fc96d551cb52016389540a94938c038dcc7239789f87768fed8c0d53e079:939495969798999b9c9d9e9fa0a1a2a3a4a5a6a8a9aaabacadaeafb0b1b2b4b5b6b7b8bcbfc2c4c5c7c8cacccecfd0d3d4d6d7d9dadbdcdddee0e1e2e5e8ea#eceef1f2f3f4f5f6f7f9fafcfeff,7a:0104050708090a0c0f10111213151618191b1c,4e0176ef53ee948998769f0e952d5b9a8ba24e:221c,51ac846361c252a8680b4f97606b51bb6d1e515c6296659796618c46901775d890fd77636bd272:8aec,8bfb583577798d4c675c9540809a5ea66e2159927aef77ed953b6bb565ad7f0e58065151961f5bf958a954288e726566987f56e4949d76fe9041638754c659:1a3a,579b8eb267358dfa8235524160f0581586fe5ce89e454fc4989d8bb95a2560765384627c904f9102997f6069800c513f80335c1499756d314e8c7a:1d1f21222425262728292a2b2c2d2e2f303132343536383a3e4041424344454748494a4b4c4d4e4f50525354555658595a5b5c5d5e5f606162636465666768#696a6b6c6d6e6f717273757b7c7d7e828587898a8b8c8e8f909394999a9b9ea1a2,8d3053d17f5a7b4f4f104e4f96006cd573d085e95e06756a7ffb6a0a77fe94927e4151e170e653cd8fd483038d2972af996d6cdb574a82b365b980aa623f963259a84eff8bbf7eba653e83f2975e556198de80a5532a8bfd542080ba5e9f6cb88d3982ac915a54296c1b52067eb7575f711a6c7e7c89594b4efd5fff61247caa4e305c0167ab87025cf0950b98ce75af70fd902251af7f1d8bbd594951e44f5b5426592b657780a45b7562:76c2,8f905e456c1f7b264f:0fd8,670d7a:a3a4a7a9aaabaeafb0b1b2b4b5b6b7b8b9babbbcbdbec0c1c2c3c4c5c6c7c8c9cacccdcecfd0d1d2d3d4d5d7d8dadbdcdde1e2e4e7e8e9eaebeceef0f1f2f3#f4f5f6f7f8fbfcfe,7b:0001020507090c0d0e1012131617181a1c1d1f21222327292d,6d:6eaa,798f88b15f17752b629a8f854fef91dc65a781:2f51,5e9c81508d74526f89868d4b590d50854ed8961c723681798d1f5bcc8ba3964459877f1a549056:760e,8be565396982949976d66e895e72751867:46d1,7aff809d8d76611f79c665628d635188521a94a27f38809b7eb25c976e2f67607bd9768b9ad8818f7f947cd5641e95507a3f54:4ae5,6b4c640162089e3d80f3759952729769845b683c86e496:0194,94ec4e2a54047ed968398ddf801566f45e9a7fb97b:2f303234353637393b3d3f404142434446484a4d4e535557595c5e5f61636465666768696a6b6c6d6f70737476787a7c7d7f81828384868788898a8b8c8e8f#9192939698999a9b9e9fa0a3a4a5aeafb0b2b3b5b6b7b9babbbcbdbebfc0c2c3c4,57c2803f68975de5653b529f606d9f9a4f9b8eac516c5bab5f135de96c5e62f18d21517194a952fe6c9f82df72d757a267848d2d591f8f9c83c754957b8d4f306cbd5b6459d19f1353e486ca9aa88c3780a16545987e56fa96c7522e74dc52505be1630289024e5662d0602a68fa51735b9851a089c27ba199867f5060ef704c8d2f51495e7f901b747089c4572d78455f529f9f95fa8f689b3c8be17678684267dc8d:ea35,523d8f8a6eda68cd950590ed56fd679c88f98fc754c87b:c5c8c9cacbcdcecfd0d2d4d5d6d7d8dbdcdedfe0e2e3e4e7e8e9ebecedeff0f2f3f4f5f6f8f9fafbfdff,7c:0001020304050608090a0d0e101112131415171819#1a1b1c1d1e20212223242528292b2c2d2e2f3031323334353637393a3b3c3d3e42,9ab85b696d776c264ea55bb39a87916361a890af97e9542b6db55bd251fd558a7f:55f0,64bc634d65f161be608d710a6c:5749,592f676d822a58d5568e8c6a6beb90dd597d801753f76d695475559d83:77cf,683879be548c4f55540876d28c8996026cb36db88d6b89109e648d3a563f9ed175d55f8872e0606854fc4ea86a2a886160528f7054c470d886799e3f6d2a5b8f5f187ea255894faf7334543c539a501954:0e7c,4e4e5ffd745a58f6846b80e1877472d07cca6e567c:434445464748494a4b4c4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717275767778797a7e7f8081828384858687#888a8b8c8d8e8f90939496999a9ba0a1a3a6a7a8a9abacadafb0b4b5b6b7b8babb,5f27864e552c62a44e926caa623782b154d7534e733e6ed1753b521253168bdd69d05f8a60006dee574f6b2273af68538fd87f13636260a3552475ea8c6271156da35ba65e7b8352614c9ec478fa87577c27768751f060f6714c66435e4c604d8c0e707063258f895fbd606286d456de6bc160946167534960e066668d3f79fd4f1a70e96c478b:b3f2,7ed88364660f5a5a9b426d:51f7,8c416d3b4f19706b83b7621660d1970d8d27797851fb57:3efa,673a75787a3d79ef7b957c:bfc0c2c3c4c6c9cbcecfd0d1d2d3d4d8dadbdddee1e2e3e4e5e6e7e9eaebecedeef0f1f2f3f4f5f6f7f9fafcfdfeff,7d:000102030405060708090b0c0d0e0f10#1112131415161718191a1b1c1d1e1f212324252628292a2c2d2e30313233343536,808c99658ff96fc08ba59e2159ec7ee97f095409678168d88f917c4d96c653ca602575be6c7253735ac97ea7632451e0810a5df184df628051805b634f0e796d524260b86d4e5b:c4c2,8b:a1b0,65e25fcc964559937e:e7aa,560967b759394f735bb652a0835a988a8d3e753294be50477a3c4ef767b69a7e5ac16b7c76d1575a5c167b3a95f4714e517c80a9827059787f04832768c067ec78:b177,62e363617b804fed526a51cf835069db92748d:f531,89c1952e7bad4ef67d:3738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6f70717273747576#78797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798,506582305251996f6e:1085,6da75efa50f559dc5c066d466c5f7586848b686859568bb253209171964d854969127901712680f64ea490ca6d479a845a0756bc640594f077eb4fa5811a72e189d2997a7f347ede527f655991758f:7f83,53eb7a9663:eda5,768679f888579636622a52ab8282685467706377776b7aed6d017ed389e359d0621285c982a5754c501f4ecb75a58beb5c4a5dfe7b4b65a491d14eca6d25895f7d2795264ec58c288fdb9773664b79818fd170ec6d787d:999a9b9c9d9e9fa0a1a2a3a4a5a7a8a9aaabacadafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9#dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa,5c3d52b283465162830e775b66769cb84eac60ca7c:beb3,7ecf4e958b66666f988897595883656c955c5f8475c997567a:dfde,51c070af7a9863ea7a767ea0739697ed4e4570784e5d915253a965:51e7,81fc8205548e5c31759a97a062d872d975bd5c459a7983ca5c40548077e94e3e6cae805a62d2636e5de851778ddd8e1e952f4ff153e560e770ac526763509e435a1f5026773753777ee26485652b628963985014723589c951b38bc07edd574783cc94a7519b541b5cfb7d:fbfcfdfeff,7e:000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839#3a3c3d3e3f40424344454648494a4b4c4d4e4f505152535455565758595a5b5c5d,4fca7ae36d5a90e19a8f55805496536154af5f0063e9697751ef6168520a582a52d8574e780d770b5eb761777ce062:5b97,4ea27095800362f770e49760577782db67ef68f578d5989779d158f354b353ef6e34514b523b5ba28bfe80af554357a660735751542d7a7a60505b5463a762a053e362635bc767af54ed7a9f82e691775e9388e4593857ae630e8de880ef57577b774fa95feb5bbd6b3e53217b5072c2684677:ff36,65f751b54e8f76d45cbf7aa58475594e9b4150807e:5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f8081838485868788898a8b8c8d8e8f909192939495969798999a9c9d9e#aeb4bbbcd6e4ecf9,7f:0a101e37393b3c3d3e3f404143464748494a4b4c4d4e4f5253,998861276e8357646606634656f062:ec69,5ed39614578362c955878721814a8fa3556683b167658d5684dd5a6a680f62e67bee961151706f9c8c3063fd89c861d27f0670c26ee57405699472fc5eca90ce67176d6a635e52b3726280014f6c59e5916a70d96d9d52d24e5096f7956d857e78ca7d2f5121579264c2808b7c7b6cea68f1695e51b7539868a872819ece7bf172f879bb6f137406674e91cc9ca4793c83:8954,540f68174e3d538952b1783e5386522950884f:8bd0,7f:56595b5c5d5e6063646566676b6c6d6f7073757677787a7b7c7d7f8082838485868788898b8d8f9091929395969798999b9ca0a2a3a5a6a8a9aaabacadaeb1#b3b4b5b6b7babbbec0c2c3c4c6c7c8c9cbcdcfd0d1d2d3d6d7d9dadbdcdddee2e3,75e27acb7c926ca596b6529b748354e94fe9805483b28fde95705ec9601c6d9f5e18655b813894fe604b70bc7ec37cae51c968817cb1826f4e248f8691cf667e4eae8c0564a9804a50da759771ce5be58fbd6f664e86648295635ed66599521788c270c852a3730e7433679778f797164e3490bb9cde6dcb51db8d41541d62ce73b283f196f69f8494c34f367f9a51cc707596755cad988653e64ee46e9c740969b4786b998f7559521876246d4167f3516d9f99804b54997b3c7abf7f:e4e7e8eaebecedeff2f4f5f6f7f8f9fafdfeff,80:020708090a0e0f11131a1b1d1e1f2123242b2c2d2e2f303234393a3c3e404144454748494e4f505153555657#595b5c5d5e5f6061626364656667686b6c6d6e6f7072737475767778797a7b7c7d,9686578462e29647697c5a0464027bd36f0f964b82a6536298855e90708963b35364864f9c819e93788c97328d:ef42,9e7f6f5e79845f559646622e9a74541594dd4fa365c55c:6561,7f1586516c2f5f8b73876ee47eff5ce6631b5b6a6ee653754e7163a0756562a18f6e4f264ed16ca67eb68bba841d87ba7f57903b95237ba99aa188f8843d6d1b9a867edc59889ebb739b780186829a:6c82,561b541757cb4e709ea653568fc881097792999286ee6ee1851366fc61626f2b80:7e818285888a8d8e8f909192949597999ea3a6a7a8acb0b3b5b6b8b9bbc5c7c8c9cacbcfd0d1d2d3d4d5d8dfe0e2e3e6eef5f7f9fbfeff,81:000103040507080b#0c1517191b1c1d1f202122232425262728292a2b2d2e3033343537393a3b3c3d3f,8c298292832b76f26c135fd983bd732b8305951a6bdb77db94c6536f830251925e3d8c8c8d384e4873ab679a68859176970971646ca177095a9295416bcf7f8e66275bd059b95a9a95:e8f7,4eec84:0c99,6aac76df9530731b68a65b5f772f919a97617cdc8ff78c1c5f257c7379d889c56ccc871c5bc65e4268c977207ef551:954d,52c95a297f05976282d763cf778485d079d26e3a5e9959998511706d6c1162bf76bf654f60af95fd660e879f9e2394ed54:0d7d,8c2c647881:40414243444547494d4e4f525657585b5c5d5e5f6162636466686a6b6c6f727375767778818384858687898b8c8d8e90929394959697999a9e9fa0a1a2a4a5#a7a9abacadaeafb0b1b2b4b5b6b7b8b9bcbdbebfc4c5c7c8c9cbcdcecfd0d1d2d3,647986116a21819c78e864699b5462b9672b83ab58a89ed86cab6f205bde964c8c0b725f67d062c772614ea959c66bcd589366ae5e5552df6155672876ee776672677a4662ff54:ea50,94a090a35a1c7eb36c164e435976801059485357753796be56ca63208111607c95f96dd65462998151855ae980fd59ae9713502a6ce55c3c62df4f60533f817b90066eba852b62c85e7478be64b5637b5ff55a18917f9e1f5c3f634f80425b7d556e95:4a4d,6d8560a867e072de51dd5b8181:d4d5d6d7d8d9dadbdcdddedfe0e1e2e4e5e6e8e9ebeeeff0f1f2f5f6f7f8f9fafdff,82:030708090a0b0e0f111315161718191a1d2024252627292e323a3c3d3f#404142434546484a4c4d4e5051525354555657595b5c5d5e606162636465666769,62e76cde725b626d94ae7ebd81136d53519c5f04597452aa6012597366968650759f632a61e67cef8bfa54e66b279e256bb485d5545550766ca4556a8db4722c5e156015743662cd6392724c5f986e436d3e65006f5876d878d076fc7554522453db4e535e9e65c180:2ad6,629b5486522870ae888d8dd16ce1547880da57f988f48d54966a914d4f696c9b55b776c6783062a870f96f8e5f6d84ec68da787c7bf781a8670b9e4f636778b0576f7812973962:79ab,528874356bd782:6a6b6c6d71757677787b7c808183858687898c90939495969a9b9ea0a2a3a7b2b5b6babbbcbfc0c2c3c5c6c9d0d6d9dadde2e7e8e9eaecedeef0f2f3f5f6f8#fafcfdfeff,83:000a0b0d1012131618191d1e1f20212223242526292a2e3032373b3d,5564813e75b276ae533975de50fb5c418b6c7bc7504f72479a9798d86f0274e27968648777a562fc98918d2b54c180584e52576a82f9840d5e7351ed74f68bc45c4f57616cfc98875a4678349b448feb7c955256625194fa4ec68386846183e984b257d467345703666e6d668c3166dd7011671f6b3a6816621a59bb4e0351c46f0667d26c8f517668cb59476b6775665d0e81109f5065d779:4841,9a918d775c824e5e4f01542f5951780c56686c148fc45f036c:7de3,8bab639083:3e3f41424445484a4b4c4d4e5355565758595d6270717273747576797a7e7f808182838487888a8b8c8d8f909194959697999a9d9fa1a2a3a4a5a6a7acadae#afb5bbbebfc2c3c4c6c8c9cbcdced0d1d2d3d5d7d9dadbdee2e3e4e6e7e8ebeced,60706d3d7275626694:8ec5,53438fc17b7e4edf8c264e7e9ed494:b1b3,524d6f5c90636d458c3458115d4c6b:2049,67aa545b81547f8c589985375f3a62a26a47953965726084686577a74e544fa85de7979864ac7fd85ced4fcf7a8d520783044e14602f7a8394a64fb54eb279e6743452e482b964d279bd5bdd6c8197528f7b6c22503e537f6e0564ce66746c3060c598778bf75e86743c7a7779cb4e1890b174036c4256da914b6cc58d8b533a86c666f28eaf5c489a716e2083:eeeff3f4f5f6f7fafbfcfeff,84:0002050708090a10121314151617191a1b1e1f20212223292a2b2c2d2e2f30323334353637393a3b3e3f404142434445474849#4a4b4c4d4e4f505253545556585d5e5f606264656667686a6e6f70727477797b7c,53d65a369f8b8da353bb570898a76743919b6cc9516875ca62f372ac52:389d,7f3a7094763853749e4a69b7786e96c088d97fa471:36c3,518967d374e458e4651856b78ba9997662707ed560f970ed58ec4e:c1ba,5fcd97e74efb8ba45203598a7eab62544ecd65e5620e833884c98363878d71946eb65bb97ed2519763c967d480898339881551125b7a59828fb14e736c5d516589258f6f962e854a745e95:10f0,6da682e55f3164926d128428816e9cc3585e8d5b4e0953c184:7d7e7f8081838485868a8d8f90919293949596989a9b9d9e9fa0a2a3a4a5a6a7a8a9aaabacadaeb0b1b3b5b6b7bbbcbec0c2c3c5c6c7c8cbcccecfd2d4d5d7#d8d9dadbdcdee1e2e4e7e8e9eaebedeeeff1f2f3f4f5f6f7f8f9fafbfdfe,85:000102,4f1e6563685155d34e2764149a9a626b5ac2745f82726da968ee50e7838e7802674052396c997eb150bb5565715e7b5b665273ca82eb67495c715220717d886b95ea965564c58d6181b355846c5562477f2e58924f2455468d4f664c4e0a5c1a88f368a2634e7a0d70e7828d52fa97f65c1154e890b57ecd59628d4a86c782:0c0d,8d6664445c0461516d89793e8bbe78377533547b4f388eab6df15a207ec5795e6c885ba15a76751a80be614e6e1758f075:1f25,727253477ef385:030405060708090a0b0d0e0f101214151618191b1c1d1e2022232425262728292a2d2e2f303132333435363e3f404142444546474b4c4d4e4f505152535455#57585a5b5c5d5f60616263656667696a6b6c6d6e6f707173757677787c7d7f8081,770176db526980dc57235e08593172ee65bd6e7f8bd75c388671534177f362fe65f64ec098df86805b9e8bc653f277e24f7f5c4e9a7659cb5f0f793a58eb4e1667ff4e8b62ed8a93901d52bf662f55dc566c90024ed54f8d91ca99706c0f5e0260435ba489c68bd56536624b99965b:88ff,6388552e53d77626517d852c67a268b36b8a62928f9353d482126dd1758f4e668d4e5b70719f85af66:91d9,7f7287009ecd9f205c5e672f8ff06811675f620d7ad658855eb665706f3185:82838688898a8b8c8d8e909192939495969798999a9d9e9fa0a1a2a3a5a6a7a9abacadb1b2b3b4b5b6b8babbbcbdbebfc0c2c3c4c5c6c7c8cacbcccdced1d2#d4d6d7d8d9dadbdddedfe0e1e2e3e5e6e7e8eaebecedeeeff0f1f2f3f4f5f6f7f8,60555237800d6454887075295e05681362f4971c53cc723d8c016c3477617a0e542e77ac987a821c8bf47855671470c165af64955636601d79c153f84e1d6b7b80865bfa55e356db4f:3a3c,99725df3677e80386002988290015b8b8b:bcf5,641c825864de55fd82cf91654fd77d20901f7c9f50f358516eaf5bbf8bc980839178849c7b97867d96:8b8f,7ee59ad3788e5c817a57904296a7795f5b59635f7b0b84d168ad55067f2974107d2295016240584c4ed65b835979585485:f9fafcfdfe,86:0001020304060708090a0b0c0d0e0f10121314151718191a1b1c1d1e1f20212223242526282a2b2c2d2e2f3031323334353637393a3b3d3e3f40#4142434445464748494a4b4c525355565758595b5c5d5f6061636465666768696a,736d631e8e:4b0f,80ce82d462ac53f06cf0915e592a60016c70574d644a8d2a762b6ee9575b6a8075f06f6d8c:2d08,57666bef889278b363a253f970ad6c645858642a580268e0819b55107cd650188eba6dcc8d9f70eb638f6d9b6ed47ee68404684390036dd896768ba85957727985e4817e75bc8a8a68af52548e22951163d098988e44557c4f5366ff568f60d56d9552435c4959296dfb586b75:301c,606c82148146631167618fe2773a8d:f334,94c15e165385542c70c386:6d6f7072737475767778838485868788898e8f90919294969798999a9b9e9fa0a1a2a5a6abadaeb2b3b7b8b9bbbcbdbebfc1c2c3c5c8cccdd2d3d5d6d7dadc#dde0e1e2e3e5e6e7e8eaebeceff5f6f7fafbfcfdff,87:010405060b0c0e0f10111416,6c405ef7505c4ead5ead633a8247901a6850916e77b3540c94dc5f647ae5687663457b527edf75db507762955934900f51f879c37a8156fe5f9290146d825c60571f541051546e4d56e263a89893817f8715892a9000541e5c6f81c062:d658,81319e3596409a:6e7c,692d59a562d3553e631654c786d96d3c5a0374e6889c6b6a59168c4c5f2f6e7e73a9987d4e3870f75b8c7897633d665a769660cb5b9b5a494e0781556c6a738b4ea167897f515f8065fa671b5fd859845a0187:191b1d1f20242627282a2b2c2d2f303233353638393a3c3d404142434445464a4b4d4f505152545556585a5b5c5d5e5f6162666768696a6b6c6d6f71727375#7778797a7f8081848687898a8c8e8f90919294959698999a9b9c9d9ea0a1a2a3a4,5dcd5fae537197e68fdd684556f4552f60df4e3a6f4d7ef482c7840e59d44f:1f2a,5c3e7eac672a851a5473754f80c355829b4f4f4d6e2d8c135c096170536b761f6e29868a658795fb7eb9543b7a337d0a95ee55e17fc174ee631d87176da17a9d621165a1536763e16c835deb545c94a84e4c6c618bec5c4b65e0829c68a754:3e34,6b:cb66,4e9463425348821e4f:0dae,575e620a96fe6664726952:ffa1,609f8bef661471996790897f785277fd6670563b54389521727a87:a5a6a7a9aaaeb0b1b2b4b6b7b8b9bbbcbebfc1c2c3c4c5c7c8c9cccdcecfd0d4d5d6d7d8d9dadcdddedfe1e2e3e4e6e7e8e9ebecedeff0f1f2f3f4f5f6f7f8#fafbfcfdff,88:0001020405060708090b0c0d0e0f101112141718191a1c1d1e1f2023,7a00606f5e0c6089819d591560dc718470ef6eaa6c5072806a8488ad5e2d4e605ab3559c94e36d177cfb9699620f7ec6778e867e5323971e8f9666875ce14fa072ed4e0b53a6590f54136380952851484ed99c9c7ea454b88d248854823795f26d8e5f265acc663e966973:b02e,53bf817a99857fa15baa96:7750,7ebf76f853a2957699997bb189446e584e617fd479658be660f354cd4eab98795df76a6150cf54118c618427785d9704524a54ee56a395006d885bb56dc6665388:2425262728292a2b2c2d2e2f30313334353637383a3b3d3e3f414243464748494a4b4e4f505152535556585a5b5c5d5e5f6066676a6d6f717374757678797a#7b7c80838687898a8c8e8f90919394959798999a9b9d9e9fa0a1a3a5a6a7a8a9aa,5c0f5b5d6821809655787b11654869544e9b6b47874e978b534f631f643a90aa659c80c18c10519968b0537887f961c86c:c4fb,8c225c5185aa82af950c6b238f9b65b05f:fbc3,4fe18845661f8165732960fa51745211578b5f6290a2884c91925e78674f602759d351:44f6,80f853086c7996c4718a4f:11ee,7f9e673d55c5950879c088967ee3589f620c9700865a5618987b5f908bb884c4915753d965ed5e8f755c60647d6e5a7f7e:eaed,8f6955a75ba360ac65cb738488:acaeafb0b2b3b4b5b6b8b9babbbdbebfc0c3c4c7c8cacbcccdcfd0d1d3d6d7dadbdcdddee0e1e6e7e9eaebecedeeeff2f5f6f7fafbfdff,89:0001030405060708#090b0c0d0e0f1114151617181c1d1e1f20222324262728292c2d2e2f3132333537,9009766377297eda9774859b5b667a7496ea884052cb718f5faa65ec8be25bfb9a6f5de16b896c5b8b:adaf,900a8fc5538b62bc9e:262d,54404e2b82bd7259869c5d1688596daf96c554d14e9a8bb6710954bd960970df6df976d04e25781487125ca95ef68a00989c960e708e6cbf594463a9773c884d6f148273583071d5538c781a96c155015f6671305bb48c1a9a8c6b83592e9e2f79e76768626c4f6f75a17f8a6d0b96336c274ef075d2517b68376f3e908081705996747689:38393a3b3c3d3e3f40424345464748494a4b4c4d4e4f505152535455565758595a5b5c5d6061626364656768696a6b6c6d6e6f707172737475767778797a7c#7d7e808284858788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1,64475c2790657a918c2359da54ac8200836f898180006930564e8036723791ce51b64e5f987563964e1a53f666f3814b591c6db24e0058f9533b63d694f14f:9d0a,886398905937905779fb4eea80f075916c825b9c59e85f5d69058681501a5df24e5977e34ee5827a6291661390915c794ebf5f7981c69038808475ab4ea688d4610f6bc55fc64e4976ca6ea28b:e3ae,8c0a8bd15f027f:fccc,7ece83:356b,56e06bb797f3963459fb541f94f66deb5bc5996e5c395f15969089:a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c3cdd3d4d5d7d8d9dbdddfe0e1e2e4e7e8e9eaecedeef0f1f2f4f5f6f7f8f9fa#fbfcfdfeff,8a:01020304050608090a0b0c0d0e0f101112131415161718191a1b1c1d,537082f16a315a749e705e947f2883b984:2425,836787478fce8d6276c85f719896786c662054df62e54f6381c375c85eb896cd8e0a86f9548f6cf36d8c6c38607f52c775285e7d4f1860a05fe75c24753190ae94c072b96cb96e389149670953:cbf3,4f5191c98bf153c85e7c8fc26de44e8e76c26986865e611a82064f:59de,903e9c7c61096e:1d14,96854e885a3196e84e0e5c7f79b95b878bed7fbd738957df828b90c15401904755bb5cea5fa161086b3272f180b28a:891e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3f4041424344454647494a4b4c4d4e4f505152535455565758595a5b5c5d5e#5f606162636465666768696a6b6c6d6e6f7071727374757677787a7b7c7d7e7f80,6d745bd388d598848c6b9a6d9e336e0a51:a443,57a38881539f63f48f9556ed54585706733f6e907f188fdc82d1613f6028966266f07ea68d:8ac3,94a55cb37ca4670860a6960580184e9190e75300966851418fd08574915d665597f55b55531d78386742683d54c9707e5bb08f7d518d572854b1651266828d:5e43,810f846c906d7cdf51ff85fb67a365e96fa186a48e81566a90207682707671e58d2362e952196cfd8d3c600e589e618e66fe8d60624e55b36e23672d8f678a:81828384858687888b8c8d8e8f9091929495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2#c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3,94e195f87728680569a8548b4e4d70b88bc86458658b5b857a84503a5be877bb6be18a797c986cbe76cf65a98f975d2d5c5586386808536062187ad96e5b7efd6a1f7ae05f706f335f20638c6da867564e085e108d264ed780c07634969c62db662d627e6cbc8d7571677f695146808753ec906e629854f286f08f998005951785178fd96d5973cd659f771f7504782781fb8d1e94884fa6679575b98bca9707632f9547963584b8632377415f8172f04e896014657462ef6b63653f8a:e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff,8b:0001020304050608090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20212223#24252728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445,5e2775c790d18bc1829d679d652f5431871877e580a281026c414e4b7ec7804c76f4690d6b966267503c4f84574063076b628dbe53ea65e87eb85fd763:1ab7,81:f3f4,7f6e5e1c5cd95236667a79e97a1a8d28709975d46ede6cbb7a924e2d76c55fe0949f88777ec879cd80bf91cd4ef24f17821f54685dde6d328bcc7ca58f7480985e1a549276b15b99663c9aa473e0682a86db6731732a8b:f8db,90107af970db716e62c477a956314e3b845767f152a986c08d2e94f87b518b:464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f6061626364656768696a6b6d6e6f707172737475767778797a7b7c7d7e7f80818283848586#8788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9facb1bbc7d0ea,8c:091e,4f4f6ce8795d9a7b6293722a62fd4e1378168f6c64b08d5a7bc668695e8488c55986649e58ee72b6690e95258ffd8d5857607f008c0651c6634962d95353684c74228301914c55447740707c6d4a517954a88d4459ff6ecb6dc45b5c7d2b4ed47c7d6ed35b5081ea6e0d5b579b0368d58e2a5b977efc603b7eb590b98d70594f63cd79df8db3535265cf79568bc5963b7ec494bb7e825634918967007f6a5c0a907566285de64f5067de505a4f5c57505e:a7#3$,8c:38393a3b3c3d3e3f4042434445484a4b4d4e4f5051525354565758595b5c5d5e5f60636465666768696c6d6e6f707172747576777b7c7d7e7f808183848687#888b8d8e8f90919293959697999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacad,4e:8d0c,51404e105eff53454e:15981e,9b325b6c56694e2879ba4e3f53154e47592d723b536e6c1056df80e499976bd3777e9f174e:369f,9f104e:5c6993,82885b5b556c560f4ec453:8d9da3a5ae,97658d5d53:1af5262e3e,8d5c53:6663,52:02080e2d333f404c5e615c,84af52:7d82819093,51827f544e:bbc3c9c2e8e1ebde,4f1b4ef34f:2264,4ef54f:2527092b5e67,65384f:5a5d,8c:aeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebec#edeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff,8d:000102030405060708090a0b0c0d,4f:5f57323d76749189838f7e7baa7cac94e6e8eac5dae3dcd1dff8,50:294c,4ff350:2c0f2e2d,4ffe50:1c0c25287e4355484e6c7ba5a7a9bad6,510650:edece6ee,51:070b,4edd6c3d4f:5865ce,9fa06c467c74516e5dfd9ec999985181591452f9530d8a07531051eb591951554ea051564eb388:6ea4,4eb5811488d279805b3488037fb851:abb1bdbc,8d:0e0f101112131415161718191a1b1c205152575f6568696a6c6e6f717278797a7b7c7d7e7f808283868788898c8d8e8f90929395969798999a9b9c9d9ea0a1#a2a4a5a6a7a8a9aaabacadaeafb0b2b6b7b9bbbdc0c1c2c5c7c8c9cacdd0d2d3d4,51:c796a2a5,8b:a0a6a7aab4b5b7c2c3cbcfced2d3d4d6d8d9dcdfe0e4e8e9eef0f3f6f9fcff,8c:000204070c0f1112141516191b181d1f202125272a2b2e2f32333536,53:697a,96:1d2221312a3d3c4249545f676c7274888d97b0,90:979b9d99aca1b4b3b6ba,8d:d5d8d9dce0e1e2e5e6e7e9edeef0f1f2f4f6fcfeff,8e:00010203040607080b0d0e1011121315161718191a1b1c202124252627282b2d303233343637383b3c3e#3f4345464c4d4e4f505354555657585a5b5c5d5e5f60616263646567686a6b6e71,90:b8b0cfc5bed0c4c7d3e6e2dcd7dbebeffe,91:04221e23312f394346,520d594252:a2acadbe,54ff52:d0d6f0,53df71ee77cd5ef451:f5fc,9b2f53b65f01755a5def57:4ca9a1,58:7ebcc5d1,57:292c2a33392e2f5c3b4269856b867c7b686d7673ada48cb2cfa7b493a0d5d8dad9d2b8f4eff8e4dd,8e:73757778797a7b7d7e808283848688898a8b8c8d8e91929395969798999a9b9d9fa0a1a2a3a4a5a6a7a8a9aaadaeb0b1b3b4b5b6b7b8b9bbbcbdbebfc0c1c2#c3c4c5c6c7c8c9cacbcccdcfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4,58:0b0d,57:fded,58:001e194420656c81899a80,99a89f1961ff82:797d7f8f8aa8848e919799abb8beb0c8cae398b7aecbccc1a9b4a1aa9fc4cea4e1,830982:f7e4,83:0f07,82:dcf4d2d8,830c82:fbd3,83:111a061415,82:e0d5,83:1c515b5c08923c34319b5e2f4f47435f4017602d3a336665,8e:e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff,8f:000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20212223#2425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f4041424344,83:681b696c6a6d6eb078b3b4a0aa939c857cb6a97db87b989ea8babcc1,840183:e5d8,580784:180b,83:ddfdd6,84:1c381106,83:d4df,84:0f03,83:f8f9eac5c0,842683:f0e1,84:5c515a597387887a89783c4669768c8e316dc1cdd0e6bdd3cabfbae0a1b9b497e5e3,850c750d853884f085:391f3a,8f:45464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f6061626364656a808c929da0a1a2a4a5a6a7aaacadaeafb2b3b4b5b7b8babbbcbfc0c3c6#c9cacbcccdcfd2d6d7dae0e1e3e7eceff1f2f4f5f6fafbfcfeff,90:07080c0e131518,85:563b,84:fffc,85:594868645e7a,77a285:43727ba4a8878f79ae9c85b9b7b0d3c1dcff,86:270529163c,5efe5f0859:3c41,803759:555a58,530f5c:22252c34,62:4c6a9fbbcadad7ee,632262f663:394b43adf6717a8eb46dac8a69aebcf2f8e0ffc4dece,645263:c6be,64:45410b1b200c26215e846d96,90:191c2324252728292a2b2c303132333437393a3d3f4043454648494a4b4c4e545556595a5c5d5e5f6061646667696a6b6c6f70717273767778797a7b7c7e81#84858687898a8c8d8e8f90929496989a9c9e9fa0a4a5a7a8a9abadb2b7bcbdbfc0,64:7ab7b899bac0d0d7e4e2,65:09252e,5f:0bd2,75195f1153:5ff1fde9e8fb,54:1216064b5253545643215759233282947771649a9b8476669dd0adc2b4d2a7a6d3d472a3d5bbbfccd9dadca9aaa4ddcfde,551b54e7552054fd551454f355:22230f11272a678fb5496d41553f503c,90:c2c3c6c8c9cbcccdd2d4d5d6d8d9dadedfe0e3e4e5e9eaeceef0f1f2f3f5f6f7f9fafbfcff,91:00010305060708090a0b0c0d0e0f1011121314151617181a1b1c#1d1f20212425262728292a2b2c2d2e30323334353637383a3b3c3d3e3f40414244,55:375675767733305c8bd283b1b988819f7ed6917bdfbdbe9499eaf7c9,561f55:d1ebecd4e6ddc4efe5f2f3cccde8f5e4,8f9456:1e080c012423,55fe56:00272d5839572c4d62595c4c548664716b7b7c8593afd4d7dde1f5ebf9ff,57:040a091c,5e:0f191411313b3c,91:454748515354555658595b5c5f606667686b6d737a7b7c808182838486888a8e8f939495969798999c9d9e9fa0a1a4a5a6a7a8a9abacb0b1b2b3b6b7b8b9bb#bcbdbebfc0c1c2c3c4c5c6c8cbd0d2d3d4d5d6d7d8d9dadbdddedfe0e1e2e3e4e5,5e:3744545b5e61,5c:8c7a8d9096889899919a9cb5a2bdacabb1a3c1b7c4d2e4cbe5,5d:020327262e241e061b583e343d6c5b6f5d6b4b4a697482999d,8c735d:b7c5,5f:73778287898c95999ca8adb5bc,88625f6172:adb0b4b7b8c3c1cecdd2e8efe9f2f4f7,730172f3730372fa91:e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff,92:000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f2021222324#25262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445,72fb73:1713210a1e1d152239252c3831504d57606c6f7e,821b592598e759:2402,99:636768696a6b6c74777d8084878a8d9091939495,5e:80918b96a5a0b9b5beb3,8d535e:d2d1dbe8ea,81ba5f:c4c9d6cf,60035fee60045f:e1e4fe,60:0506,5f:eaedf8,60:1935261b0f0d292b0a3f2178797b7a42,92:464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f7071727375767778797a7b7c7d7e7f808182838485#868788898a8b8c8d8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7,60:6a7d969aad9d83928c9becbbb1ddd8c6dab4,61:20261523,60f461:000e2b4a75ac94a7b7d4f5,5fdd96b395:e9ebf1f3f5f6fcfe,96:030406080a0b0c0d0f12151617191a,4e2c723f62156c:35545c4aa38590948c6869747686a9d0d4adf7f8f1d7b2e0d6faebeeb1d3effe,92:a8a9aaabacadafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8#e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff,93:00010203040506070809,6d:39270c43480704190e2b4d2e351a4f525433916f9ea05e93945c607c63,6e1a6d:c7c5de,6e0e6d:bfe0,6e116d:e6ddd9,6e166dab6e0c6dae6e:2b6e4e6bb25f865354322544dfb198e0,6f2d6e:e2a5a7bdbbb7d7b4cf8fc29f,6f:6246472415,6ef96f:2f364b742a0929898d8c78727c7ad1,93:0a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3f40414243444546474849#4a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696b,6f:c9a7b9b6c2e1eedee0ef,70:1a231b39354f5e,5b:80849593a5b8,752f9a9e64345b:e4ee,89305bf08e478b078f:b6d3d5e5eee4e9e6f3e8,90:05040b26110d162135362d2f445152506858625b,66b990:747d8288838b,5f:50575658,5c3b54ab5c:5059,5b715c:6366,7fbc5f:2a292d,82745f3c9b3b5c6e59:81838da9aaa3,93:6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaab#acadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cbcccd,59:97caab9ea4d2b2afd7be,5a:0506,59dd5a0859:e3d8f9,5a:0c09323411231340674a553c6275,80ec5a:aa9b777abeebb2d2d4b8e0e3f1d6e6d8dc,5b:091716323740,5c:151c,5b:5a6573515362,9a:7577787a7f7d808185888a90929396989b9c9d9fa0a2a3a5a7,7e:9fa1a3a5a8a9,93:cecfd0d1d2d3d4d5d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff,94:000102030405060708090a0b0c0d#0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e,7e:adb0bec0c1c2c9cbccd0d4d7dbe0e1e8ebeeeff1f2,7f0d7e:f6fafbfe,7f:01020307080b0c0f111217191c1b1f212223242526272a2b2c2d2f3031323335,5e7a757f5ddb753e909573:8e91aea29fcfc2d1b7b3c0c9c8e5d9,987c740a73:e9e7debaf2,74:0f2a5b262528302e2c,94:2f303132333435363738393a3b3c3d3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6c6d6e6f#707172737475767778797a7b7c7d7e7f8081828384919698c7cfd3d4dae6fb,95:1c20,74:1b1a415c575559776d7e9c8e8081878b9ea8a990a7d2ba,97:eaebec,67:4c535e4869a5876a7398a775a89ead8b777cf0,680967d8680a67:e9b0,680c67:d9b5dab3dd,680067:c3b8e2,680e67:c1fd,68:323360614e624464831d55664167403e4a4929b58f7477936bc2,696e68fc69:1f20,68f995:27333d43484b555a606e74757778797a7b7c7d7e808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aa#abacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacb,692468f069:0b0157,68e369:10713960425d846b80987834cc8788ce896663799ba7bbabadd4b1c1cadf95e08dff,6a2f69ed6a:171865,69f26a:443ea0505b358e793d28587c9190a997ab,73:3752,6b:8182878492938d9a9ba1aa,8f:6b6d71727375767877797a7c7e818284878b,95:cccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7ecff,96:0713181b1e20232425262728292b2c2d2f303738393a3e41434a4e4f5152535657#58595a5c5d5e606365666b6d6e6f70717378797a7b7c7d7e7f808182838487898a,8f:8d8e8f989a,8ece62:0b171b1f222125242c,81e774:eff4ff,75:0f1113,65:34eeeff0,66:0a19,677266:031500,708566:f71d34313635,800666:5f54414f56615777848ca79dbedbdce6e9,8d:3233363b3d4045464849474d5559,89:c7cacbcccecfd0d1,72:6e9f5d666f7e7f848b8d8f92,63:0832b0,96:8c8e91929395969a9b9d9e9fa0a1a2a3a4a5a6a8a9aaabacadaeafb1b2b4b5b7b8babbbfc2c3c8cacbd0d1d3d4d6d7d8d9dadbdcdddedfe1e2e3e4e5e6e7eb#ecedeef0f1f2f4f5f8fafbfcfdff,97:0203050a0b0c10111214151718191a1b1d1f20,64:3fd8,80046b:eaf3fdf5f9,6c:0507060d1518191a2129242a32,65:35556b,72:4d525630,8662521680:9f9c93bc,670a80:bdb1abadb4b7e7e8e9eadbc2c4d9cdd7,671080:ddebf1f4ed,81:0d0e,80:f2fc,671581128c5a81:361e2c1832484c5374595a7160697c7d6d67,584d5ab581:888291,6ed581:a3aacc,672681:cabb,97:2122232425262728292b2c2e2f3133343536373a3b3c3d3f404142434445464748494a4b4c4d4e4f5051545557585a5c5d5f63646667686a6b6c6d6e6f7071#72757778797a7b7d7e7f8081828384868788898a8c8e8f9093959697999a9b9c9d,81:c1a6,6b:243739434659,98:d1d2d3d5d9da,6bb35f406bc289f365909f5165:93bcc6c4c3ccced2d6,70:809c969dbbc0b7abb1e8ca,71:1013162f31735c6845724a787a98b3b5a8a0e0d4e7f9,72:1d28,706c71:1866b9,62:3e3d434849,79:3b4046495b5c535a6257606f677a858a9aa7b3,5f:d1d0,97:9e9fa1a2a4a5a6a7a8a9aaacaeb0b1b3b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3#e4e5e8eeeff0f1f2f4f7f8f9fafbfcfdfeff,98:000102030405060708090a0b0c0d0e,60:3c5d5a67415963ab,61:060d5da99dcbd1,620680:807f,6c:93f6,6dfc77:f6f8,78:0009171811,65ab78:2d1c1d393a3b1f3c252c23294e6d56572650474c6a9b939a879ca1a3b2b9a5d4d9c9ecf2,790578f479:13241e34,9f9b9e:f9fbfc,76f177:040d,76f977:07081a22192d263538505147435a68,98:0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d#4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e,77:62657f8d7d808c919fa0b0b5bd,75:3a404e4b485b727983,7f:58615f,8a487f:68747179817e,76:cde5,883294:8586878b8a8c8d8f909497959a9b9ca3a4abaaadacafb0b2b4b6b7b8b9babcbdbfc4c8c9cacbcccdced0d1d2d5d6d7d9d8dbdedfe0e2e4e5e7e8ea,98:6f70717273748b8e929599a3a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcfd0d4d6d7dbdcdde0e1e2e3e4#e5e6e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff,99:0001020304050607,94:e9ebeeeff3f4f5f7f9fcfdff,95:03020607090a0d0e0f1213141516181b1d1e1f222a2b292c3132343637383c3e3f4235444546494c4e4f525354565758595b5e5f5d61626465666768696a6b6c6f7172733a,77:e7ec,96c979:d5ede3eb,7a065d477a:03021e14,99:08090a0b0c0e0f1112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2f303132333435363738393a3b3c3d3e3f40414243444546474849#4a4b4c4d4e4f50515253565758595a5b5c5d5e5f60616264667378797b7e828389,7a:393751,9ecf99a57a7076:888e9399a4,74:dee0,752c9e:202228292a2b2c3231363837393a3e414244464748494b4c4e5155575a5b5c5e63666768696a6b6c716d73,75:929496a09daca3b3b4b8c4b1b0c3c2d6cde3e8e6e4ebe7,760375:f1fcff,76:1000050c170a25181519,99:8c8e9a9b9c9d9e9fa0a1a2a3a4a6a7a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8#d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9,76:1b3c2220402d303f35433e334d5e545c566b6f,7fca7a:e6787980868895a6a0aca8adb3,88:6469727d7f82a2c6b7bcc9e2cee3e5f1,891a88:fce8fef0,89:2119131b0a342b3641667b,758b80e576:b2b4,77dc80:1214161c20222526272928310b3543464d526971,898398:788083,99:fafbfcfdfeff,9a:000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738#393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859,98:898c8d8f949a9b9e9fa1a2a5a6,86:4d546c6e7f7a7c7ba88d8bac9da7a3aa93a9b6c4b5ceb0bab1afc9cfb4e9f1f2edf3d0,871386:def4dfd8d1,87:0307,86f887:080a0d09233b1e252e1a3e48343129373f82227d7e7b60704c6e8b53637c64596593afa8d2,9a:5a5b5c5d5e5f606162636465666768696a6b7283898d8e949599a6a9aaabacadaeafb2b3b4b5b9bbbdbebfc3c4c6c7c8c9cacdcecfd0d2d4d5d6d7d9dadbdc#dddee0e2e3e4e5e7e8e9eaeceef0f1f2f3f4f5f6f7f8fafcfdfeff,9b:000102040506,87:c68885ad9783abe5acb5b3cbd3bdd1c0cadbeae0ee,88:1613,87fe88:0a1b21393c,7f:36424445,82107a:fafd,7b:080304150a2b0f47382a192e31202524333e1e585a45754c5d606e7b62727190a6a7b8ac9da885aa9ca2abb4d1c1ccdddae5e6ea,7c0c7b:fefc,7c:0f160b,9b:07090a0b0c0d0e1011121415161718191a1b1c1d1e2021222425262728292a2b2c2d2e3031333435363738393a3d3e3f40464a4b4c4e50525355565758595a#5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b,7c:1f2a26384140,81fe82:010204,81ec884482:2122232d2f282b383b33343e44494b4f5a5f68,88:7e8588d8df,895e7f:9d9fa7afb0b2,7c7c65497c:919d9c9ea2b2bcbdc1c7cccdc8c5d7e8,826e66a87f:bfced5e5e1e6e9eef3,7cf87d:77a6ae,7e:479b,9e:b8b4,8d:73849491b1676d,8c:4749,91:4a504e4f64,9b:7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9ba#bbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadb,91:626170696f7d7e7274798c85908d91a2a3aaadaeafb5b4ba,8c559e7e8d:b8eb,8e:055969,8d:b5bfbcbac4d6d7dadececfdbc6ecf7f8e3f9fbe4,8e098dfd8e:141d1f2c2e232f3a4039353d3149414251524a70767c6f74858f94909c9e,8c:78828a859894,659b89:d6dedadc,9b:dcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff,9c:000102030405060708090a0b0c0d0e0f101112131415161718191a#1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b,89:e5ebef,8a3e8b26975396:e9f3ef,97:0601080f0e2a2d303e,9f:808385868788898a8c,9efe9f:0b0d,96:b9bcbdced2,77bf96e092:8eaec8,93:3e6aca8f,94:3e6b,9c:7f8285868788,7a239c:8b8e90919294959a9b9e9fa0a1a2a3a5a6a7a8a9abadaeb0b1b2b3b4b5b6b7babbbcbdc4c5c6c7cacb3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a#7b7d7e808384898a8c8f93969798999daaacafb9bebfc0c1c2c8c9d1d2dadbe0e1cccdcecfd0d3d4d5d7d8d9dcdddfe2,97:7c85919294afaba3b2b4,9a:b1b0b7,9e589a:b6babcc1c0c5c2cbccd1,9b:45434749484d51,98e899:0d2e5554,9a:dfe1e6efebfbedf9,9b:080f131f23,9e:bdbe,7e3b9e:8287888b92,93d69e:9d9fdbdcdde0dfe2e9e7e5eaef,9f:222c2f39373d3e44,9c:e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff,9d:000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f2021#22232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142#92$434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f8081#82838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2#92$a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1#e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff,9e:000102#92$030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e24272e30343b3c404d5052535456595d5f606162656e6f727475767778797a7b7c7d80#8183848586898a8c8d8e8f90919495969798999a9b9c9ea0a1a2a3a4a5a7a8a9aa#92$abacadaeafb0b1b2b3b5b6b7b9babcbfc0c1c2c3c5c6c7c8cacbccd0d2d3d5d6d7d9dadee1e3e4e6e8ebecedeef0f1f2f3f4f5f6f7f8fafdff,9f:000102030405#060708090a0c0f1112141516181a1b1c1d1e1f21232425262728292a2b2d2e3031#92$3233343536383a3c3f4041424345464748494a4b4c4d4e4f52535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778#797a7b7c7d7e81828d8e8f9091929394959697989c9d9ea1a2a3a4a5,f9:2c7995e7f1#92$,fa:0c0d0e0f111314181f20212324272829,e8:15161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f40414243#4445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f6061626364");
+      const dataText = this.handleText("4e:020405060f12171f20212326292e2f313335373c40414244464a5155575a5b6263646567686a6b6c6d6e6f727475767778797a7b7c7d7f808182838485878a#909697999c9d9ea3aaafb0b1b4b6b7b8b9bcbdbec8cccfd0d2dadbdce0e2e6e7e9edeeeff1f4f8f9fafcfe,4f:00020304050607080b0c12131415161c1d212328292c2d2e31333537393b3e3f40414244454748494a4b4c525456616266686a6b6d6e7172757778797a7d8081828586878a8c8e909293959698999a9c9e9fa1a2a4abadb0b1b2b3b4b6b7b8b9babbbcbdbec0c1c2c6c7c8c9cbcccdd2d3d4d5d6d9dbe0e2e4e5e7ebecf0f2f4f5f6f7f9fbfcfdff,50:000102030405060708090a#0b0e1011131516171b1d1e20222324272b2f303132333435363738393b3d3f404142444546494a4b4d5051525354565758595b5d5e5f6061626364666768696a6b6d6e6f70717273747578797a7c7d818283848687898a8b8c8e8f909192939495969798999a9b9c9d9e9fa0a1a2a4a6aaabadaeafb0b1b3b4b5b6b7b8b9bcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdced0d1d2d3d4d5d7d8d9dbdcdddedfe0e1e2e3e4e5e8e9eaebeff0f1f2f4f6f7f8f9fafcfdfeff,51:00010203040508#090a0c0d0e0f1011131415161718191a1b1c1d1e1f2022232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e42474a4c4e4f5052535758595b5d5e5f606163646667696a6f727a7e7f838486878a8b8e8f90919394989a9d9e9fa1a3a6a7a8a9aaadaeb4b8b9babebfc1c2c3c5c8cacdced0d2d3d4d5d6d7d8d9dadcdedfe2e3e5e6e7e8e9eaeceef1f2f4f7fe,52:0405090b0c0f101314151c1e1f2122232526272a2c2f313234353c3e4445464748494b4e4f5253555758#595a5b5d5f6062636466686b6c6d6e7071737475767778797a7b7c7e808384858687898a8b8c8d8e8f91929495969798999a9ca4a5a6a7aeafb0b4b5b6b7b8b9babbbcbdc0c1c2c4c5c6c8cacccdcecfd1d3d4d5d7d9dadbdcdddee0e1e2e3e5e6e7e8e9eaebecedeeeff1f2f3f4f5f6f7f8fbfcfd,53:0102030407090a0b0c0e11121314181b1c1e1f2224252728292b2c2d2f3031323334353637383c3d404244464b4c4d505458595b5d65686a6c6d7276797b7c7d7e80818387888a8e8f#90919293949697999b9c9ea0a1a4a7aaabacadafb0b1b2b3b4b5b7b8b9babcbdbec0c3c4c5c6c7cecfd0d2d3d5dadcdddee1e2e7f4fafeff,54:000205070b1418191a1c2224252a303336373a3d3f4142444547494c4d4e4f515a5d5e5f6061636567696a6b6c6d6e6f7074797a7e7f8183858788898a8d919397989c9e9fa0a1a2a5aeb0b2b5b6b7b9babcbec3c5cacbd6d8dbe0e1e2e3e4ebeceff0f1f4f5f6f7f8f9fbfe,55:0002030405080a0b0c0d0e121315161718191a1c1d1e1f212526#28292b2d3234353638393a3b3d40424547484b4c4d4e4f515253545758595a5b5d5e5f60626368696b6f7071727374797a7d7f85868c8d8e9092939596979a9b9ea0a1a2a3a4a5a6a8a9aaabacadaeafb0b2b4b6b8babcbfc0c1c2c3c6c7c8cacbcecfd0d5d7d8d9dadbdee0e2e7e9edeef0f1f4f6f8f9fafbfcff,56:0203040506070a0b0d1011121314151617191a1c1d202122252628292a2b2e2f30333537383a3c3d3e404142434445464748494a4b4f5051525355565a5b5d5e5f6061#636566676d6e6f70727374757778797a7d7e7f80818283848788898a8b8c8d9091929495969798999a9b9c9d9e9fa0a1a2a4a5a6a7a8a9aaabacadaeb0b1b2b3b4b5b6b8b9babbbdbebfc0c1c2c3c4c5c6c7c8c9cbcccdcecfd0d1d2d3d5d6d8d9dce3e5e6e7e8e9eaeceeeff2f3f6f7f8fbfc,57:00010205070b0c0d0e0f101112131415161718191a1b1d1e202122242526272b313234353637383c3d3f414344454648494b52535455565859626365676c6e707172747578797a7d7e7f80#818788898a8d8e8f90919495969798999a9c9d9e9fa5a8aaacafb0b1b3b5b6b7b9babbbcbdbebfc0c1c4c5c6c7c8c9cacccdd0d1d3d6d7dbdcdee1e2e3e5e6e7e8e9eaebeceef0f1f2f3f5f6f7fbfcfeff,58:0103040508090a0c0e0f101213141617181a1b1c1d1f222325262728292b2c2d2e2f31323334363738393a3b3c3d3e3f4041424345464748494a4b4e4f505253555657595a5b5c5d5f6061626364666768696a6d6e6f707172737475767778797a7b7c7d7f82848687888a8b8c#8d8e8f909194959697989b9c9da0a1a2a3a4a5a6a7aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbdbebfc0c2c3c4c6c7c8c9cacbcccdcecfd0d2d3d4d6d7d8d9dadbdcdddedfe0e1e2e3e5e6e7e8e9eaedeff1f2f4f5f7f8fafbfcfdfeff,59:000103050608090a0b0c0e1011121317181b1d1e2021222326282c30323335363b3d3e3f404345464a4c4d505253595b5c5d5e5f616364666768696a6b6c6d6e6f70717275777a7b7c7e7f8085898b8c8e8f90919495989a9b9c9d9fa0a1a2a6#a7acadb0b1b3b4b5b6b7b8babcbdbfc0c1c2c3c4c5c7c8c9cccdcecfd5d6d9dbdedfe0e1e2e4e6e7e9eaebedeeeff0f1f2f3f4f5f6f7f8fafcfdfe,5a:00020a0b0d0e0f101214151617191a1b1d1e2122242627282a2b2c2d2e2f3033353738393a3b3d3e3f414243444547484b4c4d4e4f5051525354565758595b5c5d5e5f60616364656668696b6c6d6e6f7071727378797b7c7d7e808182838485868788898a8b8c8d8e8f9091939495969798999c9d9e9fa0a1a2a3a4a5a6a7a8a9abac#adaeafb0b1b4b6b7b9babbbcbdbfc0c3c4c5c6c7c8cacbcdcecfd0d1d3d5d7d9dadbdddedfe2e4e5e7e8eaecedeeeff0f2f3f4f5f6f7f8f9fafbfcfdfeff,5b:0001020304050607080a0b0c0d0e0f10111213141518191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303133353638393a3b3c3d3e3f4142434445464748494a4b4c4d4e4f52565e606167686b6d6e6f7274767778797b7c7e7f82868a8d8e90919294969fa7a8a9acadaeafb1b2b7babbbcc0c1c3c8c9cacbcdcecf#d1d4d5d6d7d8d9dadbdce0e2e3e6e7e9eaebecedeff1f2f3f4f5f6f7fdfe,5c:0002030507080b0c0d0e10121317191b1e1f2021232628292a2b2d2e2f303233353637434446474c4d5253545657585a5b5c5d5f62646768696a6b6c6d70727374757677787b7c7d7e808384858687898a8b8e8f9293959d9e9fa0a1a4a5a6a7a8aaaeafb0b2b4b6b9babbbcbec0c2c3c5c6c7c8c9cacccdcecfd0d1d3d4d5d6d7d8dadbdcdddedfe0e2e3e7e9ebeceeeff1f2f3f4f5f6f7f8f9fafcfdfeff,5d:00#01040508090a0b0c0d0f10111213151718191a1c1d1f2021222325282a2b2c2f3031323335363738393a3b3c3f4041424344454648494d4e4f5051525354555657595a5c5e5f6061626364656667686a6d6e7071727375767778797a7b7c7d7e7f8081838485868788898a8b8c8d8e8f9091929394959697989a9b9c9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b8b9babbbcbdbebfc0c1c2c3c4c6c7c8c9cacbcccecfd0d1d2d3d4d5d6d7d8d9dadcdfe0e3e4eaeced#f0f5f6f8f9fafbfcff,5e:000407090a0b0d0e1213171e1f20212223242528292a2b2c2f303233343536393a3e3f404143464748494a4b4d4e4f50515253565758595a5c5d5f60636465666768696a6b6c6d6e6f70717577797e8182838588898c8d8e92989b9da1a2a3a4a8a9aaabacaeafb0b1b2b4babbbcbdbfc0c1c2c3c4c5c6c7c8cbcccdcecfd0d4d5d7d8d9dadcdddedfe0e1e2e3e4e5e6e7e9ebecedeeeff0f1f2f3f5f8f9fbfcfd,5f:050607090c0d0e10121416191a1c1d1e21222324#282b2c2e30323334353637383b3d3e3f4142434445464748494a4b4c4d4e4f5154595a5b5c5e5f60636567686b6e6f72747576787a7d7e7f83868d8e8f919394969a9b9d9e9fa0a2a3a4a5a6a7a9abacafb0b1b2b3b4b6b8b9babbbebfc0c1c2c7c8cacbced3d4d5dadbdcdedfe2e3e5e6e8e9eceff0f2f3f4f6f7f9fafc,60:0708090b0c10111317181a1e1f2223242c2d2e3031323334363738393a3d3e404445464748494a4c4e4f5153545657585b5c5e5f606165666e71727475777e80#8182858687888a8b8e8f909193959798999c9ea1a2a4a5a7a9aaaeb0b3b5b6b7b9babdbebfc0c1c2c3c4c7c8c9cccdcecfd0d2d3d4d6d7d9dbdee1e2e3e4e5eaf1f2f5f7f8fbfcfdfeff,61:02030405070a0b0c1011121314161718191b1c1d1e21222528292a2c2d2e2f303132333435363738393a3b3c3d3e4041424344454647494b4d4f50525354565758595a5b5c5e5f606163646566696a6b6c6d6e6f717273747678797a7b7c7d7e7f808182838485868788898a8c8d8f9091929395#969798999a9b9c9e9fa0a1a2a3a4a5a6aaabadaeafb0b1b2b3b4b5b6b8b9babbbcbdbfc0c1c3c4c5c6c7c9cccdcecfd0d3d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e7e8e9eaebecedeeeff0f1f2f3f4f6f7f8f9fafbfcfdfe,62:00010203040507091314191c1d1e2023262728292b2d2f303132353638393a3b3c424445464a4f50555657595a5c5d5e5f6061626465687172747577787a7b7d818283858687888b8c8d8e8f9094999c9d9ea3a6a7a9aaadaeafb0b2b3b4b6b7b8babec0c1#c3cbcfd1d5dddee0e1e4eaebf0f2f5f8f9fafb,63:00030405060a0b0c0d0f10121314151718191c2627292c2d2e30313334353637383b3c3e3f40414447484a51525354565758595a5b5c5d60646566686a6b6c6f707273747578797c7d7e7f81838485868b8d9193949597999a9b9c9d9e9fa1a4a6abafb1b2b5b6b9bbbdbfc0c1c2c3c5c7c8cacbccd1d3d4d5d7d8d9dadbdcdddfe2e4e5e6e7e8ebeceeeff0f1f3f5f7f9fafbfcfe,64:0304060708090a0d0e111215161718191a1d1f222324#252728292b2e2f3031323335363738393b3c3e404243494b4c4d4e4f505153555657595a5b5c5d5f60616263646566686a6b6c6e6f70717273747576777b7c7d7e7f8081838688898a8b8c8d8e8f90939497989a9b9c9d9fa0a1a2a3a5a6a7a8aaabafb1b2b3b4b6b9bbbdbebfc1c3c4c6c7c8c9cacbcccfd1d3d4d5d6d9dadbdcdddfe0e1e3e5e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff,65:01020304050607080a0b0c0d0e0f10111314151617191a1b1c1d1e1f2021#222324262728292a2c2d30313233373a3c3d404142434446474a4b4d4e5052535457585a5c5f606164656768696a6d6e6f7173757678797a7b7c7d7e7f8081828384858688898a8d8e8f92949596989a9d9ea0a2a3a6a8aaacaeb1b2b3b4b5b6b7b8babbbebfc0c2c7c8c9cacdd0d1d3d4d5d8d9dadbdcdddedfe1e3e4eaebf2f3f4f5f8f9fbfcfdfeff,66:0104050708090b0d1011121617181a1b1c1e2122232426292a2b2c2e3032333738393a3b3d3f40424445464748494a4d4e505158#595b5c5d5e6062636567696a6b6c6d7172737578797b7c7d7f808183858688898a8b8d8e8f909293949598999a9b9c9e9fa0a1a2a3a4a5a6a9aaabacadafb0b1b2b3b5b6b7b8babbbcbdbfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8dadedfe0e1e2e3e4e5e7e8eaebecedeeeff1f5f6f8fafbfd,67:010203040506070c0e0f1112131618191a1c1e20212223242527292e303233363738393b3c3e3f414445474a4b4d5254555758595a5b5d62636466676b6c6e717476#78797a7b7d8082838586888a8c8d8e8f9192939496999b9fa0a1a4a6a9acaeb1b2b4b9babbbcbdbebfc0c2c5c6c7c8c9cacbcccdced5d6d7dbdfe1e3e4e6e7e8eaebedeef2f5f6f7f8f9fafbfcfe,68:01020304060d1012141518191a1b1c1e1f20222324252627282b2c2d2e2f30313435363a3b3f474b4d4f52565758595a5b5c5d5e5f6a6c6d6e6f707172737578797a7b7c7d7e7f8082848788898a8b8c8d8e90919294959698999a9b9c9d9e9fa0a1a3a4a5a9aaabacaeb1b2b4b6b7b8#b9babbbcbdbebfc1c3c4c5c6c7c8cacccecfd0d1d3d4d6d7d9dbdcdddedfe1e2e4e5e6e7e8e9eaebecedeff2f3f4f6f7f8fbfdfeff,69:00020304060708090a0c0f11131415161718191a1b1c1d1e21222325262728292a2b2c2e2f313233353637383a3b3c3e4041434445464748494a4b4c4d4e4f50515253555658595b5c5f616264656768696a6c6d6f7072737475767a7b7d7e7f8183858a8b8c8e8f909192939697999a9d9e9fa0a1a2a3a4a5a6a9aaacaeafb0b2b3b5b6b8b9babcbd#bebfc0c2c3c4c5c6c7c8c9cbcdcfd1d2d3d5d6d7d8d9dadcdddee1e2e3e4e5e6e7e8e9eaebeceeeff0f1f3f4f5f6f7f8f9fafbfcfe,6a:000102030405060708090b0c0d0e0f10111213141516191a1b1c1d1e20222324252627292b2c2d2e30323334363738393a3b3c3f40414243454648494a4b4c4d4e4f515253545556575a5c5d5e5f60626364666768696a6b6c6d6e6f70727374757677787a7b7d7e7f81828385868788898a8b8c8d8f929394959698999a9b9c9d9e9fa1a2a3a4a5a6#a7a8aaadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff,6b:000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f252628292a2b2c2d2e2f303133343536383b3c3d3f4041424445484a4b4d4e4f5051525354555657585a5b5c5d5e5f606168696b6c6d6e6f7071727374757677787a7d7e7f808588#8c8e8f909194959798999c9d9e9fa0a2a3a4a5a6a7a8a9abacadaeafb0b1b2b6b8b9babbbcbdbec0c3c4c6c7c8c9caccced0d1d8dadcdddedfe0e2e3e4e5e6e7e8e9ecedeef0f1f2f4f6f7f8fafbfcfeff,6c:000102030408090a0b0c0e12171c1d1e2023252b2c2d31333637393a3b3c3e3f434445484b4c4d4e4f5152535658595a62636566676b6c6d6e6f71737577787a7b7c7f8084878a8b8d8e9192959697989a9c9d9ea0a2a8acafb0b4b5b6b7bac0c1c2c3c6c7c8cbcdcecfd1d2d8#d9dadcdddfe4e6e7e9ecedf2f4f9ff,6d:000203050608090a0d0f101113141516181c1d1f20212223242628292c2d2f30343637383a3f404244494c50555657585b5d5f6162646567686b6c6d707172737576797a7b7d7e7f8081838486878a8b8d8f9092969798999a9ca2a5acadb0b1b3b4b6b7b9babbbcbdbec1c2c3c8c9cacdcecfd0d2d3d4d5d7dadbdcdfe2e3e5e7e8e9eaedeff0f2f4f5f6f8fafdfeff,6e:0001020304060708090b0f12131518191b1c1e1f222627282a2c2e30313335#3637393b3c3d3e3f40414245464748494a4b4c4f5051525557595a5c5d5e606162636465666768696a6c6d6f707172737475767778797a7b7c7d8081828487888a8b8c8d8e91929394959697999a9b9d9ea0a1a3a4a6a8a9abacadaeb0b3b5b8b9bcbebfc0c3c4c5c6c8c9cacccdced0d2d6d8d9dbdcdde3e7eaebecedeeeff0f1f2f3f5f6f7f8fafbfcfdfeff,6f:000103040507080a0b0c0d0e101112161718191a1b1c1d1e1f212223252627282c2e303234353738393a3b3c3d3f404142#43444548494a4c4e4f5051525354555657595a5b5d5f60616364656768696a6b6c6f707173757677797b7d7e7f808182838586878a8b8f909192939495969798999a9b9d9e9fa0a2a3a4a5a6a8a9aaabacadaeafb0b1b2b4b5b7b8babbbcbdbebfc1c3c4c5c6c7c8cacbcccdcecfd0d3d4d5d6d7d8d9dadbdcdddfe2e3e4e5e6e7e8e9eaebecedf0f1f2f3f4f5f6f7f8f9fafbfcfdfeff,70:000102030405060708090a0b0c0d0e0f1012131415161718191c1d1e1f2021222425262728292a#2b2c2d2e2f30313233343637383a3b3c3d3e3f404142434445464748494a4b4d4e505152535455565758595a5b5c5d5f606162636465666768696a6e7172737477797a7b7d818283848687888b8c8d8f90919397989a9b9e9fa0a1a2a3a4a5a6a7a8a9aab0b2b4b5b6babebfc4c5c6c7c9cbcccdcecfd0d1d2d3d4d5d6d7dadcdddee0e1e2e3e5eaeef0f1f2f3f4f5f6f8fafbfcfeff,71:0001020304050607080b0c0d0e0f111214171b1c1d1e1f2021222324252728292a2b2c2d2e323334#353738393a3b3c3d3e3f4041424344464748494b4d4f505152535455565758595a5b5d5f6061626365696a6b6c6d6f707174757677797b7c7e7f8081828385868788898b8c8d8e909192939596979a9b9c9d9ea1a2a3a4a5a6a7a9aaabadaeafb0b1b2b4b6b7b8babbbcbdbebfc0c1c2c4c5c6c7c8c9cacbcccdcfd0d1d2d3d6d7d8d9dadbdcdddedfe1e2e3e4e6e8e9eaebecedeff0f1f2f3f4f5f6f7f8fafbfcfdfeff,72:0001020304050708090a0b0c0d0e0f101112131415161718191a#1b1c1e1f2021222324252627292b2d2e2f3233343a3c3e40414243444546494a4b4e4f505153545557585a5c5e60636465686a6b6c6d707173747677787b7c7d828385868788898c8e9091939495969798999a9b9c9d9ea0a1a2a3a4a5a6a7a8a9aaabaeb1b2b3b5babbbcbdbebfc0c5c6c7c9cacbcccfd1d3d4d5d6d8dadb#95$,30:000102,00b702:c9c7,00a830:0305,2014ff5e20:162618191c1d,30:141508090a0b0c0d0e0f16171011,00:b1d7f7,22:362728110f2a2908371aa52520,231222:992b2e614c483d1d606e6f64651e3534,26:4240,00b020:3233,2103ff0400a4ff:e0e1,203000a7211626:0605,25:cbcfcec7c6a1a0b3b2,203b21:92909193,30:13#95$,21:70717273747576777879#4$,24:88898a8b8c8d8e8f909192939495969798999a9b7475767778797a7b7c7d7e7f808182838485868760616263646566676869##,32:20212223242526272829##,21:606162636465666768696a6b#97$,ff:010203e505060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5de3#95$,30:4142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293#106$a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6#103$,03:9192939495969798999a9b9c9d9e9fa0a1a3a4a5a6a7a8a9#6$b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c3c4c5c6c7c8c9#5$,fe:3536393a3f403d3e41424344##3b3c373831#3334#104$,04:10111213141501161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f#13$30313233343551363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f#11$,02:cacbd9,20:13152535,21:050996979899,22:151f23526667bf,25:505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f7071727381828384858687#88898a8b8c8d8e8f939495bcbde2e3e4e5,2609229530:121d1e#9$,010100e101ce00e0011300e9011b00e8012b00ed01d000ec014d00f301d200f2016b00fa01d400f901:d6d8dadc,00:fcea,0251e7c701:4448,e7c802:61#2$,31:05060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20212223242526272829#19$,30:212223242526272829,32a333:8e8f9c9d9ea1c4ced1d2d5,fe30ff:e2e4#,212132:31#,20:10#1$,30:fc9b9cfdfe069d9e,fe:494a4b4c4d4e4f50515254555657595a5b5c5d5e5f6061#626364656668696a6b,e7:e7e8e9eaebecedeeeff0f1f2f3,30:07#11$,25:000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b#13$,72:dcdddfe2e3e4e5e6e7eaebf5f6f9fdfeff,73:00020405060708090b0c0d0f1011121418191a1f2023242627282d2f30323335363a3b3c3d404142434445464748#494a4b4c4e4f515354555658595a5b5c5d5e5f6162636465666768696a6b6e7071#92$72737475767778797a7b7c7d7f808182838586888a8c8d8f90929394959798999a9c9d9ea0a1a3a4a5a6a7a8aaacadb1b4b5b6b8b9bcbdbebfc1c3c4c5c6c7#cbccced2d3d4d5d6d7d8dadbdcdddfe1e2e3e4e6e8eaebeceeeff0f1f3f4f5f6f7#92$f8f9fafbfcfdfeff,74:0001020407080b0c0d0e1112131415161718191c1d1e1f2021232427292b2d2f31323738393a3b3d3e3f4042434445464748494a4b4c4d#4e4f505152535456585d606162636465666768696a6b6c6e6f717273747578797a#92$7b7c7d7f8284858688898a8c8d8f9192939495969798999a9b9d9fa0a1a2a3a4a5a6aaabacadaeafb0b1b2b3b4b5b6b7b8b9bbbcbdbebfc0c1c2c3c4c5c6c7#c8c9cacbcccdcecfd0d1d3d4d5d6d7d8d9dadbdddfe1e5e7e8e9eaebecedf0f1f2#92$f3f5f8f9fafbfcfdfe,75:0001020305060708090a0b0c0e1012141516171b1d1e202122232426272a2e3436393c3d3f414243444647494a4d5051525355565758#5d5e5f60616263646768696b6c6d6e6f7071737576777a7b7c7d7e808182848587#92$88898a8c8d8e909395989b9c9ea2a6a7a8a9aaadb6b7babbbfc0c1c6cbcccecfd0d1d3d7d9dadcdddfe0e1e5e9ecedeeeff2f3f5f6f7f8fafbfdfe,76:02040607#08090b0d0e0f11121314161a1c1d1e212327282c2e2f31323637393a3b3d414244#92$45464748494a4b4e4f50515253555758595a5b5d5f6061626465666768696a6c6d6e7071727374757677797a7c7f80818385898a8c8d8f9092949597989a9b#9c9d9e9fa0a1a2a3a5a6a7a8a9aaabacadafb0b3b5b6b7b8b9babbbcbdbec0c1c3,554a963f57c3632854ce550954c076:914c,853c77ee827e788d72319698978d6c285b894ffa630966975cb880fa684880ae660276ce51f9655671ac7ff1888450b2596561ca6fb382ad634c625253ed54277b06516b75a45df462d48dcb9776628a8019575d97387f627238767d67cf767e64464f708d2562dc7a17659173ed642c6273822c9881677f724862:6ecc,4f3474e3534a529e7eca90a65e2e6886699c81807ed168d278c5868c9551508d8c2482de80de53058912526576:c4c7c9cbccd3d5d9dadcdddee0e1e2e3e4e6e7e8e9eaebecedf0f3f5f6f7fafbfdff,77:00020305060a0c0e0f1011121314151617181b1c1d1e21232425272a2b#2c2e3031323334393b3d3e3f4244454648494a4b4c4d4e4f52535455565758595c,858496f94fdd582199715b9d62:b1a5,66b48c799c8d7206676f789160b253:5117,8f8880cc8d1d94a1500d72c8590760eb711988ab595482ef672c7b285d297ef7752d6cf58e668ff8903c9f3b6bd491197b145f7c78a784d6853d6b:d5d9d6,5e:0187,75f995ed655d5f:0ac5,8f9f58c181c2907f965b97ad8fb97f168d2c62414fbf53:d85e,8f:a8a9ab,904d68075f6a819888689cd6618b522b762a5f6c658c6fd26ee85bbe644851:75b0,67c44e1979c9997c70b377:5d5e5f606467696a6d6e6f7071727374757677787a7b7c818283868788898a8b8f90939495969798999a9b9c9d9ea1a3a4a6a8abadaeafb1b2b4b6b7b8b9ba#bcbec0c1c2c3c4c5c6c7c8c9cacbcccecfd0d1d2d3d4d5d6d8d9dadddedfe0e1e4,75c55e7673bb83e064ad62e894b56ce2535a52c3640f94c27b944f2f5e1b823681:168a,6e246cca9a736355535c54fa886557e04e0d5e036b657c3f90e8601664e6731c88c16750624d8d22776c8e2991c75f6983dc8521991053c286956b8b60:ede8,707f82:cd31,4ed36ca785cf64cd7cd969fd66f9834953957b564fa7518c6d4b5c428e6d63d253c983:2c36,67e578b4643d5bdf5c945dee8be762c667f48c7a640063ba8749998b8c177f2094f24ea7961098a4660c731677:e6e8eaeff0f1f2f4f5f7f9fafbfc,78:0304050607080a0b0e0f101315191b1e20212224282a2b2e2f31323335363d3f414243444648494a4b4d4f51535458595a#5b5c5e5f606162636465666768696f7071727374757678797a7b7d7e7f80818283,573a5c1d5e38957f507f80a05382655e7545553150218d856284949e671d56326f6e5de2543570928f66626f64a463a35f7b6f8890f481e38fb05c1866685ff16c8996488d81886c649179f057ce6a59621054484e587a0b60e96f848bda627f901e9a8b79e4540375f4630153196c608fdf5f1b9a70803b9f7f4f885c3a8d647fc565a570bd51:45b2,866b5d075ba062bd916c75748e0c7a2061017b794ec77ef877854e1181ed521d51fa6a7153a88e87950496cf6ec19664695a78:848586888a8b8f9092949596999d9ea0a2a4a6a8a9aaabacadaeafb5b6b7b8babbbcbdbfc0c2c3c4c6c7c8cccdcecfd1d2d3d6d7d8dadbdcdddedfe0e1e2e3#e4e5e6e7e9eaebedeeeff0f1f3f5f6f8f9fbfcfdfeff,79:00020304060708090a0b0c,784050a877d7641089e6590463e35ddd7a7f693d4f20823955984e3275ae7a975e:628a,95ef521b5439708a6376952457826625693f918755076df37eaf882262337ef075b5832878c196cc8f9e614874f78bcd6b64523a8d506b21806a847156f153064e:ce1b,51d17c97918b7c074fc38e7f7be17a9c64675d1450ac810676017cb96dec7fe067515b:58f8,78cb64:ae13,63:aa2b,9519642d8fbe7b5476296253592754466b7950a362345e266b864ee38d37888b5f85902e79:0d0e0f1011121415161718191a1b1c1d1f2021222325262728292a2b2c2d2e2f3031323335363738393d3f42434445474a4b4c4d4e4f505152545558596163#6466696a6b6c6e70717273747576797b7c7d7e7f8283868788898b8c8d8e909192,6020803d62c54e39535590f863b880c665e66c2e4f4660ee6de18bde5f3986cb5f536321515a83616863520063638e4850125c9b79775bfc52307a3b60bc905376d75f:b797,76848e6c706f767b7b4977aa51f3909358244f4e6ef48fea654c7b1b72c46da47fdf5ae162b55e95573084827b2c5e1d5f1f90127f1498a063826ec7789870b95178975b57ab75354f4375385e9760e659606dc06bbf788953fc96d551cb52016389540a94938c038dcc7239789f87768fed8c0d53e079:939495969798999b9c9d9e9fa0a1a2a3a4a5a6a8a9aaabacadaeafb0b1b2b4b5b6b7b8bcbfc2c4c5c7c8cacccecfd0d3d4d6d7d9dadbdcdddee0e1e2e5e8ea#eceef1f2f3f4f5f6f7f9fafcfeff,7a:0104050708090a0c0f10111213151618191b1c,4e0176ef53ee948998769f0e952d5b9a8ba24e:221c,51ac846361c252a8680b4f97606b51bb6d1e515c6296659796618c46901775d890fd77636bd272:8aec,8bfb583577798d4c675c9540809a5ea66e2159927aef77ed953b6bb565ad7f0e58065151961f5bf958a954288e726566987f56e4949d76fe9041638754c659:1a3a,579b8eb267358dfa8235524160f0581586fe5ce89e454fc4989d8bb95a2560765384627c904f9102997f6069800c513f80335c1499756d314e8c7a:1d1f21222425262728292a2b2c2d2e2f303132343536383a3e4041424344454748494a4b4c4d4e4f50525354555658595a5b5c5d5e5f606162636465666768#696a6b6c6d6e6f717273757b7c7d7e828587898a8b8c8e8f909394999a9b9ea1a2,8d3053d17f5a7b4f4f104e4f96006cd573d085e95e06756a7ffb6a0a77fe94927e4151e170e653cd8fd483038d2972af996d6cdb574a82b365b980aa623f963259a84eff8bbf7eba653e83f2975e556198de80a5532a8bfd542080ba5e9f6cb88d3982ac915a54296c1b52067eb7575f711a6c7e7c89594b4efd5fff61247caa4e305c0167ab87025cf0950b98ce75af70fd902251af7f1d8bbd594951e44f5b5426592b657780a45b7562:76c2,8f905e456c1f7b264f:0fd8,670d7a:a3a4a7a9aaabaeafb0b1b2b4b5b6b7b8b9babbbcbdbec0c1c2c3c4c5c6c7c8c9cacccdcecfd0d1d2d3d4d5d7d8dadbdcdde1e2e4e7e8e9eaebeceef0f1f2f3#f4f5f6f7f8fbfcfe,7b:0001020507090c0d0e1012131617181a1c1d1f21222327292d,6d:6eaa,798f88b15f17752b629a8f854fef91dc65a781:2f51,5e9c81508d74526f89868d4b590d50854ed8961c723681798d1f5bcc8ba3964459877f1a549056:760e,8be565396982949976d66e895e72751867:46d1,7aff809d8d76611f79c665628d635188521a94a27f38809b7eb25c976e2f67607bd9768b9ad8818f7f947cd5641e95507a3f54:4ae5,6b4c640162089e3d80f3759952729769845b683c86e496:0194,94ec4e2a54047ed968398ddf801566f45e9a7fb97b:2f303234353637393b3d3f404142434446484a4d4e535557595c5e5f61636465666768696a6b6c6d6f70737476787a7c7d7f81828384868788898a8b8c8e8f#9192939698999a9b9e9fa0a3a4a5aeafb0b2b3b5b6b7b9babbbcbdbebfc0c2c3c4,57c2803f68975de5653b529f606d9f9a4f9b8eac516c5bab5f135de96c5e62f18d21517194a952fe6c9f82df72d757a267848d2d591f8f9c83c754957b8d4f306cbd5b6459d19f1353e486ca9aa88c3780a16545987e56fa96c7522e74dc52505be1630289024e5662d0602a68fa51735b9851a089c27ba199867f5060ef704c8d2f51495e7f901b747089c4572d78455f529f9f95fa8f689b3c8be17678684267dc8d:ea35,523d8f8a6eda68cd950590ed56fd679c88f98fc754c87b:c5c8c9cacbcdcecfd0d2d4d5d6d7d8dbdcdedfe0e2e3e4e7e8e9ebecedeff0f2f3f4f5f6f8f9fafbfdff,7c:0001020304050608090a0d0e101112131415171819#1a1b1c1d1e20212223242528292b2c2d2e2f3031323334353637393a3b3c3d3e42,9ab85b696d776c264ea55bb39a87916361a890af97e9542b6db55bd251fd558a7f:55f0,64bc634d65f161be608d710a6c:5749,592f676d822a58d5568e8c6a6beb90dd597d801753f76d695475559d83:77cf,683879be548c4f55540876d28c8996026cb36db88d6b89109e648d3a563f9ed175d55f8872e0606854fc4ea86a2a886160528f7054c470d886799e3f6d2a5b8f5f187ea255894faf7334543c539a501954:0e7c,4e4e5ffd745a58f6846b80e1877472d07cca6e567c:434445464748494a4b4c4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717275767778797a7e7f8081828384858687#888a8b8c8d8e8f90939496999a9ba0a1a3a6a7a8a9abacadafb0b4b5b6b7b8babb,5f27864e552c62a44e926caa623782b154d7534e733e6ed1753b521253168bdd69d05f8a60006dee574f6b2273af68538fd87f13636260a3552475ea8c6271156da35ba65e7b8352614c9ec478fa87577c27768751f060f6714c66435e4c604d8c0e707063258f895fbd606286d456de6bc160946167534960e066668d3f79fd4f1a70e96c478b:b3f2,7ed88364660f5a5a9b426d:51f7,8c416d3b4f19706b83b7621660d1970d8d27797851fb57:3efa,673a75787a3d79ef7b957c:bfc0c2c3c4c6c9cbcecfd0d1d2d3d4d8dadbdddee1e2e3e4e5e6e7e9eaebecedeef0f1f2f3f4f5f6f7f9fafcfdfeff,7d:000102030405060708090b0c0d0e0f10#1112131415161718191a1b1c1d1e1f212324252628292a2c2d2e30313233343536,808c99658ff96fc08ba59e2159ec7ee97f095409678168d88f917c4d96c653ca602575be6c7253735ac97ea7632451e0810a5df184df628051805b634f0e796d524260b86d4e5b:c4c2,8b:a1b0,65e25fcc964559937e:e7aa,560967b759394f735bb652a0835a988a8d3e753294be50477a3c4ef767b69a7e5ac16b7c76d1575a5c167b3a95f4714e517c80a9827059787f04832768c067ec78:b177,62e363617b804fed526a51cf835069db92748d:f531,89c1952e7bad4ef67d:3738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6f70717273747576#78797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798,506582305251996f6e:1085,6da75efa50f559dc5c066d466c5f7586848b686859568bb253209171964d854969127901712680f64ea490ca6d479a845a0756bc640594f077eb4fa5811a72e189d2997a7f347ede527f655991758f:7f83,53eb7a9663:eda5,768679f888579636622a52ab8282685467706377776b7aed6d017ed389e359d0621285c982a5754c501f4ecb75a58beb5c4a5dfe7b4b65a491d14eca6d25895f7d2795264ec58c288fdb9773664b79818fd170ec6d787d:999a9b9c9d9e9fa0a1a2a3a4a5a7a8a9aaabacadafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9#dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa,5c3d52b283465162830e775b66769cb84eac60ca7c:beb3,7ecf4e958b66666f988897595883656c955c5f8475c997567a:dfde,51c070af7a9863ea7a767ea0739697ed4e4570784e5d915253a965:51e7,81fc8205548e5c31759a97a062d872d975bd5c459a7983ca5c40548077e94e3e6cae805a62d2636e5de851778ddd8e1e952f4ff153e560e770ac526763509e435a1f5026773753777ee26485652b628963985014723589c951b38bc07edd574783cc94a7519b541b5cfb7d:fbfcfdfeff,7e:000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839#3a3c3d3e3f40424344454648494a4b4c4d4e4f505152535455565758595a5b5c5d,4fca7ae36d5a90e19a8f55805496536154af5f0063e9697751ef6168520a582a52d8574e780d770b5eb761777ce062:5b97,4ea27095800362f770e49760577782db67ef68f578d5989779d158f354b353ef6e34514b523b5ba28bfe80af554357a660735751542d7a7a60505b5463a762a053e362635bc767af54ed7a9f82e691775e9388e4593857ae630e8de880ef57577b774fa95feb5bbd6b3e53217b5072c2684677:ff36,65f751b54e8f76d45cbf7aa58475594e9b4150807e:5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f8081838485868788898a8b8c8d8e8f909192939495969798999a9c9d9e#aeb4bbbcd6e4ecf9,7f:0a101e37393b3c3d3e3f404143464748494a4b4c4d4e4f5253,998861276e8357646606634656f062:ec69,5ed39614578362c955878721814a8fa3556683b167658d5684dd5a6a680f62e67bee961151706f9c8c3063fd89c861d27f0670c26ee57405699472fc5eca90ce67176d6a635e52b3726280014f6c59e5916a70d96d9d52d24e5096f7956d857e78ca7d2f5121579264c2808b7c7b6cea68f1695e51b7539868a872819ece7bf172f879bb6f137406674e91cc9ca4793c83:8954,540f68174e3d538952b1783e5386522950884f:8bd0,7f:56595b5c5d5e6063646566676b6c6d6f7073757677787a7b7c7d7f8082838485868788898b8d8f9091929395969798999b9ca0a2a3a5a6a8a9aaabacadaeb1#b3b4b5b6b7babbbec0c2c3c4c6c7c8c9cbcdcfd0d1d2d3d6d7d9dadbdcdddee2e3,75e27acb7c926ca596b6529b748354e94fe9805483b28fde95705ec9601c6d9f5e18655b813894fe604b70bc7ec37cae51c968817cb1826f4e248f8691cf667e4eae8c0564a9804a50da759771ce5be58fbd6f664e86648295635ed66599521788c270c852a3730e7433679778f797164e3490bb9cde6dcb51db8d41541d62ce73b283f196f69f8494c34f367f9a51cc707596755cad988653e64ee46e9c740969b4786b998f7559521876246d4167f3516d9f99804b54997b3c7abf7f:e4e7e8eaebecedeff2f4f5f6f7f8f9fafdfeff,80:020708090a0e0f11131a1b1d1e1f2123242b2c2d2e2f303234393a3c3e404144454748494e4f505153555657#595b5c5d5e5f6061626364656667686b6c6d6e6f7072737475767778797a7b7c7d,9686578462e29647697c5a0464027bd36f0f964b82a6536298855e90708963b35364864f9c819e93788c97328d:ef42,9e7f6f5e79845f559646622e9a74541594dd4fa365c55c:6561,7f1586516c2f5f8b73876ee47eff5ce6631b5b6a6ee653754e7163a0756562a18f6e4f264ed16ca67eb68bba841d87ba7f57903b95237ba99aa188f8843d6d1b9a867edc59889ebb739b780186829a:6c82,561b541757cb4e709ea653568fc881097792999286ee6ee1851366fc61626f2b80:7e818285888a8d8e8f909192949597999ea3a6a7a8acb0b3b5b6b8b9bbc5c7c8c9cacbcfd0d1d2d3d4d5d8dfe0e2e3e6eef5f7f9fbfeff,81:000103040507080b#0c1517191b1c1d1f202122232425262728292a2b2d2e3033343537393a3b3c3d3f,8c298292832b76f26c135fd983bd732b8305951a6bdb77db94c6536f830251925e3d8c8c8d384e4873ab679a68859176970971646ca177095a9295416bcf7f8e66275bd059b95a9a95:e8f7,4eec84:0c99,6aac76df9530731b68a65b5f772f919a97617cdc8ff78c1c5f257c7379d889c56ccc871c5bc65e4268c977207ef551:954d,52c95a297f05976282d763cf778485d079d26e3a5e9959998511706d6c1162bf76bf654f60af95fd660e879f9e2394ed54:0d7d,8c2c647881:40414243444547494d4e4f525657585b5c5d5e5f6162636466686a6b6c6f727375767778818384858687898b8c8d8e90929394959697999a9e9fa0a1a2a4a5#a7a9abacadaeafb0b1b2b4b5b6b7b8b9bcbdbebfc4c5c7c8c9cbcdcecfd0d1d2d3,647986116a21819c78e864699b5462b9672b83ab58a89ed86cab6f205bde964c8c0b725f67d062c772614ea959c66bcd589366ae5e5552df6155672876ee776672677a4662ff54:ea50,94a090a35a1c7eb36c164e435976801059485357753796be56ca63208111607c95f96dd65462998151855ae980fd59ae9713502a6ce55c3c62df4f60533f817b90066eba852b62c85e7478be64b5637b5ff55a18917f9e1f5c3f634f80425b7d556e95:4a4d,6d8560a867e072de51dd5b8181:d4d5d6d7d8d9dadbdcdddedfe0e1e2e4e5e6e8e9ebeeeff0f1f2f5f6f7f8f9fafdff,82:030708090a0b0e0f111315161718191a1d2024252627292e323a3c3d3f#404142434546484a4c4d4e5051525354555657595b5c5d5e606162636465666769,62e76cde725b626d94ae7ebd81136d53519c5f04597452aa6012597366968650759f632a61e67cef8bfa54e66b279e256bb485d5545550766ca4556a8db4722c5e156015743662cd6392724c5f986e436d3e65006f5876d878d076fc7554522453db4e535e9e65c180:2ad6,629b5486522870ae888d8dd16ce1547880da57f988f48d54966a914d4f696c9b55b776c6783062a870f96f8e5f6d84ec68da787c7bf781a8670b9e4f636778b0576f7812973962:79ab,528874356bd782:6a6b6c6d71757677787b7c808183858687898c90939495969a9b9ea0a2a3a7b2b5b6babbbcbfc0c2c3c5c6c9d0d6d9dadde2e7e8e9eaecedeef0f2f3f5f6f8#fafcfdfeff,83:000a0b0d1012131618191d1e1f20212223242526292a2e3032373b3d,5564813e75b276ae533975de50fb5c418b6c7bc7504f72479a9798d86f0274e27968648777a562fc98918d2b54c180584e52576a82f9840d5e7351ed74f68bc45c4f57616cfc98875a4678349b448feb7c955256625194fa4ec68386846183e984b257d467345703666e6d668c3166dd7011671f6b3a6816621a59bb4e0351c46f0667d26c8f517668cb59476b6775665d0e81109f5065d779:4841,9a918d775c824e5e4f01542f5951780c56686c148fc45f036c:7de3,8bab639083:3e3f41424445484a4b4c4d4e5355565758595d6270717273747576797a7e7f808182838487888a8b8c8d8f909194959697999a9d9fa1a2a3a4a5a6a7acadae#afb5bbbebfc2c3c4c6c8c9cbcdced0d1d2d3d5d7d9dadbdee2e3e4e6e7e8ebeced,60706d3d7275626694:8ec5,53438fc17b7e4edf8c264e7e9ed494:b1b3,524d6f5c90636d458c3458115d4c6b:2049,67aa545b81547f8c589985375f3a62a26a47953965726084686577a74e544fa85de7979864ac7fd85ced4fcf7a8d520783044e14602f7a8394a64fb54eb279e6743452e482b964d279bd5bdd6c8197528f7b6c22503e537f6e0564ce66746c3060c598778bf75e86743c7a7779cb4e1890b174036c4256da914b6cc58d8b533a86c666f28eaf5c489a716e2083:eeeff3f4f5f6f7fafbfcfeff,84:0002050708090a10121314151617191a1b1e1f20212223292a2b2c2d2e2f30323334353637393a3b3e3f404142434445474849#4a4b4c4d4e4f505253545556585d5e5f606264656667686a6e6f70727477797b7c,53d65a369f8b8da353bb570898a76743919b6cc9516875ca62f372ac52:389d,7f3a7094763853749e4a69b7786e96c088d97fa471:36c3,518967d374e458e4651856b78ba9997662707ed560f970ed58ec4e:c1ba,5fcd97e74efb8ba45203598a7eab62544ecd65e5620e833884c98363878d71946eb65bb97ed2519763c967d480898339881551125b7a59828fb14e736c5d516589258f6f962e854a745e95:10f0,6da682e55f3164926d128428816e9cc3585e8d5b4e0953c184:7d7e7f8081838485868a8d8f90919293949596989a9b9d9e9fa0a2a3a4a5a6a7a8a9aaabacadaeb0b1b3b5b6b7bbbcbec0c2c3c5c6c7c8cbcccecfd2d4d5d7#d8d9dadbdcdee1e2e4e7e8e9eaebedeeeff1f2f3f4f5f6f7f8f9fafbfdfe,85:000102,4f1e6563685155d34e2764149a9a626b5ac2745f82726da968ee50e7838e7802674052396c997eb150bb5565715e7b5b665273ca82eb67495c715220717d886b95ea965564c58d6181b355846c5562477f2e58924f2455468d4f664c4e0a5c1a88f368a2634e7a0d70e7828d52fa97f65c1154e890b57ecd59628d4a86c782:0c0d,8d6664445c0461516d89793e8bbe78377533547b4f388eab6df15a207ec5795e6c885ba15a76751a80be614e6e1758f075:1f25,727253477ef385:030405060708090a0b0d0e0f101214151618191b1c1d1e2022232425262728292a2d2e2f303132333435363e3f404142444546474b4c4d4e4f505152535455#57585a5b5c5d5f60616263656667696a6b6c6d6e6f707173757677787c7d7f8081,770176db526980dc57235e08593172ee65bd6e7f8bd75c388671534177f362fe65f64ec098df86805b9e8bc653f277e24f7f5c4e9a7659cb5f0f793a58eb4e1667ff4e8b62ed8a93901d52bf662f55dc566c90024ed54f8d91ca99706c0f5e0260435ba489c68bd56536624b99965b:88ff,6388552e53d77626517d852c67a268b36b8a62928f9353d482126dd1758f4e668d4e5b70719f85af66:91d9,7f7287009ecd9f205c5e672f8ff06811675f620d7ad658855eb665706f3185:82838688898a8b8c8d8e909192939495969798999a9d9e9fa0a1a2a3a5a6a7a9abacadb1b2b3b4b5b6b8babbbcbdbebfc0c2c3c4c5c6c7c8cacbcccdced1d2#d4d6d7d8d9dadbdddedfe0e1e2e3e5e6e7e8eaebecedeeeff0f1f2f3f4f5f6f7f8,60555237800d6454887075295e05681362f4971c53cc723d8c016c3477617a0e542e77ac987a821c8bf47855671470c165af64955636601d79c153f84e1d6b7b80865bfa55e356db4f:3a3c,99725df3677e80386002988290015b8b8b:bcf5,641c825864de55fd82cf91654fd77d20901f7c9f50f358516eaf5bbf8bc980839178849c7b97867d96:8b8f,7ee59ad3788e5c817a57904296a7795f5b59635f7b0b84d168ad55067f2974107d2295016240584c4ed65b835979585485:f9fafcfdfe,86:0001020304060708090a0b0c0d0e0f10121314151718191a1b1c1d1e1f20212223242526282a2b2c2d2e2f3031323334353637393a3b3d3e3f40#4142434445464748494a4b4c525355565758595b5c5d5f6061636465666768696a,736d631e8e:4b0f,80ce82d462ac53f06cf0915e592a60016c70574d644a8d2a762b6ee9575b6a8075f06f6d8c:2d08,57666bef889278b363a253f970ad6c645858642a580268e0819b55107cd650188eba6dcc8d9f70eb638f6d9b6ed47ee68404684390036dd896768ba85957727985e4817e75bc8a8a68af52548e22951163d098988e44557c4f5366ff568f60d56d9552435c4959296dfb586b75:301c,606c82148146631167618fe2773a8d:f334,94c15e165385542c70c386:6d6f7072737475767778838485868788898e8f90919294969798999a9b9e9fa0a1a2a5a6abadaeb2b3b7b8b9bbbcbdbebfc1c2c3c5c8cccdd2d3d5d6d7dadc#dde0e1e2e3e5e6e7e8eaebeceff5f6f7fafbfcfdff,87:010405060b0c0e0f10111416,6c405ef7505c4ead5ead633a8247901a6850916e77b3540c94dc5f647ae5687663457b527edf75db507762955934900f51f879c37a8156fe5f9290146d825c60571f541051546e4d56e263a89893817f8715892a9000541e5c6f81c062:d658,81319e3596409a:6e7c,692d59a562d3553e631654c786d96d3c5a0374e6889c6b6a59168c4c5f2f6e7e73a9987d4e3870f75b8c7897633d665a769660cb5b9b5a494e0781556c6a738b4ea167897f515f8065fa671b5fd859845a0187:191b1d1f20242627282a2b2c2d2f303233353638393a3c3d404142434445464a4b4d4f505152545556585a5b5c5d5e5f6162666768696a6b6c6d6f71727375#7778797a7f8081848687898a8c8e8f90919294959698999a9b9c9d9ea0a1a2a3a4,5dcd5fae537197e68fdd684556f4552f60df4e3a6f4d7ef482c7840e59d44f:1f2a,5c3e7eac672a851a5473754f80c355829b4f4f4d6e2d8c135c096170536b761f6e29868a658795fb7eb9543b7a337d0a95ee55e17fc174ee631d87176da17a9d621165a1536763e16c835deb545c94a84e4c6c618bec5c4b65e0829c68a754:3e34,6b:cb66,4e9463425348821e4f:0dae,575e620a96fe6664726952:ffa1,609f8bef661471996790897f785277fd6670563b54389521727a87:a5a6a7a9aaaeb0b1b2b4b6b7b8b9bbbcbebfc1c2c3c4c5c7c8c9cccdcecfd0d4d5d6d7d8d9dadcdddedfe1e2e3e4e6e7e8e9ebecedeff0f1f2f3f4f5f6f7f8#fafbfcfdff,88:0001020405060708090b0c0d0e0f101112141718191a1c1d1e1f2023,7a00606f5e0c6089819d591560dc718470ef6eaa6c5072806a8488ad5e2d4e605ab3559c94e36d177cfb9699620f7ec6778e867e5323971e8f9666875ce14fa072ed4e0b53a6590f54136380952851484ed99c9c7ea454b88d248854823795f26d8e5f265acc663e966973:b02e,53bf817a99857fa15baa96:7750,7ebf76f853a2957699997bb189446e584e617fd479658be660f354cd4eab98795df76a6150cf54118c618427785d9704524a54ee56a395006d885bb56dc6665388:2425262728292a2b2c2d2e2f30313334353637383a3b3d3e3f414243464748494a4b4e4f505152535556585a5b5c5d5e5f6066676a6d6f717374757678797a#7b7c80838687898a8c8e8f90919394959798999a9b9d9e9fa0a1a3a5a6a7a8a9aa,5c0f5b5d6821809655787b11654869544e9b6b47874e978b534f631f643a90aa659c80c18c10519968b0537887f961c86c:c4fb,8c225c5185aa82af950c6b238f9b65b05f:fbc3,4fe18845661f8165732960fa51745211578b5f6290a2884c91925e78674f602759d351:44f6,80f853086c7996c4718a4f:11ee,7f9e673d55c5950879c088967ee3589f620c9700865a5618987b5f908bb884c4915753d965ed5e8f755c60647d6e5a7f7e:eaed,8f6955a75ba360ac65cb738488:acaeafb0b2b3b4b5b6b8b9babbbdbebfc0c3c4c7c8cacbcccdcfd0d1d3d6d7dadbdcdddee0e1e6e7e9eaebecedeeeff2f5f6f7fafbfdff,89:0001030405060708#090b0c0d0e0f1114151617181c1d1e1f20222324262728292c2d2e2f3132333537,9009766377297eda9774859b5b667a7496ea884052cb718f5faa65ec8be25bfb9a6f5de16b896c5b8b:adaf,900a8fc5538b62bc9e:262d,54404e2b82bd7259869c5d1688596daf96c554d14e9a8bb6710954bd960970df6df976d04e25781487125ca95ef68a00989c960e708e6cbf594463a9773c884d6f148273583071d5538c781a96c155015f6671305bb48c1a9a8c6b83592e9e2f79e76768626c4f6f75a17f8a6d0b96336c274ef075d2517b68376f3e908081705996747689:38393a3b3c3d3e3f40424345464748494a4b4c4d4e4f505152535455565758595a5b5c5d6061626364656768696a6b6c6d6e6f707172737475767778797a7c#7d7e808284858788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1,64475c2790657a918c2359da54ac8200836f898180006930564e8036723791ce51b64e5f987563964e1a53f666f3814b591c6db24e0058f9533b63d694f14f:9d0a,886398905937905779fb4eea80f075916c825b9c59e85f5d69058681501a5df24e5977e34ee5827a6291661390915c794ebf5f7981c69038808475ab4ea688d4610f6bc55fc64e4976ca6ea28b:e3ae,8c0a8bd15f027f:fccc,7ece83:356b,56e06bb797f3963459fb541f94f66deb5bc5996e5c395f15969089:a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c3cdd3d4d5d7d8d9dbdddfe0e1e2e4e7e8e9eaecedeef0f1f2f4f5f6f7f8f9fa#fbfcfdfeff,8a:01020304050608090a0b0c0d0e0f101112131415161718191a1b1c1d,537082f16a315a749e705e947f2883b984:2425,836787478fce8d6276c85f719896786c662054df62e54f6381c375c85eb896cd8e0a86f9548f6cf36d8c6c38607f52c775285e7d4f1860a05fe75c24753190ae94c072b96cb96e389149670953:cbf3,4f5191c98bf153c85e7c8fc26de44e8e76c26986865e611a82064f:59de,903e9c7c61096e:1d14,96854e885a3196e84e0e5c7f79b95b878bed7fbd738957df828b90c15401904755bb5cea5fa161086b3272f180b28a:891e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3f4041424344454647494a4b4c4d4e4f505152535455565758595a5b5c5d5e#5f606162636465666768696a6b6c6d6e6f7071727374757677787a7b7c7d7e7f80,6d745bd388d598848c6b9a6d9e336e0a51:a443,57a38881539f63f48f9556ed54585706733f6e907f188fdc82d1613f6028966266f07ea68d:8ac3,94a55cb37ca4670860a6960580184e9190e75300966851418fd08574915d665597f55b55531d78386742683d54c9707e5bb08f7d518d572854b1651266828d:5e43,810f846c906d7cdf51ff85fb67a365e96fa186a48e81566a90207682707671e58d2362e952196cfd8d3c600e589e618e66fe8d60624e55b36e23672d8f678a:81828384858687888b8c8d8e8f9091929495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2#c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3,94e195f87728680569a8548b4e4d70b88bc86458658b5b857a84503a5be877bb6be18a797c986cbe76cf65a98f975d2d5c5586386808536062187ad96e5b7efd6a1f7ae05f706f335f20638c6da867564e085e108d264ed780c07634969c62db662d627e6cbc8d7571677f695146808753ec906e629854f286f08f998005951785178fd96d5973cd659f771f7504782781fb8d1e94884fa6679575b98bca9707632f9547963584b8632377415f8172f04e896014657462ef6b63653f8a:e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff,8b:0001020304050608090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20212223#24252728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445,5e2775c790d18bc1829d679d652f5431871877e580a281026c414e4b7ec7804c76f4690d6b966267503c4f84574063076b628dbe53ea65e87eb85fd763:1ab7,81:f3f4,7f6e5e1c5cd95236667a79e97a1a8d28709975d46ede6cbb7a924e2d76c55fe0949f88777ec879cd80bf91cd4ef24f17821f54685dde6d328bcc7ca58f7480985e1a549276b15b99663c9aa473e0682a86db6731732a8b:f8db,90107af970db716e62c477a956314e3b845767f152a986c08d2e94f87b518b:464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f6061626364656768696a6b6d6e6f707172737475767778797a7b7c7d7e7f80818283848586#8788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9facb1bbc7d0ea,8c:091e,4f4f6ce8795d9a7b6293722a62fd4e1378168f6c64b08d5a7bc668695e8488c55986649e58ee72b6690e95258ffd8d5857607f008c0651c6634962d95353684c74228301914c55447740707c6d4a517954a88d4459ff6ecb6dc45b5c7d2b4ed47c7d6ed35b5081ea6e0d5b579b0368d58e2a5b977efc603b7eb590b98d70594f63cd79df8db3535265cf79568bc5963b7ec494bb7e825634918967007f6a5c0a907566285de64f5067de505a4f5c57505e:a7#3$,8c:38393a3b3c3d3e3f4042434445484a4b4d4e4f5051525354565758595b5c5d5e5f60636465666768696c6d6e6f707172747576777b7c7d7e7f808183848687#888b8d8e8f90919293959697999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacad,4e:8d0c,51404e105eff53454e:15981e,9b325b6c56694e2879ba4e3f53154e47592d723b536e6c1056df80e499976bd3777e9f174e:369f,9f104e:5c6993,82885b5b556c560f4ec453:8d9da3a5ae,97658d5d53:1af5262e3e,8d5c53:6663,52:02080e2d333f404c5e615c,84af52:7d82819093,51827f544e:bbc3c9c2e8e1ebde,4f1b4ef34f:2264,4ef54f:2527092b5e67,65384f:5a5d,8c:aeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebec#edeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff,8d:000102030405060708090a0b0c0d,4f:5f57323d76749189838f7e7baa7cac94e6e8eac5dae3dcd1dff8,50:294c,4ff350:2c0f2e2d,4ffe50:1c0c25287e4355484e6c7ba5a7a9bad6,510650:edece6ee,51:070b,4edd6c3d4f:5865ce,9fa06c467c74516e5dfd9ec999985181591452f9530d8a07531051eb591951554ea051564eb388:6ea4,4eb5811488d279805b3488037fb851:abb1bdbc,8d:0e0f101112131415161718191a1b1c205152575f6568696a6c6e6f717278797a7b7c7d7e7f808283868788898c8d8e8f90929395969798999a9b9c9d9ea0a1#a2a4a5a6a7a8a9aaabacadaeafb0b2b6b7b9bbbdc0c1c2c5c7c8c9cacdd0d2d3d4,51:c796a2a5,8b:a0a6a7aab4b5b7c2c3cbcfced2d3d4d6d8d9dcdfe0e4e8e9eef0f3f6f9fcff,8c:000204070c0f1112141516191b181d1f202125272a2b2e2f32333536,53:697a,96:1d2221312a3d3c4249545f676c7274888d97b0,90:979b9d99aca1b4b3b6ba,8d:d5d8d9dce0e1e2e5e6e7e9edeef0f1f2f4f6fcfeff,8e:00010203040607080b0d0e1011121315161718191a1b1c202124252627282b2d303233343637383b3c3e#3f4345464c4d4e4f505354555657585a5b5c5d5e5f60616263646567686a6b6e71,90:b8b0cfc5bed0c4c7d3e6e2dcd7dbebeffe,91:04221e23312f394346,520d594252:a2acadbe,54ff52:d0d6f0,53df71ee77cd5ef451:f5fc,9b2f53b65f01755a5def57:4ca9a1,58:7ebcc5d1,57:292c2a33392e2f5c3b4269856b867c7b686d7673ada48cb2cfa7b493a0d5d8dad9d2b8f4eff8e4dd,8e:73757778797a7b7d7e808283848688898a8b8c8d8e91929395969798999a9b9d9fa0a1a2a3a4a5a6a7a8a9aaadaeb0b1b3b4b5b6b7b8b9bbbcbdbebfc0c1c2#c3c4c5c6c7c8c9cacbcccdcfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4,58:0b0d,57:fded,58:001e194420656c81899a80,99a89f1961ff82:797d7f8f8aa8848e919799abb8beb0c8cae398b7aecbccc1a9b4a1aa9fc4cea4e1,830982:f7e4,83:0f07,82:dcf4d2d8,830c82:fbd3,83:111a061415,82:e0d5,83:1c515b5c08923c34319b5e2f4f47435f4017602d3a336665,8e:e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff,8f:000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20212223#2425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f4041424344,83:681b696c6a6d6eb078b3b4a0aa939c857cb6a97db87b989ea8babcc1,840183:e5d8,580784:180b,83:ddfdd6,84:1c381106,83:d4df,84:0f03,83:f8f9eac5c0,842683:f0e1,84:5c515a597387887a89783c4669768c8e316dc1cdd0e6bdd3cabfbae0a1b9b497e5e3,850c750d853884f085:391f3a,8f:45464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f6061626364656a808c929da0a1a2a4a5a6a7aaacadaeafb2b3b4b5b7b8babbbcbfc0c3c6#c9cacbcccdcfd2d6d7dae0e1e3e7eceff1f2f4f5f6fafbfcfeff,90:07080c0e131518,85:563b,84:fffc,85:594868645e7a,77a285:43727ba4a8878f79ae9c85b9b7b0d3c1dcff,86:270529163c,5efe5f0859:3c41,803759:555a58,530f5c:22252c34,62:4c6a9fbbcadad7ee,632262f663:394b43adf6717a8eb46dac8a69aebcf2f8e0ffc4dece,645263:c6be,64:45410b1b200c26215e846d96,90:191c2324252728292a2b2c303132333437393a3d3f4043454648494a4b4c4e545556595a5c5d5e5f6061646667696a6b6c6f70717273767778797a7b7c7e81#84858687898a8c8d8e8f90929496989a9c9e9fa0a4a5a7a8a9abadb2b7bcbdbfc0,64:7ab7b899bac0d0d7e4e2,65:09252e,5f:0bd2,75195f1153:5ff1fde9e8fb,54:1216064b5253545643215759233282947771649a9b8476669dd0adc2b4d2a7a6d3d472a3d5bbbfccd9dadca9aaa4ddcfde,551b54e7552054fd551454f355:22230f11272a678fb5496d41553f503c,90:c2c3c6c8c9cbcccdd2d4d5d6d8d9dadedfe0e3e4e5e9eaeceef0f1f2f3f5f6f7f9fafbfcff,91:00010305060708090a0b0c0d0e0f1011121314151617181a1b1c#1d1f20212425262728292a2b2c2d2e30323334353637383a3b3c3d3e3f40414244,55:375675767733305c8bd283b1b988819f7ed6917bdfbdbe9499eaf7c9,561f55:d1ebecd4e6ddc4efe5f2f3cccde8f5e4,8f9456:1e080c012423,55fe56:00272d5839572c4d62595c4c548664716b7b7c8593afd4d7dde1f5ebf9ff,57:040a091c,5e:0f191411313b3c,91:454748515354555658595b5c5f606667686b6d737a7b7c808182838486888a8e8f939495969798999c9d9e9fa0a1a4a5a6a7a8a9abacb0b1b2b3b6b7b8b9bb#bcbdbebfc0c1c2c3c4c5c6c8cbd0d2d3d4d5d6d7d8d9dadbdddedfe0e1e2e3e4e5,5e:3744545b5e61,5c:8c7a8d9096889899919a9cb5a2bdacabb1a3c1b7c4d2e4cbe5,5d:020327262e241e061b583e343d6c5b6f5d6b4b4a697482999d,8c735d:b7c5,5f:73778287898c95999ca8adb5bc,88625f6172:adb0b4b7b8c3c1cecdd2e8efe9f2f4f7,730172f3730372fa91:e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff,92:000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f2021222324#25262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445,72fb73:1713210a1e1d152239252c3831504d57606c6f7e,821b592598e759:2402,99:636768696a6b6c74777d8084878a8d9091939495,5e:80918b96a5a0b9b5beb3,8d535e:d2d1dbe8ea,81ba5f:c4c9d6cf,60035fee60045f:e1e4fe,60:0506,5f:eaedf8,60:1935261b0f0d292b0a3f2178797b7a42,92:464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f7071727375767778797a7b7c7d7e7f808182838485#868788898a8b8c8d8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7,60:6a7d969aad9d83928c9becbbb1ddd8c6dab4,61:20261523,60f461:000e2b4a75ac94a7b7d4f5,5fdd96b395:e9ebf1f3f5f6fcfe,96:030406080a0b0c0d0f12151617191a,4e2c723f62156c:35545c4aa38590948c6869747686a9d0d4adf7f8f1d7b2e0d6faebeeb1d3effe,92:a8a9aaabacadafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8#e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff,93:00010203040506070809,6d:39270c43480704190e2b4d2e351a4f525433916f9ea05e93945c607c63,6e1a6d:c7c5de,6e0e6d:bfe0,6e116d:e6ddd9,6e166dab6e0c6dae6e:2b6e4e6bb25f865354322544dfb198e0,6f2d6e:e2a5a7bdbbb7d7b4cf8fc29f,6f:6246472415,6ef96f:2f364b742a0929898d8c78727c7ad1,93:0a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3f40414243444546474849#4a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696b,6f:c9a7b9b6c2e1eedee0ef,70:1a231b39354f5e,5b:80849593a5b8,752f9a9e64345b:e4ee,89305bf08e478b078f:b6d3d5e5eee4e9e6f3e8,90:05040b26110d162135362d2f445152506858625b,66b990:747d8288838b,5f:50575658,5c3b54ab5c:5059,5b715c:6366,7fbc5f:2a292d,82745f3c9b3b5c6e59:81838da9aaa3,93:6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaab#acadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cbcccd,59:97caab9ea4d2b2afd7be,5a:0506,59dd5a0859:e3d8f9,5a:0c09323411231340674a553c6275,80ec5a:aa9b777abeebb2d2d4b8e0e3f1d6e6d8dc,5b:091716323740,5c:151c,5b:5a6573515362,9a:7577787a7f7d808185888a90929396989b9c9d9fa0a2a3a5a7,7e:9fa1a3a5a8a9,93:cecfd0d1d2d3d4d5d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff,94:000102030405060708090a0b0c0d#0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e,7e:adb0bec0c1c2c9cbccd0d4d7dbe0e1e8ebeeeff1f2,7f0d7e:f6fafbfe,7f:01020307080b0c0f111217191c1b1f212223242526272a2b2c2d2f3031323335,5e7a757f5ddb753e909573:8e91aea29fcfc2d1b7b3c0c9c8e5d9,987c740a73:e9e7debaf2,74:0f2a5b262528302e2c,94:2f303132333435363738393a3b3c3d3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6c6d6e6f#707172737475767778797a7b7c7d7e7f8081828384919698c7cfd3d4dae6fb,95:1c20,74:1b1a415c575559776d7e9c8e8081878b9ea8a990a7d2ba,97:eaebec,67:4c535e4869a5876a7398a775a89ead8b777cf0,680967d8680a67:e9b0,680c67:d9b5dab3dd,680067:c3b8e2,680e67:c1fd,68:323360614e624464831d55664167403e4a4929b58f7477936bc2,696e68fc69:1f20,68f995:27333d43484b555a606e74757778797a7b7c7d7e808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aa#abacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacb,692468f069:0b0157,68e369:10713960425d846b80987834cc8788ce896663799ba7bbabadd4b1c1cadf95e08dff,6a2f69ed6a:171865,69f26a:443ea0505b358e793d28587c9190a997ab,73:3752,6b:8182878492938d9a9ba1aa,8f:6b6d71727375767877797a7c7e818284878b,95:cccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7ecff,96:0713181b1e20232425262728292b2c2d2f303738393a3e41434a4e4f5152535657#58595a5c5d5e606365666b6d6e6f70717378797a7b7c7d7e7f808182838487898a,8f:8d8e8f989a,8ece62:0b171b1f222125242c,81e774:eff4ff,75:0f1113,65:34eeeff0,66:0a19,677266:031500,708566:f71d34313635,800666:5f54414f56615777848ca79dbedbdce6e9,8d:3233363b3d4045464849474d5559,89:c7cacbcccecfd0d1,72:6e9f5d666f7e7f848b8d8f92,63:0832b0,96:8c8e91929395969a9b9d9e9fa0a1a2a3a4a5a6a8a9aaabacadaeafb1b2b4b5b7b8babbbfc2c3c8cacbd0d1d3d4d6d7d8d9dadbdcdddedfe1e2e3e4e5e6e7eb#ecedeef0f1f2f4f5f8fafbfcfdff,97:0203050a0b0c10111214151718191a1b1d1f20,64:3fd8,80046b:eaf3fdf5f9,6c:0507060d1518191a2129242a32,65:35556b,72:4d525630,8662521680:9f9c93bc,670a80:bdb1abadb4b7e7e8e9eadbc2c4d9cdd7,671080:ddebf1f4ed,81:0d0e,80:f2fc,671581128c5a81:361e2c1832484c5374595a7160697c7d6d67,584d5ab581:888291,6ed581:a3aacc,672681:cabb,97:2122232425262728292b2c2e2f3133343536373a3b3c3d3f404142434445464748494a4b4c4d4e4f5051545557585a5c5d5f63646667686a6b6c6d6e6f7071#72757778797a7b7d7e7f8081828384868788898a8c8e8f9093959697999a9b9c9d,81:c1a6,6b:243739434659,98:d1d2d3d5d9da,6bb35f406bc289f365909f5165:93bcc6c4c3ccced2d6,70:809c969dbbc0b7abb1e8ca,71:1013162f31735c6845724a787a98b3b5a8a0e0d4e7f9,72:1d28,706c71:1866b9,62:3e3d434849,79:3b4046495b5c535a6257606f677a858a9aa7b3,5f:d1d0,97:9e9fa1a2a4a5a6a7a8a9aaacaeb0b1b3b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3#e4e5e8eeeff0f1f2f4f7f8f9fafbfcfdfeff,98:000102030405060708090a0b0c0d0e,60:3c5d5a67415963ab,61:060d5da99dcbd1,620680:807f,6c:93f6,6dfc77:f6f8,78:0009171811,65ab78:2d1c1d393a3b1f3c252c23294e6d56572650474c6a9b939a879ca1a3b2b9a5d4d9c9ecf2,790578f479:13241e34,9f9b9e:f9fbfc,76f177:040d,76f977:07081a22192d263538505147435a68,98:0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d#4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e,77:62657f8d7d808c919fa0b0b5bd,75:3a404e4b485b727983,7f:58615f,8a487f:68747179817e,76:cde5,883294:8586878b8a8c8d8f909497959a9b9ca3a4abaaadacafb0b2b4b6b7b8b9babcbdbfc4c8c9cacbcccdced0d1d2d5d6d7d9d8dbdedfe0e2e4e5e7e8ea,98:6f70717273748b8e929599a3a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcfd0d4d6d7dbdcdde0e1e2e3e4#e5e6e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff,99:0001020304050607,94:e9ebeeeff3f4f5f7f9fcfdff,95:03020607090a0d0e0f1213141516181b1d1e1f222a2b292c3132343637383c3e3f4235444546494c4e4f525354565758595b5e5f5d61626465666768696a6b6c6f7172733a,77:e7ec,96c979:d5ede3eb,7a065d477a:03021e14,99:08090a0b0c0e0f1112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2f303132333435363738393a3b3c3d3e3f40414243444546474849#4a4b4c4d4e4f50515253565758595a5b5c5d5e5f60616264667378797b7e828389,7a:393751,9ecf99a57a7076:888e9399a4,74:dee0,752c9e:202228292a2b2c3231363837393a3e414244464748494b4c4e5155575a5b5c5e63666768696a6b6c716d73,75:929496a09daca3b3b4b8c4b1b0c3c2d6cde3e8e6e4ebe7,760375:f1fcff,76:1000050c170a25181519,99:8c8e9a9b9c9d9e9fa0a1a2a3a4a6a7a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8#d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9,76:1b3c2220402d303f35433e334d5e545c566b6f,7fca7a:e6787980868895a6a0aca8adb3,88:6469727d7f82a2c6b7bcc9e2cee3e5f1,891a88:fce8fef0,89:2119131b0a342b3641667b,758b80e576:b2b4,77dc80:1214161c20222526272928310b3543464d526971,898398:788083,99:fafbfcfdfeff,9a:000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738#393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859,98:898c8d8f949a9b9e9fa1a2a5a6,86:4d546c6e7f7a7c7ba88d8bac9da7a3aa93a9b6c4b5ceb0bab1afc9cfb4e9f1f2edf3d0,871386:def4dfd8d1,87:0307,86f887:080a0d09233b1e252e1a3e48343129373f82227d7e7b60704c6e8b53637c64596593afa8d2,9a:5a5b5c5d5e5f606162636465666768696a6b7283898d8e949599a6a9aaabacadaeafb2b3b4b5b9bbbdbebfc3c4c6c7c8c9cacdcecfd0d2d4d5d6d7d9dadbdc#dddee0e2e3e4e5e7e8e9eaeceef0f1f2f3f4f5f6f7f8fafcfdfeff,9b:000102040506,87:c68885ad9783abe5acb5b3cbd3bdd1c0cadbeae0ee,88:1613,87fe88:0a1b21393c,7f:36424445,82107a:fafd,7b:080304150a2b0f47382a192e31202524333e1e585a45754c5d606e7b62727190a6a7b8ac9da885aa9ca2abb4d1c1ccdddae5e6ea,7c0c7b:fefc,7c:0f160b,9b:07090a0b0c0d0e1011121415161718191a1b1c1d1e2021222425262728292a2b2c2d2e3031333435363738393a3d3e3f40464a4b4c4e50525355565758595a#5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b,7c:1f2a26384140,81fe82:010204,81ec884482:2122232d2f282b383b33343e44494b4f5a5f68,88:7e8588d8df,895e7f:9d9fa7afb0b2,7c7c65497c:919d9c9ea2b2bcbdc1c7cccdc8c5d7e8,826e66a87f:bfced5e5e1e6e9eef3,7cf87d:77a6ae,7e:479b,9e:b8b4,8d:73849491b1676d,8c:4749,91:4a504e4f64,9b:7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9ba#bbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadb,91:626170696f7d7e7274798c85908d91a2a3aaadaeafb5b4ba,8c559e7e8d:b8eb,8e:055969,8d:b5bfbcbac4d6d7dadececfdbc6ecf7f8e3f9fbe4,8e098dfd8e:141d1f2c2e232f3a4039353d3149414251524a70767c6f74858f94909c9e,8c:78828a859894,659b89:d6dedadc,9b:dcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff,9c:000102030405060708090a0b0c0d0e0f101112131415161718191a#1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b,89:e5ebef,8a3e8b26975396:e9f3ef,97:0601080f0e2a2d303e,9f:808385868788898a8c,9efe9f:0b0d,96:b9bcbdced2,77bf96e092:8eaec8,93:3e6aca8f,94:3e6b,9c:7f8285868788,7a239c:8b8e90919294959a9b9e9fa0a1a2a3a5a6a7a8a9abadaeb0b1b2b3b4b5b6b7babbbcbdc4c5c6c7cacb3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a#7b7d7e808384898a8c8f93969798999daaacafb9bebfc0c1c2c8c9d1d2dadbe0e1cccdcecfd0d3d4d5d7d8d9dcdddfe2,97:7c85919294afaba3b2b4,9a:b1b0b7,9e589a:b6babcc1c0c5c2cbccd1,9b:45434749484d51,98e899:0d2e5554,9a:dfe1e6efebfbedf9,9b:080f131f23,9e:bdbe,7e3b9e:8287888b92,93d69e:9d9fdbdcdde0dfe2e9e7e5eaef,9f:222c2f39373d3e44,9c:e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff,9d:000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f2021#22232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142#92$434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f8081#82838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2#92$a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1#e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff,9e:000102#92$030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e24272e30343b3c404d5052535456595d5f606162656e6f727475767778797a7b7c7d80#8183848586898a8c8d8e8f90919495969798999a9b9c9ea0a1a2a3a4a5a7a8a9aa#92$abacadaeafb0b1b2b3b5b6b7b9babcbfc0c1c2c3c5c6c7c8cacbccd0d2d3d5d6d7d9dadee1e3e4e6e8ebecedeef0f1f2f3f4f5f6f7f8fafdff,9f:000102030405#060708090a0c0f1112141516181a1b1c1d1e1f21232425262728292a2b2d2e3031#92$3233343536383a3c3f4041424345464748494a4b4c4d4e4f52535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778#797a7b7c7d7e81828d8e8f9091929394959697989c9d9ea1a2a3a4a5,f9:2c7995e7f1#92$,fa:0c0d0e0f111314181f20212324272829,e8:15161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f40414243#4445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f6061626364");
       let index = 0;
       this.#data = dataText.match(/..../g);
       for (let i2 = 129; i2 <= 254; i2++) {
         for (let j2 = 64; j2 <= 254; j2++) {
-          this.#U2Ghash[this.#data[index++]] = ("%" + i2.toString(16) + "%" + j2.toString(16)).toUpperCase();
+          this.#U2Ghash[this.#data[index++]] = `%${i2.toString(16)}%${j2.toString(16)}`.toUpperCase();
         }
       }
-      for (let key in this.#U2Ghash) {
-        this.#G2Uhash[this.#U2Ghash[key]] = key;
+      for (const key in this.#U2Ghash) {
+        const u2ghashValue = Reflect.get(this.#U2Ghash, key);
+        Reflect.set(this.#G2Uhash, u2ghashValue, key);
       }
     }
     handleText(text) {
-      text = text.replace(/#(\d+)\$/g, function(a2, b2) {
+      text = text.replace(/#(\d+)\$/g, function(_, b2) {
         return Array(+b2 + 3).join("#");
-      }).replace(/#/g, "####").replace(/(\w\w):([\w#]+)(?:,|$)/g, function(a2, hd, dt) {
-        return dt.replace(/../g, function(a3) {
-          if (a3 != "##") {
-            return hd + a3;
+      }).replace(/#/g, "####").replace(/(\w\w):([\w#]+)(?:,|$)/g, function(_, hd, dt) {
+        return dt.replace(/../g, function(a2) {
+          if (a2 != "##") {
+            return hd + a2;
           } else {
-            return a3;
+            return a2;
           }
         });
       });
@@ -3426,8 +4046,8 @@ getLightColor(color, level) {
       return unicode <= 127 && unicode >= 0;
     }
 encode(str) {
-      let that = this;
-      return [...str].reduce((result, val, i2) => {
+      const that = this;
+      return [...str].reduce((result, val) => {
         return result + toGBK(val);
       }, "");
       function toGBK(val) {
@@ -3436,7 +4056,7 @@ encode(str) {
           const codePoint = val.codePointAt(i2);
           const code = String.fromCodePoint(codePoint);
           let key = codePoint.toString(16);
-          key.length != 4 && (key = ("000" + key).match(/....$/)?.[0]);
+          key.length != 4 && (key = `000${key}`.match(/....$/)?.[0]);
           i2 += code.length - 1;
           if (that.isAscii(codePoint)) {
             result += encodeURIComponent(code);
@@ -3452,16 +4072,16 @@ encode(str) {
       }
     }
 decode(str) {
-      let GBKMatcher = /%[0-9A-F]{2}%[0-9A-F]{2}/;
-      let UTFMatcher = /%[0-9A-F]{2}/;
+      const GBKMatcher = /%[0-9A-F]{2}%[0-9A-F]{2}/;
+      const UTFMatcher = /%[0-9A-F]{2}/;
       let utf = true;
       const that = this;
       while (utf) {
-        let gbkMatch = str.match(GBKMatcher);
-        let utfMatch = str.match(UTFMatcher);
+        const gbkMatch = str.match(GBKMatcher);
+        const utfMatch = str.match(UTFMatcher);
         utf = Boolean(utfMatch);
         if (gbkMatch && gbkMatch in that.#G2Uhash) {
-          str = str.replace(gbkMatch, String.fromCharCode("0x" + that.#G2Uhash[gbkMatch]));
+          str = str.replace(gbkMatch, String.fromCharCode(`0x${that.#G2Uhash[gbkMatch]}`));
         } else {
           str = str.replace(utfMatch, decodeURIComponent(utfMatch));
         }
@@ -3472,7 +4092,7 @@ decode(str) {
   const TryCatch = function(...args) {
     let callbackFunction = null;
     let context = null;
-    let handleError = (error) => {
+    let handleError = () => {
     };
     let defaultDetails = {
       log: true
@@ -3489,7 +4109,7 @@ error(handler) {
 run(callback, __context__) {
         callbackFunction = callback;
         context = __context__ || this;
-        let result = executeTryCatch(callbackFunction, handleError, context);
+        const result = executeTryCatch(callbackFunction, handleError, context);
         return result !== void 0 ? result : TryCatchCore;
       }
     };
@@ -3504,8 +4124,8 @@ run(callback, __context__) {
       } catch (error) {
         if (defaultDetails.log) {
           callback = callback;
-          console.log(`%c ${callback?.name ? callback?.name : callback + "出现错误"} `, "color: #f20000");
-          console.log(`%c 错误原因：${error}`, "color: #f20000");
+          console.log(`%c ${callback?.name ? callback?.name : `${callback}`} `, "color: #f20000");
+          console.log(`%c ${error}`, "color: #f20000");
           console.trace(callback);
         }
         if (handleErrorFunc) {
@@ -3522,9 +4142,9 @@ run(callback, __context__) {
   };
   let CommonUtil$1 = class CommonUtil {
     assign(target = {}, source = {}, isAdd = false) {
-      let UtilsContext = this;
+      const UtilsContext = this;
       if (Array.isArray(source)) {
-        let canTraverse = source.filter((item) => {
+        const canTraverse = source.filter((item) => {
           return typeof item === "object";
         });
         if (!canTraverse.length) {
@@ -3540,24 +4160,24 @@ run(callback, __context__) {
       if (isAdd) {
         for (const sourceKeyName in source) {
           const targetKeyName = sourceKeyName;
-          let targetValue = target[targetKeyName];
-          let sourceValue = source[sourceKeyName];
+          const targetValue = Reflect.get(target, targetKeyName);
+          const sourceValue = Reflect.get(source, sourceKeyName);
           if (typeof sourceValue === "object" && sourceValue != null && sourceKeyName in target && !UtilsContext.isDOM(sourceValue)) {
-            target[sourceKeyName] = UtilsContext.assign(targetValue, sourceValue, isAdd);
+            Reflect.set(target, sourceKeyName, UtilsContext.assign(targetValue, sourceValue, isAdd));
             continue;
           }
-          target[sourceKeyName] = sourceValue;
+          Reflect.set(target, sourceKeyName, sourceValue);
         }
       } else {
         for (const targetKeyName in target) {
           if (targetKeyName in source) {
-            let targetValue = target[targetKeyName];
-            let sourceValue = source[targetKeyName];
+            const targetValue = Reflect.get(target, targetKeyName);
+            const sourceValue = Reflect.get(source, targetKeyName);
             if (typeof sourceValue === "object" && sourceValue != null && !UtilsContext.isDOM(sourceValue) && Object.keys(sourceValue).length) {
-              target[targetKeyName] = UtilsContext.assign(targetValue, sourceValue, isAdd);
+              Reflect.set(target, targetKeyName, UtilsContext.assign(targetValue, sourceValue, isAdd));
               continue;
             }
-            target[targetKeyName] = sourceValue;
+            Reflect.set(target, targetKeyName, sourceValue);
           }
         }
       }
@@ -3565,7 +4185,7 @@ run(callback, __context__) {
     }
     isNull(...args) {
       let result = true;
-      let checkList = [...args];
+      const checkList = [...args];
       for (const objItem of checkList) {
         let itemResult = false;
         if (objItem === null || objItem === void 0) {
@@ -3588,10 +4208,11 @@ run(callback, __context__) {
             case "boolean":
               itemResult = !objItem;
               break;
-            case "function":
-              let funcStr = objItem.toString().replace(/\s/g, "");
+            case "function": {
+              const funcStr = objItem.toString().replace(/\s/g, "");
               itemResult = Boolean(funcStr.match(/^\(.*?\)=>\{\}$|^function.*?\(.*?\)\{\}$/));
               break;
+            }
           }
         }
         result = result && itemResult;
@@ -3602,18 +4223,22 @@ isDOM(target) {
       return target instanceof Node;
     }
     isNotNull(...args) {
-      let UtilsContext = this;
+      const UtilsContext = this;
       return !UtilsContext.isNull.apply(this, args);
     }
     deepClone(obj) {
-      let UtilsContext = this;
+      const UtilsContext = this;
       if (obj === void 0)
         return void 0;
       if (obj === null)
         return null;
-      let clone = obj instanceof Array ? [] : {};
+      const clone = obj instanceof Array ? [] : {};
       for (const [key, value] of Object.entries(obj)) {
-        clone[key] = typeof value === "object" ? UtilsContext.deepClone(value) : value;
+        if (typeof value === "object") {
+          Reflect.set(clone, key, UtilsContext.deepClone(value));
+        } else {
+          Reflect.set(clone, key, value);
+        }
       }
       return clone;
     }
@@ -3633,21 +4258,21 @@ coverObjectFunctionThis(target, objectThis) {
       if (typeof data === "object") {
         return data;
       }
-      TryCatch().config({ log: false }).error((error) => {
+      TryCatch().config({ log: false }).error(() => {
         TryCatch().error(() => {
           try {
-            result = new Function("return " + data)();
+            result = new Function(`return ${data}`)();
           } catch (error2) {
             if (typeof errorCallBack === "function") {
               errorCallBack(error2);
             }
           }
         }).run(() => {
-          if (data && /^[\],:{}\s]*$/.test(data.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, "@").replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]").replace(/(?:^|:|,)(?:\s*\[)+/g, ""))) {
-            result = new Function("return " + data)();
+          if (data && /^[\],:{}\s]*$/.test(data.replace(/\\(?:["\\/bfnrt]|u[0-9a-fA-F]{4})/g, "@").replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?/g, "]").replace(/(?:^|:|,)(?:\s*\[)+/g, ""))) {
+            result = new Function(`return ${data}`)();
           } else {
             if (typeof errorCallBack === "function") {
-              errorCallBack(new Error("target is not a JSON"));
+              errorCallBack(new Error("target is not JSON object"));
             }
           }
         });
@@ -3658,7 +4283,7 @@ coverObjectFunctionThis(target, objectThis) {
       return result;
     }
   };
-  let commonUtil = new CommonUtil$1();
+  const commonUtil = new CommonUtil$1();
   class UtilsGMCookie {
     windowApi = {
       window,
@@ -3679,14 +4304,14 @@ get(cookieName) {
       if (typeof cookieName !== "string") {
         throw new TypeError("Utils.GMCookie.get 参数cookieName 必须为字符串");
       }
-      let cookies = this.getCookiesList();
+      const cookies = this.getCookiesList();
       let findValue = void 0;
       for (const cookieItem of cookies) {
-        let item = cookieItem.trim();
-        let itemSplit = item.split("=");
-        let itemName = itemSplit[0];
+        const item = cookieItem.trim();
+        const itemSplit = item.split("=");
+        const itemName = itemSplit[0];
         itemSplit.splice(0, 1);
-        let itemValue = decodeURIComponent(itemSplit.join(""));
+        const itemValue = decodeURIComponent(itemSplit.join(""));
         if (itemName === cookieName) {
           findValue = {
             domain: this.windowApi.window.location.hostname,
@@ -3705,11 +4330,12 @@ get(cookieName) {
       }
       return findValue;
     }
-list(option, callback) {
+    list(option, callback) {
       if (option == null) {
         throw new Error("Utils.GMCookie.list 参数不能为空");
       }
-      let resultData = [];
+      const resultData = [];
+      let error;
       try {
         let defaultOption = {
           url: this.windowApi.window.location.href,
@@ -3718,14 +4344,14 @@ list(option, callback) {
           path: "/"
         };
         defaultOption = commonUtil.assign(defaultOption, option);
-        let cookies = this.getCookiesList();
+        const cookies = this.getCookiesList();
         cookies.forEach((item) => {
           item = item.trim();
-          let itemSplit = item.split("=");
-          let itemName = itemSplit[0];
+          const itemSplit = item.split("=");
+          const itemName = itemSplit[0];
           itemSplit.splice(0, 1);
-          let itemValue = decodeURIComponent(itemSplit.join(""));
-          let nameRegexp = defaultOption.name instanceof RegExp ? defaultOption.name : new RegExp("^" + defaultOption.name, "g");
+          const itemValue = decodeURIComponent(itemSplit.join(""));
+          const nameRegexp = defaultOption.name instanceof RegExp ? defaultOption.name : new RegExp(`^${defaultOption.name}`, "g");
           if (itemName.match(nameRegexp)) {
             resultData.push({
               domain: this.windowApi.window.location.hostname,
@@ -3741,20 +4367,23 @@ list(option, callback) {
             });
           }
         });
-        if (typeof callback === "function") {
-          callback(resultData);
-        }
-      } catch (error) {
-        if (typeof callback === "function") {
-          callback(resultData, error);
-        }
+      } catch (e2) {
+        error = e2;
+      }
+      if (typeof callback === "function") {
+        callback(resultData, error);
+      } else {
+        return {
+          cookies: resultData,
+          error
+        };
       }
     }
 getList(option) {
       if (option == null) {
         throw new Error("Utils.GMCookie.list 参数不能为空");
       }
-      let resultData = [];
+      const resultData = [];
       let defaultOption = {
         url: this.windowApi.window.location.href,
         domain: this.windowApi.window.location.hostname,
@@ -3762,14 +4391,14 @@ getList(option) {
         path: "/"
       };
       defaultOption = commonUtil.assign(defaultOption, option);
-      let cookies = this.getCookiesList();
+      const cookies = this.getCookiesList();
       cookies.forEach((item) => {
         item = item.trim();
-        let itemSplit = item.split("=");
-        let itemName = itemSplit[0];
+        const itemSplit = item.split("=");
+        const itemName = itemSplit[0];
         itemSplit.splice(0, 1);
-        let itemValue = decodeURIComponent(itemSplit.join(""));
-        let nameRegexp = defaultOption.name instanceof RegExp ? defaultOption.name : new RegExp("^" + defaultOption.name, "g");
+        const itemValue = decodeURIComponent(itemSplit.join(""));
+        const nameRegexp = defaultOption.name instanceof RegExp ? defaultOption.name : new RegExp(`^${defaultOption.name}`, "g");
         if (itemName.match(nameRegexp)) {
           resultData.push({
             domain: this.windowApi.window.location.hostname,
@@ -3801,10 +4430,10 @@ set(option, callback) {
 expirationDate: Math.floor(Date.now()) + 60 * 60 * 24 * 30
         };
         defaultOption = commonUtil.assign(defaultOption, option);
-        let life = defaultOption.expirationDate ? defaultOption.expirationDate : Math.floor(Date.now()) + 60 * 60 * 24 * 30;
-        let cookieStr = defaultOption.name + "=" + decodeURIComponent(defaultOption.value) + ";expires=" + new Date(life).toGMTString() + "; path=/";
+        const life = defaultOption.expirationDate ? defaultOption.expirationDate : Math.floor(Date.now()) + 60 * 60 * 24 * 30;
+        let cookieStr = `${defaultOption.name}=${decodeURIComponent(defaultOption.value)};expires=${new Date(life).toGMTString()}; path=/`;
         if (commonUtil.isNull(defaultOption.domain)) {
-          cookieStr += "; domain=" + defaultOption.domain;
+          cookieStr += `; domain=${defaultOption.domain}`;
         }
         this.windowApi.document.cookie = cookieStr;
       } catch (error) {
@@ -3842,14 +4471,14 @@ parseCookie(cookieStr) {
       if (cookieStr.trim() === "") {
         return [];
       }
-      let cookies = cookieStr.split(";");
-      let result = [];
+      const cookies = cookieStr.split(";");
+      const result = [];
       for (const cookieItem of cookies) {
-        let item = cookieItem.trim();
-        let itemSplit = item.split("=");
-        let itemName = itemSplit[0];
+        const item = cookieItem.trim();
+        const itemSplit = item.split("=");
+        const itemName = itemSplit[0];
         itemSplit.splice(0, 1);
-        let itemValue = decodeURIComponent(itemSplit.join(""));
+        const itemValue = decodeURIComponent(itemSplit.join(""));
         result.push({
           key: itemName,
           value: itemValue
@@ -3860,7 +4489,7 @@ parseCookie(cookieStr) {
   }
   // @license      GNU LGPL-3.0
   const ajaxHooker = function() {
-    const version = "1.4.8";
+    const version2 = "1.4.8";
     const hookInst = {
       hookFns: [],
       filters: []
@@ -4326,7 +4955,7 @@ addEvent(type, event) {
       return res;
     }
     winAh = win.__ajaxHooker = winAh || {
-      version,
+      version: version2,
       fakeXHR,
       fakeFetch,
       fakeFetchClone,
@@ -4335,7 +4964,7 @@ addEvent(type, event) {
       realFetchClone: resProto.clone,
       hookInsts: new Set()
     };
-    if (winAh.version !== version) console.warn("检测到不同版本的ajaxHooker，可能发生冲突！");
+    if (winAh.version !== version2) console.warn("检测到不同版本的ajaxHooker，可能发生冲突！");
     win.XMLHttpRequest = winAh.fakeXHR;
     win.fetch = winAh.fakeFetch;
     resProto.clone = winAh.fakeFetchClone;
@@ -4841,21 +5470,21 @@ error: "❌"
       },
 init() {
         for (let index = 0; index < this.$data.data.length; index++) {
-          let menuOption = this.$data.data[index]["data"];
+          const menuOption = this.$data.data[index]["data"];
           menuOption.enable = Boolean(this.getLocalMenuData(menuOption.key, menuOption.enable));
           if (typeof menuOption.showText !== "function") {
             menuOption.showText = (menuText, menuEnable) => {
               if (menuEnable) {
-                return this.$emoji.success + " " + menuText;
+                return `${this.$emoji.success} ${menuText}`;
               } else {
-                return this.$emoji.error + " " + menuText;
+                return `${this.$emoji.error} ${menuText}`;
               }
             };
           }
         }
       },
 register(menuOptions) {
-        let that = this;
+        const that = this;
         if (menuOptions == null) {
           throw new TypeError("register菜单数据不能为空");
         }
@@ -4863,9 +5492,9 @@ register(menuOptions) {
           menuOptions = [menuOptions];
         }
         for (let index = 0; index < menuOptions.length; index++) {
-          let cloneMenuOptionData = commonUtil.deepClone(menuOptions[index].data);
+          const cloneMenuOptionData = commonUtil.deepClone(menuOptions[index].data);
           const { showText, clickCallBack } = this.handleMenuData(cloneMenuOptionData);
-          let menuId = that.context.GM_Api.registerMenuCommand(showText, clickCallBack);
+          const menuId = that.context.GM_Api.registerMenuCommand(showText, clickCallBack);
           menuOptions[index].id = menuId;
           cloneMenuOptionData.deleteMenu = function() {
             that.context.GM_Api.unregisterMenuCommand(menuId);
@@ -4875,7 +5504,7 @@ register(menuOptions) {
         }
       },
 getLocalMenuData(key, defaultValue) {
-        let localData = this.context.GM_Api.getValue(this.$data.key, {});
+        const localData = this.context.GM_Api.getValue(this.$data.key, {});
         if (key in localData) {
           return localData[key];
         } else {
@@ -4883,7 +5512,7 @@ getLocalMenuData(key, defaultValue) {
         }
       },
 setLocalMenuData(key, value) {
-        let localData = this.context.GM_Api.getValue(this.$data.key, {});
+        const localData = this.context.GM_Api.getValue(this.$data.key, {});
         localData[key] = value;
         this.context.GM_Api.setValue(this.$data.key, localData);
       },
@@ -4892,23 +5521,23 @@ handleInitDetail(menuOption) {
         if (typeof menuOption.showText !== "function") {
           menuOption.showText = (menuText, menuEnable) => {
             if (menuEnable) {
-              return this.$emoji.success + " " + menuText;
+              return `${this.$emoji.success} ${menuText}`;
             } else {
-              return this.$emoji.error + " " + menuText;
+              return `${this.$emoji.error} ${menuText}`;
             }
           };
         }
         return menuOption;
       },
 handleMenuData(menuOption) {
-        let that = this;
-        let menuLocalDataItemKey = menuOption.key;
-        let defaultEnable = Boolean(this.getLocalMenuData(menuLocalDataItemKey, menuOption.enable));
-        let showText = menuOption.showText(menuOption.text, defaultEnable);
+        const that = this;
+        const menuLocalDataItemKey = menuOption.key;
+        const defaultEnable = Boolean(this.getLocalMenuData(menuLocalDataItemKey, menuOption.enable));
+        const showText = menuOption.showText(menuOption.text, defaultEnable);
         menuOption.autoReload = typeof menuOption.autoReload !== "boolean" ? this.$default.autoReload : menuOption.autoReload;
         menuOption.isStoreValue = typeof menuOption.isStoreValue !== "boolean" ? this.$default.isStoreValue : menuOption.isStoreValue;
         function clickCallBack(event) {
-          let localEnable = Boolean(that.getLocalMenuData(menuLocalDataItemKey, defaultEnable));
+          const localEnable = Boolean(that.getLocalMenuData(menuLocalDataItemKey, defaultEnable));
           if (menuOption.isStoreValue) {
             that.setLocalMenuData(menuLocalDataItemKey, !localEnable);
           }
@@ -4944,7 +5573,7 @@ getMenuHandledOption(menuKey) {
         return this.$data.data.find((item) => item.handleData.key === menuKey)?.handleData;
       }
     };
-    constructor(details) {
+constructor(details) {
       this.GM_Api.getValue = details.GM_getValue;
       this.GM_Api.setValue = details.GM_setValue;
       this.GM_Api.registerMenuCommand = details.GM_registerMenuCommand;
@@ -4985,7 +5614,7 @@ update(options) {
         menuOptionList = [...menuOptionList, options];
       }
       menuOptionList.forEach((menuOption) => {
-        let oldMenuOption = this.MenuHandle.getMenuOption(menuOption.key);
+        const oldMenuOption = this.MenuHandle.getMenuOption(menuOption.key);
         if (oldMenuOption) {
           Object.assign(oldMenuOption, menuOption);
         } else {
@@ -5002,9 +5631,6 @@ update(options) {
     }
 delete(menuId) {
       this.GM_Api.unregisterMenuCommand(menuId);
-    }
-get(menuKey) {
-      return this.getEnable(menuKey);
     }
 getEnable(menuKey) {
       return this.MenuHandle.getMenuHandledOption(menuKey).enable;
@@ -5074,20 +5700,20 @@ setLocalStorageKeyName(keyName) {
   }
   class Hooks {
 initEnv() {
-      Function.prototype.hook = function(realFunc, hookFunc, context) {
+      Function.prototype.hook = function(_, hookFunc, context) {
         let _context = null;
         let _funcName = null;
         _context = context || window;
         _funcName = getFuncName(this);
-        _context["realFunc_" + _funcName] = this;
+        _context[`realFunc_${_funcName}`] = this;
         if (_context[_funcName].prototype && _context[_funcName].prototype.isHooked) {
           console.log("Already has been hooked,unhook first");
           return false;
         }
         function getFuncName(fn) {
-          let strFunc = fn.toString();
-          let _regex = /function\s+(\w+)\s*\(/;
-          let patten = strFunc.match(_regex);
+          const strFunc = fn.toString();
+          const _regex = /function\s+(\w+)\s*\(/;
+          const patten = strFunc.match(_regex);
           if (patten) {
             return patten[1];
           }
@@ -5103,11 +5729,11 @@ initEnv() {
           _context[_funcName].prototype.isHooked = true;
           return true;
         } catch (e2) {
-          console.log("Hook failed,check the params.");
+          console.log("Hook failed,check the params.", e2);
           return false;
         }
       };
-      Function.prototype.unhook = function(realFunc, funcName, context) {
+      Function.prototype.unhook = function(_, funcName, context) {
         let _context = null;
         let _funcName = null;
         _context = context || window;
@@ -5116,16 +5742,16 @@ initEnv() {
           console.log("No function is hooked on");
           return false;
         }
-        _context[_funcName] = _context["realFunc" + _funcName];
-        Reflect.deleteProperty(_context, "realFunc_" + _funcName);
+        _context[_funcName] = _context[`realFunc${_funcName}`];
+        Reflect.deleteProperty(_context, `realFunc_${_funcName}`);
         return true;
       };
     }
 cleanEnv() {
-      if (Function.prototype.hasOwnProperty("hook")) {
+      if (Object.prototype.hasOwnProperty.call(Function.prototype, "hook")) {
         Reflect.deleteProperty(Function.prototype, "hook");
       }
-      if (Function.prototype.hasOwnProperty("unhook")) {
+      if (Object.prototype.hasOwnProperty.call(Function.prototype, "unhook")) {
         Reflect.deleteProperty(Function.prototype, "unhook");
       }
       return true;
@@ -5136,7 +5762,7 @@ cleanEnv() {
       return window.crypto.randomUUID();
     } else {
       return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(charStr) {
-        var randomValue = Math.random() * 16 | 0, randomCharValue = charStr === "x" ? randomValue : randomValue & 3 | 8;
+        const randomValue = Math.random() * 16 | 0, randomCharValue = charStr === "x" ? randomValue : randomValue & 3 | 8;
         return randomCharValue.toString(16);
       });
     }
@@ -5162,9 +5788,9 @@ async beforeRequestCallBack(details) {
           }
         }
         for (let index = 0; index < this.$config.configList.length; index++) {
-          let item = this.$config.configList[index];
+          const item = this.$config.configList[index];
           if (typeof item.fn === "function") {
-            let result = await item.fn(details);
+            const result = await item.fn(details);
             if (result == null) {
               return;
             }
@@ -5174,7 +5800,7 @@ async beforeRequestCallBack(details) {
       },
 add(fn) {
         if (typeof fn === "function") {
-          let uuid = GenerateUUID();
+          const uuid = GenerateUUID();
           this.$config.configList.push({
             id: uuid,
             fn
@@ -5186,7 +5812,7 @@ add(fn) {
       },
 delete(id) {
         if (typeof id === "string") {
-          let findIndex = this.$config.configList.findIndex((item) => item.id === id);
+          const findIndex = this.$config.configList.findIndex((item) => item.id === id);
           if (findIndex !== -1) {
             this.$config.configList.splice(findIndex, 1);
             return true;
@@ -5215,9 +5841,9 @@ async successResponseCallBack(response, details) {
           }
         }
         for (let index = 0; index < this.$config.configList.length; index++) {
-          let item = this.$config.configList[index];
+          const item = this.$config.configList[index];
           if (typeof item.successFn === "function") {
-            let result = await item.successFn(response, details);
+            const result = await item.successFn(response, details);
             if (result == null) {
               return;
             }
@@ -5238,9 +5864,9 @@ async errorResponseCallBack(data) {
           }
         }
         for (let index = 0; index < this.$config.configList.length; index++) {
-          let item = this.$config.configList[index];
+          const item = this.$config.configList[index];
           if (typeof item.errorFn === "function") {
-            let result = await item.errorFn(data);
+            const result = await item.errorFn(data);
             if (result == null) {
               return;
             }
@@ -5249,7 +5875,7 @@ async errorResponseCallBack(data) {
         return data;
       },
 add(successFn, errorFn) {
-        let id = GenerateUUID();
+        const id = GenerateUUID();
         this.$config.configList.push({
           id,
           successFn,
@@ -5259,7 +5885,7 @@ add(successFn, errorFn) {
       },
 delete(id) {
         if (typeof id === "string") {
-          let findIndex = this.$config.configList.findIndex((item) => item.id === id);
+          const findIndex = this.$config.configList.findIndex((item) => item.id === id);
           if (findIndex !== -1) {
             this.$config.configList.splice(findIndex, 1);
             return true;
@@ -5274,25 +5900,25 @@ clearAll() {
     HttpxRequestOption = {
       context: this,
 handleBeforeRequestOptionArgs(...args) {
-        let option = {
+        const option = {
           url: void 0
         };
         if (typeof args[0] === "string") {
-          let url = args[0];
+          const url = args[0];
           option.url = url;
           if (typeof args[1] === "object") {
-            let optionArg = args[1];
+            const optionArg = args[1];
             commonUtil.assign(option, optionArg, true);
             option.url = url;
           }
         } else {
-          let optionArg = args[0];
+          const optionArg = args[0];
           commonUtil.assign(option, optionArg, true);
         }
         return option;
       },
 getRequestOption(method, userRequestOption, resolve, reject) {
-        let that = this;
+        const that = this;
         let url = userRequestOption.url || this.context.#defaultRequestOption.url;
         if (typeof url === "string") {
           url = url.trim();
@@ -5303,7 +5929,7 @@ getRequestOption(method, userRequestOption, resolve, reject) {
             }
           }
         }
-        let requestOption = {
+        const requestOption = {
           url,
           method: (method || "GET").toString().toUpperCase().trim(),
           timeout: userRequestOption.timeout || this.context.#defaultRequestOption.timeout,
@@ -5351,13 +5977,15 @@ fetchInit: commonUtil.deepClone(this.context.#defaultRequestOption.fetchInit),
           }
         };
         if (typeof userRequestOption.allowInterceptConfig === "boolean") {
-          Object.keys(requestOption.allowInterceptConfig).forEach((keyName) => {
+          const allowInterceptConfigKeys = Object.keys(requestOption.allowInterceptConfig);
+          allowInterceptConfigKeys.forEach((keyName) => {
             Reflect.set(requestOption.allowInterceptConfig, keyName, userRequestOption.allowInterceptConfig);
           });
         } else {
           if (typeof userRequestOption.allowInterceptConfig === "object" && userRequestOption.allowInterceptConfig != null) {
-            Object.keys(userRequestOption.allowInterceptConfig).forEach((keyName) => {
-              let value = Reflect.get(userRequestOption.allowInterceptConfig, keyName);
+            const allowInterceptConfigKeys = Object.keys(requestOption.allowInterceptConfig);
+            allowInterceptConfigKeys.forEach((keyName) => {
+              const value = Reflect.get(userRequestOption.allowInterceptConfig, keyName);
               if (typeof value === "boolean" && Reflect.has(requestOption.allowInterceptConfig, keyName)) {
                 Reflect.set(requestOption.allowInterceptConfig, keyName, value);
               }
@@ -5369,7 +5997,8 @@ fetchInit: commonUtil.deepClone(this.context.#defaultRequestOption.fetchInit),
         }
         if (typeof requestOption.headers === "object") {
           if (typeof userRequestOption.headers === "object") {
-            Object.keys(userRequestOption.headers).forEach((keyName, index) => {
+            const headerKeys = Object.keys(requestOption.headers);
+            headerKeys.forEach((keyName) => {
               if (keyName in requestOption.headers && userRequestOption.headers?.[keyName] == null) {
                 Reflect.deleteProperty(requestOption.headers, keyName);
               } else {
@@ -5382,8 +6011,9 @@ fetchInit: commonUtil.deepClone(this.context.#defaultRequestOption.fetchInit),
         }
         if (typeof requestOption.fetchInit === "object") {
           if (typeof userRequestOption.fetchInit === "object") {
-            Object.keys(userRequestOption.fetchInit).forEach((keyName, index) => {
-              if (keyName in requestOption.fetchInit && userRequestOption.fetchInit[keyName] == null) {
+            const fetchInitKeys = Object.keys(requestOption.fetchInit);
+            fetchInitKeys.forEach((keyName) => {
+              if (keyName in requestOption.fetchInit && Reflect.get(userRequestOption.fetchInit ?? {}, keyName) == null) {
                 Reflect.deleteProperty(requestOption.fetchInit, keyName);
               } else {
                 Reflect.set(requestOption.fetchInit, keyName, Reflect.get(userRequestOption.fetchInit, keyName));
@@ -5400,24 +6030,24 @@ fetchInit: commonUtil.deepClone(this.context.#defaultRequestOption.fetchInit),
         }
         try {
           new URL(requestOption.url);
-        } catch (error) {
+        } catch {
           if (requestOption.url.startsWith("//")) {
             requestOption.url = globalThis.location.protocol + requestOption.url;
           } else if (requestOption.url.startsWith("/")) {
             requestOption.url = globalThis.location.origin + requestOption.url;
           } else {
-            requestOption.url = globalThis.location.origin + "/" + requestOption.url;
+            requestOption.url = `${globalThis.location.origin}/${requestOption.url}`;
           }
         }
         if (requestOption.fetchInit && !requestOption.fetch) {
           Reflect.deleteProperty(requestOption, "fetchInit");
         }
         try {
-          let processData = userRequestOption.processData ?? true;
+          const processData = userRequestOption.processData ?? true;
           if (requestOption.data != null && processData) {
-            let method2 = requestOption.method;
+            const method2 = requestOption.method;
             if (method2 === "GET" || method2 === "HEAD") {
-              let urlObj = new URL(requestOption.url);
+              const urlObj = new URL(requestOption.url);
               let urlSearch = "";
               let isHandler = false;
               if (typeof requestOption.data === "string") {
@@ -5425,7 +6055,7 @@ fetchInit: commonUtil.deepClone(this.context.#defaultRequestOption.fetchInit),
                 urlSearch = requestOption.data;
               } else if (typeof requestOption.data === "object") {
                 isHandler = true;
-                let searchParams = new URLSearchParams(requestOption.data);
+                const searchParams = new URLSearchParams(requestOption.data);
                 urlSearch = searchParams.toString();
               }
               if (isHandler) {
@@ -5438,19 +6068,19 @@ fetchInit: commonUtil.deepClone(this.context.#defaultRequestOption.fetchInit),
                   if (urlObj.search.endsWith("&")) {
                     urlObj.search = urlObj.search + urlSearch;
                   } else {
-                    urlObj.search = urlObj.search + "&" + urlSearch;
+                    urlObj.search = `${urlObj.search}&${urlSearch}`;
                   }
                 }
               }
               requestOption.url = urlObj.toString();
             } else if (method2 === "POST" && requestOption.headers != null) {
-              let headersKeyList = Object.keys(requestOption.headers);
-              let ContentTypeIndex = headersKeyList.findIndex((headerKey) => {
+              const headersKeyList = Object.keys(requestOption.headers);
+              const ContentTypeIndex = headersKeyList.findIndex((headerKey) => {
                 return headerKey.trim().toLowerCase() === "content-type" && typeof requestOption.headers[headerKey] === "string";
               });
               if (ContentTypeIndex !== -1) {
-                let ContentTypeKey = headersKeyList[ContentTypeIndex];
-                let ContentType = requestOption.headers[ContentTypeKey];
+                const ContentTypeKey = headersKeyList[ContentTypeIndex];
+                const ContentType = requestOption.headers[ContentTypeKey];
                 if (ContentType.includes("application/json")) {
                   if (requestOption.data instanceof FormData) {
                     const entries = {};
@@ -5479,8 +6109,10 @@ fetchInit: commonUtil.deepClone(this.context.#defaultRequestOption.fetchInit),
         return requestOption;
       },
 removeRequestNullOption(option) {
-        Object.keys(option).forEach((keyName) => {
-          if (option[keyName] == null || option[keyName] instanceof Function && commonUtil.isNull(option[keyName])) {
+        const optionKeys = Object.keys(option);
+        optionKeys.forEach((keyName) => {
+          const optionValue = option[keyName];
+          if (optionValue == null || optionValue instanceof Function && commonUtil.isNull(optionValue)) {
             Reflect.deleteProperty(option, keyName);
             return;
           }
@@ -5491,12 +6123,12 @@ removeRequestNullOption(option) {
         return option;
       },
 handleFetchOption(option) {
-        let fetchRequestOption = {};
+        const fetchRequestOption = {};
         if ((option.method === "GET" || option.method === "HEAD") && option.data != null) {
           Reflect.deleteProperty(option, "data");
         }
-        let abortController = new AbortController();
-        let signal = abortController.signal;
+        const abortController = new AbortController();
+        const signal = abortController.signal;
         signal.onabort = () => {
           option.onabort({
             isFetch: true,
@@ -5528,7 +6160,7 @@ handleFetchOption(option) {
     };
     HttpxResponseCallBack = {
       context: this,
-async onAbort(details, resolve, reject, argsResult) {
+async onAbort(details, resolve, _reject, argsResult) {
         if (typeof details?.onabort === "function") {
           details.onabort.apply(this, argsResult);
         } else if (typeof this.context.#defaultRequestOption?.onabort === "function") {
@@ -5555,7 +6187,7 @@ async onAbort(details, resolve, reject, argsResult) {
           type: "onabort"
         });
       },
-async onTimeout(details, resolve, reject, argsResult) {
+async onTimeout(details, resolve, _reject, argsResult) {
         if (typeof details?.ontimeout === "function") {
           details.ontimeout.apply(this, argsResult);
         } else if (typeof this.context.#defaultRequestOption?.ontimeout === "function") {
@@ -5582,7 +6214,7 @@ async onTimeout(details, resolve, reject, argsResult) {
           type: "ontimeout"
         });
       },
-async onError(details, resolve, reject, argsResult) {
+async onError(details, resolve, _reject, argsResult) {
         if (typeof details?.onerror === "function") {
           details.onerror.apply(this, argsResult);
         } else if (typeof this.context.#defaultRequestOption?.onerror === "function") {
@@ -5609,8 +6241,8 @@ async onError(details, resolve, reject, argsResult) {
           type: "onerror"
         });
       },
-async onLoad(details, resolve, reject, argsResult) {
-        let originResponse = argsResult[0];
+async onLoad(details, resolve, _reject, argsResult) {
+        const originResponse = argsResult[0];
         if (commonUtil.isNull(originResponse["responseText"]) && commonUtil.isNotNull(originResponse["response"])) {
           if (typeof originResponse["response"] === "object") {
             TryCatch().run(() => {
@@ -5621,42 +6253,42 @@ async onLoad(details, resolve, reject, argsResult) {
           }
         }
         if (originResponse["response"] == null && typeof originResponse["responseText"] === "string" && originResponse["responseText"].trim() !== "") {
-          let httpxResponseText = originResponse.responseText;
+          const httpxResponseText = originResponse.responseText;
           let httpxResponse = httpxResponseText;
           if (details.responseType === "json") {
             httpxResponse = commonUtil.toJSON(httpxResponseText);
           } else if (details.responseType === "document") {
-            let parser = new DOMParser();
+            const parser = new DOMParser();
             httpxResponse = parser.parseFromString(httpxResponseText, "text/html");
           } else if (details.responseType === "arraybuffer") {
-            let encoder = new TextEncoder();
-            let arrayBuffer = encoder.encode(httpxResponseText);
+            const encoder = new TextEncoder();
+            const arrayBuffer = encoder.encode(httpxResponseText);
             httpxResponse = arrayBuffer;
           } else if (details.responseType === "blob") {
-            let encoder = new TextEncoder();
-            let arrayBuffer = encoder.encode(httpxResponseText);
+            const encoder = new TextEncoder();
+            const arrayBuffer = encoder.encode(httpxResponseText);
             httpxResponse = new Blob([arrayBuffer]);
           }
           try {
-            let setStatus = Reflect.set(originResponse, "response", httpxResponse);
+            const setStatus = Reflect.set(originResponse, "response", httpxResponse);
             if (!setStatus) {
               console.warn("[Httpx-HttpxCallBack.oonLoad] 覆盖原始 response 失败，尝试添加新的httpxResponse");
               try {
                 Reflect.set(originResponse, "httpxResponse", httpxResponse);
-              } catch (error) {
+              } catch {
                 console.warn("[Httpx-HttpxCallBack.oonLoad] httpxResponse 无法被覆盖");
               }
             }
-          } catch (error) {
+          } catch {
             console.warn("[Httpx-HttpxCallBack.oonLoad] 原始 response 无法被覆盖，尝试添加新的httpxResponse");
             try {
               Reflect.set(originResponse, "httpxResponse", httpxResponse);
-            } catch (error2) {
+            } catch {
               console.warn("[Httpx-HttpxCallBack.oonLoad] httpxResponse 无法被覆盖");
             }
           }
         }
-        let originResponseURL = Reflect.get(originResponse, "responseURL");
+        const originResponseURL = Reflect.get(originResponse, "responseURL");
         if (originResponse["finalUrl"] == null && originResponseURL != null) {
           Reflect.set(originResponse, "finalUrl", originResponseURL);
         }
@@ -5673,7 +6305,7 @@ async onLoad(details, resolve, reject, argsResult) {
             type: "onload"
           });
         } else {
-          this.context.HttpxResponseCallBack.onError(details, resolve, reject, argsResult);
+          this.context.HttpxResponseCallBack.onError(details, resolve, _reject, argsResult);
         }
       },
 onLoadStart(details, argsResult) {
@@ -5705,7 +6337,7 @@ async request(details) {
           console.log("[Httpx-HttpxRequest.request] 请求前的配置👇", details);
         }
         if (typeof this.context.HttpxRequestHook.beforeRequestCallBack === "function") {
-          let hookResult = await this.context.HttpxRequestHook.beforeRequestCallBack(details);
+          const hookResult = await this.context.HttpxRequestHook.beforeRequestCallBack(details);
           if (hookResult == null) {
             return;
           }
@@ -5722,7 +6354,7 @@ xmlHttpRequest(details) {
       },
 fetch(option, fetchRequestOption, abortController) {
         fetch(option.url, fetchRequestOption).then(async (fetchResponse) => {
-          let httpxResponse = {
+          const httpxResponse = {
             isFetch: true,
             finalUrl: fetchResponse.url,
             readyState: 4,
@@ -5736,10 +6368,10 @@ fetch(option, fetchRequestOption, abortController) {
             responseXML: void 0
           };
           Object.assign(httpxResponse, option.context || {});
-          for (const [key, value] of fetchResponse.headers.entries()) {
+          fetchResponse.headers.forEach((value, key) => {
             httpxResponse.responseHeaders += `${key}: ${value}
 `;
-          }
+          });
           const fetchResponseType = fetchResponse.headers.get("Content-Type");
           if (option.responseType === "stream" || fetchResponse.headers.has("Content-Type") && fetchResponse.headers.get("Content-Type").includes("text/event-stream")) {
             Reflect.set(httpxResponse, "isStream", true);
@@ -5752,17 +6384,17 @@ fetch(option, fetchRequestOption, abortController) {
           let response = "";
           let responseText = "";
           let responseXML = "";
-          let arrayBuffer = await fetchResponse.arrayBuffer();
+          const arrayBuffer = await fetchResponse.arrayBuffer();
           let encoding = "utf-8";
           if (fetchResponse.headers.has("Content-Type")) {
-            let charsetMatched = fetchResponse.headers.get("Content-Type")?.match(/charset=(.+)/);
+            const charsetMatched = fetchResponse.headers.get("Content-Type")?.match(/charset=(.+)/);
             if (charsetMatched) {
               encoding = charsetMatched[1];
               encoding = encoding.toLowerCase();
             }
           }
           encoding = encoding.replace(/('|")/gi, "");
-          let textDecoder = new TextDecoder(encoding);
+          const textDecoder = new TextDecoder(encoding);
           responseText = textDecoder.decode(arrayBuffer);
           response = responseText;
           if (option.responseType === "arraybuffer") {
@@ -5772,10 +6404,10 @@ fetch(option, fetchRequestOption, abortController) {
           } else if (option.responseType === "json" || typeof fetchResponseType === "string" && fetchResponseType.includes("application/json")) {
             response = commonUtil.toJSON(responseText);
           } else if (option.responseType === "document" || option.responseType == null) {
-            let parser2 = new DOMParser();
+            const parser2 = new DOMParser();
             response = parser2.parseFromString(responseText, "text/html");
           }
-          let parser = new DOMParser();
+          const parser = new DOMParser();
           responseXML = parser.parseFromString(responseText, "text/xml");
           httpxResponse.response = response;
           httpxResponse.responseText = responseText;
@@ -5850,7 +6482,7 @@ fetch(option, fetchRequestOption, abortController) {
       onprogress() {
       }
     };
-    #defaultInitOption = {
+#defaultInitOption = {
 baseURL: void 0,
 logDetails: false
     };
@@ -5908,55 +6540,61 @@ setXMLHttpRequest(httpRequest) {
       this.GM_Api.xmlHttpRequest = httpRequest;
     }
 get(...args) {
-      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
+      const useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
       useRequestOption.method = "GET";
       return this.request(useRequestOption, (option) => {
         Reflect.deleteProperty(option, "onprogress");
       });
     }
 post(...args) {
-      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
+      const useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
       useRequestOption.method = "POST";
       return this.request(useRequestOption);
     }
 head(...args) {
-      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
+      const useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
       useRequestOption.method = "HEAD";
       return this.request(useRequestOption, (option) => {
         Reflect.deleteProperty(option, "onprogress");
       });
     }
 options(...args) {
-      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
+      const useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
       useRequestOption.method = "OPTIONS";
       return this.request(useRequestOption, (option) => {
         Reflect.deleteProperty(option, "onprogress");
       });
     }
 delete(...args) {
-      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
+      const useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
       useRequestOption.method = "DELETE";
       return this.request(useRequestOption, (option) => {
         Reflect.deleteProperty(option, "onprogress");
       });
     }
 put(...args) {
-      let userRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
+      const userRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
       userRequestOption.method = "PUT";
       return this.request(userRequestOption);
     }
 request(details, beforeRequestOption) {
-      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(details);
+      const userRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(details);
       let abortFn = null;
-      let promise = new globalThis.Promise(async (resolve, reject) => {
-        let requestOption = this.HttpxRequestOption.getRequestOption(useRequestOption.method, useRequestOption, resolve, reject);
+      const promise = new globalThis.Promise(async (resolve, reject) => {
+        let requestOption = this.HttpxRequestOption.getRequestOption(userRequestOption.method, userRequestOption, (resultOption) => {
+          resolve(resultOption);
+        }, (...args) => {
+          reject(...args);
+        });
+        requestOption = this.HttpxRequestOption.removeRequestNullOption(requestOption);
         if (typeof beforeRequestOption === "function") {
           beforeRequestOption(requestOption);
         }
-        requestOption = this.HttpxRequestOption.removeRequestNullOption(requestOption);
         const requestResult = await this.HttpxRequest.request(requestOption);
         if (requestResult != null && typeof requestResult.abort === "function") {
-          abortFn = requestResult.abort;
+          abortFn = () => {
+            requestResult.abort();
+          };
         }
       });
       promise.abort = () => {
@@ -5973,7 +6611,7 @@ request(details, beforeRequestOption) {
     #dbVersion;
 
 
-#indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+#indexedDB = globalThis.indexedDB || globalThis.mozIndexedDB || globalThis.webkitIndexedDB || globalThis.msIndexedDB;
 #db = {};
 
 #statusCode = {
@@ -6001,20 +6639,19 @@ constructor(dbName = "default_db", storeName = "default_form", dbVersion = 1) {
       this.#storeName = storeName;
       this.#dbVersion = dbVersion;
       if (!this.#indexedDB) {
-        alert("很抱歉，您的浏览器不支持indexedDB");
+        window.alert("很抱歉，您的浏览器不支持indexedDB");
         throw new TypeError("很抱歉，您的浏览器不支持indexedDB");
       }
     }
 createStore(dbName) {
-      let txn, store;
-      txn = this.#db[dbName].transaction(this.#storeName, "readwrite");
-      store = txn.objectStore(this.#storeName);
+      const txn = this.#db[dbName].transaction(this.#storeName, "readwrite");
+      const store = txn.objectStore(this.#storeName);
       return store;
     }
 open(callback, dbName) {
-      let that = this;
+      const that = this;
       if (!that.#db[dbName]) {
-        let request = that.#indexedDB.open(dbName, that.#dbVersion);
+        const request = that.#indexedDB.open(dbName, that.#dbVersion);
         request.onerror = function(event) {
           callback(null, {
             code: that.#statusCode.openFailed.code,
@@ -6024,32 +6661,32 @@ open(callback, dbName) {
         };
         request.onsuccess = function(event) {
           if (!that.#db[dbName]) {
-            let target = event.target;
+            const target = event.target;
             that.#db[dbName] = target.result;
           }
-          let store = that.createStore(dbName);
+          const store = that.createStore(dbName);
           callback(store);
         };
         request.onupgradeneeded = function(event) {
-          let target = event.target;
+          const target = event.target;
           that.#db[dbName] = target.result;
-          let store = that.#db[dbName].createObjectStore(that.#storeName, {
+          const store = that.#db[dbName].createObjectStore(that.#storeName, {
             keyPath: "key"
           });
-          store.transaction.oncomplete = function(event2) {
+          store.transaction.oncomplete = function() {
             callback(store);
           };
         };
       } else {
-        let store = this.createStore(dbName);
+        const store = this.createStore(dbName);
         callback(store);
       }
     }
 async save(key, value) {
-      let that = this;
+      const that = this;
       return new Promise((resolve) => {
-        let dbName = this.#dbName;
-        let inData = {
+        const dbName = this.#dbName;
+        const inData = {
           key,
           value
         };
@@ -6061,7 +6698,7 @@ async save(key, value) {
               msg: that.#statusCode.saveFailed.msg
             });
           } else {
-            let request = idbStore.put(inData);
+            const request = idbStore.put(inData);
             request.onsuccess = function(event) {
               resolve({
                 success: true,
@@ -6083,9 +6720,9 @@ async save(key, value) {
       });
     }
 async has(key) {
-      let that = this;
+      const that = this;
       return new Promise((resolve) => {
-        let dbName = this.#dbName;
+        const dbName = this.#dbName;
         this.open(function(idbStore) {
           if (idbStore == null) {
             resolve({
@@ -6094,7 +6731,7 @@ async has(key) {
               msg: that.#statusCode.getFailed.msg
             });
           } else {
-            let request = idbStore.get(key);
+            const request = idbStore.get(key);
             request.onsuccess = function(event) {
               resolve({
                 success: true,
@@ -6116,9 +6753,9 @@ async has(key) {
       });
     }
 async get(key) {
-      let that = this;
+      const that = this;
       return new Promise((resolve) => {
-        let dbName = this.#dbName;
+        const dbName = this.#dbName;
         this.open(function(idbStore) {
           if (idbStore == null) {
             resolve({
@@ -6128,11 +6765,11 @@ async get(key) {
               data: void 0
             });
           } else {
-            let request = idbStore.get(key);
+            const request = idbStore.get(key);
             request.onsuccess = function(event) {
-              let target = event.target;
-              let result = target.result;
-              let data = result ? result.value : void 0;
+              const target = event.target;
+              const result = target.result;
+              const data = result ? result.value : void 0;
               if (data == null) {
                 resolve({
                   success: true,
@@ -6168,9 +6805,9 @@ async get(key) {
     }
 async regexpGet(key) {
       let list = [];
-      let that = this;
+      const that = this;
       return new Promise((resolve) => {
-        let dbName = that.#dbName;
+        const dbName = that.#dbName;
         this.open(function(idbStore) {
           if (idbStore == null) {
             resolve({
@@ -6180,14 +6817,14 @@ async regexpGet(key) {
               data: []
             });
           } else {
-            let request = idbStore.getAll();
+            const request = idbStore.getAll();
             request.onsuccess = function(event) {
-              let target = event.target;
-              let result = target.result;
+              const target = event.target;
+              const result = target.result;
               if (result.length !== 0) {
-                result.forEach((dataItem, index) => {
-                  let __key = dataItem["key"];
-                  let __value = dataItem["value"];
+                result.forEach((dataItem) => {
+                  const __key = dataItem["key"];
+                  const __value = dataItem["value"];
                   if (__key.match(key)) {
                     list = list.concat(__value);
                   }
@@ -6215,9 +6852,9 @@ async regexpGet(key) {
       });
     }
 async delete(key) {
-      let that = this;
+      const that = this;
       return new Promise((resolve) => {
-        let dbName = that.#dbName;
+        const dbName = that.#dbName;
         this.open(function(idbStore) {
           if (idbStore == null) {
             resolve({
@@ -6226,7 +6863,7 @@ async delete(key) {
               msg: that.#statusCode.deleteFailed.msg
             });
           } else {
-            let request = idbStore.delete(key);
+            const request = idbStore.delete(key);
             request.onsuccess = function(event) {
               resolve({
                 success: true,
@@ -6248,9 +6885,9 @@ async delete(key) {
       });
     }
 async deleteAll() {
-      let that = this;
+      const that = this;
       return new Promise((resolve) => {
-        let dbName = that.#dbName;
+        const dbName = that.#dbName;
         this.open(function(idbStore) {
           if (idbStore == null) {
             resolve({
@@ -6259,7 +6896,7 @@ async deleteAll() {
               msg: that.#statusCode.deleteAllFailed.msg
             });
           } else {
-            let operateResult = idbStore.clear();
+            const operateResult = idbStore.clear();
             operateResult.onsuccess = function(event) {
               resolve({
                 success: true,
@@ -6291,7 +6928,7 @@ async deleteAll() {
     run;
     isLock;
     constructor(callback, context, delayTime) {
-      let that = this;
+      const that = this;
       this.#callback = callback;
       if (typeof context === "number") {
         this.#delayTime = context;
@@ -6350,22 +6987,22 @@ constructor(__GM_info, console2 = window.console) {
       this.#console = console2;
     }
 parseErrorStack(stack) {
-      let result = {
+      const result = {
         name: "",
         position: ""
       };
       for (let stackString of stack) {
         stackString = stackString.trim();
-        let stackFunctionNameMatch = stackString.match(/^at[\s]+(.+?)[\s]+/i);
-        let stackFunctionNamePositionMatch = stackString.match(/^at[\s]+.+[\s]+\((.+?)\)/i);
+        const stackFunctionNameMatch = stackString.match(/^at[\s]+(.+?)[\s]+/i);
+        const stackFunctionNamePositionMatch = stackString.match(/^at[\s]+.+[\s]+\((.+?)\)/i);
         if (stackFunctionNameMatch == null) {
           continue;
         }
         if (stackFunctionNamePositionMatch == null) {
           continue;
         }
-        let stackFunctionName = stackFunctionNameMatch[stackFunctionNameMatch.length - 1];
-        let stackFunctionNamePosition = stackFunctionNamePositionMatch[stackFunctionNamePositionMatch.length - 1];
+        const stackFunctionName = stackFunctionNameMatch[stackFunctionNameMatch.length - 1];
+        const stackFunctionNamePosition = stackFunctionNamePositionMatch[stackFunctionNamePositionMatch.length - 1];
         if (stackFunctionName === "" || stackFunctionName.match(/^(Utils\.|)Log(\.|)|.<anonymous>$|^Function.each|^NodeList.forEach|^k.fn.init.each/g)) {
           continue;
         } else {
@@ -6375,9 +7012,9 @@ parseErrorStack(stack) {
         }
       }
       if (result.position === "") {
-        let lastStackString = stack[stack.length - 1].trim();
+        const lastStackString = stack[stack.length - 1].trim();
         if (lastStackString.startsWith("at chrome-extension://")) {
-          let lastStackMatch = lastStackString.match(/^at[\s]+(.+)/);
+          const lastStackMatch = lastStackString.match(/^at[\s]+(.+)/);
           if (lastStackMatch) {
             result.position = lastStackMatch[lastStackMatch.length - 1];
           }
@@ -6398,14 +7035,16 @@ checkClearConsole() {
 printContent(msg, color, otherStyle) {
       this.checkClearConsole();
       otherStyle = otherStyle || "";
-      let stackSplit = new Error().stack.split("\n");
+      const stackSplit = new Error().stack.split("\n");
       stackSplit.splice(0, 2);
-      let { name: callerName, position: callerPosition } = this.parseErrorStack(stackSplit);
-      let tagName = this.tag;
-      let that = this;
-      let tagNameHTML = `%c[${tagName}%c`;
+      const { name: callerName, position: callerPosition } = this.parseErrorStack(stackSplit);
+      const tagName = this.tag;
+      const that = this;
+      const tagNameHTML = `%c[${tagName}%c`;
       let callerNameHTML = `%c${callerName}%c]%c`;
-      callerName.trim() !== "" && (callerNameHTML = "-" + callerNameHTML);
+      if (callerName.trim() === "") {
+        callerNameHTML = `-${callerNameHTML}`;
+      }
       function consoleMsg(message) {
         if (typeof message === "string") {
           that.#console.log(`${tagNameHTML}${callerNameHTML} %s`, ...that.#msgColorDetails, `color: ${color};${otherStyle}`, message);
@@ -6452,12 +7091,12 @@ table(msg) {
       if (this.#disable)
         return;
       this.checkClearConsole();
-      let stack = new Error().stack.split("\n");
+      const stack = new Error().stack.split("\n");
       stack.splice(0, 1);
-      let errorStackParse = this.parseErrorStack(stack);
-      let stackFunctionName = errorStackParse.name;
-      let stackFunctionNamePosition = errorStackParse.position;
-      let callerName = stackFunctionName;
+      const errorStackParse = this.parseErrorStack(stack);
+      const stackFunctionName = errorStackParse.name;
+      const stackFunctionNamePosition = errorStackParse.position;
+      const callerName = stackFunctionName;
       this.#console.log(`%c[${this.tag}%c-%c${callerName}%c]%c`, ...this.#msgColorDetails, `color: ${this.#details.infoColor};`);
       this.#console.table(msg);
       if (this.#details.debug) {
@@ -6486,18 +7125,15 @@ textColor: "#000000",
 fontSize: 22,
 circleRadius: 50
     };
-    #ctx = null;
-    #width = null;
-    #height = null;
+    #ctx;
+    #width;
+    #height;
 constructor(paramConfig) {
       this.#config = commonUtil.assign(this.#config, paramConfig);
       if (!(this.#config.canvasNode instanceof HTMLCanvasElement)) {
         throw new Error("Utils.Progress 参数 canvasNode 必须是 HTMLCanvasElement");
       }
-      this.init();
-    }
-init() {
-      let ctx = this.#config.canvasNode.getContext("2d");
+      const ctx = this.#config.canvasNode.getContext("2d");
       if (ctx == null) {
         throw new Error("Utils.Progress 获取画笔失败");
       }
@@ -6505,8 +7141,8 @@ init() {
       this.#width = this.#config.canvasNode.width;
       this.#height = this.#config.canvasNode.height;
       if (window.devicePixelRatio) {
-        this.#config.canvasNode.style.width = this.#width + "px";
-        this.#config.canvasNode.style.height = this.#height + "px";
+        this.#config.canvasNode.style.width = `${this.#width}px`;
+        this.#config.canvasNode.style.height = `${this.#height}px`;
         this.#config.canvasNode.height = this.#height * window.devicePixelRatio;
         this.#config.canvasNode.width = this.#width * window.devicePixelRatio;
         this.#ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
@@ -6514,7 +7150,7 @@ init() {
       this.#ctx.lineWidth = this.#config.lineWidth;
     }
 draw() {
-      let degActive = this.#config.progress * 360 / 100;
+      const degActive = this.#config.progress * 360 / 100;
       this.#ctx.clearRect(0, 0, this.#width, this.#height);
       this.#ctx.beginPath();
       this.#ctx.arc(this.#width / 2, this.#height / 2, this.#config.circleRadius, 1, 8);
@@ -6524,10 +7160,10 @@ draw() {
       this.#ctx.arc(this.#width / 2, this.#height / 2, this.#config.circleRadius, -Math.PI / 2, degActive * Math.PI / 180 - Math.PI / 2);
       this.#ctx.strokeStyle = this.#config.lineColor;
       this.#ctx.stroke();
-      let txt = parseInt(this.#config.progress.toString()) + "%";
-      this.#ctx.font = this.#config.fontSize + "px SimHei";
-      let w = this.#ctx.measureText(txt).width;
-      let h2 = this.#config.fontSize / 2;
+      const txt = `${parseInt(this.#config.progress.toString())}%`;
+      this.#ctx.font = `${this.#config.fontSize}px SimHei`;
+      const w = this.#ctx.measureText(txt).width;
+      const h2 = this.#config.fontSize / 2;
       this.#ctx.fillStyle = this.#config.textColor;
       this.#ctx.fillText(txt, this.#width / 2 - w / 2, this.#height / 2 + h2 / 2);
     }
@@ -6544,18 +7180,17 @@ get length() {
       return this.size();
     }
 get entries() {
-      let that = this;
+      const that = this;
       return function* () {
-        let itemKeys = Object.keys(that.getItems());
+        const itemKeys = Object.keys(that.getItems());
         for (const keyName of itemKeys) {
           yield [keyName, that.get(keyName)];
         }
       };
     }
 get [Symbol.iterator]() {
-      let that = this;
-      return function() {
-        return that.entries();
+      return () => {
+        return this.entries();
       };
     }
 has(key) {
@@ -6597,7 +7232,7 @@ concat(data) {
       });
     }
 forEach(callbackfn) {
-      this.items.forEach((value, key, self2) => {
+      this.items.forEach((value, key) => {
         callbackfn(value, key, this);
       });
     }
@@ -6698,8 +7333,10 @@ isArray(value) {
     deps = [];
     active = true;
     fn;
-constructor(fn, scheduler) {
+    scheduler;
+    constructor(fn, scheduler) {
       this.fn = fn;
+      this.scheduler = scheduler;
     }
     run(cb) {
       if (!this.active) {
@@ -6765,7 +7402,7 @@ reactive(target) {
       if (VueUtils.isReactive(target)) {
         return target;
       }
-      let exisProxy = this.reactMap.get(target);
+      const exisProxy = this.reactMap.get(target);
       if (exisProxy) {
         return exisProxy;
       }
@@ -6778,8 +7415,8 @@ reactive(target) {
           return Reflect.get(target2, key, receiver);
         },
         set(target2, key, value, receiver) {
-          let oldValue = target2[key];
-          let result = Reflect.set(target2, key, value, receiver);
+          const oldValue = target2[key];
+          const result = Reflect.set(target2, key, value, receiver);
           if (oldValue !== value) {
             that.trigger(target2, "set", key, oldValue, value);
           }
@@ -6822,26 +7459,28 @@ watch(source, changeCallBack) {
     }
     toRefs(object) {
       const result = VueUtils.isArray(object) ? new Array(object.length) : {};
-      for (let key in object) {
+      for (const key in object) {
         result[key] = this.toRef(object, key);
       }
       return result;
     }
-    trigger(target, type, key, oldValue, value) {
+trigger(target, type, key, oldValue, value) {
       const depsMap = this.targetMap.get(target);
       if (!depsMap)
         return;
       const effects = depsMap.get(key);
       this.triggerEffect(effects, "effects");
     }
-    triggerEffect(effects, name) {
-      effects && effects.forEach((effect) => {
-        if (effect.scheduler) {
-          effect.scheduler();
-        } else {
-          effect.run();
-        }
-      });
+triggerEffect(effects, name) {
+      if (effects) {
+        effects.forEach((effect) => {
+          if (effect.scheduler) {
+            effect.scheduler();
+          } else {
+            effect.run();
+          }
+        });
+      }
     }
     track(target, type, key) {
       if (!this.activeEffect)
@@ -6858,7 +7497,7 @@ watch(source, changeCallBack) {
     }
     trackEffect(dep) {
       if (this.activeEffect) {
-        let shouldTrack = !dep.has(this.activeEffect);
+        const shouldTrack = !dep.has(this.activeEffect);
         if (shouldTrack) {
           dep.add(this.activeEffect);
           this.activeEffect.deps.push(dep);
@@ -6872,7 +7511,7 @@ watch(source, changeCallBack) {
         return value;
       }
       set.add(value);
-      for (let key in value) {
+      for (const key in value) {
         this.traversal(value[key], set);
       }
       return value;
@@ -7335,22 +7974,22 @@ ${err.stack}`);
           return $ele?.innerHTML?.trim() === "";
         });
       } else if (selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) || selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)) {
-        let textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
-        let text = textMatch[2];
+        const textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
+        const text = textMatch[2];
         selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
         return Array.from(parent.querySelectorAll(selector)).filter(($ele) => {
           return ($ele?.textContent || $ele?.innerText)?.includes(text);
         });
       } else if (selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) || selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)) {
-        let textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
+        const textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
         let pattern = textMatch[2];
-        let flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
+        const flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
         let flags = "";
         if (flagMatch) {
           pattern = pattern.replace(/("|'),[\s]*("|')([igm]{0,3})$/gi, "");
           flags = flagMatch[3];
         }
-        let regexp = new RegExp(pattern, flags);
+        const regexp = new RegExp(pattern, flags);
         selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
         return Array.from(parent.querySelectorAll(selector)).filter(($ele) => {
           return Boolean(($ele?.textContent || $ele?.innerText)?.match(regexp));
@@ -7368,8 +8007,8 @@ matches($el, selector) {
         selector = selector.replace(/:empty$/gi, "");
         return $el.matches(selector) && $el?.innerHTML?.trim() === "";
       } else if (selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) || selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)) {
-        let textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
-        let text = textMatch[2];
+        const textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
+        const text = textMatch[2];
         selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
         let content = $el?.textContent || $el?.innerText;
         if (typeof content !== "string") {
@@ -7377,15 +8016,15 @@ matches($el, selector) {
         }
         return $el.matches(selector) && content?.includes(text);
       } else if (selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) || selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)) {
-        let textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
+        const textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
         let pattern = textMatch[2];
-        let flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
+        const flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
         let flags = "";
         if (flagMatch) {
           pattern = pattern.replace(/("|'),[\s]*("|')([igm]{0,3})$/gi, "");
           flags = flagMatch[3];
         }
-        let regexp = new RegExp(pattern, flags);
+        const regexp = new RegExp(pattern, flags);
         selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
         let content = $el?.textContent || $el?.innerText;
         if (typeof content !== "string") {
@@ -7400,76 +8039,59 @@ matches($el, selector) {
       selector = selector.trim();
       if (selector.match(/[^\s]{1}:empty$/gi)) {
         selector = selector.replace(/:empty$/gi, "");
-        let $closest = $el?.closest(selector);
+        const $closest = $el?.closest(selector);
         if ($closest && $closest?.innerHTML?.trim() === "") {
           return $closest;
         }
         return null;
       } else if (selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) || selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)) {
-        let textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
-        let text = textMatch[2];
+        const textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
+        const text = textMatch[2];
         selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
-        let $closest = $el?.closest(selector);
+        const $closest = $el?.closest(selector);
         if ($closest) {
-          let content = $el?.textContent || $el?.innerText;
+          const content = $el?.textContent || $el?.innerText;
           if (typeof content === "string" && content.includes(text)) {
             return $closest;
           }
         }
         return null;
       } else if (selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) || selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)) {
-        let textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
+        const textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
         let pattern = textMatch[2];
-        let flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
+        const flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
         let flags = "";
         if (flagMatch) {
           pattern = pattern.replace(/("|'),[\s]*("|')([igm]{0,3})$/gi, "");
           flags = flagMatch[3];
         }
-        let regexp = new RegExp(pattern, flags);
+        const regexp = new RegExp(pattern, flags);
         selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
-        let $closest = $el?.closest(selector);
+        const $closest = $el?.closest(selector);
         if ($closest) {
-          let content = $el?.textContent || $el?.innerText;
+          const content = $el?.textContent || $el?.innerText;
           if (typeof content === "string" && content.match(regexp)) {
             return $closest;
           }
         }
         return null;
       } else {
-        let $closest = $el?.closest(selector);
+        const $closest = $el?.closest(selector);
         return $closest;
       }
     }
   }
-  let domUtils$1 = new DOMUtils2();
-  class Utils {
+  const domUtils$1 = new DOMUtils2();
+  const version$1 = "2.9.0";
+  class Utils2 {
     windowApi;
     constructor(option) {
       this.windowApi = new WindowApi2(option);
     }
-version = "2025.9.14";
-    addStyle(cssText) {
-      if (typeof cssText !== "string") {
-        throw new Error("Utils.addStyle 参数cssText 必须为String类型");
-      }
-      let cssNode = this.windowApi.document.createElement("style");
-      cssNode.setAttribute("type", "text/css");
-      cssNode.innerHTML = cssText;
-      if (this.windowApi.document.head) {
-        this.windowApi.document.head.appendChild(cssNode);
-      } else if (this.windowApi.document.body) {
-        this.windowApi.document.body.appendChild(cssNode);
-      } else if (this.windowApi.document.documentElement.childNodes.length === 0) {
-        this.windowApi.document.documentElement.appendChild(cssNode);
-      } else {
-        this.windowApi.document.documentElement.insertBefore(cssNode, this.windowApi.document.documentElement.childNodes[0]);
-      }
-      return cssNode;
-    }
+version = version$1;
 assign = commonUtil.assign.bind(commonUtil);
     async asyncReplaceAll(string, pattern, asyncFn) {
-      let UtilsContext = this;
+      const that = this;
       if (typeof string !== "string") {
         throw new TypeError("string必须是字符串");
       }
@@ -7478,7 +8100,7 @@ assign = commonUtil.assign.bind(commonUtil);
       }
       let reg;
       if (typeof pattern === "string") {
-        reg = new RegExp(UtilsContext.parseStringToRegExpString(pattern), "g");
+        reg = new RegExp(that.toRegExpStr(pattern), "g");
       } else if (pattern instanceof RegExp) {
         if (!pattern.global) {
           throw new TypeError("pattern必须是全局匹配");
@@ -7525,57 +8147,33 @@ ajaxHooker = (useOldVersion = false) => {
       canvasElement.dispatchEvent(new MouseEvent("mousedown", eventInit));
       canvasElement.dispatchEvent(new MouseEvent("mouseup", eventInit));
     }
-    checkUserClickInNode(element) {
-      let UtilsContext = this;
-      if (!UtilsContext.isDOM(element)) {
-        throw new Error("Utils.checkUserClickInNode 参数 targetNode 必须为 Element|Node 类型");
-      }
-      let clickEvent = UtilsContext.windowApi.window.event;
-      let touchEvent = UtilsContext.windowApi.window.event;
-      let $click = clickEvent?.composedPath()?.[0];
-      let clickPosX = clickEvent?.clientX != null ? clickEvent.clientX : touchEvent.touches[0].clientX;
-      let clickPosY = clickEvent?.clientY != null ? clickEvent.clientY : touchEvent.touches[0].clientY;
-      let {
-left: elementPosXLeft,
-right: elementPosXRight,
-top: elementPosYTop,
-bottom: elementPosYBottom
-      } = element.getBoundingClientRect();
-      if (clickPosX >= elementPosXLeft && clickPosX <= elementPosXRight && clickPosY >= elementPosYTop && clickPosY <= elementPosYBottom) {
-        return true;
-      } else if ($click && element.contains($click) || $click == element) {
-        return true;
-      } else {
-        return false;
-      }
-    }
 cloneFormData(formData, filterFn) {
-      let clonedFormData = new FormData();
-      for (let [key, value] of formData.entries()) {
-        let isFilter = typeof filterFn === "function" ? filterFn(key, value) : false;
+      const clonedFormData = new FormData();
+      formData.forEach((value, key) => {
+        const isFilter = typeof filterFn === "function" ? filterFn(key, value) : false;
         if (typeof isFilter === "boolean" && isFilter) {
-          continue;
+          return;
         }
         clonedFormData.append(key, value);
-      }
+      });
       return clonedFormData;
     }
     createOverload() {
-      let fnMap = new Map();
+      const fnMap = new Map();
       function overload(...args) {
-        let key = args.map((it) => typeof it).join(",");
-        let fn = fnMap.get(key);
+        const key = args.map((it) => typeof it).join(",");
+        const fn = fnMap.get(key);
         if (!fn) {
           throw new TypeError("没有找到对应的实现");
         }
         return fn.apply(this, args);
       }
       overload.addImpl = function(...args) {
-        let fn = args.pop();
+        const fn = args.pop();
         if (typeof fn !== "function") {
           throw new TypeError("最后一个参数必须是函数");
         }
-        let key = args.join(",");
+        const key = args.join(",");
         fnMap.set(key, fn);
       };
       return overload;
@@ -7584,52 +8182,17 @@ ColorConversion = ColorConversion;
 deepClone = commonUtil.deepClone.bind(commonUtil);
     debounce(fn, delay = 0) {
       let timer = null;
-      let UtilsContext = this;
+      const that = this;
       return function(...args) {
-        UtilsContext.workerClearTimeout(timer);
-        timer = UtilsContext.workerSetTimeout(function() {
-          fn.apply(UtilsContext, args);
+        that.workerClearTimeout(timer);
+        timer = that.workerSetTimeout(function() {
+          fn.apply(that, args);
         }, delay);
       };
     }
-    deleteParentNode(element, targetSelector) {
-      let UtilsContext = this;
-      if (element == null) {
-        return;
-      }
-      if (!UtilsContext.isDOM(element)) {
-        throw new Error("Utils.deleteParentNode 参数 target 必须为 Node|HTMLElement 类型");
-      }
-      if (typeof targetSelector !== "string") {
-        throw new Error("Utils.deleteParentNode 参数 targetSelector 必须为 string 类型");
-      }
-      let result = false;
-      let needRemoveDOM = domUtils$1.closest(element, targetSelector);
-      if (needRemoveDOM) {
-        needRemoveDOM.remove();
-        result = true;
-      }
-      return result;
-    }
 Dictionary = UtilsDictionary;
-    dispatchEvent(element, eventName, details) {
-      let eventNameList = [];
-      if (typeof eventName === "string") {
-        eventNameList = [eventName];
-      }
-      if (Array.isArray(eventName)) {
-        eventNameList = [...eventName];
-      }
-      eventNameList.forEach((_eventName_) => {
-        let event = new Event(_eventName_);
-        if (details) {
-          Object.assign(event, details);
-        }
-        element.dispatchEvent(event);
-      });
-    }
     downloadBase64(base64Data, fileName, isIFrame = false) {
-      let UtilsContext = this;
+      const that = this;
       if (typeof base64Data !== "string") {
         throw new Error("Utils.downloadBase64 参数 base64Data 必须为 string 类型");
       }
@@ -7637,13 +8200,13 @@ Dictionary = UtilsDictionary;
         throw new Error("Utils.downloadBase64 参数 fileName 必须为 string 类型");
       }
       if (isIFrame) {
-        const iframeElement = this.windowApi.document.createElement("iframe");
-        iframeElement.style.display = "none";
-        iframeElement.src = base64Data;
-        this.windowApi.document.body.appendChild(iframeElement);
-        UtilsContext.workerSetTimeout(() => {
-          iframeElement.contentWindow.document.execCommand("SaveAs", true, fileName);
-          this.windowApi.document.body.removeChild(iframeElement);
+        const $iframe = this.windowApi.document.createElement("iframe");
+        $iframe.style.display = "none";
+        $iframe.src = base64Data;
+        (this.windowApi.document.body || this.windowApi.document.documentElement).appendChild($iframe);
+        that.workerSetTimeout(() => {
+          $iframe.contentWindow.document.execCommand("SaveAs", true, fileName);
+          (this.windowApi.document.body || this.windowApi.document.documentElement).removeChild($iframe);
         }, 100);
       } else {
         const linkElement = this.windowApi.document.createElement("a");
@@ -7657,7 +8220,7 @@ Dictionary = UtilsDictionary;
       let TRange = null;
       let strFound;
       if (this.windowApi.globalThis.find) {
-        let windowFind = this.windowApi.self.find;
+        const windowFind = this.windowApi.self.find;
         strFound = windowFind(str, caseSensitive, true, true, false);
         if (strFound && this.windowApi.self.getSelection && !this.windowApi.self.getSelection().anchorNode) {
           strFound = windowFind(str, caseSensitive, true, true, false);
@@ -7687,42 +8250,6 @@ Dictionary = UtilsDictionary;
       }
       return strFound ? true : false;
     }
-    *findElementsWithText(element, text, filter) {
-      let that = this;
-      if (element.outerHTML.includes(text)) {
-        if (element.children.length === 0) {
-          let filterResult = typeof filter === "function" ? filter(element) : false;
-          if (!filterResult) {
-            yield element;
-          }
-        } else {
-          let textElement = Array.from(element.childNodes).filter((ele) => ele.nodeType === Node.TEXT_NODE);
-          for (let $child of textElement) {
-            if ($child.textContent.includes(text)) {
-              let filterResult = typeof filter === "function" ? filter(element) : false;
-              if (!filterResult) {
-                yield $child;
-              }
-            }
-          }
-        }
-      }
-      for (let index = 0; index < element.children.length; index++) {
-        let $child = element.children[index];
-        yield* that.findElementsWithText($child, text, filter);
-      }
-    }
-findVisibleElement(element) {
-      let currentElement = element;
-      while (currentElement) {
-        let elementRect = currentElement.getBoundingClientRect();
-        if (Boolean(elementRect.length)) {
-          return currentElement;
-        }
-        currentElement = currentElement.parentElement;
-      }
-      return null;
-    }
     formatByteToSize(byteSize, addType = true) {
       byteSize = parseInt(byteSize.toString());
       if (isNaN(byteSize)) {
@@ -7730,7 +8257,7 @@ findVisibleElement(element) {
       }
       let result = 0;
       let resultType = "KB";
-      let sizeData = {};
+      const sizeData = {};
       sizeData.B = 1;
       sizeData.KB = 1024;
       sizeData.MB = sizeData.KB * sizeData.KB;
@@ -7743,7 +8270,7 @@ findVisibleElement(element) {
       sizeData.BB = sizeData.YB * sizeData.KB;
       sizeData.NB = sizeData.BB * sizeData.KB;
       sizeData.DB = sizeData.NB * sizeData.KB;
-      for (let key in sizeData) {
+      for (const key in sizeData) {
         result = byteSize / sizeData[key];
         resultType = key;
         if (sizeData.KB >= result) {
@@ -7756,7 +8283,7 @@ findVisibleElement(element) {
     }
     getNodeListValue(...args) {
       let resultArray = [];
-      for (let arg of args) {
+      for (const arg of args) {
         let value = arg;
         if (typeof arg === "function") {
           value = arg();
@@ -7770,9 +8297,9 @@ findVisibleElement(element) {
     }
     getNonNullValue(...args) {
       let resultValue = args[args.length - 1];
-      let UtilsContext = this;
+      const that = this;
       for (const argValue of args) {
-        if (UtilsContext.isNotNull(argValue)) {
+        if (that.isNotNull(argValue)) {
           resultValue = argValue;
           break;
         }
@@ -7780,16 +8307,16 @@ findVisibleElement(element) {
       return resultValue;
     }
     formatTime(text = new Date(), formatType = "yyyy-MM-dd HH:mm:ss") {
-      let time = text == null ? new Date() : new Date(text);
+      const time = text == null ? new Date() : new Date(text);
       function checkTime(timeNum) {
         if (timeNum < 10)
-          return "0" + timeNum;
+          return `0${timeNum}`;
         return timeNum;
       }
       function timeSystemChange(hourNum) {
         return hourNum > 12 ? hourNum - 12 : hourNum;
       }
-      let timeRegexp = {
+      const timeRegexp = {
         yyyy: time.getFullYear(),
 MM: checkTime(time.getMonth() + 1),
 dd: checkTime(time.getDate()),
@@ -7799,7 +8326,7 @@ mm: checkTime(time.getMinutes()),
 ss: checkTime(time.getSeconds())
 };
       Object.keys(timeRegexp).forEach(function(key) {
-        let replaecRegexp = new RegExp(key, "g");
+        const replaecRegexp = new RegExp(key, "g");
         formatType = formatType.replace(replaecRegexp, timeRegexp[key]);
       });
       return formatType;
@@ -7809,23 +8336,17 @@ ss: checkTime(time.getSeconds())
         throw new Error("Utils.formatToTimeStamp 参数 text 必须为 string 类型");
       }
       if (text.length === 8) {
-        let today = new Date();
-        text = today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate() + " " + text;
+        const today = new Date();
+        text = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()} ${text}`;
       }
       text = text.substring(0, 19);
       text = text.replace(/-/g, "/");
-      let timestamp = new Date(text).getTime();
+      const timestamp = new Date(text).getTime();
       return timestamp;
     }
 GBKEncoder = GBKEncoder;
-getTransitionEndNameList() {
-      return ["webkitTransitionEnd", "mozTransitionEnd", "MSTransitionEnd", "otransitionend", "transitionend"];
-    }
-getAnimationEndNameList() {
-      return ["webkitAnimationEnd", "mozAnimationEnd", "MSAnimationEnd", "oanimationend", "animationend"];
-    }
-    getArrayLastValue(targetObj) {
-      return targetObj[targetObj.length - 1];
+    getArrayLastValue(target) {
+      return target[target.length - 1];
     }
     getArrayRealValue(...args) {
       let result = null;
@@ -7848,16 +8369,16 @@ getAnimationEndNameList() {
       if (timestamp2.toString().length === 10) {
         timestamp2 = timestamp2 * 1e3;
       }
-      let smallTimeStamp = timestamp1 > timestamp2 ? timestamp2 : timestamp1;
-      let bigTimeStamp = timestamp1 > timestamp2 ? timestamp1 : timestamp2;
-      let oneSecond = 1e3;
-      let oneMinute = 60 * oneSecond;
-      let oneHour = 60 * oneMinute;
-      let oneDay = 24 * oneHour;
-      let oneMonth = 30 * oneDay;
-      let oneYear = 12 * oneMonth;
-      let bigDate = new Date(bigTimeStamp);
-      let smallDate = new Date(smallTimeStamp);
+      const smallTimeStamp = timestamp1 > timestamp2 ? timestamp2 : timestamp1;
+      const bigTimeStamp = timestamp1 > timestamp2 ? timestamp1 : timestamp2;
+      const oneSecond = 1e3;
+      const oneMinute = 60 * oneSecond;
+      const oneHour = 60 * oneMinute;
+      const oneDay = 24 * oneHour;
+      const oneMonth = 30 * oneDay;
+      const oneYear = 12 * oneMonth;
+      const bigDate = new Date(bigTimeStamp);
+      const smallDate = new Date(smallTimeStamp);
       let remainderValue = 1;
       if (type === "年") {
         remainderValue = oneYear;
@@ -7874,60 +8395,40 @@ getAnimationEndNameList() {
       }
       let diffValue = Math.round(Math.abs((bigDate - smallDate) / remainderValue));
       if (type === "auto") {
-        let timeDifference = bigTimeStamp - smallTimeStamp;
+        const timeDifference = bigTimeStamp - smallTimeStamp;
         diffValue = Math.floor(timeDifference / (24 * 3600 * 1e3));
         if (diffValue > 0) {
-          diffValue = diffValue + "天";
+          diffValue = `${diffValue}天`;
         } else {
-          let leave1 = timeDifference % (24 * 3600 * 1e3);
-          let hours = Math.floor(leave1 / (3600 * 1e3));
+          const leave1 = timeDifference % (24 * 3600 * 1e3);
+          const hours = Math.floor(leave1 / (3600 * 1e3));
           if (hours > 0) {
-            diffValue = hours + "小时";
+            diffValue = `${hours}小时`;
           } else {
-            let leave2 = leave1 % (3600 * 1e3);
-            let minutes = Math.floor(leave2 / (60 * 1e3));
+            const leave2 = leave1 % (3600 * 1e3);
+            const minutes = Math.floor(leave2 / (60 * 1e3));
             if (minutes > 0) {
-              diffValue = minutes + "分钟";
+              diffValue = `${minutes}分钟`;
             } else {
-              let leave3 = leave2 % (60 * 1e3);
-              let seconds = Math.round(leave3 / 1e3);
-              diffValue = seconds + "秒";
+              const leave3 = leave2 % (60 * 1e3);
+              const seconds = Math.round(leave3 / 1e3);
+              diffValue = `${seconds}秒`;
             }
           }
         }
       }
       return diffValue;
     }
-    getElementSelector(element) {
-      let UtilsContext = this;
-      if (!element)
-        return void 0;
-      if (!element.parentElement)
-        return void 0;
-      if (element.id)
-        return "#" + element.id;
-      let selector = UtilsContext.getElementSelector(element.parentElement);
-      if (!selector) {
-        return element.tagName.toLowerCase();
-      }
-      if (element.parentElement.querySelectorAll(element.tagName).length > 1) {
-        let index = Array.prototype.indexOf.call(element.parentElement.children, element) + 1;
-        selector += " > " + element.tagName.toLowerCase() + ":nth-child(" + index + ")";
-      } else {
-        selector += " > " + element.tagName.toLowerCase();
-      }
-      return selector;
-    }
 getMaxValue(...args) {
-      let result = [...args];
+      const result = [...args];
       let newResult = [];
       if (result.length === 0) {
         return void 0;
       }
       if (result.length > 1) {
         if (result.length === 2 && typeof result[0] === "object" && typeof result[1] === "function") {
-          let data = result[0];
-          let handleDataFunc = result[1];
+          const data = result[0];
+          const handleDataFunc = result[1];
           Object.keys(data).forEach((keyName) => {
             newResult = [...newResult, handleDataFunc(keyName, data[keyName])];
           });
@@ -7950,7 +8451,7 @@ getMaxValue(...args) {
     }
     getMaxZIndexNodeInfo(deviation = 1, target = this.windowApi.document, ignoreCallBack) {
       deviation = Number.isNaN(deviation) ? 1 : deviation;
-      const UtilsContext = this;
+      const that = this;
       const maxZIndexCompare = 2 * Math.pow(10, 9);
       let zIndex = 0;
       let maxZIndexNode = null;
@@ -7959,14 +8460,14 @@ getMaxValue(...args) {
       }
       function queryMaxZIndex($ele) {
         if (typeof ignoreCallBack === "function") {
-          let ignoreResult = ignoreCallBack($ele);
+          const ignoreResult = ignoreCallBack($ele);
           if (typeof ignoreResult === "boolean" && !ignoreResult) {
             return;
           }
         }
-        const nodeStyle = UtilsContext.windowApi.window.getComputedStyle($ele);
+        const nodeStyle = that.windowApi.window.getComputedStyle($ele);
         if (isVisibleNode(nodeStyle)) {
-          let nodeZIndex = parseInt(nodeStyle.zIndex);
+          const nodeZIndex = parseInt(nodeStyle.zIndex);
           if (!isNaN(nodeZIndex)) {
             if (nodeZIndex > zIndex) {
               zIndex = nodeZIndex;
@@ -7980,7 +8481,7 @@ getMaxValue(...args) {
           }
         }
       }
-      target.querySelectorAll("*").forEach(($ele, index) => {
+      target.querySelectorAll("*").forEach(($ele) => {
         queryMaxZIndex($ele);
       });
       zIndex += deviation;
@@ -7996,15 +8497,15 @@ getMaxValue(...args) {
       return this.getMaxZIndexNodeInfo(deviation, target, ignoreCallBack).zIndex;
     }
     getMinValue(...args) {
-      let result = [...args];
+      const result = [...args];
       let newResult = [];
       if (result.length === 0) {
         return void 0;
       }
       if (result.length > 1) {
         if (result.length === 2 && typeof result[0] === "object" && typeof result[1] === "function") {
-          let data = result[0];
-          let handleDataFunc = result[1];
+          const data = result[0];
+          const handleDataFunc = result[1];
           Object.keys(data).forEach((keyName) => {
             newResult = [...newResult, handleDataFunc(keyName, data[keyName])];
           });
@@ -8026,8 +8527,8 @@ getMaxValue(...args) {
       }
     }
 getRandomAndroidUA() {
-      let UtilsContext = this;
-      let mobileNameList = [
+      const that = this;
+      const mobileNameList = [
         "LDN-LX3",
         "RNE-L03",
         "ASUS_X00ID Build/NMF26F",
@@ -8043,46 +8544,46 @@ getRandomAndroidUA() {
         "M2003J15SC Build/RP1A.200720.011; wv",
         "MI 13 Build/OPR1.170623.027; wv"
       ];
-      let androidVersion = UtilsContext.getRandomValue(12, 14);
-      let randomMobile = UtilsContext.getRandomValue(mobileNameList);
-      let chromeVersion1 = UtilsContext.getRandomValue(120, 132);
-      let chromeVersion2 = UtilsContext.getRandomValue(0, 0);
-      let chromeVersion3 = UtilsContext.getRandomValue(2272, 6099);
-      let chromeVersion4 = UtilsContext.getRandomValue(1, 218);
+      const androidVersion = that.getRandomValue(12, 14);
+      const randomMobile = that.getRandomValue(mobileNameList);
+      const chromeVersion1 = that.getRandomValue(130, 140);
+      const chromeVersion2 = that.getRandomValue(0, 0);
+      const chromeVersion3 = that.getRandomValue(2272, 6099);
+      const chromeVersion4 = that.getRandomValue(1, 218);
       return `Mozilla/5.0 (Linux; Android ${androidVersion}; ${randomMobile}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVersion1}.${chromeVersion2}.${chromeVersion3}.${chromeVersion4} Mobile Safari/537.36`;
     }
 getRandomPCUA() {
-      let UtilsContext = this;
-      let chromeVersion1 = UtilsContext.getRandomValue(120, 132);
-      let chromeVersion2 = UtilsContext.getRandomValue(0, 0);
-      let chromeVersion3 = UtilsContext.getRandomValue(2272, 6099);
-      let chromeVersion4 = UtilsContext.getRandomValue(1, 218);
+      const that = this;
+      const chromeVersion1 = that.getRandomValue(130, 140);
+      const chromeVersion2 = that.getRandomValue(0, 0);
+      const chromeVersion3 = that.getRandomValue(2272, 6099);
+      const chromeVersion4 = that.getRandomValue(1, 218);
       return `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVersion1}.${chromeVersion2}.${chromeVersion3}.${chromeVersion4} Safari/537.36`;
     }
     getRandomValue(...args) {
-      let result = [...args];
+      const result = [...args];
       if (result.length > 1) {
         if (result.length === 2 && typeof result[0] === "number" && typeof result[1] === "number") {
-          let leftNumber = result[0] > result[1] ? result[1] : result[0];
-          let rightNumber = result[0] > result[1] ? result[0] : result[1];
+          const leftNumber = result[0] > result[1] ? result[1] : result[0];
+          const rightNumber = result[0] > result[1] ? result[0] : result[1];
           return Math.round(Math.random() * (rightNumber - leftNumber)) + leftNumber;
         } else {
           return result[Math.floor(Math.random() * result.length)];
         }
       } else if (result.length === 1) {
-        let paramData = result[0];
+        const paramData = result[0];
         if (Array.isArray(paramData)) {
           return paramData[Math.floor(Math.random() * paramData.length)];
         } else if (typeof paramData === "object" && Object.keys(paramData).length > 0) {
-          let paramObjDataKey = Object.keys(paramData)[Math.floor(Math.random() * Object.keys(paramData).length)];
+          const paramObjDataKey = Object.keys(paramData)[Math.floor(Math.random() * Object.keys(paramData).length)];
           return paramData[paramObjDataKey];
         } else {
           return paramData;
         }
       }
     }
-getReactObj(element) {
-      let result = {};
+getReactInstance(element) {
+      const result = {};
       if (element == null) {
         return result;
       }
@@ -8091,8 +8592,9 @@ getReactObj(element) {
         if (domPropsName.startsWith("__react")) {
           const propsName = domPropsName.replace(/__(.+)\$.+/i, "$1");
           const propsValue = Reflect.get(element, domPropsName);
-          if (propsName in result) ;
-          else {
+          if (propsName in result) {
+            console.error(`重复属性 ${domPropsName}`);
+          } else {
             Reflect.set(result, propsName, propsValue);
           }
         }
@@ -8103,23 +8605,23 @@ getSymbol(target, keyName) {
       if (typeof target !== "object") {
         throw new TypeError("target不是一个对象");
       }
-      let objectsSymbols = Object.getOwnPropertySymbols(target);
+      const objectsSymbols = Object.getOwnPropertySymbols(target);
       if (typeof keyName === "string") {
-        let findSymbol = objectsSymbols.find((key) => {
+        const findSymbol = objectsSymbols.find((key) => {
           return key.toString() === keyName;
         });
         if (findSymbol) {
           return target[findSymbol];
         }
       } else if (typeof keyName === "symbol") {
-        let findSymbol = objectsSymbols.find((key) => {
+        const findSymbol = objectsSymbols.find((key) => {
           return key === keyName;
         });
         if (findSymbol) {
           return target[findSymbol];
         }
       } else {
-        let result = {};
+        const result = {};
         objectsSymbols.forEach((item) => {
           result[item] = target[item];
         });
@@ -8127,13 +8629,13 @@ getSymbol(target, keyName) {
       }
     }
 getTextLength(text) {
-      let encoder = new TextEncoder();
-      let bytes = encoder.encode(text);
+      const encoder = new TextEncoder();
+      const bytes = encoder.encode(text);
       return bytes.length;
     }
     getTextStorageSize(text, addType = true) {
-      let UtilsContext = this;
-      return UtilsContext.formatByteToSize(UtilsContext.getTextLength(text), addType);
+      const that = this;
+      return that.formatByteToSize(that.getTextLength(text), addType);
     }
     getThunderUrl(url) {
       if (url == null) {
@@ -8145,7 +8647,7 @@ getTextLength(text) {
       if (url.trim() === "") {
         throw new TypeError("url不能为空字符串或纯空格");
       }
-      return `thunder://${this.windowApi.globalThis.btoa("AA" + url + "ZZ")}`;
+      return `thunder://${this.windowApi.globalThis.btoa(`AA${url}ZZ`)}`;
     }
 GM_Cookie = UtilsGMCookie;
 GM_Menu = GMMenu;
@@ -8157,19 +8659,19 @@ indexedDB = indexedDB;
     }
     isNearBottom(...args) {
       let nearBottomHeight = 50;
-      let checkWindow = () => {
-        let scrollTop = this.windowApi.window.pageYOffset || this.windowApi.document.documentElement.scrollTop;
-        let viewportHeight = this.windowApi.window.innerHeight || this.windowApi.document.documentElement.clientHeight;
-        let maxScrollHeight = this.windowApi.document.documentElement.scrollHeight - nearBottomHeight;
+      const checkWindow = () => {
+        const scrollTop = this.windowApi.window.pageYOffset || this.windowApi.document.documentElement.scrollTop;
+        const viewportHeight = this.windowApi.window.innerHeight || this.windowApi.document.documentElement.clientHeight;
+        const maxScrollHeight = this.windowApi.document.documentElement.scrollHeight - nearBottomHeight;
         return scrollTop + viewportHeight >= maxScrollHeight;
       };
-      let checkNode = ($ele) => {
-        let scrollTop = $ele.scrollTop;
-        let viewportHeight = $ele.clientHeight;
-        let maxScrollHeight = $ele.scrollHeight - viewportHeight - nearBottomHeight;
+      const checkNode = ($ele) => {
+        const scrollTop = $ele.scrollTop;
+        const viewportHeight = $ele.clientHeight;
+        const maxScrollHeight = $ele.scrollHeight - viewportHeight - nearBottomHeight;
         return scrollTop >= maxScrollHeight;
       };
-      let firstArg = args[0];
+      const firstArg = args[0];
       if (args.length === 0 || typeof args[0] === "number") {
         return checkWindow();
       } else if (typeof args[0] === "object" && args[0] instanceof HTMLElement) {
@@ -8178,7 +8680,7 @@ indexedDB = indexedDB;
         }
         return checkNode(args[0]);
       } else {
-        throw new TypeError("参数1类型错误" + typeof firstArg);
+        throw new TypeError(`参数1类型错误${typeof firstArg}`);
       }
     }
 isDOM = commonUtil.isDOM.bind(commonUtil);
@@ -8194,7 +8696,7 @@ isDOM = commonUtil.isDOM.bind(commonUtil);
         return false;
       }
       if (typeof target === "object") {
-        let jQueryProps = [
+        const jQueryProps = [
           "add",
           "addBack",
           "addClass",
@@ -8379,14 +8881,14 @@ isVisible(element, inView = false) {
       }
       let result = true;
       for (const domItem of needCheckDomList) {
-        let domDisplay = this.windowApi.window.getComputedStyle(domItem);
+        const domDisplay = this.windowApi.window.getComputedStyle(domItem);
         if (domDisplay.display === "none") {
           result = false;
         } else {
-          let domClientRect = domItem.getBoundingClientRect();
+          const domClientRect = domItem.getBoundingClientRect();
           if (inView) {
-            let viewportWidth = this.windowApi.window.innerWidth || this.windowApi.document.documentElement.clientWidth;
-            let viewportHeight = this.windowApi.window.innerHeight || this.windowApi.document.documentElement.clientHeight;
+            const viewportWidth = this.windowApi.window.innerWidth || this.windowApi.document.documentElement.clientWidth;
+            const viewportHeight = this.windowApi.window.innerHeight || this.windowApi.document.documentElement.clientHeight;
             result = !(domClientRect.right < 0 || domClientRect.left > viewportWidth || domClientRect.bottom < 0 || domClientRect.top > viewportHeight);
           } else {
             result = Boolean(domItem.getClientRects().length);
@@ -8400,12 +8902,12 @@ isVisible(element, inView = false) {
     }
     isWebView_Via() {
       let result = true;
-      let UtilsContext = this;
+      const that = this;
       if (typeof this.windowApi.top.window.via === "object") {
         for (const key in Object.values(this.windowApi.top.window.via)) {
           if (Reflect.has(this.windowApi.top.window.via, key)) {
-            let objValueFunc = this.windowApi.top.window.via[key];
-            if (typeof objValueFunc === "function" && UtilsContext.isNativeFunc(objValueFunc)) {
+            const objValueFunc = this.windowApi.top.window.via[key];
+            if (typeof objValueFunc === "function" && that.isNativeFunc(objValueFunc)) {
               result = true;
             } else {
               result = false;
@@ -8420,12 +8922,12 @@ isVisible(element, inView = false) {
     }
     isWebView_X() {
       let result = true;
-      let UtilsContext = this;
+      const that = this;
       if (typeof this.windowApi.top.window.mbrowser === "object") {
         for (const key in Object.values(this.windowApi.top.window.mbrowser)) {
           if (Reflect.has(this.windowApi.top.window.mbrowser, key)) {
-            let objValueFunc = this.windowApi.top.window.mbrowser[key];
-            if (typeof objValueFunc === "function" && UtilsContext.isNativeFunc(objValueFunc)) {
+            const objValueFunc = this.windowApi.top.window.mbrowser[key];
+            if (typeof objValueFunc === "function" && that.isNativeFunc(objValueFunc)) {
               result = true;
             } else {
               result = false;
@@ -8443,8 +8945,10 @@ isVisible(element, inView = false) {
         throw new Error("Utils.parseObjectToArray 参数 target 必须为 object 类型");
       }
       let result = [];
-      Object.keys(target).forEach(function(keyName) {
-        result = result.concat(target[keyName]);
+      const keys = Object.keys(target);
+      keys.forEach(function(keyName) {
+        const value = Reflect.get(target, keyName);
+        result = result.concat(value);
       });
       return result;
     }
@@ -8473,8 +8977,8 @@ Log = Log;
       return content;
     }
     mutationObserver(target, observer_config) {
-      let UtilsContext = this;
-      let default_obverser_config = {
+      const that = this;
+      const default_obverser_config = {
 callback: () => {
         },
         config: {
@@ -8488,9 +8992,9 @@ characterDataOldValue: void 0
         },
         immediate: false
       };
-      observer_config = UtilsContext.assign(default_obverser_config, observer_config);
-      let windowMutationObserver = this.windowApi.window.MutationObserver || this.windowApi.window.webkitMutationObserver || this.windowApi.window.MozMutationObserver;
-      let mutationObserver = new windowMutationObserver(function(mutations, observer) {
+      observer_config = that.assign(default_obverser_config, observer_config);
+      const windowMutationObserver = this.windowApi.window.MutationObserver || this.windowApi.window.webkitMutationObserver || this.windowApi.window.MozMutationObserver;
+      const mutationObserver = new windowMutationObserver(function(mutations, observer) {
         if (typeof observer_config.callback === "function") {
           observer_config.callback(mutations, observer);
         }
@@ -8499,8 +9003,8 @@ characterDataOldValue: void 0
         target.forEach((item) => {
           mutationObserver.observe(item, observer_config.config);
         });
-      } else if (UtilsContext.isJQuery(target)) {
-        target.each((index, item) => {
+      } else if (that.isJQuery(target)) {
+        target.each((_, item) => {
           mutationObserver.observe(item, observer_config.config);
         });
       } else {
@@ -8526,7 +9030,7 @@ mutationVisible(target, callback, options) {
         threshold: [0.01, 0.99]
       };
       defaultOptions = this.assign(defaultOptions, options || {});
-      let intersectionObserver = new IntersectionObserver((entries, observer) => {
+      const intersectionObserver = new IntersectionObserver((entries, observer) => {
         if (entries[0].isIntersecting) {
           if (typeof callback === "function") {
             callback(entries, observer);
@@ -8549,7 +9053,7 @@ noConflict() {
       return utils$1;
     }
     noConflictFunc(needReleaseObject, needReleaseName, functionNameList = [], release = true) {
-      let UtilsContext = this;
+      const that = this;
       if (typeof needReleaseObject !== "object") {
         throw new Error("Utils.noConflictFunc 参数 needReleaseObject 必须为 object 类型");
       }
@@ -8559,12 +9063,12 @@ noConflict() {
       if (!Array.isArray(functionNameList)) {
         throw new Error("Utils.noConflictFunc 参数 functionNameList 必须为 Array 类型");
       }
-      let needReleaseKey = "__" + needReleaseName;
+      const needReleaseKey = `__${needReleaseName}`;
       function releaseAll() {
-        if (typeof UtilsContext.windowApi.window[needReleaseKey] !== "undefined") {
+        if (typeof that.windowApi.window[needReleaseKey] !== "undefined") {
           return;
         }
-        UtilsContext.windowApi.window[needReleaseKey] = UtilsContext.deepClone(needReleaseObject);
+        that.windowApi.window[needReleaseKey] = that.deepClone(needReleaseObject);
         Object.values(needReleaseObject).forEach((value) => {
           if (typeof value === "function") {
             needReleaseObject[value.name] = () => {
@@ -8576,11 +9080,11 @@ noConflict() {
         Array.from(functionNameList).forEach((item) => {
           Object.values(needReleaseObject).forEach((value) => {
             if (typeof value === "function") {
-              if (typeof UtilsContext.windowApi.window[needReleaseKey] === "undefined") {
-                UtilsContext.windowApi.window[needReleaseKey] = {};
+              if (typeof that.windowApi.window[needReleaseKey] === "undefined") {
+                that.windowApi.window[needReleaseKey] = {};
               }
               if (item === value.name) {
-                UtilsContext.windowApi.window[needReleaseKey][value.name] = needReleaseObject[value.name];
+                that.windowApi.window[needReleaseKey][value.name] = needReleaseObject[value.name];
                 needReleaseObject[value.name] = () => {
                 };
               }
@@ -8589,21 +9093,21 @@ noConflict() {
         });
       }
       function recoveryAll() {
-        if (typeof UtilsContext.windowApi.window[needReleaseKey] === "undefined") {
+        if (typeof that.windowApi.window[needReleaseKey] === "undefined") {
           return;
         }
-        Object.assign(needReleaseObject, UtilsContext.windowApi.window[needReleaseKey]);
-        Reflect.deleteProperty(UtilsContext.windowApi.window, "needReleaseKey");
+        Object.assign(needReleaseObject, that.windowApi.window[needReleaseKey]);
+        Reflect.deleteProperty(that.windowApi.window, "needReleaseKey");
       }
       function recoveryOne() {
-        if (typeof UtilsContext.windowApi.window[needReleaseKey] === "undefined") {
+        if (typeof that.windowApi.window[needReleaseKey] === "undefined") {
           return;
         }
         Array.from(functionNameList).forEach((item) => {
-          if (UtilsContext.windowApi.window[needReleaseKey][item]) {
-            needReleaseObject[item] = UtilsContext.windowApi.window[needReleaseKey][item];
-            Reflect.deleteProperty(UtilsContext.windowApi.window[needReleaseKey], item);
-            if (Object.keys(UtilsContext.windowApi.window[needReleaseKey]).length === 0) {
+          if (that.windowApi.window[needReleaseKey][item]) {
+            needReleaseObject[item] = that.windowApi.window[needReleaseKey][item];
+            Reflect.deleteProperty(that.windowApi.window[needReleaseKey], item);
+            if (Object.keys(that.windowApi.window[needReleaseKey]).length === 0) {
               Reflect.deleteProperty(window, needReleaseKey);
             }
           }
@@ -8627,7 +9131,9 @@ noConflict() {
       if (typeof dataUri !== "string") {
         throw new Error("Utils.parseBase64ToBlob 参数 dataUri 必须为 string 类型");
       }
-      let dataUriSplit = dataUri.split(","), dataUriMime = dataUriSplit[0].match(/:(.*?);/)[1], dataUriBase64Str = atob(dataUriSplit[1]), dataUriLength = dataUriBase64Str.length, u8arr = new Uint8Array(dataUriLength);
+      const dataUriSplit = dataUri.split(","), dataUriMime = dataUriSplit[0].match(/:(.*?);/)[1], dataUriBase64Str = atob(dataUriSplit[1]);
+      let dataUriLength = dataUriBase64Str.length;
+      const u8arr = new Uint8Array(dataUriLength);
       while (dataUriLength--) {
         u8arr[dataUriLength] = dataUriBase64Str.charCodeAt(dataUriLength);
       }
@@ -8642,7 +9148,9 @@ noConflict() {
       if (typeof fileName !== "string") {
         throw new Error("Utils.parseBase64ToFile 参数 fileName 必须为 string 类型");
       }
-      let dataUriSplit = dataUri.split(","), dataUriMime = dataUriSplit[0].match(/:(.*?);/)[1], dataUriBase64Str = atob(dataUriSplit[1]), dataUriLength = dataUriBase64Str.length, u8arr = new Uint8Array(dataUriLength);
+      const dataUriSplit = dataUri.split(","), dataUriMime = dataUriSplit[0].match(/:(.*?);/)[1], dataUriBase64Str = atob(dataUriSplit[1]);
+      let dataUriLength = dataUriBase64Str.length;
+      const u8arr = new Uint8Array(dataUriLength);
       while (dataUriLength--) {
         u8arr[dataUriLength] = dataUriBase64Str.charCodeAt(dataUriLength);
       }
@@ -8673,15 +9181,15 @@ noConflict() {
     }
     parseCDATA(text = "") {
       let result = "";
-      let cdataRegexp = /<\!\[CDATA\[([\s\S]*)\]\]>/;
-      let cdataMatch = cdataRegexp.exec(text.trim());
+      const cdataRegexp = /<!\[CDATA\[([\s\S]*)\]\]>/;
+      const cdataMatch = cdataRegexp.exec(text.trim());
       if (cdataMatch && cdataMatch.length > 1) {
         result = cdataMatch[cdataMatch.length - 1];
       }
       return result;
     }
     async parseFileToBase64(fileObj) {
-      let reader = new FileReader();
+      const reader = new FileReader();
       reader.readAsDataURL(fileObj);
       return new Promise((resolve) => {
         reader.onload = function(event) {
@@ -8690,38 +9198,31 @@ noConflict() {
       });
     }
     parseFromString(text, mimeType = "text/html") {
-      let parser = new DOMParser();
+      const parser = new DOMParser();
       return parser.parseFromString(text, mimeType);
     }
-    parseStringToRegExpString(text) {
-      if (typeof text !== "string") {
-        throw new TypeError("string必须是字符串");
-      }
-      let regString = text.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&");
-      return regString;
-    }
-    preventEvent(element, eventNameList = [], capture) {
-      function stopEvent(event) {
-        event?.preventDefault();
-        event?.stopPropagation();
-        event?.stopImmediatePropagation();
-        return false;
-      }
-      if (arguments.length === 1) {
-        return stopEvent(arguments[0]);
+toRegExp(text, flags = "gi") {
+      let regExp;
+      flags = flags.toLowerCase();
+      if (typeof text === "string") {
+        const pattern = this.toRegExpStr(text);
+        regExp = new RegExp(pattern, flags);
+      } else if (text instanceof RegExp) {
+        regExp = text;
       } else {
-        if (typeof eventNameList === "string") {
-          eventNameList = [eventNameList];
-        }
-        eventNameList.forEach((eventName) => {
-          element.addEventListener(eventName, stopEvent, {
-            capture: Boolean(capture)
-          });
-        });
+        throw new Error("Utils.toRegExp 参数text必须是string|Regexp类型");
       }
+      return regExp;
+    }
+toRegExpStr(text) {
+      if (typeof text !== "string") {
+        throw new TypeError("toRegExpStr 参数text必须是string类型");
+      }
+      const regExpStr = text.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&");
+      return regExpStr;
     }
 Progress = Progress;
-    registerTrustClickEvent(isTrustValue = true, filter) {
+    hookEvent_isTrusted(isTrustValue = true, filter) {
       function trustEvent(event) {
         return new Proxy(event, {
           get: function(target, property) {
@@ -8740,15 +9241,15 @@ Progress = Progress;
       }
       const originalListener = EventTarget.prototype.addEventListener;
       EventTarget.prototype.addEventListener = function(...args) {
-        let type = args[0];
-        let callback = args[1];
+        const type = args[0];
+        const callback = args[1];
         if (filter(type)) {
           if (typeof callback === "function") {
             args[1] = function(event) {
               callback.call(this, trustEvent(event));
             };
           } else if (typeof callback === "object" && "handleEvent" in callback) {
-            let oldHandleEvent = callback["handleEvent"];
+            const oldHandleEvent = callback["handleEvent"];
             args[1]["handleEvent"] = function(event) {
               if (event == null) {
                 return;
@@ -8756,7 +9257,7 @@ Progress = Progress;
               try {
                 event instanceof Proxy;
                 oldHandleEvent.call(this, trustEvent(event));
-              } catch (error) {
+              } catch {
                 Reflect.set(event, "isTrusted", isTrustValue);
               }
             };
@@ -8778,25 +9279,7 @@ Progress = Progress;
       }
       return isNegative ? -reversedNum : reversedNum;
     }
-    selectElementText(element, childTextNode, startIndex, endIndex) {
-      let range = this.windowApi.document.createRange();
-      range.selectNodeContents(element);
-      if (childTextNode) {
-        if (childTextNode.nodeType !== Node.TEXT_NODE) {
-          throw new TypeError("childTextNode必须是#text元素");
-        }
-        if (startIndex != null && endIndex != null) {
-          range.setStart(childTextNode, startIndex);
-          range.setEnd(childTextNode, endIndex);
-        }
-      }
-      let selection = this.windowApi.globalThis.getSelection();
-      if (selection) {
-        selection.removeAllRanges();
-        selection.addRange(range);
-      }
-    }
-    setClip(data, info = {
+    copy(data, info = {
       type: "text",
       mimetype: "text/plain"
     }) {
@@ -8815,7 +9298,7 @@ Progress = Progress;
       } else {
         textType = "text/plain";
       }
-      let UtilsContext = this;
+      const that = this;
       class UtilsClipboard {
         #resolve;
         #copyData;
@@ -8827,7 +9310,7 @@ Progress = Progress;
         }
         async init() {
           let copyStatus = false;
-          let requestPermissionStatus = await this.requestClipboardPermission();
+          const requestPermissionStatus = await this.requestClipboardPermission();
           console.log(requestPermissionStatus);
           if (this.hasClipboard() && (this.hasClipboardWrite() || this.hasClipboardWriteText())) {
             try {
@@ -8861,15 +9344,15 @@ Progress = Progress;
         }
 copyTextByTextArea() {
           try {
-            let copyElement = UtilsContext.windowApi.document.createElement("textarea");
+            const copyElement = that.windowApi.document.createElement("textarea");
             copyElement.value = this.#copyData;
             copyElement.setAttribute("type", "text");
             copyElement.setAttribute("style", "opacity:0;position:absolute;");
             copyElement.setAttribute("readonly", "readonly");
-            UtilsContext.windowApi.document.body.appendChild(copyElement);
+            that.windowApi.document.body.appendChild(copyElement);
             copyElement.select();
-            UtilsContext.windowApi.document.execCommand("copy");
-            UtilsContext.windowApi.document.body.removeChild(copyElement);
+            that.windowApi.document.execCommand("copy");
+            that.windowApi.document.body.removeChild(copyElement);
             return true;
           } catch (error) {
             console.error("复制失败，error👉", error);
@@ -8877,17 +9360,14 @@ copyTextByTextArea() {
           }
         }
 requestClipboardPermission() {
-          return new Promise((resolve, reject) => {
+          return new Promise((resolve) => {
             if (navigator.permissions && navigator.permissions.query) {
               navigator.permissions.query({
                 name: "clipboard-write"
-              }).then((permissionStatus) => {
+              }).then(() => {
                 resolve(true);
               }).catch((error) => {
-                console.error([
-                  "申请剪贴板权限失败，尝试直接写入👉",
-                  error.message ?? error.name ?? error.stack
-                ]);
+                console.error(["申请剪贴板权限失败，尝试直接写入👉", error.message ?? error.name ?? error.stack]);
                 resolve(false);
               });
             } else {
@@ -8904,7 +9384,7 @@ copyDataByClipboard() {
                 reject(error);
               });
             } else {
-              let textBlob = new Blob([this.#copyData], {
+              const textBlob = new Blob([this.#copyData], {
                 type: this.#copyDataType
               });
               navigator.clipboard.write([
@@ -8922,17 +9402,68 @@ copyDataByClipboard() {
       }
       return new Promise((resolve) => {
         const utilsClipboard = new UtilsClipboard(resolve, data, textType);
-        if (UtilsContext.windowApi.document.hasFocus()) {
+        if (that.windowApi.document.hasFocus()) {
           utilsClipboard.init();
         } else {
-          UtilsContext.windowApi.window.addEventListener("focus", () => {
+          that.windowApi.window.addEventListener("focus", () => {
             utilsClipboard.init();
           }, { once: true });
         }
       });
     }
+async getClipboardInfo() {
+      return new Promise((resolve) => {
+        function readClipboardText() {
+          navigator.clipboard.readText().then((clipboardText) => {
+            resolve({
+              error: null,
+              content: clipboardText
+            });
+          }).catch((error) => {
+            resolve({
+              error,
+              content: ""
+            });
+          });
+        }
+        function requestPermissionsWithClipboard() {
+          navigator.permissions.query({
+            name: "clipboard-read"
+          }).then(() => {
+            readClipboardText();
+          }).catch(() => {
+            readClipboardText();
+          });
+        }
+        function checkClipboardApi() {
+          if (typeof navigator?.clipboard?.readText !== "function") {
+            return false;
+          }
+          if (typeof navigator?.permissions?.query !== "function") {
+            return false;
+          }
+          return true;
+        }
+        if (!checkClipboardApi()) {
+          resolve({
+            error: new Error("当前环境不支持读取剪贴板Api"),
+            content: ""
+          });
+          return;
+        }
+        if (document.hasFocus()) {
+          requestPermissionsWithClipboard();
+        } else {
+          window.addEventListener("focus", () => {
+            requestPermissionsWithClipboard();
+          }, {
+            once: true
+          });
+        }
+      });
+    }
     setTimeout(callback, delayTime = 0) {
-      let UtilsContext = this;
+      const that = this;
       if (typeof callback !== "function" && typeof callback !== "string") {
         throw new TypeError("Utils.setTimeout 参数 callback 必须为 function|string 类型");
       }
@@ -8940,35 +9471,35 @@ copyDataByClipboard() {
         throw new TypeError("Utils.setTimeout 参数 delayTime 必须为 number 类型");
       }
       return new Promise((resolve) => {
-        UtilsContext.workerSetTimeout(() => {
-          resolve(UtilsContext.tryCatch().run(callback));
+        that.workerSetTimeout(() => {
+          resolve(that.tryCatch().run(callback));
         }, delayTime);
       });
     }
     sleep(delayTime = 0) {
-      let UtilsContext = this;
+      const that = this;
       if (typeof delayTime !== "number") {
         throw new Error("Utils.sleep 参数 delayTime 必须为 number 类型");
       }
       return new Promise((resolve) => {
-        UtilsContext.workerSetTimeout(() => {
+        that.workerSetTimeout(() => {
           resolve(void 0);
         }, delayTime);
       });
     }
     dragSlider(selector, offsetX = this.windowApi.window.innerWidth) {
-      let UtilsContext = this;
+      const that = this;
       function initMouseEvent(eventName, offSetX, offSetY) {
-        let win = typeof unsafeWindow === "undefined" ? globalThis : unsafeWindow;
-        let mouseEvent = UtilsContext.windowApi.document.createEvent("MouseEvents");
+        const win = typeof unsafeWindow === "undefined" ? globalThis : unsafeWindow;
+        const mouseEvent = that.windowApi.document.createEvent("MouseEvents");
         mouseEvent.initMouseEvent(eventName, true, true, win, 0, offSetX, offSetY, offSetX, offSetY, false, false, false, false, 0, null);
         return mouseEvent;
       }
-      let sliderElement = typeof selector === "string" ? domUtils$1.selector(selector) : selector;
+      const sliderElement = typeof selector === "string" ? domUtils$1.selector(selector) : selector;
       if (!(sliderElement instanceof Node) || !(sliderElement instanceof Element)) {
         throw new Error("Utils.dragSlider 参数selector 必须为Node/Element类型");
       }
-      let rect = sliderElement.getBoundingClientRect(), x0 = rect.x || rect.left, y0 = rect.y || rect.top, x1 = x0 + offsetX, y1 = y0;
+      const rect = sliderElement.getBoundingClientRect(), x0 = rect.x || rect.left, y0 = rect.y || rect.top, x1 = x0 + offsetX, y1 = y0;
       sliderElement.dispatchEvent(initMouseEvent("mousedown", x0, y0));
       sliderElement.dispatchEvent(initMouseEvent("mousemove", x1, y1));
       sliderElement.dispatchEvent(initMouseEvent("mouseleave", x1, y1));
@@ -8991,35 +9522,35 @@ copyDataByClipboard() {
         console.error(err);
       }
     }
-    exitFullScreen(element = this.windowApi.document.documentElement) {
-      if (this.windowApi.document.exitFullscreen) {
-        return this.windowApi.document.exitFullscreen();
-      } else if (this.windowApi.document.msExitFullscreen) {
-        return this.windowApi.document.msExitFullscreen();
-      } else if (this.windowApi.document.mozCancelFullScreen) {
-        return this.windowApi.document.mozCancelFullScreen();
-      } else if (this.windowApi.document.webkitCancelFullScreen) {
-        return this.windowApi.document.webkitCancelFullScreen();
+    exitFullScreen($el = this.windowApi.document.documentElement) {
+      if ($el.exitFullscreen) {
+        return $el.exitFullscreen();
+      } else if ($el.msExitFullscreen) {
+        return $el.msExitFullscreen();
+      } else if ($el.mozCancelFullScreen) {
+        return $el.mozCancelFullScreen();
+      } else if ($el.webkitCancelFullScreen) {
+        return $el.webkitCancelFullScreen();
       } else {
-        return new Promise((resolve, reject) => {
+        return new Promise((_, reject) => {
           reject(new TypeError("该浏览器不支持全屏API"));
         });
       }
     }
     sortListByProperty(data, getPropertyValueFunc, sortByDesc = true) {
-      let UtilsContext = this;
+      const that = this;
       if (typeof getPropertyValueFunc !== "function" && typeof getPropertyValueFunc !== "string") {
         throw new Error("Utils.sortListByProperty 参数 getPropertyValueFunc 必须为 function|string 类型");
       }
       if (typeof sortByDesc !== "boolean") {
         throw new Error("Utils.sortListByProperty 参数 sortByDesc 必须为 boolean 类型");
       }
-      let getObjValue = function(obj) {
+      const getObjValue = function(obj) {
         return typeof getPropertyValueFunc === "string" ? obj[getPropertyValueFunc] : getPropertyValueFunc(obj);
       };
-      let sortFunc = function(after_obj, before_obj) {
-        let beforeValue = getObjValue(before_obj);
-        let afterValue = getObjValue(after_obj);
+      const sortFunc = function(after_obj, before_obj) {
+        const beforeValue = getObjValue(before_obj);
+        const afterValue = getObjValue(after_obj);
         if (sortByDesc) {
           if (afterValue > beforeValue) {
             return -1;
@@ -9038,16 +9569,16 @@ copyDataByClipboard() {
           }
         }
       };
-      let sortNodeFunc = function(nodeList, getNodeListFunc) {
-        let nodeListLength = nodeList.length;
+      const sortNodeFunc = function(nodeList, getNodeListFunc) {
+        const nodeListLength = nodeList.length;
         for (let i2 = 0; i2 < nodeListLength - 1; i2++) {
           for (let j2 = 0; j2 < nodeListLength - 1 - i2; j2++) {
-            let beforeNode = nodeList[j2];
-            let afterNode = nodeList[j2 + 1];
-            let beforeValue = getObjValue(beforeNode);
-            let afterValue = getObjValue(afterNode);
+            const beforeNode = nodeList[j2];
+            const afterNode = nodeList[j2 + 1];
+            const beforeValue = getObjValue(beforeNode);
+            const afterValue = getObjValue(afterNode);
             if (sortByDesc == true && beforeValue < afterValue || sortByDesc == false && beforeValue > afterValue) {
-              let temp = beforeNode.nextElementSibling;
+              const temp = beforeNode.nextElementSibling;
               afterNode.after(beforeNode);
               if (temp == null) {
                 temp.parentNode.appendChild(afterNode);
@@ -9067,25 +9598,13 @@ copyDataByClipboard() {
       }
       if (Array.isArray(data)) {
         data.sort(sortFunc);
-      } else if (data instanceof NodeList || UtilsContext.isJQuery(data)) {
+      } else if (data instanceof NodeList || that.isJQuery(data)) {
         sortNodeFunc(data, getDataFunc);
         result = getDataFunc();
       } else {
         throw new Error("Utils.sortListByProperty 参数 data 必须为 Array|NodeList|jQuery 类型");
       }
       return result;
-    }
-    stringToRegular(targetString, flags = "ig") {
-      let reg;
-      flags = flags.toLowerCase();
-      if (typeof targetString === "string") {
-        reg = new RegExp(targetString.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"), flags);
-      } else if (targetString instanceof RegExp) {
-        reg = targetString;
-      } else {
-        throw new Error("Utils.stringToRegular 参数targetString必须是string|Regexp类型");
-      }
-      return reg;
     }
     stringTitleToUpperCase(targetString, otherStrToLowerCase = false) {
       let newTargetString = targetString.slice(0, 1).toUpperCase();
@@ -9097,7 +9616,7 @@ copyDataByClipboard() {
       return newTargetString;
     }
     startsWith(target, searchString, position = 0) {
-      let UtilsContext = this;
+      const that = this;
       if (position > target.length) {
         return false;
       }
@@ -9110,7 +9629,7 @@ copyDataByClipboard() {
       } else if (Array.isArray(searchString)) {
         let flag = false;
         for (const searcStr of searchString) {
-          if (!UtilsContext.startsWith(target, searcStr, position)) {
+          if (!that.startsWith(target, searcStr, position)) {
             flag = true;
             break;
           }
@@ -9119,32 +9638,32 @@ copyDataByClipboard() {
       }
       return Boolean(target.match(searchStringRegexp));
     }
-    stringTitleToLowerCase(targetString, otherStrToUpperCase = false) {
-      let newTargetString = targetString.slice(0, 1).toLowerCase();
-      if (otherStrToUpperCase) {
-        newTargetString = newTargetString + targetString.slice(1).toUpperCase();
+firstLetterToLowercase(text, otherToUpperCase = false) {
+      let newTargetString = text.slice(0, 1).toLowerCase();
+      if (otherToUpperCase) {
+        newTargetString = newTargetString + text.slice(1).toUpperCase();
       } else {
-        newTargetString = newTargetString + targetString.slice(1);
+        newTargetString = newTargetString + text.slice(1);
       }
       return newTargetString;
     }
 toJSON = commonUtil.toJSON.bind(commonUtil);
     toSearchParamsStr(obj, addPrefix) {
-      let UtilsContext = this;
+      const that = this;
       let searhParamsStr = "";
       if (Array.isArray(obj)) {
         obj.forEach((item) => {
           if (searhParamsStr === "") {
-            searhParamsStr += UtilsContext.toSearchParamsStr(item);
+            searhParamsStr += that.toSearchParamsStr(item);
           } else {
-            searhParamsStr += "&" + UtilsContext.toSearchParamsStr(item);
+            searhParamsStr += `&${that.toSearchParamsStr(item)}`;
           }
         });
       } else {
         searhParamsStr = new URLSearchParams(Object.entries(obj)).toString();
       }
       if (addPrefix && !searhParamsStr.startsWith("?")) {
-        searhParamsStr = "?" + searhParamsStr;
+        searhParamsStr = `?${searhParamsStr}`;
       }
       return searhParamsStr;
     }
@@ -9176,273 +9695,25 @@ tryCatch = TryCatch;
         }));
       }
     }
-    waitArrayLoopToEnd(data, handleFunc) {
-      let UtilsContext = this;
+waitArrayLoopToEnd(data, handleFunc) {
+      const that = this;
       if (typeof handleFunc !== "function" && typeof handleFunc !== "string") {
         throw new Error("Utils.waitArrayLoopToEnd 参数 handleDataFunction 必须为 function|string 类型");
       }
       return Promise.all(Array.from(data).map(async (item, index) => {
-        await UtilsContext.tryCatch(index, item).run(handleFunc);
+        await that.tryCatch(index, item).run(handleFunc);
       }));
     }
-    wait(checkFn, timeout, parent) {
-      const UtilsContext = this;
-      let __timeout__ = typeof timeout === "number" ? timeout : 0;
+    waitProperty(target, propertyName) {
       return new Promise((resolve) => {
-        let observer = UtilsContext.mutationObserver(parent || UtilsContext.windowApi.document, {
-          config: {
-            subtree: true,
-            childList: true,
-            attributes: true
-          },
-          immediate: true,
-          callback(mutations, __observer__) {
-            let result = checkFn();
-            if (result.success) {
-              if (typeof __observer__?.disconnect === "function") {
-                __observer__.disconnect();
-              }
-              resolve(result.data);
-            }
-          }
-        });
-        if (__timeout__ > 0) {
-          UtilsContext.workerSetTimeout(() => {
-            if (typeof observer?.disconnect === "function") {
-              observer.disconnect();
-            }
-            resolve(null);
-          }, __timeout__);
+        let obj = target;
+        if (typeof target === "function") {
+          obj = target();
         }
-      });
-    }
-    waitNode(...args) {
-      args = args.filter((arg) => arg !== void 0);
-      let UtilsContext = this;
-      let selector = args[0];
-      let parent = UtilsContext.windowApi.document;
-      let timeout = 0;
-      if (typeof args[0] !== "string" && !Array.isArray(args[0]) && typeof args[0] !== "function") {
-        throw new TypeError("Utils.waitNode 第一个参数必须是string|string[]|Function");
-      }
-      if (args.length === 1) ;
-      else if (args.length === 2) {
-        let secondParam = args[1];
-        if (typeof secondParam === "number") {
-          timeout = secondParam;
-        } else if (typeof secondParam === "object" && secondParam instanceof Node) {
-          parent = secondParam;
+        if (Reflect.has(obj, propertyName)) {
+          resolve(obj[propertyName]);
         } else {
-          throw new TypeError("Utils.waitNode 第二个参数必须是number|Node");
-        }
-      } else if (args.length === 3) {
-        let secondParam = args[1];
-        let thirdParam = args[2];
-        if (typeof secondParam === "object" && secondParam instanceof Node) {
-          parent = secondParam;
-          if (typeof thirdParam === "number") {
-            timeout = thirdParam;
-          } else {
-            throw new TypeError("Utils.waitNode 第三个参数必须是number");
-          }
-        } else {
-          throw new TypeError("Utils.waitNode 第二个参数必须是Node");
-        }
-      } else {
-        throw new TypeError("Utils.waitNode 参数个数错误");
-      }
-      function getNode() {
-        if (Array.isArray(selector)) {
-          let result = [];
-          for (let index = 0; index < selector.length; index++) {
-            let node = domUtils$1.selector(selector[index]);
-            if (node) {
-              result.push(node);
-            }
-          }
-          if (result.length === selector.length) {
-            return result;
-          }
-        } else if (typeof selector === "function") {
-          return selector();
-        } else {
-          return domUtils$1.selector(selector, parent);
-        }
-      }
-      return UtilsContext.wait(() => {
-        let node = getNode();
-        if (node) {
-          return {
-            success: true,
-            data: node
-          };
-        } else {
-          return {
-            success: false,
-            data: node
-          };
-        }
-      }, timeout, parent);
-    }
-    waitAnyNode(...args) {
-      args = args.filter((arg) => arg !== void 0);
-      let UtilsContext = this;
-      let selectorList = args[0];
-      let parent = UtilsContext.windowApi.document;
-      let timeout = 0;
-      if (typeof args[0] !== "object" && !Array.isArray(args[0])) {
-        throw new TypeError("Utils.waitAnyNode 第一个参数必须是string[]");
-      }
-      if (args.length === 1) ;
-      else if (args.length === 2) {
-        let secondParam = args[1];
-        if (typeof secondParam === "number") {
-          timeout = secondParam;
-        } else if (typeof secondParam === "object" && secondParam instanceof Node) {
-          parent = secondParam;
-        } else {
-          throw new TypeError("Utils.waitAnyNode 第二个参数必须是number|Node");
-        }
-      } else if (args.length === 3) {
-        let secondParam = args[1];
-        let thirdParam = args[2];
-        if (typeof secondParam === "object" && secondParam instanceof Node) {
-          parent = secondParam;
-          if (typeof thirdParam === "number") {
-            timeout = thirdParam;
-          } else {
-            throw new TypeError("Utils.waitAnyNode 第三个参数必须是number");
-          }
-        } else {
-          throw new TypeError("Utils.waitAnyNode 第二个参数必须是Node");
-        }
-      } else {
-        throw new TypeError("Utils.waitAnyNode 参数个数错误");
-      }
-      let promiseList = selectorList.map((selector) => {
-        return UtilsContext.waitNode(selector, parent, timeout);
-      });
-      return Promise.any(promiseList);
-    }
-    waitNodeList(...args) {
-      args = args.filter((arg) => arg !== void 0);
-      let UtilsContext = this;
-      let selector = args[0];
-      let parent = UtilsContext.windowApi.document;
-      let timeout = 0;
-      if (typeof args[0] !== "string" && !Array.isArray(args[0])) {
-        throw new TypeError("Utils.waitNodeList 第一个参数必须是string|string[]");
-      }
-      if (args.length === 1) ;
-      else if (args.length === 2) {
-        let secondParam = args[1];
-        if (typeof secondParam === "number") {
-          timeout = secondParam;
-        } else if (typeof secondParam === "object" && secondParam instanceof Node) {
-          parent = secondParam;
-        } else {
-          throw new TypeError("Utils.waitNodeList 第二个参数必须是number|Node");
-        }
-      } else if (args.length === 3) {
-        let secondParam = args[1];
-        let thirdParam = args[2];
-        if (typeof secondParam === "object" && secondParam instanceof Node) {
-          parent = secondParam;
-          if (typeof thirdParam === "number") {
-            timeout = thirdParam;
-          } else {
-            throw new TypeError("Utils.waitNodeList 第三个参数必须是number");
-          }
-        } else {
-          throw new TypeError("Utils.waitNodeList 第二个参数必须是Node");
-        }
-      } else {
-        throw new TypeError("Utils.waitNodeList 参数个数错误");
-      }
-      function getNodeList() {
-        if (Array.isArray(selector)) {
-          let result = [];
-          for (let index = 0; index < selector.length; index++) {
-            let nodeList = domUtils$1.selectorAll(selector[index], parent);
-            if (nodeList.length) {
-              result.push(nodeList);
-            }
-          }
-          if (result.length === selector.length) {
-            return result;
-          }
-        } else {
-          let nodeList = domUtils$1.selectorAll(selector, parent);
-          if (nodeList.length) {
-            return nodeList;
-          }
-        }
-      }
-      return UtilsContext.wait(() => {
-        let node = getNodeList();
-        if (node) {
-          return {
-            success: true,
-            data: node
-          };
-        } else {
-          return {
-            success: false,
-            data: node
-          };
-        }
-      }, timeout, parent);
-    }
-    waitAnyNodeList(...args) {
-      args = args.filter((arg) => arg !== void 0);
-      let UtilsContext = this;
-      let selectorList = args[0];
-      let parent = UtilsContext.windowApi.document;
-      let timeout = 0;
-      if (!Array.isArray(args[0])) {
-        throw new TypeError("Utils.waitAnyNodeList 第一个参数必须是string[]");
-      }
-      if (args.length === 1) ;
-      else if (args.length === 2) {
-        let secondParam = args[1];
-        if (typeof secondParam === "number") {
-          timeout = secondParam;
-        } else if (typeof secondParam === "object" && secondParam instanceof Node) {
-          parent = secondParam;
-        } else {
-          throw new TypeError("Utils.waitAnyNodeList 第二个参数必须是number|Node");
-        }
-      } else if (args.length === 3) {
-        let secondParam = args[1];
-        let thirdParam = args[2];
-        if (typeof secondParam === "object" && secondParam instanceof Node) {
-          parent = secondParam;
-          if (typeof thirdParam === "number") {
-            timeout = thirdParam;
-          } else {
-            throw new TypeError("Utils.waitAnyNodeList 第三个参数必须是number");
-          }
-        } else {
-          throw new TypeError("Utils.waitAnyNodeList 第二个参数必须是Node");
-        }
-      } else {
-        throw new TypeError("Utils.waitAnyNodeList 参数个数错误");
-      }
-      let promiseList = selectorList.map((selector) => {
-        return UtilsContext.waitNodeList(selector, parent, timeout);
-      });
-      return Promise.any(promiseList);
-    }
-    waitProperty(checkObj, checkPropertyName) {
-      return new Promise((resolve) => {
-        let obj = checkObj;
-        if (typeof checkObj === "function") {
-          obj = checkObj();
-        }
-        if (Reflect.has(obj, checkPropertyName)) {
-          resolve(obj[checkPropertyName]);
-        } else {
-          Object.defineProperty(obj, checkPropertyName, {
+          Object.defineProperty(obj, propertyName, {
             set: function(value) {
               try {
                 resolve(value);
@@ -9454,48 +9725,48 @@ tryCatch = TryCatch;
         }
       });
     }
-    waitPropertyByInterval(checkObj, checkPropertyName, intervalTimer = 250, maxTime = -1) {
-      let UtilsContext = this;
-      if (checkObj == null) {
+    waitPropertyByInterval(checkFn, propertyName, intervalTimer = 250, maxTime = -1) {
+      const that = this;
+      if (checkFn == null) {
         throw new TypeError("checkObj 不能为空对象 ");
       }
       let isResolve = false;
       return new Promise((resolve, reject) => {
-        let interval = UtilsContext.workerSetInterval(() => {
-          let obj = checkObj;
-          if (typeof checkObj === "function") {
-            obj = checkObj();
+        const interval = that.workerSetInterval(() => {
+          let inst = checkFn;
+          if (typeof checkFn === "function") {
+            inst = checkFn();
           }
-          if (typeof obj !== "object") {
+          if (typeof inst !== "object") {
             return;
           }
-          if (obj == null) {
+          if (inst == null) {
             return;
           }
-          if (typeof checkPropertyName === "function" && checkPropertyName(obj) || Reflect.has(obj, checkPropertyName)) {
+          if (typeof propertyName === "function" && propertyName(inst) || Reflect.has(inst, propertyName)) {
             isResolve = true;
-            UtilsContext.workerClearInterval(interval);
-            resolve(obj[checkPropertyName]);
+            that.workerClearInterval(interval);
+            resolve(inst[propertyName]);
           }
         }, intervalTimer);
         if (maxTime !== -1) {
-          UtilsContext.workerSetTimeout(() => {
+          that.workerSetTimeout(() => {
             if (!isResolve) {
-              UtilsContext.workerClearInterval(interval);
+              that.workerClearInterval(interval);
               reject();
             }
           }, maxTime);
         }
       });
     }
-    async waitVueByInterval(element, propertyName, timer = 250, maxTime = -1, vueName = "__vue__") {
-      if (element == null) {
+    async waitVueByInterval($el, propertyName, timer = 250, maxTime = -1, vueName = "__vue__") {
+      if ($el == null) {
         throw new Error("Utils.waitVueByInterval 参数element 不能为空");
       }
       let flag = false;
-      let UtilsContext = this;
+      const that = this;
       try {
-        await UtilsContext.waitPropertyByInterval(element, function(targetElement) {
+        await that.waitPropertyByInterval($el, function(targetElement) {
           if (targetElement == null) {
             return false;
           }
@@ -9505,21 +9776,21 @@ tryCatch = TryCatch;
           if (propertyName == null) {
             return true;
           }
-          let vueObject = targetElement[vueName];
+          const $vueEl = targetElement[vueName];
           if (typeof propertyName === "string") {
-            if (propertyName in vueObject) {
+            if (propertyName in $vueEl) {
               flag = true;
               return true;
             }
           } else {
-            if (propertyName(vueObject)) {
+            if (propertyName($vueEl)) {
               flag = true;
               return true;
             }
           }
           return false;
         }, timer, maxTime);
-      } catch (error) {
+      } catch {
         return flag;
       }
       return flag;
@@ -9567,7 +9838,7 @@ queryProperty(target, handler) {
       if (target == null) {
         return;
       }
-      let handleResult = handler(target);
+      const handleResult = handler(target);
       if (handleResult && typeof handleResult.isFind === "boolean" && handleResult.isFind) {
         return handleResult.data;
       }
@@ -9577,14 +9848,14 @@ async asyncQueryProperty(target, handler) {
       if (target == null) {
         return;
       }
-      let handleResult = await handler(target);
+      const handleResult = await handler(target);
       if (handleResult && typeof handleResult.isFind === "boolean" && handleResult.isFind) {
         return handleResult.data;
       }
       return await this.asyncQueryProperty(handleResult.data, handler);
     }
 createUtils(option) {
-      return new Utils(option);
+      return new Utils2(option);
     }
 toFormData(data, isEncode = false, valueAutoParseToStr = false) {
       const formData = new FormData();
@@ -9660,59 +9931,8 @@ workerClearInterval(timeId) {
         this.windowApi.clearInterval(timeId);
       }
     }
-async getClipboardInfo() {
-      return new Promise((resolve) => {
-        function readClipboardText() {
-          navigator.clipboard.readText().then((clipboardText) => {
-            resolve({
-              error: null,
-              content: clipboardText
-            });
-          }).catch((error) => {
-            resolve({
-              error,
-              content: ""
-            });
-          });
-        }
-        function requestPermissionsWithClipboard() {
-          navigator.permissions.query({
-            name: "clipboard-read"
-          }).then((permissionStatus) => {
-            readClipboardText();
-          }).catch((error) => {
-            readClipboardText();
-          });
-        }
-        function checkClipboardApi() {
-          if (typeof navigator?.clipboard?.readText !== "function") {
-            return false;
-          }
-          if (typeof navigator?.permissions?.query !== "function") {
-            return false;
-          }
-          return true;
-        }
-        if (!checkClipboardApi()) {
-          resolve({
-            error: new Error("当前环境不支持读取剪贴板Api"),
-            content: ""
-          });
-          return;
-        }
-        if (document.hasFocus()) {
-          requestPermissionsWithClipboard();
-        } else {
-          window.addEventListener("focus", () => {
-            requestPermissionsWithClipboard();
-          }, {
-            once: true
-          });
-        }
-      });
-    }
   }
-  let utils$1 = new Utils();
+  const utils$1 = new Utils2();
   const GlobalConfig = {
     config: {},
 setGlobalConfig(config) {
@@ -9721,18 +9941,18 @@ setGlobalConfig(config) {
       });
     },
 getGlobalConfig() {
-      let result = {};
+      const result = {};
       Object.keys(GlobalConfig.config).forEach((keyName) => {
-        let configValue = Reflect.get(GlobalConfig.config, keyName);
+        const configValue = Reflect.get(GlobalConfig.config, keyName);
         if (keyName === "style") {
-          let style = configValue == null ? "" : typeof configValue === "function" ? configValue() : configValue;
+          const style = configValue == null ? "" : typeof configValue === "function" ? configValue() : configValue;
           if (typeof style === "string") {
             result.style = style;
           }
         } else if (keyName === "zIndex") {
           let zIndex = configValue == null ? "" : typeof configValue === "function" ? configValue() : configValue;
           if (typeof zIndex === "string") {
-            let newIndex = zIndex = Number(zIndex);
+            const newIndex = zIndex = Number(zIndex);
             if (!isNaN(newIndex)) {
               result.zIndex = newIndex;
             }
@@ -9742,7 +9962,7 @@ getGlobalConfig() {
             }
           }
         } else if (keyName === "mask") {
-          let mask = GlobalConfig.config.mask == null ? {} : GlobalConfig.config.mask;
+          const mask = GlobalConfig.config.mask == null ? {} : GlobalConfig.config.mask;
           if (typeof mask === "object" && mask != null) {
             result.mask = mask;
           }
@@ -10542,7 +10762,7 @@ delete(target, propName) {
       }
     }
     assign(target = {}, source = {}, isAdd = false) {
-      let UtilsContext = this;
+      const UtilsContext = this;
       if (source == null) {
         return target;
       }
@@ -10550,7 +10770,7 @@ delete(target, propName) {
         target = {};
       }
       if (Array.isArray(source)) {
-        let canTraverse = source.filter((item) => {
+        const canTraverse = source.filter((item) => {
           return typeof item === "object";
         });
         if (!canTraverse.length) {
@@ -10560,8 +10780,8 @@ delete(target, propName) {
       if (isAdd) {
         for (const sourceKeyName in source) {
           const targetKeyName = sourceKeyName;
-          let targetValue = target[targetKeyName];
-          let sourceValue = source[sourceKeyName];
+          const targetValue = target[targetKeyName];
+          const sourceValue = source[sourceKeyName];
           if (typeof sourceValue === "object" && sourceValue != null && sourceKeyName in target && !UtilsContext.isDOM(sourceValue)) {
             target[sourceKeyName] = UtilsContext.assign(targetValue, sourceValue, isAdd);
             continue;
@@ -10571,13 +10791,14 @@ delete(target, propName) {
       } else {
         for (const targetKeyName in target) {
           if (targetKeyName in source) {
-            let targetValue = target[targetKeyName];
-            let sourceValue = source[targetKeyName];
+            const targetValue = Reflect.get(target, targetKeyName);
+            const sourceValue = Reflect.get(source, targetKeyName);
             if (typeof sourceValue === "object" && sourceValue != null && !UtilsContext.isDOM(sourceValue) && Object.keys(sourceValue).length) {
-              target[targetKeyName] = UtilsContext.assign(targetValue, sourceValue, isAdd);
+              const childObjectValue = UtilsContext.assign(targetValue, sourceValue, isAdd);
+              Reflect.set(target, targetKeyName, childObjectValue);
               continue;
             }
-            target[targetKeyName] = sourceValue;
+            Reflect.set(target, targetKeyName, sourceValue);
           }
         }
       }
@@ -10588,14 +10809,15 @@ getRandomGUID() {
         return PopsCore.globalThis.crypto.randomUUID();
       } else {
         return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(charStr) {
-          var randomValue = Math.random() * 16 | 0, randomCharValue = charStr === "x" ? randomValue : randomValue & 3 | 8;
+          const randomValue = Math.random() * 16 | 0, randomCharValue = charStr === "x" ? randomValue : randomValue & 3 | 8;
           return randomCharValue.toString(16);
         });
       }
     }
-    contains(context, target) {
-      if (arguments.length === 1) {
-        return this.contains(PopsCore.document.body || PopsCore.document.documentElement, arguments[0]);
+    contains(...args) {
+      const [context, target] = args;
+      if (args.length === 1) {
+        return this.contains(PopsCore.document.body || PopsCore.document.documentElement, args[0]);
       } else {
         if (target == null) {
           return false;
@@ -10615,7 +10837,7 @@ getRandomGUID() {
       }
     }
     formatTime(text = new Date(), formatType = "yyyy-MM-dd HH:mm:ss") {
-      let time = text == null ? new Date() : new Date(text);
+      const time = text == null ? new Date() : new Date(text);
       function checkTime(timeNum) {
         if (timeNum < 10)
           return "0" + timeNum;
@@ -10624,7 +10846,7 @@ getRandomGUID() {
       function timeSystemChange(hourNum) {
         return hourNum > 12 ? hourNum - 12 : hourNum;
       }
-      let timeRegexp = {
+      const timeRegexp = {
         yyyy: time.getFullYear(),
 MM: checkTime(time.getMonth() + 1),
 dd: checkTime(time.getDate()),
@@ -10634,7 +10856,7 @@ mm: checkTime(time.getMinutes()),
 ss: checkTime(time.getSeconds())
 };
       Object.keys(timeRegexp).forEach(function(key) {
-        let replaecRegexp = new RegExp(key, "g");
+        const replaecRegexp = new RegExp(key, "g");
         formatType = formatType.replace(replaecRegexp, timeRegexp[key]);
       });
       return formatType;
@@ -10646,7 +10868,7 @@ ss: checkTime(time.getSeconds())
       }
       let result = 0;
       let resultType = "KB";
-      let sizeData = {};
+      const sizeData = {};
       sizeData.B = 1;
       sizeData.KB = 1024;
       sizeData.MB = sizeData.KB * sizeData.KB;
@@ -10659,7 +10881,7 @@ ss: checkTime(time.getSeconds())
       sizeData.BB = sizeData.YB * sizeData.KB;
       sizeData.NB = sizeData.BB * sizeData.KB;
       sizeData.DB = sizeData.NB * sizeData.KB;
-      for (let key in sizeData) {
+      for (const key in sizeData) {
         result = byteSize / sizeData[key];
         resultType = key;
         if (sizeData.KB >= result) {
@@ -10679,7 +10901,7 @@ isPhone(userAgent = PopsCore.globalThis.navigator.userAgent) {
 setTimeout(callback, timeout = 0) {
       try {
         return setTimeout$1(callback, timeout);
-      } catch (error) {
+      } catch {
         return PopsCore.setTimeout(callback, timeout);
       }
     }
@@ -10688,7 +10910,7 @@ clearTimeout(timeId) {
         if (timeId != null) {
           clearTimeout$1(timeId);
         }
-      } catch (error) {
+      } catch {
       } finally {
         PopsCore.clearTimeout(timeId);
       }
@@ -10696,7 +10918,7 @@ clearTimeout(timeId) {
 setInterval(callback, timeout = 0) {
       try {
         return setInterval$1(callback, timeout);
-      } catch (error) {
+      } catch {
         return PopsCore.setInterval(callback, timeout);
       }
     }
@@ -10705,7 +10927,7 @@ clearInterval(timeId) {
         if (timeId != null) {
           clearInterval$1(timeId);
         }
-      } catch (error) {
+      } catch {
       } finally {
         PopsCore.clearInterval(timeId);
       }
@@ -10714,8 +10936,8 @@ clearInterval(timeId) {
   const popsUtils = new PopsUtils();
   const PopsSafeUtils = {
 getSafeHTML(text) {
-      if (globalThis.trustedTypes) {
-        const policy = globalThis.trustedTypes.createPolicy("safe-innerHTML", {
+      if (window.trustedTypes) {
+        const policy = window.trustedTypes.createPolicy("safe-innerHTML", {
           createHTML: (html) => html
         });
         return policy.createHTML(text);
@@ -10738,7 +10960,7 @@ setSafeHTML($el, text) {
   class PopsDOMUtilsEvent {
     on(element, eventType, selector, callback, option) {
       function getOption(args2, startIndex, option2) {
-        let currentParam = args2[startIndex];
+        const currentParam = args2[startIndex];
         if (typeof currentParam === "boolean") {
           option2.capture = currentParam;
           if (typeof args2[startIndex + 1] === "boolean") {
@@ -10755,8 +10977,8 @@ setSafeHTML($el, text) {
         }
         return option2;
       }
-      let DOMUtilsContext = this;
-      let args = arguments;
+      const DOMUtilsContext = this;
+      const args = arguments;
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
       }
@@ -10810,11 +11032,11 @@ setSafeHTML($el, text) {
                 totalParent = PopsCore.document.documentElement;
               }
             }
-            let findValue = selectorList.find((selectorItem) => {
+            const findValue = selectorList.find((selectorItem) => {
               if (DOMUtilsContext.matches(eventTarget, selectorItem)) {
                 return true;
               }
-              let $closestMatches = DOMUtilsContext.closest(eventTarget, selectorItem);
+              const $closestMatches = DOMUtilsContext.closest(eventTarget, selectorItem);
               if ($closestMatches && totalParent?.contains($closestMatches)) {
                 eventTarget = $closestMatches;
                 return true;
@@ -10828,7 +11050,7 @@ setSafeHTML($el, text) {
                     return eventTarget;
                   }
                 });
-              } catch (error) {
+              } catch {
               }
               listenerCallBack.call(eventTarget, event, eventTarget);
               checkOptionOnceToRemoveEventListener();
@@ -10840,7 +11062,7 @@ setSafeHTML($el, text) {
         }
         eventTypeList.forEach((eventName) => {
           elementItem.addEventListener(eventName, domUtilsEventCallBack, listenerOption);
-          let elementEvents = Reflect.get(elementItem, SymbolEvents) || {};
+          const elementEvents = Reflect.get(elementItem, SymbolEvents) || {};
           elementEvents[eventName] = elementEvents[eventName] || [];
           elementEvents[eventName].push({
             selector: selectorList,
@@ -10854,16 +11076,16 @@ setSafeHTML($el, text) {
     }
     off(element, eventType, selector, callback, option, filter) {
       function getOption(args1, startIndex, option2) {
-        let currentParam = args1[startIndex];
+        const currentParam = args1[startIndex];
         if (typeof currentParam === "boolean") {
           option2.capture = currentParam;
-        } else if (typeof currentParam === "object" && "capture" in currentParam) {
+        } else if (typeof currentParam === "object" && currentParam != null && "capture" in currentParam) {
           option2.capture = currentParam.capture;
         }
         return option2;
       }
-      let DOMUtilsContext = this;
-      let args = arguments;
+      const DOMUtilsContext = this;
+      const args = arguments;
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
       }
@@ -10905,15 +11127,16 @@ setSafeHTML($el, text) {
       } else if (args.length === 3 && typeof args[2] === "string" || Array.isArray(args[2])) {
         isRemoveAll = true;
       }
+      if (args.length === 5 && typeof args[4] === "function" && typeof filter !== "function") {
+        filter = option;
+      }
       elementList.forEach((elementItem) => {
-        let elementEvents = Reflect.get(elementItem, SymbolEvents) || {};
+        const elementEvents = Reflect.get(elementItem, SymbolEvents) || {};
         eventTypeList.forEach((eventName) => {
-          let handlers = elementEvents[eventName] || [];
-          if (typeof filter === "function") {
-            handlers = handlers.filter(filter);
-          }
-          for (let index = 0; index < handlers.length; index++) {
-            let handler = handlers[index];
+          const handlers = elementEvents[eventName] || [];
+          const filterHandler = typeof filter === "function" ? handlers.filter(filter) : handlers;
+          for (let index = 0; index < filterHandler.length; index++) {
+            const handler = filterHandler[index];
             let flag = true;
             if (flag && listenerCallBack && handler.originCallBack !== listenerCallBack) {
               flag = false;
@@ -10923,12 +11146,15 @@ setSafeHTML($el, text) {
                 flag = false;
               }
             }
-            if (flag && listenerOption.capture !== handler.option.capture) {
+            if (flag && typeof handler.option.capture === "boolean" && listenerOption.capture !== handler.option.capture) {
               flag = false;
             }
             if (flag || isRemoveAll) {
               elementItem.removeEventListener(eventName, handler.callback, handler.option);
-              handlers.splice(index--, 1);
+              const findIndex = handlers.findIndex((item) => item === handler);
+              if (findIndex !== -1) {
+                handlers.splice(findIndex, 1);
+              }
             }
           }
           if (handlers.length === 0) {
@@ -10962,10 +11188,10 @@ offAll(element, eventType) {
           if (!__symbolEvents.toString().startsWith("Symbol(events_")) {
             return;
           }
-          let elementEvents = elementItem[__symbolEvents] || {};
-          let iterEventNameList = eventTypeList.length ? eventTypeList : Object.keys(elementEvents);
+          const elementEvents = elementItem[__symbolEvents] || {};
+          const iterEventNameList = eventTypeList.length ? eventTypeList : Object.keys(elementEvents);
           iterEventNameList.forEach((eventName) => {
-            let handlers = elementEvents[eventName];
+            const handlers = elementEvents[eventName];
             if (!handlers) {
               return;
             }
@@ -10991,7 +11217,7 @@ ready(callback) {
           } else {
             return false;
           }
-        } catch (error) {
+        } catch {
           return false;
         }
       }
@@ -10999,7 +11225,7 @@ ready(callback) {
         removeDomReadyListener();
         callback();
       }
-      let targetList = [
+      const targetList = [
         {
           target: PopsCore.document,
           eventType: "DOMContentLoaded",
@@ -11013,13 +11239,13 @@ ready(callback) {
       ];
       function addDomReadyListener() {
         for (let index = 0; index < targetList.length; index++) {
-          let item = targetList[index];
+          const item = targetList[index];
           that.on(item.target, item.eventType, item.callback);
         }
       }
       function removeDomReadyListener() {
         for (let index = 0; index < targetList.length; index++) {
-          let item = targetList[index];
+          const item = targetList[index];
           that.off(item.target, item.eventType, item.callback);
         }
       }
@@ -11050,7 +11276,7 @@ trigger(element, eventType, details, useDispatchToTriggerEvent = true) {
         eventTypeList = eventType.split(" ");
       }
       elementList.forEach((elementItem) => {
-        let events = elementItem[SymbolEvents] || {};
+        const events = elementItem[SymbolEvents] || {};
         eventTypeList.forEach((_eventType_) => {
           let event = null;
           if (details && details instanceof Event) {
@@ -11074,7 +11300,7 @@ trigger(element, eventType, details, useDispatchToTriggerEvent = true) {
       });
     }
 click(element, handler, details, useDispatchToTriggerEvent) {
-      let DOMUtilsContext = this;
+      const DOMUtilsContext = this;
       if (typeof element === "string") {
         element = PopsCore.document.querySelector(element);
       }
@@ -11088,7 +11314,7 @@ click(element, handler, details, useDispatchToTriggerEvent) {
       }
     }
 blur(element, handler, details, useDispatchToTriggerEvent) {
-      let DOMUtilsContext = this;
+      const DOMUtilsContext = this;
       if (typeof element === "string") {
         element = PopsCore.document.querySelector(element);
       }
@@ -11102,7 +11328,7 @@ blur(element, handler, details, useDispatchToTriggerEvent) {
       }
     }
 focus(element, handler, details, useDispatchToTriggerEvent) {
-      let DOMUtilsContext = this;
+      const DOMUtilsContext = this;
       if (typeof element === "string") {
         element = PopsCore.document.querySelector(element);
       }
@@ -11116,7 +11342,7 @@ focus(element, handler, details, useDispatchToTriggerEvent) {
       }
     }
 hover(element, handler, option) {
-      let DOMUtilsContext = this;
+      const DOMUtilsContext = this;
       if (typeof element === "string") {
         element = PopsCore.document.querySelector(element);
       }
@@ -11127,7 +11353,7 @@ hover(element, handler, option) {
       DOMUtilsContext.on(element, "mouseleave", null, handler, option);
     }
 keyup(target, handler, option) {
-      let DOMUtilsContext = this;
+      const DOMUtilsContext = this;
       if (target == null) {
         return;
       }
@@ -11137,7 +11363,7 @@ keyup(target, handler, option) {
       DOMUtilsContext.on(target, "keyup", null, handler, option);
     }
 keydown(target, handler, option) {
-      let DOMUtilsContext = this;
+      const DOMUtilsContext = this;
       if (target == null) {
         return;
       }
@@ -11147,7 +11373,7 @@ keydown(target, handler, option) {
       DOMUtilsContext.on(target, "keydown", null, handler, option);
     }
 keypress(target, handler, option) {
-      let DOMUtilsContext = this;
+      const DOMUtilsContext = this;
       if (target == null) {
         return;
       }
@@ -11185,22 +11411,22 @@ keypress(target, handler, option) {
           return $ele?.innerHTML?.trim() === "";
         });
       } else if (selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) || selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)) {
-        let textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
-        let text = textMatch[2];
+        const textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
+        const text = textMatch[2];
         selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
         return Array.from(PopsCore.document.querySelectorAll(selector)).filter(($ele) => {
           return ($ele?.textContent || $ele?.innerText)?.includes(text);
         });
       } else if (selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) || selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)) {
-        let textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
+        const textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
         let pattern = textMatch[2];
-        let flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
+        const flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
         let flags = "";
         if (flagMatch) {
           pattern = pattern.replace(/("|'),[\s]*("|')([igm]{0,3})$/gi, "");
           flags = flagMatch[3];
         }
-        let regexp = new RegExp(pattern, flags);
+        const regexp = new RegExp(pattern, flags);
         selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
         return Array.from(PopsCore.document.querySelectorAll(selector)).filter(($ele) => {
           return Boolean(($ele?.textContent || $ele?.innerText)?.match(regexp));
@@ -11218,8 +11444,8 @@ matches($el, selector) {
         selector = selector.replace(/:empty$/gi, "");
         return $el.matches(selector) && $el?.innerHTML?.trim() === "";
       } else if (selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) || selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)) {
-        let textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
-        let text = textMatch[2];
+        const textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
+        const text = textMatch[2];
         selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
         let content = $el?.textContent || $el?.innerText;
         if (typeof content !== "string") {
@@ -11227,15 +11453,15 @@ matches($el, selector) {
         }
         return $el.matches(selector) && content?.includes(text);
       } else if (selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) || selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)) {
-        let textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
+        const textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
         let pattern = textMatch[2];
-        let flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
+        const flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
         let flags = "";
         if (flagMatch) {
           pattern = pattern.replace(/("|'),[\s]*("|')([igm]{0,3})$/gi, "");
           flags = flagMatch[3];
         }
-        let regexp = new RegExp(pattern, flags);
+        const regexp = new RegExp(pattern, flags);
         selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
         let content = $el?.textContent || $el?.innerText;
         if (typeof content !== "string") {
@@ -11250,44 +11476,44 @@ matches($el, selector) {
       selector = selector.trim();
       if (selector.match(/[^\s]{1}:empty$/gi)) {
         selector = selector.replace(/:empty$/gi, "");
-        let $closest = $el?.closest(selector);
+        const $closest = $el?.closest(selector);
         if ($closest && $closest?.innerHTML?.trim() === "") {
           return $closest;
         }
         return null;
       } else if (selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) || selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)) {
-        let textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
-        let text = textMatch[2];
+        const textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
+        const text = textMatch[2];
         selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
-        let $closest = $el?.closest(selector);
+        const $closest = $el?.closest(selector);
         if ($closest) {
-          let content = $el?.textContent || $el?.innerText;
+          const content = $el?.textContent || $el?.innerText;
           if (typeof content === "string" && content.includes(text)) {
             return $closest;
           }
         }
         return null;
       } else if (selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) || selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)) {
-        let textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
+        const textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
         let pattern = textMatch[2];
-        let flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
+        const flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
         let flags = "";
         if (flagMatch) {
           pattern = pattern.replace(/("|'),[\s]*("|')([igm]{0,3})$/gi, "");
           flags = flagMatch[3];
         }
-        let regexp = new RegExp(pattern, flags);
+        const regexp = new RegExp(pattern, flags);
         selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
-        let $closest = $el?.closest(selector);
+        const $closest = $el?.closest(selector);
         if ($closest) {
-          let content = $el?.textContent || $el?.innerText;
+          const content = $el?.textContent || $el?.innerText;
           if (typeof content === "string" && content.match(regexp)) {
             return $closest;
           }
         }
         return null;
       } else {
-        let $closest = $el?.closest(selector);
+        const $closest = $el?.closest(selector);
         return $closest;
       }
     }
@@ -11300,13 +11526,13 @@ getTransitionEndNameList() {
       return ["webkitTransitionEnd", "mozTransitionEnd", "MSTransitionEnd", "otransitionend", "transitionend"];
     }
 offset(element, calcScroll = true) {
-      let rect = element.getBoundingClientRect();
-      let win = element.ownerDocument.defaultView;
-      let resultRect = new DOMRect(calcScroll ? parseFloat((rect.left + (win?.pageXOffset || 0)).toString()) : rect.left, calcScroll ? parseFloat((rect.top + (win?.pageYOffset || 0)).toString()) : rect.top, rect.width, rect.height);
+      const rect = element.getBoundingClientRect();
+      const win = element.ownerDocument.defaultView;
+      const resultRect = new DOMRect(calcScroll ? parseFloat((rect.left + (win?.pageXOffset || 0)).toString()) : rect.left, calcScroll ? parseFloat((rect.top + (win?.pageYOffset || 0)).toString()) : rect.top, rect.width, rect.height);
       return resultRect;
     }
     width(element, isShow = false, parent) {
-      let DOMUtilsContext = this;
+      const DOMUtilsContext = this;
       if (typeof element === "string") {
         element = PopsCore.document.querySelector(element);
       }
@@ -11326,24 +11552,24 @@ offset(element, calcScroll = true) {
           return parseFloat(popsDOMUtils.getStyleValue(element, "width").toString());
         }
         if (element.offsetWidth > 0) {
-          let borderLeftWidth = popsDOMUtils.getStyleValue(element, "borderLeftWidth");
-          let borderRightWidth = popsDOMUtils.getStyleValue(element, "borderRightWidth");
-          let paddingLeft = popsDOMUtils.getStyleValue(element, "paddingLeft");
-          let paddingRight = popsDOMUtils.getStyleValue(element, "paddingRight");
-          let backHeight = parseFloat(element.offsetWidth.toString()) - parseFloat(borderLeftWidth.toString()) - parseFloat(borderRightWidth.toString()) - parseFloat(paddingLeft.toString()) - parseFloat(paddingRight.toString());
+          const borderLeftWidth = popsDOMUtils.getStyleValue(element, "borderLeftWidth");
+          const borderRightWidth = popsDOMUtils.getStyleValue(element, "borderRightWidth");
+          const paddingLeft = popsDOMUtils.getStyleValue(element, "paddingLeft");
+          const paddingRight = popsDOMUtils.getStyleValue(element, "paddingRight");
+          const backHeight = parseFloat(element.offsetWidth.toString()) - parseFloat(borderLeftWidth.toString()) - parseFloat(borderRightWidth.toString()) - parseFloat(paddingLeft.toString()) - parseFloat(paddingRight.toString());
           return parseFloat(backHeight.toString());
         }
         return 0;
       } else {
         element = element;
-        let { cloneNode, recovery } = popsDOMUtils.showElement(element, parent);
-        let width = DOMUtilsContext.width(cloneNode, true, parent);
+        const { cloneNode, recovery } = popsDOMUtils.showElement(element, parent);
+        const width = DOMUtilsContext.width(cloneNode, true, parent);
         recovery();
         return width;
       }
     }
     height(element, isShow = false, parent) {
-      let DOMUtilsContext = this;
+      const DOMUtilsContext = this;
       if (popsUtils.isWin(element)) {
         return PopsCore.window.document.documentElement.clientHeight;
       }
@@ -11363,24 +11589,24 @@ offset(element, calcScroll = true) {
           return parseFloat(popsDOMUtils.getStyleValue(element, "height").toString());
         }
         if (element.offsetHeight > 0) {
-          let borderTopWidth = popsDOMUtils.getStyleValue(element, "borderTopWidth");
-          let borderBottomWidth = popsDOMUtils.getStyleValue(element, "borderBottomWidth");
-          let paddingTop = popsDOMUtils.getStyleValue(element, "paddingTop");
-          let paddingBottom = popsDOMUtils.getStyleValue(element, "paddingBottom");
-          let backHeight = parseFloat(element.offsetHeight.toString()) - parseFloat(borderTopWidth.toString()) - parseFloat(borderBottomWidth.toString()) - parseFloat(paddingTop.toString()) - parseFloat(paddingBottom.toString());
+          const borderTopWidth = popsDOMUtils.getStyleValue(element, "borderTopWidth");
+          const borderBottomWidth = popsDOMUtils.getStyleValue(element, "borderBottomWidth");
+          const paddingTop = popsDOMUtils.getStyleValue(element, "paddingTop");
+          const paddingBottom = popsDOMUtils.getStyleValue(element, "paddingBottom");
+          const backHeight = parseFloat(element.offsetHeight.toString()) - parseFloat(borderTopWidth.toString()) - parseFloat(borderBottomWidth.toString()) - parseFloat(paddingTop.toString()) - parseFloat(paddingBottom.toString());
           return parseFloat(backHeight.toString());
         }
         return 0;
       } else {
         element = element;
-        let { cloneNode, recovery } = popsDOMUtils.showElement(element, parent);
-        let height = DOMUtilsContext.height(cloneNode, true, parent);
+        const { cloneNode, recovery } = popsDOMUtils.showElement(element, parent);
+        const height = DOMUtilsContext.height(cloneNode, true, parent);
         recovery();
         return height;
       }
     }
     outerWidth(element, isShow = false, parent) {
-      let DOMUtilsContext = this;
+      const DOMUtilsContext = this;
       if (popsUtils.isWin(element)) {
         return PopsCore.window.innerWidth;
       }
@@ -11392,37 +11618,34 @@ offset(element, calcScroll = true) {
       }
       element = element;
       if (isShow || !isShow && popsDOMUtils.isShow(element)) {
-        let style = getComputedStyle(element, null);
-        let marginLeft = popsDOMUtils.getStyleValue(style, "marginLeft");
-        let marginRight = popsDOMUtils.getStyleValue(style, "marginRight");
+        const style = getComputedStyle(element, null);
+        const marginLeft = popsDOMUtils.getStyleValue(style, "marginLeft");
+        const marginRight = popsDOMUtils.getStyleValue(style, "marginRight");
         return element.offsetWidth + marginLeft + marginRight;
       } else {
-        let { cloneNode, recovery } = popsDOMUtils.showElement(element, parent);
-        let outerWidth = DOMUtilsContext.outerWidth(cloneNode, true, parent);
+        const { cloneNode, recovery } = popsDOMUtils.showElement(element, parent);
+        const outerWidth = DOMUtilsContext.outerWidth(cloneNode, true, parent);
         recovery();
         return outerWidth;
       }
     }
     outerHeight(element, isShow = false, parent) {
-      let DOMUtilsContext = this;
+      const DOMUtilsContext = this;
       if (popsUtils.isWin(element)) {
         return PopsCore.window.innerHeight;
       }
       if (typeof element === "string") {
         element = PopsCore.document.querySelector(element);
       }
-      if (element == null) {
-        return;
-      }
       element = element;
       if (isShow || !isShow && popsDOMUtils.isShow(element)) {
-        let style = getComputedStyle(element, null);
-        let marginTop = popsDOMUtils.getStyleValue(style, "marginTop");
-        let marginBottom = popsDOMUtils.getStyleValue(style, "marginBottom");
+        const style = getComputedStyle(element, null);
+        const marginTop = popsDOMUtils.getStyleValue(style, "marginTop");
+        const marginBottom = popsDOMUtils.getStyleValue(style, "marginBottom");
         return element.offsetHeight + marginTop + marginBottom;
       } else {
-        let { cloneNode, recovery } = popsDOMUtils.showElement(element, parent);
-        let outerHeight = DOMUtilsContext.outerHeight(cloneNode, true, parent);
+        const { cloneNode, recovery } = popsDOMUtils.showElement(element, parent);
+        const outerHeight = DOMUtilsContext.outerHeight(cloneNode, true, parent);
         recovery();
         return outerHeight;
       }
@@ -11467,7 +11690,7 @@ containsClassName($el, className) {
     }
     css(element, property, value) {
       function handlePixe(propertyName, propertyValue) {
-        let allowAddPixe = ["width", "height", "top", "left", "right", "bottom", "font-size"];
+        const allowAddPixe = ["width", "height", "top", "left", "right", "bottom", "font-size"];
         if (typeof propertyValue === "number") {
           propertyValue = propertyValue.toString();
         }
@@ -11482,7 +11705,7 @@ containsClassName($el, className) {
       if (element == null) {
         return;
       }
-      let setStyleProperty = (propertyName, propertyValue) => {
+      const setStyleProperty = (propertyName, propertyValue) => {
         if (typeof propertyValue === "string" && propertyValue.trim().endsWith("!important")) {
           propertyValue = propertyValue.trim().replace(/!important$/gi, "").trim();
           element.style.setProperty(propertyName, propertyValue, "important");
@@ -11498,14 +11721,14 @@ containsClassName($el, className) {
           setStyleProperty(property, value);
         }
       } else if (typeof property === "object") {
-        for (let prop in property) {
-          let value2 = property[prop];
+        for (const prop in property) {
+          const value2 = property[prop];
           setStyleProperty(prop, value2);
         }
       }
     }
 createElement(tagName, property, attributes) {
-      let tempElement = PopsCore.document.createElement(tagName);
+      const tempElement = PopsCore.document.createElement(tagName);
       if (typeof property === "string") {
         PopsSafeUtils.setSafeHTML(tempElement, property);
         return tempElement;
@@ -11517,12 +11740,12 @@ createElement(tagName, property, attributes) {
         attributes = {};
       }
       Object.keys(property).forEach((key) => {
-        let value = property[key];
+        const value = property[key];
         if (key === "innerHTML") {
           PopsSafeUtils.setSafeHTML(tempElement, value);
           return;
         }
-        tempElement[key] = value;
+        Reflect.set(tempElement, key, value);
       });
       Object.keys(attributes).forEach((key) => {
         let value = attributes[key];
@@ -11537,7 +11760,7 @@ createElement(tagName, property, attributes) {
     }
 parseTextToDOM(elementString) {
       elementString = elementString.replace(/^[\n|\s]*/g, "").replace(/[\n|\s]*$/g, "");
-      let targetElement = this.createElement("div", {
+      const targetElement = this.createElement("div", {
         innerHTML: elementString
       });
       return targetElement.firstChild;
@@ -11564,14 +11787,19 @@ getTextBoundingRect(input, selectionStart, selectionEnd, debug) {
       else
         selectionEnd = Math.min(input.value.length, selectionEnd);
       if (typeof input.createTextRange == "function") {
-        var range = input.createTextRange();
+        const range = input.createTextRange();
         range.collapse(true);
         range.moveStart("character", selectionStart);
         range.moveEnd("character", selectionEnd - selectionStart);
         return range.getBoundingClientRect();
       }
-      var offset = getInputOffset(), topPos = offset.top, leftPos = offset.left, width = getInputCSS("width", true), height = getInputCSS("height", true);
-      var cssDefaultStyles = "white-space:pre;padding:0;margin:0;", listOfModifiers = [
+      const offset = getInputOffset();
+      let topPos = offset.top;
+      let leftPos = offset.left;
+      const width = getInputCSS("width", true);
+      const height = getInputCSS("height", true);
+      let cssDefaultStyles = "white-space:pre;padding:0;margin:0;";
+      const listOfModifiers = [
         "direction",
         "font-family",
         "font-size",
@@ -11592,14 +11820,14 @@ getTextBoundingRect(input, selectionStart, selectionEnd, debug) {
       leftPos += getInputCSS("padding-left", true);
       leftPos += getInputCSS("border-left-width", true);
       leftPos += 1;
-      for (var i2 = 0; i2 < listOfModifiers.length; i2++) {
-        var property = listOfModifiers[i2];
-        cssDefaultStyles += property + ":" + getInputCSS(property) + ";";
+      for (let i2 = 0; i2 < listOfModifiers.length; i2++) {
+        const property = listOfModifiers[i2];
+        cssDefaultStyles += property + ":" + getInputCSS(property, false) + ";";
       }
-      var text = input.value || "G", textLen = text.length, fakeClone = document.createElement("div");
+      const text = input.value || "G", textLen = text.length, fakeClone = document.createElement("div");
       if (selectionStart > 0)
         appendPart(0, selectionStart);
-      var fakeRange = appendPart(selectionStart, selectionEnd);
+      const fakeRange = appendPart(selectionStart, selectionEnd);
       if (textLen > selectionEnd)
         appendPart(selectionEnd, textLen);
       fakeClone.style.cssText = cssDefaultStyles;
@@ -11609,37 +11837,37 @@ getTextBoundingRect(input, selectionStart, selectionEnd, debug) {
       fakeClone.style.width = width + "px";
       fakeClone.style.height = height + "px";
       PopsCore.document.body.appendChild(fakeClone);
-      var returnValue = fakeRange.getBoundingClientRect();
+      const returnValue = fakeRange.getBoundingClientRect();
       if (!debug)
         fakeClone.parentNode.removeChild(fakeClone);
       return returnValue;
       function appendPart(start, end) {
-        var span = document.createElement("span");
+        const span = document.createElement("span");
         span.style.cssText = cssDefaultStyles;
         span.textContent = text.substring(start, end);
         fakeClone.appendChild(span);
         return span;
       }
       function getInputOffset() {
-        var body = document.body, win = document.defaultView, docElem = document.documentElement, box = document.createElement("div");
+        const body = document.body, win = document.defaultView, docElem = document.documentElement, box = document.createElement("div");
         box.style.paddingLeft = box.style.width = "1px";
         body.appendChild(box);
-        var isBoxModel = box.offsetWidth == 2;
+        const isBoxModel = box.offsetWidth == 2;
         body.removeChild(box);
-        box = input.getBoundingClientRect();
-        var clientTop = docElem.clientTop || body.clientTop || 0, clientLeft = docElem.clientLeft || body.clientLeft || 0, scrollTop = (
-win.pageYOffset || isBoxModel && docElem.scrollTop || body.scrollTop
-        ), scrollLeft = (
-win.pageXOffset || isBoxModel && docElem.scrollLeft || body.scrollLeft
-        );
+        const boxRect = input.getBoundingClientRect();
+        const clientTop = docElem.clientTop || body.clientTop || 0, clientLeft = docElem.clientLeft || body.clientLeft || 0, scrollTop = win?.pageYOffset || isBoxModel && docElem.scrollTop || body.scrollTop, scrollLeft = win?.pageXOffset || isBoxModel && docElem.scrollLeft || body.scrollLeft;
         return {
-top: box.top + scrollTop - clientTop,
-left: box.left + scrollLeft - clientLeft
+          top: boxRect.top + scrollTop - clientTop,
+          left: boxRect.left + scrollLeft - clientLeft
         };
       }
       function getInputCSS(prop, isnumber) {
-        var val = PopsCore.document.defaultView.getComputedStyle(input, null).getPropertyValue(prop);
-        return isnumber ? parseFloat(val) : val;
+        const val = PopsCore.document.defaultView.getComputedStyle(input, null).getPropertyValue(prop);
+        if (isnumber) {
+          return parseFloat(val);
+        } else {
+          return val;
+        }
       }
     }
 cssHide(ele, isImportant = false) {
@@ -11661,7 +11889,7 @@ cssShow(ele) {
     }
     parseHTML(html, useParser = false, isComplete = false) {
       function parseHTMLByDOMParser() {
-        let parser = new DOMParser();
+        const parser = new DOMParser();
         if (isComplete) {
           return parser.parseFromString(html, "text/html");
         } else {
@@ -11669,7 +11897,7 @@ cssShow(ele) {
         }
       }
       function parseHTMLByCreateDom() {
-        let tempDIV = PopsCore.document.createElement("div");
+        const tempDIV = PopsCore.document.createElement("div");
         PopsSafeUtils.setSafeHTML(tempDIV, html);
         if (isComplete) {
           return tempDIV;
@@ -11698,7 +11926,7 @@ append(element, content) {
         }
       }
       if (Array.isArray(content) || content instanceof NodeList) {
-        let fragment = PopsCore.document.createDocumentFragment();
+        const fragment = PopsCore.document.createDocumentFragment();
         content.forEach((ele) => {
           if (typeof ele === "string") {
             ele = this.parseHTML(ele, true, false);
@@ -11728,10 +11956,10 @@ isShow(element) {
       return Boolean(element.getClientRects().length);
     }
 showElement($ele, ownParent) {
-      let $cloneNode = $ele.cloneNode(true);
+      const $cloneNode = $ele.cloneNode(true);
       $cloneNode.setAttribute("style", "visibility: hidden !important;display:block !important;");
       let $parent = PopsCore.document.documentElement;
-      let $root = $ele.getRootNode();
+      const $root = $ele.getRootNode();
       if (ownParent == null) {
         if ($root == $ele) {
           $parent = PopsCore.document.documentElement;
@@ -11761,7 +11989,7 @@ getStyleValue(element, styleName) {
         }
         styles = view.getComputedStyle(element);
       }
-      let value = parseFloat(styles[styleName]);
+      const value = parseFloat(styles[styleName]);
       if (isNaN(value)) {
         return 0;
       } else {
@@ -11795,7 +12023,7 @@ after(element, content) {
       }
     }
 getKeyFrames(sheet) {
-      let result = {};
+      const result = {};
       Object.keys(sheet.cssRules).forEach((key) => {
         if (sheet.cssRules[key].type === 7 && sheet.cssRules[key].name.startsWith("pops-anim-")) {
           result[sheet.cssRules[key].name] = sheet.cssRules[key];
@@ -11807,7 +12035,7 @@ calcColor() {
       function useChangeColor() {
         const hexToRgb = (str) => {
           let hexs = "";
-          let reg = /^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/;
+          const reg = /^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/;
           if (!reg.test(str)) {
             console.warn("输入错误的hex");
             return "";
@@ -11819,35 +12047,35 @@ calcColor() {
           return hexs;
         };
         const rgbToHex = (r2, g2, b2) => {
-          let reg = /^\d{1,3}$/;
+          const reg = /^\d{1,3}$/;
           if (!reg.test(r2) || !reg.test(g2) || !reg.test(b2)) {
             console.warn("输入错误的rgb颜色值");
             return "";
           }
-          let hexs = [r2.toString(16), g2.toString(16), b2.toString(16)];
+          const hexs = [r2.toString(16), g2.toString(16), b2.toString(16)];
           for (let i2 = 0; i2 < 3; i2++)
             if (hexs[i2].length == 1)
               hexs[i2] = `0${hexs[i2]}`;
           return `#${hexs.join("")}`;
         };
         const getDarkColor = (color, level) => {
-          let reg = /^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/;
+          const reg = /^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/;
           if (!reg.test(color)) {
             console.warn("输入错误的hex颜色值");
             return "";
           }
-          let rgb = useChangeColor().hexToRgb(color);
+          const rgb = useChangeColor().hexToRgb(color);
           for (let i2 = 0; i2 < 3; i2++)
             rgb[i2] = Math.floor(rgb[i2] * (1 - level));
           return useChangeColor().rgbToHex(rgb[0], rgb[1], rgb[2]);
         };
         const getLightColor = (color, level) => {
-          let reg = /^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/;
+          const reg = /^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/;
           if (!reg.test(color)) {
             console.warn("输入错误的hex颜色值");
             return "";
           }
-          let rgb = useChangeColor().hexToRgb(color);
+          const rgb = useChangeColor().hexToRgb(color);
           for (let i2 = 0; i2 < 3; i2++)
             rgb[i2] = Math.floor((255 - rgb[i2]) * level + rgb[i2]);
           return useChangeColor().rgbToHex(rgb[0], rgb[1], rgb[2]);
@@ -11864,9 +12092,10 @@ calcColor() {
 getTransform(element) {
       let transform_left = 0;
       let transform_top = 0;
-      let elementTransform = PopsCore.globalThis.getComputedStyle(element).transform;
+      const elementTransform = PopsCore.globalThis.getComputedStyle(element).transform;
       if (elementTransform !== "none" && elementTransform != null && elementTransform !== "") {
-        let elementTransformSplit = elementTransform.match(/\((.+)\)/)?.[1].split(",");
+        const elementTransformMatch = elementTransform.match(/\((.+)\)/);
+        const elementTransformSplit = elementTransformMatch?.[1]?.split?.(",");
         transform_left = Math.abs(parseInt(elementTransformSplit[4]));
         transform_top = Math.abs(parseInt(elementTransformSplit[5]));
       }
@@ -11877,15 +12106,15 @@ getTransform(element) {
     }
 onInput($el, callback, option) {
       let isComposite = false;
-      let __callback = async (event) => {
+      const __callback = async (event) => {
         if (isComposite)
           return;
         await callback(event);
       };
-      let __composition_start_callback = () => {
+      const __composition_start_callback = () => {
         isComposite = true;
       };
-      let __composition_end_callback = () => {
+      const __composition_end_callback = () => {
         isComposite = false;
         this.trigger($el, "input", {
           isComposite
@@ -11915,10 +12144,10 @@ createMask(guid, zIndex = 101, style = "") {
       );
     },
 createAnim(guid, type, config, html = "", bottomBtnHTML = "", zIndex) {
-      let __config = config;
+      const __config = config;
       let popsAnimStyle = "";
       let popsStyle = "";
-      let popsPosition = __config.position || "";
+      const popsPosition = __config.position || "";
       if (config.zIndex != null) {
         popsAnimStyle += `z-index: ${zIndex};`;
         popsStyle += `z-index: ${zIndex};`;
@@ -11929,7 +12158,7 @@ createAnim(guid, type, config, html = "", bottomBtnHTML = "", zIndex) {
       if (__config.height != null) {
         popsStyle += `height: ${__config.height};`;
       }
-      let hasBottomBtn = bottomBtnHTML.trim() === "" ? false : true;
+      const hasBottomBtn = bottomBtnHTML.trim() === "" ? false : true;
       return (
 `
 		<div class="pops-anim" anim="${__config.animation || ""}" style="${popsAnimStyle}" data-guid="${guid}">${config.style != null ? `<style tyle="text/css">${config.style}</style>` : ""}
@@ -11941,13 +12170,13 @@ createHeader(type, config) {
       if (!config.btn) {
         return "";
       }
-      let confirm_config = config;
+      const confirm_config = config;
       if (type !== "iframe" && !confirm_config.btn?.close?.enable) {
         return "";
       }
       let resultHTML = "";
       let closeHTML = "";
-      let iframe_config = config;
+      const iframe_config = config;
       if (type === "iframe" && iframe_config.topRightButton?.trim() !== "") {
         let topRightButtonHTML = "";
         iframe_config.topRightButton.split("|").forEach((item) => {
@@ -11985,7 +12214,7 @@ createBottom(type, config) {
       if (config.btn == null) {
         return "";
       }
-      let confirm_config = config;
+      const confirm_config = config;
       if (!(config.btn?.ok?.enable || confirm_config.btn?.cancel?.enable || confirm_config.btn?.other?.enable)) {
         return "";
       }
@@ -12008,7 +12237,7 @@ createBottom(type, config) {
           okButtonSizeClassName = "pops-button-" + config.btn.ok.size;
         }
         let okIconHTML = "";
-        let okIcon = confirm_config.btn.ok.icon;
+        const okIcon = confirm_config.btn.ok.icon;
         if (okIcon !== "") {
           let iconHTML = "";
           if (PopsIcon.hasIcon(okIcon)) {
@@ -12039,7 +12268,7 @@ createBottom(type, config) {
           cancelButtonSizeClassName = "pops-button-" + confirm_config.btn.cancel.size;
         }
         let cancelIconHTML = "";
-        let cancelIcon = confirm_config.btn.cancel.icon;
+        const cancelIcon = confirm_config.btn.cancel.icon;
         if (cancelIcon !== "") {
           let iconHTML = "";
           if (PopsIcon.hasIcon(cancelIcon)) {
@@ -12070,7 +12299,7 @@ createBottom(type, config) {
           otherButtonSizeClassName = "pops-button-" + confirm_config.btn.other.size;
         }
         let otherIconHTML = "";
-        let otherIcon = confirm_config.btn.other.icon;
+        const otherIcon = confirm_config.btn.other.icon;
         if (otherIcon !== "") {
           let iconHTML = "";
           if (PopsIcon.hasIcon(otherIcon)) {
@@ -12121,22 +12350,22 @@ parseElement(html) {
       return popsDOMUtils.parseTextToDOM(html);
     }
   };
-  var indexCSS = '@charset "utf-8";\n.pops * {\n	-webkit-box-sizing: border-box;\n	box-sizing: border-box;\n	margin: 0;\n	padding: 0;\n	-webkit-tap-highlight-color: transparent;\n	/* 代替::-webkit-scrollbar */\n	scrollbar-width: thin;\n}\n.pops {\n	--pops-bg-opacity: 1;\n	--pops-bd-opacity: 1;\n	--pops-font-size: 16px;\n	interpolate-size: allow-keywords;\n	--pops-color: #000000;\n	--pops-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n	--pops-bd-color: rgb(235, 238, 245, var(--pops-bd-opacity));\n	--pops-box-shadow-color: rgba(0, 0, 0, 0.12);\n	--pops-title-color: #000000;\n	--pops-title-border-color: var(--pops-bd-color);\n	--pops-content-color: #000000;\n	--pops-bottom-btn-controls-border-color: var(--pops-bd-color);\n	--pops-components-is-disabled-text-color: #a8abb2;\n	--pops-components-is-disabled-bg-color: #f5f7fa;\n}\n@media (prefers-color-scheme: dark) {\n	.pops {\n		--pops-mask-bg-opacity: 0.8;\n		--pops-color: #ffffff;\n		--pops-bg-color: rgb(17, 17, 17, var(--pops-bg-opacity));\n		--pops-bd-color: rgb(55, 55, 55, var(--pops-bd-opacity));\n		--pops-box-shadow-color: rgba(81, 81, 81, 0.12);\n		--pops-title-color: #e8e8e8;\n		--pops-title-border-color: var(--pops-bd-color);\n		--pops-content-color: #e5e5e5;\n		--pops-components-is-disabled-text-color: #a8abb2;\n		--pops-components-is-disabled-bg-color: #262727;\n	}\n}\n.pops {\n	color: var(--pops-color);\n	background-color: var(--pops-bg-color);\n	border: 1px solid var(--pops-bd-color);\n	border-radius: 4px;\n	font-size: var(--pops-font-size);\n	line-height: normal;\n	box-shadow: 0 0 12px var(--pops-box-shadow-color);\n	box-sizing: border-box;\n	overflow: hidden;\n	transition: all 0.35s;\n	display: flex;\n	flex-direction: column;\n}\n.pops-anim {\n	position: fixed;\n	top: 0;\n	right: 0;\n	bottom: 0;\n	left: 0;\n	width: 100%;\n	height: 100%;\n}\n.pops-anim[anim=""] {\n	top: unset;\n	right: unset;\n	bottom: unset;\n	left: unset;\n	width: unset;\n	height: unset;\n	transition: none;\n}\n/* 底部图标动画和样式 */\n.pops i.pops-bottom-icon[is-loading="true"] {\n	animation: rotating 2s linear infinite;\n}\n.pops i.pops-bottom-icon {\n	height: 1em;\n	width: 1em;\n	line-height: normal;\n	display: inline-flex;\n	justify-content: center;\n	align-items: center;\n	position: relative;\n	fill: currentColor;\n	color: inherit;\n	font-size: inherit;\n}\n\n/* 遮罩层样式 */\n.pops-mask {\n	--pops-mask-bg-opacity: 0.4;\n	--pops-mask-bg-color: rgba(0, 0, 0, var(--pops-mask-bg-opacity));\n}\n.pops-mask {\n	position: fixed;\n	top: 0;\n	right: 0;\n	bottom: 0;\n	left: 0;\n	width: 100%;\n	height: 100%;\n	border: 0;\n	border-radius: 0;\n	background-color: var(--pops-mask-bg-color);\n	box-shadow: none;\n	transition: none;\n}\n\n.pops-header-controls button.pops-header-control[type][data-header] {\n	float: right;\n	margin: 0 0;\n	outline: 0;\n	border: 0;\n	border-color: rgb(136, 136, 136, var(--pops-bd-opacity));\n	background-color: transparent;\n	color: #888;\n	cursor: pointer;\n}\n.pops-header-controls button.pops-header-control[data-type="max"],\n.pops-header-controls button.pops-header-control[data-type="mise"],\n.pops-header-controls button.pops-header-control[data-type="min"] {\n	outline: 0 !important;\n	border: 0;\n	border-color: rgb(136, 136, 136, var(--pops-bd-opacity));\n	background-color: transparent;\n	color: rgb(136, 136, 136);\n	cursor: pointer;\n	transition: all 0.3s ease-in-out;\n}\nbutton.pops-header-control i {\n	color: rgb(144, 147, 153);\n	font-size: inherit;\n	display: inline-flex;\n	justify-content: center;\n	align-items: center;\n	position: relative;\n	fill: currentColor;\n}\nbutton.pops-header-control svg {\n	height: 1.25em;\n	width: 1.25em;\n}\nbutton.pops-header-control {\n	right: 15px;\n	padding: 0;\n	border: none;\n	outline: 0;\n	background: 0 0;\n	cursor: pointer;\n	position: unset;\n	line-height: normal;\n}\nbutton.pops-header-control i:hover {\n	color: rgb(64, 158, 255);\n}\n.pops-header-controls[data-margin] button.pops-header-control {\n	margin: 0 6px;\n	display: flex;\n	align-items: center;\n}\n.pops[type-value] .pops-header-controls {\n	display: flex;\n	gap: 6px;\n}\n\n/* 代码块 <code> */\n.pops code {\n	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;\n	font-size: 0.85em;\n	color: #000;\n	background-color: #f0f0f0;\n	border-radius: 3px;\n	border: 0;\n	padding: 0.2em 0;\n	white-space: normal;\n	background: #f5f5f5;\n	text-wrap: wrap;\n	text-align: left;\n	word-spacing: normal;\n	word-break: normal;\n	word-wrap: normal;\n	line-height: 1.4;\n	-moz-tab-size: 8;\n	-o-tab-size: 8;\n	tab-size: 8;\n	-webkit-hyphens: none;\n	-moz-hyphens: none;\n	-ms-hyphens: none;\n	hyphens: none;\n	direction: ltr;\n}\n\n.pops code::before,\n.pops code::after {\n	letter-spacing: -0.2em;\n	content: "\\00a0";\n}\n\n/* 标题 */\n.pops .pops-title {\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n	user-select: none;\n\n	display: flex;\n	align-items: center;\n	justify-content: space-between;\n	border-bottom: 1px solid var(--pops-title-border-color);\n	width: 100%;\n	height: var(--container-title-height);\n}\n/* 标题-普通文本 */\n.pops .pops-title p[pops] {\n	color: var(--pops-title-color);\n	width: 100%;\n	overflow: hidden;\n	text-indent: 15px;\n	text-overflow: ellipsis;\n	white-space: nowrap;\n	font-weight: 500;\n	line-height: normal;\n}\n\n/* 内容 */\n.pops .pops-content {\n	width: 100%;\n	/*height: calc(\n		100% - var(--container-title-height) - var(--container-bottom-btn-height)\n	);*/\n	flex: 1;\n	overflow: auto;\n	word-break: break-word;\n}\n/* 内容-普通文本 */\n.pops .pops-content p[pops] {\n	color: var(--pops-content-color);\n	padding: 5px 10px;\n	text-indent: 15px;\n}\n\n/* 底部-按钮组 */\n.pops .pops-botttom-btn-controls {\n	display: flex;\n	padding: 10px 10px 10px 10px;\n	width: 100%;\n	height: var(--container-bottom-btn-height);\n	max-height: var(--container-bottom-btn-height);\n	line-height: normal;\n	border-top: 1px solid var(--pops-bottom-btn-controls-border-color);\n	text-align: right;\n	align-items: center;\n}\n';
-  var ninePalaceGridPositionCSS = '.pops[position="top_left"] {\n	position: fixed;\n	top: 0;\n	left: 0;\n}\n.pops[position="top"] {\n	position: fixed;\n	top: 0;\n	left: 50%;\n	transform: translateX(-50%);\n}\n.pops[position="top_right"] {\n	position: fixed;\n	top: 0;\n	right: 0;\n}\n.pops[position="center_left"] {\n	position: fixed;\n	top: 50%;\n	left: 0;\n	transform: translateY(-50%);\n}\n.pops[position="center"] {\n	position: fixed;\n	top: 50%;\n	left: 50%;\n	transform: translate(-50%, -50%);\n}\n.pops[position="center_right"] {\n	position: fixed;\n	top: 50%;\n	right: 0;\n	transform: translateY(-50%);\n}\n.pops[position="bottom_left"] {\n	position: fixed;\n	bottom: 0;\n	left: 0;\n}\n.pops[position="bottom"] {\n	position: fixed;\n	bottom: 0;\n	left: 50%;\n	transform: translate(-50%, 0);\n}\n.pops[position="bottom_right"] {\n	position: fixed;\n	right: 0;\n	bottom: 0;\n}\n';
-  var scrollbarCSS = "/* ::-webkit-scrollbar 是非标准的css */\n/* https://caniuse.com/?search=%20%3A%3A-webkit-scrollbar */\n.pops ::-webkit-scrollbar {\n	width: 6px;\n	height: 0;\n}\n\n/* 滚动条轨道 */\n.pops ::-webkit-scrollbar-track {\n	width: 0;\n}\n/* 滚动条滑块 */\n.pops ::-webkit-scrollbar-thumb {\n	min-height: 28px;\n	border-radius: 2em;\n	background: rgb(204, 204, 204, var(--pops-bg-opacity, 1));\n	background-clip: padding-box;\n}\n/* 滚动条滑块 */\n.pops ::-webkit-scrollbar-thumb:hover {\n	background: rgb(178, 178, 178, var(--pops-bg-opacity, 1));\n}\n";
-  var buttonCSS = '.pops {\n	--button-font-size: 14px;\n	--button-height: 32px;\n	--button-color: rgb(51, 51, 51);\n	--button-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\n	--button-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\n	--button-margin-top: 0px;\n	--button-margin-bottom: 0px;\n	--button-margin-left: 5px;\n	--button-margin-right: 5px;\n	--button-padding-top: 6px;\n	--button-padding-bottom: 6px;\n	--button-padding-left: 12px;\n	--button-padding-right: 12px;\n	--button-radius: 4px;\n\n	--container-title-height: 55px;\n	--container-bottom-btn-height: 55px;\n\n	/* default按钮 */\n	--button-default-color: #333333;\n	--button-default-bd-color: #dcdfe6;\n	--button-default-bg-color: #ffffff;\n	--button-default-active-color: #409eff;\n	--button-default-active-bd-color: #409eff;\n	--button-default-active-bg-color: #ecf5ff;\n	--button-default-hover-color: #409eff;\n	--button-default-hover-bd-color: #c6e2ff;\n	--button-default-hover-bg-color: #ecf5ff;\n	--button-default-focus-visible-outline-color: #a0cfff;\n	--button-default-focus-visible-outline: 2px solid var(--button-default-focus-visible-outline-color);\n	--button-default-focus-visible-outline-offset: 1px;\n	--button-default-disabled-color: #a8abb2;\n	--button-default-disabled-bd-color: #ffffff;\n	--button-default-disabled-bg-color: #e4e7ed;\n\n	/* primary按钮 */\n	--button-primary-color: #ffffff;\n	--button-primary-bd-color: #409eff;\n	--button-primary-bg-color: #409eff;\n	--button-primary-active-color: #ffffff;\n	--button-primary-active-bd-color: #337ecc;\n	--button-primary-active-bg-color: #337ecc;\n	--button-primary-hover-color: #ffffff;\n	--button-primary-hover-bd-color: #79bbff;\n	--button-primary-hover-bg-color: #79bbff;\n	--button-primary-focus-visible-outline-color: #a0cfff;\n	--button-primary-focus-visible-outline: 2px solid var(--button-primary-focus-visible-outline-color);\n	--button-primary-focus-visible-outline-offset: 1px;\n	--button-primary-disabled-color: #ffffff80;\n	--button-primary-disabled-bd-color: #a0cfff;\n	--button-primary-disabled-bg-color: #a0cfff;\n\n	/* success按钮 */\n	--button-success-color: #ffffff;\n	--button-success-bd-color: #4cae4c;\n	--button-success-bg-color: #5cb85c;\n	--button-success-active-color: #ffffff;\n	--button-success-active-bd-color: #529b2e;\n	--button-success-active-bg-color: #529b2e;\n	--button-success-hover-color: #ffffff;\n	--button-success-hover-bd-color: #95d475;\n	--button-success-hover-bg-color: #95d475;\n	--button-success-focus-visible-outline-color: #b3e19d;\n	--button-success-focus-visible-outline: 2px solid var(--button-success-focus-visible-outline-color);\n	--button-success-focus-visible-outline-offset: 1px;\n	--button-success-disabled-color: #ffffff80;\n	--button-success-disabled-bd-color: #b3e19d;\n	--button-success-disabled-bg-color: #b3e19d;\n\n	/* info按钮 */\n	--button-info-color: #ffffff;\n	--button-info-bd-color: #909399;\n	--button-info-bg-color: #909399;\n	--button-info-active-color: #ffffff;\n	--button-info-active-bd-color: #73767a;\n	--button-info-active-bg-color: #73767a;\n	--button-info-hover-color: #ffffff;\n	--button-info-hover-bd-color: #b1b3b8;\n	--button-info-hover-bg-color: #b1b3b8;\n	--button-info-focus-visible-outline-color: #c8c9cc;\n	--button-info-focus-visible-outline: 2px solid var(--button-info-focus-visible-outline-color);\n	--button-info-focus-visible-outline-offset: 1px;\n	--button-info-disabled-color: #ffffff80;\n	--button-info-disabled-bd-color: #c8c9cc;\n	--button-info-disabled-bg-color: #c8c9cc;\n\n	/* warning按钮 */\n	--button-warning-color: #ffffff;\n	--button-warning-bd-color: #e6a23c;\n	--button-warning-bg-color: #e6a23c;\n	--button-warning-active-color: #ffffff;\n	--button-warning-active-bd-color: #b88230;\n	--button-warning-active-bg-color: #b88230;\n	--button-warning-hover-color: #ffffff80;\n	--button-warning-hover-bd-color: #eebe77;\n	--button-warning-hover-bg-color: #eebe77;\n	--button-warning-focus-visible-outline-color: #f3d19e;\n	--button-warning-focus-visible-outline: 2px solid var(--button-warning-focus-visible-outline-color);\n	--button-warning-focus-visible-outline-offset: 1px;\n	--button-warning-disabled-color: #ffffff80;\n	--button-warning-disabled-bd-color: #f3d19e;\n	--button-warning-disabled-bg-color: #f3d19e;\n\n	/* danger按钮 */\n	--button-danger-color: #ffffff;\n	--button-danger-bd-color: #f56c6c;\n	--button-danger-bg-color: #f56c6c;\n	--button-danger-active-color: #ffffff;\n	--button-danger-active-bd-color: #c45656;\n	--button-danger-active-bg-color: #c45656;\n	--button-danger-hover-color: #ffffff;\n	--button-danger-hover-bd-color: #f89898;\n	--button-danger-hover-bg-color: #f89898;\n	--button-danger-focus-visible-outline-color: #fab6b6;\n	--button-danger-focus-visible-outline: 2px solid var(--button-danger-focus-visible-outline-color);\n	--button-danger-focus-visible-outline-offset: 1px;\n	--button-danger-disabled-color: #ffffff80;\n	--button-danger-disabled-bd-color: #fab6b6;\n	--button-danger-disabled-bg-color: #fab6b6;\n\n	/* xiaomi-primary按钮 */\n	--button-xiaomi-primary-color: #ffffff;\n	--button-xiaomi-primary-bd-color: #ff5c00;\n	--button-xiaomi-primary-bg-color: #ff5c00;\n	--button-xiaomi-primary-active-color: #ffffff;\n	--button-xiaomi-primary-active-bd-color: #da4f00;\n	--button-xiaomi-primary-active-bg-color: #da4f00;\n	--button-xiaomi-primary-hover-color: #ffffff;\n	--button-xiaomi-primary-hover-bd-color: #ff7e29;\n	--button-xiaomi-primary-hover-bg-color: #ff7e29;\n	--button-xiaomi-primary-focus-visible-outline-color: #ffa061;\n	--button-xiaomi-primary-focus-visible-outline: 2px solid\n		var(--button-xiaomi-primary-focus-visible-outline-color);\n	--button-xiaomi-primary-focus-visible-outline-offset: 1px;\n	--button-xiaomi-primary-disabled-color: #ffffff80;\n	--button-xiaomi-primary-disabled-bd-color: #fad5b6;\n	--button-xiaomi-primary-disabled-bg-color: #fad5b6;\n\n	/* violet按钮 */\n	--button-violet-color: #ffffff;\n	--button-violet-bd-color: #626aef;\n	--button-violet-bg-color: #626aef;\n	--button-violet-active-color: #ffffff;\n	--button-violet-active-bd-color: #8188f2;\n	--button-violet-active-bg-color: #8188f2;\n	--button-violet-hover-color: #ffffff;\n	--button-violet-hover-bd-color: #4b50ad;\n	--button-violet-hover-bg-color: #4b50ad;\n	--button-violet-focus-visible-outline-color: #2a598a;\n	--button-violet-focus-visible-outline: 2px solid var(--button-violet-focus-visible-outline-color);\n	--button-violet-focus-visible-outline-offset: 1px;\n	--button-violet-disabled-color: #ffffff80;\n	--button-violet-disabled-bd-color: #3b3f82;\n	--button-violet-disabled-bg-color: #3b3f82;\n}\n\n@media (prefers-color-scheme: dark) {\n	.pops {\n		/* default按钮 */\n		--button-default-color: #cfd3dc;\n		--button-default-bd-color: #4c4d4f;\n		--button-default-bg-color: transparent;\n		--button-default-active-color: #409eff;\n		--button-default-active-bd-color: #409eff;\n		--button-default-active-bg-color: #18222c;\n		--button-default-hover-color: #409eff;\n		--button-default-hover-bd-color: #213d5b;\n		--button-default-hover-bg-color: #18222c;\n		--button-default-focus-visible-outline-color: #2a598a;\n		--button-default-focus-visible-outline: 2px solid var(--button-default-focus-visible-outline-color);\n		--button-default-focus-visible-outline-offset: 1px;\n		--button-default-disabled-color: #ffffff80;\n		--button-default-disabled-bd-color: #414243;\n		--button-default-disabled-bg-color: transparent;\n\n		/* primary按钮 */\n		--button-primary-color: #ffffff;\n		--button-primary-bd-color: #409eff;\n		--button-primary-bg-color: #409eff;\n		--button-primary-active-color: #ffffff;\n		--button-primary-active-bd-color: #66b1ff;\n		--button-primary-active-bg-color: #66b1ff;\n		--button-primary-hover-color: #ffffff;\n		--button-primary-hover-bd-color: #3375b9;\n		--button-primary-hover-bg-color: #3375b9;\n		--button-primary-focus-visible-outline-color: #2a598a;\n		--button-primary-focus-visible-outline: 2px solid var(--button-primary-focus-visible-outline-color);\n		--button-primary-focus-visible-outline-offset: 1px;\n		--button-primary-disabled-color: #ffffff80;\n		--button-primary-disabled-bd-color: #2a598a;\n		--button-primary-disabled-bg-color: #2a598a;\n\n		/* success按钮 */\n		--button-success-color: #ffffff;\n		--button-success-bd-color: #67c23a;\n		--button-success-bg-color: #67c23a;\n		--button-success-active-color: #ffffff;\n		--button-success-active-bd-color: #85ce61;\n		--button-success-active-bg-color: #85ce61;\n		--button-success-hover-color: #ffffff;\n		--button-success-hover-bd-color: #4e8e2f;\n		--button-success-hover-bg-color: #4e8e2f;\n		--button-success-focus-visible-outline-color: #3e6b27;\n		--button-success-focus-visible-outline: 2px solid var(--button-success-focus-visible-outline-color);\n		--button-success-focus-visible-outline-offset: 1px;\n		--button-success-disabled-color: #ffffff80;\n		--button-success-disabled-bd-color: #3e6b27;\n		--button-success-disabled-bg-color: #3e6b27;\n\n		/* info按钮 */\n		--button-info-color: #ffffff;\n		--button-info-bd-color: #909399;\n		--button-info-bg-color: #909399;\n		--button-info-active-color: #ffffff;\n		--button-info-active-bd-color: #a6a9ad;\n		--button-info-active-bg-color: #a6a9ad;\n		--button-info-hover-color: #ffffff;\n		--button-info-hover-bd-color: #6b6d71;\n		--button-info-hover-bg-color: #6b6d71;\n		--button-info-focus-visible-outline-color: #525457;\n		--button-info-focus-visible-outline: 2px solid var(--button-info-focus-visible-outline-color);\n		--button-info-focus-visible-outline-offset: 1px;\n		--button-info-disabled-color: #ffffff80;\n		--button-info-disabled-bd-color: #525457;\n		--button-info-disabled-bg-color: #525457;\n\n		/* warning按钮 */\n		--button-warning-color: #ffffff;\n		--button-warning-bd-color: #e6a23c;\n		--button-warning-bg-color: #e6a23c;\n		--button-warning-active-color: #ffffff;\n		--button-warning-active-bd-color: #ebb563;\n		--button-warning-active-bg-color: #ebb563;\n		--button-warning-hover-color: #ffffff80;\n		--button-warning-hover-bd-color: #a77730;\n		--button-warning-hover-bg-color: #a77730;\n		--button-warning-focus-visible-outline-color: #7d5b28;\n		--button-warning-focus-visible-outline: 2px solid var(--button-warning-focus-visible-outline-color);\n		--button-warning-focus-visible-outline-offset: 1px;\n		--button-warning-disabled-color: #ffffff80;\n		--button-warning-disabled-bd-color: #7d5b28;\n		--button-warning-disabled-bg-color: #7d5b28;\n\n		/* danger按钮 */\n		--button-danger-color: #ffffff;\n		--button-danger-bd-color: #f56c6c;\n		--button-danger-bg-color: #f56c6c;\n		--button-danger-active-color: #ffffff;\n		--button-danger-active-bd-color: #f78989;\n		--button-danger-active-bg-color: #f78989;\n		--button-danger-hover-color: #ffffff;\n		--button-danger-hover-bd-color: #b25252;\n		--button-danger-hover-bg-color: #b25252;\n		--button-danger-focus-visible-outline-color: #854040;\n		--button-danger-focus-visible-outline: 2px solid var(--button-danger-focus-visible-outline-color);\n		--button-danger-focus-visible-outline-offset: 1px;\n		--button-danger-disabled-color: #ffffff80;\n		--button-danger-disabled-bd-color: #854040;\n		--button-danger-disabled-bg-color: #854040;\n	}\n}\n.pops[data-bottom-btn="false"] {\n	--container-bottom-btn-height: 0px;\n}\n.pops button {\n	white-space: nowrap;\n	float: right;\n	display: inline-block;\n	margin: var(--button-margin-top) var(--button-margin-right) var(--button-margin-bottom)\n		var(--button-margin-left);\n	padding: var(--button-padding-top) var(--button-padding-right) var(--button-padding-bottom)\n		var(--button-padding-left);\n	outline: 0;\n}\n.pops button[data-has-icon="false"] .pops-bottom-icon {\n	display: none;\n}\n.pops button {\n	border-radius: var(--button-radius);\n	box-shadow: none;\n	font-weight: 400;\n	font-size: var(--button-font-size);\n	cursor: pointer;\n	transition: all 0.3s ease-in-out;\n}\n.pops button {\n	display: flex;\n	align-items: center;\n	height: var(--button-height);\n	line-height: normal;\n	box-sizing: border-box;\n	user-select: none;\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n	border: 1px solid var(--button-bd-color);\n}\n.pops button {\n	color: var(--button-color);\n	border-color: var(--button-bd-color);\n	background-color: var(--button-bg-color);\n}\n.pops button:active {\n	color: var(--button-color);\n	border-color: var(--button-bd-color);\n	background-color: var(--button-bg-color);\n	outline: 0;\n}\n.pops button:hover {\n	color: var(--button-color);\n	border-color: var(--button-bd-color);\n	background-color: var(--button-bg-color);\n}\n.pops button:focus-visible {\n	color: var(--button-color);\n	border-color: var(--button-bd-color);\n	background-color: var(--button-bg-color);\n}\n.pops button:disabled {\n	cursor: not-allowed;\n	color: var(--button-color);\n	border-color: var(--button-bd-color);\n	background-color: var(--button-bg-color);\n}\n.pops button.pops-button-large {\n	--button-height: 32px;\n	--button-padding-top: 12px;\n	--button-padding-bottom: 12px;\n	--button-padding-left: 19px;\n	--button-padding-right: 19px;\n	--button-font-size: 14px;\n	--button-border-radius: 4px;\n}\n\n.pops button.pops-button-small {\n	--button-height: 24px;\n	--button-padding-top: 5px;\n	--button-padding-bottom: 5px;\n	--button-padding-left: 11px;\n	--button-padding-right: 11px;\n	--button-font-size: 12px;\n	--button-border-radius: 4px;\n}\n.pops-panel-button-no-icon .pops-panel-button_inner i {\n	display: none;\n}\n.pops-panel-button-right-icon .pops-panel-button_inner {\n	flex-direction: row-reverse;\n}\n.pops-panel-button .pops-panel-button_inner i:has(svg),\n.pops-panel-button-right-icon .pops-panel-button-text {\n	margin-right: 6px;\n}\n\n.pops button[data-type="default"] {\n	--button-color: var(--button-default-color);\n	--button-bd-color: var(--button-default-bd-color);\n	--button-bg-color: var(--button-default-bg-color);\n}\n.pops button[data-type="default"]:active {\n	--button-color: var(--button-default-active-color);\n	--button-bd-color: var(--button-default-active-bd-color);\n	--button-bg-color: var(--button-default-active-bg-color);\n}\n.pops button[data-type="default"]:hover {\n	--button-color: var(--button-default-hover-color);\n	--button-bd-color: var(--button-default-hover-bd-color);\n	--button-bg-color: var(--button-default-hover-bg-color);\n}\n.pops button[data-type="default"]:focus-visible {\n	outline: var(--button-default-focus-visible-outline);\n	outline-offset: var(--button-default-focus-visible-outline-offset);\n}\n.pops button[data-type="default"]:disabled {\n	--button-color: var(--button-default-disabled-color);\n	--button-bd-color: var(--button-default-disabled-bd-color);\n	--button-bg-color: var(--button-default-disabled-bg-color);\n}\n\n.pops button[data-type="primary"] {\n	--button-color: var(--button-primary-color);\n	--button-bd-color: var(--button-primary-bd-color);\n	--button-bg-color: var(--button-primary-bg-color);\n}\n.pops button[data-type="primary"]:active {\n	--button-color: var(--button-primary-active-color);\n	--button-bd-color: var(--button-primary-active-bd-color);\n	--button-bg-color: var(--button-primary-active-bg-color);\n}\n.pops button[data-type="primary"]:hover {\n	--button-color: var(--button-primary-hover-color);\n	--button-bd-color: var(--button-primary-hover-bd-color);\n	--button-bg-color: var(--button-primary-hover-bg-color);\n}\n.pops button[data-type="primary"]:focus-visible {\n	outline: var(--button-primary-focus-visible-outline);\n	outline-offset: var(--button-primary-focus-visible-outline-offset);\n}\n.pops button[data-type="primary"]:disabled {\n	--button-color: var(--button-primary-disabled-color);\n	--button-bd-color: var(--button-primary-disabled-bd-color);\n	--button-bg-color: var(--button-primary-disabled-bg-color);\n}\n\n.pops button[data-type="success"] {\n	--button-color: var(--button-success-color);\n	--button-bd-color: var(--button-success-bd-color);\n	--button-bg-color: var(--button-success-bg-color);\n}\n.pops button[data-type="success"]:active {\n	--button-color: var(--button-success-active-color);\n	--button-bd-color: var(--button-success-active-bd-color);\n	--button-bg-color: var(--button-success-active-bg-color);\n}\n.pops button[data-type="success"]:hover {\n	--button-color: var(--button-success-hover-color);\n	--button-bd-color: var(--button-success-hover-bd-color);\n	--button-bg-color: var(--button-success-hover-bg-color);\n}\n.pops button[data-type="success"]:focus-visible {\n	outline: var(--button-success-focus-visible-outline);\n	outline-offset: var(--button-success-focus-visible-outline-offset);\n}\n.pops button[data-type="success"]:disabled {\n	--button-color: var(--button-success-disabled-color);\n	--button-bd-color: var(--button-success-disabled-bd-color);\n	--button-bg-color: var(--button-success-disabled-bg-color);\n}\n\n.pops button[data-type="info"] {\n	--button-color: var(--button-info-color);\n	--button-bd-color: var(--button-info-bd-color);\n	--button-bg-color: var(--button-info-bg-color);\n}\n.pops button[data-type="info"]:active {\n	--button-color: var(--button-info-active-color);\n	--button-bd-color: var(--button-info-active-bd-color);\n	--button-bg-color: var(--button-info-active-bg-color);\n}\n.pops button[data-type="info"]:hover {\n	--button-color: var(--button-info-hover-color);\n	--button-bd-color: var(--button-info-hover-bd-color);\n	--button-bg-color: var(--button-info-hover-bg-color);\n}\n.pops button[data-type="info"]:focus-visible {\n	outline: var(--button-info-focus-visible-outline);\n	outline-offset: var(--button-info-focus-visible-outline-offset);\n}\n.pops button[data-type="info"]:disabled {\n	--button-color: var(--button-info-disabled-color);\n	--button-bd-color: var(--button-info-disabled-bd-color);\n	--button-bg-color: var(--button-info-disabled-bg-color);\n}\n\n.pops button[data-type="warning"] {\n	--button-color: var(--button-warning-color);\n	--button-bd-color: var(--button-warning-bd-color);\n	--button-bg-color: var(--button-warning-bg-color);\n}\n.pops button[data-type="warning"]:active {\n	--button-color: var(--button-warning-active-color);\n	--button-bd-color: var(--button-warning-active-bd-color);\n	--button-bg-color: var(--button-warning-active-bg-color);\n}\n.pops button[data-type="warning"]:hover {\n	--button-color: var(--button-warning-hover-color);\n	--button-bd-color: var(--button-warning-hover-bd-color);\n	--button-bg-color: var(--button-warning-hover-bg-color);\n}\n.pops button[data-type="warning"]:focus-visible {\n	outline: var(--button-warning-focus-visible-outline);\n	outline-offset: var(--button-warning-focus-visible-outline-offset);\n}\n.pops button[data-type="warning"]:disabled {\n	--button-color: var(--button-warning-disabled-color);\n	--button-bd-color: var(--button-warning-disabled-bd-color);\n	--button-bg-color: var(--button-warning-disabled-bg-color);\n}\n\n.pops button[data-type="danger"] {\n	--button-color: var(--button-danger-color);\n	--button-bd-color: var(--button-danger-bd-color);\n	--button-bg-color: var(--button-danger-bg-color);\n}\n.pops button[data-type="danger"]:active {\n	--button-color: var(--button-danger-active-color);\n	--button-bd-color: var(--button-danger-active-bd-color);\n	--button-bg-color: var(--button-danger-active-bg-color);\n}\n.pops button[data-type="danger"]:hover {\n	--button-color: var(--button-danger-hover-color);\n	--button-bd-color: var(--button-danger-hover-bd-color);\n	--button-bg-color: var(--button-danger-hover-bg-color);\n}\n.pops button[data-type="danger"]:focus-visible {\n	outline: var(--button-danger-focus-visible-outline);\n	outline-offset: var(--button-danger-focus-visible-outline-offset);\n}\n.pops button[data-type="danger"]:disabled {\n	--button-color: var(--button-danger-disabled-color);\n	--button-bd-color: var(--button-danger-disabled-bd-color);\n	--button-bg-color: var(--button-danger-disabled-bg-color);\n}\n\n.pops button[data-type="xiaomi-primary"] {\n	--button-color: var(--button-xiaomi-primary-color);\n	--button-bd-color: var(--button-xiaomi-primary-bd-color);\n	--button-bg-color: var(--button-xiaomi-primary-bg-color);\n}\n.pops button[data-type="xiaomi-primary"]:active {\n	--button-color: var(--button-xiaomi-primary-active-color);\n	--button-bd-color: var(--button-xiaomi-primary-active-bd-color);\n	--button-bg-color: var(--button-xiaomi-primary-active-bg-color);\n}\n.pops button[data-type="xiaomi-primary"]:hover {\n	--button-color: var(--button-xiaomi-primary-hover-color);\n	--button-bd-color: var(--button-xiaomi-primary-hover-bd-color);\n	--button-bg-color: var(--button-xiaomi-primary-hover-bg-color);\n}\n.pops button[data-type="xiaomi-primary"]:focus-visible {\n	outline: var(--button-xiaomi-primary-focus-visible-outline);\n	outline-offset: var(--button-xiaomi-primary-focus-visible-outline-offset);\n}\n.pops button[data-type="xiaomi-primary"]:disabled {\n	--button-color: var(--button-xiaomi-primary-disabled-color);\n	--button-bd-color: var(--button-xiaomi-primary-disabled-bd-color);\n	--button-bg-color: var(--button-xiaomi-primary-disabled-bg-color);\n}\n\n.pops button[data-type="violet"] {\n	--button-color: var(--button-violet-color);\n	--button-bd-color: var(--button-violet-bd-color);\n	--button-bg-color: var(--button-violet-bg-color);\n}\n.pops button[data-type="violet"]:active {\n	--button-color: var(--button-violet-active-color);\n	--button-bd-color: var(--button-violet-active-bd-color);\n	--button-bg-color: var(--button-violet-active-bg-color);\n}\n.pops button[data-type="violet"]:hover {\n	--button-color: var(--button-violet-hover-color);\n	--button-bd-color: var(--button-violet-hover-bd-color);\n	--button-bg-color: var(--button-violet-hover-bg-color);\n}\n.pops button[data-type="violet"]:focus-visible {\n	outline: var(--button-violet-focus-visible-outline);\n	outline-offset: var(--button-violet-focus-visible-outline-offset);\n}\n.pops button[data-type="violet"]:disabled {\n	--button-color: var(--button-violet-disabled-color);\n	--button-bd-color: var(--button-violet-disabled-bd-color);\n	--button-bg-color: var(--button-violet-disabled-bg-color);\n}\n';
-  var commonCSS = ".pops-flex-items-center {\n	display: flex;\n	align-items: center;\n}\n.pops-flex-y-center {\n	display: flex;\n	justify-content: space-between;\n}\n.pops-flex-x-center {\n	display: flex;\n	align-content: center;\n}\n.pops-hide {\n	display: none;\n}\n.pops-hide-important {\n	display: none !important;\n}\n.pops-no-border {\n	border: 0;\n}\n.pops-no-border-important {\n	border: 0 !important;\n}\n.pops-user-select-none {\n	user-select: none;\n	-webkit-user-select: none;\n	-ms-user-select: none;\n	-moz-user-select: none;\n}\n.pops-line-height-center {\n	line-height: normal;\n	align-content: center;\n}\n.pops-width-fill {\n	width: -webkit-fill-available;\n	width: -moz-available;\n}\n.pops-text-is-disabled {\n	--pops-text-is-disabled-color: #a8abb2;\n	color: var(--pops-text-is-disabled-color);\n	--pops-panel-forms-container-item-left-desc-text-color: var(--pops-text-is-disabled-color);\n}\n.pops-text-is-disabled-important {\n	--pops-text-is-disabled-color: #a8abb2;\n	color: var(--pops-text-is-disabled-color) !important;\n	--pops-panel-forms-container-item-left-desc-text-color: var(--pops-text-is-disabled-color) !important;\n}\n";
-  var animCSS = '@keyframes rotating {\n	0% {\n		transform: rotate(0);\n	}\n	to {\n		transform: rotate(360deg);\n	}\n}\n@keyframes iframeLoadingChange_85 {\n	0% {\n		background: linear-gradient(to right, #4995dd, #fff, rgb(202 224 246));\n	}\n	20% {\n		background: linear-gradient(to right, #4995dd, #ead0d0, rgb(123 185 246));\n	}\n	40% {\n		background: linear-gradient(to right, #4995dd, #f4b7b7, rgb(112 178 244));\n	}\n	60% {\n		background: linear-gradient(to right, #4995dd, #ec9393, rgb(80 163 246));\n	}\n	80% {\n		background: linear-gradient(to right, #4995dd, #e87f7f, rgb(25 139 253));\n	}\n	100% {\n		background: linear-gradient(to right, #4995dd, #ee2c2c, rgb(0 124 247));\n	}\n	from {\n		width: 75%;\n	}\n	to {\n		width: 100%;\n	}\n}\n@keyframes iframeLoadingChange {\n	0% {\n		background: linear-gradient(to right, #4995dd, #fff, rgb(202 224 246));\n	}\n	20% {\n		background: linear-gradient(to right, #4995dd, #ead0d0, rgb(123 185 246));\n	}\n	40% {\n		background: linear-gradient(to right, #4995dd, #f4b7b7, rgb(112 178 244));\n	}\n	60% {\n		background: linear-gradient(to right, #4995dd, #ec9393, rgb(80 163 246));\n	}\n	80% {\n		background: linear-gradient(to right, #4995dd, #e87f7f, rgb(25 139 253));\n	}\n	100% {\n		background: linear-gradient(to right, #4995dd, #ee2c2c, rgb(0 124 247));\n	}\n	from {\n		width: 0;\n	}\n	to {\n		width: 75%;\n	}\n}\n\n@keyframes searchSelectFalIn {\n	from {\n		opacity: 0;\n		display: none;\n	}\n	to {\n		display: block;\n		opacity: 1;\n	}\n}\n@keyframes searchSelectFalOut {\n	from {\n		display: block;\n		opacity: 1;\n	}\n	to {\n		opacity: 0;\n		display: none;\n	}\n}\n\n@keyframes pops-anim-wait-rotate {\n	form {\n		transform: rotate(0);\n	}\n	to {\n		transform: rotate(360deg);\n	}\n}\n@keyframes pops-anim-spread {\n	0% {\n		opacity: 0;\n		transform: scaleX(0);\n	}\n	100% {\n		opacity: 1;\n		transform: scaleX(1);\n	}\n}\n@keyframes pops-anim-shake {\n	0%,\n	100% {\n		transform: translateX(0);\n	}\n	10%,\n	30%,\n	50%,\n	70%,\n	90% {\n		transform: translateX(-10px);\n	}\n	20%,\n	40%,\n	60%,\n	80% {\n		transform: translateX(10px);\n	}\n}\n@keyframes pops-anim-rolling-left {\n	0% {\n		opacity: 0;\n		transform: translateX(-100%) rotate(-120deg);\n	}\n	100% {\n		opacity: 1;\n		transform: translateX(0) rotate(0);\n	}\n}\n@keyframes pops-anim-rolling-right {\n	0% {\n		opacity: 0;\n		transform: translateX(100%) rotate(120deg);\n	}\n	100% {\n		opacity: 1;\n		transform: translateX(0) rotate(0);\n	}\n}\n@keyframes pops-anim-slide-top {\n	0% {\n		opacity: 0;\n		transform: translateY(-200%);\n	}\n	100% {\n		opacity: 1;\n		transform: translateY(0);\n	}\n}\n@keyframes pops-anim-slide-bottom {\n	0% {\n		opacity: 0;\n		transform: translateY(200%);\n	}\n	100% {\n		opacity: 1;\n		transform: translateY(0);\n	}\n}\n@keyframes pops-anim-slide-left {\n	0% {\n		opacity: 0;\n		transform: translateX(-200%);\n	}\n	100% {\n		opacity: 1;\n		transform: translateX(0);\n	}\n}\n@keyframes pops-anim-slide-right {\n	0% {\n		transform: translateX(200%);\n	}\n	100% {\n		opacity: 1;\n		transform: translateX(0);\n	}\n}\n@keyframes pops-anim-fadein {\n	0% {\n		opacity: 0;\n	}\n	100% {\n		opacity: 1;\n	}\n}\n@keyframes pops-anim-fadein-zoom {\n	0% {\n		opacity: 0;\n		transform: scale(0.5);\n	}\n	100% {\n		opacity: 1;\n		transform: scale(1);\n	}\n}\n@keyframes pops-anim-fadein-alert {\n	0% {\n		transform: scale(0.5);\n	}\n	45% {\n		transform: scale(1.05);\n	}\n	80% {\n		transform: scale(0.95);\n	}\n	100% {\n		transform: scale(1);\n	}\n}\n@keyframes pops-anim-don {\n	0% {\n		opacity: 0;\n		transform: matrix3d(0.7, 0, 0, 0, 0, 0.7, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	2.08333% {\n		transform: matrix3d(0.75266, 0, 0, 0, 0, 0.76342, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	4.16667% {\n		transform: matrix3d(0.81071, 0, 0, 0, 0, 0.84545, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	6.25% {\n		transform: matrix3d(0.86808, 0, 0, 0, 0, 0.9286, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	8.33333% {\n		transform: matrix3d(0.92038, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	10.4167% {\n		transform: matrix3d(0.96482, 0, 0, 0, 0, 1.05202, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	12.5% {\n		transform: matrix3d(1, 0, 0, 0, 0, 1.08204, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	14.5833% {\n		transform: matrix3d(1.02563, 0, 0, 0, 0, 1.09149, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	16.6667% {\n		transform: matrix3d(1.04227, 0, 0, 0, 0, 1.08453, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	18.75% {\n		transform: matrix3d(1.05102, 0, 0, 0, 0, 1.06666, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	20.8333% {\n		transform: matrix3d(1.05334, 0, 0, 0, 0, 1.04355, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	22.9167% {\n		transform: matrix3d(1.05078, 0, 0, 0, 0, 1.02012, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	25% {\n		transform: matrix3d(1.04487, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	27.0833% {\n		transform: matrix3d(1.03699, 0, 0, 0, 0, 0.98534, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	29.1667% {\n		transform: matrix3d(1.02831, 0, 0, 0, 0, 0.97688, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	31.25% {\n		transform: matrix3d(1.01973, 0, 0, 0, 0, 0.97422, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	33.3333% {\n		transform: matrix3d(1.01191, 0, 0, 0, 0, 0.97618, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	35.4167% {\n		transform: matrix3d(1.00526, 0, 0, 0, 0, 0.98122, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	37.5% {\n		transform: matrix3d(1, 0, 0, 0, 0, 0.98773, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	39.5833% {\n		transform: matrix3d(0.99617, 0, 0, 0, 0, 0.99433, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	41.6667% {\n		transform: matrix3d(0.99368, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	43.75% {\n		transform: matrix3d(0.99237, 0, 0, 0, 0, 1.00413, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	45.8333% {\n		transform: matrix3d(0.99202, 0, 0, 0, 0, 1.00651, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	47.9167% {\n		transform: matrix3d(0.99241, 0, 0, 0, 0, 1.00726, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	50% {\n		opacity: 1;\n		transform: matrix3d(0.99329, 0, 0, 0, 0, 1.00671, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	52.0833% {\n		transform: matrix3d(0.99447, 0, 0, 0, 0, 1.00529, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	54.1667% {\n		transform: matrix3d(0.99577, 0, 0, 0, 0, 1.00346, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	56.25% {\n		transform: matrix3d(0.99705, 0, 0, 0, 0, 1.0016, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	58.3333% {\n		transform: matrix3d(0.99822, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	60.4167% {\n		transform: matrix3d(0.99921, 0, 0, 0, 0, 0.99884, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	62.5% {\n		transform: matrix3d(1, 0, 0, 0, 0, 0.99816, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	64.5833% {\n		transform: matrix3d(1.00057, 0, 0, 0, 0, 0.99795, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	66.6667% {\n		transform: matrix3d(1.00095, 0, 0, 0, 0, 0.99811, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	68.75% {\n		transform: matrix3d(1.00114, 0, 0, 0, 0, 0.99851, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	70.8333% {\n		transform: matrix3d(1.00119, 0, 0, 0, 0, 0.99903, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	72.9167% {\n		transform: matrix3d(1.00114, 0, 0, 0, 0, 0.99955, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	75% {\n		transform: matrix3d(1.001, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	77.0833% {\n		transform: matrix3d(1.00083, 0, 0, 0, 0, 1.00033, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	79.1667% {\n		transform: matrix3d(1.00063, 0, 0, 0, 0, 1.00052, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	81.25% {\n		transform: matrix3d(1.00044, 0, 0, 0, 0, 1.00058, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	83.3333% {\n		transform: matrix3d(1.00027, 0, 0, 0, 0, 1.00053, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	85.4167% {\n		transform: matrix3d(1.00012, 0, 0, 0, 0, 1.00042, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	87.5% {\n		transform: matrix3d(1, 0, 0, 0, 0, 1.00027, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	89.5833% {\n		transform: matrix3d(0.99991, 0, 0, 0, 0, 1.00013, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	91.6667% {\n		transform: matrix3d(0.99986, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	93.75% {\n		transform: matrix3d(0.99983, 0, 0, 0, 0, 0.99991, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	95.8333% {\n		transform: matrix3d(0.99982, 0, 0, 0, 0, 0.99985, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	97.9167% {\n		transform: matrix3d(0.99983, 0, 0, 0, 0, 0.99984, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	100% {\n		opacity: 1;\n		transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n}\n@keyframes pops-anim-roll {\n	0% {\n		transform: perspective(1000px) rotate3d(1, 0, 0, 90deg);\n	}\n	100% {\n		transform: perspective(1000px) rotate3d(1, 0, 0, 0deg);\n	}\n}\n@keyframes pops-anim-sandra {\n	0% {\n		opacity: 0;\n		transform: scale3d(1.1, 1.1, 1);\n	}\n	100% {\n		opacity: 1;\n		transform: scale3d(1, 1, 1);\n	}\n}\n@keyframes pops-anim-gather {\n	0% {\n		opacity: 0;\n		transform: scale(5, 0);\n	}\n	100% {\n		opacity: 1;\n		transform: scale(1, 1);\n	}\n}\n@keyframes pops-anim-spread-reverse {\n	0% {\n		opacity: 1;\n		transform: scaleX(1);\n	}\n	100% {\n		opacity: 0;\n		transform: scaleX(0);\n	}\n}\n@keyframes pops-anim-shake-reverse {\n	0%,\n	100% {\n		transform: translateX(10px);\n	}\n	10%,\n	30%,\n	50%,\n	70%,\n	90% {\n		transform: translateX(-10px);\n	}\n	20%,\n	40%,\n	60%,\n	80% {\n		transform: translateX(0);\n	}\n}\n@keyframes pops-anim-rolling-left-reverse {\n	0% {\n		opacity: 1;\n		transform: translateX(0) rotate(0);\n	}\n	100% {\n		opacity: 0;\n		transform: translateX(-100%) rotate(-120deg);\n	}\n}\n@keyframes pops-anim-rolling-right-reverse {\n	0% {\n		opacity: 1;\n		transform: translateX(0) rotate(0);\n	}\n	100% {\n		opacity: 0;\n		transform: translateX(100%) rotate(120deg);\n	}\n}\n@keyframes pops-anim-slide-top-reverse {\n	0% {\n		opacity: 1;\n		transform: translateY(0);\n	}\n	100% {\n		opacity: 0;\n		transform: translateY(-200%);\n	}\n}\n@keyframes pops-anim-slide-bottom-reverse {\n	0% {\n		opacity: 1;\n		transform: translateY(0);\n	}\n	100% {\n		opacity: 0;\n		transform: translateY(200%);\n	}\n}\n@keyframes pops-anim-slide-left-reverse {\n	0% {\n		opacity: 1;\n		transform: translateX(0);\n	}\n	100% {\n		opacity: 0;\n		transform: translateX(-200%);\n	}\n}\n@keyframes pops-anim-slide-right-reverse {\n	0% {\n		opacity: 1;\n		transform: translateX(0);\n	}\n	100% {\n		transform: translateX(200%);\n	}\n}\n@keyframes pops-anim-fadein-reverse {\n	0% {\n		opacity: 1;\n	}\n	100% {\n		opacity: 0;\n	}\n}\n@keyframes pops-anim-fadein-zoom-reverse {\n	0% {\n		opacity: 1;\n		transform: scale(1);\n	}\n	100% {\n		opacity: 0;\n		transform: scale(0.5);\n	}\n}\n@keyframes pops-anim-fadein-alert-reverse {\n	0% {\n		transform: scale(1);\n	}\n	45% {\n		transform: scale(0.95);\n	}\n	80% {\n		transform: scale(1.05);\n	}\n	100% {\n		transform: scale(0.5);\n	}\n}\n@keyframes pops-anim-don-reverse {\n	100% {\n		opacity: 0;\n		transform: matrix3d(0.7, 0, 0, 0, 0, 0.7, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	97.9167% {\n		transform: matrix3d(0.75266, 0, 0, 0, 0, 0.76342, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	95.8333% {\n		transform: matrix3d(0.81071, 0, 0, 0, 0, 0.84545, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	93.75% {\n		transform: matrix3d(0.86808, 0, 0, 0, 0, 0.9286, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	91.6667% {\n		transform: matrix3d(0.92038, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	89.5833% {\n		transform: matrix3d(0.96482, 0, 0, 0, 0, 1.05202, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	87.5% {\n		transform: matrix3d(1, 0, 0, 0, 0, 1.08204, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	85.4167% {\n		transform: matrix3d(1.02563, 0, 0, 0, 0, 1.09149, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	83.3333% {\n		transform: matrix3d(1.04227, 0, 0, 0, 0, 1.08453, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	81.25% {\n		transform: matrix3d(1.05102, 0, 0, 0, 0, 1.06666, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	79.1667% {\n		transform: matrix3d(1.05334, 0, 0, 0, 0, 1.04355, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	77.0833% {\n		transform: matrix3d(1.05078, 0, 0, 0, 0, 1.02012, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	75% {\n		transform: matrix3d(1.04487, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	72.9167% {\n		transform: matrix3d(1.03699, 0, 0, 0, 0, 0.98534, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	70.8333% {\n		transform: matrix3d(1.02831, 0, 0, 0, 0, 0.97688, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	68.75% {\n		transform: matrix3d(1.01973, 0, 0, 0, 0, 0.97422, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	66.6667% {\n		transform: matrix3d(1.01191, 0, 0, 0, 0, 0.97618, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	64.5833% {\n		transform: matrix3d(1.00526, 0, 0, 0, 0, 0.98122, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	62.5% {\n		transform: matrix3d(1, 0, 0, 0, 0, 0.98773, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	60.4167% {\n		transform: matrix3d(0.99617, 0, 0, 0, 0, 0.99433, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	58.3333% {\n		transform: matrix3d(0.99368, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	56.25% {\n		transform: matrix3d(0.99237, 0, 0, 0, 0, 1.00413, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	54.1667% {\n		transform: matrix3d(0.99202, 0, 0, 0, 0, 1.00651, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	52.0833% {\n		transform: matrix3d(0.99241, 0, 0, 0, 0, 1.00726, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	50% {\n		opacity: 1;\n		transform: matrix3d(0.99329, 0, 0, 0, 0, 1.00671, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	47.9167% {\n		transform: matrix3d(0.99447, 0, 0, 0, 0, 1.00529, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	45.8333% {\n		transform: matrix3d(0.99577, 0, 0, 0, 0, 1.00346, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	43.75% {\n		transform: matrix3d(0.99705, 0, 0, 0, 0, 1.0016, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	41.6667% {\n		transform: matrix3d(0.99822, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	39.5833% {\n		transform: matrix3d(0.99921, 0, 0, 0, 0, 0.99884, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	37.5% {\n		transform: matrix3d(1, 0, 0, 0, 0, 0.99816, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	35.4167% {\n		transform: matrix3d(1.00057, 0, 0, 0, 0, 0.99795, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	33.3333% {\n		transform: matrix3d(1.00095, 0, 0, 0, 0, 0.99811, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	31.25% {\n		transform: matrix3d(1.00114, 0, 0, 0, 0, 0.99851, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	29.1667% {\n		transform: matrix3d(1.00119, 0, 0, 0, 0, 0.99903, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	27.0833% {\n		transform: matrix3d(1.00114, 0, 0, 0, 0, 0.99955, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	25% {\n		transform: matrix3d(1.001, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	22.9167% {\n		transform: matrix3d(1.00083, 0, 0, 0, 0, 1.00033, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	20.8333% {\n		transform: matrix3d(1.00063, 0, 0, 0, 0, 1.00052, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	18.75% {\n		transform: matrix3d(1.00044, 0, 0, 0, 0, 1.00058, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	16.6667% {\n		transform: matrix3d(1.00027, 0, 0, 0, 0, 1.00053, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	14.5833% {\n		transform: matrix3d(1.00012, 0, 0, 0, 0, 1.00042, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	12.5% {\n		transform: matrix3d(1, 0, 0, 0, 0, 1.00027, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	10.4167% {\n		transform: matrix3d(0.99991, 0, 0, 0, 0, 1.00013, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	8.33333% {\n		transform: matrix3d(0.99986, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	6.25% {\n		transform: matrix3d(0.99983, 0, 0, 0, 0, 0.99991, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	4.16667% {\n		transform: matrix3d(0.99982, 0, 0, 0, 0, 0.99985, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	2.08333% {\n		transform: matrix3d(0.99983, 0, 0, 0, 0, 0.99984, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	0% {\n		opacity: 1;\n		transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n}\n@keyframes pops-anim-roll-reverse {\n	0% {\n		transform: perspective(1000px) rotate3d(1, 0, 0, 0deg);\n	}\n	100% {\n		transform: perspective(1000px) rotate3d(1, 0, 0, 90deg);\n	}\n}\n@keyframes pops-anim-sandra-reverse {\n	0% {\n		opacity: 1;\n		transform: scale3d(1, 1, 1);\n	}\n	100% {\n		opacity: 0;\n		transform: scale3d(1.1, 1.1, 1);\n	}\n}\n@keyframes pops-anim-gather-reverse {\n	0% {\n		opacity: 0;\n		transform: scale(5, 0);\n	}\n	100% {\n		opacity: 0;\n		transform: scale(5, 0);\n	}\n}\n\n@-webkit-keyframes pops-motion-fadeInTop {\n	0% {\n		opacity: 0;\n		-webkit-transform: translateY(-30px);\n		transform: translateY(-30px);\n	}\n	100% {\n		opacity: 1;\n		-webkit-transform: translateX(0);\n		transform: translateX(0);\n	}\n}\n@keyframes pops-motion-fadeInTop {\n	0% {\n		opacity: 0;\n		transform: translateY(-30px);\n		-ms-transform: translateY(-30px);\n	}\n	100% {\n		opacity: 1;\n		transform: translateX(0);\n		-ms-transform: translateX(0);\n	}\n}\n@-webkit-keyframes pops-motion-fadeOutTop {\n	0% {\n		opacity: 10;\n		-webkit-transform: translateY(0);\n		transform: translateY(0);\n	}\n	100% {\n		opacity: 0;\n		-webkit-transform: translateY(-30px);\n		transform: translateY(-30px);\n	}\n}\n@keyframes pops-motion-fadeOutTop {\n	0% {\n		opacity: 1;\n		transform: translateY(0);\n		-ms-transform: translateY(0);\n	}\n	100% {\n		opacity: 0;\n		transform: translateY(-30px);\n		-ms-transform: translateY(-30px);\n	}\n}\n@-webkit-keyframes pops-motion-fadeInBottom {\n	0% {\n		opacity: 0;\n		-webkit-transform: translateY(20px);\n		transform: translateY(20px);\n	}\n	100% {\n		opacity: 1;\n		-webkit-transform: translateY(0);\n		transform: translateY(0);\n	}\n}\n@keyframes pops-motion-fadeInBottom {\n	0% {\n		opacity: 0;\n		-webkit-transform: translateY(20px);\n		transform: translateY(20px);\n		-ms-transform: translateY(20px);\n	}\n	100% {\n		opacity: 1;\n		-webkit-transform: translateY(0);\n		transform: translateY(0);\n		-ms-transform: translateY(0);\n	}\n}\n@-webkit-keyframes pops-motion-fadeOutBottom {\n	0% {\n		opacity: 1;\n		-webkit-transform: translateY(0);\n		transform: translateY(0);\n	}\n	100% {\n		opacity: 0;\n		-webkit-transform: translateY(20px);\n		transform: translateY(20px);\n	}\n}\n@keyframes pops-motion-fadeOutBottom {\n	0% {\n		opacity: 1;\n		-webkit-transform: translateY(0);\n		transform: translateY(0);\n		-ms-transform: translateY(0);\n	}\n	100% {\n		opacity: 0;\n		-webkit-transform: translateY(20px);\n		transform: translateY(20px);\n		-ms-transform: translateY(20px);\n	}\n}\n@-webkit-keyframes pops-motion-fadeInLeft {\n	0% {\n		opacity: 0;\n		-webkit-transform: translateX(-20px);\n		transform: translateX(-20px);\n	}\n	100% {\n		opacity: 1;\n		-webkit-transform: translateX(0);\n		transform: translateX(0);\n	}\n}\n@keyframes pops-motion-fadeInLeft {\n	0% {\n		opacity: 0;\n		-webkit-transform: translateX(-30px);\n		transform: translateX(-30px);\n		-ms-transform: translateX(-30px);\n	}\n	100% {\n		opacity: 1;\n		-webkit-transform: translateX(0);\n		transform: translateX(0);\n		-ms-transform: translateX(0);\n	}\n}\n@-webkit-keyframes pops-motion-fadeOutLeft {\n	0% {\n		opacity: 1;\n		-webkit-transform: translateX(0);\n		transform: translateX(0);\n	}\n	100% {\n		opacity: 0;\n		-webkit-transform: translateX(-30px);\n		transform: translateX(-30px);\n	}\n}\n@keyframes pops-motion-fadeOutLeft {\n	0% {\n		opacity: 1;\n		-webkit-transform: translateX(0);\n		transform: translateX(0);\n		-ms-transform: translateX(0);\n	}\n	100% {\n		opacity: 0;\n		-webkit-transform: translateX(-20px);\n		transform: translateX(-20px);\n		-ms-transform: translateX(-20px);\n	}\n}\n@-webkit-keyframes pops-motion-fadeInRight {\n	0% {\n		opacity: 0;\n		-webkit-transform: translateX(20px);\n		transform: translateX(20px);\n	}\n	100% {\n		opacity: 1;\n		-webkit-transform: translateX(0);\n		transform: translateX(0);\n	}\n}\n@keyframes pops-motion-fadeInRight {\n	0% {\n		opacity: 0;\n		-webkit-transform: translateX(20px);\n		transform: translateX(20px);\n		-ms-transform: translateX(20px);\n	}\n	100% {\n		opacity: 1;\n		-webkit-transform: translateX(0);\n		transform: translateX(0);\n		-ms-transform: translateX(0);\n	}\n}\n@-webkit-keyframes pops-motion-fadeOutRight {\n	0% {\n		opacity: 1;\n		-webkit-transform: translateX(0);\n		transform: translateX(0);\n	}\n	100% {\n		opacity: 0;\n		-webkit-transform: translateX(20px);\n		transform: translateX(20px);\n	}\n}\n@keyframes pops-motion-fadeOutRight {\n	0% {\n		opacity: 1;\n		-webkit-transform: translateX(0);\n		transform: translateX(0);\n		-ms-transform: translateX(0);\n	}\n	100% {\n		opacity: 0;\n		-webkit-transform: translateX(20px);\n		transform: translateX(20px);\n		-ms-transform: translateX(20px);\n	}\n}\n\n/* 动画 */\n.pops-anim[anim="pops-anim-spread"] {\n	animation: pops-anim-spread 0.3s;\n}\n.pops-anim[anim="pops-anim-shake"] {\n	animation: pops-anim-shake 0.3s;\n}\n.pops-anim[anim="pops-anim-rolling-left"] {\n	animation: pops-anim-rolling-left 0.3s;\n}\n.pops-anim[anim="pops-anim-rolling-right"] {\n	animation: pops-anim-rolling-right 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-top"] {\n	animation: pops-anim-slide-top 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-bottom"] {\n	animation: pops-anim-slide-bottom 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-left"] {\n	animation: pops-anim-slide-left 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-right"] {\n	animation: pops-anim-slide-right 0.3s;\n}\n.pops-anim[anim="pops-anim-fadein"] {\n	animation: pops-anim-fadein 0.3s;\n}\n.pops-anim[anim="pops-anim-fadein-zoom"] {\n	animation: pops-anim-fadein-zoom 0.3s;\n}\n.pops-anim[anim="pops-anim-fadein-alert"] {\n	animation: pops-anim-fadein-alert 0.3s;\n}\n.pops-anim[anim="pops-anim-don"] {\n	animation: pops-anim-don 0.3s;\n}\n.pops-anim[anim="pops-anim-roll"] {\n	animation: pops-anim-roll 0.3s;\n}\n.pops-anim[anim="pops-anim-sandra"] {\n	animation: pops-anim-sandra 0.3s;\n}\n.pops-anim[anim="pops-anim-gather"] {\n	animation: pops-anim-gather 0.3s;\n}\n.pops-anim[anim="pops-anim-spread-reverse"] {\n	animation: pops-anim-spread-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-shake-reverse"] {\n	animation: pops-anim-shake-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-rolling-left-reverse"] {\n	animation: pops-anim-rolling-left-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-rolling-right-reverse"] {\n	animation: pops-anim-rolling-right-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-top-reverse"] {\n	animation: pops-anim-slide-top-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-bottom-reverse"] {\n	animation: pops-anim-slide-bottom-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-left-reverse"] {\n	animation: pops-anim-slide-left-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-right-reverse"] {\n	animation: pops-anim-slide-right-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-fadein-reverse"] {\n	animation: pops-anim-fadein-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-fadein-zoom-reverse"] {\n	animation: pops-anim-fadein-zoom-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-fadein-alert-reverse"] {\n	animation: pops-anim-fadein-alert-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-don-reverse"] {\n	animation: pops-anim-don-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-roll-reverse"] {\n	animation: pops-anim-roll-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-sandra-reverse"] {\n	animation: pops-anim-sandra-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-gather-reverse"] {\n	animation: pops-anim-gather-reverse 0.3s;\n}\n';
+  var indexCSS = '@charset "utf-8";\r\n.pops * {\r\n  -webkit-box-sizing: border-box;\r\n  box-sizing: border-box;\r\n  margin: 0;\r\n  padding: 0;\r\n  -webkit-tap-highlight-color: transparent;\r\n  /* 代替::-webkit-scrollbar */\r\n  scrollbar-width: thin;\r\n}\r\n.pops {\r\n  --pops-bg-opacity: 1;\r\n  --pops-bd-opacity: 1;\r\n  --pops-font-size: 16px;\r\n  interpolate-size: allow-keywords;\r\n  --pops-color: #000000;\r\n  --pops-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n  --pops-bd-color: rgb(235, 238, 245, var(--pops-bd-opacity));\r\n  --pops-box-shadow-color: rgba(0, 0, 0, 0.12);\r\n  --pops-title-color: #000000;\r\n  --pops-title-border-color: var(--pops-bd-color);\r\n  --pops-content-color: #000000;\r\n  --pops-bottom-btn-controls-border-color: var(--pops-bd-color);\r\n  --pops-components-is-disabled-text-color: #a8abb2;\r\n  --pops-components-is-disabled-bg-color: #f5f7fa;\r\n}\r\n@media (prefers-color-scheme: dark) {\r\n  .pops {\r\n    --pops-mask-bg-opacity: 0.8;\r\n    --pops-color: #ffffff;\r\n    --pops-bg-color: rgb(17, 17, 17, var(--pops-bg-opacity));\r\n    --pops-bd-color: rgb(55, 55, 55, var(--pops-bd-opacity));\r\n    --pops-box-shadow-color: rgba(81, 81, 81, 0.12);\r\n    --pops-title-color: #e8e8e8;\r\n    --pops-title-border-color: var(--pops-bd-color);\r\n    --pops-content-color: #e5e5e5;\r\n    --pops-components-is-disabled-text-color: #a8abb2;\r\n    --pops-components-is-disabled-bg-color: #262727;\r\n  }\r\n}\r\n.pops {\r\n  color: var(--pops-color);\r\n  background-color: var(--pops-bg-color);\r\n  border: 1px solid var(--pops-bd-color);\r\n  border-radius: 4px;\r\n  font-size: var(--pops-font-size);\r\n  line-height: normal;\r\n  box-shadow: 0 0 12px var(--pops-box-shadow-color);\r\n  box-sizing: border-box;\r\n  overflow: hidden;\r\n  transition: all 0.35s;\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n.pops-anim {\r\n  position: fixed;\r\n  top: 0;\r\n  right: 0;\r\n  bottom: 0;\r\n  left: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n.pops-anim[anim=""] {\r\n  top: unset;\r\n  right: unset;\r\n  bottom: unset;\r\n  left: unset;\r\n  width: unset;\r\n  height: unset;\r\n  transition: none;\r\n}\r\n/* 底部图标动画和样式 */\r\n.pops i.pops-bottom-icon[is-loading="true"] {\r\n  animation: rotating 2s linear infinite;\r\n}\r\n.pops i.pops-bottom-icon {\r\n  height: 1em;\r\n  width: 1em;\r\n  line-height: normal;\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  fill: currentColor;\r\n  color: inherit;\r\n  font-size: inherit;\r\n}\r\n\r\n/* 遮罩层样式 */\r\n.pops-mask {\r\n  --pops-mask-bg-opacity: 0.4;\r\n  --pops-mask-bg-color: rgba(0, 0, 0, var(--pops-mask-bg-opacity));\r\n}\r\n.pops-mask {\r\n  position: fixed;\r\n  top: 0;\r\n  right: 0;\r\n  bottom: 0;\r\n  left: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n  border: 0;\r\n  border-radius: 0;\r\n  background-color: var(--pops-mask-bg-color);\r\n  box-shadow: none;\r\n  transition: none;\r\n}\r\n\r\n.pops-header-controls button.pops-header-control[type][data-header] {\r\n  float: right;\r\n  margin: 0 0;\r\n  outline: 0;\r\n  border: 0;\r\n  border-color: rgb(136, 136, 136, var(--pops-bd-opacity));\r\n  background-color: transparent;\r\n  color: #888;\r\n  cursor: pointer;\r\n}\r\n.pops-header-controls button.pops-header-control[data-type="max"],\r\n.pops-header-controls button.pops-header-control[data-type="mise"],\r\n.pops-header-controls button.pops-header-control[data-type="min"] {\r\n  outline: 0 !important;\r\n  border: 0;\r\n  border-color: rgb(136, 136, 136, var(--pops-bd-opacity));\r\n  background-color: transparent;\r\n  color: rgb(136, 136, 136);\r\n  cursor: pointer;\r\n  transition: all 0.3s ease-in-out;\r\n}\r\nbutton.pops-header-control i {\r\n  color: rgb(144, 147, 153);\r\n  font-size: inherit;\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  fill: currentColor;\r\n}\r\nbutton.pops-header-control svg {\r\n  height: 1.25em;\r\n  width: 1.25em;\r\n}\r\nbutton.pops-header-control {\r\n  right: 15px;\r\n  padding: 0;\r\n  border: none;\r\n  outline: 0;\r\n  background: 0 0;\r\n  cursor: pointer;\r\n  position: unset;\r\n  line-height: normal;\r\n}\r\nbutton.pops-header-control i:hover {\r\n  color: rgb(64, 158, 255);\r\n}\r\n.pops-header-controls[data-margin] button.pops-header-control {\r\n  margin: 0 6px;\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n.pops[type-value] .pops-header-controls {\r\n  display: flex;\r\n  gap: 6px;\r\n}\r\n\r\n/* 代码块 <code> */\r\n.pops code {\r\n  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;\r\n  font-size: 0.85em;\r\n  color: #000;\r\n  background-color: #f0f0f0;\r\n  border-radius: 3px;\r\n  border: 0;\r\n  padding: 0.2em 0;\r\n  white-space: normal;\r\n  background: #f5f5f5;\r\n  text-wrap: wrap;\r\n  text-align: left;\r\n  word-spacing: normal;\r\n  word-break: normal;\r\n  word-wrap: normal;\r\n  line-height: 1.4;\r\n  -moz-tab-size: 8;\r\n  -o-tab-size: 8;\r\n  tab-size: 8;\r\n  -webkit-hyphens: none;\r\n  -moz-hyphens: none;\r\n  -ms-hyphens: none;\r\n  hyphens: none;\r\n  direction: ltr;\r\n}\r\n\r\n.pops code::before,\r\n.pops code::after {\r\n  letter-spacing: -0.2em;\r\n  content: "\\00a0";\r\n}\r\n\r\n/* 标题 */\r\n.pops .pops-title {\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: space-between;\r\n  border-bottom: 1px solid var(--pops-title-border-color);\r\n  width: 100%;\r\n  height: var(--container-title-height);\r\n}\r\n/* 标题-普通文本 */\r\n.pops .pops-title p[pops] {\r\n  color: var(--pops-title-color);\r\n  width: 100%;\r\n  overflow: hidden;\r\n  text-indent: 15px;\r\n  text-overflow: ellipsis;\r\n  white-space: nowrap;\r\n  font-weight: 500;\r\n  line-height: normal;\r\n}\r\n\r\n/* 内容 */\r\n.pops .pops-content {\r\n  width: 100%;\r\n  /*height: calc(\r\n		100% - var(--container-title-height) - var(--container-bottom-btn-height)\r\n	);*/\r\n  flex: 1;\r\n  overflow: auto;\r\n  word-break: break-word;\r\n}\r\n/* 内容-普通文本 */\r\n.pops .pops-content p[pops] {\r\n  color: var(--pops-content-color);\r\n  padding: 5px 10px;\r\n  text-indent: 15px;\r\n}\r\n\r\n/* 底部-按钮组 */\r\n.pops .pops-botttom-btn-controls {\r\n  display: flex;\r\n  padding: 10px 10px 10px 10px;\r\n  width: 100%;\r\n  height: var(--container-bottom-btn-height);\r\n  max-height: var(--container-bottom-btn-height);\r\n  line-height: normal;\r\n  border-top: 1px solid var(--pops-bottom-btn-controls-border-color);\r\n  text-align: right;\r\n  align-items: center;\r\n}\r\n';
+  var ninePalaceGridPositionCSS = '.pops[position="top_left"] {\r\n  position: fixed;\r\n  top: 0;\r\n  left: 0;\r\n}\r\n.pops[position="top"] {\r\n  position: fixed;\r\n  top: 0;\r\n  left: 50%;\r\n  transform: translateX(-50%);\r\n}\r\n.pops[position="top_right"] {\r\n  position: fixed;\r\n  top: 0;\r\n  right: 0;\r\n}\r\n.pops[position="center_left"] {\r\n  position: fixed;\r\n  top: 50%;\r\n  left: 0;\r\n  transform: translateY(-50%);\r\n}\r\n.pops[position="center"] {\r\n  position: fixed;\r\n  top: 50%;\r\n  left: 50%;\r\n  transform: translate(-50%, -50%);\r\n}\r\n.pops[position="center_right"] {\r\n  position: fixed;\r\n  top: 50%;\r\n  right: 0;\r\n  transform: translateY(-50%);\r\n}\r\n.pops[position="bottom_left"] {\r\n  position: fixed;\r\n  bottom: 0;\r\n  left: 0;\r\n}\r\n.pops[position="bottom"] {\r\n  position: fixed;\r\n  bottom: 0;\r\n  left: 50%;\r\n  transform: translate(-50%, 0);\r\n}\r\n.pops[position="bottom_right"] {\r\n  position: fixed;\r\n  right: 0;\r\n  bottom: 0;\r\n}\r\n';
+  var scrollbarCSS = "/* ::-webkit-scrollbar 是非标准的css */\r\n/* https://caniuse.com/?search=%20%3A%3A-webkit-scrollbar */\r\n.pops ::-webkit-scrollbar {\r\n  width: 6px;\r\n  height: 0;\r\n}\r\n\r\n/* 滚动条轨道 */\r\n.pops ::-webkit-scrollbar-track {\r\n  width: 0;\r\n}\r\n/* 滚动条滑块 */\r\n.pops ::-webkit-scrollbar-thumb {\r\n  min-height: 28px;\r\n  border-radius: 2em;\r\n  background: rgb(204, 204, 204, var(--pops-bg-opacity, 1));\r\n  background-clip: padding-box;\r\n}\r\n/* 滚动条滑块 */\r\n.pops ::-webkit-scrollbar-thumb:hover {\r\n  background: rgb(178, 178, 178, var(--pops-bg-opacity, 1));\r\n}\r\n";
+  var buttonCSS = '.pops {\r\n  --button-font-size: 14px;\r\n  --button-height: 32px;\r\n  --button-color: rgb(51, 51, 51);\r\n  --button-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\r\n  --button-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\r\n  --button-margin-top: 0px;\r\n  --button-margin-bottom: 0px;\r\n  --button-margin-left: 5px;\r\n  --button-margin-right: 5px;\r\n  --button-padding-top: 6px;\r\n  --button-padding-bottom: 6px;\r\n  --button-padding-left: 12px;\r\n  --button-padding-right: 12px;\r\n  --button-radius: 4px;\r\n\r\n  --container-title-height: 55px;\r\n  --container-bottom-btn-height: 55px;\r\n\r\n  /* default按钮 */\r\n  --button-default-color: #333333;\r\n  --button-default-bd-color: #dcdfe6;\r\n  --button-default-bg-color: #ffffff;\r\n  --button-default-active-color: #409eff;\r\n  --button-default-active-bd-color: #409eff;\r\n  --button-default-active-bg-color: #ecf5ff;\r\n  --button-default-hover-color: #409eff;\r\n  --button-default-hover-bd-color: #c6e2ff;\r\n  --button-default-hover-bg-color: #ecf5ff;\r\n  --button-default-focus-visible-outline-color: #a0cfff;\r\n  --button-default-focus-visible-outline: 2px solid var(--button-default-focus-visible-outline-color);\r\n  --button-default-focus-visible-outline-offset: 1px;\r\n  --button-default-disabled-color: #a8abb2;\r\n  --button-default-disabled-bd-color: #ffffff;\r\n  --button-default-disabled-bg-color: #e4e7ed;\r\n\r\n  /* primary按钮 */\r\n  --button-primary-color: #ffffff;\r\n  --button-primary-bd-color: #409eff;\r\n  --button-primary-bg-color: #409eff;\r\n  --button-primary-active-color: #ffffff;\r\n  --button-primary-active-bd-color: #337ecc;\r\n  --button-primary-active-bg-color: #337ecc;\r\n  --button-primary-hover-color: #ffffff;\r\n  --button-primary-hover-bd-color: #79bbff;\r\n  --button-primary-hover-bg-color: #79bbff;\r\n  --button-primary-focus-visible-outline-color: #a0cfff;\r\n  --button-primary-focus-visible-outline: 2px solid var(--button-primary-focus-visible-outline-color);\r\n  --button-primary-focus-visible-outline-offset: 1px;\r\n  --button-primary-disabled-color: #ffffff80;\r\n  --button-primary-disabled-bd-color: #a0cfff;\r\n  --button-primary-disabled-bg-color: #a0cfff;\r\n\r\n  /* success按钮 */\r\n  --button-success-color: #ffffff;\r\n  --button-success-bd-color: #4cae4c;\r\n  --button-success-bg-color: #5cb85c;\r\n  --button-success-active-color: #ffffff;\r\n  --button-success-active-bd-color: #529b2e;\r\n  --button-success-active-bg-color: #529b2e;\r\n  --button-success-hover-color: #ffffff;\r\n  --button-success-hover-bd-color: #95d475;\r\n  --button-success-hover-bg-color: #95d475;\r\n  --button-success-focus-visible-outline-color: #b3e19d;\r\n  --button-success-focus-visible-outline: 2px solid var(--button-success-focus-visible-outline-color);\r\n  --button-success-focus-visible-outline-offset: 1px;\r\n  --button-success-disabled-color: #ffffff80;\r\n  --button-success-disabled-bd-color: #b3e19d;\r\n  --button-success-disabled-bg-color: #b3e19d;\r\n\r\n  /* info按钮 */\r\n  --button-info-color: #ffffff;\r\n  --button-info-bd-color: #909399;\r\n  --button-info-bg-color: #909399;\r\n  --button-info-active-color: #ffffff;\r\n  --button-info-active-bd-color: #73767a;\r\n  --button-info-active-bg-color: #73767a;\r\n  --button-info-hover-color: #ffffff;\r\n  --button-info-hover-bd-color: #b1b3b8;\r\n  --button-info-hover-bg-color: #b1b3b8;\r\n  --button-info-focus-visible-outline-color: #c8c9cc;\r\n  --button-info-focus-visible-outline: 2px solid var(--button-info-focus-visible-outline-color);\r\n  --button-info-focus-visible-outline-offset: 1px;\r\n  --button-info-disabled-color: #ffffff80;\r\n  --button-info-disabled-bd-color: #c8c9cc;\r\n  --button-info-disabled-bg-color: #c8c9cc;\r\n\r\n  /* warning按钮 */\r\n  --button-warning-color: #ffffff;\r\n  --button-warning-bd-color: #e6a23c;\r\n  --button-warning-bg-color: #e6a23c;\r\n  --button-warning-active-color: #ffffff;\r\n  --button-warning-active-bd-color: #b88230;\r\n  --button-warning-active-bg-color: #b88230;\r\n  --button-warning-hover-color: #ffffff80;\r\n  --button-warning-hover-bd-color: #eebe77;\r\n  --button-warning-hover-bg-color: #eebe77;\r\n  --button-warning-focus-visible-outline-color: #f3d19e;\r\n  --button-warning-focus-visible-outline: 2px solid var(--button-warning-focus-visible-outline-color);\r\n  --button-warning-focus-visible-outline-offset: 1px;\r\n  --button-warning-disabled-color: #ffffff80;\r\n  --button-warning-disabled-bd-color: #f3d19e;\r\n  --button-warning-disabled-bg-color: #f3d19e;\r\n\r\n  /* danger按钮 */\r\n  --button-danger-color: #ffffff;\r\n  --button-danger-bd-color: #f56c6c;\r\n  --button-danger-bg-color: #f56c6c;\r\n  --button-danger-active-color: #ffffff;\r\n  --button-danger-active-bd-color: #c45656;\r\n  --button-danger-active-bg-color: #c45656;\r\n  --button-danger-hover-color: #ffffff;\r\n  --button-danger-hover-bd-color: #f89898;\r\n  --button-danger-hover-bg-color: #f89898;\r\n  --button-danger-focus-visible-outline-color: #fab6b6;\r\n  --button-danger-focus-visible-outline: 2px solid var(--button-danger-focus-visible-outline-color);\r\n  --button-danger-focus-visible-outline-offset: 1px;\r\n  --button-danger-disabled-color: #ffffff80;\r\n  --button-danger-disabled-bd-color: #fab6b6;\r\n  --button-danger-disabled-bg-color: #fab6b6;\r\n\r\n  /* xiaomi-primary按钮 */\r\n  --button-xiaomi-primary-color: #ffffff;\r\n  --button-xiaomi-primary-bd-color: #ff5c00;\r\n  --button-xiaomi-primary-bg-color: #ff5c00;\r\n  --button-xiaomi-primary-active-color: #ffffff;\r\n  --button-xiaomi-primary-active-bd-color: #da4f00;\r\n  --button-xiaomi-primary-active-bg-color: #da4f00;\r\n  --button-xiaomi-primary-hover-color: #ffffff;\r\n  --button-xiaomi-primary-hover-bd-color: #ff7e29;\r\n  --button-xiaomi-primary-hover-bg-color: #ff7e29;\r\n  --button-xiaomi-primary-focus-visible-outline-color: #ffa061;\r\n  --button-xiaomi-primary-focus-visible-outline: 2px solid var(--button-xiaomi-primary-focus-visible-outline-color);\r\n  --button-xiaomi-primary-focus-visible-outline-offset: 1px;\r\n  --button-xiaomi-primary-disabled-color: #ffffff80;\r\n  --button-xiaomi-primary-disabled-bd-color: #fad5b6;\r\n  --button-xiaomi-primary-disabled-bg-color: #fad5b6;\r\n\r\n  /* violet按钮 */\r\n  --button-violet-color: #ffffff;\r\n  --button-violet-bd-color: #626aef;\r\n  --button-violet-bg-color: #626aef;\r\n  --button-violet-active-color: #ffffff;\r\n  --button-violet-active-bd-color: #8188f2;\r\n  --button-violet-active-bg-color: #8188f2;\r\n  --button-violet-hover-color: #ffffff;\r\n  --button-violet-hover-bd-color: #4b50ad;\r\n  --button-violet-hover-bg-color: #4b50ad;\r\n  --button-violet-focus-visible-outline-color: #2a598a;\r\n  --button-violet-focus-visible-outline: 2px solid var(--button-violet-focus-visible-outline-color);\r\n  --button-violet-focus-visible-outline-offset: 1px;\r\n  --button-violet-disabled-color: #ffffff80;\r\n  --button-violet-disabled-bd-color: #3b3f82;\r\n  --button-violet-disabled-bg-color: #3b3f82;\r\n}\r\n\r\n@media (prefers-color-scheme: dark) {\r\n  .pops {\r\n    /* default按钮 */\r\n    --button-default-color: #cfd3dc;\r\n    --button-default-bd-color: #4c4d4f;\r\n    --button-default-bg-color: transparent;\r\n    --button-default-active-color: #409eff;\r\n    --button-default-active-bd-color: #409eff;\r\n    --button-default-active-bg-color: #18222c;\r\n    --button-default-hover-color: #409eff;\r\n    --button-default-hover-bd-color: #213d5b;\r\n    --button-default-hover-bg-color: #18222c;\r\n    --button-default-focus-visible-outline-color: #2a598a;\r\n    --button-default-focus-visible-outline: 2px solid var(--button-default-focus-visible-outline-color);\r\n    --button-default-focus-visible-outline-offset: 1px;\r\n    --button-default-disabled-color: #ffffff80;\r\n    --button-default-disabled-bd-color: #414243;\r\n    --button-default-disabled-bg-color: transparent;\r\n\r\n    /* primary按钮 */\r\n    --button-primary-color: #ffffff;\r\n    --button-primary-bd-color: #409eff;\r\n    --button-primary-bg-color: #409eff;\r\n    --button-primary-active-color: #ffffff;\r\n    --button-primary-active-bd-color: #66b1ff;\r\n    --button-primary-active-bg-color: #66b1ff;\r\n    --button-primary-hover-color: #ffffff;\r\n    --button-primary-hover-bd-color: #3375b9;\r\n    --button-primary-hover-bg-color: #3375b9;\r\n    --button-primary-focus-visible-outline-color: #2a598a;\r\n    --button-primary-focus-visible-outline: 2px solid var(--button-primary-focus-visible-outline-color);\r\n    --button-primary-focus-visible-outline-offset: 1px;\r\n    --button-primary-disabled-color: #ffffff80;\r\n    --button-primary-disabled-bd-color: #2a598a;\r\n    --button-primary-disabled-bg-color: #2a598a;\r\n\r\n    /* success按钮 */\r\n    --button-success-color: #ffffff;\r\n    --button-success-bd-color: #67c23a;\r\n    --button-success-bg-color: #67c23a;\r\n    --button-success-active-color: #ffffff;\r\n    --button-success-active-bd-color: #85ce61;\r\n    --button-success-active-bg-color: #85ce61;\r\n    --button-success-hover-color: #ffffff;\r\n    --button-success-hover-bd-color: #4e8e2f;\r\n    --button-success-hover-bg-color: #4e8e2f;\r\n    --button-success-focus-visible-outline-color: #3e6b27;\r\n    --button-success-focus-visible-outline: 2px solid var(--button-success-focus-visible-outline-color);\r\n    --button-success-focus-visible-outline-offset: 1px;\r\n    --button-success-disabled-color: #ffffff80;\r\n    --button-success-disabled-bd-color: #3e6b27;\r\n    --button-success-disabled-bg-color: #3e6b27;\r\n\r\n    /* info按钮 */\r\n    --button-info-color: #ffffff;\r\n    --button-info-bd-color: #909399;\r\n    --button-info-bg-color: #909399;\r\n    --button-info-active-color: #ffffff;\r\n    --button-info-active-bd-color: #a6a9ad;\r\n    --button-info-active-bg-color: #a6a9ad;\r\n    --button-info-hover-color: #ffffff;\r\n    --button-info-hover-bd-color: #6b6d71;\r\n    --button-info-hover-bg-color: #6b6d71;\r\n    --button-info-focus-visible-outline-color: #525457;\r\n    --button-info-focus-visible-outline: 2px solid var(--button-info-focus-visible-outline-color);\r\n    --button-info-focus-visible-outline-offset: 1px;\r\n    --button-info-disabled-color: #ffffff80;\r\n    --button-info-disabled-bd-color: #525457;\r\n    --button-info-disabled-bg-color: #525457;\r\n\r\n    /* warning按钮 */\r\n    --button-warning-color: #ffffff;\r\n    --button-warning-bd-color: #e6a23c;\r\n    --button-warning-bg-color: #e6a23c;\r\n    --button-warning-active-color: #ffffff;\r\n    --button-warning-active-bd-color: #ebb563;\r\n    --button-warning-active-bg-color: #ebb563;\r\n    --button-warning-hover-color: #ffffff80;\r\n    --button-warning-hover-bd-color: #a77730;\r\n    --button-warning-hover-bg-color: #a77730;\r\n    --button-warning-focus-visible-outline-color: #7d5b28;\r\n    --button-warning-focus-visible-outline: 2px solid var(--button-warning-focus-visible-outline-color);\r\n    --button-warning-focus-visible-outline-offset: 1px;\r\n    --button-warning-disabled-color: #ffffff80;\r\n    --button-warning-disabled-bd-color: #7d5b28;\r\n    --button-warning-disabled-bg-color: #7d5b28;\r\n\r\n    /* danger按钮 */\r\n    --button-danger-color: #ffffff;\r\n    --button-danger-bd-color: #f56c6c;\r\n    --button-danger-bg-color: #f56c6c;\r\n    --button-danger-active-color: #ffffff;\r\n    --button-danger-active-bd-color: #f78989;\r\n    --button-danger-active-bg-color: #f78989;\r\n    --button-danger-hover-color: #ffffff;\r\n    --button-danger-hover-bd-color: #b25252;\r\n    --button-danger-hover-bg-color: #b25252;\r\n    --button-danger-focus-visible-outline-color: #854040;\r\n    --button-danger-focus-visible-outline: 2px solid var(--button-danger-focus-visible-outline-color);\r\n    --button-danger-focus-visible-outline-offset: 1px;\r\n    --button-danger-disabled-color: #ffffff80;\r\n    --button-danger-disabled-bd-color: #854040;\r\n    --button-danger-disabled-bg-color: #854040;\r\n  }\r\n}\r\n.pops[data-bottom-btn="false"] {\r\n  --container-bottom-btn-height: 0px;\r\n}\r\n.pops button {\r\n  white-space: nowrap;\r\n  float: right;\r\n  display: inline-block;\r\n  margin: var(--button-margin-top) var(--button-margin-right) var(--button-margin-bottom) var(--button-margin-left);\r\n  padding: var(--button-padding-top) var(--button-padding-right) var(--button-padding-bottom) var(--button-padding-left);\r\n  outline: 0;\r\n}\r\n.pops button[data-has-icon="false"] .pops-bottom-icon {\r\n  display: none;\r\n}\r\n.pops button {\r\n  border-radius: var(--button-radius);\r\n  box-shadow: none;\r\n  font-weight: 400;\r\n  font-size: var(--button-font-size);\r\n  cursor: pointer;\r\n  transition: all 0.3s ease-in-out;\r\n}\r\n.pops button {\r\n  display: flex;\r\n  align-items: center;\r\n  height: var(--button-height);\r\n  line-height: normal;\r\n  box-sizing: border-box;\r\n  border: 1px solid var(--button-bd-color);\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n.pops button {\r\n  color: var(--button-color);\r\n  border-color: var(--button-bd-color);\r\n  background-color: var(--button-bg-color);\r\n}\r\n.pops button:active {\r\n  color: var(--button-color);\r\n  border-color: var(--button-bd-color);\r\n  background-color: var(--button-bg-color);\r\n  outline: 0;\r\n}\r\n.pops button:hover {\r\n  color: var(--button-color);\r\n  border-color: var(--button-bd-color);\r\n  background-color: var(--button-bg-color);\r\n}\r\n.pops button:focus-visible {\r\n  color: var(--button-color);\r\n  border-color: var(--button-bd-color);\r\n  background-color: var(--button-bg-color);\r\n}\r\n.pops button:disabled {\r\n  cursor: not-allowed;\r\n  color: var(--button-color);\r\n  border-color: var(--button-bd-color);\r\n  background-color: var(--button-bg-color);\r\n}\r\n.pops button.pops-button-large {\r\n  --button-height: 32px;\r\n  --button-padding-top: 12px;\r\n  --button-padding-bottom: 12px;\r\n  --button-padding-left: 19px;\r\n  --button-padding-right: 19px;\r\n  --button-font-size: 14px;\r\n  --button-border-radius: 4px;\r\n}\r\n\r\n.pops button.pops-button-small {\r\n  --button-height: 24px;\r\n  --button-padding-top: 5px;\r\n  --button-padding-bottom: 5px;\r\n  --button-padding-left: 11px;\r\n  --button-padding-right: 11px;\r\n  --button-font-size: 12px;\r\n  --button-border-radius: 4px;\r\n}\r\n.pops-panel-button-no-icon .pops-panel-button_inner i {\r\n  display: none;\r\n}\r\n.pops-panel-button-right-icon .pops-panel-button_inner {\r\n  flex-direction: row-reverse;\r\n}\r\n.pops-panel-button .pops-panel-button_inner i:has(svg),\r\n.pops-panel-button-right-icon .pops-panel-button-text {\r\n  margin-right: 6px;\r\n}\r\n\r\n.pops button[data-type="default"] {\r\n  --button-color: var(--button-default-color);\r\n  --button-bd-color: var(--button-default-bd-color);\r\n  --button-bg-color: var(--button-default-bg-color);\r\n}\r\n.pops button[data-type="default"]:active {\r\n  --button-color: var(--button-default-active-color);\r\n  --button-bd-color: var(--button-default-active-bd-color);\r\n  --button-bg-color: var(--button-default-active-bg-color);\r\n}\r\n.pops button[data-type="default"]:hover {\r\n  --button-color: var(--button-default-hover-color);\r\n  --button-bd-color: var(--button-default-hover-bd-color);\r\n  --button-bg-color: var(--button-default-hover-bg-color);\r\n}\r\n.pops button[data-type="default"]:focus-visible {\r\n  outline: var(--button-default-focus-visible-outline);\r\n  outline-offset: var(--button-default-focus-visible-outline-offset);\r\n}\r\n.pops button[data-type="default"]:disabled {\r\n  --button-color: var(--button-default-disabled-color);\r\n  --button-bd-color: var(--button-default-disabled-bd-color);\r\n  --button-bg-color: var(--button-default-disabled-bg-color);\r\n}\r\n\r\n.pops button[data-type="primary"] {\r\n  --button-color: var(--button-primary-color);\r\n  --button-bd-color: var(--button-primary-bd-color);\r\n  --button-bg-color: var(--button-primary-bg-color);\r\n}\r\n.pops button[data-type="primary"]:active {\r\n  --button-color: var(--button-primary-active-color);\r\n  --button-bd-color: var(--button-primary-active-bd-color);\r\n  --button-bg-color: var(--button-primary-active-bg-color);\r\n}\r\n.pops button[data-type="primary"]:hover {\r\n  --button-color: var(--button-primary-hover-color);\r\n  --button-bd-color: var(--button-primary-hover-bd-color);\r\n  --button-bg-color: var(--button-primary-hover-bg-color);\r\n}\r\n.pops button[data-type="primary"]:focus-visible {\r\n  outline: var(--button-primary-focus-visible-outline);\r\n  outline-offset: var(--button-primary-focus-visible-outline-offset);\r\n}\r\n.pops button[data-type="primary"]:disabled {\r\n  --button-color: var(--button-primary-disabled-color);\r\n  --button-bd-color: var(--button-primary-disabled-bd-color);\r\n  --button-bg-color: var(--button-primary-disabled-bg-color);\r\n}\r\n\r\n.pops button[data-type="success"] {\r\n  --button-color: var(--button-success-color);\r\n  --button-bd-color: var(--button-success-bd-color);\r\n  --button-bg-color: var(--button-success-bg-color);\r\n}\r\n.pops button[data-type="success"]:active {\r\n  --button-color: var(--button-success-active-color);\r\n  --button-bd-color: var(--button-success-active-bd-color);\r\n  --button-bg-color: var(--button-success-active-bg-color);\r\n}\r\n.pops button[data-type="success"]:hover {\r\n  --button-color: var(--button-success-hover-color);\r\n  --button-bd-color: var(--button-success-hover-bd-color);\r\n  --button-bg-color: var(--button-success-hover-bg-color);\r\n}\r\n.pops button[data-type="success"]:focus-visible {\r\n  outline: var(--button-success-focus-visible-outline);\r\n  outline-offset: var(--button-success-focus-visible-outline-offset);\r\n}\r\n.pops button[data-type="success"]:disabled {\r\n  --button-color: var(--button-success-disabled-color);\r\n  --button-bd-color: var(--button-success-disabled-bd-color);\r\n  --button-bg-color: var(--button-success-disabled-bg-color);\r\n}\r\n\r\n.pops button[data-type="info"] {\r\n  --button-color: var(--button-info-color);\r\n  --button-bd-color: var(--button-info-bd-color);\r\n  --button-bg-color: var(--button-info-bg-color);\r\n}\r\n.pops button[data-type="info"]:active {\r\n  --button-color: var(--button-info-active-color);\r\n  --button-bd-color: var(--button-info-active-bd-color);\r\n  --button-bg-color: var(--button-info-active-bg-color);\r\n}\r\n.pops button[data-type="info"]:hover {\r\n  --button-color: var(--button-info-hover-color);\r\n  --button-bd-color: var(--button-info-hover-bd-color);\r\n  --button-bg-color: var(--button-info-hover-bg-color);\r\n}\r\n.pops button[data-type="info"]:focus-visible {\r\n  outline: var(--button-info-focus-visible-outline);\r\n  outline-offset: var(--button-info-focus-visible-outline-offset);\r\n}\r\n.pops button[data-type="info"]:disabled {\r\n  --button-color: var(--button-info-disabled-color);\r\n  --button-bd-color: var(--button-info-disabled-bd-color);\r\n  --button-bg-color: var(--button-info-disabled-bg-color);\r\n}\r\n\r\n.pops button[data-type="warning"] {\r\n  --button-color: var(--button-warning-color);\r\n  --button-bd-color: var(--button-warning-bd-color);\r\n  --button-bg-color: var(--button-warning-bg-color);\r\n}\r\n.pops button[data-type="warning"]:active {\r\n  --button-color: var(--button-warning-active-color);\r\n  --button-bd-color: var(--button-warning-active-bd-color);\r\n  --button-bg-color: var(--button-warning-active-bg-color);\r\n}\r\n.pops button[data-type="warning"]:hover {\r\n  --button-color: var(--button-warning-hover-color);\r\n  --button-bd-color: var(--button-warning-hover-bd-color);\r\n  --button-bg-color: var(--button-warning-hover-bg-color);\r\n}\r\n.pops button[data-type="warning"]:focus-visible {\r\n  outline: var(--button-warning-focus-visible-outline);\r\n  outline-offset: var(--button-warning-focus-visible-outline-offset);\r\n}\r\n.pops button[data-type="warning"]:disabled {\r\n  --button-color: var(--button-warning-disabled-color);\r\n  --button-bd-color: var(--button-warning-disabled-bd-color);\r\n  --button-bg-color: var(--button-warning-disabled-bg-color);\r\n}\r\n\r\n.pops button[data-type="danger"] {\r\n  --button-color: var(--button-danger-color);\r\n  --button-bd-color: var(--button-danger-bd-color);\r\n  --button-bg-color: var(--button-danger-bg-color);\r\n}\r\n.pops button[data-type="danger"]:active {\r\n  --button-color: var(--button-danger-active-color);\r\n  --button-bd-color: var(--button-danger-active-bd-color);\r\n  --button-bg-color: var(--button-danger-active-bg-color);\r\n}\r\n.pops button[data-type="danger"]:hover {\r\n  --button-color: var(--button-danger-hover-color);\r\n  --button-bd-color: var(--button-danger-hover-bd-color);\r\n  --button-bg-color: var(--button-danger-hover-bg-color);\r\n}\r\n.pops button[data-type="danger"]:focus-visible {\r\n  outline: var(--button-danger-focus-visible-outline);\r\n  outline-offset: var(--button-danger-focus-visible-outline-offset);\r\n}\r\n.pops button[data-type="danger"]:disabled {\r\n  --button-color: var(--button-danger-disabled-color);\r\n  --button-bd-color: var(--button-danger-disabled-bd-color);\r\n  --button-bg-color: var(--button-danger-disabled-bg-color);\r\n}\r\n\r\n.pops button[data-type="xiaomi-primary"] {\r\n  --button-color: var(--button-xiaomi-primary-color);\r\n  --button-bd-color: var(--button-xiaomi-primary-bd-color);\r\n  --button-bg-color: var(--button-xiaomi-primary-bg-color);\r\n}\r\n.pops button[data-type="xiaomi-primary"]:active {\r\n  --button-color: var(--button-xiaomi-primary-active-color);\r\n  --button-bd-color: var(--button-xiaomi-primary-active-bd-color);\r\n  --button-bg-color: var(--button-xiaomi-primary-active-bg-color);\r\n}\r\n.pops button[data-type="xiaomi-primary"]:hover {\r\n  --button-color: var(--button-xiaomi-primary-hover-color);\r\n  --button-bd-color: var(--button-xiaomi-primary-hover-bd-color);\r\n  --button-bg-color: var(--button-xiaomi-primary-hover-bg-color);\r\n}\r\n.pops button[data-type="xiaomi-primary"]:focus-visible {\r\n  outline: var(--button-xiaomi-primary-focus-visible-outline);\r\n  outline-offset: var(--button-xiaomi-primary-focus-visible-outline-offset);\r\n}\r\n.pops button[data-type="xiaomi-primary"]:disabled {\r\n  --button-color: var(--button-xiaomi-primary-disabled-color);\r\n  --button-bd-color: var(--button-xiaomi-primary-disabled-bd-color);\r\n  --button-bg-color: var(--button-xiaomi-primary-disabled-bg-color);\r\n}\r\n\r\n.pops button[data-type="violet"] {\r\n  --button-color: var(--button-violet-color);\r\n  --button-bd-color: var(--button-violet-bd-color);\r\n  --button-bg-color: var(--button-violet-bg-color);\r\n}\r\n.pops button[data-type="violet"]:active {\r\n  --button-color: var(--button-violet-active-color);\r\n  --button-bd-color: var(--button-violet-active-bd-color);\r\n  --button-bg-color: var(--button-violet-active-bg-color);\r\n}\r\n.pops button[data-type="violet"]:hover {\r\n  --button-color: var(--button-violet-hover-color);\r\n  --button-bd-color: var(--button-violet-hover-bd-color);\r\n  --button-bg-color: var(--button-violet-hover-bg-color);\r\n}\r\n.pops button[data-type="violet"]:focus-visible {\r\n  outline: var(--button-violet-focus-visible-outline);\r\n  outline-offset: var(--button-violet-focus-visible-outline-offset);\r\n}\r\n.pops button[data-type="violet"]:disabled {\r\n  --button-color: var(--button-violet-disabled-color);\r\n  --button-bd-color: var(--button-violet-disabled-bd-color);\r\n  --button-bg-color: var(--button-violet-disabled-bg-color);\r\n}\r\n';
+  var commonCSS = ".pops-flex-items-center {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n.pops-flex-y-center {\r\n  display: flex;\r\n  justify-content: space-between;\r\n}\r\n.pops-flex-x-center {\r\n  display: flex;\r\n  align-content: center;\r\n}\r\n.pops-hide {\r\n  display: none;\r\n}\r\n.pops-hide-important {\r\n  display: none !important;\r\n}\r\n.pops-no-border {\r\n  border: 0;\r\n}\r\n.pops-no-border-important {\r\n  border: 0 !important;\r\n}\r\n.pops-user-select-none {\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n.pops-line-height-center {\r\n  line-height: normal;\r\n  align-content: center;\r\n}\r\n.pops-width-fill {\r\n  width: -webkit-fill-available;\r\n  width: -moz-available;\r\n}\r\n.pops-text-is-disabled {\r\n  --pops-text-is-disabled-color: #a8abb2;\r\n  color: var(--pops-text-is-disabled-color);\r\n  --pops-panel-forms-container-item-left-desc-text-color: var(--pops-text-is-disabled-color);\r\n}\r\n.pops-text-is-disabled-important {\r\n  --pops-text-is-disabled-color: #a8abb2;\r\n  color: var(--pops-text-is-disabled-color) !important;\r\n  --pops-panel-forms-container-item-left-desc-text-color: var(--pops-text-is-disabled-color) !important;\r\n}\r\n";
+  var animCSS = '@keyframes rotating {\r\n  0% {\r\n    transform: rotate(0);\r\n  }\r\n  to {\r\n    transform: rotate(360deg);\r\n  }\r\n}\r\n@keyframes iframeLoadingChange_85 {\r\n  0% {\r\n    background: linear-gradient(to right, #4995dd, #fff, rgb(202 224 246));\r\n  }\r\n  20% {\r\n    background: linear-gradient(to right, #4995dd, #ead0d0, rgb(123 185 246));\r\n  }\r\n  40% {\r\n    background: linear-gradient(to right, #4995dd, #f4b7b7, rgb(112 178 244));\r\n  }\r\n  60% {\r\n    background: linear-gradient(to right, #4995dd, #ec9393, rgb(80 163 246));\r\n  }\r\n  80% {\r\n    background: linear-gradient(to right, #4995dd, #e87f7f, rgb(25 139 253));\r\n  }\r\n  100% {\r\n    background: linear-gradient(to right, #4995dd, #ee2c2c, rgb(0 124 247));\r\n  }\r\n  from {\r\n    width: 75%;\r\n  }\r\n  to {\r\n    width: 100%;\r\n  }\r\n}\r\n@keyframes iframeLoadingChange {\r\n  0% {\r\n    background: linear-gradient(to right, #4995dd, #fff, rgb(202 224 246));\r\n  }\r\n  20% {\r\n    background: linear-gradient(to right, #4995dd, #ead0d0, rgb(123 185 246));\r\n  }\r\n  40% {\r\n    background: linear-gradient(to right, #4995dd, #f4b7b7, rgb(112 178 244));\r\n  }\r\n  60% {\r\n    background: linear-gradient(to right, #4995dd, #ec9393, rgb(80 163 246));\r\n  }\r\n  80% {\r\n    background: linear-gradient(to right, #4995dd, #e87f7f, rgb(25 139 253));\r\n  }\r\n  100% {\r\n    background: linear-gradient(to right, #4995dd, #ee2c2c, rgb(0 124 247));\r\n  }\r\n  from {\r\n    width: 0;\r\n  }\r\n  to {\r\n    width: 75%;\r\n  }\r\n}\r\n\r\n@keyframes searchSelectFalIn {\r\n  from {\r\n    opacity: 0;\r\n    display: none;\r\n  }\r\n  to {\r\n    display: block;\r\n    opacity: 1;\r\n  }\r\n}\r\n@keyframes searchSelectFalOut {\r\n  from {\r\n    display: block;\r\n    opacity: 1;\r\n  }\r\n  to {\r\n    opacity: 0;\r\n    display: none;\r\n  }\r\n}\r\n\r\n@keyframes pops-anim-wait-rotate {\r\n  form {\r\n    transform: rotate(0);\r\n  }\r\n  to {\r\n    transform: rotate(360deg);\r\n  }\r\n}\r\n@keyframes pops-anim-spread {\r\n  0% {\r\n    opacity: 0;\r\n    transform: scaleX(0);\r\n  }\r\n  100% {\r\n    opacity: 1;\r\n    transform: scaleX(1);\r\n  }\r\n}\r\n@keyframes pops-anim-shake {\r\n  0%,\r\n  100% {\r\n    transform: translateX(0);\r\n  }\r\n  10%,\r\n  30%,\r\n  50%,\r\n  70%,\r\n  90% {\r\n    transform: translateX(-10px);\r\n  }\r\n  20%,\r\n  40%,\r\n  60%,\r\n  80% {\r\n    transform: translateX(10px);\r\n  }\r\n}\r\n@keyframes pops-anim-rolling-left {\r\n  0% {\r\n    opacity: 0;\r\n    transform: translateX(-100%) rotate(-120deg);\r\n  }\r\n  100% {\r\n    opacity: 1;\r\n    transform: translateX(0) rotate(0);\r\n  }\r\n}\r\n@keyframes pops-anim-rolling-right {\r\n  0% {\r\n    opacity: 0;\r\n    transform: translateX(100%) rotate(120deg);\r\n  }\r\n  100% {\r\n    opacity: 1;\r\n    transform: translateX(0) rotate(0);\r\n  }\r\n}\r\n@keyframes pops-anim-slide-top {\r\n  0% {\r\n    opacity: 0;\r\n    transform: translateY(-200%);\r\n  }\r\n  100% {\r\n    opacity: 1;\r\n    transform: translateY(0);\r\n  }\r\n}\r\n@keyframes pops-anim-slide-bottom {\r\n  0% {\r\n    opacity: 0;\r\n    transform: translateY(200%);\r\n  }\r\n  100% {\r\n    opacity: 1;\r\n    transform: translateY(0);\r\n  }\r\n}\r\n@keyframes pops-anim-slide-left {\r\n  0% {\r\n    opacity: 0;\r\n    transform: translateX(-200%);\r\n  }\r\n  100% {\r\n    opacity: 1;\r\n    transform: translateX(0);\r\n  }\r\n}\r\n@keyframes pops-anim-slide-right {\r\n  0% {\r\n    transform: translateX(200%);\r\n  }\r\n  100% {\r\n    opacity: 1;\r\n    transform: translateX(0);\r\n  }\r\n}\r\n@keyframes pops-anim-fadein {\r\n  0% {\r\n    opacity: 0;\r\n  }\r\n  100% {\r\n    opacity: 1;\r\n  }\r\n}\r\n@keyframes pops-anim-fadein-zoom {\r\n  0% {\r\n    opacity: 0;\r\n    transform: scale(0.5);\r\n  }\r\n  100% {\r\n    opacity: 1;\r\n    transform: scale(1);\r\n  }\r\n}\r\n@keyframes pops-anim-fadein-alert {\r\n  0% {\r\n    transform: scale(0.5);\r\n  }\r\n  45% {\r\n    transform: scale(1.05);\r\n  }\r\n  80% {\r\n    transform: scale(0.95);\r\n  }\r\n  100% {\r\n    transform: scale(1);\r\n  }\r\n}\r\n@keyframes pops-anim-don {\r\n  0% {\r\n    opacity: 0;\r\n    transform: matrix3d(0.7, 0, 0, 0, 0, 0.7, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  2.08333% {\r\n    transform: matrix3d(0.75266, 0, 0, 0, 0, 0.76342, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  4.16667% {\r\n    transform: matrix3d(0.81071, 0, 0, 0, 0, 0.84545, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  6.25% {\r\n    transform: matrix3d(0.86808, 0, 0, 0, 0, 0.9286, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  8.33333% {\r\n    transform: matrix3d(0.92038, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  10.4167% {\r\n    transform: matrix3d(0.96482, 0, 0, 0, 0, 1.05202, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  12.5% {\r\n    transform: matrix3d(1, 0, 0, 0, 0, 1.08204, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  14.5833% {\r\n    transform: matrix3d(1.02563, 0, 0, 0, 0, 1.09149, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  16.6667% {\r\n    transform: matrix3d(1.04227, 0, 0, 0, 0, 1.08453, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  18.75% {\r\n    transform: matrix3d(1.05102, 0, 0, 0, 0, 1.06666, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  20.8333% {\r\n    transform: matrix3d(1.05334, 0, 0, 0, 0, 1.04355, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  22.9167% {\r\n    transform: matrix3d(1.05078, 0, 0, 0, 0, 1.02012, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  25% {\r\n    transform: matrix3d(1.04487, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  27.0833% {\r\n    transform: matrix3d(1.03699, 0, 0, 0, 0, 0.98534, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  29.1667% {\r\n    transform: matrix3d(1.02831, 0, 0, 0, 0, 0.97688, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  31.25% {\r\n    transform: matrix3d(1.01973, 0, 0, 0, 0, 0.97422, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  33.3333% {\r\n    transform: matrix3d(1.01191, 0, 0, 0, 0, 0.97618, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  35.4167% {\r\n    transform: matrix3d(1.00526, 0, 0, 0, 0, 0.98122, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  37.5% {\r\n    transform: matrix3d(1, 0, 0, 0, 0, 0.98773, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  39.5833% {\r\n    transform: matrix3d(0.99617, 0, 0, 0, 0, 0.99433, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  41.6667% {\r\n    transform: matrix3d(0.99368, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  43.75% {\r\n    transform: matrix3d(0.99237, 0, 0, 0, 0, 1.00413, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  45.8333% {\r\n    transform: matrix3d(0.99202, 0, 0, 0, 0, 1.00651, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  47.9167% {\r\n    transform: matrix3d(0.99241, 0, 0, 0, 0, 1.00726, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  50% {\r\n    opacity: 1;\r\n    transform: matrix3d(0.99329, 0, 0, 0, 0, 1.00671, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  52.0833% {\r\n    transform: matrix3d(0.99447, 0, 0, 0, 0, 1.00529, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  54.1667% {\r\n    transform: matrix3d(0.99577, 0, 0, 0, 0, 1.00346, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  56.25% {\r\n    transform: matrix3d(0.99705, 0, 0, 0, 0, 1.0016, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  58.3333% {\r\n    transform: matrix3d(0.99822, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  60.4167% {\r\n    transform: matrix3d(0.99921, 0, 0, 0, 0, 0.99884, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  62.5% {\r\n    transform: matrix3d(1, 0, 0, 0, 0, 0.99816, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  64.5833% {\r\n    transform: matrix3d(1.00057, 0, 0, 0, 0, 0.99795, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  66.6667% {\r\n    transform: matrix3d(1.00095, 0, 0, 0, 0, 0.99811, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  68.75% {\r\n    transform: matrix3d(1.00114, 0, 0, 0, 0, 0.99851, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  70.8333% {\r\n    transform: matrix3d(1.00119, 0, 0, 0, 0, 0.99903, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  72.9167% {\r\n    transform: matrix3d(1.00114, 0, 0, 0, 0, 0.99955, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  75% {\r\n    transform: matrix3d(1.001, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  77.0833% {\r\n    transform: matrix3d(1.00083, 0, 0, 0, 0, 1.00033, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  79.1667% {\r\n    transform: matrix3d(1.00063, 0, 0, 0, 0, 1.00052, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  81.25% {\r\n    transform: matrix3d(1.00044, 0, 0, 0, 0, 1.00058, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  83.3333% {\r\n    transform: matrix3d(1.00027, 0, 0, 0, 0, 1.00053, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  85.4167% {\r\n    transform: matrix3d(1.00012, 0, 0, 0, 0, 1.00042, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  87.5% {\r\n    transform: matrix3d(1, 0, 0, 0, 0, 1.00027, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  89.5833% {\r\n    transform: matrix3d(0.99991, 0, 0, 0, 0, 1.00013, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  91.6667% {\r\n    transform: matrix3d(0.99986, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  93.75% {\r\n    transform: matrix3d(0.99983, 0, 0, 0, 0, 0.99991, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  95.8333% {\r\n    transform: matrix3d(0.99982, 0, 0, 0, 0, 0.99985, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  97.9167% {\r\n    transform: matrix3d(0.99983, 0, 0, 0, 0, 0.99984, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  100% {\r\n    opacity: 1;\r\n    transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n}\r\n@keyframes pops-anim-roll {\r\n  0% {\r\n    transform: perspective(1000px) rotate3d(1, 0, 0, 90deg);\r\n  }\r\n  100% {\r\n    transform: perspective(1000px) rotate3d(1, 0, 0, 0deg);\r\n  }\r\n}\r\n@keyframes pops-anim-sandra {\r\n  0% {\r\n    opacity: 0;\r\n    transform: scale3d(1.1, 1.1, 1);\r\n  }\r\n  100% {\r\n    opacity: 1;\r\n    transform: scale3d(1, 1, 1);\r\n  }\r\n}\r\n@keyframes pops-anim-gather {\r\n  0% {\r\n    opacity: 0;\r\n    transform: scale(5, 0);\r\n  }\r\n  100% {\r\n    opacity: 1;\r\n    transform: scale(1, 1);\r\n  }\r\n}\r\n@keyframes pops-anim-spread-reverse {\r\n  0% {\r\n    opacity: 1;\r\n    transform: scaleX(1);\r\n  }\r\n  100% {\r\n    opacity: 0;\r\n    transform: scaleX(0);\r\n  }\r\n}\r\n@keyframes pops-anim-shake-reverse {\r\n  0%,\r\n  100% {\r\n    transform: translateX(10px);\r\n  }\r\n  10%,\r\n  30%,\r\n  50%,\r\n  70%,\r\n  90% {\r\n    transform: translateX(-10px);\r\n  }\r\n  20%,\r\n  40%,\r\n  60%,\r\n  80% {\r\n    transform: translateX(0);\r\n  }\r\n}\r\n@keyframes pops-anim-rolling-left-reverse {\r\n  0% {\r\n    opacity: 1;\r\n    transform: translateX(0) rotate(0);\r\n  }\r\n  100% {\r\n    opacity: 0;\r\n    transform: translateX(-100%) rotate(-120deg);\r\n  }\r\n}\r\n@keyframes pops-anim-rolling-right-reverse {\r\n  0% {\r\n    opacity: 1;\r\n    transform: translateX(0) rotate(0);\r\n  }\r\n  100% {\r\n    opacity: 0;\r\n    transform: translateX(100%) rotate(120deg);\r\n  }\r\n}\r\n@keyframes pops-anim-slide-top-reverse {\r\n  0% {\r\n    opacity: 1;\r\n    transform: translateY(0);\r\n  }\r\n  100% {\r\n    opacity: 0;\r\n    transform: translateY(-200%);\r\n  }\r\n}\r\n@keyframes pops-anim-slide-bottom-reverse {\r\n  0% {\r\n    opacity: 1;\r\n    transform: translateY(0);\r\n  }\r\n  100% {\r\n    opacity: 0;\r\n    transform: translateY(200%);\r\n  }\r\n}\r\n@keyframes pops-anim-slide-left-reverse {\r\n  0% {\r\n    opacity: 1;\r\n    transform: translateX(0);\r\n  }\r\n  100% {\r\n    opacity: 0;\r\n    transform: translateX(-200%);\r\n  }\r\n}\r\n@keyframes pops-anim-slide-right-reverse {\r\n  0% {\r\n    opacity: 1;\r\n    transform: translateX(0);\r\n  }\r\n  100% {\r\n    transform: translateX(200%);\r\n  }\r\n}\r\n@keyframes pops-anim-fadein-reverse {\r\n  0% {\r\n    opacity: 1;\r\n  }\r\n  100% {\r\n    opacity: 0;\r\n  }\r\n}\r\n@keyframes pops-anim-fadein-zoom-reverse {\r\n  0% {\r\n    opacity: 1;\r\n    transform: scale(1);\r\n  }\r\n  100% {\r\n    opacity: 0;\r\n    transform: scale(0.5);\r\n  }\r\n}\r\n@keyframes pops-anim-fadein-alert-reverse {\r\n  0% {\r\n    transform: scale(1);\r\n  }\r\n  45% {\r\n    transform: scale(0.95);\r\n  }\r\n  80% {\r\n    transform: scale(1.05);\r\n  }\r\n  100% {\r\n    transform: scale(0.5);\r\n  }\r\n}\r\n@keyframes pops-anim-don-reverse {\r\n  100% {\r\n    opacity: 0;\r\n    transform: matrix3d(0.7, 0, 0, 0, 0, 0.7, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  97.9167% {\r\n    transform: matrix3d(0.75266, 0, 0, 0, 0, 0.76342, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  95.8333% {\r\n    transform: matrix3d(0.81071, 0, 0, 0, 0, 0.84545, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  93.75% {\r\n    transform: matrix3d(0.86808, 0, 0, 0, 0, 0.9286, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  91.6667% {\r\n    transform: matrix3d(0.92038, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  89.5833% {\r\n    transform: matrix3d(0.96482, 0, 0, 0, 0, 1.05202, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  87.5% {\r\n    transform: matrix3d(1, 0, 0, 0, 0, 1.08204, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  85.4167% {\r\n    transform: matrix3d(1.02563, 0, 0, 0, 0, 1.09149, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  83.3333% {\r\n    transform: matrix3d(1.04227, 0, 0, 0, 0, 1.08453, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  81.25% {\r\n    transform: matrix3d(1.05102, 0, 0, 0, 0, 1.06666, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  79.1667% {\r\n    transform: matrix3d(1.05334, 0, 0, 0, 0, 1.04355, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  77.0833% {\r\n    transform: matrix3d(1.05078, 0, 0, 0, 0, 1.02012, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  75% {\r\n    transform: matrix3d(1.04487, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  72.9167% {\r\n    transform: matrix3d(1.03699, 0, 0, 0, 0, 0.98534, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  70.8333% {\r\n    transform: matrix3d(1.02831, 0, 0, 0, 0, 0.97688, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  68.75% {\r\n    transform: matrix3d(1.01973, 0, 0, 0, 0, 0.97422, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  66.6667% {\r\n    transform: matrix3d(1.01191, 0, 0, 0, 0, 0.97618, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  64.5833% {\r\n    transform: matrix3d(1.00526, 0, 0, 0, 0, 0.98122, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  62.5% {\r\n    transform: matrix3d(1, 0, 0, 0, 0, 0.98773, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  60.4167% {\r\n    transform: matrix3d(0.99617, 0, 0, 0, 0, 0.99433, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  58.3333% {\r\n    transform: matrix3d(0.99368, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  56.25% {\r\n    transform: matrix3d(0.99237, 0, 0, 0, 0, 1.00413, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  54.1667% {\r\n    transform: matrix3d(0.99202, 0, 0, 0, 0, 1.00651, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  52.0833% {\r\n    transform: matrix3d(0.99241, 0, 0, 0, 0, 1.00726, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  50% {\r\n    opacity: 1;\r\n    transform: matrix3d(0.99329, 0, 0, 0, 0, 1.00671, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  47.9167% {\r\n    transform: matrix3d(0.99447, 0, 0, 0, 0, 1.00529, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  45.8333% {\r\n    transform: matrix3d(0.99577, 0, 0, 0, 0, 1.00346, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  43.75% {\r\n    transform: matrix3d(0.99705, 0, 0, 0, 0, 1.0016, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  41.6667% {\r\n    transform: matrix3d(0.99822, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  39.5833% {\r\n    transform: matrix3d(0.99921, 0, 0, 0, 0, 0.99884, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  37.5% {\r\n    transform: matrix3d(1, 0, 0, 0, 0, 0.99816, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  35.4167% {\r\n    transform: matrix3d(1.00057, 0, 0, 0, 0, 0.99795, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  33.3333% {\r\n    transform: matrix3d(1.00095, 0, 0, 0, 0, 0.99811, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  31.25% {\r\n    transform: matrix3d(1.00114, 0, 0, 0, 0, 0.99851, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  29.1667% {\r\n    transform: matrix3d(1.00119, 0, 0, 0, 0, 0.99903, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  27.0833% {\r\n    transform: matrix3d(1.00114, 0, 0, 0, 0, 0.99955, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  25% {\r\n    transform: matrix3d(1.001, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  22.9167% {\r\n    transform: matrix3d(1.00083, 0, 0, 0, 0, 1.00033, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  20.8333% {\r\n    transform: matrix3d(1.00063, 0, 0, 0, 0, 1.00052, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  18.75% {\r\n    transform: matrix3d(1.00044, 0, 0, 0, 0, 1.00058, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  16.6667% {\r\n    transform: matrix3d(1.00027, 0, 0, 0, 0, 1.00053, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  14.5833% {\r\n    transform: matrix3d(1.00012, 0, 0, 0, 0, 1.00042, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  12.5% {\r\n    transform: matrix3d(1, 0, 0, 0, 0, 1.00027, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  10.4167% {\r\n    transform: matrix3d(0.99991, 0, 0, 0, 0, 1.00013, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  8.33333% {\r\n    transform: matrix3d(0.99986, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  6.25% {\r\n    transform: matrix3d(0.99983, 0, 0, 0, 0, 0.99991, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  4.16667% {\r\n    transform: matrix3d(0.99982, 0, 0, 0, 0, 0.99985, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  2.08333% {\r\n    transform: matrix3d(0.99983, 0, 0, 0, 0, 0.99984, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n  0% {\r\n    opacity: 1;\r\n    transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n  }\r\n}\r\n@keyframes pops-anim-roll-reverse {\r\n  0% {\r\n    transform: perspective(1000px) rotate3d(1, 0, 0, 0deg);\r\n  }\r\n  100% {\r\n    transform: perspective(1000px) rotate3d(1, 0, 0, 90deg);\r\n  }\r\n}\r\n@keyframes pops-anim-sandra-reverse {\r\n  0% {\r\n    opacity: 1;\r\n    transform: scale3d(1, 1, 1);\r\n  }\r\n  100% {\r\n    opacity: 0;\r\n    transform: scale3d(1.1, 1.1, 1);\r\n  }\r\n}\r\n@keyframes pops-anim-gather-reverse {\r\n  0% {\r\n    opacity: 0;\r\n    transform: scale(5, 0);\r\n  }\r\n  100% {\r\n    opacity: 0;\r\n    transform: scale(5, 0);\r\n  }\r\n}\r\n\r\n@-webkit-keyframes pops-motion-fadeInTop {\r\n  0% {\r\n    opacity: 0;\r\n    -webkit-transform: translateY(-30px);\r\n    transform: translateY(-30px);\r\n  }\r\n  100% {\r\n    opacity: 1;\r\n    -webkit-transform: translateX(0);\r\n    transform: translateX(0);\r\n  }\r\n}\r\n@keyframes pops-motion-fadeInTop {\r\n  0% {\r\n    opacity: 0;\r\n    transform: translateY(-30px);\r\n    -ms-transform: translateY(-30px);\r\n  }\r\n  100% {\r\n    opacity: 1;\r\n    transform: translateX(0);\r\n    -ms-transform: translateX(0);\r\n  }\r\n}\r\n@-webkit-keyframes pops-motion-fadeOutTop {\r\n  0% {\r\n    opacity: 10;\r\n    -webkit-transform: translateY(0);\r\n    transform: translateY(0);\r\n  }\r\n  100% {\r\n    opacity: 0;\r\n    -webkit-transform: translateY(-30px);\r\n    transform: translateY(-30px);\r\n  }\r\n}\r\n@keyframes pops-motion-fadeOutTop {\r\n  0% {\r\n    opacity: 1;\r\n    transform: translateY(0);\r\n    -ms-transform: translateY(0);\r\n  }\r\n  100% {\r\n    opacity: 0;\r\n    transform: translateY(-30px);\r\n    -ms-transform: translateY(-30px);\r\n  }\r\n}\r\n@-webkit-keyframes pops-motion-fadeInBottom {\r\n  0% {\r\n    opacity: 0;\r\n    -webkit-transform: translateY(20px);\r\n    transform: translateY(20px);\r\n  }\r\n  100% {\r\n    opacity: 1;\r\n    -webkit-transform: translateY(0);\r\n    transform: translateY(0);\r\n  }\r\n}\r\n@keyframes pops-motion-fadeInBottom {\r\n  0% {\r\n    opacity: 0;\r\n    -webkit-transform: translateY(20px);\r\n    transform: translateY(20px);\r\n    -ms-transform: translateY(20px);\r\n  }\r\n  100% {\r\n    opacity: 1;\r\n    -webkit-transform: translateY(0);\r\n    transform: translateY(0);\r\n    -ms-transform: translateY(0);\r\n  }\r\n}\r\n@-webkit-keyframes pops-motion-fadeOutBottom {\r\n  0% {\r\n    opacity: 1;\r\n    -webkit-transform: translateY(0);\r\n    transform: translateY(0);\r\n  }\r\n  100% {\r\n    opacity: 0;\r\n    -webkit-transform: translateY(20px);\r\n    transform: translateY(20px);\r\n  }\r\n}\r\n@keyframes pops-motion-fadeOutBottom {\r\n  0% {\r\n    opacity: 1;\r\n    -webkit-transform: translateY(0);\r\n    transform: translateY(0);\r\n    -ms-transform: translateY(0);\r\n  }\r\n  100% {\r\n    opacity: 0;\r\n    -webkit-transform: translateY(20px);\r\n    transform: translateY(20px);\r\n    -ms-transform: translateY(20px);\r\n  }\r\n}\r\n@-webkit-keyframes pops-motion-fadeInLeft {\r\n  0% {\r\n    opacity: 0;\r\n    -webkit-transform: translateX(-20px);\r\n    transform: translateX(-20px);\r\n  }\r\n  100% {\r\n    opacity: 1;\r\n    -webkit-transform: translateX(0);\r\n    transform: translateX(0);\r\n  }\r\n}\r\n@keyframes pops-motion-fadeInLeft {\r\n  0% {\r\n    opacity: 0;\r\n    -webkit-transform: translateX(-30px);\r\n    transform: translateX(-30px);\r\n    -ms-transform: translateX(-30px);\r\n  }\r\n  100% {\r\n    opacity: 1;\r\n    -webkit-transform: translateX(0);\r\n    transform: translateX(0);\r\n    -ms-transform: translateX(0);\r\n  }\r\n}\r\n@-webkit-keyframes pops-motion-fadeOutLeft {\r\n  0% {\r\n    opacity: 1;\r\n    -webkit-transform: translateX(0);\r\n    transform: translateX(0);\r\n  }\r\n  100% {\r\n    opacity: 0;\r\n    -webkit-transform: translateX(-30px);\r\n    transform: translateX(-30px);\r\n  }\r\n}\r\n@keyframes pops-motion-fadeOutLeft {\r\n  0% {\r\n    opacity: 1;\r\n    -webkit-transform: translateX(0);\r\n    transform: translateX(0);\r\n    -ms-transform: translateX(0);\r\n  }\r\n  100% {\r\n    opacity: 0;\r\n    -webkit-transform: translateX(-20px);\r\n    transform: translateX(-20px);\r\n    -ms-transform: translateX(-20px);\r\n  }\r\n}\r\n@-webkit-keyframes pops-motion-fadeInRight {\r\n  0% {\r\n    opacity: 0;\r\n    -webkit-transform: translateX(20px);\r\n    transform: translateX(20px);\r\n  }\r\n  100% {\r\n    opacity: 1;\r\n    -webkit-transform: translateX(0);\r\n    transform: translateX(0);\r\n  }\r\n}\r\n@keyframes pops-motion-fadeInRight {\r\n  0% {\r\n    opacity: 0;\r\n    -webkit-transform: translateX(20px);\r\n    transform: translateX(20px);\r\n    -ms-transform: translateX(20px);\r\n  }\r\n  100% {\r\n    opacity: 1;\r\n    -webkit-transform: translateX(0);\r\n    transform: translateX(0);\r\n    -ms-transform: translateX(0);\r\n  }\r\n}\r\n@-webkit-keyframes pops-motion-fadeOutRight {\r\n  0% {\r\n    opacity: 1;\r\n    -webkit-transform: translateX(0);\r\n    transform: translateX(0);\r\n  }\r\n  100% {\r\n    opacity: 0;\r\n    -webkit-transform: translateX(20px);\r\n    transform: translateX(20px);\r\n  }\r\n}\r\n@keyframes pops-motion-fadeOutRight {\r\n  0% {\r\n    opacity: 1;\r\n    -webkit-transform: translateX(0);\r\n    transform: translateX(0);\r\n    -ms-transform: translateX(0);\r\n  }\r\n  100% {\r\n    opacity: 0;\r\n    -webkit-transform: translateX(20px);\r\n    transform: translateX(20px);\r\n    -ms-transform: translateX(20px);\r\n  }\r\n}\r\n\r\n/* 动画 */\r\n.pops-anim[anim="pops-anim-spread"] {\r\n  animation: pops-anim-spread 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-shake"] {\r\n  animation: pops-anim-shake 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-rolling-left"] {\r\n  animation: pops-anim-rolling-left 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-rolling-right"] {\r\n  animation: pops-anim-rolling-right 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-top"] {\r\n  animation: pops-anim-slide-top 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-bottom"] {\r\n  animation: pops-anim-slide-bottom 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-left"] {\r\n  animation: pops-anim-slide-left 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-right"] {\r\n  animation: pops-anim-slide-right 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-fadein"] {\r\n  animation: pops-anim-fadein 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-fadein-zoom"] {\r\n  animation: pops-anim-fadein-zoom 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-fadein-alert"] {\r\n  animation: pops-anim-fadein-alert 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-don"] {\r\n  animation: pops-anim-don 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-roll"] {\r\n  animation: pops-anim-roll 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-sandra"] {\r\n  animation: pops-anim-sandra 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-gather"] {\r\n  animation: pops-anim-gather 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-spread-reverse"] {\r\n  animation: pops-anim-spread-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-shake-reverse"] {\r\n  animation: pops-anim-shake-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-rolling-left-reverse"] {\r\n  animation: pops-anim-rolling-left-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-rolling-right-reverse"] {\r\n  animation: pops-anim-rolling-right-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-top-reverse"] {\r\n  animation: pops-anim-slide-top-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-bottom-reverse"] {\r\n  animation: pops-anim-slide-bottom-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-left-reverse"] {\r\n  animation: pops-anim-slide-left-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-right-reverse"] {\r\n  animation: pops-anim-slide-right-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-fadein-reverse"] {\r\n  animation: pops-anim-fadein-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-fadein-zoom-reverse"] {\r\n  animation: pops-anim-fadein-zoom-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-fadein-alert-reverse"] {\r\n  animation: pops-anim-fadein-alert-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-don-reverse"] {\r\n  animation: pops-anim-don-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-roll-reverse"] {\r\n  animation: pops-anim-roll-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-sandra-reverse"] {\r\n  animation: pops-anim-sandra-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-gather-reverse"] {\r\n  animation: pops-anim-gather-reverse 0.3s;\r\n}\r\n';
   var alertCSS = "";
   var confirmCSS = "";
-  var promptCSS = '.pops[type-value="prompt"] {\n	--input-color: #000000;\n	--input-bg-color: none;\n	--input-placeholder-color: #a1a4ac;\n}\n.pops[type-value="prompt"] input[pops],\n.pops[type-value="prompt"] textarea[pops] {\n	width: 100%;\n	height: 100%;\n	outline: 0;\n	border: 0;\n	color: var(--input-color);\n	background-color: var(--input-bg-color);\n}\n\n.pops[type-value="prompt"] input[pops] {\n	padding: 5px 10px;\n}\n.pops[type-value="prompt"] textarea[pops] {\n	padding: 5px 10px;\n	resize: none;\n}\n\n.pops[type-value="prompt"] input[pops]::placeholder,\n.pops[type-value="prompt"] textarea[pops]::placeholder {\n	color: var(--input-placeholder-color);\n}\n@media (prefers-color-scheme: dark) {\n	.pops[type-value="prompt"] {\n		--input-color: #ffffff;\n		--input-bg-color: #333333;\n		--input-placeholder-color: #8d9095;\n	}\n}\n';
-  var loadingCSS = '.pops[type-value="loading"] {\n	--loading-bd-color: rgba(0, 0, 0, 0.2);\n	--loading-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n	--loading-box-shadow-color: rgb(0 0 0 / 50%);\n	--loading-icon-color: rgba(100, 149, 237, 0.1);\n	--loading-icon-bd-top-color: rgb(100, 149, 237, var(--pops-bd-opacity));\n}\n.pops[type-value="loading"] {\n	position: absolute;\n	top: 272.5px;\n	top: 50%;\n	left: 26px;\n	left: 50%;\n	display: flex;\n	overflow: hidden;\n	padding: 10px 15px;\n	max-width: 100%;\n	max-height: 100%;\n	min-width: 0;\n	min-height: 0;\n	border: 1px solid var(--loading-bd-color);\n	border-radius: 5px;\n	background-color: var(--loading-bg-color);\n	box-shadow: 0 0 5px var(--loading-box-shadow-color);\n	vertical-align: middle;\n	transition: all 0.35s;\n	transform: translate(-50%, -50%);\n	user-select: none;\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n	flex-direction: column;\n	align-items: center;\n	justify-content: center;\n	align-content: center;\n}\n.pops[type-value="loading"]:before {\n	float: left;\n	display: inline-block;\n	width: 2em;\n	height: 2em;\n	border: 0.3em solid var(--loading-icon-color);\n	border-top: 0.3em solid var(--loading-icon-bd-top-color);\n	border-radius: 50%;\n	content: " ";\n	vertical-align: middle;\n	font-size: inherit;\n	animation: pops-anim-wait-rotate 1.2s linear infinite;\n}\n.pops[type-value="loading"] .pops-loading-content {\n	position: static;\n	top: 0;\n	bottom: 0;\n	float: left;\n	overflow: hidden;\n	width: auto;\n	font-size: inherit;\n	line-height: normal;\n	align-content: center;\n}\n\n@media (prefers-color-scheme: dark) {\n	.pops[type-value="loading"] {\n		--loading-bg-color: #222222;\n	}\n}\n';
-  var iframeCSS = '.pops[type-value="iframe"] {\n	--container-title-height: 55px;\n	transition:\n		width 0.35s ease,\n		height 0.35s ease;\n}\n.pops[type-value="iframe"] .pops-content {\n	overflow: hidden;\n}\n.pops-loading {\n	position: absolute;\n	top: 40px;\n	right: 0;\n	bottom: 0;\n	left: 0;\n	z-index: 5;\n	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n}\n.pops-loading:before {\n	position: absolute;\n	top: 50%;\n	left: 50%;\n	z-index: 3;\n	display: block;\n	margin: -20px 0 0 -20px;\n	padding: 20px;\n	border: 4px solid rgb(221, 221, 221, var(--pops-bd-opacity));\n	border-radius: 50%;\n	content: "";\n	border-top-color: transparent;\n	animation: pops-anim-wait-rotate 1.2s linear infinite;\n}\n.pops[type-value="iframe"].pops[type-module="min"] {\n	bottom: 0;\n	max-width: 200px;\n	max-height: 53px;\n	position: unset;\n}\n.pops[type-value="iframe"].pops[type-module="min"] .pops-header-control[data-type="min"] {\n	display: none;\n}\n.pops[type-value="iframe"].pops-iframe-unset-top {\n	top: unset !important;\n}\n.pops[type-value="iframe"].pops-iframe-unset-left {\n	left: unset !important;\n}\n.pops[type-value="iframe"].pops-iframe-unset-transform {\n	transform: none !important;\n}\n.pops[type-value="iframe"].pops-iframe-unset-transition {\n	transition: none !important;\n}\n.pops[type-value="iframe"].pops[type-module="max"] {\n	width: 100% !important;\n	height: 100% !important;\n}\n.pops[type-value="iframe"] iframe[pops] {\n	width: 100%;\n	height: 100%;\n	border: 0;\n}\n.pops-iframe-content-global-loading {\n	position: absolute;\n	top: 0;\n	left: 0;\n	z-index: 999999;\n	width: 0;\n	height: 4px;\n	background: linear-gradient(to right, #4995dd, #fff, rgb(202 224 246));\n	animation: iframeLoadingChange 2s forwards;\n}\n\n.pops-anim:has(.pops[type-value="iframe"].pops[type-module="min"]) {\n	position: unset;\n}\n';
-  var tooltipCSS = '.pops-tip {\n	--pops-bg-opacity: 1;\n	--tooltip-color: #4e4e4e;\n	--tooltip-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n	--tooltip-bd-radius: 2px;\n	--tooltip-box-shadow-left-color: rgba(0, 0, 0, 0.24);\n	--tooltip-box-shadow-right-color: rgba(0, 0, 0, 0.12);\n	--tooltip-font-size: 14px;\n	--tooltip-padding-top: 13px;\n	--tooltip-padding-right: 13px;\n	--tooltip-padding-bottom: 13px;\n	--tooltip-padding-left: 13px;\n\n	--tooltip-arrow-box-shadow-left-color: rgba(0, 0, 0, 0.24);\n	--tooltip-arrow-box-shadow-right-color: rgba(0, 0, 0, 0.12);\n	--tooltip-arrow--after-color: rgb(78, 78, 78);\n	--tooltip-arrow--after-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n	--tooltip-arrow--after-width: 12px;\n	--tooltip-arrow--after-height: 12px;\n}\n.pops-tip {\n	padding: var(--tooltip-padding-top) var(--tooltip-padding-right) var(--tooltip-padding-bottom)\n		var(--tooltip-padding-left);\n	max-width: 400px;\n	max-height: 300px;\n	border-radius: var(--tooltip-bd-radius);\n	background-color: var(--tooltip-bg-color);\n	box-shadow:\n		0 1.5px 4px var(--tooltip-box-shadow-left-color),\n		0 1.5px 6px var(--tooltip-box-shadow-right-color);\n	color: var(--tooltip-color);\n	font-size: var(--tooltip-font-size);\n}\n.pops-tip[data-position="absolute"] {\n	position: absolute;\n}\n.pops-tip[data-position="fixed"] {\n	position: fixed;\n}\n\n.pops-tip .pops-tip-arrow {\n	position: absolute;\n	top: 100%;\n	left: 50%;\n	overflow: hidden;\n	width: 100%;\n	height: 12.5px;\n	transform: translateX(-50%);\n}\n\n.pops-tip .pops-tip-arrow::after {\n	position: absolute;\n	top: 0;\n	left: 50%;\n	width: var(--tooltip-arrow--after-width);\n	height: var(--tooltip-arrow--after-height);\n	background: var(--tooltip-arrow--after-bg-color);\n	color: var(--tooltip-arrow--after-color);\n	box-shadow:\n		0 1px 7px var(--tooltip-arrow-box-shadow-left-color),\n		0 1px 7px var(--tooltip-arrow-box-shadow-right-color);\n	content: "";\n	transform: translateX(-50%) translateY(-50%) rotate(45deg);\n}\n\n.pops-tip .pops-tip-arrow[data-position="bottom"] {\n	position: absolute;\n	top: 100%;\n	left: 50%;\n	overflow: hidden;\n	width: 100%;\n	height: 12.5px;\n	transform: translateX(-50%);\n}\n\n.pops-tip .pops-tip-arrow[data-position="bottom"]:after {\n	position: absolute;\n	top: 0;\n	left: 50%;\n	width: var(--tooltip-arrow--after-width);\n	height: var(--tooltip-arrow--after-height);\n	background: var(--tooltip-arrow--after-bg-color);\n	box-shadow:\n		0 1px 7px var(--tooltip-arrow-box-shadow-left-color),\n		0 1px 7px var(--tooltip-arrow-box-shadow-right-color);\n	content: "";\n	transform: translateX(-50%) translateY(-50%) rotate(45deg);\n}\n\n.pops-tip .pops-tip-arrow[data-position="left"] {\n	top: 50%;\n	left: -12.5px;\n	width: 12.5px;\n	height: 50px;\n	transform: translateY(-50%);\n}\n\n.pops-tip .pops-tip-arrow[data-position="left"]:after {\n	position: absolute;\n	top: 50%;\n	left: 100%;\n	content: "";\n}\n\n.pops-tip .pops-tip-arrow[data-position="right"] {\n	top: 50%;\n	right: -12.5px;\n	left: auto;\n	width: 12.5px;\n	height: 50px;\n	transform: translateY(-50%);\n}\n\n.pops-tip .pops-tip-arrow[data-position="right"]:after {\n	position: absolute;\n	top: 50%;\n	left: 0;\n	content: "";\n}\n\n.pops-tip .pops-tip-arrow[data-position="top"] {\n	top: -12.5px;\n	left: 50%;\n	transform: translateX(-50%);\n}\n\n.pops-tip .pops-tip-arrow[data-position="top"]:after {\n	position: absolute;\n	top: 100%;\n	left: 50%;\n	content: "";\n}\n\n.pops-tip[data-motion] {\n	-webkit-animation-duration: 0.25s;\n	animation-duration: 0.25s;\n	-webkit-animation-fill-mode: forwards;\n	animation-fill-mode: forwards;\n}\n.pops-tip[data-motion="fadeOutRight"] {\n	-webkit-animation-name: pops-motion-fadeOutRight;\n	animation-name: pops-motion-fadeOutRight;\n}\n.pops-tip[data-motion="fadeInTop"] {\n	-webkit-animation-name: pops-motion-fadeInTop;\n	animation-name: pops-motion-fadeInTop;\n	animation-timing-function: cubic-bezier(0.49, 0.49, 0.13, 1.3);\n}\n.pops-tip[data-motion="fadeOutTop"] {\n	-webkit-animation-name: pops-motion-fadeOutTop;\n	animation-name: pops-motion-fadeOutTop;\n	animation-timing-function: cubic-bezier(0.32, 0.37, 0.06, 0.87);\n}\n.pops-tip[data-motion="fadeInBottom"] {\n	-webkit-animation-name: pops-motion-fadeInBottom;\n	animation-name: pops-motion-fadeInBottom;\n}\n.pops-tip[data-motion="fadeOutBottom"] {\n	-webkit-animation-name: pops-motion-fadeOutBottom;\n	animation-name: pops-motion-fadeOutBottom;\n}\n.pops-tip[data-motion="fadeInLeft"] {\n	-webkit-animation-name: pops-motion-fadeInLeft;\n	animation-name: pops-motion-fadeInLeft;\n}\n.pops-tip[data-motion="fadeOutLeft"] {\n	-webkit-animation-name: pops-motion-fadeOutLeft;\n	animation-name: pops-motion-fadeOutLeft;\n}\n.pops-tip[data-motion="fadeInRight"] {\n	-webkit-animation-name: pops-motion-fadeInRight;\n	animation-name: pops-motion-fadeInRight;\n}\n\n/* github的样式 */\n.pops-tip.github-tooltip {\n	--tooltip-bg-opacity: 1;\n	--tooltip-color: #ffffff;\n	--tooltip-bg-color: rgb(36, 41, 47, var(--tooltip-bg-opacity));\n	--tooltip-bd-radius: 6px;\n	--tooltip-padding-top: 6px;\n	--tooltip-padding-right: 8px;\n	--tooltip-padding-bottom: 6px;\n	--tooltip-padding-left: 8px;\n\n	--tooltip-arrow--after-color: rgb(255, 255, 255);\n	--tooltip-arrow--after-bg-color: rgb(36, 41, 47, var(--tooltip-bg-opacity));\n	--tooltip-arrow--after-width: 8px;\n	--tooltip-arrow--after-height: 8px;\n}\n\n@media (prefers-color-scheme: dark) {\n	.pops-tip {\n		--tooltip-color: #ffffff;\n		--tooltip-bg-color: #fafafa;\n		--tooltip-arrow--after-color: #fafafa;\n		--tooltip-arrow--after-bg-color: rgb(250, 250, 250, var(--pops-bg-opacity));\n	}\n}\n';
-  var drawerCSS = '.pops[type-value="drawer"] {\n	position: fixed;\n	box-sizing: border-box;\n	display: flex;\n	flex-direction: column;\n	box-shadow:\n		0px 16px 48px 16px rgba(0, 0, 0, 0.08),\n		0px 12px 32px rgba(0, 0, 0, 0.12),\n		0px 8px 16px -8px rgba(0, 0, 0, 0.16);\n	overflow: hidden;\n	transition: all 0.3s;\n}\n\n.pops[type-value="drawer"][direction="top"] {\n	width: 100%;\n	left: 0;\n	right: 0;\n	top: 0;\n}\n.pops[type-value="drawer"][direction="bottom"] {\n	width: 100%;\n	left: 0;\n	right: 0;\n	bottom: 0;\n}\n.pops[type-value="drawer"][direction="left"] {\n	height: 100%;\n	top: 0;\n	bottom: 0;\n	left: 0;\n}\n.pops[type-value="drawer"][direction="right"] {\n	height: 100%;\n	top: 0;\n	bottom: 0;\n	right: 0;\n}\n';
-  var folderCSS = '.pops-folder-list {\n	--folder-arrow-fill-color: #d4d7de;\n	--folder-arrow-active-fill-color: #06a7ff;\n	--header-breadcrumb-text-color: #06a7ff;\n	--header-breadcrumb-all-files-text-color: var(--header-breadcrumb-text-color);\n	--header-breadcrumb-all-files-first-text-color: var(--header-breadcrumb-text-color);\n	--header-breadcrumb-all-files-last-text-color: #999999;\n	--table-header-row-text-color: #818999;\n	--table-body-td-text-color: rgb(247, 248, 250, var(--pops-bg-opacity));\n	--table-body-th-text-color: rgb(247, 248, 250, var(--pops-bg-opacity));\n	--table-body-row-text-color: #05082c;\n	--table-body-row-file-name-text-color: #05082c;\n	--table-body-row-hover-bd-color: rgb(245, 246, 247, var(--pops-bg-opacity));\n	--table-body-row-hover-bg-color: rgb(245, 246, 247, var(--pops-bg-opacity));\n	--table-body-row-file-name-hover-text-color: #06a7ff;\n	--table-body-row-content-text-color: #818999;\n}\n.pops-folder-list .cursor-p {\n	cursor: pointer;\n}\n.pops-folder-list a {\n	background: 0 0;\n	text-decoration: none;\n	-webkit-tap-highlight-color: transparent;\n	color: var(--header-breadcrumb-text-color);\n}\ntable.pops-folder-list-table__body,\ntable.pops-folder-list-table__header {\n	width: 100%;\n	table-layout: fixed;\n	border-collapse: collapse;\n	border-spacing: 0;\n	padding: 0 20px;\n}\ntable.pops-folder-list-table__body,\ntable.pops-folder-list-table__header {\n	height: 100%;\n	background: 0 0;\n	overflow: hidden;\n	display: -webkit-box;\n	display: -ms-flexbox;\n	-ms-flex-direction: column;\n	-webkit-box-orient: vertical;\n	-webkit-box-direction: normal;\n}\ntable.pops-folder-list-table__body {\n	height: 100%;\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n	user-select: none;\n}\n.pops-folder-list table tr {\n	line-height: normal;\n	align-content: center;\n}\n.pops-folder-list-table__header-row {\n	height: 50px;\n	line-height: normal;\n	align-content: center;\n	color: var(--table-header-row-text-color);\n	text-align: left;\n	font-size: 12px;\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n	user-select: none;\n}\n.pops-folder-list-table__body-row {\n	height: 50px;\n	line-height: normal;\n	align-content: center;\n	color: var(--table-body-row-text-color);\n	font-size: 12px;\n}\n.pops-folder-list-table__body-row:hover {\n	background-color: var(--table-body-row-hover-bg-color);\n	border-color: var(--table-body-row-hover-bd-color);\n	border: 0;\n	outline: none;\n}\n.pops-folder-list table th {\n	border: 0;\n	border-bottom: 1px solid var(--table-body-th-text-color);\n}\n.pops-folder-list table td {\n	border: 0;\n	border-bottom: 1px solid var(--table-body-td-text-color);\n	position: relative;\n}\n.pops-folder-list .list-name-text {\n	display: inline-block;\n	padding-left: 12px;\n	line-height: normal;\n	align-content: center;\n	max-width: 176px;\n}\n.pops-folder-list-file-name > div {\n	display: flex;\n	align-items: center;\n}\n\n.pops-mobile-folder-list-file-name {\n	display: flex;\n	align-items: center;\n}\n.pops-mobile-folder-list-file-name > div {\n	display: flex;\n	flex-wrap: wrap;\n	justify-content: flex-start;\n	align-items: flex-start;\n	padding: 6px 0px;\n	flex-direction: column;\n}\n.pops-mobile-folder-list-file-name img.pops-folder-list-file-icon {\n	width: 45px;\n	height: 45px;\n}\n.pops-mobile-folder-list-file-name a.pops-folder-list-file-name-title-text {\n	padding-left: unset;\n	max-width: 250px;\n	overflow-x: hidden;\n	font-weight: 400;\n	line-height: unset;\n	margin-bottom: 4px;\n	white-space: normal;\n	text-overflow: unset;\n}\n\n/* 修改滚动 */\n.pops-folder-content {\n	overflow: hidden !important;\n}\n.pops-folder-content .pops-folder-list {\n	height: 100%;\n	display: flex;\n	flex-direction: column;\n}\n.pops-folder-content .pops-folder-list-table__body-div {\n	height: 100%;\n	flex: 1 auto;\n	overflow: auto;\n	padding-bottom: 0;\n}\n.pops-mobile-folder-content .pops-folder-list-table__body-div {\n	height: 100%;\n	flex: 1 auto;\n	overflow: auto;\n	padding-bottom: 0;\n}\n.pops-folder-content table.pops-folder-list-table__body {\n	overflow: auto;\n}\n.pops-folder-content .pops-folder-list-table__header-div {\n	flex: 0;\n}\n.pops-mobile-folder-content .pops-folder-list-table__header-div {\n	display: none;\n}\n\n.pops-folder-list .pops-folder-list-file-name-title-text {\n	color: var(--table-body-row-file-name-text-color);\n}\n.pops-folder-list .pops-folder-list-file-name-title-text:hover {\n	text-decoration: none;\n	color: var(--table-body-row-file-name-hover-text-color);\n}\n.pops-folder-list .text-ellip {\n	overflow: hidden;\n	white-space: nowrap;\n	text-overflow: ellipsis;\n}\n.pops-folder-list .content {\n	color: var(--table-body-row-content-text-color);\n	position: relative;\n	width: 100%;\n	text-align: left;\n}\n.pops-folder-list .inline-block-v-middle {\n	display: inline-block;\n	vertical-align: middle;\n}\n.pops-folder-list .flex-a-i-center {\n	display: flex;\n	align-items: center;\n}\n.pops-folder-list .u-file-icon {\n	display: inline-block;\n	vertical-align: middle;\n}\n.pops-folder-list .u-file-icon--list {\n	width: 32px;\n	height: 32px;\n}\n.pops-folder-list .pops-folder-list-file-icon {\n	line-height: normal;\n	align-content: center;\n	position: relative;\n	vertical-align: middle;\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb-primary {\n	flex: 1;\n	display: -webkit-box;\n	display: -webkit-flex;\n	display: -ms-flexbox;\n	display: flex;\n	-webkit-box-align: center;\n	-webkit-align-items: center;\n	-ms-flex-align: center;\n	align-items: center;\n	-webkit-box-orient: horizontal;\n	-webkit-box-direction: normal;\n	-webkit-flex-direction: row;\n	-ms-flex-direction: row;\n	flex-direction: row;\n	min-height: 17px;\n	flex-wrap: wrap;\n}\n.pops-folder-list .pops-folder-list-table__sort {\n	display: inline-flex;\n	margin-left: 4px;\n	flex-direction: column;\n}\n\n.pops-folder-list .pops-folder-icon-arrow {\n	width: 10px;\n	height: 10px;\n	fill: var(--folder-arrow-fill-color);\n}\n.pops-folder-list .pops-folder-icon-active {\n	fill: var(--folder-arrow-active-fill-color);\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb {\n	padding: 4px 20px;\n	-webkit-box-sizing: border-box;\n	box-sizing: border-box;\n	display: -webkit-box;\n	display: -webkit-flex;\n	display: -ms-flexbox;\n	display: flex;\n	-webkit-box-align: center;\n	-webkit-align-items: center;\n	-ms-flex-align: center;\n	align-items: center;\n	-webkit-box-orient: horizontal;\n	-webkit-box-direction: normal;\n	-webkit-flex-direction: row;\n	-ms-flex-direction: row;\n	flex-direction: row;\n	-webkit-box-pack: start;\n	-webkit-justify-content: start;\n	-ms-flex-pack: start;\n	justify-content: flex-start;\n	min-height: 35px;\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles {\n	font-size: 12px;\n	color: var(--header-breadcrumb-all-files-text-color);\n	line-height: normal;\n	align-content: center;\n	font-weight: 700;\n	display: inline-block;\n	max-width: 140px;\n	overflow: hidden;\n	text-overflow: ellipsis;\n	white-space: nowrap;\n	word-wrap: normal;\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:last-child a {\n	color: var(--header-breadcrumb-all-files-last-text-color);\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:first-child a {\n	font-size: 14px;\n	color: var(--header-breadcrumb-all-files-first-text-color);\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb .iconArrow {\n	width: 16px;\n	height: 16px;\n}\n.pops-folder-list .iconArrow {\n	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAASCAMAAABYd88+AAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAABFUExURUdwTOLi4uLi4t7e3uPj49/f397e3t3d3f///97e3vDw8N3d3d7e3t3d3d3d3ejo6N/f397e3t7e3t3d3d/f393d3d3d3RK+NoEAAAAWdFJOUwAnM4YPU/iQA+UIeMDaHhY41i7zX7UebpjFAAAAUElEQVQI15XOORaAIAwE0LATXHCd+x9VfCiksXCq+UUWou8oZ1vXHrt7YVBiYkW4gdMKYFIC4CSATWCNHWPuM6HuHkr1x3N0ZrBu/9gl0b9c3+kF7C7hS1YAAAAASUVORK5CYII=)\n		55% 50%/6px 9px no-repeat;\n}\n\n@media (prefers-color-scheme: dark) {\n	.pops[type-value="folder"] {\n		--pops-title-border-color: rgb(73, 83, 102, var(--pops-bg-opacity));\n		--pops-bottom-btn-controls-border-color: rgb(73, 83, 102, var(--pops-bg-opacity));\n	}\n	.pops-folder-list {\n		--header-breadcrumb-text-color: #06a7ff;\n		--header-breadcrumb-all-files-text-color: var(--header-breadcrumb-text-color);\n		--header-breadcrumb-all-files-first-text-color: var(--header-breadcrumb-text-color);\n		--header-breadcrumb-all-files-last-text-color: #818999;\n		--table-body-row-text-color: #f7f8fa;\n		--table-body-td-text-color: rgb(73, 83, 102, var(--pops-bg-opacity));\n		--table-body-th-text-color: rgb(73, 83, 102, var(--pops-bg-opacity));\n		--table-body-td-text-color: #495366;\n		--table-body-row-hover-bd-color: #1f2022;\n		--table-body-row-hover-bg-color: #1f2022;\n		--table-body-row-file-name-text-color: #f7f8fa;\n	}\n}\n';
-  var panelCSS = '.pops[type-value="panel"] {\n	--pops-bg-color: #f2f2f2;\n	--pops-color: #333333;\n	--panel-title-bg-color: #ffffff;\n\n	--panel-aside-bg-color: #ffffff;\n	--panel-aside-hover-color: rgb(64, 158, 255);\n	--panel-aside-hover-bg-color: rgba(64, 158, 255, 0.1);\n\n	--pops-panel-forms-margin-top-bottom: 10px;\n	--pops-panel-forms-margin-left-right: 20px;\n	--pops-panel-forms-header-icon-size: calc(var(--pops-panel-forms-container-li-padding-left-right) + 1px);\n	--pops-panel-forms-header-padding-top-bottom: 15px;\n	--pops-panel-forms-header-padding-left-right: 10px;\n	--pops-panel-forms-container-item-left-text-gap: 6px;\n	--pops-panel-forms-container-item-left-desc-text-size: 0.8em;\n	--pops-panel-forms-container-item-left-desc-text-color: #6c6c6c;\n	--pops-panel-forms-container-item-bg-color: #ffffff;\n	--pops-panel-forms-container-item-title-color: #333;\n	--pops-panel-forms-container-item-border-radius: 6px;\n	--pops-panel-forms-container-item-margin-top-bottom: 10px;\n	--pops-panel-forms-container-item-margin-left-right: var(--pops-panel-forms-margin-left-right);\n	--pops-panel-forms-container-li-border-color: var(--pops-bd-color);\n	--pops-panel-forms-container-li-padding-top-bottom: 12px;\n	--pops-panel-forms-container-li-padding-left-right: 16px;\n\n	--pops-panel-forms-container-deepMenu-item-active-bg: #e9e9e9;\n}\n.pops[type-value="panel"] {\n	color: var(--pops-color);\n	background: var(--pops-bg-color);\n}\n.pops[type-value] .pops-panel-title {\n	background: var(--panel-title-bg-color);\n}\n\n/* ↓panel的CSS↓ */\n/* 左侧的列表 */\naside.pops-panel-aside {\n	box-sizing: border-box;\n	flex-shrink: 0;\n	max-width: 200px;\n	min-width: 100px;\n	height: 100%;\n	background: var(--panel-aside-bg-color);\n	border-right: 1px solid var(--panel-aside-bg-color);\n	font-size: 0.9em;\n	display: flex;\n	flex-direction: column;\n	justify-content: space-between;\n}\naside.pops-panel-aside {\n	user-select: none;\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n}\naside.pops-panel-aside .pops-panel-aside-top-container {\n	overflow: auto;\n}\naside.pops-panel-aside ul li {\n	margin: 6px 8px;\n	border-radius: 4px;\n	padding: 6px 10px;\n	cursor: default;\n	display: flex;\n	align-items: center;\n	justify-content: flex-start;\n}\naside.pops-panel-aside .pops-is-visited,\naside.pops-panel-aside ul li:not(.pops-panel-disabled-aside-hover-css):hover {\n	color: var(--panel-aside-hover-color);\n	background: var(--panel-aside-hover-bg-color);\n}\n/* 左侧的列表 */\n\n.pops-panel-content {\n	display: flex;\n	flex-direction: row;\n	flex: 1;\n	overflow: auto;\n	flex-basis: auto;\n	box-sizing: border-box;\n	min-width: 0;\n	bottom: 0 !important;\n}\n\n.pops-panel-section-wrapper {\n	width: 100%;\n	overflow: hidden;\n	display: flex;\n	flex-direction: column;\n}\n\nsection.pops-panel-container {\n	width: 100%;\n	overflow: hidden;\n	display: flex;\n	flex-direction: column;\n}\nsection.pops-panel-container .pops-panel-container-header-ul,\nsection.pops-panel-container .pops-panel-deepMenu-container-header-ul {\n	border-bottom: 1px solid rgba(223, 223, 223, var(--pops-bg-opacity));\n	flex: 0 auto;\n}\nsection.pops-panel-container .pops-panel-container-header-ul li,\nsection.pops-panel-container .pops-panel-container-header-ul li.pops-panel-container-header-title-text {\n	display: flex;\n	justify-content: flex-start !important;\n	margin: 0px !important;\n	padding: var(--pops-panel-forms-header-padding-top-bottom)\n		calc(var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right));\n	text-align: left;\n}\nsection.pops-panel-container ul.pops-panel-container-main-ul {\n	overflow: auto;\n	/*flex: 1;*/\n}\nsection.pops-panel-container > ul li:not(.pops-panel-forms-container-item) {\n	display: flex;\n	justify-content: space-between;\n	align-items: center;\n	margin: var(--pops-panel-forms-margin-top-bottom)\n		calc(var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-margin-left-right));\n	gap: 10px;\n}\nsection.pops-panel-container .pops-panel-forms-container-item-header-text {\n	margin: 10px;\n	margin-left: calc(\n		var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right)\n	);\n	font-size: 0.9em;\n	text-align: left;\n	color: var(--pops-panel-forms-container-item-title-color);\n}\nsection.pops-panel-container li.pops-panel-forms-container-item {\n	/* 去除<li>左侧的圆点 */\n	display: block;\n}\nsection.pops-panel-container .pops-panel-forms-container-item ul.pops-panel-forms-container-item-formlist {\n	border-radius: var(--pops-panel-forms-container-item-border-radius);\n	background: var(--pops-panel-forms-container-item-bg-color);\n	margin: var(--pops-panel-forms-container-item-margin-top-bottom) var(--pops-panel-forms-margin-left-right);\n}\nsection.pops-panel-container .pops-panel-forms-container-item ul.pops-panel-forms-container-item-formlist li {\n	display: flex;\n	justify-content: space-between;\n	align-items: center;\n	padding: var(--pops-panel-forms-container-li-padding-top-bottom)\n		var(--pops-panel-forms-container-li-padding-left-right);\n	margin: 0px 0px;\n	border-bottom: 1px solid var(--pops-panel-forms-container-li-border-color);\n	text-align: left;\n}\n/*section.pops-panel-container\n	.pops-panel-forms-container-item\n	ul\n	li.pops-panel-deepMenu-nav-item {\n	padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px;\n	margin: 0px var(--pops-panel-forms-container-li-padding-left-right);\n	border-bottom: 1px solid var(--pops-panel-forms-container-li-border-color);\n}*/\nsection.pops-panel-container\n	.pops-panel-forms-container-item\n	ul.pops-panel-forms-container-item-formlist\n	li:last-child {\n	border: 0px;\n}\n/* 左侧的文字 */\nsection.pops-panel-container .pops-panel-item-left-text {\n	display: flex;\n	flex-direction: column;\n	gap: var(--pops-panel-forms-container-item-left-text-gap);\n}\n\n/* 左侧的主文字 */\n/*section.pops-panel-container .pops-panel-item-left-main-text {\n	\n}*/\n/* 左侧的描述文字 */\nsection.pops-panel-container .pops-panel-item-left-desc-text {\n	font-size: var(--pops-panel-forms-container-item-left-desc-text-size);\n	color: var(--pops-panel-forms-container-item-left-desc-text-color);\n}\n\n/* 折叠面板 */\nsection.pops-panel-container .pops-panel-forms-fold {\n	border-radius: var(--pops-panel-forms-container-item-border-radius);\n	background: var(--pops-panel-forms-container-item-bg-color);\n	margin: var(--pops-panel-forms-margin-top-bottom) var(--pops-panel-forms-margin-left-right);\n}\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-fold-container {\n	display: flex;\n	align-items: center;\n	fill: #6c6c6c;\n	justify-content: space-between;\n	margin: 0px var(--pops-panel-forms-container-li-padding-left-right) !important;\n	padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px !important;\n}\nsection.pops-panel-container .pops-panel-forms-fold[data-fold-enable] .pops-panel-forms-fold-container-icon {\n	transform: rotate(90deg);\n}\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-fold-container-icon {\n	width: 15px;\n	height: 15px;\n	display: flex;\n	align-items: center;\n	transform: rotate(-90deg);\n	transition: transform 0.3s;\n}\n/* 折叠状态 */\nsection.pops-panel-container\n	.pops-panel-forms-fold[data-fold-enable]\n	.pops-panel-forms-container-item-formlist {\n	height: 0;\n}\n/* 非折叠状态 */\nsection.pops-panel-container .pops-panel-forms-fold ul.pops-panel-forms-container-item-formlist {\n	margin: 0;\n}\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-container-item-formlist {\n	transition: height 0.3s;\n	overflow: hidden;\n	border-radius: unset;\n	background: unset;\n	margin: 0;\n	height: calc-size(auto, size);\n}\n/* 折叠面板 */\n\n/* 姑且认为小于600px的屏幕为移动端 */\n@media (max-width: 600px) {\n	/* 兼容移动端CSS */\n	.pops[type-value="panel"] {\n		--pops-panel-forms-margin-left-right: 10px;\n	}\n	.pops[type-value="panel"] {\n		width: 92%;\n		width: 92vw;\n		width: 92dvw;\n	}\n	.pops[type-value="panel"] .pops-panel-content aside.pops-panel-aside {\n		max-width: 20%;\n		min-width: auto;\n	}\n	.pops[type-value="panel"] section.pops-panel-container .pops-panel-forms-container-item > div {\n		text-align: left;\n		--pops-panel-forms-margin-left-right: 0px;\n	}\n	.pops[type-value="panel"] section.pops-panel-container .pops-panel-forms-container-item ul {\n		margin: 0px !important;\n	}\n	.pops[type-value="panel"] section.pops-panel-container > ul > li {\n		margin: 10px 10px;\n	}\n	.pops[type-value="panel"] section.pops-panel-container > ul > li div:nth-child(2) {\n		max-width: 55%;\n	}\n	.pops[type-value="panel"] section.pops-panel-container .pops-panel-select select {\n		min-width: 88px !important;\n		width: -webkit-fill-available;\n		width: -moz-available;\n	}\n	.pops[type-value="panel"] section.pops-panel-container .pops-panel-container-header-ul li {\n		font-size: 16px;\n	}\n	.pops[type-value="panel"] .pops-panel-title p[pops],\n	.pops[type-value="panel"] section.pops-panel-container > ul li,\n	.pops[type-value="panel"] aside.pops-panel-aside ul li {\n		font-size: 14px;\n	}\n}\n/* switch的CSS */\n.pops-panel-switch {\n	--panel-switch-core-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\n	--panel-switch-core-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\n	--panel-switch-circle-color: #dcdfe6;\n	--panel-switch-circle-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n	--panel-switch-checked-circle-color: #409eff;\n	--panel-switch-checked-core-bd-color: rgb(64, 158, 255, var(--pops-bd-opacity));\n	--panel-switch-checked-core-bg-color: rgb(64, 158, 255, var(--pops-bg-opacity));\n}\n.pops-panel-switch {\n	display: inline-flex;\n	flex-direction: row-reverse;\n	align-items: center;\n	position: relative;\n	font-size: 14px;\n	line-height: normal;\n	align-content: center;\n	height: 32px;\n	vertical-align: middle;\n	user-select: none;\n	-webkit-user-select: none;\n	-ms-user-select: none;\n	-moz-user-select: none;\n}\n.pops-panel-switch input.pops-panel-switch__input {\n	position: absolute;\n	width: 0;\n	height: 0;\n	opacity: 0;\n	margin: 0;\n}\n.pops-panel-switch:has(input.pops-panel-switch__input:disabled),\n.pops-panel-switch[data-disabled],\n.pops-panel-switch[data-disabled] .pops-panel-switch__core,\n.pops-panel-switch input.pops-panel-switch__input:disabled + .pops-panel-switch__core {\n	cursor: not-allowed;\n	opacity: 0.6;\n}\n.pops-panel-switch span.pops-panel-switch__core {\n	display: inline-flex;\n	position: relative;\n	align-items: center;\n	min-width: 40px;\n	height: 20px;\n	border: 1px solid var(--panel-switch-core-bd-color);\n	outline: 0;\n	border-radius: 10px;\n	box-sizing: border-box;\n	background: var(--panel-switch-core-bg-color);\n	cursor: pointer;\n	transition:\n		border-color 0.3s,\n		background-color 0.3s;\n}\n.pops-panel-switch .pops-panel-switch__action {\n	position: absolute;\n	left: 1px;\n	border-radius: 100%;\n	transition: all 0.3s;\n	width: 16px;\n	height: 16px;\n	display: flex;\n	justify-content: center;\n	align-items: center;\n	background-color: var(--panel-switch-circle-bg-color);\n	color: var(--panel-switch-circle-color);\n}\n.pops-panel-switch.pops-panel-switch-is-checked span.pops-panel-switch__core {\n	border-color: var(--panel-switch-checked-core-bd-color);\n	background-color: var(--panel-switch-checked-core-bg-color);\n}\n.pops-panel-switch.pops-panel-switch-is-checked .pops-panel-switch__action {\n	left: calc(100% - 17px);\n	color: var(--panel-switch-checked-circle-color);\n}\n/* switch的CSS */\n\n/* slider旧的CSS */\nsection.pops-panel-container .pops-panel-slider:has(> input[type="range"]) {\n	overflow: hidden;\n	height: 25px;\n	line-height: normal;\n	align-content: center;\n	display: flex;\n	align-items: center;\n}\nsection.pops-panel-container .pops-panel-slider input[type="range"] {\n	height: 6px;\n	background: rgb(228, 231, 237, var(--pops-bg-opacity));\n	outline: 0;\n	-webkit-appearance: none;\n	appearance: none;\n	width: 100%;\n}\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-webkit-slider-thumb {\n	width: 20px;\n	height: 20px;\n	border-radius: 50%;\n	border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));\n	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n	box-shadow:\n		0 0 2px rgba(0, 0, 0, 0.3),\n		0 3px 5px rgba(0, 0, 0, 0.2);\n	cursor: pointer;\n	-webkit-appearance: none;\n	appearance: none;\n	border-image: linear-gradient(#409eff, #409eff) 0 fill/9 25 9 0/0 0 0 100vw;\n}\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-thumb {\n	width: 20px;\n	height: 20px;\n	border-radius: 50%;\n	border: 1px solid rgb(64, 159, 255, var(--pops-bd-opacity));\n	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n	box-shadow:\n		0 0 2px rgba(0, 0, 0, 0.3),\n		0 3px 5px rgba(0, 0, 0, 0.2);\n	cursor: pointer;\n	-webkit-appearance: none;\n	appearance: none;\n}\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-progress {\n	height: 6px;\n	border-image: linear-gradient(#409eff, #409eff) 0 fill/9 25 9 0/0 0 0 100vw;\n}\n/* slider旧的CSS */\n\n/* slider的CSS */\n.pops-slider {\n	--pops-slider-color-white: #ffffff;\n	--pops-slider-color-primary: #409eff;\n	--pops-slider-color-info: #909399;\n	--pops-slider-text-color-placeholder: #a8abb2;\n	--pops-slider-border-color-light: #e4e7ed;\n	--pops-slider-border-radius-circle: 100%;\n	--pops-slider-transition-duration-fast: 0.2s;\n\n	--pops-slider-main-bg-color: var(--pops-slider-color-primary);\n	--pops-slider-runway-bg-color: var(--pops-slider-border-color-light);\n	--pops-slider-stop-bg-color: var(--pops-slider-color-white);\n	--pops-slider-disabled-color: var(--pops-slider-text-color-placeholder);\n	--pops-slider-border-radius: 3px;\n	--pops-slider-height: 6px;\n	--pops-slider-button-size: 20px;\n	--pops-slider-button-wrapper-size: 36px;\n	--pops-slider-button-wrapper-offset: -15px;\n}\n\n.pops-slider {\n	width: 100%;\n	height: 32px;\n	display: flex;\n	align-items: center;\n	user-select: none;\n	-webkit-user-select: none;\n	-ms-user-select: none;\n	-moz-user-select: none;\n}\n\n.pops-slider-width {\n	flex: 0 0 52%;\n	margin-left: 10px;\n}\n\n.pops-slider__runway {\n	flex: 1;\n	height: var(--pops-slider-height);\n	background-color: var(--pops-slider-runway-bg-color);\n	border-radius: var(--pops-slider-border-radius);\n	position: relative;\n	cursor: pointer;\n}\n\n.pops-slider__runway.show-input {\n	margin-right: 30px;\n	width: auto;\n}\n\n.pops-slider__runway.pops-slider-is-disabled {\n	cursor: default;\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__bar {\n	background-color: var(--pops-slider-disabled-color);\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button {\n	border-color: var(--pops-slider-disabled-color);\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\n	cursor: not-allowed;\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\n	transform: scale(1);\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\n	cursor: not-allowed;\n}\n\n.pops-slider__input {\n	flex-shrink: 0;\n	width: 130px;\n}\n\n.pops-slider__bar {\n	height: var(--pops-slider-height);\n	background-color: var(--pops-slider-main-bg-color);\n	border-top-left-radius: var(--pops-slider-border-radius);\n	border-bottom-left-radius: var(--pops-slider-border-radius);\n	position: absolute;\n}\n\n.pops-slider__button-wrapper {\n	height: var(--pops-slider-button-wrapper-size);\n	width: var(--pops-slider-button-wrapper-size);\n	position: absolute;\n	z-index: 1;\n	top: var(--pops-slider-button-wrapper-offset);\n	transform: translate(-50%);\n	background-color: transparent;\n	text-align: center;\n	user-select: none;\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n	line-height: normal;\n	outline: none;\n}\n\n.pops-slider__button-wrapper:after {\n	display: inline-block;\n	content: "";\n	height: 100%;\n	vertical-align: middle;\n}\n\n.pops-slider__button:hover,\n.pops-slider__button.hover {\n	cursor: grab;\n}\n\n.pops-slider__button {\n	display: inline-block;\n	width: var(--pops-slider-button-size);\n	height: var(--pops-slider-button-size);\n	vertical-align: middle;\n	border: solid 2px var(--pops-slider-main-bg-color);\n	background-color: var(--pops-slider-color-white);\n	border-radius: 50%;\n	box-sizing: border-box;\n	transition: var(--pops-slider-transition-duration-fast);\n	user-select: none;\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n}\n\n.pops-slider__button:hover,\n.pops-slider__button.hover,\n.pops-slider__button.dragging {\n	transform: scale(1.2);\n}\n\n.pops-slider__button:hover,\n.pops-slider__button.hover {\n	cursor: grab;\n}\n\n.pops-slider__button.dragging {\n	cursor: grabbing;\n}\n\n.pops-slider__stop {\n	position: absolute;\n	height: var(--pops-slider-height);\n	width: var(--pops-slider-height);\n	border-radius: var(--pops-slider-border-radius-circle);\n	background-color: var(--pops-slider-stop-bg-color);\n	transform: translate(-50%);\n}\n\n.pops-slider__marks {\n	top: 0;\n	left: 12px;\n	width: 18px;\n	height: 100%;\n}\n\n.pops-slider__marks-text {\n	position: absolute;\n	transform: translate(-50%);\n	font-size: 14px;\n	color: var(--pops-slider-color-info);\n	margin-top: 15px;\n	white-space: pre;\n}\n\n.pops-slider.is-vertical {\n	position: relative;\n	display: inline-flex;\n	width: auto;\n	height: 100%;\n	flex: 0;\n}\n\n.pops-slider.is-vertical .pops-slider__runway {\n	width: var(--pops-slider-height);\n	height: 100%;\n	margin: 0 16px;\n}\n\n.pops-slider.is-vertical .pops-slider__bar {\n	width: var(--pops-slider-height);\n	height: auto;\n	border-radius: 0 0 3px 3px;\n}\n\n.pops-slider.is-vertical .pops-slider__button-wrapper {\n	top: auto;\n	left: var(--pops-slider-button-wrapper-offset);\n	transform: translateY(50%);\n}\n\n.pops-slider.is-vertical .pops-slider__stop {\n	transform: translateY(50%);\n}\n\n.pops-slider.is-vertical .pops-slider__marks-text {\n	margin-top: 0;\n	left: 15px;\n	transform: translateY(50%);\n}\n\n.pops-slider--large {\n	height: 40px;\n}\n\n.pops-slider--small {\n	height: 24px;\n}\n/* slider的CSS */\n\n/* input的CSS */\n.pops-panel-input {\n	--el-disabled-text-color: #a8abb2;\n	--el-disabled-bg-color: #f5f7fa;\n	--el-disabled-border-color: #e4e7ed;\n\n	--pops-panel-components-input-text-color: #000000;\n	--pops-panel-components-input-text-bg-color: transparent;\n	--pops-panel-components-input-text-default-padding: 8px;\n	--pops-panel-components-input-bd-color: #dcdfe6;\n	--pops-panel-components-input-bg-color: #ffffff;\n	--pops-panel-components-input-hover-bd-color: #c0c4cc;\n	--pops-panel-components-input-focus-bd-color: #409eff;\n	--pops-panel-components-input-suffix-color: #a8abb2;\n	--pops-panel-components-input-suffix-bg-color: #ffffff;\n}\n.pops-panel-input {\n	display: flex;\n	align-items: center;\n	border: 1px solid var(--pops-panel-components-input-bd-color);\n	border-radius: 4px;\n	background-color: var(--pops-panel-components-input-bg-color);\n	position: relative;\n	box-shadow: none;\n}\n.pops-panel-input:hover {\n	border: 1px solid var(--pops-panel-components-input-hover-bd-color);\n}\n.pops-panel-input:has(input:disabled):hover {\n	--pops-panel-components-input-hover-bd-color: var(--pops-panel-components-input-bd-color);\n}\n.pops-panel-input:has(input:focus) {\n	outline: 0;\n	border: 1px solid var(--pops-panel-components-input-focus-bd-color);\n	border-radius: 4px;\n	box-shadow: none;\n}\n.pops-panel-input input {\n	display: inline-flex;\n	justify-content: center;\n	text-align: start;\n	align-items: center;\n	align-content: center;\n	white-space: nowrap;\n	cursor: text;\n	box-sizing: border-box;\n	user-select: none;\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n	vertical-align: middle;\n	-webkit-appearance: none;\n	appearance: none;\n	color: var(--pops-panel-components-input-text-color);\n	background-color: var(--pops-panel-components-input-text-bg-color);\n	outline: 0;\n	transition: 0.1s;\n	border: 0;\n	font-size: 14px;\n	font-weight: 500;\n	line-height: normal;\n	height: 32px;\n	width: 100%;\n	flex: 1;\n	/*margin-right: calc(1em + 8px);*/\n	margin: 0px;\n	padding: var(--pops-panel-components-input-text-default-padding);\n}\n.pops-panel-input span.pops-panel-input__suffix {\n	display: inline-flex;\n	white-space: nowrap;\n	flex-shrink: 0;\n	flex-wrap: nowrap;\n	height: 100%;\n	text-align: center;\n	color: var(--pops-panel-components-input-suffix-color);\n	background: var(--pops-panel-components-input-suffix-bg-color);\n	transition: all 0.3s;\n	pointer-events: none;\n	padding: 0 8px;\n	position: absolute;\n	right: 0px;\n	border-top-right-radius: 4px;\n	border-bottom-right-radius: 4px;\n	border: 1px solid transparent;\n}\n.pops-panel-input span.pops-panel-input__suffix-inner {\n	pointer-events: all;\n	display: inline-flex;\n	align-items: center;\n	justify-content: center;\n}\n/* 如果包含清空图标的按钮，则默认隐藏清空图标，当:hover、:focus、:focus-within、:active时显示清空图标 */\n.pops-panel-input span.pops-panel-input__suffix:has(svg[data-type="circleClose"]) {\n	display: none;\n}\n.pops-panel-input:hover span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\n.pops-panel-input:focus span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\n.pops-panel-input:focus-within span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\n.pops-panel-input:active span.pops-panel-input__suffix:has(svg[data-type="circleClose"]) {\n	display: inline-flex;\n}\n.pops-panel-input .pops-panel-icon {\n	cursor: pointer;\n}\n.pops-panel-input .pops-panel-icon {\n	height: inherit;\n	line-height: normal;\n	align-content: center;\n	display: flex;\n	justify-content: center;\n	align-items: center;\n	transition: all 0.3s;\n}\n.pops-panel-input .pops-panel-icon svg {\n	height: 1em;\n	width: 1em;\n}\n\n.pops-input-disabled {\n	background-color: var(--pops-components-is-disabled-bg-color);\n}\n.pops-panel-input.pops-input-disabled:hover {\n	--pops-panel-components-input-hover-bd-color: var(--pops-panel-components-input-bd-color);\n}\n.pops-panel-input input:disabled,\n.pops-panel-input input:disabled + .pops-panel-input__suffix {\n	user-select: none;\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n	color: var(--el-disabled-text-color);\n	-webkit-text-fill-color: var(--el-disabled-text-color);\n	cursor: not-allowed;\n}\n.pops-panel-input input:disabled + .pops-panel-input__suffix {\n	display: none;\n}\n/* input的CSS */\n\n/* textarea的CSS */\n.pops-panel-textarea {\n	--pops-panel-components-textarea-text-color: #000000;\n	--pops-panel-components-textarea-text-bg-color: #ffffff;\n	--pops-panel-components-textarea-bd-color: #dcdfe6;\n	--pops-panel-components-textarea-hover-bd-color: #c0c4cc;\n	--pops-panel-components-textarea-focus-bd-color: #409eff;\n}\n.pops-panel-textarea textarea {\n	width: 100%;\n	/*vertical-align: bottom;*/\n	position: relative;\n	display: block;\n	resize: none;\n	padding: 5px 11px;\n	/*line-height: 1;*/\n	box-sizing: border-box;\n	font-size: inherit;\n	font-family: inherit;\n	color: var(--pops-panel-components-textarea-text-color);\n	background-color: var(--pops-panel-components-textarea-text-bg-color);\n	background-image: none;\n	-webkit-appearance: none;\n	appearance: none;\n	box-shadow: none;\n	border-radius: 0;\n	transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\n	border: 1px solid var(--pops-panel-components-textarea-bd-color);\n}\n.pops-panel-textarea textarea:hover {\n	border-color: var(--pops-panel-components-textarea-hover-bd-color);\n}\n.pops-panel-textarea:has(textarea:disabled):hover {\n	--pops-panel-components-textarea-hover-bd-color: var(--pops-panel-components-textarea-bd-color);\n}\n.pops-panel-textarea-disable {\n	--pops-panel-components-textarea-text-bg-color: var(--pops-components-is-disabled-bg-color) !important;\n	--pops-panel-components-textarea-text-color: var(--pops-components-is-disabled-text-color);\n}\n.pops-panel-textarea-disable textarea {\n	cursor: not-allowed;\n}\n.pops-panel-textarea textarea:focus {\n	outline: 0;\n	border-color: var(--pops-panel-components-textarea-focus-bd-color);\n}\n/* textarea的CSS */\n\n/* select的CSS */\n.pops-panel-select {\n	--pops-panel-components-select-text-color: #000000;\n	--pops-panel-components-select-bd-color: rgb(184, 184, 184, var(--pops-bd-opacity));\n	--pops-panel-components-select-hover-bd-color: rgb(184, 184, 184, var(--pops-bd-opacity));\n	--pops-panel-components-select-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n}\n.pops-panel-select {\n	border: 0;\n}\n.pops-panel-select select {\n	height: 32px;\n	line-height: normal;\n	align-content: center;\n	min-width: 200px;\n	border: 1px solid var(--pops-panel-components-select-bd-color);\n	border-radius: 5px;\n	text-align: center;\n	outline: 0;\n	color: var(--pops-panel-components-select-text-color);\n	background-color: var(--pops-panel-components-select-bg-color);\n	box-shadow: none;\n}\n.pops-panel-select select:hover {\n	border: 1px solid var(--pops-panel-components-select-hover-bd-color);\n}\n.pops-panel-select-disable {\n	--pops-panel-components-select-text-color: var(--pops-components-is-disabled-text-color);\n	--pops-panel-components-select-bg-color: var(--pops-components-is-disabled-bg-color);\n}\n.pops-panel-select-disable select {\n	cursor: not-allowed;\n}\n.pops-panel-select-disable select:hover {\n	box-shadow: none;\n	--pops-panel-components-select-hover-bd-color: var(--pops-panel-components-select-bd-color);\n}\n.pops-panel-select select:focus {\n	border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));\n	box-shadow: none;\n}\n/* select的CSS */\n\n/* select-multiple的CSS*/\n.pops-panel-select-multiple {\n	--el-border-radius-base: 4px;\n	--el-fill-color-blank: #ffffff;\n	--el-transition-duration: 0.3s;\n	--el-border-color: #cbcbcb;\n	--el-text-color-placeholder: #a8abb2;\n	--color: inherit;\n	--el-select-input-color: #a8abb2;\n	--el-select-input-font-size: 14px;\n	--el-text-color-regular: #606266;\n	--el-color-info: #909399;\n	--el-color-info-light-9: #f4f4f5;\n	--el-color-info-light-8: #e9e9eb;\n	--el-color-primary-light-9: #ecf5ff;\n	--el-color-primary-light-8: #d9ecff;\n	--el-color-primary: #409eff;\n	--el-color-white: #ffffff;\n	width: 200px;\n}\n.pops-panel-select-multiple .el-select__wrapper {\n	display: flex;\n	align-items: center;\n	position: relative;\n	box-sizing: border-box;\n	cursor: pointer;\n	text-align: left;\n	font-size: 14px;\n	padding: 4px 12px;\n	gap: 6px;\n	min-height: 32px;\n	line-height: normal;\n	align-content: center;\n	border-radius: var(--el-border-radius-base);\n	background-color: var(--el-fill-color-blank);\n	transition: var(--el-transition-duration);\n	transform: translateZ(0);\n	border: 1px solid var(--el-border-color);\n}\n.pops-panel-select-multiple .el-select__wrapper.is-focused {\n	--el-border-color: var(--el-color-primary);\n}\n.pops-panel-select-multiple .el-select__selection {\n	position: relative;\n	display: flex;\n	flex-wrap: wrap;\n	align-items: center;\n	flex: 1;\n	min-width: 0;\n	gap: 6px;\n}\n.pops-panel-select-multiple .el-select__selected-item {\n	display: flex;\n	flex-wrap: wrap;\n	-webkit-user-select: none;\n	user-select: none;\n}\n.pops-panel-select-multiple .el-select__selected-item.el-select__choose_tag .el-tag {\n	max-width: 200px;\n}\n.pops-panel-select-multiple .el-select__input-wrapper {\n	max-width: 100%;\n}\n.pops-panel-select-multiple .el-select__selection.is-near {\n	margin-left: -8px;\n}\n.pops-panel-select-multiple .el-select__placeholder {\n	position: absolute;\n	display: block;\n	top: 50%;\n	transform: translateY(-50%);\n	width: 100%;\n	overflow: hidden;\n	text-overflow: ellipsis;\n	white-space: nowrap;\n	color: var(--el-input-text-color, var(--el-text-color-regular));\n}\n.pops-panel-select-multiple .el-select__placeholder.is-transparent {\n	-webkit-user-select: none;\n	user-select: none;\n	color: var(--el-text-color-placeholder);\n}\n.pops-panel-select-multiple .el-select__prefix,\n.pops-panel-select-multiple .el-select__suffix {\n	display: flex;\n	align-items: center;\n	flex-shrink: 0;\n	gap: 6px;\n	color: var(--el-input-icon-color, var(--el-text-color-placeholder));\n}\n.pops-panel-select-multiple .el-icon {\n	--color: inherit;\n	height: 1em;\n	width: 1em;\n	line-height: normal;\n	align-content: center;\n	display: inline-flex;\n	justify-content: center;\n	align-items: center;\n	position: relative;\n	fill: currentColor;\n	color: var(--color);\n	font-size: inherit;\n}\n.pops-panel-select-multiple .el-icon svg {\n	height: 1em;\n	width: 1em;\n}\n.pops-panel-select-multiple .el-select__caret {\n	color: var(--el-select-input-color);\n	font-size: var(--el-select-input-font-size);\n	transition: var(--el-transition-duration);\n	transform: rotate(0);\n	cursor: pointer;\n}\n.pops-panel-select-multiple .el-tag {\n	--el-tag-font-size: 12px;\n	--el-tag-border-radius: 4px;\n	--el-tag-border-radius-rounded: 9999px;\n}\n.pops-panel-select-multiple .el-tag {\n	background-color: var(--el-tag-bg-color);\n	border-color: var(--el-tag-border-color);\n	color: var(--el-tag-text-color);\n	display: inline-flex;\n	justify-content: center;\n	align-items: center;\n	vertical-align: middle;\n	height: 24px;\n	padding: 0 9px;\n	font-size: var(--el-tag-font-size);\n	line-height: normal;\n	align-content: center;\n	border-width: 1px;\n	border-style: solid;\n	border-radius: var(--el-tag-border-radius);\n	box-sizing: border-box;\n	white-space: nowrap;\n	--el-icon-size: 14px;\n	--el-tag-bg-color: var(--el-color-primary-light-9);\n	--el-tag-border-color: var(--el-color-primary-light-8);\n	--el-tag-hover-color: var(--el-color-primary);\n}\n.pops-panel-select-multiple .el-select__selection .el-tag {\n	cursor: pointer;\n	border-color: transparent;\n}\n.pops-panel-select-multiple .el-tag.el-tag--info {\n	--el-tag-bg-color: var(--el-color-info-light-9);\n	--el-tag-border-color: var(--el-color-info-light-8);\n	--el-tag-hover-color: var(--el-color-info);\n}\n.pops-panel-select-multiple .el-tag.el-tag--info {\n	--el-tag-text-color: var(--el-color-info);\n}\n.pops-panel-select-multiple .el-tag.is-closable {\n	padding-right: 5px;\n}\n.pops-panel-select-multiple .el-select__selection .el-tag .el-tag__content {\n	min-width: 0;\n}\n.pops-panel-select-multiple .el-tag .el-tag__close {\n	flex-shrink: 0;\n	color: var(--el-tag-text-color);\n}\n.pops-panel-select-multiple .el-tag .el-tag__close:hover {\n	color: var(--el-color-white);\n	background-color: var(--el-tag-hover-color);\n}\n.pops-panel-select-multiple .el-tag .el-icon {\n	border-radius: 50%;\n	cursor: pointer;\n	font-size: calc(var(--el-icon-size) - 2px);\n	height: var(--el-icon-size);\n	width: var(--el-icon-size);\n}\n.pops-panel-select-multiple .el-tag .el-tag__close {\n	margin-left: 6px;\n}\n.pops-panel-select-multiple .el-select__tags-text {\n	display: block;\n	line-height: normal;\n	align-content: center;\n	overflow: hidden;\n	text-overflow: ellipsis;\n	white-space: nowrap;\n}\n.pops-panel-select-multiple-disable {\n	--el-fill-color-blank: #f5f7fa;\n	--color: #a8abb2;\n	--el-border-color: #cbcbcb;\n}\n.pops-panel-select-multiple-disable .el-tag.el-tag--info {\n	--el-tag-bg-color: #e7e7e7;\n	--el-tag-text-color: var(--pops-components-is-disabled-text-color);\n}\n.pops-panel-select-multiple-disable .el-select__selection .el-tag,\n.pops-panel-select-multiple-disable .el-tag .el-tag__close:hover,\n.pops-panel-select-multiple-disable .el-select__wrapper,\n.pops-panel-select-multiple-disable .el-select__caret {\n	cursor: not-allowed;\n}\n/* select-multiple的CSS*/\n\n/* deepMenu的css */\n.pops-panel-deepMenu-nav-item {\n	cursor: pointer;\n}\n.pops-panel-deepMenu-nav-item:active {\n	background: var(--pops-panel-forms-container-deepMenu-item-active-bg);\n	user-select: none;\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n}\nsection.pops-panel-container .pops-panel-forms-container-item ul li.pops-panel-deepMenu-nav-item:active {\n	padding: var(--pops-panel-forms-container-li-padding-top-bottom)\n		var(--pops-panel-forms-container-li-padding-left-right);\n	margin: 0px;\n}\n/* 去除上个兄弟item的底部边框颜色 */\nsection.pops-panel-container\n	.pops-panel-forms-container-item\n	ul\n	li:has(+ .pops-panel-deepMenu-nav-item:active) {\n	border-bottom: 1px solid transparent;\n}\n/* 第一个和最后一个跟随圆角 */\nsection.pops-panel-container\n	.pops-panel-forms-container-item\n	ul\n	li.pops-panel-deepMenu-nav-item:first-child:active {\n	border-top-left-radius: var(--pops-panel-forms-container-item-border-radius);\n	border-top-right-radius: var(--pops-panel-forms-container-item-border-radius);\n}\nsection.pops-panel-container\n	.pops-panel-forms-container-item\n	ul\n	li.pops-panel-deepMenu-nav-item:last-child:active {\n	border-bottom-left-radius: var(--pops-panel-forms-container-item-border-radius);\n	border-bottom-right-radius: var(--pops-panel-forms-container-item-border-radius);\n}\n.pops-panel-deepMenu-nav-item .pops-panel-deepMenu {\n	display: flex;\n	align-items: center;\n	color: #6c6c6c;\n	fill: #6c6c6c;\n}\n.pops-panel-deepMenu-nav-item .pops-panel-deepMenu-arrowRight-icon {\n	width: 15px;\n	height: 15px;\n	display: flex;\n	align-items: center;\n}\nsection.pops-panel-deepMenu-container\n	.pops-panel-container-header-ul\n	li.pops-panel-deepMenu-container-header {\n	display: flex;\n	align-items: center;\n	width: -webkit-fill-available;\n	width: -moz-available;\n	padding: var(--pops-panel-forms-header-padding-top-bottom)\n		calc(\n			var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right) -\n				var(--pops-panel-forms-header-icon-size)\n		);\n	gap: 0px;\n}\n.pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon {\n	width: var(--pops-panel-forms-header-icon-size);\n	height: var(--pops-panel-forms-header-icon-size);\n	display: flex;\n	align-items: center;\n	cursor: pointer;\n}\n/* 修复safari上图标大小未正常显示 */\n.pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon > svg {\n	width: inherit;\n	height: inherit;\n}\n/* deepMenu的css */\n\n/* 文字对齐 */\n.pops-panel-item-left-desc-text:has(code) {\n	display: flex;\n	align-items: baseline;\n	flex-wrap: wrap;\n}\n\n@media (prefers-color-scheme: dark) {\n	.pops[type-value="panel"] {\n		--pops-bg-color: #000000;\n		--pops-color: #f2f2f2;\n		--panel-title-bg-color: #000000;\n		--panel-aside-bg-color: #262626;\n		--pops-panel-forms-container-item-left-desc-text-color: #6c6c6c;\n		--pops-panel-forms-container-item-bg-color: #262626;\n		--pops-panel-forms-container-item-title-color: #c1c1c1;\n\n		--pops-panel-forms-container-li-border-color: rgb(51, 51, 51, var(--pops-bd-opacity));\n		--pops-panel-forms-container-deepMenu-item-active-bg: #333333;\n	}\n	.pops[type-value="panel"] .pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon {\n		fill: #f2f2f2;\n	}\n\n	/* switch的CSS */\n	.pops-panel-switch {\n		--panel-switch-core-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\n		--panel-switch-core-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\n		--panel-switch-circle-color: #dcdfe6;\n		--panel-switch-circle-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n		--panel-switch-checked-circle-color: #409eff;\n		--panel-switch-checked-core-bd-color: rgb(64, 158, 255, var(--pops-bd-opacity));\n		--panel-switch-checked-core-bg-color: rgb(64, 158, 255, var(--pops-bg-opacity));\n	}\n	/* select的CSS */\n	.pops-panel-select {\n		--pops-panel-components-select-text-color: #f2f2f2;\n		--pops-panel-components-select-bd-color: rgb(51, 51, 51, var(--pops-bd-opacity));\n		--pops-panel-components-select-bg-color: #141414;\n	}\n	/* select-multiple的CSS*/\n	.pops-panel-select-multiple {\n		--el-fill-color-blank: #141414;\n		--el-border-color: #4c4d4f;\n		--el-text-color-placeholder: #a8abb2;\n		--el-select-input-color: #a8abb2;\n		--el-text-color-regular: #606266;\n		--el-color-info: #909399;\n		--el-color-info-light-8: #e9e9eb;\n		--el-color-primary-light-9: #ecf5ff;\n		--el-color-primary-light-8: #d9ecff;\n		--el-color-primary: #409eff;\n		--el-color-white: #ffffff;\n	}\n	.pops-panel-select-multiple .el-tag {\n		--el-color-info-light-9: #202121;\n	}\n	.pops-panel-select-multiple-disable {\n		--el-border-color: rgb(51, 51, 51, var(--pops-bd-opacity));\n	}\n	.pops-panel-select-multiple-disable .el-tag.el-tag--info {\n		--el-tag-bg-color: #2f2f2f;\n	}\n	/* select-multiple的CSS*/\n	/* slider的CSS */\n	.pops-slider {\n		--pops-slider-border-color-light: #414243;\n	}\n	/* input的CSS */\n	.pops-panel-input {\n		--pops-panel-components-input-text-color: #f2f2f2;\n		--pops-panel-components-input-bd-color: #4f5052;\n		--pops-panel-components-input-bg-color: #141414;\n		--pops-panel-components-input-hover-bd-color: #6f7175;\n		--pops-panel-components-input-focus-bd-color: #409eff;\n		--pops-panel-components-input-suffix-color: #a8abb2;\n	}\n	/* textarea的CSS */\n	.pops-panel-textarea {\n		--pops-panel-components-textarea-text-color: #f2f2f2;\n		--pops-panel-components-textarea-text-bg-color: #141414;\n		--pops-panel-components-textarea-bd-color: #4f5052;\n		--pops-panel-components-textarea-hover-bd-color: #6f7175;\n		--pops-panel-components-textarea-focus-bd-color: #409eff;\n	}\n	.pops-panel-textarea-disable {\n		--pops-panel-components-textarea-text-color: var(--pops-components-is-disabled-text-color);\n		--pops-panel-components-textarea-text-bg-color: var(--pops-components-is-disabled-bg-color);\n	}\n	/* slider */\n	.pops-slider {\n		--pops-slider-text-color-placeholder: #8d9095;\n	}\n}\n';
-  var rightClickMenuCSS = '.pops-rightClickMenu {\n	--pops-right-context-color: #000000;\n	--pops-right-context-bg-color: rgb(255, 255, 255, 0.733);\n	--pops-right-context-backdrop-filter: blur(10px);\n	--pops-right-context-z-index: 10000;\n	--pops-right-context-bd-radius: 6px;\n	--pops-right-context-menu-shadow-color: rgb(114, 114, 114, 0.251);\n	--pops-right-context-menu-row-bd-radius: 6px;\n	--pops-right-context-menu-row-visited-color: rgb(0, 0, 0, 0.067);\n	--pops-right-context-menu-row-hover-color: rgb(0, 0, 0, 0.067);\n}\n.pops-rightClickMenu * {\n	-webkit-box-sizing: border-box;\n	box-sizing: border-box;\n	margin: 0;\n	padding: 0;\n	-webkit-tap-highlight-color: transparent;\n	scrollbar-width: thin;\n}\n.pops-rightClickMenu {\n	position: fixed;\n	z-index: var(--pops-right-context-z-index);\n	text-align: center;\n	border-radius: var(--pops-right-context-bd-radius);\n	font-size: 16px;\n	font-weight: 500;\n	color: var(--pops-right-context-color);\n	background: var(--pops-right-context-bg-color);\n	box-shadow: 0 0.25rem 0.5rem 0.125rem var(--pops-right-context-menu-shadow-color);\n	-webkit-backdrop-filter: var(--pops-right-context-backdrop-filter);\n	backdrop-filter: var(--pops-right-context-backdrop-filter);\n}\n/* scale动画 */\n.pops-rightClickMenu-anim-scale {\n	transition:\n		opacity 150ms cubic-bezier(0.2, 0, 0.2, 1),\n		transform 150ms cubic-bezier(0.2, 0, 0.2, 1);\n	transform: scale(0.85);\n}\n.pops-rightClickMenu-anim-scale-open {\n	transform: scale(1);\n}\n.pops-rightClickMenu-anim-scale-not-open {\n	opacity: 0;\n}\n/* 展开动画 */\n.pops-rightClickMenu-anim-grid {\n	display: grid;\n	transition: 0.3s;\n	grid-template-rows: 0fr;\n}\n.pops-rightClickMenu-anim-show {\n	grid-template-rows: 1fr;\n}\n.pops-rightClickMenu-is-visited {\n	background: var(--pops-right-context-menu-row-visited-color);\n}\ni.pops-rightClickMenu-icon {\n	height: 1em;\n	width: 1em;\n	line-height: normal;\n	align-content: center;\n	display: inline-flex;\n	justify-content: center;\n	align-items: center;\n	position: relative;\n	fill: currentColor;\n	color: inherit;\n	font-size: inherit;\n	margin-right: 6px;\n}\ni.pops-rightClickMenu-icon[is-loading="true"] {\n	animation: rotating 2s linear infinite;\n}\n.pops-rightClickMenu li:hover {\n	background: var(--pops-right-context-menu-row-hover-color);\n	cursor: pointer;\n}\n.pops-rightClickMenu ul {\n	margin: 0;\n	padding: 0;\n	display: flex;\n	flex-direction: column;\n	align-items: flex-start;\n	justify-content: center;\n	overflow: hidden;\n}\n.pops-rightClickMenu ul li {\n	padding: 5px 10px;\n	margin: 5px 5px;\n	border-radius: var(--pops-right-context-menu-row-bd-radius);\n	display: flex;\n	width: -webkit-fill-available;\n	width: -moz-available;\n	text-align: left;\n	user-select: none;\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n	align-items: center;\n}\n\n@media (prefers-color-scheme: dark) {\n	/*.pops-rightClickMenu {\n		--pops-right-context-menu-shadow-color: #3c3c3c;\n	}*/\n}\n@media (hover: hover) {\n	.pops-rightClickMenu ul li:active {\n		transform: scale(0.98);\n	}\n}\n';
+  var promptCSS = '.pops[type-value="prompt"] {\r\n  --input-color: #000000;\r\n  --input-bg-color: none;\r\n  --input-placeholder-color: #a1a4ac;\r\n}\r\n.pops[type-value="prompt"] input[pops],\r\n.pops[type-value="prompt"] textarea[pops] {\r\n  width: 100%;\r\n  height: 100%;\r\n  outline: 0;\r\n  border: 0;\r\n  color: var(--input-color);\r\n  background-color: var(--input-bg-color);\r\n}\r\n\r\n.pops[type-value="prompt"] input[pops] {\r\n  padding: 5px 10px;\r\n}\r\n.pops[type-value="prompt"] textarea[pops] {\r\n  padding: 5px 10px;\r\n  resize: none;\r\n}\r\n\r\n.pops[type-value="prompt"] input[pops]::placeholder,\r\n.pops[type-value="prompt"] textarea[pops]::placeholder {\r\n  color: var(--input-placeholder-color);\r\n}\r\n@media (prefers-color-scheme: dark) {\r\n  .pops[type-value="prompt"] {\r\n    --input-color: #ffffff;\r\n    --input-bg-color: #333333;\r\n    --input-placeholder-color: #8d9095;\r\n  }\r\n}\r\n';
+  var loadingCSS = '.pops[type-value="loading"] {\r\n  --loading-bd-color: rgba(0, 0, 0, 0.2);\r\n  --loading-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n  --loading-box-shadow-color: rgb(0 0 0 / 50%);\r\n  --loading-icon-color: rgba(100, 149, 237, 0.1);\r\n  --loading-icon-bd-top-color: rgb(100, 149, 237, var(--pops-bd-opacity));\r\n}\r\n.pops[type-value="loading"] {\r\n  position: absolute;\r\n  top: 272.5px;\r\n  top: 50%;\r\n  left: 26px;\r\n  left: 50%;\r\n  display: flex;\r\n  overflow: hidden;\r\n  padding: 10px 15px;\r\n  max-width: 100%;\r\n  max-height: 100%;\r\n  min-width: 0;\r\n  min-height: 0;\r\n  border: 1px solid var(--loading-bd-color);\r\n  border-radius: 5px;\r\n  background-color: var(--loading-bg-color);\r\n  box-shadow: 0 0 5px var(--loading-box-shadow-color);\r\n  vertical-align: middle;\r\n  transition: all 0.35s;\r\n  transform: translate(-50%, -50%);\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n  flex-direction: column;\r\n  align-items: center;\r\n  justify-content: center;\r\n  align-content: center;\r\n}\r\n.pops[type-value="loading"]:before {\r\n  float: left;\r\n  display: inline-block;\r\n  width: 2em;\r\n  height: 2em;\r\n  border: 0.3em solid var(--loading-icon-color);\r\n  border-top: 0.3em solid var(--loading-icon-bd-top-color);\r\n  border-radius: 50%;\r\n  content: " ";\r\n  vertical-align: middle;\r\n  font-size: inherit;\r\n  animation: pops-anim-wait-rotate 1.2s linear infinite;\r\n}\r\n.pops[type-value="loading"] .pops-loading-content {\r\n  position: static;\r\n  top: 0;\r\n  bottom: 0;\r\n  float: left;\r\n  overflow: hidden;\r\n  width: auto;\r\n  font-size: inherit;\r\n  line-height: normal;\r\n  align-content: center;\r\n}\r\n\r\n@media (prefers-color-scheme: dark) {\r\n  .pops[type-value="loading"] {\r\n    --loading-bg-color: #222222;\r\n  }\r\n}\r\n';
+  var iframeCSS = '.pops[type-value="iframe"] {\r\n  --container-title-height: 55px;\r\n  transition:\r\n    width 0.35s ease,\r\n    height 0.35s ease;\r\n}\r\n.pops[type-value="iframe"] .pops-content {\r\n  overflow: hidden;\r\n}\r\n.pops-loading {\r\n  position: absolute;\r\n  top: 40px;\r\n  right: 0;\r\n  bottom: 0;\r\n  left: 0;\r\n  z-index: 5;\r\n  background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n}\r\n.pops-loading:before {\r\n  position: absolute;\r\n  top: 50%;\r\n  left: 50%;\r\n  z-index: 3;\r\n  display: block;\r\n  margin: -20px 0 0 -20px;\r\n  padding: 20px;\r\n  border: 4px solid rgb(221, 221, 221, var(--pops-bd-opacity));\r\n  border-radius: 50%;\r\n  content: "";\r\n  border-top-color: transparent;\r\n  animation: pops-anim-wait-rotate 1.2s linear infinite;\r\n}\r\n.pops[type-value="iframe"].pops[type-module="min"] {\r\n  bottom: 0;\r\n  max-width: 200px;\r\n  max-height: 53px;\r\n  position: unset;\r\n}\r\n.pops[type-value="iframe"].pops[type-module="min"] .pops-header-control[data-type="min"] {\r\n  display: none;\r\n}\r\n.pops[type-value="iframe"].pops-iframe-unset-top {\r\n  top: unset !important;\r\n}\r\n.pops[type-value="iframe"].pops-iframe-unset-left {\r\n  left: unset !important;\r\n}\r\n.pops[type-value="iframe"].pops-iframe-unset-transform {\r\n  transform: none !important;\r\n}\r\n.pops[type-value="iframe"].pops-iframe-unset-transition {\r\n  transition: none !important;\r\n}\r\n.pops[type-value="iframe"].pops[type-module="max"] {\r\n  width: 100% !important;\r\n  height: 100% !important;\r\n}\r\n.pops[type-value="iframe"] iframe[pops] {\r\n  width: 100%;\r\n  height: 100%;\r\n  border: 0;\r\n}\r\n.pops-iframe-content-global-loading {\r\n  position: absolute;\r\n  top: 0;\r\n  left: 0;\r\n  z-index: 999999;\r\n  width: 0;\r\n  height: 4px;\r\n  background: linear-gradient(to right, #4995dd, #fff, rgb(202 224 246));\r\n  animation: iframeLoadingChange 2s forwards;\r\n}\r\n\r\n.pops-anim:has(.pops[type-value="iframe"].pops[type-module="min"]) {\r\n  position: unset;\r\n}\r\n';
+  var tooltipCSS = '.pops-tip {\r\n  --pops-bg-opacity: 1;\r\n  --tooltip-color: #4e4e4e;\r\n  --tooltip-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n  --tooltip-bd-radius: 2px;\r\n  --tooltip-box-shadow-left-color: rgba(0, 0, 0, 0.24);\r\n  --tooltip-box-shadow-right-color: rgba(0, 0, 0, 0.12);\r\n  --tooltip-font-size: 14px;\r\n  --tooltip-padding-top: 13px;\r\n  --tooltip-padding-right: 13px;\r\n  --tooltip-padding-bottom: 13px;\r\n  --tooltip-padding-left: 13px;\r\n\r\n  --tooltip-arrow-box-shadow-left-color: rgba(0, 0, 0, 0.24);\r\n  --tooltip-arrow-box-shadow-right-color: rgba(0, 0, 0, 0.12);\r\n  --tooltip-arrow--after-color: rgb(78, 78, 78);\r\n  --tooltip-arrow--after-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n  --tooltip-arrow--after-width: 12px;\r\n  --tooltip-arrow--after-height: 12px;\r\n}\r\n.pops-tip {\r\n  padding: var(--tooltip-padding-top) var(--tooltip-padding-right) var(--tooltip-padding-bottom)\r\n    var(--tooltip-padding-left);\r\n  max-width: 400px;\r\n  max-height: 300px;\r\n  border-radius: var(--tooltip-bd-radius);\r\n  background-color: var(--tooltip-bg-color);\r\n  box-shadow:\r\n    0 1.5px 4px var(--tooltip-box-shadow-left-color),\r\n    0 1.5px 6px var(--tooltip-box-shadow-right-color);\r\n  color: var(--tooltip-color);\r\n  font-size: var(--tooltip-font-size);\r\n}\r\n.pops-tip[data-position="absolute"] {\r\n  position: absolute;\r\n}\r\n.pops-tip[data-position="fixed"] {\r\n  position: fixed;\r\n}\r\n\r\n.pops-tip .pops-tip-arrow {\r\n  position: absolute;\r\n  top: 100%;\r\n  left: 50%;\r\n  overflow: hidden;\r\n  width: 100%;\r\n  height: 12.5px;\r\n  transform: translateX(-50%);\r\n}\r\n\r\n.pops-tip .pops-tip-arrow::after {\r\n  position: absolute;\r\n  top: 0;\r\n  left: 50%;\r\n  width: var(--tooltip-arrow--after-width);\r\n  height: var(--tooltip-arrow--after-height);\r\n  background: var(--tooltip-arrow--after-bg-color);\r\n  color: var(--tooltip-arrow--after-color);\r\n  box-shadow:\r\n    0 1px 7px var(--tooltip-arrow-box-shadow-left-color),\r\n    0 1px 7px var(--tooltip-arrow-box-shadow-right-color);\r\n  content: "";\r\n  transform: translateX(-50%) translateY(-50%) rotate(45deg);\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="bottom"] {\r\n  position: absolute;\r\n  top: 100%;\r\n  left: 50%;\r\n  overflow: hidden;\r\n  width: 100%;\r\n  height: 12.5px;\r\n  transform: translateX(-50%);\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="bottom"]:after {\r\n  position: absolute;\r\n  top: 0;\r\n  left: 50%;\r\n  width: var(--tooltip-arrow--after-width);\r\n  height: var(--tooltip-arrow--after-height);\r\n  background: var(--tooltip-arrow--after-bg-color);\r\n  box-shadow:\r\n    0 1px 7px var(--tooltip-arrow-box-shadow-left-color),\r\n    0 1px 7px var(--tooltip-arrow-box-shadow-right-color);\r\n  content: "";\r\n  transform: translateX(-50%) translateY(-50%) rotate(45deg);\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="left"] {\r\n  top: 50%;\r\n  left: -12.5px;\r\n  width: 12.5px;\r\n  height: 50px;\r\n  transform: translateY(-50%);\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="left"]:after {\r\n  position: absolute;\r\n  top: 50%;\r\n  left: 100%;\r\n  content: "";\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="right"] {\r\n  top: 50%;\r\n  right: -12.5px;\r\n  left: auto;\r\n  width: 12.5px;\r\n  height: 50px;\r\n  transform: translateY(-50%);\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="right"]:after {\r\n  position: absolute;\r\n  top: 50%;\r\n  left: 0;\r\n  content: "";\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="top"] {\r\n  top: -12.5px;\r\n  left: 50%;\r\n  transform: translateX(-50%);\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="top"]:after {\r\n  position: absolute;\r\n  top: 100%;\r\n  left: 50%;\r\n  content: "";\r\n}\r\n\r\n.pops-tip[data-motion] {\r\n  -webkit-animation-duration: 0.25s;\r\n  animation-duration: 0.25s;\r\n  -webkit-animation-fill-mode: forwards;\r\n  animation-fill-mode: forwards;\r\n}\r\n.pops-tip[data-motion="fadeOutRight"] {\r\n  -webkit-animation-name: pops-motion-fadeOutRight;\r\n  animation-name: pops-motion-fadeOutRight;\r\n}\r\n.pops-tip[data-motion="fadeInTop"] {\r\n  -webkit-animation-name: pops-motion-fadeInTop;\r\n  animation-name: pops-motion-fadeInTop;\r\n  animation-timing-function: cubic-bezier(0.49, 0.49, 0.13, 1.3);\r\n}\r\n.pops-tip[data-motion="fadeOutTop"] {\r\n  -webkit-animation-name: pops-motion-fadeOutTop;\r\n  animation-name: pops-motion-fadeOutTop;\r\n  animation-timing-function: cubic-bezier(0.32, 0.37, 0.06, 0.87);\r\n}\r\n.pops-tip[data-motion="fadeInBottom"] {\r\n  -webkit-animation-name: pops-motion-fadeInBottom;\r\n  animation-name: pops-motion-fadeInBottom;\r\n}\r\n.pops-tip[data-motion="fadeOutBottom"] {\r\n  -webkit-animation-name: pops-motion-fadeOutBottom;\r\n  animation-name: pops-motion-fadeOutBottom;\r\n}\r\n.pops-tip[data-motion="fadeInLeft"] {\r\n  -webkit-animation-name: pops-motion-fadeInLeft;\r\n  animation-name: pops-motion-fadeInLeft;\r\n}\r\n.pops-tip[data-motion="fadeOutLeft"] {\r\n  -webkit-animation-name: pops-motion-fadeOutLeft;\r\n  animation-name: pops-motion-fadeOutLeft;\r\n}\r\n.pops-tip[data-motion="fadeInRight"] {\r\n  -webkit-animation-name: pops-motion-fadeInRight;\r\n  animation-name: pops-motion-fadeInRight;\r\n}\r\n\r\n/* github的样式 */\r\n.pops-tip.github-tooltip {\r\n  --tooltip-bg-opacity: 1;\r\n  --tooltip-color: #ffffff;\r\n  --tooltip-bg-color: rgb(36, 41, 47, var(--tooltip-bg-opacity));\r\n  --tooltip-bd-radius: 6px;\r\n  --tooltip-padding-top: 6px;\r\n  --tooltip-padding-right: 8px;\r\n  --tooltip-padding-bottom: 6px;\r\n  --tooltip-padding-left: 8px;\r\n\r\n  --tooltip-arrow--after-color: rgb(255, 255, 255);\r\n  --tooltip-arrow--after-bg-color: rgb(36, 41, 47, var(--tooltip-bg-opacity));\r\n  --tooltip-arrow--after-width: 8px;\r\n  --tooltip-arrow--after-height: 8px;\r\n}\r\n\r\n@media (prefers-color-scheme: dark) {\r\n  .pops-tip {\r\n    --tooltip-color: #ffffff;\r\n    --tooltip-bg-color: #fafafa;\r\n    --tooltip-arrow--after-color: #fafafa;\r\n    --tooltip-arrow--after-bg-color: rgb(250, 250, 250, var(--pops-bg-opacity));\r\n  }\r\n}\r\n';
+  var drawerCSS = '.pops[type-value="drawer"] {\r\n  position: fixed;\r\n  box-sizing: border-box;\r\n  display: flex;\r\n  flex-direction: column;\r\n  box-shadow:\r\n    0px 16px 48px 16px rgba(0, 0, 0, 0.08),\r\n    0px 12px 32px rgba(0, 0, 0, 0.12),\r\n    0px 8px 16px -8px rgba(0, 0, 0, 0.16);\r\n  overflow: hidden;\r\n  transition: all 0.3s;\r\n}\r\n\r\n.pops[type-value="drawer"][direction="top"] {\r\n  width: 100%;\r\n  left: 0;\r\n  right: 0;\r\n  top: 0;\r\n}\r\n.pops[type-value="drawer"][direction="bottom"] {\r\n  width: 100%;\r\n  left: 0;\r\n  right: 0;\r\n  bottom: 0;\r\n}\r\n.pops[type-value="drawer"][direction="left"] {\r\n  height: 100%;\r\n  top: 0;\r\n  bottom: 0;\r\n  left: 0;\r\n}\r\n.pops[type-value="drawer"][direction="right"] {\r\n  height: 100%;\r\n  top: 0;\r\n  bottom: 0;\r\n  right: 0;\r\n}\r\n';
+  var folderCSS = '.pops-folder-list {\r\n  --folder-arrow-fill-color: #d4d7de;\r\n  --folder-arrow-active-fill-color: #06a7ff;\r\n  --header-breadcrumb-text-color: #06a7ff;\r\n  --header-breadcrumb-all-files-text-color: var(--header-breadcrumb-text-color);\r\n  --header-breadcrumb-all-files-first-text-color: var(--header-breadcrumb-text-color);\r\n  --header-breadcrumb-all-files-last-text-color: #999999;\r\n  --table-header-row-text-color: #818999;\r\n  --table-body-td-text-color: rgb(247, 248, 250, var(--pops-bg-opacity));\r\n  --table-body-th-text-color: rgb(247, 248, 250, var(--pops-bg-opacity));\r\n  --table-body-row-text-color: #05082c;\r\n  --table-body-row-file-name-text-color: #05082c;\r\n  --table-body-row-hover-bd-color: rgb(245, 246, 247, var(--pops-bg-opacity));\r\n  --table-body-row-hover-bg-color: rgb(245, 246, 247, var(--pops-bg-opacity));\r\n  --table-body-row-file-name-hover-text-color: #06a7ff;\r\n  --table-body-row-content-text-color: #818999;\r\n}\r\n.pops-folder-list .cursor-p {\r\n  cursor: pointer;\r\n}\r\n.pops-folder-list a {\r\n  background: 0 0;\r\n  text-decoration: none;\r\n  -webkit-tap-highlight-color: transparent;\r\n  color: var(--header-breadcrumb-text-color);\r\n}\r\ntable.pops-folder-list-table__body,\r\ntable.pops-folder-list-table__header {\r\n  width: 100%;\r\n  table-layout: fixed;\r\n  border-collapse: collapse;\r\n  border-spacing: 0;\r\n  padding: 0 20px;\r\n}\r\ntable.pops-folder-list-table__body,\r\ntable.pops-folder-list-table__header {\r\n  height: 100%;\r\n  background: 0 0;\r\n  overflow: hidden;\r\n  display: -webkit-box;\r\n  display: -ms-flexbox;\r\n  -ms-flex-direction: column;\r\n  -webkit-box-orient: vertical;\r\n  -webkit-box-direction: normal;\r\n}\r\ntable.pops-folder-list-table__body {\r\n  height: 100%;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n.pops-folder-list table tr {\r\n  line-height: normal;\r\n  align-content: center;\r\n}\r\n.pops-folder-list-table__header-row {\r\n  height: 50px;\r\n  line-height: normal;\r\n  align-content: center;\r\n  color: var(--table-header-row-text-color);\r\n  text-align: left;\r\n  font-size: 12px;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n.pops-folder-list-table__body-row {\r\n  height: 50px;\r\n  line-height: normal;\r\n  align-content: center;\r\n  color: var(--table-body-row-text-color);\r\n  font-size: 12px;\r\n}\r\n.pops-folder-list-table__body-row:hover {\r\n  background-color: var(--table-body-row-hover-bg-color);\r\n  border-color: var(--table-body-row-hover-bd-color);\r\n  border: 0;\r\n  outline: none;\r\n}\r\n.pops-folder-list table th {\r\n  border: 0;\r\n  border-bottom: 1px solid var(--table-body-th-text-color);\r\n}\r\n.pops-folder-list table td {\r\n  border: 0;\r\n  border-bottom: 1px solid var(--table-body-td-text-color);\r\n  position: relative;\r\n}\r\n.pops-folder-list .list-name-text {\r\n  display: inline-block;\r\n  padding-left: 12px;\r\n  line-height: normal;\r\n  align-content: center;\r\n  max-width: 176px;\r\n}\r\n.pops-folder-list-file-name > div {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.pops-mobile-folder-list-file-name {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n.pops-mobile-folder-list-file-name > div {\r\n  display: flex;\r\n  flex-wrap: wrap;\r\n  justify-content: flex-start;\r\n  align-items: flex-start;\r\n  padding: 6px 0px;\r\n  flex-direction: column;\r\n}\r\n.pops-mobile-folder-list-file-name img.pops-folder-list-file-icon {\r\n  width: 45px;\r\n  height: 45px;\r\n}\r\n.pops-mobile-folder-list-file-name a.pops-folder-list-file-name-title-text {\r\n  padding-left: unset;\r\n  max-width: 250px;\r\n  overflow-x: hidden;\r\n  font-weight: 400;\r\n  line-height: unset;\r\n  margin-bottom: 4px;\r\n  white-space: normal;\r\n  text-overflow: unset;\r\n}\r\n\r\n/* 修改滚动 */\r\n.pops-folder-content {\r\n  overflow: hidden !important;\r\n}\r\n.pops-folder-content .pops-folder-list {\r\n  height: 100%;\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n.pops-folder-content .pops-folder-list-table__body-div {\r\n  height: 100%;\r\n  flex: 1 auto;\r\n  overflow: auto;\r\n  padding-bottom: 0;\r\n}\r\n.pops-mobile-folder-content .pops-folder-list-table__body-div {\r\n  height: 100%;\r\n  flex: 1 auto;\r\n  overflow: auto;\r\n  padding-bottom: 0;\r\n}\r\n.pops-folder-content table.pops-folder-list-table__body {\r\n  overflow: auto;\r\n}\r\n.pops-folder-content .pops-folder-list-table__header-div {\r\n  flex: 0;\r\n}\r\n.pops-mobile-folder-content .pops-folder-list-table__header-div {\r\n  display: none;\r\n}\r\n\r\n.pops-folder-list .pops-folder-list-file-name-title-text {\r\n  color: var(--table-body-row-file-name-text-color);\r\n}\r\n.pops-folder-list .pops-folder-list-file-name-title-text:hover {\r\n  text-decoration: none;\r\n  color: var(--table-body-row-file-name-hover-text-color);\r\n}\r\n.pops-folder-list .text-ellip {\r\n  overflow: hidden;\r\n  white-space: nowrap;\r\n  text-overflow: ellipsis;\r\n}\r\n.pops-folder-list .content {\r\n  color: var(--table-body-row-content-text-color);\r\n  position: relative;\r\n  width: 100%;\r\n  text-align: left;\r\n}\r\n.pops-folder-list .inline-block-v-middle {\r\n  display: inline-block;\r\n  vertical-align: middle;\r\n}\r\n.pops-folder-list .flex-a-i-center {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n.pops-folder-list .u-file-icon {\r\n  display: inline-block;\r\n  vertical-align: middle;\r\n}\r\n.pops-folder-list .u-file-icon--list {\r\n  width: 32px;\r\n  height: 32px;\r\n}\r\n.pops-folder-list .pops-folder-list-file-icon {\r\n  line-height: normal;\r\n  align-content: center;\r\n  position: relative;\r\n  vertical-align: middle;\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb-primary {\r\n  flex: 1;\r\n  display: -webkit-box;\r\n  display: -webkit-flex;\r\n  display: -ms-flexbox;\r\n  display: flex;\r\n  -webkit-box-align: center;\r\n  -webkit-align-items: center;\r\n  -ms-flex-align: center;\r\n  align-items: center;\r\n  -webkit-box-orient: horizontal;\r\n  -webkit-box-direction: normal;\r\n  -webkit-flex-direction: row;\r\n  -ms-flex-direction: row;\r\n  flex-direction: row;\r\n  min-height: 17px;\r\n  flex-wrap: wrap;\r\n}\r\n.pops-folder-list .pops-folder-list-table__sort {\r\n  display: inline-flex;\r\n  margin-left: 4px;\r\n  flex-direction: column;\r\n}\r\n\r\n.pops-folder-list .pops-folder-icon-arrow {\r\n  width: 10px;\r\n  height: 10px;\r\n  fill: var(--folder-arrow-fill-color);\r\n}\r\n.pops-folder-list .pops-folder-icon-active {\r\n  fill: var(--folder-arrow-active-fill-color);\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb {\r\n  padding: 4px 20px;\r\n  -webkit-box-sizing: border-box;\r\n  box-sizing: border-box;\r\n  display: -webkit-box;\r\n  display: -webkit-flex;\r\n  display: -ms-flexbox;\r\n  display: flex;\r\n  -webkit-box-align: center;\r\n  -webkit-align-items: center;\r\n  -ms-flex-align: center;\r\n  align-items: center;\r\n  -webkit-box-orient: horizontal;\r\n  -webkit-box-direction: normal;\r\n  -webkit-flex-direction: row;\r\n  -ms-flex-direction: row;\r\n  flex-direction: row;\r\n  -webkit-box-pack: start;\r\n  -webkit-justify-content: start;\r\n  -ms-flex-pack: start;\r\n  justify-content: flex-start;\r\n  min-height: 35px;\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles {\r\n  font-size: 12px;\r\n  color: var(--header-breadcrumb-all-files-text-color);\r\n  line-height: normal;\r\n  align-content: center;\r\n  font-weight: 700;\r\n  display: inline-block;\r\n  max-width: 140px;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  white-space: nowrap;\r\n  word-wrap: normal;\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:last-child a {\r\n  color: var(--header-breadcrumb-all-files-last-text-color);\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:first-child a {\r\n  font-size: 14px;\r\n  color: var(--header-breadcrumb-all-files-first-text-color);\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb .iconArrow {\r\n  width: 16px;\r\n  height: 16px;\r\n}\r\n.pops-folder-list .iconArrow {\r\n  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAASCAMAAABYd88+AAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAABFUExURUdwTOLi4uLi4t7e3uPj49/f397e3t3d3f///97e3vDw8N3d3d7e3t3d3d3d3ejo6N/f397e3t7e3t3d3d/f393d3d3d3RK+NoEAAAAWdFJOUwAnM4YPU/iQA+UIeMDaHhY41i7zX7UebpjFAAAAUElEQVQI15XOORaAIAwE0LATXHCd+x9VfCiksXCq+UUWou8oZ1vXHrt7YVBiYkW4gdMKYFIC4CSATWCNHWPuM6HuHkr1x3N0ZrBu/9gl0b9c3+kF7C7hS1YAAAAASUVORK5CYII=)\r\n    55% 50%/6px 9px no-repeat;\r\n}\r\n\r\n@media (prefers-color-scheme: dark) {\r\n  .pops[type-value="folder"] {\r\n    --pops-title-border-color: rgb(73, 83, 102, var(--pops-bg-opacity));\r\n    --pops-bottom-btn-controls-border-color: rgb(73, 83, 102, var(--pops-bg-opacity));\r\n  }\r\n  .pops-folder-list {\r\n    --header-breadcrumb-text-color: #06a7ff;\r\n    --header-breadcrumb-all-files-text-color: var(--header-breadcrumb-text-color);\r\n    --header-breadcrumb-all-files-first-text-color: var(--header-breadcrumb-text-color);\r\n    --header-breadcrumb-all-files-last-text-color: #818999;\r\n    --table-body-row-text-color: #f7f8fa;\r\n    --table-body-td-text-color: rgb(73, 83, 102, var(--pops-bg-opacity));\r\n    --table-body-th-text-color: rgb(73, 83, 102, var(--pops-bg-opacity));\r\n    --table-body-td-text-color: #495366;\r\n    --table-body-row-hover-bd-color: #1f2022;\r\n    --table-body-row-hover-bg-color: #1f2022;\r\n    --table-body-row-file-name-text-color: #f7f8fa;\r\n  }\r\n}\r\n';
+  var panelCSS = '.pops[type-value="panel"] {\r\n  --pops-bg-color: #f2f2f2;\r\n  --pops-color: #333333;\r\n  --panel-title-bg-color: #ffffff;\r\n\r\n  --panel-aside-bg-color: #ffffff;\r\n  --panel-aside-hover-color: rgb(64, 158, 255);\r\n  --panel-aside-hover-bg-color: rgba(64, 158, 255, 0.1);\r\n\r\n  --pops-panel-forms-margin-top-bottom: 10px;\r\n  --pops-panel-forms-margin-left-right: 20px;\r\n  --pops-panel-forms-header-icon-size: calc(var(--pops-panel-forms-container-li-padding-left-right) + 1px);\r\n  --pops-panel-forms-header-padding-top-bottom: 15px;\r\n  --pops-panel-forms-header-padding-left-right: 10px;\r\n  --pops-panel-forms-container-item-left-text-gap: 6px;\r\n  --pops-panel-forms-container-item-left-desc-text-size: 0.8em;\r\n  --pops-panel-forms-container-item-left-desc-text-color: #6c6c6c;\r\n  --pops-panel-forms-container-item-bg-color: #ffffff;\r\n  --pops-panel-forms-container-item-title-color: #333;\r\n  --pops-panel-forms-container-item-border-radius: 6px;\r\n  --pops-panel-forms-container-item-margin-top-bottom: 10px;\r\n  --pops-panel-forms-container-item-margin-left-right: var(--pops-panel-forms-margin-left-right);\r\n  --pops-panel-forms-container-li-border-color: var(--pops-bd-color);\r\n  --pops-panel-forms-container-li-padding-top-bottom: 12px;\r\n  --pops-panel-forms-container-li-padding-left-right: 16px;\r\n\r\n  --pops-panel-forms-container-deepMenu-item-active-bg: #e9e9e9;\r\n}\r\n.pops[type-value="panel"] {\r\n  color: var(--pops-color);\r\n  background: var(--pops-bg-color);\r\n}\r\n.pops[type-value] .pops-panel-title {\r\n  background: var(--panel-title-bg-color);\r\n}\r\n\r\n/* ↓panel的CSS↓ */\r\n/* 左侧的列表 */\r\naside.pops-panel-aside {\r\n  box-sizing: border-box;\r\n  flex-shrink: 0;\r\n  max-width: 200px;\r\n  min-width: 100px;\r\n  height: 100%;\r\n  background: var(--panel-aside-bg-color);\r\n  border-right: 1px solid var(--panel-aside-bg-color);\r\n  font-size: 0.9em;\r\n  display: flex;\r\n  flex-direction: column;\r\n  justify-content: space-between;\r\n}\r\naside.pops-panel-aside {\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\naside.pops-panel-aside .pops-panel-aside-top-container {\r\n  overflow: auto;\r\n}\r\naside.pops-panel-aside ul li {\r\n  margin: 6px 8px;\r\n  border-radius: 4px;\r\n  padding: 6px 10px;\r\n  cursor: default;\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: flex-start;\r\n}\r\naside.pops-panel-aside .pops-is-visited,\r\naside.pops-panel-aside ul li:not(.pops-panel-disabled-aside-hover-css):hover {\r\n  color: var(--panel-aside-hover-color);\r\n  background: var(--panel-aside-hover-bg-color);\r\n}\r\n/* 左侧的列表 */\r\n\r\n.pops-panel-content {\r\n  display: flex;\r\n  flex-direction: row;\r\n  flex: 1;\r\n  overflow: auto;\r\n  flex-basis: auto;\r\n  box-sizing: border-box;\r\n  min-width: 0;\r\n  bottom: 0 !important;\r\n}\r\n\r\n.pops-panel-section-wrapper {\r\n  width: 100%;\r\n  overflow: hidden;\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n\r\nsection.pops-panel-container {\r\n  width: 100%;\r\n  overflow: hidden;\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\nsection.pops-panel-container .pops-panel-container-header-ul,\r\nsection.pops-panel-container .pops-panel-deepMenu-container-header-ul {\r\n  border-bottom: 1px solid rgba(223, 223, 223, var(--pops-bg-opacity));\r\n  flex: 0 auto;\r\n}\r\nsection.pops-panel-container .pops-panel-container-header-ul li,\r\nsection.pops-panel-container .pops-panel-container-header-ul li.pops-panel-container-header-title-text {\r\n  display: flex;\r\n  justify-content: flex-start !important;\r\n  margin: 0px !important;\r\n  padding: var(--pops-panel-forms-header-padding-top-bottom)\r\n    calc(var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right));\r\n  text-align: left;\r\n}\r\nsection.pops-panel-container ul.pops-panel-container-main-ul {\r\n  overflow: auto;\r\n  /*flex: 1;*/\r\n}\r\nsection.pops-panel-container > ul li:not(.pops-panel-forms-container-item) {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  margin: var(--pops-panel-forms-margin-top-bottom)\r\n    calc(var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-margin-left-right));\r\n  gap: 10px;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item-header-text {\r\n  margin: 10px;\r\n  margin-left: calc(\r\n    var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right)\r\n  );\r\n  font-size: 0.9em;\r\n  text-align: left;\r\n  color: var(--pops-panel-forms-container-item-title-color);\r\n}\r\nsection.pops-panel-container li.pops-panel-forms-container-item {\r\n  /* 去除<li>左侧的圆点 */\r\n  display: block;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item ul.pops-panel-forms-container-item-formlist {\r\n  border-radius: var(--pops-panel-forms-container-item-border-radius);\r\n  background: var(--pops-panel-forms-container-item-bg-color);\r\n  margin: var(--pops-panel-forms-container-item-margin-top-bottom) var(--pops-panel-forms-margin-left-right);\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item ul.pops-panel-forms-container-item-formlist li {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  padding: var(--pops-panel-forms-container-li-padding-top-bottom)\r\n    var(--pops-panel-forms-container-li-padding-left-right);\r\n  margin: 0px 0px;\r\n  border-bottom: 1px solid var(--pops-panel-forms-container-li-border-color);\r\n  text-align: left;\r\n}\r\n/*section.pops-panel-container\r\n	.pops-panel-forms-container-item\r\n	ul\r\n	li.pops-panel-deepMenu-nav-item {\r\n	padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px;\r\n	margin: 0px var(--pops-panel-forms-container-li-padding-left-right);\r\n	border-bottom: 1px solid var(--pops-panel-forms-container-li-border-color);\r\n}*/\r\nsection.pops-panel-container\r\n  .pops-panel-forms-container-item\r\n  ul.pops-panel-forms-container-item-formlist\r\n  li:last-child {\r\n  border: 0px;\r\n}\r\n/* 左侧的文字 */\r\nsection.pops-panel-container .pops-panel-item-left-text {\r\n  display: flex;\r\n  flex-direction: column;\r\n  gap: var(--pops-panel-forms-container-item-left-text-gap);\r\n}\r\n\r\n/* 左侧的主文字 */\r\n/*section.pops-panel-container .pops-panel-item-left-main-text {\r\n	\r\n}*/\r\n/* 左侧的描述文字 */\r\nsection.pops-panel-container .pops-panel-item-left-desc-text {\r\n  font-size: var(--pops-panel-forms-container-item-left-desc-text-size);\r\n  color: var(--pops-panel-forms-container-item-left-desc-text-color);\r\n}\r\n\r\n/* 折叠面板 */\r\nsection.pops-panel-container .pops-panel-forms-fold {\r\n  border-radius: var(--pops-panel-forms-container-item-border-radius);\r\n  background: var(--pops-panel-forms-container-item-bg-color);\r\n  margin: var(--pops-panel-forms-margin-top-bottom) var(--pops-panel-forms-margin-left-right);\r\n}\r\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-fold-container {\r\n  display: flex;\r\n  align-items: center;\r\n  fill: #6c6c6c;\r\n  justify-content: space-between;\r\n  margin: 0px var(--pops-panel-forms-container-li-padding-left-right) !important;\r\n  padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px !important;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-fold[data-fold-enable] .pops-panel-forms-fold-container-icon {\r\n  transform: rotate(90deg);\r\n}\r\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-fold-container-icon {\r\n  width: 15px;\r\n  height: 15px;\r\n  display: flex;\r\n  align-items: center;\r\n  transform: rotate(-90deg);\r\n  transition: transform 0.3s;\r\n}\r\n/* 折叠状态 */\r\nsection.pops-panel-container .pops-panel-forms-fold[data-fold-enable] .pops-panel-forms-container-item-formlist {\r\n  height: 0;\r\n}\r\n/* 非折叠状态 */\r\nsection.pops-panel-container .pops-panel-forms-fold ul.pops-panel-forms-container-item-formlist {\r\n  margin: 0;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-container-item-formlist {\r\n  transition: height 0.3s;\r\n  overflow: hidden;\r\n  border-radius: unset;\r\n  background: unset;\r\n  margin: 0;\r\n  height: calc-size(auto, size);\r\n}\r\n/* 折叠面板 */\r\n\r\n/* 姑且认为小于600px的屏幕为移动端 */\r\n@media (max-width: 600px) {\r\n  /* 兼容移动端CSS */\r\n  .pops[type-value="panel"] {\r\n    --pops-panel-forms-margin-left-right: 10px;\r\n  }\r\n  .pops[type-value="panel"] {\r\n    width: 92%;\r\n    width: 92vw;\r\n    width: 92dvw;\r\n  }\r\n  .pops[type-value="panel"] .pops-panel-content aside.pops-panel-aside {\r\n    max-width: 20%;\r\n    min-width: auto;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-forms-container-item > div {\r\n    text-align: left;\r\n    --pops-panel-forms-margin-left-right: 0px;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-forms-container-item ul {\r\n    margin: 0px !important;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container > ul > li {\r\n    margin: 10px 10px;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container > ul > li div:nth-child(2) {\r\n    max-width: 55%;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-select select {\r\n    min-width: 88px !important;\r\n    width: -webkit-fill-available;\r\n    width: -moz-available;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-container-header-ul li {\r\n    font-size: 16px;\r\n  }\r\n  .pops[type-value="panel"] .pops-panel-title p[pops],\r\n  .pops[type-value="panel"] section.pops-panel-container > ul li,\r\n  .pops[type-value="panel"] aside.pops-panel-aside ul li {\r\n    font-size: 14px;\r\n  }\r\n}\r\n/* switch的CSS */\r\n.pops-panel-switch {\r\n  --panel-switch-core-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\r\n  --panel-switch-core-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\r\n  --panel-switch-circle-color: #dcdfe6;\r\n  --panel-switch-circle-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n  --panel-switch-checked-circle-color: #409eff;\r\n  --panel-switch-checked-core-bd-color: rgb(64, 158, 255, var(--pops-bd-opacity));\r\n  --panel-switch-checked-core-bg-color: rgb(64, 158, 255, var(--pops-bg-opacity));\r\n}\r\n.pops-panel-switch {\r\n  display: inline-flex;\r\n  flex-direction: row-reverse;\r\n  align-items: center;\r\n  position: relative;\r\n  font-size: 14px;\r\n  line-height: normal;\r\n  align-content: center;\r\n  height: 32px;\r\n  vertical-align: middle;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n.pops-panel-switch input.pops-panel-switch__input {\r\n  position: absolute;\r\n  width: 0;\r\n  height: 0;\r\n  opacity: 0;\r\n  margin: 0;\r\n}\r\n.pops-panel-switch:has(input.pops-panel-switch__input:disabled),\r\n.pops-panel-switch[data-disabled],\r\n.pops-panel-switch[data-disabled] .pops-panel-switch__core,\r\n.pops-panel-switch input.pops-panel-switch__input:disabled + .pops-panel-switch__core {\r\n  cursor: not-allowed;\r\n  opacity: 0.6;\r\n}\r\n.pops-panel-switch span.pops-panel-switch__core {\r\n  display: inline-flex;\r\n  position: relative;\r\n  align-items: center;\r\n  min-width: 40px;\r\n  height: 20px;\r\n  border: 1px solid var(--panel-switch-core-bd-color);\r\n  outline: 0;\r\n  border-radius: 10px;\r\n  box-sizing: border-box;\r\n  background: var(--panel-switch-core-bg-color);\r\n  cursor: pointer;\r\n  transition:\r\n    border-color 0.3s,\r\n    background-color 0.3s;\r\n}\r\n.pops-panel-switch .pops-panel-switch__action {\r\n  position: absolute;\r\n  left: 1px;\r\n  border-radius: 100%;\r\n  transition: all 0.3s;\r\n  width: 16px;\r\n  height: 16px;\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  background-color: var(--panel-switch-circle-bg-color);\r\n  color: var(--panel-switch-circle-color);\r\n}\r\n.pops-panel-switch.pops-panel-switch-is-checked span.pops-panel-switch__core {\r\n  border-color: var(--panel-switch-checked-core-bd-color);\r\n  background-color: var(--panel-switch-checked-core-bg-color);\r\n}\r\n.pops-panel-switch.pops-panel-switch-is-checked .pops-panel-switch__action {\r\n  left: calc(100% - 17px);\r\n  color: var(--panel-switch-checked-circle-color);\r\n}\r\n/* switch的CSS */\r\n\r\n/* slider旧的CSS */\r\nsection.pops-panel-container .pops-panel-slider:has(> input[type="range"]) {\r\n  overflow: hidden;\r\n  height: 25px;\r\n  line-height: normal;\r\n  align-content: center;\r\n  display: flex;\r\n  align-items: center;\r\n}\r\nsection.pops-panel-container .pops-panel-slider input[type="range"] {\r\n  height: 6px;\r\n  background: rgb(228, 231, 237, var(--pops-bg-opacity));\r\n  outline: 0;\r\n  -webkit-appearance: none;\r\n  appearance: none;\r\n  width: 100%;\r\n}\r\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-webkit-slider-thumb {\r\n  width: 20px;\r\n  height: 20px;\r\n  border-radius: 50%;\r\n  border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));\r\n  background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n  box-shadow:\r\n    0 0 2px rgba(0, 0, 0, 0.3),\r\n    0 3px 5px rgba(0, 0, 0, 0.2);\r\n  cursor: pointer;\r\n  -webkit-appearance: none;\r\n  appearance: none;\r\n  border-image: linear-gradient(#409eff, #409eff) 0 fill/9 25 9 0/0 0 0 100vw;\r\n}\r\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-thumb {\r\n  width: 20px;\r\n  height: 20px;\r\n  border-radius: 50%;\r\n  border: 1px solid rgb(64, 159, 255, var(--pops-bd-opacity));\r\n  background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n  box-shadow:\r\n    0 0 2px rgba(0, 0, 0, 0.3),\r\n    0 3px 5px rgba(0, 0, 0, 0.2);\r\n  cursor: pointer;\r\n  -webkit-appearance: none;\r\n  appearance: none;\r\n}\r\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-progress {\r\n  height: 6px;\r\n  border-image: linear-gradient(#409eff, #409eff) 0 fill/9 25 9 0/0 0 0 100vw;\r\n}\r\n/* slider旧的CSS */\r\n\r\n/* slider的CSS */\r\n.pops-slider {\r\n  --pops-slider-color-white: #ffffff;\r\n  --pops-slider-color-primary: #409eff;\r\n  --pops-slider-color-info: #909399;\r\n  --pops-slider-text-color-placeholder: #a8abb2;\r\n  --pops-slider-border-color-light: #e4e7ed;\r\n  --pops-slider-border-radius-circle: 100%;\r\n  --pops-slider-transition-duration-fast: 0.2s;\r\n\r\n  --pops-slider-main-bg-color: var(--pops-slider-color-primary);\r\n  --pops-slider-runway-bg-color: var(--pops-slider-border-color-light);\r\n  --pops-slider-stop-bg-color: var(--pops-slider-color-white);\r\n  --pops-slider-disabled-color: var(--pops-slider-text-color-placeholder);\r\n  --pops-slider-border-radius: 3px;\r\n  --pops-slider-height: 6px;\r\n  --pops-slider-button-size: 20px;\r\n  --pops-slider-button-wrapper-size: 36px;\r\n  --pops-slider-button-wrapper-offset: -15px;\r\n}\r\n\r\n.pops-slider {\r\n  width: 100%;\r\n  height: 32px;\r\n  display: flex;\r\n  align-items: center;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n\r\n.pops-slider-width {\r\n  flex: 0 0 52%;\r\n  margin-left: 10px;\r\n}\r\n\r\n.pops-slider__runway {\r\n  flex: 1;\r\n  height: var(--pops-slider-height);\r\n  background-color: var(--pops-slider-runway-bg-color);\r\n  border-radius: var(--pops-slider-border-radius);\r\n  position: relative;\r\n  cursor: pointer;\r\n}\r\n\r\n.pops-slider__runway.show-input {\r\n  margin-right: 30px;\r\n  width: auto;\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled {\r\n  cursor: default;\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__bar {\r\n  background-color: var(--pops-slider-disabled-color);\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button {\r\n  border-color: var(--pops-slider-disabled-color);\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\r\n  cursor: not-allowed;\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\r\n  transform: scale(1);\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\r\n  cursor: not-allowed;\r\n}\r\n\r\n.pops-slider__input {\r\n  flex-shrink: 0;\r\n  width: 130px;\r\n}\r\n\r\n.pops-slider__bar {\r\n  height: var(--pops-slider-height);\r\n  background-color: var(--pops-slider-main-bg-color);\r\n  border-top-left-radius: var(--pops-slider-border-radius);\r\n  border-bottom-left-radius: var(--pops-slider-border-radius);\r\n  position: absolute;\r\n}\r\n\r\n.pops-slider__button-wrapper {\r\n  height: var(--pops-slider-button-wrapper-size);\r\n  width: var(--pops-slider-button-wrapper-size);\r\n  position: absolute;\r\n  z-index: 1;\r\n  top: var(--pops-slider-button-wrapper-offset);\r\n  transform: translate(-50%);\r\n  background-color: transparent;\r\n  text-align: center;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n  line-height: normal;\r\n  outline: none;\r\n}\r\n\r\n.pops-slider__button-wrapper:after {\r\n  display: inline-block;\r\n  content: "";\r\n  height: 100%;\r\n  vertical-align: middle;\r\n}\r\n\r\n.pops-slider__button:hover,\r\n.pops-slider__button.hover {\r\n  cursor: grab;\r\n}\r\n\r\n.pops-slider__button {\r\n  display: inline-block;\r\n  width: var(--pops-slider-button-size);\r\n  height: var(--pops-slider-button-size);\r\n  vertical-align: middle;\r\n  border: solid 2px var(--pops-slider-main-bg-color);\r\n  background-color: var(--pops-slider-color-white);\r\n  border-radius: 50%;\r\n  box-sizing: border-box;\r\n  transition: var(--pops-slider-transition-duration-fast);\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n\r\n.pops-slider__button:hover,\r\n.pops-slider__button.hover,\r\n.pops-slider__button.dragging {\r\n  transform: scale(1.2);\r\n}\r\n\r\n.pops-slider__button:hover,\r\n.pops-slider__button.hover {\r\n  cursor: grab;\r\n}\r\n\r\n.pops-slider__button.dragging {\r\n  cursor: grabbing;\r\n}\r\n\r\n.pops-slider__stop {\r\n  position: absolute;\r\n  height: var(--pops-slider-height);\r\n  width: var(--pops-slider-height);\r\n  border-radius: var(--pops-slider-border-radius-circle);\r\n  background-color: var(--pops-slider-stop-bg-color);\r\n  transform: translate(-50%);\r\n}\r\n\r\n.pops-slider__marks {\r\n  top: 0;\r\n  left: 12px;\r\n  width: 18px;\r\n  height: 100%;\r\n}\r\n\r\n.pops-slider__marks-text {\r\n  position: absolute;\r\n  transform: translate(-50%);\r\n  font-size: 14px;\r\n  color: var(--pops-slider-color-info);\r\n  margin-top: 15px;\r\n  white-space: pre;\r\n}\r\n\r\n.pops-slider.is-vertical {\r\n  position: relative;\r\n  display: inline-flex;\r\n  width: auto;\r\n  height: 100%;\r\n  flex: 0;\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__runway {\r\n  width: var(--pops-slider-height);\r\n  height: 100%;\r\n  margin: 0 16px;\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__bar {\r\n  width: var(--pops-slider-height);\r\n  height: auto;\r\n  border-radius: 0 0 3px 3px;\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__button-wrapper {\r\n  top: auto;\r\n  left: var(--pops-slider-button-wrapper-offset);\r\n  transform: translateY(50%);\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__stop {\r\n  transform: translateY(50%);\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__marks-text {\r\n  margin-top: 0;\r\n  left: 15px;\r\n  transform: translateY(50%);\r\n}\r\n\r\n.pops-slider--large {\r\n  height: 40px;\r\n}\r\n\r\n.pops-slider--small {\r\n  height: 24px;\r\n}\r\n/* slider的CSS */\r\n\r\n/* input的CSS */\r\n.pops-panel-input {\r\n  --el-disabled-text-color: #a8abb2;\r\n  --el-disabled-bg-color: #f5f7fa;\r\n  --el-disabled-border-color: #e4e7ed;\r\n\r\n  --pops-panel-components-input-text-color: #000000;\r\n  --pops-panel-components-input-text-bg-color: transparent;\r\n  --pops-panel-components-input-text-default-padding: 8px;\r\n  --pops-panel-components-input-bd-color: #dcdfe6;\r\n  --pops-panel-components-input-bg-color: #ffffff;\r\n  --pops-panel-components-input-hover-bd-color: #c0c4cc;\r\n  --pops-panel-components-input-focus-bd-color: #409eff;\r\n  --pops-panel-components-input-suffix-color: #a8abb2;\r\n  --pops-panel-components-input-suffix-bg-color: #ffffff;\r\n}\r\n.pops-panel-input {\r\n  display: flex;\r\n  align-items: center;\r\n  border: 1px solid var(--pops-panel-components-input-bd-color);\r\n  border-radius: 4px;\r\n  background-color: var(--pops-panel-components-input-bg-color);\r\n  position: relative;\r\n  box-shadow: none;\r\n}\r\n.pops-panel-input:hover {\r\n  border: 1px solid var(--pops-panel-components-input-hover-bd-color);\r\n}\r\n.pops-panel-input:has(input:disabled):hover {\r\n  --pops-panel-components-input-hover-bd-color: var(--pops-panel-components-input-bd-color);\r\n}\r\n.pops-panel-input:has(input:focus) {\r\n  outline: 0;\r\n  border: 1px solid var(--pops-panel-components-input-focus-bd-color);\r\n  border-radius: 4px;\r\n  box-shadow: none;\r\n}\r\n.pops-panel-input input {\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  text-align: start;\r\n  align-items: center;\r\n  align-content: center;\r\n  white-space: nowrap;\r\n  cursor: text;\r\n  box-sizing: border-box;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n  vertical-align: middle;\r\n  -webkit-appearance: none;\r\n  appearance: none;\r\n  color: var(--pops-panel-components-input-text-color);\r\n  background-color: var(--pops-panel-components-input-text-bg-color);\r\n  outline: 0;\r\n  transition: 0.1s;\r\n  border: 0;\r\n  font-size: 14px;\r\n  font-weight: 500;\r\n  line-height: normal;\r\n  height: 32px;\r\n  width: 100%;\r\n  flex: 1;\r\n  /*margin-right: calc(1em + 8px);*/\r\n  margin: 0px;\r\n  padding: var(--pops-panel-components-input-text-default-padding);\r\n}\r\n.pops-panel-input span.pops-panel-input__suffix {\r\n  display: inline-flex;\r\n  white-space: nowrap;\r\n  flex-shrink: 0;\r\n  flex-wrap: nowrap;\r\n  height: 100%;\r\n  text-align: center;\r\n  color: var(--pops-panel-components-input-suffix-color);\r\n  background: var(--pops-panel-components-input-suffix-bg-color);\r\n  transition: all 0.3s;\r\n  pointer-events: none;\r\n  padding: 0 8px;\r\n  position: absolute;\r\n  right: 0px;\r\n  border-top-right-radius: 4px;\r\n  border-bottom-right-radius: 4px;\r\n  border: 1px solid transparent;\r\n}\r\n.pops-panel-input span.pops-panel-input__suffix-inner {\r\n  pointer-events: all;\r\n  display: inline-flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n}\r\n/* 如果包含清空图标的按钮，则默认隐藏清空图标，当:hover、:focus、:focus-within、:active时显示清空图标 */\r\n.pops-panel-input span.pops-panel-input__suffix:has(svg[data-type="circleClose"]) {\r\n  display: none;\r\n}\r\n.pops-panel-input:hover span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\r\n.pops-panel-input:focus span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\r\n.pops-panel-input:focus-within span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\r\n.pops-panel-input:active span.pops-panel-input__suffix:has(svg[data-type="circleClose"]) {\r\n  display: inline-flex;\r\n}\r\n.pops-panel-input .pops-panel-icon {\r\n  cursor: pointer;\r\n}\r\n.pops-panel-input .pops-panel-icon {\r\n  height: inherit;\r\n  line-height: normal;\r\n  align-content: center;\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  transition: all 0.3s;\r\n}\r\n.pops-panel-input .pops-panel-icon svg {\r\n  height: 1em;\r\n  width: 1em;\r\n}\r\n\r\n.pops-input-disabled {\r\n  background-color: var(--pops-components-is-disabled-bg-color);\r\n}\r\n.pops-panel-input.pops-input-disabled:hover {\r\n  --pops-panel-components-input-hover-bd-color: var(--pops-panel-components-input-bd-color);\r\n}\r\n.pops-panel-input input:disabled,\r\n.pops-panel-input input:disabled + .pops-panel-input__suffix {\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n  color: var(--el-disabled-text-color);\r\n  -webkit-text-fill-color: var(--el-disabled-text-color);\r\n  cursor: not-allowed;\r\n}\r\n.pops-panel-input input:disabled + .pops-panel-input__suffix {\r\n  display: none;\r\n}\r\n/* input的CSS */\r\n\r\n/* textarea的CSS */\r\n.pops-panel-textarea {\r\n  --pops-panel-components-textarea-text-color: #000000;\r\n  --pops-panel-components-textarea-text-bg-color: #ffffff;\r\n  --pops-panel-components-textarea-bd-color: #dcdfe6;\r\n  --pops-panel-components-textarea-hover-bd-color: #c0c4cc;\r\n  --pops-panel-components-textarea-focus-bd-color: #409eff;\r\n}\r\n.pops-panel-textarea textarea {\r\n  width: 100%;\r\n  /*vertical-align: bottom;*/\r\n  position: relative;\r\n  display: block;\r\n  resize: none;\r\n  padding: 5px 11px;\r\n  /*line-height: 1;*/\r\n  box-sizing: border-box;\r\n  font-size: inherit;\r\n  font-family: inherit;\r\n  color: var(--pops-panel-components-textarea-text-color);\r\n  background-color: var(--pops-panel-components-textarea-text-bg-color);\r\n  background-image: none;\r\n  -webkit-appearance: none;\r\n  appearance: none;\r\n  box-shadow: none;\r\n  border-radius: 0;\r\n  transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\r\n  border: 1px solid var(--pops-panel-components-textarea-bd-color);\r\n}\r\n.pops-panel-textarea textarea:hover {\r\n  border-color: var(--pops-panel-components-textarea-hover-bd-color);\r\n}\r\n.pops-panel-textarea:has(textarea:disabled):hover {\r\n  --pops-panel-components-textarea-hover-bd-color: var(--pops-panel-components-textarea-bd-color);\r\n}\r\n.pops-panel-textarea-disable {\r\n  --pops-panel-components-textarea-text-bg-color: var(--pops-components-is-disabled-bg-color) !important;\r\n  --pops-panel-components-textarea-text-color: var(--pops-components-is-disabled-text-color);\r\n}\r\n.pops-panel-textarea-disable textarea {\r\n  cursor: not-allowed;\r\n}\r\n.pops-panel-textarea textarea:focus {\r\n  outline: 0;\r\n  border-color: var(--pops-panel-components-textarea-focus-bd-color);\r\n}\r\n/* textarea的CSS */\r\n\r\n/* select的CSS */\r\n.pops-panel-select {\r\n  --pops-panel-components-select-text-color: #000000;\r\n  --pops-panel-components-select-bd-color: rgb(184, 184, 184, var(--pops-bd-opacity));\r\n  --pops-panel-components-select-hover-bd-color: rgb(184, 184, 184, var(--pops-bd-opacity));\r\n  --pops-panel-components-select-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n}\r\n.pops-panel-select {\r\n  border: 0;\r\n}\r\n.pops-panel-select select {\r\n  height: 32px;\r\n  line-height: normal;\r\n  align-content: center;\r\n  min-width: 200px;\r\n  border: 1px solid var(--pops-panel-components-select-bd-color);\r\n  border-radius: 5px;\r\n  text-align: center;\r\n  outline: 0;\r\n  color: var(--pops-panel-components-select-text-color);\r\n  background-color: var(--pops-panel-components-select-bg-color);\r\n  box-shadow: none;\r\n}\r\n.pops-panel-select select:hover {\r\n  border: 1px solid var(--pops-panel-components-select-hover-bd-color);\r\n}\r\n.pops-panel-select-disable {\r\n  --pops-panel-components-select-text-color: var(--pops-components-is-disabled-text-color);\r\n  --pops-panel-components-select-bg-color: var(--pops-components-is-disabled-bg-color);\r\n}\r\n.pops-panel-select-disable select {\r\n  cursor: not-allowed;\r\n}\r\n.pops-panel-select-disable select:hover {\r\n  box-shadow: none;\r\n  --pops-panel-components-select-hover-bd-color: var(--pops-panel-components-select-bd-color);\r\n}\r\n.pops-panel-select select:focus {\r\n  border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));\r\n  box-shadow: none;\r\n}\r\n/* select的CSS */\r\n\r\n/* select-multiple的CSS*/\r\n.pops-panel-select-multiple {\r\n  --el-border-radius-base: 4px;\r\n  --el-fill-color-blank: #ffffff;\r\n  --el-transition-duration: 0.3s;\r\n  --el-border-color: #cbcbcb;\r\n  --el-text-color-placeholder: #a8abb2;\r\n  --color: inherit;\r\n  --el-select-input-color: #a8abb2;\r\n  --el-select-input-font-size: 14px;\r\n  --el-text-color-regular: #606266;\r\n  --el-color-info: #909399;\r\n  --el-color-info-light-9: #f4f4f5;\r\n  --el-color-info-light-8: #e9e9eb;\r\n  --el-color-primary-light-9: #ecf5ff;\r\n  --el-color-primary-light-8: #d9ecff;\r\n  --el-color-primary: #409eff;\r\n  --el-color-white: #ffffff;\r\n  width: 200px;\r\n}\r\n.pops-panel-select-multiple .el-select__wrapper {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  box-sizing: border-box;\r\n  cursor: pointer;\r\n  text-align: left;\r\n  font-size: 14px;\r\n  padding: 4px 12px;\r\n  gap: 6px;\r\n  min-height: 32px;\r\n  line-height: normal;\r\n  align-content: center;\r\n  border-radius: var(--el-border-radius-base);\r\n  background-color: var(--el-fill-color-blank);\r\n  transition: var(--el-transition-duration);\r\n  transform: translateZ(0);\r\n  border: 1px solid var(--el-border-color);\r\n}\r\n.pops-panel-select-multiple .el-select__wrapper.is-focused {\r\n  --el-border-color: var(--el-color-primary);\r\n}\r\n.pops-panel-select-multiple .el-select__selection {\r\n  position: relative;\r\n  display: flex;\r\n  flex-wrap: wrap;\r\n  align-items: center;\r\n  flex: 1;\r\n  min-width: 0;\r\n  gap: 6px;\r\n}\r\n.pops-panel-select-multiple .el-select__selected-item {\r\n  display: flex;\r\n  flex-wrap: wrap;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n.pops-panel-select-multiple .el-select__selected-item.el-select__choose_tag .el-tag {\r\n  max-width: 200px;\r\n}\r\n.pops-panel-select-multiple .el-select__input-wrapper {\r\n  max-width: 100%;\r\n}\r\n.pops-panel-select-multiple .el-select__selection.is-near {\r\n  margin-left: -8px;\r\n}\r\n.pops-panel-select-multiple .el-select__placeholder {\r\n  position: absolute;\r\n  display: block;\r\n  top: 50%;\r\n  transform: translateY(-50%);\r\n  width: 100%;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  white-space: nowrap;\r\n  color: var(--el-input-text-color, var(--el-text-color-regular));\r\n}\r\n.pops-panel-select-multiple .el-select__placeholder.is-transparent {\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n  color: var(--el-text-color-placeholder);\r\n}\r\n.pops-panel-select-multiple .el-select__prefix,\r\n.pops-panel-select-multiple .el-select__suffix {\r\n  display: flex;\r\n  align-items: center;\r\n  flex-shrink: 0;\r\n  gap: 6px;\r\n  color: var(--el-input-icon-color, var(--el-text-color-placeholder));\r\n}\r\n.pops-panel-select-multiple .el-icon {\r\n  --color: inherit;\r\n  height: 1em;\r\n  width: 1em;\r\n  line-height: normal;\r\n  align-content: center;\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  fill: currentColor;\r\n  color: var(--color);\r\n  font-size: inherit;\r\n}\r\n.pops-panel-select-multiple .el-icon svg {\r\n  height: 1em;\r\n  width: 1em;\r\n}\r\n.pops-panel-select-multiple .el-select__caret {\r\n  color: var(--el-select-input-color);\r\n  font-size: var(--el-select-input-font-size);\r\n  transition: var(--el-transition-duration);\r\n  transform: rotate(0);\r\n  cursor: pointer;\r\n}\r\n.pops-panel-select-multiple .el-tag {\r\n  --el-tag-font-size: 12px;\r\n  --el-tag-border-radius: 4px;\r\n  --el-tag-border-radius-rounded: 9999px;\r\n}\r\n.pops-panel-select-multiple .el-tag {\r\n  background-color: var(--el-tag-bg-color);\r\n  border-color: var(--el-tag-border-color);\r\n  color: var(--el-tag-text-color);\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  vertical-align: middle;\r\n  height: 24px;\r\n  padding: 0 9px;\r\n  font-size: var(--el-tag-font-size);\r\n  line-height: normal;\r\n  align-content: center;\r\n  border-width: 1px;\r\n  border-style: solid;\r\n  border-radius: var(--el-tag-border-radius);\r\n  box-sizing: border-box;\r\n  white-space: nowrap;\r\n  --el-icon-size: 14px;\r\n  --el-tag-bg-color: var(--el-color-primary-light-9);\r\n  --el-tag-border-color: var(--el-color-primary-light-8);\r\n  --el-tag-hover-color: var(--el-color-primary);\r\n}\r\n.pops-panel-select-multiple .el-select__selection .el-tag {\r\n  cursor: pointer;\r\n  border-color: transparent;\r\n}\r\n.pops-panel-select-multiple .el-tag.el-tag--info {\r\n  --el-tag-bg-color: var(--el-color-info-light-9);\r\n  --el-tag-border-color: var(--el-color-info-light-8);\r\n  --el-tag-hover-color: var(--el-color-info);\r\n}\r\n.pops-panel-select-multiple .el-tag.el-tag--info {\r\n  --el-tag-text-color: var(--el-color-info);\r\n}\r\n.pops-panel-select-multiple .el-tag.is-closable {\r\n  padding-right: 5px;\r\n}\r\n.pops-panel-select-multiple .el-select__selection .el-tag .el-tag__content {\r\n  min-width: 0;\r\n}\r\n.pops-panel-select-multiple .el-tag .el-tag__close {\r\n  flex-shrink: 0;\r\n  color: var(--el-tag-text-color);\r\n}\r\n.pops-panel-select-multiple .el-tag .el-tag__close:hover {\r\n  color: var(--el-color-white);\r\n  background-color: var(--el-tag-hover-color);\r\n}\r\n.pops-panel-select-multiple .el-tag .el-icon {\r\n  border-radius: 50%;\r\n  cursor: pointer;\r\n  font-size: calc(var(--el-icon-size) - 2px);\r\n  height: var(--el-icon-size);\r\n  width: var(--el-icon-size);\r\n}\r\n.pops-panel-select-multiple .el-tag .el-tag__close {\r\n  margin-left: 6px;\r\n}\r\n.pops-panel-select-multiple .el-select__tags-text {\r\n  display: block;\r\n  line-height: normal;\r\n  align-content: center;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  white-space: nowrap;\r\n}\r\n.pops-panel-select-multiple-disable {\r\n  --el-fill-color-blank: #f5f7fa;\r\n  --color: #a8abb2;\r\n  --el-border-color: #cbcbcb;\r\n}\r\n.pops-panel-select-multiple-disable .el-tag.el-tag--info {\r\n  --el-tag-bg-color: #e7e7e7;\r\n  --el-tag-text-color: var(--pops-components-is-disabled-text-color);\r\n}\r\n.pops-panel-select-multiple-disable .el-select__selection .el-tag,\r\n.pops-panel-select-multiple-disable .el-tag .el-tag__close:hover,\r\n.pops-panel-select-multiple-disable .el-select__wrapper,\r\n.pops-panel-select-multiple-disable .el-select__caret {\r\n  cursor: not-allowed;\r\n}\r\n/* select-multiple的CSS*/\r\n\r\n/* deepMenu的css */\r\n.pops-panel-deepMenu-nav-item {\r\n  cursor: pointer;\r\n}\r\n.pops-panel-deepMenu-nav-item:active {\r\n  background: var(--pops-panel-forms-container-deepMenu-item-active-bg);\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item ul li.pops-panel-deepMenu-nav-item:active {\r\n  padding: var(--pops-panel-forms-container-li-padding-top-bottom)\r\n    var(--pops-panel-forms-container-li-padding-left-right);\r\n  margin: 0px;\r\n}\r\n/* 去除上个兄弟item的底部边框颜色 */\r\nsection.pops-panel-container .pops-panel-forms-container-item ul li:has(+ .pops-panel-deepMenu-nav-item:active) {\r\n  border-bottom: 1px solid transparent;\r\n}\r\n/* 第一个和最后一个跟随圆角 */\r\nsection.pops-panel-container .pops-panel-forms-container-item ul li.pops-panel-deepMenu-nav-item:first-child:active {\r\n  border-top-left-radius: var(--pops-panel-forms-container-item-border-radius);\r\n  border-top-right-radius: var(--pops-panel-forms-container-item-border-radius);\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item ul li.pops-panel-deepMenu-nav-item:last-child:active {\r\n  border-bottom-left-radius: var(--pops-panel-forms-container-item-border-radius);\r\n  border-bottom-right-radius: var(--pops-panel-forms-container-item-border-radius);\r\n}\r\n.pops-panel-deepMenu-nav-item .pops-panel-deepMenu {\r\n  display: flex;\r\n  align-items: center;\r\n  color: #6c6c6c;\r\n  fill: #6c6c6c;\r\n}\r\n.pops-panel-deepMenu-nav-item .pops-panel-deepMenu-arrowRight-icon {\r\n  width: 15px;\r\n  height: 15px;\r\n  display: flex;\r\n  align-items: center;\r\n}\r\nsection.pops-panel-deepMenu-container .pops-panel-container-header-ul li.pops-panel-deepMenu-container-header {\r\n  display: flex;\r\n  align-items: center;\r\n  width: -webkit-fill-available;\r\n  width: -moz-available;\r\n  padding: var(--pops-panel-forms-header-padding-top-bottom)\r\n    calc(\r\n      var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right) -\r\n        var(--pops-panel-forms-header-icon-size)\r\n    );\r\n  gap: 0px;\r\n}\r\n.pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon {\r\n  width: var(--pops-panel-forms-header-icon-size);\r\n  height: var(--pops-panel-forms-header-icon-size);\r\n  display: flex;\r\n  align-items: center;\r\n  cursor: pointer;\r\n}\r\n/* 修复safari上图标大小未正常显示 */\r\n.pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon > svg {\r\n  width: inherit;\r\n  height: inherit;\r\n}\r\n/* deepMenu的css */\r\n\r\n/* 文字对齐 */\r\n.pops-panel-item-left-desc-text:has(code) {\r\n  display: flex;\r\n  align-items: baseline;\r\n  flex-wrap: wrap;\r\n}\r\n\r\n@media (prefers-color-scheme: dark) {\r\n  .pops[type-value="panel"] {\r\n    --pops-bg-color: #000000;\r\n    --pops-color: #f2f2f2;\r\n    --panel-title-bg-color: #000000;\r\n    --panel-aside-bg-color: #262626;\r\n    --pops-panel-forms-container-item-left-desc-text-color: #6c6c6c;\r\n    --pops-panel-forms-container-item-bg-color: #262626;\r\n    --pops-panel-forms-container-item-title-color: #c1c1c1;\r\n\r\n    --pops-panel-forms-container-li-border-color: rgb(51, 51, 51, var(--pops-bd-opacity));\r\n    --pops-panel-forms-container-deepMenu-item-active-bg: #333333;\r\n  }\r\n  .pops[type-value="panel"] .pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon {\r\n    fill: #f2f2f2;\r\n  }\r\n\r\n  /* switch的CSS */\r\n  .pops-panel-switch {\r\n    --panel-switch-core-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\r\n    --panel-switch-core-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\r\n    --panel-switch-circle-color: #dcdfe6;\r\n    --panel-switch-circle-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n    --panel-switch-checked-circle-color: #409eff;\r\n    --panel-switch-checked-core-bd-color: rgb(64, 158, 255, var(--pops-bd-opacity));\r\n    --panel-switch-checked-core-bg-color: rgb(64, 158, 255, var(--pops-bg-opacity));\r\n  }\r\n  /* select的CSS */\r\n  .pops-panel-select {\r\n    --pops-panel-components-select-text-color: #f2f2f2;\r\n    --pops-panel-components-select-bd-color: rgb(51, 51, 51, var(--pops-bd-opacity));\r\n    --pops-panel-components-select-bg-color: #141414;\r\n  }\r\n  /* select-multiple的CSS*/\r\n  .pops-panel-select-multiple {\r\n    --el-fill-color-blank: #141414;\r\n    --el-border-color: #4c4d4f;\r\n    --el-text-color-placeholder: #a8abb2;\r\n    --el-select-input-color: #a8abb2;\r\n    --el-text-color-regular: #606266;\r\n    --el-color-info: #909399;\r\n    --el-color-info-light-8: #e9e9eb;\r\n    --el-color-primary-light-9: #ecf5ff;\r\n    --el-color-primary-light-8: #d9ecff;\r\n    --el-color-primary: #409eff;\r\n    --el-color-white: #ffffff;\r\n  }\r\n  .pops-panel-select-multiple .el-tag {\r\n    --el-color-info-light-9: #202121;\r\n  }\r\n  .pops-panel-select-multiple-disable {\r\n    --el-border-color: rgb(51, 51, 51, var(--pops-bd-opacity));\r\n  }\r\n  .pops-panel-select-multiple-disable .el-tag.el-tag--info {\r\n    --el-tag-bg-color: #2f2f2f;\r\n  }\r\n  /* select-multiple的CSS*/\r\n  /* slider的CSS */\r\n  .pops-slider {\r\n    --pops-slider-border-color-light: #414243;\r\n  }\r\n  /* input的CSS */\r\n  .pops-panel-input {\r\n    --pops-panel-components-input-text-color: #f2f2f2;\r\n    --pops-panel-components-input-bd-color: #4f5052;\r\n    --pops-panel-components-input-bg-color: #141414;\r\n    --pops-panel-components-input-hover-bd-color: #6f7175;\r\n    --pops-panel-components-input-focus-bd-color: #409eff;\r\n    --pops-panel-components-input-suffix-color: #a8abb2;\r\n  }\r\n  /* textarea的CSS */\r\n  .pops-panel-textarea {\r\n    --pops-panel-components-textarea-text-color: #f2f2f2;\r\n    --pops-panel-components-textarea-text-bg-color: #141414;\r\n    --pops-panel-components-textarea-bd-color: #4f5052;\r\n    --pops-panel-components-textarea-hover-bd-color: #6f7175;\r\n    --pops-panel-components-textarea-focus-bd-color: #409eff;\r\n  }\r\n  .pops-panel-textarea-disable {\r\n    --pops-panel-components-textarea-text-color: var(--pops-components-is-disabled-text-color);\r\n    --pops-panel-components-textarea-text-bg-color: var(--pops-components-is-disabled-bg-color);\r\n  }\r\n  /* slider */\r\n  .pops-slider {\r\n    --pops-slider-text-color-placeholder: #8d9095;\r\n  }\r\n}\r\n';
+  var rightClickMenuCSS = '.pops-rightClickMenu {\r\n  --pops-right-context-color: #000000;\r\n  --pops-right-context-bg-color: rgb(255, 255, 255, 0.733);\r\n  --pops-right-context-backdrop-filter: blur(10px);\r\n  --pops-right-context-z-index: 10000;\r\n  --pops-right-context-bd-radius: 6px;\r\n  --pops-right-context-menu-shadow-color: rgb(114, 114, 114, 0.251);\r\n  --pops-right-context-menu-row-bd-radius: 6px;\r\n  --pops-right-context-menu-row-visited-color: rgb(0, 0, 0, 0.067);\r\n  --pops-right-context-menu-row-hover-color: rgb(0, 0, 0, 0.067);\r\n}\r\n.pops-rightClickMenu * {\r\n  -webkit-box-sizing: border-box;\r\n  box-sizing: border-box;\r\n  margin: 0;\r\n  padding: 0;\r\n  -webkit-tap-highlight-color: transparent;\r\n  scrollbar-width: thin;\r\n}\r\n.pops-rightClickMenu {\r\n  position: fixed;\r\n  z-index: var(--pops-right-context-z-index);\r\n  text-align: center;\r\n  border-radius: var(--pops-right-context-bd-radius);\r\n  font-size: 16px;\r\n  font-weight: 500;\r\n  color: var(--pops-right-context-color);\r\n  background: var(--pops-right-context-bg-color);\r\n  box-shadow: 0 0.25rem 0.5rem 0.125rem var(--pops-right-context-menu-shadow-color);\r\n  -webkit-backdrop-filter: var(--pops-right-context-backdrop-filter);\r\n  backdrop-filter: var(--pops-right-context-backdrop-filter);\r\n}\r\n/* scale动画 */\r\n.pops-rightClickMenu-anim-scale {\r\n  transition:\r\n    opacity 150ms cubic-bezier(0.2, 0, 0.2, 1),\r\n    transform 150ms cubic-bezier(0.2, 0, 0.2, 1);\r\n  transform: scale(0.85);\r\n}\r\n.pops-rightClickMenu-anim-scale-open {\r\n  transform: scale(1);\r\n}\r\n.pops-rightClickMenu-anim-scale-not-open {\r\n  opacity: 0;\r\n}\r\n/* 展开动画 */\r\n.pops-rightClickMenu-anim-grid {\r\n  display: grid;\r\n  transition: 0.3s;\r\n  grid-template-rows: 0fr;\r\n}\r\n.pops-rightClickMenu-anim-show {\r\n  grid-template-rows: 1fr;\r\n}\r\n.pops-rightClickMenu-is-visited {\r\n  background: var(--pops-right-context-menu-row-visited-color);\r\n}\r\ni.pops-rightClickMenu-icon {\r\n  height: 1em;\r\n  width: 1em;\r\n  line-height: normal;\r\n  align-content: center;\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  fill: currentColor;\r\n  color: inherit;\r\n  font-size: inherit;\r\n  margin-right: 6px;\r\n}\r\ni.pops-rightClickMenu-icon[is-loading="true"] {\r\n  animation: rotating 2s linear infinite;\r\n}\r\n.pops-rightClickMenu li:hover {\r\n  background: var(--pops-right-context-menu-row-hover-color);\r\n  cursor: pointer;\r\n}\r\n.pops-rightClickMenu ul {\r\n  margin: 0;\r\n  padding: 0;\r\n  display: flex;\r\n  flex-direction: column;\r\n  align-items: flex-start;\r\n  justify-content: center;\r\n  overflow: hidden;\r\n}\r\n.pops-rightClickMenu ul li {\r\n  padding: 5px 10px;\r\n  margin: 5px 5px;\r\n  border-radius: var(--pops-right-context-menu-row-bd-radius);\r\n  display: flex;\r\n  width: -webkit-fill-available;\r\n  width: -moz-available;\r\n  text-align: left;\r\n  align-items: center;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n\r\n@media (prefers-color-scheme: dark) {\r\n  /*.pops-rightClickMenu {\r\n		--pops-right-context-menu-shadow-color: #3c3c3c;\r\n	}*/\r\n}\r\n@media (hover: hover) {\r\n  .pops-rightClickMenu ul li:active {\r\n    transform: scale(0.98);\r\n  }\r\n}\r\n';
   const PopsCSS = {
 index: indexCSS,
 ninePalaceGridPosition: ninePalaceGridPositionCSS,
@@ -12163,7 +12392,7 @@ isInit: false
     init() {
       if (!this.$flag.isInit) {
         this.$flag.isInit = true;
-        let animationStyle = document.createElement("style");
+        const animationStyle = document.createElement("style");
         PopsSafeUtils.setSafeHTML(animationStyle, PopsCSS.anim);
         popsDOMUtils.appendHead(animationStyle);
         this.$data = null;
@@ -12174,7 +12403,7 @@ isInit: false
       }
     },
 hasAnim(name) {
-      return this.$data.hasOwnProperty(name);
+      return Object.prototype.hasOwnProperty.call(this.$data, name);
     }
   };
   const PopsInstData = {
@@ -12200,14 +12429,14 @@ getMaxZIndexNodeInfo(deviation = 1, target = PopsCore.document, ignoreCallBack) 
       }
       function queryMaxZIndex($ele) {
         if (typeof ignoreCallBack === "function") {
-          let ignoreResult = ignoreCallBack($ele);
+          const ignoreResult = ignoreCallBack($ele);
           if (typeof ignoreResult === "boolean" && !ignoreResult) {
             return;
           }
         }
         const nodeStyle = PopsCore.window.getComputedStyle($ele);
         if (isVisibleNode(nodeStyle)) {
-          let nodeZIndex = parseInt(nodeStyle.zIndex);
+          const nodeZIndex = parseInt(nodeStyle.zIndex);
           if (!isNaN(nodeZIndex)) {
             if (nodeZIndex > zIndex) {
               zIndex = nodeZIndex;
@@ -12221,7 +12450,7 @@ getMaxZIndexNodeInfo(deviation = 1, target = PopsCore.document, ignoreCallBack) 
           }
         }
       }
-      target.querySelectorAll("*").forEach(($ele, index) => {
+      target.querySelectorAll("*").forEach(($ele) => {
         queryMaxZIndex($ele);
       });
       zIndex += deviation;
@@ -12242,12 +12471,12 @@ getPopsMaxZIndex(deviation = 1) {
         return $css.position !== "static" && $css.display !== "none";
       }
       Object.keys(PopsInstData).forEach((instKeyName) => {
-        let instData = PopsInstData[instKeyName];
+        const instData = PopsInstData[instKeyName];
         for (let index = 0; index < instData.length; index++) {
           const inst = instData[index];
-          let nodeStyle = window.getComputedStyle(inst.animElement);
+          const nodeStyle = window.getComputedStyle(inst.animElement);
           if (isVisibleNode(nodeStyle)) {
-            let nodeZIndex = parseInt(nodeStyle.zIndex);
+            const nodeZIndex = parseInt(nodeStyle.zIndex);
             if (!isNaN(nodeZIndex)) {
               if (nodeZIndex > zIndex) {
                 zIndex = nodeZIndex;
@@ -12258,7 +12487,7 @@ getPopsMaxZIndex(deviation = 1) {
         }
       });
       zIndex += deviation;
-      let isOverMaxZIndex = zIndex >= maxZIndex;
+      const isOverMaxZIndex = zIndex >= maxZIndex;
       if (isOverMaxZIndex) {
         zIndex = maxZIndex;
       }
@@ -12280,9 +12509,9 @@ removeInstance(instConfigList, guid, isAll = false) {
       instConfigList.forEach((instConfigList2) => {
         instConfigList2.forEach((instConfigItem, index) => {
           if (isAll || instConfigItem["guid"] === guid) {
-            let animName = instConfigItem.animElement.getAttribute("anim");
+            const animName = instConfigItem.animElement.getAttribute("anim");
             if (PopsAnimation.hasAnim(animName)) {
-              let reverseAnimName = animName + "-reverse";
+              const reverseAnimName = animName + "-reverse";
               instConfigItem.animElement.style.width = "100%";
               instConfigItem.animElement.style.height = "100%";
               instConfigItem.animElement.style["animation-name"] = reverseAnimName;
@@ -12306,9 +12535,9 @@ removeInstance(instConfigList, guid, isAll = false) {
     },
 hide(popsType, instConfigList, guid, config, animElement, maskElement) {
       return new Promise((resolve) => {
-        let popsElement = animElement.querySelector(".pops[type-value]");
+        const popsElement = animElement.querySelector(".pops[type-value]");
         if (popsType === "drawer") {
-          let drawerConfig = config;
+          const drawerConfig = config;
           popsUtils.setTimeout(() => {
             maskElement.style.setProperty("display", "none");
             if (["top", "bottom"].includes(drawerConfig.direction)) {
@@ -12321,15 +12550,13 @@ hide(popsType, instConfigList, guid, config, animElement, maskElement) {
             resolve();
           }, drawerConfig.closeDelay);
         } else {
-          let fintInst = instConfigList.find((instConfigItem) => instConfigItem.guid === guid);
+          const fintInst = instConfigList.find((instConfigItem) => instConfigItem.guid === guid);
           if (fintInst) {
-            let instConfigItem = fintInst;
+            const instConfigItem = fintInst;
             instConfigItem.animElement.style.width = "100%";
             instConfigItem.animElement.style.height = "100%";
-            instConfigItem.animElement.style["animation-name"] = instConfigItem.animElement.getAttribute("anim") + "-reverse";
-            if (PopsAnimation.hasAnim(
-instConfigItem.animElement.style["animation-name"]
-            )) {
+            Reflect.set(instConfigItem.animElement.style, "animation-name", instConfigItem.animElement.getAttribute("anim") + "-reverse");
+            if (PopsAnimation.hasAnim(Reflect.get(instConfigItem.animElement.style, "animation-name"))) {
               let animationendCallBack2 = function() {
                 instConfigItem.animElement.style.display = "none";
                 if (instConfigItem.maskElement) {
@@ -12356,13 +12583,13 @@ instConfigItem.animElement.style["animation-name"]
     },
 show(popsType, instConfigList, guid, config, animElement, maskElement) {
       return new Promise((resolve) => {
-        let popsElement = animElement.querySelector(".pops[type-value]");
+        const popsElement = animElement.querySelector(".pops[type-value]");
         if (popsType === "drawer") {
-          let drawerConfig = config;
+          const drawerConfig = config;
           popsUtils.setTimeout(() => {
             popsDOMUtils.css(maskElement, "display", "");
-            let direction = drawerConfig.direction;
-            let size = drawerConfig.size.toString();
+            const direction = drawerConfig.direction;
+            const size = drawerConfig.size.toString();
             if (["top", "bottom"].includes(direction)) {
               popsElement.style.setProperty("height", size);
             } else if (["left", "right"].includes(direction)) {
@@ -12373,15 +12600,13 @@ show(popsType, instConfigList, guid, config, animElement, maskElement) {
             resolve();
           }, drawerConfig.openDelay ?? 0);
         } else {
-          let fintInst = instConfigList.find((instConfigItem) => instConfigItem.guid === guid);
+          const fintInst = instConfigList.find((instConfigItem) => instConfigItem.guid === guid);
           if (fintInst) {
-            let instConfigItem = fintInst;
+            const instConfigItem = fintInst;
             instConfigItem.animElement.style.width = "";
             instConfigItem.animElement.style.height = "";
-            instConfigItem.animElement.style["animation-name"] = instConfigItem.animElement.getAttribute("anim").replace("-reverse", "");
-            if (PopsAnimation.hasAnim(
-instConfigItem.animElement.style["animation-name"]
-            )) {
+            Reflect.set(instConfigItem.animElement.style, "animation-name", instConfigItem.animElement.getAttribute("anim").replace("-reverse", ""));
+            if (PopsAnimation.hasAnim(Reflect.get(instConfigItem.animElement.style, "animation-name"))) {
               let animationendCallBack2 = function() {
                 popsDOMUtils.off(instConfigItem.animElement, popsDOMUtils.getAnimationEndNameList(), animationendCallBack2, {
                   capture: true
@@ -12408,8 +12633,8 @@ instConfigItem.animElement.style["animation-name"]
     },
 close(popsType, instConfigList, guid, config, animElement) {
       return new Promise((resolve) => {
-        let popsElement = animElement.querySelector(".pops[type-value]");
-        let drawerConfig = config;
+        const popsElement = animElement.querySelector(".pops[type-value]");
+        const drawerConfig = config;
         function transitionendEvent() {
           function closeCallBack(event) {
             if (event.propertyName !== "transform") {
@@ -12420,7 +12645,7 @@ close(popsType, instConfigList, guid, config, animElement) {
             resolve();
           }
           popsDOMUtils.on(popsElement, popsDOMUtils.getTransitionEndNameList(), closeCallBack);
-          let popsTransForm = getComputedStyle(popsElement).transform;
+          const popsTransForm = getComputedStyle(popsElement).transform;
           if (popsTransForm !== "none") {
             popsDOMUtils.trigger(popsElement, popsDOMUtils.getTransitionEndNameList(), void 0, true);
             return;
@@ -12457,8 +12682,8 @@ drag(moveElement, options) {
       let isMove = false;
       let clickElementLeftOffset = 0;
       let clickElementTopOffset = 0;
-      let AnyTouch = popsUtils.AnyTouch();
-      let anyTouchElement = new AnyTouch(options.dragElement, {
+      const AnyTouch = popsUtils.AnyTouch();
+      const anyTouchElement = new AnyTouch(options.dragElement, {
         preventDefault(event) {
           if (typeof options.preventEvent === "function") {
             return options.preventEvent(event);
@@ -12471,7 +12696,7 @@ drag(moveElement, options) {
         cursor: "move"
       });
       function changeMoveElementStyle(element) {
-        let old_transitionDuration = element.style.transitionDuration;
+        const old_transitionDuration = element.style.transitionDuration;
         if (globalThis.getComputedStyle(element).transitionDuration !== "0s") {
           element.style.transitionDuration = "0s";
         }
@@ -12494,7 +12719,7 @@ drag(moveElement, options) {
             top: 0
           };
         } else {
-          let rect = container.getBoundingClientRect();
+          const rect = container.getBoundingClientRect();
           return {
             left: rect.left,
             top: rect.top
@@ -12506,7 +12731,7 @@ drag(moveElement, options) {
       anyTouchElement.on("pan", function(event) {
         if (!isMove) {
           isMove = true;
-          let rect = options.dragElement.getBoundingClientRect();
+          const rect = options.dragElement.getBoundingClientRect();
           clickElementLeftOffset = event.x - rect.left;
           clickElementTopOffset = event.y - rect.top;
           transformInfo = popsDOMUtils.getTransform(moveElement);
@@ -12516,9 +12741,9 @@ drag(moveElement, options) {
         let currentMoveTopOffset = event.y - clickElementTopOffset + transformInfo.transformTop;
         if (event.phase === "move") {
           if (options.limit) {
-            let maxLeftOffset = getContainerWidthOrHeight(options.container).width - popsDOMUtils.width(moveElement) + transformInfo.transformLeft;
-            let { left: minLeftOffset, top: minTopOffset } = getContainerTopOrLeft(options.container);
-            let maxTopOffset = getContainerWidthOrHeight(options.container).height - popsDOMUtils.height(moveElement) + transformInfo.transformTop;
+            const maxLeftOffset = getContainerWidthOrHeight(options.container).width - popsDOMUtils.width(moveElement) + transformInfo.transformLeft;
+            const { left: minLeftOffset, top: minTopOffset } = getContainerTopOrLeft(options.container);
+            const maxTopOffset = getContainerWidthOrHeight(options.container).height - popsDOMUtils.height(moveElement) + transformInfo.transformTop;
             if (currentMoveLeftOffset > maxLeftOffset) {
               currentMoveLeftOffset = maxLeftOffset;
             }
@@ -12573,8 +12798,8 @@ sortElementListByProperty(getBeforeValueFun, getAfterValueFun, sortByDesc = true
         throw new Error("获取前面的值或后面的值的方法不能为空");
       }
       return function(after_obj, before_obj) {
-        var beforeValue = getBeforeValueFun(before_obj);
-        var afterValue = getAfterValueFun(after_obj);
+        const beforeValue = getBeforeValueFun(before_obj);
+        const afterValue = getAfterValueFun(after_obj);
         if (sortByDesc) {
           if (afterValue > beforeValue) {
             return -1;
@@ -12597,10 +12822,10 @@ sortElementListByProperty(getBeforeValueFun, getAfterValueFun, sortByDesc = true
   };
   const PopsHandler = {
 handlerShadow(config) {
-      let $shadowContainer = document.createElement("div");
+      const $shadowContainer = document.createElement("div");
       $shadowContainer.className = "pops-shadow-container";
       if (config.useShadowRoot) {
-        let $shadowRoot = $shadowContainer.attachShadow({ mode: "open" });
+        const $shadowRoot = $shadowContainer.attachShadow({ mode: "open" });
         return {
           $shadowContainer,
           $shadowRoot
@@ -12644,7 +12869,7 @@ handleInit($styleParent, css) {
         });
       }
       for (const cssItem of css) {
-        let $css = popsDOMUtils.createElement("style", {}, {
+        const $css = popsDOMUtils.createElement("style", {}, {
           "data-type": "PopsHandler.handleInit"
         });
         $css.textContent = cssItem.css;
@@ -12655,13 +12880,13 @@ handleInit($styleParent, css) {
       }
     },
 handleMask(details = {}) {
-      let result = {
+      const result = {
         maskElement: popsDOMUtils.parseTextToDOM(details.maskHTML)
       };
       let isMaskClick = false;
       function clickEvent(event) {
         popsDOMUtils.preventEvent(event);
-        let targetInst = PopsInstData[details.type];
+        const targetInst = PopsInstData[details.type];
         function originalRun() {
           if (details.config.mask.clickEvent.toClose) {
             return PopsInstanceUtils.close(details.type, targetInst, details.guid, details.config, details.animElement);
@@ -12681,11 +12906,11 @@ handleMask(details = {}) {
           return Boolean(element?.localName?.toLowerCase() === "div" && element.className && element.className === "pops-anim" && element.hasAttribute("anim"));
         };
         popsDOMUtils.on(details.animElement, ["touchstart", "mousedown"], void 0, (event) => {
-          let $click = event.composedPath()[0];
+          const $click = event.composedPath()[0];
           isMaskClick = isAnimElement2($click);
         });
         popsDOMUtils.on(details.animElement, "click", void 0, (event) => {
-          let $click = event.composedPath()[0];
+          const $click = event.composedPath()[0];
           if (isAnimElement2($click) && isMaskClick) {
             return clickEvent(event);
           }
@@ -12768,14 +12993,14 @@ handleLoadingEventDetails(guid, mode, animElement, popsElement, maskElement, con
       };
     },
 handleResultDetails(details) {
-      let resultDetails = Object.assign({}, details);
+      const resultDetails = Object.assign({}, details);
       popsUtils.delete(resultDetails, "type");
       popsUtils.delete(resultDetails, "function");
       return resultDetails;
     },
 handleClickEvent(type, $btn, eventDetails, callback) {
       popsDOMUtils.on($btn, "click", (event) => {
-        let extraParam = {
+        const extraParam = {
           type
         };
         callback(Object.assign(eventDetails, extraParam), event);
@@ -12784,9 +13009,9 @@ handleClickEvent(type, $btn, eventDetails, callback) {
       });
     },
 handleKeyboardEvent(keyName, otherKeyList = [], callback) {
-      let keyboardEvent = function(event) {
-        let _keyName = event.code || event.key;
-        let _keyValue = event.charCode || event.keyCode || event.which;
+      const keyboardEvent = function(event) {
+        const _keyName = event.code || event.key;
+        const _keyValue = event.charCode || event.keyCode || event.which;
         if (otherKeyList.includes("ctrl") && !event.ctrlKey) {
           return;
         }
@@ -12818,7 +13043,7 @@ handleKeyboardEvent(keyName, otherKeyList = [], callback) {
     },
 handlePromptClickEvent(type, inputElement, $btn, eventDetails, callback) {
       popsDOMUtils.on($btn, "click", (event) => {
-        let extraParam = {
+        const extraParam = {
           type,
           text: inputElement.value
         };
@@ -12837,7 +13062,7 @@ handleZIndex(zIndex) {
 handleOnly(type, config) {
       if (config.only) {
         if (type === "loading" || type === "tooltip" || type === "rightClickMenu") {
-          let inst = PopsInstData[type];
+          const inst = PopsInstData[type];
           if (inst) {
             PopsInstanceUtils.removeInstance([inst], "", true);
           }
@@ -12853,7 +13078,7 @@ handleOnly(type, config) {
           ], "", true);
         }
       } else {
-        let originZIndex = config.zIndex;
+        const originZIndex = config.zIndex;
         config.zIndex = () => {
           const { zIndex: maxZIndex } = PopsInstanceUtils.getPopsMaxZIndex(PopsHandler.handleZIndex(originZIndex) + 100);
           return maxZIndex;
@@ -12967,13 +13192,13 @@ handlePush(type, value) {
           css: PopsCSS.alertCSS
         }
       ]);
-      let zIndex = PopsHandler.handleZIndex(config.zIndex);
-      let maskHTML = PopsElementHandler.createMask(guid, zIndex);
-      let headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
-      let bottomBtnHTML = PopsElementHandler.createBottom(popsType, config);
-      let { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(popsType, config);
-      let { contentStyle, contentPStyle } = PopsElementHandler.createContentStyle(popsType, config);
-      let animHTML = PopsElementHandler.createAnim(
+      const zIndex = PopsHandler.handleZIndex(config.zIndex);
+      const maskHTML = PopsElementHandler.createMask(guid, zIndex);
+      const headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
+      const bottomBtnHTML = PopsElementHandler.createBottom(popsType, config);
+      const { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(popsType, config);
+      const { contentStyle, contentPStyle } = PopsElementHandler.createContentStyle(popsType, config);
+      const animHTML = PopsElementHandler.createAnim(
         guid,
         popsType,
         config,
@@ -12983,12 +13208,12 @@ handlePush(type, value) {
         bottomBtnHTML,
         zIndex
       );
-      let $anim = PopsElementHandler.parseElement(animHTML);
-      let { popsElement: $pops, headerCloseBtnElement: $headerCloseBtn, btnOkElement, titleElement: $title } = PopsHandler.handleQueryElement($anim, popsType);
+      const $anim = PopsElementHandler.parseElement(animHTML);
+      const { popsElement: $pops, headerCloseBtnElement: $headerCloseBtn, btnOkElement, titleElement: $title } = PopsHandler.handleQueryElement($anim, popsType);
       let $mask = null;
-      let elementList = [$anim];
+      const elementList = [$anim];
       if (config.mask.enable) {
-        let _handleMask_ = PopsHandler.handleMask({
+        const _handleMask_ = PopsHandler.handleMask({
           type: popsType,
           guid,
           config,
@@ -12998,7 +13223,7 @@ handlePush(type, value) {
         $mask = _handleMask_.maskElement;
         elementList.push($mask);
       }
-      let eventDetails = PopsHandler.handleEventDetails(guid, $shadowContainer, $shadowRoot, popsType, $anim, $pops, $mask, config);
+      const eventDetails = PopsHandler.handleEventDetails(guid, $shadowContainer, $shadowRoot, popsType, $anim, $pops, $mask, config);
       PopsHandler.handleClickEvent("close", $headerCloseBtn, eventDetails, config.btn.close.callback);
       PopsHandler.handleClickEvent("ok", btnOkElement, eventDetails, config.btn.ok.callback);
       popsDOMUtils.append($shadowRoot, elementList);
@@ -13026,7 +13251,7 @@ handlePush(type, value) {
           endCallBack: config.dragEndCallBack
         });
       }
-      let result = PopsHandler.handleResultDetails(eventDetails);
+      const result = PopsHandler.handleResultDetails(eventDetails);
       return result;
     }
   };
@@ -13159,13 +13384,13 @@ handlePush(type, value) {
           css: PopsCSS.confirmCSS
         }
       ]);
-      let zIndex = PopsHandler.handleZIndex(config.zIndex);
-      let maskHTML = PopsElementHandler.createMask(guid, zIndex);
-      let headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
-      let bottomBtnHTML = PopsElementHandler.createBottom(popsType, config);
-      let { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(popsType, config);
-      let { contentStyle, contentPStyle } = PopsElementHandler.createContentStyle(popsType, config);
-      let animHTML = PopsElementHandler.createAnim(
+      const zIndex = PopsHandler.handleZIndex(config.zIndex);
+      const maskHTML = PopsElementHandler.createMask(guid, zIndex);
+      const headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
+      const bottomBtnHTML = PopsElementHandler.createBottom(popsType, config);
+      const { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(popsType, config);
+      const { contentStyle, contentPStyle } = PopsElementHandler.createContentStyle(popsType, config);
+      const animHTML = PopsElementHandler.createAnim(
         guid,
         popsType,
         config,
@@ -13175,12 +13400,12 @@ handlePush(type, value) {
         bottomBtnHTML,
         zIndex
       );
-      let $anim = PopsElementHandler.parseElement(animHTML);
-      let { popsElement: $pops, titleElement: $title, headerCloseBtnElement: $btnClose, btnOkElement: $btnOk, btnCancelElement: $btnCancel, btnOtherElement: $btnOther } = PopsHandler.handleQueryElement($anim, popsType);
+      const $anim = PopsElementHandler.parseElement(animHTML);
+      const { popsElement: $pops, titleElement: $title, headerCloseBtnElement: $btnClose, btnOkElement: $btnOk, btnCancelElement: $btnCancel, btnOtherElement: $btnOther } = PopsHandler.handleQueryElement($anim, popsType);
       let $mask = null;
-      let elementList = [$anim];
+      const elementList = [$anim];
       if (config.mask.enable) {
-        let _handleMask_ = PopsHandler.handleMask({
+        const _handleMask_ = PopsHandler.handleMask({
           type: popsType,
           guid,
           config,
@@ -13190,7 +13415,7 @@ handlePush(type, value) {
         $mask = _handleMask_.maskElement;
         elementList.push($mask);
       }
-      let eventDetails = PopsHandler.handleEventDetails(guid, $shadowContainer, $shadowRoot, popsType, $anim, $pops, $mask, config);
+      const eventDetails = PopsHandler.handleEventDetails(guid, $shadowContainer, $shadowRoot, popsType, $anim, $pops, $mask, config);
       PopsHandler.handleClickEvent("close", $btnClose, eventDetails, config.btn.close.callback);
       PopsHandler.handleClickEvent("ok", $btnOk, eventDetails, config.btn.ok.callback);
       PopsHandler.handleClickEvent("cancel", $btnCancel, eventDetails, config.btn.cancel.callback);
@@ -13220,7 +13445,7 @@ handlePush(type, value) {
           endCallBack: config.dragEndCallBack
         });
       }
-      let result = PopsHandler.handleResultDetails(eventDetails);
+      const result = PopsHandler.handleResultDetails(eventDetails);
       return result;
     }
   };
@@ -13350,13 +13575,13 @@ handlePush(type, value) {
           css: PopsCSS.drawerCSS
         }
       ]);
-      let zIndex = PopsHandler.handleZIndex(config.zIndex);
-      let maskHTML = PopsElementHandler.createMask(guid, zIndex);
-      let headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
-      let bottomBtnHTML = PopsElementHandler.createBottom(popsType, config);
-      let { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(popsType, config);
-      let { contentStyle, contentPStyle } = PopsElementHandler.createContentStyle(popsType, config);
-      let animHTML = PopsElementHandler.createAnim(
+      const zIndex = PopsHandler.handleZIndex(config.zIndex);
+      const maskHTML = PopsElementHandler.createMask(guid, zIndex);
+      const headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
+      const bottomBtnHTML = PopsElementHandler.createBottom(popsType, config);
+      const { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(popsType, config);
+      const { contentStyle, contentPStyle } = PopsElementHandler.createContentStyle(popsType, config);
+      const animHTML = PopsElementHandler.createAnim(
         guid,
         popsType,
         config,
@@ -13370,17 +13595,17 @@ handlePush(type, value) {
         bottomBtnHTML,
         zIndex
       );
-      let $anim = PopsElementHandler.parseElement(animHTML);
-      let { popsElement, headerCloseBtnElement, btnCancelElement, btnOkElement, btnOtherElement } = PopsHandler.handleQueryElement($anim, popsType);
-      let $pops = popsElement;
-      let $headerCloseBtn = headerCloseBtnElement;
-      let $btnCancel = btnCancelElement;
-      let $btnOk = btnOkElement;
-      let $btnOther = btnOtherElement;
+      const $anim = PopsElementHandler.parseElement(animHTML);
+      const { popsElement, headerCloseBtnElement, btnCancelElement, btnOkElement, btnOtherElement } = PopsHandler.handleQueryElement($anim, popsType);
+      const $pops = popsElement;
+      const $headerCloseBtn = headerCloseBtnElement;
+      const $btnCancel = btnCancelElement;
+      const $btnOk = btnOkElement;
+      const $btnOther = btnOtherElement;
       let $mask = null;
-      let elementList = [$anim];
+      const elementList = [$anim];
       if (config.mask.enable) {
-        let _handleMask_ = PopsHandler.handleMask({
+        const _handleMask_ = PopsHandler.handleMask({
           type: popsType,
           guid,
           config,
@@ -13390,7 +13615,7 @@ handlePush(type, value) {
         $mask = _handleMask_.maskElement;
         elementList.push($mask);
       }
-      let eventDetails = PopsHandler.handleEventDetails(guid, $shadowContainer, $shadowRoot, popsType, $anim, $pops, $mask, config);
+      const eventDetails = PopsHandler.handleEventDetails(guid, $shadowContainer, $shadowRoot, popsType, $anim, $pops, $mask, config);
       $pops.setAttribute("direction", config.direction);
       if (config.direction === "top") {
         $pops.style.setProperty("height", "0");
@@ -13410,7 +13635,7 @@ handlePush(type, value) {
           eventDetails.close();
         });
       }
-      let needHandleClickEventList = [
+      const needHandleClickEventList = [
         {
           type: "close",
           ele: $headerCloseBtn
@@ -13473,7 +13698,7 @@ handlePush(type, value) {
         $shadowContainer,
         $shadowRoot
       });
-      let result = PopsHandler.handleResultDetails(eventDetails);
+      const result = PopsHandler.handleResultDetails(eventDetails);
       return result;
     }
   };
@@ -13509,13 +13734,13 @@ handlePush(type, value) {
       let config = PopsLoadingConfig();
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
       config = popsUtils.assign(config, details);
-      let guid = popsUtils.getRandomGUID();
+      const guid = popsUtils.getRandomGUID();
       const PopsType = "loading";
       config = PopsHandler.handleOnly(PopsType, config);
-      let zIndex = PopsHandler.handleZIndex(config.zIndex);
-      let maskHTML = PopsElementHandler.createMask(guid, zIndex);
-      let { contentPStyle } = PopsElementHandler.createContentStyle("loading", config);
-      let animHTML = PopsElementHandler.createAnim(
+      const zIndex = PopsHandler.handleZIndex(config.zIndex);
+      const maskHTML = PopsElementHandler.createMask(guid, zIndex);
+      const { contentPStyle } = PopsElementHandler.createContentStyle("loading", config);
+      const animHTML = PopsElementHandler.createAnim(
         guid,
         PopsType,
         config,
@@ -13536,12 +13761,12 @@ handlePush(type, value) {
         "",
         zIndex
       );
-      let $anim = PopsElementHandler.parseElement(animHTML);
-      let { popsElement: $pops } = PopsHandler.handleQueryElement($anim, PopsType);
+      const $anim = PopsElementHandler.parseElement(animHTML);
+      const { popsElement: $pops } = PopsHandler.handleQueryElement($anim, PopsType);
       let $mask = null;
-      let elementList = [$anim];
+      const elementList = [$anim];
       if (config.mask.enable) {
-        let _handleMask_ = PopsHandler.handleMask({
+        const _handleMask_ = PopsHandler.handleMask({
           type: PopsType,
           guid,
           config,
@@ -13551,7 +13776,7 @@ handlePush(type, value) {
         $mask = _handleMask_.maskElement;
         elementList.push($mask);
       }
-      let eventDetails = PopsHandler.handleLoadingEventDetails(guid, PopsType, $anim, $pops, $mask, config);
+      const eventDetails = PopsHandler.handleLoadingEventDetails(guid, PopsType, $anim, $pops, $mask, config);
       popsDOMUtils.append(config.parent, elementList);
       if ($mask != null) {
         $anim.after($mask);
@@ -13566,7 +13791,7 @@ handlePush(type, value) {
         popsDOMUtils.css($anim, "position", "absolute !important");
         $mask && popsDOMUtils.css($mask, "position", "absolute !important");
       }
-      let result = PopsHandler.handleResultDetails(eventDetails);
+      const result = PopsHandler.handleResultDetails(eventDetails);
       return result;
     }
   };
@@ -13778,13 +14003,13 @@ clickEvent() {
           css: PopsCSS.folderCSS
         }
       ]);
-      Folder_ICON.docx = Folder_ICON.doc;
-      Folder_ICON.rtf = Folder_ICON.doc;
-      Folder_ICON.xlsx = Folder_ICON.xls;
-      Folder_ICON.pptx = Folder_ICON.ppt;
-      Folder_ICON.dmg = Folder_ICON.ipa;
-      Folder_ICON.json = Folder_ICON.js;
-      let zipIconList = [
+      Reflect.set(Folder_ICON, "docx", Folder_ICON.doc);
+      Reflect.set(Folder_ICON, "rtf", Folder_ICON.doc);
+      Reflect.set(Folder_ICON, "xlsx", Folder_ICON.xls);
+      Reflect.set(Folder_ICON, "pptx", Folder_ICON.ppt);
+      Reflect.set(Folder_ICON, "dmg", Folder_ICON.ipa);
+      Reflect.set(Folder_ICON, "json", Folder_ICON.js);
+      const zipIconList = [
         "rar",
         "7z",
         "arj",
@@ -13802,9 +14027,9 @@ clickEvent() {
         "zst",
         "001"
       ];
-      let imageIconList = ["jpg", "jpeg", "ico", "webp"];
-      let codeLanguageIconList = ["htm", "py", "vue", "bat", "sh", "vbs", "java", "kt"];
-      let androidIconList = ["apk", "apkm", "xapk"];
+      const imageIconList = ["jpg", "jpeg", "ico", "webp"];
+      const codeLanguageIconList = ["htm", "py", "vue", "bat", "sh", "vbs", "java", "kt"];
+      const androidIconList = ["apk", "apkm", "xapk"];
       zipIconList.forEach((keyName) => {
         Folder_ICON[keyName] = Folder_ICON.zip;
       });
@@ -13818,14 +14043,14 @@ clickEvent() {
         Folder_ICON[keyName] = Folder_ICON.apk;
       });
       if (details?.folder) {
-        config.folder = details.folder;
+        Reflect.set(config, "folder", details.folder);
       }
-      let zIndex = PopsHandler.handleZIndex(config.zIndex);
-      let maskHTML = PopsElementHandler.createMask(guid, zIndex);
-      let headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
-      let bottomBtnHTML = PopsElementHandler.createBottom(popsType, config);
-      let { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(popsType, config);
-      let animHTML = PopsElementHandler.createAnim(
+      const zIndex = PopsHandler.handleZIndex(config.zIndex);
+      const maskHTML = PopsElementHandler.createMask(guid, zIndex);
+      const headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
+      const bottomBtnHTML = PopsElementHandler.createBottom(popsType, config);
+      const { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(popsType, config);
+      const animHTML = PopsElementHandler.createAnim(
         guid,
         popsType,
         config,
@@ -13926,8 +14151,8 @@ clickEvent() {
         bottomBtnHTML,
         zIndex
       );
-      let $anim = PopsElementHandler.parseElement(animHTML);
-      let {
+      const $anim = PopsElementHandler.parseElement(animHTML);
+      const {
         popsElement: $pops,
         titleElement: $title,
         contentElement: $content,
@@ -13944,9 +14169,9 @@ folderListBodyElement,
         folderListSortFileSizeElement
       } = PopsHandler.handleQueryElement($anim, popsType);
       let $mask = null;
-      let elementList = [$anim];
+      const elementList = [$anim];
       if (config.mask.enable) {
-        let _handleMask_ = PopsHandler.handleMask({
+        const _handleMask_ = PopsHandler.handleMask({
           type: popsType,
           guid,
           config,
@@ -13956,7 +14181,7 @@ folderListBodyElement,
         $mask = _handleMask_.maskElement;
         elementList.push($mask);
       }
-      let eventDetails = PopsHandler.handleEventDetails(guid, $shadowContainer, $shadowRoot, popsType, $anim, $pops, $mask, config);
+      const eventDetails = PopsHandler.handleEventDetails(guid, $shadowContainer, $shadowRoot, popsType, $anim, $pops, $mask, config);
       PopsHandler.handleClickEvent("close", $btnCloseBtn, eventDetails, config.btn.close.callback);
       PopsHandler.handleClickEvent("ok", btnOkElement, eventDetails, config.btn.ok.callback);
       PopsHandler.handleClickEvent("cancel", btnCancelElement, eventDetails, config.btn.cancel.callback);
@@ -13973,7 +14198,7 @@ folderListBodyElement,
         init() {
           config.folder.sort();
           this.initFolderView(config.folder);
-          let allFilesElement = folderFileListBreadcrumbPrimaryElement.querySelector(".pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:first-child");
+          const allFilesElement = folderFileListBreadcrumbPrimaryElement.querySelector(".pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:first-child");
           Reflect.set(allFilesElement, "_config_", config.folder);
           popsDOMUtils.on(allFilesElement, "click", (event) => {
             this.setBreadcrumbClickEvent(event, true, config.folder);
@@ -14008,13 +14233,13 @@ folderListBodyElement,
           }
         }
 createFolderRowElement(fileName, latestTime = "-", fileSize = "-", isFolder = false) {
-          let origin_fileName = fileName;
-          let origin_latestTime = latestTime;
-          let origin_fileSize = fileSize;
-          let folderElement = popsDOMUtils.createElement("tr");
-          let fileNameElement = popsDOMUtils.createElement("td");
-          let fileTimeElement = popsDOMUtils.createElement("td");
-          let fileFormatSize = popsDOMUtils.createElement("td");
+          const origin_fileName = fileName;
+          const origin_latestTime = latestTime;
+          const origin_fileSize = fileSize;
+          const folderElement = popsDOMUtils.createElement("tr");
+          const fileNameElement = popsDOMUtils.createElement("td");
+          const fileTimeElement = popsDOMUtils.createElement("td");
+          const fileFormatSize = popsDOMUtils.createElement("td");
           let fileType = "";
           let fileIcon = Folder_ICON.folder;
           if (isFolder) {
@@ -14028,14 +14253,14 @@ createFolderRowElement(fileName, latestTime = "-", fileSize = "-", isFolder = fa
             if (typeof fileSize === "number") {
               fileSize = popsUtils.formatByteToSize(fileSize);
             }
-            for (let keyName in Folder_ICON) {
+            for (const keyName in Folder_ICON) {
               if (fileName.toLowerCase().endsWith("." + keyName)) {
                 fileType = keyName;
                 fileIcon = Folder_ICON[keyName];
                 break;
               }
             }
-            if (!Boolean(fileIcon)) {
+            if (!fileIcon) {
               fileType = "Null";
               fileIcon = Folder_ICON.Null;
             }
@@ -14073,7 +14298,7 @@ createFolderRowElement(fileName, latestTime = "-", fileSize = "-", isFolder = fa
 				</div>
 				`
           );
-          let __value__ = {
+          const __value__ = {
             fileName: origin_fileName,
             latestTime: origin_latestTime,
             fileSize: origin_fileSize,
@@ -14094,11 +14319,11 @@ createFolderRowElement(fileName, latestTime = "-", fileSize = "-", isFolder = fa
           };
         }
 createFolderRowElementByMobile(fileName, latestTime = "-", fileSize = "-", isFolder = false) {
-          let origin_fileName = fileName;
-          let origin_latestTime = latestTime;
-          let origin_fileSize = fileSize;
-          let folderElement = popsDOMUtils.createElement("tr");
-          let fileNameElement = popsDOMUtils.createElement("td");
+          const origin_fileName = fileName;
+          const origin_latestTime = latestTime;
+          const origin_fileSize = fileSize;
+          const folderElement = popsDOMUtils.createElement("tr");
+          const fileNameElement = popsDOMUtils.createElement("td");
           let fileType = "";
           let fileIcon = Folder_ICON.folder;
           if (isFolder) {
@@ -14112,14 +14337,14 @@ createFolderRowElementByMobile(fileName, latestTime = "-", fileSize = "-", isFol
             if (typeof fileSize === "number") {
               fileSize = popsUtils.formatByteToSize(fileSize);
             }
-            for (let keyName in Folder_ICON) {
+            for (const keyName in Folder_ICON) {
               if (fileName.toLowerCase().endsWith("." + keyName)) {
                 fileType = keyName;
                 fileIcon = Folder_ICON[keyName];
                 break;
               }
             }
-            if (!Boolean(fileIcon)) {
+            if (!fileIcon) {
               fileType = "Null";
               fileIcon = Folder_ICON.Null;
             }
@@ -14138,7 +14363,7 @@ createFolderRowElementByMobile(fileName, latestTime = "-", fileSize = "-", isFol
 				</div>
 			`
           );
-          let __value__ = {
+          const __value__ = {
             fileName: origin_fileName,
             latestTime: origin_latestTime,
             fileSize: origin_fileSize,
@@ -14156,13 +14381,13 @@ clearFolderInfoView() {
           PopsSafeUtils.setSafeHTML(folderListBodyElement, "");
         }
 createHeaderArrowIcon() {
-          let $arrowIcon = popsDOMUtils.createElement("div", {
+          const $arrowIcon = popsDOMUtils.createElement("div", {
             className: "iconArrow"
           });
           return $arrowIcon;
         }
 createBreadcrumb(folderName, folderDataConfig) {
-          let $breadcrumb = popsDOMUtils.createElement("span", {
+          const $breadcrumb = popsDOMUtils.createElement("span", {
             className: "pops-folder-file-list-breadcrumb-allFiles cursor-p",
             innerHTML: `<a>${folderName}</a>`,
             _config_: folderDataConfig
@@ -14173,8 +14398,8 @@ createBreadcrumb(folderName, folderDataConfig) {
         }
 setBreadcrumbClickEvent(clickEvent, isTop, dataConfigList) {
           this.clearFolderInfoView();
-          let $click = clickEvent.target;
-          let currentBreadcrumb = $click.closest("span.pops-folder-file-list-breadcrumb-allFiles");
+          const $click = clickEvent.target;
+          const currentBreadcrumb = $click.closest("span.pops-folder-file-list-breadcrumb-allFiles");
           if (currentBreadcrumb) {
             while (currentBreadcrumb.nextElementSibling) {
               currentBreadcrumb.nextElementSibling.remove();
@@ -14182,7 +14407,7 @@ setBreadcrumbClickEvent(clickEvent, isTop, dataConfigList) {
           } else {
             console.error("获取导航按钮失败");
           }
-          let loadingMask = PopsLoading.init({
+          const loadingMask = PopsLoading.init({
             parent: $content,
             content: {
               text: "获取文件列表中..."
@@ -14201,7 +14426,7 @@ setBreadcrumbClickEvent(clickEvent, isTop, dataConfigList) {
         }
 async enterFolder(clickEvent, dataConfig) {
           this.clearFolderInfoView();
-          let loadingMask = PopsLoading.init({
+          const loadingMask = PopsLoading.init({
             parent: $content,
             content: {
               text: "获取文件列表中..."
@@ -14212,9 +14437,9 @@ async enterFolder(clickEvent, dataConfig) {
             addIndexCSS: false
           });
           if (typeof dataConfig.clickEvent === "function") {
-            let childConfig = await dataConfig.clickEvent(clickEvent, dataConfig);
+            const childConfig = await dataConfig.clickEvent(clickEvent, dataConfig);
             folderFileListBreadcrumbPrimaryElement.appendChild(this.createHeaderArrowIcon());
-            let breadcrumbAllFilesElement = this.createBreadcrumb(dataConfig.fileName, childConfig);
+            const breadcrumbAllFilesElement = this.createBreadcrumb(dataConfig.fileName, childConfig);
             folderFileListBreadcrumbPrimaryElement.appendChild(breadcrumbAllFilesElement);
             popsDOMUtils.on(breadcrumbAllFilesElement, "click", (event) => {
               this.setBreadcrumbClickEvent(event, false, childConfig);
@@ -14225,9 +14450,9 @@ async enterFolder(clickEvent, dataConfig) {
         }
 async downloadFile(clickEvent, $row, dataConfig) {
           popsDOMUtils.preventEvent(clickEvent);
-          let $link = $row.querySelector("a");
+          const $link = $row.querySelector("a");
           if (typeof dataConfig.clickEvent === "function") {
-            let downloadInfo = await dataConfig.clickEvent(clickEvent, dataConfig);
+            const downloadInfo = await dataConfig.clickEvent(clickEvent, dataConfig);
             if (downloadInfo != null && typeof downloadInfo === "object" && !Array.isArray(downloadInfo) && typeof downloadInfo.url === "string" && downloadInfo.url.trim() !== "") {
               $link.setAttribute("href", downloadInfo.url);
               $link.setAttribute("target", "_blank");
@@ -14236,7 +14461,7 @@ async downloadFile(clickEvent, $row, dataConfig) {
                   downloadInfo.mode = "aBlank";
                 }
                 if (downloadInfo.mode === "a" || downloadInfo.mode === "aBlank") {
-                  let downloadLinkElement = document.createElement("a");
+                  const downloadLinkElement = document.createElement("a");
                   if (downloadInfo.mode === "aBlank") {
                     downloadLinkElement.setAttribute("target", "_blank");
                   }
@@ -14249,7 +14474,7 @@ async downloadFile(clickEvent, $row, dataConfig) {
                     globalThis.open(downloadInfo.url);
                   }
                 } else if (downloadInfo.mode === "iframe") {
-                  let downloadIframeLinkElement = document.createElement("iframe");
+                  const downloadIframeLinkElement = document.createElement("iframe");
                   downloadIframeLinkElement.src = downloadInfo.url;
                   downloadIframeLinkElement.onload = function() {
                     popsUtils.setTimeout(() => {
@@ -14269,15 +14494,15 @@ async downloadFile(clickEvent, $row, dataConfig) {
         }
 sortFolderConfig(folderDataConfigList, sortName = "fileName", isDesc = false) {
           if (sortName === "fileName") {
-            let onlyFolderDataConfigList = folderDataConfigList.filter((value) => {
+            const onlyFolderDataConfigList = folderDataConfigList.filter((value) => {
               return value.isFolder;
             });
-            let onlyFileDataConfigList = folderDataConfigList.filter((value) => {
+            const onlyFileDataConfigList = folderDataConfigList.filter((value) => {
               return !value.isFolder;
             });
             onlyFolderDataConfigList.sort((leftConfig, rightConfig) => {
-              let beforeVal = leftConfig[sortName].toString();
-              let afterVal = rightConfig[sortName].toString();
+              const beforeVal = leftConfig[sortName].toString();
+              const afterVal = rightConfig[sortName].toString();
               let compareVal = beforeVal.localeCompare(afterVal);
               if (isDesc) {
                 if (compareVal > 0) {
@@ -14289,8 +14514,8 @@ sortFolderConfig(folderDataConfigList, sortName = "fileName", isDesc = false) {
               return compareVal;
             });
             onlyFileDataConfigList.sort((leftConfig, rightConfig) => {
-              let beforeVal = leftConfig[sortName].toString();
-              let afterVal = rightConfig[sortName].toString();
+              const beforeVal = leftConfig[sortName].toString();
+              const afterVal = rightConfig[sortName].toString();
               let compareVal = beforeVal.localeCompare(afterVal);
               if (isDesc) {
                 if (compareVal > 0) {
@@ -14340,13 +14565,13 @@ initFolderView(dataConfig) {
           this.sortFolderConfig(dataConfig, config.sort.name, config.sort.isDesc);
           dataConfig.forEach((item) => {
             if (item.isFolder) {
-              let { folderElement, fileNameElement } = popsUtils.isPhone() ? this.createFolderRowElementByMobile(item.fileName, "", "", true) : this.createFolderRowElement(item.fileName, "", "", true);
+              const { folderElement, fileNameElement } = popsUtils.isPhone() ? this.createFolderRowElementByMobile(item.fileName, "", "", true) : this.createFolderRowElement(item.fileName, "", "", true);
               popsDOMUtils.on(fileNameElement, "click", (event) => {
                 this.enterFolder(event, item);
               });
               folderListBodyElement.appendChild(folderElement);
             } else {
-              let { folderElement, fileNameElement } = popsUtils.isPhone() ? this.createFolderRowElementByMobile(item.fileName, item.latestTime, item.fileSize, false) : this.createFolderRowElement(item.fileName, item.latestTime, item.fileSize, false);
+              const { folderElement, fileNameElement } = popsUtils.isPhone() ? this.createFolderRowElementByMobile(item.fileName, item.latestTime, item.fileSize, false) : this.createFolderRowElement(item.fileName, item.latestTime, item.fileSize, false);
               popsDOMUtils.on(fileNameElement, "click", (event) => {
                 this.downloadFile(event, fileNameElement, item);
               });
@@ -14375,19 +14600,19 @@ arrowToSortFolderInfoView(target, event, sortName) {
             config.sort.name = sortName;
             config.sort.isDesc = !config.sort.isDesc;
           }
-          let arrowUp = target.querySelector(".pops-folder-icon-arrow-up");
-          let arrowDown = target.querySelector(".pops-folder-icon-arrow-down");
+          const arrowUp = target.querySelector(".pops-folder-icon-arrow-up");
+          const arrowDown = target.querySelector(".pops-folder-icon-arrow-down");
           this.changeArrowActive(arrowUp, arrowDown, config.sort.isDesc);
           if (typeof config.sort.callback === "function" && config.sort.callback(target, event, config.sort.name, config.sort.isDesc)) {
             return;
           }
-          let childrenList = [];
+          const childrenList = [];
           Array.from(folderListBodyElement.children).forEach((trElement) => {
-            let __value__ = Reflect.get(trElement, "__value__");
+            const __value__ = Reflect.get(trElement, "__value__");
             Reflect.set(__value__, "target", trElement);
             childrenList.push(__value__);
           });
-          let sortedConfigList = this.sortFolderConfig(childrenList, config.sort.name, config.sort.isDesc);
+          const sortedConfigList = this.sortFolderConfig(childrenList, config.sort.name, config.sort.isDesc);
           sortedConfigList.forEach((item) => {
             folderListBodyElement.appendChild(item.target);
           });
@@ -14413,7 +14638,7 @@ arrowToSortFolderInfoView(target, event, sortName) {
         $shadowContainer,
         $shadowRoot
       });
-      let result = PopsHandler.handleResultDetails(eventDetails);
+      const result = PopsHandler.handleResultDetails(eventDetails);
       return result;
     }
   };
@@ -14520,16 +14745,14 @@ arrowToSortFolderInfoView(target, event, sortName) {
           css: PopsCSS.iframeCSS
         }
       ]);
-      let maskExtraStyle = (
-config.animation != null && config.animation != "" ? "position:absolute;" : ""
-      );
-      let zIndex = PopsHandler.handleZIndex(config.zIndex);
-      let maskHTML = PopsElementHandler.createMask(guid, zIndex, maskExtraStyle);
-      let headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
-      let iframeLoadingHTML = '<div class="pops-loading"></div>';
-      let titleText = config.title.text.trim() !== "" ? config.title.text : config.url;
-      let { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(popsType, config);
-      let animHTML = PopsElementHandler.createAnim(
+      const maskExtraStyle = config.animation != null && config.animation != "" ? "position:absolute;" : "";
+      const zIndex = PopsHandler.handleZIndex(config.zIndex);
+      const maskHTML = PopsElementHandler.createMask(guid, zIndex, maskExtraStyle);
+      const headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
+      const iframeLoadingHTML = '<div class="pops-loading"></div>';
+      const titleText = config.title.text.trim() !== "" ? config.title.text : config.url;
+      const { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(popsType, config);
+      const animHTML = PopsElementHandler.createAnim(
         guid,
         popsType,
         config,
@@ -14543,19 +14766,19 @@ config.animation != null && config.animation != "" ? "position:absolute;" : ""
         "",
         zIndex
       );
-      let $anim = PopsElementHandler.parseElement(animHTML);
-      let { popsElement: $pops, headerCloseBtnElement, headerControlsElement, titleElement: $title, iframeElement: $iframe, loadingElement, contentLoadingElement: $contentLoading, headerMinBtnElement, headerMaxBtnElement, headerMiseBtnElement } = PopsHandler.handleQueryElement($anim, popsType);
+      const $anim = PopsElementHandler.parseElement(animHTML);
+      const { popsElement: $pops, headerCloseBtnElement, headerControlsElement, titleElement: $title, iframeElement: $iframe, loadingElement, contentLoadingElement: $contentLoading, headerMinBtnElement, headerMaxBtnElement, headerMiseBtnElement } = PopsHandler.handleQueryElement($anim, popsType);
       let $iframeContainer = PopsCore.document.querySelector(".pops-iframe-container");
       if (!$iframeContainer) {
         $iframeContainer = PopsCore.document.createElement("div");
         $iframeContainer.className = "pops-iframe-container";
-        $iframeContainer.style.cssText = "display: flex;position: fixed;bottom: 0px;flex-flow: wrap-reverse;user-select: none;-webkit-user-select: none;-ms-user-select: none;-moz-user-select: none;";
+        $iframeContainer.style.cssText = "display: flex;position: fixed;bottom: 0px;flex-flow: wrap-reverse;-webkit-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;";
         popsDOMUtils.appendBody($iframeContainer);
       }
       let $mask = null;
-      let elementList = [$anim];
+      const elementList = [$anim];
       if (config.mask.enable) {
-        let _handleMask_ = PopsHandler.handleMask({
+        const _handleMask_ = PopsHandler.handleMask({
           type: popsType,
           guid,
           config,
@@ -14565,7 +14788,7 @@ config.animation != null && config.animation != "" ? "position:absolute;" : ""
         $mask = _handleMask_.maskElement;
         elementList.push($mask);
       }
-      let eventDetails = PopsHandler.handleEventDetails(guid, $shadowContainer, $shadowRoot, popsType, $anim, $pops, $mask, config);
+      const eventDetails = PopsHandler.handleEventDetails(guid, $shadowContainer, $shadowRoot, popsType, $anim, $pops, $mask, config);
       eventDetails["iframeElement"] = $iframe;
       popsDOMUtils.on($anim, popsDOMUtils.getAnimationEndNameList(), function() {
         $anim.style.width = "0%";
@@ -14698,7 +14921,7 @@ config.animation != null && config.animation != "" ? "position:absolute;" : ""
         $shadowContainer,
         $shadowRoot
       });
-      let result = PopsHandler.handleResultDetails(eventDetails);
+      const result = PopsHandler.handleResultDetails(eventDetails);
       return result;
     }
   };
@@ -15139,7 +15362,7 @@ props: {},
           ],
 props: {},
           forms: [],
-          clickFirstCallback: function(event, rightHeaderElement, rightContainerElement) {
+          clickFirstCallback: function() {
             return false;
           }
         },
@@ -15155,7 +15378,7 @@ props: {},
           ],
 props: {},
           forms: [],
-          clickFirstCallback: function(event, rightHeaderElement, rightContainerElement) {
+          clickFirstCallback: function() {
             return false;
           }
         }
@@ -15205,50 +15428,50 @@ isFloat(num) {
       return Number(num) === num && num % 1 !== 0;
     },
 add(number1, number2) {
-      let number1length, number2length, powValue;
+      let number1length, number2length;
       try {
         number1length = number1.toString().split(".")[1].length;
-      } catch (error) {
+      } catch {
         number1length = 0;
       }
       try {
         number2length = number2.toString().split(".")[1].length;
-      } catch (error) {
+      } catch {
         number2length = 0;
       }
-      powValue = Math.pow(10, Math.max(number1length, number2length));
+      const powValue = Math.pow(10, Math.max(number1length, number2length));
       return Math.round(number1 * powValue + number2 * powValue) / powValue;
     },
 sub(number1, number2) {
-      let number1length, number2length, powValue;
+      let number1length, number2length;
       try {
         number1length = number1.toString().split(".")[1].length;
-      } catch (error) {
+      } catch {
         number1length = 0;
       }
       try {
         number2length = number2.toString().split(".")[1].length;
-      } catch (error) {
+      } catch {
         number2length = 0;
       }
-      powValue = Math.pow(10, Math.max(number1length, number2length));
-      let fixedValue = number1length >= number2length ? number1length : number2length;
+      const powValue = Math.pow(10, Math.max(number1length, number2length));
+      const fixedValue = number1length >= number2length ? number1length : number2length;
       return (Math.round(number1 * powValue - number2 * powValue) / powValue).toFixed(fixedValue);
     },
 division(number1, number2) {
-      let number1length, number2length, number1ReplaceValue, number2ReplaceValue;
+      let number1length, number2length;
       try {
         number1length = number1.toString().split(".")[1].length;
-      } catch (error) {
+      } catch {
         number1length = 0;
       }
       try {
         number2length = number2.toString().split(".")[1].length;
-      } catch (error) {
+      } catch {
         number2length = 0;
       }
-      number1ReplaceValue = Number(number1.toString().replace(".", ""));
-      number2ReplaceValue = Number(number2.toString().replace(".", ""));
+      const number1ReplaceValue = Number(number1.toString().replace(".", ""));
+      const number2ReplaceValue = Number(number2.toString().replace(".", ""));
       return number1ReplaceValue / number2ReplaceValue * Math.pow(10, number2length - number1length);
     }
   };
@@ -15315,7 +15538,7 @@ division(number1, number2) {
       this.init();
     }
     init() {
-      let toolTipInfo = this.createToolTip();
+      const toolTipInfo = this.createToolTip();
       this.$el.$toolTip = toolTipInfo.$toolTipContainer;
       this.$el.$content = toolTipInfo.$toolTipContent;
       this.$el.$arrow = toolTipInfo.$toolTipArrow;
@@ -15328,7 +15551,7 @@ division(number1, number2) {
       }
     }
 createToolTip() {
-      let $toolTipContainer = popsDOMUtils.createElement("div", {
+      const $toolTipContainer = popsDOMUtils.createElement("div", {
         className: "pops-tip",
         innerHTML: (
 `
@@ -15340,14 +15563,14 @@ createToolTip() {
         "data-position": this.$data.config.isFixed ? "fixed" : "absolute",
         "data-guid": this.$data.guid
       });
-      let $toolTipContent = $toolTipContainer.querySelector(".pops-tip-content");
-      let $toolTipArrow = $toolTipContainer.querySelector(".pops-tip-arrow");
+      const $toolTipContent = $toolTipContainer.querySelector(".pops-tip-content");
+      const $toolTipArrow = $toolTipContainer.querySelector(".pops-tip-arrow");
       if (typeof this.$data.config.className === "string" && this.$data.config.className.trim() !== "") {
         popsDOMUtils.addClassName($toolTipContainer, this.$data.config.className);
       }
       $toolTipContainer.style.zIndex = PopsHandler.handleZIndex(this.$data.config.zIndex).toString();
       if (this.$data.config.style != null) {
-        let cssNode = popsDOMUtils.createElement("style", {
+        const cssNode = popsDOMUtils.createElement("style", {
           type: "text/css",
           innerHTML: this.$data.config.style
         });
@@ -15370,14 +15593,14 @@ changeContent(text) {
         text = this.getContent();
       }
       if (this.$data.config.isDiffContent) {
-        let contentPropKey = "data-content";
-        let originContentText = this.$el.$content[contentPropKey];
+        const contentPropKey = "data-content";
+        const originContentText = Reflect.get(this.$el.$content, contentPropKey);
         if (typeof originContentText === "string") {
           if (originContentText === text) {
             return;
           }
         }
-        this.$el.$content[contentPropKey] = text;
+        Reflect.set(this.$el.$content, contentPropKey, text);
       }
       PopsSafeUtils.setSafeHTML(this.$el.$content, text);
     }
@@ -15390,15 +15613,15 @@ changeZIndex() {
       this.$el.$toolTip.style.setProperty("z-index", zIndex.toString());
     }
 calcToolTipPosition(targetElement, arrowDistance, otherDistance, event) {
-      let offsetInfo = popsDOMUtils.offset(targetElement, !this.$data.config.isFixed);
-      let targetElement_width = offsetInfo.width;
-      let targetElement_height = offsetInfo.height;
-      let targetElement_top = offsetInfo.top;
-      let targetElement_left = offsetInfo.left;
-      let toolTipElement_width = popsDOMUtils.outerWidth(this.$el.$toolTip);
-      let toolTipElement_height = popsDOMUtils.outerHeight(this.$el.$toolTip);
-      let targetElement_X_center_pos = targetElement_left + targetElement_width / 2 - toolTipElement_width / 2;
-      let targetElement_Y_center_pos = targetElement_top + targetElement_height / 2 - toolTipElement_height / 2;
+      const offsetInfo = popsDOMUtils.offset(targetElement, !this.$data.config.isFixed);
+      const targetElement_width = offsetInfo.width;
+      const targetElement_height = offsetInfo.height;
+      const targetElement_top = offsetInfo.top;
+      const targetElement_left = offsetInfo.left;
+      const toolTipElement_width = popsDOMUtils.outerWidth(this.$el.$toolTip);
+      const toolTipElement_height = popsDOMUtils.outerHeight(this.$el.$toolTip);
+      const targetElement_X_center_pos = targetElement_left + targetElement_width / 2 - toolTipElement_width / 2;
+      const targetElement_Y_center_pos = targetElement_top + targetElement_height / 2 - toolTipElement_height / 2;
       let mouseX = 0;
       let mouseY = 0;
       if (event != null) {
@@ -15406,7 +15629,7 @@ calcToolTipPosition(targetElement, arrowDistance, otherDistance, event) {
           mouseX = event.pageX;
           mouseY = event.y;
         } else if (event instanceof TouchEvent) {
-          let touchEvent = event.touches[0];
+          const touchEvent = event.touches[0];
           mouseX = touchEvent.pageX;
           mouseY = touchEvent.pageY;
         } else {
@@ -15452,9 +15675,9 @@ calcToolTipPosition(targetElement, arrowDistance, otherDistance, event) {
       };
     }
 changePosition(event) {
-      let positionInfo = this.calcToolTipPosition(this.$data.config.target, this.$data.config.arrowDistance, this.$data.config.otherDistance, event);
-      let positionKey = this.$data.config.position.toUpperCase();
-      let positionDetail = positionInfo[positionKey];
+      const positionInfo = this.calcToolTipPosition(this.$data.config.target, this.$data.config.arrowDistance, this.$data.config.otherDistance, event);
+      const positionKey = this.$data.config.position.toUpperCase();
+      const positionDetail = positionInfo[positionKey];
       if (positionDetail) {
         this.$el.$toolTip.style.left = positionDetail.left + "px";
         this.$el.$toolTip.style.top = positionDetail.top + "px";
@@ -15486,7 +15709,7 @@ addCloseTimeoutId(type, timeId) {
       }
     }
 clearCloseTimeoutId(type, timeId) {
-      let timeIdList = type === "MouseEvent" ? this.$data.timeId_close_MouseEvent : this.$data.timeId_close_TouchEvent;
+      const timeIdList = type === "MouseEvent" ? this.$data.timeId_close_MouseEvent : this.$data.timeId_close_TouchEvent;
       for (let index = 0; index < timeIdList.length; index++) {
         const currentTimeId = timeIdList[index];
         if (typeof timeId === "number") {
@@ -15503,11 +15726,11 @@ clearCloseTimeoutId(type, timeId) {
       }
     }
 show(...args) {
-      let event = args[0];
-      let eventType = event instanceof MouseEvent ? "MouseEvent" : "TouchEvent";
+      const event = args[0];
+      const eventType = event instanceof MouseEvent ? "MouseEvent" : "TouchEvent";
       this.clearCloseTimeoutId(eventType);
       if (typeof this.$data.config.showBeforeCallBack === "function") {
-        let result = this.$data.config.showBeforeCallBack(this.$el.$toolTip);
+        const result = this.$data.config.showBeforeCallBack(this.$el.$toolTip);
         if (typeof result === "boolean" && !result) {
           return;
         }
@@ -15537,16 +15760,16 @@ offShowEvent() {
       });
     }
 close(...args) {
-      let event = args[0];
-      let eventType = event instanceof MouseEvent ? "MouseEvent" : "TouchEvent";
+      const event = args[0];
+      const eventType = event instanceof MouseEvent ? "MouseEvent" : "TouchEvent";
       if (event && event instanceof MouseEvent) {
-        let $target = event.composedPath()[0];
+        const $target = event.composedPath()[0];
         if ($target != this.$data.config.target && $target != this.$el.$toolTip) {
           return;
         }
       }
       if (typeof this.$data.config.closeBeforeCallBack === "function") {
-        let result = this.$data.config.closeBeforeCallBack(this.$el.$toolTip);
+        const result = this.$data.config.closeBeforeCallBack(this.$el.$toolTip);
         if (typeof result === "boolean" && !result) {
           return;
         }
@@ -15554,12 +15777,12 @@ close(...args) {
       if (this.$data.config.delayCloseTime == null || typeof this.$data.config.delayCloseTime === "number" && this.$data.config.delayCloseTime <= 0) {
         this.$data.config.delayCloseTime = 100;
       }
-      let timeId = popsUtils.setTimeout(() => {
+      const timeId = popsUtils.setTimeout(() => {
         this.clearCloseTimeoutId(eventType, timeId);
         if (this.$el.$toolTip == null) {
           return;
         }
-        let motion = this.$el.$toolTip.getAttribute("data-motion");
+        const motion = this.$el.$toolTip.getAttribute("data-motion");
         if (motion == null || motion.trim() === "") {
           this.toolTipAnimationFinishEvent();
         } else {
@@ -15654,7 +15877,7 @@ offToolTipMouseLeaveEvent() {
           css: PopsCSS.tooltipCSS
         }
       ]);
-      let toolTip = new ToolTip(config, guid, {
+      const toolTip = new ToolTip(config, guid, {
         $shadowContainer,
         $shadowRoot
       });
@@ -15697,9 +15920,9 @@ init(details) {
         let $defaultAsideItem = null;
         let isScrollToDefaultView = false;
         details.config.content.forEach((asideItemConfig) => {
-          let $asideLiElement = this.createAsideItem(asideItemConfig);
+          const $asideLiElement = this.createAsideItem(asideItemConfig);
           this.setAsideItemClickEvent($asideLiElement, asideItemConfig);
-          let isBottom = typeof asideItemConfig.isBottom === "function" ? asideItemConfig.isBottom() : asideItemConfig.isBottom;
+          const isBottom = typeof asideItemConfig.isBottom === "function" ? asideItemConfig.isBottom() : asideItemConfig.isBottom;
           if (isBottom) {
             this.asideBottomULElement.appendChild($asideLiElement);
           } else {
@@ -15772,7 +15995,7 @@ setElementProps(element, props) {
           return;
         }
         Object.keys(props).forEach((propName) => {
-          let value = props[propName];
+          const value = props[propName];
           if (propName === "innerHTML") {
             PopsSafeUtils.setSafeHTML(element, value);
             return;
@@ -15788,7 +16011,7 @@ setElementClassName(element, className) {
           className = className();
         }
         if (typeof className === "string") {
-          let splitClassName = className.split(" ");
+          const splitClassName = className.split(" ");
           splitClassName.forEach((classNameStr) => {
             element.classList.add(classNameStr);
           });
@@ -15799,17 +16022,17 @@ setElementClassName(element, className) {
         }
       },
 createAsideItem(asideConfig) {
-        let $li = document.createElement("li");
+        const $li = document.createElement("li");
         $li.id = asideConfig.id;
         Reflect.set($li, "__forms__", asideConfig.forms);
-        let title = typeof asideConfig.title === "function" ? asideConfig.title() : asideConfig.title;
+        const title = typeof asideConfig.title === "function" ? asideConfig.title() : asideConfig.title;
         PopsSafeUtils.setSafeHTML($li, title);
         this.setElementClassName($li, "pops-panel-aside-item");
         this.setElementClassName($li, asideConfig.className);
         this.setElementAttributes($li, asideConfig.attributes);
         this.setElementProps($li, asideConfig.props);
         const disableAsideItemHoverCSSClassName = "pops-panel-disabled-aside-hover-css";
-        let disableAsideItemHoverCSS = typeof asideConfig.disableAsideItemHoverCSS === "function" ? asideConfig.disableAsideItemHoverCSS() : asideConfig.disableAsideItemHoverCSS;
+        const disableAsideItemHoverCSS = typeof asideConfig.disableAsideItemHoverCSS === "function" ? asideConfig.disableAsideItemHoverCSS() : asideConfig.disableAsideItemHoverCSS;
         if (disableAsideItemHoverCSS) {
           $li.classList.add(disableAsideItemHoverCSSClassName);
         } else {
@@ -15818,13 +16041,13 @@ createAsideItem(asideConfig) {
         return $li;
       },
 createSectionContainerItem_switch(formConfig) {
-        let $li = document.createElement("li");
+        const $li = document.createElement("li");
         Reflect.set($li, "__formConfig__", formConfig);
         this.setElementClassName($li, formConfig.className);
         this.setElementAttributes($li, formConfig.attributes);
         this.setElementProps($li, formConfig.props);
         let leftDescriptionText = "";
-        if (Boolean(formConfig.description)) {
+        if (formConfig.description) {
           leftDescriptionText =
 `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
@@ -15854,14 +16077,14 @@ createSectionContainerItem_switch(formConfig) {
           },
           init() {
             this.setStatus(this.$data.value);
-            let disabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
+            const disabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
             if (disabled) {
               this.disable();
             }
             this.setClickEvent();
           },
 setClickEvent() {
-            let that = this;
+            const that = this;
             popsDOMUtils.on(this.$ele.core, "click", function(event) {
               if (that.$ele.input.disabled || that.$ele.switch.hasAttribute("data-disabled")) {
                 return;
@@ -15905,13 +16128,13 @@ notDisable() {
         return $li;
       },
 createSectionContainerItem_slider(formConfig) {
-        let $li = document.createElement("li");
+        const $li = document.createElement("li");
         Reflect.set($li, "__formConfig__", formConfig);
         this.setElementClassName($li, formConfig.className);
         this.setElementAttributes($li, formConfig.attributes);
         this.setElementProps($li, formConfig.props);
         let leftDescriptionText = "";
-        if (Boolean(formConfig.description)) {
+        if (formConfig.description) {
           leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
         PopsSafeUtils.setSafeHTML(
@@ -15924,19 +16147,19 @@ createSectionContainerItem_slider(formConfig) {
 				</div>
 			`
         );
-        let $rangeInput = $li.querySelector(".pops-panel-slider input[type=range]");
+        const $rangeInput = $li.querySelector(".pops-panel-slider input[type=range]");
         if (formConfig.step) {
           $rangeInput.setAttribute("step", formConfig.step.toString());
         }
         $rangeInput.value = formConfig.getValue().toString();
-        let getToolTipContent = function(value) {
+        const getToolTipContent = function(value) {
           if (typeof formConfig.getToolTipContent === "function") {
             return formConfig.getToolTipContent(value);
           } else {
             return value;
           }
         };
-        let tooltip = PopsTooltip.init({
+        const tooltip = PopsTooltip.init({
           target: $rangeInput.parentElement,
           content: () => {
             return getToolTipContent($rangeInput.value);
@@ -15959,13 +16182,13 @@ createSectionContainerItem_slider(formConfig) {
         return $li;
       },
 createSectionContainerItem_slider_new(formConfig) {
-        let $li = document.createElement("li");
+        const $li = document.createElement("li");
         Reflect.set($li, "__formConfig__", formConfig);
         this.setElementClassName($li, formConfig.className);
         this.setElementAttributes($li, formConfig.attributes);
         this.setElementProps($li, formConfig.props);
         let leftDescriptionText = "";
-        if (Boolean(formConfig.description)) {
+        if (formConfig.description) {
           leftDescriptionText =
 `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
@@ -16028,9 +16251,9 @@ intervalInit(checkStepTime = 200, maxTime = 1e4) {
             }
             this.$interval.isCheck = true;
             let isSuccess = false;
-            let oldTotalWidth = this.$data.totalWidth;
+            const oldTotalWidth = this.$data.totalWidth;
             let timer = void 0;
-            let interval = setInterval(() => {
+            const interval = setInterval(() => {
               if (isSuccess) {
                 this.$interval.isCheck = false;
                 clearTimeout(timer);
@@ -16069,11 +16292,11 @@ initTotalWidth() {
           },
 initStepMap() {
             let index = 0;
-            let blockNums = (this.max - this.min) / this.step;
+            const blockNums = (this.max - this.min) / this.step;
             this.$data.stepPx = this.$data.totalWidth / blockNums;
             let widthPx = 0;
             for (let stepValue = this.min; stepValue <= this.max; stepValue += this.step) {
-              let value = this.formatValue(stepValue);
+              const value = this.formatValue(stepValue);
               let info;
               if (value === this.min) {
                 info = {
@@ -16099,11 +16322,11 @@ initStepMap() {
           },
 initFloatStepMap() {
             let index = 0;
-            let blockNums = (this.max - this.min) / this.step;
+            const blockNums = (this.max - this.min) / this.step;
             this.$data.stepPx = this.$data.totalWidth / blockNums;
             let widthPx = 0;
             for (let stepValue = this.min; stepValue <= this.max; stepValue = PopsMathFloatUtils.add(stepValue, this.step)) {
-              let value = this.formatValue(stepValue);
+              const value = this.formatValue(stepValue);
               let info;
               if (value === this.min) {
                 info = {
@@ -16190,7 +16413,7 @@ isDisabledDrag() {
             return popsDOMUtils.containsClassName(this.$ele.runAway, "pops-slider-is-disabled");
           },
 isFormConfigDisabledDrag() {
-            let isDisabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
+            const isDisabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
             if (typeof isDisabled === "boolean") {
               return isDisabled;
             } else {
@@ -16202,8 +16425,8 @@ setRunAwayClickEvent() {
               if (event.target !== this.$ele.runAway && event.target !== this.$ele.bar) {
                 return;
               }
-              let clickX = parseFloat(event.offsetX.toString());
-              let dragStartResult = this.dragStartCallBack();
+              const clickX = parseFloat(event.offsetX.toString());
+              const dragStartResult = this.dragStartCallBack();
               if (!dragStartResult) {
                 return;
               }
@@ -16269,7 +16492,7 @@ setPanEvent() {
               if (!this.dragStartCallBack()) {
                 return;
               }
-              let oldValue = this.value;
+              const oldValue = this.value;
               const runAwayRect = this.$ele.runAway.getBoundingClientRect();
               let displacementX = event.x - (runAwayRect.left + globalThis.screenX);
               if (displacementX <= 0) {
@@ -16280,7 +16503,7 @@ setPanEvent() {
               currentDragX = displacementX;
               this.dragMoveCallBack(event, currentDragX, oldValue);
             });
-            this.$tooltip.on("at:end", (event) => {
+            this.$tooltip.on("at:end", () => {
               this.dragEndCallBack(currentDragX);
             });
           },
@@ -16295,7 +16518,7 @@ checkStopDragMove() {
               return;
             }
             this.$data.isCheckingStopDragMove = true;
-            let interval = setInterval(() => {
+            const interval = setInterval(() => {
               if (!this.$data.isMove) {
                 this.$data.isCheckingStopDragMove = false;
                 this.closeToolTip();
@@ -16315,7 +16538,7 @@ setToolTipEvent() {
                 return PopsPanelSlider.value.toString();
               }
             }
-            let tooltip = PopsTooltip.init({
+            const tooltip = PopsTooltip.init({
               target: this.$ele.button,
               content: getToolTipContent,
               zIndex: () => {
@@ -16329,13 +16552,13 @@ setToolTipEvent() {
                 passive: true
               },
               showBeforeCallBack: () => {
-                let isShowHoverTip = typeof formConfig.isShowHoverTip === "function" ? formConfig.isShowHoverTip() : typeof formConfig.isShowHoverTip === "boolean" ? formConfig.isShowHoverTip : true;
+                const isShowHoverTip = typeof formConfig.isShowHoverTip === "function" ? formConfig.isShowHoverTip() : typeof formConfig.isShowHoverTip === "boolean" ? formConfig.isShowHoverTip : true;
                 if (!isShowHoverTip) {
                   return false;
                 }
                 this.intervalInit();
               },
-              showAfterCallBack: (toolTipNode) => {
+              showAfterCallBack: () => {
                 tooltip.toolTip.changeContent(getToolTipContent());
               },
               closeBeforeCallBack: () => {
@@ -16356,7 +16579,7 @@ setToolTipEvent() {
         return $li;
       },
 createSectionContainerItem_input(formConfig) {
-        let $li = document.createElement("li");
+        const $li = document.createElement("li");
         Reflect.set($li, "__formConfig__", formConfig);
         this.setElementClassName($li, formConfig.className);
         this.setElementAttributes($li, formConfig.attributes);
@@ -16368,7 +16591,7 @@ createSectionContainerItem_input(formConfig) {
           inputType = "number";
         }
         let leftDescriptionText = "";
-        if (Boolean(formConfig.description)) {
+        if (formConfig.description) {
           leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
         PopsSafeUtils.setSafeHTML(
@@ -16408,7 +16631,7 @@ createSectionContainerItem_input(formConfig) {
               }
             }
             this.setInputChangeEvent();
-            let disabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
+            const disabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
             if (disabled) {
               this.disable();
             }
@@ -16505,13 +16728,13 @@ setInputChangeEvent() {
         return $li;
       },
 createSectionContainerItem_textarea(formConfig) {
-        let $li = document.createElement("li");
+        const $li = document.createElement("li");
         Reflect.set($li, "__formConfig__", formConfig);
         this.setElementClassName($li, formConfig.className);
         this.setElementAttributes($li, formConfig.attributes);
         this.setElementProps($li, formConfig.props);
         let leftDescriptionText = "";
-        if (Boolean(formConfig.description)) {
+        if (formConfig.description) {
           leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
         PopsSafeUtils.setSafeHTML(
@@ -16537,7 +16760,7 @@ createSectionContainerItem_textarea(formConfig) {
           init() {
             this.setValue(this.$data.value);
             this.setChangeEvent();
-            let disabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
+            const disabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
             if (disabled) {
               this.disable();
             }
@@ -16560,7 +16783,7 @@ createSectionContainerItem_textarea(formConfig) {
           },
 setChangeEvent() {
             popsDOMUtils.on(this.$ele.textarea, ["input", "propertychange"], (event) => {
-              let value = this.$ele.textarea.value;
+              const value = this.$ele.textarea.value;
               this.$data.value = value;
               if (typeof formConfig.callback === "function") {
                 formConfig.callback(event, value);
@@ -16574,13 +16797,13 @@ setChangeEvent() {
       },
 createSectionContainerItem_select(formConfig) {
         const that = this;
-        let $li = document.createElement("li");
+        const $li = document.createElement("li");
         Reflect.set($li, "__formConfig__", formConfig);
         this.setElementClassName($li, formConfig.className);
         this.setElementAttributes($li, formConfig.attributes);
         this.setElementProps($li, formConfig.props);
         let leftDescriptionText = "";
-        if (Boolean(formConfig.description)) {
+        if (formConfig.description) {
           leftDescriptionText =
 `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
@@ -16614,7 +16837,7 @@ createSectionContainerItem_select(formConfig) {
             this.initOption();
             this.setChangeEvent();
             this.setClickEvent();
-            let disabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
+            const disabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
             if (disabled) {
               this.disable();
             }
@@ -16640,7 +16863,7 @@ isDisabled() {
           },
 initOption() {
             formConfig.data.forEach((dataItem) => {
-              let optionElement = document.createElement("option");
+              const optionElement = document.createElement("option");
               this.setNodeValue(optionElement, this.$eleKey.value, dataItem.value);
               this.setNodeValue(optionElement, this.$eleKey.disable, dataItem.disable);
               this.setNodeValue(optionElement, this.$eleKey.forms, dataItem.forms);
@@ -16663,9 +16886,9 @@ setSelectOptionsDisableStatus() {
           },
 setOptionDisableStatus(optionElement) {
             let disable = false;
-            let optionDisableAttr = this.getNodeValue(optionElement, this.$eleKey.disable);
+            const optionDisableAttr = this.getNodeValue(optionElement, this.$eleKey.disable);
             if (optionDisableAttr === "function") {
-              let value = this.getNodeValue(optionElement, this.$eleKey.value);
+              const value = this.getNodeValue(optionElement, this.$eleKey.value);
               disable = Boolean(optionDisableAttr(value));
             }
             if (disable) {
@@ -16675,9 +16898,9 @@ setOptionDisableStatus(optionElement) {
             }
           },
 getSelectOptionInfo($option) {
-            let optionValue = this.getNodeValue($option, this.$eleKey.value);
-            let optionText = $option.innerText || $option.textContent;
-            let optionForms = this.getNodeValue($option, this.$eleKey.forms);
+            const optionValue = this.getNodeValue($option, this.$eleKey.value);
+            const optionText = $option.innerText || $option.textContent;
+            const optionForms = this.getNodeValue($option, this.$eleKey.forms);
             return {
               value: optionValue,
               text: optionText,
@@ -16687,15 +16910,15 @@ getSelectOptionInfo($option) {
           },
 setChangeEvent() {
             popsDOMUtils.on(this.$ele.select, "change", void 0, (event) => {
-              let $isSelectedElement = this.$ele.select[this.$ele.select.selectedIndex];
-              let selectInfo = this.getSelectOptionInfo($isSelectedElement);
+              const $isSelectedElement = this.$ele.select[this.$ele.select.selectedIndex];
+              const selectInfo = this.getSelectOptionInfo($isSelectedElement);
               this.setSelectOptionsDisableStatus();
               if (typeof formConfig.callback === "function") {
                 formConfig.callback(event, selectInfo.value, selectInfo.text);
               }
-              let forms = typeof selectInfo.forms === "function" ? selectInfo.forms() : selectInfo.forms;
+              const forms = typeof selectInfo.forms === "function" ? selectInfo.forms() : selectInfo.forms;
               if (Array.isArray(forms)) {
-                let childUListClassName = "pops-panel-select-child-forms";
+                const childUListClassName = "pops-panel-select-child-forms";
                 while ($li.nextElementSibling) {
                   if ($li.nextElementSibling.classList.contains(childUListClassName)) {
                     $li.nextElementSibling.remove();
@@ -16703,7 +16926,7 @@ setChangeEvent() {
                     break;
                   }
                 }
-                let $childUList = document.createElement("ul");
+                const $childUList = document.createElement("ul");
                 $childUList.className = childUListClassName;
                 popsDOMUtils.after($li, $childUList);
                 that.uListContainerAddItem(formConfig, {
@@ -16726,13 +16949,13 @@ setClickEvent() {
         return $li;
       },
 createSectionContainerItem_select_multiple_new(formConfig) {
-        let $li = document.createElement("li");
+        const $li = document.createElement("li");
         Reflect.set($li, "__formConfig__", formConfig);
         this.setElementClassName($li, formConfig.className);
         this.setElementAttributes($li, formConfig.attributes);
         this.setElementProps($li, formConfig.props);
         let leftDescriptionText = "";
-        if (Boolean(formConfig.description)) {
+        if (formConfig.description) {
           leftDescriptionText =
 `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
@@ -16787,7 +17010,7 @@ init() {
             this.initPlaceHolder();
             this.initTagElement();
             this.setSelectContainerClickEvent();
-            let disabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
+            const disabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
             if (disabled) {
               this.disable();
             }
@@ -16819,21 +17042,21 @@ initPlaceHolder() {
             if (typeof formConfig.placeholder === "string") {
               placeholder = formConfig.placeholder;
             } else if (typeof formConfig.placeholder === "function") {
-              let placeholderResult = formConfig.placeholder();
+              const placeholderResult = formConfig.placeholder();
               if (typeof placeholderResult === "string") {
                 placeholder = placeholderResult;
               }
             }
-            let $placeholder = popsDOMUtils.createElement("span", {
+            const $placeholder = popsDOMUtils.createElement("span", {
               innerText: placeholder
             });
             this.$el.$selectedPlaceHolderWrapper.appendChild($placeholder);
           },
 initTagElement() {
             formConfig.data.forEach((dataItem) => {
-              let findValue = this.$data.selectInfo.find((item) => item.value === dataItem.value);
+              const findValue = this.$data.selectInfo.find((item) => item.value === dataItem.value);
               if (findValue) {
-                let selectedInfo = this.createSelectedTagItem(dataItem);
+                const selectedInfo = this.createSelectedTagItem(dataItem);
                 this.addSelectedTagItem(selectedInfo.$tag);
                 this.setSelectedItemCloseIconClickEvent({
                   $tag: selectedInfo.$tag,
@@ -16866,7 +17089,7 @@ createSelectedTagItem(data) {
             });
             const $tagText = $selectedItem.querySelector(".el-select__tags-text");
             const $closeIcon = $selectedItem.querySelector(".el-icon.el-tag__close");
-            let text = typeof data.text === "function" ? data.text(data, this.$data.selectInfo) : data.text;
+            const text = typeof data.text === "function" ? data.text(data, this.$data.selectInfo) : data.text;
             if (data.isHTML) {
               PopsSafeUtils.setSafeHTML($tagText, text);
             } else {
@@ -16881,14 +17104,14 @@ createSelectedTagItem(data) {
 addSelectedTagItem($tag) {
             this.setSectionIsNear();
             if (this.$el.$section.contains(this.$el.$selectedInputWrapper)) {
-              let $prev = this.$el.$selectedInputWrapper.previousElementSibling;
+              const $prev = this.$el.$selectedInputWrapper.previousElementSibling;
               if ($prev) {
                 popsDOMUtils.after($prev, $tag);
               } else {
                 popsDOMUtils.before(this.$el.$selectedInputWrapper, $tag);
               }
             } else if (this.$el.$section.contains(this.$el.$selectedPlaceHolderWrapper)) {
-              let $prev = this.$el.$selectedPlaceHolderWrapper.previousElementSibling;
+              const $prev = this.$el.$selectedPlaceHolderWrapper.previousElementSibling;
               if ($prev) {
                 popsDOMUtils.after($prev, $tag);
               } else {
@@ -16923,7 +17146,7 @@ updateSelectItem() {
               } else {
                 this.removeSelectItemDisabled($select);
               }
-              let findValue = this.$data.selectInfo.find((it) => it.value === data.value);
+              const findValue = this.$data.selectInfo.find((it) => it.value === data.value);
               if (findValue) {
                 this.setSelectItemSelected($select);
               } else {
@@ -16943,8 +17166,8 @@ isSelectItemSelected($select) {
             return $select.classList.contains("select-item-is-selected");
           },
 addSelectedItemInfo(dataList, $select) {
-            let info = this.getSelectedItemInfo($select);
-            let findValue = dataList.find((item) => item.value === info.value);
+            const info = this.getSelectedItemInfo($select);
+            const findValue = dataList.find((item) => item.value === info.value);
             if (!findValue) {
               dataList.push({
                 value: info.value,
@@ -16959,8 +17182,8 @@ getSelectedItemInfo($select) {
             return Reflect.get($select, "data-info");
           },
 removeSelectedItemInfo(dataList, $select) {
-            let info = this.getSelectedItemInfo($select);
-            let findIndex = dataList.findIndex((item) => item.value === info.value);
+            const info = this.getSelectedItemInfo($select);
+            const findIndex = dataList.findIndex((item) => item.value === info.value);
             if (findIndex !== -1) {
               dataList.splice(findIndex, 1);
             }
@@ -16968,13 +17191,13 @@ removeSelectedItemInfo(dataList, $select) {
           },
 getAllSelectItemInfo(onlySelected = true) {
             return Array.from(this.$el.$selectContainer?.querySelectorAll(".select-item") ?? []).map(($select) => {
-              let data = this.getSelectedItemInfo($select);
-              let result = {
+              const data = this.getSelectedItemInfo($select);
+              const result = {
 data,
 $select
               };
               if (onlySelected) {
-                let isSelected = this.isSelectItemSelected($select);
+                const isSelected = this.isSelectItemSelected($select);
                 if (isSelected) {
                   return result;
                 }
@@ -16987,7 +17210,7 @@ $select
             });
           },
 createSelectItemElement(data) {
-            let $select = popsDOMUtils.createElement("li", {
+            const $select = popsDOMUtils.createElement("li", {
               className: "select-item",
               innerHTML: (
 `
@@ -17000,8 +17223,8 @@ createSelectItemElement(data) {
             return $select;
           },
 setSelectItemText(data, $select) {
-            let text = typeof data.text === "function" ? data.text(data.value, this.$data.selectInfo) : data.text;
-            let $selectSpan = $select.querySelector(".select-item-text");
+            const text = typeof data.text === "function" ? data.text(data.value, this.$data.selectInfo) : data.text;
+            const $selectSpan = $select.querySelector(".select-item-text");
             if (data.isHTML) {
               PopsSafeUtils.setSafeHTML($selectSpan, text);
             } else {
@@ -17026,8 +17249,8 @@ setSelectElementClickEvent(dataList, $select) {
                 return;
               }
               if (typeof formConfig.clickCallBack === "function") {
-                let allSelectedInfo = this.getAllSelectItemInfo().map((it) => it.data);
-                let clickResult = formConfig.clickCallBack(event, allSelectedInfo);
+                const allSelectedInfo = this.getAllSelectItemInfo().map((it) => it.data);
+                const clickResult = formConfig.clickCallBack(event, allSelectedInfo);
                 if (typeof clickResult === "boolean" && !clickResult) {
                   return;
                 }
@@ -17043,13 +17266,13 @@ setSelectElementClickEvent(dataList, $select) {
           },
 setSelectContainerClickEvent() {
             const that = this;
-            popsDOMUtils.on(this.$el.$container, "click", (event) => {
+            popsDOMUtils.on(this.$el.$container, "click", () => {
               if (this.isDisabled()) {
                 return;
               }
-              let selectedInfo = that.$data.selectInfo;
-              let { style, ...userConfirmDetails } = formConfig.selectConfirmDialogDetails || {};
-              let confirmDetails = popsUtils.assign({
+              const selectedInfo = that.$data.selectInfo;
+              const { style, ...userConfirmDetails } = formConfig.selectConfirmDialogDetails || {};
+              const confirmDetails = popsUtils.assign({
                 title: {
                   text: "请勾选需要选择的选项",
                   position: "center"
@@ -17068,7 +17291,7 @@ setSelectContainerClickEvent() {
                   },
                   close: {
                     enable: true,
-                    callback(details, event2) {
+                    callback(details) {
                       that.$data.selectInfo = [...selectedInfo];
                       that.updateSelectTagItem();
                       that.$el.$selectContainer = null;
@@ -17078,7 +17301,7 @@ setSelectContainerClickEvent() {
                 },
                 mask: {
                   enable: true,
-                  clickCallBack(originalRun, config) {
+                  clickCallBack(originalRun) {
                     originalRun();
                     that.$data.selectInfo = [...selectedInfo];
                     that.updateSelectTagItem();
@@ -17159,11 +17382,11 @@ setSelectContainerClickEvent() {
 								`
                 )
               }, userConfirmDetails);
-              let $dialog = PopsAlert.init(confirmDetails);
-              let $selectContainer = $dialog.$shadowRoot.querySelector(".select-container");
+              const $dialog = PopsAlert.init(confirmDetails);
+              const $selectContainer = $dialog.$shadowRoot.querySelector(".select-container");
               this.$el.$selectContainer = $selectContainer;
               formConfig.data.forEach((item) => {
-                let $select = this.createSelectItemElement(item);
+                const $select = this.createSelectItemElement(item);
                 $selectContainer.appendChild($select);
                 this.setSelectElementClickEvent(selectedInfo, $select);
               });
@@ -17177,7 +17400,7 @@ setSelectedItemCloseIconClickEvent(data) {
                 return;
               }
               if (typeof formConfig.closeIconClickCallBack === "function") {
-                let result = formConfig.closeIconClickCallBack(event, {
+                const result = formConfig.closeIconClickCallBack(event, {
                   $tag: data.$tag,
                   $closeIcon: data.$closeIcon,
                   value: data.value,
@@ -17251,13 +17474,13 @@ cancleDisable() {
         return $li;
       },
 createSectionContainerItem_button(formConfig) {
-        let $li = document.createElement("li");
+        const $li = document.createElement("li");
         Reflect.set($li, "__formConfig__", formConfig);
         this.setElementClassName($li, formConfig.className);
         this.setElementAttributes($li, formConfig.attributes);
         this.setElementProps($li, formConfig.props);
         let leftDescriptionText = "";
-        if (Boolean(formConfig.description)) {
+        if (formConfig.description) {
           leftDescriptionText =
 `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
@@ -17361,18 +17584,18 @@ setButtonText(text) {
         return $li;
       },
 createSectionContainerItem_deepMenu(formConfig) {
-        let that = this;
-        let $li = document.createElement("li");
+        const that = this;
+        const $li = document.createElement("li");
         popsDOMUtils.addClassName($li, "pops-panel-deepMenu-nav-item");
         Reflect.set($li, "__formConfig__", formConfig);
         this.setElementClassName($li, formConfig.className);
         this.setElementAttributes($li, formConfig.attributes);
         this.setElementProps($li, formConfig.props);
         let leftDescriptionText = "";
-        if (Boolean(formConfig.description)) {
+        if (formConfig.description) {
           leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
-        let arrowRightIcon = typeof formConfig.arrowRightIcon === "boolean" ? formConfig.arrowRightIcon : true;
+        const arrowRightIcon = typeof formConfig.arrowRightIcon === "boolean" ? formConfig.arrowRightIcon : true;
         let arrowRightIconHTML = "";
         if (arrowRightIcon) {
           arrowRightIconHTML = `<i class="pops-panel-deepMenu-arrowRight-icon">${PopsIcon.getIcon("arrowRight")}</i>`;
@@ -17401,14 +17624,14 @@ createSectionContainerItem_deepMenu(formConfig) {
             this.setLiClickEvent();
           },
 initFormItem($container, formItemConfig) {
-            let formConfig_forms = formItemConfig;
+            const formConfig_forms = formItemConfig;
             if (formConfig_forms.type === "forms") {
-              let childForms = formConfig_forms["forms"];
-              let formContainerListElement = document.createElement("li");
-              let formContainerULElement = document.createElement("ul");
+              const childForms = formConfig_forms["forms"];
+              const formContainerListElement = document.createElement("li");
+              const formContainerULElement = document.createElement("ul");
               formContainerULElement.classList.add("pops-panel-forms-container-item-formlist");
               formContainerListElement.classList.add("pops-panel-forms-container-item");
-              let formHeaderDivElement = popsDOMUtils.createElement("div", {
+              const formHeaderDivElement = popsDOMUtils.createElement("div", {
                 className: "pops-panel-forms-container-item-header-text"
               });
               PopsSafeUtils.setSafeHTML(formHeaderDivElement, formConfig_forms["text"]);
@@ -17424,7 +17647,7 @@ initFormItem($container, formItemConfig) {
 								</i>
 							`
                 );
-                popsDOMUtils.on(formHeaderDivElement, "click", (event) => {
+                popsDOMUtils.on(formHeaderDivElement, "click", () => {
                   if (formContainerListElement.hasAttribute("data-fold-enable")) {
                     formContainerListElement.removeAttribute("data-fold-enable");
                   } else {
@@ -17468,25 +17691,25 @@ initFormItem($container, formItemConfig) {
             }
           },
 async gotoDeepMenu(event, liElement) {
-            let $currentSection = liElement.closest("section.pops-panel-container");
-            let $deepMenuSection = popsDOMUtils.createElement("section", {
+            const $currentSection = liElement.closest("section.pops-panel-container");
+            const $deepMenuSection = popsDOMUtils.createElement("section", {
               className: "pops-panel-container pops-panel-deepMenu-container"
             });
             Reflect.set($deepMenuSection, "__formConfig__", formConfig);
-            let $deepMenuHeaderUL = popsDOMUtils.createElement("ul", {
+            const $deepMenuHeaderUL = popsDOMUtils.createElement("ul", {
               className: "pops-panel-container-header-ul pops-panel-deepMenu-container-header-ul"
             });
-            let $deepMenuMain = popsDOMUtils.createElement("ul", {
+            const $deepMenuMain = popsDOMUtils.createElement("ul", {
               className: "pops-panel-container-main-ul"
             });
-            let headerTitleText = formConfig.headerTitle ?? formConfig.text;
-            let $header = popsDOMUtils.createElement("li", {
+            const headerTitleText = formConfig.headerTitle ?? formConfig.text;
+            const $header = popsDOMUtils.createElement("li", {
               className: "pops-panel-container-header-title-text pops-panel-deepMenu-container-header",
               innerHTML: (
 `<p class="pops-panel-deepMenu-container-header-title-text">${headerTitleText}</p>`
               )
             });
-            let $headerLeftArrow = popsDOMUtils.createElement("i", {
+            const $headerLeftArrow = popsDOMUtils.createElement("i", {
               className: "pops-panel-deepMenu-container-left-arrow-icon",
               innerHTML: PopsIcon.getIcon("arrowLeft")
             });
@@ -17538,7 +17761,7 @@ transform: "translateX(0)"
               $deepMenuSection.appendChild($deepMenuMain);
               if (formConfig.forms && Array.isArray(formConfig.forms)) {
                 for (let index = 0; index < formConfig.forms.length; index++) {
-                  let formItemConfig = formConfig.forms[index];
+                  const formItemConfig = formConfig.forms[index];
                   this.initFormItem($deepMenuMain, formItemConfig);
                 }
               }
@@ -17572,7 +17795,7 @@ transform: "translateX(0)"
 setLiClickEvent() {
             popsDOMUtils.on($li, "click", void 0, async (event) => {
               if (typeof formConfig.clickCallBack === "function") {
-                let result = await formConfig.clickCallBack(event, formConfig);
+                const result = await formConfig.clickCallBack(event, formConfig);
                 if (result) {
                   return;
                 }
@@ -17595,7 +17818,7 @@ createSectionContainerItem_own(formConfig) {
         return $li;
       },
 createSectionContainerItem(formConfig) {
-        let formType = formConfig.type;
+        const formType = formConfig.type;
         if (formType === "switch") {
           return this.createSectionContainerItem_switch(formConfig);
         } else if (formType === "slider") {
@@ -17619,15 +17842,15 @@ createSectionContainerItem(formConfig) {
         }
       },
 createSectionContainerItem_forms(formConfig) {
-        let that = this;
-        let formConfig_forms = formConfig;
+        const that = this;
+        const formConfig_forms = formConfig;
         if (formConfig_forms.type === "forms") {
-          let childForms = formConfig["forms"];
-          let formContainerListElement = document.createElement("li");
-          let formContainerULElement = document.createElement("ul");
+          const childForms = formConfig["forms"];
+          const formContainerListElement = document.createElement("li");
+          const formContainerULElement = document.createElement("ul");
           formContainerListElement.classList.add("pops-panel-forms-container-item");
           formContainerULElement.classList.add("pops-panel-forms-container-item-formlist");
-          let formHeaderDivElement = popsDOMUtils.createElement("div", {
+          const formHeaderDivElement = popsDOMUtils.createElement("div", {
             className: "pops-panel-forms-container-item-header-text"
           });
           PopsSafeUtils.setSafeHTML(formHeaderDivElement, formConfig_forms["text"]);
@@ -17643,7 +17866,7 @@ createSectionContainerItem_forms(formConfig) {
 						</i>
 					`
             );
-            popsDOMUtils.on(formHeaderDivElement, "click", (event) => {
+            popsDOMUtils.on(formHeaderDivElement, "click", () => {
               if (formContainerListElement.hasAttribute("data-fold-enable")) {
                 formContainerListElement.removeAttribute("data-fold-enable");
               } else {
@@ -17687,7 +17910,7 @@ createSectionContainerItem_forms(formConfig) {
         }
       },
 triggerRenderRightContainer($container) {
-        let __formConfig__ = Reflect.get($container, "__formConfig__");
+        const __formConfig__ = Reflect.get($container, "__formConfig__");
         this.$el.$pops.dispatchEvent(new CustomEvent("pops:renderRightContainer", {
           detail: {
             formConfig: __formConfig__
@@ -17695,7 +17918,7 @@ triggerRenderRightContainer($container) {
         }));
       },
 uListContainerAddItem(formConfig, containerOptions) {
-        let itemLiElement = this.createSectionContainerItem(formConfig);
+        const itemLiElement = this.createSectionContainerItem(formConfig);
         if (itemLiElement) {
           containerOptions["ulElement"].appendChild(itemLiElement);
         }
@@ -17709,22 +17932,22 @@ uListContainerAddItem(formConfig, containerOptions) {
 setAsideItemClickEvent(asideLiElement, asideConfig) {
         popsDOMUtils.on(asideLiElement, "click", async (event) => {
           if (typeof asideConfig.clickFirstCallback === "function") {
-            let clickFirstCallbackResult = await asideConfig.clickFirstCallback(event, this.sectionContainerHeaderULElement, this.sectionContainerULElement);
+            const clickFirstCallbackResult = await asideConfig.clickFirstCallback(event, this.sectionContainerHeaderULElement, this.sectionContainerULElement);
             if (typeof clickFirstCallbackResult === "boolean" && !clickFirstCallbackResult) {
               return;
             }
           }
           this.clearContainer();
-          let rightContainerFormConfig = Reflect.get(asideLiElement, "__forms__");
+          const rightContainerFormConfig = Reflect.get(asideLiElement, "__forms__");
           Reflect.set(this.$el.$contentSectionContainer, "__formConfig__", rightContainerFormConfig);
           popsDOMUtils.cssShow(this.$el.$contentSectionContainer);
           this.clearAsideItemIsVisited();
           this.setAsideItemIsVisited(asideLiElement);
-          let title = typeof asideConfig.title === "function" ? asideConfig.title() : asideConfig.title;
+          const title = typeof asideConfig.title === "function" ? asideConfig.title() : asideConfig.title;
           let headerTitleText = typeof asideConfig.headerTitle === "function" ? asideConfig.headerTitle() : asideConfig.headerTitle;
           headerTitleText = headerTitleText ?? title;
           if (typeof headerTitleText === "string" && headerTitleText.trim() !== "") {
-            let $containerHeaderTitle = document.createElement("li");
+            const $containerHeaderTitle = document.createElement("li");
             $containerHeaderTitle.classList.add("pops-panel-container-header-title-text");
             Reflect.set($containerHeaderTitle, "__asideConfig__", asideConfig);
             PopsSafeUtils.setSafeHTML($containerHeaderTitle, headerTitleText);
@@ -17734,7 +17957,7 @@ setAsideItemClickEvent(asideLiElement, asideConfig) {
             this.createSectionContainerItem_forms(formConfig);
           });
           if (typeof asideConfig.clickCallback === "function") {
-            let asideClickCallbackResult = await asideConfig.clickCallback(event, this.sectionContainerHeaderULElement, this.sectionContainerULElement);
+            const asideClickCallbackResult = await asideConfig.clickCallback(event, this.sectionContainerHeaderULElement, this.sectionContainerULElement);
             if (typeof asideClickCallbackResult === "boolean" && !asideClickCallbackResult) {
               return;
             }
@@ -17786,11 +18009,11 @@ setAsideItemClickEvent(asideLiElement, asideConfig) {
           css: PopsCSS.panelCSS
         }
       ]);
-      let zIndex = PopsHandler.handleZIndex(config.zIndex);
-      let maskHTML = PopsElementHandler.createMask(guid, zIndex);
-      let headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
-      let { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(popsType, config);
-      let animHTML = PopsElementHandler.createAnim(
+      const zIndex = PopsHandler.handleZIndex(config.zIndex);
+      const maskHTML = PopsElementHandler.createMask(guid, zIndex);
+      const headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
+      const { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(popsType, config);
+      const animHTML = PopsElementHandler.createAnim(
         guid,
         popsType,
         config,
@@ -17811,15 +18034,15 @@ setAsideItemClickEvent(asideLiElement, asideConfig) {
         "",
         zIndex
       );
-      let $anim = PopsElementHandler.parseElement(animHTML);
-      let { popsElement: $pops, headerCloseBtnElement: $headerCloseBtn, titleElement: $title, contentElement: $content, panelSectionWrapper: $panelSectionWrapper, contentAsideElement: $contentAside, contentSectionContainerElement: $contentSectionContainer } = PopsHandler.handleQueryElement($anim, popsType);
+      const $anim = PopsElementHandler.parseElement(animHTML);
+      const { popsElement: $pops, headerCloseBtnElement: $headerCloseBtn, titleElement: $title, contentElement: $content, panelSectionWrapper: $panelSectionWrapper, contentAsideElement: $contentAside, contentSectionContainerElement: $contentSectionContainer } = PopsHandler.handleQueryElement($anim, popsType);
       if (config.isMobile || popsUtils.isPhone()) {
         popsDOMUtils.addClassName($pops, config.mobileClassName);
       }
       let $mask = null;
-      let isCreatedElementList = [$anim];
+      const isCreatedElementList = [$anim];
       if (config.mask.enable) {
-        let { maskElement } = PopsHandler.handleMask({
+        const { maskElement } = PopsHandler.handleMask({
           type: popsType,
           guid,
           config,
@@ -17829,7 +18052,7 @@ setAsideItemClickEvent(asideLiElement, asideConfig) {
         $mask = maskElement;
         isCreatedElementList.push($mask);
       }
-      let eventDetails = PopsHandler.handleEventDetails(guid, $shadowContainer, $shadowRoot, popsType, $anim, $pops, $mask, config);
+      const eventDetails = PopsHandler.handleEventDetails(guid, $shadowContainer, $shadowRoot, popsType, $anim, $pops, $mask, config);
       PopsHandler.handleClickEvent("close", $headerCloseBtn, eventDetails, config.btn.close.callback);
       popsDOMUtils.append($shadowRoot, isCreatedElementList);
       if (typeof config.beforeAppendToPageCallBack === "function") {
@@ -17839,7 +18062,7 @@ setAsideItemClickEvent(asideLiElement, asideConfig) {
       if ($mask != null) {
         $anim.after($mask);
       }
-      let panelHandlerComponents = PanelHandlerComponents();
+      const panelHandlerComponents = PanelHandlerComponents();
       panelHandlerComponents.init({
         config,
         $el: {
@@ -17867,7 +18090,7 @@ setAsideItemClickEvent(asideLiElement, asideConfig) {
           endCallBack: config.dragEndCallBack
         });
       }
-      let result = PopsHandler.handleResultDetails(eventDetails);
+      const result = PopsHandler.handleResultDetails(eventDetails);
       return {
         ...result,
         addEventListener: (event, listener, options) => {
@@ -18012,13 +18235,13 @@ setAsideItemClickEvent(asideLiElement, asideConfig) {
           css: PopsCSS.promptCSS
         }
       ]);
-      let zIndex = PopsHandler.handleZIndex(config.zIndex);
-      let maskHTML = PopsElementHandler.createMask(guid, zIndex);
-      let headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
-      let bottomBtnHTML = PopsElementHandler.createBottom(popsType, config);
-      let { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(popsType, config);
-      let { contentPStyle } = PopsElementHandler.createContentStyle(popsType, config);
-      let animHTML = PopsElementHandler.createAnim(
+      const zIndex = PopsHandler.handleZIndex(config.zIndex);
+      const maskHTML = PopsElementHandler.createMask(guid, zIndex);
+      const headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
+      const bottomBtnHTML = PopsElementHandler.createBottom(popsType, config);
+      const { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(popsType, config);
+      const { contentPStyle } = PopsElementHandler.createContentStyle(popsType, config);
+      const animHTML = PopsElementHandler.createAnim(
         guid,
         popsType,
         config,
@@ -18028,12 +18251,12 @@ setAsideItemClickEvent(asideLiElement, asideConfig) {
         bottomBtnHTML,
         zIndex
       );
-      let $anim = PopsElementHandler.parseElement(animHTML);
-      let { popsElement: $pops, inputElement: $input, headerCloseBtnElement: $btnClose, btnOkElement: $btnOk, btnCancelElement: $btnCancel, btnOtherElement: $btnOther, titleElement: $title } = PopsHandler.handleQueryElement($anim, popsType);
+      const $anim = PopsElementHandler.parseElement(animHTML);
+      const { popsElement: $pops, inputElement: $input, headerCloseBtnElement: $btnClose, btnOkElement: $btnOk, btnCancelElement: $btnCancel, btnOtherElement: $btnOther, titleElement: $title } = PopsHandler.handleQueryElement($anim, popsType);
       let $mask = null;
-      let elementList = [$anim];
+      const elementList = [$anim];
       if (config.mask.enable) {
-        let _handleMask_ = PopsHandler.handleMask({
+        const _handleMask_ = PopsHandler.handleMask({
           type: popsType,
           guid,
           config,
@@ -18043,7 +18266,7 @@ setAsideItemClickEvent(asideLiElement, asideConfig) {
         $mask = _handleMask_.maskElement;
         elementList.push($mask);
       }
-      let eventDetails = PopsHandler.handleEventDetails(guid, $shadowContainer, $shadowRoot, popsType, $anim, $pops, $mask, config);
+      const eventDetails = PopsHandler.handleEventDetails(guid, $shadowContainer, $shadowRoot, popsType, $anim, $pops, $mask, config);
       $input.value = config.content.text;
       PopsHandler.handlePromptClickEvent("close", $input, $btnClose, eventDetails, config.btn.close.callback);
       PopsHandler.handlePromptClickEvent("ok", $input, $btnOk, eventDetails, config.btn.ok.callback);
@@ -18080,7 +18303,7 @@ setAsideItemClickEvent(asideLiElement, asideConfig) {
       if (config.content.select) {
         $input.select();
       }
-      let result = PopsHandler.handleResultDetails(eventDetails);
+      const result = PopsHandler.handleResultDetails(eventDetails);
       return result;
     }
   };
@@ -18192,7 +18415,7 @@ setAsideItemClickEvent(asideLiElement, asideConfig) {
         throw new Error("config.target 不能为空");
       }
       if (details.data) {
-        config.data = details.data;
+        Reflect.set(config, "data", details.data);
       }
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
@@ -18214,7 +18437,7 @@ setAsideItemClickEvent(asideLiElement, asideConfig) {
         }
       ]);
       if (config.style != null) {
-        let cssNode = popsDOMUtils.createElement("style", {
+        const cssNode = popsDOMUtils.createElement("style", {
           innerHTML: config.style
         }, {
           type: "text/css"
@@ -18227,7 +18450,7 @@ windowCheckClickEvent(event) {
           if (!PopsContextMenu.rootElement) {
             return;
           }
-          let $click = event.target;
+          const $click = event.target;
           if ($click.closest(`.pops-${popsType}`)) {
             return;
           }
@@ -18240,7 +18463,7 @@ shadowRootCheckClickEvent(event) {
           if (!PopsContextMenu.rootElement) {
             return;
           }
-          let $click = event.target;
+          const $click = event.target;
           if ($click.closest(`.pops-${popsType}`)) {
             return;
           }
@@ -18280,7 +18503,7 @@ contextMenuEvent(event, selectorTarget) {
           if (PopsContextMenu.rootElement) {
             PopsContextMenu.closeAllMenu(PopsContextMenu.rootElement);
           }
-          let rootElement = PopsContextMenu.showMenu(event, config.data, selectorTarget);
+          const rootElement = PopsContextMenu.showMenu(event, config.data, selectorTarget);
           PopsContextMenu.rootElement = rootElement;
           if (config.only) {
             PopsHandler.handlePush(popsType, {
@@ -18302,7 +18525,7 @@ removeContextMenuEvent(target, selector) {
           popsDOMUtils.off(target, "contextmenu", selector, PopsContextMenu.contextMenuEvent);
         },
 animationCloseMenu($menu) {
-          let transitionEndEvent = (event) => {
+          const transitionEndEvent = (event) => {
             popsDOMUtils.off($menu, popsDOMUtils.getTransitionEndNameList(), transitionEndEvent, {
               capture: true
             });
@@ -18332,7 +18555,7 @@ closeAllMenu(rootElement) {
           if (rootElementMenuData?.root) {
             rootElement = rootElementMenuData.root;
           }
-          let childMenuList = rootElementMenuData.child;
+          const childMenuList = rootElementMenuData.child;
           childMenuList.forEach((childMenuElement) => {
             this.animationCloseMenu(childMenuElement);
           });
@@ -18340,13 +18563,13 @@ closeAllMenu(rootElement) {
           PopsContextMenu.rootElement = null;
         },
 createMenuContainerElement(isChildren) {
-          let $menu = popsDOMUtils.createElement("div", {
+          const $menu = popsDOMUtils.createElement("div", {
             className: `pops-${popsType}`,
             innerHTML: (
 `<ul class="pops-${popsType}-wrapper"></ul>`
             )
           });
-          let zIndex = this.getMenuZIndex();
+          const zIndex = this.getMenuZIndex();
           if (zIndex > 1e4) {
             $menu.style.zIndex = zIndex.toString();
           }
@@ -18366,27 +18589,27 @@ getMenuZIndex() {
           return PopsHandler.handleZIndex(config.zIndex);
         },
 getOffset(menuElement, mousePosition, parentInfo) {
-          let result = {
+          const result = {
             top: 0,
             right: 0,
             bottom: 0,
             left: 0
           };
-          let menuElementWidth = popsDOMUtils.width(menuElement);
-          let menuElementHeight = popsDOMUtils.height(menuElement);
-          let limitDistance = 1;
-          let maxPageLeftOffset = popsDOMUtils.width(globalThis) - limitDistance;
-          let maxPageTopOffset = popsDOMUtils.height(globalThis) - limitDistance;
-          let maxLeftOffset = maxPageLeftOffset - menuElementWidth;
-          let maxTopOffset = maxPageTopOffset - menuElementHeight;
-          let chileMenuLeftOrRightDistance = config.chileMenuLeftOrRightDistance;
-          let childMenuTopOrBottomDistance = config.childMenuTopOrBottomDistance;
+          const menuElementWidth = popsDOMUtils.width(menuElement);
+          const menuElementHeight = popsDOMUtils.height(menuElement);
+          const limitDistance = 1;
+          const maxPageLeftOffset = popsDOMUtils.width(globalThis) - limitDistance;
+          const maxPageTopOffset = popsDOMUtils.height(globalThis) - limitDistance;
+          const maxLeftOffset = maxPageLeftOffset - menuElementWidth;
+          const maxTopOffset = maxPageTopOffset - menuElementHeight;
+          const chileMenuLeftOrRightDistance = config.chileMenuLeftOrRightDistance;
+          const childMenuTopOrBottomDistance = config.childMenuTopOrBottomDistance;
           let currentLeftOffset = mousePosition.x;
           let currentTopOffset = mousePosition.y;
           currentLeftOffset = currentLeftOffset < 0 ? 0 : currentLeftOffset;
           if (currentLeftOffset + chileMenuLeftOrRightDistance >= maxLeftOffset) {
             if (parentInfo) {
-              let mainMenuOffset = popsDOMUtils.offset(parentInfo.$menu);
+              const mainMenuOffset = popsDOMUtils.offset(parentInfo.$menu);
               currentLeftOffset = maxPageLeftOffset - mainMenuOffset.left - chileMenuLeftOrRightDistance + limitDistance;
             } else {
               currentLeftOffset = limitDistance + chileMenuLeftOrRightDistance;
@@ -18406,7 +18629,7 @@ getOffset(menuElement, mousePosition, parentInfo) {
           currentTopOffset = currentTopOffset < 0 ? 0 : currentTopOffset;
           if (currentTopOffset + childMenuTopOrBottomDistance >= maxTopOffset) {
             if (parentInfo) {
-              let parentItemOffset = popsDOMUtils.offset(parentInfo.$parentItem, false);
+              const parentItemOffset = popsDOMUtils.offset(parentInfo.$parentItem, false);
               currentTopOffset = maxPageTopOffset - parentItemOffset.bottom - childMenuTopOrBottomDistance + limitDistance;
             } else {
               currentTopOffset = limitDistance + childMenuTopOrBottomDistance;
@@ -18426,7 +18649,7 @@ getOffset(menuElement, mousePosition, parentInfo) {
           return result;
         },
 showMenu(menuEvent, _config_, menuListenerRootNode) {
-          let menuElement = this.createMenuContainerElement(false);
+          const menuElement = this.createMenuContainerElement(false);
           Reflect.set(menuElement, "__menuData__", {
             child: []
           });
@@ -18442,16 +18665,16 @@ showMenu(menuEvent, _config_, menuListenerRootNode) {
           return menuElement;
         },
 showClildMenu(menuEvent, posInfo, _config_, rootElement, targetLiElement, menuListenerRootNode) {
-          let menuElement = this.createMenuContainerElement(true);
+          const menuElement = this.createMenuContainerElement(true);
           Reflect.set(menuElement, "__menuData__", {
             parent: targetLiElement,
             root: rootElement
           });
-          let rootElementMenuData = Reflect.get(rootElement, "__menuData__");
+          const rootElementMenuData = Reflect.get(rootElement, "__menuData__");
           rootElementMenuData.child.push(menuElement);
           PopsContextMenu.addMenuLiELement(menuEvent, rootElement, menuElement, _config_, menuListenerRootNode);
           popsDOMUtils.append($shadowRoot, menuElement);
-          let $parentMenu = targetLiElement.closest(".pops-rightClickMenu");
+          const $parentMenu = targetLiElement.closest(".pops-rightClickMenu");
           this.handlerShowMenuCSS(menuElement, posInfo, {
             $menu: $parentMenu,
             $parentItem: targetLiElement
@@ -18459,7 +18682,7 @@ showClildMenu(menuEvent, posInfo, _config_, rootElement, targetLiElement, menuLi
           return menuElement;
         },
 handlerShowMenuCSS($menu, posInfo, parentInfo) {
-          let offset = this.getOffset($menu, {
+          const offset = this.getOffset($menu, {
             x: posInfo.clientX,
             y: posInfo.clientY
           }, parentInfo);
@@ -18475,13 +18698,13 @@ handlerShowMenuCSS($menu, posInfo, parentInfo) {
           }
         },
 addMenuLiELement(menuEvent, rootElement, menuElement, _config_, menuListenerRootNode) {
-          let menuEventTarget = menuEvent.target;
-          let menuULElement = menuElement.querySelector("ul");
+          const menuEventTarget = menuEvent.target;
+          const menuULElement = menuElement.querySelector("ul");
           _config_.forEach((item) => {
-            let menuLiElement = popsDOMUtils.parseTextToDOM(`<li></li>`);
+            const menuLiElement = popsDOMUtils.parseTextToDOM(`<li></li>`);
             if (typeof item.icon === "string" && item.icon.trim() !== "") {
-              let iconSVGHTML = PopsIcon.getIcon(item.icon) ?? item.icon;
-              let iconElement = popsDOMUtils.parseTextToDOM(
+              const iconSVGHTML = PopsIcon.getIcon(item.icon) ?? item.icon;
+              const iconElement = popsDOMUtils.parseTextToDOM(
 `<i class="pops-${popsType}-icon" is-loading="${item.iconIsLoading ?? false}">${iconSVGHTML}</i>`
               );
               menuLiElement.appendChild(iconElement);
@@ -18500,13 +18723,13 @@ addMenuLiELement(menuEvent, rootElement, menuElement, _config_, menuListenerRoot
               }
               Array.from(menuULElement.children).forEach((liElement) => {
                 popsDOMUtils.removeClassName(liElement, `pops-${popsType}-is-visited`);
-                let li_menuData = Reflect.get(liElement, "__menuData__");
+                const li_menuData = Reflect.get(liElement, "__menuData__");
                 if (!li_menuData) {
                   return;
                 }
                 function removeElement(element) {
                   element.querySelectorAll("ul li").forEach(($ele) => {
-                    let menuData = Reflect.get($ele, "__menuData__");
+                    const menuData = Reflect.get($ele, "__menuData__");
                     if (menuData?.child) {
                       removeElement(menuData.child);
                     }
@@ -18515,9 +18738,9 @@ addMenuLiELement(menuEvent, rootElement, menuElement, _config_, menuListenerRoot
                 }
                 removeElement(li_menuData.child);
               });
-              let root_menuData = Reflect.get(rootElement, "__menuData__");
+              const root_menuData = Reflect.get(rootElement, "__menuData__");
               for (let index = 0; index < root_menuData.child.length; index++) {
-                let element = root_menuData.child[index];
+                const element = root_menuData.child[index];
                 if (!$shadowRoot.contains(element)) {
                   root_menuData.child.splice(index, 1);
                   index--;
@@ -18527,8 +18750,8 @@ addMenuLiELement(menuEvent, rootElement, menuElement, _config_, menuListenerRoot
               if (!item.item) {
                 return;
               }
-              let rect = menuLiElement.getBoundingClientRect();
-              let childMenu = PopsContextMenu.showClildMenu(menuEvent, {
+              const rect = menuLiElement.getBoundingClientRect();
+              const childMenu = PopsContextMenu.showClildMenu(menuEvent, {
                 clientX: rect.left + popsDOMUtils.outerWidth(menuLiElement),
                 clientY: rect.top
               }, item.item, rootElement, menuLiElement, menuListenerRootNode);
@@ -18544,9 +18767,9 @@ addMenuLiELement(menuEvent, rootElement, menuElement, _config_, menuListenerRoot
                       return menuEventTarget;
                     }
                   });
-                } catch (error) {
+                } catch {
                 }
-                let callbackResult = await item.callback(clickEvent, menuEvent, menuLiElement, menuListenerRootNode);
+                const callbackResult = await item.callback(clickEvent, menuEvent, menuLiElement, menuListenerRootNode);
                 if (typeof callbackResult === "boolean" && callbackResult == false) {
                   return;
                 }
@@ -18584,8 +18807,8 @@ addMenuLiELement(menuEvent, rootElement, menuElement, _config_, menuListenerRoot
           console.log("删除当前项", [event, $dataItem, dataItem, config]);
           return true;
         },
-        itemView(dateItem, $parent) {
-          return `测试${index}-html`;
+        itemView(dateItem) {
+          return `${dateItem.value}-html`;
         },
         clickCallback(event, $dataItem, dataItem, config) {
           console.log("item项的点击回调", [event, $dataItem, data, config]);
@@ -18657,7 +18880,7 @@ inputTarget: null,
         }
       ]);
       if (config.style != null) {
-        let cssNode = document.createElement("style");
+        const cssNode = document.createElement("style");
         popsDOMUtils.createElement("style", {
           innerHTML: config.style
         }, {
@@ -18699,7 +18922,7 @@ setData(data) {
           config.data = data;
         },
 createSearchSelectElement() {
-          let $el = popsDOMUtils.createElement("div", {
+          const $el = popsDOMUtils.createElement("div", {
             className: `pops pops-${popsType}-search-suggestion`,
             innerHTML: (
 `
@@ -18894,14 +19117,14 @@ getItemDataValue(data) {
         },
 createSearchItemLiElement(dataItem, dateItemIndex) {
           const dataValue = SearchSuggestion.getItemDataValue(dataItem);
-          let $li = popsDOMUtils.createElement("li", {
+          const $li = popsDOMUtils.createElement("li", {
             className: `pops-${popsType}-search-suggestion-hint-item`,
             "data-index": dateItemIndex,
             "data-value": dataValue
           });
           Reflect.set($li, "data-index", dateItemIndex);
           Reflect.set($li, "data-value", dataValue);
-          let $itemInner = dataItem.itemView(dataItem, $li, config);
+          const $itemInner = dataItem.itemView(dataItem, $li, config);
           if (typeof $itemInner === "string") {
             PopsSafeUtils.setSafeHTML($li, $itemInner);
           } else {
@@ -18909,7 +19132,7 @@ createSearchItemLiElement(dataItem, dateItemIndex) {
           }
           const enableDeleteButton = dataItem.enableDeleteButton;
           if (typeof enableDeleteButton === "boolean" && enableDeleteButton) {
-            let $deleteIcon = SearchSuggestion.createItemDeleteIcon();
+            const $deleteIcon = SearchSuggestion.createItemDeleteIcon();
             popsDOMUtils.append($li, $deleteIcon);
           }
           popsDOMUtils.addClassName($li, PopsCommonCSSClassName.flexCenter);
@@ -18919,13 +19142,13 @@ createSearchItemLiElement(dataItem, dateItemIndex) {
 setSearchItemClickEvent($searchItem) {
           popsDOMUtils.on($searchItem, "click", async (event) => {
             popsDOMUtils.preventEvent(event);
-            let $click = event.target;
+            const $click = event.target;
             const data = SearchSuggestion.getData();
             const dataItem = Reflect.get($searchItem, "data-value");
-            let isDelete = Boolean($click.closest(`.pops-${popsType}-delete-icon`));
+            const isDelete = Boolean($click.closest(`.pops-${popsType}-delete-icon`));
             if (isDelete) {
               if (typeof dataItem.deleteButtonClickCallback === "function") {
-                let result = await dataItem.deleteButtonClickCallback(event, $searchItem, dataItem, config);
+                const result = await dataItem.deleteButtonClickCallback(event, $searchItem, dataItem, config);
                 if (typeof result === "boolean" && result) {
                   data.splice(data.indexOf(dataItem), 1);
                   $searchItem.remove();
@@ -18937,7 +19160,7 @@ setSearchItemClickEvent($searchItem) {
               SearchSuggestion.updateStyleSheet();
             } else {
               if (typeof dataItem.clickCallback === "function") {
-                let result = await dataItem.clickCallback(event, $searchItem, dataItem, config);
+                const result = await dataItem.clickCallback(event, $searchItem, dataItem, config);
                 if (typeof result === "boolean" && result) {
                   if (config.inputTarget instanceof HTMLInputElement || config.inputTarget instanceof HTMLTextAreaElement) {
                     config.inputTarget.value = String(dataItem.value);
@@ -18949,6 +19172,7 @@ setSearchItemClickEvent($searchItem) {
             capture: true
           });
         },
+
 setSearchItemSelectEvent(liElement) {
         },
 setInputChangeEvent(option = {
@@ -18958,12 +19182,16 @@ setInputChangeEvent(option = {
             return;
           }
           config.inputTarget.setAttribute("autocomplete", "off");
-          const listenerHandler = popsDOMUtils.onInput(config.inputTarget, async (event) => {
-            const data = SearchSuggestion.getData();
-            let queryDataResult = await config.inputTargetChangeRefreshShowDataCallback(config.inputTarget.value, data, config);
-            SearchSuggestion.update(queryDataResult);
-            SearchSuggestion.updateStyleSheet();
-          }, option);
+          const listenerHandler = popsDOMUtils.onInput(
+            config.inputTarget,
+async (_event) => {
+              const data = SearchSuggestion.getData();
+              const queryDataResult = await config.inputTargetChangeRefreshShowDataCallback(config.inputTarget.value, data, config);
+              SearchSuggestion.update(queryDataResult);
+              SearchSuggestion.updateStyleSheet();
+            },
+            option
+          );
           SearchSuggestion.$evt.offInputChangeEvtHandler.push(listenerHandler.off);
         },
 removeInputChangeEvent(option = {
@@ -19058,7 +19286,7 @@ removeAllEvent(option = {
           SearchSuggestion.removeShowEvent(option);
         },
 createItemDeleteIcon(size = 16, fill = "#bababa") {
-          let $svg = popsDOMUtils.parseTextToDOM(
+          const $svg = popsDOMUtils.parseTextToDOM(
 `
 					<svg class="pops-${popsType}-delete-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" fill="${fill}">
 						<path d="M512 883.2A371.2 371.2 0 1 0 140.8 512 371.2 371.2 0 0 0 512 883.2z m0 64a435.2 435.2 0 1 1 435.2-435.2 435.2 435.2 0 0 1-435.2 435.2z"></path>
@@ -19069,7 +19297,7 @@ createItemDeleteIcon(size = 16, fill = "#bababa") {
           return $svg;
         },
 setPromptsInSearch() {
-          let $isSearching = popsDOMUtils.createElement("li", {
+          const $isSearching = popsDOMUtils.createElement("li", {
             className: `pops-${popsType}-search-suggestion-hint-searching-item`,
             innerHTML: config.searchingTip
           });
@@ -19092,11 +19320,11 @@ changeHintULElementPosition(target = config.target ?? config.inputTarget, checkP
           if (config.isAbsolute) {
             documentHeight = popsDOMUtils.height(document);
           }
-          let documentWidth = popsDOMUtils.width(document);
+          const documentWidth = popsDOMUtils.width(document);
           let position = config.position;
           if (config.position === "auto") {
-            let targetBottom = targetRect.bottom;
-            let searchSuggestionContainerHeight = popsDOMUtils.height(SearchSuggestion.$el.$hintULContainer);
+            const targetBottom = targetRect.bottom;
+            const searchSuggestionContainerHeight = popsDOMUtils.height(SearchSuggestion.$el.$hintULContainer);
             if (targetBottom + searchSuggestionContainerHeight > documentHeight) {
               position = "top";
             } else {
@@ -19110,20 +19338,20 @@ changeHintULElementPosition(target = config.target ?? config.inputTarget, checkP
             if (config.useFoldAnimation) {
               SearchSuggestion.$el.root.setAttribute("data-popper-placement", "top");
             }
-            let bottom = documentHeight - targetRect.top + config.topDistance;
+            const bottom = documentHeight - targetRect.top + config.topDistance;
             SearchSuggestion.$el.root.style.top = "";
             SearchSuggestion.$el.root.style.bottom = bottom + "px";
           } else if (position === "bottom") {
             if (config.useFoldAnimation) {
               SearchSuggestion.$el.root.setAttribute("data-popper-placement", "bottom-center");
             }
-            let top2 = targetRect.height + targetRect.top + config.topDistance;
+            const top2 = targetRect.height + targetRect.top + config.topDistance;
             SearchSuggestion.$el.root.removeAttribute("data-top-reverse");
             SearchSuggestion.$el.root.style.bottom = "";
             SearchSuggestion.$el.root.style.top = top2 + "px";
           }
           let left = targetRect.left;
-          let hintUIWidth = popsDOMUtils.width(SearchSuggestion.$el.$hintULContainer);
+          const hintUIWidth = popsDOMUtils.width(SearchSuggestion.$el.$hintULContainer);
           if (hintUIWidth > documentWidth) {
             left = left + documentWidth - hintUIWidth;
           }
@@ -19133,7 +19361,7 @@ changeHintULElementPosition(target = config.target ?? config.inputTarget, checkP
           }
         },
 changeHintULElementWidth(target = config.target ?? config.inputTarget) {
-          let targetRect = target.getBoundingClientRect();
+          const targetRect = target.getBoundingClientRect();
           if (config.followTargetWidth) {
             SearchSuggestion.$el.$hintULContainer.style.width = targetRect.width + "px";
           } else {
@@ -19141,7 +19369,7 @@ changeHintULElementWidth(target = config.target ?? config.inputTarget) {
           }
         },
 updateDynamicCSS() {
-          let cssText = SearchSuggestion.getDynamicCSS();
+          const cssText = SearchSuggestion.getDynamicCSS();
           PopsSafeUtils.setSafeHTML(SearchSuggestion.$el.$dynamicCSS, cssText);
         },
 updateStyleSheet() {
@@ -19163,9 +19391,9 @@ update(updateData = []) {
               SearchSuggestion.show();
             }
             SearchSuggestion.clear(true);
-            let fragment = document.createDocumentFragment();
+            const fragment = document.createDocumentFragment();
             data.forEach((item, index) => {
-              let $item = SearchSuggestion.createSearchItemLiElement(item, index);
+              const $item = SearchSuggestion.createSearchItemLiElement(item, index);
               SearchSuggestion.setSearchItemClickEvent($item);
               SearchSuggestion.setSearchItemSelectEvent($item);
               fragment.appendChild($item);
@@ -19216,9 +19444,10 @@ show() {
       return SearchSuggestion;
     }
   };
+  const version = "2.5.0";
   class Pops {
 config = {
-version: "2025.9.4",
+version,
       cssText: PopsCSS,
 iconSVG: PopsIcon.$data,
 animation: PopsAnimation.$data,
@@ -19250,47 +19479,47 @@ isPhone(userAgent) {
     }
 GlobalConfig = GlobalConfig;
 alert = (details) => {
-      let dialog = PopsAlert.init(details);
+      const dialog = PopsAlert.init(details);
       return dialog;
     };
 confirm = (details) => {
-      let dialog = PopsConfirm.init(details);
+      const dialog = PopsConfirm.init(details);
       return dialog;
     };
 prompt = (details) => {
-      let dialog = PopsPrompt.init(details);
+      const dialog = PopsPrompt.init(details);
       return dialog;
     };
 loading = (details) => {
-      let popsLoading = PopsLoading.init(details);
+      const popsLoading = PopsLoading.init(details);
       return popsLoading;
     };
 iframe = (details) => {
-      let dialog = PopsIframe.init(details);
+      const dialog = PopsIframe.init(details);
       return dialog;
     };
 tooltip = (details) => {
-      let popsTooltip = PopsTooltip.init(details);
+      const popsTooltip = PopsTooltip.init(details);
       return popsTooltip;
     };
 drawer = (details) => {
-      let dialog = PopsDrawer.init(details);
+      const dialog = PopsDrawer.init(details);
       return dialog;
     };
 folder = (details) => {
-      let dialog = PopsFolder.init(details);
+      const dialog = PopsFolder.init(details);
       return dialog;
     };
 panel = (details) => {
-      let dialog = PopsPanel.init(details);
+      const dialog = PopsPanel.init(details);
       return dialog;
     };
 rightClickMenu = (details) => {
-      let popsRightClickMenu = PopsRightClickMenu.init(details);
+      const popsRightClickMenu = PopsRightClickMenu.init(details);
       return popsRightClickMenu;
     };
 searchSuggestion = (details) => {
-      let popsSearchSuggestion = PopsSearchSuggestion.init(details);
+      const popsSearchSuggestion = PopsSearchSuggestion.init(details);
       return popsSearchSuggestion;
     };
   }
@@ -19301,7 +19530,7 @@ waitRemove(...args) {
         if (typeof selector !== "string") {
           return;
         }
-        utils.waitNodeList(selector).then((nodeList) => {
+        domUtils$2.waitNodeList(selector).then((nodeList) => {
           nodeList.forEach(($el) => $el.remove());
         });
       });
@@ -19372,6 +19601,9 @@ async loadScript(url) {
     },
 fixUrl(url) {
       url = url.trim();
+      if (url.startsWith("data:")) {
+        return url;
+      }
       if (url.match(/^http(s|):\/\//i)) {
         return url;
       } else if (url.startsWith("//")) {
@@ -19395,9 +19627,13 @@ fixHttps(url) {
       if (!url.startsWith("http://")) {
         return url;
       }
-      let urlInstance = new URL(url);
-      urlInstance.protocol = "https:";
-      return urlInstance.toString();
+      try {
+        let urlInstance = new URL(url);
+        urlInstance.protocol = "https:";
+        return urlInstance.toString();
+      } catch {
+        return url;
+      }
     },
 lockScroll(...args) {
       let $hidden = document.createElement("style");
@@ -19526,16 +19762,13 @@ qmsg_config_showreverse: {
   const utils = utils$1.noConflict();
   const domUtils = domUtils$2.noConflict();
   const __pops = pops;
-  const log = new utils.Log(
-    _GM_info,
-    _unsafeWindow.console || _monkeyWindow.console
-  );
+  const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
   let SCRIPT_NAME = _GM_info?.script?.name || void 0;
   pops.config.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
-    debug: DEBUG,
-    logMaxCount: 1e3,
+    debug: false,
+    logMaxCount: 250,
     autoClearConsole: true,
     tag: true
   });
@@ -19643,7 +19876,7 @@ clickEvent: {
     },
     setTimeout: _unsafeWindow.setTimeout
   });
-  const addStyle = utils.addStyle.bind(utils);
+  const addStyle = domUtils.addStyle.bind(domUtils);
   domUtils$2.selector.bind(domUtils$2);
   domUtils$2.selectorAll.bind(domUtils$2);
   new utils.GM_Cookie();
@@ -19764,9 +19997,7 @@ keys() {
     }
 values() {
       let localValue = this.getLocalValue();
-      return Reflect.ownKeys(localValue).map(
-        (key) => Reflect.get(localValue, key)
-      );
+      return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
     }
 clear() {
       _GM_deleteValue(this.storageKey);
@@ -20043,6 +20274,9 @@ setDefaultValue(key, defaultValue) {
         log.warn("请检查该key(已存在): " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
+    },
+getDefaultValue(key) {
+      return this.$data.contentConfigInitDefaultValue.get(key);
     },
 setValue(key, value) {
       PopsPanelStorageApi.set(key, value);
@@ -20364,7 +20598,7 @@ threshold: 1
         $el.classList.add(flashingClassName);
       };
       let dbclick_event = (evt, selectorTarget) => {
-        utils.preventEvent(evt);
+        domUtils.preventEvent(evt);
         let $alert = __pops.alert({
           title: {
             text: "搜索配置",
@@ -20480,7 +20714,7 @@ threshold: 1
             $targetAsideItem.click();
             asyncQueryProperty(pathInfo.next, async (target) => {
               if (target?.next) {
-                let $findDeepMenu = await utils.waitNode(() => {
+                let $findDeepMenu = await domUtils.waitNode(() => {
                   return Array.from(
                     $panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")
                   ).find(($deepMenu) => {
@@ -20502,7 +20736,7 @@ threshold: 1
                   data: target.next
                 };
               } else {
-                let $findTargetMenu = await utils.waitNode(() => {
+                let $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from(
                     $panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)
                   ).find(($menuItem) => {
@@ -20652,7 +20886,7 @@ threshold: 1
           $searchInput,
           "input",
           utils.debounce((evt2) => {
-            utils.preventEvent(evt2);
+            domUtils.preventEvent(evt2);
             let searchText = domUtils.val($searchInput).trim();
             if (searchText === "") {
               clearSearchResult();
@@ -21329,7 +21563,7 @@ getApiDocUrl(navName, text) {
                   description: ``,
                   tag: "info",
                   afterRender(container) {
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
 										<div class="pops-panel-button pops-panel-button-no-icon">
 											<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -21346,7 +21580,7 @@ getApiDocUrl(navName, text) {
                     let listenerId = void 0;
                     let tagTextList = [];
                     domUtils.on($button, "click", async (event) => {
-                      utils.preventEvent(event);
+                      domUtils.preventEvent(event);
                       try {
                         tagTextList = [];
                         clearTimeout(timeoutId);
@@ -21465,10 +21699,7 @@ getApiDocUrl(navName, text) {
       let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-        apiName + ".list",
-        `${apiName} & ${apiAsyncInfo.name}`
-      )}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName + ".list", `${apiName} & ${apiAsyncInfo.name}`)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -21637,7 +21868,7 @@ getApiDocUrl(navName, text) {
                   tag: "info",
                   description: "点击按钮进行测试",
                   afterRender(container) {
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -21651,7 +21882,7 @@ getApiDocUrl(navName, text) {
                     );
                     domUtils.on($button, "click", async (event) => {
                       try {
-                        utils.preventEvent(event);
+                        domUtils.preventEvent(event);
                         const cookies = await data.list({});
                         console.log(cookies);
                         if (Array.isArray(cookies)) {
@@ -21706,7 +21937,7 @@ getApiDocUrl(navName, text) {
                   tag: "info",
                   description: JSON.stringify(newCookieInfo),
                   afterRender(container) {
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -21720,7 +21951,7 @@ getApiDocUrl(navName, text) {
                     );
                     domUtils.on($button, "click", async (event) => {
                       try {
-                        utils.preventEvent(event);
+                        domUtils.preventEvent(event);
                         await data.set(newCookieInfo);
                         qmsg.success(data.name + " set cookie success");
                       } catch (error) {
@@ -21751,7 +21982,7 @@ getApiDocUrl(navName, text) {
                   tag: "info",
                   description: JSON.stringify(deleteCookieInfo),
                   afterRender(container) {
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -21765,7 +21996,7 @@ getApiDocUrl(navName, text) {
                     );
                     domUtils.on($button, "click", async (event) => {
                       try {
-                        utils.preventEvent(event);
+                        domUtils.preventEvent(event);
                         await data.delete(deleteCookieInfo);
                         qmsg.success(data.name + " delete cookie success");
                       } catch (error) {
@@ -21885,7 +22116,7 @@ getApiDocUrl(navName, text) {
                   description: `"${localStorageDataKey}": ${localStorageDataValue}`,
                   tag: "info",
                   afterRender(container) {
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
 										<div class="pops-panel-button pops-panel-button-no-icon">
 											<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -21899,7 +22130,7 @@ getApiDocUrl(navName, text) {
                     );
                     domUtils.after(container.$leftContainer, $button);
                     domUtils.on($button, "click", async (event) => {
-                      utils.preventEvent(event);
+                      domUtils.preventEvent(event);
                       try {
                         _GM_setValue(localStorageDataKey, localStorageDataValue);
                         await data.fn(localStorageDataKey);
@@ -22018,7 +22249,7 @@ getApiDocUrl(navName, text) {
                   description: `${JSON.stringify(localStorageDataValue)}`,
                   tag: "info",
                   afterRender(container) {
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
 										<div class="pops-panel-button pops-panel-button-no-icon">
 											<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -22032,7 +22263,7 @@ getApiDocUrl(navName, text) {
                     );
                     domUtils.after(container.$leftContainer, $button);
                     domUtils.on($button, "click", async (event) => {
-                      utils.preventEvent(event);
+                      domUtils.preventEvent(event);
                       try {
                         _GM_setValues(localStorageDataValue);
                         let localKeys = Object.keys(localStorageDataValue);
@@ -22475,7 +22706,7 @@ getApiDocUrl(navName, text) {
                 description: "",
                 tag: "info",
                 afterRender(container) {
-                  let $button = domUtils.parseHTML(
+                  let $button = domUtils.toElement(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -22490,7 +22721,7 @@ getApiDocUrl(navName, text) {
                   domUtils.after(container.$leftContainer, $button);
                   let timeId;
                   domUtils.on($button, "click", async (event) => {
-                    utils.preventEvent(event);
+                    domUtils.preventEvent(event);
                     try {
                       clearTimeout(timeId);
                       TagUtil.setTag(container.$leftText, "error", "等待3s内触发回调函数");
@@ -22628,7 +22859,7 @@ getApiDocUrl(navName, text) {
                 description: "",
                 tag: "info",
                 afterRender(container) {
-                  let $button = domUtils.parseHTML(
+                  let $button = domUtils.toElement(
 `
 								<div class="pops-panel-button pops-panel-button-no-icon">
 									<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -22644,7 +22875,7 @@ getApiDocUrl(navName, text) {
                   let timeId;
                   domUtils.on($button, "click", async (event) => {
                     try {
-                      utils.preventEvent(event);
+                      domUtils.preventEvent(event);
                       clearTimeout(timeId);
                       TagUtil.setTag(container.$leftText, "error", "等待3s内触发回调函数");
                       timeId = setTimeoutLog(() => {
@@ -22845,7 +23076,7 @@ getApiDocUrl(navName, text) {
                     description: it.desc(),
                     tag: "info",
                     afterRender(container) {
-                      let $button = domUtils.parseHTML(
+                      let $button = domUtils.toElement(
 `
 										<div class="pops-panel-button pops-panel-button-no-icon">
 											<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -22859,15 +23090,13 @@ getApiDocUrl(navName, text) {
                       );
                       domUtils.after(container.$leftContainer, $button);
                       domUtils.on($button, "click", async (event) => {
-                        utils.preventEvent(event);
+                        domUtils.preventEvent(event);
                         try {
                           _GM_setValue(localStorageDataKey, localStorageDataValue);
                           let value = await data.fn(localStorageDataKey);
                           if (typeof value === typeof localStorageDataValue) {
                             if (localStorageDataValue === null && localStorageDataValue != value) {
-                              qmsg.error(
-                                "读取成功，但存储类型和读取类型不同，存储类型为null，但读取类型不为null"
-                              );
+                              qmsg.error("读取成功，但存储类型和读取类型不同，存储类型为null，但读取类型不为null");
                               return;
                             }
                             qmsg.success("读取成功，存储类型和读取类型一致");
@@ -22892,7 +23121,7 @@ getApiDocUrl(navName, text) {
                   description: `${apiNameTag}("${localStorageDataKey}", ${localStorageDefaultValue})`,
                   tag: "info",
                   afterRender(container) {
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
 										<div class="pops-panel-button pops-panel-button-no-icon">
 											<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -22906,7 +23135,7 @@ getApiDocUrl(navName, text) {
                     );
                     domUtils.after(container.$leftContainer, $button);
                     domUtils.on($button, "click", async (event) => {
-                      utils.preventEvent(event);
+                      domUtils.preventEvent(event);
                       try {
                         await data.fn(localStorageDataKey, null);
                         let value = await data.fn(localStorageDataKey, localStorageDefaultValue);
@@ -22932,7 +23161,7 @@ getApiDocUrl(navName, text) {
                   description: `${apiNameTag}("${localStorageDataKey}", ${localStorageDefaultValue})`,
                   tag: "info",
                   afterRender(container) {
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
 										<div class="pops-panel-button pops-panel-button-no-icon">
 											<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -22946,7 +23175,7 @@ getApiDocUrl(navName, text) {
                     );
                     domUtils.after(container.$leftContainer, $button);
                     domUtils.on($button, "click", async (event) => {
-                      utils.preventEvent(event);
+                      domUtils.preventEvent(event);
                       try {
                         let value = await data.fn(localStorageDataKey, localStorageDefaultValue);
                         if (typeof value === typeof localStorageDefaultValue) {
@@ -23059,7 +23288,7 @@ getApiDocUrl(navName, text) {
                   description: "没有入参",
                   tag: "info",
                   afterRender(container) {
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -23073,7 +23302,7 @@ getApiDocUrl(navName, text) {
                     );
                     domUtils.after(container.$leftContainer, $button);
                     domUtils.on($button, "click", async (event) => {
-                      utils.preventEvent(event);
+                      domUtils.preventEvent(event);
                       try {
                         let value = await data.fn();
                         qmsg.info("请在控制台查看读取的数据");
@@ -23097,7 +23326,7 @@ getApiDocUrl(navName, text) {
                   description: "数据默认值：" + JSON.stringify(localStorageDataValue),
                   tag: "info",
                   afterRender(container) {
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -23111,7 +23340,7 @@ getApiDocUrl(navName, text) {
                     );
                     domUtils.after(container.$leftContainer, $button);
                     domUtils.on($button, "click", async (event) => {
-                      utils.preventEvent(event);
+                      domUtils.preventEvent(event);
                       try {
                         let value = await data.fn(localStorageDataValue);
                         console.log(value);
@@ -23141,7 +23370,7 @@ getApiDocUrl(navName, text) {
                   description: JSON.stringify(localStorageDataValue),
                   tag: "info",
                   afterRender(container) {
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
 										<div class="pops-panel-button pops-panel-button-no-icon">
 											<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -23155,7 +23384,7 @@ getApiDocUrl(navName, text) {
                     );
                     domUtils.after(container.$leftContainer, $button);
                     domUtils.on($button, "click", async (event) => {
-                      utils.preventEvent(event);
+                      domUtils.preventEvent(event);
                       try {
                         _GM_setValues(localStorageDataValue);
                         let keys = Object.keys(localStorageDataValue);
@@ -23427,7 +23656,7 @@ getApiDocUrl(navName, text) {
                 text: "查看存储的所有键名",
                 tag: "info",
                 afterRender(container) {
-                  let $button = domUtils.parseHTML(
+                  let $button = domUtils.toElement(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -23441,7 +23670,7 @@ getApiDocUrl(navName, text) {
                   );
                   domUtils.after(container.$leftContainer, $button);
                   domUtils.on($button, "click", async (event) => {
-                    utils.preventEvent(event);
+                    domUtils.preventEvent(event);
                     try {
                       let ret = await data.fn();
                       console.log(data.name + " call result", ret);
@@ -23560,7 +23789,7 @@ getApiDocUrl(navName, text) {
                   tag: "info",
                   description: "test " + data.name,
                   afterRender(container) {
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -23573,7 +23802,7 @@ getApiDocUrl(navName, text) {
                       false
                     );
                     domUtils.on($button, "click", async (event) => {
-                      utils.preventEvent(event);
+                      domUtils.preventEvent(event);
                       try {
                         await data.fn(logText);
                       } catch (error) {
@@ -23698,7 +23927,7 @@ getApiDocUrl(navName, text) {
                   description: "https://example.com/",
                   afterRender(container) {
                     let $target = container.target;
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -23711,7 +23940,7 @@ getApiDocUrl(navName, text) {
                       false
                     );
                     domUtils.on($button, "click", async (event) => {
-                      utils.preventEvent(event);
+                      domUtils.preventEvent(event);
                       try {
                         await data.fn({
                           title: `测试 ${data.name} 标题`,
@@ -23746,7 +23975,7 @@ getApiDocUrl(navName, text) {
                   afterRender(container) {
                     $target = container.target;
                     $info = container.$leftContainer;
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -23776,7 +24005,7 @@ getApiDocUrl(navName, text) {
                     }, 800);
                     domUtils.on($button, "click", async (event) => {
                       try {
-                        utils.preventEvent(event);
+                        domUtils.preventEvent(event);
                         clearTimeout(timeId);
                         let timeCount = 10;
                         let calcTimeCount = timeCount;
@@ -23830,7 +24059,7 @@ getApiDocUrl(navName, text) {
                   afterRender(container) {
                     $target = container.target;
                     $info = container.$leftContainer;
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -23886,7 +24115,7 @@ getApiDocUrl(navName, text) {
                     }, 800);
                     domUtils.on($button, "click", async (event) => {
                       try {
-                        utils.preventEvent(event);
+                        domUtils.preventEvent(event);
                         clearTimeout(timeId);
                         clearInterval(intervalId);
                         let timeCount = 10;
@@ -23963,7 +24192,7 @@ getApiDocUrl(navName, text) {
                   afterRender(container) {
                     $target = container.target;
                     $info = container.$leftContainer;
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -23979,7 +24208,7 @@ getApiDocUrl(navName, text) {
                     let intervalId = void 0;
                     domUtils.on($button, "click", async (event) => {
                       try {
-                        utils.preventEvent(event);
+                        domUtils.preventEvent(event);
                         clearTimeout(timeId);
                         clearInterval(intervalId);
                         let timeCount = 5;
@@ -24115,7 +24344,7 @@ getApiDocUrl(navName, text) {
                   tag: "info",
                   afterRender(container) {
                     let $target = container.target;
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -24129,7 +24358,7 @@ getApiDocUrl(navName, text) {
                     );
                     domUtils.on($button, "click", async (event) => {
                       try {
-                        utils.preventEvent(event);
+                        domUtils.preventEvent(event);
                         domUtils.text(container.$leftDesc, this.text);
                         domUtils.show(container.$leftDesc, false);
                         let result2 = await data.fn("https://www.example.com/");
@@ -24175,7 +24404,7 @@ getApiDocUrl(navName, text) {
                   tag: "info",
                   afterRender(container) {
                     let $target = container.target;
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -24194,7 +24423,7 @@ getApiDocUrl(navName, text) {
                     };
                     domUtils.on($button, "click", async (event) => {
                       try {
-                        utils.preventEvent(event);
+                        domUtils.preventEvent(event);
                         domUtils.off(_unsafeWindow, "blur", blurEvent, {
                           capture: true
                         });
@@ -24237,7 +24466,7 @@ getApiDocUrl(navName, text) {
                   tag: "info",
                   afterRender(container) {
                     let $target = container.target;
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -24252,7 +24481,7 @@ getApiDocUrl(navName, text) {
                     let timeId;
                     domUtils.on($button, "click", async (event) => {
                       try {
-                        utils.preventEvent(event);
+                        domUtils.preventEvent(event);
                         clearTimeout(timeId);
                         TagUtil.setTag(container.$leftText, "info", "等待调用 .close()");
                         domUtils.text(container.$leftDesc, this.text);
@@ -24292,7 +24521,7 @@ getApiDocUrl(navName, text) {
                   tag: "info",
                   afterRender(container) {
                     let $target = container.target;
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -24308,7 +24537,7 @@ getApiDocUrl(navName, text) {
                     let timeId2;
                     domUtils.on($button, "click", async (event) => {
                       try {
-                        utils.preventEvent(event);
+                        domUtils.preventEvent(event);
                         clearTimeout(timeId2);
                         clearTimeout(timeId);
                         TagUtil.setTag(container.$leftText, "info", "等待触发监听 .onclose");
@@ -24446,7 +24675,7 @@ getApiDocUrl(navName, text) {
                   text: "注册菜单 ==> Test Menu",
                   tag: "info",
                   afterRender(container) {
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -24463,7 +24692,7 @@ getApiDocUrl(navName, text) {
                     let intervalId;
                     domUtils.on($button, "click", async (event) => {
                       try {
-                        utils.preventEvent(event);
+                        domUtils.preventEvent(event);
                         clearTimeout(timeId);
                         clearInterval(intervalId);
                         domUtils.text(container.$leftDesc, this.text);
@@ -24546,7 +24775,7 @@ getApiDocUrl(navName, text) {
                   description: "请自行验证是否成功更新菜单文字为：Test Update Menu Success!!!",
                   tag: "info",
                   afterRender(container) {
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -24562,7 +24791,7 @@ getApiDocUrl(navName, text) {
                     let timeId;
                     domUtils.on($button, "click", async (event) => {
                       try {
-                        utils.preventEvent(event);
+                        domUtils.preventEvent(event);
                         clearTimeout(timeId);
                         const menuCommandId = await data.fn("Test Update Menu", (event2) => {
                         });
@@ -24690,7 +24919,7 @@ getApiDocUrl(navName, text) {
                   description: ``,
                   tag: "info",
                   afterRender(container) {
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
 										<div class="pops-panel-button pops-panel-button-no-icon">
 											<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -24705,7 +24934,7 @@ getApiDocUrl(navName, text) {
                     domUtils.after(container.$leftContainer, $button);
                     let tagTextList = [];
                     domUtils.on($button, "click", async (event) => {
-                      utils.preventEvent(event);
+                      domUtils.preventEvent(event);
                       try {
                         tagTextList = [];
                         TagUtil.setTag(container.$leftText, "info", "等待移除监听器");
@@ -24925,7 +25154,7 @@ getApiDocUrl(navName, text) {
                 text: "复制内容到剪贴板：Test " + data.name,
                 tag: "info",
                 afterRender(container) {
-                  let $button = domUtils.parseHTML(
+                  let $button = domUtils.toElement(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -24941,7 +25170,7 @@ getApiDocUrl(navName, text) {
                   let timeId;
                   domUtils.on($button, "click", async (event) => {
                     try {
-                      utils.preventEvent(event);
+                      domUtils.preventEvent(event);
                       clearTimeout(timeId);
                       qmsg.info("等待3s内触发成功复制的回调");
                       timeId = setTimeoutLog(() => {
@@ -25119,7 +25348,7 @@ getApiDocUrl(navName, text) {
                     description: it.desc(),
                     tag: "info",
                     afterRender(container) {
-                      let $button = domUtils.parseHTML(
+                      let $button = domUtils.toElement(
 `
 										<div class="pops-panel-button pops-panel-button-no-icon">
 											<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -25133,7 +25362,7 @@ getApiDocUrl(navName, text) {
                       );
                       domUtils.after(container.$leftContainer, $button);
                       domUtils.on($button, "click", async (event) => {
-                        utils.preventEvent(event);
+                        domUtils.preventEvent(event);
                         try {
                           await data.fn(localStorageDataKey, localStorageDataValue);
                           qmsg.info("执行写入完毕，请自行查看是否成功写入");
@@ -25244,7 +25473,7 @@ getApiDocUrl(navName, text) {
                   description: JSON.stringify(localStorageDataValue),
                   tag: "info",
                   afterRender(container) {
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -25258,7 +25487,7 @@ getApiDocUrl(navName, text) {
                     );
                     domUtils.after(container.$leftContainer, $button);
                     domUtils.on($button, "click", async (event) => {
-                      utils.preventEvent(event);
+                      domUtils.preventEvent(event);
                       try {
                         await data.fn(localStorageDataValue);
                         qmsg.info("执行写入完毕，请自行查看是否成功写入");
@@ -25366,7 +25595,7 @@ getApiDocUrl(navName, text) {
                   description: "请自行验证是否成功卸载菜单",
                   tag: "info",
                   afterRender(container) {
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -25382,7 +25611,7 @@ getApiDocUrl(navName, text) {
                     let timeId;
                     domUtils.on($button, "click", (event) => {
                       try {
-                        utils.preventEvent(event);
+                        domUtils.preventEvent(event);
                         clearTimeout(timeId);
                         const menuCommandId = _GM_registerMenuCommand("Test UnRegister Menu", (event2) => {
                         });
@@ -25696,10 +25925,7 @@ getApiDocUrl(navName, text) {
       let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-        apiName + ".setMute",
-        `${apiName} & ${apiAsyncInfo.name}`
-      )}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName + ".setMute", `${apiName} & ${apiAsyncInfo.name}`)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -25905,7 +26131,7 @@ getApiDocUrl(navName, text) {
                   tag: "info",
                   description: "点击按钮进行测试",
                   afterRender(container) {
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
                                         <div class="pops-panel-button pops-panel-button-no-icon">
                                             <button class="pops-panel-button_inner" type="button" data-type="default">
@@ -25919,7 +26145,7 @@ getApiDocUrl(navName, text) {
                     );
                     domUtils.on($button, "click", async (event) => {
                       try {
-                        utils.preventEvent(event);
+                        domUtils.preventEvent(event);
                         const stat = await data.setMute({ isMuted: true });
                         console.log(data.name + ".setMute result：", stat);
                         if (stat === void 0) {
@@ -25954,7 +26180,7 @@ getApiDocUrl(navName, text) {
                   tag: "info",
                   description: "点击按钮进行测试",
                   afterRender(container) {
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
                                         <div class="pops-panel-button pops-panel-button-no-icon">
                                             <button class="pops-panel-button_inner" type="button" data-type="default">
@@ -25968,7 +26194,7 @@ getApiDocUrl(navName, text) {
                     );
                     domUtils.on($button, "click", async (event) => {
                       try {
-                        utils.preventEvent(event);
+                        domUtils.preventEvent(event);
                         const state = await data.setMute({ isMuted: false });
                         console.log(data.name + ".setMute result：", state);
                         if (state === void 0) {
@@ -26003,7 +26229,7 @@ getApiDocUrl(navName, text) {
                   tag: "info",
                   description: "点击按钮进行测试",
                   afterRender(container) {
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -26017,7 +26243,7 @@ getApiDocUrl(navName, text) {
                     );
                     domUtils.on($button, "click", async (event) => {
                       try {
-                        utils.preventEvent(event);
+                        domUtils.preventEvent(event);
                         const stateInfo = await data.getState();
                         console.log(data.name + ".getState result：", stateInfo);
                         if (typeof stateInfo === "object" && stateInfo !== null) {
@@ -26093,7 +26319,7 @@ getApiDocUrl(navName, text) {
                   tag: "info",
                   description: "点击按钮进行测试",
                   afterRender(container) {
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -26108,12 +26334,9 @@ getApiDocUrl(navName, text) {
                     let timeId;
                     domUtils.on($button, "click", async (event) => {
                       try {
-                        utils.preventEvent(event);
+                        domUtils.preventEvent(event);
                         await data.addStateChangeListener((statusInfo) => {
-                          console.log(
-                            data.name + ".addStateChangeListener callback change value：",
-                            statusInfo
-                          );
+                          console.log(data.name + ".addStateChangeListener callback change value：", statusInfo);
                           alert(JSON.stringify(statusInfo, null, 4));
                         });
                         await utils.sleep(500);
@@ -26145,7 +26368,7 @@ getApiDocUrl(navName, text) {
                   tag: "info",
                   description: "点击按钮进行测试",
                   afterRender(container) {
-                    let $button = domUtils.parseHTML(
+                    let $button = domUtils.toElement(
 `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -26161,7 +26384,7 @@ getApiDocUrl(navName, text) {
                     let $loading;
                     domUtils.on($button, "click", async (event) => {
                       try {
-                        utils.preventEvent(event);
+                        domUtils.preventEvent(event);
                         let listener = (statusInfo) => {
                           isSuccessRemove = false;
                           qmsg.error("移除监听器失败");
@@ -26352,7 +26575,7 @@ delete(key) {
         )
       });
       domUtils.on($item, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         let shadowRoot = $item.getRootNode();
         let selector = utils.isNotNull(config.leftTargetSelector) ? config.leftTargetSelector : "#aside-" + config.name;
         let $left = shadowRoot.querySelector(selector);
@@ -26488,7 +26711,7 @@ delete(key) {
                     tag: "info",
                     description: "点击按钮进行测试",
                     afterRender(container) {
-                      let $button = domUtils.parseHTML(
+                      let $button = domUtils.toElement(
 `
 											<div class="pops-panel-button pops-panel-button-no-icon">
 												<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -26508,7 +26731,7 @@ delete(key) {
                       let timeId;
                       domUtils.on($button, "click", (event) => {
                         try {
-                          utils.preventEvent(event);
+                          domUtils.preventEvent(event);
                           clearTimeout(timeId);
                           if (_monkeyWindow.onurlchange === null) {
                             _monkeyWindow.removeEventListener("urlchange", urlChangeEvent);
@@ -26580,7 +26803,7 @@ delete(key) {
                     tag: "info",
                     description: "点击按钮执行该函数",
                     afterRender(container) {
-                      let $button = domUtils.parseHTML(
+                      let $button = domUtils.toElement(
 `
 											<div class="pops-panel-button pops-panel-button-no-icon">
 												<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -26593,7 +26816,7 @@ delete(key) {
                         false
                       );
                       domUtils.on($button, "click", (event) => {
-                        utils.preventEvent(event);
+                        domUtils.preventEvent(event);
                         try {
                           _monkeyWindow.close();
                         } catch (error) {
@@ -26656,7 +26879,7 @@ delete(key) {
                     tag: "info",
                     description: "点击按钮执行该函数",
                     afterRender(container) {
-                      let $button = domUtils.parseHTML(
+                      let $button = domUtils.toElement(
 `
 											<div class="pops-panel-button pops-panel-button-no-icon">
 												<button class="pops-panel-button_inner" type="button" data-type="default">
@@ -26674,7 +26897,7 @@ delete(key) {
                         }, 3e3);
                       };
                       domUtils.on($button, "click", (event) => {
-                        utils.preventEvent(event);
+                        domUtils.preventEvent(event);
                         window.removeEventListener("blur", blurEvent, {
                           capture: true
                         });

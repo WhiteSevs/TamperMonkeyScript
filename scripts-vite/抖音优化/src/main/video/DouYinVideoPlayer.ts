@@ -387,7 +387,7 @@ export const DouYinVideoPlayer = {
     function setRate(value: VideoPlayerRate = "1") {
       unsafeWindow.sessionStorage.setItem(Definition_Key, value);
       $$<HTMLLIElement>("xg-icon.xgplayer-playback-setting").forEach(($playbackSetting) => {
-        let $container = utils.getReactObj($playbackSetting).reactContainer;
+        let $container = utils.getReactInstance($playbackSetting).reactContainer;
         $container?.memoizedState?.element?.props?.xgCase?.updatePlayBackRatio();
       });
     }
@@ -488,36 +488,40 @@ export const DouYinVideoPlayer = {
             toClose: true,
           },
         },
+        btn: {
+          ok: {
+            enable: false,
+          },
+        },
         width: window.innerWidth > 550 ? "550px" : "88vw",
         height: window.innerHeight > 550 ? "550px" : "80vh",
         drag: true,
         dragLimit: true,
         style: /*css*/ `
-                .douyin-video-link-container a{
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                }
-                .douyin-video-link-item{
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    margin: 10px;
-                }
-				.dy-video-download-uri{
-					display: flex;
-				}
-				.dy-video-back-uri{
-					display: flex;
-				}
-                `,
+          .douyin-video-link-container a{
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+          }
+          .douyin-video-link-item{
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              margin: 10px;
+          }
+          .dy-video-download-uri{
+            display: flex;
+          }
+          .dy-video-back-uri{
+            display: flex;
+          }`,
       });
       DOMUtils.on(
         $dialog.popsElement,
         "click",
         "a",
         (event, selectorTarget) => {
-          utils.preventEvent(event);
+          DOMUtils.preventEvent(event);
           let url = selectorTarget.getAttribute("href")!;
           let fileName = selectorTarget.getAttribute("data-file-name")!;
           /**
@@ -591,23 +595,18 @@ export const DouYinVideoPlayer = {
               if (typeof error === "object" && error["error"]) {
                 Qmsg.error(`下载 ${fileName} 失败或已取消 原因：${error["error"]}`, {
                   timeout: 6000,
-                  consoleLogContent: true,
                 });
               } else {
-                Qmsg.error(`下载 ${fileName} 失败或已取消`, {
-                  consoleLogContent: true,
-                });
+                Qmsg.error(`下载 ${fileName} 失败或已取消`);
               }
             },
             ontimeout() {
               downloadingQmsg.close();
-              Qmsg.error(`下载 ${fileName} 请求超时`, {
-                consoleLogContent: true,
-              });
+              Qmsg.error(`下载 ${fileName} 请求超时`);
             },
           });
           if (typeof result === "object" && result != null && "abort" in result) {
-            abortDownload = result["abort"];
+            abortDownload = result.abort;
           }
         },
         {
@@ -619,10 +618,10 @@ export const DouYinVideoPlayer = {
       document,
       "click",
       'div[data-e2e="video-share-container"] div[data-inuser="false"] button + div',
-      function (event) {
-        utils.preventEvent(event);
-        let clickElement = event.target as HTMLDivElement;
-        let rectFiber = utils.getReactObj(clickElement.parentElement as HTMLElement)?.reactFiber;
+      function (event, selectorTarget) {
+        DOMUtils.preventEvent(event);
+        let clickElement = selectorTarget;
+        let rectFiber = utils.getReactInstance(clickElement.parentElement as HTMLElement)?.reactFiber;
         if (!rectFiber) {
           Qmsg.error("获取rectFiber属性失败", { consoleLogContent: true });
           return;
@@ -750,9 +749,9 @@ export const DouYinVideoPlayer = {
       "click",
       'div[data-e2e="video-share-container"] div[data-inuser="false"] button:contains("复制链接")',
       (event) => {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         let clickElement = event.target as HTMLDivElement;
-        let rectFiber = utils.getReactObj(clickElement.parentElement as HTMLElement)?.reactFiber;
+        let rectFiber = utils.getReactInstance(clickElement.parentElement as HTMLElement)?.reactFiber;
         if (!rectFiber) {
           Qmsg.error("获取rectFiber属性失败", { consoleLogContent: true });
           return;
@@ -769,7 +768,7 @@ export const DouYinVideoPlayer = {
           return;
         }
         log.info(`视频链接：` + shareUrl);
-        utils.setClip(shareUrl).then((copyFlag) => {
+        utils.copy(shareUrl).then((copyFlag) => {
           let toast = rectFiber?.return?.return?.memoizedProps?.toast;
           if (copyFlag) {
             if (typeof toast === "function") {
@@ -953,7 +952,7 @@ export const DouYinVideoPlayer = {
     function closeComment() {
       let $close = $<HTMLElement>($closeSelector);
       if ($close) {
-        let rect = utils.getReactObj($close);
+        let rect = utils.getReactInstance($close);
         if (rect) {
           let fn = rect.reactProps?.onClick;
           if (typeof fn === "function") {
@@ -975,7 +974,7 @@ export const DouYinVideoPlayer = {
       `.xgplayer div[data-e2e="feed-comment-icon"]`,
       (event) => {
         log.info(`手势 => 打开评论区`);
-        utils.waitNode($closeSelector, 10000).then(($el) => {
+        DOMUtils.waitNode($closeSelector, 10000).then(($el) => {
           if (!$el) {
             return;
           }
@@ -1017,7 +1016,7 @@ export const DouYinVideoPlayer = {
         Qmsg.info(`出现【长时间无操作，已暂停播放】弹窗`, {
           consoleLogContent: true,
         });
-        let $rect = utils.getReactObj($ele);
+        let $rect = utils.getReactInstance($ele);
         if (typeof $rect.reactProps === "object") {
           let closeDialogFn = utils.queryProperty($rect.reactProps, (obj) => {
             if (typeof obj?.["props"]?.["onClose"] === "function") {

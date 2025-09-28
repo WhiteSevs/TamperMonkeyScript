@@ -145,7 +145,7 @@ export const NetDiskViewRightClickMenu = {
                 return;
               }
               utils
-                .setClip(accessCode)
+                .copy(accessCode)
                 .then((status) => {
                   if (status) {
                     Qmsg.success("已复制");
@@ -243,7 +243,7 @@ export const NetDiskViewRightClickMenu = {
                 copyTextList.push(copyUrlText);
               });
               utils
-                .setClip(copyTextList.join("\n"))
+                .copy(copyTextList.join("\n"))
                 .then((status) => {
                   if (status) {
                     Qmsg.success("成功复制全部");

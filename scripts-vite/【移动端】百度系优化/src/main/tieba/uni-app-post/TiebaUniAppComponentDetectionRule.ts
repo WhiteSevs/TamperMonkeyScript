@@ -490,7 +490,7 @@ export const TiebaUniAppComponentDetectionRule = {
     let $local = $alert.$shadowRoot.querySelector<HTMLElement>(".import-mode[data-mode='local']")!;
     let $network = $alert.$shadowRoot.querySelector<HTMLElement>(".import-mode[data-mode='network']")!;
     DOMUtils.on($local, "click", (event) => {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       $alert.close();
       let $input = DOMUtils.createElement("input", {
         type: "file",
@@ -517,7 +517,7 @@ export const TiebaUniAppComponentDetectionRule = {
       $input.click();
     });
     DOMUtils.on($network, "click", (event) => {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       $alert.close();
       pops.prompt({
         title: {

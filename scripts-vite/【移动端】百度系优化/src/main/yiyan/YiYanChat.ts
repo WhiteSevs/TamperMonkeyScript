@@ -604,7 +604,7 @@ const YiYanChat = {
       let codeCopyText = codeHeader.querySelector(".code-copy-text") as HTMLElement;
       DOMUtils.on(codeCopyText, "click", void 0, function () {
         try {
-          utils.setClip(copyText);
+          utils.copy(copyText);
           Qmsg.success("复制成功");
         } catch (error) {
           Qmsg.error("复制失败，" + error);

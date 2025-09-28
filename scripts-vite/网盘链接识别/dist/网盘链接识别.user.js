@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.25.23
+// @version      2025.9.28
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -10,11 +10,11 @@
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@c90210bf4ab902dbceb9c6e5b101b1ea91c34581/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.8.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.4.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/data-paging@0.0.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @connect      *
 // @connect      lanzoub.com
@@ -102,7 +102,7 @@ waitRemove(...args) {
         if (typeof selector !== "string") {
           return;
         }
-        utils.waitNodeList(selector).then((nodeList) => {
+        DOMUtils.waitNodeList(selector).then((nodeList) => {
           nodeList.forEach(($el) => $el.remove());
         });
       });
@@ -448,7 +448,7 @@ clickEvent: {
     },
     setTimeout: _unsafeWindow.setTimeout
   });
-  const addStyle = utils.addStyle.bind(utils);
+  const addStyle = domUtils.addStyle.bind(domUtils);
   const $ = DOMUtils.selector.bind(DOMUtils);
   const $$ = DOMUtils.selectorAll.bind(DOMUtils);
   new utils.GM_Cookie();
@@ -1171,7 +1171,7 @@ threshold: 1
         $el.classList.add(flashingClassName);
       };
       let dbclick_event = (evt, selectorTarget) => {
-        utils.preventEvent(evt);
+        domUtils.preventEvent(evt);
         let $alert = __pops.alert({
           title: {
             text: "搜索配置",
@@ -1287,7 +1287,7 @@ threshold: 1
             $targetAsideItem.click();
             asyncQueryProperty(pathInfo.next, async (target) => {
               if (target?.next) {
-                let $findDeepMenu = await utils.waitNode(() => {
+                let $findDeepMenu = await domUtils.waitNode(() => {
                   return Array.from(
                     $panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")
                   ).find(($deepMenu) => {
@@ -1309,7 +1309,7 @@ threshold: 1
                   data: target.next
                 };
               } else {
-                let $findTargetMenu = await utils.waitNode(() => {
+                let $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from(
                     $panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)
                   ).find(($menuItem) => {
@@ -1459,7 +1459,7 @@ threshold: 1
           $searchInput,
           "input",
           utils.debounce((evt2) => {
-            utils.preventEvent(evt2);
+            domUtils.preventEvent(evt2);
             let searchText = domUtils.val($searchInput).trim();
             if (searchText === "") {
               clearSearchResult();
@@ -1861,27 +1861,29 @@ websiteEditRuleView: {
   const NetDiskAutoFillAccessCode_baidu = function(netDiskInfo) {
     if (window.location.hostname === "pan.baidu.com" && window.location.pathname === "/share/init" && window.location.search.startsWith("?surl=")) {
       log.success("自动填写链接", netDiskInfo);
-      utils.waitNode("div.verify-form #accessCode").then(($ele) => {
+      domUtils.waitNode("div.verify-form #accessCode").then(($ele) => {
         if (!utils.isVisible($ele)) {
           log.error("输入框不可见，不输入密码");
           return;
         }
         Qmsg.success("自动填充访问码");
         $ele.value = netDiskInfo.accessCode;
-        utils.dispatchEvent($ele, "input");
+        domUtils.trigger($ele, "input");
         document.querySelector("div.verify-form #submitBtn")?.click();
       });
     }
     if (window.location.hostname === "pan.baidu.com" && window.location.pathname === "/wap/init" && window.location.search.startsWith("?surl=")) {
       log.success("自动填写链接", netDiskInfo);
-      utils.waitNode("div.extractWrap div.extract-content div.extractInputWrap.extract input[type=text]").then(($input) => {
+      domUtils.waitNode(
+        "div.extractWrap div.extract-content div.extractInputWrap.extract input[type=text]"
+      ).then(($input) => {
         if (!utils.isVisible($input)) {
           log.error("输入框不可见，不输入密码");
           return;
         }
         Qmsg.success("自动填充访问码");
         $input.value = netDiskInfo.accessCode;
-        utils.dispatchEvent($input, "input");
+        domUtils.trigger($input, "input");
         document.querySelector("div.extractWrap div.extract-content button.m-button")?.click();
       });
     }
@@ -1889,18 +1891,18 @@ websiteEditRuleView: {
   const NetDiskAutoFillAccessCode_lanzou = function(netDiskInfo) {
     if (window.location.hostname.match(/lanzou[a-z]{1}.com/gi)) {
       log.success("自动填写链接", netDiskInfo);
-      utils.waitNode("#pwd").then(($input) => {
+      domUtils.waitNode("#pwd").then(($input) => {
         if (!utils.isVisible($input)) {
           log.error("输入框不可见，不输入密码");
           return;
         }
         Qmsg.success("自动填充访问码");
         $input.value = netDiskInfo.accessCode;
-        utils.dispatchEvent($input, "input");
+        domUtils.trigger($input, "input");
         (document.querySelector("#passwddiv div.passwddiv-input > div") || $input.nextElementSibling)?.click();
         document.querySelector("#sub")?.click();
       });
-      utils.waitNode("#f_pwd").then((element) => {
+      domUtils.waitNode("#f_pwd").then((element) => {
         utils.mutationObserver(element, {
           config: {
             attributes: true,
@@ -1916,7 +1918,7 @@ websiteEditRuleView: {
             log.success("自动填充访问码并关闭观察者");
             Qmsg.success("自动填充访问码");
             inputElement.value = netDiskInfo.accessCode;
-            utils.dispatchEvent(inputElement, "input");
+            domUtils.trigger(inputElement, "input");
             document.querySelector("#f_pwd #sub")?.click();
           }
         });
@@ -1944,26 +1946,26 @@ websiteEditRuleView: {
     }
     if (window.location.hostname === "cloud.189.cn") {
       log.success("自动填写链接", netDiskInfo);
-      utils.waitNode("input#code_txt").then((codeTxtElement) => {
+      domUtils.waitNode("input#code_txt").then((codeTxtElement) => {
         loopWaitElementShow(codeTxtElement, () => {
           Qmsg.success("自动填充访问码");
           let visitBtn = document.querySelector(".btn.btn-primary.visit");
           codeTxtElement.value = netDiskInfo.accessCode;
           Reflect.set(codeTxtElement, "_value", netDiskInfo.accessCode);
-          utils.dispatchEvent(codeTxtElement, "input");
-          utils.dispatchEvent(visitBtn, "click");
+          domUtils.trigger(codeTxtElement, "input");
+          domUtils.trigger(visitBtn, "click");
         });
       });
     }
     if (window.location.hostname === "h5.cloud.189.cn") {
       log.success("自动填写链接", netDiskInfo);
-      utils.waitNode("input.access-code-input").then((accessInputElement) => {
+      domUtils.waitNode("input.access-code-input").then((accessInputElement) => {
         loopWaitElementShow(accessInputElement, () => {
           Qmsg.success("自动填充访问码");
           accessInputElement.value = netDiskInfo.accessCode;
           Reflect.set(accessInputElement, "_value", netDiskInfo.accessCode);
-          utils.dispatchEvent(accessInputElement, "input");
-          utils.dispatchEvent(document.querySelector("div.button"), "click");
+          domUtils.trigger(accessInputElement, "input");
+          domUtils.trigger(document.querySelector("div.button"), "click");
         });
       });
     }
@@ -1971,24 +1973,24 @@ websiteEditRuleView: {
   const NetDiskAutoFillAccessCode_hecaiyun = function(netDiskInfo) {
     if (window.location.hostname === "caiyun.139.com") {
       log.success("自动填写链接", netDiskInfo);
-      utils.waitNode("#token-input").then((element) => {
+      domUtils.waitNode("#token-input").then((element) => {
         if (!utils.isVisible(element)) {
           log.error("输入框不可见，不输入密码");
           return;
         }
         Qmsg.success("自动填充访问码");
         element.value = netDiskInfo.accessCode;
-        utils.dispatchEvent(element, "input");
+        domUtils.trigger(element, "input");
         document.querySelector("#homepage div.token div.token-form a").click();
       });
-      utils.waitNode("#app div.token-form input[type=text]").then((element) => {
+      domUtils.waitNode("#app div.token-form input[type=text]").then((element) => {
         if (!utils.isVisible(element)) {
           log.error("输入框不可见，不输入密码");
           return;
         }
         Qmsg.success("自动填充访问码");
         element.value = netDiskInfo.accessCode;
-        utils.dispatchEvent(element, "input");
+        domUtils.trigger(element, "input");
         document.querySelector("div.token-form a.btn-token").click();
       });
     }
@@ -2013,7 +2015,7 @@ async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
         return __target__;
       }
       if (typeof $el === "string") {
-        let $ele = await utils.waitNode($el, 1e4);
+        let $ele = await domUtils.waitNode($el, 1e4);
         if (!$ele) {
           return;
         }
@@ -2032,7 +2034,7 @@ async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
               $el: $targetEl
             };
           }
-          let reactInst = utils.getReactObj($targetEl);
+          let reactInst = utils.getReactInstance($targetEl);
           if (reactInst == null) {
             return {
               status: false,
@@ -2084,7 +2086,7 @@ async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
     if (window.location.hostname === "www.aliyundrive.com" || window.location.hostname === "www.alipan.com") {
       log.success("自动填写链接", netDiskInfo);
       domUtils.ready(() => {
-        utils.waitAnyNode([
+        domUtils.waitAnyNode([
           "#root input.ant-input[placeholder*='提取码']",
           "#root input[name=pwd][placeholder*='提取码']"
         ]).then(($el) => {
@@ -2120,7 +2122,7 @@ async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
     if (window.location.hostname === "www.123pan.com") {
       log.success("自动填写链接", netDiskInfo);
       domUtils.ready(() => {
-        utils.waitAnyNode([
+        domUtils.waitAnyNode([
           "#app .ca-fot input.ant-input[type=text][placeholder*='提取码']",
           "#app .appinput input.ant-input[type=text][placeholder*='提取码']"
         ]).then(($el) => {
@@ -2155,28 +2157,28 @@ async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
   const NetDiskAutoFillAccessCode_weiyun = function(netDiskInfo) {
     if (window.location.hostname === "share.weiyun.com") {
       log.success("自动填写链接", netDiskInfo);
-      utils.waitNode("#app input.input-txt").then((element) => {
+      domUtils.waitNode("#app input.input-txt").then((element) => {
         if (!utils.isVisible(element)) {
           log.error("输入框不可见，不输入密码");
           return;
         }
         Qmsg.success("自动填充访问码");
         element.value = netDiskInfo.accessCode;
-        utils.dispatchEvent(element, "input");
-        utils.dispatchEvent(element, "change");
+        domUtils.trigger(element, "input");
+        domUtils.trigger(element, "change");
         setTimeout(() => {
           document.querySelector(".form-item button.btn-main").click();
         }, 500);
       });
-      utils.waitNode(".input-wrap input.pw-input").then((element) => {
+      domUtils.waitNode(".input-wrap input.pw-input").then((element) => {
         if (!utils.isVisible(element)) {
           log.error("输入框不可见，不输入密码");
           return;
         }
         Qmsg.success("自动填充访问码");
         element.value = netDiskInfo.accessCode;
-        utils.dispatchEvent(element, "input");
-        utils.dispatchEvent(element, "change");
+        domUtils.trigger(element, "input");
+        domUtils.trigger(element, "change");
         setTimeout(() => {
           document.querySelector(".pw-btn-wrap button.btn").click();
         }, 500);
@@ -2186,28 +2188,28 @@ async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
   const NetDiskAutoFillAccessCode_xunlei = function(netDiskInfo) {
     if (window.location.hostname === "pan.xunlei.com") {
       log.success("自动填写链接", netDiskInfo);
-      utils.waitNode("#__layout div.pass-input-wrap input.td-input__inner").then((element) => {
+      domUtils.waitNode("#__layout div.pass-input-wrap input.td-input__inner").then((element) => {
         if (!utils.isVisible(element)) {
           log.error("输入框不可见，不输入密码");
           return;
         }
         log.error("输入框不可见，不输入密码");
         element.value = netDiskInfo.accessCode;
-        utils.dispatchEvent(element, "input");
-        utils.dispatchEvent(element, "change");
+        domUtils.trigger(element, "input");
+        domUtils.trigger(element, "change");
         setTimeout(() => {
           document.querySelector("#__layout div.pass-input-wrap button.td-button").click();
         }, 500);
       });
-      utils.waitNode("#__layout div.pass-wrapper input.td-input__inner").then((element) => {
+      domUtils.waitNode("#__layout div.pass-wrapper input.td-input__inner").then((element) => {
         if (!utils.isVisible(element)) {
           log.error("输入框不可见，不输入密码");
           return;
         }
         log.error("输入框不可见，不输入密码");
         element.value = netDiskInfo.accessCode;
-        utils.dispatchEvent(element, "input");
-        utils.dispatchEvent(element, "change");
+        domUtils.trigger(element, "input");
+        domUtils.trigger(element, "change");
         setTimeout(() => {
           document.querySelector("#__layout div.pass-wrapper button.td-button").click();
         }, 500);
@@ -2218,7 +2220,9 @@ async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
     if (window.location.hostname === "pan.quark.cn") {
       log.success("自动填写链接", netDiskInfo);
       domUtils.ready(() => {
-        utils.waitNode("#ice-container input.ant-input[class*=ShareReceive][placeholder*='提取码']").then(($el) => {
+        domUtils.waitNode(
+          "#ice-container input.ant-input[class*=ShareReceive][placeholder*='提取码']"
+        ).then(($el) => {
           ReactUtils.waitReactPropsToSet($el, ["reactProps", "reactEventHandlers"], {
             check(reactPropInst) {
               return typeof reactPropInst?.onChange === "function" || typeof reactPropInst?.memoizedProps?.onChange === "function";
@@ -2243,21 +2247,21 @@ async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
   };
   const NetDiskAutoFillAccessCode_chengtong = function(netDiskInfo) {
     log.success("自动填写链接", netDiskInfo);
-    utils.waitNode("#passcode").then((element) => {
+    domUtils.waitNode("#passcode").then((element) => {
       if (!utils.isVisible(element)) {
         log.error("输入框不可见，不输入密码");
         return;
       }
       Qmsg.success("自动填充访问码");
       element.value = netDiskInfo.accessCode;
-      utils.dispatchEvent(element, "input");
+      domUtils.trigger(element, "input");
       $("#main-content .form-group button.btn[type=button]").click();
     });
   };
   const NetDiskAutoFillAccessCode_115pan = function(netDiskInfo) {
     if (["115.com", "115cdn.com", "anxia.com"].includes(window.location.hostname)) {
       log.success("自动填写链接", netDiskInfo);
-      utils.waitNode("input.text", 1e4).then(($el) => {
+      domUtils.waitNode("input.text", 1e4).then(($el) => {
         if (!$el) return;
         if (!utils.isVisible($el)) {
           log.error("输入框不可见，不输入密码");
@@ -2265,7 +2269,7 @@ async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
         }
         Qmsg.success("自动填充访问码");
         $el.value = netDiskInfo.accessCode;
-        utils.dispatchEvent($el, "input");
+        domUtils.trigger($el, "input");
         $("#js-share_code div.form-decode div.submit a").click();
       });
     }
@@ -2273,25 +2277,25 @@ async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
   const NetDiskAutoFillAccessCode_360yunpan = function(netDiskInfo) {
     if (window.location.hostname.endsWith(".link.yunpan.com")) {
       log.success("自动填写链接", netDiskInfo);
-      utils.waitNode("#extract-bg-container input.pwd-input").then(($el) => {
+      domUtils.waitNode("#extract-bg-container input.pwd-input").then(($el) => {
         if (!utils.isVisible($el)) {
           log.error("输入框不可见，不输入密码");
           return;
         }
         Qmsg.success("自动填充访问码");
         $el.value = netDiskInfo.accessCode;
-        utils.dispatchEvent($el, "input");
+        domUtils.trigger($el, "input");
         let $submit = $("#extract-bg-container input.submit-btn");
         $submit?.click();
       });
-      utils.waitNode("#extractForm input.pwd-input").then(($el) => {
+      domUtils.waitNode("#extractForm input.pwd-input").then(($el) => {
         if (!utils.isVisible($el)) {
           log.error("输入框不可见，不输入密码");
           return;
         }
         Qmsg.success("自动填充访问码");
         $el.value = netDiskInfo.accessCode;
-        utils.dispatchEvent($el, "input");
+        domUtils.trigger($el, "input");
         let $submit = $("#extractForm input.submit-btn");
         $submit?.click();
       });
@@ -3399,7 +3403,7 @@ X_Canary = "client=web,app=share,version=v2.3.1";
           isHTML: true
         });
         domUtils.on($QmsgErrorTip.$Qmsg.querySelector("a[href]"), "click", void 0, (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           NetDiskLinkClickMode.openBlankUrl(url, "aliyun", that.ruleIndex, that.shareCode, that.accessCode);
         });
         return;
@@ -4467,7 +4471,7 @@ parseBoxItemInfo($viewBox) {
           $alert.close();
         };
         domUtils.on($button, "click", async (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           if (typeof filterOption.callback === "function") {
             let result = await filterOption.callback(event, execFilterAndCloseDialog);
             if (!result) {
@@ -4621,7 +4625,7 @@ async showView(filterCallBack) {
             let $subscribe = $panelRightHeader.querySelector(".subscribe-btn");
             const subscribeOption = config.subscribe;
             domUtils.on($subscribe, "click", async (event2) => {
-              utils.preventEvent(event2);
+              domUtils.preventEvent(event2);
               await subscribeOption?.callback?.();
               let deepMenuElementInfo = await this.enterDeepMenu(
                 $panelRightContainer,
@@ -4865,26 +4869,17 @@ async showView(filterCallBack) {
                       domUtils.removeAttr($promptOk, "disabled");
                     }
                   });
-                  domUtils.listenKeyboard(
-                    $promptInput,
-                    "keydown",
-                    (keyName, keyValue, otherCodeList, event3) => {
-                      if (keyName === "Enter" && otherCodeList.length === 0) {
-                        utils.preventEvent(event3);
-                        utils.dispatchEvent($promptOk, "click");
-                      }
+                  domUtils.listenKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList, event3) => {
+                    if (keyName === "Enter" && otherCodeList.length === 0) {
+                      domUtils.preventEvent(event3);
+                      domUtils.trigger($promptOk, "click");
                     }
-                  );
-                  utils.dispatchEvent($promptInput, "input");
+                  });
+                  domUtils.trigger($promptInput, "input");
                 }
               );
               let allSubscribeData = await subscribeOption.data();
-              await this.addRuleElement(
-                subscribeOption,
-                subscribeOption,
-                deepMenuElementInfo.$section,
-                allSubscribeData
-              );
+              await this.addRuleElement(subscribeOption, subscribeOption, deepMenuElementInfo.$section, allSubscribeData);
             });
           }
           let ruleCreateViewElementInfo = this.createButtonControls(
@@ -4903,19 +4898,13 @@ async showView(filterCallBack) {
           );
           let allData = await config.ruleOption.data();
           let changeButtonText = false;
-          await this.addRuleElement(
-            config.ruleOption,
-            void 0,
-            $panelRightContainer,
-            allData,
-            (ruleItemData, $rule) => {
-              let flag = typeof filterCallBack === "function" ? filterCallBack(ruleItemData) : true;
-              if (!flag) {
-                changeButtonText = true;
-                domUtils.hide($rule, false);
-              }
+          await this.addRuleElement(config.ruleOption, void 0, $panelRightContainer, allData, (ruleItemData, $rule) => {
+            let flag = typeof filterCallBack === "function" ? filterCallBack(ruleItemData) : true;
+            if (!flag) {
+              changeButtonText = true;
+              domUtils.hide($rule, false);
             }
-          );
+          });
           if (changeButtonText && ruleCreateViewElementInfo.$ruleControlFilter) {
             domUtils.text(ruleCreateViewElementInfo.$ruleControlFilter, "取消过滤");
           }
@@ -5056,15 +5045,11 @@ duration: 220,
 			`
         )
       });
-      const $headerContainer = $deepMenuSection.querySelector(
-        ".pops-panel-deepMenu-container-header-ul"
-      );
-      const $arrowLeft = $deepMenuSection.querySelector(
-        ".pops-panel-deepMenu-container-left-arrow-icon"
-      );
+      const $headerContainer = $deepMenuSection.querySelector(".pops-panel-deepMenu-container-header-ul");
+      const $arrowLeft = $deepMenuSection.querySelector(".pops-panel-deepMenu-container-left-arrow-icon");
       const $rightRuleContainer = $deepMenuSection.querySelector(".pops-panel-container-main-ul");
       domUtils.on($arrowLeft, "click", async (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         const leaveViewTransition = () => {
           const $prev = $currentSection;
           domUtils.removeClass($prev, "pops-hide-important");
@@ -5159,7 +5144,7 @@ createButtonControls($controlsParent, $rightContainer, option, addButtonCallBack
           }
         );
         domUtils.on($ruleControlAdd, "click", async (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           let result = await option.btnControls?.add?.callback?.call(this, {
             event,
             $section: $rightContainer
@@ -5189,7 +5174,7 @@ createButtonControls($controlsParent, $rightContainer, option, addButtonCallBack
           }
         );
         domUtils.on($ruleControlFilter, "click", async (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           let result = await btnControlsOption?.filter?.callback?.();
           if (typeof result === "boolean" && !result) {
             return;
@@ -5257,7 +5242,7 @@ filterOption: btnControlsOption?.filter?.option || [],
           }
         );
         domUtils.on($ruleControlClearAll, "click", (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           let $askDialog = __pops.confirm({
             title: {
               text: "提示",
@@ -5321,7 +5306,7 @@ filterOption: btnControlsOption?.filter?.option || [],
           }
         );
         domUtils.on($ruleControlImport, "click", async (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           let result = await btnControlsOption?.import?.callback?.(() => {
             this.updateRuleContaienrElement(option, void 0, $rightContainer);
           });
@@ -5349,7 +5334,7 @@ filterOption: btnControlsOption?.filter?.option || [],
           }
         );
         domUtils.on($ruleControlExport, "click", async (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           let result = await btnControlsOption?.export?.callback?.({
             event
           });
@@ -5470,7 +5455,7 @@ async createRuleElement(option, subscribeOption, data, $el) {
       }
       if (option?.btnControls?.ruleEdit?.enable) {
         domUtils.on($edit, "click", (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           if (typeof option.btnControls?.ruleEdit?.callback === "function") {
             let result = option.btnControls?.ruleEdit?.callback({
               context: this,
@@ -5518,7 +5503,7 @@ deepMenuOption,
       }
       if (option?.btnControls?.ruleDelete?.enable) {
         domUtils.on($delete, "click", (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           let $askDialog = __pops.confirm({
             title: {
               text: "提示",
@@ -5996,7 +5981,7 @@ importSubscribe(importEndCallBack) {
         });
       };
       domUtils.on($local, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         $alert.close();
         let $input = domUtils.createElement("input", {
           type: "file",
@@ -6016,7 +6001,7 @@ importSubscribe(importEndCallBack) {
         $input.click();
       });
       domUtils.on($network, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         $alert.close();
         let $prompt = __pops.prompt({
           title: {
@@ -6085,14 +6070,14 @@ importSubscribe(importEndCallBack) {
           if (keyName === "Enter" && otherCodeList.length === 0) {
             let value = domUtils.val($promptInput);
             if (value !== "") {
-              utils.dispatchEvent($promptOk, "click");
+              domUtils.trigger($promptOk, "click");
             }
           }
         });
-        utils.dispatchEvent($promptInput, "input");
+        domUtils.trigger($promptInput, "input");
       });
       domUtils.on($clipboard, "click", async (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         $alert.close();
         let clipboardText = await CommonUtil.getClipboardText();
         if (clipboardText.trim() === "") {
@@ -6167,7 +6152,7 @@ exportSubscribe(fileName = "rule.json") {
         }, 1500);
       };
       domUtils.on($onlyExportRuleList, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         try {
           let allRule = this.getAllSubscribe();
           if (allRule.length === 0) {
@@ -6503,7 +6488,7 @@ option.ruleData.data.url
                           });
                           let $dynamicDelete = $dynamicUListContainer.querySelector(".dynamic-control-delete");
                           domUtils.on($dynamicDelete, "click", (event) => {
-                            utils.preventEvent(event);
+                            domUtils.preventEvent(event);
                             $dynamicUListContainer.remove();
                             if (Array.isArray(data.dynamicData)) {
                               let findIndex = data.dynamicData.findIndex((it) => it == dynamicData);
@@ -6521,7 +6506,7 @@ option.ruleData.data.url
                           $dynamicInner.appendChild($dynamicUListContainer);
                         };
                         domUtils.on($addDynamicButton, "click", (event) => {
-                          utils.preventEvent(event);
+                          domUtils.preventEvent(event);
                           addDynamicElementItem();
                         });
                         if (Array.isArray(data.dynamicData)) {
@@ -6816,7 +6801,7 @@ option.ruleData.data.url
                   });
                   let $dynamicDelete = $dynamicUListContainer.querySelector(".dynamic-control-delete");
                   domUtils.on($dynamicDelete, "click", (event) => {
-                    utils.preventEvent(event);
+                    domUtils.preventEvent(event);
                     $dynamicUListContainer.remove();
                     if (Array.isArray(data.dynamicData)) {
                       let findIndex = data.dynamicData.findIndex((it) => it == dynamicData);
@@ -6834,7 +6819,7 @@ option.ruleData.data.url
                   $dynamicInner.appendChild($dynamicUListContainer);
                 };
                 domUtils.on($addDynamicButton, "click", (event) => {
-                  utils.preventEvent(event);
+                  domUtils.preventEvent(event);
                   addDynamicElementItem();
                 });
                 if (Array.isArray(data.dynamicData)) {
@@ -7102,7 +7087,7 @@ exportRule(fileName = "rule.json", subscribeFileName = "rule-subscribe.json") {
         }, 1500);
       };
       domUtils.on($onlyExportRuleList, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         try {
           let allRule = this.getData();
           if (allRule.length === 0) {
@@ -7116,7 +7101,7 @@ exportRule(fileName = "rule.json", subscribeFileName = "rule-subscribe.json") {
         }
       });
       domUtils.on($exportToSubscribe, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         const that = this;
         $alert.close();
         try {
@@ -7308,7 +7293,7 @@ importRule(importEndCallBack) {
         });
       };
       domUtils.on($local, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         $alert.close();
         let $input = domUtils.createElement("input", {
           type: "file",
@@ -7328,7 +7313,7 @@ importRule(importEndCallBack) {
         $input.click();
       });
       domUtils.on($network, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         $alert.close();
         let $prompt = NetDiskPops.prompt({
           title: {
@@ -7395,14 +7380,14 @@ importRule(importEndCallBack) {
           if (keyName === "Enter" && otherCodeList.length === 0) {
             let value = domUtils.val($promptInput);
             if (value !== "") {
-              utils.dispatchEvent($promptOk, "click");
+              domUtils.trigger($promptOk, "click");
             }
           }
         });
-        utils.dispatchEvent($promptInput, "input");
+        domUtils.trigger($promptInput, "input");
       });
       domUtils.on($clipboard, "click", async (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         $alert.close();
         let clipboardInfo = await utils.getClipboardInfo();
         if (clipboardInfo.error != null) {
@@ -7722,7 +7707,7 @@ importSubscribe(importEndCallBack) {
         });
       };
       domUtils.on($local, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         $alert.close();
         let $input = domUtils.createElement("input", {
           type: "file",
@@ -7742,7 +7727,7 @@ importSubscribe(importEndCallBack) {
         $input.click();
       });
       domUtils.on($network, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         $alert.close();
         let $prompt = NetDiskPops.prompt({
           title: {
@@ -7809,14 +7794,14 @@ importSubscribe(importEndCallBack) {
           if (keyName === "Enter" && otherCodeList.length === 0) {
             let value = domUtils.val($promptInput);
             if (value !== "") {
-              utils.dispatchEvent($promptOk, "click");
+              domUtils.trigger($promptOk, "click");
             }
           }
         });
-        utils.dispatchEvent($promptInput, "input");
+        domUtils.trigger($promptInput, "input");
       });
       domUtils.on($clipboard, "click", async (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         $alert.close();
         let clipboardInfo = await utils.getClipboardInfo();
         if (clipboardInfo.error != null) {
@@ -7893,7 +7878,7 @@ exportSubscribe(fileName = "rule.json") {
         }, 1500);
       };
       domUtils.on($onlyExportRuleList, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         try {
           let allRule = this.getAllSubscribe();
           if (allRule.length === 0) {
@@ -8405,7 +8390,7 @@ setSearchEvent() {
           if (!uiLink) {
             log.info(dataOption);
           }
-          let searchTextRegExp = utils.stringToRegular(searchText, "i");
+          let searchTextRegExp = utils.toRegExp(searchText, "i");
           if (typeof uiLink === "string" && uiLink.match(searchTextRegExp) || dataOption.shareCode.match(searchTextRegExp) || dataOption.url.match(searchTextRegExp) || dataOption.topURL.match(searchTextRegExp) || dataOption.title.match(searchTextRegExp)) {
             return true;
           }
@@ -9987,7 +9972,7 @@ setRightClickMenu($el, selector, isHistoryView) {
                   Qmsg.warning("无访问码");
                   return;
                 }
-                utils.setClip(accessCode).then((status) => {
+                utils.copy(accessCode).then((status) => {
                   if (status) {
                     Qmsg.success("已复制");
                   } else {
@@ -10077,7 +10062,7 @@ setRightClickMenu($el, selector, isHistoryView) {
                   });
                   copyTextList.push(copyUrlText);
                 });
-                utils.setClip(copyTextList.join("\n")).then((status) => {
+                utils.copy(copyTextList.join("\n")).then((status) => {
                   if (status) {
                     Qmsg.success("成功复制全部");
                   } else {
@@ -10177,7 +10162,7 @@ setNetDiskUrlClickEvent($el, childSelector) {
         if (event.button !== 1) {
           return;
         }
-        Utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         $click.setAttribute("isvisited", "true");
         const data = NetDiskLinkView.parseBoxAttrRuleInfo($click);
         let url = NetDiskLinkClickModeUtils.getBlankUrl({
@@ -10279,7 +10264,7 @@ registerIconGotoPagePosition(targetElement) {
           prevSearchShareCode = dataSharecode;
         }
         if (findGenerator == void 0) {
-          findGenerator = Utils.findElementsWithText(document.documentElement, dataSharecode);
+          findGenerator = DOMUtils.findElementsWithText(document.documentElement, dataSharecode);
           iterator = findGenerator.next();
         }
         if (iterator?.value) {
@@ -10309,10 +10294,10 @@ registerIconGotoPagePosition(targetElement) {
                 }
               }
               try {
-                Utils.selectElementText(iterator.value, childTextNode, startIndex, endIndex);
+                DOMUtils.setElementSelection(iterator.value, childTextNode, startIndex, endIndex);
               } catch (error) {
                 log.error(error);
-                Utils.selectElementText(iterator.value);
+                DOMUtils.setElementSelection(iterator.value);
               }
             }
           } else if (iterator.value.nodeType === Node.TEXT_NODE && iterator.value.parentElement.getClientRects().length) {
@@ -10322,10 +10307,10 @@ registerIconGotoPagePosition(targetElement) {
               let startIndex = elementText.indexOf(dataSharecode);
               let endIndex = startIndex + dataSharecode.length;
               try {
-                Utils.selectElementText(iterator.value, childTextNode, startIndex, endIndex);
+                DOMUtils.setElementSelection(iterator.value, childTextNode, startIndex, endIndex);
               } catch (error) {
                 log.error(error);
-                Utils.selectElementText(iterator.value.parentElement);
+                DOMUtils.setElementSelection(iterator.value.parentElement);
               }
               let selection = globalThis.getSelection();
               if (selection.rangeCount > 0) {
@@ -11076,7 +11061,7 @@ latestTime: item.latestTime,
     }
 async getFileDownloadInfo(shareCode, accessCode, responseData) {
       let fileDownloadInfo = void 0;
-      let $pageDoc = domUtils.parseHTML(responseData.responseText, true, true);
+      let $pageDoc = domUtils.toElement(responseData.responseText, true, true);
       let pageText = deleteAnnotationCode(responseData.responseText);
       let $pageIframe = $pageDoc.querySelector('iframe[class^="ifr"]') || $pageDoc.querySelector('iframe[class^="n_downlink"]');
       if ($pageIframe) {
@@ -11319,7 +11304,7 @@ async parseFiles(shareCode, accessCode) {
         return;
       }
       let pageText = pageInfoResponse.responseText;
-      let pageDoc = domUtils.parseHTML(pageText, true, true);
+      let pageDoc = domUtils.toElement(pageText, true, true);
       let folders = Array.from(pageDoc.querySelectorAll("#folder a.mlink[href]")).map(($link) => {
         let url2 = $link.href;
         let urlInst = new URL(url2);
@@ -13413,7 +13398,7 @@ getCopyUrlInfo(handlerConfig) {
   };
   const NetDiskLinkClickMode = {
 copy(ruleKeyName, ruleIndex, shareCode, accessCode, toastText = "已复制") {
-      utils.setClip(
+      utils.copy(
         NetDiskLinkClickModeUtils.getCopyUrlInfo({
           ruleKeyName,
           ruleIndex,
@@ -13487,7 +13472,7 @@ openBlankUrl(url, ruleKeyName, ruleIndex, shareCode, accessCode, isOpenInBackEnd
         }
       };
       if (utils.isNotNull(accessCode) && NetDiskRuleData.linkClickMode_openBlank.openBlankWithCopyAccessCode(ruleKeyName)) {
-        utils.setClip(accessCode).then(() => {
+        utils.copy(accessCode).then(() => {
           openUrl();
         });
       } else {
@@ -14221,7 +14206,7 @@ __t: Date.now()
       let responseText = response.data.responseText;
       if (utils.isNotNull(responseText)) {
         try {
-          let respDOM = domUtils.parseHTML(responseText, true, true);
+          let respDOM = domUtils.toElement(responseText, true, true);
           let $title = respDOM.querySelector("title");
           if ($title) {
             let title = domUtils.html($title);
@@ -14265,7 +14250,7 @@ __t: Date.now()
           data: response
         };
       }
-      let responseDocument = domUtils.parseHTML(responseText, true, true);
+      let responseDocument = domUtils.toElement(responseText, true, true);
       if (responseDocument.querySelector(".h5-page-main")) {
         let $h5PageMain = responseDocument.querySelector(".h5-page-main");
         let errorText = $h5PageMain.textContent || $h5PageMain.innerText;
@@ -14364,7 +14349,7 @@ __t: Date.now()
           data: response
         };
       }
-      let responseDoc = domUtils.parseHTML(response.data.responseText, true, true);
+      let responseDoc = domUtils.toElement(response.data.responseText, true, true);
       let $errorMsg = responseDoc.querySelector(".page-error .error-msg");
       if ($errorMsg) {
         let errorMsg = domUtils.text($errorMsg);
@@ -15624,7 +15609,7 @@ exportRule(fileName = "rule.json", subscribeFileName = "rule-subscribe.json") {
         }, 1500);
       };
       domUtils.on($onlyExportRuleList, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         try {
           let allRule = this.getAllRule();
           if (allRule.length === 0) {
@@ -15638,7 +15623,7 @@ exportRule(fileName = "rule.json", subscribeFileName = "rule-subscribe.json") {
         }
       });
       domUtils.on($exportToSubscribe, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         const that = this;
         $alert.close();
         try {
@@ -15862,7 +15847,7 @@ importRule(importEndCallBack) {
         });
       };
       domUtils.on($local, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         $alert.close();
         let $input = domUtils.createElement("input", {
           type: "file",
@@ -15882,7 +15867,7 @@ importRule(importEndCallBack) {
         $input.click();
       });
       domUtils.on($network, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         $alert.close();
         let $prompt = NetDiskPops.prompt({
           title: {
@@ -15949,14 +15934,14 @@ importRule(importEndCallBack) {
           if (keyName === "Enter" && otherCodeList.length === 0) {
             let value = domUtils.val($promptInput);
             if (value !== "") {
-              utils.dispatchEvent($promptOk, "click");
+              domUtils.trigger($promptOk, "click");
             }
           }
         });
-        utils.dispatchEvent($promptInput, "input");
+        domUtils.trigger($promptInput, "input");
       });
       domUtils.on($clipboard, "click", async (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         $alert.close();
         let clipboardInfo = await utils.getClipboardInfo();
         if (clipboardInfo.error != null) {
@@ -18660,7 +18645,7 @@ option.ruleData.data.url
                           false,
                           "primary",
                           (event) => {
-                            utils.preventEvent(event);
+                            domUtils.preventEvent(event);
                             let originPanelContentConfig = [
                               ...PanelContent.getConfig(0),
                               ...NetDiskRule.getRulePanelContent()
@@ -18983,7 +18968,7 @@ option.ruleData.data.url
                   false,
                   "primary",
                   (event) => {
-                    utils.preventEvent(event);
+                    domUtils.preventEvent(event);
                     let originPanelContentConfig = [...PanelContent.getConfig(0), ...NetDiskRule.getRulePanelContent()];
                     let newPanelContentConfig = deepCopy(originPanelContentConfig);
                     function iterativeTraversal(configList) {
@@ -19360,7 +19345,7 @@ exportRule(fileName = "rule.json", subscribeFileName = "rule-subscribe.json") {
         }, 1500);
       };
       domUtils.on($onlyExportRuleList, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         try {
           let allRule = this.getAllRule();
           if (allRule.length === 0) {
@@ -19374,7 +19359,7 @@ exportRule(fileName = "rule.json", subscribeFileName = "rule-subscribe.json") {
         }
       });
       domUtils.on($exportToSubscribe, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         const that = this;
         $alert.close();
         try {
@@ -19577,7 +19562,7 @@ importRule(importEndCallBack) {
         });
       };
       domUtils.on($local, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         $alert.close();
         let $input = domUtils.createElement("input", {
           type: "file",
@@ -19597,7 +19582,7 @@ importRule(importEndCallBack) {
         $input.click();
       });
       domUtils.on($network, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         $alert.close();
         let $prompt = NetDiskPops.prompt({
           title: {
@@ -19664,14 +19649,14 @@ importRule(importEndCallBack) {
           if (keyName === "Enter" && otherCodeList.length === 0) {
             let value = domUtils.val($promptInput);
             if (value !== "") {
-              utils.dispatchEvent($promptOk, "click");
+              domUtils.trigger($promptOk, "click");
             }
           }
         });
-        utils.dispatchEvent($promptInput, "input");
+        domUtils.trigger($promptInput, "input");
       });
       domUtils.on($clipboard, "click", async (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         $alert.close();
         let clipboardInfo = await utils.getClipboardInfo();
         if (clipboardInfo.error != null) {
@@ -20416,7 +20401,7 @@ initGlobalKeyboardListener(shortCutOption, config) {
               return;
             }
             if (config?.isPrevent) {
-              utils.preventEvent(event);
+              domUtils.preventEvent(event);
             }
             localOptions = that.getLocalAllOptions();
             let findShortcutIndex = localOptions.findIndex((item) => {
@@ -20461,7 +20446,7 @@ initGlobalKeyboardListener(shortCutOption, config) {
         Object.keys(ElementShortCutOption).forEach(async (localKey) => {
           let option = ElementShortCutOption[localKey];
           if (typeof option.target === "string") {
-            utils.waitNode(option.target, 1e4).then(($ele) => {
+            domUtils.waitNode(option.target, 1e4).then(($ele) => {
               if (!$ele) {
                 return;
               }
@@ -21359,7 +21344,7 @@ matchedRuleOption: NetDisk.$rule.ruleOption,
                       false,
                       "primary",
                       (event) => {
-                        utils.preventEvent(event);
+                        DOMUtils.preventEvent(event);
                         try {
                           const { count, repairCount } = NetDiskView.$inst.historyMatch.checkAndRepairLocalData();
                           if (repairCount === 0) {

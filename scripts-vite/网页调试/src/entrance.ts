@@ -8,15 +8,9 @@ import { PanelUI_pagespy } from "./setting/view/pagespy";
 import { PanelUI_chii } from "./setting/view/chii";
 import { PanelSizeUtil } from "@components/setting/panel-size-util";
 
-PanelContent.addContentConfig([
-	PanelUI_globalSetting,
-	PanelUI_eruda,
-	PanelUI_vConsole,
-	PanelUI_pagespy,
-	PanelUI_chii,
-]);
+PanelContent.addContentConfig([PanelUI_globalSetting, PanelUI_eruda, PanelUI_vConsole, PanelUI_pagespy, PanelUI_chii]);
 Panel.$data.panelConfig = {
-	style: /*css*/ `
+  style: /*css*/ `
 				aside.pops-panel-aside{
 					width: 20%;
 				}

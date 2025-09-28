@@ -24,7 +24,7 @@ export const MDouYinShareChallenge = {
       "click",
       ".challenge-body",
       (event) => {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
       },
       {
         capture: true,
@@ -41,9 +41,9 @@ export const MDouYinShareChallenge = {
       "click",
       "#pagelet-worklist li.item",
       (event) => {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         let $clikc = event.target as HTMLDivElement;
-        let rectFiber = utils.getReactObj($clikc).reactFiber;
+        let rectFiber = utils.getReactInstance($clikc).reactFiber;
         if (!rectFiber) {
           log.error("获取reactFiber失败");
           Qmsg.error("获取reactFiber失败");

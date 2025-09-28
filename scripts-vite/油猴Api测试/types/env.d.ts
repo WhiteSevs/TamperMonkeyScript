@@ -7,8 +7,8 @@
  * }
  */
 type NestedObjectWithToString = {
-	[key: string]: any | NestedObjectWithToString;
-	toString(): any;
+  [key: string]: any | NestedObjectWithToString;
+  toString(): any;
 };
 
 /**
@@ -26,5 +26,4 @@ declare type ArrayElementType<T> = T extends Array<infer U> ? U : never;
 /**
  * 让对象的某个属性必选
  */
-declare type RequiredProperty<T, K extends keyof T> = Omit<T, K> &
-	Required<Pick<T, K>>;
+declare type RequiredProperty<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;

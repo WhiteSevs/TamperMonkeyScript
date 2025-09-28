@@ -13,170 +13,170 @@ import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
 import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-forms";
 
 export class ApiTest_setValue extends ApiAsyncTestBase {
-	public isSupport() {
-		return typeof GM_setValue === "function";
-	}
-	public getApiName() {
-		return "GM_setValue";
-	}
-	public getAsyncApiOption() {
-		return {
-			name: "GM.setValue",
-			isSupport: this.isSupportGM() && typeof GM.setValue === "function",
-		};
-	}
-	public getUIOption() {
-		const that = this;
-		let apiName = this.getApiName();
-		let apiAsyncInfo = this.getAsyncApiOption();
+  public isSupport() {
+    return typeof GM_setValue === "function";
+  }
+  public getApiName() {
+    return "GM_setValue";
+  }
+  public getAsyncApiOption() {
+    return {
+      name: "GM.setValue",
+      isSupport: this.isSupportGM() && typeof GM.setValue === "function",
+    };
+  }
+  public getUIOption() {
+    const that = this;
+    let apiName = this.getApiName();
+    let apiAsyncInfo = this.getAsyncApiOption();
 
-		let result: PopsPanelContentConfig = {
-			id: "aside-" + apiName,
-			title: "" + apiName,
-			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
-			scrollToDefaultView: true,
-			isDefault() {
-				return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
-			},
-			clickCallback(data) {
-				StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
-			},
-			forms: [
-				{
-					type: "forms",
-					text: "函数测试",
-					forms: [
-						UIInfo(() =>
-							this.isSupport()
-								? {
-										text: "支持 " + apiName,
-										tag: "success",
-								  }
-								: {
-										text: "不支持 " + apiName,
-										tag: "error",
-								  }
-						),
-						UIInfo(() =>
-							apiAsyncInfo.isSupport
-								? {
-										text: "支持 " + apiAsyncInfo.name,
-										tag: "success",
-								  }
-								: {
-										text: "不支持 " + apiAsyncInfo.name,
-										tag: "error",
-								  }
-						),
-					],
-				},
-				{
-					type: "forms",
-					text: "功能测试",
-					forms: [],
-				},
-				{
-					type: "forms",
-					text: "功能测试（异步）",
-					forms: [],
-				},
-			],
-		};
-		if (this.isSupport()) {
-			[
-				{
-					name: apiName,
-					fn: async (...args: any[]) => {
-						return new Promise<any>((resolve) => {
-							// @ts-ignore
-							const ret = GM_setValue(...args);
-							resolve(ret);
-						});
-					},
-					formList: (<PopsPanelFormsDetails>result["forms"][1]).forms,
-				},
-				{
-					name: apiAsyncInfo.name,
-					fn: GM.setValue,
-					formList: (<PopsPanelFormsDetails>result["forms"][2]).forms,
-				},
-			].forEach((data) => {
-				let apiNameTag = data.name;
+    let result: PopsPanelContentConfig = {
+      id: "aside-" + apiName,
+      title: "" + apiName,
+      headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
+      scrollToDefaultView: true,
+      isDefault() {
+        return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+      },
+      clickCallback(data) {
+        StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+      },
+      forms: [
+        {
+          type: "forms",
+          text: "函数测试",
+          forms: [
+            UIInfo(() =>
+              this.isSupport()
+                ? {
+                    text: "支持 " + apiName,
+                    tag: "success",
+                  }
+                : {
+                    text: "不支持 " + apiName,
+                    tag: "error",
+                  }
+            ),
+            UIInfo(() =>
+              apiAsyncInfo.isSupport
+                ? {
+                    text: "支持 " + apiAsyncInfo.name,
+                    tag: "success",
+                  }
+                : {
+                    text: "不支持 " + apiAsyncInfo.name,
+                    tag: "error",
+                  }
+            ),
+          ],
+        },
+        {
+          type: "forms",
+          text: "功能测试",
+          forms: [],
+        },
+        {
+          type: "forms",
+          text: "功能测试（异步）",
+          forms: [],
+        },
+      ],
+    };
+    if (this.isSupport()) {
+      [
+        {
+          name: apiName,
+          fn: async (...args: any[]) => {
+            return new Promise<any>((resolve) => {
+              // @ts-ignore
+              const ret = GM_setValue(...args);
+              resolve(ret);
+            });
+          },
+          formList: (<PopsPanelFormsDetails>result["forms"][1]).forms,
+        },
+        {
+          name: apiAsyncInfo.name,
+          fn: GM.setValue,
+          formList: (<PopsPanelFormsDetails>result["forms"][2]).forms,
+        },
+      ].forEach((data) => {
+        let apiNameTag = data.name;
 
-				data.formList.push(
-					...[
-						{
-							key: `Test ${apiNameTag} boolean`,
-							value: true,
-							text: function () {
-								return `存储boolean类型`;
-							},
-							desc: function () {
-								return `"${this.key}": ${this.value}`;
-							},
-						},
-						{
-							key: `Test ${apiNameTag} number`,
-							value: 1,
-							text: function () {
-								return `存储number类型`;
-							},
-							desc: function () {
-								return `"${this.key}": ${this.value}`;
-							},
-						},
-						{
-							key: `Test ${apiNameTag} string`,
-							value: "测试字符串",
-							text: function () {
-								return `存储string类型`;
-							},
-							desc: function () {
-								return `"${this.key}": "${this.value}"`;
-							},
-						},
-						{
-							key: `Test ${apiNameTag} undefined`,
-							value: undefined,
-							text: function () {
-								return `存储undefined类型`;
-							},
-							desc: function () {
-								return `"${this.key}": ${this.value}`;
-							},
-						},
-						{
-							key: `Test ${apiNameTag} null`,
-							value: null,
-							text: function () {
-								return `存储object类型的null`;
-							},
-							desc: function () {
-								return `"${this.key}": ${this.value}`;
-							},
-						},
-						{
-							key: `Test ${apiNameTag} object`,
-							value: { "object key": "object value" },
-							text: function () {
-								return `存储object类型`;
-							},
-							desc: function () {
-								return `"${this.key}": ${JSON.stringify(this.value)}`;
-							},
-						},
-					].map((it) => {
-						return (() => {
-							let localStorageDataKey = it.key;
-							let localStorageDataValue = it.value;
-							return UIInfo(() => {
-								return {
-									text: it.text(),
-									description: it.desc(),
-									tag: "info",
-									afterRender(container) {
-										let $button = DOMUtils.parseHTML(
-											/*html*/ `
+        data.formList.push(
+          ...[
+            {
+              key: `Test ${apiNameTag} boolean`,
+              value: true,
+              text: function () {
+                return `存储boolean类型`;
+              },
+              desc: function () {
+                return `"${this.key}": ${this.value}`;
+              },
+            },
+            {
+              key: `Test ${apiNameTag} number`,
+              value: 1,
+              text: function () {
+                return `存储number类型`;
+              },
+              desc: function () {
+                return `"${this.key}": ${this.value}`;
+              },
+            },
+            {
+              key: `Test ${apiNameTag} string`,
+              value: "测试字符串",
+              text: function () {
+                return `存储string类型`;
+              },
+              desc: function () {
+                return `"${this.key}": "${this.value}"`;
+              },
+            },
+            {
+              key: `Test ${apiNameTag} undefined`,
+              value: undefined,
+              text: function () {
+                return `存储undefined类型`;
+              },
+              desc: function () {
+                return `"${this.key}": ${this.value}`;
+              },
+            },
+            {
+              key: `Test ${apiNameTag} null`,
+              value: null,
+              text: function () {
+                return `存储object类型的null`;
+              },
+              desc: function () {
+                return `"${this.key}": ${this.value}`;
+              },
+            },
+            {
+              key: `Test ${apiNameTag} object`,
+              value: { "object key": "object value" },
+              text: function () {
+                return `存储object类型`;
+              },
+              desc: function () {
+                return `"${this.key}": ${JSON.stringify(this.value)}`;
+              },
+            },
+          ].map((it) => {
+            return (() => {
+              let localStorageDataKey = it.key;
+              let localStorageDataValue = it.value;
+              return UIInfo(() => {
+                return {
+                  text: it.text(),
+                  description: it.desc(),
+                  tag: "info",
+                  afterRender(container) {
+                    let $button = DOMUtils.toElement(
+                      /*html*/ `
 										<div class="pops-panel-button pops-panel-button-no-icon">
 											<button class="pops-panel-button_inner" type="button" data-type="default">
 												<i class="pops-bottom-icon" is-loading="false"></i>
@@ -184,28 +184,28 @@ export class ApiTest_setValue extends ApiAsyncTestBase {
 											</button>
 										</div>
 									`,
-											false,
-											false
-										);
-										DOMUtils.after(container.$leftContainer, $button);
-										// 点击事件
-										DOMUtils.on($button, "click", async (event) => {
-											utils.preventEvent(event);
-											try {
-												await data.fn(localStorageDataKey, localStorageDataValue);
-												Qmsg.info("执行写入完毕，请自行查看是否成功写入");
-											} catch (error: any) {
-												Qmsg.error(error.toString(), { consoleLogContent: true });
-											}
-										});
-									},
-								};
-							});
-						})();
-					})
-				);
-			});
-		}
-		return result;
-	}
+                      false,
+                      false
+                    );
+                    DOMUtils.after(container.$leftContainer, $button);
+                    // 点击事件
+                    DOMUtils.on($button, "click", async (event) => {
+                      DOMUtils.preventEvent(event);
+                      try {
+                        await data.fn(localStorageDataKey, localStorageDataValue);
+                        Qmsg.info("执行写入完毕，请自行查看是否成功写入");
+                      } catch (error: any) {
+                        Qmsg.error(error.toString(), { consoleLogContent: true });
+                      }
+                    });
+                  },
+                };
+              });
+            })();
+          })
+        );
+      });
+    }
+    return result;
+  }
 }

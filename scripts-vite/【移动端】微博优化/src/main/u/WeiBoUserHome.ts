@@ -1,3 +1,3 @@
 export const WeiBoUserHome = {
-	init() {},
+  init() {},
 };

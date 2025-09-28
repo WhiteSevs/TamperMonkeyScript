@@ -1,4 +1,4 @@
-import { log, utils } from "@/env";
+import { DOMUtils, log, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
 import Qmsg from "qmsg";
 import { BaiduSearchVideoBlock } from "./SearchVideoBlock";
@@ -14,7 +14,7 @@ export const BaiduSearchVideo = {
    * 自动跳转至原网页
    */
   autoJumpToOriginUrl() {
-    utils.waitNode<HTMLAnchorElement>(".sfc-video-page-info-showurl", 10000).then(($showUrl) => {
+    DOMUtils.waitNode<HTMLAnchorElement>(".sfc-video-page-info-showurl", 10000).then(($showUrl) => {
       if (!$showUrl) {
         Qmsg.error("未找到.sfc-video-page-info-showurl元素");
         return;

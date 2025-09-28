@@ -742,7 +742,7 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
                     false,
                     "primary",
                     (event) => {
-                      utils.preventEvent(event);
+                      DOMUtils.preventEvent(event);
                       try {
                         const { count, repairCount } = NetDiskView.$inst.historyMatch.checkAndRepairLocalData();
                         if (repairCount === 0) {

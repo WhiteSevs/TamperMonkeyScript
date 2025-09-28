@@ -33,11 +33,11 @@ const BaiduHaoKan = {
       playBtn,
       "click",
       function (event) {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         DOMUtils.hide(playerShade);
         let currentPageSee = $<HTMLDivElement>(".video-player .video-player-pause-btns .continue")!;
         setTimeout(() => {
-          utils.getReactObj(currentPageSee)["reactEventHandlers"]?.["onClick"]();
+          utils.getReactInstance(currentPageSee)["reactEventHandlers"]?.["onClick"]();
           Panel.execMenu("baidu_haokan_play_video_and_automatically_enter_full_screen", () => {
             if (utils.isFullscreenEnabled()) {
               let videoElement = $("#video video.hplayer-video") as HTMLVideoElement;

@@ -65,9 +65,9 @@ export const MDouYinShareNote = {
       "click",
       "#masonry .card",
       (event) => {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         let $click = event.target as HTMLDivElement;
-        let rectFiber = utils.getReactObj($click).reactFiber;
+        let rectFiber = utils.getReactInstance($click).reactFiber;
         if (!rectFiber) {
           log.error("获取reactFiber失败");
           Qmsg.error("获取reactFiber失败");
@@ -90,9 +90,9 @@ export const MDouYinShareNote = {
       "click",
       ".message-con__top",
       (event) => {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         let $click = event.target as HTMLElement;
-        let rectFiber = utils.getReactObj($click).reactFiber;
+        let rectFiber = utils.getReactInstance($click).reactFiber;
 
         if (!rectFiber) {
           log.error("获取reactFiber失败");
@@ -116,9 +116,9 @@ export const MDouYinShareNote = {
       "click",
       ".message-con__content__body .message-con__content__body-text",
       (event) => {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         let $click = event.target as HTMLElement;
-        let rectFiber = utils.getReactObj($click).reactFiber;
+        let rectFiber = utils.getReactInstance($click).reactFiber;
 
         if (!rectFiber) {
           log.error("获取reactFiber失败");
@@ -145,9 +145,9 @@ export const MDouYinShareNote = {
       "click",
       ".message-con__footer",
       (event) => {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         let $click = event.target as HTMLElement;
-        let rectFiber = utils.getReactObj($click).reactFiber;
+        let rectFiber = utils.getReactInstance($click).reactFiber;
 
         if (!rectFiber) {
           log.error("获取reactFiber失败");
@@ -171,9 +171,9 @@ export const MDouYinShareNote = {
       "click",
       ".container .related-list-con .related-note-item",
       (event) => {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         let $click = event.target as HTMLElement;
-        let rectFiber = utils.getReactObj($click).reactFiber;
+        let rectFiber = utils.getReactInstance($click).reactFiber;
 
         if (!rectFiber) {
           log.error("获取reactFiber失败");
@@ -189,7 +189,7 @@ export const MDouYinShareNote = {
     );
     // 推荐更多精彩图文
     // 查看更多
-    DOMUtils.on(document, "click", ".related-title-con", (event) => utils.preventEvent(event), {
+    DOMUtils.on(document, "click", ".related-title-con", (event) => DOMUtils.preventEvent(event), {
       capture: true,
     });
   },

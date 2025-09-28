@@ -1,33 +1,33 @@
 textarea {
-	display: block;
-	position: relative;
-	/*vertical-align: bottom;*/
-	position: relative;
-	resize: vertical;
-	padding: 5px 11px;
-	line-height: 1.5;
-	box-sizing: border-box;
-	width: 100%;
-	font-size: inherit;
-	font-family: inherit;
-	/* color: #606266; */
-	background-color: #ffffff;
-	background-image: none;
-	appearance: none;
-	-webkit-appearance: none;
-	box-shadow: 0 0 0 1px #dcdfe6 inset;
-	border-radius: 4px;
-	transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
-	border: none;
+  display: block;
+  position: relative;
+  /*vertical-align: bottom;*/
+  position: relative;
+  resize: vertical;
+  padding: 5px 11px;
+  line-height: 1.5;
+  box-sizing: border-box;
+  width: 100%;
+  font-size: inherit;
+  font-family: inherit;
+  /* color: #606266; */
+  background-color: #ffffff;
+  background-image: none;
+  appearance: none;
+  -webkit-appearance: none;
+  box-shadow: 0 0 0 1px #dcdfe6 inset;
+  border-radius: 4px;
+  transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+  border: none;
 }
 textarea:focus {
-	outline: none;
-	box-shadow: 0 0 0 1px #409eff inset;
+  outline: none;
+  box-shadow: 0 0 0 1px #409eff inset;
 }
 
 @media (prefers-color-scheme: dark) {
-	textarea {
-		color: #cfd3dc;
-		background-color: transparent;
-	}
+  textarea {
+    color: #cfd3dc;
+    background-color: transparent;
+  }
 }

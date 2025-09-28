@@ -315,20 +315,18 @@ const TiebaSearch = {
   },
   init() {
     let that = this;
-    utils
-      .waitAnyNode<HTMLDivElement>(
-        [".more-btn-desc", "uni-app .frs-wise-nav-bar .forum-name", ".tbm-status .right-area"],
-        10000
-      )
-      .then(($oldMoreBtnDesc) => {
-        if (!$oldMoreBtnDesc) {
-          return;
-        }
-        this.addCSS();
-        $oldMoreBtnDesc.outerHTML = '<div class="more-btn-desc">搜索</div>';
-        let $newSearch = DOMUtils.createElement("div", {
-          id: "search",
-          innerHTML: /*html*/ `
+    DOMUtils.waitAnyNode<HTMLDivElement>(
+      [".more-btn-desc", "uni-app .frs-wise-nav-bar .forum-name", ".tbm-status .right-area"],
+      10000
+    ).then(($oldMoreBtnDesc) => {
+      if (!$oldMoreBtnDesc) {
+        return;
+      }
+      this.addCSS();
+      $oldMoreBtnDesc.outerHTML = '<div class="more-btn-desc">搜索</div>';
+      let $newSearch = DOMUtils.createElement("div", {
+        id: "search",
+        innerHTML: /*html*/ `
 					<div id="nav-top-search">
 						<div class="nav-search-container">
 							<div class="nav-search-back">
@@ -359,121 +357,121 @@ const TiebaSearch = {
 						</div>
 					</div>
 				`,
-        });
-        document.body.appendChild($newSearch);
-        DOMUtils.hide($newSearch);
+      });
+      document.body.appendChild($newSearch);
+      DOMUtils.hide($newSearch);
 
-        this.$ele.$searchContainer = $newSearch;
-        this.$ele.$navTopSearch = $newSearch.querySelector("#nav-top-search") as HTMLDivElement;
-        this.$ele.$navSearchBack = $newSearch.querySelector(".nav-search-back") as HTMLDivElement;
-        ((this.$ele.$selectWrapper = $newSearch.querySelector(".nav-search-select-wrapper") as HTMLDivElement),
-          (this.$ele.$select = $newSearch.querySelector(".nav-search-select") as HTMLSelectElement));
-        this.$ele.$searchInput = $newSearch.querySelector("#tieba-search") as HTMLInputElement;
-        this.$ele.$searchBtn = $newSearch.querySelector(".nav-search-btn") as HTMLDivElement;
-        this.$ele.$searchResultContainer = $newSearch.querySelector(".search-result") as HTMLDivElement;
-        this.$ele.$searchResultList = $newSearch.querySelector(".search-result-list") as HTMLDivElement;
-        this.$ele.$searchResultModel = $newSearch.querySelector(".search-result-model") as HTMLDivElement;
-        this.$ele.$searchResultFrom = $newSearch.querySelector(".search-result-from-info") as HTMLDivElement;
-        // 初始化加载下一页
-        this.$context.loading.initLoadingView(true);
-        this.$ele.$searchResultList.appendChild(this.$context.loading.getLoadingViewElement());
-        // 设置搜索结果项
-        let $searchResultModelItem = this.$ele.$searchResultModel.querySelector(
-          `.search-result-model-item[data-model="${this.$data.searchModel}"]`
-        );
-        if ($searchResultModelItem) {
-          $searchResultModelItem.setAttribute("data-active", "true");
-        }
-        this.$context.loading.hide();
-        /* 用于判断是否已设置点击事件 */
-        let searchParams = new URLSearchParams(window.location.search);
-        this.$ele.$moreBtnDesc = $(".more-btn-desc") as HTMLDivElement;
-        if (BaiduRouter.isTieBaNei() && utils.isNotNull(searchParams.get("kw"))) {
-          /* 吧内 -> 搜索帖子 */
-          DOMUtils.on(this.$ele.$moreBtnDesc, "click", () => {
-            this.enterSeachMode();
-          });
-        } else if (BaiduRouter.isTieBaPost()) {
-          /* 帖子 -> 搜索帖子 */
-          DOMUtils.on(this.$ele.$moreBtnDesc, "click", () => {
-            this.enterSeachMode();
-          });
-        } else {
-          /* 主页 -> 搜索吧 */
-          TiebaSearchSuggestion.init(this.$ele.$searchInput);
+      this.$ele.$searchContainer = $newSearch;
+      this.$ele.$navTopSearch = $newSearch.querySelector("#nav-top-search") as HTMLDivElement;
+      this.$ele.$navSearchBack = $newSearch.querySelector(".nav-search-back") as HTMLDivElement;
+      ((this.$ele.$selectWrapper = $newSearch.querySelector(".nav-search-select-wrapper") as HTMLDivElement),
+        (this.$ele.$select = $newSearch.querySelector(".nav-search-select") as HTMLSelectElement));
+      this.$ele.$searchInput = $newSearch.querySelector("#tieba-search") as HTMLInputElement;
+      this.$ele.$searchBtn = $newSearch.querySelector(".nav-search-btn") as HTMLDivElement;
+      this.$ele.$searchResultContainer = $newSearch.querySelector(".search-result") as HTMLDivElement;
+      this.$ele.$searchResultList = $newSearch.querySelector(".search-result-list") as HTMLDivElement;
+      this.$ele.$searchResultModel = $newSearch.querySelector(".search-result-model") as HTMLDivElement;
+      this.$ele.$searchResultFrom = $newSearch.querySelector(".search-result-from-info") as HTMLDivElement;
+      // 初始化加载下一页
+      this.$context.loading.initLoadingView(true);
+      this.$ele.$searchResultList.appendChild(this.$context.loading.getLoadingViewElement());
+      // 设置搜索结果项
+      let $searchResultModelItem = this.$ele.$searchResultModel.querySelector(
+        `.search-result-model-item[data-model="${this.$data.searchModel}"]`
+      );
+      if ($searchResultModelItem) {
+        $searchResultModelItem.setAttribute("data-active", "true");
+      }
+      this.$context.loading.hide();
+      /* 用于判断是否已设置点击事件 */
+      let searchParams = new URLSearchParams(window.location.search);
+      this.$ele.$moreBtnDesc = $(".more-btn-desc") as HTMLDivElement;
+      if (BaiduRouter.isTieBaNei() && utils.isNotNull(searchParams.get("kw"))) {
+        /* 吧内 -> 搜索帖子 */
+        DOMUtils.on(this.$ele.$moreBtnDesc, "click", () => {
+          this.enterSeachMode();
+        });
+      } else if (BaiduRouter.isTieBaPost()) {
+        /* 帖子 -> 搜索帖子 */
+        DOMUtils.on(this.$ele.$moreBtnDesc, "click", () => {
+          this.enterSeachMode();
+        });
+      } else {
+        /* 主页 -> 搜索吧 */
+        TiebaSearchSuggestion.init(this.$ele.$searchInput);
+        return;
+      }
+
+      /**
+       * 搜索事件
+       *
+       * 点击按钮搜索
+       *
+       * 按下回车键搜索
+       */
+      let searchEvent = () => {
+        let searchText = that.getSearchText();
+        if (utils.isNull(searchText)) {
+          alert("请勿输入纯空格或空内容");
           return;
         }
-
-        /**
-         * 搜索事件
-         *
-         * 点击按钮搜索
-         *
-         * 按下回车键搜索
-         */
-        let searchEvent = () => {
-          let searchText = that.getSearchText();
-          if (utils.isNull(searchText)) {
-            alert("请勿输入纯空格或空内容");
-            return;
-          }
-          if (Panel.getValue("baidu_tieba_use_hybrid_search")) {
-            // 使用搜索综合
-            window.location.href = TiebaUrlHandler.getHybridSearch(this.getSearchText());
-            return;
-          }
-          this.$data.currentSearchText = searchText;
-          this.clearOldSearchResult();
-          this.postsPageSearch();
-        };
-        DOMUtils.on(this.$ele.$searchBtn, "click", () => {
-          searchEvent();
-        });
-        DOMUtils.listenKeyboard(this.$ele.$searchInput, "keypress", (keyName) => {
-          if (keyName !== "Enter") {
-            return;
-          }
-          searchEvent();
-        });
-        // 设置返回按钮的点击事件-退出搜索模式
-        DOMUtils.on(this.$ele.$navSearchBack, "click", () => {
-          this.quitSearchMode();
-          this.removeScrollEvent();
-        });
-        // 设置模式选择的改变事件
-        DOMUtils.on(this.$ele.$select, "change", (event) => {
-          let select = event.target as HTMLSelectElement;
-          let value = select.value; // 获取选中项的值
-          let text = select.options[select.selectedIndex].text; // 获取选中项的文本
-          log.info("当前搜索模式：" + text);
-          if (text === "本吧") {
-            this.$data.searchType = 0;
-          } else if (text === "全局") {
-            this.$data.searchType = 1;
-          } else {
-            log.error("未知选择模式");
-          }
-        });
-        // 设置搜索结果选择模式
-        DOMUtils.on(this.$ele.$searchResultModel, "click", ".search-result-model-item", (event) => {
-          let $click = event.target as HTMLDivElement;
-          log.success("设置当前搜索结果模式：" + $click.innerText);
-          // 设置当前选项的访问状态
-          this.$ele.$searchResultModel
-            .querySelectorAll(".search-result-model-item")
-            .forEach((ele) => ele.removeAttribute("data-active"));
-          $click.setAttribute("data-active", "true");
-          let searchModelText = $click.getAttribute("data-model") as string;
-          let searchModel = parseInt(searchModelText);
-          this.$data.searchModel = searchModel;
-          this.clearOldSearchResult();
-          this.postsPageSearch();
-        });
-
-        Panel.execMenuOnce("baidu_tieba-execByUrlSearchParams", () => {
-          this.execByUrlSearchParams();
-        });
+        if (Panel.getValue("baidu_tieba_use_hybrid_search")) {
+          // 使用搜索综合
+          window.location.href = TiebaUrlHandler.getHybridSearch(this.getSearchText());
+          return;
+        }
+        this.$data.currentSearchText = searchText;
+        this.clearOldSearchResult();
+        this.postsPageSearch();
+      };
+      DOMUtils.on(this.$ele.$searchBtn, "click", () => {
+        searchEvent();
       });
+      DOMUtils.listenKeyboard(this.$ele.$searchInput, "keypress", (keyName) => {
+        if (keyName !== "Enter") {
+          return;
+        }
+        searchEvent();
+      });
+      // 设置返回按钮的点击事件-退出搜索模式
+      DOMUtils.on(this.$ele.$navSearchBack, "click", () => {
+        this.quitSearchMode();
+        this.removeScrollEvent();
+      });
+      // 设置模式选择的改变事件
+      DOMUtils.on(this.$ele.$select, "change", (event) => {
+        let select = event.target as HTMLSelectElement;
+        let value = select.value; // 获取选中项的值
+        let text = select.options[select.selectedIndex].text; // 获取选中项的文本
+        log.info("当前搜索模式：" + text);
+        if (text === "本吧") {
+          this.$data.searchType = 0;
+        } else if (text === "全局") {
+          this.$data.searchType = 1;
+        } else {
+          log.error("未知选择模式");
+        }
+      });
+      // 设置搜索结果选择模式
+      DOMUtils.on(this.$ele.$searchResultModel, "click", ".search-result-model-item", (event) => {
+        let $click = event.target as HTMLDivElement;
+        log.success("设置当前搜索结果模式：" + $click.innerText);
+        // 设置当前选项的访问状态
+        this.$ele.$searchResultModel
+          .querySelectorAll(".search-result-model-item")
+          .forEach((ele) => ele.removeAttribute("data-active"));
+        $click.setAttribute("data-active", "true");
+        let searchModelText = $click.getAttribute("data-model") as string;
+        let searchModel = parseInt(searchModelText);
+        this.$data.searchModel = searchModel;
+        this.clearOldSearchResult();
+        this.postsPageSearch();
+      });
+
+      Panel.execMenuOnce("baidu_tieba-execByUrlSearchParams", () => {
+        this.execByUrlSearchParams();
+      });
+    });
   },
   addCSS() {
     addStyle(/*css*/ `
@@ -886,7 +884,7 @@ const TiebaSearch = {
       };
     }
     log.success(searchResponse);
-    let searchDoc = DOMUtils.parseHTML(responseText, true, true) as Document;
+    let searchDoc = DOMUtils.toElement(responseText, true, true) as Document;
     if (searchDoc.querySelector(".search_noresult")) {
       return {
         success: false,
@@ -1039,7 +1037,7 @@ const TiebaSearch = {
         item.element,
         "click",
         function (event) {
-          utils.preventEvent(event);
+          DOMUtils.preventEvent(event);
           globalThis.open(item.url, "_blank");
         },
         {
@@ -1257,7 +1255,7 @@ const TiebaSearch = {
       let searchType = searchParams.get(KEY_searchType)!;
       if (["0", "1"].includes(searchType)) {
         this.$ele.$select.selectedIndex = parseInt(searchType);
-        utils.dispatchEvent(this.$ele.$select, "change");
+        DOMUtils.trigger(this.$ele.$select, "change");
       } else {
         log.error(`未知searchParams的 ${KEY_searchType} 参数值：${searchType}`);
       }

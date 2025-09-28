@@ -1,4 +1,4 @@
-import { addStyle, log, utils } from "@/env";
+import { addStyle, DOMUtils, log, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
 import BaiKeTaShuoShieldCSS from "./shield.css?raw";
 
@@ -14,7 +14,7 @@ const BaiduBaiKeTaShuo = {
    * 去除底部广告
    */
   removeBottomAd() {
-    utils.waitNode("#index_tashuo_list").then(($tashuoList) => {
+    DOMUtils.waitNode("#index_tashuo_list").then(($tashuoList) => {
       log.info("去除底部广告");
       utils.mutationObserver($tashuoList, {
         callback() {

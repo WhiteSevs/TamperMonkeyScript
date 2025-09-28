@@ -90,7 +90,7 @@ export const DouYinLive = {
           if (!DouYinRouter.isLive()) {
             return;
           }
-          utils.preventEvent(evt);
+          DOMUtils.preventEvent(evt);
         },
         {
           capture: true,
@@ -219,14 +219,14 @@ export const DouYinLive = {
       "click",
       'div[data-e2e="quality-selector"] > div',
       function (event, clickNode) {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         try {
-          let reactInst = utils.getReactObj(clickNode);
+          let reactInst = utils.getReactInstance(clickNode);
           let $QualitySwitchNewPlugin = clickNode.closest<HTMLElement>(".QualitySwitchNewPlugin");
           let parent =
             clickNode.closest<HTMLElement>(".QualitySwitchNewPlugin > div") ||
             clickNode.closest<HTMLElement>("div[data-index]");
-          let parentReactInst = utils.getReactObj(parent as HTMLDivElement);
+          let parentReactInst = utils.getReactInstance(parent as HTMLDivElement);
           let qualityHandler = {
             getCurrentQuality(): string {
               return reactInst?.reactFiber?.["key"];
@@ -252,7 +252,7 @@ export const DouYinLive = {
           };
 
           if ($QualitySwitchNewPlugin) {
-            let QualitySwitchNewPluginReactInst = utils.getReactObj($QualitySwitchNewPlugin);
+            let QualitySwitchNewPluginReactInst = utils.getReactInstance($QualitySwitchNewPlugin);
             let current = QualitySwitchNewPluginReactInst?.reactFiber?.child?.ref?.current;
             if (
               typeof current === "object" &&
@@ -297,7 +297,7 @@ export const DouYinLive = {
         Qmsg.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`, {
           consoleLogContent: true,
         });
-        let $rect = utils.getReactObj($ele);
+        let $rect = utils.getReactInstance($ele);
         if (typeof $rect.reactContainer === "object") {
           let closeDialogFn =
             utils.queryProperty($rect.reactContainer, (obj) => {
@@ -357,78 +357,76 @@ export const DouYinLive = {
    * 禁止自动播放视频
    */
   disableVideoAutoPlay() {
-    utils
-      .waitAnyNode<HTMLVideoElement>(
-        ['.basicPlayer[data-e2e="basicPlayer"] video', "#PlayerLayout .douyin-player video"],
-        10000
-      )
-      .then(($video) => {
-        if (!$video) {
-          return;
-        }
+    DOMUtils.waitAnyNode<HTMLVideoElement>(
+      ['.basicPlayer[data-e2e="basicPlayer"] video', "#PlayerLayout .douyin-player video"],
+      10000
+    ).then(($video) => {
+      if (!$video) {
+        return;
+      }
+      $video.autoplay = false;
+      $video.pause();
+      let timeout = 3000;
+      // 在firefox中video会重载，如果只触发一次，它依旧会自动播放
+      let playListener = (evt: Event) => {
+        DOMUtils.preventEvent(evt);
         $video.autoplay = false;
         $video.pause();
-        let timeout = 3000;
-        // 在firefox中video会重载，如果只触发一次，它依旧会自动播放
-        let playListener = (evt: Event) => {
-          utils.preventEvent(evt);
-          $video.autoplay = false;
-          $video.pause();
-          log.success("成功禁止自动播放视频(直播)");
-        };
-        DOMUtils.offAll($video, "play");
-        DOMUtils.offAll($video, "pause");
-        DOMUtils.on($video, "play", playListener, {
+        log.success("成功禁止自动播放视频(直播)");
+      };
+      DOMUtils.offAll($video, "play");
+      DOMUtils.offAll($video, "pause");
+      DOMUtils.on($video, "play", playListener, {
+        capture: true,
+      });
+      let reloadVideo = () => {
+        let keydownEvent = new KeyboardEvent("keydown", {
+          bubbles: true,
+          cancelable: true,
+          key: "E",
+          code: "KeyE",
+        });
+        document.body.dispatchEvent(keydownEvent);
+      };
+      let cb = () => {
+        DOMUtils.off($video, "play", playListener, {
           capture: true,
         });
-        let reloadVideo = () => {
-          let keydownEvent = new KeyboardEvent("keydown", {
-            bubbles: true,
-            cancelable: true,
-            key: "E",
-            code: "KeyE",
-          });
-          document.body.dispatchEvent(keydownEvent);
-        };
-        let cb = () => {
-          DOMUtils.off($video, "play", playListener, {
-            capture: true,
-          });
-          log.info(`移除监听自动播放`);
-          let listenPlayVideo = () => {
-            DOMUtils.offAll($video, "play");
-            DOMUtils.on(
-              $video,
-              "play",
-              (evt) => {
-                // 如果长时间暂停会导致点击播放时不加载直播
-                // 此bug仅在firefox上复现
-                // 临时解决方法：监听play事件重载视频
-                log.info(`播放-视频重载`);
-                reloadVideo();
-              },
-              {
-                once: true,
-                capture: true,
-              }
-            );
-          };
+        log.info(`移除监听自动播放`);
+        let listenPlayVideo = () => {
+          DOMUtils.offAll($video, "play");
           DOMUtils.on(
             $video,
-            "pause",
+            "play",
             (evt) => {
-              // 第2、3、4...次暂停一段时间后再播放依旧卡屏（不加载，依旧firefox）
-              // 监听暂停，监听播放
-              listenPlayVideo();
+              // 如果长时间暂停会导致点击播放时不加载直播
+              // 此bug仅在firefox上复现
+              // 临时解决方法：监听play事件重载视频
+              log.info(`播放-视频重载`);
+              reloadVideo();
             },
             {
+              once: true,
               capture: true,
             }
           );
-          listenPlayVideo();
         };
-        setTimeout(cb, timeout);
-      });
+        DOMUtils.on(
+          $video,
+          "pause",
+          (evt) => {
+            // 第2、3、4...次暂停一段时间后再播放依旧卡屏（不加载，依旧firefox）
+            // 监听暂停，监听播放
+            listenPlayVideo();
+          },
+          {
+            capture: true,
+          }
+        );
+        listenPlayVideo();
+      };
+      setTimeout(cb, timeout);
+    });
   },
   /**
    * 修改视频背景颜色

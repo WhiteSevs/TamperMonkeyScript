@@ -1,3 +1,3 @@
 declare interface Window {
-	monaco: any;
+  monaco: any;
 }

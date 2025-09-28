@@ -74,7 +74,7 @@ export const NetDiskLinkViewEvent = {
         // 2是鼠标右键
         return;
       }
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       $click.setAttribute("isvisited", "true");
       // 解析数据
       const data = NetDiskLinkView.parseBoxAttrRuleInfo($click);
@@ -218,7 +218,7 @@ export const NetDiskLinkViewEvent = {
       }
       if (findGenerator == void 0) {
         /* 未找到元素或者已迭代完毕 */
-        findGenerator = utils.findElementsWithText(document.documentElement, dataSharecode);
+        findGenerator = DOMUtils.findElementsWithText(document.documentElement, dataSharecode);
         iterator = findGenerator.next();
       }
       if (iterator?.value) {
@@ -252,10 +252,10 @@ export const NetDiskLinkViewEvent = {
               }
             }
             try {
-              utils.selectElementText(iterator.value, childTextNode!, startIndex, endIndex);
+              DOMUtils.setElementSelection(iterator.value, childTextNode!, startIndex, endIndex);
             } catch (error) {
               log.error(error);
-              utils.selectElementText(<HTMLElement>iterator.value);
+              DOMUtils.setElementSelection(<HTMLElement>iterator.value);
             }
           }
         } else if (
@@ -269,10 +269,10 @@ export const NetDiskLinkViewEvent = {
             let startIndex = elementText.indexOf(dataSharecode);
             let endIndex = startIndex + dataSharecode.length;
             try {
-              utils.selectElementText(iterator.value, childTextNode, startIndex, endIndex);
+              DOMUtils.setElementSelection(iterator.value, childTextNode, startIndex, endIndex);
             } catch (error) {
               log.error(error);
-              utils.selectElementText(iterator.value.parentElement!);
+              DOMUtils.setElementSelection(iterator.value.parentElement!);
             }
             let selection = globalThis.getSelection()!;
             if (selection.rangeCount > 0) {

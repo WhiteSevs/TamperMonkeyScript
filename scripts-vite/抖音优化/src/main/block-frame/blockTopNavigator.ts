@@ -1,6 +1,6 @@
 import { Panel } from "@components/setting/panel";
 import { DouYinRouter } from "@/router/DouYinRouter";
-import { addStyle, log, utils } from "@/env";
+import { addStyle, DOMUtils, log, utils } from "@/env";
 import { CommonUtil } from "@components/utils/CommonUtil";
 
 /** 顶部导航栏屏蔽 */
@@ -243,7 +243,7 @@ export const BlockTopNavigator = {
     if (DouYinRouter.isSearch()) {
       // 搜索页面
       result.push(CommonUtil.addBlockCSS("div:has(>div>div>.quick-access-nav-icon)"));
-      utils.waitNode('li.semi-dropdown-item[role="menuitem"]:contains("快捷访问")', 10000).then(($semi) => {
+      DOMUtils.waitNode('li.semi-dropdown-item[role="menuitem"]:contains("快捷访问")', 10000).then(($semi) => {
         $semi?.remove();
       });
     } else if (DouYinRouter.isLive()) {

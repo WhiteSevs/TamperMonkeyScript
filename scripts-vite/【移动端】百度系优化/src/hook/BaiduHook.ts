@@ -273,7 +273,7 @@ export const BaiduHook = {
               DOMUtils.trigger(document, "click", event, false);
               return;
             }
-            utils.preventEvent(event);
+            DOMUtils.preventEvent(event);
             if (Panel.getValue("baidu_search_hijack__onClick_to_blank")) {
               log.success("新标签页打开: " + linkProps.href);
               window.open(linkProps.href, "_blank");

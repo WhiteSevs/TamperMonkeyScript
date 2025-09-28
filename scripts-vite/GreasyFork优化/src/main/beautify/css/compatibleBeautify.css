@@ -1,23 +1,23 @@
 #main-header {
-	background-color: #670000 !important;
-	background-image: linear-gradient(#670000, #990000) !important;
+  background-color: #670000 !important;
+  background-image: linear-gradient(#670000, #990000) !important;
 }
 #site-nav-vue {
-	flex-wrap: wrap;
-	justify-content: flex-end;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 .open-sidebar {
-	border-width: 1px;
-	border-radius: 3px;
-	margin-right: 0;
+  border-width: 1px;
+  border-radius: 3px;
+  margin-right: 0;
 }
 input.search-submit {
-	transform: translateY(-5%) !important;
-	margin-left: 10px;
+  transform: translateY(-5%) !important;
+  margin-left: 10px;
 }
 #script-content code {
-	word-wrap: break-word;
+  word-wrap: break-word;
 }
 .code-container ::selection {
-	background-color: #3d4556 !important;
+  background-color: #3d4556 !important;
 }

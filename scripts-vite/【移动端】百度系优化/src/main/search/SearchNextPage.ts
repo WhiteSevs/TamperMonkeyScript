@@ -343,7 +343,7 @@ const SearchNextPage = {
     let respData = getResp.data;
     if (getResp.status) {
       log.success("响应的finalUrl: " + respData["finalUrl"]);
-      let nextPageDoc = DOMUtils.parseHTML(respData.responseText, true, true) as Document;
+      let nextPageDoc = DOMUtils.toElement(respData.responseText, true, true) as Document;
       // 解析下一页的<script>标签内的数据，（获取某些项的真实链接）
       let scriptAtomData = DOMUtils.createElement("div");
       nextPageDoc.querySelectorAll("script[id^=atom-data]").forEach((item) => {
@@ -529,7 +529,7 @@ const SearchNextPage_SearchCraft = {
         }
       );
     } else {
-      utils.waitNode(this.$data.moreResultSelector, 10000).then(($moreResult) => {
+      DOMUtils.waitNode(this.$data.moreResultSelector, 10000).then(($moreResult) => {
         if (!$moreResult) {
           log.error("SearchCraft监听滚动失败：【更多结果】按钮");
           return;

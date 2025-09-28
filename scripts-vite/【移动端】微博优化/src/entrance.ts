@@ -11,18 +11,18 @@ import { SettingUICardArticle } from "./setting/view/card";
 import { SettingUIOther } from "./setting/view/other";
 
 PanelContent.addContentConfig([
-	SettingUICommon,
-	SettingUIHome,
-	SettingUIDetail,
-	// SettingUIUserHome,
-	SettingUISearch,
-	SettingUIHuaTi,
-	SettingUIVideo,
-	SettingUICardArticle,
-	SettingUIOther,
+  SettingUICommon,
+  SettingUIHome,
+  SettingUIDetail,
+  // SettingUIUserHome,
+  SettingUISearch,
+  SettingUIHuaTi,
+  SettingUIVideo,
+  SettingUICardArticle,
+  SettingUIOther,
 ]);
 Panel.$data.panelConfig = {
-	style: /*css*/ `
+  style: /*css*/ `
         aside.pops-panel-aside{
             width: auto !important;
         }

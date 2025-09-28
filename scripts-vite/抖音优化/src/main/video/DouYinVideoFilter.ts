@@ -378,7 +378,7 @@ export const DouYinVideoFilter = {
     // 按钮的点击回调
     let awemeInfoClickCallBack = ($container: HTMLElement) => {
       let that = this;
-      let reactFiber = utils.getReactObj($container)?.reactFiber;
+      let reactFiber = utils.getReactInstance($container)?.reactFiber;
       let awemeInfo =
         reactFiber?.return?.memoizedProps?.awemeInfo ||
         reactFiber?.return?.return?.memoizedProps?.awemeInfo ||
@@ -506,7 +506,7 @@ export const DouYinVideoFilter = {
         ($xgRightGrid) => {
           let $gmFilterParseBtn = createFilterParseButton();
           DOMUtils.on($gmFilterParseBtn, "click", (event) => {
-            utils.preventEvent(event);
+            DOMUtils.preventEvent(event);
             let $basePlayerContainer = $xgRightGrid.closest<HTMLElement>(".basePlayerContainer")!;
             awemeInfoClickCallBack($basePlayerContainer);
           });
@@ -521,7 +521,7 @@ export const DouYinVideoFilter = {
           }
           let $gmFilterParseBtn = createFilterParseButton();
           DOMUtils.on($gmFilterParseBtn, "click", (event) => {
-            utils.preventEvent(event);
+            DOMUtils.preventEvent(event);
             let $liveContainer = $xgRightGrid.closest<HTMLElement>('[data-e2e="feed-live"]')!;
             awemeInfoClickCallBack($liveContainer);
           });
@@ -821,7 +821,7 @@ export const DouYinVideoFilter = {
               let $dynamicDelete = $dynamicUListContainer.querySelector<HTMLDivElement>(".dynamic-control-delete")!;
               // 设置删除事件
               DOMUtils.on($dynamicDelete, "click", (event) => {
-                utils.preventEvent(event);
+                DOMUtils.preventEvent(event);
                 $dynamicUListContainer.remove();
                 if (Array.isArray(data.dynamicData)) {
                   let findIndex = data.dynamicData.findIndex((it) => it == dynamicData);
@@ -844,7 +844,7 @@ export const DouYinVideoFilter = {
             };
             // 设置添加动态项的点击事件
             DOMUtils.on($addDynamicButton, "click", (event) => {
-              utils.preventEvent(event);
+              DOMUtils.preventEvent(event);
               addDynamicElementItem();
             });
 

@@ -610,7 +610,7 @@ export const BaiduHandleResultItem = {
         /* 该item为搜索智能生成该为点击该块，获取url进行跳转 */
         searchResultItem.setAttribute("preventClick", "true");
         DOMUtils.on<MouseEvent | PointerEvent>(searchResultItem, "click", (event) => {
-          utils.preventEvent(event);
+          DOMUtils.preventEvent(event);
           let clickNode = event.target as HTMLElement;
           if (clickNode.localName && clickNode.localName === "sup" && clickNode.getAttribute("rl-type") === "stop") {
             return;

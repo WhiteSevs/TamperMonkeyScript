@@ -51,7 +51,7 @@ export const BilibiliLive = {
    * 阻止触发打开App
    */
   preventOpenAppBtn() {
-    utils.waitNode("body").then(($body) => {
+    DOMUtils.waitNode("body").then(($body) => {
       log.info("阻止.open-app-btn元素触发点击事件");
       DOMUtils.on<PointerEvent | MouseEvent>(
         $body,

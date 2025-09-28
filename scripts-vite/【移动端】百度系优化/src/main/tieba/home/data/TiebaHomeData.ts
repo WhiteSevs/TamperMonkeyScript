@@ -239,7 +239,7 @@ const TiebaHomeData = {
     if (!response.status) {
       return;
     }
-    let $doc = DOMUtils.parseHTML(response.data.responseText, true, true);
+    let $doc = DOMUtils.toElement(response.data.responseText, true, true);
     // let $personalSignature = pcDoc.querySelector("")
     // 吧龄
     let level = "0";

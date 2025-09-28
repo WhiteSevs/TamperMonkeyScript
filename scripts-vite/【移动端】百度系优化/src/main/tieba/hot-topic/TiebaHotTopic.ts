@@ -103,7 +103,7 @@ export const TiebaHotTopic = {
         }
         let cardType = vueIns.cardType;
         if (cardType === "hot-thread") {
-          utils.preventEvent(event);
+          DOMUtils.preventEvent(event);
           let id = vueIns?.cardData?.id;
           if (typeof id !== "number") {
             Qmsg.error("获取帖子id失败", { consoleLogContent: true });

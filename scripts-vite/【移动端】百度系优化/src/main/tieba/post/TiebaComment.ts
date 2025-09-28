@@ -58,7 +58,7 @@ function setAffix(option: Partial<AffixOption>) {
   if (utils.isNull(defaultOption)) {
     throw new TypeError("target不能为空");
   }
-  utils.waitNode<HTMLDivElement>(defaultOption.target, 10000).then(($target) => {
+  DOMUtils.waitNode<HTMLDivElement>(defaultOption.target, 10000).then(($target) => {
     if (!$target) {
       return;
     }
@@ -239,30 +239,28 @@ const TiebaComment = {
       });
       log.error(["百度验证后的参数👇", TiebaComment.extraSearchSignParams]);
     }
-    utils.waitNode<HTMLDivElement>(".main-page-wrap").then(() => {
+    DOMUtils.waitNode<HTMLDivElement>(".main-page-wrap").then(() => {
       TiebaComment.insertLoadingHTML();
     });
-    utils
-      .waitAnyNode<HTMLDivElement>([
-        ".recommend-item[data-banner-info]",
-        "div.app-view.transition-fade.pb-page-wrapper.mask-hidden .post-item",
-      ])
-      .then(() => {
-        DOMUtils.remove(".post-item");
-        TiebaComment.initReplyDialogCSS();
-        TiebaComment.initMainComment(false);
-        TiebaComment.insertReverseBtn();
-        TiebaComment.insertOnlyLZ();
-        utils.waitNode<HTMLDivElement>('.nav-bar-v2-fixed[main-type="forum"]').then(($navBar) => {
-          setAffix({
-            target: "#replySwitch",
-            position: "top",
-            root: $navBar,
-            offset: 49,
-            change() {},
-          });
+    DOMUtils.waitAnyNode<HTMLDivElement>([
+      ".recommend-item[data-banner-info]",
+      "div.app-view.transition-fade.pb-page-wrapper.mask-hidden .post-item",
+    ]).then(() => {
+      DOMUtils.remove(".post-item");
+      TiebaComment.initReplyDialogCSS();
+      TiebaComment.initMainComment(false);
+      TiebaComment.insertReverseBtn();
+      TiebaComment.insertOnlyLZ();
+      DOMUtils.waitNode<HTMLDivElement>('.nav-bar-v2-fixed[main-type="forum"]').then(($navBar) => {
+        setAffix({
+          target: "#replySwitch",
+          position: "top",
+          root: $navBar,
+          offset: 49,
+          change() {},
         });
       });
+    });
 
     VueUtils.waitVuePropToSet(".app-view", [
       {
@@ -783,7 +781,7 @@ const TiebaComment = {
     }
     /* 楼中楼的更多按钮 */
     DOMUtils.on(document, "click", ".post-item .user-comment-handler", function (event) {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       let $click = event.target as HTMLDivElement;
       let $item = $click.closest(".post-item") as HTMLDivElement;
       let $textContent = $item.querySelector(".text-content") as HTMLDivElement;
@@ -828,7 +826,7 @@ const TiebaComment = {
       });
     });
     DOMUtils.on(document, "click", "#whitesev-reply-dialog .user-comment-handler", function (event) {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       let $click = event.target as HTMLDivElement;
       let $item = $click.closest(".whitesev-reply-dialog-sheet-other-content-item") as HTMLDivElement;
       let $textContent = $item.querySelector(".whitesev-reply-dialog-user-comment") as HTMLDivElement;
@@ -1053,7 +1051,7 @@ const TiebaComment = {
   setNextPageScrollListener() {
     TiebaComment.funcLock = new utils.LockFunction(TiebaComment.nextPageScrollEvent, this);
     document.addEventListener("scroll", TiebaComment.funcLock.run);
-    utils.dispatchEvent(document, "scroll", { jsTrigger: true });
+    DOMUtils.trigger(document, "scroll", { jsTrigger: true });
     log.success("scroll监听事件【下一页】");
   },
   /**
@@ -1062,7 +1060,7 @@ const TiebaComment = {
   setPrevPageScrollListener() {
     TiebaComment.funcLock = new utils.LockFunction(TiebaComment.prevPageScrollEvent, this);
     document.addEventListener("scroll", TiebaComment.funcLock.run);
-    utils.dispatchEvent(document, "scroll", { jsTrigger: true });
+    DOMUtils.trigger(document, "scroll", { jsTrigger: true });
     log.success("scroll监听事件【上一页】");
   },
   /**
@@ -1374,7 +1372,7 @@ const TiebaComment = {
     newCommentDOM.querySelectorAll(".tbfe-1px-border.avatar").forEach((item) => {
       if (item.hasAttribute("data-home-url")) {
         (item as HTMLDivElement).onclick = function (event) {
-          utils.preventEvent(event);
+          DOMUtils.preventEvent(event);
           window.open(item.getAttribute("data-home-url") as string, "_blank");
         };
       }
@@ -1383,7 +1381,7 @@ const TiebaComment = {
     newCommentDOM.querySelectorAll(".user-info .username").forEach((item) => {
       if (item.hasAttribute("data-home-url")) {
         (item as HTMLDivElement).onclick = function (event) {
-          utils.preventEvent(event);
+          DOMUtils.preventEvent(event);
           window.open(item.getAttribute("data-home-url") as string, "_blank");
         };
       }
@@ -1441,7 +1439,7 @@ const TiebaComment = {
         );
         // 查看全部xx条回复的点击事件
         DOMUtils.on(seeAllReplyElement, "click", (event) => {
-          utils.preventEvent(event);
+          DOMUtils.preventEvent(event);
           lzlPostElement.click();
         });
         DOMUtils.after(lzlPostElement, seeAllReplyElement);
@@ -1450,7 +1448,7 @@ const TiebaComment = {
         lzlPostElement,
         "click",
         (event) => {
-          utils.preventEvent(event);
+          DOMUtils.preventEvent(event);
           log.success(`点击查看全部回复`);
           TiebaComment.showReplyDialog(lzlPostElement);
         },
@@ -1852,7 +1850,7 @@ const TiebaComment = {
      * @param event
      */
     function popstateEvent(event: Event) {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       if (isClosingDialog) {
         return;
       }
@@ -1900,8 +1898,8 @@ const TiebaComment = {
      */
     function closeDialog(event: MouseEvent) {
       dialog.removeAttribute("data-on");
-      DOMUtils.on(dialog, utils.getTransitionEndNameList() as any, function () {
-        DOMUtils.off(dialog, utils.getTransitionEndNameList() as any);
+      DOMUtils.on(dialog, DOMUtils.getTransitionEndNameList() as any, function () {
+        DOMUtils.off(dialog, DOMUtils.getTransitionEndNameList() as any);
         log.success("关闭楼中楼回复弹窗_click");
         dialog.remove();
         if (Panel.getValue("baidu_tieba_lzl_ban_global_back")) {
@@ -1914,8 +1912,8 @@ const TiebaComment = {
      */
     function closeDialogByUrlChange() {
       dialog.removeAttribute("data-on");
-      DOMUtils.on(dialog, utils.getTransitionEndNameList() as any, function () {
-        DOMUtils.off(dialog, utils.getTransitionEndNameList() as any);
+      DOMUtils.on(dialog, DOMUtils.getTransitionEndNameList() as any, function () {
+        DOMUtils.off(dialog, DOMUtils.getTransitionEndNameList() as any);
         log.success("关闭楼中楼回复弹窗_urlchange");
         dialog.remove();
       });
@@ -1926,7 +1924,7 @@ const TiebaComment = {
     DOMUtils.on(dialog.querySelector(".whitesev-reply-dialog-bg"), "click", closeDialog);
     /* 处理评论的头像点击新标签页打开主页 */
     DOMUtils.on(dialog, "click", ".whitesev-reply-dialog-avatar", function (event) {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       window.open(
         "/home/main?id=" +
           (event.target as HTMLDivElement)?.closest(".whitesev-reply-dialog-user-line")?.getAttribute("data-portrait"),
@@ -1935,7 +1933,7 @@ const TiebaComment = {
     });
     /* 处理评论的名字点击新标签页打开主页 */
     DOMUtils.on(dialog, "click", ".whitesev-reply-dialog-user-info", function (event) {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       window.open(
         "/home/main?id=" +
           (event.target as HTMLDivElement)?.closest(".whitesev-reply-dialog-user-line")?.getAttribute("data-portrait"),
@@ -2131,7 +2129,7 @@ const TiebaComment = {
     }
     let respData = getResp.data;
     log.success(respData);
-    let parseDOM = DOMUtils.parseHTML(respData.responseText, false, true);
+    let parseDOM = DOMUtils.toElement(respData.responseText, false, true);
     let lzlPostList = Array.from(parseDOM.querySelectorAll("li.lzl_single_post")) as HTMLLIElement[];
     if (!lzlPostList.length) {
       return "暂无更多回复";
@@ -2198,7 +2196,7 @@ const TiebaComment = {
     let respData = getResp.data;
     log.success(["获取评论", getResp]);
     if (getResp.status) {
-      let pageCommentHTMLElement = DOMUtils.parseHTML(respData.responseText, true, true);
+      let pageCommentHTMLElement = DOMUtils.toElement(respData.responseText, true, true);
       if (
         pageCommentHTMLElement.title === "百度安全验证" ||
         respData.finalUrl.startsWith("https://wappass.baidu.com")
@@ -2469,7 +2467,7 @@ const TiebaComment = {
     TiebaComment.param_forum_id = TiebaPageDataHandler.getForumId();
     if (!TiebaComment.param_forum_id) {
       log.warn(tag + "param_forum_id参数不存在，尝试从其它地方获取，max-time: 5s");
-      let recommendItemElement = await utils.waitNode<HTMLDivElement>(".recommend-item", 5000);
+      let recommendItemElement = await DOMUtils.waitNode<HTMLDivElement>(".recommend-item", 5000);
       if (recommendItemElement) {
         log.info(tag + "等待.recommend-item的data-banner-info属性，max-time: 10s");
         await utils.waitPropertyByInterval(

@@ -190,7 +190,7 @@ export const NetDiskLinkClickMode = {
     toastText: string = "已复制"
   ) {
     utils
-      .setClip(
+      .copy(
         NetDiskLinkClickModeUtils.getCopyUrlInfo({
           ruleKeyName,
           ruleIndex,
@@ -302,7 +302,7 @@ export const NetDiskLinkClickMode = {
       NetDiskRuleData.linkClickMode_openBlank.openBlankWithCopyAccessCode(ruleKeyName)
     ) {
       /* 等待复制完毕再跳转 */
-      utils.setClip(accessCode).then(() => {
+      utils.copy(accessCode).then(() => {
         openUrl();
       });
     } else {

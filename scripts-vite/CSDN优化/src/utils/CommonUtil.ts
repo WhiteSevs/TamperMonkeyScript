@@ -8,7 +8,7 @@ export const CommonUtil = {
    */
   waitRemove(...args: string[]) {
     args.forEach((selector) => {
-      utils.waitNodeList<NodeListOf<HTMLElement>>(selector).then((nodeList) => {
+      DOMUtils.waitNodeList<NodeListOf<HTMLElement>>(selector).then((nodeList) => {
         nodeList.forEach((item) => item.remove());
       });
     });

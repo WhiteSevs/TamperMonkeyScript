@@ -157,7 +157,7 @@ const TiebaPost = {
           return;
         }
         if (currentClickImageUrl?.match(/^http(s|):\/\/(tiebapic|imgsa).baidu.com\/forum/g)) {
-          utils.preventEvent(event);
+          DOMUtils.preventEvent(event);
           log.info(`点击图片👇`);
           log.info($click);
           if ($clickParent.className === "img-box") {
@@ -322,12 +322,12 @@ const TiebaPost = {
       "div.img-sudoku .img-desc"
     );
     DOMUtils.ready(function () {
-      utils.waitNode<HTMLDivElement>("div.img-sudoku", 10000).then(($imgSudoKu) => {
+      DOMUtils.waitNode<HTMLDivElement>("div.img-sudoku", 10000).then(($imgSudoKu) => {
         if (!$imgSudoKu) {
           log.error("未找到元素 div.img-sudoku");
           return;
         }
-        utils.waitNode<HTMLImageElement>("img", $imgSudoKu, 10000).then((childImg) => {
+        DOMUtils.waitNode<HTMLImageElement>("img", $imgSudoKu, 10000).then((childImg) => {
           if (!childImg) {
             log.error("未找到元素 div.img-sudoku img");
             return;
@@ -403,7 +403,7 @@ const TiebaPost = {
         return;
       }
       log.info(getResp);
-      let pageDOM = DOMUtils.parseHTML(getResp.data.responseText, true, true);
+      let pageDOM = DOMUtils.toElement(getResp.data.responseText, true, true);
       let postListFirstElement = pageDOM.querySelector("#j_p_postlist .l_post");
       if (!postListFirstElement) {
         log.error("未找到#j_p_postlist .l_post元素");
@@ -515,7 +515,7 @@ const TiebaPost = {
       secondData.floor = 3;
       return [firstData, secondData];
     }
-    utils.waitNode<HTMLDivElement>(".app-view", 10000).then(async ($appView) => {
+    DOMUtils.waitNode<HTMLDivElement>(".app-view", 10000).then(async ($appView) => {
       if (!$appView) {
         log.error("元素.app-view不存在");
         return;

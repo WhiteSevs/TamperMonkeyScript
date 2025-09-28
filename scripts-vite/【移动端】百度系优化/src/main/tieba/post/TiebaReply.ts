@@ -430,7 +430,7 @@ export const TiebaReply = {
       if (commentBoxVueObj.commentRef && commentBoxVueObj.commentRef instanceof HTMLInputElement) {
         // 不存在的话可能是因为显示该帖子回复必须是APP内，所以没有input实例
         commentBoxVueObj.commentRef.value = value;
-        utils.dispatchEvent(commentBoxVueObj.commentRef, "input");
+        DOMUtils.trigger(commentBoxVueObj.commentRef, "input");
       }
     } catch (error) {
       Qmsg.error("设置输入框值失败");
@@ -485,7 +485,7 @@ export const TiebaReply = {
    */
   waitCommentBoxWrap(callback: Function) {
     DOMUtils.ready(() => {
-      utils.waitNode<HTMLElement>(".comment-box-wrap", 10000).then(($commentBoxWrap) => {
+      DOMUtils.waitNode<HTMLElement>(".comment-box-wrap", 10000).then(($commentBoxWrap) => {
         if (TiebaUniAppPost.isUniApp()) {
           return;
         }
@@ -587,7 +587,7 @@ export const TiebaReply = {
    */
   setAvatarClickEvent() {
     let that = this;
-    utils.waitNode<HTMLDivElement>(".comment-box-wrap .avatar", 10000).then(($avatar) => {
+    DOMUtils.waitNode<HTMLDivElement>(".comment-box-wrap .avatar", 10000).then(($avatar) => {
       if (!$avatar) {
         log.error("获取回复框头像元素.comment-box-wrap .avatar失败");
         return;
@@ -597,7 +597,7 @@ export const TiebaReply = {
         let vueObj = VueUtils.getVue($commentBoxWrap);
         if (!vueObj) {
           log.error("获取回复框容器元素的vue属性失败");
-          utils.preventEvent(event);
+          DOMUtils.preventEvent(event);
           return;
         }
         if (vueObj.isLogin) {

@@ -50,47 +50,47 @@ export const BilibiliBangumi = {
    * 覆盖【选集】的点击事件
    */
   setChooseEpClickEvent() {
-    utils
-      .waitNode<HTMLUListElement>(BilibiliData.className.bangumi + " .ep-list-pre-wrapper ul.ep-list-pre-container")
-      .then(($preContainer) => {
-        log.info("覆盖【选集】的点击事件");
-        DOMUtils.on<PointerEvent | MouseEvent>(
-          $preContainer,
-          "click",
-          "li.episode-item",
-          function (event) {
-            utils.preventEvent(event);
-            BilibiliOpenApp.jumpToUrl(event);
-          },
-          {
-            capture: true,
-          }
-        );
-      });
-    utils
-      .waitNode<HTMLUListElement>(BilibiliData.className.bangumi + " .ep-list-pre-wrapper ul.season-list-wrapper")
-      .then(($listWapper) => {
-        log.info("覆盖【xx季】的点击事件");
-        DOMUtils.on<PointerEvent | MouseEvent>(
-          $listWapper,
-          "click",
-          "li",
-          function (event) {
-            utils.preventEvent(event);
-            BilibiliOpenApp.jumpToUrl(event);
-          },
-          {
-            capture: true,
-          }
-        );
-      });
-    utils.waitNode<HTMLDivElement>(BilibiliData.className.bangumi + " .ep-list-pre-header").then(($preHeader) => {
+    DOMUtils.waitNode<HTMLUListElement>(
+      BilibiliData.className.bangumi + " .ep-list-pre-wrapper ul.ep-list-pre-container"
+    ).then(($preContainer) => {
+      log.info("覆盖【选集】的点击事件");
+      DOMUtils.on<PointerEvent | MouseEvent>(
+        $preContainer,
+        "click",
+        "li.episode-item",
+        function (event) {
+          DOMUtils.preventEvent(event);
+          BilibiliOpenApp.jumpToUrl(event);
+        },
+        {
+          capture: true,
+        }
+      );
+    });
+    DOMUtils.waitNode<HTMLUListElement>(
+      BilibiliData.className.bangumi + " .ep-list-pre-wrapper ul.season-list-wrapper"
+    ).then(($listWapper) => {
+      log.info("覆盖【xx季】的点击事件");
+      DOMUtils.on<PointerEvent | MouseEvent>(
+        $listWapper,
+        "click",
+        "li",
+        function (event) {
+          DOMUtils.preventEvent(event);
+          BilibiliOpenApp.jumpToUrl(event);
+        },
+        {
+          capture: true,
+        }
+      );
+    });
+    DOMUtils.waitNode<HTMLDivElement>(BilibiliData.className.bangumi + " .ep-list-pre-header").then(($preHeader) => {
       log.info("覆盖【选集】右上角的【全xx话】Arrow的点击事件");
       DOMUtils.on<PointerEvent | MouseEvent>(
         $preHeader,
         "click",
         function (event) {
-          utils.preventEvent(event);
+          DOMUtils.preventEvent(event);
         },
         {
           capture: true,
@@ -125,38 +125,38 @@ export const BilibiliBangumi = {
    * + https://m.bilibili.com/bangumi/play/ss48852
    */
   setClickOtherVideo() {
-    utils
-      .waitNode<HTMLUListElement>(BilibiliData.className.bangumi + " .section-preview-wrapper ul.ep-list-pre-container")
-      .then(($preContainer) => {
-        log.info("覆盖【PV&其他】、【预告】、【主题曲】的点击事件");
-        DOMUtils.on<PointerEvent | MouseEvent>(
-          $preContainer,
-          "click",
-          "li.section-preview-item",
-          function (event) {
-            utils.preventEvent(event);
-            BilibiliOpenApp.jumpToUrl(event);
-          },
-          {
-            capture: true,
-          }
-        );
-      });
-    utils
-      .waitNode<HTMLDivElement>(BilibiliData.className.bangumi + " .section-preview-header")
-      .then(($previewHeader) => {
+    DOMUtils.waitNode<HTMLUListElement>(
+      BilibiliData.className.bangumi + " .section-preview-wrapper ul.ep-list-pre-container"
+    ).then(($preContainer) => {
+      log.info("覆盖【PV&其他】、【预告】、【主题曲】的点击事件");
+      DOMUtils.on<PointerEvent | MouseEvent>(
+        $preContainer,
+        "click",
+        "li.section-preview-item",
+        function (event) {
+          DOMUtils.preventEvent(event);
+          BilibiliOpenApp.jumpToUrl(event);
+        },
+        {
+          capture: true,
+        }
+      );
+    });
+    DOMUtils.waitNode<HTMLDivElement>(BilibiliData.className.bangumi + " .section-preview-header").then(
+      ($previewHeader) => {
         log.info("覆盖【PV&其他】、【预告】、【主题曲】右上角的Arrow的点击事件");
         DOMUtils.on<PointerEvent | MouseEvent>(
           $previewHeader,
           "click",
           function (event) {
-            utils.preventEvent(event);
+            DOMUtils.preventEvent(event);
           },
           {
             capture: true,
           }
         );
-      });
+      }
+    );
 
     // ↓ react框架的
     DOMUtils.on(
@@ -180,23 +180,23 @@ export const BilibiliBangumi = {
    * 覆盖【更多推荐】番剧的点击事件
    */
   setRecommendClickEvent() {
-    utils
-      .waitNode<HTMLUListElement>(BilibiliData.className.bangumi + " .recom-wrapper ul.recom-list")
-      .then(($recomList) => {
+    DOMUtils.waitNode<HTMLUListElement>(BilibiliData.className.bangumi + " .recom-wrapper ul.recom-list").then(
+      ($recomList) => {
         log.info("覆盖【更多推荐】番剧的点击事件");
         DOMUtils.on<PointerEvent | MouseEvent>(
           $recomList,
           "click",
           "li.recom-item-v2",
           function (event) {
-            utils.preventEvent(event);
+            DOMUtils.preventEvent(event);
             BilibiliOpenApp.jumpToUrl(event);
           },
           {
             capture: true,
           }
         );
-      });
+      }
+    );
 
     // ↓ react框架的
     DOMUtils.on(

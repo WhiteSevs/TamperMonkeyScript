@@ -48,7 +48,7 @@ export const BilibiliHead = {
 			margin: 0 auto;
 		}
         `);
-    utils.waitNode<HTMLDivElement>(BilibiliData.className.head + " .video-list .card-box").then(() => {
+    DOMUtils.waitNode<HTMLDivElement>(BilibiliData.className.head + " .video-list .card-box").then(() => {
       let lockFunc = new utils.LockFunction(() => {
         document
           .querySelectorAll<HTMLDivElement>(BilibiliData.className.head + " .video-list .card-box .v-card")
@@ -150,7 +150,7 @@ export const BilibiliHead = {
 			}
 			`);
     }
-    let $iconConfig = await utils.waitNode(".nav-bar .icon-config", 10000);
+    let $iconConfig = await DOMUtils.waitNode(".nav-bar .icon-config", 10000);
     if (!$iconConfig) {
       log.error("未找到设置按钮图标，无法重构");
       return;
@@ -196,7 +196,7 @@ export const BilibiliHead = {
       },
     ]);
     DOMUtils.on($gmFace, "click", (event) => {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       if (isLogin) {
         // 前往个人空间
         if (uid != null) {
@@ -277,7 +277,7 @@ export const BilibiliHead = {
 			}
 			`);
     }
-    utils.waitNode<HTMLElement>(".m-head .m-navbar .icon-search", 10000).then(async ($iconSearch) => {
+    DOMUtils.waitNode<HTMLElement>(".m-head .m-navbar .icon-search", 10000).then(async ($iconSearch) => {
       if (!$iconSearch) {
         return;
       }
@@ -294,7 +294,7 @@ export const BilibiliHead = {
       });
       let $input = $inputAreaContainer.querySelector("input")!;
       DOMUtils.on($inputAreaContainer, "click", (event) => {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         BilibiliUtils.goToUrl("/search", true);
       });
       DOMUtils.after($iconSearch, $inputAreaContainer);

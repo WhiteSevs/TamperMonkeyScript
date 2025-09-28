@@ -355,7 +355,7 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
           downloadUrl: string;
         }
       | undefined = void 0;
-    let $pageDoc = DOMUtils.parseHTML(responseData.responseText, true, true);
+    let $pageDoc = DOMUtils.toElement(responseData.responseText, true, true);
     let pageText = deleteAnnotationCode(responseData.responseText);
     let $pageIframe =
       $pageDoc.querySelector<HTMLIFrameElement>('iframe[class^="ifr"]') ||
@@ -667,7 +667,7 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
       return;
     }
     let pageText = pageInfoResponse.responseText;
-    let pageDoc = DOMUtils.parseHTML(pageText, true, true);
+    let pageDoc = DOMUtils.toElement(pageText, true, true);
     let folders = Array.from(pageDoc.querySelectorAll<HTMLAnchorElement>("#folder a.mlink[href]"))
       .map(($link) => {
         let url = $link.href;

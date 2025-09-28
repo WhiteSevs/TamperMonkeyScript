@@ -48,9 +48,8 @@ const BaiduGraph = {
    *重构主页的识图一下
    */
   repairHomeRecognitionPicture() {
-    utils
-      .waitNode<HTMLDivElement>("#app section.vf-home-booth div.vf-w-button.vf-home-booth-camera")
-      .then(($vfHomeBoothCamera) => {
+    DOMUtils.waitNode<HTMLDivElement>("#app section.vf-home-booth div.vf-w-button.vf-home-booth-camera").then(
+      ($vfHomeBoothCamera) => {
         log.success("重构主页的识图一下");
         let uploadImageDivDOM = DOMUtils.createElement("div", {
           className: "vf-home-booth-camera",
@@ -76,13 +75,14 @@ const BaiduGraph = {
         });
 
         DOMUtils.after($vfHomeBoothCamera, uploadImageDivDOM);
-      });
+      }
+    );
   },
   /**
    * 重构主页的往下滑动右下角出现的搜索图标按钮
    */
   repairSearchButton() {
-    utils.waitNode<HTMLDivElement>(".vf-home.view-page").then(($viewPage) => {
+    DOMUtils.waitNode<HTMLDivElement>(".vf-home.view-page").then(($viewPage) => {
       log.success("重构主页的往下滑动右下角出现的搜索图标按钮");
       let divHomeCamera = DOMUtils.createElement("div", {
         className: "whitesev-vf-home-camera",
@@ -123,7 +123,7 @@ const BaiduGraph = {
    * 如果出现识图没结果，重新识别，可能是因为后面参数多了tpl_from=pc的问题
    */
   repairSearchNoResult() {
-    utils.waitNode<HTMLElement>("#app .graph-noresult-text1").then(() => {
+    DOMUtils.waitNode<HTMLElement>("#app .graph-noresult-text1").then(() => {
       log.info("判断网页参数是否包含tpl_from=pc");
       if (window.location.search.endsWith("&tpl_from=pc")) {
         window.location.href = window.location.href.replace(/&tpl_from=pc$/gi, "");
@@ -134,7 +134,7 @@ const BaiduGraph = {
    * 在已搜索出相关结果的界面中的重构【重拍】按钮
    */
   repairRetakeButton() {
-    utils.waitNode<HTMLDivElement>("#viewport .graph-imagecut-banner-ctn").then(($imageCutBanner) => {
+    DOMUtils.waitNode<HTMLDivElement>("#viewport .graph-imagecut-banner-ctn").then(($imageCutBanner) => {
       log.info("在已搜索出相关结果的界面中的重构【重拍】按钮");
       let retakeDivDOM = DOMUtils.createElement("div", {
         className: "retake-image",
@@ -152,7 +152,7 @@ const BaiduGraph = {
         transform: "translateY(-50%)",
       });
       DOMUtils.on(retakeDivDOM, "click", function (event) {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         ($("input#whitesev-upload-image") as HTMLInputElement).click();
         DOMUtils.trigger($("input#whitesev-upload-image") as HTMLInputElement, "click");
       });

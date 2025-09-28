@@ -133,7 +133,7 @@ export const TiebaCore = {
     let isInsertButton = false;
     let showScrollTopButton = function () {
       isInsertButton = true;
-      let buttonElement = DOMUtils.parseHTML(
+      let buttonElement = DOMUtils.toElement(
         /*html*/ `
 				<div class="tb-totop whitesev-tb-totop">
 				<style>
@@ -204,7 +204,7 @@ export const TiebaCore = {
    * 添加顶部的楼主头像/名字的点击事件-直接进入楼主的个人主页
    */
   addAuthorClickEvent() {
-    utils.waitNode<HTMLDivElement>("div.main-page-wrap .main-thread-content .user-line").then((element) => {
+    DOMUtils.waitNode<HTMLDivElement>("div.main-page-wrap .main-thread-content .user-line").then((element) => {
       log.info("添加顶部的楼主头像/名字的点击事件-直接进入楼主的个人主页");
       DOMUtils.on(element, "click", function () {
         let vueInfo = VueUtils.getVue(element.parentElement) || VueUtils.getVue(element.closest(".user-line-wrapper"));

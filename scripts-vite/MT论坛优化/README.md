@@ -1,7 +1,6 @@
 # MT论坛优化
 
 > 注：并非所有功能都是默认开启，有些功能需要到油猴菜单中打开【设置】，手动开启功能。
->
 
 一个用于`discuz论坛`的[克米-橙色小米社区](https://addon.dismall.com/templates/comiis_xiaomi.html)模板进行优化的油猴脚本。例如：[MT论坛](https://bbs.binmt.cc/)、[油猴中文网](https://bbs.tampermonkey.net.cn/)
 
@@ -26,7 +25,6 @@
 >
 > - 浏览器扩展的功能和Api更完整
 > - 非浏览器扩展使用脚本会遇到更多使用上的问题（跨域问题、脚本冲突等）
->
 
 - [x] 浏览器扩展
   - [x] Chrome/Edge [TamperMonkey](https://microsoftedge.microsoft.com/addons/detail/%E7%AF%A1%E6%94%B9%E7%8C%B4/iikmkjmpaadaobahmlepeloendndfphd?hl=zh-CN)、[ViolentMonkey](https://microsoftedge.microsoft.com/addons/detail/%E6%9A%B4%E5%8A%9B%E7%8C%B4/eeagobfjdenkkddmbclomhiblgggliao?hl=zh-CN)、[ScriptCat](https://microsoftedge.microsoft.com/addons/detail/%E8%84%9A%E6%9C%AC%E7%8C%AB/liilgpjgabokdklappibcjfablkpcekh?hl=zh-CN)

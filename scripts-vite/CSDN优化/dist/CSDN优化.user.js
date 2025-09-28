@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.26
+// @version      2025.9.28
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -9,10 +9,10 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*.csdn.net/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.8.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.4.7/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @connect      blog.csdn.net
 // @connect      mp-action.csdn.net
 // @grant        GM_deleteValue
@@ -46,7 +46,7 @@ waitRemove(...args) {
         if (typeof selector !== "string") {
           return;
         }
-        utils.waitNodeList(selector).then((nodeList) => {
+        DOMUtils.waitNodeList(selector).then((nodeList) => {
           nodeList.forEach(($el) => $el.remove());
         });
       });
@@ -392,7 +392,7 @@ clickEvent: {
     },
     setTimeout: _unsafeWindow.setTimeout
   });
-  const addStyle = utils.addStyle.bind(utils);
+  const addStyle = domUtils.addStyle.bind(domUtils);
   const $ = DOMUtils.selector.bind(DOMUtils);
   const $$ = DOMUtils.selectorAll.bind(DOMUtils);
   new utils.GM_Cookie();
@@ -1096,7 +1096,7 @@ threshold: 1
         $el.classList.add(flashingClassName);
       };
       let dbclick_event = (evt, selectorTarget) => {
-        utils.preventEvent(evt);
+        domUtils.preventEvent(evt);
         let $alert = __pops.alert({
           title: {
             text: "搜索配置",
@@ -1212,7 +1212,7 @@ threshold: 1
             $targetAsideItem.click();
             asyncQueryProperty(pathInfo.next, async (target) => {
               if (target?.next) {
-                let $findDeepMenu = await utils.waitNode(() => {
+                let $findDeepMenu = await domUtils.waitNode(() => {
                   return Array.from(
                     $panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")
                   ).find(($deepMenu) => {
@@ -1234,7 +1234,7 @@ threshold: 1
                   data: target.next
                 };
               } else {
-                let $findTargetMenu = await utils.waitNode(() => {
+                let $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from(
                     $panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)
                   ).find(($menuItem) => {
@@ -1384,7 +1384,7 @@ threshold: 1
           $searchInput,
           "input",
           utils.debounce((evt2) => {
-            utils.preventEvent(evt2);
+            domUtils.preventEvent(evt2);
             let searchText = domUtils.val($searchInput).trim();
             if (searchText === "") {
               clearSearchResult();
@@ -1616,7 +1616,7 @@ addGotoRecommandButton() {
           behavior: "smooth"
         });
       });
-      utils.waitNode(".csdn-side-toolbar").then(() => {
+      domUtils.waitNode(".csdn-side-toolbar").then(() => {
         let targetElement = document.querySelector(".csdn-side-toolbar a:nth-last-child(2)");
         targetElement.parentElement.insertBefore(gotoRecommandNode, targetElement.nextSibling);
       });
@@ -1630,7 +1630,7 @@ initRightToolbarOffset() {
         }
         `
       );
-      utils.waitNode(".csdn-side-toolbar").then(($sideToolbar) => {
+      domUtils.waitNode(".csdn-side-toolbar").then(($sideToolbar) => {
         domUtils.css($sideToolbar, {
           top: parseInt(Panel.getValue("csdn-blog-rightToolbarTopOffset")) + "px",
           right: parseInt(Panel.getValue("csdn-blog-rightToolbarRightOffset")) + "px"
@@ -1740,14 +1740,14 @@ clickPreCodeAutomatically() {
     },
 restoreComments() {
       log.info("恢复评论到正确位置-第一条评论");
-      utils.waitNode(".first-recommend-box").then(($firstRecommendBox) => {
+      domUtils.waitNode(".first-recommend-box").then(($firstRecommendBox) => {
         let recommendBoxElement = document.querySelector(
           ".recommend-box.insert-baidu-box.recommend-box-style"
         );
         recommendBoxElement.insertBefore($firstRecommendBox, recommendBoxElement.firstChild);
       });
       log.info("恢复评论到正确位置-第二条评论");
-      utils.waitNode(".second-recommend-box").then(($secondRecommendBox) => {
+      domUtils.waitNode(".second-recommend-box").then(($secondRecommendBox) => {
         let recommendBoxElement = document.querySelector(
           ".recommend-box.insert-baidu-box.recommend-box-style"
         );
@@ -1962,14 +1962,14 @@ unBlockCopy() {
         "click",
         ".hljs-button",
         function(event, selectorTarget) {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           let $click = selectorTarget;
           let $hljs = $click.closest(".hljs") || $click.closest("pre");
           let $parent = $click.parentElement;
           let $code = $hljs?.querySelector("code") || $parent.querySelector("code") || $parent;
           let copyText = $code.innerText;
           log.info("点击复制按钮复制内容：" + (copyText.length > 8 ? copyText.substring(0, 8) + "..." : copyText), $code);
-          utils.setClip(copyText);
+          utils.copy(copyText);
           $click.setAttribute("data-title", "复制成功");
         },
         {
@@ -1996,7 +1996,7 @@ unBlockCopy() {
           capture: true
         }
       );
-      utils.waitNode("#content_views").then(($content_views) => {
+      domUtils.waitNode("#content_views").then(($content_views) => {
         if (_unsafeWindow.$) {
           _unsafeWindow.$("#content_views")?.unbind("copy");
         }
@@ -2004,11 +2004,11 @@ unBlockCopy() {
           $content_views,
           "copy",
           function(event) {
-            utils.preventEvent(event);
+            domUtils.preventEvent(event);
             let selectText = _unsafeWindow.getSelection();
             let copyText = selectText?.toString();
             log.info("Ctrl+C复制内容：" + (copyText.length > 8 ? copyText.substring(0, 8) + "..." : copyText));
-            utils.setClip(copyText);
+            utils.copy(copyText);
             return false;
           },
           {
@@ -2016,7 +2016,7 @@ unBlockCopy() {
           }
         );
       });
-      utils.waitNode(".hljs-button").then(() => {
+      domUtils.waitNode(".hljs-button").then(() => {
         setTimeout(() => {
           $$(".hljs-button").forEach(($el) => {
             $el.removeAttribute("onclick");
@@ -2323,7 +2323,7 @@ refactoringRecommendation() {
         });
       }
       let lockFunction = new utils.LockFunction(refactoring, 50);
-      utils.waitNode("#recommend").then(($recommend) => {
+      domUtils.waitNode("#recommend").then(($recommend) => {
         log.info("重构底部推荐");
         lockFunction.run();
         utils.mutationObserver($recommend, {
@@ -2418,7 +2418,7 @@ bottomToolBarAlwaysShow() {
     },
 optimizationCollectButton() {
       log.info(`优化收藏按钮`);
-      utils.waitNode("#operate .collect-btn", 1e4).then(($collectBtn) => {
+      domUtils.waitNode("#operate .collect-btn", 1e4).then(($collectBtn) => {
         if (!$collectBtn) {
           return;
         }
@@ -2426,7 +2426,7 @@ optimizationCollectButton() {
           $collectBtn,
           "click",
           async (event) => {
-            utils.preventEvent(event);
+            domUtils.preventEvent(event);
             let $isCollect = $collectBtn.querySelector(".collect");
             let $unCollect = $collectBtn.querySelector(".uncollect");
             let folderInfo = await CSDNFavoriteApi.folderListWithCheck(window.location.origin + window.location.pathname);

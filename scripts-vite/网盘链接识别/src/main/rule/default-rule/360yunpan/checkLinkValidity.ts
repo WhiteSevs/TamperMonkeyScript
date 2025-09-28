@@ -22,7 +22,7 @@ export const NetDiskCheckLinkValidity_360yunpan: NetDiskCheckLinkValidityEntranc
         data: response,
       };
     }
-    let responseDoc = DOMUtils.parseHTML(response.data.responseText, true, true);
+    let responseDoc = DOMUtils.toElement(response.data.responseText, true, true);
     let $errorMsg = responseDoc.querySelector<HTMLElement>(".page-error .error-msg");
     if ($errorMsg) {
       let errorMsg = DOMUtils.text($errorMsg);

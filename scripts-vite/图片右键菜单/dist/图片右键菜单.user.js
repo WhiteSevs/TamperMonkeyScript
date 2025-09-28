@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         图片右键菜单
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.14
+// @version      2025.9.28
 // @author       WhiteSevs
 // @description  在浏览器预览图片页面添加全局右键菜单，右键直接复制该图片的Uri编码，支持自动判断图片类型，包括：jpg、jpeg、png、gif、webp、ico，支持手动判断图片类型，包括：jpg、jpeg、png、gif。
 // @license      GPL-3.0-only
@@ -9,10 +9,10 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.8.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.4.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @grant        GM_deleteValue
 // @grant        GM_getResourceText
 // @grant        GM_getValue
@@ -137,9 +137,7 @@ keys() {
     }
 values() {
       let localValue = this.getLocalValue();
-      return Reflect.ownKeys(localValue).map(
-        (key) => Reflect.get(localValue, key)
-      );
+      return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
     }
 clear() {
       _GM_deleteValue(this.storageKey);
@@ -299,7 +297,7 @@ waitRemove(...args) {
         if (typeof selector !== "string") {
           return;
         }
-        utils.waitNodeList(selector).then((nodeList) => {
+        DOMUtils.waitNodeList(selector).then((nodeList) => {
           nodeList.forEach(($el) => $el.remove());
         });
       });
@@ -370,6 +368,9 @@ async loadScript(url) {
     },
 fixUrl(url) {
       url = url.trim();
+      if (url.startsWith("data:")) {
+        return url;
+      }
       if (url.match(/^http(s|):\/\//i)) {
         return url;
       } else if (url.startsWith("//")) {
@@ -393,9 +394,13 @@ fixHttps(url) {
       if (!url.startsWith("http://")) {
         return url;
       }
-      let urlInstance = new URL(url);
-      urlInstance.protocol = "https:";
-      return urlInstance.toString();
+      try {
+        let urlInstance = new URL(url);
+        urlInstance.protocol = "https:";
+        return urlInstance.toString();
+      } catch {
+        return url;
+      }
     },
 lockScroll(...args) {
       let $hidden = document.createElement("style");
@@ -630,6 +635,9 @@ setDefaultValue(key, defaultValue) {
         log.warn("请检查该key(已存在): " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
+    },
+getDefaultValue(key) {
+      return this.$data.contentConfigInitDefaultValue.get(key);
     },
 setValue(key, value) {
       PopsPanelStorageApi.set(key, value);
@@ -951,7 +959,7 @@ threshold: 1
         $el.classList.add(flashingClassName);
       };
       let dbclick_event = (evt, selectorTarget) => {
-        utils.preventEvent(evt);
+        domUtils.preventEvent(evt);
         let $alert = __pops.alert({
           title: {
             text: "搜索配置",
@@ -1067,7 +1075,7 @@ threshold: 1
             $targetAsideItem.click();
             asyncQueryProperty(pathInfo.next, async (target) => {
               if (target?.next) {
-                let $findDeepMenu = await utils.waitNode(() => {
+                let $findDeepMenu = await domUtils.waitNode(() => {
                   return Array.from(
                     $panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")
                   ).find(($deepMenu) => {
@@ -1089,7 +1097,7 @@ threshold: 1
                   data: target.next
                 };
               } else {
-                let $findTargetMenu = await utils.waitNode(() => {
+                let $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from(
                     $panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)
                   ).find(($menuItem) => {
@@ -1239,7 +1247,7 @@ threshold: 1
           $searchInput,
           "input",
           utils.debounce((evt2) => {
-            utils.preventEvent(evt2);
+            domUtils.preventEvent(evt2);
             let searchText = domUtils.val($searchInput).trim();
             if (searchText === "") {
               clearSearchResult();
@@ -1337,16 +1345,13 @@ qmsg_config_showreverse: {
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
   const __pops = pops;
-  const log = new utils.Log(
-    _GM_info,
-    _unsafeWindow.console || _monkeyWindow.console
-  );
+  const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
   let SCRIPT_NAME = _GM_info?.script?.name || void 0;
   pops.config.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
-    debug: DEBUG,
-    logMaxCount: 1e3,
+    debug: false,
+    logMaxCount: 250,
     autoClearConsole: true,
     tag: true
   });
@@ -1454,7 +1459,7 @@ clickEvent: {
     },
     setTimeout: _unsafeWindow.setTimeout
   });
-  const addStyle = utils.addStyle.bind(utils);
+  const addStyle = domUtils.addStyle.bind(domUtils);
   DOMUtils.selector.bind(DOMUtils);
   DOMUtils.selectorAll.bind(DOMUtils);
   new utils.GM_Cookie();
@@ -1531,9 +1536,7 @@ async networkQueryContentType(url) {
               let imgType = null;
               if (imageUrl.startsWith("http") || imageUrl.startsWith("file:")) {
                 let findIndex = -1;
-                findIndex = allowImageType.findIndex(
-                  (value) => imageUrl.endsWith(value.rule)
-                );
+                findIndex = allowImageType.findIndex((value) => imageUrl.endsWith(value.rule));
                 if (findIndex !== -1) {
                   imgType = allowImageType[findIndex].type;
                 }
@@ -1549,13 +1552,11 @@ async networkQueryContentType(url) {
               if (imgType) {
                 if (imgType.endsWith("gif")) {
                   ImageUtils.gif.chooseStaticImg(imageUrl).then((text) => {
-                    utils.setClip(text);
+                    utils.copy(text);
                     Qmsg.success("复制成功！");
                   });
                 } else {
-                  utils.setClip(
-                    ImageUtils.default.getBase64Image(imageElement, imgType)
-                  );
+                  utils.copy(ImageUtils.default.getBase64Image(imageElement, imgType));
                   Qmsg.success("复制成功！");
                 }
               } else {
@@ -1576,9 +1577,7 @@ async networkQueryContentType(url) {
                 iconIsLoading: false,
                 text: "jpg",
                 callback() {
-                  utils.setClip(
-                    ImageUtils.default.getBase64Image(imageElement, "image/jpg")
-                  );
+                  utils.copy(ImageUtils.default.getBase64Image(imageElement, "image/jpg"));
                   Qmsg.success("复制成功！");
                 }
               },
@@ -1587,9 +1586,7 @@ async networkQueryContentType(url) {
                 iconIsLoading: false,
                 text: "jpeg",
                 callback() {
-                  utils.setClip(
-                    ImageUtils.default.getBase64Image(imageElement, "image/jpeg")
-                  );
+                  utils.copy(ImageUtils.default.getBase64Image(imageElement, "image/jpeg"));
                   Qmsg.success("复制成功！");
                 }
               },
@@ -1598,9 +1595,7 @@ async networkQueryContentType(url) {
                 iconIsLoading: false,
                 text: "png",
                 callback() {
-                  utils.setClip(
-                    ImageUtils.default.getBase64Image(imageElement, "image/png")
-                  );
+                  utils.copy(ImageUtils.default.getBase64Image(imageElement, "image/png"));
                   Qmsg.success("复制成功！");
                 }
               },
@@ -1610,7 +1605,7 @@ async networkQueryContentType(url) {
                 text: "gif",
                 callback() {
                   ImageUtils.gif.chooseStaticImg(imageUrl).then((text) => {
-                    utils.setClip(text);
+                    utils.copy(text);
                     Qmsg.success("复制成功！");
                   });
                 }
@@ -1679,18 +1674,14 @@ setComponentsStorageApiProperty(config, storageApiValue) {
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi(
-      "switch",
-      result,
-      {
-        get(key2, defaultValue2) {
-          return Panel.getValue(key2, defaultValue2);
-        },
-        set(key2, value) {
-          Panel.setValue(key2, value);
-        }
+    PanelComponents.initComponentsStorageApi("switch", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
       }
-    );
+    });
     return result;
   };
   const UISelect = function(text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
@@ -1726,18 +1717,14 @@ setComponentsStorageApiProperty(config, storageApiValue) {
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi(
-      "select",
-      result,
-      {
-        get(key2, defaultValue2) {
-          return Panel.getValue(key2, defaultValue2);
-        },
-        set(key2, value) {
-          Panel.setValue(key2, value);
-        }
+    PanelComponents.initComponentsStorageApi("select", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
       }
-    );
+    });
     return result;
   };
   const Component_Common = {
@@ -1824,13 +1811,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             void 0,
             "限制Toast显示的数量"
           ),
-          UISwitch(
-            "逆序弹出",
-            "qmsg-config-showreverse",
-            false,
-            void 0,
-            "修改Toast弹出的顺序"
-          )
+          UISwitch("逆序弹出", "qmsg-config-showreverse", false, void 0, "修改Toast弹出的顺序")
         ]
       }
     ]

@@ -18,7 +18,7 @@ const SearchInputEvent = {
     let searchInput_HOME_Selector = "#index-kw";
     let searchBtn_HOME_Selector = "#index-bn";
     /* 顶部搜索输入框点击后的搜索建议 */
-    utils.waitNode<HTMLDivElement>(suggestListSelector).then((element) => {
+    DOMUtils.waitNode<HTMLDivElement>(suggestListSelector).then((element) => {
       utils.mutationObserver(element, {
         callback: () => {
           SearchInputEvent.mutationObserverFunction(suggestListBtnSelectorList);
@@ -27,7 +27,7 @@ const SearchInputEvent = {
       });
     });
     /* 底部搜索输入框点击后的搜索建议 */
-    utils.waitNode<HTMLDivElement>(suggestList2Selector).then((element) => {
+    DOMUtils.waitNode<HTMLDivElement>(suggestList2Selector).then((element) => {
       utils.mutationObserver(element, {
         callback: () => {
           SearchInputEvent.mutationObserverFunction(suggestListBtn2SelectorList);
@@ -36,7 +36,7 @@ const SearchInputEvent = {
       });
     });
     /* 百度主页的搜索输入框点击后的搜索建议 */
-    utils.waitNode<HTMLDivElement>(suggestList_HOME_Selector).then((element) => {
+    DOMUtils.waitNode<HTMLDivElement>(suggestList_HOME_Selector).then((element) => {
       utils.mutationObserver(element, {
         callback: () => {
           SearchInputEvent.mutationObserverFunction(suggestListBtn_HOME_SelectorList);
@@ -89,7 +89,7 @@ const SearchInputEvent = {
     log.success("设置搜索建议自定义click事件");
     $$(elementSelector).forEach((item) => {
       DOMUtils.on(item as HTMLElement, "click", function (event) {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         window?.stop();
         let searchText = (event.target as HTMLElement).textContent;
         let redirectURL = window.location.origin + "/s?word=" + searchText;
@@ -107,7 +107,7 @@ const SearchInputEvent = {
    * @returns
    */
   searchBtnJump(event: PointerEvent | MouseEvent, searchInputElement: HTMLInputElement) {
-    utils.preventEvent(event);
+    DOMUtils.preventEvent(event);
     window?.stop();
     let redirectURL = window.location.origin + "/s?word=" + searchInputElement.value;
     log.success("点击按钮跳转搜索 -> " + searchInputElement.value);
@@ -124,7 +124,7 @@ const SearchInputEvent = {
   enterKeyDownEvent(event: KeyboardEvent, searchInputElement: HTMLInputElement) {
     if (event.keyCode === 108 || event.keyCode === 13) {
       window?.stop();
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       let redirectURL = window.location.origin + "/s?word=" + searchInputElement.value;
       log.success("回车键跳转搜索 -> " + searchInputElement.value);
       log.success(redirectURL);

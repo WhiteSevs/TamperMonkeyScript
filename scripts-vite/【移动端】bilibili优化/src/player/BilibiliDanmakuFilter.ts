@@ -108,7 +108,7 @@ export const BilibiliDanmakuFilter = {
       // 去除左右空格
       let ruleItem = ruleItemStr.trim();
       // 把规则转换为正则
-      let regExpRule = new RegExp(utils.parseStringToRegExpString(ruleItem), "ig");
+      let regExpRule = new RegExp(utils.toRegExpStr(ruleItem), "ig");
       rule.push(regExpRule);
     });
     return rule;

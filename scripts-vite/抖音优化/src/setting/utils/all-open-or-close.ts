@@ -20,11 +20,11 @@ const afterEnterDeepMenuCallBack: PopsPanelDeepMenuDetails["afterEnterDeepMenuCa
     });
   };
   DOMUtils.on($oneClickOpen, "click", (event) => {
-    utils.preventEvent(event);
+    DOMUtils.preventEvent(event);
     clickCallBack(true);
   });
   DOMUtils.on($oneClickClose, "click", (event) => {
-    utils.preventEvent(event);
+    DOMUtils.preventEvent(event);
     clickCallBack(false);
   });
 };

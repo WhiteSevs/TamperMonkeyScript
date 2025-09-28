@@ -62,7 +62,7 @@ const BaiduSearch = {
             }
           }, 600);
           let removeAdsLockFunction = new utils.LockFunction(BaiduHandleResultItem.removeAds, 600);
-          utils.waitNode<HTMLDivElement>("div#page.search-page").then(($searchPage) => {
+          DOMUtils.waitNode<HTMLDivElement>("div#page.search-page").then(($searchPage) => {
             utils.mutationObserver($searchPage, {
               callback: async () => {
                 if (baidu_search_handle_search_result_enable) {
@@ -242,7 +242,7 @@ const BaiduSearch = {
           return;
         }
       }
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       log.success(["新标签页打开-来自click事件", url]);
       changeVisitedNodeColor($click, $result);
       window.open(url, "_blank");

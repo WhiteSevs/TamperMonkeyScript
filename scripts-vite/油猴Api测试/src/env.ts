@@ -7,9 +7,9 @@ const _SCRIPT_NAME_ = SCRIPT_NAME || "Monkey Api Test";
 
 let injectDocumentTime = "";
 if (document.documentElement) {
-	if (document.head) {
-		if (document.body) {
-			injectDocumentTime = `<html>
+  if (document.head) {
+    if (document.body) {
+      injectDocumentTime = `<html>
     <head>
 	    ...${document.head.childNodes.length} nodes
 	</head>
@@ -20,31 +20,31 @@ if (document.documentElement) {
 
 注入速度等级：4
 `;
-		} else {
-			if (document.head.childNodes.length) {
-				injectDocumentTime = `<html>
+    } else {
+      if (document.head.childNodes.length) {
+        injectDocumentTime = `<html>
 	<head>
 	    ...${document.head.childNodes.length} nodes
 	</head>
 </html>
 		
 注入速度等级：3`;
-			} else {
-				injectDocumentTime = `<html>
+      } else {
+        injectDocumentTime = `<html>
 	<head></head>
 </html>
 
 注入速度等级：2`;
-			}
-		}
-	} else {
-		injectDocumentTime = `<html>
+      }
+    }
+  } else {
+    injectDocumentTime = `<html>
 </html>
 
 注入速度等级：1`;
-	}
+  }
 } else {
-	injectDocumentTime = `document.documentElement is null
+  injectDocumentTime = `document.documentElement is null
 	
 注入速度等级：0`;
 }
@@ -52,27 +52,27 @@ if (document.documentElement) {
  * 延迟执行，并捕捉异常
  */
 const setTimeoutLog = (handler: (...args: any[]) => IPromise<void>, timeout: number, ...args: any[]) => {
-	return setTimeout(async () => {
-		try {
-			await handler(...args);
-		} catch (error: any) {
-			Qmsg.error(error.toString(), { consoleLogContent: true });
-		}
-	}, timeout);
+  return setTimeout(async () => {
+    try {
+      await handler(...args);
+    } catch (error: any) {
+      Qmsg.error(error.toString(), { consoleLogContent: true });
+    }
+  }, timeout);
 };
 
 export {
-	utils,
-	DOMUtils,
-	log,
-	GM_Menu,
-	addStyle,
-	pops,
-	$,
-	$$,
-	MountVue,
-	VUE_ELE_NAME_ID,
-	cookieManager,
+  utils,
+  DOMUtils,
+  log,
+  GM_Menu,
+  addStyle,
+  pops,
+  $,
+  $$,
+  MountVue,
+  VUE_ELE_NAME_ID,
+  cookieManager,
 } from "@components/base.env";
 
 export { _SCRIPT_NAME_ as SCRIPT_NAME, injectDocumentTime, setTimeoutLog };

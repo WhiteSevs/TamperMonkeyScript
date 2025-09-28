@@ -4,5 +4,5 @@
 //// <reference types="vite-plugin-monkey/global" />
 
 declare module "ViteGM" {
-	export * from "vite-plugin-monkey/dist/client";
+  export * from "vite-plugin-monkey/dist/client";
 }

@@ -78,7 +78,7 @@ export const BilibiliOpus = {
       "click",
       BilibiliData.className.opus + " .opus-module-author",
       function (event) {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         let $click = event.target as HTMLDivElement;
         let vueObj = VueUtils.getVue($click);
         if (!vueObj) {

@@ -43,7 +43,7 @@ export class NetDiskParse_Aliyun extends ParseFileCore {
         isHTML: true,
       });
       DOMUtils.on($QmsgErrorTip.$Qmsg.querySelector("a[href]"), "click", void 0, (event) => {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         NetDiskLinkClickMode.openBlankUrl(url, "aliyun", that.ruleIndex, that.shareCode, that.accessCode);
       });
       return;

@@ -1,4 +1,4 @@
-import { addStyle, log, utils } from "@/env";
+import { addStyle, DOMUtils, log, utils } from "@/env";
 import FanYiAppShieldCSS from "./shield.css?raw";
 import { Panel } from "@components/setting/panel";
 import { CommonUtil } from "@components/utils/CommonUtil";
@@ -22,7 +22,7 @@ const BaiduFanYiApp = {
    * 修复内容高度
    */
   repairContentHeight() {
-    utils.waitNode<HTMLDivElement>("#page-content").then(($pageContent) => {
+    DOMUtils.waitNode<HTMLDivElement>("#page-content").then(($pageContent) => {
       log.info("修复内容高度");
       $pageContent.setAttribute("style", "max-height:unset !important");
     });

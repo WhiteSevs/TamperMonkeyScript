@@ -39,7 +39,7 @@ export const BilibiliSearch = {
       "a.cancel",
       (event) => {
         log.info(`点击取消按钮`);
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         window.history.back();
       },
       { capture: true }
@@ -55,7 +55,7 @@ export const BilibiliSearch = {
       return;
     }
     log.info(`输入框自动获取焦点`);
-    utils.waitNode<HTMLInputElement>(`.m-search .m-search-search-bar input[type="search"]`, 10000).then(($input) => {
+    DOMUtils.waitNode<HTMLInputElement>(`.m-search .m-search-search-bar input[type="search"]`, 10000).then(($input) => {
       if (!$input) {
         log.error("获取输入框失败");
         return;
@@ -82,7 +82,7 @@ export const BilibiliSearch = {
         if (typeof cardClick !== "function") {
           return;
         }
-        utils.preventEvent(evt);
+        DOMUtils.preventEvent(evt);
         cardClick(evt);
       },
       {

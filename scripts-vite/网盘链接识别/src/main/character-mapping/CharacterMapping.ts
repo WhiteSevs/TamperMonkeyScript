@@ -386,7 +386,7 @@ export const CharacterMapping = {
                           $dynamicUListContainer.querySelector<HTMLElement>(".dynamic-control-delete")!;
                         // 设置删除事件
                         DOMUtils.on($dynamicDelete, "click", (event) => {
-                          utils.preventEvent(event);
+                          DOMUtils.preventEvent(event);
                           // 移除元素
                           $dynamicUListContainer.remove();
                           if (Array.isArray(data.dynamicData)) {
@@ -409,7 +409,7 @@ export const CharacterMapping = {
                       };
                       // 设置添加动态项的点击事件
                       DOMUtils.on($addDynamicButton, "click", (event) => {
-                        utils.preventEvent(event);
+                        DOMUtils.preventEvent(event);
                         addDynamicElementItem();
                       });
                       // 初始化的动态项
@@ -739,7 +739,7 @@ export const CharacterMapping = {
                 let $dynamicDelete = $dynamicUListContainer.querySelector<HTMLElement>(".dynamic-control-delete")!;
                 // 设置删除事件
                 DOMUtils.on($dynamicDelete, "click", (event) => {
-                  utils.preventEvent(event);
+                  DOMUtils.preventEvent(event);
                   // 移除元素
                   $dynamicUListContainer.remove();
                   if (Array.isArray(data.dynamicData)) {
@@ -762,7 +762,7 @@ export const CharacterMapping = {
               };
               // 设置添加动态项的点击事件
               DOMUtils.on($addDynamicButton, "click", (event) => {
-                utils.preventEvent(event);
+                DOMUtils.preventEvent(event);
                 addDynamicElementItem();
               });
               // 初始化的动态项
@@ -1082,7 +1082,7 @@ export const CharacterMapping = {
     };
     // 仅导出规则
     DOMUtils.on($onlyExportRuleList, "click", (event) => {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       try {
         let allRule = this.getData();
         if (allRule.length === 0) {
@@ -1097,7 +1097,7 @@ export const CharacterMapping = {
     });
     // 导出为订阅规则
     DOMUtils.on($exportToSubscribe, "click", (event) => {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       const that = this;
       $alert.close();
       try {
@@ -1318,7 +1318,7 @@ export const CharacterMapping = {
     };
     // 本地导入
     DOMUtils.on($local, "click", (event) => {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       $alert.close();
       let $input = DOMUtils.createElement("input", {
         type: "file",
@@ -1339,7 +1339,7 @@ export const CharacterMapping = {
     });
     // 网络导入
     DOMUtils.on($network, "click", (event) => {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       $alert.close();
       let $prompt = NetDiskPops.prompt({
         title: {
@@ -1406,15 +1406,15 @@ export const CharacterMapping = {
         if (keyName === "Enter" && otherCodeList.length === 0) {
           let value = DOMUtils.val($promptInput);
           if (value !== "") {
-            utils.dispatchEvent($promptOk, "click");
+            DOMUtils.trigger($promptOk, "click");
           }
         }
       });
-      utils.dispatchEvent($promptInput, "input");
+      DOMUtils.trigger($promptInput, "input");
     });
     // 剪贴板导入
     DOMUtils.on($clipboard, "click", async (event) => {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       $alert.close();
       let clipboardInfo = await utils.getClipboardInfo();
       if (clipboardInfo.error != null) {

@@ -6,40 +6,38 @@ export const NetDiskAutoFillAccessCode_aliyun = function (netDiskInfo: NetDiskAu
   if (window.location.hostname === "www.aliyundrive.com" || window.location.hostname === "www.alipan.com") {
     log.success("自动填写链接", netDiskInfo);
     DOMUtils.ready(() => {
-      utils
-        .waitAnyNode<HTMLInputElement>([
-          "#root input.ant-input[placeholder*='提取码']",
-          "#root input[name=pwd][placeholder*='提取码']",
-        ])
-        .then(($el) => {
-          ReactUtils.waitReactPropsToSet($el, ["reactProps", "reactFiber"], {
-            check(reactPropInst) {
-              return (
-                typeof reactPropInst?.onChange === "function" ||
-                typeof reactPropInst?.memoizedProps?.onChange === "function"
-              );
-            },
-            set(reactPropInst) {
-              if (!utils.isVisible($el)) {
-                log.error("输入框不可见，不输入密码");
-                return;
-              }
-              $el.value = netDiskInfo.accessCode;
-              let onChange: Function = reactPropInst?.onChange || reactPropInst?.memoizedProps?.onChange;
-              onChange({
-                currentTarget: $el,
-                target: $el,
-              });
-              Qmsg.success("自动填充访问码");
-              let $submit = $<HTMLElement>('#root button[type="submit"]');
-              if (!$submit) {
-                Qmsg.error("提交按钮不存在");
-                return;
-              }
-              $submit.click();
-            },
-          });
+      DOMUtils.waitAnyNode<HTMLInputElement>([
+        "#root input.ant-input[placeholder*='提取码']",
+        "#root input[name=pwd][placeholder*='提取码']",
+      ]).then(($el) => {
+        ReactUtils.waitReactPropsToSet($el, ["reactProps", "reactFiber"], {
+          check(reactPropInst) {
+            return (
+              typeof reactPropInst?.onChange === "function" ||
+              typeof reactPropInst?.memoizedProps?.onChange === "function"
+            );
+          },
+          set(reactPropInst) {
+            if (!utils.isVisible($el)) {
+              log.error("输入框不可见，不输入密码");
+              return;
+            }
+            $el.value = netDiskInfo.accessCode;
+            let onChange: Function = reactPropInst?.onChange || reactPropInst?.memoizedProps?.onChange;
+            onChange({
+              currentTarget: $el,
+              target: $el,
+            });
+            Qmsg.success("自动填充访问码");
+            let $submit = $<HTMLElement>('#root button[type="submit"]');
+            if (!$submit) {
+              Qmsg.error("提交按钮不存在");
+              return;
+            }
+            $submit.click();
+          },
         });
+      });
     });
   }
 };

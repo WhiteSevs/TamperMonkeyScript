@@ -86,7 +86,7 @@ export const CSDNBlogArticle = {
   restoreComments() {
     /* 第一条评论 */
     log.info("恢复评论到正确位置-第一条评论");
-    utils.waitNode(".first-recommend-box").then(($firstRecommendBox) => {
+    DOMUtils.waitNode(".first-recommend-box").then(($firstRecommendBox) => {
       let recommendBoxElement = document.querySelector(
         ".recommend-box.insert-baidu-box.recommend-box-style"
       ) as HTMLDivElement;
@@ -94,7 +94,7 @@ export const CSDNBlogArticle = {
     });
     log.info("恢复评论到正确位置-第二条评论");
     /* 第二条评论 */
-    utils.waitNode(".second-recommend-box").then(($secondRecommendBox) => {
+    DOMUtils.waitNode(".second-recommend-box").then(($secondRecommendBox) => {
       let recommendBoxElement = document.querySelector(
         ".recommend-box.insert-baidu-box.recommend-box-style"
       ) as HTMLDivElement;

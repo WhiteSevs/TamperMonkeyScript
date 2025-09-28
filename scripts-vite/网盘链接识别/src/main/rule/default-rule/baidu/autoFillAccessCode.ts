@@ -1,4 +1,4 @@
-import { log, utils } from "@/env";
+import { DOMUtils, log, utils } from "@/env";
 import Qmsg from "qmsg";
 
 export const NetDiskAutoFillAccessCode_baidu = function (netDiskInfo: NetDiskAutoFillAccessCodeOption) {
@@ -8,14 +8,14 @@ export const NetDiskAutoFillAccessCode_baidu = function (netDiskInfo: NetDiskAut
     window.location.search.startsWith("?surl=")
   ) {
     log.success("自动填写链接", netDiskInfo);
-    utils.waitNode<HTMLInputElement>("div.verify-form #accessCode").then(($ele) => {
+    DOMUtils.waitNode<HTMLInputElement>("div.verify-form #accessCode").then(($ele) => {
       if (!utils.isVisible($ele)) {
         log.error("输入框不可见，不输入密码");
         return;
       }
       Qmsg.success("自动填充访问码");
       $ele.value = netDiskInfo.accessCode;
-      utils.dispatchEvent($ele, "input");
+      DOMUtils.trigger($ele, "input");
       document.querySelector<HTMLElement>("div.verify-form #submitBtn")?.click();
     });
   }
@@ -25,17 +25,17 @@ export const NetDiskAutoFillAccessCode_baidu = function (netDiskInfo: NetDiskAut
     window.location.search.startsWith("?surl=")
   ) {
     log.success("自动填写链接", netDiskInfo);
-    utils
-      .waitNode<HTMLInputElement>("div.extractWrap div.extract-content div.extractInputWrap.extract input[type=text]")
-      .then(($input) => {
-        if (!utils.isVisible($input)) {
-          log.error("输入框不可见，不输入密码");
-          return;
-        }
-        Qmsg.success("自动填充访问码");
-        $input.value = netDiskInfo.accessCode;
-        utils.dispatchEvent($input, "input");
-        document.querySelector<HTMLElement>("div.extractWrap div.extract-content button.m-button")?.click();
-      });
+    DOMUtils.waitNode<HTMLInputElement>(
+      "div.extractWrap div.extract-content div.extractInputWrap.extract input[type=text]"
+    ).then(($input) => {
+      if (!utils.isVisible($input)) {
+        log.error("输入框不可见，不输入密码");
+        return;
+      }
+      Qmsg.success("自动填充访问码");
+      $input.value = netDiskInfo.accessCode;
+      DOMUtils.trigger($input, "input");
+      document.querySelector<HTMLElement>("div.extractWrap div.extract-content button.m-button")?.click();
+    });
   }
 };

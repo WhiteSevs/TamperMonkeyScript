@@ -74,7 +74,7 @@ const CSDNBlogArticleRightToolBar = {
         behavior: "smooth",
       });
     });
-    utils.waitNode(".csdn-side-toolbar").then(() => {
+    DOMUtils.waitNode(".csdn-side-toolbar").then(() => {
       let targetElement = document.querySelector(".csdn-side-toolbar a:nth-last-child(2)") as HTMLAnchorElement;
       (targetElement.parentElement as HTMLDivElement).insertBefore(gotoRecommandNode, targetElement.nextSibling);
     });
@@ -89,7 +89,7 @@ const CSDNBlogArticleRightToolBar = {
           left: unset !important;
         }
         `);
-    utils.waitNode<HTMLDivElement>(".csdn-side-toolbar").then(($sideToolbar) => {
+    DOMUtils.waitNode<HTMLDivElement>(".csdn-side-toolbar").then(($sideToolbar) => {
       DOMUtils.css($sideToolbar, {
         top: parseInt(Panel.getValue("csdn-blog-rightToolbarTopOffset")) + "px",
         right: parseInt(Panel.getValue("csdn-blog-rightToolbarRightOffset")) + "px",

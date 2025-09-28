@@ -38,8 +38,8 @@ export const DouYinUser = {
           }
         );
         DOMUtils.on($userUID, "click", (event) => {
-          utils.preventEvent(event);
-          utils.setClip(uid);
+          DOMUtils.preventEvent(event);
+          utils.copy(uid);
           Qmsg.success("复制成功");
         });
         $target.appendChild($userUID);

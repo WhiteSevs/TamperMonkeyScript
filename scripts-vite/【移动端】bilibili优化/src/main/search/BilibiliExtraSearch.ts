@@ -54,7 +54,7 @@ export const BilibiliExtraSearch = {
 			}
 			`);
     }
-    utils.waitNode(".m-search-result .tabs:not(:has(.gm-tab-item))").then(($tabs) => {
+    DOMUtils.waitNode(".m-search-result .tabs:not(:has(.gm-tab-item))").then(($tabs) => {
       // 先获取设置了搜索服务器的配置
       let enableSearchServer = BilibiliApiProxy.getSearchProxyHost();
       enableSearchServer.forEach((proxyServerInfo) => {
@@ -191,7 +191,7 @@ export const BilibiliExtraSearch = {
     );
     Reflect.set($item, "data-option", option);
     DOMUtils.on($item, "click", (event) => {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       window.open(option.url, "_blank");
     });
     // 显示信息，包括发布时间、发布区域信息
@@ -315,7 +315,7 @@ export const BilibiliExtraSearch = {
       }
 
       DOMUtils.on($epItem, "click", (event) => {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         window.open(url, "_blank");
       });
       $eps.appendChild($epItem);

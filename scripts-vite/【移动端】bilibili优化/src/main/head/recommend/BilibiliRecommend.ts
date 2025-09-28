@@ -122,7 +122,7 @@ export const BilibiliRecommend = {
       $myHead.appendChild($recommendView);
     }
     DOMUtils.on($recommendTag, "click", (event) => {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       $recommendTag.classList.add("is-avtive");
       this.recommendClickEvent();
     });
@@ -137,7 +137,7 @@ export const BilibiliRecommend = {
       }
     );
     DOMUtils.on(this.$ele.$cardBox, "click", ".v-card", (event) => {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       let $click = event.target as HTMLAnchorElement;
       // BilibiliUtils.goToUrl($click.href, true);
       window.open($click.href, "_blank");

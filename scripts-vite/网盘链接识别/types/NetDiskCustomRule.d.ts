@@ -393,7 +393,7 @@ declare interface NetDiskUserCustomRule {
    * @example
    * if (window.location.hostname === "pan.baidu.com") {
    *   this.DOMUtils.ready(()=>{
-   *      this.utils.waitNode("input", 10000).then( ($input)=>{
+   *      this.DOMUtils.waitNode("input", 10000).then( ($input)=>{
    *          if (!this.utils.isVisible($input)) {
    *			    log.error("输入框不可见，不输入密码");
    *			    return;
@@ -431,7 +431,7 @@ declare interface NetDiskUserCustomRule {
    * @example
    *
    * this.DOMUtils.on(option.$urlBox, "click", (evt) => {
-   *     this.utils.preventDefault(evt);
+   *     this.DOMUtils.preventEvent(evt);
    * 	   // ...
    * })
    */

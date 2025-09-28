@@ -98,7 +98,7 @@ const BaiduEasyLearn = {
    * 显示答案内容
    */
   showAnswerContent() {
-    utils.waitNode<HTMLDivElement>("div.question-swiper").then(async ($questionSwiper) => {
+    DOMUtils.waitNode<HTMLDivElement>("div.question-swiper").then(async ($questionSwiper) => {
       log.info("显示答案内容");
       await utils.waitVueByInterval(
         $questionSwiper,
@@ -171,7 +171,7 @@ const BaiduEasyLearn = {
    * 允许使用顶部的输入框
    */
   allowUserSearchInput() {
-    utils.waitNode<HTMLDivElement>(".search-input .search-box-wrap.search-box", 10000).then(async ($searchBox) => {
+    DOMUtils.waitNode<HTMLDivElement>(".search-input .search-box-wrap.search-box", 10000).then(async ($searchBox) => {
       if (!$searchBox) {
         log.error("元素.search-input .search-box-wrap.search-box未出现");
         return;

@@ -451,7 +451,7 @@ export const BlibiliBangumiPlayer = {
           ep_list = [];
           let $epList = $<HTMLElement>(BilibiliData.className.bangumi_new + ` [class^="EpisodeList_episodeListWrap"]`);
           if ($epList) {
-            let react = utils.getReactObj($epList);
+            let react = utils.getReactInstance($epList);
             let epList = react?.reactFiber?.return?.memoizedState?.memoizedState?.[0]?.episodes;
             if (Array.isArray(epList)) {
               ep_list = epList;

@@ -6,16 +6,16 @@ const __viewer = Viewer;
 
 export { _SCRIPT_NAME_ as SCRIPT_NAME, __viewer as Viewer };
 export {
-	utils,
-	DOMUtils,
-	log,
-	GM_Menu,
-	httpx,
-	addStyle,
-	pops,
-	$,
-	$$,
-	MountVue,
-	VUE_ELE_NAME_ID,
-	cookieManager,
+  utils,
+  DOMUtils,
+  log,
+  GM_Menu,
+  httpx,
+  addStyle,
+  pops,
+  $,
+  $$,
+  MountVue,
+  VUE_ELE_NAME_ID,
+  cookieManager,
 } from "@components/base.env";

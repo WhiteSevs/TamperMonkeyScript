@@ -303,7 +303,7 @@ export const TiebaUniAppComponentDetection = {
       $badge,
       "click",
       async (event) => {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         if ($compositionCheckable.hasAttribute("data-is-searching")) {
           log.error("正在搜索中，请稍后再试");
           return;
@@ -395,7 +395,7 @@ export const TiebaUniAppComponentDetection = {
       $badge,
       "click",
       (event) => {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         pops.alert({
           title: {
             text: "识别信息",

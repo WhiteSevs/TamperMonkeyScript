@@ -74,7 +74,7 @@ export const BilibiliPlayerToast = {
       });
       $toast.appendChild($closeBtn);
       DOMUtils.on($closeBtn, "click", (event) => {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         this.closeToast($toast);
       });
     }
@@ -99,7 +99,7 @@ export const BilibiliPlayerToast = {
       $toast.appendChild($jump);
       DOMUtils.on($jump, "click", (event) => {
         if (typeof config.jumpClickCallback === "function") {
-          utils.preventEvent(event);
+          DOMUtils.preventEvent(event);
           config.jumpClickCallback(event);
         }
       });

@@ -217,28 +217,26 @@ export const DouYinLiveBlock = {
     // 	),
     // ];
     DOMUtils.ready(() => {
-      utils
-        .waitNode(() => {
-          return (
-            DOMUtils.selector<HTMLElement>("xg-icon.pluginContainer > div:contains('屏蔽礼物特效')") ||
-            DOMUtils.selector<HTMLElement>(`xg-icon[classname*="pluginContainer"] > div:contains('屏蔽礼物特效')`) ||
-            DOMUtils.selector<HTMLElement>('.douyin-player-controls-right > slot > div:has([data-e2e="effect-switch"])')
-          );
-        }, 10000)
-        .then(($el) => {
-          if (!$el) {
-            log.error("【屏蔽】礼物特效失败，原因：获取按钮超时");
-            return;
-          }
-          let { reactFiber } = utils.getReactObj($el);
-          let onClick = reactFiber?.memoizedProps?.children?.[1]?.props?.onClick;
-          if (typeof onClick === "function") {
-            log.info(`调用【屏蔽】礼物特效按钮的onClick函数`);
-            onClick();
-          } else {
-            log.error(`【屏蔽】礼物特效失败，原因：未获取到onClick函数`);
-          }
-        });
+      DOMUtils.waitNode(() => {
+        return (
+          DOMUtils.selector<HTMLElement>("xg-icon.pluginContainer > div:contains('屏蔽礼物特效')") ||
+          DOMUtils.selector<HTMLElement>(`xg-icon[classname*="pluginContainer"] > div:contains('屏蔽礼物特效')`) ||
+          DOMUtils.selector<HTMLElement>('.douyin-player-controls-right > slot > div:has([data-e2e="effect-switch"])')
+        );
+      }, 10000).then(($el) => {
+        if (!$el) {
+          log.error("【屏蔽】礼物特效失败，原因：获取按钮超时");
+          return;
+        }
+        let { reactFiber } = utils.getReactInstance($el);
+        let onClick = reactFiber?.memoizedProps?.children?.[1]?.props?.onClick;
+        if (typeof onClick === "function") {
+          log.info(`调用【屏蔽】礼物特效按钮的onClick函数`);
+          onClick();
+        } else {
+          log.error(`【屏蔽】礼物特效失败，原因：未获取到onClick函数`);
+        }
+      });
     });
     // return result;
   },

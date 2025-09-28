@@ -1,19 +1,19 @@
 import { unsafeWin } from "@/env";
 
 export const WebSiteDebugUtil = {
-	/**
-	 * 执行插件代码
-	 * @param args
-	 */
-	evalPlugin: (...args: string[]) => {
-		if (args.length === 0) {
-			return;
-		}
-		const codeText = args.join("\n");
-		const coverCMD = `
+  /**
+   * 执行插件代码
+   * @param args
+   */
+  evalPlugin: (...args: string[]) => {
+    if (args.length === 0) {
+      return;
+    }
+    const codeText = args.join("\n");
+    const coverCMD = `
 		
 		`;
-		return unsafeWin.eval(`
+    return unsafeWin.eval(`
 (()=>{
 	try{
 		var exports=void 0;
@@ -37,5 +37,5 @@ export const WebSiteDebugUtil = {
 		
 })()
 `);
-	},
+  },
 };

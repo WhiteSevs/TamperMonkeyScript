@@ -50,7 +50,7 @@ export const setAffix = async (option: AffixOption) => {
   }
   let $target = config.target as HTMLElement;
   if (typeof config.target === "string") {
-    let $result = await utils.waitNode<HTMLElement>(config.target, 10000);
+    let $result = await DOMUtils.waitNode<HTMLElement>(config.target, 10000);
     if (!$result) {
       return;
     }

@@ -44,7 +44,7 @@ export const TiebaHybrid = {
       "click",
       ".scroll-list-wrapper .threadcardclass",
       function (event) {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         let clickNode = event.target;
         let tid = VueUtils.getVue(clickNode)?.tid;
         if (utils.isNull(tid)) {

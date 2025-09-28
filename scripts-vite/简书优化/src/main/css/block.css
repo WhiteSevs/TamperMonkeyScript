@@ -25,24 +25,24 @@ div[role="main"] > div > section:first-child > div:nth-last-child(2),
 div.adad_container ,
 /* 顶部导航栏的【下载App】 */
 #__next nav a[href*="navbar-app"] {
-	display: none !important;
+  display: none !important;
 }
 body.reader-day-mode.normal-size {
-	overflow: auto !important;
+  overflow: auto !important;
 }
 .collapse-free-content {
-	height: auto !important;
+  height: auto !important;
 }
 .copyright {
-	color: #000 !important;
+  color: #000 !important;
 }
 #note-show .content .show-content-free .collapse-free-content:after {
-	background-image: none !important;
+  background-image: none !important;
 }
 footer > div > div {
-	justify-content: center;
+  justify-content: center;
 }
 /* 修复底部最后编辑于：。。。在某些套壳浏览器上的错位问题 */
 #note-show .content .show-content-free .note-meta-time {
-	margin-top: 0px !important;
+  margin-top: 0px !important;
 }

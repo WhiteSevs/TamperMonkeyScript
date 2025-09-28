@@ -13,26 +13,26 @@ import UIScriptListCSS from "@/main/css/UIScriptListCSS.css?raw";
 import { LanguageInit } from "./language/language";
 
 PanelMenu.addMenuOption({
-	key: "githubUrl2webhookUrl",
-	text: "⚙ " + i18next.t("Url To WebhookUrl"),
-	autoReload: false,
-	isStoreValue: false,
-	showText(text) {
-		return text;
-	},
-	callback: () => {
-		GithubUrl2WebhookUrl.showView();
-	},
+  key: "githubUrl2webhookUrl",
+  text: "⚙ " + i18next.t("Url To WebhookUrl"),
+  autoReload: false,
+  isStoreValue: false,
+  showText(text) {
+    return text;
+  },
+  callback: () => {
+    GithubUrl2WebhookUrl.showView();
+  },
 });
 Panel.$data.panelConfig = {
-	style: UIScriptListCSS,
+  style: UIScriptListCSS,
 };
 PanelContent.addContentConfig([
-	SettingUICommon,
-	SettingUIScripts,
-	SettingUIScriptSearch,
-	SettingUIDiscuessions,
-	SettingUIUsers,
+  SettingUICommon,
+  SettingUIScripts,
+  SettingUIScriptSearch,
+  SettingUIDiscuessions,
+  SettingUIUsers,
 ]);
 Panel.init();
 Greasyfork.init();

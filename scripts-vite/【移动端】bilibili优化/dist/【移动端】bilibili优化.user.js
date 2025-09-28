@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.23
+// @version      2025.9.28
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -13,10 +13,10 @@
 // @match        *://www.bilibili.com/h5/comment/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/QRCode/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.8.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.4.7/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @require      https://fastly.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.js
@@ -375,7 +375,7 @@ waitRemove(...args) {
         if (typeof selector !== "string") {
           return;
         }
-        utils.waitNodeList(selector).then((nodeList) => {
+        DOMUtils.waitNodeList(selector).then((nodeList) => {
           nodeList.forEach(($el) => $el.remove());
         });
       });
@@ -1037,7 +1037,7 @@ threshold: 1
         $el.classList.add(flashingClassName);
       };
       let dbclick_event = (evt, selectorTarget) => {
-        utils.preventEvent(evt);
+        domUtils.preventEvent(evt);
         let $alert = __pops.alert({
           title: {
             text: "搜索配置",
@@ -1153,7 +1153,7 @@ threshold: 1
             $targetAsideItem.click();
             asyncQueryProperty(pathInfo.next, async (target) => {
               if (target?.next) {
-                let $findDeepMenu = await utils.waitNode(() => {
+                let $findDeepMenu = await domUtils.waitNode(() => {
                   return Array.from(
                     $panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")
                   ).find(($deepMenu) => {
@@ -1175,7 +1175,7 @@ threshold: 1
                   data: target.next
                 };
               } else {
-                let $findTargetMenu = await utils.waitNode(() => {
+                let $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from(
                     $panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)
                   ).find(($menuItem) => {
@@ -1325,7 +1325,7 @@ threshold: 1
           $searchInput,
           "input",
           utils.debounce((evt2) => {
-            utils.preventEvent(evt2);
+            domUtils.preventEvent(evt2);
             let searchText = domUtils.val($searchInput).trim();
             if (searchText === "") {
               clearSearchResult();
@@ -1435,7 +1435,7 @@ qmsg_config_showreverse: {
   const DEBUG = false;
   log$1.config({
     debug: false,
-    logMaxCount: 1e3,
+    logMaxCount: 250,
     autoClearConsole: true,
     tag: true
   });
@@ -1543,7 +1543,7 @@ clickEvent: {
     },
     setTimeout: _unsafeWindow.setTimeout
   };
-  const addStyle = utils.addStyle.bind(utils);
+  const addStyle = domUtils.addStyle.bind(domUtils);
   const $ = DOMUtils.selector.bind(DOMUtils);
   const $$ = DOMUtils.selectorAll.bind(DOMUtils);
   const cookieManager = new utils.GM_Cookie();
@@ -1872,7 +1872,7 @@ initialScale() {
           }
         );
         domUtils.remove("meta[name='viewport']");
-        utils.waitNode("head").then(() => {
+        domUtils.waitNode("head").then(() => {
           document.head.appendChild(meta);
         });
       });
@@ -4384,7 +4384,7 @@ toast(config) {
           $closeBtn,
           "click",
           (event) => {
-            utils.preventEvent(event);
+            domUtils.preventEvent(event);
             this.closeToast($toast);
           },
           {
@@ -4415,7 +4415,7 @@ toast(config) {
           "click",
           (event) => {
             if (typeof config.jumpClickCallback === "function") {
-              utils.preventEvent(event);
+              domUtils.preventEvent(event);
               config.jumpClickCallback(event);
             }
           },
@@ -6272,7 +6272,7 @@ isBacking = false;
       }
     }
 popStateEvent(event) {
-      Utils.preventEvent(event);
+      domUtils.preventEvent(event);
       if (this.isBacking) {
         return;
       }
@@ -6487,33 +6487,34 @@ beautify() {
 			`
         );
       }
-      utils.waitNode(BilibiliData.className.video + " .bottom-tab .list-view .card-box", 1e4).then(($cardBox) => {
-        if (!$cardBox) {
-          log$1.error("$cardBox is null");
-          return;
-        }
-        function handleVCardToApp($vCard) {
-          let $originTitle = $vCard.querySelector(".title");
-          let $originLeft = $vCard.querySelector(".count .left");
-          let isHandled = Boolean($vCard.querySelector(".gm-right-container"));
-          let vueObj = VueUtils.getVue($vCard);
-          if ($originTitle && $originLeft && vueObj && !isHandled) {
-            let upName = vueObj?.info?.owner?.name;
-            if (upName == null) {
-              log$1.error("美化显示-handleVCardToApp：获取up主名字失败");
-              return;
-            }
-            $vCard.querySelector(".count");
-            let $title = $originTitle.cloneNode(true);
-            let $left = $originLeft.cloneNode(true);
-            domUtils.hide($originTitle);
-            let $isOpenAppWeakened = $vCard.querySelector(".open-app.weakened");
-            if ($isOpenAppWeakened) {
-              domUtils.hide($isOpenAppWeakened);
-            }
-            let $upInfo = document.createElement("div");
-            $upInfo.className = "gm-up-name";
-            $upInfo.innerHTML =
+      domUtils.waitNode(BilibiliData.className.video + " .bottom-tab .list-view .card-box", 1e4).then(
+        ($cardBox) => {
+          if (!$cardBox) {
+            log$1.error("$cardBox is null");
+            return;
+          }
+          function handleVCardToApp($vCard) {
+            let $originTitle = $vCard.querySelector(".title");
+            let $originLeft = $vCard.querySelector(".count .left");
+            let isHandled = Boolean($vCard.querySelector(".gm-right-container"));
+            let vueObj = VueUtils.getVue($vCard);
+            if ($originTitle && $originLeft && vueObj && !isHandled) {
+              let upName = vueObj?.info?.owner?.name;
+              if (upName == null) {
+                log$1.error("美化显示-handleVCardToApp：获取up主名字失败");
+                return;
+              }
+              $vCard.querySelector(".count");
+              let $title = $originTitle.cloneNode(true);
+              let $left = $originLeft.cloneNode(true);
+              domUtils.hide($originTitle);
+              let $isOpenAppWeakened = $vCard.querySelector(".open-app.weakened");
+              if ($isOpenAppWeakened) {
+                domUtils.hide($isOpenAppWeakened);
+              }
+              let $upInfo = document.createElement("div");
+              $upInfo.className = "gm-up-name";
+              $upInfo.innerHTML =
 `
 						<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
 							<path fill="#999A9E" d="M896 736v-448c0-54.4-41.6-96-96-96h-576C169.6 192 128 233.6 128 288v448c0 54.4 41.6 96 96 96h576c54.4 0 96-41.6 96-96zM800 128C889.6 128 960 198.4 960 288v448c0 89.6-70.4 160-160 160h-576C134.4 896 64 825.6 64 736v-448C64 198.4 134.4 128 224 128h576zM419.2 544V326.4h60.8v240c0 96-57.6 144-147.2 144S192 665.6 192 569.6V326.4h60.8v217.6c0 51.2 3.2 108.8 83.2 108.8s83.2-57.6 83.2-108.8z m288-38.4c28.8 0 60.8-16 60.8-60.8 0-48-28.8-60.8-60.8-60.8H614.4v121.6h92.8z m3.2-179.2c102.4 0 121.6 70.4 121.6 115.2 0 48-19.2 115.2-121.6 115.2H614.4V704h-60.8V326.4h156.8z">
@@ -6521,44 +6522,44 @@ beautify() {
 						</svg>
 						<span class="gm-up-name-text">${upName}</span>
 						`;
-            let $rightContainer = document.createElement("div");
-            let $rightBottom = document.createElement("div");
-            $rightContainer.className = "gm-right-container";
-            $rightBottom.className = "gm-right-bottom";
-            domUtils.after($originTitle, $rightContainer);
-            $rightContainer.appendChild($title);
-            $rightContainer.appendChild($rightBottom);
-            $rightBottom.appendChild($upInfo);
-            $rightBottom.appendChild($left);
+              let $rightContainer = document.createElement("div");
+              let $rightBottom = document.createElement("div");
+              $rightContainer.className = "gm-right-container";
+              $rightBottom.className = "gm-right-bottom";
+              domUtils.after($originTitle, $rightContainer);
+              $rightContainer.appendChild($title);
+              $rightContainer.appendChild($rightBottom);
+              $rightBottom.appendChild($upInfo);
+              $rightBottom.appendChild($left);
+            }
           }
-        }
-        function handleVCard($vCard) {
-          let $originTitle = $vCard.querySelector(".title");
-          let $originCount = $vCard.querySelector(".count");
-          let isHandled = Boolean($vCard.querySelector(".gm-right-container"));
-          let vueObj = VueUtils.getVue($vCard);
-          if ($originTitle && $originCount && vueObj && !isHandled) {
-            let duration = vueObj?.info?.duration;
-            if (duration == null) {
-              log$1.error("美化显示-handleVCard：获取视频时长失败");
-              return;
-            }
-            let upName = vueObj?.info?.owner?.name;
-            if (upName == null) {
-              log$1.error("美化显示-handleVCard：获取up主名字失败");
-              return;
-            }
-            let $cloneTitle = $originTitle.cloneNode(true);
-            let $cloneCount = $originCount.cloneNode(true);
-            domUtils.hide($originTitle);
-            let $duration = document.createElement("div");
-            $duration.className = "duration";
-            $duration.innerText = BilibiliUtils.parseDuration(duration);
-            $cloneCount.className = "left";
-            let $upInfo = document.createElement("div");
-            $originCount.appendChild($duration);
-            $upInfo.className = "gm-up-name";
-            $upInfo.innerHTML =
+          function handleVCard($vCard) {
+            let $originTitle = $vCard.querySelector(".title");
+            let $originCount = $vCard.querySelector(".count");
+            let isHandled = Boolean($vCard.querySelector(".gm-right-container"));
+            let vueObj = VueUtils.getVue($vCard);
+            if ($originTitle && $originCount && vueObj && !isHandled) {
+              let duration = vueObj?.info?.duration;
+              if (duration == null) {
+                log$1.error("美化显示-handleVCard：获取视频时长失败");
+                return;
+              }
+              let upName = vueObj?.info?.owner?.name;
+              if (upName == null) {
+                log$1.error("美化显示-handleVCard：获取up主名字失败");
+                return;
+              }
+              let $cloneTitle = $originTitle.cloneNode(true);
+              let $cloneCount = $originCount.cloneNode(true);
+              domUtils.hide($originTitle);
+              let $duration = document.createElement("div");
+              $duration.className = "duration";
+              $duration.innerText = BilibiliUtils.parseDuration(duration);
+              $cloneCount.className = "left";
+              let $upInfo = document.createElement("div");
+              $originCount.appendChild($duration);
+              $upInfo.className = "gm-up-name";
+              $upInfo.innerHTML =
 `
 						<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
 							<path fill="#999A9E" d="M896 736v-448c0-54.4-41.6-96-96-96h-576C169.6 192 128 233.6 128 288v448c0 54.4 41.6 96 96 96h576c54.4 0 96-41.6 96-96zM800 128C889.6 128 960 198.4 960 288v448c0 89.6-70.4 160-160 160h-576C134.4 896 64 825.6 64 736v-448C64 198.4 134.4 128 224 128h576zM419.2 544V326.4h60.8v240c0 96-57.6 144-147.2 144S192 665.6 192 569.6V326.4h60.8v217.6c0 51.2 3.2 108.8 83.2 108.8s83.2-57.6 83.2-108.8z m288-38.4c28.8 0 60.8-16 60.8-60.8 0-48-28.8-60.8-60.8-60.8H614.4v121.6h92.8z m3.2-179.2c102.4 0 121.6 70.4 121.6 115.2 0 48-19.2 115.2-121.6 115.2H614.4V704h-60.8V326.4h156.8z">
@@ -6566,47 +6567,48 @@ beautify() {
 						</svg>
 						<span class="gm-up-name-text">${upName}</span>
 						`;
-            let $rightContainer = document.createElement("div");
-            let $rightBottom = document.createElement("div");
-            $rightContainer.className = "gm-right-container";
-            $rightBottom.className = "gm-right-bottom";
-            domUtils.after($originTitle, $rightContainer);
-            $rightContainer.appendChild($cloneTitle);
-            $rightContainer.appendChild($rightBottom);
-            $rightBottom.appendChild($upInfo);
-            $rightBottom.appendChild($cloneCount);
+              let $rightContainer = document.createElement("div");
+              let $rightBottom = document.createElement("div");
+              $rightContainer.className = "gm-right-container";
+              $rightBottom.className = "gm-right-bottom";
+              domUtils.after($originTitle, $rightContainer);
+              $rightContainer.appendChild($cloneTitle);
+              $rightContainer.appendChild($rightBottom);
+              $rightBottom.appendChild($upInfo);
+              $rightBottom.appendChild($cloneCount);
+            }
+          }
+          let lockFunc = new utils.LockFunction(() => {
+            let $vCardList = document.querySelectorAll(
+              BilibiliData.className.video + " .bottom-tab .list-view .card-box .v-card-toapp"
+            );
+            let $vCardList_isLogon = document.querySelectorAll(
+              BilibiliData.className.video + " .bottom-tab .list-view .card-box>a.v-card"
+            );
+            $vCardList.forEach((_$vCard_) => {
+              handleVCardToApp(_$vCard_);
+            });
+            $vCardList_isLogon.forEach((_$vCard_) => {
+              handleVCard(_$vCard_);
+            });
+          }, 25);
+          let $videoRoot = document.querySelector(BilibiliData.className.video);
+          if ($videoRoot) {
+            utils.mutationObserver($videoRoot, {
+              config: {
+                subtree: true,
+                attributes: true,
+                childList: true
+              },
+              callback() {
+                lockFunc.run();
+              }
+            });
+          } else {
+            log$1.error("未找到视频根节点");
           }
         }
-        let lockFunc = new utils.LockFunction(() => {
-          let $vCardList = document.querySelectorAll(
-            BilibiliData.className.video + " .bottom-tab .list-view .card-box .v-card-toapp"
-          );
-          let $vCardList_isLogon = document.querySelectorAll(
-            BilibiliData.className.video + " .bottom-tab .list-view .card-box>a.v-card"
-          );
-          $vCardList.forEach((_$vCard_) => {
-            handleVCardToApp(_$vCard_);
-          });
-          $vCardList_isLogon.forEach((_$vCard_) => {
-            handleVCard(_$vCard_);
-          });
-        }, 25);
-        let $videoRoot = document.querySelector(BilibiliData.className.video);
-        if ($videoRoot) {
-          utils.mutationObserver($videoRoot, {
-            config: {
-              subtree: true,
-              attributes: true,
-              childList: true
-            },
-            callback() {
-              lockFunc.run();
-            }
-          });
-        } else {
-          log$1.error("未找到视频根节点");
-        }
-      });
+      );
     },
 repairVideoBottomAreaHeight() {
       log$1.info("修复视频底部区域高度");
@@ -6698,7 +6700,7 @@ coverBottomRecommendVideo() {
           }
           log$1.info("相关视频的bvid: " + bvid);
           BilibiliUtils.goToUrl(BilibiliUrl.getVideoUrl(bvid));
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
         },
         {
           capture: true
@@ -6721,7 +6723,7 @@ coverSeasonNew() {
         }
         log$1.info("相关视频的bvid: " + bvid);
         BilibiliUtils.goToUrl(BilibiliUrl.getVideoUrl(bvid));
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
       }
       domUtils.on(
         document,
@@ -6769,7 +6771,7 @@ repairLinkJump() {
     },
 gestureReturnToCloseCommentArea() {
       log$1.info("手势返回关闭评论区，全局监听document点击.sub-reply-preview");
-      utils.waitNode("#app").then(($app) => {
+      domUtils.waitNode("#app").then(($app) => {
         utils.waitVueByInterval(
           $app,
           () => {
@@ -6823,7 +6825,7 @@ gestureReturnToCloseCommentArea() {
             return true;
           }
         });
-        utils.waitNode(".dialog-close-icon").then(($dialogCloseIcon) => {
+        domUtils.waitNode(".dialog-close-icon").then(($dialogCloseIcon) => {
           domUtils.on(
             $dialogCloseIcon,
             "click",
@@ -6839,7 +6841,7 @@ gestureReturnToCloseCommentArea() {
       });
     },
 enterVideoFullScreen() {
-      utils.waitNode(".mplayer-btn-widescreen", 5e3).then(($btnWideScreen) => {
+      domUtils.waitNode(".mplayer-btn-widescreen", 5e3).then(($btnWideScreen) => {
         if (!$btnWideScreen) {
           log$1.error("获取全屏按钮失败");
           Qmsg.error("获取全屏按钮失败");
@@ -7012,7 +7014,7 @@ addCommentModule() {
 			`
         );
       }
-      utils.waitNode(".m-video-info", 1e4).then(($videoInfo) => {
+      domUtils.waitNode(".m-video-info", 1e4).then(($videoInfo) => {
         if (!$videoInfo) {
           log$1.error(`获取视频信息元素失败`);
           return;
@@ -7043,13 +7045,13 @@ addCommentModule() {
           innerHTML: "×"
         });
         domUtils.on($commentModuleShowBtn, "click", (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           domUtils.css($commentModuleWrapper, { display: "block" });
           domUtils.css($closeCommentModuleBtn, { display: "flex" });
           gestureBack.enterGestureBackMode();
         });
         domUtils.on($closeCommentModuleBtn, "click", (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           domUtils.css($commentModuleWrapper, { display: "" });
           domUtils.css($closeCommentModuleBtn, { display: "" });
           gestureBack.quitGestureBackMode(false);
@@ -7833,7 +7835,7 @@ async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
         return __target__;
       }
       if (typeof $el === "string") {
-        let $ele = await utils.waitNode($el, 1e4);
+        let $ele = await domUtils.waitNode($el, 1e4);
         if (!$ele) {
           return;
         }
@@ -7852,7 +7854,7 @@ async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
               $el: $targetEl
             };
           }
-          let reactInst = utils.getReactObj($targetEl);
+          let reactInst = utils.getReactInstance($targetEl);
           if (reactInst == null) {
             return {
               status: false,
@@ -8143,7 +8145,7 @@ updateArtPlayerVideoInfo(ep_info, ep_list) {
             ep_list = [];
             let $epList = $(BilibiliData.className.bangumi_new + ` [class^="EpisodeList_episodeListWrap"]`);
             if ($epList) {
-              let react = utils.getReactObj($epList);
+              let react = utils.getReactInstance($epList);
               let epList = react?.reactFiber?.return?.memoizedState?.memoizedState?.[0]?.episodes;
               if (Array.isArray(epList)) {
                 ep_list = epList;
@@ -8217,14 +8219,16 @@ hookCallApp() {
       };
     },
 setChooseEpClickEvent() {
-      utils.waitNode(BilibiliData.className.bangumi + " .ep-list-pre-wrapper ul.ep-list-pre-container").then(($preContainer) => {
+      domUtils.waitNode(
+        BilibiliData.className.bangumi + " .ep-list-pre-wrapper ul.ep-list-pre-container"
+      ).then(($preContainer) => {
         log$1.info("覆盖【选集】的点击事件");
         domUtils.on(
           $preContainer,
           "click",
           "li.episode-item",
           function(event) {
-            utils.preventEvent(event);
+            domUtils.preventEvent(event);
             BilibiliOpenApp.jumpToUrl(event);
           },
           {
@@ -8232,14 +8236,16 @@ setChooseEpClickEvent() {
           }
         );
       });
-      utils.waitNode(BilibiliData.className.bangumi + " .ep-list-pre-wrapper ul.season-list-wrapper").then(($listWapper) => {
+      domUtils.waitNode(
+        BilibiliData.className.bangumi + " .ep-list-pre-wrapper ul.season-list-wrapper"
+      ).then(($listWapper) => {
         log$1.info("覆盖【xx季】的点击事件");
         domUtils.on(
           $listWapper,
           "click",
           "li",
           function(event) {
-            utils.preventEvent(event);
+            domUtils.preventEvent(event);
             BilibiliOpenApp.jumpToUrl(event);
           },
           {
@@ -8247,13 +8253,13 @@ setChooseEpClickEvent() {
           }
         );
       });
-      utils.waitNode(BilibiliData.className.bangumi + " .ep-list-pre-header").then(($preHeader) => {
+      domUtils.waitNode(BilibiliData.className.bangumi + " .ep-list-pre-header").then(($preHeader) => {
         log$1.info("覆盖【选集】右上角的【全xx话】Arrow的点击事件");
         domUtils.on(
           $preHeader,
           "click",
           function(event) {
-            utils.preventEvent(event);
+            domUtils.preventEvent(event);
           },
           {
             capture: true
@@ -8281,14 +8287,16 @@ setChooseEpClickEvent() {
       );
     },
 setClickOtherVideo() {
-      utils.waitNode(BilibiliData.className.bangumi + " .section-preview-wrapper ul.ep-list-pre-container").then(($preContainer) => {
+      domUtils.waitNode(
+        BilibiliData.className.bangumi + " .section-preview-wrapper ul.ep-list-pre-container"
+      ).then(($preContainer) => {
         log$1.info("覆盖【PV&其他】、【预告】、【主题曲】的点击事件");
         domUtils.on(
           $preContainer,
           "click",
           "li.section-preview-item",
           function(event) {
-            utils.preventEvent(event);
+            domUtils.preventEvent(event);
             BilibiliOpenApp.jumpToUrl(event);
           },
           {
@@ -8296,19 +8304,21 @@ setClickOtherVideo() {
           }
         );
       });
-      utils.waitNode(BilibiliData.className.bangumi + " .section-preview-header").then(($previewHeader) => {
-        log$1.info("覆盖【PV&其他】、【预告】、【主题曲】右上角的Arrow的点击事件");
-        domUtils.on(
-          $previewHeader,
-          "click",
-          function(event) {
-            utils.preventEvent(event);
-          },
-          {
-            capture: true
-          }
-        );
-      });
+      domUtils.waitNode(BilibiliData.className.bangumi + " .section-preview-header").then(
+        ($previewHeader) => {
+          log$1.info("覆盖【PV&其他】、【预告】、【主题曲】右上角的Arrow的点击事件");
+          domUtils.on(
+            $previewHeader,
+            "click",
+            function(event) {
+              domUtils.preventEvent(event);
+            },
+            {
+              capture: true
+            }
+          );
+        }
+      );
       domUtils.on(
         document,
         "click",
@@ -8327,21 +8337,23 @@ setClickOtherVideo() {
       );
     },
 setRecommendClickEvent() {
-      utils.waitNode(BilibiliData.className.bangumi + " .recom-wrapper ul.recom-list").then(($recomList) => {
-        log$1.info("覆盖【更多推荐】番剧的点击事件");
-        domUtils.on(
-          $recomList,
-          "click",
-          "li.recom-item-v2",
-          function(event) {
-            utils.preventEvent(event);
-            BilibiliOpenApp.jumpToUrl(event);
-          },
-          {
-            capture: true
-          }
-        );
-      });
+      domUtils.waitNode(BilibiliData.className.bangumi + " .recom-wrapper ul.recom-list").then(
+        ($recomList) => {
+          log$1.info("覆盖【更多推荐】番剧的点击事件");
+          domUtils.on(
+            $recomList,
+            "click",
+            "li.recom-item-v2",
+            function(event) {
+              domUtils.preventEvent(event);
+              BilibiliOpenApp.jumpToUrl(event);
+            },
+            {
+              capture: true
+            }
+          );
+        }
+      );
       domUtils.on(
         document,
         "click",
@@ -8511,7 +8523,7 @@ enableOtherAreaSearchBangumi() {
 			`
         );
       }
-      utils.waitNode(".m-search-result .tabs:not(:has(.gm-tab-item))").then(($tabs) => {
+      domUtils.waitNode(".m-search-result .tabs:not(:has(.gm-tab-item))").then(($tabs) => {
         let enableSearchServer = BilibiliApiProxy.getSearchProxyHost();
         enableSearchServer.forEach((proxyServerInfo) => {
           let $tab = domUtils.createElement(
@@ -8631,7 +8643,7 @@ createSearchResultVideoItem(option) {
       );
       Reflect.set($item, "data-option", option);
       domUtils.on($item, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         window.open(option.url, "_blank");
       });
       let $displayInfo = $item.querySelector(".gm-card-display-info");
@@ -8735,7 +8747,7 @@ createSearchResultVideoItem(option) {
           domUtils.append($epBadges, $badge);
         }
         domUtils.on($epItem, "click", (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           window.open(url, "_blank");
         });
         $eps.appendChild($epItem);
@@ -8880,7 +8892,7 @@ coverCancel() {
         "a.cancel",
         (event) => {
           log$1.info(`点击取消按钮`);
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           window.history.back();
         },
         { capture: true }
@@ -8893,7 +8905,7 @@ inputAutoFocus() {
         return;
       }
       log$1.info(`输入框自动获取焦点`);
-      utils.waitNode(`.m-search .m-search-search-bar input[type="search"]`, 1e4).then(($input) => {
+      domUtils.waitNode(`.m-search .m-search-search-bar input[type="search"]`, 1e4).then(($input) => {
         if (!$input) {
           log$1.error("获取输入框失败");
           return;
@@ -8917,7 +8929,7 @@ coverCardResultClickEvent() {
           if (typeof cardClick !== "function") {
             return;
           }
-          utils.preventEvent(evt);
+          domUtils.preventEvent(evt);
           cardClick(evt);
         },
         {
@@ -8959,7 +8971,7 @@ blockControlPanel() {
       });
     },
 preventOpenAppBtn() {
-      utils.waitNode("body").then(($body) => {
+      domUtils.waitNode("body").then(($body) => {
         log$1.info("阻止.open-app-btn元素触发点击事件");
         domUtils.on(
           $body,
@@ -9166,7 +9178,7 @@ coverHeaderJump() {
         "click",
         BilibiliData.className.opus + " .opus-module-author",
         function(event) {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           let $click = event.target;
           let vueObj = VueUtils.getVue($click);
           if (!vueObj) {
@@ -9208,7 +9220,7 @@ coverHeaderJump() {
         "click",
         BilibiliData.className.dynamic + " .launch-app-btn .dyn-header",
         function(event) {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           let $click = event.target;
           let vueObj = VueUtils.getVue($click);
           if (!vueObj) {
@@ -9234,7 +9246,7 @@ coverTopicJump() {
         "click",
         BilibiliData.className.dynamic + " .launch-app-btn .bili-dyn-topic",
         function(event) {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           let $click = event.target;
           let vueObj = VueUtils.getVue($click);
           if (!vueObj) {
@@ -9262,7 +9274,7 @@ coverAtJump() {
         "click",
         BilibiliData.className.dynamic + " .at",
         function(event) {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           let $click = event.target;
           let oid = $click.getAttribute("data-oid") || VueUtils.getVue($click)?.$props?.rid;
           if (utils.isNull(oid)) {
@@ -9284,7 +9296,7 @@ coverReferenceJump() {
         "click",
         BilibiliData.className.dynamic + " .dyn-content .reference .dyn-orig-author",
         function(event) {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           let $click = event.target;
           let url = $click.getAttribute("data-url");
           if (!url) {
@@ -9302,7 +9314,7 @@ coverReferenceJump() {
         "click",
         BilibiliData.className.dynamic + " .dyn-content .reference .dyn-archive",
         function(event) {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           let $click = event.target;
           let vueObj = VueUtils.getVue($click);
           if (!vueObj) {
@@ -9607,7 +9619,7 @@ addRecommendTag() {
         $myHead.appendChild($recommendView);
       }
       domUtils.on($recommendTag, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         $recommendTag.classList.add("is-avtive");
         this.recommendClickEvent();
       });
@@ -9622,7 +9634,7 @@ addRecommendTag() {
         }
       );
       domUtils.on(this.$ele.$cardBox, "click", ".v-card", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         let $click = event.target;
         window.open($click.href, "_blank");
       });
@@ -9875,7 +9887,7 @@ addVideoListUPInfo() {
 		}
         `
       );
-      utils.waitNode(BilibiliData.className.head + " .video-list .card-box").then(() => {
+      domUtils.waitNode(BilibiliData.className.head + " .video-list .card-box").then(() => {
         let lockFunc = new utils.LockFunction(() => {
           document.querySelectorAll(BilibiliData.className.head + " .video-list .card-box .v-card").forEach(($vcard) => {
             let vueObj = VueUtils.getVue($vcard);
@@ -9970,7 +9982,7 @@ async reconfigurationTinyAppSettingButton() {
 			`
         );
       }
-      let $iconConfig = await utils.waitNode(".nav-bar .icon-config", 1e4);
+      let $iconConfig = await domUtils.waitNode(".nav-bar .icon-config", 1e4);
       if (!$iconConfig) {
         log$1.error("未找到设置按钮图标，无法重构");
         return;
@@ -10011,7 +10023,7 @@ async reconfigurationTinyAppSettingButton() {
         }
       ]);
       domUtils.on($gmFace, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         if (isLogin) {
           if (uid != null) {
             let url = BilibiliUrl.getUserSpaceUrl(uid);
@@ -10089,7 +10101,7 @@ beautifyTopNavBar() {
 			`
         );
       }
-      utils.waitNode(".m-head .m-navbar .icon-search", 1e4).then(async ($iconSearch) => {
+      domUtils.waitNode(".m-head .m-navbar .icon-search", 1e4).then(async ($iconSearch) => {
         if (!$iconSearch) {
           return;
         }
@@ -10107,7 +10119,7 @@ beautifyTopNavBar() {
         });
         let $input = $inputAreaContainer.querySelector("input");
         domUtils.on($inputAreaContainer, "click", (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           BilibiliUtils.goToUrl("/search", true);
         });
         domUtils.after($iconSearch, $inputAreaContainer);
@@ -10679,7 +10691,7 @@ async showView() {
           $alert.close();
         };
         domUtils.on($button, "click", async (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           if (typeof filterOption.callback === "function") {
             let result = await filterOption.callback(event, execFilterAndCloseDialog);
             if (!result) {
@@ -11040,7 +11052,7 @@ async createRuleItemElement(data2, $shadowRoot) {
       }
       if (this.option.itemControls.edit.enable) {
         domUtils.on($edit, "click", (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           this.showEditView(true, data2, $shadowRoot, $ruleItem, (newData) => {
             data2 = null;
             data2 = newData;
@@ -11051,7 +11063,7 @@ async createRuleItemElement(data2, $shadowRoot) {
       }
       if (this.option.itemControls.delete.enable) {
         domUtils.on($delete, "click", (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           let $askDialog = __pops.confirm({
             title: {
               text: "提示",
@@ -11483,7 +11495,7 @@ importRule() {
       let $local = $alert.$shadowRoot.querySelector(".import-mode[data-mode='local']");
       let $network = $alert.$shadowRoot.querySelector(".import-mode[data-mode='network']");
       domUtils.on($local, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         $alert.close();
         let $input = domUtils.createElement("input", {
           type: "file",
@@ -11510,7 +11522,7 @@ importRule() {
         $input.click();
       });
       domUtils.on($network, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         $alert.close();
         __pops.prompt({
           title: {
@@ -11833,7 +11845,7 @@ createSearchButton(queryMIDFn) {
       });
       let $compositionNameControl = $compositionCheckable.querySelector(".composition-name-control");
       domUtils.on($compositionCheckable, "click", async (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         if ($compositionCheckable.hasAttribute("data-is-searching")) {
           log$1.error("正在搜索中，请稍后再试");
           return;
@@ -11907,7 +11919,7 @@ createLabel(data2) {
         domUtils.append($badge, $compositionIcon);
       }
       domUtils.on($badge, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         __pops.alert({
           title: {
             text: "识别信息",
@@ -12277,7 +12289,7 @@ toast(config) {
         });
         $toast.appendChild($closeBtn);
         domUtils.on($closeBtn, "click", (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           this.closeToast($toast);
         });
       }
@@ -12301,7 +12313,7 @@ toast(config) {
         $toast.appendChild($jump);
         domUtils.on($jump, "click", (event) => {
           if (typeof config.jumpClickCallback === "function") {
-            utils.preventEvent(event);
+            domUtils.preventEvent(event);
             config.jumpClickCallback(event);
           }
         });

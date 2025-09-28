@@ -1,4 +1,4 @@
-import { $$, utils } from "@/env";
+import { $$, DOMUtils, utils } from "@/env";
 import { VueUtils } from "@components/utils/VueUtils";
 
 type TiebaPostUniAppCommentData = {
@@ -194,7 +194,7 @@ export const TiebaUniAppComment = {
     if (this.$data.watchCommentCallBack.length > 1) {
       return;
     }
-    utils.waitNode("uni-view#tab-list", 10000).then(($tabList) => {
+    DOMUtils.waitNode("uni-view#tab-list", 10000).then(($tabList) => {
       if (!$tabList) {
         return;
       }

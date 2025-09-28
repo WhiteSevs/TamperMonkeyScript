@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.14
+// @version      2025.9.28
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -9,10 +9,10 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://www.xiaohongshu.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.8.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.4.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect      edith.xiaohongshu.com
@@ -41,7 +41,7 @@
   var _GM_xmlhttpRequest = (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
   var _unsafeWindow = (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = (() => window)();
-  const blockCSS$2 = "/* 用户主页 */\r\n/* 底部的-App内打开 */\r\n.launch-app-container.bottom-bar,\r\n/* 顶部的-打开看看 */\r\n.main-container > .scroll-view-container > .launch-app-container:first-child,\r\n/* 底部的-打开小红书看更多精彩内容 */\r\n.bottom-launch-app-tip.show-bottom-bar,\r\n/* 首页-顶部横幅 */\r\n#app .launch-app-container,\r\n/* 笔记-顶部横幅 */\r\n.note-view-container .nav-bar-box-expand ,\r\n.note-view-container .nav-bar-box-expand+.placeholder-expand,\r\n/* 404页面 顶部的打开看看 */\r\n.not-found-container .nav-bar-box-expand:has(.share-info-box):has(.launch-btn),\r\n/* 404页面 底部的-App内打开 */\r\n.not-found-container #fmp {\r\n	display: none !important;\r\n}\r\n";
+  const blockCSS$2 = "/* 用户主页 */\r\n/* 底部的-App内打开 */\r\n.launch-app-container.bottom-bar,\r\n/* 顶部的-打开看看 */\r\n.main-container > .scroll-view-container > .launch-app-container:first-child,\r\n/* 底部的-打开小红书看更多精彩内容 */\r\n.bottom-launch-app-tip.show-bottom-bar,\r\n/* 首页-顶部横幅 */\r\n#app .launch-app-container,\r\n/* 笔记-顶部横幅 */\r\n.note-view-container .nav-bar-box-expand ,\r\n.note-view-container .nav-bar-box-expand+.placeholder-expand,\r\n/* 404页面 顶部的打开看看 */\r\n.not-found-container .nav-bar-box-expand:has(.share-info-box):has(.launch-btn),\r\n/* 404页面 底部的-App内打开 */\r\n.not-found-container #fmp {\r\n  display: none !important;\r\n}\r\n";
   const XHSRouter = {
 isArticle() {
       return globalThis.location.pathname.startsWith("/discovery/item/") || globalThis.location.pathname.startsWith("/explore/");
@@ -163,9 +163,7 @@ keys() {
     }
 values() {
       let localValue = this.getLocalValue();
-      return Reflect.ownKeys(localValue).map(
-        (key) => Reflect.get(localValue, key)
-      );
+      return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
     }
 clear() {
       _GM_deleteValue(this.storageKey);
@@ -325,7 +323,7 @@ waitRemove(...args) {
         if (typeof selector !== "string") {
           return;
         }
-        utils.waitNodeList(selector).then((nodeList) => {
+        DOMUtils.waitNodeList(selector).then((nodeList) => {
           nodeList.forEach(($el) => $el.remove());
         });
       });
@@ -396,6 +394,9 @@ async loadScript(url) {
     },
 fixUrl(url) {
       url = url.trim();
+      if (url.startsWith("data:")) {
+        return url;
+      }
       if (url.match(/^http(s|):\/\//i)) {
         return url;
       } else if (url.startsWith("//")) {
@@ -419,9 +420,13 @@ fixHttps(url) {
       if (!url.startsWith("http://")) {
         return url;
       }
-      let urlInstance = new URL(url);
-      urlInstance.protocol = "https:";
-      return urlInstance.toString();
+      try {
+        let urlInstance = new URL(url);
+        urlInstance.protocol = "https:";
+        return urlInstance.toString();
+      } catch {
+        return url;
+      }
     },
 lockScroll(...args) {
       let $hidden = document.createElement("style");
@@ -656,6 +661,9 @@ setDefaultValue(key, defaultValue) {
         log.warn("请检查该key(已存在): " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
+    },
+getDefaultValue(key) {
+      return this.$data.contentConfigInitDefaultValue.get(key);
     },
 setValue(key, value) {
       PopsPanelStorageApi.set(key, value);
@@ -977,7 +985,7 @@ threshold: 1
         $el.classList.add(flashingClassName);
       };
       let dbclick_event = (evt, selectorTarget) => {
-        utils.preventEvent(evt);
+        domUtils.preventEvent(evt);
         let $alert = __pops.alert({
           title: {
             text: "搜索配置",
@@ -1093,7 +1101,7 @@ threshold: 1
             $targetAsideItem.click();
             asyncQueryProperty(pathInfo.next, async (target) => {
               if (target?.next) {
-                let $findDeepMenu = await utils.waitNode(() => {
+                let $findDeepMenu = await domUtils.waitNode(() => {
                   return Array.from(
                     $panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")
                   ).find(($deepMenu) => {
@@ -1115,7 +1123,7 @@ threshold: 1
                   data: target.next
                 };
               } else {
-                let $findTargetMenu = await utils.waitNode(() => {
+                let $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from(
                     $panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)
                   ).find(($menuItem) => {
@@ -1265,7 +1273,7 @@ threshold: 1
           $searchInput,
           "input",
           utils.debounce((evt2) => {
-            utils.preventEvent(evt2);
+            domUtils.preventEvent(evt2);
             let searchText = domUtils.val($searchInput).trim();
             if (searchText === "") {
               clearSearchResult();
@@ -1369,16 +1377,13 @@ qmsg_config_showreverse: {
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
   const __pops = pops;
-  const log = new utils.Log(
-    _GM_info,
-    _unsafeWindow.console || _monkeyWindow.console
-  );
+  const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
   let SCRIPT_NAME = _GM_info?.script?.name || void 0;
   pops.config.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
-    debug: DEBUG,
-    logMaxCount: 1e3,
+    debug: false,
+    logMaxCount: 250,
     autoClearConsole: true,
     tag: true
   });
@@ -1486,7 +1491,7 @@ clickEvent: {
     },
     setTimeout: _unsafeWindow.setTimeout
   });
-  const addStyle = utils.addStyle.bind(utils);
+  const addStyle = domUtils.addStyle.bind(domUtils);
   DOMUtils.selector.bind(DOMUtils);
   const $$ = DOMUtils.selectorAll.bind(DOMUtils);
   new utils.GM_Cookie();
@@ -1618,12 +1623,7 @@ document_addEventListener(handler) {
         let options = args[2];
         for (let index = 0; index < that.$data.document_addEventListener.length; index++) {
           const callback = that.$data.document_addEventListener[index];
-          const result = Reflect.apply(callback, this, [
-            target,
-            eventName,
-            listener,
-            options
-          ]);
+          const result = Reflect.apply(callback, this, [target, eventName, listener, options]);
           if (typeof result === "function") {
             args[1] = result;
             weakMap.set(listener, {
@@ -1643,11 +1643,7 @@ document_addEventListener(handler) {
         let listener = args[1];
         let options = args[2];
         if (weakMap.has(listener)) {
-          const {
-            eventName: __eventName__,
-            fn: __listener__,
-            options: __options__
-          } = weakMap.get(listener);
+          const { eventName: __eventName__, fn: __listener__, options: __options__ } = weakMap.get(listener);
           let flag = false;
           if (eventName === __eventName__) {
             if (typeof options === "boolean" && options === __options__) {
@@ -1682,12 +1678,7 @@ element_addEventListener(handler) {
         let options = args[2];
         for (let index = 0; index < that.$data.element_addEventListener.length; index++) {
           const callback = that.$data.element_addEventListener[index];
-          const result = Reflect.apply(callback, this, [
-            target,
-            eventName,
-            listener,
-            options
-          ]);
+          const result = Reflect.apply(callback, this, [target, eventName, listener, options]);
           if (typeof result === "function") {
             args[1] = result;
             weakMap.set(listener, {
@@ -1707,11 +1698,7 @@ element_addEventListener(handler) {
         let listener = args[1];
         let options = args[2];
         if (weakMap.has(listener)) {
-          const {
-            eventName: __eventName__,
-            fn: __listener__,
-            options: __options__
-          } = weakMap.get(listener);
+          const { eventName: __eventName__, fn: __listener__, options: __options__ } = weakMap.get(listener);
           let flag = false;
           if (__eventName__ === eventName) {
             if (typeof options === "boolean" && options === __options__) {
@@ -1925,9 +1912,7 @@ webpackChunkranchi() {
             args[0][0];
             if (typeof args[0][1] === "object") {
               Object.keys(args[0][1]).forEach((keyName, index) => {
-                if (typeof args[0][1][keyName] === "function" && args[0][1][keyName].toString().startsWith(
-                  "function(e,n,t){t.d(n,{Z:function(){return y}});"
-                ) && args[0][1][keyName].toString().includes("jumpToApp") && Panel.getValue("little-red-book-hijack-webpack-scheme")) {
+                if (typeof args[0][1][keyName] === "function" && args[0][1][keyName].toString().startsWith("function(e,n,t){t.d(n,{Z:function(){return y}});") && args[0][1][keyName].toString().includes("jumpToApp") && Panel.getValue("little-red-book-hijack-webpack-scheme")) {
                   let oldFunc = args[0][1][keyName];
                   args[0][1][keyName] = function(...args_1) {
                     log.success(["成功劫持scheme唤醒", args_1]);
@@ -1943,13 +1928,8 @@ webpackChunkranchi() {
                                 return {
                                   jumpToApp(data) {
                                     log.success(["拦截唤醒", data]);
-                                    if (data["deeplink"]?.startsWith(
-                                      "xhsdiscover://user/"
-                                    )) {
-                                      let userId = data["deeplink"].replace(
-                                        /^xhsdiscover:\/\/user\//,
-                                        ""
-                                      );
+                                    if (data["deeplink"]?.startsWith("xhsdiscover://user/")) {
+                                      let userId = data["deeplink"].replace(/^xhsdiscover:\/\/user\//, "");
                                       let userHomeUrl = window.location.origin + `/user/profile/${userId}`;
                                       window.open(userHomeUrl, "_blank");
                                     }
@@ -2054,9 +2034,7 @@ blockBottomToorBar() {
     },
 blockAuthorHotNote() {
       log.info("屏蔽视频笔记的作者热门笔记");
-      return CommonUtil.addBlockCSS(
-        ".user-notes-box.user-notes-clo-layout-container"
-      );
+      return CommonUtil.addBlockCSS(".user-notes-box.user-notes-clo-layout-container");
     },
 blockHotRecommendNote() {
       log.info("屏蔽视频笔记的热门推荐");
@@ -2160,9 +2138,7 @@ getCommentHTML(data) {
 						</div>
 						<div class="little-red-book-comments-info">
 							<div class="little-red-book-comments-info-date">
-								<span class="little-red-book-comments-create-time">${utils.formatTime(
-            data.create_time
-          )}</span>
+								<span class="little-red-book-comments-create-time">${utils.formatTime(data.create_time)}</span>
 								<span class="little-red-book-comments-location">${data.ip_location}</span>
 							</div>
 						</div>
@@ -2225,13 +2201,7 @@ getCommentElement(data) {
               });
               async function showMoreEvent() {
                 let QmsgLoading = Qmsg.loading("加载中，请稍后...");
-                let pageInfo2 = await XHSApi.getLzlPageInfo(
-                  Comments.noteId,
-                  id,
-                  10,
-                  lzlCursor,
-                  void 0
-                );
+                let pageInfo2 = await XHSApi.getLzlPageInfo(Comments.noteId, id, 10, lzlCursor, void 0);
                 QmsgLoading.close();
                 if (!pageInfo2) {
                   return;
@@ -2254,15 +2224,9 @@ getCommentElement(data) {
                   domUtils.before(showMoreElement, subCommentElement);
                 });
                 if (!pageInfo2.has_more) {
-                  domUtils.off(
-                    showMoreElement,
-                    "click",
-                    void 0,
-                    showMoreEvent,
-                    {
-                      capture: true
-                    }
-                  );
+                  domUtils.off(showMoreElement, "click", void 0, showMoreEvent, {
+                    capture: true
+                  });
                   showMoreElement.remove();
                 }
               }
@@ -2292,11 +2256,7 @@ async scrollEvent() {
           if (this.QmsgLoading == null) {
             this.QmsgLoading = Qmsg.loading("加载中，请稍后...");
           }
-          let pageInfo2 = await XHSApi.getPageInfo(
-            Comments.noteId,
-            Comments.currentCursor,
-            Comments.xsec_token
-          );
+          let pageInfo2 = await XHSApi.getPageInfo(Comments.noteId, Comments.currentCursor, Comments.xsec_token);
           if (this.QmsgLoading) {
             this.QmsgLoading.close();
             this.QmsgLoading = void 0;
@@ -2330,11 +2290,9 @@ removeScrollEventListener() {
           });
         }
       };
-      utils.waitNode(".narmal-note-container").then(async () => {
+      domUtils.waitNode(".narmal-note-container").then(async () => {
         log.info("优化评论浏览-笔记元素出现");
-        let noteViewContainer = document.querySelector(
-          ".note-view-container"
-        );
+        let noteViewContainer = document.querySelector(".note-view-container");
         let commentContainer = domUtils.createElement("div", {
           className: "little-red-book-comments-container",
           innerHTML: (
@@ -2493,9 +2451,7 @@ optimizeImageBrowsing() {
         let imgList = [];
         let imgBoxList = [];
         if (clickElement.closest(".onix-carousel-item")) {
-          imgBoxList = Array.from(
-            clickElement.closest(".onix-carousel-item").parentElement.querySelectorAll("img")
-          );
+          imgBoxList = Array.from(clickElement.closest(".onix-carousel-item").parentElement.querySelectorAll("img"));
         } else {
           imgBoxList = [imgElement];
         }
@@ -2538,9 +2494,7 @@ repariClick() {
             log.success("点击-笔记/收藏按钮");
           } else if (clickElement?.closest("section.reds-note-card")) {
             log.success("点击-笔记卡片");
-            let sectionElement = clickElement?.closest(
-              "section.reds-note-card"
-            );
+            let sectionElement = clickElement?.closest("section.reds-note-card");
             let note_id = sectionElement.getAttribute("id") || utils.toJSON(sectionElement.getAttribute("impression"))?.["noteTarget"]?.["value"]?.["noteId"];
             if (note_id) {
               window.open(
@@ -2551,7 +2505,7 @@ repariClick() {
               Qmsg.error("获取笔记note_id失败");
             }
           }
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           return false;
         },
         {
@@ -2614,9 +2568,7 @@ blockLoginContainer() {
           childList: true
         },
         callback: () => {
-          let $close = document.querySelector(
-            ".login-container .icon-btn-wrapper"
-          );
+          let $close = document.querySelector(".login-container .icon-btn-wrapper");
           if ($close) {
             $close.click();
             log.success("登录弹窗出现，关闭");
@@ -2868,30 +2820,26 @@ optimizationSearch() {
           }
         }
       }
-      utils.waitNode("#search-input").then(($searchInput) => {
+      domUtils.waitNode("#search-input").then(($searchInput) => {
         $searchInput.placeholder = "搜索小红书";
         Panel.execMenu("pc-xhs-search-open-blank-keyboard-enter", () => {
-          domUtils.listenKeyboard(
-            $searchInput,
-            "keydown",
-            (keyName, keyValue, otherCodeList, event) => {
-              if (keyName === "Enter" && !otherCodeList.length) {
-                log.info("按下回车键");
-                utils.preventEvent(event);
-                $searchInput.blur();
-                blankSearchText();
-              }
+          domUtils.listenKeyboard($searchInput, "keydown", (keyName, keyValue, otherCodeList, event) => {
+            if (keyName === "Enter" && !otherCodeList.length) {
+              log.info("按下回车键");
+              domUtils.preventEvent(event);
+              $searchInput.blur();
+              blankSearchText();
             }
-          );
+          });
         });
       });
-      utils.waitNode("#search-input + .input-button .search-icon").then(($searchIconBtn) => {
+      domUtils.waitNode("#search-input + .input-button .search-icon").then(($searchIconBtn) => {
         Panel.execMenu("pc-xhs-search-open-blank-btn", () => {
           domUtils.on(
             $searchIconBtn,
             "click",
             (event) => {
-              utils.preventEvent(event);
+              domUtils.preventEvent(event);
               log.info("点击搜索按钮");
               blankSearchText();
             },
@@ -2904,10 +2852,7 @@ optimizationSearch() {
     },
 fullWidth() {
       log.info("笔记宽屏");
-      let noteContainerWidth = Panel.getValue(
-        "pc-xhs-article-fullWidth-widthSize",
-        90
-      );
+      let noteContainerWidth = Panel.getValue("pc-xhs-article-fullWidth-widthSize", 90);
       return addStyle(
 `
 		.main-container .main-content{
@@ -2929,38 +2874,32 @@ fullWidth() {
 transformPublishTime() {
       log.info(`转换笔记发布时间`);
       let lockFn = new utils.LockFunction(() => {
-        $$(".note-content:not([data-edit-date])").forEach(
-          ($noteContent) => {
-            let vueInstance = VueUtils.getVue($noteContent);
-            if (!vueInstance) {
-              return;
-            }
-            let note = vueInstance?._?.props?.note;
-            if (note == null) {
-              return;
-            }
-            let publishTime = note.time;
-            let lastUpdateTime = note.lastUpdateTime;
-            let ipLocation = note.ipLocation;
-            if (typeof publishTime === "number") {
-              let detailTimeLocationInfo = [];
-              detailTimeLocationInfo.push(
-                `发布：${utils.formatTime(publishTime)}`
-              );
-              if (typeof lastUpdateTime === "number") {
-                detailTimeLocationInfo.push(
-                  `修改：${utils.formatTime(lastUpdateTime)}`
-                );
-              }
-              if (typeof ipLocation === "string" && utils.isNotNull(ipLocation)) {
-                detailTimeLocationInfo.push(ipLocation);
-              }
-              let $date = $noteContent.querySelector(".date");
-              domUtils.html($date, detailTimeLocationInfo.join("<br>"));
-              $noteContent.setAttribute("data-edit-date", "");
-            }
+        $$(".note-content:not([data-edit-date])").forEach(($noteContent) => {
+          let vueInstance = VueUtils.getVue($noteContent);
+          if (!vueInstance) {
+            return;
           }
-        );
+          let note = vueInstance?._?.props?.note;
+          if (note == null) {
+            return;
+          }
+          let publishTime = note.time;
+          let lastUpdateTime = note.lastUpdateTime;
+          let ipLocation = note.ipLocation;
+          if (typeof publishTime === "number") {
+            let detailTimeLocationInfo = [];
+            detailTimeLocationInfo.push(`发布：${utils.formatTime(publishTime)}`);
+            if (typeof lastUpdateTime === "number") {
+              detailTimeLocationInfo.push(`修改：${utils.formatTime(lastUpdateTime)}`);
+            }
+            if (typeof ipLocation === "string" && utils.isNotNull(ipLocation)) {
+              detailTimeLocationInfo.push(ipLocation);
+            }
+            let $date = $noteContent.querySelector(".date");
+            domUtils.html($date, detailTimeLocationInfo.join("<br>"));
+            $noteContent.setAttribute("data-edit-date", "");
+          }
+        });
       });
       utils.mutationObserver(document, {
         config: {
@@ -3030,18 +2969,14 @@ setComponentsStorageApiProperty(config, storageApiValue) {
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi(
-      "input",
-      result,
-      {
-        get(key2, defaultValue2) {
-          return Panel.getValue(key2, defaultValue2);
-        },
-        set(key2, value) {
-          Panel.setValue(key2, value);
-        }
+    PanelComponents.initComponentsStorageApi("input", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
       }
-    );
+    });
     return result;
   };
   const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack, disabled, valueChangeCallBack) {
@@ -3067,18 +3002,14 @@ setComponentsStorageApiProperty(config, storageApiValue) {
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi(
-      "switch",
-      result,
-      {
-        get(key2, defaultValue2) {
-          return Panel.getValue(key2, defaultValue2);
-        },
-        set(key2, value) {
-          Panel.setValue(key2, value);
-        }
+    PanelComponents.initComponentsStorageApi("switch", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
       }
-    );
+    });
     return result;
   };
   const UISelectMultiple = function(text, key, defaultValue, data, selectCallBack, description, placeholder = "请至少选择一个选项", selectConfirmDialogDetails, valueChangeCallBack) {
@@ -3113,18 +3044,14 @@ setComponentsStorageApiProperty(config, storageApiValue) {
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi(
-      "select-multiple",
-      result,
-      {
-        get(key2, defaultValue2) {
-          return Panel.getValue(key2, defaultValue2);
-        },
-        set(key2, value) {
-          Panel.setValue(key2, value);
-        }
+    PanelComponents.initComponentsStorageApi("select-multiple", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
       }
-    );
+    });
     return result;
   };
   const UITextArea = function(text, key, defaultValue, description, changeCallback, placeholder = "", disabled, valueChangeCallBack) {
@@ -3151,18 +3078,14 @@ setComponentsStorageApiProperty(config, storageApiValue) {
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi(
-      "switch",
-      result,
-      {
-        get(key2, defaultValue2) {
-          return Panel.getValue(key2, defaultValue2);
-        },
-        set(key2, value) {
-          Panel.setValue(key2, value);
-        }
+    PanelComponents.initComponentsStorageApi("switch", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
       }
-    );
+    });
     return result;
   };
   class RuleStorage {
@@ -3275,15 +3198,9 @@ importRules(importEndCallBack) {
             `
         )
       });
-      let $local = $alert.$shadowRoot.querySelector(
-        ".btn-control[data-mode='local']"
-      );
-      let $network = $alert.$shadowRoot.querySelector(
-        ".btn-control[data-mode='network']"
-      );
-      let $clipboard = $alert.$shadowRoot.querySelector(
-        ".btn-control[data-mode='clipboard']"
-      );
+      let $local = $alert.$shadowRoot.querySelector(".btn-control[data-mode='local']");
+      let $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
+      let $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
       let updateRuleToStorage = async (data) => {
         let allData = this.getAllRule();
         let addNewData = [];
@@ -3371,7 +3288,7 @@ importRules(importEndCallBack) {
         });
       };
       domUtils.on($local, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         $alert.close();
         let $input = domUtils.createElement("input", {
           type: "file",
@@ -3391,7 +3308,7 @@ importRules(importEndCallBack) {
         $input.click();
       });
       domUtils.on($network, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         $alert.close();
         let $prompt = __pops.prompt({
           title: {
@@ -3445,9 +3362,7 @@ importRules(importEndCallBack) {
           height: "auto"
         });
         let $promptInput = $prompt.$shadowRoot.querySelector("input");
-        let $promptOk = $prompt.$shadowRoot.querySelector(
-          ".pops-prompt-btn-ok"
-        );
+        let $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
         domUtils.on($promptInput, ["input", "propertychange"], (event2) => {
           let value = domUtils.val($promptInput);
           if (value === "") {
@@ -3456,22 +3371,18 @@ importRules(importEndCallBack) {
             domUtils.removeAttr($promptOk, "disabled");
           }
         });
-        domUtils.listenKeyboard(
-          $promptInput,
-          "keydown",
-          (keyName, keyValue, otherCodeList) => {
-            if (keyName === "Enter" && otherCodeList.length === 0) {
-              let value = domUtils.val($promptInput);
-              if (value !== "") {
-                utils.dispatchEvent($promptOk, "click");
-              }
+        domUtils.listenKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
+          if (keyName === "Enter" && otherCodeList.length === 0) {
+            let value = domUtils.val($promptInput);
+            if (value !== "") {
+              domUtils.trigger($promptOk, "click");
             }
           }
-        );
-        utils.dispatchEvent($promptInput, "input");
+        });
+        domUtils.trigger($promptInput, "input");
       });
       domUtils.on($clipboard, "click", async (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         $alert.close();
         let clipboardInfo = await utils.getClipboardInfo();
         if (clipboardInfo.error != null) {
@@ -3597,12 +3508,8 @@ async showView() {
         width: typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
         height: typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh"
       });
-      let $form = $dialog.$shadowRoot.querySelector(
-        ".rule-form-container"
-      );
-      $dialog.$shadowRoot.querySelector(
-        "input[type=submit]"
-      );
+      let $form = $dialog.$shadowRoot.querySelector(".rule-form-container");
+      $dialog.$shadowRoot.querySelector("input[type=submit]");
       let $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
       let view = await this.option.getView(await this.option.data());
       $ulist.appendChild(view);
@@ -3691,12 +3598,9 @@ async showView() {
           $alert.close();
         };
         domUtils.on($button, "click", async (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           if (typeof filterOption.callback === "function") {
-            let result = await filterOption.callback(
-              event,
-              execFilterAndCloseDialog
-            );
+            let result = await filterOption.callback(event, execFilterAndCloseDialog);
             if (!result) {
               return;
             }
@@ -3981,9 +3885,7 @@ showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDa
     }
 parseViewElement($shadowRoot) {
       let $container = $shadowRoot.querySelector(".rule-view-container");
-      let $deleteBtn = $shadowRoot.querySelector(
-        ".pops-confirm-btn button.pops-confirm-btn-other"
-      );
+      let $deleteBtn = $shadowRoot.querySelector(".pops-confirm-btn button.pops-confirm-btn-other");
       return {
 $container,
 $deleteBtn
@@ -4057,7 +3959,7 @@ async createRuleItemElement(data, $shadowRoot) {
       }
       if (this.option.itemControls.edit.enable) {
         domUtils.on($edit, "click", (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           this.showEditView(true, data, $shadowRoot, $ruleItem, (newData) => {
             data = null;
             data = newData;
@@ -4068,7 +3970,7 @@ async createRuleItemElement(data, $shadowRoot) {
       }
       if (this.option.itemControls.delete.enable) {
         domUtils.on($delete, "click", (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           let $askDialog = __pops.confirm({
             title: {
               text: "提示",
@@ -4313,13 +4215,7 @@ checkInfoIsFilter(rule, info) {
                 ]);
               }
             } else {
-              log.success([
-                `视频过滤器 ==> ${filterOption.name}`,
-                transformInfo,
-                details,
-                info,
-                filterOption
-              ]);
+              log.success([`视频过滤器 ==> ${filterOption.name}`, transformInfo, details, info, filterOption]);
             }
           }
           if (flag) {
@@ -4364,18 +4260,14 @@ articleInfoMap: new Utils.Dictionary(),
       __videoFilterRuleStorage: null,
       get videoFilterRuleStorage() {
         if (this.__videoFilterRuleStorage == null) {
-          this.__videoFilterRuleStorage = new RuleStorage(
-            {
-              STORAGE_API_KEY: "xhs-article-filter-rule"
-            }
-          );
+          this.__videoFilterRuleStorage = new RuleStorage({
+            STORAGE_API_KEY: "xhs-article-filter-rule"
+          });
         }
         return this.__videoFilterRuleStorage;
       },
 get isReverse() {
-        return Panel.getValue(
-          "xhs-article-filter-only-show-filtered-video"
-        );
+        return Panel.getValue("xhs-article-filter-only-show-filtered-video");
       }
     },
     init() {
@@ -4389,26 +4281,16 @@ execFilter() {
           if (this.$data.isReverse) {
             filterTransformInfoResult.isFilter = !filterTransformInfoResult.isFilter;
             if (typeof filterTransformInfoResult.transformInfo.articleId === "string" && filterTransformInfoResult.matchedFilterOption) {
-              let filterOptionList = this.$data.isFilterAwemeInfoList.get(
-                filterTransformInfoResult.transformInfo.articleId
-              ) || [];
-              filterOptionList.push(
-                filterTransformInfoResult.matchedFilterOption
-              );
-              this.$data.isFilterAwemeInfoList.set(
-                filterTransformInfoResult.transformInfo.articleId,
-                filterOptionList
-              );
+              let filterOptionList = this.$data.isFilterAwemeInfoList.get(filterTransformInfoResult.transformInfo.articleId) || [];
+              filterOptionList.push(filterTransformInfoResult.matchedFilterOption);
+              this.$data.isFilterAwemeInfoList.set(filterTransformInfoResult.transformInfo.articleId, filterOptionList);
             }
           }
           if (typeof filterTransformInfoResult.transformInfo.articleId === "string") {
-            this.$data.articleInfoMap.set(
-              filterTransformInfoResult.transformInfo.articleId,
-              {
-                articleInfo: filterTransformInfoResult.info,
-                transformArticleInfo: filterTransformInfoResult.transformInfo
-              }
-            );
+            this.$data.articleInfoMap.set(filterTransformInfoResult.transformInfo.articleId, {
+              articleInfo: filterTransformInfoResult.info,
+              transformArticleInfo: filterTransformInfoResult.transformInfo
+            });
           }
         };
         let queryScopeFilterOptionList = (scopeName) => {
@@ -4422,9 +4304,7 @@ execFilter() {
           let scopeNameList = Array.isArray(scopeName) ? scopeName : [scopeName];
           let matchedFilterOptionList = filterOptionList.filter(
             (it) => it.enable && (it.data.scope.includes("all") || Array.from(scopeNameList).findIndex(
-              (item) => it.data.scope.includes(
-                item
-              )
+              (item) => it.data.scope.includes(item)
             ) !== -1)
           );
           return matchedFilterOptionList;
@@ -4440,10 +4320,7 @@ execFilter() {
             if (Array.isArray(items)) {
               for (let index = 0; index < items.length; index++) {
                 let awemeInfo = items[index] || {};
-                let filterResult = filterBase.checkInfoIsFilter(
-                  filterOptionList,
-                  awemeInfo
-                );
+                let filterResult = filterBase.checkInfoIsFilter(filterOptionList, awemeInfo);
                 checkFilterCallBack(filterResult);
                 if (filterResult.isFilter) {
                   filterBase.removeArticle(items, index--);
@@ -4534,30 +4411,11 @@ getRuleViewInstance() {
                 data = this.getTemplateData();
               }
               let enable_template = UISwitch("启用", "enable", true);
-              Reflect.set(
-                enable_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data)
-              );
-              let $enable = panelHandlerComponents.createSectionContainerItem_switch(
-                enable_template
-              );
-              let name_template = UIInput(
-                "规则名称",
-                "name",
-                "",
-                "",
-                void 0,
-                "必填"
-              );
-              Reflect.set(
-                name_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data)
-              );
-              let $name = panelHandlerComponents.createSectionContainerItem_input(
-                name_template
-              );
+              Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+              let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+              let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
+              Reflect.set(name_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+              let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
               let scope_template = UISelectMultiple(
                 "作用域",
                 "scope",
@@ -4581,14 +4439,8 @@ getRuleViewInstance() {
                 void 0,
                 "选择需要在xxx上生效的作用域"
               );
-              Reflect.set(
-                scope_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data.data)
-              );
-              let $scope = panelHandlerComponents.createSectionContainerItem_select_multiple_new(
-                scope_template
-              );
+              Reflect.set(scope_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
+              let $scope = panelHandlerComponents.createSectionContainerItem_select_multiple_new(scope_template);
               let keyNameHandlerInfo = [
                 "display_title",
                 "isLike",
@@ -4613,42 +4465,14 @@ getRuleViewInstance() {
                   void 0,
                   "选择需要的属性名 "
                 );
-                Reflect.set(
-                  ruleName_template.props,
-                  PROPS_STORAGE_API,
-                  generateStorageApi(storageData)
-                );
-                let $ruleName2 = panelHandlerComponents.createSectionContainerItem_select_multiple_new(
-                  ruleName_template
-                );
-                let ruleValue_template = UITextArea(
-                  "属性值",
-                  "ruleValue",
-                  "",
-                  "如果是字符串，可正则，注意转义"
-                );
-                Reflect.set(
-                  ruleValue_template.props,
-                  PROPS_STORAGE_API,
-                  generateStorageApi(storageData)
-                );
-                let $ruleValue2 = panelHandlerComponents.createSectionContainerItem_textarea(
-                  ruleValue_template
-                );
-                let remarks_template = UITextArea(
-                  "备注",
-                  "remarks",
-                  "",
-                  ""
-                );
-                Reflect.set(
-                  remarks_template.props,
-                  PROPS_STORAGE_API,
-                  generateStorageApi(storageData)
-                );
-                let $remarks2 = panelHandlerComponents.createSectionContainerItem_textarea(
-                  remarks_template
-                );
+                Reflect.set(ruleName_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
+                let $ruleName2 = panelHandlerComponents.createSectionContainerItem_select_multiple_new(ruleName_template);
+                let ruleValue_template = UITextArea("属性值", "ruleValue", "", "如果是字符串，可正则，注意转义");
+                Reflect.set(ruleValue_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
+                let $ruleValue2 = panelHandlerComponents.createSectionContainerItem_textarea(ruleValue_template);
+                let remarks_template = UITextArea("备注", "remarks", "", "");
+                Reflect.set(remarks_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
+                let $remarks2 = panelHandlerComponents.createSectionContainerItem_textarea(remarks_template);
                 return {
                   $ruleName: $ruleName2,
                   $ruleValue: $ruleValue2,
@@ -4671,12 +4495,8 @@ getRuleViewInstance() {
 							`
                 )
               });
-              let $dynamicInner = $dynamicContainer.querySelector(
-                ".rule-form-ulist-dynamic__inner"
-              );
-              let $addDynamicButton = $dynamicContainer.querySelector(
-                ".pops-panel-button"
-              );
+              let $dynamicInner = $dynamicContainer.querySelector(".rule-form-ulist-dynamic__inner");
+              let $addDynamicButton = $dynamicContainer.querySelector(".pops-panel-button");
               let addDynamicElementItem = (dynamicData = {
                 ruleName: [],
                 ruleValue: "",
@@ -4700,24 +4520,18 @@ getRuleViewInstance() {
 								`
                   )
                 });
-                let $dynamicDelete = $dynamicUListContainer.querySelector(
-                  ".dynamic-control-delete"
-                );
+                let $dynamicDelete = $dynamicUListContainer.querySelector(".dynamic-control-delete");
                 domUtils.on($dynamicDelete, "click", (event) => {
-                  utils.preventEvent(event);
+                  domUtils.preventEvent(event);
                   $dynamicUListContainer.remove();
                   if (Array.isArray(data.dynamicData)) {
-                    let findIndex = data.dynamicData.findIndex(
-                      (it) => it == dynamicData
-                    );
+                    let findIndex = data.dynamicData.findIndex((it) => it == dynamicData);
                     if (findIndex !== -1) {
                       data.dynamicData.splice(findIndex, 1);
                     }
                   }
                 });
-                let $dynamicUList = $dynamicUListContainer.querySelector(
-                  ".dynamic-forms"
-                );
+                let $dynamicUList = $dynamicUListContainer.querySelector(".dynamic-forms");
                 let {
                   $ruleName: $dynamic_ruleName,
                   $ruleValue: $dynamic_ruleValue,
@@ -4729,7 +4543,7 @@ getRuleViewInstance() {
                 $dynamicInner.appendChild($dynamicUListContainer);
               };
               domUtils.on($addDynamicButton, "click", (event) => {
-                utils.preventEvent(event);
+                domUtils.preventEvent(event);
                 addDynamicElementItem();
               });
               if (Array.isArray(data.dynamicData)) {
@@ -4751,9 +4565,7 @@ $ruleName,
               return $fragment;
             },
             onsubmit: ($form, isEdit, editData) => {
-              let $ulist_li = $form.querySelectorAll(
-                ".rule-form-ulist > li"
-              );
+              let $ulist_li = $form.querySelectorAll(".rule-form-ulist > li");
               let data = this.getTemplateData();
               if (isEdit) {
                 data.uuid = editData.uuid;
@@ -4779,9 +4591,7 @@ $ruleName,
                   log.error(`${key}不在数据中`);
                 }
               });
-              $form.querySelectorAll(
-                ".rule-form-ulist-dynamic__inner-container"
-              ).forEach(($inner) => {
+              $form.querySelectorAll(".rule-form-ulist-dynamic__inner-container").forEach(($inner) => {
                 let dynamicData = {};
                 $inner.querySelectorAll(".dynamic-forms > li").forEach(($li) => {
                   let formConfig = Reflect.get($li, "__formConfig__");
@@ -4794,10 +4604,7 @@ $ruleName,
                   }
                   let storageApi = Reflect.get($li, PROPS_STORAGE_API);
                   let key = Reflect.get(attrs, ATTRIBUTE_KEY);
-                  let defaultValue = Reflect.get(
-                    attrs,
-                    ATTRIBUTE_DEFAULT_VALUE
-                  );
+                  let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
                   let value = storageApi.get(key, defaultValue);
                   Reflect.set(dynamicData, key, value);
                 });
@@ -4953,10 +4760,10 @@ allowPCCopy() {
         "copy",
         void 0,
         function(event) {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           let selectText = _unsafeWindow.getSelection();
           if (selectText) {
-            utils.setClip(selectText.toString());
+            utils.copy(selectText.toString());
           } else {
             log.error("未选中任何内容");
           }
@@ -4974,17 +4781,14 @@ openBlankArticle() {
         "click",
         ".feeds-container .note-item",
         function(event) {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           let $click = event.target;
           let $url = $click.querySelector("a.cover[href]");
           let url = $url?.href;
           if (url) {
             log.info("跳转文章: " + url);
             let urlInstance = new URL(url);
-            urlInstance.pathname = urlInstance.pathname.replace(
-              /^\/user\/profile\/[a-z0-9A-Z]+\//i,
-              "/discovery/item/"
-            );
+            urlInstance.pathname = urlInstance.pathname.replace(/^\/user\/profile\/[a-z0-9A-Z]+\//i, "/discovery/item/");
             url = urlInstance.toString();
             window.open(url, "_blank");
           } else {
@@ -5030,18 +4834,14 @@ openBlankArticle() {
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi(
-      "select",
-      result,
-      {
-        get(key2, defaultValue2) {
-          return Panel.getValue(key2, defaultValue2);
-        },
-        set(key2, value) {
-          Panel.setValue(key2, value);
-        }
+    PanelComponents.initComponentsStorageApi("select", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
       }
-    );
+    });
     return result;
   };
   const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack, disable) {
@@ -5064,9 +4864,7 @@ openBlankArticle() {
       afterAddToUListCallBack
     };
     Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
-      result.disable = Boolean(
-        disable
-      );
+      result.disable = Boolean(disable);
     });
     return result;
   };
@@ -5162,13 +4960,7 @@ openBlankArticle() {
                     void 0,
                     "限制Toast显示的数量"
                   ),
-                  UISwitch(
-                    "逆序弹出",
-                    "qmsg-config-showreverse",
-                    false,
-                    void 0,
-                    "修改Toast弹出的顺序"
-                  )
+                  UISwitch("逆序弹出", "qmsg-config-showreverse", false, void 0, "修改Toast弹出的顺序")
                 ]
               }
             ]
@@ -5187,13 +4979,7 @@ openBlankArticle() {
                 text: "",
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "允许复制",
-                    "pc-xhs-allowCopy",
-                    true,
-                    void 0,
-                    "可以选择文字并复制"
-                  ),
+                  UISwitch("允许复制", "pc-xhs-allowCopy", true, void 0, "可以选择文字并复制"),
                   UISwitch(
                     "新标签页打开文章",
                     "pc-xhs-open-blank-article",
@@ -5239,20 +5025,8 @@ openBlankArticle() {
                 text: "",
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "【屏蔽】广告",
-                    "pc-xhs-shieldAd",
-                    true,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】登录弹窗",
-                    "pc-xhs-shield-login-dialog",
-                    true,
-                    void 0,
-                    "屏蔽会自动弹出的登录弹窗"
-                  ),
+                  UISwitch("【屏蔽】广告", "pc-xhs-shieldAd", true, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】登录弹窗", "pc-xhs-shield-login-dialog", true, void 0, "屏蔽会自动弹出的登录弹窗"),
                   UISwitch(
                     "【屏蔽】选择文字弹出的搜索提示",
                     "pc-xhs-shield-select-text-search-position",
@@ -5260,13 +5034,7 @@ openBlankArticle() {
                     void 0,
                     "屏蔽元素"
                   ),
-                  UISwitch(
-                    "【屏蔽】顶部工具栏",
-                    "pc-xhs-shield-topToolbar",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  )
+                  UISwitch("【屏蔽】顶部工具栏", "pc-xhs-shield-topToolbar", false, void 0, "屏蔽元素")
                 ]
               }
             ]
@@ -5279,13 +5047,7 @@ openBlankArticle() {
                 text: '<a href="https://greasyfork.org/zh-CN/scripts/483960-%E5%B0%8F%E7%BA%A2%E4%B9%A6%E4%BC%98%E5%8C%96#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99" target="_blank">点击查看规则</a>',
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "启用",
-                    "shieldVideo-exec-network-enable",
-                    true,
-                    void 0,
-                    "开启后以下功能才会生效"
-                  ),
+                  UISwitch("启用", "shieldVideo-exec-network-enable", true, void 0, "开启后以下功能才会生效"),
                   UISwitch(
                     "仅显示被过滤的笔记",
                     "xhs-article-filter-only-show-filtered-video",
@@ -5293,50 +5055,21 @@ openBlankArticle() {
                     void 0,
                     "只会显示过滤规则命中的笔记"
                   ),
-                  UIButton(
-                    "笔记过滤规则",
-                    "可过滤笔记",
-                    "自定义",
-                    void 0,
-                    false,
-                    false,
-                    "primary",
-                    () => {
-                      XHSArticleFilter.showView();
-                    }
-                  )
+                  UIButton("笔记过滤规则", "可过滤笔记", "自定义", void 0, false, false, "primary", () => {
+                    XHSArticleFilter.showView();
+                  })
                 ]
               },
               {
                 type: "forms",
                 text: "",
                 forms: [
-                  UIButton(
-                    "数据导入",
-                    "导入自定义规则数据",
-                    "导入",
-                    void 0,
-                    false,
-                    false,
-                    "primary",
-                    () => {
-                      XHSArticleFilter.$data.videoFilterRuleStorage.importRules();
-                    }
-                  ),
-                  UIButton(
-                    "数据导出",
-                    "导出自定义规则数据",
-                    "导出",
-                    void 0,
-                    false,
-                    false,
-                    "primary",
-                    () => {
-                      XHSArticleFilter.$data.videoFilterRuleStorage.exportRules(
-                        _SCRIPT_NAME_ + "-视频过滤规则.json"
-                      );
-                    }
-                  )
+                  UIButton("数据导入", "导入自定义规则数据", "导入", void 0, false, false, "primary", () => {
+                    XHSArticleFilter.$data.videoFilterRuleStorage.importRules();
+                  }),
+                  UIButton("数据导出", "导出自定义规则数据", "导出", void 0, false, false, "primary", () => {
+                    XHSArticleFilter.$data.videoFilterRuleStorage.exportRules(_SCRIPT_NAME_ + "-视频过滤规则.json");
+                  })
                 ]
               }
             ]
@@ -5348,15 +5081,7 @@ openBlankArticle() {
               {
                 text: "",
                 type: "forms",
-                forms: [
-                  UISwitch(
-                    "劫持Vue",
-                    "pc-xhs-hook-vue",
-                    true,
-                    void 0,
-                    "恢复__vue__属性"
-                  )
-                ]
+                forms: [UISwitch("劫持Vue", "pc-xhs-hook-vue", true, void 0, "恢复__vue__属性")]
               }
             ]
           }
@@ -5398,18 +5123,14 @@ openBlankArticle() {
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi(
-      "slider",
-      result,
-      {
-        get(key2, defaultValue2) {
-          return Panel.getValue(key2, defaultValue2);
-        },
-        set(key2, value) {
-          Panel.setValue(key2, value);
-        }
+    PanelComponents.initComponentsStorageApi("slider", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
       }
-    );
+    });
     return result;
   };
   const SettingUI_Article = {
@@ -5555,13 +5276,7 @@ openBlankArticle() {
                     void 0,
                     "限制Toast显示的数量"
                   ),
-                  UISwitch(
-                    "逆序弹出",
-                    "qmsg-config-showreverse",
-                    false,
-                    void 0,
-                    "修改Toast弹出的顺序"
-                  )
+                  UISwitch("逆序弹出", "qmsg-config-showreverse", false, void 0, "修改Toast弹出的顺序")
                 ]
               }
             ]
@@ -5580,27 +5295,9 @@ openBlankArticle() {
                 text: "",
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "【屏蔽】广告",
-                    "little-red-book-shieldAd",
-                    true,
-                    void 0,
-                    "如：App内打开"
-                  ),
-                  UISwitch(
-                    "【屏蔽】底部搜索发现",
-                    "little-red-book-shieldBottomSearchFind",
-                    true,
-                    void 0,
-                    "建议开启"
-                  ),
-                  UISwitch(
-                    "【屏蔽】底部工具栏",
-                    "little-red-book-shieldBottomToorBar",
-                    true,
-                    void 0,
-                    "建议开启"
-                  )
+                  UISwitch("【屏蔽】广告", "little-red-book-shieldAd", true, void 0, "如：App内打开"),
+                  UISwitch("【屏蔽】底部搜索发现", "little-red-book-shieldBottomSearchFind", true, void 0, "建议开启"),
+                  UISwitch("【屏蔽】底部工具栏", "little-red-book-shieldBottomToorBar", true, void 0, "建议开启")
                 ]
               }
             ]
@@ -5643,13 +5340,7 @@ openBlankArticle() {
                 text: "",
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "劫持点击事件",
-                    "little-red-book-repariClick",
-                    true,
-                    void 0,
-                    "可阻止点击跳转至下载页面"
-                  )
+                  UISwitch("劫持点击事件", "little-red-book-repariClick", true, void 0, "可阻止点击跳转至下载页面")
                 ]
               }
             ]
@@ -5681,20 +5372,8 @@ openBlankArticle() {
                     void 0,
                     "让视频描述可以滚动显示更多"
                   ),
-                  UISwitch(
-                    "【屏蔽】作者热门笔记",
-                    "little-red-book-shieldAuthorHotNote",
-                    true,
-                    void 0,
-                    "建议开启"
-                  ),
-                  UISwitch(
-                    "【屏蔽】热门推荐",
-                    "little-red-book-shieldHotRecommendNote",
-                    true,
-                    void 0,
-                    "建议开启"
-                  )
+                  UISwitch("【屏蔽】作者热门笔记", "little-red-book-shieldAuthorHotNote", true, void 0, "建议开启"),
+                  UISwitch("【屏蔽】热门推荐", "little-red-book-shieldHotRecommendNote", true, void 0, "建议开启")
                 ]
               }
             ]
@@ -5720,20 +5399,8 @@ openBlankArticle() {
                     void 0,
                     "目前仅可加载部分评论"
                   ),
-                  UISwitch(
-                    "优化图片浏览",
-                    "little-red-book-optimizeImageBrowsing",
-                    true,
-                    void 0,
-                    "更方便的浏览图片"
-                  ),
-                  UISwitch(
-                    "允许复制",
-                    "little-red-book-allowCopy",
-                    true,
-                    void 0,
-                    "可以复制笔记的内容"
-                  )
+                  UISwitch("优化图片浏览", "little-red-book-optimizeImageBrowsing", true, void 0, "更方便的浏览图片"),
+                  UISwitch("允许复制", "little-red-book-allowCopy", true, void 0, "可以复制笔记的内容")
                 ]
               }
             ]
@@ -5776,11 +5443,7 @@ openBlankArticle() {
 `
   );
   PanelContent.addContentConfig([SettingUI_Common, SettingUI_Article]);
-  PanelContent.addContentConfig([
-    MSettingUI_Common,
-    MSettingUI_Home,
-    MSettingUI_Notes
-  ]);
+  PanelContent.addContentConfig([MSettingUI_Common, MSettingUI_Home, MSettingUI_Notes]);
   const defaultMenuOption = PanelMenu.getMenuOption();
   defaultMenuOption.text = "⚙ PC-设置";
   PanelMenu.updateMenuOption(defaultMenuOption);
@@ -5813,10 +5476,7 @@ openBlankArticle() {
     },
     callback: () => {
       let allowValue = [0, 1, 2];
-      let chooseText = window.prompt(
-        "请输入当前脚本环境判定\n\n自动判断: 0\n移动端: 1\nPC端: 2",
-        "0"
-      );
+      let chooseText = window.prompt("请输入当前脚本环境判定\n\n自动判断: 0\n移动端: 1\nPC端: 2", "0");
       if (!chooseText) {
         return;
       }

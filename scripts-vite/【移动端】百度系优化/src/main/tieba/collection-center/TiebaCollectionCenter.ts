@@ -21,7 +21,7 @@ export const TiebaCollectionCenter = {
       "click",
       ".collection-center .image-card",
       (event, selectorTarget) => {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         let vueInstance = VueUtils.getVue(selectorTarget);
         if (!vueInstance) {
           Qmsg.error("获取vue实例失败", { consoleLogContent: true });

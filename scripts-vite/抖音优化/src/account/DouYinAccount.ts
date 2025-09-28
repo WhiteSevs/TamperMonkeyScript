@@ -1,4 +1,4 @@
-import { $, addStyle, log, utils } from "@/env";
+import { $, addStyle, DOMUtils, log, utils } from "@/env";
 import { DouYinElement } from "../utils/DouYinElement";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { CommonUtil } from "@components/utils/CommonUtil";
@@ -103,7 +103,7 @@ export const DouYinAccount = {
      */
     function getUserInfo(element: HTMLElement) {
       let userInfoList = [];
-      let reactInstance = utils.getReactObj(element);
+      let reactInstance = utils.getReactInstance(element);
       let reactFiber = reactInstance?.reactFiber;
       let reactProps = reactInstance?.reactProps;
       if (reactFiber?.alternate?.return?.memoizedProps?.userInfo) {
@@ -136,8 +136,7 @@ export const DouYinAccount = {
     DouYinElement.watchFeedVideoListChange(($os) => {
       setLogin($os);
     });
-    utils
-      .waitNode<HTMLDivElement>("#root div[class*='-os']", WAIT_TIME)
+    DOMUtils.waitNode<HTMLDivElement>("#root div[class*='-os']", WAIT_TIME)
       .then(() => {
         let lockFn = new utils.LockFunction(() => {
           let $os = DouYinElement.getOSElement();
@@ -162,7 +161,7 @@ export const DouYinAccount = {
     /* 直播的顶部live */
     if (DouYinRouter.isLive()) {
       log.info("伪装登录：live");
-      utils.waitNode<HTMLDivElement>(`[id^="douyin-header"] div:has(.dy-tip-container)`, WAIT_TIME).then(() => {
+      DOMUtils.waitNode<HTMLDivElement>(`[id^="douyin-header"] div:has(.dy-tip-container)`, WAIT_TIME).then(() => {
         let lockFn = new utils.LockFunction(() => {
           setLogin($<HTMLDivElement>(`[id^="douyin-header"]`)!);
         }, 70);
@@ -181,7 +180,7 @@ export const DouYinAccount = {
       /* 搜索 */
       function setUserInfoBySearch($ele: HTMLElement) {
         /* 搜索页面的用户信息 */
-        let $react = utils.getReactObj($ele);
+        let $react = utils.getReactInstance($ele);
         let reactFiber = $react?.reactFiber;
         let reactProps = $react?.reactProps;
         if (typeof reactProps?.children?.[1]?.props?.userInfo?.isLogin === "boolean") {
@@ -191,7 +190,7 @@ export const DouYinAccount = {
           Reflect.set(reactProps.children[1].props, "isClient", true);
         }
       }
-      utils.waitNode<HTMLDivElement>("#root > div", WAIT_TIME).then(($rootDiv) => {
+      DOMUtils.waitNode<HTMLDivElement>("#root > div", WAIT_TIME).then(($rootDiv) => {
         if (!$rootDiv) {
           log.error("#root > div获取失败");
           return;
@@ -230,7 +229,7 @@ export const DouYinAccount = {
             'div:has(>svg path[d="M12.7929 22.2426C12.4024 22.6331 12.4024 23.2663 12.7929 23.6568C13.1834 24.0474 13.8166 24.0474 14.2071 23.6568L18.5 19.3639L22.7929 23.6568C23.1834 24.0474 23.8166 24.0474 24.2071 23.6568C24.5976 23.2663 24.5976 22.6331 24.2071 22.2426L19.9142 17.9497L24.1066 13.7573C24.4971 13.3668 24.4971 12.7336 24.1066 12.3431C23.7161 11.9526 23.0829 11.9526 22.6924 12.3431L18.5 16.5355L14.3076 12.3431C13.9171 11.9526 13.2839 11.9526 12.8934 12.3431C12.5029 12.7336 12.5029 13.3668 12.8934 13.7573L17.0858 17.9497L12.7929 22.2426Z"])'
           );
         if ($loginDialogCloseBtn) {
-          let reactInst = utils.getReactObj($loginDialogCloseBtn);
+          let reactInst = utils.getReactInstance($loginDialogCloseBtn);
           let onClick = reactInst?.reactProps?.onClick;
           if (typeof onClick === "function") {
             onClick(new Event("click"));
@@ -246,7 +245,7 @@ export const DouYinAccount = {
       }
       let $ohterDialog = $<HTMLElement>("body > div > div:contains('为保障更好的访问体验，请在登录后继续使用抖音')");
       if ($ohterDialog) {
-        let reactInst = utils.getReactObj($ohterDialog);
+        let reactInst = utils.getReactInstance($ohterDialog);
         let onClick = reactInst?.reactProps?.onClick;
         if (typeof onClick === "function") {
           onClick(new Event("click"));

@@ -205,7 +205,7 @@ export const BilibiliUtils = {
         }
       );
       DOMUtils.remove("meta[name='viewport']");
-      utils.waitNode("head").then(() => {
+      DOMUtils.waitNode("head").then(() => {
         document.head.appendChild(meta);
       });
     });

@@ -23,7 +23,7 @@ export const MDouYinShareVideo = {
         "click",
         selector,
         (event) => {
-          return utils.preventEvent(event);
+          return DOMUtils.preventEvent(event);
         },
         {
           capture: true,

@@ -1,4 +1,4 @@
-import { addStyle, log, utils } from "@/env";
+import { addStyle, DOMUtils, log, utils } from "@/env";
 import FanYiShieldCSS from "./shield.css?raw";
 import { Panel } from "@components/setting/panel";
 import { CommonUtil } from "@components/utils/CommonUtil";
@@ -35,7 +35,7 @@ const BaiduFanYi = {
    * 自动聚焦输入框
    */
   autoFocus() {
-    utils.waitNode<HTMLTextAreaElement>("textarea#j-textarea").then(($textarea) => {
+    DOMUtils.waitNode<HTMLTextAreaElement>("textarea#j-textarea").then(($textarea) => {
       log.info("自动聚焦输入框");
       setTimeout(() => {
         $textarea.focus();

@@ -29,7 +29,7 @@ export const TiebaPCApi = {
       if (!getResponse.status) {
         break;
       }
-      let doc = DOMUtils.parseHTML(getResponse.data.responseText, true, true);
+      let doc = DOMUtils.toElement(getResponse.data.responseText, true, true);
       let linkForumInfoList = Array.from(doc.querySelectorAll(".forum_table span[balvname]"))
         .map((item) => {
           /** 吧名 */

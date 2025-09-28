@@ -67,7 +67,7 @@ export const CSDNBlog = {
       "click",
       ".hljs-button",
       function (event, selectorTarget) {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         let $click = selectorTarget;
         let $hljs = $click.closest<HTMLElement>(".hljs") || $click.closest<HTMLElement>("pre");
         let $parent = $click.parentElement as HTMLElement;
@@ -79,7 +79,7 @@ export const CSDNBlog = {
          */
         let copyText = $code.innerText;
         log.info("点击复制按钮复制内容：" + (copyText.length > 8 ? copyText.substring(0, 8) + "..." : copyText), $code);
-        utils.setClip(copyText);
+        utils.copy(copyText);
         $click.setAttribute("data-title", "复制成功");
       },
       {
@@ -108,7 +108,7 @@ export const CSDNBlog = {
       }
     );
     /* 取消Ctrl+C的禁止 */
-    utils.waitNode<HTMLDivElement>("#content_views").then(($content_views) => {
+    DOMUtils.waitNode<HTMLDivElement>("#content_views").then(($content_views) => {
       if ((unsafeWindow as any).$) {
         (unsafeWindow as any).$("#content_views")?.unbind("copy");
       }
@@ -116,11 +116,11 @@ export const CSDNBlog = {
         $content_views,
         "copy",
         function (event) {
-          utils.preventEvent(event);
+          DOMUtils.preventEvent(event);
           let selectText = unsafeWindow.getSelection()!;
           let copyText = selectText?.toString();
           log.info("Ctrl+C复制内容：" + (copyText.length > 8 ? copyText.substring(0, 8) + "..." : copyText));
-          utils.setClip(copyText);
+          utils.copy(copyText);
           return false;
         },
         {
@@ -129,7 +129,7 @@ export const CSDNBlog = {
       );
     });
     /* 删除所有复制按钮的原有的复制事件 */
-    utils.waitNode(".hljs-button").then(() => {
+    DOMUtils.waitNode(".hljs-button").then(() => {
       setTimeout(() => {
         $$<HTMLDivElement>(".hljs-button").forEach(($el) => {
           $el.removeAttribute("onclick");

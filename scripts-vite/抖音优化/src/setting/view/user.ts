@@ -23,7 +23,7 @@ export const PanelUserConfig: PopsPanelContentConfig = {
         // 	false,
         // 	"default",
         // 	async (evt) => {
-        // 		utils.preventEvent(evt);
+        // 		DOMUtils.preventEvent(evt);
         // 		let uid = prompt("请输入用户UID");
         // 		if (typeof uid !== "string") {
         // 			return;

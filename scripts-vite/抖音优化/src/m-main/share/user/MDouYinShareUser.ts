@@ -23,10 +23,10 @@ export const MDouYinShareUser = {
       "click",
       ".user-playlet-list .playlet-item",
       (event) => {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
 
         let $click = event.target as HTMLDivElement;
-        let reactFiber = utils.getReactObj($click)?.reactFiber;
+        let reactFiber = utils.getReactInstance($click)?.reactFiber;
         let key = reactFiber?.key;
         if (key == null) {
           Qmsg.error("获取视频合集key失败");
@@ -60,9 +60,9 @@ export const MDouYinShareUser = {
       "click",
       ".post-list-container .user-post-cover",
       (event) => {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         let $click = event.target as HTMLDivElement;
-        let reactFiber = utils.getReactObj($click)?.reactFiber;
+        let reactFiber = utils.getReactInstance($click)?.reactFiber;
         if (reactFiber?.return?.memoizedProps?.productionUrl) {
           let url = reactFiber?.return?.memoizedProps?.productionUrl;
           window.open(url, "_blank");

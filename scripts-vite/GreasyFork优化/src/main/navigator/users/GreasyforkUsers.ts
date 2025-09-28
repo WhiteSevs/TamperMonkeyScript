@@ -8,58 +8,58 @@ import { CommonUtil } from "@components/utils/CommonUtil";
 import { PanelUISize } from "@components/setting/panel-ui-size";
 
 export const GreasyforkUsers = {
-	init() {
-		Panel.execMenuOnce("users-changeConsoleToTopNavigator", () => {
-			this.changeConsoleToTopNavigator();
-		});
-		Panel.execMenuOnce("gf-scripts-filter-enable", () => {
-			GreasyforkScriptsFilter.init();
-		});
-		Panel.execMenuOnce("beautifyCenterContent", () => {
-			return GreasyforkScriptsList.beautifyCenterContent();
-		});
-	},
-	/**
-	 * 迁移【控制台】到顶部导航栏
-	 */
-	changeConsoleToTopNavigator() {
-		log.info("迁移【控制台】到顶部导航栏");
-		CommonUtil.addBlockCSS("#about-user");
-		DOMUtils.ready(() => {
-			let $aboutUser = $<HTMLElement>("#about-user");
-			if (!$aboutUser) {
-				log.error("#about-user元素不存在");
-				return;
-			}
-			$aboutUser = $aboutUser.cloneNode(true) as HTMLElement;
-			GreasyforkElementUtils.registerTopNavMenu({
-				name: i18next.t("控制台"),
-				className: "scripts-console",
-				clickEvent(event) {
-					let $dialog = pops.alert({
-						title: {
-							text: i18next.t("控制台"),
-							position: "center",
-						},
-						content: {
-							text: "",
-							html: true,
-						},
-						btn: {
-							ok: { enable: false },
-						},
-						mask: {
-							enable: true,
-							clickEvent: {
-								toClose: true,
-							},
-						},
-						drag: true,
-						useShadowRoot: true,
-						width: PanelUISize.setting.width,
-						height: PanelUISize.setting.height,
-						zIndex: utils.getMaxZIndex(100),
-						style: /*css*/ `
+  init() {
+    Panel.execMenuOnce("users-changeConsoleToTopNavigator", () => {
+      this.changeConsoleToTopNavigator();
+    });
+    Panel.execMenuOnce("gf-scripts-filter-enable", () => {
+      GreasyforkScriptsFilter.init();
+    });
+    Panel.execMenuOnce("beautifyCenterContent", () => {
+      return GreasyforkScriptsList.beautifyCenterContent();
+    });
+  },
+  /**
+   * 迁移【控制台】到顶部导航栏
+   */
+  changeConsoleToTopNavigator() {
+    log.info("迁移【控制台】到顶部导航栏");
+    CommonUtil.addBlockCSS("#about-user");
+    DOMUtils.ready(() => {
+      let $aboutUser = $<HTMLElement>("#about-user");
+      if (!$aboutUser) {
+        log.error("#about-user元素不存在");
+        return;
+      }
+      $aboutUser = $aboutUser.cloneNode(true) as HTMLElement;
+      GreasyforkElementUtils.registerTopNavMenu({
+        name: i18next.t("控制台"),
+        className: "scripts-console",
+        clickEvent(event) {
+          let $dialog = pops.alert({
+            title: {
+              text: i18next.t("控制台"),
+              position: "center",
+            },
+            content: {
+              text: "",
+              html: true,
+            },
+            btn: {
+              ok: { enable: false },
+            },
+            mask: {
+              enable: true,
+              clickEvent: {
+                toClose: true,
+              },
+            },
+            drag: true,
+            useShadowRoot: true,
+            width: PanelUISize.setting.width,
+            height: PanelUISize.setting.height,
+            zIndex: utils.getMaxZIndex(100),
+            style: /*css*/ `
 						#about-user{
 							border: 0;
 							box-shadow: none;
@@ -103,13 +103,11 @@ export const GreasyforkUsers = {
 							text-decoration: none;
 						}
 						`,
-					});
-					let $content = $dialog.$shadowRoot.querySelector<HTMLElement>(
-						".pops-alert-content"
-					)!;
-					$content.appendChild($aboutUser);
-				},
-			});
-		});
-	},
+          });
+          let $content = $dialog.$shadowRoot.querySelector<HTMLElement>(".pops-alert-content")!;
+          $content.appendChild($aboutUser);
+        },
+      });
+    });
+  },
 };

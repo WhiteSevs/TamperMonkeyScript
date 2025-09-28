@@ -154,7 +154,7 @@ export const TiebaUniAppPost = {
     log.info(`uni-app ===> 覆盖页面的加载更多按钮，可实现加载更多评论`);
     // 移除加载下一页的按钮
     // 某些过滤规则会过滤掉该按钮
-    utils.waitNode<HTMLElement>("uni-app .load-more.wake-app", 10000).then(($el) => {
+    DOMUtils.waitNode<HTMLElement>("uni-app .load-more.wake-app", 10000).then(($el) => {
       if (!$el) {
         return;
       }
@@ -165,7 +165,7 @@ export const TiebaUniAppPost = {
       "click",
       "uni-app .load-more",
       (event) => {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         let $loadMore = event.target;
         let vue3Ins = VueUtils.getVue3($loadMore);
         let vue2Ins = VueUtils.getVue($loadMore);
@@ -215,9 +215,9 @@ export const TiebaUniAppPost = {
       }
     );
     DOMUtils.ready(() => {
-      utils.waitNode("uni-app .load-more", 10000).then(($loadMore) => {
+      DOMUtils.waitNode("uni-app .load-more", 10000).then(($loadMore) => {
         // 主动触发一次滚动事件
-        utils.dispatchEvent(document, "scroll");
+        DOMUtils.trigger(document, "scroll");
       });
     });
   },
@@ -259,7 +259,7 @@ export const TiebaUniAppPost = {
       "click",
       ".pic-popup-guide-thread-wrapper .thread-guide-item-wake",
       (event) => {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         let $click = event.target as HTMLDivElement;
         let vue2Ins = VueUtils.getVue($click)!;
         let vue3Ins = VueUtils.getVue3($click);
@@ -283,7 +283,7 @@ export const TiebaUniAppPost = {
   repairClickToUserHome() {
     log.info(`uni-app ===> 修复点击进入用户主页（包括用户头像、用户名）`);
     DOMUtils.on(document, "click", ".player-line-left", (event, selectorTarget) => {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       let $click = selectorTarget!;
       let vue3Ins = VueUtils.getVue3($click);
       if (typeof vue3Ins?.props?.playerInfo?.portrait === "string") {
@@ -341,7 +341,7 @@ export const TiebaUniAppPost = {
             }
           }
         }
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
       },
       {
         capture: true,
@@ -360,7 +360,7 @@ export const TiebaUniAppPost = {
       GM_setValue(KEY, chooseSortText);
       log.info(`切换评论排序：${chooseSortText}`);
     });
-    utils.waitNode("uni-view.reply-top .switch-tab .tab-item", 10000).then(($tabItem) => {
+    DOMUtils.waitNode("uni-view.reply-top .switch-tab .tab-item", 10000).then(($tabItem) => {
       if (!$tabItem) {
         return;
       }
@@ -510,7 +510,7 @@ export const TiebaUniAppPost = {
       if ($parent.localName === "uni-image" && $parent.classList.contains("pb-image")) {
         // <uni-app>内的图片
         gestureBack.enterGestureBackMode();
-        utils.waitNode(".img-preview .back-icon-con", 10000).then(($backIcon) => {
+        DOMUtils.waitNode(".img-preview .back-icon-con", 10000).then(($backIcon) => {
           if (!$backIcon) {
             return;
           }
@@ -581,7 +581,7 @@ export const TiebaUniAppPost = {
 				}
 				`);
     };
-    utils.waitNode(".nav-bar .nav-bar-forum-info", 10000).then(($navBarForumInfo) => {
+    DOMUtils.waitNode(".nav-bar .nav-bar-forum-info", 10000).then(($navBarForumInfo) => {
       if (!$navBarForumInfo) {
         return;
       }
@@ -605,7 +605,7 @@ export const TiebaUniAppPost = {
         let $click = event.composedPath()[0] as HTMLElement;
         if ($click.nodeType === Node.ELEMENT_NODE && $click.classList) {
           if ($click.classList.contains("pb-link")) {
-            utils.preventEvent(event);
+            DOMUtils.preventEvent(event);
             let vue3Ins = VueUtils.getVue3($click);
             let vue2Ins = VueUtils.getVue($click)!;
             let link: string | null = vue3Ins?.props?.content?.link || vue2Ins?.content?.link;
@@ -649,7 +649,7 @@ export const TiebaUniAppPost = {
               }
             }
           } else if ($click.classList.contains("pb-at")) {
-            utils.preventEvent(event);
+            DOMUtils.preventEvent(event);
             log.info("点击@");
             let vue3Ins = VueUtils.getVue3($click);
             let vueIns = VueUtils.getVue($click);

@@ -1,50 +1,50 @@
 ul.history_versions,
 ul.history_versions li {
-	width: 100%;
+  width: 100%;
 }
 ul.history_versions li {
-	display: flex;
-	flex-direction: column;
-	margin: 25px 0px;
+  display: flex;
+  flex-direction: column;
+  margin: 25px 0px;
 }
 .diff-controls input[type="radio"]:nth-child(2) {
-	margin-left: 5px;
+  margin-left: 5px;
 }
 .flex-align-item-center {
-	display: flex;
-	align-items: center;
+  display: flex;
+  align-items: center;
 }
 .script-tag {
-	margin-bottom: 8px;
+  margin-bottom: 8px;
 }
 .script-tag-version a {
-	color: #656d76;
-	fill: #656d76;
-	text-decoration: none;
-	width: fit-content;
-	width: -moz-fit-content;
+  color: #656d76;
+  fill: #656d76;
+  text-decoration: none;
+  width: fit-content;
+  width: -moz-fit-content;
 }
 .script-tag-version a:hover svg {
-	color: #00a3f5;
-	fill: #00a3f5;
+  color: #00a3f5;
+  fill: #00a3f5;
 }
 .script-tag-version a > span {
-	margin-left: 0.25rem;
+  margin-left: 0.25rem;
 }
 .script-note-box-body {
-	border-radius: 0.375rem;
-	border-style: solid;
-	border-width: max(1px, 0.0625rem);
-	border-color: #d0d7de;
-	color: #1f2328;
-	padding: 16px;
-	overflow-wrap: anywhere;
+  border-radius: 0.375rem;
+  border-style: solid;
+  border-width: max(1px, 0.0625rem);
+  border-color: #d0d7de;
+  color: #1f2328;
+  padding: 16px;
+  overflow-wrap: anywhere;
 }
 .script-note-box-body p {
-	margin-bottom: unset;
+  margin-bottom: unset;
 }
 
 /* 安装按钮 */
 .install-link {
-	border-radius: 0.25rem 0.25rem 0.25rem 0.25rem !important;
+  border-radius: 0.25rem 0.25rem 0.25rem 0.25rem !important;
 }

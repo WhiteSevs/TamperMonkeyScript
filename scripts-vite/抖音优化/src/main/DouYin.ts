@@ -97,20 +97,18 @@ export const DouYin = {
    * 移除ads
    */
   removeAds() {
-    utils
-      .waitNode<HTMLElement>(
-        () =>
-          DOMUtils.selector<HTMLElement>(
-            '#douyin-navigation [data-e2e="douyin-navigation"] > div > div > div:regexp("下载抖音精选|条条都是宝藏视频")'
-          ),
-        10000
-      )
-      .then(($el) => {
-        if (!$el) {
-          return;
-        }
-        DOMUtils.remove($el);
-      });
+    DOMUtils.waitNode<HTMLElement>(
+      () =>
+        DOMUtils.selector<HTMLElement>(
+          '#douyin-navigation [data-e2e="douyin-navigation"] > div > div > div:regexp("下载抖音精选|条条都是宝藏视频")'
+        ),
+      10000
+    ).then(($el) => {
+      if (!$el) {
+        return;
+      }
+      DOMUtils.remove($el);
+    });
     return [addStyle(blockCSS)];
   },
   /**
@@ -128,7 +126,7 @@ export const DouYin = {
         }
       );
       DOMUtils.remove("meta[name='viewport']");
-      utils.waitNode("head").then(() => {
+      DOMUtils.waitNode("head").then(() => {
         document.head.appendChild(meta);
       });
     });
@@ -137,7 +135,7 @@ export const DouYin = {
    * 移除<meta>标签name="apple-itunes-app"
    */
   removeMetaAppleItunesApp() {
-    utils.waitNodeList<NodeListOf<HTMLMeterElement>>(['meta[name="apple-itunes-app"]'], 10000).then(($metaList) => {
+    DOMUtils.waitNodeList<NodeListOf<HTMLMeterElement>>(['meta[name="apple-itunes-app"]'], 10000).then(($metaList) => {
       if (!$metaList) {
         return;
       }
@@ -177,7 +175,7 @@ export const DouYin = {
         'a[href*="douyin.com/search/"]',
       ],
       (evt, selectorTarget) => {
-        utils.preventEvent(evt);
+        DOMUtils.preventEvent(evt);
         const $click = evt.composedPath()[0] as HTMLElement;
         let url: string | undefined;
         if (selectorTarget instanceof HTMLAnchorElement) {

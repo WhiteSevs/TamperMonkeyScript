@@ -1,48 +1,47 @@
 input[type="search"],
 input[type="text"],
 input[type="password"] {
-	justify-content: center;
-	align-items: center;
-	/* line-height: 1; */
-	/* height: 32px; */
-	white-space: nowrap;
-	cursor: text;
-	text-align: center;
-	box-sizing: border-box;
-	outline: 0;
-	transition: 0.1s;
-	/* font-weight: 500; */
-	user-select: none;
-	-webkit-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	vertical-align: middle;
-	-webkit-appearance: none;
-	appearance: none;
-	background-color: transparent;
-	border: 0;
-	padding: 8px 8px;
-	/* font-size: 14px; */
-	text-align: start;
-	/* width: 100%; */
-	flex: 1;
-	border: 1px solid #dcdfe6;
-	border-radius: 4px;
+  justify-content: center;
+  align-items: center;
+  /* line-height: 1; */
+  /* height: 32px; */
+  white-space: nowrap;
+  cursor: text;
+  text-align: center;
+  box-sizing: border-box;
+  outline: 0;
+  transition: 0.1s;
+  /* font-weight: 500; */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  vertical-align: middle;
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: transparent;
+  border: 0;
+  padding: 8px 8px;
+  /* font-size: 14px; */
+  text-align: start;
+  /* width: 100%; */
+  flex: 1;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
 }
 input[type="search"]:hover,
 input[type="text"]:hover,
 input[type="password"]:hover {
-	box-shadow: 0 0 0 1px #c0c4cc;
+  box-shadow: 0 0 0 1px #c0c4cc;
 }
 input[type="search"]:focus,
 input[type="text"]:focus,
 input[type="password"]:focus {
-	outline: 0;
-	border: 1px solid #409eff;
-	border-radius: 4px;
-	box-shadow: none;
+  outline: 0;
+  border: 1px solid #409eff;
+  border-radius: 4px;
+  box-shadow: none;
 }
 
 @media (prefers-color-scheme: dark) {
-	
 }

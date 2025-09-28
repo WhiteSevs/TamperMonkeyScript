@@ -1,118 +1,118 @@
 #language-selector {
-	display: none;
+  display: none;
 }
 /* PC端 */
 @media screen and (min-width: 600px) {
-	body {
-		--header-height: 50px;
-		--el-gap: 20px;
-	}
+  body {
+    --header-height: 50px;
+    --el-gap: 20px;
+  }
 
-	header#main-header {
-		height: var(--header-height);
-		position: fixed;
-		top: 0;
-		width: 100%;
-		z-index: 55555;
-		padding: unset;
-		display: flex;
-		justify-content: space-around;
-	}
+  header#main-header {
+    height: var(--header-height);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 55555;
+    padding: unset;
+    display: flex;
+    justify-content: space-around;
+  }
 
-	body > .width-constraint {
-		margin-top: calc(var(--header-height) + 35px);
-	}
+  body > .width-constraint {
+    margin-top: calc(var(--header-height) + 35px);
+  }
 
-	header#main-header .width-constraint {
-		display: flex;
-		align-items: center;
-		gap: var(--el-gap);
-		padding: unset;
-		margin: unset;
-		max-width: unset;
-	}
+  header#main-header .width-constraint {
+    display: flex;
+    align-items: center;
+    gap: var(--el-gap);
+    padding: unset;
+    margin: unset;
+    max-width: unset;
+  }
 
-	header#main-header a {
-		text-decoration: none;
-		text-wrap: nowrap;
-	}
+  header#main-header a {
+    text-decoration: none;
+    text-wrap: nowrap;
+  }
 
-	header#main-header .sign-out-link a {
-		text-decoration: underline;
-	}
+  header#main-header .sign-out-link a {
+    text-decoration: underline;
+  }
 
-	header#main-header #site-name {
-		display: flex;
-		align-items: center;
-	}
+  header#main-header #site-name {
+    display: flex;
+    align-items: center;
+  }
 
-	header#main-header #site-name img {
-		width: calc(var(--header-height) - 5px);
-		height: calc(var(--header-height) - 5px);
-	}
+  header#main-header #site-name img {
+    width: calc(var(--header-height) - 5px);
+    height: calc(var(--header-height) - 5px);
+  }
 
-	/* 隐藏Greasyfork文字 */
-	header#main-header #site-name-text {
-		display: none;
-	}
+  /* 隐藏Greasyfork文字 */
+  header#main-header #site-name-text {
+    display: none;
+  }
 
-	header#main-header #site-nav {
-		display: flex;
-		flex-direction: row-reverse;
-		align-items: center;
-		flex: 1;
-		justify-content: space-between;
-		height: 100%;
-		gap: var(--el-gap);
-	}
+  header#main-header #site-nav {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    flex: 1;
+    justify-content: space-between;
+    height: 100%;
+    gap: var(--el-gap);
+  }
 
-	header#main-header #site-nav nav li {
-		padding: 0 0.5em;
-		display: flex;
-		align-items: center;
-		height: var(--header-height);
-		min-width: 30px;
-		justify-content: center;
-	}
+  header#main-header #site-nav nav li {
+    padding: 0 0.5em;
+    display: flex;
+    align-items: center;
+    height: var(--header-height);
+    min-width: 30px;
+    justify-content: center;
+  }
 
-	header#main-header #site-nav nav li:hover {
-		background: #5f0101;
-	}
+  header#main-header #site-nav nav li:hover {
+    background: #5f0101;
+  }
 
-	header#main-header #nav-user-info {
-		max-width: 150px;
-	}
+  header#main-header #nav-user-info {
+    max-width: 150px;
+  }
 
-	header#main-header #nav-user-info > span {
-		/*flex: 1;*/
-		flex: 1 0 auto;
-	}
+  header#main-header #nav-user-info > span {
+    /*flex: 1;*/
+    flex: 1 0 auto;
+  }
 
-	header#main-header #nav-user-info,
-	header#main-header #nav-user-info + nav {
-		position: unset;
-		width: unset;
-		display: flex;
-		flex-wrap: nowrap;
-		align-items: center;
-	}
+  header#main-header #nav-user-info,
+  header#main-header #nav-user-info + nav {
+    position: unset;
+    width: unset;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+  }
 }
 /* mobile端 */
 @media screen and (max-width: 600px) {
-	header#main-header #site-name-text h1 {
-		line-height: normal;
-		padding-bottom: 0;
-	}
-	/* 美化移动端顶部导航栏的更多 */
-	#mobile-nav nav {
-		font-size: 1rem !important;
-	}
-	/* 添加鼠标悬浮效果 */
-	#mobile-nav nav li:hover {
-		background: #840404;
-	}
-	/* 去除链接下划线 */
-	#mobile-nav nav li a {
-		text-decoration: none;
-	}
+  header#main-header #site-name-text h1 {
+    line-height: normal;
+    padding-bottom: 0;
+  }
+  /* 美化移动端顶部导航栏的更多 */
+  #mobile-nav nav {
+    font-size: 1rem !important;
+  }
+  /* 添加鼠标悬浮效果 */
+  #mobile-nav nav li:hover {
+    background: #840404;
+  }
+  /* 去除链接下划线 */
+  #mobile-nav nav li a {
+    text-decoration: none;
+  }
 }

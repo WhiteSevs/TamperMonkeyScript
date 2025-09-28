@@ -176,7 +176,7 @@ export const M_CSDNBlogArticle = {
       });
     }
     let lockFunction = new utils.LockFunction(refactoring, 50);
-    utils.waitNode<HTMLDivElement>("#recommend").then(($recommend) => {
+    DOMUtils.waitNode<HTMLDivElement>("#recommend").then(($recommend) => {
       log.info("重构底部推荐");
       lockFunction.run();
       utils.mutationObserver($recommend, {
@@ -297,7 +297,7 @@ export const M_CSDNBlogArticle = {
   optimizationCollectButton() {
     log.info(`优化收藏按钮`);
 
-    utils.waitNode<HTMLElement>("#operate .collect-btn", 10000).then(($collectBtn) => {
+    DOMUtils.waitNode<HTMLElement>("#operate .collect-btn", 10000).then(($collectBtn) => {
       if (!$collectBtn) {
         return;
       }
@@ -307,7 +307,7 @@ export const M_CSDNBlogArticle = {
         $collectBtn,
         "click",
         async (event) => {
-          utils.preventEvent(event);
+          DOMUtils.preventEvent(event);
           let $isCollect = $collectBtn.querySelector<HTMLElement>(".collect")!;
           let $unCollect = $collectBtn.querySelector<HTMLElement>(".uncollect")!;
           // 获取收藏夹信息

@@ -5,20 +5,20 @@ const _SCRIPT_NAME_ = SCRIPT_NAME || "网页调试";
 const unsafeWin = unsafeWindow;
 const console = unsafeWin.console;
 /** 复制 */
-const copy = GM_setClipboard || utils.setClip.bind(utils);
+const copy = GM_setClipboard || utils.copy.bind(utils);
 
 export { _SCRIPT_NAME_ as SCRIPT_NAME, unsafeWin, console, copy };
 export {
-	utils,
-	DOMUtils,
-	log,
-	GM_Menu,
-	httpx,
-	addStyle,
-	pops,
-	$,
-	$$,
-	MountVue,
-	VUE_ELE_NAME_ID,
-	cookieManager,
+  utils,
+  DOMUtils,
+  log,
+  GM_Menu,
+  httpx,
+  addStyle,
+  pops,
+  $,
+  $$,
+  MountVue,
+  VUE_ELE_NAME_ID,
+  cookieManager,
 } from "@components/base.env";

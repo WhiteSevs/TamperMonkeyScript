@@ -65,7 +65,7 @@ export const BaiduSearchVSearch = {
       });
     }
 
-    utils.waitNode<HTMLDivElement>("#realtime-container .c-infinite-scroll").then((element) => {
+    DOMUtils.waitNode<HTMLDivElement>("#realtime-container .c-infinite-scroll").then((element) => {
       let replaceVSearchLinkLonkFunction = new utils.LockFunction(replaceLink, 600);
       utils.mutationObserver(element, {
         config: {

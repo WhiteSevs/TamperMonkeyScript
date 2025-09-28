@@ -91,7 +91,7 @@ export const Toast = {
         $closeBtn,
         "click",
         (event) => {
-          utils.preventEvent(event);
+          DOMUtils.preventEvent(event);
           this.closeToast($toast);
         },
         {
@@ -123,7 +123,7 @@ export const Toast = {
         "click",
         (event) => {
           if (typeof config.jumpClickCallback === "function") {
-            utils.preventEvent(event);
+            DOMUtils.preventEvent(event);
             config.jumpClickCallback(event);
           }
         },

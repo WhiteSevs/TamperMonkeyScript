@@ -61,7 +61,7 @@ export const DouYinMessageFilter = {
     for (let index = 0; index < messageQueue.length; index++) {
       let $danmu = messageQueue[index];
       // 获取消息对象
-      let react = utils.getReactObj($danmu);
+      let react = utils.getReactInstance($danmu);
       let messageIns =
         react?.reactFiber?.return?.memoizedProps?.message ||
         react?.reactFiber?.memoizedProps?.children?.props?.children?.props?.message ||

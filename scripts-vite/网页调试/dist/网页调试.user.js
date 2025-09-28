@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网页调试
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.14
+// @version      2025.9.28
 // @author       WhiteSevs
 // @description  内置多种网页调试工具，包括：Eruda、vConsole、PageSpy、Chii，可在设置菜单中进行详细配置
 // @license      GPL-3.0-only
@@ -12,10 +12,10 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@734ba267afee2a5995d15dc419e754a19532cbf4/lib/Eruda/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@9f63667d501ec8df5bdb4af680f37793f393754f/lib/VConsole/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@b2f37e0ef04aafbccbdbd52733f795c2076acd87/lib/PageSpy/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.8.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.4.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @resource     Resource_erudaBenchmark       https://fastly.jsdelivr.net/npm/eruda-benchmark@2.0.1
 // @resource     Resource_erudaCode            https://fastly.jsdelivr.net/npm/eruda-code@2.2.0
 // @resource     Resource_erudaFeatures        https://fastly.jsdelivr.net/npm/eruda-features@2.1.0
@@ -62,7 +62,7 @@ waitRemove(...args) {
         if (typeof selector !== "string") {
           return;
         }
-        utils.waitNodeList(selector).then((nodeList) => {
+        DOMUtils.waitNodeList(selector).then((nodeList) => {
           nodeList.forEach(($el) => $el.remove());
         });
       });
@@ -133,6 +133,9 @@ async loadScript(url) {
     },
 fixUrl(url) {
       url = url.trim();
+      if (url.startsWith("data:")) {
+        return url;
+      }
       if (url.match(/^http(s|):\/\//i)) {
         return url;
       } else if (url.startsWith("//")) {
@@ -156,9 +159,13 @@ fixHttps(url) {
       if (!url.startsWith("http://")) {
         return url;
       }
-      let urlInstance = new URL(url);
-      urlInstance.protocol = "https:";
-      return urlInstance.toString();
+      try {
+        let urlInstance = new URL(url);
+        urlInstance.protocol = "https:";
+        return urlInstance.toString();
+      } catch {
+        return url;
+      }
     },
 lockScroll(...args) {
       let $hidden = document.createElement("style");
@@ -287,16 +294,13 @@ qmsg_config_showreverse: {
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
   const __pops = pops;
-  const log = new utils.Log(
-    _GM_info,
-    _unsafeWindow.console || _monkeyWindow.console
-  );
+  const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
   let SCRIPT_NAME = _GM_info?.script?.name || void 0;
   pops.config.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
-    debug: DEBUG,
-    logMaxCount: 1e3,
+    debug: false,
+    logMaxCount: 250,
     autoClearConsole: true,
     tag: true
   });
@@ -404,7 +408,7 @@ clickEvent: {
     },
     setTimeout: _unsafeWindow.setTimeout
   });
-  const addStyle = utils.addStyle.bind(utils);
+  const addStyle = domUtils.addStyle.bind(domUtils);
   DOMUtils.selector.bind(DOMUtils);
   DOMUtils.selectorAll.bind(DOMUtils);
   new utils.GM_Cookie();
@@ -516,9 +520,7 @@ keys() {
     }
 values() {
       let localValue = this.getLocalValue();
-      return Reflect.ownKeys(localValue).map(
-        (key) => Reflect.get(localValue, key)
-      );
+      return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
     }
 clear() {
       _GM_deleteValue(this.storageKey);
@@ -795,6 +797,9 @@ setDefaultValue(key, defaultValue) {
         log.warn("请检查该key(已存在): " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
+    },
+getDefaultValue(key) {
+      return this.$data.contentConfigInitDefaultValue.get(key);
     },
 setValue(key, value) {
       PopsPanelStorageApi.set(key, value);
@@ -1116,7 +1121,7 @@ threshold: 1
         $el.classList.add(flashingClassName);
       };
       let dbclick_event = (evt, selectorTarget) => {
-        utils.preventEvent(evt);
+        domUtils.preventEvent(evt);
         let $alert = __pops.alert({
           title: {
             text: "搜索配置",
@@ -1232,7 +1237,7 @@ threshold: 1
             $targetAsideItem.click();
             asyncQueryProperty(pathInfo.next, async (target) => {
               if (target?.next) {
-                let $findDeepMenu = await utils.waitNode(() => {
+                let $findDeepMenu = await domUtils.waitNode(() => {
                   return Array.from(
                     $panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")
                   ).find(($deepMenu) => {
@@ -1254,7 +1259,7 @@ threshold: 1
                   data: target.next
                 };
               } else {
-                let $findTargetMenu = await utils.waitNode(() => {
+                let $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from(
                     $panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)
                   ).find(($menuItem) => {
@@ -1404,7 +1409,7 @@ threshold: 1
           $searchInput,
           "input",
           utils.debounce((evt2) => {
-            utils.preventEvent(evt2);
+            domUtils.preventEvent(evt2);
             let searchText = domUtils.val($searchInput).trim();
             if (searchText === "") {
               clearSearchResult();
@@ -1487,7 +1492,7 @@ transformKey(key) {
   };
   const unsafeWin = _unsafeWindow;
   const console = unsafeWin.console;
-  const copy = _GM_setClipboard || utils.setClip.bind(utils);
+  const copy = _GM_setClipboard || utils.copy.bind(utils);
   const WebSiteDebugUtil = {
 evalPlugin: (...args) => {
       if (args.length === 0) {
@@ -1834,11 +1839,7 @@ defaultConfig: {
     console.log("eruda的全局变量名: Eruda");
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaMonitor.key)) {
       try {
-        WebSiteDebugUtil.evalPlugin(
-          _GM_getResourceText(
-            GlobalSettingConfig.eruda_plugin_Resource_erudaMonitor.resource
-          )
-        );
+        WebSiteDebugUtil.evalPlugin(_GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaMonitor.resource));
         Eruda2.add(erudaMonitor);
       } catch (error) {
         console.error("插件【eruda-monitor】加载失败，原因：", error);
@@ -1846,11 +1847,7 @@ defaultConfig: {
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaFeatures.key)) {
       try {
-        WebSiteDebugUtil.evalPlugin(
-          _GM_getResourceText(
-            GlobalSettingConfig.eruda_plugin_Resource_erudaFeatures.resource
-          )
-        );
+        WebSiteDebugUtil.evalPlugin(_GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaFeatures.resource));
         Eruda2.add(erudaFeatures);
       } catch (error) {
         console.error("插件【eruda-features】加载失败，原因：", error);
@@ -1858,11 +1855,7 @@ defaultConfig: {
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaTiming.key)) {
       try {
-        WebSiteDebugUtil.evalPlugin(
-          _GM_getResourceText(
-            GlobalSettingConfig.eruda_plugin_Resource_erudaTiming.resource
-          )
-        );
+        WebSiteDebugUtil.evalPlugin(_GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaTiming.resource));
         Eruda2.add(erudaTiming);
       } catch (error) {
         console.error("插件【eruda-timing】加载失败，原因：", error);
@@ -1870,11 +1863,7 @@ defaultConfig: {
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaCode.key)) {
       try {
-        WebSiteDebugUtil.evalPlugin(
-          _GM_getResourceText(
-            GlobalSettingConfig.eruda_plugin_Resource_erudaCode.resource
-          )
-        );
+        WebSiteDebugUtil.evalPlugin(_GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaCode.resource));
         Eruda2.add(erudaCode);
       } catch (error) {
         console.error("插件【eruda-code】加载失败，原因：", error);
@@ -1883,37 +1872,27 @@ defaultConfig: {
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaBenchmark.key)) {
       try {
         WebSiteDebugUtil.evalPlugin(
-          _GM_getResourceText(
-            GlobalSettingConfig.eruda_plugin_Resource_erudaBenchmark.resource
-          )
+          _GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaBenchmark.resource)
         );
         Eruda2.add(erudaBenchmark);
       } catch (error) {
         console.error("插件【eruda-benchmark】加载失败，原因：", error);
       }
     }
-    if (Panel.getValue(
-      GlobalSettingConfig.eruda_plugin_Resource_erudaGeolocation.key
-    )) {
+    if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaGeolocation.key)) {
       try {
         WebSiteDebugUtil.evalPlugin(
-          _GM_getResourceText(
-            GlobalSettingConfig.eruda_plugin_Resource_erudaGeolocation.resource
-          )
+          _GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaGeolocation.resource)
         );
         Eruda2.add(erudaGeolocation);
       } catch (error) {
         console.error("插件【eruda-geolocation】加载失败，原因：", error);
       }
     }
-    if (Panel.getValue(
-      GlobalSettingConfig.eruda_plugin_Resource_erudaOrientation.key
-    )) {
+    if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaOrientation.key)) {
       try {
         WebSiteDebugUtil.evalPlugin(
-          _GM_getResourceText(
-            GlobalSettingConfig.eruda_plugin_Resource_erudaOrientation.resource
-          )
+          _GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaOrientation.resource)
         );
         Eruda2.add(erudaOrientation);
       } catch (error) {
@@ -1922,24 +1901,16 @@ defaultConfig: {
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaTouches.key)) {
       try {
-        WebSiteDebugUtil.evalPlugin(
-          _GM_getResourceText(
-            GlobalSettingConfig.eruda_plugin_Resource_erudaTouches.resource
-          )
-        );
+        WebSiteDebugUtil.evalPlugin(_GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaTouches.resource));
         Eruda2.add(erudaTouches);
       } catch (error) {
         console.error("插件【eruda-touches】加载失败，原因：", error);
       }
     }
-    if (Panel.getValue(
-      GlobalSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.key
-    )) {
+    if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.key)) {
       try {
         WebSiteDebugUtil.evalPlugin(
-          _GM_getResourceText(
-            GlobalSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.resource
-          )
+          _GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.resource)
         );
         Eruda2.add(erudaOutlinePlugin);
       } catch (error) {
@@ -1948,11 +1919,7 @@ defaultConfig: {
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaPixel.key)) {
       try {
-        WebSiteDebugUtil.evalPlugin(
-          _GM_getResourceText(
-            GlobalSettingConfig.eruda_plugin_Resource_erudaPixel.resource
-          )
-        );
+        WebSiteDebugUtil.evalPlugin(_GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaPixel.resource));
         Eruda2.add(erudaPixel);
       } catch (error) {
         console.error("插件【eruda-pixel】加载失败，原因：", error);
@@ -1960,11 +1927,7 @@ defaultConfig: {
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaVue.key)) {
       try {
-        WebSiteDebugUtil.evalPlugin(
-          _GM_getResourceText(
-            GlobalSettingConfig.eruda_plugin_Resource_erudaVue.resource
-          )
-        );
+        WebSiteDebugUtil.evalPlugin(_GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaVue.resource));
         Eruda2.add(erudaVue);
       } catch (error) {
         console.error("插件【eruda-vue】加载失败，原因：", error);
@@ -2056,10 +2019,7 @@ defaultConfig: {
             frames = 0;
             if (memPanel) {
               var memory = performance.memory;
-              memPanel.update(
-                memory.usedJSHeapSize / 1048576,
-                memory.jsHeapSizeLimit / 1048576
-              );
+              memPanel.update(memory.usedJSHeapSize / 1048576, memory.jsHeapSizeLimit / 1048576);
             }
           }
           return time;
@@ -2099,11 +2059,7 @@ domElement: container,
           context.globalAlpha = 1;
           context.fillRect(0, 0, WIDTH, GRAPH_Y);
           context.fillStyle = fg;
-          context.fillText(
-            round(value) + " " + name + " (" + round(min) + "-" + round(max) + ")",
-            TEXT_X,
-            TEXT_Y
-          );
+          context.fillText(round(value) + " " + name + " (" + round(min) + "-" + round(max) + ")", TEXT_X, TEXT_Y);
           context.drawImage(
             canvas,
             GRAPH_X + PR,
@@ -2118,12 +2074,7 @@ domElement: container,
           context.fillRect(GRAPH_X + GRAPH_WIDTH - PR, GRAPH_Y, PR, GRAPH_HEIGHT);
           context.fillStyle = bg;
           context.globalAlpha = 0.9;
-          context.fillRect(
-            GRAPH_X + GRAPH_WIDTH - PR,
-            GRAPH_Y,
-            PR,
-            round((1 - value / maxValue) * GRAPH_HEIGHT)
-          );
+          context.fillRect(GRAPH_X + GRAPH_WIDTH - PR, GRAPH_Y, PR, round((1 - value / maxValue) * GRAPH_HEIGHT));
         }
       };
     };
@@ -2150,9 +2101,7 @@ domElement: container,
               const currentType = event.target.dataset.type;
               if (currentType.toString() === "2" &&
 !(self.performance && self.performance.memory)) {
-                console.error(
-                  "浏览器不支持window.performance或者window.performance.memory"
-                );
+                console.error("浏览器不支持window.performance或者window.performance.memory");
                 return;
               }
               this.changePanel(currentType);
@@ -2281,10 +2230,7 @@ domElement: container,
         return this.init();
       }
       init() {
-        const vConsoleExportLogs = new this.VConsole.VConsolePlugin(
-          "exportLog",
-          "exportLog"
-        );
+        const vConsoleExportLogs = new this.VConsole.VConsolePlugin("exportLog", "exportLog");
         vConsoleExportLogs.on("ready", () => {
           console.log("[vConsole-exportlog-plugin] -- load");
         });
@@ -2332,14 +2278,11 @@ domElement: container,
       };
       export = () => {
         let logText = this.getAllLogContent();
-        this.funDownload(
-          logText,
-          `${( new Date()).toLocaleDateString() + " " + ( new Date()).toLocaleTimeString()}.log`
-        );
+        this.funDownload(logText, `${( new Date()).toLocaleDateString() + " " + ( new Date()).toLocaleTimeString()}.log`);
       };
       copyText = () => {
         let logText = this.getAllLogContent();
-        utils.setClip(logText);
+        utils.copy(logText);
       };
     }
     return new VConsoleOutputLogsPlugin(vConsole2, VConsole);
@@ -2445,10 +2388,7 @@ domElement: container,
     }
   };
   const PageSpy = () => {
-    let api = Panel.getValue(
-      GlobalSettingConfig.pagespy_api.key,
-      GlobalSettingConfig.pagespy_api.defaultValue
-    );
+    let api = Panel.getValue(GlobalSettingConfig.pagespy_api.key, GlobalSettingConfig.pagespy_api.defaultValue);
     let clientOrigin = Panel.getValue(
       GlobalSettingConfig.pagespy_clientOrigin.key,
       GlobalSettingConfig.pagespy_clientOrigin.defaultValue
@@ -2475,15 +2415,9 @@ domElement: container,
 
 api,
       clientOrigin,
-project: Panel.getValue(
-        GlobalSettingConfig.pagespy_project.key,
-        GlobalSettingConfig.pagespy_project.defaultValue
-      ),
+project: Panel.getValue(GlobalSettingConfig.pagespy_project.key, GlobalSettingConfig.pagespy_project.defaultValue),
 
-title: Panel.getValue(
-        GlobalSettingConfig.pagespy_title.key,
-        GlobalSettingConfig.pagespy_title.defaultValue
-      ),
+title: Panel.getValue(GlobalSettingConfig.pagespy_title.key, GlobalSettingConfig.pagespy_title.defaultValue),
 
 autoRender: Panel.getValue(
         GlobalSettingConfig.pagespy_autoRender.key,
@@ -2503,10 +2437,7 @@ enableSSL: Panel.getValue(
 
 
 
-offline: Panel.getValue(
-        GlobalSettingConfig.pagespy_offline.key,
-        GlobalSettingConfig.pagespy_offline.defaultValue
-      ),
+offline: Panel.getValue(GlobalSettingConfig.pagespy_offline.key, GlobalSettingConfig.pagespy_offline.defaultValue),
 
 
 serializeData: Panel.getValue(
@@ -2626,9 +2557,7 @@ setGMLocalHeight(value) {
     if (scriptEmbedded) {
       scriptNode.setAttribute("embedded", "true");
     }
-    (document.head || document.body || document.documentElement).appendChild(
-      scriptNode
-    );
+    (document.head || document.body || document.documentElement).appendChild(scriptNode);
   };
   const DebugTool = {
     $data: {
@@ -2852,18 +2781,14 @@ setComponentsStorageApiProperty(config, storageApiValue) {
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi(
-      "select",
-      result,
-      {
-        get(key2, defaultValue2) {
-          return Panel.getValue(key2, defaultValue2);
-        },
-        set(key2, value) {
-          Panel.setValue(key2, value);
-        }
+    PanelComponents.initComponentsStorageApi("select", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
       }
-    );
+    });
     return result;
   };
   const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack, disabled, valueChangeCallBack) {
@@ -2895,18 +2820,14 @@ setComponentsStorageApiProperty(config, storageApiValue) {
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi(
-      "switch",
-      result,
-      {
-        get(key2, defaultValue2) {
-          return Panel.getValue(key2, defaultValue2);
-        },
-        set(key2, value) {
-          Panel.setValue(key2, value);
-        }
+    PanelComponents.initComponentsStorageApi("switch", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
       }
-    );
+    });
     return result;
   };
   const PanelUI_globalSetting = {
@@ -2994,9 +2915,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
       afterAddToUListCallBack
     };
     Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
-      result.disable = Boolean(
-        typeof disable === "function" ? disable() : disable
-      );
+      result.disable = Boolean(typeof disable === "function" ? disable() : disable);
     });
     return result;
   };
@@ -3009,19 +2928,10 @@ setComponentsStorageApiProperty(config, storageApiValue) {
         text: "功能",
         type: "forms",
         forms: [
-          UIButton(
-            "当前版本",
-            "",
-            DebugToolConfig.eruda.version,
-            void 0,
-            false,
-            false,
-            "primary",
-            (event) => {
-              utils.preventEvent(event);
-              window.open(DebugToolConfig.eruda.homeUrl, "_blank");
-            }
-          ),
+          UIButton("当前版本", "", DebugToolConfig.eruda.version, void 0, false, false, "primary", (event) => {
+            domUtils.preventEvent(event);
+            window.open(DebugToolConfig.eruda.homeUrl, "_blank");
+          }),
           {
             type: "own",
             getLiElementCallBack(liElement) {
@@ -3060,162 +2970,126 @@ setComponentsStorageApiProperty(config, storageApiValue) {
                 text: "Console",
                 value: "console",
                 disable() {
-                  return !Panel.getValue(
-                    GlobalSettingConfig.eruda_panel_console.key
-                  );
+                  return !Panel.getValue(GlobalSettingConfig.eruda_panel_console.key);
                 }
               },
               {
                 text: "Elements",
                 value: "elements",
                 disable() {
-                  return !Panel.getValue(
-                    GlobalSettingConfig.eruda_panel_elements.key
-                  );
+                  return !Panel.getValue(GlobalSettingConfig.eruda_panel_elements.key);
                 }
               },
               {
                 text: "Network",
                 value: "network",
                 disable() {
-                  return !Panel.getValue(
-                    GlobalSettingConfig.eruda_panel_network.key
-                  );
+                  return !Panel.getValue(GlobalSettingConfig.eruda_panel_network.key);
                 }
               },
               {
                 text: "Resources",
                 value: "resources",
                 disable() {
-                  return !Panel.getValue(
-                    GlobalSettingConfig.eruda_panel_resources.key
-                  );
+                  return !Panel.getValue(GlobalSettingConfig.eruda_panel_resources.key);
                 }
               },
               {
                 text: "Sources",
                 value: "sources",
                 disable() {
-                  return !Panel.getValue(
-                    GlobalSettingConfig.eruda_panel_sources.key
-                  );
+                  return !Panel.getValue(GlobalSettingConfig.eruda_panel_sources.key);
                 }
               },
               {
                 text: "Info",
                 value: "info",
                 disable() {
-                  return !Panel.getValue(
-                    GlobalSettingConfig.eruda_panel_info.key
-                  );
+                  return !Panel.getValue(GlobalSettingConfig.eruda_panel_info.key);
                 }
               },
               {
                 text: "Snippets",
                 value: "snippets",
                 disable() {
-                  return !Panel.getValue(
-                    GlobalSettingConfig.eruda_panel_snippets.key
-                  );
+                  return !Panel.getValue(GlobalSettingConfig.eruda_panel_snippets.key);
                 }
               },
               {
                 text: "Monitor",
                 value: "monitor",
                 disable() {
-                  return !Panel.getValue(
-                    GlobalSettingConfig.eruda_plugin_Resource_erudaMonitor.key
-                  );
+                  return !Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaMonitor.key);
                 }
               },
               {
                 text: "Features",
                 value: "features",
                 disable() {
-                  return !Panel.getValue(
-                    GlobalSettingConfig.eruda_plugin_Resource_erudaFeatures.key
-                  );
+                  return !Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaFeatures.key);
                 }
               },
               {
                 text: "Timing",
                 value: "timing",
                 disable() {
-                  return !Panel.getValue(
-                    GlobalSettingConfig.eruda_plugin_Resource_erudaTiming.key
-                  );
+                  return !Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaTiming.key);
                 }
               },
               {
                 text: "Code",
                 value: "code",
                 disable() {
-                  return !Panel.getValue(
-                    GlobalSettingConfig.eruda_plugin_Resource_erudaCode.key
-                  );
+                  return !Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaCode.key);
                 }
               },
               {
                 text: "Benchmark",
                 value: "benchmark",
                 disable() {
-                  return !Panel.getValue(
-                    GlobalSettingConfig.eruda_plugin_Resource_erudaBenchmark.key
-                  );
+                  return !Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaBenchmark.key);
                 }
               },
               {
                 text: "Geolocation",
                 value: "geolocation",
                 disable() {
-                  return !Panel.getValue(
-                    GlobalSettingConfig.eruda_plugin_Resource_erudaGeolocation.key
-                  );
+                  return !Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaGeolocation.key);
                 }
               },
               {
                 text: "Orientation",
                 value: "orientation",
                 disable() {
-                  return !Panel.getValue(
-                    GlobalSettingConfig.eruda_plugin_Resource_erudaOrientation.key
-                  );
+                  return !Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaOrientation.key);
                 }
               },
               {
                 text: "Touches",
                 value: "touches",
                 disable() {
-                  return !Panel.getValue(
-                    GlobalSettingConfig.eruda_plugin_Resource_erudaTouches.key
-                  );
+                  return !Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaTouches.key);
                 }
               },
               {
                 text: "Outline",
                 value: "outline",
                 disable() {
-                  return !Panel.getValue(
-                    GlobalSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.key
-                  );
+                  return !Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.key);
                 }
               },
               {
                 text: "Pixel",
                 value: "pixel",
                 disable() {
-                  return !Panel.getValue(
-                    GlobalSettingConfig.eruda_plugin_Resource_erudaPixel.key
-                  );
+                  return !Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaPixel.key);
                 }
               },
               {
                 text: "Vue",
                 value: "vue",
                 disable() {
-                  return !Panel.getValue(
-                    GlobalSettingConfig.eruda_plugin_Resource_erudaVue.key
-                  );
+                  return !Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaVue.key);
                 }
               },
               {
@@ -3480,18 +3354,14 @@ setComponentsStorageApiProperty(config, storageApiValue) {
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi(
-      "input",
-      result,
-      {
-        get(key2, defaultValue2) {
-          return Panel.getValue(key2, defaultValue2);
-        },
-        set(key2, value) {
-          Panel.setValue(key2, value);
-        }
+    PanelComponents.initComponentsStorageApi("input", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
       }
-    );
+    });
     return result;
   };
   const PanelUI_vConsole = {
@@ -3503,19 +3373,10 @@ setComponentsStorageApiProperty(config, storageApiValue) {
         text: "功能",
         type: "forms",
         forms: [
-          UIButton(
-            "当前版本",
-            "",
-            DebugToolConfig.vConsole.version,
-            void 0,
-            false,
-            false,
-            "primary",
-            (event) => {
-              utils.preventEvent(event);
-              window.open(DebugToolConfig.vConsole.homeUrl, "_blank");
-            }
-          ),
+          UIButton("当前版本", "", DebugToolConfig.vConsole.version, void 0, false, false, "primary", (event) => {
+            domUtils.preventEvent(event);
+            window.open(DebugToolConfig.vConsole.homeUrl, "_blank");
+          }),
           {
             type: "own",
             getLiElementCallBack(liElement) {
@@ -3558,63 +3419,49 @@ setComponentsStorageApiProperty(config, storageApiValue) {
                 text: "System",
                 value: "system",
                 disable() {
-                  return !Panel.getValue(
-                    GlobalSettingConfig.vConsole_panel_system.key
-                  );
+                  return !Panel.getValue(GlobalSettingConfig.vConsole_panel_system.key);
                 }
               },
               {
                 text: "Network",
                 value: "network",
                 disable() {
-                  return !Panel.getValue(
-                    GlobalSettingConfig.vConsole_panel_network.key
-                  );
+                  return !Panel.getValue(GlobalSettingConfig.vConsole_panel_network.key);
                 }
               },
               {
                 text: "Element",
                 value: "element",
                 disable() {
-                  return !Panel.getValue(
-                    GlobalSettingConfig.vConsole_panel_element.key
-                  );
+                  return !Panel.getValue(GlobalSettingConfig.vConsole_panel_element.key);
                 }
               },
               {
                 text: "Storage",
                 value: "storage",
                 disable() {
-                  return !Panel.getValue(
-                    GlobalSettingConfig.vConsole_panel_storage.key
-                  );
+                  return !Panel.getValue(GlobalSettingConfig.vConsole_panel_storage.key);
                 }
               },
               {
                 text: "Stats",
                 value: "stats",
                 disable() {
-                  return !Panel.getValue(
-                    GlobalSettingConfig.vConsole_plugin_Resource_vConsole_Stats.key
-                  );
+                  return !Panel.getValue(GlobalSettingConfig.vConsole_plugin_Resource_vConsole_Stats.key);
                 }
               },
               {
                 text: "exportLog",
                 value: "exportlog",
                 disable() {
-                  return !Panel.getValue(
-                    GlobalSettingConfig.vConsole_plugin_Resource_vConsole_ExportLog.key
-                  );
+                  return !Panel.getValue(GlobalSettingConfig.vConsole_plugin_Resource_vConsole_ExportLog.key);
                 }
               },
               {
                 text: "Vue",
                 value: "vue",
                 disable() {
-                  return !Panel.getValue(
-                    GlobalSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.key
-                  );
+                  return !Panel.getValue(GlobalSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.key);
                 }
               }
             ],
@@ -3825,19 +3672,10 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             },
             void 0
           ),
-          UIButton(
-            "当前版本",
-            "",
-            DebugToolConfig.pageSpy.version,
-            void 0,
-            false,
-            false,
-            "primary",
-            (event) => {
-              utils.preventEvent(event);
-              window.open(DebugToolConfig.pageSpy.homeUrl, "_blank");
-            }
-          ),
+          UIButton("当前版本", "", DebugToolConfig.pageSpy.version, void 0, false, false, "primary", (event) => {
+            domUtils.preventEvent(event);
+            window.open(DebugToolConfig.pageSpy.homeUrl, "_blank");
+          }),
           {
             type: "own",
             getLiElementCallBack(liElement) {
@@ -4000,18 +3838,14 @@ setComponentsStorageApiProperty(config, storageApiValue) {
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi(
-      "slider",
-      result,
-      {
-        get(key2, defaultValue2) {
-          return Panel.getValue(key2, defaultValue2);
-        },
-        set(key2, value) {
-          Panel.setValue(key2, value);
-        }
+    PanelComponents.initComponentsStorageApi("slider", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
       }
-    );
+    });
     return result;
   };
   const PanelUI_chii = {
@@ -4032,10 +3866,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             false,
             "primary",
             (event) => {
-              let url = Panel.getValue(
-                "chii-debug-url",
-                DebugToolConfig.chii.defaultConfig.url
-              );
+              let url = Panel.getValue("chii-debug-url", DebugToolConfig.chii.defaultConfig.url);
               window.open(url, "_blank");
             },
             void 0,
@@ -4121,9 +3952,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             0,
             parseInt(window.innerHeight.toString()),
             (_, value) => {
-              let $chobitsu = document.querySelector(
-                ".__chobitsu-hide__:has(iframe)"
-              );
+              let $chobitsu = document.querySelector(".__chobitsu-hide__:has(iframe)");
               $chobitsu && ($chobitsu.style.height = value + "px");
             },
             (value) => value + "px",
@@ -4134,13 +3963,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
       }
     ]
   };
-  PanelContent.addContentConfig([
-    PanelUI_globalSetting,
-    PanelUI_eruda,
-    PanelUI_vConsole,
-    PanelUI_pagespy,
-    PanelUI_chii
-  ]);
+  PanelContent.addContentConfig([PanelUI_globalSetting, PanelUI_eruda, PanelUI_vConsole, PanelUI_pagespy, PanelUI_chii]);
   Panel.$data.panelConfig = {
     style: (
 `

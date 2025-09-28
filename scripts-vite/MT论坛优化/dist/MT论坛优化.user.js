@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.14
+// @version      2025.9.28
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、用户状态查看、美化导航、动态头像上传、最新发表、评论过滤器等
 // @license      GPL-3.0-only
@@ -10,10 +10,10 @@
 // @match        *://bbs.binmt.cc/*
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.8.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.4.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js
 // @resource     HljsCSS    https://fastly.jsdelivr.net/npm/highlight.js@11.11.1/styles/github-dark.min.css
@@ -55,7 +55,7 @@ waitRemove(...args) {
         if (typeof selector !== "string") {
           return;
         }
-        utils.waitNodeList(selector).then((nodeList) => {
+        DOMUtils.waitNodeList(selector).then((nodeList) => {
           nodeList.forEach(($el) => $el.remove());
         });
       });
@@ -126,6 +126,9 @@ async loadScript(url) {
     },
 fixUrl(url) {
       url = url.trim();
+      if (url.startsWith("data:")) {
+        return url;
+      }
       if (url.match(/^http(s|):\/\//i)) {
         return url;
       } else if (url.startsWith("//")) {
@@ -149,9 +152,13 @@ fixHttps(url) {
       if (!url.startsWith("http://")) {
         return url;
       }
-      let urlInstance = new URL(url);
-      urlInstance.protocol = "https:";
-      return urlInstance.toString();
+      try {
+        let urlInstance = new URL(url);
+        urlInstance.protocol = "https:";
+        return urlInstance.toString();
+      } catch {
+        return url;
+      }
     },
 lockScroll(...args) {
       let $hidden = document.createElement("style");
@@ -290,16 +297,13 @@ qmsg_config_showreverse: {
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
   const __pops = pops;
-  const log = new utils.Log(
-    _GM_info,
-    _unsafeWindow.console || _monkeyWindow.console
-  );
+  const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
   let SCRIPT_NAME = _GM_info?.script?.name || void 0;
   pops.config.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
-    debug: DEBUG,
-    logMaxCount: 1e3,
+    debug: false,
+    logMaxCount: 250,
     autoClearConsole: true,
     tag: true
   });
@@ -407,7 +411,7 @@ clickEvent: {
     },
     setTimeout: _unsafeWindow.setTimeout
   });
-  const addStyle = utils.addStyle.bind(utils);
+  const addStyle = domUtils.addStyle.bind(domUtils);
   const $ = DOMUtils.selector.bind(DOMUtils);
   const $$ = DOMUtils.selectorAll.bind(DOMUtils);
   new utils.GM_Cookie();
@@ -518,9 +522,7 @@ keys() {
     }
 values() {
       let localValue = this.getLocalValue();
-      return Reflect.ownKeys(localValue).map(
-        (key) => Reflect.get(localValue, key)
-      );
+      return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
     }
 clear() {
       _GM_deleteValue(this.storageKey);
@@ -797,6 +799,9 @@ setDefaultValue(key, defaultValue) {
         log.warn("请检查该key(已存在): " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
+    },
+getDefaultValue(key) {
+      return this.$data.contentConfigInitDefaultValue.get(key);
     },
 setValue(key, value) {
       PopsPanelStorageApi.set(key, value);
@@ -1118,7 +1123,7 @@ threshold: 1
         $el.classList.add(flashingClassName);
       };
       let dbclick_event = (evt, selectorTarget) => {
-        utils.preventEvent(evt);
+        domUtils.preventEvent(evt);
         let $alert = __pops.alert({
           title: {
             text: "搜索配置",
@@ -1234,7 +1239,7 @@ threshold: 1
             $targetAsideItem.click();
             asyncQueryProperty(pathInfo.next, async (target) => {
               if (target?.next) {
-                let $findDeepMenu = await utils.waitNode(() => {
+                let $findDeepMenu = await domUtils.waitNode(() => {
                   return Array.from(
                     $panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")
                   ).find(($deepMenu) => {
@@ -1256,7 +1261,7 @@ threshold: 1
                   data: target.next
                 };
               } else {
-                let $findTargetMenu = await utils.waitNode(() => {
+                let $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from(
                     $panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)
                   ).find(($menuItem) => {
@@ -1406,7 +1411,7 @@ threshold: 1
           $searchInput,
           "input",
           utils.debounce((evt2) => {
-            utils.preventEvent(evt2);
+            domUtils.preventEvent(evt2);
             let searchText = domUtils.val($searchInput).trim();
             if (searchText === "") {
               clearSearchResult();
@@ -1551,13 +1556,7 @@ transformKey(key) {
       }
     };
     const linkifyText = function(element) {
-      const textNodesSnapshot = document.evaluate(
-        xpath,
-        element,
-        null,
-        XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE,
-        null
-      );
+      const textNodesSnapshot = document.evaluate(xpath, element, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
       return processLinksInBatches(textNodesSnapshot, 0);
     };
     const observePageChanges = function(rootElement) {
@@ -1650,9 +1649,7 @@ getCurrentUID() {
     },
 async getFormHash() {
       let $inputFormHashList = Array.from(
-        (top || globalThis).document.querySelectorAll(
-          "input[name=formhash]"
-        )
+        (top || globalThis).document.querySelectorAll("input[name=formhash]")
       );
       for (let index = 0; index < $inputFormHashList.length; index++) {
         const $input = $inputFormHashList[index];
@@ -1662,9 +1659,7 @@ async getFormHash() {
         }
       }
       let $anchorFormHashList = Array.from(
-        (top || globalThis).document.querySelectorAll(
-          'a[href*="formhash="]'
-        )
+        (top || globalThis).document.querySelectorAll('a[href*="formhash="]')
       );
       for (let index = 0; index < $anchorFormHashList.length; index++) {
         const $anchorFormHash = $anchorFormHashList[index];
@@ -1682,10 +1677,8 @@ async getFormHash() {
       });
       if (homeResponse.status) {
         let homeText = homeResponse.data.responseText;
-        let homeDoc = domUtils.parseHTML(homeText, true, true);
-        let $formhash = homeDoc.querySelector(
-          "input[name=formhash]"
-        );
+        let homeDoc = domUtils.toElement(homeText, true, true);
+        let $formhash = homeDoc.querySelector("input[name=formhash]");
         if ($formhash) {
           let formHash = $formhash.value;
           if (utils.isNotNull(formHash)) {
@@ -1795,9 +1788,7 @@ clearSignInfo(hostName) {
     },
 checkLogin() {
       if (MTUtils.envIsMobile()) {
-        let mobile_login_exitBtn = $(
-          "a[href*='member.php?mod=logging&action=logout']"
-        );
+        let mobile_login_exitBtn = $("a[href*='member.php?mod=logging&action=logout']");
         return Boolean(mobile_login_exitBtn);
       } else {
         let pc_login = $("#comiis_key");
@@ -1843,9 +1834,7 @@ async sign() {
           width: "88vw",
           height: "300px"
         });
-        let $content = $alert.$shadowRoot.querySelector(
-          ".pops-alert-content"
-        );
+        let $content = $alert.$shadowRoot.querySelector(".pops-alert-content");
         $content.innerText = content;
       };
       let sign_plugin = [
@@ -1859,16 +1848,13 @@ async sign() {
               inajax: 1,
               ajaxtarget: "midaben_sign"
             };
-            let response = await httpx.get(
-              `/k_misign-sign.html?${utils.toSearchParamsStr(searchParamsData)}`,
-              {
-                fetch: useFetch,
-                headers: {
-                  "User-Agent": userAgent
-                },
-                allowInterceptConfig: false
-              }
-            );
+            let response = await httpx.get(`/k_misign-sign.html?${utils.toSearchParamsStr(searchParamsData)}`, {
+              fetch: useFetch,
+              headers: {
+                "User-Agent": userAgent
+              },
+              allowInterceptConfig: false
+            });
             if (!response.status) {
               Qmsg.error("签到：网络异常，请求失败", {
                 consoleLogContent: true
@@ -1879,11 +1865,7 @@ async sign() {
             log.info("签到信息：", response);
             let responseText = response.data.responseText;
             let CDATA = utils.parseCDATA(responseText);
-            let CDATAElement = domUtils.parseHTML(
-              `<div>${CDATA}</div>`,
-              true,
-              false
-            );
+            let CDATAElement = domUtils.toElement(`<div>${CDATA}</div>`, true, false);
             let content = domUtils.text(CDATAElement);
             if (content.includes("需要先登录")) {
               Qmsg.error("签到：请先登录账号", {
@@ -1900,15 +1882,10 @@ async sign() {
             } else if (content.includes("今日已签") || content.includes("今日已经签到")) {
               Qmsg.info("签到：" + content);
               return;
-            } else if (responseText.includes(
-              "您当前的访问请求当中含有非法字符，已经被系统拒绝"
-            )) {
-              Qmsg.error(
-                "签到: 您当前的访问请求当中含有非法字符，已经被系统拒绝",
-                {
-                  timeout: 6e3
-                }
-              );
+            } else if (responseText.includes("您当前的访问请求当中含有非法字符，已经被系统拒绝")) {
+              Qmsg.error("签到: 您当前的访问请求当中含有非法字符，已经被系统拒绝", {
+                timeout: 6e3
+              });
               return;
             } else if (useFetch && "location" in utils.toJSON(responseText)) {
               Qmsg.success("签到: 签到成功");
@@ -1947,25 +1924,22 @@ async sign() {
               infloat: 1,
               inajax: 1
             };
-            let response = await httpx.post(
-              `/plugin.php?${utils.toSearchParamsStr(searchParamsData)}`,
-              {
-                data: {
-                  formhash: formHash,
-                  qdxq: "kx",
-                  qdmode: 3,
-                  todaysay: "",
-                  fastreply: 0
-                },
-                processData: true,
-                fetch: useFetch,
-                headers: {
-                  "User-Agent": userAgent,
-                  "Content-Type": "application/x-www-form-urlencoded"
-                },
-                allowInterceptConfig: false
-              }
-            );
+            let response = await httpx.post(`/plugin.php?${utils.toSearchParamsStr(searchParamsData)}`, {
+              data: {
+                formhash: formHash,
+                qdxq: "kx",
+                qdmode: 3,
+                todaysay: "",
+                fastreply: 0
+              },
+              processData: true,
+              fetch: useFetch,
+              headers: {
+                "User-Agent": userAgent,
+                "Content-Type": "application/x-www-form-urlencoded"
+              },
+              allowInterceptConfig: false
+            });
             if (!response.status) {
               Qmsg.error("签到：网络异常，请求失败", {
                 consoleLogContent: true
@@ -2000,15 +1974,9 @@ async sign() {
           log.error("签到：检查签到插件是否启用的请求失败", checkResponse);
           continue;
         }
-        let pluginDoc = domUtils.parseHTML(
-          checkResponse.data.responseText,
-          true,
-          true
-        );
+        let pluginDoc = domUtils.toElement(checkResponse.data.responseText, true, true);
         if (pluginDoc.querySelector("#messagetext") || checkResponse.data.responseText.includes("插件不存在或已关闭")) {
-          log.error(
-            `插件：${signPluginItem.checkPluginEnableUrl} 未启用或不存在`
-          );
+          log.error(`插件：${signPluginItem.checkPluginEnableUrl} 未启用或不存在`);
           continue;
         }
         await signPluginItem.sign();
@@ -2098,7 +2066,7 @@ isPostPublish_reply() {
     },
 quickCollentBtn() {
       log.info(`【快捷收藏】`);
-      utils.waitNode("#scrolltop", 1e4).then(async ($scrollTop) => {
+      domUtils.waitNode("#scrolltop", 1e4).then(async ($scrollTop) => {
         if (!$scrollTop) {
           return;
         }
@@ -2132,7 +2100,7 @@ quickCollentBtn() {
       });
     },
 quickReplyOptimization() {
-      utils.waitNode('#scrolltop a[title="快速回复"]', 1e4).then(($ele) => {
+      domUtils.waitNode('#scrolltop a[title="快速回复"]', 1e4).then(($ele) => {
         if (!$ele) {
           return;
         }
@@ -2140,7 +2108,7 @@ quickReplyOptimization() {
         domUtils.on($ele, "click", function() {
           _unsafeWindow.showWindow("reply", $ele.href);
           log.info(`等待弹窗出现`);
-          utils.waitNode("#moreconf", 1e4).then(($moreconf) => {
+          domUtils.waitNode("#moreconf", 1e4).then(($moreconf) => {
             if (!$moreconf) {
               return;
             }
@@ -2157,7 +2125,7 @@ quickReplyOptimization() {
               }
             );
             domUtils.on($oneKeySpace, "click", (event) => {
-              utils.preventEvent(event);
+              domUtils.preventEvent(event);
               domUtils.val(
                 $("#postmessage"),
                 domUtils.val($("#postmessage")) + "           "
@@ -2502,10 +2470,10 @@ codeQuoteOptimization() {
                 setElementHighlight(liElement, changeCodeLanguage);
               });
             });
-            utils.preventEvent(selectElement, "click");
-            utils.preventEvent(coypCodeElement, "click");
+            domUtils.preventEvent(selectElement, "click");
+            domUtils.preventEvent(coypCodeElement, "click");
             coypCodeElement.insertAdjacentElement("afterend", selectElement);
-            utils.dispatchEvent(selectElement, "change");
+            domUtils.trigger(selectElement, "change");
           });
           let blockcodeElementList = document.querySelectorAll(".blockcode");
           blockcodeElementList.forEach((ele) => ele.className = "hljs");
@@ -2596,7 +2564,7 @@ optimizationImagePreview() {
               $img,
               "click",
               function(event) {
-                utils.preventEvent(event);
+                domUtils.preventEvent(event);
                 log.info("点击图片", $img);
                 let viewImageIndex = totalImageList.findIndex((imgUrl) => {
                   return imgUrl == currentImageUrl;
@@ -2727,7 +2695,7 @@ async detectingUserOnlineStatus() {
           setAvatarOnlineStatus($favatar, true);
           return;
         }
-        let doc = domUtils.parseHTML(response.data.responseText, true, true);
+        let doc = domUtils.toElement(response.data.responseText, true, true);
         let $flb = doc.querySelector(".flb");
         if ($flb) {
           let statusText = domUtils.text($flb)?.trim();
@@ -2938,18 +2906,14 @@ setComponentsStorageApiProperty(config, storageApiValue) {
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi(
-      "input",
-      result,
-      {
-        get(key2, defaultValue2) {
-          return Panel.getValue(key2, defaultValue2);
-        },
-        set(key2, value) {
-          Panel.setValue(key2, value);
-        }
+    PanelComponents.initComponentsStorageApi("input", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
       }
-    );
+    });
     return result;
   };
   const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack, disabled, valueChangeCallBack) {
@@ -2975,18 +2939,14 @@ setComponentsStorageApiProperty(config, storageApiValue) {
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi(
-      "switch",
-      result,
-      {
-        get(key2, defaultValue2) {
-          return Panel.getValue(key2, defaultValue2);
-        },
-        set(key2, value) {
-          Panel.setValue(key2, value);
-        }
+    PanelComponents.initComponentsStorageApi("switch", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
       }
-    );
+    });
     return result;
   };
   const UITextArea = function(text, key, defaultValue, description, changeCallback, placeholder = "", disabled, valueChangeCallBack) {
@@ -3013,18 +2973,14 @@ setComponentsStorageApiProperty(config, storageApiValue) {
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi(
-      "switch",
-      result,
-      {
-        get(key2, defaultValue2) {
-          return Panel.getValue(key2, defaultValue2);
-        },
-        set(key2, value) {
-          Panel.setValue(key2, value);
-        }
+    PanelComponents.initComponentsStorageApi("switch", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
       }
-    );
+    });
     return result;
   };
   class RuleEditView {
@@ -3123,12 +3079,8 @@ async showView() {
         width: typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
         height: typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh"
       });
-      let $form = $dialog.$shadowRoot.querySelector(
-        ".rule-form-container"
-      );
-      $dialog.$shadowRoot.querySelector(
-        "input[type=submit]"
-      );
+      let $form = $dialog.$shadowRoot.querySelector(".rule-form-container");
+      $dialog.$shadowRoot.querySelector("input[type=submit]");
       let $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
       let view = await this.option.getView(await this.option.data());
       $ulist.appendChild(view);
@@ -3280,51 +3232,21 @@ showView() {
         getView: (data) => {
           let $fragment = document.createDocumentFragment();
           let enable_template = UISwitch("启用", "enable", true);
-          Reflect.set(
-            enable_template.props,
-            PROPS_STORAGE_API,
-            generateStorageApi(data)
-          );
-          let $enable = panelHandlerComponents.createSectionContainerItem_switch(
-            enable_template
-          );
-          let replyFlag_template = UISwitch(
-            "处理回复引用",
-            "replyFlag",
-            false,
-            void 0,
-            "移除引用"
-          );
-          Reflect.set(
-            replyFlag_template.props,
-            PROPS_STORAGE_API,
-            generateStorageApi(data)
-          );
-          let $replyFlag = panelHandlerComponents.createSectionContainerItem_switch(
-            replyFlag_template
-          );
+          Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+          let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+          let replyFlag_template = UISwitch("处理回复引用", "replyFlag", false, void 0, "移除引用");
+          Reflect.set(replyFlag_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+          let $replyFlag = panelHandlerComponents.createSectionContainerItem_switch(replyFlag_template);
           let avatarFlag_template = UISwitch("处理作者评论", "avatarFlag", false);
-          Reflect.set(
-            avatarFlag_template.props,
-            PROPS_STORAGE_API,
-            generateStorageApi(data)
-          );
-          let $avatarFlag = panelHandlerComponents.createSectionContainerItem_switch(
-            avatarFlag_template
-          );
+          Reflect.set(avatarFlag_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+          let $avatarFlag = panelHandlerComponents.createSectionContainerItem_switch(avatarFlag_template);
           let viewthreadFlag_template = UISwitch(
             '处理从"搜索页面"或"我的帖子提醒页面"进入的网站',
             "viewthreadFlag",
             false
           );
-          Reflect.set(
-            viewthreadFlag_template.props,
-            PROPS_STORAGE_API,
-            generateStorageApi(data)
-          );
-          let $viewthreadFlag = panelHandlerComponents.createSectionContainerItem_switch(
-            viewthreadFlag_template
-          );
+          Reflect.set(viewthreadFlag_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+          let $viewthreadFlag = panelHandlerComponents.createSectionContainerItem_switch(viewthreadFlag_template);
           let minLength_template = UIInput(
             "匹配的评论内容长度最小值",
             "minLength",
@@ -3334,14 +3256,8 @@ showView() {
             "",
             true
           );
-          Reflect.set(
-            minLength_template.props,
-            PROPS_STORAGE_API,
-            generateStorageApi(data)
-          );
-          let $minLength = panelHandlerComponents.createSectionContainerItem_input(
-            minLength_template
-          );
+          Reflect.set(minLength_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+          let $minLength = panelHandlerComponents.createSectionContainerItem_input(minLength_template);
           let keywordLength = UIInput(
             "匹配的评论内容长度最大值",
             "keywordLength",
@@ -3351,56 +3267,17 @@ showView() {
             "",
             true
           );
-          Reflect.set(
-            keywordLength.props,
-            PROPS_STORAGE_API,
-            generateStorageApi(data)
-          );
-          let $keywordLength = panelHandlerComponents.createSectionContainerItem_input(
-            keywordLength
-          );
-          let keywords_template = UITextArea(
-            "评论关键字",
-            "keywords",
-            "",
-            "多个评论关键字换行分割"
-          );
-          Reflect.set(
-            keywords_template.props,
-            PROPS_STORAGE_API,
-            generateStorageApi(data)
-          );
-          let $keywords = panelHandlerComponents.createSectionContainerItem_textarea(
-            keywords_template
-          );
-          let userBlackList_template = UITextArea(
-            "黑名单用户",
-            "userBlackList",
-            "",
-            "多个用户换行分割"
-          );
-          Reflect.set(
-            userBlackList_template.props,
-            PROPS_STORAGE_API,
-            generateStorageApi(data)
-          );
-          let $userBlackList = panelHandlerComponents.createSectionContainerItem_textarea(
-            userBlackList_template
-          );
-          let userWhiteList_template = UITextArea(
-            "白名单用户",
-            "userWhiteList",
-            "",
-            "多个用户换行分割"
-          );
-          Reflect.set(
-            userWhiteList_template.props,
-            PROPS_STORAGE_API,
-            generateStorageApi(data)
-          );
-          let $userWhiteList = panelHandlerComponents.createSectionContainerItem_textarea(
-            userWhiteList_template
-          );
+          Reflect.set(keywordLength.props, PROPS_STORAGE_API, generateStorageApi(data));
+          let $keywordLength = panelHandlerComponents.createSectionContainerItem_input(keywordLength);
+          let keywords_template = UITextArea("评论关键字", "keywords", "", "多个评论关键字换行分割");
+          Reflect.set(keywords_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+          let $keywords = panelHandlerComponents.createSectionContainerItem_textarea(keywords_template);
+          let userBlackList_template = UITextArea("黑名单用户", "userBlackList", "", "多个用户换行分割");
+          Reflect.set(userBlackList_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+          let $userBlackList = panelHandlerComponents.createSectionContainerItem_textarea(userBlackList_template);
+          let userWhiteList_template = UITextArea("白名单用户", "userWhiteList", "", "多个用户换行分割");
+          Reflect.set(userWhiteList_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+          let $userWhiteList = panelHandlerComponents.createSectionContainerItem_textarea(userWhiteList_template);
           $fragment.append(
             $enable,
             $replyFlag,
@@ -3437,11 +3314,7 @@ showView() {
                 content: {
                   text: (
 `
-                                ${Array.from(
-                    document.querySelectorAll(
-                      'link[rel="stylesheet"]'
-                    )
-                  ).map((item) => item.outerHTML).join("\n")}
+                                ${Array.from(document.querySelectorAll('link[rel="stylesheet"]')).map((item) => item.outerHTML).join("\n")}
 
                                 ${this.$el.isFilterElementHTML.join("\n")}
                                 `
@@ -3505,10 +3378,7 @@ getTemplateData() {
       };
     },
 getData() {
-      return _GM_getValue(
-        this.$key.STORAGE_KEY,
-        this.getTemplateData()
-      );
+      return _GM_getValue(this.$key.STORAGE_KEY, this.getTemplateData());
     },
 setData(data) {
       _GM_setValue(this.$key.STORAGE_KEY, data);
@@ -3589,12 +3459,9 @@ setData(data) {
           $alert.close();
         };
         domUtils.on($button, "click", async (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           if (typeof filterOption.callback === "function") {
-            let result = await filterOption.callback(
-              event,
-              execFilterAndCloseDialog
-            );
+            let result = await filterOption.callback(event, execFilterAndCloseDialog);
             if (!result) {
               return;
             }
@@ -3879,9 +3746,7 @@ showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDa
     }
 parseViewElement($shadowRoot) {
       let $container = $shadowRoot.querySelector(".rule-view-container");
-      let $deleteBtn = $shadowRoot.querySelector(
-        ".pops-confirm-btn button.pops-confirm-btn-other"
-      );
+      let $deleteBtn = $shadowRoot.querySelector(".pops-confirm-btn button.pops-confirm-btn-other");
       return {
 $container,
 $deleteBtn
@@ -3955,7 +3820,7 @@ async createRuleItemElement(data, $shadowRoot) {
       }
       if (this.option.itemControls.edit.enable) {
         domUtils.on($edit, "click", (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           this.showEditView(true, data, $shadowRoot, $ruleItem, (newData) => {
             data = null;
             data = newData;
@@ -3966,7 +3831,7 @@ async createRuleItemElement(data, $shadowRoot) {
       }
       if (this.option.itemControls.delete.enable) {
         domUtils.on($delete, "click", (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           let $askDialog = __pops.confirm({
             title: {
               text: "提示",
@@ -4075,40 +3940,23 @@ registerMenu() {
     },
 async runRule() {
       async function getCurrentProduct() {
-        let response = await httpx.get(
-          "/keke_integralmall-keke_integralmall.html",
-          {
-            allowInterceptConfig: false,
-            headers: {
-              "User-Agent": utils.getRandomAndroidUA()
-            }
+        let response = await httpx.get("/keke_integralmall-keke_integralmall.html", {
+          allowInterceptConfig: false,
+          headers: {
+            "User-Agent": utils.getRandomAndroidUA()
           }
-        );
+        });
         if (!response.status) {
           Qmsg.error("【积分商城】获取数据失败");
           return;
         }
         let productInfoList = [];
-        let doc = domUtils.parseHTML(response.data.responseText, true, true);
+        let doc = domUtils.toElement(response.data.responseText, true, true);
         doc.querySelectorAll(".task-list-wrapper li.col-xs-12").forEach(($taskList) => {
           productInfoList.push({
-            name: domUtils.text(
-              $taskList.querySelector(
-                ".mall-info a > *:first-child"
-              )
-            ) || domUtils.text(
-              $taskList.querySelector(".mall-info a")
-            ),
-            price: domUtils.text(
-              $taskList.querySelector(
-                ".mall-info span.discount-price i"
-              )
-            ),
-            endTime: domUtils.text(
-              $taskList.querySelector(
-                ".mall-info #time_hz span.time"
-              )
-            ),
+            name: domUtils.text($taskList.querySelector(".mall-info a > *:first-child")) || domUtils.text($taskList.querySelector(".mall-info a")),
+            price: domUtils.text($taskList.querySelector(".mall-info span.discount-price i")),
+            endTime: domUtils.text($taskList.querySelector(".mall-info #time_hz span.time")),
             remainingQuantity: parseInt(
               $taskList.querySelector(".mall-info .mall-count .count-r")?.innerText?.replace(/仅剩|件/gi, "") || "0"
             )
@@ -4129,9 +3977,7 @@ async runRule() {
       }
       for (const productItem of productList) {
         for (const reminderOption of allData) {
-          if (reminderOption.enable && productItem["name"].match(
-            new RegExp(reminderOption["productName"], "i")
-          ) && !isNaN(productItem["remainingQuantity"]) && productItem["remainingQuantity"] > 0) {
+          if (reminderOption.enable && productItem["name"].match(new RegExp(reminderOption["productName"], "i")) && !isNaN(productItem["remainingQuantity"]) && productItem["remainingQuantity"] > 0) {
             log.success(`成功匹配对应商品`, reminderOption, productItem);
             __pops.confirm({
               title: {
@@ -4239,53 +4085,19 @@ showView() {
                 data = this.getTemplateData();
               }
               let enable_template = UISwitch("启用", "enable", true);
-              Reflect.set(
-                enable_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data)
-              );
-              let $enable = panelHandlerComponents.createSectionContainerItem_switch(
-                enable_template
-              );
-              let name_template = UIInput(
-                "规则名称",
-                "name",
-                "",
-                "",
-                void 0,
-                "必填"
-              );
-              Reflect.set(
-                name_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data)
-              );
-              let $name = panelHandlerComponents.createSectionContainerItem_input(
-                name_template
-              );
-              let productName_template = UIInput(
-                "商品名",
-                "productName",
-                "",
-                "",
-                void 0,
-                "可正则，需手动转义"
-              );
-              Reflect.set(
-                productName_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data)
-              );
-              let $productName = panelHandlerComponents.createSectionContainerItem_input(
-                productName_template
-              );
+              Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+              let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+              let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
+              Reflect.set(name_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+              let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+              let productName_template = UIInput("商品名", "productName", "", "", void 0, "可正则，需手动转义");
+              Reflect.set(productName_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+              let $productName = panelHandlerComponents.createSectionContainerItem_input(productName_template);
               $fragment.append($enable, $name, $productName);
               return $fragment;
             },
             onsubmit: ($form, isEdit, editData) => {
-              let $ulist_li = $form.querySelectorAll(
-                ".rule-form-ulist > li"
-              );
+              let $ulist_li = $form.querySelectorAll(".rule-form-ulist > li");
               let data = this.getTemplateData();
               if (isEdit) {
                 data.uuid = editData.uuid;
@@ -4376,7 +4188,7 @@ clearData() {
       _GM_deleteValue(this.$key.STORAGE_KEY);
     }
   };
-  const blackHomeCSS = ".pops-confirm-content {\r\n	display: flex;\r\n	flex-direction: column;\r\n}\r\n.blackhome-user-filter input {\r\n	width: -moz-available;\r\n	width: -webkit-fill-available;\r\n	height: 30px;\r\n	margin: 8px 20px;\r\n	border: 0;\r\n	border-bottom: 1px solid;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n	white-space: nowrap;\r\n}\r\n.blackhome-user-filter input:focus-within {\r\n	outline: none;\r\n}\r\n.blackhome-user-list {\r\n	flex: 1;\r\n	overflow-y: auto;\r\n}\r\n.blackhome-user-list .blackhome-user-item {\r\n	margin: 15px 10px;\r\n	padding: 10px;\r\n	border-radius: 8px;\r\n	box-shadow: 0 0 0.6rem #c8d0e7, -0.2rem -0.2rem 0.5rem #fff;\r\n}\r\n.blackhome-user {\r\n	display: flex;\r\n}\r\n.blackhome-user img {\r\n	width: 45px;\r\n	height: 45px;\r\n	border-radius: 45px;\r\n}\r\n.blackhome-user-info {\r\n	margin-left: 10px;\r\n}\r\n.blackhome-user-info p:nth-child(1) {\r\n	margin-bottom: 5px;\r\n}\r\n.blackhome-user-info p:nth-child(2) {\r\n	font-size: 14px;\r\n}\r\n.blackhome-user-action {\r\n	display: flex;\r\n	margin: 10px 0;\r\n}\r\n.blackhome-user-action p:nth-child(1),\r\n.blackhome-user-action p:nth-child(2) {\r\n	border: 1px solid red;\r\n	color: red;\r\n	border-radius: 4px;\r\n	padding: 2px 4px;\r\n	font-weight: 500;\r\n	font-size: 14px;\r\n	place-self: center;\r\n}\r\n.blackhome-user-action p:nth-child(2) {\r\n	border: 1px solid #ff4b4b;\r\n	color: #ff4b4b;\r\n	margin-left: 8px;\r\n}\r\n.blackhome-user-uuid {\r\n	border: 1px solid #ff7600;\r\n	color: #ff7600;\r\n	border-radius: 4px;\r\n	padding: 2px 4px;\r\n	font-weight: 500;\r\n	font-size: 14px;\r\n	width: fit-content;\r\n	width: -moz-fit-content;\r\n	margin: 10px 0;\r\n}\r\n.blackhome-operator {\r\n	padding: 10px;\r\n	background-color: #efefef;\r\n	border-radius: 6px;\r\n}\r\n.blackhome-operator-user {\r\n	display: flex;\r\n}\r\n.blackhome-operator-user img {\r\n	width: 35px;\r\n	height: 35px;\r\n	border-radius: 35px;\r\n}\r\n.blackhome-operator-user p {\r\n	align-self: center;\r\n	margin-left: 10px;\r\n}\r\n.blackhome-operator-user-info {\r\n	margin: 10px 0;\r\n	font-weight: 500;\r\n}\r\n\r\n@media screen and (min-width: 800px) {\r\n	.blackhome-user-list {\r\n		display: flex;\r\n		flex-wrap: wrap;\r\n	}\r\n	.blackhome-user-list .blackhome-user-item {\r\n		flex: 1 1 250px;\r\n		max-width: calc(50% - 10px - 10px);\r\n	}\r\n}\r\n";
+  const blackHomeCSS = ".pops-confirm-content {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n.blackhome-user-filter input {\r\n  width: -moz-available;\r\n  width: -webkit-fill-available;\r\n  height: 30px;\r\n  margin: 8px 20px;\r\n  border: 0;\r\n  border-bottom: 1px solid;\r\n  text-overflow: ellipsis;\r\n  overflow: hidden;\r\n  white-space: nowrap;\r\n}\r\n.blackhome-user-filter input:focus-within {\r\n  outline: none;\r\n}\r\n.blackhome-user-list {\r\n  flex: 1;\r\n  overflow-y: auto;\r\n}\r\n.blackhome-user-list .blackhome-user-item {\r\n  margin: 15px 10px;\r\n  padding: 10px;\r\n  border-radius: 8px;\r\n  box-shadow:\r\n    0 0 0.6rem #c8d0e7,\r\n    -0.2rem -0.2rem 0.5rem #fff;\r\n}\r\n.blackhome-user {\r\n  display: flex;\r\n}\r\n.blackhome-user img {\r\n  width: 45px;\r\n  height: 45px;\r\n  border-radius: 45px;\r\n}\r\n.blackhome-user-info {\r\n  margin-left: 10px;\r\n}\r\n.blackhome-user-info p:nth-child(1) {\r\n  margin-bottom: 5px;\r\n}\r\n.blackhome-user-info p:nth-child(2) {\r\n  font-size: 14px;\r\n}\r\n.blackhome-user-action {\r\n  display: flex;\r\n  margin: 10px 0;\r\n}\r\n.blackhome-user-action p:nth-child(1),\r\n.blackhome-user-action p:nth-child(2) {\r\n  border: 1px solid red;\r\n  color: red;\r\n  border-radius: 4px;\r\n  padding: 2px 4px;\r\n  font-weight: 500;\r\n  font-size: 14px;\r\n  place-self: center;\r\n}\r\n.blackhome-user-action p:nth-child(2) {\r\n  border: 1px solid #ff4b4b;\r\n  color: #ff4b4b;\r\n  margin-left: 8px;\r\n}\r\n.blackhome-user-uuid {\r\n  border: 1px solid #ff7600;\r\n  color: #ff7600;\r\n  border-radius: 4px;\r\n  padding: 2px 4px;\r\n  font-weight: 500;\r\n  font-size: 14px;\r\n  width: fit-content;\r\n  width: -moz-fit-content;\r\n  margin: 10px 0;\r\n}\r\n.blackhome-operator {\r\n  padding: 10px;\r\n  background-color: #efefef;\r\n  border-radius: 6px;\r\n}\r\n.blackhome-operator-user {\r\n  display: flex;\r\n}\r\n.blackhome-operator-user img {\r\n  width: 35px;\r\n  height: 35px;\r\n  border-radius: 35px;\r\n}\r\n.blackhome-operator-user p {\r\n  align-self: center;\r\n  margin-left: 10px;\r\n}\r\n.blackhome-operator-user-info {\r\n  margin: 10px 0;\r\n  font-weight: 500;\r\n}\r\n\r\n@media screen and (min-width: 800px) {\r\n  .blackhome-user-list {\r\n    display: flex;\r\n    flex-wrap: wrap;\r\n  }\r\n  .blackhome-user-list .blackhome-user-item {\r\n    flex: 1 1 250px;\r\n    max-width: calc(50% - 10px - 10px);\r\n  }\r\n}\r\n";
   const MTBlackHome = {
     $data: {
       cid: ""
@@ -4447,7 +4259,7 @@ async showBlackHome() {
               } else {
                 Qmsg.success(`成功获取 ${nextBlackListInfo2.data.length}条数据`);
               }
-              utils.dispatchEvent($filterInput, "input");
+              domUtils.trigger($filterInput, "input");
             }
           },
           cancel: {
@@ -4458,12 +4270,8 @@ async showBlackHome() {
         height: PanelUISize.settingBig.height,
         style: blackHomeCSS
       });
-      let $list = $confirm.$shadowRoot.querySelector(
-        ".blackhome-user-list"
-      );
-      let $filterInput = $confirm.$shadowRoot.querySelector(
-        ".blackhome-user-filter input"
-      );
+      let $list = $confirm.$shadowRoot.querySelector(".blackhome-user-list");
+      let $filterInput = $confirm.$shadowRoot.querySelector(".blackhome-user-filter input");
       blackListInfo.data.forEach((item) => {
         let $item = this.createListViewItem(item);
         $list.appendChild($item);
@@ -4509,15 +4317,12 @@ async getBlackListInfo(cid = "") {
         cid,
         ajaxdata: "json"
       };
-      let response = await httpx.get(
-        `/forum.php?${utils.toSearchParamsStr(searchParamsData)}`,
-        {
-          headers: {
-            "User-Agent": utils.getRandomPCUA()
-          },
-          responseType: "json"
-        }
-      );
+      let response = await httpx.get(`/forum.php?${utils.toSearchParamsStr(searchParamsData)}`, {
+        headers: {
+          "User-Agent": utils.getRandomPCUA()
+        },
+        responseType: "json"
+      });
       if (!response.status) {
         return;
       }
@@ -4528,21 +4333,15 @@ async getBlackListInfo(cid = "") {
       let new_blackListData = [];
       let new_blackListData_noTime = [];
       blackListData.forEach((item) => {
-        let date = item["dateline"].match(
-          /([0-9]{4}-[0-9]{1,2}-[0-9]{1,2}[\s]*[0-9]{1,2}:[0-9]{1,2})/g
-        );
+        let date = item["dateline"].match(/([0-9]{4}-[0-9]{1,2}-[0-9]{1,2}[\s]*[0-9]{1,2}:[0-9]{1,2})/g);
         if (date == null) {
           let _time_ = parseInt((Date.now() / 1e3).toString());
           let _time_after_count_ = 0;
           let sec_data = item["dateline"].match(/([0-9]+|半)[\s\S]*秒前/);
           let min_data = item["dateline"].match(/([0-9]+|半)[\s\S]*分钟前/);
           let hour_data = item["dateline"].match(/([0-9]+|半)[\s\S]*小时前/);
-          let yesterday_time_data = item["dateline"].match(
-            /昨天[\s\S]*(\d{2}):(\d{2})/
-          );
-          let before_yesterday_time_data = item["dateline"].match(
-            /前天[\s\S]*(\d{2}):(\d{2})/
-          );
+          let yesterday_time_data = item["dateline"].match(/昨天[\s\S]*(\d{2}):(\d{2})/);
+          let before_yesterday_time_data = item["dateline"].match(/前天[\s\S]*(\d{2}):(\d{2})/);
           let day_data = item["dateline"].match(/([0-9]+|半)[\s\S]*天前/);
           if (sec_data) {
             sec_data = sec_data[sec_data.length - 1];
@@ -4599,10 +4398,7 @@ createListViewItem(userInfo) {
 `
                 <div class="blackhome-user-avatar">
                     <div class="blackhome-user">
-                    <img src="${MTUtils.getAvatar(
-            userInfo["uid"],
-            "big"
-          )}" loading="lazy">
+                    <img src="${MTUtils.getAvatar(userInfo["uid"], "big")}" loading="lazy">
                     <div class="blackhome-user-info">
                         <p>${userInfo["username"]}</p>
                         <p>${userInfo["dateline"]}</p>
@@ -4615,10 +4411,7 @@ createListViewItem(userInfo) {
                     <div class="blackhome-user-uuid">UID: ${userInfo["uid"]}</div>
                     <div class="blackhome-operator">
                     <div class="blackhome-operator-user">
-                        <img loading="lazy" src="${MTUtils.getAvatar(
-            userInfo["operatorid"],
-            "big"
-          )}">
+                        <img loading="lazy" src="${MTUtils.getAvatar(userInfo["operatorid"], "big")}">
                         <p>${userInfo["operator"]}</p>
                     </div>
                     <div class="blackhome-operator-user-info">
@@ -4637,21 +4430,15 @@ createListViewItem(userInfo) {
         }
       );
       domUtils.on($item, "click", ".blackhome-user img", function() {
-        window.open(
-          `home.php?mod=space&uid=${userInfo.uid}&do=profile`,
-          "_blank"
-        );
+        window.open(`home.php?mod=space&uid=${userInfo.uid}&do=profile`, "_blank");
       });
       domUtils.on($item, "click", ".blackhome-operator-user img", function() {
-        window.open(
-          `home.php?mod=space&uid=${userInfo.operatorid}&do=profile`,
-          "_blank"
-        );
+        window.open(`home.php?mod=space&uid=${userInfo.operatorid}&do=profile`, "_blank");
       });
       return $item;
     }
   };
-  const onlineUserCSS = '.pops-alert-content {\r\n	display: flex;\r\n	flex-direction: column;\r\n}\r\n.pops-alert-content > .online-user-info {\r\n	text-align: center;\r\n	padding: 0px 6px;\r\n}\r\n.online-user-filter input {\r\n	width: -webkit-fill-available;\r\n	width: -moz-available;\r\n	height: 30px;\r\n	margin: 8px 20px;\r\n	border: 0;\r\n	border-bottom: 1px solid;\r\n}\r\n.online-user-filter input:focus-within {\r\n	outline: none;\r\n}\r\n.online-user-list {\r\n	flex: 1;\r\n	overflow-y: auto;\r\n}\r\n.online-user-list li {\r\n	margin: 18px 0;\r\n}\r\n.online-user {\r\n	display: flex;\r\n	margin: 2px 20px;\r\n	align-items: center;\r\n}\r\n.online-user img[data-avatar] {\r\n	width: 45px;\r\n	height: 45px;\r\n	border-radius: 45px;\r\n}\r\n.online-user-list .online-user-info {\r\n	margin: 2px 14px;\r\n}\r\n.online-user-list .online-user-info p[data-name] {\r\n	margin-bottom: 4px;\r\n}\r\n.online-user-list .online-user-info span[data-sf] {\r\n	border-radius: 4px;\r\n	padding: 2px 4px;\r\n	font-weight: 500;\r\n	font-size: 14px;\r\n}\r\n.online-user-list .online-user-info span[data-uid] {\r\n	border: 1px solid #ff7600;\r\n	color: #ff7600;\r\n	border-radius: 4px;\r\n	padding: 2px 4px;\r\n	font-weight: 500;\r\n	font-size: 14px;\r\n	width: fit-content;\r\n	width: -moz-fit-content;\r\n	margin: 10px 0;\r\n}\r\n.online-user-list .online-user-info span[data-sf="会员"] {\r\n	color: #88b500;\r\n	border: 1px solid #88b500;\r\n}\r\n.online-user-list .online-user-info span[data-sf="版主"] {\r\n	color: #2db5e3;\r\n	border: 1px solid #2db5e3;\r\n}\r\n.online-user-list .online-user-info span[data-sf="超级版主"] {\r\n	color: #e89e38;\r\n	border: 1px solid #e89e38;\r\n}\r\n.online-user-list .online-user-info span[data-sf="管理员"] {\r\n	color: #ff5416;\r\n	border: 1px solid #ff5416;\r\n}\r\n\r\n@media screen and (min-width: 800px) {\r\n	.online-user-list {\r\n		display: flex;\r\n		flex-wrap: wrap;\r\n	}\r\n	.online-user-list .online-item {\r\n		flex: 1 1 250px;\r\n	}\r\n}\r\n';
+  const onlineUserCSS = '.pops-alert-content {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n.pops-alert-content > .online-user-info {\r\n  text-align: center;\r\n  padding: 0px 6px;\r\n}\r\n.online-user-filter input {\r\n  width: -webkit-fill-available;\r\n  width: -moz-available;\r\n  height: 30px;\r\n  margin: 8px 20px;\r\n  border: 0;\r\n  border-bottom: 1px solid;\r\n}\r\n.online-user-filter input:focus-within {\r\n  outline: none;\r\n}\r\n.online-user-list {\r\n  flex: 1;\r\n  overflow-y: auto;\r\n}\r\n.online-user-list li {\r\n  margin: 18px 0;\r\n}\r\n.online-user {\r\n  display: flex;\r\n  margin: 2px 20px;\r\n  align-items: center;\r\n}\r\n.online-user img[data-avatar] {\r\n  width: 45px;\r\n  height: 45px;\r\n  border-radius: 45px;\r\n}\r\n.online-user-list .online-user-info {\r\n  margin: 2px 14px;\r\n}\r\n.online-user-list .online-user-info p[data-name] {\r\n  margin-bottom: 4px;\r\n}\r\n.online-user-list .online-user-info span[data-sf] {\r\n  border-radius: 4px;\r\n  padding: 2px 4px;\r\n  font-weight: 500;\r\n  font-size: 14px;\r\n}\r\n.online-user-list .online-user-info span[data-uid] {\r\n  border: 1px solid #ff7600;\r\n  color: #ff7600;\r\n  border-radius: 4px;\r\n  padding: 2px 4px;\r\n  font-weight: 500;\r\n  font-size: 14px;\r\n  width: fit-content;\r\n  width: -moz-fit-content;\r\n  margin: 10px 0;\r\n}\r\n.online-user-list .online-user-info span[data-sf="会员"] {\r\n  color: #88b500;\r\n  border: 1px solid #88b500;\r\n}\r\n.online-user-list .online-user-info span[data-sf="版主"] {\r\n  color: #2db5e3;\r\n  border: 1px solid #2db5e3;\r\n}\r\n.online-user-list .online-user-info span[data-sf="超级版主"] {\r\n  color: #e89e38;\r\n  border: 1px solid #e89e38;\r\n}\r\n.online-user-list .online-user-info span[data-sf="管理员"] {\r\n  color: #ff5416;\r\n  border: 1px solid #ff5416;\r\n}\r\n\r\n@media screen and (min-width: 800px) {\r\n  .online-user-list {\r\n    display: flex;\r\n    flex-wrap: wrap;\r\n  }\r\n  .online-user-list .online-item {\r\n    flex: 1 1 250px;\r\n  }\r\n}\r\n';
   const MTOnlineUser = {
     $data: {},
     init() {
@@ -4705,9 +4492,7 @@ async showOnlineUser() {
         style: onlineUserCSS
       });
       let $list = $alert.$shadowRoot.querySelector(".online-user-list");
-      let $filterInput = $alert.$shadowRoot.querySelector(
-        ".online-user-filter input"
-      );
+      let $filterInput = $alert.$shadowRoot.querySelector(".online-user-filter input");
       onlineUserInfo.data.forEach((item) => {
         let $item = this.createListViewItem(item);
         $list.appendChild($item);
@@ -4745,21 +4530,15 @@ async getOnlineUserListInfo() {
       let searchParamsData = {
         showoldetails: "yes"
       };
-      let response = await httpx.get(
-        `/forum.php?${utils.toSearchParamsStr(searchParamsData)}`,
-        {
-          headers: {
-            "User-Agent": utils.getRandomPCUA()
-          }
+      let response = await httpx.get(`/forum.php?${utils.toSearchParamsStr(searchParamsData)}`, {
+        headers: {
+          "User-Agent": utils.getRandomPCUA()
         }
-      );
+      });
       if (!response.status) {
         return;
       }
-      let pageHTML = utils.parseFromString(
-        response.data.responseText,
-        "text/html"
-      );
+      let pageHTML = utils.parseFromString(response.data.responseText, "text/html");
       let result = {
         data: [],
         totalOnline: 0,
@@ -4795,22 +4574,10 @@ async getOnlineUserListInfo() {
         });
       });
       let onlineInfo = pageHTML.querySelector("#online div.bm_h span.xs1").textContent;
-      result.totalOnline = utils.parseInt(
-        onlineInfo.match(/([0-9]*)\s*人在线/i),
-        0
-      );
-      result.onlineUser = utils.parseInt(
-        onlineInfo.match(/([0-9]*)\s*会员/i),
-        0
-      );
-      result.noRegisterUser = utils.parseInt(
-        onlineInfo.match(/([0-9]*)\s*位游客/i),
-        0
-      );
-      result.invisibleUser = utils.parseInt(
-        onlineInfo.match(/([0-9]*)\s*隐身/i),
-        0
-      );
+      result.totalOnline = utils.parseInt(onlineInfo.match(/([0-9]*)\s*人在线/i), 0);
+      result.onlineUser = utils.parseInt(onlineInfo.match(/([0-9]*)\s*会员/i), 0);
+      result.noRegisterUser = utils.parseInt(onlineInfo.match(/([0-9]*)\s*位游客/i), 0);
+      result.invisibleUser = utils.parseInt(onlineInfo.match(/([0-9]*)\s*隐身/i), 0);
       return result;
     },
 createListViewItem(userInfo) {
@@ -4838,11 +4605,8 @@ createListViewItem(userInfo) {
         }
       );
       DOMUtils.on($item, "click", ".online-user-avatar", (event) => {
-        utils.preventEvent(event);
-        window.open(
-          `home.php?mod=space&uid=${userInfo.uid}&do=profile`,
-          "_blank"
-        );
+        DOMUtils.preventEvent(event);
+        window.open(`home.php?mod=space&uid=${userInfo.uid}&do=profile`, "_blank");
       });
       return $item;
     }
@@ -4977,18 +4741,14 @@ async extendCookieExpire() {
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi(
-      "select",
-      result,
-      {
-        get(key2, defaultValue2) {
-          return Panel.getValue(key2, defaultValue2);
-        },
-        set(key2, value) {
-          Panel.setValue(key2, value);
-        }
+    PanelComponents.initComponentsStorageApi("select", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
       }
-    );
+    });
     return result;
   };
   const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack, disable) {
@@ -5011,9 +4771,7 @@ async extendCookieExpire() {
       afterAddToUListCallBack
     };
     Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
-      result.disable = Boolean(
-        disable
-      );
+      result.disable = Boolean(disable);
     });
     return result;
   };
@@ -5221,40 +4979,24 @@ avatarInfo: {
             `
         )
       });
-      this.$el.$smallUpload = $confirm.$shadowRoot.querySelector(
-        ".avatar-upload[data-type='small']"
-      );
+      this.$el.$smallUpload = $confirm.$shadowRoot.querySelector(".avatar-upload[data-type='small']");
       this.$el.$middleUpload = $confirm.$shadowRoot.querySelector(
         ".avatar-upload[data-type='middle']"
       );
-      this.$el.$bigUpload = $confirm.$shadowRoot.querySelector(
-        ".avatar-upload[data-type='big']"
-      );
+      this.$el.$bigUpload = $confirm.$shadowRoot.querySelector(".avatar-upload[data-type='big']");
       this.$el.$smallStatus = $confirm.$shadowRoot.querySelector(
         ".avatar-upload-status[data-type='small']"
       );
       this.$el.$middleStatus = $confirm.$shadowRoot.querySelector(
         ".avatar-upload-status[data-type='middle']"
       );
-      this.$el.$bigStatus = $confirm.$shadowRoot.querySelector(
-        ".avatar-upload-status[data-type='big']"
-      );
-      this.setUploadChangeEvent(
-        this.$el.$smallUpload,
-        this.$el.$smallStatus,
-        this.$data.avatarInfo.small,
-        () => {
-          this.$upload.small = true;
-        }
-      );
-      this.setUploadChangeEvent(
-        this.$el.$middleUpload,
-        this.$el.$middleStatus,
-        this.$data.avatarInfo.middle,
-        () => {
-          this.$upload.middle = true;
-        }
-      );
+      this.$el.$bigStatus = $confirm.$shadowRoot.querySelector(".avatar-upload-status[data-type='big']");
+      this.setUploadChangeEvent(this.$el.$smallUpload, this.$el.$smallStatus, this.$data.avatarInfo.small, () => {
+        this.$upload.small = true;
+      });
+      this.setUploadChangeEvent(this.$el.$middleUpload, this.$el.$middleStatus, this.$data.avatarInfo.middle, () => {
+        this.$upload.middle = true;
+      });
       this.setUploadChangeEvent(this.$el.$bigUpload, this.$el.$bigStatus, this.$data.avatarInfo.big, () => {
         this.$upload.big = true;
       });
@@ -5428,13 +5170,7 @@ async getUploadUrl() {
                     void 0,
                     "限制Toast显示的数量"
                   ),
-                  UISwitch(
-                    "逆序弹出",
-                    "qmsg-config-showreverse",
-                    false,
-                    void 0,
-                    "修改Toast弹出的顺序"
-                  )
+                  UISwitch("逆序弹出", "qmsg-config-showreverse", false, void 0, "修改Toast弹出的顺序")
                 ]
               }
             ]
@@ -5486,13 +5222,7 @@ async getUploadUrl() {
                 text: "",
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "新增【最新发表】",
-                    "mt-addLatestPostBtn",
-                    true,
-                    void 0,
-                    "便于快捷跳转"
-                  ),
+                  UISwitch("新增【最新发表】", "mt-addLatestPostBtn", true, void 0, "便于快捷跳转"),
                   UISwitch(
                     "文本转超链接",
                     "mt-link-text-to-hyperlink",
@@ -5500,13 +5230,7 @@ async getUploadUrl() {
                     void 0,
                     "自动把符合超链接格式的文字转为超链接"
                   ),
-                  UISwitch(
-                    "延长登录Cookie过期时间",
-                    "mt-extend-cookie-expire",
-                    false,
-                    void 0,
-                    "减少频繁登录账号的问题"
-                  )
+                  UISwitch("延长登录Cookie过期时间", "mt-extend-cookie-expire", false, void 0, "减少频繁登录账号的问题")
                 ]
               }
             ]
@@ -5520,19 +5244,11 @@ async getUploadUrl() {
                 type: "forms",
                 forms: [
                   UISwitch("启用", "mt-auto-sign", true, void 0, "自动请求签到"),
-                  UISwitch(
-                    "使用fetch请求",
-                    "mt-auto-sign-useFetch",
-                    false,
-                    void 0,
-                    ""
-                  ),
+                  UISwitch("使用fetch请求", "mt-auto-sign-useFetch", false, void 0, ""),
                   UIButton(
                     "签到信息",
                     `上次签到时间：${(() => {
-                    let signInfo = MTAutoSignIn.getHostNameSignInfo(
-                      window.location.hostname
-                    );
+                    let signInfo = MTAutoSignIn.getHostNameSignInfo(window.location.hostname);
                     if (signInfo) {
                       return Utils.formatTime(signInfo.time);
                     } else {
@@ -5546,9 +5262,7 @@ async getUploadUrl() {
                     "primary",
                     (event) => {
                       let $click = event.composedPath()[0];
-                      let $desc = $click.closest("li").querySelector(
-                        ".pops-panel-item-left-desc-text"
-                      );
+                      let $desc = $click.closest("li").querySelector(".pops-panel-item-left-desc-text");
                       __pops.confirm({
                         title: {
                           text: "提示 ",
@@ -5635,15 +5349,9 @@ async getUploadUrl() {
 										`
                       )
                     });
-                    $right.querySelector(
-                      ".avatar-img[data-size='small']"
-                    );
-                    $right.querySelector(
-                      ".avatar-img[data-size='middle']"
-                    );
-                    $right.querySelector(
-                      ".avatar-img[data-size='big']"
-                    );
+                    $right.querySelector(".avatar-img[data-size='small']");
+                    $right.querySelector(".avatar-img[data-size='middle']");
+                    $right.querySelector(".avatar-img[data-size='big']");
                     $li.appendChild($left);
                     $li.appendChild($right);
                     $li.appendChild($style);
@@ -5724,20 +5432,8 @@ async getUploadUrl() {
                     void 0,
                     "点击附件时弹出提示框进行确认是否下载附件"
                   ),
-                  UISwitch(
-                    "图片查看优化",
-                    "mt-forum-post-optimizationImagePreview",
-                    true,
-                    void 0,
-                    "使用Viewer查看图片"
-                  ),
-                  UISwitch(
-                    "自动加载下一页",
-                    "mt-forum-post-loadNextPageComment",
-                    true,
-                    void 0,
-                    "无缝预览下一页"
-                  ),
+                  UISwitch("图片查看优化", "mt-forum-post-optimizationImagePreview", true, void 0, "使用Viewer查看图片"),
+                  UISwitch("自动加载下一页", "mt-forum-post-loadNextPageComment", true, void 0, "无缝预览下一页"),
                   UISwitch(
                     "代码块优化",
                     "mt-forum-post-codeQuoteOptimization",
@@ -5764,13 +5460,7 @@ async getUploadUrl() {
                     void 0,
                     "获取用户在线状态并在用户信息处显示状态表情"
                   ),
-                  UISwitch(
-                    "显示用户等级",
-                    "mt-forum-post-showUserLevel",
-                    true,
-                    void 0,
-                    "在用户信息处显示当前用户的等级"
-                  ),
+                  UISwitch("显示用户等级", "mt-forum-post-showUserLevel", true, void 0, "在用户信息处显示当前用户的等级"),
                   UISwitch(
                     "隐藏底部信息块",
                     "mt-forum-post-hideBottomInfoBlock",
@@ -5819,23 +5509,11 @@ async getUploadUrl() {
       {
         type: "forms",
         text: "",
-        forms: [
-          UISwitch(
-            "页面美化",
-            "mt-guide-beautifyPage",
-            true,
-            void 0,
-            "美化样式"
-          )
-        ]
+        forms: [UISwitch("页面美化", "mt-guide-beautifyPage", true, void 0, "美化样式")]
       }
     ]
   };
-  PanelContent.addContentConfig([
-    Component_Common,
-    Component_ForumPost,
-    Component_Guide
-  ]);
+  PanelContent.addContentConfig([Component_Common, Component_ForumPost, Component_Guide]);
   Panel.init();
   MT.init();
 

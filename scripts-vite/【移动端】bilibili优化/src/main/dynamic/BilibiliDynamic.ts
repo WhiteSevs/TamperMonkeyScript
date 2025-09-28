@@ -31,7 +31,7 @@ export const BilibiliDynamic = {
       "click",
       BilibiliData.className.dynamic + " .launch-app-btn .dyn-header",
       function (event) {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         let $click = event.target as HTMLDivElement;
         let vueObj = VueUtils.getVue($click);
         if (!vueObj) {
@@ -60,7 +60,7 @@ export const BilibiliDynamic = {
       "click",
       BilibiliData.className.dynamic + " .launch-app-btn .bili-dyn-topic",
       function (event) {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         let $click = event.target as HTMLDivElement;
         let vueObj = VueUtils.getVue($click);
         if (!vueObj) {
@@ -91,7 +91,7 @@ export const BilibiliDynamic = {
       "click",
       BilibiliData.className.dynamic + " .at",
       function (event) {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         let $click = event.target as HTMLDivElement;
         let oid = $click.getAttribute("data-oid") || VueUtils.getVue($click)?.$props?.rid;
         if (utils.isNull(oid)) {
@@ -117,7 +117,7 @@ export const BilibiliDynamic = {
       "click",
       BilibiliData.className.dynamic + " .dyn-content .reference .dyn-orig-author",
       function (event) {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         let $click = event.target as HTMLDivElement;
         let url = $click.getAttribute("data-url");
         if (!url) {
@@ -136,7 +136,7 @@ export const BilibiliDynamic = {
       "click",
       BilibiliData.className.dynamic + " .dyn-content .reference .dyn-archive",
       function (event) {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         let $click = event.target as HTMLDivElement;
         let vueObj = VueUtils.getVue($click);
         if (!vueObj) {

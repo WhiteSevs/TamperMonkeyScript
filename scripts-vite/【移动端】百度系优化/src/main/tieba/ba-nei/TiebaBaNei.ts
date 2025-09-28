@@ -86,7 +86,7 @@ export const TiebaBaNei = {
         let isLogin = () => {
           return vueInstance.$root.commonParams.uid != null;
         };
-        utils.waitNode<HTMLDivElement>("uni-app #forumInfoId .sign-wakeup .sign-wakeup-text").then((element) => {
+        DOMUtils.waitNode<HTMLDivElement>("uni-app #forumInfoId .sign-wakeup .sign-wakeup-text").then((element) => {
           if (isLogin()) {
             DOMUtils.text(element, "点击签到");
           } else {
@@ -97,7 +97,7 @@ export const TiebaBaNei = {
             $signWakeUp,
             "click",
             async function (event) {
-              utils.preventEvent(event);
+              DOMUtils.preventEvent(event);
               if (isLogin()) {
                 /* 已登录-签到 */
                 log.info(`已登录-签到`);
@@ -140,7 +140,7 @@ export const TiebaBaNei = {
         "uni-app .swiperItemWrapper > div > div",
       ],
       function (event) {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         let vueInstance = VueUtils.getVue(event.target);
         let pbUrl = vueInstance?.pbUrl;
         let collectH5Url = vueInstance?.collectH5Url;
@@ -180,7 +180,7 @@ export const TiebaBaNei = {
    */
   rememberPostSort() {
     let userSortModel = parseInt(Panel.getValue("baidu-tieba-sort-model", 3).toString());
-    utils.waitNode<HTMLDivElement>(".tb-page__main .tb-sort .tab-pack").then((element) => {
+    DOMUtils.waitNode<HTMLDivElement>(".tb-page__main .tb-sort .tab-pack").then((element) => {
       let originChange = VueUtils.getVue(element)?.change;
       originChange(userSortModel);
       (element as any).__vue__.change = function (index: number) {
@@ -298,7 +298,7 @@ export const TiebaBaNei = {
     document.addEventListener("click", (event) => {
       let vueInstance = VueUtils.getVue(event.target);
       if (vueInstance?.isOpenApp) {
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         log.success("阻止点击唤醒App .wake-up");
       }
     });

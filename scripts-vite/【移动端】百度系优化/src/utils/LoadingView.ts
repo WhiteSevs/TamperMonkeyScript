@@ -1,4 +1,4 @@
-import { utils } from "@/env";
+import { DOMUtils } from "@/env";
 
 class LoadingView {
   config: {
@@ -124,7 +124,7 @@ class LoadingView {
       100%{-ms-transform:rotate(360deg)}
       }
       `;
-    utils.addStyle(loadingViewCSSText);
+    DOMUtils.addStyle(loadingViewCSSText);
   }
   /**
    * 初始化loadingView元素

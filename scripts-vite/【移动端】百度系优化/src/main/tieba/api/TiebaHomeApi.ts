@@ -88,7 +88,7 @@ const TiebaHomeApi = {
     if (utils.isNull(data.data.content)) {
       return;
     }
-    let $doc = DOMUtils.parseHTML(data.data.content, true, true);
+    let $doc = DOMUtils.toElement(data.data.content, true, true);
     let resultDataList: UserConcernInfo[] = [];
     $doc.querySelectorAll<HTMLLIElement>(".home_concern_forum_item").forEach(($li) => {
       let $url = $li.querySelector<HTMLAnchorElement>("a.home_concern_forum_item_link")!;
@@ -148,7 +148,7 @@ const TiebaHomeApi = {
     if (utils.isNull(data.data.content)) {
       return;
     }
-    let $doc = DOMUtils.parseHTML(data.data.content, true, true);
+    let $doc = DOMUtils.toElement(data.data.content, true, true);
     let resultDataList: UserFollowInfo[] = [];
     $doc.querySelectorAll<HTMLAnchorElement>(".uloader_grid_item_user").forEach(($url) => {
       let url = $url.href;
@@ -205,7 +205,7 @@ const TiebaHomeApi = {
     if (utils.isNull(data.data.content)) {
       return;
     }
-    let $doc = DOMUtils.parseHTML(data.data.content, true, true);
+    let $doc = DOMUtils.toElement(data.data.content, true, true);
     let resultDataList: UserFansInfo[] = [];
     $doc.querySelectorAll<HTMLAnchorElement>(".uloader_grid_item_user").forEach(($url) => {
       let url = $url.href;
@@ -268,7 +268,7 @@ const TiebaHomeApi = {
     if (utils.isNull(data.data.content)) {
       return;
     }
-    let $doc = DOMUtils.parseHTML(data.data.content, true, true);
+    let $doc = DOMUtils.toElement(data.data.content, true, true);
     let resultDataList: UserPostInfo[] = [];
     $doc.querySelectorAll(".list_item").forEach(($listItem) => {
       let url = $listItem.querySelector<HTMLAnchorElement>(".list_item_link")!.href;

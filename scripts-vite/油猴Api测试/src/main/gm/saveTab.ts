@@ -11,89 +11,89 @@ import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
 
 export class ApiTest_saveTab extends ApiAsyncTestBase {
-	public isSupport() {
-		return typeof GM_saveTab === "function";
-	}
-	public getApiName() {
-		return "GM_saveTab";
-	}
-	public getAsyncApiOption() {
-		return {
-			name: "GM.saveTab",
-			isSupport: this.isSupportGM() && typeof GM.saveTab === "function",
-		};
-	}
-	public getUIOption() {
-		const that = this;
-		let apiName = this.getApiName();
-		let apiAsyncInfo = this.getAsyncApiOption();
+  public isSupport() {
+    return typeof GM_saveTab === "function";
+  }
+  public getApiName() {
+    return "GM_saveTab";
+  }
+  public getAsyncApiOption() {
+    return {
+      name: "GM.saveTab",
+      isSupport: this.isSupportGM() && typeof GM.saveTab === "function",
+    };
+  }
+  public getUIOption() {
+    const that = this;
+    let apiName = this.getApiName();
+    let apiAsyncInfo = this.getAsyncApiOption();
 
-		let result: PopsPanelContentConfig = {
-			id: "aside-" + apiName,
-			title: "" + apiName,
-			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
-			scrollToDefaultView: true,
-			isDefault() {
-				return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
-			},
-			clickCallback(data) {
-				StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
-			},
-			forms: [
-				{
-					type: "forms",
-					text: "函数测试",
-					forms: [
-						UIInfo(() =>
-							this.isSupport()
-								? {
-										text: "支持 " + apiName,
-										tag: "success",
-								  }
-								: {
-										text: "不支持 " + apiName,
-										tag: "error",
-								  }
-						),
-						UIInfo(() =>
-							apiAsyncInfo.isSupport
-								? {
-										text: "支持 " + apiAsyncInfo.name,
-										tag: "success",
-								  }
-								: {
-										text: "不支持 " + apiAsyncInfo.name,
-										tag: "error",
-								  }
-						),
-					],
-				},
-				{
-					type: "forms",
-					text: "功能测试",
-					forms: [],
-				},
-			],
-		};
-		if (this.isSupport()) {
-			((result["forms"][1] as any).forms as PopsPanelFormsTotalDetails[]).push(
-				UIInfo(() => {
-					try {
-						return {
-							text: CommonUtil.escapeHtml("TODO"),
-							tag: "info",
-						};
-					} catch (error) {
-						console.error(error);
-						return {
-							text: "执行错误 " + error,
-							tag: "error",
-						};
-					} finally {
-					}
-				})
-			);
-		}
-		return result;
-	}
+    let result: PopsPanelContentConfig = {
+      id: "aside-" + apiName,
+      title: "" + apiName,
+      headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
+      scrollToDefaultView: true,
+      isDefault() {
+        return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+      },
+      clickCallback(data) {
+        StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+      },
+      forms: [
+        {
+          type: "forms",
+          text: "函数测试",
+          forms: [
+            UIInfo(() =>
+              this.isSupport()
+                ? {
+                    text: "支持 " + apiName,
+                    tag: "success",
+                  }
+                : {
+                    text: "不支持 " + apiName,
+                    tag: "error",
+                  }
+            ),
+            UIInfo(() =>
+              apiAsyncInfo.isSupport
+                ? {
+                    text: "支持 " + apiAsyncInfo.name,
+                    tag: "success",
+                  }
+                : {
+                    text: "不支持 " + apiAsyncInfo.name,
+                    tag: "error",
+                  }
+            ),
+          ],
+        },
+        {
+          type: "forms",
+          text: "功能测试",
+          forms: [],
+        },
+      ],
+    };
+    if (this.isSupport()) {
+      ((result["forms"][1] as any).forms as PopsPanelFormsTotalDetails[]).push(
+        UIInfo(() => {
+          try {
+            return {
+              text: CommonUtil.escapeHtml("TODO"),
+              tag: "info",
+            };
+          } catch (error) {
+            console.error(error);
+            return {
+              text: "执行错误 " + error,
+              tag: "error",
+            };
+          } finally {
+          }
+        })
+      );
+    }
+    return result;
+  }
 }

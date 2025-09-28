@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         简书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.14
+// @version      2025.9.28
 // @author       WhiteSevs
 // @description  支持手机端和PC端、屏蔽广告、优化浏览体验、重定向链接、全文居中、自动展开全文、允许复制文字、劫持唤醒/跳转App、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -10,10 +10,10 @@
 // @match        *://*.jianshu.com/*
 // @match        *://*.jianshu.io/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.8.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.4.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @connect      *
 // @grant        GM_deleteValue
 // @grant        GM_getResourceText
@@ -57,26 +57,26 @@ div[role="main"] > div > section:first-child > div:nth-last-child(2),\r
 div.adad_container ,\r
 /* 顶部导航栏的【下载App】 */\r
 #__next nav a[href*="navbar-app"] {\r
-	display: none !important;\r
+  display: none !important;\r
 }\r
 body.reader-day-mode.normal-size {\r
-	overflow: auto !important;\r
+  overflow: auto !important;\r
 }\r
 .collapse-free-content {\r
-	height: auto !important;\r
+  height: auto !important;\r
 }\r
 .copyright {\r
-	color: #000 !important;\r
+  color: #000 !important;\r
 }\r
 #note-show .content .show-content-free .collapse-free-content:after {\r
-	background-image: none !important;\r
+  background-image: none !important;\r
 }\r
 footer > div > div {\r
-	justify-content: center;\r
+  justify-content: center;\r
 }\r
 /* 修复底部最后编辑于：。。。在某些套壳浏览器上的错位问题 */\r
 #note-show .content .show-content-free .note-meta-time {\r
-	margin-top: 0px !important;\r
+  margin-top: 0px !important;\r
 }\r
 `;
   var _GM_deleteValue = (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
@@ -188,9 +188,7 @@ keys() {
     }
 values() {
       let localValue = this.getLocalValue();
-      return Reflect.ownKeys(localValue).map(
-        (key) => Reflect.get(localValue, key)
-      );
+      return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
     }
 clear() {
       _GM_deleteValue(this.storageKey);
@@ -350,7 +348,7 @@ waitRemove(...args) {
         if (typeof selector !== "string") {
           return;
         }
-        utils.waitNodeList(selector).then((nodeList) => {
+        DOMUtils.waitNodeList(selector).then((nodeList) => {
           nodeList.forEach(($el) => $el.remove());
         });
       });
@@ -421,6 +419,9 @@ async loadScript(url) {
     },
 fixUrl(url) {
       url = url.trim();
+      if (url.startsWith("data:")) {
+        return url;
+      }
       if (url.match(/^http(s|):\/\//i)) {
         return url;
       } else if (url.startsWith("//")) {
@@ -444,9 +445,13 @@ fixHttps(url) {
       if (!url.startsWith("http://")) {
         return url;
       }
-      let urlInstance = new URL(url);
-      urlInstance.protocol = "https:";
-      return urlInstance.toString();
+      try {
+        let urlInstance = new URL(url);
+        urlInstance.protocol = "https:";
+        return urlInstance.toString();
+      } catch {
+        return url;
+      }
     },
 lockScroll(...args) {
       let $hidden = document.createElement("style");
@@ -681,6 +686,9 @@ setDefaultValue(key, defaultValue) {
         log.warn("请检查该key(已存在): " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
+    },
+getDefaultValue(key) {
+      return this.$data.contentConfigInitDefaultValue.get(key);
     },
 setValue(key, value) {
       PopsPanelStorageApi.set(key, value);
@@ -1002,7 +1010,7 @@ threshold: 1
         $el.classList.add(flashingClassName);
       };
       let dbclick_event = (evt, selectorTarget) => {
-        utils.preventEvent(evt);
+        domUtils.preventEvent(evt);
         let $alert = __pops.alert({
           title: {
             text: "搜索配置",
@@ -1118,7 +1126,7 @@ threshold: 1
             $targetAsideItem.click();
             asyncQueryProperty(pathInfo.next, async (target) => {
               if (target?.next) {
-                let $findDeepMenu = await utils.waitNode(() => {
+                let $findDeepMenu = await domUtils.waitNode(() => {
                   return Array.from(
                     $panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")
                   ).find(($deepMenu) => {
@@ -1140,7 +1148,7 @@ threshold: 1
                   data: target.next
                 };
               } else {
-                let $findTargetMenu = await utils.waitNode(() => {
+                let $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from(
                     $panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)
                   ).find(($menuItem) => {
@@ -1290,7 +1298,7 @@ threshold: 1
           $searchInput,
           "input",
           utils.debounce((evt2) => {
-            utils.preventEvent(evt2);
+            domUtils.preventEvent(evt2);
             let searchText = domUtils.val($searchInput).trim();
             if (searchText === "") {
               clearSearchResult();
@@ -1388,16 +1396,13 @@ qmsg_config_showreverse: {
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
   const __pops = pops;
-  const log = new utils.Log(
-    _GM_info,
-    _unsafeWindow.console || _monkeyWindow.console
-  );
+  const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
   let SCRIPT_NAME = _GM_info?.script?.name || void 0;
   pops.config.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
-    debug: DEBUG,
-    logMaxCount: 1e3,
+    debug: false,
+    logMaxCount: 250,
     autoClearConsole: true,
     tag: true
   });
@@ -1505,7 +1510,7 @@ clickEvent: {
     },
     setTimeout: _unsafeWindow.setTimeout
   });
-  const addStyle = utils.addStyle.bind(utils);
+  const addStyle = domUtils.addStyle.bind(domUtils);
   DOMUtils.selector.bind(DOMUtils);
   DOMUtils.selectorAll.bind(DOMUtils);
   new utils.GM_Cookie();
@@ -1515,7 +1520,7 @@ isGoWild() {
     }
   };
   const waitForElementToRemove = function(selectorText = "") {
-    utils.waitNodeList(selectorText).then((nodeList) => {
+    domUtils.waitNodeList(selectorText).then((nodeList) => {
       nodeList.forEach((item) => item.remove());
     });
   };
@@ -1575,7 +1580,7 @@ articleCenter() {
       );
       waitForElementToRemove("div[role=main] aside");
       waitForElementToRemove("div._3Pnjry");
-      utils.waitNodeList("div._gp-ck").then((nodeList) => {
+      domUtils.waitNodeList("div._gp-ck").then((nodeList) => {
         nodeList.forEach((item) => {
           item.style["width"] = "100%";
         });
@@ -1591,7 +1596,7 @@ removeClipboardHijacking() {
       document.addEventListener("copy", stopNativePropagation, true);
     },
 autoExpandFullText() {
-      utils.waitNode(`div#homepage div[class*="dialog-"]`).then((element) => {
+      domUtils.waitNode(`div#homepage div[class*="dialog-"]`).then((element) => {
         element.style["visibility"] = "hidden";
         log.info("自动展开全文");
         utils.mutationObserver(element, {
@@ -1602,9 +1607,7 @@ autoExpandFullText() {
             mutations.forEach((mutationItem) => {
               if (mutationItem.target.style["display"] != "none") {
                 log.success("自动展开全文-自动点击");
-                document.querySelector(
-                  'div#homepage div[class*="dialog-"] .cancel'
-                )?.click();
+                document.querySelector('div#homepage div[class*="dialog-"] .cancel')?.click();
               }
             });
           },
@@ -1621,10 +1624,7 @@ jumpRedirect() {
       if (JianshuRouter.isGoWild()) {
         log.success("去除简书拦截其它网址的url并自动跳转");
         window.stop();
-        let search = window.location.href.replace(
-          window.location.origin + "/",
-          ""
-        );
+        let search = window.location.href.replace(window.location.origin + "/", "");
         search = decodeURIComponent(search);
         let newURL = search.replace(/^go-wild\?ac=2&url=/gi, "").replace(/^https:\/\/link.zhihu.com\/\?target\=/gi, "");
         window.location.href = newURL;
@@ -1632,32 +1632,28 @@ jumpRedirect() {
     },
 blockRelatedArticles() {
       log.info("屏蔽相关文章");
-      return CommonUtil.addBlockCSS(
-        'div[role="main"] > div > section:nth-child(2)'
-      );
+      return CommonUtil.addBlockCSS('div[role="main"] > div > section:nth-child(2)');
     },
 blockClientDialog() {
       log.info("【屏蔽】客户端弹窗");
       CommonUtil.addBlockCSS(
         'div:has(>div[class*="-mask"]:not([class*="-mask-hidden"]) + div[tabindex="-1"][role="dialog"])'
       );
-      utils.waitNode(
+      domUtils.waitNode(
         `div[class*="-mask"]:not([class*="-mask-hidden"]) + div[tabindex="-1"][role="dialog"]`
       ).then((element) => {
         log.success("弹窗出现");
         utils.waitPropertyByInterval(
           element,
           () => {
-            let react = utils.getReactObj(element);
+            let react = utils.getReactInstance(element);
             return react?.reactInternalInstance?.return?.return?.memoizedProps?.onClose;
           },
           250,
           1e4
         ).then(() => {
-          let react = utils.getReactObj(element);
-          react.reactInternalInstance.return.return.memoizedProps.onClose(
-            new Event("click")
-          );
+          let react = utils.getReactInstance(element);
+          react.reactInternalInstance.return.return.memoizedProps.onClose(new Event("click"));
           log.success("调用函数关闭弹窗");
         });
       });
@@ -1668,9 +1664,7 @@ blockUserComments() {
     },
 blockRecommendedReading() {
       log.info("屏蔽底部推荐阅读");
-      return CommonUtil.addBlockCSS(
-        'div[role="main"] > div > section:last-child'
-      );
+      return CommonUtil.addBlockCSS('div[role="main"] > div > section:last-child');
     },
 blockTopNav() {
       log.info("【屏蔽】顶部导航栏");
@@ -1786,18 +1780,14 @@ setComponentsStorageApiProperty(config, storageApiValue) {
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi(
-      "switch",
-      result,
-      {
-        get(key2, defaultValue2) {
-          return Panel.getValue(key2, defaultValue2);
-        },
-        set(key2, value) {
-          Panel.setValue(key2, value);
-        }
+    PanelComponents.initComponentsStorageApi("switch", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
       }
-    );
+    });
     return result;
   };
   const SettingUIMobile = {
@@ -1816,18 +1806,8 @@ setComponentsStorageApiProperty(config, storageApiValue) {
                 text: "",
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "自动展开全文",
-                    "JianShuAutoExpandFullText_Mobile",
-                    true
-                  ),
-                  UISwitch(
-                    "重定向链接",
-                    "JianShuAutoJumpRedirect_Mobile",
-                    true,
-                    void 0,
-                    "自动跳转简书拦截的Url链接"
-                  )
+                  UISwitch("自动展开全文", "JianShuAutoExpandFullText_Mobile", true),
+                  UISwitch("重定向链接", "JianShuAutoJumpRedirect_Mobile", true, void 0, "自动跳转简书拦截的Url链接")
                 ]
               }
             ]
@@ -1840,16 +1820,8 @@ setComponentsStorageApiProperty(config, storageApiValue) {
                 text: "",
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "【屏蔽】底部推荐阅读",
-                    "JianShuremoveFooterRecommendRead",
-                    false
-                  ),
-                  UISwitch(
-                    "【屏蔽】评论区",
-                    "JianShuShieldUserCommentsMobile",
-                    false
-                  )
+                  UISwitch("【屏蔽】底部推荐阅读", "JianShuremoveFooterRecommendRead", false),
+                  UISwitch("【屏蔽】评论区", "JianShuShieldUserCommentsMobile", false)
                 ]
               }
             ]
@@ -1862,13 +1834,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
                 text: "",
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "拦截-剪贴板",
-                    "JianShuRemoveClipboardHijacking_Mobile",
-                    true,
-                    void 0,
-                    "去除禁止复制"
-                  ),
+                  UISwitch("拦截-剪贴板", "JianShuRemoveClipboardHijacking_Mobile", true, void 0, "去除禁止复制"),
                   UISwitch(
                     "劫持-唤醒/跳转App",
                     "JianShuHijackSchemeScriptLabel_Mobile",
@@ -1917,18 +1883,14 @@ setComponentsStorageApiProperty(config, storageApiValue) {
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi(
-      "select",
-      result,
-      {
-        get(key2, defaultValue2) {
-          return Panel.getValue(key2, defaultValue2);
-        },
-        set(key2, value) {
-          Panel.setValue(key2, value);
-        }
+    PanelComponents.initComponentsStorageApi("select", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
       }
-    );
+    });
     return result;
   };
   const SettingUICommon = {
@@ -2015,13 +1977,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             void 0,
             "限制Toast显示的数量"
           ),
-          UISwitch(
-            "逆序弹出",
-            "qmsg-config-showreverse",
-            false,
-            void 0,
-            "修改Toast弹出的顺序"
-          )
+          UISwitch("逆序弹出", "qmsg-config-showreverse", false, void 0, "修改Toast弹出的顺序")
         ]
       }
     ]
@@ -2044,13 +2000,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
                 forms: [
                   UISwitch("全文居中", "JianShuArticleCenter", true),
                   UISwitch("自动展开全文", "JianShuAutoExpandFullText", true),
-                  UISwitch(
-                    "重定向链接",
-                    "JianShuAutoJumpRedirect_PC",
-                    true,
-                    void 0,
-                    "自动跳转简书拦截的Url链接"
-                  )
+                  UISwitch("重定向链接", "JianShuAutoJumpRedirect_PC", true, void 0, "自动跳转简书拦截的Url链接")
                 ]
               }
             ]
@@ -2063,17 +2013,9 @@ setComponentsStorageApiProperty(config, storageApiValue) {
                 text: "",
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "【屏蔽】底部推荐阅读",
-                    "JianShuShieldRecommendedReading",
-                    false
-                  ),
+                  UISwitch("【屏蔽】底部推荐阅读", "JianShuShieldRecommendedReading", false),
                   UISwitch("【屏蔽】评论区", "JianShuShieldUserComments", false),
-                  UISwitch(
-                    "【屏蔽】相关文章",
-                    "JianShuShieldRelatedArticles",
-                    false
-                  ),
+                  UISwitch("【屏蔽】相关文章", "JianShuShieldRelatedArticles", false),
                   UISwitch(
                     "【屏蔽】客户端弹窗",
                     "jianshu-shieldClientDialog",
@@ -2100,15 +2042,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
               {
                 text: "",
                 type: "forms",
-                forms: [
-                  UISwitch(
-                    "拦截-剪贴板",
-                    "JianShuRemoveClipboardHijacking",
-                    true,
-                    void 0,
-                    "去除禁止复制"
-                  )
-                ]
+                forms: [UISwitch("拦截-剪贴板", "JianShuRemoveClipboardHijacking", true, void 0, "去除禁止复制")]
               }
             ]
           }
@@ -2134,10 +2068,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
     },
     callback: () => {
       let allowValue = [0, 1, 2];
-      let chooseText = window.prompt(
-        "请输入当前脚本环境判定\n\n自动判断: 0\n移动端: 1\nPC端: 2",
-        "0"
-      );
+      let chooseText = window.prompt("请输入当前脚本环境判定\n\n自动判断: 0\n移动端: 1\nPC端: 2", "0");
       if (!chooseText) {
         return;
       }

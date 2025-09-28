@@ -2,29 +2,29 @@
 input[type="submit"],
 input[type="button"],
 button {
-	display: inline-flex;
-	justify-content: center;
-	align-items: center;
-	line-height: 1;
-	height: 32px;
-	white-space: nowrap;
-	cursor: pointer;
-	/* color: #606266; */
-	text-align: center;
-	box-sizing: border-box;
-	outline: none;
-	transition: 0.1s;
-	font-weight: 500;
-	user-select: none;
-	vertical-align: middle;
-	appearance: none;
-	-webkit-appearance: none;
-	background-color: #ffffff;
-	border: 1px solid #dcdfe6;
-	border-color: #dcdfe6;
-	padding: 8px 15px;
-	font-size: 14px;
-	border-radius: 4px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  line-height: 1;
+  height: 32px;
+  white-space: nowrap;
+  cursor: pointer;
+  /* color: #606266; */
+  text-align: center;
+  box-sizing: border-box;
+  outline: none;
+  transition: 0.1s;
+  font-weight: 500;
+  user-select: none;
+  vertical-align: middle;
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: #ffffff;
+  border: 1px solid #dcdfe6;
+  border-color: #dcdfe6;
+  padding: 8px 15px;
+  font-size: 14px;
+  border-radius: 4px;
 }
 
 input[type="submit"]:hover,
@@ -33,116 +33,116 @@ input[type="button"]:hover,
 input[type="button"]:focus,
 button:hover,
 button:focus {
-	color: #409eff;
-	border-color: #c6e2ff;
-	background-color: #ecf5ff;
-	outline: none;
+  color: #409eff;
+  border-color: #c6e2ff;
+  background-color: #ecf5ff;
+  outline: none;
 }
 
 input[type="url"] {
-	position: relative;
-	font-size: 14px;
-	display: inline-flex;
-	line-height: 32px;
-	box-sizing: border-box;
-	vertical-align: middle;
-	appearance: none;
-	-webkit-appearance: none;
-	/* color: #606266; */
-	padding: 0;
-	outline: none;
-	border: none;
-	background: none;
-	flex-grow: 1;
-	align-items: center;
-	justify-content: center;
-	padding: 1px 11px;
-	background-color: #ffffff;
-	background-image: none;
-	border-radius: 4px;
-	cursor: text;
-	transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
-	transform: translateZ(0);
-	box-shadow: 0 0 0 1px #dcdfe6 inset;
+  position: relative;
+  font-size: 14px;
+  display: inline-flex;
+  line-height: 32px;
+  box-sizing: border-box;
+  vertical-align: middle;
+  appearance: none;
+  -webkit-appearance: none;
+  /* color: #606266; */
+  padding: 0;
+  outline: none;
+  border: none;
+  background: none;
+  flex-grow: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 11px;
+  background-color: #ffffff;
+  background-image: none;
+  border-radius: 4px;
+  cursor: text;
+  transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+  transform: translateZ(0);
+  box-shadow: 0 0 0 1px #dcdfe6 inset;
 
-	width: 100%;
-	width: -moz-available;
-	width: -webkit-fill-available;
-	width: fill-available;
+  width: 100%;
+  width: -moz-available;
+  width: -webkit-fill-available;
+  width: fill-available;
 }
 
 input[type="url"]::placeholder {
-	color: #a8abb2;
+  color: #a8abb2;
 }
 
 input[type="url"]:hover {
-	box-shadow: 0 0 0 1px #c0c4cc inset;
+  box-shadow: 0 0 0 1px #c0c4cc inset;
 }
 
 input[type="url"]:focus {
-	box-shadow: 0 0 0 1px #409eff inset;
+  box-shadow: 0 0 0 1px #409eff inset;
 }
 
 /* 危险按钮 */
 button.pops-button--danger {
-	border-color: #ff4d4d;
-	background-color: #ffe6e6;
-	color: #ff0000;
+  border-color: #ff4d4d;
+  background-color: #ffe6e6;
+  color: #ff0000;
 }
 button.pops-button--danger:hover {
-	border-color: #f56c6c;
-	background-color: #f56c6c;
-	color: #ffffff;
+  border-color: #f56c6c;
+  background-color: #f56c6c;
+  color: #ffffff;
 }
 button.pops-button--danger:focus,
 button.pops-button--danger:active {
-	border-color: #f78989;
-	background-color: #f78989;
-	color: #ffffff;
+  border-color: #f78989;
+  background-color: #f78989;
+  color: #ffffff;
 }
 
 /* 夜间模式 */
 @media (prefers-color-scheme: dark) {
-	input[type="submit"],
-	input[type="button"],
-	button {
-		border-color: #4c4d4f;
-		background-color: transparent;
-		color: #cfd3dc;
-	}
-	input[type="submit"]:hover,
-	input[type="button"]:hover,
-	button:hover {
-		border-color: #213d5b;
-		background-color: #18222c;
-		color: #409eff;
-	}
-	input[type="submit"]:focus,
-	input[type="button"]:focus,
-	button:focus,
-	input[type="submit"]:active,
-	input[type="button"]:active,
-	button:active {
-		border-color: #f78989;
-		background-color: #f78989;
-		color: #409eff;
-	}
+  input[type="submit"],
+  input[type="button"],
+  button {
+    border-color: #4c4d4f;
+    background-color: transparent;
+    color: #cfd3dc;
+  }
+  input[type="submit"]:hover,
+  input[type="button"]:hover,
+  button:hover {
+    border-color: #213d5b;
+    background-color: #18222c;
+    color: #409eff;
+  }
+  input[type="submit"]:focus,
+  input[type="button"]:focus,
+  button:focus,
+  input[type="submit"]:active,
+  input[type="button"]:active,
+  button:active {
+    border-color: #f78989;
+    background-color: #f78989;
+    color: #409eff;
+  }
 
-	/* 危险按钮 */
-	button.pops-button--danger {
-		border-color: rgb(132.5, 64, 64);
-		background-color: rgb(42.5, 28.8, 28.8);
-		color: #f56c6c;
-	}
-	button.pops-button--danger :hover {
-		border-color: #f56c6c;
-		background-color: #f56c6c;
-		color: #ffffff;
-	}
-	button.pops-button--danger :focus,
-	button.pops-button--danger :active {
-		border-color: #f78989;
-		background-color: #f78989;
-		color: #ffffff;
-	}
+  /* 危险按钮 */
+  button.pops-button--danger {
+    border-color: rgb(132.5, 64, 64);
+    background-color: rgb(42.5, 28.8, 28.8);
+    color: #f56c6c;
+  }
+  button.pops-button--danger :hover {
+    border-color: #f56c6c;
+    background-color: #f56c6c;
+    color: #ffffff;
+  }
+  button.pops-button--danger :focus,
+  button.pops-button--danger :active {
+    border-color: #f78989;
+    background-color: #f78989;
+    color: #ffffff;
+  }
 }

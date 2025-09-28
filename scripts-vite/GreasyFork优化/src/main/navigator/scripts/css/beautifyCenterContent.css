@@ -1,73 +1,73 @@
 .sidebarred-main-content {
-	max-width: unset;
-	flex: unset;
+  max-width: unset;
+  flex: unset;
 }
 ol.script-list {
-	display: flex;
-	flex-wrap: wrap;
-	border: none;
-	gap: 20px;
-	background: transparent;
-	box-shadow: none;
-	--shadow-color: #dddddd;
-	--border-color: #dddddd;
+  display: flex;
+  flex-wrap: wrap;
+  border: none;
+  gap: 20px;
+  background: transparent;
+  box-shadow: none;
+  --shadow-color: #dddddd;
+  --border-color: #dddddd;
 }
 ol.script-list .script-description {
-	overflow-wrap: anywhere;
+  overflow-wrap: anywhere;
 }
 ol.script-list li {
-	border: 1px solid var(--border-color);
-	border-radius: 5px;
-	flex: 1 1 45%;
-	box-shadow: var(--shadow-color) 0px 0px 5px 2px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  flex: 1 1 45%;
+  box-shadow: var(--shadow-color) 0px 0px 5px 2px;
 }
 /* 收藏按钮 */
 .script-collect-btn {
-	color: #ffffff;
-	border-color: #409eff;
-	background-color: #409eff;
+  color: #ffffff;
+  border-color: #409eff;
+  background-color: #409eff;
 }
 /* 评分按钮 */
 .script-list-rating-score[data-position="right"] {
-	display: inline-block;
-	min-width: 1em;
-	text-align: center;
-	padding: 0 0.25em;
-	border: 1px solid #dddddd;
-	border-radius: 10px;
-	width: fit-content;
+  display: inline-block;
+  min-width: 1em;
+  text-align: center;
+  padding: 0 0.25em;
+  border: 1px solid #dddddd;
+  border-radius: 10px;
+  width: fit-content;
 }
 /* 安装按钮 */
 .install-link {
-	border-radius: 0.25rem 0.25rem 0.25rem 0.25rem !important;
+  border-radius: 0.25rem 0.25rem 0.25rem 0.25rem !important;
 }
 .install-link:has(+ .install-help-link) {
-	border-radius: 0.25rem 0 0 0.25rem !important;
+  border-radius: 0.25rem 0 0 0.25rem !important;
 }
 /* 加载圆圈动画 */
 .install-link.lum-lightbox-loader {
-	position: relative;
-	min-width: 4rem;
-	min-height: 1rem;
+  position: relative;
+  min-width: 4rem;
+  min-height: 1rem;
 }
 .install-link.lum-lightbox-loader::before {
-	margin-left: 1rem;
+  margin-left: 1rem;
 }
 .install-link.lum-lightbox-loader::after {
-	margin-right: 1rem;
+  margin-right: 1rem;
 }
 .install-link.lum-lightbox-loader::before,
 .install-link.lum-lightbox-loader::after {
-	width: 1em;
-	height: 1em;
-	margin-top: -0.5em;
-	border-radius: 1em !important;
-	background: hsla(0, 0%, 100%, 0.5);
+  width: 1em;
+  height: 1em;
+  margin-top: -0.5em;
+  border-radius: 1em !important;
+  background: hsla(0, 0%, 100%, 0.5);
 }
 
 @media (prefers-color-scheme: dark) {
-	ol.script-list {
-		--shadow-color: #3d3d3d;
-		--border-color: #3d3d3d;
-	}
+  ol.script-list {
+    --shadow-color: #3d3d3d;
+    --border-color: #3d3d3d;
+  }
 }

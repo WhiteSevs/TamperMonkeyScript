@@ -80,7 +80,7 @@ export const DouYinSearch = {
 		`)
     );
     /* 评论区展开才会出现 */
-    utils.waitNode<HTMLDivElement>("#relatedVideoCard").then(($relatedVideoCard) => {
+    DOMUtils.waitNode<HTMLDivElement>("#relatedVideoCard").then(($relatedVideoCard) => {
       log.info("评论区展开的className：" + $relatedVideoCard.className);
       result.push(
         addStyle(/*css*/ `
@@ -108,7 +108,7 @@ export const DouYinSearch = {
         if (!DouYinRouter.isSearch()) {
           return;
         }
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         let $click = selectorTarget;
         let $parent = $click.parentElement?.parentElement as HTMLElement;
         let $video = $parent.querySelector("video");
@@ -139,7 +139,7 @@ export const DouYinSearch = {
         if (!DouYinRouter.isSearch()) {
           return;
         }
-        utils.preventEvent(event);
+        DOMUtils.preventEvent(event);
         let $video = selectorTarget as HTMLVideoElement;
         if ($video.paused) {
           $video.play();

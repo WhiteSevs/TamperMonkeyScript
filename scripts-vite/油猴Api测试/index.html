@@ -1,63 +1,59 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
-		<title>hotmap</title>
-	</head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>hotmap</title>
+  </head>
 
-	<body>
-		<canvas
-			id="hotmap"
-			width="500"
-			height="500"
-			style="border: 1px solid #000000"></canvas>
-		<script>
-			var pointsdata = [];
-			window.onload = function () {
-				var canvas = document.getElementById("hotmap");
-				if (canvas.getContext) {
-					var context = canvas.getContext("2d");
-				} else {
-					alert("浏览器不支持canvas!");
-				}
-				function getRandomInt(min, max) {
-					min = Math.ceil(min);
-					max = Math.floor(max);
-					return Math.floor(Math.random() * (max - min + 1)) + min;
-				}
-				// 定义心电图数据点
-				for (let index = 0; index < Number(canvas.width); index++) {
-					pointsdata.push({
-						x: index,
-						y: getRandomInt(400, Number(canvas.height)),
-					});
-				}
-				console.log(pointsdata);
-				// 绘制心电图
-				context.beginPath();
-				context.moveTo(pointsdata[0].x, pointsdata[0].y);
-				for (let i = 1; i < pointsdata.length; i++) {
-					context.lineTo(pointsdata[i].x, pointsdata[i].y);
-				}
+  <body>
+    <canvas id="hotmap" width="500" height="500" style="border: 1px solid #000000"></canvas>
+    <script>
+      var pointsdata = [];
+      window.onload = function () {
+        var canvas = document.getElementById("hotmap");
+        if (canvas.getContext) {
+          var context = canvas.getContext("2d");
+        } else {
+          alert("浏览器不支持canvas!");
+        }
+        function getRandomInt(min, max) {
+          min = Math.ceil(min);
+          max = Math.floor(max);
+          return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        // 定义心电图数据点
+        for (let index = 0; index < Number(canvas.width); index++) {
+          pointsdata.push({
+            x: index,
+            y: getRandomInt(400, Number(canvas.height)),
+          });
+        }
+        console.log(pointsdata);
+        // 绘制心电图
+        context.beginPath();
+        context.moveTo(pointsdata[0].x, pointsdata[0].y);
+        for (let i = 1; i < pointsdata.length; i++) {
+          context.lineTo(pointsdata[i].x, pointsdata[i].y);
+        }
 
-				// 将路径闭合到画布底部
-				context.lineTo(pointsdata[pointsdata.length - 1].x, canvas.height);
-				context.lineTo(pointsdata[0].x, canvas.height);
-				context.closePath();
+        // 将路径闭合到画布底部
+        context.lineTo(pointsdata[pointsdata.length - 1].x, canvas.height);
+        context.lineTo(pointsdata[0].x, canvas.height);
+        context.closePath();
 
-				// 设置线条样式
-				context.strokeStyle = "#FB7299";
-				context.lineWidth = 1;
+        // 设置线条样式
+        context.strokeStyle = "#FB7299";
+        context.lineWidth = 1;
 
-				// 填充路径下方区域
-				context.fillStyle = "rgba(255, 255, 255, 0.25)";
-				context.fill();
+        // 填充路径下方区域
+        context.fillStyle = "rgba(255, 255, 255, 0.25)";
+        context.fill();
 
-				// 绘制线条
-				context.stroke();
-			};
-		</script>
-	</body>
+        // 绘制线条
+        context.stroke();
+      };
+    </script>
+  </body>
 </html>

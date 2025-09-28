@@ -30,7 +30,7 @@ export const NetDiskCheckLinkValidity_uc: NetDiskCheckLinkValidityEntranceInstan
         data: response,
       };
     }
-    let responseDocument = DOMUtils.parseHTML(responseText, true, true);
+    let responseDocument = DOMUtils.toElement(responseText, true, true);
     if (responseDocument.querySelector(".h5-page-main")) {
       // 存在错误
       let $h5PageMain = responseDocument.querySelector<HTMLElement>(".h5-page-main")!;

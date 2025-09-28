@@ -396,7 +396,7 @@ export const NetDiskHistoryMatchView = {
         if (!uiLink) {
           log.info(dataOption);
         }
-        let searchTextRegExp = utils.stringToRegular(searchText, "i");
+        let searchTextRegExp = utils.toRegExp(searchText, "i");
         if (
           (typeof uiLink === "string" && uiLink.match(searchTextRegExp)) ||
           dataOption.shareCode.match(searchTextRegExp) ||

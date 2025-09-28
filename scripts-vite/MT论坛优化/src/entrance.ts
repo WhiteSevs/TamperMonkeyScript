@@ -5,10 +5,6 @@ import { Component_Common } from "./setting/view/common";
 import { Component_ForumPost } from "./setting/view/post";
 import { Component_Guide } from "./setting/view/guide";
 
-PanelContent.addContentConfig([
-	Component_Common,
-	Component_ForumPost,
-	Component_Guide,
-]);
+PanelContent.addContentConfig([Component_Common, Component_ForumPost, Component_Guide]);
 Panel.init();
 MT.init();

@@ -52,7 +52,7 @@ export const BaiduSearchToolBar = {
             `,
     });
     DOMUtils.on($btn, "click", (event) => {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       this.showToolBar();
       this.initDefaultSearchText();
       setTimeout(() => {
@@ -279,7 +279,7 @@ export const BaiduSearchToolBar = {
   setInputText(text: string, triggerEvent: boolean = true) {
     this.$el.$input.value = text;
     if (triggerEvent) {
-      utils.dispatchEvent(this.$el.$input, "input");
+      DOMUtils.trigger(this.$el.$input, "input");
     }
   },
   /**
@@ -287,7 +287,7 @@ export const BaiduSearchToolBar = {
    */
   setBackEvent() {
     DOMUtils.on(this.$el.$back, "click", (event) => {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       log.success("点击返回");
       this.hideToolBar();
       Panel.execMenu("baidu-search-global-searchToolBar-gesture-back", () => {
@@ -301,7 +301,7 @@ export const BaiduSearchToolBar = {
    */
   setEmptyEvent() {
     DOMUtils.on(this.$el.$empty, "click", (event) => {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       this.setInputText("");
     });
   },
@@ -310,7 +310,7 @@ export const BaiduSearchToolBar = {
    */
   setFormEvent() {
     DOMUtils.on(this.$el.$form, "submit", (event) => {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       let searchText = this.$el.$input.value;
       log.success("提交表单 搜索 ==> " + searchText);
       window.location.href = `${window.location.origin}/s?word=${searchText}`;
@@ -366,16 +366,16 @@ export const BaiduSearchToolBar = {
     let searchText = config.suggestionText.replaceAll(config.searchText, `<em>${config.searchText}</em>`);
     $text.innerHTML = searchText;
     DOMUtils.on($leftIcon, "click", (event) => {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
     });
     // 搜索建议点击事件
     DOMUtils.on($text, "click", (event) => {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       this.setInputText(config.suggestionText, false);
       this.$el.$submit.click();
     });
     DOMUtils.on($rightIcon, "click", (event) => {
-      utils.preventEvent(event);
+      DOMUtils.preventEvent(event);
       this.setInputText(config.suggestionText);
     });
     return $suggestionItem;

@@ -1,6 +1,6 @@
 import type {
-	PopsPanelContentConfig,
-	PopsPanelFormsTotalDetails,
+  PopsPanelContentConfig,
+  PopsPanelFormsTotalDetails,
 } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { ApiTestBase } from "../base/ApiTestBase";
 import { StorageApi } from "../StorageApi";
@@ -13,42 +13,42 @@ import { monkeyWindow } from "ViteGM";
 import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
 
 export class GrantTest_close extends ApiTestBase {
-	public getApiName() {
-		return "window.close ";
-	}
-	getAsyncApiOption() {
-		return void 0;
-	}
-	public isSupport() {
-		return true;
-	}
-	public getUIOption() {
-		let apiName = this.getApiName();
-		let result: PopsPanelContentConfig = {
-			id: "aside-" + apiName,
-			title: "" + apiName,
-			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName)}`,
-			scrollToDefaultView: true,
-			isDefault() {
-				return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
-			},
-			clickCallback(data) {
-				StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
-			},
-			forms: [
-				{
-					type: "forms",
-					text: "功能测试",
-					forms: [
-						UIInfo(() => {
-							try {
-								return {
-									text: CommonUtil.escapeHtml("测试window.close"),
-									tag: "info",
-									description: "点击按钮执行该函数",
-									afterRender(container) {
-										let $button = DOMUtils.parseHTML(
-											/*html*/ `
+  public getApiName() {
+    return "window.close ";
+  }
+  getAsyncApiOption() {
+    return void 0;
+  }
+  public isSupport() {
+    return true;
+  }
+  public getUIOption() {
+    let apiName = this.getApiName();
+    let result: PopsPanelContentConfig = {
+      id: "aside-" + apiName,
+      title: "" + apiName,
+      headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName)}`,
+      scrollToDefaultView: true,
+      isDefault() {
+        return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+      },
+      clickCallback(data) {
+        StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+      },
+      forms: [
+        {
+          type: "forms",
+          text: "功能测试",
+          forms: [
+            UIInfo(() => {
+              try {
+                return {
+                  text: CommonUtil.escapeHtml("测试window.close"),
+                  tag: "info",
+                  description: "点击按钮执行该函数",
+                  afterRender(container) {
+                    let $button = DOMUtils.toElement(
+                      /*html*/ `
 											<div class="pops-panel-button pops-panel-button-no-icon">
 												<button class="pops-panel-button_inner" type="button" data-type="default">
 													<i class="pops-bottom-icon" is-loading="false"></i>
@@ -56,36 +56,36 @@ export class GrantTest_close extends ApiTestBase {
 												</button>
 											</div>
 											`,
-											false,
-											false
-										);
-										DOMUtils.on($button, "click", (event) => {
-											utils.preventEvent(event);
-											try {
-												monkeyWindow.close();
-											} catch (error: any) {
-												Qmsg.error(error.toString(), {
-													consoleLogContent: true,
-												});
-											}
-										});
-										DOMUtils.after(container.$leftContainer, $button);
-									},
-								};
-							} catch (error) {
-								console.error(error);
-								return {
-									text: "执行错误 " + error,
-									tag: "error",
-								};
-							} finally {
-							}
-						}),
-					],
-				},
-			],
-		};
+                      false,
+                      false
+                    );
+                    DOMUtils.on($button, "click", (event) => {
+                      DOMUtils.preventEvent(event);
+                      try {
+                        monkeyWindow.close();
+                      } catch (error: any) {
+                        Qmsg.error(error.toString(), {
+                          consoleLogContent: true,
+                        });
+                      }
+                    });
+                    DOMUtils.after(container.$leftContainer, $button);
+                  },
+                };
+              } catch (error) {
+                console.error(error);
+                return {
+                  text: "执行错误 " + error,
+                  tag: "error",
+                };
+              } finally {
+              }
+            }),
+          ],
+        },
+      ],
+    };
 
-		return result;
-	}
+    return result;
+  }
 }

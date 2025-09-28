@@ -12,5 +12,5 @@ CookieManagerView.init();
 CookieRule.init();
 CookieRuleController.init();
 if (import.meta.env.DEV) {
-	CookieManagerView.showView();
+  CookieManagerView.showView();
 }

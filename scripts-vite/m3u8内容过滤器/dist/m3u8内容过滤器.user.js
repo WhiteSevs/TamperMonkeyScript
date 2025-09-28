@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         m3u8内容过滤器
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.14
+// @version      2025.9.28
 // @author       WhiteSevs
 // @description  自定义规则对网页中的m3u8的请求内容进行过滤
 // @license      GPL-3.0-only
@@ -9,10 +9,10 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.8.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.4.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @grant        GM_deleteValue
 // @grant        GM_getResourceText
 // @grant        GM_getValue
@@ -145,9 +145,7 @@ keys() {
     }
 values() {
       let localValue = this.getLocalValue();
-      return Reflect.ownKeys(localValue).map(
-        (key) => Reflect.get(localValue, key)
-      );
+      return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
     }
 clear() {
       _GM_deleteValue(this.storageKey);
@@ -266,7 +264,7 @@ waitRemove(...args) {
         if (typeof selector !== "string") {
           return;
         }
-        utils.waitNodeList(selector).then((nodeList) => {
+        DOMUtils.waitNodeList(selector).then((nodeList) => {
           nodeList.forEach(($el) => $el.remove());
         });
       });
@@ -337,6 +335,9 @@ async loadScript(url) {
     },
 fixUrl(url) {
       url = url.trim();
+      if (url.startsWith("data:")) {
+        return url;
+      }
       if (url.match(/^http(s|):\/\//i)) {
         return url;
       } else if (url.startsWith("//")) {
@@ -360,9 +361,13 @@ fixHttps(url) {
       if (!url.startsWith("http://")) {
         return url;
       }
-      let urlInstance = new URL(url);
-      urlInstance.protocol = "https:";
-      return urlInstance.toString();
+      try {
+        let urlInstance = new URL(url);
+        urlInstance.protocol = "https:";
+        return urlInstance.toString();
+      } catch {
+        return url;
+      }
     },
 lockScroll(...args) {
       let $hidden = document.createElement("style");
@@ -597,6 +602,9 @@ setDefaultValue(key, defaultValue) {
         log.warn("请检查该key(已存在): " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
+    },
+getDefaultValue(key) {
+      return this.$data.contentConfigInitDefaultValue.get(key);
     },
 setValue(key, value) {
       PopsPanelStorageApi.set(key, value);
@@ -918,7 +926,7 @@ threshold: 1
         $el.classList.add(flashingClassName);
       };
       let dbclick_event = (evt, selectorTarget) => {
-        utils.preventEvent(evt);
+        domUtils.preventEvent(evt);
         let $alert = __pops.alert({
           title: {
             text: "搜索配置",
@@ -1034,7 +1042,7 @@ threshold: 1
             $targetAsideItem.click();
             asyncQueryProperty(pathInfo.next, async (target) => {
               if (target?.next) {
-                let $findDeepMenu = await utils.waitNode(() => {
+                let $findDeepMenu = await domUtils.waitNode(() => {
                   return Array.from(
                     $panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")
                   ).find(($deepMenu) => {
@@ -1056,7 +1064,7 @@ threshold: 1
                   data: target.next
                 };
               } else {
-                let $findTargetMenu = await utils.waitNode(() => {
+                let $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from(
                     $panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)
                   ).find(($menuItem) => {
@@ -1206,7 +1214,7 @@ threshold: 1
           $searchInput,
           "input",
           utils.debounce((evt2) => {
-            utils.preventEvent(evt2);
+            domUtils.preventEvent(evt2);
             let searchText = domUtils.val($searchInput).trim();
             if (searchText === "") {
               clearSearchResult();
@@ -1304,16 +1312,13 @@ qmsg_config_showreverse: {
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
   const __pops = pops;
-  const log = new utils.Log(
-    _GM_info,
-    _unsafeWindow.console || _monkeyWindow.console
-  );
+  const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
   let SCRIPT_NAME = _GM_info?.script?.name || void 0;
   pops.config.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
-    debug: DEBUG,
-    logMaxCount: 1e3,
+    debug: false,
+    logMaxCount: 250,
     autoClearConsole: true,
     tag: true
   });
@@ -1421,7 +1426,7 @@ clickEvent: {
     },
     setTimeout: _unsafeWindow.setTimeout
   });
-  const addStyle = utils.addStyle.bind(utils);
+  const addStyle = domUtils.addStyle.bind(domUtils);
   DOMUtils.selector.bind(DOMUtils);
   DOMUtils.selectorAll.bind(DOMUtils);
   new utils.GM_Cookie();
@@ -1559,18 +1564,14 @@ setComponentsStorageApiProperty(config, storageApiValue) {
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi(
-      "input",
-      result,
-      {
-        get(key2, defaultValue2) {
-          return Panel.getValue(key2, defaultValue2);
-        },
-        set(key2, value) {
-          Panel.setValue(key2, value);
-        }
+    PanelComponents.initComponentsStorageApi("input", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
       }
-    );
+    });
     return result;
   };
   const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack, disabled, valueChangeCallBack) {
@@ -1596,18 +1597,14 @@ setComponentsStorageApiProperty(config, storageApiValue) {
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi(
-      "switch",
-      result,
-      {
-        get(key2, defaultValue2) {
-          return Panel.getValue(key2, defaultValue2);
-        },
-        set(key2, value) {
-          Panel.setValue(key2, value);
-        }
+    PanelComponents.initComponentsStorageApi("switch", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
       }
-    );
+    });
     return result;
   };
   class RuleEditView {
@@ -1706,12 +1703,8 @@ async showView() {
         width: typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
         height: typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh"
       });
-      let $form = $dialog.$shadowRoot.querySelector(
-        ".rule-form-container"
-      );
-      $dialog.$shadowRoot.querySelector(
-        "input[type=submit]"
-      );
+      let $form = $dialog.$shadowRoot.querySelector(".rule-form-container");
+      $dialog.$shadowRoot.querySelector("input[type=submit]");
       let $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
       let view = await this.option.getView(await this.option.data());
       $ulist.appendChild(view);
@@ -1800,12 +1793,9 @@ async showView() {
           $alert.close();
         };
         domUtils.on($button, "click", async (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           if (typeof filterOption.callback === "function") {
-            let result = await filterOption.callback(
-              event,
-              execFilterAndCloseDialog
-            );
+            let result = await filterOption.callback(event, execFilterAndCloseDialog);
             if (!result) {
               return;
             }
@@ -2090,9 +2080,7 @@ showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDa
     }
 parseViewElement($shadowRoot) {
       let $container = $shadowRoot.querySelector(".rule-view-container");
-      let $deleteBtn = $shadowRoot.querySelector(
-        ".pops-confirm-btn button.pops-confirm-btn-other"
-      );
+      let $deleteBtn = $shadowRoot.querySelector(".pops-confirm-btn button.pops-confirm-btn-other");
       return {
 $container,
 $deleteBtn
@@ -2166,7 +2154,7 @@ async createRuleItemElement(data, $shadowRoot) {
       }
       if (this.option.itemControls.edit.enable) {
         domUtils.on($edit, "click", (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           this.showEditView(true, data, $shadowRoot, $ruleItem, (newData) => {
             data = null;
             data = newData;
@@ -2177,7 +2165,7 @@ async createRuleItemElement(data, $shadowRoot) {
       }
       if (this.option.itemControls.delete.enable) {
         domUtils.on($delete, "click", (event) => {
-          utils.preventEvent(event);
+          domUtils.preventEvent(event);
           let $askDialog = __pops.confirm({
             title: {
               text: "提示",
@@ -2375,7 +2363,11 @@ filterAdsWithFilePathLength(m3u8Text, config = {
         if (!m3u8Info.startsWith("#EXTINF:")) {
           continue;
         }
-        let { duration, startDuration, endDuration, filePath } = M3U8Parser.parse_EXTINF(m3u8Info, m3u8Split[index + 1], durationTotal);
+        let { duration, startDuration, endDuration, filePath } = M3U8Parser.parse_EXTINF(
+          m3u8Info,
+          m3u8Split[index + 1],
+          durationTotal
+        );
         if (config && typeof config.handlerFilePath === "function") {
           let handlerFilePath = config.handlerFilePath(filePath);
           if (typeof handlerFilePath === "string") {
@@ -2402,11 +2394,7 @@ filterAdsWithFilePathLength(m3u8Text, config = {
           segmentsInfoList: value
         });
       });
-      needFilterSegments = utils.sortListByProperty(
-        needFilterSegments,
-        (item) => item.segmentsInfoList.length,
-        true
-      );
+      needFilterSegments = utils.sortListByProperty(needFilterSegments, (item) => item.segmentsInfoList.length, true);
       needFilterSegments.splice(0, 1);
       if (needFilterSegments.length) {
         let adsSegmentIndexList = [];
@@ -2420,9 +2408,7 @@ filterAdsWithFilePathLength(m3u8Text, config = {
         });
         let indexOffset = 0;
         for (let index = 0; index < m3u8Split.length; index++) {
-          let findIndex = adsSegmentIndexList.findIndex(
-            (item) => item.index === index + indexOffset
-          );
+          let findIndex = adsSegmentIndexList.findIndex((item) => item.index === index + indexOffset);
           if (findIndex != -1) {
             let adsSegmentInfo = adsSegmentIndexList[findIndex];
             log.info(
@@ -2462,7 +2448,11 @@ filterAdsWithFilePathSimilar(m3u8Text, config = {
         if (!m3u8Info.startsWith("#EXTINF:")) {
           continue;
         }
-        let { duration, startDuration, endDuration, filePath } = M3U8Parser.parse_EXTINF(m3u8Info, m3u8Split[index + 1], durationTotal);
+        let { duration, startDuration, endDuration, filePath } = M3U8Parser.parse_EXTINF(
+          m3u8Info,
+          m3u8Split[index + 1],
+          durationTotal
+        );
         if (config && typeof config.handlerFilePath === "function") {
           let handlerFilePath = config.handlerFilePath(filePath);
           if (typeof handlerFilePath === "string") {
@@ -2488,10 +2478,7 @@ filterAdsWithFilePathSimilar(m3u8Text, config = {
         let iteratorSegmentsParseInfoList = segmentsParseInfoList;
         for (let iteratorIndex = 0; iteratorIndex < iteratorSegmentsParseInfoList.length; iteratorIndex++) {
           const compareSegmentInfo = iteratorSegmentsParseInfoList[iteratorIndex];
-          let similar = M3U8Util.similar(
-            segmentInfo.filePath,
-            compareSegmentInfo.filePath
-          );
+          let similar = M3U8Util.similar(segmentInfo.filePath, compareSegmentInfo.filePath);
           if (similar >= config.similarCompareValue) {
             similarCount++;
           }
@@ -2503,9 +2490,7 @@ filterAdsWithFilePathSimilar(m3u8Text, config = {
         if (isAdsSegment) {
           isFilterSegmentsInfoList.push(segmentInfo);
           log.info(
-            `通杀2：过滤广告片段 ==> 索引：${segmentInfo.index} 文件名：${segmentInfo.filePath} 开始：${M3U8Util.duration2Text(
-            segmentInfo.startDuration
-          )} 持续时长：${segmentInfo.duration}s`
+            `通杀2：过滤广告片段 ==> 索引：${segmentInfo.index} 文件名：${segmentInfo.filePath} 开始：${M3U8Util.duration2Text(segmentInfo.startDuration)} 持续时长：${segmentInfo.duration}s`
           );
           m3u8Split.splice(segmentInfo.index - indexOffset, 2);
           indexOffset += 2;
@@ -2544,18 +2529,14 @@ filterInfo: isFilterSegmentsInfoList
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi(
-      "switch",
-      result,
-      {
-        get(key2, defaultValue2) {
-          return Panel.getValue(key2, defaultValue2);
-        },
-        set(key2, value) {
-          Panel.setValue(key2, value);
-        }
+    PanelComponents.initComponentsStorageApi("switch", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
       }
-    );
+    });
     return result;
   };
   const M3U8Rule = {
@@ -2690,46 +2671,14 @@ showView() {
                 data = this.getTemplateData();
               }
               let enable_template = UISwitch("启用", "enable", true);
-              Reflect.set(
-                enable_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data)
-              );
-              let $enable = panelHandlerComponents.createSectionContainerItem_switch(
-                enable_template
-              );
-              let name_template = UIInput(
-                "规则名称",
-                "name",
-                "",
-                "",
-                void 0,
-                "必填"
-              );
-              Reflect.set(
-                name_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data)
-              );
-              let $name = panelHandlerComponents.createSectionContainerItem_input(
-                name_template
-              );
-              let data_url_template = UIInput(
-                "匹配网址",
-                "url",
-                "",
-                "",
-                void 0,
-                "必填，可正则，注意转义"
-              );
-              Reflect.set(
-                data_url_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data.data)
-              );
-              let $data_url = panelHandlerComponents.createSectionContainerItem_input(
-                data_url_template
-              );
+              Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+              let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+              let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
+              Reflect.set(name_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+              let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+              let data_url_template = UIInput("匹配网址", "url", "", "", void 0, "必填，可正则，注意转义");
+              Reflect.set(data_url_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
+              let $data_url = panelHandlerComponents.createSectionContainerItem_input(data_url_template);
               let data_commonFilterAdsSegmentsFilePathLength_template = UISwitch(
                 "广告通杀1",
                 "commonFilterAdsSegmentsFilePathLength",
@@ -2768,14 +2717,8 @@ showView() {
                 void 0,
                 "参数：\n    [m3u8Text]：需要处理的m3u8字符串\n返回：[String]\n\n例如：\nm3u8Text = m3u8Text.replace('','');\nreturn m3u8Text;\n"
               );
-              Reflect.set(
-                data_ownFilterCode_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data.data)
-              );
-              let $data_ownFilterCode = panelHandlerComponents.createSectionContainerItem_textarea(
-                data_ownFilterCode_template
-              );
+              Reflect.set(data_ownFilterCode_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
+              let $data_ownFilterCode = panelHandlerComponents.createSectionContainerItem_textarea(data_ownFilterCode_template);
               $fragment.appendChild($enable);
               $fragment.appendChild($name);
               $fragment.appendChild($data_url);
@@ -2785,9 +2728,7 @@ showView() {
               return $fragment;
             },
             onsubmit: ($form, isEdit, editData) => {
-              let $ulist_li = $form.querySelectorAll(
-                ".rule-form-ulist > li"
-              );
+              let $ulist_li = $form.querySelectorAll(".rule-form-ulist > li");
               let data = this.getTemplateData();
               if (isEdit) {
                 data.uuid = editData.uuid;
@@ -2874,9 +2815,7 @@ showView() {
                 name: "过滤【当前网址运行的规则】",
                 filterCallBack(data) {
                   try {
-                    return Boolean(
-                      window.location.href.match(new RegExp(data.data.url))
-                    );
+                    return Boolean(window.location.href.match(new RegExp(data.data.url)));
                   } catch (error) {
                     return false;
                   }
@@ -2909,18 +2848,11 @@ runRule(m3u8Text) {
               "M3U8Parser",
               RuleOptionData.ownFilterCode
             );
-            let ownFilter_m3u8_text = ownFilterCodeFunction(
-              handlerM3U8Text,
-              M3U8Filter,
-              M3U8Parser
-            );
+            let ownFilter_m3u8_text = ownFilterCodeFunction(handlerM3U8Text, M3U8Filter, M3U8Parser);
             if (typeof ownFilter_m3u8_text === "string") {
               handlerM3U8Text = ownFilter_m3u8_text;
             } else {
-              log.error(
-                "m3u8过滤器 ==> 自定义过滤js代码执行结果不是字符串",
-                ownFilter_m3u8_text
-              );
+              log.error("m3u8过滤器 ==> 自定义过滤js代码执行结果不是字符串", ownFilter_m3u8_text);
             }
           }
           break;
@@ -3026,15 +2958,9 @@ importRule(importEndCallBack) {
             `
         )
       });
-      let $local = $alert.$shadowRoot.querySelector(
-        ".btn-control[data-mode='local']"
-      );
-      let $network = $alert.$shadowRoot.querySelector(
-        ".btn-control[data-mode='network']"
-      );
-      let $clipboard = $alert.$shadowRoot.querySelector(
-        ".btn-control[data-mode='clipboard']"
-      );
+      let $local = $alert.$shadowRoot.querySelector(".btn-control[data-mode='local']");
+      let $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
+      let $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
       let updateRuleToStorage = (data) => {
         let allData = this.getData();
         let addNewData = [];
@@ -3074,7 +3000,7 @@ importRule(importEndCallBack) {
         });
       };
       domUtils.on($local, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         $alert.close();
         let $input = domUtils.createElement("input", {
           type: "file",
@@ -3094,7 +3020,7 @@ importRule(importEndCallBack) {
         $input.click();
       });
       domUtils.on($network, "click", (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         $alert.close();
         let $prompt = __pops.prompt({
           title: {
@@ -3148,9 +3074,7 @@ importRule(importEndCallBack) {
           height: "auto"
         });
         let $promptInput = $prompt.$shadowRoot.querySelector("input");
-        let $promptOk = $prompt.$shadowRoot.querySelector(
-          ".pops-prompt-btn-ok"
-        );
+        let $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
         domUtils.on($promptInput, ["input", "propertychange"], (event2) => {
           let value = domUtils.val($promptInput);
           if (value === "") {
@@ -3159,22 +3083,18 @@ importRule(importEndCallBack) {
             domUtils.removeAttr($promptOk, "disabled");
           }
         });
-        domUtils.listenKeyboard(
-          $promptInput,
-          "keydown",
-          (keyName, keyValue, otherCodeList) => {
-            if (keyName === "Enter" && otherCodeList.length === 0) {
-              let value = domUtils.val($promptInput);
-              if (value !== "") {
-                utils.dispatchEvent($promptOk, "click");
-              }
+        domUtils.listenKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
+          if (keyName === "Enter" && otherCodeList.length === 0) {
+            let value = domUtils.val($promptInput);
+            if (value !== "") {
+              domUtils.trigger($promptOk, "click");
             }
           }
-        );
-        utils.dispatchEvent($promptInput, "input");
+        });
+        domUtils.trigger($promptInput, "input");
       });
       domUtils.on($clipboard, "click", async (event) => {
-        utils.preventEvent(event);
+        domUtils.preventEvent(event);
         $alert.close();
         let clipboardInfo = await utils.getClipboardInfo();
         if (clipboardInfo.error != null) {
@@ -3225,18 +3145,14 @@ importRule(importEndCallBack) {
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi(
-      "select",
-      result,
-      {
-        get(key2, defaultValue2) {
-          return Panel.getValue(key2, defaultValue2);
-        },
-        set(key2, value) {
-          Panel.setValue(key2, value);
-        }
+    PanelComponents.initComponentsStorageApi("select", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
       }
-    );
+    });
     return result;
   };
   const Component_Common = {
@@ -3323,26 +3239,14 @@ importRule(importEndCallBack) {
             void 0,
             "限制Toast显示的数量"
           ),
-          UISwitch(
-            "逆序弹出",
-            "qmsg-config-showreverse",
-            false,
-            void 0,
-            "修改Toast弹出的顺序"
-          )
+          UISwitch("逆序弹出", "qmsg-config-showreverse", false, void 0, "修改Toast弹出的顺序")
         ]
       },
       {
         text: "Cookie配置",
         type: "forms",
         forms: [
-          UISwitch(
-            "启用",
-            "httpx-use-cookie-enable",
-            false,
-            void 0,
-            "启用后，将根据下面的配置进行添加cookie"
-          ),
+          UISwitch("启用", "httpx-use-cookie-enable", false, void 0, "启用后，将根据下面的配置进行添加cookie"),
           UISwitch(
             "使用document.cookie",
             "httpx-use-document-cookie",

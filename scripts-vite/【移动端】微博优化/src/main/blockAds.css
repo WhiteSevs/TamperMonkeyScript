@@ -8,10 +8,10 @@
 #app .woo-frame div.woo-panel-container.news-banner,
 /* 夹杂在card中间的图片横幅，不确定是否会误伤其它正常内容 */
 .card .card-main .m-img-box > ul {
-	display: none !important;
+  display: none !important;
 }
 /* 搜索域名下的 */
 .card.m-panel:has(+ .simple),
 .card.m-panel.simple {
-	display: none !important;
+  display: none !important;
 }
