@@ -34,16 +34,16 @@ declare class Pops {
         };
         /** icon图标的svg代码 */
         iconSVG: {
-            loading: string;
             min: string;
-            max: string;
             mise: string;
+            max: string;
             close: string;
             edit: string;
             share: string;
             delete: string;
             search: string;
             upload: string;
+            loading: string;
             next: string;
             prev: string;
             eleme: string;
@@ -69,14 +69,14 @@ declare class Pops {
         };
         /** 存储已创建的元素 */
         instData: {
-            iframe: import("./types/inst").PopsInstCommonConfig[];
             loading: import("./types/inst").PopsInstCommonConfig[];
-            folder: import("./types/inst").PopsInstCommonConfig[];
             alert: import("./types/inst").PopsInstCommonConfig[];
             confirm: import("./types/inst").PopsInstCommonConfig[];
             prompt: import("./types/inst").PopsInstCommonConfig[];
+            iframe: import("./types/inst").PopsInstCommonConfig[];
             tooltip: import("./types/inst").PopsInstCommonConfig[];
             drawer: import("./types/inst").PopsInstCommonConfig[];
+            folder: import("./types/inst").PopsInstCommonConfig[];
             panel: import("./types/inst").PopsInstCommonConfig[];
             rightClickMenu: import("./types/inst").PopsInstCommonConfig[];
         };
@@ -128,7 +128,7 @@ declare class Pops {
             getTextBoundingRect(input: HTMLInputElement | HTMLTextAreaElement, selectionStart: number | string, selectionEnd: number | string, debug: boolean): DOMRect;
             cssHide(ele: Element | null, isImportant?: boolean): void;
             cssShow(ele: Element | null): void;
-            parseHTML<T1 extends boolean, T2 extends boolean>(html: string, useParser?: T1 | undefined, isComplete?: T2 | undefined): import("./types/PopsDOMUtilsEventType").ParseHTMLReturnType<T1, T2>;
+            toElement<T1 extends boolean, T2 extends boolean>(html: string, useParser?: T1 | undefined, isComplete?: T2 | undefined): import("./types/PopsDOMUtilsEventType").ParseHTMLReturnType<T1, T2>;
             append(element: Element | Node | ShadowRoot | HTMLElement | string, content: HTMLElement | string | (HTMLElement | string | Element)[] | NodeList): void;
             appendHead($ele: HTMLElement): void;
             appendBody($ele: HTMLElement): void;
@@ -228,9 +228,13 @@ declare class Pops {
             $el: {
                 $pops: HTMLElement;
                 $content: HTMLElement;
-                $sectionWrapper: HTMLElement;
-                $contentAside: HTMLElement;
-                $contentSectionContainer: HTMLElement;
+                $panelRightSectionWrapper: HTMLElement;
+                $panelLeftAside: HTMLElement;
+                $panelContentSectionContainer: HTMLElement;
+                $panelBottomWrapper: HTMLElement;
+                $panelBottomContainer: HTMLElement;
+                $panelBottomLeftContainer: HTMLElement;
+                $panelBottomRightContainer: HTMLElement;
             };
             $config: Required<PopsPanelDetails>;
             init(details: {
@@ -238,18 +242,24 @@ declare class Pops {
                 $el: {
                     $pops: HTMLElement;
                     $content: HTMLElement;
-                    $sectionWrapper: HTMLElement;
-                    $contentAside: HTMLElement;
-                    $contentSectionContainer: HTMLElement;
+                    $panelRightSectionWrapper: HTMLElement;
+                    $panelLeftAside: HTMLElement;
+                    $panelContentSectionContainer: HTMLElement;
+                    $panelBottomWrapper: HTMLElement;
+                    $panelBottomContainer: HTMLElement;
+                    $panelBottomLeftContainer: HTMLElement;
+                    $panelBottomRightContainer: HTMLElement;
                 };
             }): void;
             clearContainer(): void;
             clearDeepMenuContainer(): void;
             clearAsideItemIsVisited(): void;
-            setAsideItemIsVisited(element: HTMLElement): void;
-            setElementAttributes(element: HTMLElement, attributes?: any): void;
-            setElementProps(element: HTMLElement, props?: any): void;
-            setElementClassName(element: HTMLElement, className?: string | string[] | (() => string | string[])): void;
+            setAsideItemIsVisited($el: HTMLElement): void;
+            setElementAttributes($el: HTMLElement, attributes?: any): void;
+            setElementProps($el: HTMLElement, props?: any): void;
+            setElementClassName($el: HTMLElement, className?: string | string[] | (() => string | string[])): void;
+            createBottomItem(bottomItemConfig: import("./components/panel/types").PopsPanelBottomContentConfig): HTMLLIElement;
+            setBottomItemClickEvent($bottomItem: HTMLElement, bottomItemConfig: import("./components/panel/types").PopsPanelBottomContentConfig): void;
             createAsideItem(asideConfig: import("./components/panel/types").PopsPanelContentConfig): HTMLLIElement;
             createSectionContainerItem_switch(formConfig: import("./components/panel/types/components-switch").PopsPanelSwitchDetails): HTMLLIElement;
             createSectionContainerItem_slider(formConfig: import("./components/panel/types/components-slider").PopsPanelSliderDetails): HTMLLIElement;
@@ -265,7 +275,7 @@ declare class Pops {
             createSectionContainerItem_forms(formConfig: import("./components/panel/types").PopsPanelContentConfig | import("./components/panel/types/components-forms").PopsPanelFormsDetails): void;
             triggerRenderRightContainer($container: HTMLElement): void;
             uListContainerAddItem(formConfig: import("./components/panel/types").PopsPanelFormsTotalDetails, containerOptions: Omit<import("./components/panel/types/components-common").PopsPanelRightAsideContainerOptions, "target">): void;
-            setAsideItemClickEvent(asideLiElement: HTMLElement, asideConfig: import("./components/panel/types").PopsPanelContentConfig): void;
+            setAsideItemClickEvent($asideItem: HTMLElement, asideConfig: import("./components/panel/types").PopsPanelContentConfig): void;
         };
     };
     init(): void;
@@ -383,14 +393,14 @@ declare class Pops {
             showArrow: boolean;
             arrowDistance: number;
             otherDistance: number;
-            useShadowRoot: boolean;
-            only: boolean;
             zIndex: number | (() => number);
             style: string | null;
+            useShadowRoot: boolean;
+            only: boolean;
             beforeAppendToPageCallBack: ($shadowRoot: ShadowRoot | HTMLElement, $shadowContainer: HTMLDivElement) => void;
         };
         $shadowContainer: HTMLDivElement;
-        $shadowRoot: HTMLDivElement | ShadowRoot;
+        $shadowRoot: ShadowRoot | HTMLDivElement;
         toolTip: import("./components/tooltip").ToolTip;
     };
     /**
@@ -413,7 +423,6 @@ declare class Pops {
         close: () => Promise<void>;
         hide: () => Promise<void>;
         show: () => Promise<void>;
-        guid: string;
         $shadowContainer: HTMLDivElement;
         $shadowRoot: ShadowRoot | HTMLElement;
         element: HTMLDivElement;
@@ -421,6 +430,7 @@ declare class Pops {
         popsElement: HTMLDivElement;
         maskElement?: HTMLDivElement | undefined;
         mode: import("./types/main").PopsType;
+        guid: string;
     };
     /**
      * 右键菜单
@@ -429,7 +439,7 @@ declare class Pops {
     rightClickMenu: (details: PopsRightClickMenuDetails) => {
         guid: string;
         config: {
-            target: HTMLElement | Node | {
+            target: Node | HTMLElement | {
                 addEventListener: (type: string, callback: EventListenerOrEventListenerObject | null, options?: AddEventListenerOptions | boolean) => void;
                 dispatchEvent: (event: Event) => boolean;
                 removeEventListener: (type: string, callback: EventListenerOrEventListenerObject | null, options?: EventListenerOptions | boolean) => void;
@@ -21367,23 +21377,17 @@ declare class Pops {
                 };
             };
             targetSelector: string | null;
-            data: {
-                icon: import("./types/icon").PopsIconType | string;
-                iconIsLoading: boolean;
-                text: string | (() => string);
-                callback: (clickEvent: PointerEvent, contextMenuEvent: PointerEvent, liElement: HTMLLIElement, menuListenerRootNode: HTMLElement) => boolean | void | Promise<boolean | void>;
-                item: /*elided*/ any[] | null;
-            }[];
+            data: import("./components/rightClickMenu/types").PopsRightClickMenuDataDetails[];
             chileMenuLeftOrRightDistance: number;
             childMenuTopOrBottomDistance: number;
             className: string;
             isAnimation: boolean;
             useScaleAnimation: boolean;
             preventDefault: boolean;
-            useShadowRoot: boolean;
-            only: boolean;
             zIndex: number | (() => number);
             style: string | null;
+            useShadowRoot: boolean;
+            only: boolean;
             beforeAppendToPageCallBack: ($shadowRoot: ShadowRoot | HTMLElement, $shadowContainer: HTMLDivElement) => void;
         };
         removeWindowCheckClickListener: () => void;
@@ -21409,7 +21413,7 @@ declare class Pops {
      * searchSuggestion.setAllEvent();
      */
     searchSuggestion: <T = any>(details: PopsSearchSuggestionDetails<T>) => {
-        selfDocument: Document | ShadowRoot | (Document | ShadowRoot)[];
+        selfDocument: ShadowRoot | Document | (ShadowRoot | Document)[];
         $el: {
             root: HTMLElement;
             $hintULContainer: HTMLUListElement;

@@ -13,13 +13,15 @@ declare interface Window {
   trustedTypes: any;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-declare type DeepRequired<T> = T extends Function
+declare type DeepRequired<T> = T extends any[]
   ? T
-  : T extends object
-    ? T extends Node
-      ? T
-      : {
-          [K in keyof T]-?: DeepRequired<T[K]>;
-        }
-    : T;
+  : // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+    T extends Function
+    ? T
+    : T extends object
+      ? T extends Node
+        ? T
+        : {
+            [K in keyof T]-?: DeepRequired<T[K]>;
+          }
+      : T;

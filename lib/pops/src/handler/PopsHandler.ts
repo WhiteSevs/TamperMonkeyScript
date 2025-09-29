@@ -22,8 +22,9 @@ export const PopsHandler = {
    * 创建shadow
    */
   handlerShadow(config: Pick<PopsCommonConfig, "useShadowRoot">) {
-    const $shadowContainer = document.createElement("div");
-    $shadowContainer.className = "pops-shadow-container";
+    const $shadowContainer = popsDOMUtils.createElement("div", {
+      className: "pops-shadow-container",
+    });
     if (config.useShadowRoot) {
       const $shadowRoot = $shadowContainer.attachShadow({ mode: "open" });
       return {
@@ -200,123 +201,139 @@ export const PopsHandler = {
       /**
        * 主元素
        */
-      popsElement: animElement.querySelector<HTMLDivElement>(".pops[type-value")!,
+      $pops: animElement.querySelector<HTMLDivElement>(".pops[type-value")!,
       /**
        * 确认按钮
        */
-      btnOkElement: animElement.querySelector<HTMLDivElement>(`.pops-${type}-btn-ok`)!,
+      $btnOk: animElement.querySelector<HTMLDivElement>(`.pops-${type}-btn-ok`)!,
       /**
        * 取消按钮
        */
-      btnCancelElement: animElement.querySelector<HTMLDivElement>(`.pops-${type}-btn-cancel`)!,
+      $btnCancel: animElement.querySelector<HTMLDivElement>(`.pops-${type}-btn-cancel`)!,
       /**
        * 其它按钮
        */
-      btnOtherElement: animElement.querySelector<HTMLDivElement>(`.pops-${type}-btn-other`)!,
+      $btnOther: animElement.querySelector<HTMLDivElement>(`.pops-${type}-btn-other`)!,
       /**
        * 标题元素
        */
-      titleElement: animElement.querySelector<HTMLDivElement>(`.pops-${type}-title`)!,
+      $title: animElement.querySelector<HTMLDivElement>(`.pops-${type}-title`)!,
       /**
        * 输入框元素
        */
-      inputElement: animElement.querySelector<HTMLTextAreaElement>(`.pops-${type}-content textarea[pops]`)
+      $input: animElement.querySelector<HTMLTextAreaElement>(`.pops-${type}-content textarea[pops]`)
         ? animElement.querySelector<HTMLTextAreaElement>(`.pops-${type}-content textarea[pops]`)!
         : animElement.querySelector<HTMLInputElement>(`.pops-${type}-content input[pops]`)!,
       /**
        * 顶部按钮控制层元素
        */
-      headerControlsElement: animElement.querySelector<HTMLDivElement>(".pops-header-controls")!,
+      $headerControls: animElement.querySelector<HTMLDivElement>(".pops-header-controls")!,
       /**
        * iframe元素
        */
-      iframeElement: animElement.querySelector<HTMLIFrameElement>("iframe[pops]")!,
+      $iframe: animElement.querySelector<HTMLIFrameElement>("iframe[pops]")!,
       /**
        * 加载中元素
        */
-      loadingElement: animElement.querySelector<HTMLDivElement>(".pops-loading")!,
+      $loading: animElement.querySelector<HTMLDivElement>(".pops-loading")!,
       /**
        * 内容元素
        */
-      contentElement: animElement.querySelector<HTMLDivElement>(`.pops-${type}-content`)!,
+      $content: animElement.querySelector<HTMLDivElement>(`.pops-${type}-content`)!,
       /**
        * panel的右侧容器元素
        */
-      panelSectionWrapper: animElement.querySelector<HTMLDivElement>(`.pops-${type}-section-wrapper`)!,
+      $panelRightSectionWrapper: animElement.querySelector<HTMLDivElement>(`.pops-${type}-section-wrapper`)!,
       /**
-       * 内容侧边栏容器元素
+       * panel侧边栏容器元素
        */
-      contentAsideElement: animElement.querySelector<HTMLDivElement>(`.pops-${type}-content aside.pops-${type}-aside`)!,
+      $panelLeftAside: animElement.querySelector<HTMLDivElement>(`.pops-${type}-content aside.pops-${type}-aside`)!,
       /**
-       * 内容主要区域容器元素
+       * panel主要区域容器元素
        */
-      contentSectionContainerElement: animElement.querySelector<HTMLDivElement>(
+      $panelContentSectionContainer: animElement.querySelector<HTMLDivElement>(
         `.pops-${type}-content section.pops-${type}-container`
       )!,
       /**
+       * panel底部区域
+       */
+      $panelBottomWrapper: animElement.querySelector<HTMLElement>(`.pops-${type}-bottom-wrapper`)!,
+      /**
+       * panel底部区域容器
+       */
+      $panelBottomContainer: animElement.querySelector<HTMLElement>(`.pops-${type}-bottom-container`)!,
+      /**
+       * panel底部区域左侧容器
+       */
+      $panelBottomLeftContainer: animElement.querySelector<HTMLElement>(`.pops-${type}-bottom-left-container`)!,
+      /**
+       * panel底部区域右侧容器
+       */
+      $panelBottomRightContainer: animElement.querySelector<HTMLElement>(`.pops-${type}-bottom-right-container`)!,
+      /**
        * 内容加载中元素
        */
-      contentLoadingElement: animElement.querySelector<HTMLDivElement>(`.pops-${type}-content-global-loading`)!,
+      $contentLoading: animElement.querySelector<HTMLDivElement>(`.pops-${type}-content-global-loading`)!,
       /**
        * 顶部缩小按钮
        */
-      headerMinBtnElement: animElement.querySelector<HTMLDivElement>(".pops-header-control[data-type='min']")!,
+      $headerBtnMin: animElement.querySelector<HTMLDivElement>(".pops-header-control[data-type='min']")!,
       /**
        * 顶部放大按钮
        */
-      headerMaxBtnElement: animElement.querySelector<HTMLDivElement>(".pops-header-control[data-type='max']")!,
+      $headerBtnMax: animElement.querySelector<HTMLDivElement>(".pops-header-control[data-type='max']")!,
       /**
        * 顶部恢复原样按钮
        */
-      headerMiseBtnElement: animElement.querySelector<HTMLDivElement>(".pops-header-control[data-type='mise']")!,
+      $headerBtnMise: animElement.querySelector<HTMLDivElement>(".pops-header-control[data-type='mise']")!,
       /**
        * 顶部关闭按钮
        */
-      headerCloseBtnElement: animElement.querySelector<HTMLDivElement>(".pops-header-control[data-type='close']")!,
+      $headerBtnClose: animElement.querySelector<HTMLDivElement>(".pops-header-control[data-type='close']")!,
       /**
        * 文件夹列表元素
        */
-      folderListElement: animElement.querySelector<HTMLDivElement>(".pops-folder-list")!,
+      $folderList: animElement.querySelector<HTMLDivElement>(".pops-folder-list")!,
       /**
        * 文件夹列表顶部元素
        */
-      folderListHeaderElement: animElement.querySelector<HTMLDivElement>(
+      $folderHeaderNav: animElement.querySelector<HTMLDivElement>(
         ".pops-folder-list .pops-folder-list-table__header-div"
       )!,
       /**
        * 文件夹列表行元素
        */
-      folderListHeaderRowElement: animElement.querySelector<HTMLTableRowElement>(
+      $folderHeaderRow: animElement.querySelector<HTMLTableRowElement>(
         ".pops-folder-list .pops-folder-list-table__header-div .pops-folder-list-table__header-row"
       )!,
       /**
        * 文件夹列表tbody元素
        */
-      folderListBodyElement: animElement.querySelector<HTMLTableElement>(
+      $folderTbody: animElement.querySelector<HTMLTableElement>(
         ".pops-folder-list .pops-folder-list-table__body-div tbody"
       )!,
       /**
        * 文件夹列表primary元素
        */
-      folderFileListBreadcrumbPrimaryElement: animElement.querySelector<HTMLDivElement>(
+      $folderHeaderBreadcrumbPrimary: animElement.querySelector<HTMLDivElement>(
         ".pops-folder-list .pops-folder-file-list-breadcrumb-primary"
       )!,
       /**
        * 文件夹排序按钮-文件名
        */
-      folderListSortFileNameElement: animElement.querySelector<HTMLDivElement>(
+      $folderSortFileName: animElement.querySelector<HTMLDivElement>(
         '.pops-folder-list-table__sort[data-sort="fileName"]'
       )!,
       /**
        * 文件夹排序按钮-修改时间
        */
-      folderListSortLatestTimeElement: animElement.querySelector<HTMLDivElement>(
+      $folderSortLatestTime: animElement.querySelector<HTMLDivElement>(
         '.pops-folder-list-table__sort[data-sort="latestTime"]'
       )!,
       /**
        * 文件夹排序按钮-文件大小
        */
-      folderListSortFileSizeElement: animElement.querySelector<HTMLDivElement>(
+      $folderSortFileSize: animElement.querySelector<HTMLDivElement>(
         '.pops-folder-list-table__sort[data-sort="fileSize"]'
       )!,
     };

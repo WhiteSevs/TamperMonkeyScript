@@ -84,8 +84,13 @@ export const PopsDrawer = {
      * 弹窗的主元素，包括动画层
      */
     const $anim = PopsElementHandler.parseElement<HTMLDivElement>(animHTML);
-    const { popsElement, headerCloseBtnElement, btnCancelElement, btnOkElement, btnOtherElement } =
-      PopsHandler.handleQueryElement($anim, popsType);
+    const {
+      $pops: popsElement,
+      $headerBtnClose: headerCloseBtnElement,
+      $btnCancel: btnCancelElement,
+      $btnOk: btnOkElement,
+      $btnOther: btnOtherElement,
+    } = PopsHandler.handleQueryElement($anim, popsType);
     const $pops = popsElement!;
     const $headerCloseBtn = headerCloseBtnElement!;
     const $btnCancel = btnCancelElement!;

@@ -1,6 +1,5 @@
 import { PopsCSS } from "./PopsCSS";
 import { popsDOMUtils } from "./utils/PopsDOMUtils";
-import { PopsSafeUtils } from "./utils/PopsSafeUtils";
 import { popsUtils } from "./utils/PopsUtils";
 
 export const PopsAnimation = {
@@ -13,13 +12,14 @@ export const PopsAnimation = {
     if (!this.$flag.isInit) {
       this.$flag.isInit = true;
       /* 处理获取当前所有的动画名 */
-      const animationStyle = document.createElement("style");
-      PopsSafeUtils.setSafeHTML(animationStyle, PopsCSS.anim);
-      popsDOMUtils.appendHead(animationStyle);
+      const $style = popsDOMUtils.createElement("style", {
+        innerHTML: PopsCSS.anim,
+      });
+      popsDOMUtils.appendHead($style);
       this.$data = null as any;
-      this.$data = popsDOMUtils.getKeyFrames(animationStyle.sheet!);
+      this.$data = popsDOMUtils.getKeyFrames($style.sheet!);
       popsUtils.setTimeout(() => {
-        animationStyle.remove();
+        $style.remove();
       }, 50);
     }
   },

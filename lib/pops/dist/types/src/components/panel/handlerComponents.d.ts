@@ -2,7 +2,7 @@ import type { PopsPanelButtonDetails } from "./types/components-button";
 import type { PopsPanelRightAsideContainerOptions } from "./types/components-common";
 import type { PopsPanelDeepMenuDetails } from "./types/components-deepMenu";
 import type { PopsPanelFormsDetails } from "./types/components-forms";
-import type { PopsPanelContentConfig, PopsPanelDetails, PopsPanelFormsTotalDetails } from "./types";
+import type { PopsPanelBottomContentConfig, PopsPanelContentConfig, PopsPanelDetails, PopsPanelFormsTotalDetails } from "./types";
 import type { PopsPanelInputDetails } from "./types/components-input";
 import type { PopsPanelOwnDetails } from "./types/components-own";
 import type { PopsPanelSelectMultipleDetails } from "./types/components-selectMultiple";
@@ -39,11 +39,15 @@ export declare const PanelHandlerComponents: () => {
         /** 内容 */
         $content: HTMLElement;
         /** section元素的包裹容器 */
-        $sectionWrapper: HTMLElement;
+        $panelRightSectionWrapper: HTMLElement;
         /** 左侧容器 */
-        $contentAside: HTMLElement;
+        $panelLeftAside: HTMLElement;
         /** 右侧容器 */
-        $contentSectionContainer: HTMLElement;
+        $panelContentSectionContainer: HTMLElement;
+        $panelBottomWrapper: HTMLElement;
+        $panelBottomContainer: HTMLElement;
+        $panelBottomLeftContainer: HTMLElement;
+        $panelBottomRightContainer: HTMLElement;
     };
     $config: Required<PopsPanelDetails>;
     /**
@@ -55,9 +59,13 @@ export declare const PanelHandlerComponents: () => {
         $el: {
             $pops: HTMLElement;
             $content: HTMLElement;
-            $sectionWrapper: HTMLElement;
-            $contentAside: HTMLElement;
-            $contentSectionContainer: HTMLElement;
+            $panelRightSectionWrapper: HTMLElement;
+            $panelLeftAside: HTMLElement;
+            $panelContentSectionContainer: HTMLElement;
+            $panelBottomWrapper: HTMLElement;
+            $panelBottomContainer: HTMLElement;
+            $panelBottomLeftContainer: HTMLElement;
+            $panelBottomRightContainer: HTMLElement;
         };
     }): void;
     /**
@@ -74,30 +82,41 @@ export declare const PanelHandlerComponents: () => {
     clearAsideItemIsVisited(): void;
     /**
      * 设置左侧容器已访问记录
-     * @param element
+     * @param $el
      */
-    setAsideItemIsVisited(element: HTMLElement): void;
+    setAsideItemIsVisited($el: HTMLElement): void;
     /**
      * 为元素添加自定义属性
-     * @param element
-     * @param attributes
+     * @param $el 元素
+     * @param attributes 属性
      */
-    setElementAttributes(element: HTMLElement, attributes?: any): void;
+    setElementAttributes($el: HTMLElement, attributes?: any): void;
     /**
      * 为元素设置(自定义)属性
-     * @param element
-     * @param props
+     * @param $el 元素
+     * @param props 属性
      */
-    setElementProps(element: HTMLElement, props?: any): void;
+    setElementProps($el: HTMLElement, props?: any): void;
     /**
      * 为元素设置classname
-     * @param element
+     * @param $el 元素
      * @param className
      */
-    setElementClassName(element: HTMLElement, className?: string | string[] | (() => string | string[])): void;
+    setElementClassName($el: HTMLElement, className?: string | string[] | (() => string | string[])): void;
+    /**
+     * 创建底部项元素<li>
+     * @param bottomItemConfig 配置
+     */
+    createBottomItem(bottomItemConfig: PopsPanelBottomContentConfig): HTMLLIElement;
+    /**
+     * 为底部元素添加点击事件
+     * @param $bottomItem 底部<li>元素
+     * @param bottomItemConfig 配置
+     */
+    setBottomItemClickEvent($bottomItem: HTMLElement, bottomItemConfig: PopsPanelBottomContentConfig): void;
     /**
      * 创建左侧容器元素<li>
-     * @param  asideConfig
+     * @param  asideConfig 配置
      */
     createAsideItem(asideConfig: PopsPanelContentConfig): HTMLLIElement;
     /**
@@ -172,7 +191,7 @@ export declare const PanelHandlerComponents: () => {
      */
     createSectionContainerItem_forms(formConfig: PopsPanelContentConfig | PopsPanelFormsDetails): void;
     /**
-     * 触发触发渲染右侧容器的事件
+     * 主动触发触发渲染右侧容器的事件
      */
     triggerRenderRightContainer($container: HTMLElement): void;
     /**
@@ -183,8 +202,8 @@ export declare const PanelHandlerComponents: () => {
     uListContainerAddItem(formConfig: PopsPanelFormsTotalDetails, containerOptions: Omit<PopsPanelRightAsideContainerOptions, "target">): void;
     /**
      * 为左侧容器元素添加点击事件
-     * @param asideLiElement 左侧的容器<li>元素
+     * @param $asideItem 左侧的容器<li>元素
      * @param asideConfig 配置
      */
-    setAsideItemClickEvent(asideLiElement: HTMLElement, asideConfig: PopsPanelContentConfig): void;
+    setAsideItemClickEvent($asideItem: HTMLElement, asideConfig: PopsPanelContentConfig): void;
 };

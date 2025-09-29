@@ -5,24 +5,6 @@ import type { PopsPanelFormsTotalDetails } from ".";
  */
 export interface PopsPanelFormsDetails extends PopsPanelCommonDetails<PopsPanelFormsDetails> {
     /**
-     * （可选）className属性
-     */
-    className?: string;
-    /**
-     * （可选）自定义元素属性
-     */
-    attributes?: {
-        [key: string]: any;
-    } | {
-        [key: string]: any;
-    }[];
-    /**
-     * （可选）自定义属性
-     */
-    props?: {
-        [K in keyof HTMLElement]?: HTMLElement[K];
-    };
-    /**
      * 显示在左边的文字
      */
     text: string;

@@ -10,6 +10,7 @@ import type { PopsPanelDeepMenuDetails } from "./components-deepMenu";
 import type { PopsPanelOwnDetails } from "./components-own";
 import type { PopsHeaderCloseButtonDetails } from "../../../types/button";
 import type { PopsPanelSelectMultipleDetails } from "./components-selectMultiple";
+import type { PopsPanelCommonDetails } from "./components-common";
 
 /** panel的各种类型的配置项 */
 export type PopsPanelFormsTotalDetails =
@@ -52,11 +53,11 @@ export interface PopsPanelContentConfig {
    */
   className?: string | string[];
   /**
-   * 左侧的标题，可以是html格式
+   * 显示的文本，可以是html格式
    */
   title: string | (() => string);
   /**
-   * （可选）中间顶部的标题，如果为空，则使用title的值代替
+   * （可选）中间顶部的文本，如果为空，则使用title的值代替
    * @default title
    */
   headerTitle?: string | (() => string);
@@ -84,19 +85,11 @@ export interface PopsPanelContentConfig {
   /**
    * （可选）自定义元素属性.setAttribute、.getAttribute
    */
-  attributes?:
-    | {
-        [key: string]: any;
-      }
-    | {
-        [key: string]: any;
-      }[];
+  attributes?: PopsPanelCommonDetails<any>["attributes"];
   /**
    * （可选）自定义元素内部的属性值
    */
-  props?: {
-    [K in keyof HTMLElement]?: HTMLElement[K];
-  };
+  props?: PopsPanelCommonDetails<any>["props"];
   /**
    * 子配置
    */
@@ -128,11 +121,86 @@ export interface PopsPanelContentConfig {
     /**
      * 配置
      */
-    data: {
+    config: {
       /** 容器配置 */
       asideConfig: PopsPanelContentConfig;
       /** 左侧容器的元素 */
       $asideLiElement: HTMLLIElement;
+    }
+  ) => void;
+}
+
+/**
+ * pops.panel的bottomContent配置信息
+ */
+export interface PopsPanelBottomContentConfig {
+  /**
+   * （可选）元素的className，值为空的话就不设置
+   * @default ""
+   */
+  className?: string | string[];
+  /**
+   * （可选）配置所在位置
+   *
+   * @default "left"
+   */
+  position: "left" | "right";
+  /**
+   * 显示的文本，可以是html格式
+   */
+  text: string | (() => string);
+  /**
+   * （可选）是否禁用hover的CSS样式
+   * @default false
+   */
+  disableHoverCSS?: boolean | (() => boolean);
+  /**
+   * （可选）自定义元素属性.setAttribute、.getAttribute
+   * @default {}
+   */
+  attributes?:
+    | {
+        [key: string]: any;
+      }
+    | {
+        [key: string]: any;
+      }[];
+  /**
+   * （可选）自定义元素内部的属性值
+   * @default {}
+   */
+  props?:
+    | {
+        [K in keyof HTMLElement]?: HTMLElement[K];
+      }
+    | {
+        [key: string]: any;
+      };
+  /**
+   * 该项的点击回调
+   */
+  clickCallback?: (
+    /**
+     * 点击事件
+     */
+    event: MouseEvent | PointerEvent
+  ) => void;
+  /**
+   * 该项添加到panel后的回调
+   */
+  afterRender?: (
+    /**
+     * 配置
+     */
+    config: {
+      /** panel底部区域 */
+      $bottomWrapper: HTMLElement;
+      /** panel底部区域容器 */
+      $bottomContainer: HTMLElement;
+      /** panel底部区域左侧容器 */
+      $bottomLeftContainer: HTMLElement;
+      /** panel底部区域右侧容器 */
+      $bottomRightContainer: HTMLElement;
     }
   ) => void;
 }
@@ -145,6 +213,10 @@ export interface PopsPanelDetails extends PopsTitleConfig, PopsDragConfig, PopsC
    * 内容配置
    */
   content: PopsPanelContentConfig[];
+  /**
+   * 底部内容配置
+   */
+  bottomContentConfig?: PopsPanelBottomContentConfig[];
   /**
    * 右上角的按钮配置
    */

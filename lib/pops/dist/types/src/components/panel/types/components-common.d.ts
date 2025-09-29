@@ -20,6 +20,29 @@ export interface PopsPanelRightAsideContainerOptions {
  */
 export interface PopsPanelCommonDetails<T extends PopsPanelFormsTotalDetails | PopsPanelFormsDetails> {
     /**
+     * （可选）className属性
+     * @default ""
+     */
+    className?: string;
+    /**
+     * （可选）自定义元素属性
+     * @default {}
+     */
+    attributes?: {
+        [key: string]: any;
+    } | {
+        [key: string]: any;
+    }[];
+    /**
+     * （可选）自定义属性
+     * @default {}
+     */
+    props?: {
+        [K in keyof HTMLElement]?: HTMLElement[K];
+    } | {
+        [key: string]: any;
+    };
+    /**
        * 在添加到<ul>元素后触发该回调
        * @param formConfig 配置
        * @param container 右侧容器的元素

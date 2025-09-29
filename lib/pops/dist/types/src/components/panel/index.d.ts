@@ -7,7 +7,6 @@ export declare const PopsPanel: {
         close: () => Promise<void>;
         hide: () => Promise<void>;
         show: () => Promise<void>;
-        guid: string;
         $shadowContainer: HTMLDivElement;
         $shadowRoot: ShadowRoot | HTMLElement;
         element: HTMLDivElement;
@@ -15,5 +14,6 @@ export declare const PopsPanel: {
         popsElement: HTMLDivElement;
         maskElement?: HTMLDivElement | undefined;
         mode: PopsType;
+        guid: string;
     };
 };

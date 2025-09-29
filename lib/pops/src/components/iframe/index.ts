@@ -92,21 +92,22 @@ export const PopsIframe = {
 
     const $anim = PopsElementHandler.parseElement<HTMLDivElement>(animHTML);
     const {
-      popsElement: $pops,
-      headerCloseBtnElement,
-      headerControlsElement,
-      titleElement: $title,
-      iframeElement: $iframe,
-      loadingElement,
-      contentLoadingElement: $contentLoading,
-      headerMinBtnElement,
-      headerMaxBtnElement,
-      headerMiseBtnElement,
+      $pops: $pops,
+      $headerBtnClose: headerCloseBtnElement,
+      $headerControls: headerControlsElement,
+      $title: $title,
+      $iframe: $iframe,
+      $loading: loadingElement,
+      $contentLoading: $contentLoading,
+      $headerBtnMin: headerMinBtnElement,
+      $headerBtnMax: headerMaxBtnElement,
+      $headerBtnMise: headerMiseBtnElement,
     } = PopsHandler.handleQueryElement($anim, popsType);
     let $iframeContainer = PopsCore.document.querySelector<HTMLDivElement>(".pops-iframe-container");
     if (!$iframeContainer) {
-      $iframeContainer = PopsCore.document.createElement("div");
-      $iframeContainer.className = "pops-iframe-container";
+      $iframeContainer = popsDOMUtils.createElement("div", {
+        className: "pops-iframe-container",
+      });
       $iframeContainer.style.cssText =
         "display: flex;position: fixed;bottom: 0px;flex-flow: wrap-reverse;-webkit-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;";
       popsDOMUtils.appendBody($iframeContainer);

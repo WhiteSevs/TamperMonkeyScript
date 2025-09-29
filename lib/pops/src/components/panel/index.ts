@@ -74,7 +74,7 @@ export const PopsPanel = {
           : `<p pops class="pops-${popsType}-title-text" class="pops-${popsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`
       }${headerBtnHTML}</div>
 			<div class="pops-content pops-${popsType}-content">
-				<aside class="pops-${popsType}-aside">
+				<aside class="pops-${popsType}-aside pops-user-select-none">
 					<ul class="pops-${popsType}-aside-top-container"></ul>
 					<ul class="pops-${popsType}-aside-bottom-container"></ul>
 				</aside>
@@ -84,7 +84,14 @@ export const PopsPanel = {
 						<ul class="pops-${popsType}-container-main-ul"></ul>
 					</section>
 				</div>
-			</div>`,
+			</div>
+      <div class="pops-${popsType}-bottom-wrapper">
+        <section class="pops-${popsType}-bottom-container">
+          <ul class="pops-${popsType}-bottom-left-container"></ul>
+          <ul class="pops-${popsType}-bottom-right-container"></ul>
+        </section>
+      </div>
+      `,
       "",
       zIndex
     );
@@ -94,13 +101,17 @@ export const PopsPanel = {
     const $anim = PopsElementHandler.parseElement<HTMLDivElement>(animHTML);
     /* 结构元素 */
     const {
-      popsElement: $pops,
-      headerCloseBtnElement: $headerCloseBtn,
-      titleElement: $title,
-      contentElement: $content,
-      panelSectionWrapper: $panelSectionWrapper,
-      contentAsideElement: $contentAside,
-      contentSectionContainerElement: $contentSectionContainer,
+      $pops,
+      $headerBtnClose,
+      $title,
+      $content,
+      $panelRightSectionWrapper,
+      $panelLeftAside,
+      $panelContentSectionContainer,
+      $panelBottomWrapper,
+      $panelBottomContainer,
+      $panelBottomLeftContainer,
+      $panelBottomRightContainer,
     } = PopsHandler.handleQueryElement($anim, popsType);
     if (config.isMobile || popsUtils.isPhone()) {
       popsDOMUtils.addClassName($pops, config.mobileClassName);
@@ -139,7 +150,7 @@ export const PopsPanel = {
       config
     );
     /* 为顶部右边的关闭按钮添加点击事件 */
-    PopsHandler.handleClickEvent("close", $headerCloseBtn, eventDetails, config.btn.close!.callback!);
+    PopsHandler.handleClickEvent("close", $headerBtnClose, eventDetails, config.btn.close!.callback!);
 
     /* 创建到页面中 */
     popsDOMUtils.append($shadowRoot, isCreatedElementList);
@@ -158,11 +169,15 @@ export const PopsPanel = {
     panelHandlerComponents.init({
       config: config,
       $el: {
-        $pops: $pops,
-        $content: $content,
-        $sectionWrapper: $panelSectionWrapper,
-        $contentAside: $contentAside,
-        $contentSectionContainer: $contentSectionContainer,
+        $pops,
+        $content,
+        $panelRightSectionWrapper,
+        $panelLeftAside,
+        $panelContentSectionContainer,
+        $panelBottomWrapper,
+        $panelBottomContainer,
+        $panelBottomLeftContainer,
+        $panelBottomRightContainer,
       },
     });
 

@@ -32,7 +32,11 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
                 className: "panel-switch",
                 text: "switch",
                 type: "switch",
-                // @ts-ignore
+                disabled: false,
+                description: "",
+                afterAddToUListCallBack() {
+                  // TODO
+                },
                 props: {},
                 attributes: [],
                 getValue() {
@@ -46,7 +50,16 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
                 className: "panel-slider",
                 text: "slider",
                 type: "slider",
-                // @ts-ignore
+                description: "",
+                afterAddToUListCallBack() {
+                  // TODO
+                },
+                disabled: false,
+                getToolTipContent(value) {
+                  return String(value);
+                },
+                isShowHoverTip: true,
+                step: 1,
                 props: {},
                 attributes: [],
                 getValue() {
@@ -62,8 +75,13 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
                 className: "panel-button",
                 text: "button",
                 type: "button",
-                // @ts-ignore
+                description: "",
+                disable: false,
+                buttonIsRightIcon: false,
                 props: {},
+                afterAddToUListCallBack() {
+                  // TODO
+                },
                 attributes: [],
                 buttonIcon: "view",
                 buttonIconIsLoading: true,
@@ -77,7 +95,6 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
                 className: "panel-button",
                 text: "button",
                 type: "button",
-                // @ts-ignore
                 props: {},
                 attributes: [],
                 buttonIcon: "eleme",
@@ -138,7 +155,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
             className: "panel-input",
             text: "input",
             type: "input",
-            // @ts-ignore
+            isNumber: false,
             props: {},
             attributes: [],
             getValue() {
@@ -477,6 +494,42 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
         forms: [],
         clickFirstCallback: function () {
           return false;
+        },
+      },
+    ],
+    bottomContentConfig: [
+      {
+        text: "Github",
+        position: "left",
+        className: "user-home",
+        attributes: {
+          "data-url": "https://github.com/whitesevs",
+        },
+        props: {
+          "data-test": 1,
+        },
+        disableHoverCSS: false,
+        clickCallback() {
+          const userHomeUrl = (this.attributes as { [key: string]: any })["data-url"];
+          console.log("打开个人主页：" + userHomeUrl);
+          window.open(userHomeUrl, "_blank");
+        },
+        afterRender(config) {
+          console.log(config);
+        },
+      },
+      {
+        text: "0.0.1",
+        position: "right",
+        className: "script-version",
+        attributes: {},
+        props: {},
+        disableHoverCSS: true,
+        clickCallback() {
+          console.log("当前版本：" + this.text);
+        },
+        afterRender(config) {
+          console.log(config);
         },
       },
     ],

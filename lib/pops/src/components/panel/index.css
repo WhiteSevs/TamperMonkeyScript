@@ -49,12 +49,6 @@ aside.pops-panel-aside {
   flex-direction: column;
   justify-content: space-between;
 }
-aside.pops-panel-aside {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
 aside.pops-panel-aside .pops-panel-aside-top-container {
   overflow: auto;
 }
@@ -73,6 +67,36 @@ aside.pops-panel-aside ul li:not(.pops-panel-disabled-aside-hover-css):hover {
   background: var(--panel-aside-hover-bg-color);
 }
 /* 左侧的列表 */
+
+/* 底部的容器 */
+.pops-panel-bottom-wrapper {
+  background: var(--panel-aside-bg-color);
+  border-top: 1px solid #ebeef5;
+}
+.pops-panel-bottom-wrapper:has(.pops-panel-bottom-left-container:empty):has(.pops-panel-bottom-right-container:empty) {
+  border-top: 0;
+}
+.pops-panel-bottom-container {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+}
+.pops-panel-bottom-left-container {
+}
+.pops-panel-bottom-right-container {
+}
+.pops-panel-bottom-wrapper .pops-panel-bottom-item {
+  list-style-type: none;
+  margin: 6px 8px;
+  border-radius: 4px;
+  padding: 6px 10px;
+  cursor: default;
+}
+.pops-panel-bottom-wrapper:not(.pops-panel-disable-bottom-item-hover-css) .pops-panel-bottom-item:hover {
+  color: var(--panel-aside-hover-color);
+  background: var(--panel-aside-hover-bg-color);
+}
+/* 底部的容器 */
 
 .pops-panel-content {
   display: flex;

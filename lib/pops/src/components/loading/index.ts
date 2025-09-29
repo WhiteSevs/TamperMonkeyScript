@@ -52,7 +52,7 @@ export const PopsLoading = {
 
     const $anim = PopsElementHandler.parseElement<HTMLDivElement>(animHTML);
 
-    const { popsElement: $pops } = PopsHandler.handleQueryElement($anim, PopsType);
+    const { $pops: $pops } = PopsHandler.handleQueryElement($anim, PopsType);
     /**
      * 遮罩层元素
      */

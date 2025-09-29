@@ -657,7 +657,7 @@ declare class PopsDOMUtils extends PopsDOMUtilsEvent {
      * DOMUtils.parseHTML("<a href='xxxx'></a><a href='xxxx'></a>",true, true)
      * > #document
      */
-    parseHTML<T1 extends boolean, T2 extends boolean>(html: string, useParser?: T1, isComplete?: T2): ParseHTMLReturnType<T1, T2>;
+    toElement<T1 extends boolean, T2 extends boolean>(html: string, useParser?: T1, isComplete?: T2): ParseHTMLReturnType<T1, T2>;
     /**
      * 函数在元素内部末尾添加子元素或HTML字符串
      * @param element 目标元素

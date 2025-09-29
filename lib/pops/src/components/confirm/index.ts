@@ -84,12 +84,12 @@ export const PopsConfirm = {
      */
     const $anim = PopsElementHandler.parseElement<HTMLDivElement>(animHTML);
     const {
-      popsElement: $pops,
-      titleElement: $title,
-      headerCloseBtnElement: $btnClose,
-      btnOkElement: $btnOk,
-      btnCancelElement: $btnCancel,
-      btnOtherElement: $btnOther,
+      $pops: $pops,
+      $title: $title,
+      $headerBtnClose: $btnClose,
+      $btnOk: $btnOk,
+      $btnCancel: $btnCancel,
+      $btnOther: $btnOther,
     } = PopsHandler.handleQueryElement($anim, popsType);
     /**
      * 遮罩层元素

@@ -1774,10 +1774,10 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
     /** 自定义属性 */
     attributes?: PopsDOMUtilsCreateElementAttributesMap
   ): HTMLElementTagNameMap[K] {
-    const tempElement = PopsCore.document.createElement(tagName);
+    const $temp = PopsCore.document.createElement(tagName);
     if (typeof property === "string") {
-      PopsSafeUtils.setSafeHTML(tempElement, property);
-      return tempElement;
+      PopsSafeUtils.setSafeHTML($temp, property);
+      return $temp;
     }
     if (property == null) {
       property = {};
@@ -1788,10 +1788,10 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
     Object.keys(property).forEach((key) => {
       const value = property[key];
       if (key === "innerHTML") {
-        PopsSafeUtils.setSafeHTML(tempElement, value);
+        PopsSafeUtils.setSafeHTML($temp, value);
         return;
       }
-      Reflect.set(tempElement, key, value);
+      Reflect.set($temp, key, value);
     });
     Object.keys(attributes).forEach((key) => {
       let value = attributes[key];
@@ -1802,9 +1802,9 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
         /* function转字符串 */
         value = value.toString();
       }
-      tempElement.setAttribute(key, value);
+      $temp.setAttribute(key, value);
     });
-    return tempElement;
+    return $temp;
   }
   /**
    * 字符串转HTMLElement
@@ -2017,12 +2017,12 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
    * DOMUtils.parseHTML("<a href='xxxx'></a><a href='xxxx'></a>",true, true)
    * > #document
    */
-  parseHTML<T1 extends boolean, T2 extends boolean>(
+  toElement<T1 extends boolean, T2 extends boolean>(
     html: string,
     useParser?: T1,
     isComplete?: T2
   ): ParseHTMLReturnType<T1, T2>;
-  parseHTML(html: string, useParser = false, isComplete = false) {
+  toElement(html: string, useParser = false, isComplete = false) {
     function parseHTMLByDOMParser() {
       const parser = new DOMParser();
       if (isComplete) {
@@ -2032,12 +2032,12 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
       }
     }
     function parseHTMLByCreateDom() {
-      const tempDIV = PopsCore.document.createElement("div");
-      PopsSafeUtils.setSafeHTML(tempDIV, html);
+      const $temp = PopsCore.document.createElement("div");
+      PopsSafeUtils.setSafeHTML($temp, html);
       if (isComplete) {
-        return tempDIV;
+        return $temp;
       } else {
-        return tempDIV.firstChild;
+        return $temp.firstChild;
       }
     }
     if (useParser) {
@@ -2078,7 +2078,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
       const fragment = PopsCore.document.createDocumentFragment();
       content.forEach((ele) => {
         if (typeof ele === "string") {
-          ele = this.parseHTML(ele, true, false);
+          ele = this.toElement(ele, true, false);
         }
         fragment.appendChild(ele);
       });

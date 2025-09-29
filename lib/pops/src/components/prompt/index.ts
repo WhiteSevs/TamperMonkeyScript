@@ -93,13 +93,13 @@ export const PopsPrompt = {
     const $anim = PopsElementHandler.parseElement<HTMLDivElement>(animHTML);
 
     const {
-      popsElement: $pops,
-      inputElement: $input,
-      headerCloseBtnElement: $btnClose,
-      btnOkElement: $btnOk,
-      btnCancelElement: $btnCancel,
-      btnOtherElement: $btnOther,
-      titleElement: $title,
+      $pops: $pops,
+      $input: $input,
+      $headerBtnClose: $btnClose,
+      $btnOk: $btnOk,
+      $btnCancel: $btnCancel,
+      $btnOther: $btnOther,
+      $title: $title,
     } = PopsHandler.handleQueryElement($anim, popsType);
     /**
      * 遮罩层元素

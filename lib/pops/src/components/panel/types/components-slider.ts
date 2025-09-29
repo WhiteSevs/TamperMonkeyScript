@@ -5,27 +5,6 @@ import type { PopsPanelCommonDetails } from "./components-common";
  */
 export interface PopsPanelSliderDetails extends PopsPanelCommonDetails<PopsPanelSliderDetails> {
   /**
-   * className属性
-   * @default ""
-   */
-  className?: string;
-  /**
-   * 自定义元素属性
-   */
-  attributes?:
-    | {
-        [key: string]: any;
-      }
-    | {
-        [key: string]: any;
-      }[];
-  /**
-   * 自定义属性
-   */
-  props?: {
-    [K in keyof HTMLElement]?: HTMLElement[K];
-  };
-  /**
    * 显示在左边的文字
    */
   text: string;

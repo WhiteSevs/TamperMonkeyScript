@@ -219,14 +219,14 @@ export declare const PopsTooltip: {
             showArrow: boolean;
             arrowDistance: number;
             otherDistance: number;
-            useShadowRoot: boolean;
-            only: boolean;
             zIndex: number | (() => number);
             style: string | null;
+            useShadowRoot: boolean;
+            only: boolean;
             beforeAppendToPageCallBack: ($shadowRoot: ShadowRoot | HTMLElement, $shadowContainer: HTMLDivElement) => void;
         };
         $shadowContainer: HTMLDivElement;
-        $shadowRoot: HTMLDivElement | ShadowRoot;
+        $shadowRoot: ShadowRoot | HTMLDivElement;
         toolTip: ToolTip;
     };
 };

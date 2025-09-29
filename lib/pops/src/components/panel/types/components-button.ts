@@ -6,26 +6,6 @@ import type { PopsIconType } from "../../../types/icon";
  */
 export interface PopsPanelButtonDetails extends PopsPanelCommonDetails<PopsPanelButtonDetails> {
   /**
-   * （可选）className属性
-   */
-  className?: string;
-  /**
-   * （可选）自定义元素属性
-   */
-  attributes?:
-    | {
-        [key: string]: any;
-      }
-    | {
-        [key: string]: any;
-      }[];
-  /**
-   * （可选）自定义属性
-   */
-  props?: {
-    [K in keyof HTMLElement]?: HTMLElement[K];
-  };
-  /**
    * 显示在左边的文字
    */
   text: string;
@@ -50,15 +30,22 @@ export interface PopsPanelButtonDetails extends PopsPanelCommonDetails<PopsPanel
    */
   buttonText: string | (() => string);
   /**
-   * 按钮的图标，已配置的svg请看pops.config.iconSVG，或者自定义的图标svg代码
+   * 按钮的图标，已配置的svg请看pops.config.iconSVG，或者自定义的图标svg代码，留空则是没有图标
+   * @default ""
    */
   buttonIcon?: PopsIconType;
   /**
    * 按钮的图标在右边
+   * + true 右边
+   * + false 左边
+   * @default false
    */
   buttonIsRightIcon?: boolean;
   /**
    * 按钮的图标旋转
+   * + true 旋转
+   * + false 不旋转
+   * @default false
    */
   buttonIconIsLoading?: boolean;
   /**

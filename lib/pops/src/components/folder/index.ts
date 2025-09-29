@@ -232,21 +232,21 @@ export const PopsFolder = {
      */
     const $anim = PopsElementHandler.parseElement<HTMLDivElement>(animHTML);
     const {
-      popsElement: $pops,
-      titleElement: $title,
-      contentElement: $content,
+      $pops: $pops,
+      $title: $title,
+      $content: $content,
       // folderListElement,
       // folderListHeaderElement,
       // folderListHeaderRowElement,
-      folderListBodyElement,
-      folderFileListBreadcrumbPrimaryElement,
-      headerCloseBtnElement: $btnCloseBtn,
-      btnOkElement,
-      btnCancelElement,
-      btnOtherElement,
-      folderListSortFileNameElement,
-      folderListSortLatestTimeElement,
-      folderListSortFileSizeElement,
+      $folderTbody: folderListBodyElement,
+      $folderHeaderBreadcrumbPrimary: folderFileListBreadcrumbPrimaryElement,
+      $headerBtnClose: $btnCloseBtn,
+      $btnOk: btnOkElement,
+      $btnCancel: btnCancelElement,
+      $btnOther: btnOtherElement,
+      $folderSortFileName: folderListSortFileNameElement,
+      $folderSortLatestTime: folderListSortLatestTimeElement,
+      $folderSortFileSize: folderListSortFileSizeElement,
     } = PopsHandler.handleQueryElement($anim, popsType);
 
     /**
@@ -681,14 +681,14 @@ export const PopsFolder = {
               }
               if (downloadInfo.mode === "a" || downloadInfo.mode === "aBlank") {
                 /* a标签下载 */
-                const downloadLinkElement = document.createElement("a");
+                const $anchor = popsDOMUtils.createElement("a");
 
                 if (downloadInfo.mode === "aBlank") {
-                  downloadLinkElement.setAttribute("target", "_blank");
+                  $anchor.setAttribute("target", "_blank");
                 }
 
-                downloadLinkElement.href = downloadInfo.url;
-                downloadLinkElement.click();
+                $anchor.href = downloadInfo.url;
+                $anchor.click();
               } else if (downloadInfo.mode === "open" || downloadInfo.mode === "openBlank") {
                 /* window.open下载 */
 
@@ -699,18 +699,18 @@ export const PopsFolder = {
                 }
               } else if (downloadInfo.mode === "iframe") {
                 /* iframe下载 */
-                const downloadIframeLinkElement = document.createElement("iframe");
+                const $downloadIframe = popsDOMUtils.createElement("iframe");
 
-                downloadIframeLinkElement.src = downloadInfo.url;
-                downloadIframeLinkElement.onload = function () {
+                $downloadIframe.src = downloadInfo.url;
+                $downloadIframe.onload = function () {
                   popsUtils.setTimeout(() => {
-                    downloadIframeLinkElement.remove();
+                    $downloadIframe.remove();
                   }, 1000);
                 };
-                $shadowRoot.appendChild(downloadIframeLinkElement);
+                $shadowRoot.appendChild($downloadIframe);
                 popsUtils.setTimeout(
                   () => {
-                    downloadIframeLinkElement.remove();
+                    $downloadIframe.remove();
                   },
                   3 * 60 * 1000
                 );

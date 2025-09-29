@@ -1,9 +1,9 @@
-import type { PopsRightClickMenuDetails } from "./types";
+import type { PopsRightClickMenuDataDetails, PopsRightClickMenuDetails } from "./types";
 export declare const PopsRightClickMenu: {
     init(details: PopsRightClickMenuDetails): {
         guid: string;
         config: {
-            target: HTMLElement | Node | {
+            target: Node | HTMLElement | {
                 addEventListener: (type: string, callback: EventListenerOrEventListenerObject | null, options?: AddEventListenerOptions | boolean) => void;
                 dispatchEvent: (event: Event) => boolean;
                 removeEventListener: (type: string, callback: EventListenerOrEventListenerObject | null, options?: EventListenerOptions | boolean) => void;
@@ -20941,23 +20941,17 @@ export declare const PopsRightClickMenu: {
                 };
             };
             targetSelector: string | null;
-            data: {
-                icon: import("../../types/icon").PopsIconType | string;
-                iconIsLoading: boolean;
-                text: string | (() => string);
-                callback: (clickEvent: PointerEvent, contextMenuEvent: PointerEvent, liElement: HTMLLIElement, menuListenerRootNode: HTMLElement) => boolean | void | Promise<boolean | void>;
-                item: /*elided*/ any[] | null;
-            }[];
+            data: PopsRightClickMenuDataDetails[];
             chileMenuLeftOrRightDistance: number;
             childMenuTopOrBottomDistance: number;
             className: string;
             isAnimation: boolean;
             useScaleAnimation: boolean;
             preventDefault: boolean;
-            useShadowRoot: boolean;
-            only: boolean;
             zIndex: number | (() => number);
             style: string | null;
+            useShadowRoot: boolean;
+            only: boolean;
             beforeAppendToPageCallBack: ($shadowRoot: ShadowRoot | HTMLElement, $shadowContainer: HTMLDivElement) => void;
         };
         removeWindowCheckClickListener: () => void;

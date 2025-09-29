@@ -5,20 +5,6 @@ import type { PopsPanelCommonDetails } from "./components-common";
  */
 export interface PopsPanelOwnDetails extends PopsPanelCommonDetails<PopsPanelOwnDetails> {
     /**
-     * （可选）className属性
-     */
-    className?: string;
-    /**
-     * （可选）自定义元素属性
-     */
-    attributes?: any;
-    /**
-     * （可选）自定义属性
-     */
-    props?: {
-        [K in keyof HTMLElement]?: HTMLElement[K];
-    };
-    /**
      * 类型
      */
     type: "own";

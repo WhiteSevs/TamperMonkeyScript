@@ -46,17 +46,11 @@ export const PopsSearchSuggestion = {
     ]);
 
     if (config.style != null) {
-      const cssNode = document.createElement("style");
-      popsDOMUtils.createElement(
-        "style",
-        {
-          innerHTML: config.style,
-        },
-        {
-          type: "text/css",
-        }
-      );
-      $shadowRoot.appendChild(cssNode);
+      const $css = popsDOMUtils.createElement("style", {
+        type: "text/css",
+        innerHTML: config.style,
+      });
+      $shadowRoot.appendChild($css);
     }
 
     const SearchSuggestion = {

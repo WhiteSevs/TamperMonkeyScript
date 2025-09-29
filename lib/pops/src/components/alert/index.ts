@@ -82,10 +82,10 @@ export const PopsAlert = {
     const $anim = PopsElementHandler.parseElement<HTMLDivElement>(animHTML);
 
     const {
-      popsElement: $pops,
-      headerCloseBtnElement: $headerCloseBtn,
-      btnOkElement,
-      titleElement: $title,
+      $pops: $pops,
+      $headerBtnClose: $headerCloseBtn,
+      $btnOk: btnOkElement,
+      $title: $title,
     } = PopsHandler.handleQueryElement($anim, popsType);
 
     /** 遮罩层元素 */

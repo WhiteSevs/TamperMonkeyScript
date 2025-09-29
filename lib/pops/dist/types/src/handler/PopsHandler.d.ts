@@ -54,107 +54,123 @@ export declare const PopsHandler: {
         /**
          * 主元素
          */
-        popsElement: HTMLDivElement;
+        $pops: HTMLDivElement;
         /**
          * 确认按钮
          */
-        btnOkElement: HTMLDivElement;
+        $btnOk: HTMLDivElement;
         /**
          * 取消按钮
          */
-        btnCancelElement: HTMLDivElement;
+        $btnCancel: HTMLDivElement;
         /**
          * 其它按钮
          */
-        btnOtherElement: HTMLDivElement;
+        $btnOther: HTMLDivElement;
         /**
          * 标题元素
          */
-        titleElement: HTMLDivElement;
+        $title: HTMLDivElement;
         /**
          * 输入框元素
          */
-        inputElement: HTMLInputElement | HTMLTextAreaElement;
+        $input: HTMLInputElement | HTMLTextAreaElement;
         /**
          * 顶部按钮控制层元素
          */
-        headerControlsElement: HTMLDivElement;
+        $headerControls: HTMLDivElement;
         /**
          * iframe元素
          */
-        iframeElement: HTMLIFrameElement;
+        $iframe: HTMLIFrameElement;
         /**
          * 加载中元素
          */
-        loadingElement: HTMLDivElement;
+        $loading: HTMLDivElement;
         /**
          * 内容元素
          */
-        contentElement: HTMLDivElement;
+        $content: HTMLDivElement;
         /**
          * panel的右侧容器元素
          */
-        panelSectionWrapper: HTMLDivElement;
+        $panelRightSectionWrapper: HTMLDivElement;
         /**
-         * 内容侧边栏容器元素
+         * panel侧边栏容器元素
          */
-        contentAsideElement: HTMLDivElement;
+        $panelLeftAside: HTMLDivElement;
         /**
-         * 内容主要区域容器元素
+         * panel主要区域容器元素
          */
-        contentSectionContainerElement: HTMLDivElement;
+        $panelContentSectionContainer: HTMLDivElement;
+        /**
+         * panel底部区域
+         */
+        $panelBottomWrapper: HTMLElement;
+        /**
+         * panel底部区域容器
+         */
+        $panelBottomContainer: HTMLElement;
+        /**
+         * panel底部区域左侧容器
+         */
+        $panelBottomLeftContainer: HTMLElement;
+        /**
+         * panel底部区域右侧容器
+         */
+        $panelBottomRightContainer: HTMLElement;
         /**
          * 内容加载中元素
          */
-        contentLoadingElement: HTMLDivElement;
+        $contentLoading: HTMLDivElement;
         /**
          * 顶部缩小按钮
          */
-        headerMinBtnElement: HTMLDivElement;
+        $headerBtnMin: HTMLDivElement;
         /**
          * 顶部放大按钮
          */
-        headerMaxBtnElement: HTMLDivElement;
+        $headerBtnMax: HTMLDivElement;
         /**
          * 顶部恢复原样按钮
          */
-        headerMiseBtnElement: HTMLDivElement;
+        $headerBtnMise: HTMLDivElement;
         /**
          * 顶部关闭按钮
          */
-        headerCloseBtnElement: HTMLDivElement;
+        $headerBtnClose: HTMLDivElement;
         /**
          * 文件夹列表元素
          */
-        folderListElement: HTMLDivElement;
+        $folderList: HTMLDivElement;
         /**
          * 文件夹列表顶部元素
          */
-        folderListHeaderElement: HTMLDivElement;
+        $folderHeaderNav: HTMLDivElement;
         /**
          * 文件夹列表行元素
          */
-        folderListHeaderRowElement: HTMLTableRowElement;
+        $folderHeaderRow: HTMLTableRowElement;
         /**
          * 文件夹列表tbody元素
          */
-        folderListBodyElement: HTMLTableElement;
+        $folderTbody: HTMLTableElement;
         /**
          * 文件夹列表primary元素
          */
-        folderFileListBreadcrumbPrimaryElement: HTMLDivElement;
+        $folderHeaderBreadcrumbPrimary: HTMLDivElement;
         /**
          * 文件夹排序按钮-文件名
          */
-        folderListSortFileNameElement: HTMLDivElement;
+        $folderSortFileName: HTMLDivElement;
         /**
          * 文件夹排序按钮-修改时间
          */
-        folderListSortLatestTimeElement: HTMLDivElement;
+        $folderSortLatestTime: HTMLDivElement;
         /**
          * 文件夹排序按钮-文件大小
          */
-        folderListSortFileSizeElement: HTMLDivElement;
+        $folderSortFileSize: HTMLDivElement;
     };
     /**
      * 获取事件配置

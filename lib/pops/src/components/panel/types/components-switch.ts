@@ -5,29 +5,6 @@ import type { PopsPanelCommonDetails } from "./components-common";
  */
 export interface PopsPanelSwitchDetails extends PopsPanelCommonDetails<PopsPanelSwitchDetails> {
   /**
-   * （可选）className属性
-   * @default ""
-   */
-  className?: string;
-  /**
-   * （可选）自定义元素属性
-   * @default {}
-   */
-  attributes?:
-    | {
-        [key: string]: any;
-      }
-    | {
-        [key: string]: any;
-      }[];
-  /**
-   * （可选）自定义属性
-   * @default {}
-   */
-  props?: {
-    [K in keyof HTMLElement]?: HTMLElement[K];
-  };
-  /**
    * 显示在左边的文字
    */
   text: string;
