@@ -79,6 +79,48 @@ const GenerateUserConfig = async (option: {
     SCRIPT_NAME = Object.values(SCRIPT_NAME).find((it) => typeof it === "string");
   }
 
+  let FILE_NAME = SCRIPT_NAME + ".user.js";
+
+  /* 是否压缩代码 */
+  let isMinify: boolean | "esbuild" | "terser" = false;
+  if (process.argv.includes("--minify")) {
+    isMinify = "esbuild";
+    FILE_NAME = SCRIPT_NAME + ".min.user.js";
+  }
+
+  /* 是否清空输出目录 */
+  let isEmptyOutDir = true;
+  if (process.argv.includes("--no-empty-outDir")) {
+    isEmptyOutDir = false;
+  }
+
+  let VERSION = "0.0.1";
+  if (process.argv.findIndex((i) => i.startsWith("build")) !== -1) {
+    VERSION = inheritUtils.getScriptVersion(!isEmptyOutDir);
+  }
+
+  const externalGlobalsConfig = {
+    "@whitesev/utils": {
+      cdn: cdn.jsdelivrFastly("Utils", isMinify ? "dist/index.umd.min.js" : "dist/index.umd.js"),
+      local: `file:///${baseUtils.getAbsolutePath(`./../../lib/Utils/dist/index.umd.${isMinify ? "min." : ""}js`)}`,
+    },
+    "@whitesev/domutils": {
+      cdn: cdn.jsdelivrFastly("DOMUtils", isMinify ? "dist/index.umd.min.js" : "dist/index.umd.js"),
+      local: `file:///${baseUtils.getAbsolutePath(`./../../lib/DOMUtils/dist/index.umd.${isMinify ? "min." : ""}js`)}`,
+    },
+    "@whitesev/pops": {
+      cdn: cdn.jsdelivrFastly("pops", isMinify ? "dist/index.umd.min.js" : "dist/index.umd.js"),
+      local: `file:///${baseUtils.getAbsolutePath(`./../../lib/pops/dist/index.umd.${isMinify ? "min." : ""}js`)}`,
+    },
+    "@whitesev/data-paging": {
+      cdn: cdn.jsdelivrFastly("DataPaging", isMinify ? "dist/index.umd.min.js" : "dist/index.umd.js"),
+      local: `file:///${baseUtils.getAbsolutePath(`./../../lib/DataPaging/dist/index.umd.${isMinify ? "min." : ""}js`)}`,
+    },
+    qmsg: {
+      cdn: cdn.jsdelivrFastly("Qmsg", isMinify ? "dist/index.umd.min.js" : "dist/index.umd.js"),
+      local: `file:///${baseUtils.getAbsolutePath(`./../../lib/Qmsg/dist/index.umd.${isMinify ? "min." : ""}js`)}`,
+    },
+  };
   /**
    * 默认配置
    */
@@ -116,13 +158,16 @@ const GenerateUserConfig = async (option: {
       // 自动申请权限，可以不用填上面的grant
       autoGrant: true,
       // import库的文件映射
-      externalGlobals: {
-        "@whitesev/utils": cdn.jsdelivrFastly("Utils", "dist/index.umd.js"),
-        "@whitesev/domutils": cdn.jsdelivrFastly("DOMUtils", "dist/index.umd.js"),
-        "@whitesev/pops": cdn.jsdelivrFastly("pops", "dist/index.umd.js"),
-        "@whitesev/data-paging": cdn.jsdelivrFastly("DataPaging", "dist/index.umd.js"),
-        qmsg: cdn.jsdelivrFastly("Qmsg", "dist/index.umd.js"),
-      },
+      externalGlobals: Object.assign(
+        {},
+        (() => {
+          let result = {};
+          for (const [key, value] of Object.entries(externalGlobalsConfig)) {
+            result[key] = value.cdn;
+          }
+          return result;
+        })()
+      ),
       // import资源文件的映射
       externalResource: {},
       cssSideEffects: (cssText: string) => {
@@ -160,13 +205,14 @@ const GenerateUserConfig = async (option: {
     build: {
       metaLocalFileName: option.monkeyOption?.build?.metaLocalFileName ?? true,
       externalGlobalsLocal: Object.assign(
-        {
-          "@whitesev/utils": `file:///${baseUtils.getAbsolutePath("./../../lib/Utils/dist/index.umd.js")}`,
-          "@whitesev/domutils": `file:///${baseUtils.getAbsolutePath("./../../lib/DOMUtils/dist/index.umd.js")}`,
-          "@whitesev/pops": `file:///${baseUtils.getAbsolutePath("./../../lib/pops/dist/index.umd.js")}`,
-          "@whitesev/data-paging": `file:///${baseUtils.getAbsolutePath("./../../lib/DataPaging/dist/index.umd.js")}`,
-          qmsg: `file:///${baseUtils.getAbsolutePath("./../../lib/Qmsg/dist/index.umd.js")}`,
-        },
+        {},
+        (() => {
+          let result = {};
+          for (const [key, value] of Object.entries(externalGlobalsConfig)) {
+            result[key] = value.local;
+          }
+          return result;
+        })(),
         option.monkeyOption?.build?.externalGlobalsLocal ?? {}
       ),
       externalResourceLocal: Object.assign({}, option.monkeyOption?.build?.externalResourceLocal ?? {}),
@@ -206,26 +252,6 @@ const GenerateUserConfig = async (option: {
       console.error("删除文件时出错:", error);
     }
   });
-
-  let FILE_NAME = SCRIPT_NAME + ".user.js";
-
-  /* 是否压缩代码 */
-  let isMinify: boolean | "esbuild" | "terser" = false;
-  if (process.argv.includes("--minify")) {
-    isMinify = "esbuild";
-    FILE_NAME = SCRIPT_NAME + ".min.user.js";
-  }
-
-  /* 是否清空输出目录 */
-  let isEmptyOutDir = true;
-  if (process.argv.includes("--no-empty-outDir")) {
-    isEmptyOutDir = false;
-  }
-
-  let VERSION = "0.0.1";
-  if (process.argv.findIndex((i) => i.startsWith("build")) !== -1) {
-    VERSION = inheritUtils.getScriptVersion(!isEmptyOutDir);
-  }
 
   /**
    * vite配置
