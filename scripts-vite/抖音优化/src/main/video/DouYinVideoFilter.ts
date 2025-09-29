@@ -28,7 +28,8 @@ type DouYinVideoFilterOptionScope =
   | "xhr-userHome"
   | "xhr-search"
   | "xhr-mix"
-  | "xhr-related";
+  | "xhr-related"
+  | "xhr-video";
 
 /** 过滤器规则-动态属性 */
 export type DouYinVideoFilterDynamicOption = {
@@ -69,7 +70,7 @@ export const DouYinVideoFilter = {
     /**
      * 网络接口的视频信息字典
      */
-    awemeInfoMap: new Utils.Dictionary<
+    networkAwemeInfoMap: new Utils.Dictionary<
       string,
       {
         /** 网络接口的原始视频信息 */
@@ -150,22 +151,23 @@ export const DouYinVideoFilter = {
       ) => {
         // 当命中过滤规则，如果开启了仅显示被过滤的视频，则修改isFilter值
         // 并添加记录
-        if (that.$data.isReverse) {
+        if (this.$data.isReverse) {
+          // 逆反是否过滤
           awemeFilterInfoResult.isFilter = !awemeFilterInfoResult.isFilter;
           if (
             typeof awemeFilterInfoResult.transformAwemeInfo.awemeId === "string" &&
             awemeFilterInfoResult.matchedFilterOption
           ) {
             let filterOptionList: DouYinVideoFilterOption[] =
-              that.$data.isFilterAwemeInfoList.get(awemeFilterInfoResult.transformAwemeInfo.awemeId) || [];
+              this.$data.isFilterAwemeInfoList.get(awemeFilterInfoResult.transformAwemeInfo.awemeId) || [];
             filterOptionList.push(awemeFilterInfoResult.matchedFilterOption);
-            that.$data.isFilterAwemeInfoList.set(awemeFilterInfoResult.transformAwemeInfo.awemeId, filterOptionList);
+            this.$data.isFilterAwemeInfoList.set(awemeFilterInfoResult.transformAwemeInfo.awemeId, filterOptionList);
           }
         }
 
         // 添加映射
         if (typeof awemeFilterInfoResult.transformAwemeInfo.awemeId === "string") {
-          DouYinVideoFilter.$data.awemeInfoMap.set(awemeFilterInfoResult.transformAwemeInfo.awemeId, {
+          DouYinVideoFilter.$data.networkAwemeInfoMap.set(awemeFilterInfoResult.transformAwemeInfo.awemeId, {
             awemeInfo: awemeFilterInfoResult.awemeInfo,
             transformAwemeInfo: awemeFilterInfoResult.transformAwemeInfo,
           });
@@ -315,6 +317,34 @@ export const DouYinVideoFilter = {
           }
         };
       };
+      /**
+       * 类型5接口结果的hook
+       *
+       * 此回调不会对请求数据进行过滤，因为它的结果是单个aweme，而不是数组
+       */
+      let xhr_hook_callback_5 = (scopeName: DouYinVideoFilterOptionScope, request: UtilsAjaxHookRequestOptions) => {
+        request.response = (response) => {
+          let filterOptionList = queryScopeFilterOptionList(scopeName);
+          if (!filterOptionList.length) {
+            return;
+          }
+          let data = utils.toJSON(response.responseText);
+          // 单个记录
+          let awemeInfo: DouYinVideoAwemeInfo = data["aweme_detail"];
+          if (typeof awemeInfo === "object" && awemeInfo != null) {
+            let filterResult = filterBase.checkAwemeInfoIsFilter(filterOptionList, awemeInfo);
+            checkFilterCallBack(filterResult);
+            if (filterResult.isFilter) {
+              // 只记录，不移除
+              filterBase.sendDislikeVideo(filterResult.matchedFilterOption!, awemeInfo);
+            }
+            if (import.meta.hot) {
+              console.log(awemeInfo);
+            }
+            response.responseText = JSON.stringify(data);
+          }
+        };
+      };
       // xhr hook
       DouYinNetWorkHook.ajaxHooker.hook((request) => {
         let url = CommonUtil.fixUrl(request.url);
@@ -341,12 +371,18 @@ export const DouYinVideoFilter = {
           // 精选
           // 游戏、二次元、音乐、美食、知识、体育从左侧边栏迁移到了这里面
           xhr_hook_callback_3("xhr-module", request);
-        } else if (urlInst.pathname.startsWith("/aweme/v1/web/general/search/single/")) {
+        } else if (
           // 搜索-综合
-          xhr_hook_callback_4("xhr-search", request);
-        } else if (urlInst.pathname.startsWith("/aweme/v1/web/search/item/")) {
+          urlInst.pathname.startsWith("/aweme/v1/web/general/search/single/") ||
           // 搜索-视频
+          urlInst.pathname.startsWith("/aweme/v1/web/search/item/")
+        ) {
           xhr_hook_callback_4("xhr-search", request);
+        } else if (urlInst.pathname.startsWith("/aweme/v1/web/aweme/detail/")) {
+          // 单个视频页面
+          // /video/xxx
+          // 这里没有必要屏蔽，单纯的存储网络awemeinfo记录
+          xhr_hook_callback_5("xhr-video", request);
         }
       });
     });
@@ -397,11 +433,11 @@ export const DouYinVideoFilter = {
       log.info(["视频页面解析出的transformAwemeInfo：", transformAwemeInfoWithPage]);
       if (
         typeof transformAwemeInfoWithPage.awemeId === "string" &&
-        DouYinVideoFilter.$data.awemeInfoMap.has(transformAwemeInfoWithPage.awemeId)
+        DouYinVideoFilter.$data.networkAwemeInfoMap.has(transformAwemeInfoWithPage.awemeId)
       ) {
-        let awemeInfoMapData = DouYinVideoFilter.$data.awemeInfoMap.get(transformAwemeInfoWithPage.awemeId);
+        let awemeInfoMapData = DouYinVideoFilter.$data.networkAwemeInfoMap.get(transformAwemeInfoWithPage.awemeId);
         transformAwemeInfo = awemeInfoMapData.transformAwemeInfo;
-        log.info([`视频网络接口解析出的Info：`, awemeInfoMapData]);
+        log.info([`视频网络接口存储的Info：`, awemeInfoMapData]);
       } else {
         transformAwemeInfo = transformAwemeInfoWithPage;
       }
@@ -654,6 +690,10 @@ export const DouYinVideoFilter = {
                     text: "相关推荐",
                     value: "xhr-related",
                   },
+                  // {
+                  //   text: "视频",
+                  //   value: "xhr-video",
+                  // },
                 ] as PopsPanelSelectMultipleDetails<DouYinVideoFilterOptionScope>["data"]
               ).map((it) => {
                 let result: PopsPanelSelectMultipleDetails<DouYinVideoFilterOptionScope>["data"]["0"] = {
@@ -699,6 +739,7 @@ export const DouYinVideoFilter = {
               "isSeriesInfo",
               "isMixInfo",
               "isPicture",
+              "isProduct",
               "awemeId",
               "nickname",
               "uid",
@@ -728,6 +769,8 @@ export const DouYinVideoFilter = {
               "liveStreamNickName",
               "liveStreamRoomUserCount",
               "liveStreamRoomDynamicSpliceLabel",
+              "productId",
+              "productTitle",
             ];
 
             /**

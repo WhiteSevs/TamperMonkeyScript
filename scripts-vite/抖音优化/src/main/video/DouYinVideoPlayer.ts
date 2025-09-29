@@ -292,11 +292,13 @@ export const DouYinVideoPlayer = {
       "adapt_lowest_720_1",
       "adapt_540_1",
       "adapt_lower_540_1",
+      "adapt_lowest_4_1",
+      "adapt_lowest_hdr_4_1",
     ];
 
     let definition = [
       {
-        clarityReal: clarityReal,
+        // clarityReal: clarityReal,
         done: 1,
         gearClarity: "20",
         gearName: "超清 4K",
@@ -304,7 +306,7 @@ export const DouYinVideoPlayer = {
         qualityType: 72,
       },
       {
-        clarityReal: clarityReal,
+        // clarityReal: clarityReal,
         done: 1,
         gearClarity: "10",
         gearName: "超清 2K",
@@ -312,7 +314,7 @@ export const DouYinVideoPlayer = {
         qualityType: 7,
       },
       {
-        clarityReal: clarityReal,
+        // clarityReal: clarityReal,
         done: 1,
         gearClarity: "5",
         gearName: "高清 1080P",
@@ -320,7 +322,7 @@ export const DouYinVideoPlayer = {
         qualityType: 2,
       },
       {
-        clarityReal: clarityReal,
+        // clarityReal: clarityReal,
         done: 1,
         gearClarity: "4",
         gearName: "高清 720P",
@@ -328,7 +330,7 @@ export const DouYinVideoPlayer = {
         qualityType: 15,
       },
       {
-        clarityReal: clarityReal,
+        // clarityReal: clarityReal,
         done: 1,
         gearClarity: "3",
         gearName: "标清 540P",
@@ -336,7 +338,7 @@ export const DouYinVideoPlayer = {
         qualityType: 21,
       },
       {
-        clarityReal: clarityReal,
+        // clarityReal: clarityReal,
         done: 1,
         gearClarity: "2",
         gearName: "极速",
@@ -344,7 +346,7 @@ export const DouYinVideoPlayer = {
         qualityType: 21,
       },
       {
-        clarityReal: clarityReal,
+        // clarityReal: clarityReal,
         done: 1,
         gearClarity: "0",
         gearName: "智能",

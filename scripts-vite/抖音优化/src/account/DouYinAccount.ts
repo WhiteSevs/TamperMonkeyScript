@@ -17,18 +17,18 @@ export const DouYinAccount = {
     );
     DouYinNetWorkHook.hookUserNoLoginResponse();
     const WAIT_TIME = 20000;
-    let uid = parseInt((Math.random() * 1000000).toString());
+    let uid = parseInt((Math.random() * 10000000000).toString());
     // let uid = 114514;
     let info = {
       uid: uid,
       secUid: "",
-      shortId: "",
-      realName: "",
+      shortId: parseInt((Math.random() * 1000000000).toString()),
+      realName: "乌萨奇",
       nickname: "乌萨奇", // 昵称
       desc: "除草证3级", // 描述
       gender: 0, // 性别
-      avatarUrl: "https://www.z4a.net/images/2025/02/28/008DOnfHgy1hxpz9zshl4g30hs0hsnpj.gif", // 头像
-      avatar300Url: "https://www.z4a.net/images/2025/02/28/008DOnfHgy1hxpz9zshl4g30hs0hsnpj.gif",
+      avatarUrl: "https://picshack.net/ib/F9JKlC3yhh.gif", // 头像
+      avatar300Url: "https://picshack.net/ib/F9JKlC3yhh.gif",
       followStatus: 0,
       followerStatus: 0,
       awemeCount: 0, // 作品数量
@@ -96,6 +96,7 @@ export const DouYinAccount = {
       im_role_ids: [],
       accountCertInfo: {},
       close_consecutive_chat: 0,
+      profileRankLabel: null,
     };
     /**
      * 获取用户信息

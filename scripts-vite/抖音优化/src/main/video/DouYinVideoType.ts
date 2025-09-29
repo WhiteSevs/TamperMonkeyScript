@@ -60,6 +60,10 @@ export interface DouYinVideoHandlerInfo {
   liveStreamRoomUserCount?: number;
   /** 直播间标签？ */
   liveStreamRoomDynamicSpliceLabel?: string;
+  /** 产品id（付费视频存在id，专属会员视频不存在id） */
+  productId?: string;
+  /** 产品标题 */
+  productTitle?: string;
   /** 是否是直播 */
   isLive: boolean;
   /** 是否是广告 */
@@ -70,6 +74,8 @@ export interface DouYinVideoHandlerInfo {
   isMixInfo: boolean;
   /** 是否是图文 */
   isPicture: boolean;
+  /** 是否是产品（付费视频、专属会员视频） */
+  isProduct: boolean;
 }
 
 /** 抖音视频的awemeInfo对象信息 */
@@ -150,6 +156,12 @@ export type DouYinVideoAwemeInfo = {
   createTime: number;
   /** 视频描述 */
   desc: string;
+  entertainmentProductInfo?: {
+    product_id: number;
+    has_re_purchase: boolean | number;
+    is_personal_strategy_content: boolean;
+    title: string;
+  };
   /** 音乐信心 */
   music: {
     album: string;

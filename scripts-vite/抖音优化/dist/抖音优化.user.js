@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.28
+// @version      2025.9.29
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -2600,17 +2600,17 @@ disguiseLogin() {
       );
       DouYinNetWorkHook.hookUserNoLoginResponse();
       const WAIT_TIME = 2e4;
-      let uid = parseInt((Math.random() * 1e6).toString());
+      let uid = parseInt((Math.random() * 1e10).toString());
       let info = {
         uid,
         secUid: "",
-        shortId: "",
-        realName: "",
+        shortId: parseInt((Math.random() * 1e9).toString()),
+        realName: "乌萨奇",
         nickname: "乌萨奇",
 desc: "除草证3级",
 gender: 0,
-avatarUrl: "https://www.z4a.net/images/2025/02/28/008DOnfHgy1hxpz9zshl4g30hs0hsnpj.gif",
-avatar300Url: "https://www.z4a.net/images/2025/02/28/008DOnfHgy1hxpz9zshl4g30hs0hsnpj.gif",
+avatarUrl: "https://picshack.net/ib/F9JKlC3yhh.gif",
+avatar300Url: "https://picshack.net/ib/F9JKlC3yhh.gif",
         followStatus: 0,
         followerStatus: 0,
         awemeCount: 0,
@@ -2677,7 +2677,8 @@ enterpriseVerifyReason: "",
         continuationState: 0,
         im_role_ids: [],
         accountCertInfo: {},
-        close_consecutive_chat: 0
+        close_consecutive_chat: 0,
+        profileRankLabel: null
       };
       function getUserInfo(element) {
         let userInfoList = [];
@@ -4213,76 +4214,51 @@ changeCommentToBottom() {
 chooseQuality(mode = 0) {
       log.info("选择视频清晰度: " + mode);
       let QualitySessionKey = "MANUAL_SWITCH";
-      let clarityReal = [
-        "normal_720_0",
-        "normal_1080_0",
-        "normal_540_0",
-        "low_720_0",
-        "low_540_0",
-        "adapt_lowest_1440_1",
-        "lower_540_0",
-        "adapt_low_540_0",
-        "adapt_lowest_1080_1",
-        "adapt_lowest_720_1",
-        "adapt_540_1",
-        "adapt_lower_540_1",
-        "adapt_lowest_1440_1",
-        "adapt_lowest_720_1",
-        "adapt_540_1",
-        "adapt_lower_540_1"
-      ];
       let definition = [
         {
-          clarityReal,
-          done: 1,
+done: 1,
           gearClarity: "20",
           gearName: "超清 4K",
           gearType: -2,
           qualityType: 72
         },
         {
-          clarityReal,
-          done: 1,
+done: 1,
           gearClarity: "10",
           gearName: "超清 2K",
           gearType: -1,
           qualityType: 7
         },
         {
-          clarityReal,
-          done: 1,
+done: 1,
           gearClarity: "5",
           gearName: "高清 1080P",
           gearType: 1,
           qualityType: 2
         },
         {
-          clarityReal,
-          done: 1,
+done: 1,
           gearClarity: "4",
           gearName: "高清 720P",
           gearType: 2,
           qualityType: 15
         },
         {
-          clarityReal,
-          done: 1,
+done: 1,
           gearClarity: "3",
           gearName: "标清 540P",
           gearType: 3,
           qualityType: 21
         },
         {
-          clarityReal,
-          done: 1,
+done: 1,
           gearClarity: "2",
           gearName: "极速",
           gearType: 4,
           qualityType: 21
         },
         {
-          clarityReal,
-          done: 1,
+done: 1,
           gearClarity: "0",
           gearName: "智能",
           gearType: 0
@@ -7316,6 +7292,9 @@ awemeInfo?.["aweme_id"] || awemeInfo?.["awemeId"]
       let liveStreamNickName = void 0;
       let liveStreamRoomUserCount = void 0;
       let liveStreamRoomDynamicSpliceLabel = void 0;
+      let isProduct = false;
+      let productId = void 0;
+      let productTitle = void 0;
       if (typeof videoTagInstance === "object" && Array.isArray(videoTagInstance)) {
         videoTagInstance.forEach((item) => {
           let tagName = item?.["tagName"] || item?.["tag_name"];
@@ -7461,6 +7440,19 @@ awemeInfo?.["authorInfo"]?.["customVerify"] || ""
 awemeInfo?.["author"]?.["enterprise_verify_reason"] ||
 awemeInfo?.["authorInfo"]?.["enterpriseVerifyReason"] || ""
       );
+      const entertainmentProductInfo = awemeInfo?.["entertainmentProductInfo"] ||
+awemeInfo?.["entertainment_product_info"];
+      if (typeof entertainmentProductInfo === "object" && entertainmentProductInfo != null) {
+        if (typeof entertainmentProductInfo.product_id === "number") {
+          productId = entertainmentProductInfo.product_id.toString();
+        }
+        if (typeof entertainmentProductInfo.title === "string") {
+          productTitle = entertainmentProductInfo.title;
+        }
+        if (typeof entertainmentProductInfo?.["buy_schema"] === "string" || typeof entertainmentProductInfo?.["buy_panel_schema"] === "string") {
+          isProduct = true;
+        }
+      }
       return {
         awemeId,
         nickname,
@@ -7491,11 +7483,14 @@ awemeInfo?.["authorInfo"]?.["enterpriseVerifyReason"] || ""
         liveStreamNickName,
         liveStreamRoomUserCount,
         liveStreamRoomDynamicSpliceLabel,
+        productId,
+        productTitle,
         isLive,
         isAds,
         isSeriesInfo,
         isMixInfo,
-        isPicture
+        isPicture,
+        isProduct
       };
     }
 checkFilterWithRule(details) {
@@ -7697,7 +7692,7 @@ async sendDislikeVideo(matchedFilterOption, awemeInfo) {
     },
     $data: {
 isFilterAwemeInfoList: new Utils.Dictionary(),
-awemeInfoMap: new Utils.Dictionary(),
+networkAwemeInfoMap: new Utils.Dictionary(),
       __videoFilterRuleStorage: null,
       get videoFilterRuleStorage() {
         if (this.__videoFilterRuleStorage == null) {
@@ -7743,16 +7738,16 @@ execFilter() {
           return matchedFilterOptionList;
         };
         let checkFilterCallBack = (awemeFilterInfoResult) => {
-          if (that.$data.isReverse) {
+          if (this.$data.isReverse) {
             awemeFilterInfoResult.isFilter = !awemeFilterInfoResult.isFilter;
             if (typeof awemeFilterInfoResult.transformAwemeInfo.awemeId === "string" && awemeFilterInfoResult.matchedFilterOption) {
-              let filterOptionList = that.$data.isFilterAwemeInfoList.get(awemeFilterInfoResult.transformAwemeInfo.awemeId) || [];
+              let filterOptionList = this.$data.isFilterAwemeInfoList.get(awemeFilterInfoResult.transformAwemeInfo.awemeId) || [];
               filterOptionList.push(awemeFilterInfoResult.matchedFilterOption);
-              that.$data.isFilterAwemeInfoList.set(awemeFilterInfoResult.transformAwemeInfo.awemeId, filterOptionList);
+              this.$data.isFilterAwemeInfoList.set(awemeFilterInfoResult.transformAwemeInfo.awemeId, filterOptionList);
             }
           }
           if (typeof awemeFilterInfoResult.transformAwemeInfo.awemeId === "string") {
-            DouYinVideoFilter.$data.awemeInfoMap.set(awemeFilterInfoResult.transformAwemeInfo.awemeId, {
+            DouYinVideoFilter.$data.networkAwemeInfoMap.set(awemeFilterInfoResult.transformAwemeInfo.awemeId, {
               awemeInfo: awemeFilterInfoResult.awemeInfo,
               transformAwemeInfo: awemeFilterInfoResult.transformAwemeInfo
             });
@@ -7871,6 +7866,24 @@ execFilter() {
             }
           };
         };
+        let xhr_hook_callback_5 = (scopeName, request) => {
+          request.response = (response) => {
+            let filterOptionList = queryScopeFilterOptionList(scopeName);
+            if (!filterOptionList.length) {
+              return;
+            }
+            let data = utils.toJSON(response.responseText);
+            let awemeInfo = data["aweme_detail"];
+            if (typeof awemeInfo === "object" && awemeInfo != null) {
+              let filterResult = filterBase.checkAwemeInfoIsFilter(filterOptionList, awemeInfo);
+              checkFilterCallBack(filterResult);
+              if (filterResult.isFilter) {
+                filterBase.sendDislikeVideo(filterResult.matchedFilterOption, awemeInfo);
+              }
+              response.responseText = JSON.stringify(data);
+            }
+          };
+        };
         DouYinNetWorkHook.ajaxHooker.hook((request) => {
           let url = CommonUtil.fixUrl(request.url);
           let urlInst = new URL(url);
@@ -7888,10 +7901,13 @@ execFilter() {
             xhr_hook_callback_2("xhr-familiar", request);
           } else if (urlInst.pathname.startsWith("/aweme/v1/web/module/feed")) {
             xhr_hook_callback_3("xhr-module", request);
-          } else if (urlInst.pathname.startsWith("/aweme/v1/web/general/search/single/")) {
+          } else if (
+urlInst.pathname.startsWith("/aweme/v1/web/general/search/single/") ||
+urlInst.pathname.startsWith("/aweme/v1/web/search/item/")
+          ) {
             xhr_hook_callback_4("xhr-search", request);
-          } else if (urlInst.pathname.startsWith("/aweme/v1/web/search/item/")) {
-            xhr_hook_callback_4("xhr-search", request);
+          } else if (urlInst.pathname.startsWith("/aweme/v1/web/aweme/detail/")) {
+            xhr_hook_callback_5("xhr-video", request);
           }
         });
       });
@@ -7934,10 +7950,10 @@ addParseButton() {
         let transformAwemeInfoWithPage = filterBase.parseAwemeInfoDictData(awemeInfo, false);
         log.info(["视频页面原始awemeInfo：", awemeInfo]);
         log.info(["视频页面解析出的transformAwemeInfo：", transformAwemeInfoWithPage]);
-        if (typeof transformAwemeInfoWithPage.awemeId === "string" && DouYinVideoFilter.$data.awemeInfoMap.has(transformAwemeInfoWithPage.awemeId)) {
-          let awemeInfoMapData = DouYinVideoFilter.$data.awemeInfoMap.get(transformAwemeInfoWithPage.awemeId);
+        if (typeof transformAwemeInfoWithPage.awemeId === "string" && DouYinVideoFilter.$data.networkAwemeInfoMap.has(transformAwemeInfoWithPage.awemeId)) {
+          let awemeInfoMapData = DouYinVideoFilter.$data.networkAwemeInfoMap.get(transformAwemeInfoWithPage.awemeId);
           transformAwemeInfo = awemeInfoMapData.transformAwemeInfo;
-          log.info([`视频网络接口解析出的Info：`, awemeInfoMapData]);
+          log.info([`视频网络接口存储的Info：`, awemeInfoMapData]);
         } else {
           transformAwemeInfo = transformAwemeInfoWithPage;
         }
@@ -8173,7 +8189,10 @@ getRuleViewInstance() {
                     text: "相关推荐",
                     value: "xhr-related"
                   }
-                ].map((it) => {
+
+
+
+].map((it) => {
                   let result = {
                     ...it,
                     value: it.value
@@ -8191,6 +8210,7 @@ getRuleViewInstance() {
                 "isSeriesInfo",
                 "isMixInfo",
                 "isPicture",
+                "isProduct",
                 "awemeId",
                 "nickname",
                 "uid",
@@ -8219,7 +8239,9 @@ getRuleViewInstance() {
                 "liveStreamRoomTitle",
                 "liveStreamNickName",
                 "liveStreamRoomUserCount",
-                "liveStreamRoomDynamicSpliceLabel"
+                "liveStreamRoomDynamicSpliceLabel",
+                "productId",
+                "productTitle"
               ];
               let getDynamicProp = (storageData) => {
                 let ruleNameDefaultValue = Array.isArray(storageData["ruleName"]) ? storageData["ruleName"] : [storageData["ruleName"]];

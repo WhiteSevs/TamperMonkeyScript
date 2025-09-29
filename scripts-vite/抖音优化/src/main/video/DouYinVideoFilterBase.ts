@@ -122,6 +122,12 @@ export class DouYinVideoFilterBase {
     let liveStreamRoomUserCount: number | undefined = void 0;
     /** 直播间标签？ */
     let liveStreamRoomDynamicSpliceLabel: string | undefined = void 0;
+    /** 是否是产品（付费视频） */
+    let isProduct: boolean = false;
+    /** 产品id */
+    let productId: string | undefined = void 0;
+    /** 产品标题（例如：付费短视频） */
+    let productTitle: string | undefined = void 0;
 
     if (typeof videoTagInstance === "object" && Array.isArray(videoTagInstance)) {
       videoTagInstance.forEach((item) => {
@@ -314,6 +320,26 @@ export class DouYinVideoFilterBase {
       awemeInfo?.["authorInfo"]?.["enterpriseVerifyReason"] ||
       "";
 
+    /** 产品信息 */
+    const entertainmentProductInfo =
+      awemeInfo?.["entertainmentProductInfo"] ||
+      // @ts-ignore
+      awemeInfo?.["entertainment_product_info"];
+    if (typeof entertainmentProductInfo === "object" && entertainmentProductInfo != null) {
+      if (typeof entertainmentProductInfo.product_id === "number") {
+        productId = entertainmentProductInfo.product_id.toString();
+      }
+      if (typeof entertainmentProductInfo.title === "string") {
+        productTitle = entertainmentProductInfo.title;
+      }
+      if (
+        typeof entertainmentProductInfo?.["buy_schema"] === "string" ||
+        typeof entertainmentProductInfo?.["buy_panel_schema"] === "string"
+      ) {
+        isProduct = true;
+      }
+    }
+
     return {
       awemeId,
       nickname,
@@ -344,11 +370,14 @@ export class DouYinVideoFilterBase {
       liveStreamNickName,
       liveStreamRoomUserCount,
       liveStreamRoomDynamicSpliceLabel,
+      productId,
+      productTitle,
       isLive,
       isAds,
       isSeriesInfo,
       isMixInfo,
       isPicture,
+      isProduct,
     };
   }
   /**
