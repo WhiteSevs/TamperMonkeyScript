@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@mgdn/bvid": "^0.3.0",
-    "@whitesev/data-paging": "^0.0.2",
+    "@whitesev/data-paging": "^0.0.3",
     "@whitesev/domutils": "^1.7.0",
     "@whitesev/pops": "^2.5.0",
     "@whitesev/utils": "^2.9.0",
@@ -49,7 +49,7 @@
     "eslint": "^9.36.0",
     "picocolors": "^1.1.1",
     "prettier": "^3.6.2",
-    "rollup": "^4.52.2",
+    "rollup": "^4.52.3",
     "typescript": "^5.9.2",
     "unplugin-auto-import": "^20.2.0",
     "unplugin-element-plus": "^0.10.0",
@@ -58,6 +58,6 @@
     "vite": "^7.1.7",
     "vite-plugin-mkcert": "^1.17.8",
     "vite-plugin-monkey": "^7.1.4",
-    "vue-tsc": "^3.0.8"
+    "vue-tsc": "^3.1.0"
   }
 }
