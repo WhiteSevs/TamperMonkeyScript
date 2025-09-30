@@ -3,7 +3,7 @@ export declare const PopsRightClickMenu: {
     init(details: PopsRightClickMenuDetails): {
         guid: string;
         config: {
-            target: Node | HTMLElement | {
+            target: HTMLElement | Node | {
                 addEventListener: (type: string, callback: EventListenerOrEventListenerObject | null, options?: AddEventListenerOptions | boolean) => void;
                 dispatchEvent: (event: Event) => boolean;
                 removeEventListener: (type: string, callback: EventListenerOrEventListenerObject | null, options?: EventListenerOptions | boolean) => void;
@@ -20948,10 +20948,10 @@ export declare const PopsRightClickMenu: {
             isAnimation: boolean;
             useScaleAnimation: boolean;
             preventDefault: boolean;
-            zIndex: number | (() => number);
-            style: string | null;
             useShadowRoot: boolean;
             only: boolean;
+            zIndex: number | (() => number);
+            style: string | null;
             beforeAppendToPageCallBack: ($shadowRoot: ShadowRoot | HTMLElement, $shadowContainer: HTMLDivElement) => void;
         };
         removeWindowCheckClickListener: () => void;

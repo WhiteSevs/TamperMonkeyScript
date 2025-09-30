@@ -138,9 +138,7 @@ export interface PopsPanelBottomContentConfig {
      */
     attributes?: {
         [key: string]: any;
-    } | {
-        [key: string]: any;
-    }[];
+    };
     /**
      * （可选）自定义元素内部的属性值
      * @default {}

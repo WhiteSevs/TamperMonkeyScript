@@ -4,7 +4,7 @@ export declare const PopsSearchSuggestion: {
         /**
          * 当前的环境，可以是document，可以是shadowroot，默认是document
          */
-        selfDocument: ShadowRoot | Document | (ShadowRoot | Document)[];
+        selfDocument: Document | ShadowRoot | (Document | ShadowRoot)[];
         $el: {
             /** 根元素 */
             root: HTMLElement;

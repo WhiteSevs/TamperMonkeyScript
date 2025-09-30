@@ -34,16 +34,16 @@ declare class Pops {
         };
         /** icon图标的svg代码 */
         iconSVG: {
+            loading: string;
             min: string;
-            mise: string;
             max: string;
+            mise: string;
             close: string;
             edit: string;
             share: string;
             delete: string;
             search: string;
             upload: string;
-            loading: string;
             next: string;
             prev: string;
             eleme: string;
@@ -69,14 +69,14 @@ declare class Pops {
         };
         /** 存储已创建的元素 */
         instData: {
+            iframe: import("./types/inst").PopsInstCommonConfig[];
             loading: import("./types/inst").PopsInstCommonConfig[];
+            folder: import("./types/inst").PopsInstCommonConfig[];
             alert: import("./types/inst").PopsInstCommonConfig[];
             confirm: import("./types/inst").PopsInstCommonConfig[];
             prompt: import("./types/inst").PopsInstCommonConfig[];
-            iframe: import("./types/inst").PopsInstCommonConfig[];
             tooltip: import("./types/inst").PopsInstCommonConfig[];
             drawer: import("./types/inst").PopsInstCommonConfig[];
-            folder: import("./types/inst").PopsInstCommonConfig[];
             panel: import("./types/inst").PopsInstCommonConfig[];
             rightClickMenu: import("./types/inst").PopsInstCommonConfig[];
         };
@@ -393,14 +393,14 @@ declare class Pops {
             showArrow: boolean;
             arrowDistance: number;
             otherDistance: number;
-            zIndex: number | (() => number);
-            style: string | null;
             useShadowRoot: boolean;
             only: boolean;
+            zIndex: number | (() => number);
+            style: string | null;
             beforeAppendToPageCallBack: ($shadowRoot: ShadowRoot | HTMLElement, $shadowContainer: HTMLDivElement) => void;
         };
         $shadowContainer: HTMLDivElement;
-        $shadowRoot: ShadowRoot | HTMLDivElement;
+        $shadowRoot: HTMLDivElement | ShadowRoot;
         toolTip: import("./components/tooltip").ToolTip;
     };
     /**
@@ -423,6 +423,7 @@ declare class Pops {
         close: () => Promise<void>;
         hide: () => Promise<void>;
         show: () => Promise<void>;
+        guid: string;
         $shadowContainer: HTMLDivElement;
         $shadowRoot: ShadowRoot | HTMLElement;
         element: HTMLDivElement;
@@ -430,7 +431,6 @@ declare class Pops {
         popsElement: HTMLDivElement;
         maskElement?: HTMLDivElement | undefined;
         mode: import("./types/main").PopsType;
-        guid: string;
     };
     /**
      * 右键菜单
@@ -439,7 +439,7 @@ declare class Pops {
     rightClickMenu: (details: PopsRightClickMenuDetails) => {
         guid: string;
         config: {
-            target: Node | HTMLElement | {
+            target: HTMLElement | Node | {
                 addEventListener: (type: string, callback: EventListenerOrEventListenerObject | null, options?: AddEventListenerOptions | boolean) => void;
                 dispatchEvent: (event: Event) => boolean;
                 removeEventListener: (type: string, callback: EventListenerOrEventListenerObject | null, options?: EventListenerOptions | boolean) => void;
@@ -21384,10 +21384,10 @@ declare class Pops {
             isAnimation: boolean;
             useScaleAnimation: boolean;
             preventDefault: boolean;
-            zIndex: number | (() => number);
-            style: string | null;
             useShadowRoot: boolean;
             only: boolean;
+            zIndex: number | (() => number);
+            style: string | null;
             beforeAppendToPageCallBack: ($shadowRoot: ShadowRoot | HTMLElement, $shadowContainer: HTMLDivElement) => void;
         };
         removeWindowCheckClickListener: () => void;
@@ -21413,7 +21413,7 @@ declare class Pops {
      * searchSuggestion.setAllEvent();
      */
     searchSuggestion: <T = any>(details: PopsSearchSuggestionDetails<T>) => {
-        selfDocument: ShadowRoot | Document | (ShadowRoot | Document)[];
+        selfDocument: Document | ShadowRoot | (Document | ShadowRoot)[];
         $el: {
             root: HTMLElement;
             $hintULContainer: HTMLUListElement;
