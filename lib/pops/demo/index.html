@@ -41,7 +41,7 @@
       <div class="pops-inst" data-type="drawer" onclick="pops.drawer()">pops.drawer</div>
       <div class="pops-inst" data-type="folder" onclick="pops.folder()">pops.folder</div>
       <div class="pops-inst" data-type="iframe" onclick="pops.iframe()">pops.iframe</div>
-      <div class="pops-inst" data-type="panel" onclick="pops.panel()">pops.panel</div>
+      <div class="pops-inst" data-type="panel">pops.panel</div>
       <div class="pops-inst" data-type="loading" onclick="pops.loading({mask:{clickEvent:{toClose:true}}})">
         pops.loading
       </div>
@@ -65,11 +65,13 @@
     </div>
   </body>
   <script>
+    const $ = document.querySelector.bind(document);
+    const $$ = document.querySelectorAll.bind(document);
     /**
-     * @type {import("./dist/types/index.d.ts").default}
+     * @type {import("./../dist/types/index.d.ts").default}
      */
-    let pops = window.pops;
-    let $tooltip = document.querySelector(".pops-inst[data-type='tooltip']");
+    const pops = window.pops;
+    let $tooltip = $(".pops-inst[data-type='tooltip']");
     let position = ["left", "right", "bottom", "top"];
     position.forEach((item) => {
       pops.tooltip({
@@ -83,7 +85,7 @@
       },
       drag: true,
     });
-    let $input = document.querySelector(".pops-inst[data-type='suggestion'] input");
+    let $input = $(".pops-inst[data-type='suggestion'] input");
     let suggestion = pops.searchSuggestion({
       target: $input,
       inputTarget: $input,
@@ -93,5 +95,47 @@
     });
     suggestion.init();
     suggestion.setAllEvent();
+
+    const $panel = $(".pops-inst[data-type='panel']");
+    $panel.addEventListener("click", function () {
+      pops.panel({
+        bottomContentConfig: [
+          {
+            text: "Github",
+            position: "left",
+            className: "user-home",
+            attributes: {
+              "data-url": "https://github.com/whitesevs",
+            },
+            props: {
+              "data-test": 1,
+            },
+            disableHoverCSS: false,
+            clickCallback() {
+              const userHomeUrl = this.attributes["data-url"];
+              console.log("打开个人主页：" + userHomeUrl);
+              window.open(userHomeUrl, "_blank");
+            },
+            afterRender(config) {
+              console.log(config);
+            },
+          },
+          {
+            text: "0.0.1",
+            position: "right",
+            className: "script-version",
+            attributes: {},
+            props: {},
+            disableHoverCSS: true,
+            clickCallback() {
+              console.log("当前版本：" + this.text);
+            },
+            afterRender(config) {
+              console.log(config);
+            },
+          },
+        ],
+      });
+    });
   </script>
 </html>

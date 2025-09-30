@@ -490,42 +490,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
         },
       },
     ],
-    bottomContentConfig: [
-      {
-        text: "Github",
-        position: "left",
-        className: "user-home",
-        attributes: {
-          "data-url": "https://github.com/whitesevs",
-        },
-        props: {
-          "data-test": 1,
-        },
-        disableHoverCSS: false,
-        clickCallback() {
-          const userHomeUrl = (this.attributes as { [key: string]: any })["data-url"];
-          console.log("打开个人主页：" + userHomeUrl);
-          window.open(userHomeUrl, "_blank");
-        },
-        afterRender(config) {
-          console.log(config);
-        },
-      },
-      {
-        text: "0.0.1",
-        position: "right",
-        className: "script-version",
-        attributes: {},
-        props: {},
-        disableHoverCSS: true,
-        clickCallback() {
-          console.log("当前版本：" + this.text);
-        },
-        afterRender(config) {
-          console.log(config);
-        },
-      },
-    ],
+    bottomContentConfig: [],
     btn: {
       close: {
         enable: true,

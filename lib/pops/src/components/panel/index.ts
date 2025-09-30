@@ -19,8 +19,18 @@ export const PopsPanel = {
     let config: Required<PopsPanelDetails> = PopsPanelConfig();
     config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
     config = popsUtils.assign(config, details);
-    if (details && Array.isArray(details.content)) {
-      config.content = details.content;
+    if (details) {
+      if (Array.isArray(details.content)) {
+        // 存在内容配置
+        config.content = details.content;
+      }
+      if (Array.isArray(details.bottomContentConfig)) {
+        // 存在底部配置
+        config.bottomContentConfig = details.bottomContentConfig;
+      } else {
+        // 不存在底部配置 清空默认的
+        config.bottomContentConfig = [];
+      }
     }
     config = PopsHandler.handleOnly(popsType, config);
 
