@@ -51,7 +51,7 @@ export interface PopsPanelContentConfig {
    * （可选）元素的className，值为空的话就不设置
    * @default ""
    */
-  className?: string | string[];
+  className?: PopsPanelCommonDetails<any>["className"];
   /**
    * 显示的文本，可以是html格式
    */
@@ -138,7 +138,7 @@ export interface PopsPanelBottomContentConfig {
    * （可选）元素的className，值为空的话就不设置
    * @default ""
    */
-  className?: string | string[];
+  className?: PopsPanelCommonDetails<any>["className"];
   /**
    * （可选）配置所在位置
    *
@@ -158,20 +158,12 @@ export interface PopsPanelBottomContentConfig {
    * （可选）自定义元素属性.setAttribute、.getAttribute
    * @default {}
    */
-  attributes?: {
-    [key: string]: any;
-  };
+  attributes?: PopsPanelCommonDetails<any>["attributes"];
   /**
    * （可选）自定义元素内部的属性值
    * @default {}
    */
-  props?:
-    | {
-        [K in keyof HTMLElement]?: HTMLElement[K];
-      }
-    | {
-        [key: string]: any;
-      };
+  props?: PopsPanelCommonDetails<any>["props"];
   /**
    * 该项的点击回调
    */
@@ -227,7 +219,7 @@ export interface PopsPanelDetails extends PopsTitleConfig, PopsDragConfig, PopsC
    *
    * @default "pops-panel-is-mobile"
    */
-  mobileClassName?: string;
+  mobileClassName?: PopsPanelCommonDetails<any>["className"];
   /**
    * 是否强制是移动端，默认false
    * + true 强制为移动端

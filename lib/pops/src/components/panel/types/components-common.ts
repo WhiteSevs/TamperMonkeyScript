@@ -21,21 +21,17 @@ export interface PopsPanelRightAsideContainerOptions {
  */
 export interface PopsPanelCommonDetails<T extends PopsPanelFormsTotalDetails | PopsPanelFormsDetails> {
   /**
-   * （可选）className属性
+   * （可选）元素的className，值为空的话就不设置
    * @default ""
    */
-  className?: string;
+  className?: string | string[] | (() => string | string[]);
   /**
    * （可选）自定义元素属性
    * @default {}
    */
-  attributes?:
-    | {
-        [key: string]: any;
-      }
-    | {
-        [key: string]: any;
-      }[];
+  attributes?: {
+    [key: string]: any;
+  };
   /**
    * （可选）自定义属性
    * @default {}

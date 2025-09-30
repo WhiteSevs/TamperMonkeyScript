@@ -1,5 +1,6 @@
 import type { PopsCommonConfig } from "../../../types/components";
 import type { PopsIconType } from "../../../types/icon";
+import type { PopsPanelCommonDetails } from "../../panel/types/components-common";
 /**
  * pops.rightClickMenu的右键菜单配置
  */
@@ -63,10 +64,10 @@ export interface PopsRightClickMenuDetails extends Pick<PopsCommonConfig, "useSh
      */
     childMenuTopOrBottomDistance?: number;
     /**
-     * 自定义className，默认为空
+     * （可选）元素的className，值为空的话就不设置
      * @default ""
      */
-    className?: string;
+    className?: PopsPanelCommonDetails<any>["className"];
     /**
      * 是否启用动画，默认false
      *

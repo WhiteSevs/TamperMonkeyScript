@@ -15,18 +15,16 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
         title: "菜单配置1",
         headerTitle: "菜单配置1",
         isDefault: false,
-        attributes: [
-          {
-            "data-test": "test",
-            "data-test-2": "test2",
-          },
-        ],
+        attributes: {
+          "data-test": "test",
+          "data-test-2": "test2",
+        },
         forms: [
           {
             className: "forms-1",
             text: "区域设置",
             type: "forms",
-            attributes: [],
+            attributes: {},
             forms: [
               {
                 className: "panel-switch",
@@ -38,7 +36,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
                   // TODO
                 },
                 props: {},
-                attributes: [],
+                attributes: {},
                 getValue() {
                   return true;
                 },
@@ -61,7 +59,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
                 isShowHoverTip: true,
                 step: 1,
                 props: {},
-                attributes: [],
+                attributes: {},
                 getValue() {
                   return 50;
                 },
@@ -82,7 +80,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
                 afterAddToUListCallBack() {
                   // TODO
                 },
-                attributes: [],
+                attributes: {},
                 buttonIcon: "view",
                 buttonIconIsLoading: true,
                 buttonType: "default",
@@ -96,7 +94,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
                 text: "button",
                 type: "button",
                 props: {},
-                attributes: [],
+                attributes: {},
                 buttonIcon: "eleme",
                 buttonIconIsLoading: true,
                 buttonType: "warning",
@@ -111,7 +109,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
                 // @ts-ignore
                 props: {},
                 type: "button",
-                attributes: [],
+                attributes: {},
                 buttonIcon: "chromeFilled",
                 buttonIconIsLoading: true,
                 buttonType: "danger",
@@ -124,7 +122,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
                 className: "panel-button",
                 text: "button",
                 type: "button",
-                attributes: [],
+                attributes: {},
                 // @ts-ignore
                 props: {},
                 buttonIcon: "upload",
@@ -144,12 +142,10 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
         title: "菜单配置2",
         headerTitle: "菜单配置2",
         isDefault: true,
-        attributes: [
-          {
-            "data-value": "value",
-            "data-value-2": "value2",
-          },
-        ],
+        attributes: {
+          "data-value": "value",
+          "data-value-2": "value2",
+        },
         forms: [
           {
             className: "panel-input",
@@ -157,7 +153,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
             type: "input",
             isNumber: false,
             props: {},
-            attributes: [],
+            attributes: {},
             getValue() {
               return "50";
             },
@@ -173,7 +169,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
             type: "input",
             // @ts-ignore
             props: {},
-            attributes: [],
+            attributes: {},
             getValue() {
               return "123456";
             },
@@ -190,7 +186,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
             type: "textarea",
             // @ts-ignore
             props: {},
-            attributes: [],
+            attributes: {},
             getValue() {
               return "50";
             },
@@ -207,7 +203,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
             disabled: true,
             // @ts-ignore
             props: {},
-            attributes: [],
+            attributes: {},
             getValue() {
               return 50;
             },
@@ -249,7 +245,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
             // @ts-ignore
             props: {},
 
-            attributes: [],
+            attributes: {},
             placeholder: "请至少选择一个选项",
             getValue() {
               return ["select-1", "select-2"];
@@ -332,7 +328,8 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
                     className: "forms-1",
                     text: "区域设置",
                     type: "forms",
-                    attributes: [],
+                    attributes: {},
+                    props: {},
                     forms: [
                       {
                         className: "panel-switch",
@@ -340,7 +337,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
                         type: "switch",
                         // @ts-ignore
                         props: {},
-                        attributes: [],
+                        attributes: {},
                         getValue() {
                           return true;
                         },
@@ -354,7 +351,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
                         // @ts-ignore
                         props: {},
                         type: "slider",
-                        attributes: [],
+                        attributes: {},
                         getValue() {
                           return 50;
                         },
@@ -370,7 +367,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
                         // @ts-ignore
                         props: {},
                         type: "button",
-                        attributes: [],
+                        attributes: {},
                         buttonIcon: "eleme",
                         buttonIconIsLoading: true,
                         buttonType: "warning",
@@ -385,7 +382,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
                         type: "button",
                         // @ts-ignore
                         props: {},
-                        attributes: [],
+                        attributes: {},
                         buttonIcon: "chromeFilled",
                         buttonIconIsLoading: true,
                         buttonType: "danger",
@@ -400,7 +397,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
                         // @ts-ignore
                         props: {},
                         type: "button",
-                        attributes: [],
+                        attributes: {},
                         buttonIcon: "upload",
                         buttonIconIsLoading: false,
                         buttonType: "info",
@@ -447,7 +444,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
                 // @ts-ignore
                 props: {},
                 type: "switch",
-                attributes: [],
+                attributes: {},
                 getValue() {
                   return true;
                 },
@@ -466,12 +463,10 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
 				`,
         isBottom: true,
         disableAsideItemHoverCSS: true,
-        attributes: [
-          {
-            "data-value": "value",
-            "data-value-2": "value2",
-          },
-        ],
+        attributes: {
+          "data-value": "value",
+          "data-value-2": "value2",
+        },
         // @ts-ignore
         props: {},
         forms: [],
@@ -483,12 +478,10 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
         id: "whitesev-panel-bottom-config-2",
         title: "版本：xxx.xx.xx",
         isBottom: true,
-        attributes: [
-          {
-            "data-value": "value",
-            "data-value-2": "value2",
-          },
-        ],
+        attributes: {
+          "data-value": "value",
+          "data-value-2": "value2",
+        },
         // @ts-ignore
         props: {},
         forms: [],

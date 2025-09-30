@@ -112,7 +112,7 @@ declare class Pops {
             height(element: HTMLElement | string | Window | Document | typeof globalThis, isShow?: boolean, parent?: HTMLElement | ShadowRoot): number;
             outerWidth(element: HTMLElement | string | Window | Document, isShow?: boolean, parent?: HTMLElement | ShadowRoot): number;
             outerHeight(element: HTMLElement | string | Window, isShow?: boolean, parent?: HTMLElement | ShadowRoot): number;
-            addClassName($el: Element | undefined | null, className: string): void;
+            addClassName($el: Element | undefined | null | undefined, className: string | string[] | (() => string | string[]) | undefined | null): void;
             removeClassName($el: Element | undefined | null, className: string): void;
             containsClassName($el: HTMLElement | undefined | null, className: string): boolean;
             css(element: HTMLElement | string, property: keyof CSSStyleDeclaration): string;
@@ -257,7 +257,7 @@ declare class Pops {
             setAsideItemIsVisited($el: HTMLElement): void;
             setElementAttributes($el: HTMLElement, attributes?: any): void;
             setElementProps($el: HTMLElement, props?: any): void;
-            setElementClassName($el: HTMLElement, className?: string | string[] | (() => string | string[])): void;
+            setElementClassName($el: HTMLElement, className?: import("./components/panel/types/components-common").PopsPanelCommonDetails<any>["className"]): void;
             createBottomItem(bottomItemConfig: import("./components/panel/types").PopsPanelBottomContentConfig): HTMLLIElement;
             setBottomItemClickEvent($bottomItem: HTMLElement, bottomItemConfig: import("./components/panel/types").PopsPanelBottomContentConfig): void;
             createAsideItem(asideConfig: import("./components/panel/types").PopsPanelContentConfig): HTMLLIElement;
@@ -360,7 +360,7 @@ declare class Pops {
             content: string | (() => string);
             isDiffContent: boolean;
             position: import("./components/tooltip/types/index").PopsTooltipPosition;
-            className: string;
+            className: string | string[] | (() => string | string[]);
             isFixed: boolean;
             alwaysShow: boolean;
             delayCloseTime: number;
@@ -21380,7 +21380,7 @@ declare class Pops {
             data: import("./components/rightClickMenu/types").PopsRightClickMenuDataDetails[];
             chileMenuLeftOrRightDistance: number;
             childMenuTopOrBottomDistance: number;
-            className: string;
+            className: string | string[] | (() => string | string[]);
             isAnimation: boolean;
             useScaleAnimation: boolean;
             preventDefault: boolean;

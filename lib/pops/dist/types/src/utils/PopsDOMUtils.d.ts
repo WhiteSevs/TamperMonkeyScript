@@ -502,7 +502,7 @@ declare class PopsDOMUtils extends PopsDOMUtilsEvent {
      * @param $el 目标元素
      * @param className className属性
      */
-    addClassName($el: Element | undefined | null, className: string): void;
+    addClassName($el: Element | undefined | null | undefined, className: string | string[] | (() => string | string[]) | undefined | null): void;
     /**
      * 删除className
      * @param $el 目标元素

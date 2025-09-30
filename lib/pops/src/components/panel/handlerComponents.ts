@@ -9,7 +9,7 @@ import { PopsTooltip } from "../tooltip";
 import { PopsCommonCSSClassName } from "../../config/CommonCSSClassName";
 import type { PopsAlertDetails } from "../alert/types";
 import type { PopsPanelButtonDetails } from "./types/components-button";
-import type { PopsPanelRightAsideContainerOptions } from "./types/components-common";
+import type { PopsPanelCommonDetails, PopsPanelRightAsideContainerOptions } from "./types/components-common";
 import type { PopsPanelDeepMenuDetails } from "./types/components-deepMenu";
 import type { PopsPanelFormsDetails } from "./types/components-forms";
 import type {
@@ -238,10 +238,10 @@ export const PanelHandlerComponents = () => {
      * @param props 属性
      */
     setElementProps($el: HTMLElement, props?: any) {
-      if (props == null) {
-        return;
-      }
-      Object.keys(props).forEach((propName) => {
+      if (props == null) return;
+      if (typeof props !== "object") return;
+      const propsKeys = Object.keys(props);
+      propsKeys.forEach((propName) => {
         const value = props[propName];
         if (propName === "innerHTML") {
           PopsSafeUtils.setSafeHTML($el, value);
@@ -255,23 +255,8 @@ export const PanelHandlerComponents = () => {
      * @param $el 元素
      * @param className
      */
-    setElementClassName($el: HTMLElement, className?: string | string[] | (() => string | string[])) {
-      if (className == null) {
-        return;
-      }
-      if (typeof className === "function") {
-        className = className();
-      }
-      if (typeof className === "string") {
-        const splitClassName = className.split(" ");
-        splitClassName.forEach((classNameStr) => {
-          $el.classList.add(classNameStr);
-        });
-      } else if (Array.isArray(className)) {
-        className.forEach((classNameStr) => {
-          this.setElementClassName($el, classNameStr);
-        });
-      }
+    setElementClassName($el: HTMLElement, className?: PopsPanelCommonDetails<any>["className"]) {
+      popsDOMUtils.addClassName($el, className);
     },
     /**
      * 创建底部项元素<li>

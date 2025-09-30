@@ -1,4 +1,5 @@
 import type { PopsCommonConfig } from "../../../types/components";
+import type { PopsPanelCommonDetails } from "../../panel/types/components-common";
 export type PopsSearchSuggestionData<T = any> = {
     /**
      * 值
@@ -120,10 +121,10 @@ export interface PopsSearchSuggestionDetails<T = any> extends Pick<PopsCommonCon
      */
     data: PopsSearchSuggestionData<T>[] | (() => PopsSearchSuggestionData<T>[]);
     /**
-     * 自定义的className
+     * （可选）元素的className，值为空的话就不设置
      * @default ""
      */
-    className?: string;
+    className?: PopsPanelCommonDetails<any>["className"];
     /**
      * 建议框的position位置
      *

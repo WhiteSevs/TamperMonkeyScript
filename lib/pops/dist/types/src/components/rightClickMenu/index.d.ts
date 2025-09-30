@@ -20944,7 +20944,7 @@ export declare const PopsRightClickMenu: {
             data: PopsRightClickMenuDataDetails[];
             chileMenuLeftOrRightDistance: number;
             childMenuTopOrBottomDistance: number;
-            className: string;
+            className: string | string[] | (() => string | string[]);
             isAnimation: boolean;
             useScaleAnimation: boolean;
             preventDefault: boolean;

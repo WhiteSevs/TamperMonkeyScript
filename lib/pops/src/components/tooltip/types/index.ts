@@ -1,4 +1,5 @@
 import type { PopsCommonConfig } from "../../../types/components";
+import type { PopsPanelCommonDetails } from "../../panel/types/components-common";
 
 /** tooltip的出现位置 */
 export type PopsTooltipPosition = "top" | "right" | "bottom" | "left" | "follow";
@@ -35,7 +36,7 @@ export interface PopsToolTipDetails
    * + `github-tooltip` github的样式
    * @default ""
    */
-  className?: string;
+  className?: PopsPanelCommonDetails<any>["className"];
   /**
    * 是否使用fixed定位，false则是absolute定位
    *

@@ -1,5 +1,5 @@
 import type { PopsPanelButtonDetails } from "./types/components-button";
-import type { PopsPanelRightAsideContainerOptions } from "./types/components-common";
+import type { PopsPanelCommonDetails, PopsPanelRightAsideContainerOptions } from "./types/components-common";
 import type { PopsPanelDeepMenuDetails } from "./types/components-deepMenu";
 import type { PopsPanelFormsDetails } from "./types/components-forms";
 import type { PopsPanelBottomContentConfig, PopsPanelContentConfig, PopsPanelDetails, PopsPanelFormsTotalDetails } from "./types";
@@ -102,7 +102,7 @@ export declare const PanelHandlerComponents: () => {
      * @param $el 元素
      * @param className
      */
-    setElementClassName($el: HTMLElement, className?: string | string[] | (() => string | string[])): void;
+    setElementClassName($el: HTMLElement, className?: PopsPanelCommonDetails<any>["className"]): void;
     /**
      * 创建底部项元素<li>
      * @param bottomItemConfig 配置

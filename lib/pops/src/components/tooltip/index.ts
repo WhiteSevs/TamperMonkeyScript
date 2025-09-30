@@ -82,9 +82,7 @@ export class ToolTip {
     const $toolTipArrow = $toolTipContainer.querySelector<HTMLElement>(".pops-tip-arrow")!;
 
     // 处理className
-    if (typeof this.$data.config.className === "string" && this.$data.config.className.trim() !== "") {
-      popsDOMUtils.addClassName($toolTipContainer, this.$data.config.className);
-    }
+    popsDOMUtils.addClassName($toolTipContainer, this.$data.config.className);
     // 添加z-index
     $toolTipContainer.style.zIndex = PopsHandler.handleZIndex(this.$data.config.zIndex).toString();
     if (this.$data.config.style != null) {

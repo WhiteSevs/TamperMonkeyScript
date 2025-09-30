@@ -186,7 +186,7 @@ export declare const PopsTooltip: {
             content: string | (() => string);
             isDiffContent: boolean;
             position: import("./types/index").PopsTooltipPosition;
-            className: string;
+            className: string | string[] | (() => string | string[]);
             isFixed: boolean;
             alwaysShow: boolean;
             delayCloseTime: number;

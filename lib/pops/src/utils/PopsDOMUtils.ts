@@ -1575,18 +1575,31 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
    * @param $el 目标元素
    * @param className className属性
    */
-  addClassName($el: Element | undefined | null, className: string) {
-    if ($el == null) {
-      return;
+  addClassName(
+    $el: Element | undefined | null | undefined,
+    className: string | string[] | (() => string | string[]) | undefined | null
+  ) {
+    if ($el == null) return;
+    if (className == null) return;
+
+    if (typeof className === "function") {
+      className = className();
     }
-    if (typeof className !== "string") {
-      return;
+    if (!Array.isArray(className)) {
+      className = [className];
     }
-    if (className.trim() === "") {
-      return;
-    }
-    const classNameList = className.split(" ").filter((item) => item.trim() !== "");
-    $el.classList.add(...classNameList);
+    className.forEach((classNameStrItem) => {
+      if (typeof classNameStrItem !== "string") {
+        // 不是字符串
+        return;
+      }
+      if (classNameStrItem.trim() === "") {
+        // 空字符串
+        return;
+      }
+      const classNameList = classNameStrItem.split(" ").filter((item) => item.trim() !== "");
+      $el?.classList?.add?.(...classNameList);
+    });
   }
   /**
    * 删除className
