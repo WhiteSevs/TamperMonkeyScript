@@ -182,46 +182,57 @@ export class DouYinVideoFilterBase {
         }
       }
     }
-
-    if (
-      awemeInfo["isAds"] ||
-      // @ts-ignore
-      awemeInfo["is_ads"]
-    ) {
-      isAds = true;
-      if (showLog) {
-        log.success("广告：isAds is true");
-      }
-    } else if (
-      (typeof awemeInfo["rawAdData"] === "string" && utils.isNotNull(awemeInfo["rawAdData"])) ||
-      // @ts-ignore
-      (typeof awemeInfo["raw_ad_data"] === "string" &&
-        // @ts-ignore
-        utils.isNotNull(awemeInfo["raw_ad_data"]))
-    ) {
-      isAds = true;
-      if (showLog) {
-        log.success("广告：rawAdData is not null");
-      }
-    } else if (awemeInfo["webRawData"]) {
-      if (awemeInfo["webRawData"]?.["brandAd"]?.["is_ad"]) {
-        isAds = true;
-        if (showLog) {
-          log.success("广告：webRawData.brandAd.is_ad is true");
+    // 判断是否是广告
+    isAds = [
+      () => {
+        if (
+          awemeInfo["isAds"] ||
+          // @ts-ignore
+          awemeInfo["is_ads"]
+        ) {
+          showLog && log.success("广告：isAds is true");
+          return true;
         }
-      } else if (awemeInfo["webRawData"]?.["insertInfo"]?.["is_ad"]) {
-        isAds = true;
-        if (showLog) {
-          log.success("广告：webRawData.insertInfo.is_ad is true");
+      },
+      () => {
+        if (
+          (typeof awemeInfo["rawAdData"] === "string" && utils.isNotNull(awemeInfo["rawAdData"])) ||
+          // @ts-ignore
+          (typeof awemeInfo["raw_ad_data"] === "string" &&
+            // @ts-ignore
+            utils.isNotNull(awemeInfo["raw_ad_data"]))
+        ) {
+          showLog && log.success("广告：rawAdData is not null");
+          return true;
         }
-      }
-      //  @ts-ignore
-    } else if (awemeInfo["web_raw_data"]) {
-      //  @ts-ignore
-      if (typeof awemeInfo["web_raw_data"] === "string") {
-        // 暂无测试用例
-      }
-    }
+      },
+      () => {
+        if (awemeInfo["webRawData"]) {
+          if (awemeInfo["webRawData"]?.["brandAd"]?.["is_ad"]) {
+            showLog && log.success("广告：webRawData.brandAd.is_ad is 1");
+            return true;
+          }
+          if (awemeInfo["webRawData"]?.["insertInfo"]?.["is_ad"]) {
+            showLog && log.success("广告：webRawData.insertInfo.is_ad is true");
+            return true;
+          }
+        }
+      },
+      () => {
+        //  @ts-ignore
+        if (typeof awemeInfo?.["web_raw_data"] === "string") {
+          //  @ts-ignore
+          const webRawData = utils.toJSON(awemeInfo["webRawData"]);
+          if (typeof webRawData?.["brand_ad"] === "string") {
+            const brandAd = utils.toJSON(webRawData["brand_ad"]);
+            if (brandAd?.["is_ad"]) {
+              showLog && log.success("广告：web_raw_data.brand_ad.is_ad is 1");
+              return true;
+            }
+          }
+        }
+      },
+    ].some((it) => it());
 
     // 如果风险提示内容是空的，赋值为undefined
     if ((typeof riskInfoContent === "string" && riskInfoContent.trim() === "") || typeof riskInfoContent !== "string") {
