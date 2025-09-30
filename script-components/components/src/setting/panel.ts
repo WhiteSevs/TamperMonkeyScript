@@ -156,8 +156,9 @@ const Panel = {
         return;
       }
 
+      const attributes = config.attributes;
       /* 调用初始化方法，返回false则阻止默认行为 */
-      let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
+      let __attr_init__ = attributes[ATTRIBUTE_INIT];
       if (typeof __attr_init__ === "function") {
         let __attr_result__ = __attr_init__();
         if (typeof __attr_result__ === "boolean" && !__attr_result__) {
@@ -174,14 +175,14 @@ const Panel = {
        */
       let menuDefaultConfig = new Map<string, any>();
       /* 普通的 键名 */
-      let key = config.attributes[ATTRIBUTE_KEY];
+      let key = attributes[ATTRIBUTE_KEY];
       if (key != null) {
         // 键名对应的默认值
-        const defaultValue = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+        const defaultValue = attributes[ATTRIBUTE_DEFAULT_VALUE];
         menuDefaultConfig.set(key, defaultValue);
       }
       /* 待初始化默认值的配置项 */
-      let moreMenuDefaultConfig = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
+      let moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
       if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
         // 追加|覆盖
         Object.keys(moreMenuDefaultConfig).forEach((key) => {
