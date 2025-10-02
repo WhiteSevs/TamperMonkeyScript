@@ -8,6 +8,7 @@
   "keywords": [],
   "scripts": {
     "format": "pnpm recursive run format",
+    "format:dist": "pnpm recursive run format:dist",
     "build": "pnpm recursive run build",
     "build:min": "pnpm recursive run build:min",
     "build:all": "pnpm recursive run build:all",
