@@ -84,7 +84,7 @@ export class StorageUtils {
   /**
    * 获取所有值
    */
-  getAll() {
+  getAll<T = any>(): T {
     let localValue = this.getLocalValue();
     return localValue;
   }

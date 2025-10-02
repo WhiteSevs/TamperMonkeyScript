@@ -421,6 +421,7 @@ const GenerateUserConfig = async (option: {
   // 添加@require
   DefaultMonkeyOption.userscript!.require!.splice(0, 0, await GetLib("CoverUMD"));
 
+  // 对vite-plugin-monkey插件进行hook
   const MonkeyHookPlugin: Plugin = {
     name: "vite-plugin-monkey-hook",
     configureServer(server) {

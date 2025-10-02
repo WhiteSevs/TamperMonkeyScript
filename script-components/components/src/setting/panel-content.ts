@@ -18,6 +18,10 @@ export const PanelContent = {
       }
       return this.__contentConfig;
     },
+    /**
+     * @private
+     */
+    __defaultBottomContentConfig: [] as PopsPanelContentConfig[],
   },
   /**
    * 设置所有配置项，用于初始化默认的值
@@ -46,9 +50,12 @@ export const PanelContent = {
     return this.$data.contentConfig.get(index) ?? [];
   },
   /**
-   * 获取默认左侧底部的配置项
+   * 获取左侧底部默认的配置项
    */
   getDefaultBottomContentConfig(): PopsPanelContentConfig[] {
+    if (this.$data.__defaultBottomContentConfig.length) {
+      return this.$data.__defaultBottomContentConfig;
+    }
     return [
       {
         id: "script-version",
@@ -64,5 +71,11 @@ export const PanelContent = {
         },
       },
     ];
+  },
+  /**
+   * 设置左侧底部默认的配置项
+   */
+  setDefaultBottomContentConfig(config: PopsPanelContentConfig[]) {
+    this.$data.__defaultBottomContentConfig = config;
   },
 };
