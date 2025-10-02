@@ -45,68 +45,88 @@
 // ==/UserScript==
 
 (function (Qmsg, DOMUtils, Utils, pops, md5, Artplayer, artplayerPluginDanmuku, Viewer, flvjs) {
-  'use strict';
+  "use strict";
 
-  const d=new Set;const importCSS = async t=>{d.has(t)||(d.add(t),(a=>{function r(n){if(typeof GM_addStyle=="function")return GM_addStyle(n);let e=document.createElement("style");if(e.setAttribute("type","text/css"),e.setAttribute("data-type","gm-css"),globalThis.trustedTypes){const l=globalThis.trustedTypes.createPolicy("safe-innerHTML",{createHTML:i=>i});e.innerHTML=l.createHTML(n);}else e.innerHTML=n;return (document.head||document.documentElement).appendChild(e),e}r(a);})(t));};
+  const d = new Set();
+  const importCSS = async (t) => {
+    d.has(t) ||
+      (d.add(t),
+      ((a) => {
+        function r(n) {
+          if (typeof GM_addStyle == "function") return GM_addStyle(n);
+          let e = document.createElement("style");
+          if ((e.setAttribute("type", "text/css"), e.setAttribute("data-type", "gm-css"), globalThis.trustedTypes)) {
+            const l = globalThis.trustedTypes.createPolicy("safe-innerHTML", { createHTML: (i) => i });
+            e.innerHTML = l.createHTML(n);
+          } else e.innerHTML = n;
+          return ((document.head || document.documentElement).appendChild(e), e);
+        }
+        r(a);
+      })(t));
+  };
 
-  const blockCss = '@charset "UTF-8";.m-video2-awaken-btn,.openapp-dialog{display:none!important}.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-head m-open-app{display:none!important}.m-home .launch-app-btn.home-float-openapp{display:none!important}.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp,.m-space m-open-app:has(>.m-fixed-openapp){display:none!important}#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp{display:none!important}#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn,#app .m-dynamic m-open-app:has(>.m-fixed-openapp){display:none!important}#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .m-opus .m-navbar .m-nav-openapp,#app .m-opus m-open-app.m-open-app.fixed-openapp{display:none!important}#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp{display:none!important}#app.main-container bili-open-app.btn-download{display:none!important}#__next m-open-app[class^=TopBar_download],#__next m-open-app:has([class^=GoApp]){display:none!important}#__next m-open-app[class^=MainButton_btnWrap]{visibility:hidden!important}#app .read-app-main bili-open-app{display:none!important}#app .playlist>.open-app-wp{display:none!important}#app .playlist>.open-app-wp+div{padding-top:56.25%}';
+  const blockCss =
+    '@charset "UTF-8";.m-video2-awaken-btn,.openapp-dialog{display:none!important}.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-head m-open-app{display:none!important}.m-home .launch-app-btn.home-float-openapp{display:none!important}.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp,.m-space m-open-app:has(>.m-fixed-openapp){display:none!important}#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp{display:none!important}#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn,#app .m-dynamic m-open-app:has(>.m-fixed-openapp){display:none!important}#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .m-opus .m-navbar .m-nav-openapp,#app .m-opus m-open-app.m-open-app.fixed-openapp{display:none!important}#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp{display:none!important}#app.main-container bili-open-app.btn-download{display:none!important}#__next m-open-app[class^=TopBar_download],#__next m-open-app:has([class^=GoApp]){display:none!important}#__next m-open-app[class^=MainButton_btnWrap]{visibility:hidden!important}#app .read-app-main bili-open-app{display:none!important}#app .playlist>.open-app-wp{display:none!important}#app .playlist>.open-app-wp+div{padding-top:56.25%}';
   importCSS(blockCss);
   const commonCss = "html{--bili-color: #fb7299;--bili-color-rgb: 251, 114, 153}";
   importCSS(commonCss);
-  const BilibiliBeautifyCSS = '@charset "UTF-8";\r\n/* 主页 */\r\n#app .m-head {\r\n  --bg-color: #f0f1f3;\r\n  --bg-rever-color: #ffffff;\r\n  --pd-width: 1.3333vmin;\r\n  --bd-circle: 1.3333vmin;\r\n  --card-height: 30vmin;\r\n  --icon-font-size: 3.2vmin;\r\n  --icon-text-font-size: 2.6vmin;\r\n  --icon-font-margin-right: 3vmin;\r\n  --title-font-size: 2.8vmin;\r\n  background-color: var(--bg-color);\r\n}\r\n#app .m-head .m-home {\r\n  background-color: var(--bg-color);\r\n}\r\n/* 美化视频卡片 */\r\n#app .m-head .video-list .card-box .v-card {\r\n  background-color: var(--bg-rever-color);\r\n  padding: 0px;\r\n  margin: 0px;\r\n  width: calc(50% - var(--pd-width) / 2);\r\n  border-radius: var(--bd-circle);\r\n  margin-top: var(--pd-width);\r\n  display: grid;\r\n  /* 视频封面区域 */\r\n}\r\n#app .m-head .video-list .card-box .v-card .card {\r\n  background: var(--bg-rever-color);\r\n  border-radius: unset;\r\n  border-top-left-radius: var(--bd-circle);\r\n  border-top-right-radius: var(--bd-circle);\r\n  height: var(--card-height);\r\n}\r\n#app .m-head .video-list .card-box .v-card .card .count {\r\n  display: flex;\r\n  justify-content: safe flex-start;\r\n  padding-right: 0;\r\n}\r\n#app .m-head .video-list .card-box .v-card .card .count .iconfont {\r\n  font-size: var(--icon-text-font-size);\r\n}\r\n#app .m-head .video-list .card-box .v-card .card .count > span {\r\n  font-size: var(--icon-text-font-size);\r\n  margin-right: var(--icon-font-margin-right);\r\n}\r\n/* 视频标题区域 */\r\n#app .m-head .video-list .card-box .v-card .title {\r\n  padding: 0;\r\n  margin: var(--pd-width);\r\n  font-size: var(--title-font-size);\r\n}\r\n/* 两列 => 左边的 */\r\n#app .m-head .video-list .card-box .v-card:nth-child(2n-1) {\r\n  /*background-color: red;*/\r\n  margin-right: calc(var(--pd-width) / 2);\r\n}\r\n/* 两列 => 右边的 */\r\n#app .m-head .video-list .card-box .v-card:nth-child(2n) {\r\n  /*background-color: rebeccapurple;*/\r\n  margin-left: calc(var(--pd-width) / 2);\r\n}\r\n';
+  const BilibiliBeautifyCSS =
+    '@charset "UTF-8";\r\n/* 主页 */\r\n#app .m-head {\r\n  --bg-color: #f0f1f3;\r\n  --bg-rever-color: #ffffff;\r\n  --pd-width: 1.3333vmin;\r\n  --bd-circle: 1.3333vmin;\r\n  --card-height: 30vmin;\r\n  --icon-font-size: 3.2vmin;\r\n  --icon-text-font-size: 2.6vmin;\r\n  --icon-font-margin-right: 3vmin;\r\n  --title-font-size: 2.8vmin;\r\n  background-color: var(--bg-color);\r\n}\r\n#app .m-head .m-home {\r\n  background-color: var(--bg-color);\r\n}\r\n/* 美化视频卡片 */\r\n#app .m-head .video-list .card-box .v-card {\r\n  background-color: var(--bg-rever-color);\r\n  padding: 0px;\r\n  margin: 0px;\r\n  width: calc(50% - var(--pd-width) / 2);\r\n  border-radius: var(--bd-circle);\r\n  margin-top: var(--pd-width);\r\n  display: grid;\r\n  /* 视频封面区域 */\r\n}\r\n#app .m-head .video-list .card-box .v-card .card {\r\n  background: var(--bg-rever-color);\r\n  border-radius: unset;\r\n  border-top-left-radius: var(--bd-circle);\r\n  border-top-right-radius: var(--bd-circle);\r\n  height: var(--card-height);\r\n}\r\n#app .m-head .video-list .card-box .v-card .card .count {\r\n  display: flex;\r\n  justify-content: safe flex-start;\r\n  padding-right: 0;\r\n}\r\n#app .m-head .video-list .card-box .v-card .card .count .iconfont {\r\n  font-size: var(--icon-text-font-size);\r\n}\r\n#app .m-head .video-list .card-box .v-card .card .count > span {\r\n  font-size: var(--icon-text-font-size);\r\n  margin-right: var(--icon-font-margin-right);\r\n}\r\n/* 视频标题区域 */\r\n#app .m-head .video-list .card-box .v-card .title {\r\n  padding: 0;\r\n  margin: var(--pd-width);\r\n  font-size: var(--title-font-size);\r\n}\r\n/* 两列 => 左边的 */\r\n#app .m-head .video-list .card-box .v-card:nth-child(2n-1) {\r\n  /*background-color: red;*/\r\n  margin-right: calc(var(--pd-width) / 2);\r\n}\r\n/* 两列 => 右边的 */\r\n#app .m-head .video-list .card-box .v-card:nth-child(2n) {\r\n  /*background-color: rebeccapurple;*/\r\n  margin-left: calc(var(--pd-width) / 2);\r\n}\r\n';
   const BilibiliRouter = {
-isVideo() {
+    isVideo() {
       return window.location.pathname.startsWith("/video/");
     },
-isBangumi() {
+    isBangumi() {
       return window.location.pathname.startsWith("/bangumi/");
     },
-isSearch() {
+    isSearch() {
       return window.location.pathname.startsWith("/search");
     },
-isSearchResult() {
+    isSearchResult() {
       let urlSearchParams = new URLSearchParams(window.location.search);
       return this.isSearch() && urlSearchParams.has("keyword");
     },
-isLive() {
+    isLive() {
       return window.location.hostname === "live.bilibili.com";
     },
-isOpus() {
+    isOpus() {
       return window.location.pathname.startsWith("/opus");
     },
-isTopicDetail() {
+    isTopicDetail() {
       return window.location.pathname.startsWith("/topic-detail");
     },
-isDynamic() {
+    isDynamic() {
       return window.location.pathname.startsWith("/dynamic");
     },
-isHead() {
+    isHead() {
       return window.location.pathname === "/" || window.location.pathname.startsWith("/channel");
     },
-isSpace() {
+    isSpace() {
       return window.location.pathname.startsWith("/space");
     },
-isPlayList() {
+    isPlayList() {
       return window.location.pathname.startsWith("/playlist");
-    }
+    },
   };
   const BilibiliPCRouter = {
-isPC() {
+    isPC() {
       return window.location.hostname === "www.bilibili.com";
     },
-isReadMobile() {
+    isReadMobile() {
       return this.isPC() && window.location.pathname.startsWith("/read/mobile");
-    }
+    },
   };
-  var _GM_deleteValue = (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
-  var _GM_getResourceText = (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
-  var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
-  var _GM_info = (() => typeof GM_info != "undefined" ? GM_info : void 0)();
-  var _GM_registerMenuCommand = (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-  var _GM_setValue = (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
-  var _GM_unregisterMenuCommand = (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-  var _GM_xmlhttpRequest = (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
-  var _unsafeWindow = (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
+  var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
+  var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
+  var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
+  var _GM_info = (() => (typeof GM_info != "undefined" ? GM_info : void 0))();
+  var _GM_registerMenuCommand = (() =>
+    typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
+  var _GM_unregisterMenuCommand = (() =>
+    typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
+  var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
   var _monkeyWindow = (() => window)();
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
@@ -115,15 +135,15 @@ isReadMobile() {
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const PROPS_STORAGE_API = "data-storage-api";
   const PanelSizeUtil = {
-get width() {
+    get width() {
       return globalThis.innerWidth;
     },
-get height() {
+    get height() {
       return globalThis.innerHeight;
-    }
+    },
   };
   const PanelUISize = {
-setting: {
+    setting: {
       get width() {
         if (PanelSizeUtil.width < 550) {
           return "88vw";
@@ -141,26 +161,26 @@ setting: {
         } else {
           return "550px";
         }
-      }
+      },
     },
-settingMiddle: {
+    settingMiddle: {
       get width() {
         return PanelSizeUtil.width < 350 ? "88vw" : "350px";
-      }
+      },
     },
-info: {
+    info: {
       get width() {
         return PanelSizeUtil.width < 350 ? "88vw" : "350px";
       },
       get height() {
         return PanelSizeUtil.height < 250 ? "88vh" : "250px";
-      }
-    }
+      },
+    },
   };
   class StorageUtils {
-storageKey;
+    storageKey;
     listenerData;
-constructor(key) {
+    constructor(key) {
       if (typeof key === "string") {
         let trimKey = key.trim();
         if (trimKey == "") {
@@ -172,7 +192,7 @@ constructor(key) {
       }
       this.listenerData = new Utils.Dictionary();
     }
-getLocalValue() {
+    getLocalValue() {
       let localValue = _GM_getValue(this.storageKey);
       if (localValue == null) {
         localValue = {};
@@ -180,63 +200,66 @@ getLocalValue() {
       }
       return localValue;
     }
-setLocalValue(value) {
+    setLocalValue(value) {
       _GM_setValue(this.storageKey, value);
     }
-set(key, value) {
+    set(key, value) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, value);
     }
-get(key, defaultValue) {
+    get(key, defaultValue) {
       let localValue = this.getLocalValue();
       return Reflect.get(localValue, key) ?? defaultValue;
     }
-getAll() {
+    getAll() {
       let localValue = this.getLocalValue();
       return localValue;
     }
-delete(key) {
+    delete(key) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, void 0);
     }
-has(key) {
+    has(key) {
       let localValue = this.getLocalValue();
       return Reflect.has(localValue, key);
     }
-keys() {
+    keys() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue);
     }
-values() {
+    values() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
     }
-clear() {
+    clear() {
       _GM_deleteValue(this.storageKey);
     }
-addValueChangeListener(key, callback) {
+    addValueChangeListener(key, callback) {
       let listenerId = Math.random();
       let listenerData = this.listenerData.get(key) || [];
       listenerData.push({
         id: listenerId,
         key,
-        callback
+        callback,
       });
       this.listenerData.set(key, listenerData);
       return listenerId;
     }
-removeValueChangeListener(listenerId) {
+    removeValueChangeListener(listenerId) {
       let flag = false;
       for (const [key, listenerData] of this.listenerData.entries()) {
         for (let index = 0; index < listenerData.length; index++) {
           const value = listenerData[index];
-          if (typeof listenerId === "string" && value.key === listenerId || typeof listenerId === "number" && value.id === listenerId) {
+          if (
+            (typeof listenerId === "string" && value.key === listenerId) ||
+            (typeof listenerId === "number" && value.id === listenerId)
+          ) {
             listenerData.splice(index, 1);
             index--;
             flag = true;
@@ -246,7 +269,7 @@ removeValueChangeListener(listenerId) {
       }
       return flag;
     }
-triggerValueChangeListener(key, oldValue, newValue) {
+    triggerValueChangeListener(key, oldValue, newValue) {
       if (!this.listenerData.has(key)) {
         return;
       }
@@ -275,28 +298,28 @@ triggerValueChangeListener(key, oldValue, newValue) {
   const PopsPanelStorageApi = new StorageUtils(KEY);
   const PanelContent = {
     $data: {
-__contentConfig: null,
+      __contentConfig: null,
       get contentConfig() {
         if (this.__contentConfig == null) {
           this.__contentConfig = new utils.Dictionary();
         }
         return this.__contentConfig;
-      }
+      },
     },
-addContentConfig(configList) {
+    addContentConfig(configList) {
       if (!Array.isArray(configList)) {
         configList = [configList];
       }
       let index = this.$data.contentConfig.keys().length;
       this.$data.contentConfig.set(index, configList);
     },
-getAllContentConfig() {
+    getAllContentConfig() {
       return this.$data.contentConfig.values().flat();
     },
-getConfig(index = 0) {
+    getConfig(index = 0) {
       return this.$data.contentConfig.get(index) ?? [];
     },
-getDefaultBottomContentConfig() {
+    getDefaultBottomContentConfig() {
       return [
         {
           id: "script-version",
@@ -309,10 +332,10 @@ getDefaultBottomContentConfig() {
               window.open(supportURL, "_blank");
             }
             return false;
-          }
-        }
+          },
+        },
       ];
-    }
+    },
   };
   const PanelMenu = {
     $data: {
@@ -327,29 +350,29 @@ getDefaultBottomContentConfig() {
           },
           callback: () => {
             Panel.showPanel(PanelContent.getConfig(0));
-          }
-        }
+          },
+        },
       ],
       get menuOption() {
         return this.__menuOption;
-      }
+      },
     },
     init() {
       this.initExtensionsMenu();
     },
-initExtensionsMenu() {
+    initExtensionsMenu() {
       if (!Panel.isTopWindow()) {
         return;
       }
       GM_Menu.add(this.$data.menuOption);
     },
-addMenuOption(option) {
+    addMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
       this.$data.menuOption.push(...option);
     },
-updateMenuOption(option) {
+    updateMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
@@ -362,15 +385,15 @@ updateMenuOption(option) {
         }
       });
     },
-getMenuOption(index = 0) {
+    getMenuOption(index = 0) {
       return this.$data.menuOption[index];
     },
-deleteMenuOption(index = 0) {
+    deleteMenuOption(index = 0) {
       this.$data.menuOption.splice(index, 1);
-    }
+    },
   };
   const CommonUtil = {
-waitRemove(...args) {
+    waitRemove(...args) {
       args.forEach((selector) => {
         if (typeof selector !== "string") {
           return;
@@ -380,7 +403,7 @@ waitRemove(...args) {
         });
       });
     },
-createBlockCSSNode(...args) {
+    createBlockCSSNode(...args) {
       let selectorList = [];
       if (args.length === 0) {
         return;
@@ -397,10 +420,10 @@ createBlockCSSNode(...args) {
       });
       return DOMUtils.createElement("style", {
         type: "text/css",
-        innerHTML: `${selectorList.join(",\n")}{display: none !important;}`
+        innerHTML: `${selectorList.join(",\n")}{display: none !important;}`,
       });
     },
-addBlockCSS(...args) {
+    addBlockCSS(...args) {
       let selectorList = [];
       if (args.length === 0) {
         return;
@@ -417,7 +440,7 @@ addBlockCSS(...args) {
       });
       return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
-setGMResourceCSS(resourceMapData) {
+    setGMResourceCSS(resourceMapData) {
       let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
       if (typeof cssText === "string" && cssText) {
         addStyle(cssText);
@@ -425,7 +448,7 @@ setGMResourceCSS(resourceMapData) {
         CommonUtil.loadStyleLink(resourceMapData.url);
       }
     },
-async loadStyleLink(url) {
+    async loadStyleLink(url) {
       let $link = document.createElement("link");
       $link.rel = "stylesheet";
       $link.type = "text/css";
@@ -434,7 +457,7 @@ async loadStyleLink(url) {
         document.head.appendChild($link);
       });
     },
-async loadScript(url) {
+    async loadScript(url) {
       let $script = document.createElement("script");
       $script.src = url;
       return new Promise((resolve) => {
@@ -444,7 +467,7 @@ async loadScript(url) {
         (document.head || document.documentElement).appendChild($script);
       });
     },
-fixUrl(url) {
+    fixUrl(url) {
       url = url.trim();
       if (url.startsWith("data:")) {
         return url;
@@ -452,7 +475,7 @@ fixUrl(url) {
       if (url.match(/^http(s|):\/\//i)) {
         return url;
       } else if (url.startsWith("//")) {
-        if (url.startsWith("///")) ;
+        if (url.startsWith("///"));
         else {
           url = window.location.protocol + url;
         }
@@ -465,7 +488,7 @@ fixUrl(url) {
         return url;
       }
     },
-fixHttps(url) {
+    fixHttps(url) {
       if (url.startsWith("https://")) {
         return url;
       }
@@ -480,46 +503,51 @@ fixHttps(url) {
         return url;
       }
     },
-lockScroll(...args) {
+    lockScroll(...args) {
       let $hidden = document.createElement("style");
-      $hidden.innerHTML =
-`
+      $hidden.innerHTML = `
 			.pops-overflow-hidden-important {
 				overflow: hidden !important;
 			}
 		`;
-      let $elList = [document.documentElement, document.body].concat(...args || []);
+      let $elList = [document.documentElement, document.body].concat(...(args || []));
       $elList.forEach(($el) => {
         $el.classList.add("pops-overflow-hidden-important");
       });
       (document.head || document.documentElement).appendChild($hidden);
       return {
-recovery() {
+        recovery() {
           $elList.forEach(($el) => {
             $el.classList.remove("pops-overflow-hidden-important");
           });
           $hidden.remove();
-        }
+        },
       };
     },
-async getClipboardText() {
+    async getClipboardText() {
       function readClipboardText(resolve) {
-        navigator.clipboard.readText().then((clipboardText) => {
-          resolve(clipboardText);
-        }).catch((error) => {
-          log$1.error("读取剪贴板内容失败👉", error);
-          resolve("");
-        });
+        navigator.clipboard
+          .readText()
+          .then((clipboardText) => {
+            resolve(clipboardText);
+          })
+          .catch((error) => {
+            log$1.error("读取剪贴板内容失败👉", error);
+            resolve("");
+          });
       }
       function requestPermissionsWithClipboard(resolve) {
-        navigator.permissions.query({
-name: "clipboard-read"
-        }).then((permissionStatus) => {
-          readClipboardText(resolve);
-        }).catch((error) => {
-          log$1.error("申请剪贴板权限失败，尝试直接读取👉", error.message ?? error.name ?? error.stack);
-          readClipboardText(resolve);
-        });
+        navigator.permissions
+          .query({
+            name: "clipboard-read",
+          })
+          .then((permissionStatus) => {
+            readClipboardText(resolve);
+          })
+          .catch((error) => {
+            log$1.error("申请剪贴板权限失败，尝试直接读取👉", error.message ?? error.name ?? error.stack);
+            readClipboardText(resolve);
+          });
       }
       function checkClipboardApi() {
         if (typeof navigator?.clipboard?.readText !== "function") {
@@ -544,22 +572,42 @@ name: "clipboard-read"
               requestPermissionsWithClipboard(resolve);
             },
             {
-              once: true
+              once: true,
             }
           );
         }
       });
     },
-escapeHtml(unsafe) {
-      return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
+    escapeHtml(unsafe) {
+      return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;")
+        .replace(/©/g, "&copy;")
+        .replace(/®/g, "&reg;")
+        .replace(/™/g, "&trade;")
+        .replace(/→/g, "&rarr;")
+        .replace(/←/g, "&larr;")
+        .replace(/↑/g, "&uarr;")
+        .replace(/↓/g, "&darr;")
+        .replace(/—/g, "&mdash;")
+        .replace(/–/g, "&ndash;")
+        .replace(/…/g, "&hellip;")
+        .replace(/ /g, "&nbsp;")
+        .replace(/\r\n/g, "<br>")
+        .replace(/\r/g, "<br>")
+        .replace(/\n/g, "<br>")
+        .replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
     },
-interval(fn, intervalTime, timeout = 5e3) {
+    interval(fn, intervalTime, timeout = 5e3) {
       let timeId;
       let maxTimeout = timeout - intervalTime;
       let intervalTimeCount = intervalTime;
       let loop = async (isTimeout) => {
         let result = await fn(isTimeout);
-        if (typeof result === "boolean" && !result || isTimeout) {
+        if ((typeof result === "boolean" && !result) || isTimeout) {
           utils.workerClearTimeout(timeId);
           return;
         }
@@ -574,7 +622,7 @@ interval(fn, intervalTime, timeout = 5e3) {
       };
       loop(false);
     },
-findParentNode($el, selector, parentSelector) {
+    findParentNode($el, selector, parentSelector) {
       if (parentSelector) {
         let $parent = DOMUtils.closest($el, parentSelector);
         if ($parent) {
@@ -588,63 +636,63 @@ findParentNode($el, selector, parentSelector) {
         let $parent = DOMUtils.closest($el, selector);
         return $parent;
       }
-    }
+    },
   };
   const Panel = {
-$data: {
-__contentConfigInitDefaultValue: null,
-__onceExecMenuData: null,
-__urlChangeReloadMenuExecOnce: null,
-__onceExecData: null,
-__panelConfig: {},
-$panel: null,
-panelContent: [],
-get contentConfigInitDefaultValue() {
+    $data: {
+      __contentConfigInitDefaultValue: null,
+      __onceExecMenuData: null,
+      __urlChangeReloadMenuExecOnce: null,
+      __onceExecData: null,
+      __panelConfig: {},
+      $panel: null,
+      panelContent: [],
+      get contentConfigInitDefaultValue() {
         if (this.__contentConfigInitDefaultValue == null) {
           this.__contentConfigInitDefaultValue = new utils.Dictionary();
         }
         return this.__contentConfigInitDefaultValue;
       },
-contentConfigInitDisabledKeys: [],
-get onceExecMenuData() {
+      contentConfigInitDisabledKeys: [],
+      get onceExecMenuData() {
         if (this.__onceExecMenuData == null) {
           this.__onceExecMenuData = new utils.Dictionary();
         }
         return this.__onceExecMenuData;
       },
-get urlChangeReloadMenuExecOnce() {
+      get urlChangeReloadMenuExecOnce() {
         if (this.__urlChangeReloadMenuExecOnce == null) {
           this.__urlChangeReloadMenuExecOnce = new utils.Dictionary();
         }
         return this.__urlChangeReloadMenuExecOnce;
       },
-get onceExecData() {
+      get onceExecData() {
         if (this.__onceExecData == null) {
           this.__onceExecData = new utils.Dictionary();
         }
         return this.__onceExecData;
       },
-get scriptName() {
+      get scriptName() {
         return SCRIPT_NAME;
       },
-get panelConfig() {
+      get panelConfig() {
         return this.__panelConfig;
       },
       set panelConfig(value) {
         this.__panelConfig = value;
       },
-key: KEY,
-attributeKeyName: ATTRIBUTE_KEY,
-attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
+      key: KEY,
+      attributeKeyName: ATTRIBUTE_KEY,
+      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE,
     },
     init() {
       this.initContentDefaultValue();
       PanelMenu.init();
     },
-isTopWindow() {
+    isTopWindow() {
       return _unsafeWindow.top === _unsafeWindow.self;
     },
-initContentDefaultValue() {
+    initContentDefaultValue() {
       const initDefaultValue = (config) => {
         if (!config.attributes) {
           return;
@@ -708,19 +756,19 @@ initContentDefaultValue() {
       }
       this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
     },
-setDefaultValue(key, defaultValue) {
+    setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
         log$1.warn("请检查该key(已存在): " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
-getDefaultValue(key) {
+    getDefaultValue(key) {
       return this.$data.contentConfigInitDefaultValue.get(key);
     },
-setValue(key, value) {
+    setValue(key, value) {
       PopsPanelStorageApi.set(key, value);
     },
-getValue(key, defaultValue) {
+    getValue(key, defaultValue) {
       let localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
         if (this.$data.contentConfigInitDefaultValue.has(key)) {
@@ -730,25 +778,25 @@ getValue(key, defaultValue) {
       }
       return localValue;
     },
-deleteValue(key) {
+    deleteValue(key) {
       PopsPanelStorageApi.delete(key);
     },
-hasKey(key) {
+    hasKey(key) {
       return PopsPanelStorageApi.has(key);
     },
-addValueChangeListener(key, callback) {
+    addValueChangeListener(key, callback) {
       let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
         callback(key, __oldValue, __newValue);
       });
       return listenerId;
     },
-removeValueChangeListener(listenerId) {
+    removeValueChangeListener(listenerId) {
       PopsPanelStorageApi.removeValueChangeListener(listenerId);
     },
-triggerMenuValueChange(key, newValue, oldValue) {
+    triggerMenuValueChange(key, newValue, oldValue) {
       PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
     },
-exec(queryKey, callback, checkExec, once = true) {
+    exec(queryKey, callback, checkExec, once = true) {
       const that = this;
       let queryKeyFn;
       if (typeof queryKey === "string" || Array.isArray(queryKey)) {
@@ -826,7 +874,7 @@ exec(queryKey, callback, checkExec, once = true) {
             value: isArrayKey ? valueList : valueList[0],
             addStyleElement: (...args) => {
               return dynamicAddStyleNodeCallback(true, ...args);
-            }
+            },
           });
           if (!Array.isArray(callbackResult)) {
             callbackResult = [callbackResult];
@@ -844,35 +892,36 @@ exec(queryKey, callback, checkExec, once = true) {
         clearBeforeStoreValue();
         storeValueList = [...resultList];
       };
-      once && keyList.forEach((key) => {
-        let listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
-          valueChangeCallback();
+      once &&
+        keyList.forEach((key) => {
+          let listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
+            valueChangeCallback();
+          });
+          listenerIdList.push(listenerId);
         });
-        listenerIdList.push(listenerId);
-      });
       valueChangeCallback();
       let result = {
-reload() {
+        reload() {
           valueChangeCallback();
         },
-clear() {
+        clear() {
           this.clearStoreStyleElements();
           this.removeValueChangeListener();
           once && that.$data.onceExecMenuData.delete(storageKey);
         },
-clearStoreStyleElements: () => {
+        clearStoreStyleElements: () => {
           return clearBeforeStoreValue();
         },
-removeValueChangeListener: () => {
+        removeValueChangeListener: () => {
           listenerIdList.forEach((listenerId) => {
             this.removeValueChangeListener(listenerId);
           });
-        }
+        },
       };
       this.$data.onceExecMenuData.set(storageKey, result);
       return result;
     },
-execMenu(key, callback, isReverse = false, once = false) {
+    execMenu(key, callback, isReverse = false, once = false) {
       return this.exec(
         key,
         (option) => {
@@ -894,7 +943,7 @@ execMenu(key, callback, isReverse = false, once = false) {
         once
       );
     },
-execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
+    execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
       const result = this.execMenu(key, callback, isReverse, true);
       if (listenUrlChange) {
         if (result) {
@@ -912,14 +961,14 @@ execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
       }
       return result;
     },
-deleteExecMenuOnce(key) {
+    deleteExecMenuOnce(key) {
       key = this.transformKey(key);
       this.$data.onceExecMenuData.delete(key);
       this.$data.urlChangeReloadMenuExecOnce.delete(key);
       let flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
-onceExec(key, callback) {
+    onceExec(key, callback) {
       key = this.transformKey(key);
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
@@ -930,30 +979,36 @@ onceExec(key, callback) {
       callback();
       this.$data.onceExecData.set(key, 1);
     },
-deleteOnceExec(key) {
+    deleteOnceExec(key) {
       key = this.transformKey(key);
       this.$data.onceExecData.delete(key);
     },
-addUrlChangeWithExecMenuOnceListener(key, callback) {
+    addUrlChangeWithExecMenuOnceListener(key, callback) {
       key = this.transformKey(key);
       this.$data.urlChangeReloadMenuExecOnce.set(key, callback);
     },
-removeUrlChangeWithExecMenuOnceListener(key) {
+    removeUrlChangeWithExecMenuOnceListener(key) {
       key = this.transformKey(key);
       this.$data.urlChangeReloadMenuExecOnce.delete(key);
     },
-triggerUrlChangeWithExecMenuOnceEvent(config) {
+    triggerUrlChangeWithExecMenuOnceEvent(config) {
       this.$data.urlChangeReloadMenuExecOnce.forEach((callback, key) => {
         callback(config);
       });
     },
-showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
+    showPanel(
+      content,
+      title = `${SCRIPT_NAME}-设置`,
+      preventDefaultContentConfig = false,
+      preventRegisterSearchPlugin = false
+    ) {
       this.$data.$panel = null;
       this.$data.panelContent = [];
-      let checkHasBottomVersionContentConfig = content.findIndex((it) => {
-        let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
-        return isBottom && it.id === "script-version";
-      }) !== -1;
+      let checkHasBottomVersionContentConfig =
+        content.findIndex((it) => {
+          let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
+          return isBottom && it.id === "script-version";
+        }) !== -1;
       if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig) {
         content.push(...PanelContent.getDefaultBottomContentConfig());
       }
@@ -963,7 +1018,7 @@ showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig 
             text: title,
             position: "center",
             html: false,
-            style: ""
+            style: "",
           },
           content,
           btn: {
@@ -972,26 +1027,26 @@ showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig 
               callback: (details, event) => {
                 details.close();
                 this.$data.$panel = null;
-              }
-            }
+              },
+            },
           },
           mask: {
             enable: true,
             clickEvent: {
               toClose: true,
-              toHide: false
+              toHide: false,
             },
             clickCallBack: (originalRun, config) => {
               originalRun();
               this.$data.$panel = null;
-            }
+            },
           },
           width: PanelUISize.setting.width,
           height: PanelUISize.setting.height,
           drag: true,
-          only: true
+          only: true,
         },
-        ...this.$data.panelConfig
+        ...this.$data.panelConfig,
       });
       this.$data.$panel = $panel;
       this.$data.panelContent = content;
@@ -999,7 +1054,7 @@ showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig 
         this.registerConfigSearch({ $panel, content });
       }
     },
-registerConfigSearch(config) {
+    registerConfigSearch(config) {
       const { $panel, content } = config;
       let asyncQueryProperty = async (target, handler) => {
         if (target == null) {
@@ -1023,8 +1078,8 @@ registerConfigSearch(config) {
           },
           {
             root: null,
-threshold: 1
-}
+            threshold: 1,
+          }
         );
         observer.observe($el);
         $el.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1041,32 +1096,29 @@ threshold: 1
         let $alert = __pops.alert({
           title: {
             text: "搜索配置",
-            position: "center"
+            position: "center",
           },
           content: {
-            text: (
-`
+            text: `
 						<div class="search-wrapper">
 							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
 						</div>
 						<div class="search-result-wrapper"></div>
-					`
-            ),
-            html: true
+					`,
+            html: true,
           },
           btn: {
-            ok: { enable: false }
+            ok: { enable: false },
           },
           mask: {
             clickEvent: {
-              toClose: true
-            }
+              toClose: true,
+            },
           },
           width: PanelUISize.settingMiddle.width,
           height: "auto",
           drag: true,
-          style: (
-`
+          style: `
 					${__pops.config.cssText.panelCSS}
 
 					.search-wrapper{
@@ -1104,8 +1156,7 @@ threshold: 1
 						color: #6c6c6c;
 					}
 					${config.searchDialogStyle ?? ""}
-				`
-          )
+				`,
         });
         $alert.$shadowRoot.querySelector(".search-wrapper");
         let $searchInput = $alert.$shadowRoot.querySelector(".search-config-text");
@@ -1119,23 +1170,21 @@ threshold: 1
             if (target?.next) {
               return {
                 isFind: false,
-                data: target.next
+                data: target.next,
               };
             } else {
               return {
                 isFind: true,
-                data: target
+                data: target,
               };
             }
           });
           let $item = domUtils.createElement("div", {
             className: "search-result-item",
-            innerHTML: (
-`
+            innerHTML: `
 							<div class="search-result-item-path">${searchPath.matchedData?.path}</div>
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
-						`
-            )
+						`,
           });
           domUtils.on($item, "click", (clickItemEvent) => {
             let $asideItems = $panel.$shadowRoot.querySelectorAll(
@@ -1148,18 +1197,22 @@ threshold: 1
             }
             $targetAsideItem.scrollIntoView({
               behavior: "smooth",
-              block: "center"
+              block: "center",
             });
             $targetAsideItem.click();
             asyncQueryProperty(pathInfo.next, async (target) => {
               if (target?.next) {
                 let $findDeepMenu = await domUtils.waitNode(() => {
-                  return Array.from(
-                    $panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")
-                  ).find(($deepMenu) => {
-                    const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
-                    return typeof __formConfig__ === "object" && __formConfig__ != null && __formConfig__.text === target.name;
-                  });
+                  return Array.from($panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")).find(
+                    ($deepMenu) => {
+                      const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
+                      return (
+                        typeof __formConfig__ === "object" &&
+                        __formConfig__ != null &&
+                        __formConfig__.text === target.name
+                      );
+                    }
+                  );
                 }, 2500);
                 if ($findDeepMenu) {
                   $findDeepMenu.click();
@@ -1167,21 +1220,21 @@ threshold: 1
                   Qmsg.error("未找到对应的二级菜单");
                   return {
                     isFind: true,
-                    data: target
+                    data: target,
                   };
                 }
                 return {
                   isFind: false,
-                  data: target.next
+                  data: target.next,
                 };
               } else {
                 let $findTargetMenu = await domUtils.waitNode(() => {
-                  return Array.from(
-                    $panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)
-                  ).find(($menuItem) => {
-                    const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
-                    return __formConfig__ === target.matchedData?.formConfig;
-                  });
+                  return Array.from($panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)).find(
+                    ($menuItem) => {
+                      const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
+                      return __formConfig__ === target.matchedData?.formConfig;
+                    }
+                  );
                 }, 2500);
                 if ($findTargetMenu) {
                   scrollToElementAndListen($findTargetMenu);
@@ -1199,7 +1252,7 @@ threshold: 1
                 }
                 return {
                   isFind: true,
-                  data: target
+                  data: target,
                 };
               }
             });
@@ -1220,17 +1273,17 @@ threshold: 1
                     if (target?.next) {
                       return {
                         isFind: false,
-                        data: target.next
+                        data: target.next,
                       };
                     } else {
                       return {
                         isFind: true,
-                        data: target
+                        data: target,
                       };
                     }
                   });
                   deepNext.next = {
-                    name: configItem.text
+                    name: configItem.text,
                   };
                 }
                 loopContentConfig(child_forms, deepMenuPath);
@@ -1250,12 +1303,12 @@ threshold: 1
                     if (target?.next) {
                       return {
                         isFind: false,
-                        data: target.next
+                        data: target.next,
                       };
                     } else {
                       return {
                         isFind: true,
-                        data: target
+                        data: target,
                       };
                     }
                   });
@@ -1265,8 +1318,8 @@ threshold: 1
                       path: "",
                       formConfig: configItem,
                       matchedText: delayMatchedTextList[matchedIndex],
-                      description
-                    }
+                      description,
+                    },
                   };
                   const pathList = [];
                   utils.queryProperty(matchedPath, (target) => {
@@ -1277,12 +1330,12 @@ threshold: 1
                     if (target?.next) {
                       return {
                         isFind: false,
-                        data: target.next
+                        data: target.next,
                       };
                     } else {
                       return {
                         isFind: true,
-                        data: target
+                        data: target,
                       };
                     }
                   });
@@ -1309,7 +1362,7 @@ threshold: 1
               }
               loopContentConfig(rightContentConfigList, {
                 index,
-                name: text
+                name: text,
               });
             }
           }
@@ -1364,14 +1417,13 @@ threshold: 1
           }
         },
         {
-          capture: true
+          capture: true,
         }
       );
       $panel.$shadowRoot.appendChild(
         domUtils.createElement("style", {
           type: "text/css",
-          textContent: (
-`
+          textContent: `
 					.pops-flashing{
 						animation: double-blink 1.5s ease-in-out;
 					}
@@ -1392,39 +1444,38 @@ threshold: 1
 							background-color: initial;
 						}
 					}
-				`
-          )
+				`,
         })
       );
     },
-transformKey(key) {
+    transformKey(key) {
       if (Array.isArray(key)) {
         const keyArray = key.sort();
         return JSON.stringify(keyArray);
       } else {
         return key;
       }
-    }
+    },
   };
   const GM_RESOURCE_MAPPING = {
     Viewer: {
       keyName: "ViewerCSS",
-      url: "https://fastly.jsdelivr.net/npm/viewerjs@latest/dist/viewer.min.css"
-    }
+      url: "https://fastly.jsdelivr.net/npm/viewerjs@latest/dist/viewer.min.css",
+    },
   };
   const PanelSettingConfig = {
-qmsg_config_position: {
+    qmsg_config_position: {
       key: "qmsg-config-position",
-      defaultValue: "bottom"
+      defaultValue: "bottom",
     },
-qmsg_config_maxnums: {
+    qmsg_config_maxnums: {
       key: "qmsg-config-maxnums",
-      defaultValue: 3
+      defaultValue: 3,
     },
-qmsg_config_showreverse: {
+    qmsg_config_showreverse: {
       key: "qmsg-config-showreverse",
-      defaultValue: false
-    }
+      defaultValue: false,
+    },
   };
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
@@ -1437,7 +1488,7 @@ qmsg_config_showreverse: {
     debug: false,
     logMaxCount: 250,
     autoClearConsole: true,
-    tag: true
+    tag: true,
   });
   Qmsg.config({
     isHTML: true,
@@ -1480,7 +1531,7 @@ qmsg_config_showreverse: {
       let maxZIndex = Utils.getMaxZIndex();
       let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-    }
+    },
   });
   __pops.GlobalConfig.setGlobalConfig({
     zIndex: () => {
@@ -1496,23 +1547,23 @@ qmsg_config_showreverse: {
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
     },
     mask: {
-enable: true,
-clickEvent: {
+      enable: true,
+      clickEvent: {
         toClose: false,
-        toHide: false
-      }
+        toHide: false,
+      },
     },
-    drag: true
+    drag: true,
   });
   const GM_Menu = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,
     GM_registerMenuCommand: _GM_registerMenuCommand,
-    GM_unregisterMenuCommand: _GM_unregisterMenuCommand
+    GM_unregisterMenuCommand: _GM_unregisterMenuCommand,
   });
   const httpx = new utils.Httpx({
     xmlHttpRequest: _GM_xmlhttpRequest,
-    logDetails: DEBUG
+    logDetails: DEBUG,
   });
   httpx.interceptors.request.use((data2) => {
     return data2;
@@ -1532,16 +1583,16 @@ clickEvent: {
   });
   const OriginPrototype = {
     Object: {
-      defineProperty: _unsafeWindow.Object.defineProperty
+      defineProperty: _unsafeWindow.Object.defineProperty,
     },
     Function: {
       apply: _unsafeWindow.Function.prototype.apply,
-      call: _unsafeWindow.Function.prototype.call
+      call: _unsafeWindow.Function.prototype.call,
     },
     Element: {
-      appendChild: _unsafeWindow.Element.prototype.appendChild
+      appendChild: _unsafeWindow.Element.prototype.appendChild,
     },
-    setTimeout: _unsafeWindow.setTimeout
+    setTimeout: _unsafeWindow.setTimeout,
   };
   const addStyle = domUtils.addStyle.bind(domUtils);
   const $ = DOMUtils.selector.bind(DOMUtils);
@@ -1549,19 +1600,19 @@ clickEvent: {
   const cookieManager = new utils.GM_Cookie();
   const QRCodeJS = _monkeyWindow.QRCode || _unsafeWindow.QRCode;
   const VueUtils = {
-getVue($el) {
+    getVue($el) {
       if ($el == null) {
         return;
       }
       return $el["__vue__"] || $el["__Ivue__"] || $el["__IVue__"];
     },
-getVue3($el) {
+    getVue3($el) {
       if ($el == null) {
         return;
       }
       return $el["__vueParentComponent"];
     },
-waitVuePropToSet($el, checkOption) {
+    waitVuePropToSet($el, checkOption) {
       if (!Array.isArray(checkOption)) {
         checkOption = [checkOption];
       }
@@ -1587,7 +1638,7 @@ waitVuePropToSet($el, checkOption) {
               status: false,
               isTimeout: true,
               inst: null,
-              $el: $targetEl
+              $el: $targetEl,
             };
           }
           let vueInst = VueUtils.getVue($targetEl);
@@ -1596,7 +1647,7 @@ waitVuePropToSet($el, checkOption) {
               status: false,
               isTimeout: false,
               inst: null,
-              $el: $targetEl
+              $el: $targetEl,
             };
           }
           let checkResult = needSetOption.check(vueInst, $targetEl);
@@ -1605,34 +1656,36 @@ waitVuePropToSet($el, checkOption) {
             status: checkResult,
             isTimeout: false,
             inst: vueInst,
-            $el: $targetEl
+            $el: $targetEl,
           };
         }
-        utils.waitVueByInterval(
-          () => {
-            return getTarget();
-          },
-          () => checkTarget().status,
-          250,
-          1e4
-        ).then((result) => {
-          let checkTargetResult = checkTarget();
-          if (checkTargetResult.status) {
-            let vueInst = checkTargetResult.inst;
-            needSetOption.set(vueInst, checkTargetResult.$el);
-          } else {
-            if (typeof needSetOption.failWait === "function") {
-              needSetOption.failWait(checkTargetResult.isTimeout);
+        utils
+          .waitVueByInterval(
+            () => {
+              return getTarget();
+            },
+            () => checkTarget().status,
+            250,
+            1e4
+          )
+          .then((result) => {
+            let checkTargetResult = checkTarget();
+            if (checkTargetResult.status) {
+              let vueInst = checkTargetResult.inst;
+              needSetOption.set(vueInst, checkTargetResult.$el);
+            } else {
+              if (typeof needSetOption.failWait === "function") {
+                needSetOption.failWait(checkTargetResult.isTimeout);
+              }
             }
-          }
-        });
+          });
       });
     },
-watchVuePropChange($el, key, callback, watchConfig, failWait) {
+    watchVuePropChange($el, key, callback, watchConfig, failWait) {
       let config = utils.assign(
         {
           immediate: true,
-          deep: false
+          deep: false,
         },
         watchConfig || {}
       );
@@ -1664,11 +1717,11 @@ watchVuePropChange($el, key, callback, watchConfig, failWait) {
             }
             resolve(removeWatch);
           },
-          failWait
+          failWait,
         });
       });
     },
-goToUrl($el, path, useRouter = false) {
+    goToUrl($el, path, useRouter = false) {
       if ($el == null) {
         Qmsg.error("跳转Url: $vueNode为空");
         log$1.error("跳转Url: $vueNode为空：" + path);
@@ -1705,7 +1758,7 @@ goToUrl($el, path, useRouter = false) {
         $router.push(path);
       }
     },
-hookGestureReturnByVueRouter(option) {
+    hookGestureReturnByVueRouter(option) {
       function popstateEvent() {
         log$1.success("触发popstate事件");
         resumeBack(true);
@@ -1733,12 +1786,12 @@ hookGestureReturnByVueRouter(option) {
       }
       banBack();
       return {
-        resumeBack
+        resumeBack,
       };
-    }
+    },
   };
   const BilibiliUtils = {
-goToUrl(path, useRouter = false) {
+    goToUrl(path, useRouter = false) {
       let isGoToUrlBlank = Panel.getValue("bili-go-to-url-blank");
       log$1.info("即将跳转URL：" + path);
       if (useRouter) {
@@ -1785,10 +1838,10 @@ goToUrl(path, useRouter = false) {
         $router.push(path);
       }
     },
-goToLogin(fromUrl = "") {
+    goToLogin(fromUrl = "") {
       window.open(`https://passport.bilibili.com/h5-app/passport/login?gourl=${encodeURIComponent(fromUrl)}`);
     },
-parseDuration(duration) {
+    parseDuration(duration) {
       if (typeof duration !== "number") {
         duration = parseInt(duration);
       }
@@ -1808,11 +1861,11 @@ parseDuration(duration) {
         return `${Math.floor(duration / 60)}:${zeroPadding(duration % 60)}`;
       } else {
         return `${Math.floor(duration / 3600)}:${zeroPadding(
-        Math.floor(duration / 60) % 60
-      )}:${zeroPadding(duration % 60)}`;
+          Math.floor(duration / 60) % 60
+        )}:${zeroPadding(duration % 60)}`;
       }
     },
-parseCount(count) {
+    parseCount(count) {
       let countText = count.toString();
       if (count > 1e4) {
         let roundNum = (count / 1e4).toFixed(2).slice(0, -1);
@@ -1829,7 +1882,7 @@ parseCount(count) {
       }
       return countText;
     },
-hookGestureReturnByVueRouter(option) {
+    hookGestureReturnByVueRouter(option) {
       function popstateEvent() {
         log$1.success("触发popstate事件");
         resumeBack(true);
@@ -1857,10 +1910,10 @@ hookGestureReturnByVueRouter(option) {
       }
       banBack();
       return {
-        resumeBack
+        resumeBack,
       };
     },
-initialScale() {
+    initialScale() {
       log$1.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>");
       domUtils.ready(() => {
         let meta = domUtils.createElement(
@@ -1868,7 +1921,7 @@ initialScale() {
           {},
           {
             name: "viewport",
-            content: "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover"
+            content: "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover",
           }
         );
         domUtils.remove("meta[name='viewport']");
@@ -1876,21 +1929,21 @@ initialScale() {
           document.head.appendChild(meta);
         });
       });
-    }
+    },
   };
   const BilibiliUrl = {
-getUserSpaceUrl(userId) {
+    getUserSpaceUrl(userId) {
       return `https://m.bilibili.com/space/${userId}`;
     },
-getUserSpaceDynamicUrl(id) {
+    getUserSpaceDynamicUrl(id) {
       return `https://m.bilibili.com/dynamic/${id}`;
     },
-getUserSpaceOpusUrl(id) {
+    getUserSpaceOpusUrl(id) {
       return `https://m.bilibili.com/opus/${id}`;
     },
-getVideoUrl(id) {
+    getVideoUrl(id) {
       return `https://m.bilibili.com/video/${id}`;
-    }
+    },
   };
   const BilibiliData = {
     className: {
@@ -1902,21 +1955,23 @@ getVideoUrl(id) {
       mVideo: "#app .m-video",
       head: "#app .m-head",
       playlist: "#app .playlist",
-      space: "#app .m-space"
+      space: "#app .m-space",
     },
-theme: "#FB7299"
+    theme: "#FB7299",
   };
   const BilibiliPCData = {
     className: {
       read: {
-        mobile: "#app .read-app-main"
-      }
-    }
+        mobile: "#app .read-app-main",
+      },
+    },
   };
-  const artPlayerCSS$1 = ".artplayer-container {\r\n  position: absolute;\r\n  width: 100%;\r\n  height: 100%;\r\n  top: 0;\r\n  left: 0;\r\n  overflow: hidden;\r\n}\r\n";
-  const artPlayerCommonCSS = "/* 设置播放器基础宽高 */\r\n#artplayer {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n/* 通用隐藏class */\r\n.art-video-player .art-common-hide {\r\n  display: none !important;\r\n}\r\n/* 设置播放器基础宽高 */\r\n.art-video-player {\r\n  width: 100% !important;\r\n}\r\n/* 播放时隐藏进度条 */\r\n.art-hide-cursor .art-progress {\r\n  display: none !important;\r\n}\r\n/* 不知道为什么背景模糊了 */\r\n.art-video-player.art-backdrop .art-settings {\r\n  backdrop-filter: unset !important;\r\n}\r\n/* 底部的设置菜单当前选中的提示文字设置文字溢出省略号 */\r\n.art-settings .art-setting-item .art-setting-item-right-tooltip {\r\n  max-width: 100px;\r\n  text-overflow: ellipsis;\r\n  white-space: nowrap;\r\n  overflow: hidden;\r\n}\r\n\r\n/* 竖屏 宽度小于400px */\r\n@media (orientation: portrait) and (max-width: 400px) {\r\n  /* 修正小屏下宽度溢出 */\r\n  .art-controls .art-control {\r\n    max-width: 60px;\r\n    white-space: pre-wrap;\r\n  }\r\n}\r\n\r\n/* 竖屏 宽度小于550px */\r\n@media (orientation: portrait) and (max-width: 550px) {\r\n  /* 隐藏 弹幕设置按钮 */\r\n  .artplayer-plugin-danmuku .apd-config ,\r\n    /* 隐藏 弹幕输入框 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n    display: none !important;\r\n  }\r\n  /* 弹幕库靠右对齐 */\r\n  .artplayer-plugin-danmuku {\r\n    justify-content: right;\r\n  }\r\n}\r\n/* 横屏 */\r\n@media (orientation: landscape) {\r\n  /* 限制弹幕输入框的最大宽度 */\r\n  .artplayer-plugin-danmuku .apd-emitter {\r\n    max-width: 260px;\r\n  }\r\n}\r\n\r\n/* 插件-在线观看人数  */\r\n.art-lock .art-layer-top-wrap {\r\n  /* 启用了锁定功能，隐藏底部控制栏，所以这个也同步 */\r\n  display: none !important;\r\n}\r\n.art-layer-top-wrap {\r\n  --layer-top-wrap-follow-text-font-size: 0.8em;\r\n  --layer-top-wrap-follow-icon-size: 1em;\r\n  width: 100%;\r\n  position: absolute;\r\n  top: 0px;\r\n  right: 0px;\r\n  color: #fff;\r\n  display: -webkit-box;\r\n  display: -ms-flexbox;\r\n  display: flex;\r\n  left: 0;\r\n  -webkit-transition: all 0.2s ease-in-out;\r\n  transition: all 0.2s ease-in-out;\r\n  width: 100%;\r\n  background: linear-gradient(to bottom, #000, transparent);\r\n  padding: 10px calc(var(--art-padding));\r\n  z-index: 60;\r\n}\r\n.art-player-top-wrap {\r\n  width: 100%;\r\n}\r\n.art-player-top-wrap .art-player-top-title-text {\r\n  white-space: nowrap;\r\n  text-overflow: ellipsis;\r\n  overflow: hidden;\r\n  max-width: 100%;\r\n}\r\n/* 面板隐藏时，顶部toolbar也隐藏 */\r\n.art-hide-cursor .art-layer-top-wrap {\r\n  transform: translateY(-60px);\r\n}\r\n/*.art-layer-top-wrap .art-player-top-wrap {\r\n}\r\n.art-layer-top-wrap .art-player-top-title-text {\r\n}*/\r\n/* 下面的当前在线观看人数 */\r\n.art-layer-top-wrap .art-player-top-follow {\r\n  margin-top: var(--art-padding);\r\n  gap: var(--layer-top-wrap-follow-text-font-size);\r\n  font-size: var(--layer-top-wrap-follow-text-font-size);\r\n  display: flex;\r\n  align-items: center;\r\n  position: absolute;\r\n}\r\n.art-layer-top-wrap .art-player-top-follow .art-player-top-follow-icon {\r\n  width: var(--layer-top-wrap-follow-icon-size);\r\n  height: var(--layer-top-wrap-follow-icon-size);\r\n}\r\n.art-layer-top-wrap .art-player-top-follow-text {\r\n  text-wrap: nowrap;\r\n}\r\n/* 插件-在线观看人数  */\r\n\r\n/* 插件-锁定 */\r\n.art-video-player .art-layers .art-layer.art-layer-lock {\r\n  /* 放在右边 */\r\n  right: 0;\r\n  left: calc(100% - 20px - var(--art-lock-size) - var(--art-lock-left-size));\r\n}\r\n/* 插件-锁定 */\r\n";
+  const artPlayerCSS$1 =
+    ".artplayer-container {\r\n  position: absolute;\r\n  width: 100%;\r\n  height: 100%;\r\n  top: 0;\r\n  left: 0;\r\n  overflow: hidden;\r\n}\r\n";
+  const artPlayerCommonCSS =
+    "/* 设置播放器基础宽高 */\r\n#artplayer {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n/* 通用隐藏class */\r\n.art-video-player .art-common-hide {\r\n  display: none !important;\r\n}\r\n/* 设置播放器基础宽高 */\r\n.art-video-player {\r\n  width: 100% !important;\r\n}\r\n/* 播放时隐藏进度条 */\r\n.art-hide-cursor .art-progress {\r\n  display: none !important;\r\n}\r\n/* 不知道为什么背景模糊了 */\r\n.art-video-player.art-backdrop .art-settings {\r\n  backdrop-filter: unset !important;\r\n}\r\n/* 底部的设置菜单当前选中的提示文字设置文字溢出省略号 */\r\n.art-settings .art-setting-item .art-setting-item-right-tooltip {\r\n  max-width: 100px;\r\n  text-overflow: ellipsis;\r\n  white-space: nowrap;\r\n  overflow: hidden;\r\n}\r\n\r\n/* 竖屏 宽度小于400px */\r\n@media (orientation: portrait) and (max-width: 400px) {\r\n  /* 修正小屏下宽度溢出 */\r\n  .art-controls .art-control {\r\n    max-width: 60px;\r\n    white-space: pre-wrap;\r\n  }\r\n}\r\n\r\n/* 竖屏 宽度小于550px */\r\n@media (orientation: portrait) and (max-width: 550px) {\r\n  /* 隐藏 弹幕设置按钮 */\r\n  .artplayer-plugin-danmuku .apd-config ,\r\n    /* 隐藏 弹幕输入框 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n    display: none !important;\r\n  }\r\n  /* 弹幕库靠右对齐 */\r\n  .artplayer-plugin-danmuku {\r\n    justify-content: right;\r\n  }\r\n}\r\n/* 横屏 */\r\n@media (orientation: landscape) {\r\n  /* 限制弹幕输入框的最大宽度 */\r\n  .artplayer-plugin-danmuku .apd-emitter {\r\n    max-width: 260px;\r\n  }\r\n}\r\n\r\n/* 插件-在线观看人数  */\r\n.art-lock .art-layer-top-wrap {\r\n  /* 启用了锁定功能，隐藏底部控制栏，所以这个也同步 */\r\n  display: none !important;\r\n}\r\n.art-layer-top-wrap {\r\n  --layer-top-wrap-follow-text-font-size: 0.8em;\r\n  --layer-top-wrap-follow-icon-size: 1em;\r\n  width: 100%;\r\n  position: absolute;\r\n  top: 0px;\r\n  right: 0px;\r\n  color: #fff;\r\n  display: -webkit-box;\r\n  display: -ms-flexbox;\r\n  display: flex;\r\n  left: 0;\r\n  -webkit-transition: all 0.2s ease-in-out;\r\n  transition: all 0.2s ease-in-out;\r\n  width: 100%;\r\n  background: linear-gradient(to bottom, #000, transparent);\r\n  padding: 10px calc(var(--art-padding));\r\n  z-index: 60;\r\n}\r\n.art-player-top-wrap {\r\n  width: 100%;\r\n}\r\n.art-player-top-wrap .art-player-top-title-text {\r\n  white-space: nowrap;\r\n  text-overflow: ellipsis;\r\n  overflow: hidden;\r\n  max-width: 100%;\r\n}\r\n/* 面板隐藏时，顶部toolbar也隐藏 */\r\n.art-hide-cursor .art-layer-top-wrap {\r\n  transform: translateY(-60px);\r\n}\r\n/*.art-layer-top-wrap .art-player-top-wrap {\r\n}\r\n.art-layer-top-wrap .art-player-top-title-text {\r\n}*/\r\n/* 下面的当前在线观看人数 */\r\n.art-layer-top-wrap .art-player-top-follow {\r\n  margin-top: var(--art-padding);\r\n  gap: var(--layer-top-wrap-follow-text-font-size);\r\n  font-size: var(--layer-top-wrap-follow-text-font-size);\r\n  display: flex;\r\n  align-items: center;\r\n  position: absolute;\r\n}\r\n.art-layer-top-wrap .art-player-top-follow .art-player-top-follow-icon {\r\n  width: var(--layer-top-wrap-follow-icon-size);\r\n  height: var(--layer-top-wrap-follow-icon-size);\r\n}\r\n.art-layer-top-wrap .art-player-top-follow-text {\r\n  text-wrap: nowrap;\r\n}\r\n/* 插件-在线观看人数  */\r\n\r\n/* 插件-锁定 */\r\n.art-video-player .art-layers .art-layer.art-layer-lock {\r\n  /* 放在右边 */\r\n  right: 0;\r\n  left: calc(100% - 20px - var(--art-lock-size) - var(--art-lock-left-size));\r\n}\r\n/* 插件-锁定 */\r\n";
   const BilibiliApiRequestCheck = {
-mergeAidOrBvidSearchParamsData(searchParamsData, config) {
+    mergeAidOrBvidSearchParamsData(searchParamsData, config) {
       if ("aid" in config && config["aid"] != null) {
         Reflect.set(searchParamsData, "aid", config.aid);
       } else if ("bvid" in config && config["bvid"] != null) {
@@ -1924,18 +1979,18 @@ mergeAidOrBvidSearchParamsData(searchParamsData, config) {
       } else {
         throw new TypeError("avid or bvid must give one");
       }
-    }
+    },
   };
   const BilibiliApiConfig = {
-    web_host: "api.bilibili.com"
+    web_host: "api.bilibili.com",
   };
   const BilibiliApiResponseCheck = {
-isWebApiSuccess(json) {
+    isWebApiSuccess(json) {
       return json?.code === 0 && (json?.message === "0" || json?.message === "success");
     },
-isAreaLimit(data2) {
+    isAreaLimit(data2) {
       let areaLimitCode = {
-        "6002003": "抱歉您所在地区不可观看！"
+        6002003: "抱歉您所在地区不可观看！",
       };
       let flag = false;
       Object.keys(areaLimitCode).forEach((code) => {
@@ -1945,21 +2000,21 @@ isAreaLimit(data2) {
         }
       });
       return flag;
-    }
+    },
   };
   const VideoQualityNameMap = {
-"240P 极速": 6,
-"360P 流畅": 16,
-"480P 清晰": 32,
-"720P 高清": 64,
-"720P60 高帧率": 74,
-"1080P 高清": 80,
-"1080P+ 高码率": 112,
-"1080P60 高帧率": 116,
-"4K 超清": 120,
-"HDR 真彩色": 125,
-杜比视界: 126,
-"8K 超高清": 127
+    "240P 极速": 6,
+    "360P 流畅": 16,
+    "480P 清晰": 32,
+    "720P 高清": 64,
+    "720P60 高帧率": 74,
+    "1080P 高清": 80,
+    "1080P+ 高码率": 112,
+    "1080P60 高帧率": 116,
+    "4K 超清": 120,
+    "HDR 真彩色": 125,
+    杜比视界: 126,
+    "8K 超高清": 127,
   };
   const VideoQualityMap = {};
   Object.keys(VideoQualityNameMap).forEach((qualityName) => {
@@ -1967,16 +2022,16 @@ isAreaLimit(data2) {
     Reflect.set(VideoQualityMap, qualityValue, qualityName);
   });
   const BilibiliUserApi = {
-async nav(checkCode = true) {
+    async nav(checkCode = true) {
       let response = await httpx.get("https://api.bilibili.com/x/web-interface/nav?web_location=333.401", {
         fetch: true,
         responseType: "json",
-        allowInterceptConfig: false
+        allowInterceptConfig: false,
       });
       if (!response.status) {
         log$1.error(response);
         Qmsg.error("获取导航栏用户信息失败，请求异常", {
-          consoleLogContent: true
+          consoleLogContent: true,
         });
         return;
       }
@@ -1984,19 +2039,19 @@ async nav(checkCode = true) {
       if (checkCode && !BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
         log$1.error(["获取导航栏用户信息失败：", data2]);
         Qmsg.error("获取导航栏用户信息失败", {
-          consoleLogContent: true
+          consoleLogContent: true,
         });
         return;
       }
       return data2.data;
     },
-async space(mid, offset = "") {
+    async space(mid, offset = "") {
       let response = await httpx.get("https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space", {
         data: {
           host_mid: mid,
-          offset
+          offset,
         },
-        fetch: true
+        fetch: true,
       });
       if (!response.status) {
         return;
@@ -2007,14 +2062,14 @@ async space(mid, offset = "") {
       }
       return data2["data"];
     },
-async following(mid, pn = 1, ps = 50) {
+    async following(mid, pn = 1, ps = 50) {
       let response = await httpx.get("https://api.bilibili.com/x/relation/followings", {
         data: {
           vmid: mid,
           ps,
-          pn
+          pn,
         },
-        fetch: true
+        fetch: true,
       });
       if (!response.status) {
         return;
@@ -2024,15 +2079,15 @@ async following(mid, pn = 1, ps = 50) {
         return data2["message"];
       }
       return data2["data"];
-    }
+    },
   };
   const BilibiliGlobalData = {
     $data: {
-      isLogin: new Promise(() => false)
+      isLogin: new Promise(() => false),
     },
     $flag: {
       isSetQueryLoginStatus: false,
-      isQueryLoginStatus: false
+      isQueryLoginStatus: false,
     },
     init() {
       this.setLoginStatus();
@@ -2053,19 +2108,19 @@ async following(mid, pn = 1, ps = 50) {
         }
         resolve(isLogin);
       });
-    }
+    },
   };
   const BilibiliVideoApi = {
-async playUrl(config, extraParams) {
+    async playUrl(config, extraParams) {
       let searchParamsData = {
         cid: config.cid,
         qn: config.qn ?? VideoQualityNameMap["1080P60 高帧率"],
         high_quality: config.high_quality ?? 1,
         fnval: config.fnval ?? 1,
-fnver: config.fnver ?? 0,
-fourk: config.fourk ?? 1,
-try_look: await BilibiliGlobalData.$data.isLogin ? 0 : 1,
-platform: config.setPlatformHTML5 ? "html5" : "pc"
+        fnver: config.fnver ?? 0,
+        fourk: config.fourk ?? 1,
+        try_look: (await BilibiliGlobalData.$data.isLogin) ? 0 : 1,
+        platform: config.setPlatformHTML5 ? "html5" : "pc",
       };
       BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
       if (typeof extraParams === "object" && extraParams !== null) {
@@ -2075,7 +2130,7 @@ platform: config.setPlatformHTML5 ? "html5" : "pc"
         "https://api.bilibili.com/x/player/playurl?" + utils.toSearchParamsStr(searchParamsData),
         {
           responseType: "json",
-          fetch: true
+          fetch: true,
         }
       );
       if (!response.status) {
@@ -2087,16 +2142,16 @@ platform: config.setPlatformHTML5 ? "html5" : "pc"
       }
       return data2["data"];
     },
-async onlineTotal(config) {
+    async onlineTotal(config) {
       let searchParamsData = {
-        cid: config.cid
+        cid: config.cid,
       };
       BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
       let httpxResponse = await httpx.get(
         `https://${BilibiliApiConfig.web_host}/x/player/online/total?${utils.toSearchParamsStr(searchParamsData)}`,
         {
           responseType: "json",
-          fetch: true
+          fetch: true,
         }
       );
       if (!httpxResponse.status) {
@@ -2108,16 +2163,16 @@ async onlineTotal(config) {
       }
       return data2["data"];
     },
-async like(config) {
+    async like(config) {
       let searchParamsData = {
         like: config.like,
-        csrf: cookieManager.get("bili_jct")?.value || ""
+        csrf: cookieManager.get("bili_jct")?.value || "",
       };
       BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
       let getResp = await httpx.get(
         "https://api.bilibili.com/x/web-interface/archive/like?" + utils.toSearchParamsStr(searchParamsData),
         {
-          fetch: true
+          fetch: true,
         }
       );
       if (!getResp.status) {
@@ -2146,14 +2201,14 @@ async like(config) {
         Qmsg.error("未知错误：" + data2["message"]);
       }
       return false;
-    }
+    },
   };
   const AppKeyInfo = {
-ios: {
+    ios: {
       appkey: "27eb53fc9058f8c3",
       appsec: "c2ed53a74eeefe3cf99fbd01d8c9c375",
-      mobi_app: "ipnone"
-    }
+      mobi_app: "ipnone",
+    },
   };
   function appSign(params, appkey, appsec) {
     params.appkey = appkey;
@@ -2162,32 +2217,28 @@ ios: {
     return md5(searchParams.toString() + appsec);
   }
   const BilibiliLoginApi = {
-async getQrCodeInfo() {
+    async getQrCodeInfo() {
       let Api = "https://passport.bilibili.com/x/passport-tv-login/qrcode/auth_code";
       let postData = {
-appkey: AppKeyInfo.ios.appkey,
-local_id: "0",
-ts: "0",
+        appkey: AppKeyInfo.ios.appkey,
+        local_id: "0",
+        ts: "0",
 
-
-mobi_app: AppKeyInfo.ios.mobi_app,
-        csrf: cookieManager.get("bili_jct")?.value || ""
+        mobi_app: AppKeyInfo.ios.mobi_app,
+        csrf: cookieManager.get("bili_jct")?.value || "",
       };
       let sign = appSign(postData, AppKeyInfo.ios.appkey, AppKeyInfo.ios.appsec);
-      let postResp = await httpx.post(
-        Api,
-        {
-          data: utils.toSearchParamsStr({
-            ...postData,
-            sign
-          }),
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-          },
-          responseType: "json",
-          fetch: true
-        }
-);
+      let postResp = await httpx.post(Api, {
+        data: utils.toSearchParamsStr({
+          ...postData,
+          sign,
+        }),
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        responseType: "json",
+        fetch: true,
+      });
       log$1.info(postResp);
       if (!postResp.status) {
         return;
@@ -2200,25 +2251,25 @@ mobi_app: AppKeyInfo.ios.mobi_app,
       let loginData = data2.data;
       return loginData;
     },
-async poll(auth_code) {
+    async poll(auth_code) {
       let Api = "https://passport.bilibili.com/x/passport-tv-login/qrcode/poll";
       let postData = {
         appkey: AppKeyInfo.ios.appkey,
         auth_code,
         local_id: "0",
-        ts: "0"
+        ts: "0",
       };
       let sign = appSign(postData, AppKeyInfo.ios.appkey, AppKeyInfo.ios.appsec);
       let postResp = await httpx.post(Api, {
         data: utils.toSearchParamsStr({
           ...postData,
-          sign
+          sign,
         }),
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
+          "Content-Type": "application/x-www-form-urlencoded",
         },
         responseType: "json",
-        fetch: true
+        fetch: true,
       });
       if (!postResp.status) {
         return { success: false, message: "网络错误", action: void 0 };
@@ -2226,13 +2277,13 @@ async poll(auth_code) {
       const json = utils.toJSON(postResp.data.responseText);
       log$1.info(json);
       const msgMap = {
-        "0": "成功",
+        0: "成功",
         "-3": "API校验密匙错误",
         "-400": "请求错误",
         "-404": "啥都木有",
-        "86038": "二维码已失效",
-        "86039": "二维码尚未确认",
-        "86090": "二维码已扫码未确认"
+        86038: "二维码已失效",
+        86039: "二维码尚未确认",
+        86090: "二维码已扫码未确认",
       };
       if (!BilibiliApiResponseCheck.isWebApiSuccess(json)) {
         const code = json.code.toString();
@@ -2251,9 +2302,9 @@ async poll(auth_code) {
         success: true,
         message: "获取成功",
         accessKey,
-        accessKeyExpireAt
+        accessKeyExpireAt,
       };
-    }
+    },
   };
   const BilibiliQrCodeLogin = {
     async init() {
@@ -2264,52 +2315,49 @@ async poll(auth_code) {
       }
       this.confirmScanQrcode(qrcodeInfo);
     },
-getQRCodeInfo: async function() {
+    getQRCodeInfo: async function () {
       log$1.info("正在申请二维码...");
       let qrcodeInfo = await BilibiliLoginApi.getQrCodeInfo();
       log$1.info("获取到二维码信息", qrcodeInfo);
       return qrcodeInfo;
     },
-async confirmScanQrcode(qrcodeInfo) {
+    async confirmScanQrcode(qrcodeInfo) {
       let $alert = __pops.alert({
         title: {
           text: "请扫描二维码登录",
           position: "center",
           html: false,
-          style: ""
+          style: "",
         },
         content: {
-          text: (
-`<div id="bili-qrcode-canvas"></div>`
-          ),
-          html: true
+          text: `<div id="bili-qrcode-canvas"></div>`,
+          html: true,
         },
         btn: {
           ok: {
-            enable: false
+            enable: false,
           },
           close: {
             enable: true,
             callback(event) {
               isUserCloseScanDialog = true;
               event.close();
-            }
-          }
+            },
+          },
         },
         mask: {
           enable: true,
           clickEvent: {
             toClose: false,
-            toHide: false
-          }
+            toHide: false,
+          },
         },
         only: true,
         width: "310px",
         height: "365px",
         drag: true,
         dragLimit: true,
-        style: (
-`
+        style: `
             #bili-qrcode-canvas{
                 display: flex;
                 align-items: center;
@@ -2317,8 +2365,7 @@ async confirmScanQrcode(qrcodeInfo) {
                 width: 100%;
                 height: 100%;
             }
-            `
-        )
+            `,
       });
       let $biliQrcodeCanvas = $alert.$shadowRoot.querySelector("#bili-qrcode-canvas");
       let qrcode = new QRCodeJS($biliQrcodeCanvas, {
@@ -2327,7 +2374,7 @@ async confirmScanQrcode(qrcodeInfo) {
         height: 300,
         colorDark: "#000000",
         colorLight: "#ffffff",
-        correctLevel: QRCodeJS.CorrectLevel.H
+        correctLevel: QRCodeJS.CorrectLevel.H,
       });
       let isUserCloseScanDialog = false;
       while (true) {
@@ -2340,7 +2387,7 @@ async confirmScanQrcode(qrcodeInfo) {
         if (pollInfo?.success) {
           this.setAccessTokenInfo({
             access_token: pollInfo.accessKey,
-            expireAt: pollInfo.accessKeyExpireAt
+            expireAt: pollInfo.accessKeyExpireAt,
           });
           log$1.info("扫码登录成功", pollInfo);
           Qmsg.success("扫码登录成功");
@@ -2360,11 +2407,11 @@ async confirmScanQrcode(qrcodeInfo) {
               __pops.loading({
                 parent: $biliQrcodeCanvas,
                 content: {
-                  text: "已扫码，等待确认"
+                  text: "已扫码，等待确认",
                 },
                 mask: {
-                  enable: true
-                }
+                  enable: true,
+                },
               });
             }
           } else {
@@ -2377,13 +2424,13 @@ async confirmScanQrcode(qrcodeInfo) {
       }
       $alert.close();
     },
-generateExpireAt(monthNumber = 6) {
-      return ( new Date()).getTime() + 1e3 * 60 * 60 * 24 * 30 * monthNumber;
+    generateExpireAt(monthNumber = 6) {
+      return new Date().getTime() + 1e3 * 60 * 60 * 24 * 30 * monthNumber;
     },
-setAccessTokenInfo(data2) {
+    setAccessTokenInfo(data2) {
       _GM_setValue("bili-accessTokenInfo", data2);
     },
-getAccessTokenInfo() {
+    getAccessTokenInfo() {
       let data2 = _GM_getValue("bili-accessTokenInfo");
       if (data2 && data2.expireAt > Date.now()) {
         return data2;
@@ -2391,9 +2438,9 @@ getAccessTokenInfo() {
         return null;
       }
     },
-getAccessToken() {
+    getAccessToken() {
       return this.getAccessTokenInfo()?.access_token || "";
-    }
+    },
   };
   const githubCDNServerList = {
     上海: [
@@ -2402,7 +2449,7 @@ getAccessToken() {
       "cn-sh-ct-01-15.bilivideo.com",
       "cn-sh-ct-01-24.bilivideo.com",
       "cn-sh-ct-01-36.bilivideo.com",
-      "cn-sh-office-bcache-01.bilivideo.com"
+      "cn-sh-office-bcache-01.bilivideo.com",
     ],
     北京: [
       "cn-bj-cc-03-14.bilivideo.com",
@@ -2410,7 +2457,7 @@ getAccessToken() {
       "cn-bj-fx-01-01.bilivideo.com",
       "cn-bj-fx-01-04.bilivideo.com",
       "cn-bj-fx-01-05.bilivideo.com",
-      "cn-bj-se-01-05.bilivideo.com"
+      "cn-bj-se-01-05.bilivideo.com",
     ],
     南京: ["cn-jsnj-fx-02-05.bilivideo.com", "cn-jsnj-fx-02-07.bilivideo.com", "cn-jsnj-fx-02-10.bilivideo.com"],
     呼市: [
@@ -2419,7 +2466,7 @@ getAccessToken() {
       "cn-nmghhht-cu-01-08.bilivideo.com",
       "cn-nmghhht-cu-01-09.bilivideo.com",
       "cn-nmghhht-cu-01-12.bilivideo.com",
-      "cn-nmghhht-cu-01-15.bilivideo.com"
+      "cn-nmghhht-cu-01-15.bilivideo.com",
     ],
     哈市: [
       "cn-hljheb-cm-01-01.bilivideo.com",
@@ -2427,7 +2474,7 @@ getAccessToken() {
       "cn-hljheb-ct-01-02.bilivideo.com",
       "cn-hljheb-ct-01-03.bilivideo.com",
       "cn-hljheb-ct-01-04.bilivideo.com",
-      "cn-hljheb-ct-01-07.bilivideo.com"
+      "cn-hljheb-ct-01-07.bilivideo.com",
     ],
     外建: [
       "c0--cn-gotcha01.bilivideo.com",
@@ -2448,7 +2495,7 @@ getAccessToken() {
       "d1--ov-gotcha209.bilivideo.com",
       "d1--ov-gotcha210.bilivideo.com",
       "d1--p1--cn-gotcha04.bilivideo.com",
-      "d1--tf-gotcha04.bilivideo.com"
+      "d1--tf-gotcha04.bilivideo.com",
     ],
     天津: [
       "cn-tj-cm-02-01.bilivideo.com",
@@ -2466,7 +2513,7 @@ getAccessToken() {
       "cn-tj-cu-01-10.bilivideo.com",
       "cn-tj-cu-01-11.bilivideo.com",
       "cn-tj-cu-01-12.bilivideo.com",
-      "cn-tj-cu-01-13.bilivideo.com"
+      "cn-tj-cu-01-13.bilivideo.com",
     ],
     广州: [
       "cn-gdgz-cm-01-02.bilivideo.com",
@@ -2479,7 +2526,7 @@ getAccessToken() {
       "cn-gdgz-fx-01-08.bilivideo.com",
       "cn-gdgz-fx-01-09.bilivideo.com",
       "cn-gdgz-fx-01-10.bilivideo.com",
-      "cn-gdgz-gd-01-01.bilivideo.com"
+      "cn-gdgz-gd-01-01.bilivideo.com",
     ],
     成都: [
       "cn-sccd-cm-03-01.bilivideo.com",
@@ -2508,7 +2555,7 @@ getAccessToken() {
       "cn-sccd-cu-01-07.bilivideo.com",
       "cn-sccd-cu-01-09.bilivideo.com",
       "cn-sccd-fx-01-01.bilivideo.com",
-      "cn-sccd-fx-01-06.bilivideo.com"
+      "cn-sccd-fx-01-06.bilivideo.com",
     ],
     新疆: [
       "cn-xj-cm-02-01.bilivideo.com",
@@ -2520,7 +2567,7 @@ getAccessToken() {
       "cn-xj-ct-01-03.bilivideo.com",
       "cn-xj-ct-01-04.bilivideo.com",
       "cn-xj-ct-01-05.bilivideo.com",
-      "cn-xj-ct-02-02.bilivideo.com"
+      "cn-xj-ct-02-02.bilivideo.com",
     ],
     杭州: [
       "cn-zjhz-cm-01-01.bilivideo.com",
@@ -2531,7 +2578,7 @@ getAccessToken() {
       "cn-zjhz-cu-01-01.bilivideo.com",
       "cn-zjhz-cu-01-02.bilivideo.com",
       "cn-zjhz-cu-01-05.bilivideo.com",
-      "cn-zjhz-cu-v-02.bilivideo.com"
+      "cn-zjhz-cu-v-02.bilivideo.com",
     ],
     武汉: [
       "cn-hbwh-cm-01-01.bilivideo.com",
@@ -2548,7 +2595,7 @@ getAccessToken() {
       "cn-hbwh-cm-01-19.bilivideo.com",
       "cn-hbwh-fx-01-02.bilivideo.com",
       "cn-hbwh-fx-01-12.bilivideo.com",
-      "cn-hbwh-fx-01-13.bilivideo.com"
+      "cn-hbwh-fx-01-13.bilivideo.com",
     ],
     沈阳: [
       "cn-lnsy-cm-01-01.bilivideo.com",
@@ -2558,7 +2605,7 @@ getAccessToken() {
       "cn-lnsy-cm-01-06.bilivideo.com",
       "cn-lnsy-cu-01-03.bilivideo.com",
       "cn-lnsy-cu-01-04.bilivideo.com",
-      "cn-lnsy-cu-01-06.bilivideo.com"
+      "cn-lnsy-cu-01-06.bilivideo.com",
     ],
     泉州: [
       "cn-fjqz-cm-01-01.bilivideo.com",
@@ -2568,7 +2615,7 @@ getAccessToken() {
       "cn-fjqz-cm-01-05.bilivideo.com",
       "cn-fjqz-cm-01-06.bilivideo.com",
       "cn-fjqz-cm-01-08.bilivideo.com",
-      "cn-fjqz-cmcc-live-01.bilivideo.com"
+      "cn-fjqz-cmcc-live-01.bilivideo.com",
     ],
     海外: ["upos-hz-mirrorakam.akamaized.net", "upos-sz-mirroraliov.bilivideo.com"],
     深圳: [
@@ -2588,7 +2635,7 @@ getAccessToken() {
       "upos-sz-mirrorhwdisp.bilivideo.com",
       "upos-sz-originbstar.bilivideo.com",
       "upos-sz-origincosgzhw.bilivideo.com",
-      "upos-sz-origincosv.bilivideo.com"
+      "upos-sz-origincosv.bilivideo.com",
     ],
     西安: [
       "cn-sxxa-cm-01-01.bilivideo.com",
@@ -2600,7 +2647,7 @@ getAccessToken() {
       "cn-sxxa-ct-03-03.bilivideo.com",
       "cn-sxxa-ct-03-04.bilivideo.com",
       "cn-sxxa-cu-02-01.bilivideo.com",
-      "cn-sxxa-cu-02-02.bilivideo.com"
+      "cn-sxxa-cu-02-02.bilivideo.com",
     ],
     郑州: [
       "cn-hnzz-cm-01-01.bilivideo.com",
@@ -2612,7 +2659,7 @@ getAccessToken() {
       "cn-hnzz-cm-01-09.bilivideo.com",
       "cn-hnzz-cm-01-11.bilivideo.com",
       "cn-hnzz-fx-01-01.bilivideo.com",
-      "cn-hnzz-fx-01-08.bilivideo.com"
+      "cn-hnzz-fx-01-08.bilivideo.com",
     ],
     香港: [
       "cn-hk-eq-01-03.bilivideo.com",
@@ -2622,53 +2669,50 @@ getAccessToken() {
       "cn-hk-eq-01-13.bilivideo.com",
       "cn-hk-eq-01-14.bilivideo.com",
       "cn-hk-eq-bcache-13.bilivideo.com",
-      "cn-hk-eq-bcache-16.bilivideo.com"
-    ]
+      "cn-hk-eq-bcache-16.bilivideo.com",
+    ],
   };
   const serverAreaList = {
     ...githubCDNServerList,
     海外: [
-"upos-hz-mirrorakam.akamaized.net",
-"upos-sz-mirroraliov.bilivideo.com",
-"upos-sz-mirrorcosov.bilivideo.com",
-"upos-sz-mirrorhwov.bilivideo.com",
-"cn-hk-eq-bcache-01.bilivideo.com"
+      "upos-hz-mirrorakam.akamaized.net",
+      "upos-sz-mirroraliov.bilivideo.com",
+      "upos-sz-mirrorcosov.bilivideo.com",
+      "upos-sz-mirrorhwov.bilivideo.com",
+      "cn-hk-eq-bcache-01.bilivideo.com",
     ],
     "海外（东南亚）": [
-"upos-sz-mirroralibstar1.bilivideo.com",
-"upos-sz-mirrorcosbstar1.bilivideo.com",
-"upos-sz-mirrorhwbstar1.bilivideo.com",
-"upos-bstar1-mirrorakam.akamaized.net"
+      "upos-sz-mirroralibstar1.bilivideo.com",
+      "upos-sz-mirrorcosbstar1.bilivideo.com",
+      "upos-sz-mirrorhwbstar1.bilivideo.com",
+      "upos-bstar1-mirrorakam.akamaized.net",
     ],
-    其它: [
-"upos-tf-all-hw.bilivideo.com",
-"upos-tf-all-tx.bilivideo.com"
-    ]
+    其它: ["upos-tf-all-hw.bilivideo.com", "upos-tf-all-tx.bilivideo.com"],
   };
   const serverList = [
     {
       name: "不替换",
-      host: ""
-    }
+      host: "",
+    },
   ];
   Object.keys(serverAreaList).map((key) => {
     const hostList = serverAreaList[key];
     hostList.forEach((host) => {
       serverList.push({
         name: `${key} - ${host.trim().replace(/\.bilivideo\.com$/gi, "")}`,
-        host
+        host,
       });
     });
   });
   const BilibiliCDNServerList = serverList;
   const BilibiliApiProxy = {
-getBangumiProxyHost() {
+    getBangumiProxyHost() {
       let serverHost = [
         {
           name: "中国大陆",
           area: "",
-          host: Panel.getValue("bili-bangumi-proxyApiServer-default", "").trim() || BilibiliApiConfig.web_host
-        }
+          host: Panel.getValue("bili-bangumi-proxyApiServer-default", "").trim() || BilibiliApiConfig.web_host,
+        },
       ];
       if (!Panel.getValue("bili-bangumi-unlockAreaLimit")) {
         return serverHost;
@@ -2678,7 +2722,7 @@ getBangumiProxyHost() {
         serverHost.push({
           name: "香港",
           area: "hk",
-          host: hk_host
+          host: hk_host,
         });
       }
       let tw_host = Panel.getValue("bili-bangumi-proxyApiServer-tw");
@@ -2686,7 +2730,7 @@ getBangumiProxyHost() {
         serverHost.push({
           name: "台湾",
           area: "tw",
-          host: tw_host
+          host: tw_host,
         });
       }
       let tha_host = Panel.getValue("bili-bangumi-proxyApiServer-tha-or-sea");
@@ -2694,12 +2738,12 @@ getBangumiProxyHost() {
         serverHost.push({
           name: "泰国/东南亚",
           area: "th",
-          host: tha_host
+          host: tha_host,
         });
       }
       return serverHost;
     },
-getSearchProxyHost() {
+    getSearchProxyHost() {
       let bangumiProxyHost = this.getBangumiProxyHost();
       let serverHost = [];
       let hk_host = Panel.getValue("bili-search-proxyApiServer-hk");
@@ -2707,7 +2751,7 @@ getSearchProxyHost() {
         serverHost.push({
           name: "香港",
           area: "hk",
-          host: hk_host
+          host: hk_host,
         });
       } else {
         let bangumi_hk_host = bangumiProxyHost.find((item) => item.area === "hk");
@@ -2720,7 +2764,7 @@ getSearchProxyHost() {
         serverHost.push({
           name: "台湾",
           area: "tw",
-          host: tw_host
+          host: tw_host,
         });
       } else {
         let bangumi_tw_host = bangumiProxyHost.find((item) => item.area === "tw");
@@ -2733,7 +2777,7 @@ getSearchProxyHost() {
         serverHost.push({
           name: "泰国/东南亚",
           area: "th",
-          host: tha_host
+          host: tha_host,
         });
       } else {
         let bangumi_tha_host = bangumiProxyHost.find((item) => item.area === "th");
@@ -2743,19 +2787,19 @@ getSearchProxyHost() {
       }
       return serverHost;
     },
-getBangumiProxySearchParam(option = {}) {
+    getBangumiProxySearchParam(option = {}) {
       let proxyData = {
         from_client: "BROWSER",
         drm_tech_type: 2,
         module: "bangumi",
         area: option?.area || "",
-        access_key: BilibiliQrCodeLogin.getAccessToken()
+        access_key: BilibiliQrCodeLogin.getAccessToken(),
       };
       return proxyData;
-    }
+    },
   };
   const BilibiliCDNProxy = {
-findBetterCDN(...args) {
+    findBetterCDN(...args) {
       let urlList = [];
       args.forEach((arg) => {
         if (Array.isArray(arg)) {
@@ -2778,25 +2822,33 @@ findBetterCDN(...args) {
         return urlList[0];
       }
     },
-replaceVideoCDN(url, isAudio = false) {
-      const userChooseCDN = isAudio ? Panel.getValue("bili-video-uposServerSelect-audio") : Panel.getValue("bili-video-uposServerSelect");
-      let ownCDN = isAudio ? Panel.getValue("bili-video-uposServerSelect-audio-own") : Panel.getValue("bili-video-uposServerSelect-own");
+    replaceVideoCDN(url, isAudio = false) {
+      const userChooseCDN = isAudio
+        ? Panel.getValue("bili-video-uposServerSelect-audio")
+        : Panel.getValue("bili-video-uposServerSelect");
+      let ownCDN = isAudio
+        ? Panel.getValue("bili-video-uposServerSelect-audio-own")
+        : Panel.getValue("bili-video-uposServerSelect-own");
       ownCDN = (ownCDN ?? "").trim();
       return this.replaceVideoCDNHost(url, userChooseCDN, ownCDN);
     },
-replaceBangumiVideoCDN(url, isAudio = false) {
-      const userChooseCDN = isAudio ? Panel.getValue("bili-bangumi-uposServerSelect-audio") : Panel.getValue("bili-bangumi-uposServerSelect");
-      let ownCDN = isAudio ? Panel.getValue("bili-bangumi-uposServerSelect-audio-own") : Panel.getValue("bili-bangumi-uposServerSelect-own");
+    replaceBangumiVideoCDN(url, isAudio = false) {
+      const userChooseCDN = isAudio
+        ? Panel.getValue("bili-bangumi-uposServerSelect-audio")
+        : Panel.getValue("bili-bangumi-uposServerSelect");
+      let ownCDN = isAudio
+        ? Panel.getValue("bili-bangumi-uposServerSelect-audio-own")
+        : Panel.getValue("bili-bangumi-uposServerSelect-own");
       ownCDN = (ownCDN ?? "").trim();
       return this.replaceVideoCDNHost(url, userChooseCDN, ownCDN);
     },
-replaceLiveVideoCDN(url) {
+    replaceLiveVideoCDN(url) {
       const userChooseCDN = Panel.getValue("bili-live-uposServerSelect");
       let ownCDN = Panel.getValue("bili-live-uposServerSelect-own");
       ownCDN = (ownCDN ?? "").trim();
       return this.replaceVideoCDNHost(url, userChooseCDN, ownCDN);
     },
-replaceVideoCDNHost(url, userChooseCDNHost, ownCDNHost) {
+    replaceVideoCDNHost(url, userChooseCDNHost, ownCDNHost) {
       try {
         const urlInst = new URL(url);
         const originHost = urlInst.host;
@@ -2825,29 +2877,26 @@ replaceVideoCDNHost(url, userChooseCDNHost, ownCDNHost) {
         log$1.error("视频upos替换失败", error);
         return url;
       }
-    }
+    },
   };
   const VideoSoundQualityCode = {
-    "30216": "64K",
-    "30232": "132K",
-    "30280": "192K",
-    "30250": "杜比全景声",
-    "30251": "Hi-Res无损"
+    30216: "64K",
+    30232: "132K",
+    30280: "192K",
+    30250: "杜比全景声",
+    30251: "Hi-Res无损",
   };
   class ArtPlayerDanmakuOptionHelper {
     $data = {
       KEY: "art-player-danmaku-option",
-      localArtDanmakuOption: {}
+      localArtDanmakuOption: {},
     };
     constructor(localDataKey) {
       this.$data.KEY = localDataKey;
       const defaultDanmakuOption = this.getDefaultDanmakuOption();
-      this.$data.localArtDanmakuOption = utils.assign(
-        defaultDanmakuOption,
-        _GM_getValue(this.$data.KEY, {})
-      );
+      this.$data.localArtDanmakuOption = utils.assign(defaultDanmakuOption, _GM_getValue(this.$data.KEY, {}));
     }
-getDefaultDanmakuOption() {
+    getDefaultDanmakuOption() {
       return {
         speed: 5,
         margin: [10, "75%"],
@@ -2856,13 +2905,13 @@ getDefaultDanmakuOption() {
         fontSize: 18,
         antiOverlap: false,
         synchronousPlayback: true,
-        visible: true
+        visible: true,
       };
     }
-getLocalArtDanmakuOption() {
+    getLocalArtDanmakuOption() {
       return this.$data.localArtDanmakuOption;
     }
-onConfigChange(art) {
+    onConfigChange(art) {
       art.on("artplayerPluginDanmuku:config", (option) => {
         Object.keys(this.$data.localArtDanmakuOption).forEach((key) => {
           if (Reflect.has(option, key)) {
@@ -2878,9 +2927,9 @@ onConfigChange(art) {
   const ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY = "setting-bilibili-m4sAudio";
   const M4SAudioUtils = {
     $flag: {
-isIntervaling: false
+      isIntervaling: false,
     },
-intervalHandler(fn, count = 2, delayTime = 900) {
+    intervalHandler(fn, count = 2, delayTime = 900) {
       if (M4SAudioUtils.$flag.isIntervaling) {
         return;
       }
@@ -2908,31 +2957,31 @@ intervalHandler(fn, count = 2, delayTime = 900) {
       } else {
         M4SAudioUtils.$flag.isIntervaling = false;
       }
-    }
+    },
   };
   const M4SAudio = {
     $key: {
-      plugin_KEY: "plugin-bilibili-m4sAudio"
+      plugin_KEY: "plugin-bilibili-m4sAudio",
     },
     $data: {
-art: null,
-audio: new Audio(),
-latestSyncTime: 0,
-reconnectConfig: {
-maxCount: 5,
-delayTime: 1e3
+      art: null,
+      audio: new Audio(),
+      latestSyncTime: 0,
+      reconnectConfig: {
+        maxCount: 5,
+        delayTime: 1e3,
       },
-reconnectInfo: {
-url: "",
-count: 0
+      reconnectInfo: {
+        url: "",
+        count: 0,
       },
-      option: null
+      option: null,
     },
     userEvent: {
-      onRestart: void 0
+      onRestart: void 0,
     },
     events: {
-play: () => {
+      play: () => {
         M4SAudio.handler.play();
         M4SAudio.handler.syncVolume();
         M4SAudio.handler.syncMuted();
@@ -2940,19 +2989,19 @@ play: () => {
           M4SAudio.handler.syncTime();
         }, 1);
       },
-seek: (currentTime) => {
+      seek: (currentTime) => {
         M4SAudioUtils.intervalHandler(() => {
           M4SAudio.handler.syncTime();
           M4SAudio.handler.syncPlayState();
         });
       },
-pause: () => {
+      pause: () => {
         M4SAudioUtils.intervalHandler(() => {
           M4SAudio.handler.syncTime();
         }, 1);
         M4SAudio.handler.pause();
       },
-restart: (url) => {
+      restart: (url) => {
         if (typeof M4SAudio.userEvent.onRestart === "function") {
           let newAudioUrl = M4SAudio.userEvent.onRestart(url);
           M4SAudio.handler.playUrl(newAudioUrl);
@@ -2962,53 +3011,53 @@ restart: (url) => {
         }, 1);
         M4SAudio.handler.syncPlayState();
       },
-muted: (state) => {
+      muted: (state) => {
         M4SAudio.handler.syncVolume();
         M4SAudio.handler.syncMuted();
       },
-destroy: () => {
+      destroy: () => {
         M4SAudio.handler.pause();
       },
-error: (error, reconnectTime) => {
+      error: (error, reconnectTime) => {
         M4SAudio.handler.pause();
       },
-resize: () => {
+      resize: () => {
         M4SAudioUtils.intervalHandler(() => {
           M4SAudio.handler.syncTime();
         });
       },
-fullscreen: () => {
+      fullscreen: () => {
         M4SAudioUtils.intervalHandler(() => {
           M4SAudio.handler.syncTime();
         });
       },
-"video:ended": () => {
+      "video:ended": () => {
         M4SAudio.handler.pause();
       },
-"video:ratechange": () => {
+      "video:ratechange": () => {
         M4SAudio.handler.syncPlayBackRate();
       },
-"video:waiting": () => {
+      "video:waiting": () => {
         M4SAudio.handler.pause();
       },
-"video:playing": () => {
+      "video:playing": () => {
         M4SAudioUtils.intervalHandler(() => {
           M4SAudio.handler.syncTime();
         }, 1);
         M4SAudio.handler.play();
       },
-"video:pause": () => {
+      "video:pause": () => {
         M4SAudio.handler.pause();
         M4SAudioUtils.intervalHandler(() => {
           M4SAudio.handler.syncTime();
         }, 1);
       },
-"video:volumechange": () => {
+      "video:volumechange": () => {
         M4SAudio.handler.syncVolume();
         M4SAudio.handler.syncMuted();
         M4SAudio.handler.syncPlayState();
       },
-"video:timeupdate": () => {
+      "video:timeupdate": () => {
         let videoTime = M4SAudio.$data.art.currentTime;
         if (Math.abs(videoTime - M4SAudio.$data.latestSyncTime) >= 3) {
           M4SAudio.$data.latestSyncTime = videoTime;
@@ -3016,14 +3065,11 @@ fullscreen: () => {
             M4SAudio.handler.syncTime(0.777);
           }, 1);
         }
-      }
+      },
     },
     audioEvents: {
       loadedmetadata: (event) => {
-        M4SAudio.$data.art.emit(
-"m4sAudio:loadedmetadata",
-          event
-        );
+        M4SAudio.$data.art.emit("m4sAudio:loadedmetadata", event);
         console.log(TAG$4 + "Audio预加载完成");
         M4SAudio.$data.reconnectInfo.count = 0;
         M4SAudio.$data.reconnectInfo.url = "";
@@ -3037,20 +3083,14 @@ fullscreen: () => {
         });
       },
       canplaythrough: (event) => {
-        M4SAudio.$data.art.emit(
-"m4sAudio:canplaythrough",
-          event
-        );
+        M4SAudio.$data.art.emit("m4sAudio:canplaythrough", event);
         console.log(TAG$4 + "浏览器估计该音频可以在不停止内容缓冲的情况下播放媒体直到结束");
         M4SAudioUtils.intervalHandler(() => {
           M4SAudio.handler.syncTime();
         });
       },
       error: (event) => {
-        M4SAudio.$data.art.emit(
-"m4sAudio:error",
-          event
-        );
+        M4SAudio.$data.art.emit("m4sAudio:error", event);
         console.error(TAG$4 + `Audio加载失败`, event);
         if (utils.isNull(M4SAudio.$data.reconnectInfo.url)) {
           M4SAudio.$data.reconnectInfo.url = M4SAudio.$data.audio.src;
@@ -3068,10 +3108,10 @@ fullscreen: () => {
           console.error(TAG$4 + `Audio已超出重连次数`);
           M4SAudio.$data.art.notice.show = `Audio已超出重连次数，请尝试切换源`;
         }
-      }
+      },
     },
-handler: {
-playUrl(url) {
+    handler: {
+      playUrl(url) {
         if (typeof url !== "string") {
           return;
         }
@@ -3080,76 +3120,59 @@ playUrl(url) {
         if (utils.isNotNull(url)) {
           M4SAudio.bindAudio();
         }
-        M4SAudio.$data.art.emit(
-"m4sAudio:restart",
-          url
-        );
+        M4SAudio.$data.art.emit("m4sAudio:restart", url);
         M4SAudio.handler.syncTime();
         M4SAudio.handler.syncPlayState();
       },
-play() {
+      play() {
         if (M4SAudio.$data.audio.paused) {
           M4SAudio.$data.audio.play();
-          M4SAudio.$data.art.emit(
-"m4sAudio:play"
-          );
+          M4SAudio.$data.art.emit("m4sAudio:play");
         }
       },
-pause() {
+      pause() {
         if (!M4SAudio.$data.audio.paused) {
           M4SAudio.$data.audio.pause();
-          M4SAudio.$data.art.emit(
-"m4sAudio:pause"
-          );
+          M4SAudio.$data.art.emit("m4sAudio:pause");
         }
       },
-syncPlayState() {
+      syncPlayState() {
         if (M4SAudio.$data.art.playing) {
           this.play();
         } else {
           this.pause();
         }
-        M4SAudio.$data.art.emit(
-"m4sAudio:syncPlayState"
-        );
+        M4SAudio.$data.art.emit("m4sAudio:syncPlayState");
       },
-syncTime(offset = 0.1) {
+      syncTime(offset = 0.1) {
         let videoTime = M4SAudio.$data.art.currentTime;
         let audioTime = M4SAudio.$data.audio.currentTime;
         if (Math.abs(videoTime - audioTime) >= Math.abs(offset)) {
           M4SAudio.$data.audio.currentTime = videoTime;
           this.syncVolume();
           this.syncMuted();
-          M4SAudio.$data.art.emit(
-"m4sAudio:syncTime"
-          );
+          M4SAudio.$data.art.emit("m4sAudio:syncTime");
         }
       },
-syncVolume() {
+      syncVolume() {
         M4SAudio.$data.audio.volume = M4SAudio.$data.art.volume;
-        M4SAudio.$data.art.emit(
-"m4sAudio:syncVolume"
-        );
+        M4SAudio.$data.art.emit("m4sAudio:syncVolume");
       },
-syncMuted() {
+      syncMuted() {
         let artMuted = M4SAudio.$data.art.muted;
         M4SAudio.$data.audio.muted = artMuted;
-        M4SAudio.$data.art.emit(
-"m4sAudio:syncMuted"
-        );
+        M4SAudio.$data.art.emit("m4sAudio:syncMuted");
       },
-syncPlayBackRate() {
+      syncPlayBackRate() {
         let artPlayBackRate = M4SAudio.$data.art.playbackRate;
         let audioPlayBackRate = M4SAudio.$data.audio.playbackRate;
         if (artPlayBackRate !== audioPlayBackRate) {
           M4SAudio.$data.audio.playbackRate = artPlayBackRate;
-          M4SAudio.$data.art.emit(
-"m4sAudio:syncPlayBackRate"
-          );
+          M4SAudio.$data.art.emit("m4sAudio:syncPlayBackRate");
         }
-      }
+      },
     },
-update(option) {
+    update(option) {
       this.unbind();
       this.unbindAudio();
       this.$data.option = null;
@@ -3166,7 +3189,7 @@ update(option) {
         let currentSelectAudioInfo = {
           index: 0,
           html: firstAudioInfo.soundQualityCodeText,
-url: firstAudioInfo.url
+          url: firstAudioInfo.url,
         };
         if (storageAudioInfo) {
           const findAudioIndex = option.audioList.findIndex(
@@ -3181,45 +3204,41 @@ url: firstAudioInfo.url
             console.warn(TAG$4 + "没有找到上次选的音频代码，使用当前默认第一个音频");
           }
         }
-        let selectorList = option.audioList.map(
-          (item, index) => {
-            return {
-              default: index === currentSelectAudioInfo.index,
-              html: item.soundQualityCodeText,
-              url: item.url,
-              soundQualityCode: item.soundQualityCode,
-              soundQualityCodeText: item.soundQualityCodeText,
-              codecs: item.codecs,
-              mimeType: item.mimeType,
-              bandwidth: item.bandwidth,
-              size: item.size
-            };
-          }
-        );
+        let selectorList = option.audioList.map((item, index) => {
+          return {
+            default: index === currentSelectAudioInfo.index,
+            html: item.soundQualityCodeText,
+            url: item.url,
+            soundQualityCode: item.soundQualityCode,
+            soundQualityCodeText: item.soundQualityCodeText,
+            codecs: item.codecs,
+            mimeType: item.mimeType,
+            bandwidth: item.bandwidth,
+            size: item.size,
+          };
+        });
         const settingOption = {
           name: ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY,
           width: 200,
           html: "音频",
           tooltip: currentSelectAudioInfo.html,
-          icon: (
-`
+          icon: `
 				<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="22" height="22">
 					<path d="M123.5 438.5h131.3v310.7H123.5zM769.2 438.5h131.3v310.7H769.2z"></path>
 					<path d="M859.8 398.8h-48.3c-7.9 0-15.4 1.6-22.5 3.9v-32.4c0-125.2-101.9-227.1-227.1-227.1h-99.7c-125.2 0-227.1 101.9-227.1 227.1v32.4c-7.1-2.3-14.6-3.9-22.5-3.9h-48.3c-40.9 0-74.2 33.3-74.2 74.2v243c0 40.9 33.3 74.2 74.2 74.2h48.3c40.9 0 74.2-33.3 74.2-74.2V370.3c0-96.7 78.7-175.4 175.4-175.4h99.7c96.7 0 175.4 78.7 175.4 175.4V716c0 40.9 33.3 74.2 74.2 74.2h48.3c40.9 0 74.2-33.3 74.2-74.2V473c-0.1-40.9-33.3-74.2-74.2-74.2zM235.1 716c0 12.4-10.1 22.5-22.5 22.5h-48.3c-12.4 0-22.5-10.1-22.5-22.5V473c0-12.4 10.1-22.5 22.5-22.5h48.3c12.4 0 22.5 10.1 22.5 22.5v243z m647.2 0c0 12.4-10.1 22.5-22.5 22.5h-48.3c-12.4 0-22.5-10.1-22.5-22.5V473c0-12.4 10.1-22.5 22.5-22.5h48.3c12.4 0 22.5 10.1 22.5 22.5v243z"></path>
 					<path d="M531.3 652.3c-1.7 0-3.3-0.1-5-0.4-10.2-1.7-18.7-8.3-22.7-17.8l-41.1-95.4-37 43.8c-8.1 9.6-19.9 15.1-32.5 15.1h-71.9V546h67.6l56.6-67.1c6.8-8.1 17-12 27.5-10.4 10.4 1.5 19.1 8.2 23.3 17.9l41.6 96.7 21.9-24c8-8.8 19.5-13.9 31.4-13.9h102.4v51.7H595l-41.6 45.7c-5.6 6.2-13.7 9.7-22.1 9.7z"></path>
 				</svg>
-				`
-          ),
+				`,
           selector: selectorList,
-          onSelect: function(selector) {
+          onSelect: function (selector) {
             let itemInfo = selector;
             console.log(TAG$4 + "切换音频", itemInfo);
             that.handler.playUrl(itemInfo.url);
             that.$data.art.storage.set(storageKey, {
-              soundQualityCode: itemInfo.soundQualityCode
+              soundQualityCode: itemInfo.soundQualityCode,
             });
             return selector.html;
-          }
+          },
         };
         let findSettingValue = M4SAudio.$data.art.setting.find(ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY);
         if (findSettingValue) {
@@ -3241,28 +3260,28 @@ url: firstAudioInfo.url
         }
       }
     },
-bind() {
+    bind() {
       Object.keys(this.events).forEach((eventName) => {
         this.$data.art.on(eventName, this.events[eventName]);
       });
     },
-bindAudio() {
+    bindAudio() {
       Object.keys(this.audioEvents).forEach((eventName) => {
         this.$data.audio.addEventListener(eventName, this.audioEvents[eventName], {
-          once: true
+          once: true,
         });
       });
     },
-unbind() {
+    unbind() {
       Object.keys(this.events).forEach((eventName) => {
         this.$data.art.off(eventName, this.events[eventName]);
       });
     },
-unbindAudio() {
+    unbindAudio() {
       Object.keys(this.audioEvents).forEach((eventName) => {
         this.$data.audio.removeEventListener(eventName, this.audioEvents[eventName]);
       });
-    }
+    },
   };
   const artplayerPluginM4SAudioSupport = (option) => {
     return (art) => {
@@ -3272,7 +3291,7 @@ unbindAudio() {
       }
       M4SAudio.update({
         from: option.from,
-        audioList: option.audioList
+        audioList: option.audioList,
       });
       return {
         name: M4SAudio.$key.plugin_KEY,
@@ -3287,7 +3306,7 @@ unbindAudio() {
         },
         getCurrentPlayConfig() {
           return M4SAudio.$data.option.find((it) => it.url === M4SAudio.$data.audio.src);
-        }
+        },
       };
     };
   };
@@ -3300,45 +3319,44 @@ unbindAudio() {
         }
         TopToolBar.updateOnlineTotal({
           showOnlineTotal: TopToolBar.$data.option.showOnlineTotal,
-          onlineInfoParams: TopToolBar.$data.option.onlineInfoParams
+          onlineInfoParams: TopToolBar.$data.option.onlineInfoParams,
         });
-      }
+      },
     },
-bind() {
+    bind() {
       Object.keys(this.events).forEach((eventName) => {
         TopToolBar.art.on(eventName, this.events[eventName]);
       });
     },
-unbind() {
+    unbind() {
       Object.keys(this.events).forEach((eventName) => {
         TopToolBar.art.off(eventName, this.events[eventName]);
       });
-    }
+    },
   };
   const TopToolBar = {
     art: null,
     $el: {
-$topWrap: null,
+      $topWrap: null,
       $topTitle: null,
-$topTitleText: null,
-$topTitleFollow: null,
-$topTitleFollowText: null,
-$topRight: null,
-$topRightFollow: null
+      $topTitleText: null,
+      $topTitleFollow: null,
+      $topTitleFollowText: null,
+      $topRight: null,
+      $topRightFollow: null,
     },
     $data: {
-isInit: false,
+      isInit: false,
       __option: {},
-option: {}
+      option: {},
     },
     $key: {
-      plugin_KEY: "plugin-bilibili-topToolBar"
+      plugin_KEY: "plugin-bilibili-topToolBar",
     },
-init(option) {
+    init(option) {
       this.art.layers.add({
         name: "top-wrap",
-        html: (
-`
+        html: `
             <div class="art-player-top-wrap">
                 <div class="art-player-top-title">
                     <!-- 番剧名，第xx集 -->
@@ -3352,9 +3370,8 @@ init(option) {
                     <div class="art-player-top-right-follow"></div>
                 </div>
             </div>
-            `
-        ),
-        mounted: async function($topWrap) {
+            `,
+        mounted: async function ($topWrap) {
           TopToolBar.$el.$topWrap = $topWrap;
           TopToolBar.$el.$topTitle = $topWrap.querySelector(".art-player-top-title");
           TopToolBar.$el.$topTitleText = $topWrap.querySelector(".art-player-top-title-text");
@@ -3364,30 +3381,30 @@ init(option) {
           TopToolBar.$el.$topRightFollow = $topWrap.querySelector(".art-player-top-right-follow");
           TopToolBar.update(option);
           TopToolBarEvent.bind();
-        }
+        },
       });
     },
-update(option) {
+    update(option) {
       if (!this.$data.isInit) {
         this.$data.isInit = true;
         Object.defineProperties(this.$data.option, {
-showWrap: {
+          showWrap: {
             set(value) {
               TopToolBar.$data.__option.showWrap = value;
             },
             get() {
               return TopToolBar.$data.__option.showWrap;
-            }
+            },
           },
-showTitle: {
+          showTitle: {
             set(value) {
               TopToolBar.$data.__option.showTitle = value;
             },
             get() {
               return TopToolBar.$data.__option.showTitle;
-            }
+            },
           },
-title: {
+          title: {
             set(value) {
               TopToolBar.$data.__option.title = value;
               if (typeof value === "string") {
@@ -3396,62 +3413,62 @@ title: {
             },
             get() {
               return TopToolBar.$data.__option.title;
-            }
+            },
           },
-showOnlineTotal: {
+          showOnlineTotal: {
             set(value) {
               TopToolBar.$data.__option.showOnlineTotal = value;
             },
             get() {
               return TopToolBar.$data.__option.showOnlineTotal;
-            }
+            },
           },
-onlineInfoParams: {
+          onlineInfoParams: {
             set(value) {
               TopToolBar.$data.__option.onlineInfoParams = value;
               TopToolBar.updateOnlineTotal({
                 showOnlineTotal: this.showOnlineTotal,
-                onlineInfoParams: value
+                onlineInfoParams: value,
               });
             },
             get() {
               return TopToolBar.$data.__option.onlineInfoParams;
-            }
+            },
           },
-showRight: {
+          showRight: {
             set(value) {
               TopToolBar.$data.__option.showRight = value;
             },
             get() {
               return TopToolBar.$data.__option.showRight;
-            }
+            },
           },
-showRightFollow: {
+          showRightFollow: {
             set(value) {
               TopToolBar.$data.__option.showRightFollow = value;
             },
             get() {
               return TopToolBar.$data.__option.showRightFollow;
-            }
-          }
+            },
+          },
         });
       }
       Object.assign(this.$data.option, option);
     },
-async updateOnlineTotal(option) {
+    async updateOnlineTotal(option) {
       if (!option.showOnlineTotal) {
         return;
       }
       let onlineTotalInfo = await BilibiliVideoApi.onlineTotal({
         aid: option.onlineInfoParams.aid,
         bvid: option.onlineInfoParams.bvid,
-        cid: option.onlineInfoParams.cid
+        cid: option.onlineInfoParams.cid,
       });
       if (!onlineTotalInfo) {
         return;
       }
       TopToolBar.$el.$topTitleFollowText.innerText = `${onlineTotalInfo["total"] || onlineTotalInfo["count"] || 0}人正在看`;
-    }
+    },
   };
   const artplayerPluginTopToolBar = (option) => {
     return (art) => {
@@ -3461,14 +3478,14 @@ async updateOnlineTotal(option) {
         name: TopToolBar.$key.plugin_KEY,
         update(option2) {
           TopToolBar.update(option2);
-        }
+        },
       };
     };
   };
   const ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY = TopToolBar.$key.plugin_KEY;
   const chinese = {
     S: "万与丑专业丛东丝丢两严丧个丬丰临为丽举么义乌乐乔习乡书买乱争于亏云亘亚产亩亲亵亸亿仅从仑仓仪们价众优伙会伛伞伟传伤伥伦伧伪伫体余佣佥侠侣侥侦侧侨侩侪侬俣俦俨俩俪俭债倾偬偻偾偿傥傧储傩儿兑兖党兰关兴兹养兽冁内冈册写军农冢冯冲决况冻净凄凉凌减凑凛几凤凫凭凯击凼凿刍划刘则刚创删别刬刭刽刿剀剂剐剑剥剧劝办务劢动励劲劳势勋勐勚匀匦匮区医华协单卖卢卤卧卫却卺厂厅历厉压厌厍厕厢厣厦厨厩厮县参叆叇双发变叙叠叶号叹叽吁后吓吕吗吣吨听启吴呒呓呕呖呗员呙呛呜咏咔咙咛咝咤咴咸哌响哑哒哓哔哕哗哙哜哝哟唛唝唠唡唢唣唤唿啧啬啭啮啰啴啸喷喽喾嗫呵嗳嘘嘤嘱噜噼嚣嚯团园囱围囵国图圆圣圹场坂坏块坚坛坜坝坞坟坠垄垅垆垒垦垧垩垫垭垯垱垲垴埘埙埚埝埯堑堕塆墙壮声壳壶壸处备复够头夸夹夺奁奂奋奖奥妆妇妈妩妪妫姗姜娄娅娆娇娈娱娲娴婳婴婵婶媪嫒嫔嫱嬷孙学孪宁宝实宠审宪宫宽宾寝对寻导寿将尔尘尧尴尸尽层屃屉届属屡屦屿岁岂岖岗岘岙岚岛岭岳岽岿峃峄峡峣峤峥峦崂崃崄崭嵘嵚嵛嵝嵴巅巩巯币帅师帏帐帘帜带帧帮帱帻帼幂幞干并广庄庆庐庑库应庙庞废庼廪开异弃张弥弪弯弹强归当录彟彦彻径徕御忆忏忧忾怀态怂怃怄怅怆怜总怼怿恋恳恶恸恹恺恻恼恽悦悫悬悭悯惊惧惨惩惫惬惭惮惯愍愠愤愦愿慑慭憷懑懒懔戆戋戏戗战戬户扎扑扦执扩扪扫扬扰抚抛抟抠抡抢护报担拟拢拣拥拦拧拨择挂挚挛挜挝挞挟挠挡挢挣挤挥挦捞损捡换捣据捻掳掴掷掸掺掼揸揽揿搀搁搂搅携摄摅摆摇摈摊撄撑撵撷撸撺擞攒敌敛数斋斓斗斩断无旧时旷旸昙昼昽显晋晒晓晔晕晖暂暧札术朴机杀杂权条来杨杩杰极构枞枢枣枥枧枨枪枫枭柜柠柽栀栅标栈栉栊栋栌栎栏树栖样栾桊桠桡桢档桤桥桦桧桨桩梦梼梾检棂椁椟椠椤椭楼榄榇榈榉槚槛槟槠横樯樱橥橱橹橼檐檩欢欤欧歼殁殇残殒殓殚殡殴毁毂毕毙毡毵氇气氢氩氲汇汉污汤汹沓沟没沣沤沥沦沧沨沩沪沵泞泪泶泷泸泺泻泼泽泾洁洒洼浃浅浆浇浈浉浊测浍济浏浐浑浒浓浔浕涂涌涛涝涞涟涠涡涢涣涤润涧涨涩淀渊渌渍渎渐渑渔渖渗温游湾湿溃溅溆溇滗滚滞滟滠满滢滤滥滦滨滩滪漤潆潇潋潍潜潴澜濑濒灏灭灯灵灾灿炀炉炖炜炝点炼炽烁烂烃烛烟烦烧烨烩烫烬热焕焖焘煅煳熘爱爷牍牦牵牺犊犟状犷犸犹狈狍狝狞独狭狮狯狰狱狲猃猎猕猡猪猫猬献獭玑玙玚玛玮环现玱玺珉珏珐珑珰珲琎琏琐琼瑶瑷璇璎瓒瓮瓯电画畅畲畴疖疗疟疠疡疬疮疯疱疴痈痉痒痖痨痪痫痴瘅瘆瘗瘘瘪瘫瘾瘿癞癣癫癯皑皱皲盏盐监盖盗盘眍眦眬着睁睐睑瞒瞩矫矶矾矿砀码砖砗砚砜砺砻砾础硁硅硕硖硗硙硚确硷碍碛碜碱碹磙礼祎祢祯祷祸禀禄禅离秃秆种积称秽秾稆税稣稳穑穷窃窍窑窜窝窥窦窭竖竞笃笋笔笕笺笼笾筑筚筛筜筝筹签简箓箦箧箨箩箪箫篑篓篮篱簖籁籴类籼粜粝粤粪粮糁糇紧絷纟纠纡红纣纤纥约级纨纩纪纫纬纭纮纯纰纱纲纳纴纵纶纷纸纹纺纻纼纽纾线绀绁绂练组绅细织终绉绊绋绌绍绎经绐绑绒结绔绕绖绗绘给绚绛络绝绞统绠绡绢绣绤绥绦继绨绩绪绫绬续绮绯绰绱绲绳维绵绶绷绸绹绺绻综绽绾绿缀缁缂缃缄缅缆缇缈缉缊缋缌缍缎缏缐缑缒缓缔缕编缗缘缙缚缛缜缝缞缟缠缡缢缣缤缥缦缧缨缩缪缫缬缭缮缯缰缱缲缳缴缵罂网罗罚罢罴羁羟羡翘翙翚耢耧耸耻聂聋职聍联聩聪肃肠肤肷肾肿胀胁胆胜胧胨胪胫胶脉脍脏脐脑脓脔脚脱脶脸腊腌腘腭腻腼腽腾膑臜舆舣舰舱舻艰艳艹艺节芈芗芜芦苁苇苈苋苌苍苎苏苘苹茎茏茑茔茕茧荆荐荙荚荛荜荞荟荠荡荣荤荥荦荧荨荩荪荫荬荭荮药莅莜莱莲莳莴莶获莸莹莺莼萚萝萤营萦萧萨葱蒇蒉蒋蒌蓝蓟蓠蓣蓥蓦蔷蔹蔺蔼蕲蕴薮藁藓虏虑虚虫虬虮虽虾虿蚀蚁蚂蚕蚝蚬蛊蛎蛏蛮蛰蛱蛲蛳蛴蜕蜗蜡蝇蝈蝉蝎蝼蝾螀螨蟏衅衔补衬衮袄袅袆袜袭袯装裆裈裢裣裤裥褛褴襁襕见观觃规觅视觇览觉觊觋觌觍觎觏觐觑觞触觯詟誉誊讠计订讣认讥讦讧讨让讪讫训议讯记讱讲讳讴讵讶讷许讹论讻讼讽设访诀证诂诃评诅识诇诈诉诊诋诌词诎诏诐译诒诓诔试诖诗诘诙诚诛诜话诞诟诠诡询诣诤该详诧诨诩诪诫诬语诮误诰诱诲诳说诵诶请诸诹诺读诼诽课诿谀谁谂调谄谅谆谇谈谊谋谌谍谎谏谐谑谒谓谔谕谖谗谘谙谚谛谜谝谞谟谠谡谢谣谤谥谦谧谨谩谪谫谬谭谮谯谰谱谲谳谴谵谶谷豮贝贞负贠贡财责贤败账货质贩贪贫贬购贮贯贰贱贲贳贴贵贶贷贸费贺贻贼贽贾贿赀赁赂赃资赅赆赇赈赉赊赋赌赍赎赏赐赑赒赓赔赕赖赗赘赙赚赛赜赝赞赟赠赡赢赣赪赵赶趋趱趸跃跄跖跞践跶跷跸跹跻踊踌踪踬踯蹑蹒蹰蹿躏躜躯车轧轨轩轪轫转轭轮软轰轱轲轳轴轵轶轷轸轹轺轻轼载轾轿辀辁辂较辄辅辆辇辈辉辊辋辌辍辎辏辐辑辒输辔辕辖辗辘辙辚辞辩辫边辽达迁过迈运还这进远违连迟迩迳迹适选逊递逦逻遗遥邓邝邬邮邹邺邻郁郄郏郐郑郓郦郧郸酝酦酱酽酾酿释里鉅鉴銮錾钆钇针钉钊钋钌钍钎钏钐钑钒钓钔钕钖钗钘钙钚钛钝钞钟钠钡钢钣钤钥钦钧钨钩钪钫钬钭钮钯钰钱钲钳钴钵钶钷钸钹钺钻钼钽钾钿铀铁铂铃铄铅铆铈铉铊铋铍铎铏铐铑铒铕铗铘铙铚铛铜铝铞铟铠铡铢铣铤铥铦铧铨铪铫铬铭铮铯铰铱铲铳铴铵银铷铸铹铺铻铼铽链铿销锁锂锃锄锅锆锇锈锉锊锋锌锍锎锏锐锑锒锓锔锕锖锗错锚锜锞锟锠锡锢锣锤锥锦锨锩锫锬锭键锯锰锱锲锳锴锵锶锷锸锹锺锻锼锽锾锿镀镁镂镃镆镇镈镉镊镌镍镎镏镐镑镒镕镖镗镙镚镛镜镝镞镟镠镡镢镣镤镥镦镧镨镩镪镫镬镭镮镯镰镱镲镳镴镶长门闩闪闫闬闭问闯闰闱闲闳间闵闶闷闸闹闺闻闼闽闾闿阀阁阂阃阄阅阆阇阈阉阊阋阌阍阎阏阐阑阒阓阔阕阖阗阘阙阚阛队阳阴阵阶际陆陇陈陉陕陧陨险随隐隶隽难雏雠雳雾霁霉霭靓静靥鞑鞒鞯鞴韦韧韨韩韪韫韬韵页顶顷顸项顺须顼顽顾顿颀颁颂颃预颅领颇颈颉颊颋颌颍颎颏颐频颒颓颔颕颖颗题颙颚颛颜额颞颟颠颡颢颣颤颥颦颧风飏飐飑飒飓飔飕飖飗飘飙飚飞飨餍饤饥饦饧饨饩饪饫饬饭饮饯饰饱饲饳饴饵饶饷饸饹饺饻饼饽饾饿馀馁馂馃馄馅馆馇馈馉馊馋馌馍馎馏馐馑馒馓馔馕马驭驮驯驰驱驲驳驴驵驶驷驸驹驺驻驼驽驾驿骀骁骂骃骄骅骆骇骈骉骊骋验骍骎骏骐骑骒骓骔骕骖骗骘骙骚骛骜骝骞骟骠骡骢骣骤骥骦骧髅髋髌鬓魇魉鱼鱽鱾鱿鲀鲁鲂鲄鲅鲆鲇鲈鲉鲊鲋鲌鲍鲎鲏鲐鲑鲒鲓鲔鲕鲖鲗鲘鲙鲚鲛鲜鲝鲞鲟鲠鲡鲢鲣鲤鲥鲦鲧鲨鲩鲪鲫鲬鲭鲮鲯鲰鲱鲲鲳鲴鲵鲶鲷鲸鲹鲺鲻鲼鲽鲾鲿鳀鳁鳂鳃鳄鳅鳆鳇鳈鳉鳊鳋鳌鳍鳎鳏鳐鳑鳒鳓鳔鳕鳖鳗鳘鳙鳛鳜鳝鳞鳟鳠鳡鳢鳣鸟鸠鸡鸢鸣鸤鸥鸦鸧鸨鸩鸪鸫鸬鸭鸮鸯鸰鸱鸲鸳鸴鸵鸶鸷鸸鸹鸺鸻鸼鸽鸾鸿鹀鹁鹂鹃鹄鹅鹆鹇鹈鹉鹊鹋鹌鹍鹎鹏鹐鹑鹒鹓鹔鹕鹖鹗鹘鹚鹛鹜鹝鹞鹟鹠鹡鹢鹣鹤鹥鹦鹧鹨鹩鹪鹫鹬鹭鹯鹰鹱鹲鹳鹴鹾麦麸黄黉黡黩黪黾鼋鼌鼍鼗鼹齄齐齑齿龀龁龂龃龄龅龆龇龈龉龊龋龌龙龚龛龟志制咨只里系范松没尝尝闹面准钟别闲乾尽脏拼冲里",
-    T: "萬與醜專業叢東絲丟兩嚴喪個丬豐臨爲麗舉麼義烏樂喬習鄉書買亂爭於虧雲亙亞產畝親褻嚲億僅從侖倉儀們價衆優夥會傴傘偉傳傷倀倫傖僞佇體餘傭僉俠侶僥偵側僑儈儕儂俁儔儼倆儷儉債傾傯僂僨償儻儐儲儺兒兌兗黨蘭關興茲養獸囅內岡冊寫軍農冢馮沖決況凍淨淒涼凌減湊凜幾鳳鳧憑凱擊凼鑿芻劃劉則剛創刪別剗剄劊劌剴劑剮劍剝劇勸辦務勱動勵勁勞勢勳勐勩勻匭匱區醫華協單賣盧滷臥衛卻巹廠廳歷厲壓厭厙廁廂厴廈廚廄廝縣參靉靆雙發變敘疊葉號嘆嘰籲後嚇呂嗎唚噸聽啓吳嘸囈嘔嚦唄員咼嗆嗚詠咔嚨嚀噝吒咴鹹哌響啞噠嘵嗶噦譁噲嚌噥喲嘜嗊嘮啢嗩唣喚唿嘖嗇囀齧囉嘽嘯噴嘍嚳囁呵噯噓嚶囑嚕噼囂嚯團園囪圍圇國圖圓聖壙場阪壞塊堅壇壢壩塢墳墜壟壠壚壘墾垧堊墊埡墶壋塏堖塒壎堝埝垵塹墮壪牆壯聲殼壺壼處備復夠頭誇夾奪奩奐奮獎奧妝婦媽嫵嫗嬀姍姜婁婭嬈嬌孌娛媧嫺嫿嬰嬋嬸媼嬡嬪嬙嬤孫學孿寧寶實寵審憲宮寬賓寢對尋導壽將爾塵堯尷屍盡層屓屜屆屬屢屨嶼歲豈嶇崗峴嶴嵐島嶺嶽崬巋嶨嶧峽嶢嶠崢巒嶗崍嶮嶄嶸嶔嵛嶁嵴巔鞏巰幣帥師幃帳簾幟帶幀幫幬幘幗冪襆幹並廣莊慶廬廡庫應廟龐廢廎廩開異棄張彌弳彎彈強歸當錄彠彥徹徑徠御憶懺憂愾懷態慫憮慪悵愴憐總懟懌戀懇惡慟懨愷惻惱惲悅愨懸慳憫驚懼慘懲憊愜慚憚慣愍慍憤憒願懾憖憷懣懶懍戇戔戲戧戰戩戶扎撲扦執擴捫掃揚擾撫拋摶摳掄搶護報擔擬攏揀擁攔擰撥擇掛摯攣掗撾撻挾撓擋撟掙擠揮撏撈損撿換搗據捻擄摑擲撣摻摜揸攬撳攙擱摟攪攜攝攄擺搖擯攤攖撐攆擷擼攛擻攢敵斂數齋斕鬥斬斷無舊時曠暘曇晝曨顯晉曬曉曄暈暉暫曖札術樸機殺雜權條來楊榪傑極構樅樞棗櫪梘棖槍楓梟櫃檸檉梔柵標棧櫛櫳棟櫨櫟欄樹棲樣欒桊椏橈楨檔榿橋樺檜槳樁夢檮棶檢櫺槨櫝槧欏橢樓欖櫬櫚櫸檟檻檳櫧橫檣櫻櫫櫥櫓櫞檐檁歡歟歐殲歿殤殘殞殮殫殯毆毀轂畢斃氈毿氌氣氫氬氳匯漢污湯洶沓溝沒灃漚瀝淪滄渢潙滬沵濘淚澩瀧瀘濼瀉潑澤涇潔灑窪浹淺漿澆湞溮濁測澮濟瀏滻渾滸濃潯濜塗涌濤澇淶漣潿渦溳渙滌潤澗漲澀澱淵淥漬瀆漸澠漁瀋滲溫遊灣溼潰濺漵漊潷滾滯灩灄滿瀅濾濫灤濱灘澦漤瀠瀟瀲濰潛瀦瀾瀨瀕灝滅燈靈災燦煬爐燉煒熗點煉熾爍爛烴燭煙煩燒燁燴燙燼熱煥燜燾煅煳熘愛爺牘犛牽犧犢犟狀獷獁猶狽狍獮獰獨狹獅獪猙獄猻獫獵獼玀豬貓蝟獻獺璣璵瑒瑪瑋環現瑲璽珉珏琺瓏璫琿璡璉瑣瓊瑤璦璇瓔瓚甕甌電畫暢畲疇癤療瘧癘瘍癧瘡瘋皰痾癰痙癢瘂癆瘓癇癡癉瘮瘞瘻癟癱癮癭癩癬癲癯皚皺皸盞鹽監蓋盜盤瞘眥矓着睜睞瞼瞞矚矯磯礬礦碭碼磚硨硯碸礪礱礫礎硜硅碩硤磽磑礄確礆礙磧磣鹼碹磙禮禕禰禎禱禍稟祿禪離禿稈種積稱穢穠穭稅穌穩穡窮竊竅窯竄窩窺竇窶豎競篤筍筆筧箋籠籩築篳篩簹箏籌籤簡籙簀篋籜籮簞簫簣簍籃籬籪籟糴類秈糶糲粵糞糧糝餱緊縶糹糾紆紅紂纖紇約級紈纊紀紉緯紜紘純紕紗綱納紝縱綸紛紙紋紡紵紖紐紓線紺紲紱練組紳細織終縐絆紼絀紹繹經紿綁絨結絝繞絰絎繪給絢絳絡絕絞統綆綃絹繡綌綏絛繼綈績緒綾緓續綺緋綽鞝緄繩維綿綬繃綢綯綹綣綜綻綰綠綴緇緙緗緘緬纜緹緲緝縕繢緦綞緞緶線緱縋緩締縷編緡緣縉縛縟縝縫縗縞纏縭縊縑繽縹縵縲纓縮繆繅纈繚繕繒繮繾繰繯繳纘罌網羅罰罷羆羈羥羨翹翽翬耮耬聳恥聶聾職聹聯聵聰肅腸膚肷腎腫脹脅膽勝朧腖臚脛膠脈膾髒臍腦膿臠腳脫腡臉臘醃膕齶膩靦膃騰臏臢輿艤艦艙艫艱豔艹藝節羋薌蕪蘆蓯葦藶莧萇蒼苧蘇檾蘋莖蘢蔦塋煢繭荊薦薘莢蕘蓽蕎薈薺蕩榮葷滎犖熒蕁藎蓀蔭蕒葒葤藥蒞莜萊蓮蒔萵薟獲蕕瑩鶯蓴蘀蘿螢營縈蕭薩蔥蕆蕢蔣蔞藍薊蘺蕷鎣驀薔蘞藺藹蘄蘊藪藁蘚虜慮虛蟲虯蟣雖蝦蠆蝕蟻螞蠶蠔蜆蠱蠣蟶蠻蟄蛺蟯螄蠐蛻蝸蠟蠅蟈蟬蠍螻蠑螿蟎蠨釁銜補襯袞襖嫋褘襪襲襏裝襠褌褳襝褲襉褸襤襁襴見觀覎規覓視覘覽覺覬覡覿覥覦覯覲覷觴觸觶讋譽謄訁計訂訃認譏訐訌討讓訕訖訓議訊記訒講諱謳詎訝訥許訛論訩訟諷設訪訣證詁訶評詛識詗詐訴診詆謅詞詘詔詖譯詒誆誄試詿詩詰詼誠誅詵話誕詬詮詭詢詣諍該詳詫諢詡譸誡誣語誚誤誥誘誨誑說誦誒請諸諏諾讀諑誹課諉諛誰諗調諂諒諄誶談誼謀諶諜謊諫諧謔謁謂諤諭諼讒諮諳諺諦謎諞諝謨讜謖謝謠謗諡謙謐謹謾謫譾謬譚譖譙讕譜譎讞譴譫讖谷豶貝貞負貟貢財責賢敗賬貨質販貪貧貶購貯貫貳賤賁貰貼貴貺貸貿費賀貽賊贄賈賄貲賃賂贓資賅贐賕賑賚賒賦賭齎贖賞賜贔賙賡賠賧賴賵贅賻賺賽賾贗贊贇贈贍贏贛赬趙趕趨趲躉躍蹌跖躒踐躂蹺蹕躚躋踊躊蹤躓躑躡蹣躕躥躪躦軀車軋軌軒軑軔轉軛輪軟轟軲軻轤軸軹軼軤軫轢軺輕軾載輊轎輈輇輅較輒輔輛輦輩輝輥輞輬輟輜輳輻輯轀輸轡轅轄輾轆轍轔辭辯辮邊遼達遷過邁運還這進遠違連遲邇逕跡適選遜遞邐邏遺遙鄧鄺鄔郵鄒鄴鄰鬱郄郟鄶鄭鄆酈鄖鄲醞醱醬釅釃釀釋裏鉅鑑鑾鏨釓釔針釘釗釙釕釷釺釧釤鈒釩釣鍆釹鍚釵鈃鈣鈈鈦鈍鈔鍾鈉鋇鋼鈑鈐鑰欽鈞鎢鉤鈧鈁鈥鈄鈕鈀鈺錢鉦鉗鈷鉢鈳鉕鈽鈸鉞鑽鉬鉭鉀鈿鈾鐵鉑鈴鑠鉛鉚鈰鉉鉈鉍鈹鐸鉶銬銠鉺銪鋏鋣鐃銍鐺銅鋁銱銦鎧鍘銖銑鋌銩銛鏵銓鉿銚鉻銘錚銫鉸銥鏟銃鐋銨銀銣鑄鐒鋪鋙錸鋱鏈鏗銷鎖鋰鋥鋤鍋鋯鋨鏽銼鋝鋒鋅鋶鐦鐗銳銻鋃鋟鋦錒錆鍺錯錨錡錁錕錩錫錮鑼錘錐錦杴錈錇錟錠鍵鋸錳錙鍥鍈鍇鏘鍶鍔鍤鍬鍾鍛鎪鍠鍰鎄鍍鎂鏤鎡鏌鎮鎛鎘鑷鐫鎳鎿鎦鎬鎊鎰鎔鏢鏜鏍鏰鏞鏡鏑鏃鏇鏐鐔钁鐐鏷鑥鐓鑭鐠鑹鏹鐙鑊鐳鐶鐲鐮鐿鑔鑣鑞鑲長門閂閃閆閈閉問闖閏闈閒閎間閔閌悶閘鬧閨聞闥閩閭闓閥閣閡閫鬮閱閬闍閾閹閶鬩閿閽閻閼闡闌闃闠闊闋闔闐闒闕闞闤隊陽陰陣階際陸隴陳陘陝隉隕險隨隱隸雋難雛讎靂霧霽黴靄靚靜靨韃鞽韉鞴韋韌韍韓韙韞韜韻頁頂頃頇項順須頊頑顧頓頎頒頌頏預顱領頗頸頡頰頲頜潁熲頦頤頻頮頹頷頴穎顆題顒顎顓顏額顳顢顛顙顥纇顫顬顰顴風颺颭颮颯颶颸颼颻飀飄飆飈飛饗饜飣飢飥餳飩餼飪飫飭飯飲餞飾飽飼飿飴餌饒餉餄餎餃餏餅餑餖餓餘餒餕餜餛餡館餷饋餶餿饞饁饃餺餾饈饉饅饊饌饢馬馭馱馴馳驅馹駁驢駔駛駟駙駒騶駐駝駑駕驛駘驍罵駰驕驊駱駭駢驫驪騁驗騂駸駿騏騎騍騅騌驌驂騙騭騤騷騖驁騮騫騸驃騾驄驏驟驥驦驤髏髖髕鬢魘魎魚魛魢魷魨魯魴魺鮁鮃鮎鱸鮋鮓鮒鮊鮑鱟鮍鮐鮭鮚鮳鮪鮞鮦鰂鮜鱠鱭鮫鮮鮺鯗鱘鯁鱺鰱鰹鯉鰣鰷鯀鯊鯇鮶鯽鯒鯖鯪鯕鯫鯡鯤鯧鯝鯢鮎鯛鯨鰺鯴鯔鱝鰈鰏鱨鯷鰮鰃鰓鱷鰍鰒鰉鰁鱂鯿鰠鰲鰭鰨鰥鰩鰟鰜鰳鰾鱈鱉鰻鰵鱅鰼鱖鱔鱗鱒鱯鱤鱧鱣鳥鳩雞鳶鳴鳲鷗鴉鶬鴇鴆鴣鶇鸕鴨鴞鴦鴒鴟鴝鴛鷽鴕鷥鷙鴯鴰鵂鴴鵃鴿鸞鴻鵐鵓鸝鵑鵠鵝鵒鷳鵜鵡鵲鶓鵪鵾鵯鵬鵮鶉鶊鵷鷫鶘鶡鶚鶻鶿鶥鶩鷊鷂鶲鶹鶺鷁鶼鶴鷖鸚鷓鷚鷯鷦鷲鷸鷺鸇鷹鸌鸏鸛鸘鹺麥麩黃黌黶黷黲黽黿鼂鼉鞀鼴齇齊齏齒齔齕齗齟齡齙齠齜齦齬齪齲齷龍龔龕龜志制諮只裏系範鬆沒嚐嚐鬧面準鍾別閒乾盡髒拼衝裡"
+    T: "萬與醜專業叢東絲丟兩嚴喪個丬豐臨爲麗舉麼義烏樂喬習鄉書買亂爭於虧雲亙亞產畝親褻嚲億僅從侖倉儀們價衆優夥會傴傘偉傳傷倀倫傖僞佇體餘傭僉俠侶僥偵側僑儈儕儂俁儔儼倆儷儉債傾傯僂僨償儻儐儲儺兒兌兗黨蘭關興茲養獸囅內岡冊寫軍農冢馮沖決況凍淨淒涼凌減湊凜幾鳳鳧憑凱擊凼鑿芻劃劉則剛創刪別剗剄劊劌剴劑剮劍剝劇勸辦務勱動勵勁勞勢勳勐勩勻匭匱區醫華協單賣盧滷臥衛卻巹廠廳歷厲壓厭厙廁廂厴廈廚廄廝縣參靉靆雙發變敘疊葉號嘆嘰籲後嚇呂嗎唚噸聽啓吳嘸囈嘔嚦唄員咼嗆嗚詠咔嚨嚀噝吒咴鹹哌響啞噠嘵嗶噦譁噲嚌噥喲嘜嗊嘮啢嗩唣喚唿嘖嗇囀齧囉嘽嘯噴嘍嚳囁呵噯噓嚶囑嚕噼囂嚯團園囪圍圇國圖圓聖壙場阪壞塊堅壇壢壩塢墳墜壟壠壚壘墾垧堊墊埡墶壋塏堖塒壎堝埝垵塹墮壪牆壯聲殼壺壼處備復夠頭誇夾奪奩奐奮獎奧妝婦媽嫵嫗嬀姍姜婁婭嬈嬌孌娛媧嫺嫿嬰嬋嬸媼嬡嬪嬙嬤孫學孿寧寶實寵審憲宮寬賓寢對尋導壽將爾塵堯尷屍盡層屓屜屆屬屢屨嶼歲豈嶇崗峴嶴嵐島嶺嶽崬巋嶨嶧峽嶢嶠崢巒嶗崍嶮嶄嶸嶔嵛嶁嵴巔鞏巰幣帥師幃帳簾幟帶幀幫幬幘幗冪襆幹並廣莊慶廬廡庫應廟龐廢廎廩開異棄張彌弳彎彈強歸當錄彠彥徹徑徠御憶懺憂愾懷態慫憮慪悵愴憐總懟懌戀懇惡慟懨愷惻惱惲悅愨懸慳憫驚懼慘懲憊愜慚憚慣愍慍憤憒願懾憖憷懣懶懍戇戔戲戧戰戩戶扎撲扦執擴捫掃揚擾撫拋摶摳掄搶護報擔擬攏揀擁攔擰撥擇掛摯攣掗撾撻挾撓擋撟掙擠揮撏撈損撿換搗據捻擄摑擲撣摻摜揸攬撳攙擱摟攪攜攝攄擺搖擯攤攖撐攆擷擼攛擻攢敵斂數齋斕鬥斬斷無舊時曠暘曇晝曨顯晉曬曉曄暈暉暫曖札術樸機殺雜權條來楊榪傑極構樅樞棗櫪梘棖槍楓梟櫃檸檉梔柵標棧櫛櫳棟櫨櫟欄樹棲樣欒桊椏橈楨檔榿橋樺檜槳樁夢檮棶檢櫺槨櫝槧欏橢樓欖櫬櫚櫸檟檻檳櫧橫檣櫻櫫櫥櫓櫞檐檁歡歟歐殲歿殤殘殞殮殫殯毆毀轂畢斃氈毿氌氣氫氬氳匯漢污湯洶沓溝沒灃漚瀝淪滄渢潙滬沵濘淚澩瀧瀘濼瀉潑澤涇潔灑窪浹淺漿澆湞溮濁測澮濟瀏滻渾滸濃潯濜塗涌濤澇淶漣潿渦溳渙滌潤澗漲澀澱淵淥漬瀆漸澠漁瀋滲溫遊灣溼潰濺漵漊潷滾滯灩灄滿瀅濾濫灤濱灘澦漤瀠瀟瀲濰潛瀦瀾瀨瀕灝滅燈靈災燦煬爐燉煒熗點煉熾爍爛烴燭煙煩燒燁燴燙燼熱煥燜燾煅煳熘愛爺牘犛牽犧犢犟狀獷獁猶狽狍獮獰獨狹獅獪猙獄猻獫獵獼玀豬貓蝟獻獺璣璵瑒瑪瑋環現瑲璽珉珏琺瓏璫琿璡璉瑣瓊瑤璦璇瓔瓚甕甌電畫暢畲疇癤療瘧癘瘍癧瘡瘋皰痾癰痙癢瘂癆瘓癇癡癉瘮瘞瘻癟癱癮癭癩癬癲癯皚皺皸盞鹽監蓋盜盤瞘眥矓着睜睞瞼瞞矚矯磯礬礦碭碼磚硨硯碸礪礱礫礎硜硅碩硤磽磑礄確礆礙磧磣鹼碹磙禮禕禰禎禱禍稟祿禪離禿稈種積稱穢穠穭稅穌穩穡窮竊竅窯竄窩窺竇窶豎競篤筍筆筧箋籠籩築篳篩簹箏籌籤簡籙簀篋籜籮簞簫簣簍籃籬籪籟糴類秈糶糲粵糞糧糝餱緊縶糹糾紆紅紂纖紇約級紈纊紀紉緯紜紘純紕紗綱納紝縱綸紛紙紋紡紵紖紐紓線紺紲紱練組紳細織終縐絆紼絀紹繹經紿綁絨結絝繞絰絎繪給絢絳絡絕絞統綆綃絹繡綌綏絛繼綈績緒綾緓續綺緋綽鞝緄繩維綿綬繃綢綯綹綣綜綻綰綠綴緇緙緗緘緬纜緹緲緝縕繢緦綞緞緶線緱縋緩締縷編緡緣縉縛縟縝縫縗縞纏縭縊縑繽縹縵縲纓縮繆繅纈繚繕繒繮繾繰繯繳纘罌網羅罰罷羆羈羥羨翹翽翬耮耬聳恥聶聾職聹聯聵聰肅腸膚肷腎腫脹脅膽勝朧腖臚脛膠脈膾髒臍腦膿臠腳脫腡臉臘醃膕齶膩靦膃騰臏臢輿艤艦艙艫艱豔艹藝節羋薌蕪蘆蓯葦藶莧萇蒼苧蘇檾蘋莖蘢蔦塋煢繭荊薦薘莢蕘蓽蕎薈薺蕩榮葷滎犖熒蕁藎蓀蔭蕒葒葤藥蒞莜萊蓮蒔萵薟獲蕕瑩鶯蓴蘀蘿螢營縈蕭薩蔥蕆蕢蔣蔞藍薊蘺蕷鎣驀薔蘞藺藹蘄蘊藪藁蘚虜慮虛蟲虯蟣雖蝦蠆蝕蟻螞蠶蠔蜆蠱蠣蟶蠻蟄蛺蟯螄蠐蛻蝸蠟蠅蟈蟬蠍螻蠑螿蟎蠨釁銜補襯袞襖嫋褘襪襲襏裝襠褌褳襝褲襉褸襤襁襴見觀覎規覓視覘覽覺覬覡覿覥覦覯覲覷觴觸觶讋譽謄訁計訂訃認譏訐訌討讓訕訖訓議訊記訒講諱謳詎訝訥許訛論訩訟諷設訪訣證詁訶評詛識詗詐訴診詆謅詞詘詔詖譯詒誆誄試詿詩詰詼誠誅詵話誕詬詮詭詢詣諍該詳詫諢詡譸誡誣語誚誤誥誘誨誑說誦誒請諸諏諾讀諑誹課諉諛誰諗調諂諒諄誶談誼謀諶諜謊諫諧謔謁謂諤諭諼讒諮諳諺諦謎諞諝謨讜謖謝謠謗諡謙謐謹謾謫譾謬譚譖譙讕譜譎讞譴譫讖谷豶貝貞負貟貢財責賢敗賬貨質販貪貧貶購貯貫貳賤賁貰貼貴貺貸貿費賀貽賊贄賈賄貲賃賂贓資賅贐賕賑賚賒賦賭齎贖賞賜贔賙賡賠賧賴賵贅賻賺賽賾贗贊贇贈贍贏贛赬趙趕趨趲躉躍蹌跖躒踐躂蹺蹕躚躋踊躊蹤躓躑躡蹣躕躥躪躦軀車軋軌軒軑軔轉軛輪軟轟軲軻轤軸軹軼軤軫轢軺輕軾載輊轎輈輇輅較輒輔輛輦輩輝輥輞輬輟輜輳輻輯轀輸轡轅轄輾轆轍轔辭辯辮邊遼達遷過邁運還這進遠違連遲邇逕跡適選遜遞邐邏遺遙鄧鄺鄔郵鄒鄴鄰鬱郄郟鄶鄭鄆酈鄖鄲醞醱醬釅釃釀釋裏鉅鑑鑾鏨釓釔針釘釗釙釕釷釺釧釤鈒釩釣鍆釹鍚釵鈃鈣鈈鈦鈍鈔鍾鈉鋇鋼鈑鈐鑰欽鈞鎢鉤鈧鈁鈥鈄鈕鈀鈺錢鉦鉗鈷鉢鈳鉕鈽鈸鉞鑽鉬鉭鉀鈿鈾鐵鉑鈴鑠鉛鉚鈰鉉鉈鉍鈹鐸鉶銬銠鉺銪鋏鋣鐃銍鐺銅鋁銱銦鎧鍘銖銑鋌銩銛鏵銓鉿銚鉻銘錚銫鉸銥鏟銃鐋銨銀銣鑄鐒鋪鋙錸鋱鏈鏗銷鎖鋰鋥鋤鍋鋯鋨鏽銼鋝鋒鋅鋶鐦鐗銳銻鋃鋟鋦錒錆鍺錯錨錡錁錕錩錫錮鑼錘錐錦杴錈錇錟錠鍵鋸錳錙鍥鍈鍇鏘鍶鍔鍤鍬鍾鍛鎪鍠鍰鎄鍍鎂鏤鎡鏌鎮鎛鎘鑷鐫鎳鎿鎦鎬鎊鎰鎔鏢鏜鏍鏰鏞鏡鏑鏃鏇鏐鐔钁鐐鏷鑥鐓鑭鐠鑹鏹鐙鑊鐳鐶鐲鐮鐿鑔鑣鑞鑲長門閂閃閆閈閉問闖閏闈閒閎間閔閌悶閘鬧閨聞闥閩閭闓閥閣閡閫鬮閱閬闍閾閹閶鬩閿閽閻閼闡闌闃闠闊闋闔闐闒闕闞闤隊陽陰陣階際陸隴陳陘陝隉隕險隨隱隸雋難雛讎靂霧霽黴靄靚靜靨韃鞽韉鞴韋韌韍韓韙韞韜韻頁頂頃頇項順須頊頑顧頓頎頒頌頏預顱領頗頸頡頰頲頜潁熲頦頤頻頮頹頷頴穎顆題顒顎顓顏額顳顢顛顙顥纇顫顬顰顴風颺颭颮颯颶颸颼颻飀飄飆飈飛饗饜飣飢飥餳飩餼飪飫飭飯飲餞飾飽飼飿飴餌饒餉餄餎餃餏餅餑餖餓餘餒餕餜餛餡館餷饋餶餿饞饁饃餺餾饈饉饅饊饌饢馬馭馱馴馳驅馹駁驢駔駛駟駙駒騶駐駝駑駕驛駘驍罵駰驕驊駱駭駢驫驪騁驗騂駸駿騏騎騍騅騌驌驂騙騭騤騷騖驁騮騫騸驃騾驄驏驟驥驦驤髏髖髕鬢魘魎魚魛魢魷魨魯魴魺鮁鮃鮎鱸鮋鮓鮒鮊鮑鱟鮍鮐鮭鮚鮳鮪鮞鮦鰂鮜鱠鱭鮫鮮鮺鯗鱘鯁鱺鰱鰹鯉鰣鰷鯀鯊鯇鮶鯽鯒鯖鯪鯕鯫鯡鯤鯧鯝鯢鮎鯛鯨鰺鯴鯔鱝鰈鰏鱨鯷鰮鰃鰓鱷鰍鰒鰉鰁鱂鯿鰠鰲鰭鰨鰥鰩鰟鰜鰳鰾鱈鱉鰻鰵鱅鰼鱖鱔鱗鱒鱯鱤鱧鱣鳥鳩雞鳶鳴鳲鷗鴉鶬鴇鴆鴣鶇鸕鴨鴞鴦鴒鴟鴝鴛鷽鴕鷥鷙鴯鴰鵂鴴鵃鴿鸞鴻鵐鵓鸝鵑鵠鵝鵒鷳鵜鵡鵲鶓鵪鵾鵯鵬鵮鶉鶊鵷鷫鶘鶡鶚鶻鶿鶥鶩鷊鷂鶲鶹鶺鷁鶼鶴鷖鸚鷓鷚鷯鷦鷲鷸鷺鸇鷹鸌鸏鸛鸘鹺麥麩黃黌黶黷黲黽黿鼂鼉鞀鼴齇齊齏齒齔齕齗齟齡齙齠齜齦齬齪齲齷龍龔龕龜志制諮只裏系範鬆沒嚐嚐鬧面準鍾別閒乾盡髒拼衝裡",
   };
   const S = chinese.S;
   const T = chinese.T;
@@ -3489,16 +3506,14 @@ async updateOnlineTotal(option) {
     for (i = 0; i < str.length; i++) {
       letter = str.charAt(i);
       const code = str.charCodeAt(i);
-      const isChinese = code > 13312 && code < 40899 || code > 63744 && code < 64106;
+      const isChinese = (code > 13312 && code < 40899) || (code > 63744 && code < 64106);
       if (!isChinese) {
         result += letter;
         continue;
       }
       index = src.indexOf(letter);
-      if (index !== -1)
-        result += des.charAt(index);
-      else
-        result += letter;
+      if (index !== -1) result += des.charAt(index);
+      else result += letter;
     }
     return result;
   };
@@ -3506,8 +3521,7 @@ async updateOnlineTotal(option) {
     s2t: (str, custom) => {
       if (custom) {
         for (let s = 0; s < custom.length; s++) {
-          if (str.includes(custom[s].src))
-            str = str.replaceAll(custom[s].src, custom[s].des);
+          if (str.includes(custom[s].src)) str = str.replaceAll(custom[s].src, custom[s].des);
         }
         return tranStr(str, true);
       } else {
@@ -3517,14 +3531,13 @@ async updateOnlineTotal(option) {
     t2s: (str, custom) => {
       if (custom) {
         for (let s = 0; s < custom.length; s++) {
-          if (str.includes(custom[s].src))
-            str = str.replaceAll(custom[s].src, custom[s].des);
+          if (str.includes(custom[s].src)) str = str.replaceAll(custom[s].src, custom[s].des);
         }
         return tranStr(str, false);
       } else {
         return tranStr(str, false);
       }
-    }
+    },
   };
   const TAG$3 = "[artplayer-plugin-bilibiliCCSubTitle]：";
   const SubTitleCustomStr = {
@@ -3537,32 +3550,32 @@ async updateOnlineTotal(option) {
       for (let index = 0; index < this.src.length; index++) {
         this._custom_str.push({
           src: this.src[index],
-          des: this.des[index]
+          des: this.des[index],
         });
       }
       for (let index = 0; index < this.more_src.length; index++) {
         this._custom_str.push({
           src: this.more_src[index],
-          des: this.more_des[index]
+          des: this.more_des[index],
         });
       }
     },
     getCustomStr() {
       return this._custom_str;
-    }
+    },
   };
   const SubTitleEvent = {
-reset() {
+    reset() {
       this.unbind();
     },
-bind() {
+    bind() {
       SubTitle.art.on("video:timeupdate", this.event, this);
     },
-unbind() {
+    unbind() {
       SubTitle.clearSubTitle();
       SubTitle.art.off("video:timeupdate", this.event);
     },
-event() {
+    event() {
       let currentTime = SubTitle.art.currentTime;
       let currentSubTitleData = SubTitleData.allSubTitleInfo[SubTitleData.currentSelectIndex]?.data;
       if (!currentSubTitleData) {
@@ -3597,50 +3610,48 @@ event() {
         $subtitleLine.innerHTML = findValue.content;
         SubTitle.$el.$subtitle.appendChild($subtitleLine);
       }
-    }
+    },
   };
   const SubTitleData = {
-allSubTitleInfo: [],
-currentSelectIndex: -1,
-reset() {
+    allSubTitleInfo: [],
+    currentSelectIndex: -1,
+    reset() {
       this.allSubTitleInfo = [];
       this.currentSelectIndex = -1;
-    }
+    },
   };
   const SubTitle = {
     art: null,
     $key: {
-      plugin_KEY: "plugin-bilibili-cc-subtitle"
+      plugin_KEY: "plugin-bilibili-cc-subtitle",
     },
     $el: {
-$subtitle: null
+      $subtitle: null,
     },
-async update(option) {
+    async update(option) {
       const that = this;
       const STORAGE_KEY = `artplayer-bili-cc-subtitle-${option.from}`;
       const SubTitleSettingLayer = {
         config: {
-          NAME: "setting-bilibili-cc-subtitle"
+          NAME: "setting-bilibili-cc-subtitle",
         },
-getDefaultSettingOption: () => {
+        getDefaultSettingOption: () => {
           return {
             name: SubTitleSettingLayer.config.NAME,
             width: 200,
             html: "字幕",
             tooltip: "",
-            icon: (
-`
+            icon: `
 					<svg xmlns="http://www.w3.org/2000/svg" height="22" width="22" viewBox="0 0 48 48">
 						<path d="M0 0h48v48H0z" fill="none"/>
 						<path fill="#ffffff" d="M40 8H8c-2.21 0-4 1.79-4 4v24c0 2.21 1.79 4 4 4h32c2.21 0 4-1.79 4-4V12c0-2.21-1.79-4-4-4zM8 24h8v4H8v-4zm20 12H8v-4h20v4zm12 0h-8v-4h8v4zm0-8H20v-4h20v4z"/>
 					</svg>
-					`
-            ),
+					`,
             selector: [],
-            onSelect: function(selector) {
+            onSelect: function (selector) {
               let itemInfo = selector;
               that.art.storage.set(STORAGE_KEY, {
-                lan: itemInfo.subTitle_lan
+                lan: itemInfo.subTitle_lan,
               });
               SubTitleEvent.unbind();
               SubTitleData.currentSelectIndex = itemInfo.subTitle_index;
@@ -3648,39 +3659,37 @@ getDefaultSettingOption: () => {
                 SubTitleEvent.bind();
               }
               return selector.html;
-            }
+            },
           };
         },
-getSettingOption: () => {
+        getSettingOption: () => {
           const settingOption = SubTitleSettingLayer.getDefaultSettingOption();
           const defaultSelector2 = SubTitleSettingLayer.getDefaultSettingSelector();
           settingOption.selector.push(defaultSelector2);
           settingOption.tooltip = defaultSelector2.html;
           return settingOption;
         },
-getDefaultSettingSelector: () => {
+        getDefaultSettingSelector: () => {
           return {
             default: true,
             html: "无",
             subTitle_lan: "",
             subTitle_index: 0,
-            subTitle_data: []
+            subTitle_data: [],
           };
         },
-addSetting(selectorList) {
+        addSetting(selectorList) {
           let settingOption = this.getSettingOption();
           if (selectorList && selectorList.length) {
             settingOption.selector.push(...selectorList);
             let firstSubTitle = settingOption.selector[0];
             let currentSelectSubTitle = {
               index: 0,
-              html: firstSubTitle.html
+              html: firstSubTitle.html,
             };
             const storageInfo = that.art.storage.get(STORAGE_KEY);
             if (storageInfo) {
-              const findInfoIndex = settingOption.selector.findIndex(
-                (item) => item.subTitle_lan === storageInfo.lan
-              );
+              const findInfoIndex = settingOption.selector.findIndex((item) => item.subTitle_lan === storageInfo.lan);
               if (findInfoIndex !== -1) {
                 const findInfo = settingOption.selector[findInfoIndex];
                 console.log(TAG$3 + "选择字幕：" + findInfo.html);
@@ -3703,9 +3712,9 @@ addSetting(selectorList) {
             that.art.setting.add(settingOption);
           }
         },
-isAddSetting() {
+        isAddSetting() {
           return that.art.setting.find(this.config.NAME) != null;
-        }
+        },
       };
       SubTitleData.reset();
       SubTitleEvent.reset();
@@ -3714,13 +3723,13 @@ isAddSetting() {
       SubTitleData.allSubTitleInfo.push({
         name: defaultSelector.html,
         lan: defaultSelector.subTitle_lan,
-        data: defaultSelector.subTitle_data
+        data: defaultSelector.subTitle_data,
       });
       SubTitleSettingLayer.addSetting();
       const settingSelectorList = [];
       this.$el.$subtitle = this.art.template.$subtitle;
       const searchParamsData = {
-        cid: option.cid
+        cid: option.cid,
       };
       if (option.ep_id) {
         Reflect.set(searchParamsData, "ep_id", option.ep_id);
@@ -3740,8 +3749,8 @@ isAddSetting() {
           responseType: "json",
           headers: {
             Host: "www.bilibili.com",
-            Referer: "https://www.bilibili.com"
-          }
+            Referer: "https://www.bilibili.com",
+          },
         }
       );
       if (!videoInfoResponse.status) {
@@ -3769,9 +3778,9 @@ isAddSetting() {
           responseType: "json",
           allowInterceptConfig: false,
           headers: {
-Referer: "https://www.bilibili.com",
-            "User-Agent": utils.getRandomPCUA()
-          }
+            Referer: "https://www.bilibili.com",
+            "User-Agent": utils.getRandomPCUA(),
+          },
         });
         if (subTitleInfoResponse.status) {
           console.log(TAG$3 + "成功获取字幕信息");
@@ -3781,14 +3790,14 @@ Referer: "https://www.bilibili.com",
           let data2 = {
             name: subTitleUrlInfo.lan_doc,
             lan: subTitleUrlInfo.lan,
-            data: subTitleInfo
+            data: subTitleInfo,
           };
           SubTitleData.allSubTitleInfo.push(data2);
           settingSelectorList.push({
             html: subTitleUrlInfo.lan_doc,
             subTitle_index: currentIndex,
             subTitle_lan: subTitleUrlInfo.lan,
-            subTitle_data: subTitleInfo
+            subTitle_data: subTitleInfo,
           });
         } else {
           console.error(TAG$3 + "请求字幕链接信息失败", subTitleInfoResponse);
@@ -3805,7 +3814,7 @@ Referer: "https://www.bilibili.com",
             const translateContent = Chinese.t2s(content, SubTitleCustomStr.getCustomStr());
             simpleChineseSubtitleData.push({
               content: translateContent,
-              ...otherData
+              ...otherData,
             });
           });
           let subTitleName = "简体（自动生成）";
@@ -3813,31 +3822,34 @@ Referer: "https://www.bilibili.com",
           SubTitleData.allSubTitleInfo.push({
             name: subTitleName,
             lan: "zh-CN-auto",
-            data: simpleChineseSubtitleData
+            data: simpleChineseSubtitleData,
           });
           settingSelectorList.push({
             html: subTitleName,
             subTitle_index: currentIndex,
             subTitle_lan: "zh-CN-auto",
-            subTitle_data: simpleChineseSubtitleData
+            subTitle_data: simpleChineseSubtitleData,
           });
         }
       }
       console.log(TAG$3 + "加载视频CC字幕信息", SubTitleData.allSubTitleInfo);
-      if (SubTitleData.allSubTitleInfo[SubTitleData.currentSelectIndex].data == null || SubTitleData.allSubTitleInfo[SubTitleData.currentSelectIndex].data.length == 0) ;
+      if (
+        SubTitleData.allSubTitleInfo[SubTitleData.currentSelectIndex].data == null ||
+        SubTitleData.allSubTitleInfo[SubTitleData.currentSelectIndex].data.length == 0
+      );
       else {
         SubTitleEvent.bind();
       }
       SubTitleSettingLayer.addSetting(settingSelectorList);
     },
-clearSubTitle() {
+    clearSubTitle() {
       if (this.$el.$subtitle) {
         this.$el.$subtitle.innerHTML = "";
       }
     },
-updateArtPlayer(art) {
+    updateArtPlayer(art) {
       this.art = art;
-    }
+    },
   };
   function artplayerPluginBilibiliCCSubTitle(option) {
     return (art) => {
@@ -3848,7 +3860,7 @@ updateArtPlayer(art) {
         name: SubTitle.$key.plugin_KEY,
         update(option2) {
           SubTitle.update(option2);
-        }
+        },
       };
     };
   }
@@ -3873,7 +3885,7 @@ updateArtPlayer(art) {
         html: item.title,
         default: item.isDefault,
         index: itemIndex,
-        callback: item.onSelect
+        callback: item.onSelect,
       };
     });
     return {
@@ -3882,7 +3894,7 @@ updateArtPlayer(art) {
       html: "选集",
       selector,
       tooltip,
-      onSelect: function(item) {
+      onSelect: function (item) {
         if (typeof item.callback === "function") {
           item.callback(item, item.index);
         }
@@ -3891,7 +3903,7 @@ updateArtPlayer(art) {
       mounted(panel, item) {
         panel.setAttribute("data-plugin", EpChoose.$key.SETTING_KEY);
       },
-playNext() {
+      playNext() {
         let findIndex = this.selector.findIndex((item) => item.default);
         if (findIndex !== -1 && findIndex + 1 < this.selector.length - 1) {
           findIndex += 1;
@@ -3899,16 +3911,16 @@ playNext() {
         } else {
           console.warn(TAG$2 + "当前播放列表已无下一集");
         }
-      }
+      },
     };
   };
   const EpChooseEvent = {
     $event: {
-"video:ended": () => {
+      "video:ended": () => {
         console.log(TAG$2 + "自动连播启用，播放下一集");
         let settingIns = EpChoose.$data.art.setting.find(EpChoose.$key.SETTING_KEY);
         settingIns.playNext();
-      }
+      },
     },
     bind(art) {
       Object.keys(this.$event).forEach((eventName) => {
@@ -3919,25 +3931,25 @@ playNext() {
       Object.keys(this.$event).forEach((eventName) => {
         art.off(eventName, this.$event[eventName]);
       });
-    }
+    },
   };
   const EpChoose = {
     $flag: {
-      isInitCSS: false
+      isInitCSS: false,
     },
     $key: {
       SETTING_KEY: "setting-ep-choose",
-      PLUGIN_KEY: "plugin-ep-choose"
+      PLUGIN_KEY: "plugin-ep-choose",
     },
     $data: {
-      art: null
+      art: null,
     },
-resetEnv() {
+    resetEnv() {
       Object.keys(this.$data).forEach((key) => {
         Reflect.set(this.$data, key, null);
       });
     },
-init(art, option) {
+    init(art, option) {
       this.resetEnv();
       this.$data.art = art;
       EpChooseEvent.unbind(art);
@@ -3947,7 +3959,7 @@ init(art, option) {
       if (!this.$flag.isInitCSS) {
         this.$flag.isInitCSS = true;
         addStyle(
-`
+          `
 			.art-setting-panel[data-plugin="${EpChoose.$key.SETTING_KEY}"] .art-setting-item .art-setting-item-left-text{
 				max-width: 210px;
 				overflow: hidden;
@@ -3959,7 +3971,7 @@ init(art, option) {
       }
       this.update(option);
     },
-update(option) {
+    update(option) {
       EpChooseEvent.unbind(this.$data.art);
       if (option.EP_LIST == null) {
         return;
@@ -3976,7 +3988,7 @@ update(option) {
       if (option.automaticBroadcast) {
         EpChooseEvent.bind(this.$data.art);
       }
-    }
+    },
   };
   const artplayerPluginEpChoose = (option) => {
     return (art) => {
@@ -3985,7 +3997,7 @@ update(option) {
         name: EpChoose.$key.PLUGIN_KEY,
         update(option2) {
           EpChoose.update(option2);
-        }
+        },
       };
     };
   };
@@ -4001,44 +4013,43 @@ update(option) {
     </svg>
         `,
     fullscreenWebOn: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88" width="28" height="28" preserveAspectRatio="xMidYMid meet"><defs><clipPath id="__lottie_element_172"><rect width="88" height="88" x="0" y="0"></rect></clipPath></defs><g clip-path="url(#__lottie_element_172)"><g transform="matrix(1,0,0,1,44,44)" opacity="1" style="display: block;"><g opacity="1" transform="matrix(1,0,0,1,0,0)"><path fill="rgb(255,255,255)" fill-opacity="1" d=" M-14,-20 C-14,-20 -26,-20 -26,-20 C-27.049999237060547,-20 -27.920000076293945,-19.18000030517578 -27.989999771118164,-18.149999618530273 C-27.989999771118164,-18.149999618530273 -28,-18 -28,-18 C-28,-18 -28,-6 -28,-6 C-28,-4.949999809265137 -27.18000030517578,-4.079999923706055 -26.149999618530273,-4.010000228881836 C-26.149999618530273,-4.010000228881836 -26,-4 -26,-4 C-26,-4 -22,-4 -22,-4 C-20.950000762939453,-4 -20.079999923706055,-4.820000171661377 -20.010000228881836,-5.849999904632568 C-20.010000228881836,-5.849999904632568 -20,-6 -20,-6 C-20,-6 -20,-12 -20,-12 C-20,-12 -14,-12 -14,-12 C-12.949999809265137,-12 -12.079999923706055,-12.819999694824219 -12.010000228881836,-13.850000381469727 C-12.010000228881836,-13.850000381469727 -12,-14 -12,-14 C-12,-14 -12,-18 -12,-18 C-12,-19.049999237060547 -12.819999694824219,-19.920000076293945 -13.850000381469727,-19.989999771118164 C-13.850000381469727,-19.989999771118164 -14,-20 -14,-20z M26,-20 C26,-20 14,-20 14,-20 C12.949999809265137,-20 12.079999923706055,-19.18000030517578 12.010000228881836,-18.149999618530273 C12.010000228881836,-18.149999618530273 12,-18 12,-18 C12,-18 12,-14 12,-14 C12,-12.949999809265137 12.819999694824219,-12.079999923706055 13.850000381469727,-12.010000228881836 C13.850000381469727,-12.010000228881836 14,-12 14,-12 C14,-12 20,-12 20,-12 C20,-12 20,-6 20,-6 C20,-4.949999809265137 20.81999969482422,-4.079999923706055 21.850000381469727,-4.010000228881836 C21.850000381469727,-4.010000228881836 22,-4 22,-4 C22,-4 26,-4 26,-4 C27.049999237060547,-4 27.920000076293945,-4.820000171661377 27.989999771118164,-5.849999904632568 C27.989999771118164,-5.849999904632568 28,-6 28,-6 C28,-6 28,-18 28,-18 C28,-19.049999237060547 27.18000030517578,-19.920000076293945 26.149999618530273,-19.989999771118164 C26.149999618530273,-19.989999771118164 26,-20 26,-20z M-22,4 C-22,4 -26,4 -26,4 C-27.049999237060547,4 -27.920000076293945,4.820000171661377 -27.989999771118164,5.849999904632568 C-27.989999771118164,5.849999904632568 -28,6 -28,6 C-28,6 -28,18 -28,18 C-28,19.049999237060547 -27.18000030517578,19.920000076293945 -26.149999618530273,19.989999771118164 C-26.149999618530273,19.989999771118164 -26,20 -26,20 C-26,20 -14,20 -14,20 C-12.949999809265137,20 -12.079999923706055,19.18000030517578 -12.010000228881836,18.149999618530273 C-12.010000228881836,18.149999618530273 -12,18 -12,18 C-12,18 -12,14 -12,14 C-12,12.949999809265137 -12.819999694824219,12.079999923706055 -13.850000381469727,12.010000228881836 C-13.850000381469727,12.010000228881836 -14,12 -14,12 C-14,12 -20,12 -20,12 C-20,12 -20,6 -20,6 C-20,4.949999809265137 -20.81999969482422,4.079999923706055 -21.850000381469727,4.010000228881836 C-21.850000381469727,4.010000228881836 -22,4 -22,4z M26,4 C26,4 22,4 22,4 C20.950000762939453,4 20.079999923706055,4.820000171661377 20.010000228881836,5.849999904632568 C20.010000228881836,5.849999904632568 20,6 20,6 C20,6 20,12 20,12 C20,12 14,12 14,12 C12.949999809265137,12 12.079999923706055,12.819999694824219 12.010000228881836,13.850000381469727 C12.010000228881836,13.850000381469727 12,14 12,14 C12,14 12,18 12,18 C12,19.049999237060547 12.819999694824219,19.920000076293945 13.850000381469727,19.989999771118164 C13.850000381469727,19.989999771118164 14,20 14,20 C14,20 26,20 26,20 C27.049999237060547,20 27.920000076293945,19.18000030517578 27.989999771118164,18.149999618530273 C27.989999771118164,18.149999618530273 28,18 28,18 C28,18 28,6 28,6 C28,4.949999809265137 27.18000030517578,4.079999923706055 26.149999618530273,4.010000228881836 C26.149999618530273,4.010000228881836 26,4 26,4z M28,-28 C32.41999816894531,-28 36,-24.420000076293945 36,-20 C36,-20 36,20 36,20 C36,24.420000076293945 32.41999816894531,28 28,28 C28,28 -28,28 -28,28 C-32.41999816894531,28 -36,24.420000076293945 -36,20 C-36,20 -36,-20 -36,-20 C-36,-24.420000076293945 -32.41999816894531,-28 -28,-28 C-28,-28 28,-28 28,-28z"></path></g></g></g></svg>`,
-    fullscreenWebOff: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88" width="28" height="28" preserveAspectRatio="xMidYMid meet"><defs><clipPath id="__lottie_element_177"><rect width="88" height="88" x="0" y="0"></rect></clipPath></defs><g clip-path="url(#__lottie_element_177)"><g transform="matrix(1,0,0,1,44,44)" opacity="1" style="display: block;"><g opacity="1" transform="matrix(1,0,0,1,0,0)"><path fill="rgb(255,255,255)" fill-opacity="1" d=" M-14,-20 C-14,-20 -18,-20 -18,-20 C-19.049999237060547,-20 -19.920000076293945,-19.18000030517578 -19.989999771118164,-18.149999618530273 C-19.989999771118164,-18.149999618530273 -20,-18 -20,-18 C-20,-18 -20,-12 -20,-12 C-20,-12 -26,-12 -26,-12 C-27.049999237060547,-12 -27.920000076293945,-11.180000305175781 -27.989999771118164,-10.149999618530273 C-27.989999771118164,-10.149999618530273 -28,-10 -28,-10 C-28,-10 -28,-6 -28,-6 C-28,-4.949999809265137 -27.18000030517578,-4.079999923706055 -26.149999618530273,-4.010000228881836 C-26.149999618530273,-4.010000228881836 -26,-4 -26,-4 C-26,-4 -14,-4 -14,-4 C-12.949999809265137,-4 -12.079999923706055,-4.820000171661377 -12.010000228881836,-5.849999904632568 C-12.010000228881836,-5.849999904632568 -12,-6 -12,-6 C-12,-6 -12,-18 -12,-18 C-12,-19.049999237060547 -12.819999694824219,-19.920000076293945 -13.850000381469727,-19.989999771118164 C-13.850000381469727,-19.989999771118164 -14,-20 -14,-20z M18,-20 C18,-20 14,-20 14,-20 C12.949999809265137,-20 12.079999923706055,-19.18000030517578 12.010000228881836,-18.149999618530273 C12.010000228881836,-18.149999618530273 12,-18 12,-18 C12,-18 12,-6 12,-6 C12,-4.949999809265137 12.819999694824219,-4.079999923706055 13.850000381469727,-4.010000228881836 C13.850000381469727,-4.010000228881836 14,-4 14,-4 C14,-4 26,-4 26,-4 C27.049999237060547,-4 27.920000076293945,-4.820000171661377 27.989999771118164,-5.849999904632568 C27.989999771118164,-5.849999904632568 28,-6 28,-6 C28,-6 28,-10 28,-10 C28,-11.050000190734863 27.18000030517578,-11.920000076293945 26.149999618530273,-11.989999771118164 C26.149999618530273,-11.989999771118164 26,-12 26,-12 C26,-12 20,-12 20,-12 C20,-12 20,-18 20,-18 C20,-19.049999237060547 19.18000030517578,-19.920000076293945 18.149999618530273,-19.989999771118164 C18.149999618530273,-19.989999771118164 18,-20 18,-20z M-14,4 C-14,4 -26,4 -26,4 C-27.049999237060547,4 -27.920000076293945,4.820000171661377 -27.989999771118164,5.849999904632568 C-27.989999771118164,5.849999904632568 -28,6 -28,6 C-28,6 -28,10 -28,10 C-28,11.050000190734863 -27.18000030517578,11.920000076293945 -26.149999618530273,11.989999771118164 C-26.149999618530273,11.989999771118164 -26,12 -26,12 C-26,12 -20,12 -20,12 C-20,12 -20,18 -20,18 C-20,19.049999237060547 -19.18000030517578,19.920000076293945 -18.149999618530273,19.989999771118164 C-18.149999618530273,19.989999771118164 -18,20 -18,20 C-18,20 -14,20 -14,20 C-12.949999809265137,20 -12.079999923706055,19.18000030517578 -12.010000228881836,18.149999618530273 C-12.010000228881836,18.149999618530273 -12,18 -12,18 C-12,18 -12,6 -12,6 C-12,4.949999809265137 -12.819999694824219,4.079999923706055 -13.850000381469727,4.010000228881836 C-13.850000381469727,4.010000228881836 -14,4 -14,4z M26,4 C26,4 14,4 14,4 C12.949999809265137,4 12.079999923706055,4.820000171661377 12.010000228881836,5.849999904632568 C12.010000228881836,5.849999904632568 12,6 12,6 C12,6 12,18 12,18 C12,19.049999237060547 12.819999694824219,19.920000076293945 13.850000381469727,19.989999771118164 C13.850000381469727,19.989999771118164 14,20 14,20 C14,20 18,20 18,20 C19.049999237060547,20 19.920000076293945,19.18000030517578 19.989999771118164,18.149999618530273 C19.989999771118164,18.149999618530273 20,18 20,18 C20,18 20,12 20,12 C20,12 26,12 26,12 C27.049999237060547,12 27.920000076293945,11.180000305175781 27.989999771118164,10.149999618530273 C27.989999771118164,10.149999618530273 28,10 28,10 C28,10 28,6 28,6 C28,4.949999809265137 27.18000030517578,4.079999923706055 26.149999618530273,4.010000228881836 C26.149999618530273,4.010000228881836 26,4 26,4z M28,-28 C32.41999816894531,-28 36,-24.420000076293945 36,-20 C36,-20 36,20 36,20 C36,24.420000076293945 32.41999816894531,28 28,28 C28,28 -28,28 -28,28 C-32.41999816894531,28 -36,24.420000076293945 -36,20 C-36,20 -36,-20 -36,-20 C-36,-24.420000076293945 -32.41999816894531,-28 -28,-28 C-28,-28 28,-28 28,-28z"></path></g></g></g></svg>`
+    fullscreenWebOff: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88" width="28" height="28" preserveAspectRatio="xMidYMid meet"><defs><clipPath id="__lottie_element_177"><rect width="88" height="88" x="0" y="0"></rect></clipPath></defs><g clip-path="url(#__lottie_element_177)"><g transform="matrix(1,0,0,1,44,44)" opacity="1" style="display: block;"><g opacity="1" transform="matrix(1,0,0,1,0,0)"><path fill="rgb(255,255,255)" fill-opacity="1" d=" M-14,-20 C-14,-20 -18,-20 -18,-20 C-19.049999237060547,-20 -19.920000076293945,-19.18000030517578 -19.989999771118164,-18.149999618530273 C-19.989999771118164,-18.149999618530273 -20,-18 -20,-18 C-20,-18 -20,-12 -20,-12 C-20,-12 -26,-12 -26,-12 C-27.049999237060547,-12 -27.920000076293945,-11.180000305175781 -27.989999771118164,-10.149999618530273 C-27.989999771118164,-10.149999618530273 -28,-10 -28,-10 C-28,-10 -28,-6 -28,-6 C-28,-4.949999809265137 -27.18000030517578,-4.079999923706055 -26.149999618530273,-4.010000228881836 C-26.149999618530273,-4.010000228881836 -26,-4 -26,-4 C-26,-4 -14,-4 -14,-4 C-12.949999809265137,-4 -12.079999923706055,-4.820000171661377 -12.010000228881836,-5.849999904632568 C-12.010000228881836,-5.849999904632568 -12,-6 -12,-6 C-12,-6 -12,-18 -12,-18 C-12,-19.049999237060547 -12.819999694824219,-19.920000076293945 -13.850000381469727,-19.989999771118164 C-13.850000381469727,-19.989999771118164 -14,-20 -14,-20z M18,-20 C18,-20 14,-20 14,-20 C12.949999809265137,-20 12.079999923706055,-19.18000030517578 12.010000228881836,-18.149999618530273 C12.010000228881836,-18.149999618530273 12,-18 12,-18 C12,-18 12,-6 12,-6 C12,-4.949999809265137 12.819999694824219,-4.079999923706055 13.850000381469727,-4.010000228881836 C13.850000381469727,-4.010000228881836 14,-4 14,-4 C14,-4 26,-4 26,-4 C27.049999237060547,-4 27.920000076293945,-4.820000171661377 27.989999771118164,-5.849999904632568 C27.989999771118164,-5.849999904632568 28,-6 28,-6 C28,-6 28,-10 28,-10 C28,-11.050000190734863 27.18000030517578,-11.920000076293945 26.149999618530273,-11.989999771118164 C26.149999618530273,-11.989999771118164 26,-12 26,-12 C26,-12 20,-12 20,-12 C20,-12 20,-18 20,-18 C20,-19.049999237060547 19.18000030517578,-19.920000076293945 18.149999618530273,-19.989999771118164 C18.149999618530273,-19.989999771118164 18,-20 18,-20z M-14,4 C-14,4 -26,4 -26,4 C-27.049999237060547,4 -27.920000076293945,4.820000171661377 -27.989999771118164,5.849999904632568 C-27.989999771118164,5.849999904632568 -28,6 -28,6 C-28,6 -28,10 -28,10 C-28,11.050000190734863 -27.18000030517578,11.920000076293945 -26.149999618530273,11.989999771118164 C-26.149999618530273,11.989999771118164 -26,12 -26,12 C-26,12 -20,12 -20,12 C-20,12 -20,18 -20,18 C-20,19.049999237060547 -19.18000030517578,19.920000076293945 -18.149999618530273,19.989999771118164 C-18.149999618530273,19.989999771118164 -18,20 -18,20 C-18,20 -14,20 -14,20 C-12.949999809265137,20 -12.079999923706055,19.18000030517578 -12.010000228881836,18.149999618530273 C-12.010000228881836,18.149999618530273 -12,18 -12,18 C-12,18 -12,6 -12,6 C-12,4.949999809265137 -12.819999694824219,4.079999923706055 -13.850000381469727,4.010000228881836 C-13.850000381469727,4.010000228881836 -14,4 -14,4z M26,4 C26,4 14,4 14,4 C12.949999809265137,4 12.079999923706055,4.820000171661377 12.010000228881836,5.849999904632568 C12.010000228881836,5.849999904632568 12,6 12,6 C12,6 12,18 12,18 C12,19.049999237060547 12.819999694824219,19.920000076293945 13.850000381469727,19.989999771118164 C13.850000381469727,19.989999771118164 14,20 14,20 C14,20 18,20 18,20 C19.049999237060547,20 19.920000076293945,19.18000030517578 19.989999771118164,18.149999618530273 C19.989999771118164,18.149999618530273 20,18 20,18 C20,18 20,12 20,12 C20,12 26,12 26,12 C27.049999237060547,12 27.920000076293945,11.180000305175781 27.989999771118164,10.149999618530273 C27.989999771118164,10.149999618530273 28,10 28,10 C28,10 28,6 28,6 C28,4.949999809265137 27.18000030517578,4.079999923706055 26.149999618530273,4.010000228881836 C26.149999618530273,4.010000228881836 26,4 26,4z M28,-28 C32.41999816894531,-28 36,-24.420000076293945 36,-20 C36,-20 36,20 36,20 C36,24.420000076293945 32.41999816894531,28 28,28 C28,28 -28,28 -28,28 C-32.41999816894531,28 -36,24.420000076293945 -36,20 C-36,20 -36,-20 -36,-20 C-36,-24.420000076293945 -32.41999816894531,-28 -28,-28 C-28,-28 28,-28 28,-28z"></path></g></g></g></svg>`,
   };
   const ArtPlayerCommonOption = () => {
     return {
-container: "",
-url: "",
+      container: "",
+      url: "",
 
-
-volume: 1,
-isLive: false,
-muted: false,
-autoplay: false,
-pip: false,
-autoMini: false,
-screenshot: false,
-setting: true,
-loop: false,
-flip: true,
-playbackRate: true,
-autoSize: false,
-aspectRatio: false,
-fullscreen: true,
-fullscreenWeb: true,
-subtitleOffset: true,
-miniProgressBar: true,
-mutex: false,
-backdrop: true,
-playsInline: false,
-autoPlayback: true,
-airplay: true,
-lock: true,
-fastForward: true,
-theme: BilibiliData.theme,
-lang: navigator.language.toLowerCase(),
-moreVideoAttr: {
-        crossOrigin: "anonymous"
+      volume: 1,
+      isLive: false,
+      muted: false,
+      autoplay: false,
+      pip: false,
+      autoMini: false,
+      screenshot: false,
+      setting: true,
+      loop: false,
+      flip: true,
+      playbackRate: true,
+      autoSize: false,
+      aspectRatio: false,
+      fullscreen: true,
+      fullscreenWeb: true,
+      subtitleOffset: true,
+      miniProgressBar: true,
+      mutex: false,
+      backdrop: true,
+      playsInline: false,
+      autoPlayback: true,
+      airplay: true,
+      lock: true,
+      fastForward: true,
+      theme: BilibiliData.theme,
+      lang: navigator.language.toLowerCase(),
+      moreVideoAttr: {
+        crossOrigin: "anonymous",
       },
-icons: ArtPlayerBiliBiliIcon
+      icons: ArtPlayerBiliBiliIcon,
     };
   };
   const TAG$1 = "[artplayer-plugin-quality]：";
@@ -4046,20 +4057,20 @@ icons: ArtPlayerBiliBiliIcon
   const VideoCodingCodeMap = {
     AVC: 7,
     HEVC: 12,
-    AV1: 13
+    AV1: 13,
   };
   class VideoEncoding {
     art;
     from;
     $key = {
-      SETTING_KEY: "video-playback-codeid"
+      SETTING_KEY: "video-playback-codeid",
     };
     constructor(art, from) {
       this.art = art;
       this.from = from;
       this.updateSetting();
     }
-updateSetting(codeIdConfig) {
+    updateSetting(codeIdConfig) {
       let setting = this.getSetting();
       if (Array.isArray(codeIdConfig?.acceptCodeIdList)) {
         for (let index = 0; index < setting.selector.length; index++) {
@@ -4095,25 +4106,25 @@ updateSetting(codeIdConfig) {
         this.art.setting.add(setting);
       }
     }
-getSetting() {
+    getSetting() {
       const that = this;
       let userChooseVideoCodingCode = this.getUserChooseVideoCodingCode();
       let selectorList = [
         {
           html: "AV1",
-          value: VideoCodingCodeMap["AV1"]
+          value: VideoCodingCodeMap["AV1"],
         },
         {
           html: "HEVC",
-          value: VideoCodingCodeMap["HEVC"]
+          value: VideoCodingCodeMap["HEVC"],
         },
         {
           html: "AVC",
-          value: VideoCodingCodeMap["AVC"]
-        }
-      ].map(
-        (it) => Object.assign(it, {
-          default: it.value === userChooseVideoCodingCode
+          value: VideoCodingCodeMap["AVC"],
+        },
+      ].map((it) =>
+        Object.assign(it, {
+          default: it.value === userChooseVideoCodingCode,
         })
       );
       let findValue = selectorList.find((it) => it.default);
@@ -4131,23 +4142,22 @@ getSetting() {
         tooltip: tooltip.html,
         icon: `<svg t="1727413004405" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3183" width="24" height="24"><path d="M170.666667 256h682.666666c23.466667 0 42.666667 19.2 42.666667 42.666667v170.666666h85.333333V256c0-46.933333-38.4-85.333333-85.333333-85.333333H128c-46.933333 0-85.333333 38.4-85.333333 85.333333v512c0 46.933333 38.4 85.333333 85.333333 85.333333h384v-85.333333H170.666667c-23.466667 0-42.666667-19.2-42.666667-42.666667V298.666667c0-23.466667 19.2-42.666667 42.666667-42.666667z" p-id="3184"></path><path d="M640 512L384 341.333333v341.333334zM968.96 786.346667c1.28-12.373333 1.706667-24.746667 0.426667-36.693334l45.653333-36.266666c4.266667-3.413333 5.12-8.96 2.56-13.653334l-43.946667-76.373333c-2.56-4.693333-8.106667-6.4-13.226666-4.693333l-54.613334 21.333333a146.773333 146.773333 0 0 0-32-17.92l-8.533333-58.026667a10.624 10.624 0 0 0-10.666667-9.386666h-88.32c-5.12 0-9.813333 3.84-10.666666 8.96l-8.533334 58.026666c-11.093333 4.693333-21.76 11.093333-31.573333 17.92l-54.613333-21.333333c-5.12-2.133333-10.666667 0-13.226667 4.693333l-43.946667 76.373334c-2.56 4.693333-1.706667 10.24 2.56 13.653333l45.653334 36.693333c-1.28 12.373333-1.706667 24.746667-0.426667 36.693334l-45.653333 36.266666c-4.266667 3.413333-5.12 8.96-2.56 13.653334l43.946666 76.373333c2.56 4.693333 8.106667 6.4 13.226667 4.693333l54.186667-21.333333c9.813333 7.253333 20.48 13.226667 32 17.92l8.533333 58.026667c0.853333 5.12 5.12 8.96 10.666667 8.96h88.32c5.12 0 9.813333-3.84 10.666666-8.96l8.533334-58.026667c11.093333-4.693333 21.76-11.093333 31.573333-17.92l54.613333 21.333333c5.12 2.133333 10.666667 0 13.226667-4.693333l43.946667-76.373333c2.56-4.693333 1.706667-10.24-2.56-13.653334l-45.226667-36.266666zM810.666667 832c-35.413333 0-64-28.586667-64-64s28.586667-64 64-64 64 28.586667 64 64-28.586667 64-64 64z" p-id="3185"></path></svg>`,
         selector: selectorList,
-        onSelect: function(item) {
+        onSelect: function (item) {
           let videoCodingCode = item.value;
           that.setCurrentVideoCodingCode(videoCodingCode);
           that.onSettingSelect(videoCodingCode);
           return item.html;
-        }
+        },
       };
     }
-onSettingSelect(selectValue) {
-    }
+    onSettingSelect(selectValue) {}
     get storageVideoCodingKey() {
       return `bili-${this.from}-artplayer-videoCodingCode`;
     }
-setCurrentVideoCodingCode(videoCodingCode) {
+    setCurrentVideoCodingCode(videoCodingCode) {
       this.art.storage.set(this.storageVideoCodingKey, videoCodingCode);
     }
-getUserChooseVideoCodingCode() {
+    getUserChooseVideoCodingCode() {
       let codingCode = this.art.storage.get(this.storageVideoCodingKey) || VideoCodingCodeMap.AV1;
       if (!Object.values(VideoCodingCodeMap).includes(codingCode)) {
         console.error(
@@ -4160,24 +4170,24 @@ getUserChooseVideoCodingCode() {
   }
   class VideoQuality extends VideoEncoding {
     $data = {
-qualityOption: null,
-qualityOptionList: [],
-qualityCodeIdList: [],
-currentQualityCodecId: VideoCodingCodeMap["AV1"],
-currentSelectQualityInfo: null,
-currentQualityOption: null
+      qualityOption: null,
+      qualityOptionList: [],
+      qualityCodeIdList: [],
+      currentQualityCodecId: VideoCodingCodeMap["AV1"],
+      currentSelectQualityInfo: null,
+      currentQualityOption: null,
     };
     constructor(art, from) {
       super(art, from);
     }
-setCurrentQualityOption(qualityOption = null) {
+    setCurrentQualityOption(qualityOption = null) {
       this.$data.currentQualityOption = null;
       this.$data.currentQualityOption = qualityOption;
     }
-getStorageKey(from) {
+    getStorageKey(from) {
       return `artplayer-quality-${from}`;
     }
-update(option) {
+    update(option) {
       this.$data.qualityOption = null;
       this.$data.qualityOption = option;
       this.$data.qualityOptionList = [];
@@ -4190,14 +4200,14 @@ update(option) {
         this.addControls();
         super.updateSetting({
           acceptCodeIdList: this.$data.qualityCodeIdList,
-          defaultCodeId: this.$data.currentQualityCodecId
+          defaultCodeId: this.$data.currentQualityCodecId,
         });
         this.art.url = currentSelectQualityInfo.url;
       } else {
         this.removeControls();
       }
     }
-getControlsOption() {
+    getControlsOption() {
       const that = this;
       let selectorList = this.$data.qualityOptionList.map((itemInfo, index) => {
         return {
@@ -4209,7 +4219,7 @@ getControlsOption() {
           mimeType: itemInfo.mimeType,
           codecid: itemInfo.codecid,
           codecs: itemInfo.codecs,
-          bandwidth: itemInfo.bandwidth
+          bandwidth: itemInfo.bandwidth,
         };
       });
       const controlsOption = {
@@ -4218,12 +4228,12 @@ getControlsOption() {
         position: "right",
         html: this.$data.currentSelectQualityInfo.html,
         selector: selectorList,
-        onSelect: function(selector) {
+        onSelect: function (selector) {
           let itemInfo = selector;
           console.log(TAG$1 + "切换画质", itemInfo);
           that.art.switchQuality(itemInfo.url);
           that.art.storage.set(that.getStorageKey(that.$data.qualityOption.from), {
-            quality: itemInfo.quality
+            quality: itemInfo.quality,
           });
           that.setCurrentQualityOption({
             html: itemInfo.html,
@@ -4233,14 +4243,14 @@ getControlsOption() {
             mimeType: itemInfo.mimeType,
             codecid: itemInfo.codecid,
             codecs: itemInfo.codecs,
-            bandwidth: itemInfo.bandwidth
+            bandwidth: itemInfo.bandwidth,
           });
           return selector.html;
-        }
+        },
       };
       return controlsOption;
     }
-addControls() {
+    addControls() {
       if (this.isAddControls()) {
         this.updateQualityControls();
       } else {
@@ -4248,9 +4258,11 @@ addControls() {
         this.art.controls.add(controlOption);
       }
     }
-getQualityInfo() {
+    getQualityInfo() {
       let userChooseVideoCodingCode = this.getUserChooseVideoCodingCode();
-      let qualityList = this.$data.qualityOption.qualityList.filter((item) => item.codecid === userChooseVideoCodingCode);
+      let qualityList = this.$data.qualityOption.qualityList.filter(
+        (item) => item.codecid === userChooseVideoCodingCode
+      );
       qualityList.sort((leftItem, rightItem) => {
         return rightItem.quality - leftItem.quality;
       });
@@ -4275,7 +4287,7 @@ getQualityInfo() {
       let currentSelectQualityInfo = {
         index: 0,
         html: firstQualityInfo?.html,
-url: firstQualityInfo?.url
+        url: firstQualityInfo?.url,
       };
       this.setCurrentQualityOption(qualityList[0]);
       if (storageQualityInfo) {
@@ -4294,17 +4306,17 @@ url: firstQualityInfo?.url
       this.$data.currentSelectQualityInfo = currentSelectQualityInfo;
       return currentSelectQualityInfo;
     }
-updateQualityControls() {
+    updateQualityControls() {
       let controlOption = this.getControlsOption();
       console.log(TAG$1 + "更新画质切换面板信息", this.$data.qualityOptionList, this.$data.currentQualityOption);
       this.art.controls.update(controlOption);
     }
-removeControls() {
+    removeControls() {
       if (this.isAddControls()) {
         this.art.controls.remove(ArtPlayer_PLUGIN_QUALITY_KEY);
       }
     }
-isAddControls() {
+    isAddControls() {
       return Reflect.has(this.art.controls, ArtPlayer_PLUGIN_QUALITY_KEY);
     }
     onSettingSelect(selectValue) {
@@ -4312,7 +4324,7 @@ isAddControls() {
       this.updateQualityControls();
       this.updateSetting({
         acceptCodeIdList: this.$data.qualityCodeIdList,
-        defaultCodeId: this.$data.currentQualityCodecId
+        defaultCodeId: this.$data.currentQualityCodecId,
       });
       if (this.$data.currentSelectQualityInfo) {
         this.art.url = this.$data.currentSelectQualityInfo.url;
@@ -4330,34 +4342,34 @@ isAddControls() {
         },
         getCurrentQualityOption() {
           return videoQuality.$data.currentQualityOption;
-        }
+        },
       };
     };
   };
   const Toast = {
     $data: {
-      art: null
+      art: null,
     },
     $key: {
-      plugin_KEY: "artplayer-plugin-toast"
+      plugin_KEY: "artplayer-plugin-toast",
     },
     $flag: {
-      isInitCSS: false
+      isInitCSS: false,
     },
     $config: {
-originToast: "art-layer-auto-playback",
-hideClassName: "art-toast-hide-opacity",
-prefix: "mplayer-toast-gm"
+      originToast: "art-layer-auto-playback",
+      hideClassName: "art-toast-hide-opacity",
+      prefix: "mplayer-toast-gm",
     },
     $el: {
       get $originPlayer() {
         return document.querySelector(".art-video-player .art-layers");
-      }
+      },
     },
-toast(config) {
+    toast(config) {
       if (typeof config === "string") {
         config = {
-          text: config
+          text: config,
         };
       }
       this.initCSS();
@@ -4367,17 +4379,15 @@ toast(config) {
       }
       this.mutationMPlayerOriginToast($parent);
       let $toast = domUtils.createElement("div", {
-        "data-from": "gm"
+        "data-from": "gm",
       });
       domUtils.addClass($toast, this.$config.prefix);
       if (config.showCloseBtn) {
         let $closeBtn = domUtils.createElement("div", {
           className: this.$config.prefix + "-close",
-          innerHTML: (
-`
+          innerHTML: `
                     <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="22" height="22"><path d="m571.733 512 268.8-268.8c17.067-17.067 17.067-42.667 0-59.733-17.066-17.067-42.666-17.067-59.733 0L512 452.267l-268.8-268.8c-17.067-17.067-42.667-17.067-59.733 0-17.067 17.066-17.067 42.666 0 59.733l268.8 268.8-268.8 268.8c-17.067 17.067-17.067 42.667 0 59.733 8.533 8.534 19.2 12.8 29.866 12.8s21.334-4.266 29.867-12.8l268.8-268.8 268.8 268.8c8.533 8.534 19.2 12.8 29.867 12.8s21.333-4.266 29.866-12.8c17.067-17.066 17.067-42.666 0-59.733L571.733 512z"></path></svg>
-                `
-          )
+                `,
         });
         $toast.appendChild($closeBtn);
         domUtils.on(
@@ -4388,26 +4398,26 @@ toast(config) {
             this.closeToast($toast);
           },
           {
-            capture: true
+            capture: true,
           }
         );
       }
       let $text = domUtils.createElement("span", {
         className: this.$config.prefix + "-text",
-        innerText: config.text
+        innerText: config.text,
       });
       $toast.appendChild($text);
       if (typeof config.timeText === "string" && config.timeText.trim() != "") {
         let $time = domUtils.createElement("span", {
           className: this.$config.prefix + "-time",
-          innerText: config.timeText
+          innerText: config.timeText,
         });
         $toast.appendChild($time);
       }
       if (typeof config.jumpText === "string" && config.jumpText.trim() != "") {
         let $jump = domUtils.createElement("span", {
           className: this.$config.prefix + "-jump",
-          innerText: config.jumpText
+          innerText: config.jumpText,
         });
         $toast.appendChild($jump);
         domUtils.on(
@@ -4420,7 +4430,7 @@ toast(config) {
             }
           },
           {
-            capture: true
+            capture: true,
           }
         );
       }
@@ -4436,16 +4446,16 @@ toast(config) {
         close: () => {
           clearTimeout(timeoutId);
           this.closeToast($toast);
-        }
+        },
       };
     },
-initCSS() {
+    initCSS() {
       if (this.$flag.isInitCSS) {
         return;
       }
       this.$flag.isInitCSS = true;
       addStyle(
-`
+        `
 		.${this.$config.prefix}.mplayer-show {
 			opacity: 1;
 			visibility: visible;
@@ -4501,7 +4511,7 @@ initCSS() {
 		`
       );
       addStyle(
-`
+        `
         .${this.$config.hideClassName}{
             opacity: 0;
             visibility: hidden;
@@ -4509,7 +4519,7 @@ initCSS() {
         `
       );
     },
-mutationMPlayerOriginToast($parent) {
+    mutationMPlayerOriginToast($parent) {
       let $mplayer = this.$el.$originPlayer;
       if (!$mplayer) {
         return;
@@ -4522,15 +4532,15 @@ mutationMPlayerOriginToast($parent) {
       utils.mutationObserver($mplayer, {
         config: {
           subtree: true,
-          childList: true
+          childList: true,
         },
         immediate: true,
         callback: () => {
           this.updatePageToastBottom();
-        }
+        },
       });
     },
-updatePageToastBottom() {
+    updatePageToastBottom() {
       let pageToastList = Array.from(document.querySelectorAll(`.${this.$config.prefix}`)).concat(
         Array.from(document.querySelectorAll(".".concat(this.$config.originToast)))
       );
@@ -4542,19 +4552,19 @@ updatePageToastBottom() {
         });
       }
     },
-closeToast($ele) {
+    closeToast($ele) {
       $ele.classList.add(this.$config.hideClassName);
     },
-getTransitionendEventNameList() {
+    getTransitionendEventNameList() {
       return ["webkitTransitionEnd", "mozTransitionEnd", "MSTransitionEnd", "otransitionend", "transitionend"];
     },
-setTransitionendEvent($toast, config) {
+    setTransitionendEvent($toast, config) {
       let that = this;
       let animationEndNameList = this.getTransitionendEventNameList();
       domUtils.on(
         $toast,
         animationEndNameList,
-        function(event) {
+        function (event) {
           let dataTransition = $toast.getAttribute("data-transition");
           if ($toast.classList.contains(that.$config.hideClassName)) {
             if (typeof config === "object" && typeof config?.closeCallback === "function") {
@@ -4569,10 +4579,10 @@ setTransitionendEvent($toast, config) {
           }
         },
         {
-          capture: true
+          capture: true,
         }
       );
-    }
+    },
   };
   const artplayerPluginToast = (option) => {
     return (art) => {
@@ -4581,7 +4591,7 @@ setTransitionendEvent($toast, config) {
         name: Toast.$key.plugin_KEY,
         toast(...args) {
           return Toast.toast(...args);
-        }
+        },
       };
     };
   };
@@ -4591,25 +4601,24 @@ setTransitionendEvent($toast, config) {
     option;
     $key = {
       plugin_KEY: "artplayer-plugin-videoStatistics",
-      setting_name: "video-statistics"
+      setting_name: "video-statistics",
     };
     $data = {
-      intervalId: void 0
+      intervalId: void 0,
     };
     constructor(art, option) {
       this.art = art;
       this.option = option;
       this.addSetting();
     }
-addSetting() {
+    addSetting() {
       this.art.setting.add({
         name: this.$key.setting_name,
         icon: "",
         html: "视频统计信息",
         mounted: ($setting) => {
           let $leftIcon = $setting.querySelector(".art-setting-item-left-icon");
-          $leftIcon.innerHTML =
-`
+          $leftIcon.innerHTML = `
                 <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="24" height="24">
                     <path d="M512.50142 958.397886c-119.320573 0-231.499491-46.465265-315.871087-130.837884C112.258737 743.188406 65.792449 631.010511 65.792449 511.688915c0-119.319549 46.466288-231.499491 130.837884-315.871087C281.002952 111.445208 393.180847 64.979944 512.50142 64.979944s231.499491 46.465265 315.871087 130.837884c84.372619 84.372619 130.837884 196.551538 130.837884 315.871087 0 119.321596-46.465265 231.499491-130.837884 315.871087C744.000911 911.932622 631.821993 958.397886 512.50142 958.397886zM512.50142 105.962334c-223.718271 0-405.726581 182.00831-405.726581 405.726581s182.00831 405.726581 405.726581 405.726581c223.718271 0 405.727605-182.00831 405.727605-405.726581S736.220714 105.962334 512.50142 105.962334z"></path>
                     <path d="M510.150886 775.953647c-18.107403 0-32.745798-14.678304-32.745798-32.785707L477.405087 452.191846c0-18.108426 14.638395-32.785707 32.745798-32.785707 18.107403 0 32.745798 14.678304 32.745798 32.785707l0 290.976094C542.896684 761.275343 528.258289 775.953647 510.150886 775.953647z"></path>
@@ -4632,21 +4641,27 @@ addSetting() {
             },
             { capture: true }
           );
-        }
+        },
       });
     }
-getLayerOption() {
-      let mimeType, audioHost, audioTime, resolution = {
-        key: "Resolution:",
-        value: `${this.art.video.videoWidth} x ${this.art.video.videoHeight}`
-      }, videoDataRate, audioDataRate, audioDuration;
+    getLayerOption() {
+      let mimeType,
+        audioHost,
+        audioTime,
+        resolution = {
+          key: "Resolution:",
+          value: `${this.art.video.videoWidth} x ${this.art.video.videoHeight}`,
+        },
+        videoDataRate,
+        audioDataRate,
+        audioDuration;
       let qualityPlugin = this.art.plugins[ArtPlayer_PLUGIN_QUALITY_KEY];
       if (qualityPlugin) {
         let currentQualityOption = qualityPlugin.getCurrentQualityOption();
         if (currentQualityOption) {
           mimeType = {
             key: "Mime Type:",
-            value: `${currentQualityOption.mimeType}`
+            value: `${currentQualityOption.mimeType}`,
           };
           if (currentQualityOption.codecs.trim() !== "") {
             mimeType.value += `;codecs="${currentQualityOption.codecs}"`;
@@ -4657,7 +4672,7 @@ getLayerOption() {
           if (currentQualityOption.bandwidth) {
             videoDataRate = {
               key: "Video DataRate:",
-              value: (currentQualityOption.bandwidth / 1024).toFixed(0) + "Kbps"
+              value: (currentQualityOption.bandwidth / 1024).toFixed(0) + "Kbps",
             };
           }
         }
@@ -4668,11 +4683,11 @@ getLayerOption() {
         if (currentAudioOption) {
           audioHost = {
             key: "Audio Host:",
-            value: new URL(currentAudioOption.url).host
+            value: new URL(currentAudioOption.url).host,
           };
           audioTime = {
             key: "Audio Time:",
-            value: m4sAudioPlugin.getAudio().currentTime.toString()
+            value: m4sAudioPlugin.getAudio().currentTime.toString(),
           };
           if (mimeType) {
             if (mimeType.value.trim() !== "") {
@@ -4685,11 +4700,11 @@ getLayerOption() {
           }
           audioDataRate = {
             key: "Audio DataRate:",
-            value: (currentAudioOption.bandwidth / 1024).toFixed(0) + "Kbps"
+            value: (currentAudioOption.bandwidth / 1024).toFixed(0) + "Kbps",
           };
           audioDuration = {
             key: "Audio Duration:",
-            value: m4sAudioPlugin.getAudio().duration.toString()
+            value: m4sAudioPlugin.getAudio().duration.toString(),
           };
         }
       }
@@ -4697,32 +4712,31 @@ getLayerOption() {
         mimeType,
         {
           key: "Player Type",
-          value: "ArtPlayer@" + Artplayer.version
+          value: "ArtPlayer@" + Artplayer.version,
         },
         resolution,
         videoDataRate,
         audioDataRate,
         {
           key: "Video Host:",
-          value: new URL(this.art.url).host
+          value: new URL(this.art.url).host,
         },
         audioHost,
         {
           key: "Video Time:",
-          value: this.art.currentTime.toString()
+          value: this.art.currentTime.toString(),
         },
         audioTime,
         {
           key: "Video Duration:",
-          value: this.art.duration.toString()
+          value: this.art.duration.toString(),
         },
-        audioDuration
+        audioDuration,
       ];
-      data2.push(...this?.option?.data || []);
+      data2.push(...(this?.option?.data || []));
       return {
         name: this.$key.setting_name,
-        html: (
-`
+        html: `
             <div class="art-player-video-statistics">
                 <style>
 					.art-layer-video-statistics{
@@ -4803,20 +4817,20 @@ getLayerOption() {
                     </div>
                 </div>
                 <div class="art-player-video-statistics-panel">
-                    ${data2.filter((it) => it != null).map((item) => {
-          return (
-`
+                    ${data2
+                      .filter((it) => it != null)
+                      .map((item) => {
+                        return `
                         <div class="art-player-video-statistics-panel-item">
                             <div class="art-player-video-statistics-panel-title">${item.key}</div>
                             <div class="art-player-video-statistics-panel-content">${item.value}</div>
                         </div>
-                        `
-          );
-        }).join("\n")}
+                        `;
+                      })
+                      .join("\n")}
                 </div>
             </div>
-            `
-        ),
+            `,
         mounted: async ($topWrap) => {
           let $close = $topWrap.querySelector(".art-player-video-statistics-close svg");
           this.art.proxy($close, "click", (event) => {
@@ -4825,13 +4839,13 @@ getLayerOption() {
             event.preventDefault();
             this.closeLayer();
           });
-        }
+        },
       };
     }
-isRegisterLayer() {
+    isRegisterLayer() {
       return this.$key.setting_name in this.art.layers;
     }
-showLayer(intervalUpdateInfo) {
+    showLayer(intervalUpdateInfo) {
       clearInterval(this.$data.intervalId);
       let option = this.getLayerOption();
       this.art.layers.add(option);
@@ -4840,52 +4854,45 @@ showLayer(intervalUpdateInfo) {
         this.bindUpdateLayerEvent();
       }
     }
-updateLayer() {
+    updateLayer() {
       let option = this.getLayerOption();
       this.art.layers.update(option);
     }
-bindUpdateLayerEvent() {
+    bindUpdateLayerEvent() {
       this.art.on("play", this.updateLayerEvent_interval, this);
       this.art.on("restart", this.updateLayerEvent_once, this);
-      this.art.on(
-"m4sAudio:loadedmetadata",
-        this.updateLayerEvent_once,
-        this
-      );
+      this.art.on("m4sAudio:loadedmetadata", this.updateLayerEvent_once, this);
       this.art.on("pause", this.updateLayerEvent_clear_interval, this);
       this.art.on("video:ended", this.updateLayerEvent_clear_interval, this);
       if (this.art.playing) {
         this.updateLayerEvent_interval();
       }
     }
-unbindUpdateLayerEvent() {
+    unbindUpdateLayerEvent() {
       this.art.off("play", this.updateLayerEvent_interval);
       this.art.off("restart", this.updateLayerEvent_once);
-      this.art.off(
-"m4sAudio:loadedmetadata",
-        this.updateLayerEvent_once
-      );
+      this.art.off("m4sAudio:loadedmetadata", this.updateLayerEvent_once);
       this.art.off("pause", this.updateLayerEvent_clear_interval);
       this.art.off("video:ended", this.updateLayerEvent_clear_interval);
     }
-updateLayerEvent_interval() {
+    updateLayerEvent_interval() {
       clearInterval(this.$data.intervalId);
       this.$data.intervalId = setInterval(() => {
         this.updateLayer();
       }, 1500);
     }
-updateLayerEvent_once() {
+    updateLayerEvent_once() {
       this.updateLayer();
     }
-updateLayerEvent_clear_interval() {
+    updateLayerEvent_clear_interval() {
       clearInterval(this.$data.intervalId);
     }
-closeLayer() {
+    closeLayer() {
       clearInterval(this.$data.intervalId);
       this.art.layers.remove(this.$key.setting_name);
       this.unbindUpdateLayerEvent();
     }
-update(option) {
+    update(option) {
       this.option = option;
     }
   }
@@ -4896,29 +4903,25 @@ update(option) {
         name: videoStatistics.$key.plugin_KEY,
         update(option2) {
           videoStatistics.update(option2);
-        }
+        },
       };
     };
   };
   const ArtPlayerDanmakuCommonOption = () => {
     return {
       heatmap: false,
-color: "#FFFFFF",
-mode: 0,
-mount: void 0,
-width: 800,
-points: [],
-filter: (danmu) => danmu.text.length <= 100,
-beforeVisible: () => true,
-emitter: false,
-maxLength: 50,
-lockTime: 3,
-theme: utils.isThemeDark() ? "dark" : "light"
-
-
-
-
-};
+      color: "#FFFFFF",
+      mode: 0,
+      mount: void 0,
+      width: 800,
+      points: [],
+      filter: (danmu) => danmu.text.length <= 100,
+      beforeVisible: () => true,
+      emitter: false,
+      maxLength: 50,
+      lockTime: 3,
+      theme: utils.isThemeDark() ? "dark" : "light",
+    };
   };
   const generateVideoSelectSetting = (option) => {
     let epList = option.epList || [];
@@ -4940,11 +4943,11 @@ theme: utils.isThemeDark() ? "dark" : "light"
                 cid: pageInfo.cid,
                 pic: pageInfo.first_frame || "",
                 title: pageInfo.part,
-                epList: option.epList || []
+                epList: option.epList || [],
               },
               true
             );
-          }
+          },
         };
       });
     } else {
@@ -4963,11 +4966,11 @@ theme: utils.isThemeDark() ? "dark" : "light"
                 cid: epInfo.cid,
                 pic: epInfo.arc.pic,
                 title: epInfo.title,
-                epList: option.epList || []
+                epList: option.epList || [],
               },
               true
             );
-          }
+          },
         };
       });
     }
@@ -4975,15 +4978,15 @@ theme: utils.isThemeDark() ? "dark" : "light"
   const BilibiliVideoArtPlayer = {
     $data: {
       art: null,
-currentOption: null
+      currentOption: null,
     },
-resetEnv(isInit) {
+    resetEnv(isInit) {
       if (isInit) {
         Reflect.set(this.$data, "art", null);
       }
       Reflect.set(this.$data, "currentOption", null);
     },
-async init(option) {
+    async init(option) {
       this.resetEnv(true);
       this.$data.currentOption = option;
       const localArtDanmakuOption_KEY = "artplayer-video-danmaku-option";
@@ -4992,15 +4995,15 @@ async init(option) {
       const artOption = {
         ...ArtPlayerCommonOption(),
         container: option.container,
-poster: option.poster,
-settings: [],
+        poster: option.poster,
+        settings: [],
         plugins: [
           artplayerPluginToast(),
           artplayPluginQuality({
             from: "video",
-            qualityList: option.quality
-          })
-        ]
+            qualityList: option.quality,
+          }),
+        ],
       };
       artOption.type = "mp4";
       if (Panel.getValue("artplayer-plugin-video-danmaku-enable")) {
@@ -5009,22 +5012,22 @@ settings: [],
             ...ArtPlayerDanmakuCommonOption(),
             danmuku: option.danmukuUrl,
 
-speed: localArtDanmakuOption.speed,
-margin: localArtDanmakuOption["margin"],
-opacity: localArtDanmakuOption["opacity"],
-modes: localArtDanmakuOption["modes"],
-fontSize: localArtDanmakuOption["fontSize"],
-antiOverlap: localArtDanmakuOption["antiOverlap"],
-synchronousPlayback: localArtDanmakuOption["synchronousPlayback"],
-visible: localArtDanmakuOption["visible"],
-beforeEmit(danmu) {
+            speed: localArtDanmakuOption.speed,
+            margin: localArtDanmakuOption["margin"],
+            opacity: localArtDanmakuOption["opacity"],
+            modes: localArtDanmakuOption["modes"],
+            fontSize: localArtDanmakuOption["fontSize"],
+            antiOverlap: localArtDanmakuOption["antiOverlap"],
+            synchronousPlayback: localArtDanmakuOption["synchronousPlayback"],
+            visible: localArtDanmakuOption["visible"],
+            beforeEmit(danmu) {
               return new Promise((resolve) => {
                 console.log(danmu);
                 setTimeout(() => {
                   resolve(true);
                 }, 1e3);
               });
-            }
+            },
           })
         );
       }
@@ -5032,7 +5035,7 @@ beforeEmit(danmu) {
         artOption.plugins.push(
           artplayerPluginM4SAudioSupport({
             from: "video",
-            audioList: option.audioList || []
+            audioList: option.audioList || [],
           })
         );
       }
@@ -5040,7 +5043,7 @@ beforeEmit(danmu) {
         artOption.plugins.push(
           artplayerPluginEpChoose({
             EP_LIST: generateVideoSelectSetting(option),
-            automaticBroadcast: true
+            automaticBroadcast: true,
           })
         );
       }
@@ -5050,7 +5053,7 @@ beforeEmit(danmu) {
             from: "video",
             cid: option.cid,
             aid: option.aid,
-            bvid: option.bvid
+            bvid: option.bvid,
           })
         );
       }
@@ -5060,19 +5063,19 @@ beforeEmit(danmu) {
             onlineInfoParams: {
               aid: option.aid,
               cid: option.cid,
-              bvid: option.bvid
+              bvid: option.bvid,
             },
             title: option.videoTitle,
             showWrap: true,
             showTitle: true,
-            showOnlineTotal: true
+            showOnlineTotal: true,
           })
         );
       }
       if (Panel.getValue("artplayer-plugin-video-statistics-enable")) {
         artOption.plugins.push(
           artplayerPluginVideoStatistics({
-            data: []
+            data: [],
           })
         );
       }
@@ -5084,7 +5087,7 @@ beforeEmit(danmu) {
       artPlayerDanmakuOptionHelper.onConfigChange(this.$data.art);
       return this.$data.art;
     },
-async update(art, option) {
+    async update(art, option) {
       this.resetEnv(false);
       this.$data.currentOption = option;
       log$1.info(`更新新的播放信息`, option);
@@ -5096,16 +5099,16 @@ async update(art, option) {
       art.play();
       log$1.info("播放");
     },
-updatePluginInfo(art, option) {
+    updatePluginInfo(art, option) {
       let plugin_quality = art.plugins[ArtPlayer_PLUGIN_QUALITY_KEY];
       plugin_quality.update({
         from: "video",
-        qualityList: option.quality
+        qualityList: option.quality,
       });
       log$1.info(`更新画质`, option.quality);
       if (Panel.getValue("artplayer-plugin-video-danmaku-enable")) {
         art.plugins.artplayerPluginDanmuku.config({
-          danmuku: option.danmukuUrl
+          danmuku: option.danmukuUrl,
         });
         art.plugins.artplayerPluginDanmuku.load();
         log$1.info(`更新弹幕姬`, option.danmukuUrl);
@@ -5114,7 +5117,7 @@ updatePluginInfo(art, option) {
         let plugin_m4sAudioSupport = art.plugins[ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY];
         plugin_m4sAudioSupport.update({
           from: "video",
-          audioList: option.audioList || []
+          audioList: option.audioList || [],
         });
         log$1.info(`更新音频`, option.audioList);
       }
@@ -5122,7 +5125,7 @@ updatePluginInfo(art, option) {
         let plugin_epChoose = art.plugins[ArtPlayer_PLUGIN_EP_CHOOSE_KEY];
         plugin_epChoose.update({
           EP_LIST: generateVideoSelectSetting(option),
-          automaticBroadcast: true
+          automaticBroadcast: true,
         });
         log$1.info(`更新选集信息`, option.epList);
       }
@@ -5132,7 +5135,7 @@ updatePluginInfo(art, option) {
           from: "video",
           aid: option.aid,
           bvid: option.bvid,
-          cid: option.cid
+          cid: option.cid,
         };
         plugin_bilibiliCCSubTitle.update(subTitleOption);
         log$1.info(`更新字幕`, subTitleOption);
@@ -5149,13 +5152,13 @@ updatePluginInfo(art, option) {
           onlineInfoParams: {
             aid: option.aid,
             cid: option.cid,
-            bvid: option.bvid
-          }
+            bvid: option.bvid,
+          },
         };
         plugin_topToolBar.update(topToolBarOption);
         log$1.info(`更新顶部标题`, topToolBarOption);
       }
-    }
+    },
   };
   function handleDashVideoQualityInfo$1(dashInfo) {
     let result = [];
@@ -5182,7 +5185,7 @@ updatePluginInfo(art, option) {
         codecid: dashVideoInfo.codecid,
         codecs: dashVideoInfo.codecs,
         frameRate: dashVideoInfo.frameRate || dashVideoInfo.frame_rate,
-        bandwidth: dashVideoInfo.bandwidth
+        bandwidth: dashVideoInfo.bandwidth,
       });
     });
     return result;
@@ -5199,7 +5202,7 @@ updatePluginInfo(art, option) {
         fourk: 1,
         high_quality: 1,
         qn: 127,
-        setPlatformHTML5: true
+        setPlatformHTML5: true,
       });
       log$1.info(["视频播放地址信息：", videoPlayInfo]);
       if (!videoPlayInfo) {
@@ -5221,7 +5224,7 @@ updatePluginInfo(art, option) {
         vip: false,
         codecs: "",
         frameRate: "",
-        bandwidth: 0
+        bandwidth: 0,
       });
     } else {
       const videoPlayInfo = await BilibiliVideoApi.playUrl({
@@ -5232,7 +5235,7 @@ updatePluginInfo(art, option) {
         fourk: 1,
         high_quality: 1,
         qn: 127,
-        setPlatformHTML5: false
+        setPlatformHTML5: false,
       });
       log$1.info(["视频播放地址信息：", videoPlayInfo]);
       if (!videoPlayInfo) {
@@ -5248,7 +5251,7 @@ updatePluginInfo(art, option) {
           codecs: item.codecs,
           mimeType: item.mimeType,
           bandwidth: item.bandwidth,
-          size: 0
+          size: 0,
         });
       });
       audioInfo.sort((leftItem, rightItem) => {
@@ -5259,8 +5262,8 @@ updatePluginInfo(art, option) {
         ...handleDashVideoQualityInfo$1({
           accept_quality: videoPlayInfo.accept_quality,
           support_formats: videoPlayInfo.support_formats,
-          video: videoPlayInfo.dash.video
-        })
+          video: videoPlayInfo.dash.video,
+        }),
       ];
       log$1.info(`ArtPlayer: 获取的视频画质信息`, qualityInfo);
     }
@@ -5273,11 +5276,11 @@ updatePluginInfo(art, option) {
         codecs: item.codecs,
         frameRate: item.frameRate,
         mimeType: item.type,
-        bandwidth: item.bandwidth
+        bandwidth: item.bandwidth,
       };
     });
     const artPlayerOption = {
-container: null,
+      container: null,
       epList: option.epList,
       audioUrl: null,
       url: "",
@@ -5287,7 +5290,7 @@ container: null,
       cid: option.cid,
       videoTitle: option.title,
       danmukuUrl: `https://api.bilibili.com/x/v1/dm/list.so?oid=${option.cid}`,
-      quality: currentVideoQuality
+      quality: currentVideoQuality,
     };
     artPlayerOption.url = qualityInfo?.[0]?.url;
     if (audioInfo.length) {
@@ -5300,7 +5303,7 @@ container: null,
           codecs: item.codecs,
           mimeType: item.mimeType,
           bandwidth: item.bandwidth,
-          size: item.size
+          size: item.size,
         };
       });
     }
@@ -5308,20 +5311,20 @@ container: null,
   };
   const BilibiliVideoPlayer = {
     $data: {
-      art: null
+      art: null,
     },
     init() {
       Panel.execMenu("bili-video-enableArtPlayer", () => {
         this.coverVideoPlayer();
       });
     },
-coverVideoPlayer() {
+    coverVideoPlayer() {
       if ($("#artplayer")) {
         log$1.warn("已使用ArtPlayer覆盖原播放器，更新播放信息");
       } else {
         log$1.info(`覆盖播放器`);
         addStyle(
-`
+          `
             /* 隐藏原本的播放器 */
 			${BilibiliData.className.video} .m-video-player .player-container,
 			${BilibiliData.className.mVideo} .m-video-player .player-container{
@@ -5337,7 +5340,7 @@ coverVideoPlayer() {
         let controlsPadding = Panel.getValue("bili-video-artplayer-controlsPadding-left-right", 0);
         if (controlsPadding != 0) {
           addStyle(
-`
+            `
 				@media (orientation: landscape) {
 					.art-video-player .art-layers .art-layer-top-wrap,
 					/* 底部 */
@@ -5357,19 +5360,30 @@ coverVideoPlayer() {
       }
       this.updateArtPlayerVideoInfo();
     },
-updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
+    updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
       let that = this;
       let queryMVideoPlayer = () => {
-        return $(BilibiliData.className.video + " .m-video-player") || $(BilibiliData.className.mVideo + " .m-video-player");
+        return (
+          $(BilibiliData.className.video + " .m-video-player") || $(BilibiliData.className.mVideo + " .m-video-player")
+        );
       };
       VueUtils.waitVuePropToSet(queryMVideoPlayer, {
         msg: "等待m-video-player加载完成",
         check(vueInstance) {
           if (!isEpChoose && BilibiliVideoArtPlayer.$data.currentOption != null) {
             BilibiliVideoArtPlayer.$data.art.pause();
-            return typeof vueInstance?.info?.aid === "number" && BilibiliVideoArtPlayer.$data.currentOption.aid !== vueInstance.info.aid && typeof vueInstance?.info?.bvid === "string" && typeof vueInstance?.info?.cid === "number";
+            return (
+              typeof vueInstance?.info?.aid === "number" &&
+              BilibiliVideoArtPlayer.$data.currentOption.aid !== vueInstance.info.aid &&
+              typeof vueInstance?.info?.bvid === "string" &&
+              typeof vueInstance?.info?.cid === "number"
+            );
           } else {
-            return typeof vueInstance?.info?.aid === "number" && typeof vueInstance?.info?.bvid === "string" && typeof vueInstance?.info?.cid === "number";
+            return (
+              typeof vueInstance?.info?.aid === "number" &&
+              typeof vueInstance?.info?.bvid === "string" &&
+              typeof vueInstance?.info?.cid === "number"
+            );
           }
         },
         async set(vueInstance) {
@@ -5426,10 +5440,10 @@ updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
                   is_chargeable_season: info?.is_chargeable_season,
                   is_blooper: info?.is_blooper,
                   enable_vt: info?.enable_vt,
-                  vt_display: info?.vt_display
+                  vt_display: info?.vt_display,
                 },
                 page: info?.pages?.[currentPage],
-                pages: info?.pages
+                pages: info?.pages,
               });
             }
           }
@@ -5440,7 +5454,7 @@ updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
               cid,
               pic,
               title,
-              epList: epInfoList
+              epList: epInfoList,
             };
           }
           log$1.info(`视频播放信息 => aid：${aid} bvid：${bvid} cid：${cid}`);
@@ -5452,11 +5466,9 @@ updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
           if (!$artPlayer) {
             const $artContainer = domUtils.createElement("div", {
               className: "artplayer-container",
-              innerHTML: (
-`
+              innerHTML: `
 								<div id="artplayer"></div>
-							`
-              )
+							`,
             });
             $artPlayer = $artContainer.querySelector("#artplayer");
             domUtils.append($mVideoPlayer, $artContainer);
@@ -5490,9 +5502,9 @@ updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
             await BilibiliVideoArtPlayer.update(that.$data.art, artPlayerOption);
           }
           $mVideoPlayer.style.paddingTop = "";
-        }
+        },
       });
-    }
+    },
   };
   const wbi = async (params) => {
     async function getWbiQueryString(params2) {
@@ -5505,76 +5517,21 @@ updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
       const subKey = sub_url.slice(sub_url.lastIndexOf("/") + 1, sub_url.lastIndexOf("."));
       const originKey = imgKey + subKey;
       const mixinKeyEncryptTable = [
-        46,
-        47,
-        18,
-        2,
-        53,
-        8,
-        23,
-        32,
-        15,
-        50,
-        10,
-        31,
-        58,
-        3,
-        45,
-        35,
-        27,
-        43,
-        5,
-        49,
-        33,
-        9,
-        42,
-        19,
-        29,
-        28,
-        14,
-        39,
-        12,
-        38,
-        41,
-        13,
-        37,
-        48,
-        7,
-        16,
-        24,
-        55,
-        40,
-        61,
-        26,
-        17,
-        0,
-        1,
-        60,
-        51,
-        30,
-        4,
-        22,
-        25,
-        54,
-        21,
-        56,
-        59,
-        6,
-        63,
-        57,
-        62,
-        11,
-        36,
-        20,
-        34,
-        44,
-        52
+        46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49, 33, 9, 42, 19, 29, 28, 14, 39, 12,
+        38, 41, 13, 37, 48, 7, 16, 24, 55, 40, 61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62,
+        11, 36, 20, 34, 44, 52,
       ];
-      const mixinKey = mixinKeyEncryptTable.map((n) => originKey[n]).join("").slice(0, 32);
-      const query = Object.keys(params2).sort().map((key) => {
-        const value = params2[key].toString().replace(/[!'()*]/g, "");
-        return `${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
-      }).join("&");
+      const mixinKey = mixinKeyEncryptTable
+        .map((n) => originKey[n])
+        .join("")
+        .slice(0, 32);
+      const query = Object.keys(params2)
+        .sort()
+        .map((key) => {
+          const value = params2[key].toString().replace(/[!'()*]/g, "");
+          return `${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
+        })
+        .join("&");
       const wbiSign = md5(query + mixinKey);
       return query + "&w_rid=" + wbiSign;
     }
@@ -5592,9 +5549,9 @@ updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
     for (let i = 3; i < BV_LEN; i++) {
       r = r * BASE2 + BigInt(ALPHABET.indexOf(bvid[DIGIT_MAP[i]]));
     }
-    return `${r & MASK_CODE ^ XOR_CODE2}`;
+    return `${(r & MASK_CODE) ^ XOR_CODE2}`;
   }
-  const MobileCommentModule = (function() {
+  const MobileCommentModule = (function () {
     const global = typeof _unsafeWindow === "undefined" ? window : _unsafeWindow;
     const videoRE = /https:\/\/m\.bilibili\.com\/video\/.*/;
     const dynamicRE = /https:\/\/m.bilibili.com\/dynamic\/\d+/;
@@ -5631,12 +5588,12 @@ updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
             resolve();
             return {
               success: true,
-              data: {}
+              data: {},
             };
           }
           return {
             success: false,
-            data: null
+            data: null,
           };
         }, 0);
       });
@@ -5733,13 +5690,13 @@ updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
     async function getPaginationData() {
       const params = {
         pagination_str: JSON.stringify({
-          offset: nextOffset || ""
+          offset: nextOffset || "",
         }),
         oid,
         type: commentType,
         wts: parseInt(Date.now() / 1e3),
         plat: 1,
-        web_location: 1315875
+        web_location: 1315875,
       };
       if (currentSortType === sortTypeConstant.HOT) {
         params.mode = 3;
@@ -5750,7 +5707,7 @@ updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
         params.mode = 2;
       }
       const fetchResult = await httpx.get(`https://api.bilibili.com/x/v2/reply/wbi/main?${await wbi(params)}`, {
-        fetch: true
+        fetch: true,
       });
       const fetchResultJSON = utils.toJSON(fetchResult.data.responseText);
       nextOffset = fetchResultJSON.data.cursor?.pagination_reply?.next_offset || "";
@@ -5776,21 +5733,25 @@ updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
             <div class="user-info">
               <a class="user-name" href="https://space.bilibili.com/${replyData.mid}" target="_blank" data-user-id="${replyData.mid}" data-root-reply-id="${replyData.rpid}" style="color: ${replyData.member.vip.nickname_color ? replyData.member.vip.nickname_color : "#61666d"}">${replyData.member.uname}</a>
               <span style="height: 14px; padding: 0 2px; margin-right: 4px; display: flex; align-items: center; font-size: 10px; color: white; border-radius: 2px; background-color: ${getMemberLevelColor(
-      replyData.member.level_info.current_level
-    )};">LV${replyData.member.level_info.current_level}</span>
+                replyData.member.level_info.current_level
+              )};">LV${replyData.member.level_info.current_level}</span>
               ${createrID === replyData.mid ? '<i class="svg-icon up-web up-icon" style="width: 20px; height: 24px; transform: scale(1.03);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="4" width="24" height="16" rx="2" fill="#FF6699"></rect><path d="M5.7 8.36V12.79C5.7 13.72 5.96 14.43 6.49 14.93C6.99 15.4 7.72 15.64 8.67 15.64C9.61 15.64 10.34 15.4 10.86 14.92C11.38 14.43 11.64 13.72 11.64 12.79V8.36H10.47V12.81C10.47 13.43 10.32 13.88 10.04 14.18C9.75 14.47 9.29 14.62 8.67 14.62C8.04 14.62 7.58 14.47 7.3 14.18C7.01 13.88 6.87 13.43 6.87 12.81V8.36H5.7ZM13.0438 8.36V15.5H14.2138V12.76H15.9838C17.7238 12.76 18.5938 12.02 18.5938 10.55C18.5938 9.09 17.7238 8.36 16.0038 8.36H13.0438ZM14.2138 9.36H15.9138C16.4238 9.36 16.8038 9.45 17.0438 9.64C17.2838 9.82 17.4138 10.12 17.4138 10.55C17.4138 10.98 17.2938 11.29 17.0538 11.48C16.8138 11.66 16.4338 11.76 15.9138 11.76H14.2138V9.36Z" fill="white"></path></svg></i>' : ""}
             </div>
             <div class="root-reply">
               <span class="reply-content-container root-reply" style="padding-bottom: 8px;">
                 <span class="reply-content">${isTopReply ? '<span class="top-icon" style="top: -1px;">置顶</span>' : ""}${replyData.content.pictures ? `<div class="note-prefix" style="transform: translateY(-1px);"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" fill="#BBBBBB"><path d="M0 3.75C0 2.784.784 2 1.75 2h12.5c.966 0 1.75.784 1.75 1.75v8.5A1.75 1.75 0 0 1 14.25 14H1.75A1.75 1.75 0 0 1 0 12.25Zm1.75-.25a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25ZM3.5 6.25a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5h-7a.75.75 0 0 1-.75-.75Zm.75 2.25h4a.75.75 0 0 1 0 1.5h-4a.75.75 0 0 1 0-1.5Z"></path></svg><div style="margin-left: 3px;">笔记</div></div>` : ""}${getConvertedMessage(replyData.content)}</span>
               </span>
-              ${replyData.content.pictures ? `
+              ${
+                replyData.content.pictures
+                  ? `
                 <div class="image-exhibition" style="margin-top: 0; margin-bottom: 8px;">
                   <div class="preview-image-container" style="display: flex; width: 300px;">
                     ${getImageItems(replyData.content.pictures)}
                   </div>
                 </div>
-                ` : ""}
+                `
+                  : ""
+              }
               <div class="reply-info">
                 <span class="reply-time" style="margin-right: 20px;">${getFormattedTime(replyData.ctime)}</span>
                 <span class="reply-like">
@@ -5799,10 +5760,16 @@ updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
                 </span>
               </div>
               <div class="reply-tag-list">
-                ${replyData.card_label ? replyData.card_label.reduce(
-      (acc, cur) => acc + `<span class="reply-tag-item ${cur.text_content === "热评" ? "reply-tag-hot" : ""} ${cur.text_content === "UP主觉得很赞" ? "reply-tag-liked" : ""}" style="font-size: 12px; background-color: ${cur.label_color_day}; color: ${cur.text_color_day};">${cur.text_content}</span>`,
-      ""
-    ) : ""}
+                ${
+                  replyData.card_label
+                    ? replyData.card_label.reduce(
+                        (acc, cur) =>
+                          acc +
+                          `<span class="reply-tag-item ${cur.text_content === "热评" ? "reply-tag-hot" : ""} ${cur.text_content === "UP主觉得很赞" ? "reply-tag-liked" : ""}" style="font-size: 12px; background-color: ${cur.label_color_day}; color: ${cur.text_color_day};">${cur.text_content}</span>`,
+                        ""
+                      )
+                    : ""
+                }
               </div>
             </div>
           </div>
@@ -5810,14 +5777,18 @@ updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
         <div class="sub-reply-container">
           <div class="sub-reply-list">
             ${getSubReplyItems(replyData.replies)}
-            ${replyData.rcount > replyData.replies.length ? `
+            ${
+              replyData.rcount > replyData.replies.length
+                ? `
               <div class="view-more" style="padding-left: 8px; font-size: 13px; color: #9499A0;">
                 <div class="view-more-default">
                   <span>共${replyData.rcount}条回复, </span>
                   <span class="view-more-btn" style="cursor: pointer;">点击查看</span>
                 </div>
               </div>
-              ` : ""}
+              `
+                : ""
+            }
           </div>
         </div>
       `;
@@ -5829,14 +5800,14 @@ updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
           title: false,
           toolbar: false,
           tooltip: false,
-          keyboard: false
+          keyboard: false,
         });
       const subReplyList = replyItemElement.querySelector(".sub-reply-list");
       const viewMoreBtn = replyItemElement.querySelector(".view-more-btn");
-      viewMoreBtn && viewMoreBtn.addEventListener(
-        "click",
-        () => loadPaginatedSubReplies(replyData.rpid, subReplyList, replyData.rcount, 1)
-      );
+      viewMoreBtn &&
+        viewMoreBtn.addEventListener("click", () =>
+          loadPaginatedSubReplies(replyData.rpid, subReplyList, replyData.rcount, 1)
+        );
     }
     function getFormattedTime(ms) {
       const time = new Date(ms * 1e3);
@@ -5855,7 +5826,7 @@ updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
         3: "#7BCDEF",
         4: "#FEBB8B",
         5: "#EE672A",
-        6: "#F04C49"
+        6: "#F04C49",
       }[level];
     }
     function getConvertedMessage(content) {
@@ -5913,7 +5884,8 @@ updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
           Object.entries(content.jump_url).filter((entry) => !entry[0].startsWith("https://"))
         );
         for (const [key, value] of entries) {
-          const href = key.startsWith("BV") || /^av\d+$/.test(key) ? `https://www.bilibili.com/video/${key}` : value.pc_url || key;
+          const href =
+            key.startsWith("BV") || /^av\d+$/.test(key) ? `https://www.bilibili.com/video/${key}` : value.pc_url || key;
           if (href.includes("search.bilibili.com") && keywordBlacklist.join("").includes(key)) continue;
           const linkElementHTML = `<img class="icon normal" src="${value.prefix_icon}" style="${value.extra && value.extra.is_word_search && "width: 12px;"}"><a class="jump-link normal" href="${href}" target="_blank" noopener noreferrer>${value.title}</a>`;
           keywordBlacklist.push(linkElementHTML);
@@ -5949,8 +5921,8 @@ updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
               </a>
               <a class="sub-user-name" href="https://space.bilibili.com/${replyData.mid}" target="_blank" data-user-id="${replyData.mid}" data-root-reply-id="${replyData.rpid}" style="color: ${replyData.member.vip.nickname_color ? replyData.member.vip.nickname_color : "#61666d"}">${replyData.member.uname}</a>
               <span style="height: 14px; padding: 0 2px; margin-right: 4px; display: flex; align-items: center; font-size: 10px; color: white; border-radius: 2px; background-color: ${getMemberLevelColor(
-        replyData.member.level_info.current_level
-      )};">LV${replyData.member.level_info.current_level}</span>
+                replyData.member.level_info.current_level
+              )};">LV${replyData.member.level_info.current_level}</span>
               ${createrID === replyData.mid ? `<i class="svg-icon up-web up-icon" style="width: 20px; height: 24px; transform: scale(1.03);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="4" width="24" height="16" rx="2" fill="#FF6699"></rect><path d="M5.7 8.36V12.79C5.7 13.72 5.96 14.43 6.49 14.93C6.99 15.4 7.72 15.64 8.67 15.64C9.61 15.64 10.34 15.4 10.86 14.92C11.38 14.43 11.64 13.72 11.64 12.79V8.36H10.47V12.81C10.47 13.43 10.32 13.88 10.04 14.18C9.75 14.47 9.29 14.62 8.67 14.62C8.04 14.62 7.58 14.47 7.3 14.18C7.01 13.88 6.87 13.43 6.87 12.81V8.36H5.7ZM13.0438 8.36V15.5H14.2138V12.76H15.9838C17.7238 12.76 18.5938 12.02 18.5938 10.55C18.5938 9.09 17.7238 8.36 16.0038 8.36H13.0438ZM14.2138 9.36H15.9138C16.4238 9.36 16.8038 9.45 17.0438 9.64C17.2838 9.82 17.4138 10.12 17.4138 10.55C17.4138 10.98 17.2938 11.29 17.0538 11.48C16.8138 11.66 16.4338 11.76 15.9138 11.76H14.2138V9.36Z" fill="white"></path></svg></i>` : ""}
             </div>
             <span class="reply-content-container sub-reply-content">
@@ -5975,13 +5947,13 @@ updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
         root: rootReplyID,
         ps: 10,
         pn: paginationNumber,
-        web_location: 333.788
+        web_location: 333.788,
       };
       const subReplyResponse = await httpx.get(
         `https://api.bilibili.com/x/v2/reply/reply?${Utils.toSearchParamsStr(params)}`,
         {
           allowInterceptConfig: false,
-          fetch: true
+          fetch: true,
         }
       );
       if (!subReplyResponse.status) {
@@ -6012,57 +5984,58 @@ updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
           <span class="pagination-page-count">共${pageAmount}页</span>
           ${currentPageNumber !== 1 ? '<span class="pagination-btn pagination-to-prev-btn">上一页</span>' : ""}
           ${(() => {
-      const left = [
-        currentPageNumber - 4,
-        currentPageNumber - 3,
-        currentPageNumber - 2,
-        currentPageNumber - 1
-      ].filter((num) => num >= 1);
-      const right = [
-        currentPageNumber + 1,
-        currentPageNumber + 2,
-        currentPageNumber + 3,
-        currentPageNumber + 4
-      ].filter((num) => num <= pageAmount);
-      const merge = [].concat(left, currentPageNumber, right);
-      let chosen;
-      if (currentPageNumber <= 3) chosen = merge.slice(0, 5);
-      else if (currentPageNumber >= pageAmount - 3) chosen = merge.reverse().slice(0, 5).reverse();
-      else chosen = merge.slice(merge.indexOf(currentPageNumber) - 2, merge.indexOf(currentPageNumber) + 3);
-      let final = JSON.parse(JSON.stringify(chosen));
-      if (!final.includes(1)) {
-        let front = [1];
-        if (final.at(0) !== 2) front = [1, "..."];
-        final = [].concat(front, final);
-      }
-      if (!final.includes(pageAmount)) {
-        let back = [pageAmount];
-        if (final.at(-1) !== pageAmount - 1) back = ["...", pageAmount];
-        final = [].concat(final, back);
-      }
-      return final.reduce((acc, cur) => {
-        if (cur === "...") return acc + '<span class="pagination-page-dot">...</span>';
-        if (cur === currentPageNumber)
-          return acc + `<span class="pagination-page-number current-page">${cur}</span>`;
-        return acc + `<span class="pagination-page-number">${cur}</span>`;
-      }, "");
-    })()}
+            const left = [
+              currentPageNumber - 4,
+              currentPageNumber - 3,
+              currentPageNumber - 2,
+              currentPageNumber - 1,
+            ].filter((num) => num >= 1);
+            const right = [
+              currentPageNumber + 1,
+              currentPageNumber + 2,
+              currentPageNumber + 3,
+              currentPageNumber + 4,
+            ].filter((num) => num <= pageAmount);
+            const merge = [].concat(left, currentPageNumber, right);
+            let chosen;
+            if (currentPageNumber <= 3) chosen = merge.slice(0, 5);
+            else if (currentPageNumber >= pageAmount - 3) chosen = merge.reverse().slice(0, 5).reverse();
+            else chosen = merge.slice(merge.indexOf(currentPageNumber) - 2, merge.indexOf(currentPageNumber) + 3);
+            let final = JSON.parse(JSON.stringify(chosen));
+            if (!final.includes(1)) {
+              let front = [1];
+              if (final.at(0) !== 2) front = [1, "..."];
+              final = [].concat(front, final);
+            }
+            if (!final.includes(pageAmount)) {
+              let back = [pageAmount];
+              if (final.at(-1) !== pageAmount - 1) back = ["...", pageAmount];
+              final = [].concat(final, back);
+            }
+            return final.reduce((acc, cur) => {
+              if (cur === "...") return acc + '<span class="pagination-page-dot">...</span>';
+              if (cur === currentPageNumber)
+                return acc + `<span class="pagination-page-number current-page">${cur}</span>`;
+              return acc + `<span class="pagination-page-number">${cur}</span>`;
+            }, "");
+          })()}
           ${currentPageNumber !== pageAmount ? '<span class="pagination-btn pagination-to-next-btn">下一页</span>' : ""}
         </div>
       `;
-      pageSwitcher.querySelector(".pagination-to-prev-btn")?.addEventListener(
-        "click",
-        () => loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, currentPageNumber - 1)
-      );
-      pageSwitcher.querySelector(".pagination-to-next-btn")?.addEventListener(
-        "click",
-        () => loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, currentPageNumber + 1)
-      );
+      pageSwitcher
+        .querySelector(".pagination-to-prev-btn")
+        ?.addEventListener("click", () =>
+          loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, currentPageNumber - 1)
+        );
+      pageSwitcher
+        .querySelector(".pagination-to-next-btn")
+        ?.addEventListener("click", () =>
+          loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, currentPageNumber + 1)
+        );
       pageSwitcher.querySelectorAll(".pagination-page-number:not(.current-page)")?.forEach((pageNumberElement) => {
         const number = parseInt(pageNumberElement.textContent);
-        pageNumberElement.addEventListener(
-          "click",
-          () => loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, number)
+        pageNumberElement.addEventListener("click", () =>
+          loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, number)
         );
       });
       subReplyList.appendChild(pageSwitcher);
@@ -6089,13 +6062,13 @@ updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
     }
     function setupXHRInterceptor() {
       const originXHROpen = XMLHttpRequest.prototype.open;
-      XMLHttpRequest.prototype.open = function() {
+      XMLHttpRequest.prototype.open = function () {
         const url = arguments[1];
         if (typeof url === "string" && url.includes("reply/wbi/main")) {
           const { searchParams } = new URL(`${url.startsWith("//") ? "https:" : ""}${url}`);
           global.dynamicDetail = {
             oid: searchParams.get("oid"),
-            commentType: searchParams.get("type")
+            commentType: searchParams.get("type"),
           };
         }
         return originXHROpen.apply(this, arguments);
@@ -6255,9 +6228,10 @@ updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
       (document.head || document.documentElement).appendChild(otherCSS);
     }
   })();
-  const MobileCommentModuleStyle = ':root {\r\n  --v_xs: 5px;\r\n  --v_xsx: 4px;\r\n  --v_xxs: 6px;\r\n  --v_sm: 10px;\r\n  --v_smx: 8px;\r\n  --v_xsm: 12px;\r\n  --v_md: 15px;\r\n  --v_mdx: 14px;\r\n  --v_xmd: 16px;\r\n  --v_lg: 20px;\r\n  --v_lgx: 18px;\r\n  --v_xlg: 22px;\r\n  --v_xl: 25px;\r\n  --v_xlx: 24px;\r\n  --v_xxl: 26px;\r\n  --v_fs_1: 24px;\r\n  --v_fs_2: 18px;\r\n  --v_fs_3: 16px;\r\n  --v_fs_4: 14px;\r\n  --v_fs_5: 13px;\r\n  --v_fs_6: 12px;\r\n  --v_lh_xs: 1;\r\n  --v_lh_sm: 1.25;\r\n  --v_lh_md: 1.5;\r\n  --v_lh_lg: 1.75;\r\n  --v_lh_xl: 2;\r\n  --v_height_xs: 16px;\r\n  --v_height_sm: 24px;\r\n  --v_height_md: 32px;\r\n  --v_height_lg: 40px;\r\n  --v_height_xl: 48px;\r\n  --v_radius: 6px;\r\n  --v_radius_sm: 4px;\r\n  --v_radius_md: 8px;\r\n  --v_radius_lg: 10px;\r\n  --v_brand_pink: var(--brand_pink, #ff6699);\r\n  --v_brand_pink_thin: var(--brand_pink_thin, #ffecf1);\r\n  --v_brand_blue: var(--brand_blue, #00aeec);\r\n  --v_brand_blue_thin: var(--brand_blue_thin, #dff6fd);\r\n  --v_stress_red: var(--stress_red, #f85a54);\r\n  --v_stress_red_thin: var(--stress_red_thin, #feecea);\r\n  --v_success_green: var(--success_green, #2ac864);\r\n  --v_success_green_thin: var(--success_green_thin, #e4f8ea);\r\n  --v_operate_orange: var(--operate_orange, #ff7f24);\r\n  --v_operate_orange_thin: var(--operate_orange_thin, #fff0e3);\r\n  --v_pay_yellow: var(--pay_yellow, #ffb027);\r\n  --v_pay_yellow_thin: var(--pay_yellow_thin, #fff6e4);\r\n  --v_bg1: var(--bg1, #ffffff);\r\n  --v_bg2: var(--bg2, #f6f7f8);\r\n  --v_bg3: var(--bg3, #f1f2f3);\r\n  --v_bg1_float: var(--bg1_float, #ffffff);\r\n  --v_bg2_float: var(--bg2_float, #f1f2f3);\r\n  --v_text_white: var(--text_white, #ffffff);\r\n  --v_text1: var(--text1, #18191c);\r\n  --v_text2: var(--text2, #61666d);\r\n  --v_text3: var(--text3, #9499a0);\r\n  --v_text4: var(--text4, #c9ccd0);\r\n  --v_text_link: var(--text_link, #008ac5);\r\n  --v_text_notice: var(--text_notice, #e58900);\r\n  --v_line_light: var(--line_light, #f1f2f3);\r\n  --v_line_regular: var(--line_regular, #e3e5e7);\r\n  --v_line_bold: var(--line_bold, #c9ccd0);\r\n  --v_graph_white: var(--graph_white, #ffffff);\r\n  --v_graph_bg_thin: var(--graph_bg_thin, #f6f7f8);\r\n  --v_graph_bg_regular: var(--graph_bg_regular, #f1f2f3);\r\n  --v_graph_bg_thick: var(--graph_bg_thick, #e3e5e7);\r\n  --v_graph_weak: var(--graph_weak, #c9ccd0);\r\n  --v_graph_medium: var(--graph_medium, #9499a0);\r\n  --v_graph_icon: var(--graph_icon, #61666d);\r\n  --v_shadow: var(--shadow, #000000);\r\n  --v_brand_pink_hover: var(--brand_pink_hover, #ff8cb0);\r\n  --v_brand_pink_active: var(--brand_pink_active, #e84b85);\r\n  --v_brand_pink_disabled: var(--brand_pink_disabled, #ffb3ca);\r\n  --v_brand_blue_hover: var(--brand_blue_hover, #40c5f1);\r\n  --v_brand_blue_active: var(--brand_blue_active, #008ac5);\r\n  --v_brand_blue_disabled: var(--brand_blue_disabled, #80daf6);\r\n  --v_stress_red_hover: var(--stress_red_hover, #fa857f);\r\n  --v_stress_red_active: var(--stress_red_active, #e23d3d);\r\n  --v_stress_red_disabled: var(--stress_red_disabled, #fcafaa);\r\n  --v_text_hover: var(--text_hover, #797f87);\r\n  --v_text_active: var(--text_active, #61666d);\r\n  --v_text_disabled: var(--text_disabled, #c9ccd0);\r\n  --v_line_border: var(--line_border, #c9ccd0);\r\n  --v_line_bolder_hover: var(--line_bolder_hover, #e3e5e7);\r\n  --v_line_bolder_active: var(--line_bolder_active, #aeb3b9);\r\n  --v_line_bolder_disabled: var(--line_bolder_disabled, #f1f2f3);\r\n}\r\n\r\n@font-face {\r\n  font-family: fanscard;\r\n  src: url(//s1.hdslb.com/bfs/static/jinkela/mall-h5/asserts/fansCard.ttf);\r\n}\r\n\r\n.svg-icon {\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n}\r\n\r\n.svg-icon svg {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.svg-icon.use-color svg path {\r\n  fill: currentColor;\r\n  color: inherit;\r\n}\r\n\r\n.top-vote-card {\r\n  background-color: var(--graph_bg_thin);\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  height: 80px;\r\n  width: 100%;\r\n  margin-bottom: 24px;\r\n  padding: 12px 16px 12px 10px;\r\n  border-radius: 6px;\r\n}\r\n\r\n.top-vote-card__multi {\r\n  cursor: pointer;\r\n}\r\n\r\n.top-vote-card__multi:hover .vote-result-text {\r\n  color: var(--brand_blue);\r\n  transition: 0.2s;\r\n}\r\n\r\n.top-vote-card-left {\r\n  width: 40%;\r\n  max-width: calc(40% - 30px);\r\n  margin-right: 20px;\r\n  word-wrap: break-word;\r\n  font-size: 13px;\r\n  line-height: 18px;\r\n  color: var(--text1);\r\n}\r\n\r\n.top-vote-card-left__title {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.top-vote-card-left__title svg {\r\n  margin-right: 2px;\r\n  flex: none;\r\n}\r\n\r\n.top-vote-card-left__title span {\r\n  display: -webkit-box;\r\n  float: none;\r\n  height: 18px;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  word-break: break-word;\r\n  -webkit-box-orient: vertical;\r\n  -webkit-line-clamp: 1;\r\n}\r\n\r\n.top-vote-card-left__join {\r\n  height: 17px;\r\n  display: flex;\r\n  align-items: center;\r\n  margin-top: 4px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.top-vote-card-left__join .vote-icon {\r\n  height: 12px;\r\n}\r\n\r\n.top-vote-card-left__join span {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.top-vote-card-right {\r\n  width: 60%;\r\n  font-size: var(--2fde2a28);\r\n  line-height: 17px;\r\n  display: flex;\r\n  --option-height: 40px;\r\n  --option-radius: 6px;\r\n}\r\n\r\n.top-vote-card-right .vote-text__not-vote {\r\n  opacity: 0.9;\r\n}\r\n\r\n.top-vote-card-right .vote-text__not-vote .vui_ellipsis {\r\n  font-weight: 400 !important;\r\n}\r\n\r\n.top-vote-card-right .vote-text :first-child {\r\n  font-weight: 500;\r\n}\r\n\r\n.top-vote-card-right .vote-icon {\r\n  flex: none;\r\n}\r\n\r\n.top-vote-card-right .left-vote-option {\r\n  position: relative;\r\n  display: flex;\r\n  min-width: 120px;\r\n  align-items: center;\r\n  justify-content: space-between;\r\n  background-color: rgba(255, 102, 153, var(--212267a6));\r\n  height: var(--option-height);\r\n  width: var(--38c5ebb3);\r\n  padding-left: 10px;\r\n  border-radius: var(--option-radius) 0 0 var(--option-radius);\r\n  cursor: pointer;\r\n  margin-right: 30px;\r\n  color: var(--332a347e);\r\n  transition: width ease-out 0.2s;\r\n}\r\n\r\n.top-vote-card-right .left-vote-option .skew-vote-option {\r\n  position: absolute;\r\n  right: -20px;\r\n  top: 0;\r\n}\r\n\r\n.top-vote-card-right .left-vote-option .skew-vote-option__fill {\r\n  left: -8px;\r\n  background-color: #f69;\r\n  transform: skew(21deg);\r\n  border-top-right-radius: calc(var(--option-radius) - 2px);\r\n  border-bottom-right-radius: var(--option-radius);\r\n}\r\n\r\n.top-vote-card-right .skew-vote-option {\r\n  height: 40px;\r\n  width: 20px;\r\n  overflow: hidden;\r\n  opacity: var(--212267a6);\r\n  pointer-events: none;\r\n}\r\n\r\n.top-vote-card-right .skew-vote-option__fill {\r\n  pointer-events: all;\r\n  position: absolute;\r\n  top: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.top-vote-card-right .right-vote-option {\r\n  position: relative;\r\n  display: flex;\r\n  min-width: 120px;\r\n  align-items: center;\r\n  flex-direction: row-reverse;\r\n  justify-content: space-between;\r\n  background-color: rgba(0, 174, 236, var(--212267a6));\r\n  height: var(--option-height);\r\n  width: var(--4b2970aa);\r\n  padding-right: 10px;\r\n  border-radius: 0 var(--option-radius) var(--option-radius) 0;\r\n  cursor: pointer;\r\n  color: var(--1e587827);\r\n  transition: width ease-out 0.2s;\r\n}\r\n\r\n.top-vote-card-right .right-vote-option .skew-vote-option {\r\n  position: absolute;\r\n  left: -20px;\r\n  top: 0;\r\n}\r\n\r\n.top-vote-card-right .right-vote-option .skew-vote-option__fill {\r\n  left: 8px;\r\n  background-color: #00aeec;\r\n  transform: skew(21deg);\r\n  border-top-left-radius: var(--option-radius);\r\n  border-bottom-left-radius: calc(var(--option-radius) - 2px);\r\n}\r\n\r\n.top-vote-card-right .right-vote-option .vote-text {\r\n  text-align: right;\r\n}\r\n\r\n.top-vote-card-right .had_voted {\r\n  cursor: unset;\r\n}\r\n\r\n.reply-header .reply-notice {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  min-height: 40px;\r\n  padding: 4px 10px;\r\n  margin-bottom: 16px;\r\n  font-size: 13px;\r\n  border-radius: 2px;\r\n  color: var(--Ye5_u);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header .reply-notice:after {\r\n  content: "";\r\n  position: absolute;\r\n  width: 100%;\r\n  height: 100%;\r\n  top: 0;\r\n  left: 0;\r\n  background-color: var(--Ye5_u);\r\n  opacity: 0.2;\r\n}\r\n\r\n.reply-header .reply-notice .notice-icon {\r\n  width: 16px;\r\n  height: 16px;\r\n  margin-right: 5px;\r\n}\r\n\r\n.reply-header .reply-notice .notice-content {\r\n  flex: 1;\r\n  padding: 0 5px;\r\n  vertical-align: top;\r\n  word-wrap: break-word;\r\n  word-break: break-all;\r\n}\r\n\r\n.reply-header .reply-notice .notice-close-icon {\r\n  position: relative;\r\n  z-index: 1;\r\n  width: 10px;\r\n  height: 10px;\r\n  margin-left: 5px;\r\n}\r\n\r\n.reply-header .reply-navigation {\r\n  margin-bottom: 22px;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar {\r\n  display: flex;\r\n  align-items: center;\r\n  list-style: none;\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-title {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title {\r\n    font-size: 20px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title {\r\n    font-size: 24px;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-title .nav-title-text {\r\n  color: var(--text1);\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Medium,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 500;\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title .nav-title-text {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-title .total-reply {\r\n  margin: 0 36px 0 6px;\r\n  font-weight: 400;\r\n  color: var(--text3);\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title .total-reply {\r\n    font-size: 13px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title .total-reply {\r\n    font-size: 14px;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Medium,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 500;\r\n  color: var(--text1);\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n    font-size: 13px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n    font-size: 16px;\r\n  }\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort {\r\n  display: flex;\r\n  align-items: center;\r\n  color: var(--text3);\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-sort {\r\n    font-size: 13px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-sort {\r\n    font-size: 16px;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .part-symbol {\r\n  height: 11px;\r\n  margin: 0 12px;\r\n  border-left: solid 1px;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .hot-sort {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .hot-sort:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .time-sort {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .time-sort:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort.hot .hot-sort,\r\n.reply-header .reply-navigation .nav-bar .nav-sort.time .time-sort {\r\n  color: var(--text1);\r\n}\r\n\r\n.reply-header .reply-navigation .nav-operation-warp {\r\n  position: absolute;\r\n  right: 0;\r\n}\r\n\r\n/*\r\n   * @bilibili/userAvatar\r\n   * version: 1.2.0-beta.2. Powered by main-frontend\r\n   * 用户头像公共组件.\r\n   * author: wuxiuran\r\n   */\r\n.bili-avatar {\r\n  display: block;\r\n  position: relative;\r\n  background-image: url(data:image/gif;base64,R0lGODlhtAC0AOYAALzEy+To7rG6wb/Hzd/k6rK7wsPK0bvDybO8w9/j6dDW3NHX3eHl6+Hm7LnByLa+xeDl6+Lm7M/V27vDyt7j6dHX3r/Gzb/HzsLJ0LS9xLW+xbe/xtLY3s/V3OPn7dne5NXb4eDk67jAx7S8w+Dk6rrCybW9xMXM08TL0sLK0Nrf5cXM0tjd48zS2bO7wsrR17W+xLfAx8fO1La/xsbN07K7wbzEytzh573FzNLX3uLn7cDHzsbN1NPZ377Gzb7FzNbc4sjP1dfd49bb4tvg5svR2LfAxsnQ1s7U293h6Nbb4dTa4MrQ19fc4t3i6L7GzMnP1s7U2tXa4M3T2sDIz97i6N7i6dje5MjO1dfc473Ey8HJz9vg57jBx8jP1tPY38PL0cfO1dne5dXa4ePn7sHIz8vS2Nrf5tDW3djd5M3T2cDIztTZ4L3Fy7rCyMTL0czT2bC5wOXp7wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS4zLWMwMTEgNjYuMTQ1NjYxLCAyMDEyLzAyLzA2LTE0OjU2OjI3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M2IChXaW5kb3dzKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo1OTQ4QTFCMzg4NDAxMUU1OTA2NUJGQjgwNzVFMDQ2NSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo1OTQ4QTFCNDg4NDAxMUU1OTA2NUJGQjgwNzVFMDQ2NSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjU5NDhBMUIxODg0MDExRTU5MDY1QkZCODA3NUUwNDY1IiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU5NDhBMUIyODg0MDExRTU5MDY1QkZCODA3NUUwNDY1Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+Af/+/fz7+vn49/b19PPy8fDv7u3s6+rp6Ofm5eTj4uHg397d3Nva2djX1tXU09LR0M/OzczLysnIx8bFxMPCwcC/vr28u7q5uLe2tbSzsrGwr66trKuqqainpqWko6KhoJ+enZybmpmYl5aVlJOSkZCPjo2Mi4qJiIeGhYSDgoGAf359fHt6eXh3dnV0c3JxcG9ubWxramloZ2ZlZGNiYWBfXl1cW1pZWFdWVVRTUlFQT05NTEtKSUhHRkVEQ0JBQD8+PTw7Ojk4NzY1NDMyMTAvLi0sKyopKCcmJSQjIiEgHx4dHBsaGRgXFhUUExIREA8ODQwLCgkIBwYFBAMCAQAAIfkEAAAAAAAsAAAAALQAtAAAB/+AcoKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19sA6SCtTCakBCyuKOLmXKAGOOAhLiDkFoQzCOA9YEDyE5SHCBx9KhdhhMc6EBhMJeXDQMY6GjKIgXCgZR0jIQR4msDRxJRQBHyzjoHwpR0LODRI9keDI0kAAnoI8rMgJoyYnlTkBUEA6KMDSmTsxhTjIEsBAqlWvlowR9BIBCzmf9ANLyCrTrJP/SAzI+WMtW5EncmpIUwkCTpZaqtw9FIBGzgxlIRHgWvLH1MGIDLN8ACRSArQsfRCAnCgAj5wmsjwigbnkk80hA6hezbr1ajkeMoCu7Lq1HIM5C9yQU7v363EQFhxBMeGA8ePIkx+fMEFAzjgFmCtHPuHBcwEAik/fbnwCCiZfQHKzcoLk8/Po06tfr95BC7vWAkgQwb6+/fv4ETqocC2EgfwABihgRzToQM1ZJT0AwIIMNujggxBGKOGEFFYIgHkWYQCBNA0A0BEASOzmDAMS2NBRCh5AE4AMFiGAhIHSeIAEAhYdAQ0HFmkwxDVDmPBQAU2MiCECSiDiAQkhMBAC/wFMNunkk1ASkMCUUzJJAgQMMNDAllxyGUEEXTaQ5ZhjQmDmmRCEcOVRhyhBI0I2RNCMGRZ5cUgO5RWAQAYuCCBADYDW4OeghBZqqJ8FuLAnDBo84OijkDqqwaQwwGDCpRlkOsKmCHTaqQsjAIDFAocEYVEHzDCA4QMkFNIAGAgdcMEAtM5K6621XqDrrrz2uiuuFgQr7LDEFmsBrsjiWgJCYIg3CAnW6ZeiMgtYBEUhEfwQhwEqsFkMGSxw9IOchHjxIwjKBICBRS4R8pkZzHgWhwyFCGHRCcoQMIJFZxAyRBz4NhMADgIUOYgKFjnAQDJLOIeQboTQUAB8y3wgAP8PhHBRwEMCwEUMiw+Z8BhvJVChogMHeEuBbA+NkQysDxmxsCARbPBCNDs8QK4cDBhhUQvJrJHwtHJAAAMS0byQwYZJYRgHxsjM9VAJ3kJgAqrQoAFDCFUdYBEKyUiN0ASENCCCBNF0IIKzcpj4kAFhWwQAIRE4gDY0EjiwsxwePpRC3A+1Qbfd0eS9N2PbAo7QAIPf/YzhhBCFENxRW/T3IHU77gzkg6RgEeXHiB0HBmWfnXYMbK/7tuKjl72B5s10sMHMgqg+OeukD9LA62nPTojtiVf+0A+EMPAA7Mx08ADTgjxhOetzDwLBA1g/04EGzPP9vPBjEwKBBtU7o8D/1oS4jdDloVtE9iAhZBC+JVkg0YS3kQzhgAMoRBEkJgpk0OogMvEb61I2CH29LxJWWMIKROAcAUzACpIIgLYsIoITAGFvkVAAAlAjiADejnseIQQBEHDARlBAAT5gWUemIIkXPKcLGEhD9hyhABdwUA4eDF76HrI+QRCgAAqARADYYACHHUZEjvDAstAzAx54TBEKmBghcgg6Y4iuh3L4YRAbEQEFuGE96HoEA2awHgHIgAg0lCIAP8c6G4gQiIw4wwvIyJ5+QUIB9SkACpCYiCjCx3w6tKJFtCBCEnZmDGUwono20AP6OSIIG2NPAbAwskNo8IbOWx0I10AIEoyg/4RyIMJf2DMDNcwQEiowQCTXU4AjYHAQl/wdG0GIPjmQwH2HCIHT0jMCJtDOElWAwi7RgwNEKGAENwReFYshutz50JCGAJl6HuCFG2YiAl/oW3oQYMwNylKTO0SIM7MIzUL8Jz0bkIE1O8GCLfjoPA/oZjJnGc7WFdAFWyxEtZ4zAhpwwJGhSIAEnrDKjpDKkgWYJzgF+ZBxavEQHlhJRzSAAja80hQkmIIBNGCRGfySEH785gfrWcuHHuIDGajBBnBwAhb8DxYk+MAKLBCFdcJSjbWjJ0PPR4gEwBERViDCR4GhgBrAR5msq6JP8yk+AcDHcwtlpk6XGg0FOJUQUP8d6U4DmYAaMLUZVq3kObUq1YeAbRAJEMBXNUGCV3pgnR94YibCSoixBrKsCDmrINK6VkwoQQNlKAQRJpCBdgmCAQdAgFM6QddBoECneI2DXm+jVk98Jg5hFMRVCDkIF8YBeXMVQCUfG1ViiC5ggqBAZTvhhBhARAWCqMIq0QAbKDgHAVz4RGMFQVqymtYiNCCEavuKiRu41gUGKMIXNyCTAuxgiSOojG5FS4i8lHYYoqMXWn/qiSrkUABSaMASEaKF3ILCqvC5rG+xaxEsuA60mtABHKhQgi2EkQFH2IIBFABQTsiObWGA7G8fYiPMmQ4aamMbFATM3ofcDHOEw5v/3gjBBAYLQ3RFaFzhJjyIIlg4GBgmhA4i/DgOC8LD172wRZggYhJvzsRyqHCKQWyRFdDtwNZbGyHEctcBI8Rk0oMBKJOhABNwbRBUsAgYkiHR7klPA/AlMgyyl0PUGgN4VMOcEYAGDRTorCrjjUMQkmFdhMgMzFB7hhayfFifPYS2yEAxQhCQhB13gWipykBwB3GDNyFkf8cgQkFhO4h/9eAZLYiDwQSBsIfQORkNcJphBUGDDHxlGSoowJ4HYa+H7GAZnkWInegGAA0k5hhKGIEDYDQIUz2Ey8kQgwse8gBrRmBdFzDDAna9gBzkoALADrawh01sYP8a2LxOtrKX/83sZVfA19CuQAucN4E6i5CjCMlAJZGxBYuM2RALoEF1NDADGAigAHrylLo95YJ2o/vd8NbTCDLQqA1sIAYiEEEM9o3vfOvbCPYO+Axm8KhJaQABg0K3AEzwBgngWRAVESAzmrBKBGS2EAFIEwNIQAEKJOBJVAq5yBPQ8ZJ73EpYytKWyKSllbM8S2gKgcxJbnIKHNkQIPBzAQjNjN7GwQQXnwYI3omQazmjCl1oURRYXVU/xyFO0ACCCscmgUszowEc2IIiMSKNBSgSIRuwkNjHTvayN2iYIwj6MxZA9AG5/e3TVDs0WBBmuNv97k+3ozUIwARs4/3vAZpBC4ZaDf8CtMACdDzPuQvwdcBfx0/rEQEAWnBKbYRgCUsAgRSkMIYxLKAHIGjCFVRABC6ogAUg4IADII+QMHDg9bCHfQf29ZARKCD2uLdrHBDQgyawIK4fEAIQNL+EHoB+CJrvwReykAC2xaMHX/80Ij5QEmsbIgJ1j0MYJvFweARglLVfyCHk/JCDGuILLKmBXNkyhII+xOiGACRCrFwV8GeIMyKd6EsHsbKS4ACgQNB4D8NzSBEAZEAGqiEHNzBrOREFhrAELJEBFKMu57FMBcgmrpYTNsB0cpCBHQEXmXYeBYBGkNEAbvYcFxcAXsMSDlhd6WFjkNED6eEDGeN0FgFkguD/BO7HEo82GKKTE+o3CPvEEg7gLdKEHt/GFn2mHnpVZiXRgwQwdeehATYVEommHgIAQSNxHksgCKGmHiwEFgGQdOsRXCH4HPAyPfXRBRwYEiBQH9oWBeixAwEwBffBH1Thc+rxArqXIFZAH/bxA/1lDyFgg+mhARuAHgJgLvchAKdGED7xd9FyHxZ4D23gePmBAIIREkQggJioHmrwEl/4ifXBZvcQAMNEilj4iPOQBZ6oiuixfQRxhLBISs4nDx6QiLV4HxxwD1Kwi/gRWPbghMDIStYnD7tTjPcBa/KgBMp4HxPQfe7AY8+IhdIVDw3gWtVYH/TnDlmwjfaxAVWogg60CI7pkQPxQAbZZ47nUWDvcAWvyI7+N4jocIXyqB4FIH7tEADadI/p8WDtsIT+qB7R6A5IMJBltH7lkFUIiR7uqA7f05DqAQDSWA7/IpHpsXPsUI4YyRJhmA4S1JHpgYPo4AS0J5LPIQI3dw5v2BHnFo/+WAOTZg4yhpLnYX6xEAgAOw==);\r\n  -webkit-background-size: cover;\r\n  background-size: cover;\r\n  border-radius: 50%;\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.bili-avatar * {\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.bili-avatar-face {\r\n  position: absolute;\r\n  top: 50%;\r\n  left: 50%;\r\n  -webkit-transform: translate(-50%, -50%);\r\n  -moz-transform: translate(-50%, -50%);\r\n  -ms-transform: translate(-50%, -50%);\r\n  -o-transform: translate(-50%, -50%);\r\n  transform: translate(-50%, -50%);\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.bili-avatar-pendent-dom {\r\n  height: 176.48%;\r\n  width: 176.48%;\r\n  position: absolute;\r\n  top: -38.33%;\r\n  left: -38.33%;\r\n  overflow: hidden;\r\n}\r\n\r\n.bili-avatar-pendent-dom img {\r\n  height: 100%;\r\n  min-width: 100%;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n\r\n.bili-avatar-img {\r\n  border: none;\r\n  display: block;\r\n  -o-object-fit: cover;\r\n  object-fit: cover;\r\n  image-rendering: -webkit-optimize-contrast;\r\n}\r\n\r\n.bili-avatar-img-radius {\r\n  border-radius: 50%;\r\n}\r\n\r\n.bili-avatar-img[src=""],\r\n.bili-avatar-img:not([src]) {\r\n  opacity: 0;\r\n}\r\n\r\n.bili-avatar-img.bili-avatar-img-error {\r\n  display: none;\r\n}\r\n\r\n.bili-avatar-right-icon {\r\n  width: 27.5%;\r\n  height: 27.5%;\r\n  position: absolute;\r\n  right: 0;\r\n  bottom: -1px;\r\n  -webkit-background-size: cover;\r\n  background-size: cover;\r\n  image-rendering: -webkit-optimize-contrast;\r\n}\r\n\r\n.bili-avatar-nft-icon {\r\n  position: absolute;\r\n  width: 27.5%;\r\n  height: 27.5%;\r\n  right: -webkit-calc(27.5% - 1px);\r\n  right: -moz-calc(27.5% - 1px);\r\n  right: calc(27.5% - 1px);\r\n  bottom: -1px;\r\n  -webkit-background-size: cover;\r\n  background-size: cover;\r\n  image-rendering: -webkit-optimize-contrast;\r\n}\r\n\r\n@-webkit-keyframes bili-avatar {\r\n  0% {\r\n    -webkit-transform: translate3d(0, 0, 0);\r\n    transform: translateZ(0);\r\n  }\r\n\r\n  to {\r\n    -webkit-transform: translate3d(-97.5%, 0, 0);\r\n    transform: translate3d(-97.5%, 0, 0);\r\n  }\r\n}\r\n\r\n@-moz-keyframes bili-avatar {\r\n  0% {\r\n    -moz-transform: translate3d(0, 0, 0);\r\n    transform: translateZ(0);\r\n  }\r\n\r\n  to {\r\n    -moz-transform: translate3d(-97.5%, 0, 0);\r\n    transform: translate3d(-97.5%, 0, 0);\r\n  }\r\n}\r\n\r\n@keyframes bili-avatar {\r\n  0% {\r\n    -webkit-transform: translate3d(0, 0, 0);\r\n    -moz-transform: translate3d(0, 0, 0);\r\n    transform: translateZ(0);\r\n  }\r\n\r\n  to {\r\n    -webkit-transform: translate3d(-97.5%, 0, 0);\r\n    -moz-transform: translate3d(-97.5%, 0, 0);\r\n    transform: translate3d(-97.5%, 0, 0);\r\n  }\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-80 {\r\n  width: 22px;\r\n  height: 22px;\r\n  bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-60,\r\n.bili-avatar .bili-avatar-size-50,\r\n.bili-avatar .bili-avatar-size-48 {\r\n  width: 18px;\r\n  height: 18px;\r\n  bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-40,\r\n.bili-avatar .bili-avatar-size-36 {\r\n  width: 14px;\r\n  height: 14px;\r\n  bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-30,\r\n.bili-avatar .bili-avatar-size-24 {\r\n  width: 12px;\r\n  height: 12px;\r\n  bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-80 {\r\n  width: 22px;\r\n  height: 22px;\r\n  bottom: -1px;\r\n  right: -webkit-calc(22px - 1px);\r\n  right: -moz-calc(22px - 1px);\r\n  right: 21px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-60,\r\n.bili-avatar .bili-avatar-size-nft-50,\r\n.bili-avatar .bili-avatar-size-nft-48 {\r\n  width: 18px;\r\n  height: 18px;\r\n  bottom: -1px;\r\n  right: -webkit-calc(18px - 1px);\r\n  right: -moz-calc(18px - 1px);\r\n  right: 17px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-40,\r\n.bili-avatar .bili-avatar-size-nft-36 {\r\n  width: 14px;\r\n  height: 14px;\r\n  bottom: -1px;\r\n  right: -webkit-calc(14px - 1px);\r\n  right: -moz-calc(14px - 1px);\r\n  right: 13px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-30,\r\n.bili-avatar .bili-avatar-size-nft-24 {\r\n  width: 12px;\r\n  height: 12px;\r\n  bottom: -1px;\r\n  right: -webkit-calc(12px - 1px);\r\n  right: -moz-calc(12px - 1px);\r\n  right: 11px;\r\n}\r\n\r\n.reply-image {\r\n  width: var(--3414c33c);\r\n  height: var(--822197ea);\r\n}\r\n\r\n.reply-image.b-img {\r\n  background-color: inherit;\r\n}\r\n\r\n.reply-image.b-img img {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.opacity-enter-active,\r\n.opacity-leave-active {\r\n  transition: opacity 0.15s ease;\r\n}\r\n\r\n.opacity-enter-from,\r\n.opacity-leave-to {\r\n  opacity: 0;\r\n}\r\n\r\n.reply-box {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n\r\n.reply-box .box-normal {\r\n  display: flex;\r\n  z-index: 2;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 80px;\r\n  height: 48px;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp {\r\n  position: relative;\r\n  flex: 1;\r\n  transition: 0.2s;\r\n  border: 1px solid var(--line_regular);\r\n  border-radius: 6px;\r\n  background-color: var(--bg3);\r\n  overflow-x: hidden;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp.focus-within,\r\n.reply-box .box-normal .reply-box-warp:hover {\r\n  border-color: var(--line_regular);\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap {\r\n  padding: 8px 0;\r\n  display: flex;\r\n  flex-direction: column;\r\n  width: 100%;\r\n  border-radius: 6px;\r\n  cursor: text;\r\n  overflow: hidden;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info {\r\n  margin-left: 10px;\r\n  margin-bottom: 4px;\r\n  height: 20px;\r\n  font-size: 12px;\r\n  line-height: 17px;\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag {\r\n  flex: none;\r\n  padding: 2px 6px;\r\n  border-radius: 2px;\r\n  margin-right: 4px;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--pink {\r\n  background-color: var(--Pi1);\r\n  color: var(--Pi5);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--blue {\r\n  background-color: var(--brand_blue_thin);\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--gary {\r\n  background-color: var(--graph_bg_regular);\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__text {\r\n  max-width: calc(100% - 68px);\r\n  color: var(--text2);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__close {\r\n  flex: none;\r\n  margin-left: 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-input {\r\n  padding: 0 8px;\r\n  width: 100%;\r\n  height: 100%;\r\n  border: 1px solid var(--Ga1);\r\n  border-radius: 6px;\r\n  background-color: var(--bg3);\r\n  font-family: inherit;\r\n  line-height: 20px;\r\n  color: var(--text1);\r\n  resize: none;\r\n  outline: none;\r\n  overflow-y: scroll;\r\n  overflow-x: hidden;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-input.focus,\r\n.reply-box .box-normal .reply-box-warp .reply-input:hover {\r\n  background-color: var(--bg1);\r\n  border-color: var(--graph_weak);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-box-textarea {\r\n  padding: 0 8px;\r\n  width: 100%;\r\n  height: 32px;\r\n  border: none;\r\n  border-radius: 6px;\r\n  background-color: transparent;\r\n  font-family: inherit;\r\n  font-size: 14px;\r\n  line-height: 32px;\r\n  color: var(--text1);\r\n  resize: none;\r\n  outline: none;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-box-textarea::placeholder {\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .image-content-wrap {\r\n  background: transparent;\r\n}\r\n\r\n.reply-box .box-expand {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  margin-left: 80px;\r\n  margin-top: 10px;\r\n  z-index: 1;\r\n  height: 32px;\r\n  transition: all 0.2s ease-in-out;\r\n}\r\n\r\n.reply-box .box-expand.hide {\r\n  margin-top: 0;\r\n  height: 0;\r\n  overflow: hidden;\r\n  transition: all 0.2s ease-in-out;\r\n}\r\n\r\n.reply-box .box-expand .box-left {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-emoji {\r\n  width: 32px;\r\n  height: 26px;\r\n  margin-right: 6px;\r\n  position: relative;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-emoji .emoji-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 100%;\r\n  height: 100%;\r\n  border: 1px solid var(--line_regular);\r\n  border-radius: 4px;\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .at-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 32px;\r\n  height: 26px;\r\n  margin-right: 6px;\r\n  border: 1px solid var(--line_regular);\r\n  border-radius: 4px;\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .image-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 32px;\r\n  height: 26px;\r\n  border: 1px solid var(--line_regular);\r\n  border-radius: 4px;\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .image-btn.disabled {\r\n  opacity: 0.4;\r\n}\r\n\r\n.reply-box .box-expand .image-btn .image-upload-input {\r\n  appearance: none;\r\n  position: absolute;\r\n  top: 0;\r\n  left: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n  opacity: 0;\r\n  font-size: 0;\r\n  user-select: auto;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .forward-to-dynamic {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-left: 16px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box .box-expand .forward-to-dynamic .forward-input,\r\n.reply-box .box-expand .forward-to-dynamic .forward-label {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send {\r\n  float: right;\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 70px;\r\n  height: 32px;\r\n  border-radius: 6px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send .send-text {\r\n  position: absolute;\r\n  z-index: 1;\r\n  font-size: 16px;\r\n  color: var(--text_white);\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send:after {\r\n  content: "";\r\n  position: absolute;\r\n  opacity: 0.5;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 4px;\r\n  background-color: var(--brand_blue);\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send:hover:after {\r\n  opacity: 1;\r\n}\r\n\r\n.reply-box.box-active .box-normal .reply-box-warp .reply-box-textarea.send-active {\r\n  line-height: normal;\r\n}\r\n\r\n.reply-box.box-active .reply-box-send.send-active:after {\r\n  opacity: 1;\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: absolute;\r\n  top: 0;\r\n  left: 0;\r\n  z-index: 1;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 6px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  width: 100%;\r\n  height: 100%;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask .login-btn {\r\n  padding: 4px 9px;\r\n  margin: 0 3px;\r\n  border-radius: 4px;\r\n  color: var(--text_white);\r\n  background-color: var(--brand_blue);\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask .login-btn:hover {\r\n  background-color: var(--Lb4);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box.disabled .reply-box-send .send-text {\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box.disabled .reply-box-send:after {\r\n  opacity: 1;\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.reply-box.fixed-box {\r\n  position: relative;\r\n  z-index: 2;\r\n  padding: 15px 0;\r\n  border-top: 0.5px solid var(--graph_bg_thick);\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.reply-content-container.fold .reply-content {\r\n  display: -webkit-box;\r\n  -webkit-box-orient: vertical;\r\n  -webkit-line-clamp: 4;\r\n}\r\n\r\n.reply-content-container .reply-content {\r\n  color: var(--text1);\r\n  overflow: hidden;\r\n  word-wrap: break-word;\r\n  word-break: break-word;\r\n  white-space: pre-wrap;\r\n  line-height: 24px;\r\n  vertical-align: baseline;\r\n}\r\n\r\n.reply-content-container .reply-content .note-prefix {\r\n  display: inline-flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  padding: 1px 4px;\r\n  border-radius: 4px;\r\n  margin-right: 8px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  line-height: 20px;\r\n  vertical-align: bottom;\r\n  background-color: var(--bg2);\r\n}\r\n\r\n.reply-content-container .reply-content .note-prefix .note-icon {\r\n  width: 16px;\r\n  height: 16px;\r\n}\r\n\r\n.reply-content-container .reply-content .top-icon {\r\n  top: -2px;\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 30px;\r\n  height: 18px;\r\n  border: 1px solid var(--brand_pink);\r\n  border-radius: 3px;\r\n  margin-right: 5px;\r\n  font-size: 12px;\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-content-container .reply-content .emoji-small {\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-content-container .reply-content .emoji-small {\r\n    width: 20px;\r\n    height: 20px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-content-container .reply-content .emoji-small {\r\n    width: 22px;\r\n    height: 22px;\r\n  }\r\n}\r\n\r\n.reply-content-container .reply-content .emoji-large {\r\n  width: 50px;\r\n  height: 50px;\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-container .reply-content .icon {\r\n  width: 20px;\r\n  height: 20px;\r\n  vertical-align: text-top;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-content-container .reply-content .icon {\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-content-container .reply-content .icon {\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n.reply-content-container .reply-content .icon.search-word {\r\n  width: 12px;\r\n  display: inline-block;\r\n  background-size: contain;\r\n  background-repeat: no-repeat;\r\n}\r\n\r\n.reply-content-container .reply-content .jump-link {\r\n  vertical-align: baseline;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-content-container .reply-content .jump-link {\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-content-container .reply-content .jump-link {\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n.reply-content-container .expand-content {\r\n  color: var(--text_link);\r\n  cursor: pointer;\r\n  margin-left: 4px;\r\n}\r\n\r\n.reply-content-container .expand-content:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-item {\r\n  position: relative;\r\n  padding: 8px 0 8px 42px;\r\n  border-radius: 4px;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .sub-reply-item {\r\n    font-size: 15px;\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .sub-reply-item {\r\n    font-size: 16px;\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n.sub-reply-item.show-reply {\r\n  background-color: #dff6fb;\r\n  animation-name: enterAnimation-jumpReply-1f8a4018;\r\n  animation-duration: 2s;\r\n  animation-delay: 3s;\r\n  animation-fill-mode: forwards;\r\n}\r\n\r\n.sub-reply-item .sub-user-info {\r\n  display: inline-flex;\r\n  align-items: center;\r\n  margin-right: 9px;\r\n  line-height: 24px;\r\n  vertical-align: baseline;\r\n  white-space: nowrap;\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-reply-avatar {\r\n  position: absolute;\r\n  left: 8px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-user-name {\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Medium,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 500;\r\n  margin-right: 5px;\r\n  color: var(--3bab3096);\r\n  cursor: pointer;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .sub-reply-item .sub-user-info .sub-user-name {\r\n    font-size: 13px;\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .sub-reply-item .sub-user-info .sub-user-name {\r\n    font-size: 14px;\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .sub-reply-item .sub-user-info .sub-user-name {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-user-level {\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-up-icon {\r\n  cursor: default;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  margin-top: 2px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-time {\r\n  margin-right: var(--7530c1e4);\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-location {\r\n  margin-right: 20px;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-like {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon {\r\n  margin-right: 5px;\r\n  color: #9499a0;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon:hover,\r\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon.liked {\r\n  color: #00aeec;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon {\r\n  color: #9499a0;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon:hover,\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon.disliked {\r\n  color: #00aeec;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-btn {\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-btn:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-operation-warp {\r\n  position: absolute;\r\n  right: 40px;\r\n  opacity: 0;\r\n}\r\n\r\n.sub-reply-item:hover .sub-reply-info .sub-reply-operation-warp {\r\n  opacity: 1;\r\n}\r\n\r\n@keyframes enterAnimation-jumpReply-1f8a4018 {\r\n  0% {\r\n    background-color: #dff6fb;\r\n  }\r\n\r\n  to {\r\n    background-color: #dff6fb00;\r\n  }\r\n}\r\n\r\n.sub-reply-list .view-more {\r\n  padding-left: 8px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-default .view-more-btn {\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-default .view-more-btn:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination {\r\n  color: var(--text1);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-count {\r\n  margin-right: 10px;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-btn {\r\n  margin: 0 4 0 14px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-btn:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number {\r\n  margin: 0 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number:hover,\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number.current-page {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-dot {\r\n  margin: 0 4px;\r\n  cursor: default;\r\n}\r\n\r\n.image-exhibition {\r\n  margin-top: 8px;\r\n  user-select: none;\r\n}\r\n\r\n.image-exhibition .preview-image-container {\r\n  max-width: var(--dacbf126);\r\n  display: flex;\r\n  flex-wrap: wrap;\r\n  row-gap: var(--77b1c8ee);\r\n  column-gap: var(--0c349aa2);\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: relative;\r\n  border-radius: var(--7fefecd2);\r\n  overflow: hidden;\r\n  cursor: zoom-in;\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap.vertical {\r\n  flex-direction: column;\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap.extra-long {\r\n  justify-content: start;\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap .more-image {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  position: absolute;\r\n  right: 4px;\r\n  bottom: 4px;\r\n  height: 20px;\r\n  padding: 0 6px;\r\n  border-radius: 4px;\r\n  font-size: 13px;\r\n  color: var(--text_white);\r\n  font-weight: 500;\r\n  line-height: 18px;\r\n  background: rgba(0, 0, 0, 0.7);\r\n}\r\n\r\n.image-exhibition .preview-image-container .client-image-item-warp:nth-child(3n + 1) {\r\n  border-bottom-right-radius: 0;\r\n  border-top-right-radius: 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .client-image-item-warp:nth-child(3n + 2) {\r\n  border-radius: 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .client-image-item-warp:nth-child(3n + 3) {\r\n  border-bottom-left-radius: 0;\r\n  border-top-left-radius: 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .client-image-item-warp:nth-last-child(1) {\r\n  border-bottom-right-radius: var(--7fefecd2);\r\n  border-top-right-radius: var(--7fefecd2);\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(1) {\r\n  border-radius: var(--7fefecd2) 0 0 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(3) {\r\n  border-radius: 0 var(--7fefecd2) 0 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(7) {\r\n  border-radius: 0 0 0 var(--7fefecd2);\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(9) {\r\n  border-radius: 0 0 var(--7fefecd2) 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(3n + 2) {\r\n  border-radius: 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp.expand-image-two-rows:nth-child(4) {\r\n  border-radius: 0 0 0 var(--7fefecd2);\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp.expand-image-two-rows:nth-child(6) {\r\n  border-radius: 0 0 var(--7fefecd2) 0;\r\n}\r\n\r\n.reply-user-sailing {\r\n  height: 48px;\r\n}\r\n\r\n.vote-warp {\r\n  display: flex;\r\n  width: 100%;\r\n  height: 80px;\r\n  border: 0.5px solid var(--graph_bg_thick);\r\n  border-radius: 4px;\r\n  margin: 10px 0;\r\n}\r\n\r\n.vote-warp .vote-icon-warp {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  flex-basis: 80px;\r\n  flex-shrink: 0;\r\n  border-top-left-radius: 4px;\r\n  border-bottom-left-radius: 4px;\r\n  background-color: var(--brand_blue_thin);\r\n}\r\n\r\n.vote-warp .vote-icon-warp .vote-icon {\r\n  width: 40px;\r\n  height: 40px;\r\n}\r\n\r\n.vote-warp .vote-container {\r\n  display: flex;\r\n  align-items: center;\r\n  flex: 1;\r\n  border-top-right-radius: 4px;\r\n  border-bottom-right-radius: 4px;\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.vote-warp .vote-container .vote-text-warp {\r\n  flex: 1;\r\n  padding-left: 15px;\r\n}\r\n\r\n.vote-warp .vote-container .vote-text-warp .vote-title {\r\n  font-size: 14px;\r\n  color: var(--text1);\r\n}\r\n\r\n.vote-warp .vote-container .vote-text-warp .vote-desc {\r\n  margin-top: 10px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.vote-warp .vote-container .vote-btn-warp {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  flex-basis: 90px;\r\n  flex-shrink: 0;\r\n}\r\n\r\n.vote-warp .vote-container .vote-btn-warp .vote-btn {\r\n  width: 54px;\r\n  height: 28px;\r\n  border-radius: 4px;\r\n  font-size: 13px;\r\n  text-align: center;\r\n  line-height: 28px;\r\n  color: var(--text_white);\r\n  background-color: var(--brand_blue);\r\n  cursor: pointer;\r\n}\r\n\r\n.vote-warp .vote-container .vote-btn-warp .vote-btn:hover {\r\n  background-color: var(--Lb4);\r\n}\r\n\r\n.vote-dialog {\r\n  max-height: 100vh;\r\n  overflow-y: auto;\r\n}\r\n\r\n.vote-dialog::-webkit-scrollbar {\r\n  width: 4px;\r\n  border-radius: 4px;\r\n  background-color: transparent;\r\n}\r\n\r\n.vote-dialog::-webkit-scrollbar-thumb {\r\n  border-radius: 4px;\r\n  background-color: var(--graph_bg_thick);\r\n  transition: 0.3s ease-in-out;\r\n}\r\n\r\n.vote-dialog::-webkit-scrollbar-track {\r\n  border-radius: 4px;\r\n  background-color: transparent;\r\n}\r\n\r\n.vote-dialog .vote-iframe-warp {\r\n  height: 600px;\r\n  padding-top: 10px;\r\n  border-top: 0.5px solid var(--graph_weak);\r\n}\r\n\r\n.vote-dialog .vote-iframe-warp .vote-iframe {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.reply-item {\r\n  position: relative;\r\n}\r\n\r\n.reply-item .login-limit-mask {\r\n  display: none;\r\n  position: absolute;\r\n  top: 0;\r\n  right: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n  z-index: 10;\r\n  pointer-events: none;\r\n}\r\n\r\n.reply-item .login-limit-mask .mask-top {\r\n  height: 80%;\r\n  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, var(--bg1) 100%);\r\n}\r\n\r\n.reply-item .login-limit-mask .mask-bottom {\r\n  height: 20%;\r\n  background: var(--bg1);\r\n}\r\n\r\n.reply-item.login-limit-reply-end .login-limit-mask {\r\n  display: block;\r\n}\r\n\r\n.reply-item .root-reply-container {\r\n  padding: 22px 0 0 80px;\r\n}\r\n\r\n.reply-item .root-reply-container.show-reply {\r\n  animation-name: enterAnimation-jumpReply-7041f671;\r\n  animation-duration: 5s;\r\n  animation-fill-mode: forwards;\r\n}\r\n\r\n.reply-item .root-reply-container .root-reply-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: absolute;\r\n  left: 0;\r\n  width: 80px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp {\r\n  flex: 1;\r\n  position: relative;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate {\r\n  position: absolute;\r\n  top: 0;\r\n  right: 0;\r\n  user-select: none;\r\n  transform: translateY(-15px);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .easter-egg-label {\r\n  width: 82px;\r\n  height: 36px;\r\n  transform: translateY(6px);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .easter-egg-label img {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .selected-reply .selected-reply-icon {\r\n  width: var(--213e47ca);\r\n  height: var(--268890ba);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing .user-sailing-img {\r\n  height: 48px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing .user-sailing-text {\r\n  position: absolute;\r\n  right: 0;\r\n  font-size: 13px;\r\n  color: var(--2bd55d12);\r\n  line-height: 16px;\r\n  word-break: keep-all;\r\n  transform: scale(0.7);\r\n  transform-origin: center center;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing .user-sailing-text .sailing-text {\r\n  font-family: fanscard;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-bottom: 4px;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-item .root-reply-container .content-warp .user-info {\r\n    font-size: 13px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-item .root-reply-container .content-warp .user-info {\r\n    font-size: 14px;\r\n  }\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .user-name {\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Medium,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 500;\r\n  margin-right: 5px;\r\n  color: var(--dc735352);\r\n  cursor: pointer;\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .reply-item .root-reply-container .content-warp .user-info .user-name {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .user-level {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .up-icon {\r\n  cursor: default;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .contractor-box {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: var(--697d5c46);\r\n  height: 12px;\r\n  padding: 2px;\r\n  border-radius: 2px;\r\n  background-color: var(--brand_pink_thin);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .contractor-box.originalFan {\r\n  border: 0.5px solid var(--brand_pink);\r\n  background-color: transparent;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .contractor-box .contractor-text {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  font-size: 16px;\r\n  transform-origin: center center;\r\n  transform: scale(0.5);\r\n  position: absolute;\r\n  color: var(--brand_pink);\r\n  white-space: nowrap;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge {\r\n  display: flex;\r\n  align-items: center;\r\n  height: 14px;\r\n  padding-left: 5px;\r\n  border: 0.5px solid var(--3d3b5a1e);\r\n  border-radius: 10px;\r\n  margin-left: 5px;\r\n  background-image: var(--35269ce2);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-icon-wrap {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  width: var(--1f5204fd);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-icon-wrap .badge-frist-icon {\r\n  position: absolute;\r\n  left: -8px;\r\n  width: 20px;\r\n  height: 20px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-icon-wrap .badge-second-icon {\r\n  position: absolute;\r\n  right: 0;\r\n  width: 8px;\r\n  height: 11px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-name-wrap {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: var(--4f9eed68);\r\n  height: 100%;\r\n  margin-right: 4px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-name-wrap .badge-name {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  font-size: 18px;\r\n  transform-origin: center center;\r\n  transform: scale(0.5);\r\n  position: absolute;\r\n  top: 50%;\r\n  left: 50%;\r\n  color: var(--57e6be72);\r\n  font-weight: 500;\r\n  white-space: nowrap;\r\n  transform: scale(0.5) translate(-50%, -50%);\r\n  transform-origin: 0 0;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-level-wrap {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  position: relative;\r\n  width: 11.5px;\r\n  height: 11.5px;\r\n  border-radius: 50%;\r\n  margin-right: 0.5px;\r\n  background-color: var(--59f85baa);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-level-wrap .badge-level {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  font-size: 14px;\r\n  transform-origin: center center;\r\n  transform: scale(0.5);\r\n  position: absolute;\r\n  top: 52%;\r\n  left: 50%;\r\n  font-family: Reeji-CloudHuPo-GBK;\r\n  color: var(--103312b6);\r\n  font-weight: 500;\r\n  white-space: nowrap;\r\n  line-height: 1;\r\n  transform: scale(0.5) translate(-50%, -43%);\r\n  transform-origin: 0 0;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info {\r\n  margin-bottom: 4px;\r\n  height: 20px;\r\n  font-size: 12px;\r\n  line-height: 17px;\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag {\r\n  padding: 2px 6px;\r\n  border-radius: 2px;\r\n  margin-right: 4px;\r\n  flex: none;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag--pink {\r\n  background-color: var(--Pi1);\r\n  color: var(--Pi5);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag--blue {\r\n  background-color: var(--brand_blue_thin);\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag--gray {\r\n  background-color: var(--graph_bg_regular);\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__text {\r\n  color: var(--Ga7_u);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply {\r\n  position: relative;\r\n  padding: 2px 0;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-item .root-reply-container .content-warp .root-reply {\r\n    font-size: 15px;\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-item .root-reply-container .content-warp .root-reply {\r\n    font-size: 16px;\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-content-container {\r\n  display: block;\r\n  overflow: hidden;\r\n  width: 100%;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  margin-top: 2px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-time {\r\n  margin-right: var(--472bae2d);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-location {\r\n  margin-right: 20px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon {\r\n  margin-right: 5px;\r\n  color: #9499a0;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon:hover,\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon.liked {\r\n  color: #00aeec;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike .dislike-icon {\r\n  color: #9499a0;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike .dislike-icon:hover,\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike .dislike-icon.disliked {\r\n  color: #00aeec;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-btn {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-btn:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-operation-warp {\r\n  position: absolute;\r\n  right: 20px;\r\n  display: none;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-tag-list {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-top: 6px;\r\n  font-size: 12px;\r\n  line-height: 17px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-tag-list .reply-tag-item {\r\n  padding: 2px 6px;\r\n  border-radius: 2px;\r\n  margin-right: 10px;\r\n}\r\n\r\n.reply-item .root-reply-container:hover .content-warp .root-reply .reply-info .reply-operation-warp {\r\n  display: block;\r\n}\r\n\r\n.reply-item .sub-reply-container {\r\n  padding-left: 72px;\r\n}\r\n\r\n.reply-item .reply-box-container {\r\n  padding: 25px 0 10px 80px;\r\n}\r\n\r\n.reply-item .bottom-line {\r\n  margin-left: 80px;\r\n  border-bottom: 1px solid var(--graph_bg_thick);\r\n  margin-top: 14px;\r\n}\r\n\r\n.reply-item .reply-dynamic-card {\r\n  position: absolute;\r\n  z-index: 10;\r\n  top: 30px;\r\n  left: 400px;\r\n}\r\n\r\n@keyframes enterAnimation-jumpReply-7041f671 {\r\n  0% {\r\n    background-color: #dff6fb;\r\n  }\r\n\r\n  to {\r\n    background-color: #dff6fb00;\r\n  }\r\n}\r\n\r\n.reply-list {\r\n  margin-top: 14px;\r\n  padding-bottom: 100px;\r\n}\r\n\r\n.reply-list .reply-end-mark {\r\n  height: 100px;\r\n}\r\n\r\n.reply-list .reply-end,\r\n.reply-list .reply-loading,\r\n.reply-list .view-all-reply {\r\n  margin-top: 20px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n  text-align: center;\r\n}\r\n\r\n.reply-list .view-all-reply:hover {\r\n  color: var(--brand_blue);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-list .login-prompt {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  width: calc(100% - 80px);\r\n  height: 50px;\r\n  margin: 16px 0 0 auto;\r\n  border-radius: 6px;\r\n  font-size: 14px;\r\n  color: var(--brand_blue);\r\n  background-color: var(--brand_blue_thin);\r\n  transition: 0.2s;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-list .login-prompt:hover {\r\n  background-color: var(--Lb2);\r\n}\r\n\r\n.user-card {\r\n  position: absolute;\r\n  top: var(--555c4a14);\r\n  left: var(--8468e010);\r\n  z-index: 10;\r\n  width: 366px;\r\n  border: 0.5px solid var(--graph_weak);\r\n  border-radius: 8px;\r\n  background-color: var(--bg1);\r\n  box-shadow: 0 0 30px #0000001a;\r\n}\r\n\r\n.user-card .card-bg {\r\n  width: 100%;\r\n  height: 85px;\r\n  border-radius: 8px 8px 0 0;\r\n  overflow: hidden;\r\n  background-image: var(--71924242);\r\n  background-size: cover;\r\n  background-repeat: no-repeat;\r\n  background-position: center;\r\n}\r\n\r\n.user-card .user-card-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: absolute;\r\n  width: 70px;\r\n  margin-top: 10px;\r\n  cursor: pointer;\r\n}\r\n\r\n.user-card .card-content {\r\n  display: flex;\r\n  flex-direction: column;\r\n  padding: 12px 20px 16px 70px;\r\n}\r\n\r\n.user-card .card-content .card-user-info {\r\n  display: flex;\r\n  align-items: center;\r\n  color: var(--text1);\r\n  margin-bottom: 10px;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-name {\r\n  max-width: 160px;\r\n  margin-right: 5px;\r\n  font-size: 16px;\r\n  font-weight: 600;\r\n  overflow: hidden;\r\n  white-space: nowrap;\r\n  text-overflow: ellipsis;\r\n  color: var(--text1);\r\n  color: var(--7ba58c95);\r\n  text-decoration: none;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-sex {\r\n  width: 16px;\r\n  height: 16px;\r\n  margin-right: 5px;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-level {\r\n  margin-right: 5px;\r\n  cursor: pointer;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-vip {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: var(--7a718880);\r\n  height: 16px;\r\n  padding: 1px 4px;\r\n  border-radius: 2px;\r\n  color: var(--612d8511);\r\n  background-color: var(--29ab308e);\r\n  cursor: default;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-vip .card-vip-text {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  font-size: 20px;\r\n  transform-origin: center center;\r\n  transform: scale(0.5);\r\n  white-space: nowrap;\r\n  font-style: normal;\r\n}\r\n\r\n.user-card .card-content .card-social-info {\r\n  display: flex;\r\n  align-items: center;\r\n  font-size: 12px;\r\n  color: var(--text1);\r\n}\r\n\r\n.user-card .card-content .card-social-info .card-user-attention,\r\n.user-card .card-content .card-social-info .card-user-fans,\r\n.user-card .card-content .card-social-info .card-user-like {\r\n  margin-right: 18px;\r\n  color: inherit;\r\n  text-decoration: none;\r\n}\r\n\r\n.user-card .card-content .card-social-info .card-user-attention .social-info-title,\r\n.user-card .card-content .card-social-info .card-user-fans .social-info-title,\r\n.user-card .card-content .card-social-info .card-user-like .social-info-title {\r\n  margin-left: 3px;\r\n  color: var(--text3);\r\n}\r\n\r\n.user-card .card-content .card-verify-info {\r\n  padding-top: 10px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.user-card .card-content .card-verify-info .card-verify-icon {\r\n  vertical-align: text-bottom;\r\n  margin-right: 3px;\r\n}\r\n\r\n.user-card .card-content .card-sign {\r\n  padding-top: 8px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  word-break: break-all;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp {\r\n  display: flex;\r\n  margin-top: 16px;\r\n  font-size: 14px;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 100px;\r\n  height: 30px;\r\n  border-radius: 4px;\r\n  margin-right: 8px;\r\n  color: var(--text_white);\r\n  background-color: var(--brand_blue);\r\n  transition: 0.4s;\r\n  cursor: pointer;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn .cancel-attention-text {\r\n  display: none;\r\n  position: absolute;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn.attention {\r\n  color: var(--text2);\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn.attention:hover .attention-text {\r\n  display: none;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn.attention:hover .cancel-attention-text {\r\n  display: inline;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-message-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 100px;\r\n  height: 30px;\r\n  border: 1px solid var(--graph_weak);\r\n  border-radius: 4px;\r\n  color: var(--text2);\r\n  cursor: pointer;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-message-btn:hover {\r\n  border-color: var(--brand_blue);\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.dynamic-card {\r\n  display: flex;\r\n  flex-direction: column;\r\n  position: absolute;\r\n  z-index: 10;\r\n  top: var(--7b058890);\r\n  left: 400px;\r\n  width: 710px;\r\n  height: 550px;\r\n  border-radius: 6px;\r\n  background-color: var(--bg1);\r\n  box-shadow: 0 0 25px #00000026;\r\n}\r\n\r\n.dynamic-card .card-header {\r\n  display: flex;\r\n  align-items: center;\r\n  flex-basis: 50px;\r\n  padding: 0 10px;\r\n  border-bottom: 0.5px solid var(--line_light);\r\n}\r\n\r\n.dynamic-card .card-header .card-title {\r\n  flex: 1;\r\n  text-align: center;\r\n  font-size: 16px;\r\n  color: var(--text1);\r\n}\r\n\r\n.dynamic-card .card-header .close-card {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  width: 30px;\r\n  height: 30px;\r\n  border-radius: 6px;\r\n  color: var(--text2);\r\n  transition: 0.2s;\r\n  cursor: pointer;\r\n}\r\n\r\n.dynamic-card .card-header .close-card:hover {\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.dynamic-card .card-content {\r\n  flex: 1;\r\n}\r\n\r\n.dynamic-card .card-content::-webkit-scrollbar {\r\n  width: 4px;\r\n  border-radius: 4px;\r\n  background-color: transparent;\r\n}\r\n\r\n.dynamic-card .card-content::-webkit-scrollbar-thumb {\r\n  border-radius: 4px;\r\n  background-color: var(--graph_bg_thick);\r\n  transition: 0.3s ease-in-out;\r\n}\r\n\r\n.dynamic-card .card-content::-webkit-scrollbar-track {\r\n  border-radius: 4px;\r\n  background-color: transparent;\r\n}\r\n\r\n.dynamic-card .card-content .dynamic-card-iframe {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.reply-view-image {\r\n  position: fixed;\r\n  z-index: 999999;\r\n  top: 0;\r\n  left: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n  background: rgba(24, 25, 28, 0.85);\r\n  transform: scale(1);\r\n  user-select: none;\r\n  cursor: default;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  -webkit-user-drag: none;\r\n}\r\n\r\n.reply-view-image,\r\n.reply-view-image * {\r\n  box-sizing: border-box;\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  position: absolute;\r\n  z-index: 2;\r\n  width: 42px;\r\n  height: 42px;\r\n  border-radius: 50%;\r\n  color: var(--text_white);\r\n  background: rgba(0, 0, 0, 0.58);\r\n  transition: 0.2s;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon:hover {\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon.close-container {\r\n  top: 16px;\r\n  right: 16px;\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon.last-image {\r\n  top: 50%;\r\n  left: 16px;\r\n  transform: translateY(-50%);\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon.next-image {\r\n  top: 50%;\r\n  right: 16px;\r\n  transform: translateY(-50%);\r\n}\r\n\r\n.reply-view-image .show-image-wrap {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  position: absolute;\r\n  width: 100%;\r\n  height: 100%;\r\n  max-height: 100%;\r\n  padding: 0 100px;\r\n  overflow: auto;\r\n}\r\n\r\n.reply-view-image .show-image-wrap .loading-svga {\r\n  position: absolute;\r\n  top: 50%;\r\n  left: 50%;\r\n  transform: translate(-50%, -50%);\r\n  width: 42px;\r\n  height: 42px;\r\n}\r\n\r\n.reply-view-image .show-image-wrap.vertical {\r\n  flex-direction: column;\r\n  justify-content: var(--c186e874);\r\n}\r\n\r\n.reply-view-image .show-image-wrap .image-content {\r\n  width: calc(100vw - 200px);\r\n  max-width: var(--34114ac9);\r\n  -webkit-user-drag: none;\r\n}\r\n\r\n.reply-view-image .preview-list {\r\n  display: flex;\r\n  align-items: center;\r\n  position: absolute;\r\n  left: 50%;\r\n  bottom: 30px;\r\n  z-index: 2;\r\n  padding: 6px 10px;\r\n  border-radius: 8px;\r\n  background: rgba(24, 25, 28, 0.8);\r\n  backdrop-filter: blur(20px);\r\n  transform: translate(-50%);\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box {\r\n  padding: 1px;\r\n  border: 2px solid transparent;\r\n  border-radius: 8px;\r\n  transition: 0.3s;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box.active {\r\n  border-color: var(--brand_pink);\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap {\r\n  display: flex;\r\n  justify-content: center;\r\n  overflow: hidden;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 6px;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap.vertical {\r\n  flex-direction: column;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap.extra-long {\r\n  justify-content: start;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap .item-content {\r\n  -webkit-user-drag: none;\r\n}\r\n\r\n.reply-view-image--transition-enter-active,\r\n.reply-view-image--transition-leave-active {\r\n  transition: all 0.3s ease;\r\n}\r\n\r\n.reply-view-image--transition-enter-from,\r\n.reply-view-image--transition-leave-to {\r\n  transform: scale(0.4);\r\n  opacity: 0;\r\n}\r\n\r\n.reply-warp {\r\n  position: relative;\r\n}\r\n\r\n.reply-warp .fixed-reply-box {\r\n  position: fixed;\r\n  bottom: 0;\r\n  left: var(--3e88ddc5);\r\n  z-index: 10;\r\n  width: var(--d9a0b070);\r\n}\r\n\r\n.reply-warp .fixed-reply-box .reply-box-shadow {\r\n  position: absolute;\r\n  top: -10px;\r\n  z-index: 1;\r\n  width: 100%;\r\n  height: 36px;\r\n  border-radius: 50%;\r\n  background-color: #00000014;\r\n  filter: blur(10px);\r\n}\r\n\r\n.reply-warp .fixed-reply-box--transition-enter-active,\r\n.reply-warp .fixed-reply-box--transition-leave-active {\r\n  transition: opacity 0.5s ease;\r\n}\r\n\r\n.reply-warp .fixed-reply-box--transition-enter-from,\r\n.reply-warp .fixed-reply-box--transition-leave-to {\r\n  opacity: 0;\r\n}\r\n\r\n.bili-comment.browser-pc {\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.bili-comment.browser-pc * {\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Regular,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 400;\r\n  box-sizing: border-box;\r\n  -webkit-font-smoothing: antialiased;\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .bili-comment.browser-pc * {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.bili-comment.browser-pc * ul {\r\n  padding: 0;\r\n  margin: 0;\r\n  list-style: none;\r\n}\r\n\r\n.bili-comment.browser-pc * a {\r\n  text-decoration: none;\r\n  background-color: transparent;\r\n  color: var(--text_link);\r\n  cursor: pointer;\r\n}\r\n\r\n.bili-comment.browser-pc * a:hover {\r\n  color: var(--Lb4);\r\n}\r\n\r\n.bili-comment.browser-pc * i {\r\n  font-style: normal;\r\n}\r\n\r\n.bili-comment.browser-pc * p {\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.bili-comment.browser-pc .comment-container {\r\n  animation-name: enterAnimation-commentContainer;\r\n  animation-duration: 1s;\r\n  animation-fill-mode: forwards;\r\n}\r\n\r\n.reply-operation-client {\r\n  display: inline-flex;\r\n  position: relative;\r\n}\r\n\r\n.reply-operation-client .operation-icon {\r\n  border-radius: 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-operation-client .operation-icon:hover {\r\n  background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.reply-operation-client .operation-list {\r\n  display: flex;\r\n  flex-direction: column;\r\n  position: absolute;\r\n  top: 10px;\r\n  right: 0;\r\n  z-index: 10;\r\n  width: 180px;\r\n  padding: 12px 0;\r\n  border-radius: 6px;\r\n  font-size: 14px;\r\n  color: var(--text2);\r\n  background-color: var(--bg1_float);\r\n  box-shadow: 0 0 5px #0003;\r\n}\r\n\r\n.reply-operation-client .operation-list .operation-option {\r\n  display: flex;\r\n  align-items: center;\r\n  height: 40px;\r\n  padding: 0 15px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-operation-client .operation-list .operation-option:hover {\r\n  background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal {\r\n  position: absolute;\r\n  top: 0;\r\n  left: 50%;\r\n  width: auto;\r\n  padding: 10px 20px;\r\n  border: 1px solid var(--graph_bg_thick);\r\n  border-radius: 8px;\r\n  margin-bottom: 100px;\r\n  font-size: 12px;\r\n  line-height: 12px;\r\n  text-align: center;\r\n  white-space: nowrap;\r\n  background-color: var(--bg1);\r\n  box-shadow: 0 0 5px #0003;\r\n  transform: translate(-50%, -100%);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .comfirm-delete {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 40px;\r\n  height: 20px;\r\n  border-radius: 4px;\r\n  margin-right: 20px;\r\n  color: var(--text_white);\r\n  background-color: var(--brand_blue);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .comfirm-delete:hover {\r\n  background-color: var(--Lb4);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .cancel-delete {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 40px;\r\n  height: 20px;\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .cancel-delete:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.select-reply-dialog-client .select-dialog-content {\r\n  text-align: left;\r\n}\r\n\r\n.select-reply-dialog-client .cancel-select-reply {\r\n  width: 130px;\r\n  margin-right: 20px;\r\n}\r\n\r\n.select-reply-dialog-client .comfirm-select-reply {\r\n  width: 130px;\r\n}\r\n\r\n.close-reply-dialog-client .close-reply-dialog-content {\r\n  text-align: left;\r\n}\r\n\r\n.close-reply-dialog-client .cancel-close-reply {\r\n  width: 130px;\r\n  margin-right: 20px;\r\n}\r\n\r\n.close-reply-dialog-client .comfirm-close-reply {\r\n  width: 130px;\r\n}\r\n\r\n.close-danmaku-dialog-client .close-danmaku-dialog-content {\r\n  text-align: left;\r\n}\r\n\r\n.close-danmaku-dialog-client .cancel-close-danmaku {\r\n  width: 130px;\r\n  margin-right: 20px;\r\n}\r\n\r\n.close-danmaku-dialog-client .comfirm-close-danmaku {\r\n  width: 130px;\r\n}\r\n\r\n.blacklist-dialog-client .blacklist-dialog-content {\r\n  text-align: center;\r\n}\r\n\r\n.blacklist-dialog-client .comfirm-pull-blacklist {\r\n  margin-right: 20px;\r\n}\r\n\r\n.reply-header-client .reply-notice {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  height: 40px;\r\n  padding: 11px 14px;\r\n  margin-bottom: 10px;\r\n  font-size: 12px;\r\n  border-radius: 2px;\r\n  color: var(--text_notice);\r\n  background-color: var(--Or0);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header-client .reply-notice .notice-content {\r\n  flex: 1;\r\n  position: relative;\r\n  padding: 0 5px;\r\n  line-height: 18px;\r\n  vertical-align: top;\r\n  word-wrap: break-word;\r\n  word-break: break-all;\r\n  white-space: nowrap;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  transition: 2s;\r\n}\r\n\r\n.reply-header-client .reply-navigation {\r\n  margin: 12px 0;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  list-style: none;\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-select-reply {\r\n  font-size: 12px;\r\n  color: var(--text1);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort {\r\n  display: flex;\r\n  align-items: center;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .part-symbol {\r\n  height: 10px;\r\n  margin: 0 8px;\r\n  border-left: solid 1px;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .hot-sort {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .hot-sort:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .time-sort {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .time-sort:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort.hot .hot-sort,\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort.time .time-sort {\r\n  color: var(--text1);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-operation-warp {\r\n  position: absolute;\r\n  right: 0;\r\n}\r\n\r\n.reply-box-client {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n\r\n.reply-box-client .reply-box-warp {\r\n  position: relative;\r\n  flex: 1;\r\n}\r\n\r\n.reply-box-client .reply-box-warp .reply-box-textarea {\r\n  width: 100%;\r\n  height: 32px;\r\n  padding: 5px 12px;\r\n  border: 1px solid transparent;\r\n  border-radius: 6px;\r\n  line-height: 20px;\r\n  color: var(--text1);\r\n  background-color: var(--bg2);\r\n  resize: none;\r\n  outline: none;\r\n  transition: 0.2s;\r\n}\r\n\r\n.reply-box-client .reply-box-warp .reply-box-textarea::placeholder {\r\n  color: var(--text4);\r\n}\r\n\r\n.reply-box-client .reply-box-warp .reply-box-textarea.focus,\r\n.reply-box-client .reply-box-warp .reply-box-textarea:hover {\r\n  border-color: var(--brand_pink);\r\n}\r\n\r\n.reply-box-client .box-operation-warp {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-top: 10px;\r\n  height: 32px;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-emoji {\r\n  position: relative;\r\n  margin-right: auto;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-emoji .box-emoji-icon {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 70px;\r\n  height: 100%;\r\n  border-radius: 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send .send-text {\r\n  position: absolute;\r\n  z-index: 1;\r\n  color: var(--text_white);\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send:after {\r\n  content: "";\r\n  position: absolute;\r\n  opacity: 0.5;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 4px;\r\n  background-color: var(--brand_pink);\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send:hover:after {\r\n  opacity: 1;\r\n}\r\n\r\n.reply-box-client.box-active .reply-box-warp .reply-box-textarea {\r\n  height: 60px;\r\n}\r\n\r\n.reply-box-client.box-active .reply-box-send.send-active:after {\r\n  opacity: 1;\r\n}\r\n\r\n.reply-box-client.disabled .reply-box-warp .disable-mask {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: absolute;\r\n  top: 0;\r\n  left: 0;\r\n  z-index: 1;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 6px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.reply-box-client.disabled .reply-box-warp .disable-mask .no-login-mask {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box-client.disabled .box-operation-warp .reply-box-send {\r\n  cursor: not-allowed;\r\n}\r\n\r\n.reply-box-client.disabled .box-operation-warp .reply-box-send .send-text {\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box-client.disabled .box-operation-warp .reply-box-send:after {\r\n  opacity: 1;\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.note-prefix {\r\n  vertical-align: -3px;\r\n  display: inline-flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  padding: 0 3px;\r\n  line-height: 19px;\r\n  border-radius: 4px;\r\n  margin-right: 6px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  background-color: var(--bg2);\r\n}\r\n\r\n.note-prefix .note-icon {\r\n  width: 16px;\r\n  height: 16px;\r\n}\r\n\r\n.reply-content-client {\r\n  color: var(--text1);\r\n  overflow: hidden;\r\n  word-wrap: break-word;\r\n  word-break: break-word;\r\n  white-space: pre-wrap;\r\n  vertical-align: baseline;\r\n  transition: 0.2s;\r\n}\r\n\r\n.reply-content-client.root {\r\n  line-height: 25px;\r\n}\r\n\r\n.reply-content-client.need-view-more {\r\n  display: -webkit-box;\r\n  -webkit-box-orient: vertical;\r\n  overflow: hidden;\r\n}\r\n\r\n.reply-content-client.sub {\r\n  line-height: 20px;\r\n}\r\n\r\n.reply-content-client .top-icon {\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 30px;\r\n  height: 18px;\r\n  border: 1px solid var(--brand_pink);\r\n  border-radius: 3px;\r\n  margin-right: 5px;\r\n  font-size: 12px;\r\n  color: var(--brand_pink);\r\n  vertical-align: 1px;\r\n}\r\n\r\n.reply-content-client .emoji-small {\r\n  width: 20px;\r\n  height: 20px;\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-client .emoji-large {\r\n  width: 36px;\r\n  height: 36px;\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-client .jump-link {\r\n  vertical-align: baseline;\r\n}\r\n\r\n.reply-content-client .icon {\r\n  width: 20px;\r\n  height: 20px;\r\n  vertical-align: text-top;\r\n}\r\n\r\n.reply-content-client .icon.vote {\r\n  width: 16px;\r\n  height: 16px;\r\n  margin-right: 3px;\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-client .icon.search-word {\r\n  width: 12px;\r\n  display: inline-block;\r\n  background-size: contain;\r\n  background-repeat: no-repeat;\r\n}\r\n\r\n.view-more-reply {\r\n  font-size: 12px;\r\n  color: var(--text_link);\r\n  line-height: 17px;\r\n  cursor: pointer;\r\n}\r\n\r\n.view-more-reply:hover {\r\n  color: var(--Lb4);\r\n}\r\n\r\n.sub-reply-item-client {\r\n  display: -webkit-box;\r\n  -webkit-box-orient: vertical;\r\n  -webkit-line-clamp: 2;\r\n  position: relative;\r\n  max-height: 42px;\r\n  padding: 3px 0;\r\n  font-size: 14px;\r\n  overflow: hidden;\r\n}\r\n\r\n.sub-reply-item-client .sub-user-info {\r\n  display: inline-flex;\r\n  align-items: center;\r\n  color: var(--text2);\r\n  line-height: 20px;\r\n  vertical-align: baseline;\r\n  white-space: nowrap;\r\n}\r\n\r\n.sub-reply-item-client .sub-user-info .sub-user-name {\r\n  margin-right: 5px;\r\n  font-size: 14px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item-client .sub-user-info .sub-up-icon {\r\n  margin-right: 4px;\r\n  cursor: default;\r\n}\r\n\r\n.sub-reply-list-client {\r\n  border-radius: 4px;\r\n  padding: 7px 10px;\r\n  margin-top: 12px;\r\n  background-color: var(--bg2_float);\r\n}\r\n\r\n.sub-reply-list-client .view-more {\r\n  margin-top: 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-list-client .view-more .view-more-text {\r\n  font-size: 12px;\r\n  color: var(--text_link);\r\n}\r\n\r\n.sub-reply-list-client .view-more .view-more-text:hover {\r\n  color: var(--Lb4);\r\n}\r\n\r\n.content-warp--blacklist .reply-content {\r\n  display: inline-flex;\r\n  align-items: center;\r\n  padding: 4px;\r\n  border-radius: 4px;\r\n  color: var(--text1);\r\n  background-color: var(--bg2_float);\r\n}\r\n\r\n.content-warp--blacklist .reply-content .ban-icon {\r\n  margin-right: 4px;\r\n}\r\n\r\n.content-warp--blacklist .reply-header {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-bottom: 8px;\r\n}\r\n\r\n.content-warp--blacklist .reply-header .root-reply-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: absolute;\r\n  left: 0;\r\n  cursor: pointer;\r\n}\r\n\r\n.content-warp--blacklist .reply-header .root-reply-avatar .blacklist-avatar {\r\n  width: 30px;\r\n  height: 30px;\r\n}\r\n\r\n.content-warp--blacklist .reply-header .reply-info .balcklist-name {\r\n  color: var(--text1);\r\n}\r\n\r\n.reply-item-client {\r\n  position: relative;\r\n  padding: 10px 0 14px 42px;\r\n  border-bottom: 1px solid var(--line_light);\r\n}\r\n\r\n.reply-item-client .content-warp {\r\n  flex: 1;\r\n  position: relative;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-bottom: 8px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .root-reply-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: absolute;\r\n  left: -42px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info {\r\n  display: flex;\r\n  align-items: center;\r\n  font-size: 13px;\r\n  color: var(--text2);\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info .user-name {\r\n  margin-right: 5px;\r\n  color: var(--be794234);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info .user-level {\r\n  margin-right: 5px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info .up-icon {\r\n  cursor: default;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .reply-time {\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply {\r\n  position: relative;\r\n  font-size: 15px;\r\n  line-height: 25px;\r\n  transition: 0.2s;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  margin-top: 12px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n  line-height: 16px;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like .like-icon {\r\n  margin-right: 5px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like .like-icon:hover,\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like .like-icon.liked {\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike .dislike-icon {\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike .dislike-icon:hover,\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike .dislike-icon.disliked {\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-icon {\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-icon:hover {\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .more-operation {\r\n  display: none;\r\n  position: absolute;\r\n  right: 20px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-item-box {\r\n  margin-top: 12px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-tag-list {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-top: 12px;\r\n  font-size: 12px;\r\n  line-height: 14px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-tag-list .reply-tag-item {\r\n  padding: 5px 6px;\r\n  border-radius: 2px;\r\n  margin-right: 10px;\r\n  color: var(--text2);\r\n  background-color: var(--bg2_float);\r\n}\r\n\r\n.reply-item-client:hover .content-warp .root-reply .reply-operation-warp .more-operation {\r\n  display: block;\r\n}\r\n\r\n.reply-list {\r\n  position: relative;\r\n  margin-top: 14px;\r\n  padding-bottom: 100px;\r\n}\r\n\r\n.reply-list .reply-empty {\r\n  margin-top: 100px;\r\n  text-align: center;\r\n  font-size: 14px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-list .reply-end-mark {\r\n  height: 100px;\r\n}\r\n\r\n.reply-list .reply-end,\r\n.reply-list .reply-loading {\r\n  margin-top: 20px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n  text-align: center;\r\n}\r\n\r\n.fixed-reply-box {\r\n  bottom: 0;\r\n  z-index: 20;\r\n  width: 100%;\r\n}\r\n\r\n.fixed-reply-box .reply-box-wrap {\r\n  background-color: var(--bg1);\r\n  padding: 14px 0;\r\n  border-top: 1px solid var(--line_light);\r\n}\r\n\r\n.fixed-reply-box .reply-box-shadow {\r\n  position: absolute;\r\n  top: -10px;\r\n  z-index: -1;\r\n  height: 36px;\r\n  border-radius: 50%;\r\n  background-color: #00000014;\r\n  filter: blur(10px);\r\n  width: calc(100% - 72px);\r\n  left: 50%;\r\n  transform: translate(-50%);\r\n}\r\n\r\n.reply-detail {\r\n  flex: 1;\r\n}\r\n\r\n.reply-detail .reply-header {\r\n  display: flex;\r\n  align-items: center;\r\n  position: sticky;\r\n  z-index: 9;\r\n  top: 0;\r\n  left: 0;\r\n  height: 46px;\r\n  border-bottom: 1px solid var(--line_light);\r\n  margin-bottom: 14px;\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.reply-detail .reply-header .return-icon {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 32px;\r\n  height: 32px;\r\n  border-radius: 4px;\r\n  margin-right: 4px;\r\n  color: var(--text1);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-detail .reply-header .return-icon:hover {\r\n  background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.reply-detail .reply-header .reply-title {\r\n  font-size: 16px;\r\n  font-weight: 600;\r\n  color: var(--text1);\r\n}\r\n\r\n.dialog-reply {\r\n  flex: 1;\r\n}\r\n\r\n.dialog-reply .reply-header {\r\n  display: flex;\r\n  align-items: center;\r\n  position: sticky;\r\n  z-index: 9;\r\n  top: 0;\r\n  left: 0;\r\n  height: 46px;\r\n  border-bottom: 1px solid var(--line_light);\r\n  margin-bottom: 14px;\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.dialog-reply .reply-header .return-icon {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 32px;\r\n  height: 32px;\r\n  border-radius: 4px;\r\n  margin-right: 4px;\r\n  color: var(--text1);\r\n  cursor: pointer;\r\n}\r\n\r\n.dialog-reply .reply-header .return-icon:hover {\r\n  background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.dialog-reply .reply-header .reply-title {\r\n  font-size: 16px;\r\n  font-weight: 600;\r\n  color: var(--text1);\r\n}\r\n\r\n.bili-comment.client {\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.bili-comment.client * {\r\n  box-sizing: border-box;\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Regular,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  -webkit-font-smoothing: antialiased;\r\n}\r\n\r\n.bili-comment.client * ul {\r\n  list-style: none;\r\n}\r\n\r\n.bili-comment.client * a {\r\n  text-decoration: none;\r\n  background-color: transparent;\r\n  color: var(--text_link);\r\n  cursor: pointer;\r\n}\r\n\r\n.bili-comment.client * a:hover {\r\n  color: var(--Lb4);\r\n}\r\n\r\n.bili-comment.client * i {\r\n  font-style: normal;\r\n}\r\n';
+  const MobileCommentModuleStyle =
+    ':root {\r\n  --v_xs: 5px;\r\n  --v_xsx: 4px;\r\n  --v_xxs: 6px;\r\n  --v_sm: 10px;\r\n  --v_smx: 8px;\r\n  --v_xsm: 12px;\r\n  --v_md: 15px;\r\n  --v_mdx: 14px;\r\n  --v_xmd: 16px;\r\n  --v_lg: 20px;\r\n  --v_lgx: 18px;\r\n  --v_xlg: 22px;\r\n  --v_xl: 25px;\r\n  --v_xlx: 24px;\r\n  --v_xxl: 26px;\r\n  --v_fs_1: 24px;\r\n  --v_fs_2: 18px;\r\n  --v_fs_3: 16px;\r\n  --v_fs_4: 14px;\r\n  --v_fs_5: 13px;\r\n  --v_fs_6: 12px;\r\n  --v_lh_xs: 1;\r\n  --v_lh_sm: 1.25;\r\n  --v_lh_md: 1.5;\r\n  --v_lh_lg: 1.75;\r\n  --v_lh_xl: 2;\r\n  --v_height_xs: 16px;\r\n  --v_height_sm: 24px;\r\n  --v_height_md: 32px;\r\n  --v_height_lg: 40px;\r\n  --v_height_xl: 48px;\r\n  --v_radius: 6px;\r\n  --v_radius_sm: 4px;\r\n  --v_radius_md: 8px;\r\n  --v_radius_lg: 10px;\r\n  --v_brand_pink: var(--brand_pink, #ff6699);\r\n  --v_brand_pink_thin: var(--brand_pink_thin, #ffecf1);\r\n  --v_brand_blue: var(--brand_blue, #00aeec);\r\n  --v_brand_blue_thin: var(--brand_blue_thin, #dff6fd);\r\n  --v_stress_red: var(--stress_red, #f85a54);\r\n  --v_stress_red_thin: var(--stress_red_thin, #feecea);\r\n  --v_success_green: var(--success_green, #2ac864);\r\n  --v_success_green_thin: var(--success_green_thin, #e4f8ea);\r\n  --v_operate_orange: var(--operate_orange, #ff7f24);\r\n  --v_operate_orange_thin: var(--operate_orange_thin, #fff0e3);\r\n  --v_pay_yellow: var(--pay_yellow, #ffb027);\r\n  --v_pay_yellow_thin: var(--pay_yellow_thin, #fff6e4);\r\n  --v_bg1: var(--bg1, #ffffff);\r\n  --v_bg2: var(--bg2, #f6f7f8);\r\n  --v_bg3: var(--bg3, #f1f2f3);\r\n  --v_bg1_float: var(--bg1_float, #ffffff);\r\n  --v_bg2_float: var(--bg2_float, #f1f2f3);\r\n  --v_text_white: var(--text_white, #ffffff);\r\n  --v_text1: var(--text1, #18191c);\r\n  --v_text2: var(--text2, #61666d);\r\n  --v_text3: var(--text3, #9499a0);\r\n  --v_text4: var(--text4, #c9ccd0);\r\n  --v_text_link: var(--text_link, #008ac5);\r\n  --v_text_notice: var(--text_notice, #e58900);\r\n  --v_line_light: var(--line_light, #f1f2f3);\r\n  --v_line_regular: var(--line_regular, #e3e5e7);\r\n  --v_line_bold: var(--line_bold, #c9ccd0);\r\n  --v_graph_white: var(--graph_white, #ffffff);\r\n  --v_graph_bg_thin: var(--graph_bg_thin, #f6f7f8);\r\n  --v_graph_bg_regular: var(--graph_bg_regular, #f1f2f3);\r\n  --v_graph_bg_thick: var(--graph_bg_thick, #e3e5e7);\r\n  --v_graph_weak: var(--graph_weak, #c9ccd0);\r\n  --v_graph_medium: var(--graph_medium, #9499a0);\r\n  --v_graph_icon: var(--graph_icon, #61666d);\r\n  --v_shadow: var(--shadow, #000000);\r\n  --v_brand_pink_hover: var(--brand_pink_hover, #ff8cb0);\r\n  --v_brand_pink_active: var(--brand_pink_active, #e84b85);\r\n  --v_brand_pink_disabled: var(--brand_pink_disabled, #ffb3ca);\r\n  --v_brand_blue_hover: var(--brand_blue_hover, #40c5f1);\r\n  --v_brand_blue_active: var(--brand_blue_active, #008ac5);\r\n  --v_brand_blue_disabled: var(--brand_blue_disabled, #80daf6);\r\n  --v_stress_red_hover: var(--stress_red_hover, #fa857f);\r\n  --v_stress_red_active: var(--stress_red_active, #e23d3d);\r\n  --v_stress_red_disabled: var(--stress_red_disabled, #fcafaa);\r\n  --v_text_hover: var(--text_hover, #797f87);\r\n  --v_text_active: var(--text_active, #61666d);\r\n  --v_text_disabled: var(--text_disabled, #c9ccd0);\r\n  --v_line_border: var(--line_border, #c9ccd0);\r\n  --v_line_bolder_hover: var(--line_bolder_hover, #e3e5e7);\r\n  --v_line_bolder_active: var(--line_bolder_active, #aeb3b9);\r\n  --v_line_bolder_disabled: var(--line_bolder_disabled, #f1f2f3);\r\n}\r\n\r\n@font-face {\r\n  font-family: fanscard;\r\n  src: url(//s1.hdslb.com/bfs/static/jinkela/mall-h5/asserts/fansCard.ttf);\r\n}\r\n\r\n.svg-icon {\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n}\r\n\r\n.svg-icon svg {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.svg-icon.use-color svg path {\r\n  fill: currentColor;\r\n  color: inherit;\r\n}\r\n\r\n.top-vote-card {\r\n  background-color: var(--graph_bg_thin);\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  height: 80px;\r\n  width: 100%;\r\n  margin-bottom: 24px;\r\n  padding: 12px 16px 12px 10px;\r\n  border-radius: 6px;\r\n}\r\n\r\n.top-vote-card__multi {\r\n  cursor: pointer;\r\n}\r\n\r\n.top-vote-card__multi:hover .vote-result-text {\r\n  color: var(--brand_blue);\r\n  transition: 0.2s;\r\n}\r\n\r\n.top-vote-card-left {\r\n  width: 40%;\r\n  max-width: calc(40% - 30px);\r\n  margin-right: 20px;\r\n  word-wrap: break-word;\r\n  font-size: 13px;\r\n  line-height: 18px;\r\n  color: var(--text1);\r\n}\r\n\r\n.top-vote-card-left__title {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.top-vote-card-left__title svg {\r\n  margin-right: 2px;\r\n  flex: none;\r\n}\r\n\r\n.top-vote-card-left__title span {\r\n  display: -webkit-box;\r\n  float: none;\r\n  height: 18px;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  word-break: break-word;\r\n  -webkit-box-orient: vertical;\r\n  -webkit-line-clamp: 1;\r\n}\r\n\r\n.top-vote-card-left__join {\r\n  height: 17px;\r\n  display: flex;\r\n  align-items: center;\r\n  margin-top: 4px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.top-vote-card-left__join .vote-icon {\r\n  height: 12px;\r\n}\r\n\r\n.top-vote-card-left__join span {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.top-vote-card-right {\r\n  width: 60%;\r\n  font-size: var(--2fde2a28);\r\n  line-height: 17px;\r\n  display: flex;\r\n  --option-height: 40px;\r\n  --option-radius: 6px;\r\n}\r\n\r\n.top-vote-card-right .vote-text__not-vote {\r\n  opacity: 0.9;\r\n}\r\n\r\n.top-vote-card-right .vote-text__not-vote .vui_ellipsis {\r\n  font-weight: 400 !important;\r\n}\r\n\r\n.top-vote-card-right .vote-text :first-child {\r\n  font-weight: 500;\r\n}\r\n\r\n.top-vote-card-right .vote-icon {\r\n  flex: none;\r\n}\r\n\r\n.top-vote-card-right .left-vote-option {\r\n  position: relative;\r\n  display: flex;\r\n  min-width: 120px;\r\n  align-items: center;\r\n  justify-content: space-between;\r\n  background-color: rgba(255, 102, 153, var(--212267a6));\r\n  height: var(--option-height);\r\n  width: var(--38c5ebb3);\r\n  padding-left: 10px;\r\n  border-radius: var(--option-radius) 0 0 var(--option-radius);\r\n  cursor: pointer;\r\n  margin-right: 30px;\r\n  color: var(--332a347e);\r\n  transition: width ease-out 0.2s;\r\n}\r\n\r\n.top-vote-card-right .left-vote-option .skew-vote-option {\r\n  position: absolute;\r\n  right: -20px;\r\n  top: 0;\r\n}\r\n\r\n.top-vote-card-right .left-vote-option .skew-vote-option__fill {\r\n  left: -8px;\r\n  background-color: #f69;\r\n  transform: skew(21deg);\r\n  border-top-right-radius: calc(var(--option-radius) - 2px);\r\n  border-bottom-right-radius: var(--option-radius);\r\n}\r\n\r\n.top-vote-card-right .skew-vote-option {\r\n  height: 40px;\r\n  width: 20px;\r\n  overflow: hidden;\r\n  opacity: var(--212267a6);\r\n  pointer-events: none;\r\n}\r\n\r\n.top-vote-card-right .skew-vote-option__fill {\r\n  pointer-events: all;\r\n  position: absolute;\r\n  top: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.top-vote-card-right .right-vote-option {\r\n  position: relative;\r\n  display: flex;\r\n  min-width: 120px;\r\n  align-items: center;\r\n  flex-direction: row-reverse;\r\n  justify-content: space-between;\r\n  background-color: rgba(0, 174, 236, var(--212267a6));\r\n  height: var(--option-height);\r\n  width: var(--4b2970aa);\r\n  padding-right: 10px;\r\n  border-radius: 0 var(--option-radius) var(--option-radius) 0;\r\n  cursor: pointer;\r\n  color: var(--1e587827);\r\n  transition: width ease-out 0.2s;\r\n}\r\n\r\n.top-vote-card-right .right-vote-option .skew-vote-option {\r\n  position: absolute;\r\n  left: -20px;\r\n  top: 0;\r\n}\r\n\r\n.top-vote-card-right .right-vote-option .skew-vote-option__fill {\r\n  left: 8px;\r\n  background-color: #00aeec;\r\n  transform: skew(21deg);\r\n  border-top-left-radius: var(--option-radius);\r\n  border-bottom-left-radius: calc(var(--option-radius) - 2px);\r\n}\r\n\r\n.top-vote-card-right .right-vote-option .vote-text {\r\n  text-align: right;\r\n}\r\n\r\n.top-vote-card-right .had_voted {\r\n  cursor: unset;\r\n}\r\n\r\n.reply-header .reply-notice {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  min-height: 40px;\r\n  padding: 4px 10px;\r\n  margin-bottom: 16px;\r\n  font-size: 13px;\r\n  border-radius: 2px;\r\n  color: var(--Ye5_u);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header .reply-notice:after {\r\n  content: "";\r\n  position: absolute;\r\n  width: 100%;\r\n  height: 100%;\r\n  top: 0;\r\n  left: 0;\r\n  background-color: var(--Ye5_u);\r\n  opacity: 0.2;\r\n}\r\n\r\n.reply-header .reply-notice .notice-icon {\r\n  width: 16px;\r\n  height: 16px;\r\n  margin-right: 5px;\r\n}\r\n\r\n.reply-header .reply-notice .notice-content {\r\n  flex: 1;\r\n  padding: 0 5px;\r\n  vertical-align: top;\r\n  word-wrap: break-word;\r\n  word-break: break-all;\r\n}\r\n\r\n.reply-header .reply-notice .notice-close-icon {\r\n  position: relative;\r\n  z-index: 1;\r\n  width: 10px;\r\n  height: 10px;\r\n  margin-left: 5px;\r\n}\r\n\r\n.reply-header .reply-navigation {\r\n  margin-bottom: 22px;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar {\r\n  display: flex;\r\n  align-items: center;\r\n  list-style: none;\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-title {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title {\r\n    font-size: 20px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title {\r\n    font-size: 24px;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-title .nav-title-text {\r\n  color: var(--text1);\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Medium,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 500;\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title .nav-title-text {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-title .total-reply {\r\n  margin: 0 36px 0 6px;\r\n  font-weight: 400;\r\n  color: var(--text3);\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title .total-reply {\r\n    font-size: 13px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title .total-reply {\r\n    font-size: 14px;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Medium,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 500;\r\n  color: var(--text1);\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n    font-size: 13px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n    font-size: 16px;\r\n  }\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort {\r\n  display: flex;\r\n  align-items: center;\r\n  color: var(--text3);\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-sort {\r\n    font-size: 13px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-sort {\r\n    font-size: 16px;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .part-symbol {\r\n  height: 11px;\r\n  margin: 0 12px;\r\n  border-left: solid 1px;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .hot-sort {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .hot-sort:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .time-sort {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .time-sort:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort.hot .hot-sort,\r\n.reply-header .reply-navigation .nav-bar .nav-sort.time .time-sort {\r\n  color: var(--text1);\r\n}\r\n\r\n.reply-header .reply-navigation .nav-operation-warp {\r\n  position: absolute;\r\n  right: 0;\r\n}\r\n\r\n/*\r\n   * @bilibili/userAvatar\r\n   * version: 1.2.0-beta.2. Powered by main-frontend\r\n   * 用户头像公共组件.\r\n   * author: wuxiuran\r\n   */\r\n.bili-avatar {\r\n  display: block;\r\n  position: relative;\r\n  background-image: url(data:image/gif;base64,R0lGODlhtAC0AOYAALzEy+To7rG6wb/Hzd/k6rK7wsPK0bvDybO8w9/j6dDW3NHX3eHl6+Hm7LnByLa+xeDl6+Lm7M/V27vDyt7j6dHX3r/Gzb/HzsLJ0LS9xLW+xbe/xtLY3s/V3OPn7dne5NXb4eDk67jAx7S8w+Dk6rrCybW9xMXM08TL0sLK0Nrf5cXM0tjd48zS2bO7wsrR17W+xLfAx8fO1La/xsbN07K7wbzEytzh573FzNLX3uLn7cDHzsbN1NPZ377Gzb7FzNbc4sjP1dfd49bb4tvg5svR2LfAxsnQ1s7U293h6Nbb4dTa4MrQ19fc4t3i6L7GzMnP1s7U2tXa4M3T2sDIz97i6N7i6dje5MjO1dfc473Ey8HJz9vg57jBx8jP1tPY38PL0cfO1dne5dXa4ePn7sHIz8vS2Nrf5tDW3djd5M3T2cDIztTZ4L3Fy7rCyMTL0czT2bC5wOXp7wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS4zLWMwMTEgNjYuMTQ1NjYxLCAyMDEyLzAyLzA2LTE0OjU2OjI3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M2IChXaW5kb3dzKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo1OTQ4QTFCMzg4NDAxMUU1OTA2NUJGQjgwNzVFMDQ2NSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo1OTQ4QTFCNDg4NDAxMUU1OTA2NUJGQjgwNzVFMDQ2NSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjU5NDhBMUIxODg0MDExRTU5MDY1QkZCODA3NUUwNDY1IiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU5NDhBMUIyODg0MDExRTU5MDY1QkZCODA3NUUwNDY1Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+Af/+/fz7+vn49/b19PPy8fDv7u3s6+rp6Ofm5eTj4uHg397d3Nva2djX1tXU09LR0M/OzczLysnIx8bFxMPCwcC/vr28u7q5uLe2tbSzsrGwr66trKuqqainpqWko6KhoJ+enZybmpmYl5aVlJOSkZCPjo2Mi4qJiIeGhYSDgoGAf359fHt6eXh3dnV0c3JxcG9ubWxramloZ2ZlZGNiYWBfXl1cW1pZWFdWVVRTUlFQT05NTEtKSUhHRkVEQ0JBQD8+PTw7Ojk4NzY1NDMyMTAvLi0sKyopKCcmJSQjIiEgHx4dHBsaGRgXFhUUExIREA8ODQwLCgkIBwYFBAMCAQAAIfkEAAAAAAAsAAAAALQAtAAAB/+AcoKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19sA6SCtTCakBCyuKOLmXKAGOOAhLiDkFoQzCOA9YEDyE5SHCBx9KhdhhMc6EBhMJeXDQMY6GjKIgXCgZR0jIQR4msDRxJRQBHyzjoHwpR0LODRI9keDI0kAAnoI8rMgJoyYnlTkBUEA6KMDSmTsxhTjIEsBAqlWvlowR9BIBCzmf9ANLyCrTrJP/SAzI+WMtW5EncmpIUwkCTpZaqtw9FIBGzgxlIRHgWvLH1MGIDLN8ACRSArQsfRCAnCgAj5wmsjwigbnkk80hA6hezbr1ajkeMoCu7Lq1HIM5C9yQU7v363EQFhxBMeGA8ePIkx+fMEFAzjgFmCtHPuHBcwEAik/fbnwCCiZfQHKzcoLk8/Po06tfr95BC7vWAkgQwb6+/fv4ETqocC2EgfwABihgRzToQM1ZJT0AwIIMNujggxBGKOGEFFYIgHkWYQCBNA0A0BEASOzmDAMS2NBRCh5AE4AMFiGAhIHSeIAEAhYdAQ0HFmkwxDVDmPBQAU2MiCECSiDiAQkhMBAC/wFMNunkk1ASkMCUUzJJAgQMMNDAllxyGUEEXTaQ5ZhjQmDmmRCEcOVRhyhBI0I2RNCMGRZ5cUgO5RWAQAYuCCBADYDW4OeghBZqqJ8FuLAnDBo84OijkDqqwaQwwGDCpRlkOsKmCHTaqQsjAIDFAocEYVEHzDCA4QMkFNIAGAgdcMEAtM5K6621XqDrrrz2uiuuFgQr7LDEFmsBrsjiWgJCYIg3CAnW6ZeiMgtYBEUhEfwQhwEqsFkMGSxw9IOchHjxIwjKBICBRS4R8pkZzHgWhwyFCGHRCcoQMIJFZxAyRBz4NhMADgIUOYgKFjnAQDJLOIeQboTQUAB8y3wgAP8PhHBRwEMCwEUMiw+Z8BhvJVChogMHeEuBbA+NkQysDxmxsCARbPBCNDs8QK4cDBhhUQvJrJHwtHJAAAMS0byQwYZJYRgHxsjM9VAJ3kJgAqrQoAFDCFUdYBEKyUiN0ASENCCCBNF0IIKzcpj4kAFhWwQAIRE4gDY0EjiwsxwePpRC3A+1Qbfd0eS9N2PbAo7QAIPf/YzhhBCFENxRW/T3IHU77gzkg6RgEeXHiB0HBmWfnXYMbK/7tuKjl72B5s10sMHMgqg+OeukD9LA62nPTojtiVf+0A+EMPAA7Mx08ADTgjxhOetzDwLBA1g/04EGzPP9vPBjEwKBBtU7o8D/1oS4jdDloVtE9iAhZBC+JVkg0YS3kQzhgAMoRBEkJgpk0OogMvEb61I2CH29LxJWWMIKROAcAUzACpIIgLYsIoITAGFvkVAAAlAjiADejnseIQQBEHDARlBAAT5gWUemIIkXPKcLGEhD9hyhABdwUA4eDF76HrI+QRCgAAqARADYYACHHUZEjvDAstAzAx54TBEKmBghcgg6Y4iuh3L4YRAbEQEFuGE96HoEA2awHgHIgAg0lCIAP8c6G4gQiIw4wwvIyJ5+QUIB9SkACpCYiCjCx3w6tKJFtCBCEnZmDGUwono20AP6OSIIG2NPAbAwskNo8IbOWx0I10AIEoyg/4RyIMJf2DMDNcwQEiowQCTXU4AjYHAQl/wdG0GIPjmQwH2HCIHT0jMCJtDOElWAwi7RgwNEKGAENwReFYshutz50JCGAJl6HuCFG2YiAl/oW3oQYMwNylKTO0SIM7MIzUL8Jz0bkIE1O8GCLfjoPA/oZjJnGc7WFdAFWyxEtZ4zAhpwwJGhSIAEnrDKjpDKkgWYJzgF+ZBxavEQHlhJRzSAAja80hQkmIIBNGCRGfySEH785gfrWcuHHuIDGajBBnBwAhb8DxYk+MAKLBCFdcJSjbWjJ0PPR4gEwBERViDCR4GhgBrAR5msq6JP8yk+AcDHcwtlpk6XGg0FOJUQUP8d6U4DmYAaMLUZVq3kObUq1YeAbRAJEMBXNUGCV3pgnR94YibCSoixBrKsCDmrINK6VkwoQQNlKAQRJpCBdgmCAQdAgFM6QddBoECneI2DXm+jVk98Jg5hFMRVCDkIF8YBeXMVQCUfG1ViiC5ggqBAZTvhhBhARAWCqMIq0QAbKDgHAVz4RGMFQVqymtYiNCCEavuKiRu41gUGKMIXNyCTAuxgiSOojG5FS4i8lHYYoqMXWn/qiSrkUABSaMASEaKF3ILCqvC5rG+xaxEsuA60mtABHKhQgi2EkQFH2IIBFABQTsiObWGA7G8fYiPMmQ4aamMbFATM3ofcDHOEw5v/3gjBBAYLQ3RFaFzhJjyIIlg4GBgmhA4i/DgOC8LD172wRZggYhJvzsRyqHCKQWyRFdDtwNZbGyHEctcBI8Rk0oMBKJOhABNwbRBUsAgYkiHR7klPA/AlMgyyl0PUGgN4VMOcEYAGDRTorCrjjUMQkmFdhMgMzFB7hhayfFifPYS2yEAxQhCQhB13gWipykBwB3GDNyFkf8cgQkFhO4h/9eAZLYiDwQSBsIfQORkNcJphBUGDDHxlGSoowJ4HYa+H7GAZnkWInegGAA0k5hhKGIEDYDQIUz2Ey8kQgwse8gBrRmBdFzDDAna9gBzkoALADrawh01sYP8a2LxOtrKX/83sZVfA19CuQAucN4E6i5CjCMlAJZGxBYuM2RALoEF1NDADGAigAHrylLo95YJ2o/vd8NbTCDLQqA1sIAYiEEEM9o3vfOvbCPYO+Axm8KhJaQABg0K3AEzwBgngWRAVESAzmrBKBGS2EAFIEwNIQAEKJOBJVAq5yBPQ8ZJ73EpYytKWyKSllbM8S2gKgcxJbnIKHNkQIPBzAQjNjN7GwQQXnwYI3omQazmjCl1oURRYXVU/xyFO0ACCCscmgUszowEc2IIiMSKNBSgSIRuwkNjHTvayN2iYIwj6MxZA9AG5/e3TVDs0WBBmuNv97k+3ozUIwARs4/3vAZpBC4ZaDf8CtMACdDzPuQvwdcBfx0/rEQEAWnBKbYRgCUsAgRSkMIYxLKAHIGjCFVRABC6ogAUg4IADII+QMHDg9bCHfQf29ZARKCD2uLdrHBDQgyawIK4fEAIQNL+EHoB+CJrvwReykAC2xaMHX/80Ij5QEmsbIgJ1j0MYJvFweARglLVfyCHk/JCDGuILLKmBXNkyhII+xOiGACRCrFwV8GeIMyKd6EsHsbKS4ACgQNB4D8NzSBEAZEAGqiEHNzBrOREFhrAELJEBFKMu57FMBcgmrpYTNsB0cpCBHQEXmXYeBYBGkNEAbvYcFxcAXsMSDlhd6WFjkNED6eEDGeN0FgFkguD/BO7HEo82GKKTE+o3CPvEEg7gLdKEHt/GFn2mHnpVZiXRgwQwdeehATYVEommHgIAQSNxHksgCKGmHiwEFgGQdOsRXCH4HPAyPfXRBRwYEiBQH9oWBeixAwEwBffBH1Thc+rxArqXIFZAH/bxA/1lDyFgg+mhARuAHgJgLvchAKdGED7xd9FyHxZ4D23gePmBAIIREkQggJioHmrwEl/4ifXBZvcQAMNEilj4iPOQBZ6oiuixfQRxhLBISs4nDx6QiLV4HxxwD1Kwi/gRWPbghMDIStYnD7tTjPcBa/KgBMp4HxPQfe7AY8+IhdIVDw3gWtVYH/TnDlmwjfaxAVWogg60CI7pkQPxQAbZZ47nUWDvcAWvyI7+N4jocIXyqB4FIH7tEADadI/p8WDtsIT+qB7R6A5IMJBltH7lkFUIiR7uqA7f05DqAQDSWA7/IpHpsXPsUI4YyRJhmA4S1JHpgYPo4AS0J5LPIQI3dw5v2BHnFo/+WAOTZg4yhpLnYX6xEAgAOw==);\r\n  -webkit-background-size: cover;\r\n  background-size: cover;\r\n  border-radius: 50%;\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.bili-avatar * {\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.bili-avatar-face {\r\n  position: absolute;\r\n  top: 50%;\r\n  left: 50%;\r\n  -webkit-transform: translate(-50%, -50%);\r\n  -moz-transform: translate(-50%, -50%);\r\n  -ms-transform: translate(-50%, -50%);\r\n  -o-transform: translate(-50%, -50%);\r\n  transform: translate(-50%, -50%);\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.bili-avatar-pendent-dom {\r\n  height: 176.48%;\r\n  width: 176.48%;\r\n  position: absolute;\r\n  top: -38.33%;\r\n  left: -38.33%;\r\n  overflow: hidden;\r\n}\r\n\r\n.bili-avatar-pendent-dom img {\r\n  height: 100%;\r\n  min-width: 100%;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n\r\n.bili-avatar-img {\r\n  border: none;\r\n  display: block;\r\n  -o-object-fit: cover;\r\n  object-fit: cover;\r\n  image-rendering: -webkit-optimize-contrast;\r\n}\r\n\r\n.bili-avatar-img-radius {\r\n  border-radius: 50%;\r\n}\r\n\r\n.bili-avatar-img[src=""],\r\n.bili-avatar-img:not([src]) {\r\n  opacity: 0;\r\n}\r\n\r\n.bili-avatar-img.bili-avatar-img-error {\r\n  display: none;\r\n}\r\n\r\n.bili-avatar-right-icon {\r\n  width: 27.5%;\r\n  height: 27.5%;\r\n  position: absolute;\r\n  right: 0;\r\n  bottom: -1px;\r\n  -webkit-background-size: cover;\r\n  background-size: cover;\r\n  image-rendering: -webkit-optimize-contrast;\r\n}\r\n\r\n.bili-avatar-nft-icon {\r\n  position: absolute;\r\n  width: 27.5%;\r\n  height: 27.5%;\r\n  right: -webkit-calc(27.5% - 1px);\r\n  right: -moz-calc(27.5% - 1px);\r\n  right: calc(27.5% - 1px);\r\n  bottom: -1px;\r\n  -webkit-background-size: cover;\r\n  background-size: cover;\r\n  image-rendering: -webkit-optimize-contrast;\r\n}\r\n\r\n@-webkit-keyframes bili-avatar {\r\n  0% {\r\n    -webkit-transform: translate3d(0, 0, 0);\r\n    transform: translateZ(0);\r\n  }\r\n\r\n  to {\r\n    -webkit-transform: translate3d(-97.5%, 0, 0);\r\n    transform: translate3d(-97.5%, 0, 0);\r\n  }\r\n}\r\n\r\n@-moz-keyframes bili-avatar {\r\n  0% {\r\n    -moz-transform: translate3d(0, 0, 0);\r\n    transform: translateZ(0);\r\n  }\r\n\r\n  to {\r\n    -moz-transform: translate3d(-97.5%, 0, 0);\r\n    transform: translate3d(-97.5%, 0, 0);\r\n  }\r\n}\r\n\r\n@keyframes bili-avatar {\r\n  0% {\r\n    -webkit-transform: translate3d(0, 0, 0);\r\n    -moz-transform: translate3d(0, 0, 0);\r\n    transform: translateZ(0);\r\n  }\r\n\r\n  to {\r\n    -webkit-transform: translate3d(-97.5%, 0, 0);\r\n    -moz-transform: translate3d(-97.5%, 0, 0);\r\n    transform: translate3d(-97.5%, 0, 0);\r\n  }\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-80 {\r\n  width: 22px;\r\n  height: 22px;\r\n  bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-60,\r\n.bili-avatar .bili-avatar-size-50,\r\n.bili-avatar .bili-avatar-size-48 {\r\n  width: 18px;\r\n  height: 18px;\r\n  bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-40,\r\n.bili-avatar .bili-avatar-size-36 {\r\n  width: 14px;\r\n  height: 14px;\r\n  bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-30,\r\n.bili-avatar .bili-avatar-size-24 {\r\n  width: 12px;\r\n  height: 12px;\r\n  bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-80 {\r\n  width: 22px;\r\n  height: 22px;\r\n  bottom: -1px;\r\n  right: -webkit-calc(22px - 1px);\r\n  right: -moz-calc(22px - 1px);\r\n  right: 21px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-60,\r\n.bili-avatar .bili-avatar-size-nft-50,\r\n.bili-avatar .bili-avatar-size-nft-48 {\r\n  width: 18px;\r\n  height: 18px;\r\n  bottom: -1px;\r\n  right: -webkit-calc(18px - 1px);\r\n  right: -moz-calc(18px - 1px);\r\n  right: 17px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-40,\r\n.bili-avatar .bili-avatar-size-nft-36 {\r\n  width: 14px;\r\n  height: 14px;\r\n  bottom: -1px;\r\n  right: -webkit-calc(14px - 1px);\r\n  right: -moz-calc(14px - 1px);\r\n  right: 13px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-30,\r\n.bili-avatar .bili-avatar-size-nft-24 {\r\n  width: 12px;\r\n  height: 12px;\r\n  bottom: -1px;\r\n  right: -webkit-calc(12px - 1px);\r\n  right: -moz-calc(12px - 1px);\r\n  right: 11px;\r\n}\r\n\r\n.reply-image {\r\n  width: var(--3414c33c);\r\n  height: var(--822197ea);\r\n}\r\n\r\n.reply-image.b-img {\r\n  background-color: inherit;\r\n}\r\n\r\n.reply-image.b-img img {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.opacity-enter-active,\r\n.opacity-leave-active {\r\n  transition: opacity 0.15s ease;\r\n}\r\n\r\n.opacity-enter-from,\r\n.opacity-leave-to {\r\n  opacity: 0;\r\n}\r\n\r\n.reply-box {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n\r\n.reply-box .box-normal {\r\n  display: flex;\r\n  z-index: 2;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 80px;\r\n  height: 48px;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp {\r\n  position: relative;\r\n  flex: 1;\r\n  transition: 0.2s;\r\n  border: 1px solid var(--line_regular);\r\n  border-radius: 6px;\r\n  background-color: var(--bg3);\r\n  overflow-x: hidden;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp.focus-within,\r\n.reply-box .box-normal .reply-box-warp:hover {\r\n  border-color: var(--line_regular);\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap {\r\n  padding: 8px 0;\r\n  display: flex;\r\n  flex-direction: column;\r\n  width: 100%;\r\n  border-radius: 6px;\r\n  cursor: text;\r\n  overflow: hidden;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info {\r\n  margin-left: 10px;\r\n  margin-bottom: 4px;\r\n  height: 20px;\r\n  font-size: 12px;\r\n  line-height: 17px;\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag {\r\n  flex: none;\r\n  padding: 2px 6px;\r\n  border-radius: 2px;\r\n  margin-right: 4px;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--pink {\r\n  background-color: var(--Pi1);\r\n  color: var(--Pi5);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--blue {\r\n  background-color: var(--brand_blue_thin);\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--gary {\r\n  background-color: var(--graph_bg_regular);\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__text {\r\n  max-width: calc(100% - 68px);\r\n  color: var(--text2);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__close {\r\n  flex: none;\r\n  margin-left: 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-input {\r\n  padding: 0 8px;\r\n  width: 100%;\r\n  height: 100%;\r\n  border: 1px solid var(--Ga1);\r\n  border-radius: 6px;\r\n  background-color: var(--bg3);\r\n  font-family: inherit;\r\n  line-height: 20px;\r\n  color: var(--text1);\r\n  resize: none;\r\n  outline: none;\r\n  overflow-y: scroll;\r\n  overflow-x: hidden;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-input.focus,\r\n.reply-box .box-normal .reply-box-warp .reply-input:hover {\r\n  background-color: var(--bg1);\r\n  border-color: var(--graph_weak);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-box-textarea {\r\n  padding: 0 8px;\r\n  width: 100%;\r\n  height: 32px;\r\n  border: none;\r\n  border-radius: 6px;\r\n  background-color: transparent;\r\n  font-family: inherit;\r\n  font-size: 14px;\r\n  line-height: 32px;\r\n  color: var(--text1);\r\n  resize: none;\r\n  outline: none;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-box-textarea::placeholder {\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .image-content-wrap {\r\n  background: transparent;\r\n}\r\n\r\n.reply-box .box-expand {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  margin-left: 80px;\r\n  margin-top: 10px;\r\n  z-index: 1;\r\n  height: 32px;\r\n  transition: all 0.2s ease-in-out;\r\n}\r\n\r\n.reply-box .box-expand.hide {\r\n  margin-top: 0;\r\n  height: 0;\r\n  overflow: hidden;\r\n  transition: all 0.2s ease-in-out;\r\n}\r\n\r\n.reply-box .box-expand .box-left {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-emoji {\r\n  width: 32px;\r\n  height: 26px;\r\n  margin-right: 6px;\r\n  position: relative;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-emoji .emoji-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 100%;\r\n  height: 100%;\r\n  border: 1px solid var(--line_regular);\r\n  border-radius: 4px;\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .at-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 32px;\r\n  height: 26px;\r\n  margin-right: 6px;\r\n  border: 1px solid var(--line_regular);\r\n  border-radius: 4px;\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .image-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 32px;\r\n  height: 26px;\r\n  border: 1px solid var(--line_regular);\r\n  border-radius: 4px;\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .image-btn.disabled {\r\n  opacity: 0.4;\r\n}\r\n\r\n.reply-box .box-expand .image-btn .image-upload-input {\r\n  appearance: none;\r\n  position: absolute;\r\n  top: 0;\r\n  left: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n  opacity: 0;\r\n  font-size: 0;\r\n  user-select: auto;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .forward-to-dynamic {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-left: 16px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box .box-expand .forward-to-dynamic .forward-input,\r\n.reply-box .box-expand .forward-to-dynamic .forward-label {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send {\r\n  float: right;\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 70px;\r\n  height: 32px;\r\n  border-radius: 6px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send .send-text {\r\n  position: absolute;\r\n  z-index: 1;\r\n  font-size: 16px;\r\n  color: var(--text_white);\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send:after {\r\n  content: "";\r\n  position: absolute;\r\n  opacity: 0.5;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 4px;\r\n  background-color: var(--brand_blue);\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send:hover:after {\r\n  opacity: 1;\r\n}\r\n\r\n.reply-box.box-active .box-normal .reply-box-warp .reply-box-textarea.send-active {\r\n  line-height: normal;\r\n}\r\n\r\n.reply-box.box-active .reply-box-send.send-active:after {\r\n  opacity: 1;\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: absolute;\r\n  top: 0;\r\n  left: 0;\r\n  z-index: 1;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 6px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  width: 100%;\r\n  height: 100%;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask .login-btn {\r\n  padding: 4px 9px;\r\n  margin: 0 3px;\r\n  border-radius: 4px;\r\n  color: var(--text_white);\r\n  background-color: var(--brand_blue);\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask .login-btn:hover {\r\n  background-color: var(--Lb4);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box.disabled .reply-box-send .send-text {\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box.disabled .reply-box-send:after {\r\n  opacity: 1;\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.reply-box.fixed-box {\r\n  position: relative;\r\n  z-index: 2;\r\n  padding: 15px 0;\r\n  border-top: 0.5px solid var(--graph_bg_thick);\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.reply-content-container.fold .reply-content {\r\n  display: -webkit-box;\r\n  -webkit-box-orient: vertical;\r\n  -webkit-line-clamp: 4;\r\n}\r\n\r\n.reply-content-container .reply-content {\r\n  color: var(--text1);\r\n  overflow: hidden;\r\n  word-wrap: break-word;\r\n  word-break: break-word;\r\n  white-space: pre-wrap;\r\n  line-height: 24px;\r\n  vertical-align: baseline;\r\n}\r\n\r\n.reply-content-container .reply-content .note-prefix {\r\n  display: inline-flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  padding: 1px 4px;\r\n  border-radius: 4px;\r\n  margin-right: 8px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  line-height: 20px;\r\n  vertical-align: bottom;\r\n  background-color: var(--bg2);\r\n}\r\n\r\n.reply-content-container .reply-content .note-prefix .note-icon {\r\n  width: 16px;\r\n  height: 16px;\r\n}\r\n\r\n.reply-content-container .reply-content .top-icon {\r\n  top: -2px;\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 30px;\r\n  height: 18px;\r\n  border: 1px solid var(--brand_pink);\r\n  border-radius: 3px;\r\n  margin-right: 5px;\r\n  font-size: 12px;\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-content-container .reply-content .emoji-small {\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-content-container .reply-content .emoji-small {\r\n    width: 20px;\r\n    height: 20px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-content-container .reply-content .emoji-small {\r\n    width: 22px;\r\n    height: 22px;\r\n  }\r\n}\r\n\r\n.reply-content-container .reply-content .emoji-large {\r\n  width: 50px;\r\n  height: 50px;\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-container .reply-content .icon {\r\n  width: 20px;\r\n  height: 20px;\r\n  vertical-align: text-top;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-content-container .reply-content .icon {\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-content-container .reply-content .icon {\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n.reply-content-container .reply-content .icon.search-word {\r\n  width: 12px;\r\n  display: inline-block;\r\n  background-size: contain;\r\n  background-repeat: no-repeat;\r\n}\r\n\r\n.reply-content-container .reply-content .jump-link {\r\n  vertical-align: baseline;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-content-container .reply-content .jump-link {\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-content-container .reply-content .jump-link {\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n.reply-content-container .expand-content {\r\n  color: var(--text_link);\r\n  cursor: pointer;\r\n  margin-left: 4px;\r\n}\r\n\r\n.reply-content-container .expand-content:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-item {\r\n  position: relative;\r\n  padding: 8px 0 8px 42px;\r\n  border-radius: 4px;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .sub-reply-item {\r\n    font-size: 15px;\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .sub-reply-item {\r\n    font-size: 16px;\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n.sub-reply-item.show-reply {\r\n  background-color: #dff6fb;\r\n  animation-name: enterAnimation-jumpReply-1f8a4018;\r\n  animation-duration: 2s;\r\n  animation-delay: 3s;\r\n  animation-fill-mode: forwards;\r\n}\r\n\r\n.sub-reply-item .sub-user-info {\r\n  display: inline-flex;\r\n  align-items: center;\r\n  margin-right: 9px;\r\n  line-height: 24px;\r\n  vertical-align: baseline;\r\n  white-space: nowrap;\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-reply-avatar {\r\n  position: absolute;\r\n  left: 8px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-user-name {\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Medium,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 500;\r\n  margin-right: 5px;\r\n  color: var(--3bab3096);\r\n  cursor: pointer;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .sub-reply-item .sub-user-info .sub-user-name {\r\n    font-size: 13px;\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .sub-reply-item .sub-user-info .sub-user-name {\r\n    font-size: 14px;\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .sub-reply-item .sub-user-info .sub-user-name {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-user-level {\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-up-icon {\r\n  cursor: default;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  margin-top: 2px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-time {\r\n  margin-right: var(--7530c1e4);\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-location {\r\n  margin-right: 20px;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-like {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon {\r\n  margin-right: 5px;\r\n  color: #9499a0;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon:hover,\r\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon.liked {\r\n  color: #00aeec;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon {\r\n  color: #9499a0;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon:hover,\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon.disliked {\r\n  color: #00aeec;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-btn {\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-btn:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-operation-warp {\r\n  position: absolute;\r\n  right: 40px;\r\n  opacity: 0;\r\n}\r\n\r\n.sub-reply-item:hover .sub-reply-info .sub-reply-operation-warp {\r\n  opacity: 1;\r\n}\r\n\r\n@keyframes enterAnimation-jumpReply-1f8a4018 {\r\n  0% {\r\n    background-color: #dff6fb;\r\n  }\r\n\r\n  to {\r\n    background-color: #dff6fb00;\r\n  }\r\n}\r\n\r\n.sub-reply-list .view-more {\r\n  padding-left: 8px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-default .view-more-btn {\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-default .view-more-btn:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination {\r\n  color: var(--text1);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-count {\r\n  margin-right: 10px;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-btn {\r\n  margin: 0 4 0 14px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-btn:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number {\r\n  margin: 0 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number:hover,\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number.current-page {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-dot {\r\n  margin: 0 4px;\r\n  cursor: default;\r\n}\r\n\r\n.image-exhibition {\r\n  margin-top: 8px;\r\n  user-select: none;\r\n}\r\n\r\n.image-exhibition .preview-image-container {\r\n  max-width: var(--dacbf126);\r\n  display: flex;\r\n  flex-wrap: wrap;\r\n  row-gap: var(--77b1c8ee);\r\n  column-gap: var(--0c349aa2);\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: relative;\r\n  border-radius: var(--7fefecd2);\r\n  overflow: hidden;\r\n  cursor: zoom-in;\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap.vertical {\r\n  flex-direction: column;\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap.extra-long {\r\n  justify-content: start;\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap .more-image {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  position: absolute;\r\n  right: 4px;\r\n  bottom: 4px;\r\n  height: 20px;\r\n  padding: 0 6px;\r\n  border-radius: 4px;\r\n  font-size: 13px;\r\n  color: var(--text_white);\r\n  font-weight: 500;\r\n  line-height: 18px;\r\n  background: rgba(0, 0, 0, 0.7);\r\n}\r\n\r\n.image-exhibition .preview-image-container .client-image-item-warp:nth-child(3n + 1) {\r\n  border-bottom-right-radius: 0;\r\n  border-top-right-radius: 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .client-image-item-warp:nth-child(3n + 2) {\r\n  border-radius: 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .client-image-item-warp:nth-child(3n + 3) {\r\n  border-bottom-left-radius: 0;\r\n  border-top-left-radius: 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .client-image-item-warp:nth-last-child(1) {\r\n  border-bottom-right-radius: var(--7fefecd2);\r\n  border-top-right-radius: var(--7fefecd2);\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(1) {\r\n  border-radius: var(--7fefecd2) 0 0 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(3) {\r\n  border-radius: 0 var(--7fefecd2) 0 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(7) {\r\n  border-radius: 0 0 0 var(--7fefecd2);\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(9) {\r\n  border-radius: 0 0 var(--7fefecd2) 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(3n + 2) {\r\n  border-radius: 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp.expand-image-two-rows:nth-child(4) {\r\n  border-radius: 0 0 0 var(--7fefecd2);\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp.expand-image-two-rows:nth-child(6) {\r\n  border-radius: 0 0 var(--7fefecd2) 0;\r\n}\r\n\r\n.reply-user-sailing {\r\n  height: 48px;\r\n}\r\n\r\n.vote-warp {\r\n  display: flex;\r\n  width: 100%;\r\n  height: 80px;\r\n  border: 0.5px solid var(--graph_bg_thick);\r\n  border-radius: 4px;\r\n  margin: 10px 0;\r\n}\r\n\r\n.vote-warp .vote-icon-warp {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  flex-basis: 80px;\r\n  flex-shrink: 0;\r\n  border-top-left-radius: 4px;\r\n  border-bottom-left-radius: 4px;\r\n  background-color: var(--brand_blue_thin);\r\n}\r\n\r\n.vote-warp .vote-icon-warp .vote-icon {\r\n  width: 40px;\r\n  height: 40px;\r\n}\r\n\r\n.vote-warp .vote-container {\r\n  display: flex;\r\n  align-items: center;\r\n  flex: 1;\r\n  border-top-right-radius: 4px;\r\n  border-bottom-right-radius: 4px;\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.vote-warp .vote-container .vote-text-warp {\r\n  flex: 1;\r\n  padding-left: 15px;\r\n}\r\n\r\n.vote-warp .vote-container .vote-text-warp .vote-title {\r\n  font-size: 14px;\r\n  color: var(--text1);\r\n}\r\n\r\n.vote-warp .vote-container .vote-text-warp .vote-desc {\r\n  margin-top: 10px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.vote-warp .vote-container .vote-btn-warp {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  flex-basis: 90px;\r\n  flex-shrink: 0;\r\n}\r\n\r\n.vote-warp .vote-container .vote-btn-warp .vote-btn {\r\n  width: 54px;\r\n  height: 28px;\r\n  border-radius: 4px;\r\n  font-size: 13px;\r\n  text-align: center;\r\n  line-height: 28px;\r\n  color: var(--text_white);\r\n  background-color: var(--brand_blue);\r\n  cursor: pointer;\r\n}\r\n\r\n.vote-warp .vote-container .vote-btn-warp .vote-btn:hover {\r\n  background-color: var(--Lb4);\r\n}\r\n\r\n.vote-dialog {\r\n  max-height: 100vh;\r\n  overflow-y: auto;\r\n}\r\n\r\n.vote-dialog::-webkit-scrollbar {\r\n  width: 4px;\r\n  border-radius: 4px;\r\n  background-color: transparent;\r\n}\r\n\r\n.vote-dialog::-webkit-scrollbar-thumb {\r\n  border-radius: 4px;\r\n  background-color: var(--graph_bg_thick);\r\n  transition: 0.3s ease-in-out;\r\n}\r\n\r\n.vote-dialog::-webkit-scrollbar-track {\r\n  border-radius: 4px;\r\n  background-color: transparent;\r\n}\r\n\r\n.vote-dialog .vote-iframe-warp {\r\n  height: 600px;\r\n  padding-top: 10px;\r\n  border-top: 0.5px solid var(--graph_weak);\r\n}\r\n\r\n.vote-dialog .vote-iframe-warp .vote-iframe {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.reply-item {\r\n  position: relative;\r\n}\r\n\r\n.reply-item .login-limit-mask {\r\n  display: none;\r\n  position: absolute;\r\n  top: 0;\r\n  right: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n  z-index: 10;\r\n  pointer-events: none;\r\n}\r\n\r\n.reply-item .login-limit-mask .mask-top {\r\n  height: 80%;\r\n  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, var(--bg1) 100%);\r\n}\r\n\r\n.reply-item .login-limit-mask .mask-bottom {\r\n  height: 20%;\r\n  background: var(--bg1);\r\n}\r\n\r\n.reply-item.login-limit-reply-end .login-limit-mask {\r\n  display: block;\r\n}\r\n\r\n.reply-item .root-reply-container {\r\n  padding: 22px 0 0 80px;\r\n}\r\n\r\n.reply-item .root-reply-container.show-reply {\r\n  animation-name: enterAnimation-jumpReply-7041f671;\r\n  animation-duration: 5s;\r\n  animation-fill-mode: forwards;\r\n}\r\n\r\n.reply-item .root-reply-container .root-reply-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: absolute;\r\n  left: 0;\r\n  width: 80px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp {\r\n  flex: 1;\r\n  position: relative;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate {\r\n  position: absolute;\r\n  top: 0;\r\n  right: 0;\r\n  user-select: none;\r\n  transform: translateY(-15px);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .easter-egg-label {\r\n  width: 82px;\r\n  height: 36px;\r\n  transform: translateY(6px);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .easter-egg-label img {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .selected-reply .selected-reply-icon {\r\n  width: var(--213e47ca);\r\n  height: var(--268890ba);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing .user-sailing-img {\r\n  height: 48px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing .user-sailing-text {\r\n  position: absolute;\r\n  right: 0;\r\n  font-size: 13px;\r\n  color: var(--2bd55d12);\r\n  line-height: 16px;\r\n  word-break: keep-all;\r\n  transform: scale(0.7);\r\n  transform-origin: center center;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing .user-sailing-text .sailing-text {\r\n  font-family: fanscard;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-bottom: 4px;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-item .root-reply-container .content-warp .user-info {\r\n    font-size: 13px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-item .root-reply-container .content-warp .user-info {\r\n    font-size: 14px;\r\n  }\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .user-name {\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Medium,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 500;\r\n  margin-right: 5px;\r\n  color: var(--dc735352);\r\n  cursor: pointer;\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .reply-item .root-reply-container .content-warp .user-info .user-name {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .user-level {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .up-icon {\r\n  cursor: default;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .contractor-box {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: var(--697d5c46);\r\n  height: 12px;\r\n  padding: 2px;\r\n  border-radius: 2px;\r\n  background-color: var(--brand_pink_thin);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .contractor-box.originalFan {\r\n  border: 0.5px solid var(--brand_pink);\r\n  background-color: transparent;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .contractor-box .contractor-text {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  font-size: 16px;\r\n  transform-origin: center center;\r\n  transform: scale(0.5);\r\n  position: absolute;\r\n  color: var(--brand_pink);\r\n  white-space: nowrap;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge {\r\n  display: flex;\r\n  align-items: center;\r\n  height: 14px;\r\n  padding-left: 5px;\r\n  border: 0.5px solid var(--3d3b5a1e);\r\n  border-radius: 10px;\r\n  margin-left: 5px;\r\n  background-image: var(--35269ce2);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-icon-wrap {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  width: var(--1f5204fd);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-icon-wrap .badge-frist-icon {\r\n  position: absolute;\r\n  left: -8px;\r\n  width: 20px;\r\n  height: 20px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-icon-wrap .badge-second-icon {\r\n  position: absolute;\r\n  right: 0;\r\n  width: 8px;\r\n  height: 11px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-name-wrap {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: var(--4f9eed68);\r\n  height: 100%;\r\n  margin-right: 4px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-name-wrap .badge-name {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  font-size: 18px;\r\n  transform-origin: center center;\r\n  transform: scale(0.5);\r\n  position: absolute;\r\n  top: 50%;\r\n  left: 50%;\r\n  color: var(--57e6be72);\r\n  font-weight: 500;\r\n  white-space: nowrap;\r\n  transform: scale(0.5) translate(-50%, -50%);\r\n  transform-origin: 0 0;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-level-wrap {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  position: relative;\r\n  width: 11.5px;\r\n  height: 11.5px;\r\n  border-radius: 50%;\r\n  margin-right: 0.5px;\r\n  background-color: var(--59f85baa);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-level-wrap .badge-level {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  font-size: 14px;\r\n  transform-origin: center center;\r\n  transform: scale(0.5);\r\n  position: absolute;\r\n  top: 52%;\r\n  left: 50%;\r\n  font-family: Reeji-CloudHuPo-GBK;\r\n  color: var(--103312b6);\r\n  font-weight: 500;\r\n  white-space: nowrap;\r\n  line-height: 1;\r\n  transform: scale(0.5) translate(-50%, -43%);\r\n  transform-origin: 0 0;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info {\r\n  margin-bottom: 4px;\r\n  height: 20px;\r\n  font-size: 12px;\r\n  line-height: 17px;\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag {\r\n  padding: 2px 6px;\r\n  border-radius: 2px;\r\n  margin-right: 4px;\r\n  flex: none;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag--pink {\r\n  background-color: var(--Pi1);\r\n  color: var(--Pi5);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag--blue {\r\n  background-color: var(--brand_blue_thin);\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag--gray {\r\n  background-color: var(--graph_bg_regular);\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__text {\r\n  color: var(--Ga7_u);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply {\r\n  position: relative;\r\n  padding: 2px 0;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-item .root-reply-container .content-warp .root-reply {\r\n    font-size: 15px;\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-item .root-reply-container .content-warp .root-reply {\r\n    font-size: 16px;\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-content-container {\r\n  display: block;\r\n  overflow: hidden;\r\n  width: 100%;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  margin-top: 2px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-time {\r\n  margin-right: var(--472bae2d);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-location {\r\n  margin-right: 20px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon {\r\n  margin-right: 5px;\r\n  color: #9499a0;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon:hover,\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon.liked {\r\n  color: #00aeec;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike .dislike-icon {\r\n  color: #9499a0;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike .dislike-icon:hover,\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike .dislike-icon.disliked {\r\n  color: #00aeec;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-btn {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-btn:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-operation-warp {\r\n  position: absolute;\r\n  right: 20px;\r\n  display: none;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-tag-list {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-top: 6px;\r\n  font-size: 12px;\r\n  line-height: 17px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-tag-list .reply-tag-item {\r\n  padding: 2px 6px;\r\n  border-radius: 2px;\r\n  margin-right: 10px;\r\n}\r\n\r\n.reply-item .root-reply-container:hover .content-warp .root-reply .reply-info .reply-operation-warp {\r\n  display: block;\r\n}\r\n\r\n.reply-item .sub-reply-container {\r\n  padding-left: 72px;\r\n}\r\n\r\n.reply-item .reply-box-container {\r\n  padding: 25px 0 10px 80px;\r\n}\r\n\r\n.reply-item .bottom-line {\r\n  margin-left: 80px;\r\n  border-bottom: 1px solid var(--graph_bg_thick);\r\n  margin-top: 14px;\r\n}\r\n\r\n.reply-item .reply-dynamic-card {\r\n  position: absolute;\r\n  z-index: 10;\r\n  top: 30px;\r\n  left: 400px;\r\n}\r\n\r\n@keyframes enterAnimation-jumpReply-7041f671 {\r\n  0% {\r\n    background-color: #dff6fb;\r\n  }\r\n\r\n  to {\r\n    background-color: #dff6fb00;\r\n  }\r\n}\r\n\r\n.reply-list {\r\n  margin-top: 14px;\r\n  padding-bottom: 100px;\r\n}\r\n\r\n.reply-list .reply-end-mark {\r\n  height: 100px;\r\n}\r\n\r\n.reply-list .reply-end,\r\n.reply-list .reply-loading,\r\n.reply-list .view-all-reply {\r\n  margin-top: 20px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n  text-align: center;\r\n}\r\n\r\n.reply-list .view-all-reply:hover {\r\n  color: var(--brand_blue);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-list .login-prompt {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  width: calc(100% - 80px);\r\n  height: 50px;\r\n  margin: 16px 0 0 auto;\r\n  border-radius: 6px;\r\n  font-size: 14px;\r\n  color: var(--brand_blue);\r\n  background-color: var(--brand_blue_thin);\r\n  transition: 0.2s;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-list .login-prompt:hover {\r\n  background-color: var(--Lb2);\r\n}\r\n\r\n.user-card {\r\n  position: absolute;\r\n  top: var(--555c4a14);\r\n  left: var(--8468e010);\r\n  z-index: 10;\r\n  width: 366px;\r\n  border: 0.5px solid var(--graph_weak);\r\n  border-radius: 8px;\r\n  background-color: var(--bg1);\r\n  box-shadow: 0 0 30px #0000001a;\r\n}\r\n\r\n.user-card .card-bg {\r\n  width: 100%;\r\n  height: 85px;\r\n  border-radius: 8px 8px 0 0;\r\n  overflow: hidden;\r\n  background-image: var(--71924242);\r\n  background-size: cover;\r\n  background-repeat: no-repeat;\r\n  background-position: center;\r\n}\r\n\r\n.user-card .user-card-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: absolute;\r\n  width: 70px;\r\n  margin-top: 10px;\r\n  cursor: pointer;\r\n}\r\n\r\n.user-card .card-content {\r\n  display: flex;\r\n  flex-direction: column;\r\n  padding: 12px 20px 16px 70px;\r\n}\r\n\r\n.user-card .card-content .card-user-info {\r\n  display: flex;\r\n  align-items: center;\r\n  color: var(--text1);\r\n  margin-bottom: 10px;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-name {\r\n  max-width: 160px;\r\n  margin-right: 5px;\r\n  font-size: 16px;\r\n  font-weight: 600;\r\n  overflow: hidden;\r\n  white-space: nowrap;\r\n  text-overflow: ellipsis;\r\n  color: var(--text1);\r\n  color: var(--7ba58c95);\r\n  text-decoration: none;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-sex {\r\n  width: 16px;\r\n  height: 16px;\r\n  margin-right: 5px;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-level {\r\n  margin-right: 5px;\r\n  cursor: pointer;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-vip {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: var(--7a718880);\r\n  height: 16px;\r\n  padding: 1px 4px;\r\n  border-radius: 2px;\r\n  color: var(--612d8511);\r\n  background-color: var(--29ab308e);\r\n  cursor: default;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-vip .card-vip-text {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  font-size: 20px;\r\n  transform-origin: center center;\r\n  transform: scale(0.5);\r\n  white-space: nowrap;\r\n  font-style: normal;\r\n}\r\n\r\n.user-card .card-content .card-social-info {\r\n  display: flex;\r\n  align-items: center;\r\n  font-size: 12px;\r\n  color: var(--text1);\r\n}\r\n\r\n.user-card .card-content .card-social-info .card-user-attention,\r\n.user-card .card-content .card-social-info .card-user-fans,\r\n.user-card .card-content .card-social-info .card-user-like {\r\n  margin-right: 18px;\r\n  color: inherit;\r\n  text-decoration: none;\r\n}\r\n\r\n.user-card .card-content .card-social-info .card-user-attention .social-info-title,\r\n.user-card .card-content .card-social-info .card-user-fans .social-info-title,\r\n.user-card .card-content .card-social-info .card-user-like .social-info-title {\r\n  margin-left: 3px;\r\n  color: var(--text3);\r\n}\r\n\r\n.user-card .card-content .card-verify-info {\r\n  padding-top: 10px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.user-card .card-content .card-verify-info .card-verify-icon {\r\n  vertical-align: text-bottom;\r\n  margin-right: 3px;\r\n}\r\n\r\n.user-card .card-content .card-sign {\r\n  padding-top: 8px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  word-break: break-all;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp {\r\n  display: flex;\r\n  margin-top: 16px;\r\n  font-size: 14px;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 100px;\r\n  height: 30px;\r\n  border-radius: 4px;\r\n  margin-right: 8px;\r\n  color: var(--text_white);\r\n  background-color: var(--brand_blue);\r\n  transition: 0.4s;\r\n  cursor: pointer;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn .cancel-attention-text {\r\n  display: none;\r\n  position: absolute;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn.attention {\r\n  color: var(--text2);\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn.attention:hover .attention-text {\r\n  display: none;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn.attention:hover .cancel-attention-text {\r\n  display: inline;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-message-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 100px;\r\n  height: 30px;\r\n  border: 1px solid var(--graph_weak);\r\n  border-radius: 4px;\r\n  color: var(--text2);\r\n  cursor: pointer;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-message-btn:hover {\r\n  border-color: var(--brand_blue);\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.dynamic-card {\r\n  display: flex;\r\n  flex-direction: column;\r\n  position: absolute;\r\n  z-index: 10;\r\n  top: var(--7b058890);\r\n  left: 400px;\r\n  width: 710px;\r\n  height: 550px;\r\n  border-radius: 6px;\r\n  background-color: var(--bg1);\r\n  box-shadow: 0 0 25px #00000026;\r\n}\r\n\r\n.dynamic-card .card-header {\r\n  display: flex;\r\n  align-items: center;\r\n  flex-basis: 50px;\r\n  padding: 0 10px;\r\n  border-bottom: 0.5px solid var(--line_light);\r\n}\r\n\r\n.dynamic-card .card-header .card-title {\r\n  flex: 1;\r\n  text-align: center;\r\n  font-size: 16px;\r\n  color: var(--text1);\r\n}\r\n\r\n.dynamic-card .card-header .close-card {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  width: 30px;\r\n  height: 30px;\r\n  border-radius: 6px;\r\n  color: var(--text2);\r\n  transition: 0.2s;\r\n  cursor: pointer;\r\n}\r\n\r\n.dynamic-card .card-header .close-card:hover {\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.dynamic-card .card-content {\r\n  flex: 1;\r\n}\r\n\r\n.dynamic-card .card-content::-webkit-scrollbar {\r\n  width: 4px;\r\n  border-radius: 4px;\r\n  background-color: transparent;\r\n}\r\n\r\n.dynamic-card .card-content::-webkit-scrollbar-thumb {\r\n  border-radius: 4px;\r\n  background-color: var(--graph_bg_thick);\r\n  transition: 0.3s ease-in-out;\r\n}\r\n\r\n.dynamic-card .card-content::-webkit-scrollbar-track {\r\n  border-radius: 4px;\r\n  background-color: transparent;\r\n}\r\n\r\n.dynamic-card .card-content .dynamic-card-iframe {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.reply-view-image {\r\n  position: fixed;\r\n  z-index: 999999;\r\n  top: 0;\r\n  left: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n  background: rgba(24, 25, 28, 0.85);\r\n  transform: scale(1);\r\n  user-select: none;\r\n  cursor: default;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  -webkit-user-drag: none;\r\n}\r\n\r\n.reply-view-image,\r\n.reply-view-image * {\r\n  box-sizing: border-box;\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  position: absolute;\r\n  z-index: 2;\r\n  width: 42px;\r\n  height: 42px;\r\n  border-radius: 50%;\r\n  color: var(--text_white);\r\n  background: rgba(0, 0, 0, 0.58);\r\n  transition: 0.2s;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon:hover {\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon.close-container {\r\n  top: 16px;\r\n  right: 16px;\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon.last-image {\r\n  top: 50%;\r\n  left: 16px;\r\n  transform: translateY(-50%);\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon.next-image {\r\n  top: 50%;\r\n  right: 16px;\r\n  transform: translateY(-50%);\r\n}\r\n\r\n.reply-view-image .show-image-wrap {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  position: absolute;\r\n  width: 100%;\r\n  height: 100%;\r\n  max-height: 100%;\r\n  padding: 0 100px;\r\n  overflow: auto;\r\n}\r\n\r\n.reply-view-image .show-image-wrap .loading-svga {\r\n  position: absolute;\r\n  top: 50%;\r\n  left: 50%;\r\n  transform: translate(-50%, -50%);\r\n  width: 42px;\r\n  height: 42px;\r\n}\r\n\r\n.reply-view-image .show-image-wrap.vertical {\r\n  flex-direction: column;\r\n  justify-content: var(--c186e874);\r\n}\r\n\r\n.reply-view-image .show-image-wrap .image-content {\r\n  width: calc(100vw - 200px);\r\n  max-width: var(--34114ac9);\r\n  -webkit-user-drag: none;\r\n}\r\n\r\n.reply-view-image .preview-list {\r\n  display: flex;\r\n  align-items: center;\r\n  position: absolute;\r\n  left: 50%;\r\n  bottom: 30px;\r\n  z-index: 2;\r\n  padding: 6px 10px;\r\n  border-radius: 8px;\r\n  background: rgba(24, 25, 28, 0.8);\r\n  backdrop-filter: blur(20px);\r\n  transform: translate(-50%);\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box {\r\n  padding: 1px;\r\n  border: 2px solid transparent;\r\n  border-radius: 8px;\r\n  transition: 0.3s;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box.active {\r\n  border-color: var(--brand_pink);\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap {\r\n  display: flex;\r\n  justify-content: center;\r\n  overflow: hidden;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 6px;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap.vertical {\r\n  flex-direction: column;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap.extra-long {\r\n  justify-content: start;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap .item-content {\r\n  -webkit-user-drag: none;\r\n}\r\n\r\n.reply-view-image--transition-enter-active,\r\n.reply-view-image--transition-leave-active {\r\n  transition: all 0.3s ease;\r\n}\r\n\r\n.reply-view-image--transition-enter-from,\r\n.reply-view-image--transition-leave-to {\r\n  transform: scale(0.4);\r\n  opacity: 0;\r\n}\r\n\r\n.reply-warp {\r\n  position: relative;\r\n}\r\n\r\n.reply-warp .fixed-reply-box {\r\n  position: fixed;\r\n  bottom: 0;\r\n  left: var(--3e88ddc5);\r\n  z-index: 10;\r\n  width: var(--d9a0b070);\r\n}\r\n\r\n.reply-warp .fixed-reply-box .reply-box-shadow {\r\n  position: absolute;\r\n  top: -10px;\r\n  z-index: 1;\r\n  width: 100%;\r\n  height: 36px;\r\n  border-radius: 50%;\r\n  background-color: #00000014;\r\n  filter: blur(10px);\r\n}\r\n\r\n.reply-warp .fixed-reply-box--transition-enter-active,\r\n.reply-warp .fixed-reply-box--transition-leave-active {\r\n  transition: opacity 0.5s ease;\r\n}\r\n\r\n.reply-warp .fixed-reply-box--transition-enter-from,\r\n.reply-warp .fixed-reply-box--transition-leave-to {\r\n  opacity: 0;\r\n}\r\n\r\n.bili-comment.browser-pc {\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.bili-comment.browser-pc * {\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Regular,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 400;\r\n  box-sizing: border-box;\r\n  -webkit-font-smoothing: antialiased;\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .bili-comment.browser-pc * {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.bili-comment.browser-pc * ul {\r\n  padding: 0;\r\n  margin: 0;\r\n  list-style: none;\r\n}\r\n\r\n.bili-comment.browser-pc * a {\r\n  text-decoration: none;\r\n  background-color: transparent;\r\n  color: var(--text_link);\r\n  cursor: pointer;\r\n}\r\n\r\n.bili-comment.browser-pc * a:hover {\r\n  color: var(--Lb4);\r\n}\r\n\r\n.bili-comment.browser-pc * i {\r\n  font-style: normal;\r\n}\r\n\r\n.bili-comment.browser-pc * p {\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.bili-comment.browser-pc .comment-container {\r\n  animation-name: enterAnimation-commentContainer;\r\n  animation-duration: 1s;\r\n  animation-fill-mode: forwards;\r\n}\r\n\r\n.reply-operation-client {\r\n  display: inline-flex;\r\n  position: relative;\r\n}\r\n\r\n.reply-operation-client .operation-icon {\r\n  border-radius: 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-operation-client .operation-icon:hover {\r\n  background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.reply-operation-client .operation-list {\r\n  display: flex;\r\n  flex-direction: column;\r\n  position: absolute;\r\n  top: 10px;\r\n  right: 0;\r\n  z-index: 10;\r\n  width: 180px;\r\n  padding: 12px 0;\r\n  border-radius: 6px;\r\n  font-size: 14px;\r\n  color: var(--text2);\r\n  background-color: var(--bg1_float);\r\n  box-shadow: 0 0 5px #0003;\r\n}\r\n\r\n.reply-operation-client .operation-list .operation-option {\r\n  display: flex;\r\n  align-items: center;\r\n  height: 40px;\r\n  padding: 0 15px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-operation-client .operation-list .operation-option:hover {\r\n  background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal {\r\n  position: absolute;\r\n  top: 0;\r\n  left: 50%;\r\n  width: auto;\r\n  padding: 10px 20px;\r\n  border: 1px solid var(--graph_bg_thick);\r\n  border-radius: 8px;\r\n  margin-bottom: 100px;\r\n  font-size: 12px;\r\n  line-height: 12px;\r\n  text-align: center;\r\n  white-space: nowrap;\r\n  background-color: var(--bg1);\r\n  box-shadow: 0 0 5px #0003;\r\n  transform: translate(-50%, -100%);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .comfirm-delete {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 40px;\r\n  height: 20px;\r\n  border-radius: 4px;\r\n  margin-right: 20px;\r\n  color: var(--text_white);\r\n  background-color: var(--brand_blue);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .comfirm-delete:hover {\r\n  background-color: var(--Lb4);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .cancel-delete {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 40px;\r\n  height: 20px;\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .cancel-delete:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.select-reply-dialog-client .select-dialog-content {\r\n  text-align: left;\r\n}\r\n\r\n.select-reply-dialog-client .cancel-select-reply {\r\n  width: 130px;\r\n  margin-right: 20px;\r\n}\r\n\r\n.select-reply-dialog-client .comfirm-select-reply {\r\n  width: 130px;\r\n}\r\n\r\n.close-reply-dialog-client .close-reply-dialog-content {\r\n  text-align: left;\r\n}\r\n\r\n.close-reply-dialog-client .cancel-close-reply {\r\n  width: 130px;\r\n  margin-right: 20px;\r\n}\r\n\r\n.close-reply-dialog-client .comfirm-close-reply {\r\n  width: 130px;\r\n}\r\n\r\n.close-danmaku-dialog-client .close-danmaku-dialog-content {\r\n  text-align: left;\r\n}\r\n\r\n.close-danmaku-dialog-client .cancel-close-danmaku {\r\n  width: 130px;\r\n  margin-right: 20px;\r\n}\r\n\r\n.close-danmaku-dialog-client .comfirm-close-danmaku {\r\n  width: 130px;\r\n}\r\n\r\n.blacklist-dialog-client .blacklist-dialog-content {\r\n  text-align: center;\r\n}\r\n\r\n.blacklist-dialog-client .comfirm-pull-blacklist {\r\n  margin-right: 20px;\r\n}\r\n\r\n.reply-header-client .reply-notice {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  height: 40px;\r\n  padding: 11px 14px;\r\n  margin-bottom: 10px;\r\n  font-size: 12px;\r\n  border-radius: 2px;\r\n  color: var(--text_notice);\r\n  background-color: var(--Or0);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header-client .reply-notice .notice-content {\r\n  flex: 1;\r\n  position: relative;\r\n  padding: 0 5px;\r\n  line-height: 18px;\r\n  vertical-align: top;\r\n  word-wrap: break-word;\r\n  word-break: break-all;\r\n  white-space: nowrap;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  transition: 2s;\r\n}\r\n\r\n.reply-header-client .reply-navigation {\r\n  margin: 12px 0;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  list-style: none;\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-select-reply {\r\n  font-size: 12px;\r\n  color: var(--text1);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort {\r\n  display: flex;\r\n  align-items: center;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .part-symbol {\r\n  height: 10px;\r\n  margin: 0 8px;\r\n  border-left: solid 1px;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .hot-sort {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .hot-sort:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .time-sort {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .time-sort:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort.hot .hot-sort,\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort.time .time-sort {\r\n  color: var(--text1);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-operation-warp {\r\n  position: absolute;\r\n  right: 0;\r\n}\r\n\r\n.reply-box-client {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n\r\n.reply-box-client .reply-box-warp {\r\n  position: relative;\r\n  flex: 1;\r\n}\r\n\r\n.reply-box-client .reply-box-warp .reply-box-textarea {\r\n  width: 100%;\r\n  height: 32px;\r\n  padding: 5px 12px;\r\n  border: 1px solid transparent;\r\n  border-radius: 6px;\r\n  line-height: 20px;\r\n  color: var(--text1);\r\n  background-color: var(--bg2);\r\n  resize: none;\r\n  outline: none;\r\n  transition: 0.2s;\r\n}\r\n\r\n.reply-box-client .reply-box-warp .reply-box-textarea::placeholder {\r\n  color: var(--text4);\r\n}\r\n\r\n.reply-box-client .reply-box-warp .reply-box-textarea.focus,\r\n.reply-box-client .reply-box-warp .reply-box-textarea:hover {\r\n  border-color: var(--brand_pink);\r\n}\r\n\r\n.reply-box-client .box-operation-warp {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-top: 10px;\r\n  height: 32px;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-emoji {\r\n  position: relative;\r\n  margin-right: auto;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-emoji .box-emoji-icon {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 70px;\r\n  height: 100%;\r\n  border-radius: 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send .send-text {\r\n  position: absolute;\r\n  z-index: 1;\r\n  color: var(--text_white);\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send:after {\r\n  content: "";\r\n  position: absolute;\r\n  opacity: 0.5;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 4px;\r\n  background-color: var(--brand_pink);\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send:hover:after {\r\n  opacity: 1;\r\n}\r\n\r\n.reply-box-client.box-active .reply-box-warp .reply-box-textarea {\r\n  height: 60px;\r\n}\r\n\r\n.reply-box-client.box-active .reply-box-send.send-active:after {\r\n  opacity: 1;\r\n}\r\n\r\n.reply-box-client.disabled .reply-box-warp .disable-mask {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: absolute;\r\n  top: 0;\r\n  left: 0;\r\n  z-index: 1;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 6px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.reply-box-client.disabled .reply-box-warp .disable-mask .no-login-mask {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box-client.disabled .box-operation-warp .reply-box-send {\r\n  cursor: not-allowed;\r\n}\r\n\r\n.reply-box-client.disabled .box-operation-warp .reply-box-send .send-text {\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box-client.disabled .box-operation-warp .reply-box-send:after {\r\n  opacity: 1;\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.note-prefix {\r\n  vertical-align: -3px;\r\n  display: inline-flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  padding: 0 3px;\r\n  line-height: 19px;\r\n  border-radius: 4px;\r\n  margin-right: 6px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  background-color: var(--bg2);\r\n}\r\n\r\n.note-prefix .note-icon {\r\n  width: 16px;\r\n  height: 16px;\r\n}\r\n\r\n.reply-content-client {\r\n  color: var(--text1);\r\n  overflow: hidden;\r\n  word-wrap: break-word;\r\n  word-break: break-word;\r\n  white-space: pre-wrap;\r\n  vertical-align: baseline;\r\n  transition: 0.2s;\r\n}\r\n\r\n.reply-content-client.root {\r\n  line-height: 25px;\r\n}\r\n\r\n.reply-content-client.need-view-more {\r\n  display: -webkit-box;\r\n  -webkit-box-orient: vertical;\r\n  overflow: hidden;\r\n}\r\n\r\n.reply-content-client.sub {\r\n  line-height: 20px;\r\n}\r\n\r\n.reply-content-client .top-icon {\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 30px;\r\n  height: 18px;\r\n  border: 1px solid var(--brand_pink);\r\n  border-radius: 3px;\r\n  margin-right: 5px;\r\n  font-size: 12px;\r\n  color: var(--brand_pink);\r\n  vertical-align: 1px;\r\n}\r\n\r\n.reply-content-client .emoji-small {\r\n  width: 20px;\r\n  height: 20px;\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-client .emoji-large {\r\n  width: 36px;\r\n  height: 36px;\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-client .jump-link {\r\n  vertical-align: baseline;\r\n}\r\n\r\n.reply-content-client .icon {\r\n  width: 20px;\r\n  height: 20px;\r\n  vertical-align: text-top;\r\n}\r\n\r\n.reply-content-client .icon.vote {\r\n  width: 16px;\r\n  height: 16px;\r\n  margin-right: 3px;\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-client .icon.search-word {\r\n  width: 12px;\r\n  display: inline-block;\r\n  background-size: contain;\r\n  background-repeat: no-repeat;\r\n}\r\n\r\n.view-more-reply {\r\n  font-size: 12px;\r\n  color: var(--text_link);\r\n  line-height: 17px;\r\n  cursor: pointer;\r\n}\r\n\r\n.view-more-reply:hover {\r\n  color: var(--Lb4);\r\n}\r\n\r\n.sub-reply-item-client {\r\n  display: -webkit-box;\r\n  -webkit-box-orient: vertical;\r\n  -webkit-line-clamp: 2;\r\n  position: relative;\r\n  max-height: 42px;\r\n  padding: 3px 0;\r\n  font-size: 14px;\r\n  overflow: hidden;\r\n}\r\n\r\n.sub-reply-item-client .sub-user-info {\r\n  display: inline-flex;\r\n  align-items: center;\r\n  color: var(--text2);\r\n  line-height: 20px;\r\n  vertical-align: baseline;\r\n  white-space: nowrap;\r\n}\r\n\r\n.sub-reply-item-client .sub-user-info .sub-user-name {\r\n  margin-right: 5px;\r\n  font-size: 14px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item-client .sub-user-info .sub-up-icon {\r\n  margin-right: 4px;\r\n  cursor: default;\r\n}\r\n\r\n.sub-reply-list-client {\r\n  border-radius: 4px;\r\n  padding: 7px 10px;\r\n  margin-top: 12px;\r\n  background-color: var(--bg2_float);\r\n}\r\n\r\n.sub-reply-list-client .view-more {\r\n  margin-top: 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-list-client .view-more .view-more-text {\r\n  font-size: 12px;\r\n  color: var(--text_link);\r\n}\r\n\r\n.sub-reply-list-client .view-more .view-more-text:hover {\r\n  color: var(--Lb4);\r\n}\r\n\r\n.content-warp--blacklist .reply-content {\r\n  display: inline-flex;\r\n  align-items: center;\r\n  padding: 4px;\r\n  border-radius: 4px;\r\n  color: var(--text1);\r\n  background-color: var(--bg2_float);\r\n}\r\n\r\n.content-warp--blacklist .reply-content .ban-icon {\r\n  margin-right: 4px;\r\n}\r\n\r\n.content-warp--blacklist .reply-header {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-bottom: 8px;\r\n}\r\n\r\n.content-warp--blacklist .reply-header .root-reply-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: absolute;\r\n  left: 0;\r\n  cursor: pointer;\r\n}\r\n\r\n.content-warp--blacklist .reply-header .root-reply-avatar .blacklist-avatar {\r\n  width: 30px;\r\n  height: 30px;\r\n}\r\n\r\n.content-warp--blacklist .reply-header .reply-info .balcklist-name {\r\n  color: var(--text1);\r\n}\r\n\r\n.reply-item-client {\r\n  position: relative;\r\n  padding: 10px 0 14px 42px;\r\n  border-bottom: 1px solid var(--line_light);\r\n}\r\n\r\n.reply-item-client .content-warp {\r\n  flex: 1;\r\n  position: relative;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-bottom: 8px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .root-reply-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: absolute;\r\n  left: -42px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info {\r\n  display: flex;\r\n  align-items: center;\r\n  font-size: 13px;\r\n  color: var(--text2);\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info .user-name {\r\n  margin-right: 5px;\r\n  color: var(--be794234);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info .user-level {\r\n  margin-right: 5px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info .up-icon {\r\n  cursor: default;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .reply-time {\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply {\r\n  position: relative;\r\n  font-size: 15px;\r\n  line-height: 25px;\r\n  transition: 0.2s;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  margin-top: 12px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n  line-height: 16px;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like .like-icon {\r\n  margin-right: 5px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like .like-icon:hover,\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like .like-icon.liked {\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike .dislike-icon {\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike .dislike-icon:hover,\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike .dislike-icon.disliked {\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-icon {\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-icon:hover {\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .more-operation {\r\n  display: none;\r\n  position: absolute;\r\n  right: 20px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-item-box {\r\n  margin-top: 12px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-tag-list {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-top: 12px;\r\n  font-size: 12px;\r\n  line-height: 14px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-tag-list .reply-tag-item {\r\n  padding: 5px 6px;\r\n  border-radius: 2px;\r\n  margin-right: 10px;\r\n  color: var(--text2);\r\n  background-color: var(--bg2_float);\r\n}\r\n\r\n.reply-item-client:hover .content-warp .root-reply .reply-operation-warp .more-operation {\r\n  display: block;\r\n}\r\n\r\n.reply-list {\r\n  position: relative;\r\n  margin-top: 14px;\r\n  padding-bottom: 100px;\r\n}\r\n\r\n.reply-list .reply-empty {\r\n  margin-top: 100px;\r\n  text-align: center;\r\n  font-size: 14px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-list .reply-end-mark {\r\n  height: 100px;\r\n}\r\n\r\n.reply-list .reply-end,\r\n.reply-list .reply-loading {\r\n  margin-top: 20px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n  text-align: center;\r\n}\r\n\r\n.fixed-reply-box {\r\n  bottom: 0;\r\n  z-index: 20;\r\n  width: 100%;\r\n}\r\n\r\n.fixed-reply-box .reply-box-wrap {\r\n  background-color: var(--bg1);\r\n  padding: 14px 0;\r\n  border-top: 1px solid var(--line_light);\r\n}\r\n\r\n.fixed-reply-box .reply-box-shadow {\r\n  position: absolute;\r\n  top: -10px;\r\n  z-index: -1;\r\n  height: 36px;\r\n  border-radius: 50%;\r\n  background-color: #00000014;\r\n  filter: blur(10px);\r\n  width: calc(100% - 72px);\r\n  left: 50%;\r\n  transform: translate(-50%);\r\n}\r\n\r\n.reply-detail {\r\n  flex: 1;\r\n}\r\n\r\n.reply-detail .reply-header {\r\n  display: flex;\r\n  align-items: center;\r\n  position: sticky;\r\n  z-index: 9;\r\n  top: 0;\r\n  left: 0;\r\n  height: 46px;\r\n  border-bottom: 1px solid var(--line_light);\r\n  margin-bottom: 14px;\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.reply-detail .reply-header .return-icon {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 32px;\r\n  height: 32px;\r\n  border-radius: 4px;\r\n  margin-right: 4px;\r\n  color: var(--text1);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-detail .reply-header .return-icon:hover {\r\n  background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.reply-detail .reply-header .reply-title {\r\n  font-size: 16px;\r\n  font-weight: 600;\r\n  color: var(--text1);\r\n}\r\n\r\n.dialog-reply {\r\n  flex: 1;\r\n}\r\n\r\n.dialog-reply .reply-header {\r\n  display: flex;\r\n  align-items: center;\r\n  position: sticky;\r\n  z-index: 9;\r\n  top: 0;\r\n  left: 0;\r\n  height: 46px;\r\n  border-bottom: 1px solid var(--line_light);\r\n  margin-bottom: 14px;\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.dialog-reply .reply-header .return-icon {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 32px;\r\n  height: 32px;\r\n  border-radius: 4px;\r\n  margin-right: 4px;\r\n  color: var(--text1);\r\n  cursor: pointer;\r\n}\r\n\r\n.dialog-reply .reply-header .return-icon:hover {\r\n  background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.dialog-reply .reply-header .reply-title {\r\n  font-size: 16px;\r\n  font-weight: 600;\r\n  color: var(--text1);\r\n}\r\n\r\n.bili-comment.client {\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.bili-comment.client * {\r\n  box-sizing: border-box;\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Regular,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  -webkit-font-smoothing: antialiased;\r\n}\r\n\r\n.bili-comment.client * ul {\r\n  list-style: none;\r\n}\r\n\r\n.bili-comment.client * a {\r\n  text-decoration: none;\r\n  background-color: transparent;\r\n  color: var(--text_link);\r\n  cursor: pointer;\r\n}\r\n\r\n.bili-comment.client * a:hover {\r\n  color: var(--Lb4);\r\n}\r\n\r\n.bili-comment.client * i {\r\n  font-style: normal;\r\n}\r\n';
   class GestureBack {
-isBacking = false;
+    isBacking = false;
     config;
     constructor(config) {
       this.config = config;
@@ -6271,14 +6245,14 @@ isBacking = false;
         this.config.win = self;
       }
     }
-popStateEvent(event) {
+    popStateEvent(event) {
       domUtils.preventEvent(event);
       if (this.isBacking) {
         return;
       }
       this.quitGestureBackMode(true);
     }
-enterGestureBackMode() {
+    enterGestureBackMode() {
       log$1.success("进入手势模式");
       let pushUrl = this.config.hash;
       if (!pushUrl.startsWith("#")) {
@@ -6288,15 +6262,19 @@ enterGestureBackMode() {
         pushUrl = "#" + pushUrl;
       }
       if (this.config.useUrl) {
-        pushUrl = this.config.win.location.origin + this.config.win.location.pathname + this.config.win.location.search + pushUrl;
+        pushUrl =
+          this.config.win.location.origin +
+          this.config.win.location.pathname +
+          this.config.win.location.search +
+          pushUrl;
       }
       this.config.win.history.pushState({}, "", pushUrl);
       log$1.success("监听popstate事件");
       domUtils.on(this.config.win, "popstate", this.popStateEvent, {
-        capture: true
+        capture: true,
       });
     }
-async quitGestureBackMode(isUrlChange = false) {
+    async quitGestureBackMode(isUrlChange = false) {
       this.isBacking = true;
       log$1.success("退出手势模式");
       if (typeof this.config.beforeHistoryBackCallBack === "function") {
@@ -6318,7 +6296,7 @@ async quitGestureBackMode(isUrlChange = false) {
       }
       log$1.success("移除popstate事件");
       domUtils.off(this.config.win, "popstate", this.popStateEvent, {
-        capture: true
+        capture: true,
       });
       this.isBacking = false;
       if (typeof this.config.afterHistoryBackCallBack === "function") {
@@ -6328,9 +6306,9 @@ async quitGestureBackMode(isUrlChange = false) {
   }
   const BilibiliVideo = {
     $data: {
-isAddBeautifyCSS: false,
-isInitCommentModule: false,
-isInitDescModule: false
+      isAddBeautifyCSS: false,
+      isInitCommentModule: false,
+      isInitDescModule: false,
     },
     init() {
       BilibiliVideoPlayer.init();
@@ -6352,12 +6330,12 @@ isInitDescModule: false
         });
       });
     },
-beautify() {
+    beautify() {
       log$1.info("美化显示");
       if (!this.$data.isAddBeautifyCSS) {
         this.$data.isAddBeautifyCSS = true;
         addStyle(
-`
+          `
 				@charset "UTF-8";
 				${BilibiliData.className.video} .video-list .card-box {
 					--left-card-width: 33%;
@@ -6487,133 +6465,129 @@ beautify() {
 			`
         );
       }
-      domUtils.waitNode(BilibiliData.className.video + " .bottom-tab .list-view .card-box", 1e4).then(
-        ($cardBox) => {
-          if (!$cardBox) {
-            log$1.error("$cardBox is null");
-            return;
-          }
-          function handleVCardToApp($vCard) {
-            let $originTitle = $vCard.querySelector(".title");
-            let $originLeft = $vCard.querySelector(".count .left");
-            let isHandled = Boolean($vCard.querySelector(".gm-right-container"));
-            let vueObj = VueUtils.getVue($vCard);
-            if ($originTitle && $originLeft && vueObj && !isHandled) {
-              let upName = vueObj?.info?.owner?.name;
-              if (upName == null) {
-                log$1.error("美化显示-handleVCardToApp：获取up主名字失败");
-                return;
-              }
-              $vCard.querySelector(".count");
-              let $title = $originTitle.cloneNode(true);
-              let $left = $originLeft.cloneNode(true);
-              domUtils.hide($originTitle);
-              let $isOpenAppWeakened = $vCard.querySelector(".open-app.weakened");
-              if ($isOpenAppWeakened) {
-                domUtils.hide($isOpenAppWeakened);
-              }
-              let $upInfo = document.createElement("div");
-              $upInfo.className = "gm-up-name";
-              $upInfo.innerHTML =
-`
+      domUtils.waitNode(BilibiliData.className.video + " .bottom-tab .list-view .card-box", 1e4).then(($cardBox) => {
+        if (!$cardBox) {
+          log$1.error("$cardBox is null");
+          return;
+        }
+        function handleVCardToApp($vCard) {
+          let $originTitle = $vCard.querySelector(".title");
+          let $originLeft = $vCard.querySelector(".count .left");
+          let isHandled = Boolean($vCard.querySelector(".gm-right-container"));
+          let vueObj = VueUtils.getVue($vCard);
+          if ($originTitle && $originLeft && vueObj && !isHandled) {
+            let upName = vueObj?.info?.owner?.name;
+            if (upName == null) {
+              log$1.error("美化显示-handleVCardToApp：获取up主名字失败");
+              return;
+            }
+            $vCard.querySelector(".count");
+            let $title = $originTitle.cloneNode(true);
+            let $left = $originLeft.cloneNode(true);
+            domUtils.hide($originTitle);
+            let $isOpenAppWeakened = $vCard.querySelector(".open-app.weakened");
+            if ($isOpenAppWeakened) {
+              domUtils.hide($isOpenAppWeakened);
+            }
+            let $upInfo = document.createElement("div");
+            $upInfo.className = "gm-up-name";
+            $upInfo.innerHTML = `
 						<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
 							<path fill="#999A9E" d="M896 736v-448c0-54.4-41.6-96-96-96h-576C169.6 192 128 233.6 128 288v448c0 54.4 41.6 96 96 96h576c54.4 0 96-41.6 96-96zM800 128C889.6 128 960 198.4 960 288v448c0 89.6-70.4 160-160 160h-576C134.4 896 64 825.6 64 736v-448C64 198.4 134.4 128 224 128h576zM419.2 544V326.4h60.8v240c0 96-57.6 144-147.2 144S192 665.6 192 569.6V326.4h60.8v217.6c0 51.2 3.2 108.8 83.2 108.8s83.2-57.6 83.2-108.8z m288-38.4c28.8 0 60.8-16 60.8-60.8 0-48-28.8-60.8-60.8-60.8H614.4v121.6h92.8z m3.2-179.2c102.4 0 121.6 70.4 121.6 115.2 0 48-19.2 115.2-121.6 115.2H614.4V704h-60.8V326.4h156.8z">
 							</path>
 						</svg>
 						<span class="gm-up-name-text">${upName}</span>
 						`;
-              let $rightContainer = document.createElement("div");
-              let $rightBottom = document.createElement("div");
-              $rightContainer.className = "gm-right-container";
-              $rightBottom.className = "gm-right-bottom";
-              domUtils.after($originTitle, $rightContainer);
-              $rightContainer.appendChild($title);
-              $rightContainer.appendChild($rightBottom);
-              $rightBottom.appendChild($upInfo);
-              $rightBottom.appendChild($left);
-            }
+            let $rightContainer = document.createElement("div");
+            let $rightBottom = document.createElement("div");
+            $rightContainer.className = "gm-right-container";
+            $rightBottom.className = "gm-right-bottom";
+            domUtils.after($originTitle, $rightContainer);
+            $rightContainer.appendChild($title);
+            $rightContainer.appendChild($rightBottom);
+            $rightBottom.appendChild($upInfo);
+            $rightBottom.appendChild($left);
           }
-          function handleVCard($vCard) {
-            let $originTitle = $vCard.querySelector(".title");
-            let $originCount = $vCard.querySelector(".count");
-            let isHandled = Boolean($vCard.querySelector(".gm-right-container"));
-            let vueObj = VueUtils.getVue($vCard);
-            if ($originTitle && $originCount && vueObj && !isHandled) {
-              let duration = vueObj?.info?.duration;
-              if (duration == null) {
-                log$1.error("美化显示-handleVCard：获取视频时长失败");
-                return;
-              }
-              let upName = vueObj?.info?.owner?.name;
-              if (upName == null) {
-                log$1.error("美化显示-handleVCard：获取up主名字失败");
-                return;
-              }
-              let $cloneTitle = $originTitle.cloneNode(true);
-              let $cloneCount = $originCount.cloneNode(true);
-              domUtils.hide($originTitle);
-              let $duration = document.createElement("div");
-              $duration.className = "duration";
-              $duration.innerText = BilibiliUtils.parseDuration(duration);
-              $cloneCount.className = "left";
-              let $upInfo = document.createElement("div");
-              $originCount.appendChild($duration);
-              $upInfo.className = "gm-up-name";
-              $upInfo.innerHTML =
-`
+        }
+        function handleVCard($vCard) {
+          let $originTitle = $vCard.querySelector(".title");
+          let $originCount = $vCard.querySelector(".count");
+          let isHandled = Boolean($vCard.querySelector(".gm-right-container"));
+          let vueObj = VueUtils.getVue($vCard);
+          if ($originTitle && $originCount && vueObj && !isHandled) {
+            let duration = vueObj?.info?.duration;
+            if (duration == null) {
+              log$1.error("美化显示-handleVCard：获取视频时长失败");
+              return;
+            }
+            let upName = vueObj?.info?.owner?.name;
+            if (upName == null) {
+              log$1.error("美化显示-handleVCard：获取up主名字失败");
+              return;
+            }
+            let $cloneTitle = $originTitle.cloneNode(true);
+            let $cloneCount = $originCount.cloneNode(true);
+            domUtils.hide($originTitle);
+            let $duration = document.createElement("div");
+            $duration.className = "duration";
+            $duration.innerText = BilibiliUtils.parseDuration(duration);
+            $cloneCount.className = "left";
+            let $upInfo = document.createElement("div");
+            $originCount.appendChild($duration);
+            $upInfo.className = "gm-up-name";
+            $upInfo.innerHTML = `
 						<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
 							<path fill="#999A9E" d="M896 736v-448c0-54.4-41.6-96-96-96h-576C169.6 192 128 233.6 128 288v448c0 54.4 41.6 96 96 96h576c54.4 0 96-41.6 96-96zM800 128C889.6 128 960 198.4 960 288v448c0 89.6-70.4 160-160 160h-576C134.4 896 64 825.6 64 736v-448C64 198.4 134.4 128 224 128h576zM419.2 544V326.4h60.8v240c0 96-57.6 144-147.2 144S192 665.6 192 569.6V326.4h60.8v217.6c0 51.2 3.2 108.8 83.2 108.8s83.2-57.6 83.2-108.8z m288-38.4c28.8 0 60.8-16 60.8-60.8 0-48-28.8-60.8-60.8-60.8H614.4v121.6h92.8z m3.2-179.2c102.4 0 121.6 70.4 121.6 115.2 0 48-19.2 115.2-121.6 115.2H614.4V704h-60.8V326.4h156.8z">
 							</path>
 						</svg>
 						<span class="gm-up-name-text">${upName}</span>
 						`;
-              let $rightContainer = document.createElement("div");
-              let $rightBottom = document.createElement("div");
-              $rightContainer.className = "gm-right-container";
-              $rightBottom.className = "gm-right-bottom";
-              domUtils.after($originTitle, $rightContainer);
-              $rightContainer.appendChild($cloneTitle);
-              $rightContainer.appendChild($rightBottom);
-              $rightBottom.appendChild($upInfo);
-              $rightBottom.appendChild($cloneCount);
-            }
-          }
-          let lockFunc = new utils.LockFunction(() => {
-            let $vCardList = document.querySelectorAll(
-              BilibiliData.className.video + " .bottom-tab .list-view .card-box .v-card-toapp"
-            );
-            let $vCardList_isLogon = document.querySelectorAll(
-              BilibiliData.className.video + " .bottom-tab .list-view .card-box>a.v-card"
-            );
-            $vCardList.forEach((_$vCard_) => {
-              handleVCardToApp(_$vCard_);
-            });
-            $vCardList_isLogon.forEach((_$vCard_) => {
-              handleVCard(_$vCard_);
-            });
-          }, 25);
-          let $videoRoot = document.querySelector(BilibiliData.className.video);
-          if ($videoRoot) {
-            utils.mutationObserver($videoRoot, {
-              config: {
-                subtree: true,
-                attributes: true,
-                childList: true
-              },
-              callback() {
-                lockFunc.run();
-              }
-            });
-          } else {
-            log$1.error("未找到视频根节点");
+            let $rightContainer = document.createElement("div");
+            let $rightBottom = document.createElement("div");
+            $rightContainer.className = "gm-right-container";
+            $rightBottom.className = "gm-right-bottom";
+            domUtils.after($originTitle, $rightContainer);
+            $rightContainer.appendChild($cloneTitle);
+            $rightContainer.appendChild($rightBottom);
+            $rightBottom.appendChild($upInfo);
+            $rightBottom.appendChild($cloneCount);
           }
         }
-      );
+        let lockFunc = new utils.LockFunction(() => {
+          let $vCardList = document.querySelectorAll(
+            BilibiliData.className.video + " .bottom-tab .list-view .card-box .v-card-toapp"
+          );
+          let $vCardList_isLogon = document.querySelectorAll(
+            BilibiliData.className.video + " .bottom-tab .list-view .card-box>a.v-card"
+          );
+          $vCardList.forEach((_$vCard_) => {
+            handleVCardToApp(_$vCard_);
+          });
+          $vCardList_isLogon.forEach((_$vCard_) => {
+            handleVCard(_$vCard_);
+          });
+        }, 25);
+        let $videoRoot = document.querySelector(BilibiliData.className.video);
+        if ($videoRoot) {
+          utils.mutationObserver($videoRoot, {
+            config: {
+              subtree: true,
+              attributes: true,
+              childList: true,
+            },
+            callback() {
+              lockFunc.run();
+            },
+          });
+        } else {
+          log$1.error("未找到视频根节点");
+        }
+      });
     },
-repairVideoBottomAreaHeight() {
+    repairVideoBottomAreaHeight() {
       log$1.info("修复视频底部区域高度");
       return addStyle(
-`
+        `
 		${BilibiliData.className.video},
 		${BilibiliData.className.mVideo} {
 			/* 修复视频区域底部的高度 */
@@ -6640,16 +6614,16 @@ repairVideoBottomAreaHeight() {
 		`
       );
     },
-coverUpWrapper() {
+    coverUpWrapper() {
       log$1.info(`修复up主信息区域的点击事件`);
       domUtils.on(
         document,
         "click",
         [
           BilibiliData.className.video + " .bottom-wrapper .up-wrapper",
-          BilibiliData.className.mVideo + " .bottom-wrapper .up-wrapper"
+          BilibiliData.className.mVideo + " .bottom-wrapper .up-wrapper",
         ],
-        function(event) {
+        function (event) {
           let $click = event.target;
           let $bottomWrapper = $click.closest(".bottom-wrapper");
           if (!$bottomWrapper) {
@@ -6669,20 +6643,20 @@ coverUpWrapper() {
           }
         },
         {
-          capture: true
+          capture: true,
         }
       );
     },
-coverBottomRecommendVideo() {
+    coverBottomRecommendVideo() {
       log$1.info("覆盖 相关视频 点击事件");
       domUtils.on(
         document,
         "click",
         [
           BilibiliData.className.video + " .list-view .card-box .launch-app-btn",
-          BilibiliData.className.mVideo + " .list-view .card-box .launch-app-btn"
+          BilibiliData.className.mVideo + " .list-view .card-box .launch-app-btn",
         ],
-        function(event) {
+        function (event) {
           let $click = event.target;
           let vueObj = VueUtils.getVue($click);
           if (!vueObj) {
@@ -6703,11 +6677,11 @@ coverBottomRecommendVideo() {
           domUtils.preventEvent(event);
         },
         {
-          capture: true
+          capture: true,
         }
       );
     },
-coverSeasonNew() {
+    coverSeasonNew() {
       log$1.info("覆盖 选集视频列表 点击事件");
       function ClickCallBack(event) {
         let $click = event.target;
@@ -6730,11 +6704,11 @@ coverSeasonNew() {
         "click",
         [
           BilibiliData.className.video + " .m-video-season-new .video-card .launch-app-btn",
-          BilibiliData.className.mVideo + " .m-video-season-new .video-card .launch-app-btn"
+          BilibiliData.className.mVideo + " .m-video-season-new .video-card .launch-app-btn",
         ],
         ClickCallBack,
         {
-          capture: true
+          capture: true,
         }
       );
       domUtils.on(
@@ -6742,15 +6716,15 @@ coverSeasonNew() {
         "click",
         [
           BilibiliData.className.video + " .m-video-season-panel .season-video-item .launch-app-btn",
-          BilibiliData.className.mVideo + " .m-video-season-panel .season-video-item .launch-app-btn"
+          BilibiliData.className.mVideo + " .m-video-season-panel .season-video-item .launch-app-btn",
         ],
         ClickCallBack,
         {
-          capture: true
+          capture: true,
         }
       );
     },
-repairLinkJump() {
+    repairLinkJump() {
       log$1.info(`修复链接跳转`);
       let lockFn = new utils.LockFunction(() => {
         ["a.member-link:not([href])[data-url]", "a.jump-link:not([href])[data-url]"].forEach((selector) => {
@@ -6762,47 +6736,49 @@ repairLinkJump() {
       utils.mutationObserver(document, {
         config: {
           subtree: true,
-          childList: true
+          childList: true,
         },
         callback: () => {
           lockFn.run();
-        }
+        },
       });
     },
-gestureReturnToCloseCommentArea() {
+    gestureReturnToCloseCommentArea() {
       log$1.info("手势返回关闭评论区，全局监听document点击.sub-reply-preview");
       domUtils.waitNode("#app").then(($app) => {
-        utils.waitVueByInterval(
-          $app,
-          () => {
-            let vueObj = VueUtils.getVue($app);
-            if (vueObj == null) {
-              return false;
+        utils
+          .waitVueByInterval(
+            $app,
+            () => {
+              let vueObj = VueUtils.getVue($app);
+              if (vueObj == null) {
+                return false;
+              }
+              return typeof vueObj?.$router?.options?.scrollBehavior != null;
+            },
+            250,
+            1e4
+          )
+          .then((result) => {
+            let appVue = VueUtils.getVue($app);
+            if (!appVue) {
+              log$1.error("获取#app的vue属性失败");
+              return;
             }
-            return typeof vueObj?.$router?.options?.scrollBehavior != null;
-          },
-          250,
-          1e4
-        ).then((result) => {
-          let appVue = VueUtils.getVue($app);
-          if (!appVue) {
-            log$1.error("获取#app的vue属性失败");
-            return;
-          }
-          let oldScrollBehavior = appVue.$router.options.scrollBehavior;
-          appVue.$router.options.scrollBehavior = function(to, from, scrollInfo) {
-            if (to["hash"] === "#/seeCommentReply") {
-              log$1.info("当前操作为打开评论区，scrollBehavior返回null");
-              return null;
-            } else if (to["hash"] === "" && from["hash"] === "#/seeCommentReply") {
-              log$1.info("当前操作为关闭评论区，scrollBehavior返回null");
-              return null;
-            }
-            return oldScrollBehavior.call(this, ...arguments);
-          };
-        });
+            let oldScrollBehavior = appVue.$router.options.scrollBehavior;
+            appVue.$router.options.scrollBehavior = function (to, from, scrollInfo) {
+              if (to["hash"] === "#/seeCommentReply") {
+                log$1.info("当前操作为打开评论区，scrollBehavior返回null");
+                return null;
+              } else if (to["hash"] === "" && from["hash"] === "#/seeCommentReply") {
+                log$1.info("当前操作为关闭评论区，scrollBehavior返回null");
+                return null;
+              }
+              return oldScrollBehavior.call(this, ...arguments);
+            };
+          });
       });
-      domUtils.on(document, "click", ".sub-reply-preview", function(event) {
+      domUtils.on(document, "click", ".sub-reply-preview", function (event) {
         let $app = document.querySelector("#app");
         let appVue = VueUtils.getVue($app);
         if (!appVue) {
@@ -6823,24 +6799,24 @@ gestureReturnToCloseCommentArea() {
               log$1.error("评论区关闭失败，原因：元素dialog-close-icon获取失败");
             }
             return true;
-          }
+          },
         });
         domUtils.waitNode(".dialog-close-icon").then(($dialogCloseIcon) => {
           domUtils.on(
             $dialogCloseIcon,
             "click",
-            function() {
+            function () {
               hookGestureReturnByVueRouter.resumeBack(false);
             },
             {
               capture: true,
-              once: true
+              once: true,
             }
           );
         });
       });
     },
-enterVideoFullScreen() {
+    enterVideoFullScreen() {
       domUtils.waitNode(".mplayer-btn-widescreen", 5e3).then(($btnWideScreen) => {
         if (!$btnWideScreen) {
           log$1.error("获取全屏按钮失败");
@@ -6855,7 +6831,7 @@ enterVideoFullScreen() {
         $btnWideScreen.click();
       });
     },
-optimizationScroll() {
+    optimizationScroll() {
       let $mNavBar = null;
       let $mVideoPlayer = null;
       let $mVideoInfoNew = null;
@@ -6920,7 +6896,7 @@ optimizationScroll() {
           let navbarHeight = domUtils.height($mNavBar);
           let bottomTabTop = $bottomTab.getBoundingClientRect().top;
           if (bottomTabTop < navbarHeight) {
-            if ($bottomTabVAffix.hasAttribute("data-is-fixed")) ;
+            if ($bottomTabVAffix.hasAttribute("data-is-fixed"));
             else {
               $bottomTabVAffix.style.cssText = `position: fixed;left: 0px;top: ${navbarHeight}px;z-index: 10000;width: 100%;`;
               $bottomTabVAffix.setAttribute("data-is-fixed", "true");
@@ -6931,36 +6907,41 @@ optimizationScroll() {
           }
         },
         {
-          passive: true
+          passive: true,
         }
       );
     },
-disableSwipeTab() {
+    disableSwipeTab() {
       log$1.info(`禁止滑动切换tab`);
       VueUtils.waitVuePropToSet(".m-video-bottom-tab", {
         msg: "等待tab的vue属性touchstart、touchmove、touchend事件，_bindEvents函数",
         check(vueInstance) {
-          return vueInstance?.slider?.el instanceof HTMLElement && typeof vueInstance?.slider?.events?.touchstart === "function" && typeof vueInstance?.slider?.events?.touchmove === "function" && typeof vueInstance?.slider?.events?.touchend === "function" && typeof vueInstance?.slider?._bindEvents === "function";
+          return (
+            vueInstance?.slider?.el instanceof HTMLElement &&
+            typeof vueInstance?.slider?.events?.touchstart === "function" &&
+            typeof vueInstance?.slider?.events?.touchmove === "function" &&
+            typeof vueInstance?.slider?.events?.touchend === "function" &&
+            typeof vueInstance?.slider?._bindEvents === "function"
+          );
         },
         set(vueInstance) {
           let $bindTarget = vueInstance.slider.el;
           $bindTarget.removeEventListener("touchstart", vueInstance.slider.events.touchstart);
           $bindTarget.removeEventListener("touchmove", vueInstance.slider.events.touchmove);
           $bindTarget.removeEventListener("touchend", vueInstance.slider.events.touchend);
-          vueInstance.slider._bindEvents = () => {
-          };
+          vueInstance.slider._bindEvents = () => {};
           log$1.success(`成功禁用滑动，清除touchstart、touchmove、touchend事件，覆盖_bindEvents函数`);
-        }
+        },
       });
     },
-addCommentModule() {
+    addCommentModule() {
       log$1.info(`新增评论模块`);
       if (!this.$data.isInitCommentModule) {
         this.$data.isInitCommentModule = true;
         CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer);
         addStyle(MobileCommentModuleStyle);
         addStyle(
-`
+          `
 				.comment-container{
 					position: relative;
 				}
@@ -7000,7 +6981,7 @@ addCommentModule() {
 			`
         );
         addStyle(
-`
+          `
 				.comment-module-show-btn{
 					display: flex;
 					justify-content: center;
@@ -7034,15 +7015,15 @@ addCommentModule() {
             if (isUrlChange) {
               $closeCommentModuleBtn.click();
             }
-          }
+          },
         });
         let $commentModuleShowBtn = domUtils.createElement("div", {
           className: "comment-module-show-btn",
-          innerHTML: `查看评论`
+          innerHTML: `查看评论`,
         });
         let $closeCommentModuleBtn = domUtils.createElement("span", {
           className: "close-comment-module-btn",
-          innerHTML: "×"
+          innerHTML: "×",
         });
         domUtils.on($commentModuleShowBtn, "click", (event) => {
           domUtils.preventEvent(event);
@@ -7058,19 +7039,19 @@ addCommentModule() {
         });
         domUtils.append($videoInfo, $commentModuleShowBtn);
         let $commentModuleWrapper = domUtils.createElement("div", {
-          id: "comment-module-wrapper"
+          id: "comment-module-wrapper",
         });
         domUtils.append(document.body, $commentModuleWrapper);
         domUtils.after($commentModuleWrapper, $closeCommentModuleBtn);
         MobileCommentModule.init($commentModuleWrapper);
       });
     },
-addDescModule() {
+    addDescModule() {
       log$1.info(`新增简介模块`);
       if (!this.$data.isInitDescModule) {
         this.$data.isInitDescModule = true;
         addStyle(
-`
+          `
 				${BilibiliData.className.mVideo} .m-video-info .bottom-wrapper{
 					flex-direction: column;
 					align-items: flex-start;
@@ -7079,7 +7060,7 @@ addDescModule() {
 			`
         );
         addStyle(
-`
+          `
 				.video-desc-wrapper {
 					color: #9499A0;
 					font-size: 14px;
@@ -7147,8 +7128,7 @@ addDescModule() {
           let share = info.stat.share;
           let $descWrapper = domUtils.createElement("div", {
             className: "video-desc-wrapper",
-            innerHTML: (
-`
+            innerHTML: `
 							<div class="video-view-info-wrapper">
 								<div class="video-info-icon">
 									<svg
@@ -7259,13 +7239,12 @@ addDescModule() {
 									<span data-value="${share}">${BilibiliUtils.parseCount(share)}</span>
 								</div>
 							</div>
-						`
-            )
+						`,
           });
           target.appendChild($descWrapper);
-        }
+        },
       });
-    }
+    },
   };
   const artPlayerCSS = ".artplayer-container {\r\n  width: 100vw;\r\n  height: 35vh;\r\n}\r\n";
   const BilibiliOpenApp = {
@@ -7275,7 +7254,7 @@ addDescModule() {
       }
       return $ele.getAttribute("universallink");
     },
-jumpToUrl(event) {
+    jumpToUrl(event) {
       let $click = event.target;
       let $biliOpenApp = $click.querySelector("bili-open-app") || $click.querySelector("m-open-app");
       if ($biliOpenApp) {
@@ -7290,32 +7269,31 @@ jumpToUrl(event) {
         Qmsg.error("未获取到<bili-open-app>元素");
         log$1.error("未获取到<bili-open-app>元素");
       }
-    }
+    },
   };
   const BilibiliLogUtils = {
-filteringSensitiveSearchParamData(data2) {
+    filteringSensitiveSearchParamData(data2) {
       const sensitiveData = utils.assign({}, data2, true);
       Reflect.deleteProperty(sensitiveData, "access_key");
       Reflect.deleteProperty(sensitiveData, "access_token");
       return sensitiveData;
     },
-failToast(data2) {
+    failToast(data2) {
       log$1.error(data2);
       alert(JSON.stringify(data2, null, 4));
-    }
+    },
   };
   const BilibiliBangumiApi = {
-async getPlayUrl(option) {
+    async getPlayUrl(option) {
       let searchParamsData = {
         avid: "",
         cid: "",
         ep_id: "",
-qn: 127,
-fnver: 0,
-fnval: 16 | 1024 | 2048,
+        qn: 127,
+        fnver: 0,
+        fnval: 16 | 1024 | 2048,
 
-
-fourk: 1
+        fourk: 1,
       };
       searchParamsData = utils.assign(searchParamsData, option);
       let serverHostList = BilibiliApiProxy.getBangumiProxyHost();
@@ -7332,27 +7310,27 @@ fourk: 1
           utils.assign(
             proxyServerSearchParamsData,
             BilibiliApiProxy.getBangumiProxySearchParam({
-              area: serverHostInfo.area
+              area: serverHostInfo.area,
             }),
             true
           );
           log$1.info(`代理服务器数据: ${JSON.stringify(serverHostInfo)}`);
           log$1.info(
             `代理服务器请求参数：${JSON.stringify(
-            BilibiliLogUtils.filteringSensitiveSearchParamData(proxyServerSearchParamsData)
-          )}`
+              BilibiliLogUtils.filteringSensitiveSearchParamData(proxyServerSearchParamsData)
+            )}`
           );
         }
         let url = `https://${serverHost}${urlPath}?${utils.toSearchParamsStr(
-        searchParamsData
-      )}&${utils.toSearchParamsStr(proxyServerSearchParamsData)}`;
+          searchParamsData
+        )}&${utils.toSearchParamsStr(proxyServerSearchParamsData)}`;
         let getResponse = await httpx.get(url, {
           responseType: "json",
           fetch: false,
           allowInterceptConfig: false,
           headers: {
-            Referer: "https://www.bilibili.com/"
-          }
+            Referer: "https://www.bilibili.com/",
+          },
         });
         if (!getResponse.status) {
           log$1.error(`代理服务器：${serverHost} 请求失败`);
@@ -7360,7 +7338,10 @@ fourk: 1
         }
         let responseData = utils.toJSON(getResponse.data.responseText);
         responseData.result;
-        if (!BilibiliApiResponseCheck.isWebApiSuccess(responseData) || BilibiliApiResponseCheck.isAreaLimit(responseData)) {
+        if (
+          !BilibiliApiResponseCheck.isWebApiSuccess(responseData) ||
+          BilibiliApiResponseCheck.isAreaLimit(responseData)
+        ) {
           log$1.error(`请求失败，当前代理服务器：${serverHost} ${JSON.stringify(responseData)}`);
           failReponseJSON.push(responseData);
           continue;
@@ -7373,18 +7354,13 @@ fourk: 1
       }
       return result;
     },
-async getPlayUrlHTML5(option) {
+    async getPlayUrlHTML5(option) {
       let searchParamsData = {
         avid: "",
         cid: "",
         ep_id: "",
-        bsource: ""
-
-
-
-
-
-};
+        bsource: "",
+      };
       searchParamsData = utils.assign(searchParamsData, option);
       log$1.info(`（原版api）番剧播放地址请求数据`);
       const urlPath = "/pgc/player/web/playurl/html5";
@@ -7394,8 +7370,8 @@ async getPlayUrlHTML5(option) {
         fetch: true,
         headers: {
           Host: "www.bilibili.com",
-          Referer: "https://www.bilibili.com"
-        }
+          Referer: "https://www.bilibili.com",
+        },
       });
       if (!getResponse.status) {
         return;
@@ -7407,14 +7383,14 @@ async getPlayUrlHTML5(option) {
       }
       let responseResult = responseData.result;
       return responseResult;
-    }
+    },
   };
   const TAG = "[artplayer-plugin-airborneHelper]：";
   const AirborneHelperEvent = {
     $data: {
       tipJumpToastTimeoutId: void 0,
       tipJumpToastInfo: void 0,
-      successJumpToastInfo: void 0
+      successJumpToastInfo: void 0,
     },
     $event: {
       "video:timeupdate": () => {
@@ -7435,7 +7411,7 @@ async getPlayUrlHTML5(option) {
           }
         });
         if (findIndex !== -1) {
-          let toastCloseCallBack = function() {
+          let toastCloseCallBack = function () {
             clearTimeout(AirborneHelperEvent.$data.tipJumpToastTimeoutId);
             AirborneHelperEvent.$data.tipJumpToastTimeoutId = void 0;
             AirborneHelperEvent.$data.tipJumpToastInfo?.close();
@@ -7456,7 +7432,7 @@ async getPlayUrlHTML5(option) {
               text: "空降成功~o(*≧▽≦)ツ┏━┓",
               closeCallback() {
                 AirborneHelperEvent.$data.successJumpToastInfo = void 0;
-              }
+              },
             });
           }, timeout);
           if (AirborneHelperEvent.$data.tipJumpToastInfo) {
@@ -7470,7 +7446,7 @@ async getPlayUrlHTML5(option) {
             jumpText: typeof findValue.toastText === "string" ? "不跳过" : "坠机",
             jumpClickCallback: () => {
               toastCloseCallBack();
-            }
+            },
           });
           setTimeout(
             () => {
@@ -7482,7 +7458,7 @@ async getPlayUrlHTML5(option) {
             (beforeToastTime + 3) * 1e3
           );
         }
-      }
+      },
     },
     bind() {
       Object.keys(this.$event).forEach((eventName) => {
@@ -7503,15 +7479,15 @@ async getPlayUrlHTML5(option) {
         AirborneHelperEvent.$data.tipJumpToastInfo.close();
         AirborneHelperEvent.$data.tipJumpToastInfo = void 0;
       }
-    }
+    },
   };
   const AirborneHelper = {
     $key: {
-      plugin_KEY: "plugin-airborne-helper"
+      plugin_KEY: "plugin-airborne-helper",
     },
     $data: {
       art: null,
-      option: null
+      option: null,
     },
     init(art, option) {
       this.$data.art = art;
@@ -7524,7 +7500,7 @@ async getPlayUrlHTML5(option) {
       if (option.clip_info_list.length) {
         AirborneHelperEvent.bind();
       }
-    }
+    },
   };
   const artplayerPluginAirborneHelper = (option) => {
     return (art) => {
@@ -7533,7 +7509,7 @@ async getPlayUrlHTML5(option) {
         name: AirborneHelper.$key.plugin_KEY,
         update(option2) {
           AirborneHelper.update(option2);
-        }
+        },
       };
     };
   };
@@ -7550,7 +7526,7 @@ async getPlayUrlHTML5(option) {
         ep_id: item.ep_id,
         onSelect(selectItem, index) {
           BlibiliBangumiPlayer.updateArtPlayerVideoInfo(item, option.epList);
-        }
+        },
       };
     });
   };
@@ -7558,17 +7534,17 @@ async getPlayUrlHTML5(option) {
     $data: {
       art: null,
       flv: null,
-currentOption: null,
-      from: "bangumi"
+      currentOption: null,
+      from: "bangumi",
     },
-resetEnv(isInit) {
+    resetEnv(isInit) {
       if (isInit) {
         Reflect.set(this.$data, "art", null);
         Reflect.set(this.$data, "flv", null);
       }
       Reflect.set(this.$data, "currentOption", null);
     },
-flvPlayer() {
+    flvPlayer() {
       if (this.$data.currentOption == null) {
         console.error(TAG_FLV + "获取当前配置为空");
         return;
@@ -7590,29 +7566,29 @@ flvPlayer() {
               return {
                 url: item.url,
                 duration: item.duration,
-                filesize: item.size
+                filesize: item.size,
               };
-            })
+            }),
           },
           {
-            stashInitialSize: 1024 * 100
+            stashInitialSize: 1024 * 100,
           }
         );
       } else {
         this.$data.flv = flvjs.createPlayer(
           {
             type: "flv",
-            url: flvInfoList[0].url
+            url: flvInfoList[0].url,
           },
           {
-            stashInitialSize: 1024 * 100
+            stashInitialSize: 1024 * 100,
           }
         );
       }
       this.$data.flv.attachMediaElement(this.$data.art.video);
       this.$data.flv.load();
     },
-async init(option) {
+    async init(option) {
       this.resetEnv(true);
       this.$data.currentOption = option;
       const localArtDanmakuOption_KEY = "artplayer-bangumi-danmaku-option";
@@ -7621,14 +7597,14 @@ async init(option) {
       const artOption = {
         ...ArtPlayerCommonOption(),
         container: option.container,
-settings: [],
+        settings: [],
         plugins: [
           artplayerPluginToast(),
           artplayPluginQuality({
             from: BilibiliBangumiArtPlayer.$data.from,
-            qualityList: option.quality
-          })
-        ]
+            qualityList: option.quality,
+          }),
+        ],
       };
       if (option.isFlv) {
         artOption.quality = [];
@@ -7645,7 +7621,7 @@ settings: [],
               return;
             }
             this.flvPlayer();
-          }
+          },
         };
       } else {
         artOption.type = "mp4";
@@ -7656,22 +7632,22 @@ settings: [],
             ...ArtPlayerDanmakuCommonOption(),
             danmuku: option.danmukuUrl,
 
-speed: localArtDanmakuOption.speed,
-margin: localArtDanmakuOption["margin"],
-opacity: localArtDanmakuOption["opacity"],
-modes: localArtDanmakuOption["modes"],
-fontSize: localArtDanmakuOption["fontSize"],
-antiOverlap: localArtDanmakuOption["antiOverlap"],
-synchronousPlayback: localArtDanmakuOption["synchronousPlayback"],
-visible: localArtDanmakuOption["visible"],
-beforeEmit(danmu) {
+            speed: localArtDanmakuOption.speed,
+            margin: localArtDanmakuOption["margin"],
+            opacity: localArtDanmakuOption["opacity"],
+            modes: localArtDanmakuOption["modes"],
+            fontSize: localArtDanmakuOption["fontSize"],
+            antiOverlap: localArtDanmakuOption["antiOverlap"],
+            synchronousPlayback: localArtDanmakuOption["synchronousPlayback"],
+            visible: localArtDanmakuOption["visible"],
+            beforeEmit(danmu) {
               return new Promise((resolve) => {
                 console.log(danmu);
                 setTimeout(() => {
                   resolve(true);
                 }, 1e3);
               });
-            }
+            },
           })
         );
       }
@@ -7679,7 +7655,7 @@ beforeEmit(danmu) {
         artOption.plugins.push(
           artplayerPluginM4SAudioSupport({
             from: BilibiliBangumiArtPlayer.$data.from,
-            audioList: option.audioList || []
+            audioList: option.audioList || [],
           })
         );
       }
@@ -7687,7 +7663,7 @@ beforeEmit(danmu) {
         artOption.plugins.push(
           artplayerPluginEpChoose({
             EP_LIST: generateBangumiVideoSelectSetting(option),
-            automaticBroadcast: true
+            automaticBroadcast: true,
           })
         );
       }
@@ -7698,7 +7674,7 @@ beforeEmit(danmu) {
             cid: option.cid,
             aid: option.aid,
             bvid: option.bvid,
-            ep_id: option.ep_id
+            ep_id: option.ep_id,
           })
         );
       }
@@ -7708,26 +7684,26 @@ beforeEmit(danmu) {
             onlineInfoParams: {
               aid: option.aid,
               cid: option.cid,
-              bvid: option.bvid
+              bvid: option.bvid,
             },
             title: option.videoTitle,
             showWrap: true,
             showTitle: true,
-            showOnlineTotal: true
+            showOnlineTotal: true,
           })
         );
       }
       if (Panel.getValue("artplayer-plugin-bangumi-airborneHelper-enable")) {
         artOption.plugins.push(
           artplayerPluginAirborneHelper({
-            clip_info_list: option.clip_info_list
+            clip_info_list: option.clip_info_list,
           })
         );
       }
       if (Panel.getValue("artplayer-plugin-bangumi-statistics-enable")) {
         artOption.plugins.push(
           artplayerPluginVideoStatistics({
-            data: []
+            data: [],
           })
         );
       }
@@ -7735,7 +7711,7 @@ beforeEmit(danmu) {
       artPlayerDanmakuOptionHelper.onConfigChange(this.$data.art);
       return this.$data.art;
     },
-async update(art, option) {
+    async update(art, option) {
       this.resetEnv(false);
       this.$data.currentOption = option;
       log$1.info(`更新新的播放信息`, option);
@@ -7747,16 +7723,16 @@ async update(art, option) {
       art.play();
       log$1.info("播放");
     },
-updatePluginInfo(art, option) {
+    updatePluginInfo(art, option) {
       let plugin_quality = art.plugins[ArtPlayer_PLUGIN_QUALITY_KEY];
       plugin_quality.update({
         from: BilibiliBangumiArtPlayer.$data.from,
-        qualityList: option.quality
+        qualityList: option.quality,
       });
       log$1.info(`更新画质`, option.quality);
       if (Panel.getValue("artplayer-plugin-bangumi-danmaku-enable")) {
         art.plugins.artplayerPluginDanmuku.config({
-          danmuku: option.danmukuUrl
+          danmuku: option.danmukuUrl,
         });
         art.plugins.artplayerPluginDanmuku.load();
         log$1.info(`更新弹幕姬`, option.danmukuUrl);
@@ -7765,7 +7741,7 @@ updatePluginInfo(art, option) {
         let plugin_m4sAudioSupport = art.plugins[ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY];
         plugin_m4sAudioSupport.update({
           from: BilibiliBangumiArtPlayer.$data.from,
-          audioList: option.audioList || []
+          audioList: option.audioList || [],
         });
         log$1.info(`更新音频`, option.audioList);
       }
@@ -7773,7 +7749,7 @@ updatePluginInfo(art, option) {
         let plugin_epChoose = art.plugins[ArtPlayer_PLUGIN_EP_CHOOSE_KEY];
         plugin_epChoose.update({
           EP_LIST: generateBangumiVideoSelectSetting(option),
-          automaticBroadcast: true
+          automaticBroadcast: true,
         });
         log$1.info(`更新选集信息`, option.epList);
       }
@@ -7783,7 +7759,7 @@ updatePluginInfo(art, option) {
           from: BilibiliBangumiArtPlayer.$data.from,
           cid: option.cid,
           aid: option.aid,
-          ep_id: option.ep_id
+          ep_id: option.ep_id,
         };
         plugin_bilibiliCCSubTitle.update(subTitleOption);
         log$1.info(`更新字幕`, subTitleOption);
@@ -7800,8 +7776,8 @@ updatePluginInfo(art, option) {
           onlineInfoParams: {
             aid: option.aid,
             cid: option.cid,
-            bvid: option.bvid
-          }
+            bvid: option.bvid,
+          },
         };
         plugin_topToolBar.update(topToolBarOption);
         log$1.info(`更新顶部标题`, topToolBarOption);
@@ -7809,14 +7785,14 @@ updatePluginInfo(art, option) {
       if (Panel.getValue("artplayer-plugin-bangumi-airborneHelper-enable")) {
         let plugin_airborneHelper = art.plugins[ArtPlayer_PLUGIN_AIRBORNE_HELPER_KEY];
         plugin_airborneHelper.update({
-          clip_info_list: option.clip_info_list
+          clip_info_list: option.clip_info_list,
         });
         log$1.info(`更新空降助手信息`, option.clip_info_list);
       }
-    }
+    },
   };
   const ReactUtils = {
-async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
+    async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
       if (!Array.isArray(reactPropNameOrNameList)) {
         reactPropNameOrNameList = [reactPropNameOrNameList];
       }
@@ -7851,7 +7827,7 @@ async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
               status: false,
               isTimeout: true,
               inst: null,
-              $el: $targetEl
+              $el: $targetEl,
             };
           }
           let reactInst = utils.getReactInstance($targetEl);
@@ -7860,7 +7836,7 @@ async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
               status: false,
               isTimeout: false,
               inst: null,
-              $el: $targetEl
+              $el: $targetEl,
             };
           }
           let findPropNameIndex = Array.from(reactPropNameOrNameList).findIndex((__propName__) => {
@@ -7878,29 +7854,31 @@ async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
             status: findPropNameIndex !== -1,
             isTimeout: false,
             inst: reactPropInst,
-            $el: $targetEl
+            $el: $targetEl,
           };
         }
-        utils.waitPropertyByInterval(
-          () => {
-            return getTarget();
-          },
-          () => checkTarget().status,
-          250,
-          1e4
-        ).then(() => {
-          let checkTargetResult = checkTarget();
-          if (checkTargetResult.status) {
-            let reactInst = checkTargetResult.inst;
-            needSetOption.set(reactInst, checkTargetResult.$el);
-          } else {
-            if (typeof needSetOption.failWait === "function") {
-              needSetOption.failWait(checkTargetResult.isTimeout);
+        utils
+          .waitPropertyByInterval(
+            () => {
+              return getTarget();
+            },
+            () => checkTarget().status,
+            250,
+            1e4
+          )
+          .then(() => {
+            let checkTargetResult = checkTarget();
+            if (checkTargetResult.status) {
+              let reactInst = checkTargetResult.inst;
+              needSetOption.set(reactInst, checkTargetResult.$el);
+            } else {
+              if (typeof needSetOption.failWait === "function") {
+                needSetOption.failWait(checkTargetResult.isTimeout);
+              }
             }
-          }
-        });
+          });
       });
-    }
+    },
   };
   function handleDashVideoQualityInfo(dashInfo) {
     let acceptVideoQualityInfoList = [];
@@ -7928,7 +7906,7 @@ async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
         bandwidth: dashVideoInfo.bandwidth,
         frameRate: dashVideoInfo.frameRate,
         codecid: dashVideoInfo.codecid,
-        codecs: dashVideoInfo.codecs
+        codecs: dashVideoInfo.codecs,
       });
     });
     return acceptVideoQualityInfoList;
@@ -7944,8 +7922,8 @@ async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
         ...handleDashVideoQualityInfo({
           accept_quality: dashBangumiInfo.accept_quality,
           support_formats: dashBangumiInfo.support_formats,
-          video: dashBangumiInfo.dash.video
-        })
+          video: dashBangumiInfo.dash.video,
+        }),
       ];
       if (qualityInfoList.length === 0) {
         if (dashBangumiInfo.dash.video.length !== 0) {
@@ -7956,8 +7934,8 @@ async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
             ...handleDashVideoQualityInfo({
               accept_quality: dashBangumiInfo.accept_quality,
               support_formats: dashBangumiInfo.support_formats,
-              video: dashBangumiInfo.dash.video
-            })
+              video: dashBangumiInfo.dash.video,
+            }),
           ];
         }
       }
@@ -7967,7 +7945,7 @@ async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
         if (mp4BangumiInfo.durl != null) {
           mp4BangumiInfo.durls.push({
             quality: mp4BangumiInfo.quality,
-            durl: mp4BangumiInfo.durl
+            durl: mp4BangumiInfo.durl,
           });
         }
       }
@@ -7995,7 +7973,7 @@ async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
           bandwidth: 0,
           frameRate: "",
           codecid: 0,
-          codecs: ""
+          codecs: "",
         });
       });
     }
@@ -8016,7 +7994,7 @@ async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
       const bangumiInfo = await BilibiliBangumiApi.getPlayUrl({
         avid: aid,
         cid,
-        ep_id
+        ep_id,
       });
       if (!bangumiInfo) {
         return;
@@ -8024,8 +8002,7 @@ async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
       if (Array.isArray(bangumiInfo?.clip_info_list)) {
         clip_info_list = bangumiInfo.clip_info_list;
       } else if (Array.isArray(bangumiInfo?.clip_info)) {
-        clip_info_list =
-bangumiInfo.clip_info;
+        clip_info_list = bangumiInfo.clip_info;
       }
       if (bangumiInfo.type.toLowerCase() === "flv") {
         isFlv = true;
@@ -8039,7 +8016,7 @@ bangumiInfo.clip_info;
             url: videoUrl,
             duration: durlInfo.length,
             length: durlInfo.length,
-            size: durlInfo.size
+            size: durlInfo.size,
           });
         });
       } else if (bangumiInfo.type.toLowerCase() === "dash" || bangumiInfo.type.toLowerCase() === "mp4") {
@@ -8053,7 +8030,7 @@ bangumiInfo.clip_info;
             text: VideoSoundQualityCode[item.id] || "",
             bandwidth: item.bandwidth,
             codecs: item.codecs,
-            mimeType: item.mimeType || item.mime_type
+            mimeType: item.mimeType || item.mime_type,
           });
         });
         log$1.info(`ArtPlayer: 获取的音频信息`, audioInfo);
@@ -8067,14 +8044,13 @@ bangumiInfo.clip_info;
       const bangumiInfo = await BilibiliBangumiApi.getPlayUrlHTML5({
         avid: aid,
         cid,
-        ep_id
+        ep_id,
       });
       if (!bangumiInfo) {
         return;
       }
       if (Array.isArray(bangumiInfo?.clip_info_list)) {
-        clip_info_list =
-bangumiInfo.clip_info_list;
+        clip_info_list = bangumiInfo.clip_info_list;
       } else if (Array.isArray(bangumiInfo?.clip_info)) {
         clip_info_list = bangumiInfo.clip_info;
       }
@@ -8089,11 +8065,11 @@ bangumiInfo.clip_info_list;
         codecid: item.codecid,
         codecs: item.codecs,
         frameRate: item.frameRate,
-        bandwidth: item.bandwidth
+        bandwidth: item.bandwidth,
       };
     });
     const artPlayerOption = {
-container: null,
+      container: null,
       epList: EP_LIST,
       cid,
       aid,
@@ -8106,7 +8082,7 @@ container: null,
       isFlv,
       flvInfo,
       flvTotalDuration,
-      flvTotalSize
+      flvTotalSize,
     };
     artPlayerOption.url = qualityInfo?.[0]?.url;
     if (audioInfo.length) {
@@ -8119,7 +8095,7 @@ container: null,
           bandwidth: item.bandwidth,
           codecs: item.codecs,
           mimeType: item.mimeType,
-          size: item.size
+          size: item.size,
         };
       });
     }
@@ -8127,67 +8103,71 @@ container: null,
   };
   const BlibiliBangumiPlayer = {
     $data: {
-      art: null
+      art: null,
     },
-updateArtPlayerVideoInfo(ep_info, ep_list) {
+    updateArtPlayerVideoInfo(ep_info, ep_list) {
       const that = this;
-      ReactUtils.waitReactPropsToSet(BilibiliData.className.bangumi_new + ` [class^="Player_container"]`, "reactFiber", {
-        check(reactInstance) {
-          return typeof reactInstance?.return?.memoizedState?.queue?.lastRenderedState?.[0]?.epInfo?.bvid === "string";
-        },
-        async set(reactInstance) {
-          let epInfo = reactInstance?.return?.memoizedState?.queue?.lastRenderedState?.[0]?.epInfo;
-          const $playerWrapper = $("#bilibiliPlayer");
-          if (ep_info == null) {
-            ep_info = epInfo;
-          }
-          if (ep_list == null) {
-            ep_list = [];
-            let $epList = $(BilibiliData.className.bangumi_new + ` [class^="EpisodeList_episodeListWrap"]`);
-            if ($epList) {
-              let react = utils.getReactInstance($epList);
-              let epList = react?.reactFiber?.return?.memoizedState?.memoizedState?.[0]?.episodes;
-              if (Array.isArray(epList)) {
-                ep_list = epList;
+      ReactUtils.waitReactPropsToSet(
+        BilibiliData.className.bangumi_new + ` [class^="Player_container"]`,
+        "reactFiber",
+        {
+          check(reactInstance) {
+            return (
+              typeof reactInstance?.return?.memoizedState?.queue?.lastRenderedState?.[0]?.epInfo?.bvid === "string"
+            );
+          },
+          async set(reactInstance) {
+            let epInfo = reactInstance?.return?.memoizedState?.queue?.lastRenderedState?.[0]?.epInfo;
+            const $playerWrapper = $("#bilibiliPlayer");
+            if (ep_info == null) {
+              ep_info = epInfo;
+            }
+            if (ep_list == null) {
+              ep_list = [];
+              let $epList = $(BilibiliData.className.bangumi_new + ` [class^="EpisodeList_episodeListWrap"]`);
+              if ($epList) {
+                let react = utils.getReactInstance($epList);
+                let epList = react?.reactFiber?.return?.memoizedState?.memoizedState?.[0]?.episodes;
+                if (Array.isArray(epList)) {
+                  ep_list = epList;
+                }
               }
             }
-          }
-          const artPlayerOption = await GenerateArtPlayerOption(ep_info, ep_list);
-          if (artPlayerOption == null) {
-            return;
-          }
-          let $artPlayer = $("#artplayer");
-          if (!$artPlayer) {
-            const $artPlayerContainer = domUtils.createElement("div", {
-              className: "artplayer-container",
-              innerHTML: (
-`
-									<div id="artplayer"></div>
-									`
-              )
-            });
-            $artPlayer = $artPlayerContainer.querySelector("#artplayer");
-            domUtils.after($playerWrapper, $artPlayerContainer);
-          }
-          artPlayerOption.container = $artPlayer;
-          if (that.$data.art == null) {
-            let art = await BilibiliBangumiArtPlayer.init(artPlayerOption);
-            if (art) {
-              that.$data.art = art;
-            } else {
+            const artPlayerOption = await GenerateArtPlayerOption(ep_info, ep_list);
+            if (artPlayerOption == null) {
               return;
             }
-            that.$data.art.volume = 1;
-          } else {
-            BilibiliBangumiArtPlayer.update(that.$data.art, artPlayerOption);
-          }
+            let $artPlayer = $("#artplayer");
+            if (!$artPlayer) {
+              const $artPlayerContainer = domUtils.createElement("div", {
+                className: "artplayer-container",
+                innerHTML: `
+									<div id="artplayer"></div>
+									`,
+              });
+              $artPlayer = $artPlayerContainer.querySelector("#artplayer");
+              domUtils.after($playerWrapper, $artPlayerContainer);
+            }
+            artPlayerOption.container = $artPlayer;
+            if (that.$data.art == null) {
+              let art = await BilibiliBangumiArtPlayer.init(artPlayerOption);
+              if (art) {
+                that.$data.art = art;
+              } else {
+                return;
+              }
+              that.$data.art.volume = 1;
+            } else {
+              BilibiliBangumiArtPlayer.update(that.$data.art, artPlayerOption);
+            }
+          },
         }
-      });
-    }
+      );
+    },
   };
   const BilibiliBangumi = {
     $data: {
-      art: null
+      art: null,
     },
     init() {
       Panel.execMenuOnce("bili-bangumi-initialScale", () => {
@@ -8207,9 +8187,9 @@ updateArtPlayerVideoInfo(ep_info, ep_list) {
       });
       this.coverVideoPlayer();
     },
-hookCallApp() {
+    hookCallApp() {
       let oldSetTimeout = _unsafeWindow.setTimeout;
-      _unsafeWindow.setTimeout = function(...args) {
+      _unsafeWindow.setTimeout = function (...args) {
         let callString = args[0].toString();
         if (callString.includes("autoOpenApp")) {
           log$1.success("阻止唤醒App", args);
@@ -8218,51 +8198,51 @@ hookCallApp() {
         return Reflect.apply(oldSetTimeout, this, args);
       };
     },
-setChooseEpClickEvent() {
-      domUtils.waitNode(
-        BilibiliData.className.bangumi + " .ep-list-pre-wrapper ul.ep-list-pre-container"
-      ).then(($preContainer) => {
-        log$1.info("覆盖【选集】的点击事件");
-        domUtils.on(
-          $preContainer,
-          "click",
-          "li.episode-item",
-          function(event) {
-            domUtils.preventEvent(event);
-            BilibiliOpenApp.jumpToUrl(event);
-          },
-          {
-            capture: true
-          }
-        );
-      });
-      domUtils.waitNode(
-        BilibiliData.className.bangumi + " .ep-list-pre-wrapper ul.season-list-wrapper"
-      ).then(($listWapper) => {
-        log$1.info("覆盖【xx季】的点击事件");
-        domUtils.on(
-          $listWapper,
-          "click",
-          "li",
-          function(event) {
-            domUtils.preventEvent(event);
-            BilibiliOpenApp.jumpToUrl(event);
-          },
-          {
-            capture: true
-          }
-        );
-      });
+    setChooseEpClickEvent() {
+      domUtils
+        .waitNode(BilibiliData.className.bangumi + " .ep-list-pre-wrapper ul.ep-list-pre-container")
+        .then(($preContainer) => {
+          log$1.info("覆盖【选集】的点击事件");
+          domUtils.on(
+            $preContainer,
+            "click",
+            "li.episode-item",
+            function (event) {
+              domUtils.preventEvent(event);
+              BilibiliOpenApp.jumpToUrl(event);
+            },
+            {
+              capture: true,
+            }
+          );
+        });
+      domUtils
+        .waitNode(BilibiliData.className.bangumi + " .ep-list-pre-wrapper ul.season-list-wrapper")
+        .then(($listWapper) => {
+          log$1.info("覆盖【xx季】的点击事件");
+          domUtils.on(
+            $listWapper,
+            "click",
+            "li",
+            function (event) {
+              domUtils.preventEvent(event);
+              BilibiliOpenApp.jumpToUrl(event);
+            },
+            {
+              capture: true,
+            }
+          );
+        });
       domUtils.waitNode(BilibiliData.className.bangumi + " .ep-list-pre-header").then(($preHeader) => {
         log$1.info("覆盖【选集】右上角的【全xx话】Arrow的点击事件");
         domUtils.on(
           $preHeader,
           "click",
-          function(event) {
+          function (event) {
             domUtils.preventEvent(event);
           },
           {
-            capture: true
+            capture: true,
           }
         );
       });
@@ -8271,7 +8251,7 @@ setChooseEpClickEvent() {
         "click",
         [
           BilibiliData.className.bangumi_new + ` [class^="EpisodeList_episodeListWrap"] m-open-app[universallink]`,
-          BilibiliData.className.bangumi_new + ` [class^="SeasonList_container"] m-open-app[universallink]`
+          BilibiliData.className.bangumi_new + ` [class^="SeasonList_container"] m-open-app[universallink]`,
         ],
         (event, selectorTarget) => {
           let url = BilibiliOpenApp.getUrl(selectorTarget);
@@ -8282,43 +8262,41 @@ setChooseEpClickEvent() {
           BilibiliUtils.goToUrl(url);
         },
         {
-          capture: true
+          capture: true,
         }
       );
     },
-setClickOtherVideo() {
-      domUtils.waitNode(
-        BilibiliData.className.bangumi + " .section-preview-wrapper ul.ep-list-pre-container"
-      ).then(($preContainer) => {
-        log$1.info("覆盖【PV&其他】、【预告】、【主题曲】的点击事件");
+    setClickOtherVideo() {
+      domUtils
+        .waitNode(BilibiliData.className.bangumi + " .section-preview-wrapper ul.ep-list-pre-container")
+        .then(($preContainer) => {
+          log$1.info("覆盖【PV&其他】、【预告】、【主题曲】的点击事件");
+          domUtils.on(
+            $preContainer,
+            "click",
+            "li.section-preview-item",
+            function (event) {
+              domUtils.preventEvent(event);
+              BilibiliOpenApp.jumpToUrl(event);
+            },
+            {
+              capture: true,
+            }
+          );
+        });
+      domUtils.waitNode(BilibiliData.className.bangumi + " .section-preview-header").then(($previewHeader) => {
+        log$1.info("覆盖【PV&其他】、【预告】、【主题曲】右上角的Arrow的点击事件");
         domUtils.on(
-          $preContainer,
+          $previewHeader,
           "click",
-          "li.section-preview-item",
-          function(event) {
+          function (event) {
             domUtils.preventEvent(event);
-            BilibiliOpenApp.jumpToUrl(event);
           },
           {
-            capture: true
+            capture: true,
           }
         );
       });
-      domUtils.waitNode(BilibiliData.className.bangumi + " .section-preview-header").then(
-        ($previewHeader) => {
-          log$1.info("覆盖【PV&其他】、【预告】、【主题曲】右上角的Arrow的点击事件");
-          domUtils.on(
-            $previewHeader,
-            "click",
-            function(event) {
-              domUtils.preventEvent(event);
-            },
-            {
-              capture: true
-            }
-          );
-        }
-      );
       domUtils.on(
         document,
         "click",
@@ -8332,28 +8310,26 @@ setClickOtherVideo() {
           BilibiliUtils.goToUrl(url);
         },
         {
-          capture: true
+          capture: true,
         }
       );
     },
-setRecommendClickEvent() {
-      domUtils.waitNode(BilibiliData.className.bangumi + " .recom-wrapper ul.recom-list").then(
-        ($recomList) => {
-          log$1.info("覆盖【更多推荐】番剧的点击事件");
-          domUtils.on(
-            $recomList,
-            "click",
-            "li.recom-item-v2",
-            function(event) {
-              domUtils.preventEvent(event);
-              BilibiliOpenApp.jumpToUrl(event);
-            },
-            {
-              capture: true
-            }
-          );
-        }
-      );
+    setRecommendClickEvent() {
+      domUtils.waitNode(BilibiliData.className.bangumi + " .recom-wrapper ul.recom-list").then(($recomList) => {
+        log$1.info("覆盖【更多推荐】番剧的点击事件");
+        domUtils.on(
+          $recomList,
+          "click",
+          "li.recom-item-v2",
+          function (event) {
+            domUtils.preventEvent(event);
+            BilibiliOpenApp.jumpToUrl(event);
+          },
+          {
+            capture: true,
+          }
+        );
+      });
       domUtils.on(
         document,
         "click",
@@ -8367,16 +8343,16 @@ setRecommendClickEvent() {
           BilibiliUtils.goToUrl(url);
         },
         {
-          capture: true
+          capture: true,
         }
       );
     },
-coverVideoPlayer() {
+    coverVideoPlayer() {
       if (document.querySelector("#artplayer")) {
         log$1.warn("已存在播放器，更新播放信息");
       } else {
         addStyle(
-`
+          `
 			.player-wrapper,
 			.open-app-bar,
 			${BilibiliData.className.bangumi_new} [class^="Player_videoWrap"] > div:not(.artplayer-container){
@@ -8396,7 +8372,7 @@ coverVideoPlayer() {
         let controlsPadding = Panel.getValue("bili-bangumi-artplayer-controlsPadding-left-right", 0);
         if (controlsPadding != 0) {
           addStyle(
-`
+            `
 				@media (orientation: landscape) {
 					.art-video-player .art-layers .art-layer-top-wrap,
 					/* 底部 */
@@ -8415,10 +8391,10 @@ coverVideoPlayer() {
         }
       }
       BlibiliBangumiPlayer.updateArtPlayerVideoInfo();
-    }
+    },
   };
   const BilibiliSearchApi = {
-async getSearchInputPlaceholder() {
+    async getSearchInputPlaceholder() {
       let getResponse = await httpx.get("https://api.bilibili.com/x/web-interface/wbi/search/default", {
         fetch: true,
         headers: {
@@ -8431,9 +8407,9 @@ async getSearchInputPlaceholder() {
           "sec-ch-ua-platform": '""',
           "sec-fetch-dest": "empty",
           "sec-fetch-mode": "cors",
-          "sec-fetch-site": "same-site"
+          "sec-fetch-site": "same-site",
         },
-        allowInterceptConfig: false
+        allowInterceptConfig: false,
       });
       if (!getResponse.status) {
         return;
@@ -8444,7 +8420,7 @@ async getSearchInputPlaceholder() {
       }
       return responseData.data;
     },
-async getBangumiSearchResult(config) {
+    async getBangumiSearchResult(config) {
       let searchParamsData = {
         search_type: "media_bangumi",
         keyword: config.keyword,
@@ -8452,14 +8428,14 @@ async getBangumiSearchResult(config) {
         drm_tech_type: "2",
         module: "bangumi",
         area: config.area.toLowerCase(),
-        access_key: BilibiliQrCodeLogin.getAccessToken()
+        access_key: BilibiliQrCodeLogin.getAccessToken(),
       };
       let url = `https://${config.host}/x/web-interface/search/type?${utils.toSearchParamsStr(searchParamsData)}`;
       let getResponse = await httpx.get(url, {
         fetch: false,
         headers: {
-          "User-Agent": utils.getRandomAndroidUA()
-        }
+          "User-Agent": utils.getRandomAndroidUA(),
+        },
       });
       if (!getResponse.status) {
         return;
@@ -8470,19 +8446,20 @@ async getBangumiSearchResult(config) {
         log$1.error(`请求失败，当前请求的响应信息：${JSON.stringify(data2)}`);
         return {
           isSuccess: false,
-          data: data2
+          data: data2,
         };
       }
       return {
         isSuccess: true,
-        data: data2.data.result
+        data: data2.data.result,
       };
-    }
+    },
   };
-  const beautifyCSS = "#app .m-search {\r\n  --card-img-width: 90px;\r\n  --card-img-height: calc(var(--card-img-width) * 1.33);\r\n  --card-desc-color: #808080;\r\n  --card-desc-size: 0.8em;\r\n  --card-badge-item-size: 0.7em;\r\n  --card-badge-item-padding: 0.1em 0.2em;\r\n  --card-badge-item-border-radius: 3px;\r\n  --card-ep-item-border-radius: 4px;\r\n  --card-ep-item-padding-top-bottom: 13px;\r\n  --card-ep-item-padding-left-right: 13px;\r\n  --card-ep-item-badge-padding: 2px;\r\n}\r\n.gm-result-panel {\r\n  padding-top: 23.46667vmin;\r\n  background: #f4f4f4;\r\n}\r\n.gm-card-cover {\r\n  position: relative;\r\n}\r\n.gm-card-cover img {\r\n  width: var(--card-img-width);\r\n  height: var(--card-img-height);\r\n  border-radius: 8px;\r\n}\r\n.gm-card-container {\r\n  display: flex;\r\n  gap: 15px;\r\n}\r\n\r\n.gm-card-box {\r\n  padding: 0px 10px;\r\n}\r\n\r\n.gm-card-item em {\r\n  color: var(--bili-color);\r\n  font-style: unset;\r\n}\r\n\r\n.gm-card-title {\r\n  font-family: 微软雅黑;\r\n  font-size: 1em;\r\n}\r\n\r\n.gm-card-display-info,\r\n.gm-card-styles,\r\nspan.gm-card-media_score-user_count {\r\n  font-size: var(--card-desc-size);\r\n  color: var(--card-desc-color);\r\n}\r\n\r\n.gm-card-info-container {\r\n  display: flex;\r\n  flex-direction: column;\r\n  gap: 3px;\r\n  justify-content: flex-start;\r\n}\r\n.gm-card-info {\r\n  display: flex;\r\n  flex-direction: column;\r\n  justify-content: space-between;\r\n}\r\nspan.gm-card-media_score-score {\r\n  color: #f77c2e;\r\n  font-size: 1.2em;\r\n  font-weight: bold;\r\n}\r\n\r\n.gm-card-media_score {\r\n  display: flex;\r\n  align-items: flex-end;\r\n  gap: 0.5em;\r\n}\r\n.gm-card-item {\r\n  padding: 1.6vmin;\r\n  background: #fff;\r\n  margin: 10px 0px;\r\n  border-radius: 6px;\r\n  display: flex;\r\n  flex-direction: column;\r\n  gap: 15px;\r\n  overflow: hidden;\r\n}\r\n.gm-card-badges {\r\n  background: var(--bili-color);\r\n  color: #fff;\r\n  padding: 3px;\r\n  font-size: 12px;\r\n  border-radius: 3px;\r\n  white-space: nowrap;\r\n  position: absolute;\r\n  top: 5px;\r\n  right: 5px;\r\n}\r\n.gm-card-badge-info-item {\r\n  font-size: var(--card-badge-item-size);\r\n  padding: var(--card-badge-item-padding);\r\n  border-radius: var(--card-badge-item-border-radius);\r\n}\r\n.gm-card-eps {\r\n  display: flex;\r\n  overflow: auto;\r\n  gap: 10px;\r\n}\r\n\r\n.gm-card-ep-conatiner {\r\n  text-align: center;\r\n  white-space: nowrap;\r\n  padding: var(--card-ep-item-padding-top-bottom) var(--card-ep-item-padding-left-right);\r\n  background: #edeff3;\r\n  border-radius: var(--card-ep-item-border-radius);\r\n  font-size: 14px;\r\n  position: relative;\r\n}\r\n\r\n.gm-card-ep-badges-container {\r\n  position: absolute;\r\n  top: 0;\r\n  right: 0;\r\n  font-size: calc(var(--card-ep-item-padding-top-bottom) - var(--card-ep-item-badge-padding));\r\n}\r\n\r\n.gm-card-ep-badge-top-right {\r\n  border-top-right-radius: var(--card-ep-item-border-radius);\r\n  border-bottom-left-radius: var(--card-ep-item-border-radius);\r\n  padding: var(--card-ep-item-badge-padding);\r\n}\r\n.gm-card-ep-info-container {\r\n  min-width: 30px;\r\n}\r\n";
+  const beautifyCSS =
+    "#app .m-search {\r\n  --card-img-width: 90px;\r\n  --card-img-height: calc(var(--card-img-width) * 1.33);\r\n  --card-desc-color: #808080;\r\n  --card-desc-size: 0.8em;\r\n  --card-badge-item-size: 0.7em;\r\n  --card-badge-item-padding: 0.1em 0.2em;\r\n  --card-badge-item-border-radius: 3px;\r\n  --card-ep-item-border-radius: 4px;\r\n  --card-ep-item-padding-top-bottom: 13px;\r\n  --card-ep-item-padding-left-right: 13px;\r\n  --card-ep-item-badge-padding: 2px;\r\n}\r\n.gm-result-panel {\r\n  padding-top: 23.46667vmin;\r\n  background: #f4f4f4;\r\n}\r\n.gm-card-cover {\r\n  position: relative;\r\n}\r\n.gm-card-cover img {\r\n  width: var(--card-img-width);\r\n  height: var(--card-img-height);\r\n  border-radius: 8px;\r\n}\r\n.gm-card-container {\r\n  display: flex;\r\n  gap: 15px;\r\n}\r\n\r\n.gm-card-box {\r\n  padding: 0px 10px;\r\n}\r\n\r\n.gm-card-item em {\r\n  color: var(--bili-color);\r\n  font-style: unset;\r\n}\r\n\r\n.gm-card-title {\r\n  font-family: 微软雅黑;\r\n  font-size: 1em;\r\n}\r\n\r\n.gm-card-display-info,\r\n.gm-card-styles,\r\nspan.gm-card-media_score-user_count {\r\n  font-size: var(--card-desc-size);\r\n  color: var(--card-desc-color);\r\n}\r\n\r\n.gm-card-info-container {\r\n  display: flex;\r\n  flex-direction: column;\r\n  gap: 3px;\r\n  justify-content: flex-start;\r\n}\r\n.gm-card-info {\r\n  display: flex;\r\n  flex-direction: column;\r\n  justify-content: space-between;\r\n}\r\nspan.gm-card-media_score-score {\r\n  color: #f77c2e;\r\n  font-size: 1.2em;\r\n  font-weight: bold;\r\n}\r\n\r\n.gm-card-media_score {\r\n  display: flex;\r\n  align-items: flex-end;\r\n  gap: 0.5em;\r\n}\r\n.gm-card-item {\r\n  padding: 1.6vmin;\r\n  background: #fff;\r\n  margin: 10px 0px;\r\n  border-radius: 6px;\r\n  display: flex;\r\n  flex-direction: column;\r\n  gap: 15px;\r\n  overflow: hidden;\r\n}\r\n.gm-card-badges {\r\n  background: var(--bili-color);\r\n  color: #fff;\r\n  padding: 3px;\r\n  font-size: 12px;\r\n  border-radius: 3px;\r\n  white-space: nowrap;\r\n  position: absolute;\r\n  top: 5px;\r\n  right: 5px;\r\n}\r\n.gm-card-badge-info-item {\r\n  font-size: var(--card-badge-item-size);\r\n  padding: var(--card-badge-item-padding);\r\n  border-radius: var(--card-badge-item-border-radius);\r\n}\r\n.gm-card-eps {\r\n  display: flex;\r\n  overflow: auto;\r\n  gap: 10px;\r\n}\r\n\r\n.gm-card-ep-conatiner {\r\n  text-align: center;\r\n  white-space: nowrap;\r\n  padding: var(--card-ep-item-padding-top-bottom) var(--card-ep-item-padding-left-right);\r\n  background: #edeff3;\r\n  border-radius: var(--card-ep-item-border-radius);\r\n  font-size: 14px;\r\n  position: relative;\r\n}\r\n\r\n.gm-card-ep-badges-container {\r\n  position: absolute;\r\n  top: 0;\r\n  right: 0;\r\n  font-size: calc(var(--card-ep-item-padding-top-bottom) - var(--card-ep-item-badge-padding));\r\n}\r\n\r\n.gm-card-ep-badge-top-right {\r\n  border-top-right-radius: var(--card-ep-item-border-radius);\r\n  border-bottom-left-radius: var(--card-ep-item-border-radius);\r\n  padding: var(--card-ep-item-badge-padding);\r\n}\r\n.gm-card-ep-info-container {\r\n  min-width: 30px;\r\n}\r\n";
   const BilibiliExtraSearch = {
     $flag_css: {
-      enableOtherAreaSearchBangumi: false
+      enableOtherAreaSearchBangumi: false,
     },
     init() {
       addStyle(beautifyCSS);
@@ -8492,11 +8469,11 @@ async getBangumiSearchResult(config) {
         });
       });
     },
-enableOtherAreaSearchBangumi() {
+    enableOtherAreaSearchBangumi() {
       if (!this.$flag_css.enableOtherAreaSearchBangumi) {
         this.$flag_css.enableOtherAreaSearchBangumi = true;
         addStyle(
-`
+          `
 			.m-search-result .tabs{
 				overflow: auto;
 				white-space: nowrap;
@@ -8530,11 +8507,11 @@ enableOtherAreaSearchBangumi() {
             "a",
             {
               className: "tab-item gm-tab-item",
-              innerHTML: `番剧（${proxyServerInfo.name}）`
+              innerHTML: `番剧（${proxyServerInfo.name}）`,
             },
             {
               "data-area": proxyServerInfo.area,
-              "data-host": proxyServerInfo.host
+              "data-host": proxyServerInfo.host,
             }
           );
           $tabs.appendChild($tab);
@@ -8566,7 +8543,7 @@ enableOtherAreaSearchBangumi() {
           let searchBangumiResultInfo = await BilibiliSearchApi.getBangumiSearchResult({
             keyword,
             area,
-            host
+            host,
           });
           $loading.close();
           if (!searchBangumiResultInfo) {
@@ -8580,8 +8557,7 @@ enableOtherAreaSearchBangumi() {
           log$1.info("搜索结果：", searchBangumiResultData);
           let $gmResultPanel = domUtils.createElement("div", {
             className: "gm-result-panel",
-            innerHTML: (
-`
+            innerHTML: `
 						<div class="gm-list-view">
 							<div class="gm-video-list-box">
 								<div class="gm-video-list">
@@ -8589,8 +8565,7 @@ enableOtherAreaSearchBangumi() {
 								</div>
 							</div>
 						</div>
-					`
-            )
+					`,
           });
           let $gmCardBox = $gmResultPanel.querySelector(".gm-card-box");
           searchBangumiResultData.forEach((searchBangumiResultItem) => {
@@ -8600,13 +8575,12 @@ enableOtherAreaSearchBangumi() {
         });
       });
     },
-createSearchResultVideoItem(option) {
+    createSearchResultVideoItem(option) {
       let $item = domUtils.createElement(
         "div",
         {
           className: "gm-card-item",
-          innerHTML: (
-`
+          innerHTML: `
 				<div class="gm-card-container">
 					<div class="gm-card-cover">
 						<div class="gm-card-badges">${option.season_type_name}</div>
@@ -8629,8 +8603,7 @@ createSearchResultVideoItem(option) {
 				<div class="gm-card-eps">
 					
 				</div>
-				`
-          )
+				`,
         },
         {
           "data-url": option.url,
@@ -8638,7 +8611,7 @@ createSearchResultVideoItem(option) {
           "data-media_id": option.media_id,
           "data-pgc_season_id": option.pgc_season_id,
           "data-is_follow": option.is_follow,
-          "data-is_selection": option.is_selection
+          "data-is_selection": option.is_selection,
         }
       );
       Reflect.set($item, "data-option", option);
@@ -8658,7 +8631,7 @@ createSearchResultVideoItem(option) {
       totalDisplayInfo.forEach((displayInfo) => {
         let $displayInfoItem = domUtils.createElement("span", {
           className: "gm-card-badge-info-item",
-          innerText: displayInfo.text
+          innerText: displayInfo.text,
         });
         if (typeof displayInfo.border_color === "string") {
           $displayInfoItem.style.border = `1px solid ${displayInfo.border_color}`;
@@ -8669,7 +8642,7 @@ createSearchResultVideoItem(option) {
       if (option.pubtime) {
         domUtils.append(
           $displayInfo,
-`
+          `
 				<span>${utils.formatTime(option.pubtime * 1e3, "yyyy")}</span>
 				`
         );
@@ -8679,14 +8652,14 @@ createSearchResultVideoItem(option) {
         if ($displayInfo.children.length) {
           domUtils.append(
             $displayInfo,
-`
+            `
 					<span> | </span>
 				`
           );
         }
         domUtils.append(
           $displayInfo,
-`
+          `
 					<span>${areas}</span>
 				`
         );
@@ -8695,17 +8668,16 @@ createSearchResultVideoItem(option) {
       if (option.media_score && option.media_score.user_count) {
         domUtils.append(
           $mediaScore,
-`
+          `
 				<span class="gm-card-media_score-score">${option.media_score?.score || 0}分</span>
 				<span class="gm-card-media_score-user_count">${option.media_score?.user_count || 0}人参与</span>
 				`
         );
       }
       let $eps = $item.querySelector(".gm-card-eps");
-      let epsList = [
-        ...option.eps || [],
-        ...Reflect.get(option, "episodes_new") || []
-      ].filter((item) => utils.isNotNull(item));
+      let epsList = [...(option.eps || []), ...(Reflect.get(option, "episodes_new") || [])].filter((item) =>
+        utils.isNotNull(item)
+      );
       epsList.forEach((epsItem) => {
         let title = epsItem.title || epsItem.long_title;
         let url = epsItem.url || Reflect.get(epsItem, "uri");
@@ -8713,21 +8685,19 @@ createSearchResultVideoItem(option) {
           "div",
           {
             className: "gm-card-ep-conatiner",
-            innerHTML: (
-`
+            innerHTML: `
 				<div class="gm-card-ep-badges-container">
 					
 				</div>
 				<div class="gm-card-ep-info-container">
 					${title}
-				</div>`
-            )
+				</div>`,
           },
           {
             "data-id": epsItem.id,
             "data-url": url,
             "data-title": title,
-            "data-long_title": epsItem.long_title
+            "data-long_title": epsItem.long_title,
           }
         );
         let $epBadges = $epItem.querySelector(".gm-card-ep-badges-container");
@@ -8736,7 +8706,7 @@ createSearchResultVideoItem(option) {
           let epItemBadgeInfo = epsItem.badges[0];
           let $badge = domUtils.createElement("span", {
             className: "gm-card-ep-badge-top-right",
-            innerText: epItemBadgeInfo.text
+            innerText: epItemBadgeInfo.text,
           });
           if (typeof epItemBadgeInfo.bg_color === "string") {
             $badge.style.backgroundColor = epItemBadgeInfo.bg_color;
@@ -8754,21 +8724,20 @@ createSearchResultVideoItem(option) {
       });
       return $item;
     },
-searchBangumi() {
-    }
+    searchBangumi() {},
   };
   const BilibiliSearchBeautify = {
     $flag: { mutationSearchResult: false },
     init() {
       this.mutationSearchResult();
     },
-mutationSearchResult() {
+    mutationSearchResult() {
       if (this.$flag.mutationSearchResult) {
         return;
       }
       this.$flag.mutationSearchResult = true;
       addStyle(
-`
+        `
         .bangumi-list{
             padding: 0 10px;
         }
@@ -8777,7 +8746,7 @@ mutationSearchResult() {
       utils.mutationObserver(document, {
         config: {
           subtree: true,
-          childList: true
+          childList: true,
         },
         callback: utils.debounce(() => {
           document.querySelectorAll(".m-search-bangumi-item").forEach(($bangumiItem) => {
@@ -8793,9 +8762,9 @@ mutationSearchResult() {
             domUtils.after($bangumiItem, $newBangumiItem);
             $bangumiItem.remove();
           });
-        })
+        }),
       });
-    }
+    },
   };
   const BilibiliSearchVueProp = {
     init() {
@@ -8806,7 +8775,7 @@ mutationSearchResult() {
         this.openAppDialog();
       });
     },
-noCallApp() {
+    noCallApp() {
       let lockFn = new utils.LockFunction(() => {
         $$(".video-list .card-box > div:not([data-gm-inject-no-call-app])").forEach(($card) => {
           let vueIns = VueUtils.getVue($card);
@@ -8818,7 +8787,7 @@ noCallApp() {
               value: true,
               writable: false,
               enumerable: true,
-              configurable: true
+              configurable: true,
             });
             $card.setAttribute("data-gm-inject-no-call-app", "true");
           }
@@ -8827,14 +8796,14 @@ noCallApp() {
       utils.mutationObserver(document, {
         config: {
           subtree: true,
-          childList: true
+          childList: true,
         },
         callback() {
           lockFn.run();
-        }
+        },
       });
     },
-openAppDialog() {
+    openAppDialog() {
       let lockFn = new utils.LockFunction(() => {
         $$(".video-list .card-box > div:not([data-gm-inject-openAppDialog])").forEach(($card) => {
           let vueIns = VueUtils.getVue($card);
@@ -8846,7 +8815,7 @@ openAppDialog() {
               value: false,
               writable: false,
               enumerable: true,
-              configurable: true
+              configurable: true,
             });
             $card.setAttribute("data-gm-inject-openAppDialog", "true");
           }
@@ -8855,13 +8824,13 @@ openAppDialog() {
       utils.mutationObserver(document, {
         config: {
           subtree: true,
-          childList: true
+          childList: true,
         },
         callback() {
           lockFn.run();
-        }
+        },
       });
-    }
+    },
   };
   const BilibiliSearch = {
     init() {
@@ -8884,7 +8853,7 @@ openAppDialog() {
         });
       });
     },
-coverCancel() {
+    coverCancel() {
       log$1.info("覆盖【取消】按钮的点击事件");
       domUtils.on(
         document,
@@ -8898,7 +8867,7 @@ coverCancel() {
         { capture: true }
       );
     },
-inputAutoFocus() {
+    inputAutoFocus() {
       let searchParams = new URLSearchParams(window.location.search);
       if (searchParams.has("keyword")) {
         log$1.warn(`当前在搜索结果页面，不执行输入框自动获取焦点`);
@@ -8913,7 +8882,7 @@ inputAutoFocus() {
         $input.focus();
       });
     },
-coverCardResultClickEvent() {
+    coverCardResultClickEvent() {
       log$1.info(`覆盖搜索结果点击事件`);
       domUtils.on(
         document,
@@ -8933,10 +8902,10 @@ coverCardResultClickEvent() {
           cardClick(evt);
         },
         {
-          capture: true
+          capture: true,
         }
       );
-    }
+    },
   };
   const BilibiliLiveBlockNode = {
     init() {
@@ -8950,18 +8919,18 @@ coverCardResultClickEvent() {
         return this.blockControlPanel();
       });
     },
-blockChatRoom() {
+    blockChatRoom() {
       log$1.info("屏蔽聊天室");
       return CommonUtil.addBlockCSS("#chat-items");
     },
-blockBrushPrompt() {
+    blockBrushPrompt() {
       log$1.info("屏蔽xxx进入直播间");
       return CommonUtil.addBlockCSS("#brush-prompt");
     },
-blockControlPanel() {
+    blockControlPanel() {
       log$1.info("屏蔽底部工具栏");
       return CommonUtil.addBlockCSS(".control-panel");
-    }
+    },
   };
   const BilibiliLive = {
     init() {
@@ -8970,31 +8939,31 @@ blockControlPanel() {
         this.preventOpenAppBtn();
       });
     },
-preventOpenAppBtn() {
+    preventOpenAppBtn() {
       domUtils.waitNode("body").then(($body) => {
         log$1.info("阻止.open-app-btn元素触发点击事件");
         domUtils.on(
           $body,
           "click",
           ".open-app-btn",
-          function(event, selectorTarget) {
+          function (event, selectorTarget) {
             const vueInst = VueUtils.getVue(selectorTarget);
             if (typeof vueInst?.open === "function") {
-              vueInst.open = function() {
+              vueInst.open = function () {
                 log$1.info(`成功阻止.open-app-btn元素触发点击事件`);
               };
             }
           },
           {
-            capture: true
+            capture: true,
           }
         );
       });
-    }
+    },
   };
   const BilibiliOpusVariable = {
     $data: {
-      dispatchCallBackList: []
+      dispatchCallBackList: [],
     },
     init() {
       Panel.execMenu("bili-opus-variable-autoOpenApp", () => {
@@ -9005,9 +8974,17 @@ preventOpenAppBtn() {
       });
       Panel.execMenu("bili-opus-variable-handleFallback", () => {
         this.dispatch((vueInstance, fnName) => {
-          if (typeof fnName === "string" && fnName === "opus/handleFallback" && ![1, 2].includes(vueInstance.fallback.type)) {
+          if (
+            typeof fnName === "string" &&
+            fnName === "opus/handleFallback" &&
+            ![1, 2].includes(vueInstance.fallback.type)
+          ) {
             log$1.success(`禁止调用handleFallback函数前往404`);
-            if (typeof vueInstance?.showComment === "boolean" && vueInstance.showComment && typeof vueInstance?.initFullComment === "function") {
+            if (
+              typeof vueInstance?.showComment === "boolean" &&
+              vueInstance.showComment &&
+              typeof vueInstance?.initFullComment === "function"
+            ) {
               vueInstance.initFullComment();
             }
             return false;
@@ -9015,7 +8992,7 @@ preventOpenAppBtn() {
         });
       });
     },
-isLimit() {
+    isLimit() {
       log$1.info(`等待 观察并覆盖变量isLimit`);
       VueUtils.watchVuePropChange(
         BilibiliData.className.opus,
@@ -9026,7 +9003,7 @@ isLimit() {
         }
       );
     },
-autoOpenApp() {
+    autoOpenApp() {
       VueUtils.waitVuePropToSet(BilibiliData.className.opus, {
         msg: "等待 覆盖函数autoOpenApp",
         check(vueInstance) {
@@ -9034,13 +9011,13 @@ autoOpenApp() {
         },
         set(vueInstance) {
           log$1.success(`成功 覆盖函数autoOpenApp`);
-          vueInstance.autoOpenApp = function() {
+          vueInstance.autoOpenApp = function () {
             log$1.success(`禁止调用autoOpenApp函数`);
           };
-        }
+        },
       });
     },
-go404() {
+    go404() {
       VueUtils.waitVuePropToSet(BilibiliData.className.opus, {
         msg: "等待 覆盖函数go404",
         check(vueInstance) {
@@ -9048,13 +9025,13 @@ go404() {
         },
         set(vueInstance) {
           log$1.success(`成功 覆盖函数go404`);
-          vueInstance.go404 = function() {
+          vueInstance.go404 = function () {
             log$1.success(`禁止调用go404函数`);
           };
-        }
+        },
       });
     },
-fallback() {
+    fallback() {
       VueUtils.waitVuePropToSet(BilibiliData.className.opus, {
         msg: "等待 覆盖对象fallback",
         check(vueInstance) {
@@ -9070,13 +9047,13 @@ fallback() {
             },
             {
               deep: true,
-              immediate: true
+              immediate: true,
             }
           );
-        }
+        },
       });
     },
-dispatch(callback) {
+    dispatch(callback) {
       let callbackStr = callback.toString();
       for (let index = 0; index < this.$data.dispatchCallBackList.length; index++) {
         const fn = this.$data.dispatchCallBackList[index];
@@ -9098,7 +9075,7 @@ dispatch(callback) {
         set(vueInstance) {
           log$1.success(`成功 覆盖函数dispatch`);
           let originDispatch = vueInstance.$store.dispatch;
-          vueInstance.$store.dispatch = function(...args) {
+          vueInstance.$store.dispatch = function (...args) {
             let fnName = args[0];
             for (let index = 0; index < that.$data.dispatchCallBackList.length; index++) {
               const fn = that.$data.dispatchCallBackList[index];
@@ -9111,9 +9088,9 @@ dispatch(callback) {
             }
             return Reflect.apply(originDispatch, this, args);
           };
-        }
+        },
       });
-    }
+    },
   };
   const BilibiliOpus = {
     init() {
@@ -9129,13 +9106,13 @@ dispatch(callback) {
         this.coverHeaderJump();
       });
     },
-coverTopicJump() {
+    coverTopicJump() {
       log$1.info("覆盖话题跳转点击事件");
       domUtils.on(
         document,
         "click",
         BilibiliData.className.opus + " .launch-app-btn.opus-module-topic",
-        function(event) {
+        function (event) {
           let $click = event.target;
           let vueObj = VueUtils.getVue($click);
           if (!vueObj) {
@@ -9152,32 +9129,32 @@ coverTopicJump() {
           BilibiliUtils.goToUrl(jump_url);
         },
         {
-          capture: true
+          capture: true,
         }
       );
     },
-automaticallyExpandToReadFullText() {
+    automaticallyExpandToReadFullText() {
       log$1.info("自动展开阅读全文");
       let result = [
         CommonUtil.addBlockCSS(BilibiliData.className.opus + " .opus-read-more"),
         addStyle(
-`
+          `
 			${BilibiliData.className.opus} .opus-module-content{
 				overflow: unset !important;
 				max-height: unset !important;
 			}
 			`
-        )
+        ),
       ];
       return result;
     },
-coverHeaderJump() {
+    coverHeaderJump() {
       log$1.info("覆盖header点击事件");
       domUtils.on(
         document,
         "click",
         BilibiliData.className.opus + " .opus-module-author",
-        function(event) {
+        function (event) {
           domUtils.preventEvent(event);
           let $click = event.target;
           let vueObj = VueUtils.getVue($click);
@@ -9193,10 +9170,10 @@ coverHeaderJump() {
           BilibiliUtils.goToUrl(BilibiliUrl.getUserSpaceUrl(mid));
         },
         {
-          capture: true
+          capture: true,
         }
       );
-    }
+    },
   };
   const BilibiliDynamic = {
     init() {
@@ -9213,13 +9190,13 @@ coverHeaderJump() {
         this.coverHeaderJump();
       });
     },
-coverHeaderJump() {
+    coverHeaderJump() {
       log$1.info("覆盖header点击事件");
       domUtils.on(
         document,
         "click",
         BilibiliData.className.dynamic + " .launch-app-btn .dyn-header",
-        function(event) {
+        function (event) {
           domUtils.preventEvent(event);
           let $click = event.target;
           let vueObj = VueUtils.getVue($click);
@@ -9235,17 +9212,17 @@ coverHeaderJump() {
           BilibiliUtils.goToUrl(url);
         },
         {
-          capture: true
+          capture: true,
         }
       );
     },
-coverTopicJump() {
+    coverTopicJump() {
       log$1.info("覆盖话题跳转点击事件");
       domUtils.on(
         document,
         "click",
         BilibiliData.className.dynamic + " .launch-app-btn .bili-dyn-topic",
-        function(event) {
+        function (event) {
           domUtils.preventEvent(event);
           let $click = event.target;
           let vueObj = VueUtils.getVue($click);
@@ -9263,17 +9240,17 @@ coverTopicJump() {
           BilibiliUtils.goToUrl(jump_url);
         },
         {
-          capture: true
+          capture: true,
         }
       );
     },
-coverAtJump() {
+    coverAtJump() {
       log$1.info("覆盖@ 跳转");
       domUtils.on(
         document,
         "click",
         BilibiliData.className.dynamic + " .at",
-        function(event) {
+        function (event) {
           domUtils.preventEvent(event);
           let $click = event.target;
           let oid = $click.getAttribute("data-oid") || VueUtils.getVue($click)?.$props?.rid;
@@ -9285,17 +9262,17 @@ coverAtJump() {
           BilibiliUtils.goToUrl(BilibiliUrl.getUserSpaceDynamicUrl(oid));
         },
         {
-          capture: true
+          capture: true,
         }
       );
     },
-coverReferenceJump() {
+    coverReferenceJump() {
       log$1.info("覆盖引用的点击事件");
       domUtils.on(
         document,
         "click",
         BilibiliData.className.dynamic + " .dyn-content .reference .dyn-orig-author",
-        function(event) {
+        function (event) {
           domUtils.preventEvent(event);
           let $click = event.target;
           let url = $click.getAttribute("data-url");
@@ -9306,14 +9283,14 @@ coverReferenceJump() {
           BilibiliUtils.goToUrl(url);
         },
         {
-          capture: true
+          capture: true,
         }
       );
       domUtils.on(
         document,
         "click",
         BilibiliData.className.dynamic + " .dyn-content .reference .dyn-archive",
-        function(event) {
+        function (event) {
           domUtils.preventEvent(event);
           let $click = event.target;
           let vueObj = VueUtils.getVue($click);
@@ -9329,10 +9306,10 @@ coverReferenceJump() {
           BilibiliUtils.goToUrl(jump_url);
         },
         {
-          capture: true
+          capture: true,
         }
       );
-    }
+    },
   };
   const BilibiliHook = {
     $isHook: {
@@ -9340,12 +9317,12 @@ coverReferenceJump() {
       hookWebpackJsonp_openApp: false,
       overRideLaunchAppBtn_Vue_openApp: false,
       overRideBiliOpenApp: false,
-      overRideWxTaghandleClick: false
+      overRideWxTaghandleClick: false,
     },
     $data: {
-      setTimeout: []
+      setTimeout: [],
     },
-windowWebPack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
+    windowWebPack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
       let originObject = void 0;
       OriginPrototype.Object.defineProperty(_unsafeWindow, webpackName, {
         get() {
@@ -9355,12 +9332,17 @@ windowWebPack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
           log$1.success("成功劫持webpack，当前webpack名：" + webpackName);
           originObject = newValue;
           const originPush = originObject.push;
-          originObject.push = function(...args) {
+          originObject.push = function (...args) {
             let _mainCoreData = args[0][0];
-            if (mainCoreData == _mainCoreData || Array.isArray(mainCoreData) && Array.isArray(_mainCoreData) && JSON.stringify(mainCoreData) === JSON.stringify(_mainCoreData)) {
+            if (
+              mainCoreData == _mainCoreData ||
+              (Array.isArray(mainCoreData) &&
+                Array.isArray(_mainCoreData) &&
+                JSON.stringify(mainCoreData) === JSON.stringify(_mainCoreData))
+            ) {
               Object.keys(args[0][1]).forEach((keyName) => {
                 let originSwitchFunc = args[0][1][keyName];
-                args[0][1][keyName] = function(..._args) {
+                args[0][1][keyName] = function (..._args) {
                   let result = originSwitchFunc.call(this, ..._args);
                   _args[0] = checkCallBack(_args[0]);
                   return result;
@@ -9369,16 +9351,16 @@ windowWebPack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
             }
             return originPush.call(this, ...args);
           };
-        }
+        },
       });
     },
-setTimeout(matchStr) {
+    setTimeout(matchStr) {
       this.$data.setTimeout.push(matchStr);
       if (this.$data.setTimeout.length > 1) {
         log$1.info("window.setTimeout hook新增劫持判断参数：" + matchStr);
         return;
       }
-      _unsafeWindow.setTimeout = function(...args) {
+      _unsafeWindow.setTimeout = function (...args) {
         let callBackString = args[0].toString();
         if (callBackString.match(matchStr)) {
           log$1.success("劫持setTimeout的函数", callBackString);
@@ -9387,7 +9369,7 @@ setTimeout(matchStr) {
         return OriginPrototype.setTimeout.apply(this, args);
       };
     },
-overRideLaunchAppBtn_Vue_openApp() {
+    overRideLaunchAppBtn_Vue_openApp() {
       if (this.$isHook.overRideLaunchAppBtn_Vue_openApp) {
         return;
       }
@@ -9400,7 +9382,7 @@ overRideLaunchAppBtn_Vue_openApp() {
         if (openAppStr.includes("阻止唤醒App")) {
           return;
         }
-        vueObj.openApp = function(...args) {
+        vueObj.openApp = function (...args) {
           log$1.success("openApp：阻止唤醒App", args);
         };
       }
@@ -9408,7 +9390,7 @@ overRideLaunchAppBtn_Vue_openApp() {
         config: {
           subtree: true,
           childList: true,
-          attributes: true
+          attributes: true,
         },
         immediate: true,
         callback() {
@@ -9424,10 +9406,10 @@ overRideLaunchAppBtn_Vue_openApp() {
               });
             }
           });
-        }
+        },
       });
     },
-overRideBiliOpenApp() {
+    overRideBiliOpenApp() {
       if (this.$isHook.overRideBiliOpenApp) {
         return;
       }
@@ -9436,35 +9418,33 @@ overRideBiliOpenApp() {
         config: {
           subtree: true,
           childList: true,
-          attributes: true
+          attributes: true,
         },
         immediate: true,
         callback() {
-          [...Array.from($$("bili-open-app")), ...Array.from($$("m-open-app"))].forEach(
-            ($biliOpenApp) => {
-              if ($biliOpenApp.hasAttribute("data-inject-opener-open")) {
-                return;
-              }
-              let opener = Reflect.get($biliOpenApp, "opener");
-              if (opener == null) {
-                return;
-              }
-              let originOpen = opener?.open;
-              if (typeof originOpen === "function") {
-                Reflect.set(opener, "open", (config) => {
-                  log$1.success(`拦截bili-open-app.open跳转: ${JSON.stringify(config)}`);
-                  if (typeof config?.universalLink === "string") {
-                    BilibiliUtils.goToUrl(config.universalLink);
-                  }
-                });
-                $biliOpenApp.setAttribute("data-inject-opener-open", "true");
-              }
+          [...Array.from($$("bili-open-app")), ...Array.from($$("m-open-app"))].forEach(($biliOpenApp) => {
+            if ($biliOpenApp.hasAttribute("data-inject-opener-open")) {
+              return;
             }
-          );
-        }
+            let opener = Reflect.get($biliOpenApp, "opener");
+            if (opener == null) {
+              return;
+            }
+            let originOpen = opener?.open;
+            if (typeof originOpen === "function") {
+              Reflect.set(opener, "open", (config) => {
+                log$1.success(`拦截bili-open-app.open跳转: ${JSON.stringify(config)}`);
+                if (typeof config?.universalLink === "string") {
+                  BilibiliUtils.goToUrl(config.universalLink);
+                }
+              });
+              $biliOpenApp.setAttribute("data-inject-opener-open", "true");
+            }
+          });
+        },
       });
     },
-overRideWxTaghandleClick() {
+    overRideWxTaghandleClick() {
       if (this.$isHook.overRideWxTaghandleClick) {
         return;
       }
@@ -9473,7 +9453,7 @@ overRideWxTaghandleClick() {
         config: {
           subtree: true,
           childList: true,
-          attributes: true
+          attributes: true,
         },
         immediate: true,
         callback() {
@@ -9484,27 +9464,32 @@ overRideWxTaghandleClick() {
             let vueIns = VueUtils.getVue($el);
             if (vueIns) {
               if (typeof vueIns?.handleClick === "function") {
-                vueIns.handleClick = function() {
+                vueIns.handleClick = function () {
                   if (typeof vueIns["goToVideo"] === "function") {
                     vueIns.goToVideo();
                   } else {
                     Qmsg.error(".wx-tag不存在goToVideo函数", {
-                      consoleLogContent: true
+                      consoleLogContent: true,
                     });
                   }
                 };
                 $el.setAttribute("data-inject-vueins-handle-click", "true");
               }
-              if (Array.isArray(vueIns?.$children) && vueIns.$children.length && typeof vueIns.$children[0].handleClick === "function") {
+              if (
+                Array.isArray(vueIns?.$children) &&
+                vueIns.$children.length &&
+                typeof vueIns.$children[0].handleClick === "function"
+              ) {
                 vueIns.$children[0].handleClick = vueIns.handleClick;
               }
             }
           });
-        }
+        },
       });
-    }
+    },
   };
-  const BilibiliRecommendCSS = '#app .m-head .m-recommend-view {\r\n  display: none;\r\n}\r\n\r\n#app .m-head .suspension .channel-menu:has(.recommend-tag.is-avtive) .v-switcher__header__anchor {\r\n  display: none !important;\r\n}\r\n#app .m-head .suspension .channel-menu:has(.recommend-tag.is-avtive) a.v-switcher__header__tabs__item {\r\n  color: #505050 !important;\r\n}\r\n#app .m-head .suspension .channel-menu:has(.recommend-tag.is-avtive) a.recommend-tag {\r\n  color: var(--bili-color) !important;\r\n}\r\n#app .m-head .suspension .channel-menu:has(.recommend-tag.is-avtive) a.recommend-tag span:after {\r\n  content: " ";\r\n  position: relative;\r\n  background: var(--bili-color);\r\n  width: 30.4375px;\r\n  height: 0.53333vmin;\r\n  display: block;\r\n  bottom: 3px;\r\n}\r\n\r\n#app .m-head:has(.recommend-tag.is-avtive) .suspension + div {\r\n  display: none;\r\n}\r\n#app .m-head:has(.recommend-tag.is-avtive) .m-recommend-view {\r\n  display: unset;\r\n}\r\n\r\n#app .m-head .m-recommend-view {\r\n  background-color: #f0f1f3;\r\n}\r\n#app .m-head .m-recommend-view .list-view .video-list-box .video-list {\r\n  padding: 0 1.33333vmin;\r\n  margin-bottom: 5.33333vmin;\r\n}\r\n#app .m-head .m-recommend-view .list-view .video-list-box .video-list .card-box {\r\n  display: -webkit-box;\r\n  display: -ms-flexbox;\r\n  display: flex;\r\n  -ms-flex-wrap: wrap;\r\n  flex-wrap: wrap;\r\n}\r\n#app .m-head .m-recommend-view .list-view .video-list-box .video-list .card-box .v-card .card {\r\n  position: relative;\r\n}\r\n#app .m-head .m-recommend-view .list-view .video-list-box .video-list .card-box .v-card .card .bfs-img-wrap {\r\n  position: absolute;\r\n  top: 0;\r\n  left: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n  overflow: hidden;\r\n}\r\n#app\r\n  .m-head\r\n  .m-recommend-view\r\n  .list-view\r\n  .video-list-box\r\n  .video-list\r\n  .card-box\r\n  .v-card\r\n  .card\r\n  .bfs-img-wrap\r\n  .bfs-img.b-img {\r\n  position: relative;\r\n  width: 100%;\r\n  height: 100%;\r\n  overflow: hidden;\r\n  background: transparent;\r\n}\r\n#app\r\n  .m-head\r\n  .m-recommend-view\r\n  .list-view\r\n  .video-list-box\r\n  .video-list\r\n  .card-box\r\n  .v-card\r\n  .card\r\n  .bfs-img-wrap\r\n  .bfs-img.b-img\r\n  picture.b-img__inner {\r\n  display: block;\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n#app\r\n  .m-head\r\n  .m-recommend-view\r\n  .list-view\r\n  .video-list-box\r\n  .video-list\r\n  .card-box\r\n  .v-card\r\n  .card\r\n  .bfs-img-wrap\r\n  .bfs-img.b-img\r\n  picture.b-img__inner\r\n  img {\r\n  width: 100%;\r\n  height: 100%;\r\n  -o-object-fit: cover;\r\n  object-fit: cover;\r\n}\r\n#app .m-head .m-recommend-view .list-view .video-list-box .video-list .card-box .v-card .card .count {\r\n  position: absolute;\r\n  bottom: 0;\r\n  left: 0;\r\n  width: 100%;\r\n  font-size: 3.2vmin;\r\n  padding: 1.33333vmin 1.6vmin;\r\n  display: -webkit-box;\r\n  display: -ms-flexbox;\r\n  display: flex;\r\n  -webkit-box-pack: justify;\r\n  -ms-flex-pack: justify;\r\n  justify-content: space-between;\r\n  color: #fff;\r\n  background: linear-gradient(0deg, rgba(0, 0, 0, 0.85), transparent);\r\n}\r\n#app .m-head .m-recommend-view .list-view .video-list-box .video-list .card-box .v-card .title {\r\n  font-size: 3.2vmin;\r\n  color: #212121;\r\n  margin-top: 1.6vmin;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  display: -webkit-box;\r\n  -webkit-line-clamp: 2;\r\n  -webkit-box-orient: vertical;\r\n}\r\n#app\r\n  .m-head\r\n  .m-recommend-view\r\n  .list-view\r\n  .video-list-box\r\n  .video-list\r\n  .card-box\r\n  .v-card\r\n  .gm-up-info\r\n  .gm-up-name\r\n  .gm-picture-text {\r\n  padding: 1px 4px;\r\n  border: 1px solid var(--bili-color);\r\n  color: var(--bili-color);\r\n  border-radius: 2px;\r\n  margin-right: 4px;\r\n  font-size: 2vmin;\r\n}\r\n\r\n#app .m-head .m-recommend-view .list-view .video-list-box .video-list .card-box .v-card .count > span {\r\n  display: flex;\r\n  align-items: center;\r\n  gap: 1.33333vmin;\r\n}\r\n';
+  const BilibiliRecommendCSS =
+    '#app .m-head .m-recommend-view {\r\n  display: none;\r\n}\r\n\r\n#app .m-head .suspension .channel-menu:has(.recommend-tag.is-avtive) .v-switcher__header__anchor {\r\n  display: none !important;\r\n}\r\n#app .m-head .suspension .channel-menu:has(.recommend-tag.is-avtive) a.v-switcher__header__tabs__item {\r\n  color: #505050 !important;\r\n}\r\n#app .m-head .suspension .channel-menu:has(.recommend-tag.is-avtive) a.recommend-tag {\r\n  color: var(--bili-color) !important;\r\n}\r\n#app .m-head .suspension .channel-menu:has(.recommend-tag.is-avtive) a.recommend-tag span:after {\r\n  content: " ";\r\n  position: relative;\r\n  background: var(--bili-color);\r\n  width: 30.4375px;\r\n  height: 0.53333vmin;\r\n  display: block;\r\n  bottom: 3px;\r\n}\r\n\r\n#app .m-head:has(.recommend-tag.is-avtive) .suspension + div {\r\n  display: none;\r\n}\r\n#app .m-head:has(.recommend-tag.is-avtive) .m-recommend-view {\r\n  display: unset;\r\n}\r\n\r\n#app .m-head .m-recommend-view {\r\n  background-color: #f0f1f3;\r\n}\r\n#app .m-head .m-recommend-view .list-view .video-list-box .video-list {\r\n  padding: 0 1.33333vmin;\r\n  margin-bottom: 5.33333vmin;\r\n}\r\n#app .m-head .m-recommend-view .list-view .video-list-box .video-list .card-box {\r\n  display: -webkit-box;\r\n  display: -ms-flexbox;\r\n  display: flex;\r\n  -ms-flex-wrap: wrap;\r\n  flex-wrap: wrap;\r\n}\r\n#app .m-head .m-recommend-view .list-view .video-list-box .video-list .card-box .v-card .card {\r\n  position: relative;\r\n}\r\n#app .m-head .m-recommend-view .list-view .video-list-box .video-list .card-box .v-card .card .bfs-img-wrap {\r\n  position: absolute;\r\n  top: 0;\r\n  left: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n  overflow: hidden;\r\n}\r\n#app\r\n  .m-head\r\n  .m-recommend-view\r\n  .list-view\r\n  .video-list-box\r\n  .video-list\r\n  .card-box\r\n  .v-card\r\n  .card\r\n  .bfs-img-wrap\r\n  .bfs-img.b-img {\r\n  position: relative;\r\n  width: 100%;\r\n  height: 100%;\r\n  overflow: hidden;\r\n  background: transparent;\r\n}\r\n#app\r\n  .m-head\r\n  .m-recommend-view\r\n  .list-view\r\n  .video-list-box\r\n  .video-list\r\n  .card-box\r\n  .v-card\r\n  .card\r\n  .bfs-img-wrap\r\n  .bfs-img.b-img\r\n  picture.b-img__inner {\r\n  display: block;\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n#app\r\n  .m-head\r\n  .m-recommend-view\r\n  .list-view\r\n  .video-list-box\r\n  .video-list\r\n  .card-box\r\n  .v-card\r\n  .card\r\n  .bfs-img-wrap\r\n  .bfs-img.b-img\r\n  picture.b-img__inner\r\n  img {\r\n  width: 100%;\r\n  height: 100%;\r\n  -o-object-fit: cover;\r\n  object-fit: cover;\r\n}\r\n#app .m-head .m-recommend-view .list-view .video-list-box .video-list .card-box .v-card .card .count {\r\n  position: absolute;\r\n  bottom: 0;\r\n  left: 0;\r\n  width: 100%;\r\n  font-size: 3.2vmin;\r\n  padding: 1.33333vmin 1.6vmin;\r\n  display: -webkit-box;\r\n  display: -ms-flexbox;\r\n  display: flex;\r\n  -webkit-box-pack: justify;\r\n  -ms-flex-pack: justify;\r\n  justify-content: space-between;\r\n  color: #fff;\r\n  background: linear-gradient(0deg, rgba(0, 0, 0, 0.85), transparent);\r\n}\r\n#app .m-head .m-recommend-view .list-view .video-list-box .video-list .card-box .v-card .title {\r\n  font-size: 3.2vmin;\r\n  color: #212121;\r\n  margin-top: 1.6vmin;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  display: -webkit-box;\r\n  -webkit-line-clamp: 2;\r\n  -webkit-box-orient: vertical;\r\n}\r\n#app\r\n  .m-head\r\n  .m-recommend-view\r\n  .list-view\r\n  .video-list-box\r\n  .video-list\r\n  .card-box\r\n  .v-card\r\n  .gm-up-info\r\n  .gm-up-name\r\n  .gm-picture-text {\r\n  padding: 1px 4px;\r\n  border: 1px solid var(--bili-color);\r\n  color: var(--bili-color);\r\n  border-radius: 2px;\r\n  margin-right: 4px;\r\n  font-size: 2vmin;\r\n}\r\n\r\n#app .m-head .m-recommend-view .list-view .video-list-box .video-list .card-box .v-card .count > span {\r\n  display: flex;\r\n  align-items: center;\r\n  gap: 1.33333vmin;\r\n}\r\n';
   var XOR_CODE = 23442827791579n;
   var MAX_AID = 1n << 51n;
   var BASE = 58n;
@@ -9530,23 +9515,23 @@ overRideWxTaghandleClick() {
   };
   const BilibiliRecommend = {
     $flag: {
-isInitCSS: false,
-isLoadingNextPage: false
+      isInitCSS: false,
+      isLoadingNextPage: false,
     },
     $data: {
-intersectionObserver: null,
-loadNums: 0
+      intersectionObserver: null,
+      loadNums: 0,
     },
     $ele: {
       $listView: null,
       $videoListBox: null,
       $videoList: null,
       $cardBox: null,
-      $listViewShim: null
+      $listViewShim: null,
     },
     $cardGoto: {
       av: "av",
-      picture: "picture"
+      picture: "picture",
     },
     init() {
       this.setCSS();
@@ -9561,7 +9546,7 @@ loadNums: 0
       this.$flag.isInitCSS = true;
       addStyle(BilibiliRecommendCSS);
     },
-reset() {
+    reset() {
       log$1.info("重置状态");
       this.$flag.isLoadingNextPage = false;
       this.removeScrollEvent();
@@ -9569,7 +9554,7 @@ reset() {
         this.$ele[key] = null;
       });
     },
-addRecommendTag() {
+    addRecommendTag() {
       if (document.querySelector(".channel-menu a.recommend-tag")) {
         return;
       }
@@ -9583,16 +9568,15 @@ addRecommendTag() {
         "a",
         {
           className: "v-switcher__header__tabs__item recommend-tag",
-          innerHTML: "<span>推荐</span>"
+          innerHTML: "<span>推荐</span>",
         },
         {
-          href: "javascript:;"
+          href: "javascript:;",
         }
       );
       let $recommendView = domUtils.createElement("div", {
         className: "m-recommend-view",
-        innerHTML: (
-`
+        innerHTML: `
             <div class="list-view">
                 <div class="video-list-box">
                     <div class="video-list">
@@ -9605,8 +9589,7 @@ addRecommendTag() {
 
 				</div>
             </div>
-            `
-        )
+            `,
       });
       this.$ele.$listView = $recommendView.querySelector(".list-view");
       this.$ele.$videoListBox = $recommendView.querySelector(".video-list-box");
@@ -9630,7 +9613,7 @@ addRecommendTag() {
           $recommendTag.classList.remove("is-avtive");
         },
         {
-          capture: true
+          capture: true,
         }
       );
       domUtils.on(this.$ele.$cardBox, "click", ".v-card", (event) => {
@@ -9645,10 +9628,10 @@ addRecommendTag() {
         $recommendTag.click();
       }
     },
-async recommendClickEvent() {
+    async recommendClickEvent() {
       BilibiliUtils.goToUrl("#/recommend/", true);
     },
-setScrollEvent() {
+    setScrollEvent() {
       log$1.success("推荐视频监听滚动: IntersectionObserver");
       this.$data.intersectionObserver = new IntersectionObserver(
         async (entries) => {
@@ -9669,11 +9652,11 @@ setScrollEvent() {
       );
       this.$data.intersectionObserver.observe(this.$ele.$listViewShim);
     },
-removeScrollEvent() {
+    removeScrollEvent() {
       this.$data.intersectionObserver?.disconnect();
       this.$data.intersectionObserver = null;
     },
-async scrollEvent() {
+    async scrollEvent() {
       let videoInfo = await this.getRecommendVideoInfo();
       if (!videoInfo) {
         return false;
@@ -9701,16 +9684,16 @@ async scrollEvent() {
       this.$data.loadNums++;
       return true;
     },
-async getRecommendVideoInfo() {
+    async getRecommendVideoInfo() {
       let getData = {
         appkey: AppKeyInfo.ios.appkey,
-        access_key: BilibiliQrCodeLogin.getAccessTokenInfo()?.access_token || ""
+        access_key: BilibiliQrCodeLogin.getAccessTokenInfo()?.access_token || "",
       };
       let Api = "https://app.bilibili.com/x/v2/feed/index";
       let getResp = await httpx.get(Api + "?" + utils.toSearchParamsStr(getData), {
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        }
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
       });
       if (!getResp.status) {
         return;
@@ -9722,7 +9705,7 @@ async getRecommendVideoInfo() {
       }
       return data2.data.items;
     },
-getRecommendItemPictureElement(data2) {
+    getRecommendItemPictureElement(data2) {
       let goto = data2.goto;
       let param = data2.param;
       let url = "/opus/" + param;
@@ -9765,18 +9748,18 @@ getRecommendItemPictureElement(data2) {
                         </svg>
                     </div>
                 </div>
-                `
+                `,
         },
         {
           "data-param": param,
           "data-title": title,
-          "data-goto": goto
+          "data-goto": goto,
         }
       );
       $vCard["data-picture"] = data2;
       return $vCard;
     },
-getRecommendItemAVElement(data2) {
+    getRecommendItemAVElement(data2) {
       let goto = data2.goto;
       let aid = data2?.player_args?.aid || data2.args.aid;
       let bvid = av2bv(aid);
@@ -9792,8 +9775,7 @@ getRecommendItemAVElement(data2) {
         {
           className: "v-card",
           href: url,
-          innerHTML: (
-`
+          innerHTML: `
                 <div class="card">
                     <div class="bfs-img-wrap">
                         <div class="bfs-img b-img">
@@ -9835,23 +9817,22 @@ getRecommendItemAVElement(data2) {
                         </svg>
                     </div>
                 </div>
-                `
-          )
+                `,
         },
         {
           "data-aid": aid,
           "data-title": title,
-          "data-goto": goto
+          "data-goto": goto,
         }
       );
       $vCard["data-video"] = data2;
       return $vCard;
-    }
+    },
   };
   const BilibiliHead = {
     $flag: {
       isInit_reconfigurationTinyAppSettingButton: false,
-      isInit_beautifyTopNavBar_css: false
+      isInit_beautifyTopNavBar_css: false,
     },
     init() {
       Panel.execMenuOnce("bili-head-supplementaryVideoStreamingInformation", () => {
@@ -9861,10 +9842,10 @@ getRecommendItemAVElement(data2) {
         BilibiliRecommend.init();
       });
     },
-addVideoListUPInfo() {
+    addVideoListUPInfo() {
       log$1.info("添加视频列表UP主信息");
       addStyle(
-`
+        `
 		${BilibiliData.className.head} .video-list .card-box .gm-up-info {
 			display: flex;
 			justify-content: space-between;
@@ -9889,14 +9870,15 @@ addVideoListUPInfo() {
       );
       domUtils.waitNode(BilibiliData.className.head + " .video-list .card-box").then(() => {
         let lockFunc = new utils.LockFunction(() => {
-          document.querySelectorAll(BilibiliData.className.head + " .video-list .card-box .v-card").forEach(($vcard) => {
-            let vueObj = VueUtils.getVue($vcard);
-            let upName = vueObj?.info?.author?.name || vueObj?.info?.owner?.name;
-            let duration = vueObj?.info?.duration;
-            if (upName && !$vcard.querySelector(".gm-up-info")) {
-              let $upInfo = document.createElement("div");
-              $upInfo.innerHTML =
-`
+          document
+            .querySelectorAll(BilibiliData.className.head + " .video-list .card-box .v-card")
+            .forEach(($vcard) => {
+              let vueObj = VueUtils.getVue($vcard);
+              let upName = vueObj?.info?.author?.name || vueObj?.info?.owner?.name;
+              let duration = vueObj?.info?.duration;
+              if (upName && !$vcard.querySelector(".gm-up-info")) {
+                let $upInfo = document.createElement("div");
+                $upInfo.innerHTML = `
                                     <div class="gm-up-name">
                                         <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
                                             <path fill="#999A9E" d="M896 736v-448c0-54.4-41.6-96-96-96h-576C169.6 192 128 233.6 128 288v448c0 54.4 41.6 96 96 96h576c54.4 0 96-41.6 96-96zM800 128C889.6 128 960 198.4 960 288v448c0 89.6-70.4 160-160 160h-576C134.4 896 64 825.6 64 736v-448C64 198.4 134.4 128 224 128h576zM419.2 544V326.4h60.8v240c0 96-57.6 144-147.2 144S192 665.6 192 569.6V326.4h60.8v217.6c0 51.2 3.2 108.8 83.2 108.8s83.2-57.6 83.2-108.8z m288-38.4c28.8 0 60.8-16 60.8-60.8 0-48-28.8-60.8-60.8-60.8H614.4v121.6h92.8z m3.2-179.2c102.4 0 121.6 70.4 121.6 115.2 0 48-19.2 115.2-121.6 115.2H614.4V704h-60.8V326.4h156.8z">
@@ -9910,39 +9892,39 @@ addVideoListUPInfo() {
                                             </path>
                                         </svg>
                                     </div>`;
-              $upInfo.className = "gm-up-info";
-              $vcard.appendChild($upInfo);
-            }
-            if (duration) {
-              let $count = $vcard.querySelector(".count");
-              if ($count && !$count.querySelector(".gm-video-duration")) {
-                let showDuration = typeof duration === "string" ? duration : BilibiliUtils.parseDuration(duration);
-                let $duration = document.createElement("span");
-                $duration.className = "gm-video-duration";
-                $duration.innerHTML = showDuration;
-                $count.appendChild($duration);
+                $upInfo.className = "gm-up-info";
+                $vcard.appendChild($upInfo);
               }
-            }
-          });
+              if (duration) {
+                let $count = $vcard.querySelector(".count");
+                if ($count && !$count.querySelector(".gm-video-duration")) {
+                  let showDuration = typeof duration === "string" ? duration : BilibiliUtils.parseDuration(duration);
+                  let $duration = document.createElement("span");
+                  $duration.className = "gm-video-duration";
+                  $duration.innerHTML = showDuration;
+                  $count.appendChild($duration);
+                }
+              }
+            });
         }, 25);
         utils.mutationObserver(document.body, {
           config: {
             subtree: true,
             childList: true,
-            attributes: true
+            attributes: true,
           },
           callback() {
             lockFunc.run();
-          }
+          },
         });
       });
     },
-async reconfigurationTinyAppSettingButton() {
+    async reconfigurationTinyAppSettingButton() {
       log$1.info(`重构tinyApp右上角的设置按钮图标`);
       if (!this.$flag.isInit_reconfigurationTinyAppSettingButton) {
         this.$flag.isInit_reconfigurationTinyAppSettingButton = true;
         addStyle(
-`
+          `
 
 			.nav-bar .right{
 				display: -webkit-box;
@@ -9987,8 +9969,7 @@ async reconfigurationTinyAppSettingButton() {
         log$1.error("未找到设置按钮图标，无法重构");
         return;
       }
-      $iconConfig.outerHTML =
-`
+      $iconConfig.outerHTML = `
 		<div class="gm-face">
 			<div class="gm-face-avatar">
 				<img src="http://i0.hdslb.com/bfs/face/member/noface.jpg">
@@ -10019,8 +10000,8 @@ async reconfigurationTinyAppSettingButton() {
             } else {
               log$1.warn(`经检测，Bilibili尚未登录账号`);
             }
-          }
-        }
+          },
+        },
       ]);
       domUtils.on($gmFace, "click", (event) => {
         domUtils.preventEvent(event);
@@ -10036,12 +10017,12 @@ async reconfigurationTinyAppSettingButton() {
         }
       });
     },
-beautifyTopNavBar() {
+    beautifyTopNavBar() {
       log$1.info(`美化顶部navbar`);
       if (!this.$flag.isInit_beautifyTopNavBar_css) {
         this.$flag.isInit_beautifyTopNavBar_css = true;
         addStyle(
-`
+          `
 			/* 隐藏logo */
 			.${BilibiliData.className.head} .m-navbar .logo,
 			/* 隐藏原有的搜索图标 */
@@ -10110,12 +10091,10 @@ beautifyTopNavBar() {
         }
         let $inputAreaContainer = domUtils.createElement("div", {
           className: "gm-input-area",
-          innerHTML: (
-`
+          innerHTML: `
 						<i class="iconfont ic_search_tab"></i>
 						<input type="search" placeholder="" readonly="" disabled="">
-					`
-          )
+					`,
         });
         let $input = $inputAreaContainer.querySelector("input");
         domUtils.on($inputAreaContainer, "click", (event) => {
@@ -10129,7 +10108,7 @@ beautifyTopNavBar() {
           $input.placeholder = hotWordInfo.show_name || hotWordInfo.name;
         }
       });
-    }
+    },
   };
   const BilibiliReadMobile = {
     init() {
@@ -10139,23 +10118,21 @@ beautifyTopNavBar() {
       });
     },
     removeAds() {
-      CommonUtil.addBlockCSS(
-"body>.h5-download-bar"
-      );
+      CommonUtil.addBlockCSS("body>.h5-download-bar");
     },
-autoExpand() {
+    autoExpand() {
       log$1.info("自动展开");
       return [
         addStyle(
-`
+          `
 			${BilibiliPCData.className.read.mobile} .limit{
 				overflow: unset !important;
 				max-height: unset !important;
 			}`
         ),
-CommonUtil.addBlockCSS(BilibiliPCData.className.read.mobile + " .read-more")
+        CommonUtil.addBlockCSS(BilibiliPCData.className.read.mobile + " .read-more"),
       ];
-    }
+    },
   };
   const BilibiliSpace = {
     init() {
@@ -10166,7 +10143,7 @@ CommonUtil.addBlockCSS(BilibiliPCData.className.read.mobile + " .read-more")
         this.coverDynamicStateCardVideo();
       });
     },
-repairRealJump() {
+    repairRealJump() {
       let lockFn = new utils.LockFunction(() => {
         $$(BilibiliData.className.space + " .wx-tag.open-app-wrapper").forEach(($el) => {
           let vueIns = VueUtils.getVue($el);
@@ -10178,16 +10155,16 @@ repairRealJump() {
       utils.mutationObserver(document, {
         config: {
           subtree: true,
-          childList: true
+          childList: true,
         },
         immediate: true,
         callback: () => {
           lockFn.run();
-        }
+        },
       });
       return;
     },
-coverDynamicStateCardVideo() {
+    coverDynamicStateCardVideo() {
       log$1.info(`覆盖动态视频的点击事件`);
       domUtils.on(
         document,
@@ -10213,10 +10190,10 @@ coverDynamicStateCardVideo() {
           BilibiliUtils.goToUrl(url);
         },
         {
-          capture: true
+          capture: true,
         }
       );
-    }
+    },
   };
   const BilibiliVueProp = {
     init() {
@@ -10230,7 +10207,7 @@ coverDynamicStateCardVideo() {
         this.setIsClient();
       });
     },
-noCallApp() {
+    noCallApp() {
       VueUtils.waitVuePropToSet("#app", [
         {
           msg: "设置参数 $store.state.common.noCallApp",
@@ -10240,11 +10217,11 @@ noCallApp() {
           set(vueIns) {
             log$1.success("成功设置参数 $store.state.common.noCallApp=true");
             vueIns.$store.state.common.noCallApp = true;
-          }
-        }
+          },
+        },
       ]);
     },
-setLogin() {
+    setLogin() {
       let GM_Cookie = new utils.GM_Cookie();
       let cookie_DedeUserID = GM_Cookie.get("DedeUserID");
       if (cookie_DedeUserID != null) {
@@ -10253,7 +10230,7 @@ setLogin() {
         GM_Cookie.set(
           {
             name: "DedeUserID",
-            value: "2333"
+            value: "2333",
           },
           (error) => {
             if (error) {
@@ -10273,7 +10250,7 @@ setLogin() {
           set(vueObj) {
             log$1.success("成功设置参数 $store.state.common.userInfo.isLogin=true");
             vueObj.$store.state.common.userInfo.isLogin = true;
-          }
+          },
         },
         {
           msg: "设置参数 $store.state.loginInfo.isLogin",
@@ -10283,11 +10260,11 @@ setLogin() {
           set(vueObj) {
             log$1.success("成功设置参数 $store.state.loginInfo.isLogin=true");
             vueObj.$store.state.loginInfo.isLogin = true;
-          }
-        }
+          },
+        },
       ]);
     },
-setIsClient() {
+    setIsClient() {
       VueUtils.waitVuePropToSet("#app", [
         {
           msg: "设置参数 $store.state.video.isClient",
@@ -10297,7 +10274,7 @@ setIsClient() {
           set(vueIns) {
             log$1.success("成功设置参数 $store.state.video.isClient=true");
             vueIns.$store.state.video.isClient = true;
-          }
+          },
         },
         {
           msg: "设置参数 $store.state.opus.isClient=true",
@@ -10307,7 +10284,7 @@ setIsClient() {
           set(vueIns) {
             log$1.success("成功设置参数 $store.state.opus.isClient");
             vueIns.$store.state.opus.isClient = true;
-          }
+          },
         },
         {
           msg: "设置参数 $store.state.playlist.isClient",
@@ -10317,7 +10294,7 @@ setIsClient() {
           set(vueIns) {
             log$1.success("成功设置参数 $store.state.playlist.isClient=true");
             vueIns.$store.state.playlist.isClient = true;
-          }
+          },
         },
         {
           msg: "设置参数 $store.state.ver.bili",
@@ -10327,7 +10304,7 @@ setIsClient() {
           set(vueIns) {
             log$1.success("成功设置参数 $store.state.ver.bili=true");
             vueIns.$store.state.ver.bili = true;
-          }
+          },
         },
         {
           msg: "设置参数 $store.state.ver.biliVer",
@@ -10337,11 +10314,11 @@ setIsClient() {
           set(vueIns) {
             log$1.success("成功设置参数 $store.state.ver.biliVer=2333333");
             vueIns.$store.state.ver.biliVer = 2333333;
-          }
-        }
+          },
+        },
       ]);
     },
-setTinyApp() {
+    setTinyApp() {
       VueUtils.waitVuePropToSet("#app", [
         {
           msg: "设置参数 $store.state.common.tinyApp",
@@ -10353,17 +10330,17 @@ setTinyApp() {
             log$1.success("成功设置参数 $store.state.common.tinyApp=true");
             Panel.onceExec("bili-tinyApp-init-css", () => {
               addStyle(
-`
+                `
 							.tiny-app .reply-input,.tiny-app .reply-item .info .name .right,.tiny-app .reply-item .info .toolbar,.tiny-app .sub-reply-input {
 								display: block;
 							}
 						`
               );
             });
-          }
-        }
+          },
+        },
       ]);
-    }
+    },
   };
   const PanelComponents = {
     $data: {
@@ -10373,21 +10350,21 @@ setTinyApp() {
           this.__storeApiFn = new Utils.Dictionary();
         }
         return this.__storeApiFn;
-      }
+      },
     },
-getStorageApi(type) {
+    getStorageApi(type) {
       if (!this.hasStorageApi(type)) {
         return;
       }
       return this.$data.storeApiValue.get(type);
     },
-hasStorageApi(type) {
+    hasStorageApi(type) {
       return this.$data.storeApiValue.has(type);
     },
-setStorageApi(type, storageApiValue) {
+    setStorageApi(type, storageApiValue) {
       this.$data.storeApiValue.set(type, storageApiValue);
     },
-initComponentsStorageApi(type, config, storageApiValue) {
+    initComponentsStorageApi(type, config, storageApiValue) {
       let propsStorageApi;
       if (this.hasStorageApi(type)) {
         propsStorageApi = this.getStorageApi(type);
@@ -10396,11 +10373,22 @@ initComponentsStorageApi(type, config, storageApiValue) {
       }
       this.setComponentsStorageApiProperty(config, propsStorageApi);
     },
-setComponentsStorageApiProperty(config, storageApiValue) {
+    setComponentsStorageApiProperty(config, storageApiValue) {
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
-    }
+    },
   };
-  const UIInput = function(text, key, defaultValue, description, changeCallback, placeholder = "", isNumber, isPassword, afterAddToUListCallBack, valueChangeCallback) {
+  const UIInput = function (
+    text,
+    key,
+    defaultValue,
+    description,
+    changeCallback,
+    placeholder = "",
+    isNumber,
+    isPassword,
+    afterAddToUListCallBack,
+    valueChangeCallback
+  ) {
     let result = {
       text,
       type: "input",
@@ -10424,7 +10412,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
         let storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      placeholder
+      placeholder,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -10434,11 +10422,20 @@ setComponentsStorageApiProperty(config, storageApiValue) {
       },
       set(key2, value) {
         Panel.setValue(key2, value);
-      }
+      },
     });
     return result;
   };
-  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack, disabled, valueChangeCallBack) {
+  const UISwitch = function (
+    text,
+    key,
+    defaultValue,
+    clickCallBack,
+    description,
+    afterAddToUListCallBack,
+    disabled,
+    valueChangeCallBack
+  ) {
     let result = {
       text,
       type: "switch",
@@ -10457,7 +10454,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
         let storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      afterAddToUListCallBack
+      afterAddToUListCallBack,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -10467,11 +10464,20 @@ setComponentsStorageApiProperty(config, storageApiValue) {
       },
       set(key2, value) {
         Panel.setValue(key2, value);
-      }
+      },
     });
     return result;
   };
-  const UITextArea = function(text, key, defaultValue, description, changeCallback, placeholder = "", disabled, valueChangeCallBack) {
+  const UITextArea = function (
+    text,
+    key,
+    defaultValue,
+    description,
+    changeCallback,
+    placeholder = "",
+    disabled,
+    valueChangeCallBack
+  ) {
     let result = {
       text,
       type: "textarea",
@@ -10491,7 +10497,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
       callback(event, value) {
         let storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
-      }
+      },
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -10501,7 +10507,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
       },
       set(key2, value) {
         Panel.setValue(key2, value);
-      }
+      },
     });
     return result;
   };
@@ -10510,40 +10516,37 @@ setComponentsStorageApiProperty(config, storageApiValue) {
     constructor(option) {
       this.option = option;
     }
-async showView() {
+    async showView() {
       let $dialog = __pops.confirm({
         title: {
           text: this.option.title,
-          position: "center"
+          position: "center",
         },
         content: {
-          text: (
-`
+          text: `
                     <form class="rule-form-container" onsubmit="return false">
                         <ul class="rule-form-ulist"></ul>
                         <input type="submit" style="display: none;" />
                     </form>
-                    `
-          ),
-          html: true
+                    `,
+          html: true,
         },
         btn: utils.assign(
           {
             ok: {
               callback: async () => {
                 await submitSaveOption();
-              }
-            }
+              },
+            },
           },
           this.option.btn || {},
           true
         ),
         drag: true,
         mask: {
-          enable: true
+          enable: true,
         },
-        style: (
-`
+        style: `
                 ${__pops.config.cssText.panelCSS}
                 
                 .rule-form-container {
@@ -10596,10 +10599,11 @@ async showView() {
 				}
 
                 ${this.option?.style ?? ""}
-            `
-        ),
-        width: typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
-        height: typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh"
+            `,
+        width:
+          typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
+        height:
+          typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh",
       });
       let $form = $dialog.$shadowRoot.querySelector(".rule-form-container");
       $dialog.$shadowRoot.querySelector("input[type=submit]");
@@ -10625,29 +10629,26 @@ async showView() {
       let $alert = __pops.alert({
         title: {
           text: this.option.title,
-          position: "center"
+          position: "center",
         },
         content: {
-          text: (
-`
+          text: `
                 <div class="filter-container"></div>
-                `
-          )
+                `,
         },
         btn: {
           ok: {
             text: "关闭",
-            type: "default"
-          }
+            type: "default",
+          },
         },
         drag: true,
         mask: {
-          enable: true
+          enable: true,
         },
         width: window.innerWidth > 500 ? "350px" : "80vw",
         height: window.innerHeight > 500 ? "300px" : "70vh",
-        style: (
-`
+        style: `
             .filter-container{
                 height: 100%;
                 display: flex;
@@ -10660,8 +10661,7 @@ async showView() {
                 height: auto;
                 text-align: left;
             }
-            `
-        )
+            `,
       });
       let $filterContainer = $alert.$shadowRoot.querySelector(".filter-container");
       let $fragment = document.createDocumentFragment();
@@ -10669,10 +10669,10 @@ async showView() {
         let $button = domUtils.createElement(
           "button",
           {
-            innerText: filterOption.name
+            innerText: filterOption.name,
           },
           {
-            type: "button"
+            type: "button",
           }
         );
         let execFilterAndCloseDialog = async () => {
@@ -10710,20 +10710,18 @@ async showView() {
     constructor(option) {
       this.option = option;
     }
-async showView(filterCallBack) {
+    async showView(filterCallBack) {
       let $popsConfirm = __pops.confirm({
         title: {
           text: this.option.title,
-          position: "center"
+          position: "center",
         },
         content: {
-          text: (
-`
+          text: `
                     <div class="rule-view-container">
                     </div>
-                    `
-          ),
-          html: true
+                    `,
+          html: true,
         },
         btn: {
           merge: true,
@@ -10735,13 +10733,13 @@ async showView(filterCallBack) {
             text: "添加",
             callback: async (event) => {
               this.showEditView(false, await this.option.getAddData(), $popsConfirm.$shadowRoot);
-            }
+            },
           },
           close: {
             enable: true,
             callback(event) {
               $popsConfirm.close();
-            }
+            },
           },
           cancel: {
             enable: this.option?.bottomControls?.filter?.enable || false,
@@ -10755,15 +10753,13 @@ async showView(filterCallBack) {
                 }
               }
               let getAllRuleElement = () => {
-                return Array.from(
-                  $popsConfirm.$shadowRoot.querySelectorAll(".rule-view-container .rule-item")
-                );
+                return Array.from($popsConfirm.$shadowRoot.querySelectorAll(".rule-view-container .rule-item"));
               };
               let $button = event.target.closest(".pops-confirm-btn").querySelector(".pops-confirm-btn-cancel span");
               if (domUtils.text($button).includes("取消")) {
                 let cancelFilterResult = await this.option?.bottomControls?.filter?.cancelFilterCallback?.({
                   $button,
-                  getAllRuleElement
+                  getAllRuleElement,
                 });
                 if (typeof cancelFilterResult === "boolean" && !cancelFilterResult) {
                   return;
@@ -10784,14 +10780,14 @@ async showView(filterCallBack) {
                     return getAllRuleElement().map(($el) => {
                       return {
                         data: this.parseRuleItemElement($el).data,
-                        $el
+                        $el,
                       };
                     });
-                  }
+                  },
                 });
                 ruleFilterView.showView();
               }
-            }
+            },
           },
           other: {
             enable: this.option?.bottomControls?.clear?.enable || true,
@@ -10801,11 +10797,11 @@ async showView(filterCallBack) {
               let $askDialog = __pops.confirm({
                 title: {
                   text: "提示",
-                  position: "center"
+                  position: "center",
                 },
                 content: {
                   text: "确定清空所有的数据？",
-                  html: false
+                  html: false,
                 },
                 btn: {
                   ok: {
@@ -10825,27 +10821,26 @@ async showView(filterCallBack) {
                       await this.updateDeleteAllBtnText($popsConfirm.$shadowRoot);
                       this.clearContent($popsConfirm.$shadowRoot);
                       $askDialog.close();
-                    }
+                    },
                   },
                   cancel: {
                     text: "取消",
-                    enable: true
-                  }
+                    enable: true,
+                  },
                 },
                 mask: { enable: true },
                 width: "300px",
-                height: "200px"
+                height: "200px",
               });
-            }
-          }
+            },
+          },
         },
         mask: {
-          enable: true
+          enable: true,
         },
         width: window.innerWidth > 500 ? "500px" : "88vw",
         height: window.innerHeight > 500 ? "500px" : "80vh",
-        style: (
-`
+        style: `
             ${__pops.config.cssText.panelCSS}
             
             .rule-item{
@@ -10886,8 +10881,7 @@ async showView(filterCallBack) {
                 height: 16px;
                 cursor: pointer;
             }
-            `
-        )
+            `,
       });
       let allData = await this.option.data();
       let changeButtonText = false;
@@ -10898,7 +10892,8 @@ async showView(filterCallBack) {
         if (typeof filterCallBack === "function") {
           isNotFilterFlag = filterCallBack(item);
         } else if (typeof filterCallBack === "number" && !isNaN(filterCallBack)) {
-          isNotFilterFlag = await this.option.bottomControls?.filter?.option[filterCallBack]?.filterCallBack(item) ?? isNotFilterFlag;
+          isNotFilterFlag =
+            (await this.option.bottomControls?.filter?.option[filterCallBack]?.filterCallBack(item)) ?? isNotFilterFlag;
         }
         if (!isNotFilterFlag) {
           changeButtonText = true;
@@ -10910,7 +10905,7 @@ async showView(filterCallBack) {
         domUtils.text($button, "取消过滤");
       }
     }
-showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
+    showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
       let dialogCloseCallBack = async (isSubmit) => {
         if (isSubmit) {
           if (typeof submitCallBack === "function") {
@@ -10939,29 +10934,30 @@ showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDa
         btn: {
           ok: {
             enable: true,
-            text: isEdit ? "修改" : "添加"
+            text: isEdit ? "修改" : "添加",
           },
           cancel: {
             callback: async (detail, event) => {
               detail.close();
               await dialogCloseCallBack(false);
-            }
+            },
           },
           close: {
             callback: async (detail, event) => {
               detail.close();
               await dialogCloseCallBack(false);
-            }
-          }
+            },
+          },
         },
         onsubmit: async ($form, data2) => {
           let result = await this.option.itemControls.edit.onsubmit($form, isEdit, data2);
           if (result.success) {
             if (isEdit) {
               Qmsg.success("修改成功");
-              $parentShadowRoot && await this.updateRuleItemElement(result.data, $editRuleItemElement, $parentShadowRoot);
+              $parentShadowRoot &&
+                (await this.updateRuleItemElement(result.data, $editRuleItemElement, $parentShadowRoot));
             } else {
-              $parentShadowRoot && await this.appendRuleItemElement($parentShadowRoot, result.data);
+              $parentShadowRoot && (await this.appendRuleItemElement($parentShadowRoot, result.data));
             }
           } else {
             if (isEdit) {
@@ -10972,19 +10968,19 @@ showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDa
         },
         style: this.option.itemControls.edit.style,
         width: this.option.itemControls.edit.width,
-        height: this.option.itemControls.edit.height
+        height: this.option.itemControls.edit.height,
       });
       editView.showView();
     }
-parseViewElement($shadowRoot) {
+    parseViewElement($shadowRoot) {
       let $container = $shadowRoot.querySelector(".rule-view-container");
       let $deleteBtn = $shadowRoot.querySelector(".pops-confirm-btn button.pops-confirm-btn-other");
       return {
-$container,
-$deleteBtn
+        $container,
+        $deleteBtn,
       };
     }
-parseRuleItemElement($ruleElement) {
+    parseRuleItemElement($ruleElement) {
       let $enable = $ruleElement.querySelector(".rule-controls-enable");
       let $enableSwitch = $enable.querySelector(".pops-panel-switch");
       let $enableSwitchInput = $enable.querySelector(".pops-panel-switch__input");
@@ -10992,21 +10988,20 @@ parseRuleItemElement($ruleElement) {
       let $edit = $ruleElement.querySelector(".rule-controls-edit");
       let $delete = $ruleElement.querySelector(".rule-controls-delete");
       return {
-$enable,
-$enableSwitch,
-$enableSwitchInput,
-$enableSwitchCore,
-$edit,
-$delete,
-data: Reflect.get($ruleElement, "data-rule")
+        $enable,
+        $enableSwitch,
+        $enableSwitchInput,
+        $enableSwitchCore,
+        $edit,
+        $delete,
+        data: Reflect.get($ruleElement, "data-rule"),
       };
     }
-async createRuleItemElement(data2, $shadowRoot) {
+    async createRuleItemElement(data2, $shadowRoot) {
       let name = await this.option.getDataItemName(data2);
       let $ruleItem = domUtils.createElement("div", {
         className: "rule-item",
-        innerHTML: (
-`
+        innerHTML: `
 			<div class="rule-name">${name}</div>
 			<div class="rule-controls">
 				<div class="rule-controls-enable">
@@ -11025,12 +11020,12 @@ async createRuleItemElement(data2, $shadowRoot) {
 					${__pops.config.iconSVG.delete}
 				</div>
 			</div>
-			`
-        )
+			`,
       });
       Reflect.set($ruleItem, "data-rule", data2);
       let switchCheckedClassName = "pops-panel-switch-is-checked";
-      const { $enable, $enableSwitch, $enableSwitchCore, $enableSwitchInput, $delete, $edit } = this.parseRuleItemElement($ruleItem);
+      const { $enable, $enableSwitch, $enableSwitchCore, $enableSwitchInput, $delete, $edit } =
+        this.parseRuleItemElement($ruleItem);
       if (this.option.itemControls.enable.enable) {
         domUtils.on($enableSwitchCore, "click", async (event) => {
           let isChecked = false;
@@ -11067,11 +11062,11 @@ async createRuleItemElement(data2, $shadowRoot) {
           let $askDialog = __pops.confirm({
             title: {
               text: "提示",
-              position: "center"
+              position: "center",
             },
             content: {
               text: "确定删除该条数据？",
-              html: false
+              html: false,
             },
             btn: {
               ok: {
@@ -11087,18 +11082,18 @@ async createRuleItemElement(data2, $shadowRoot) {
                   } else {
                     Qmsg.error("删除该数据失败");
                   }
-                }
+                },
               },
               cancel: {
                 text: "取消",
-                enable: true
-              }
+                enable: true,
+              },
             },
             mask: {
-              enable: true
+              enable: true,
             },
             width: "300px",
-            height: "200px"
+            height: "200px",
           });
         });
       } else {
@@ -11106,7 +11101,7 @@ async createRuleItemElement(data2, $shadowRoot) {
       }
       return $ruleItem;
     }
-async appendRuleItemElement($shadowRoot, data2) {
+    async appendRuleItemElement($shadowRoot, data2) {
       let { $container } = this.parseViewElement($shadowRoot);
       let $ruleItem = [];
       let iteratorData = Array.isArray(data2) ? data2 : [data2];
@@ -11119,23 +11114,23 @@ async appendRuleItemElement($shadowRoot, data2) {
       await this.updateDeleteAllBtnText($shadowRoot);
       return $ruleItem;
     }
-async updateRuleContaienrElement($shadowRoot) {
+    async updateRuleContaienrElement($shadowRoot) {
       this.clearContent($shadowRoot);
       const { $container } = this.parseViewElement($shadowRoot);
       let data2 = await this.option.data();
       await this.appendRuleItemElement($shadowRoot, data2);
       await this.updateDeleteAllBtnText($shadowRoot);
     }
-async updateRuleItemElement(data2, $oldRuleItem, $shadowRoot) {
+    async updateRuleItemElement(data2, $oldRuleItem, $shadowRoot) {
       let $newRuleItem = await this.createRuleItemElement(data2, $shadowRoot);
       $oldRuleItem.after($newRuleItem);
       $oldRuleItem.remove();
     }
-clearContent($shadowRoot) {
+    clearContent($shadowRoot) {
       const { $container } = this.parseViewElement($shadowRoot);
       domUtils.html($container, "");
     }
-setDeleteBtnText($shadowRoot, text, isHTML = false) {
+    setDeleteBtnText($shadowRoot, text, isHTML = false) {
       const { $deleteBtn } = this.parseViewElement($shadowRoot);
       if (isHTML) {
         domUtils.html($deleteBtn, text);
@@ -11143,20 +11138,20 @@ setDeleteBtnText($shadowRoot, text, isHTML = false) {
         domUtils.text($deleteBtn, text);
       }
     }
-async updateDeleteAllBtnText($shadowRoot) {
+    async updateDeleteAllBtnText($shadowRoot) {
       let data2 = await this.option.data();
       this.setDeleteBtnText($shadowRoot, `清空所有(${data2.length})`);
     }
   }
   const BilibiliComponentDetectionRule = {
     $data: {
-whiteList: [],
-ruleData: []
+      whiteList: [],
+      ruleData: [],
     },
     $key: {
-      STORAGE_KEY: "bili-componentDetection-rule"
+      STORAGE_KEY: "bili-componentDetection-rule",
     },
-init() {
+    init() {
       this.$data.whiteList = [];
       this.$data.ruleData = [];
       let allData = this.getData();
@@ -11167,7 +11162,7 @@ init() {
         this.$data.ruleData.push(data2);
       });
     },
-showView() {
+    showView() {
       let panelHandlerComponents = __pops.config.PanelHandlerComponents();
       function generateStorageApi(data2, handler) {
         return {
@@ -11176,7 +11171,7 @@ showView() {
           },
           set(key, value) {
             data2[key] = value;
-          }
+          },
         };
       }
       let ruleView = new RuleView({
@@ -11210,7 +11205,7 @@ showView() {
             callback: (data2, enable) => {
               data2.enable = enable;
               this.updateData(data2);
-            }
+            },
           },
           edit: {
             enable: true,
@@ -11232,8 +11227,14 @@ showView() {
                 templateData.data.isShowDisplayName
               );
               Reflect.set(isShowDisplayName_template.props, PROPS_STORAGE_API, generateStorageApi(data2.data));
-              let $isShowDisplayName = panelHandlerComponents.createSectionContainerItem_switch(isShowDisplayName_template);
-              let displayName_template = UIInput("标签名称", "displayName", templateData.data.displayName, "例如：原神");
+              let $isShowDisplayName =
+                panelHandlerComponents.createSectionContainerItem_switch(isShowDisplayName_template);
+              let displayName_template = UIInput(
+                "标签名称",
+                "displayName",
+                templateData.data.displayName,
+                "例如：原神"
+              );
               Reflect.set(displayName_template.props, PROPS_STORAGE_API, generateStorageApi(data2.data));
               let $displayName = panelHandlerComponents.createSectionContainerItem_input(displayName_template);
               let isShowDisplayIcon_template = UISwitch(
@@ -11242,8 +11243,14 @@ showView() {
                 templateData.data.isShowDisplayIcon
               );
               Reflect.set(isShowDisplayIcon_template.props, PROPS_STORAGE_API, generateStorageApi(data2.data));
-              let $isShowDisplayIcon = panelHandlerComponents.createSectionContainerItem_switch(isShowDisplayIcon_template);
-              let displayIcon_template = UIInput("标签图标", "displayIcon", templateData.data.displayIcon, "Url或base64");
+              let $isShowDisplayIcon =
+                panelHandlerComponents.createSectionContainerItem_switch(isShowDisplayIcon_template);
+              let displayIcon_template = UIInput(
+                "标签图标",
+                "displayIcon",
+                templateData.data.displayIcon,
+                "Url或base64"
+              );
               Reflect.set(displayIcon_template.props, PROPS_STORAGE_API, generateStorageApi(data2.data));
               let $displayIcon = panelHandlerComponents.createSectionContainerItem_input(displayIcon_template);
               let keywords_template = UITextArea(
@@ -11267,7 +11274,7 @@ showView() {
                     value = value.split("\n");
                   }
                   data2.data[key] = value;
-                }
+                },
               });
               let $keywords = panelHandlerComponents.createSectionContainerItem_textarea(keywords_template);
               let followings_template = UITextArea("关注的用户", "followings", "", "用户id", void 0, "多个用户id换行");
@@ -11275,16 +11282,22 @@ showView() {
                 get(key, defaultValue) {
                   let value = data2.data[key] ?? defaultValue;
                   if (typeof value === "string") {
-                    return value.split("\n").map((it) => Number(it)).filter((it) => !isNaN(it));
+                    return value
+                      .split("\n")
+                      .map((it) => Number(it))
+                      .filter((it) => !isNaN(it));
                   }
                   return value;
                 },
                 set(key, value) {
                   if (typeof value === "string") {
-                    value = value.split("\n").map((it) => Number(it)).filter((it) => !isNaN(it));
+                    value = value
+                      .split("\n")
+                      .map((it) => Number(it))
+                      .filter((it) => !isNaN(it));
                   }
                   data2.data[key] = value;
-                }
+                },
               });
               let $followings = panelHandlerComponents.createSectionContainerItem_textarea(followings_template);
               let blacklist_template = UITextArea("黑名单", "blacklist", "", "", void 0, "多个用户id换行");
@@ -11292,16 +11305,22 @@ showView() {
                 get(key, defaultValue) {
                   let value = data2.data[key] ?? defaultValue;
                   if (typeof value === "string") {
-                    return value.split("\n").map((it) => Number(it)).filter((it) => !isNaN(it));
+                    return value
+                      .split("\n")
+                      .map((it) => Number(it))
+                      .filter((it) => !isNaN(it));
                   }
                   return value;
                 },
                 set(key, value) {
                   if (typeof value === "string") {
-                    value = value.split("\n").map((it) => Number(it)).filter((it) => !isNaN(it));
+                    value = value
+                      .split("\n")
+                      .map((it) => Number(it))
+                      .filter((it) => !isNaN(it));
                   }
                   data2.data[key] = value;
-                }
+                },
               });
               let $blacklist = panelHandlerComponents.createSectionContainerItem_textarea(blacklist_template);
               $fragment.append(
@@ -11343,32 +11362,31 @@ showView() {
                   Qmsg.error("规则名称不能为空");
                   return {
                     success: false,
-                    data: data2
+                    data: data2,
                   };
                 }
                 if (isEdit) {
                   return {
                     success: this.updateData(data2),
-                    data: data2
+                    data: data2,
                   };
                 } else {
                   return {
                     success: this.addData(data2),
-                    data: data2
+                    data: data2,
                   };
                 }
               } catch (error) {
                 log$1.error(error);
                 return {
                   success: false,
-                  data: data2
+                  data: data2,
                 };
               } finally {
                 this.init();
               }
             },
-            style: (
-`
+            style: `
                     .pops-panel-textarea textarea{
                         height: 150px;
                     }
@@ -11379,20 +11397,19 @@ showView() {
 						color: rgb(108, 108, 108);
 						max-width: 100px;
 					}
-                    `
-            )
+                    `,
           },
           delete: {
             enable: true,
             deleteCallBack: (data2) => {
               return this.deleteData(data2);
-            }
-          }
-        }
+            },
+          },
+        },
       });
       ruleView.showView();
     },
-getTemplateData() {
+    getTemplateData() {
       return {
         uuid: utils.generateUUID(),
         enable: true,
@@ -11404,17 +11421,17 @@ getTemplateData() {
           displayName: "",
           keywords: [],
           blacklist: [],
-          followings: []
-        }
+          followings: [],
+        },
       };
     },
-getData() {
+    getData() {
       return _GM_getValue(this.$key.STORAGE_KEY, []);
     },
-setData(data2) {
+    setData(data2) {
       _GM_setValue(this.$key.STORAGE_KEY, data2);
     },
-addData(data2) {
+    addData(data2) {
       let localData = this.getData();
       let findIndex = localData.findIndex((item) => item.uuid == data2.uuid);
       if (findIndex === -1) {
@@ -11425,7 +11442,7 @@ addData(data2) {
         return false;
       }
     },
-updateData(data2) {
+    updateData(data2) {
       let localData = this.getData();
       let index = localData.findIndex((item) => item.uuid == data2.uuid);
       let updateFlag = false;
@@ -11436,7 +11453,7 @@ updateData(data2) {
       this.setData(localData);
       return updateFlag;
     },
-deleteData(data2) {
+    deleteData(data2) {
       let localData = this.getData();
       let index = localData.findIndex((item) => item.uuid == data2.uuid);
       let deleteFlag = false;
@@ -11447,10 +11464,10 @@ deleteData(data2) {
       this.setData(localData);
       return deleteFlag;
     },
-clearData() {
+    clearData() {
       _GM_deleteValue(this.$key.STORAGE_KEY);
     },
-exportRule(fileName = "rule.json") {
+    exportRule(fileName = "rule.json") {
       let allRule = this.getData();
       let blob = new Blob([JSON.stringify(allRule, null, 4)]);
       let blobUrl = window.URL.createObjectURL(blob);
@@ -11462,25 +11479,22 @@ exportRule(fileName = "rule.json") {
         window.URL.revokeObjectURL(blobUrl);
       }, 1500);
     },
-importRule() {
+    importRule() {
       let $alert = __pops.alert({
         title: {
           text: "请选择导入方式",
-          position: "center"
+          position: "center",
         },
         content: {
-          text: (
-`
+          text: `
                     <div class="import-mode" data-mode="local">本地导入</div>
                     <div class="import-mode" data-mode="network">网络导入</div>
-                `
-          ),
-          html: true
+                `,
+          html: true,
         },
         width: PanelUISize.info.width,
         height: PanelUISize.info.height,
-        style: (
-`
+        style: `
                 .import-mode{
                     display: inline-block;
                     margin: 10px;
@@ -11489,8 +11503,7 @@ importRule() {
                     border-radius: 5px;
                     cursor: pointer;
                 }
-            `
-        )
+            `,
       });
       let $local = $alert.$shadowRoot.querySelector(".import-mode[data-mode='local']");
       let $network = $alert.$shadowRoot.querySelector(".import-mode[data-mode='network']");
@@ -11499,7 +11512,7 @@ importRule() {
         $alert.close();
         let $input = domUtils.createElement("input", {
           type: "file",
-          accept: ".json"
+          accept: ".json",
         });
         domUtils.on($input, ["propertychange", "input"], (event2) => {
           if (!$input.files?.length) {
@@ -11527,12 +11540,12 @@ importRule() {
         __pops.prompt({
           title: {
             text: "网络导入",
-            position: "center"
+            position: "center",
           },
           content: {
             text: "",
             placeholder: "url",
-            focus: true
+            focus: true,
           },
           btn: {
             ok: {
@@ -11555,29 +11568,27 @@ importRule() {
                 this.setData(data2);
                 eventDetails.close();
                 Qmsg.success(`成功导入 ${data2.length}条规则`);
-              }
-            }
+              },
+            },
           },
           width: PanelUISize.info.width,
-          height: "auto"
+          height: "auto",
         });
       });
-    }
+    },
   };
   const BilibiliComponentDetection = {
     $data: {
-searchIcon: (
-`
+      searchIcon: `
             <svg viewBox="0 0 24 24" fill="none">
                 <path d="M15.7955 15.8111L21 21M18 10.5C18 14.6421 14.6421 18 10.5 18C6.35786 18 3 14.6421 3 10.5C3 6.35786 6.35786 3 10.5 3C14.6421 3 18 6.35786 18 10.5Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
             </svg>
-        `
-      )
+        `,
     },
     init() {
       BilibiliComponentDetectionRule.init();
       addStyle(
-`
+        `
             .composition-checkable,
 			.composition-checked{
                 display: inline-flex;
@@ -11661,7 +11672,8 @@ searchIcon: (
         let lockFn = new utils.LockFunction(async () => {
           $$(".reply-item:not([data-is-inject-search-label])").forEach(($replyItem) => {
             $replyItem.setAttribute("data-is-inject-search-label", "");
-            let $floorTime = $replyItem.querySelector(".info .floor-time") || $replyItem.querySelector(".content-warp .user-info");
+            let $floorTime =
+              $replyItem.querySelector(".info .floor-time") || $replyItem.querySelector(".content-warp .user-info");
             let { $container, $compositionNameControl } = this.createSearchButton(() => {
               let $userName = $replyItem.querySelector(".user-name[data-user-id]");
               if (!$userName) {
@@ -11677,20 +11689,19 @@ searchIcon: (
           });
           [
             ...Array.from($$(".reply-item .member-link[data-url]:not([data-is-inject-search-label])")),
-            ...Array.from(
-              $$(".reply-item .jump-link.user[data-user-id]:not([data-is-inject-search-label])")
-            ),
-            ...Array.from($$(".reply-item .sub-user-name[data-user-id]:not([data-is-inject-search-label])"))
+            ...Array.from($$(".reply-item .jump-link.user[data-user-id]:not([data-is-inject-search-label])")),
+            ...Array.from($$(".reply-item .sub-user-name[data-user-id]:not([data-is-inject-search-label])")),
           ].forEach(($memberLink) => {
             $memberLink.setAttribute("data-is-inject-search-label", "");
-            let { $container: $memberContainer, $compositionNameControl: $memberCompositionNameControl } = this.createSearchButton(() => {
-              let spaceUrl = $memberLink.getAttribute("href");
-              let mid = spaceUrl.match(/space.bilibili.com\/([\d]+)/i)?.[1];
-              if (mid == null) {
-                throw new TypeError("获取mid失败");
-              }
-              return mid;
-            });
+            let { $container: $memberContainer, $compositionNameControl: $memberCompositionNameControl } =
+              this.createSearchButton(() => {
+                let spaceUrl = $memberLink.getAttribute("href");
+                let mid = spaceUrl.match(/space.bilibili.com\/([\d]+)/i)?.[1];
+                if (mid == null) {
+                  throw new TypeError("获取mid失败");
+                }
+                return mid;
+              });
             domUtils.after($memberLink, $memberContainer);
           });
           $$(".m-space-info .base:not([data-is-inject-search-label])").forEach(($base) => {
@@ -11713,16 +11724,16 @@ searchIcon: (
         utils.mutationObserver(document, {
           config: {
             subtree: true,
-            childList: true
+            childList: true,
           },
           immediate: true,
           callback: () => {
             lockFn.run();
-          }
+          },
         });
       });
     },
-async queryUserInfo(mid) {
+    async queryUserInfo(mid) {
       let followingPN = 1;
       let allFollowingData = [];
       while (true) {
@@ -11776,14 +11787,14 @@ async queryUserInfo(mid) {
         utils.sleep(250);
       }
       let result = {
-following: [],
-space: []
+        following: [],
+        space: [],
       };
       allFollowingData.forEach((followingData) => {
         result.following.push({
           name: followingData.uname,
           mid: followingData.mid,
-          sign: followingData.sign
+          sign: followingData.sign,
         });
       });
       allSpaceContentData.forEach((spaceData) => {
@@ -11792,30 +11803,32 @@ space: []
             title: spaceData.modules.module_dynamic.major?.archive?.title,
             desc: spaceData.modules.module_dynamic.major?.archive?.desc || spaceData.modules.module_dynamic.desc?.text,
             pub_ts: spaceData.modules.module_author.pub_ts * 1e3,
-            id_str: spaceData.id_str
+            id_str: spaceData.id_str,
           };
           result.space.push({
-            contentInfo
+            contentInfo,
           });
         } else {
           let contentInfo = {
             title: null,
             desc: spaceData.modules.module_dynamic.desc?.text,
             pub_ts: spaceData.modules.module_author.pub_ts * 1e3,
-            id_str: spaceData.id_str
+            id_str: spaceData.id_str,
           };
           let forwardInfo = {
             mid: spaceData.orig.modules.module_author.mid,
             name: spaceData.orig.modules.module_author.name,
-            title: (
-spaceData.orig.modules.module_dynamic?.major?.archive?.title || null
-            ),
-            desc: spaceData.orig.modules.module_dynamic.desc?.text ??
-spaceData.orig.modules.module_dynamic?.major?.archive?.desc,
+            title: spaceData.orig.modules.module_dynamic?.major?.archive?.title || null,
+            desc:
+              spaceData.orig.modules.module_dynamic.desc?.text ??
+              spaceData.orig.modules.module_dynamic?.major?.archive?.desc,
             pub_ts: spaceData.orig.modules.module_author.pub_ts * 1e3,
-            id_str: spaceData.orig.id_str
+            id_str: spaceData.orig.id_str,
           };
-          if (typeof forwardInfo.desc === "string" && Array.isArray(spaceData.orig.modules.module_dynamic?.desc?.rich_text_nodes)) {
+          if (
+            typeof forwardInfo.desc === "string" &&
+            Array.isArray(spaceData.orig.modules.module_dynamic?.desc?.rich_text_nodes)
+          ) {
             spaceData.orig.modules.module_dynamic.desc.rich_text_nodes.forEach((richInfo) => {
               if (richInfo.type === "RICH_TEXT_NODE_TYPE_AT") {
                 forwardInfo.desc = forwardInfo.desc?.replace(richInfo.text, "");
@@ -11824,24 +11837,22 @@ spaceData.orig.modules.module_dynamic?.major?.archive?.desc,
           }
           result.space.push({
             contentInfo,
-            forwardInfo
+            forwardInfo,
           });
         }
       });
       return result;
     },
-createSearchButton(queryMIDFn) {
+    createSearchButton(queryMIDFn) {
       let $compositionCheckable = domUtils.createElement("div", {
         className: "composition-checkable",
-        innerHTML: (
-`
+        innerHTML: `
                 <div class="composition-badge-control">
                     <span class="composition-name-control">
                         ${this.$data.searchIcon}
                     </span>
                 </div>
-            `
-        )
+            `,
       });
       let $compositionNameControl = $compositionCheckable.querySelector(".composition-name-control");
       domUtils.on($compositionCheckable, "click", async (event) => {
@@ -11866,7 +11877,7 @@ createSearchButton(queryMIDFn) {
         } catch (error) {
           log$1.error(error);
           Qmsg.error(error.message, {
-            timeout: 3500
+            timeout: 3500,
           });
           domUtils.html($compositionNameControl, "重试");
         } finally {
@@ -11875,24 +11886,22 @@ createSearchButton(queryMIDFn) {
       });
       return {
         $container: $compositionCheckable,
-        $compositionNameControl
+        $compositionNameControl,
       };
     },
-createLabel(data2) {
+    createLabel(data2) {
       let $label = domUtils.createElement("div", {
         className: "composition-checked",
-        innerHTML: (
-`
+        innerHTML: `
 				<div class="composition-badge">
 				</div>
-			`
-        )
+			`,
       });
       let $badge = $label.querySelector(".composition-badge");
       if (data2.rule.data.isShowDisplayName) {
         let $compositionName = domUtils.createElement("span", {
           className: "composition-name",
-          innerHTML: data2.rule.data.displayName
+          innerHTML: data2.rule.data.displayName,
         });
         domUtils.append($badge, $compositionName);
       }
@@ -11903,17 +11912,17 @@ createLabel(data2) {
             "img",
             {
               className: "composition-icon",
-              src: data2.rule.data.displayIcon
+              src: data2.rule.data.displayIcon,
             },
             {
               referrer: "no-referrer",
-              referrerPolicy: "no-referrer"
+              referrerPolicy: "no-referrer",
             }
           );
         } else {
           $compositionIcon = domUtils.createElement("span", {
             className: "composition-icon",
-            innerHTML: data2.rule.data.displayIcon
+            innerHTML: data2.rule.data.displayIcon,
           });
         }
         domUtils.append($badge, $compositionIcon);
@@ -11924,66 +11933,62 @@ createLabel(data2) {
           title: {
             text: "识别信息",
             html: false,
-            position: "center"
+            position: "center",
           },
           content: {
-            text: (
-`
-						${data2.matchedInfoList.map((it) => {
-              let $el = domUtils.createElement("div", {
-                className: "reason-container",
-                innerHTML: (
-`
+            text: `
+						${data2.matchedInfoList
+              .map((it) => {
+                let $el = domUtils.createElement("div", {
+                  className: "reason-container",
+                  innerHTML: `
 										<div class="reason-text"><span>原因：</span>${it.reason}</div>
-										<div class="reason-text"><span>匹配：</span>${typeof it.reasonLink === "string" ? (
-`
+										<div class="reason-text"><span>匹配：</span>${
+                      typeof it.reasonLink === "string"
+                        ? `
 											<a href="${it.reasonLink}" target="_blank">${it.reasonText}</a>
 										`
-                  ) : it.reasonText}</div>
-									`
-                )
-              });
-              if (typeof it.reasonTime === "number") {
-                let $reasonTime = domUtils.createElement("div", {
-                  className: "reason-text",
-                  innerHTML: (
-`
-										<span>时间：</span>${utils.formatTime(it.reasonTime)}
-										`
-                  )
+                        : it.reasonText
+                    }</div>
+									`,
                 });
-                domUtils.append($el, $reasonTime);
-              }
-              return $el.outerHTML;
-            }).join("\n")}
-					`
-            ),
-            html: true
+                if (typeof it.reasonTime === "number") {
+                  let $reasonTime = domUtils.createElement("div", {
+                    className: "reason-text",
+                    innerHTML: `
+										<span>时间：</span>${utils.formatTime(it.reasonTime)}
+										`,
+                  });
+                  domUtils.append($el, $reasonTime);
+                }
+                return $el.outerHTML;
+              })
+              .join("\n")}
+					`,
+            html: true,
           },
           btn: {
-            ok: { enable: false }
+            ok: { enable: false },
           },
           mask: {
             enable: true,
             clickEvent: {
-              toClose: true
-            }
+              toClose: true,
+            },
           },
           width: PanelUISize.setting.width,
           height: PanelUISize.setting.height,
-          style: (
-`
+          style: `
 					.reason-container{
 						color: #7367F0;
 						margin: 10px 10px;
 					}
-				`
-          )
+				`,
         });
       });
       return $label;
     },
-clearLabel($ele) {
+    clearLabel($ele) {
       while (true) {
         let $prev = domUtils.prev($ele);
         if (!$prev) {
@@ -11996,7 +12001,7 @@ clearLabel($ele) {
         }
       }
     },
-handleShowLabel(mid, data2, $searchContainer) {
+    handleShowLabel(mid, data2, $searchContainer) {
       if (BilibiliComponentDetectionRule.$data.ruleData.length === 0) {
         Qmsg.warning("未配置规则，请在设置中进行添加");
         return;
@@ -12013,7 +12018,7 @@ handleShowLabel(mid, data2, $searchContainer) {
         } else {
           matchedAllRule.push({
             rule,
-            matchedInfoList: [matchedInfo]
+            matchedInfoList: [matchedInfo],
           });
         }
       };
@@ -12023,7 +12028,7 @@ handleShowLabel(mid, data2, $searchContainer) {
             reason: "黑名单用户",
             reasonText: mid,
             reasonLink: BilibiliUrl.getUserSpaceUrl(mid),
-            reasonTime: null
+            reasonTime: null,
           });
           return;
         }
@@ -12044,7 +12049,7 @@ handleShowLabel(mid, data2, $searchContainer) {
               reason,
               reasonText,
               reasonLink: BilibiliUrl.getUserSpaceUrl(reasonText),
-              reasonTime: null
+              reasonTime: null,
             });
           }
         }
@@ -12059,15 +12064,24 @@ handleShowLabel(mid, data2, $searchContainer) {
               if (spaceData.forwardInfo == null) {
                 if (typeof spaceData.contentInfo.desc === "string" && spaceData.contentInfo.desc.match(keyword)) {
                   reason = "投稿视频简介";
-                } else if (typeof spaceData.contentInfo.title === "string" && spaceData.contentInfo.title.match(keyword)) {
+                } else if (
+                  typeof spaceData.contentInfo.title === "string" &&
+                  spaceData.contentInfo.title.match(keyword)
+                ) {
                   reason = "投稿视频标题";
                 }
               } else {
                 if (typeof spaceData.contentInfo.desc === "string" && spaceData.contentInfo.desc.match(keyword)) {
                   reason = "空间动态转发";
-                } else if (typeof spaceData.forwardInfo?.title === "string" && spaceData.forwardInfo.title.match(keyword)) {
+                } else if (
+                  typeof spaceData.forwardInfo?.title === "string" &&
+                  spaceData.forwardInfo.title.match(keyword)
+                ) {
                   reason = "空间动态视频标题";
-                } else if (typeof spaceData.forwardInfo?.desc === "string" && spaceData.forwardInfo.desc.match(keyword)) {
+                } else if (
+                  typeof spaceData.forwardInfo?.desc === "string" &&
+                  spaceData.forwardInfo.desc.match(keyword)
+                ) {
                   reason = "空间动态视频简介";
                 }
               }
@@ -12076,7 +12090,7 @@ handleShowLabel(mid, data2, $searchContainer) {
                   reason,
                   reasonText,
                   reasonLink,
-                  reasonTime
+                  reasonTime,
                 });
               }
             }
@@ -12094,23 +12108,26 @@ handleShowLabel(mid, data2, $searchContainer) {
         let $label = this.createLabel(it);
         domUtils.before($searchContainer, $label);
       });
-    }
+    },
   };
   const BilibiliPlayListPlayer = {
     $flag: {
-      isWatchVideoChange: false
+      isWatchVideoChange: false,
     },
     $data: {
-      art: null
+      art: null,
     },
-    init() {
-    },
-updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
+    init() {},
+    updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
       const that = this;
       VueUtils.waitVuePropToSet(BilibiliData.className.playlist + " .playlist-player", {
         msg: "等待覆盖playlist播放器",
         check(vueInstance) {
-          return typeof vueInstance?.aid === "number" && typeof vueInstance?.cid === "number" && typeof vueInstance?.bvid === "string";
+          return (
+            typeof vueInstance?.aid === "number" &&
+            typeof vueInstance?.cid === "number" &&
+            typeof vueInstance?.bvid === "string"
+          );
         },
         async set(vueInstance) {
           $(".playlist-player .player-container")?.remove();
@@ -12126,7 +12143,7 @@ updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
               bvid,
               cid,
               pic,
-              title
+              title,
             };
           }
           const artPlayerOption = await GenerateArtPlayerOption$1(videoInfo);
@@ -12137,11 +12154,9 @@ updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
           if (!$artPlayer) {
             const $artPlayerContainer = domUtils.createElement("div", {
               className: "artplayer-container",
-              innerHTML: (
-`
+              innerHTML: `
 								<div id="artplayer"></div>
-							`
-              )
+							`,
             });
             $artPlayer = $artPlayerContainer.querySelector("#artplayer");
             domUtils.append($player, $artPlayerContainer);
@@ -12199,7 +12214,7 @@ updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
           } else {
             await BilibiliVideoArtPlayer.update(that.$data.art, artPlayerOption);
           }
-        }
+        },
       });
       VueUtils.waitVuePropToSet(BilibiliData.className.playlist + " .playlist-player", {
         msg: "等待监听playlist播放列表改变",
@@ -12214,20 +12229,20 @@ updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
               that.updateArtPlayerVideoInfo();
             });
           }
-        }
+        },
       });
-    }
+    },
   };
   const BilibiliPlayList = {
     init() {
       this.coverVideoPlayer();
     },
-coverVideoPlayer() {
+    coverVideoPlayer() {
       if (document.querySelector("#artplayer")) {
         log$1.warn("已存在播放器，更新播放信息");
       } else {
         addStyle(
-`
+          `
 			#app .playlist .playlist-player .player-container{
 				display: none !important;
 			}
@@ -12240,26 +12255,26 @@ coverVideoPlayer() {
         );
       }
       BilibiliPlayListPlayer.updateArtPlayerVideoInfo();
-    }
+    },
   };
   const BilibiliPlayerToast = {
     $flag: {
-      isInitCSS: false
+      isInitCSS: false,
     },
     $data: {
-originToast: "mplayer-toast",
-showClassName: "mplayer-show",
-prefix: "mplayer-toast-gm"
+      originToast: "mplayer-toast",
+      showClassName: "mplayer-show",
+      prefix: "mplayer-toast-gm",
     },
     $el: {
       get $mplayer() {
         return document.querySelector(".mplayer");
-      }
+      },
     },
-toast(config) {
+    toast(config) {
       if (typeof config === "string") {
         config = {
-          text: config
+          text: config,
         };
       }
       this.initCSS();
@@ -12269,23 +12284,21 @@ toast(config) {
       }
       this.mutationMPlayerOriginToast($parent);
       let $toast = domUtils.createElement("div", {
-        "data-from": "gm"
+        "data-from": "gm",
       });
       domUtils.addClass($toast, this.$data.prefix);
       domUtils.addClass($toast, this.$data.showClassName);
       if (config.showCloseBtn) {
         let $closeBtn = domUtils.createElement("div", {
           className: this.$data.prefix + "-close",
-          innerHTML: (
-`
+          innerHTML: `
                     <span class="bp-svgicon">
                         <svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
                             <path d="M4.47 4.47a.75.75 0 011.06 0l5.541 5.54 5.54-5.54a.75.75 0 011.061 1.06l-5.54 5.541 5.54 5.54a.75.75 0 01.073.977l-.073.084a.75.75 0 01-1.06 0l-5.541-5.54-5.54 5.54a.75.75 0 01-1.061-1.06l5.54-5.541-5.54-5.54a.75.75 0 01-.073-.977z" fill="#FEFEFE" fill-rule="evenodd">
                             </path>
                         </svg>
                     </span>
-                `
-          )
+                `,
         });
         $toast.appendChild($closeBtn);
         domUtils.on($closeBtn, "click", (event) => {
@@ -12295,20 +12308,20 @@ toast(config) {
       }
       let $text = domUtils.createElement("span", {
         className: this.$data.prefix + "-text",
-        innerText: config.text
+        innerText: config.text,
       });
       $toast.appendChild($text);
       if (typeof config.timeText === "string" && config.timeText.trim() != "") {
         let $time = domUtils.createElement("span", {
           className: this.$data.prefix + "-time",
-          innerText: config.timeText
+          innerText: config.timeText,
         });
         $toast.appendChild($time);
       }
       if (typeof config.jumpText === "string" && config.jumpText.trim() != "") {
         let $jump = domUtils.createElement("span", {
           className: this.$data.prefix + "-jump",
-          innerText: config.jumpText
+          innerText: config.jumpText,
         });
         $toast.appendChild($jump);
         domUtils.on($jump, "click", (event) => {
@@ -12345,16 +12358,16 @@ toast(config) {
         $toast,
         close: () => {
           this.closeToast($toast);
-        }
+        },
       };
     },
-initCSS() {
+    initCSS() {
       if (this.$flag.isInitCSS) {
         return;
       }
       this.$flag.isInitCSS = true;
       addStyle(
-`
+        `
 		.${this.$data.prefix}.mplayer-show {
 			opacity: 1;
 			visibility: visible;
@@ -12404,7 +12417,7 @@ initCSS() {
 		`
       );
     },
-mutationMPlayerOriginToast($parent) {
+    mutationMPlayerOriginToast($parent) {
       let $mplayer = this.$el.$mplayer;
       if (!$mplayer) {
         return;
@@ -12417,20 +12430,18 @@ mutationMPlayerOriginToast($parent) {
       utils.mutationObserver($mplayer, {
         config: {
           subtree: true,
-          childList: true
+          childList: true,
         },
         immediate: true,
         callback: () => {
           this.updatePageToastBottom();
-        }
+        },
       });
     },
-updatePageToastBottom() {
+    updatePageToastBottom() {
       let pageToastList = Array.from(document.querySelectorAll(`.${this.$data.prefix}`)).concat(
         Array.from(
-          document.querySelectorAll(
-            ".".concat(this.$data.originToast).concat(".").concat(this.$data.showClassName)
-          )
+          document.querySelectorAll(".".concat(this.$data.originToast).concat(".").concat(this.$data.showClassName))
         )
       );
       if (pageToastList.length) {
@@ -12443,19 +12454,19 @@ updatePageToastBottom() {
         });
       }
     },
-closeToast($ele) {
+    closeToast($ele) {
       $ele.classList.remove(this.$data.showClassName);
     },
-getTransitionendEventNameList() {
+    getTransitionendEventNameList() {
       return ["webkitTransitionEnd", "mozTransitionEnd", "MSTransitionEnd", "otransitionend", "transitionend"];
     },
-setTransitionendEvent($toast) {
+    setTransitionendEvent($toast) {
       let that = this;
       let animationEndNameList = this.getTransitionendEventNameList();
       domUtils.on(
         $toast,
         animationEndNameList,
-        function(event) {
+        function (event) {
           let dataTransition = $toast.getAttribute("data-transition");
           if (!$toast.classList.contains(that.$data.showClassName)) {
             $toast.remove();
@@ -12467,10 +12478,10 @@ setTransitionendEvent($toast) {
           }
         },
         {
-          capture: true
+          capture: true,
         }
       );
-    }
+    },
   };
   let _ajaxHooker_ = null;
   const XhrHook = {
@@ -12480,13 +12491,13 @@ setTransitionendEvent($toast) {
         _ajaxHooker_ = utils.ajaxHooker();
       }
       return _ajaxHooker_;
-    }
+    },
   };
   const BilibiliNetworkHook = {
     $flag: {
       is_hook_video_playurl: false,
       is_hook_bangumi_html5: false,
-      is_hook_live_playurl: false
+      is_hook_live_playurl: false,
     },
     init() {
       if (BilibiliRouter.isLive()) {
@@ -12495,7 +12506,7 @@ setTransitionendEvent($toast) {
         });
       }
     },
-hook_video_playurl() {
+    hook_video_playurl() {
       if (this.$flag.is_hook_video_playurl) {
         return;
       }
@@ -12535,7 +12546,7 @@ hook_video_playurl() {
         }
       });
     },
-hook_bangumi_html5() {
+    hook_bangumi_html5() {
       if (this.$flag.is_hook_bangumi_html5) {
         return;
       }
@@ -12571,7 +12582,7 @@ hook_bangumi_html5() {
         }
       });
     },
-hook_live_playurl() {
+    hook_live_playurl() {
       if (this.$flag.is_hook_live_playurl) {
         return;
       }
@@ -12621,13 +12632,11 @@ hook_live_playurl() {
               log$1.error("直播请求信息中返回的steam不是数组", data2);
             }
           };
-        } else if (
-playUrlInst.hostname.endsWith(".bilivideo.com")
-        ) {
+        } else if (playUrlInst.hostname.endsWith(".bilivideo.com")) {
           request.url = BilibiliCDNProxy.replaceLiveVideoCDN(url);
         }
       });
-    }
+    },
   };
   const Bilibili = {
     init() {
@@ -12636,7 +12645,7 @@ playUrlInst.hostname.endsWith(".bilivideo.com")
       BilibiliVueProp.init();
       Panel.execMenuOnce("bili-allowCopy", () => {
         return addStyle(
-`
+          `
 				.v-drawer{
 					-webkit-user-select: unset !important;
 					-moz-user-select: unset !important;
@@ -12708,10 +12717,9 @@ playUrlInst.hostname.endsWith(".bilivideo.com")
       } else {
         log$1.error("该Router暂未适配，可能是首页之类：" + window.location.href);
       }
-      domUtils.ready(() => {
-      });
+      domUtils.ready(() => {});
     },
-listenRouterChange() {
+    listenRouterChange() {
       VueUtils.waitVuePropToSet("#app", {
         msg: "监听路由变化",
         check: (vueInstance) => {
@@ -12719,54 +12727,53 @@ listenRouterChange() {
         },
         set: (vueInstance) => {
           log$1.success("成功设置监听路由变化");
-          vueInstance.$router.beforeHooks.splice(
-            0,
-            0,
-            (to, from, next) => {
-              log$1.info("路由变化 => 更新前", {
-                to,
-                from
-              });
-              if (to["hash"] === "#/seeCommentReply" || from["hash"] === "#/seeCommentReply") {
-                log$1.info("该路由变化判定为#/seeCommentReply");
-                next();
+          vueInstance.$router.beforeHooks.splice(0, 0, (to, from, next) => {
+            log$1.info("路由变化 => 更新前", {
+              to,
+              from,
+            });
+            if (to["hash"] === "#/seeCommentReply" || from["hash"] === "#/seeCommentReply") {
+              log$1.info("该路由变化判定为#/seeCommentReply");
+              next();
+              return;
+            }
+            if (Panel.getValue("bili-repairVueRouter404")) {
+              if (to.name === "space") {
+                log$1.info(`修复空间跳转404`);
+                window.location.href = to.fullPath;
                 return;
               }
-              if (Panel.getValue("bili-repairVueRouter404")) {
-                if (to.name === "space") {
-                  log$1.info(`修复空间跳转404`);
-                  window.location.href = to.fullPath;
-                  return;
-                }
-              }
-              if (to.fullPath.startsWith("/video")) {
-                if (from.fullPath.startsWith("/video") && Panel.getValue("bili-video-forceThisPageToRefreshAndRedirect")) {
-                  log$1.info(`强制本页刷新`);
-                  window.location.href = to.fullPath;
-                  return;
-                } else if (BilibiliRouter.isHead() && Panel.getValue("bili-head-openVideoInNewTab")) {
-                  log$1.info(`当前是首页，新标签页打开`);
-                  window.open(to.fullPath, "_blank");
-                  return;
-                }
-              } else if (to.fullPath.startsWith("/bangumi")) {
-                if (from.fullPath.startsWith("/bangumi")) {
-                  log$1.info(`番剧 => 番剧`);
-                  window.location.href = to.fullPath;
-                  return;
-                } else if (BilibiliRouter.isHead() && Panel.getValue("bili-head-openVideoInNewTab")) {
-                  log$1.info(`首页 => 番剧`);
-                  window.open(to.fullPath, "_blank");
-                  return;
-                }
-              }
-              next();
             }
-          );
+            if (to.fullPath.startsWith("/video")) {
+              if (
+                from.fullPath.startsWith("/video") &&
+                Panel.getValue("bili-video-forceThisPageToRefreshAndRedirect")
+              ) {
+                log$1.info(`强制本页刷新`);
+                window.location.href = to.fullPath;
+                return;
+              } else if (BilibiliRouter.isHead() && Panel.getValue("bili-head-openVideoInNewTab")) {
+                log$1.info(`当前是首页，新标签页打开`);
+                window.open(to.fullPath, "_blank");
+                return;
+              }
+            } else if (to.fullPath.startsWith("/bangumi")) {
+              if (from.fullPath.startsWith("/bangumi")) {
+                log$1.info(`番剧 => 番剧`);
+                window.location.href = to.fullPath;
+                return;
+              } else if (BilibiliRouter.isHead() && Panel.getValue("bili-head-openVideoInNewTab")) {
+                log$1.info(`首页 => 番剧`);
+                window.open(to.fullPath, "_blank");
+                return;
+              }
+            }
+            next();
+          });
           vueInstance.$router.afterHooks.splice(0, 0, (to, from) => {
             log$1.info("路由变化 => 更新后", {
               to,
-              from
+              from,
             });
             if (to["hash"] === "#/seeCommentReply" || from["hash"] === "#/seeCommentReply") {
               log$1.info("该路由变化判定为#/seeCommentReply，不重载");
@@ -12776,11 +12783,11 @@ listenRouterChange() {
               Bilibili.init();
             });
           });
-        }
+        },
       });
-    }
+    },
   };
-  const UISelect = function(text, key, defaultValue, data2, selectCallBack, description, valueChangeCallBack) {
+  const UISelect = function (text, key, defaultValue, data2, selectCallBack, description, valueChangeCallBack) {
     let selectData = [];
     if (typeof data2 === "function") {
       selectData = data2();
@@ -12809,7 +12816,7 @@ listenRouterChange() {
         let storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      data: selectData
+      data: selectData,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -12819,11 +12826,22 @@ listenRouterChange() {
       },
       set(key2, value) {
         Panel.setValue(key2, value);
-      }
+      },
     });
     return result;
   };
-  const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack, disable) {
+  const UIButton = function (
+    text,
+    description,
+    buttonText,
+    buttonIcon,
+    buttonIsRightIcon,
+    buttonIconIsLoading,
+    buttonType,
+    clickCallBack,
+    afterAddToUListCallBack,
+    disable
+  ) {
     let result = {
       text,
       type: "button",
@@ -12840,7 +12858,7 @@ listenRouterChange() {
           clickCallBack(event);
         }
       },
-      afterAddToUListCallBack
+      afterAddToUListCallBack,
     };
     Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
       result.disable = Boolean(disable);
@@ -12884,14 +12902,10 @@ listenRouterChange() {
                     void 0,
                     "通过开启【覆盖点击事件】相关的设置，通过新标签页打开链接"
                   ),
-                  UISwitch("允许复制", "bili-allowCopy", true, void 0, "一般用于处理楼层的回复弹窗内无法选中复制问题")
-
-
-
-
-]
-              }
-            ]
+                  UISwitch("允许复制", "bili-allowCopy", true, void 0, "一般用于处理楼层的回复弹窗内无法选中复制问题"),
+                ],
+              },
+            ],
           },
           {
             text: "变量设置",
@@ -12919,18 +12933,12 @@ listenRouterChange() {
                       "$store.state.opus.isClient=true",
                       "$store.state.playlist.isClient=true",
                       "$store.state.ver.bili=true",
-                      "$store.state.ver.biliVer=2333"
+                      "$store.state.ver.biliVer=2333",
                     ].join("<br>")
-                  )
-
-
-
-
-
-
-]
-              }
-            ]
+                  ),
+                ],
+              },
+            ],
           },
           {
             text: "劫持/拦截",
@@ -12967,10 +12975,10 @@ listenRouterChange() {
                     true,
                     void 0,
                     "阻止自动调用App"
-                  )
-                ]
-              }
-            ]
+                  ),
+                ],
+              },
+            ],
           },
           {
             type: "deepMenu",
@@ -12983,8 +12991,8 @@ listenRouterChange() {
                   UISwitch("启用", "bili-componentDetection", true, void 0, "启用后可检测用户的成分信息"),
                   UIButton("自定义规则", "检测用户成分的规则", "管理", void 0, false, false, "primary", () => {
                     BilibiliComponentDetectionRule.showView();
-                  })
-                ]
+                  }),
+                ],
               },
               {
                 type: "forms",
@@ -12995,12 +13003,12 @@ listenRouterChange() {
                   }),
                   UIButton("数据导出", "导出自定义规则数据", "导出", void 0, false, false, "primary", () => {
                     BilibiliComponentDetectionRule.exportRule("成分检测.json");
-                  })
-                ]
-              }
-            ]
-          }
-        ]
+                  }),
+                ],
+              },
+            ],
+          },
+        ],
       },
       {
         text: "",
@@ -13022,16 +13030,16 @@ listenRouterChange() {
                     (event, value, valueAsNumber) => {
                       BilibiliQrCodeLogin.setAccessTokenInfo({
                         access_token: value,
-                        expireAt: BilibiliQrCodeLogin.generateExpireAt()
+                        expireAt: BilibiliQrCodeLogin.generateExpireAt(),
                       });
                     },
                     void 0,
                     false,
                     true
-                  )
-                ]
-              }
-            ]
+                  ),
+                ],
+              },
+            ],
           },
           {
             text: "Toast配置",
@@ -13048,40 +13056,40 @@ listenRouterChange() {
                     [
                       {
                         value: "topleft",
-                        text: "左上角"
+                        text: "左上角",
                       },
                       {
                         value: "top",
-                        text: "顶部"
+                        text: "顶部",
                       },
                       {
                         value: "topright",
-                        text: "右上角"
+                        text: "右上角",
                       },
                       {
                         value: "left",
-                        text: "左边"
+                        text: "左边",
                       },
                       {
                         value: "center",
-                        text: "中间"
+                        text: "中间",
                       },
                       {
                         value: "right",
-                        text: "右边"
+                        text: "右边",
                       },
                       {
                         value: "bottomleft",
-                        text: "左下角"
+                        text: "左下角",
                       },
                       {
                         value: "bottom",
-                        text: "底部"
+                        text: "底部",
                       },
                       {
                         value: "bottomright",
-                        text: "右下角"
-                      }
+                        text: "右下角",
+                      },
                     ],
                     (event, isSelectValue, isSelectText) => {
                       log$1.info("设置当前Qmsg弹出位置" + isSelectText);
@@ -13095,32 +13103,32 @@ listenRouterChange() {
                     [
                       {
                         value: 1,
-                        text: "1"
+                        text: "1",
                       },
                       {
                         value: 2,
-                        text: "2"
+                        text: "2",
                       },
                       {
                         value: 3,
-                        text: "3"
+                        text: "3",
                       },
                       {
                         value: 4,
-                        text: "4"
+                        text: "4",
                       },
                       {
                         value: 5,
-                        text: "5"
-                      }
+                        text: "5",
+                      },
                     ],
                     void 0,
                     "限制Toast显示的数量"
                   ),
-                  UISwitch("逆序弹出", "qmsg-config-showreverse", false, void 0, "修改Toast弹出的顺序")
-                ]
-              }
-            ]
+                  UISwitch("逆序弹出", "qmsg-config-showreverse", false, void 0, "修改Toast弹出的顺序"),
+                ],
+              },
+            ],
           },
           {
             text: "Cookie配置",
@@ -13145,14 +13153,14 @@ listenRouterChange() {
                     void 0,
                     void 0,
                     "Cookie格式：xxx=xxxx;xxx=xxxx"
-                  )
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
+                  ),
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
   };
   const SettingUIHead = {
     id: "panel-head",
@@ -13179,10 +13187,10 @@ listenRouterChange() {
                     void 0,
                     "给视频添加UP主名，当前视频总时长信息"
                   ),
-                  UISwitch("新标签页打开", "bili-head-openVideoInNewTab", false, void 0, "包括视频、番剧")
-                ]
-              }
-            ]
+                  UISwitch("新标签页打开", "bili-head-openVideoInNewTab", false, void 0, "包括视频、番剧"),
+                ],
+              },
+            ],
           },
           {
             text: "推荐视频",
@@ -13205,16 +13213,27 @@ listenRouterChange() {
                     true,
                     void 0,
                     "加载App端推送的【图文】卡片"
-                  )
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
+                  ),
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
   };
-  const UISlider = function(text, key, defaultValue, min, max, changeCallback, getToolTipContent, description, step, valueChangeCallBack) {
+  const UISlider = function (
+    text,
+    key,
+    defaultValue,
+    min,
+    max,
+    changeCallback,
+    getToolTipContent,
+    description,
+    step,
+    valueChangeCallBack
+  ) {
     let result = {
       text,
       type: "slider",
@@ -13238,7 +13257,7 @@ listenRouterChange() {
       },
       min,
       max,
-      step
+      step,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -13248,7 +13267,7 @@ listenRouterChange() {
       },
       set(key2, value) {
         Panel.setValue(key2, value);
-      }
+      },
     });
     return result;
   };
@@ -13271,27 +13290,7 @@ listenRouterChange() {
                 text: "",
                 type: "forms",
                 forms: [
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-UISwitch(
+                  UISwitch(
                     "强制本页刷新跳转",
                     "bili-video-forceThisPageToRefreshAndRedirect",
                     false,
@@ -13299,41 +13298,17 @@ UISwitch(
                     "用于处理内存泄露问题"
                   ),
 
-
-
-
-
-
-UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用于查看当前视频的评论"),
+                  UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用于查看当前视频的评论"),
                   UISwitch(
                     "新增简介模块",
                     "bili-video-addDescModule",
                     true,
                     void 0,
                     "用于查看当前视频的播放量、简介、一键三连等信息"
-                  )
-                ]
-              }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-]
+                  ),
+                ],
+              },
+            ],
           },
           {
             text: "ArtPlayer播放器",
@@ -13351,19 +13326,19 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
                     [
                       {
                         text: "mp4",
-                        value: "mp4"
+                        value: "mp4",
                       },
                       {
                         text: "dash",
-                        value: "dash"
-                      }
+                        value: "dash",
+                      },
                     ],
                     void 0,
                     "当选择dash时会有画质更高的选项"
                   ),
                   UISwitch("自动播放视频", "bili-video-playerAutoPlayVideo", false, void 0, ""),
-                  UISwitch("自动进入全屏", "bili-video-playerAutoPlayVideoFullScreen", false, void 0, "")
-                ]
+                  UISwitch("自动进入全屏", "bili-video-playerAutoPlayVideoFullScreen", false, void 0, ""),
+                ],
               },
               {
                 text: "控件设置",
@@ -13381,8 +13356,8 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
                     },
                     "可用于全屏横屏适配屏幕",
                     1
-                  )
-                ]
+                  ),
+                ],
               },
               {
                 text: "插件",
@@ -13396,7 +13371,13 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
                     void 0,
                     "视频类型为dash时，该插件可支持播放音频"
                   ),
-                  UISwitch("选集", "artplayer-plugin-video-epChoose-enable", true, void 0, "当视频播放完毕后会自动连播"),
+                  UISwitch(
+                    "选集",
+                    "artplayer-plugin-video-epChoose-enable",
+                    true,
+                    void 0,
+                    "当视频播放完毕后会自动连播"
+                  ),
                   UISwitch(
                     "CC字幕",
                     "artplayer-plugin-video-cc-subtitle-enable",
@@ -13417,8 +13398,8 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
                     true,
                     void 0,
                     "用于显示当前视频信息的弹窗"
-                  )
-                ]
+                  ),
+                ],
               },
               {
                 text: "加速CDN设置（dash）",
@@ -13431,7 +13412,7 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
                     BilibiliCDNServerList.map((item) => {
                       return {
                         text: item.name,
-                        value: item.host
+                        value: item.host,
                       };
                     }),
                     void 0,
@@ -13452,7 +13433,7 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
                     BilibiliCDNServerList.map((item) => {
                       return {
                         text: item.name,
-                        value: item.host
+                        value: item.host,
                       };
                     }),
                     void 0,
@@ -13465,10 +13446,10 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
                     "自定义的服务器优先级大于上面选择的服务器",
                     void 0,
                     "请输入upos服务器的域名"
-                  )
-                ]
-              }
-            ]
+                  ),
+                ],
+              },
+            ],
           },
           {
             text: "覆盖点击事件",
@@ -13492,10 +13473,10 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
                     true,
                     void 0,
                     "点击下面的选集列表内的视频可正确跳转至该视频"
-                  )
-                ]
-              }
-            ]
+                  ),
+                ],
+              },
+            ],
           },
           {
             text: "劫持/拦截",
@@ -13504,13 +13485,13 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
               {
                 text: "",
                 type: "forms",
-                forms: [UISwitch("阻止调用App", "bili-video-hook-callApp", true, void 0, "处理函数: PlayerAgent")]
-              }
-            ]
-          }
-        ]
-      }
-    ]
+                forms: [UISwitch("阻止调用App", "bili-video-hook-callApp", true, void 0, "处理函数: PlayerAgent")],
+              },
+            ],
+          },
+        ],
+      },
+    ],
   };
   const SettingUIOpus = {
     id: "panel-opus",
@@ -13537,10 +13518,10 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
                     true,
                     void 0,
                     "屏蔽【展开阅读全文】按钮并自动处理全文高度"
-                  )
-                ]
-              }
-            ]
+                  ),
+                ],
+              },
+            ],
           },
           {
             text: "变量设置",
@@ -13552,10 +13533,10 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
                 forms: [
                   UISwitch("autoOpenApp", "bili-opus-variable-autoOpenApp", true, void 0, "autoOpenApp函数置空"),
                   UISwitch("go404", "bili-opus-variable-go404", true, void 0, "go404函数置空，可禁止前往404页面"),
-                  UISwitch("handleFallback", "bili-opus-variable-handleFallback", true, void 0, "禁止前往404页面")
-                ]
-              }
-            ]
+                  UISwitch("handleFallback", "bili-opus-variable-handleFallback", true, void 0, "禁止前往404页面"),
+                ],
+              },
+            ],
           },
           {
             text: "覆盖点击事件",
@@ -13572,14 +13553,14 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
                     true,
                     void 0,
                     "点击内容上的发布本动态的用户正确跳转个人空间"
-                  )
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
+                  ),
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
   };
   const SettingUIDynamic = {
     id: "panel-dynamic",
@@ -13609,14 +13590,14 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
                     "点击内容上的发布本动态的用户正确跳转个人空间"
                   ),
                   UISwitch("@用户", "bili-dynamic-cover-atJump", true, void 0, "点击@用户正确跳转个人空间"),
-                  UISwitch("引用", "bili-dynamic-cover-referenceJump", true, void 0, "点击引用的视频|用户正确跳转")
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
+                  UISwitch("引用", "bili-dynamic-cover-referenceJump", true, void 0, "点击引用的视频|用户正确跳转"),
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
   };
   const SettingUIBangumi = {
     id: "panel-bangumi",
@@ -13636,9 +13617,9 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
               {
                 text: "",
                 type: "forms",
-                forms: [UISwitch("固定缩放倍率", "bili-bangumi-initialScale", true, void 0, "")]
-              }
-            ]
+                forms: [UISwitch("固定缩放倍率", "bili-bangumi-initialScale", true, void 0, "")],
+              },
+            ],
           },
           {
             text: "ArtPlayer播放器",
@@ -13660,14 +13641,20 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
                     },
                     "可用于全屏横屏适配屏幕",
                     1
-                  )
-                ]
+                  ),
+                ],
               },
               {
                 text: "插件",
                 type: "forms",
                 forms: [
-                  UISwitch("弹幕", "artplayer-plugin-bangumi-danmaku-enable", true, void 0, "哔哩哔哩 (゜-゜)つロ 干杯~"),
+                  UISwitch(
+                    "弹幕",
+                    "artplayer-plugin-bangumi-danmaku-enable",
+                    true,
+                    void 0,
+                    "哔哩哔哩 (゜-゜)つロ 干杯~"
+                  ),
                   UISwitch(
                     "Dash Audio Support",
                     "artplayer-plugin-bangumi-m4sAudioSupport-enable",
@@ -13709,22 +13696,28 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
                     true,
                     void 0,
                     "用于显示当前视频信息的弹窗"
-                  )
-                ]
+                  ),
+                ],
               },
               {
                 text: "解除区域限制",
                 type: "forms",
                 forms: [
-                  UISwitch("解锁番剧限制", "bili-bangumi-unlockAreaLimit", false, void 0, "使用户可以观看区域外版权番剧"),
+                  UISwitch(
+                    "解锁番剧限制",
+                    "bili-bangumi-unlockAreaLimit",
+                    false,
+                    void 0,
+                    "使用户可以观看区域外版权番剧"
+                  ),
                   UISwitch(
                     "生成简中字幕",
                     "bili-bangumi-generateSimpleChineseSubtitle",
                     true,
                     void 0,
                     "根据繁体字幕自动生成简体中文字幕"
-                  )
-                ]
+                  ),
+                ],
               },
               {
                 text: "加速CDN设置（dash）",
@@ -13737,7 +13730,7 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
                     BilibiliCDNServerList.map((item) => {
                       return {
                         text: item.name,
-                        value: item.host
+                        value: item.host,
                       };
                     }),
                     void 0,
@@ -13758,7 +13751,7 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
                     BilibiliCDNServerList.map((item) => {
                       return {
                         text: item.name,
-                        value: item.host
+                        value: item.host,
                       };
                     }),
                     void 0,
@@ -13771,8 +13764,8 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
                     "自定义的服务器优先级大于上面选择的服务器",
                     void 0,
                     "请输入upos服务器的域名"
-                  )
-                ]
+                  ),
+                ],
               },
               {
                 text: "<a href='https://github.com/yujincheng08/BiliRoaming/wiki/%E5%85%AC%E5%85%B1%E8%A7%A3%E6%9E%90%E6%9C%8D%E5%8A%A1%E5%99%A8' target='_blank'>解析服务器</a>",
@@ -13809,10 +13802,10 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
                     "用于请求播放地址的代理",
                     void 0,
                     "bilibili优化.example.com"
-                  )
-                ]
-              }
-            ]
+                  ),
+                ],
+              },
+            ],
           },
           {
             text: "覆盖点击事件",
@@ -13842,10 +13835,10 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
                     true,
                     void 0,
                     "让【更多推荐】的视频列表可点击跳转"
-                  )
-                ]
-              }
-            ]
+                  ),
+                ],
+              },
+            ],
           },
           {
             text: "劫持/拦截",
@@ -13854,13 +13847,13 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
               {
                 text: "",
                 type: "forms",
-                forms: [UISwitch("阻止调用App", "bili-bangumi-hook-callApp", true, void 0, "")]
-              }
-            ]
-          }
-        ]
-      }
-    ]
+                forms: [UISwitch("阻止调用App", "bili-bangumi-hook-callApp", true, void 0, "")],
+              },
+            ],
+          },
+        ],
+      },
+    ],
   };
   const SettingUISearch = {
     id: "panel-search",
@@ -13889,8 +13882,8 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
                     false,
                     void 0,
                     "在搜索页面添加其它地区番剧搜索结果，需要解析服务器支持"
-                  )
-                ]
+                  ),
+                ],
               },
               {
                 text: "<a href='https://github.com/yujincheng08/BiliRoaming/wiki/%E5%85%AC%E5%85%B1%E8%A7%A3%E6%9E%90%E6%9C%8D%E5%8A%A1%E5%99%A8' target='_blank'>搜索服务器</a>",
@@ -13919,10 +13912,10 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
                     "用于搜索番剧结果的代理",
                     void 0,
                     "bilibili优化.example.com"
-                  )
-                ]
-              }
-            ]
+                  ),
+                ],
+              },
+            ],
           },
           {
             type: "deepMenu",
@@ -13939,10 +13932,10 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
                     true,
                     void 0,
                     "修复点击搜索结果不跳转视频的问题"
-                  )
-                ]
-              }
-            ]
+                  ),
+                ],
+              },
+            ],
           },
           {
             text: "变量设置",
@@ -13953,14 +13946,20 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
                 type: "forms",
                 forms: [
                   UISwitch("noCallApp", "bili-search-vue-prop-noCallApp", true, void 0, "noCallApp = true"),
-                  UISwitch("openAppDialog", "bili-search-vue-prop-openAppDialog", true, void 0, "openAppDialog = false")
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
+                  UISwitch(
+                    "openAppDialog",
+                    "bili-search-vue-prop-openAppDialog",
+                    true,
+                    void 0,
+                    "openAppDialog = false"
+                  ),
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
   };
   const SettingUISpace = {
     id: "panel-space",
@@ -13987,10 +13986,10 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
                     true,
                     void 0,
                     "修复视频|动态的正确跳转，避免跳转404"
-                  )
-                ]
-              }
-            ]
+                  ),
+                ],
+              },
+            ],
           },
           {
             text: "覆盖点击事件",
@@ -14006,14 +14005,14 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
                     true,
                     void 0,
                     "点击发布动态的视频可正常跳转至该视频"
-                  )
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
+                  ),
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
   };
   const SettingUILive = {
     id: "panel-live",
@@ -14042,7 +14041,7 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
                     BilibiliCDNServerList.map((item) => {
                       return {
                         text: item.name,
-                        value: item.host
+                        value: item.host,
                       };
                     }),
                     void 0,
@@ -14055,10 +14054,10 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
                     "自定义的服务器优先级大于上面选择的服务器",
                     void 0,
                     "请输入upos服务器的域名"
-                  )
-                ]
-              }
-            ]
+                  ),
+                ],
+              },
+            ],
           },
           {
             text: "屏蔽",
@@ -14082,10 +14081,10 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
                     false,
                     void 0,
                     "屏蔽底部的发个弹幕、送礼"
-                  )
-                ]
-              }
-            ]
+                  ),
+                ],
+              },
+            ],
           },
           {
             text: "劫持/拦截",
@@ -14101,14 +14100,14 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
                     true,
                     void 0,
                     "开启后可不跳转至唤醒App页面"
-                  )
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
+                  ),
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
   };
   const SettingUITopicDetail = {
     id: "panel-topic-detail",
@@ -14116,7 +14115,7 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
     isDefault() {
       return BilibiliRouter.isTopicDetail();
     },
-    forms: []
+    forms: [],
   };
   PanelContent.addContentConfig([
     SettingUICommon,
@@ -14128,7 +14127,7 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
     SettingUITopicDetail,
     SettingUISearch,
     SettingUISpace,
-    SettingUILive
+    SettingUILive,
   ]);
   PanelMenu.addMenuOption([
     {
@@ -14141,7 +14140,7 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
       },
       callback() {
         BilibiliUtils.goToLogin();
-      }
+      },
     },
     {
       key: "go_to_login_to_parse_access_key",
@@ -14153,21 +14152,19 @@ UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用
       },
       callback() {
         BilibiliQrCodeLogin.init();
-      }
-    }
+      },
+    },
   ]);
   Panel.init();
   Bilibili.init();
-  __pops.config.cssText.index +=
-`
+  __pops.config.cssText.index += `
 /* bilibili颜色 #FB7299 */
 .pops{
     --bili-color: #FB7299;
     --bili-color-rgb: 251, 114, 153;
 }
-`  ;
-  __pops.config.cssText.panelCSS +=
-`
+`;
+  __pops.config.cssText.panelCSS += `
 
 .pops-slider{
     --pops-slider-main-bg-color: var(--bili-color);
@@ -14189,6 +14186,5 @@ aside.pops-panel-aside .pops-is-visited, aside.pops-panel-aside ul li:hover{
     --button-bd-color: var(--bili-color);
     --button-bg-color: var(--bili-color);
 }
-`  ;
-
+`;
 })(Qmsg, DOMUtils, Utils, pops, MD5, Artplayer, artplayerPluginDanmuku, Viewer, MD5);

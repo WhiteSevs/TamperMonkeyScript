@@ -1,2 +1,2 @@
+dist/*.min.*
 src/lib/*.js
-**/dist/*

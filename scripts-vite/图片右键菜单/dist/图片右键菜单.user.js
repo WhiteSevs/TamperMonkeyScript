@@ -26,17 +26,19 @@
 // ==/UserScript==
 
 (function (Qmsg, DOMUtils, Utils, pops) {
-  'use strict';
+  "use strict";
 
-  var _GM_deleteValue = (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
-  var _GM_getResourceText = (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
-  var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
-  var _GM_info = (() => typeof GM_info != "undefined" ? GM_info : void 0)();
-  var _GM_registerMenuCommand = (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-  var _GM_setValue = (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
-  var _GM_unregisterMenuCommand = (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-  var _GM_xmlhttpRequest = (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
-  var _unsafeWindow = (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
+  var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
+  var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
+  var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
+  var _GM_info = (() => (typeof GM_info != "undefined" ? GM_info : void 0))();
+  var _GM_registerMenuCommand = (() =>
+    typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
+  var _GM_unregisterMenuCommand = (() =>
+    typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
+  var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
   var _monkeyWindow = (() => window)();
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
@@ -45,15 +47,15 @@
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const PROPS_STORAGE_API = "data-storage-api";
   const PanelSizeUtil = {
-get width() {
+    get width() {
       return globalThis.innerWidth;
     },
-get height() {
+    get height() {
       return globalThis.innerHeight;
-    }
+    },
   };
   const PanelUISize = {
-setting: {
+    setting: {
       get width() {
         if (PanelSizeUtil.width < 550) {
           return "88vw";
@@ -71,18 +73,18 @@ setting: {
         } else {
           return "550px";
         }
-      }
+      },
     },
-settingMiddle: {
+    settingMiddle: {
       get width() {
         return PanelSizeUtil.width < 350 ? "88vw" : "350px";
-      }
-    }
+      },
+    },
   };
   class StorageUtils {
-storageKey;
+    storageKey;
     listenerData;
-constructor(key) {
+    constructor(key) {
       if (typeof key === "string") {
         let trimKey = key.trim();
         if (trimKey == "") {
@@ -94,7 +96,7 @@ constructor(key) {
       }
       this.listenerData = new Utils.Dictionary();
     }
-getLocalValue() {
+    getLocalValue() {
       let localValue = _GM_getValue(this.storageKey);
       if (localValue == null) {
         localValue = {};
@@ -102,63 +104,66 @@ getLocalValue() {
       }
       return localValue;
     }
-setLocalValue(value) {
+    setLocalValue(value) {
       _GM_setValue(this.storageKey, value);
     }
-set(key, value) {
+    set(key, value) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, value);
     }
-get(key, defaultValue) {
+    get(key, defaultValue) {
       let localValue = this.getLocalValue();
       return Reflect.get(localValue, key) ?? defaultValue;
     }
-getAll() {
+    getAll() {
       let localValue = this.getLocalValue();
       return localValue;
     }
-delete(key) {
+    delete(key) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, void 0);
     }
-has(key) {
+    has(key) {
       let localValue = this.getLocalValue();
       return Reflect.has(localValue, key);
     }
-keys() {
+    keys() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue);
     }
-values() {
+    values() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
     }
-clear() {
+    clear() {
       _GM_deleteValue(this.storageKey);
     }
-addValueChangeListener(key, callback) {
+    addValueChangeListener(key, callback) {
       let listenerId = Math.random();
       let listenerData = this.listenerData.get(key) || [];
       listenerData.push({
         id: listenerId,
         key,
-        callback
+        callback,
       });
       this.listenerData.set(key, listenerData);
       return listenerId;
     }
-removeValueChangeListener(listenerId) {
+    removeValueChangeListener(listenerId) {
       let flag = false;
       for (const [key, listenerData] of this.listenerData.entries()) {
         for (let index = 0; index < listenerData.length; index++) {
           const value = listenerData[index];
-          if (typeof listenerId === "string" && value.key === listenerId || typeof listenerId === "number" && value.id === listenerId) {
+          if (
+            (typeof listenerId === "string" && value.key === listenerId) ||
+            (typeof listenerId === "number" && value.id === listenerId)
+          ) {
             listenerData.splice(index, 1);
             index--;
             flag = true;
@@ -168,7 +173,7 @@ removeValueChangeListener(listenerId) {
       }
       return flag;
     }
-triggerValueChangeListener(key, oldValue, newValue) {
+    triggerValueChangeListener(key, oldValue, newValue) {
       if (!this.listenerData.has(key)) {
         return;
       }
@@ -197,28 +202,28 @@ triggerValueChangeListener(key, oldValue, newValue) {
   const PopsPanelStorageApi = new StorageUtils(KEY);
   const PanelContent = {
     $data: {
-__contentConfig: null,
+      __contentConfig: null,
       get contentConfig() {
         if (this.__contentConfig == null) {
           this.__contentConfig = new utils.Dictionary();
         }
         return this.__contentConfig;
-      }
+      },
     },
-addContentConfig(configList) {
+    addContentConfig(configList) {
       if (!Array.isArray(configList)) {
         configList = [configList];
       }
       let index = this.$data.contentConfig.keys().length;
       this.$data.contentConfig.set(index, configList);
     },
-getAllContentConfig() {
+    getAllContentConfig() {
       return this.$data.contentConfig.values().flat();
     },
-getConfig(index = 0) {
+    getConfig(index = 0) {
       return this.$data.contentConfig.get(index) ?? [];
     },
-getDefaultBottomContentConfig() {
+    getDefaultBottomContentConfig() {
       return [
         {
           id: "script-version",
@@ -231,10 +236,10 @@ getDefaultBottomContentConfig() {
               window.open(supportURL, "_blank");
             }
             return false;
-          }
-        }
+          },
+        },
       ];
-    }
+    },
   };
   const PanelMenu = {
     $data: {
@@ -249,29 +254,29 @@ getDefaultBottomContentConfig() {
           },
           callback: () => {
             Panel.showPanel(PanelContent.getConfig(0));
-          }
-        }
+          },
+        },
       ],
       get menuOption() {
         return this.__menuOption;
-      }
+      },
     },
     init() {
       this.initExtensionsMenu();
     },
-initExtensionsMenu() {
+    initExtensionsMenu() {
       if (!Panel.isTopWindow()) {
         return;
       }
       GM_Menu.add(this.$data.menuOption);
     },
-addMenuOption(option) {
+    addMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
       this.$data.menuOption.push(...option);
     },
-updateMenuOption(option) {
+    updateMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
@@ -284,15 +289,15 @@ updateMenuOption(option) {
         }
       });
     },
-getMenuOption(index = 0) {
+    getMenuOption(index = 0) {
       return this.$data.menuOption[index];
     },
-deleteMenuOption(index = 0) {
+    deleteMenuOption(index = 0) {
       this.$data.menuOption.splice(index, 1);
-    }
+    },
   };
   const CommonUtil = {
-waitRemove(...args) {
+    waitRemove(...args) {
       args.forEach((selector) => {
         if (typeof selector !== "string") {
           return;
@@ -302,7 +307,7 @@ waitRemove(...args) {
         });
       });
     },
-createBlockCSSNode(...args) {
+    createBlockCSSNode(...args) {
       let selectorList = [];
       if (args.length === 0) {
         return;
@@ -319,10 +324,10 @@ createBlockCSSNode(...args) {
       });
       return DOMUtils.createElement("style", {
         type: "text/css",
-        innerHTML: `${selectorList.join(",\n")}{display: none !important;}`
+        innerHTML: `${selectorList.join(",\n")}{display: none !important;}`,
       });
     },
-addBlockCSS(...args) {
+    addBlockCSS(...args) {
       let selectorList = [];
       if (args.length === 0) {
         return;
@@ -339,7 +344,7 @@ addBlockCSS(...args) {
       });
       return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
-setGMResourceCSS(resourceMapData) {
+    setGMResourceCSS(resourceMapData) {
       let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
       if (typeof cssText === "string" && cssText) {
         addStyle(cssText);
@@ -347,7 +352,7 @@ setGMResourceCSS(resourceMapData) {
         CommonUtil.loadStyleLink(resourceMapData.url);
       }
     },
-async loadStyleLink(url) {
+    async loadStyleLink(url) {
       let $link = document.createElement("link");
       $link.rel = "stylesheet";
       $link.type = "text/css";
@@ -356,7 +361,7 @@ async loadStyleLink(url) {
         document.head.appendChild($link);
       });
     },
-async loadScript(url) {
+    async loadScript(url) {
       let $script = document.createElement("script");
       $script.src = url;
       return new Promise((resolve) => {
@@ -366,7 +371,7 @@ async loadScript(url) {
         (document.head || document.documentElement).appendChild($script);
       });
     },
-fixUrl(url) {
+    fixUrl(url) {
       url = url.trim();
       if (url.startsWith("data:")) {
         return url;
@@ -374,7 +379,7 @@ fixUrl(url) {
       if (url.match(/^http(s|):\/\//i)) {
         return url;
       } else if (url.startsWith("//")) {
-        if (url.startsWith("///")) ;
+        if (url.startsWith("///"));
         else {
           url = window.location.protocol + url;
         }
@@ -387,7 +392,7 @@ fixUrl(url) {
         return url;
       }
     },
-fixHttps(url) {
+    fixHttps(url) {
       if (url.startsWith("https://")) {
         return url;
       }
@@ -402,46 +407,51 @@ fixHttps(url) {
         return url;
       }
     },
-lockScroll(...args) {
+    lockScroll(...args) {
       let $hidden = document.createElement("style");
-      $hidden.innerHTML =
-`
+      $hidden.innerHTML = `
 			.pops-overflow-hidden-important {
 				overflow: hidden !important;
 			}
 		`;
-      let $elList = [document.documentElement, document.body].concat(...args || []);
+      let $elList = [document.documentElement, document.body].concat(...(args || []));
       $elList.forEach(($el) => {
         $el.classList.add("pops-overflow-hidden-important");
       });
       (document.head || document.documentElement).appendChild($hidden);
       return {
-recovery() {
+        recovery() {
           $elList.forEach(($el) => {
             $el.classList.remove("pops-overflow-hidden-important");
           });
           $hidden.remove();
-        }
+        },
       };
     },
-async getClipboardText() {
+    async getClipboardText() {
       function readClipboardText(resolve) {
-        navigator.clipboard.readText().then((clipboardText) => {
-          resolve(clipboardText);
-        }).catch((error) => {
-          log.error("读取剪贴板内容失败👉", error);
-          resolve("");
-        });
+        navigator.clipboard
+          .readText()
+          .then((clipboardText) => {
+            resolve(clipboardText);
+          })
+          .catch((error) => {
+            log.error("读取剪贴板内容失败👉", error);
+            resolve("");
+          });
       }
       function requestPermissionsWithClipboard(resolve) {
-        navigator.permissions.query({
-name: "clipboard-read"
-        }).then((permissionStatus) => {
-          readClipboardText(resolve);
-        }).catch((error) => {
-          log.error("申请剪贴板权限失败，尝试直接读取👉", error.message ?? error.name ?? error.stack);
-          readClipboardText(resolve);
-        });
+        navigator.permissions
+          .query({
+            name: "clipboard-read",
+          })
+          .then((permissionStatus) => {
+            readClipboardText(resolve);
+          })
+          .catch((error) => {
+            log.error("申请剪贴板权限失败，尝试直接读取👉", error.message ?? error.name ?? error.stack);
+            readClipboardText(resolve);
+          });
       }
       function checkClipboardApi() {
         if (typeof navigator?.clipboard?.readText !== "function") {
@@ -466,22 +476,42 @@ name: "clipboard-read"
               requestPermissionsWithClipboard(resolve);
             },
             {
-              once: true
+              once: true,
             }
           );
         }
       });
     },
-escapeHtml(unsafe) {
-      return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
+    escapeHtml(unsafe) {
+      return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;")
+        .replace(/©/g, "&copy;")
+        .replace(/®/g, "&reg;")
+        .replace(/™/g, "&trade;")
+        .replace(/→/g, "&rarr;")
+        .replace(/←/g, "&larr;")
+        .replace(/↑/g, "&uarr;")
+        .replace(/↓/g, "&darr;")
+        .replace(/—/g, "&mdash;")
+        .replace(/–/g, "&ndash;")
+        .replace(/…/g, "&hellip;")
+        .replace(/ /g, "&nbsp;")
+        .replace(/\r\n/g, "<br>")
+        .replace(/\r/g, "<br>")
+        .replace(/\n/g, "<br>")
+        .replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
     },
-interval(fn, intervalTime, timeout = 5e3) {
+    interval(fn, intervalTime, timeout = 5e3) {
       let timeId;
       let maxTimeout = timeout - intervalTime;
       let intervalTimeCount = intervalTime;
       let loop = async (isTimeout) => {
         let result = await fn(isTimeout);
-        if (typeof result === "boolean" && !result || isTimeout) {
+        if ((typeof result === "boolean" && !result) || isTimeout) {
           utils.workerClearTimeout(timeId);
           return;
         }
@@ -496,7 +526,7 @@ interval(fn, intervalTime, timeout = 5e3) {
       };
       loop(false);
     },
-findParentNode($el, selector, parentSelector) {
+    findParentNode($el, selector, parentSelector) {
       if (parentSelector) {
         let $parent = DOMUtils.closest($el, parentSelector);
         if ($parent) {
@@ -510,63 +540,63 @@ findParentNode($el, selector, parentSelector) {
         let $parent = DOMUtils.closest($el, selector);
         return $parent;
       }
-    }
+    },
   };
   const Panel = {
-$data: {
-__contentConfigInitDefaultValue: null,
-__onceExecMenuData: null,
-__urlChangeReloadMenuExecOnce: null,
-__onceExecData: null,
-__panelConfig: {},
-$panel: null,
-panelContent: [],
-get contentConfigInitDefaultValue() {
+    $data: {
+      __contentConfigInitDefaultValue: null,
+      __onceExecMenuData: null,
+      __urlChangeReloadMenuExecOnce: null,
+      __onceExecData: null,
+      __panelConfig: {},
+      $panel: null,
+      panelContent: [],
+      get contentConfigInitDefaultValue() {
         if (this.__contentConfigInitDefaultValue == null) {
           this.__contentConfigInitDefaultValue = new utils.Dictionary();
         }
         return this.__contentConfigInitDefaultValue;
       },
-contentConfigInitDisabledKeys: [],
-get onceExecMenuData() {
+      contentConfigInitDisabledKeys: [],
+      get onceExecMenuData() {
         if (this.__onceExecMenuData == null) {
           this.__onceExecMenuData = new utils.Dictionary();
         }
         return this.__onceExecMenuData;
       },
-get urlChangeReloadMenuExecOnce() {
+      get urlChangeReloadMenuExecOnce() {
         if (this.__urlChangeReloadMenuExecOnce == null) {
           this.__urlChangeReloadMenuExecOnce = new utils.Dictionary();
         }
         return this.__urlChangeReloadMenuExecOnce;
       },
-get onceExecData() {
+      get onceExecData() {
         if (this.__onceExecData == null) {
           this.__onceExecData = new utils.Dictionary();
         }
         return this.__onceExecData;
       },
-get scriptName() {
+      get scriptName() {
         return SCRIPT_NAME;
       },
-get panelConfig() {
+      get panelConfig() {
         return this.__panelConfig;
       },
       set panelConfig(value) {
         this.__panelConfig = value;
       },
-key: KEY,
-attributeKeyName: ATTRIBUTE_KEY,
-attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
+      key: KEY,
+      attributeKeyName: ATTRIBUTE_KEY,
+      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE,
     },
     init() {
       this.initContentDefaultValue();
       PanelMenu.init();
     },
-isTopWindow() {
+    isTopWindow() {
       return _unsafeWindow.top === _unsafeWindow.self;
     },
-initContentDefaultValue() {
+    initContentDefaultValue() {
       const initDefaultValue = (config) => {
         if (!config.attributes) {
           return;
@@ -630,19 +660,19 @@ initContentDefaultValue() {
       }
       this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
     },
-setDefaultValue(key, defaultValue) {
+    setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
         log.warn("请检查该key(已存在): " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
-getDefaultValue(key) {
+    getDefaultValue(key) {
       return this.$data.contentConfigInitDefaultValue.get(key);
     },
-setValue(key, value) {
+    setValue(key, value) {
       PopsPanelStorageApi.set(key, value);
     },
-getValue(key, defaultValue) {
+    getValue(key, defaultValue) {
       let localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
         if (this.$data.contentConfigInitDefaultValue.has(key)) {
@@ -652,25 +682,25 @@ getValue(key, defaultValue) {
       }
       return localValue;
     },
-deleteValue(key) {
+    deleteValue(key) {
       PopsPanelStorageApi.delete(key);
     },
-hasKey(key) {
+    hasKey(key) {
       return PopsPanelStorageApi.has(key);
     },
-addValueChangeListener(key, callback) {
+    addValueChangeListener(key, callback) {
       let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
         callback(key, __oldValue, __newValue);
       });
       return listenerId;
     },
-removeValueChangeListener(listenerId) {
+    removeValueChangeListener(listenerId) {
       PopsPanelStorageApi.removeValueChangeListener(listenerId);
     },
-triggerMenuValueChange(key, newValue, oldValue) {
+    triggerMenuValueChange(key, newValue, oldValue) {
       PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
     },
-exec(queryKey, callback, checkExec, once = true) {
+    exec(queryKey, callback, checkExec, once = true) {
       const that = this;
       let queryKeyFn;
       if (typeof queryKey === "string" || Array.isArray(queryKey)) {
@@ -748,7 +778,7 @@ exec(queryKey, callback, checkExec, once = true) {
             value: isArrayKey ? valueList : valueList[0],
             addStyleElement: (...args) => {
               return dynamicAddStyleNodeCallback(true, ...args);
-            }
+            },
           });
           if (!Array.isArray(callbackResult)) {
             callbackResult = [callbackResult];
@@ -766,35 +796,36 @@ exec(queryKey, callback, checkExec, once = true) {
         clearBeforeStoreValue();
         storeValueList = [...resultList];
       };
-      once && keyList.forEach((key) => {
-        let listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
-          valueChangeCallback();
+      once &&
+        keyList.forEach((key) => {
+          let listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
+            valueChangeCallback();
+          });
+          listenerIdList.push(listenerId);
         });
-        listenerIdList.push(listenerId);
-      });
       valueChangeCallback();
       let result = {
-reload() {
+        reload() {
           valueChangeCallback();
         },
-clear() {
+        clear() {
           this.clearStoreStyleElements();
           this.removeValueChangeListener();
           once && that.$data.onceExecMenuData.delete(storageKey);
         },
-clearStoreStyleElements: () => {
+        clearStoreStyleElements: () => {
           return clearBeforeStoreValue();
         },
-removeValueChangeListener: () => {
+        removeValueChangeListener: () => {
           listenerIdList.forEach((listenerId) => {
             this.removeValueChangeListener(listenerId);
           });
-        }
+        },
       };
       this.$data.onceExecMenuData.set(storageKey, result);
       return result;
     },
-execMenu(key, callback, isReverse = false, once = false) {
+    execMenu(key, callback, isReverse = false, once = false) {
       return this.exec(
         key,
         (option) => {
@@ -816,7 +847,7 @@ execMenu(key, callback, isReverse = false, once = false) {
         once
       );
     },
-execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
+    execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
       const result = this.execMenu(key, callback, isReverse, true);
       if (listenUrlChange) {
         if (result) {
@@ -834,14 +865,14 @@ execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
       }
       return result;
     },
-deleteExecMenuOnce(key) {
+    deleteExecMenuOnce(key) {
       key = this.transformKey(key);
       this.$data.onceExecMenuData.delete(key);
       this.$data.urlChangeReloadMenuExecOnce.delete(key);
       let flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
-onceExec(key, callback) {
+    onceExec(key, callback) {
       key = this.transformKey(key);
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
@@ -852,30 +883,36 @@ onceExec(key, callback) {
       callback();
       this.$data.onceExecData.set(key, 1);
     },
-deleteOnceExec(key) {
+    deleteOnceExec(key) {
       key = this.transformKey(key);
       this.$data.onceExecData.delete(key);
     },
-addUrlChangeWithExecMenuOnceListener(key, callback) {
+    addUrlChangeWithExecMenuOnceListener(key, callback) {
       key = this.transformKey(key);
       this.$data.urlChangeReloadMenuExecOnce.set(key, callback);
     },
-removeUrlChangeWithExecMenuOnceListener(key) {
+    removeUrlChangeWithExecMenuOnceListener(key) {
       key = this.transformKey(key);
       this.$data.urlChangeReloadMenuExecOnce.delete(key);
     },
-triggerUrlChangeWithExecMenuOnceEvent(config) {
+    triggerUrlChangeWithExecMenuOnceEvent(config) {
       this.$data.urlChangeReloadMenuExecOnce.forEach((callback, key) => {
         callback(config);
       });
     },
-showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
+    showPanel(
+      content,
+      title = `${SCRIPT_NAME}-设置`,
+      preventDefaultContentConfig = false,
+      preventRegisterSearchPlugin = false
+    ) {
       this.$data.$panel = null;
       this.$data.panelContent = [];
-      let checkHasBottomVersionContentConfig = content.findIndex((it) => {
-        let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
-        return isBottom && it.id === "script-version";
-      }) !== -1;
+      let checkHasBottomVersionContentConfig =
+        content.findIndex((it) => {
+          let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
+          return isBottom && it.id === "script-version";
+        }) !== -1;
       if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig) {
         content.push(...PanelContent.getDefaultBottomContentConfig());
       }
@@ -885,7 +922,7 @@ showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig 
             text: title,
             position: "center",
             html: false,
-            style: ""
+            style: "",
           },
           content,
           btn: {
@@ -894,26 +931,26 @@ showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig 
               callback: (details, event) => {
                 details.close();
                 this.$data.$panel = null;
-              }
-            }
+              },
+            },
           },
           mask: {
             enable: true,
             clickEvent: {
               toClose: true,
-              toHide: false
+              toHide: false,
             },
             clickCallBack: (originalRun, config) => {
               originalRun();
               this.$data.$panel = null;
-            }
+            },
           },
           width: PanelUISize.setting.width,
           height: PanelUISize.setting.height,
           drag: true,
-          only: true
+          only: true,
         },
-        ...this.$data.panelConfig
+        ...this.$data.panelConfig,
       });
       this.$data.$panel = $panel;
       this.$data.panelContent = content;
@@ -921,7 +958,7 @@ showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig 
         this.registerConfigSearch({ $panel, content });
       }
     },
-registerConfigSearch(config) {
+    registerConfigSearch(config) {
       const { $panel, content } = config;
       let asyncQueryProperty = async (target, handler) => {
         if (target == null) {
@@ -945,8 +982,8 @@ registerConfigSearch(config) {
           },
           {
             root: null,
-threshold: 1
-}
+            threshold: 1,
+          }
         );
         observer.observe($el);
         $el.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -963,32 +1000,29 @@ threshold: 1
         let $alert = __pops.alert({
           title: {
             text: "搜索配置",
-            position: "center"
+            position: "center",
           },
           content: {
-            text: (
-`
+            text: `
 						<div class="search-wrapper">
 							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
 						</div>
 						<div class="search-result-wrapper"></div>
-					`
-            ),
-            html: true
+					`,
+            html: true,
           },
           btn: {
-            ok: { enable: false }
+            ok: { enable: false },
           },
           mask: {
             clickEvent: {
-              toClose: true
-            }
+              toClose: true,
+            },
           },
           width: PanelUISize.settingMiddle.width,
           height: "auto",
           drag: true,
-          style: (
-`
+          style: `
 					${__pops.config.cssText.panelCSS}
 
 					.search-wrapper{
@@ -1026,8 +1060,7 @@ threshold: 1
 						color: #6c6c6c;
 					}
 					${config.searchDialogStyle ?? ""}
-				`
-          )
+				`,
         });
         $alert.$shadowRoot.querySelector(".search-wrapper");
         let $searchInput = $alert.$shadowRoot.querySelector(".search-config-text");
@@ -1041,23 +1074,21 @@ threshold: 1
             if (target?.next) {
               return {
                 isFind: false,
-                data: target.next
+                data: target.next,
               };
             } else {
               return {
                 isFind: true,
-                data: target
+                data: target,
               };
             }
           });
           let $item = domUtils.createElement("div", {
             className: "search-result-item",
-            innerHTML: (
-`
+            innerHTML: `
 							<div class="search-result-item-path">${searchPath.matchedData?.path}</div>
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
-						`
-            )
+						`,
           });
           domUtils.on($item, "click", (clickItemEvent) => {
             let $asideItems = $panel.$shadowRoot.querySelectorAll(
@@ -1070,18 +1101,22 @@ threshold: 1
             }
             $targetAsideItem.scrollIntoView({
               behavior: "smooth",
-              block: "center"
+              block: "center",
             });
             $targetAsideItem.click();
             asyncQueryProperty(pathInfo.next, async (target) => {
               if (target?.next) {
                 let $findDeepMenu = await domUtils.waitNode(() => {
-                  return Array.from(
-                    $panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")
-                  ).find(($deepMenu) => {
-                    const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
-                    return typeof __formConfig__ === "object" && __formConfig__ != null && __formConfig__.text === target.name;
-                  });
+                  return Array.from($panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")).find(
+                    ($deepMenu) => {
+                      const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
+                      return (
+                        typeof __formConfig__ === "object" &&
+                        __formConfig__ != null &&
+                        __formConfig__.text === target.name
+                      );
+                    }
+                  );
                 }, 2500);
                 if ($findDeepMenu) {
                   $findDeepMenu.click();
@@ -1089,21 +1124,21 @@ threshold: 1
                   Qmsg.error("未找到对应的二级菜单");
                   return {
                     isFind: true,
-                    data: target
+                    data: target,
                   };
                 }
                 return {
                   isFind: false,
-                  data: target.next
+                  data: target.next,
                 };
               } else {
                 let $findTargetMenu = await domUtils.waitNode(() => {
-                  return Array.from(
-                    $panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)
-                  ).find(($menuItem) => {
-                    const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
-                    return __formConfig__ === target.matchedData?.formConfig;
-                  });
+                  return Array.from($panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)).find(
+                    ($menuItem) => {
+                      const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
+                      return __formConfig__ === target.matchedData?.formConfig;
+                    }
+                  );
                 }, 2500);
                 if ($findTargetMenu) {
                   scrollToElementAndListen($findTargetMenu);
@@ -1121,7 +1156,7 @@ threshold: 1
                 }
                 return {
                   isFind: true,
-                  data: target
+                  data: target,
                 };
               }
             });
@@ -1142,17 +1177,17 @@ threshold: 1
                     if (target?.next) {
                       return {
                         isFind: false,
-                        data: target.next
+                        data: target.next,
                       };
                     } else {
                       return {
                         isFind: true,
-                        data: target
+                        data: target,
                       };
                     }
                   });
                   deepNext.next = {
-                    name: configItem.text
+                    name: configItem.text,
                   };
                 }
                 loopContentConfig(child_forms, deepMenuPath);
@@ -1172,12 +1207,12 @@ threshold: 1
                     if (target?.next) {
                       return {
                         isFind: false,
-                        data: target.next
+                        data: target.next,
                       };
                     } else {
                       return {
                         isFind: true,
-                        data: target
+                        data: target,
                       };
                     }
                   });
@@ -1187,8 +1222,8 @@ threshold: 1
                       path: "",
                       formConfig: configItem,
                       matchedText: delayMatchedTextList[matchedIndex],
-                      description
-                    }
+                      description,
+                    },
                   };
                   const pathList = [];
                   utils.queryProperty(matchedPath, (target) => {
@@ -1199,12 +1234,12 @@ threshold: 1
                     if (target?.next) {
                       return {
                         isFind: false,
-                        data: target.next
+                        data: target.next,
                       };
                     } else {
                       return {
                         isFind: true,
-                        data: target
+                        data: target,
                       };
                     }
                   });
@@ -1231,7 +1266,7 @@ threshold: 1
               }
               loopContentConfig(rightContentConfigList, {
                 index,
-                name: text
+                name: text,
               });
             }
           }
@@ -1286,14 +1321,13 @@ threshold: 1
           }
         },
         {
-          capture: true
+          capture: true,
         }
       );
       $panel.$shadowRoot.appendChild(
         domUtils.createElement("style", {
           type: "text/css",
-          textContent: (
-`
+          textContent: `
 					.pops-flashing{
 						animation: double-blink 1.5s ease-in-out;
 					}
@@ -1314,33 +1348,32 @@ threshold: 1
 							background-color: initial;
 						}
 					}
-				`
-          )
+				`,
         })
       );
     },
-transformKey(key) {
+    transformKey(key) {
       if (Array.isArray(key)) {
         const keyArray = key.sort();
         return JSON.stringify(keyArray);
       } else {
         return key;
       }
-    }
+    },
   };
   const PanelSettingConfig = {
-qmsg_config_position: {
+    qmsg_config_position: {
       key: "qmsg-config-position",
-      defaultValue: "bottom"
+      defaultValue: "bottom",
     },
-qmsg_config_maxnums: {
+    qmsg_config_maxnums: {
       key: "qmsg-config-maxnums",
-      defaultValue: 3
+      defaultValue: 3,
     },
-qmsg_config_showreverse: {
+    qmsg_config_showreverse: {
       key: "qmsg-config-showreverse",
-      defaultValue: false
-    }
+      defaultValue: false,
+    },
   };
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
@@ -1353,7 +1386,7 @@ qmsg_config_showreverse: {
     debug: false,
     logMaxCount: 250,
     autoClearConsole: true,
-    tag: true
+    tag: true,
   });
   Qmsg.config({
     isHTML: true,
@@ -1396,7 +1429,7 @@ qmsg_config_showreverse: {
       let maxZIndex = Utils.getMaxZIndex();
       let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-    }
+    },
   });
   __pops.GlobalConfig.setGlobalConfig({
     zIndex: () => {
@@ -1412,23 +1445,23 @@ qmsg_config_showreverse: {
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
     },
     mask: {
-enable: true,
-clickEvent: {
+      enable: true,
+      clickEvent: {
         toClose: false,
-        toHide: false
-      }
+        toHide: false,
+      },
     },
-    drag: true
+    drag: true,
   });
   const GM_Menu = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,
     GM_registerMenuCommand: _GM_registerMenuCommand,
-    GM_unregisterMenuCommand: _GM_unregisterMenuCommand
+    GM_unregisterMenuCommand: _GM_unregisterMenuCommand,
   });
   const httpx = new utils.Httpx({
     xmlHttpRequest: _GM_xmlhttpRequest,
-    logDetails: DEBUG
+    logDetails: DEBUG,
   });
   httpx.interceptors.request.use((data) => {
     return data;
@@ -1448,16 +1481,16 @@ clickEvent: {
   });
   ({
     Object: {
-      defineProperty: _unsafeWindow.Object.defineProperty
+      defineProperty: _unsafeWindow.Object.defineProperty,
     },
     Function: {
       apply: _unsafeWindow.Function.prototype.apply,
-      call: _unsafeWindow.Function.prototype.call
+      call: _unsafeWindow.Function.prototype.call,
     },
     Element: {
-      appendChild: _unsafeWindow.Element.prototype.appendChild
+      appendChild: _unsafeWindow.Element.prototype.appendChild,
     },
-    setTimeout: _unsafeWindow.setTimeout
+    setTimeout: _unsafeWindow.setTimeout,
   });
   const addStyle = domUtils.addStyle.bind(domUtils);
   DOMUtils.selector.bind(DOMUtils);
@@ -1473,18 +1506,20 @@ clickEvent: {
         ctx.drawImage(img, 0, 0, img.width, img.height);
         var dataURL = canvas.toDataURL("image/png");
         return dataURL;
-      }
+      },
     },
     gif: {
-getImageFileFromUrl(url, imageName, callback) {
-        fetch(url).then((res) => {
-          return res.blob();
-        }).then((blob) => {
-          let imgFile = new File([blob], imageName, { type: "image/gif" });
-          callback(imgFile);
-        });
+      getImageFileFromUrl(url, imageName, callback) {
+        fetch(url)
+          .then((res) => {
+            return res.blob();
+          })
+          .then((blob) => {
+            let imgFile = new File([blob], imageName, { type: "image/gif" });
+            callback(imgFile);
+          });
       },
-chooseStaticImg(imageUrl) {
+      chooseStaticImg(imageUrl) {
         let base64Str = null;
         return new Promise((resolve, reject) => {
           this.getImageFileFromUrl(imageUrl, "图片.gif", (file) => {
@@ -1496,16 +1531,16 @@ chooseStaticImg(imageUrl) {
             reader.readAsDataURL(file);
           });
         });
-      }
+      },
     },
-async networkQueryContentType(url) {
+    async networkQueryContentType(url) {
       let resp = await httpx.head(url, {
-        fetch: true
+        fetch: true,
       });
       if (resp.status && resp.data.responseFetchHeaders.has("Content-Type")) {
         return resp.data.responseFetchHeaders.get("Content-Type");
       }
-    }
+    },
   };
   const allowImageType = [
     { rule: ".png", type: "image/png" },
@@ -1513,7 +1548,7 @@ async networkQueryContentType(url) {
     { rule: ".jpeg", type: "image/jpeg" },
     { rule: ".webp", type: "image/webp" },
     { rule: ".ico", type: "image/ico" },
-    { rule: ".gif", type: "image/gif" }
+    { rule: ".gif", type: "image/gif" },
   ];
   const Image = {
     init() {
@@ -1562,7 +1597,7 @@ async networkQueryContentType(url) {
               } else {
                 Qmsg.error("未知的图片类型");
               }
-            }
+            },
           },
           {
             icon: __pops.config.iconSVG.chromeFilled,
@@ -1579,7 +1614,7 @@ async networkQueryContentType(url) {
                 callback() {
                   utils.copy(ImageUtils.default.getBase64Image(imageElement, "image/jpg"));
                   Qmsg.success("复制成功！");
-                }
+                },
               },
               {
                 icon: __pops.config.iconSVG.documentCopy,
@@ -1588,7 +1623,7 @@ async networkQueryContentType(url) {
                 callback() {
                   utils.copy(ImageUtils.default.getBase64Image(imageElement, "image/jpeg"));
                   Qmsg.success("复制成功！");
-                }
+                },
               },
               {
                 icon: __pops.config.iconSVG.documentCopy,
@@ -1597,7 +1632,7 @@ async networkQueryContentType(url) {
                 callback() {
                   utils.copy(ImageUtils.default.getBase64Image(imageElement, "image/png"));
                   Qmsg.success("复制成功！");
-                }
+                },
               },
               {
                 icon: __pops.config.iconSVG.documentCopy,
@@ -1608,13 +1643,13 @@ async networkQueryContentType(url) {
                     utils.copy(text);
                     Qmsg.success("复制成功！");
                   });
-                }
-              }
-            ]
-          }
-        ]
+                },
+              },
+            ],
+          },
+        ],
       });
-    }
+    },
   };
   const PanelComponents = {
     $data: {
@@ -1624,21 +1659,21 @@ async networkQueryContentType(url) {
           this.__storeApiFn = new Utils.Dictionary();
         }
         return this.__storeApiFn;
-      }
+      },
     },
-getStorageApi(type) {
+    getStorageApi(type) {
       if (!this.hasStorageApi(type)) {
         return;
       }
       return this.$data.storeApiValue.get(type);
     },
-hasStorageApi(type) {
+    hasStorageApi(type) {
       return this.$data.storeApiValue.has(type);
     },
-setStorageApi(type, storageApiValue) {
+    setStorageApi(type, storageApiValue) {
       this.$data.storeApiValue.set(type, storageApiValue);
     },
-initComponentsStorageApi(type, config, storageApiValue) {
+    initComponentsStorageApi(type, config, storageApiValue) {
       let propsStorageApi;
       if (this.hasStorageApi(type)) {
         propsStorageApi = this.getStorageApi(type);
@@ -1647,11 +1682,20 @@ initComponentsStorageApi(type, config, storageApiValue) {
       }
       this.setComponentsStorageApiProperty(config, propsStorageApi);
     },
-setComponentsStorageApiProperty(config, storageApiValue) {
+    setComponentsStorageApiProperty(config, storageApiValue) {
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
-    }
+    },
   };
-  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack, disabled, valueChangeCallBack) {
+  const UISwitch = function (
+    text,
+    key,
+    defaultValue,
+    clickCallBack,
+    description,
+    afterAddToUListCallBack,
+    disabled,
+    valueChangeCallBack
+  ) {
     let result = {
       text,
       type: "switch",
@@ -1670,7 +1714,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
         let storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      afterAddToUListCallBack
+      afterAddToUListCallBack,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -1680,11 +1724,11 @@ setComponentsStorageApiProperty(config, storageApiValue) {
       },
       set(key2, value) {
         Panel.setValue(key2, value);
-      }
+      },
     });
     return result;
   };
-  const UISelect = function(text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
+  const UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
     let selectData = [];
     if (typeof data === "function") {
       selectData = data();
@@ -1713,7 +1757,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
         let storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      data: selectData
+      data: selectData,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -1723,7 +1767,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
       },
       set(key2, value) {
         Panel.setValue(key2, value);
-      }
+      },
     });
     return result;
   };
@@ -1742,40 +1786,40 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             [
               {
                 value: "topleft",
-                text: "左上角"
+                text: "左上角",
               },
               {
                 value: "top",
-                text: "顶部"
+                text: "顶部",
               },
               {
                 value: "topright",
-                text: "右上角"
+                text: "右上角",
               },
               {
                 value: "left",
-                text: "左边"
+                text: "左边",
               },
               {
                 value: "center",
-                text: "中间"
+                text: "中间",
               },
               {
                 value: "right",
-                text: "右边"
+                text: "右边",
               },
               {
                 value: "bottomleft",
-                text: "左下角"
+                text: "左下角",
               },
               {
                 value: "bottom",
-                text: "底部"
+                text: "底部",
               },
               {
                 value: "bottomright",
-                text: "右下角"
-              }
+                text: "右下角",
+              },
             ],
             (event, isSelectValue, isSelectText) => {
               log.info("设置当前Qmsg弹出位置" + isSelectText);
@@ -1789,32 +1833,32 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             [
               {
                 value: 1,
-                text: "1"
+                text: "1",
               },
               {
                 value: 2,
-                text: "2"
+                text: "2",
               },
               {
                 value: 3,
-                text: "3"
+                text: "3",
               },
               {
                 value: 4,
-                text: "4"
+                text: "4",
               },
               {
                 value: 5,
-                text: "5"
-              }
+                text: "5",
+              },
             ],
             void 0,
             "限制Toast显示的数量"
           ),
-          UISwitch("逆序弹出", "qmsg-config-showreverse", false, void 0, "修改Toast弹出的顺序")
-        ]
-      }
-    ]
+          UISwitch("逆序弹出", "qmsg-config-showreverse", false, void 0, "修改Toast弹出的顺序"),
+        ],
+      },
+    ],
   };
   (() => {
     PanelContent.addContentConfig([Component_Common]);
@@ -1833,5 +1877,4 @@ setComponentsStorageApiProperty(config, storageApiValue) {
     Panel.init();
     Image.init();
   })();
-
 })(Qmsg, DOMUtils, Utils, pops);

@@ -26,17 +26,19 @@
 // ==/UserScript==
 
 (function (Qmsg, DOMUtils, Utils, pops) {
-  'use strict';
+  "use strict";
 
-  var _GM_deleteValue = (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
-  var _GM_getResourceText = (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
-  var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
-  var _GM_info = (() => typeof GM_info != "undefined" ? GM_info : void 0)();
-  var _GM_registerMenuCommand = (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-  var _GM_setValue = (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
-  var _GM_unregisterMenuCommand = (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-  var _GM_xmlhttpRequest = (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
-  var _unsafeWindow = (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
+  var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
+  var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
+  var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
+  var _GM_info = (() => (typeof GM_info != "undefined" ? GM_info : void 0))();
+  var _GM_registerMenuCommand = (() =>
+    typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
+  var _GM_unregisterMenuCommand = (() =>
+    typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
+  var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
   var _monkeyWindow = (() => window)();
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
@@ -45,15 +47,15 @@
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const PROPS_STORAGE_API = "data-storage-api";
   const PanelSizeUtil = {
-get width() {
+    get width() {
       return globalThis.innerWidth;
     },
-get height() {
+    get height() {
       return globalThis.innerHeight;
-    }
+    },
   };
   const PanelUISize = {
-setting: {
+    setting: {
       get width() {
         if (PanelSizeUtil.width < 550) {
           return "88vw";
@@ -71,26 +73,26 @@ setting: {
         } else {
           return "550px";
         }
-      }
+      },
     },
-settingMiddle: {
+    settingMiddle: {
       get width() {
         return PanelSizeUtil.width < 350 ? "88vw" : "350px";
-      }
+      },
     },
-info: {
+    info: {
       get width() {
         return PanelSizeUtil.width < 350 ? "88vw" : "350px";
       },
       get height() {
         return PanelSizeUtil.height < 250 ? "88vh" : "250px";
-      }
-    }
+      },
+    },
   };
   class StorageUtils {
-storageKey;
+    storageKey;
     listenerData;
-constructor(key) {
+    constructor(key) {
       if (typeof key === "string") {
         let trimKey = key.trim();
         if (trimKey == "") {
@@ -102,7 +104,7 @@ constructor(key) {
       }
       this.listenerData = new Utils.Dictionary();
     }
-getLocalValue() {
+    getLocalValue() {
       let localValue = _GM_getValue(this.storageKey);
       if (localValue == null) {
         localValue = {};
@@ -110,63 +112,66 @@ getLocalValue() {
       }
       return localValue;
     }
-setLocalValue(value) {
+    setLocalValue(value) {
       _GM_setValue(this.storageKey, value);
     }
-set(key, value) {
+    set(key, value) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, value);
     }
-get(key, defaultValue) {
+    get(key, defaultValue) {
       let localValue = this.getLocalValue();
       return Reflect.get(localValue, key) ?? defaultValue;
     }
-getAll() {
+    getAll() {
       let localValue = this.getLocalValue();
       return localValue;
     }
-delete(key) {
+    delete(key) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, void 0);
     }
-has(key) {
+    has(key) {
       let localValue = this.getLocalValue();
       return Reflect.has(localValue, key);
     }
-keys() {
+    keys() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue);
     }
-values() {
+    values() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
     }
-clear() {
+    clear() {
       _GM_deleteValue(this.storageKey);
     }
-addValueChangeListener(key, callback) {
+    addValueChangeListener(key, callback) {
       let listenerId = Math.random();
       let listenerData = this.listenerData.get(key) || [];
       listenerData.push({
         id: listenerId,
         key,
-        callback
+        callback,
       });
       this.listenerData.set(key, listenerData);
       return listenerId;
     }
-removeValueChangeListener(listenerId) {
+    removeValueChangeListener(listenerId) {
       let flag = false;
       for (const [key, listenerData] of this.listenerData.entries()) {
         for (let index = 0; index < listenerData.length; index++) {
           const value = listenerData[index];
-          if (typeof listenerId === "string" && value.key === listenerId || typeof listenerId === "number" && value.id === listenerId) {
+          if (
+            (typeof listenerId === "string" && value.key === listenerId) ||
+            (typeof listenerId === "number" && value.id === listenerId)
+          ) {
             listenerData.splice(index, 1);
             index--;
             flag = true;
@@ -176,7 +181,7 @@ removeValueChangeListener(listenerId) {
       }
       return flag;
     }
-triggerValueChangeListener(key, oldValue, newValue) {
+    triggerValueChangeListener(key, oldValue, newValue) {
       if (!this.listenerData.has(key)) {
         return;
       }
@@ -216,29 +221,29 @@ triggerValueChangeListener(key, oldValue, newValue) {
           },
           callback: () => {
             Panel.showPanel(PanelContent.getConfig(0));
-          }
-        }
+          },
+        },
       ],
       get menuOption() {
         return this.__menuOption;
-      }
+      },
     },
     init() {
       this.initExtensionsMenu();
     },
-initExtensionsMenu() {
+    initExtensionsMenu() {
       if (!Panel.isTopWindow()) {
         return;
       }
       GM_Menu.add(this.$data.menuOption);
     },
-addMenuOption(option) {
+    addMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
       this.$data.menuOption.push(...option);
     },
-updateMenuOption(option) {
+    updateMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
@@ -251,15 +256,15 @@ updateMenuOption(option) {
         }
       });
     },
-getMenuOption(index = 0) {
+    getMenuOption(index = 0) {
       return this.$data.menuOption[index];
     },
-deleteMenuOption(index = 0) {
+    deleteMenuOption(index = 0) {
       this.$data.menuOption.splice(index, 1);
-    }
+    },
   };
   const CommonUtil = {
-waitRemove(...args) {
+    waitRemove(...args) {
       args.forEach((selector) => {
         if (typeof selector !== "string") {
           return;
@@ -269,7 +274,7 @@ waitRemove(...args) {
         });
       });
     },
-createBlockCSSNode(...args) {
+    createBlockCSSNode(...args) {
       let selectorList = [];
       if (args.length === 0) {
         return;
@@ -286,10 +291,10 @@ createBlockCSSNode(...args) {
       });
       return DOMUtils.createElement("style", {
         type: "text/css",
-        innerHTML: `${selectorList.join(",\n")}{display: none !important;}`
+        innerHTML: `${selectorList.join(",\n")}{display: none !important;}`,
       });
     },
-addBlockCSS(...args) {
+    addBlockCSS(...args) {
       let selectorList = [];
       if (args.length === 0) {
         return;
@@ -306,7 +311,7 @@ addBlockCSS(...args) {
       });
       return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
-setGMResourceCSS(resourceMapData) {
+    setGMResourceCSS(resourceMapData) {
       let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
       if (typeof cssText === "string" && cssText) {
         addStyle(cssText);
@@ -314,7 +319,7 @@ setGMResourceCSS(resourceMapData) {
         CommonUtil.loadStyleLink(resourceMapData.url);
       }
     },
-async loadStyleLink(url) {
+    async loadStyleLink(url) {
       let $link = document.createElement("link");
       $link.rel = "stylesheet";
       $link.type = "text/css";
@@ -323,7 +328,7 @@ async loadStyleLink(url) {
         document.head.appendChild($link);
       });
     },
-async loadScript(url) {
+    async loadScript(url) {
       let $script = document.createElement("script");
       $script.src = url;
       return new Promise((resolve) => {
@@ -333,7 +338,7 @@ async loadScript(url) {
         (document.head || document.documentElement).appendChild($script);
       });
     },
-fixUrl(url) {
+    fixUrl(url) {
       url = url.trim();
       if (url.startsWith("data:")) {
         return url;
@@ -341,7 +346,7 @@ fixUrl(url) {
       if (url.match(/^http(s|):\/\//i)) {
         return url;
       } else if (url.startsWith("//")) {
-        if (url.startsWith("///")) ;
+        if (url.startsWith("///"));
         else {
           url = window.location.protocol + url;
         }
@@ -354,7 +359,7 @@ fixUrl(url) {
         return url;
       }
     },
-fixHttps(url) {
+    fixHttps(url) {
       if (url.startsWith("https://")) {
         return url;
       }
@@ -369,46 +374,51 @@ fixHttps(url) {
         return url;
       }
     },
-lockScroll(...args) {
+    lockScroll(...args) {
       let $hidden = document.createElement("style");
-      $hidden.innerHTML =
-`
+      $hidden.innerHTML = `
 			.pops-overflow-hidden-important {
 				overflow: hidden !important;
 			}
 		`;
-      let $elList = [document.documentElement, document.body].concat(...args || []);
+      let $elList = [document.documentElement, document.body].concat(...(args || []));
       $elList.forEach(($el) => {
         $el.classList.add("pops-overflow-hidden-important");
       });
       (document.head || document.documentElement).appendChild($hidden);
       return {
-recovery() {
+        recovery() {
           $elList.forEach(($el) => {
             $el.classList.remove("pops-overflow-hidden-important");
           });
           $hidden.remove();
-        }
+        },
       };
     },
-async getClipboardText() {
+    async getClipboardText() {
       function readClipboardText(resolve) {
-        navigator.clipboard.readText().then((clipboardText) => {
-          resolve(clipboardText);
-        }).catch((error) => {
-          log.error("读取剪贴板内容失败👉", error);
-          resolve("");
-        });
+        navigator.clipboard
+          .readText()
+          .then((clipboardText) => {
+            resolve(clipboardText);
+          })
+          .catch((error) => {
+            log.error("读取剪贴板内容失败👉", error);
+            resolve("");
+          });
       }
       function requestPermissionsWithClipboard(resolve) {
-        navigator.permissions.query({
-name: "clipboard-read"
-        }).then((permissionStatus) => {
-          readClipboardText(resolve);
-        }).catch((error) => {
-          log.error("申请剪贴板权限失败，尝试直接读取👉", error.message ?? error.name ?? error.stack);
-          readClipboardText(resolve);
-        });
+        navigator.permissions
+          .query({
+            name: "clipboard-read",
+          })
+          .then((permissionStatus) => {
+            readClipboardText(resolve);
+          })
+          .catch((error) => {
+            log.error("申请剪贴板权限失败，尝试直接读取👉", error.message ?? error.name ?? error.stack);
+            readClipboardText(resolve);
+          });
       }
       function checkClipboardApi() {
         if (typeof navigator?.clipboard?.readText !== "function") {
@@ -433,22 +443,42 @@ name: "clipboard-read"
               requestPermissionsWithClipboard(resolve);
             },
             {
-              once: true
+              once: true,
             }
           );
         }
       });
     },
-escapeHtml(unsafe) {
-      return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
+    escapeHtml(unsafe) {
+      return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;")
+        .replace(/©/g, "&copy;")
+        .replace(/®/g, "&reg;")
+        .replace(/™/g, "&trade;")
+        .replace(/→/g, "&rarr;")
+        .replace(/←/g, "&larr;")
+        .replace(/↑/g, "&uarr;")
+        .replace(/↓/g, "&darr;")
+        .replace(/—/g, "&mdash;")
+        .replace(/–/g, "&ndash;")
+        .replace(/…/g, "&hellip;")
+        .replace(/ /g, "&nbsp;")
+        .replace(/\r\n/g, "<br>")
+        .replace(/\r/g, "<br>")
+        .replace(/\n/g, "<br>")
+        .replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
     },
-interval(fn, intervalTime, timeout = 5e3) {
+    interval(fn, intervalTime, timeout = 5e3) {
       let timeId;
       let maxTimeout = timeout - intervalTime;
       let intervalTimeCount = intervalTime;
       let loop = async (isTimeout) => {
         let result = await fn(isTimeout);
-        if (typeof result === "boolean" && !result || isTimeout) {
+        if ((typeof result === "boolean" && !result) || isTimeout) {
           utils.workerClearTimeout(timeId);
           return;
         }
@@ -463,7 +493,7 @@ interval(fn, intervalTime, timeout = 5e3) {
       };
       loop(false);
     },
-findParentNode($el, selector, parentSelector) {
+    findParentNode($el, selector, parentSelector) {
       if (parentSelector) {
         let $parent = DOMUtils.closest($el, parentSelector);
         if ($parent) {
@@ -477,63 +507,63 @@ findParentNode($el, selector, parentSelector) {
         let $parent = DOMUtils.closest($el, selector);
         return $parent;
       }
-    }
+    },
   };
   const Panel = {
-$data: {
-__contentConfigInitDefaultValue: null,
-__onceExecMenuData: null,
-__urlChangeReloadMenuExecOnce: null,
-__onceExecData: null,
-__panelConfig: {},
-$panel: null,
-panelContent: [],
-get contentConfigInitDefaultValue() {
+    $data: {
+      __contentConfigInitDefaultValue: null,
+      __onceExecMenuData: null,
+      __urlChangeReloadMenuExecOnce: null,
+      __onceExecData: null,
+      __panelConfig: {},
+      $panel: null,
+      panelContent: [],
+      get contentConfigInitDefaultValue() {
         if (this.__contentConfigInitDefaultValue == null) {
           this.__contentConfigInitDefaultValue = new utils.Dictionary();
         }
         return this.__contentConfigInitDefaultValue;
       },
-contentConfigInitDisabledKeys: [],
-get onceExecMenuData() {
+      contentConfigInitDisabledKeys: [],
+      get onceExecMenuData() {
         if (this.__onceExecMenuData == null) {
           this.__onceExecMenuData = new utils.Dictionary();
         }
         return this.__onceExecMenuData;
       },
-get urlChangeReloadMenuExecOnce() {
+      get urlChangeReloadMenuExecOnce() {
         if (this.__urlChangeReloadMenuExecOnce == null) {
           this.__urlChangeReloadMenuExecOnce = new utils.Dictionary();
         }
         return this.__urlChangeReloadMenuExecOnce;
       },
-get onceExecData() {
+      get onceExecData() {
         if (this.__onceExecData == null) {
           this.__onceExecData = new utils.Dictionary();
         }
         return this.__onceExecData;
       },
-get scriptName() {
+      get scriptName() {
         return SCRIPT_NAME;
       },
-get panelConfig() {
+      get panelConfig() {
         return this.__panelConfig;
       },
       set panelConfig(value) {
         this.__panelConfig = value;
       },
-key: KEY,
-attributeKeyName: ATTRIBUTE_KEY,
-attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
+      key: KEY,
+      attributeKeyName: ATTRIBUTE_KEY,
+      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE,
     },
     init() {
       this.initContentDefaultValue();
       PanelMenu.init();
     },
-isTopWindow() {
+    isTopWindow() {
       return _unsafeWindow.top === _unsafeWindow.self;
     },
-initContentDefaultValue() {
+    initContentDefaultValue() {
       const initDefaultValue = (config) => {
         if (!config.attributes) {
           return;
@@ -597,19 +627,19 @@ initContentDefaultValue() {
       }
       this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
     },
-setDefaultValue(key, defaultValue) {
+    setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
         log.warn("请检查该key(已存在): " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
-getDefaultValue(key) {
+    getDefaultValue(key) {
       return this.$data.contentConfigInitDefaultValue.get(key);
     },
-setValue(key, value) {
+    setValue(key, value) {
       PopsPanelStorageApi.set(key, value);
     },
-getValue(key, defaultValue) {
+    getValue(key, defaultValue) {
       let localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
         if (this.$data.contentConfigInitDefaultValue.has(key)) {
@@ -619,25 +649,25 @@ getValue(key, defaultValue) {
       }
       return localValue;
     },
-deleteValue(key) {
+    deleteValue(key) {
       PopsPanelStorageApi.delete(key);
     },
-hasKey(key) {
+    hasKey(key) {
       return PopsPanelStorageApi.has(key);
     },
-addValueChangeListener(key, callback) {
+    addValueChangeListener(key, callback) {
       let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
         callback(key, __oldValue, __newValue);
       });
       return listenerId;
     },
-removeValueChangeListener(listenerId) {
+    removeValueChangeListener(listenerId) {
       PopsPanelStorageApi.removeValueChangeListener(listenerId);
     },
-triggerMenuValueChange(key, newValue, oldValue) {
+    triggerMenuValueChange(key, newValue, oldValue) {
       PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
     },
-exec(queryKey, callback, checkExec, once = true) {
+    exec(queryKey, callback, checkExec, once = true) {
       const that = this;
       let queryKeyFn;
       if (typeof queryKey === "string" || Array.isArray(queryKey)) {
@@ -715,7 +745,7 @@ exec(queryKey, callback, checkExec, once = true) {
             value: isArrayKey ? valueList : valueList[0],
             addStyleElement: (...args) => {
               return dynamicAddStyleNodeCallback(true, ...args);
-            }
+            },
           });
           if (!Array.isArray(callbackResult)) {
             callbackResult = [callbackResult];
@@ -733,35 +763,36 @@ exec(queryKey, callback, checkExec, once = true) {
         clearBeforeStoreValue();
         storeValueList = [...resultList];
       };
-      once && keyList.forEach((key) => {
-        let listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
-          valueChangeCallback();
+      once &&
+        keyList.forEach((key) => {
+          let listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
+            valueChangeCallback();
+          });
+          listenerIdList.push(listenerId);
         });
-        listenerIdList.push(listenerId);
-      });
       valueChangeCallback();
       let result = {
-reload() {
+        reload() {
           valueChangeCallback();
         },
-clear() {
+        clear() {
           this.clearStoreStyleElements();
           this.removeValueChangeListener();
           once && that.$data.onceExecMenuData.delete(storageKey);
         },
-clearStoreStyleElements: () => {
+        clearStoreStyleElements: () => {
           return clearBeforeStoreValue();
         },
-removeValueChangeListener: () => {
+        removeValueChangeListener: () => {
           listenerIdList.forEach((listenerId) => {
             this.removeValueChangeListener(listenerId);
           });
-        }
+        },
       };
       this.$data.onceExecMenuData.set(storageKey, result);
       return result;
     },
-execMenu(key, callback, isReverse = false, once = false) {
+    execMenu(key, callback, isReverse = false, once = false) {
       return this.exec(
         key,
         (option) => {
@@ -783,7 +814,7 @@ execMenu(key, callback, isReverse = false, once = false) {
         once
       );
     },
-execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
+    execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
       const result = this.execMenu(key, callback, isReverse, true);
       if (listenUrlChange) {
         if (result) {
@@ -801,14 +832,14 @@ execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
       }
       return result;
     },
-deleteExecMenuOnce(key) {
+    deleteExecMenuOnce(key) {
       key = this.transformKey(key);
       this.$data.onceExecMenuData.delete(key);
       this.$data.urlChangeReloadMenuExecOnce.delete(key);
       let flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
-onceExec(key, callback) {
+    onceExec(key, callback) {
       key = this.transformKey(key);
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
@@ -819,30 +850,36 @@ onceExec(key, callback) {
       callback();
       this.$data.onceExecData.set(key, 1);
     },
-deleteOnceExec(key) {
+    deleteOnceExec(key) {
       key = this.transformKey(key);
       this.$data.onceExecData.delete(key);
     },
-addUrlChangeWithExecMenuOnceListener(key, callback) {
+    addUrlChangeWithExecMenuOnceListener(key, callback) {
       key = this.transformKey(key);
       this.$data.urlChangeReloadMenuExecOnce.set(key, callback);
     },
-removeUrlChangeWithExecMenuOnceListener(key) {
+    removeUrlChangeWithExecMenuOnceListener(key) {
       key = this.transformKey(key);
       this.$data.urlChangeReloadMenuExecOnce.delete(key);
     },
-triggerUrlChangeWithExecMenuOnceEvent(config) {
+    triggerUrlChangeWithExecMenuOnceEvent(config) {
       this.$data.urlChangeReloadMenuExecOnce.forEach((callback, key) => {
         callback(config);
       });
     },
-showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
+    showPanel(
+      content,
+      title = `${SCRIPT_NAME}-设置`,
+      preventDefaultContentConfig = false,
+      preventRegisterSearchPlugin = false
+    ) {
       this.$data.$panel = null;
       this.$data.panelContent = [];
-      let checkHasBottomVersionContentConfig = content.findIndex((it) => {
-        let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
-        return isBottom && it.id === "script-version";
-      }) !== -1;
+      let checkHasBottomVersionContentConfig =
+        content.findIndex((it) => {
+          let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
+          return isBottom && it.id === "script-version";
+        }) !== -1;
       if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig) {
         content.push(...PanelContent.getDefaultBottomContentConfig());
       }
@@ -852,7 +889,7 @@ showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig 
             text: title,
             position: "center",
             html: false,
-            style: ""
+            style: "",
           },
           content,
           btn: {
@@ -861,26 +898,26 @@ showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig 
               callback: (details, event) => {
                 details.close();
                 this.$data.$panel = null;
-              }
-            }
+              },
+            },
           },
           mask: {
             enable: true,
             clickEvent: {
               toClose: true,
-              toHide: false
+              toHide: false,
             },
             clickCallBack: (originalRun, config) => {
               originalRun();
               this.$data.$panel = null;
-            }
+            },
           },
           width: PanelUISize.setting.width,
           height: PanelUISize.setting.height,
           drag: true,
-          only: true
+          only: true,
         },
-        ...this.$data.panelConfig
+        ...this.$data.panelConfig,
       });
       this.$data.$panel = $panel;
       this.$data.panelContent = content;
@@ -888,7 +925,7 @@ showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig 
         this.registerConfigSearch({ $panel, content });
       }
     },
-registerConfigSearch(config) {
+    registerConfigSearch(config) {
       const { $panel, content } = config;
       let asyncQueryProperty = async (target, handler) => {
         if (target == null) {
@@ -912,8 +949,8 @@ registerConfigSearch(config) {
           },
           {
             root: null,
-threshold: 1
-}
+            threshold: 1,
+          }
         );
         observer.observe($el);
         $el.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -930,32 +967,29 @@ threshold: 1
         let $alert = __pops.alert({
           title: {
             text: "搜索配置",
-            position: "center"
+            position: "center",
           },
           content: {
-            text: (
-`
+            text: `
 						<div class="search-wrapper">
 							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
 						</div>
 						<div class="search-result-wrapper"></div>
-					`
-            ),
-            html: true
+					`,
+            html: true,
           },
           btn: {
-            ok: { enable: false }
+            ok: { enable: false },
           },
           mask: {
             clickEvent: {
-              toClose: true
-            }
+              toClose: true,
+            },
           },
           width: PanelUISize.settingMiddle.width,
           height: "auto",
           drag: true,
-          style: (
-`
+          style: `
 					${__pops.config.cssText.panelCSS}
 
 					.search-wrapper{
@@ -993,8 +1027,7 @@ threshold: 1
 						color: #6c6c6c;
 					}
 					${config.searchDialogStyle ?? ""}
-				`
-          )
+				`,
         });
         $alert.$shadowRoot.querySelector(".search-wrapper");
         let $searchInput = $alert.$shadowRoot.querySelector(".search-config-text");
@@ -1008,23 +1041,21 @@ threshold: 1
             if (target?.next) {
               return {
                 isFind: false,
-                data: target.next
+                data: target.next,
               };
             } else {
               return {
                 isFind: true,
-                data: target
+                data: target,
               };
             }
           });
           let $item = domUtils.createElement("div", {
             className: "search-result-item",
-            innerHTML: (
-`
+            innerHTML: `
 							<div class="search-result-item-path">${searchPath.matchedData?.path}</div>
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
-						`
-            )
+						`,
           });
           domUtils.on($item, "click", (clickItemEvent) => {
             let $asideItems = $panel.$shadowRoot.querySelectorAll(
@@ -1037,18 +1068,22 @@ threshold: 1
             }
             $targetAsideItem.scrollIntoView({
               behavior: "smooth",
-              block: "center"
+              block: "center",
             });
             $targetAsideItem.click();
             asyncQueryProperty(pathInfo.next, async (target) => {
               if (target?.next) {
                 let $findDeepMenu = await domUtils.waitNode(() => {
-                  return Array.from(
-                    $panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")
-                  ).find(($deepMenu) => {
-                    const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
-                    return typeof __formConfig__ === "object" && __formConfig__ != null && __formConfig__.text === target.name;
-                  });
+                  return Array.from($panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")).find(
+                    ($deepMenu) => {
+                      const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
+                      return (
+                        typeof __formConfig__ === "object" &&
+                        __formConfig__ != null &&
+                        __formConfig__.text === target.name
+                      );
+                    }
+                  );
                 }, 2500);
                 if ($findDeepMenu) {
                   $findDeepMenu.click();
@@ -1056,21 +1091,21 @@ threshold: 1
                   Qmsg.error("未找到对应的二级菜单");
                   return {
                     isFind: true,
-                    data: target
+                    data: target,
                   };
                 }
                 return {
                   isFind: false,
-                  data: target.next
+                  data: target.next,
                 };
               } else {
                 let $findTargetMenu = await domUtils.waitNode(() => {
-                  return Array.from(
-                    $panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)
-                  ).find(($menuItem) => {
-                    const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
-                    return __formConfig__ === target.matchedData?.formConfig;
-                  });
+                  return Array.from($panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)).find(
+                    ($menuItem) => {
+                      const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
+                      return __formConfig__ === target.matchedData?.formConfig;
+                    }
+                  );
                 }, 2500);
                 if ($findTargetMenu) {
                   scrollToElementAndListen($findTargetMenu);
@@ -1088,7 +1123,7 @@ threshold: 1
                 }
                 return {
                   isFind: true,
-                  data: target
+                  data: target,
                 };
               }
             });
@@ -1109,17 +1144,17 @@ threshold: 1
                     if (target?.next) {
                       return {
                         isFind: false,
-                        data: target.next
+                        data: target.next,
                       };
                     } else {
                       return {
                         isFind: true,
-                        data: target
+                        data: target,
                       };
                     }
                   });
                   deepNext.next = {
-                    name: configItem.text
+                    name: configItem.text,
                   };
                 }
                 loopContentConfig(child_forms, deepMenuPath);
@@ -1139,12 +1174,12 @@ threshold: 1
                     if (target?.next) {
                       return {
                         isFind: false,
-                        data: target.next
+                        data: target.next,
                       };
                     } else {
                       return {
                         isFind: true,
-                        data: target
+                        data: target,
                       };
                     }
                   });
@@ -1154,8 +1189,8 @@ threshold: 1
                       path: "",
                       formConfig: configItem,
                       matchedText: delayMatchedTextList[matchedIndex],
-                      description
-                    }
+                      description,
+                    },
                   };
                   const pathList = [];
                   utils.queryProperty(matchedPath, (target) => {
@@ -1166,12 +1201,12 @@ threshold: 1
                     if (target?.next) {
                       return {
                         isFind: false,
-                        data: target.next
+                        data: target.next,
                       };
                     } else {
                       return {
                         isFind: true,
-                        data: target
+                        data: target,
                       };
                     }
                   });
@@ -1198,7 +1233,7 @@ threshold: 1
               }
               loopContentConfig(rightContentConfigList, {
                 index,
-                name: text
+                name: text,
               });
             }
           }
@@ -1253,14 +1288,13 @@ threshold: 1
           }
         },
         {
-          capture: true
+          capture: true,
         }
       );
       $panel.$shadowRoot.appendChild(
         domUtils.createElement("style", {
           type: "text/css",
-          textContent: (
-`
+          textContent: `
 					.pops-flashing{
 						animation: double-blink 1.5s ease-in-out;
 					}
@@ -1281,33 +1315,32 @@ threshold: 1
 							background-color: initial;
 						}
 					}
-				`
-          )
+				`,
         })
       );
     },
-transformKey(key) {
+    transformKey(key) {
       if (Array.isArray(key)) {
         const keyArray = key.sort();
         return JSON.stringify(keyArray);
       } else {
         return key;
       }
-    }
+    },
   };
   const PanelSettingConfig = {
-qmsg_config_position: {
+    qmsg_config_position: {
       key: "qmsg-config-position",
-      defaultValue: "bottom"
+      defaultValue: "bottom",
     },
-qmsg_config_maxnums: {
+    qmsg_config_maxnums: {
       key: "qmsg-config-maxnums",
-      defaultValue: 3
+      defaultValue: 3,
     },
-qmsg_config_showreverse: {
+    qmsg_config_showreverse: {
       key: "qmsg-config-showreverse",
-      defaultValue: false
-    }
+      defaultValue: false,
+    },
   };
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
@@ -1320,7 +1353,7 @@ qmsg_config_showreverse: {
     debug: false,
     logMaxCount: 250,
     autoClearConsole: true,
-    tag: true
+    tag: true,
   });
   Qmsg.config({
     isHTML: true,
@@ -1363,7 +1396,7 @@ qmsg_config_showreverse: {
       let maxZIndex = Utils.getMaxZIndex();
       let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-    }
+    },
   });
   __pops.GlobalConfig.setGlobalConfig({
     zIndex: () => {
@@ -1379,23 +1412,23 @@ qmsg_config_showreverse: {
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
     },
     mask: {
-enable: true,
-clickEvent: {
+      enable: true,
+      clickEvent: {
         toClose: false,
-        toHide: false
-      }
+        toHide: false,
+      },
     },
-    drag: true
+    drag: true,
   });
   const GM_Menu = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,
     GM_registerMenuCommand: _GM_registerMenuCommand,
-    GM_unregisterMenuCommand: _GM_unregisterMenuCommand
+    GM_unregisterMenuCommand: _GM_unregisterMenuCommand,
   });
   const httpx = new utils.Httpx({
     xmlHttpRequest: _GM_xmlhttpRequest,
-    logDetails: DEBUG
+    logDetails: DEBUG,
   });
   httpx.interceptors.request.use((data) => {
     return data;
@@ -1415,16 +1448,16 @@ clickEvent: {
   });
   ({
     Object: {
-      defineProperty: _unsafeWindow.Object.defineProperty
+      defineProperty: _unsafeWindow.Object.defineProperty,
     },
     Function: {
       apply: _unsafeWindow.Function.prototype.apply,
-      call: _unsafeWindow.Function.prototype.call
+      call: _unsafeWindow.Function.prototype.call,
     },
     Element: {
-      appendChild: _unsafeWindow.Element.prototype.appendChild
+      appendChild: _unsafeWindow.Element.prototype.appendChild,
     },
-    setTimeout: _unsafeWindow.setTimeout
+    setTimeout: _unsafeWindow.setTimeout,
   });
   const addStyle = domUtils.addStyle.bind(domUtils);
   DOMUtils.selector.bind(DOMUtils);
@@ -1432,28 +1465,28 @@ clickEvent: {
   new utils.GM_Cookie();
   const PanelContent = {
     $data: {
-__contentConfig: null,
+      __contentConfig: null,
       get contentConfig() {
         if (this.__contentConfig == null) {
           this.__contentConfig = new utils.Dictionary();
         }
         return this.__contentConfig;
-      }
+      },
     },
-addContentConfig(configList) {
+    addContentConfig(configList) {
       if (!Array.isArray(configList)) {
         configList = [configList];
       }
       let index = this.$data.contentConfig.keys().length;
       this.$data.contentConfig.set(index, configList);
     },
-getAllContentConfig() {
+    getAllContentConfig() {
       return this.$data.contentConfig.values().flat();
     },
-getConfig(index = 0) {
+    getConfig(index = 0) {
       return this.$data.contentConfig.get(index) ?? [];
     },
-getDefaultBottomContentConfig() {
+    getDefaultBottomContentConfig() {
       return [
         {
           id: "script-version",
@@ -1466,10 +1499,10 @@ getDefaultBottomContentConfig() {
               window.open(supportURL, "_blank");
             }
             return false;
-          }
-        }
+          },
+        },
       ];
-    }
+    },
   };
   const NetWorkHook = {
     get ajaxHooker() {
@@ -1505,7 +1538,7 @@ getDefaultBottomContentConfig() {
     },
     unhook() {
       this.ajaxHooker.unhook();
-    }
+    },
   };
   const PanelComponents = {
     $data: {
@@ -1515,21 +1548,21 @@ getDefaultBottomContentConfig() {
           this.__storeApiFn = new Utils.Dictionary();
         }
         return this.__storeApiFn;
-      }
+      },
     },
-getStorageApi(type) {
+    getStorageApi(type) {
       if (!this.hasStorageApi(type)) {
         return;
       }
       return this.$data.storeApiValue.get(type);
     },
-hasStorageApi(type) {
+    hasStorageApi(type) {
       return this.$data.storeApiValue.has(type);
     },
-setStorageApi(type, storageApiValue) {
+    setStorageApi(type, storageApiValue) {
       this.$data.storeApiValue.set(type, storageApiValue);
     },
-initComponentsStorageApi(type, config, storageApiValue) {
+    initComponentsStorageApi(type, config, storageApiValue) {
       let propsStorageApi;
       if (this.hasStorageApi(type)) {
         propsStorageApi = this.getStorageApi(type);
@@ -1538,11 +1571,22 @@ initComponentsStorageApi(type, config, storageApiValue) {
       }
       this.setComponentsStorageApiProperty(config, propsStorageApi);
     },
-setComponentsStorageApiProperty(config, storageApiValue) {
+    setComponentsStorageApiProperty(config, storageApiValue) {
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
-    }
+    },
   };
-  const UIInput = function(text, key, defaultValue, description, changeCallback, placeholder = "", isNumber, isPassword, afterAddToUListCallBack, valueChangeCallback) {
+  const UIInput = function (
+    text,
+    key,
+    defaultValue,
+    description,
+    changeCallback,
+    placeholder = "",
+    isNumber,
+    isPassword,
+    afterAddToUListCallBack,
+    valueChangeCallback
+  ) {
     let result = {
       text,
       type: "input",
@@ -1560,7 +1604,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
         let storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      placeholder
+      placeholder,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -1570,11 +1614,20 @@ setComponentsStorageApiProperty(config, storageApiValue) {
       },
       set(key2, value) {
         Panel.setValue(key2, value);
-      }
+      },
     });
     return result;
   };
-  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack, disabled, valueChangeCallBack) {
+  const UISwitch = function (
+    text,
+    key,
+    defaultValue,
+    clickCallBack,
+    description,
+    afterAddToUListCallBack,
+    disabled,
+    valueChangeCallBack
+  ) {
     let result = {
       text,
       type: "switch",
@@ -1593,7 +1646,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
         let storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      afterAddToUListCallBack
+      afterAddToUListCallBack,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -1603,7 +1656,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
       },
       set(key2, value) {
         Panel.setValue(key2, value);
-      }
+      },
     });
     return result;
   };
@@ -1612,40 +1665,37 @@ setComponentsStorageApiProperty(config, storageApiValue) {
     constructor(option) {
       this.option = option;
     }
-async showView() {
+    async showView() {
       let $dialog = __pops.confirm({
         title: {
           text: this.option.title,
-          position: "center"
+          position: "center",
         },
         content: {
-          text: (
-`
+          text: `
                     <form class="rule-form-container" onsubmit="return false">
                         <ul class="rule-form-ulist"></ul>
                         <input type="submit" style="display: none;" />
                     </form>
-                    `
-          ),
-          html: true
+                    `,
+          html: true,
         },
         btn: utils.assign(
           {
             ok: {
               callback: async () => {
                 await submitSaveOption();
-              }
-            }
+              },
+            },
           },
           this.option.btn || {},
           true
         ),
         drag: true,
         mask: {
-          enable: true
+          enable: true,
         },
-        style: (
-`
+        style: `
                 ${__pops.config.cssText.panelCSS}
                 
                 .rule-form-container {
@@ -1698,10 +1748,11 @@ async showView() {
 				}
 
                 ${this.option?.style ?? ""}
-            `
-        ),
-        width: typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
-        height: typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh"
+            `,
+        width:
+          typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
+        height:
+          typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh",
       });
       let $form = $dialog.$shadowRoot.querySelector(".rule-form-container");
       $dialog.$shadowRoot.querySelector("input[type=submit]");
@@ -1727,29 +1778,26 @@ async showView() {
       let $alert = __pops.alert({
         title: {
           text: this.option.title,
-          position: "center"
+          position: "center",
         },
         content: {
-          text: (
-`
+          text: `
                 <div class="filter-container"></div>
-                `
-          )
+                `,
         },
         btn: {
           ok: {
             text: "关闭",
-            type: "default"
-          }
+            type: "default",
+          },
         },
         drag: true,
         mask: {
-          enable: true
+          enable: true,
         },
         width: window.innerWidth > 500 ? "350px" : "80vw",
         height: window.innerHeight > 500 ? "300px" : "70vh",
-        style: (
-`
+        style: `
             .filter-container{
                 height: 100%;
                 display: flex;
@@ -1762,8 +1810,7 @@ async showView() {
                 height: auto;
                 text-align: left;
             }
-            `
-        )
+            `,
       });
       let $filterContainer = $alert.$shadowRoot.querySelector(".filter-container");
       let $fragment = document.createDocumentFragment();
@@ -1771,10 +1818,10 @@ async showView() {
         let $button = domUtils.createElement(
           "button",
           {
-            innerText: filterOption.name
+            innerText: filterOption.name,
           },
           {
-            type: "button"
+            type: "button",
           }
         );
         let execFilterAndCloseDialog = async () => {
@@ -1812,20 +1859,18 @@ async showView() {
     constructor(option) {
       this.option = option;
     }
-async showView(filterCallBack) {
+    async showView(filterCallBack) {
       let $popsConfirm = __pops.confirm({
         title: {
           text: this.option.title,
-          position: "center"
+          position: "center",
         },
         content: {
-          text: (
-`
+          text: `
                     <div class="rule-view-container">
                     </div>
-                    `
-          ),
-          html: true
+                    `,
+          html: true,
         },
         btn: {
           merge: true,
@@ -1837,13 +1882,13 @@ async showView(filterCallBack) {
             text: "添加",
             callback: async (event) => {
               this.showEditView(false, await this.option.getAddData(), $popsConfirm.$shadowRoot);
-            }
+            },
           },
           close: {
             enable: true,
             callback(event) {
               $popsConfirm.close();
-            }
+            },
           },
           cancel: {
             enable: this.option?.bottomControls?.filter?.enable || false,
@@ -1857,15 +1902,13 @@ async showView(filterCallBack) {
                 }
               }
               let getAllRuleElement = () => {
-                return Array.from(
-                  $popsConfirm.$shadowRoot.querySelectorAll(".rule-view-container .rule-item")
-                );
+                return Array.from($popsConfirm.$shadowRoot.querySelectorAll(".rule-view-container .rule-item"));
               };
               let $button = event.target.closest(".pops-confirm-btn").querySelector(".pops-confirm-btn-cancel span");
               if (domUtils.text($button).includes("取消")) {
                 let cancelFilterResult = await this.option?.bottomControls?.filter?.cancelFilterCallback?.({
                   $button,
-                  getAllRuleElement
+                  getAllRuleElement,
                 });
                 if (typeof cancelFilterResult === "boolean" && !cancelFilterResult) {
                   return;
@@ -1886,14 +1929,14 @@ async showView(filterCallBack) {
                     return getAllRuleElement().map(($el) => {
                       return {
                         data: this.parseRuleItemElement($el).data,
-                        $el
+                        $el,
                       };
                     });
-                  }
+                  },
                 });
                 ruleFilterView.showView();
               }
-            }
+            },
           },
           other: {
             enable: this.option?.bottomControls?.clear?.enable || true,
@@ -1903,11 +1946,11 @@ async showView(filterCallBack) {
               let $askDialog = __pops.confirm({
                 title: {
                   text: "提示",
-                  position: "center"
+                  position: "center",
                 },
                 content: {
                   text: "确定清空所有的数据？",
-                  html: false
+                  html: false,
                 },
                 btn: {
                   ok: {
@@ -1927,27 +1970,26 @@ async showView(filterCallBack) {
                       await this.updateDeleteAllBtnText($popsConfirm.$shadowRoot);
                       this.clearContent($popsConfirm.$shadowRoot);
                       $askDialog.close();
-                    }
+                    },
                   },
                   cancel: {
                     text: "取消",
-                    enable: true
-                  }
+                    enable: true,
+                  },
                 },
                 mask: { enable: true },
                 width: "300px",
-                height: "200px"
+                height: "200px",
               });
-            }
-          }
+            },
+          },
         },
         mask: {
-          enable: true
+          enable: true,
         },
         width: window.innerWidth > 500 ? "500px" : "88vw",
         height: window.innerHeight > 500 ? "500px" : "80vh",
-        style: (
-`
+        style: `
             ${__pops.config.cssText.panelCSS}
             
             .rule-item{
@@ -1988,8 +2030,7 @@ async showView(filterCallBack) {
                 height: 16px;
                 cursor: pointer;
             }
-            `
-        )
+            `,
       });
       let allData = await this.option.data();
       let changeButtonText = false;
@@ -2000,7 +2041,8 @@ async showView(filterCallBack) {
         if (typeof filterCallBack === "function") {
           isNotFilterFlag = filterCallBack(item);
         } else if (typeof filterCallBack === "number" && !isNaN(filterCallBack)) {
-          isNotFilterFlag = await this.option.bottomControls?.filter?.option[filterCallBack]?.filterCallBack(item) ?? isNotFilterFlag;
+          isNotFilterFlag =
+            (await this.option.bottomControls?.filter?.option[filterCallBack]?.filterCallBack(item)) ?? isNotFilterFlag;
         }
         if (!isNotFilterFlag) {
           changeButtonText = true;
@@ -2012,7 +2054,7 @@ async showView(filterCallBack) {
         domUtils.text($button, "取消过滤");
       }
     }
-showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
+    showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
       let dialogCloseCallBack = async (isSubmit) => {
         if (isSubmit) {
           if (typeof submitCallBack === "function") {
@@ -2041,29 +2083,30 @@ showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDa
         btn: {
           ok: {
             enable: true,
-            text: isEdit ? "修改" : "添加"
+            text: isEdit ? "修改" : "添加",
           },
           cancel: {
             callback: async (detail, event) => {
               detail.close();
               await dialogCloseCallBack(false);
-            }
+            },
           },
           close: {
             callback: async (detail, event) => {
               detail.close();
               await dialogCloseCallBack(false);
-            }
-          }
+            },
+          },
         },
         onsubmit: async ($form, data) => {
           let result = await this.option.itemControls.edit.onsubmit($form, isEdit, data);
           if (result.success) {
             if (isEdit) {
               Qmsg.success("修改成功");
-              $parentShadowRoot && await this.updateRuleItemElement(result.data, $editRuleItemElement, $parentShadowRoot);
+              $parentShadowRoot &&
+                (await this.updateRuleItemElement(result.data, $editRuleItemElement, $parentShadowRoot));
             } else {
-              $parentShadowRoot && await this.appendRuleItemElement($parentShadowRoot, result.data);
+              $parentShadowRoot && (await this.appendRuleItemElement($parentShadowRoot, result.data));
             }
           } else {
             if (isEdit) {
@@ -2074,19 +2117,19 @@ showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDa
         },
         style: this.option.itemControls.edit.style,
         width: this.option.itemControls.edit.width,
-        height: this.option.itemControls.edit.height
+        height: this.option.itemControls.edit.height,
       });
       editView.showView();
     }
-parseViewElement($shadowRoot) {
+    parseViewElement($shadowRoot) {
       let $container = $shadowRoot.querySelector(".rule-view-container");
       let $deleteBtn = $shadowRoot.querySelector(".pops-confirm-btn button.pops-confirm-btn-other");
       return {
-$container,
-$deleteBtn
+        $container,
+        $deleteBtn,
       };
     }
-parseRuleItemElement($ruleElement) {
+    parseRuleItemElement($ruleElement) {
       let $enable = $ruleElement.querySelector(".rule-controls-enable");
       let $enableSwitch = $enable.querySelector(".pops-panel-switch");
       let $enableSwitchInput = $enable.querySelector(".pops-panel-switch__input");
@@ -2094,21 +2137,20 @@ parseRuleItemElement($ruleElement) {
       let $edit = $ruleElement.querySelector(".rule-controls-edit");
       let $delete = $ruleElement.querySelector(".rule-controls-delete");
       return {
-$enable,
-$enableSwitch,
-$enableSwitchInput,
-$enableSwitchCore,
-$edit,
-$delete,
-data: Reflect.get($ruleElement, "data-rule")
+        $enable,
+        $enableSwitch,
+        $enableSwitchInput,
+        $enableSwitchCore,
+        $edit,
+        $delete,
+        data: Reflect.get($ruleElement, "data-rule"),
       };
     }
-async createRuleItemElement(data, $shadowRoot) {
+    async createRuleItemElement(data, $shadowRoot) {
       let name = await this.option.getDataItemName(data);
       let $ruleItem = domUtils.createElement("div", {
         className: "rule-item",
-        innerHTML: (
-`
+        innerHTML: `
 			<div class="rule-name">${name}</div>
 			<div class="rule-controls">
 				<div class="rule-controls-enable">
@@ -2127,12 +2169,12 @@ async createRuleItemElement(data, $shadowRoot) {
 					${__pops.config.iconSVG.delete}
 				</div>
 			</div>
-			`
-        )
+			`,
       });
       Reflect.set($ruleItem, "data-rule", data);
       let switchCheckedClassName = "pops-panel-switch-is-checked";
-      const { $enable, $enableSwitch, $enableSwitchCore, $enableSwitchInput, $delete, $edit } = this.parseRuleItemElement($ruleItem);
+      const { $enable, $enableSwitch, $enableSwitchCore, $enableSwitchInput, $delete, $edit } =
+        this.parseRuleItemElement($ruleItem);
       if (this.option.itemControls.enable.enable) {
         domUtils.on($enableSwitchCore, "click", async (event) => {
           let isChecked = false;
@@ -2169,11 +2211,11 @@ async createRuleItemElement(data, $shadowRoot) {
           let $askDialog = __pops.confirm({
             title: {
               text: "提示",
-              position: "center"
+              position: "center",
             },
             content: {
               text: "确定删除该条数据？",
-              html: false
+              html: false,
             },
             btn: {
               ok: {
@@ -2189,18 +2231,18 @@ async createRuleItemElement(data, $shadowRoot) {
                   } else {
                     Qmsg.error("删除该数据失败");
                   }
-                }
+                },
               },
               cancel: {
                 text: "取消",
-                enable: true
-              }
+                enable: true,
+              },
             },
             mask: {
-              enable: true
+              enable: true,
             },
             width: "300px",
-            height: "200px"
+            height: "200px",
           });
         });
       } else {
@@ -2208,7 +2250,7 @@ async createRuleItemElement(data, $shadowRoot) {
       }
       return $ruleItem;
     }
-async appendRuleItemElement($shadowRoot, data) {
+    async appendRuleItemElement($shadowRoot, data) {
       let { $container } = this.parseViewElement($shadowRoot);
       let $ruleItem = [];
       let iteratorData = Array.isArray(data) ? data : [data];
@@ -2221,23 +2263,23 @@ async appendRuleItemElement($shadowRoot, data) {
       await this.updateDeleteAllBtnText($shadowRoot);
       return $ruleItem;
     }
-async updateRuleContaienrElement($shadowRoot) {
+    async updateRuleContaienrElement($shadowRoot) {
       this.clearContent($shadowRoot);
       const { $container } = this.parseViewElement($shadowRoot);
       let data = await this.option.data();
       await this.appendRuleItemElement($shadowRoot, data);
       await this.updateDeleteAllBtnText($shadowRoot);
     }
-async updateRuleItemElement(data, $oldRuleItem, $shadowRoot) {
+    async updateRuleItemElement(data, $oldRuleItem, $shadowRoot) {
       let $newRuleItem = await this.createRuleItemElement(data, $shadowRoot);
       $oldRuleItem.after($newRuleItem);
       $oldRuleItem.remove();
     }
-clearContent($shadowRoot) {
+    clearContent($shadowRoot) {
       const { $container } = this.parseViewElement($shadowRoot);
       domUtils.html($container, "");
     }
-setDeleteBtnText($shadowRoot, text, isHTML = false) {
+    setDeleteBtnText($shadowRoot, text, isHTML = false) {
       const { $deleteBtn } = this.parseViewElement($shadowRoot);
       if (isHTML) {
         domUtils.html($deleteBtn, text);
@@ -2245,23 +2287,23 @@ setDeleteBtnText($shadowRoot, text, isHTML = false) {
         domUtils.text($deleteBtn, text);
       }
     }
-async updateDeleteAllBtnText($shadowRoot) {
+    async updateDeleteAllBtnText($shadowRoot) {
       let data = await this.option.data();
       this.setDeleteBtnText($shadowRoot, `清空所有(${data.length})`);
     }
   }
   const M3U8Util = {
-duration2Text(duration) {
+    duration2Text(duration) {
       const hours = Math.floor(duration / 3600);
-      const minutes = Math.floor(duration % 3600 / 60);
+      const minutes = Math.floor((duration % 3600) / 60);
       const secs = parseInt((duration % 60).toString());
       return [
         hours.toString().padStart(2, "0"),
         minutes.toString().padStart(2, "0"),
-        secs.toString().padStart(2, "0")
+        secs.toString().padStart(2, "0"),
       ].join(":");
     },
-similar(sourceText, targetText) {
+    similar(sourceText, targetText) {
       if (!sourceText || !targetText) {
         return 0;
       }
@@ -2269,8 +2311,8 @@ similar(sourceText, targetText) {
       var n = sourceText.length;
       var m = targetText.length;
       var d = [];
-      var min = function(a, b, c) {
-        return a < b ? a < c ? a : c : b < c ? b : c;
+      var min = function (a, b, c) {
+        return a < b ? (a < c ? a : c) : b < c ? b : c;
       };
       var i, j, si, tj, cost;
       if (n === 0) return m;
@@ -2296,10 +2338,10 @@ similar(sourceText, targetText) {
       }
       let res = 1 - d[n][m] / l;
       return res;
-    }
+    },
   };
   const M3U8Menu = {
-updateISMatchedRuleMenu() {
+    updateISMatchedRuleMenu() {
       let option = {
         key: "matched-rule-count",
         text: `🔧 当前页面执行规则数量： ${M3U8Rule.$data.matchedRule.length}`,
@@ -2308,12 +2350,11 @@ updateISMatchedRuleMenu() {
         showText(text) {
           return text;
         },
-        callback: () => {
-        }
+        callback: () => {},
       };
       GM_Menu.update(option);
     },
-updateIsFilterAdsDurationInfoMenu(durationTotal) {
+    updateIsFilterAdsDurationInfoMenu(durationTotal) {
       let option = {
         key: "is-filter-segment-duration",
         text: `🍵 已过滤时长：${durationTotal}s`,
@@ -2322,25 +2363,24 @@ updateIsFilterAdsDurationInfoMenu(durationTotal) {
         showText(text) {
           return text;
         },
-        callback: () => {
-        }
+        callback: () => {},
       };
       GM_Menu.update(option);
-    }
+    },
   };
   const M3U8Parser = {
-parse_EXTINF(EXTINF_Text, EXTINF_Next_Line_Text, currentDuration) {
+    parse_EXTINF(EXTINF_Text, EXTINF_Next_Line_Text, currentDuration) {
       let duration = Number(EXTINF_Text.replace(/(^#EXTINF:\s*|,)/g, ""));
       let startDuration = currentDuration;
       let endDuration = currentDuration + duration;
       let filePath = EXTINF_Next_Line_Text.trim();
       return {
-filePath,
-startDuration,
-endDuration,
-duration
+        filePath,
+        startDuration,
+        endDuration,
+        duration,
       };
-    }
+    },
   };
   const calcIsFiterDuration = (segmentInfo) => {
     M3U8Filter.$data.isFilterDuration += segmentInfo.duration;
@@ -2348,13 +2388,16 @@ duration
   };
   const M3U8Filter = {
     $data: {
-isFilterDuration: 0
+      isFilterDuration: 0,
     },
-filterAdsWithFilePathLength(m3u8Text, config = {
-      handlerFilePath(filePath) {
-        return filePath;
+    filterAdsWithFilePathLength(
+      m3u8Text,
+      config = {
+        handlerFilePath(filePath) {
+          return filePath;
+        },
       }
-    }) {
+    ) {
       let m3u8Split = m3u8Text.split("\n");
       let segmentsParseInfo = new utils.Dictionary();
       let durationTotal = 0;
@@ -2382,7 +2425,7 @@ filterAdsWithFilePathLength(m3u8Text, config = {
           startDuration,
           endDuration,
           duration,
-          index
+          index,
         });
         segmentsParseInfo.set(filePathLength, segmentInfo);
         index++;
@@ -2391,7 +2434,7 @@ filterAdsWithFilePathLength(m3u8Text, config = {
       segmentsParseInfo.forEach((value, key) => {
         needFilterSegments.push({
           filePathLength: key,
-          segmentsInfoList: value
+          segmentsInfoList: value,
         });
       });
       needFilterSegments = utils.sortListByProperty(needFilterSegments, (item) => item.segmentsInfoList.length, true);
@@ -2402,7 +2445,7 @@ filterAdsWithFilePathLength(m3u8Text, config = {
           item.segmentsInfoList.forEach((segmentInfo) => {
             adsSegmentIndexList.push({
               index: segmentInfo.index,
-              data: segmentInfo
+              data: segmentInfo,
             });
           });
         });
@@ -2413,8 +2456,8 @@ filterAdsWithFilePathLength(m3u8Text, config = {
             let adsSegmentInfo = adsSegmentIndexList[findIndex];
             log.info(
               `通杀1：过滤广告片段 ==> 索引：${index + indexOffset} 文件名：${adsSegmentInfo.data.filePath} 开始：${M3U8Util.duration2Text(
-              adsSegmentInfo.data.startDuration
-            )} 持续时长：${adsSegmentInfo.data.duration}s`
+                adsSegmentInfo.data.startDuration
+              )} 持续时长：${adsSegmentInfo.data.duration}s`
             );
             m3u8Split.splice(index, 2);
             index -= 2;
@@ -2429,17 +2472,20 @@ filterAdsWithFilePathLength(m3u8Text, config = {
         });
       });
       return {
-m3u8Text: m3u8Split.join("\n"),
-filterInfo: needFilterSegments
+        m3u8Text: m3u8Split.join("\n"),
+        filterInfo: needFilterSegments,
       };
     },
-filterAdsWithFilePathSimilar(m3u8Text, config = {
-      similarCompareValue: 0.35,
-      includePercent: 0.5,
-      handlerFilePath(filePath) {
-        return filePath;
+    filterAdsWithFilePathSimilar(
+      m3u8Text,
+      config = {
+        similarCompareValue: 0.35,
+        includePercent: 0.5,
+        handlerFilePath(filePath) {
+          return filePath;
+        },
       }
-    }) {
+    ) {
       let m3u8Split = m3u8Text.split("\n");
       let segmentsParseInfoList = [];
       let durationTotal = 0;
@@ -2465,7 +2511,7 @@ filterAdsWithFilePathSimilar(m3u8Text, config = {
           startDuration,
           endDuration,
           duration,
-          index
+          index,
         });
         index++;
       }
@@ -2500,12 +2546,21 @@ filterAdsWithFilePathSimilar(m3u8Text, config = {
         calcIsFiterDuration(segmentInfo);
       });
       return {
-m3u8Text: m3u8Split.join("\n"),
-filterInfo: isFilterSegmentsInfoList
+        m3u8Text: m3u8Split.join("\n"),
+        filterInfo: isFilterSegmentsInfoList,
       };
-    }
+    },
   };
-  const UITextArea = function(text, key, defaultValue, description, changeCallback, placeholder = "", disabled, valueChangeCallBack) {
+  const UITextArea = function (
+    text,
+    key,
+    defaultValue,
+    description,
+    changeCallback,
+    placeholder = "",
+    disabled,
+    valueChangeCallBack
+  ) {
     let result = {
       text,
       type: "textarea",
@@ -2525,7 +2580,7 @@ filterInfo: isFilterSegmentsInfoList
       callback(event, value) {
         let storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
-      }
+      },
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -2535,16 +2590,16 @@ filterInfo: isFilterSegmentsInfoList
       },
       set(key2, value) {
         Panel.setValue(key2, value);
-      }
+      },
     });
     return result;
   };
   const M3U8Rule = {
     $key: {
-      STORAGE_KEY: "m3u8-rule"
+      STORAGE_KEY: "m3u8-rule",
     },
     $data: {
-matchedRule: []
+      matchedRule: [],
     },
     init() {
       let allData = this.getData();
@@ -2565,7 +2620,7 @@ matchedRule: []
         M3U8Menu.updateISMatchedRuleMenu();
       }
     },
-registerMenu(allData) {
+    registerMenu(allData) {
       GM_Menu.update([
         {
           key: "m3u8-rule",
@@ -2577,7 +2632,7 @@ registerMenu(allData) {
           },
           callback: () => {
             this.showView();
-          }
+          },
         },
         {
           key: "m3u8-export-rule",
@@ -2589,7 +2644,7 @@ registerMenu(allData) {
           },
           callback: () => {
             this.exportRule("m3u8-filter-rule.json");
-          }
+          },
         },
         {
           key: "m3u8-import-rule",
@@ -2601,11 +2656,11 @@ registerMenu(allData) {
           },
           callback: () => {
             this.importRule();
-          }
-        }
+          },
+        },
       ]);
     },
-getTemplateData() {
+    getTemplateData() {
       return {
         uuid: utils.generateUUID(),
         enable: true,
@@ -2614,11 +2669,11 @@ getTemplateData() {
           url: "",
           commonFilterAdsSegmentsFilePathLength: true,
           commonFilterAdsSegmentsFilePathSimilar: false,
-          ownFilterCode: ""
-        }
+          ownFilterCode: "",
+        },
       };
     },
-showView() {
+    showView() {
       let panelHandlerComponents = __pops.config.PanelHandlerComponents();
       function generateStorageApi(data) {
         return {
@@ -2627,7 +2682,7 @@ showView() {
           },
           set(key, value) {
             data[key] = value;
-          }
+          },
         };
       }
       let ruleView = new RuleView({
@@ -2661,7 +2716,7 @@ showView() {
             callback: (data, enable) => {
               data.enable = enable;
               this.updateData(data);
-            }
+            },
           },
           edit: {
             enable: true,
@@ -2691,9 +2746,10 @@ showView() {
                 PROPS_STORAGE_API,
                 generateStorageApi(data.data)
               );
-              let $data_commonFilterAdsSegmentsFilePathLength = panelHandlerComponents.createSectionContainerItem_switch(
-                data_commonFilterAdsSegmentsFilePathLength_template
-              );
+              let $data_commonFilterAdsSegmentsFilePathLength =
+                panelHandlerComponents.createSectionContainerItem_switch(
+                  data_commonFilterAdsSegmentsFilePathLength_template
+                );
               let data_commonFilterAdsSegmentsFilePathSimilar_template = UISwitch(
                 "广告通杀2",
                 "commonFilterAdsSegmentsFilePathSimilar",
@@ -2706,9 +2762,10 @@ showView() {
                 PROPS_STORAGE_API,
                 generateStorageApi(data.data)
               );
-              let $data_commonFilterAdsSegmentsFilePathSimilar = panelHandlerComponents.createSectionContainerItem_switch(
-                data_commonFilterAdsSegmentsFilePathSimilar_template
-              );
+              let $data_commonFilterAdsSegmentsFilePathSimilar =
+                panelHandlerComponents.createSectionContainerItem_switch(
+                  data_commonFilterAdsSegmentsFilePathSimilar_template
+                );
               let data_ownFilterCode_template = UITextArea(
                 "自定义过滤js",
                 "ownFilterCode",
@@ -2718,7 +2775,8 @@ showView() {
                 "参数：\n    [m3u8Text]：需要处理的m3u8字符串\n返回：[String]\n\n例如：\nm3u8Text = m3u8Text.replace('','');\nreturn m3u8Text;\n"
               );
               Reflect.set(data_ownFilterCode_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-              let $data_ownFilterCode = panelHandlerComponents.createSectionContainerItem_textarea(data_ownFilterCode_template);
+              let $data_ownFilterCode =
+                panelHandlerComponents.createSectionContainerItem_textarea(data_ownFilterCode_template);
               $fragment.appendChild($enable);
               $fragment.appendChild($name);
               $fragment.appendChild($data_url);
@@ -2752,30 +2810,29 @@ showView() {
                 Qmsg.error("规则名称不能为空");
                 return {
                   success: false,
-                  data
+                  data,
                 };
               }
               if (data.data.url.trim() === "") {
                 Qmsg.error("匹配网址不能为空");
                 return {
                   success: false,
-                  data
+                  data,
                 };
               }
               if (isEdit) {
                 return {
                   success: this.updateData(data),
-                  data
+                  data,
                 };
               } else {
                 return {
                   success: this.addData(data),
-                  data
+                  data,
                 };
               }
             },
-            style: (
-`
+            style: `
                         li[data-key="ownFilterCode"]{
                             gap: 30px;
                         }
@@ -2785,15 +2842,14 @@ showView() {
                         li[data-key="ownFilterCode"] .pops-panel-textarea textarea{
                             height: 300px;
                         }
-                    `
-            )
+                    `,
           },
           delete: {
             enable: true,
             deleteCallBack: (data) => {
               return this.deleteData(data);
-            }
-          }
+            },
+          },
         },
         bottomControls: {
           filter: {
@@ -2803,13 +2859,13 @@ showView() {
                 name: "过滤【启用】",
                 filterCallBack(data) {
                   return data.enable;
-                }
+                },
               },
               {
                 name: "过滤【未启用】",
                 filterCallBack(data) {
                   return !data.enable;
-                }
+                },
               },
               {
                 name: "过滤【当前网址运行的规则】",
@@ -2819,26 +2875,28 @@ showView() {
                   } catch (error) {
                     return false;
                   }
-                }
-              }
-            ]
-          }
-        }
+                },
+              },
+            ],
+          },
+        },
       });
       ruleView.showView();
     },
-runRule(m3u8Text) {
+    runRule(m3u8Text) {
       let handlerM3U8Text = m3u8Text;
       for (let index = 0; index < this.$data.matchedRule.length; index++) {
         try {
           const RuleOption = this.$data.matchedRule[index];
           const RuleOptionData = RuleOption.data;
           if (RuleOptionData.commonFilterAdsSegmentsFilePathLength) {
-            const { filterInfo, m3u8Text: __handler_m3u8_text__ } = M3U8Filter.filterAdsWithFilePathLength(handlerM3U8Text);
+            const { filterInfo, m3u8Text: __handler_m3u8_text__ } =
+              M3U8Filter.filterAdsWithFilePathLength(handlerM3U8Text);
             handlerM3U8Text = __handler_m3u8_text__;
           }
           if (RuleOptionData.commonFilterAdsSegmentsFilePathSimilar) {
-            const { filterInfo, m3u8Text: __handler_m3u8_text__ } = M3U8Filter.filterAdsWithFilePathSimilar(handlerM3U8Text);
+            const { filterInfo, m3u8Text: __handler_m3u8_text__ } =
+              M3U8Filter.filterAdsWithFilePathSimilar(handlerM3U8Text);
             handlerM3U8Text = __handler_m3u8_text__;
           }
           if (RuleOptionData.ownFilterCode.trim() !== "") {
@@ -2862,13 +2920,13 @@ runRule(m3u8Text) {
       }
       return handlerM3U8Text;
     },
-getData() {
+    getData() {
       return _GM_getValue(this.$key.STORAGE_KEY, []);
     },
-setData(data) {
+    setData(data) {
       _GM_setValue(this.$key.STORAGE_KEY, data);
     },
-addData(data) {
+    addData(data) {
       let localData = this.getData();
       let findIndex = localData.findIndex((item) => item.uuid == data.uuid);
       if (findIndex === -1) {
@@ -2879,7 +2937,7 @@ addData(data) {
         return false;
       }
     },
-updateData(data) {
+    updateData(data) {
       let localData = this.getData();
       let index = localData.findIndex((item) => item.uuid == data.uuid);
       let updateFlag = false;
@@ -2890,7 +2948,7 @@ updateData(data) {
       this.setData(localData);
       return updateFlag;
     },
-deleteData(data) {
+    deleteData(data) {
       let localData = this.getData();
       let index = localData.findIndex((item) => item.uuid == data.uuid);
       let deleteFlag = false;
@@ -2901,10 +2959,10 @@ deleteData(data) {
       this.setData(localData);
       return deleteFlag;
     },
-clearData() {
+    clearData() {
       _GM_deleteValue(this.$key.STORAGE_KEY);
     },
-exportRule(fileName = "rule.json") {
+    exportRule(fileName = "rule.json") {
       let allRule = this.getData();
       let blob = new Blob([JSON.stringify(allRule, null, 4)]);
       let blobUrl = window.URL.createObjectURL(blob);
@@ -2916,21 +2974,19 @@ exportRule(fileName = "rule.json") {
         window.URL.revokeObjectURL(blobUrl);
       }, 1500);
     },
-importRule(importEndCallBack) {
+    importRule(importEndCallBack) {
       let $alert = __pops.alert({
         title: {
           text: "请选择导入方式",
-          position: "center"
+          position: "center",
         },
         content: {
-          text: (
-`
+          text: `
                     <div class="btn-control" data-mode="local">本地导入</div>
                     <div class="btn-control" data-mode="network">网络导入</div>
                     <div class="btn-control" data-mode="clipboard">剪贴板导入</div>
-                `
-          ),
-          html: true
+                `,
+          html: true,
         },
         btn: {
           ok: { enable: false },
@@ -2938,15 +2994,14 @@ importRule(importEndCallBack) {
             enable: true,
             callback(details, event) {
               details.close();
-            }
-          }
+            },
+          },
         },
         mask: { enable: true },
         drag: true,
         width: PanelUISize.info.width,
         height: PanelUISize.info.height,
-        style: (
-`
+        style: `
                 .btn-control{
                     display: inline-block;
                     margin: 10px;
@@ -2955,8 +3010,7 @@ importRule(importEndCallBack) {
                     border-radius: 5px;
                     cursor: pointer;
                 }
-            `
-        )
+            `,
       });
       let $local = $alert.$shadowRoot.querySelector(".btn-control[data-mode='local']");
       let $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
@@ -2967,7 +3021,7 @@ importRule(importEndCallBack) {
         for (let index = 0; index < data.length; index++) {
           const dataItem = data[index];
           let findIndex = allData.findIndex((it) => it.uuid === dataItem.uuid);
-          if (findIndex !== -1) ;
+          if (findIndex !== -1);
           else {
             addNewData.push(dataItem);
           }
@@ -2983,14 +3037,14 @@ importRule(importEndCallBack) {
           if (!Array.isArray(data)) {
             log.error(data);
             Qmsg.error("导入失败，格式不符合（不是数组）", {
-              consoleLogContent: true
+              consoleLogContent: true,
             });
             resolve(false);
             return;
           }
           if (!data.length) {
             Qmsg.error("导入失败，解析出的数据为空", {
-              consoleLogContent: true
+              consoleLogContent: true,
             });
             resolve(false);
             return;
@@ -3004,7 +3058,7 @@ importRule(importEndCallBack) {
         $alert.close();
         let $input = domUtils.createElement("input", {
           type: "file",
-          accept: ".json"
+          accept: ".json",
         });
         domUtils.on($input, ["propertychange", "input"], (event2) => {
           if (!$input.files?.length) {
@@ -3025,19 +3079,19 @@ importRule(importEndCallBack) {
         let $prompt = __pops.prompt({
           title: {
             text: "网络导入",
-            position: "center"
+            position: "center",
           },
           content: {
             text: "",
             placeholder: "请填写URL",
-            focus: true
+            focus: true,
           },
           btn: {
             close: {
               enable: true,
               callback(details, event2) {
                 details.close();
-              }
+              },
             },
             ok: {
               text: "导入",
@@ -3049,7 +3103,7 @@ importRule(importEndCallBack) {
                 }
                 let $loading = Qmsg.loading("正在获取配置...");
                 let response = await httpx.get(url, {
-                  allowInterceptConfig: false
+                  allowInterceptConfig: false,
                 });
                 $loading.close();
                 if (!response.status) {
@@ -3062,16 +3116,16 @@ importRule(importEndCallBack) {
                   return;
                 }
                 eventDetails.close();
-              }
+              },
             },
             cancel: {
-              enable: false
-            }
+              enable: false,
+            },
           },
           mask: { enable: true },
           drag: true,
           width: PanelUISize.info.width,
-          height: "auto"
+          height: "auto",
         });
         let $promptInput = $prompt.$shadowRoot.querySelector("input");
         let $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
@@ -3110,9 +3164,9 @@ importRule(importEndCallBack) {
           return;
         }
       });
-    }
+    },
   };
-  const UISelect = function(text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
+  const UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
     let selectData = [];
     if (typeof data === "function") {
       selectData = data();
@@ -3141,7 +3195,7 @@ importRule(importEndCallBack) {
         let storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      data: selectData
+      data: selectData,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -3151,7 +3205,7 @@ importRule(importEndCallBack) {
       },
       set(key2, value) {
         Panel.setValue(key2, value);
-      }
+      },
     });
     return result;
   };
@@ -3170,40 +3224,40 @@ importRule(importEndCallBack) {
             [
               {
                 value: "topleft",
-                text: "左上角"
+                text: "左上角",
               },
               {
                 value: "top",
-                text: "顶部"
+                text: "顶部",
               },
               {
                 value: "topright",
-                text: "右上角"
+                text: "右上角",
               },
               {
                 value: "left",
-                text: "左边"
+                text: "左边",
               },
               {
                 value: "center",
-                text: "中间"
+                text: "中间",
               },
               {
                 value: "right",
-                text: "右边"
+                text: "右边",
               },
               {
                 value: "bottomleft",
-                text: "左下角"
+                text: "左下角",
               },
               {
                 value: "bottom",
-                text: "底部"
+                text: "底部",
               },
               {
                 value: "bottomright",
-                text: "右下角"
-              }
+                text: "右下角",
+              },
             ],
             (event, isSelectValue, isSelectText) => {
               log.info("设置当前Qmsg弹出位置" + isSelectText);
@@ -3217,30 +3271,30 @@ importRule(importEndCallBack) {
             [
               {
                 value: 1,
-                text: "1"
+                text: "1",
               },
               {
                 value: 2,
-                text: "2"
+                text: "2",
               },
               {
                 value: 3,
-                text: "3"
+                text: "3",
               },
               {
                 value: 4,
-                text: "4"
+                text: "4",
               },
               {
                 value: 5,
-                text: "5"
-              }
+                text: "5",
+              },
             ],
             void 0,
             "限制Toast显示的数量"
           ),
-          UISwitch("逆序弹出", "qmsg-config-showreverse", false, void 0, "修改Toast弹出的顺序")
-        ]
+          UISwitch("逆序弹出", "qmsg-config-showreverse", false, void 0, "修改Toast弹出的顺序"),
+        ],
       },
       {
         text: "Cookie配置",
@@ -3253,21 +3307,13 @@ importRule(importEndCallBack) {
             false,
             void 0,
             "自动根据请求的域名来设置对应的cookie"
-          )
-
-
-
-
-
-
-
-]
-      }
-    ]
+          ),
+        ],
+      },
+    ],
   };
   PanelContent.addContentConfig([Component_Common]);
   PanelMenu.deleteMenuOption();
   Panel.init();
   M3U8Rule.init();
-
 })(Qmsg, DOMUtils, Utils, pops);

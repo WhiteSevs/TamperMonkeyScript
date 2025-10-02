@@ -34,23 +34,41 @@
 // ==/UserScript==
 
 (function (Qmsg, DOMUtils, Utils, pops, hljs, Viewer) {
-  'use strict';
+  "use strict";
 
-  const d=new Set;const importCSS = async t=>{d.has(t)||(d.add(t),(a=>{function r(n){if(typeof GM_addStyle=="function")return GM_addStyle(n);let e=document.createElement("style");if(e.setAttribute("type","text/css"),e.setAttribute("data-type","gm-css"),globalThis.trustedTypes){const l=globalThis.trustedTypes.createPolicy("safe-innerHTML",{createHTML:i=>i});e.innerHTML=l.createHTML(n);}else e.innerHTML=n;return (document.head||document.documentElement).appendChild(e),e}r(a);})(t));};
+  const d = new Set();
+  const importCSS = async (t) => {
+    d.has(t) ||
+      (d.add(t),
+      ((a) => {
+        function r(n) {
+          if (typeof GM_addStyle == "function") return GM_addStyle(n);
+          let e = document.createElement("style");
+          if ((e.setAttribute("type", "text/css"), e.setAttribute("data-type", "gm-css"), globalThis.trustedTypes)) {
+            const l = globalThis.trustedTypes.createPolicy("safe-innerHTML", { createHTML: (i) => i });
+            e.innerHTML = l.createHTML(n);
+          } else e.innerHTML = n;
+          return ((document.head || document.documentElement).appendChild(e), e);
+        }
+        r(a);
+      })(t));
+  };
 
-  var _GM = (() => typeof GM != "undefined" ? GM : void 0)();
-  var _GM_deleteValue = (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
-  var _GM_getResourceText = (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
-  var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
-  var _GM_info = (() => typeof GM_info != "undefined" ? GM_info : void 0)();
-  var _GM_registerMenuCommand = (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-  var _GM_setValue = (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
-  var _GM_unregisterMenuCommand = (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-  var _GM_xmlhttpRequest = (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
-  var _unsafeWindow = (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
+  var _GM = (() => (typeof GM != "undefined" ? GM : void 0))();
+  var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
+  var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
+  var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
+  var _GM_info = (() => (typeof GM_info != "undefined" ? GM_info : void 0))();
+  var _GM_registerMenuCommand = (() =>
+    typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
+  var _GM_unregisterMenuCommand = (() =>
+    typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
+  var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
   var _monkeyWindow = (() => window)();
   const CommonUtil = {
-waitRemove(...args) {
+    waitRemove(...args) {
       args.forEach((selector) => {
         if (typeof selector !== "string") {
           return;
@@ -60,7 +78,7 @@ waitRemove(...args) {
         });
       });
     },
-createBlockCSSNode(...args) {
+    createBlockCSSNode(...args) {
       let selectorList = [];
       if (args.length === 0) {
         return;
@@ -77,10 +95,10 @@ createBlockCSSNode(...args) {
       });
       return DOMUtils.createElement("style", {
         type: "text/css",
-        innerHTML: `${selectorList.join(",\n")}{display: none !important;}`
+        innerHTML: `${selectorList.join(",\n")}{display: none !important;}`,
       });
     },
-addBlockCSS(...args) {
+    addBlockCSS(...args) {
       let selectorList = [];
       if (args.length === 0) {
         return;
@@ -97,7 +115,7 @@ addBlockCSS(...args) {
       });
       return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
-setGMResourceCSS(resourceMapData) {
+    setGMResourceCSS(resourceMapData) {
       let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
       if (typeof cssText === "string" && cssText) {
         addStyle(cssText);
@@ -105,7 +123,7 @@ setGMResourceCSS(resourceMapData) {
         CommonUtil.loadStyleLink(resourceMapData.url);
       }
     },
-async loadStyleLink(url) {
+    async loadStyleLink(url) {
       let $link = document.createElement("link");
       $link.rel = "stylesheet";
       $link.type = "text/css";
@@ -114,7 +132,7 @@ async loadStyleLink(url) {
         document.head.appendChild($link);
       });
     },
-async loadScript(url) {
+    async loadScript(url) {
       let $script = document.createElement("script");
       $script.src = url;
       return new Promise((resolve) => {
@@ -124,7 +142,7 @@ async loadScript(url) {
         (document.head || document.documentElement).appendChild($script);
       });
     },
-fixUrl(url) {
+    fixUrl(url) {
       url = url.trim();
       if (url.startsWith("data:")) {
         return url;
@@ -132,7 +150,7 @@ fixUrl(url) {
       if (url.match(/^http(s|):\/\//i)) {
         return url;
       } else if (url.startsWith("//")) {
-        if (url.startsWith("///")) ;
+        if (url.startsWith("///"));
         else {
           url = window.location.protocol + url;
         }
@@ -145,7 +163,7 @@ fixUrl(url) {
         return url;
       }
     },
-fixHttps(url) {
+    fixHttps(url) {
       if (url.startsWith("https://")) {
         return url;
       }
@@ -160,46 +178,51 @@ fixHttps(url) {
         return url;
       }
     },
-lockScroll(...args) {
+    lockScroll(...args) {
       let $hidden = document.createElement("style");
-      $hidden.innerHTML =
-`
+      $hidden.innerHTML = `
 			.pops-overflow-hidden-important {
 				overflow: hidden !important;
 			}
 		`;
-      let $elList = [document.documentElement, document.body].concat(...args || []);
+      let $elList = [document.documentElement, document.body].concat(...(args || []));
       $elList.forEach(($el) => {
         $el.classList.add("pops-overflow-hidden-important");
       });
       (document.head || document.documentElement).appendChild($hidden);
       return {
-recovery() {
+        recovery() {
           $elList.forEach(($el) => {
             $el.classList.remove("pops-overflow-hidden-important");
           });
           $hidden.remove();
-        }
+        },
       };
     },
-async getClipboardText() {
+    async getClipboardText() {
       function readClipboardText(resolve) {
-        navigator.clipboard.readText().then((clipboardText) => {
-          resolve(clipboardText);
-        }).catch((error) => {
-          log.error("读取剪贴板内容失败👉", error);
-          resolve("");
-        });
+        navigator.clipboard
+          .readText()
+          .then((clipboardText) => {
+            resolve(clipboardText);
+          })
+          .catch((error) => {
+            log.error("读取剪贴板内容失败👉", error);
+            resolve("");
+          });
       }
       function requestPermissionsWithClipboard(resolve) {
-        navigator.permissions.query({
-name: "clipboard-read"
-        }).then((permissionStatus) => {
-          readClipboardText(resolve);
-        }).catch((error) => {
-          log.error("申请剪贴板权限失败，尝试直接读取👉", error.message ?? error.name ?? error.stack);
-          readClipboardText(resolve);
-        });
+        navigator.permissions
+          .query({
+            name: "clipboard-read",
+          })
+          .then((permissionStatus) => {
+            readClipboardText(resolve);
+          })
+          .catch((error) => {
+            log.error("申请剪贴板权限失败，尝试直接读取👉", error.message ?? error.name ?? error.stack);
+            readClipboardText(resolve);
+          });
       }
       function checkClipboardApi() {
         if (typeof navigator?.clipboard?.readText !== "function") {
@@ -224,22 +247,42 @@ name: "clipboard-read"
               requestPermissionsWithClipboard(resolve);
             },
             {
-              once: true
+              once: true,
             }
           );
         }
       });
     },
-escapeHtml(unsafe) {
-      return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
+    escapeHtml(unsafe) {
+      return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;")
+        .replace(/©/g, "&copy;")
+        .replace(/®/g, "&reg;")
+        .replace(/™/g, "&trade;")
+        .replace(/→/g, "&rarr;")
+        .replace(/←/g, "&larr;")
+        .replace(/↑/g, "&uarr;")
+        .replace(/↓/g, "&darr;")
+        .replace(/—/g, "&mdash;")
+        .replace(/–/g, "&ndash;")
+        .replace(/…/g, "&hellip;")
+        .replace(/ /g, "&nbsp;")
+        .replace(/\r\n/g, "<br>")
+        .replace(/\r/g, "<br>")
+        .replace(/\n/g, "<br>")
+        .replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
     },
-interval(fn, intervalTime, timeout = 5e3) {
+    interval(fn, intervalTime, timeout = 5e3) {
       let timeId;
       let maxTimeout = timeout - intervalTime;
       let intervalTimeCount = intervalTime;
       let loop = async (isTimeout) => {
         let result = await fn(isTimeout);
-        if (typeof result === "boolean" && !result || isTimeout) {
+        if ((typeof result === "boolean" && !result) || isTimeout) {
           utils.workerClearTimeout(timeId);
           return;
         }
@@ -254,7 +297,7 @@ interval(fn, intervalTime, timeout = 5e3) {
       };
       loop(false);
     },
-findParentNode($el, selector, parentSelector) {
+    findParentNode($el, selector, parentSelector) {
       if (parentSelector) {
         let $parent = DOMUtils.closest($el, parentSelector);
         if ($parent) {
@@ -268,31 +311,31 @@ findParentNode($el, selector, parentSelector) {
         let $parent = DOMUtils.closest($el, selector);
         return $parent;
       }
-    }
+    },
   };
   const GM_RESOURCE_MAPPING = {
     Viewer: {
       keyName: "ViewerCSS",
-      url: "https://fastly.jsdelivr.net/npm/viewerjs@latest/dist/viewer.min.css"
+      url: "https://fastly.jsdelivr.net/npm/viewerjs@latest/dist/viewer.min.css",
     },
     Hljs: {
       keyName: "HljsCSS",
-      url: "https://fastly.jsdelivr.net/npm/highlight.js@latest/styles/github-dark.min.css"
-    }
+      url: "https://fastly.jsdelivr.net/npm/highlight.js@latest/styles/github-dark.min.css",
+    },
   };
   const PanelSettingConfig = {
-qmsg_config_position: {
+    qmsg_config_position: {
       key: "qmsg-config-position",
-      defaultValue: "bottom"
+      defaultValue: "bottom",
     },
-qmsg_config_maxnums: {
+    qmsg_config_maxnums: {
       key: "qmsg-config-maxnums",
-      defaultValue: 3
+      defaultValue: 3,
     },
-qmsg_config_showreverse: {
+    qmsg_config_showreverse: {
       key: "qmsg-config-showreverse",
-      defaultValue: false
-    }
+      defaultValue: false,
+    },
   };
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
@@ -305,7 +348,7 @@ qmsg_config_showreverse: {
     debug: false,
     logMaxCount: 250,
     autoClearConsole: true,
-    tag: true
+    tag: true,
   });
   Qmsg.config({
     isHTML: true,
@@ -348,7 +391,7 @@ qmsg_config_showreverse: {
       let maxZIndex = Utils.getMaxZIndex();
       let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-    }
+    },
   });
   __pops.GlobalConfig.setGlobalConfig({
     zIndex: () => {
@@ -364,23 +407,23 @@ qmsg_config_showreverse: {
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
     },
     mask: {
-enable: true,
-clickEvent: {
+      enable: true,
+      clickEvent: {
         toClose: false,
-        toHide: false
-      }
+        toHide: false,
+      },
     },
-    drag: true
+    drag: true,
   });
   const GM_Menu = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,
     GM_registerMenuCommand: _GM_registerMenuCommand,
-    GM_unregisterMenuCommand: _GM_unregisterMenuCommand
+    GM_unregisterMenuCommand: _GM_unregisterMenuCommand,
   });
   const httpx = new utils.Httpx({
     xmlHttpRequest: _GM_xmlhttpRequest,
-    logDetails: DEBUG
+    logDetails: DEBUG,
   });
   httpx.interceptors.request.use((data) => {
     return data;
@@ -400,16 +443,16 @@ clickEvent: {
   });
   ({
     Object: {
-      defineProperty: _unsafeWindow.Object.defineProperty
+      defineProperty: _unsafeWindow.Object.defineProperty,
     },
     Function: {
       apply: _unsafeWindow.Function.prototype.apply,
-      call: _unsafeWindow.Function.prototype.call
+      call: _unsafeWindow.Function.prototype.call,
     },
     Element: {
-      appendChild: _unsafeWindow.Element.prototype.appendChild
+      appendChild: _unsafeWindow.Element.prototype.appendChild,
     },
-    setTimeout: _unsafeWindow.setTimeout
+    setTimeout: _unsafeWindow.setTimeout,
   });
   const addStyle = domUtils.addStyle.bind(domUtils);
   const $ = DOMUtils.selector.bind(DOMUtils);
@@ -422,15 +465,15 @@ clickEvent: {
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const PROPS_STORAGE_API = "data-storage-api";
   const PanelSizeUtil = {
-get width() {
+    get width() {
       return globalThis.innerWidth;
     },
-get height() {
+    get height() {
       return globalThis.innerHeight;
-    }
+    },
   };
   const PanelUISize = {
-setting: {
+    setting: {
       get width() {
         if (PanelSizeUtil.width < 550) {
           return "88vw";
@@ -448,26 +491,26 @@ setting: {
         } else {
           return "550px";
         }
-      }
+      },
     },
-settingMiddle: {
+    settingMiddle: {
       get width() {
         return PanelSizeUtil.width < 350 ? "88vw" : "350px";
-      }
+      },
     },
-settingBig: {
+    settingBig: {
       get width() {
         return PanelSizeUtil.width < 800 ? "92vw" : "800px";
       },
       get height() {
         return PanelSizeUtil.height < 600 ? "80vh" : "600px";
-      }
-    }
+      },
+    },
   };
   class StorageUtils {
-storageKey;
+    storageKey;
     listenerData;
-constructor(key) {
+    constructor(key) {
       if (typeof key === "string") {
         let trimKey = key.trim();
         if (trimKey == "") {
@@ -479,7 +522,7 @@ constructor(key) {
       }
       this.listenerData = new Utils.Dictionary();
     }
-getLocalValue() {
+    getLocalValue() {
       let localValue = _GM_getValue(this.storageKey);
       if (localValue == null) {
         localValue = {};
@@ -487,63 +530,66 @@ getLocalValue() {
       }
       return localValue;
     }
-setLocalValue(value) {
+    setLocalValue(value) {
       _GM_setValue(this.storageKey, value);
     }
-set(key, value) {
+    set(key, value) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, value);
     }
-get(key, defaultValue) {
+    get(key, defaultValue) {
       let localValue = this.getLocalValue();
       return Reflect.get(localValue, key) ?? defaultValue;
     }
-getAll() {
+    getAll() {
       let localValue = this.getLocalValue();
       return localValue;
     }
-delete(key) {
+    delete(key) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, void 0);
     }
-has(key) {
+    has(key) {
       let localValue = this.getLocalValue();
       return Reflect.has(localValue, key);
     }
-keys() {
+    keys() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue);
     }
-values() {
+    values() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
     }
-clear() {
+    clear() {
       _GM_deleteValue(this.storageKey);
     }
-addValueChangeListener(key, callback) {
+    addValueChangeListener(key, callback) {
       let listenerId = Math.random();
       let listenerData = this.listenerData.get(key) || [];
       listenerData.push({
         id: listenerId,
         key,
-        callback
+        callback,
       });
       this.listenerData.set(key, listenerData);
       return listenerId;
     }
-removeValueChangeListener(listenerId) {
+    removeValueChangeListener(listenerId) {
       let flag = false;
       for (const [key, listenerData] of this.listenerData.entries()) {
         for (let index = 0; index < listenerData.length; index++) {
           const value = listenerData[index];
-          if (typeof listenerId === "string" && value.key === listenerId || typeof listenerId === "number" && value.id === listenerId) {
+          if (
+            (typeof listenerId === "string" && value.key === listenerId) ||
+            (typeof listenerId === "number" && value.id === listenerId)
+          ) {
             listenerData.splice(index, 1);
             index--;
             flag = true;
@@ -553,7 +599,7 @@ removeValueChangeListener(listenerId) {
       }
       return flag;
     }
-triggerValueChangeListener(key, oldValue, newValue) {
+    triggerValueChangeListener(key, oldValue, newValue) {
       if (!this.listenerData.has(key)) {
         return;
       }
@@ -582,28 +628,28 @@ triggerValueChangeListener(key, oldValue, newValue) {
   const PopsPanelStorageApi = new StorageUtils(KEY);
   const PanelContent = {
     $data: {
-__contentConfig: null,
+      __contentConfig: null,
       get contentConfig() {
         if (this.__contentConfig == null) {
           this.__contentConfig = new utils.Dictionary();
         }
         return this.__contentConfig;
-      }
+      },
     },
-addContentConfig(configList) {
+    addContentConfig(configList) {
       if (!Array.isArray(configList)) {
         configList = [configList];
       }
       let index = this.$data.contentConfig.keys().length;
       this.$data.contentConfig.set(index, configList);
     },
-getAllContentConfig() {
+    getAllContentConfig() {
       return this.$data.contentConfig.values().flat();
     },
-getConfig(index = 0) {
+    getConfig(index = 0) {
       return this.$data.contentConfig.get(index) ?? [];
     },
-getDefaultBottomContentConfig() {
+    getDefaultBottomContentConfig() {
       return [
         {
           id: "script-version",
@@ -616,10 +662,10 @@ getDefaultBottomContentConfig() {
               window.open(supportURL, "_blank");
             }
             return false;
-          }
-        }
+          },
+        },
       ];
-    }
+    },
   };
   const PanelMenu = {
     $data: {
@@ -634,29 +680,29 @@ getDefaultBottomContentConfig() {
           },
           callback: () => {
             Panel.showPanel(PanelContent.getConfig(0));
-          }
-        }
+          },
+        },
       ],
       get menuOption() {
         return this.__menuOption;
-      }
+      },
     },
     init() {
       this.initExtensionsMenu();
     },
-initExtensionsMenu() {
+    initExtensionsMenu() {
       if (!Panel.isTopWindow()) {
         return;
       }
       GM_Menu.add(this.$data.menuOption);
     },
-addMenuOption(option) {
+    addMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
       this.$data.menuOption.push(...option);
     },
-updateMenuOption(option) {
+    updateMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
@@ -669,68 +715,68 @@ updateMenuOption(option) {
         }
       });
     },
-getMenuOption(index = 0) {
+    getMenuOption(index = 0) {
       return this.$data.menuOption[index];
     },
-deleteMenuOption(index = 0) {
+    deleteMenuOption(index = 0) {
       this.$data.menuOption.splice(index, 1);
-    }
+    },
   };
   const Panel = {
-$data: {
-__contentConfigInitDefaultValue: null,
-__onceExecMenuData: null,
-__urlChangeReloadMenuExecOnce: null,
-__onceExecData: null,
-__panelConfig: {},
-$panel: null,
-panelContent: [],
-get contentConfigInitDefaultValue() {
+    $data: {
+      __contentConfigInitDefaultValue: null,
+      __onceExecMenuData: null,
+      __urlChangeReloadMenuExecOnce: null,
+      __onceExecData: null,
+      __panelConfig: {},
+      $panel: null,
+      panelContent: [],
+      get contentConfigInitDefaultValue() {
         if (this.__contentConfigInitDefaultValue == null) {
           this.__contentConfigInitDefaultValue = new utils.Dictionary();
         }
         return this.__contentConfigInitDefaultValue;
       },
-contentConfigInitDisabledKeys: [],
-get onceExecMenuData() {
+      contentConfigInitDisabledKeys: [],
+      get onceExecMenuData() {
         if (this.__onceExecMenuData == null) {
           this.__onceExecMenuData = new utils.Dictionary();
         }
         return this.__onceExecMenuData;
       },
-get urlChangeReloadMenuExecOnce() {
+      get urlChangeReloadMenuExecOnce() {
         if (this.__urlChangeReloadMenuExecOnce == null) {
           this.__urlChangeReloadMenuExecOnce = new utils.Dictionary();
         }
         return this.__urlChangeReloadMenuExecOnce;
       },
-get onceExecData() {
+      get onceExecData() {
         if (this.__onceExecData == null) {
           this.__onceExecData = new utils.Dictionary();
         }
         return this.__onceExecData;
       },
-get scriptName() {
+      get scriptName() {
         return SCRIPT_NAME;
       },
-get panelConfig() {
+      get panelConfig() {
         return this.__panelConfig;
       },
       set panelConfig(value) {
         this.__panelConfig = value;
       },
-key: KEY,
-attributeKeyName: ATTRIBUTE_KEY,
-attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
+      key: KEY,
+      attributeKeyName: ATTRIBUTE_KEY,
+      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE,
     },
     init() {
       this.initContentDefaultValue();
       PanelMenu.init();
     },
-isTopWindow() {
+    isTopWindow() {
       return _unsafeWindow.top === _unsafeWindow.self;
     },
-initContentDefaultValue() {
+    initContentDefaultValue() {
       const initDefaultValue = (config) => {
         if (!config.attributes) {
           return;
@@ -794,19 +840,19 @@ initContentDefaultValue() {
       }
       this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
     },
-setDefaultValue(key, defaultValue) {
+    setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
         log.warn("请检查该key(已存在): " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
-getDefaultValue(key) {
+    getDefaultValue(key) {
       return this.$data.contentConfigInitDefaultValue.get(key);
     },
-setValue(key, value) {
+    setValue(key, value) {
       PopsPanelStorageApi.set(key, value);
     },
-getValue(key, defaultValue) {
+    getValue(key, defaultValue) {
       let localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
         if (this.$data.contentConfigInitDefaultValue.has(key)) {
@@ -816,25 +862,25 @@ getValue(key, defaultValue) {
       }
       return localValue;
     },
-deleteValue(key) {
+    deleteValue(key) {
       PopsPanelStorageApi.delete(key);
     },
-hasKey(key) {
+    hasKey(key) {
       return PopsPanelStorageApi.has(key);
     },
-addValueChangeListener(key, callback) {
+    addValueChangeListener(key, callback) {
       let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
         callback(key, __oldValue, __newValue);
       });
       return listenerId;
     },
-removeValueChangeListener(listenerId) {
+    removeValueChangeListener(listenerId) {
       PopsPanelStorageApi.removeValueChangeListener(listenerId);
     },
-triggerMenuValueChange(key, newValue, oldValue) {
+    triggerMenuValueChange(key, newValue, oldValue) {
       PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
     },
-exec(queryKey, callback, checkExec, once = true) {
+    exec(queryKey, callback, checkExec, once = true) {
       const that = this;
       let queryKeyFn;
       if (typeof queryKey === "string" || Array.isArray(queryKey)) {
@@ -912,7 +958,7 @@ exec(queryKey, callback, checkExec, once = true) {
             value: isArrayKey ? valueList : valueList[0],
             addStyleElement: (...args) => {
               return dynamicAddStyleNodeCallback(true, ...args);
-            }
+            },
           });
           if (!Array.isArray(callbackResult)) {
             callbackResult = [callbackResult];
@@ -930,35 +976,36 @@ exec(queryKey, callback, checkExec, once = true) {
         clearBeforeStoreValue();
         storeValueList = [...resultList];
       };
-      once && keyList.forEach((key) => {
-        let listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
-          valueChangeCallback();
+      once &&
+        keyList.forEach((key) => {
+          let listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
+            valueChangeCallback();
+          });
+          listenerIdList.push(listenerId);
         });
-        listenerIdList.push(listenerId);
-      });
       valueChangeCallback();
       let result = {
-reload() {
+        reload() {
           valueChangeCallback();
         },
-clear() {
+        clear() {
           this.clearStoreStyleElements();
           this.removeValueChangeListener();
           once && that.$data.onceExecMenuData.delete(storageKey);
         },
-clearStoreStyleElements: () => {
+        clearStoreStyleElements: () => {
           return clearBeforeStoreValue();
         },
-removeValueChangeListener: () => {
+        removeValueChangeListener: () => {
           listenerIdList.forEach((listenerId) => {
             this.removeValueChangeListener(listenerId);
           });
-        }
+        },
       };
       this.$data.onceExecMenuData.set(storageKey, result);
       return result;
     },
-execMenu(key, callback, isReverse = false, once = false) {
+    execMenu(key, callback, isReverse = false, once = false) {
       return this.exec(
         key,
         (option) => {
@@ -980,7 +1027,7 @@ execMenu(key, callback, isReverse = false, once = false) {
         once
       );
     },
-execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
+    execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
       const result = this.execMenu(key, callback, isReverse, true);
       if (listenUrlChange) {
         if (result) {
@@ -998,14 +1045,14 @@ execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
       }
       return result;
     },
-deleteExecMenuOnce(key) {
+    deleteExecMenuOnce(key) {
       key = this.transformKey(key);
       this.$data.onceExecMenuData.delete(key);
       this.$data.urlChangeReloadMenuExecOnce.delete(key);
       let flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
-onceExec(key, callback) {
+    onceExec(key, callback) {
       key = this.transformKey(key);
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
@@ -1016,30 +1063,36 @@ onceExec(key, callback) {
       callback();
       this.$data.onceExecData.set(key, 1);
     },
-deleteOnceExec(key) {
+    deleteOnceExec(key) {
       key = this.transformKey(key);
       this.$data.onceExecData.delete(key);
     },
-addUrlChangeWithExecMenuOnceListener(key, callback) {
+    addUrlChangeWithExecMenuOnceListener(key, callback) {
       key = this.transformKey(key);
       this.$data.urlChangeReloadMenuExecOnce.set(key, callback);
     },
-removeUrlChangeWithExecMenuOnceListener(key) {
+    removeUrlChangeWithExecMenuOnceListener(key) {
       key = this.transformKey(key);
       this.$data.urlChangeReloadMenuExecOnce.delete(key);
     },
-triggerUrlChangeWithExecMenuOnceEvent(config) {
+    triggerUrlChangeWithExecMenuOnceEvent(config) {
       this.$data.urlChangeReloadMenuExecOnce.forEach((callback, key) => {
         callback(config);
       });
     },
-showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
+    showPanel(
+      content,
+      title = `${SCRIPT_NAME}-设置`,
+      preventDefaultContentConfig = false,
+      preventRegisterSearchPlugin = false
+    ) {
       this.$data.$panel = null;
       this.$data.panelContent = [];
-      let checkHasBottomVersionContentConfig = content.findIndex((it) => {
-        let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
-        return isBottom && it.id === "script-version";
-      }) !== -1;
+      let checkHasBottomVersionContentConfig =
+        content.findIndex((it) => {
+          let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
+          return isBottom && it.id === "script-version";
+        }) !== -1;
       if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig) {
         content.push(...PanelContent.getDefaultBottomContentConfig());
       }
@@ -1049,7 +1102,7 @@ showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig 
             text: title,
             position: "center",
             html: false,
-            style: ""
+            style: "",
           },
           content,
           btn: {
@@ -1058,26 +1111,26 @@ showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig 
               callback: (details, event) => {
                 details.close();
                 this.$data.$panel = null;
-              }
-            }
+              },
+            },
           },
           mask: {
             enable: true,
             clickEvent: {
               toClose: true,
-              toHide: false
+              toHide: false,
             },
             clickCallBack: (originalRun, config) => {
               originalRun();
               this.$data.$panel = null;
-            }
+            },
           },
           width: PanelUISize.setting.width,
           height: PanelUISize.setting.height,
           drag: true,
-          only: true
+          only: true,
         },
-        ...this.$data.panelConfig
+        ...this.$data.panelConfig,
       });
       this.$data.$panel = $panel;
       this.$data.panelContent = content;
@@ -1085,7 +1138,7 @@ showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig 
         this.registerConfigSearch({ $panel, content });
       }
     },
-registerConfigSearch(config) {
+    registerConfigSearch(config) {
       const { $panel, content } = config;
       let asyncQueryProperty = async (target, handler) => {
         if (target == null) {
@@ -1109,8 +1162,8 @@ registerConfigSearch(config) {
           },
           {
             root: null,
-threshold: 1
-}
+            threshold: 1,
+          }
         );
         observer.observe($el);
         $el.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1127,32 +1180,29 @@ threshold: 1
         let $alert = __pops.alert({
           title: {
             text: "搜索配置",
-            position: "center"
+            position: "center",
           },
           content: {
-            text: (
-`
+            text: `
 						<div class="search-wrapper">
 							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
 						</div>
 						<div class="search-result-wrapper"></div>
-					`
-            ),
-            html: true
+					`,
+            html: true,
           },
           btn: {
-            ok: { enable: false }
+            ok: { enable: false },
           },
           mask: {
             clickEvent: {
-              toClose: true
-            }
+              toClose: true,
+            },
           },
           width: PanelUISize.settingMiddle.width,
           height: "auto",
           drag: true,
-          style: (
-`
+          style: `
 					${__pops.config.cssText.panelCSS}
 
 					.search-wrapper{
@@ -1190,8 +1240,7 @@ threshold: 1
 						color: #6c6c6c;
 					}
 					${config.searchDialogStyle ?? ""}
-				`
-          )
+				`,
         });
         $alert.$shadowRoot.querySelector(".search-wrapper");
         let $searchInput = $alert.$shadowRoot.querySelector(".search-config-text");
@@ -1205,23 +1254,21 @@ threshold: 1
             if (target?.next) {
               return {
                 isFind: false,
-                data: target.next
+                data: target.next,
               };
             } else {
               return {
                 isFind: true,
-                data: target
+                data: target,
               };
             }
           });
           let $item = domUtils.createElement("div", {
             className: "search-result-item",
-            innerHTML: (
-`
+            innerHTML: `
 							<div class="search-result-item-path">${searchPath.matchedData?.path}</div>
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
-						`
-            )
+						`,
           });
           domUtils.on($item, "click", (clickItemEvent) => {
             let $asideItems = $panel.$shadowRoot.querySelectorAll(
@@ -1234,18 +1281,22 @@ threshold: 1
             }
             $targetAsideItem.scrollIntoView({
               behavior: "smooth",
-              block: "center"
+              block: "center",
             });
             $targetAsideItem.click();
             asyncQueryProperty(pathInfo.next, async (target) => {
               if (target?.next) {
                 let $findDeepMenu = await domUtils.waitNode(() => {
-                  return Array.from(
-                    $panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")
-                  ).find(($deepMenu) => {
-                    const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
-                    return typeof __formConfig__ === "object" && __formConfig__ != null && __formConfig__.text === target.name;
-                  });
+                  return Array.from($panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")).find(
+                    ($deepMenu) => {
+                      const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
+                      return (
+                        typeof __formConfig__ === "object" &&
+                        __formConfig__ != null &&
+                        __formConfig__.text === target.name
+                      );
+                    }
+                  );
                 }, 2500);
                 if ($findDeepMenu) {
                   $findDeepMenu.click();
@@ -1253,21 +1304,21 @@ threshold: 1
                   Qmsg.error("未找到对应的二级菜单");
                   return {
                     isFind: true,
-                    data: target
+                    data: target,
                   };
                 }
                 return {
                   isFind: false,
-                  data: target.next
+                  data: target.next,
                 };
               } else {
                 let $findTargetMenu = await domUtils.waitNode(() => {
-                  return Array.from(
-                    $panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)
-                  ).find(($menuItem) => {
-                    const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
-                    return __formConfig__ === target.matchedData?.formConfig;
-                  });
+                  return Array.from($panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)).find(
+                    ($menuItem) => {
+                      const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
+                      return __formConfig__ === target.matchedData?.formConfig;
+                    }
+                  );
                 }, 2500);
                 if ($findTargetMenu) {
                   scrollToElementAndListen($findTargetMenu);
@@ -1285,7 +1336,7 @@ threshold: 1
                 }
                 return {
                   isFind: true,
-                  data: target
+                  data: target,
                 };
               }
             });
@@ -1306,17 +1357,17 @@ threshold: 1
                     if (target?.next) {
                       return {
                         isFind: false,
-                        data: target.next
+                        data: target.next,
                       };
                     } else {
                       return {
                         isFind: true,
-                        data: target
+                        data: target,
                       };
                     }
                   });
                   deepNext.next = {
-                    name: configItem.text
+                    name: configItem.text,
                   };
                 }
                 loopContentConfig(child_forms, deepMenuPath);
@@ -1336,12 +1387,12 @@ threshold: 1
                     if (target?.next) {
                       return {
                         isFind: false,
-                        data: target.next
+                        data: target.next,
                       };
                     } else {
                       return {
                         isFind: true,
-                        data: target
+                        data: target,
                       };
                     }
                   });
@@ -1351,8 +1402,8 @@ threshold: 1
                       path: "",
                       formConfig: configItem,
                       matchedText: delayMatchedTextList[matchedIndex],
-                      description
-                    }
+                      description,
+                    },
                   };
                   const pathList = [];
                   utils.queryProperty(matchedPath, (target) => {
@@ -1363,12 +1414,12 @@ threshold: 1
                     if (target?.next) {
                       return {
                         isFind: false,
-                        data: target.next
+                        data: target.next,
                       };
                     } else {
                       return {
                         isFind: true,
-                        data: target
+                        data: target,
                       };
                     }
                   });
@@ -1395,7 +1446,7 @@ threshold: 1
               }
               loopContentConfig(rightContentConfigList, {
                 index,
-                name: text
+                name: text,
               });
             }
           }
@@ -1450,14 +1501,13 @@ threshold: 1
           }
         },
         {
-          capture: true
+          capture: true,
         }
       );
       $panel.$shadowRoot.appendChild(
         domUtils.createElement("style", {
           type: "text/css",
-          textContent: (
-`
+          textContent: `
 					.pops-flashing{
 						animation: double-blink 1.5s ease-in-out;
 					}
@@ -1478,31 +1528,40 @@ threshold: 1
 							background-color: initial;
 						}
 					}
-				`
-          )
+				`,
         })
       );
     },
-transformKey(key) {
+    transformKey(key) {
       if (Array.isArray(key)) {
         const keyArray = key.sort();
         return JSON.stringify(keyArray);
       } else {
         return key;
       }
-    }
+    },
   };
   const MTIdentifyLinks = () => {
     const HANDLER_CLASS_NAME = "texttolink";
-    const url_regexp = /((https?:\/\/|www\.)[\x21-\x7e]+[\w\/]|(\w[\w._-]+\.(com|cn|org|net|info|tv|cc))(\/[\x21-\x7e]*[\w\/])?|ed2k:\/\/[\x21-\x7e]+\|\/|thunder:\/\/[\x21-\x7e]+=)/gi;
-    const handleClearLink = function(event) {
+    const url_regexp =
+      /((https?:\/\/|www\.)[\x21-\x7e]+[\w\/]|(\w[\w._-]+\.(com|cn|org|net|info|tv|cc))(\/[\x21-\x7e]*[\w\/])?|ed2k:\/\/[\x21-\x7e]+\|\/|thunder:\/\/[\x21-\x7e]+=)/gi;
+    const handleClearLink = function (event) {
       let targetElement = event.originalTarget ?? event.target;
       let url;
-      if (null != targetElement && "a" === targetElement.localName && -1 !== targetElement.className.indexOf(HANDLER_CLASS_NAME) && (url = targetElement.getAttribute("href"), typeof url === "string" && 0 !== url.indexOf("http") && 0 !== url.indexOf("ed2k://") && 0 !== url.indexOf("thunder://"))) {
+      if (
+        null != targetElement &&
+        "a" === targetElement.localName &&
+        -1 !== targetElement.className.indexOf(HANDLER_CLASS_NAME) &&
+        ((url = targetElement.getAttribute("href")),
+        typeof url === "string" &&
+          0 !== url.indexOf("http") &&
+          0 !== url.indexOf("ed2k://") &&
+          0 !== url.indexOf("thunder://"))
+      ) {
         return targetElement.setAttribute("href", "http://" + targetElement);
       }
     };
-    const setLink = function(textNode) {
+    const setLink = function (textNode) {
       if (typeof textNode != "object" || textNode == null) {
         return;
       }
@@ -1512,7 +1571,9 @@ transformKey(key) {
         return;
       }
       if (
--1 === $parent?.className?.indexOf?.(HANDLER_CLASS_NAME) && "#cdata-section" !== textNode.nodeName && typeof textContent === "string"
+        -1 === $parent?.className?.indexOf?.(HANDLER_CLASS_NAME) &&
+        "#cdata-section" !== textNode.nodeName &&
+        typeof textContent === "string"
       ) {
         const modifiedContent = textContent.replace(
           url_regexp,
@@ -1533,43 +1594,56 @@ transformKey(key) {
         }
       }
     };
-    const excludedTags = "a svg canvas applet input button area pre embed frame frameset head iframe img option map meta noscript object script style textarea code".split(
-      " "
-    );
+    const excludedTags =
+      "a svg canvas applet input button area pre embed frame frameset head iframe img option map meta noscript object script style textarea code".split(
+        " "
+      );
     const xpath = `//text()[not(ancestor::${excludedTags.join(") and not(ancestor::")})]`;
     const filter = new RegExp(`^(${excludedTags.join("|")})$`, "i");
-    const processLinksInBatches = function(textNodesSnapshot, startIndex) {
+    const processLinksInBatches = function (textNodesSnapshot, startIndex) {
       let currentIndex, endIndex;
       if (startIndex + 1e4 < textNodesSnapshot.snapshotLength) {
-        let start = currentIndex = startIndex;
-        for (endIndex = startIndex + 1e4; startIndex <= endIndex ? currentIndex <= endIndex : currentIndex >= endIndex; start = startIndex <= endIndex ? ++currentIndex : --currentIndex) {
+        let start = (currentIndex = startIndex);
+        for (
+          endIndex = startIndex + 1e4;
+          startIndex <= endIndex ? currentIndex <= endIndex : currentIndex >= endIndex;
+          start = startIndex <= endIndex ? ++currentIndex : --currentIndex
+        ) {
           setLink(textNodesSnapshot.snapshotItem(start));
         }
-        setTimeout(function() {
+        setTimeout(function () {
           return processLinksInBatches(textNodesSnapshot, startIndex + 1e4);
         }, 15);
       } else {
         let start;
-        for (start = currentIndex = startIndex, endIndex = textNodesSnapshot.snapshotLength; startIndex <= endIndex ? currentIndex <= endIndex : currentIndex >= endIndex; start = startIndex <= endIndex ? ++currentIndex : --currentIndex) {
+        for (
+          start = currentIndex = startIndex, endIndex = textNodesSnapshot.snapshotLength;
+          startIndex <= endIndex ? currentIndex <= endIndex : currentIndex >= endIndex;
+          start = startIndex <= endIndex ? ++currentIndex : --currentIndex
+        ) {
           setLink(textNodesSnapshot.snapshotItem(start));
         }
       }
     };
-    const linkifyText = function(element) {
+    const linkifyText = function (element) {
       const textNodesSnapshot = document.evaluate(xpath, element, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
       return processLinksInBatches(textNodesSnapshot, 0);
     };
-    const observePageChanges = function(rootElement) {
-      for (const treeWalker = document.createTreeWalker(rootElement, NodeFilter.SHOW_TEXT, {
-        acceptNode: function(node) {
-          const localName = node?.parentNode?.localName;
-          if (!filter.test(localName)) {
-            return NodeFilter.FILTER_ACCEPT;
-          } else {
-            return NodeFilter.FILTER_SKIP;
-          }
-        }
-      }); treeWalker.nextNode(); ) {
+    const observePageChanges = function (rootElement) {
+      for (
+        const treeWalker = document.createTreeWalker(rootElement, NodeFilter.SHOW_TEXT, {
+          acceptNode: function (node) {
+            const localName = node?.parentNode?.localName;
+            if (!filter.test(localName)) {
+              return NodeFilter.FILTER_ACCEPT;
+            } else {
+              return NodeFilter.FILTER_SKIP;
+            }
+          },
+        });
+        treeWalker.nextNode();
+
+      ) {
         setLink(treeWalker.currentNode);
       }
     };
@@ -1584,26 +1658,31 @@ transformKey(key) {
         }
       }
     });
-    const initLinkProcessing = function() {
+    const initLinkProcessing = function () {
       linkifyText(document.body);
       const mutationObserver = utils.mutationObserver(document.body, {
         config: {
           subtree: true,
-          childList: true
+          childList: true,
         },
         callback: (mutations) => {
           lockFn.run(mutations);
-        }
+        },
       });
       return mutationObserver;
     };
-    const clearLinkHelper = function(linkElement) {
+    const clearLinkHelper = function (linkElement) {
       const url = linkElement.getAttribute("href");
-      if (typeof url === "string" && 0 !== url.indexOf("http") && 0 !== url.indexOf("ed2k://") && 0 !== url.indexOf("thunder://")) {
+      if (
+        typeof url === "string" &&
+        0 !== url.indexOf("http") &&
+        0 !== url.indexOf("ed2k://") &&
+        0 !== url.indexOf("thunder://")
+      ) {
         return linkElement.setAttribute("href", "http://" + url);
       }
     };
-    const clearAllLinks = function() {
+    const clearAllLinks = function () {
       const linkElements = Array.from(document.getElementsByClassName(HANDLER_CLASS_NAME));
       for (const $link of linkElements) {
         clearLinkHelper($link);
@@ -1621,20 +1700,20 @@ transformKey(key) {
   }
   __pops.GlobalConfig.setGlobalConfig({
     mask: {
-      enable: true
+      enable: true,
     },
-    drag: true
+    drag: true,
   });
   const MTRegExp = {
-formhash: /formhash=([0-9a-zA-Z]+)/,
-uid: /uid(=|-)(\d+)/,
-fontSpecial: /<font.*?>|<\/font>|<strike>|<strong>|<i>|<u>|align=".*?"|<br>[\s]*<br>[\s]*<br>/g
+    formhash: /formhash=([0-9a-zA-Z]+)/,
+    uid: /uid(=|-)(\d+)/,
+    fontSpecial: /<font.*?>|<\/font>|<strike>|<strong>|<i>|<u>|align=".*?"|<br>[\s]*<br>[\s]*<br>/g,
   };
   const MTUtils = {
-getAvatar: (uid, size = "middle") => {
+    getAvatar: (uid, size = "middle") => {
       return `/uc_server/avatar.php?uid=${uid}&size=${size}&ts=1`;
     },
-getCurrentUID() {
+    getCurrentUID() {
       let discuz_uid = _unsafeWindow.discuz_uid;
       if (typeof discuz_uid === "string") {
         return discuz_uid;
@@ -1647,10 +1726,8 @@ getCurrentUID() {
         }
       }
     },
-async getFormHash() {
-      let $inputFormHashList = Array.from(
-        (top || globalThis).document.querySelectorAll("input[name=formhash]")
-      );
+    async getFormHash() {
+      let $inputFormHashList = Array.from((top || globalThis).document.querySelectorAll("input[name=formhash]"));
       for (let index = 0; index < $inputFormHashList.length; index++) {
         const $input = $inputFormHashList[index];
         let formHash = $input.value;
@@ -1658,9 +1735,7 @@ async getFormHash() {
           return formHash;
         }
       }
-      let $anchorFormHashList = Array.from(
-        (top || globalThis).document.querySelectorAll('a[href*="formhash="]')
-      );
+      let $anchorFormHashList = Array.from((top || globalThis).document.querySelectorAll('a[href*="formhash="]'));
       for (let index = 0; index < $anchorFormHashList.length; index++) {
         const $anchorFormHash = $anchorFormHashList[index];
         let anchorFormHashMatch = $anchorFormHash.href.match(MTRegExp.formhash);
@@ -1673,7 +1748,7 @@ async getFormHash() {
       }
       let homeResponse = await httpx.get("/home.php?mod=spacecp", {
         fetch: true,
-        allowInterceptConfig: false
+        allowInterceptConfig: false,
       });
       if (homeResponse.status) {
         let homeText = homeResponse.data.responseText;
@@ -1689,14 +1764,10 @@ async getFormHash() {
         log.error("请求个人主页获取formhash失败", homeResponse);
       }
     },
-envIsMobile() {
-      return (
-(_unsafeWindow.STYLEID ||
-window.STYLEID ||
-typeof STYLEID !== "undefined" && STYLEID) === "3"
-      );
+    envIsMobile() {
+      return (_unsafeWindow.STYLEID || window.STYLEID || (typeof STYLEID !== "undefined" && STYLEID)) === "3";
     },
-getThreadId: (url) => {
+    getThreadId: (url) => {
       let urlMatch = url.match(/thread-([\d]+)-|&tid=([\d]+)/i);
       if (urlMatch) {
         let forumIdList = urlMatch.filter(Boolean);
@@ -1704,33 +1775,33 @@ getThreadId: (url) => {
         return forumId;
       }
     },
-getForumId(url) {
+    getForumId(url) {
       let urlMatch = url.match(/&fid=([\d]+)/i);
       if (urlMatch) {
         return urlMatch[urlMatch.length - 1];
       }
     },
-getPostId(url) {
+    getPostId(url) {
       let urlMatch = url.match(/&pid=([\d]+)/i);
       if (urlMatch) {
         return urlMatch[urlMatch.length - 1];
       }
     },
-getRepquote(url) {
+    getRepquote(url) {
       let urlMatch = url.match(/&repquote=([\d]+)/i);
       if (urlMatch) {
         return urlMatch[urlMatch.length - 1];
       }
-    }
+    },
   };
   const MTAutoSignIn = {
     $key: {
-      sign: "mt-sign-time"
+      sign: "mt-sign-time",
     },
     init() {
       this.sign();
     },
-checkSignInfo() {
+    checkSignInfo() {
       let signInfo = this.getSignInfo();
       let findValue = signInfo.find((it) => {
         return it.hostName === window.location.hostname;
@@ -1743,10 +1814,10 @@ checkSignInfo() {
       }
       return false;
     },
-setSignInfo() {
+    setSignInfo() {
       let signInfo = {
         hostName: window.location.hostname,
-        time: Date.now()
+        time: Date.now(),
       };
       let localSignInfo = this.getSignInfo();
       let findIndex = localSignInfo.findIndex((it) => {
@@ -1758,7 +1829,7 @@ setSignInfo() {
       localSignInfo.push(signInfo);
       _GM_setValue(this.$key.sign, localSignInfo);
     },
-getSignInfo() {
+    getSignInfo() {
       let localSignInfo = _GM_getValue(this.$key.sign, []);
       if (!Array.isArray(localSignInfo)) {
         this.clearSignInfo();
@@ -1766,13 +1837,13 @@ getSignInfo() {
       }
       return localSignInfo;
     },
-getHostNameSignInfo(hostName = window.location.hostname) {
+    getHostNameSignInfo(hostName = window.location.hostname) {
       let localSignInfo = this.getSignInfo();
       return localSignInfo.find((it) => {
         return it.hostName === hostName;
       });
     },
-clearSignInfo(hostName) {
+    clearSignInfo(hostName) {
       if (typeof hostName === "string") {
         let signInfo = this.getSignInfo();
         let findIndex = signInfo.findIndex((it) => {
@@ -1786,7 +1857,7 @@ clearSignInfo(hostName) {
         _GM_deleteValue(this.$key.sign);
       }
     },
-checkLogin() {
+    checkLogin() {
       if (MTUtils.envIsMobile()) {
         let mobile_login_exitBtn = $("a[href*='member.php?mod=logging&action=logout']");
         return Boolean(mobile_login_exitBtn);
@@ -1795,7 +1866,7 @@ checkLogin() {
         return Boolean(pc_login);
       }
     },
-async sign() {
+    async sign() {
       let formHash = await MTUtils.getFormHash();
       if (formHash == null) {
         if ($("#comiis_picshowbox")) {
@@ -1805,7 +1876,7 @@ async sign() {
         log.error("自动签到：获取账号formhash失败");
         this.clearSignInfo(window.location.hostname);
         Qmsg.error({
-          content: "自动签到：获取账号formhash失败"
+          content: "自动签到：获取账号formhash失败",
         });
         return;
       }
@@ -1825,14 +1896,14 @@ async sign() {
         let $alert = pops.alert({
           title: {
             text: "未知签到内容",
-            position: "center"
+            position: "center",
           },
           content: {
             text: "",
-            html: false
+            html: false,
           },
           width: "88vw",
-          height: "300px"
+          height: "300px",
         });
         let $content = $alert.$shadowRoot.querySelector(".pops-alert-content");
         $content.innerText = content;
@@ -1846,18 +1917,18 @@ async sign() {
               format: "button",
               formhash: formHash,
               inajax: 1,
-              ajaxtarget: "midaben_sign"
+              ajaxtarget: "midaben_sign",
             };
             let response = await httpx.get(`/k_misign-sign.html?${utils.toSearchParamsStr(searchParamsData)}`, {
               fetch: useFetch,
               headers: {
-                "User-Agent": userAgent
+                "User-Agent": userAgent,
               },
-              allowInterceptConfig: false
+              allowInterceptConfig: false,
             });
             if (!response.status) {
               Qmsg.error("签到：网络异常，请求失败", {
-                consoleLogContent: true
+                consoleLogContent: true,
               });
               return;
             }
@@ -1870,13 +1941,18 @@ async sign() {
             if (content.includes("需要先登录")) {
               Qmsg.error("签到：请先登录账号", {
                 timeout: 3e3,
-                consoleLogContent: true
+                consoleLogContent: true,
               });
               signFailedCallBack();
               return;
-            } else if (content.includes("请稍后再试") || content.includes("您已经被列入黑名单") || content.includes("绑定手机号后才可以签到") || content.includes("您所在用户组不允许使用")) {
+            } else if (
+              content.includes("请稍后再试") ||
+              content.includes("您已经被列入黑名单") ||
+              content.includes("绑定手机号后才可以签到") ||
+              content.includes("您所在用户组不允许使用")
+            ) {
               Qmsg.error("签到：" + content, {
-                timeout: 5e3
+                timeout: 5e3,
               });
               return;
             } else if (content.includes("今日已签") || content.includes("今日已经签到")) {
@@ -1884,7 +1960,7 @@ async sign() {
               return;
             } else if (responseText.includes("您当前的访问请求当中含有非法字符，已经被系统拒绝")) {
               Qmsg.error("签到: 您当前的访问请求当中含有非法字符，已经被系统拒绝", {
-                timeout: 6e3
+                timeout: 6e3,
               });
               return;
             } else if (useFetch && "location" in utils.toJSON(responseText)) {
@@ -1900,20 +1976,20 @@ async sign() {
               let line = lineMatch[lineMatch.length - 1];
               log.success(`金币${con}，排名${line}`);
               Qmsg.info(
-`
+                `
 							<div style="display: flex;${!MTUtils.envIsMobile() ? "padding: 20px;" : ""}">
 								<div style="align-self: center;margin-right: 20px;">签到</div>
 								<div>排名 ${line}<br>金币 ${con}</div>
 							</div>`,
                 {
                   timeout: 4e3,
-                  isHTML: true
+                  isHTML: true,
                 }
               );
               return;
             }
             unknownSignContentCallback(responseText);
-          }
+          },
         },
         {
           checkPluginEnableUrl: "/plugin.php?id=dsu_paulsign:sign",
@@ -1922,7 +1998,7 @@ async sign() {
               id: "dsu_paulsign:sign",
               operation: "qiandao",
               infloat: 1,
-              inajax: 1
+              inajax: 1,
             };
             let response = await httpx.post(`/plugin.php?${utils.toSearchParamsStr(searchParamsData)}`, {
               data: {
@@ -1930,19 +2006,19 @@ async sign() {
                 qdxq: "kx",
                 qdmode: 3,
                 todaysay: "",
-                fastreply: 0
+                fastreply: 0,
               },
               processData: true,
               fetch: useFetch,
               headers: {
                 "User-Agent": userAgent,
-                "Content-Type": "application/x-www-form-urlencoded"
+                "Content-Type": "application/x-www-form-urlencoded",
               },
-              allowInterceptConfig: false
+              allowInterceptConfig: false,
             });
             if (!response.status) {
               Qmsg.error("签到：网络异常，请求失败", {
-                consoleLogContent: true
+                consoleLogContent: true,
               });
               return;
             }
@@ -1958,17 +2034,17 @@ async sign() {
               return;
             }
             unknownSignContentCallback(responseText);
-          }
-        }
+          },
+        },
       ];
       for (let index = 0; index < sign_plugin.length; index++) {
         const signPluginItem = sign_plugin[index];
         let checkResponse = await httpx.get(signPluginItem.checkPluginEnableUrl, {
           fetch: useFetch,
           headers: {
-            "User-Agent": utils.getRandomPCUA()
+            "User-Agent": utils.getRandomPCUA(),
           },
-          allowInterceptConfig: false
+          allowInterceptConfig: false,
         });
         if (!checkResponse.status) {
           log.error("签到：检查签到插件是否启用的请求失败", checkResponse);
@@ -1982,76 +2058,98 @@ async sign() {
         await signPluginItem.sign();
         break;
       }
-    }
+    },
   };
   const MTRouter = {
-isKMiSign() {
+    isKMiSign() {
       return window.location.pathname.startsWith("/k_misign-sign.html");
     },
-isPost() {
+    isPost() {
       const searchParams = new URLSearchParams(window.location.search);
-      return window.location.pathname.startsWith("/thread-") || window.location.pathname.startsWith("/forum.php") && searchParams.has("mod", "viewthread");
+      return (
+        window.location.pathname.startsWith("/thread-") ||
+        (window.location.pathname.startsWith("/forum.php") && searchParams.has("mod", "viewthread"))
+      );
     },
-isPage() {
+    isPage() {
       return Boolean(window.location.pathname.match(/^\/page-([0-9]+).html/g));
     },
-isGuide() {
+    isGuide() {
       const searchParams = new URLSearchParams(window.location.search);
       return window.location.pathname.startsWith("/forum.php") && searchParams.has("mod", "guide");
     },
-isPlate() {
+    isPlate() {
       return Boolean(window.location.pathname.match(/\/forum-[0-9]{1,2}-[0-9]{1,2}.html/g));
     },
-isSearch() {
+    isSearch() {
       return window.location.pathname.startsWith("/search.php");
     },
-isSpace() {
+    isSpace() {
       const searchParams = new URLSearchParams(window.location.search);
       return window.location.pathname.startsWith("/home.php") && searchParams.has("mod", "space");
     },
-isMySpace() {
+    isMySpace() {
       const searchParams = new URLSearchParams(window.location.search);
-      return window.location.pathname.startsWith("/home.php") && searchParams.has("mod", "space") && searchParams.has("do", "profile") && searchParams.has("mycenter");
+      return (
+        window.location.pathname.startsWith("/home.php") &&
+        searchParams.has("mod", "space") &&
+        searchParams.has("do", "profile") &&
+        searchParams.has("mycenter")
+      );
     },
-isSpaceWithAt() {
+    isSpaceWithAt() {
       return window.location.pathname.startsWith("/space-uid-");
     },
-isForumList() {
+    isForumList() {
       const searchParams = new URLSearchParams(window.location.search);
       return window.location.pathname.startsWith("/forum.php") && searchParams.has("forumlist");
     },
-isMessage() {
+    isMessage() {
       const searchParams = new URLSearchParams(window.location.search);
-      return window.location.pathname.startsWith("/home.php") && searchParams.has("mod", "space") && searchParams.has("do", "notice");
+      return (
+        window.location.pathname.startsWith("/home.php") &&
+        searchParams.has("mod", "space") &&
+        searchParams.has("do", "notice")
+      );
     },
-isMessageList() {
+    isMessageList() {
       const searchParams = new URLSearchParams(window.location.search);
-      return window.location.pathname.startsWith("/home.php") && searchParams.has("mod", "space") && searchParams.has("do", "pm");
+      return (
+        window.location.pathname.startsWith("/home.php") &&
+        searchParams.has("mod", "space") &&
+        searchParams.has("do", "pm")
+      );
     },
-isPointsMall() {
+    isPointsMall() {
       const searchParams = new URLSearchParams(window.location.search);
-      return window.location.pathname.startsWith("/keke_integralmall-keke_integralmall.html") || window.location.pathname.startsWith("/plugin.php") && searchParams.has("id", "keke_integralmal");
+      return (
+        window.location.pathname.startsWith("/keke_integralmall-keke_integralmall.html") ||
+        (window.location.pathname.startsWith("/plugin.php") && searchParams.has("id", "keke_integralmal"))
+      );
     },
-isPostPublish() {
+    isPostPublish() {
       const searchParams = new URLSearchParams(window.location.search);
       return window.location.pathname.startsWith("/forum.php") && searchParams.has("mod", "post");
     },
-isPostPublish_voting() {
+    isPostPublish_voting() {
       const searchParams = new URLSearchParams(window.location.search);
-      return window.location.pathname.startsWith("/forum.php") && searchParams.has("special", "1") || searchParams.has("fid", "42");
+      return (
+        (window.location.pathname.startsWith("/forum.php") && searchParams.has("special", "1")) ||
+        searchParams.has("fid", "42")
+      );
     },
-isPostPublish_edit() {
+    isPostPublish_edit() {
       const searchParams = new URLSearchParams(window.location.search);
       return this.isPostPublish() && searchParams.has("action", "edit");
     },
-isPostPublish_newthread() {
+    isPostPublish_newthread() {
       const searchParams = new URLSearchParams(window.location.search);
       return this.isPostPublish() && searchParams.has("action", "newthread");
     },
-isPostPublish_reply() {
+    isPostPublish_reply() {
       const searchParams = new URLSearchParams(window.location.search);
       return this.isPostPublish() && searchParams.has("action", "reply");
-    }
+    },
   };
   const MTForumPostRightToolBar = {
     init() {
@@ -2064,7 +2162,7 @@ isPostPublish_reply() {
         });
       });
     },
-quickCollentBtn() {
+    quickCollentBtn() {
       log.info(`【快捷收藏】`);
       domUtils.waitNode("#scrolltop", 1e4).then(async ($scrollTop) => {
         if (!$scrollTop) {
@@ -2073,19 +2171,18 @@ quickCollentBtn() {
         let formhash = await MTUtils.getFormHash();
         let threadId = MTUtils.getThreadId(window.location.href);
         let collectUrl = `/home.php?${utils.toSearchParamsStr({
-        mod: "spacecp",
-        ac: "favorite",
-        type: "thread",
-        id: threadId,
-        formhash,
-        infloat: "yes",
-        handlekey: "k_favorite",
-        inajax: 1,
-        ajaxtarget: "fwin_content_k_favorite"
-      })}`;
+          mod: "spacecp",
+          ac: "favorite",
+          type: "thread",
+          id: threadId,
+          formhash,
+          infloat: "yes",
+          handlekey: "k_favorite",
+          inajax: 1,
+          ajaxtarget: "fwin_content_k_favorite",
+        })}`;
         let $collect = document.createElement("span");
-        $collect.innerHTML =
-`
+        $collect.innerHTML = `
 			<a href="${collectUrl}" 
 				id="k_favorite"
 				onclick="showWindow(this.id, this.href, 'get', 0);"
@@ -2099,13 +2196,13 @@ quickCollentBtn() {
         domUtils.prepend($scrollTop, $collect);
       });
     },
-quickReplyOptimization() {
+    quickReplyOptimization() {
       domUtils.waitNode('#scrolltop a[title="快速回复"]', 1e4).then(($ele) => {
         if (!$ele) {
           return;
         }
         log.info(`快捷回复优化`);
-        domUtils.on($ele, "click", function() {
+        domUtils.on($ele, "click", function () {
           _unsafeWindow.showWindow("reply", $ele.href);
           log.info(`等待弹窗出现`);
           domUtils.waitNode("#moreconf", 1e4).then(($moreconf) => {
@@ -2118,30 +2215,28 @@ quickReplyOptimization() {
               {
                 innerText: "一键空格",
                 type: "button",
-                id: "insertspace2"
+                id: "insertspace2",
               },
               {
-                style: "float: left;"
+                style: "float: left;",
               }
             );
             domUtils.on($oneKeySpace, "click", (event) => {
               domUtils.preventEvent(event);
-              domUtils.val(
-                $("#postmessage"),
-                domUtils.val($("#postmessage")) + "           "
-              );
+              domUtils.val($("#postmessage"), domUtils.val($("#postmessage")) + "           ");
             });
             domUtils.append($moreconf, $oneKeySpace);
           });
         });
       });
-    }
+    },
   };
-  const beautifyCss = ".pls .avatar img,.avtm img{border-radius:10%}.pls .avatar img{--avatar-size: 90px;width:var(--avatar-size);height:var(--avatar-size)}";
+  const beautifyCss =
+    ".pls .avatar img,.avtm img{border-radius:10%}.pls .avatar img{--avatar-size: 90px;width:var(--avatar-size);height:var(--avatar-size)}";
   importCSS(beautifyCss);
   const MTForumPost = {
     $flag: {
-      isSetHljsCSS: false
+      isSetHljsCSS: false,
     },
     init() {
       MTForumPostRightToolBar.init();
@@ -2181,11 +2276,11 @@ quickReplyOptimization() {
         });
       });
     },
-autoExpandContent() {
+    autoExpandContent() {
       log.info(`自动展开帖子内容`);
       return [
         addStyle(
-`
+          `
 				div.comiis_message.bg_f.view_one.b_b.cl.message>div.comiis_messages.comiis_aimg_show.cl{
 					max-height:inherit!important;
 					overflow-y:inherit!important;
@@ -2193,19 +2288,19 @@ autoExpandContent() {
 				}
         	`
         ),
-        CommonUtil.addBlockCSS(".comiis_lookfulltext_bg", ".comiis_lookfulltext_key")
+        CommonUtil.addBlockCSS(".comiis_lookfulltext_bg", ".comiis_lookfulltext_key"),
       ];
     },
-repairImageWidth() {
+    repairImageWidth() {
       log.info(`修复图片宽度`);
       return addStyle(
-`
+        `
         .comiis_messages img{
             max-width: 100% !important;
         }`
       );
     },
-removeFontStyle() {
+    removeFontStyle() {
       let $messageTable = document.querySelector(".comiis_a.comiis_message_table");
       if (!$messageTable) {
         return;
@@ -2213,7 +2308,7 @@ removeFontStyle() {
       log.info(`移除帖子字体效果`);
       domUtils.html($messageTable, domUtils.html($messageTable).replace(MTRegExp.fontSpecial, ""));
     },
-removeCommentFontStyle() {
+    removeCommentFontStyle() {
       log.info(`移除评论区的字体效果`);
       let $fontList = $$("font");
       let $postForumMainContent = $(".comiis_postlist .comiis_postli")?.innerHTML || "";
@@ -2242,7 +2337,7 @@ removeCommentFontStyle() {
         }
       });
     },
-loadNextPageComment() {
+    loadNextPageComment() {
       log.info(`自动加载下一页评论`);
       if (document.title.includes("提示信息 - MT论坛")) {
         return;
@@ -2251,10 +2346,10 @@ loadNextPageComment() {
         log.warn("没有找到下一页按钮");
         return;
       }
-      var getPageInfo = async function(url) {
+      var getPageInfo = async function (url) {
         let response = await httpx.get(url, {
           fetch: true,
-          allowInterceptConfig: false
+          allowInterceptConfig: false,
         });
         if (!response.status) {
           Qmsg.error("网络异常，请求下一页失败");
@@ -2268,10 +2363,10 @@ loadNextPageComment() {
           url: nextPageBtn ? nextPageBtn.getAttribute("href") : null,
           postlist: pageHTML.querySelector("#postlist"),
           pgbtn: pageHTML.querySelector(".pgbtn"),
-          pgs: pageHTML.querySelector(".pgs.mtm")
+          pgs: pageHTML.querySelector(".pgs.mtm"),
         };
       };
-      var scrollEvent = async function() {
+      var scrollEvent = async function () {
         var nextURL = $(".pgbtn a").getAttribute("href");
         if (nextURL) {
           let pageInfo = await getPageInfo(nextURL);
@@ -2309,7 +2404,7 @@ loadNextPageComment() {
       });
       domUtils.on(document, ["scroll", "wheel"], lockFn.run);
     },
-codeQuoteOptimization() {
+    codeQuoteOptimization() {
       log.info(`代码块优化`);
       function hljs_smali(hljs2) {
         var smali_instr_low_prio = [
@@ -2341,7 +2436,7 @@ codeQuoteOptimization() {
           "sub",
           "throw",
           "ushr",
-          "xor"
+          "xor",
         ];
         var smali_instr_high_prio = [
           "aget",
@@ -2360,7 +2455,7 @@ codeQuoteOptimization() {
           "monitor",
           "packed",
           "sget",
-          "sparse"
+          "sparse",
         ];
         var smali_keywords = [
           "transient",
@@ -2373,7 +2468,7 @@ codeQuoteOptimization() {
           "protected",
           "static",
           "bridge",
-          "system"
+          "system",
         ];
         return {
           aliases: ["smali"],
@@ -2382,10 +2477,10 @@ codeQuoteOptimization() {
               className: "string",
               begin: '"',
               end: '"',
-              relevance: 0
+              relevance: 0,
             },
             hljs2.COMMENT("#", "$", {
-              relevance: 0
+              relevance: 0,
             }),
             {
               className: "keyword",
@@ -2393,38 +2488,38 @@ codeQuoteOptimization() {
                 { begin: "\\s*\\.end\\s[a-zA-Z0-9]*" },
                 { begin: "^[ ]*\\.[a-zA-Z]*", relevance: 0 },
                 { begin: "\\s:[a-zA-Z_0-9]*", relevance: 0 },
-                { begin: "\\s(" + smali_keywords.join("|") + ")" }
-              ]
+                { begin: "\\s(" + smali_keywords.join("|") + ")" },
+              ],
             },
             {
               className: "built_in",
               variants: [
                 {
-                  begin: "\\s(" + smali_instr_low_prio.join("|") + ")\\s"
+                  begin: "\\s(" + smali_instr_low_prio.join("|") + ")\\s",
                 },
                 {
                   begin: "\\s(" + smali_instr_low_prio.join("|") + ")((\\-|/)[a-zA-Z0-9]+)+\\s",
-                  relevance: 10
+                  relevance: 10,
                 },
                 {
                   begin: "\\s(" + smali_instr_high_prio.join("|") + ")((\\-|/)[a-zA-Z0-9]+)*\\s",
-                  relevance: 10
-                }
-              ]
+                  relevance: 10,
+                },
+              ],
             },
             {
               className: "class",
               begin: "L[^(;:\n]*;",
-              relevance: 0
+              relevance: 0,
             },
             {
-              begin: "[vp][0-9]+"
-            }
-          ]
+              begin: "[vp][0-9]+",
+            },
+          ],
         };
       }
       addStyle(
-`
+        `
 			.hljs{text-align:left}
 			.hljs ol{margin:0 0 0 10px;padding:10px 10px}
 			.hljs li{padding-left:10px;list-style-type:decimal-leading-zero;font-family:Monaco,Consolas,'Lucida Console','Courier New',serif;font-size:12px;line-height:1.8em}
@@ -2444,7 +2539,11 @@ codeQuoteOptimization() {
             ele.innerHTML = hljs.highlight(ele.oldValue, { language }).value.replace(/\\n$/gi, "");
           }
           document.querySelectorAll("em[onclick^=copycode]").forEach((coypCodeElement) => {
-            if (coypCodeElement.nextElementSibling && typeof coypCodeElement.nextElementSibling.className === "string" && coypCodeElement.nextElementSibling.className == "code-select-language") {
+            if (
+              coypCodeElement.nextElementSibling &&
+              typeof coypCodeElement.nextElementSibling.className === "string" &&
+              coypCodeElement.nextElementSibling.className == "code-select-language"
+            ) {
               return;
             }
             let codeLanguage = hljs.highlightAuto(
@@ -2466,9 +2565,12 @@ codeQuoteOptimization() {
             domUtils.on(selectElement, "change", () => {
               let changeCodeLanguage = selectElement.selectedOptions[0].getAttribute("data-value");
               log.info("切换代码块语言: ", changeCodeLanguage);
-              domUtils.parent(selectElement).querySelectorAll("li").forEach((liElement) => {
-                setElementHighlight(liElement, changeCodeLanguage);
-              });
+              domUtils
+                .parent(selectElement)
+                .querySelectorAll("li")
+                .forEach((liElement) => {
+                  setElementHighlight(liElement, changeCodeLanguage);
+                });
             });
             domUtils.preventEvent(selectElement, "click");
             domUtils.preventEvent(coypCodeElement, "click");
@@ -2476,7 +2578,7 @@ codeQuoteOptimization() {
             domUtils.trigger(selectElement, "change");
           });
           let blockcodeElementList = document.querySelectorAll(".blockcode");
-          blockcodeElementList.forEach((ele) => ele.className = "hljs");
+          blockcodeElementList.forEach((ele) => (ele.className = "hljs"));
         },
         this,
         500
@@ -2484,32 +2586,32 @@ codeQuoteOptimization() {
       utils.mutationObserver(document, {
         config: {
           subtree: true,
-          childList: true
+          childList: true,
         },
         callback: () => {
           lockFn.run();
-        }
+        },
       });
     },
-optimizationImagePreview() {
+    optimizationImagePreview() {
       log.info(`图片查看优化`);
       let blackListNoViewIMG = [
         {
           hostName: "avatar-bbs.mt2.cn",
-          pathName: "*"
+          pathName: "*",
         },
         {
           hostName: "cdn-bbs.mt2.cn",
-          pathName: "^(/static(/|//)image|/template)"
+          pathName: "^(/static(/|//)image|/template)",
         },
         {
           hostName: window.location.hostname,
-          pathName: "^(/static(/|//)image|/template)"
+          pathName: "^(/static(/|//)image|/template)",
         },
         {
           hostName: window.location.hostname,
-          pathName: "/uc_server/avatar.php"
-        }
+          pathName: "/uc_server/avatar.php",
+        },
       ];
       function viewerViewImage(imgList = [], index = 0) {
         let viewerULNodeHTML = "";
@@ -2517,7 +2619,7 @@ optimizationImagePreview() {
           viewerULNodeHTML += `<li><img data-src="${item}"></li>`;
         });
         let viewerULNode = domUtils.createElement("ul", {
-          innerHTML: viewerULNodeHTML
+          innerHTML: viewerULNodeHTML,
         });
         let viewer = new Viewer(viewerULNode, {
           inline: false,
@@ -2525,7 +2627,7 @@ optimizationImagePreview() {
           zIndex: utils.getMaxZIndex() + 100,
           hidden: () => {
             viewer.destroy();
-          }
+          },
         });
         viewer.view(index);
         viewer.zoomTo(1);
@@ -2563,7 +2665,7 @@ optimizationImagePreview() {
             domUtils.on(
               $img,
               "click",
-              function(event) {
+              function (event) {
                 domUtils.preventEvent(event);
                 log.info("点击图片", $img);
                 let viewImageIndex = totalImageList.findIndex((imgUrl) => {
@@ -2582,15 +2684,15 @@ optimizationImagePreview() {
       utils.mutationObserver(document, {
         config: {
           subtree: true,
-          childList: true
+          childList: true,
         },
         immediate: true,
         callback: () => {
           lockFn.run();
-        }
+        },
       });
     },
-setAttachmentsClickTip() {
+    setAttachmentsClickTip() {
       log.info(`附件点击提醒`);
       function handleClick(item) {
         if (item.hasAttribute("href")) {
@@ -2607,28 +2709,26 @@ setAttachmentsClickTip() {
           item.style.setProperty("cursor", "pointer");
           item.removeAttribute("href");
           item.innerText = "【已拦截】" + attachmentName;
-          item.onclick = function() {
+          item.onclick = function () {
             __pops.confirm({
               title: {
                 text: "提示",
-                position: "center"
+                position: "center",
               },
               content: {
-                text: (
-`<br />确定花费2金币下载附件 <a style="color: #507daf !important;">${attachmentName}</a> ？<br /><br />`
-                ),
-                html: true
+                text: `<br />确定花费2金币下载附件 <a style="color: #507daf !important;">${attachmentName}</a> ？<br /><br />`,
+                html: true,
               },
               btn: {
                 ok: {
                   callback: (details) => {
                     window.open(attachmentURL, "_blank");
                     details.close();
-                  }
-                }
+                  },
+                },
               },
               width: "400px",
-              height: "200px"
+              height: "200px",
             });
           };
         }
@@ -2646,14 +2746,14 @@ setAttachmentsClickTip() {
           });
         },
         immediate: true,
-        config: { childList: true, subtree: true }
+        config: { childList: true, subtree: true },
       });
     },
-async detectingUserOnlineStatus() {
+    async detectingUserOnlineStatus() {
       log.info(`探测用户在线状态`);
       Panel.onceExec("mt-forum-post-detectingUserOnlineStatus", () => {
         addStyle(
-`
+          `
 				.gm-user-status-icon{
 					border: 0 !important;
 					float: right !important;
@@ -2669,7 +2769,9 @@ async detectingUserOnlineStatus() {
           className: "gm-user-status-icon",
           smilied: isOffLine ? "1353" : "1384",
           loading: "lazy",
-          src: isOffLine ? "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAFAxJREFUeF7tWwuQVNWZ/u6rnzPd0/PoeTC8tNkJ7gQBt0pYHDESUZcNWrBi1qjlEl2q8LG7apngs2JMsFLRLV9sUINWiZTRlfhIJGKwhMEF14iERcmEEZhhGGZ6Xt093TPd97n5z+3Tc6ftngeDValKTtWt7pl777nn//7vf57bAv7Ch/AXLj/+CsBfGfDVIyBefvnlfwegSdf1ubIsn2cYxjRRFIOCIATp8ZZlxU3TjEuSdErX9c9lWT4CoPndd9/9HQDzq1ziV2UCyvLly1dZlrVGEIRlsuIJSoofsuyCJCuQJBmCKI2SyzINGIYOQ9eg6yoMLQVdS8cty9olCMKrO3fu3A5AO9tgnFUAmpqaqtxu9x2iKN6uuINBl9sHl9vL1iyJE1ekYYo5OdXMMNTMELRMnFjyVCaTebK5ubnnbAFxVgCIRCLuWbNm3U+Cu30VQbfHz7TMBRcsvch6OSgkMH0f+TQceOlZQIZT8RwQJ06ceKS1tTUzVSCmDMBFF110hcfj2ez2hmZ4/cykITu0zTVvWSYEQYQoGGOu2TBHL8m0bCA5CLphQUsnkBkeaE+n0+v27t37m6mAcMYAkNZnzpz5mKz4b5XdpfB6baqLljqiedGmsijY6hQE+3GWZRVcM53n5+jTdIDBzUIzBFiCDE1NQ88MQtdSz7S1td11pmw4IwAuueSSekmS3pbdZfO9/jIQxRXJFoprXIAJQRRyQjsBGE9jJHwOCNOe1zBtEFU96x8EBWQmmXQSeiZ20DCMb33wwQcd482df37SAFx22WVzLMv6reQKznB7SiDReiwNLnnEaCVRZMIz7WdZMNmFcaaYWWfAATANGxDdsqOIYSkMBEONtwuC8M333nvv6GSeNSkASHjDMPYqnlCYCS/YUUkWDIiSPRUJz7Sd1T6n/WQWxa/lTLBMK8cADoDGgbFkmJZIIRNaeiAqSdJFkwFhwgAQ7WVZ/pA0LyseZteSYHt3WbIgQGIgcO2T4FMRvhgIBIAFAwSKaZq2P6BliC5k0inASLbrur5kouYwIQCyDm+/IJfOpxAHU4ViO2dIgm3rI2HPpv9XBQCjvaHnAKC/NQOwIEM3JRh6GpY+eLCtrW3RRBzjhABYtmzZ8xB935VdfsiiAQHk9GwAyMY5AJz+oiSeFe07WeD0BU4ATMvESIQQAUGBrqYAc+jnu3btunk80xsXgCVLlqxyewKvK54gc3aKZDs78vYixXUHAMw5aRp0Q2f0pIPO06EoCtxu94ScIt2XyWSgadqoeWxzkyHJUo4BBABdT/mDQSmGSNFBooQJuppc/eGHH1IKXXSMB0DpxRdf3CK6K2vdigCYGiSJhLdswQSRLYbRUNPg9/lx/vzzcd5556G2thaBQACJRALd3d04fPgwfn/w90wwAoLf51yZoRu58+PNM5gcZGBwAAgE3eCRQYSmW7C0gdN79uxpADBYDIExAWhqavqxqAQ2KC4/YKnM3vMB4Nq+8sorQUdJSQlcLhdkOeskiBW6DlVVkUwmsWPHDnZQ4sSTJ1rc8PAwOyY7DzdDxoJsZNAMGQYUWEYGppbY2NzcfO+kAaDCxjTNo4qvOkipLXN2IAbYlKaDBHMpLqy/dT3mzZsHn8/HqE5H/iCG0DE0NIRDhw5h0zObGAsIBBKctH+m86ianX0SAAwIy2X/DQXaUHdcFMU5xQqoogxg2pdLNgiyFxLI9kcKGg5CKpXC3XffjQsuuIDRnTTPNZIPAC2MBjGBzOKTTz7B448/jnBVGF3dXVOeR5YVUL3Bs2zdEGHABV3LQLRSRVlQEAAKe9XV1d2yp5JVNxJUyBIVM5TPi4wFZMtXX301Vq1ahVAoxISfSNZHQHAQXnvtNWYORPtrrrkmB+KZzLN9+3bGPJYbUB1hKTAsEYYlwVL74t3d3dWFwmJBAMjzQ/S+TmEPlm7bvqjb1Vw20yMQnnzySYTDYUb9iSyas4IWSbQnJjz44IN4+OGHmfBkDpOdh0wqGo3ijjvuYMDSIAA05hCJBQpMNUHmWzAiFAJAXLx48XZBKb+KJTus0LFLWEpuKOEZHhrCZcsvwy233IKysjLm8Ca7cPIfBMTAwABjEN1/pvPEYjE899xz2PnuTrjcLtsP0JIFCZrpggADphZ/c9++favyW2yFAPAtWrQoKnvDfrJ9alRQzm87Pol99vf14d777sXSpUuZ5goJT9q477778NZbb8PtdmHlypVM29xPcJ/g9BV8nvHudd5D8xCT9u7dix8+/EMEgoFRAFB2aEGCqfal9u/fHwYw5Lz/SwBQg0PThR2KNwTLUCELKgt9zBdINgCdnZ144YUX0NDQUJT+d911F7Zu3Yq6ujoESgNIDCaYv3jggQeKZyXZM5O5lwAgMzh27Biuv/56VFVV2X6AymhBgm65GACGmoAiW1fmN1DyARAbGxsf9AfCD0myF4qoApYBQRjJ6IgF7e3teOutN1myU8z+6Rxpe9bMWWxRPT09GIgNsBA43pjMvRwA8gMrVvwj6upqWUjl/QSKBBBk1mhNJaI/OHz48MNOM/gSAAsXLnxR8VbeIFOhb+l2e4tAEAWmfWLB8ePH8corr4zJABKCFudkwNDQMFpa/jCe/AzYid7rZMDq1atRX1/PtE8A8DYaA4Gy1eHelw4cOHBTUQAo/AWDwd2yJ3whlbgsAkC1K7ssAATCiRMn8Oijj2LZsmVFfQDR+Nlnn2UM8Xg8SKfTzGk+8sgjbDFj+YDx7i3kA3bv3s1yCQ6AYdqOm3qKHAA93fdRPB5f6gyHoxiQBeAL2ROeRnkUCS8KOsv5nSB0dp7GVVetxJ133lk0CpAj27BhA7Zt28YWct1112Hjxo3MLFjePkYUGOvefOFpHooClFT98pdvoLamhmnfMGzWjgAgQU9HT8Xj8XOLAgDAt2DBgm6Xr6ZEFjVYpg7B0mztUw6QTYOTg0kMp4fxxhtvTDkPWLv2u9iy5edTzgMoKaNEqMRfwjAiAFhOQL1Di8pkN9ShruSnn35a7YwE+T7At3DhwpTirQasjJ3/W3bbi2yfs4BQJz9w00034dZbbz3jTHDz5s14+umncdttt2HdunVnnAlSQvbiiy9ixowZUGSFVYgcANZWFxUGgDbcjQMHDvjHAqB0/vz5Cbe/lgFA5S/v8XMW8DZX/0A/Ojo6WALS1NQ06VqgubmZ+YSqqjB6eqJTnoccZ3l5ua11apexuoDaZ0o+AAFneZzPgNIFCxZ0kglwAMgH0GC1fzYhIBCoAjt16hRD+plnnsHixYsnXA3u27ePMcflcmN6fT1OdnRAVTNnPA+tj5yf2+XOaZ47QQKA+oaCqEAd6iETqBsTgHnz5v3BW1pTZ5ka6/cTAISkJEo5X8AdEXn29pPtrDBav3491q5dO24/YMuWLdi0aRMDa86cOfD7/aCq8ujRoyyhmew8ZPckvNfjZevj2reLIrJ9MgEbgOHBrs5Dhw59bUwAGhsb3/eW1tB2NkQrwxyhKFrM/lk0yDpEDkIylURvby/6+/sZBZcvX45LL70Us2fPRkVFBfr6+pi/eP/997Fz5052XU1NDarD1SgNBKAoMjRNx2Aigc7Tp5k55M9D9cb23Z/h8Z0dWKj8ES37fpV7Hl1LnSin8Ll2ehYAS3Sz5Q4Pdv3u8OHDl44FgG/u3LlbvKXhayVJgWBmWC5AmSDv8uaDQLamZlTE4nEkEnHW9aFKL39QpRcMBplw9Emad3aNCIRUMsmyxXg8zg7nPOI3HsScFTeju+VTWO98D+WujB058jQ/alfJAQAVRIOxrl8cOXJk7ZhRoLGx8R7FE3pIVtw5BhAANIqBQOfIJ5BJpNMZ6LqWK02peqTSmbXAPF74/D5m+4UKKNYMTaft9ljabpFRTpAxZaj/9BKev30xtn4yiF1vvoXZR/4LJR47QXM6PZb88K1lgcxWBiQvNC0DdaiPUuGfFAWAEiFN0/6htCy83V9SCctMA0YaFu3zWRbLAzgQxAT2Pc8kyCmSA6JF8P0B8h+kbWqB2eF0ZP/fyRS7o2NveOiazhwatdG6jBDEq36KX/97I5Iq8C9bOxHd8QQiiT3MN3GPzyIAeX5KhSl7pe12yQNZ8SERj2IwFl2lKMo7Y2aCHR0d1TNnzvy8ojriN/RhWIbGzIDXA/lMyAeBh8lie4Nj9Q3y02P6W1M1tJQsQdPN9+GxFRTBgJ8dNPHqbz+H8OsNqBZ77dCX7YWxKpAtytY+MVmQfejpbEm1tbWdV19f3z1WJkiqKW9oaHg5UD59uUuR2SYDOUICgAtbCIRCbOCJU74/KEb//OtImKF0GscWPoDvr1+BlbPtK47FgYd29OCLHdtw7sltuY3YnPBZAEh4SH4YhoZYb9vOlpaW7wDoH7MaBOCvrq5eE66d/XwwFIalD7HGommqzAzyQcg3iUJA8Gu4gJwdo+jPNefQJlG7Ta9G1Zof4UdrGlBuO3M2Nn5k4OAnR2C+eTdqpIFR2NH8tGcAuZQxoL+vG9HTx2/u7u5+FUBqLABoIt+fWFbT0NBwqKquwU9NEctIMxA4C/IFce4Dct/gBIq+O/+fr+n8v0lwGmT/JyM3Yum1N+LGhXaOz8c77cBHn/Xgixc3YObwp7bAWZ/EvkteUKfYFNyInjqSamlpmQega9yOEEC5I4LTp0//QVXtOetLSwKAmba3qYz0iIfNrsSpzfwN0UJCF9I+F8pJYQKhy6hA6Ns/xTcvnIPzq0c7zs9jwOH2OD5+/WWEP3uO7U+Qk2YOl6hP+b/oweBgDD2nj206efLkQwDi+W+aFWyKkhkoihI555xzmsPT5vpFaIwB5Assk8wh23JyaCQfiHzaT5YB1NVpq74Ci9beicYZQUyjEsYxTqWA9riBz/bsgbb931gGytN1QSIAXDChMO0fO3asSdO01nz6szUWoiOFw9bW1vLp06ffX1k9a30gWM62xGFmYBgqC0+FQMg3jXwQCv3tfL7z3SHKKbRlD2DRihWoCbhRZjd1ciOmAgkV+Lj5f5HcdhvKSt1M+yS4nf66kIj343TH0S1dXV33RyKR/gnvC2TfVwsoijK7vr7+N+G6OWGP2832B6lCJCbweM/jbjG7LkZ558sThV6aorpAWfUEllz+DXgUEyWu0SaQVG0/se+DjxHbejvKA1QL8NLXhfSf6pNo59FoR0fHFZqmHQeQKPTWadGtMc6CysrKa2umzf7PyvB0ttnImEAh0bITnlHFh8OTFwOkEEtGha/sBVRj+Ff+EJesvhouhXaiR89Ij1I1E7t+tRvmm3ciSCwVbAaQCfRGT6Lr1PH/6O3t/UUx7Rc1geyjCHKyvHBdXd2Pq2pmrSkLVWUByOYFlt19ZZmYswbPZmPjgTDWeUqFT9deiX/+3j0I11QUvDTa1Yf/fuIp1Ha8jdJARY76sYEe9HSdeLWzs5N2haOFbD+niHEWySKCoijTa2pqXq6snjU35w+y2SEPjZzG+WDQ/OOZSf4ayGyoxD6ZcuPCO57A4ovno8zvSAIAxFIZ7NtzEAd+9n3MKDHg9ZXk7L63+8SRrq6u72iadrKQ53c+b7wXJIgFHgAhv9//tXA4vC1UNSNcWlr2JSbwSZ32zMHg53h8d16b/yIVjxZkXrTj0y7NwcX/ugFNi/4G54btXOCLaBLN+/+IPc9uRL3RhoqKStA+JoW8gZ72aDQavS6VSlH/nTKk9FhvnI8HAD2Pm0JFKBT6eklJyUuV1bOCX2ICU3Xh12ALOTknGMVCZEbNIB5PoMcIQJi9FLMXXsgAOH7gI1jHd6NKSiAQqoHXW4LBZILifTyZTN4wMDDwfwD6xqL+RE2AX0emQP6gPBQK/a3f799cEZ5Ry3wCMwU67A2UYiCciT8g4Cgckj9IJlOsbUaDymm3N4BAMMSEj8X60BdtP51KpdYNDAx8ls33KeUd9/X6iTAgH4QKv98/q7y8/KmyimlzK6rqHBXjSNF0toDgPX5NN+2yHNSVkhnlRdmDWH8XYn2njvT399+eSqVOODQ/rvDjRYFCSssxQVGUyqqqqrsCZeE1pcFK+Hz2uwQ5NjhNoohpjMsKCmtslfwz2+MTZAwNpTAY70UiFn21p6fnMU3TqC6mSm9Cmp+sCTjXykEoA1BaWVm5zOPx3BOqrK+l6lGigM1Ngn4DwE0jX9p8ULiQo1y0RB0X2w3RpyDDMC3EB6IY6O04nU6nf9Lb27sr2+OLZYUnRzThX2dMxgScS+OOkToUlDGWVlRUrJNl+duhynrfCBC0jiwIuc9x9T5a6KzwDsGHdF1/pa+vb7OmafT6G2V4dIwqcyfwFJtcE72wwHU8RFL5TED4PR5PRVlZ2Q2Koqz2l1YEyTQ8XipSsl0aVuY6lJMte20t85HVNtvYFJAeTjKqpwb74pqmvR6LxV5Kp9Pcw5Pg9MLDmKFuLBmnAgDNSysnA6VcgYI0HR5FUbzBYPDvXS7Xt0RRXOTz+X0ubwD0GyJFcUNxeXIvW9GrbdQLNKmXaNCrdBloagaZoQGy8yHTNPerqvp2PB7/H03TqN1MwiazB32fFOXzwZgqADm1RSIRpbW1lX42QgexwqUoCgGjlJeXf93lci00TXOGKIrnWpZF/iNoWZaPmqT0sznLsoYEQYiZpvmFKIrtqqoe6O/vp3iuaZpGgtIbUKTt4UgkMtza2mq/vzPFcbYAyAeCilfKXQkM+k4Ha9kotBMyxtBog8Ae9ElC00Gaz0QiEfVsCT6VKDARzJlpRCIRsbW1lYQnMyEwSHj6br/DNjK4JonOdJDwJLSRFZrOT4nqxRZ9thlQ6DlMUDIR+mxtbeW/mBz9y0lbQLqOfWY1TV+nTPOv0glOhA1/1tf8P+a/O+ZB7/yUAAAAAElFTkSuQmCC" : "data:image/png;base64,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"
+          src: isOffLine
+            ? "data:image/png;base64,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"
+            : "data:image/png;base64,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",
         });
       }
       function setAvatarOnlineStatus($ele, isOffLine) {
@@ -2688,7 +2790,7 @@ async detectingUserOnlineStatus() {
         let sendMessageUrl = $kmfxx.href;
         let response = await httpx.get(sendMessageUrl, {
           fetch: true,
-          allowInterceptConfig: false
+          allowInterceptConfig: false,
         });
         if (!response.status) {
           log.error("探测用户在线状态，中止网络请求探测");
@@ -2706,7 +2808,7 @@ async detectingUserOnlineStatus() {
         }
       }
     },
-showUserLevel() {
+    showUserLevel() {
       log.info(`显示用户等级`);
       $$(".pls.favatar:not([data-show-user-level])").forEach(($userAvatar) => {
         $userAvatar.setAttribute("data-show-user-level", "true");
@@ -2764,10 +2866,10 @@ showUserLevel() {
         userInfo.appendChild(userLevelText);
       });
     },
-hideBottomInfoBlock() {
+    hideBottomInfoBlock() {
       log.info(`隐藏底部信息块`);
       return addStyle(
-`
+        `
 			.pls .favatar>*:not([id^="userinfo"]+div){
 				display: none;
 			}
@@ -2780,7 +2882,7 @@ hideBottomInfoBlock() {
 			}
 		`
       );
-    }
+    },
   };
   const MTGuide = {
     init() {
@@ -2790,10 +2892,10 @@ hideBottomInfoBlock() {
         });
       });
     },
-beautifyPage() {
+    beautifyPage() {
       log.info(`页面美化`);
       addStyle(
-`
+        `
 			.xst{font-size:15px}
 			td.author_img{width:50px;padding:15px 0}
 			td.author_img img{width:40px;height:40px;border-radius:50%}
@@ -2811,8 +2913,7 @@ beautifyPage() {
         let mid = null;
         let $uidAnchor = $tbody.querySelector("td.by>cite>a");
         let uid = $uidAnchor.getAttribute("href").match(/uid-(\d+)/)[1];
-        let newHTML = (
-`
+        let newHTML = `
 			<td class="author_img">
 				<a href="space-uid-${uid}.html" c="1" mid="${mid}">
 					<img src="${MTUtils.getAvatar(uid, "middle")}">
@@ -2843,11 +2944,10 @@ beautifyPage() {
 					</span>
 				</div>
 			</th>
-			`
-        );
+			`;
         domUtils.html($tbody, newHTML);
       });
-    }
+    },
   };
   const PanelComponents = {
     $data: {
@@ -2857,21 +2957,21 @@ beautifyPage() {
           this.__storeApiFn = new Utils.Dictionary();
         }
         return this.__storeApiFn;
-      }
+      },
     },
-getStorageApi(type) {
+    getStorageApi(type) {
       if (!this.hasStorageApi(type)) {
         return;
       }
       return this.$data.storeApiValue.get(type);
     },
-hasStorageApi(type) {
+    hasStorageApi(type) {
       return this.$data.storeApiValue.has(type);
     },
-setStorageApi(type, storageApiValue) {
+    setStorageApi(type, storageApiValue) {
       this.$data.storeApiValue.set(type, storageApiValue);
     },
-initComponentsStorageApi(type, config, storageApiValue) {
+    initComponentsStorageApi(type, config, storageApiValue) {
       let propsStorageApi;
       if (this.hasStorageApi(type)) {
         propsStorageApi = this.getStorageApi(type);
@@ -2880,11 +2980,22 @@ initComponentsStorageApi(type, config, storageApiValue) {
       }
       this.setComponentsStorageApiProperty(config, propsStorageApi);
     },
-setComponentsStorageApiProperty(config, storageApiValue) {
+    setComponentsStorageApiProperty(config, storageApiValue) {
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
-    }
+    },
   };
-  const UIInput = function(text, key, defaultValue, description, changeCallback, placeholder = "", isNumber, isPassword, afterAddToUListCallBack, valueChangeCallback) {
+  const UIInput = function (
+    text,
+    key,
+    defaultValue,
+    description,
+    changeCallback,
+    placeholder = "",
+    isNumber,
+    isPassword,
+    afterAddToUListCallBack,
+    valueChangeCallback
+  ) {
     let result = {
       text,
       type: "input",
@@ -2902,7 +3013,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
         let storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      placeholder
+      placeholder,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -2912,11 +3023,20 @@ setComponentsStorageApiProperty(config, storageApiValue) {
       },
       set(key2, value) {
         Panel.setValue(key2, value);
-      }
+      },
     });
     return result;
   };
-  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack, disabled, valueChangeCallBack) {
+  const UISwitch = function (
+    text,
+    key,
+    defaultValue,
+    clickCallBack,
+    description,
+    afterAddToUListCallBack,
+    disabled,
+    valueChangeCallBack
+  ) {
     let result = {
       text,
       type: "switch",
@@ -2935,7 +3055,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
         let storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      afterAddToUListCallBack
+      afterAddToUListCallBack,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -2945,11 +3065,20 @@ setComponentsStorageApiProperty(config, storageApiValue) {
       },
       set(key2, value) {
         Panel.setValue(key2, value);
-      }
+      },
     });
     return result;
   };
-  const UITextArea = function(text, key, defaultValue, description, changeCallback, placeholder = "", disabled, valueChangeCallBack) {
+  const UITextArea = function (
+    text,
+    key,
+    defaultValue,
+    description,
+    changeCallback,
+    placeholder = "",
+    disabled,
+    valueChangeCallBack
+  ) {
     let result = {
       text,
       type: "textarea",
@@ -2969,7 +3098,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
       callback(event, value) {
         let storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
-      }
+      },
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -2979,7 +3108,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
       },
       set(key2, value) {
         Panel.setValue(key2, value);
-      }
+      },
     });
     return result;
   };
@@ -2988,40 +3117,37 @@ setComponentsStorageApiProperty(config, storageApiValue) {
     constructor(option) {
       this.option = option;
     }
-async showView() {
+    async showView() {
       let $dialog = __pops.confirm({
         title: {
           text: this.option.title,
-          position: "center"
+          position: "center",
         },
         content: {
-          text: (
-`
+          text: `
                     <form class="rule-form-container" onsubmit="return false">
                         <ul class="rule-form-ulist"></ul>
                         <input type="submit" style="display: none;" />
                     </form>
-                    `
-          ),
-          html: true
+                    `,
+          html: true,
         },
         btn: utils.assign(
           {
             ok: {
               callback: async () => {
                 await submitSaveOption();
-              }
-            }
+              },
+            },
           },
           this.option.btn || {},
           true
         ),
         drag: true,
         mask: {
-          enable: true
+          enable: true,
         },
-        style: (
-`
+        style: `
                 ${__pops.config.cssText.panelCSS}
                 
                 .rule-form-container {
@@ -3074,10 +3200,11 @@ async showView() {
 				}
 
                 ${this.option?.style ?? ""}
-            `
-        ),
-        width: typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
-        height: typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh"
+            `,
+        width:
+          typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
+        height:
+          typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh",
       });
       let $form = $dialog.$shadowRoot.querySelector(".rule-form-container");
       $dialog.$shadowRoot.querySelector("input[type=submit]");
@@ -3096,10 +3223,10 @@ async showView() {
   }
   const MTCommentFilter = {
     $el: {
-      isFilterElementHTML: []
+      isFilterElementHTML: [],
     },
     $key: {
-      STORAGE_KEY: "mt-post-comment-filter-rule"
+      STORAGE_KEY: "mt-post-comment-filter-rule",
     },
     init() {
       this.registerMenu();
@@ -3114,15 +3241,15 @@ async showView() {
         utils.mutationObserver(document, {
           config: {
             subtree: true,
-            childList: true
+            childList: true,
           },
           callback: () => {
             lockFn.run();
-          }
+          },
         });
       }
     },
-registerMenu() {
+    registerMenu() {
       GM_Menu.add({
         key: "comment-filter",
         text: "⚙ 评论过滤器",
@@ -3133,11 +3260,11 @@ registerMenu() {
         },
         callback: () => {
           this.showView();
-        }
+        },
       });
     },
-runFilter(filterData) {
-      let isBlackListUser = function(postForumInfo) {
+    runFilter(filterData) {
+      let isBlackListUser = function (postForumInfo) {
         for (const userName of filterData["userBlackList"]) {
           if (userName == postForumInfo.userName || userName == postForumInfo.userUID) {
             log.success("评论过滤器：黑名单用户", postForumInfo);
@@ -3146,7 +3273,7 @@ runFilter(filterData) {
         }
         return false;
       };
-      let isWhiteListUser = function(postForumInfo) {
+      let isWhiteListUser = function (postForumInfo) {
         for (const userName of filterData["userWhiteList"]) {
           if (userName === postForumInfo.userName || userName === postForumInfo.userUID) {
             log.success("评论过滤器：白名单用户", postForumInfo);
@@ -3164,7 +3291,7 @@ runFilter(filterData) {
           userName: $name?.innerText || "",
           userUID: $name?.href?.match(MTRegExp.uid)?.[2]?.trim() || "",
           content: item.querySelector(".plc td.t_f")?.innerText?.trim() || "",
-isAuthor: false
+          isAuthor: false,
         };
         if (isWhiteListUser(postForumInfo)) {
           return;
@@ -3185,7 +3312,10 @@ isAuthor: false
         if (typeof filterData["minLength"] === "number" && filterData["minLength"] > postForumInfo.content.length) {
           return;
         }
-        if (typeof filterData["keywordLength"] === "number" && filterData["keywordLength"] < postForumInfo.content.length) {
+        if (
+          typeof filterData["keywordLength"] === "number" &&
+          filterData["keywordLength"] < postForumInfo.content.length
+        ) {
           return;
         }
         for (const keywordItem of filterData["keywords"]) {
@@ -3202,7 +3332,7 @@ isAuthor: false
         }
       });
     },
-showView() {
+    showView() {
       const that = this;
       function generateStorageApi(data) {
         return {
@@ -3220,7 +3350,7 @@ showView() {
             }
             Reflect.set(data, key, value);
             that.setData(data);
-          }
+          },
         };
       }
       let panelHandlerComponents = __pops.config.PanelHandlerComponents();
@@ -3295,11 +3425,11 @@ showView() {
           merge: true,
           position: "space-between",
           ok: {
-            enable: false
+            enable: false,
           },
           cancel: {
             enable: true,
-            text: "关闭"
+            text: "关闭",
           },
           other: {
             enable: true,
@@ -3309,44 +3439,40 @@ showView() {
               __pops.alert({
                 title: {
                   text: "评论过滤器-已过滤",
-                  position: "center"
+                  position: "center",
                 },
                 content: {
-                  text: (
-`
-                                ${Array.from(document.querySelectorAll('link[rel="stylesheet"]')).map((item) => item.outerHTML).join("\n")}
+                  text: `
+                                ${Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+                                  .map((item) => item.outerHTML)
+                                  .join("\n")}
 
                                 ${this.$el.isFilterElementHTML.join("\n")}
-                                `
-                  ),
-                  html: true
+                                `,
+                  html: true,
                 },
-                style: (
-`
+                style: `
 							.plhin{
 								width: 100%;
 							}
 							td.plc .pi{
 								height: auto;
 							}
-							`
-                ),
+							`,
                 width: "88vw",
-                height: "80vh"
+                height: "80vh",
               });
-            }
-          }
+            },
+          },
         },
-        dialogCloseCallBack(isSubmit) {
-        },
+        dialogCloseCallBack(isSubmit) {},
         onsubmit: ($form, data) => {
           return {
             success: true,
-            data
+            data,
           };
         },
-        style: (
-`
+        style: `
             .pops-panel-item-left-desc-text{
                 line-height: normal;
                 margin-top: 6px;
@@ -3359,12 +3485,11 @@ showView() {
             .pops-panel-textarea textarea{
                 height: 150px;
             }
-            `
-        )
+            `,
       });
       view.showView();
     },
-getTemplateData() {
+    getTemplateData() {
       return {
         enable: true,
         avatarFlag: false,
@@ -3374,15 +3499,15 @@ getTemplateData() {
         keywordLength: 8,
         keywords: [],
         userBlackList: [],
-        userWhiteList: []
+        userWhiteList: [],
       };
     },
-getData() {
+    getData() {
       return _GM_getValue(this.$key.STORAGE_KEY, this.getTemplateData());
     },
-setData(data) {
+    setData(data) {
       _GM_setValue(this.$key.STORAGE_KEY, data);
-    }
+    },
   };
   class RuleFilterView {
     option;
@@ -3393,29 +3518,26 @@ setData(data) {
       let $alert = __pops.alert({
         title: {
           text: this.option.title,
-          position: "center"
+          position: "center",
         },
         content: {
-          text: (
-`
+          text: `
                 <div class="filter-container"></div>
-                `
-          )
+                `,
         },
         btn: {
           ok: {
             text: "关闭",
-            type: "default"
-          }
+            type: "default",
+          },
         },
         drag: true,
         mask: {
-          enable: true
+          enable: true,
         },
         width: window.innerWidth > 500 ? "350px" : "80vw",
         height: window.innerHeight > 500 ? "300px" : "70vh",
-        style: (
-`
+        style: `
             .filter-container{
                 height: 100%;
                 display: flex;
@@ -3428,8 +3550,7 @@ setData(data) {
                 height: auto;
                 text-align: left;
             }
-            `
-        )
+            `,
       });
       let $filterContainer = $alert.$shadowRoot.querySelector(".filter-container");
       let $fragment = document.createDocumentFragment();
@@ -3437,10 +3558,10 @@ setData(data) {
         let $button = domUtils.createElement(
           "button",
           {
-            innerText: filterOption.name
+            innerText: filterOption.name,
           },
           {
-            type: "button"
+            type: "button",
           }
         );
         let execFilterAndCloseDialog = async () => {
@@ -3478,20 +3599,18 @@ setData(data) {
     constructor(option) {
       this.option = option;
     }
-async showView(filterCallBack) {
+    async showView(filterCallBack) {
       let $popsConfirm = __pops.confirm({
         title: {
           text: this.option.title,
-          position: "center"
+          position: "center",
         },
         content: {
-          text: (
-`
+          text: `
                     <div class="rule-view-container">
                     </div>
-                    `
-          ),
-          html: true
+                    `,
+          html: true,
         },
         btn: {
           merge: true,
@@ -3503,13 +3622,13 @@ async showView(filterCallBack) {
             text: "添加",
             callback: async (event) => {
               this.showEditView(false, await this.option.getAddData(), $popsConfirm.$shadowRoot);
-            }
+            },
           },
           close: {
             enable: true,
             callback(event) {
               $popsConfirm.close();
-            }
+            },
           },
           cancel: {
             enable: this.option?.bottomControls?.filter?.enable || false,
@@ -3523,15 +3642,13 @@ async showView(filterCallBack) {
                 }
               }
               let getAllRuleElement = () => {
-                return Array.from(
-                  $popsConfirm.$shadowRoot.querySelectorAll(".rule-view-container .rule-item")
-                );
+                return Array.from($popsConfirm.$shadowRoot.querySelectorAll(".rule-view-container .rule-item"));
               };
               let $button = event.target.closest(".pops-confirm-btn").querySelector(".pops-confirm-btn-cancel span");
               if (domUtils.text($button).includes("取消")) {
                 let cancelFilterResult = await this.option?.bottomControls?.filter?.cancelFilterCallback?.({
                   $button,
-                  getAllRuleElement
+                  getAllRuleElement,
                 });
                 if (typeof cancelFilterResult === "boolean" && !cancelFilterResult) {
                   return;
@@ -3552,14 +3669,14 @@ async showView(filterCallBack) {
                     return getAllRuleElement().map(($el) => {
                       return {
                         data: this.parseRuleItemElement($el).data,
-                        $el
+                        $el,
                       };
                     });
-                  }
+                  },
                 });
                 ruleFilterView.showView();
               }
-            }
+            },
           },
           other: {
             enable: this.option?.bottomControls?.clear?.enable || true,
@@ -3569,11 +3686,11 @@ async showView(filterCallBack) {
               let $askDialog = __pops.confirm({
                 title: {
                   text: "提示",
-                  position: "center"
+                  position: "center",
                 },
                 content: {
                   text: "确定清空所有的数据？",
-                  html: false
+                  html: false,
                 },
                 btn: {
                   ok: {
@@ -3593,27 +3710,26 @@ async showView(filterCallBack) {
                       await this.updateDeleteAllBtnText($popsConfirm.$shadowRoot);
                       this.clearContent($popsConfirm.$shadowRoot);
                       $askDialog.close();
-                    }
+                    },
                   },
                   cancel: {
                     text: "取消",
-                    enable: true
-                  }
+                    enable: true,
+                  },
                 },
                 mask: { enable: true },
                 width: "300px",
-                height: "200px"
+                height: "200px",
               });
-            }
-          }
+            },
+          },
         },
         mask: {
-          enable: true
+          enable: true,
         },
         width: window.innerWidth > 500 ? "500px" : "88vw",
         height: window.innerHeight > 500 ? "500px" : "80vh",
-        style: (
-`
+        style: `
             ${__pops.config.cssText.panelCSS}
             
             .rule-item{
@@ -3654,8 +3770,7 @@ async showView(filterCallBack) {
                 height: 16px;
                 cursor: pointer;
             }
-            `
-        )
+            `,
       });
       let allData = await this.option.data();
       let changeButtonText = false;
@@ -3666,7 +3781,8 @@ async showView(filterCallBack) {
         if (typeof filterCallBack === "function") {
           isNotFilterFlag = filterCallBack(item);
         } else if (typeof filterCallBack === "number" && !isNaN(filterCallBack)) {
-          isNotFilterFlag = await this.option.bottomControls?.filter?.option[filterCallBack]?.filterCallBack(item) ?? isNotFilterFlag;
+          isNotFilterFlag =
+            (await this.option.bottomControls?.filter?.option[filterCallBack]?.filterCallBack(item)) ?? isNotFilterFlag;
         }
         if (!isNotFilterFlag) {
           changeButtonText = true;
@@ -3678,7 +3794,7 @@ async showView(filterCallBack) {
         domUtils.text($button, "取消过滤");
       }
     }
-showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
+    showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
       let dialogCloseCallBack = async (isSubmit) => {
         if (isSubmit) {
           if (typeof submitCallBack === "function") {
@@ -3707,29 +3823,30 @@ showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDa
         btn: {
           ok: {
             enable: true,
-            text: isEdit ? "修改" : "添加"
+            text: isEdit ? "修改" : "添加",
           },
           cancel: {
             callback: async (detail, event) => {
               detail.close();
               await dialogCloseCallBack(false);
-            }
+            },
           },
           close: {
             callback: async (detail, event) => {
               detail.close();
               await dialogCloseCallBack(false);
-            }
-          }
+            },
+          },
         },
         onsubmit: async ($form, data) => {
           let result = await this.option.itemControls.edit.onsubmit($form, isEdit, data);
           if (result.success) {
             if (isEdit) {
               Qmsg.success("修改成功");
-              $parentShadowRoot && await this.updateRuleItemElement(result.data, $editRuleItemElement, $parentShadowRoot);
+              $parentShadowRoot &&
+                (await this.updateRuleItemElement(result.data, $editRuleItemElement, $parentShadowRoot));
             } else {
-              $parentShadowRoot && await this.appendRuleItemElement($parentShadowRoot, result.data);
+              $parentShadowRoot && (await this.appendRuleItemElement($parentShadowRoot, result.data));
             }
           } else {
             if (isEdit) {
@@ -3740,19 +3857,19 @@ showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDa
         },
         style: this.option.itemControls.edit.style,
         width: this.option.itemControls.edit.width,
-        height: this.option.itemControls.edit.height
+        height: this.option.itemControls.edit.height,
       });
       editView.showView();
     }
-parseViewElement($shadowRoot) {
+    parseViewElement($shadowRoot) {
       let $container = $shadowRoot.querySelector(".rule-view-container");
       let $deleteBtn = $shadowRoot.querySelector(".pops-confirm-btn button.pops-confirm-btn-other");
       return {
-$container,
-$deleteBtn
+        $container,
+        $deleteBtn,
       };
     }
-parseRuleItemElement($ruleElement) {
+    parseRuleItemElement($ruleElement) {
       let $enable = $ruleElement.querySelector(".rule-controls-enable");
       let $enableSwitch = $enable.querySelector(".pops-panel-switch");
       let $enableSwitchInput = $enable.querySelector(".pops-panel-switch__input");
@@ -3760,21 +3877,20 @@ parseRuleItemElement($ruleElement) {
       let $edit = $ruleElement.querySelector(".rule-controls-edit");
       let $delete = $ruleElement.querySelector(".rule-controls-delete");
       return {
-$enable,
-$enableSwitch,
-$enableSwitchInput,
-$enableSwitchCore,
-$edit,
-$delete,
-data: Reflect.get($ruleElement, "data-rule")
+        $enable,
+        $enableSwitch,
+        $enableSwitchInput,
+        $enableSwitchCore,
+        $edit,
+        $delete,
+        data: Reflect.get($ruleElement, "data-rule"),
       };
     }
-async createRuleItemElement(data, $shadowRoot) {
+    async createRuleItemElement(data, $shadowRoot) {
       let name = await this.option.getDataItemName(data);
       let $ruleItem = domUtils.createElement("div", {
         className: "rule-item",
-        innerHTML: (
-`
+        innerHTML: `
 			<div class="rule-name">${name}</div>
 			<div class="rule-controls">
 				<div class="rule-controls-enable">
@@ -3793,12 +3909,12 @@ async createRuleItemElement(data, $shadowRoot) {
 					${__pops.config.iconSVG.delete}
 				</div>
 			</div>
-			`
-        )
+			`,
       });
       Reflect.set($ruleItem, "data-rule", data);
       let switchCheckedClassName = "pops-panel-switch-is-checked";
-      const { $enable, $enableSwitch, $enableSwitchCore, $enableSwitchInput, $delete, $edit } = this.parseRuleItemElement($ruleItem);
+      const { $enable, $enableSwitch, $enableSwitchCore, $enableSwitchInput, $delete, $edit } =
+        this.parseRuleItemElement($ruleItem);
       if (this.option.itemControls.enable.enable) {
         domUtils.on($enableSwitchCore, "click", async (event) => {
           let isChecked = false;
@@ -3835,11 +3951,11 @@ async createRuleItemElement(data, $shadowRoot) {
           let $askDialog = __pops.confirm({
             title: {
               text: "提示",
-              position: "center"
+              position: "center",
             },
             content: {
               text: "确定删除该条数据？",
-              html: false
+              html: false,
             },
             btn: {
               ok: {
@@ -3855,18 +3971,18 @@ async createRuleItemElement(data, $shadowRoot) {
                   } else {
                     Qmsg.error("删除该数据失败");
                   }
-                }
+                },
               },
               cancel: {
                 text: "取消",
-                enable: true
-              }
+                enable: true,
+              },
             },
             mask: {
-              enable: true
+              enable: true,
             },
             width: "300px",
-            height: "200px"
+            height: "200px",
           });
         });
       } else {
@@ -3874,7 +3990,7 @@ async createRuleItemElement(data, $shadowRoot) {
       }
       return $ruleItem;
     }
-async appendRuleItemElement($shadowRoot, data) {
+    async appendRuleItemElement($shadowRoot, data) {
       let { $container } = this.parseViewElement($shadowRoot);
       let $ruleItem = [];
       let iteratorData = Array.isArray(data) ? data : [data];
@@ -3887,23 +4003,23 @@ async appendRuleItemElement($shadowRoot, data) {
       await this.updateDeleteAllBtnText($shadowRoot);
       return $ruleItem;
     }
-async updateRuleContaienrElement($shadowRoot) {
+    async updateRuleContaienrElement($shadowRoot) {
       this.clearContent($shadowRoot);
       const { $container } = this.parseViewElement($shadowRoot);
       let data = await this.option.data();
       await this.appendRuleItemElement($shadowRoot, data);
       await this.updateDeleteAllBtnText($shadowRoot);
     }
-async updateRuleItemElement(data, $oldRuleItem, $shadowRoot) {
+    async updateRuleItemElement(data, $oldRuleItem, $shadowRoot) {
       let $newRuleItem = await this.createRuleItemElement(data, $shadowRoot);
       $oldRuleItem.after($newRuleItem);
       $oldRuleItem.remove();
     }
-clearContent($shadowRoot) {
+    clearContent($shadowRoot) {
       const { $container } = this.parseViewElement($shadowRoot);
       domUtils.html($container, "");
     }
-setDeleteBtnText($shadowRoot, text, isHTML = false) {
+    setDeleteBtnText($shadowRoot, text, isHTML = false) {
       const { $deleteBtn } = this.parseViewElement($shadowRoot);
       if (isHTML) {
         domUtils.html($deleteBtn, text);
@@ -3911,20 +4027,20 @@ setDeleteBtnText($shadowRoot, text, isHTML = false) {
         domUtils.text($deleteBtn, text);
       }
     }
-async updateDeleteAllBtnText($shadowRoot) {
+    async updateDeleteAllBtnText($shadowRoot) {
       let data = await this.option.data();
       this.setDeleteBtnText($shadowRoot, `清空所有(${data.length})`);
     }
   }
   const MTProductListingReminder = {
     $key: {
-      STORAGE_KEY: "mt-productListingReminder-rule"
+      STORAGE_KEY: "mt-productListingReminder-rule",
     },
     init() {
       this.registerMenu();
       this.runRule();
     },
-registerMenu() {
+    registerMenu() {
       GM_Menu.add({
         key: "product-reminder",
         text: "⚙ 商品上架提醒",
@@ -3935,16 +4051,16 @@ registerMenu() {
         },
         callback: () => {
           this.showView();
-        }
+        },
       });
     },
-async runRule() {
+    async runRule() {
       async function getCurrentProduct() {
         let response = await httpx.get("/keke_integralmall-keke_integralmall.html", {
           allowInterceptConfig: false,
           headers: {
-            "User-Agent": utils.getRandomAndroidUA()
-          }
+            "User-Agent": utils.getRandomAndroidUA(),
+          },
         });
         if (!response.status) {
           Qmsg.error("【积分商城】获取数据失败");
@@ -3954,12 +4070,14 @@ async runRule() {
         let doc = domUtils.toElement(response.data.responseText, true, true);
         doc.querySelectorAll(".task-list-wrapper li.col-xs-12").forEach(($taskList) => {
           productInfoList.push({
-            name: domUtils.text($taskList.querySelector(".mall-info a > *:first-child")) || domUtils.text($taskList.querySelector(".mall-info a")),
+            name:
+              domUtils.text($taskList.querySelector(".mall-info a > *:first-child")) ||
+              domUtils.text($taskList.querySelector(".mall-info a")),
             price: domUtils.text($taskList.querySelector(".mall-info span.discount-price i")),
             endTime: domUtils.text($taskList.querySelector(".mall-info #time_hz span.time")),
             remainingQuantity: parseInt(
               $taskList.querySelector(".mall-info .mall-count .count-r")?.innerText?.replace(/仅剩|件/gi, "") || "0"
-            )
+            ),
           });
         });
         return productInfoList;
@@ -3977,21 +4095,24 @@ async runRule() {
       }
       for (const productItem of productList) {
         for (const reminderOption of allData) {
-          if (reminderOption.enable && productItem["name"].match(new RegExp(reminderOption["productName"], "i")) && !isNaN(productItem["remainingQuantity"]) && productItem["remainingQuantity"] > 0) {
+          if (
+            reminderOption.enable &&
+            productItem["name"].match(new RegExp(reminderOption["productName"], "i")) &&
+            !isNaN(productItem["remainingQuantity"]) &&
+            productItem["remainingQuantity"] > 0
+          ) {
             log.success(`成功匹配对应商品`, reminderOption, productItem);
             __pops.confirm({
               title: {
                 text: "积分商城提醒",
-                position: "center"
+                position: "center",
               },
               content: {
-                text: (
-`<br />
+                text: `<br />
                             您设置的商品已上架在积分商城中，当前售价 ${productItem["price"]}金币，仅剩${productItem["remainingQuantity"]}件，是否前往购买？
                             <a style="color: red !important;">(如需关闭提醒，请删除该关键字)</a>
-                            <br />`
-                ),
-                html: true
+                            <br />`,
+                html: true,
               },
               btn: {
                 merge: true,
@@ -4007,32 +4128,32 @@ async runRule() {
                     } else {
                       Qmsg.error("删除失败");
                     }
-                  }
+                  },
                 },
                 ok: {
                   text: "前往购买",
                   callback: () => {
                     window.location.href = `${window.location.origin}/keke_integralmall-keke_integralmall.html`;
-                  }
-                }
+                  },
+                },
               },
               width: "300px",
-              height: "300px"
+              height: "300px",
             });
             return;
           }
         }
       }
     },
-getTemplateData() {
+    getTemplateData() {
       return {
         uuid: utils.generateUUID(),
         enable: true,
         name: "",
-        productName: ""
+        productName: "",
       };
     },
-showView() {
+    showView() {
       let panelHandlerComponents = __pops.config.PanelHandlerComponents();
       function generateStorageApi(data) {
         return {
@@ -4041,7 +4162,7 @@ showView() {
           },
           set(key, value) {
             data[key] = value;
-          }
+          },
         };
       }
       let ruleView = new RuleView({
@@ -4075,7 +4196,7 @@ showView() {
             callback: (data, enable) => {
               data.enable = enable;
               this.updateData(data);
-            }
+            },
           },
           edit: {
             enable: true,
@@ -4119,39 +4240,39 @@ showView() {
                 Qmsg.error("规则名称不能为空");
                 return {
                   success: false,
-                  data
+                  data,
                 };
               }
               if (isEdit) {
                 return {
                   success: this.updateData(data),
-                  data
+                  data,
                 };
               } else {
                 return {
                   success: this.addData(data),
-                  data
+                  data,
                 };
               }
-            }
+            },
           },
           delete: {
             enable: true,
             deleteCallBack: (data) => {
               return this.deleteData(data);
-            }
-          }
-        }
+            },
+          },
+        },
       });
       ruleView.showView();
     },
-getData() {
+    getData() {
       return _GM_getValue(this.$key.STORAGE_KEY, []);
     },
-setData(data) {
+    setData(data) {
       _GM_setValue(this.$key.STORAGE_KEY, data);
     },
-addData(data) {
+    addData(data) {
       let localData = this.getData();
       let findIndex = localData.findIndex((item) => item.uuid == data.uuid);
       if (findIndex === -1) {
@@ -4162,7 +4283,7 @@ addData(data) {
         return false;
       }
     },
-updateData(data) {
+    updateData(data) {
       let localData = this.getData();
       let index = localData.findIndex((item) => item.uuid == data.uuid);
       let updateFlag = false;
@@ -4173,7 +4294,7 @@ updateData(data) {
       this.setData(localData);
       return updateFlag;
     },
-deleteData(data) {
+    deleteData(data) {
       let localData = this.getData();
       let index = localData.findIndex((item) => item.uuid == data.uuid);
       let deleteFlag = false;
@@ -4184,19 +4305,20 @@ deleteData(data) {
       this.setData(localData);
       return deleteFlag;
     },
-clearData() {
+    clearData() {
       _GM_deleteValue(this.$key.STORAGE_KEY);
-    }
+    },
   };
-  const blackHomeCSS = ".pops-confirm-content {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n.blackhome-user-filter input {\r\n  width: -moz-available;\r\n  width: -webkit-fill-available;\r\n  height: 30px;\r\n  margin: 8px 20px;\r\n  border: 0;\r\n  border-bottom: 1px solid;\r\n  text-overflow: ellipsis;\r\n  overflow: hidden;\r\n  white-space: nowrap;\r\n}\r\n.blackhome-user-filter input:focus-within {\r\n  outline: none;\r\n}\r\n.blackhome-user-list {\r\n  flex: 1;\r\n  overflow-y: auto;\r\n}\r\n.blackhome-user-list .blackhome-user-item {\r\n  margin: 15px 10px;\r\n  padding: 10px;\r\n  border-radius: 8px;\r\n  box-shadow:\r\n    0 0 0.6rem #c8d0e7,\r\n    -0.2rem -0.2rem 0.5rem #fff;\r\n}\r\n.blackhome-user {\r\n  display: flex;\r\n}\r\n.blackhome-user img {\r\n  width: 45px;\r\n  height: 45px;\r\n  border-radius: 45px;\r\n}\r\n.blackhome-user-info {\r\n  margin-left: 10px;\r\n}\r\n.blackhome-user-info p:nth-child(1) {\r\n  margin-bottom: 5px;\r\n}\r\n.blackhome-user-info p:nth-child(2) {\r\n  font-size: 14px;\r\n}\r\n.blackhome-user-action {\r\n  display: flex;\r\n  margin: 10px 0;\r\n}\r\n.blackhome-user-action p:nth-child(1),\r\n.blackhome-user-action p:nth-child(2) {\r\n  border: 1px solid red;\r\n  color: red;\r\n  border-radius: 4px;\r\n  padding: 2px 4px;\r\n  font-weight: 500;\r\n  font-size: 14px;\r\n  place-self: center;\r\n}\r\n.blackhome-user-action p:nth-child(2) {\r\n  border: 1px solid #ff4b4b;\r\n  color: #ff4b4b;\r\n  margin-left: 8px;\r\n}\r\n.blackhome-user-uuid {\r\n  border: 1px solid #ff7600;\r\n  color: #ff7600;\r\n  border-radius: 4px;\r\n  padding: 2px 4px;\r\n  font-weight: 500;\r\n  font-size: 14px;\r\n  width: fit-content;\r\n  width: -moz-fit-content;\r\n  margin: 10px 0;\r\n}\r\n.blackhome-operator {\r\n  padding: 10px;\r\n  background-color: #efefef;\r\n  border-radius: 6px;\r\n}\r\n.blackhome-operator-user {\r\n  display: flex;\r\n}\r\n.blackhome-operator-user img {\r\n  width: 35px;\r\n  height: 35px;\r\n  border-radius: 35px;\r\n}\r\n.blackhome-operator-user p {\r\n  align-self: center;\r\n  margin-left: 10px;\r\n}\r\n.blackhome-operator-user-info {\r\n  margin: 10px 0;\r\n  font-weight: 500;\r\n}\r\n\r\n@media screen and (min-width: 800px) {\r\n  .blackhome-user-list {\r\n    display: flex;\r\n    flex-wrap: wrap;\r\n  }\r\n  .blackhome-user-list .blackhome-user-item {\r\n    flex: 1 1 250px;\r\n    max-width: calc(50% - 10px - 10px);\r\n  }\r\n}\r\n";
+  const blackHomeCSS =
+    ".pops-confirm-content {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n.blackhome-user-filter input {\r\n  width: -moz-available;\r\n  width: -webkit-fill-available;\r\n  height: 30px;\r\n  margin: 8px 20px;\r\n  border: 0;\r\n  border-bottom: 1px solid;\r\n  text-overflow: ellipsis;\r\n  overflow: hidden;\r\n  white-space: nowrap;\r\n}\r\n.blackhome-user-filter input:focus-within {\r\n  outline: none;\r\n}\r\n.blackhome-user-list {\r\n  flex: 1;\r\n  overflow-y: auto;\r\n}\r\n.blackhome-user-list .blackhome-user-item {\r\n  margin: 15px 10px;\r\n  padding: 10px;\r\n  border-radius: 8px;\r\n  box-shadow:\r\n    0 0 0.6rem #c8d0e7,\r\n    -0.2rem -0.2rem 0.5rem #fff;\r\n}\r\n.blackhome-user {\r\n  display: flex;\r\n}\r\n.blackhome-user img {\r\n  width: 45px;\r\n  height: 45px;\r\n  border-radius: 45px;\r\n}\r\n.blackhome-user-info {\r\n  margin-left: 10px;\r\n}\r\n.blackhome-user-info p:nth-child(1) {\r\n  margin-bottom: 5px;\r\n}\r\n.blackhome-user-info p:nth-child(2) {\r\n  font-size: 14px;\r\n}\r\n.blackhome-user-action {\r\n  display: flex;\r\n  margin: 10px 0;\r\n}\r\n.blackhome-user-action p:nth-child(1),\r\n.blackhome-user-action p:nth-child(2) {\r\n  border: 1px solid red;\r\n  color: red;\r\n  border-radius: 4px;\r\n  padding: 2px 4px;\r\n  font-weight: 500;\r\n  font-size: 14px;\r\n  place-self: center;\r\n}\r\n.blackhome-user-action p:nth-child(2) {\r\n  border: 1px solid #ff4b4b;\r\n  color: #ff4b4b;\r\n  margin-left: 8px;\r\n}\r\n.blackhome-user-uuid {\r\n  border: 1px solid #ff7600;\r\n  color: #ff7600;\r\n  border-radius: 4px;\r\n  padding: 2px 4px;\r\n  font-weight: 500;\r\n  font-size: 14px;\r\n  width: fit-content;\r\n  width: -moz-fit-content;\r\n  margin: 10px 0;\r\n}\r\n.blackhome-operator {\r\n  padding: 10px;\r\n  background-color: #efefef;\r\n  border-radius: 6px;\r\n}\r\n.blackhome-operator-user {\r\n  display: flex;\r\n}\r\n.blackhome-operator-user img {\r\n  width: 35px;\r\n  height: 35px;\r\n  border-radius: 35px;\r\n}\r\n.blackhome-operator-user p {\r\n  align-self: center;\r\n  margin-left: 10px;\r\n}\r\n.blackhome-operator-user-info {\r\n  margin: 10px 0;\r\n  font-weight: 500;\r\n}\r\n\r\n@media screen and (min-width: 800px) {\r\n  .blackhome-user-list {\r\n    display: flex;\r\n    flex-wrap: wrap;\r\n  }\r\n  .blackhome-user-list .blackhome-user-item {\r\n    flex: 1 1 250px;\r\n    max-width: calc(50% - 10px - 10px);\r\n  }\r\n}\r\n";
   const MTBlackHome = {
     $data: {
-      cid: ""
+      cid: "",
     },
     init() {
       this.registerMenu();
     },
-registerMenu() {
+    registerMenu() {
       GM_Menu.add({
         key: "black-home",
         text: "⚙ 小黑屋",
@@ -4207,10 +4329,10 @@ registerMenu() {
         },
         callback: () => {
           this.showBlackHome();
-        }
+        },
       });
     },
-async showBlackHome() {
+    async showBlackHome() {
       let $loading = Qmsg.loading("正在获取小黑屋名单中...");
       let blackListInfo = await this.getBlackListInfo("");
       $loading.close();
@@ -4225,18 +4347,16 @@ async showBlackHome() {
       let $confirm = __pops.confirm({
         title: {
           text: "小黑屋名单",
-          position: "center"
+          position: "center",
         },
         content: {
-          text: (
-`
+          text: `
                 <div class="blackhome-user-filter">
                     <input placeholder="过滤用户名/操作人员/UID(可正则)">
                 </div>
                 <div class="blackhome-user-list"></div>
-                `
-          ),
-          html: true
+                `,
+          html: true,
         },
         btn: {
           ok: {
@@ -4260,15 +4380,15 @@ async showBlackHome() {
                 Qmsg.success(`成功获取 ${nextBlackListInfo2.data.length}条数据`);
               }
               domUtils.trigger($filterInput, "input");
-            }
+            },
           },
           cancel: {
-            text: "关闭"
-          }
+            text: "关闭",
+          },
         },
         width: PanelUISize.settingBig.width,
         height: PanelUISize.settingBig.height,
-        style: blackHomeCSS
+        style: blackHomeCSS,
       });
       let $list = $confirm.$shadowRoot.querySelector(".blackhome-user-list");
       let $filterInput = $confirm.$shadowRoot.querySelector(".blackhome-user-filter input");
@@ -4295,7 +4415,11 @@ async showBlackHome() {
             return;
           }
           $confirm.$shadowRoot.querySelectorAll(".blackhome-user-item").forEach((item) => {
-            if (item.getAttribute("data-name").match(new RegExp(inputText, "ig")) || item.getAttribute("data-uid").trim().match(new RegExp(inputText, "ig")) || item.getAttribute("data-operator").match(new RegExp(inputText, "ig"))) {
+            if (
+              item.getAttribute("data-name").match(new RegExp(inputText, "ig")) ||
+              item.getAttribute("data-uid").trim().match(new RegExp(inputText, "ig")) ||
+              item.getAttribute("data-operator").match(new RegExp(inputText, "ig"))
+            ) {
               item.removeAttribute("style");
             } else {
               item.setAttribute("style", "display:none;");
@@ -4310,18 +4434,18 @@ async showBlackHome() {
       }
       this.$data.cid = nextBlackListInfo.next_cid;
     },
-async getBlackListInfo(cid = "") {
+    async getBlackListInfo(cid = "") {
       let searchParamsData = {
         mod: "misc",
         action: "showdarkroom",
         cid,
-        ajaxdata: "json"
+        ajaxdata: "json",
       };
       let response = await httpx.get(`/forum.php?${utils.toSearchParamsStr(searchParamsData)}`, {
         headers: {
-          "User-Agent": utils.getRandomPCUA()
+          "User-Agent": utils.getRandomPCUA(),
         },
-        responseType: "json"
+        responseType: "json",
       });
       if (!response.status) {
         return;
@@ -4361,11 +4485,16 @@ async getBlackListInfo(cid = "") {
           } else if (yesterday_time_data) {
             let yesterday_hour_data = yesterday_time_data[1];
             let yesterday_min_data = yesterday_time_data[2];
-            _time_after_count_ = _time_ - 86400 - parseInt(yesterday_hour_data) * 3600 - parseInt(yesterday_min_data) * 60;
+            _time_after_count_ =
+              _time_ - 86400 - parseInt(yesterday_hour_data) * 3600 - parseInt(yesterday_min_data) * 60;
           } else if (before_yesterday_time_data) {
             let before_yesterday_hour_data = before_yesterday_time_data[1];
             let before_yesterday_min_data = before_yesterday_time_data[2];
-            _time_after_count_ = _time_ - 86400 * 2 - parseInt(before_yesterday_hour_data) * 3600 - parseInt(before_yesterday_min_data) * 60;
+            _time_after_count_ =
+              _time_ -
+              86400 * 2 -
+              parseInt(before_yesterday_hour_data) * 3600 -
+              parseInt(before_yesterday_min_data) * 60;
           } else if (day_data) {
             day_data = day_data[day_data.length - 1];
             day_data = day_data.replace(/半/g, 0.5);
@@ -4386,16 +4515,15 @@ async getBlackListInfo(cid = "") {
       new_blackListData = new_blackListData.concat(new_blackListData_noTime);
       return {
         next_cid,
-        data: new_blackListData
+        data: new_blackListData,
       };
     },
-createListViewItem(userInfo) {
+    createListViewItem(userInfo) {
       let $item = domUtils.createElement(
         "div",
         {
           className: "blackhome-user-item",
-          innerHTML: (
-`
+          innerHTML: `
                 <div class="blackhome-user-avatar">
                     <div class="blackhome-user">
                     <img src="${MTUtils.getAvatar(userInfo["uid"], "big")}" loading="lazy">
@@ -4419,32 +4547,32 @@ createListViewItem(userInfo) {
                     </div>
                     </div>
                 </div>
-                `
-          )
+                `,
         },
         {
           "data-name": userInfo.username,
           "data-uid": userInfo.uid,
           "data-operator": userInfo.operator,
-          "data-operator-uid": userInfo.operatorid
+          "data-operator-uid": userInfo.operatorid,
         }
       );
-      domUtils.on($item, "click", ".blackhome-user img", function() {
+      domUtils.on($item, "click", ".blackhome-user img", function () {
         window.open(`home.php?mod=space&uid=${userInfo.uid}&do=profile`, "_blank");
       });
-      domUtils.on($item, "click", ".blackhome-operator-user img", function() {
+      domUtils.on($item, "click", ".blackhome-operator-user img", function () {
         window.open(`home.php?mod=space&uid=${userInfo.operatorid}&do=profile`, "_blank");
       });
       return $item;
-    }
+    },
   };
-  const onlineUserCSS = '.pops-alert-content {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n.pops-alert-content > .online-user-info {\r\n  text-align: center;\r\n  padding: 0px 6px;\r\n}\r\n.online-user-filter input {\r\n  width: -webkit-fill-available;\r\n  width: -moz-available;\r\n  height: 30px;\r\n  margin: 8px 20px;\r\n  border: 0;\r\n  border-bottom: 1px solid;\r\n}\r\n.online-user-filter input:focus-within {\r\n  outline: none;\r\n}\r\n.online-user-list {\r\n  flex: 1;\r\n  overflow-y: auto;\r\n}\r\n.online-user-list li {\r\n  margin: 18px 0;\r\n}\r\n.online-user {\r\n  display: flex;\r\n  margin: 2px 20px;\r\n  align-items: center;\r\n}\r\n.online-user img[data-avatar] {\r\n  width: 45px;\r\n  height: 45px;\r\n  border-radius: 45px;\r\n}\r\n.online-user-list .online-user-info {\r\n  margin: 2px 14px;\r\n}\r\n.online-user-list .online-user-info p[data-name] {\r\n  margin-bottom: 4px;\r\n}\r\n.online-user-list .online-user-info span[data-sf] {\r\n  border-radius: 4px;\r\n  padding: 2px 4px;\r\n  font-weight: 500;\r\n  font-size: 14px;\r\n}\r\n.online-user-list .online-user-info span[data-uid] {\r\n  border: 1px solid #ff7600;\r\n  color: #ff7600;\r\n  border-radius: 4px;\r\n  padding: 2px 4px;\r\n  font-weight: 500;\r\n  font-size: 14px;\r\n  width: fit-content;\r\n  width: -moz-fit-content;\r\n  margin: 10px 0;\r\n}\r\n.online-user-list .online-user-info span[data-sf="会员"] {\r\n  color: #88b500;\r\n  border: 1px solid #88b500;\r\n}\r\n.online-user-list .online-user-info span[data-sf="版主"] {\r\n  color: #2db5e3;\r\n  border: 1px solid #2db5e3;\r\n}\r\n.online-user-list .online-user-info span[data-sf="超级版主"] {\r\n  color: #e89e38;\r\n  border: 1px solid #e89e38;\r\n}\r\n.online-user-list .online-user-info span[data-sf="管理员"] {\r\n  color: #ff5416;\r\n  border: 1px solid #ff5416;\r\n}\r\n\r\n@media screen and (min-width: 800px) {\r\n  .online-user-list {\r\n    display: flex;\r\n    flex-wrap: wrap;\r\n  }\r\n  .online-user-list .online-item {\r\n    flex: 1 1 250px;\r\n  }\r\n}\r\n';
+  const onlineUserCSS =
+    '.pops-alert-content {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n.pops-alert-content > .online-user-info {\r\n  text-align: center;\r\n  padding: 0px 6px;\r\n}\r\n.online-user-filter input {\r\n  width: -webkit-fill-available;\r\n  width: -moz-available;\r\n  height: 30px;\r\n  margin: 8px 20px;\r\n  border: 0;\r\n  border-bottom: 1px solid;\r\n}\r\n.online-user-filter input:focus-within {\r\n  outline: none;\r\n}\r\n.online-user-list {\r\n  flex: 1;\r\n  overflow-y: auto;\r\n}\r\n.online-user-list li {\r\n  margin: 18px 0;\r\n}\r\n.online-user {\r\n  display: flex;\r\n  margin: 2px 20px;\r\n  align-items: center;\r\n}\r\n.online-user img[data-avatar] {\r\n  width: 45px;\r\n  height: 45px;\r\n  border-radius: 45px;\r\n}\r\n.online-user-list .online-user-info {\r\n  margin: 2px 14px;\r\n}\r\n.online-user-list .online-user-info p[data-name] {\r\n  margin-bottom: 4px;\r\n}\r\n.online-user-list .online-user-info span[data-sf] {\r\n  border-radius: 4px;\r\n  padding: 2px 4px;\r\n  font-weight: 500;\r\n  font-size: 14px;\r\n}\r\n.online-user-list .online-user-info span[data-uid] {\r\n  border: 1px solid #ff7600;\r\n  color: #ff7600;\r\n  border-radius: 4px;\r\n  padding: 2px 4px;\r\n  font-weight: 500;\r\n  font-size: 14px;\r\n  width: fit-content;\r\n  width: -moz-fit-content;\r\n  margin: 10px 0;\r\n}\r\n.online-user-list .online-user-info span[data-sf="会员"] {\r\n  color: #88b500;\r\n  border: 1px solid #88b500;\r\n}\r\n.online-user-list .online-user-info span[data-sf="版主"] {\r\n  color: #2db5e3;\r\n  border: 1px solid #2db5e3;\r\n}\r\n.online-user-list .online-user-info span[data-sf="超级版主"] {\r\n  color: #e89e38;\r\n  border: 1px solid #e89e38;\r\n}\r\n.online-user-list .online-user-info span[data-sf="管理员"] {\r\n  color: #ff5416;\r\n  border: 1px solid #ff5416;\r\n}\r\n\r\n@media screen and (min-width: 800px) {\r\n  .online-user-list {\r\n    display: flex;\r\n    flex-wrap: wrap;\r\n  }\r\n  .online-user-list .online-item {\r\n    flex: 1 1 250px;\r\n  }\r\n}\r\n';
   const MTOnlineUser = {
     $data: {},
     init() {
       this.registerMenu();
     },
-registerMenu() {
+    registerMenu() {
       GM_Menu.add({
         key: "online-user",
         text: "⚙ 在线用户",
@@ -4455,10 +4583,10 @@ registerMenu() {
         },
         callback: () => {
           this.showOnlineUser();
-        }
+        },
       });
     },
-async showOnlineUser() {
+    async showOnlineUser() {
       let $loading = Qmsg.loading("正在获取在线用户名单中...");
       let onlineUserInfo = await this.getOnlineUserListInfo();
       $loading.close();
@@ -4468,28 +4596,26 @@ async showOnlineUser() {
       let $alert = __pops.alert({
         title: {
           text: "在线用户",
-          position: "center"
+          position: "center",
         },
         content: {
-          text: (
-`
+          text: `
                 <div class="online-user-info">${onlineUserInfo.totalOnline} 人在线 - ${onlineUserInfo.onlineUser} 会员${onlineUserInfo.invisibleUser == 0 ? "" : `(${onlineUserInfo.invisibleUser}隐身)`} - ${onlineUserInfo.noRegisterUser} 位游客</div>
                 <div class="online-user-filter">
                     <input placeholder="过滤用户名/身份/UID(可正则)"></div>
                 <div class="online-user-list"></div>
-                `
-          ),
-          html: true
+                `,
+          html: true,
         },
         btn: {
           ok: {
             text: "关闭",
-            type: "default"
-          }
+            type: "default",
+          },
         },
         width: PanelUISize.settingBig.width,
         height: PanelUISize.settingBig.height,
-        style: onlineUserCSS
+        style: onlineUserCSS,
       });
       let $list = $alert.$shadowRoot.querySelector(".online-user-list");
       let $filterInput = $alert.$shadowRoot.querySelector(".online-user-filter input");
@@ -4516,7 +4642,11 @@ async showOnlineUser() {
             return;
           }
           $alert.$shadowRoot.querySelectorAll(".online-user-list .online-item").forEach((item) => {
-            if (item.getAttribute("data-name").match(new RegExp(inputText, "ig")) || item.getAttribute("data-sf").match(new RegExp(inputText, "ig")) || item.getAttribute("data-uid").match(new RegExp(inputText, "ig"))) {
+            if (
+              item.getAttribute("data-name").match(new RegExp(inputText, "ig")) ||
+              item.getAttribute("data-sf").match(new RegExp(inputText, "ig")) ||
+              item.getAttribute("data-uid").match(new RegExp(inputText, "ig"))
+            ) {
               item.removeAttribute("style");
             } else {
               item.setAttribute("style", "display:none;");
@@ -4526,14 +4656,14 @@ async showOnlineUser() {
         })
       );
     },
-async getOnlineUserListInfo() {
+    async getOnlineUserListInfo() {
       let searchParamsData = {
-        showoldetails: "yes"
+        showoldetails: "yes",
       };
       let response = await httpx.get(`/forum.php?${utils.toSearchParamsStr(searchParamsData)}`, {
         headers: {
-          "User-Agent": utils.getRandomPCUA()
-        }
+          "User-Agent": utils.getRandomPCUA(),
+        },
       });
       if (!response.status) {
         return;
@@ -4544,7 +4674,7 @@ async getOnlineUserListInfo() {
         totalOnline: 0,
         onlineUser: 0,
         noRegisterUser: 0,
-        invisibleUser: 0
+        invisibleUser: 0,
       };
       let onlineList = pageHTML.querySelectorAll("#onlinelist ul li");
       onlineList.forEach((item) => {
@@ -4570,7 +4700,7 @@ async getOnlineUserListInfo() {
           avatar,
           name,
           sf,
-          space
+          space,
         });
       });
       let onlineInfo = pageHTML.querySelector("#online div.bm_h span.xs1").textContent;
@@ -4580,13 +4710,12 @@ async getOnlineUserListInfo() {
       result.invisibleUser = utils.parseInt(onlineInfo.match(/([0-9]*)\s*隐身/i), 0);
       return result;
     },
-createListViewItem(userInfo) {
+    createListViewItem(userInfo) {
       let $item = DOMUtils.createElement(
         "div",
         {
           className: "online-item",
-          innerHTML: (
-`
+          innerHTML: `
                 <div class="online-user">
                     <img data-avatar src="${userInfo["avatar"]}" loading="lazy" class="online-user-avatar">
                     <div class="online-user-info">
@@ -4595,13 +4724,12 @@ createListViewItem(userInfo) {
                         <span data-uid>UID: ${userInfo["uid"]}</span>
                     </div>
                 </div>
-            `
-          )
+            `,
         },
         {
           "data-name": userInfo.name,
           "data-uid": userInfo.uid,
-          "data-sf": userInfo.sf
+          "data-sf": userInfo.sf,
         }
       );
       DOMUtils.on($item, "click", ".online-user-avatar", (event) => {
@@ -4609,11 +4737,11 @@ createListViewItem(userInfo) {
         window.open(`home.php?mod=space&uid=${userInfo.uid}&do=profile`, "_blank");
       });
       return $item;
-    }
+    },
   };
   const MT = {
     $flag: {
-      showUserUID_initCSS: false
+      showUserUID_initCSS: false,
     },
     init() {
       Panel.onceExec("mt-MTCommentFilter", () => {
@@ -4654,15 +4782,13 @@ createListViewItem(userInfo) {
         }
       });
     },
-addLatestPostBtn() {
+    addLatestPostBtn() {
       log.info(`新增【最新发表】`);
       let $latest_publication = domUtils.createElement("li", {
         id: "latest_publication",
-        innerHTML: (
-`
+        innerHTML: `
 				<a href="/forum.php?mod=guide&view=newthread" hidefocus="true" title="最新发表">最新发表</a>
-			`
-        )
+			`,
       });
       let $link = $latest_publication.querySelector("a");
       domUtils.append("#comiis_nv .wp.comiis_nvbox.cl ul", $latest_publication);
@@ -4675,7 +4801,7 @@ addLatestPostBtn() {
         );
       }
     },
-async extendCookieExpire() {
+    async extendCookieExpire() {
       log.info(`延长cookie有效期`);
       let cookieList = await _GM.cookie.list({});
       let needExtendCookieNameList = ["_auth", "_saltkey", "_client_created", "_client_token"];
@@ -4696,19 +4822,22 @@ async extendCookieExpire() {
         if (!flag) {
           return;
         }
-        _GM.cookie.set({
-          name: cookieItem.name,
-          value: cookieItem.value,
-          expirationDate: cookieItem.expirationDate + _30days
-        }).then(() => {
-          log.info(`延长Cookie +30天成功：${cookieItem.name}`);
-        }).catch(() => {
-          log.error(`延长Cookie +30天失败：${cookieItem.name}`);
-        });
+        _GM.cookie
+          .set({
+            name: cookieItem.name,
+            value: cookieItem.value,
+            expirationDate: cookieItem.expirationDate + _30days,
+          })
+          .then(() => {
+            log.info(`延长Cookie +30天成功：${cookieItem.name}`);
+          })
+          .catch(() => {
+            log.error(`延长Cookie +30天失败：${cookieItem.name}`);
+          });
       });
-    }
+    },
   };
-  const UISelect = function(text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
+  const UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
     let selectData = [];
     if (typeof data === "function") {
       selectData = data();
@@ -4737,7 +4866,7 @@ async extendCookieExpire() {
         let storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      data: selectData
+      data: selectData,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -4747,11 +4876,22 @@ async extendCookieExpire() {
       },
       set(key2, value) {
         Panel.setValue(key2, value);
-      }
+      },
     });
     return result;
   };
-  const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack, disable) {
+  const UIButton = function (
+    text,
+    description,
+    buttonText,
+    buttonIcon,
+    buttonIsRightIcon,
+    buttonIconIsLoading,
+    buttonType,
+    clickCallBack,
+    afterAddToUListCallBack,
+    disable
+  ) {
     let result = {
       text,
       type: "button",
@@ -4768,20 +4908,20 @@ async extendCookieExpire() {
           clickCallBack(event);
         }
       },
-      afterAddToUListCallBack
+      afterAddToUListCallBack,
     };
     Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
       result.disable = Boolean(disable);
     });
     return result;
   };
-  const UIOwn = function(getLiElementCallBack, initConfig, props, afterAddToUListCallBack) {
+  const UIOwn = function (getLiElementCallBack, initConfig, props, afterAddToUListCallBack) {
     let result = {
       type: "own",
       attributes: {},
       props,
       getLiElementCallBack,
-      afterAddToUListCallBack
+      afterAddToUListCallBack,
     };
     Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
       return false;
@@ -4792,24 +4932,24 @@ async extendCookieExpire() {
     $upload: {
       small: false,
       middle: false,
-      big: false
+      big: false,
     },
     $data: {
-avatarInfo: {
+      avatarInfo: {
         maxSize: 2097152,
         small: {
           width: 48,
-          height: 48
+          height: 48,
         },
         middle: {
           width: 120,
-          height: 120
+          height: 120,
         },
         big: {
           width: 200,
-          height: 250
-        }
-      }
+          height: 250,
+        },
+      },
     },
     $el: {
       $smallUpload: null,
@@ -4817,7 +4957,7 @@ avatarInfo: {
       $bigUpload: null,
       $smallStatus: null,
       $middleStatus: null,
-      $bigStatus: null
+      $bigStatus: null,
     },
     $avatar: {
       get small() {
@@ -4828,7 +4968,7 @@ avatarInfo: {
       },
       get big() {
         return MTDyncmicAvatar.$el.$bigUpload.files[0];
-      }
+      },
     },
     init() {
       this.showView();
@@ -4838,11 +4978,10 @@ avatarInfo: {
       let $confirm = __pops.confirm({
         title: {
           text: "修改头像",
-          position: "center"
+          position: "center",
         },
         content: {
-          text: (
-`
+          text: `
                 <div class="avatar-container">
                     <p class="avatar-tip">1. 小头像（图片宽高限制最大尺寸：48×48）</p>
                     <p class="avatar-upload-status" data-type="small">🤡请先上传图片</p>
@@ -4858,9 +4997,8 @@ avatarInfo: {
                     <p class="avatar-upload-status" data-type="big">🤡请先上传图片</p>
                     <input type="file" class="avatar-upload" data-type="big" data-maxwidth="200" data-maxheight="250" accept="image/*">
                 </div>
-                `
-          ),
-          html: true
+                `,
+          html: true,
         },
         btn: {
           ok: {
@@ -4891,14 +5029,14 @@ avatarInfo: {
                 }
                 let avatarInfo = {
                   big: {
-                    base64: await utils.parseFileToBase64(this.$avatar.big)
+                    base64: await utils.parseFileToBase64(this.$avatar.big),
                   },
                   middle: {
-                    base64: await utils.parseFileToBase64(this.$avatar.middle)
+                    base64: await utils.parseFileToBase64(this.$avatar.middle),
                   },
                   small: {
-                    base64: await utils.parseFileToBase64(this.$avatar.small)
-                  }
+                    base64: await utils.parseFileToBase64(this.$avatar.small),
+                  },
                 };
                 Object.keys(avatarInfo).forEach((keyName) => {
                   let value = avatarInfo[keyName];
@@ -4916,12 +5054,13 @@ avatarInfo: {
                   data: formData,
                   processData: false,
                   headers: {
-                    Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                    Accept:
+                      "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
                     "User-Agent": utils.getRandomPCUA(),
                     Host: window.location.hostname,
                     Origin: window.location.origin,
-                    Referer: `${window.location.origin}/home.php?mod=spacecp&ac=avatar`
-                  }
+                    Referer: `${window.location.origin}/home.php?mod=spacecp&ac=avatar`,
+                  },
                 });
                 if (!response.status) {
                   return;
@@ -4933,7 +5072,7 @@ avatarInfo: {
                   log.error("上传失败", response);
                   Qmsg.error(response.data.responseText, {
                     timeout: 6e3,
-                    isHTML: false
+                    isHTML: false,
                   });
                 }
               } catch (error) {
@@ -4941,13 +5080,12 @@ avatarInfo: {
               } finally {
                 $loading.close();
               }
-            }
-          }
+            },
+          },
         },
         width: window.innerWidth > 500 ? "500px" : "88vw",
         height: window.innerHeight > 500 ? "500px" : "80vh",
-        style: (
-`
+        style: `
             .avatar-container{
                 display: flex;
                 width: -webkit-fill-available;
@@ -4976,20 +5114,13 @@ avatarInfo: {
             .avatar-upload {
                 margin: 20px 0px;
             }
-            `
-        )
+            `,
       });
       this.$el.$smallUpload = $confirm.$shadowRoot.querySelector(".avatar-upload[data-type='small']");
-      this.$el.$middleUpload = $confirm.$shadowRoot.querySelector(
-        ".avatar-upload[data-type='middle']"
-      );
+      this.$el.$middleUpload = $confirm.$shadowRoot.querySelector(".avatar-upload[data-type='middle']");
       this.$el.$bigUpload = $confirm.$shadowRoot.querySelector(".avatar-upload[data-type='big']");
-      this.$el.$smallStatus = $confirm.$shadowRoot.querySelector(
-        ".avatar-upload-status[data-type='small']"
-      );
-      this.$el.$middleStatus = $confirm.$shadowRoot.querySelector(
-        ".avatar-upload-status[data-type='middle']"
-      );
+      this.$el.$smallStatus = $confirm.$shadowRoot.querySelector(".avatar-upload-status[data-type='small']");
+      this.$el.$middleStatus = $confirm.$shadowRoot.querySelector(".avatar-upload-status[data-type='middle']");
       this.$el.$bigStatus = $confirm.$shadowRoot.querySelector(".avatar-upload-status[data-type='big']");
       this.setUploadChangeEvent(this.$el.$smallUpload, this.$el.$smallStatus, this.$data.avatarInfo.small, () => {
         this.$upload.small = true;
@@ -5001,7 +5132,7 @@ avatarInfo: {
         this.$upload.big = true;
       });
     },
-setUploadChangeEvent($file, $status, sizeInfo, successCallBack) {
+    setUploadChangeEvent($file, $status, sizeInfo, successCallBack) {
       domUtils.on($file, "change", (event) => {
         if (!$file.files?.length) {
           return;
@@ -5013,9 +5144,9 @@ setUploadChangeEvent($file, $status, sizeInfo, successCallBack) {
         let $image = new Image();
         let reader = new FileReader();
         reader.readAsDataURL(uploadImageFile);
-        reader.onload = function(response) {
+        reader.onload = function (response) {
           $image.src = response.target.result;
-          $image.onload = function() {
+          $image.onload = function () {
             if ($image.width > sizeInfo.width || $image.height > sizeInfo.height) {
               $file.value = "";
               $status.setAttribute("data-success", "false");
@@ -5038,11 +5169,11 @@ setUploadChangeEvent($file, $status, sizeInfo, successCallBack) {
         };
       });
     },
-async getUploadUrl() {
+    async getUploadUrl() {
       let response = await httpx.get("/home.php?mod=spacecp&ac=avatar", {
         headers: {
-          "User-Agent": utils.getRandomPCUA()
-        }
+          "User-Agent": utils.getRandomPCUA(),
+        },
       });
       if (!response.status) {
         return;
@@ -5076,7 +5207,7 @@ async getUploadUrl() {
       uploadUrl = uploadUrlInst.toString();
       log.info(`上传地址：` + uploadUrl);
       return uploadUrl;
-    }
+    },
   };
   const Component_Common = {
     id: "component-common",
@@ -5101,40 +5232,40 @@ async getUploadUrl() {
                     [
                       {
                         value: "topleft",
-                        text: "左上角"
+                        text: "左上角",
                       },
                       {
                         value: "top",
-                        text: "顶部"
+                        text: "顶部",
                       },
                       {
                         value: "topright",
-                        text: "右上角"
+                        text: "右上角",
                       },
                       {
                         value: "left",
-                        text: "左边"
+                        text: "左边",
                       },
                       {
                         value: "center",
-                        text: "中间"
+                        text: "中间",
                       },
                       {
                         value: "right",
-                        text: "右边"
+                        text: "右边",
                       },
                       {
                         value: "bottomleft",
-                        text: "左下角"
+                        text: "左下角",
                       },
                       {
                         value: "bottom",
-                        text: "底部"
+                        text: "底部",
                       },
                       {
                         value: "bottomright",
-                        text: "右下角"
-                      }
+                        text: "右下角",
+                      },
                     ],
                     (event, isSelectValue, isSelectText) => {
                       log.info("设置当前Qmsg弹出位置" + isSelectText);
@@ -5148,67 +5279,34 @@ async getUploadUrl() {
                     [
                       {
                         value: 1,
-                        text: "1"
+                        text: "1",
                       },
                       {
                         value: 2,
-                        text: "2"
+                        text: "2",
                       },
                       {
                         value: 3,
-                        text: "3"
+                        text: "3",
                       },
                       {
                         value: 4,
-                        text: "4"
+                        text: "4",
                       },
                       {
                         value: 5,
-                        text: "5"
-                      }
+                        text: "5",
+                      },
                     ],
                     void 0,
                     "限制Toast显示的数量"
                   ),
-                  UISwitch("逆序弹出", "qmsg-config-showreverse", false, void 0, "修改Toast弹出的顺序")
-                ]
-              }
-            ]
-          }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-]
+                  UISwitch("逆序弹出", "qmsg-config-showreverse", false, void 0, "修改Toast弹出的顺序"),
+                ],
+              },
+            ],
+          },
+        ],
       },
       {
         text: "",
@@ -5230,10 +5328,16 @@ async getUploadUrl() {
                     void 0,
                     "自动把符合超链接格式的文字转为超链接"
                   ),
-                  UISwitch("延长登录Cookie过期时间", "mt-extend-cookie-expire", false, void 0, "减少频繁登录账号的问题")
-                ]
-              }
-            ]
+                  UISwitch(
+                    "延长登录Cookie过期时间",
+                    "mt-extend-cookie-expire",
+                    false,
+                    void 0,
+                    "减少频繁登录账号的问题"
+                  ),
+                ],
+              },
+            ],
           },
           {
             type: "deepMenu",
@@ -5248,13 +5352,13 @@ async getUploadUrl() {
                   UIButton(
                     "签到信息",
                     `上次签到时间：${(() => {
-                    let signInfo = MTAutoSignIn.getHostNameSignInfo(window.location.hostname);
-                    if (signInfo) {
-                      return Utils.formatTime(signInfo.time);
-                    } else {
-                      return "尚未签到";
-                    }
-                  })()}`,
+                      let signInfo = MTAutoSignIn.getHostNameSignInfo(window.location.hostname);
+                      if (signInfo) {
+                        return Utils.formatTime(signInfo.time);
+                      } else {
+                        return "尚未签到";
+                      }
+                    })()}`,
                     "清空信息",
                     void 0,
                     void 0,
@@ -5266,11 +5370,11 @@ async getUploadUrl() {
                       __pops.confirm({
                         title: {
                           text: "提示 ",
-                          position: "center"
+                          position: "center",
                         },
                         content: {
                           text: "<p>是否清空脚本签到记录的时间?</p>",
-                          html: true
+                          html: true,
                         },
                         btn: {
                           ok: {
@@ -5282,26 +5386,26 @@ async getUploadUrl() {
                               domUtils.text(
                                 $desc,
                                 `上次签到时间：${(() => {
-                                let signInfo = MTAutoSignIn.getHostNameSignInfo(hostName);
-                                if (signInfo) {
-                                  return Utils.formatTime(signInfo.time);
-                                } else {
-                                  return "尚未签到";
-                                }
-                              })()}`
+                                  let signInfo = MTAutoSignIn.getHostNameSignInfo(hostName);
+                                  if (signInfo) {
+                                    return Utils.formatTime(signInfo.time);
+                                  } else {
+                                    return "尚未签到";
+                                  }
+                                })()}`
                               );
                               event2.close();
-                            }
-                          }
+                            },
+                          },
                         },
                         width: "300px",
-                        height: "200px"
+                        height: "200px",
                       });
                     }
-                  )
-                ]
-              }
-            ]
+                  ),
+                ],
+              },
+            ],
           },
           {
             text: "头像",
@@ -5314,17 +5418,14 @@ async getUploadUrl() {
                   UIOwn(($li) => {
                     let $left = domUtils.createElement("div", {
                       className: "pops-panel-item-left-text",
-                      innerHTML: (
-`
+                      innerHTML: `
 											<p class="pops-panel-item-left-main-text">头像（有缓存）</p>
 											<p class="pops-panel-item-left-desc-text">小、中、大</p>
-											`
-                      )
+											`,
                     });
                     let $right = domUtils.createElement("div", {
                       className: "pops-panel-avatar-img",
-                      innerHTML: (
-`
+                      innerHTML: `
 											<img 
 												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=small"
 												class="avatar-img" data-size="small">
@@ -5334,20 +5435,17 @@ async getUploadUrl() {
 											<img 
 												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=big"
 												class="avatar-img" data-size="big">
-											`
-                      )
+											`,
                     });
                     let $style = domUtils.createElement("style", {
-                      innerHTML: (
-`
+                      innerHTML: `
 											.avatar-img {
 												width: 30px;
 												height: 30px;
 												border-radius: 50%;
 												overflow: hidden;
 											}
-										`
-                      )
+										`,
                     });
                     $right.querySelector(".avatar-img[data-size='small']");
                     $right.querySelector(".avatar-img[data-size='middle']");
@@ -5360,17 +5458,14 @@ async getUploadUrl() {
                   UIOwn(($li) => {
                     let $left = domUtils.createElement("div", {
                       className: "pops-panel-item-left-text",
-                      innerHTML: (
-`
+                      innerHTML: `
 											<p class="pops-panel-item-left-main-text">头像</p>
 											<p class="pops-panel-item-left-desc-text">小、中、大</p>
-											`
-                      )
+											`,
                     });
                     let $right = domUtils.createElement("div", {
                       className: "pops-panel-avatar-img",
-                      innerHTML: (
-`
+                      innerHTML: `
 											<img 
 												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=small&ts=${Date.now()}"
 												class="avatar-img" data-size="small">
@@ -5380,8 +5475,7 @@ async getUploadUrl() {
 											<img 
 												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=big&ts=${Date.now()}"
 												class="avatar-img" data-size="big">
-											`
-                      )
+											`,
                     });
                     $li.appendChild($left);
                     $li.appendChild($right);
@@ -5390,8 +5484,8 @@ async getUploadUrl() {
                   UIButton(
                     "修改头像",
                     `可以上传gif图片，注意图片最大限制为${Utils.formatByteToSize(
-                    MTDyncmicAvatar.$data.avatarInfo.maxSize
-                  )}`,
+                      MTDyncmicAvatar.$data.avatarInfo.maxSize
+                    )}`,
                     "上传",
                     void 0,
                     false,
@@ -5400,14 +5494,14 @@ async getUploadUrl() {
                     () => {
                       MTDyncmicAvatar.init();
                     }
-                  )
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
+                  ),
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
   };
   const Component_ForumPost = {
     id: "component-forum-post",
@@ -5432,7 +5526,13 @@ async getUploadUrl() {
                     void 0,
                     "点击附件时弹出提示框进行确认是否下载附件"
                   ),
-                  UISwitch("图片查看优化", "mt-forum-post-optimizationImagePreview", true, void 0, "使用Viewer查看图片"),
+                  UISwitch(
+                    "图片查看优化",
+                    "mt-forum-post-optimizationImagePreview",
+                    true,
+                    void 0,
+                    "使用Viewer查看图片"
+                  ),
                   UISwitch("自动加载下一页", "mt-forum-post-loadNextPageComment", true, void 0, "无缝预览下一页"),
                   UISwitch(
                     "代码块优化",
@@ -5440,10 +5540,10 @@ async getUploadUrl() {
                     true,
                     void 0,
                     "自动检测代码块语言并设置关键字高亮"
-                  )
-                ]
-              }
-            ]
+                  ),
+                ],
+              },
+            ],
           },
           {
             type: "deepMenu",
@@ -5460,17 +5560,23 @@ async getUploadUrl() {
                     void 0,
                     "获取用户在线状态并在用户信息处显示状态表情"
                   ),
-                  UISwitch("显示用户等级", "mt-forum-post-showUserLevel", true, void 0, "在用户信息处显示当前用户的等级"),
+                  UISwitch(
+                    "显示用户等级",
+                    "mt-forum-post-showUserLevel",
+                    true,
+                    void 0,
+                    "在用户信息处显示当前用户的等级"
+                  ),
                   UISwitch(
                     "隐藏底部信息块",
                     "mt-forum-post-hideBottomInfoBlock",
                     false,
                     void 0,
                     "包括金币、好评、信誉等信息"
-                  )
-                ]
-              }
-            ]
+                  ),
+                ],
+              },
+            ],
           },
           {
             type: "deepMenu",
@@ -5493,14 +5599,14 @@ async getUploadUrl() {
                     true,
                     void 0,
                     "为快捷回复弹窗底部区域添加【一键空格】按钮"
-                  )
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
+                  ),
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
   };
   const Component_Guide = {
     id: "component-guide",
@@ -5509,12 +5615,11 @@ async getUploadUrl() {
       {
         type: "forms",
         text: "",
-        forms: [UISwitch("页面美化", "mt-guide-beautifyPage", true, void 0, "美化样式")]
-      }
-    ]
+        forms: [UISwitch("页面美化", "mt-guide-beautifyPage", true, void 0, "美化样式")],
+      },
+    ],
   };
   PanelContent.addContentConfig([Component_Common, Component_ForumPost, Component_Guide]);
   Panel.init();
   MT.init();
-
 })(Qmsg, DOMUtils, Utils, pops, hljs, Viewer);

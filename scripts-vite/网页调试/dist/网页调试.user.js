@@ -43,21 +43,23 @@
 // ==/UserScript==
 
 (function (Qmsg, DOMUtils, Utils, pops) {
-  'use strict';
+  "use strict";
 
-  var _GM_deleteValue = (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
-  var _GM_getResourceText = (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
-  var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
-  var _GM_info = (() => typeof GM_info != "undefined" ? GM_info : void 0)();
-  var _GM_registerMenuCommand = (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-  var _GM_setClipboard = (() => typeof GM_setClipboard != "undefined" ? GM_setClipboard : void 0)();
-  var _GM_setValue = (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
-  var _GM_unregisterMenuCommand = (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-  var _GM_xmlhttpRequest = (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
-  var _unsafeWindow = (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
+  var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
+  var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
+  var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
+  var _GM_info = (() => (typeof GM_info != "undefined" ? GM_info : void 0))();
+  var _GM_registerMenuCommand = (() =>
+    typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_setClipboard = (() => (typeof GM_setClipboard != "undefined" ? GM_setClipboard : void 0))();
+  var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
+  var _GM_unregisterMenuCommand = (() =>
+    typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
+  var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
   var _monkeyWindow = (() => window)();
   const CommonUtil = {
-waitRemove(...args) {
+    waitRemove(...args) {
       args.forEach((selector) => {
         if (typeof selector !== "string") {
           return;
@@ -67,7 +69,7 @@ waitRemove(...args) {
         });
       });
     },
-createBlockCSSNode(...args) {
+    createBlockCSSNode(...args) {
       let selectorList = [];
       if (args.length === 0) {
         return;
@@ -84,10 +86,10 @@ createBlockCSSNode(...args) {
       });
       return DOMUtils.createElement("style", {
         type: "text/css",
-        innerHTML: `${selectorList.join(",\n")}{display: none !important;}`
+        innerHTML: `${selectorList.join(",\n")}{display: none !important;}`,
       });
     },
-addBlockCSS(...args) {
+    addBlockCSS(...args) {
       let selectorList = [];
       if (args.length === 0) {
         return;
@@ -104,7 +106,7 @@ addBlockCSS(...args) {
       });
       return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
-setGMResourceCSS(resourceMapData) {
+    setGMResourceCSS(resourceMapData) {
       let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
       if (typeof cssText === "string" && cssText) {
         addStyle(cssText);
@@ -112,7 +114,7 @@ setGMResourceCSS(resourceMapData) {
         CommonUtil.loadStyleLink(resourceMapData.url);
       }
     },
-async loadStyleLink(url) {
+    async loadStyleLink(url) {
       let $link = document.createElement("link");
       $link.rel = "stylesheet";
       $link.type = "text/css";
@@ -121,7 +123,7 @@ async loadStyleLink(url) {
         document.head.appendChild($link);
       });
     },
-async loadScript(url) {
+    async loadScript(url) {
       let $script = document.createElement("script");
       $script.src = url;
       return new Promise((resolve) => {
@@ -131,7 +133,7 @@ async loadScript(url) {
         (document.head || document.documentElement).appendChild($script);
       });
     },
-fixUrl(url) {
+    fixUrl(url) {
       url = url.trim();
       if (url.startsWith("data:")) {
         return url;
@@ -139,7 +141,7 @@ fixUrl(url) {
       if (url.match(/^http(s|):\/\//i)) {
         return url;
       } else if (url.startsWith("//")) {
-        if (url.startsWith("///")) ;
+        if (url.startsWith("///"));
         else {
           url = window.location.protocol + url;
         }
@@ -152,7 +154,7 @@ fixUrl(url) {
         return url;
       }
     },
-fixHttps(url) {
+    fixHttps(url) {
       if (url.startsWith("https://")) {
         return url;
       }
@@ -167,46 +169,51 @@ fixHttps(url) {
         return url;
       }
     },
-lockScroll(...args) {
+    lockScroll(...args) {
       let $hidden = document.createElement("style");
-      $hidden.innerHTML =
-`
+      $hidden.innerHTML = `
 			.pops-overflow-hidden-important {
 				overflow: hidden !important;
 			}
 		`;
-      let $elList = [document.documentElement, document.body].concat(...args || []);
+      let $elList = [document.documentElement, document.body].concat(...(args || []));
       $elList.forEach(($el) => {
         $el.classList.add("pops-overflow-hidden-important");
       });
       (document.head || document.documentElement).appendChild($hidden);
       return {
-recovery() {
+        recovery() {
           $elList.forEach(($el) => {
             $el.classList.remove("pops-overflow-hidden-important");
           });
           $hidden.remove();
-        }
+        },
       };
     },
-async getClipboardText() {
+    async getClipboardText() {
       function readClipboardText(resolve) {
-        navigator.clipboard.readText().then((clipboardText) => {
-          resolve(clipboardText);
-        }).catch((error) => {
-          log.error("读取剪贴板内容失败👉", error);
-          resolve("");
-        });
+        navigator.clipboard
+          .readText()
+          .then((clipboardText) => {
+            resolve(clipboardText);
+          })
+          .catch((error) => {
+            log.error("读取剪贴板内容失败👉", error);
+            resolve("");
+          });
       }
       function requestPermissionsWithClipboard(resolve) {
-        navigator.permissions.query({
-name: "clipboard-read"
-        }).then((permissionStatus) => {
-          readClipboardText(resolve);
-        }).catch((error) => {
-          log.error("申请剪贴板权限失败，尝试直接读取👉", error.message ?? error.name ?? error.stack);
-          readClipboardText(resolve);
-        });
+        navigator.permissions
+          .query({
+            name: "clipboard-read",
+          })
+          .then((permissionStatus) => {
+            readClipboardText(resolve);
+          })
+          .catch((error) => {
+            log.error("申请剪贴板权限失败，尝试直接读取👉", error.message ?? error.name ?? error.stack);
+            readClipboardText(resolve);
+          });
       }
       function checkClipboardApi() {
         if (typeof navigator?.clipboard?.readText !== "function") {
@@ -231,22 +238,42 @@ name: "clipboard-read"
               requestPermissionsWithClipboard(resolve);
             },
             {
-              once: true
+              once: true,
             }
           );
         }
       });
     },
-escapeHtml(unsafe) {
-      return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
+    escapeHtml(unsafe) {
+      return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;")
+        .replace(/©/g, "&copy;")
+        .replace(/®/g, "&reg;")
+        .replace(/™/g, "&trade;")
+        .replace(/→/g, "&rarr;")
+        .replace(/←/g, "&larr;")
+        .replace(/↑/g, "&uarr;")
+        .replace(/↓/g, "&darr;")
+        .replace(/—/g, "&mdash;")
+        .replace(/–/g, "&ndash;")
+        .replace(/…/g, "&hellip;")
+        .replace(/ /g, "&nbsp;")
+        .replace(/\r\n/g, "<br>")
+        .replace(/\r/g, "<br>")
+        .replace(/\n/g, "<br>")
+        .replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
     },
-interval(fn, intervalTime, timeout = 5e3) {
+    interval(fn, intervalTime, timeout = 5e3) {
       let timeId;
       let maxTimeout = timeout - intervalTime;
       let intervalTimeCount = intervalTime;
       let loop = async (isTimeout) => {
         let result = await fn(isTimeout);
-        if (typeof result === "boolean" && !result || isTimeout) {
+        if ((typeof result === "boolean" && !result) || isTimeout) {
           utils.workerClearTimeout(timeId);
           return;
         }
@@ -261,7 +288,7 @@ interval(fn, intervalTime, timeout = 5e3) {
       };
       loop(false);
     },
-findParentNode($el, selector, parentSelector) {
+    findParentNode($el, selector, parentSelector) {
       if (parentSelector) {
         let $parent = DOMUtils.closest($el, parentSelector);
         if ($parent) {
@@ -275,21 +302,21 @@ findParentNode($el, selector, parentSelector) {
         let $parent = DOMUtils.closest($el, selector);
         return $parent;
       }
-    }
+    },
   };
   const PanelSettingConfig = {
-qmsg_config_position: {
+    qmsg_config_position: {
       key: "qmsg-config-position",
-      defaultValue: "bottom"
+      defaultValue: "bottom",
     },
-qmsg_config_maxnums: {
+    qmsg_config_maxnums: {
       key: "qmsg-config-maxnums",
-      defaultValue: 3
+      defaultValue: 3,
     },
-qmsg_config_showreverse: {
+    qmsg_config_showreverse: {
       key: "qmsg-config-showreverse",
-      defaultValue: false
-    }
+      defaultValue: false,
+    },
   };
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
@@ -302,7 +329,7 @@ qmsg_config_showreverse: {
     debug: false,
     logMaxCount: 250,
     autoClearConsole: true,
-    tag: true
+    tag: true,
   });
   Qmsg.config({
     isHTML: true,
@@ -345,7 +372,7 @@ qmsg_config_showreverse: {
       let maxZIndex = Utils.getMaxZIndex();
       let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-    }
+    },
   });
   __pops.GlobalConfig.setGlobalConfig({
     zIndex: () => {
@@ -361,23 +388,23 @@ qmsg_config_showreverse: {
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
     },
     mask: {
-enable: true,
-clickEvent: {
+      enable: true,
+      clickEvent: {
         toClose: false,
-        toHide: false
-      }
+        toHide: false,
+      },
     },
-    drag: true
+    drag: true,
   });
   const GM_Menu = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,
     GM_registerMenuCommand: _GM_registerMenuCommand,
-    GM_unregisterMenuCommand: _GM_unregisterMenuCommand
+    GM_unregisterMenuCommand: _GM_unregisterMenuCommand,
   });
   const httpx = new utils.Httpx({
     xmlHttpRequest: _GM_xmlhttpRequest,
-    logDetails: DEBUG
+    logDetails: DEBUG,
   });
   httpx.interceptors.request.use((data) => {
     return data;
@@ -397,16 +424,16 @@ clickEvent: {
   });
   ({
     Object: {
-      defineProperty: _unsafeWindow.Object.defineProperty
+      defineProperty: _unsafeWindow.Object.defineProperty,
     },
     Function: {
       apply: _unsafeWindow.Function.prototype.apply,
-      call: _unsafeWindow.Function.prototype.call
+      call: _unsafeWindow.Function.prototype.call,
     },
     Element: {
-      appendChild: _unsafeWindow.Element.prototype.appendChild
+      appendChild: _unsafeWindow.Element.prototype.appendChild,
     },
-    setTimeout: _unsafeWindow.setTimeout
+    setTimeout: _unsafeWindow.setTimeout,
   });
   const addStyle = domUtils.addStyle.bind(domUtils);
   DOMUtils.selector.bind(DOMUtils);
@@ -419,16 +446,16 @@ clickEvent: {
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const PROPS_STORAGE_API = "data-storage-api";
   const PanelSizeUtil = {
-followBrowserSize: false,
-get width() {
+    followBrowserSize: false,
+    get width() {
       return PanelSizeUtil.followBrowserSize ? globalThis.outerWidth : globalThis.innerWidth;
     },
-get height() {
+    get height() {
       return PanelSizeUtil.followBrowserSize ? globalThis.outerHeight : globalThis.innerHeight;
-    }
+    },
   };
   const PanelUISize = {
-setting: {
+    setting: {
       get width() {
         if (PanelSizeUtil.width < 550) {
           return "88vw";
@@ -446,26 +473,26 @@ setting: {
         } else {
           return "550px";
         }
-      }
+      },
     },
-settingMiddle: {
+    settingMiddle: {
       get width() {
         return PanelSizeUtil.width < 350 ? "88vw" : "350px";
-      }
+      },
     },
-info: {
+    info: {
       get width() {
         return PanelSizeUtil.width < 350 ? "88vw" : "350px";
       },
       get height() {
         return PanelSizeUtil.height < 250 ? "88vh" : "250px";
-      }
-    }
+      },
+    },
   };
   class StorageUtils {
-storageKey;
+    storageKey;
     listenerData;
-constructor(key) {
+    constructor(key) {
       if (typeof key === "string") {
         let trimKey = key.trim();
         if (trimKey == "") {
@@ -477,7 +504,7 @@ constructor(key) {
       }
       this.listenerData = new Utils.Dictionary();
     }
-getLocalValue() {
+    getLocalValue() {
       let localValue = _GM_getValue(this.storageKey);
       if (localValue == null) {
         localValue = {};
@@ -485,63 +512,66 @@ getLocalValue() {
       }
       return localValue;
     }
-setLocalValue(value) {
+    setLocalValue(value) {
       _GM_setValue(this.storageKey, value);
     }
-set(key, value) {
+    set(key, value) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, value);
     }
-get(key, defaultValue) {
+    get(key, defaultValue) {
       let localValue = this.getLocalValue();
       return Reflect.get(localValue, key) ?? defaultValue;
     }
-getAll() {
+    getAll() {
       let localValue = this.getLocalValue();
       return localValue;
     }
-delete(key) {
+    delete(key) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, void 0);
     }
-has(key) {
+    has(key) {
       let localValue = this.getLocalValue();
       return Reflect.has(localValue, key);
     }
-keys() {
+    keys() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue);
     }
-values() {
+    values() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
     }
-clear() {
+    clear() {
       _GM_deleteValue(this.storageKey);
     }
-addValueChangeListener(key, callback) {
+    addValueChangeListener(key, callback) {
       let listenerId = Math.random();
       let listenerData = this.listenerData.get(key) || [];
       listenerData.push({
         id: listenerId,
         key,
-        callback
+        callback,
       });
       this.listenerData.set(key, listenerData);
       return listenerId;
     }
-removeValueChangeListener(listenerId) {
+    removeValueChangeListener(listenerId) {
       let flag = false;
       for (const [key, listenerData] of this.listenerData.entries()) {
         for (let index = 0; index < listenerData.length; index++) {
           const value = listenerData[index];
-          if (typeof listenerId === "string" && value.key === listenerId || typeof listenerId === "number" && value.id === listenerId) {
+          if (
+            (typeof listenerId === "string" && value.key === listenerId) ||
+            (typeof listenerId === "number" && value.id === listenerId)
+          ) {
             listenerData.splice(index, 1);
             index--;
             flag = true;
@@ -551,7 +581,7 @@ removeValueChangeListener(listenerId) {
       }
       return flag;
     }
-triggerValueChangeListener(key, oldValue, newValue) {
+    triggerValueChangeListener(key, oldValue, newValue) {
       if (!this.listenerData.has(key)) {
         return;
       }
@@ -580,28 +610,28 @@ triggerValueChangeListener(key, oldValue, newValue) {
   const PopsPanelStorageApi = new StorageUtils(KEY);
   const PanelContent = {
     $data: {
-__contentConfig: null,
+      __contentConfig: null,
       get contentConfig() {
         if (this.__contentConfig == null) {
           this.__contentConfig = new utils.Dictionary();
         }
         return this.__contentConfig;
-      }
+      },
     },
-addContentConfig(configList) {
+    addContentConfig(configList) {
       if (!Array.isArray(configList)) {
         configList = [configList];
       }
       let index = this.$data.contentConfig.keys().length;
       this.$data.contentConfig.set(index, configList);
     },
-getAllContentConfig() {
+    getAllContentConfig() {
       return this.$data.contentConfig.values().flat();
     },
-getConfig(index = 0) {
+    getConfig(index = 0) {
       return this.$data.contentConfig.get(index) ?? [];
     },
-getDefaultBottomContentConfig() {
+    getDefaultBottomContentConfig() {
       return [
         {
           id: "script-version",
@@ -614,10 +644,10 @@ getDefaultBottomContentConfig() {
               window.open(supportURL, "_blank");
             }
             return false;
-          }
-        }
+          },
+        },
       ];
-    }
+    },
   };
   const PanelMenu = {
     $data: {
@@ -632,29 +662,29 @@ getDefaultBottomContentConfig() {
           },
           callback: () => {
             Panel.showPanel(PanelContent.getConfig(0));
-          }
-        }
+          },
+        },
       ],
       get menuOption() {
         return this.__menuOption;
-      }
+      },
     },
     init() {
       this.initExtensionsMenu();
     },
-initExtensionsMenu() {
+    initExtensionsMenu() {
       if (!Panel.isTopWindow()) {
         return;
       }
       GM_Menu.add(this.$data.menuOption);
     },
-addMenuOption(option) {
+    addMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
       this.$data.menuOption.push(...option);
     },
-updateMenuOption(option) {
+    updateMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
@@ -667,68 +697,68 @@ updateMenuOption(option) {
         }
       });
     },
-getMenuOption(index = 0) {
+    getMenuOption(index = 0) {
       return this.$data.menuOption[index];
     },
-deleteMenuOption(index = 0) {
+    deleteMenuOption(index = 0) {
       this.$data.menuOption.splice(index, 1);
-    }
+    },
   };
   const Panel = {
-$data: {
-__contentConfigInitDefaultValue: null,
-__onceExecMenuData: null,
-__urlChangeReloadMenuExecOnce: null,
-__onceExecData: null,
-__panelConfig: {},
-$panel: null,
-panelContent: [],
-get contentConfigInitDefaultValue() {
+    $data: {
+      __contentConfigInitDefaultValue: null,
+      __onceExecMenuData: null,
+      __urlChangeReloadMenuExecOnce: null,
+      __onceExecData: null,
+      __panelConfig: {},
+      $panel: null,
+      panelContent: [],
+      get contentConfigInitDefaultValue() {
         if (this.__contentConfigInitDefaultValue == null) {
           this.__contentConfigInitDefaultValue = new utils.Dictionary();
         }
         return this.__contentConfigInitDefaultValue;
       },
-contentConfigInitDisabledKeys: [],
-get onceExecMenuData() {
+      contentConfigInitDisabledKeys: [],
+      get onceExecMenuData() {
         if (this.__onceExecMenuData == null) {
           this.__onceExecMenuData = new utils.Dictionary();
         }
         return this.__onceExecMenuData;
       },
-get urlChangeReloadMenuExecOnce() {
+      get urlChangeReloadMenuExecOnce() {
         if (this.__urlChangeReloadMenuExecOnce == null) {
           this.__urlChangeReloadMenuExecOnce = new utils.Dictionary();
         }
         return this.__urlChangeReloadMenuExecOnce;
       },
-get onceExecData() {
+      get onceExecData() {
         if (this.__onceExecData == null) {
           this.__onceExecData = new utils.Dictionary();
         }
         return this.__onceExecData;
       },
-get scriptName() {
+      get scriptName() {
         return SCRIPT_NAME;
       },
-get panelConfig() {
+      get panelConfig() {
         return this.__panelConfig;
       },
       set panelConfig(value) {
         this.__panelConfig = value;
       },
-key: KEY,
-attributeKeyName: ATTRIBUTE_KEY,
-attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
+      key: KEY,
+      attributeKeyName: ATTRIBUTE_KEY,
+      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE,
     },
     init() {
       this.initContentDefaultValue();
       PanelMenu.init();
     },
-isTopWindow() {
+    isTopWindow() {
       return _unsafeWindow.top === _unsafeWindow.self;
     },
-initContentDefaultValue() {
+    initContentDefaultValue() {
       const initDefaultValue = (config) => {
         if (!config.attributes) {
           return;
@@ -792,19 +822,19 @@ initContentDefaultValue() {
       }
       this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
     },
-setDefaultValue(key, defaultValue) {
+    setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
         log.warn("请检查该key(已存在): " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
-getDefaultValue(key) {
+    getDefaultValue(key) {
       return this.$data.contentConfigInitDefaultValue.get(key);
     },
-setValue(key, value) {
+    setValue(key, value) {
       PopsPanelStorageApi.set(key, value);
     },
-getValue(key, defaultValue) {
+    getValue(key, defaultValue) {
       let localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
         if (this.$data.contentConfigInitDefaultValue.has(key)) {
@@ -814,25 +844,25 @@ getValue(key, defaultValue) {
       }
       return localValue;
     },
-deleteValue(key) {
+    deleteValue(key) {
       PopsPanelStorageApi.delete(key);
     },
-hasKey(key) {
+    hasKey(key) {
       return PopsPanelStorageApi.has(key);
     },
-addValueChangeListener(key, callback) {
+    addValueChangeListener(key, callback) {
       let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
         callback(key, __oldValue, __newValue);
       });
       return listenerId;
     },
-removeValueChangeListener(listenerId) {
+    removeValueChangeListener(listenerId) {
       PopsPanelStorageApi.removeValueChangeListener(listenerId);
     },
-triggerMenuValueChange(key, newValue, oldValue) {
+    triggerMenuValueChange(key, newValue, oldValue) {
       PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
     },
-exec(queryKey, callback, checkExec, once = true) {
+    exec(queryKey, callback, checkExec, once = true) {
       const that = this;
       let queryKeyFn;
       if (typeof queryKey === "string" || Array.isArray(queryKey)) {
@@ -910,7 +940,7 @@ exec(queryKey, callback, checkExec, once = true) {
             value: isArrayKey ? valueList : valueList[0],
             addStyleElement: (...args) => {
               return dynamicAddStyleNodeCallback(true, ...args);
-            }
+            },
           });
           if (!Array.isArray(callbackResult)) {
             callbackResult = [callbackResult];
@@ -928,35 +958,36 @@ exec(queryKey, callback, checkExec, once = true) {
         clearBeforeStoreValue();
         storeValueList = [...resultList];
       };
-      once && keyList.forEach((key) => {
-        let listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
-          valueChangeCallback();
+      once &&
+        keyList.forEach((key) => {
+          let listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
+            valueChangeCallback();
+          });
+          listenerIdList.push(listenerId);
         });
-        listenerIdList.push(listenerId);
-      });
       valueChangeCallback();
       let result = {
-reload() {
+        reload() {
           valueChangeCallback();
         },
-clear() {
+        clear() {
           this.clearStoreStyleElements();
           this.removeValueChangeListener();
           once && that.$data.onceExecMenuData.delete(storageKey);
         },
-clearStoreStyleElements: () => {
+        clearStoreStyleElements: () => {
           return clearBeforeStoreValue();
         },
-removeValueChangeListener: () => {
+        removeValueChangeListener: () => {
           listenerIdList.forEach((listenerId) => {
             this.removeValueChangeListener(listenerId);
           });
-        }
+        },
       };
       this.$data.onceExecMenuData.set(storageKey, result);
       return result;
     },
-execMenu(key, callback, isReverse = false, once = false) {
+    execMenu(key, callback, isReverse = false, once = false) {
       return this.exec(
         key,
         (option) => {
@@ -978,7 +1009,7 @@ execMenu(key, callback, isReverse = false, once = false) {
         once
       );
     },
-execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
+    execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
       const result = this.execMenu(key, callback, isReverse, true);
       if (listenUrlChange) {
         if (result) {
@@ -996,14 +1027,14 @@ execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
       }
       return result;
     },
-deleteExecMenuOnce(key) {
+    deleteExecMenuOnce(key) {
       key = this.transformKey(key);
       this.$data.onceExecMenuData.delete(key);
       this.$data.urlChangeReloadMenuExecOnce.delete(key);
       let flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
-onceExec(key, callback) {
+    onceExec(key, callback) {
       key = this.transformKey(key);
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
@@ -1014,30 +1045,36 @@ onceExec(key, callback) {
       callback();
       this.$data.onceExecData.set(key, 1);
     },
-deleteOnceExec(key) {
+    deleteOnceExec(key) {
       key = this.transformKey(key);
       this.$data.onceExecData.delete(key);
     },
-addUrlChangeWithExecMenuOnceListener(key, callback) {
+    addUrlChangeWithExecMenuOnceListener(key, callback) {
       key = this.transformKey(key);
       this.$data.urlChangeReloadMenuExecOnce.set(key, callback);
     },
-removeUrlChangeWithExecMenuOnceListener(key) {
+    removeUrlChangeWithExecMenuOnceListener(key) {
       key = this.transformKey(key);
       this.$data.urlChangeReloadMenuExecOnce.delete(key);
     },
-triggerUrlChangeWithExecMenuOnceEvent(config) {
+    triggerUrlChangeWithExecMenuOnceEvent(config) {
       this.$data.urlChangeReloadMenuExecOnce.forEach((callback, key) => {
         callback(config);
       });
     },
-showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
+    showPanel(
+      content,
+      title = `${SCRIPT_NAME}-设置`,
+      preventDefaultContentConfig = false,
+      preventRegisterSearchPlugin = false
+    ) {
       this.$data.$panel = null;
       this.$data.panelContent = [];
-      let checkHasBottomVersionContentConfig = content.findIndex((it) => {
-        let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
-        return isBottom && it.id === "script-version";
-      }) !== -1;
+      let checkHasBottomVersionContentConfig =
+        content.findIndex((it) => {
+          let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
+          return isBottom && it.id === "script-version";
+        }) !== -1;
       if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig) {
         content.push(...PanelContent.getDefaultBottomContentConfig());
       }
@@ -1047,7 +1084,7 @@ showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig 
             text: title,
             position: "center",
             html: false,
-            style: ""
+            style: "",
           },
           content,
           btn: {
@@ -1056,26 +1093,26 @@ showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig 
               callback: (details, event) => {
                 details.close();
                 this.$data.$panel = null;
-              }
-            }
+              },
+            },
           },
           mask: {
             enable: true,
             clickEvent: {
               toClose: true,
-              toHide: false
+              toHide: false,
             },
             clickCallBack: (originalRun, config) => {
               originalRun();
               this.$data.$panel = null;
-            }
+            },
           },
           width: PanelUISize.setting.width,
           height: PanelUISize.setting.height,
           drag: true,
-          only: true
+          only: true,
         },
-        ...this.$data.panelConfig
+        ...this.$data.panelConfig,
       });
       this.$data.$panel = $panel;
       this.$data.panelContent = content;
@@ -1083,7 +1120,7 @@ showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig 
         this.registerConfigSearch({ $panel, content });
       }
     },
-registerConfigSearch(config) {
+    registerConfigSearch(config) {
       const { $panel, content } = config;
       let asyncQueryProperty = async (target, handler) => {
         if (target == null) {
@@ -1107,8 +1144,8 @@ registerConfigSearch(config) {
           },
           {
             root: null,
-threshold: 1
-}
+            threshold: 1,
+          }
         );
         observer.observe($el);
         $el.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1125,32 +1162,29 @@ threshold: 1
         let $alert = __pops.alert({
           title: {
             text: "搜索配置",
-            position: "center"
+            position: "center",
           },
           content: {
-            text: (
-`
+            text: `
 						<div class="search-wrapper">
 							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
 						</div>
 						<div class="search-result-wrapper"></div>
-					`
-            ),
-            html: true
+					`,
+            html: true,
           },
           btn: {
-            ok: { enable: false }
+            ok: { enable: false },
           },
           mask: {
             clickEvent: {
-              toClose: true
-            }
+              toClose: true,
+            },
           },
           width: PanelUISize.settingMiddle.width,
           height: "auto",
           drag: true,
-          style: (
-`
+          style: `
 					${__pops.config.cssText.panelCSS}
 
 					.search-wrapper{
@@ -1188,8 +1222,7 @@ threshold: 1
 						color: #6c6c6c;
 					}
 					${config.searchDialogStyle ?? ""}
-				`
-          )
+				`,
         });
         $alert.$shadowRoot.querySelector(".search-wrapper");
         let $searchInput = $alert.$shadowRoot.querySelector(".search-config-text");
@@ -1203,23 +1236,21 @@ threshold: 1
             if (target?.next) {
               return {
                 isFind: false,
-                data: target.next
+                data: target.next,
               };
             } else {
               return {
                 isFind: true,
-                data: target
+                data: target,
               };
             }
           });
           let $item = domUtils.createElement("div", {
             className: "search-result-item",
-            innerHTML: (
-`
+            innerHTML: `
 							<div class="search-result-item-path">${searchPath.matchedData?.path}</div>
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
-						`
-            )
+						`,
           });
           domUtils.on($item, "click", (clickItemEvent) => {
             let $asideItems = $panel.$shadowRoot.querySelectorAll(
@@ -1232,18 +1263,22 @@ threshold: 1
             }
             $targetAsideItem.scrollIntoView({
               behavior: "smooth",
-              block: "center"
+              block: "center",
             });
             $targetAsideItem.click();
             asyncQueryProperty(pathInfo.next, async (target) => {
               if (target?.next) {
                 let $findDeepMenu = await domUtils.waitNode(() => {
-                  return Array.from(
-                    $panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")
-                  ).find(($deepMenu) => {
-                    const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
-                    return typeof __formConfig__ === "object" && __formConfig__ != null && __formConfig__.text === target.name;
-                  });
+                  return Array.from($panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")).find(
+                    ($deepMenu) => {
+                      const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
+                      return (
+                        typeof __formConfig__ === "object" &&
+                        __formConfig__ != null &&
+                        __formConfig__.text === target.name
+                      );
+                    }
+                  );
                 }, 2500);
                 if ($findDeepMenu) {
                   $findDeepMenu.click();
@@ -1251,21 +1286,21 @@ threshold: 1
                   Qmsg.error("未找到对应的二级菜单");
                   return {
                     isFind: true,
-                    data: target
+                    data: target,
                   };
                 }
                 return {
                   isFind: false,
-                  data: target.next
+                  data: target.next,
                 };
               } else {
                 let $findTargetMenu = await domUtils.waitNode(() => {
-                  return Array.from(
-                    $panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)
-                  ).find(($menuItem) => {
-                    const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
-                    return __formConfig__ === target.matchedData?.formConfig;
-                  });
+                  return Array.from($panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)).find(
+                    ($menuItem) => {
+                      const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
+                      return __formConfig__ === target.matchedData?.formConfig;
+                    }
+                  );
                 }, 2500);
                 if ($findTargetMenu) {
                   scrollToElementAndListen($findTargetMenu);
@@ -1283,7 +1318,7 @@ threshold: 1
                 }
                 return {
                   isFind: true,
-                  data: target
+                  data: target,
                 };
               }
             });
@@ -1304,17 +1339,17 @@ threshold: 1
                     if (target?.next) {
                       return {
                         isFind: false,
-                        data: target.next
+                        data: target.next,
                       };
                     } else {
                       return {
                         isFind: true,
-                        data: target
+                        data: target,
                       };
                     }
                   });
                   deepNext.next = {
-                    name: configItem.text
+                    name: configItem.text,
                   };
                 }
                 loopContentConfig(child_forms, deepMenuPath);
@@ -1334,12 +1369,12 @@ threshold: 1
                     if (target?.next) {
                       return {
                         isFind: false,
-                        data: target.next
+                        data: target.next,
                       };
                     } else {
                       return {
                         isFind: true,
-                        data: target
+                        data: target,
                       };
                     }
                   });
@@ -1349,8 +1384,8 @@ threshold: 1
                       path: "",
                       formConfig: configItem,
                       matchedText: delayMatchedTextList[matchedIndex],
-                      description
-                    }
+                      description,
+                    },
                   };
                   const pathList = [];
                   utils.queryProperty(matchedPath, (target) => {
@@ -1361,12 +1396,12 @@ threshold: 1
                     if (target?.next) {
                       return {
                         isFind: false,
-                        data: target.next
+                        data: target.next,
                       };
                     } else {
                       return {
                         isFind: true,
-                        data: target
+                        data: target,
                       };
                     }
                   });
@@ -1393,7 +1428,7 @@ threshold: 1
               }
               loopContentConfig(rightContentConfigList, {
                 index,
-                name: text
+                name: text,
               });
             }
           }
@@ -1448,14 +1483,13 @@ threshold: 1
           }
         },
         {
-          capture: true
+          capture: true,
         }
       );
       $panel.$shadowRoot.appendChild(
         domUtils.createElement("style", {
           type: "text/css",
-          textContent: (
-`
+          textContent: `
 					.pops-flashing{
 						animation: double-blink 1.5s ease-in-out;
 					}
@@ -1476,25 +1510,24 @@ threshold: 1
 							background-color: initial;
 						}
 					}
-				`
-          )
+				`,
         })
       );
     },
-transformKey(key) {
+    transformKey(key) {
       if (Array.isArray(key)) {
         const keyArray = key.sort();
         return JSON.stringify(keyArray);
       } else {
         return key;
       }
-    }
+    },
   };
   const unsafeWin = _unsafeWindow;
   const console = unsafeWin.console;
   const copy = _GM_setClipboard || utils.copy.bind(utils);
   const WebSiteDebugUtil = {
-evalPlugin: (...args) => {
+    evalPlugin: (...args) => {
       if (args.length === 0) {
         return;
       }
@@ -1523,283 +1556,284 @@ evalPlugin: (...args) => {
 		
 })()
 `);
-    }
+    },
   };
-  const versionJSON = '{\n  "eruda": {\n    "version": "3.4.3",\n    "plugin": {\n      "eruda-monitor": "1.1.2",\n      "eruda-features": "2.1.0",\n      "eruda-timing": "2.0.1",\n      "eruda-code": "2.2.0",\n      "eruda-benchmark": "2.0.1",\n      "eruda-orientation": "2.1.1",\n      "eruda-vue": "1.1.1",\n      "eruda-touches": "2.1.0",\n      "eruda-outline-plugin": "0.0.5",\n      "eruda-pixel": "1.0.13"\n    }\n  },\n  "vconsole": {\n    "version": "3.15.1",\n    "plugin": {\n      "vue-vconsole-devtools": "1.0.9"\n    }\n  },\n  "@huolala-tech/page-spy-browser": {\n    "version": "2.2.6"\n  }\n}';
+  const versionJSON =
+    '{\n  "eruda": {\n    "version": "3.4.3",\n    "plugin": {\n      "eruda-monitor": "1.1.2",\n      "eruda-features": "2.1.0",\n      "eruda-timing": "2.0.1",\n      "eruda-code": "2.2.0",\n      "eruda-benchmark": "2.0.1",\n      "eruda-orientation": "2.1.1",\n      "eruda-vue": "1.1.1",\n      "eruda-touches": "2.1.0",\n      "eruda-outline-plugin": "0.0.5",\n      "eruda-pixel": "1.0.13"\n    }\n  },\n  "vconsole": {\n    "version": "3.15.1",\n    "plugin": {\n      "vue-vconsole-devtools": "1.0.9"\n    }\n  },\n  "@huolala-tech/page-spy-browser": {\n    "version": "2.2.6"\n  }\n}';
   const DebugToolVersionConfig = JSON.parse(versionJSON);
   const DebugToolConfig = {
     eruda: {
-version: DebugToolVersionConfig.eruda.version,
-homeUrl: "https://github.com/liriliri/eruda",
-settingDocUrl: "https://github.com/liriliri/eruda/blob/master/README.md"
+      version: DebugToolVersionConfig.eruda.version,
+      homeUrl: "https://github.com/liriliri/eruda",
+      settingDocUrl: "https://github.com/liriliri/eruda/blob/master/README.md",
     },
     vConsole: {
-version: DebugToolVersionConfig.vconsole.version,
-homeUrl: "https://github.com/Tencent/vConsole",
-settingDocUrl: "https://github.com/Tencent/vConsole/blob/dev/README_CN.md"
+      version: DebugToolVersionConfig.vconsole.version,
+      homeUrl: "https://github.com/Tencent/vConsole",
+      settingDocUrl: "https://github.com/Tencent/vConsole/blob/dev/README_CN.md",
     },
     pageSpy: {
-version: DebugToolVersionConfig["@huolala-tech/page-spy-browser"].version,
-homeUrl: "https://github.com/HuolalaTech/page-spy-web",
-settingDocUrl: "https://github.com/HuolalaTech/page-spy-web/blob/main/README_ZH.md",
-defaultConfig: {
+      version: DebugToolVersionConfig["@huolala-tech/page-spy-browser"].version,
+      homeUrl: "https://github.com/HuolalaTech/page-spy-web",
+      settingDocUrl: "https://github.com/HuolalaTech/page-spy-web/blob/main/README_ZH.md",
+      defaultConfig: {
         api: "pagespy.jikejishu.com",
-        cliennOrigin: "https://pagespy.jikejishu.com"
-      }
+        cliennOrigin: "https://pagespy.jikejishu.com",
+      },
     },
     chii: {
-settingDocUrl: "https://github.com/liriliri/chii/blob/master/README_CN.md",
-defaultConfig: {
+      settingDocUrl: "https://github.com/liriliri/chii/blob/master/README_CN.md",
+      defaultConfig: {
         url: "https://chii.liriliri.io/",
-        scriptJs: "//chii.liriliri.io/target.js"
-      }
-    }
+        scriptJs: "//chii.liriliri.io/target.js",
+      },
+    },
   };
   const GlobalSettingConfig = {
     debugTool: {
       key: "currentDebug",
-      defaultValue: "eruda"
+      defaultValue: "eruda",
     },
     allowRunInIframe: {
       key: "allowRunInIframe",
-      defaultValue: false
+      defaultValue: false,
     },
     autoLoadDebugTool: {
       key: "autoLoadDebugTool",
-      defaultValue: true
+      defaultValue: true,
     },
     eruda_auto_open_panel: {
       key: "eruda-auto-open-panel",
-      defaultValue: false
+      defaultValue: false,
     },
     eruda_default_show_panel_name: {
       key: "eruda-default-show-panel-name",
-      defaultValue: "console"
+      defaultValue: "console",
     },
     eruda_panel_console: {
       key: "eruda-panel-console",
-      defaultValue: true
+      defaultValue: true,
     },
     eruda_panel_elements: {
       key: "eruda-panel-elements",
-      defaultValue: true
+      defaultValue: true,
     },
     eruda_panel_network: {
       key: "eruda-panel-network",
-      defaultValue: true
+      defaultValue: true,
     },
     eruda_panel_resources: {
       key: "eruda-panel-resources",
-      defaultValue: true
+      defaultValue: true,
     },
     eruda_panel_sources: {
       key: "eruda-panel-sources",
-      defaultValue: true
+      defaultValue: true,
     },
     eruda_panel_info: {
       key: "eruda-panel-info",
-      defaultValue: true
+      defaultValue: true,
     },
     eruda_panel_snippets: {
       key: "eruda-panel-snippets",
-      defaultValue: true
+      defaultValue: true,
     },
     eruda_plugin_Resource_erudaMonitor: {
       key: "eruda_plugin_Resource_erudaMonitor",
       defaultValue: false,
-      resource: "Resource_erudaMonitor"
+      resource: "Resource_erudaMonitor",
     },
     eruda_plugin_Resource_erudaFeatures: {
       key: "eruda_plugin_Resource_erudaFeatures",
       defaultValue: false,
-      resource: "Resource_erudaFeatures"
+      resource: "Resource_erudaFeatures",
     },
     eruda_plugin_Resource_erudaTiming: {
       key: "eruda_plugin_Resource_erudaTiming",
       defaultValue: false,
-      resource: "Resource_erudaTiming"
+      resource: "Resource_erudaTiming",
     },
     eruda_plugin_Resource_erudaCode: {
       key: "eruda_plugin_Resource_erudaCode",
       defaultValue: false,
-      resource: "Resource_erudaCode"
+      resource: "Resource_erudaCode",
     },
     eruda_plugin_Resource_erudaBenchmark: {
       key: "eruda_plugin_Resource_erudaBenchmark",
       defaultValue: false,
-      resource: "Resource_erudaBenchmark"
+      resource: "Resource_erudaBenchmark",
     },
     eruda_plugin_Resource_erudaGeolocation: {
       key: "eruda_plugin_Resource_erudaGeolocation",
       defaultValue: false,
-      resource: "Resource_erudaGeolocation"
+      resource: "Resource_erudaGeolocation",
     },
     eruda_plugin_Resource_erudaOrientation: {
       key: "eruda_plugin_Resource_erudaOrientation",
       defaultValue: false,
-      resource: "Resource_erudaOrientation"
+      resource: "Resource_erudaOrientation",
     },
     eruda_plugin_Resource_erudaVue: {
       key: "eruda_plugin_Resource_erudaVue",
       defaultValue: false,
-      resource: "Resource_erudaVue"
+      resource: "Resource_erudaVue",
     },
     eruda_plugin_Resource_erudaTouches: {
       key: "eruda_plugin_Resource_erudaTouches",
       defaultValue: false,
-      resource: "Resource_erudaTouches"
+      resource: "Resource_erudaTouches",
     },
     eruda_plugin_Resource_erudaOutlinePlugin: {
       key: "eruda_plugin_Resource_erudaOutlinePlugin",
       defaultValue: false,
-      resource: "Resource_erudaOutlinePlugin"
+      resource: "Resource_erudaOutlinePlugin",
     },
     eruda_plugin_Resource_erudaPixel: {
       key: "eruda_plugin_Resource_erudaPixel",
       defaultValue: false,
-      resource: "Resource_erudaPixel"
+      resource: "Resource_erudaPixel",
     },
     vconsole_auto_open_panel: {
       key: "vconsole-auto-open-panel",
-      defaultValue: false
+      defaultValue: false,
     },
     vconsole_default_show_panel_name: {
       key: "vconsole-default-show-panel-name",
-      defaultValue: "default"
+      defaultValue: "default",
     },
     vConsole_panel_system: {
       key: "vConsole-panel-system",
-      defaultValue: true
+      defaultValue: true,
     },
     vConsole_panel_network: {
       key: "vConsole-panel-network",
-      defaultValue: true
+      defaultValue: true,
     },
     vConsole_panel_element: {
       key: "vConsole-panel-element",
-      defaultValue: true
+      defaultValue: true,
     },
     vConsole_panel_storage: {
       key: "vConsole-panel-storage",
-      defaultValue: true
+      defaultValue: true,
     },
     vConsole_theme: {
       key: "vConsole-theme",
-      defaultValue: "light"
+      defaultValue: "light",
     },
     vconsole_disableLogScrolling: {
       key: "vconsole-disableLogScrolling",
-      defaultValue: false
+      defaultValue: false,
     },
     vconsole_showTimestamps: {
       key: "vconsole-showTimestamps",
-      defaultValue: false
+      defaultValue: false,
     },
     vconsole_maxLogNumber: {
       key: "vconsole-maxLogNumber",
-      defaultValue: 1e3
+      defaultValue: 1e3,
     },
     vconsole_maxNetworkNumber: {
       key: "vconsole-maxNetworkNumber",
-      defaultValue: 1e3
+      defaultValue: 1e3,
     },
     vConsole_storage_defaultStorages_cookies: {
       key: "vConsole-storage-defaultStorages-cookies",
-      defaultValue: true
+      defaultValue: true,
     },
     vConsole_storage_defaultStorages_localStorage: {
       key: "vConsole-storage-defaultStorages-localStorage",
-      defaultValue: true
+      defaultValue: true,
     },
     vConsole_storage_defaultStorages_sessionStorage: {
       key: "vConsole-storage-defaultStorages-sessionStorage",
-      defaultValue: true
+      defaultValue: true,
     },
     vConsole_plugin_Resource_vConsole_Stats: {
       key: "vConsole_plugin_Resource_vConsole_Stats",
-      defaultValue: false
+      defaultValue: false,
     },
     vConsole_plugin_Resource_vConsole_ExportLog: {
       key: "vConsole_plugin_Resource_vConsole_ExportLog",
-      defaultValue: false
+      defaultValue: false,
     },
     vConsole_plugin_Resource_vConsoleVueDevtools: {
       key: "vConsole_plugin_Resource_vConsoleVueDevtools",
       defaultValue: false,
-      resource: "Resource_vConsoleVueDevtools"
+      resource: "Resource_vConsoleVueDevtools",
     },
     pagespy_disable_run_in_debug_client: {
       key: "pagespy-disable-run-in-debug-client",
-      defaultValue: true
+      defaultValue: true,
     },
     pagespy_api: {
       key: "pagespy-api",
-      defaultValue: DebugToolConfig.pageSpy.defaultConfig.api
+      defaultValue: DebugToolConfig.pageSpy.defaultConfig.api,
     },
     pagespy_clientOrigin: {
       key: "pagespy-clientOrigin",
-      defaultValue: DebugToolConfig.pageSpy.defaultConfig.cliennOrigin
+      defaultValue: DebugToolConfig.pageSpy.defaultConfig.cliennOrigin,
     },
     pagespy_project: {
       key: "pagespy-project",
-      defaultValue: "default"
+      defaultValue: "default",
     },
     pagespy_title: {
       key: "pagespy-title",
-      defaultValue: "--"
+      defaultValue: "--",
     },
     pagespy_autoRender: {
       key: "pagespy-autoRender",
-      defaultValue: true
+      defaultValue: true,
     },
     pagespy_enableSSL: {
       key: "pagespy-enableSSL",
-      defaultValue: true
+      defaultValue: true,
     },
     pagespy_offline: {
       key: "pagespy-offline",
-      defaultValue: false
+      defaultValue: false,
     },
     pagespy_serializeData: {
       key: "pagespy-serializeData",
-      defaultValue: false
+      defaultValue: false,
     },
     pagespy_useSecret: {
       key: "pagespy-useSecret",
-      defaultValue: false
+      defaultValue: false,
     },
     pagespy_messageCapacity: {
       key: "pagespy-messageCapacity",
-      defaultValue: 1e3
+      defaultValue: 1e3,
     },
     chii_script_embedded: {
       key: "chii-script-embedded",
-      defaultValue: true
+      defaultValue: true,
     },
     chii_disable_run_in_debug_url: {
       key: "chii-disable-run-in-debug-url",
-      defaultValue: true
+      defaultValue: true,
     },
     chii_check_script_load: {
       key: "chii-check-script-load",
-      defaultValue: true
+      defaultValue: true,
     },
     chii_debug_url: {
       key: "chii-debug-url",
-      defaultValue: DebugToolConfig.chii.defaultConfig.url
+      defaultValue: DebugToolConfig.chii.defaultConfig.url,
     },
     chii_target_js: {
       key: "chii-target-js",
-      defaultValue: DebugToolConfig.chii.defaultConfig.scriptJs
+      defaultValue: DebugToolConfig.chii.defaultConfig.scriptJs,
     },
     chii_embedded_height_enable: {
       key: "chii-embedded-height-enable",
-      defaultValue: false
+      defaultValue: false,
     },
     chii_embedded_height: {
       key: "chii-embedded-height",
-      defaultValue: parseInt((window.innerHeight / 2).toString())
-    }
+      defaultValue: parseInt((window.innerHeight / 2).toString()),
+    },
   };
   const Eruda = () => {
     initEruda("Eruda", unsafeWin);
@@ -1832,14 +1866,16 @@ defaultConfig: {
     }
     DebugToolConfig.eruda.version = Eruda2.version;
     Eruda2.init({
-      tool: inintPanelList
+      tool: inintPanelList,
     });
     console.log(`eruda当前版本：${Eruda2.version}`);
     console.log(`eruda项目地址：${DebugToolConfig.eruda.homeUrl}`);
     console.log("eruda的全局变量名: Eruda");
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaMonitor.key)) {
       try {
-        WebSiteDebugUtil.evalPlugin(_GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaMonitor.resource));
+        WebSiteDebugUtil.evalPlugin(
+          _GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaMonitor.resource)
+        );
         Eruda2.add(erudaMonitor);
       } catch (error) {
         console.error("插件【eruda-monitor】加载失败，原因：", error);
@@ -1847,7 +1883,9 @@ defaultConfig: {
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaFeatures.key)) {
       try {
-        WebSiteDebugUtil.evalPlugin(_GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaFeatures.resource));
+        WebSiteDebugUtil.evalPlugin(
+          _GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaFeatures.resource)
+        );
         Eruda2.add(erudaFeatures);
       } catch (error) {
         console.error("插件【eruda-features】加载失败，原因：", error);
@@ -1855,7 +1893,9 @@ defaultConfig: {
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaTiming.key)) {
       try {
-        WebSiteDebugUtil.evalPlugin(_GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaTiming.resource));
+        WebSiteDebugUtil.evalPlugin(
+          _GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaTiming.resource)
+        );
         Eruda2.add(erudaTiming);
       } catch (error) {
         console.error("插件【eruda-timing】加载失败，原因：", error);
@@ -1901,7 +1941,9 @@ defaultConfig: {
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaTouches.key)) {
       try {
-        WebSiteDebugUtil.evalPlugin(_GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaTouches.resource));
+        WebSiteDebugUtil.evalPlugin(
+          _GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaTouches.resource)
+        );
         Eruda2.add(erudaTouches);
       } catch (error) {
         console.error("插件【eruda-touches】加载失败，原因：", error);
@@ -1945,19 +1987,19 @@ defaultConfig: {
     }
   };
   const vConsolePluginState = (vConsole2, VConsole) => {
-    const Stats = function() {
+    const Stats = function () {
       var mode = 0;
       var localPositionStorageKey = "vConsole-Plugin-Stats-Position";
       function getLocalPositionStorage() {
         return _GM_getValue(localPositionStorageKey, {
           top: 0,
-          left: 0
+          left: 0,
         });
       }
       function setLocalPositionStorage(left, top2) {
         _GM_setValue(localPositionStorageKey, {
           left,
-          top: top2
+          top: top2,
         });
       }
       var container = document.createElement("div");
@@ -1965,12 +2007,12 @@ defaultConfig: {
       container.style.cssText = `position:fixed;top:${oldPosition.top}px;left:${oldPosition.left}px;cursor:pointer;opacity:0.9;z-index:10000`;
       container.addEventListener(
         "click",
-        function(event) {
+        function (event) {
           event.preventDefault();
           showPanel(++mode % container.children.length);
         },
         {
-          capture: true
+          capture: true,
         }
       );
       function addPanel(panel) {
@@ -1990,10 +2032,12 @@ defaultConfig: {
           extraDistance: 2,
           moveCallBack(moveElement, left, top2) {
             setLocalPositionStorage(left, top2);
-          }
+          },
         });
       }
-      var beginTime = (performance || Date).now(), prevTime = beginTime, frames = 0;
+      var beginTime = (performance || Date).now(),
+        prevTime = beginTime,
+        frames = 0;
       var fpsPanel = addPanel(new Stats.Panel("FPS", "#0ff", "#002"));
       var msPanel = addPanel(new Stats.Panel("MS", "#0f0", "#020"));
       if (self.performance && self.performance.memory) {
@@ -2006,15 +2050,15 @@ defaultConfig: {
         dom: container,
         addPanel,
         showPanel,
-        begin: function() {
+        begin: function () {
           beginTime = (performance || Date).now();
         },
-        end: function() {
+        end: function () {
           frames++;
           var time = (performance || Date).now();
           msPanel.update(time - beginTime, 200);
           if (time >= prevTime + 1e3) {
-            fpsPanel.update(frames * 1e3 / (time - prevTime), 100);
+            fpsPanel.update((frames * 1e3) / (time - prevTime), 100);
             prevTime = time;
             frames = 0;
             if (memPanel) {
@@ -2024,17 +2068,26 @@ defaultConfig: {
           }
           return time;
         },
-        update: function() {
+        update: function () {
           beginTime = this.end();
         },
-domElement: container,
-        setMode: showPanel
+        domElement: container,
+        setMode: showPanel,
       };
     };
-    Stats.Panel = function(name, fg, bg) {
-      var min = Infinity, max = 0, round = Math.round;
+    Stats.Panel = function (name, fg, bg) {
+      var min = Infinity,
+        max = 0,
+        round = Math.round;
       var PR = round(window.devicePixelRatio || 1);
-      var WIDTH = 80 * PR, HEIGHT = 48 * PR, TEXT_X = 3 * PR, TEXT_Y = 2 * PR, GRAPH_X = 3 * PR, GRAPH_Y = 15 * PR, GRAPH_WIDTH = 74 * PR, GRAPH_HEIGHT = 30 * PR;
+      var WIDTH = 80 * PR,
+        HEIGHT = 48 * PR,
+        TEXT_X = 3 * PR,
+        TEXT_Y = 2 * PR,
+        GRAPH_X = 3 * PR,
+        GRAPH_Y = 15 * PR,
+        GRAPH_WIDTH = 74 * PR,
+        GRAPH_HEIGHT = 30 * PR;
       var canvas = document.createElement("canvas");
       canvas.width = WIDTH;
       canvas.height = HEIGHT;
@@ -2052,7 +2105,7 @@ domElement: container,
       context.fillRect(GRAPH_X, GRAPH_Y, GRAPH_WIDTH, GRAPH_HEIGHT);
       return {
         dom: canvas,
-        update: function(value, maxValue) {
+        update: function (value, maxValue) {
           min = Math.min(min, value);
           max = Math.max(max, value);
           context.fillStyle = bg;
@@ -2075,7 +2128,7 @@ domElement: container,
           context.fillStyle = bg;
           context.globalAlpha = 0.9;
           context.fillRect(GRAPH_X + GRAPH_WIDTH - PR, GRAPH_Y, PR, round((1 - value / maxValue) * GRAPH_HEIGHT));
-        }
+        },
       };
     };
     class VConsoleStatsPlugin {
@@ -2099,8 +2152,7 @@ domElement: container,
           document.querySelectorAll(".vc-stats-buttons").forEach((statusButton) => {
             statusButton.addEventListener("click", (event) => {
               const currentType = event.target.dataset.type;
-              if (currentType.toString() === "2" &&
-!(self.performance && self.performance.memory)) {
+              if (currentType.toString() === "2" && !(self.performance && self.performance.memory)) {
                 console.error("浏览器不支持window.performance或者window.performance.memory");
                 return;
               }
@@ -2109,8 +2161,7 @@ domElement: container,
           });
         });
         vConsoleStats.on("renderTab", (callback) => {
-          const statsHTML = (
-`
+          const statsHTML = `
                 <div class="vc-stats-buttons">
                     <div class="vc-button-container">
                         <button class="vc-stats-button" data-type="0">show FPS</button>
@@ -2132,20 +2183,19 @@ domElement: container,
                         <span>Chrome启用方式: --enable-precise-memory-info</span>
                         </div>
                     </div>
-                </div>`
-          );
+                </div>`;
           callback(statsHTML);
         });
         vConsoleStats.on("addTool", (callback) => {
           const buttons = [
             {
               name: "Show Stats",
-              onClick: this.show
+              onClick: this.show,
             },
             {
               name: "Close Stats",
-              onClick: this.close
-            }
+              onClick: this.close,
+            },
           ];
           callback(buttons);
         });
@@ -2158,8 +2208,7 @@ domElement: container,
         }
         const cssNode = document.createElement("style");
         cssNode.setAttribute("type", "text/css");
-        cssNode.innerHTML =
-`
+        cssNode.innerHTML = `
             .vc-stats-button{
                 margin: 10px 10px;
                 background-color: #fbf9fe;
@@ -2235,21 +2284,19 @@ domElement: container,
           console.log("[vConsole-exportlog-plugin] -- load");
         });
         vConsoleExportLogs.on("renderTab", (callback) => {
-          const html = (
-`<div class="vconsole-exportlog"></div>`
-          );
+          const html = `<div class="vconsole-exportlog"></div>`;
           callback(html);
         });
         vConsoleExportLogs.on("addTool", (callback) => {
           const buttons = [
             {
               name: "exportLogs",
-              onClick: this.export
+              onClick: this.export,
             },
             {
               name: "copyLogs",
-              onClick: this.copyText
-            }
+              onClick: this.copyText,
+            },
           ];
           callback(buttons);
         });
@@ -2278,7 +2325,7 @@ domElement: container,
       };
       export = () => {
         let logText = this.getAllLogContent();
-        this.funDownload(logText, `${( new Date()).toLocaleDateString() + " " + ( new Date()).toLocaleTimeString()}.log`);
+        this.funDownload(logText, `${new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString()}.log`);
       };
       copyText = () => {
         let logText = this.getAllLogContent();
@@ -2308,7 +2355,7 @@ domElement: container,
       initPanelList.push("storage");
     }
     if (Panel.getValue(GlobalSettingConfig.vConsole_theme.key) === "auto") {
-      if (utils.isThemeDark()) ;
+      if (utils.isThemeDark());
     } else {
       Panel.getValue(GlobalSettingConfig.vConsole_theme.key);
     }
@@ -2340,11 +2387,11 @@ domElement: container,
         maxNetworkNumber: Panel.getValue(
           GlobalSettingConfig.vconsole_maxNetworkNumber.key,
           GlobalSettingConfig.vconsole_maxNetworkNumber.defaultValue
-        )
+        ),
       },
       storage: {
-        defaultStorages
-      }
+        defaultStorages,
+      },
     });
     DebugToolConfig.vConsole.version = vConsole2.version;
     unsafeWin.vConsole = vConsole2;
@@ -2409,50 +2456,43 @@ domElement: container,
       return;
     }
     let $pageSpy = new __pageSpy__({
-
-
-
-
-api,
+      api,
       clientOrigin,
-project: Panel.getValue(GlobalSettingConfig.pagespy_project.key, GlobalSettingConfig.pagespy_project.defaultValue),
+      project: Panel.getValue(
+        GlobalSettingConfig.pagespy_project.key,
+        GlobalSettingConfig.pagespy_project.defaultValue
+      ),
 
-title: Panel.getValue(GlobalSettingConfig.pagespy_title.key, GlobalSettingConfig.pagespy_title.defaultValue),
+      title: Panel.getValue(GlobalSettingConfig.pagespy_title.key, GlobalSettingConfig.pagespy_title.defaultValue),
 
-autoRender: Panel.getValue(
+      autoRender: Panel.getValue(
         GlobalSettingConfig.pagespy_autoRender.key,
         GlobalSettingConfig.pagespy_autoRender.defaultValue
       ),
 
-
-
-
-
-
-
-enableSSL: Panel.getValue(
+      enableSSL: Panel.getValue(
         GlobalSettingConfig.pagespy_enableSSL.key,
         GlobalSettingConfig.pagespy_enableSSL.defaultValue
       ),
 
+      offline: Panel.getValue(
+        GlobalSettingConfig.pagespy_offline.key,
+        GlobalSettingConfig.pagespy_offline.defaultValue
+      ),
 
-
-offline: Panel.getValue(GlobalSettingConfig.pagespy_offline.key, GlobalSettingConfig.pagespy_offline.defaultValue),
-
-
-serializeData: Panel.getValue(
+      serializeData: Panel.getValue(
         GlobalSettingConfig.pagespy_serializeData.key,
         GlobalSettingConfig.pagespy_serializeData.defaultValue
       ),
-useSecret: Panel.getValue(
+      useSecret: Panel.getValue(
         GlobalSettingConfig.pagespy_useSecret.key,
         GlobalSettingConfig.pagespy_useSecret.defaultValue
       ),
 
-messageCapacity: Panel.getValue(
+      messageCapacity: Panel.getValue(
         GlobalSettingConfig.pagespy_messageCapacity.key,
         GlobalSettingConfig.pagespy_messageCapacity.defaultValue
-      )
+      ),
     });
     unsafeWin.$pageSpy = $pageSpy;
     console.log($pageSpy);
@@ -2467,7 +2507,7 @@ messageCapacity: Panel.getValue(
       winHeight: parseInt(window.innerHeight.toString()),
       get winHalfHeight() {
         return GlobalSettingConfig.chii_embedded_height.defaultValue;
-      }
+      },
     },
     init() {
       let height = this.$data.winHalfHeight;
@@ -2478,14 +2518,14 @@ messageCapacity: Panel.getValue(
       }
       this.setLocalHeight(height);
     },
-getLocalHeight() {
+    getLocalHeight() {
       let value = Number(globalThis.localStorage.getItem(this.$data.key));
       if (isNaN(value)) {
         return null;
       }
       return value;
     },
-setLocalHeight(value) {
+    setLocalHeight(value) {
       if (typeof value !== "number") {
         console.log(value);
         throw new TypeError(`${this.$data.key}的值必须是number`);
@@ -2500,26 +2540,29 @@ setLocalHeight(value) {
     isExistGMLocalHeight() {
       return typeof this.getGMLocalHeight() === "number";
     },
-getGMLocalHeight() {
+    getGMLocalHeight() {
       return Panel.getValue(this.$data.key);
     },
-setGMLocalHeight(value) {
+    setGMLocalHeight(value) {
       if (typeof value !== "number") {
         console.log(value);
         throw new TypeError(`${this.$data.key}的值必须是number`);
       }
       Panel.setValue(this.$data.key, value);
-    }
+    },
   };
   const Chii = () => {
     let debugUrl = Panel.getValue(
       GlobalSettingConfig.chii_debug_url.key,
       GlobalSettingConfig.chii_debug_url.defaultValue
     );
-    if (window.location.href.startsWith(debugUrl) && Panel.getValue(
-      GlobalSettingConfig.chii_check_script_load.key,
-      GlobalSettingConfig.chii_disable_run_in_debug_url.defaultValue
-    )) {
+    if (
+      window.location.href.startsWith(debugUrl) &&
+      Panel.getValue(
+        GlobalSettingConfig.chii_check_script_load.key,
+        GlobalSettingConfig.chii_disable_run_in_debug_url.defaultValue
+      )
+    ) {
       console.log("禁止在调试端运行 ==> href包含debugUrl");
       return;
     }
@@ -2527,7 +2570,7 @@ setGMLocalHeight(value) {
       ChiiPluginHeight.init();
     });
     if (Panel.getValue(GlobalSettingConfig.chii_check_script_load.key)) {
-      let checkChiiScriptLoad = function(event) {
+      let checkChiiScriptLoad = function (event) {
         if (event.target === scriptNode) {
           globalThis.alert(
             `调试工具【Chii】脚本加载失败
@@ -2535,12 +2578,12 @@ setGMLocalHeight(value) {
       可能原因2：目标js无效`
           );
           unsafeWin.removeEventListener("error", checkChiiScriptLoad, {
-            capture: true
+            capture: true,
           });
         }
       };
       unsafeWin.addEventListener("error", checkChiiScriptLoad, {
-        capture: true
+        capture: true,
       });
     }
     let scriptJsUrl = Panel.getValue(
@@ -2561,14 +2604,14 @@ setGMLocalHeight(value) {
   };
   const DebugTool = {
     $data: {
-isLoadDebugTool: false,
-loadDebugToolName: void 0,
-iframeUrlList: []
+      isLoadDebugTool: false,
+      loadDebugToolName: void 0,
+      iframeUrlList: [],
     },
     $ele: {
-hideDebugToolCSSNode: void 0
+      hideDebugToolCSSNode: void 0,
     },
-handleToolWithIframe() {
+    handleToolWithIframe() {
       if (Panel.isTopWindow()) {
         return true;
       }
@@ -2591,11 +2634,11 @@ handleToolWithIframe() {
         },
         callback() {
           copy(window.location.href, "text");
-        }
+        },
       });
       return true;
     },
-execDebugTool() {
+    execDebugTool() {
       let debugTool = Panel.getValue(GlobalSettingConfig.debugTool.key);
       debugTool = debugTool.toString().toLowerCase();
       console.log(`网页调试：当前使用的调试工具【${debugTool}】`);
@@ -2619,7 +2662,7 @@ execDebugTool() {
         console.error("当前未配置该调试工具的运行");
       }
     },
-registerDebugToolMenuControls() {
+    registerDebugToolMenuControls() {
       if (!Panel.isTopWindow()) {
         console.warn("不在iframe内重复添加菜单按钮");
         return;
@@ -2634,7 +2677,7 @@ registerDebugToolMenuControls() {
         },
         callback: (data) => {
           changeMenu();
-        }
+        },
       };
       const changeMenu = (data) => {
         if (DebugTool.$data.isLoadDebugTool) {
@@ -2655,17 +2698,16 @@ registerDebugToolMenuControls() {
       };
       GM_Menu.add(menuData);
     },
-isInjectDebugToolHideCSS() {
+    isInjectDebugToolHideCSS() {
       return Boolean(
         this.$ele.hideDebugToolCSSNode && document.documentElement.contains(this.$ele.hideDebugToolCSSNode)
       );
     },
-createDebugToolHideCSS() {
+    createDebugToolHideCSS() {
       let $css = document.createElement("style");
       $css.setAttribute("type", "text/css");
       $css.setAttribute("data-from", "hide-debug-tool");
-      $css.innerHTML =
-`
+      $css.innerHTML = `
 		/* Eruda的按钮 */
         #eruda{
             display: none !important;
@@ -2686,7 +2728,7 @@ createDebugToolHideCSS() {
         `;
       return $css;
     },
-hideCurrentDebugTool() {
+    hideCurrentDebugTool() {
       if (this.$ele.hideDebugToolCSSNode == null) {
         console.log("未创建隐藏【调试工具】的style元素 => 创建元素");
         this.$ele.hideDebugToolCSSNode = this.createDebugToolHideCSS();
@@ -2696,7 +2738,7 @@ hideCurrentDebugTool() {
         document.documentElement.appendChild(this.$ele.hideDebugToolCSSNode);
       }
     },
-showCurrentDebugTool() {
+    showCurrentDebugTool() {
       if (this.$ele.hideDebugToolCSSNode) {
         console.log("页面存在隐藏【调试工具】的style元素 => 移除元素");
         document.documentElement.removeChild(this.$ele.hideDebugToolCSSNode);
@@ -2706,7 +2748,7 @@ showCurrentDebugTool() {
         console.log("尚未运行【调试工具】 => 运行调试工具");
         this.execDebugTool();
       }
-    }
+    },
   };
   const WebSiteDebug = {
     init() {
@@ -2717,7 +2759,7 @@ showCurrentDebugTool() {
           DebugTool.registerDebugToolMenuControls();
         }
       }
-    }
+    },
   };
   const PanelComponents = {
     $data: {
@@ -2727,21 +2769,21 @@ showCurrentDebugTool() {
           this.__storeApiFn = new Utils.Dictionary();
         }
         return this.__storeApiFn;
-      }
+      },
     },
-getStorageApi(type) {
+    getStorageApi(type) {
       if (!this.hasStorageApi(type)) {
         return;
       }
       return this.$data.storeApiValue.get(type);
     },
-hasStorageApi(type) {
+    hasStorageApi(type) {
       return this.$data.storeApiValue.has(type);
     },
-setStorageApi(type, storageApiValue) {
+    setStorageApi(type, storageApiValue) {
       this.$data.storeApiValue.set(type, storageApiValue);
     },
-initComponentsStorageApi(type, config, storageApiValue) {
+    initComponentsStorageApi(type, config, storageApiValue) {
       let propsStorageApi;
       if (this.hasStorageApi(type)) {
         propsStorageApi = this.getStorageApi(type);
@@ -2750,11 +2792,11 @@ initComponentsStorageApi(type, config, storageApiValue) {
       }
       this.setComponentsStorageApiProperty(config, propsStorageApi);
     },
-setComponentsStorageApiProperty(config, storageApiValue) {
+    setComponentsStorageApiProperty(config, storageApiValue) {
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
-    }
+    },
   };
-  const UISelect = function(text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
+  const UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
     let selectData = [];
     if (typeof data === "function") {
       selectData = data();
@@ -2777,7 +2819,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
         let storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      data: selectData
+      data: selectData,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -2787,11 +2829,20 @@ setComponentsStorageApiProperty(config, storageApiValue) {
       },
       set(key2, value) {
         Panel.setValue(key2, value);
-      }
+      },
     });
     return result;
   };
-  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack, disabled, valueChangeCallBack) {
+  const UISwitch = function (
+    text,
+    key,
+    defaultValue,
+    clickCallBack,
+    description,
+    afterAddToUListCallBack,
+    disabled,
+    valueChangeCallBack
+  ) {
     let result = {
       text,
       type: "switch",
@@ -2816,7 +2867,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
         let storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      afterAddToUListCallBack
+      afterAddToUListCallBack,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -2826,7 +2877,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
       },
       set(key2, value) {
         Panel.setValue(key2, value);
-      }
+      },
     });
     return result;
   };
@@ -2846,20 +2897,20 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             [
               {
                 value: "eruda",
-                text: "Eruda"
+                text: "Eruda",
               },
               {
                 value: "vconsole",
-                text: "VConsole"
+                text: "VConsole",
               },
               {
                 value: "pagespy",
-                text: "PageSpy"
+                text: "PageSpy",
               },
               {
                 value: "chii",
-                text: "Chii"
-              }
+                text: "Chii",
+              },
             ],
             void 0,
             void 0
@@ -2877,8 +2928,8 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             GlobalSettingConfig.autoLoadDebugTool.defaultValue,
             void 0,
             "关闭后将会在脚本菜单注册按钮，有3种状态【加载并显示调试工具】、【隐藏调试工具】、【显示调试工具】"
-          )
-        ]
+          ),
+        ],
       },
       {
         type: "forms",
@@ -2890,12 +2941,23 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             false,
             void 0,
             "如果开启，设置面板的宽高将使用outerWidth和outerHeight获取，如果关闭，则使用innerWidth和innerHeight获取"
-          )
-        ]
-      }
-    ]
+          ),
+        ],
+      },
+    ],
   };
-  const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack, disable) {
+  const UIButton = function (
+    text,
+    description,
+    buttonText,
+    buttonIcon,
+    buttonIsRightIcon,
+    buttonIconIsLoading,
+    buttonType,
+    clickCallBack,
+    afterAddToUListCallBack,
+    disable
+  ) {
     let result = {
       text,
       type: "button",
@@ -2912,7 +2974,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
           clickCallBack(event);
         }
       },
-      afterAddToUListCallBack
+      afterAddToUListCallBack,
     };
     Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
       result.disable = Boolean(typeof disable === "function" ? disable() : disable);
@@ -2937,14 +2999,12 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             getLiElementCallBack(liElement) {
               let $left = document.createElement("div");
               $left.className = "pops-panel-item-left-text";
-              $left.innerHTML =
-`
+              $left.innerHTML = `
                             <p class="pops-panel-item-left-main-text">最新版本</p>
                         `;
               let $right = document.createElement("div");
               $right.className = "pops-panel-item-right-text";
-              $right.innerHTML =
-`
+              $right.innerHTML = `
                         <a href="${DebugToolConfig.eruda.homeUrl}" target="_blank">
                             <img src="https://img.shields.io/npm/v/eruda/latest.svg?label=eruda" alt="eruda">
                         </a>
@@ -2952,7 +3012,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
               liElement.appendChild($left);
               liElement.appendChild($right);
               return liElement;
-            }
+            },
           },
           UISwitch(
             "自动打开面板",
@@ -2971,136 +3031,136 @@ setComponentsStorageApiProperty(config, storageApiValue) {
                 value: "console",
                 disable() {
                   return !Panel.getValue(GlobalSettingConfig.eruda_panel_console.key);
-                }
+                },
               },
               {
                 text: "Elements",
                 value: "elements",
                 disable() {
                   return !Panel.getValue(GlobalSettingConfig.eruda_panel_elements.key);
-                }
+                },
               },
               {
                 text: "Network",
                 value: "network",
                 disable() {
                   return !Panel.getValue(GlobalSettingConfig.eruda_panel_network.key);
-                }
+                },
               },
               {
                 text: "Resources",
                 value: "resources",
                 disable() {
                   return !Panel.getValue(GlobalSettingConfig.eruda_panel_resources.key);
-                }
+                },
               },
               {
                 text: "Sources",
                 value: "sources",
                 disable() {
                   return !Panel.getValue(GlobalSettingConfig.eruda_panel_sources.key);
-                }
+                },
               },
               {
                 text: "Info",
                 value: "info",
                 disable() {
                   return !Panel.getValue(GlobalSettingConfig.eruda_panel_info.key);
-                }
+                },
               },
               {
                 text: "Snippets",
                 value: "snippets",
                 disable() {
                   return !Panel.getValue(GlobalSettingConfig.eruda_panel_snippets.key);
-                }
+                },
               },
               {
                 text: "Monitor",
                 value: "monitor",
                 disable() {
                   return !Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaMonitor.key);
-                }
+                },
               },
               {
                 text: "Features",
                 value: "features",
                 disable() {
                   return !Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaFeatures.key);
-                }
+                },
               },
               {
                 text: "Timing",
                 value: "timing",
                 disable() {
                   return !Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaTiming.key);
-                }
+                },
               },
               {
                 text: "Code",
                 value: "code",
                 disable() {
                   return !Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaCode.key);
-                }
+                },
               },
               {
                 text: "Benchmark",
                 value: "benchmark",
                 disable() {
                   return !Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaBenchmark.key);
-                }
+                },
               },
               {
                 text: "Geolocation",
                 value: "geolocation",
                 disable() {
                   return !Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaGeolocation.key);
-                }
+                },
               },
               {
                 text: "Orientation",
                 value: "orientation",
                 disable() {
                   return !Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaOrientation.key);
-                }
+                },
               },
               {
                 text: "Touches",
                 value: "touches",
                 disable() {
                   return !Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaTouches.key);
-                }
+                },
               },
               {
                 text: "Outline",
                 value: "outline",
                 disable() {
                   return !Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.key);
-                }
+                },
               },
               {
                 text: "Pixel",
                 value: "pixel",
                 disable() {
                   return !Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaPixel.key);
-                }
+                },
               },
               {
                 text: "Vue",
                 value: "vue",
                 disable() {
                   return !Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaVue.key);
-                }
+                },
               },
               {
                 text: "Settings",
-                value: "settings"
-              }
+                value: "settings",
+              },
             ],
             void 0,
             "开启【自动打开面板】才会生效"
-          )
-        ]
+          ),
+        ],
       },
       {
         text: "面板",
@@ -3154,15 +3214,15 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             GlobalSettingConfig.eruda_panel_snippets.defaultValue,
             void 0,
             "拓展"
-          )
-        ]
+          ),
+        ],
       },
       {
         text: "插件",
         type: "forms",
         forms: [
           UISwitch(
-`
+            `
                     <a class="plugin-anchor" href="https://github.com/liriliri/eruda-monitor" target="_blank">
                         <img src="https://img.shields.io/npm/v/eruda-monitor/latest.svg?label=">
                     </a>
@@ -3178,7 +3238,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
                     `
           ),
           UISwitch(
-`
+            `
                     <a class="plugin-anchor" href="https://github.com/liriliri/eruda-features" target="_blank">
                         <img src="https://img.shields.io/npm/v/eruda-features/latest.svg?label=">
                     </a>
@@ -3194,7 +3254,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
                     `
           ),
           UISwitch(
-`
+            `
                     <a class="plugin-anchor" href="https://github.com/liriliri/eruda-timing" target="_blank">
                         <img src="https://img.shields.io/npm/v/eruda-timing/latest.svg?label=">
                     </a>
@@ -3210,7 +3270,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
                     `
           ),
           UISwitch(
-`
+            `
                     <a class="plugin-anchor" href="https://github.com/liriliri/eruda-code" target="_blank">
                         <img src="https://img.shields.io/npm/v/eruda-code/latest.svg?label=">
                     </a>
@@ -3226,7 +3286,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
                     `
           ),
           UISwitch(
-`
+            `
                     <a class="plugin-anchor" href="https://github.com/liriliri/eruda-benchmark" target="_blank">
                         <img src="https://img.shields.io/npm/v/eruda-benchmark/latest.svg?label=">
                     </a>
@@ -3249,7 +3309,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             "测试地理位置接口"
           ),
           UISwitch(
-`
+            `
                     <a class="plugin-anchor" href="https://github.com/liriliri/eruda-orientation" target="_blank">
                         <img src="https://img.shields.io/npm/v/eruda-orientation/latest.svg?label=">
                     </a>
@@ -3265,7 +3325,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
                     `
           ),
           UISwitch(
-`
+            `
                     <a class="plugin-anchor" href="https://github.com/liriliri/eruda-vue" target="_blank">
                         <img src="https://img.shields.io/npm/v/eruda-vue/latest.svg?label=">
                     </a>
@@ -3281,7 +3341,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
                     `
           ),
           UISwitch(
-`
+            `
                     <a class="plugin-anchor" href="https://github.com/liriliri/eruda-touches" target="_blank">
                         <img src="https://img.shields.io/npm/v/eruda-touches/latest.svg?label=">
                     </a>
@@ -3297,7 +3357,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
                     `
           ),
           UISwitch(
-`
+            `
                     <a class="plugin-anchor" href="https://github.com/pomelo-chuan/eruda-outline-plugin" target="_blank">
                         <img src="https://img.shields.io/npm/v/eruda-outline-plugin/latest.svg?label=">
                     </a>
@@ -3313,7 +3373,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
 					`
           ),
           UISwitch(
-`
+            `
                     <a class="plugin-anchor" href="https://github.com/Faithree/eruda-pixel" target="_blank">
                         <img src="https://img.shields.io/npm/v/eruda-pixel/latest.svg?label=">
                     </a>
@@ -3327,12 +3387,23 @@ setComponentsStorageApiProperty(config, storageApiValue) {
 						<br>
 						高精度的UI恢复辅助工具
                     `
-          )
-        ]
-      }
-    ]
+          ),
+        ],
+      },
+    ],
   };
-  const UIInput = function(text, key, defaultValue, description, changeCallback, placeholder = "", isNumber, isPassword, afterAddToUListCallBack, valueChangeCallback) {
+  const UIInput = function (
+    text,
+    key,
+    defaultValue,
+    description,
+    changeCallback,
+    placeholder = "",
+    isNumber,
+    isPassword,
+    afterAddToUListCallBack,
+    valueChangeCallback
+  ) {
     let result = {
       text,
       type: "input",
@@ -3350,7 +3421,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
         let storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      placeholder
+      placeholder,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -3360,7 +3431,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
       },
       set(key2, value) {
         Panel.setValue(key2, value);
-      }
+      },
     });
     return result;
   };
@@ -3382,14 +3453,12 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             getLiElementCallBack(liElement) {
               let $left = document.createElement("div");
               $left.className = "pops-panel-item-left-text";
-              $left.innerHTML =
-`
+              $left.innerHTML = `
                             <p class="pops-panel-item-left-main-text">最新版本</p>
                         `;
               let $right = document.createElement("div");
               $right.className = "pops-panel-item-right-text";
-              $right.innerHTML =
-`
+              $right.innerHTML = `
                         <a href="${DebugToolConfig.vConsole.homeUrl}" target="_blank">
                             <img src="https://img.shields.io/npm/v/vconsole/latest.svg?label=vConsole" alt="vConsole">
                         </a>
@@ -3397,7 +3466,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
               liElement.appendChild($left);
               liElement.appendChild($right);
               return liElement;
-            }
+            },
           },
           UISwitch(
             "自动打开面板",
@@ -3413,62 +3482,62 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             [
               {
                 text: "Log",
-                value: "default"
+                value: "default",
               },
               {
                 text: "System",
                 value: "system",
                 disable() {
                   return !Panel.getValue(GlobalSettingConfig.vConsole_panel_system.key);
-                }
+                },
               },
               {
                 text: "Network",
                 value: "network",
                 disable() {
                   return !Panel.getValue(GlobalSettingConfig.vConsole_panel_network.key);
-                }
+                },
               },
               {
                 text: "Element",
                 value: "element",
                 disable() {
                   return !Panel.getValue(GlobalSettingConfig.vConsole_panel_element.key);
-                }
+                },
               },
               {
                 text: "Storage",
                 value: "storage",
                 disable() {
                   return !Panel.getValue(GlobalSettingConfig.vConsole_panel_storage.key);
-                }
+                },
               },
               {
                 text: "Stats",
                 value: "stats",
                 disable() {
                   return !Panel.getValue(GlobalSettingConfig.vConsole_plugin_Resource_vConsole_Stats.key);
-                }
+                },
               },
               {
                 text: "exportLog",
                 value: "exportlog",
                 disable() {
                   return !Panel.getValue(GlobalSettingConfig.vConsole_plugin_Resource_vConsole_ExportLog.key);
-                }
+                },
               },
               {
                 text: "Vue",
                 value: "vue",
                 disable() {
                   return !Panel.getValue(GlobalSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.key);
-                }
-              }
+                },
+              },
             ],
             void 0,
             "开启【自动打开面板】才会生效"
-          )
-        ]
+          ),
+        ],
       },
       {
         text: "面板",
@@ -3501,8 +3570,8 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             GlobalSettingConfig.vConsole_panel_storage.defaultValue,
             void 0,
             "资源"
-          )
-        ]
+          ),
+        ],
       },
       {
         text: "配置",
@@ -3515,16 +3584,16 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             [
               {
                 value: "auto",
-                text: "自动"
+                text: "自动",
               },
               {
                 value: "light",
-                text: "浅色主题"
+                text: "浅色主题",
               },
               {
                 value: "dark",
-                text: "深色主题"
-              }
+                text: "深色主题",
+              },
             ],
             void 0,
             void 0
@@ -3556,8 +3625,8 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             void 0,
             void 0,
             true
-          )
-        ]
+          ),
+        ],
       },
       {
         text: "Storage配置",
@@ -3583,8 +3652,8 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             GlobalSettingConfig.vConsole_storage_defaultStorages_sessionStorage.defaultValue,
             void 0,
             "显示SessionStorage"
-          )
-        ]
+          ),
+        ],
       },
       {
         text: "插件",
@@ -3605,7 +3674,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             "使用该插件可以复制或下载console中打印的log"
           ),
           UISwitch(
-`
+            `
                         <a class="plugin-anchor" href="https://github.com/Zippowxk/vue-vconsole-devtools" target="_blank">
                             <img src="https://img.shields.io/npm/v/vue-vconsole-devtools/latest.svg?label=">
                         </a>
@@ -3619,10 +3688,10 @@ setComponentsStorageApiProperty(config, storageApiValue) {
                         <br>
                         Vue-vConsole-devtools 是一款vConsole插件，把Vue.js官方调试工具vue-devtools移植到移动端，可以直接在移动端查看调试Vue.js应用
                     `
-          )
-        ]
-      }
-    ]
+          ),
+        ],
+      },
+    ],
   };
   const PanelUI_pagespy = {
     id: "debug-panel-config-pagespy",
@@ -3645,10 +3714,10 @@ setComponentsStorageApiProperty(config, storageApiValue) {
               __pops.confirm({
                 title: {
                   text: "提示",
-                  position: "center"
+                  position: "center",
                 },
                 content: {
-                  text: `下面默认配置的${DebugToolConfig.pageSpy.defaultConfig.api}是仅供测试使用的，其他人也可以看到你的调试信息，包括Cookie等信息，如果想用，请自己搭建一个调试端`
+                  text: `下面默认配置的${DebugToolConfig.pageSpy.defaultConfig.api}是仅供测试使用的，其他人也可以看到你的调试信息，包括Cookie等信息，如果想用，请自己搭建一个调试端`,
                 },
                 btn: {
                   reverse: true,
@@ -3660,14 +3729,14 @@ setComponentsStorageApiProperty(config, storageApiValue) {
                         "https://github.com/HuolalaTech/page-spy-web/wiki/%F0%9F%90%9E-%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E8%A7%A3%E7%AD%94#user-content-testjikejishucom-%E6%98%AF%E5%AE%98%E6%96%B9%E6%8F%90%E4%BE%9B%E7%9A%84%E5%9F%9F%E5%90%8D%E5%90%97%E4%B8%80%E7%9B%B4%E5%8F%AF%E4%BB%A5%E7%94%A8%E5%90%97",
                         "_blank"
                       );
-                    }
-                  }
+                    },
+                  },
                 },
                 mask: {
-                  enable: true
+                  enable: true,
                 },
                 width: PanelUISize.info.width,
-                height: PanelUISize.info.height
+                height: PanelUISize.info.height,
               });
             },
             void 0
@@ -3681,14 +3750,12 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             getLiElementCallBack(liElement) {
               let $left = document.createElement("div");
               $left.className = "pops-panel-item-left-text";
-              $left.innerHTML =
-`
+              $left.innerHTML = `
                             <p class="pops-panel-item-left-main-text">最新版本</p>
                         `;
               let $right = document.createElement("div");
               $right.className = "pops-panel-item-right-text";
-              $right.innerHTML =
-`
+              $right.innerHTML = `
                         <a href="${DebugToolConfig.pageSpy.homeUrl}" target="_blank">
                             <img src="https://img.shields.io/npm/v/@huolala-tech/page-spy-browser?label=pagespy" alt="page-spy-browser">
                         </a>
@@ -3696,7 +3763,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
               liElement.appendChild($left);
               liElement.appendChild($right);
               return liElement;
-            }
+            },
           },
           UISwitch(
             "禁止在调试端运行",
@@ -3704,8 +3771,8 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             GlobalSettingConfig.pagespy_disable_run_in_debug_client.defaultValue,
             void 0,
             "调试端是下面配置的api/clientOrigin地址"
-          )
-        ]
+          ),
+        ],
       },
       {
         text: "配置",
@@ -3757,16 +3824,16 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             [
               {
                 value: null,
-                text: "默认(自动分析)"
+                text: "默认(自动分析)",
               },
               {
                 value: true,
-                text: "开启"
+                text: "开启",
               },
               {
                 value: false,
-                text: "关闭"
-              }
+                text: "关闭",
+              },
             ],
             void 0,
             "是否https"
@@ -3799,12 +3866,23 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             "调试端进入房间后可以看到之前的数据量的大小",
             void 0,
             `指定 SDK 在本地最多缓存多少条数据记录`
-          )
-        ]
-      }
-    ]
+          ),
+        ],
+      },
+    ],
   };
-  const UISlider = function(text, key, defaultValue, min, max, changeCallback, getToolTipContent, description, step, valueChangeCallBack) {
+  const UISlider = function (
+    text,
+    key,
+    defaultValue,
+    min,
+    max,
+    changeCallback,
+    getToolTipContent,
+    description,
+    step,
+    valueChangeCallBack
+  ) {
     let result = {
       text,
       type: "slider",
@@ -3834,7 +3912,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
       },
       min,
       max,
-      step
+      step,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -3844,7 +3922,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
       },
       set(key2, value) {
         Panel.setValue(key2, value);
-      }
+      },
     });
     return result;
   };
@@ -3878,8 +3956,8 @@ setComponentsStorageApiProperty(config, storageApiValue) {
                 )
               );
             }
-          )
-        ]
+          ),
+        ],
       },
       {
         text: "配置",
@@ -3931,8 +4009,8 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             "请输入目标js文件",
             void 0,
             "用于注入页面来进行调试"
-          )
-        ]
+          ),
+        ],
       },
       {
         text: "本页展示的配置",
@@ -3958,15 +4036,20 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             (value) => value + "px",
             "可覆盖当前页面Chii面板的高度",
             1
-          )
-        ]
-      }
-    ]
+          ),
+        ],
+      },
+    ],
   };
-  PanelContent.addContentConfig([PanelUI_globalSetting, PanelUI_eruda, PanelUI_vConsole, PanelUI_pagespy, PanelUI_chii]);
+  PanelContent.addContentConfig([
+    PanelUI_globalSetting,
+    PanelUI_eruda,
+    PanelUI_vConsole,
+    PanelUI_pagespy,
+    PanelUI_chii,
+  ]);
   Panel.$data.panelConfig = {
-    style: (
-`
+    style: `
 				aside.pops-panel-aside{
 					width: 20%;
 				}
@@ -3975,11 +4058,9 @@ setComponentsStorageApiProperty(config, storageApiValue) {
 					display: inline-flex;
     				vertical-align: text-bottom;
 				}
-			`
-    )
+			`,
   };
   Panel.init();
   WebSiteDebug.init();
   PanelSizeUtil.followBrowserSize = Boolean(Panel.getValue("panel-ui-size-follow-browser-window", false));
-
 })(Qmsg, DOMUtils, Utils, pops);

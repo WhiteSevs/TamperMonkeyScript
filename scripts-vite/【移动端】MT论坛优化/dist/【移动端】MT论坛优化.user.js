@@ -38,21 +38,23 @@
 // ==/UserScript==
 
 (function (Qmsg, DOMUtils, Utils, pops, hljs, Viewer) {
-  'use strict';
+  "use strict";
 
-  var _GM = (() => typeof GM != "undefined" ? GM : void 0)();
-  var _GM_deleteValue = (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
-  var _GM_getResourceText = (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
-  var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
-  var _GM_info = (() => typeof GM_info != "undefined" ? GM_info : void 0)();
-  var _GM_registerMenuCommand = (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-  var _GM_setValue = (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
-  var _GM_unregisterMenuCommand = (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-  var _GM_xmlhttpRequest = (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
-  var _unsafeWindow = (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
+  var _GM = (() => (typeof GM != "undefined" ? GM : void 0))();
+  var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
+  var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
+  var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
+  var _GM_info = (() => (typeof GM_info != "undefined" ? GM_info : void 0))();
+  var _GM_registerMenuCommand = (() =>
+    typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
+  var _GM_unregisterMenuCommand = (() =>
+    typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
+  var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
   var _monkeyWindow = (() => window)();
   const CommonUtil = {
-waitRemove(...args) {
+    waitRemove(...args) {
       args.forEach((selector) => {
         if (typeof selector !== "string") {
           return;
@@ -62,7 +64,7 @@ waitRemove(...args) {
         });
       });
     },
-createBlockCSSNode(...args) {
+    createBlockCSSNode(...args) {
       let selectorList = [];
       if (args.length === 0) {
         return;
@@ -79,10 +81,10 @@ createBlockCSSNode(...args) {
       });
       return DOMUtils.createElement("style", {
         type: "text/css",
-        innerHTML: `${selectorList.join(",\n")}{display: none !important;}`
+        innerHTML: `${selectorList.join(",\n")}{display: none !important;}`,
       });
     },
-addBlockCSS(...args) {
+    addBlockCSS(...args) {
       let selectorList = [];
       if (args.length === 0) {
         return;
@@ -99,7 +101,7 @@ addBlockCSS(...args) {
       });
       return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
-setGMResourceCSS(resourceMapData) {
+    setGMResourceCSS(resourceMapData) {
       let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
       if (typeof cssText === "string" && cssText) {
         addStyle(cssText);
@@ -107,7 +109,7 @@ setGMResourceCSS(resourceMapData) {
         CommonUtil.loadStyleLink(resourceMapData.url);
       }
     },
-async loadStyleLink(url) {
+    async loadStyleLink(url) {
       let $link = document.createElement("link");
       $link.rel = "stylesheet";
       $link.type = "text/css";
@@ -116,7 +118,7 @@ async loadStyleLink(url) {
         document.head.appendChild($link);
       });
     },
-async loadScript(url) {
+    async loadScript(url) {
       let $script = document.createElement("script");
       $script.src = url;
       return new Promise((resolve) => {
@@ -126,7 +128,7 @@ async loadScript(url) {
         (document.head || document.documentElement).appendChild($script);
       });
     },
-fixUrl(url) {
+    fixUrl(url) {
       url = url.trim();
       if (url.startsWith("data:")) {
         return url;
@@ -134,7 +136,7 @@ fixUrl(url) {
       if (url.match(/^http(s|):\/\//i)) {
         return url;
       } else if (url.startsWith("//")) {
-        if (url.startsWith("///")) ;
+        if (url.startsWith("///"));
         else {
           url = window.location.protocol + url;
         }
@@ -147,7 +149,7 @@ fixUrl(url) {
         return url;
       }
     },
-fixHttps(url) {
+    fixHttps(url) {
       if (url.startsWith("https://")) {
         return url;
       }
@@ -162,46 +164,51 @@ fixHttps(url) {
         return url;
       }
     },
-lockScroll(...args) {
+    lockScroll(...args) {
       let $hidden = document.createElement("style");
-      $hidden.innerHTML =
-`
+      $hidden.innerHTML = `
 			.pops-overflow-hidden-important {
 				overflow: hidden !important;
 			}
 		`;
-      let $elList = [document.documentElement, document.body].concat(...args || []);
+      let $elList = [document.documentElement, document.body].concat(...(args || []));
       $elList.forEach(($el) => {
         $el.classList.add("pops-overflow-hidden-important");
       });
       (document.head || document.documentElement).appendChild($hidden);
       return {
-recovery() {
+        recovery() {
           $elList.forEach(($el) => {
             $el.classList.remove("pops-overflow-hidden-important");
           });
           $hidden.remove();
-        }
+        },
       };
     },
-async getClipboardText() {
+    async getClipboardText() {
       function readClipboardText(resolve) {
-        navigator.clipboard.readText().then((clipboardText) => {
-          resolve(clipboardText);
-        }).catch((error) => {
-          log.error("读取剪贴板内容失败👉", error);
-          resolve("");
-        });
+        navigator.clipboard
+          .readText()
+          .then((clipboardText) => {
+            resolve(clipboardText);
+          })
+          .catch((error) => {
+            log.error("读取剪贴板内容失败👉", error);
+            resolve("");
+          });
       }
       function requestPermissionsWithClipboard(resolve) {
-        navigator.permissions.query({
-name: "clipboard-read"
-        }).then((permissionStatus) => {
-          readClipboardText(resolve);
-        }).catch((error) => {
-          log.error("申请剪贴板权限失败，尝试直接读取👉", error.message ?? error.name ?? error.stack);
-          readClipboardText(resolve);
-        });
+        navigator.permissions
+          .query({
+            name: "clipboard-read",
+          })
+          .then((permissionStatus) => {
+            readClipboardText(resolve);
+          })
+          .catch((error) => {
+            log.error("申请剪贴板权限失败，尝试直接读取👉", error.message ?? error.name ?? error.stack);
+            readClipboardText(resolve);
+          });
       }
       function checkClipboardApi() {
         if (typeof navigator?.clipboard?.readText !== "function") {
@@ -226,22 +233,42 @@ name: "clipboard-read"
               requestPermissionsWithClipboard(resolve);
             },
             {
-              once: true
+              once: true,
             }
           );
         }
       });
     },
-escapeHtml(unsafe) {
-      return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
+    escapeHtml(unsafe) {
+      return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;")
+        .replace(/©/g, "&copy;")
+        .replace(/®/g, "&reg;")
+        .replace(/™/g, "&trade;")
+        .replace(/→/g, "&rarr;")
+        .replace(/←/g, "&larr;")
+        .replace(/↑/g, "&uarr;")
+        .replace(/↓/g, "&darr;")
+        .replace(/—/g, "&mdash;")
+        .replace(/–/g, "&ndash;")
+        .replace(/…/g, "&hellip;")
+        .replace(/ /g, "&nbsp;")
+        .replace(/\r\n/g, "<br>")
+        .replace(/\r/g, "<br>")
+        .replace(/\n/g, "<br>")
+        .replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
     },
-interval(fn, intervalTime, timeout = 5e3) {
+    interval(fn, intervalTime, timeout = 5e3) {
       let timeId;
       let maxTimeout = timeout - intervalTime;
       let intervalTimeCount = intervalTime;
       let loop = async (isTimeout) => {
         let result = await fn(isTimeout);
-        if (typeof result === "boolean" && !result || isTimeout) {
+        if ((typeof result === "boolean" && !result) || isTimeout) {
           utils.workerClearTimeout(timeId);
           return;
         }
@@ -256,7 +283,7 @@ interval(fn, intervalTime, timeout = 5e3) {
       };
       loop(false);
     },
-findParentNode($el, selector, parentSelector) {
+    findParentNode($el, selector, parentSelector) {
       if (parentSelector) {
         let $parent = DOMUtils.closest($el, parentSelector);
         if ($parent) {
@@ -270,39 +297,39 @@ findParentNode($el, selector, parentSelector) {
         let $parent = DOMUtils.closest($el, selector);
         return $parent;
       }
-    }
+    },
   };
   const GM_RESOURCE_MAPPING = {
     Viewer: {
       keyName: "ViewerCSS",
-      url: "https://fastly.jsdelivr.net/npm/viewerjs@latest/dist/viewer.min.css"
+      url: "https://fastly.jsdelivr.net/npm/viewerjs@latest/dist/viewer.min.css",
     },
     Hljs: {
       keyName: "HljsCSS",
-      url: "https://fastly.jsdelivr.net/npm/highlight.js@latest/styles/github-dark.min.css"
-    }
+      url: "https://fastly.jsdelivr.net/npm/highlight.js@latest/styles/github-dark.min.css",
+    },
   };
   const PanelSettingConfig = {
-qmsg_config_position: {
+    qmsg_config_position: {
       key: "qmsg-config-position",
-      defaultValue: "bottom"
+      defaultValue: "bottom",
     },
-qmsg_config_maxnums: {
+    qmsg_config_maxnums: {
       key: "qmsg-config-maxnums",
-      defaultValue: 3
+      defaultValue: 3,
     },
-qmsg_config_showreverse: {
+    qmsg_config_showreverse: {
       key: "qmsg-config-showreverse",
-      defaultValue: false
+      defaultValue: false,
     },
-httpx_cookie_manager_enable: {
+    httpx_cookie_manager_enable: {
       key: "httpx-use-cookie-enable",
-      defaultValue: false
+      defaultValue: false,
     },
-httpx_cookie_manager_use_document_cookie: {
+    httpx_cookie_manager_use_document_cookie: {
       key: "httpx-use-document-cookie",
-      defaultValue: false
-    }
+      defaultValue: false,
+    },
   };
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
@@ -315,7 +342,7 @@ httpx_cookie_manager_use_document_cookie: {
     debug: false,
     logMaxCount: 250,
     autoClearConsole: true,
-    tag: true
+    tag: true,
   });
   Qmsg.config({
     isHTML: true,
@@ -358,7 +385,7 @@ httpx_cookie_manager_use_document_cookie: {
       let maxZIndex = Utils.getMaxZIndex();
       let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-    }
+    },
   });
   __pops.GlobalConfig.setGlobalConfig({
     zIndex: () => {
@@ -374,23 +401,23 @@ httpx_cookie_manager_use_document_cookie: {
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
     },
     mask: {
-enable: true,
-clickEvent: {
+      enable: true,
+      clickEvent: {
         toClose: false,
-        toHide: false
-      }
+        toHide: false,
+      },
     },
-    drag: true
+    drag: true,
   });
   const GM_Menu = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,
     GM_registerMenuCommand: _GM_registerMenuCommand,
-    GM_unregisterMenuCommand: _GM_unregisterMenuCommand
+    GM_unregisterMenuCommand: _GM_unregisterMenuCommand,
   });
   const httpx = new utils.Httpx({
     xmlHttpRequest: _GM_xmlhttpRequest,
-    logDetails: DEBUG
+    logDetails: DEBUG,
   });
   httpx.interceptors.request.use((data) => {
     return data;
@@ -410,16 +437,16 @@ clickEvent: {
   });
   ({
     Object: {
-      defineProperty: _unsafeWindow.Object.defineProperty
+      defineProperty: _unsafeWindow.Object.defineProperty,
     },
     Function: {
       apply: _unsafeWindow.Function.prototype.apply,
-      call: _unsafeWindow.Function.prototype.call
+      call: _unsafeWindow.Function.prototype.call,
     },
     Element: {
-      appendChild: _unsafeWindow.Element.prototype.appendChild
+      appendChild: _unsafeWindow.Element.prototype.appendChild,
     },
-    setTimeout: _unsafeWindow.setTimeout
+    setTimeout: _unsafeWindow.setTimeout,
   });
   const addStyle = domUtils.addStyle.bind(domUtils);
   const $ = DOMUtils.selector.bind(DOMUtils);
@@ -432,15 +459,15 @@ clickEvent: {
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const PROPS_STORAGE_API = "data-storage-api";
   const PanelSizeUtil = {
-get width() {
+    get width() {
       return globalThis.innerWidth;
     },
-get height() {
+    get height() {
       return globalThis.innerHeight;
-    }
+    },
   };
   const PanelUISize = {
-setting: {
+    setting: {
       get width() {
         if (PanelSizeUtil.width < 550) {
           return "88vw";
@@ -458,18 +485,18 @@ setting: {
         } else {
           return "550px";
         }
-      }
+      },
     },
-settingMiddle: {
+    settingMiddle: {
       get width() {
         return PanelSizeUtil.width < 350 ? "88vw" : "350px";
-      }
-    }
+      },
+    },
   };
   class StorageUtils {
-storageKey;
+    storageKey;
     listenerData;
-constructor(key) {
+    constructor(key) {
       if (typeof key === "string") {
         let trimKey = key.trim();
         if (trimKey == "") {
@@ -481,7 +508,7 @@ constructor(key) {
       }
       this.listenerData = new Utils.Dictionary();
     }
-getLocalValue() {
+    getLocalValue() {
       let localValue = _GM_getValue(this.storageKey);
       if (localValue == null) {
         localValue = {};
@@ -489,63 +516,66 @@ getLocalValue() {
       }
       return localValue;
     }
-setLocalValue(value) {
+    setLocalValue(value) {
       _GM_setValue(this.storageKey, value);
     }
-set(key, value) {
+    set(key, value) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, value);
     }
-get(key, defaultValue) {
+    get(key, defaultValue) {
       let localValue = this.getLocalValue();
       return Reflect.get(localValue, key) ?? defaultValue;
     }
-getAll() {
+    getAll() {
       let localValue = this.getLocalValue();
       return localValue;
     }
-delete(key) {
+    delete(key) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, void 0);
     }
-has(key) {
+    has(key) {
       let localValue = this.getLocalValue();
       return Reflect.has(localValue, key);
     }
-keys() {
+    keys() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue);
     }
-values() {
+    values() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
     }
-clear() {
+    clear() {
       _GM_deleteValue(this.storageKey);
     }
-addValueChangeListener(key, callback) {
+    addValueChangeListener(key, callback) {
       let listenerId = Math.random();
       let listenerData = this.listenerData.get(key) || [];
       listenerData.push({
         id: listenerId,
         key,
-        callback
+        callback,
       });
       this.listenerData.set(key, listenerData);
       return listenerId;
     }
-removeValueChangeListener(listenerId) {
+    removeValueChangeListener(listenerId) {
       let flag = false;
       for (const [key, listenerData] of this.listenerData.entries()) {
         for (let index = 0; index < listenerData.length; index++) {
           const value = listenerData[index];
-          if (typeof listenerId === "string" && value.key === listenerId || typeof listenerId === "number" && value.id === listenerId) {
+          if (
+            (typeof listenerId === "string" && value.key === listenerId) ||
+            (typeof listenerId === "number" && value.id === listenerId)
+          ) {
             listenerData.splice(index, 1);
             index--;
             flag = true;
@@ -555,7 +585,7 @@ removeValueChangeListener(listenerId) {
       }
       return flag;
     }
-triggerValueChangeListener(key, oldValue, newValue) {
+    triggerValueChangeListener(key, oldValue, newValue) {
       if (!this.listenerData.has(key)) {
         return;
       }
@@ -584,28 +614,28 @@ triggerValueChangeListener(key, oldValue, newValue) {
   const PopsPanelStorageApi = new StorageUtils(KEY);
   const PanelContent = {
     $data: {
-__contentConfig: null,
+      __contentConfig: null,
       get contentConfig() {
         if (this.__contentConfig == null) {
           this.__contentConfig = new utils.Dictionary();
         }
         return this.__contentConfig;
-      }
+      },
     },
-addContentConfig(configList) {
+    addContentConfig(configList) {
       if (!Array.isArray(configList)) {
         configList = [configList];
       }
       let index = this.$data.contentConfig.keys().length;
       this.$data.contentConfig.set(index, configList);
     },
-getAllContentConfig() {
+    getAllContentConfig() {
       return this.$data.contentConfig.values().flat();
     },
-getConfig(index = 0) {
+    getConfig(index = 0) {
       return this.$data.contentConfig.get(index) ?? [];
     },
-getDefaultBottomContentConfig() {
+    getDefaultBottomContentConfig() {
       return [
         {
           id: "script-version",
@@ -618,10 +648,10 @@ getDefaultBottomContentConfig() {
               window.open(supportURL, "_blank");
             }
             return false;
-          }
-        }
+          },
+        },
       ];
-    }
+    },
   };
   const PanelMenu = {
     $data: {
@@ -636,29 +666,29 @@ getDefaultBottomContentConfig() {
           },
           callback: () => {
             Panel.showPanel(PanelContent.getConfig(0));
-          }
-        }
+          },
+        },
       ],
       get menuOption() {
         return this.__menuOption;
-      }
+      },
     },
     init() {
       this.initExtensionsMenu();
     },
-initExtensionsMenu() {
+    initExtensionsMenu() {
       if (!Panel.isTopWindow()) {
         return;
       }
       GM_Menu.add(this.$data.menuOption);
     },
-addMenuOption(option) {
+    addMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
       this.$data.menuOption.push(...option);
     },
-updateMenuOption(option) {
+    updateMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
@@ -671,68 +701,68 @@ updateMenuOption(option) {
         }
       });
     },
-getMenuOption(index = 0) {
+    getMenuOption(index = 0) {
       return this.$data.menuOption[index];
     },
-deleteMenuOption(index = 0) {
+    deleteMenuOption(index = 0) {
       this.$data.menuOption.splice(index, 1);
-    }
+    },
   };
   const Panel = {
-$data: {
-__contentConfigInitDefaultValue: null,
-__onceExecMenuData: null,
-__urlChangeReloadMenuExecOnce: null,
-__onceExecData: null,
-__panelConfig: {},
-$panel: null,
-panelContent: [],
-get contentConfigInitDefaultValue() {
+    $data: {
+      __contentConfigInitDefaultValue: null,
+      __onceExecMenuData: null,
+      __urlChangeReloadMenuExecOnce: null,
+      __onceExecData: null,
+      __panelConfig: {},
+      $panel: null,
+      panelContent: [],
+      get contentConfigInitDefaultValue() {
         if (this.__contentConfigInitDefaultValue == null) {
           this.__contentConfigInitDefaultValue = new utils.Dictionary();
         }
         return this.__contentConfigInitDefaultValue;
       },
-contentConfigInitDisabledKeys: [],
-get onceExecMenuData() {
+      contentConfigInitDisabledKeys: [],
+      get onceExecMenuData() {
         if (this.__onceExecMenuData == null) {
           this.__onceExecMenuData = new utils.Dictionary();
         }
         return this.__onceExecMenuData;
       },
-get urlChangeReloadMenuExecOnce() {
+      get urlChangeReloadMenuExecOnce() {
         if (this.__urlChangeReloadMenuExecOnce == null) {
           this.__urlChangeReloadMenuExecOnce = new utils.Dictionary();
         }
         return this.__urlChangeReloadMenuExecOnce;
       },
-get onceExecData() {
+      get onceExecData() {
         if (this.__onceExecData == null) {
           this.__onceExecData = new utils.Dictionary();
         }
         return this.__onceExecData;
       },
-get scriptName() {
+      get scriptName() {
         return SCRIPT_NAME;
       },
-get panelConfig() {
+      get panelConfig() {
         return this.__panelConfig;
       },
       set panelConfig(value) {
         this.__panelConfig = value;
       },
-key: KEY,
-attributeKeyName: ATTRIBUTE_KEY,
-attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
+      key: KEY,
+      attributeKeyName: ATTRIBUTE_KEY,
+      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE,
     },
     init() {
       this.initContentDefaultValue();
       PanelMenu.init();
     },
-isTopWindow() {
+    isTopWindow() {
       return _unsafeWindow.top === _unsafeWindow.self;
     },
-initContentDefaultValue() {
+    initContentDefaultValue() {
       const initDefaultValue = (config) => {
         if (!config.attributes) {
           return;
@@ -796,19 +826,19 @@ initContentDefaultValue() {
       }
       this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
     },
-setDefaultValue(key, defaultValue) {
+    setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
         log.warn("请检查该key(已存在): " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
-getDefaultValue(key) {
+    getDefaultValue(key) {
       return this.$data.contentConfigInitDefaultValue.get(key);
     },
-setValue(key, value) {
+    setValue(key, value) {
       PopsPanelStorageApi.set(key, value);
     },
-getValue(key, defaultValue) {
+    getValue(key, defaultValue) {
       let localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
         if (this.$data.contentConfigInitDefaultValue.has(key)) {
@@ -818,25 +848,25 @@ getValue(key, defaultValue) {
       }
       return localValue;
     },
-deleteValue(key) {
+    deleteValue(key) {
       PopsPanelStorageApi.delete(key);
     },
-hasKey(key) {
+    hasKey(key) {
       return PopsPanelStorageApi.has(key);
     },
-addValueChangeListener(key, callback) {
+    addValueChangeListener(key, callback) {
       let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
         callback(key, __oldValue, __newValue);
       });
       return listenerId;
     },
-removeValueChangeListener(listenerId) {
+    removeValueChangeListener(listenerId) {
       PopsPanelStorageApi.removeValueChangeListener(listenerId);
     },
-triggerMenuValueChange(key, newValue, oldValue) {
+    triggerMenuValueChange(key, newValue, oldValue) {
       PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
     },
-exec(queryKey, callback, checkExec, once = true) {
+    exec(queryKey, callback, checkExec, once = true) {
       const that = this;
       let queryKeyFn;
       if (typeof queryKey === "string" || Array.isArray(queryKey)) {
@@ -914,7 +944,7 @@ exec(queryKey, callback, checkExec, once = true) {
             value: isArrayKey ? valueList : valueList[0],
             addStyleElement: (...args) => {
               return dynamicAddStyleNodeCallback(true, ...args);
-            }
+            },
           });
           if (!Array.isArray(callbackResult)) {
             callbackResult = [callbackResult];
@@ -932,35 +962,36 @@ exec(queryKey, callback, checkExec, once = true) {
         clearBeforeStoreValue();
         storeValueList = [...resultList];
       };
-      once && keyList.forEach((key) => {
-        let listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
-          valueChangeCallback();
+      once &&
+        keyList.forEach((key) => {
+          let listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
+            valueChangeCallback();
+          });
+          listenerIdList.push(listenerId);
         });
-        listenerIdList.push(listenerId);
-      });
       valueChangeCallback();
       let result = {
-reload() {
+        reload() {
           valueChangeCallback();
         },
-clear() {
+        clear() {
           this.clearStoreStyleElements();
           this.removeValueChangeListener();
           once && that.$data.onceExecMenuData.delete(storageKey);
         },
-clearStoreStyleElements: () => {
+        clearStoreStyleElements: () => {
           return clearBeforeStoreValue();
         },
-removeValueChangeListener: () => {
+        removeValueChangeListener: () => {
           listenerIdList.forEach((listenerId) => {
             this.removeValueChangeListener(listenerId);
           });
-        }
+        },
       };
       this.$data.onceExecMenuData.set(storageKey, result);
       return result;
     },
-execMenu(key, callback, isReverse = false, once = false) {
+    execMenu(key, callback, isReverse = false, once = false) {
       return this.exec(
         key,
         (option) => {
@@ -982,7 +1013,7 @@ execMenu(key, callback, isReverse = false, once = false) {
         once
       );
     },
-execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
+    execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
       const result = this.execMenu(key, callback, isReverse, true);
       if (listenUrlChange) {
         if (result) {
@@ -1000,14 +1031,14 @@ execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
       }
       return result;
     },
-deleteExecMenuOnce(key) {
+    deleteExecMenuOnce(key) {
       key = this.transformKey(key);
       this.$data.onceExecMenuData.delete(key);
       this.$data.urlChangeReloadMenuExecOnce.delete(key);
       let flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
-onceExec(key, callback) {
+    onceExec(key, callback) {
       key = this.transformKey(key);
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
@@ -1018,30 +1049,36 @@ onceExec(key, callback) {
       callback();
       this.$data.onceExecData.set(key, 1);
     },
-deleteOnceExec(key) {
+    deleteOnceExec(key) {
       key = this.transformKey(key);
       this.$data.onceExecData.delete(key);
     },
-addUrlChangeWithExecMenuOnceListener(key, callback) {
+    addUrlChangeWithExecMenuOnceListener(key, callback) {
       key = this.transformKey(key);
       this.$data.urlChangeReloadMenuExecOnce.set(key, callback);
     },
-removeUrlChangeWithExecMenuOnceListener(key) {
+    removeUrlChangeWithExecMenuOnceListener(key) {
       key = this.transformKey(key);
       this.$data.urlChangeReloadMenuExecOnce.delete(key);
     },
-triggerUrlChangeWithExecMenuOnceEvent(config) {
+    triggerUrlChangeWithExecMenuOnceEvent(config) {
       this.$data.urlChangeReloadMenuExecOnce.forEach((callback, key) => {
         callback(config);
       });
     },
-showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
+    showPanel(
+      content,
+      title = `${SCRIPT_NAME}-设置`,
+      preventDefaultContentConfig = false,
+      preventRegisterSearchPlugin = false
+    ) {
       this.$data.$panel = null;
       this.$data.panelContent = [];
-      let checkHasBottomVersionContentConfig = content.findIndex((it) => {
-        let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
-        return isBottom && it.id === "script-version";
-      }) !== -1;
+      let checkHasBottomVersionContentConfig =
+        content.findIndex((it) => {
+          let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
+          return isBottom && it.id === "script-version";
+        }) !== -1;
       if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig) {
         content.push(...PanelContent.getDefaultBottomContentConfig());
       }
@@ -1051,7 +1088,7 @@ showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig 
             text: title,
             position: "center",
             html: false,
-            style: ""
+            style: "",
           },
           content,
           btn: {
@@ -1060,26 +1097,26 @@ showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig 
               callback: (details, event) => {
                 details.close();
                 this.$data.$panel = null;
-              }
-            }
+              },
+            },
           },
           mask: {
             enable: true,
             clickEvent: {
               toClose: true,
-              toHide: false
+              toHide: false,
             },
             clickCallBack: (originalRun, config) => {
               originalRun();
               this.$data.$panel = null;
-            }
+            },
           },
           width: PanelUISize.setting.width,
           height: PanelUISize.setting.height,
           drag: true,
-          only: true
+          only: true,
         },
-        ...this.$data.panelConfig
+        ...this.$data.panelConfig,
       });
       this.$data.$panel = $panel;
       this.$data.panelContent = content;
@@ -1087,7 +1124,7 @@ showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig 
         this.registerConfigSearch({ $panel, content });
       }
     },
-registerConfigSearch(config) {
+    registerConfigSearch(config) {
       const { $panel, content } = config;
       let asyncQueryProperty = async (target, handler) => {
         if (target == null) {
@@ -1111,8 +1148,8 @@ registerConfigSearch(config) {
           },
           {
             root: null,
-threshold: 1
-}
+            threshold: 1,
+          }
         );
         observer.observe($el);
         $el.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1129,32 +1166,29 @@ threshold: 1
         let $alert = __pops.alert({
           title: {
             text: "搜索配置",
-            position: "center"
+            position: "center",
           },
           content: {
-            text: (
-`
+            text: `
 						<div class="search-wrapper">
 							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
 						</div>
 						<div class="search-result-wrapper"></div>
-					`
-            ),
-            html: true
+					`,
+            html: true,
           },
           btn: {
-            ok: { enable: false }
+            ok: { enable: false },
           },
           mask: {
             clickEvent: {
-              toClose: true
-            }
+              toClose: true,
+            },
           },
           width: PanelUISize.settingMiddle.width,
           height: "auto",
           drag: true,
-          style: (
-`
+          style: `
 					${__pops.config.cssText.panelCSS}
 
 					.search-wrapper{
@@ -1192,8 +1226,7 @@ threshold: 1
 						color: #6c6c6c;
 					}
 					${config.searchDialogStyle ?? ""}
-				`
-          )
+				`,
         });
         $alert.$shadowRoot.querySelector(".search-wrapper");
         let $searchInput = $alert.$shadowRoot.querySelector(".search-config-text");
@@ -1207,23 +1240,21 @@ threshold: 1
             if (target?.next) {
               return {
                 isFind: false,
-                data: target.next
+                data: target.next,
               };
             } else {
               return {
                 isFind: true,
-                data: target
+                data: target,
               };
             }
           });
           let $item = domUtils.createElement("div", {
             className: "search-result-item",
-            innerHTML: (
-`
+            innerHTML: `
 							<div class="search-result-item-path">${searchPath.matchedData?.path}</div>
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
-						`
-            )
+						`,
           });
           domUtils.on($item, "click", (clickItemEvent) => {
             let $asideItems = $panel.$shadowRoot.querySelectorAll(
@@ -1236,18 +1267,22 @@ threshold: 1
             }
             $targetAsideItem.scrollIntoView({
               behavior: "smooth",
-              block: "center"
+              block: "center",
             });
             $targetAsideItem.click();
             asyncQueryProperty(pathInfo.next, async (target) => {
               if (target?.next) {
                 let $findDeepMenu = await domUtils.waitNode(() => {
-                  return Array.from(
-                    $panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")
-                  ).find(($deepMenu) => {
-                    const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
-                    return typeof __formConfig__ === "object" && __formConfig__ != null && __formConfig__.text === target.name;
-                  });
+                  return Array.from($panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")).find(
+                    ($deepMenu) => {
+                      const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
+                      return (
+                        typeof __formConfig__ === "object" &&
+                        __formConfig__ != null &&
+                        __formConfig__.text === target.name
+                      );
+                    }
+                  );
                 }, 2500);
                 if ($findDeepMenu) {
                   $findDeepMenu.click();
@@ -1255,21 +1290,21 @@ threshold: 1
                   Qmsg.error("未找到对应的二级菜单");
                   return {
                     isFind: true,
-                    data: target
+                    data: target,
                   };
                 }
                 return {
                   isFind: false,
-                  data: target.next
+                  data: target.next,
                 };
               } else {
                 let $findTargetMenu = await domUtils.waitNode(() => {
-                  return Array.from(
-                    $panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)
-                  ).find(($menuItem) => {
-                    const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
-                    return __formConfig__ === target.matchedData?.formConfig;
-                  });
+                  return Array.from($panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)).find(
+                    ($menuItem) => {
+                      const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
+                      return __formConfig__ === target.matchedData?.formConfig;
+                    }
+                  );
                 }, 2500);
                 if ($findTargetMenu) {
                   scrollToElementAndListen($findTargetMenu);
@@ -1287,7 +1322,7 @@ threshold: 1
                 }
                 return {
                   isFind: true,
-                  data: target
+                  data: target,
                 };
               }
             });
@@ -1308,17 +1343,17 @@ threshold: 1
                     if (target?.next) {
                       return {
                         isFind: false,
-                        data: target.next
+                        data: target.next,
                       };
                     } else {
                       return {
                         isFind: true,
-                        data: target
+                        data: target,
                       };
                     }
                   });
                   deepNext.next = {
-                    name: configItem.text
+                    name: configItem.text,
                   };
                 }
                 loopContentConfig(child_forms, deepMenuPath);
@@ -1338,12 +1373,12 @@ threshold: 1
                     if (target?.next) {
                       return {
                         isFind: false,
-                        data: target.next
+                        data: target.next,
                       };
                     } else {
                       return {
                         isFind: true,
-                        data: target
+                        data: target,
                       };
                     }
                   });
@@ -1353,8 +1388,8 @@ threshold: 1
                       path: "",
                       formConfig: configItem,
                       matchedText: delayMatchedTextList[matchedIndex],
-                      description
-                    }
+                      description,
+                    },
                   };
                   const pathList = [];
                   utils.queryProperty(matchedPath, (target) => {
@@ -1365,12 +1400,12 @@ threshold: 1
                     if (target?.next) {
                       return {
                         isFind: false,
-                        data: target.next
+                        data: target.next,
                       };
                     } else {
                       return {
                         isFind: true,
-                        data: target
+                        data: target,
                       };
                     }
                   });
@@ -1397,7 +1432,7 @@ threshold: 1
               }
               loopContentConfig(rightContentConfigList, {
                 index,
-                name: text
+                name: text,
               });
             }
           }
@@ -1452,14 +1487,13 @@ threshold: 1
           }
         },
         {
-          capture: true
+          capture: true,
         }
       );
       $panel.$shadowRoot.appendChild(
         domUtils.createElement("style", {
           type: "text/css",
-          textContent: (
-`
+          textContent: `
 					.pops-flashing{
 						animation: double-blink 1.5s ease-in-out;
 					}
@@ -1480,48 +1514,47 @@ threshold: 1
 							background-color: initial;
 						}
 					}
-				`
-          )
+				`,
         })
       );
     },
-transformKey(key) {
+    transformKey(key) {
       if (Array.isArray(key)) {
         const keyArray = key.sort();
         return JSON.stringify(keyArray);
       } else {
         return key;
       }
-    }
+    },
   };
   class HttpxCookieManager {
     $data = {
-get enable() {
+      get enable() {
         return Panel.getValue(
           PanelSettingConfig.httpx_cookie_manager_enable.key,
           PanelSettingConfig.httpx_cookie_manager_enable.defaultValue
         );
       },
-get useDocumentCookie() {
+      get useDocumentCookie() {
         return Panel.getValue(
           PanelSettingConfig.httpx_cookie_manager_use_document_cookie.key,
           PanelSettingConfig.httpx_cookie_manager_use_document_cookie.defaultValue
         );
       },
-cookieRule: []
+      cookieRule: [],
     };
-constructor(cookieRule) {
+    constructor(cookieRule) {
       if (Array.isArray(cookieRule)) {
         this.$data.cookieRule = cookieRule;
       }
     }
-fixCookieSplit(str) {
+    fixCookieSplit(str) {
       if (utils.isNotNull(str) && !str.trim().endsWith(";")) {
         str += ";";
       }
       return str;
     }
-concatCookie(targetCookie, newCookie) {
+    concatCookie(targetCookie, newCookie) {
       if (utils.isNull(targetCookie)) {
         return newCookie;
       }
@@ -1533,7 +1566,7 @@ concatCookie(targetCookie, newCookie) {
       }
       return targetCookie.concat(newCookie);
     }
-handle(details) {
+    handle(details) {
       if (details.fetch) {
         return;
       }
@@ -1546,7 +1579,10 @@ handle(details) {
         url = window.location.protocol + url;
       }
       let urlObj = new URL(url);
-      if (this.$data.useDocumentCookie && urlObj.hostname.endsWith(window.location.hostname.split(".").slice(-2).join("."))) {
+      if (
+        this.$data.useDocumentCookie &&
+        urlObj.hostname.endsWith(window.location.hostname.split(".").slice(-2).join("."))
+      ) {
         ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
       }
       for (let index = 0; index < this.$data.cookieRule.length; index++) {
@@ -1581,8 +1617,8 @@ handle(details) {
   const httpxCookieManager = new HttpxCookieManager([
     {
       key: "httpx-cookie-bbs.binmt.cc",
-      hostname: /bbs.binmt.cc/g
-    }
+      hostname: /bbs.binmt.cc/g,
+    },
   ]);
   httpx.interceptors.request.use((data) => {
     httpxCookieManager.handle(data);
@@ -1590,12 +1626,12 @@ handle(details) {
   });
   __pops.GlobalConfig.setGlobalConfig({
     mask: {
-      enable: true
+      enable: true,
     },
-    drag: true
+    drag: true,
   });
   const ElementUtils = {
-registerLeftMenu(config) {
+    registerLeftMenu(config) {
       domUtils.waitNode(".comiis_sidenv_box .sidenv_li .comiis_left_Touch", 1e4).then(($leftTouch) => {
         if (!$leftTouch) {
           log.error("注册左侧面板菜单失败，原因：该元素不存在");
@@ -1603,14 +1639,12 @@ registerLeftMenu(config) {
         }
         let $setting = domUtils.createElement("li", {
           className: "comiis_left_Touch",
-          innerHTML: (
-`
+          innerHTML: `
 						<a href="javascript:;" class="comiis_left_Touch">
 							<i class="comiis_font"></i>
 							${config.name}
 						</a>
-						`
-          )
+						`,
         });
         let $icon = $setting.querySelector(".comiis_font");
         if (typeof config.style === "string") {
@@ -1634,30 +1668,31 @@ registerLeftMenu(config) {
         domUtils.append($leftTouch, $setting);
       });
     },
-comiisForumList: () => {
+    comiisForumList: () => {
       return document.querySelectorAll("li.forumlist_li");
     },
-comiisPostli: () => {
+    comiisPostli: () => {
       return document.querySelectorAll("div.comiis_postli.comiis_list_readimgs.nfqsqi");
     },
-comiisMmlist: () => {
+    comiisMmlist: () => {
       return document.querySelectorAll(".comiis_mmlist");
-    }
+    },
   };
-  const blackHomeCSS = ".pops-confirm-content {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n.blackhome-user-filter input {\r\n  width: -moz-available;\r\n  width: -webkit-fill-available;\r\n  height: 30px;\r\n  margin: 8px 20px;\r\n  border: 0;\r\n  border-bottom: 1px solid;\r\n  text-overflow: ellipsis;\r\n  overflow: hidden;\r\n  white-space: nowrap;\r\n}\r\n.blackhome-user-filter input:focus-within {\r\n  outline: none;\r\n}\r\n.blackhome-user-list {\r\n  flex: 1;\r\n  overflow-y: auto;\r\n}\r\n.blackhome-user-list .blackhome-user-item {\r\n  margin: 15px 10px;\r\n  padding: 10px;\r\n  border-radius: 8px;\r\n  box-shadow:\r\n    0 0 0.6rem #c8d0e7,\r\n    -0.2rem -0.2rem 0.5rem #fff;\r\n}\r\n.blackhome-user {\r\n  display: flex;\r\n}\r\n.blackhome-user img {\r\n  width: 45px;\r\n  height: 45px;\r\n  border-radius: 45px;\r\n}\r\n.blackhome-user-info {\r\n  margin-left: 10px;\r\n}\r\n.blackhome-user-info p:nth-child(1) {\r\n  margin-bottom: 5px;\r\n}\r\n.blackhome-user-info p:nth-child(2) {\r\n  font-size: 14px;\r\n}\r\n.blackhome-user-action {\r\n  display: flex;\r\n  margin: 10px 0;\r\n}\r\n.blackhome-user-action p:nth-child(1),\r\n.blackhome-user-action p:nth-child(2) {\r\n  border: 1px solid red;\r\n  color: red;\r\n  border-radius: 4px;\r\n  padding: 2px 4px;\r\n  font-weight: 500;\r\n  font-size: 14px;\r\n  place-self: center;\r\n}\r\n.blackhome-user-action p:nth-child(2) {\r\n  border: 1px solid #ff4b4b;\r\n  color: #ff4b4b;\r\n  margin-left: 8px;\r\n}\r\n.blackhome-user-uuid {\r\n  border: 1px solid #ff7600;\r\n  color: #ff7600;\r\n  border-radius: 4px;\r\n  padding: 2px 4px;\r\n  font-weight: 500;\r\n  font-size: 14px;\r\n  width: fit-content;\r\n  width: -moz-fit-content;\r\n  margin: 10px 0;\r\n}\r\n.blackhome-operator {\r\n  padding: 10px;\r\n  background-color: #efefef;\r\n  border-radius: 6px;\r\n}\r\n.blackhome-operator-user {\r\n  display: flex;\r\n}\r\n.blackhome-operator-user img {\r\n  width: 35px;\r\n  height: 35px;\r\n  border-radius: 35px;\r\n}\r\n.blackhome-operator-user p {\r\n  align-self: center;\r\n  margin-left: 10px;\r\n}\r\n.blackhome-operator-user-info {\r\n  margin: 10px 0;\r\n  font-weight: 500;\r\n}\r\n";
+  const blackHomeCSS =
+    ".pops-confirm-content {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n.blackhome-user-filter input {\r\n  width: -moz-available;\r\n  width: -webkit-fill-available;\r\n  height: 30px;\r\n  margin: 8px 20px;\r\n  border: 0;\r\n  border-bottom: 1px solid;\r\n  text-overflow: ellipsis;\r\n  overflow: hidden;\r\n  white-space: nowrap;\r\n}\r\n.blackhome-user-filter input:focus-within {\r\n  outline: none;\r\n}\r\n.blackhome-user-list {\r\n  flex: 1;\r\n  overflow-y: auto;\r\n}\r\n.blackhome-user-list .blackhome-user-item {\r\n  margin: 15px 10px;\r\n  padding: 10px;\r\n  border-radius: 8px;\r\n  box-shadow:\r\n    0 0 0.6rem #c8d0e7,\r\n    -0.2rem -0.2rem 0.5rem #fff;\r\n}\r\n.blackhome-user {\r\n  display: flex;\r\n}\r\n.blackhome-user img {\r\n  width: 45px;\r\n  height: 45px;\r\n  border-radius: 45px;\r\n}\r\n.blackhome-user-info {\r\n  margin-left: 10px;\r\n}\r\n.blackhome-user-info p:nth-child(1) {\r\n  margin-bottom: 5px;\r\n}\r\n.blackhome-user-info p:nth-child(2) {\r\n  font-size: 14px;\r\n}\r\n.blackhome-user-action {\r\n  display: flex;\r\n  margin: 10px 0;\r\n}\r\n.blackhome-user-action p:nth-child(1),\r\n.blackhome-user-action p:nth-child(2) {\r\n  border: 1px solid red;\r\n  color: red;\r\n  border-radius: 4px;\r\n  padding: 2px 4px;\r\n  font-weight: 500;\r\n  font-size: 14px;\r\n  place-self: center;\r\n}\r\n.blackhome-user-action p:nth-child(2) {\r\n  border: 1px solid #ff4b4b;\r\n  color: #ff4b4b;\r\n  margin-left: 8px;\r\n}\r\n.blackhome-user-uuid {\r\n  border: 1px solid #ff7600;\r\n  color: #ff7600;\r\n  border-radius: 4px;\r\n  padding: 2px 4px;\r\n  font-weight: 500;\r\n  font-size: 14px;\r\n  width: fit-content;\r\n  width: -moz-fit-content;\r\n  margin: 10px 0;\r\n}\r\n.blackhome-operator {\r\n  padding: 10px;\r\n  background-color: #efefef;\r\n  border-radius: 6px;\r\n}\r\n.blackhome-operator-user {\r\n  display: flex;\r\n}\r\n.blackhome-operator-user img {\r\n  width: 35px;\r\n  height: 35px;\r\n  border-radius: 35px;\r\n}\r\n.blackhome-operator-user p {\r\n  align-self: center;\r\n  margin-left: 10px;\r\n}\r\n.blackhome-operator-user-info {\r\n  margin: 10px 0;\r\n  font-weight: 500;\r\n}\r\n";
   const MTRegExp = {
-formhash: /formhash=([0-9a-zA-Z]+)/,
-uid: /uid(=|-)(\d+)/,
-fontSpecial: /<font.*?>|<\/font>|<strike>|<strong>|<i>|<u>|align=".*?"|<br>[\s]*<br>[\s]*<br>/g,
-ptid: /&ptid=([\d]+)/i,
-pid: /&pid=([\d]+)/i,
-tid: /&tid=([\d]+)/i
+    formhash: /formhash=([0-9a-zA-Z]+)/,
+    uid: /uid(=|-)(\d+)/,
+    fontSpecial: /<font.*?>|<\/font>|<strike>|<strong>|<i>|<u>|align=".*?"|<br>[\s]*<br>[\s]*<br>/g,
+    ptid: /&ptid=([\d]+)/i,
+    pid: /&pid=([\d]+)/i,
+    tid: /&tid=([\d]+)/i,
   };
   const MTUtils = {
-getAvatar: (uid, size = "middle") => {
+    getAvatar: (uid, size = "middle") => {
       return `/uc_server/avatar.php?uid=${uid}&size=${size}&ts=1`;
     },
-getCurrentUID() {
+    getCurrentUID() {
       let discuz_uid = _unsafeWindow.discuz_uid;
       if (typeof discuz_uid === "string") {
         return discuz_uid;
@@ -1670,10 +1705,8 @@ getCurrentUID() {
         }
       }
     },
-async getFormHash() {
-      let $inputFormHashList = Array.from(
-        (top || globalThis).document.querySelectorAll("input[name=formhash]")
-      );
+    async getFormHash() {
+      let $inputFormHashList = Array.from((top || globalThis).document.querySelectorAll("input[name=formhash]"));
       for (let index = 0; index < $inputFormHashList.length; index++) {
         const $input = $inputFormHashList[index];
         let formHash = $input.value;
@@ -1681,9 +1714,7 @@ async getFormHash() {
           return formHash;
         }
       }
-      let $anchorFormHashList = Array.from(
-        (top || globalThis).document.querySelectorAll('a[href*="formhash="]')
-      );
+      let $anchorFormHashList = Array.from((top || globalThis).document.querySelectorAll('a[href*="formhash="]'));
       for (let index = 0; index < $anchorFormHashList.length; index++) {
         const $anchorFormHash = $anchorFormHashList[index];
         let anchorFormHashMatch = $anchorFormHash.href.match(MTRegExp.formhash);
@@ -1696,7 +1727,7 @@ async getFormHash() {
       }
       let homeResponse = await httpx.get("/home.php?mod=spacecp", {
         fetch: true,
-        allowInterceptConfig: false
+        allowInterceptConfig: false,
       });
       if (homeResponse.status) {
         let homeText = homeResponse.data.responseText;
@@ -1712,14 +1743,10 @@ async getFormHash() {
         log.error("请求个人主页获取formhash失败", homeResponse);
       }
     },
-envIsMobile() {
-      return (
-(_unsafeWindow.STYLEID ||
-window.STYLEID ||
-typeof STYLEID !== "undefined" && STYLEID) === "3"
-      );
+    envIsMobile() {
+      return (_unsafeWindow.STYLEID || window.STYLEID || (typeof STYLEID !== "undefined" && STYLEID)) === "3";
     },
-getThreadId: (url) => {
+    getThreadId: (url) => {
       let urlMatch = url.match(/thread-([\d]+)-|&tid=([\d]+)/i);
       if (urlMatch) {
         let forumIdList = urlMatch.filter(Boolean);
@@ -1727,43 +1754,43 @@ getThreadId: (url) => {
         return forumId;
       }
     },
-getForumId(url) {
+    getForumId(url) {
       let urlMatch = url.match(/&fid=([\d]+)/i);
       if (urlMatch) {
         return urlMatch[urlMatch.length - 1];
       }
     },
-getPostId(url) {
+    getPostId(url) {
       let urlMatch = url.match(/&pid=([\d]+)/i);
       if (urlMatch) {
         return urlMatch[urlMatch.length - 1];
       }
     },
-getRepquote(url) {
+    getRepquote(url) {
       let urlMatch = url.match(/&repquote=([\d]+)/i);
       if (urlMatch) {
         return urlMatch[urlMatch.length - 1];
       }
-    }
+    },
   };
   const MTBlackHome = {
     $data: {
-      cid: ""
+      cid: "",
     },
     init() {
       this.registerMenu();
     },
-registerMenu() {
+    registerMenu() {
       ElementUtils.registerLeftMenu({
         name: "小黑屋",
         iconColor: "#000000",
         icon: "",
         callback: () => {
           this.showBlackHome();
-        }
+        },
       });
     },
-async showBlackHome() {
+    async showBlackHome() {
       let $loading = Qmsg.loading("正在获取小黑屋名单中...");
       let blackListInfo = await this.getBlackListInfo("");
       $loading.close();
@@ -1778,18 +1805,16 @@ async showBlackHome() {
       let $confirm = __pops.confirm({
         title: {
           text: "小黑屋名单",
-          position: "center"
+          position: "center",
         },
         content: {
-          text: (
-`
+          text: `
                 <div class="blackhome-user-filter">
                     <input placeholder="过滤用户名/操作人员/UID(可正则)">
                 </div>
                 <div class="blackhome-user-list"></div>
-                `
-          ),
-          html: true
+                `,
+          html: true,
         },
         btn: {
           ok: {
@@ -1813,15 +1838,15 @@ async showBlackHome() {
                 Qmsg.success(`成功获取 ${nextBlackListInfo2.data.length}条数据`);
               }
               domUtils.trigger($filterInput, "input");
-            }
+            },
           },
           cancel: {
-            text: "关闭"
-          }
+            text: "关闭",
+          },
         },
         width: "88vw",
         height: "82vh",
-        style: blackHomeCSS
+        style: blackHomeCSS,
       });
       let $list = $confirm.$shadowRoot.querySelector(".blackhome-user-list");
       let $filterInput = $confirm.$shadowRoot.querySelector(".blackhome-user-filter input");
@@ -1848,7 +1873,11 @@ async showBlackHome() {
             return;
           }
           $confirm.$shadowRoot.querySelectorAll(".blackhome-user-item").forEach((item) => {
-            if (item.getAttribute("data-name").match(new RegExp(inputText, "ig")) || item.getAttribute("data-uid").trim().match(new RegExp(inputText, "ig")) || item.getAttribute("data-operator").match(new RegExp(inputText, "ig"))) {
+            if (
+              item.getAttribute("data-name").match(new RegExp(inputText, "ig")) ||
+              item.getAttribute("data-uid").trim().match(new RegExp(inputText, "ig")) ||
+              item.getAttribute("data-operator").match(new RegExp(inputText, "ig"))
+            ) {
               item.removeAttribute("style");
             } else {
               item.setAttribute("style", "display:none;");
@@ -1863,18 +1892,18 @@ async showBlackHome() {
       }
       this.$data.cid = nextBlackListInfo.next_cid;
     },
-async getBlackListInfo(cid = "") {
+    async getBlackListInfo(cid = "") {
       let searchParamsData = {
         mod: "misc",
         action: "showdarkroom",
         cid,
-        ajaxdata: "json"
+        ajaxdata: "json",
       };
       let response = await httpx.get(`/forum.php?${utils.toSearchParamsStr(searchParamsData)}`, {
         headers: {
-          "User-Agent": utils.getRandomPCUA()
+          "User-Agent": utils.getRandomPCUA(),
         },
-        responseType: "json"
+        responseType: "json",
       });
       if (!response.status) {
         return;
@@ -1914,11 +1943,16 @@ async getBlackListInfo(cid = "") {
           } else if (yesterday_time_data) {
             let yesterday_hour_data = yesterday_time_data[1];
             let yesterday_min_data = yesterday_time_data[2];
-            _time_after_count_ = _time_ - 86400 - parseInt(yesterday_hour_data) * 3600 - parseInt(yesterday_min_data) * 60;
+            _time_after_count_ =
+              _time_ - 86400 - parseInt(yesterday_hour_data) * 3600 - parseInt(yesterday_min_data) * 60;
           } else if (before_yesterday_time_data) {
             let before_yesterday_hour_data = before_yesterday_time_data[1];
             let before_yesterday_min_data = before_yesterday_time_data[2];
-            _time_after_count_ = _time_ - 86400 * 2 - parseInt(before_yesterday_hour_data) * 3600 - parseInt(before_yesterday_min_data) * 60;
+            _time_after_count_ =
+              _time_ -
+              86400 * 2 -
+              parseInt(before_yesterday_hour_data) * 3600 -
+              parseInt(before_yesterday_min_data) * 60;
           } else if (day_data) {
             day_data = day_data[day_data.length - 1];
             day_data = day_data.replace(/半/g, 0.5);
@@ -1939,16 +1973,15 @@ async getBlackListInfo(cid = "") {
       new_blackListData = new_blackListData.concat(new_blackListData_noTime);
       return {
         next_cid,
-        data: new_blackListData
+        data: new_blackListData,
       };
     },
-createListViewItem(userInfo) {
+    createListViewItem(userInfo) {
       let $item = domUtils.createElement(
         "div",
         {
           className: "blackhome-user-item",
-          innerHTML: (
-`
+          innerHTML: `
                 <div class="blackhome-user-avatar">
                     <div class="blackhome-user">
                     <img src="${MTUtils.getAvatar(userInfo["uid"], "big")}" loading="lazy">
@@ -1972,42 +2005,42 @@ createListViewItem(userInfo) {
                     </div>
                     </div>
                 </div>
-                `
-          )
+                `,
         },
         {
           "data-name": userInfo.username,
           "data-uid": userInfo.uid,
           "data-operator": userInfo.operator,
-          "data-operator-uid": userInfo.operatorid
+          "data-operator-uid": userInfo.operatorid,
         }
       );
-      domUtils.on($item, "click", ".blackhome-user img", function() {
+      domUtils.on($item, "click", ".blackhome-user img", function () {
         window.open(`home.php?mod=space&uid=${userInfo.uid}&do=profile`, "_blank");
       });
-      domUtils.on($item, "click", ".blackhome-operator-user img", function() {
+      domUtils.on($item, "click", ".blackhome-operator-user img", function () {
         window.open(`home.php?mod=space&uid=${userInfo.operatorid}&do=profile`, "_blank");
       });
       return $item;
-    }
+    },
   };
-  const onlineUserCSS = '.pops-alert-content {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n.pops-alert-content > .online-user-info {\r\n  text-align: center;\r\n  padding: 0px 6px;\r\n}\r\n.online-user-filter input {\r\n  width: -webkit-fill-available;\r\n  width: -moz-available;\r\n  height: 30px;\r\n  margin: 8px 20px;\r\n  border: 0;\r\n  border-bottom: 1px solid;\r\n}\r\n.online-user-filter input:focus-within {\r\n  outline: none;\r\n}\r\n.online-user-list {\r\n  flex: 1;\r\n  overflow-y: auto;\r\n}\r\n.online-user-list li {\r\n  margin: 18px 0;\r\n}\r\n.online-user {\r\n  display: flex;\r\n  margin: 2px 20px;\r\n  align-items: center;\r\n}\r\n.online-user img[data-avatar] {\r\n  width: 45px;\r\n  height: 45px;\r\n  border-radius: 45px;\r\n}\r\n.online-user-list .online-user-info {\r\n  margin: 2px 14px;\r\n}\r\n.online-user-list .online-user-info p[data-name] {\r\n  margin-bottom: 4px;\r\n}\r\n.online-user-list .online-user-info span[data-sf] {\r\n  border-radius: 4px;\r\n  padding: 2px 4px;\r\n  font-weight: 500;\r\n  font-size: 14px;\r\n}\r\n.online-user-list .online-user-info span[data-uid] {\r\n  border: 1px solid #ff7600;\r\n  color: #ff7600;\r\n  border-radius: 4px;\r\n  padding: 2px 4px;\r\n  font-weight: 500;\r\n  font-size: 14px;\r\n  width: fit-content;\r\n  width: -moz-fit-content;\r\n  margin: 10px 0;\r\n}\r\n.online-user-list .online-user-info span[data-sf="会员"] {\r\n  color: #88b500;\r\n  border: 1px solid #88b500;\r\n}\r\n.online-user-list .online-user-info span[data-sf="版主"] {\r\n  color: #2db5e3;\r\n  border: 1px solid #2db5e3;\r\n}\r\n.online-user-list .online-user-info span[data-sf="超级版主"] {\r\n  color: #e89e38;\r\n  border: 1px solid #e89e38;\r\n}\r\n.online-user-list .online-user-info span[data-sf="管理员"] {\r\n  color: #ff5416;\r\n  border: 1px solid #ff5416;\r\n}\r\n';
+  const onlineUserCSS =
+    '.pops-alert-content {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n.pops-alert-content > .online-user-info {\r\n  text-align: center;\r\n  padding: 0px 6px;\r\n}\r\n.online-user-filter input {\r\n  width: -webkit-fill-available;\r\n  width: -moz-available;\r\n  height: 30px;\r\n  margin: 8px 20px;\r\n  border: 0;\r\n  border-bottom: 1px solid;\r\n}\r\n.online-user-filter input:focus-within {\r\n  outline: none;\r\n}\r\n.online-user-list {\r\n  flex: 1;\r\n  overflow-y: auto;\r\n}\r\n.online-user-list li {\r\n  margin: 18px 0;\r\n}\r\n.online-user {\r\n  display: flex;\r\n  margin: 2px 20px;\r\n  align-items: center;\r\n}\r\n.online-user img[data-avatar] {\r\n  width: 45px;\r\n  height: 45px;\r\n  border-radius: 45px;\r\n}\r\n.online-user-list .online-user-info {\r\n  margin: 2px 14px;\r\n}\r\n.online-user-list .online-user-info p[data-name] {\r\n  margin-bottom: 4px;\r\n}\r\n.online-user-list .online-user-info span[data-sf] {\r\n  border-radius: 4px;\r\n  padding: 2px 4px;\r\n  font-weight: 500;\r\n  font-size: 14px;\r\n}\r\n.online-user-list .online-user-info span[data-uid] {\r\n  border: 1px solid #ff7600;\r\n  color: #ff7600;\r\n  border-radius: 4px;\r\n  padding: 2px 4px;\r\n  font-weight: 500;\r\n  font-size: 14px;\r\n  width: fit-content;\r\n  width: -moz-fit-content;\r\n  margin: 10px 0;\r\n}\r\n.online-user-list .online-user-info span[data-sf="会员"] {\r\n  color: #88b500;\r\n  border: 1px solid #88b500;\r\n}\r\n.online-user-list .online-user-info span[data-sf="版主"] {\r\n  color: #2db5e3;\r\n  border: 1px solid #2db5e3;\r\n}\r\n.online-user-list .online-user-info span[data-sf="超级版主"] {\r\n  color: #e89e38;\r\n  border: 1px solid #e89e38;\r\n}\r\n.online-user-list .online-user-info span[data-sf="管理员"] {\r\n  color: #ff5416;\r\n  border: 1px solid #ff5416;\r\n}\r\n';
   const MTOnlineUser = {
     $data: {},
     init() {
       this.registerMenu();
     },
-registerMenu() {
+    registerMenu() {
       ElementUtils.registerLeftMenu({
         name: "在线用户",
         iconColor: "#2d92ff",
         icon: "",
         callback: () => {
           this.showOnlineUser();
-        }
+        },
       });
     },
-async showOnlineUser() {
+    async showOnlineUser() {
       let $loading = Qmsg.loading("正在获取在线用户名单中...");
       let onlineUserInfo = await this.getOnlineUserListInfo();
       $loading.close();
@@ -2017,28 +2050,26 @@ async showOnlineUser() {
       let $alert = __pops.alert({
         title: {
           text: "在线用户",
-          position: "center"
+          position: "center",
         },
         content: {
-          text: (
-`
+          text: `
                 <div class="online-user-info">${onlineUserInfo.totalOnline} 人在线 - ${onlineUserInfo.onlineUser} 会员${onlineUserInfo.invisibleUser == 0 ? "" : `(${onlineUserInfo.invisibleUser}隐身)`} - ${onlineUserInfo.noRegisterUser} 位游客</div>
                 <div class="online-user-filter">
                     <input placeholder="过滤用户名/身份/UID(可正则)"></div>
                 <div class="online-user-list"></div>
-                `
-          ),
-          html: true
+                `,
+          html: true,
         },
         btn: {
           ok: {
             text: "关闭",
-            type: "default"
-          }
+            type: "default",
+          },
         },
         width: "88vw",
         height: "82vh",
-        style: onlineUserCSS
+        style: onlineUserCSS,
       });
       let $list = $alert.$shadowRoot.querySelector(".online-user-list");
       let $filterInput = $alert.$shadowRoot.querySelector(".online-user-filter input");
@@ -2065,7 +2096,11 @@ async showOnlineUser() {
             return;
           }
           $alert.$shadowRoot.querySelectorAll(".online-user-list .online-item").forEach((item) => {
-            if (item.getAttribute("data-name").match(new RegExp(inputText, "ig")) || item.getAttribute("data-sf").match(new RegExp(inputText, "ig")) || item.getAttribute("data-uid").match(new RegExp(inputText, "ig"))) {
+            if (
+              item.getAttribute("data-name").match(new RegExp(inputText, "ig")) ||
+              item.getAttribute("data-sf").match(new RegExp(inputText, "ig")) ||
+              item.getAttribute("data-uid").match(new RegExp(inputText, "ig"))
+            ) {
               item.removeAttribute("style");
             } else {
               item.setAttribute("style", "display:none;");
@@ -2075,14 +2110,14 @@ async showOnlineUser() {
         })
       );
     },
-async getOnlineUserListInfo() {
+    async getOnlineUserListInfo() {
       let searchParamsData = {
-        showoldetails: "yes"
+        showoldetails: "yes",
       };
       let response = await httpx.get(`/forum.php?${utils.toSearchParamsStr(searchParamsData)}`, {
         headers: {
-          "User-Agent": utils.getRandomPCUA()
-        }
+          "User-Agent": utils.getRandomPCUA(),
+        },
       });
       if (!response.status) {
         return;
@@ -2093,7 +2128,7 @@ async getOnlineUserListInfo() {
         totalOnline: 0,
         onlineUser: 0,
         noRegisterUser: 0,
-        invisibleUser: 0
+        invisibleUser: 0,
       };
       let onlineList = pageHTML.querySelectorAll("#onlinelist ul li");
       onlineList.forEach((item) => {
@@ -2119,7 +2154,7 @@ async getOnlineUserListInfo() {
           avatar,
           name,
           sf,
-          space
+          space,
         });
       });
       let onlineInfo = pageHTML.querySelector("#online div.bm_h span.xs1").textContent;
@@ -2129,13 +2164,12 @@ async getOnlineUserListInfo() {
       result.invisibleUser = utils.parseInt(onlineInfo.match(/([0-9]*)\s*隐身/i), 0);
       return result;
     },
-createListViewItem(userInfo) {
+    createListViewItem(userInfo) {
       let $item = DOMUtils.createElement(
         "div",
         {
           className: "online-item",
-          innerHTML: (
-`
+          innerHTML: `
                 <div class="online-user">
                     <img data-avatar src="${userInfo["avatar"]}" loading="lazy" class="online-user-avatar">
                     <div class="online-user-info">
@@ -2144,13 +2178,12 @@ createListViewItem(userInfo) {
                         <span data-uid>UID: ${userInfo["uid"]}</span>
                     </div>
                 </div>
-            `
-          )
+            `,
         },
         {
           "data-name": userInfo.name,
           "data-uid": userInfo.uid,
-          "data-sf": userInfo.sf
+          "data-sf": userInfo.sf,
         }
       );
       DOMUtils.on($item, "click", ".online-user-avatar", (event) => {
@@ -2158,19 +2191,29 @@ createListViewItem(userInfo) {
         window.open(`home.php?mod=space&uid=${userInfo.uid}&do=profile`, "_blank");
       });
       return $item;
-    }
+    },
   };
   const MTIdentifyLinks = () => {
     const HANDLER_CLASS_NAME = "texttolink";
-    const url_regexp = /((https?:\/\/|www\.)[\x21-\x7e]+[\w\/]|(\w[\w._-]+\.(com|cn|org|net|info|tv|cc))(\/[\x21-\x7e]*[\w\/])?|ed2k:\/\/[\x21-\x7e]+\|\/|thunder:\/\/[\x21-\x7e]+=)/gi;
-    const handleClearLink = function(event) {
+    const url_regexp =
+      /((https?:\/\/|www\.)[\x21-\x7e]+[\w\/]|(\w[\w._-]+\.(com|cn|org|net|info|tv|cc))(\/[\x21-\x7e]*[\w\/])?|ed2k:\/\/[\x21-\x7e]+\|\/|thunder:\/\/[\x21-\x7e]+=)/gi;
+    const handleClearLink = function (event) {
       let targetElement = event.originalTarget ?? event.target;
       let url;
-      if (null != targetElement && "a" === targetElement.localName && -1 !== targetElement.className.indexOf(HANDLER_CLASS_NAME) && (url = targetElement.getAttribute("href"), typeof url === "string" && 0 !== url.indexOf("http") && 0 !== url.indexOf("ed2k://") && 0 !== url.indexOf("thunder://"))) {
+      if (
+        null != targetElement &&
+        "a" === targetElement.localName &&
+        -1 !== targetElement.className.indexOf(HANDLER_CLASS_NAME) &&
+        ((url = targetElement.getAttribute("href")),
+        typeof url === "string" &&
+          0 !== url.indexOf("http") &&
+          0 !== url.indexOf("ed2k://") &&
+          0 !== url.indexOf("thunder://"))
+      ) {
         return targetElement.setAttribute("href", "http://" + targetElement);
       }
     };
-    const setLink = function(textNode) {
+    const setLink = function (textNode) {
       if (typeof textNode != "object" || textNode == null) {
         return;
       }
@@ -2180,7 +2223,9 @@ createListViewItem(userInfo) {
         return;
       }
       if (
--1 === $parent?.className?.indexOf?.(HANDLER_CLASS_NAME) && "#cdata-section" !== textNode.nodeName && typeof textContent === "string"
+        -1 === $parent?.className?.indexOf?.(HANDLER_CLASS_NAME) &&
+        "#cdata-section" !== textNode.nodeName &&
+        typeof textContent === "string"
       ) {
         const modifiedContent = textContent.replace(
           url_regexp,
@@ -2201,43 +2246,56 @@ createListViewItem(userInfo) {
         }
       }
     };
-    const excludedTags = "a svg canvas applet input button area pre embed frame frameset head iframe img option map meta noscript object script style textarea code".split(
-      " "
-    );
+    const excludedTags =
+      "a svg canvas applet input button area pre embed frame frameset head iframe img option map meta noscript object script style textarea code".split(
+        " "
+      );
     const xpath = `//text()[not(ancestor::${excludedTags.join(") and not(ancestor::")})]`;
     const filter = new RegExp(`^(${excludedTags.join("|")})$`, "i");
-    const processLinksInBatches = function(textNodesSnapshot, startIndex) {
+    const processLinksInBatches = function (textNodesSnapshot, startIndex) {
       let currentIndex, endIndex;
       if (startIndex + 1e4 < textNodesSnapshot.snapshotLength) {
-        let start = currentIndex = startIndex;
-        for (endIndex = startIndex + 1e4; startIndex <= endIndex ? currentIndex <= endIndex : currentIndex >= endIndex; start = startIndex <= endIndex ? ++currentIndex : --currentIndex) {
+        let start = (currentIndex = startIndex);
+        for (
+          endIndex = startIndex + 1e4;
+          startIndex <= endIndex ? currentIndex <= endIndex : currentIndex >= endIndex;
+          start = startIndex <= endIndex ? ++currentIndex : --currentIndex
+        ) {
           setLink(textNodesSnapshot.snapshotItem(start));
         }
-        setTimeout(function() {
+        setTimeout(function () {
           return processLinksInBatches(textNodesSnapshot, startIndex + 1e4);
         }, 15);
       } else {
         let start;
-        for (start = currentIndex = startIndex, endIndex = textNodesSnapshot.snapshotLength; startIndex <= endIndex ? currentIndex <= endIndex : currentIndex >= endIndex; start = startIndex <= endIndex ? ++currentIndex : --currentIndex) {
+        for (
+          start = currentIndex = startIndex, endIndex = textNodesSnapshot.snapshotLength;
+          startIndex <= endIndex ? currentIndex <= endIndex : currentIndex >= endIndex;
+          start = startIndex <= endIndex ? ++currentIndex : --currentIndex
+        ) {
           setLink(textNodesSnapshot.snapshotItem(start));
         }
       }
     };
-    const linkifyText = function(element) {
+    const linkifyText = function (element) {
       const textNodesSnapshot = document.evaluate(xpath, element, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
       return processLinksInBatches(textNodesSnapshot, 0);
     };
-    const observePageChanges = function(rootElement) {
-      for (const treeWalker = document.createTreeWalker(rootElement, NodeFilter.SHOW_TEXT, {
-        acceptNode: function(node) {
-          const localName = node?.parentNode?.localName;
-          if (!filter.test(localName)) {
-            return NodeFilter.FILTER_ACCEPT;
-          } else {
-            return NodeFilter.FILTER_SKIP;
-          }
-        }
-      }); treeWalker.nextNode(); ) {
+    const observePageChanges = function (rootElement) {
+      for (
+        const treeWalker = document.createTreeWalker(rootElement, NodeFilter.SHOW_TEXT, {
+          acceptNode: function (node) {
+            const localName = node?.parentNode?.localName;
+            if (!filter.test(localName)) {
+              return NodeFilter.FILTER_ACCEPT;
+            } else {
+              return NodeFilter.FILTER_SKIP;
+            }
+          },
+        });
+        treeWalker.nextNode();
+
+      ) {
         setLink(treeWalker.currentNode);
       }
     };
@@ -2252,26 +2310,31 @@ createListViewItem(userInfo) {
         }
       }
     });
-    const initLinkProcessing = function() {
+    const initLinkProcessing = function () {
       linkifyText(document.body);
       const mutationObserver = utils.mutationObserver(document.body, {
         config: {
           subtree: true,
-          childList: true
+          childList: true,
         },
         callback: (mutations) => {
           lockFn.run(mutations);
-        }
+        },
       });
       return mutationObserver;
     };
-    const clearLinkHelper = function(linkElement) {
+    const clearLinkHelper = function (linkElement) {
       const url = linkElement.getAttribute("href");
-      if (typeof url === "string" && 0 !== url.indexOf("http") && 0 !== url.indexOf("ed2k://") && 0 !== url.indexOf("thunder://")) {
+      if (
+        typeof url === "string" &&
+        0 !== url.indexOf("http") &&
+        0 !== url.indexOf("ed2k://") &&
+        0 !== url.indexOf("thunder://")
+      ) {
         return linkElement.setAttribute("href", "http://" + url);
       }
     };
-    const clearAllLinks = function() {
+    const clearAllLinks = function () {
       const linkElements = Array.from(document.getElementsByClassName(HANDLER_CLASS_NAME));
       for (const $link of linkElements) {
         clearLinkHelper($link);
@@ -2283,12 +2346,12 @@ createListViewItem(userInfo) {
   };
   const MTAutoSignIn = {
     $key: {
-      sign: "mt-sign-time"
+      sign: "mt-sign-time",
     },
     init() {
       this.sign();
     },
-checkSignInfo() {
+    checkSignInfo() {
       let signInfo = this.getSignInfo();
       let findValue = signInfo.find((it) => {
         return it.hostName === window.location.hostname;
@@ -2301,10 +2364,10 @@ checkSignInfo() {
       }
       return false;
     },
-setSignInfo() {
+    setSignInfo() {
       let signInfo = {
         hostName: window.location.hostname,
-        time: Date.now()
+        time: Date.now(),
       };
       let localSignInfo = this.getSignInfo();
       let findIndex = localSignInfo.findIndex((it) => {
@@ -2316,7 +2379,7 @@ setSignInfo() {
       localSignInfo.push(signInfo);
       _GM_setValue(this.$key.sign, localSignInfo);
     },
-getSignInfo() {
+    getSignInfo() {
       let localSignInfo = _GM_getValue(this.$key.sign, []);
       if (!Array.isArray(localSignInfo)) {
         this.clearSignInfo();
@@ -2324,13 +2387,13 @@ getSignInfo() {
       }
       return localSignInfo;
     },
-getHostNameSignInfo(hostName = window.location.hostname) {
+    getHostNameSignInfo(hostName = window.location.hostname) {
       let localSignInfo = this.getSignInfo();
       return localSignInfo.find((it) => {
         return it.hostName === hostName;
       });
     },
-clearSignInfo(hostName) {
+    clearSignInfo(hostName) {
       if (typeof hostName === "string") {
         let signInfo = this.getSignInfo();
         let findIndex = signInfo.findIndex((it) => {
@@ -2344,7 +2407,7 @@ clearSignInfo(hostName) {
         _GM_deleteValue(this.$key.sign);
       }
     },
-checkLogin() {
+    checkLogin() {
       if (MTUtils.envIsMobile()) {
         let mobile_login_exitBtn = $("a[href*='member.php?mod=logging&action=logout']");
         return Boolean(mobile_login_exitBtn);
@@ -2353,7 +2416,7 @@ checkLogin() {
         return Boolean(pc_login);
       }
     },
-async sign() {
+    async sign() {
       if (this.checkSignInfo()) {
         log.info("今日已签到");
         return;
@@ -2366,7 +2429,7 @@ async sign() {
         }
         this.clearSignInfo(window.location.hostname);
         Qmsg.error("自动签到：获取账号formhash失败", {
-          consoleLogContent: true
+          consoleLogContent: true,
         });
         return;
       }
@@ -2382,14 +2445,14 @@ async sign() {
         let $alert = pops.alert({
           title: {
             text: "未知签到内容",
-            position: "center"
+            position: "center",
           },
           content: {
             text: "",
-            html: false
+            html: false,
           },
           width: "88vw",
-          height: "300px"
+          height: "300px",
         });
         let $content = $alert.$shadowRoot.querySelector(".pops-alert-content");
         $content.innerText = content;
@@ -2403,18 +2466,18 @@ async sign() {
               format: "button",
               formhash: formHash,
               inajax: 1,
-              ajaxtarget: "midaben_sign"
+              ajaxtarget: "midaben_sign",
             };
             let response = await httpx.get(`/k_misign-sign.html?${utils.toSearchParamsStr(searchParamsData)}`, {
               fetch: useFetch,
               headers: {
-                "User-Agent": userAgent
+                "User-Agent": userAgent,
               },
-              allowInterceptConfig: false
+              allowInterceptConfig: false,
             });
             if (!response.status) {
               Qmsg.error("签到：网络异常，请求失败", {
-                consoleLogContent: true
+                consoleLogContent: true,
               });
               return;
             }
@@ -2427,13 +2490,18 @@ async sign() {
             if (content.includes("需要先登录")) {
               Qmsg.error("签到：请先登录账号", {
                 timeout: 3e3,
-                consoleLogContent: true
+                consoleLogContent: true,
               });
               signFailedCallBack();
               return;
-            } else if (content.includes("请稍后再试") || content.includes("您已经被列入黑名单") || content.includes("绑定手机号后才可以签到") || content.includes("您所在用户组不允许使用")) {
+            } else if (
+              content.includes("请稍后再试") ||
+              content.includes("您已经被列入黑名单") ||
+              content.includes("绑定手机号后才可以签到") ||
+              content.includes("您所在用户组不允许使用")
+            ) {
               Qmsg.error("签到：" + content, {
-                timeout: 5e3
+                timeout: 5e3,
               });
               return;
             } else if (content.includes("今日已签") || content.includes("今日已经签到")) {
@@ -2441,7 +2509,7 @@ async sign() {
               return;
             } else if (responseText.includes("您当前的访问请求当中含有非法字符，已经被系统拒绝")) {
               Qmsg.error("签到: 您当前的访问请求当中含有非法字符，已经被系统拒绝", {
-                timeout: 6e3
+                timeout: 6e3,
               });
               return;
             } else if (useFetch && "location" in utils.toJSON(responseText)) {
@@ -2457,20 +2525,20 @@ async sign() {
               let line = lineMatch[lineMatch.length - 1];
               log.success(`金币${con}，排名${line}`);
               Qmsg.info(
-`
+                `
 							<div style="display: flex;${!MTUtils.envIsMobile() ? "padding: 20px;" : ""}">
 								<div style="align-self: center;margin-right: 20px;">签到</div>
 								<div>排名 ${line}<br>金币 ${con}</div>
 							</div>`,
                 {
                   timeout: 4e3,
-                  isHTML: true
+                  isHTML: true,
                 }
               );
               return;
             }
             unknownSignContentCallback(responseText);
-          }
+          },
         },
         {
           checkPluginEnableUrl: "/plugin.php?id=dsu_paulsign:sign",
@@ -2479,7 +2547,7 @@ async sign() {
               id: "dsu_paulsign:sign",
               operation: "qiandao",
               infloat: 1,
-              inajax: 1
+              inajax: 1,
             };
             let response = await httpx.post(`/plugin.php?${utils.toSearchParamsStr(searchParamsData)}`, {
               data: {
@@ -2487,19 +2555,19 @@ async sign() {
                 qdxq: "kx",
                 qdmode: 3,
                 todaysay: "",
-                fastreply: 0
+                fastreply: 0,
               },
               processData: true,
               fetch: useFetch,
               headers: {
                 "User-Agent": userAgent,
-                "Content-Type": "application/x-www-form-urlencoded"
+                "Content-Type": "application/x-www-form-urlencoded",
               },
-              allowInterceptConfig: false
+              allowInterceptConfig: false,
             });
             if (!response.status) {
               Qmsg.error("签到：网络异常，请求失败", {
-                consoleLogContent: true
+                consoleLogContent: true,
               });
               return;
             }
@@ -2515,17 +2583,17 @@ async sign() {
               return;
             }
             unknownSignContentCallback(responseText);
-          }
-        }
+          },
+        },
       ];
       for (let index = 0; index < sign_plugin.length; index++) {
         const signPluginItem = sign_plugin[index];
         let checkResponse = await httpx.get(signPluginItem.checkPluginEnableUrl, {
           fetch: useFetch,
           headers: {
-            "User-Agent": utils.getRandomPCUA()
+            "User-Agent": utils.getRandomPCUA(),
           },
-          allowInterceptConfig: false
+          allowInterceptConfig: false,
         });
         if (!checkResponse.status) {
           log.error("签到：检查签到插件是否启用的请求失败", checkResponse);
@@ -2539,78 +2607,101 @@ async sign() {
         await signPluginItem.sign();
         break;
       }
-    }
+    },
   };
   const MTRouter = {
-isKMiSign() {
+    isKMiSign() {
       return window.location.pathname.startsWith("/k_misign-sign.html");
     },
-isPost() {
+    isPost() {
       const searchParams = new URLSearchParams(window.location.search);
-      return window.location.pathname.startsWith("/thread-") || window.location.pathname.startsWith("/forum.php") && searchParams.has("mod", "viewthread");
+      return (
+        window.location.pathname.startsWith("/thread-") ||
+        (window.location.pathname.startsWith("/forum.php") && searchParams.has("mod", "viewthread"))
+      );
     },
-isPage() {
+    isPage() {
       return Boolean(window.location.pathname.match(/^\/page-([0-9]+).html/g));
     },
-isGuide() {
+    isGuide() {
       const searchParams = new URLSearchParams(window.location.search);
       return window.location.pathname.startsWith("/forum.php") && searchParams.has("mod", "guide");
     },
-isPlate() {
+    isPlate() {
       return Boolean(window.location.pathname.match(/\/forum-[0-9]{1,2}-[0-9]{1,2}.html/g));
     },
-isSearch() {
+    isSearch() {
       return window.location.pathname.startsWith("/search.php");
     },
-isSpace() {
+    isSpace() {
       const searchParams = new URLSearchParams(window.location.search);
       return window.location.pathname.startsWith("/home.php") && searchParams.has("mod", "space");
     },
-isMySpace() {
+    isMySpace() {
       const searchParams = new URLSearchParams(window.location.search);
-      return window.location.pathname.startsWith("/home.php") && searchParams.has("mod", "space") && searchParams.has("do", "profile") && searchParams.has("mycenter");
+      return (
+        window.location.pathname.startsWith("/home.php") &&
+        searchParams.has("mod", "space") &&
+        searchParams.has("do", "profile") &&
+        searchParams.has("mycenter")
+      );
     },
-isSpaceWithAt() {
+    isSpaceWithAt() {
       return window.location.pathname.startsWith("/space-uid-");
     },
-isForumList() {
+    isForumList() {
       const searchParams = new URLSearchParams(window.location.search);
       return window.location.pathname.startsWith("/forum.php") && searchParams.has("forumlist");
     },
-isMessage() {
+    isMessage() {
       const searchParams = new URLSearchParams(window.location.search);
-      return window.location.pathname.startsWith("/home.php") && searchParams.has("mod", "space") && searchParams.has("do", "notice");
+      return (
+        window.location.pathname.startsWith("/home.php") &&
+        searchParams.has("mod", "space") &&
+        searchParams.has("do", "notice")
+      );
     },
-isMessageList() {
+    isMessageList() {
       const searchParams = new URLSearchParams(window.location.search);
-      return window.location.pathname.startsWith("/home.php") && searchParams.has("mod", "space") && searchParams.has("do", "pm");
+      return (
+        window.location.pathname.startsWith("/home.php") &&
+        searchParams.has("mod", "space") &&
+        searchParams.has("do", "pm")
+      );
     },
-isPointsMall() {
+    isPointsMall() {
       const searchParams = new URLSearchParams(window.location.search);
-      return window.location.pathname.startsWith("/keke_integralmall-keke_integralmall.html") || window.location.pathname.startsWith("/plugin.php") && searchParams.has("id", "keke_integralmal");
+      return (
+        window.location.pathname.startsWith("/keke_integralmall-keke_integralmall.html") ||
+        (window.location.pathname.startsWith("/plugin.php") && searchParams.has("id", "keke_integralmal"))
+      );
     },
-isPostPublish() {
+    isPostPublish() {
       const searchParams = new URLSearchParams(window.location.search);
       return window.location.pathname.startsWith("/forum.php") && searchParams.has("mod", "post");
     },
-isPostPublish_voting() {
+    isPostPublish_voting() {
       const searchParams = new URLSearchParams(window.location.search);
-      return window.location.pathname.startsWith("/forum.php") && searchParams.has("special", "1") || searchParams.has("fid", "42");
+      return (
+        (window.location.pathname.startsWith("/forum.php") && searchParams.has("special", "1")) ||
+        searchParams.has("fid", "42")
+      );
     },
-isPostPublish_edit() {
+    isPostPublish_edit() {
       const searchParams = new URLSearchParams(window.location.search);
       return this.isPostPublish() && searchParams.has("action", "edit");
     },
-isPostPublish_newthread() {
+    isPostPublish_newthread() {
       const searchParams = new URLSearchParams(window.location.search);
       return this.isPostPublish() && searchParams.has("action", "newthread");
     },
-isPostPublish_reply() {
+    isPostPublish_reply() {
       const searchParams = new URLSearchParams(window.location.search);
       return this.isPostPublish() && searchParams.has("action", "reply");
-    }
+    },
   };
-  const optimizationCSS$1 = '#comiis_foot_menu_beautify {\r\n  position: fixed;\r\n  display: inline-flex;\r\n  z-index: 90;\r\n  left: 0;\r\n  right: 0;\r\n  bottom: 0;\r\n  width: 100%;\r\n  height: 48px;\r\n  overflow: hidden;\r\n  align-content: center;\r\n  justify-content: center;\r\n  align-items: center;\r\n}\r\n#comiis_foot_menu_beautify_big {\r\n  position: fixed;\r\n  display: inline-flex;\r\n  flex-direction: column;\r\n  z-index: 92;\r\n  left: 0;\r\n  right: 0;\r\n  bottom: 0;\r\n  width: 100%;\r\n  min-height: 120px;\r\n  overflow: hidden;\r\n  align-content: center;\r\n  justify-content: center;\r\n  align-items: center;\r\n}\r\n#comiis_foot_menu_beautify input.bg_e.f_c::-webkit-input-placeholder {\r\n  padding-left: 10px;\r\n  color: #999;\r\n}\r\n#comiis_foot_menu_beautify input.bg_e.f_c::-moz-input-placeholder {\r\n  padding-left: 10px;\r\n  color: #999;\r\n}\r\n#comiis_foot_menu_beautify .reply_area ul li a {\r\n  display: block;\r\n  width: 22px;\r\n  height: 22px;\r\n  padding: 4px 8px;\r\n  margin: 8px 0;\r\n  position: relative;\r\n}\r\n#comiis_foot_menu_beautify .reply_area ul {\r\n  display: inline-flex;\r\n  align-content: center;\r\n  align-items: center;\r\n  justify-content: center;\r\n}\r\n#comiis_foot_menu_beautify .reply_area,\r\n#comiis_foot_menu_beautify .reply_area ul {\r\n  width: 100%;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li a i {\r\n  width: 22px;\r\n  height: 22px;\r\n  line-height: 22px;\r\n  font-size: 22px;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li a span {\r\n  position: absolute;\r\n  display: block;\r\n  font-size: 10px;\r\n  height: 14px;\r\n  line-height: 14px;\r\n  padding: 0 6px;\r\n  right: -8px;\r\n  top: 4px;\r\n  overflow: hidden;\r\n  border-radius: 20px;\r\n}\r\n#comiis_foot_menu_beautify li[data-attr="回帖"] input {\r\n  border: transparent;\r\n  border-radius: 15px;\r\n  height: 30px;\r\n  width: 100%;\r\n}\r\n#comiis_foot_menu_beautify_big .comiis_smiley_box {\r\n  padding: 6px 6px 0;\r\n}\r\n#comiis_foot_menu_beautify_big .reply_area {\r\n  margin: 10px 0 5px 0;\r\n}\r\n#comiis_foot_menu_beautify_big .reply_area ul {\r\n  display: inline-flex;\r\n  align-content: center;\r\n  justify-content: center;\r\n  align-items: flex-end;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="回帖"] {\r\n  width: 75vw;\r\n  margin-right: 15px;\r\n}\r\n#comiis_foot_menu_beautify_big .reply_user_content {\r\n  width: 75vw;\r\n  word-wrap: break-word;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  white-space: nowrap;\r\n  margin: 8px 10px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] .fastpostform_new {\r\n  text-align: center;\r\n  margin-bottom: 28px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] .fastpostform_new i {\r\n  font-size: 22px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] input {\r\n  width: 60px;\r\n  height: 30px;\r\n  border: transparent;\r\n  color: #fff;\r\n  background: #d1c9fc;\r\n  border-radius: 30px;\r\n  margin-bottom: 6px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] input[data-text="true"] {\r\n  background: #7a61fb;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="回帖"] textarea {\r\n  padding: 10px 10px 10px 10px;\r\n  border: transparent;\r\n  border-radius: 6px;\r\n  min-height: 70px;\r\n  max-height: 180px;\r\n  background: #e9e8ec;\r\n  overflow-y: auto;\r\n  width: -webkit-fill-available;\r\n  width: -moz-available;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li[data-attr="回帖"] {\r\n  width: 65%;\r\n  margin: 0 3%;\r\n  text-align: center;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li:not(first-child) {\r\n  width: 7%;\r\n  text-align: -webkit-center;\r\n  text-align: center;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area {\r\n  width: 100%;\r\n  text-align: center;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area .menu_icon a {\r\n  margin: 0 20px;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area i {\r\n  font-size: 24px;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area #comiis_insert_ubb_tab i {\r\n  font-size: 16px;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area .menu_body {\r\n  background: #f4f4f4;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area .menu_body .comiis_smiley_box .comiis_optimization {\r\n  max-height: 140px;\r\n  overflow-y: auto;\r\n  flex-direction: column;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area .menu_body .comiis_smiley_box .bqbox_t {\r\n  background: #fff;\r\n}\r\n#comiis_foot_menu_beautify_big\r\n  .other_area\r\n  .menu_body\r\n  .comiis_smiley_box\r\n  .bqbox_t\r\n  ul#comiis_smilies_key\r\n  li\r\n  a.bg_f.b_l.b_r {\r\n  background: #f4f4f4 !important;\r\n}\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #comiis_pictitle_key {\r\n  display: -webkit-box;\r\n  top: 0;\r\n  left: 0;\r\n  height: 42px;\r\n  line-height: 42px;\r\n  overflow: hidden;\r\n  overflow-x: auto;\r\n}\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #comiis_pictitle_key li {\r\n  padding: 0 10px;\r\n}\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_insert_ubb_tab .comiis_input_style,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab .comiis_upbox {\r\n  height: 140px;\r\n  overflow-y: auto;\r\n  flex-direction: column;\r\n}\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_hello,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_kggzs,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_mt,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_z4a {\r\n  display: none;\r\n}\r\n@media screen and (max-width: 350px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 14.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 350px) and (max-width: 400px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 12.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 400px) and (max-width: 450px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 11%;\r\n  }\r\n}\r\n@media screen and (min-width: 450px) and (max-width: 500px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 10%;\r\n  }\r\n}\r\n@media screen and (min-width: 500px) and (max-width: 550px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 9.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 550px) and (max-width: 600px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 9%;\r\n  }\r\n}\r\n@media screen and (min-width: 600px) and (max-width: 650px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 8.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 650px) and (max-width: 700px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 8%;\r\n  }\r\n}\r\n@media screen and (min-width: 700px) and (max-width: 750px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 7.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 750px) and (max-width: 800px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 7%;\r\n  }\r\n}\r\n@media screen and (min-width: 800px) and (max-width: 850px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 6.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 850px) and (max-width: 1200px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 6%;\r\n  }\r\n}\r\n@media screen and (min-width: 1200px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 4.5%;\r\n  }\r\n}\r\n#imglist_settings button {\r\n  font-size: 13.333px;\r\n  color: #9baacf;\r\n  outline: 0;\r\n  border: none;\r\n  height: 35px;\r\n  width: 80px;\r\n  border-radius: 10px;\r\n  box-shadow:\r\n    0.3rem 0.3rem 0.6rem #c8d0e7,\r\n    -0.2rem -0.2rem 0.5rem #fff;\r\n  font-weight: 800;\r\n  line-height: 40px;\r\n  background: #efefef;\r\n  padding: 0;\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n}\r\n#imglist_settings button:active {\r\n  box-shadow:\r\n    inset 0.2rem 0.2rem 0.5rem #c8d0e7,\r\n    inset -0.2rem -0.2rem 0.5rem #fff !important;\r\n  color: #638ffb !important;\r\n}\r\n\r\n#comiis_head .header_y {\r\n  display: flex;\r\n  align-content: center;\r\n  align-items: center;\r\n  justify-content: flex-end;\r\n  height: 100%;\r\n}\r\n#comiis_head .header_y input {\r\n  border: transparent;\r\n  background: 0 0;\r\n  text-align: center;\r\n  margin: 0 5px;\r\n}\r\n#comiis_head .header_y input[value="删除"] {\r\n  color: #d00;\r\n}\r\n#comiis_head .header_y input[value="保存"] {\r\n  color: #b0ff6a;\r\n}\r\n#comiis_head .header_y input[value="保存草稿"] {\r\n  color: #f90;\r\n}\r\n#comiis_head .header_y input[value="发表"] {\r\n  color: #b0ff6a;\r\n}\r\n#comiis_head .header_y input[value="回复"] {\r\n  color: #b0ff6a;\r\n}\r\n#comiis_post_tab {\r\n  color: #000;\r\n}\r\n#comiis_pictitle_tab #imglist input {\r\n  display: none;\r\n}\r\n\r\n.comiis_post_imglist .delImg {\r\n  position: absolute;\r\n  top: -5px;\r\n  left: -5px;\r\n}\r\n\r\n.comiis_post_imglist .p_img a {\r\n  float: left;\r\n  height: 36px;\r\n}\r\n#imglist .p_img a {\r\n  float: left;\r\n  height: 36px;\r\n}\r\n#imglist .del a {\r\n  padding: 0;\r\n}\r\n';
+  const optimizationCSS$1 =
+    '#comiis_foot_menu_beautify {\r\n  position: fixed;\r\n  display: inline-flex;\r\n  z-index: 90;\r\n  left: 0;\r\n  right: 0;\r\n  bottom: 0;\r\n  width: 100%;\r\n  height: 48px;\r\n  overflow: hidden;\r\n  align-content: center;\r\n  justify-content: center;\r\n  align-items: center;\r\n}\r\n#comiis_foot_menu_beautify_big {\r\n  position: fixed;\r\n  display: inline-flex;\r\n  flex-direction: column;\r\n  z-index: 92;\r\n  left: 0;\r\n  right: 0;\r\n  bottom: 0;\r\n  width: 100%;\r\n  min-height: 120px;\r\n  overflow: hidden;\r\n  align-content: center;\r\n  justify-content: center;\r\n  align-items: center;\r\n}\r\n#comiis_foot_menu_beautify input.bg_e.f_c::-webkit-input-placeholder {\r\n  padding-left: 10px;\r\n  color: #999;\r\n}\r\n#comiis_foot_menu_beautify input.bg_e.f_c::-moz-input-placeholder {\r\n  padding-left: 10px;\r\n  color: #999;\r\n}\r\n#comiis_foot_menu_beautify .reply_area ul li a {\r\n  display: block;\r\n  width: 22px;\r\n  height: 22px;\r\n  padding: 4px 8px;\r\n  margin: 8px 0;\r\n  position: relative;\r\n}\r\n#comiis_foot_menu_beautify .reply_area ul {\r\n  display: inline-flex;\r\n  align-content: center;\r\n  align-items: center;\r\n  justify-content: center;\r\n}\r\n#comiis_foot_menu_beautify .reply_area,\r\n#comiis_foot_menu_beautify .reply_area ul {\r\n  width: 100%;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li a i {\r\n  width: 22px;\r\n  height: 22px;\r\n  line-height: 22px;\r\n  font-size: 22px;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li a span {\r\n  position: absolute;\r\n  display: block;\r\n  font-size: 10px;\r\n  height: 14px;\r\n  line-height: 14px;\r\n  padding: 0 6px;\r\n  right: -8px;\r\n  top: 4px;\r\n  overflow: hidden;\r\n  border-radius: 20px;\r\n}\r\n#comiis_foot_menu_beautify li[data-attr="回帖"] input {\r\n  border: transparent;\r\n  border-radius: 15px;\r\n  height: 30px;\r\n  width: 100%;\r\n}\r\n#comiis_foot_menu_beautify_big .comiis_smiley_box {\r\n  padding: 6px 6px 0;\r\n}\r\n#comiis_foot_menu_beautify_big .reply_area {\r\n  margin: 10px 0 5px 0;\r\n}\r\n#comiis_foot_menu_beautify_big .reply_area ul {\r\n  display: inline-flex;\r\n  align-content: center;\r\n  justify-content: center;\r\n  align-items: flex-end;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="回帖"] {\r\n  width: 75vw;\r\n  margin-right: 15px;\r\n}\r\n#comiis_foot_menu_beautify_big .reply_user_content {\r\n  width: 75vw;\r\n  word-wrap: break-word;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  white-space: nowrap;\r\n  margin: 8px 10px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] .fastpostform_new {\r\n  text-align: center;\r\n  margin-bottom: 28px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] .fastpostform_new i {\r\n  font-size: 22px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] input {\r\n  width: 60px;\r\n  height: 30px;\r\n  border: transparent;\r\n  color: #fff;\r\n  background: #d1c9fc;\r\n  border-radius: 30px;\r\n  margin-bottom: 6px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] input[data-text="true"] {\r\n  background: #7a61fb;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="回帖"] textarea {\r\n  padding: 10px 10px 10px 10px;\r\n  border: transparent;\r\n  border-radius: 6px;\r\n  min-height: 70px;\r\n  max-height: 180px;\r\n  background: #e9e8ec;\r\n  overflow-y: auto;\r\n  width: -webkit-fill-available;\r\n  width: -moz-available;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li[data-attr="回帖"] {\r\n  width: 65%;\r\n  margin: 0 3%;\r\n  text-align: center;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li:not(first-child) {\r\n  width: 7%;\r\n  text-align: -webkit-center;\r\n  text-align: center;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area {\r\n  width: 100%;\r\n  text-align: center;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area .menu_icon a {\r\n  margin: 0 20px;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area i {\r\n  font-size: 24px;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area #comiis_insert_ubb_tab i {\r\n  font-size: 16px;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area .menu_body {\r\n  background: #f4f4f4;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area .menu_body .comiis_smiley_box .comiis_optimization {\r\n  max-height: 140px;\r\n  overflow-y: auto;\r\n  flex-direction: column;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area .menu_body .comiis_smiley_box .bqbox_t {\r\n  background: #fff;\r\n}\r\n#comiis_foot_menu_beautify_big\r\n  .other_area\r\n  .menu_body\r\n  .comiis_smiley_box\r\n  .bqbox_t\r\n  ul#comiis_smilies_key\r\n  li\r\n  a.bg_f.b_l.b_r {\r\n  background: #f4f4f4 !important;\r\n}\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #comiis_pictitle_key {\r\n  display: -webkit-box;\r\n  top: 0;\r\n  left: 0;\r\n  height: 42px;\r\n  line-height: 42px;\r\n  overflow: hidden;\r\n  overflow-x: auto;\r\n}\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #comiis_pictitle_key li {\r\n  padding: 0 10px;\r\n}\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_insert_ubb_tab .comiis_input_style,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab .comiis_upbox {\r\n  height: 140px;\r\n  overflow-y: auto;\r\n  flex-direction: column;\r\n}\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_hello,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_kggzs,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_mt,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_z4a {\r\n  display: none;\r\n}\r\n@media screen and (max-width: 350px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 14.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 350px) and (max-width: 400px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 12.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 400px) and (max-width: 450px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 11%;\r\n  }\r\n}\r\n@media screen and (min-width: 450px) and (max-width: 500px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 10%;\r\n  }\r\n}\r\n@media screen and (min-width: 500px) and (max-width: 550px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 9.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 550px) and (max-width: 600px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 9%;\r\n  }\r\n}\r\n@media screen and (min-width: 600px) and (max-width: 650px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 8.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 650px) and (max-width: 700px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 8%;\r\n  }\r\n}\r\n@media screen and (min-width: 700px) and (max-width: 750px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 7.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 750px) and (max-width: 800px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 7%;\r\n  }\r\n}\r\n@media screen and (min-width: 800px) and (max-width: 850px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 6.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 850px) and (max-width: 1200px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 6%;\r\n  }\r\n}\r\n@media screen and (min-width: 1200px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 4.5%;\r\n  }\r\n}\r\n#imglist_settings button {\r\n  font-size: 13.333px;\r\n  color: #9baacf;\r\n  outline: 0;\r\n  border: none;\r\n  height: 35px;\r\n  width: 80px;\r\n  border-radius: 10px;\r\n  box-shadow:\r\n    0.3rem 0.3rem 0.6rem #c8d0e7,\r\n    -0.2rem -0.2rem 0.5rem #fff;\r\n  font-weight: 800;\r\n  line-height: 40px;\r\n  background: #efefef;\r\n  padding: 0;\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n}\r\n#imglist_settings button:active {\r\n  box-shadow:\r\n    inset 0.2rem 0.2rem 0.5rem #c8d0e7,\r\n    inset -0.2rem -0.2rem 0.5rem #fff !important;\r\n  color: #638ffb !important;\r\n}\r\n\r\n#comiis_head .header_y {\r\n  display: flex;\r\n  align-content: center;\r\n  align-items: center;\r\n  justify-content: flex-end;\r\n  height: 100%;\r\n}\r\n#comiis_head .header_y input {\r\n  border: transparent;\r\n  background: 0 0;\r\n  text-align: center;\r\n  margin: 0 5px;\r\n}\r\n#comiis_head .header_y input[value="删除"] {\r\n  color: #d00;\r\n}\r\n#comiis_head .header_y input[value="保存"] {\r\n  color: #b0ff6a;\r\n}\r\n#comiis_head .header_y input[value="保存草稿"] {\r\n  color: #f90;\r\n}\r\n#comiis_head .header_y input[value="发表"] {\r\n  color: #b0ff6a;\r\n}\r\n#comiis_head .header_y input[value="回复"] {\r\n  color: #b0ff6a;\r\n}\r\n#comiis_post_tab {\r\n  color: #000;\r\n}\r\n#comiis_pictitle_tab #imglist input {\r\n  display: none;\r\n}\r\n\r\n.comiis_post_imglist .delImg {\r\n  position: absolute;\r\n  top: -5px;\r\n  left: -5px;\r\n}\r\n\r\n.comiis_post_imglist .p_img a {\r\n  float: left;\r\n  height: 36px;\r\n}\r\n#imglist .p_img a {\r\n  float: left;\r\n  height: 36px;\r\n}\r\n#imglist .del a {\r\n  padding: 0;\r\n}\r\n';
   const MTEditorSmilies = () => {
     return [
       {
@@ -2719,7 +2810,7 @@ isPostPublish_reply() {
         "[拳头]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq103.gif",
         "[爱你]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq105.gif",
         "[NO]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq106.gif",
-        "[OK]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq107.gif"
+        "[OK]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq107.gif",
       },
       {
         "[#呵呵]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_1.png",
@@ -2790,7 +2881,7 @@ isPostPublish_reply() {
         "[#蜡烛]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_66.png",
         "[#三道杠]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_67.png",
         "[#音乐]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_68.png",
-        "[#灯泡]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_69.png"
+        "[#灯泡]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_69.png",
       },
       {
         "[doge]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/1.png",
@@ -2872,21 +2963,21 @@ isPostPublish_reply() {
         "[w囧]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/85.png",
         "[w萌]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/86.png",
         "[w神马]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/87.png",
-        "[w威武]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/88.png"
-      }
+        "[w威武]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/88.png",
+      },
     ];
   };
   const GlobalImageDelete = [];
   class MTEditorImageBed {
     option;
     $data = {
-      STORAGE_KEY: "mt-image-bed-upload-history"
+      STORAGE_KEY: "mt-image-bed-upload-history",
     };
     constructor(option) {
       this.option = option;
       GlobalImageDelete.push({
         id: this.option.id,
-        callback: this.option.delImageEvent.bind(this)
+        callback: this.option.delImageEvent.bind(this),
       });
       this.addTab();
       domUtils.on(`.comiis_post_imglist[data-chartbed="${this.option.name}"] .up_btn a`, "click", async (event) => {
@@ -2938,7 +3029,7 @@ isPostPublish_reply() {
                       globalAlpha: Panel.getValue("mt-image-bed-watermark-font-opacity"),
                       xMoveDistance: Panel.getValue("mt-image-bed-watermark-left-right-margin"),
                       yMoveDistance: Panel.getValue("mt-image-bed-watermark-top-bottom-margin"),
-                      rotateAngle: Panel.getValue("mt-image-bed-watermark-rotate")
+                      rotateAngle: Panel.getValue("mt-image-bed-watermark-rotate"),
                     });
                     needUploadImageArray.push(watermark.render("png"));
                     needUploadImageFileArray.push(
@@ -2955,20 +3046,18 @@ isPostPublish_reply() {
                 __pops.confirm({
                   title: {
                     text: "水印预览",
-                    position: "center"
+                    position: "center",
                   },
                   content: {
-                    text: (
-`
-									<div class="upload-image-water">${needUploadImageArray.map((item) => {
-                      return (
-`<img src="${item}" crossoriginNew="anonymous" loading="lazy">`
-                      );
-                    }).join("\n")}
+                    text: `
+									<div class="upload-image-water">${needUploadImageArray
+                    .map((item) => {
+                      return `<img src="${item}" crossoriginNew="anonymous" loading="lazy">`;
+                    })
+                    .join("\n")}
 									</div>
-									`
-                    ),
-                    html: true
+									`,
+                    html: true,
                   },
                   btn: {
                     ok: {
@@ -2976,33 +3065,31 @@ isPostPublish_reply() {
                       async callback(eventDetails, event2) {
                         eventDetails.close();
                         await upload_callback(chooseImage);
-                      }
+                      },
                     },
                     close: {
                       callback(details, event2) {
                         details.close();
                         clear_input();
-                      }
+                      },
                     },
                     cancel: {
                       callback(eventDetails, event2) {
                         eventDetails.close();
                         clear_input();
-                      }
-                    }
+                      },
+                    },
                   },
                   width: "88vw",
                   height: "80vh",
-                  style: (
-`
+                  style: `
 								.upload-image-water {
 
 								}
 								.upload-image-water img{
 									width: 100%;
 								}
-								`
-                  )
+								`,
                 });
               }
             } else {
@@ -3012,16 +3099,14 @@ isPostPublish_reply() {
         }
       );
     }
-addTab() {
+    addTab() {
       let $picture_key = $("#comiis_pictitle_key");
       let $history = $picture_key.querySelector("a[data-type='history']");
-      let tabHTML = (
-`
+      let tabHTML = `
             <li>
                 <a href="javascript:;" class="comiis-picture-tab" data-type="image-bed">${this.option.name}</a>
             </li>
-        `
-      );
+        `;
       if (!$history) {
         let $history_parent = domUtils.createElement("li");
         $history = domUtils.createElement(
@@ -3029,7 +3114,7 @@ addTab() {
           {
             href: "javascript:;",
             className: "comiis-picture-tab",
-            innerHTML: `历史图片`
+            innerHTML: `历史图片`,
           },
           { "data-type": "history" }
         );
@@ -3041,33 +3126,31 @@ addTab() {
       }
       domUtils.before($history.parentElement, tabHTML);
       let $box = $("#comiis_pictitle_tab .bqbox_t");
-      let $historyBox = Array.from($$("#comiis_pictitle_tab .comiis_upbox")).find(
-        (item) => Boolean(item.querySelector("#imglist_history"))
+      let $historyBox = Array.from($$("#comiis_pictitle_tab .comiis_upbox")).find((item) =>
+        Boolean(item.querySelector("#imglist_history"))
       );
       if (!$historyBox) {
         $historyBox = domUtils.createElement(
           "div",
           {
             className: "comiis_upbox bg_f cl",
-            innerHTML: (
-`
+            innerHTML: `
 					<ul class="comiis_post_imglist cl" id="imglist_history">	
                     </ul>
-				`
-            )
+				`,
           },
           {
-            style: "display: none;"
+            style: "display: none;",
           }
         );
         domUtils.before($box, $historyBox);
-        $historyBox = Array.from($$("#comiis_pictitle_tab .comiis_upbox")).find(
-          (item) => Boolean(item.querySelector("#imglist_history"))
+        $historyBox = Array.from($$("#comiis_pictitle_tab .comiis_upbox")).find((item) =>
+          Boolean(item.querySelector("#imglist_history"))
         );
       }
       domUtils.before(
         $historyBox,
-`
+        `
             <div class="comiis_upbox bg_f cl" style="display: none;">
                 <ul class="comiis_post_imglist cl" data-chartbed="${this.option.name}">
                     <li class="up_btn">
@@ -3082,10 +3165,9 @@ addTab() {
             `
       );
     }
-createImageBtnElement(labelName, url) {
+    createImageBtnElement(labelName, url) {
       let $li = domUtils.createElement("li", {
-        innerHTML: (
-`
+        innerHTML: `
             <span class="delImg" data-id="${this.option.id}" data-name="${this.option.name}">
                 <a href="javascript:;">
                     <i class="comiis_font f_g"></i>
@@ -3101,12 +3183,11 @@ createImageBtnElement(labelName, url) {
                         loading="lazy"
                         class="vm b_ok"></a>
             </span>
-            `
-        )
+            `,
       });
       return $li;
     }
-initHistoryUploadImageList() {
+    initHistoryUploadImageList() {
       let $imglist_history = $("#comiis_pictitle_tab #imglist_history");
       $imglist_history.innerHTML = "";
       let $fragment = document.createDocumentFragment();
@@ -3117,7 +3198,7 @@ initHistoryUploadImageList() {
       });
       $imglist_history.appendChild($fragment);
     }
-setImageBtnDeleteEvent($ele, data) {
+    setImageBtnDeleteEvent($ele, data) {
       let $delImg = $ele.querySelector(".delImg");
       domUtils.on($delImg, "click", async (event) => {
         let result = await this.option.delImageEvent(event, data);
@@ -3129,7 +3210,7 @@ setImageBtnDeleteEvent($ele, data) {
         }
       });
     }
-setHistoryImageBtnDeleteEvent($ele, data) {
+    setHistoryImageBtnDeleteEvent($ele, data) {
       let $delImg = $ele.querySelector(".delImg");
       domUtils.on($delImg, "click", async (event) => {
         let findValue = GlobalImageDelete.find((item) => item.id === data.id);
@@ -3145,21 +3226,21 @@ setHistoryImageBtnDeleteEvent($ele, data) {
         }
       });
     }
-addImage(info) {
+    addImage(info) {
       let allData = _GM_getValue(this.$data.STORAGE_KEY, []);
       allData.push({
         id: this.option.id,
         name: this.option.name,
         labelName: this.option.labelName,
-        data: info
+        data: info,
       });
       _GM_setValue(this.$data.STORAGE_KEY, allData);
     }
-getAllImage() {
+    getAllImage() {
       let allData = _GM_getValue(this.$data.STORAGE_KEY, []);
       return allData;
     }
-deleteImage(id, data) {
+    deleteImage(id, data) {
       let allData = this.getAllImage();
       let findIndex = allData.findIndex((item) => item.id === id && JSON.stringify(item.data) === JSON.stringify(data));
       if (findIndex != -1) {
@@ -3181,22 +3262,22 @@ deleteImage(id, data) {
       },
       get token() {
         return Panel.getValue("mt-image-bed-hello-token");
-      }
+      },
     },
     $code: {
       401: "未登录或授权失败",
       403: "管理员关闭了接口功能或没有该接口权限",
       429: "超出请求配额，请求受限",
-      500: "服务端出现异常"
+      500: "服务端出现异常",
     },
     $config: {
       base_url: "https://www.helloimg.com/api/v1",
-      TAG: "Hello图床："
+      TAG: "Hello图床：",
     },
     $tabConfig: {
       id: "www.helloimg.com",
       name: "Hello图床",
-      labelName: "hello"
+      labelName: "hello",
     },
     init() {
       const that = this;
@@ -3217,7 +3298,7 @@ deleteImage(id, data) {
             if (result) {
               uploadList.push({
                 url: result.data.links.url,
-                data: result.data
+                data: result.data,
               });
               flag = flag && true;
             } else {
@@ -3227,7 +3308,7 @@ deleteImage(id, data) {
           $loading.close();
           return {
             success: flag,
-            data: uploadList
+            data: uploadList,
           };
         },
         storageSaveCallBack(data) {
@@ -3237,16 +3318,16 @@ deleteImage(id, data) {
           let isLogin = await that.checkLogin();
           if (isLogin) {
             let $loading = Qmsg.loading("正在删除图片...");
-            let deleteResult = await that.deleteImage(data.data.key) ?? false;
+            let deleteResult = (await that.deleteImage(data.data.key)) ?? false;
             $loading.close();
             return deleteResult;
           } else {
             return false;
           }
-        }
+        },
       });
     },
-async checkLogin() {
+    async checkLogin() {
       if (!this.$data.account) {
         Qmsg.error(`${this.$config.TAG}请先配置账号`);
         return false;
@@ -3261,7 +3342,7 @@ async checkLogin() {
       }
       return true;
     },
-async uploadImage(imageFile) {
+    async uploadImage(imageFile) {
       let formData = new FormData();
       formData.append("file", imageFile);
       formData.append("permission", "0");
@@ -3274,9 +3355,9 @@ async uploadImage(imageFile) {
           Authorization: `Bearer ${this.$data.token}`,
           "User-Agent": utils.getRandomPCUA(),
           Referer: `${this.$config.base_url}/`,
-          Origin: this.$config.base_url
+          Origin: this.$config.base_url,
         },
-        allowInterceptConfig: false
+        allowInterceptConfig: false,
       });
       if (!response.status) {
         log.error(response);
@@ -3298,17 +3379,17 @@ async uploadImage(imageFile) {
       let file_reader = new FileReader();
       file_reader.readAsDataURL(imageFile);
       return await new Promise((resolve) => {
-        file_reader.onload = function() {
+        file_reader.onload = function () {
           let imageUri = this.result;
           let result = {
             imageUri,
-            data: data.data
+            data: data.data,
           };
           resolve(result);
         };
       });
     },
-async deleteImage(imageKey) {
+    async deleteImage(imageKey) {
       let response = await httpx.delete(this.$config.base_url + "/images/" + imageKey, {
         timeout: 15e3,
         headers: {
@@ -3316,9 +3397,9 @@ async deleteImage(imageKey) {
           Authorization: `Bearer ${this.$data.token}`,
           "User-Agent": utils.getRandomPCUA(),
           Referer: `${this.$config.base_url}/`,
-          Origin: this.$config.base_url
+          Origin: this.$config.base_url,
         },
-        allowInterceptConfig: false
+        allowInterceptConfig: false,
       });
       if (response.data.status in this.$code) {
         Qmsg.error(this.$config.TAG + this.$code[response.data.status]);
@@ -3331,20 +3412,20 @@ async deleteImage(imageKey) {
       }
       Qmsg.success(this.$config.TAG + "删除成功");
       return true;
-    }
+    },
   };
   const MTEditorImageBed_MT = {
     $data: {
-      csrf_token: null
+      csrf_token: null,
     },
     $config: {
       TAG: "MT图床：",
-      base_url: "https://img.binmt.cc"
+      base_url: "https://img.binmt.cc",
     },
     $tabConfig: {
       id: "img.binmt.cc",
       name: "MT图床",
-      labelName: "mt"
+      labelName: "mt",
     },
     init() {
       const that = this;
@@ -3365,7 +3446,7 @@ async deleteImage(imageKey) {
             if (result) {
               uploadList.push({
                 url: result.data.links.url,
-                data: result.data
+                data: result.data,
               });
               flag = flag && true;
             } else {
@@ -3375,7 +3456,7 @@ async deleteImage(imageKey) {
           $loading.close();
           return {
             success: flag,
-            data: uploadList
+            data: uploadList,
           };
         },
         storageSaveCallBack(data) {
@@ -3383,10 +3464,10 @@ async deleteImage(imageKey) {
         },
         async delImageEvent(event, data) {
           return true;
-        }
+        },
       });
     },
-async checkLogin() {
+    async checkLogin() {
       if (!this.$data.csrf_token) {
         let $loading = Qmsg.loading("正在获取CSRF Token中...");
         let csrf_token = await this.getCSRFToken();
@@ -3398,14 +3479,14 @@ async checkLogin() {
       }
       return true;
     },
-async getCSRFToken() {
+    async getCSRFToken() {
       let response = await httpx.get(this.$config.base_url, {
         allowInterceptConfig: false,
         headers: {
           "User-Agent": utils.getRandomPCUA(),
           Referer: this.$config.base_url + "/",
-          Origin: this.$config.base_url
-        }
+          Origin: this.$config.base_url,
+        },
       });
       if (!response.status) {
         Qmsg.error(this.$config.TAG + "获取CSRF Token失败，网络异常");
@@ -3420,7 +3501,7 @@ async getCSRFToken() {
       Qmsg.success(this.$config.TAG + "获取CSRF Token成功");
       return metaCSRFToken;
     },
-async uploadImage(imageFile) {
+    async uploadImage(imageFile) {
       let formData = new FormData();
       formData.append("strategy_id", "2");
       formData.append("file", imageFile);
@@ -3436,9 +3517,9 @@ async uploadImage(imageFile) {
           Referer: this.$config.base_url + "/",
           Pragma: "no-cache",
           "x-csrf-token": this.$data.csrf_token,
-          "X-Requested-With": "XMLHttpRequest"
+          "X-Requested-With": "XMLHttpRequest",
         },
-        allowInterceptConfig: false
+        allowInterceptConfig: false,
       });
       if (!response.status) {
         log.error(response);
@@ -3456,16 +3537,16 @@ async uploadImage(imageFile) {
       let file_reader = new FileReader();
       file_reader.readAsDataURL(imageFile);
       return await new Promise((resolve) => {
-        file_reader.onload = function() {
+        file_reader.onload = function () {
           let imageUri = this.result;
           let result = {
             imageUri,
-            data: data.data
+            data: data.data,
           };
           resolve(result);
         };
       });
-    }
+    },
   };
   const MTQuickUBB = () => {
     return {
@@ -3473,25 +3554,25 @@ async uploadImage(imageFile) {
         key: "转普通彩虹",
         value: "",
         isFunc: true,
-        num: 1
+        num: 1,
       },
       rainbow2: {
         key: "转黑白彩虹",
         value: "",
         isFunc: true,
-        num: 2
+        num: 2,
       },
       rainbow3: {
         key: "转黑红彩虹",
         value: "",
         isFunc: true,
-        num: 3
+        num: 3,
       },
       rainbow4: {
         key: "转蓝绿彩虹",
         value: "",
         isFunc: true,
-        num: 4
+        num: 4,
       },
       size: {
         key: "大小",
@@ -3502,7 +3583,7 @@ async uploadImage(imageFile) {
         R: "[/size]",
         cursorL: "[size=",
         cursorLength: 6,
-        quickUBBReplace: "[size=14]replace[/size]"
+        quickUBBReplace: "[size=14]replace[/size]",
       },
       color: {
         key: "颜色",
@@ -3513,7 +3594,7 @@ async uploadImage(imageFile) {
         R: "[/color]",
         cursorL: "[color=",
         cursorLength: 7,
-        quickUBBReplace: "[color=#000]replace[/color]"
+        quickUBBReplace: "[color=#000]replace[/color]",
       },
       b: {
         key: "加粗",
@@ -3524,7 +3605,7 @@ async uploadImage(imageFile) {
         R: "[/b]",
         cursorR: "[/b]",
         cursorLength: 4,
-        quickUBBReplace: "[b]replace[/b]"
+        quickUBBReplace: "[b]replace[/b]",
       },
       u: {
         key: "下划线",
@@ -3535,7 +3616,7 @@ async uploadImage(imageFile) {
         R: "[/u]",
         cursorR: "[/u]",
         cursorLength: 4,
-        quickUBBReplace: "[u]replace[/u]"
+        quickUBBReplace: "[u]replace[/u]",
       },
       i: {
         key: "倾斜",
@@ -3546,7 +3627,7 @@ async uploadImage(imageFile) {
         R: "[/i]",
         cursorR: "[/i]",
         cursorLength: 4,
-        quickUBBReplace: "[i]replace[/i]"
+        quickUBBReplace: "[i]replace[/i]",
       },
       s: {
         key: "中划线",
@@ -3557,7 +3638,7 @@ async uploadImage(imageFile) {
         R: "[/s]",
         cursorR: "[/s]",
         cursorLength: 4,
-        quickUBBReplace: "[s]replace[/s]"
+        quickUBBReplace: "[s]replace[/s]",
       },
       lineFeed: {
         key: "换行",
@@ -3566,7 +3647,7 @@ async uploadImage(imageFile) {
         R: "[*]",
         cursorL: "[*]",
         cursorLength: 3,
-        quickUBBReplace: "replace[*]"
+        quickUBBReplace: "replace[*]",
       },
       longHorizontalLine: {
         key: "水平线",
@@ -3575,7 +3656,7 @@ async uploadImage(imageFile) {
         R: "[hr]",
         cursorL: "[hr]",
         cursorLength: 4,
-        quickUBBReplace: "replace[hr]"
+        quickUBBReplace: "replace[hr]",
       },
       link: {
         key: "链接",
@@ -3586,7 +3667,7 @@ async uploadImage(imageFile) {
         R: "[/url]",
         cursorL: "[url=",
         cursorLength: 5,
-        quickUBBReplace: "[url=replace]replace[/url]"
+        quickUBBReplace: "[url=replace]replace[/url]",
       },
       hide: {
         key: "隐藏",
@@ -3597,7 +3678,7 @@ async uploadImage(imageFile) {
         R: "[/hide]",
         cursorR: "[/hide]",
         cursorLength: 7,
-        quickUBBReplace: "[hide]replace\n[/hide]"
+        quickUBBReplace: "[hide]replace\n[/hide]",
       },
       quote: {
         key: "引用",
@@ -3608,7 +3689,7 @@ async uploadImage(imageFile) {
         R: "[/quote]",
         cursorR: "[/quote]",
         cursorLength: 8,
-        quickUBBReplace: "[quote]replace[/quote]"
+        quickUBBReplace: "[quote]replace[/quote]",
       },
       email: {
         key: "邮件",
@@ -3619,8 +3700,8 @@ async uploadImage(imageFile) {
         R: "[/email]",
         cursorL: "[email=",
         cursorLength: 7,
-        quickUBBReplace: "[email=replace]replace[/email]"
-      }
+        quickUBBReplace: "[email=replace]replace[/email]",
+      },
     };
   };
   const MTUBB_Rainbow = (num, text) => {
@@ -3678,24 +3759,9 @@ async uploadImage(imageFile) {
             b = 0;
           }
           wr_rgb = "";
-          wr_rgb +=
-parseInt(r).toString(16).length == 1 ? (
-0 + parseInt(r).toString(16)
-          ) : (
-parseInt(r).toString(16)
-          );
-          wr_rgb +=
-parseInt(g).toString(16).length == 1 ? (
-0 + parseInt(g).toString(16)
-          ) : (
-parseInt(g).toString(16)
-          );
-          wr_rgb +=
-parseInt(b).toString(16).length == 1 ? (
-0 + parseInt(b).toString(16)
-          ) : (
-parseInt(b).toString(16)
-          );
+          wr_rgb += parseInt(r).toString(16).length == 1 ? 0 + parseInt(r).toString(16) : parseInt(r).toString(16);
+          wr_rgb += parseInt(g).toString(16).length == 1 ? 0 + parseInt(g).toString(16) : parseInt(g).toString(16);
+          wr_rgb += parseInt(b).toString(16).length == 1 ? 0 + parseInt(b).toString(16) : parseInt(b).toString(16);
           wr_rgb = wr_rgb.toUpperCase();
           wr_code += `[color=#${wr_rgb}]${wr_text.charAt(j)}[/color]`;
         } else {
@@ -3714,24 +3780,9 @@ parseInt(b).toString(16)
           if (g > 255) g = 255;
           if (b > 255) b = 255;
           wr_rgb = "";
-          wr_rgb +=
-parseInt(r).toString(16).length == 1 ? (
-0 + parseInt(r).toString(16)
-          ) : (
-parseInt(r).toString(16)
-          );
-          wr_rgb +=
-parseInt(g).toString(16).length == 1 ? (
-0 + parseInt(g).toString(16)
-          ) : (
-parseInt(g).toString(16)
-          );
-          wr_rgb +=
-parseInt(b).toString(16).length == 1 ? (
-0 + parseInt(b).toString(16)
-          ) : (
-parseInt(b).toString(16)
-          );
+          wr_rgb += parseInt(r).toString(16).length == 1 ? 0 + parseInt(r).toString(16) : parseInt(r).toString(16);
+          wr_rgb += parseInt(g).toString(16).length == 1 ? 0 + parseInt(g).toString(16) : parseInt(g).toString(16);
+          wr_rgb += parseInt(b).toString(16).length == 1 ? 0 + parseInt(b).toString(16) : parseInt(b).toString(16);
           wr_rgb = wr_rgb.toUpperCase();
           wr_code += `[color=#${wr_rgb}]${wr_text.charAt(i - 1)}[/color]`;
         } else {
@@ -3749,24 +3800,9 @@ parseInt(b).toString(16)
           if (g > 255) g = 255;
           if (b > 255) b = 255;
           wr_rgb = "";
-          wr_rgb +=
-parseInt(r).toString(16).length == 1 ? (
-0 + parseInt(r).toString(16)
-          ) : (
-parseInt(r).toString(16)
-          );
-          wr_rgb +=
-parseInt(g).toString(16).length == 1 ? (
-0 + parseInt(g).toString(16)
-          ) : (
-parseInt(g).toString(16)
-          );
-          wr_rgb +=
-parseInt(b).toString(16).length == 1 ? (
-0 + parseInt(b).toString(16)
-          ) : (
-parseInt(b).toString(16)
-          );
+          wr_rgb += parseInt(r).toString(16).length == 1 ? 0 + parseInt(r).toString(16) : parseInt(r).toString(16);
+          wr_rgb += parseInt(g).toString(16).length == 1 ? 0 + parseInt(g).toString(16) : parseInt(g).toString(16);
+          wr_rgb += parseInt(b).toString(16).length == 1 ? 0 + parseInt(b).toString(16) : parseInt(b).toString(16);
           wr_rgb = wr_rgb.toUpperCase();
           wr_code += `[color=#${wr_rgb}]${wr_text.charAt(i - 1)}[/color]`;
         } else {
@@ -3784,24 +3820,12 @@ parseInt(b).toString(16)
           if (g > 255) g = 255;
           if (b > 255) b = 255;
           wr_rgb = "";
+          wr_rgb += parseInt(r).toString(16).length == 1 ? 0 + parseInt(r).toString(16) : parseInt(r).toString(16);
+          wr_rgb += parseInt(g).toString(16).length == 1 ? 0 + parseInt(g).toString(16) : parseInt(g).toString(16);
           wr_rgb +=
-parseInt(r).toString(16).length == 1 ? (
-0 + parseInt(r).toString(16)
-          ) : (
-parseInt(r).toString(16)
-          );
-          wr_rgb +=
-parseInt(g).toString(16).length == 1 ? (
-0 + parseInt(g).toString(16)
-          ) : (
-parseInt(g).toString(16)
-          );
-          wr_rgb +=
-parseInt(255 - b).toString(16).length == 1 ? (
-0 + parseInt(255 - b).toString(16)
-          ) : (
-parseInt(255 - b).toString(16)
-          );
+            parseInt(255 - b).toString(16).length == 1
+              ? 0 + parseInt(255 - b).toString(16)
+              : parseInt(255 - b).toString(16);
           wr_rgb = wr_rgb.toUpperCase();
           wr_code += `[color=#${wr_rgb}]${wr_text.charAt(i - 1)}[/color]`;
         } else {
@@ -3811,9 +3835,9 @@ parseInt(255 - b).toString(16)
     }
     return wr_code;
   };
-  const ExtendJQueryFn = function() {
+  const ExtendJQueryFn = function () {
     _unsafeWindow.$.fn.extend({
-      insertAtCaret: function(myValue) {
+      insertAtCaret: function (myValue) {
         var $t = _unsafeWindow.$(this)[0];
         if (document.selection) {
           this.focus();
@@ -3834,11 +3858,11 @@ parseInt(255 - b).toString(16)
           this.focus();
         }
       },
-      selectRange: function(start, end) {
+      selectRange: function (start, end) {
         if (end === void 0) {
           end = start;
         }
-        return this.each(function() {
+        return this.each(function () {
           if ("selectionStart" in this) {
             this.selectionStart = start;
             this.selectionEnd = end;
@@ -3853,7 +3877,7 @@ parseInt(255 - b).toString(16)
           }
         });
       },
-      getCursorPosition: function() {
+      getCursorPosition: function () {
         var el = _unsafeWindow.$(this)[0];
         var pos = 0;
         if ("selectionStart" in el) {
@@ -3867,7 +3891,7 @@ parseInt(255 - b).toString(16)
         }
         return pos;
       },
-      moveCursorInCenterByText: function(leftTextFlag, rightTextFlag) {
+      moveCursorInCenterByText: function (leftTextFlag, rightTextFlag) {
         var el = _unsafeWindow.$(this)[0];
         var el_text = el.value;
         for (let i = el.selectionStart - 1; i > 0; i--) {
@@ -3879,7 +3903,7 @@ parseInt(255 - b).toString(16)
           }
         }
       },
-      moveCursorToCenterByTextWithLeft: function(leftMatchText, _length_) {
+      moveCursorToCenterByTextWithLeft: function (leftMatchText, _length_) {
         var el = _unsafeWindow.$(this)[0];
         var el_text = el.value;
         for (let index = el.selectionStart - 1; index > 0; index--) {
@@ -3890,7 +3914,7 @@ parseInt(255 - b).toString(16)
           }
         }
       },
-      moveCursorToCenterByTextWithRight: function(rightMatchText, _length_) {
+      moveCursorToCenterByTextWithRight: function (rightMatchText, _length_) {
         var el = _unsafeWindow.$(this)[0];
         var el_text = el.value;
         for (let i = el.selectionStart - 1; i > 0; i--) {
@@ -3900,30 +3924,30 @@ parseInt(255 - b).toString(16)
             break;
           }
         }
-      }
+      },
     });
   };
   let error_code = {
     1: {
       error_match: "抱歉，您填写的内容包含敏感词而无法提交",
-      popup_text: "抱歉，您填写的内容包含敏感词而无法提交"
+      popup_text: "抱歉，您填写的内容包含敏感词而无法提交",
     },
     2: {
       error_match: "抱歉，管理员设置了本版块发表于 30 天以前的主题自动关闭，不再接受新回复",
-      popup_text: "抱歉，管理员设置了本版块发表于 30 天以前的主题自动关闭，不再接受新回复"
+      popup_text: "抱歉，管理员设置了本版块发表于 30 天以前的主题自动关闭，不再接受新回复",
     },
     3: {
       error_match: "抱歉，本主题已关闭，不再接受新内容",
-      popup_text: "抱歉，本主题已关闭，不再接受新内容"
+      popup_text: "抱歉，本主题已关闭，不再接受新内容",
     },
     4: {
       error_match: "抱歉，管理员设置了本版块发表于 30 天以前的主题自动关闭，不再接受新回复",
-      popup_text: "抱歉，管理员设置了本版块发表于 30 天以前的主题自动关闭，不再接受新回复"
+      popup_text: "抱歉，管理员设置了本版块发表于 30 天以前的主题自动关闭，不再接受新回复",
     },
     5: {
       error_match: "抱歉，您的帖子小于 10 个字符的限制",
-      popup_text: "抱歉，您的帖子小于 10 个字符的限制"
-    }
+      popup_text: "抱歉，您的帖子小于 10 个字符的限制",
+    },
   };
   let tempReplyBtnNode = null;
   const MTEditorOptimizationNormal = {
@@ -3933,21 +3957,21 @@ parseInt(255 - b).toString(16)
       forum_action: null,
       get tid() {
         return MTUtils.getThreadId(window.location.href);
-      }
+      },
     },
     $el: {
-$like: null,
-$btn_submit: null,
-$input: null,
-$form: null,
-$fastpostsubmit: null
+      $like: null,
+      $btn_submit: null,
+      $input: null,
+      $form: null,
+      $fastpostsubmit: null,
     },
     init() {
       log.info(`编辑器优化-简略版`);
       addStyle(optimizationCSS$1);
       this.overridePageEditor();
     },
-overridePageEditor() {
+    overridePageEditor() {
       let $old_commentIcon = document.querySelector("#comiis_foot_memu .comiis_flex li:nth-child(2)");
       let $old_linkIcon = document.querySelector("#comiis_foot_memu .comiis_flex li:nth-child(3)");
       let $old_collectIcon = document.querySelector("#comiis_foot_memu .comiis_flex li:nth-child(4)");
@@ -3964,25 +3988,19 @@ overridePageEditor() {
       let smiliesList = MTEditorSmilies();
       let first_smilies = Object.keys(smiliesList[0]).map((key) => {
         let smilies_url = smiliesList[0][key];
-        return (
-`<li><a href="javascript:;" onclick="comiis_addsmilies('${key}');"><img loading="lazy" data-src="${smilies_url}" class="vm"></a></li>`
-        );
+        return `<li><a href="javascript:;" onclick="comiis_addsmilies('${key}');"><img loading="lazy" data-src="${smilies_url}" class="vm"></a></li>`;
       });
       let second_smilies = Object.keys(smiliesList[1]).map((key) => {
         let smilies_url = smiliesList[1][key];
-        return (
-`<li><a href="javascript:;" onclick="comiis_addsmilies('${key}');"><img loading="lazy" data-src="${smilies_url}" class="vm"></a></li>`
-        );
+        return `<li><a href="javascript:;" onclick="comiis_addsmilies('${key}');"><img loading="lazy" data-src="${smilies_url}" class="vm"></a></li>`;
       });
       let third_smilies = Object.keys(smiliesList[2]).map((key) => {
         let smilies_url = smiliesList[2][key];
-        return (
-`<li><a href="javascript:;" onclick="comiis_addsmilies('${key}');"><img loading="lazy" data-src="${smilies_url}" class="vm"></a></li>`
-        );
+        return `<li><a href="javascript:;" onclick="comiis_addsmilies('${key}');"><img loading="lazy" data-src="${smilies_url}" class="vm"></a></li>`;
       });
       domUtils.after(
         $footMenu,
-`
+        `
             <div id="comiis_foot_menu_beautify" class="bg_f b_t">
                 <div class="reply_area">
                     <ul>
@@ -4086,8 +4104,7 @@ overridePageEditor() {
       this.$el.$btn_submit = $('#comiis_foot_menu_beautify_big li[data-attr="发表"] input');
       this.$el.$input = $("#comiis_foot_menu_beautify_big textarea");
       this.$el.$fastpostsubmit = $("#fastpostsubmit");
-      _unsafeWindow.textarea_scrollHeight = () => {
-      };
+      _unsafeWindow.textarea_scrollHeight = () => {};
       if (typeof _unsafeWindow.comiis_addsmilies == "function") {
         _unsafeWindow.comiis_addsmilies = (smilies_text) => {
           _unsafeWindow.$("#needmessage").comiis_insert(smilies_text);
@@ -4095,10 +4112,10 @@ overridePageEditor() {
         };
       }
       _unsafeWindow.$("#imglist .up_btn").append(_unsafeWindow.$("#filedata"));
-      _unsafeWindow.$(document).on("click", "#imglist .up_btn a", function() {
+      _unsafeWindow.$(document).on("click", "#imglist .up_btn a", function () {
         _unsafeWindow.$(this).next().click();
       });
-      _unsafeWindow.$(document).on("click", "#imglist .p_img a", function() {
+      _unsafeWindow.$(document).on("click", "#imglist .p_img a", function () {
         let obj = _unsafeWindow.$(this);
         if (obj.attr("onclick") == null) {
           let img_id = obj.find("img").attr("id").replace("aimg_", "");
@@ -4129,12 +4146,10 @@ overridePageEditor() {
         MTEditorImageBed_MT.init();
       });
     },
-handle_error(text) {
+    handle_error(text) {
       let return_status = false;
-      let messagetext = domUtils.text(
-        domUtils.toElement(text, false, false).querySelector("#messagetext")
-      );
-      if (!messagetext || typeof messagetext === "string" && messagetext.trim() == "") {
+      let messagetext = domUtils.text(domUtils.toElement(text, false, false).querySelector("#messagetext"));
+      if (!messagetext || (typeof messagetext === "string" && messagetext.trim() == "")) {
         return return_status;
       }
       Object.keys(error_code).forEach((item) => {
@@ -4149,9 +4164,9 @@ handle_error(text) {
       });
       return return_status;
     },
-setInputChangeEvent() {
+    setInputChangeEvent() {
       const that = this;
-      domUtils.on(that.$el.$input, ["input", "propertychange"], function(event) {
+      domUtils.on(that.$el.$input, ["input", "propertychange"], function (event) {
         let inputText = that.$el.$input.value;
         if (inputText === "") {
           that.$el.$btn_submit.setAttribute("data-text", "false");
@@ -4167,7 +4182,7 @@ setInputChangeEvent() {
         domUtils.css(that.$el.$input, "height", that.$el.$input.scrollHeight - 20 + "px");
       });
     },
-setInputChangeSaveEvent() {
+    setInputChangeSaveEvent() {
       const that = this;
       domUtils.on(this.$el.$input, ["input", "propertychange"], (event) => {
         let inputText = that.$el.$input.value;
@@ -4177,7 +4192,7 @@ setInputChangeSaveEvent() {
           url: window.location.href,
           text: inputText,
           repquote: replyUrl ? MTUtils.getRepquote(replyUrl) : void 0,
-          forumId: that.$data.tid
+          forumId: that.$data.tid,
         };
         that.$data.db.get("data").then((result) => {
           if (!result.success || result.code === 201) {
@@ -4192,18 +4207,17 @@ setInputChangeSaveEvent() {
               result.data.splice(localDataIndex, 1);
             } else {
               result.data[localDataIndex] = utils.assign(result.data[localDataIndex], {
-                text: data.text
+                text: data.text,
               });
             }
           } else {
             result.data.push(data);
           }
-          that.$data.db.save("data", result.data).then((result2) => {
-          });
+          that.$data.db.save("data", result.data).then((result2) => {});
         });
       });
     },
-async initReplyText(isUserReply = false, replyUrl = void 0) {
+    async initReplyText(isUserReply = false, replyUrl = void 0) {
       const that = this;
       let initResult = await this.$data.db.get("data");
       if (initResult.code === 201) {
@@ -4230,21 +4244,21 @@ async initReplyText(isUserReply = false, replyUrl = void 0) {
         domUtils.trigger(this.$el.$input, "input");
       }
     },
-setLikeBtnClickEvent() {
+    setLikeBtnClickEvent() {
       domUtils.on(this.$el.$like, "click", async (event) => {
         domUtils.preventEvent(event);
         if (_unsafeWindow.comiis_recommend_key == 0) {
           _unsafeWindow.comiis_recommend_key = 1;
           let response = await httpx.get(this.$el.$like.href + "&inajax=1", {
             headers: {
-              Accept: "application/xml, text/xml, */*; q=0.01"
+              Accept: "application/xml, text/xml, */*; q=0.01",
             },
             fetch: true,
-            allowInterceptConfig: false
+            allowInterceptConfig: false,
           });
           if (!response.status) {
             window.location.href = this.$el.$like.href;
-            setTimeout(function() {
+            setTimeout(function () {
               _unsafeWindow.comiis_recommend_key = 0;
             }, 500);
             return;
@@ -4255,10 +4269,10 @@ setLikeBtnClickEvent() {
             let tid = this.$el.$like.href.match(MTRegExp.tid)[1];
             let response2 = await httpx.get(`plugin.php?id=comiis_app&comiis=re_recommend&tid=${tid}&inajax=1`, {
               headers: {
-                Accept: "application/xml, text/xml, */*; q=0.01"
+                Accept: "application/xml, text/xml, */*; q=0.01",
               },
               fetch: true,
-              allowInterceptConfig: false
+              allowInterceptConfig: false,
             });
             if (!response2.status) {
               Qmsg.error("取消点赞失败，网络异常");
@@ -4305,9 +4319,10 @@ setLikeBtnClickEvent() {
             Qmsg.warning("您今日的点赞机会已用完");
           } else if (resultText.includes("'recommendv':'+" + _unsafeWindow.allowrecommend + "'")) {
             var recommendcList = {
-              recommendc: 0,
-              daycount: 0
-            }, recommendc;
+                recommendc: 0,
+                daycount: 0,
+              },
+              recommendc;
             recommendc = resultText.match(/\'recommendc\':\'(.*?)\'/);
             if (recommendc != null) {
               recommendcList["recommendc"] = parseInt(recommendc[1]);
@@ -4333,7 +4348,20 @@ setLikeBtnClickEvent() {
               domUtils.addClass($list_a, "comiis_recommend_list_on");
               domUtils.prepend(
                 $list_a,
-                ($$(".comiis_recommend_list_a li").length > 0 ? "" : '<li style="float:right;margin-right:0;"><a href="misc.php?op=recommend&tid= ' + _unsafeWindow.tid + '&mod=faq&mobile=2"><span class="bg_b f_c"><em class="comiis_recommend_num">' + comiis_recommend_num + "</em>赞</span></a></li>") + '<li id="comiis_recommend_list_a' + _unsafeWindow.uid + '"><a href="home.php?mod=space&uid=' + _unsafeWindow.uid + '"><img src="' + MTUtils.getAvatar(_unsafeWindow.uid, "small") + '"></a></li>'
+                ($$(".comiis_recommend_list_a li").length > 0
+                  ? ""
+                  : '<li style="float:right;margin-right:0;"><a href="misc.php?op=recommend&tid= ' +
+                    _unsafeWindow.tid +
+                    '&mod=faq&mobile=2"><span class="bg_b f_c"><em class="comiis_recommend_num">' +
+                    comiis_recommend_num +
+                    "</em>赞</span></a></li>") +
+                  '<li id="comiis_recommend_list_a' +
+                  _unsafeWindow.uid +
+                  '"><a href="home.php?mod=space&uid=' +
+                  _unsafeWindow.uid +
+                  '"><img src="' +
+                  MTUtils.getAvatar(_unsafeWindow.uid, "small") +
+                  '"></a></li>'
               );
             }
             if ($$(".comiis_recommend_list_t").length > 0) {
@@ -4354,11 +4382,21 @@ setLikeBtnClickEvent() {
               domUtils.addClass($list_s, "comiis_recommend_list_on");
               domUtils.prepend(
                 $list_s,
-                ($$(".comiis_recommend_list_s li").length > 0 ? "" : "") + '<li id="comiis_recommend_list_s' + _unsafeWindow.uid + '"><a href="home.php?mod=space&uid=' + _unsafeWindow.uid + '"><img loading="lazy" src="' + MTUtils.getAvatar(_unsafeWindow.uid, "small") + '"></a></li>'
+                ($$(".comiis_recommend_list_s li").length > 0 ? "" : "") +
+                  '<li id="comiis_recommend_list_s' +
+                  _unsafeWindow.uid +
+                  '"><a href="home.php?mod=space&uid=' +
+                  _unsafeWindow.uid +
+                  '"><img loading="lazy" src="' +
+                  MTUtils.getAvatar(_unsafeWindow.uid, "small") +
+                  '"></a></li>'
               );
             }
             domUtils.text(".comiis_recommend_num", comiis_recommend_num + Number(_unsafeWindow.allowrecommend));
-            domUtils.text(".comiis_recommend_nums", "+" + (comiis_recommend_num + Number(_unsafeWindow.allowrecommend)));
+            domUtils.text(
+              ".comiis_recommend_nums",
+              "+" + (comiis_recommend_num + Number(_unsafeWindow.allowrecommend))
+            );
             domUtils.html(".comiis_recommend_addkey i", "&#xe654;");
             domUtils.removeClass(".comiis_recommend_color", "f_b");
             domUtils.addClass(".comiis_recommend_color", "f_a");
@@ -4377,14 +4415,14 @@ setLikeBtnClickEvent() {
           } else {
             Qmsg.error("没有点赞权限或帖子不存在");
           }
-          setTimeout(function() {
+          setTimeout(function () {
             _unsafeWindow.comiis_recommend_key = 0;
           }, 500);
         }
         return false;
       });
     },
-setSubmitBtnClickEvent() {
+    setSubmitBtnClickEvent() {
       const that = this;
       domUtils.on(this.$el.$fastpostsubmit, "click", async (event) => {
         domUtils.preventEvent(event);
@@ -4408,8 +4446,8 @@ setSubmitBtnClickEvent() {
             fetch: true,
             allowInterceptConfig: false,
             headers: {
-              "Content-Type": "application/x-www-form-urlencoded"
-            }
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
           });
           $loading.close();
           if (!response.status) {
@@ -4423,16 +4461,21 @@ setSubmitBtnClickEvent() {
             return;
           }
           window.scrollTo({
-            top: domUtils.height(document)
+            top: domUtils.height(document),
           });
           domUtils.val("#needmessage", "");
           $("#comiis_head")?.click();
           domUtils.hide("#comiis_foot_menu_beautify_big .reply_user_content", false);
           domUtils.attr('#comiis_foot_menu_beautify_big li[data-attr="发表"] input', "data-text", "false");
-          domUtils.attr("#comiis_foot_menu_beautify li[data-attr='回帖'] input", "placeholder", "发帖千百度，文明第一步");
+          domUtils.attr(
+            "#comiis_foot_menu_beautify li[data-attr='回帖'] input",
+            "placeholder",
+            "发帖千百度，文明第一步"
+          );
           this.deleteReplyTextStorage();
         } else {
-          let data = domUtils.attr("#comiis_foot_menu_beautify_big .reply_user_content", "data-reply-serialize") + message;
+          let data =
+            domUtils.attr("#comiis_foot_menu_beautify_big .reply_user_content", "data-reply-serialize") + message;
           $$("#imglist input[type='hidden']").forEach((item) => {
             data = `${data}&${item.getAttribute("name")}=`;
           });
@@ -4442,8 +4485,8 @@ setSubmitBtnClickEvent() {
             fetch: true,
             data,
             headers: {
-              "Content-Type": "application/x-www-form-urlencoded"
-            }
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
           });
           if (!response.status) {
             Qmsg.error("回复失败，网络异常");
@@ -4461,16 +4504,20 @@ setSubmitBtnClickEvent() {
           $("#comiis_head").click();
           domUtils.val('#comiis_foot_menu_beautify_big li[data-attr="发表"] input', "发表");
           domUtils.attr('#comiis_foot_menu_beautify_big li[data-attr="发表"] input', "data-text", "false");
-          domUtils.attr("#comiis_foot_menu_beautify li[data-attr='回帖'] input", "placeholder", "发帖千百度，文明第一步");
+          domUtils.attr(
+            "#comiis_foot_menu_beautify li[data-attr='回帖'] input",
+            "placeholder",
+            "发帖千百度，文明第一步"
+          );
           window.scrollTo({
-            top: domUtils.height(document)
+            top: domUtils.height(document),
           });
           this.deleteReplyTextStorage(true, replyUrl);
         }
         return false;
       });
     },
-setGlobalReplyBtnClickEvent() {
+    setGlobalReplyBtnClickEvent() {
       domUtils.on(
         document,
         "click",
@@ -4481,7 +4528,7 @@ setGlobalReplyBtnClickEvent() {
           domUtils.attr("#comiis_foot_menu_beautify_big", "data-model", "reply");
           let response = await httpx.get(domUtils.attr($reply, "datahref") || $reply.href + "&inajax=1", {
             fetch: true,
-            allowInterceptConfig: false
+            allowInterceptConfig: false,
           });
           if (!response.status) {
             Qmsg.error("网络异常，获取回复参数失败");
@@ -4514,20 +4561,24 @@ setGlobalReplyBtnClickEvent() {
           });
         },
         {
-          capture: true
+          capture: true,
         }
       );
     },
-setGlobalClickCheckEvent() {
+    setGlobalClickCheckEvent() {
       const that = this;
       let forum_url = $("#fastpostform .header_y a").href;
-      domUtils.on(document, "click", function(event) {
+      domUtils.on(document, "click", function (event) {
         let $click = event.target;
         if ($(".popups-popmenu") || MTEditorOptimizationNormal.$data.isUBBCodeInsertClick) {
           log.info(`点击的是弹出层，不做处理`);
           MTEditorOptimizationNormal.$data.isUBBCodeInsertClick = false;
           return;
-        } else if ($click?.classList && $click?.classList?.contains(".dialog_reply") || $click?.closest && $click?.closest(".dialog_reply") || $click === $('li[data-attr="回帖"] input')) {
+        } else if (
+          ($click?.classList && $click?.classList?.contains(".dialog_reply")) ||
+          ($click?.closest && $click?.closest(".dialog_reply")) ||
+          $click === $('li[data-attr="回帖"] input')
+        ) {
           log.info(`点击回复按钮或者是编辑器，显示编辑器`);
           domUtils.hide("#comiis_foot_menu_beautify", false);
           domUtils.show("#comiis_foot_menu_beautify_big", false);
@@ -4564,8 +4615,8 @@ setGlobalClickCheckEvent() {
         }
       });
     },
-setMenuIconToggleEvent() {
-      domUtils.on("#comiis_foot_menu_beautify_big .menu_icon a i", "click", function(event) {
+    setMenuIconToggleEvent() {
+      domUtils.on("#comiis_foot_menu_beautify_big .menu_icon a i", "click", function (event) {
         let $click = this;
         if ($click.classList.contains("f_0")) {
           domUtils.hide("#comiis_foot_menu_beautify_big .menu_body", false);
@@ -4577,67 +4628,67 @@ setMenuIconToggleEvent() {
         }
       });
     },
-setMenuImageClickEvent() {
-      domUtils.on(
-        "#comiis_foot_menu_beautify_big .menu_icon a.comiis_pictitle",
-        "click",
-        function(event) {
-          domUtils.hide("#comiis_foot_menu_beautify_big .menu_body #comiis_post_tab", false);
-          domUtils.hide("#comiis_foot_menu_beautify_big .menu_body #comiis_insert_ubb_tab", false);
-          domUtils.show("#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab", false);
-        }
-      );
+    setMenuImageClickEvent() {
+      domUtils.on("#comiis_foot_menu_beautify_big .menu_icon a.comiis_pictitle", "click", function (event) {
+        domUtils.hide("#comiis_foot_menu_beautify_big .menu_body #comiis_post_tab", false);
+        domUtils.hide("#comiis_foot_menu_beautify_big .menu_body #comiis_insert_ubb_tab", false);
+        domUtils.show("#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab", false);
+      });
     },
-setMenuImageToggleEvent() {
+    setMenuImageToggleEvent() {
       domUtils.on(
         "#comiis_foot_menu_beautify_big #comiis_pictitle_tab #comiis_pictitle_key",
         "click",
         "li",
-        function(event) {
+        function (event) {
           let $click = event.target;
           domUtils.removeClass("#comiis_foot_menu_beautify_big #comiis_pictitle_tab #comiis_pictitle_key li", "bg_f");
           domUtils.addClass($click, "bg_f");
-          _unsafeWindow.$("#comiis_foot_menu_beautify_big #comiis_pictitle_tab div.comiis_upbox").hide().eq(_unsafeWindow.$($click).index()).fadeIn();
+          _unsafeWindow
+            .$("#comiis_foot_menu_beautify_big #comiis_pictitle_tab div.comiis_upbox")
+            .hide()
+            .eq(_unsafeWindow.$($click).index())
+            .fadeIn();
         }
       );
     },
-setMenuSmileClickEvent() {
-      domUtils.on(
-        "#comiis_foot_menu_beautify_big .menu_icon a.comiis_smile",
-        "click",
-        function(event) {
-          domUtils.hide("#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab", false);
-          domUtils.hide("#comiis_foot_menu_beautify_big .menu_body #comiis_insert_ubb_tab", false);
-          domUtils.show("#comiis_foot_menu_beautify_big .menu_body #comiis_post_tab", false);
-          let smileDOM = $("#comiis_foot_menu_beautify_big .menu_body .comiis_bqbox");
-          if (domUtils.attr(smileDOM, "data-isLoaded") != 1) {
-            domUtils.attr(smileDOM, "data-isLoaded", 1);
-            smileDOM.querySelectorAll("img").forEach((item) => {
-              let data_src = item.getAttribute("data-src");
-              if (data_src) {
-                item.setAttribute("src", data_src);
-              }
-            });
-          }
+    setMenuSmileClickEvent() {
+      domUtils.on("#comiis_foot_menu_beautify_big .menu_icon a.comiis_smile", "click", function (event) {
+        domUtils.hide("#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab", false);
+        domUtils.hide("#comiis_foot_menu_beautify_big .menu_body #comiis_insert_ubb_tab", false);
+        domUtils.show("#comiis_foot_menu_beautify_big .menu_body #comiis_post_tab", false);
+        let smileDOM = $("#comiis_foot_menu_beautify_big .menu_body .comiis_bqbox");
+        if (domUtils.attr(smileDOM, "data-isLoaded") != 1) {
+          domUtils.attr(smileDOM, "data-isLoaded", 1);
+          smileDOM.querySelectorAll("img").forEach((item) => {
+            let data_src = item.getAttribute("data-src");
+            if (data_src) {
+              item.setAttribute("src", data_src);
+            }
+          });
         }
-      );
+      });
     },
-setMenuSmileTabClickEvent() {
-      domUtils.on("#comiis_foot_menu_beautify_big #comiis_smilies_key li", "click", function(event) {
+    setMenuSmileTabClickEvent() {
+      domUtils.on("#comiis_foot_menu_beautify_big #comiis_smilies_key li", "click", function (event) {
         let $click = this;
         domUtils.removeClass("#comiis_foot_menu_beautify_big #comiis_smilies_key li a");
         domUtils.addClass($click.querySelector("a"), "bg_f b_l b_r");
-        _unsafeWindow.$("#comiis_post_tab div.swiper-wrapper.bqbox_c.comiis_optimization .swiper-slide").hide().eq(_unsafeWindow.$($click).index()).fadeIn();
+        _unsafeWindow
+          .$("#comiis_post_tab div.swiper-wrapper.bqbox_c.comiis_optimization .swiper-slide")
+          .hide()
+          .eq(_unsafeWindow.$($click).index())
+          .fadeIn();
       });
     },
-setMenuInsertClickEvent() {
+    setMenuInsertClickEvent() {
       domUtils.on("#comiis_foot_menu_beautify_big .menu_icon a.commis_insert_bbs", "click", (event) => {
         domUtils.hide("#comiis_foot_menu_beautify_big .menu_body #comiis_post_tab", false);
         domUtils.hide("#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab", false);
         domUtils.show("#comiis_foot_menu_beautify_big .menu_body #comiis_insert_ubb_tab", false);
       });
     },
-async getReplyRecordSize() {
+    async getReplyRecordSize() {
       let result = await this.$data.db.get("data");
       if (result.success) {
         let size = utils.getTextStorageSize(result?.data?.length ? JSON.stringify(result.data) : "");
@@ -4646,10 +4697,10 @@ async getReplyRecordSize() {
         return utils.formatByteToSize(0);
       }
     },
-async clearAllReplyRecord() {
+    async clearAllReplyRecord() {
       return await this.$data.db.deleteAll();
     },
-deleteReplyTextStorage(isUserReply = false, replyUrl = void 0) {
+    deleteReplyTextStorage(isUserReply = false, replyUrl = void 0) {
       const that = this;
       this.$data.db.get("data").then((result) => {
         if (!result.success || result.code === 201) {
@@ -4665,12 +4716,11 @@ deleteReplyTextStorage(isUserReply = false, replyUrl = void 0) {
         });
         if (localDataIndex !== -1) {
           result.data.splice(localDataIndex, 1);
-          this.$data.db.save("data", result.data).then((result2) => {
-          });
+          this.$data.db.save("data", result.data).then((result2) => {});
         }
       });
     },
-setMenuQuickUBB() {
+    setMenuQuickUBB() {
       let $tab_list = $("#comiis_insert_ubb_tab_list");
       let ubbCodeMap = MTQuickUBB();
       Reflect.set(ubbCodeMap, "code", {
@@ -4682,7 +4732,7 @@ setMenuQuickUBB() {
         R: "[/code]",
         cursorL: "[code]",
         cursorLength: 7,
-        quickUBBReplace: "[code]replace[/code]"
+        quickUBBReplace: "[code]replace[/code]",
       });
       Reflect.set(ubbCodeMap, "password", {
         key: "密码",
@@ -4693,19 +4743,17 @@ setMenuQuickUBB() {
         R: "[/password]",
         cursorL: "[password]",
         cursorLength: 10,
-        quickUBBReplace: "[password]replace[/password]"
+        quickUBBReplace: "[password]replace[/password]",
       });
       Object.keys(ubbCodeMap).forEach((keyName) => {
         let value = ubbCodeMap[keyName];
         let $ubbs = domUtils.createElement("li", {
           className: "quickUBBs",
-          innerHTML: (
-`
+          innerHTML: `
                     <a href="javascript:;" class="comiis_xifont f_d">
                         <i class="comiis_font"></i>${value["key"]}
                     </a>
-                `
-          )
+                `,
         });
         domUtils.on($ubbs, "click", (event) => {
           domUtils.removeClass("#comiis_insert_ubb_tab div.comiis_post_urlico ul li.quickUBBs a.comiis_xifont", "f_0");
@@ -4716,12 +4764,12 @@ setMenuQuickUBB() {
           let $prompt = __pops.prompt({
             title: {
               text: "UBB代码",
-              position: "center"
+              position: "center",
             },
             content: {
               text: "",
               placeholder: `请输入需要${value["key"]}的文字`,
-              focus: true
+              focus: true,
             },
             btn: {
               ok: {
@@ -4735,33 +4783,31 @@ setMenuQuickUBB() {
                   if (value["isFunc"]) {
                     _unsafeWindow.comiis_addsmilies(MTUBB_Rainbow(value["num"], details.text));
                   } else if (value["quickUBBReplace"]) {
-                    _unsafeWindow.comiis_addsmilies(
-                      value["quickUBBReplace"].replaceAll("replace", details.text)
-                    );
+                    _unsafeWindow.comiis_addsmilies(value["quickUBBReplace"].replaceAll("replace", details.text));
                   } else {
                     _unsafeWindow.comiis_addsmilies(details.text);
                   }
                   $prompt.close();
-                }
+                },
               },
               cancel: {
                 text: "关闭",
                 callback: () => {
                   $prompt.close();
-                }
-              }
+                },
+              },
             },
             width: "300px",
-            height: "200px"
+            height: "200px",
           });
         });
         $tab_list.append($ubbs);
       });
-    }
+    },
   };
   const MTForumPost = {
     $flag: {
-      isSetHljsCSS: false
+      isSetHljsCSS: false,
     },
     init() {
       Panel.execMenuOnce("mt-forum-post-autoExpandContent", () => {
@@ -4797,25 +4843,25 @@ setMenuQuickUBB() {
         });
       });
     },
-autoExpandContent() {
+    autoExpandContent() {
       log.info(`自动展开帖子内容`);
       return addStyle(
-`
+        `
         div.comiis_message.bg_f.view_one.b_b.cl.message>div.comiis_messages.comiis_aimg_show.cl{max-height:inherit!important;overflow-y:inherit!important;position:inherit!important}
         .comiis_lookfulltext_bg,.comiis_lookfulltext_key{display:none!important} 
         `
       );
     },
-repairImageWidth() {
+    repairImageWidth() {
       log.info(`修复图片宽度`);
       return addStyle(
-`
+        `
         .comiis_messages img{
             max-width: 100% !important;
         }`
       );
     },
-removeFontStyle() {
+    removeFontStyle() {
       log.info(`移除帖子字体效果`);
       let $messageTable = $(".comiis_a.comiis_message_table");
       if (!$messageTable) {
@@ -4823,7 +4869,7 @@ removeFontStyle() {
       }
       domUtils.html($messageTable, domUtils.html($messageTable).replace(MTRegExp.fontSpecial, ""));
     },
-removeCommentFontStyle() {
+    removeCommentFontStyle() {
       log.info(`移除评论区的字体效果`);
       let $fontList = $$("font");
       let $postForumMainContent = $(".comiis_postlist .comiis_postli")?.innerHTML || "";
@@ -4852,7 +4898,7 @@ removeCommentFontStyle() {
         }
       });
     },
-addCommentOnBtn() {
+    addCommentOnBtn() {
       log.info(`添加【点评】按钮`);
       domUtils.waitNodeList(".bottom_zhan:not([data-isaddreviews])").then(($bottomZhanList) => {
         $bottomZhanList.forEach(($bottmZhan) => {
@@ -4861,7 +4907,8 @@ addCommentOnBtn() {
           if (!replyNode) {
             return;
           }
-          var replyUrl = replyNode.getAttribute("datahref") || replyNode.getAttribute("data-href") || replyNode.href || "";
+          var replyUrl =
+            replyNode.getAttribute("datahref") || replyNode.getAttribute("data-href") || replyNode.href || "";
           var rewardUrl = replyUrl.replace("mod=post&", "mod=misc&").replace("action=reply&", "action=comment&");
           var reviewPage = replyUrl?.match(/&page=([\w]+)/i)?.[1];
           var reviewsUrl = `${rewardUrl}&extra=page%3D1&page=${reviewPage}`;
@@ -4870,7 +4917,7 @@ addCommentOnBtn() {
           reviewsUrl = reviewsUrl + reviewsPID;
           var reviewsUserName = $postli.querySelector(".top_user.f_b")?.textContent || "";
           var reviewsNode = domUtils.toElement(
-`
+            `
 						<a href="${reviewsUrl}" class="f_c dialog">
 							<i class="comiis_font mt_review" style="content: url(&quot;https://s1.ax1x.com/2020/04/26/Jcq8VU.png&quot;); height: 15px;"></i>
 						</a>
@@ -4878,7 +4925,7 @@ addCommentOnBtn() {
             true,
             false
           );
-          domUtils.on(reviewsNode, "click", function() {
+          domUtils.on(reviewsNode, "click", function () {
             domUtils.waitNode("div[id=ntcmsg_popmenu]>div>span.f_c").then((element) => {
               try {
                 element.innerText = "点评 " + reviewsUserName;
@@ -4891,7 +4938,7 @@ addCommentOnBtn() {
         });
       });
     },
-loadNextPageComment() {
+    loadNextPageComment() {
       log.info(`自动加载下一页评论`);
       if (document.title.includes("提示信息 - MT论坛")) {
         return;
@@ -4928,7 +4975,7 @@ loadNextPageComment() {
           log.info(`请求下一页评论：` + next_page_url);
           let url = next_page_url;
           let response = await httpx.get(url, {
-            fetch: true
+            fetch: true,
           });
           if (!response.status) {
             return;
@@ -4980,12 +5027,10 @@ loadNextPageComment() {
         domUtils.on($loadingCommentTip, "click", loadNextComments);
         lockFn.run();
       }
-      let tip_html = (
-`
+      let tip_html = `
 		<div class="comiis_multi_box bg_f b_t">
 			<label class="comiis_loadbtn bg_e f_d" id="loading-comment-tip">正在等待页面加载完毕</label>
-		</div>`
-      );
+		</div>`;
       let $tip = domUtils.toElement(tip_html, true, false);
       let $bodybox = $(".comiis_bodybox");
       domUtils.append($bodybox, $tip);
@@ -5005,7 +5050,7 @@ loadNextPageComment() {
         log.info("无多页评论");
       }
     },
-codeQuoteOptimization() {
+    codeQuoteOptimization() {
       log.info(`代码块优化`);
       function hljs_smali(hljs2) {
         var smali_instr_low_prio = [
@@ -5037,7 +5082,7 @@ codeQuoteOptimization() {
           "sub",
           "throw",
           "ushr",
-          "xor"
+          "xor",
         ];
         var smali_instr_high_prio = [
           "aget",
@@ -5056,7 +5101,7 @@ codeQuoteOptimization() {
           "monitor",
           "packed",
           "sget",
-          "sparse"
+          "sparse",
         ];
         var smali_keywords = [
           "transient",
@@ -5069,7 +5114,7 @@ codeQuoteOptimization() {
           "protected",
           "static",
           "bridge",
-          "system"
+          "system",
         ];
         return {
           aliases: ["smali"],
@@ -5078,10 +5123,10 @@ codeQuoteOptimization() {
               className: "string",
               begin: '"',
               end: '"',
-              relevance: 0
+              relevance: 0,
             },
             hljs2.COMMENT("#", "$", {
-              relevance: 0
+              relevance: 0,
             }),
             {
               className: "keyword",
@@ -5089,40 +5134,40 @@ codeQuoteOptimization() {
                 { begin: "\\s*\\.end\\s[a-zA-Z0-9]*" },
                 { begin: "^[ ]*\\.[a-zA-Z]*", relevance: 0 },
                 { begin: "\\s:[a-zA-Z_0-9]*", relevance: 0 },
-                { begin: "\\s(" + smali_keywords.join("|") + ")" }
-              ]
+                { begin: "\\s(" + smali_keywords.join("|") + ")" },
+              ],
             },
             {
               className: "built_in",
               variants: [
                 {
-                  begin: "\\s(" + smali_instr_low_prio.join("|") + ")\\s"
+                  begin: "\\s(" + smali_instr_low_prio.join("|") + ")\\s",
                 },
                 {
                   begin: "\\s(" + smali_instr_low_prio.join("|") + ")((\\-|/)[a-zA-Z0-9]+)+\\s",
-                  relevance: 10
+                  relevance: 10,
                 },
                 {
                   begin: "\\s(" + smali_instr_high_prio.join("|") + ")((\\-|/)[a-zA-Z0-9]+)*\\s",
-                  relevance: 10
-                }
-              ]
+                  relevance: 10,
+                },
+              ],
             },
             {
               className: "class",
               begin: "L[^(;:\n]*;",
-              relevance: 0
+              relevance: 0,
             },
             {
-              begin: "[vp][0-9]+"
-            }
-          ]
+              begin: "[vp][0-9]+",
+            },
+          ],
         };
       }
       if (!this.$flag.isSetHljsCSS) {
         hljs.registerLanguage("smali", hljs_smali);
         addStyle(
-`
+          `
 			.hljs ol{margin:0 0 0 10px;padding:10px 10px 10px 25px}
 			.hljs li{padding-left:10px;list-style-type:decimal-leading-zero;font-family:Monaco,Consolas,'Lucida Console','Courier New',serif;font-size:12px;line-height:1.8em}
 			.hljs li:hover{background:#2c313c}
@@ -5131,12 +5176,12 @@ codeQuoteOptimization() {
 			`
         );
         addStyle(
-`
+          `
 			.reader-copy-button{background:#000;background-size:cover;background-repeat:no-repeat;background-position:0;color:#fff;line-height:40px;display:block;text-align:center;border-radius:5px;cursor:pointer;font-size:15px;width:70px;user-select:none}
 			.reader-copy-button i{display:inline-block;margin-right:6px;width:16px;height:16px;background-size:cover;vertical-align:sub;user-select:none}
 			`
         );
-        domUtils.on(document, "click", ".reader-copy-button", async function(event) {
+        domUtils.on(document, "click", ".reader-copy-button", async function (event) {
           domUtils.preventEvent(event);
           let $click = event.target;
           let codeElement = $($click.getAttribute("data-code-selector"));
@@ -5154,8 +5199,7 @@ codeQuoteOptimization() {
         let $temp = domUtils.createElement(
           "div",
           {
-            innerHTML: (
-`
+            innerHTML: `
 					<span class="reader-copy-button">
 						<i>
 						<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -5176,11 +5220,10 @@ codeQuoteOptimization() {
 						</svg>
 						</i>
 					复制
-					</span>`
-            )
+					</span>`,
           },
           {
-            style: "height: 34px;margin: 14px 0px;display: inline-flex;align-items: flex-end;"
+            style: "height: 34px;margin: 14px 0px;display: inline-flex;align-items: flex-end;",
           }
         );
         domUtils.before($comiis_bodybg, $temp);
@@ -5205,7 +5248,7 @@ codeQuoteOptimization() {
         });
         selectElement.className = "code-select-language";
         selectElement.innerHTML = selectInnerHTML;
-        domUtils.on(selectElement, "change", function() {
+        domUtils.on(selectElement, "change", function () {
           let changeCodeLanguage = selectElement.selectedOptions[0].getAttribute("data-value");
           selectElement.setAttribute("aria-label", changeCodeLanguage);
           log.info("切换代码块语言: ", changeCodeLanguage);
@@ -5219,10 +5262,12 @@ codeQuoteOptimization() {
         domUtils.trigger(selectElement, "change");
         $comiis_bodybg.className = "hljs";
         $comiis_bodybg.firstChild.removeAttribute("class");
-        $temp.querySelector(".reader-copy-button").setAttribute("data-code-selector", domUtils.getElementSelector($comiis_bodybg));
+        $temp
+          .querySelector(".reader-copy-button")
+          .setAttribute("data-code-selector", domUtils.getElementSelector($comiis_bodybg));
       });
     },
-optimizationImagePreview() {
+    optimizationImagePreview() {
       log.info(`图片查看优化`);
       function viewIMG(imgList = [], index = 0) {
         let viewerULNodeHTML = "";
@@ -5230,7 +5275,7 @@ optimizationImagePreview() {
           viewerULNodeHTML += `<li><img data-src="${item}"></li>`;
         });
         let viewerULNode = domUtils.createElement("ul", {
-          innerHTML: viewerULNodeHTML
+          innerHTML: viewerULNodeHTML,
         });
         let viewer = new Viewer(viewerULNode, {
           inline: false,
@@ -5238,7 +5283,7 @@ optimizationImagePreview() {
           zIndex: utils.getMaxZIndex() + 100,
           hidden: () => {
             viewer.destroy();
-          }
+          },
         });
         log.info("查看的图片的下标", index);
         viewer.view(index);
@@ -5248,63 +5293,65 @@ optimizationImagePreview() {
       let blackListNoViewIMG = [
         {
           hostName: "avatar-bbs.mt2.cn",
-          pathName: "*"
+          pathName: "*",
         },
         {
           hostName: "cdn-bbs.mt2.cn",
-          pathName: "^(/static(/|//)image|/template)"
+          pathName: "^(/static(/|//)image|/template)",
         },
         {
           hostName: window.location.hostname,
-          pathName: "^(/static(/|//)image|/template)"
+          pathName: "^(/static(/|//)image|/template)",
         },
         {
           hostName: window.location.hostname,
-          pathName: "/uc_server/avatar.php"
-        }
+          pathName: "/uc_server/avatar.php",
+        },
       ];
-      domUtils.waitNodeList("div.comiis_postlist.kqide .comiis_postli:not([data-isHandlingViewIMG])").then((nodeList) => {
-        nodeList.forEach((item) => {
-          item.setAttribute("data-isHandlingViewIMG", "true");
-          let clickShowIMGList = [];
-          item.querySelectorAll("img").forEach(($img) => {
-            let IMG_URL = $img.src;
-            let IMG_URL_HOSTNAME = new URL(IMG_URL).hostname;
-            let IMG_URL_PATHNAME = new URL(IMG_URL).pathname;
-            let imgParentNode = $img.parentElement;
-            if (imgParentNode.nodeName.toLowerCase() === "span") {
-              imgParentNode.removeAttribute("onclick");
-            }
-            if (imgParentNode.nodeName.toLowerCase() === "a" && imgParentNode.getAttribute("href") === IMG_URL) {
-              imgParentNode.setAttribute("href", "javascript:;");
-              imgParentNode.removeAttribute("target");
-            }
-            let isMatching = false;
-            for (let item2 of blackListNoViewIMG) {
-              if (IMG_URL_HOSTNAME.indexOf(item2["hostName"]) != -1 && IMG_URL_PATHNAME.match(item2["pathName"])) {
-                isMatching = true;
-                break;
+      domUtils
+        .waitNodeList("div.comiis_postlist.kqide .comiis_postli:not([data-isHandlingViewIMG])")
+        .then((nodeList) => {
+          nodeList.forEach((item) => {
+            item.setAttribute("data-isHandlingViewIMG", "true");
+            let clickShowIMGList = [];
+            item.querySelectorAll("img").forEach(($img) => {
+              let IMG_URL = $img.src;
+              let IMG_URL_HOSTNAME = new URL(IMG_URL).hostname;
+              let IMG_URL_PATHNAME = new URL(IMG_URL).pathname;
+              let imgParentNode = $img.parentElement;
+              if (imgParentNode.nodeName.toLowerCase() === "span") {
+                imgParentNode.removeAttribute("onclick");
               }
-            }
-            if (isMatching) {
-              return;
-            }
-            clickShowIMGList = [...clickShowIMGList, IMG_URL];
-            domUtils.on($img, "click", function() {
-              log.info("点击图片", $img);
-              let _index_ = clickShowIMGList.findIndex((_img_) => {
-                return _img_ == IMG_URL;
+              if (imgParentNode.nodeName.toLowerCase() === "a" && imgParentNode.getAttribute("href") === IMG_URL) {
+                imgParentNode.setAttribute("href", "javascript:;");
+                imgParentNode.removeAttribute("target");
+              }
+              let isMatching = false;
+              for (let item2 of blackListNoViewIMG) {
+                if (IMG_URL_HOSTNAME.indexOf(item2["hostName"]) != -1 && IMG_URL_PATHNAME.match(item2["pathName"])) {
+                  isMatching = true;
+                  break;
+                }
+              }
+              if (isMatching) {
+                return;
+              }
+              clickShowIMGList = [...clickShowIMGList, IMG_URL];
+              domUtils.on($img, "click", function () {
+                log.info("点击图片", $img);
+                let _index_ = clickShowIMGList.findIndex((_img_) => {
+                  return _img_ == IMG_URL;
+                });
+                viewIMG(clickShowIMGList, _index_);
               });
-              viewIMG(clickShowIMGList, _index_);
             });
+            if (clickShowIMGList.length) {
+              log.info("处理的图片", clickShowIMGList);
+            }
           });
-          if (clickShowIMGList.length) {
-            log.info("处理的图片", clickShowIMGList);
-          }
         });
-      });
     },
-setAttachmentsClickTip() {
+    setAttachmentsClickTip() {
       log.info(`附件点击提醒`);
       function handleClick($ele) {
         if ($ele.hasAttribute("href")) {
@@ -5320,32 +5367,30 @@ setAttachmentsClickTip() {
           $ele.setAttribute("data-href", $ele.getAttribute("href"));
           $ele.removeAttribute("href");
           attachmentNameNode.innerText = "【已拦截】" + attachmentName;
-          $ele.onclick = function() {
+          $ele.onclick = function () {
             log.info("附件url：", attachmentURL);
             __pops.confirm({
               title: {
                 text: "提示",
-                position: "center"
+                position: "center",
               },
               content: {
-                text: (
-`<br />确定花费2金币下载附件 <a style="color: #507daf !important;">${attachmentName}</a> ？<br /><br />`
-                ),
-                html: true
+                text: `<br />确定花费2金币下载附件 <a style="color: #507daf !important;">${attachmentName}</a> ？<br /><br />`,
+                html: true,
               },
               btn: {
                 ok: {
                   callback: (details) => {
                     window.open(attachmentURL, "_blank");
                     details.close();
-                  }
-                }
+                  },
+                },
               },
               mask: {
-                enable: true
+                enable: true,
               },
               width: "88vw",
-              height: "200px"
+              height: "200px",
             });
           };
         }
@@ -5359,7 +5404,7 @@ setAttachmentsClickTip() {
             handleClick(item);
           });
         },
-        config: { childList: true, subtree: true }
+        config: { childList: true, subtree: true },
       });
       domUtils.waitNodeList(".attnm a").then((nodeList) => {
         nodeList.forEach((item) => {
@@ -5371,12 +5416,12 @@ setAttachmentsClickTip() {
           handleClick(item);
         });
       });
-    }
+    },
   };
   const MTSearch = {
     init() {
       addStyle(
-`
+        `
 		/* 去除搜索框的蒙版 */
         #comiis_search_noe{
             display: none !important;
@@ -5399,7 +5444,7 @@ setAttachmentsClickTip() {
         });
       });
     },
-async showSearchHistory() {
+    async showSearchHistory() {
       log.info(`显示搜索历史`);
       let searchHistoryList = _GM_getValue("search_history", []);
       let $input = $("#scform_srchtxt");
@@ -5422,7 +5467,7 @@ async showSearchHistory() {
           clickCallback(event, $dataItem, dataItem, config) {
             $input.value = dataItem.value;
             $submit.submit();
-          }
+          },
         };
       });
       let suggestion = __pops.searchSuggestion({
@@ -5433,13 +5478,13 @@ async showSearchHistory() {
           return searchSuggestionData.filter((item) => {
             return item.value.includes(inputValue);
           });
-        }
+        },
       });
       suggestion.init();
       suggestion.setAllEvent();
       function search_event() {
         let $submit2 = document.querySelector("#scform_submit");
-        DOMUtils.on($submit2, "click", function() {
+        DOMUtils.on($submit2, "click", function () {
           let searchText = $input.value;
           if (searchText != "") {
             let localHistorySearchText = _GM_getValue("search_history", []);
@@ -5455,9 +5500,10 @@ async showSearchHistory() {
       }
       function add_clear_history() {
         let localHistorySearchText = _GM_getValue("search_history", []);
-        let clear_history_innerHTML = (
-`<div class="comiis_p12 f14 bg_f f_c b_b cl" style="padding-bottom:10px">搜索记录个数: ` + localHistorySearchText.length +
-`<button class="btn_clear_search_history" style="
+        let clear_history_innerHTML =
+          `<div class="comiis_p12 f14 bg_f f_c b_b cl" style="padding-bottom:10px">搜索记录个数: ` +
+          localHistorySearchText.length +
+          `<button class="btn_clear_search_history" style="
                     border: none;
                     float: right;
                     background: red;
@@ -5466,8 +5512,7 @@ async showSearchHistory() {
                     font-weight: 600;
                     min-width: 20vw;
                     width: 20vw;
-                ">清理记录</button></div>`
-        );
+                ">清理记录</button></div>`;
         DOMUtils.before(document.querySelector(".comiis_p12"), clear_history_innerHTML);
         let $searchHistory = document.querySelector(".btn_clear_search_history");
         DOMUtils.on($searchHistory, "click", (event) => {
@@ -5479,7 +5524,7 @@ async showSearchHistory() {
       search_event();
       add_clear_history();
     },
-repairClearBtn() {
+    repairClearBtn() {
       DOMUtils.waitNode("a.ssclose").then(($empty) => {
         log.info(`修复清空按钮`);
         DOMUtils.on(
@@ -5494,12 +5539,12 @@ repairClearBtn() {
             }
           },
           {
-            capture: true
+            capture: true,
           }
         );
       });
     },
-searchInputAutoFocus() {
+    searchInputAutoFocus() {
       let searchParams = new URLSearchParams(window.location.search);
       if (searchParams.has("kw")) {
         return;
@@ -5508,7 +5553,7 @@ searchInputAutoFocus() {
         log.info(`搜索框自动获取焦点`);
         $input.focus();
       });
-    }
+    },
   };
   const MTSign = {
     init() {
@@ -5521,14 +5566,14 @@ searchInputAutoFocus() {
         });
       });
     },
-async showTodaySignStar() {
+    async showTodaySignStar() {
       log.info(`显示【今日签到之星】`);
       let todayStarParent = document.querySelector(".pg_k_misign .comiis_qdinfo");
       let todayStar = document.createElement("ul");
       let response = await httpx.get("/k_misign-sign.html", {
         headers: {
-          "User-Agent": utils.getRandomPCUA()
-        }
+          "User-Agent": utils.getRandomPCUA(),
+        },
       });
       if (!response.status) {
         return;
@@ -5539,8 +5584,7 @@ async showTodaySignStar() {
         return;
       }
       let todaypeople = domUtils.text(todatastarele).replace("今日签到之星：", "");
-      todayStar.innerHTML =
-`
+      todayStar.innerHTML = `
 		<li class="f_f" style="display: flex;flex-direction: column;width: 100%;">
 			<span class="comiis_tm">今日签到之星</span>
 			${todaypeople}
@@ -5553,7 +5597,7 @@ async showTodaySignStar() {
       );
       let total_height = comiis_space_box_height + comiis_space_box_padding_bottom + 50;
       addStyle(
-`
+        `
 		.comiis_space_box{
 			height: ${total_height}px;
 			background-size: 100% 100%;
@@ -5564,21 +5608,21 @@ async showTodaySignStar() {
       );
       todayStarParent.append(todayStar);
     },
-showTodayRanking() {
+    showTodayRanking() {
       log.info(`显示【今日最先】`);
       let today_ranking_ele = document.querySelector(".comiis_topnv .comiis_flex .flex");
       let $li = domUtils.createElement("li", {
-        className: "flex"
+        className: "flex",
       });
       let $todayLatest = domUtils.createElement(
         "a",
         {
           id: "k_misignlist_today_latest",
           href: "javascript:;",
-          innerHTML: "今日最先"
+          innerHTML: "今日最先",
         },
         {
-          onclick: "ajaxlist('todayLatest');"
+          onclick: "ajaxlist('todayLatest');",
         }
       );
       $li.appendChild($todayLatest);
@@ -5587,8 +5631,8 @@ showTodayRanking() {
         let response = await httpx.get(`/k_misign-sign.html?operation=${urlextra2}`, {
           responseType: "html",
           headers: {
-            "User-Agent": utils.getRandomPCUA()
-          }
+            "User-Agent": utils.getRandomPCUA(),
+          },
         });
         if (!response.status) {
           return;
@@ -5610,8 +5654,8 @@ showTodayRanking() {
         let response = await httpx.get(`/k_misign-sign.html?operation=list&op=&page=${page}`, {
           responseType: "html",
           headers: {
-            "User-Agent": utils.getRandomPCUA()
-          }
+            "User-Agent": utils.getRandomPCUA(),
+          },
         });
         if (!response.status) {
           return;
@@ -5631,7 +5675,7 @@ showTodayRanking() {
             days: "",
             monthDays: "",
             time: "",
-            reward: ""
+            reward: "",
           };
           let user_name = people.children[0].getElementsByTagName("a")[0].textContent;
           let space_url = people.children[0].getElementsByTagName("a")[0].href;
@@ -5692,8 +5736,9 @@ showTodayRanking() {
           let peopleHTML = "";
           latestPeople.reverse();
           latestPeople.forEach((people) => {
-            peopleHTML = peopleHTML +
-`
+            peopleHTML =
+              peopleHTML +
+              `
 						<tbody id="autolist_${people["uid"]}">
 			  				<tr>
 								<td class="k_misign_lu">
@@ -5713,8 +5758,7 @@ showTodayRanking() {
 							</tr>
 			  			</tbody>`;
           });
-          let latestHTML = (
-`
+          let latestHTML = `
 					<li class="styli_h bg_e"></li>
 					<div class="comiis_topnv bg_f b_t b_b">
 						<ul class="comiis_flex">
@@ -5732,38 +5776,39 @@ showTodayRanking() {
 							${peopleHTML}
 							</table>
 						</div>
-					</div>`
-          );
+					</div>`;
           changeRankList(latestHTML, listtype);
         } else {
-          httpx.get(`plugin.php?id=k_misign:sign&operation=${urlextra}`, {
-            responseType: "html",
-            fetch: true
-          }).then((response) => {
-            let data = response.data.responseText;
-            data = data.replace(
-              `今日排行</a></li>`,
-              `今日排行</a></li>
+          httpx
+            .get(`plugin.php?id=k_misign:sign&operation=${urlextra}`, {
+              responseType: "html",
+              fetch: true,
+            })
+            .then((response) => {
+              let data = response.data.responseText;
+              data = data.replace(
+                `今日排行</a></li>`,
+                `今日排行</a></li>
 							<li class="flex">
 								<a href="javascript:;" id="k_misignlist_today_latest" onclick="ajaxlist('todayLatest');" class="f_c">今日最先</a>
 							</li>`
-            );
-            if (listtype == "today") {
-              data = data.replace(
-                `<li class="flex"><a href="javascript:;" id="k_misignlist_today" onclick="ajaxlist('today');">今日排行</a></li>`,
-`
+              );
+              if (listtype == "today") {
+                data = data.replace(
+                  `<li class="flex"><a href="javascript:;" id="k_misignlist_today" onclick="ajaxlist('today');">今日排行</a></li>`,
+                  `
 								<li class="flex f_0">
 									<em class="bg_0"></em>
 									<a href="javascript:;" id="k_misignlist_today" onclick="ajaxlist('today');">今日排行</a>
 								</li>
 								`
-              );
-            }
-            changeRankList(data, listtype);
-          });
+                );
+              }
+              changeRankList(data, listtype);
+            });
         }
       };
-    }
+    },
   };
   const MTSpace = {
     init() {
@@ -5776,7 +5821,7 @@ showTodayRanking() {
         });
       });
     },
-repairEnterSpace() {
+    repairEnterSpace() {
       log.info(`修复无法进入空间`);
       if (MTRouter.isSpace()) {
         let hrefParamsMatchArray = window.location.href.match(/home.php\?(.+)/gi);
@@ -5791,10 +5836,10 @@ repairEnterSpace() {
         window.location.href = `${window.location.origin}/home.php?mod=space&uid=${href_params}&do=profile`;
       }
     },
-async showCommentContent() {
+    async showCommentContent() {
       log.info(`显示帖子回复内容`);
       addStyle(
-`
+        `
 		div.contrete-reply{padding:5px 10px;border-top:1px solid #f3f3f3}
 		div.contrete-reply a{margin:0 10px}
 		`
@@ -5802,8 +5847,8 @@ async showCommentContent() {
       async function getPCReply() {
         let response = await httpx.get(window.location.href, {
           headers: {
-            "User-Agent": utils.getRandomPCUA()
-          }
+            "User-Agent": utils.getRandomPCUA(),
+          },
         });
         if (!response.status) {
           return;
@@ -5841,7 +5886,7 @@ async showCommentContent() {
         let resultJSON = {};
         dataList.forEach((item) => {
           let divItem = domUtils.createElement("div", {
-            innerHTML: item
+            innerHTML: item,
           });
           let url = divItem.querySelector("a")?.getAttribute("href");
           let paramPtidMatch = url.match(MTRegExp.ptid);
@@ -5862,7 +5907,7 @@ async showCommentContent() {
             resultJSON[paramPtid] = {
               ptid: paramPtid,
               pid: paramPid,
-              data: [item]
+              data: [item],
             };
           }
         });
@@ -5889,11 +5934,11 @@ async showCommentContent() {
           domUtils.append(forumListItem, `<div class="contrete-reply">${forumListReplyHTMLItem}</div>`);
         });
       });
-    }
+    },
   };
   const MTPaidThemePost = {
     $key: {
-      tipData: "tipToFreeSubjectForumPost"
+      tipData: "tipToFreeSubjectForumPost",
     },
     init() {
       this.registerMenu();
@@ -5915,25 +5960,23 @@ async showCommentContent() {
             $tipBtn = domUtils.createElement("a", {
               href: "javascript:;",
               className: "styli_tit f_c",
-              innerHTML: (
-`
+              innerHTML: `
                         <i class="comiis_font" style="color: #ffffff;"></i>
-                        `
-              )
+                        `,
             });
-            domUtils.on($tipBtn, "click", function() {
+            domUtils.on($tipBtn, "click", function () {
               __pops.confirm({
                 title: {
                   text: "提示",
-                  position: "center"
+                  position: "center",
                 },
                 content: {
                   text: "<p>确定移出付费主题白嫖列表？</p>",
-                  html: true
+                  html: true,
                 },
                 btn: {
                   ok: {
-                    callback: function() {
+                    callback: function () {
                       let findIndex = setTipForumPostList.findIndex((item, index) => {
                         return window.location.href.match(item["url"]);
                       });
@@ -5944,11 +5987,11 @@ async showCommentContent() {
                       } else {
                         Qmsg.error("移除失败");
                       }
-                    }
-                  }
+                    },
+                  },
                 },
                 width: "88vw",
-                height: "300px"
+                height: "300px",
               });
             });
           } else {
@@ -5956,16 +5999,17 @@ async showCommentContent() {
             $tipBtn = domUtils.createElement("a", {
               href: "javascript:;",
               className: "styli_tit f_c",
-              innerHTML: (
-`
+              innerHTML: `
                         <i class="comiis_font" style="color: #FF9900;"></i>
-                        `
-              )
+                        `,
             });
             domUtils.on($tipBtn, "click", () => {
               let $_kmren = document.querySelector(".kmren");
               let $_kmren_parent = domUtils.parent($_kmren);
-              let expirationTimeMatch = domUtils.text($_kmren_parent).replace(/\t|\n/g, "").match(/[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}[\s]{1}[0-9]{1,2}:[0-9]{1,2}/);
+              let expirationTimeMatch = domUtils
+                .text($_kmren_parent)
+                .replace(/\t|\n/g, "")
+                .match(/[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}[\s]{1}[0-9]{1,2}:[0-9]{1,2}/);
               if (!expirationTimeMatch || expirationTimeMatch.length == 0) {
                 Qmsg.error("获取付费主题到期时间失败");
                 return;
@@ -5977,11 +6021,11 @@ async showCommentContent() {
                 title: document.title.replace(" - MT论坛", ""),
                 expirationTime,
                 expirationTimeStamp,
-                isVisited: false
+                isVisited: false,
               });
               _GM_setValue("tipToFreeSubjectForumPost", setTipForumPostList);
               Qmsg.success("添加成功");
-              setTimeout(function() {
+              setTimeout(function () {
                 window.location.reload();
               }, 1500);
             });
@@ -5993,7 +6037,7 @@ async showCommentContent() {
       function getTipNums() {
         let needTipNums = 0;
         Array.from(MTPaidThemePost.getTipData()).forEach((item, index) => {
-          if (( new Date()).getTime() > item["expirationTimeStamp"] && item["isVisited"] == false) {
+          if (new Date().getTime() > item["expirationTimeStamp"] && item["isVisited"] == false) {
             needTipNums += 1;
           }
         });
@@ -6027,7 +6071,7 @@ async showCommentContent() {
       if (getTipNums()) {
         domUtils.append(
           ".comiis_left_Touch .paymentsubjectreminder div.flex",
-`
+          `
                 <span class="sidenv_num bg_del f_f" style="
                     position: relative;
                     border-radius: 18px;
@@ -6047,29 +6091,29 @@ async showCommentContent() {
         iconColor: "#ec0000",
         callback: () => {
           this.showView();
-        }
+        },
       });
     },
-showView() {
+    showView() {
       log.info(`显示白嫖列表`);
       let data = MTPaidThemePost.getTipData();
       __pops.alert({
         title: {
           text: "付费主题白嫖列表",
-          position: "center"
+          position: "center",
         },
         content: {
           text: "",
-          html: true
+          html: true,
         },
         btn: {
           ok: {
             text: "关闭",
-            type: "default"
-          }
+            type: "default",
+          },
         },
         width: "88vw",
-        height: "88vh"
+        height: "88vh",
       });
       let notVisitedTipContent = "";
       let notVisitedNums = 0;
@@ -6081,20 +6125,18 @@ showView() {
       data.forEach((item, index) => {
         let timeColor = "#f91212";
         let leftRedBtn = "";
-        if (( new Date()).getTime() > item["expirationTimeStamp"]) {
+        if (new Date().getTime() > item["expirationTimeStamp"]) {
           timeColor = "#1e90ff";
-          if (item["isVisited"]) ;
+          if (item["isVisited"]);
           else {
-            leftRedBtn =
-`
+            leftRedBtn = `
                         <span class="icon_msgs bg_del" style="position: fixed;width: 10px;height: 10px;border-radius: 50%;margin: 10px 0px 0px -15px;"></span>
                     `;
             notVisitedNums = notVisitedNums + 1;
           }
         }
         let contentInfo = {
-          content: (
-`
+          content: `
                 <tbody id="autolist">
                     <tr>
                         <td style="width: 100%;">
@@ -6111,11 +6153,10 @@ showView() {
                         </td>
                     </tr>
                     <tr style="height:15px;"></tr>
-                </tbody>`
-          ),
-          timestamp: item["expirationTimeStamp"]
+                </tbody>`,
+          timestamp: item["expirationTimeStamp"],
         };
-        if (( new Date()).getTime() > item["expirationTimeStamp"]) {
+        if (new Date().getTime() > item["expirationTimeStamp"]) {
           if (leftRedBtn != "") {
             isFreeNotVisitedContentList.push(contentInfo);
           } else {
@@ -6134,11 +6175,12 @@ showView() {
       log.info("排序后——可白嫖但未访问：", isFreeNotVisitedContentList);
       log.info("排序后——可白嫖：", isFreeContentList);
       log.info("排序后——未到白嫖时间：", isPaidContentList);
-      isFreeContent = utils.mergeArrayToString(isFreeNotVisitedContentList, "content") + utils.mergeArrayToString(isFreeContentList, "content");
+      isFreeContent =
+        utils.mergeArrayToString(isFreeNotVisitedContentList, "content") +
+        utils.mergeArrayToString(isFreeContentList, "content");
       isPaidContent = utils.mergeArrayToString(isPaidContentList, "content");
       if (notVisitedNums > 0) {
-        notVisitedTipContent =
-`
+        notVisitedTipContent = `
             <span class="icon_msgs bg_del f_f" style="
                 display: inline-block;
                 position: absolute;
@@ -6151,26 +6193,22 @@ showView() {
                 margin: 3px 0px 0px 10px;
             ">${notVisitedNums}</span>`;
       }
-      let dialogIsFreeContent = (
-`
+      let dialogIsFreeContent = `
             <details class="subjectcanvisit" open="">
                 <summary>可白嫖${notVisitedTipContent}</summary>
                 <table id="paymentSubjectReminderIsFreeList" style="overflow: auto;height: inherit;margin: 15px 0px;">
                     ${isFreeContent}    
                 </table>
             </details>
-        `
-      );
-      let dialogIsPaidContent = (
-`
+        `;
+      let dialogIsPaidContent = `
             <details class="subjectnotvisit">
                 <summary>需付费</summary>
                 <table id="paymentSubjectReminderIsPaidList" style="overflow: auto;height: inherit;margin: 15px 0px;">
                     ${isPaidContent}
                 </table>
             </details>
-        `
-      );
+        `;
       let $msgcon = document.querySelector(".msgcon");
       domUtils.html($msgcon, "");
       domUtils.append($msgcon, dialogIsFreeContent);
@@ -6183,11 +6221,11 @@ showView() {
         __pops.confirm({
           title: {
             text: "提示",
-            position: "center"
+            position: "center",
           },
           content: {
             text: "<p>确定移出付费主题白嫖列表？</p>",
-            html: true
+            html: true,
           },
           btn: {
             ok: {
@@ -6196,11 +6234,11 @@ showView() {
                 MTPaidThemePost.setTipData(data);
                 domUtils.deleteParentNode($click, "tr");
                 details.close();
-              }
-            }
+              },
+            },
           },
           width: "80vw",
-          height: "300px"
+          height: "300px",
         });
       });
       let $paymentSubjectReminderIsFreeList = document.querySelector("#paymentSubjectReminderIsFreeList");
@@ -6243,11 +6281,12 @@ showView() {
     },
     setTipData(data) {
       _GM_setValue(this.$key.tipData, data);
-    }
+    },
   };
-  const smallWindowCSS = ".pops {\r\n  --icon-width: 24px;\r\n  --right-btn-width: 115px;\r\n}\r\n\r\n.small-window-drag {\r\n  width: 100%;\r\n  position: relative;\r\n  height: 10px;\r\n}\r\n.small-window-drag div {\r\n  width: 50px;\r\n  margin: 0 auto;\r\n  height: 4px;\r\n  background: #d9d9d9;\r\n  border-radius: 15px;\r\n  bottom: 3px;\r\n  position: relative;\r\n}\r\n\r\n.pops[type-value] .pops-drawer-title {\r\n  display: block;\r\n  background: #fff;\r\n  width: 100%;\r\n  box-sizing: border-box;\r\n  padding: 16px 0px;\r\n  border-bottom: 1px solid #d6d6d6;\r\n}\r\n\r\n.small-window-title-container {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  padding: 0px 16px;\r\n}\r\n.small-window-website-icon {\r\n  width: var(--icon-width);\r\n  height: var(--icon-width);\r\n  align-self: center;\r\n  border-radius: 3px;\r\n}\r\n.small-window-title-text-container {\r\n  margin-right: auto;\r\n  max-width: calc(100% - var(--icon-width) - var(--right-btn-width));\r\n  display: flex;\r\n  flex-direction: column;\r\n  gap: 4px;\r\n  padding: 0px 16px;\r\n}\r\n.small-window-title-text,\r\n.small-window-website-host {\r\n  min-width: 150px;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  white-space: nowrap;\r\n}\r\n.xtiper_sheet_tit.xtiper_sheet_left {\r\n  display: block;\r\n  background: #fff;\r\n  width: 100%;\r\n  box-sizing: border-box;\r\n}\r\n.small-window-protocol-info {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n.small-window-control {\r\n  display: flex;\r\n  align-items: center;\r\n  align-content: center;\r\n  width: var(--right-btn-width);\r\n  justify-content: center;\r\n  gap: 12px;\r\n}\r\n.small-window-control-image-view,\r\n.small-window-control-open-blank,\r\n.small-window-control-close {\r\n  width: 2rem;\r\n  height: 2rem;\r\n  text-align: center;\r\n  margin: 0 0;\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n}\r\n\r\n.refresh-icon {\r\n  width: 40px;\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  padding: 0px 16px;\r\n}\r\n.refresh-icon-in,\r\n.refresh-icon-out {\r\n  position: absolute;\r\n  border: 5px solid rgba(0, 183, 229, 0.9);\r\n  opacity: 0.9;\r\n  border-radius: 50px;\r\n  box-shadow: 0 0 15px #2187e7;\r\n  width: 20px;\r\n  height: 20px;\r\n  margin: 0 auto;\r\n}\r\n.refresh-icon-out {\r\n  background-color: rgba(0, 0, 0, 0);\r\n  border-right: 5px solid transparent;\r\n  border-left: 5px solid transparent;\r\n  -moz-animation: spinPulse 1s infinite ease-in-out;\r\n  -webkit-animation: spinPulse 1s infinite ease-in-out;\r\n  -o-animation: spinPulse 1s infinite ease-in-out;\r\n  -ms-animation: spinPulse 1s infinite ease-in-out;\r\n}\r\n.refresh-icon-in {\r\n  background: rgba(0, 0, 0, 0) no-repeat center center;\r\n  border-top: 5px solid transparent;\r\n  border-bottom: 5px solid transparent;\r\n  -moz-animation: spinoffPulse 3s infinite linear;\r\n  -webkit-animation: spinoffPulse 3s infinite linear;\r\n  -o-animation: spinoffPulse 3s infinite linear;\r\n  -ms-animation: spinoffPulse 3s infinite linear;\r\n}\r\n@-moz-keyframes spinPulse {\r\n  0% {\r\n    -moz-transform: rotate(160deg);\r\n    opacity: 0;\r\n    box-shadow: 0 0 1px #505050;\r\n  }\r\n  50% {\r\n    -moz-transform: rotate(145deg);\r\n    opacity: 1;\r\n  }\r\n  100% {\r\n    -moz-transform: rotate(-320deg);\r\n    opacity: 0;\r\n  }\r\n}\r\n@-moz-keyframes spinoffPulse {\r\n  0% {\r\n    -moz-transform: rotate(0);\r\n  }\r\n  100% {\r\n    -moz-transform: rotate(360deg);\r\n  }\r\n}\r\n@-webkit-keyframes spinPulse {\r\n  0% {\r\n    -webkit-transform: rotate(160deg);\r\n    opacity: 0;\r\n    box-shadow: 0 0 1px #505050;\r\n  }\r\n  50% {\r\n    -webkit-transform: rotate(145deg);\r\n    opacity: 1;\r\n  }\r\n  100% {\r\n    -webkit-transform: rotate(-320deg);\r\n    opacity: 0;\r\n  }\r\n}\r\n@-webkit-keyframes spinoffPulse {\r\n  0% {\r\n    -webkit-transform: rotate(0);\r\n  }\r\n  100% {\r\n    -webkit-transform: rotate(360deg);\r\n  }\r\n}\r\n@-o-keyframes spinPulse {\r\n  0% {\r\n    -o-transform: rotate(160deg);\r\n    opacity: 0;\r\n    box-shadow: 0 0 1px #505050;\r\n  }\r\n  50% {\r\n    -o-transform: rotate(145deg);\r\n    opacity: 1;\r\n  }\r\n  100% {\r\n    -o-transform: rotate(-320deg);\r\n    opacity: 0;\r\n  }\r\n}\r\n@-o-keyframes spinoffPulse {\r\n  0% {\r\n    -o-transform: rotate(0);\r\n  }\r\n  100% {\r\n    -o-transform: rotate(360deg);\r\n  }\r\n}\r\n@-ms-keyframes spinPulse {\r\n  0% {\r\n    -ms-transform: rotate(160deg);\r\n    opacity: 0;\r\n    box-shadow: 0 0 1px #505050;\r\n  }\r\n  50% {\r\n    -ms-transform: rotate(145deg);\r\n    opacity: 1;\r\n  }\r\n  100% {\r\n    -ms-transform: rotate(-320deg);\r\n    opacity: 0;\r\n  }\r\n}\r\n@-ms-keyframes spinoffPulse {\r\n  0% {\r\n    -ms-transform: rotate(0);\r\n  }\r\n  100% {\r\n    -ms-transform: rotate(360deg);\r\n  }\r\n}\r\n@-moz-keyframes spinPulse {\r\n  0% {\r\n    -moz-transform: rotate(160deg);\r\n    opacity: 0;\r\n    box-shadow: 0 0 1px #505050;\r\n  }\r\n  50% {\r\n    -moz-transform: rotate(145deg);\r\n    opacity: 1;\r\n  }\r\n  100% {\r\n    -moz-transform: rotate(-320deg);\r\n    opacity: 0;\r\n  }\r\n}\r\n@-moz-keyframes spinoffPulse {\r\n  0% {\r\n    -moz-transform: rotate(0);\r\n  }\r\n  100% {\r\n    -moz-transform: rotate(360deg);\r\n  }\r\n}\r\n@-webkit-keyframes spinPulse {\r\n  0% {\r\n    -webkit-transform: rotate(160deg);\r\n    opacity: 0;\r\n    box-shadow: 0 0 1px #505050;\r\n  }\r\n  50% {\r\n    -webkit-transform: rotate(145deg);\r\n    opacity: 1;\r\n  }\r\n  100% {\r\n    -webkit-transform: rotate(-320deg);\r\n    opacity: 0;\r\n  }\r\n}\r\n@-webkit-keyframes spinoffPulse {\r\n  0% {\r\n    -webkit-transform: rotate(0);\r\n  }\r\n  100% {\r\n    -webkit-transform: rotate(360deg);\r\n  }\r\n}\r\n@-o-keyframes spinPulse {\r\n  0% {\r\n    -o-transform: rotate(160deg);\r\n    opacity: 0;\r\n    box-shadow: 0 0 1px #505050;\r\n  }\r\n  50% {\r\n    -o-transform: rotate(145deg);\r\n    opacity: 1;\r\n  }\r\n  100% {\r\n    -o-transform: rotate(-320deg);\r\n    opacity: 0;\r\n  }\r\n}\r\n@-o-keyframes spinoffPulse {\r\n  0% {\r\n    -o-transform: rotate(0);\r\n  }\r\n  100% {\r\n    -o-transform: rotate(360deg);\r\n  }\r\n}\r\n@-ms-keyframes spinPulse {\r\n  0% {\r\n    -ms-transform: rotate(160deg);\r\n    opacity: 0;\r\n    box-shadow: 0 0 1px #505050;\r\n  }\r\n  50% {\r\n    -ms-transform: rotate(145deg);\r\n    opacity: 1;\r\n  }\r\n  100% {\r\n    -ms-transform: rotate(-320deg);\r\n    opacity: 0;\r\n  }\r\n}\r\n@-ms-keyframes spinoffPulse {\r\n  0% {\r\n    -ms-transform: rotate(0);\r\n  }\r\n  100% {\r\n    -ms-transform: rotate(360deg);\r\n  }\r\n}\r\n";
+  const smallWindowCSS =
+    ".pops {\r\n  --icon-width: 24px;\r\n  --right-btn-width: 115px;\r\n}\r\n\r\n.small-window-drag {\r\n  width: 100%;\r\n  position: relative;\r\n  height: 10px;\r\n}\r\n.small-window-drag div {\r\n  width: 50px;\r\n  margin: 0 auto;\r\n  height: 4px;\r\n  background: #d9d9d9;\r\n  border-radius: 15px;\r\n  bottom: 3px;\r\n  position: relative;\r\n}\r\n\r\n.pops[type-value] .pops-drawer-title {\r\n  display: block;\r\n  background: #fff;\r\n  width: 100%;\r\n  box-sizing: border-box;\r\n  padding: 16px 0px;\r\n  border-bottom: 1px solid #d6d6d6;\r\n}\r\n\r\n.small-window-title-container {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  padding: 0px 16px;\r\n}\r\n.small-window-website-icon {\r\n  width: var(--icon-width);\r\n  height: var(--icon-width);\r\n  align-self: center;\r\n  border-radius: 3px;\r\n}\r\n.small-window-title-text-container {\r\n  margin-right: auto;\r\n  max-width: calc(100% - var(--icon-width) - var(--right-btn-width));\r\n  display: flex;\r\n  flex-direction: column;\r\n  gap: 4px;\r\n  padding: 0px 16px;\r\n}\r\n.small-window-title-text,\r\n.small-window-website-host {\r\n  min-width: 150px;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  white-space: nowrap;\r\n}\r\n.xtiper_sheet_tit.xtiper_sheet_left {\r\n  display: block;\r\n  background: #fff;\r\n  width: 100%;\r\n  box-sizing: border-box;\r\n}\r\n.small-window-protocol-info {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n.small-window-control {\r\n  display: flex;\r\n  align-items: center;\r\n  align-content: center;\r\n  width: var(--right-btn-width);\r\n  justify-content: center;\r\n  gap: 12px;\r\n}\r\n.small-window-control-image-view,\r\n.small-window-control-open-blank,\r\n.small-window-control-close {\r\n  width: 2rem;\r\n  height: 2rem;\r\n  text-align: center;\r\n  margin: 0 0;\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n}\r\n\r\n.refresh-icon {\r\n  width: 40px;\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  padding: 0px 16px;\r\n}\r\n.refresh-icon-in,\r\n.refresh-icon-out {\r\n  position: absolute;\r\n  border: 5px solid rgba(0, 183, 229, 0.9);\r\n  opacity: 0.9;\r\n  border-radius: 50px;\r\n  box-shadow: 0 0 15px #2187e7;\r\n  width: 20px;\r\n  height: 20px;\r\n  margin: 0 auto;\r\n}\r\n.refresh-icon-out {\r\n  background-color: rgba(0, 0, 0, 0);\r\n  border-right: 5px solid transparent;\r\n  border-left: 5px solid transparent;\r\n  -moz-animation: spinPulse 1s infinite ease-in-out;\r\n  -webkit-animation: spinPulse 1s infinite ease-in-out;\r\n  -o-animation: spinPulse 1s infinite ease-in-out;\r\n  -ms-animation: spinPulse 1s infinite ease-in-out;\r\n}\r\n.refresh-icon-in {\r\n  background: rgba(0, 0, 0, 0) no-repeat center center;\r\n  border-top: 5px solid transparent;\r\n  border-bottom: 5px solid transparent;\r\n  -moz-animation: spinoffPulse 3s infinite linear;\r\n  -webkit-animation: spinoffPulse 3s infinite linear;\r\n  -o-animation: spinoffPulse 3s infinite linear;\r\n  -ms-animation: spinoffPulse 3s infinite linear;\r\n}\r\n@-moz-keyframes spinPulse {\r\n  0% {\r\n    -moz-transform: rotate(160deg);\r\n    opacity: 0;\r\n    box-shadow: 0 0 1px #505050;\r\n  }\r\n  50% {\r\n    -moz-transform: rotate(145deg);\r\n    opacity: 1;\r\n  }\r\n  100% {\r\n    -moz-transform: rotate(-320deg);\r\n    opacity: 0;\r\n  }\r\n}\r\n@-moz-keyframes spinoffPulse {\r\n  0% {\r\n    -moz-transform: rotate(0);\r\n  }\r\n  100% {\r\n    -moz-transform: rotate(360deg);\r\n  }\r\n}\r\n@-webkit-keyframes spinPulse {\r\n  0% {\r\n    -webkit-transform: rotate(160deg);\r\n    opacity: 0;\r\n    box-shadow: 0 0 1px #505050;\r\n  }\r\n  50% {\r\n    -webkit-transform: rotate(145deg);\r\n    opacity: 1;\r\n  }\r\n  100% {\r\n    -webkit-transform: rotate(-320deg);\r\n    opacity: 0;\r\n  }\r\n}\r\n@-webkit-keyframes spinoffPulse {\r\n  0% {\r\n    -webkit-transform: rotate(0);\r\n  }\r\n  100% {\r\n    -webkit-transform: rotate(360deg);\r\n  }\r\n}\r\n@-o-keyframes spinPulse {\r\n  0% {\r\n    -o-transform: rotate(160deg);\r\n    opacity: 0;\r\n    box-shadow: 0 0 1px #505050;\r\n  }\r\n  50% {\r\n    -o-transform: rotate(145deg);\r\n    opacity: 1;\r\n  }\r\n  100% {\r\n    -o-transform: rotate(-320deg);\r\n    opacity: 0;\r\n  }\r\n}\r\n@-o-keyframes spinoffPulse {\r\n  0% {\r\n    -o-transform: rotate(0);\r\n  }\r\n  100% {\r\n    -o-transform: rotate(360deg);\r\n  }\r\n}\r\n@-ms-keyframes spinPulse {\r\n  0% {\r\n    -ms-transform: rotate(160deg);\r\n    opacity: 0;\r\n    box-shadow: 0 0 1px #505050;\r\n  }\r\n  50% {\r\n    -ms-transform: rotate(145deg);\r\n    opacity: 1;\r\n  }\r\n  100% {\r\n    -ms-transform: rotate(-320deg);\r\n    opacity: 0;\r\n  }\r\n}\r\n@-ms-keyframes spinoffPulse {\r\n  0% {\r\n    -ms-transform: rotate(0);\r\n  }\r\n  100% {\r\n    -ms-transform: rotate(360deg);\r\n  }\r\n}\r\n@-moz-keyframes spinPulse {\r\n  0% {\r\n    -moz-transform: rotate(160deg);\r\n    opacity: 0;\r\n    box-shadow: 0 0 1px #505050;\r\n  }\r\n  50% {\r\n    -moz-transform: rotate(145deg);\r\n    opacity: 1;\r\n  }\r\n  100% {\r\n    -moz-transform: rotate(-320deg);\r\n    opacity: 0;\r\n  }\r\n}\r\n@-moz-keyframes spinoffPulse {\r\n  0% {\r\n    -moz-transform: rotate(0);\r\n  }\r\n  100% {\r\n    -moz-transform: rotate(360deg);\r\n  }\r\n}\r\n@-webkit-keyframes spinPulse {\r\n  0% {\r\n    -webkit-transform: rotate(160deg);\r\n    opacity: 0;\r\n    box-shadow: 0 0 1px #505050;\r\n  }\r\n  50% {\r\n    -webkit-transform: rotate(145deg);\r\n    opacity: 1;\r\n  }\r\n  100% {\r\n    -webkit-transform: rotate(-320deg);\r\n    opacity: 0;\r\n  }\r\n}\r\n@-webkit-keyframes spinoffPulse {\r\n  0% {\r\n    -webkit-transform: rotate(0);\r\n  }\r\n  100% {\r\n    -webkit-transform: rotate(360deg);\r\n  }\r\n}\r\n@-o-keyframes spinPulse {\r\n  0% {\r\n    -o-transform: rotate(160deg);\r\n    opacity: 0;\r\n    box-shadow: 0 0 1px #505050;\r\n  }\r\n  50% {\r\n    -o-transform: rotate(145deg);\r\n    opacity: 1;\r\n  }\r\n  100% {\r\n    -o-transform: rotate(-320deg);\r\n    opacity: 0;\r\n  }\r\n}\r\n@-o-keyframes spinoffPulse {\r\n  0% {\r\n    -o-transform: rotate(0);\r\n  }\r\n  100% {\r\n    -o-transform: rotate(360deg);\r\n  }\r\n}\r\n@-ms-keyframes spinPulse {\r\n  0% {\r\n    -ms-transform: rotate(160deg);\r\n    opacity: 0;\r\n    box-shadow: 0 0 1px #505050;\r\n  }\r\n  50% {\r\n    -ms-transform: rotate(145deg);\r\n    opacity: 1;\r\n  }\r\n  100% {\r\n    -ms-transform: rotate(-320deg);\r\n    opacity: 0;\r\n  }\r\n}\r\n@-ms-keyframes spinoffPulse {\r\n  0% {\r\n    -ms-transform: rotate(0);\r\n  }\r\n  100% {\r\n    -ms-transform: rotate(360deg);\r\n  }\r\n}\r\n";
   class GestureBack {
-isBacking = false;
+    isBacking = false;
     config;
     constructor(config) {
       this.config = config;
@@ -6261,14 +6300,14 @@ isBacking = false;
         this.config.win = self;
       }
     }
-popStateEvent(event) {
+    popStateEvent(event) {
       domUtils.preventEvent(event);
       if (this.isBacking) {
         return;
       }
       this.quitGestureBackMode(true);
     }
-enterGestureBackMode() {
+    enterGestureBackMode() {
       log.success("进入手势模式");
       let pushUrl = this.config.hash;
       if (!pushUrl.startsWith("#")) {
@@ -6278,15 +6317,19 @@ enterGestureBackMode() {
         pushUrl = "#" + pushUrl;
       }
       if (this.config.useUrl) {
-        pushUrl = this.config.win.location.origin + this.config.win.location.pathname + this.config.win.location.search + pushUrl;
+        pushUrl =
+          this.config.win.location.origin +
+          this.config.win.location.pathname +
+          this.config.win.location.search +
+          pushUrl;
       }
       this.config.win.history.pushState({}, "", pushUrl);
       log.success("监听popstate事件");
       domUtils.on(this.config.win, "popstate", this.popStateEvent, {
-        capture: true
+        capture: true,
       });
     }
-async quitGestureBackMode(isUrlChange = false) {
+    async quitGestureBackMode(isUrlChange = false) {
       this.isBacking = true;
       log.success("退出手势模式");
       if (typeof this.config.beforeHistoryBackCallBack === "function") {
@@ -6308,7 +6351,7 @@ async quitGestureBackMode(isUrlChange = false) {
       }
       log.success("移除popstate事件");
       domUtils.off(this.config.win, "popstate", this.popStateEvent, {
-        capture: true
+        capture: true,
       });
       this.isBacking = false;
       if (typeof this.config.afterHistoryBackCallBack === "function") {
@@ -6317,51 +6360,39 @@ async quitGestureBackMode(isUrlChange = false) {
     }
   }
   const MTSmallWindowIcon = {
-https: (
-`
+    https: `
 		<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="12" height="12" style="margin: 0px 6px 0px 2px;">
 			<path fill="#000000" d="M842.666667 384h-74.666667V277.333333a234.666667 234.666667 0 1 0-469.333333 0v106.666667H224a53.393333 53.393333 0 0 0-53.333333 53.333333v490.666667a53.393333 53.393333 0 0 0 53.333333 53.333333h618.666667a53.393333 53.393333 0 0 0 53.333333-53.333333V437.333333a53.393333 53.393333 0 0 0-53.333333-53.333333zM341.333333 277.333333c0-105.866667 86.133333-192 192-192s192 86.133333 192 192v106.666667H341.333333z"></path>
-		</svg>`
-    ),
-http: (
-`
+		</svg>`,
+    http: `
 		<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="12" height="12">
 		<path fill="#2c2c2c" d="M770.423989 451.309956H368.89432V284.246158c0-80.739434 65.689748-146.429182 146.429182-146.429182S661.738235 203.506724 661.738235 284.246158a43.350032 43.350032 0 0 0 86.700063 0c0-128.547294-104.581952-233.129246-233.122021-233.129246-128.547294 0-233.129246 104.581952-233.129245 233.129246v167.063798h-21.978466a43.350032 43.350032 0 0 0-43.350032 43.350031v437.965371a43.350032 43.350032 0 0 0 43.350032 43.350032h510.215423a43.350032 43.350032 0 0 0 43.350032-43.350032V494.659987a43.350032 43.350032 0 0 0-43.350032-43.350031z"></path>
-		</svg>`
-    ),
-openBlank: (
-`
+		</svg>`,
+    openBlank: `
 		<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
 			<path d="M192 288A96 96 0 0 1 288 192h128a32 32 0 0 0 0-64h-128A160 160 0 0 0 128 288v448A160 160 0 0 0 288 896h448a160 160 0 0 0 160-160v-128a32 32 0 0 0-64 0v128a96 96 0 0 1-96 96h-448A96 96 0 0 1 192 736v-448z" fill="#000000" fill-opacity=".85"></path>
 			<path d="M608 128a32 32 0 0 0 0 64h178.752L521.344 457.344a32 32 0 1 0 45.312 45.312L832 237.248V416a32 32 0 0 0 64 0v-256a32 32 0 0 0-32-32h-256z" fill="#000000" fill-opacity=".85" p-id="2334"></path>
-		</svg>`
-    ),
-close: (
-`
+		</svg>`,
+    close: `
 		<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
 			<path d="M0 0h1024v1024H0z" fill="#FF0033" fill-opacity="0" p-id="3329"></path><path d="M240.448 168l2.346667 2.154667 289.92 289.941333 279.253333-279.253333a42.666667 42.666667 0 0 1 62.506667 58.026666l-2.133334 2.346667-279.296 279.210667 279.274667 279.253333a42.666667 42.666667 0 0 1-58.005333 62.528l-2.346667-2.176-279.253333-279.253333-289.92 289.962666a42.666667 42.666667 0 0 1-62.506667-58.005333l2.154667-2.346667 289.941333-289.962666-289.92-289.92a42.666667 42.666667 0 0 1 57.984-62.506667z" fill="#111111" p-id="3330"></path>
-		</svg>`
-    ),
-image: (
-`
+		</svg>`,
+    image: `
 		<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
 			<path d="M938.666667 553.92V768c0 64.8-52.533333 117.333333-117.333334 117.333333H202.666667c-64.8 0-117.333333-52.533333-117.333334-117.333333V256c0-64.8 52.533333-117.333333 117.333334-117.333333h618.666666c64.8 0 117.333333 52.533333 117.333334 117.333333v297.92z m-64-74.624V256a53.333333 53.333333 0 0 0-53.333334-53.333333H202.666667a53.333333 53.333333 0 0 0-53.333334 53.333333v344.48A290.090667 290.090667 0 0 1 192 597.333333a286.88 286.88 0 0 1 183.296 65.845334C427.029333 528.384 556.906667 437.333333 704 437.333333c65.706667 0 126.997333 16.778667 170.666667 41.962667z m0 82.24c-5.333333-8.32-21.130667-21.653333-43.648-32.917333C796.768 511.488 753.045333 501.333333 704 501.333333c-121.770667 0-229.130667 76.266667-270.432 188.693334-2.730667 7.445333-7.402667 20.32-13.994667 38.581333-7.68 21.301333-34.453333 28.106667-51.370666 13.056-16.437333-14.634667-28.554667-25.066667-36.138667-31.146667A222.890667 222.890667 0 0 0 192 661.333333c-14.464 0-28.725333 1.365333-42.666667 4.053334V768a53.333333 53.333333 0 0 0 53.333334 53.333333h618.666666a53.333333 53.333333 0 0 0 53.333334-53.333333V561.525333zM320 480a96 96 0 1 1 0-192 96 96 0 0 1 0 192z m0-64a32 32 0 1 0 0-64 32 32 0 0 0 0 64z" fill="#000000"></path>
-		</svg>`
-    ),
-mt: (
-`
+		</svg>`,
+    mt: `
 		<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="24" height="24">
 			<path d="M979.622067 257.689317c22.828607 10.592474 32.873194 37.804173 22.280721 60.63278l-166.009631 359.778848c-10.592474 22.828607-37.804173 32.873194-60.63278 22.280721l-292.3888-134.780097c-22.828607-10.592474-32.873194-37.804173-22.280721-60.63278l166.009631-359.778848c10.592474-22.828607 37.804173-32.873194 60.632781-22.28072l292.388799 134.780096z" fill="#FFBA02" p-id="1715"></path><path d="M658.743166 46.205101v467.529873c0 25.202782-20.637061 45.657214-45.657214 45.657214H145.556078c-25.202782 0-45.657214-20.637061-45.657214-45.657214v-467.529873c0-25.202782 20.637061-45.657214 45.657214-45.657214h467.529874c25.202782 0 45.657214 20.454432 45.657214 45.657214z" fill="#E2E0E2" p-id="1716"></path><path d="M204.910457 236.50437a177.149991 175.871589 0 1 0 354.299982 0 177.149991 175.871589 0 1 0-354.299982 0Z" fill="#3D82FF" p-id="1717"></path><path d="M245.636692 42.369895a9.861958 9.679329 0 1 0 19.723916 0 9.861958 9.679329 0 1 0-19.723916 0Z" fill="#3D82FF" p-id="1718"></path><path d="M501.864978 43.10041a10.409845 10.409845 0 1 0 20.81969 0 10.409845 10.409845 0 1 0-20.81969 0Z" fill="#3D82FF" p-id="1719"></path><path d="M454.774127 104.071054l48.495267-66.347237 16.807334 12.285443-48.495267 66.347237zM248.102182 48.730858l15.77548-11.220717 50.279551 70.691978-15.775481 11.21889zM204.910457 231.390762h354.299982v193.586588h-354.299982z" fill="#3D82FF" p-id="1720"></path><path d="M280.701432 171.853754a26.115927 25.202782 0 1 0 52.231854 0 26.115927 25.202782 0 1 0-52.231854 0Z" fill="#FFFFFF" p-id="1721"></path><path d="M434.109672 171.671125a25.385411 25.202782 0 1 0 50.770822 0 25.385411 25.202782 0 1 0-50.770822 0Z" fill="#FFFFFF" p-id="1722"></path><path d="M394.844468 1023.817371H50.589073c-25.202782 0-45.657214-20.637061-45.657214-45.657214v-686.684502c0-25.202782 20.637061-45.657214 45.657214-45.657214h344.255395c25.202782 0 45.657214 20.637061 45.657214 45.657214v686.684502c0 25.202782-20.454432 45.657214-45.657214 45.657214z" fill="#303030" p-id="1723"></path><path d="M973.230057 342.976993H50.589073c-25.202782 0-45.657214 20.637061-45.657214 45.657214v589.708579c0 25.202782 20.637061 45.657214 45.657214 45.657214h922.640984c25.202782 0 45.657214-20.637061 45.657215-45.657214V388.634207c0-25.202782-20.637061-45.657214-45.657215-45.657214z" fill="#303030" p-id="1724"></path><path d="M392.287664 488.89745L295.311741 394.843588c-18.080257-17.53237-18.445515-46.570358-1.095773-64.650615l68.303192-70.677368c17.53237-18.080257 46.570358-18.445515 64.650616-1.095773l97.158551 94.053862c18.080257 17.53237 18.445515 46.570358 1.095774 64.650615l-68.303193 70.677367c-17.714999 18.080257-46.752987 18.628143-64.833244 1.095774z" fill="#303030" p-id="1725"></path><path d="M266.273753 628.060638v-13.331906l-54.240771-77.434635v316.495808c0 7.305154-2.556804 13.514535-7.670412 18.628144-5.113608 5.113608-11.322989 7.670412-18.628143 7.670412-7.305154 0-13.514535-2.556804-18.628143-7.853041-5.113608-5.113608-7.670412-11.322989-7.670412-18.445515V465.155698h67.755305l64.467987 94.053861 66.476904-94.053861H424.978229v388.634207c0 7.305154-2.739433 13.514535-8.035669 18.628144-5.296237 5.113608-11.688247 7.670412-18.810773 7.670412-7.122525 0-13.149278-2.556804-18.445514-7.853041-5.113608-5.113608-7.853041-11.322989-7.853041-18.445515V538.572499l-53.144997 74.877831v14.610308c0 7.122525-2.556804 13.149278-7.853041 18.445515-5.113608 5.113608-11.322989 7.853041-18.445515 7.853041-7.305154 0-13.514535-2.556804-18.628143-7.853041-4.930979-5.296237-7.487783-11.322989-7.487783-18.445515z" fill="#FFFFFF" p-id="1726"></path><path d="M600.301932 536.563581V465.703585h264.811842v71.407883c0 7.305154-2.556804 13.514535-7.853041 18.628143-5.113608 5.113608-11.322989 7.670412-18.445514 7.670412-7.305154 0-13.514535-2.556804-18.810772-7.853041-5.296237-5.113608-8.03567-11.322989-8.03567-18.445514v-18.993401h-53.144997v335.48921c0 7.305154-2.556804 13.514535-7.853041 18.628143-5.113608 5.113608-11.322989 7.670412-18.445515 7.670412-7.487783 0-13.879793-2.556804-18.993401-7.670412-5.113608-5.113608-7.853041-11.322989-7.853041-18.628143V518.300696h-53.144997v18.445514c0 7.305154-2.556804 13.514535-7.670412 18.628143-5.113608 5.113608-11.322989 7.670412-18.628143 7.670412-7.305154 0-13.514535-2.556804-18.628144-7.670412-4.74835-5.296237-7.305154-11.505618-7.305154-18.810772z" fill="#FFFFFF"></path>
-		</svg>`
-    )
+		</svg>`,
   };
   const MTSmallWindow = {
     $key: {
-      smallWindow: "smallWindow"
+      smallWindow: "smallWindow",
     },
     $el: {
       $refreshIcon: null,
-      $webSiteIcon: null
+      $webSiteIcon: null,
     },
     init() {
       let lockFn = new utils.LockFunction(() => {
@@ -6374,21 +6405,20 @@ mt: (
         callback: (mutations, observer) => {
           lockFn.run();
         },
-        config: { subtree: true, childList: true }
+        config: { subtree: true, childList: true },
       });
     },
-getForumList() {
+    getForumList() {
       return utils.getNodeListValue(
         ElementUtils.comiisForumList(),
         ElementUtils.comiisPostli(),
         ElementUtils.comiisMmlist()
       );
     },
-showSmallWindow(title, url, imagesList = []) {
+    showSmallWindow(title, url, imagesList = []) {
       let constructURL = new URL(url);
       let isHTTPS = constructURL.protocol.includes("https:");
-      let websiteTitle = (
-`
+      let websiteTitle = `
         <div class="small-window-drag">
             <!-- 这里是拖拽区域 -->
             <div></div>
@@ -6411,13 +6441,15 @@ showSmallWindow(title, url, imagesList = []) {
                 </div>
             </div>
             <div class="small-window-control">
-                ${imagesList.length ? (
-`
+                ${
+                  imagesList.length
+                    ? `
                     <i class="small-window-control-image-view">
                         ${MTSmallWindowIcon.image}
                     </i>
                     `
-      ) : ""}
+                    : ""
+                }
                 <i class="small-window-control-open-blank">
                     ${MTSmallWindowIcon.openBlank}
                 </i>
@@ -6425,48 +6457,45 @@ showSmallWindow(title, url, imagesList = []) {
                     ${MTSmallWindowIcon.close}
                 </i>
             </div>
-        </div>`
-      );
+        </div>`;
       let $drawer = __pops.drawer({
         title: {
           enable: true,
           text: websiteTitle,
           html: true,
-          style: "height: auto;line-height: normal;"
+          style: "height: auto;line-height: normal;",
         },
         content: {
-          text: (
-`
+          text: `
                 <iframe scrolling="auto" allowtransparency="true" frameborder="0" src="${url}" style="width:100%; height:100%;">
                 </iframe>
-                `
-          ),
-          html: true
+                `,
+          html: true,
         },
         mask: {
           enable: true,
           clickEvent: {
-            toClose: true
+            toClose: true,
           },
           clickCallBack(originalRun, config) {
             getureBack.quitGestureBackMode();
-          }
+          },
         },
         btn: {
           ok: {
-            enable: false
+            enable: false,
           },
           cancel: {
-            enable: false
+            enable: false,
           },
           close: {
-            enable: false
-          }
+            enable: false,
+          },
         },
         direction: "bottom",
         size: "92%",
         borderRadius: 18,
-        style: smallWindowCSS
+        style: smallWindowCSS,
       });
       let $webSiteIcon = $drawer.$shadowRoot.querySelector(".small-window-website-icon");
       let $refreshIcon = $drawer.$shadowRoot.querySelector(".refresh-icon");
@@ -6502,7 +6531,7 @@ showSmallWindow(title, url, imagesList = []) {
         win: _unsafeWindow,
         beforeHistoryBackCallBack: (isUrlChange) => {
           $drawer.close();
-        }
+        },
       });
       getureBack.enterGestureBackMode();
       domUtils.on($titleText, "click", (event) => {
@@ -6528,7 +6557,7 @@ showSmallWindow(title, url, imagesList = []) {
           })(),
           hidden: () => {
             viewer.destroy();
-          }
+          },
         });
         viewer.zoomTo(1);
         viewer.show();
@@ -6548,7 +6577,7 @@ showSmallWindow(title, url, imagesList = []) {
       });
       this.checkIframeReadyState($iframe);
     },
-async handleForumPost(forumlist) {
+    async handleForumPost(forumlist) {
       forumlist.forEach(($forum) => {
         if ($forum.getAttribute("data-injection-small-window")) {
           return;
@@ -6574,7 +6603,7 @@ async handleForumPost(forumlist) {
           $anchor.setAttribute("data-href", url);
         });
         let $mmlist_li_box = $forum.querySelector(".mmlist_li_box");
-        domUtils.on($mmlist_li_box, "click", function(event) {
+        domUtils.on($mmlist_li_box, "click", function (event) {
           var mouseClickPosX = Number(event.clientX);
           if (document.body.offsetWidth / 2 > mouseClickPosX) {
             window.location.href = url;
@@ -6584,17 +6613,17 @@ async handleForumPost(forumlist) {
         });
       });
     },
-checkIframeReadyState(iframe) {
+    checkIframeReadyState(iframe) {
       this.showRefreshIcon();
       let intervalId = setInterval(() => {
         if (iframe.contentWindow) {
           clearInterval(intervalId);
           let iframeDOMUtils = domUtils.createDOMUtils({
             document: iframe.contentWindow.document,
-window: iframe.contentWindow,
+            window: iframe.contentWindow,
             globalThis: iframe.contentWindow,
-self: iframe.contentWindow,
-            top
+            self: iframe.contentWindow,
+            top,
           });
           iframeDOMUtils.ready(() => {
             log.success("小窗内容已加载完毕");
@@ -6610,7 +6639,7 @@ self: iframe.contentWindow,
     showRefreshIcon() {
       this.$el.$refreshIcon.style.display = "";
       this.$el.$webSiteIcon.style.display = "none";
-    }
+    },
   };
   const MTGuide = {
     init() {
@@ -6620,12 +6649,12 @@ self: iframe.contentWindow,
         });
       });
     },
-showLatestPost() {
+    showLatestPost() {
       log.info(`显示最新帖子`);
       async function getLatestPostForum() {
         let response = await httpx.get("/forum.php?mod=guide&view=hot", {
           fetch: true,
-          allowInterceptConfig: false
+          allowInterceptConfig: false,
         });
         if (!response.status) {
           Qmsg.error("获取轮播失败");
@@ -6645,7 +6674,7 @@ showLatestPost() {
           postForumList[postForumList.length - 1].querySelectorAll("a").forEach((item) => {
             result.push({
               href: item.getAttribute("href"),
-              title: item.getAttribute("title")
+              title: item.getAttribute("title"),
             });
           });
         }
@@ -6656,7 +6685,7 @@ showLatestPost() {
           return;
         }
         addStyle(
-`
+          `
             div.comiis_mh_kxtxt_owm{
                 margin-top: 10px;
             }
@@ -6706,8 +6735,7 @@ showLatestPost() {
         );
         log.info("导读内容", postInfoList);
         postInfoList.forEach((item) => {
-          latestPostForumHTML +=
-`
+          latestPostForumHTML += `
                 <li>
                     <span>新帖</span>
                     <a href="${item.href}" title="${item.title}" target="_blank">${item.title}</a>
@@ -6719,7 +6747,7 @@ showLatestPost() {
           `<div class="comiis_mh_kxtxt bg_f comiis_mh_kxtxt_owm"><ul>${latestPostForumHTML}</ul></div>`
         );
       });
-    }
+    },
   };
   const PanelComponents = {
     $data: {
@@ -6729,21 +6757,21 @@ showLatestPost() {
           this.__storeApiFn = new Utils.Dictionary();
         }
         return this.__storeApiFn;
-      }
+      },
     },
-getStorageApi(type) {
+    getStorageApi(type) {
       if (!this.hasStorageApi(type)) {
         return;
       }
       return this.$data.storeApiValue.get(type);
     },
-hasStorageApi(type) {
+    hasStorageApi(type) {
       return this.$data.storeApiValue.has(type);
     },
-setStorageApi(type, storageApiValue) {
+    setStorageApi(type, storageApiValue) {
       this.$data.storeApiValue.set(type, storageApiValue);
     },
-initComponentsStorageApi(type, config, storageApiValue) {
+    initComponentsStorageApi(type, config, storageApiValue) {
       let propsStorageApi;
       if (this.hasStorageApi(type)) {
         propsStorageApi = this.getStorageApi(type);
@@ -6752,11 +6780,22 @@ initComponentsStorageApi(type, config, storageApiValue) {
       }
       this.setComponentsStorageApiProperty(config, propsStorageApi);
     },
-setComponentsStorageApiProperty(config, storageApiValue) {
+    setComponentsStorageApiProperty(config, storageApiValue) {
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
-    }
+    },
   };
-  const UIInput = function(text, key, defaultValue, description, changeCallback, placeholder = "", isNumber, isPassword, afterAddToUListCallBack, valueChangeCallback) {
+  const UIInput = function (
+    text,
+    key,
+    defaultValue,
+    description,
+    changeCallback,
+    placeholder = "",
+    isNumber,
+    isPassword,
+    afterAddToUListCallBack,
+    valueChangeCallback
+  ) {
     let result = {
       text,
       type: "input",
@@ -6774,7 +6813,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
         let storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      placeholder
+      placeholder,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -6784,11 +6823,20 @@ setComponentsStorageApiProperty(config, storageApiValue) {
       },
       set(key2, value) {
         Panel.setValue(key2, value);
-      }
+      },
     });
     return result;
   };
-  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack, disabled, valueChangeCallBack) {
+  const UISwitch = function (
+    text,
+    key,
+    defaultValue,
+    clickCallBack,
+    description,
+    afterAddToUListCallBack,
+    disabled,
+    valueChangeCallBack
+  ) {
     let result = {
       text,
       type: "switch",
@@ -6807,7 +6855,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
         let storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      afterAddToUListCallBack
+      afterAddToUListCallBack,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -6817,7 +6865,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
       },
       set(key2, value) {
         Panel.setValue(key2, value);
-      }
+      },
     });
     return result;
   };
@@ -6826,40 +6874,37 @@ setComponentsStorageApiProperty(config, storageApiValue) {
     constructor(option) {
       this.option = option;
     }
-async showView() {
+    async showView() {
       let $dialog = __pops.confirm({
         title: {
           text: this.option.title,
-          position: "center"
+          position: "center",
         },
         content: {
-          text: (
-`
+          text: `
                     <form class="rule-form-container" onsubmit="return false">
                         <ul class="rule-form-ulist"></ul>
                         <input type="submit" style="display: none;" />
                     </form>
-                    `
-          ),
-          html: true
+                    `,
+          html: true,
         },
         btn: utils.assign(
           {
             ok: {
               callback: async () => {
                 await submitSaveOption();
-              }
-            }
+              },
+            },
           },
           this.option.btn || {},
           true
         ),
         drag: true,
         mask: {
-          enable: true
+          enable: true,
         },
-        style: (
-`
+        style: `
                 ${__pops.config.cssText.panelCSS}
                 
                 .rule-form-container {
@@ -6912,10 +6957,11 @@ async showView() {
 				}
 
                 ${this.option?.style ?? ""}
-            `
-        ),
-        width: typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
-        height: typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh"
+            `,
+        width:
+          typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
+        height:
+          typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh",
       });
       let $form = $dialog.$shadowRoot.querySelector(".rule-form-container");
       $dialog.$shadowRoot.querySelector("input[type=submit]");
@@ -6941,29 +6987,26 @@ async showView() {
       let $alert = __pops.alert({
         title: {
           text: this.option.title,
-          position: "center"
+          position: "center",
         },
         content: {
-          text: (
-`
+          text: `
                 <div class="filter-container"></div>
-                `
-          )
+                `,
         },
         btn: {
           ok: {
             text: "关闭",
-            type: "default"
-          }
+            type: "default",
+          },
         },
         drag: true,
         mask: {
-          enable: true
+          enable: true,
         },
         width: window.innerWidth > 500 ? "350px" : "80vw",
         height: window.innerHeight > 500 ? "300px" : "70vh",
-        style: (
-`
+        style: `
             .filter-container{
                 height: 100%;
                 display: flex;
@@ -6976,8 +7019,7 @@ async showView() {
                 height: auto;
                 text-align: left;
             }
-            `
-        )
+            `,
       });
       let $filterContainer = $alert.$shadowRoot.querySelector(".filter-container");
       let $fragment = document.createDocumentFragment();
@@ -6985,10 +7027,10 @@ async showView() {
         let $button = domUtils.createElement(
           "button",
           {
-            innerText: filterOption.name
+            innerText: filterOption.name,
           },
           {
-            type: "button"
+            type: "button",
           }
         );
         let execFilterAndCloseDialog = async () => {
@@ -7026,20 +7068,18 @@ async showView() {
     constructor(option) {
       this.option = option;
     }
-async showView(filterCallBack) {
+    async showView(filterCallBack) {
       let $popsConfirm = __pops.confirm({
         title: {
           text: this.option.title,
-          position: "center"
+          position: "center",
         },
         content: {
-          text: (
-`
+          text: `
                     <div class="rule-view-container">
                     </div>
-                    `
-          ),
-          html: true
+                    `,
+          html: true,
         },
         btn: {
           merge: true,
@@ -7051,13 +7091,13 @@ async showView(filterCallBack) {
             text: "添加",
             callback: async (event) => {
               this.showEditView(false, await this.option.getAddData(), $popsConfirm.$shadowRoot);
-            }
+            },
           },
           close: {
             enable: true,
             callback(event) {
               $popsConfirm.close();
-            }
+            },
           },
           cancel: {
             enable: this.option?.bottomControls?.filter?.enable || false,
@@ -7071,15 +7111,13 @@ async showView(filterCallBack) {
                 }
               }
               let getAllRuleElement = () => {
-                return Array.from(
-                  $popsConfirm.$shadowRoot.querySelectorAll(".rule-view-container .rule-item")
-                );
+                return Array.from($popsConfirm.$shadowRoot.querySelectorAll(".rule-view-container .rule-item"));
               };
               let $button = event.target.closest(".pops-confirm-btn").querySelector(".pops-confirm-btn-cancel span");
               if (domUtils.text($button).includes("取消")) {
                 let cancelFilterResult = await this.option?.bottomControls?.filter?.cancelFilterCallback?.({
                   $button,
-                  getAllRuleElement
+                  getAllRuleElement,
                 });
                 if (typeof cancelFilterResult === "boolean" && !cancelFilterResult) {
                   return;
@@ -7100,14 +7138,14 @@ async showView(filterCallBack) {
                     return getAllRuleElement().map(($el) => {
                       return {
                         data: this.parseRuleItemElement($el).data,
-                        $el
+                        $el,
                       };
                     });
-                  }
+                  },
                 });
                 ruleFilterView.showView();
               }
-            }
+            },
           },
           other: {
             enable: this.option?.bottomControls?.clear?.enable || true,
@@ -7117,11 +7155,11 @@ async showView(filterCallBack) {
               let $askDialog = __pops.confirm({
                 title: {
                   text: "提示",
-                  position: "center"
+                  position: "center",
                 },
                 content: {
                   text: "确定清空所有的数据？",
-                  html: false
+                  html: false,
                 },
                 btn: {
                   ok: {
@@ -7141,27 +7179,26 @@ async showView(filterCallBack) {
                       await this.updateDeleteAllBtnText($popsConfirm.$shadowRoot);
                       this.clearContent($popsConfirm.$shadowRoot);
                       $askDialog.close();
-                    }
+                    },
                   },
                   cancel: {
                     text: "取消",
-                    enable: true
-                  }
+                    enable: true,
+                  },
                 },
                 mask: { enable: true },
                 width: "300px",
-                height: "200px"
+                height: "200px",
               });
-            }
-          }
+            },
+          },
         },
         mask: {
-          enable: true
+          enable: true,
         },
         width: window.innerWidth > 500 ? "500px" : "88vw",
         height: window.innerHeight > 500 ? "500px" : "80vh",
-        style: (
-`
+        style: `
             ${__pops.config.cssText.panelCSS}
             
             .rule-item{
@@ -7202,8 +7239,7 @@ async showView(filterCallBack) {
                 height: 16px;
                 cursor: pointer;
             }
-            `
-        )
+            `,
       });
       let allData = await this.option.data();
       let changeButtonText = false;
@@ -7214,7 +7250,8 @@ async showView(filterCallBack) {
         if (typeof filterCallBack === "function") {
           isNotFilterFlag = filterCallBack(item);
         } else if (typeof filterCallBack === "number" && !isNaN(filterCallBack)) {
-          isNotFilterFlag = await this.option.bottomControls?.filter?.option[filterCallBack]?.filterCallBack(item) ?? isNotFilterFlag;
+          isNotFilterFlag =
+            (await this.option.bottomControls?.filter?.option[filterCallBack]?.filterCallBack(item)) ?? isNotFilterFlag;
         }
         if (!isNotFilterFlag) {
           changeButtonText = true;
@@ -7226,7 +7263,7 @@ async showView(filterCallBack) {
         domUtils.text($button, "取消过滤");
       }
     }
-showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
+    showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
       let dialogCloseCallBack = async (isSubmit) => {
         if (isSubmit) {
           if (typeof submitCallBack === "function") {
@@ -7255,29 +7292,30 @@ showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDa
         btn: {
           ok: {
             enable: true,
-            text: isEdit ? "修改" : "添加"
+            text: isEdit ? "修改" : "添加",
           },
           cancel: {
             callback: async (detail, event) => {
               detail.close();
               await dialogCloseCallBack(false);
-            }
+            },
           },
           close: {
             callback: async (detail, event) => {
               detail.close();
               await dialogCloseCallBack(false);
-            }
-          }
+            },
+          },
         },
         onsubmit: async ($form, data) => {
           let result = await this.option.itemControls.edit.onsubmit($form, isEdit, data);
           if (result.success) {
             if (isEdit) {
               Qmsg.success("修改成功");
-              $parentShadowRoot && await this.updateRuleItemElement(result.data, $editRuleItemElement, $parentShadowRoot);
+              $parentShadowRoot &&
+                (await this.updateRuleItemElement(result.data, $editRuleItemElement, $parentShadowRoot));
             } else {
-              $parentShadowRoot && await this.appendRuleItemElement($parentShadowRoot, result.data);
+              $parentShadowRoot && (await this.appendRuleItemElement($parentShadowRoot, result.data));
             }
           } else {
             if (isEdit) {
@@ -7288,19 +7326,19 @@ showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDa
         },
         style: this.option.itemControls.edit.style,
         width: this.option.itemControls.edit.width,
-        height: this.option.itemControls.edit.height
+        height: this.option.itemControls.edit.height,
       });
       editView.showView();
     }
-parseViewElement($shadowRoot) {
+    parseViewElement($shadowRoot) {
       let $container = $shadowRoot.querySelector(".rule-view-container");
       let $deleteBtn = $shadowRoot.querySelector(".pops-confirm-btn button.pops-confirm-btn-other");
       return {
-$container,
-$deleteBtn
+        $container,
+        $deleteBtn,
       };
     }
-parseRuleItemElement($ruleElement) {
+    parseRuleItemElement($ruleElement) {
       let $enable = $ruleElement.querySelector(".rule-controls-enable");
       let $enableSwitch = $enable.querySelector(".pops-panel-switch");
       let $enableSwitchInput = $enable.querySelector(".pops-panel-switch__input");
@@ -7308,21 +7346,20 @@ parseRuleItemElement($ruleElement) {
       let $edit = $ruleElement.querySelector(".rule-controls-edit");
       let $delete = $ruleElement.querySelector(".rule-controls-delete");
       return {
-$enable,
-$enableSwitch,
-$enableSwitchInput,
-$enableSwitchCore,
-$edit,
-$delete,
-data: Reflect.get($ruleElement, "data-rule")
+        $enable,
+        $enableSwitch,
+        $enableSwitchInput,
+        $enableSwitchCore,
+        $edit,
+        $delete,
+        data: Reflect.get($ruleElement, "data-rule"),
       };
     }
-async createRuleItemElement(data, $shadowRoot) {
+    async createRuleItemElement(data, $shadowRoot) {
       let name = await this.option.getDataItemName(data);
       let $ruleItem = domUtils.createElement("div", {
         className: "rule-item",
-        innerHTML: (
-`
+        innerHTML: `
 			<div class="rule-name">${name}</div>
 			<div class="rule-controls">
 				<div class="rule-controls-enable">
@@ -7341,12 +7378,12 @@ async createRuleItemElement(data, $shadowRoot) {
 					${__pops.config.iconSVG.delete}
 				</div>
 			</div>
-			`
-        )
+			`,
       });
       Reflect.set($ruleItem, "data-rule", data);
       let switchCheckedClassName = "pops-panel-switch-is-checked";
-      const { $enable, $enableSwitch, $enableSwitchCore, $enableSwitchInput, $delete, $edit } = this.parseRuleItemElement($ruleItem);
+      const { $enable, $enableSwitch, $enableSwitchCore, $enableSwitchInput, $delete, $edit } =
+        this.parseRuleItemElement($ruleItem);
       if (this.option.itemControls.enable.enable) {
         domUtils.on($enableSwitchCore, "click", async (event) => {
           let isChecked = false;
@@ -7383,11 +7420,11 @@ async createRuleItemElement(data, $shadowRoot) {
           let $askDialog = __pops.confirm({
             title: {
               text: "提示",
-              position: "center"
+              position: "center",
             },
             content: {
               text: "确定删除该条数据？",
-              html: false
+              html: false,
             },
             btn: {
               ok: {
@@ -7403,18 +7440,18 @@ async createRuleItemElement(data, $shadowRoot) {
                   } else {
                     Qmsg.error("删除该数据失败");
                   }
-                }
+                },
               },
               cancel: {
                 text: "取消",
-                enable: true
-              }
+                enable: true,
+              },
             },
             mask: {
-              enable: true
+              enable: true,
             },
             width: "300px",
-            height: "200px"
+            height: "200px",
           });
         });
       } else {
@@ -7422,7 +7459,7 @@ async createRuleItemElement(data, $shadowRoot) {
       }
       return $ruleItem;
     }
-async appendRuleItemElement($shadowRoot, data) {
+    async appendRuleItemElement($shadowRoot, data) {
       let { $container } = this.parseViewElement($shadowRoot);
       let $ruleItem = [];
       let iteratorData = Array.isArray(data) ? data : [data];
@@ -7435,23 +7472,23 @@ async appendRuleItemElement($shadowRoot, data) {
       await this.updateDeleteAllBtnText($shadowRoot);
       return $ruleItem;
     }
-async updateRuleContaienrElement($shadowRoot) {
+    async updateRuleContaienrElement($shadowRoot) {
       this.clearContent($shadowRoot);
       const { $container } = this.parseViewElement($shadowRoot);
       let data = await this.option.data();
       await this.appendRuleItemElement($shadowRoot, data);
       await this.updateDeleteAllBtnText($shadowRoot);
     }
-async updateRuleItemElement(data, $oldRuleItem, $shadowRoot) {
+    async updateRuleItemElement(data, $oldRuleItem, $shadowRoot) {
       let $newRuleItem = await this.createRuleItemElement(data, $shadowRoot);
       $oldRuleItem.after($newRuleItem);
       $oldRuleItem.remove();
     }
-clearContent($shadowRoot) {
+    clearContent($shadowRoot) {
       const { $container } = this.parseViewElement($shadowRoot);
       domUtils.html($container, "");
     }
-setDeleteBtnText($shadowRoot, text, isHTML = false) {
+    setDeleteBtnText($shadowRoot, text, isHTML = false) {
       const { $deleteBtn } = this.parseViewElement($shadowRoot);
       if (isHTML) {
         domUtils.html($deleteBtn, text);
@@ -7459,17 +7496,17 @@ setDeleteBtnText($shadowRoot, text, isHTML = false) {
         domUtils.text($deleteBtn, text);
       }
     }
-async updateDeleteAllBtnText($shadowRoot) {
+    async updateDeleteAllBtnText($shadowRoot) {
       let data = await this.option.data();
       this.setDeleteBtnText($shadowRoot, `清空所有(${data.length})`);
     }
   }
   const MTOwnBlock = {
     $key: {
-      STORAGE_KEY: "mt-own-block-rule"
+      STORAGE_KEY: "mt-own-block-rule",
     },
     $data: {
-      isRegister: false
+      isRegister: false,
     },
     init() {
       this.registerMenu();
@@ -7479,14 +7516,14 @@ async updateDeleteAllBtnText($shadowRoot) {
       utils.mutationObserver(document, {
         config: {
           subtree: true,
-          childList: true
+          childList: true,
         },
         callback: () => {
           lockFn.run();
-        }
+        },
       });
     },
-registerMenu() {
+    registerMenu() {
       if (this.$data.isRegister) {
         return;
       }
@@ -7497,10 +7534,10 @@ registerMenu() {
         iconColor: "#000",
         callback: () => {
           this.showView();
-        }
+        },
       });
     },
-getTemplateData() {
+    getTemplateData() {
       return {
         uuid: utils.generateUUID(),
         enable: true,
@@ -7512,11 +7549,11 @@ getTemplateData() {
           postUrl: "",
           postTitle: "",
           postContent: "",
-          postPlateName: ""
-        }
+          postPlateName: "",
+        },
       };
     },
-showView() {
+    showView() {
       let panelHandlerComponents = __pops.config.PanelHandlerComponents();
       function generateStorageApi(data) {
         return {
@@ -7525,7 +7562,7 @@ showView() {
           },
           set(key, value) {
             data[key] = value;
-          }
+          },
         };
       }
       let ruleView = new RuleView({
@@ -7559,7 +7596,7 @@ showView() {
             callback: (data, enable) => {
               data.enable = enable;
               this.updateData(data);
-            }
+            },
           },
           edit: {
             enable: true,
@@ -7591,10 +7628,12 @@ showView() {
               let $data_postTitle = panelHandlerComponents.createSectionContainerItem_input(data_postTitle_template);
               let data_postContent_template = UIInput("帖子内容", "postContent", "", "", void 0, "可正则");
               Reflect.set(data_postContent_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-              let $data_postContent = panelHandlerComponents.createSectionContainerItem_input(data_postContent_template);
+              let $data_postContent =
+                panelHandlerComponents.createSectionContainerItem_input(data_postContent_template);
               let data_postPlateName_template = UIInput("帖子所在的板块名", "postPlateName", "", "", void 0, "可正则");
               Reflect.set(data_postPlateName_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-              let $data_postPlateName = panelHandlerComponents.createSectionContainerItem_input(data_postPlateName_template);
+              let $data_postPlateName =
+                panelHandlerComponents.createSectionContainerItem_input(data_postPlateName_template);
               $fragment.appendChild($enable);
               $fragment.appendChild($name);
               $fragment.appendChild($data_userName);
@@ -7631,33 +7670,33 @@ showView() {
                 Qmsg.error("规则名称不能为空");
                 return {
                   success: false,
-                  data
+                  data,
                 };
               }
               if (isEdit) {
                 return {
                   success: this.updateData(data),
-                  data
+                  data,
                 };
               } else {
                 return {
                   success: this.addData(data),
-                  data
+                  data,
                 };
               }
-            }
+            },
           },
           delete: {
             enable: true,
             deleteCallBack: (data) => {
               return this.deleteData(data);
-            }
-          }
-        }
+            },
+          },
+        },
       });
       ruleView.showView();
     },
-runRule() {
+    runRule() {
       let shieldUserList = this.getData();
       function checkIsFilter(postForumInfo) {
         for (const shieldItem of shieldUserList) {
@@ -7667,7 +7706,11 @@ runRule() {
             if (utils.isNotNull(value)) {
               let regExpValue = new RegExp(value, "i");
               let postForumValue = Reflect.get(postForumInfo, keyName);
-              if (typeof postForumValue === "string" && utils.isNotNull(postForumValue) && postForumValue.match(regExpValue)) {
+              if (
+                typeof postForumValue === "string" &&
+                utils.isNotNull(postForumValue) &&
+                postForumValue.match(regExpValue)
+              ) {
                 log.info(`屏蔽`, [shieldOption, postForumValue]);
                 return true;
               }
@@ -7686,13 +7729,20 @@ runRule() {
           let $topUser = item.querySelector("a.top_user");
           let uidMatch = $topUser.href.match(MTRegExp.uid);
           let postForumInfo = {
-userName: $topUser.innerText,
-userUID: uidMatch[uidMatch.length - 1].trim(),
-userLevel: item.querySelector("span.top_lev").innerText.replace("Lv.", ""),
-postUrl: item.querySelector(".mmlist_li_box a").getAttribute("href") || item.querySelector(".mmlist_li_box a").getAttribute("data-href"),
-postTitle: item.querySelector(".mmlist_li_box h2 a")?.innerText || "",
-postContent: item.querySelector(".mmlist_li_box .list_body").innerText,
-postPlateName: (item.querySelector(".forumlist_li_time a.f_d") || item.querySelector(".comiis_xznalist_bk.cl")).innerText.replace(//g, "").replace(/\s*/g, "").replace(/来自/g, "")
+            userName: $topUser.innerText,
+            userUID: uidMatch[uidMatch.length - 1].trim(),
+            userLevel: item.querySelector("span.top_lev").innerText.replace("Lv.", ""),
+            postUrl:
+              item.querySelector(".mmlist_li_box a").getAttribute("href") ||
+              item.querySelector(".mmlist_li_box a").getAttribute("data-href"),
+            postTitle: item.querySelector(".mmlist_li_box h2 a")?.innerText || "",
+            postContent: item.querySelector(".mmlist_li_box .list_body").innerText,
+            postPlateName: (
+              item.querySelector(".forumlist_li_time a.f_d") || item.querySelector(".comiis_xznalist_bk.cl")
+            ).innerText
+              .replace(//g, "")
+              .replace(/\s*/g, "")
+              .replace(/来自/g, ""),
           };
           if (utils.isNull(postForumInfo.postPlateName)) {
             postForumInfo.postPlateName = document.querySelector("#comiis_wx_title_box").innerText;
@@ -7705,13 +7755,13 @@ postPlateName: (item.querySelector(".forumlist_li_time a.f_d") || item.querySele
           let $topUser = item.querySelector("a.top_user");
           let uidMatch = $topUser.href.match(MTRegExp.uid);
           let postForumInfo = {
-userName: $topUser.innerText,
-userUID: uidMatch[uidMatch.length - 1].trim(),
-userLevel: item.querySelector("a.top_lev").innerText.replace("Lv.", ""),
-postUrl: void 0,
-postTitle: void 0,
-postContent: item.querySelector(".comiis_message_table").innerText,
-postPlateName: void 0
+            userName: $topUser.innerText,
+            userUID: uidMatch[uidMatch.length - 1].trim(),
+            userLevel: item.querySelector("a.top_lev").innerText.replace("Lv.", ""),
+            postUrl: void 0,
+            postTitle: void 0,
+            postContent: item.querySelector(".comiis_message_table").innerText,
+            postPlateName: void 0,
           };
           if (checkIsFilter(postForumInfo)) {
             item.remove();
@@ -7723,13 +7773,16 @@ postPlateName: void 0
         $$(".comiis_pms_box .comiis_pmlist ul li").forEach((item) => {
           let uidMatch = item.querySelector("a.b_b").href.match(MTRegExp.uid);
           let postForumInfo = {
-userName: item.querySelector("h2").innerText.replace(item.querySelector("h2 span").innerText, "").replace(/\s*/, ""),
-userUID: uidMatch[uidMatch.length - 1].trim(),
-userLevel: void 0,
-postUrl: item.querySelector("a.b_b").href,
-postTitle: void 0,
-postContent: item.querySelector("p.f_c").innerText.trim(),
-postPlateName: void 0
+            userName: item
+              .querySelector("h2")
+              .innerText.replace(item.querySelector("h2 span").innerText, "")
+              .replace(/\s*/, ""),
+            userUID: uidMatch[uidMatch.length - 1].trim(),
+            userLevel: void 0,
+            postUrl: item.querySelector("a.b_b").href,
+            postTitle: void 0,
+            postContent: item.querySelector("p.f_c").innerText.trim(),
+            postPlateName: void 0,
           };
           if (checkIsFilter(postForumInfo)) {
             item.remove();
@@ -7737,13 +7790,13 @@ postPlateName: void 0
         });
       }
     },
-getData() {
+    getData() {
       return _GM_getValue(this.$key.STORAGE_KEY, []);
     },
-setData(data) {
+    setData(data) {
       _GM_setValue(this.$key.STORAGE_KEY, data);
     },
-addData(data) {
+    addData(data) {
       let localData = this.getData();
       let findIndex = localData.findIndex((item) => item.uuid == data.uuid);
       if (findIndex === -1) {
@@ -7754,7 +7807,7 @@ addData(data) {
         return false;
       }
     },
-updateData(data) {
+    updateData(data) {
       let localData = this.getData();
       let index = localData.findIndex((item) => item.uuid == data.uuid);
       let updateFlag = false;
@@ -7765,7 +7818,7 @@ updateData(data) {
       this.setData(localData);
       return updateFlag;
     },
-deleteData(data) {
+    deleteData(data) {
       let localData = this.getData();
       let index = localData.findIndex((item) => item.uuid == data.uuid);
       let deleteFlag = false;
@@ -7776,11 +7829,20 @@ deleteData(data) {
       this.setData(localData);
       return deleteFlag;
     },
-clearData() {
+    clearData() {
       _GM_deleteValue(this.$key.STORAGE_KEY);
-    }
+    },
   };
-  const UITextArea = function(text, key, defaultValue, description, changeCallback, placeholder = "", disabled, valueChangeCallBack) {
+  const UITextArea = function (
+    text,
+    key,
+    defaultValue,
+    description,
+    changeCallback,
+    placeholder = "",
+    disabled,
+    valueChangeCallBack
+  ) {
     let result = {
       text,
       type: "textarea",
@@ -7800,7 +7862,7 @@ clearData() {
       callback(event, value) {
         let storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
-      }
+      },
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -7810,16 +7872,16 @@ clearData() {
       },
       set(key2, value) {
         Panel.setValue(key2, value);
-      }
+      },
     });
     return result;
   };
   const MTCommentFilter = {
     $el: {
-      isFilterElementHTML: []
+      isFilterElementHTML: [],
     },
     $key: {
-      STORAGE_KEY: "mt-post-comment-filter-rule"
+      STORAGE_KEY: "mt-post-comment-filter-rule",
     },
     init() {
       this.registerMenu();
@@ -7834,26 +7896,26 @@ clearData() {
         utils.mutationObserver(document, {
           config: {
             subtree: true,
-            childList: true
+            childList: true,
           },
           callback: () => {
             lockFn.run();
-          }
+          },
         });
       }
     },
-registerMenu() {
+    registerMenu() {
       ElementUtils.registerLeftMenu({
         name: "评论过滤器",
         icon: "",
         iconColor: "#ff0019",
         callback: () => {
           this.showView();
-        }
+        },
       });
     },
-runFilter(filterData) {
-      let isBlackListUser = function(postForumInfo) {
+    runFilter(filterData) {
+      let isBlackListUser = function (postForumInfo) {
         for (const userName of filterData["userBlackList"]) {
           if (userName == postForumInfo.userName || userName == postForumInfo.userUID) {
             log.success("评论过滤器：黑名单用户", postForumInfo);
@@ -7862,7 +7924,7 @@ runFilter(filterData) {
         }
         return false;
       };
-      let isWhiteListUser = function(postForumInfo) {
+      let isWhiteListUser = function (postForumInfo) {
         for (const userName of filterData["userWhiteList"]) {
           if (userName === postForumInfo.userName || userName === postForumInfo.userUID) {
             log.success("评论过滤器：白名单用户", postForumInfo);
@@ -7881,7 +7943,7 @@ runFilter(filterData) {
           userName: $topUser?.innerText || "",
           userUID: uidMatch ? uidMatch[uidMatch?.length - 1]?.trim() || "" : "",
           content: item.querySelector(".comiis_message_table")?.innerText?.trim() || "",
-          isAuthor: Boolean(item.querySelector("span.top_lev"))
+          isAuthor: Boolean(item.querySelector("span.top_lev")),
         };
         if (isWhiteListUser(postForumInfo)) {
           return;
@@ -7902,7 +7964,10 @@ runFilter(filterData) {
         if (typeof filterData["minLength"] === "number" && filterData["minLength"] > postForumInfo.content.length) {
           return;
         }
-        if (typeof filterData["keywordLength"] === "number" && filterData["keywordLength"] < postForumInfo.content.length) {
+        if (
+          typeof filterData["keywordLength"] === "number" &&
+          filterData["keywordLength"] < postForumInfo.content.length
+        ) {
           return;
         }
         for (const keywordItem of filterData["keywords"]) {
@@ -7919,7 +7984,7 @@ runFilter(filterData) {
         }
       });
     },
-showView() {
+    showView() {
       const that = this;
       function generateStorageApi(data) {
         return {
@@ -7937,7 +8002,7 @@ showView() {
             }
             Reflect.set(data, key, value);
             that.setData(data);
-          }
+          },
         };
       }
       let panelHandlerComponents = __pops.config.PanelHandlerComponents();
@@ -8012,11 +8077,11 @@ showView() {
           merge: true,
           position: "space-between",
           ok: {
-            enable: false
+            enable: false,
           },
           cancel: {
             enable: true,
-            text: "关闭"
+            text: "关闭",
           },
           other: {
             enable: true,
@@ -8027,40 +8092,38 @@ showView() {
               __pops.alert({
                 title: {
                   text: "评论过滤器-已过滤",
-                  position: "center"
+                  position: "center",
                 },
                 content: {
-                  text: (
-`
-                                ${Array.from(document.querySelectorAll('link[rel="stylesheet"]')).map((item) => item.outerHTML).join("\n")}
+                  text: `
+                                ${Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+                                  .map((item) => item.outerHTML)
+                                  .join("\n")}
 
                                 ${this.$el.isFilterElementHTML.join("\n")}
-                                `
-                  ),
-                  html: true
+                                `,
+                  html: true,
                 },
                 btn: {
                   ok: {
                     type: "default",
-                    text: "关闭"
-                  }
+                    text: "关闭",
+                  },
                 },
                 width: window.innerWidth > 500 ? "500px" : "88vw",
-                height: window.innerHeight > 500 ? "500px" : "80vh"
+                height: window.innerHeight > 500 ? "500px" : "80vh",
               });
-            }
-          }
+            },
+          },
         },
-        dialogCloseCallBack(isSubmit) {
-        },
+        dialogCloseCallBack(isSubmit) {},
         onsubmit: ($form, data) => {
           return {
             success: true,
-            data
+            data,
           };
         },
-        style: (
-`
+        style: `
             .pops-panel-item-left-desc-text{
                 line-height: normal;
                 margin-top: 6px;
@@ -8077,12 +8140,11 @@ showView() {
 			.comiis_postli_top .top_lev{
 				height: auto;
 			}
-            `
-        )
+            `,
       });
       view.showView();
     },
-getTemplateData() {
+    getTemplateData() {
       return {
         enable: true,
         avatarFlag: false,
@@ -8092,39 +8154,39 @@ getTemplateData() {
         keywordLength: 8,
         keywords: [],
         userBlackList: [],
-        userWhiteList: []
+        userWhiteList: [],
       };
     },
-getData() {
+    getData() {
       return _GM_getValue(this.$key.STORAGE_KEY, this.getTemplateData());
     },
-setData(data) {
+    setData(data) {
       _GM_setValue(this.$key.STORAGE_KEY, data);
-    }
+    },
   };
   const MTProductListingReminder = {
     $key: {
-      STORAGE_KEY: "mt-productListingReminder-rule"
+      STORAGE_KEY: "mt-productListingReminder-rule",
     },
     init() {
       this.registerMenu();
       this.runRule();
     },
-registerMenu() {
+    registerMenu() {
       ElementUtils.registerLeftMenu({
         name: "商品上架提醒",
         icon: "",
         iconColor: "#2376b7",
         callback: () => {
           this.showView();
-        }
+        },
       });
     },
-async runRule() {
+    async runRule() {
       async function getCurrentProduct() {
         let response = await httpx.get("/keke_integralmall-keke_integralmall.html", {
           fetch: true,
-          allowInterceptConfig: false
+          allowInterceptConfig: false,
         });
         if (!response.status) {
           Qmsg.error("【积分商城】获取数据失败");
@@ -8134,12 +8196,14 @@ async runRule() {
         let doc = domUtils.toElement(response.data.responseText, true, true);
         doc.querySelectorAll(".task-list-wrapper li.col-xs-12").forEach(($taskList) => {
           productInfoList.push({
-            name: domUtils.text($taskList.querySelector(".mall-info a > *:first-child")) || domUtils.text($taskList.querySelector(".mall-info a")),
+            name:
+              domUtils.text($taskList.querySelector(".mall-info a > *:first-child")) ||
+              domUtils.text($taskList.querySelector(".mall-info a")),
             price: domUtils.text($taskList.querySelector(".mall-info span.discount-price i")),
             endTime: domUtils.text($taskList.querySelector(".mall-info #time_hz span.time")),
             remainingQuantity: parseInt(
               $taskList.querySelector(".mall-info .mall-count .count-r")?.innerText?.replace(/仅剩|件/gi, "") || "0"
-            )
+            ),
           });
         });
         return productInfoList;
@@ -8157,21 +8221,24 @@ async runRule() {
       }
       for (const productItem of productList) {
         for (const reminderOption of allData) {
-          if (reminderOption.enable && productItem["name"].match(new RegExp(reminderOption["productName"], "i")) && !isNaN(productItem["remainingQuantity"]) && productItem["remainingQuantity"] > 0) {
+          if (
+            reminderOption.enable &&
+            productItem["name"].match(new RegExp(reminderOption["productName"], "i")) &&
+            !isNaN(productItem["remainingQuantity"]) &&
+            productItem["remainingQuantity"] > 0
+          ) {
             log.success(`成功匹配对应商品`, reminderOption, productItem);
             __pops.confirm({
               title: {
                 text: "积分商城提醒",
-                position: "center"
+                position: "center",
               },
               content: {
-                text: (
-`<br />
+                text: `<br />
                             您设置的商品已上架在积分商城中，当前售价 ${productItem["price"]}金币，仅剩${productItem["remainingQuantity"]}件，是否前往购买？
                             <a style="color: red !important;">(如需关闭提醒，请删除该关键字)</a>
-                            <br />`
-                ),
-                html: true
+                            <br />`,
+                html: true,
               },
               btn: {
                 merge: true,
@@ -8187,32 +8254,32 @@ async runRule() {
                     } else {
                       Qmsg.error("删除失败");
                     }
-                  }
+                  },
                 },
                 ok: {
                   text: "前往购买",
                   callback: () => {
                     window.location.href = `${window.location.origin}/keke_integralmall-keke_integralmall.html`;
-                  }
-                }
+                  },
+                },
               },
               width: "300px",
-              height: "300px"
+              height: "300px",
             });
             return;
           }
         }
       }
     },
-getTemplateData() {
+    getTemplateData() {
       return {
         uuid: utils.generateUUID(),
         enable: true,
         name: "",
-        productName: ""
+        productName: "",
       };
     },
-showView() {
+    showView() {
       let panelHandlerComponents = __pops.config.PanelHandlerComponents();
       function generateStorageApi(data) {
         return {
@@ -8221,7 +8288,7 @@ showView() {
           },
           set(key, value) {
             data[key] = value;
-          }
+          },
         };
       }
       let ruleView = new RuleView({
@@ -8255,7 +8322,7 @@ showView() {
             callback: (data, enable) => {
               data.enable = enable;
               this.updateData(data);
-            }
+            },
           },
           edit: {
             enable: true,
@@ -8299,39 +8366,39 @@ showView() {
                 Qmsg.error("规则名称不能为空");
                 return {
                   success: false,
-                  data
+                  data,
                 };
               }
               if (isEdit) {
                 return {
                   success: this.updateData(data),
-                  data
+                  data,
                 };
               } else {
                 return {
                   success: this.addData(data),
-                  data
+                  data,
                 };
               }
-            }
+            },
           },
           delete: {
             enable: true,
             deleteCallBack: (data) => {
               return this.deleteData(data);
-            }
-          }
-        }
+            },
+          },
+        },
       });
       ruleView.showView();
     },
-getData() {
+    getData() {
       return _GM_getValue(this.$key.STORAGE_KEY, []);
     },
-setData(data) {
+    setData(data) {
       _GM_setValue(this.$key.STORAGE_KEY, data);
     },
-addData(data) {
+    addData(data) {
       let localData = this.getData();
       let findIndex = localData.findIndex((item) => item.uuid == data.uuid);
       if (findIndex === -1) {
@@ -8342,7 +8409,7 @@ addData(data) {
         return false;
       }
     },
-updateData(data) {
+    updateData(data) {
       let localData = this.getData();
       let index = localData.findIndex((item) => item.uuid == data.uuid);
       let updateFlag = false;
@@ -8353,7 +8420,7 @@ updateData(data) {
       this.setData(localData);
       return updateFlag;
     },
-deleteData(data) {
+    deleteData(data) {
       let localData = this.getData();
       let index = localData.findIndex((item) => item.uuid == data.uuid);
       let deleteFlag = false;
@@ -8364,17 +8431,24 @@ deleteData(data) {
       this.setData(localData);
       return deleteFlag;
     },
-clearData() {
+    clearData() {
       _GM_deleteValue(this.$key.STORAGE_KEY);
-    }
+    },
   };
   const MTCustomizeUserLabels = {
     $key: {
-      STORAGE_KEY: "mt-customizeUserLabels-rule"
+      STORAGE_KEY: "mt-customizeUserLabels-rule",
     },
     init() {
       this.registerMenu();
-      if (MTRouter.isPage() || MTRouter.isGuide() || MTRouter.isPlate() || MTRouter.isPost() || MTRouter.isSearch() || MTRouter.isSpace()) {
+      if (
+        MTRouter.isPage() ||
+        MTRouter.isGuide() ||
+        MTRouter.isPlate() ||
+        MTRouter.isPost() ||
+        MTRouter.isSearch() ||
+        MTRouter.isSpace()
+      ) {
         let allData = this.getData();
         if (!allData.length) {
           return;
@@ -8385,25 +8459,25 @@ clearData() {
         utils.mutationObserver(document, {
           config: {
             subtree: true,
-            childList: true
+            childList: true,
           },
           callback: () => {
             lockFn.run();
-          }
+          },
         });
       }
     },
-registerMenu() {
+    registerMenu() {
       ElementUtils.registerLeftMenu({
         name: "自定义用户标签",
         icon: "",
         iconColor: "#c70ea6",
         callback: () => {
           this.showView();
-        }
+        },
       });
     },
-showView() {
+    showView() {
       let panelHandlerComponents = __pops.config.PanelHandlerComponents();
       function generateStorageApi(data) {
         return {
@@ -8412,7 +8486,7 @@ showView() {
           },
           set(key, value) {
             data[key] = value;
-          }
+          },
         };
       }
       let ruleView = new RuleView({
@@ -8446,7 +8520,7 @@ showView() {
             callback: (data, enable) => {
               data.enable = enable;
               this.updateData(data);
-            }
+            },
           },
           edit: {
             enable: true,
@@ -8476,14 +8550,15 @@ showView() {
               domUtils.css($labelColor_input, {
                 margin: "unset",
                 padding: "unset",
-                width: "80px"
+                width: "80px",
               });
               let labelStyle_template = UIInput("标签CSS", "labelStyle", "", "");
               Reflect.set(labelStyle_template.props, PROPS_STORAGE_API, generateStorageApi(data));
               let $labelStyle = panelHandlerComponents.createSectionContainerItem_input(labelStyle_template);
               let labelClickEvent_template = UITextArea("标签点击事件", "labelClickEvent", "", "");
               Reflect.set(labelClickEvent_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-              let $labelClickEvent = panelHandlerComponents.createSectionContainerItem_textarea(labelClickEvent_template);
+              let $labelClickEvent =
+                panelHandlerComponents.createSectionContainerItem_textarea(labelClickEvent_template);
               $fragment.append($enable, $name, $userUID, $labelName, $labelColor, $labelStyle, $labelClickEvent);
               return $fragment;
             },
@@ -8510,54 +8585,52 @@ showView() {
                 Qmsg.error("规则名称不能为空");
                 return {
                   success: false,
-                  data
+                  data,
                 };
               }
               if (data.userUID.trim() === "") {
                 Qmsg.error("用户UID不能为空");
                 return {
                   success: false,
-                  data
+                  data,
                 };
               }
               if (data.labelName.trim() === "") {
                 Qmsg.error("标签名不能为空");
                 return {
                   success: false,
-                  data
+                  data,
                 };
               }
               if (isEdit) {
                 return {
                   success: this.updateData(data),
-                  data
+                  data,
                 };
               } else {
                 return {
                   success: this.addData(data),
-                  data
+                  data,
                 };
               }
             },
-            style: (
-`
+            style: `
                     .pops-panel-textarea textarea{
                         height: 150px;
                     }
-                    `
-            )
+                    `,
           },
           delete: {
             enable: true,
             deleteCallBack: (data) => {
               return this.deleteData(data);
-            }
-          }
-        }
+            },
+          },
+        },
       });
       ruleView.showView();
     },
-runRule(ruleDataList) {
+    runRule(ruleDataList) {
       let forumList = utils.getNodeListValue(
         ElementUtils.comiisForumList(),
         ElementUtils.comiisPostli(),
@@ -8571,13 +8644,15 @@ runRule(ruleDataList) {
           return;
         }
         $post.setAttribute("data-custom-label", "true");
-        let mt_uid_array = Array.from($post.querySelectorAll("a")).map((item) => {
-          let url = item.href;
-          let uid = url.match(MTRegExp.uid);
-          if (uid) {
-            return uid[uid.length - 1];
-          }
-        }).filter((item) => item != null);
+        let mt_uid_array = Array.from($post.querySelectorAll("a"))
+          .map((item) => {
+            let url = item.href;
+            let uid = url.match(MTRegExp.uid);
+            if (uid) {
+              return uid[uid.length - 1];
+            }
+          })
+          .filter((item) => item != null);
         if (mt_uid_array.length) {
           let mt_uid = mt_uid_array[0];
           let ownLabelList = ruleDataList.filter((item) => item.enable && mt_uid.match(new RegExp(item.userUID)));
@@ -8603,7 +8678,7 @@ runRule(ruleDataList) {
         }
       });
     },
-getTemplateData() {
+    getTemplateData() {
       return {
         uuid: utils.generateUUID(),
         enable: true,
@@ -8612,16 +8687,16 @@ getTemplateData() {
         labelName: "",
         labelColor: "",
         labelStyle: "",
-        labelClickEvent: ""
+        labelClickEvent: "",
       };
     },
-getData() {
+    getData() {
       return _GM_getValue(this.$key.STORAGE_KEY, []);
     },
-setData(data) {
+    setData(data) {
       _GM_setValue(this.$key.STORAGE_KEY, data);
     },
-addData(data) {
+    addData(data) {
       let localData = this.getData();
       let findIndex = localData.findIndex((item) => item.uuid == data.uuid);
       if (findIndex === -1) {
@@ -8632,7 +8707,7 @@ addData(data) {
         return false;
       }
     },
-updateData(data) {
+    updateData(data) {
       let localData = this.getData();
       let index = localData.findIndex((item) => item.uuid == data.uuid);
       let updateFlag = false;
@@ -8643,7 +8718,7 @@ updateData(data) {
       this.setData(localData);
       return updateFlag;
     },
-deleteData(data) {
+    deleteData(data) {
       let localData = this.getData();
       let index = localData.findIndex((item) => item.uuid == data.uuid);
       let deleteFlag = false;
@@ -8654,11 +8729,12 @@ deleteData(data) {
       this.setData(localData);
       return deleteFlag;
     },
-clearData() {
+    clearData() {
       _GM_deleteValue(this.$key.STORAGE_KEY);
-    }
+    },
   };
-  const optimizationCSS = '.f_c,\r\n.f_c a,\r\n.ntc_body {\r\n  color: #000 !important;\r\n}\r\ninput::placeholder,\r\ntextarea::placeholder {\r\n  color: #cfcfcf;\r\n}\r\n#needsubject::placeholder {\r\n  font-weight: 700;\r\n}\r\n#postform #comiis_mh_sub {\r\n  height: 60px;\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n#postform #comiis_post_tab {\r\n  display: inherit;\r\n  width: 100%;\r\n}\r\n#postform .comiis_sendbtn {\r\n  padding: 0 12px;\r\n  display: flex !important;\r\n  -webkit-box-align: center;\r\n  -moz-box-align: center;\r\n  align-items: center;\r\n}\r\n#postform .f_f {\r\n  color: #fff !important;\r\n}\r\n#postform #comiis_post_tab .bg_f.b_b.cl:nth-child(2) .comiis_atlist a:hover,\r\n#postform #comiis_post_tab .bg_f.b_b.cl:nth-child(2) .comiis_atlist a:link,\r\n#postform #comiis_post_tab .bg_f.b_b.cl:nth-child(2) .comiis_atlist a:visited {\r\n  color: #333 !important;\r\n}\r\n#postform .comiis_post_from .comiis_post_ico.comiis_minipost_icot {\r\n  position: fixed;\r\n  display: inline-table;\r\n  z-index: 90;\r\n  left: 0;\r\n  right: 0;\r\n  bottom: 0;\r\n  width: 100%;\r\n  overflow: hidden;\r\n  padding: 0;\r\n}\r\n#postform .comiis_post_from #comiis_post_tab .comiis_bqbox {\r\n  height: 200px;\r\n}\r\n#postform .comiis_post_from #comiis_post_tab .comiis_smiley_box {\r\n  height: 150px;\r\n}\r\n#postform .comiis_post_from #comiis_post_tab .comiis_input_style .comiis_post_urlico {\r\n  overflow-y: auto;\r\n  height: 110px;\r\n}\r\n#postform .comiis_post_from #comiis_post_tab .comiis_smiley_box .comiis_optimization {\r\n  display: block;\r\n  overflow-y: auto;\r\n  height: 100%;\r\n}\r\n#postform #comiis_post_tab .comiis_input_style .comiis_xifont {\r\n  width: -webkit-fill-available;\r\n  width: -moz-available;\r\n}\r\n#postform #comiis_post_tab .comiis_input_style .comiis_xifont i.comiis_font {\r\n  font-size: 16px;\r\n  line-height: inherit;\r\n  padding-top: 0;\r\n}\r\n#postform #comiis_post_tab .comiis_input_style .styli_h10 {\r\n  display: none;\r\n}\r\n.gm_plugin_chartbed .comiis_chartbed_hello,\r\n.gm_plugin_chartbed .comiis_chartbed_history,\r\n.gm_plugin_chartbed .comiis_chartbed_kggzs,\r\n.gm_plugin_chartbed .comiis_chartbed_luntan,\r\n.gm_plugin_chartbed .comiis_chartbed_mt,\r\n.gm_plugin_chartbed .comiis_chartbed_z4a {\r\n  height: 140px;\r\n  overflow-y: auto;\r\n  flex-direction: column;\r\n}\r\n#comiis_pictitle_key {\r\n  display: -webkit-box;\r\n  top: 0;\r\n  left: 0;\r\n  height: 42px;\r\n  line-height: 42px;\r\n  overflow: hidden;\r\n  overflow-x: auto;\r\n  background: #f8f8f8;\r\n}\r\n#comiis_pictitle_key a {\r\n  color: #333 !important;\r\n  padding: 0 10px;\r\n}\r\n#comiis_mh_sub {\r\n  height: auto !important;\r\n}\r\n#comiis_mh_sub .swiper-wrapper.comiis_post_ico {\r\n  flex-flow: wrap;\r\n}\r\n#comiis_mh_sub a {\r\n  margin: 5px 0;\r\n}\r\n#comiis_post_tab .comiis_over_box {\r\n  max-height: 225px;\r\n}\r\n@media screen and (max-width: 350px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 14.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 350px) and (max-width: 400px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 12.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 400px) and (max-width: 450px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 11%;\r\n  }\r\n}\r\n@media screen and (min-width: 450px) and (max-width: 500px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 10%;\r\n  }\r\n}\r\n@media screen and (min-width: 500px) and (max-width: 550px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 9.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 550px) and (max-width: 600px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 9%;\r\n  }\r\n}\r\n@media screen and (min-width: 600px) and (max-width: 650px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 8.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 650px) and (max-width: 700px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 8%;\r\n  }\r\n}\r\n@media screen and (min-width: 700px) and (max-width: 750px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 7.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 750px) and (max-width: 800px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 7%;\r\n  }\r\n}\r\n@media screen and (min-width: 800px) and (max-width: 850px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 6.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 850px) and (max-width: 1200px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 6%;\r\n  }\r\n}\r\n@media screen and (min-width: 1200px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 4.5%;\r\n  }\r\n}\r\n\r\n#comiis_head .header_y {\r\n  display: flex;\r\n  align-content: center;\r\n  align-items: center;\r\n  justify-content: flex-end;\r\n  height: 100%;\r\n}\r\n#comiis_head .header_y input {\r\n  border: transparent;\r\n  background: 0 0;\r\n  text-align: center;\r\n  margin: 0 5px;\r\n}\r\n#comiis_head .header_y input[value="删除"] {\r\n  color: #d00;\r\n}\r\n#comiis_head .header_y input[value="保存"] {\r\n  color: #b0ff6a;\r\n}\r\n#comiis_head .header_y input[value="保存草稿"] {\r\n  color: #f90;\r\n}\r\n#comiis_head .header_y input[value="发表"] {\r\n  color: #b0ff6a;\r\n}\r\n#comiis_head .header_y input[value="回复"] {\r\n  color: #b0ff6a;\r\n}\r\n#comiis_post_tab {\r\n  color: #000;\r\n}\r\n.gm_plugin_chartbed .delImg a,\r\n.gm_plugin_chartbed .p_img a {\r\n  padding: 0;\r\n}\r\n.gm_plugin_chartbed .delImg a i {\r\n  line-height: inherit;\r\n}\r\n#filedata,\r\n#filedata_hello,\r\n#filedata_kggzs,\r\n#filedata_mt {\r\n  display: none;\r\n}\r\n\r\n#comiis_mh_sub {\r\n  height: 40px;\r\n}\r\n#imglist .del a {\r\n  padding: 0;\r\n}\r\n.comiis_post_from.mt15 {\r\n  margin-top: unset !important;\r\n}\r\n';
+  const optimizationCSS =
+    '.f_c,\r\n.f_c a,\r\n.ntc_body {\r\n  color: #000 !important;\r\n}\r\ninput::placeholder,\r\ntextarea::placeholder {\r\n  color: #cfcfcf;\r\n}\r\n#needsubject::placeholder {\r\n  font-weight: 700;\r\n}\r\n#postform #comiis_mh_sub {\r\n  height: 60px;\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n#postform #comiis_post_tab {\r\n  display: inherit;\r\n  width: 100%;\r\n}\r\n#postform .comiis_sendbtn {\r\n  padding: 0 12px;\r\n  display: flex !important;\r\n  -webkit-box-align: center;\r\n  -moz-box-align: center;\r\n  align-items: center;\r\n}\r\n#postform .f_f {\r\n  color: #fff !important;\r\n}\r\n#postform #comiis_post_tab .bg_f.b_b.cl:nth-child(2) .comiis_atlist a:hover,\r\n#postform #comiis_post_tab .bg_f.b_b.cl:nth-child(2) .comiis_atlist a:link,\r\n#postform #comiis_post_tab .bg_f.b_b.cl:nth-child(2) .comiis_atlist a:visited {\r\n  color: #333 !important;\r\n}\r\n#postform .comiis_post_from .comiis_post_ico.comiis_minipost_icot {\r\n  position: fixed;\r\n  display: inline-table;\r\n  z-index: 90;\r\n  left: 0;\r\n  right: 0;\r\n  bottom: 0;\r\n  width: 100%;\r\n  overflow: hidden;\r\n  padding: 0;\r\n}\r\n#postform .comiis_post_from #comiis_post_tab .comiis_bqbox {\r\n  height: 200px;\r\n}\r\n#postform .comiis_post_from #comiis_post_tab .comiis_smiley_box {\r\n  height: 150px;\r\n}\r\n#postform .comiis_post_from #comiis_post_tab .comiis_input_style .comiis_post_urlico {\r\n  overflow-y: auto;\r\n  height: 110px;\r\n}\r\n#postform .comiis_post_from #comiis_post_tab .comiis_smiley_box .comiis_optimization {\r\n  display: block;\r\n  overflow-y: auto;\r\n  height: 100%;\r\n}\r\n#postform #comiis_post_tab .comiis_input_style .comiis_xifont {\r\n  width: -webkit-fill-available;\r\n  width: -moz-available;\r\n}\r\n#postform #comiis_post_tab .comiis_input_style .comiis_xifont i.comiis_font {\r\n  font-size: 16px;\r\n  line-height: inherit;\r\n  padding-top: 0;\r\n}\r\n#postform #comiis_post_tab .comiis_input_style .styli_h10 {\r\n  display: none;\r\n}\r\n.gm_plugin_chartbed .comiis_chartbed_hello,\r\n.gm_plugin_chartbed .comiis_chartbed_history,\r\n.gm_plugin_chartbed .comiis_chartbed_kggzs,\r\n.gm_plugin_chartbed .comiis_chartbed_luntan,\r\n.gm_plugin_chartbed .comiis_chartbed_mt,\r\n.gm_plugin_chartbed .comiis_chartbed_z4a {\r\n  height: 140px;\r\n  overflow-y: auto;\r\n  flex-direction: column;\r\n}\r\n#comiis_pictitle_key {\r\n  display: -webkit-box;\r\n  top: 0;\r\n  left: 0;\r\n  height: 42px;\r\n  line-height: 42px;\r\n  overflow: hidden;\r\n  overflow-x: auto;\r\n  background: #f8f8f8;\r\n}\r\n#comiis_pictitle_key a {\r\n  color: #333 !important;\r\n  padding: 0 10px;\r\n}\r\n#comiis_mh_sub {\r\n  height: auto !important;\r\n}\r\n#comiis_mh_sub .swiper-wrapper.comiis_post_ico {\r\n  flex-flow: wrap;\r\n}\r\n#comiis_mh_sub a {\r\n  margin: 5px 0;\r\n}\r\n#comiis_post_tab .comiis_over_box {\r\n  max-height: 225px;\r\n}\r\n@media screen and (max-width: 350px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 14.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 350px) and (max-width: 400px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 12.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 400px) and (max-width: 450px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 11%;\r\n  }\r\n}\r\n@media screen and (min-width: 450px) and (max-width: 500px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 10%;\r\n  }\r\n}\r\n@media screen and (min-width: 500px) and (max-width: 550px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 9.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 550px) and (max-width: 600px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 9%;\r\n  }\r\n}\r\n@media screen and (min-width: 600px) and (max-width: 650px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 8.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 650px) and (max-width: 700px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 8%;\r\n  }\r\n}\r\n@media screen and (min-width: 700px) and (max-width: 750px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 7.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 750px) and (max-width: 800px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 7%;\r\n  }\r\n}\r\n@media screen and (min-width: 800px) and (max-width: 850px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 6.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 850px) and (max-width: 1200px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 6%;\r\n  }\r\n}\r\n@media screen and (min-width: 1200px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 4.5%;\r\n  }\r\n}\r\n\r\n#comiis_head .header_y {\r\n  display: flex;\r\n  align-content: center;\r\n  align-items: center;\r\n  justify-content: flex-end;\r\n  height: 100%;\r\n}\r\n#comiis_head .header_y input {\r\n  border: transparent;\r\n  background: 0 0;\r\n  text-align: center;\r\n  margin: 0 5px;\r\n}\r\n#comiis_head .header_y input[value="删除"] {\r\n  color: #d00;\r\n}\r\n#comiis_head .header_y input[value="保存"] {\r\n  color: #b0ff6a;\r\n}\r\n#comiis_head .header_y input[value="保存草稿"] {\r\n  color: #f90;\r\n}\r\n#comiis_head .header_y input[value="发表"] {\r\n  color: #b0ff6a;\r\n}\r\n#comiis_head .header_y input[value="回复"] {\r\n  color: #b0ff6a;\r\n}\r\n#comiis_post_tab {\r\n  color: #000;\r\n}\r\n.gm_plugin_chartbed .delImg a,\r\n.gm_plugin_chartbed .p_img a {\r\n  padding: 0;\r\n}\r\n.gm_plugin_chartbed .delImg a i {\r\n  line-height: inherit;\r\n}\r\n#filedata,\r\n#filedata_hello,\r\n#filedata_kggzs,\r\n#filedata_mt {\r\n  display: none;\r\n}\r\n\r\n#comiis_mh_sub {\r\n  height: 40px;\r\n}\r\n#imglist .del a {\r\n  padding: 0;\r\n}\r\n.comiis_post_from.mt15 {\r\n  margin-top: unset !important;\r\n}\r\n';
   const MTSmiliesDict = () => {
     return {
       "[呵呵]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq001.gif",
@@ -8764,7 +8840,7 @@ clearData() {
       "[抱拳]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq101.gif",
       "[勾引]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq102.gif",
       "[拳头]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq103.gif",
-"[爱你]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq105.gif",
+      "[爱你]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq105.gif",
       "[NO]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq106.gif",
       "[OK]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq107.gif",
       "[#呵呵]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_1.png",
@@ -8915,11 +8991,11 @@ clearData() {
       "[w囧]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/85.png",
       "[w萌]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/86.png",
       "[w神马]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/87.png",
-      "[w威武]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/88.png"
+      "[w威武]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/88.png",
     };
   };
   const MTEditorPreview = {
-parseText(text) {
+    parseText(text) {
       const smiliesDictionaries = MTSmiliesDict();
       let attachimgmatch = text.match(/\[attachimg\]([\s\S]+?)\[\/attachimg\]/g);
       if (attachimgmatch) {
@@ -9122,12 +9198,8 @@ parseText(text) {
         email.forEach((item) => {
           let email_match = item.match(/\[email=([\s\S]*?)\][\s\S]*?\[\/email\]/);
           let content_match = item.match(/\[email=[\s\S]*?\]([\s\S]*?)\[\/email\]/);
-          let _email_ = email_match.length ? (
-email_match[email_match.length - 1]
-          ) : "";
-          let _content_ = content_match.length ? (
-content_match[content_match.length - 1]
-          ) : "";
+          let _email_ = email_match.length ? email_match[email_match.length - 1] : "";
+          let _content_ = content_match.length ? content_match[content_match.length - 1] : "";
           if (_email_ || _content_) {
             text = text.replace(item, `<a href="mailto:${_email_}">${_content_}</a>`);
           }
@@ -9138,12 +9210,8 @@ content_match[content_match.length - 1]
         align.forEach((item) => {
           let align_match = item.match(/\[align=([\s\S]*?)\][\s\S]+?\[\/align\]/);
           let content_match = item.match(/\[align=[\s\S]*?\]([\s\S]+?)\[\/align\]/);
-          let _align_ = align_match.length ? (
-align_match[align_match.length - 1]
-          ) : "";
-          let _content_ = content_match.length ? (
-content_match[content_match.length - 1]
-          ) : "";
+          let _align_ = align_match.length ? align_match[align_match.length - 1] : "";
+          let _content_ = content_match.length ? content_match[content_match.length - 1] : "";
           if (_align_ || _content_) {
             text = text.replace(item, `<div align="${_align_}">${_content_}</div>`);
           }
@@ -9217,7 +9285,7 @@ content_match[content_match.length - 1]
       }
       return text;
     },
-parseVoteText() {
+    parseVoteText() {
       let chooseColor = [
         "rgb(233, 39, 37)",
         "rgb(242, 123, 33)",
@@ -9238,26 +9306,30 @@ parseVoteText() {
         "rgb(51, 101, 174)",
         "rgb(42, 53, 145)",
         "rgb(89, 45, 142)",
-        "rgb(219, 49, 145)"
+        "rgb(219, 49, 145)",
       ];
-      let chooseContent = $$(
-        ".comiis_polloption_add ul li:first-child div.flex .comiis_input.kmshow[type='text']"
-      );
+      let chooseContent = $$(".comiis_polloption_add ul li:first-child div.flex .comiis_input.kmshow[type='text']");
       let maxchoices = parseInt(domUtils.val("input#maxchoices"));
       maxchoices = isNaN(maxchoices) ? 0 : maxchoices;
       maxchoices = maxchoices > 0 ? maxchoices : 0;
       maxchoices = maxchoices > chooseContent.length ? chooseContent.length : maxchoices;
       let polldatas = parseInt(domUtils.val("input#polldatas"));
       polldatas = isNaN(polldatas) ? 0 : polldatas;
-      _unsafeWindow.$("input#visibilitypoll").parent().find(".comiis_checkbox").hasClass("comiis_checkbox_close") ? false : true;
-      let overt = _unsafeWindow.$("input#overt").parent().find(".comiis_checkbox").hasClass("comiis_checkbox_close") ? false : true;
+      _unsafeWindow.$("input#visibilitypoll").parent().find(".comiis_checkbox").hasClass("comiis_checkbox_close")
+        ? false
+        : true;
+      let overt = _unsafeWindow.$("input#overt").parent().find(".comiis_checkbox").hasClass("comiis_checkbox_close")
+        ? false
+        : true;
       let html = "";
       let choosehtml = "";
       chooseContent.forEach((item, index) => {
         if (index >= 20) {
           return;
         }
-        choosehtml = choosehtml + `
+        choosehtml =
+          choosehtml +
+          `
                     <li class="kmnop">
                         <input type="${maxchoices > 1 ? "checkbox" : "radio"}">
                         <label><i class="comiis_font f_d"></i>${item.value}</label>
@@ -9275,10 +9347,14 @@ parseVoteText() {
                                 <i class="comiis_font bg_a f_f"></i>
                                 <h2>${maxchoices > 1 ? '多选投票<em class="f_c"> 最多可选 ' + maxchoices + " 项</em>" : "单选投票"}</h2>
                                 <p class="f_c">共有 0 人参与投票</p>
-                                ${polldatas > 0 ? ` <p class="kmbtn">
+                                ${
+                                  polldatas > 0
+                                    ? ` <p class="kmbtn">
                                 <span class="bg_e">距结束还有:
                                 ${polldatas > 1 ? '<em class="f_a">' + (polldatas - 1) + "</em> 天 " : ""}<em class="f_a">23</em> 小时 <em class="f_a">59</em> 分钟</span>
-                            </p>` : ""}
+                            </p>`
+                                    : ""
+                                }
                                
                             </div>
                             <div class="comiis_poll_list comiis_input_style cl">
@@ -9293,8 +9369,12 @@ parseVoteText() {
                     </div>
                 `;
       _unsafeWindow.$(".gm_plugin_previewpostforum_html .postforum_vote").remove();
-      _unsafeWindow.$(".gm_plugin_previewpostforum_html .comiis_messages.comiis_aimg_show").children().eq(0).before(_unsafeWindow.$(html));
-    }
+      _unsafeWindow
+        .$(".gm_plugin_previewpostforum_html .comiis_messages.comiis_aimg_show")
+        .children()
+        .eq(0)
+        .before(_unsafeWindow.$(html));
+    },
   };
   const MTEditorOptimization = {
     $data: {
@@ -9307,49 +9387,48 @@ parseVoteText() {
       },
       get pid() {
         return MTUtils.getPostId(window.location.href);
-      }
+      },
     },
     $key: {
-noPublishSerializeText: "mt-editor-no-publish-serialize-text",
-noPublishVotingSerializeText: "mt-editor-no-publish-voting-serialize-text"
+      noPublishSerializeText: "mt-editor-no-publish-serialize-text",
+      noPublishVotingSerializeText: "mt-editor-no-publish-voting-serialize-text",
     },
     $el: {
-$title: null,
-$input: null,
-$form: null
+      $title: null,
+      $input: null,
+      $form: null,
     },
     init() {
       log.info(`编辑器优化`);
       addStyle(optimizationCSS);
       this.overridePageEditor();
     },
-overridePageEditor() {
+    overridePageEditor() {
       const that = this;
       this.$el.$title = $("#needsubject");
       this.$el.$form = $("#postform");
       this.$el.$input = $("#needmessage");
       domUtils.hide(domUtils.parent(".comiis_scrollTop_box"), false);
       domUtils.css("#postform .comiis_post_from.mt15", {
-        "margin-top": "0px !important"
+        "margin-top": "0px !important",
       });
       let comiis_post_tab = _unsafeWindow.$("#postform .comiis_post_from #comiis_post_tab");
       _unsafeWindow.$("#postform .comiis_post_from .comiis_post_ico").append(comiis_post_tab);
       comiis_post_tab.remove();
-      _unsafeWindow.textarea_scrollHeight = () => {
-      };
+      _unsafeWindow.textarea_scrollHeight = () => {};
       let comiis_delete = _unsafeWindow.$.fn.comiis_delete;
       _unsafeWindow.$.fn.extend({
-        comiis_delete: function(...args) {
+        comiis_delete: function (...args) {
           let result = comiis_delete.call(this, ...args);
           domUtils.trigger(that.$el.$input, "input");
           return result;
-        }
+        },
       });
       domUtils.hide(".comiis_btnbox", false);
       this.initVotePage();
       _unsafeWindow.$(".gm_plugin_chartbed .comiis_over_box.comiis_input_style #imglist");
       addStyle(
-`
+        `
         #imglist_settings button{
             font-size: 13.333px;
             color: #9baacf;
@@ -9372,7 +9451,7 @@ overridePageEditor() {
       );
       domUtils.attr("#filedata", "multiple", true);
       domUtils.remove(".gm_plugin_chartbed .comiis_over_box.comiis_input_style");
-      domUtils.on(document, "#comiis_pictitle_key li", "click", function() {
+      domUtils.on(document, "#comiis_pictitle_key li", "click", function () {
         domUtils.removeClass("#comiis_pictitle_key li", "bg_f");
         domUtils.addClass(this, "bg_f");
         _unsafeWindow.$(".gm_plugin_chartbed .comiis_upbox").hide().eq(_unsafeWindow.$(this).index()).fadeIn();
@@ -9400,7 +9479,10 @@ overridePageEditor() {
           _unsafeWindow.$("#needmessage")[0].dispatchEvent(new Event("input"));
         };
       }
-      if (Panel.getValue("mt-forum-post-editorOptimizationNormal-recordInputText") || Panel.getValue("mt-forum-post-editorOptimization-recordInputText")) {
+      if (
+        Panel.getValue("mt-forum-post-editorOptimizationNormal-recordInputText") ||
+        Panel.getValue("mt-forum-post-editorOptimization-recordInputText")
+      ) {
         this.setInputChangeEvent();
         this.initReplyText();
       }
@@ -9418,7 +9500,7 @@ overridePageEditor() {
       this.initCharacterCount();
       this.initSettingImmersionMode();
     },
-async initReplyText() {
+    async initReplyText() {
       const that = this;
       let data = null;
       let save_callback = null;
@@ -9552,11 +9634,11 @@ async initReplyText() {
           __pops.confirm({
             title: {
               text: "提示",
-              position: "center"
+              position: "center",
             },
             content: {
               text: "<p>存在历史写入的数据，是否恢复到编辑器里？</p>",
-              html: true
+              html: true,
             },
             btn: {
               merge: true,
@@ -9568,7 +9650,7 @@ async initReplyText() {
                     Qmsg.success("恢复成功");
                     details.close();
                   }
-                }
+                },
               },
               other: {
                 enable: true,
@@ -9578,11 +9660,11 @@ async initReplyText() {
                   await delete_callback();
                   details.close();
                   Qmsg.success("删除成功");
-                }
-              }
+                },
+              },
             },
             width: "300px",
-            height: "200px"
+            height: "200px",
           });
         }
       } else if (MTRouter.isPostPublish_reply()) {
@@ -9592,7 +9674,7 @@ async initReplyText() {
         }
       }
     },
-async getReplyRecordSize() {
+    async getReplyRecordSize() {
       let result = await this.$data.db.get("data");
       if (result.success) {
         let size = utils.getTextStorageSize(result?.data?.length ? JSON.stringify(result.data) : "");
@@ -9601,10 +9683,10 @@ async getReplyRecordSize() {
         return utils.formatByteToSize(0);
       }
     },
-async clearAllReplyRecord() {
+    async clearAllReplyRecord() {
       return await this.$data.db.deleteAll();
     },
-deleteReplyTextStorage() {
+    deleteReplyTextStorage() {
       const that = this;
       this.$data.db.get("data").then((result) => {
         if (!result.success) {
@@ -9625,14 +9707,13 @@ deleteReplyTextStorage() {
         });
         if (localDataIndex !== -1) {
           result.data.splice(localDataIndex, 1);
-          that.$data.db.save("data", result.data).then((result2) => {
-          });
+          that.$data.db.save("data", result.data).then((result2) => {});
         }
       });
     },
-setInputChangeEvent() {
+    setInputChangeEvent() {
       const that = this;
-      domUtils.on([this.$el.$input, this.$el.$title].filter(Boolean), ["input", "propertychange"], function(event) {
+      domUtils.on([this.$el.$input, this.$el.$title].filter(Boolean), ["input", "propertychange"], function (event) {
         let data = null;
         if (MTRouter.isPostPublish_voting()) {
           let $title = that.$el.$form.querySelector("input[name='subject']");
@@ -9647,14 +9728,14 @@ setInputChangeEvent() {
             expiration: $expiration.value,
             visibilitypoll: $visibilitypoll.checked,
             overt: $overt.checked,
-            content: $content.value
+            content: $content.value,
           };
         } else {
           let $title = that.$el.$form.querySelector("input[name='subject']");
           let $content = that.$el.$form.querySelector("textarea[name='message']");
           data = {
             title: $title?.value,
-            content: $content.value
+            content: $content.value,
           };
         }
         if (MTRouter.isPostPublish_newthread()) {
@@ -9688,10 +9769,9 @@ setInputChangeEvent() {
               data,
               pid: that.$data.pid,
               tid: that.$data.tid,
-              type: that.$data.type
+              type: that.$data.type,
             });
-            that.$data.db.save("data", result.data).then((result2) => {
-            });
+            that.$data.db.save("data", result.data).then((result2) => {});
           });
         } else if (MTRouter.isPostPublish_reply()) {
           log.info(`内容改变 ==> 回复页面`);
@@ -9709,7 +9789,7 @@ setInputChangeEvent() {
                   result.data.splice(localDataIndex, 1);
                 } else {
                   result.data[localDataIndex] = utils.assign(result.data[localDataIndex], {
-                    text: data.content
+                    text: data.content,
                   });
                 }
               } else {
@@ -9717,17 +9797,16 @@ setInputChangeEvent() {
                   forumId: that.$data.tid,
                   url: window.location.href,
                   repquote: MTUtils.getRepquote(window.location.href),
-                  text: data.content
+                  text: data.content,
                 });
               }
-              MTEditorOptimizationNormal.$data.db.save("data", result.data).then((result2) => {
-              });
+              MTEditorOptimizationNormal.$data.db.save("data", result.data).then((result2) => {});
             });
           });
         }
       });
     },
-initDeleteBtn() {
+    initDeleteBtn() {
       let btn_del = $(".comiis_btnbox .comiis_btn.bg_del");
       if (!btn_del) {
         return;
@@ -9736,38 +9815,38 @@ initDeleteBtn() {
       let $btn = domUtils.createElement(
         "input",
         {
-          className: "new_btn_del"
+          className: "new_btn_del",
         },
         {
           type: "button",
-          value: "删除"
+          value: "删除",
         }
       );
       domUtils.append($header, $btn);
-      domUtils.on($btn, "click", function() {
+      domUtils.on($btn, "click", function () {
         __pops.confirm({
           title: {
             text: "提示",
-            position: "center"
+            position: "center",
           },
           content: {
             text: "<p>是否删除帖子?</p>",
-            html: true
+            html: true,
           },
           btn: {
             ok: {
               callback: (details) => {
                 details.close();
                 _unsafeWindow.comiis_delthread();
-              }
-            }
+              },
+            },
           },
           width: "300px",
-          height: "200px"
+          height: "200px",
         });
       });
     },
-initSaveBtn() {
+    initSaveBtn() {
       let $save = domUtils.selector(".comiis_btnbox button#postsubmit:contains('保存')");
       if (!$save) {
         return;
@@ -9779,19 +9858,19 @@ initSaveBtn() {
       let $btn = domUtils.createElement(
         "input",
         {
-          className: "new_btn_save"
+          className: "new_btn_save",
         },
         {
           type: "button",
-          value: "保存"
+          value: "保存",
         }
       );
       domUtils.append($header, $btn);
-      domUtils.on($btn, "click", function() {
+      domUtils.on($btn, "click", function () {
         $save.click();
       });
     },
-initPostBtn() {
+    initPostBtn() {
       let $post = domUtils.selector(".comiis_btnbox button#postsubmit:contains('发表')");
       if (!$post) {
         return;
@@ -9800,20 +9879,20 @@ initPostBtn() {
       let $btn = domUtils.createElement(
         "input",
         {
-          className: "new_btn_post"
+          className: "new_btn_post",
         },
         {
           type: "button",
-          value: "发表"
+          value: "发表",
         }
       );
       domUtils.append($header, $btn);
-      domUtils.on($btn, "click", function() {
+      domUtils.on($btn, "click", function () {
         domUtils.val("#postsave", 0);
         $post.click();
       });
     },
-initReplyBtn() {
+    initReplyBtn() {
       const that = this;
       let $reply = domUtils.selector(".comiis_btnbox button#postsubmit:contains('回复')");
       if (!$reply) {
@@ -9823,25 +9902,28 @@ initReplyBtn() {
       let $btn = domUtils.createElement(
         "input",
         {
-          className: "new_btn_reply"
+          className: "new_btn_reply",
         },
         {
           type: "button",
-          value: "回复"
+          value: "回复",
         }
       );
       domUtils.append($header, $btn);
-      domUtils.on($btn, "click", function() {
+      domUtils.on($btn, "click", function () {
         $reply.click();
         that.deleteReplyTextStorage();
       });
     },
-initVotePage() {
+    initVotePage() {
       if (!$$(".comiis_scrollTop_box").length) {
         return;
       }
-      _unsafeWindow.$("#htmlon").parent().append(
-`
+      _unsafeWindow
+        .$("#htmlon")
+        .parent()
+        .append(
+          `
                 <li class="comiis_styli_m f15 comiis_flex b_b">
                     <div class="flex">发表帖子</div>
                     <div class="styli_r">
@@ -9861,20 +9943,20 @@ initVotePage() {
                     </div>	
                 </li>
                 `
-      );
+        );
       if (_unsafeWindow.$(".comiis_scrollTop_box .swiper-slide a:contains('发表帖子')").attr("class") != "f_c") {
         _unsafeWindow.$(".comiis_checkbox.comiis_choose_post").removeClass("comiis_checkbox_close");
       } else {
         _unsafeWindow.$(".comiis_checkbox.comiis_choose_vote").removeClass("comiis_checkbox_close");
       }
-      _unsafeWindow.$(".comiis_checkbox.comiis_choose_post").on("click", function() {
+      _unsafeWindow.$(".comiis_checkbox.comiis_choose_post").on("click", function () {
         let obj = _unsafeWindow.$(this);
         obj.addClass("comiis_checkbox_close");
         _unsafeWindow.$(".comiis_checkbox.comiis_choose_vote").addClass("comiis_checkbox_close");
         obj.removeClass("comiis_checkbox_close");
         window.location.href = window.location.href.replace("&special=1", "");
       });
-      _unsafeWindow.$(".comiis_checkbox.comiis_choose_vote").on("click", function() {
+      _unsafeWindow.$(".comiis_checkbox.comiis_choose_vote").on("click", function () {
         let obj = _unsafeWindow.$(this);
         obj.addClass("comiis_checkbox_close");
         _unsafeWindow.$(".comiis_checkbox.comiis_choose_post").addClass("comiis_checkbox_close");
@@ -9882,7 +9964,7 @@ initVotePage() {
         window.location.href = window.location.href + "&special=1";
       });
     },
-initSaveDraftBtn() {
+    initSaveDraftBtn() {
       let $saveDraft = domUtils.selector(".comiis_btnbox button#postsubmit em:contains('保存草稿')");
       if (!$saveDraft) {
         return;
@@ -9891,21 +9973,21 @@ initSaveDraftBtn() {
       let $btn = domUtils.createElement(
         "input",
         {
-          className: "new_btn_save_temp"
+          className: "new_btn_save_temp",
         },
         {
           type: "button",
-          value: "保存草稿"
+          value: "保存草稿",
         }
       );
       $("#needsubject");
       domUtils.append($header, $btn);
       domUtils.selector(".comiis_scrollTop_box .swiper-slide a:contains('发表帖子')");
-      domUtils.on($btn, "click", function() {
+      domUtils.on($btn, "click", function () {
         $saveDraft.click();
       });
     },
-observerChangeEditorHeight() {
+    observerChangeEditorHeight() {
       var recordHeight = 0;
       domUtils.waitNode("#postform > div > div.comiis_post_ico.comiis_minipost_icot").then((element) => {
         utils.mutationObserver(element, {
@@ -9916,27 +9998,37 @@ observerChangeEditorHeight() {
               return;
             }
             recordHeight = parseInt(height);
-            let needMessageSeeHeight = document.documentElement.clientHeight - $("#postform > div > div.comiis_post_ico.comiis_minipost_icot").getBoundingClientRect().height - $("#needmessage").getBoundingClientRect().top;
+            let needMessageSeeHeight =
+              document.documentElement.clientHeight -
+              $("#postform > div > div.comiis_post_ico.comiis_minipost_icot").getBoundingClientRect().height -
+              $("#needmessage").getBoundingClientRect().top;
             if (needMessageSeeHeight - 5 < 100) {
               _unsafeWindow.$("#needmessage").css("height", "100px");
-              _unsafeWindow.$(".gm_plugin_previewpostforum_html.double-preview .comiis_over_box").css("height", "100px");
+              _unsafeWindow
+                .$(".gm_plugin_previewpostforum_html.double-preview .comiis_over_box")
+                .css("height", "100px");
             } else {
               _unsafeWindow.$("#needmessage").css("height", needMessageSeeHeight - 5 + "px");
-              _unsafeWindow.$(".gm_plugin_previewpostforum_html.double-preview .comiis_over_box").css("height", needMessageSeeHeight - 5 + "px");
+              _unsafeWindow
+                .$(".gm_plugin_previewpostforum_html.double-preview .comiis_over_box")
+                .css("height", needMessageSeeHeight - 5 + "px");
             }
           },
           config: {
             childList: true,
-attributes: true,
-characterData: true,
-subtree: true
-          }
+            attributes: true,
+            characterData: true,
+            subtree: true,
+          },
         });
       });
     },
-listenResize() {
-      domUtils.on(window, "resize", function() {
-        let needMessageSeeHeight = document.documentElement.clientHeight - $("#postform > div > div.comiis_post_ico.comiis_minipost_icot").getBoundingClientRect().height - $("#needmessage").getBoundingClientRect().top;
+    listenResize() {
+      domUtils.on(window, "resize", function () {
+        let needMessageSeeHeight =
+          document.documentElement.clientHeight -
+          $("#postform > div > div.comiis_post_ico.comiis_minipost_icot").getBoundingClientRect().height -
+          $("#needmessage").getBoundingClientRect().top;
         if (needMessageSeeHeight - 5 < 100) {
           domUtils.css("#needmessage", "height", "100px");
           domUtils.css(".gm_plugin_previewpostforum_html.double-preview .comiis_over_box", "height", "100px");
@@ -9951,9 +10043,9 @@ listenResize() {
         }
       });
     },
-initSelectPostingSection() {
+    initSelectPostingSection() {
       addStyle(
-`
+        `
             #select-post-section {
                 height: 28px;
                 width: 160px;
@@ -9979,11 +10071,11 @@ initSelectPostingSection() {
         50: "休闲灌水",
         46: "官方公告",
         53: "申诉举报",
-        92: "站务专区"
+        92: "站务专区",
       };
       domUtils.before(
         ".comiis_post_from .comiis_wzpost.comiis_input_style .comiis_styli:contains('标题')",
-`
+        `
         <li class="comiis_styli_section comiis_flex b_b" style="padding: 10px 12px;font-size: 16px;">
             <div class="styli_section f_c" style="padding-right: 8px;vertical-align: top;">板块</div>
             <div class="flex">
@@ -10009,7 +10101,7 @@ initSelectPostingSection() {
       let currentSection = MTUtils.getForumId(window.location.href);
       if (MTRouter.isPostPublish_newthread()) {
         log.info(`发帖`);
-        domUtils.on($select, "change", function() {
+        domUtils.on($select, "change", function () {
           let fid = domUtils.val($select);
           let postSection = `forum.php?mod=post&action=newthread&fid=${fid}&extra=&topicsubmit=yes&mobile=2`;
           log.info(`修改发帖板块: ${section_dict[fid]} ${postSection}`);
@@ -10018,7 +10110,7 @@ initSelectPostingSection() {
               className: "gm_user_select_help",
               optionHTML: `<option value="0" selected="selected">请选择</option>
                         <option value="59">求助问答</option>
-                        <option value="58">已解决</option>`
+                        <option value="58">已解决</option>`,
             },
             建议反馈: {
               className: "gm_user_select_feedback",
@@ -10026,21 +10118,21 @@ initSelectPostingSection() {
                         <option value="62">BUG反馈</option>
                         <option value="63">意见反馈</option>
                         <option value="65">论坛问题</option>
-                        <option value="64">已解决</option>`
+                        <option value="64">已解决</option>`,
             },
             站务专区: {
               className: "gm_user_select_depot",
               optionHTML: `<option value="0" selected="selected">请选择</option>
                         <option value="42">版主申请</option>
-                        <option value="43">职位调整</option>`
-            }
+                        <option value="43">职位调整</option>`,
+            },
           };
           let otherSelect = classifyClassNameDict[section_dict[fid]];
           if (otherSelect) {
             domUtils.remove(domUtils.parent(".comiis_post_from .styli_tit:contains('分类')"));
             domUtils.before(
               ".comiis_stylino.comiis_needmessage",
-`
+              `
                         <li class="comiis_styli comiis_flex b_b ${otherSelect["className"]}">
                             <div class="styli_tit f_c">分类</div>
                                 <div class="flex comiis_input_style">
@@ -10072,17 +10164,17 @@ initSelectPostingSection() {
       domUtils.val($select, currentSection);
       domUtils.trigger($select, "change");
     },
-initCharacterCount() {
+    initCharacterCount() {
       log.info(`添加功能：字符计数`);
       addStyle(
-`
+        `
         .gm_plugin_word_count{display:flex}
         .gm_plugin_word_count::after{content:"/20000"}
         `
       );
       domUtils.append(
         "#comiis_mh_sub .swiper-wrapper.comiis_post_ico",
-`
+        `
             <a href="javascript:;" class="swiper-slide gm_plugin_word_count">
                 <p>0</p>
             </a>`
@@ -10101,13 +10193,13 @@ initCharacterCount() {
         }
       });
     },
-initUBB() {
+    initUBB() {
       if (!$(".comiis_post_urlico")) {
         log.error("未找到插入元素");
         return;
       }
       addStyle(
-`
+        `
         #comiis_post_tab .comiis_input_style .comiis_post_urlico li a.f_0{
             color: #53bcf5 !important;
         }
@@ -10118,20 +10210,18 @@ initUBB() {
       let contentEle = $("#comiis_post_qydiv > ul");
       let childNums = $$("#comiis_post_qydiv ul li").length;
       ExtendJQueryFn();
-      domUtils.on("#comiis_post_tab .comiis_input_style .comiis_post_urlico li", "click", function() {
+      domUtils.on("#comiis_post_tab .comiis_input_style .comiis_post_urlico li", "click", function () {
         domUtils.removeClass("#comiis_post_tab .comiis_input_style .comiis_post_urlico li a", "f_0");
         domUtils.addClass("#comiis_post_tab .comiis_input_style .comiis_post_urlico li a", "f_d");
         domUtils.attr(this.querySelector("a"), "class", "comiis_xifont f_0");
         _unsafeWindow.$("#comiis_post_qydiv ul li").hide().eq(_unsafeWindow.$(this).index()).fadeIn();
       });
-      _unsafeWindow.$.each(ubbCode, function(key, value) {
+      _unsafeWindow.$.each(ubbCode, function (key, value) {
         let $ubbs = domUtils.createElement("li", {
           className: "quickUBBs",
-          innerHTML: (
-`
+          innerHTML: `
                 <a href="javascript:;" class="comiis_xifont f_d"><i class="comiis_font"></i>${value["key"]}</a>
-                `
-          )
+                `,
         });
         domUtils.on($ubbs, "click", (event) => {
           let bottomEle = $(`#comiis_post_qydiv li[data-key='${value.key}']`);
@@ -10151,8 +10241,7 @@ initUBB() {
         let ubbs_content = document.createElement("li");
         ubbs_content.setAttribute("style", "display: none;");
         ubbs_content.setAttribute("data-key", value["key"]);
-        ubbs_content.innerHTML =
-`
+        ubbs_content.innerHTML = `
             <div class="comiis_styli_m f15" style="padding-top:12px;">
                 <div class="bg_e comiis_p5" style="border-radius:4px">
                     <textarea class="comiis_pt kmshow f_c" id="comiis_input_${key}" style="font-size:15px" placeholder="请输入需要${value["key"]}的文字"></textarea>
@@ -10180,30 +10269,32 @@ initUBB() {
           }
           _unsafeWindow.$("#needmessage").insertAtCaret(text);
           if (currentUBBObj.hasOwnProperty("cursorL")) {
-            _unsafeWindow.$("#needmessage").moveCursorToCenterByTextWithLeft(currentUBBObj["cursorL"], currentUBBObj["cursorLength"]);
+            _unsafeWindow
+              .$("#needmessage")
+              .moveCursorToCenterByTextWithLeft(currentUBBObj["cursorL"], currentUBBObj["cursorLength"]);
           }
           if (currentUBBObj.hasOwnProperty("cursorR")) {
-            _unsafeWindow.$("#needmessage").moveCursorToCenterByTextWithRight(currentUBBObj["cursorR"], currentUBBObj["cursorLength"]);
+            _unsafeWindow
+              .$("#needmessage")
+              .moveCursorToCenterByTextWithRight(currentUBBObj["cursorR"], currentUBBObj["cursorLength"]);
           }
         });
       });
     },
-initImage() {
+    initImage() {
       log.info(`添加功能：图片`);
       addStyle(
-`
+        `
             #comiis_pictitle_tab .comiis_upbox{
                 height: 140px;
                 overflow-y: auto;
             }
             `
       );
-      let imageBtnHTML = (
-`
-        <a href="javascript:;" class="comiis_pictitle"><i class="comiis_font"><em>图片</em></i></a>`
-      );
+      let imageBtnHTML = `
+        <a href="javascript:;" class="comiis_pictitle"><i class="comiis_font"><em>图片</em></i></a>`;
       domUtils.append("#comiis_mh_sub .swiper-wrapper.comiis_post_ico", imageBtnHTML);
-      domUtils.on(".comiis_pictitle", "click", function() {
+      domUtils.on(".comiis_pictitle", "click", function () {
         let $click = this;
         let $font = $click.querySelector("i.comiis_font");
         if (!$font.classList.contains("f_0")) {
@@ -10214,7 +10305,7 @@ initImage() {
       });
       domUtils.append(
         "#comiis_post_tab",
-`
+        `
             <div id="comiis_pictitle_tab" class="gm_plugin_chartbed" style="display: none">
                 <!-- <div class="comiis_upbox bg_f cl">
                     <ul id="mt-imglist" class="comiis_post_imglist cl">
@@ -10239,7 +10330,7 @@ initImage() {
       domUtils.on("#imglist .comiis_font", "click", (event) => {
         $("#filedata").click();
       });
-      domUtils.on("#comiis_pictitle_tab #comiis_pictitle_key", "click", "li", function(event) {
+      domUtils.on("#comiis_pictitle_tab #comiis_pictitle_key", "click", "li", function (event) {
         let $click = event.target;
         domUtils.removeClass("#comiis_pictitle_tab #comiis_pictitle_key li", "bg_f");
         domUtils.addClass($click, "bg_f");
@@ -10252,11 +10343,11 @@ initImage() {
         MTEditorImageBed_MT.init();
       });
     },
-initPreview() {
+    initPreview() {
       const that = this;
       log.info(`添加功能：双列预览`);
       addStyle(
-`
+        `
         .gm_plugin_previewpostforum_html .comiis_message_table{margin-top:10px;font-weight:initial;line-height:24px}
         .gm_plugin_previewpostforum_html .comiis_message_table a{height:auto;float:unset;color:#507daf!important}
         .gm_plugin_previewpostforum_html .comiis_message_table i{text-align:unset;font-size:unset;line-height:unset;padding-top:unset;display:unset}
@@ -10265,8 +10356,7 @@ initPreview() {
         .gm_plugin_previewpostforum_html.double-preview .comiis_over_box.comiis_input_style{border-left:1px solid}
         `
       );
-      let previewBtnHTML = (
-`
+      let previewBtnHTML = `
         <a href="javascript:;" class="swiper-slide gm_plugin_previewpostforum">
             <i class="comiis_font" style="display: flex;flex-direction: column;padding-top: 1px;">
                 <svg t="1661243615511" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2399" width="22" height="22" fill="currentColor">
@@ -10275,13 +10365,12 @@ initPreview() {
                 </svg>
                 <em style="bottom: 1px;position: relative;">预览</em>
             </i>
-        </a>`
-      );
+        </a>`;
       domUtils.append("#comiis_mh_sub .swiper-wrapper.comiis_post_ico", previewBtnHTML);
       domUtils.css(domUtils.parent(this.$el.$input), "display", "flex");
       domUtils.after(
         this.$el.$input,
-`
+        `
             <div class="bg_f cl gm_plugin_previewpostforum_html double-preview" style="display: none;">
               <div class="comiis_over_box comiis_input_style">
                 <div class="comiis_postli comiis_list_readimgs nfqsqi" style="width: 50vw;">
@@ -10294,7 +10383,7 @@ initPreview() {
               </div>
             </div>`
       );
-      domUtils.on(".gm_plugin_previewpostforum", "click", function(event) {
+      domUtils.on(".gm_plugin_previewpostforum", "click", function (event) {
         let $click = this;
         if ($$("#polldatas").length) {
           MTEditorPreview.parseVoteText();
@@ -10314,11 +10403,11 @@ initPreview() {
         }
       });
     },
-initSettingImmersionMode() {
+    initSettingImmersionMode() {
       log.info(`初始化设置功能-使用沉浸模式`);
       domUtils.append(
         domUtils.parent("#htmlon"),
-`
+        `
             <li class="comiis_styli_m f15 comiis_flex b_b">
                 <div class="flex">使用沉浸输入</div>
                 <div class="styli_r">
@@ -10330,18 +10419,18 @@ initSettingImmersionMode() {
             </li>
             `
       );
-      domUtils.on("#immersiveinput", "click", function() {
+      domUtils.on("#immersiveinput", "click", function () {
         let $click = this;
         let code_obj = domUtils.parent($click).querySelector(".comiis_checkbox");
         let elementList = [
-".comiis_wzpost ul li.comiis_flex",
-".comiis_wzpost ul li.comiis_styli.kmquote",
-domUtils.parent(domUtils.parent("#pollchecked")),
-"#pollm_c_1",
-".comiis_polloption_add+div.f_0",
-".comiis_wzpost ul li.comiis_thread_content:contains('内容')",
-"div#comiis_head",
-"div#comiis_head+*:not([class])"
+          ".comiis_wzpost ul li.comiis_flex",
+          ".comiis_wzpost ul li.comiis_styli.kmquote",
+          domUtils.parent(domUtils.parent("#pollchecked")),
+          "#pollm_c_1",
+          ".comiis_polloption_add+div.f_0",
+          ".comiis_wzpost ul li.comiis_thread_content:contains('内容')",
+          "div#comiis_head",
+          "div#comiis_head+*:not([class])",
         ];
         if (domUtils.hasClass(code_obj, "comiis_checkbox_close")) {
           elementList.forEach(($ele) => {
@@ -10354,7 +10443,7 @@ domUtils.parent(domUtils.parent("#pollchecked")),
         }
         window.dispatchEvent(new Event("resize"));
       });
-    }
+    },
   };
   const MTForumPostPublish = {
     init() {
@@ -10363,14 +10452,21 @@ domUtils.parent(domUtils.parent("#pollchecked")),
           MTEditorOptimization.init();
         });
       });
-    }
+    },
   };
   const MT = {
     $flag: {
-      showUserUID_initCSS: false
+      showUserUID_initCSS: false,
     },
     init() {
-      if (MTRouter.isPage() || MTRouter.isGuide() || MTRouter.isPlate() || MTRouter.isPost() || MTRouter.isSearch() || MTRouter.isSpace()) {
+      if (
+        MTRouter.isPage() ||
+        MTRouter.isGuide() ||
+        MTRouter.isPlate() ||
+        MTRouter.isPost() ||
+        MTRouter.isSearch() ||
+        MTRouter.isSpace()
+      ) {
         Panel.execMenuOnce("mt-show-user-uid", () => {
           this.showUserUID();
         });
@@ -10436,12 +10532,12 @@ domUtils.parent(domUtils.parent("#pollchecked")),
         }
       });
     },
-showUserUID() {
+    showUserUID() {
       log.info(`显示用户UID`);
       if (!this.$flag.showUserUID_initCSS) {
         this.$flag.showUserUID_initCSS = true;
         addStyle(
-`
+          `
 			.postli_top_tximg + h2{
  				height: auto;
 			}
@@ -10463,13 +10559,15 @@ showUserUID() {
             if (mtUIDOM) {
               return;
             }
-            let mt_uid_array = Array.from($post.querySelectorAll("a")).map((item) => {
-              let url = item.href;
-              let uid = url.match(MTRegExp.uid);
-              if (uid) {
-                return uid[uid.length - 1];
-              }
-            }).filter((item) => item != null);
+            let mt_uid_array = Array.from($post.querySelectorAll("a"))
+              .map((item) => {
+                let url = item.href;
+                let uid = url.match(MTRegExp.uid);
+                if (uid) {
+                  return uid[uid.length - 1];
+                }
+              })
+              .filter((item) => item != null);
             if (mt_uid_array.length) {
               let mt_uid = mt_uid_array[0];
               let uid_control = document.createElement("a");
@@ -10495,14 +10593,14 @@ showUserUID() {
       utils.mutationObserver(document, {
         config: {
           subtree: true,
-          childList: true
+          childList: true,
         },
         callback() {
           lockFn.run();
-        }
+        },
       });
     },
-async extendCookieExpire() {
+    async extendCookieExpire() {
       log.info(`延长cookie有效期`);
       let cookieList = await _GM.cookie.list({});
       let needExtendCookieNameList = ["_auth", "_saltkey", "_client_created", "_client_token"];
@@ -10523,19 +10621,22 @@ async extendCookieExpire() {
         if (!flag) {
           return;
         }
-        _GM.cookie.set({
-          name: cookieItem.name,
-          value: cookieItem.value,
-          expirationDate: cookieItem.expirationDate + _30days
-        }).then(() => {
-          log.info(`延长Cookie +30天成功：${cookieItem.name}`);
-        }).catch(() => {
-          log.error(`延长Cookie +30天失败：${cookieItem.name}`);
-        });
+        _GM.cookie
+          .set({
+            name: cookieItem.name,
+            value: cookieItem.value,
+            expirationDate: cookieItem.expirationDate + _30days,
+          })
+          .then(() => {
+            log.info(`延长Cookie +30天成功：${cookieItem.name}`);
+          })
+          .catch(() => {
+            log.error(`延长Cookie +30天失败：${cookieItem.name}`);
+          });
       });
-    }
+    },
   };
-  const UISelect = function(text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
+  const UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
     let selectData = [];
     if (typeof data === "function") {
       selectData = data();
@@ -10564,7 +10665,7 @@ async extendCookieExpire() {
         let storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      data: selectData
+      data: selectData,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -10574,11 +10675,22 @@ async extendCookieExpire() {
       },
       set(key2, value) {
         Panel.setValue(key2, value);
-      }
+      },
     });
     return result;
   };
-  const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack, disable) {
+  const UIButton = function (
+    text,
+    description,
+    buttonText,
+    buttonIcon,
+    buttonIsRightIcon,
+    buttonIconIsLoading,
+    buttonType,
+    clickCallBack,
+    afterAddToUListCallBack,
+    disable
+  ) {
     let result = {
       text,
       type: "button",
@@ -10595,20 +10707,20 @@ async extendCookieExpire() {
           clickCallBack(event);
         }
       },
-      afterAddToUListCallBack
+      afterAddToUListCallBack,
     };
     Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
       result.disable = Boolean(disable);
     });
     return result;
   };
-  const UIOwn = function(getLiElementCallBack, initConfig, props, afterAddToUListCallBack) {
+  const UIOwn = function (getLiElementCallBack, initConfig, props, afterAddToUListCallBack) {
     let result = {
       type: "own",
       attributes: {},
       props,
       getLiElementCallBack,
-      afterAddToUListCallBack
+      afterAddToUListCallBack,
     };
     Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
       return false;
@@ -10619,24 +10731,24 @@ async extendCookieExpire() {
     $upload: {
       small: false,
       middle: false,
-      big: false
+      big: false,
     },
     $data: {
-avatarInfo: {
+      avatarInfo: {
         maxSize: 2097152,
         small: {
           width: 48,
-          height: 48
+          height: 48,
         },
         middle: {
           width: 120,
-          height: 120
+          height: 120,
         },
         big: {
           width: 200,
-          height: 250
-        }
-      }
+          height: 250,
+        },
+      },
     },
     $el: {
       $smallUpload: null,
@@ -10644,7 +10756,7 @@ avatarInfo: {
       $bigUpload: null,
       $smallStatus: null,
       $middleStatus: null,
-      $bigStatus: null
+      $bigStatus: null,
     },
     $avatar: {
       get small() {
@@ -10655,18 +10767,17 @@ avatarInfo: {
       },
       get big() {
         return MTDyncmicAvatar.$el.$bigUpload.files[0];
-      }
+      },
     },
-showView() {
+    showView() {
       const that = this;
       let $confirm = __pops.confirm({
         title: {
           text: "修改头像",
-          position: "center"
+          position: "center",
         },
         content: {
-          text: (
-`
+          text: `
                 <div class="avatar-container">
                     <p class="avatar-tip">1. 小头像（图片宽高限制最大尺寸：48×48）</p>
                     <p class="avatar-upload-status" data-type="small">🤡请先上传图片</p>
@@ -10682,9 +10793,8 @@ showView() {
                     <p class="avatar-upload-status" data-type="big">🤡请先上传图片</p>
                     <input type="file" class="avatar-upload" data-type="big" data-maxwidth="200" data-maxheight="250" accept="image/*">
                 </div>
-                `
-          ),
-          html: true
+                `,
+          html: true,
         },
         btn: {
           ok: {
@@ -10715,14 +10825,14 @@ showView() {
                 }
                 let avatarInfo = {
                   big: {
-                    base64: await utils.parseFileToBase64(this.$avatar.big)
+                    base64: await utils.parseFileToBase64(this.$avatar.big),
                   },
                   middle: {
-                    base64: await utils.parseFileToBase64(this.$avatar.middle)
+                    base64: await utils.parseFileToBase64(this.$avatar.middle),
                   },
                   small: {
-                    base64: await utils.parseFileToBase64(this.$avatar.small)
-                  }
+                    base64: await utils.parseFileToBase64(this.$avatar.small),
+                  },
                 };
                 Object.keys(avatarInfo).forEach((keyName) => {
                   let value = avatarInfo[keyName];
@@ -10740,12 +10850,13 @@ showView() {
                   data: formData,
                   processData: false,
                   headers: {
-                    Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                    Accept:
+                      "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
                     "User-Agent": utils.getRandomPCUA(),
                     Host: window.location.hostname,
                     Origin: window.location.origin,
-                    Referer: `${window.location.origin}/home.php?mod=spacecp&ac=avatar`
-                  }
+                    Referer: `${window.location.origin}/home.php?mod=spacecp&ac=avatar`,
+                  },
                 });
                 if (!response.status) {
                   return;
@@ -10757,7 +10868,7 @@ showView() {
                   log.error("上传失败", response);
                   Qmsg.error(response.data.responseText, {
                     timeout: 6e3,
-                    isHTML: false
+                    isHTML: false,
                   });
                 }
               } catch (error) {
@@ -10765,13 +10876,12 @@ showView() {
               } finally {
                 $loading.close();
               }
-            }
-          }
+            },
+          },
         },
         width: "88vw",
         height: "500px",
-        style: (
-`
+        style: `
             .avatar-container{
                 display: flex;
                 width: -webkit-fill-available;
@@ -10800,20 +10910,13 @@ showView() {
             .avatar-upload {
                 margin: 20px 0px;
             }
-            `
-        )
+            `,
       });
       this.$el.$smallUpload = $confirm.$shadowRoot.querySelector(".avatar-upload[data-type='small']");
-      this.$el.$middleUpload = $confirm.$shadowRoot.querySelector(
-        ".avatar-upload[data-type='middle']"
-      );
+      this.$el.$middleUpload = $confirm.$shadowRoot.querySelector(".avatar-upload[data-type='middle']");
       this.$el.$bigUpload = $confirm.$shadowRoot.querySelector(".avatar-upload[data-type='big']");
-      this.$el.$smallStatus = $confirm.$shadowRoot.querySelector(
-        ".avatar-upload-status[data-type='small']"
-      );
-      this.$el.$middleStatus = $confirm.$shadowRoot.querySelector(
-        ".avatar-upload-status[data-type='middle']"
-      );
+      this.$el.$smallStatus = $confirm.$shadowRoot.querySelector(".avatar-upload-status[data-type='small']");
+      this.$el.$middleStatus = $confirm.$shadowRoot.querySelector(".avatar-upload-status[data-type='middle']");
       this.$el.$bigStatus = $confirm.$shadowRoot.querySelector(".avatar-upload-status[data-type='big']");
       this.setUploadChangeEvent(this.$el.$smallUpload, this.$el.$smallStatus, this.$data.avatarInfo.small, () => {
         this.$upload.small = true;
@@ -10825,7 +10928,7 @@ showView() {
         this.$upload.big = true;
       });
     },
-setUploadChangeEvent($file, $status, sizeInfo, successCallBack) {
+    setUploadChangeEvent($file, $status, sizeInfo, successCallBack) {
       domUtils.on($file, "change", (event) => {
         if (!$file.files?.length) {
           return;
@@ -10837,9 +10940,9 @@ setUploadChangeEvent($file, $status, sizeInfo, successCallBack) {
         let $image = new Image();
         let reader = new FileReader();
         reader.readAsDataURL(uploadImageFile);
-        reader.onload = function(response) {
+        reader.onload = function (response) {
           $image.src = response.target.result;
-          $image.onload = function() {
+          $image.onload = function () {
             if ($image.width > sizeInfo.width || $image.height > sizeInfo.height) {
               $file.value = "";
               $status.setAttribute("data-success", "false");
@@ -10862,11 +10965,11 @@ setUploadChangeEvent($file, $status, sizeInfo, successCallBack) {
         };
       });
     },
-async getUploadUrl() {
+    async getUploadUrl() {
       let response = await httpx.get("/home.php?mod=spacecp&ac=avatar", {
         headers: {
-          "User-Agent": utils.getRandomPCUA()
-        }
+          "User-Agent": utils.getRandomPCUA(),
+        },
       });
       if (!response.status) {
         return;
@@ -10900,7 +11003,7 @@ async getUploadUrl() {
       uploadUrl = uploadUrlInst.toString();
       log.info(`上传地址：` + uploadUrl);
       return uploadUrl;
-    }
+    },
   };
   const Component_Common = {
     id: "component-common",
@@ -10925,40 +11028,40 @@ async getUploadUrl() {
                     [
                       {
                         value: "topleft",
-                        text: "左上角"
+                        text: "左上角",
                       },
                       {
                         value: "top",
-                        text: "顶部"
+                        text: "顶部",
                       },
                       {
                         value: "topright",
-                        text: "右上角"
+                        text: "右上角",
                       },
                       {
                         value: "left",
-                        text: "左边"
+                        text: "左边",
                       },
                       {
                         value: "center",
-                        text: "中间"
+                        text: "中间",
                       },
                       {
                         value: "right",
-                        text: "右边"
+                        text: "右边",
                       },
                       {
                         value: "bottomleft",
-                        text: "左下角"
+                        text: "左下角",
                       },
                       {
                         value: "bottom",
-                        text: "底部"
+                        text: "底部",
                       },
                       {
                         value: "bottomright",
-                        text: "右下角"
-                      }
+                        text: "右下角",
+                      },
                     ],
                     (event, isSelectValue, isSelectText) => {
                       log.info("设置当前Qmsg弹出位置" + isSelectText);
@@ -10972,32 +11075,32 @@ async getUploadUrl() {
                     [
                       {
                         value: 1,
-                        text: "1"
+                        text: "1",
                       },
                       {
                         value: 2,
-                        text: "2"
+                        text: "2",
                       },
                       {
                         value: 3,
-                        text: "3"
+                        text: "3",
                       },
                       {
                         value: 4,
-                        text: "4"
+                        text: "4",
                       },
                       {
                         value: 5,
-                        text: "5"
-                      }
+                        text: "5",
+                      },
                     ],
                     void 0,
                     "限制Toast显示的数量"
                   ),
-                  UISwitch("逆序弹出", "qmsg-config-showreverse", false, void 0, "修改Toast弹出的顺序")
-                ]
-              }
-            ]
+                  UISwitch("逆序弹出", "qmsg-config-showreverse", false, void 0, "修改Toast弹出的顺序"),
+                ],
+              },
+            ],
           },
           {
             text: "Cookie配置",
@@ -11022,12 +11125,12 @@ async getUploadUrl() {
                     void 0,
                     void 0,
                     "Cookie格式：xxx=xxxx;xxx=xxxx"
-                  )
-                ]
-              }
-            ]
-          }
-        ]
+                  ),
+                ],
+              },
+            ],
+          },
+        ],
       },
       {
         text: "",
@@ -11050,10 +11153,16 @@ async getUploadUrl() {
                   ),
                   UISwitch("显示用户UID", "mt-show-user-uid", true, void 0, "格式为UID：xxx"),
                   UISwitch("小窗模式", "mt-small-window", true, void 0, "开启后点击帖子右侧区域为小窗打开"),
-                  UISwitch("延长登录Cookie过期时间", "mt-extend-cookie-expire", false, void 0, "减少频繁登录账号的问题")
-                ]
-              }
-            ]
+                  UISwitch(
+                    "延长登录Cookie过期时间",
+                    "mt-extend-cookie-expire",
+                    false,
+                    void 0,
+                    "减少频繁登录账号的问题"
+                  ),
+                ],
+              },
+            ],
           },
           {
             text: "额外菜单项",
@@ -11087,10 +11196,16 @@ async getUploadUrl() {
                     void 0,
                     "将会在左侧面板添加【自定义用户标签】菜单"
                   ),
-                  UISwitch("评论过滤器", "mt-post-comment-filter", true, void 0, "将会在左侧面板添加【评论过滤器】菜单")
-                ]
-              }
-            ]
+                  UISwitch(
+                    "评论过滤器",
+                    "mt-post-comment-filter",
+                    true,
+                    void 0,
+                    "将会在左侧面板添加【评论过滤器】菜单"
+                  ),
+                ],
+              },
+            ],
           },
           {
             text: "头像",
@@ -11103,17 +11218,14 @@ async getUploadUrl() {
                   UIOwn(($li) => {
                     let $left = domUtils.createElement("div", {
                       className: "pops-panel-item-left-text",
-                      innerHTML: (
-`
+                      innerHTML: `
 											<p class="pops-panel-item-left-main-text">头像（有缓存）</p>
 											<p class="pops-panel-item-left-desc-text">小、中、大</p>
-											`
-                      )
+											`,
                     });
                     let $right = domUtils.createElement("div", {
                       className: "pops-panel-avatar-img",
-                      innerHTML: (
-`
+                      innerHTML: `
 											<img 
 												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=small"
 												class="avatar-img" data-size="small">
@@ -11123,20 +11235,17 @@ async getUploadUrl() {
 											<img 
 												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=big"
 												class="avatar-img" data-size="big">
-											`
-                      )
+											`,
                     });
                     let $style = domUtils.createElement("style", {
-                      innerHTML: (
-`
+                      innerHTML: `
 											.avatar-img {
 												width: 30px;
 												height: 30px;
 												border-radius: 50%;
 												overflow: hidden;
 											}
-										`
-                      )
+										`,
                     });
                     $right.querySelector(".avatar-img[data-size='small']");
                     $right.querySelector(".avatar-img[data-size='middle']");
@@ -11149,17 +11258,14 @@ async getUploadUrl() {
                   UIOwn(($li) => {
                     let $left = domUtils.createElement("div", {
                       className: "pops-panel-item-left-text",
-                      innerHTML: (
-`
+                      innerHTML: `
 											<p class="pops-panel-item-left-main-text">头像</p>
 											<p class="pops-panel-item-left-desc-text">小、中、大</p>
-											`
-                      )
+											`,
                     });
                     let $right = domUtils.createElement("div", {
                       className: "pops-panel-avatar-img",
-                      innerHTML: (
-`
+                      innerHTML: `
 											<img 
 												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=small&ts=${Date.now()}"
 												class="avatar-img" data-size="small">
@@ -11169,8 +11275,7 @@ async getUploadUrl() {
 											<img 
 												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=big&ts=${Date.now()}"
 												class="avatar-img" data-size="big">
-											`
-                      )
+											`,
                     });
                     $li.appendChild($left);
                     $li.appendChild($right);
@@ -11179,8 +11284,8 @@ async getUploadUrl() {
                   UIButton(
                     "修改头像",
                     `可以上传gif图片，注意图片最大限制为${Utils.formatByteToSize(
-                    MTDyncmicAvatar.$data.avatarInfo.maxSize
-                  )}`,
+                      MTDyncmicAvatar.$data.avatarInfo.maxSize
+                    )}`,
                     "上传",
                     void 0,
                     false,
@@ -11189,14 +11294,14 @@ async getUploadUrl() {
                     () => {
                       MTDyncmicAvatar.showView();
                     }
-                  )
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
+                  ),
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
   };
   const Component_ForumPost = {
     id: "component-forum-post",
@@ -11245,10 +11350,16 @@ async getUploadUrl() {
                     void 0,
                     "自动检测代码块语言并设置关键字高亮"
                   ),
-                  UISwitch("图片查看优化", "mt-forum-post-optimizationImagePreview", true, void 0, "使用Viewer查看图片")
-                ]
-              }
-            ]
+                  UISwitch(
+                    "图片查看优化",
+                    "mt-forum-post-optimizationImagePreview",
+                    true,
+                    void 0,
+                    "使用Viewer查看图片"
+                  ),
+                ],
+              },
+            ],
           },
           {
             text: "自动加载评论",
@@ -11265,10 +11376,10 @@ async getUploadUrl() {
                     false,
                     void 0,
                     "便于刷新页面会停留在当前查看的评论页面"
-                  )
-                ]
-              }
-            ]
+                  ),
+                ],
+              },
+            ],
           },
           {
             text: "编辑器-简略版",
@@ -11278,7 +11389,13 @@ async getUploadUrl() {
                 type: "forms",
                 text: "",
                 forms: [
-                  UISwitch("启用", "mt-forum-post-editorOptimizationNormal", true, void 0, "优化样式，插入bbcode代码等"),
+                  UISwitch(
+                    "启用",
+                    "mt-forum-post-editorOptimizationNormal",
+                    true,
+                    void 0,
+                    "优化样式，插入bbcode代码等"
+                  ),
                   UISwitch(
                     "自动保存输入记录",
                     "mt-forum-post-editorOptimizationNormal-recordInputText",
@@ -11311,12 +11428,15 @@ async getUploadUrl() {
                     },
                     async (formCOnfig, container) => {
                       let $desc = container.target.querySelector(".pops-panel-item-left-desc-text");
-                      domUtils.text($desc, `当前占用空间大小：${await MTEditorOptimizationNormal.getReplyRecordSize()}`);
+                      domUtils.text(
+                        $desc,
+                        `当前占用空间大小：${await MTEditorOptimizationNormal.getReplyRecordSize()}`
+                      );
                     }
-                  )
-                ]
-              }
-            ]
+                  ),
+                ],
+              },
+            ],
           },
           {
             text: "编辑器-完整版",
@@ -11364,10 +11484,10 @@ async getUploadUrl() {
                       let $desc = container.target.querySelector(".pops-panel-item-left-desc-text");
                       domUtils.text($desc, `当前占用空间大小：${await MTEditorOptimization.getReplyRecordSize()}`);
                     }
-                  )
-                ]
-              }
-            ]
+                  ),
+                ],
+              },
+            ],
           },
           {
             text: "编辑器-图床配置",
@@ -11380,13 +11500,13 @@ async getUploadUrl() {
                   UISwitch("启用", "mt-image-bed-hello-enable", false, void 0, "启用Hello图床"),
                   UIInput("账号", "mt-image-bed-hello-account", "", "", void 0, "必填"),
                   UIInput("密码", "mt-image-bed-hello-password", "", "", void 0, "必填", false, true),
-                  UIInput("token", "mt-image-bed-hello-token", "", "", void 0, "必填", false, true)
-                ]
+                  UIInput("token", "mt-image-bed-hello-token", "", "", void 0, "必填", false, true),
+                ],
               },
               {
                 type: "forms",
                 text: `<a href="https://img.binmt.cc/" target="_blank">MT图床</a>`,
-                forms: [UISwitch("启用", "mt-image-bed-mt-enable", true, void 0, "启用MT图床")]
+                forms: [UISwitch("启用", "mt-image-bed-mt-enable", true, void 0, "启用MT图床")],
               },
               {
                 type: "forms",
@@ -11418,7 +11538,7 @@ async getUploadUrl() {
                       domUtils.css($input, {
                         margin: "unset",
                         padding: "unset",
-                        width: "80px"
+                        width: "80px",
                       });
                     }
                   ),
@@ -11426,14 +11546,14 @@ async getUploadUrl() {
                   UIInput("透明度", "mt-image-bed-watermark-font-opacity", 1, void 0, void 0, void 0, true),
                   UIInput("左右间距", "mt-image-bed-watermark-left-right-margin", 80, void 0, void 0, void 0, true),
                   UIInput("上下间距", "mt-image-bed-watermark-top-bottom-margin", 80, void 0, void 0, void 0, true),
-                  UIInput("旋转角度", "mt-image-bed-watermark-rotate", 45, void 0, void 0, void 0, true)
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
+                  UIInput("旋转角度", "mt-image-bed-watermark-rotate", 45, void 0, void 0, void 0, true),
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
   };
   const Component_Search = {
     id: "component-search",
@@ -11445,10 +11565,10 @@ async getUploadUrl() {
         forms: [
           UISwitch("显示搜索历史", "mt-search-showSearchHistory", true, void 0, "自动记住搜索历史并显示"),
           UISwitch("修复清空按钮", "mt-search-repairClearBtn", true, void 0, "修复点击清空按钮不清空输入框的问题"),
-          UISwitch("搜索框自动获取焦点", "mt-search-searchInputAutoFocus", true, void 0, "")
-        ]
-      }
-    ]
+          UISwitch("搜索框自动获取焦点", "mt-search-searchInputAutoFocus", true, void 0, ""),
+        ],
+      },
+    ],
   };
   const Component_Sign = {
     id: "component-sigh",
@@ -11459,8 +11579,8 @@ async getUploadUrl() {
         type: "forms",
         forms: [
           UISwitch("显示【今日签到之星】", "mt-sign-showTodaySignStar", true, void 0, "在签到按钮上面显示今日签到之星"),
-          UISwitch("显示【今日最先】", "mt-sign-showTodayRanking", true, void 0, "在签到排名上面新增【今日最先】")
-        ]
+          UISwitch("显示【今日最先】", "mt-sign-showTodayRanking", true, void 0, "在签到排名上面新增【今日最先】"),
+        ],
       },
       {
         text: "自动签到",
@@ -11471,13 +11591,13 @@ async getUploadUrl() {
           UIButton(
             "签到信息",
             `上次签到时间：${(() => {
-            let signInfo = MTAutoSignIn.getHostNameSignInfo(window.location.hostname);
-            if (signInfo) {
-              return Utils.formatTime(signInfo.time);
-            } else {
-              return "尚未签到";
-            }
-          })()}`,
+              let signInfo = MTAutoSignIn.getHostNameSignInfo(window.location.hostname);
+              if (signInfo) {
+                return Utils.formatTime(signInfo.time);
+              } else {
+                return "尚未签到";
+              }
+            })()}`,
             "清空信息",
             void 0,
             void 0,
@@ -11489,11 +11609,11 @@ async getUploadUrl() {
               __pops.confirm({
                 title: {
                   text: "提示 ",
-                  position: "center"
+                  position: "center",
                 },
                 content: {
                   text: "<p>是否清空脚本签到记录的时间?</p>",
-                  html: true
+                  html: true,
                 },
                 btn: {
                   ok: {
@@ -11505,26 +11625,26 @@ async getUploadUrl() {
                       domUtils.text(
                         $desc,
                         `上次签到时间：${(() => {
-                        let signInfo = MTAutoSignIn.getHostNameSignInfo(hostName);
-                        if (signInfo) {
-                          return Utils.formatTime(signInfo.time);
-                        } else {
-                          return "尚未签到";
-                        }
-                      })()}`
+                          let signInfo = MTAutoSignIn.getHostNameSignInfo(hostName);
+                          if (signInfo) {
+                            return Utils.formatTime(signInfo.time);
+                          } else {
+                            return "尚未签到";
+                          }
+                        })()}`
                       );
                       event2.close();
-                    }
-                  }
+                    },
+                  },
                 },
                 width: "88vw",
-                height: "200px"
+                height: "200px",
               });
             }
-          )
-        ]
-      }
-    ]
+          ),
+        ],
+      },
+    ],
   };
   const Component_Space = {
     id: "component-space",
@@ -11535,10 +11655,16 @@ async getUploadUrl() {
         text: "",
         forms: [
           UISwitch("修复无法进入空间", "mt-space-repairEnterSpace", true, void 0, "修复链接错误导致不能进入空间的问题"),
-          UISwitch("显示帖子回复内容", "mt-space-showCommentContent", true, void 0, "在帖子-回复下面显示具体评论的内容")
-        ]
-      }
-    ]
+          UISwitch(
+            "显示帖子回复内容",
+            "mt-space-showCommentContent",
+            true,
+            void 0,
+            "在帖子-回复下面显示具体评论的内容"
+          ),
+        ],
+      },
+    ],
   };
   const Component_Guide = {
     id: "component-guide",
@@ -11547,9 +11673,9 @@ async getUploadUrl() {
       {
         type: "forms",
         text: "",
-        forms: [UISwitch("显示最新帖子", "mt-guide-showLatestPost", true, void 0, "在最上面显示最新发布的帖子")]
-      }
-    ]
+        forms: [UISwitch("显示最新帖子", "mt-guide-showLatestPost", true, void 0, "在最上面显示最新发布的帖子")],
+      },
+    ],
   };
   PanelContent.addContentConfig([
     Component_Common,
@@ -11557,7 +11683,7 @@ async getUploadUrl() {
     Component_Search,
     Component_Sign,
     Component_Space,
-    Component_Guide
+    Component_Guide,
   ]);
   Panel.init();
   ElementUtils.registerLeftMenu({
@@ -11567,8 +11693,7 @@ async getUploadUrl() {
     iconSize: "23px",
     callback: () => {
       Panel.showPanel(PanelContent.getConfig(0));
-    }
+    },
   });
   MT.init();
-
 })(Qmsg, DOMUtils, Utils, pops, hljs, Viewer);

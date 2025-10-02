@@ -33,20 +33,22 @@
 // ==/UserScript==
 
 (function (Qmsg, DOMUtils, Utils, pops) {
-  'use strict';
+  "use strict";
 
-  var _GM_deleteValue = (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
-  var _GM_getResourceText = (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
-  var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
-  var _GM_info = (() => typeof GM_info != "undefined" ? GM_info : void 0)();
-  var _GM_registerMenuCommand = (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-  var _GM_setValue = (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
-  var _GM_unregisterMenuCommand = (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-  var _GM_xmlhttpRequest = (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
-  var _unsafeWindow = (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
+  var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
+  var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
+  var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
+  var _GM_info = (() => (typeof GM_info != "undefined" ? GM_info : void 0))();
+  var _GM_registerMenuCommand = (() =>
+    typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
+  var _GM_unregisterMenuCommand = (() =>
+    typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
+  var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
   var _monkeyWindow = (() => window)();
   const CommonUtil = {
-waitRemove(...args) {
+    waitRemove(...args) {
       args.forEach((selector) => {
         if (typeof selector !== "string") {
           return;
@@ -56,7 +58,7 @@ waitRemove(...args) {
         });
       });
     },
-createBlockCSSNode(...args) {
+    createBlockCSSNode(...args) {
       let selectorList = [];
       if (args.length === 0) {
         return;
@@ -73,10 +75,10 @@ createBlockCSSNode(...args) {
       });
       return DOMUtils.createElement("style", {
         type: "text/css",
-        innerHTML: `${selectorList.join(",\n")}{display: none !important;}`
+        innerHTML: `${selectorList.join(",\n")}{display: none !important;}`,
       });
     },
-addBlockCSS(...args) {
+    addBlockCSS(...args) {
       let selectorList = [];
       if (args.length === 0) {
         return;
@@ -93,7 +95,7 @@ addBlockCSS(...args) {
       });
       return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
-setGMResourceCSS(resourceMapData) {
+    setGMResourceCSS(resourceMapData) {
       let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
       if (typeof cssText === "string" && cssText) {
         addStyle(cssText);
@@ -101,7 +103,7 @@ setGMResourceCSS(resourceMapData) {
         CommonUtil.loadStyleLink(resourceMapData.url);
       }
     },
-async loadStyleLink(url) {
+    async loadStyleLink(url) {
       let $link = document.createElement("link");
       $link.rel = "stylesheet";
       $link.type = "text/css";
@@ -110,7 +112,7 @@ async loadStyleLink(url) {
         document.head.appendChild($link);
       });
     },
-async loadScript(url) {
+    async loadScript(url) {
       let $script = document.createElement("script");
       $script.src = url;
       return new Promise((resolve) => {
@@ -120,7 +122,7 @@ async loadScript(url) {
         (document.head || document.documentElement).appendChild($script);
       });
     },
-fixUrl(url) {
+    fixUrl(url) {
       url = url.trim();
       if (url.startsWith("data:")) {
         return url;
@@ -128,7 +130,7 @@ fixUrl(url) {
       if (url.match(/^http(s|):\/\//i)) {
         return url;
       } else if (url.startsWith("//")) {
-        if (url.startsWith("///")) ;
+        if (url.startsWith("///"));
         else {
           url = window.location.protocol + url;
         }
@@ -141,7 +143,7 @@ fixUrl(url) {
         return url;
       }
     },
-fixHttps(url) {
+    fixHttps(url) {
       if (url.startsWith("https://")) {
         return url;
       }
@@ -156,46 +158,51 @@ fixHttps(url) {
         return url;
       }
     },
-lockScroll(...args) {
+    lockScroll(...args) {
       let $hidden = document.createElement("style");
-      $hidden.innerHTML =
-`
+      $hidden.innerHTML = `
 			.pops-overflow-hidden-important {
 				overflow: hidden !important;
 			}
 		`;
-      let $elList = [document.documentElement, document.body].concat(...args || []);
+      let $elList = [document.documentElement, document.body].concat(...(args || []));
       $elList.forEach(($el) => {
         $el.classList.add("pops-overflow-hidden-important");
       });
       (document.head || document.documentElement).appendChild($hidden);
       return {
-recovery() {
+        recovery() {
           $elList.forEach(($el) => {
             $el.classList.remove("pops-overflow-hidden-important");
           });
           $hidden.remove();
-        }
+        },
       };
     },
-async getClipboardText() {
+    async getClipboardText() {
       function readClipboardText(resolve) {
-        navigator.clipboard.readText().then((clipboardText) => {
-          resolve(clipboardText);
-        }).catch((error) => {
-          log.error("读取剪贴板内容失败👉", error);
-          resolve("");
-        });
+        navigator.clipboard
+          .readText()
+          .then((clipboardText) => {
+            resolve(clipboardText);
+          })
+          .catch((error) => {
+            log.error("读取剪贴板内容失败👉", error);
+            resolve("");
+          });
       }
       function requestPermissionsWithClipboard(resolve) {
-        navigator.permissions.query({
-name: "clipboard-read"
-        }).then((permissionStatus) => {
-          readClipboardText(resolve);
-        }).catch((error) => {
-          log.error("申请剪贴板权限失败，尝试直接读取👉", error.message ?? error.name ?? error.stack);
-          readClipboardText(resolve);
-        });
+        navigator.permissions
+          .query({
+            name: "clipboard-read",
+          })
+          .then((permissionStatus) => {
+            readClipboardText(resolve);
+          })
+          .catch((error) => {
+            log.error("申请剪贴板权限失败，尝试直接读取👉", error.message ?? error.name ?? error.stack);
+            readClipboardText(resolve);
+          });
       }
       function checkClipboardApi() {
         if (typeof navigator?.clipboard?.readText !== "function") {
@@ -220,22 +227,42 @@ name: "clipboard-read"
               requestPermissionsWithClipboard(resolve);
             },
             {
-              once: true
+              once: true,
             }
           );
         }
       });
     },
-escapeHtml(unsafe) {
-      return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
+    escapeHtml(unsafe) {
+      return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;")
+        .replace(/©/g, "&copy;")
+        .replace(/®/g, "&reg;")
+        .replace(/™/g, "&trade;")
+        .replace(/→/g, "&rarr;")
+        .replace(/←/g, "&larr;")
+        .replace(/↑/g, "&uarr;")
+        .replace(/↓/g, "&darr;")
+        .replace(/—/g, "&mdash;")
+        .replace(/–/g, "&ndash;")
+        .replace(/…/g, "&hellip;")
+        .replace(/ /g, "&nbsp;")
+        .replace(/\r\n/g, "<br>")
+        .replace(/\r/g, "<br>")
+        .replace(/\n/g, "<br>")
+        .replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
     },
-interval(fn, intervalTime, timeout = 5e3) {
+    interval(fn, intervalTime, timeout = 5e3) {
       let timeId;
       let maxTimeout = timeout - intervalTime;
       let intervalTimeCount = intervalTime;
       let loop = async (isTimeout) => {
         let result = await fn(isTimeout);
-        if (typeof result === "boolean" && !result || isTimeout) {
+        if ((typeof result === "boolean" && !result) || isTimeout) {
           utils.workerClearTimeout(timeId);
           return;
         }
@@ -250,7 +277,7 @@ interval(fn, intervalTime, timeout = 5e3) {
       };
       loop(false);
     },
-findParentNode($el, selector, parentSelector) {
+    findParentNode($el, selector, parentSelector) {
       if (parentSelector) {
         let $parent = DOMUtils.closest($el, parentSelector);
         if ($parent) {
@@ -264,21 +291,21 @@ findParentNode($el, selector, parentSelector) {
         let $parent = DOMUtils.closest($el, selector);
         return $parent;
       }
-    }
+    },
   };
   const PanelSettingConfig = {
-qmsg_config_position: {
+    qmsg_config_position: {
       key: "qmsg-config-position",
-      defaultValue: "bottom"
+      defaultValue: "bottom",
     },
-qmsg_config_maxnums: {
+    qmsg_config_maxnums: {
       key: "qmsg-config-maxnums",
-      defaultValue: 3
+      defaultValue: 3,
     },
-qmsg_config_showreverse: {
+    qmsg_config_showreverse: {
       key: "qmsg-config-showreverse",
-      defaultValue: false
-    }
+      defaultValue: false,
+    },
   };
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
@@ -291,7 +318,7 @@ qmsg_config_showreverse: {
     debug: false,
     logMaxCount: 250,
     autoClearConsole: true,
-    tag: true
+    tag: true,
   });
   Qmsg.config({
     isHTML: true,
@@ -334,7 +361,7 @@ qmsg_config_showreverse: {
       let maxZIndex = Utils.getMaxZIndex();
       let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-    }
+    },
   });
   __pops.GlobalConfig.setGlobalConfig({
     zIndex: () => {
@@ -350,23 +377,23 @@ qmsg_config_showreverse: {
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
     },
     mask: {
-enable: true,
-clickEvent: {
+      enable: true,
+      clickEvent: {
         toClose: false,
-        toHide: false
-      }
+        toHide: false,
+      },
     },
-    drag: true
+    drag: true,
   });
   const GM_Menu = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,
     GM_registerMenuCommand: _GM_registerMenuCommand,
-    GM_unregisterMenuCommand: _GM_unregisterMenuCommand
+    GM_unregisterMenuCommand: _GM_unregisterMenuCommand,
   });
   const httpx = new utils.Httpx({
     xmlHttpRequest: _GM_xmlhttpRequest,
-    logDetails: DEBUG
+    logDetails: DEBUG,
   });
   httpx.interceptors.request.use((data) => {
     return data;
@@ -386,16 +413,16 @@ clickEvent: {
   });
   ({
     Object: {
-      defineProperty: _unsafeWindow.Object.defineProperty
+      defineProperty: _unsafeWindow.Object.defineProperty,
     },
     Function: {
       apply: _unsafeWindow.Function.prototype.apply,
-      call: _unsafeWindow.Function.prototype.call
+      call: _unsafeWindow.Function.prototype.call,
     },
     Element: {
-      appendChild: _unsafeWindow.Element.prototype.appendChild
+      appendChild: _unsafeWindow.Element.prototype.appendChild,
     },
-    setTimeout: _unsafeWindow.setTimeout
+    setTimeout: _unsafeWindow.setTimeout,
   });
   const addStyle = domUtils.addStyle.bind(domUtils);
   const $ = DOMUtils.selector.bind(DOMUtils);
@@ -408,15 +435,15 @@ clickEvent: {
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const PROPS_STORAGE_API = "data-storage-api";
   const PanelSizeUtil = {
-get width() {
+    get width() {
       return globalThis.innerWidth;
     },
-get height() {
+    get height() {
       return globalThis.innerHeight;
-    }
+    },
   };
   const PanelUISize = {
-setting: {
+    setting: {
       get width() {
         if (PanelSizeUtil.width < 550) {
           return "88vw";
@@ -434,18 +461,18 @@ setting: {
         } else {
           return "550px";
         }
-      }
+      },
     },
-settingMiddle: {
+    settingMiddle: {
       get width() {
         return PanelSizeUtil.width < 350 ? "88vw" : "350px";
-      }
-    }
+      },
+    },
   };
   class StorageUtils {
-storageKey;
+    storageKey;
     listenerData;
-constructor(key) {
+    constructor(key) {
       if (typeof key === "string") {
         let trimKey = key.trim();
         if (trimKey == "") {
@@ -457,7 +484,7 @@ constructor(key) {
       }
       this.listenerData = new Utils.Dictionary();
     }
-getLocalValue() {
+    getLocalValue() {
       let localValue = _GM_getValue(this.storageKey);
       if (localValue == null) {
         localValue = {};
@@ -465,63 +492,66 @@ getLocalValue() {
       }
       return localValue;
     }
-setLocalValue(value) {
+    setLocalValue(value) {
       _GM_setValue(this.storageKey, value);
     }
-set(key, value) {
+    set(key, value) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, value);
     }
-get(key, defaultValue) {
+    get(key, defaultValue) {
       let localValue = this.getLocalValue();
       return Reflect.get(localValue, key) ?? defaultValue;
     }
-getAll() {
+    getAll() {
       let localValue = this.getLocalValue();
       return localValue;
     }
-delete(key) {
+    delete(key) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, void 0);
     }
-has(key) {
+    has(key) {
       let localValue = this.getLocalValue();
       return Reflect.has(localValue, key);
     }
-keys() {
+    keys() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue);
     }
-values() {
+    values() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
     }
-clear() {
+    clear() {
       _GM_deleteValue(this.storageKey);
     }
-addValueChangeListener(key, callback) {
+    addValueChangeListener(key, callback) {
       let listenerId = Math.random();
       let listenerData = this.listenerData.get(key) || [];
       listenerData.push({
         id: listenerId,
         key,
-        callback
+        callback,
       });
       this.listenerData.set(key, listenerData);
       return listenerId;
     }
-removeValueChangeListener(listenerId) {
+    removeValueChangeListener(listenerId) {
       let flag = false;
       for (const [key, listenerData] of this.listenerData.entries()) {
         for (let index = 0; index < listenerData.length; index++) {
           const value = listenerData[index];
-          if (typeof listenerId === "string" && value.key === listenerId || typeof listenerId === "number" && value.id === listenerId) {
+          if (
+            (typeof listenerId === "string" && value.key === listenerId) ||
+            (typeof listenerId === "number" && value.id === listenerId)
+          ) {
             listenerData.splice(index, 1);
             index--;
             flag = true;
@@ -531,7 +561,7 @@ removeValueChangeListener(listenerId) {
       }
       return flag;
     }
-triggerValueChangeListener(key, oldValue, newValue) {
+    triggerValueChangeListener(key, oldValue, newValue) {
       if (!this.listenerData.has(key)) {
         return;
       }
@@ -560,28 +590,28 @@ triggerValueChangeListener(key, oldValue, newValue) {
   const PopsPanelStorageApi = new StorageUtils(KEY);
   const PanelContent = {
     $data: {
-__contentConfig: null,
+      __contentConfig: null,
       get contentConfig() {
         if (this.__contentConfig == null) {
           this.__contentConfig = new utils.Dictionary();
         }
         return this.__contentConfig;
-      }
+      },
     },
-addContentConfig(configList) {
+    addContentConfig(configList) {
       if (!Array.isArray(configList)) {
         configList = [configList];
       }
       let index = this.$data.contentConfig.keys().length;
       this.$data.contentConfig.set(index, configList);
     },
-getAllContentConfig() {
+    getAllContentConfig() {
       return this.$data.contentConfig.values().flat();
     },
-getConfig(index = 0) {
+    getConfig(index = 0) {
       return this.$data.contentConfig.get(index) ?? [];
     },
-getDefaultBottomContentConfig() {
+    getDefaultBottomContentConfig() {
       return [
         {
           id: "script-version",
@@ -594,10 +624,10 @@ getDefaultBottomContentConfig() {
               window.open(supportURL, "_blank");
             }
             return false;
-          }
-        }
+          },
+        },
       ];
-    }
+    },
   };
   const PanelMenu = {
     $data: {
@@ -612,29 +642,29 @@ getDefaultBottomContentConfig() {
           },
           callback: () => {
             Panel.showPanel(PanelContent.getConfig(0));
-          }
-        }
+          },
+        },
       ],
       get menuOption() {
         return this.__menuOption;
-      }
+      },
     },
     init() {
       this.initExtensionsMenu();
     },
-initExtensionsMenu() {
+    initExtensionsMenu() {
       if (!Panel.isTopWindow()) {
         return;
       }
       GM_Menu.add(this.$data.menuOption);
     },
-addMenuOption(option) {
+    addMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
       this.$data.menuOption.push(...option);
     },
-updateMenuOption(option) {
+    updateMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
@@ -647,68 +677,68 @@ updateMenuOption(option) {
         }
       });
     },
-getMenuOption(index = 0) {
+    getMenuOption(index = 0) {
       return this.$data.menuOption[index];
     },
-deleteMenuOption(index = 0) {
+    deleteMenuOption(index = 0) {
       this.$data.menuOption.splice(index, 1);
-    }
+    },
   };
   const Panel = {
-$data: {
-__contentConfigInitDefaultValue: null,
-__onceExecMenuData: null,
-__urlChangeReloadMenuExecOnce: null,
-__onceExecData: null,
-__panelConfig: {},
-$panel: null,
-panelContent: [],
-get contentConfigInitDefaultValue() {
+    $data: {
+      __contentConfigInitDefaultValue: null,
+      __onceExecMenuData: null,
+      __urlChangeReloadMenuExecOnce: null,
+      __onceExecData: null,
+      __panelConfig: {},
+      $panel: null,
+      panelContent: [],
+      get contentConfigInitDefaultValue() {
         if (this.__contentConfigInitDefaultValue == null) {
           this.__contentConfigInitDefaultValue = new utils.Dictionary();
         }
         return this.__contentConfigInitDefaultValue;
       },
-contentConfigInitDisabledKeys: [],
-get onceExecMenuData() {
+      contentConfigInitDisabledKeys: [],
+      get onceExecMenuData() {
         if (this.__onceExecMenuData == null) {
           this.__onceExecMenuData = new utils.Dictionary();
         }
         return this.__onceExecMenuData;
       },
-get urlChangeReloadMenuExecOnce() {
+      get urlChangeReloadMenuExecOnce() {
         if (this.__urlChangeReloadMenuExecOnce == null) {
           this.__urlChangeReloadMenuExecOnce = new utils.Dictionary();
         }
         return this.__urlChangeReloadMenuExecOnce;
       },
-get onceExecData() {
+      get onceExecData() {
         if (this.__onceExecData == null) {
           this.__onceExecData = new utils.Dictionary();
         }
         return this.__onceExecData;
       },
-get scriptName() {
+      get scriptName() {
         return SCRIPT_NAME;
       },
-get panelConfig() {
+      get panelConfig() {
         return this.__panelConfig;
       },
       set panelConfig(value) {
         this.__panelConfig = value;
       },
-key: KEY,
-attributeKeyName: ATTRIBUTE_KEY,
-attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
+      key: KEY,
+      attributeKeyName: ATTRIBUTE_KEY,
+      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE,
     },
     init() {
       this.initContentDefaultValue();
       PanelMenu.init();
     },
-isTopWindow() {
+    isTopWindow() {
       return _unsafeWindow.top === _unsafeWindow.self;
     },
-initContentDefaultValue() {
+    initContentDefaultValue() {
       const initDefaultValue = (config) => {
         if (!config.attributes) {
           return;
@@ -772,19 +802,19 @@ initContentDefaultValue() {
       }
       this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
     },
-setDefaultValue(key, defaultValue) {
+    setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
         log.warn("请检查该key(已存在): " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
-getDefaultValue(key) {
+    getDefaultValue(key) {
       return this.$data.contentConfigInitDefaultValue.get(key);
     },
-setValue(key, value) {
+    setValue(key, value) {
       PopsPanelStorageApi.set(key, value);
     },
-getValue(key, defaultValue) {
+    getValue(key, defaultValue) {
       let localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
         if (this.$data.contentConfigInitDefaultValue.has(key)) {
@@ -794,25 +824,25 @@ getValue(key, defaultValue) {
       }
       return localValue;
     },
-deleteValue(key) {
+    deleteValue(key) {
       PopsPanelStorageApi.delete(key);
     },
-hasKey(key) {
+    hasKey(key) {
       return PopsPanelStorageApi.has(key);
     },
-addValueChangeListener(key, callback) {
+    addValueChangeListener(key, callback) {
       let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
         callback(key, __oldValue, __newValue);
       });
       return listenerId;
     },
-removeValueChangeListener(listenerId) {
+    removeValueChangeListener(listenerId) {
       PopsPanelStorageApi.removeValueChangeListener(listenerId);
     },
-triggerMenuValueChange(key, newValue, oldValue) {
+    triggerMenuValueChange(key, newValue, oldValue) {
       PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
     },
-exec(queryKey, callback, checkExec, once = true) {
+    exec(queryKey, callback, checkExec, once = true) {
       const that = this;
       let queryKeyFn;
       if (typeof queryKey === "string" || Array.isArray(queryKey)) {
@@ -890,7 +920,7 @@ exec(queryKey, callback, checkExec, once = true) {
             value: isArrayKey ? valueList : valueList[0],
             addStyleElement: (...args) => {
               return dynamicAddStyleNodeCallback(true, ...args);
-            }
+            },
           });
           if (!Array.isArray(callbackResult)) {
             callbackResult = [callbackResult];
@@ -908,35 +938,36 @@ exec(queryKey, callback, checkExec, once = true) {
         clearBeforeStoreValue();
         storeValueList = [...resultList];
       };
-      once && keyList.forEach((key) => {
-        let listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
-          valueChangeCallback();
+      once &&
+        keyList.forEach((key) => {
+          let listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
+            valueChangeCallback();
+          });
+          listenerIdList.push(listenerId);
         });
-        listenerIdList.push(listenerId);
-      });
       valueChangeCallback();
       let result = {
-reload() {
+        reload() {
           valueChangeCallback();
         },
-clear() {
+        clear() {
           this.clearStoreStyleElements();
           this.removeValueChangeListener();
           once && that.$data.onceExecMenuData.delete(storageKey);
         },
-clearStoreStyleElements: () => {
+        clearStoreStyleElements: () => {
           return clearBeforeStoreValue();
         },
-removeValueChangeListener: () => {
+        removeValueChangeListener: () => {
           listenerIdList.forEach((listenerId) => {
             this.removeValueChangeListener(listenerId);
           });
-        }
+        },
       };
       this.$data.onceExecMenuData.set(storageKey, result);
       return result;
     },
-execMenu(key, callback, isReverse = false, once = false) {
+    execMenu(key, callback, isReverse = false, once = false) {
       return this.exec(
         key,
         (option) => {
@@ -958,7 +989,7 @@ execMenu(key, callback, isReverse = false, once = false) {
         once
       );
     },
-execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
+    execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
       const result = this.execMenu(key, callback, isReverse, true);
       if (listenUrlChange) {
         if (result) {
@@ -976,14 +1007,14 @@ execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
       }
       return result;
     },
-deleteExecMenuOnce(key) {
+    deleteExecMenuOnce(key) {
       key = this.transformKey(key);
       this.$data.onceExecMenuData.delete(key);
       this.$data.urlChangeReloadMenuExecOnce.delete(key);
       let flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
-onceExec(key, callback) {
+    onceExec(key, callback) {
       key = this.transformKey(key);
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
@@ -994,30 +1025,36 @@ onceExec(key, callback) {
       callback();
       this.$data.onceExecData.set(key, 1);
     },
-deleteOnceExec(key) {
+    deleteOnceExec(key) {
       key = this.transformKey(key);
       this.$data.onceExecData.delete(key);
     },
-addUrlChangeWithExecMenuOnceListener(key, callback) {
+    addUrlChangeWithExecMenuOnceListener(key, callback) {
       key = this.transformKey(key);
       this.$data.urlChangeReloadMenuExecOnce.set(key, callback);
     },
-removeUrlChangeWithExecMenuOnceListener(key) {
+    removeUrlChangeWithExecMenuOnceListener(key) {
       key = this.transformKey(key);
       this.$data.urlChangeReloadMenuExecOnce.delete(key);
     },
-triggerUrlChangeWithExecMenuOnceEvent(config) {
+    triggerUrlChangeWithExecMenuOnceEvent(config) {
       this.$data.urlChangeReloadMenuExecOnce.forEach((callback, key) => {
         callback(config);
       });
     },
-showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
+    showPanel(
+      content,
+      title = `${SCRIPT_NAME}-设置`,
+      preventDefaultContentConfig = false,
+      preventRegisterSearchPlugin = false
+    ) {
       this.$data.$panel = null;
       this.$data.panelContent = [];
-      let checkHasBottomVersionContentConfig = content.findIndex((it) => {
-        let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
-        return isBottom && it.id === "script-version";
-      }) !== -1;
+      let checkHasBottomVersionContentConfig =
+        content.findIndex((it) => {
+          let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
+          return isBottom && it.id === "script-version";
+        }) !== -1;
       if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig) {
         content.push(...PanelContent.getDefaultBottomContentConfig());
       }
@@ -1027,7 +1064,7 @@ showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig 
             text: title,
             position: "center",
             html: false,
-            style: ""
+            style: "",
           },
           content,
           btn: {
@@ -1036,26 +1073,26 @@ showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig 
               callback: (details, event) => {
                 details.close();
                 this.$data.$panel = null;
-              }
-            }
+              },
+            },
           },
           mask: {
             enable: true,
             clickEvent: {
               toClose: true,
-              toHide: false
+              toHide: false,
             },
             clickCallBack: (originalRun, config) => {
               originalRun();
               this.$data.$panel = null;
-            }
+            },
           },
           width: PanelUISize.setting.width,
           height: PanelUISize.setting.height,
           drag: true,
-          only: true
+          only: true,
         },
-        ...this.$data.panelConfig
+        ...this.$data.panelConfig,
       });
       this.$data.$panel = $panel;
       this.$data.panelContent = content;
@@ -1063,7 +1100,7 @@ showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig 
         this.registerConfigSearch({ $panel, content });
       }
     },
-registerConfigSearch(config) {
+    registerConfigSearch(config) {
       const { $panel, content } = config;
       let asyncQueryProperty = async (target, handler) => {
         if (target == null) {
@@ -1087,8 +1124,8 @@ registerConfigSearch(config) {
           },
           {
             root: null,
-threshold: 1
-}
+            threshold: 1,
+          }
         );
         observer.observe($el);
         $el.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1105,32 +1142,29 @@ threshold: 1
         let $alert = __pops.alert({
           title: {
             text: "搜索配置",
-            position: "center"
+            position: "center",
           },
           content: {
-            text: (
-`
+            text: `
 						<div class="search-wrapper">
 							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
 						</div>
 						<div class="search-result-wrapper"></div>
-					`
-            ),
-            html: true
+					`,
+            html: true,
           },
           btn: {
-            ok: { enable: false }
+            ok: { enable: false },
           },
           mask: {
             clickEvent: {
-              toClose: true
-            }
+              toClose: true,
+            },
           },
           width: PanelUISize.settingMiddle.width,
           height: "auto",
           drag: true,
-          style: (
-`
+          style: `
 					${__pops.config.cssText.panelCSS}
 
 					.search-wrapper{
@@ -1168,8 +1202,7 @@ threshold: 1
 						color: #6c6c6c;
 					}
 					${config.searchDialogStyle ?? ""}
-				`
-          )
+				`,
         });
         $alert.$shadowRoot.querySelector(".search-wrapper");
         let $searchInput = $alert.$shadowRoot.querySelector(".search-config-text");
@@ -1183,23 +1216,21 @@ threshold: 1
             if (target?.next) {
               return {
                 isFind: false,
-                data: target.next
+                data: target.next,
               };
             } else {
               return {
                 isFind: true,
-                data: target
+                data: target,
               };
             }
           });
           let $item = domUtils.createElement("div", {
             className: "search-result-item",
-            innerHTML: (
-`
+            innerHTML: `
 							<div class="search-result-item-path">${searchPath.matchedData?.path}</div>
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
-						`
-            )
+						`,
           });
           domUtils.on($item, "click", (clickItemEvent) => {
             let $asideItems = $panel.$shadowRoot.querySelectorAll(
@@ -1212,18 +1243,22 @@ threshold: 1
             }
             $targetAsideItem.scrollIntoView({
               behavior: "smooth",
-              block: "center"
+              block: "center",
             });
             $targetAsideItem.click();
             asyncQueryProperty(pathInfo.next, async (target) => {
               if (target?.next) {
                 let $findDeepMenu = await domUtils.waitNode(() => {
-                  return Array.from(
-                    $panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")
-                  ).find(($deepMenu) => {
-                    const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
-                    return typeof __formConfig__ === "object" && __formConfig__ != null && __formConfig__.text === target.name;
-                  });
+                  return Array.from($panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")).find(
+                    ($deepMenu) => {
+                      const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
+                      return (
+                        typeof __formConfig__ === "object" &&
+                        __formConfig__ != null &&
+                        __formConfig__.text === target.name
+                      );
+                    }
+                  );
                 }, 2500);
                 if ($findDeepMenu) {
                   $findDeepMenu.click();
@@ -1231,21 +1266,21 @@ threshold: 1
                   Qmsg.error("未找到对应的二级菜单");
                   return {
                     isFind: true,
-                    data: target
+                    data: target,
                   };
                 }
                 return {
                   isFind: false,
-                  data: target.next
+                  data: target.next,
                 };
               } else {
                 let $findTargetMenu = await domUtils.waitNode(() => {
-                  return Array.from(
-                    $panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)
-                  ).find(($menuItem) => {
-                    const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
-                    return __formConfig__ === target.matchedData?.formConfig;
-                  });
+                  return Array.from($panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)).find(
+                    ($menuItem) => {
+                      const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
+                      return __formConfig__ === target.matchedData?.formConfig;
+                    }
+                  );
                 }, 2500);
                 if ($findTargetMenu) {
                   scrollToElementAndListen($findTargetMenu);
@@ -1263,7 +1298,7 @@ threshold: 1
                 }
                 return {
                   isFind: true,
-                  data: target
+                  data: target,
                 };
               }
             });
@@ -1284,17 +1319,17 @@ threshold: 1
                     if (target?.next) {
                       return {
                         isFind: false,
-                        data: target.next
+                        data: target.next,
                       };
                     } else {
                       return {
                         isFind: true,
-                        data: target
+                        data: target,
                       };
                     }
                   });
                   deepNext.next = {
-                    name: configItem.text
+                    name: configItem.text,
                   };
                 }
                 loopContentConfig(child_forms, deepMenuPath);
@@ -1314,12 +1349,12 @@ threshold: 1
                     if (target?.next) {
                       return {
                         isFind: false,
-                        data: target.next
+                        data: target.next,
                       };
                     } else {
                       return {
                         isFind: true,
-                        data: target
+                        data: target,
                       };
                     }
                   });
@@ -1329,8 +1364,8 @@ threshold: 1
                       path: "",
                       formConfig: configItem,
                       matchedText: delayMatchedTextList[matchedIndex],
-                      description
-                    }
+                      description,
+                    },
                   };
                   const pathList = [];
                   utils.queryProperty(matchedPath, (target) => {
@@ -1341,12 +1376,12 @@ threshold: 1
                     if (target?.next) {
                       return {
                         isFind: false,
-                        data: target.next
+                        data: target.next,
                       };
                     } else {
                       return {
                         isFind: true,
-                        data: target
+                        data: target,
                       };
                     }
                   });
@@ -1373,7 +1408,7 @@ threshold: 1
               }
               loopContentConfig(rightContentConfigList, {
                 index,
-                name: text
+                name: text,
               });
             }
           }
@@ -1428,14 +1463,13 @@ threshold: 1
           }
         },
         {
-          capture: true
+          capture: true,
         }
       );
       $panel.$shadowRoot.appendChild(
         domUtils.createElement("style", {
           type: "text/css",
-          textContent: (
-`
+          textContent: `
 					.pops-flashing{
 						animation: double-blink 1.5s ease-in-out;
 					}
@@ -1456,21 +1490,21 @@ threshold: 1
 							background-color: initial;
 						}
 					}
-				`
-          )
+				`,
         })
       );
     },
-transformKey(key) {
+    transformKey(key) {
       if (Array.isArray(key)) {
         const keyArray = key.sort();
         return JSON.stringify(keyArray);
       } else {
         return key;
       }
-    }
+    },
   };
-  const blockAdsCSS$1 = "/* 底部中间的 登录/注册按钮 */\r\n#app div.main-wrap div.login-box,\r\n/* 主内容底部的小程序横幅推荐 */\r\n#app > div.lite-page-wrap > div > div.main > div > div.wrap,\r\n/* 底部悬浮的在微博内打开 */\r\n#app .woo-frame.blog-config-page div.weibo-btn-box,\r\n/* 顶部的新闻信息流 */\r\n#app .woo-frame div.woo-panel-container.news-banner,\r\n/* 夹杂在card中间的图片横幅，不确定是否会误伤其它正常内容 */\r\n.card .card-main .m-img-box > ul {\r\n  display: none !important;\r\n}\r\n/* 搜索域名下的 */\r\n.card.m-panel:has(+ .simple),\r\n.card.m-panel.simple {\r\n  display: none !important;\r\n}\r\n";
+  const blockAdsCSS$1 =
+    "/* 底部中间的 登录/注册按钮 */\r\n#app div.main-wrap div.login-box,\r\n/* 主内容底部的小程序横幅推荐 */\r\n#app > div.lite-page-wrap > div > div.main > div > div.wrap,\r\n/* 底部悬浮的在微博内打开 */\r\n#app .woo-frame.blog-config-page div.weibo-btn-box,\r\n/* 顶部的新闻信息流 */\r\n#app .woo-frame div.woo-panel-container.news-banner,\r\n/* 夹杂在card中间的图片横幅，不确定是否会误伤其它正常内容 */\r\n.card .card-main .m-img-box > ul {\r\n  display: none !important;\r\n}\r\n/* 搜索域名下的 */\r\n.card.m-panel:has(+ .simple),\r\n.card.m-panel.simple {\r\n  display: none !important;\r\n}\r\n";
   const WeiBoNetWorkHook = {
     _ajaxHooker_: null,
     get ajaxHooker() {
@@ -1480,22 +1514,22 @@ transformKey(key) {
         this._ajaxHooker_.protect();
       }
       return this._ajaxHooker_;
-    }
+    },
   };
   const VueUtils = {
-getVue($el) {
+    getVue($el) {
       if ($el == null) {
         return;
       }
       return $el["__vue__"] || $el["__Ivue__"] || $el["__IVue__"];
     },
-getVue3($el) {
+    getVue3($el) {
       if ($el == null) {
         return;
       }
       return $el["__vueParentComponent"];
     },
-waitVuePropToSet($el, checkOption) {
+    waitVuePropToSet($el, checkOption) {
       if (!Array.isArray(checkOption)) {
         checkOption = [checkOption];
       }
@@ -1521,7 +1555,7 @@ waitVuePropToSet($el, checkOption) {
               status: false,
               isTimeout: true,
               inst: null,
-              $el: $targetEl
+              $el: $targetEl,
             };
           }
           let vueInst = VueUtils.getVue($targetEl);
@@ -1530,7 +1564,7 @@ waitVuePropToSet($el, checkOption) {
               status: false,
               isTimeout: false,
               inst: null,
-              $el: $targetEl
+              $el: $targetEl,
             };
           }
           let checkResult = needSetOption.check(vueInst, $targetEl);
@@ -1539,34 +1573,36 @@ waitVuePropToSet($el, checkOption) {
             status: checkResult,
             isTimeout: false,
             inst: vueInst,
-            $el: $targetEl
+            $el: $targetEl,
           };
         }
-        utils.waitVueByInterval(
-          () => {
-            return getTarget();
-          },
-          () => checkTarget().status,
-          250,
-          1e4
-        ).then((result) => {
-          let checkTargetResult = checkTarget();
-          if (checkTargetResult.status) {
-            let vueInst = checkTargetResult.inst;
-            needSetOption.set(vueInst, checkTargetResult.$el);
-          } else {
-            if (typeof needSetOption.failWait === "function") {
-              needSetOption.failWait(checkTargetResult.isTimeout);
+        utils
+          .waitVueByInterval(
+            () => {
+              return getTarget();
+            },
+            () => checkTarget().status,
+            250,
+            1e4
+          )
+          .then((result) => {
+            let checkTargetResult = checkTarget();
+            if (checkTargetResult.status) {
+              let vueInst = checkTargetResult.inst;
+              needSetOption.set(vueInst, checkTargetResult.$el);
+            } else {
+              if (typeof needSetOption.failWait === "function") {
+                needSetOption.failWait(checkTargetResult.isTimeout);
+              }
             }
-          }
-        });
+          });
       });
     },
-watchVuePropChange($el, key, callback, watchConfig, failWait) {
+    watchVuePropChange($el, key, callback, watchConfig, failWait) {
       let config = utils.assign(
         {
           immediate: true,
-          deep: false
+          deep: false,
         },
         watchConfig || {}
       );
@@ -1598,11 +1634,11 @@ watchVuePropChange($el, key, callback, watchConfig, failWait) {
             }
             resolve(removeWatch);
           },
-          failWait
+          failWait,
         });
       });
     },
-goToUrl($el, path, useRouter = false) {
+    goToUrl($el, path, useRouter = false) {
       if ($el == null) {
         Qmsg.error("跳转Url: $vueNode为空");
         log.error("跳转Url: $vueNode为空：" + path);
@@ -1639,7 +1675,7 @@ goToUrl($el, path, useRouter = false) {
         $router.push(path);
       }
     },
-hookGestureReturnByVueRouter(option) {
+    hookGestureReturnByVueRouter(option) {
       function popstateEvent() {
         log.success("触发popstate事件");
         resumeBack(true);
@@ -1667,17 +1703,17 @@ hookGestureReturnByVueRouter(option) {
       }
       banBack();
       return {
-        resumeBack
+        resumeBack,
       };
-    }
+    },
   };
   const WeiBoHook = {
-hookApply() {
+    hookApply() {
       log.info("劫持Function.prototype.apply");
       let originApply = _unsafeWindow.Function.prototype.apply;
-      _unsafeWindow.Function.prototype.apply = function(...args) {
+      _unsafeWindow.Function.prototype.apply = function (...args) {
         let target = originApply;
-        if (args.length !== 2 || args.length === 2 && !Array.isArray(args[1]) || typeof args[1][0] !== "string") {
+        if (args.length !== 2 || (args.length === 2 && !Array.isArray(args[1])) || typeof args[1][0] !== "string") {
           return Reflect.apply(target, this, args);
         }
         const ApiPath = args[1][0];
@@ -1686,28 +1722,28 @@ hookApply() {
           log.success("拦截跳转登录");
           return new Promise((resolve) => {
             resolve({
-              data: {}
+              data: {},
             });
           });
         } else if (ApiPath === "api/likes/update" && Panel.getValue("weibo_apply_likes_update")) {
           log.success("拦截点赞跳转登录");
           return new Promise((resolve) => {
             resolve({
-              data: {}
+              data: {},
             });
           });
         } else if (ApiPath === "api/comments/create" && Panel.getValue("weibo_apply_comments_create")) {
           log.success("拦截评论跳转登录");
           return new Promise((resolve) => {
             resolve({
-              data: {}
+              data: {},
             });
           });
         } else if (ApiPath === "api/friendships/create" && Panel.getValue("weibo_apply_friendships_create")) {
           log.success("拦截关注跳转登录");
           return new Promise((resolve) => {
             resolve({
-              data: {}
+              data: {},
             });
           });
         } else if (ApiPath === "api/comments/reply" && Panel.getValue("weibo_apply_comments_reply")) {
@@ -1715,8 +1751,8 @@ hookApply() {
           return new Promise((resolve, reject) => {
             resolve({
               data: {
-                ok: 200
-              }
+                ok: 200,
+              },
             });
           });
         } else if (ApiPath.startsWith("profile/info") && Panel.getValue("weibo_apply_profile_info")) {
@@ -1726,15 +1762,21 @@ hookApply() {
           window.location.href = uidHomeUrl;
           return null;
         } else if (ApiPath === "comments/hotflow" && Panel.getValue("weibo_apply_comments_hotflow")) {
-          if (!("id" in ApiSearchParams && "max_id_type" in ApiSearchParams && "mid" in ApiSearchParams) || "id" in ApiSearchParams && "max_id" in ApiSearchParams && "max_id_type" in ApiSearchParams && "mid" in ApiSearchParams) {
+          if (
+            !("id" in ApiSearchParams && "max_id_type" in ApiSearchParams && "mid" in ApiSearchParams) ||
+            ("id" in ApiSearchParams &&
+              "max_id" in ApiSearchParams &&
+              "max_id_type" in ApiSearchParams &&
+              "mid" in ApiSearchParams)
+          ) {
             log.success("拦截下拉加载更多评论跳转登录", ApiSearchParams);
             return new Promise((resolve) => {
               resolve({
                 ok: 1,
                 data: {
                   data: [],
-                  total_number: 0
-                }
+                  total_number: 0,
+                },
               });
             });
           }
@@ -1747,8 +1789,8 @@ hookApply() {
                   ok: 1,
                   data: [],
                   rootComment: [],
-                  total_number: 0
-                }
+                  total_number: 0,
+                },
               });
             });
           }
@@ -1760,21 +1802,21 @@ hookApply() {
                 ok: 1,
                 data: {
                   data: [],
-                  total_number: 0
-                }
-              }
+                  total_number: 0,
+                },
+              },
             });
           });
-        } else ;
+        } else;
         return Reflect.apply(target, this, args);
       };
     },
-hookNetWork() {
-      WeiBoNetWorkHook.ajaxHooker.hook(function(request) {
+    hookNetWork() {
+      WeiBoNetWorkHook.ajaxHooker.hook(function (request) {
         let requestUrl = CommonUtil.fixUrl(request.url);
         log.info("[ajaxHookr] " + requestUrl);
         if (requestUrl.startsWith("https://m.weibo.cn/api/config") && Panel.getValue("weibo_request_api_config")) {
-          request.response = function(originResponse) {
+          request.response = function (originResponse) {
             let originResponseData = utils.toJSON(originResponse.responseText);
             if (!originResponseData.data.login) {
               log.error("由于未登录，伪装为已登录状态");
@@ -1788,26 +1830,35 @@ hookNetWork() {
               originResponse.responseText = JSON.stringify(originResponseData);
             }
           };
-        } else if (requestUrl.startsWith("https://m.weibo.cn/comments/hot") && Panel.getValue("weibo_request_comments_hot")) {
-          request.response = function(originResponse) {
+        } else if (
+          requestUrl.startsWith("https://m.weibo.cn/comments/hot") &&
+          Panel.getValue("weibo_request_comments_hot")
+        ) {
+          request.response = function (originResponse) {
             let originResponseData = utils.toJSON(originResponse.responseText);
             if (originResponseData.ok !== 1) {
               log.error("由于尚未登录，获取不到更多评论数据", originResponseData);
               originResponseData = {
-                ok: 1
+                ok: 1,
               };
               originResponse.responseText = JSON.stringify(originResponseData);
             }
           };
-        } else if (requestUrl.startsWith("https://m.weibo.cn/status/push?") && Panel.getValue("weibo_request_status_push")) {
-          request.response = function(originResponse) {
+        } else if (
+          requestUrl.startsWith("https://m.weibo.cn/status/push?") &&
+          Panel.getValue("weibo_request_status_push")
+        ) {
+          request.response = function (originResponse) {
             let originResponseData = utils.toJSON(originResponse.responseText);
             Reflect.set(originResponse, "json", {});
             log.info(`重构/status/push响应`, originResponseData);
             originResponse.responseText = JSON.stringify(originResponseData);
           };
-        } else if (requestUrl.startsWith("https://m.weibo.cn/api/container/getIndex") && Panel.getValue("weibo-request-blockArticleAds")) {
-          request.response = function(originResponse) {
+        } else if (
+          requestUrl.startsWith("https://m.weibo.cn/api/container/getIndex") &&
+          Panel.getValue("weibo-request-blockArticleAds")
+        ) {
+          request.response = function (originResponse) {
             let originResponseData = utils.toJSON(originResponse.responseText);
             let cards = originResponseData["data"]["cards"];
             if (Array.isArray(cards)) {
@@ -1833,7 +1884,7 @@ hookNetWork() {
         }
       });
     },
-hookWebpack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
+    hookWebpack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
       let originObject = void 0;
       Object.defineProperty(_unsafeWindow, webpackName, {
         get() {
@@ -1843,12 +1894,17 @@ hookWebpack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
           log.success("成功劫持webpack，当前webpack名：" + webpackName);
           originObject = newValue;
           const originPush = originObject.push;
-          originObject.push = function(...args) {
+          originObject.push = function (...args) {
             let _mainCoreData = args[0][0];
-            if (mainCoreData == _mainCoreData || Array.isArray(mainCoreData) && Array.isArray(_mainCoreData) && JSON.stringify(mainCoreData) === JSON.stringify(_mainCoreData)) {
+            if (
+              mainCoreData == _mainCoreData ||
+              (Array.isArray(mainCoreData) &&
+                Array.isArray(_mainCoreData) &&
+                JSON.stringify(mainCoreData) === JSON.stringify(_mainCoreData))
+            ) {
               Object.keys(args[0][1]).forEach((keyName) => {
                 let originSwitchFunc = args[0][1][keyName];
-                args[0][1][keyName] = function(..._args) {
+                args[0][1][keyName] = function (..._args) {
                   let result = originSwitchFunc.call(this, ..._args);
                   _args[0] = checkCallBack(_args[0]);
                   return result;
@@ -1857,10 +1913,10 @@ hookWebpack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
             }
             return originPush.call(this, ...args);
           };
-        }
+        },
       });
     },
-hookVueRouter() {
+    hookVueRouter() {
       VueUtils.waitVuePropToSet("#app", [
         {
           msg: "等待获取属性 __vue__.$router",
@@ -1883,7 +1939,7 @@ hookVueRouter() {
                   window.location.href = uidHomeUrl;
                   return;
                 }
-              } else if (to?.name === "detail") ;
+              } else if (to?.name === "detail");
               next();
             };
             vueIns.$router.beforeEach(beforeEachFn);
@@ -1900,60 +1956,65 @@ hookVueRouter() {
             } else {
               log.error("$router未在beforeHooks内找到自定义的beforeEach");
             }
-          }
-        }
+          },
+        },
       ]);
     },
-hookServiceWorkerRegister() {
+    hookServiceWorkerRegister() {
       log.info("hook => navigator.serviceWorker.register");
       _unsafeWindow.Object.defineProperty(_unsafeWindow.navigator.serviceWorker, "register", {
         get() {
-          return function(...args) {
+          return function (...args) {
             log.success("劫持navigator.serviceWorker.register: ", args);
           };
-        }
+        },
       });
-    }
+    },
   };
   const WeiBoRouter = {
-isMWeiBo() {
+    isMWeiBo() {
       return window.location.hostname === "m.weibo.cn";
     },
-isMWeiBoHome() {
+    isMWeiBoHome() {
       return this.isMWeiBo() && window.location.pathname === "/";
     },
-isMWeiBo_detail() {
+    isMWeiBo_detail() {
       return this.isMWeiBo() && window.location.pathname.startsWith("/detail/");
     },
-isMWeiBo_status() {
+    isMWeiBo_status() {
       return this.isMWeiBo() && window.location.pathname.startsWith("/status/");
     },
-isMWeiBo_userHome() {
+    isMWeiBo_userHome() {
       return this.isMWeiBo() && window.location.pathname.startsWith("/u/");
     },
-isMWeiBo_search() {
+    isMWeiBo_search() {
       return this.isMWeiBo() && window.location.pathname.startsWith("/search");
     },
-isMWeiBo_HotSearch() {
+    isMWeiBo_HotSearch() {
       let searchParams = new URLSearchParams(globalThis.location.search);
       let containerid = searchParams.get("containerid");
-      return this.isMWeiBo() && window.location.pathname.startsWith("/p/index") && typeof containerid === "string" && containerid.startsWith("106003");
+      return (
+        this.isMWeiBo() &&
+        window.location.pathname.startsWith("/p/index") &&
+        typeof containerid === "string" &&
+        containerid.startsWith("106003")
+      );
     },
-isHuaTi() {
+    isHuaTi() {
       return window.location.hostname === "huati.weibo.cn";
     },
-isVideo() {
+    isVideo() {
       return window.location.hostname === "h5.video.weibo.com";
     },
-isCard() {
+    isCard() {
       return window.location.hostname === "card.weibo.com";
     },
-isCardArticle() {
+    isCardArticle() {
       return this.isCard() && window.location.pathname.startsWith("/article/");
     },
-isLive() {
+    isLive() {
       return window.location.hostname === "weibo.com" && window.location.pathname.startsWith("/l/wblive/m/show/");
-    }
+    },
   };
   const WeiBoHuaTi = {
     init() {
@@ -1964,7 +2025,7 @@ isLive() {
         this.hookNetWorkWithGetMoreCelebrityCalendarInformation();
       });
     },
-isWeibo() {
+    isWeibo() {
       log.info("伪装微博");
       VueUtils.waitVuePropToSet("#loadMore", [
         {
@@ -1975,11 +2036,11 @@ isWeibo() {
           set(vueObj) {
             vueObj.isWeibo = true;
             log.success("成功设置属性 __vue__.isWeibo=true");
-          }
-        }
+          },
+        },
       ]);
     },
-hookNetWorkWithGetMoreCelebrityCalendarInformation() {
+    hookNetWorkWithGetMoreCelebrityCalendarInformation() {
       WeiBoNetWorkHook.ajaxHooker.hook((request) => {
         log.info("ajaxHookr: ", request.url);
         if (!request.url.startsWith("/ajax/super/starschedule?")) {
@@ -1999,31 +2060,36 @@ hookNetWorkWithGetMoreCelebrityCalendarInformation() {
               "Sec-Fetch-Dest": "empty",
               Referer: globalThis.location.href,
               "Accept-Encoding": "gzip, deflate, br",
-              "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
-            }
+              "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+            },
           });
           res.response = getResp.data.responseText;
           res.responseText = getResp.data.responseText;
         };
       });
-    }
+    },
   };
   const WeiBoVideoHook = {
     init() {
       this.hookWebpack();
     },
-hookWebpack() {
+    hookWebpack() {
       log.info("劫持webpack");
       WeiBoHook.hookWebpack("webpackJsonp", "chunk-common", (webpackExports) => {
-        if (typeof webpackExports?.exports === "object" && typeof webpackExports.exports["a"] === "object" && typeof webpackExports.exports["a"]["gotoApp"] === "function" && Panel.getValue("weibo_video_webpack_gotoApp")) {
+        if (
+          typeof webpackExports?.exports === "object" &&
+          typeof webpackExports.exports["a"] === "object" &&
+          typeof webpackExports.exports["a"]["gotoApp"] === "function" &&
+          Panel.getValue("weibo_video_webpack_gotoApp")
+        ) {
           log.success("成功劫持webpack调用函数", webpackExports);
-          webpackExports.exports["a"]["gotoApp"] = function(...args) {
+          webpackExports.exports["a"]["gotoApp"] = function (...args) {
             log.info("阻止唤醒App：", args);
           };
           return webpackExports;
         }
       });
-    }
+    },
   };
   const WeiBoVideo = {
     init() {
@@ -2040,18 +2106,18 @@ hookWebpack() {
         return this.shieldRecommend();
       });
     },
-shieldBottomToolBar() {
+    shieldBottomToolBar() {
       log.info("【屏蔽】底部工具栏");
       return CommonUtil.addBlockCSS(".woo-toolBar");
     },
-shieldRecommend() {
+    shieldRecommend() {
       log.info("【屏蔽】相关推荐");
       return CommonUtil.addBlockCSS('#app .woo-panel[class*="Playdetail_card_"]:nth-child(2)');
     },
-shieldHotComments() {
+    shieldHotComments() {
       log.info("【屏蔽】热门评论");
       return CommonUtil.addBlockCSS('#app .woo-panel[class*="Playdetail_card_"]:nth-child(3)');
-    }
+    },
   };
   const blockAdsCSS = "/* 文章内容的底部的广告 */\r\n#app .ad-wrap {\r\n  display: none !important;\r\n}\r\n";
   const WeiBoDetail = {
@@ -2060,36 +2126,34 @@ shieldHotComments() {
         return addStyle(blockAdsCSS);
       });
     },
-setArticleAbsoluteTime() {
+    setArticleAbsoluteTime() {
       log.info(`监听并设置正文显示的时间为绝对时间`);
       utils.mutationObserver(document.documentElement, {
         config: {
           subtree: true,
-          childList: true
+          childList: true,
         },
         immediate: true,
         callback: () => {
           function handleCardMainTime() {
-            Array.from($$(".card.m-panel .m-text-cut .time:not([data-gm-absolute-time])")).forEach(
-              ($time) => {
-                let $card = $time.closest(".card.m-panel");
-                let cardVueIns = VueUtils.getVue($card);
-                if (!cardVueIns) {
-                  return;
-                }
-                let createTime = cardVueIns?.item?.created_at;
-                if (typeof createTime !== "string") {
-                  return;
-                }
-                if ($time.innerText.includes("编辑")) {
-                  return;
-                }
-                let createTimeObj = new Date(createTime);
-                let formatCreateTime = utils.formatTime(createTimeObj, "yyyy-MM-dd HH:mm:ss");
-                $time.innerText = formatCreateTime;
-                $time.setAttribute("data-gm-absolute-time", "true");
+            Array.from($$(".card.m-panel .m-text-cut .time:not([data-gm-absolute-time])")).forEach(($time) => {
+              let $card = $time.closest(".card.m-panel");
+              let cardVueIns = VueUtils.getVue($card);
+              if (!cardVueIns) {
+                return;
               }
-            );
+              let createTime = cardVueIns?.item?.created_at;
+              if (typeof createTime !== "string") {
+                return;
+              }
+              if ($time.innerText.includes("编辑")) {
+                return;
+              }
+              let createTimeObj = new Date(createTime);
+              let formatCreateTime = utils.formatTime(createTimeObj, "yyyy-MM-dd HH:mm:ss");
+              $time.innerText = formatCreateTime;
+              $time.setAttribute("data-gm-absolute-time", "true");
+            });
           }
           function handleCardLzlTime() {
             let $litePageWrap = $(".lite-page-wrap");
@@ -2121,24 +2185,22 @@ setArticleAbsoluteTime() {
             }
           }
           function handleCardCommentTime() {
-            Array.from($$(".comment-content .card .m-box .time:not([data-gm-absolute-time])")).forEach(
-              ($time) => {
-                let $card = $time.closest(".card");
-                let $cardParent = $card.parentElement;
-                let cardVueIns = VueUtils.getVue($card) || VueUtils.getVue($cardParent);
-                if (!cardVueIns) {
-                  return;
-                }
-                let createTime = cardVueIns?.item?.created_at;
-                if (typeof createTime !== "string") {
-                  return;
-                }
-                let createTimeObj = new Date(createTime);
-                let formatCreateTime = utils.formatTime(createTimeObj, "yyyy-MM-dd HH:mm:ss");
-                $time.innerText = `${formatCreateTime} ${cardVueIns?.item?.source || ""}`;
-                $time.setAttribute("data-gm-absolute-time", "true");
+            Array.from($$(".comment-content .card .m-box .time:not([data-gm-absolute-time])")).forEach(($time) => {
+              let $card = $time.closest(".card");
+              let $cardParent = $card.parentElement;
+              let cardVueIns = VueUtils.getVue($card) || VueUtils.getVue($cardParent);
+              if (!cardVueIns) {
+                return;
               }
-            );
+              let createTime = cardVueIns?.item?.created_at;
+              if (typeof createTime !== "string") {
+                return;
+              }
+              let createTimeObj = new Date(createTime);
+              let formatCreateTime = utils.formatTime(createTimeObj, "yyyy-MM-dd HH:mm:ss");
+              $time.innerText = `${formatCreateTime} ${cardVueIns?.item?.source || ""}`;
+              $time.setAttribute("data-gm-absolute-time", "true");
+            });
           }
           let searchParams = new URLSearchParams(window.location.search);
           if (WeiBoRouter.isMWeiBo_detail() || WeiBoRouter.isMWeiBo_status()) {
@@ -2151,9 +2213,9 @@ setArticleAbsoluteTime() {
           } else {
             handleCardMainTime();
           }
-        }
+        },
       });
-    }
+    },
   };
   const WeiBoSearch = {
     init() {
@@ -2166,7 +2228,7 @@ setArticleAbsoluteTime() {
         });
       });
     },
-autoFocusSearchInput() {
+    autoFocusSearchInput() {
       log.info(`自动聚焦搜索框`);
       domUtils.waitNode(`.ntop-nav input[type="search"]`).then(($input) => {
         if (!$input) {
@@ -2190,11 +2252,11 @@ autoFocusSearchInput() {
         }, 250);
       });
     },
-addOpenBlankBtn() {
+    addOpenBlankBtn() {
       utils.mutationObserver(document.documentElement, {
         config: {
           subtree: true,
-          childList: true
+          childList: true,
         },
         immediate: true,
         callback() {
@@ -2206,11 +2268,9 @@ addOpenBlankBtn() {
               return;
             }
             let $ownDiyBtn = domUtils.createElement("div", {
-              innerHTML: (
-`
+              innerHTML: `
 								<h4>新标签页打开</h4>
-							`
-              )
+							`,
             });
             $ownDiyBtn.classList.add("m-diy-btn", "m-box-col", "m-box-center", "m-box-center-a", "gm-open-blank");
             domUtils.on($ownDiyBtn, "click", (event) => {
@@ -2236,17 +2296,17 @@ addOpenBlankBtn() {
               domUtils.append($footerCtrl, $ownDiyBtn);
             }
           });
-        }
+        },
       });
-    }
+    },
   };
   const WeiBoApi = {
-async component(oid) {
+    async component(oid) {
       let postParams = {
-        page: "/tv/show/" + oid
+        page: "/tv/show/" + oid,
       };
       let postData = {
-        data: JSON.stringify({ Component_Play_Playinfo: { oid } })
+        data: JSON.stringify({ Component_Play_Playinfo: { oid } }),
       };
       let api = `https://www.weibo.com/tv/api/component?${utils.toSearchParamsStr(postParams)}`;
       let response = await httpx.post(api, {
@@ -2258,8 +2318,8 @@ async component(oid) {
           Origin: "https://www.weibo.com",
           "Page-Referer": postParams.page,
           Referer: "https://www.weibo.com" + postParams.page,
-          "User-Agent": utils.getRandomPCUA()
-        }
+          "User-Agent": utils.getRandomPCUA(),
+        },
       });
       if (!response.status) {
         return;
@@ -2272,67 +2332,67 @@ async component(oid) {
       }
       let Component_Play_Playinfo = data["data"]["Component_Play_Playinfo"];
       return Component_Play_Playinfo;
-    }
+    },
   };
   const VideoQualityMap_Mobile = {
     "流畅 360P": {
       label: "流畅",
       sign: 1,
-      name: "mp4_ld_mp4"
+      name: "mp4_ld_mp4",
     },
     "标清 480P": {
       label: "标清",
       sign: 2,
-      name: "mp4_hd_mp4"
+      name: "mp4_hd_mp4",
     },
     "高清 720P": {
       label: "高清",
       sign: 3,
-      name: "mp4_720p_mp4"
-    }
+      name: "mp4_720p_mp4",
+    },
   };
   const VideoQualityMap_PC = {
     "高清 1080P": {
       label: "超清",
       sign: 4,
-      name: "mp4_1080p_mp4"
+      name: "mp4_1080p_mp4",
     },
     "超清 2K": {
       label: "2K",
       sign: 5,
-      name: "mp4_1440p_mp4"
+      name: "mp4_1440p_mp4",
     },
     "超清 2K60": {
       label: "2K-60",
       sign: 6,
-      name: "mp4_1440p_60fps_mp4"
+      name: "mp4_1440p_60fps_mp4",
     },
     "超清 4K": {
       label: "4K",
       sign: 7,
-      name: "mp4_2160p_mp4"
+      name: "mp4_2160p_mp4",
     },
     "超清 4K60": {
       label: "4K-60",
       sign: 7,
-      name: "mp4_2160p_60fps_mp4"
-    }
+      name: "mp4_2160p_60fps_mp4",
+    },
   };
   const VideoQualityMap = {
     ...VideoQualityMap_Mobile,
-    ...VideoQualityMap_PC
+    ...VideoQualityMap_PC,
   };
   class WeiBoUnlockQuality {
     $src = VideoQualityMap_PC;
     $data = {
       newQualityNameList: [],
-      videoQualityMap: new utils.Dictionary()
+      videoQualityMap: new utils.Dictionary(),
     };
     constructor() {
       this.$data.newQualityNameList = [];
       this.$data.newQualityNameList.push(...Object.keys(this.$src));
     }
-lockVideoQuality() {
+    lockVideoQuality() {
       let that = this;
       log.info("锁定视频清晰度");
       VueUtils.waitVuePropToSet(".video-player .mwb-video", [
@@ -2353,7 +2413,7 @@ lockVideoQuality() {
                 return false;
               }
             });
-            let ownAddChild = function(...args) {
+            let ownAddChild = function (...args) {
               let name = args[0];
               if (name === "qualityButton") {
                 let qualityInfo = args[1];
@@ -2370,7 +2430,7 @@ lockVideoQuality() {
                       let newQuality = {
                         label: videoQualityMapInfo.label,
                         sign: videoQualityMapInfo.sign,
-                        src: videoQualityMapInfo.src
+                        src: videoQualityMapInfo.src,
                       };
                       log.success("添加新的视频清晰度", newQuality);
                       qualityInfo["qualityList"].push(newQuality);
@@ -2383,11 +2443,13 @@ lockVideoQuality() {
                   if (findSign) {
                     qualityInfo["defaultSign"] = userSetQualitySign;
                   } else {
-                    let signList = qualityInfo["qualityList"].map((item) => {
-                      if (item.sign <= userSetQualitySign) {
-                        return item.sign;
-                      }
-                    }).filter((item) => item);
+                    let signList = qualityInfo["qualityList"]
+                      .map((item) => {
+                        if (item.sign <= userSetQualitySign) {
+                          return item.sign;
+                        }
+                      })
+                      .filter((item) => item);
                     let userSetQualitySignLower = utils.getMaxValue(...signList);
                     qualityInfo["defaultSign"] = userSetQualitySignLower;
                     log.error("该清晰度不存在，选择比该画质低的清晰度：" + userSetQualitySignLower);
@@ -2405,16 +2467,16 @@ lockVideoQuality() {
             }
             vueObj.player.controlBar.addChild = ownAddChild;
             log.success("成功覆盖属性 __vue__.player.controlBar.addChild");
-          }
-        }
+          },
+        },
       ]);
     }
-async unlockVideoHigherQuality() {
+    async unlockVideoHigherQuality() {
       let that = this;
       let taskQueue = [];
       $$(".weibo-media-wraps:not([data-unlock-quality])").forEach(($ele) => {
         $ele.setAttribute("data-unlock-quality", "true");
-        let taskFunc = function() {
+        let taskFunc = function () {
           return new Promise((resolve, reject) => {
             VueUtils.waitVuePropToSet($ele, [
               {
@@ -2460,7 +2522,7 @@ async unlockVideoHigherQuality() {
                           label: that.$src[srcName].label,
                           name: that.$src[srcName].name,
                           sign: that.$src[srcName].sign,
-                          src
+                          src,
                         };
                         let ld_mp4_url = urls["mp4_ld_mp4"];
                         if (ld_mp4_url) {
@@ -2489,8 +2551,8 @@ async unlockVideoHigherQuality() {
                   } finally {
                     resolve();
                   }
-                }
-              }
+                },
+              },
             ]);
           });
         };
@@ -2514,11 +2576,11 @@ async unlockVideoHigherQuality() {
         this.repairArticleUserHomeJump();
       });
     },
-autoExpandFullArticle() {
+    autoExpandFullArticle() {
       log.info("自动展开全文");
       return [
         addStyle(
-`
+          `
 			.m-container-max .f-art,
 			.m-container-max .art-con-new{
 				height: unset !important;
@@ -2526,14 +2588,14 @@ autoExpandFullArticle() {
 			}    
 			`
         ),
-        CommonUtil.addBlockCSS(".m-container-max .f-art-opt")
+        CommonUtil.addBlockCSS(".m-container-max .f-art-opt"),
       ];
     },
-blockComment() {
+    blockComment() {
       log.info("【屏蔽】评论");
       return CommonUtil.addBlockCSS(".m-container-max .m-panel1");
     },
-repairArticleUserHomeJump() {
+    repairArticleUserHomeJump() {
       log.info("修复文章用户主页跳转");
       domUtils.on(
         document,
@@ -2553,10 +2615,10 @@ repairArticleUserHomeJump() {
           window.open(url, "_blank");
         },
         {
-          capture: true
+          capture: true,
         }
       );
-    }
+    },
   };
   const WeiBoHome = {
     init() {
@@ -2572,11 +2634,11 @@ repairArticleUserHomeJump() {
         });
       });
     },
-blockMessageCount() {
+    blockMessageCount() {
       log.info(`屏蔽右上角的信息红点（登录后）`);
       return CommonUtil.addBlockCSS(".nav-right .m-bubble");
     },
-addSupertalkTab() {
+    addSupertalkTab() {
       VueUtils.waitVuePropToSet(".main-top", {
         check(vueObj) {
           return Array.isArray(vueObj?.tabs);
@@ -2589,63 +2651,63 @@ addSupertalkTab() {
                 api: "api/container/getIndex?containerid=100803",
                 gid: "100803",
                 name: "超话社区",
-                type: 1
-              }
-            ]
+                type: 1,
+              },
+            ],
           });
           return;
-        }
+        },
       });
     },
-addOpenBlankBtn() {
+    addOpenBlankBtn() {
       utils.mutationObserver(document.documentElement, {
         config: {
           subtree: true,
-          childList: true
+          childList: true,
         },
         immediate: true,
         callback() {
           if (!WeiBoRouter.isMWeiBoHome()) {
             return;
           }
-          document.querySelectorAll(".main-wrap .wb-item .card .f-footer-ctrl:not(:has(.gm-open-blank))").forEach(($footerCtrl) => {
-            if ($footerCtrl.querySelector(".gm-open-blank")) {
-              return;
-            }
-            let $ownDiyBtn = domUtils.createElement("div", {
-              innerHTML: (
-`
+          document
+            .querySelectorAll(".main-wrap .wb-item .card .f-footer-ctrl:not(:has(.gm-open-blank))")
+            .forEach(($footerCtrl) => {
+              if ($footerCtrl.querySelector(".gm-open-blank")) {
+                return;
+              }
+              let $ownDiyBtn = domUtils.createElement("div", {
+                innerHTML: `
 								<h4>新标签页打开</h4>
-							`
-              )
-            });
-            $ownDiyBtn.classList.add("m-diy-btn", "m-box-center-a", "gm-open-blank");
-            domUtils.on($ownDiyBtn, "click", (event) => {
-              domUtils.preventEvent(event);
-              let vueIns = VueUtils.getVue($footerCtrl);
-              if (!vueIns) {
-                Qmsg.error("没有找到对应的Vue实例");
-                return;
+							`,
+              });
+              $ownDiyBtn.classList.add("m-diy-btn", "m-box-center-a", "gm-open-blank");
+              domUtils.on($ownDiyBtn, "click", (event) => {
+                domUtils.preventEvent(event);
+                let vueIns = VueUtils.getVue($footerCtrl);
+                if (!vueIns) {
+                  Qmsg.error("没有找到对应的Vue实例");
+                  return;
+                }
+                let id = vueIns?.item?.id;
+                if (typeof id !== "string") {
+                  Qmsg.error("没有找到对应的id");
+                  return;
+                }
+                let url = `${window.location.origin}/detail/${id}`;
+                log.info(`新标签页打开：${url}`);
+                window.open(url, "_blank");
+              });
+              let $diyBtnList = $footerCtrl.querySelectorAll(".m-diy-btn");
+              if ($diyBtnList.length) {
+                domUtils.after($diyBtnList[$diyBtnList.length - 1], $ownDiyBtn);
+              } else {
+                domUtils.append($footerCtrl, $ownDiyBtn);
               }
-              let id = vueIns?.item?.id;
-              if (typeof id !== "string") {
-                Qmsg.error("没有找到对应的id");
-                return;
-              }
-              let url = `${window.location.origin}/detail/${id}`;
-              log.info(`新标签页打开：${url}`);
-              window.open(url, "_blank");
             });
-            let $diyBtnList = $footerCtrl.querySelectorAll(".m-diy-btn");
-            if ($diyBtnList.length) {
-              domUtils.after($diyBtnList[$diyBtnList.length - 1], $ownDiyBtn);
-            } else {
-              domUtils.append($footerCtrl, $ownDiyBtn);
-            }
-          });
-        }
+        },
       });
-    }
+    },
   };
   const WeiBoHotSearch = {
     init() {
@@ -2653,7 +2715,7 @@ addOpenBlankBtn() {
         this.openBlank();
       });
     },
-openBlank() {
+    openBlank() {
       DOMUtils.on(
         document,
         "click",
@@ -2677,20 +2739,20 @@ openBlank() {
           window.open(scheme, "_blank");
         },
         {
-          capture: true
+          capture: true,
         }
       );
-    }
+    },
   };
   const blockCSS = "#app .bottombtn {\r\n  display: none !important;\r\n}\r\n";
   const WeiBoLive = {
     init() {
       addStyle(blockCSS);
-    }
+    },
   };
   const WeiBo = {
     $data: {
-      weiBoUnlockQuality: new WeiBoUnlockQuality()
+      weiBoUnlockQuality: new WeiBoUnlockQuality(),
     },
     init() {
       Panel.execMenuOnce("weibo_hijack_navigator_service_worker_register", () => {
@@ -2761,30 +2823,30 @@ openBlank() {
         log.error("Router: 未适配 => " + window.location.href);
       }
     },
-blockAds() {
+    blockAds() {
       log.info(`屏蔽 广告`);
       return addStyle(blockAdsCSS$1);
     },
-shieldBottomBar() {
+    shieldBottomBar() {
       log.info("【屏蔽】底部工具栏");
       return CommonUtil.addBlockCSS("#app div.m-tab-bar.m-bar-panel.m-container-max");
     },
-unlockVideoHigherQuality() {
+    unlockVideoHigherQuality() {
       let lock = new utils.LockFunction(() => {
         this.$data.weiBoUnlockQuality.unlockVideoHigherQuality();
       }, 15);
       utils.mutationObserver(document.body, {
         config: {
           subtree: true,
-          childList: true
+          childList: true,
         },
         immediate: true,
         callback: () => {
           lock.run();
-        }
+        },
       });
     },
-clickImageToClosePreviewImage() {
+    clickImageToClosePreviewImage() {
       let selectorList = [".pswp .pswp__item"];
       selectorList.forEach((selector) => {
         domUtils.on(document, "click", selector, (event) => {
@@ -2798,7 +2860,7 @@ clickImageToClosePreviewImage() {
           }
         });
       });
-    }
+    },
   };
   const PanelComponents = {
     $data: {
@@ -2808,21 +2870,21 @@ clickImageToClosePreviewImage() {
           this.__storeApiFn = new Utils.Dictionary();
         }
         return this.__storeApiFn;
-      }
+      },
     },
-getStorageApi(type) {
+    getStorageApi(type) {
       if (!this.hasStorageApi(type)) {
         return;
       }
       return this.$data.storeApiValue.get(type);
     },
-hasStorageApi(type) {
+    hasStorageApi(type) {
       return this.$data.storeApiValue.has(type);
     },
-setStorageApi(type, storageApiValue) {
+    setStorageApi(type, storageApiValue) {
       this.$data.storeApiValue.set(type, storageApiValue);
     },
-initComponentsStorageApi(type, config, storageApiValue) {
+    initComponentsStorageApi(type, config, storageApiValue) {
       let propsStorageApi;
       if (this.hasStorageApi(type)) {
         propsStorageApi = this.getStorageApi(type);
@@ -2831,11 +2893,11 @@ initComponentsStorageApi(type, config, storageApiValue) {
       }
       this.setComponentsStorageApiProperty(config, propsStorageApi);
     },
-setComponentsStorageApiProperty(config, storageApiValue) {
+    setComponentsStorageApiProperty(config, storageApiValue) {
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
-    }
+    },
   };
-  const UISelect = function(text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
+  const UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
     let selectData = [];
     if (typeof data === "function") {
       selectData = data();
@@ -2864,7 +2926,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
         let storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      data: selectData
+      data: selectData,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -2874,11 +2936,20 @@ setComponentsStorageApiProperty(config, storageApiValue) {
       },
       set(key2, value) {
         Panel.setValue(key2, value);
-      }
+      },
     });
     return result;
   };
-  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack, disabled, valueChangeCallBack) {
+  const UISwitch = function (
+    text,
+    key,
+    defaultValue,
+    clickCallBack,
+    description,
+    afterAddToUListCallBack,
+    disabled,
+    valueChangeCallBack
+  ) {
     let result = {
       text,
       type: "switch",
@@ -2897,7 +2968,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
         let storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      afterAddToUListCallBack
+      afterAddToUListCallBack,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -2907,11 +2978,20 @@ setComponentsStorageApiProperty(config, storageApiValue) {
       },
       set(key2, value) {
         Panel.setValue(key2, value);
-      }
+      },
     });
     return result;
   };
-  const UITextArea = function(text, key, defaultValue, description, changeCallback, placeholder = "", disabled, valueChangeCallBack) {
+  const UITextArea = function (
+    text,
+    key,
+    defaultValue,
+    description,
+    changeCallback,
+    placeholder = "",
+    disabled,
+    valueChangeCallBack
+  ) {
     let result = {
       text,
       type: "textarea",
@@ -2931,7 +3011,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
       callback(event, value) {
         let storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
-      }
+      },
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -2941,7 +3021,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
       },
       set(key2, value) {
         Panel.setValue(key2, value);
-      }
+      },
     });
     return result;
   };
@@ -2968,40 +3048,40 @@ setComponentsStorageApiProperty(config, storageApiValue) {
                     [
                       {
                         value: "topleft",
-                        text: "左上角"
+                        text: "左上角",
                       },
                       {
                         value: "top",
-                        text: "顶部"
+                        text: "顶部",
                       },
                       {
                         value: "topright",
-                        text: "右上角"
+                        text: "右上角",
                       },
                       {
                         value: "left",
-                        text: "左边"
+                        text: "左边",
                       },
                       {
                         value: "center",
-                        text: "中间"
+                        text: "中间",
                       },
                       {
                         value: "right",
-                        text: "右边"
+                        text: "右边",
                       },
                       {
                         value: "bottomleft",
-                        text: "左下角"
+                        text: "左下角",
                       },
                       {
                         value: "bottom",
-                        text: "底部"
+                        text: "底部",
                       },
                       {
                         value: "bottomright",
-                        text: "右下角"
-                      }
+                        text: "右下角",
+                      },
                     ],
                     (event, isSelectValue, isSelectText) => {
                       log.info("设置当前Qmsg弹出位置" + isSelectText);
@@ -3015,32 +3095,32 @@ setComponentsStorageApiProperty(config, storageApiValue) {
                     [
                       {
                         value: 1,
-                        text: "1"
+                        text: "1",
                       },
                       {
                         value: 2,
-                        text: "2"
+                        text: "2",
                       },
                       {
                         value: 3,
-                        text: "3"
+                        text: "3",
                       },
                       {
                         value: 4,
-                        text: "4"
+                        text: "4",
                       },
                       {
                         value: 5,
-                        text: "5"
-                      }
+                        text: "5",
+                      },
                     ],
                     void 0,
                     "限制Toast显示的数量"
                   ),
-                  UISwitch("逆序弹出", "qmsg-config-showreverse", false, void 0, "修改Toast弹出的顺序")
-                ]
-              }
-            ]
+                  UISwitch("逆序弹出", "qmsg-config-showreverse", false, void 0, "修改Toast弹出的顺序"),
+                ],
+              },
+            ],
           },
           {
             type: "deepMenu",
@@ -3058,12 +3138,19 @@ setComponentsStorageApiProperty(config, storageApiValue) {
                     void 0,
                     "自动根据请求的域名来获取对应的cookie"
                   ),
-                  UITextArea("weibo.com", "httpx-cookie-weibo.com", "", void 0, void 0, "Cookie格式：xxx=xxxx;xxx=xxxx")
-                ]
-              }
-            ]
-          }
-        ]
+                  UITextArea(
+                    "weibo.com",
+                    "httpx-cookie-weibo.com",
+                    "",
+                    void 0,
+                    void 0,
+                    "Cookie格式：xxx=xxxx;xxx=xxxx"
+                  ),
+                ],
+              },
+            ],
+          },
+        ],
       },
       {
         type: "forms",
@@ -3084,7 +3171,7 @@ setComponentsStorageApiProperty(config, storageApiValue) {
                     [
                       {
                         value: "",
-                        text: "自动"
+                        text: "自动",
                       },
                       ...(() => {
                         let result = [];
@@ -3092,11 +3179,11 @@ setComponentsStorageApiProperty(config, storageApiValue) {
                           let value = VideoQualityMap[name];
                           result.push({
                             value: value.name,
-                            text: name
+                            text: name,
                           });
                         });
                         return result;
-                      })()
+                      })(),
                     ],
                     void 0,
                     "设置视频清晰度，默认自动，其它的清晰度将自动被删除(强制固定选择的清晰度)"
@@ -3114,8 +3201,8 @@ setComponentsStorageApiProperty(config, storageApiValue) {
                     false,
                     void 0,
                     "当点击图片进入预览模式时，再点击当前预览的图片可退出预览"
-                  )
-                ]
+                  ),
+                ],
               },
               {
                 text: "函数禁用",
@@ -3127,10 +3214,10 @@ setComponentsStorageApiProperty(config, storageApiValue) {
                     true,
                     void 0,
                     "禁止注册serviceWorker"
-                  )
-                ]
-              }
-            ]
+                  ),
+                ],
+              },
+            ],
           },
           {
             text: "屏蔽",
@@ -3140,11 +3227,17 @@ setComponentsStorageApiProperty(config, storageApiValue) {
                 text: "",
                 type: "forms",
                 forms: [
-                  UISwitch("【屏蔽】广告", "weibo_remove_ads", true, void 0, "包括【登录/注册按钮】、【小程序横幅推荐】"),
-                  UISwitch("【屏蔽】底部工具栏", "weibo_shield_bottom_bar", false, void 0, "屏蔽聊天/关注按钮")
-                ]
-              }
-            ]
+                  UISwitch(
+                    "【屏蔽】广告",
+                    "weibo_remove_ads",
+                    true,
+                    void 0,
+                    "包括【登录/注册按钮】、【小程序横幅推荐】"
+                  ),
+                  UISwitch("【屏蔽】底部工具栏", "weibo_shield_bottom_bar", false, void 0, "屏蔽聊天/关注按钮"),
+                ],
+              },
+            ],
           },
           {
             text: "拦截跳转",
@@ -3174,10 +3267,10 @@ setComponentsStorageApiProperty(config, storageApiValue) {
                     true,
                     void 0,
                     "未登录时，拦截下拉加载更多评论跳转登录"
-                  )
-                ]
-              }
-            ]
+                  ),
+                ],
+              },
+            ],
           },
           {
             text: "网络请求",
@@ -3207,10 +3300,10 @@ setComponentsStorageApiProperty(config, storageApiValue) {
                     true,
                     void 0,
                     "Api为获取顶部的热点新闻信息流，这里是直接清空json"
-                  )
-                ]
-              }
-            ]
+                  ),
+                ],
+              },
+            ],
           },
           {
             text: "Vue-Router路由",
@@ -3227,14 +3320,14 @@ setComponentsStorageApiProperty(config, storageApiValue) {
                     true,
                     void 0,
                     "可以正确跳转至用户主页"
-                  )
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
+                  ),
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
   };
   const SettingUIHome = {
     id: "weibo-panel-config-card-article",
@@ -3251,22 +3344,22 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             false,
             void 0,
             "在每个card下面的按钮区域添加该按钮，方便快速在新标签页中打开"
-          )
-        ]
+          ),
+        ],
       },
       {
         text: "网络拦截",
         type: "forms",
         forms: [
-          UISwitch("过滤掉信息流广告", "weibo-request-blockArticleAds", true, void 0, '夹杂在文章中间的"微博广告"')
-        ]
+          UISwitch("过滤掉信息流广告", "weibo-request-blockArticleAds", true, void 0, '夹杂在文章中间的"微博广告"'),
+        ],
       },
       {
         text: "屏蔽",
         type: "forms",
-        forms: [UISwitch("屏蔽消息数量", "weibo-home-blockMessageCount", false, void 0, "即登录后右上角的消息提示数")]
-      }
-    ]
+        forms: [UISwitch("屏蔽消息数量", "weibo-home-blockMessageCount", false, void 0, "即登录后右上角的消息提示数")],
+      },
+    ],
   };
   const SettingUIDetail = {
     id: "weibo-panel-config-detail",
@@ -3282,10 +3375,10 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             false,
             void 0,
             "该功能全局生效包括但不限于微博正文、首页等"
-          )
-        ]
-      }
-    ]
+          ),
+        ],
+      },
+    ],
   };
   const SettingUISearch = {
     id: "weibo-panel-config-u",
@@ -3302,10 +3395,10 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             false,
             void 0,
             "在每个card下面的按钮区域添加该按钮，方便快速在新标签页中打开"
-          )
-        ]
-      }
-    ]
+          ),
+        ],
+      },
+    ],
   };
   const SettingUIHuaTi = {
     id: "weibo-panel-config-huati",
@@ -3321,8 +3414,8 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             true,
             void 0,
             "可以隐藏底部的【在微博内打开】"
-          )
-        ]
+          ),
+        ],
       },
       {
         text: "网络请求(不一定能劫持到)",
@@ -3334,10 +3427,10 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             true,
             void 0,
             "Api为获取日程数据，开启后可获取正常日程数据"
-          )
-        ]
-      }
-    ]
+          ),
+        ],
+      },
+    ],
   };
   const SettingUIVideo = {
     id: "weibo-panel-config-video",
@@ -3354,24 +3447,24 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             [
               {
                 value: "",
-                text: "自动"
+                text: "自动",
               },
               {
                 value: "mp4_ld_mp4",
-                text: "流畅360p"
+                text: "流畅360p",
               },
               {
                 value: "mp4_hd_mp4",
-                text: "标清480p"
+                text: "标清480p",
               },
               {
                 value: "mp4_720p_mp4",
-                text: "高清720p"
+                text: "高清720p",
               },
               {
                 value: "mp4_1080p_mp4",
-                text: "超清1080p"
-              }
+                text: "超清1080p",
+              },
             ],
             void 0,
             "设置视频清晰度，默认自动，其它的清晰度将自动被删除(强制固定选择的清晰度)"
@@ -3382,8 +3475,8 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             true,
             void 0,
             "请求PC端的视频1080p链接，开启该功能↑选择的1080p才会生效"
-          )
-        ]
+          ),
+        ],
       },
       {
         text: "屏蔽",
@@ -3391,15 +3484,15 @@ setComponentsStorageApiProperty(config, storageApiValue) {
         forms: [
           UISwitch("【屏蔽】底部工具栏", "weibo_video_shield_bottom_toolbar", true),
           UISwitch("【屏蔽】相关推荐", "weibo_video_shield_recommend", true),
-          UISwitch("【屏蔽】热门评论", "weibo_video_shield_hot_comments", true)
-        ]
+          UISwitch("【屏蔽】热门评论", "weibo_video_shield_hot_comments", true),
+        ],
       },
       {
         text: "webpack",
         type: "forms",
-        forms: [UISwitch("gotoApp", "weibo_video_webpack_gotoApp", true, void 0, "开启后阻止唤醒Scheme")]
-      }
-    ]
+        forms: [UISwitch("gotoApp", "weibo_video_webpack_gotoApp", true, void 0, "开启后阻止唤醒Scheme")],
+      },
+    ],
   };
   const SettingUICardArticle = {
     id: "weibo-panel-config-card-article",
@@ -3416,15 +3509,15 @@ setComponentsStorageApiProperty(config, storageApiValue) {
             true,
             void 0,
             "避免跳转至用户主页时需登录"
-          )
-        ]
+          ),
+        ],
       },
       {
         text: "屏蔽",
         type: "forms",
-        forms: [UISwitch("【屏蔽】评论", "card_weibo_com__blockComment", false, void 0, "屏蔽评论区")]
-      }
-    ]
+        forms: [UISwitch("【屏蔽】评论", "card_weibo_com__blockComment", false, void 0, "屏蔽评论区")],
+      },
+    ],
   };
   const SettingUIOther = {
     id: "weibo-panel-config-other",
@@ -3433,32 +3526,29 @@ setComponentsStorageApiProperty(config, storageApiValue) {
       {
         text: "微博热搜",
         type: "forms",
-        forms: [UISwitch("新标签页打开", "weibo-hot-search-openBlank", false, void 0, "新标签页打开链接")]
-      }
-    ]
+        forms: [UISwitch("新标签页打开", "weibo-hot-search-openBlank", false, void 0, "新标签页打开链接")],
+      },
+    ],
   };
   PanelContent.addContentConfig([
     SettingUICommon,
     SettingUIHome,
     SettingUIDetail,
-SettingUISearch,
+    SettingUISearch,
     SettingUIHuaTi,
     SettingUIVideo,
     SettingUICardArticle,
-    SettingUIOther
+    SettingUIOther,
   ]);
   Panel.$data.panelConfig = {
-    style: (
-`
+    style: `
         aside.pops-panel-aside{
             width: auto !important;
         }
         .pops-panel-textarea textarea{
             height: 100px;
-        }`
-    )
+        }`,
   };
   Panel.init();
   WeiBo.init();
-
 })(Qmsg, DOMUtils, Utils, pops);
