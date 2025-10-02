@@ -1,28 +1,27 @@
 {
-	"compilerOptions": {
-		"target": "ESNext",
-		"useDefineForClassFields": true,
-		"module": "ESNext",
-		"moduleResolution": "Node",
-		"strict": true,
-		//"noImplicitAny": true,
-		"jsx": "preserve",
-		"resolveJsonModule": true,
-		"isolatedModules": true,
-		"esModuleInterop": true,
-		"lib": ["ESNext", "DOM"],
-		"allowJs": true,
-		"allowSyntheticDefaultImports": true,
-		"skipLibCheck": true,
-		"checkJs": false,
-		"noEmit": true,
-		"sourceMap": true,
-		"typeRoots": ["types"]
-	},
-	"exclude": ["./油猴api适配/*"],
-	"references": [
-		{
-			"path": "./tsconfig.node.json"
-		}
-	]
+  "compilerOptions": {
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "strict": true,
+    //"noImplicitAny": true,
+    "jsx": "preserve",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "lib": ["ESNext", "DOM"],
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "checkJs": false,
+    "noEmit": true,
+    "sourceMap": true,
+    "typeRoots": ["types"]
+  },
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
 }

@@ -467,7 +467,7 @@ const LIB_MAP = {
       );
     },
   },
-  "JS-分页插件": {
+  DataPaging: {
     localPath: "file://" + viteUtils.getAbsolutePath("./lib/DataPaging/dist/index.umd.js"),
     url: async () => {
       // return await viteUtils.getGreasyForkLibLatestVersionUrl(465550);

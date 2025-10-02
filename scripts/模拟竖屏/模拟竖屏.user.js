@@ -16,16 +16,13 @@
 // ==/UserScript==
 
 (function () {
-	if (typeof unsafeWindow === "undefined") {
-		if (
-			typeof globalThis.unsafeWindow !== "undefined" &&
-			globalThis.unsafeWindow != null
-		) {
-			var unsafeWindow = globalThis.unsafeWindow;
-		} else {
-			var unsafeWindow = globalThis || window || self;
-		}
-	}
+  if (typeof unsafeWindow === "undefined") {
+    if (typeof globalThis.unsafeWindow !== "undefined" && globalThis.unsafeWindow != null) {
+      var unsafeWindow = globalThis.unsafeWindow;
+    } else {
+      var unsafeWindow = globalThis || window || self;
+    }
+  }
   /**
    * 油猴环境下就是unsafeWindow，如果不是就是globalThis
    */
@@ -56,10 +53,7 @@
       document.documentElement.appendChild(cssNode);
     } else {
       /* 插入head前面 */
-      document.documentElement.insertBefore(
-        cssNode,
-        document.documentElement.childNodes[0]
-      );
+      document.documentElement.insertBefore(cssNode, document.documentElement.childNodes[0]);
     }
   };
 
@@ -113,10 +107,8 @@
     hijack.hijackOrientation();
     for (const webSiteConfig of verticalScreenWebSite) {
       if (
-        (typeof webSiteConfig.hostName === "string" &&
-          win.location.hostname === webSiteConfig.hostName) ||
-        (typeof webSiteConfig.href === "string" &&
-          win.location.href.match(webSiteConfig.href))
+        (typeof webSiteConfig.hostName === "string" && win.location.hostname === webSiteConfig.hostName) ||
+        (typeof webSiteConfig.href === "string" && win.location.href.match(webSiteConfig.href))
       ) {
         /* hostname相等|href包含 */
         if (typeof webSiteConfig.CSS === "string") {

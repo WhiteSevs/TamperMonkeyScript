@@ -25,16 +25,13 @@
 // ==/UserScript==
 
 (function () {
-	if (typeof unsafeWindow === "undefined") {
-		if (
-			typeof globalThis.unsafeWindow !== "undefined" &&
-			globalThis.unsafeWindow != null
-		) {
-			var unsafeWindow = globalThis.unsafeWindow;
-		} else {
-			var unsafeWindow = globalThis || window || self;
-		}
-	}
+  if (typeof unsafeWindow === "undefined") {
+    if (typeof globalThis.unsafeWindow !== "undefined" && globalThis.unsafeWindow != null) {
+      var unsafeWindow = globalThis.unsafeWindow;
+    } else {
+      var unsafeWindow = globalThis || window || self;
+    }
+  }
   /** @type {import("../库/pops")} */
   const pops = window.pops;
   /** @type {import("../库/Qmsg")} */
@@ -133,10 +130,7 @@
       if (this.doc instanceof ShadowRoot) {
         if (this.doc.firstElementChild) {
           /* 插入到最前面 */
-          this.doc.insertBefore(
-            loadingViewCSSElement,
-            this.doc.firstElementChild
-          );
+          this.doc.insertBefore(loadingViewCSSElement, this.doc.firstElementChild);
         } else {
           /* 插入最底部 */
           this.doc.appendChild(loadingViewCSSElement);
@@ -252,10 +246,7 @@
         if (isEnd) {
           resultElement.appendChild(iconElement.firstChild);
         } else {
-          resultElement.insertBefore(
-            iconElement.firstChild,
-            resultElement.firstChild
-          );
+          resultElement.insertBefore(iconElement.firstChild, resultElement.firstChild);
         }
       }
       this.setLoadingViewElement(resultElement);
@@ -283,9 +274,7 @@
      * @returns {Element|undefined}
      */
     getIconElement() {
-      return this.getLoadingViewElement().querySelector(
-        "." + this.config.iconClassName
-      );
+      return this.getLoadingViewElement().querySelector("." + this.config.iconClassName);
     }
     /**
      * 显示LoadingView
@@ -330,10 +319,7 @@
           if (isEnd) {
             this.getLoadingViewElement().appendChild(iconElement);
           } else {
-            this.getLoadingViewElement().insertBefore(
-              iconElement,
-              this.getLoadingViewElement().firstChild
-            );
+            this.getLoadingViewElement().insertBefore(iconElement, this.getLoadingViewElement().firstChild);
           }
         }
         iconElement.style.display = "";
@@ -352,9 +338,7 @@
      * 删除页面中所有的loadingView
      */
     removeAll() {
-      this.doc
-        .querySelectorAll("." + this.config.className)
-        .forEach((item) => item.remove());
+      this.doc.querySelectorAll("." + this.config.className).forEach((item) => item.remove());
     }
     /**
      * 判断Loading是否已加载到页面中
@@ -375,22 +359,14 @@
      * @returns {boolean}
      */
     isExistsText() {
-      return Boolean(
-        this.getLoadingViewElement().querySelector(
-          `.${this.config.textClassName}`
-        )
-      );
+      return Boolean(this.getLoadingViewElement().querySelector(`.${this.config.textClassName}`));
     }
     /**
      * 判断页面中是否存在CSS的style
      * @returns {boolean}
      */
     isExistsCSS() {
-      return Boolean(
-        this.doc.querySelector(
-          "style[data-from='loadingView'][type='text/css'][data-author='whitesev']"
-        )
-      );
+      return Boolean(this.doc.querySelector("style[data-from='loadingView'][type='text/css'][data-author='whitesev']"));
     }
   }
 
@@ -440,8 +416,7 @@
                 return;
               }
               let key = containerItem.attributes[this.attributeDataKey_Name];
-              let defaultValue =
-                containerItem.attributes[this.attributeDataDefaultValue_Name];
+              let defaultValue = containerItem.attributes[this.attributeDataDefaultValue_Name];
               if (this.getValue(key) == null) {
                 this.setValue(key, defaultValue);
               }
@@ -516,14 +491,7 @@
      * @param {?boolean} disabled
      * @returns {PopsPanelSwitchDetails}
      */
-    getSwtichDetail(
-      text,
-      key,
-      defaultValue,
-      description,
-      clickCallBack,
-      disabled
-    ) {
+    getSwtichDetail(text, key, defaultValue, description, clickCallBack, disabled) {
       /**
        * @type {PopsPanelSwitchDetails}
        */
@@ -547,8 +515,7 @@
         },
       };
       result.attributes[this.attributeDataKey_Name] = key;
-      result.attributes[this.attributeDataDefaultValue_Name] =
-        Boolean(defaultValue);
+      result.attributes[this.attributeDataDefaultValue_Name] = Boolean(defaultValue);
       return result;
     },
     /**
@@ -564,14 +531,7 @@
      * @param {(event:PointerEvent, isSelectedValue: any, isSelectedText:string)=>void} selectCallBack（可选）选择的回调
      * @returns {PopsPanelSelectDetails}
      */
-    getSelectDetail(
-      text,
-      key,
-      defaultValue,
-      data,
-      description,
-      selectCallBack
-    ) {
+    getSelectDetail(text, key, defaultValue, data, description, selectCallBack) {
       return {
         text: text,
         type: "select",
@@ -612,22 +572,8 @@
               text: "功能",
               type: "forms",
               forms: [
-                this.getSwtichDetail(
-                  "美化页面",
-                  "tieba-banei-beautify-page",
-                  false,
-                  "CSS美化(暂不生效)",
-                  void 0,
-                  true
-                ),
-                this.getSwtichDetail(
-                  "美化看帖的信息流",
-                  "tieba-banei-beautify-info-flow",
-                  true,
-                  "",
-                  void 0,
-                  void 0
-                ),
+                this.getSwtichDetail("美化页面", "tieba-banei-beautify-page", false, "CSS美化(暂不生效)", void 0, true),
+                this.getSwtichDetail("美化看帖的信息流", "tieba-banei-beautify-info-flow", true, "", void 0, void 0),
               ],
             },
             {
@@ -671,13 +617,7 @@
               text: "功能",
               type: "forms",
               forms: [
-                this.getSwtichDetail(
-                  "美化页面",
-                  "tieba-tiezi-beautify-page",
-                  true,
-                  "CSS美化",
-                  void 0
-                ),
+                this.getSwtichDetail("美化页面", "tieba-tiezi-beautify-page", true, "CSS美化", void 0),
                 this.getSwtichDetail(
                   "优化楼中楼回复浏览",
                   "tieba-tiezi-optimization-lzl-reply-view",
@@ -691,13 +631,7 @@
               text: "屏蔽",
               type: "forms",
               forms: [
-                this.getSwtichDetail(
-                  "【屏蔽】右侧悬浮工具栏",
-                  "tieba-tiezi-shield-right-toolbar",
-                  true,
-                  "",
-                  void 0
-                ),
+                this.getSwtichDetail("【屏蔽】右侧悬浮工具栏", "tieba-tiezi-shield-right-toolbar", true, "", void 0),
                 this.getSwtichDetail(
                   "【屏蔽】贴内右侧用户信息块",
                   "tieba-tiezi-shield-right-user-info-block",
@@ -753,12 +687,9 @@
      * @param {string} un
      */
     async getUserHomeInfoByUN(un) {
-      let getResp = await httpx.get(
-        `https://tieba.baidu.com/home/get/panel?ie=utf-8&un=${un}`,
-        {
-          fetch: true,
-        }
-      );
+      let getResp = await httpx.get(`https://tieba.baidu.com/home/get/panel?ie=utf-8&un=${un}`, {
+        fetch: true,
+      });
       if (!getResp.status) {
         return;
       }
@@ -815,14 +746,10 @@
         let userPortrait = dataFieldJSON["portrait"];
         let userHomeUrl = item.querySelector("a[data-field]").href;
         let userAvatar = item.querySelector("a[data-field] img").src;
-        let userReplyContent = item.querySelector(
-          "span.lzl_content_main"
-        ).innerHTML;
+        let userReplyContent = item.querySelector("span.lzl_content_main").innerHTML;
         let userReplyTime = item.querySelector("span.lzl_time").innerHTML;
         userReplyTime = utils.formatToTimeStamp(userReplyTime);
-        userReplyTime =
-          utils.getDaysDifference(new Date().getTime(), userReplyTime, "auto") +
-          "前";
+        userReplyTime = utils.getDaysDifference(new Date().getTime(), userReplyTime, "auto") + "前";
         data.push({
           userName: userName,
           userPostId: userPostId,
@@ -1330,9 +1257,7 @@
           log.error(["不存在data-field属性", lzlContainer]);
           return;
         }
-        let lzlContainerDataField = utils.toJSON(
-          lzlContainer.getAttribute("data-field")
-        );
+        let lzlContainerDataField = utils.toJSON(lzlContainer.getAttribute("data-field"));
         log.info(["该评论的楼中楼信息data-field", lzlContainerDataField]);
         if (lzlContainerDataField["total_num"] === 0) {
           log.warn(["该评论没有楼中楼的回复"]);
@@ -1355,15 +1280,11 @@
         // 当前页
         const page = PageData["pager"]["cur_page"];
         const dialog = showReplyDialog(lzlContainerDataField["floor_num"], "");
-        const $dialogContent = dialog.$shadowRoot.querySelector(
-          ".whitesev-reply-dialog-sheet-other-content"
-        );
+        const $dialogContent = dialog.$shadowRoot.querySelector(".whitesev-reply-dialog-sheet-other-content");
         const loadingView = new LoadingView(dialog.$shadowRoot, false, false);
         loadingView.initLoadingView(false, false);
         DOMUtils.after(
-          dialog.$shadowRoot.querySelector(
-            ".whitesev-reply-dialog-sheet-other-content"
-          ),
+          dialog.$shadowRoot.querySelector(".whitesev-reply-dialog-sheet-other-content"),
           loadingView.getLoadingViewElement()
         );
         let isLoadingNextPage = false;
@@ -1380,11 +1301,7 @@
           { threshold: 0 }
         );
         async function scrollEvent() {
-          let lzlReplyInfoResult = await TieBaApi.getLzlCommentReply(
-            tid,
-            layerMasterPid,
-            lzlPage
-          );
+          let lzlReplyInfoResult = await TieBaApi.getLzlCommentReply(tid, layerMasterPid, lzlPage);
           if (lzlReplyInfoResult.status === 0) {
             log.info(lzlReplyInfoResult.msg);
             log.info("取消intersectionObserver观察");
@@ -1399,10 +1316,7 @@
           const lzlReplyInfo = lzlReplyInfoResult.data;
           let lzlFloorNum = 1;
           lzlReplyInfo.forEach((lzlReplyData) => {
-            DOMUtils.append(
-              $dialogContent,
-              getReplyItemHTML(lzlReplyData, lzlPage, lzlFloorNum)
-            );
+            DOMUtils.append($dialogContent, getReplyItemHTML(lzlReplyData, lzlPage, lzlFloorNum));
             lzlFloorNum++;
           });
           if (lzlReplyInfoResult.nextPage == null) {
@@ -1422,31 +1336,27 @@
       }
       `);
       function handleLzlSee() {
-        document
-          .querySelectorAll(".core_reply .j_lzl_r[data-field]")
-          .forEach((lzlElement) => {
-            if (lzlElement.nextElementSibling != null) {
-              // 已添加过
-              return;
-            }
-            let dataField = utils.toJSON(lzlElement.getAttribute("data-field"));
-            if (dataField["total_num"] == null) {
-              return;
-            }
-            DOMUtils.after(
-              lzlElement,
-              DOMUtils.createElement("span", {
-                className: "j_lzl_new",
-                innerHTML: `查看回复(${dataField["total_num"]})`,
-              })
-            );
-          });
+        document.querySelectorAll(".core_reply .j_lzl_r[data-field]").forEach((lzlElement) => {
+          if (lzlElement.nextElementSibling != null) {
+            // 已添加过
+            return;
+          }
+          let dataField = utils.toJSON(lzlElement.getAttribute("data-field"));
+          if (dataField["total_num"] == null) {
+            return;
+          }
+          DOMUtils.after(
+            lzlElement,
+            DOMUtils.createElement("span", {
+              className: "j_lzl_new",
+              innerHTML: `查看回复(${dataField["total_num"]})`,
+            })
+          );
+        });
       }
       function setGlobalClickEvent() {
         DOMUtils.on(document, "click", ".j_lzl_new", (event) => {
-          containerClick(
-            event.target.closest(".l_post").querySelector(".j_lzl_container")
-          );
+          containerClick(event.target.closest(".l_post").querySelector(".j_lzl_container"));
         });
       }
       setGlobalClickEvent();
@@ -1594,66 +1504,49 @@
         }
         `);
       function handleThread() {
-        let threadList = Array.from(
-          document.querySelectorAll(".j_thread_list")
-        );
+        let threadList = Array.from(document.querySelectorAll(".j_thread_list"));
         threadList.forEach((element) => {
           if (element.querySelector(".tiezi-thread-info-container")) {
             return;
           }
           // 数据信息块
-          let dataField = utils.toJSON(
-            element.getAttribute("data-field") || {}
-          );
+          let dataField = utils.toJSON(element.getAttribute("data-field") || {});
           // 帖子id
           let tid = element.getAttribute("data-tid");
           // 回复数量
           let replyNum =
-            dataField["reply_num"] ||
-            parseInt(
-              element.querySelector(".threadlist_rep_num")?.innerText || 0
-            );
+            dataField["reply_num"] || parseInt(element.querySelector(".threadlist_rep_num")?.innerText || 0);
           // 发帖作者
           let authorName =
-            element.querySelector(".frs-author-name-wrap a.frs-author-name")
-              ?.innerText || dataField["author_name"];
+            element.querySelector(".frs-author-name-wrap a.frs-author-name")?.innerText || dataField["author_name"];
           // 发帖作者的portrait
           let authorPortrait = dataField["author_portrait"];
           // 发帖作者的主页
           let authorHomeUrl =
-            element.querySelector(".frs-author-name-wrap a.frs-author-name")
-              ?.href || `/home/main/?id=${authorPortrait}`;
+            element.querySelector(".frs-author-name-wrap a.frs-author-name")?.href ||
+            `/home/main/?id=${authorPortrait}`;
           // 标题
-          let title =
-            element.querySelector(".threadlist_title")?.innerHTML || "";
+          let title = element.querySelector(".threadlist_title")?.innerHTML || "";
           // 内容
-          let content =
-            element.querySelector(".threadlist_text")?.innerHTML || "";
+          let content = element.querySelector(".threadlist_text")?.innerHTML || "";
           // 创建时间，可能是只有日期，如3-6，可能是只有时间，如18:35
-          let createTime = (
-            element.querySelector("span.is_show_create_time")?.innerText || ""
-          ).trim();
+          let createTime = (element.querySelector("span.is_show_create_time")?.innerText || "").trim();
           // 回复的data-field信息
           let replyDataField = utils.toJSON(
-            element
-              .querySelector(".tb_icon_author_rely a.frs-author-name")
-              ?.getAttribute("data-field") || {}
+            element.querySelector(".tb_icon_author_rely a.frs-author-name")?.getAttribute("data-field") || {}
           );
           // 回复人
           let replyAuthorName = (
-            element.querySelector(".tb_icon_author_rely a.frs-author-name")
-              ?.innerText || replyDataField["un"]
+            element.querySelector(".tb_icon_author_rely a.frs-author-name")?.innerText || replyDataField["un"]
           )?.trim();
           // 回复人的portrait
           let replyAuthorPortrait = replyDataField["id"];
           // 回复人的主页
           let replyAuthorHomeUrl =
-            element.querySelector(".tb_icon_author_rely a.frs-author-name")
-              ?.href || `/home/main/?id=${replyAuthorPortrait}`;
+            element.querySelector(".tb_icon_author_rely a.frs-author-name")?.href ||
+            `/home/main/?id=${replyAuthorPortrait}`;
           // 回复的创建时间，可能是只有日期，如3-6，可能是只有时间，如18:35
-          let replyCreateTime = (
-            element.querySelector("span.threadlist_reply_date")?.innerText || ""
-          ).trim();
+          let replyCreateTime = (element.querySelector("span.threadlist_reply_date")?.innerText || "").trim();
           let threadInfo = {
             tid,
             title,
@@ -1675,9 +1568,7 @@
             },
           };
           // 过滤掉不需要的className
-          let titleClassName = Array.from(
-            element.querySelector(".threadlist_title")?.classList || []
-          )
+          let titleClassName = Array.from(element.querySelector(".threadlist_title")?.classList || [])
             .filter((className) => {
               return className !== "pull_left" && className !== "j_th_tit";
             })
@@ -1687,15 +1578,10 @@
             className: "tiezi-thread-info-container",
             innerHTML: `
             <div class="tiezi-user-info">
-              <a rel="noopener" class="frs-author-name j_user_card" href="${
-                threadInfo.user.homeUrl
-              }" target="_blank">
+              <a rel="noopener" class="frs-author-name j_user_card" href="${threadInfo.user.homeUrl}" target="_blank">
                 <img src="${threadInfo.user.avatar}" loading="lazy">
               </a>
-              ${
-                element.querySelector(".threadlist_author .tb_icon_author")
-                  .outerHTML
-              }
+              ${element.querySelector(".threadlist_author .tb_icon_author").outerHTML}
             </div>
             <div class="tiezi-thread-info">
               <div class="tiezi-title-container ${titleClassName}">
@@ -1704,9 +1590,8 @@
               <div class="tiezi-info-container">
                 <div class="tiezi-info">
                   ${
-                    element.querySelector(
-                      ".threadlist_detail  .threadlist_author .tb_icon_author_rely"
-                    )?.outerHTML || ""
+                    element.querySelector(".threadlist_detail  .threadlist_author .tb_icon_author_rely")?.outerHTML ||
+                    ""
                   }
                 </div>
                 <div class="tiezi-see-info">
@@ -1723,20 +1608,13 @@
             `,
           });
           // 设置用户头像上的鼠标悬浮card
-          const frsAuthorName = threadInfoElement.querySelector(
-            ".tiezi-user-info .frs-author-name"
-          );
+          const frsAuthorName = threadInfoElement.querySelector(".tiezi-user-info .frs-author-name");
           frsAuthorName.setAttribute(
             "data-field",
-            element
-              .querySelector(
-                ".threadlist_author .tb_icon_author a.frs-author-name"
-              )
-              .getAttribute("data-field")
+            element.querySelector(".threadlist_author .tb_icon_author a.frs-author-name").getAttribute("data-field")
           );
           // 把发帖时间添加到发帖用户后面
-          const tieziUserInfo =
-            threadInfoElement.querySelector(".tiezi-user-info");
+          const tieziUserInfo = threadInfoElement.querySelector(".tiezi-user-info");
           // 格式化一下时间，有以下格式
           // 2023-3  年-月
           // 3-15    月-日
@@ -1754,9 +1632,7 @@
               } else {
                 // 月-日
                 // 做处理，补上年
-                formatCreateTime = `${nowTimeDate.getFullYear()}-${
-                  createTimeSplit[0]
-                }-${createTimeSplit[1]}`;
+                formatCreateTime = `${nowTimeDate.getFullYear()}-${createTimeSplit[0]}-${createTimeSplit[1]}`;
               }
             } else if (createTimeSplit2.length === 2) {
               // 时-分
@@ -1770,9 +1646,7 @@
             })
           );
           // 把发帖回帖时间添加到回帖用户后面（如果存在）
-          const tbIconAuthorReply = threadInfoElement.querySelector(
-            ".tiezi-info .tb_icon_author_rely"
-          );
+          const tbIconAuthorReply = threadInfoElement.querySelector(".tiezi-info .tb_icon_author_rely");
           if (tbIconAuthorReply) {
             tbIconAuthorReply.appendChild(
               DOMUtils.createElement("span", {
