@@ -18,9 +18,9 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @run-at       document-start
-// @require      file://D:\Code\JavaScript\油猴\库\Qmsg\dist\index.umd.js
-// @require      file://D:\Code\JavaScript\油猴\库\pops\index.js
-// @require      file://D:\Code\JavaScript\油猴\库\Utils\dist\index.umd.js
-// @require      file://D:\Code\JavaScript\油猴\库\DOMUtils\dist\index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @require      file://D:\Code\JavaScript\油猴\本地调试脚本\本地调试脚本.user.js
 // ==/UserScript==
