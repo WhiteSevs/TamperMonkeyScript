@@ -833,15 +833,16 @@ export const NetDiskUserRule = {
                 btnControls: {
                   filter: {
                     enable: true,
+                    title: "规则过滤",
                     option: [
                       {
-                        name: "过滤【已启用】的规则",
+                        name: "仅显示【已启用】的规则",
                         filterCallBack(data) {
                           return data.setting.enable;
                         },
                       },
                       {
-                        name: "过滤【未启用】的规则",
+                        name: "仅显示【未启用】的规则",
                         filterCallBack(data) {
                           return !data.setting.enable;
                         },
@@ -854,19 +855,6 @@ export const NetDiskUserRule = {
                       NetDiskUserRuleSubscribeRule.clearSubscribe(subscribeUUID);
                     },
                   },
-                  // ruleEnable: {
-                  // 	enable: true,
-                  // 	getEnable(data) {
-                  // 		return data.setting.enable;
-                  // 	},
-                  // 	callback(data, enable) {
-                  // 		data.setting.enable = enable;
-                  // 		NetDiskUserRuleSubscribeRule.updateSubscribeRule(
-                  // 			subscribeUUID,
-                  // 			data
-                  // 		);
-                  // 	},
-                  // },
                   ruleEdit: {
                     enable: true,
                     callback(option) {
@@ -931,16 +919,16 @@ export const NetDiskUserRule = {
           },
           filter: {
             enable: true,
-            title: "过滤规则",
+            title: "规则过滤",
             option: [
               {
-                name: "过滤【已启用】的规则",
+                name: "仅显示【已启用】的规则",
                 filterCallBack(data) {
                   return data.setting.enable;
                 },
               },
               {
-                name: "过滤【未启用】的规则",
+                name: "仅显示【未启用】的规则",
                 filterCallBack(data) {
                   return !data.setting.enable;
                 },
@@ -967,16 +955,6 @@ export const NetDiskUserRule = {
               that.exportRule(SCRIPT_NAME + "-链接识别规则.json", SCRIPT_NAME + "-链接识别规则-订阅模式.json");
             },
           },
-          // ruleEnable: {
-          // 	enable: false,
-          // 	getEnable(data) {
-          // 		return data.setting.enable;
-          // 	},
-          // 	callback: (data, enable) => {
-          // 		data.setting.enable = enable;
-          // 		that.updateRule(data.key, data);
-          // 	},
-          // },
           ruleEdit: {
             enable: true,
             callback(option) {
@@ -1128,20 +1106,19 @@ export const NetDiskUserRule = {
       width: PanelUISize.info.width,
       height: PanelUISize.info.height,
       style: /*css*/ `
-                .btn-control{
-                    display: inline-block;
-                    margin: 10px;
-                    padding: 10px;
-                    border: 1px solid #ccc;
-                    border-radius: 5px;
-                    cursor: pointer;
-                }
+      .btn-control{
+          display: inline-block;
+          margin: 10px;
+          padding: 10px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          cursor: pointer;
+        }
 				.btn-control:hover{
 					color: #409eff;
 					border-color: #c6e2ff;
 					background-color: #ecf5ff;
-				}
-            `,
+				}`,
     });
     /** 仅导出规则 */
     let $onlyExportRuleList = $alert.$shadowRoot.querySelector<HTMLElement>(

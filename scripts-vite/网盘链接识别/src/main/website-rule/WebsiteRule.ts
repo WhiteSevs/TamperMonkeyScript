@@ -85,6 +85,284 @@ export const WebsiteRule = {
       };
     };
 
+    const ruleEditHandler = (data: WebsiteRuleOption, isEdit: boolean, subscribeUUID?: string) => {
+      that.$data.isShowEditView = true;
+      if (!isEdit) {
+        data = addData();
+      }
+      /**
+       * 自定义存储api的配置
+       * @param uuid
+       */
+      function generatePanelStorageApi(uuid: string) {
+        return {
+          get(key: string, defaultValue: any) {
+            if (subscribeUUID) {
+              // 订阅的
+              let currentRule = WebsiteSubscribeRule.getSubscribeRule(subscribeUUID, uuid)!;
+              return Reflect.get(currentRule.data, key) ?? defaultValue;
+            } else {
+              // 本地的
+              let currentRule = that.getRule(uuid) ?? addData();
+              let panelValue = Panel.getValue(key, defaultValue);
+              return (currentRule && Reflect.get(currentRule.data, key)) ?? panelValue;
+            }
+          },
+          set(key: string, value: any) {
+            if (subscribeUUID) {
+              // 订阅的
+              let currentRule = WebsiteSubscribeRule.getSubscribeRule(subscribeUUID, uuid)!;
+              Reflect.set(currentRule.data, key, value);
+              WebsiteSubscribeRule.updateSubscribeRule(subscribeUUID, currentRule);
+            } else {
+              // 本地的
+              let currentRule = that.getRule(uuid) ?? addData();
+              Reflect.set(currentRule.data, key, value);
+              that.updateRule(currentRule);
+            }
+          },
+        };
+      }
+      let $fragment = document.createDocumentFragment();
+
+      // 启用
+      let enable_template = UISwitch("启用", "enable", true);
+      Reflect.set(enable_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
+      let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+
+      // 规则名称
+      let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
+      Reflect.set(name_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
+      let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+
+      // 匹配网址
+      let url_template = UIInput("匹配网址", "url", "", "", void 0, "必填，可正则");
+      Reflect.set(url_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
+      let $data_url = panelHandlerComponents.createSectionContainerItem_input(url_template);
+
+      // 覆盖设置
+      let coverSetting_template = UIButton(
+        "覆盖设置",
+        "",
+        "自定义",
+        void 0,
+        false,
+        false,
+        "primary",
+        (event) => {
+          DOMUtils.preventEvent(event);
+          // 先获取总设置和所有规则的content配置
+          let originPanelContentConfig = [...PanelContent.getConfig(0), ...NetDiskRule.getRulePanelContent()];
+          // 新配置，原始直接覆盖是浅复制
+          // let newPanelContentConfig = utils.assign(
+          // 	[],
+          // 	originPanelContentConfig,
+          // 	true
+          // ) as PopsPanelContentConfig[];
+          let newPanelContentConfig = deepCopy(originPanelContentConfig);
+          // console.log(newPanelContentConfig);
+          // 迭代遍历form配置，进行updateStorageApi
+          /** 迭代遍历 */
+          function iterativeTraversal(configList: PopsPanelContentConfig["forms"]) {
+            configList.forEach((configItem) => {
+              if (typeof configItem?.props === "object" && Reflect.has(configItem.props, PROPS_STORAGE_API)) {
+                // 替换存储配置
+                let panelStorageApi = generatePanelStorageApi(data.uuid);
+                Reflect.set(configItem.props, PROPS_STORAGE_API, panelStorageApi);
+              }
+              let childForms = (configItem as any).forms;
+              if (childForms && Array.isArray(childForms)) {
+                /* 存在子配置forms */
+                iterativeTraversal(childForms);
+              }
+            });
+          }
+          for (let index = 0; index < newPanelContentConfig.length; index++) {
+            let leftContentConfigItem = newPanelContentConfig[index];
+            if (!leftContentConfigItem.forms) {
+              /* 不存在forms */
+              continue;
+            }
+            if (
+              typeof leftContentConfigItem.afterRender === "function" &&
+              leftContentConfigItem?.id.toString().startsWith("netdisk-panel-config-")
+            ) {
+              // 覆盖左侧的afterRender
+              leftContentConfigItem.afterRender = (__data) => {
+                let ruleKey = Reflect.get(__data.asideConfig.attributes!, "data-key");
+                let enableKey = NetDiskRuleDataKEY.function.enable(ruleKey);
+                if (subscribeUUID) {
+                  let subscribeRule = WebsiteSubscribeRule.getSubscribeRule(subscribeUUID, data.uuid)!;
+                  __data.$asideLiElement.setAttribute("data-function-enable", subscribeRule.data[enableKey] ?? true);
+                } else {
+                  __data.$asideLiElement.setAttribute(
+                    "data-function-enable",
+                    isEdit ? WebsiteRule.getRuleDataValue(data.uuid, enableKey, true) : (data.data[enableKey] ?? true)
+                  );
+                }
+              };
+            }
+            if (
+              typeof leftContentConfigItem.attributes === "object" &&
+              leftContentConfigItem.forms != null &&
+              ATTRIBUTE_KEY in leftContentConfigItem.attributes
+            ) {
+              /** 规则键 */
+              let ruleKey = leftContentConfigItem.attributes[ATTRIBUTE_KEY];
+              let custom_accessCode_enable_template = UISwitch(
+                "启用",
+                WebsiteRuleDataKey.features.customAccessCodeEnable(ruleKey),
+                false,
+                void 0,
+                "启用后将允许执行下面的功能",
+                void 0
+              );
+              // 覆盖存储api
+              Reflect.set(
+                custom_accessCode_enable_template.props!,
+                PROPS_STORAGE_API,
+                generatePanelStorageApi(data.uuid)
+              );
+              let custom_accessCode_template = UIInput(
+                "自定义访问码",
+                WebsiteRuleDataKey.features.customAccessCode(ruleKey),
+                "",
+                "让获取的到的链接的访问码都为自定义的访问码",
+                void 0,
+                "请输入自定义访问码",
+                false,
+                false
+              );
+              // 覆盖存储api
+              Reflect.set(custom_accessCode_template.props!, PROPS_STORAGE_API, generatePanelStorageApi(data.uuid));
+              let custom_accessCode_container: PopsPanelFormsDetails = {
+                text: "额外功能",
+                type: "forms",
+                forms: [custom_accessCode_enable_template, custom_accessCode_template],
+              };
+              if (leftContentConfigItem.forms.length) {
+                // 添加到第一个后面
+                leftContentConfigItem.forms.splice(1, 0, custom_accessCode_container);
+              } else {
+                leftContentConfigItem.forms.push(custom_accessCode_container);
+              }
+            }
+            // 循环左侧容器内存储的右侧配置项
+            let rightContentConfigList = leftContentConfigItem.forms;
+            if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
+              iterativeTraversal(rightContentConfigList);
+            }
+          }
+
+          // 然后显示出来
+
+          let $panel = NetDiskPops.panel(
+            {
+              title: {
+                text: `覆盖设置`,
+                position: "center",
+              },
+              content: newPanelContentConfig,
+              btn: {
+                close: {
+                  enable: true,
+                  callback(event) {
+                    event.close();
+                  },
+                },
+              },
+              mask: {
+                clickCallBack(originalRun) {
+                  originalRun();
+                },
+              },
+              only: false,
+              class: "whitesevPopSetting",
+              style: /*css*/ `
+              ${panelIndexCSS}
+              
+              ${panelSettingCSS}
+
+
+              /* 隐藏顶部的图标 */
+              .netdisk-custom-rule-edit,
+              .netdisk-custom-rule-delete,
+              /* 隐藏快捷键设置菜单，因为这个是全局唯一的 */
+              .netdisk-panel-forms-shortcut-keys-deepMenu{
+                display: none !important;
+              }`,
+            },
+            NetDiskView.$config.viewSizeConfig.settingView
+          );
+        },
+        void 0
+      );
+      let $coverSetting_template = panelHandlerComponents.createSectionContainerItem_button(coverSetting_template);
+
+      $fragment.appendChild($enable);
+      $fragment.appendChild($name);
+      $fragment.appendChild($data_url);
+      $fragment.appendChild($coverSetting_template);
+      return $fragment;
+    };
+
+    const ruleEditSubmitHandler = ($form: HTMLFormElement, isEdit: boolean, editData?: WebsiteRuleOption) => {
+      // 提交表单
+      let $ulist_li = $form.querySelectorAll<HTMLLIElement>(".rule-form-ulist > li");
+      let data: WebsiteRuleOption = addData();
+      if (isEdit) {
+        data.uuid = editData!.uuid;
+        let allData = this.getAllRule();
+        let findValue = allData.find((item) => item.uuid === data.uuid);
+        if (findValue) {
+          data.data = findValue.data;
+        }
+      }
+      $ulist_li.forEach(($li) => {
+        let formConfig = Reflect.get($li, "__formConfig__");
+        let attrs = Reflect.get(formConfig, "attributes");
+        let storageApi = Reflect.get($li, PROPS_STORAGE_API);
+        let key = Reflect.get(attrs, ATTRIBUTE_KEY);
+        if (key == null) {
+          return;
+        }
+        let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
+        let value = storageApi.get(key, defaultValue);
+        if (Reflect.has(data, key)) {
+          Reflect.set(data, key, value);
+        } else if (Reflect.has(data.data, key)) {
+          Reflect.set(data.data, key, value);
+        } else {
+          log.error(`${key}不在数据中`);
+        }
+      });
+      if (data.name == null || data.name.trim() === "") {
+        Qmsg.error("规则名称不能为空");
+        return {
+          success: false,
+          data: data,
+        };
+      }
+      if (data.url.trim() === "") {
+        Qmsg.error("匹配网址不能为空");
+        return {
+          success: false,
+          data: data,
+        };
+      }
+      if (isEdit) {
+        return {
+          success: this.updateRule(data),
+          data: data,
+        };
+      } else {
+        return {
+          success: this.addRule(data),
+          data: data,
+        };
+      }
+    };
+
     let rulePanelViewOption: RulePanelContentOption<WebsiteRuleOption> = {
       id: "website-rule",
       title: "网站规则",
@@ -229,15 +507,16 @@ export const WebsiteRule = {
                 btnControls: {
                   filter: {
                     enable: true,
+                    title: "规则过滤",
                     option: [
                       {
-                        name: "过滤【已启用】的规则",
+                        name: "仅显示【已启用】的规则",
                         filterCallBack(data) {
                           return data.data.enable;
                         },
                       },
                       {
-                        name: "过滤【未启用】的规则",
+                        name: "仅显示【未启用】的规则",
                         filterCallBack(data) {
                           return !data.data.enable;
                         },
@@ -263,272 +542,9 @@ export const WebsiteRule = {
                   ruleEdit: {
                     enable: true,
                     getView: (data, isEdit) => {
-                      that.$data.isShowEditView = true;
-                      if (!isEdit) {
-                        data = addData();
-                      }
-                      /**
-                       * 自定义存储api的配置
-                       * @param uuid
-                       */
-                      function generateSubscribeRuleStorageApi(uuid: string) {
-                        return {
-                          get(key: string, defaultValue: any) {
-                            let currentRule = WebsiteSubscribeRule.getSubscribeRule(subscribeUUID, uuid)!;
-                            return Reflect.get(currentRule.data, key) ?? defaultValue;
-                          },
-                          set(key: string, value: any) {
-                            let currentRule = WebsiteSubscribeRule.getSubscribeRule(subscribeUUID, uuid)!;
-                            Reflect.set(currentRule.data, key, value);
-                            WebsiteSubscribeRule.updateSubscribeRule(subscribeUUID, currentRule);
-                          },
-                        };
-                      }
-                      let $fragment = document.createDocumentFragment();
-
-                      // 启用
-                      let enable_template = UISwitch("启用", "enable", true);
-                      Reflect.set(enable_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-                      let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
-
-                      // 规则名称
-                      let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
-                      Reflect.set(name_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-                      let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
-
-                      // 匹配网址
-                      let url_template = UIInput("匹配网址", "url", "", "", void 0, "必填，可正则");
-                      Reflect.set(url_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-                      let $data_url = panelHandlerComponents.createSectionContainerItem_input(url_template);
-
-                      // 覆盖设置
-                      let coverSetting_template = UIButton(
-                        "覆盖设置",
-                        "",
-                        "自定义",
-                        void 0,
-                        false,
-                        false,
-                        "primary",
-                        (event) => {
-                          DOMUtils.preventEvent(event);
-                          // 先获取总设置和所有规则的content配置
-                          let originPanelContentConfig = [
-                            ...PanelContent.getConfig(0),
-                            ...NetDiskRule.getRulePanelContent(),
-                          ];
-                          // 新配置，原始直接覆盖是浅复制
-                          // let newPanelContentConfig = utils.assign(
-                          // 	[],
-                          // 	originPanelContentConfig,
-                          // 	true
-                          // ) as PopsPanelContentConfig[];
-                          let newPanelContentConfig = deepCopy(originPanelContentConfig);
-                          // console.log(newPanelContentConfig);
-                          // 迭代遍历form配置，进行updateStorageApi
-                          /** 迭代遍历 */
-                          function iterativeTraversal(configList: PopsPanelContentConfig["forms"]) {
-                            configList.forEach((configItem) => {
-                              if (
-                                typeof configItem?.props === "object" &&
-                                Reflect.has(configItem.props, PROPS_STORAGE_API)
-                              ) {
-                                // 替换存储配置
-                                let panelStorageApi = generateSubscribeRuleStorageApi(data.uuid);
-                                Reflect.set(configItem.props, PROPS_STORAGE_API, panelStorageApi);
-                              }
-                              let childForms = (configItem as any).forms;
-                              if (childForms && Array.isArray(childForms)) {
-                                /* 存在子配置forms */
-                                iterativeTraversal(childForms);
-                              }
-                            });
-                          }
-                          for (let index = 0; index < newPanelContentConfig.length; index++) {
-                            let leftContentConfigItem = newPanelContentConfig[index];
-                            if (!leftContentConfigItem.forms) {
-                              /* 不存在forms */
-                              continue;
-                            }
-                            if (
-                              typeof leftContentConfigItem.afterRender === "function" &&
-                              leftContentConfigItem?.id.toString().startsWith("netdisk-panel-config-")
-                            ) {
-                              // 覆盖左侧的afterRender
-                              leftContentConfigItem.afterRender = (__data) => {
-                                let ruleKey = Reflect.get(__data.asideConfig.attributes!, "data-key");
-                                let enableKey = NetDiskRuleDataKEY.function.enable(ruleKey);
-                                let subscribeRule = WebsiteSubscribeRule.getSubscribeRule(subscribeUUID, data.uuid)!;
-                                __data.$asideLiElement.setAttribute(
-                                  "data-function-enable",
-                                  subscribeRule.data[enableKey] ?? true
-                                );
-                              };
-                            }
-                            if (
-                              typeof leftContentConfigItem.attributes === "object" &&
-                              leftContentConfigItem.forms != null &&
-                              ATTRIBUTE_KEY in leftContentConfigItem.attributes
-                            ) {
-                              /** 规则键 */
-                              let ruleKey = leftContentConfigItem.attributes[ATTRIBUTE_KEY];
-                              let custom_accessCode_enable_template = UISwitch(
-                                "启用",
-                                WebsiteRuleDataKey.features.customAccessCodeEnable(ruleKey),
-                                false,
-                                void 0,
-                                "启用后将允许执行下面的功能",
-                                void 0
-                              );
-                              // 覆盖存储api
-                              Reflect.set(
-                                custom_accessCode_enable_template.props!,
-                                PROPS_STORAGE_API,
-                                generateSubscribeRuleStorageApi(data.uuid)
-                              );
-                              let custom_accessCode_template = UIInput(
-                                "自定义访问码",
-                                WebsiteRuleDataKey.features.customAccessCode(ruleKey),
-                                "",
-                                "让获取的到的链接的访问码都为自定义的访问码",
-                                void 0,
-                                "请输入自定义访问码",
-                                false,
-                                false
-                              );
-                              // 覆盖存储api
-                              Reflect.set(
-                                custom_accessCode_template.props!,
-                                PROPS_STORAGE_API,
-                                generateSubscribeRuleStorageApi(data.uuid)
-                              );
-                              let custom_accessCode_container: PopsPanelFormsDetails = {
-                                text: "额外功能",
-                                type: "forms",
-                                forms: [custom_accessCode_enable_template, custom_accessCode_template],
-                              };
-                              if (leftContentConfigItem.forms.length) {
-                                // 添加到第一个后面
-                                leftContentConfigItem.forms.splice(1, 0, custom_accessCode_container);
-                              } else {
-                                leftContentConfigItem.forms.push(custom_accessCode_container);
-                              }
-                            }
-                            // 循环左侧容器内存储的右侧配置项
-                            let rightContentConfigList = leftContentConfigItem.forms;
-                            if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
-                              iterativeTraversal(rightContentConfigList);
-                            }
-                          }
-
-                          // 然后显示出来
-
-                          let $panel = NetDiskPops.panel(
-                            {
-                              title: {
-                                text: `覆盖设置`,
-                                position: "center",
-                              },
-                              content: newPanelContentConfig,
-                              btn: {
-                                close: {
-                                  enable: true,
-                                  callback(event) {
-                                    event.close();
-                                  },
-                                },
-                              },
-                              mask: {
-                                clickCallBack(originalRun) {
-                                  originalRun();
-                                },
-                              },
-                              only: false,
-                              class: "whitesevPopSetting",
-                              style: /*css*/ `
-																${panelIndexCSS}
-																
-																${panelSettingCSS}
-						
-						
-																/* 隐藏顶部的图标 */
-																.netdisk-custom-rule-edit,
-																.netdisk-custom-rule-delete,
-																/* 隐藏快捷键设置菜单，因为这个是全局唯一的 */
-																.netdisk-panel-forms-shortcut-keys-deepMenu{
-																	display: none !important;
-																}`,
-                            },
-                            NetDiskView.$config.viewSizeConfig.settingView
-                          );
-                        },
-                        void 0
-                      );
-                      let $coverSetting_template =
-                        panelHandlerComponents.createSectionContainerItem_button(coverSetting_template);
-
-                      $fragment.appendChild($enable);
-                      $fragment.appendChild($name);
-                      $fragment.appendChild($data_url);
-                      $fragment.appendChild($coverSetting_template);
-                      return $fragment;
+                      return ruleEditHandler(data, isEdit, subscribeUUID);
                     },
-                    onsubmit: ($form, isEdit, editData) => {
-                      // 提交表单
-                      let $ulist_li = $form.querySelectorAll<HTMLLIElement>(".rule-form-ulist > li");
-                      let data: WebsiteRuleOption = addData();
-                      if (isEdit) {
-                        data.uuid = editData!.uuid;
-                        let allData = this.getAllRule();
-                        let findValue = allData.find((item) => item.uuid === data.uuid);
-                        if (findValue) {
-                          data.data = findValue.data;
-                        }
-                      }
-                      $ulist_li.forEach(($li) => {
-                        let formConfig = Reflect.get($li, "__formConfig__");
-                        let attrs = Reflect.get(formConfig, "attributes");
-                        let storageApi = Reflect.get($li, PROPS_STORAGE_API);
-                        let key = Reflect.get(attrs, ATTRIBUTE_KEY);
-                        if (key == null) {
-                          return;
-                        }
-                        let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
-                        let value = storageApi.get(key, defaultValue);
-                        if (Reflect.has(data, key)) {
-                          Reflect.set(data, key, value);
-                        } else if (Reflect.has(data.data, key)) {
-                          Reflect.set(data.data, key, value);
-                        } else {
-                          log.error(`${key}不在数据中`);
-                        }
-                      });
-                      if (data.name == null || data.name.trim() === "") {
-                        Qmsg.error("规则名称不能为空");
-                        return {
-                          success: false,
-                          data: data,
-                        };
-                      }
-                      if (data.url.trim() === "") {
-                        Qmsg.error("匹配网址不能为空");
-                        return {
-                          success: false,
-                          data: data,
-                        };
-                      }
-                      if (isEdit) {
-                        return {
-                          success: this.updateRule(data),
-                          data: data,
-                        };
-                      } else {
-                        return {
-                          success: this.addRule(data),
-                          data: data,
-                        };
-                      }
-                    },
+                    onsubmit: ruleEditSubmitHandler,
                   },
                   ruleDelete: {
                     enable: true,
@@ -571,25 +587,24 @@ export const WebsiteRule = {
           },
           filter: {
             enable: true,
-            title: "过滤规则",
+            title: "规则过滤",
             option: [
               {
-                name: "过滤【已启用】的规则",
+                name: "仅显示【已启用】的规则",
                 filterCallBack(data) {
                   return data.enable;
                 },
               },
               {
-                name: "过滤【未启用】的规则",
+                name: "仅显示【未启用】的规则",
                 filterCallBack(data) {
                   return !data.enable;
                 },
               },
               {
-                name: "过滤【在当前网址生效】的规则",
+                name: "仅显示【在当前网址生效】的规则",
                 filterCallBack(data) {
-                  let matchRegExp = new RegExp(data.url, "ig");
-                  return Boolean(window.location.href.match(matchRegExp));
+                  return that.checkRuleMatch(data);
                 },
               },
             ],
@@ -626,274 +641,8 @@ export const WebsiteRule = {
           },
           ruleEdit: {
             enable: true,
-            getView: (data, isEdit) => {
-              that.$data.isShowEditView = true;
-              if (!isEdit) {
-                data = addData();
-              }
-              /**
-               * 自定义存储api的配置
-               * @param uuid
-               */
-              function generatePanelStorageApi(uuid: string) {
-                return {
-                  get(key: string, defaultValue: any) {
-                    let currentRule = that.getRule(uuid) ?? addData();
-                    let panelValue = Panel.getValue(key, defaultValue);
-                    return (currentRule && Reflect.get(currentRule.data, key)) ?? panelValue;
-                  },
-                  set(key: string, value: any) {
-                    let currentRule = that.getRule(uuid) ?? addData();
-                    Reflect.set(currentRule.data, key, value);
-                    that.updateRule(currentRule);
-                  },
-                };
-              }
-              let $fragment = document.createDocumentFragment();
-              if (!isEdit) {
-                // @ts-ignore
-                data = addData();
-              }
-
-              // 启用
-              let enable_template = UISwitch("启用", "enable", true);
-              Reflect.set(enable_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-              let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
-
-              // 规则名称
-              let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
-              Reflect.set(name_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-              let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
-
-              // 匹配网址
-              let url_template = UIInput("匹配网址", "url", "", "", void 0, "必填，可正则");
-              Reflect.set(url_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-              let $data_url = panelHandlerComponents.createSectionContainerItem_input(url_template);
-
-              // 覆盖设置
-              let coverSetting_template = UIButton(
-                "覆盖设置",
-                "",
-                "自定义",
-                void 0,
-                false,
-                false,
-                "primary",
-                (event) => {
-                  DOMUtils.preventEvent(event);
-                  // 先获取总设置和所有规则的content配置
-                  let originPanelContentConfig = [...PanelContent.getConfig(0), ...NetDiskRule.getRulePanelContent()];
-                  // 新配置，原始直接覆盖是浅复制
-                  // let newPanelContentConfig = utils.assign(
-                  // 	[],
-                  // 	originPanelContentConfig,
-                  // 	true
-                  // ) as PopsPanelContentConfig[];
-                  let newPanelContentConfig = deepCopy(originPanelContentConfig);
-                  // console.log(newPanelContentConfig);
-                  // 迭代遍历form配置，进行updateStorageApi
-                  /** 迭代遍历 */
-                  function iterativeTraversal(configList: PopsPanelContentConfig["forms"]) {
-                    configList.forEach((configItem) => {
-                      if (typeof configItem?.props === "object" && Reflect.has(configItem.props, PROPS_STORAGE_API)) {
-                        // 替换存储配置
-                        let panelStorageApi = generatePanelStorageApi(data.uuid);
-                        Reflect.set(configItem.props, PROPS_STORAGE_API, panelStorageApi);
-                      }
-                      let childForms = (configItem as any).forms;
-                      if (childForms && Array.isArray(childForms)) {
-                        /* 存在子配置forms */
-                        iterativeTraversal(childForms);
-                      }
-                    });
-                  }
-                  for (let index = 0; index < newPanelContentConfig.length; index++) {
-                    let leftContentConfigItem = newPanelContentConfig[index];
-                    if (!leftContentConfigItem.forms) {
-                      /* 不存在forms */
-                      continue;
-                    }
-                    if (
-                      typeof leftContentConfigItem.afterRender === "function" &&
-                      leftContentConfigItem?.id.toString().startsWith("netdisk-panel-config-")
-                    ) {
-                      // 覆盖左侧的afterRender
-                      leftContentConfigItem.afterRender = (__data) => {
-                        let ruleKey = Reflect.get(__data.asideConfig.attributes!, "data-key");
-                        let enableKey = NetDiskRuleDataKEY.function.enable(ruleKey);
-                        __data.$asideLiElement.setAttribute(
-                          "data-function-enable",
-                          isEdit
-                            ? WebsiteRule.getRuleDataValue(data.uuid, enableKey, true)
-                            : (data.data[enableKey] ?? true)
-                        );
-                      };
-                    }
-                    if (
-                      typeof leftContentConfigItem.attributes === "object" &&
-                      leftContentConfigItem.forms != null &&
-                      ATTRIBUTE_KEY in leftContentConfigItem.attributes
-                    ) {
-                      /** 规则键 */
-                      let ruleKey = leftContentConfigItem.attributes[ATTRIBUTE_KEY];
-                      let custom_accessCode_enable_template = UISwitch(
-                        "启用",
-                        WebsiteRuleDataKey.features.customAccessCodeEnable(ruleKey),
-                        false,
-                        void 0,
-                        "启用后将允许执行下面的功能",
-                        void 0
-                      );
-                      // 覆盖存储api
-                      Reflect.set(
-                        custom_accessCode_enable_template.props!,
-                        PROPS_STORAGE_API,
-                        generatePanelStorageApi(data.uuid)
-                      );
-                      let custom_accessCode_template = UIInput(
-                        "自定义访问码",
-                        WebsiteRuleDataKey.features.customAccessCode(ruleKey),
-                        "",
-                        "让获取的到的链接的访问码都为自定义的访问码",
-                        void 0,
-                        "请输入自定义访问码",
-                        false,
-                        false
-                      );
-                      // 覆盖存储api
-                      Reflect.set(
-                        custom_accessCode_template.props!,
-                        PROPS_STORAGE_API,
-                        generatePanelStorageApi(data.uuid)
-                      );
-                      let custom_accessCode_container: PopsPanelFormsDetails = {
-                        text: "额外功能",
-                        type: "forms",
-                        forms: [custom_accessCode_enable_template, custom_accessCode_template],
-                      };
-                      if (leftContentConfigItem.forms.length) {
-                        // 添加到第一个后面
-                        leftContentConfigItem.forms.splice(1, 0, custom_accessCode_container);
-                      } else {
-                        leftContentConfigItem.forms.push(custom_accessCode_container);
-                      }
-                    }
-                    // 循环左侧容器内存储的右侧配置项
-                    let rightContentConfigList = leftContentConfigItem.forms;
-                    if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
-                      iterativeTraversal(rightContentConfigList);
-                    }
-                  }
-
-                  // 然后显示出来
-
-                  let $panel = NetDiskPops.panel(
-                    {
-                      title: {
-                        text: `覆盖设置`,
-                        position: "center",
-                      },
-                      content: newPanelContentConfig,
-                      btn: {
-                        close: {
-                          enable: true,
-                          callback(event) {
-                            event.close();
-                          },
-                        },
-                      },
-                      mask: {
-                        clickCallBack(originalRun) {
-                          originalRun();
-                        },
-                      },
-                      only: false,
-                      class: "whitesevPopSetting",
-                      style: /*css*/ `
-											${panelIndexCSS}
-											
-											${panelSettingCSS}
-	
-	
-											/* 隐藏顶部的图标 */
-											.netdisk-custom-rule-edit,
-											.netdisk-custom-rule-delete,
-											/* 隐藏快捷键设置菜单，因为这个是全局唯一的 */
-											.netdisk-panel-forms-shortcut-keys-deepMenu{
-												display: none !important;
-											}
-											`,
-                    },
-                    NetDiskView.$config.viewSizeConfig.settingView
-                  );
-                },
-                void 0
-              );
-              let $coverSetting_template =
-                panelHandlerComponents.createSectionContainerItem_button(coverSetting_template);
-
-              $fragment.appendChild($enable);
-              $fragment.appendChild($name);
-              $fragment.appendChild($data_url);
-              $fragment.appendChild($coverSetting_template);
-              return $fragment;
-            },
-            onsubmit: ($form, isEdit, editData) => {
-              // 提交表单
-              let $ulist_li = $form.querySelectorAll<HTMLLIElement>(".rule-form-ulist > li");
-              let data: WebsiteRuleOption = addData();
-              if (isEdit) {
-                data.uuid = editData!.uuid;
-                let allData = this.getAllRule();
-                let findValue = allData.find((item) => item.uuid === data.uuid);
-                if (findValue) {
-                  data.data = findValue.data;
-                }
-              }
-              $ulist_li.forEach(($li) => {
-                let formConfig = Reflect.get($li, "__formConfig__");
-                let attrs = Reflect.get(formConfig, "attributes");
-                let storageApi = Reflect.get($li, PROPS_STORAGE_API);
-                let key = Reflect.get(attrs, ATTRIBUTE_KEY);
-                if (key == null) {
-                  return;
-                }
-                let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
-                let value = storageApi.get(key, defaultValue);
-                if (Reflect.has(data, key)) {
-                  Reflect.set(data, key, value);
-                } else if (Reflect.has(data.data, key)) {
-                  Reflect.set(data.data, key, value);
-                } else {
-                  log.error(`${key}不在数据中`);
-                }
-              });
-              if (data.name == null || data.name.trim() === "") {
-                Qmsg.error("规则名称不能为空");
-                return {
-                  success: false,
-                  data: data,
-                };
-              }
-              if (data.url.trim() === "") {
-                Qmsg.error("匹配网址不能为空");
-                return {
-                  success: false,
-                  data: data,
-                };
-              }
-              if (isEdit) {
-                return {
-                  success: this.updateRule(data),
-                  data: data,
-                };
-              } else {
-                return {
-                  success: this.addRule(data),
-                  data: data,
-                };
-              }
-            },
+            getView: ruleEditHandler,
+            onsubmit: ruleEditSubmitHandler,
           },
           ruleDelete: {
             enable: true,
@@ -931,7 +680,7 @@ export const WebsiteRule = {
    * 添加单个规则
    */
   addRule(rule: WebsiteRuleOption) {
-    let allRule = this.getAllRule();
+    const allRule = this.getAllRule();
     allRule.push(rule);
     WebsiteRuleStorageApi.set(this.$data.STORAGE_KEY, allRule);
     return true;
@@ -941,13 +690,13 @@ export const WebsiteRule = {
    * @param uuid
    */
   getRule(uuid: string) {
-    let findValue = this.getAllRule().find((rule) => rule.uuid === uuid);
+    const findValue = this.getAllRule().find((rule) => rule.uuid === uuid);
     if (findValue) {
       return findValue;
     }
     // 未找到符合的
     // 看看是否是来自订阅的规则
-    let findSubscribeRule = WebsiteSubscribeRule.getAllSubscribeRule().find((rule) => {
+    const findSubscribeRule = WebsiteSubscribeRule.getAllSubscribeRule().find((rule) => {
       return rule.uuid === uuid;
     });
     return findSubscribeRule;
@@ -970,7 +719,7 @@ export const WebsiteRule = {
    * @param defaultValue 默认值
    */
   getRuleDataValue<T>(uuid: string, key: string, defaultValue: T) {
-    let ruleData = this.getRuleData(uuid);
+    const ruleData = this.getRuleData(uuid);
     return (ruleData && Reflect.get(ruleData, key)) ?? defaultValue;
   },
   /**
@@ -978,7 +727,7 @@ export const WebsiteRule = {
    * @param rule
    */
   updateRule(rule: WebsiteRuleOption) {
-    let allRule = this.getAllRule();
+    const allRule = this.getAllRule();
     let flag = false;
     for (let index = 0; index < allRule.length; index++) {
       const localRule = allRule[index];
@@ -994,7 +743,7 @@ export const WebsiteRule = {
     } else {
       // 未找到符合的
       // 看看是否是来自订阅的
-      let findSubscribeRule = WebsiteSubscribeRule.getAllSubscribeRule().find((it) => {
+      const findSubscribeRule = WebsiteSubscribeRule.getAllSubscribeRule().find((it) => {
         return it.uuid === rule.uuid;
       });
       if (findSubscribeRule) {
@@ -1008,9 +757,9 @@ export const WebsiteRule = {
    * @param uuid 整个规则或者规则的uuid
    */
   deleteRule(uuid: string | WebsiteRuleOption) {
-    let allRule = this.getAllRule();
+    const allRule = this.getAllRule();
     let flag = false;
-    let needDeleteRuleUUID = typeof uuid === "string" ? uuid : uuid.uuid;
+    const needDeleteRuleUUID = typeof uuid === "string" ? uuid : uuid.uuid;
     for (let index = 0; index < allRule.length; index++) {
       const localRule = allRule[index];
       if (localRule.uuid === needDeleteRuleUUID) {
@@ -1022,7 +771,7 @@ export const WebsiteRule = {
     if (flag) {
       WebsiteRuleStorageApi.set(this.$data.STORAGE_KEY, allRule);
     } else {
-      let findSubscribeRule = WebsiteSubscribeRule.getAllSubscribeRule().find((it) => {
+      const findSubscribeRule = WebsiteSubscribeRule.getAllSubscribeRule().find((it) => {
         return it.uuid === needDeleteRuleUUID;
       });
       if (findSubscribeRule) {
@@ -1041,28 +790,30 @@ export const WebsiteRule = {
    * 获取所有规则
    */
   getAllRule(): WebsiteRuleOption[] {
-    let allRule = WebsiteRuleStorageApi.get<WebsiteRuleOption[]>(this.$data.STORAGE_KEY, []);
+    const allRule = WebsiteRuleStorageApi.get<WebsiteRuleOption[]>(this.$data.STORAGE_KEY, []);
     return allRule;
   },
   /**
+   * 校验规则是否在对应的url中执行
+   */
+  checkRuleMatch(rule: WebsiteRuleOption, url = window.location.href) {
+    const matchRegExp = new RegExp(rule.data.url, "ig");
+    return Boolean(url.match(matchRegExp));
+  },
+  /**
    * 根据url获取匹配的规则
-   * @param [filterUnEnable=true] 是否过滤未启用的规则
+   * @param [filterUnEnable=true] 是否去除未启用的规则
    * @param [url=window.location.href] 需要匹配的url
    */
   getUrlMatchedRule(filterUnEnable = true, url: string = window.location.href) {
     let allRule = this.getAllRule();
-    let allSubscribeRule = WebsiteSubscribeRule.getAllSubscribeRule(true);
+    const allSubscribeRule = WebsiteSubscribeRule.getAllSubscribeRule(true);
     allRule = allRule.concat(allSubscribeRule);
-    let matchedRule = allRule.filter((rule) => {
+    const matchedRule = allRule.filter((rule) => {
       if (filterUnEnable && !rule.enable) {
         return false;
       }
-      let matchRegExp = new RegExp(rule.url, "ig");
-      if (url.match(matchRegExp)) {
-        return true;
-      } else {
-        return false;
-      }
+      return this.checkRuleMatch(rule, url);
     });
 
     return matchedRule;
@@ -1071,7 +822,7 @@ export const WebsiteRule = {
    * 导出规则
    */
   exportRule(fileName = "rule.json", subscribeFileName = "rule-subscribe.json") {
-    let $alert = NetDiskPops.alert({
+    const $alert = NetDiskPops.alert({
       title: {
         text: "请选择导出方式",
         position: "center",

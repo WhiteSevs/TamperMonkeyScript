@@ -1,3 +1,14 @@
+declare interface CharacterMappingDynamicOption {
+  /** 搜索字符 */
+  searchValue: string;
+  /** 是否启用正则 */
+  isRegExp: boolean;
+  /** 正则标识符 */
+  regExpFlag: string;
+  /** 替换字符 */
+  replaceValue: string;
+}
+
 /**
  * 字典映射配置
  */
@@ -21,15 +32,4 @@ declare interface CharacterMappingOption {
   } & CharacterMappingDynamicOption;
   /** 动态添加的数据 */
   dynamicData?: CharacterMappingDynamicOption[];
-}
-
-declare interface CharacterMappingDynamicOption {
-  /** 搜索字符 */
-  searchValue: string;
-  /** 是否启用正则 */
-  isRegExp: boolean;
-  /** 正则标识符 */
-  regExpFlag: string;
-  /** 替换字符 */
-  replaceValue: string;
 }

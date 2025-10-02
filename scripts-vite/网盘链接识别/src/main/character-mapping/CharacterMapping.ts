@@ -9,6 +9,7 @@ import { NetDiskPops } from "../pops/NetDiskPops";
 import { PanelUISize } from "@components/setting/panel-ui-size";
 import { CharacterMappingSubscribe } from "./CharacterMappingSubscribe";
 import { StorageUtils } from "@components/utils/StorageUtils";
+import { UISelectMultiple } from "@components/setting/components/ui-select-multiple";
 
 /** 字符映射的存储操作Api */
 const CharacterMappingStorageApi = new StorageUtils("character-mapping-rule");
@@ -33,7 +34,7 @@ export const CharacterMapping = {
       data: {
         url: "",
         isRegExp: true,
-        regExpFlag: "ig",
+        regExpFlag: "gi",
         searchValue: "",
         replaceValue: "",
       },
@@ -65,6 +66,275 @@ export const CharacterMapping = {
       };
     }
 
+    const ruleEditHandler = (data: CharacterMappingOption, isEdit: boolean) => {
+      if (!isEdit) {
+        data = addData();
+      }
+      let $fragment = document.createDocumentFragment();
+
+      // 启用
+      let enable_template = UISwitch("启用", "enable", true);
+      Reflect.set(enable_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
+      let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+
+      // 规则名称
+      let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
+      Reflect.set(name_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
+      let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+
+      // 匹配网址
+      let url_template = UIInput("匹配网址", "url", "", "", void 0, "必填，可正则");
+      Reflect.set(url_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
+      let $data_url = panelHandlerComponents.createSectionContainerItem_input(url_template);
+
+      /**
+       * 获取动态的元素
+       * @param storageData 存储的数据
+       */
+      let getDynamicPropElement = (storageData: any) => {
+        let template_data = this.getTemplateData();
+        // 字符规则
+        let data_searchValue_template = UIInput(
+          "字符规则",
+          "searchValue",
+          template_data.data.searchValue,
+          "",
+          void 0,
+          "必填，可正则"
+        );
+        Reflect.set(data_searchValue_template.props!, PROPS_STORAGE_API, generateStorageApi(storageData));
+        let $data_searchValue = panelHandlerComponents.createSectionContainerItem_input(data_searchValue_template);
+
+        // 是否启用正则
+        let data_isRegExp_template = UISwitch(
+          "是否启用正则",
+          "isRegExp",
+          template_data.data.isRegExp,
+          void 0,
+          "使用正则进行匹配字符规则"
+        );
+        Reflect.set(data_isRegExp_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
+        let $data_isRegExp = panelHandlerComponents.createSectionContainerItem_switch(data_isRegExp_template);
+
+        // 正则标识符
+        let data_regExpFlag_template = UISelectMultiple<string>(
+          "正则标识符",
+          "regExpFlag",
+          template_data.data.regExpFlag.split(""),
+          ["g", "i", "m", "u", "y"].map((it) => {
+            return {
+              text: it.toLowerCase(),
+              value: it.toLowerCase(),
+            };
+          }),
+          void 0,
+          "",
+          "点击选择标识符"
+        );
+        Reflect.set(data_regExpFlag_template.props!, PROPS_STORAGE_API, {
+          get(key: string, defaultValue: any) {
+            return data.data[key as keyof typeof data.data] ?? defaultValue;
+          },
+          set(key: string, value: any) {
+            if (Array.isArray(value)) {
+              value = value.join("");
+            }
+            (data.data as any)[key] = value;
+          },
+        });
+        let $data_regExpFlag =
+          panelHandlerComponents.createSectionContainerItem_select_multiple_new(data_regExpFlag_template);
+
+        // 映射为
+        let data_replaceValue_template = UIInput(
+          "映射为",
+          "replaceValue",
+          template_data.data.replaceValue,
+          "",
+          void 0,
+          ""
+        );
+        Reflect.set(data_replaceValue_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
+        let $data_replaceValue = panelHandlerComponents.createSectionContainerItem_input(data_replaceValue_template);
+
+        return {
+          $data_searchValue,
+          $data_isRegExp,
+          $data_regExpFlag,
+          $data_replaceValue,
+        };
+      };
+
+      // 动态属性容器
+      let $dynamicContainer = DOMUtils.createElement("div", {
+        className: "rule-form-ulist-dynamic",
+        innerHTML: /*html*/ `
+												<div class="rule-form-ulist-dynamic__inner">
+
+												</div>
+												<div class="pops-panel-button pops-panel-button-no-icon">
+													<button class="pops-panel-button_inner" type="button" data-type="default">
+														<i class="pops-bottom-icon" is-loading="false"></i>
+														<span class="pops-panel-button-text">添加额外属性</span>
+													</button>
+												</div>`,
+      });
+      let $dynamicInner = $dynamicContainer.querySelector<HTMLElement>(".rule-form-ulist-dynamic__inner")!;
+      let $addDynamicButton = $dynamicContainer.querySelector<HTMLButtonElement>(".pops-panel-button")!;
+      /**
+       * 添加动态项
+       */
+      let addDynamicElementItem = (dynamicData?: CharacterMappingDynamicOption) => {
+        let template_data = this.getTemplateData();
+        dynamicData = dynamicData ?? {
+          searchValue: template_data.data.searchValue,
+          isRegExp: template_data.data.isRegExp,
+          regExpFlag: template_data.data.regExpFlag,
+          replaceValue: template_data.data.replaceValue,
+        };
+        let $dynamicUListContainer = DOMUtils.createElement("div", {
+          className: "rule-form-ulist-dynamic__inner-container",
+          innerHTML: /*html*/ `
+										<div class="dynamic-control-delete">
+											<div class="pops-panel-button pops-panel-button-no-icon">
+												<button class="pops-panel-button_inner" type="button" data-type="danger">
+													<i class="pops-bottom-icon" is-loading="false"></i>
+													<span class="pops-panel-button-text">×</span>
+												</button>
+											</div>
+										</div>
+										<ul class="dynamic-forms">
+
+										</ul>`,
+        });
+        /** 删除按钮 */
+        let $dynamicDelete = $dynamicUListContainer.querySelector<HTMLElement>(".dynamic-control-delete")!;
+        // 设置删除事件
+        DOMUtils.on($dynamicDelete, "click", (event) => {
+          DOMUtils.preventEvent(event);
+          // 移除元素
+          $dynamicUListContainer.remove();
+          if (Array.isArray(data.dynamicData)) {
+            let findIndex = data.dynamicData.findIndex((it) => it == dynamicData);
+            if (findIndex !== -1) {
+              data.dynamicData.splice(findIndex, 1);
+            }
+          }
+        });
+        /** 动态添加的项 */
+        let $dynamicUList = $dynamicUListContainer.querySelector<HTMLUListElement>(".dynamic-forms")!;
+        let { $data_searchValue, $data_isRegExp, $data_regExpFlag, $data_replaceValue } =
+          getDynamicPropElement(dynamicData);
+        // 在动态元素容器内添加元素
+        $dynamicUList.appendChild($data_searchValue);
+        $dynamicUList.appendChild($data_isRegExp);
+        $dynamicUList.appendChild($data_regExpFlag);
+        $dynamicUList.appendChild($data_replaceValue);
+        $dynamicInner.appendChild($dynamicUListContainer);
+      };
+      // 设置添加动态项的点击事件
+      DOMUtils.on($addDynamicButton, "click", (event) => {
+        DOMUtils.preventEvent(event);
+        addDynamicElementItem();
+      });
+      // 初始化的动态项
+      if (Array.isArray(data.dynamicData)) {
+        for (let index = 0; index < data.dynamicData.length; index++) {
+          const moreDataItem = data.dynamicData[index];
+          addDynamicElementItem(moreDataItem);
+        }
+      }
+
+      let $firstDynamicElement = getDynamicPropElement(data.data);
+      $fragment.appendChild($enable);
+      $fragment.appendChild($name);
+      $fragment.appendChild($data_url);
+      $fragment.appendChild($firstDynamicElement.$data_searchValue);
+      $fragment.appendChild($firstDynamicElement.$data_isRegExp);
+      $fragment.appendChild($firstDynamicElement.$data_regExpFlag);
+      $fragment.appendChild($firstDynamicElement.$data_replaceValue);
+      $fragment.appendChild($dynamicContainer);
+      return $fragment;
+    };
+
+    const ruleEditSubmitHandler = ($form: HTMLFormElement, isEdit: boolean, editData?: CharacterMappingOption) => {
+      // 提交表单
+      let $ulist_li = $form.querySelectorAll<HTMLLIElement>(".rule-form-ulist > li");
+      let data: CharacterMappingOption = this.getTemplateData();
+      if (isEdit) {
+        data.uuid = editData!.uuid;
+      }
+      $ulist_li.forEach(($li) => {
+        let formConfig = Reflect.get($li, "__formConfig__");
+        let attrs = Reflect.get(formConfig, "attributes");
+        let storageApi = Reflect.get($li, PROPS_STORAGE_API);
+        let key = Reflect.get(attrs, ATTRIBUTE_KEY);
+        let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
+        let value = storageApi.get(key, defaultValue);
+        if (Reflect.has(data, key)) {
+          Reflect.set(data, key, value);
+        } else if (Reflect.has(data.data, key)) {
+          Reflect.set(data.data, key, value);
+        } else {
+          log.error(`${key}不在数据中`);
+        }
+      });
+      // 添加的动态属性
+      $form.querySelectorAll<HTMLLIElement>(".rule-form-ulist-dynamic__inner-container").forEach(($inner) => {
+        let dynamicData = {};
+        $inner.querySelectorAll(".dynamic-forms > li").forEach(($li) => {
+          let formConfig = Reflect.get($li, "__formConfig__");
+          if (!formConfig) {
+            return;
+          }
+          let attrs = Reflect.get(formConfig, "attributes");
+          if (!attrs) {
+            return;
+          }
+          let storageApi = Reflect.get($li, PROPS_STORAGE_API);
+          let key = Reflect.get(attrs, ATTRIBUTE_KEY);
+          let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
+          let value = storageApi.get(key, defaultValue);
+          Reflect.set(dynamicData, key, value);
+        });
+        data.dynamicData!.push(dynamicData as any);
+      });
+      if (data.name.trim() === "") {
+        Qmsg.error("规则名称不能为空");
+        return {
+          success: false,
+          data: data,
+        };
+      }
+      if (data.data.url.trim() === "") {
+        Qmsg.error("匹配网址不能为空");
+        return {
+          success: false,
+          data: data,
+        };
+      }
+      if (
+        data.data.searchValue.trim() === "" ||
+        (Array.isArray(data.dynamicData) && data.dynamicData.findIndex((it) => it.searchValue.trim() === "") !== -1)
+      ) {
+        Qmsg.error("字符规则不能为空");
+        return {
+          success: false,
+          data: data,
+        };
+      }
+      if (isEdit) {
+        return {
+          success: this.updateData(data),
+          data: data,
+        };
+      } else {
+        return {
+          success: this.addData(data),
+          data: data,
+        };
+      }
+    };
     let rulePanelViewOption: RulePanelContentOption<CharacterMappingOption> = {
       id: "netdisk-rule",
       title: "字符映射",
@@ -210,17 +480,24 @@ export const CharacterMapping = {
                 btnControls: {
                   filter: {
                     enable: true,
+                    title: "规则过滤",
                     option: [
                       {
-                        name: "过滤【已启用】的规则",
+                        name: "仅显示【已启用】的规则",
                         filterCallBack(data) {
                           return data.enable;
                         },
                       },
                       {
-                        name: "过滤【未启用】的规则",
+                        name: "仅显示【未启用】的规则",
                         filterCallBack(data) {
                           return !data.enable;
+                        },
+                      },
+                      {
+                        name: "仅显示【在当前网址生效】的规则",
+                        filterCallBack(data) {
+                          return CharacterMapping.checkRuleMatch(data);
                         },
                       },
                     ],
@@ -243,275 +520,8 @@ export const CharacterMapping = {
                   },
                   ruleEdit: {
                     enable: true,
-                    getView: (data, isEdit) => {
-                      if (!isEdit) {
-                        data = addData();
-                      }
-                      let $fragment = document.createDocumentFragment();
-
-                      // 启用
-                      let enable_template = UISwitch("启用", "enable", true);
-                      Reflect.set(enable_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-                      let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
-
-                      // 规则名称
-                      let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
-                      Reflect.set(name_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-                      let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
-
-                      // 匹配网址
-                      let url_template = UIInput("匹配网址", "url", "", "", void 0, "必填，可正则");
-                      Reflect.set(url_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-                      let $data_url = panelHandlerComponents.createSectionContainerItem_input(url_template);
-
-                      /**
-                       * 获取动态的元素
-                       * @param storageData 存储的数据
-                       */
-                      let getDynamicPropElement = (storageData: any) => {
-                        let template_data = this.getTemplateData();
-                        // 字符规则
-                        let data_searchValue_template = UIInput(
-                          "字符规则",
-                          "searchValue",
-                          template_data.data.searchValue,
-                          "",
-                          void 0,
-                          "必填，可正则"
-                        );
-                        Reflect.set(
-                          data_searchValue_template.props!,
-                          PROPS_STORAGE_API,
-                          generateStorageApi(storageData)
-                        );
-                        let $data_searchValue =
-                          panelHandlerComponents.createSectionContainerItem_input(data_searchValue_template);
-
-                        // 是否启用正则
-                        let data_isRegExp_template = UISwitch(
-                          "是否启用正则",
-                          "isRegExp",
-                          template_data.data.isRegExp,
-                          void 0,
-                          "使用正则进行匹配字符规则"
-                        );
-                        Reflect.set(data_isRegExp_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-                        let $data_isRegExp =
-                          panelHandlerComponents.createSectionContainerItem_switch(data_isRegExp_template);
-
-                        // 正则标识符
-                        let data_regExpFlag_template = UIInput(
-                          "正则标识符",
-                          "regExpFlag",
-                          template_data.data.regExpFlag,
-                          "",
-                          void 0,
-                          "i:不区分大小写  g:全局"
-                        );
-                        Reflect.set(data_regExpFlag_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-                        let $data_regExpFlag =
-                          panelHandlerComponents.createSectionContainerItem_input(data_regExpFlag_template);
-
-                        // 映射为
-                        let data_replaceValue_template = UIInput(
-                          "映射为",
-                          "replaceValue",
-                          template_data.data.replaceValue,
-                          "",
-                          void 0,
-                          ""
-                        );
-                        Reflect.set(
-                          data_replaceValue_template.props!,
-                          PROPS_STORAGE_API,
-                          generateStorageApi(data.data)
-                        );
-                        let $data_replaceValue =
-                          panelHandlerComponents.createSectionContainerItem_input(data_replaceValue_template);
-
-                        return {
-                          $data_searchValue,
-                          $data_isRegExp,
-                          $data_regExpFlag,
-                          $data_replaceValue,
-                        };
-                      };
-
-                      // 动态属性容器
-                      let $dynamicContainer = DOMUtils.createElement("div", {
-                        className: "rule-form-ulist-dynamic",
-                        innerHTML: /*html*/ `
-												<div class="rule-form-ulist-dynamic__inner">
-
-												</div>
-												<div class="pops-panel-button pops-panel-button-no-icon">
-													<button class="pops-panel-button_inner" type="button" data-type="default">
-														<i class="pops-bottom-icon" is-loading="false"></i>
-														<span class="pops-panel-button-text">添加额外属性</span>
-													</button>
-												</div>`,
-                      });
-                      let $dynamicInner = $dynamicContainer.querySelector<HTMLElement>(
-                        ".rule-form-ulist-dynamic__inner"
-                      )!;
-                      let $addDynamicButton = $dynamicContainer.querySelector<HTMLButtonElement>(".pops-panel-button")!;
-                      /**
-                       * 添加动态项
-                       */
-                      let addDynamicElementItem = (dynamicData?: CharacterMappingDynamicOption) => {
-                        let template_data = this.getTemplateData();
-                        dynamicData = dynamicData ?? {
-                          searchValue: template_data.data.searchValue,
-                          isRegExp: template_data.data.isRegExp,
-                          regExpFlag: template_data.data.regExpFlag,
-                          replaceValue: template_data.data.replaceValue,
-                        };
-                        let $dynamicUListContainer = DOMUtils.createElement("div", {
-                          className: "rule-form-ulist-dynamic__inner-container",
-                          innerHTML: /*html*/ `
-										<div class="dynamic-control-delete">
-											<div class="pops-panel-button pops-panel-button-no-icon">
-												<button class="pops-panel-button_inner" type="button" data-type="danger">
-													<i class="pops-bottom-icon" is-loading="false"></i>
-													<span class="pops-panel-button-text">×</span>
-												</button>
-											</div>
-										</div>
-										<ul class="dynamic-forms">
-
-										</ul>`,
-                        });
-                        /** 删除按钮 */
-                        let $dynamicDelete =
-                          $dynamicUListContainer.querySelector<HTMLElement>(".dynamic-control-delete")!;
-                        // 设置删除事件
-                        DOMUtils.on($dynamicDelete, "click", (event) => {
-                          DOMUtils.preventEvent(event);
-                          // 移除元素
-                          $dynamicUListContainer.remove();
-                          if (Array.isArray(data.dynamicData)) {
-                            let findIndex = data.dynamicData.findIndex((it) => it == dynamicData);
-                            if (findIndex !== -1) {
-                              data.dynamicData.splice(findIndex, 1);
-                            }
-                          }
-                        });
-                        /** 动态添加的项 */
-                        let $dynamicUList = $dynamicUListContainer.querySelector<HTMLUListElement>(".dynamic-forms")!;
-                        let { $data_searchValue, $data_isRegExp, $data_regExpFlag, $data_replaceValue } =
-                          getDynamicPropElement(dynamicData);
-                        // 在动态元素容器内添加元素
-                        $dynamicUList.appendChild($data_searchValue);
-                        $dynamicUList.appendChild($data_isRegExp);
-                        $dynamicUList.appendChild($data_regExpFlag);
-                        $dynamicUList.appendChild($data_replaceValue);
-                        $dynamicInner.appendChild($dynamicUListContainer);
-                      };
-                      // 设置添加动态项的点击事件
-                      DOMUtils.on($addDynamicButton, "click", (event) => {
-                        DOMUtils.preventEvent(event);
-                        addDynamicElementItem();
-                      });
-                      // 初始化的动态项
-                      if (Array.isArray(data.dynamicData)) {
-                        for (let index = 0; index < data.dynamicData.length; index++) {
-                          const moreDataItem = data.dynamicData[index];
-                          addDynamicElementItem(moreDataItem);
-                        }
-                      }
-
-                      let $firstDynamicElement = getDynamicPropElement(data.data);
-                      $fragment.appendChild($enable);
-                      $fragment.appendChild($name);
-                      $fragment.appendChild($data_url);
-                      $fragment.appendChild($firstDynamicElement.$data_searchValue);
-                      $fragment.appendChild($firstDynamicElement.$data_isRegExp);
-                      $fragment.appendChild($firstDynamicElement.$data_regExpFlag);
-                      $fragment.appendChild($firstDynamicElement.$data_replaceValue);
-                      $fragment.appendChild($dynamicContainer);
-                      return $fragment;
-                    },
-                    onsubmit: ($form, isEdit, editData) => {
-                      // 提交表单
-                      let $ulist_li = $form.querySelectorAll<HTMLLIElement>(".rule-form-ulist > li");
-                      let data: CharacterMappingOption = this.getTemplateData();
-                      if (isEdit) {
-                        data.uuid = editData!.uuid;
-                      }
-                      $ulist_li.forEach(($li) => {
-                        let formConfig = Reflect.get($li, "__formConfig__");
-                        let attrs = Reflect.get(formConfig, "attributes");
-                        let storageApi = Reflect.get($li, PROPS_STORAGE_API);
-                        let key = Reflect.get(attrs, ATTRIBUTE_KEY);
-                        let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
-                        let value = storageApi.get(key, defaultValue);
-                        if (Reflect.has(data, key)) {
-                          Reflect.set(data, key, value);
-                        } else if (Reflect.has(data.data, key)) {
-                          Reflect.set(data.data, key, value);
-                        } else {
-                          log.error(`${key}不在数据中`);
-                        }
-                      });
-                      // 添加的动态属性
-                      $form
-                        .querySelectorAll<HTMLLIElement>(".rule-form-ulist-dynamic__inner-container")
-                        .forEach(($inner) => {
-                          let dynamicData = {};
-                          $inner.querySelectorAll(".dynamic-forms > li").forEach(($li) => {
-                            let formConfig = Reflect.get($li, "__formConfig__");
-                            if (!formConfig) {
-                              return;
-                            }
-                            let attrs = Reflect.get(formConfig, "attributes");
-                            if (!attrs) {
-                              return;
-                            }
-                            let storageApi = Reflect.get($li, PROPS_STORAGE_API);
-                            let key = Reflect.get(attrs, ATTRIBUTE_KEY);
-                            let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
-                            let value = storageApi.get(key, defaultValue);
-                            Reflect.set(dynamicData, key, value);
-                          });
-                          data.dynamicData!.push(dynamicData as any);
-                        });
-                      if (data.name.trim() === "") {
-                        Qmsg.error("规则名称不能为空");
-                        return {
-                          success: false,
-                          data: data,
-                        };
-                      }
-                      if (data.data.url.trim() === "") {
-                        Qmsg.error("匹配网址不能为空");
-                        return {
-                          success: false,
-                          data: data,
-                        };
-                      }
-                      if (
-                        data.data.searchValue.trim() === "" ||
-                        (Array.isArray(data.dynamicData) &&
-                          data.dynamicData.findIndex((it) => it.searchValue.trim() === "") !== -1)
-                      ) {
-                        Qmsg.error("字符规则不能为空");
-                        return {
-                          success: false,
-                          data: data,
-                        };
-                      }
-                      if (isEdit) {
-                        return {
-                          success: this.updateData(data),
-                          data: data,
-                        };
-                      } else {
-                        return {
-                          success: this.addData(data),
-                          data: data,
-                        };
-                      }
-                    },
+                    getView: ruleEditHandler,
+                    onsubmit: ruleEditSubmitHandler,
                   },
                   ruleDelete: {
                     enable: true,
@@ -554,24 +564,24 @@ export const CharacterMapping = {
           },
           filter: {
             enable: true,
-            title: "过滤规则",
+            title: "规则过滤",
             option: [
               {
-                name: "过滤【已启用】的规则",
+                name: "仅显示【已启用】的规则",
                 filterCallBack(data) {
                   return data.enable;
                 },
               },
               {
-                name: "过滤【未启用】的规则",
+                name: "仅显示【未启用】的规则",
                 filterCallBack(data) {
                   return !data.enable;
                 },
               },
               {
-                name: "过滤【在当前网址生效】的规则",
+                name: "仅显示【在当前网址生效】的规则",
                 filterCallBack(data) {
-                  return Boolean(window.location.href.match(data.data.url));
+                  return that.checkRuleMatch(data);
                 },
               },
             ],
@@ -608,262 +618,8 @@ export const CharacterMapping = {
           },
           ruleEdit: {
             enable: true,
-            getView: (data, isEdit) => {
-              let $fragment = document.createDocumentFragment();
-              if (!isEdit) {
-                data = addData();
-              }
-
-              // 启用
-              let enable_template = UISwitch("启用", "enable", true);
-              Reflect.set(enable_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-              let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
-
-              // 规则名称
-              let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
-              Reflect.set(name_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-              let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
-
-              // 匹配网址
-              let url_template = UIInput("匹配网址", "url", "", "", void 0, "必填，可正则");
-              Reflect.set(url_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-              let $data_url = panelHandlerComponents.createSectionContainerItem_input(url_template);
-
-              /**
-               * 获取动态的元素
-               * @param storageData 存储的数据
-               */
-              let getDynamicPropElement = (storageData: any) => {
-                let template_data = this.getTemplateData();
-                // 字符规则
-                let data_searchValue_template = UIInput(
-                  "字符规则",
-                  "searchValue",
-                  template_data.data.searchValue,
-                  "",
-                  void 0,
-                  "必填，可正则"
-                );
-                Reflect.set(data_searchValue_template.props!, PROPS_STORAGE_API, generateStorageApi(storageData));
-                let $data_searchValue =
-                  panelHandlerComponents.createSectionContainerItem_input(data_searchValue_template);
-
-                // 是否启用正则
-                let data_isRegExp_template = UISwitch(
-                  "是否启用正则",
-                  "isRegExp",
-                  template_data.data.isRegExp,
-                  void 0,
-                  "使用正则进行匹配字符规则"
-                );
-                Reflect.set(data_isRegExp_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-                let $data_isRegExp = panelHandlerComponents.createSectionContainerItem_switch(data_isRegExp_template);
-
-                // 正则标识符
-                let data_regExpFlag_template = UIInput(
-                  "正则标识符",
-                  "regExpFlag",
-                  template_data.data.regExpFlag,
-                  "",
-                  void 0,
-                  "i:不区分大小写  g:全局"
-                );
-                Reflect.set(data_regExpFlag_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-                let $data_regExpFlag =
-                  panelHandlerComponents.createSectionContainerItem_input(data_regExpFlag_template);
-
-                // 映射为
-                let data_replaceValue_template = UIInput(
-                  "映射为",
-                  "replaceValue",
-                  template_data.data.replaceValue,
-                  "",
-                  void 0,
-                  ""
-                );
-                Reflect.set(data_replaceValue_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-                let $data_replaceValue =
-                  panelHandlerComponents.createSectionContainerItem_input(data_replaceValue_template);
-
-                return {
-                  $data_searchValue,
-                  $data_isRegExp,
-                  $data_regExpFlag,
-                  $data_replaceValue,
-                };
-              };
-
-              // 动态属性容器
-              let $dynamicContainer = DOMUtils.createElement("div", {
-                className: "rule-form-ulist-dynamic",
-                innerHTML: /*html*/ `
-									<div class="rule-form-ulist-dynamic__inner">
-
-									</div>
-									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="button" data-type="default">
-											<i class="pops-bottom-icon" is-loading="false"></i>
-											<span class="pops-panel-button-text">添加额外属性</span>
-										</button>
-									</div>`,
-              });
-              let $dynamicInner = $dynamicContainer.querySelector<HTMLElement>(".rule-form-ulist-dynamic__inner")!;
-              let $addDynamicButton = $dynamicContainer.querySelector<HTMLButtonElement>(".pops-panel-button")!;
-              /**
-               * 添加动态项
-               */
-              let addDynamicElementItem = (dynamicData?: CharacterMappingDynamicOption) => {
-                let template_data = this.getTemplateData();
-                dynamicData = dynamicData ?? {
-                  searchValue: template_data.data.searchValue,
-                  isRegExp: template_data.data.isRegExp,
-                  regExpFlag: template_data.data.regExpFlag,
-                  replaceValue: template_data.data.replaceValue,
-                };
-                let $dynamicUListContainer = DOMUtils.createElement("div", {
-                  className: "rule-form-ulist-dynamic__inner-container",
-                  innerHTML: /*html*/ `
-										<div class="dynamic-control-delete">
-											<div class="pops-panel-button pops-panel-button-no-icon">
-												<button class="pops-panel-button_inner" type="button" data-type="danger">
-													<i class="pops-bottom-icon" is-loading="false"></i>
-													<span class="pops-panel-button-text">×</span>
-												</button>
-											</div>
-										</div>
-										<ul class="dynamic-forms">
-
-										</ul>`,
-                });
-                /** 删除按钮 */
-                let $dynamicDelete = $dynamicUListContainer.querySelector<HTMLElement>(".dynamic-control-delete")!;
-                // 设置删除事件
-                DOMUtils.on($dynamicDelete, "click", (event) => {
-                  DOMUtils.preventEvent(event);
-                  // 移除元素
-                  $dynamicUListContainer.remove();
-                  if (Array.isArray(data.dynamicData)) {
-                    let findIndex = data.dynamicData.findIndex((it) => it == dynamicData);
-                    if (findIndex !== -1) {
-                      data.dynamicData.splice(findIndex, 1);
-                    }
-                  }
-                });
-                /** 动态添加的项 */
-                let $dynamicUList = $dynamicUListContainer.querySelector<HTMLUListElement>(".dynamic-forms")!;
-                let { $data_searchValue, $data_isRegExp, $data_regExpFlag, $data_replaceValue } =
-                  getDynamicPropElement(dynamicData);
-                // 在动态元素容器内添加元素
-                $dynamicUList.appendChild($data_searchValue);
-                $dynamicUList.appendChild($data_isRegExp);
-                $dynamicUList.appendChild($data_regExpFlag);
-                $dynamicUList.appendChild($data_replaceValue);
-                $dynamicInner.appendChild($dynamicUListContainer);
-              };
-              // 设置添加动态项的点击事件
-              DOMUtils.on($addDynamicButton, "click", (event) => {
-                DOMUtils.preventEvent(event);
-                addDynamicElementItem();
-              });
-              // 初始化的动态项
-              if (Array.isArray(data.dynamicData)) {
-                for (let index = 0; index < data.dynamicData.length; index++) {
-                  const moreDataItem = data.dynamicData[index];
-                  addDynamicElementItem(moreDataItem);
-                }
-              }
-
-              let $firstDynamicElement = getDynamicPropElement(data.data);
-
-              $fragment.appendChild($enable);
-              $fragment.appendChild($name);
-              $fragment.appendChild($data_url);
-              $fragment.appendChild($firstDynamicElement.$data_searchValue);
-              $fragment.appendChild($firstDynamicElement.$data_isRegExp);
-              $fragment.appendChild($firstDynamicElement.$data_regExpFlag);
-              $fragment.appendChild($firstDynamicElement.$data_replaceValue);
-              $fragment.appendChild($dynamicContainer);
-              return $fragment;
-            },
-            onsubmit: ($form, isEdit, editData) => {
-              // 提交表单
-              let $ulist_li = $form.querySelectorAll<HTMLLIElement>(".rule-form-ulist > li");
-              let data: CharacterMappingOption = this.getTemplateData();
-              if (isEdit) {
-                data.uuid = editData!.uuid;
-              }
-              $ulist_li.forEach(($li) => {
-                let formConfig = Reflect.get($li, "__formConfig__");
-                let attrs = Reflect.get(formConfig, "attributes");
-                let storageApi = Reflect.get($li, PROPS_STORAGE_API);
-                let key = Reflect.get(attrs, ATTRIBUTE_KEY);
-                let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
-                let value = storageApi.get(key, defaultValue);
-                if (Reflect.has(data, key)) {
-                  Reflect.set(data, key, value);
-                } else if (Reflect.has(data.data, key)) {
-                  Reflect.set(data.data, key, value);
-                } else {
-                  log.error(`${key}不在数据中`);
-                }
-              });
-              // 添加的动态属性
-              $form.querySelectorAll<HTMLLIElement>(".rule-form-ulist-dynamic__inner-container").forEach(($inner) => {
-                let dynamicData = {};
-                $inner.querySelectorAll(".dynamic-forms > li").forEach(($li) => {
-                  let formConfig = Reflect.get($li, "__formConfig__");
-                  if (!formConfig) {
-                    return;
-                  }
-                  let attrs = Reflect.get(formConfig, "attributes");
-                  if (!attrs) {
-                    return;
-                  }
-                  let storageApi = Reflect.get($li, PROPS_STORAGE_API);
-                  let key = Reflect.get(attrs, ATTRIBUTE_KEY);
-                  let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
-                  let value = storageApi.get(key, defaultValue);
-                  Reflect.set(dynamicData, key, value);
-                });
-                data.dynamicData!.push(dynamicData as any);
-              });
-              if (data.name.trim() === "") {
-                Qmsg.error("规则名称不能为空");
-                return {
-                  success: false,
-                  data: data,
-                };
-              }
-              if (data.data.url.trim() === "") {
-                Qmsg.error("匹配网址不能为空");
-                return {
-                  success: false,
-                  data: data,
-                };
-              }
-              if (
-                data.data.searchValue.trim() === "" ||
-                (Array.isArray(data.dynamicData) &&
-                  data.dynamicData.findIndex((it) => it.searchValue.trim() === "") !== -1)
-              ) {
-                Qmsg.error("字符规则不能为空");
-                return {
-                  success: false,
-                  data: data,
-                };
-              }
-              if (isEdit) {
-                return {
-                  success: this.updateData(data),
-                  data: data,
-                };
-              } else {
-                return {
-                  success: this.addData(data),
-                  data: data,
-                };
-              }
-            },
+            getView: ruleEditHandler,
+            onsubmit: ruleEditSubmitHandler,
           },
           ruleDelete: {
             enable: true,
@@ -898,20 +654,27 @@ export const CharacterMapping = {
     return rulePanelViewOption;
   },
   /**
+   * 校验规则是否在对应的url中执行
+   */
+  checkRuleMatch(rule: CharacterMappingOption, url = window.location.href) {
+    const matchRegExp = new RegExp(rule.data.url, "ig");
+    return Boolean(url.match(matchRegExp));
+  },
+  /**
    * 根据url获取匹配的规则
    * @param [filterUnEnable=true] 是否过滤掉未启用的规则
    * @param url 需要匹配的url
    */
   getUrlMatchedRule(filterUnEnable = true, url = window.location.href) {
     let allData = this.getData();
-    let allSubscribeRule = CharacterMappingSubscribe.getAllSubscribeRule(filterUnEnable);
+    const allSubscribeRule = CharacterMappingSubscribe.getAllSubscribeRule(filterUnEnable);
     allData = allData.concat(allSubscribeRule);
     return allData.filter((rule) => {
       // 启用且匹配网址
       if (filterUnEnable && !rule.enable) {
         return;
       }
-      return Boolean(url.match(rule.data.url));
+      return this.checkRuleMatch(rule, url);
     });
   },
   /**
@@ -919,7 +682,7 @@ export const CharacterMapping = {
    * @param url 匹配网址
    */
   getMappingData(url: string = window.location.href) {
-    let matchedRule = this.getUrlMatchedRule(true, url);
+    const matchedRule = this.getUrlMatchedRule(true, url);
     let replaceMappingData: {
       searchValue: RegExp | string;
       replaceValue: string;

@@ -16,7 +16,7 @@ import { PanelMenu } from "@components/setting/panel-menu";
 import { NetDiskUserRuleUI } from "./main/rule/user-rule/NetDiskUserRuleUI";
 import { NetDiskSettingView } from "./main/view/setting/NetDiskSettingView";
 import { PanelComponents, type PanelComponentsType } from "@components/setting/panel-components";
-import { GM_getValue, GM_setValue } from "ViteGM";
+import { GM_getValue, GM_info, GM_setValue } from "ViteGM";
 
 try {
   let GLOBAL_RESOURCE_ICON;

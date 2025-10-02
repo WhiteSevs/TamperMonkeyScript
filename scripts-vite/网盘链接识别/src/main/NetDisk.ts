@@ -104,7 +104,7 @@ export const NetDisk = {
     // 这里是输出信息用的，无其它的作用
     const matchedUrlRuleList = WebsiteRule.getUrlMatchedRule();
     if (matchedUrlRuleList.length) {
-      log.info("成功命中网站规则 ==> ", matchedUrlRuleList);
+      log.info("成功命中的网站规则 ==> ", matchedUrlRuleList);
       GM_Menu.add({
         key: "matchedUrlRuleList",
         text: `🌏 命中网站规则 ${matchedUrlRuleList.length} 条`,
@@ -118,16 +118,38 @@ export const NetDisk = {
           if (!Panel.isTopWindow()) {
             return;
           }
-          alert("以下是命中的规则名：\n" + matchedUrlRuleList.map((item) => item.name).join("\n"));
+          const ruleList: WebsiteRuleOption[] = [];
+          const subscribeRuleList: WebsiteRuleOption[] = [];
+          matchedUrlRuleList.forEach((rule) => {
+            if (rule.subscribeUUID) {
+              subscribeRuleList.push(rule);
+            } else {
+              ruleList.push(rule);
+            }
+          });
+          let alertMessage = "";
+          if (ruleList.length) {
+            alertMessage += ["=====↓↓↓ 以下是本地的规则名 ↓↓↓====="]
+              .concat(ruleList.map((it) => it.name ?? it.url))
+              .join("\n");
+          }
+          if (subscribeRuleList.length) {
+            alertMessage += "\n\n\n";
+            alertMessage += ["=====↓↓↓ 以下是订阅的规则名 ↓↓↓====="]
+              .concat(subscribeRuleList.map((it) => it.name ?? it.url))
+              .join("\n");
+          }
+          window.alert(alertMessage);
         },
       });
     }
-    const characterMapping = CharacterMapping.getUrlMatchedRule();
-    if (characterMapping.length) {
-      log.info("成功命中字符规则 ==> ", characterMapping);
+    // 这里是输出信息用的，无其它的作用
+    const matchedCharacterMappingRuleList = CharacterMapping.getUrlMatchedRule();
+    if (matchedCharacterMappingRuleList.length) {
+      log.info("成功命中的字符规则 ==> ", matchedCharacterMappingRuleList);
       GM_Menu.add({
         key: "characterMapping",
-        text: `🌏 命中字符规则 ${characterMapping.length} 条`,
+        text: `🌏 命中字符规则 ${matchedCharacterMappingRuleList.length} 条`,
         autoReload: false,
         isStoreValue: false,
         showText(text) {
@@ -138,7 +160,29 @@ export const NetDisk = {
           if (!Panel.isTopWindow()) {
             return;
           }
-          alert("以下是命中的规则名：\n" + characterMapping.map((item) => item.name).join("\n"));
+          const ruleList: CharacterMappingOption[] = [];
+          const subscribeRuleList: CharacterMappingOption[] = [];
+          matchedCharacterMappingRuleList.forEach((rule) => {
+            if (rule.subscribeUUID) {
+              subscribeRuleList.push(rule);
+            } else {
+              ruleList.push(rule);
+            }
+          });
+          let alertMessage = "";
+          if (ruleList.length) {
+            alertMessage += ["=====↓↓↓ 以下是本地的规则名 ↓↓↓====="]
+              .concat(ruleList.map((it) => it.name ?? it.data.url))
+              .join("\n");
+          }
+          if (subscribeRuleList.length) {
+            alertMessage += "\n\n\n";
+            alertMessage += ["=====↓↓↓ 以下是订阅的规则名 ↓↓↓====="]
+              .concat(subscribeRuleList.map((it) => it.name ?? it.data.url))
+              .join("\n");
+          }
+
+          window.alert(alertMessage);
         },
       });
     }
