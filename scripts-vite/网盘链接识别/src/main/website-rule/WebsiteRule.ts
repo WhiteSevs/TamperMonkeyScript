@@ -795,9 +795,12 @@ export const WebsiteRule = {
   },
   /**
    * 校验规则是否在对应的url中执行
+   * @returns
+   * + true 匹配
+   * + false 未匹配
    */
   checkRuleMatch(rule: WebsiteRuleOption, url = window.location.href) {
-    const matchRegExp = new RegExp(rule.data.url, "ig");
+    const matchRegExp = new RegExp(rule.url, "ig");
     return Boolean(url.match(matchRegExp));
   },
   /**

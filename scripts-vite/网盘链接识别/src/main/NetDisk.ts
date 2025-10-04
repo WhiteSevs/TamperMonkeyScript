@@ -95,7 +95,8 @@ export const NetDisk = {
    * 初始化字典
    */
   initLinkDict() {
-    Object.keys(this.$rule.ruleOption).forEach((ruleKeyName) => {
+    const ruleOptionKeys = Object.keys(this.$rule.ruleOption);
+    ruleOptionKeys.forEach((ruleKeyName) => {
       this.$match.matchedInfo.set(ruleKeyName, new utils.Dictionary());
       this.$match.blackMatchedInfo.set(ruleKeyName, new utils.Dictionary());
       this.$match.tempMatchedInfo.set(ruleKeyName, new utils.Dictionary());

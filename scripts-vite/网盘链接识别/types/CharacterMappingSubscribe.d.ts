@@ -1,11 +1,15 @@
 declare interface CharacterMappingDynamicOption {
-  /** 搜索字符 */
-  searchValue: string;
-  /** 是否启用正则 */
+  /**
+   * 是否启用正则
+   * + true 使用正则进行匹配判断
+   * + false 使用字符串进行匹配判断
+   */
   isRegExp: boolean;
   /** 正则标识符 */
   regExpFlag: string;
-  /** 替换字符 */
+  /** 搜索的字符串 */
+  searchValue: string;
+  /** 替换成的字符串 */
   replaceValue: string;
 }
 

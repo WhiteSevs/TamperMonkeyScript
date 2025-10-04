@@ -657,8 +657,8 @@ export const CharacterMapping = {
    * 校验规则是否在对应的url中执行
    */
   checkRuleMatch(rule: CharacterMappingOption, url = window.location.href) {
-    const matchRegExp = new RegExp(rule.data.url, "ig");
-    return Boolean(url.match(matchRegExp));
+    const regExp = rule.data.isRegExp ? new RegExp(rule.data.url, rule.data.regExpFlag) : rule.data.url;
+    return Boolean(url.match(regExp));
   },
   /**
    * 根据url获取匹配的规则
