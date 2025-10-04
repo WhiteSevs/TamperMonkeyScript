@@ -122,7 +122,9 @@ export declare interface UtilsAjaxHookResult {
             };
         });
      */
-  hook(callback: (request: UtilsAjaxHookRequestOptions) => void | Promise<undefined>): void;
+  hook(
+    callback: (request: UtilsAjaxHookRequestOptions) => void | undefined | null | Promise<void | undefined | null>
+  ): void;
   /**
      * 过滤
      * @example

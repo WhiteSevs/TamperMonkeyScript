@@ -3771,6 +3771,55 @@ class Utils {
       this.windowApi.clearInterval(timeId);
     }
   }
+  /**
+   * 构造一个函数（可为异步函数）
+   *
+   * 前面的是入参，后面的是代码字符串
+   *
+   * 如果无入参，那么直接是代码字符串
+   *
+   * 注意：至少传入一个参数
+   * @param args
+   * @example
+   * const fn = utils.createFunction("console.log(123)");
+   * > 123
+   * @example
+   * const fn = await utils.createFunction("console.log(123)", true);
+   * > 123
+   * @example
+   * const asyncFn = await utils.createFunction("a", "return a", true);
+   * asyncFn(111);
+   * > 111
+   * @example
+   * const asyncFn = await utils.createFunction("a", "b", "return a + b", true);
+   * asyncFn(1,2);
+   * > 3
+   * @example
+   * const fn = utils.createFunction("a", "b", "return a + b", false);
+   * fn(4,5);
+   * > 9
+   */
+  createFunction(code: string): (...args: any[]) => any;
+  createFunction(param: string, code: string): (...args: any[]) => any;
+  createFunction<A extends string[], T extends boolean>(
+    ...params: [...A, code: string, isAsync: T]
+  ): T extends true ? (...params: any[]) => Promise<any> : (...args: any[]) => any;
+  createFunction<A extends string[], T extends boolean>(
+    ...args: [...A, code: string, isAsync?: T]
+  ): T extends true ? (...args: any[]) => Promise<any> : (...args: any[]) => any {
+    let isAsync: string | boolean | undefined = args[args.length - 1];
+    if (typeof isAsync !== "boolean") {
+      isAsync = false;
+    }
+    args.splice(args.length - 1, 1);
+    if (isAsync) {
+      const AsyncFunctionConstructor = Object.getPrototypeOf(async function () {}).constructor;
+      return new AsyncFunctionConstructor(...args);
+    } else {
+      const FunctionConstructor = Object.getPrototypeOf(function () {}).constructor;
+      return new FunctionConstructor(...args);
+    }
+  }
 }
 
 const utils = new Utils();
