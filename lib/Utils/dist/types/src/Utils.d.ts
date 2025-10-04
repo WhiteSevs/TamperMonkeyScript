@@ -1567,9 +1567,16 @@ declare class Utils {
      * fn(4,5);
      * > 9
      */
-    createFunction(code: string): (...args: any[]) => any;
-    createFunction(param: string, code: string): (...args: any[]) => any;
-    createFunction<A extends string[], T extends boolean>(...params: [...A, code: string, isAsync: T]): T extends true ? (...params: any[]) => Promise<any> : (...args: any[]) => any;
+    createFunction<R = any>(code: string): () => R;
+    createFunction<R = any>(param: string, code: string): (param: any) => R;
+    createFunction<P extends string[]>(...params: [...P, code: string]): (...args: {
+        [K in keyof P]: any;
+    }) => any;
+    createFunction<P extends string[], T extends boolean>(...params: [...P, code: string, isAsync: T]): T extends true ? (...params: {
+        [K in keyof P]: any;
+    }) => Promise<any> : (...args: {
+        [K in keyof P]: any;
+    }) => any;
 }
 declare const utils: Utils;
 export { utils as Utils };
