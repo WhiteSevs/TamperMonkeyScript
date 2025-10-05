@@ -2959,7 +2959,7 @@ class Utils {
   /**
    * 数组按照内部某个值的大小比对排序，该函数会改变原数组
    * @param data 数据|获取数据的方法
-   * @param getPropertyValueFunc 数组内部项的某个属性的值的方法，参数为这个项
+   * @param getComparePropertyValue 获取想要比较的属性，仅为number|string类型
    * @param sortByDesc （可选）排序方式
    * + true (默认)倒序(值最大排第一个，如:6、5、4、3...)
    * + false 升序(值最小排第一个，如:1、2、3、4...)
@@ -2970,43 +2970,56 @@ class Utils {
    * @example
    * Utils.sortListByProperty([{"time":"2022-1-1"},{"time":"2022-2-2"}],(item)=>{return item["time"]},false)
    * > [{time: '2022-1-1'},{time: '2022-2-2'}]
+   * @example
+   * // 元素排序
+   * Utils.sortListByProperty( () => document.querySelectorAll("a"), it => it.getAttribute("data-index"))
    **/
-  sortListByProperty<T>(data: T[], getPropertyValueFunc: string | ((value: T) => any), sortByDesc?: boolean): T[];
   sortListByProperty<T>(
-    data: T[],
-    getPropertyValueFunc: string | ((value: T) => any),
+    data: T[] | (() => T[]),
+    getComparePropertyValue: string | ((value: T) => number | string),
+    sortByDesc?: boolean
+  ): T[];
+  sortListByProperty<T>(
+    data: T[] | (() => T[]),
+    getComparePropertyValue: string | ((value: T) => number | string),
     sortByDesc: boolean = true
   ): T[] {
     const that = this;
-    if (typeof getPropertyValueFunc !== "function" && typeof getPropertyValueFunc !== "string") {
+    if (typeof getComparePropertyValue !== "function" && typeof getComparePropertyValue !== "string") {
       throw new Error("Utils.sortListByProperty 参数 getPropertyValueFunc 必须为 function|string 类型");
     }
     if (typeof sortByDesc !== "boolean") {
       throw new Error("Utils.sortListByProperty 参数 sortByDesc 必须为 boolean 类型");
     }
-    const getObjValue = function (obj: any) {
-      return typeof getPropertyValueFunc === "string" ? obj[getPropertyValueFunc] : getPropertyValueFunc(obj);
+    const getTargetValue = function (target: any): number | string {
+      return typeof getComparePropertyValue === "string"
+        ? target[getComparePropertyValue]
+        : getComparePropertyValue(target);
     };
     /**
-     * 排序方法
-     * @param after_obj
-     * @param before_obj
+     * number类型排序方法
+     * @param afterInst
+     * @param beforeInst
      */
-    const sortFunc = function (after_obj: any, before_obj: any) {
-      const beforeValue = getObjValue(before_obj); /*  前 */
-      const afterValue = getObjValue(after_obj); /* 后 */
+    const sortFunc = function (afterInst: any, beforeInst: any) {
+      const beforeValue = getTargetValue(beforeInst); /*  前 */
+      const afterValue = getTargetValue(afterInst); /* 后 */
       if (sortByDesc) {
-        if (afterValue > beforeValue) {
+        // 降序
+        // 5、4、3、2、1
+        if (beforeValue < afterValue) {
           return -1;
-        } else if (afterValue < beforeValue) {
+        } else if (beforeValue > afterValue) {
           return 1;
         } else {
           return 0;
         }
       } else {
-        if (afterValue < beforeValue) {
+        // 升序
+        // 1、2、3、4、5
+        if (beforeValue > afterValue) {
           return -1;
-        } else if (afterValue > beforeValue) {
+        } else if (beforeValue < afterValue) {
           return 1;
         } else {
           return 0;
@@ -3014,18 +3027,18 @@ class Utils {
       }
     };
     /**
-     * 排序元素方法
+     * 元素排序方法
      * @param nodeList 元素列表
      * @param getNodeListFunc 获取元素列表的函数
      */
     const sortNodeFunc = function (nodeList: NodeListOf<HTMLElement>, getNodeListFunc: () => NodeListOf<HTMLElement>) {
       const nodeListLength = nodeList.length;
-      for (let i = 0; i < nodeListLength - 1; i++) {
-        for (let j = 0; j < nodeListLength - 1 - i; j++) {
-          const beforeNode = nodeList[j];
-          const afterNode = nodeList[j + 1];
-          const beforeValue = getObjValue(beforeNode); /*  前 */
-          const afterValue = getObjValue(afterNode); /* 后 */
+      for (let index = 0; index < nodeListLength - 1; index++) {
+        for (let index2 = 0; index2 < nodeListLength - 1 - index; index2++) {
+          const beforeNode = nodeList[index2];
+          const afterNode = nodeList[index2 + 1];
+          const beforeValue = getTargetValue(beforeNode); /*  前 */
+          const afterValue = getTargetValue(afterNode); /* 后 */
           if ((sortByDesc == true && beforeValue < afterValue) || (sortByDesc == false && beforeValue > afterValue)) {
             /* 升序/降序 */
             /* 相邻元素两两对比 */
@@ -3043,17 +3056,19 @@ class Utils {
         }
       }
     };
-    let result = data;
-    let getDataFunc = null;
+    let result = data as T[];
+    let getDataFunc: null | (() => T[]) = null;
     if (data instanceof Function) {
-      getDataFunc = data;
-      data = (<any>data)();
+      getDataFunc = data as () => T[];
+      const newData: T[] = getDataFunc();
+      data = newData;
+      result = newData;
     }
     if (Array.isArray(data)) {
       data.sort(sortFunc);
     } else if (<any>data instanceof NodeList || that.isJQuery(data)) {
       sortNodeFunc(<any>data, <any>getDataFunc);
-      result = (<any>getDataFunc)();
+      result = (<() => T[]>getDataFunc)();
     } else {
       throw new Error("Utils.sortListByProperty 参数 data 必须为 Array|NodeList|jQuery 类型");
     }

@@ -1205,7 +1205,7 @@ declare class Utils {
     /**
      * 数组按照内部某个值的大小比对排序，该函数会改变原数组
      * @param data 数据|获取数据的方法
-     * @param getPropertyValueFunc 数组内部项的某个属性的值的方法，参数为这个项
+     * @param getComparePropertyValue 获取想要比较的属性，仅为number|string类型
      * @param sortByDesc （可选）排序方式
      * + true (默认)倒序(值最大排第一个，如:6、5、4、3...)
      * + false 升序(值最小排第一个，如:1、2、3、4...)
@@ -1216,8 +1216,11 @@ declare class Utils {
      * @example
      * Utils.sortListByProperty([{"time":"2022-1-1"},{"time":"2022-2-2"}],(item)=>{return item["time"]},false)
      * > [{time: '2022-1-1'},{time: '2022-2-2'}]
+     * @example
+     * // 元素排序
+     * Utils.sortListByProperty( () => document.querySelectorAll("a"), it => it.getAttribute("data-index"))
      **/
-    sortListByProperty<T>(data: T[], getPropertyValueFunc: string | ((value: T) => any), sortByDesc?: boolean): T[];
+    sortListByProperty<T>(data: T[] | (() => T[]), getComparePropertyValue: string | ((value: T) => number | string), sortByDesc?: boolean): T[];
     /**
      * 字符串首字母转大写
      * @param targetString 目标字符串
