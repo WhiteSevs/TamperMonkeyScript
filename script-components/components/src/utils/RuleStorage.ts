@@ -21,6 +21,9 @@ export class RuleStorage<
   },
 > {
   option;
+  /**
+   * @param option 配置项
+   */
   constructor(option: RuleStorageConstructOption) {
     this.option = option;
   }
@@ -28,11 +31,12 @@ export class RuleStorage<
    * 获取所有规则
    */
   getAllRule() {
-    let allRules = GM_getValue<T[]>(this.option.STORAGE_API_KEY, []);
+    const allRules = GM_getValue<T[]>(this.option.STORAGE_API_KEY, []);
     return allRules;
   }
   /**
    * 设置全部规则
+   * @param rules 规则列表
    */
   setAllRule(rules: T[]) {
     GM_setValue(this.option.STORAGE_API_KEY, rules);
@@ -48,10 +52,10 @@ export class RuleStorage<
    * @param uuid
    */
   getRule(uuid: string) {
-    let allRules = this.getAllRule();
-    let findIndex = allRules.findIndex((item) => item.uuid === uuid);
+    const allRules = this.getAllRule();
+    const findIndex = allRules.findIndex((item) => item.uuid === uuid);
     if (findIndex !== -1) {
-      let rule = allRules[findIndex];
+      const rule = allRules[findIndex];
       return rule;
     }
   }
@@ -63,8 +67,8 @@ export class RuleStorage<
    * + false 未找到规则
    */
   setRule(rule: T) {
-    let allRules = this.getAllRule();
-    let findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
+    const allRules = this.getAllRule();
+    const findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
     let updateFlag = false;
     if (findIndex !== -1) {
       // 存在相同uuid，更新数据
@@ -78,10 +82,11 @@ export class RuleStorage<
   }
   /**
    * 添加规则
+   * @param rule 规则
    */
   addRule(rule: T) {
-    let allRules = this.getAllRule();
-    let findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
+    const allRules = this.getAllRule();
+    const findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
     let addFlag = false;
     if (findIndex !== -1) {
       // 存在相同uuid
@@ -98,8 +103,8 @@ export class RuleStorage<
    * @param rule 规则
    */
   updateRule(rule: T) {
-    let allRules = this.getAllRule();
-    let findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
+    const allRules = this.getAllRule();
+    const findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
     if (findIndex !== -1) {
       // 存在相同uuid，更新数据
       allRules[findIndex] = rule;
@@ -114,9 +119,9 @@ export class RuleStorage<
    * @param rule 规则/规则的uuid
    */
   deleteRule(rule: T | string) {
-    let allRules = this.getAllRule();
-    let ruleUUID = typeof rule === "string" ? rule : rule.uuid;
-    let findIndex = allRules.findIndex((item) => item.uuid === ruleUUID);
+    const allRules = this.getAllRule();
+    const ruleUUID = typeof rule === "string" ? rule : rule.uuid;
+    const findIndex = allRules.findIndex((item) => item.uuid === ruleUUID);
     if (findIndex !== -1) {
       allRules.splice(findIndex, 1);
       this.setAllRule(allRules);
@@ -130,7 +135,7 @@ export class RuleStorage<
    * @param importEndCallBack 导入完毕后的回调
    */
   importRules(importEndCallBack?: () => void) {
-    let $alert = pops.alert({
+    const $alert = pops.alert({
       title: {
         text: "请选择导入方式",
         position: "center",
@@ -168,25 +173,25 @@ export class RuleStorage<
             `,
     });
     /** 本地导入 */
-    let $local = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='local']")!;
+    const $local = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='local']")!;
     /** 网络导入 */
-    let $network = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='network']")!;
+    const $network = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='network']")!;
     /** 剪贴板导入 */
-    let $clipboard = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='clipboard']")!;
+    const $clipboard = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='clipboard']")!;
     /**
      * 将获取到的规则更新至存储
      */
-    let updateRuleToStorage = async (data: any[]) => {
+    const updateRuleToStorage = async (data: any[]) => {
       let allData = this.getAllRule();
-      let addNewData: typeof allData = [];
-      let repeatData: {
+      const addNewData: typeof allData = [];
+      const repeatData: {
         index: number;
         data: (typeof allData)["0"];
       }[] = [];
       let isRepeat = false;
       for (let index = 0; index < data.length; index++) {
         const dataItem = data[index];
-        let findIndex = allData.findIndex((it) => it.uuid === dataItem.uuid);
+        const findIndex = allData.findIndex((it) => it.uuid === dataItem.uuid);
         if (findIndex !== -1) {
           // 存在相同的uuid的规则
           repeatData.push({
@@ -199,7 +204,7 @@ export class RuleStorage<
         }
       }
       if (repeatData.length) {
-        let confirmRepeat = await new Promise<boolean>((resolve) => {
+        const confirmRepeat = await new Promise<boolean>((resolve) => {
           pops.alert({
             title: {
               text: "覆盖规则",
@@ -243,7 +248,7 @@ export class RuleStorage<
         allData = allData.concat(addNewData);
       }
       this.setAllRule(allData);
-      let message = `共 ${data.length} 条规则，新增 ${
+      const message = `共 ${data.length} 条规则，新增 ${
         addNewData.length
       } 条，覆盖 ${isRepeat ? repeatData.length : 0} 条`;
       Qmsg.success(message);
@@ -252,9 +257,9 @@ export class RuleStorage<
     /**
      * @param subscribeText 订阅文件文本
      */
-    let importFile = (subscribeText: string) => {
+    const importFile = (subscribeText: string) => {
       return new Promise<boolean>(async (resolve) => {
-        let data = utils.toJSON(subscribeText);
+        const data = utils.toJSON(subscribeText);
         if (!Array.isArray(data)) {
           log.error(data);
           Qmsg.error("导入失败，格式不符合（不是数组）", {
@@ -279,7 +284,7 @@ export class RuleStorage<
     DOMUtils.on($local, "click", (event) => {
       DOMUtils.preventEvent(event);
       $alert.close();
-      let $input = DOMUtils.createElement("input", {
+      const $input = DOMUtils.createElement("input", {
         type: "file",
         accept: ".json",
       });
@@ -287,8 +292,8 @@ export class RuleStorage<
         if (!$input.files?.length) {
           return;
         }
-        let uploadFile = $input.files![0];
-        let fileReader = new FileReader();
+        const uploadFile = $input.files![0];
+        const fileReader = new FileReader();
         fileReader.onload = () => {
           importFile(fileReader.result as string);
         };
@@ -300,7 +305,7 @@ export class RuleStorage<
     DOMUtils.on($network, "click", (event) => {
       DOMUtils.preventEvent(event);
       $alert.close();
-      let $prompt = pops.prompt({
+      const $prompt = pops.prompt({
         title: {
           text: "网络导入",
           position: "center",
@@ -319,14 +324,14 @@ export class RuleStorage<
           },
           ok: {
             text: "导入",
-            callback: async (eventDetails, event) => {
-              let url = eventDetails.text;
+            callback: async (details, event) => {
+              const url = details.text;
               if (utils.isNull(url)) {
                 Qmsg.error("请填入完整的url");
                 return;
               }
-              let $loading = Qmsg.loading("正在获取配置...");
-              let response = await httpx.get(url, {
+              const $loading = Qmsg.loading("正在获取配置...");
+              const response = await httpx.get(url, {
                 allowInterceptConfig: false,
               });
               $loading.close();
@@ -335,11 +340,11 @@ export class RuleStorage<
                 Qmsg.error("获取配置失败", { consoleLogContent: true });
                 return;
               }
-              let flag = await importFile(response.data.responseText);
+              const flag = await importFile(response.data.responseText);
               if (!flag) {
                 return;
               }
-              eventDetails.close();
+              details.close();
             },
           },
           cancel: {
@@ -351,10 +356,10 @@ export class RuleStorage<
         width: PanelUISize.info.width,
         height: "auto",
       });
-      let $promptInput = $prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
-      let $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(".pops-prompt-btn-ok")!;
+      const $promptInput = $prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
+      const $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(".pops-prompt-btn-ok")!;
       DOMUtils.on($promptInput, ["input", "propertychange"], (event) => {
-        let value = DOMUtils.val($promptInput);
+        const value = DOMUtils.val($promptInput);
         if (value === "") {
           DOMUtils.attr($promptOk, "disabled", "true");
         } else {
@@ -363,7 +368,7 @@ export class RuleStorage<
       });
       DOMUtils.listenKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
         if (keyName === "Enter" && otherCodeList.length === 0) {
-          let value = DOMUtils.val($promptInput);
+          const value = DOMUtils.val($promptInput);
           if (value !== "") {
             DOMUtils.trigger($promptOk, "click");
           }
@@ -375,7 +380,7 @@ export class RuleStorage<
     DOMUtils.on($clipboard, "click", async (event) => {
       DOMUtils.preventEvent(event);
       $alert.close();
-      let clipboardInfo = await utils.getClipboardInfo();
+      const clipboardInfo = await utils.getClipboardInfo();
       if (clipboardInfo.error != null) {
         Qmsg.error(clipboardInfo.error.toString());
         return;
@@ -384,7 +389,7 @@ export class RuleStorage<
         Qmsg.warning("获取到的剪贴板内容为空");
         return;
       }
-      let flag = await importFile(clipboardInfo.content);
+      const flag = await importFile(clipboardInfo.content);
       if (!flag) {
         return;
       }
@@ -392,12 +397,13 @@ export class RuleStorage<
   }
   /**
    * 导出规则
+   * @param fileName 文件名
    */
   exportRules(fileName = "rule.json") {
-    let allRules = this.getAllRule();
-    let blob = new Blob([JSON.stringify(allRules, null, 4)]);
-    let blobUrl = globalThis.URL.createObjectURL(blob);
-    let $a = document.createElement("a");
+    const allRules = this.getAllRule();
+    const blob = new Blob([JSON.stringify(allRules, null, 4)]);
+    const blobUrl = globalThis.URL.createObjectURL(blob);
+    const $a = document.createElement("a");
     $a.href = blobUrl;
     $a.download = fileName;
     $a.click();
