@@ -149,7 +149,7 @@ export const PanelCommonConfig: PopsPanelContentConfig = {
               text: "",
               type: "forms",
               forms: [
-                UISwitch("伪装登录", "disguiseLogin", false, void 0, "该功能残缺，仅在部分区域内失效"),
+                UISwitch("伪装登录", "disguiseLogin", false, void 0, "该功能残缺，在部分区域内会失效或者导致功能异常"),
                 UISwitch("initial-scale=1", "dy-initialScale", false, void 0, "可配合手机模式放大页面"),
                 UISwitch(
                   "移除<meta> apple-itunes-app",

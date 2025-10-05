@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.30
+// @version      2025.10.5
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -10,7 +10,7 @@
 // @match        *://*.douyin.com/*
 // @match        *://*.iesdouyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
@@ -222,6 +222,7 @@
         }
         return this.__contentConfig;
       },
+      __defaultBottomContentConfig: [],
     },
     addContentConfig(configList) {
       if (!Array.isArray(configList)) {
@@ -237,6 +238,9 @@
       return this.$data.contentConfig.get(index) ?? [];
     },
     getDefaultBottomContentConfig() {
+      if (this.$data.__defaultBottomContentConfig.length) {
+        return this.$data.__defaultBottomContentConfig;
+      }
       return [
         {
           id: "script-version",
@@ -252,6 +256,9 @@
           },
         },
       ];
+    },
+    setDefaultBottomContentConfig(config) {
+      this.$data.__defaultBottomContentConfig = config;
     },
   };
   const PanelMenu = {
@@ -1672,11 +1679,10 @@
 				padding-top: 0px !important;
 			}
 			/* 兼容手机模式 */
-			@media screen and (max-width: 550px){
+			@media screen and (max-width: 550px)  and (orientation: portrait) {
 				.is-mobile-pc{
 					--header-height: 0px !important;
 				}
-				
 			}
 		`
         )
@@ -2356,7 +2362,7 @@
             }
             const $active = document.activeElement;
             const $shadowRootActive = $active?.shadowRoot?.activeElement;
-            if (isInPopsComponentsRequireInputNode($active) || isInPopsComponentsRequireInputNode($shadowRootActive)) {
+            if (isInPopsComponentsRequireInputNode($shadowRootActive ?? $active)) {
               return;
             }
             let keyboardConfigList = [
@@ -2635,8 +2641,8 @@
       CommonUtil.addBlockCSS(".login-tooltip-slot");
       DouYinNetWorkHook.hookUserNoLoginResponse();
       const WAIT_TIME = 2e4;
-      let uid = parseInt((Math.random() * 1e10).toString());
-      let info = {
+      const uid = parseInt((Math.random() * 1e10).toString());
+      const info = {
         uid,
         secUid: "",
         shortId: parseInt((Math.random() * 1e9).toString()),
@@ -2715,6 +2721,7 @@
         close_consecutive_chat: 0,
         profileRankLabel: null,
       };
+      Object.freeze(info);
       function getUserInfo(element) {
         let userInfoList = [];
         let reactInstance = utils.getReactInstance(element);
@@ -2743,9 +2750,7 @@
           }
         });
       }
-      DouYinElement.watchFeedVideoListChange(($os) => {
-        setLogin($os);
-      });
+      DouYinElement.watchFeedVideoListChange(setLogin);
       domUtils
         .waitNode("#root div[class*='-os']", WAIT_TIME)
         .then(() => {
@@ -2826,7 +2831,7 @@
           return;
         }
         let $loginDialog = $('body > div[id^="login-full-panel-"]');
-        if ($loginDialog) {
+        if ($loginDialog && $loginDialog.childNodes.length) {
           let $loginDialogCloseBtn =
             $loginDialog.querySelector(".dy-account-close") ||
             $loginDialog.querySelector(
@@ -2905,13 +2910,8 @@
       ];
     },
   };
-  const DouYinUtils = {
-    isVerticalScreen() {
-      return !window.screen.orientation.type.includes("landscape");
-    },
-  };
   const MobileCSS$1 =
-    '/* 竖屏且高度小于550px */\r\n@media screen and (max-width: 550px) and (orientation: portrait) {\r\n  /* 右侧工具栏放大 */\r\n  .basePlayerContainer .positionBox {\r\n    bottom: 80px !important;\r\n    padding-right: 5px !important;\r\n    scale: unset !important;\r\n    transform: scale3d(1.12, 1.12, 1.12) !important;\r\n  }\r\n  /* 右侧工具栏的svg再放大 */\r\n  .basePlayerContainer .positionBox svg {\r\n    transform: scale3d(1.12, 1.12, 1.12);\r\n  }\r\n  /* 重置关注按钮的scale */\r\n  .basePlayerContainer .positionBox .dy-tip-container div[data-e2e="feed-follow-icon"] svg {\r\n    scale: unset !important;\r\n  }\r\n\r\n  /* 调整顶部搜索框的宽度 */\r\n  #douyin-header\r\n    div[data-click="doubleClick"]\r\n    > div[data-click="doubleClick"]\r\n    > div:has(input[data-e2e="searchbar-input"]) {\r\n    width: 150px;\r\n    padding-right: 0;\r\n    max-width: unset;\r\n    flex: 1;\r\n  }\r\n  /* 搜索框获取焦点时自动放大宽度 */\r\n  #douyin-header\r\n    div[data-click="doubleClick"]\r\n    > div[data-click="doubleClick"]\r\n    > div:has(input[data-e2e="searchbar-input"]:focus) {\r\n    width: 100vw;\r\n    width: 100dvw;\r\n  }\r\n  /* 搜索页面 搜索详情的宽度、视频结果列表的宽度 */\r\n  #search-content-area > div,\r\n  #search-content-area > div div:has(+ #search-result-container),\r\n  #search-content-area > div #search-result-container {\r\n    width: 100%;\r\n    width: -webkit-fill-available;\r\n  }\r\n  /* 搜索页面 视频右侧的工具栏缩小 */\r\n  #search-content-area .basePlayerContainer .positionBox {\r\n    bottom: 28px !important;\r\n    transform: scale3d(0.6, 0.6, 0.6) !important;\r\n  }\r\n  /* 搜索页面 搜索出的用户信息换行 */\r\n  #search-content-area #search-result-container ul[data-e2e="scroll-list"] li .search-result-card > div > div {\r\n    flex-wrap: wrap;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 综合、视频、用户、直播的超出宽度换行 */\r\n  #search-content-area div:has(> div > div > span[data-key="general"]) {\r\n    overflow: auto;\r\n    gap: 10px;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 */\r\n  #search-content-area div:has(> span[data-key="general"]) {\r\n    gap: 10px;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项弹窗修复 */\r\n  #search-content-area div:has(> div > span[data-key="general"]) {\r\n    position: unset !important;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 */\r\n  #search-content-area div:has(> span[data-key="general"]) > * {\r\n    white-space: nowrap !important;\r\n    width: auto !important;\r\n    width: fit-content !important;\r\n    margin-left: 0px !important;\r\n    margin-right: 0px !important;\r\n  }\r\n  /* 去除设置min-width超出浏览器宽度的问题 */\r\n  body {\r\n    min-width: 100% !important;\r\n  }\r\n  /* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n  #douyin-right-container #douyin-header {\r\n    width: 100%;\r\n  }\r\n  /* 去除设置 */\r\n  #douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n    min-width: 100%;\r\n  }\r\n\r\n  /* /video/xxx页面 */\r\n  /* 点赞、评论、分享偏移 */\r\n  div[data-e2e="video-detail"] .leftContainer .basePlayerContainer .positionBox {\r\n    padding-right: 30px !important;\r\n  }\r\n  /* 底部工具栏右侧的按钮 */\r\n  div[data-e2e="video-detail"] .leftContainer .xgplayer.xgplayer-pc .xg-right-grid {\r\n    margin-right: 35px !important;\r\n  }\r\n  /* 评论区全屏 */\r\n  div[data-e2e="video-detail"] .leftContainer > div:has(.comment-mainContent[data-e2e="comment-list"]),\r\n  div[data-e2e="video-detail"] .leftContainer > div > div:has(.comment-mainContent[data-e2e="comment-list"]) {\r\n    width: 100vw !important;\r\n  }\r\n\r\n  /* 设置视频区域的高度 */\r\n  #slidelist {\r\n    width: 100vw;\r\n    height: calc(100vh - var(--header-height)) !important;\r\n  }\r\n  /* 修正网页全屏下的视频高度 */\r\n  #slidelist[class*="isCssFullScreen"] {\r\n    height: 100vh !important;\r\n  }\r\n  /* 去除视频区域右侧偏移 */\r\n  .is-mobile-pc div[data-e2e="slideList"] {\r\n    padding-right: 0px !important;\r\n    height: 100% !important;\r\n    min-height: 100% !important;\r\n  }\r\n}\r\n\r\n/* 横屏且高度小于550px */\r\n@media screen and (max-height: 550px) and (orientation: landscape) {\r\n  /* 右侧工具栏缩小 */\r\n  .basePlayerContainer .positionBox {\r\n    transform: scale(0.95) !important;\r\n    bottom: 42px !important;\r\n    padding-right: 10px !important;\r\n  }\r\n  /* 右侧工具栏的svg再缩小 */\r\n  .basePlayerContainer .positionBox svg {\r\n    transform: scale3d(0.95, 0.95, 0.95);\r\n  }\r\n  /* 修复全屏下不显示视频底部的控制栏 */\r\n  .isCssFullScreen [data-e2e="slideList"] {\r\n    min-height: auto !important;\r\n  }\r\n}\r\n';
+    '/* 竖屏且高度小于550px */\r\n@media screen and (max-width: 550px) and (orientation: portrait) {\r\n  /* 右侧工具栏放大 */\r\n  .basePlayerContainer .positionBox {\r\n    bottom: 80px !important;\r\n    padding-right: 5px !important;\r\n    scale: unset !important;\r\n    transform: scale3d(1.12, 1.12, 1.12) !important;\r\n  }\r\n  /* 右侧工具栏的svg再放大 */\r\n  .basePlayerContainer .positionBox svg {\r\n    transform: scale3d(1.12, 1.12, 1.12);\r\n  }\r\n  /* 重置关注按钮的scale */\r\n  .basePlayerContainer .positionBox .dy-tip-container div[data-e2e="feed-follow-icon"] svg {\r\n    scale: unset !important;\r\n  }\r\n\r\n  /* 调整顶部搜索框的宽度 */\r\n  #douyin-header\r\n    div[data-click="doubleClick"]\r\n    > div[data-click="doubleClick"]\r\n    > div:has(input[data-e2e="searchbar-input"]) {\r\n    width: 150px;\r\n    padding-right: 0;\r\n    max-width: unset;\r\n    flex: 1;\r\n  }\r\n  /* 搜索框获取焦点时自动放大宽度 */\r\n  #douyin-header\r\n    div[data-click="doubleClick"]\r\n    > div[data-click="doubleClick"]\r\n    > div:has(input[data-e2e="searchbar-input"]:focus) {\r\n    width: 100vw;\r\n    width: 100dvw;\r\n  }\r\n  /* 搜索页面 搜索详情的宽度、视频结果列表的宽度 */\r\n  #search-content-area > div,\r\n  #search-content-area > div div:has(+ #search-result-container),\r\n  #search-content-area > div #search-result-container {\r\n    width: 100%;\r\n    width: -webkit-fill-available;\r\n  }\r\n  /* 搜索页面 视频右侧的工具栏缩小 */\r\n  #search-content-area .basePlayerContainer .positionBox {\r\n    bottom: 28px !important;\r\n    transform: scale3d(0.6, 0.6, 0.6) !important;\r\n  }\r\n  /* 搜索页面 搜索出的用户信息换行 */\r\n  #search-content-area #search-result-container ul[data-e2e="scroll-list"] li .search-result-card > div > div {\r\n    flex-wrap: wrap;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 综合、视频、用户、直播的超出宽度换行 */\r\n  #search-content-area div:has(> div > div > span[data-key="general"]) {\r\n    overflow: auto;\r\n    gap: 10px;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 */\r\n  #search-content-area div:has(> span[data-key="general"]) {\r\n    gap: 10px;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项弹窗修复 */\r\n  #search-content-area div:has(> div > span[data-key="general"]) {\r\n    position: unset !important;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 */\r\n  #search-content-area div:has(> span[data-key="general"]) > * {\r\n    white-space: nowrap !important;\r\n    width: auto !important;\r\n    width: fit-content !important;\r\n    margin-left: 0px !important;\r\n    margin-right: 0px !important;\r\n  }\r\n  /* 去除设置min-width超出浏览器宽度的问题 */\r\n  body {\r\n    min-width: 100% !important;\r\n  }\r\n  /* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n  #douyin-right-container #douyin-header {\r\n    width: 100%;\r\n  }\r\n  /* 去除设置 */\r\n  #douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n    min-width: 100%;\r\n  }\r\n\r\n  /* /video/xxx页面 */\r\n  /* 点赞、评论、分享偏移 */\r\n  div[data-e2e="video-detail"] .leftContainer .basePlayerContainer .positionBox {\r\n    padding-right: 30px !important;\r\n  }\r\n  /* 底部工具栏右侧的按钮 */\r\n  div[data-e2e="video-detail"] .leftContainer .xgplayer.xgplayer-pc .xg-right-grid {\r\n    margin-right: 35px !important;\r\n  }\r\n  /* 评论区全屏 */\r\n  div[data-e2e="video-detail"] .leftContainer > div:has(.comment-mainContent[data-e2e="comment-list"]),\r\n  div[data-e2e="video-detail"] .leftContainer > div > div:has(.comment-mainContent[data-e2e="comment-list"]) {\r\n    width: 100vw !important;\r\n  }\r\n\r\n  /* 设置视频区域的高度 */\r\n  #slidelist {\r\n    width: 100%;\r\n    height: calc(100vh - var(--header-height)) !important;\r\n  }\r\n  /* 修正网页全屏下的视频高度 */\r\n  #slidelist[class*="isCssFullScreen"] {\r\n    height: 100vh !important;\r\n  }\r\n  /* 去除视频区域右侧偏移 */\r\n  .is-mobile-pc div[data-e2e="slideList"] {\r\n    padding-right: 0px !important;\r\n  }\r\n}\r\n\r\n/* 横屏且高度小于550px */\r\n@media screen and (max-height: 550px) and (orientation: landscape) {\r\n  /* 右侧工具栏缩小 */\r\n  .basePlayerContainer .positionBox {\r\n    transform: scale(0.95) !important;\r\n    bottom: 42px !important;\r\n    padding-right: 10px !important;\r\n  }\r\n  /* 右侧工具栏的svg再缩小 */\r\n  .basePlayerContainer .positionBox svg {\r\n    transform: scale3d(0.95, 0.95, 0.95);\r\n  }\r\n  /* 修复全屏下不显示视频底部的控制栏 */\r\n  .isCssFullScreen [data-e2e="slideList"] {\r\n    min-height: auto !important;\r\n  }\r\n}\r\n';
   const DouYinVideoBlock_Comment = {
     init() {
       Panel.execMenuOnce("dy-video-shieldUserCommentToolBar", () => {
@@ -4042,7 +4042,7 @@
       });
       DouYinVideoPlayerBlockMouseHoverTip.init();
       Panel.execMenuOnce("changeCommentToBottom", () => {
-        DouYinVideoPlayer.changeCommentToBottom();
+        return DouYinVideoPlayer.changeCommentToBottom();
       });
       Panel.execMenuOnce("fullScreen", () => {
         return this.fullScreen();
@@ -4205,48 +4205,39 @@
       });
     },
     changeCommentToBottom() {
-      log.info("评论区修改为底部");
-      let ATTRIBUTE_KEY2 = "data-vertical-screen";
-      function autoChangeCommentPosition() {
-        if (DouYinUtils.isVerticalScreen()) {
-          log.success("自动判断: 竖屏");
-          document.documentElement.setAttribute(ATTRIBUTE_KEY2, "true");
-        } else {
-          log.success("自动判断: 横屏");
-          document.documentElement.removeAttribute(ATTRIBUTE_KEY2);
+      log.info("评论区移到中间");
+      return [
+        addStyle(
+          `
+      /* 竖屏样式 */
+      @media screen and (orientation: portrait) {
+        #sliderVideo[data-e2e="feed-video"] #videoSideBar #relatedVideoCard,
+        #sliderVideo[data-e2e="feed-video"] #videoSideCard #relatedVideoCard{
+          display: none !important;
+        }
+        /* 左侧的视频宽度撑满 */
+        #sliderVideo[data-e2e] .playerContainer,
+        #slideMode[data-e2e] .playerContainer{
+          width: 100% !important;
+        }
+        /* 右侧的评论区宽度撑满，position使用absolute */
+        #sliderVideo[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard),
+        #slideMode[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard),
+        #sliderVideo[data-e2e="feed-active-video"] #videoSideCard:has(#relatedVideoCard),
+        #slideMode[data-e2e="feed-active-video"] #videoSideCard:has(#relatedVideoCard){
+          width: 100%;
+          height: 75%;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.9);
+          transition: height .15s linear !important;
+          position: absolute;
         }
       }
-      autoChangeCommentPosition();
-      addStyle(
-        `
-		html[${ATTRIBUTE_KEY2}] #sliderVideo[data-e2e="feed-video"] #videoSideBar #relatedVideoCard,
-		html[${ATTRIBUTE_KEY2}] #sliderVideo[data-e2e="feed-video"] #videoSideCard #relatedVideoCard{
-			display: none !important;
-		}
-		/* 左侧的视频宽度撑满 */
-		html[${ATTRIBUTE_KEY2}] #sliderVideo[data-e2e] .playerContainer,
-		html[${ATTRIBUTE_KEY2}] #slideMode[data-e2e] .playerContainer{
-			width: 100% !important;
-		}
-		/* 右侧的评论区宽度撑满，position使用absolute */
-		html[${ATTRIBUTE_KEY2}] #sliderVideo[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard),
-		html[${ATTRIBUTE_KEY2}] #slideMode[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard),
-		html[${ATTRIBUTE_KEY2}] #sliderVideo[data-e2e="feed-active-video"] #videoSideCard:has(#relatedVideoCard),
-		html[${ATTRIBUTE_KEY2}] #slideMode[data-e2e="feed-active-video"] #videoSideCard:has(#relatedVideoCard){
-			width: 100%;
-			height: 75%;
-			left: 0;
-			right: 0;
-			bottom: 0;
-			background-color: rgba(0, 0, 0, 0.9);
-			transition: height .15s linear !important;
-			position: absolute;
-		}
 		`
-      );
-      Panel.execMenuOnce("douyin-video-autoCheckChangeCommentToBottom", () => {
-        domUtils.on(window, "resize", autoChangeCommentPosition);
-      });
+        ),
+      ];
     },
     chooseQuality(mode = 0) {
       log.info("选择视频清晰度: " + mode);
@@ -6353,6 +6344,9 @@
         log.success(`${value ? "开启" : "关闭"} ${text}`);
         let storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
+        if (typeof valueChangeCallBack === "function") {
+          valueChangeCallBack(event, value);
+        }
       },
       afterAddToUListCallBack,
     };
@@ -7366,6 +7360,7 @@
       let liveStreamNickName = void 0;
       let liveStreamRoomUserCount = void 0;
       let liveStreamRoomDynamicSpliceLabel = void 0;
+      let videoBitRateList = [];
       let isProduct = false;
       let productId = void 0;
       let productTitle = void 0;
@@ -7535,6 +7530,50 @@
           isProduct = true;
         }
       }
+      const videoBitRateListData = awemeInfo?.["video"]?.["bitRateList"] || awemeInfo?.["video"]?.["bit_rate"];
+      if (Array.isArray(videoBitRateListData)) {
+        videoBitRateListData.forEach((item) => {
+          const videoBitRateListItem = {};
+          const bitRate = item?.["bitRate"] || item?.["bit_rate"];
+          if (typeof bitRate === "number") {
+            videoBitRateListItem["bitRate"] = bitRate;
+          }
+          const dataSize = item?.["dataSize"] || item?.["play_addr"]?.["data_size"];
+          if (typeof dataSize === "number") {
+            videoBitRateListItem["dataSize"] = dataSize;
+          }
+          const format = item?.["format"];
+          if (typeof format === "string") {
+            videoBitRateListItem["format"] = format;
+          }
+          const isH265 = item?.["isH265"] || item?.["is_h265"];
+          if (typeof isH265 === "number") {
+            videoBitRateListItem["isH265"] = isH265;
+          }
+          const fps = item?.["fps"] || item?.["FPS"];
+          if (typeof fps === "number") {
+            videoBitRateListItem["fps"] = fps;
+          }
+          const gearName = item?.["gearName"] || item?.["gear_name"];
+          if (typeof gearName === "string") {
+            videoBitRateListItem["gearName"] = gearName;
+          }
+          const qualityType = item?.["qualityType"] || item?.["quality_type"];
+          if (typeof qualityType === "number") {
+            videoBitRateListItem["qualityType"] = qualityType;
+          }
+          const width = item?.["width"] || item?.["play_addr"]?.["width"];
+          if (typeof width === "number") {
+            videoBitRateListItem["width"] = width;
+          }
+          const height = item?.["height"] || item?.["play_addr"]?.["height"];
+          if (typeof height === "number") {
+            videoBitRateListItem["height"] = height;
+          }
+          videoBitRateList.push(videoBitRateListItem);
+        });
+        videoBitRateList = [...new Set(videoBitRateList)];
+      }
       return {
         awemeId,
         nickname,
@@ -7565,6 +7604,7 @@
         liveStreamNickName,
         liveStreamRoomUserCount,
         liveStreamRoomDynamicSpliceLabel,
+        videoBitRateList,
         productId,
         productTitle,
         isLive,
@@ -7575,12 +7615,34 @@
         isProduct,
       };
     }
-    checkFilterWithRule(details) {
+    async checkFilterWithRule(details, dynamicOption) {
       if (details.videoInfoValue == null) {
         return false;
       }
       if (details.ruleValue == null) {
         return false;
+      }
+      const isFunctionHandler = Boolean(dynamicOption.isFunctionHandler);
+      if (isFunctionHandler && typeof details.ruleValue === "string") {
+        const handlerFunction = utils.createFunction("data", dynamicOption.ruleValue, true).bind({
+          utils,
+          DOMUtils,
+          httpx,
+          Qmsg,
+          pops: __pops,
+          log,
+          window,
+          unsafeWindow: _unsafeWindow,
+        });
+        let handlerResult = await handlerFunction({
+          ruleKey: details.ruleKey,
+          transformAwemeInfo: details.transformAwemeInfo,
+        });
+        if (typeof handlerResult !== "boolean") {
+          log.error(details, dynamicOption);
+          throw new Error("过滤器规则：函数返回值必须是true或false");
+        }
+        return handlerResult;
       }
       if (typeof details.videoInfoValue === "string") {
         if (Boolean(details.videoInfoValue.match(details.ruleValue))) {
@@ -7645,15 +7707,15 @@
       }
       return false;
     }
-    checkAwemeInfoIsFilter(rule, awemeInfo) {
+    async checkAwemeInfoIsFilter(rule, awemeInfo) {
       let transformAwemeInfo = this.parseAwemeInfoDictData(awemeInfo);
       let flag = false;
       let matchedFilterOption = null;
       outerLoop: for (let index = 0; index < rule.length; index++) {
-        const filterOption = rule[index];
-        const ruleNameList = Array.isArray(filterOption.data.ruleName)
-          ? filterOption.data.ruleName
-          : [filterOption.data.ruleName];
+        const filterRule = rule[index];
+        const ruleNameList = Array.isArray(filterRule.data.ruleName)
+          ? filterRule.data.ruleName
+          : [filterRule.data.ruleName];
         for (let ruleNameIndex = 0; ruleNameIndex < ruleNameList.length; ruleNameIndex++) {
           const ruleName = ruleNameList[ruleNameIndex];
           if (!Reflect.has(transformAwemeInfo, ruleName)) {
@@ -7664,15 +7726,17 @@
           let details = {
             videoInfoKey: tagKey,
             videoInfoValue: tagValue,
-            ruleKey: filterOption.data.ruleName,
-            ruleValue: filterOption.data.ruleValue,
+            ruleKey: filterRule.data.ruleName,
+            ruleValue: filterRule.data.ruleValue,
+            transformAwemeInfo,
+            rule: filterRule,
           };
-          flag = this.checkFilterWithRule(details);
+          flag = await this.checkFilterWithRule(details, filterRule.data);
           if (flag) {
-            if (Array.isArray(filterOption.dynamicData) && filterOption.dynamicData.length) {
+            if (Array.isArray(filterRule.dynamicData) && filterRule.dynamicData.length) {
               let dynamicDetailsList = [];
-              for (let dynamicIndex = 0; dynamicIndex < filterOption.dynamicData.length; dynamicIndex++) {
-                const dynamicOption = filterOption.dynamicData[dynamicIndex];
+              for (let dynamicIndex = 0; dynamicIndex < filterRule.dynamicData.length; dynamicIndex++) {
+                const dynamicOption = filterRule.dynamicData[dynamicIndex];
                 let dynamicTagKey = dynamicOption.ruleName;
                 let dynamicTagValue = transformAwemeInfo[dynamicTagKey];
                 let dynamicDetails = {
@@ -7680,9 +7744,11 @@
                   videoInfoValue: dynamicTagValue,
                   ruleKey: dynamicOption.ruleName,
                   ruleValue: dynamicOption.ruleValue,
+                  transformAwemeInfo,
+                  rule: filterRule,
                 };
                 dynamicDetailsList.push(dynamicDetails);
-                let dynamicCheckFlag = this.checkFilterWithRule(dynamicDetails);
+                let dynamicCheckFlag = await this.checkFilterWithRule(dynamicDetails, dynamicOption);
                 flag = flag && dynamicCheckFlag;
                 if (!flag) {
                   break;
@@ -7690,26 +7756,20 @@
               }
               if (flag) {
                 log.success([
-                  `视频过滤器-多组 ==> ${filterOption.name}`,
+                  `视频过滤器-多组 ==> ${filterRule.name}`,
                   transformAwemeInfo,
                   details,
                   dynamicDetailsList,
                   awemeInfo,
-                  filterOption,
+                  filterRule,
                 ]);
               }
             } else {
-              log.success([
-                `视频过滤器 ==> ${filterOption.name}`,
-                transformAwemeInfo,
-                details,
-                awemeInfo,
-                filterOption,
-              ]);
+              log.success([`视频过滤器 ==> ${filterRule.name}`, transformAwemeInfo, details, awemeInfo, filterRule]);
             }
           }
           if (flag) {
-            matchedFilterOption = filterOption;
+            matchedFilterOption = filterRule;
             break outerLoop;
           }
         }
@@ -7857,7 +7917,7 @@
           }
         };
         let xhr_hook_callback_1 = (scopeName, request) => {
-          request.response = (response) => {
+          request.response = async (response) => {
             let filterOptionList = queryScopeFilterOptionList(scopeName);
             if (!filterOptionList.length) {
               return;
@@ -7867,7 +7927,7 @@
             if (Array.isArray(aweme_list)) {
               for (let index = 0; index < aweme_list.length; index++) {
                 let awemeInfo = aweme_list[index] || {};
-                let filterResult = filterBase.checkAwemeInfoIsFilter(filterOptionList, awemeInfo);
+                let filterResult = await filterBase.checkAwemeInfoIsFilter(filterOptionList, awemeInfo);
                 checkFilterCallBack(filterResult);
                 if (filterResult.isFilter) {
                   filterBase.sendDislikeVideo(filterResult.matchedFilterOption, awemeInfo);
@@ -7879,7 +7939,7 @@
           };
         };
         let xhr_hook_callback_2 = (scopeName, request) => {
-          request.response = (response) => {
+          request.response = async (response) => {
             let filterOptionList = queryScopeFilterOptionList(scopeName);
             if (!filterOptionList.length) {
               return;
@@ -7893,7 +7953,7 @@
                 if (typeof awemeItem?.["cell_room"] === "object" && awemeItem?.["cell_room"] != null) {
                   awemeInfo["cell_room"] = awemeItem?.["cell_room"];
                 }
-                let filterResult = filterBase.checkAwemeInfoIsFilter(filterOptionList, awemeInfo);
+                let filterResult = await filterBase.checkAwemeInfoIsFilter(filterOptionList, awemeInfo);
                 checkFilterCallBack(filterResult);
                 if (filterResult.isFilter) {
                   filterBase.sendDislikeVideo(filterResult.matchedFilterOption, awemeInfo);
@@ -7905,7 +7965,7 @@
           };
         };
         let xhr_hook_callback_3 = (scopeName, request) => {
-          request.response = (response) => {
+          request.response = async (response) => {
             let filterOptionList = queryScopeFilterOptionList(scopeName);
             if (!filterOptionList.length) {
               return;
@@ -7916,7 +7976,7 @@
               for (let index = 0; index < cards.length; index++) {
                 let awemeItem = cards[index];
                 let awemeInfo = utils.toJSON(awemeItem?.["aweme"] || "{}");
-                let filterResult = filterBase.checkAwemeInfoIsFilter(filterOptionList, awemeInfo);
+                let filterResult = await filterBase.checkAwemeInfoIsFilter(filterOptionList, awemeInfo);
                 checkFilterCallBack(filterResult);
                 if (filterResult.isFilter) {
                   filterBase.sendDislikeVideo(filterResult.matchedFilterOption, awemeInfo);
@@ -7928,7 +7988,7 @@
           };
         };
         let xhr_hook_callback_4 = (scopeName, request) => {
-          request.response = (response) => {
+          request.response = async (response) => {
             let filterOptionList = queryScopeFilterOptionList(scopeName);
             if (!filterOptionList.length) {
               return;
@@ -7945,7 +8005,7 @@
                   if (Array.isArray(awemeMixInfoItems)) {
                     for (let mixIndex = 0; mixIndex < awemeMixInfoItems.length; mixIndex++) {
                       let mixItem = awemeMixInfoItems[mixIndex];
-                      let filterResult = filterBase.checkAwemeInfoIsFilter(filterOptionList, mixItem);
+                      let filterResult = await filterBase.checkAwemeInfoIsFilter(filterOptionList, mixItem);
                       checkFilterCallBack(filterResult);
                       if (filterResult.isFilter) {
                         filterBase.sendDislikeVideo(filterResult.matchedFilterOption, mixItem);
@@ -7957,7 +8017,7 @@
                     }
                   }
                 } else {
-                  let filterResult = filterBase.checkAwemeInfoIsFilter(filterOptionList, awemeInfo);
+                  let filterResult = await filterBase.checkAwemeInfoIsFilter(filterOptionList, awemeInfo);
                   checkFilterCallBack(filterResult);
                   if (filterResult.isFilter) {
                     filterBase.sendDislikeVideo(filterResult.matchedFilterOption, awemeInfo);
@@ -7970,7 +8030,7 @@
           };
         };
         let xhr_hook_callback_5 = (scopeName, request) => {
-          request.response = (response) => {
+          request.response = async (response) => {
             let filterOptionList = queryScopeFilterOptionList(scopeName);
             if (!filterOptionList.length) {
               return;
@@ -7978,7 +8038,7 @@
             let data = utils.toJSON(response.responseText);
             let awemeInfo = data["aweme_detail"];
             if (typeof awemeInfo === "object" && awemeInfo != null) {
-              let filterResult = filterBase.checkAwemeInfoIsFilter(filterOptionList, awemeInfo);
+              let filterResult = await filterBase.checkAwemeInfoIsFilter(filterOptionList, awemeInfo);
               checkFilterCallBack(filterResult);
               if (filterResult.isFilter) {
                 filterBase.sendDislikeVideo(filterResult.matchedFilterOption, awemeInfo);
@@ -8338,14 +8398,15 @@
                 "liveStreamNickName",
                 "liveStreamRoomUserCount",
                 "liveStreamRoomDynamicSpliceLabel",
+                "videoBitRateList",
                 "productId",
                 "productTitle",
               ];
-              let getDynamicProp = (storageData) => {
-                let ruleNameDefaultValue = Array.isArray(storageData["ruleName"])
+              let createDynamicItemNode = (storageData) => {
+                const ruleNameDefaultValue = Array.isArray(storageData["ruleName"])
                   ? storageData["ruleName"]
                   : [storageData["ruleName"]];
-                let ruleName_template = UISelectMultiple(
+                const ruleName_template = UISelectMultiple(
                   "属性名",
                   "ruleName",
                   ruleNameDefaultValue,
@@ -8359,26 +8420,47 @@
                   "选择需要的属性名 "
                 );
                 Reflect.set(ruleName_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
-                let $ruleName2 =
+                const $ruleName =
                   panelHandlerComponents.createSectionContainerItem_select_multiple_new(ruleName_template);
-                let ruleValue_template = UITextArea("属性值", "ruleValue", "", "如果是字符串，可正则，注意转义");
-                Reflect.set(ruleValue_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
-                let $ruleValue2 = panelHandlerComponents.createSectionContainerItem_textarea(ruleValue_template);
-                let remarks_template = UITextArea("备注", "remarks", "", "");
-                Reflect.set(remarks_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
-                let $remarks2 = panelHandlerComponents.createSectionContainerItem_textarea(remarks_template);
-                return {
-                  $ruleName: $ruleName2,
-                  $ruleValue: $ruleValue2,
-                  $remarks: $remarks2,
+                const isFunctionHandler_template_valueChange = (_, enableValue) => {
+                  if (enableValue) {
+                    domUtils.html($ruleValueLeftMainText, `自定义函数`);
+                    domUtils.html($ruleValueLeftDescText, `返回值必须为boolean值`);
+                  } else {
+                    domUtils.html($ruleValueLeftMainText, ruleValue_template.text);
+                    domUtils.html($ruleValueLeftDescText, ruleValue_template.description ?? "");
+                  }
                 };
+                const isFunctionHandler_template = UISwitch(
+                  "是否使用自定义函数处理",
+                  "isFunctionHandler",
+                  false,
+                  void 0,
+                  "执行自定义函数来判断是否进行过滤",
+                  void 0,
+                  false,
+                  isFunctionHandler_template_valueChange
+                );
+                Reflect.set(isFunctionHandler_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
+                const $ownFunctionHandler =
+                  panelHandlerComponents.createSectionContainerItem_switch(isFunctionHandler_template);
+                const ruleValue_template = UITextArea("属性值", "ruleValue", "", "如果是字符串，可正则，注意转义");
+                Reflect.set(ruleValue_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
+                const $ruleValue = panelHandlerComponents.createSectionContainerItem_textarea(ruleValue_template);
+                const $ruleValueLeftMainText = $ruleValue.querySelector(".pops-panel-item-left-main-text");
+                const $ruleValueLeftDescText = $ruleValue.querySelector(".pops-panel-item-left-desc-text");
+                const remarks_template = UITextArea("备注", "remarks", "", "");
+                Reflect.set(remarks_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
+                const $remarks = panelHandlerComponents.createSectionContainerItem_textarea(remarks_template);
+                if (storageData.isFunctionHandler) {
+                  isFunctionHandler_template_valueChange(null, isFunctionHandler_template.getValue());
+                }
+                return [$ruleName, $ownFunctionHandler, $ruleValue, $remarks];
               };
               let $dynamicContainer = domUtils.createElement("div", {
                 className: "rule-form-ulist-dynamic",
                 innerHTML: `
-							<div class="rule-form-ulist-dynamic__inner">
-
-							</div>
+							<div class="rule-form-ulist-dynamic__inner"></div>
 							<div class="pops-panel-button pops-panel-button-no-icon">
 								<button class="pops-panel-button_inner" type="button" data-type="default">
 									<i class="pops-bottom-icon" is-loading="false"></i>
@@ -8392,6 +8474,7 @@
               let addDynamicElementItem = (
                 dynamicData = {
                   ruleName: [],
+                  isFunctionHandler: false,
                   ruleValue: "",
                   remarks: "",
                 }
@@ -8407,9 +8490,7 @@
 											</button>
 										</div>
 									</div>
-									<ul class="dynamic-forms">
-
-									</ul>
+									<ul class="dynamic-forms"></ul>
 								`,
                 });
                 let $dynamicDelete = $dynamicUListContainer.querySelector(".dynamic-control-delete");
@@ -8424,14 +8505,8 @@
                   }
                 });
                 let $dynamicUList = $dynamicUListContainer.querySelector(".dynamic-forms");
-                let {
-                  $ruleName: $dynamic_ruleName,
-                  $ruleValue: $dynamic_ruleValue,
-                  $remarks: $dynamic_remarks,
-                } = getDynamicProp(dynamicData);
-                $dynamicUList.appendChild($dynamic_ruleName);
-                $dynamicUList.appendChild($dynamic_ruleValue);
-                $dynamicUList.appendChild($dynamic_remarks);
+                const dynamicItemNodes = createDynamicItemNode(dynamicData);
+                $dynamicUList.append(...dynamicItemNodes);
                 $dynamicInner.appendChild($dynamicUListContainer);
               };
               domUtils.on($addDynamicButton, "click", (event) => {
@@ -8444,8 +8519,7 @@
                   addDynamicElementItem(moreDataItem);
                 }
               }
-              let { $ruleName, $ruleValue, $remarks } = getDynamicProp(data.data);
-              $fragment.append($enable, $name, $scope, $ruleName, $ruleValue, $remarks, $dynamicContainer);
+              $fragment.append($enable, $name, $scope, ...createDynamicItemNode(data.data), $dynamicContainer);
               return $fragment;
             },
             onsubmit: ($form, isEdit, editData) => {
@@ -8535,9 +8609,9 @@
               }
             },
             style: `
-                    .pops-panel-textarea textarea{
-                        height: 150px;
-                    }
+          .pops-panel-textarea textarea{
+              height: 150px;
+          }
 					.pops-panel-item-left-desc-text{
 						line-height: normal;
 						margin-top: 6px;
@@ -8573,7 +8647,16 @@
 						resize: auto;
 						transition: unset;
 					}
-                    `,
+          li[data-key="isFunctionHandler"]:has(.pops-panel-switch-is-checked) + li[data-key="ruleValue"] .pops-panel-textarea {
+            flex: 1;
+            justify-items: end;
+          }
+          li[data-key="isFunctionHandler"]:has(.pops-panel-switch-is-checked) + li[data-key="ruleValue"] textarea {
+            height: 200px;
+            width: calc(100% - 100px);
+            max-width: unset;
+          }
+          `,
             width: () => {
               return window.innerWidth > 700 ? "700px" : "88vw";
             },
@@ -8636,6 +8719,7 @@
         data: {
           scope: [],
           ruleName: "nickname",
+          isFunctionHandler: false,
           ruleValue: "",
           remarks: "",
         },
@@ -8749,7 +8833,7 @@
       DouYinVideoFilter.init();
       DouYinRedirect.init();
       Panel.execMenuOnce("watchLoginDialogToClose", () => {
-        DouYinAccount.watchLoginDialogToClose();
+        return DouYinAccount.watchLoginDialogToClose();
       });
       Panel.execMenuOnce("disguiseLogin", () => {
         DouYinAccount.disguiseLogin();
@@ -8874,7 +8958,6 @@
         ],
         (evt, selectorTarget) => {
           domUtils.preventEvent(evt);
-          evt.composedPath()[0];
           let url;
           if (selectorTarget instanceof HTMLAnchorElement) {
             url = selectorTarget.href;
@@ -8885,7 +8968,17 @@
               return;
             }
             const $input = $doubleClick.querySelector("input");
-            const searchValue = $input.value;
+            let searchValue = $input.value;
+            if (searchValue == null || searchValue === "") {
+              const $before = domUtils.prev($input);
+              if ($before) {
+                searchValue = domUtils.text($before);
+              } else {
+                log.error("搜索内容为空，不进行搜索");
+                return;
+              }
+            }
+            log.info(`当前的搜索内容：` + searchValue);
             url = `https://www.douyin.com/search/${encodeURIComponent(searchValue)}`;
           }
           log.info(`新标签页打开搜索：${url}`);
@@ -9528,7 +9621,13 @@
                 text: "",
                 type: "forms",
                 forms: [
-                  UISwitch("伪装登录", "disguiseLogin", false, void 0, "该功能残缺，仅在部分区域内失效"),
+                  UISwitch(
+                    "伪装登录",
+                    "disguiseLogin",
+                    false,
+                    void 0,
+                    "该功能残缺，在部分区域内会失效或者导致功能异常"
+                  ),
                   UISwitch("initial-scale=1", "dy-initialScale", false, void 0, "可配合手机模式放大页面"),
                   UISwitch(
                     "移除<meta> apple-itunes-app",
@@ -9921,13 +10020,8 @@
                     "自行选择清晰度"
                   ),
                   UISwitch("沉浸模式", "fullScreen", false, void 0, "移除右侧工具栏、底部信息栏等"),
-                  UISwitch(
-                    "手机模式",
-                    "mobileMode",
-                    false,
-                    void 0,
-                    "放大文字和图标，自动启用【initial-scale=1】和【修复进度条】功能"
-                  ),
+                  UISwitch("手机模式", "mobileMode", false, void 0, "放大文字和图标"),
+                  UISwitch("评论区移到中间", "changeCommentToBottom", true, void 0, "修改评论区为中间弹出而非右侧区域"),
                   UISwitch(
                     "修复进度条",
                     "repairProgressBar",
@@ -9956,14 +10050,6 @@
                     true,
                     void 0,
                     "分享->复制链接，复制的内容仅为链接，不包含其它"
-                  ),
-                  UISwitch("评论区移到中间", "changeCommentToBottom", true, void 0, "修改评论区为中间弹出而非右侧区域"),
-                  UISwitch(
-                    "↑自适应评论区位置",
-                    "douyin-video-autoCheckChangeCommentToBottom",
-                    true,
-                    void 0,
-                    "根据window.screen.orientation.type自动判断是否开启【评论区移到中间】"
                   ),
                   UISwitch(
                     "自动进入网页全屏",
@@ -10212,7 +10298,7 @@
                   UISwitch(
                     "新增 {...} 按钮",
                     "shieldVideo-add-parseVideoInfoButton",
-                    false,
+                    true,
                     void 0,
                     "在视频的底部的工具栏中显示 {...} 按钮，用于查看视频信息以便于进行添加过滤规则"
                   ),

@@ -123,11 +123,10 @@ export const BlockTopNavigator = {
 				padding-top: 0px !important;
 			}
 			/* 兼容手机模式 */
-			@media screen and (max-width: 550px){
+			@media screen and (max-width: 550px)  and (orientation: portrait) {
 				.is-mobile-pc{
 					--header-height: 0px !important;
 				}
-				
 			}
 		`)
     );

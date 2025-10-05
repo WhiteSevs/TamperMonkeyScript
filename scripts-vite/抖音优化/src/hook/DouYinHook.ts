@@ -114,7 +114,7 @@ export const DouYinHook = {
 
           const $active = document.activeElement;
           const $shadowRootActive = $active?.shadowRoot?.activeElement;
-          if (isInPopsComponentsRequireInputNode($active) || isInPopsComponentsRequireInputNode($shadowRootActive)) {
+          if (isInPopsComponentsRequireInputNode($shadowRootActive ?? $active)) {
             // 在输入框内时，禁止触发快捷键
             return;
           }

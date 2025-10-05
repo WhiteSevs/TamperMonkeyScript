@@ -65,13 +65,8 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   "自行选择清晰度"
                 ),
                 UISwitch("沉浸模式", "fullScreen", false, void 0, "移除右侧工具栏、底部信息栏等"),
-                UISwitch(
-                  "手机模式",
-                  "mobileMode",
-                  false,
-                  void 0,
-                  "放大文字和图标，自动启用【initial-scale=1】和【修复进度条】功能"
-                ),
+                UISwitch("手机模式", "mobileMode", false, void 0, "放大文字和图标"),
+                UISwitch("评论区移到中间", "changeCommentToBottom", true, void 0, "修改评论区为中间弹出而非右侧区域"),
                 UISwitch(
                   "修复进度条",
                   "repairProgressBar",
@@ -100,14 +95,6 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   true,
                   void 0,
                   "分享->复制链接，复制的内容仅为链接，不包含其它"
-                ),
-                UISwitch("评论区移到中间", "changeCommentToBottom", true, void 0, "修改评论区为中间弹出而非右侧区域"),
-                UISwitch(
-                  "↑自适应评论区位置",
-                  "douyin-video-autoCheckChangeCommentToBottom",
-                  true,
-                  void 0,
-                  "根据window.screen.orientation.type自动判断是否开启【评论区移到中间】"
                 ),
                 UISwitch(
                   "自动进入网页全屏",
@@ -357,7 +344,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                 UISwitch(
                   "新增 {...} 按钮",
                   "shieldVideo-add-parseVideoInfoButton",
-                  false,
+                  true,
                   void 0,
                   "在视频的底部的工具栏中显示 {...} 按钮，用于查看视频信息以便于进行添加过滤规则"
                 ),

@@ -1,6 +1,10 @@
-import { log, utils } from "@/env";
-import type { DouYinVideoFilterOption } from "./DouYinVideoFilter";
+import { httpx, log, pops, utils } from "@/env";
+import type { DouYinVideoFilterDynamicOption, DouYinVideoFilterOption } from "./DouYinVideoFilter";
 import type { DouYinVideoAwemeInfo, DouYinVideoHandlerInfo } from "./DouYinVideoType";
+import { CommonUtil } from "@components/utils/CommonUtil";
+import DOMUtils from "@whitesev/domutils";
+import Qmsg from "qmsg";
+import { unsafeWindow } from "ViteGM";
 
 type CheckRuleDetail = {
   /** 视频信息的键（awemeInfo） */
@@ -11,6 +15,10 @@ type CheckRuleDetail = {
   ruleKey: string;
   /** 自定义规则的值 */
   ruleValue: RegExp | string | undefined | null;
+  /** 对awemeInfo转换后的信息 */
+  transformAwemeInfo: DouYinVideoHandlerInfo;
+  /** 当前的规则 */
+  rule: DouYinVideoFilterOption;
 };
 
 export class DouYinVideoFilterBase {
@@ -122,6 +130,8 @@ export class DouYinVideoFilterBase {
     let liveStreamRoomUserCount: number | undefined = void 0;
     /** 直播间标签？ */
     let liveStreamRoomDynamicSpliceLabel: string | undefined = void 0;
+    /** 视频流的播放信息 */
+    let videoBitRateList: DouYinVideoHandlerInfo["videoBitRateList"] = [];
     /** 是否是产品（付费视频） */
     let isProduct: boolean = false;
     /** 产品id */
@@ -351,6 +361,82 @@ export class DouYinVideoFilterBase {
       }
     }
 
+    const videoBitRateListData =
+      awemeInfo?.["video"]?.["bitRateList"] ||
+      // @ts-ignore
+      awemeInfo?.["video"]?.["bit_rate"];
+    if (Array.isArray(videoBitRateListData)) {
+      videoBitRateListData.forEach((item) => {
+        const videoBitRateListItem = {} as { [key: string]: any };
+        const bitRate =
+          item?.["bitRate"] ||
+          // @ts-ignore
+          item?.["bit_rate"];
+        if (typeof bitRate === "number") {
+          videoBitRateListItem["bitRate"] = bitRate;
+        }
+        const dataSize =
+          item?.["dataSize"] ||
+          // @ts-ignore
+          item?.["play_addr"]?.["data_size"];
+        if (typeof dataSize === "number") {
+          videoBitRateListItem["dataSize"] = dataSize;
+        }
+        const format = item?.["format"];
+        if (typeof format === "string") {
+          videoBitRateListItem["format"] = format;
+        }
+        const isH265 =
+          item?.["isH265"] ||
+          // @ts-ignore
+          item?.["is_h265"];
+        if (typeof isH265 === "number") {
+          videoBitRateListItem["isH265"] = isH265;
+        }
+        const fps =
+          item?.["fps"] ||
+          // @ts-ignore
+          item?.["FPS"];
+        if (typeof fps === "number") {
+          videoBitRateListItem["fps"] = fps;
+        }
+        const gearName =
+          item?.["gearName"] ||
+          // @ts-ignore
+          item?.["gear_name"];
+        if (typeof gearName === "string") {
+          videoBitRateListItem["gearName"] = gearName;
+        }
+        const qualityType =
+          item?.["qualityType"] ||
+          // @ts-ignore
+          item?.["quality_type"];
+        if (typeof qualityType === "number") {
+          videoBitRateListItem["qualityType"] = qualityType;
+        }
+        const width =
+          item?.["width"] ||
+          // @ts-ignore
+          item?.["play_addr"]?.["width"];
+        if (typeof width === "number") {
+          videoBitRateListItem["width"] = width;
+        }
+        const height =
+          item?.["height"] ||
+          // @ts-ignore
+          item?.["play_addr"]?.["height"];
+        if (typeof height === "number") {
+          videoBitRateListItem["height"] = height;
+        }
+
+        // 添加
+        videoBitRateList.push(videoBitRateListItem);
+      });
+
+      // 去重
+      videoBitRateList = [...new Set(videoBitRateList)];
+    }
+
     return {
       awemeId,
       nickname,
@@ -381,6 +467,7 @@ export class DouYinVideoFilterBase {
       liveStreamNickName,
       liveStreamRoomUserCount,
       liveStreamRoomDynamicSpliceLabel,
+      videoBitRateList,
       productId,
       productTitle,
       isLive,
@@ -393,8 +480,10 @@ export class DouYinVideoFilterBase {
   }
   /**
    * 根据视频信息，判断是否需要屏蔽
+   * @param details 校验信息
+   * @param dynamicOption 动态规则的配置信息
    */
-  checkFilterWithRule(details: CheckRuleDetail): boolean {
+  async checkFilterWithRule(details: CheckRuleDetail, dynamicOption: DouYinVideoFilterDynamicOption): Promise<boolean> {
     if (details.videoInfoValue == null) {
       // awemeInfo的值为空
       return false;
@@ -403,15 +492,38 @@ export class DouYinVideoFilterBase {
       // 自定义规则的值为空
       return false;
     }
+    // 判断是否是使用自定义函数处理
+    const isFunctionHandler = Boolean(dynamicOption.isFunctionHandler);
+    if (isFunctionHandler && typeof details.ruleValue === "string") {
+      const handlerFunction = utils.createFunction("data", dynamicOption.ruleValue, true).bind({
+        utils: utils,
+        DOMUtils: DOMUtils,
+        httpx: httpx,
+        Qmsg: Qmsg,
+        pops: pops,
+        log: log,
+        window: window,
+        unsafeWindow: unsafeWindow,
+      });
+      let handlerResult = await handlerFunction({
+        ruleKey: details.ruleKey,
+        transformAwemeInfo: details.transformAwemeInfo,
+      });
+      if (typeof handlerResult !== "boolean") {
+        log.error(details, dynamicOption);
+        throw new Error("过滤器规则：函数返回值必须是true或false");
+      }
+      return handlerResult;
+    }
     if (typeof details.videoInfoValue === "string") {
-      /* awemeInfo的值是字符串 */
+      /* awemeInfo的值是string */
       /* 使用自定义规则的值进行匹配 */
       if (Boolean(details.videoInfoValue.match(details.ruleValue))) {
         return true;
       }
     } else if (typeof details.videoInfoValue === "object") {
       if (Array.isArray(details.videoInfoValue)) {
-        /* awemeInfo的值是字符串数组 */
+        /* awemeInfo的值是string[] */
         /* 使用自定义规则的值进行遍历匹配 */
         let findValue = details.videoInfoValue.find((awemeInfoDictValue) => {
           if (typeof awemeInfoDictValue === "string" && details.ruleValue != null) {
@@ -426,8 +538,8 @@ export class DouYinVideoFilterBase {
       }
     } else if (typeof details.videoInfoValue === "number") {
       if (typeof details.ruleValue === "string") {
-        /* awemeInfo的值是数字，用于比较 */
-        /* 自定义规则的值是数字，用于比较 */
+        /* awemeInfo的值是number类型，用于比较 */
+        /* 自定义规则的值是number类型，用于比较 */
         let ruleValue = details.ruleValue.trim();
         let compareNumberMatch = ruleValue.match(/(\d+)/);
         if (!compareNumberMatch) {
@@ -435,7 +547,7 @@ export class DouYinVideoFilterBase {
           return false;
         }
         let compareNumber = Number(compareNumberMatch[1]);
-        // tag的值是数字，用于比较
+        // tag的值是number类型，用于比较
         if (ruleValue.startsWith(">")) {
           if (ruleValue.startsWith(">=")) {
             // >=
@@ -485,16 +597,23 @@ export class DouYinVideoFilterBase {
    * @param rule 规则
    * @param awemeInfo 视频信息结构
    */
-  checkAwemeInfoIsFilter(rule: DouYinVideoFilterOption[], awemeInfo: DouYinVideoAwemeInfo) {
-    /** 对视频信息进行解析出需要的字典信息 */
+  async checkAwemeInfoIsFilter(
+    rule: DouYinVideoFilterOption[],
+    awemeInfo: DouYinVideoAwemeInfo
+  ): Promise<{
+    isFilter: boolean;
+    matchedFilterOption: DouYinVideoFilterOption | null;
+    transformAwemeInfo: DouYinVideoHandlerInfo;
+    awemeInfo: DouYinVideoAwemeInfo;
+  }> {
     let transformAwemeInfo = this.parseAwemeInfoDictData(awemeInfo);
     let flag = false;
     let matchedFilterOption: DouYinVideoFilterOption | null = null;
     outerLoop: for (let index = 0; index < rule.length; index++) {
-      const filterOption = rule[index];
-      const ruleNameList = Array.isArray(filterOption.data.ruleName)
-        ? filterOption.data.ruleName
-        : [filterOption.data.ruleName];
+      const filterRule = rule[index];
+      const ruleNameList = Array.isArray(filterRule.data.ruleName)
+        ? filterRule.data.ruleName
+        : [filterRule.data.ruleName];
       for (let ruleNameIndex = 0; ruleNameIndex < ruleNameList.length; ruleNameIndex++) {
         // 属性名
         const ruleName = ruleNameList[ruleNameIndex];
@@ -509,29 +628,33 @@ export class DouYinVideoFilterBase {
         let details = {
           videoInfoKey: tagKey,
           videoInfoValue: tagValue,
-          ruleKey: filterOption.data.ruleName,
-          ruleValue: filterOption.data.ruleValue,
+          ruleKey: filterRule.data.ruleName,
+          ruleValue: filterRule.data.ruleValue,
+          transformAwemeInfo: transformAwemeInfo,
+          rule: filterRule,
         } as CheckRuleDetail;
-        flag = this.checkFilterWithRule(details);
+        flag = await this.checkFilterWithRule(details, filterRule.data);
         if (flag) {
-          if (Array.isArray(filterOption.dynamicData) && filterOption.dynamicData.length) {
+          if (Array.isArray(filterRule.dynamicData) && filterRule.dynamicData.length) {
             // & 动态规则
             let dynamicDetailsList: CheckRuleDetail[] = [];
-            for (let dynamicIndex = 0; dynamicIndex < filterOption.dynamicData.length; dynamicIndex++) {
-              const dynamicOption = filterOption.dynamicData[dynamicIndex];
+            for (let dynamicIndex = 0; dynamicIndex < filterRule.dynamicData.length; dynamicIndex++) {
+              const dynamicOption = filterRule.dynamicData[dynamicIndex];
               /** 解析出的标签的名字 */
               let dynamicTagKey = dynamicOption.ruleName;
               /** 解析出的标签的值 */
               let dynamicTagValue = transformAwemeInfo[dynamicTagKey as keyof typeof transformAwemeInfo];
               /** 配置 */
-              let dynamicDetails = {
-                videoInfoKey: dynamicTagKey,
+              let dynamicDetails: CheckRuleDetail = {
+                videoInfoKey: dynamicTagKey as string,
                 videoInfoValue: dynamicTagValue,
-                ruleKey: dynamicOption.ruleName,
+                ruleKey: dynamicOption.ruleName as string,
                 ruleValue: dynamicOption.ruleValue,
-              } as CheckRuleDetail;
+                transformAwemeInfo: transformAwemeInfo,
+                rule: filterRule,
+              };
               dynamicDetailsList.push(dynamicDetails);
-              let dynamicCheckFlag = this.checkFilterWithRule(dynamicDetails);
+              let dynamicCheckFlag = await this.checkFilterWithRule(dynamicDetails, dynamicOption);
               flag = flag && dynamicCheckFlag;
               if (!flag) {
                 // 多组的话有一个不成立就退出
@@ -540,22 +663,22 @@ export class DouYinVideoFilterBase {
             }
             if (flag) {
               log.success([
-                `视频过滤器-多组 ==> ${filterOption.name}`,
+                `视频过滤器-多组 ==> ${filterRule.name}`,
                 transformAwemeInfo,
                 details,
                 dynamicDetailsList,
                 awemeInfo,
-                filterOption,
+                filterRule,
               ]);
             }
           } else {
-            log.success([`视频过滤器 ==> ${filterOption.name}`, transformAwemeInfo, details, awemeInfo, filterOption]);
+            log.success([`视频过滤器 ==> ${filterRule.name}`, transformAwemeInfo, details, awemeInfo, filterRule]);
           }
         }
         if (flag) {
           // 存在命中屏蔽规则
-          // 推出循环
-          matchedFilterOption = filterOption;
+          // 退出循环
+          matchedFilterOption = filterRule;
           break outerLoop;
         }
       }

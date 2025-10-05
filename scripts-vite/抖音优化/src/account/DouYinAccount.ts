@@ -17,9 +17,9 @@ export const DouYinAccount = {
     );
     DouYinNetWorkHook.hookUserNoLoginResponse();
     const WAIT_TIME = 20000;
-    let uid = parseInt((Math.random() * 10000000000).toString());
+    const uid = parseInt((Math.random() * 10000000000).toString());
     // let uid = 114514;
-    let info = {
+    const info = {
       uid: uid,
       secUid: "",
       shortId: parseInt((Math.random() * 1000000000).toString()),
@@ -98,6 +98,7 @@ export const DouYinAccount = {
       close_consecutive_chat: 0,
       profileRankLabel: null,
     };
+    Object.freeze(info);
     /**
      * 获取用户信息
      * @param element
@@ -134,9 +135,7 @@ export const DouYinAccount = {
         }
       });
     }
-    DouYinElement.watchFeedVideoListChange(($os) => {
-      setLogin($os);
-    });
+    DouYinElement.watchFeedVideoListChange(setLogin);
     DOMUtils.waitNode<HTMLDivElement>("#root div[class*='-os']", WAIT_TIME)
       .then(() => {
         let lockFn = new utils.LockFunction(() => {
@@ -223,7 +222,7 @@ export const DouYinAccount = {
         return;
       }
       let $loginDialog = $<HTMLDivElement>('body > div[id^="login-full-panel-"]');
-      if ($loginDialog) {
+      if ($loginDialog && $loginDialog.childNodes.length) {
         let $loginDialogCloseBtn =
           $loginDialog.querySelector<HTMLDivElement>(".dy-account-close") ||
           $loginDialog.querySelector<HTMLDivElement>(

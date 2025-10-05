@@ -64,6 +64,22 @@ export interface DouYinVideoHandlerInfo {
   productId?: string;
   /** 产品标题 */
   productTitle?: string;
+  /**
+   * 视频流的播放信息
+   */
+  videoBitRateList: {
+    bitRate?: number;
+    dataSize?: number;
+    /** mp4 */
+    format?: string;
+    isH265?: number;
+    fps?: number;
+    /** adapt_lowest_4_1 */
+    gearName?: string;
+    qualityType?: number;
+    width?: number;
+    height?: number;
+  }[];
   /** 是否是直播 */
   isLive: boolean;
   /** 是否是广告 */

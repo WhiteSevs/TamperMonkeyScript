@@ -32,7 +32,7 @@ export const DouYinVideoPlayer = {
     });
     DouYinVideoPlayerBlockMouseHoverTip.init();
     Panel.execMenuOnce("changeCommentToBottom", () => {
-      DouYinVideoPlayer.changeCommentToBottom();
+      return DouYinVideoPlayer.changeCommentToBottom();
     });
     Panel.execMenuOnce("fullScreen", () => {
       return this.fullScreen();
@@ -221,52 +221,41 @@ export const DouYinVideoPlayer = {
     });
   },
   /**
-   * 评论区修改为底部
+   * 评论区移到中间
    */
   changeCommentToBottom() {
-    log.info("评论区修改为底部");
-    let ATTRIBUTE_KEY = "data-vertical-screen";
-    function autoChangeCommentPosition() {
-      if (DouYinUtils.isVerticalScreen()) {
-        /* 竖屏 */
-        log.success("自动判断: 竖屏");
-        document.documentElement.setAttribute(ATTRIBUTE_KEY, "true");
-      } else {
-        /* 横屏 */
-        log.success("自动判断: 横屏");
-        document.documentElement.removeAttribute(ATTRIBUTE_KEY);
+    log.info("评论区移到中间");
+    return [
+      /* 2024.5.27 dy更名videoSideBar=>videoSideCard */
+      addStyle(/*css*/ `
+      /* 竖屏样式 */
+      @media screen and (orientation: portrait) {
+        #sliderVideo[data-e2e="feed-video"] #videoSideBar #relatedVideoCard,
+        #sliderVideo[data-e2e="feed-video"] #videoSideCard #relatedVideoCard{
+          display: none !important;
+        }
+        /* 左侧的视频宽度撑满 */
+        #sliderVideo[data-e2e] .playerContainer,
+        #slideMode[data-e2e] .playerContainer{
+          width: 100% !important;
+        }
+        /* 右侧的评论区宽度撑满，position使用absolute */
+        #sliderVideo[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard),
+        #slideMode[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard),
+        #sliderVideo[data-e2e="feed-active-video"] #videoSideCard:has(#relatedVideoCard),
+        #slideMode[data-e2e="feed-active-video"] #videoSideCard:has(#relatedVideoCard){
+          width: 100%;
+          height: 75%;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.9);
+          transition: height .15s linear !important;
+          position: absolute;
+        }
       }
-    }
-    autoChangeCommentPosition();
-    /* 2024.5.27 dy更名videoSideBar=>videoSideCard */
-    addStyle(/*css*/ `
-		html[${ATTRIBUTE_KEY}] #sliderVideo[data-e2e="feed-video"] #videoSideBar #relatedVideoCard,
-		html[${ATTRIBUTE_KEY}] #sliderVideo[data-e2e="feed-video"] #videoSideCard #relatedVideoCard{
-			display: none !important;
-		}
-		/* 左侧的视频宽度撑满 */
-		html[${ATTRIBUTE_KEY}] #sliderVideo[data-e2e] .playerContainer,
-		html[${ATTRIBUTE_KEY}] #slideMode[data-e2e] .playerContainer{
-			width: 100% !important;
-		}
-		/* 右侧的评论区宽度撑满，position使用absolute */
-		html[${ATTRIBUTE_KEY}] #sliderVideo[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard),
-		html[${ATTRIBUTE_KEY}] #slideMode[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard),
-		html[${ATTRIBUTE_KEY}] #sliderVideo[data-e2e="feed-active-video"] #videoSideCard:has(#relatedVideoCard),
-		html[${ATTRIBUTE_KEY}] #slideMode[data-e2e="feed-active-video"] #videoSideCard:has(#relatedVideoCard){
-			width: 100%;
-			height: 75%;
-			left: 0;
-			right: 0;
-			bottom: 0;
-			background-color: rgba(0, 0, 0, 0.9);
-			transition: height .15s linear !important;
-			position: absolute;
-		}
-		`);
-    Panel.execMenuOnce("douyin-video-autoCheckChangeCommentToBottom", () => {
-      DOMUtils.on(window, "resize", autoChangeCommentPosition);
-    });
+		`),
+    ];
   },
   /**
    * 选择视频清晰度

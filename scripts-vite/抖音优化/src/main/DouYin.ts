@@ -32,7 +32,7 @@ export const DouYin = {
     DouYinNetWorkHook.init();
     DouYinRedirect.init();
     Panel.execMenuOnce("watchLoginDialogToClose", () => {
-      DouYinAccount.watchLoginDialogToClose();
+      return DouYinAccount.watchLoginDialogToClose();
     });
     Panel.execMenuOnce("disguiseLogin", () => {
       DouYinAccount.disguiseLogin();
@@ -176,7 +176,6 @@ export const DouYin = {
       ],
       (evt, selectorTarget) => {
         DOMUtils.preventEvent(evt);
-        const $click = evt.composedPath()[0] as HTMLElement;
         let url: string | undefined;
         if (selectorTarget instanceof HTMLAnchorElement) {
           // 视频区域的点击信息
@@ -189,7 +188,19 @@ export const DouYin = {
             return;
           }
           const $input = $doubleClick.querySelector<HTMLInputElement>("input")!;
-          const searchValue = $input.value;
+          let searchValue = $input.value;
+          if (searchValue == null || searchValue === "") {
+            // 这时候获取不到搜索内容
+            // 搜索内容元素在input前面
+            const $before = DOMUtils.prev($input);
+            if ($before) {
+              searchValue = DOMUtils.text($before);
+            } else {
+              log.error("搜索内容为空，不进行搜索");
+              return;
+            }
+          }
+          log.info(`当前的搜索内容：` + searchValue);
           url = `https://www.douyin.com/search/${encodeURIComponent(searchValue)}`;
         }
         log.info(`新标签页打开搜索：${url}`);

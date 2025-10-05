@@ -101,7 +101,7 @@
 
   /* 设置视频区域的高度 */
   #slidelist {
-    width: 100vw;
+    width: 100%;
     height: calc(100vh - var(--header-height)) !important;
   }
   /* 修正网页全屏下的视频高度 */
@@ -111,8 +111,6 @@
   /* 去除视频区域右侧偏移 */
   .is-mobile-pc div[data-e2e="slideList"] {
     padding-right: 0px !important;
-    height: 100% !important;
-    min-height: 100% !important;
   }
 }
 
