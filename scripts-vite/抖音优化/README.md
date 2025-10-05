@@ -99,7 +99,7 @@
 return data.transformAwemeInfo.isAds;
 ```
 
-1. 例如：屏蔽掉不包含1080p清晰度的视频
+2. 例如：屏蔽掉不包含1080p清晰度的视频
 
 ```js
 if (!data.transformAwemeInfo.videoBitRateList.length) return false;
@@ -107,7 +107,7 @@ const findIndex = data.transformAwemeInfo.videoBitRateList.findIndex((item) => i
 return findIndex === -1;
 ```
 
-1. 例如：通过网络请求Api来自动判断是否屏蔽视频
+3. 例如：通过网络请求Api来自动判断是否屏蔽视频
 
 ```js
 const response = await this.httpx.post("https://xxx.xxx.xxx", {
@@ -125,5 +125,5 @@ return Boolean(data.isFilter);
 
 ## 赞赏支持
 
-![微信赞赏](https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript/asset/img/wx_zsm.png){width=250 height=250}  
-![支付宝赞赏](https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript/asset/img/zfb_skm.png){width=250 height=250}
+<img src="https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript/asset/img/wx_zsm.png" alt="微信赞赏" width="250" height="250">
+<img src="https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript/asset/img/zfb_skm.png" alt="支付宝赞赏" width="250" height="250">
