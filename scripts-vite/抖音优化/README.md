@@ -84,9 +84,11 @@
 
 ### 是否使用自定义函数处理
 
-开启后`属性值`会变成`自定义函数`，是否屏蔽视频将由该函数进行处理，要求该函数的返回值为`true`或`false`，即`boolean`类型
+开启后`属性值`会变成`自定义函数`，当执行判断是否屏蔽该视频时，将由该函数来进行判断处理，要求该函数的返回值必须为`true`或`false`，即`boolean`类型
 
-> 注意：开启该选项后会解除许多限制，如可以通过网络请求，如果是使用的别人的过滤规则，请自行判断该规则是否存在恶意行为。
+> 注意：开启该选项后会解除许多限制，例如可以通过网络请求发送Cookie等信息，如果是使用别人的规则，请自行判断该规则是否存在恶意行为。
+
+自定义函数的返回值描述：
 
 - `true`：屏蔽该视频
 - `false`：不屏蔽该视频
@@ -97,14 +99,15 @@
 return data.transformAwemeInfo.isAds;
 ```
 
-2. 例如：屏蔽掉不包含1080p清晰度的视频
+1. 例如：屏蔽掉不包含1080p清晰度的视频
 
 ```js
-const flag = data.transformAwemeInfo.videoBitRateList.some((item) => !item.gearName.includes("1080"));
-return flag;
+if (!data.transformAwemeInfo.videoBitRateList.length) return false;
+const findIndex = data.transformAwemeInfo.videoBitRateList.findIndex((item) => item?.gearName?.includes?.("1080"));
+return findIndex === -1;
 ```
 
-3. 例如：通过网络请求Api来自动判断是否屏蔽视频
+1. 例如：通过网络请求Api来自动判断是否屏蔽视频
 
 ```js
 const response = await this.httpx.post("https://xxx.xxx.xxx", {
@@ -122,5 +125,5 @@ return Boolean(data.isFilter);
 
 ## 赞赏支持
 
-<img src="https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript/asset/img/wx_zsm.png" alt="微信赞赏" width="250" height="250">
-<img src="https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript/asset/img/zfb_skm.png" alt="支付宝赞赏" width="250" height="250">
+![微信赞赏](https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript/asset/img/wx_zsm.png){width=250 height=250}  
+![支付宝赞赏](https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript/asset/img/zfb_skm.png){width=250 height=250}

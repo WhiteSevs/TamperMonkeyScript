@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.5
+// @version      2025.10.5.22
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -10,7 +10,7 @@
 // @match        *://*.douyin.com/*
 // @match        *://*.iesdouyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
@@ -5764,7 +5764,7 @@
   };
   const MobileCSS =
     '/* 去除顶部的padding距离 */\r\n#douyin-right-container {\r\n  padding-top: 0;\r\n}\r\n/* 放大放大顶部的综合、视频、用户等header的宽度 */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) {\r\n  width: 100vw;\r\n}\r\n/* 放大顶部的综合、视频、用户等header */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) > div {\r\n  transform: scale(0.8);\r\n}\r\n/* 视频宽度 */\r\nul[data-e2e="scroll-list"] {\r\n  padding: 0px 10px;\r\n}\r\n#sliderVideo {\r\n  width: -webkit-fill-available;\r\n}\r\n/* 距离是顶部导航栏的高度 */\r\n#search-content-area {\r\n  margin-top: 65px;\r\n}\r\n/* 从其它页面进入搜索页面，例如路径是/root/search，会出现返回按钮 */\r\n#douyin-header header {\r\n  flex-direction: row-reverse !important;\r\n}\r\n#douyin-header header > div:nth-child(2) {\r\n  position: unset !important;\r\n}\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n  #sliderVideo {\r\n    width: 100%;\r\n  }\r\n  /* 调整顶部搜索框的宽度 */\r\n  #component-header\r\n    div[data-click="doubleClick"]\r\n    > div[data-click="doubleClick"]\r\n    > div:has(input[data-e2e="searchbar-input"]) {\r\n    width: -webkit-fill-available;\r\n    padding-right: 0;\r\n  }\r\n}\r\n';
-  const DouYinSearchHideElement = {
+  const DouYinSearchBlock = {
     init() {
       Panel.execMenuOnce("douyin-search-shieldReleatedSearches", () => {
         return this.shieldReleatedSearches();
@@ -5772,19 +5772,22 @@
       Panel.execMenuOnce("douyin-search-blockAIAsk", () => {
         return this.blockAIAsk();
       });
+      Panel.execMenuOnce("douyin-search-blockAskAI", () => {
+        return this.blockAskAI();
+      });
       this.resizeSearchFilterBar();
     },
     resizeSearchFilterBar() {
       domUtils.ready(() => {
-        let $searchFilter = $("div:has(+#search-result-container)");
-        let $searchResultContainer = $("#search-result-container");
+        const $searchFilter = $("div:has(+#search-result-container)");
+        const $searchResultContainer = $("#search-result-container");
         if (!$searchFilter) {
           return;
         }
         if (!$searchResultContainer) {
           return;
         }
-        let searchResultContainerWidth = domUtils.width($searchResultContainer);
+        const searchResultContainerWidth = domUtils.width($searchResultContainer);
         domUtils.css($searchFilter, "width", searchResultContainerWidth + "px");
       });
     },
@@ -5796,7 +5799,7 @@
           `
 			/* 把搜索结果宽度自适应 */
 			#search-result-container{
-        		width: auto !important;
+        width: auto !important;
 			}
 		`
         ),
@@ -5806,10 +5809,16 @@
       log.info(`【屏蔽】AI问一问`);
       return CommonUtil.addBlockCSS("#search-content-area > div > div:nth-child(2) > div > div:first-child");
     },
+    blockAskAI() {
+      log.info(`【屏蔽】问问AI`);
+      return CommonUtil.addBlockCSS(
+        '#search-toolbar-container>div:has(svg path[d="M14.837 12.506a42.284 42.284 0 0 0 1.96 4.006l.433.775-.992.5-.53-1.001-.208-.4-.017-.032-.034-.009a7.2 7.2 0 0 0-2.023-.233 7.247 7.247 0 0 0-1.647.234l-.034.009-.015.031-.21.4-.53 1-.99-.5.432-.774a42.367 42.367 0 0 0 1.96-4.006l.535-1.255c.456.082.918.082 1.375 0l.535 1.255zm4.538-1.914c-.09.28-.145.567-.164.855-.02.317-.032.64-.032.96v2.823c0 .32.01.643.032.96.019.288.074.575.164.854h-1.472c.09-.28.145-.566.164-.854.021-.32.032-.644.032-.96v-2.823c0-.316-.01-.64-.032-.96a3.556 3.556 0 0 0-.164-.855h1.472zm-6.086 2.411c-.28.684-.585 1.377-.907 2.06l-.063.133.146-.02a8.351 8.351 0 0 1 2.299 0l.145.02-.062-.133a42.237 42.237 0 0 1-.907-2.06l-.326-.796-.325.796z"])'
+      );
+    },
   };
   const DouYinSearch = {
     init() {
-      DouYinSearchHideElement.init();
+      DouYinSearchBlock.init();
       Panel.execMenuOnce("mobileMode", () => {
         return this.mobileMode();
       });
@@ -7000,7 +7009,7 @@
       this.option = option;
     }
     getAllRule() {
-      let allRules = _GM_getValue(this.option.STORAGE_API_KEY, []);
+      const allRules = _GM_getValue(this.option.STORAGE_API_KEY, []);
       return allRules;
     }
     setAllRule(rules) {
@@ -7010,16 +7019,16 @@
       this.setAllRule([]);
     }
     getRule(uuid) {
-      let allRules = this.getAllRule();
-      let findIndex = allRules.findIndex((item) => item.uuid === uuid);
+      const allRules = this.getAllRule();
+      const findIndex = allRules.findIndex((item) => item.uuid === uuid);
       if (findIndex !== -1) {
-        let rule = allRules[findIndex];
+        const rule = allRules[findIndex];
         return rule;
       }
     }
     setRule(rule) {
-      let allRules = this.getAllRule();
-      let findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
+      const allRules = this.getAllRule();
+      const findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
       let updateFlag = false;
       if (findIndex !== -1) {
         allRules[findIndex] = rule;
@@ -7029,8 +7038,8 @@
       return updateFlag;
     }
     addRule(rule) {
-      let allRules = this.getAllRule();
-      let findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
+      const allRules = this.getAllRule();
+      const findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
       let addFlag = false;
       if (findIndex !== -1);
       else {
@@ -7041,8 +7050,8 @@
       return addFlag;
     }
     updateRule(rule) {
-      let allRules = this.getAllRule();
-      let findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
+      const allRules = this.getAllRule();
+      const findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
       if (findIndex !== -1) {
         allRules[findIndex] = rule;
       } else {
@@ -7051,9 +7060,9 @@
       this.setAllRule(allRules);
     }
     deleteRule(rule) {
-      let allRules = this.getAllRule();
-      let ruleUUID = typeof rule === "string" ? rule : rule.uuid;
-      let findIndex = allRules.findIndex((item) => item.uuid === ruleUUID);
+      const allRules = this.getAllRule();
+      const ruleUUID = typeof rule === "string" ? rule : rule.uuid;
+      const findIndex = allRules.findIndex((item) => item.uuid === ruleUUID);
       if (findIndex !== -1) {
         allRules.splice(findIndex, 1);
         this.setAllRule(allRules);
@@ -7063,7 +7072,7 @@
       }
     }
     importRules(importEndCallBack) {
-      let $alert = __pops.alert({
+      const $alert = __pops.alert({
         title: {
           text: "请选择导入方式",
           position: "center",
@@ -7100,17 +7109,17 @@
                 }
             `,
       });
-      let $local = $alert.$shadowRoot.querySelector(".btn-control[data-mode='local']");
-      let $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
-      let $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
-      let updateRuleToStorage = async (data) => {
+      const $local = $alert.$shadowRoot.querySelector(".btn-control[data-mode='local']");
+      const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
+      const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
+      const updateRuleToStorage = async (data) => {
         let allData = this.getAllRule();
-        let addNewData = [];
-        let repeatData = [];
+        const addNewData = [];
+        const repeatData = [];
         let isRepeat = false;
         for (let index = 0; index < data.length; index++) {
           const dataItem = data[index];
-          let findIndex = allData.findIndex((it) => it.uuid === dataItem.uuid);
+          const findIndex = allData.findIndex((it) => it.uuid === dataItem.uuid);
           if (findIndex !== -1) {
             repeatData.push({
               index: findIndex,
@@ -7121,7 +7130,7 @@
           }
         }
         if (repeatData.length) {
-          let confirmRepeat = await new Promise((resolve) => {
+          const confirmRepeat = await new Promise((resolve) => {
             __pops.alert({
               title: {
                 text: "覆盖规则",
@@ -7163,13 +7172,13 @@
           allData = allData.concat(addNewData);
         }
         this.setAllRule(allData);
-        let message = `共 ${data.length} 条规则，新增 ${addNewData.length} 条，覆盖 ${isRepeat ? repeatData.length : 0} 条`;
+        const message = `共 ${data.length} 条规则，新增 ${addNewData.length} 条，覆盖 ${isRepeat ? repeatData.length : 0} 条`;
         Qmsg.success(message);
         importEndCallBack?.();
       };
-      let importFile = (subscribeText) => {
+      const importFile = (subscribeText) => {
         return new Promise(async (resolve) => {
-          let data = utils.toJSON(subscribeText);
+          const data = utils.toJSON(subscribeText);
           if (!Array.isArray(data)) {
             log.error(data);
             Qmsg.error("导入失败，格式不符合（不是数组）", {
@@ -7192,7 +7201,7 @@
       domUtils.on($local, "click", (event) => {
         domUtils.preventEvent(event);
         $alert.close();
-        let $input = domUtils.createElement("input", {
+        const $input = domUtils.createElement("input", {
           type: "file",
           accept: ".json",
         });
@@ -7200,8 +7209,8 @@
           if (!$input.files?.length) {
             return;
           }
-          let uploadFile = $input.files[0];
-          let fileReader = new FileReader();
+          const uploadFile = $input.files[0];
+          const fileReader = new FileReader();
           fileReader.onload = () => {
             importFile(fileReader.result);
           };
@@ -7212,7 +7221,7 @@
       domUtils.on($network, "click", (event) => {
         domUtils.preventEvent(event);
         $alert.close();
-        let $prompt = __pops.prompt({
+        const $prompt = __pops.prompt({
           title: {
             text: "网络导入",
             position: "center",
@@ -7231,14 +7240,14 @@
             },
             ok: {
               text: "导入",
-              callback: async (eventDetails, event2) => {
-                let url = eventDetails.text;
+              callback: async (details, event2) => {
+                const url = details.text;
                 if (utils.isNull(url)) {
                   Qmsg.error("请填入完整的url");
                   return;
                 }
-                let $loading = Qmsg.loading("正在获取配置...");
-                let response = await httpx.get(url, {
+                const $loading = Qmsg.loading("正在获取配置...");
+                const response = await httpx.get(url, {
                   allowInterceptConfig: false,
                 });
                 $loading.close();
@@ -7247,11 +7256,11 @@
                   Qmsg.error("获取配置失败", { consoleLogContent: true });
                   return;
                 }
-                let flag = await importFile(response.data.responseText);
+                const flag = await importFile(response.data.responseText);
                 if (!flag) {
                   return;
                 }
-                eventDetails.close();
+                details.close();
               },
             },
             cancel: {
@@ -7263,10 +7272,10 @@
           width: PanelUISize.info.width,
           height: "auto",
         });
-        let $promptInput = $prompt.$shadowRoot.querySelector("input");
-        let $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
+        const $promptInput = $prompt.$shadowRoot.querySelector("input");
+        const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
         domUtils.on($promptInput, ["input", "propertychange"], (event2) => {
-          let value = domUtils.val($promptInput);
+          const value = domUtils.val($promptInput);
           if (value === "") {
             domUtils.attr($promptOk, "disabled", "true");
           } else {
@@ -7275,7 +7284,7 @@
         });
         domUtils.listenKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
           if (keyName === "Enter" && otherCodeList.length === 0) {
-            let value = domUtils.val($promptInput);
+            const value = domUtils.val($promptInput);
             if (value !== "") {
               domUtils.trigger($promptOk, "click");
             }
@@ -7286,7 +7295,7 @@
       domUtils.on($clipboard, "click", async (event) => {
         domUtils.preventEvent(event);
         $alert.close();
-        let clipboardInfo = await utils.getClipboardInfo();
+        const clipboardInfo = await utils.getClipboardInfo();
         if (clipboardInfo.error != null) {
           Qmsg.error(clipboardInfo.error.toString());
           return;
@@ -7295,17 +7304,17 @@
           Qmsg.warning("获取到的剪贴板内容为空");
           return;
         }
-        let flag = await importFile(clipboardInfo.content);
+        const flag = await importFile(clipboardInfo.content);
         if (!flag) {
           return;
         }
       });
     }
     exportRules(fileName = "rule.json") {
-      let allRules = this.getAllRule();
-      let blob = new Blob([JSON.stringify(allRules, null, 4)]);
-      let blobUrl = globalThis.URL.createObjectURL(blob);
-      let $a = document.createElement("a");
+      const allRules = this.getAllRule();
+      const blob = new Blob([JSON.stringify(allRules, null, 4)]);
+      const blobUrl = globalThis.URL.createObjectURL(blob);
+      const $a = document.createElement("a");
       $a.href = blobUrl;
       $a.download = fileName;
       $a.click();
@@ -7615,16 +7624,16 @@
         isProduct,
       };
     }
-    async checkFilterWithRule(details, dynamicOption) {
-      if (details.videoInfoValue == null) {
+    async checkFilterWithRule(config, ruleDynamicOption) {
+      if (config.videoInfoValue == null) {
         return false;
       }
-      if (details.ruleValue == null) {
+      if (config.ruleValue == null) {
         return false;
       }
-      const isFunctionHandler = Boolean(dynamicOption.isFunctionHandler);
-      if (isFunctionHandler && typeof details.ruleValue === "string") {
-        const handlerFunction = utils.createFunction("data", dynamicOption.ruleValue, true).bind({
+      const isFunctionHandler = Boolean(ruleDynamicOption.isFunctionHandler);
+      if (isFunctionHandler && typeof config.ruleValue === "string") {
+        const handlerFunction = utils.createFunction("data", ruleDynamicOption.ruleValue, true).bind({
           utils,
           DOMUtils,
           httpx,
@@ -7635,24 +7644,24 @@
           unsafeWindow: _unsafeWindow,
         });
         let handlerResult = await handlerFunction({
-          ruleKey: details.ruleKey,
-          transformAwemeInfo: details.transformAwemeInfo,
+          ruleKey: config.ruleKey,
+          transformAwemeInfo: config.transformAwemeInfo,
         });
         if (typeof handlerResult !== "boolean") {
-          log.error(details, dynamicOption);
+          log.error(config, ruleDynamicOption);
           throw new Error("过滤器规则：函数返回值必须是true或false");
         }
         return handlerResult;
       }
-      if (typeof details.videoInfoValue === "string") {
-        if (Boolean(details.videoInfoValue.match(details.ruleValue))) {
+      if (typeof config.videoInfoValue === "string") {
+        if (Boolean(config.videoInfoValue.match(config.ruleValue))) {
           return true;
         }
-      } else if (typeof details.videoInfoValue === "object") {
-        if (Array.isArray(details.videoInfoValue)) {
-          let findValue = details.videoInfoValue.find((awemeInfoDictValue) => {
-            if (typeof awemeInfoDictValue === "string" && details.ruleValue != null) {
-              return Boolean(awemeInfoDictValue.match(details.ruleValue));
+      } else if (typeof config.videoInfoValue === "object") {
+        if (Array.isArray(config.videoInfoValue)) {
+          let findValue = config.videoInfoValue.find((awemeInfoDictValue) => {
+            if (typeof awemeInfoDictValue === "string" && config.ruleValue != null) {
+              return Boolean(awemeInfoDictValue.match(config.ruleValue));
             } else {
               return false;
             }
@@ -7661,58 +7670,58 @@
             return true;
           }
         }
-      } else if (typeof details.videoInfoValue === "number") {
-        if (typeof details.ruleValue === "string") {
-          let ruleValue = details.ruleValue.trim();
+      } else if (typeof config.videoInfoValue === "number") {
+        if (typeof config.ruleValue === "string") {
+          let ruleValue = config.ruleValue.trim();
           let compareNumberMatch = ruleValue.match(/(\d+)/);
           if (!compareNumberMatch) {
-            log.warn("过滤器-解析比较大小的数字失败: ", details);
+            log.warn("过滤器-解析比较大小的数字失败: ", config);
             return false;
           }
           let compareNumber = Number(compareNumberMatch[1]);
           if (ruleValue.startsWith(">")) {
             if (ruleValue.startsWith(">=")) {
-              if (details.videoInfoValue >= compareNumber) {
+              if (config.videoInfoValue >= compareNumber) {
                 return true;
               }
             } else {
-              if (details.videoInfoValue > compareNumber) {
+              if (config.videoInfoValue > compareNumber) {
                 return true;
               }
             }
           } else if (ruleValue.startsWith("<")) {
             if (ruleValue.startsWith("<=")) {
-              if (details.videoInfoValue <= compareNumber) {
+              if (config.videoInfoValue <= compareNumber) {
                 return true;
               }
             } else {
-              if (details.videoInfoValue < compareNumber) {
+              if (config.videoInfoValue < compareNumber) {
                 return true;
               }
             }
           } else if (ruleValue.startsWith("=")) {
-            if (details.videoInfoValue === compareNumber) {
+            if (config.videoInfoValue === compareNumber) {
               return true;
             }
           } else {
-            log.warn("视频过滤器-未经允许的比较符号: ", details);
+            log.warn("视频过滤器-未经允许的比较符号: ", config);
             return false;
           }
         }
-      } else if (typeof details.videoInfoValue === "boolean") {
-        if (typeof details.ruleValue === "string") {
-          let trimRuleValue = details.ruleValue.trim();
-          return details.videoInfoValue.toString() === trimRuleValue;
+      } else if (typeof config.videoInfoValue === "boolean") {
+        if (typeof config.ruleValue === "string") {
+          let trimRuleValue = config.ruleValue.trim();
+          return config.videoInfoValue.toString() === trimRuleValue;
         }
       }
       return false;
     }
-    async checkAwemeInfoIsFilter(rule, awemeInfo) {
+    async checkAwemeInfoIsFilter(rules, awemeInfo) {
       let transformAwemeInfo = this.parseAwemeInfoDictData(awemeInfo);
       let flag = false;
       let matchedFilterOption = null;
-      outerLoop: for (let index = 0; index < rule.length; index++) {
-        const filterRule = rule[index];
+      outerLoop: for (let index = 0; index < rules.length; index++) {
+        const filterRule = rules[index];
         const ruleNameList = Array.isArray(filterRule.data.ruleName)
           ? filterRule.data.ruleName
           : [filterRule.data.ruleName];
@@ -7781,7 +7790,7 @@
         awemeInfo,
       };
     }
-    async sendDislikeVideo(matchedFilterOption, awemeInfo) {}
+    async sendDislikeVideo(rule, awemeInfo) {}
     removeAweme(...args) {
       if (args.length === 1) {
         let $video = args[0];
@@ -7878,32 +7887,40 @@
       const that = this;
       Panel.execMenuOnce(this.$key.ENABLE_KEY, async () => {
         log.info(`执行视频过滤器`);
-        let filterBase = new DouYinVideoFilterBase();
-        let queryScopeFilterOptionList = (scopeName) => {
+        const filterBase = new DouYinVideoFilterBase();
+        const getScopeFilterRules = (scopeName) => {
           if (!Panel.getValue(that.$key.ENABLE_KEY)) {
             return [];
           }
-          let filterOptionList = that.$data.videoFilterRuleStorage.getAllRule();
-          if (!filterOptionList.length) {
+          const videoFilterRules = that.$data.videoFilterRuleStorage.getAllRule();
+          if (!videoFilterRules.length) {
             return [];
           }
-          let scopeNameList = Array.isArray(scopeName) ? scopeName : [scopeName];
-          let matchedFilterOptionList = filterOptionList.filter(
+          videoFilterRules.sort((a, b) => {
+            if (a.data.isFunctionHandler && !b.data.isFunctionHandler) {
+              return 1;
+            }
+            if (!a.data.isFunctionHandler && b.data.isFunctionHandler) {
+              return -1;
+            }
+            return 0;
+          });
+          const scopeNameList = Array.isArray(scopeName) ? scopeName : [scopeName];
+          const matchedFilterOptionList = videoFilterRules.filter(
             (it) =>
               it.enable &&
-              (it.data.scope.includes("all") ||
-                Array.from(scopeNameList).findIndex((item) => it.data.scope.includes(item)) !== -1)
+              (it.data.scope.includes("all") || scopeNameList.findIndex((item) => it.data.scope.includes(item)) !== -1)
           );
           return matchedFilterOptionList;
         };
-        let checkFilterCallBack = (awemeFilterInfoResult) => {
+        const checkFilterCallBack = (awemeFilterInfoResult) => {
           if (this.$data.isReverse) {
             awemeFilterInfoResult.isFilter = !awemeFilterInfoResult.isFilter;
             if (
               typeof awemeFilterInfoResult.transformAwemeInfo.awemeId === "string" &&
               awemeFilterInfoResult.matchedFilterOption
             ) {
-              let filterOptionList =
+              const filterOptionList =
                 this.$data.isFilterAwemeInfoList.get(awemeFilterInfoResult.transformAwemeInfo.awemeId) || [];
               filterOptionList.push(awemeFilterInfoResult.matchedFilterOption);
               this.$data.isFilterAwemeInfoList.set(awemeFilterInfoResult.transformAwemeInfo.awemeId, filterOptionList);
@@ -7916,18 +7933,18 @@
             });
           }
         };
-        let xhr_hook_callback_1 = (scopeName, request) => {
+        const xhr_hook_callback_1 = (scopeName, request) => {
           request.response = async (response) => {
-            let filterOptionList = queryScopeFilterOptionList(scopeName);
-            if (!filterOptionList.length) {
+            const filterRules = getScopeFilterRules(scopeName);
+            if (!filterRules.length) {
               return;
             }
-            let data = utils.toJSON(response.responseText);
-            let aweme_list = data["aweme_list"];
+            const data = utils.toJSON(response.responseText);
+            const aweme_list = data["aweme_list"];
             if (Array.isArray(aweme_list)) {
               for (let index = 0; index < aweme_list.length; index++) {
-                let awemeInfo = aweme_list[index] || {};
-                let filterResult = await filterBase.checkAwemeInfoIsFilter(filterOptionList, awemeInfo);
+                const awemeInfo = aweme_list[index] || {};
+                const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo);
                 checkFilterCallBack(filterResult);
                 if (filterResult.isFilter) {
                   filterBase.sendDislikeVideo(filterResult.matchedFilterOption, awemeInfo);
@@ -7938,22 +7955,22 @@
             }
           };
         };
-        let xhr_hook_callback_2 = (scopeName, request) => {
+        const xhr_hook_callback_2 = (scopeName, request) => {
           request.response = async (response) => {
-            let filterOptionList = queryScopeFilterOptionList(scopeName);
-            if (!filterOptionList.length) {
+            const filterRules = getScopeFilterRules(scopeName);
+            if (!filterRules.length) {
               return;
             }
-            let data = utils.toJSON(response.responseText);
-            let aweme_list = data["data"];
+            const data = utils.toJSON(response.responseText);
+            const aweme_list = data["data"];
             if (Array.isArray(aweme_list)) {
               for (let index = 0; index < aweme_list.length; index++) {
-                let awemeItem = aweme_list[index];
-                let awemeInfo = awemeItem["aweme"] || {};
+                const awemeItem = aweme_list[index];
+                const awemeInfo = awemeItem["aweme"] || {};
                 if (typeof awemeItem?.["cell_room"] === "object" && awemeItem?.["cell_room"] != null) {
                   awemeInfo["cell_room"] = awemeItem?.["cell_room"];
                 }
-                let filterResult = await filterBase.checkAwemeInfoIsFilter(filterOptionList, awemeInfo);
+                const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo);
                 checkFilterCallBack(filterResult);
                 if (filterResult.isFilter) {
                   filterBase.sendDislikeVideo(filterResult.matchedFilterOption, awemeInfo);
@@ -7964,19 +7981,19 @@
             }
           };
         };
-        let xhr_hook_callback_3 = (scopeName, request) => {
+        const xhr_hook_callback_3 = (scopeName, request) => {
           request.response = async (response) => {
-            let filterOptionList = queryScopeFilterOptionList(scopeName);
-            if (!filterOptionList.length) {
+            const filterRules = getScopeFilterRules(scopeName);
+            if (!filterRules.length) {
               return;
             }
-            let data = utils.toJSON(response.responseText);
-            let cards = data["cards"];
+            const data = utils.toJSON(response.responseText);
+            const cards = data["cards"];
             if (Array.isArray(cards)) {
               for (let index = 0; index < cards.length; index++) {
-                let awemeItem = cards[index];
-                let awemeInfo = utils.toJSON(awemeItem?.["aweme"] || "{}");
-                let filterResult = await filterBase.checkAwemeInfoIsFilter(filterOptionList, awemeInfo);
+                const awemeItem = cards[index];
+                const awemeInfo = utils.toJSON(awemeItem?.["aweme"] || "{}");
+                const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo);
                 checkFilterCallBack(filterResult);
                 if (filterResult.isFilter) {
                   filterBase.sendDislikeVideo(filterResult.matchedFilterOption, awemeInfo);
@@ -7987,25 +8004,25 @@
             }
           };
         };
-        let xhr_hook_callback_4 = (scopeName, request) => {
+        const xhr_hook_callback_4 = (scopeName, request) => {
           request.response = async (response) => {
-            let filterOptionList = queryScopeFilterOptionList(scopeName);
-            if (!filterOptionList.length) {
+            const filterRules = getScopeFilterRules(scopeName);
+            if (!filterRules.length) {
               return;
             }
-            let data = utils.toJSON(response.responseText);
-            let aweme_list = data["data"];
+            const data = utils.toJSON(response.responseText);
+            const aweme_list = data["data"];
             if (Array.isArray(aweme_list)) {
               for (let index = 0; index < aweme_list.length; index++) {
-                let awemeItem = aweme_list[index];
-                let awemeInfo = awemeItem["aweme_info"] || {};
-                let awemeMixInfo = awemeItem?.["aweme_mix_info"];
+                const awemeItem = aweme_list[index];
+                const awemeInfo = awemeItem["aweme_info"] || {};
+                const awemeMixInfo = awemeItem?.["aweme_mix_info"];
                 if (awemeInfo == null && typeof awemeMixInfo && awemeMixInfo != null) {
-                  let awemeMixInfoItems = awemeMixInfo?.["mix_items"];
+                  const awemeMixInfoItems = awemeMixInfo?.["mix_items"];
                   if (Array.isArray(awemeMixInfoItems)) {
                     for (let mixIndex = 0; mixIndex < awemeMixInfoItems.length; mixIndex++) {
-                      let mixItem = awemeMixInfoItems[mixIndex];
-                      let filterResult = await filterBase.checkAwemeInfoIsFilter(filterOptionList, mixItem);
+                      const mixItem = awemeMixInfoItems[mixIndex];
+                      const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, mixItem);
                       checkFilterCallBack(filterResult);
                       if (filterResult.isFilter) {
                         filterBase.sendDislikeVideo(filterResult.matchedFilterOption, mixItem);
@@ -8017,7 +8034,7 @@
                     }
                   }
                 } else {
-                  let filterResult = await filterBase.checkAwemeInfoIsFilter(filterOptionList, awemeInfo);
+                  const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo);
                   checkFilterCallBack(filterResult);
                   if (filterResult.isFilter) {
                     filterBase.sendDislikeVideo(filterResult.matchedFilterOption, awemeInfo);
@@ -8029,16 +8046,16 @@
             }
           };
         };
-        let xhr_hook_callback_5 = (scopeName, request) => {
+        const xhr_hook_callback_5 = (scopeName, request) => {
           request.response = async (response) => {
-            let filterOptionList = queryScopeFilterOptionList(scopeName);
-            if (!filterOptionList.length) {
+            const filterRules = getScopeFilterRules(scopeName);
+            if (!filterRules.length) {
               return;
             }
-            let data = utils.toJSON(response.responseText);
-            let awemeInfo = data["aweme_detail"];
+            const data = utils.toJSON(response.responseText);
+            const awemeInfo = data["aweme_detail"];
             if (typeof awemeInfo === "object" && awemeInfo != null) {
-              let filterResult = await filterBase.checkAwemeInfoIsFilter(filterOptionList, awemeInfo);
+              const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo);
               checkFilterCallBack(filterResult);
               if (filterResult.isFilter) {
                 filterBase.sendDislikeVideo(filterResult.matchedFilterOption, awemeInfo);
@@ -8048,8 +8065,8 @@
           };
         };
         DouYinNetWorkHook.ajaxHooker.hook((request) => {
-          let url = CommonUtil.fixUrl(request.url);
-          let urlInst = new URL(url);
+          const url = CommonUtil.fixUrl(request.url);
+          const urlInst = new URL(url);
           if (urlInst.pathname.startsWith("/aweme/v1/web/tab/feed")) {
             xhr_hook_callback_1("xhr-tab", request);
           } else if (urlInst.pathname.startsWith("/aweme/v1/web/aweme/post/")) {
@@ -8096,11 +8113,11 @@
 
 		`
       );
-      let filterBase = new DouYinVideoFilterBase();
-      let awemeInfoClickCallBack = ($container) => {
-        let that = this;
-        let reactFiber = utils.getReactInstance($container)?.reactFiber;
-        let awemeInfo =
+      const filterBase = new DouYinVideoFilterBase();
+      const awemeInfoClickCallBack = ($container) => {
+        const that = this;
+        const reactFiber = utils.getReactInstance($container)?.reactFiber;
+        const awemeInfo =
           reactFiber?.return?.memoizedProps?.awemeInfo ||
           reactFiber?.return?.return?.memoizedProps?.awemeInfo ||
           reactFiber?.return?.memoizedProps?.originData;
@@ -8113,20 +8130,20 @@
           return;
         }
         let transformAwemeInfo;
-        let transformAwemeInfoWithPage = filterBase.parseAwemeInfoDictData(awemeInfo, false);
+        const transformAwemeInfoWithPage = filterBase.parseAwemeInfoDictData(awemeInfo, false);
         log.info(["视频页面原始awemeInfo：", awemeInfo]);
         log.info(["视频页面解析出的transformAwemeInfo：", transformAwemeInfoWithPage]);
         if (
           typeof transformAwemeInfoWithPage.awemeId === "string" &&
           DouYinVideoFilter.$data.networkAwemeInfoMap.has(transformAwemeInfoWithPage.awemeId)
         ) {
-          let awemeInfoMapData = DouYinVideoFilter.$data.networkAwemeInfoMap.get(transformAwemeInfoWithPage.awemeId);
+          const awemeInfoMapData = DouYinVideoFilter.$data.networkAwemeInfoMap.get(transformAwemeInfoWithPage.awemeId);
           transformAwemeInfo = awemeInfoMapData.transformAwemeInfo;
           log.info([`视频网络接口存储的Info：`, awemeInfoMapData]);
         } else {
           transformAwemeInfo = transformAwemeInfoWithPage;
         }
-        let targetFilterOption = that.$data.isFilterAwemeInfoList.get(transformAwemeInfo.awemeId) || [];
+        const targetFilterOption = that.$data.isFilterAwemeInfoList.get(transformAwemeInfo.awemeId) || [];
         __pops.confirm({
           title: {
             text: "视频awemeInfo",
@@ -8144,7 +8161,7 @@
               enable: true,
               text: "添加过滤规则",
               callback(eventDetails, event) {
-                let ruleView = that.getRuleViewInstance();
+                const ruleView = that.getRuleViewInstance();
                 ruleView.showEditView(false, that.getTemplateData());
               },
             },
@@ -8161,7 +8178,7 @@
               type: "xiaomi-primary",
               callback(eventDetails, event) {
                 that.getRuleViewInstance().showView((data) => {
-                  let find = targetFilterOption.find((it) => {
+                  const find = targetFilterOption.find((it) => {
                     return data.uuid === it.uuid;
                   });
                   return Boolean(find);
@@ -8184,7 +8201,7 @@
 			`,
         });
       };
-      let createFilterParseButton = () => {
+      const createFilterParseButton = () => {
         return domUtils.createElement("xg-icon", {
           className: "gm-video-filter-parse-btn",
           innerHTML: `
@@ -8213,15 +8230,15 @@
 				`,
         });
       };
-      let lockFn = new utils.LockFunction(() => {
+      const lockFn = new utils.LockFunction(() => {
         if (DouYinRouter.isLive()) {
           return;
         }
         $$(".basePlayerContainer xg-right-grid:not(:has(.gm-video-filter-parse-btn))").forEach(($xgRightGrid) => {
-          let $gmFilterParseBtn = createFilterParseButton();
+          const $gmFilterParseBtn = createFilterParseButton();
           domUtils.on($gmFilterParseBtn, "click", (event) => {
             domUtils.preventEvent(event);
-            let $basePlayerContainer = $xgRightGrid.closest(".basePlayerContainer");
+            const $basePlayerContainer = $xgRightGrid.closest(".basePlayerContainer");
             awemeInfoClickCallBack($basePlayerContainer);
           });
           domUtils.prepend($xgRightGrid, $gmFilterParseBtn);
@@ -8230,10 +8247,10 @@
           if (!utils.isVisible($xgRightGrid, false)) {
             return;
           }
-          let $gmFilterParseBtn = createFilterParseButton();
+          const $gmFilterParseBtn = createFilterParseButton();
           domUtils.on($gmFilterParseBtn, "click", (event) => {
             domUtils.preventEvent(event);
-            let $liveContainer = $xgRightGrid.closest('[data-e2e="feed-live"]');
+            const $liveContainer = $xgRightGrid.closest('[data-e2e="feed-live"]');
             awemeInfoClickCallBack($liveContainer);
           });
           domUtils.prepend($xgRightGrid, $gmFilterParseBtn);
@@ -8252,7 +8269,7 @@
     },
     getRuleViewInstance() {
       const that = this;
-      let panelHandlerComponents = __pops.config.PanelHandlerComponents();
+      const panelHandlerComponents = __pops.config.PanelHandlerComponents();
       function generateStorageApi(data) {
         return {
           get(key, defaultValue) {
@@ -8263,7 +8280,7 @@
           },
         };
       }
-      let ruleView = new RuleView({
+      const ruleView = new RuleView({
         title: "视频过滤器",
         data: () => {
           return that.$data.videoFilterRuleStorage.getAllRule();
@@ -8281,8 +8298,8 @@
           return that.$data.videoFilterRuleStorage.deleteRule(data);
         },
         getData: (data) => {
-          let allData = DouYinVideoFilter.$data.videoFilterRuleStorage.getAllRule();
-          let findValue = allData.find((item) => item.uuid === data.uuid);
+          const allData = DouYinVideoFilter.$data.videoFilterRuleStorage.getAllRule();
+          const findValue = allData.find((item) => item.uuid === data.uuid);
           return findValue ?? data;
         },
         itemControls: {
@@ -8299,17 +8316,17 @@
           edit: {
             enable: true,
             getView: (data, isEdit) => {
-              let $fragment = document.createDocumentFragment();
+              const $fragment = document.createDocumentFragment();
               if (!isEdit) {
                 data = this.getTemplateData();
               }
-              let enable_template = UISwitch("启用", "enable", true);
+              const enable_template = UISwitch("启用", "enable", true);
               Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-              let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
-              let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
+              const $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+              const name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
               Reflect.set(name_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-              let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
-              let scope_template = UISelectMultiple(
+              const $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+              const scope_template = UISelectMultiple(
                 "作用域",
                 "scope",
                 [],
@@ -8351,7 +8368,7 @@
                     value: "xhr-related",
                   },
                 ].map((it) => {
-                  let result = {
+                  const result = {
                     ...it,
                     value: it.value,
                   };
@@ -8361,8 +8378,8 @@
                 "选择需要在xxx上生效的作用域"
               );
               Reflect.set(scope_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-              let $scope = panelHandlerComponents.createSectionContainerItem_select_multiple_new(scope_template);
-              let douYinVideoHandlerInfoKey = [
+              const $scope = panelHandlerComponents.createSectionContainerItem_select_multiple_new(scope_template);
+              const douYinVideoHandlerInfoKey = [
                 "isLive",
                 "isAds",
                 "isSeriesInfo",
@@ -8402,7 +8419,7 @@
                 "productId",
                 "productTitle",
               ];
-              let createDynamicItemNode = (storageData) => {
+              const createDynamicItemNode = (storageData) => {
                 const ruleNameDefaultValue = Array.isArray(storageData["ruleName"])
                   ? storageData["ruleName"]
                   : [storageData["ruleName"]];
@@ -8457,7 +8474,7 @@
                 }
                 return [$ruleName, $ownFunctionHandler, $ruleValue, $remarks];
               };
-              let $dynamicContainer = domUtils.createElement("div", {
+              const $dynamicContainer = domUtils.createElement("div", {
                 className: "rule-form-ulist-dynamic",
                 innerHTML: `
 							<div class="rule-form-ulist-dynamic__inner"></div>
@@ -8469,9 +8486,9 @@
 							</div>
 							`,
               });
-              let $dynamicInner = $dynamicContainer.querySelector(".rule-form-ulist-dynamic__inner");
-              let $addDynamicButton = $dynamicContainer.querySelector(".pops-panel-button");
-              let addDynamicElementItem = (
+              const $dynamicInner = $dynamicContainer.querySelector(".rule-form-ulist-dynamic__inner");
+              const $addDynamicButton = $dynamicContainer.querySelector(".pops-panel-button");
+              const addDynamicElementItem = (
                 dynamicData = {
                   ruleName: [],
                   isFunctionHandler: false,
@@ -8479,7 +8496,7 @@
                   remarks: "",
                 }
               ) => {
-                let $dynamicUListContainer = domUtils.createElement("div", {
+                const $dynamicUListContainer = domUtils.createElement("div", {
                   className: "rule-form-ulist-dynamic__inner-container",
                   innerHTML: `
 									<div class="dynamic-control-delete">
@@ -8493,18 +8510,18 @@
 									<ul class="dynamic-forms"></ul>
 								`,
                 });
-                let $dynamicDelete = $dynamicUListContainer.querySelector(".dynamic-control-delete");
+                const $dynamicDelete = $dynamicUListContainer.querySelector(".dynamic-control-delete");
                 domUtils.on($dynamicDelete, "click", (event) => {
                   domUtils.preventEvent(event);
                   $dynamicUListContainer.remove();
                   if (Array.isArray(data.dynamicData)) {
-                    let findIndex = data.dynamicData.findIndex((it) => it == dynamicData);
+                    const findIndex = data.dynamicData.findIndex((it) => it == dynamicData);
                     if (findIndex !== -1) {
                       data.dynamicData.splice(findIndex, 1);
                     }
                   }
                 });
-                let $dynamicUList = $dynamicUListContainer.querySelector(".dynamic-forms");
+                const $dynamicUList = $dynamicUListContainer.querySelector(".dynamic-forms");
                 const dynamicItemNodes = createDynamicItemNode(dynamicData);
                 $dynamicUList.append(...dynamicItemNodes);
                 $dynamicInner.appendChild($dynamicUListContainer);
@@ -8523,24 +8540,24 @@
               return $fragment;
             },
             onsubmit: ($form, isEdit, editData) => {
-              let $ulist_li = $form.querySelectorAll(".rule-form-ulist > li");
-              let data = this.getTemplateData();
+              const $ulist_li = $form.querySelectorAll(".rule-form-ulist > li");
+              const data = this.getTemplateData();
               if (isEdit) {
                 data.uuid = editData.uuid;
               }
               $ulist_li.forEach(($li) => {
-                let formConfig = Reflect.get($li, "__formConfig__");
+                const formConfig = Reflect.get($li, "__formConfig__");
                 if (!formConfig) {
                   return;
                 }
-                let attrs = Reflect.get(formConfig, "attributes");
+                const attrs = Reflect.get(formConfig, "attributes");
                 if (!attrs) {
                   return;
                 }
-                let storageApi = Reflect.get($li, PROPS_STORAGE_API);
-                let key = Reflect.get(attrs, ATTRIBUTE_KEY);
-                let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
-                let value = storageApi.get(key, defaultValue);
+                const storageApi = Reflect.get($li, PROPS_STORAGE_API);
+                const key = Reflect.get(attrs, ATTRIBUTE_KEY);
+                const defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
+                const value = storageApi.get(key, defaultValue);
                 if (Reflect.has(data, key)) {
                   Reflect.set(data, key, value);
                 } else if (Reflect.has(data.data, key)) {
@@ -8550,20 +8567,20 @@
                 }
               });
               $form.querySelectorAll(".rule-form-ulist-dynamic__inner-container").forEach(($inner) => {
-                let dynamicData = {};
+                const dynamicData = {};
                 $inner.querySelectorAll(".dynamic-forms > li").forEach(($li) => {
-                  let formConfig = Reflect.get($li, "__formConfig__");
+                  const formConfig = Reflect.get($li, "__formConfig__");
                   if (!formConfig) {
                     return;
                   }
-                  let attrs = Reflect.get(formConfig, "attributes");
+                  const attrs = Reflect.get(formConfig, "attributes");
                   if (!attrs) {
                     return;
                   }
-                  let storageApi = Reflect.get($li, PROPS_STORAGE_API);
-                  let key = Reflect.get(attrs, ATTRIBUTE_KEY);
-                  let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
-                  let value = storageApi.get(key, defaultValue);
+                  const storageApi = Reflect.get($li, PROPS_STORAGE_API);
+                  const key = Reflect.get(attrs, ATTRIBUTE_KEY);
+                  const defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
+                  const value = storageApi.get(key, defaultValue);
                   Reflect.set(dynamicData, key, value);
                 });
                 data.dynamicData.push(dynamicData);
@@ -8708,7 +8725,7 @@
       return ruleView;
     },
     showView() {
-      let ruleView = this.getRuleViewInstance();
+      const ruleView = this.getRuleViewInstance();
       ruleView.showView(Panel.getValue("dy-video-ui-rule-filter-option-index"));
     },
     getTemplateData() {
@@ -10562,6 +10579,13 @@
                     "屏蔽右边的相关搜索"
                   ),
                   UISwitch("【屏蔽】AI问一问", "douyin-search-blockAIAsk", false, void 0, "相关搜索上面的问一问"),
+                  UISwitch(
+                    "【屏蔽】问问AI",
+                    "douyin-search-blockAskAI",
+                    false,
+                    void 0,
+                    "为你找到以下结果，问问AI智能总结内容"
+                  ),
                 ],
               },
             ],
@@ -10768,7 +10792,9 @@
                         "div",
                         {
                           className: "pops-panel-textarea",
-                          innerHTML: `<textarea placeholder="请输入屏蔽规则，每行一个" style="height:350px;"></textarea>`,
+                          innerHTML: `<textarea placeholder="请输入屏蔽规则，每行一个
+例如：屏蔽包含'主播'的消息
+主播" style="height:350px;"></textarea>`,
                         },
                         {
                           style: "width: 100%;",

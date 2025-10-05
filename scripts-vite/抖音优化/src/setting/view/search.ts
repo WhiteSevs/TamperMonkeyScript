@@ -92,6 +92,13 @@ export const PanelSearchConfig: PopsPanelContentConfig = {
                   "屏蔽右边的相关搜索"
                 ),
                 UISwitch("【屏蔽】AI问一问", "douyin-search-blockAIAsk", false, void 0, "相关搜索上面的问一问"),
+                UISwitch(
+                  "【屏蔽】问问AI",
+                  "douyin-search-blockAskAI",
+                  false,
+                  void 0,
+                  "为你找到以下结果，问问AI智能总结内容"
+                ),
               ],
             },
           ],

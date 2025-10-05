@@ -18,7 +18,7 @@ import type { UtilsAjaxHookRequestOptions } from "@whitesev/utils/dist/types/src
 import type { PopsPanelSelectMultipleDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-selectMultiple";
 import type { DouYinVideoAwemeInfo, DouYinVideoHandlerInfo } from "./DouYinVideoType";
 
-type DouYinVideoFilterOptionScope =
+type DouYinVideoFilterRuleOptionScope =
   | "all"
   | "xhr-tab"
   | "xhr-channel"
@@ -32,7 +32,7 @@ type DouYinVideoFilterOptionScope =
   | "xhr-video";
 
 /** 过滤器规则-动态属性 */
-export type DouYinVideoFilterDynamicOption = {
+export type DouYinVideoFilterRuleDynamicOption = {
   /** 属性名 */
   ruleName: keyof DouYinVideoHandlerInfo | (keyof DouYinVideoHandlerInfo)[];
   /** 是否使用自定义函数处理 */
@@ -44,7 +44,7 @@ export type DouYinVideoFilterDynamicOption = {
 };
 
 /** 过滤器规则 */
-export type DouYinVideoFilterOption = {
+export type DouYinVideoFilterRule = {
   /** 是否启用 */
   enable: boolean;
   /** 唯一uuid */
@@ -54,12 +54,12 @@ export type DouYinVideoFilterOption = {
   /** 配置的数据 */
   data: {
     /** 作用域（让规则在哪个下面生效） */
-    scope: DouYinVideoFilterOptionScope[];
+    scope: DouYinVideoFilterRuleOptionScope[];
     /** 是否自动发送不感兴趣的请求 */
     // autoSendDisLikeRequest: boolean;
-  } & DouYinVideoFilterDynamicOption;
+  } & DouYinVideoFilterRuleDynamicOption;
   /** 动态添加的数据 */
-  dynamicData?: DouYinVideoFilterDynamicOption[];
+  dynamicData?: DouYinVideoFilterRuleDynamicOption[];
 };
 
 export const DouYinVideoFilter = {
@@ -68,7 +68,7 @@ export const DouYinVideoFilter = {
   },
   $data: {
     /** 已经过滤的信息 */
-    isFilterAwemeInfoList: new Utils.Dictionary<string, DouYinVideoFilterOption[]>(),
+    isFilterAwemeInfoList: new Utils.Dictionary<string, DouYinVideoFilterRule[]>(),
     /**
      * 网络接口的视频信息字典
      */
@@ -81,10 +81,10 @@ export const DouYinVideoFilter = {
         transformAwemeInfo: DouYinVideoHandlerInfo;
       }
     >(),
-    __videoFilterRuleStorage: null as null | RuleStorage<DouYinVideoFilterOption>,
+    __videoFilterRuleStorage: null as null | RuleStorage<DouYinVideoFilterRule>,
     get videoFilterRuleStorage() {
       if (this.__videoFilterRuleStorage == null) {
-        this.__videoFilterRuleStorage = new RuleStorage<DouYinVideoFilterOption>({
+        this.__videoFilterRuleStorage = new RuleStorage<DouYinVideoFilterRule>({
           STORAGE_API_KEY: "dy-video-filter-rule",
         });
       }
@@ -114,43 +114,52 @@ export const DouYinVideoFilter = {
     const that = this;
     Panel.execMenuOnce(this.$key.ENABLE_KEY, async () => {
       log.info(`执行视频过滤器`);
-      // let webid = Panel.getValue("dy-webid");
+      // const webid = Panel.getValue("dy-webid");
       // if (utils.isNull(webid)) {
-      // 	let temp_webid = await DouYinQueryApi.webid();
+      // 	const temp_webid = await DouYinQueryApi.webid();
       // 	if (typeof temp_webid === "string") {
       // 		webid = temp_webid;
       // 		Panel.setValue("dy-webid", webid);
       // 	}
       // }
-      let filterBase = new DouYinVideoFilterBase();
+      const filterBase = new DouYinVideoFilterBase();
       /**
        * 获取作用域的规则
        */
-      let queryScopeFilterOptionList = (scopeName: DouYinVideoFilterOptionScope) => {
+      const getScopeFilterRules = (scopeName: DouYinVideoFilterRuleOptionScope) => {
         if (!Panel.getValue(that.$key.ENABLE_KEY)) {
           return [];
         }
-        let filterOptionList = that.$data.videoFilterRuleStorage.getAllRule();
-        if (!filterOptionList.length) {
+        const videoFilterRules = that.$data.videoFilterRuleStorage.getAllRule();
+        if (!videoFilterRules.length) {
           // 无规则，不过滤
           return [];
         }
-        // 作用域列表
-        let scopeNameList = Array.isArray(scopeName) ? scopeName : [scopeName];
-        let matchedFilterOptionList = filterOptionList.filter(
+        // 排序
+        // 非isFunctionHandler优先级最低
+        // 所以isFunctionHandler排在最后
+        videoFilterRules.sort((a, b) => {
+          if (a.data.isFunctionHandler && !b.data.isFunctionHandler) {
+            return 1;
+          }
+          if (!a.data.isFunctionHandler && b.data.isFunctionHandler) {
+            return -1;
+          }
+          return 0;
+        });
+        // 获取在作用域内的规则（该规则为启用状态）
+        const scopeNameList: DouYinVideoFilterRuleOptionScope[] = Array.isArray(scopeName) ? scopeName : [scopeName];
+        const matchedFilterOptionList = videoFilterRules.filter(
           (it) =>
             it.enable &&
-            (it.data.scope.includes("all") ||
-              Array.from(scopeNameList).findIndex((item) =>
-                it.data.scope.includes(item as any as DouYinVideoFilterOptionScope)
-              ) !== -1)
+            (it.data.scope.includes("all") || scopeNameList.findIndex((item) => it.data.scope.includes(item)) !== -1)
         );
         return matchedFilterOptionList;
       };
       /** 获取接口信息后的回调 */
-      let checkFilterCallBack = (awemeFilterInfoResult: {
+      const checkFilterCallBack = (awemeFilterInfoResult: {
         isFilter: boolean;
-        matchedFilterOption: DouYinVideoFilterOption | null;
+        matchedFilterOption: DouYinVideoFilterRule | null;
         transformAwemeInfo: DouYinVideoHandlerInfo;
         awemeInfo: DouYinVideoAwemeInfo;
       }) => {
@@ -163,7 +172,7 @@ export const DouYinVideoFilter = {
             typeof awemeFilterInfoResult.transformAwemeInfo.awemeId === "string" &&
             awemeFilterInfoResult.matchedFilterOption
           ) {
-            let filterOptionList: DouYinVideoFilterOption[] =
+            const filterOptionList: DouYinVideoFilterRule[] =
               this.$data.isFilterAwemeInfoList.get(awemeFilterInfoResult.transformAwemeInfo.awemeId) || [];
             filterOptionList.push(awemeFilterInfoResult.matchedFilterOption);
             this.$data.isFilterAwemeInfoList.set(awemeFilterInfoResult.transformAwemeInfo.awemeId, filterOptionList);
@@ -181,18 +190,21 @@ export const DouYinVideoFilter = {
       /**
        * 类型1接口结果的hook
        */
-      let xhr_hook_callback_1 = (scopeName: DouYinVideoFilterOptionScope, request: UtilsAjaxHookRequestOptions) => {
+      const xhr_hook_callback_1 = (
+        scopeName: DouYinVideoFilterRuleOptionScope,
+        request: UtilsAjaxHookRequestOptions
+      ) => {
         request.response = async (response) => {
-          let filterOptionList = queryScopeFilterOptionList(scopeName);
-          if (!filterOptionList.length) {
+          const filterRules = getScopeFilterRules(scopeName);
+          if (!filterRules.length) {
             return;
           }
-          let data = utils.toJSON(response.responseText);
-          let aweme_list = data["aweme_list"];
+          const data = utils.toJSON(response.responseText);
+          const aweme_list = data["aweme_list"];
           if (Array.isArray(aweme_list)) {
             for (let index = 0; index < aweme_list.length; index++) {
-              let awemeInfo: DouYinVideoAwemeInfo = aweme_list[index] || {};
-              let filterResult = await filterBase.checkAwemeInfoIsFilter(filterOptionList, awemeInfo);
+              const awemeInfo: DouYinVideoAwemeInfo = aweme_list[index] || {};
+              const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo);
               checkFilterCallBack(filterResult);
               if (filterResult.isFilter) {
                 filterBase.sendDislikeVideo(filterResult.matchedFilterOption!, awemeInfo);
@@ -210,23 +222,26 @@ export const DouYinVideoFilter = {
       /**
        * 类型2接口结果的hook
        */
-      let xhr_hook_callback_2 = (scopeName: DouYinVideoFilterOptionScope, request: UtilsAjaxHookRequestOptions) => {
+      const xhr_hook_callback_2 = (
+        scopeName: DouYinVideoFilterRuleOptionScope,
+        request: UtilsAjaxHookRequestOptions
+      ) => {
         request.response = async (response) => {
-          let filterOptionList = queryScopeFilterOptionList(scopeName);
-          if (!filterOptionList.length) {
+          const filterRules = getScopeFilterRules(scopeName);
+          if (!filterRules.length) {
             return;
           }
-          let data = utils.toJSON(response.responseText);
-          let aweme_list = data["data"];
+          const data = utils.toJSON(response.responseText);
+          const aweme_list = data["data"];
           if (Array.isArray(aweme_list)) {
             for (let index = 0; index < aweme_list.length; index++) {
-              let awemeItem = aweme_list[index];
-              let awemeInfo: DouYinVideoAwemeInfo = awemeItem["aweme"] || {};
+              const awemeItem = aweme_list[index];
+              const awemeInfo: DouYinVideoAwemeInfo = awemeItem["aweme"] || {};
               // 如果cell_room不为空，这时候aweme是空的
               if (typeof awemeItem?.["cell_room"] === "object" && awemeItem?.["cell_room"] != null) {
                 (awemeInfo as any)["cell_room"] = awemeItem?.["cell_room"];
               }
-              let filterResult = await filterBase.checkAwemeInfoIsFilter(filterOptionList, awemeInfo);
+              const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo);
               checkFilterCallBack(filterResult);
               if (filterResult.isFilter) {
                 filterBase.sendDislikeVideo(filterResult.matchedFilterOption!, awemeInfo);
@@ -244,19 +259,22 @@ export const DouYinVideoFilter = {
       /**
        * 类型3接口结果的hook
        */
-      let xhr_hook_callback_3 = (scopeName: DouYinVideoFilterOptionScope, request: UtilsAjaxHookRequestOptions) => {
+      const xhr_hook_callback_3 = (
+        scopeName: DouYinVideoFilterRuleOptionScope,
+        request: UtilsAjaxHookRequestOptions
+      ) => {
         request.response = async (response) => {
-          let filterOptionList = queryScopeFilterOptionList(scopeName);
-          if (!filterOptionList.length) {
+          const filterRules = getScopeFilterRules(scopeName);
+          if (!filterRules.length) {
             return;
           }
-          let data = utils.toJSON(response.responseText);
-          let cards = data["cards"];
+          const data = utils.toJSON(response.responseText);
+          const cards = data["cards"];
           if (Array.isArray(cards)) {
             for (let index = 0; index < cards.length; index++) {
-              let awemeItem = cards[index];
-              let awemeInfo: DouYinVideoAwemeInfo = utils.toJSON(awemeItem?.["aweme"] || "{}");
-              let filterResult = await filterBase.checkAwemeInfoIsFilter(filterOptionList, awemeInfo);
+              const awemeItem = cards[index];
+              const awemeInfo: DouYinVideoAwemeInfo = utils.toJSON(awemeItem?.["aweme"] || "{}");
+              const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo);
               checkFilterCallBack(filterResult);
               if (filterResult.isFilter) {
                 filterBase.sendDislikeVideo(filterResult.matchedFilterOption!, awemeInfo);
@@ -274,26 +292,29 @@ export const DouYinVideoFilter = {
       /**
        * 类型4接口结果的hook
        */
-      let xhr_hook_callback_4 = (scopeName: DouYinVideoFilterOptionScope, request: UtilsAjaxHookRequestOptions) => {
+      const xhr_hook_callback_4 = (
+        scopeName: DouYinVideoFilterRuleOptionScope,
+        request: UtilsAjaxHookRequestOptions
+      ) => {
         request.response = async (response) => {
-          let filterOptionList = queryScopeFilterOptionList(scopeName);
-          if (!filterOptionList.length) {
+          const filterRules = getScopeFilterRules(scopeName);
+          if (!filterRules.length) {
             return;
           }
-          let data = utils.toJSON(response.responseText);
-          let aweme_list = data["data"];
+          const data = utils.toJSON(response.responseText);
+          const aweme_list = data["data"];
           if (Array.isArray(aweme_list)) {
             for (let index = 0; index < aweme_list.length; index++) {
-              let awemeItem = aweme_list[index];
-              let awemeInfo: DouYinVideoAwemeInfo = awemeItem["aweme_info"] || {};
-              let awemeMixInfo = awemeItem?.["aweme_mix_info"];
+              const awemeItem = aweme_list[index];
+              const awemeInfo: DouYinVideoAwemeInfo = awemeItem["aweme_info"] || {};
+              const awemeMixInfo = awemeItem?.["aweme_mix_info"];
               if (awemeInfo == null && typeof awemeMixInfo && awemeMixInfo != null) {
                 // 对混合的信息进行过滤
-                let awemeMixInfoItems = awemeMixInfo?.["mix_items"];
+                const awemeMixInfoItems = awemeMixInfo?.["mix_items"];
                 if (Array.isArray(awemeMixInfoItems)) {
                   for (let mixIndex = 0; mixIndex < awemeMixInfoItems.length; mixIndex++) {
-                    let mixItem: DouYinVideoAwemeInfo = awemeMixInfoItems[mixIndex];
-                    let filterResult = await filterBase.checkAwemeInfoIsFilter(filterOptionList, mixItem);
+                    const mixItem: DouYinVideoAwemeInfo = awemeMixInfoItems[mixIndex];
+                    const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, mixItem);
                     checkFilterCallBack(filterResult);
                     if (filterResult.isFilter) {
                       filterBase.sendDislikeVideo(filterResult.matchedFilterOption!, mixItem);
@@ -307,7 +328,7 @@ export const DouYinVideoFilter = {
                   }
                 }
               } else {
-                let filterResult = await filterBase.checkAwemeInfoIsFilter(filterOptionList, awemeInfo);
+                const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo);
                 checkFilterCallBack(filterResult);
                 if (filterResult.isFilter) {
                   filterBase.sendDislikeVideo(filterResult.matchedFilterOption!, awemeInfo);
@@ -327,17 +348,20 @@ export const DouYinVideoFilter = {
        *
        * 此回调不会对请求数据进行过滤，因为它的结果是单个aweme，而不是数组
        */
-      let xhr_hook_callback_5 = (scopeName: DouYinVideoFilterOptionScope, request: UtilsAjaxHookRequestOptions) => {
+      const xhr_hook_callback_5 = (
+        scopeName: DouYinVideoFilterRuleOptionScope,
+        request: UtilsAjaxHookRequestOptions
+      ) => {
         request.response = async (response) => {
-          let filterOptionList = queryScopeFilterOptionList(scopeName);
-          if (!filterOptionList.length) {
+          const filterRules = getScopeFilterRules(scopeName);
+          if (!filterRules.length) {
             return;
           }
-          let data = utils.toJSON(response.responseText);
+          const data = utils.toJSON(response.responseText);
           // 单个记录
-          let awemeInfo: DouYinVideoAwemeInfo = data["aweme_detail"];
+          const awemeInfo: DouYinVideoAwemeInfo = data["aweme_detail"];
           if (typeof awemeInfo === "object" && awemeInfo != null) {
-            let filterResult = await filterBase.checkAwemeInfoIsFilter(filterOptionList, awemeInfo);
+            const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo);
             checkFilterCallBack(filterResult);
             if (filterResult.isFilter) {
               // 只记录，不移除
@@ -352,8 +376,8 @@ export const DouYinVideoFilter = {
       };
       // xhr hook
       DouYinNetWorkHook.ajaxHooker.hook((request) => {
-        let url = CommonUtil.fixUrl(request.url);
-        let urlInst = new URL(url);
+        const url = CommonUtil.fixUrl(request.url);
+        const urlInst = new URL(url);
         if (urlInst.pathname.startsWith("/aweme/v1/web/tab/feed")) {
           // 推荐
           xhr_hook_callback_1("xhr-tab", request);
@@ -414,13 +438,13 @@ export const DouYinVideoFilter = {
 			}
 
 		`);
-    let filterBase = new DouYinVideoFilterBase();
+    const filterBase = new DouYinVideoFilterBase();
 
     // 按钮的点击回调
-    let awemeInfoClickCallBack = ($container: HTMLElement) => {
-      let that = this;
-      let reactFiber = utils.getReactInstance($container)?.reactFiber;
-      let awemeInfo =
+    const awemeInfoClickCallBack = ($container: HTMLElement) => {
+      const that = this;
+      const reactFiber = utils.getReactInstance($container)?.reactFiber;
+      const awemeInfo =
         reactFiber?.return?.memoizedProps?.awemeInfo ||
         reactFiber?.return?.return?.memoizedProps?.awemeInfo ||
         reactFiber?.return?.memoizedProps?.originData;
@@ -433,21 +457,21 @@ export const DouYinVideoFilter = {
         return;
       }
       let transformAwemeInfo: DouYinVideoHandlerInfo;
-      let transformAwemeInfoWithPage = filterBase.parseAwemeInfoDictData(awemeInfo, false);
+      const transformAwemeInfoWithPage = filterBase.parseAwemeInfoDictData(awemeInfo, false);
       log.info(["视频页面原始awemeInfo：", awemeInfo]);
       log.info(["视频页面解析出的transformAwemeInfo：", transformAwemeInfoWithPage]);
       if (
         typeof transformAwemeInfoWithPage.awemeId === "string" &&
         DouYinVideoFilter.$data.networkAwemeInfoMap.has(transformAwemeInfoWithPage.awemeId)
       ) {
-        let awemeInfoMapData = DouYinVideoFilter.$data.networkAwemeInfoMap.get(transformAwemeInfoWithPage.awemeId);
+        const awemeInfoMapData = DouYinVideoFilter.$data.networkAwemeInfoMap.get(transformAwemeInfoWithPage.awemeId);
         transformAwemeInfo = awemeInfoMapData.transformAwemeInfo;
         log.info([`视频网络接口存储的Info：`, awemeInfoMapData]);
       } else {
         transformAwemeInfo = transformAwemeInfoWithPage;
       }
       /** 命中的规则 */
-      let targetFilterOption = that.$data.isFilterAwemeInfoList.get(transformAwemeInfo.awemeId!) || [];
+      const targetFilterOption = that.$data.isFilterAwemeInfoList.get(transformAwemeInfo.awemeId!) || [];
       pops.confirm({
         title: {
           text: "视频awemeInfo",
@@ -465,7 +489,7 @@ export const DouYinVideoFilter = {
             enable: true,
             text: "添加过滤规则",
             callback(eventDetails, event) {
-              let ruleView = that.getRuleViewInstance();
+              const ruleView = that.getRuleViewInstance();
               ruleView.showEditView(false, that.getTemplateData());
             },
           },
@@ -482,7 +506,7 @@ export const DouYinVideoFilter = {
             type: "xiaomi-primary",
             callback(eventDetails, event) {
               that.getRuleViewInstance().showView((data) => {
-                let find = targetFilterOption.find((it) => {
+                const find = targetFilterOption.find((it) => {
                   return data.uuid === it.uuid;
                 });
                 return Boolean(find);
@@ -508,7 +532,7 @@ export const DouYinVideoFilter = {
     /**
      * 创建解析按钮
      */
-    let createFilterParseButton = () => {
+    const createFilterParseButton = () => {
       // @ts-ignore
       return DOMUtils.createElement("xg-icon", {
         className: "gm-video-filter-parse-btn",
@@ -538,17 +562,17 @@ export const DouYinVideoFilter = {
 				`,
       }) as HTMLElement;
     };
-    let lockFn = new utils.LockFunction(() => {
+    const lockFn = new utils.LockFunction(() => {
       if (DouYinRouter.isLive()) {
         return;
       }
       // 普通视频
       $$<HTMLElement>(".basePlayerContainer xg-right-grid:not(:has(.gm-video-filter-parse-btn))").forEach(
         ($xgRightGrid) => {
-          let $gmFilterParseBtn = createFilterParseButton();
+          const $gmFilterParseBtn = createFilterParseButton();
           DOMUtils.on($gmFilterParseBtn, "click", (event) => {
             DOMUtils.preventEvent(event);
-            let $basePlayerContainer = $xgRightGrid.closest<HTMLElement>(".basePlayerContainer")!;
+            const $basePlayerContainer = $xgRightGrid.closest<HTMLElement>(".basePlayerContainer")!;
             awemeInfoClickCallBack($basePlayerContainer);
           });
           DOMUtils.prepend($xgRightGrid, $gmFilterParseBtn);
@@ -560,10 +584,10 @@ export const DouYinVideoFilter = {
           if (!utils.isVisible($xgRightGrid, false)) {
             return;
           }
-          let $gmFilterParseBtn = createFilterParseButton();
+          const $gmFilterParseBtn = createFilterParseButton();
           DOMUtils.on($gmFilterParseBtn, "click", (event) => {
             DOMUtils.preventEvent(event);
-            let $liveContainer = $xgRightGrid.closest<HTMLElement>('[data-e2e="feed-live"]')!;
+            const $liveContainer = $xgRightGrid.closest<HTMLElement>('[data-e2e="feed-live"]')!;
             awemeInfoClickCallBack($liveContainer);
           });
           DOMUtils.prepend($xgRightGrid, $gmFilterParseBtn);
@@ -586,7 +610,7 @@ export const DouYinVideoFilter = {
    */
   getRuleViewInstance() {
     const that = this;
-    let panelHandlerComponents = pops.config.PanelHandlerComponents();
+    const panelHandlerComponents = pops.config.PanelHandlerComponents();
     /**
      * 自定义存储api的配置
      * @param uuid
@@ -601,7 +625,7 @@ export const DouYinVideoFilter = {
         },
       };
     }
-    let ruleView = new RuleView({
+    const ruleView = new RuleView({
       title: "视频过滤器",
       data: () => {
         return that.$data.videoFilterRuleStorage.getAllRule();
@@ -619,8 +643,8 @@ export const DouYinVideoFilter = {
         return that.$data.videoFilterRuleStorage.deleteRule(data);
       },
       getData: (data) => {
-        let allData = DouYinVideoFilter.$data.videoFilterRuleStorage.getAllRule();
-        let findValue = allData.find((item) => item.uuid === data.uuid);
+        const allData = DouYinVideoFilter.$data.videoFilterRuleStorage.getAllRule();
+        const findValue = allData.find((item) => item.uuid === data.uuid);
         return findValue ?? data;
       },
       itemControls: {
@@ -637,23 +661,23 @@ export const DouYinVideoFilter = {
         edit: {
           enable: true,
           getView: (data, isEdit) => {
-            let $fragment = document.createDocumentFragment();
+            const $fragment = document.createDocumentFragment();
             if (!isEdit) {
               data = this.getTemplateData();
             }
 
             // 启用
-            let enable_template = UISwitch("启用", "enable", true);
+            const enable_template = UISwitch("启用", "enable", true);
             Reflect.set(enable_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+            const $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
 
             // 规则名称
-            let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
+            const name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
             Reflect.set(name_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+            const $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
 
             // 作用域
-            let scope_template = UISelectMultiple<DouYinVideoFilterOptionScope>(
+            const scope_template = UISelectMultiple<DouYinVideoFilterRuleOptionScope>(
               "作用域",
               "scope",
               [],
@@ -699,11 +723,11 @@ export const DouYinVideoFilter = {
                   //   text: "视频",
                   //   value: "xhr-video",
                   // },
-                ] as PopsPanelSelectMultipleDetails<DouYinVideoFilterOptionScope>["data"]
+                ] as PopsPanelSelectMultipleDetails<DouYinVideoFilterRuleOptionScope>["data"]
               ).map((it) => {
-                let result: PopsPanelSelectMultipleDetails<DouYinVideoFilterOptionScope>["data"]["0"] = {
+                const result: PopsPanelSelectMultipleDetails<DouYinVideoFilterRuleOptionScope>["data"]["0"] = {
                   ...it,
-                  value: it.value as DouYinVideoFilterOptionScope,
+                  value: it.value as DouYinVideoFilterRuleOptionScope,
                 };
                 if (result.value !== "all") {
                   // result.disable = function (value, allSelectedInfo) {
@@ -718,9 +742,9 @@ export const DouYinVideoFilter = {
               "选择需要在xxx上生效的作用域"
             );
             Reflect.set(scope_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-            let $scope = panelHandlerComponents.createSectionContainerItem_select_multiple_new(scope_template);
+            const $scope = panelHandlerComponents.createSectionContainerItem_select_multiple_new(scope_template);
 
-            // let autoSendDisLikeRequest_template = UISwitch(
+            // const autoSendDisLikeRequest_template = UISwitch(
             // 	"是否自动发送不感兴趣请求",
             // 	"autoSendDisLikeRequest",
             // 	false,
@@ -732,13 +756,13 @@ export const DouYinVideoFilter = {
             // 	PROPS_STORAGE_API,
             // 	generateStorageApi(data.data)
             // );
-            // let $autoSendDisLikeRequest =
+            // const $autoSendDisLikeRequest =
             // 	popsPanelContentUtils.createSectionContainerItem_switch(
             // 		autoSendDisLikeRequest_template
             // 	);
 
             // 属性名列表
-            let douYinVideoHandlerInfoKey = <(keyof DouYinVideoHandlerInfo)[]>[
+            const douYinVideoHandlerInfoKey = <(keyof DouYinVideoHandlerInfo)[]>[
               "isLive",
               "isAds",
               "isSeriesInfo",
@@ -783,8 +807,8 @@ export const DouYinVideoFilter = {
              * 生成动态的元素
              * @param storageData 存储的数据
              */
-            let createDynamicItemNode = (
-              storageData: DouYinVideoFilterOption["data"] | DouYinVideoFilterDynamicOption
+            const createDynamicItemNode = (
+              storageData: DouYinVideoFilterRule["data"] | DouYinVideoFilterRuleDynamicOption
             ) => {
               // 属性名
               const ruleNameDefaultValue: (keyof DouYinVideoHandlerInfo)[] = Array.isArray(storageData["ruleName"])
@@ -861,7 +885,7 @@ export const DouYinVideoFilter = {
             };
 
             // 动态属性
-            let $dynamicContainer = DOMUtils.createElement("div", {
+            const $dynamicContainer = DOMUtils.createElement("div", {
               className: "rule-form-ulist-dynamic",
               innerHTML: /*html*/ `
 							<div class="rule-form-ulist-dynamic__inner"></div>
@@ -873,21 +897,21 @@ export const DouYinVideoFilter = {
 							</div>
 							`,
             });
-            let $dynamicInner = $dynamicContainer.querySelector<HTMLElement>(".rule-form-ulist-dynamic__inner")!;
-            let $addDynamicButton = $dynamicContainer.querySelector<HTMLButtonElement>(".pops-panel-button")!;
+            const $dynamicInner = $dynamicContainer.querySelector<HTMLElement>(".rule-form-ulist-dynamic__inner")!;
+            const $addDynamicButton = $dynamicContainer.querySelector<HTMLButtonElement>(".pops-panel-button")!;
 
             /**
              * 添加动态项
              */
-            let addDynamicElementItem = (
-              dynamicData: DouYinVideoFilterDynamicOption = {
+            const addDynamicElementItem = (
+              dynamicData: DouYinVideoFilterRuleDynamicOption = {
                 ruleName: [],
                 isFunctionHandler: false,
                 ruleValue: "",
                 remarks: "",
               }
             ) => {
-              let $dynamicUListContainer = DOMUtils.createElement("div", {
+              const $dynamicUListContainer = DOMUtils.createElement("div", {
                 className: "rule-form-ulist-dynamic__inner-container",
                 innerHTML: /*html*/ `
 									<div class="dynamic-control-delete">
@@ -902,20 +926,20 @@ export const DouYinVideoFilter = {
 								`,
               });
               /** 删除按钮 */
-              let $dynamicDelete = $dynamicUListContainer.querySelector<HTMLDivElement>(".dynamic-control-delete")!;
+              const $dynamicDelete = $dynamicUListContainer.querySelector<HTMLDivElement>(".dynamic-control-delete")!;
               // 设置删除事件
               DOMUtils.on($dynamicDelete, "click", (event) => {
                 DOMUtils.preventEvent(event);
                 $dynamicUListContainer.remove();
                 if (Array.isArray(data.dynamicData)) {
-                  let findIndex = data.dynamicData.findIndex((it) => it == dynamicData);
+                  const findIndex = data.dynamicData.findIndex((it) => it == dynamicData);
                   if (findIndex !== -1) {
                     data.dynamicData.splice(findIndex, 1);
                   }
                 }
               });
               /** 动态添加的项 */
-              let $dynamicUList = $dynamicUListContainer.querySelector<HTMLUListElement>(".dynamic-forms")!;
+              const $dynamicUList = $dynamicUListContainer.querySelector<HTMLUListElement>(".dynamic-forms")!;
               const dynamicItemNodes = createDynamicItemNode(dynamicData);
               $dynamicUList.append(...dynamicItemNodes);
               $dynamicInner.appendChild($dynamicUListContainer);
@@ -946,24 +970,24 @@ export const DouYinVideoFilter = {
           },
           onsubmit: ($form, isEdit, editData) => {
             // 提交表单
-            let $ulist_li = $form.querySelectorAll<HTMLLIElement>(".rule-form-ulist > li");
-            let data: DouYinVideoFilterOption = this.getTemplateData();
+            const $ulist_li = $form.querySelectorAll<HTMLLIElement>(".rule-form-ulist > li");
+            const data: DouYinVideoFilterRule = this.getTemplateData();
             if (isEdit) {
               data.uuid = editData!.uuid;
             }
             $ulist_li.forEach(($li) => {
-              let formConfig = Reflect.get($li, "__formConfig__");
+              const formConfig = Reflect.get($li, "__formConfig__");
               if (!formConfig) {
                 return;
               }
-              let attrs = Reflect.get(formConfig, "attributes");
+              const attrs = Reflect.get(formConfig, "attributes");
               if (!attrs) {
                 return;
               }
-              let storageApi = Reflect.get($li, PROPS_STORAGE_API);
-              let key = Reflect.get(attrs, ATTRIBUTE_KEY);
-              let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
-              let value = storageApi.get(key, defaultValue);
+              const storageApi = Reflect.get($li, PROPS_STORAGE_API);
+              const key = Reflect.get(attrs, ATTRIBUTE_KEY);
+              const defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
+              const value = storageApi.get(key, defaultValue);
               if (Reflect.has(data, key)) {
                 Reflect.set(data, key, value);
               } else if (Reflect.has(data.data, key)) {
@@ -974,20 +998,20 @@ export const DouYinVideoFilter = {
             });
             // 添加的动态属性
             $form.querySelectorAll<HTMLLIElement>(".rule-form-ulist-dynamic__inner-container").forEach(($inner) => {
-              let dynamicData = {} as DouYinVideoFilterDynamicOption;
+              const dynamicData = {} as DouYinVideoFilterRuleDynamicOption;
               $inner.querySelectorAll(".dynamic-forms > li").forEach(($li) => {
-                let formConfig = Reflect.get($li, "__formConfig__");
+                const formConfig = Reflect.get($li, "__formConfig__");
                 if (!formConfig) {
                   return;
                 }
-                let attrs = Reflect.get(formConfig, "attributes");
+                const attrs = Reflect.get(formConfig, "attributes");
                 if (!attrs) {
                   return;
                 }
-                let storageApi = Reflect.get($li, PROPS_STORAGE_API);
-                let key = Reflect.get(attrs, ATTRIBUTE_KEY);
-                let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
-                let value = storageApi.get(key, defaultValue);
+                const storageApi = Reflect.get($li, PROPS_STORAGE_API);
+                const key = Reflect.get(attrs, ATTRIBUTE_KEY);
+                const defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
+                const value = storageApi.get(key, defaultValue);
                 Reflect.set(dynamicData, key, value);
               });
               data.dynamicData!.push(dynamicData);
@@ -1135,13 +1159,13 @@ export const DouYinVideoFilter = {
    * 显示视图
    */
   showView() {
-    let ruleView = this.getRuleViewInstance();
+    const ruleView = this.getRuleViewInstance();
     ruleView.showView(Panel.getValue("dy-video-ui-rule-filter-option-index"));
   },
   /**
    * 获取模板数据
    */
-  getTemplateData(): DouYinVideoFilterOption {
+  getTemplateData(): DouYinVideoFilterRule {
     return {
       uuid: utils.generateUUID(),
       enable: true,

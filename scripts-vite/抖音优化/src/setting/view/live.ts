@@ -148,7 +148,7 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
                       "div",
                       {
                         className: "pops-panel-textarea",
-                        innerHTML: `<textarea placeholder="请输入屏蔽规则，每行一个" style="height:350px;"></textarea>`,
+                        innerHTML: `<textarea placeholder="请输入屏蔽规则，每行一个\n例如：屏蔽包含'主播'的消息\n主播" style="height:350px;"></textarea>`,
                       },
                       {
                         style: "width: 100%;",

@@ -1,13 +1,13 @@
 import { DOMUtils, addStyle, cookieManager, log, utils } from "@/env";
 import MobileCSS from "./css/mobile.css?raw";
-import { DouYinSearchHideElement } from "./DouYinSearchHideElement";
+import { DouYinSearchBlock } from "./DouYinSearchBlock";
 import Qmsg from "qmsg";
 import { Panel } from "@components/setting/panel";
 import { DouYinRouter } from "@/router/DouYinRouter";
 
 export const DouYinSearch = {
   init() {
-    DouYinSearchHideElement.init();
+    DouYinSearchBlock.init();
     Panel.execMenuOnce("mobileMode", () => {
       return this.mobileMode();
     });
