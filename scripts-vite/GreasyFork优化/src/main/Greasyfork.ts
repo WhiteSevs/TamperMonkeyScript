@@ -630,7 +630,7 @@ const Greasyfork = {
 							display: inline-flex;
 							justify-content: center;
 							align-items: center;
-							line-height: 1;
+							line-height: normal;
 							height: 32px;
 							white-space: nowrap;
 							cursor: text;
