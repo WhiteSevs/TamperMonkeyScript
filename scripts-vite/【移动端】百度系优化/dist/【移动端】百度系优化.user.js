@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.28
+// @version      2025.10.6
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -13,16 +13,16 @@
 // @match        *://uf9kyh.smartapps.cn/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/showdown/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/vue@3.5.22/dist/vue.global.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-demi@0.14.10/lib/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/pinia@3.0.3/dist/pinia.iife.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-router@4.5.1/dist/vue-router.global.js
-// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@7a79e1a38c1cef84bb4713a3898e95f7a7fb962f/lib/Element-Plus/index.js
+// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@1d6d5f7a46444ffcd0ef250d876244917a6e1614/lib/Element-Plus/index.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.2/dist/index.iife.min.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.11.4/dist/index.min.css
 // @resource     ViewerCSS               https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
@@ -80,7 +80,7 @@
       return (mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports);
     };
   var require_entrance_001 = __commonJS({
-    "entrance-Dvs_Abup.js"(exports, module) {
+    "entrance-B8FGIPL2.js"(exports, module) {
       var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
       var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
       var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
@@ -415,6 +415,7 @@
             }
             return this.__contentConfig;
           },
+          __defaultBottomContentConfig: [],
         },
         addContentConfig(configList) {
           if (!Array.isArray(configList)) {
@@ -430,6 +431,9 @@
           return this.$data.contentConfig.get(index) ?? [];
         },
         getDefaultBottomContentConfig() {
+          if (this.$data.__defaultBottomContentConfig.length) {
+            return this.$data.__defaultBottomContentConfig;
+          }
           return [
             {
               id: "script-version",
@@ -445,6 +449,9 @@
               },
             },
           ];
+        },
+        setDefaultBottomContentConfig(config) {
+          this.$data.__defaultBottomContentConfig = config;
         },
       };
       const PanelMenu = {
@@ -810,7 +817,8 @@
             if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
               return;
             }
-            let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
+            const attributes = config.attributes;
+            let __attr_init__ = attributes[ATTRIBUTE_INIT];
             if (typeof __attr_init__ === "function") {
               let __attr_result__ = __attr_init__();
               if (typeof __attr_result__ === "boolean" && !__attr_result__) {
@@ -818,12 +826,12 @@
               }
             }
             let menuDefaultConfig = new Map();
-            let key = config.attributes[ATTRIBUTE_KEY];
+            let key = attributes[ATTRIBUTE_KEY];
             if (key != null) {
-              const defaultValue = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+              const defaultValue = attributes[ATTRIBUTE_DEFAULT_VALUE];
               menuDefaultConfig.set(key, defaultValue);
             }
-            let moreMenuDefaultConfig = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
+            let moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
             if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
               Object.keys(moreMenuDefaultConfig).forEach((key2) => {
                 menuDefaultConfig.set(key2, moreMenuDefaultConfig[key2]);
@@ -22946,20 +22954,19 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
             }
           });
           let postsList = [];
-          $doc.querySelectorAll("ul.new_list > div").forEach((listItem) => {
+          $doc.querySelectorAll(".ihome_section:not(.ihome_hot_feed) ul.new_list > div").forEach(($postItem) => {
             let postInfo = {
-              url: listItem.querySelector("ul.new_list > div .title").href,
+              url: $postItem.querySelector(".title").href,
               title:
-                listItem.querySelector("ul.new_list > div .title").getAttribute("title") ||
-                listItem.querySelector("ul.new_list > div .title").innerText,
-              content: listItem.querySelector("ul.new_list > div .n_txt").innerHTML,
-              forumName: listItem.querySelector("ul.new_list > div .n_name").getAttribute("title"),
-              createTime: listItem.querySelector("ul.new_list > div .n_post_time").innerText,
+                $postItem.querySelector(".title").getAttribute("title") || $postItem.querySelector(".title").innerText,
+              content: $postItem.querySelector(".n_txt").innerHTML,
+              forumName: $postItem.querySelector(".n_name").getAttribute("title"),
+              createTime: $postItem.querySelector(".n_post_time").innerText,
               replyNum: 0,
               mediaList: [],
             };
-            if (listItem.querySelector("ul.new_list > div .n_media")) {
-              listItem.querySelectorAll("ul.new_list > div .n_media img").forEach(($img) => {
+            if ($postItem.querySelector(".n_media")) {
+              $postItem.querySelectorAll(".n_media img").forEach(($img) => {
                 let imgSrc = $img.getAttribute("original") || $img.src;
                 if (imgSrc) {
                   postInfo.mediaList.push(imgSrc);
@@ -30081,7 +30088,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
                 ],
               },
               {
-                text: "主页",
+                text: "用户主页",
                 type: "deepMenu",
                 forms: [
                   {

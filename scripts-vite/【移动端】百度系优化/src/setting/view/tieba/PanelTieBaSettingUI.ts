@@ -301,7 +301,7 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
           ],
         },
         {
-          text: "主页",
+          text: "用户主页",
           type: "deepMenu",
           forms: [
             {

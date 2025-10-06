@@ -275,30 +275,32 @@ const TiebaHomeData = {
     });
     // 发帖数据列表
     let postsList: HomePostsInfo[] = [];
-    $doc.querySelectorAll<HTMLDivElement>("ul.new_list > div").forEach((listItem) => {
-      let postInfo: HomePostsInfo = {
-        url: listItem.querySelector<HTMLAnchorElement>("ul.new_list > div .title")!.href,
-        title:
-          listItem.querySelector<HTMLSpanElement>("ul.new_list > div .title")!.getAttribute("title") ||
-          listItem.querySelector<HTMLSpanElement>("ul.new_list > div .title")!.innerText,
-        content: listItem.querySelector<HTMLDivElement>("ul.new_list > div .n_txt")!.innerHTML,
-        forumName: listItem.querySelector<HTMLSpanElement>("ul.new_list > div .n_name")!.getAttribute("title")!,
-        createTime: listItem.querySelector<HTMLSpanElement>("ul.new_list > div .n_post_time")!.innerText,
-        /* 暂时获取不到 */
-        replyNum: 0,
-        // 媒体数据，一般是图片
-        mediaList: [],
-      };
-      if (listItem.querySelector<HTMLElement>("ul.new_list > div .n_media")) {
-        listItem.querySelectorAll<HTMLImageElement>("ul.new_list > div .n_media img").forEach(($img) => {
-          let imgSrc = $img.getAttribute("original") || $img.src;
-          if (imgSrc) {
-            postInfo.mediaList.push(imgSrc);
-          }
-        });
-      }
-      postsList.push(postInfo);
-    });
+    $doc
+      .querySelectorAll<HTMLDivElement>(".ihome_section:not(.ihome_hot_feed) ul.new_list > div")
+      .forEach(($postItem) => {
+        let postInfo: HomePostsInfo = {
+          url: $postItem.querySelector<HTMLAnchorElement>(".title")!.href,
+          title:
+            $postItem.querySelector<HTMLSpanElement>(".title")!.getAttribute("title") ||
+            $postItem.querySelector<HTMLSpanElement>(".title")!.innerText,
+          content: $postItem.querySelector<HTMLDivElement>(".n_txt")!.innerHTML,
+          forumName: $postItem.querySelector<HTMLSpanElement>(".n_name")!.getAttribute("title")!,
+          createTime: $postItem.querySelector<HTMLSpanElement>(".n_post_time")!.innerText,
+          /* 暂时获取不到 */
+          replyNum: 0,
+          // 媒体数据，一般是图片
+          mediaList: [],
+        };
+        if ($postItem.querySelector<HTMLElement>(".n_media")) {
+          $postItem.querySelectorAll<HTMLImageElement>(".n_media img").forEach(($img) => {
+            let imgSrc = $img.getAttribute("original") || $img.src;
+            if (imgSrc) {
+              postInfo.mediaList.push(imgSrc);
+            }
+          });
+        }
+        postsList.push(postInfo);
+      });
 
     // 性别
     let sex: keyof UserSex = 0 as const;
@@ -404,5 +406,4 @@ const TiebaHomeData = {
   },
 };
 
-export { TiebaHomeData };
-export type { UserInfo };
+export { TiebaHomeData, type UserInfo };
