@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.28
+// @version      2025.10.7
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -13,9 +13,9 @@
 // @match        *://www.bilibili.com/h5/comment/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/QRCode/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
@@ -305,6 +305,7 @@
         }
         return this.__contentConfig;
       },
+      __defaultBottomContentConfig: [],
     },
     addContentConfig(configList) {
       if (!Array.isArray(configList)) {
@@ -320,6 +321,9 @@
       return this.$data.contentConfig.get(index) ?? [];
     },
     getDefaultBottomContentConfig() {
+      if (this.$data.__defaultBottomContentConfig.length) {
+        return this.$data.__defaultBottomContentConfig;
+      }
       return [
         {
           id: "script-version",
@@ -335,6 +339,9 @@
           },
         },
       ];
+    },
+    setDefaultBottomContentConfig(config) {
+      this.$data.__defaultBottomContentConfig = config;
     },
   };
   const PanelMenu = {
@@ -700,7 +707,8 @@
         if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
           return;
         }
-        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
+        const attributes = config.attributes;
+        let __attr_init__ = attributes[ATTRIBUTE_INIT];
         if (typeof __attr_init__ === "function") {
           let __attr_result__ = __attr_init__();
           if (typeof __attr_result__ === "boolean" && !__attr_result__) {
@@ -708,12 +716,12 @@
           }
         }
         let menuDefaultConfig = new Map();
-        let key = config.attributes[ATTRIBUTE_KEY];
+        let key = attributes[ATTRIBUTE_KEY];
         if (key != null) {
-          const defaultValue = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+          const defaultValue = attributes[ATTRIBUTE_DEFAULT_VALUE];
           menuDefaultConfig.set(key, defaultValue);
         }
-        let moreMenuDefaultConfig = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
+        let moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
         if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
           Object.keys(moreMenuDefaultConfig).forEach((key2) => {
             menuDefaultConfig.set(key2, moreMenuDefaultConfig[key2]);
@@ -5571,7 +5579,7 @@
       setupStandardCommentContainer(commentModuleWrapper);
       replyList = commentModuleWrapper.querySelector(".reply-list");
       await new Promise((resolve) => {
-        utils.wait(() => {
+        domUtils.wait(() => {
           if (videoRE.test(global.location.href)) {
             const videoID = global.location.pathname.replace("/video/", "").replace("/", "");
             if (videoID.startsWith("av")) oid = videoID.slice(2);
@@ -5778,7 +5786,7 @@
           <div class="sub-reply-list">
             ${getSubReplyItems(replyData.replies)}
             ${
-              replyData.rcount > replyData.replies.length
+              Array.isArray(replyData?.replies) && replyData.rcount > replyData.replies.length
                 ? `
               <div class="view-more" style="padding-left: 8px; font-size: 13px; color: #9499A0;">
                 <div class="view-more-default">
@@ -5950,7 +5958,7 @@
         web_location: 333.788,
       };
       const subReplyResponse = await httpx.get(
-        `https://api.bilibili.com/x/v2/reply/reply?${Utils.toSearchParamsStr(params)}`,
+        `https://api.bilibili.com/x/v2/reply/reply?${utils.toSearchParamsStr(params)}`,
         {
           allowInterceptConfig: false,
           fetch: true,

@@ -3,9 +3,8 @@ import Viewer from "viewerjs";
 import { wbi } from "./wbi";
 import { b2a } from "./b2a";
 import { unsafeWindow } from "ViteGM";
-import { httpx, utils } from "@components/base.env";
+import { httpx, utils, DOMUtils } from "@components/base.env";
 import Qmsg from "qmsg";
-import Utils from "@whitesev/utils";
 /*
  * Comment module for https://greasyfork.org/scripts/497732
  * @version v0.0.1.20250510141049
@@ -59,7 +58,7 @@ export const MobileCommentModule = (function () {
 
     // collect oid & commentType
     await new Promise((resolve) => {
-      utils.wait(() => {
+      DOMUtils.wait(() => {
         if (videoRE.test(global.location.href)) {
           const videoID = global.location.pathname.replace("/video/", "").replace("/", "");
           if (videoID.startsWith("av")) oid = videoID.slice(2);
@@ -337,7 +336,7 @@ export const MobileCommentModule = (function () {
           <div class="sub-reply-list">
             ${getSubReplyItems(replyData.replies)}
             ${
-              replyData.rcount > replyData.replies.length
+             Array.isArray(replyData?.replies) &&  replyData.rcount > replyData.replies.length
                 ? `
               <div class="view-more" style="padding-left: 8px; font-size: 13px; color: #9499A0;">
                 <div class="view-more-default">
@@ -563,7 +562,7 @@ export const MobileCommentModule = (function () {
     };
 
     const subReplyResponse = await httpx.get(
-      `https://api.bilibili.com/x/v2/reply/reply?${Utils.toSearchParamsStr(params)}`,
+      `https://api.bilibili.com/x/v2/reply/reply?${utils.toSearchParamsStr(params)}`,
       {
         allowInterceptConfig: false,
         fetch: true,
