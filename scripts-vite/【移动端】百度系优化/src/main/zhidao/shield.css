@@ -12,7 +12,8 @@ div.question-line + div:not(.replies-container),
 .go-to-ask,
 div[class*='ads'],
 /* 免费领票 */
-.doodle-container {
+.doodle-container,
+.feed-recommend-item-with-adhere [class*="feed-item-adhere-AD"] {
   display: none !important;
 }
 .w-detail-container {

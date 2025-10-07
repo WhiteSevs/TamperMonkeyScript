@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.6
+// @version      2025.10.7
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -80,7 +80,7 @@
       return (mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports);
     };
   var require_entrance_001 = __commonJS({
-    "entrance-B8FGIPL2.js"(exports, module) {
+    "entrance-BiJtnvMl.js"(exports, module) {
       var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
       var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
       var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
@@ -28011,8 +28011,29 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
           });
         },
       };
-      const ZhiDaoShieldCSS =
-        "/* .dec + div, */\r\n#feed-recommend,\r\n.dec,\r\n.wgt-topic-hot,\r\n#respect-footer,\r\n#wap-youx-change-asp,\r\ndiv.question-line + div:not(.replies-container),\r\n.wgt-asp-youx,\r\n.w-detail-display-btn,\r\n.ask-for-friend,\r\n#knowledge-answer-list,\r\n.go-to-ask,\r\ndiv[class*='ads'],\r\n/* 免费领票 */\r\n.doodle-container {\r\n  display: none !important;\r\n}\r\n.w-detail-container {\r\n  max-height: 100% !important;\r\n  overflow: auto !important;\r\n}\r\n";
+      const ZhiDaoShieldCSS = `/* .dec + div, */\r
+#feed-recommend,\r
+.dec,\r
+.wgt-topic-hot,\r
+#respect-footer,\r
+#wap-youx-change-asp,\r
+div.question-line + div:not(.replies-container),\r
+.wgt-asp-youx,\r
+.w-detail-display-btn,\r
+.ask-for-friend,\r
+#knowledge-answer-list,\r
+.go-to-ask,\r
+div[class*='ads'],\r
+/* 免费领票 */\r
+.doodle-container,\r
+.feed-recommend-item-with-adhere [class*="feed-item-adhere-AD"] {\r
+  display: none !important;\r
+}\r
+.w-detail-container {\r
+  max-height: 100% !important;\r
+  overflow: auto !important;\r
+}\r
+`;
       const BaiduZhiDao = {
         init() {
           addStyle$1(ZhiDaoShieldCSS);
