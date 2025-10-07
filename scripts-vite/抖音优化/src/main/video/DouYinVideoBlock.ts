@@ -518,6 +518,14 @@ export const DouYinVideoBlock = {
         )
       );
     }
+    if (DouYinRouter.isVideo()) {
+      // 单个视频页面
+      result.push(
+        CommonUtil.addBlockCSS(
+          '[data-e2e="video-detail"] .video-detail-container > div > div > div:nth-child(2):has( div> input[data-e2e="searchbar-input"])'
+        )
+      );
+    }
     return result;
   },
   /**
@@ -542,6 +550,14 @@ export const DouYinVideoBlock = {
     }
     if (DouYinRouter.isUser()) {
       // 用户页面
+      result.push(
+        CommonUtil.addBlockCSS(
+          '#douyin-right-container  div > div > div:has( > svg > path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
+        )
+      );
+    }
+    if (DouYinRouter.isVideo()) {
+      // 单个视频页面
       result.push(
         CommonUtil.addBlockCSS(
           '#douyin-right-container  div > div > div:has( > svg > path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'

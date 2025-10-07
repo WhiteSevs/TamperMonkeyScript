@@ -167,6 +167,10 @@ export const DouYin = {
    */
   navSearchClickToNewTab() {
     log.info(`新标签页打开搜索结果`);
+    const getSearchUrl = (searchText: string) => {
+      const url = `https://www.douyin.com/search/${encodeURIComponent(searchText)}`;
+      return url;
+    };
     DOMUtils.on(
       document,
       "click",
@@ -201,7 +205,7 @@ export const DouYin = {
             }
           }
           log.info(`当前的搜索内容：` + searchValue);
-          url = `https://www.douyin.com/search/${encodeURIComponent(searchValue)}`;
+          url = getSearchUrl(searchValue);
         }
         log.info(`新标签页打开搜索：${url}`);
         window.open(url, "_blank");
@@ -209,6 +213,29 @@ export const DouYin = {
       {
         capture: true,
       }
+    );
+    // 搜索建议
+    DOMUtils.on(
+      document,
+      "click",
+      '[data-e2e="searchbar-button"] + div [data-text][data-index]',
+      (evt, selectorTarget) => {
+        const $click = evt.composedPath()[0] as HTMLElement;
+        if ($click.closest(".icon[data-text]") || $click.matches(".icon[data-text]")) {
+          // 忽略点击填入输入框的图标
+          return;
+        }
+        DOMUtils.preventEvent(evt);
+        const searchText = selectorTarget.getAttribute("data-text");
+        if (!searchText) {
+          log.error("未找到搜索建议内容", selectorTarget);
+          Qmsg.error("未找到搜索建议内容");
+          return;
+        }
+        const url = getSearchUrl(searchText);
+        window.open(url, "_blank");
+      },
+      { capture: true }
     );
   },
 };

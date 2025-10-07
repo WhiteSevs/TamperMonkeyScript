@@ -801,17 +801,29 @@ export const DouYinVideoPlayer = {
     let result: HTMLStyleElement[] = [
       addStyle(/*css*/ `
 			/* 禁止触发touch事件，因为会影响到按钮点击不到 */
-			xg-outer,
-			xg-inners {
-				pointer-events: none;
-			}
+      @media screen and (max-width: 600px) and (orientation: portrait),
+        screen and (max-height: 600px) and (orientation: landscape) {
+        xg-outer,
+        xg-inners {
+          pointer-events: none;
+        }
+      }
 			`),
     ];
     /**
      * 检测是否启用
      */
-    let checkEnable = () => {
+    const checkEnable = () => {
       return Panel.getValue("mobileMode") || Panel.getValue("repairProgressBar");
+    };
+    const isMobile = () => {
+      if (DouYinUtils.isVerticalScreen()) {
+        // 竖屏
+        return window.innerWidth <= 600;
+      } else {
+        // 横屏
+        return window.innerHeight <= 600;
+      }
     };
     DOMUtils.ready(() => {
       // 让拖拽进度条的按钮拖拽时修改进度条高度
@@ -819,12 +831,10 @@ export const DouYinVideoPlayer = {
         document.body,
         "touchstart",
         "xg-progress",
-        (event, selectorTarget) => {
-          if (!checkEnable()) {
-            return;
-          }
-          let $click = selectorTarget;
-          let $xg_outer = $click.querySelector<HTMLElement>("xg-outer");
+        (event, $click) => {
+          if (!checkEnable()) return;
+          if (!isMobile()) return;
+          const $xg_outer = $click.querySelector<HTMLElement>("xg-outer");
           if ($xg_outer) {
             $xg_outer.style.height = "6px";
           }
@@ -838,12 +848,10 @@ export const DouYinVideoPlayer = {
         document.body,
         "touchend",
         "xg-progress",
-        (event, selectorTarget) => {
-          if (!checkEnable()) {
-            return;
-          }
-          let $click = selectorTarget;
-          let $xg_outer = $click.querySelector<HTMLElement>("xg-outer");
+        (event, $click) => {
+          if (!checkEnable()) return;
+          if (!isMobile()) return;
+          const $xg_outer = $click.querySelector<HTMLElement>("xg-outer");
           if ($xg_outer) {
             $xg_outer.style.height = "";
           }

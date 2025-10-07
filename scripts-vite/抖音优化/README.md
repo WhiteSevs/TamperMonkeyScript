@@ -41,44 +41,44 @@
 
 | 属性名                           | 类型     | 描述                                           | 备注                                 |
 | -------------------------------- | -------- | ---------------------------------------------- | ------------------------------------ |
-| awemeId                          | String   | 视频 id                                        |                                      |
-| nickname                         | String   | 作者名称                                       | 发布的视频的作者                     |
-| uid                              | String   | 作者的 uid                                     | 发布的视频的作者的 uid               |
-| desc                             | String   | 视频文案                                       | 发布的视频的文案                     |
-| textExtra                        | String   | 话题                                           | 发布的视频的话题，类似`#话题`这种    |
-| videoTag                         | String   | 视频标签                                       |                                      |
-| videoTagId                       | String   | 视频标签的 id                                  |                                      |
-| suggestWord                      | String   | 建议关键词                                     |                                      |
-| musicAlbum                       | String   | 视频的背景音乐专辑名                           |                                      |
-| musicAuthor                      | String   | 视频的背景音乐作者                             |                                      |
-| musicTitle                       | String   | 视频的背景音乐标题名称                         |                                      |
-| authorAccountCertInfo            | String   | 作者的认证信息                                 | 例如：`剧情创作者、娱乐视频自媒体`   |
-| authorCustomVerify               | String   |                                                |                                      |
-| authorEnterpriseVerifyReason     | String   | 作者的企业认证信息                             | 例如：`腾讯视频动漫官方账号`         |
-| riskInfoContent                  | String   | 风险提示内容                                   | 例如：`作者声明：虚构演绎，仅供娱乐` |
-| seriesName                       | String   | 系列信息的名称                                 | 例如：`短剧 · 当xxxx`                |
-| seriesContentTypes               | String   | 系列信息的内容类型                             | 例如：`搞笑`、`喜剧`                 |
-| mixInfoName                      | String   | 混合信息的名称                                 | 例如：`当xxxx`                       |
-| mixInfoDesc                      | String   | 混合信息的描述                                 |                                      |
-| collectCount                     | Number   | 收藏数量                                       | 比较方式`>`、`>=`、`=`、`<=`、`<`    |
-| commentCount                     | Number   | 评论数量                                       | 比较方式`>`、`>=`、`=`、`<=`、`<`    |
-| diggCount                        | Number   | 点赞数量                                       | 比较方式`>`、`>=`、`=`、`<=`、`<`    |
-| shareCount                       | Number   | 分享数量                                       | 比较方式`>`、`>=`、`=`、`<=`、`<`    |
-| duration                         | Number   | 视频时长(ms)                                   | 比较方式`>`、`>=`、`=`、`<=`、`<`    |
-| liveStreamRoomId                 | String   | 直播间房间号                                   |                                      |
-| liveStreamRoomTitle              | String   | 直播间标题                                     |                                      |
-| liveStreamNickName               | String   | 直播间的主播昵称                               |                                      |
-| liveStreamRoomUserCount          | Number   | 直播间人数                                     | 比较方式`>`、`>=`、`=`、`<=`、`<`    |
-| liveStreamRoomDynamicSpliceLabel | String   | 直播间标签？                                   |                                      |
-| videoBitRateList                 | object[] | 视频码率列表                                   |                                      |
-| productId                        | String   | 产品id（付费视频存在id，专属会员视频不存在id） |                                      |
-| productTitle                     | String   | 产品标题                                       |                                      |
-| isLive                           | Boolean  | 是否是直播                                     | 填入的值为`true`或`false`            |
-| isAds                            | Boolean  | 是否是广告                                     | 填入的值为`true`或`false`            |
-| isSeriesInfo                     | Boolean  | 是否是系列信息，例如：`短剧`                   | 填入的值为`true`或`false`            |
-| isMixInfo                        | Boolean  | 是否是混合信息，例如：`合集`、`短剧`           | 填入的值为`true`或`false`            |
-| isPicture                        | Boolean  | 是否是图文                                     | 填入的值为`true`或`false`            |
-| isProduct                        | Boolean  | 是否是产品                                     | 填入的值为`true`或`false`            |
+| awemeId                          | string   | 视频 id                                        |                                      |
+| nickname                         | string   | 作者名称                                       | 发布的视频的作者                     |
+| uid                              | string   | 作者的 uid                                     | 发布的视频的作者的 uid               |
+| desc                             | string   | 视频文案                                       | 发布的视频的文案                     |
+| textExtra                        | string   | 话题                                           | 发布的视频的话题，类似`#话题`这种    |
+| videoTag                         | string   | 视频标签                                       |                                      |
+| videoTagId                       | string   | 视频标签的 id                                  |                                      |
+| suggestWord                      | string   | 建议关键词                                     |                                      |
+| musicAlbum                       | string   | 视频的背景音乐专辑名                           |                                      |
+| musicAuthor                      | string   | 视频的背景音乐作者                             |                                      |
+| musicTitle                       | string   | 视频的背景音乐标题名称                         |                                      |
+| authorAccountCertInfo            | string   | 作者的认证信息                                 | 例如：`剧情创作者、娱乐视频自媒体`   |
+| authorCustomVerify               | string   |                                                |                                      |
+| authorEnterpriseVerifyReason     | string   | 作者的企业认证信息                             | 例如：`腾讯视频动漫官方账号`         |
+| riskInfoContent                  | string   | 风险提示内容                                   | 例如：`作者声明：虚构演绎，仅供娱乐` |
+| seriesName                       | string   | 系列信息的名称                                 | 例如：`短剧 · 当xxxx`                |
+| seriesContentTypes               | string   | 系列信息的内容类型                             | 例如：`搞笑`、`喜剧`                 |
+| mixInfoName                      | string   | 混合信息的名称                                 | 例如：`当xxxx`                       |
+| mixInfoDesc                      | string   | 混合信息的描述                                 |                                      |
+| collectCount                     | number   | 收藏数量                                       | 比较方式`>`、`>=`、`=`、`<=`、`<`    |
+| commentCount                     | number   | 评论数量                                       | 比较方式`>`、`>=`、`=`、`<=`、`<`    |
+| diggCount                        | number   | 点赞数量                                       | 比较方式`>`、`>=`、`=`、`<=`、`<`    |
+| shareCount                       | number   | 分享数量                                       | 比较方式`>`、`>=`、`=`、`<=`、`<`    |
+| duration                         | number   | 视频时长(ms)                                   | 比较方式`>`、`>=`、`=`、`<=`、`<`    |
+| liveStreamRoomId                 | string   | 直播间房间号                                   |                                      |
+| liveStreamRoomTitle              | string   | 直播间标题                                     |                                      |
+| liveStreamNickName               | string   | 直播间的主播昵称                               |                                      |
+| liveStreamRoomUserCount          | number   | 直播间人数                                     | 比较方式`>`、`>=`、`=`、`<=`、`<`    |
+| liveStreamRoomDynamicSpliceLabel | string   | 直播间标签？                                   |                                      |
+| videoBitRateList                 | object[] | 视频码率列表                                   | 建议使用`自定义函数`进行比较处理     |
+| productId                        | string   | 产品id（付费视频存在id，专属会员视频不存在id） |                                      |
+| productTitle                     | string   | 产品标题                                       |                                      |
+| isLive                           | boolean  | 是否是直播                                     | 填入的值为`true`或`false`            |
+| isAds                            | boolean  | 是否是广告                                     | 填入的值为`true`或`false`            |
+| isSeriesInfo                     | boolean  | 是否是系列信息，例如：`短剧`                   | 填入的值为`true`或`false`            |
+| isMixInfo                        | boolean  | 是否是混合信息，例如：`合集`、`短剧`           | 填入的值为`true`或`false`            |
+| isPicture                        | boolean  | 是否是图文                                     | 填入的值为`true`或`false`            |
+| isProduct                        | boolean  | 是否是产品                                     | 填入的值为`true`或`false`            |
 
 **注意某些字符需要进行转义，如`_`、`+`等**
 

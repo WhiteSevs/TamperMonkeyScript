@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.5.22
+// @version      2025.10.8
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -2910,6 +2910,11 @@
       ];
     },
   };
+  const DouYinUtils = {
+    isVerticalScreen() {
+      return !window.screen.orientation.type.includes("landscape");
+    },
+  };
   const MobileCSS$1 =
     '/* 竖屏且高度小于550px */\r\n@media screen and (max-width: 550px) and (orientation: portrait) {\r\n  /* 右侧工具栏放大 */\r\n  .basePlayerContainer .positionBox {\r\n    bottom: 80px !important;\r\n    padding-right: 5px !important;\r\n    scale: unset !important;\r\n    transform: scale3d(1.12, 1.12, 1.12) !important;\r\n  }\r\n  /* 右侧工具栏的svg再放大 */\r\n  .basePlayerContainer .positionBox svg {\r\n    transform: scale3d(1.12, 1.12, 1.12);\r\n  }\r\n  /* 重置关注按钮的scale */\r\n  .basePlayerContainer .positionBox .dy-tip-container div[data-e2e="feed-follow-icon"] svg {\r\n    scale: unset !important;\r\n  }\r\n\r\n  /* 调整顶部搜索框的宽度 */\r\n  #douyin-header\r\n    div[data-click="doubleClick"]\r\n    > div[data-click="doubleClick"]\r\n    > div:has(input[data-e2e="searchbar-input"]) {\r\n    width: 150px;\r\n    padding-right: 0;\r\n    max-width: unset;\r\n    flex: 1;\r\n  }\r\n  /* 搜索框获取焦点时自动放大宽度 */\r\n  #douyin-header\r\n    div[data-click="doubleClick"]\r\n    > div[data-click="doubleClick"]\r\n    > div:has(input[data-e2e="searchbar-input"]:focus) {\r\n    width: 100vw;\r\n    width: 100dvw;\r\n  }\r\n  /* 搜索页面 搜索详情的宽度、视频结果列表的宽度 */\r\n  #search-content-area > div,\r\n  #search-content-area > div div:has(+ #search-result-container),\r\n  #search-content-area > div #search-result-container {\r\n    width: 100%;\r\n    width: -webkit-fill-available;\r\n  }\r\n  /* 搜索页面 视频右侧的工具栏缩小 */\r\n  #search-content-area .basePlayerContainer .positionBox {\r\n    bottom: 28px !important;\r\n    transform: scale3d(0.6, 0.6, 0.6) !important;\r\n  }\r\n  /* 搜索页面 搜索出的用户信息换行 */\r\n  #search-content-area #search-result-container ul[data-e2e="scroll-list"] li .search-result-card > div > div {\r\n    flex-wrap: wrap;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 综合、视频、用户、直播的超出宽度换行 */\r\n  #search-content-area div:has(> div > div > span[data-key="general"]) {\r\n    overflow: auto;\r\n    gap: 10px;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 */\r\n  #search-content-area div:has(> span[data-key="general"]) {\r\n    gap: 10px;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项弹窗修复 */\r\n  #search-content-area div:has(> div > span[data-key="general"]) {\r\n    position: unset !important;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 */\r\n  #search-content-area div:has(> span[data-key="general"]) > * {\r\n    white-space: nowrap !important;\r\n    width: auto !important;\r\n    width: fit-content !important;\r\n    margin-left: 0px !important;\r\n    margin-right: 0px !important;\r\n  }\r\n  /* 去除设置min-width超出浏览器宽度的问题 */\r\n  body {\r\n    min-width: 100% !important;\r\n  }\r\n  /* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n  #douyin-right-container #douyin-header {\r\n    width: 100%;\r\n  }\r\n  /* 去除设置 */\r\n  #douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n    min-width: 100%;\r\n  }\r\n\r\n  /* /video/xxx页面 */\r\n  /* 点赞、评论、分享偏移 */\r\n  div[data-e2e="video-detail"] .leftContainer .basePlayerContainer .positionBox {\r\n    padding-right: 30px !important;\r\n  }\r\n  /* 底部工具栏右侧的按钮 */\r\n  div[data-e2e="video-detail"] .leftContainer .xgplayer.xgplayer-pc .xg-right-grid {\r\n    margin-right: 35px !important;\r\n  }\r\n  /* 评论区全屏 */\r\n  div[data-e2e="video-detail"] .leftContainer > div:has(.comment-mainContent[data-e2e="comment-list"]),\r\n  div[data-e2e="video-detail"] .leftContainer > div > div:has(.comment-mainContent[data-e2e="comment-list"]) {\r\n    width: 100vw !important;\r\n  }\r\n\r\n  /* 设置视频区域的高度 */\r\n  #slidelist {\r\n    width: 100%;\r\n    height: calc(100vh - var(--header-height)) !important;\r\n  }\r\n  /* 修正网页全屏下的视频高度 */\r\n  #slidelist[class*="isCssFullScreen"] {\r\n    height: 100vh !important;\r\n  }\r\n  /* 去除视频区域右侧偏移 */\r\n  .is-mobile-pc div[data-e2e="slideList"] {\r\n    padding-right: 0px !important;\r\n  }\r\n}\r\n\r\n/* 横屏且高度小于550px */\r\n@media screen and (max-height: 550px) and (orientation: landscape) {\r\n  /* 右侧工具栏缩小 */\r\n  .basePlayerContainer .positionBox {\r\n    transform: scale(0.95) !important;\r\n    bottom: 42px !important;\r\n    padding-right: 10px !important;\r\n  }\r\n  /* 右侧工具栏的svg再缩小 */\r\n  .basePlayerContainer .positionBox svg {\r\n    transform: scale3d(0.95, 0.95, 0.95);\r\n  }\r\n  /* 修复全屏下不显示视频底部的控制栏 */\r\n  .isCssFullScreen [data-e2e="slideList"] {\r\n    min-height: auto !important;\r\n  }\r\n}\r\n';
   const DouYinVideoBlock_Comment = {
@@ -3314,6 +3319,13 @@
           )
         );
       }
+      if (DouYinRouter.isVideo()) {
+        result.push(
+          CommonUtil.addBlockCSS(
+            '[data-e2e="video-detail"] .video-detail-container > div > div > div:nth-child(2):has( div> input[data-e2e="searchbar-input"])'
+          )
+        );
+      }
       return result;
     },
     shieldCloseFullScreenButton() {
@@ -3332,6 +3344,13 @@
         );
       }
       if (DouYinRouter.isUser()) {
+        result.push(
+          CommonUtil.addBlockCSS(
+            '#douyin-right-container  div > div > div:has( > svg > path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
+          )
+        );
+      }
+      if (DouYinRouter.isVideo()) {
         result.push(
           CommonUtil.addBlockCSS(
             '#douyin-right-container  div > div > div:has( > svg > path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
@@ -4646,27 +4665,35 @@
         addStyle(
           `
 			/* 禁止触发touch事件，因为会影响到按钮点击不到 */
-			xg-outer,
-			xg-inners {
-				pointer-events: none;
-			}
+      @media screen and (max-width: 600px) and (orientation: portrait),
+        screen and (max-height: 600px) and (orientation: landscape) {
+        xg-outer,
+        xg-inners {
+          pointer-events: none;
+        }
+      }
 			`
         ),
       ];
-      let checkEnable = () => {
+      const checkEnable = () => {
         return Panel.getValue("mobileMode") || Panel.getValue("repairProgressBar");
+      };
+      const isMobile = () => {
+        if (DouYinUtils.isVerticalScreen()) {
+          return window.innerWidth <= 600;
+        } else {
+          return window.innerHeight <= 600;
+        }
       };
       domUtils.ready(() => {
         domUtils.on(
           document.body,
           "touchstart",
           "xg-progress",
-          (event, selectorTarget) => {
-            if (!checkEnable()) {
-              return;
-            }
-            let $click = selectorTarget;
-            let $xg_outer = $click.querySelector("xg-outer");
+          (event, $click) => {
+            if (!checkEnable()) return;
+            if (!isMobile()) return;
+            const $xg_outer = $click.querySelector("xg-outer");
             if ($xg_outer) {
               $xg_outer.style.height = "6px";
             }
@@ -4679,12 +4706,10 @@
           document.body,
           "touchend",
           "xg-progress",
-          (event, selectorTarget) => {
-            if (!checkEnable()) {
-              return;
-            }
-            let $click = selectorTarget;
-            let $xg_outer = $click.querySelector("xg-outer");
+          (event, $click) => {
+            if (!checkEnable()) return;
+            if (!isMobile()) return;
+            const $xg_outer = $click.querySelector("xg-outer");
             if ($xg_outer) {
               $xg_outer.style.height = "";
             }
@@ -8966,6 +8991,10 @@
     },
     navSearchClickToNewTab() {
       log.info(`新标签页打开搜索结果`);
+      const getSearchUrl = (searchText) => {
+        const url = `https://www.douyin.com/search/${encodeURIComponent(searchText)}`;
+        return url;
+      };
       domUtils.on(
         document,
         "click",
@@ -8996,7 +9025,7 @@
               }
             }
             log.info(`当前的搜索内容：` + searchValue);
-            url = `https://www.douyin.com/search/${encodeURIComponent(searchValue)}`;
+            url = getSearchUrl(searchValue);
           }
           log.info(`新标签页打开搜索：${url}`);
           window.open(url, "_blank");
@@ -9004,6 +9033,27 @@
         {
           capture: true,
         }
+      );
+      domUtils.on(
+        document,
+        "click",
+        '[data-e2e="searchbar-button"] + div [data-text][data-index]',
+        (evt, selectorTarget) => {
+          const $click = evt.composedPath()[0];
+          if ($click.closest(".icon[data-text]") || $click.matches(".icon[data-text]")) {
+            return;
+          }
+          domUtils.preventEvent(evt);
+          const searchText = selectorTarget.getAttribute("data-text");
+          if (!searchText) {
+            log.error("未找到搜索建议内容", selectorTarget);
+            Qmsg.error("未找到搜索建议内容");
+            return;
+          }
+          const url = getSearchUrl(searchText);
+          window.open(url, "_blank");
+        },
+        { capture: true }
       );
     },
   };
