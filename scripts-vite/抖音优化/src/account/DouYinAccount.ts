@@ -15,7 +15,7 @@ export const DouYinAccount = {
       // 视频清晰度上面的弹出的 当前观看xxx画质，登录即可畅想xxx画质
       ".login-tooltip-slot"
     );
-    DouYinNetWorkHook.hookUserNoLoginResponse();
+    // DouYinNetWorkHook.hookUserNoLoginResponse();
     const WAIT_TIME = 20000;
     const uid = parseInt((Math.random() * 10000000000).toString());
     // let uid = 114514;
@@ -215,14 +215,14 @@ export const DouYinAccount = {
    */
   watchLoginDialogToClose() {
     log.info("监听登录弹窗并关闭");
-    let result: (HTMLStyleElement | undefined)[] = [CommonUtil.addBlockCSS('body > div[id^="login-full-panel-"]')];
+    let result: (HTMLStyleElement | undefined)[] = [CommonUtil.addBlockCSS('div[id^="login-full-panel-"]')];
 
     let lockFn = new utils.LockFunction(() => {
       if (!Panel.getValue("watchLoginDialogToClose")) {
         return;
       }
-      let $loginDialog = $<HTMLDivElement>('body > div[id^="login-full-panel-"]');
-      if ($loginDialog && $loginDialog.childNodes.length) {
+      let $loginDialog = $<HTMLDivElement>('div[id^="login-full-panel-"]');
+      if ($loginDialog && $loginDialog.children.length) {
         let $loginDialogCloseBtn =
           $loginDialog.querySelector<HTMLDivElement>(".dy-account-close") ||
           $loginDialog.querySelector<HTMLDivElement>(
@@ -237,10 +237,13 @@ export const DouYinAccount = {
             log.error("监听到登录弹窗但是关闭失败，原因：未获取到onClick函数");
           }
         } else {
-          log.error(
-            "未找到登录弹出的关闭按钮，此时键盘被聚焦在登录弹窗上从而导致'快捷键'失效",
-            $loginDialog.cloneNode(true)
-          );
+          let $logPanelNew = $loginDialog.querySelector<HTMLDivElement>("#login-panel-new > div");
+          if (!$logPanelNew || ($logPanelNew && $logPanelNew.children.length)) {
+            log.error(
+              "未找到登录弹出的关闭按钮，此时键盘被聚焦在登录弹窗上从而导致'快捷键'失效",
+              $loginDialog.cloneNode(true)
+            );
+          }
         }
       }
       let $ohterDialog = $<HTMLElement>("body > div > div:contains('为保障更好的访问体验，请在登录后继续使用抖音')");

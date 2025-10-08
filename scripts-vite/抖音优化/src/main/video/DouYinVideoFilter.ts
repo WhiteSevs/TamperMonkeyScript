@@ -3,7 +3,7 @@ import { UIInput } from "@components/setting/components/ui-input";
 import { UISelectMultiple } from "@components/setting/components/ui-select-multiple";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, PROPS_STORAGE_API } from "@components/setting/panel-config";
-import { RuleView } from "@components/utils/RuleView";
+import { RuleView, type RuleViewOption } from "@components/utils/RuleView";
 import { RuleStorage } from "@components/utils/RuleStorage";
 import Qmsg from "qmsg";
 import { DouYinVideoFilterBase } from "./DouYinVideoFilterBase";
@@ -93,9 +93,13 @@ export const DouYinVideoFilter = {
     /**
      * 当命中过滤规则，如果开启了仅显示被过滤的视频，则修改isFilter值
      */
-    get isReverse() {
+    get onlyShowFilteredVideo() {
       return Panel.getValue<boolean>("shieldVideo-only-show-filtered-video");
     },
+    /**
+     * 视频过滤规则
+     */
+    videoFilterRules: <DouYinVideoFilterRule[]>[],
   },
   init() {
     if (DouYinRouter.isLive()) {
@@ -108,78 +112,84 @@ export const DouYinVideoFilter = {
     });
   },
   /**
+   * 获取过滤规则（启用状态）
+   * @param scopeName 作用域 不传入的话就是全部规则
+   * @param [useEnableRule=true] 是否使用启用状态的规则，true：启用状态的规则，false：所有规则
+   */
+  getFilterRules(scopeName?: DouYinVideoFilterRuleOptionScope, useEnableRule: boolean = true) {
+    if (!Panel.getValue(this.$key.ENABLE_KEY)) {
+      return [];
+    }
+    const videoFilterRules = this.$data.videoFilterRuleStorage.getAllRule();
+    if (!videoFilterRules.length) {
+      // 无规则，不过滤
+      return [];
+    }
+    // 排序
+    // 非isFunctionHandler优先级最低
+    // 所以isFunctionHandler排在最后
+    videoFilterRules.sort((a, b) => {
+      if (a.data.isFunctionHandler && !b.data.isFunctionHandler) {
+        return 1;
+      }
+      if (!a.data.isFunctionHandler && b.data.isFunctionHandler) {
+        return -1;
+      }
+      return 0;
+    });
+    if (typeof scopeName === "string") {
+      // 获取在作用域内的规则（该规则为启用状态）
+      const scopeNameList: DouYinVideoFilterRuleOptionScope[] = Array.isArray(scopeName) ? scopeName : [scopeName];
+      const matchedFilterOptionList = videoFilterRules.filter((it) => {
+        if (typeof useEnableRule === "boolean" && useEnableRule) {
+          if (!it.enable) {
+            return false;
+          }
+        }
+        return it.data.scope.includes("all") || scopeNameList.findIndex((item) => it.data.scope.includes(item)) !== -1;
+      });
+      return matchedFilterOptionList;
+    } else {
+      const matchedFilterOptionList = videoFilterRules.filter((it) => {
+        if (typeof useEnableRule === "boolean" && useEnableRule) {
+          if (!it.enable) {
+            return false;
+          }
+        }
+        return true;
+      });
+      return matchedFilterOptionList;
+    }
+  },
+  /**
    * 执行过滤
    */
   execFilter() {
     const that = this;
     Panel.execMenuOnce(this.$key.ENABLE_KEY, async () => {
       log.info(`执行视频过滤器`);
-      // const webid = Panel.getValue("dy-webid");
-      // if (utils.isNull(webid)) {
-      // 	const temp_webid = await DouYinQueryApi.webid();
-      // 	if (typeof temp_webid === "string") {
-      // 		webid = temp_webid;
-      // 		Panel.setValue("dy-webid", webid);
-      // 	}
-      // }
       const filterBase = new DouYinVideoFilterBase();
-      /**
-       * 获取作用域的规则
-       */
-      const getScopeFilterRules = (scopeName: DouYinVideoFilterRuleOptionScope) => {
-        if (!Panel.getValue(that.$key.ENABLE_KEY)) {
-          return [];
-        }
-        const videoFilterRules = that.$data.videoFilterRuleStorage.getAllRule();
-        if (!videoFilterRules.length) {
-          // 无规则，不过滤
-          return [];
-        }
-        // 排序
-        // 非isFunctionHandler优先级最低
-        // 所以isFunctionHandler排在最后
-        videoFilterRules.sort((a, b) => {
-          if (a.data.isFunctionHandler && !b.data.isFunctionHandler) {
-            return 1;
-          }
-          if (!a.data.isFunctionHandler && b.data.isFunctionHandler) {
-            return -1;
-          }
-          return 0;
-        });
-        // 获取在作用域内的规则（该规则为启用状态）
-        const scopeNameList: DouYinVideoFilterRuleOptionScope[] = Array.isArray(scopeName) ? scopeName : [scopeName];
-        const matchedFilterOptionList = videoFilterRules.filter(
-          (it) =>
-            it.enable &&
-            (it.data.scope.includes("all") || scopeNameList.findIndex((item) => it.data.scope.includes(item)) !== -1)
-        );
-        return matchedFilterOptionList;
-      };
       /** 获取接口信息后的回调 */
-      const checkFilterCallBack = (awemeFilterInfoResult: {
-        isFilter: boolean;
-        matchedFilterOption: DouYinVideoFilterRule | null;
-        transformAwemeInfo: DouYinVideoHandlerInfo;
-        awemeInfo: DouYinVideoAwemeInfo;
-      }) => {
+      const checkFilterCallBack = (
+        awemeFilterInfoResult: Awaited<ReturnType<typeof DouYinVideoFilterBase.prototype.checkAwemeInfoIsFilter<false>>>
+      ) => {
         // 当命中过滤规则，如果开启了仅显示被过滤的视频，则修改isFilter值
         // 并添加记录
-        if (this.$data.isReverse) {
-          // 逆反是否过滤
+        if (this.$data.onlyShowFilteredVideo) {
+          // 这时候需要过滤掉非命中规则的视频
           awemeFilterInfoResult.isFilter = !awemeFilterInfoResult.isFilter;
+          // 添加过滤信息记录
           if (
             typeof awemeFilterInfoResult.transformAwemeInfo.awemeId === "string" &&
-            awemeFilterInfoResult.matchedFilterOption
+            awemeFilterInfoResult.matchedFilterRule
           ) {
             const filterOptionList: DouYinVideoFilterRule[] =
               this.$data.isFilterAwemeInfoList.get(awemeFilterInfoResult.transformAwemeInfo.awemeId) || [];
-            filterOptionList.push(awemeFilterInfoResult.matchedFilterOption);
+            filterOptionList.push(awemeFilterInfoResult.matchedFilterRule);
             this.$data.isFilterAwemeInfoList.set(awemeFilterInfoResult.transformAwemeInfo.awemeId, filterOptionList);
           }
         }
-
-        // 添加映射
+        // 添加网络接口的视频信息字典映射
         if (typeof awemeFilterInfoResult.transformAwemeInfo.awemeId === "string") {
           DouYinVideoFilter.$data.networkAwemeInfoMap.set(awemeFilterInfoResult.transformAwemeInfo.awemeId, {
             awemeInfo: awemeFilterInfoResult.awemeInfo,
@@ -195,7 +205,7 @@ export const DouYinVideoFilter = {
         request: UtilsAjaxHookRequestOptions
       ) => {
         request.response = async (response) => {
-          const filterRules = getScopeFilterRules(scopeName);
+          const filterRules = that.getFilterRules(scopeName);
           if (!filterRules.length) {
             return;
           }
@@ -207,7 +217,7 @@ export const DouYinVideoFilter = {
               const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo);
               checkFilterCallBack(filterResult);
               if (filterResult.isFilter) {
-                filterBase.sendDislikeVideo(filterResult.matchedFilterOption!, awemeInfo);
+                filterBase.sendDislikeVideo(filterResult.matchedFilterRule!, awemeInfo);
                 filterBase.removeAweme(aweme_list, index--);
               }
             }
@@ -227,7 +237,7 @@ export const DouYinVideoFilter = {
         request: UtilsAjaxHookRequestOptions
       ) => {
         request.response = async (response) => {
-          const filterRules = getScopeFilterRules(scopeName);
+          const filterRules = that.getFilterRules(scopeName);
           if (!filterRules.length) {
             return;
           }
@@ -244,7 +254,7 @@ export const DouYinVideoFilter = {
               const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo);
               checkFilterCallBack(filterResult);
               if (filterResult.isFilter) {
-                filterBase.sendDislikeVideo(filterResult.matchedFilterOption!, awemeInfo);
+                filterBase.sendDislikeVideo(filterResult.matchedFilterRule!, awemeInfo);
                 filterBase.removeAweme(aweme_list, index--);
               }
             }
@@ -264,7 +274,7 @@ export const DouYinVideoFilter = {
         request: UtilsAjaxHookRequestOptions
       ) => {
         request.response = async (response) => {
-          const filterRules = getScopeFilterRules(scopeName);
+          const filterRules = that.getFilterRules(scopeName);
           if (!filterRules.length) {
             return;
           }
@@ -277,7 +287,7 @@ export const DouYinVideoFilter = {
               const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo);
               checkFilterCallBack(filterResult);
               if (filterResult.isFilter) {
-                filterBase.sendDislikeVideo(filterResult.matchedFilterOption!, awemeInfo);
+                filterBase.sendDislikeVideo(filterResult.matchedFilterRule!, awemeInfo);
                 filterBase.removeAweme(cards, index--);
               }
             }
@@ -297,7 +307,7 @@ export const DouYinVideoFilter = {
         request: UtilsAjaxHookRequestOptions
       ) => {
         request.response = async (response) => {
-          const filterRules = getScopeFilterRules(scopeName);
+          const filterRules = that.getFilterRules(scopeName);
           if (!filterRules.length) {
             return;
           }
@@ -317,7 +327,7 @@ export const DouYinVideoFilter = {
                     const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, mixItem);
                     checkFilterCallBack(filterResult);
                     if (filterResult.isFilter) {
-                      filterBase.sendDislikeVideo(filterResult.matchedFilterOption!, mixItem);
+                      filterBase.sendDislikeVideo(filterResult.matchedFilterRule!, mixItem);
                       filterBase.removeAweme(awemeMixInfoItems, mixIndex--);
                     }
                   }
@@ -331,7 +341,7 @@ export const DouYinVideoFilter = {
                 const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo);
                 checkFilterCallBack(filterResult);
                 if (filterResult.isFilter) {
-                  filterBase.sendDislikeVideo(filterResult.matchedFilterOption!, awemeInfo);
+                  filterBase.sendDislikeVideo(filterResult.matchedFilterRule!, awemeInfo);
                   filterBase.removeAweme(aweme_list, index--);
                 }
               }
@@ -353,7 +363,7 @@ export const DouYinVideoFilter = {
         request: UtilsAjaxHookRequestOptions
       ) => {
         request.response = async (response) => {
-          const filterRules = getScopeFilterRules(scopeName);
+          const filterRules = that.getFilterRules(scopeName);
           if (!filterRules.length) {
             return;
           }
@@ -365,7 +375,7 @@ export const DouYinVideoFilter = {
             checkFilterCallBack(filterResult);
             if (filterResult.isFilter) {
               // 只记录，不移除
-              filterBase.sendDislikeVideo(filterResult.matchedFilterOption!, awemeInfo);
+              filterBase.sendDislikeVideo(filterResult.matchedFilterRule!, awemeInfo);
             }
             if (import.meta.hot) {
               console.log(awemeInfo);
@@ -421,6 +431,9 @@ export const DouYinVideoFilter = {
    */
   addParseButton() {
     addStyle(/*css*/ `
+      xg-icon .xg-tips{
+        display: none;
+      }
 			.basePlayerContainer .gm-video-filter-parse-btn{
 				margin-left: 4px;
 			}
@@ -441,7 +454,7 @@ export const DouYinVideoFilter = {
     const filterBase = new DouYinVideoFilterBase();
 
     // 按钮的点击回调
-    const awemeInfoClickCallBack = ($container: HTMLElement) => {
+    const awemeInfoClickCallBack = async ($container: HTMLElement) => {
       const that = this;
       const reactFiber = utils.getReactInstance($container)?.reactFiber;
       const awemeInfo =
@@ -470,8 +483,25 @@ export const DouYinVideoFilter = {
       } else {
         transformAwemeInfo = transformAwemeInfoWithPage;
       }
-      /** 命中的规则 */
-      const targetFilterOption = that.$data.isFilterAwemeInfoList.get(transformAwemeInfo.awemeId!) || [];
+      /**
+       * 命中的规则
+       */
+      let targetFilterOption: DouYinVideoFilterRule[] = [];
+      let isHasMatchedRules = false;
+      if (this.$data.isFilterAwemeInfoList.has(transformAwemeInfo.awemeId!)) {
+        // 仅显示被过滤的视频
+        targetFilterOption = targetFilterOption.concat(targetFilterOption);
+      } else {
+        const filterRules = this.getFilterRules();
+        const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, true);
+        if (filterResult.matchedFilterRule.length) {
+          isHasMatchedRules = true;
+          targetFilterOption = targetFilterOption.concat(filterResult.matchedFilterRule);
+        } else {
+          isHasMatchedRules = false;
+          targetFilterOption = targetFilterOption.concat(filterResult.notMatchedFilterRule);
+        }
+      }
       pops.confirm({
         title: {
           text: "视频awemeInfo",
@@ -501,10 +531,10 @@ export const DouYinVideoFilter = {
             },
           },
           other: {
-            enable: targetFilterOption.length ? true : false,
-            text: `命中的规则（${targetFilterOption.length}）`,
-            type: "xiaomi-primary",
-            callback(eventDetails, event) {
+            enable: Boolean(targetFilterOption.length),
+            text: `${isHasMatchedRules ? "" : "非"}命中的规则(${targetFilterOption.length})`,
+            type: isHasMatchedRules ? "xiaomi-primary" : "violet",
+            callback(btnConfig, event) {
               that.getRuleViewInstance().showView((data) => {
                 const find = targetFilterOption.find((it) => {
                   return data.uuid === it.uuid;
@@ -570,29 +600,32 @@ export const DouYinVideoFilter = {
       $$<HTMLElement>(".basePlayerContainer xg-right-grid:not(:has(.gm-video-filter-parse-btn))").forEach(
         ($xgRightGrid) => {
           const $gmFilterParseBtn = createFilterParseButton();
-          DOMUtils.on($gmFilterParseBtn, "click", (event) => {
+          DOMUtils.on($gmFilterParseBtn, "click", async (event) => {
             DOMUtils.preventEvent(event);
             const $basePlayerContainer = $xgRightGrid.closest<HTMLElement>(".basePlayerContainer")!;
-            awemeInfoClickCallBack($basePlayerContainer);
+            await awemeInfoClickCallBack($basePlayerContainer);
           });
           DOMUtils.prepend($xgRightGrid, $gmFilterParseBtn);
         }
       );
       // 直播间
-      $$<HTMLElement>('[data-e2e="feed-live"] xg-right-grid:not(:has(.gm-video-filter-parse-btn))').forEach(
-        ($xgRightGrid) => {
-          if (!utils.isVisible($xgRightGrid, false)) {
-            return;
-          }
-          const $gmFilterParseBtn = createFilterParseButton();
-          DOMUtils.on($gmFilterParseBtn, "click", (event) => {
-            DOMUtils.preventEvent(event);
-            const $liveContainer = $xgRightGrid.closest<HTMLElement>('[data-e2e="feed-live"]')!;
-            awemeInfoClickCallBack($liveContainer);
-          });
-          DOMUtils.prepend($xgRightGrid, $gmFilterParseBtn);
+      [
+        ...Array.from($$<HTMLElement>('[data-e2e="feed-live"] xg-right-grid:not(:has(.gm-video-filter-parse-btn))')),
+        ...Array.from(
+          $$<HTMLElement>('[data-e2e="feed-live"] .douyin-player-controls-right:not(:has(.gm-video-filter-parse-btn))')
+        ),
+      ].forEach(($xgRightGrid) => {
+        if (!utils.isVisible($xgRightGrid, false)) {
+          return;
         }
-      );
+        const $gmFilterParseBtn = createFilterParseButton();
+        DOMUtils.on($gmFilterParseBtn, "click", async (event) => {
+          DOMUtils.preventEvent(event);
+          const $liveContainer = $xgRightGrid.closest<HTMLElement>('[data-e2e="feed-live"]')!;
+          await awemeInfoClickCallBack($liveContainer);
+        });
+        DOMUtils.prepend($xgRightGrid, $gmFilterParseBtn);
+      });
     });
     utils.mutationObserver(document, {
       config: {
@@ -612,35 +645,47 @@ export const DouYinVideoFilter = {
     const that = this;
     const panelHandlerComponents = pops.config.PanelHandlerComponents();
     /**
-     * 自定义存储api的配置
-     * @param uuid
+     * 存储配置
      */
-    function generateStorageApi(data: any) {
+    const generateStorageApi = (data: any) => {
       return {
         get(key: string, defaultValue: any) {
-          return (data as any)[key] ?? defaultValue;
+          return data[key] ?? defaultValue;
         },
         set(key: string, value: any) {
-          (data as any)[key] = value;
+          data[key] = value;
         },
       };
-    }
-    const ruleView = new RuleView({
+    };
+    /**
+     * 通知更新规则实例
+     */
+    const notifyUpdateRuleInst = (rule?: DouYinVideoFilterRule) => {
+      if (!rule) {
+        // 此乃清空全部规则
+      }
+      // TODO
+    };
+    const ruleViewOption: RuleViewOption<DouYinVideoFilterRule> = {
       title: "视频过滤器",
       data: () => {
-        return that.$data.videoFilterRuleStorage.getAllRule();
+        return this.$data.videoFilterRuleStorage.getAllRule();
       },
       getAddData: () => {
         return this.getTemplateData();
       },
       getDataItemName: (data) => {
-        return data["name"];
+        return data.name;
       },
       updateData: (data) => {
-        return that.$data.videoFilterRuleStorage.setRule(data);
+        const setFlag = this.$data.videoFilterRuleStorage.setRule(data);
+        notifyUpdateRuleInst(data);
+        return setFlag;
       },
       deleteData: (data) => {
-        return that.$data.videoFilterRuleStorage.deleteRule(data);
+        const deleteFlag = this.$data.videoFilterRuleStorage.deleteRule(data);
+        notifyUpdateRuleInst(data);
+        return deleteFlag;
       },
       getData: (data) => {
         const allData = DouYinVideoFilter.$data.videoFilterRuleStorage.getAllRule();
@@ -655,7 +700,7 @@ export const DouYinVideoFilter = {
           },
           callback: (data, enable) => {
             data.enable = enable;
-            that.$data.videoFilterRuleStorage.setRule(data);
+            ruleViewOption.updateData(data);
           },
         },
         edit: {
@@ -968,7 +1013,7 @@ export const DouYinVideoFilter = {
             );
             return $fragment;
           },
-          onsubmit: ($form, isEdit, editData) => {
+          onsubmit: async ($form, isEdit, editData) => {
             // 提交表单
             const $ulist_li = $form.querySelectorAll<HTMLLIElement>(".rule-form-ulist > li");
             const data: DouYinVideoFilterRule = this.getTemplateData();
@@ -1038,23 +1083,25 @@ export const DouYinVideoFilter = {
               };
             }
             if (data.data.ruleValue.trim() === "") {
-              Qmsg.error("属性值不能为空");
+              Qmsg.error((data.data.isFunctionHandler ? "自定义函数" : "属性值") + "不能为空");
               return {
                 success: false,
                 data: data,
               };
             }
+            let successFlag: boolean = false;
             if (isEdit) {
-              return {
-                success: that.$data.videoFilterRuleStorage.setRule(data),
-                data: data,
-              };
+              // 编辑、修改
+              successFlag = Boolean(await ruleViewOption.updateData(data));
             } else {
-              return {
-                success: that.$data.videoFilterRuleStorage.addRule(data),
-                data: data,
-              };
+              // 新增、添加
+              successFlag = this.$data.videoFilterRuleStorage.addRule(data);
             }
+            notifyUpdateRuleInst(data);
+            return {
+              success: successFlag,
+              data: data,
+            };
           },
           style: /*css*/ `
           .pops-panel-textarea textarea{
@@ -1111,8 +1158,8 @@ export const DouYinVideoFilter = {
         },
         delete: {
           enable: true,
-          deleteCallBack: (data) => {
-            return that.$data.videoFilterRuleStorage.deleteRule(data);
+          deleteCallBack: async (data) => {
+            return (await ruleViewOption.deleteData(data))!;
           },
         },
       },
@@ -1148,11 +1195,13 @@ export const DouYinVideoFilter = {
         clear: {
           enable: true,
           callback: () => {
-            that.$data.videoFilterRuleStorage.clearAllRule();
+            this.$data.videoFilterRuleStorage.clearAllRule();
+            notifyUpdateRuleInst();
           },
         },
       },
-    });
+    };
+    const ruleView = new RuleView(ruleViewOption);
     return ruleView;
   },
   /**

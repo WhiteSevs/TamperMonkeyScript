@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.8
+// @version      2025.10.8.16
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -2589,57 +2589,10 @@
       return $("#root div[class*='-os']") || $("#douyin-right-container");
     },
   };
-  const DouYinNetWorkHook = {
-    __ajaxHooker: null,
-    get ajaxHooker() {
-      if (this.__ajaxHooker == null) {
-        this.__ajaxHooker = utils.ajaxHooker();
-      }
-      return this.__ajaxHooker;
-    },
-    init() {},
-    commentReply() {
-      this.ajaxHooker.hook((request) => {
-        let url = CommonUtil.fixUrl(request.url);
-        let urlInstance = new URL(url);
-        if (urlInstance.pathname.startsWith("/aweme/v1/web/comment/list/reply")) {
-          urlInstance.searchParams.delete("whale_cut_token");
-          urlInstance.searchParams.append("whale_cut_token", "");
-          request.url = urlInstance.toString();
-        }
-      });
-    },
-    hookUserNoLoginResponse() {
-      this.ajaxHooker.hook((request) => {
-        let originResponse = request.response;
-        request.response = (response) => {
-          originResponse && originResponse(response);
-          let data = utils.toJSON(response.responseText);
-          if (typeof data["status_code"] === "number" && data["status_code"] !== 0) {
-            data["status_code"] = 0;
-            if (typeof data["status_msg"] === "string") {
-              data["status_msg"] = "";
-            }
-          }
-          if (
-            typeof data?.["user_collect_count"]?.["status_code"] === "number" &&
-            data?.["user_collect_count"]?.["status_code"] !== 0
-          ) {
-            data["user_collect_count"]["status_code"] = 0;
-            if (typeof data?.["user_collect_count"]?.["status_msg"] === "string") {
-              data["user_collect_count"]["status_msg"] = "";
-            }
-          }
-          response.responseText = JSON.stringify(data);
-        };
-      });
-    },
-  };
   const DouYinAccount = {
     disguiseLogin() {
       log.info("伪装登录");
       CommonUtil.addBlockCSS(".login-tooltip-slot");
-      DouYinNetWorkHook.hookUserNoLoginResponse();
       const WAIT_TIME = 2e4;
       const uid = parseInt((Math.random() * 1e10).toString());
       const info = {
@@ -2825,13 +2778,13 @@
     },
     watchLoginDialogToClose() {
       log.info("监听登录弹窗并关闭");
-      let result = [CommonUtil.addBlockCSS('body > div[id^="login-full-panel-"]')];
+      let result = [CommonUtil.addBlockCSS('div[id^="login-full-panel-"]')];
       let lockFn = new utils.LockFunction(() => {
         if (!Panel.getValue("watchLoginDialogToClose")) {
           return;
         }
-        let $loginDialog = $('body > div[id^="login-full-panel-"]');
-        if ($loginDialog && $loginDialog.childNodes.length) {
+        let $loginDialog = $('div[id^="login-full-panel-"]');
+        if ($loginDialog && $loginDialog.children.length) {
           let $loginDialogCloseBtn =
             $loginDialog.querySelector(".dy-account-close") ||
             $loginDialog.querySelector(
@@ -2846,10 +2799,13 @@
               log.error("监听到登录弹窗但是关闭失败，原因：未获取到onClick函数");
             }
           } else {
-            log.error(
-              "未找到登录弹出的关闭按钮，此时键盘被聚焦在登录弹窗上从而导致'快捷键'失效",
-              $loginDialog.cloneNode(true)
-            );
+            let $logPanelNew = $loginDialog.querySelector("#login-panel-new > div");
+            if (!$logPanelNew || ($logPanelNew && $logPanelNew.children.length)) {
+              log.error(
+                "未找到登录弹出的关闭按钮，此时键盘被聚焦在登录弹窗上从而导致'快捷键'失效",
+                $loginDialog.cloneNode(true)
+              );
+            }
           }
         }
         let $ohterDialog = $("body > div > div:contains('为保障更好的访问体验，请在登录后继续使用抖音')");
@@ -4154,9 +4110,13 @@
 			}
 			/* 图文的图片全屏 */
 			.basePlayerContainer  .focusPanel .dySwiperSlide img[src]{
-				height: 100% !important;
+				height: 99% !important;
 			}
-        `
+      /* 修复有时候背景为全黑的问题 */
+      .isCssFullScreen .basePlayerContainer video{
+        height: calc(100% - 2px) !important;
+      }
+      `
         )
       );
       return result;
@@ -6507,6 +6467,9 @@
   }
   class RuleFilterView {
     option;
+    $data = {
+      isFilteredData: [],
+    };
     constructor(option) {
       this.option = option;
     }
@@ -6561,13 +6524,15 @@
           }
         );
         let execFilterAndCloseDialog = async () => {
+          this.$data.isFilteredData = [];
           let allRuleInfo = await this.option.getAllRuleInfo();
           allRuleInfo.forEach(async (ruleInfo) => {
             let filterResult = await filterOption.filterCallBack(ruleInfo.data);
-            if (!filterResult) {
-              domUtils.hide(ruleInfo.$el, false);
-            } else {
+            if (filterResult) {
               domUtils.show(ruleInfo.$el, false);
+            } else {
+              domUtils.hide(ruleInfo.$el, false);
+              this.$data.isFilteredData.push(ruleInfo.data);
             }
           });
           if (typeof this.option.execFilterCallBack === "function") {
@@ -6588,6 +6553,9 @@
         $fragment.appendChild($button);
       });
       $filterContainer.appendChild($fragment);
+    }
+    getFilteredData() {
+      return this.$data.isFilteredData;
     }
   }
   class RuleView {
@@ -6660,6 +6628,10 @@
                   execFilterCallBack: async () => {
                     domUtils.text($button, "取消过滤");
                     await this.option.bottomControls?.filter?.execFilterCallBack?.();
+                    const isFilteredData = ruleFilterView.getFilteredData();
+                    if (isFilteredData.length) {
+                      domUtils.text($button, `取消过滤(${isFilteredData.length})`);
+                    }
                   },
                   getAllRuleInfo: () => {
                     return getAllRuleElement().map(($el) => {
@@ -6770,6 +6742,7 @@
       });
       let allData = await this.option.data();
       let changeButtonText = false;
+      let isFilteredDataLength = 0;
       for (let index = 0; index < allData.length; index++) {
         let item = allData[index];
         let $ruleItemList = await this.appendRuleItemElement($popsConfirm.$shadowRoot, item);
@@ -6783,11 +6756,12 @@
         if (!isNotFilterFlag) {
           changeButtonText = true;
           domUtils.hide($ruleItemList, false);
+          isFilteredDataLength++;
         }
       }
       if (changeButtonText) {
         let $button = $popsConfirm.$shadowRoot.querySelector(".pops-confirm-btn-cancel span");
-        domUtils.text($button, "取消过滤");
+        domUtils.text($button, `取消过滤${isFilteredDataLength ? `(${isFilteredDataLength})` : ""}`);
       }
     }
     showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
@@ -7741,10 +7715,12 @@
       }
       return false;
     }
-    async checkAwemeInfoIsFilter(rules, awemeInfo) {
+    async checkAwemeInfoIsFilter(rules, awemeInfo, isQueryAllMatchedFilterRules) {
       let transformAwemeInfo = this.parseAwemeInfoDictData(awemeInfo);
       let flag = false;
       let matchedFilterOption = null;
+      let matchedFilterOptionList = [];
+      let notMatchedFilterRule = [];
       outerLoop: for (let index = 0; index < rules.length; index++) {
         const filterRule = rules[index];
         const ruleNameList = Array.isArray(filterRule.data.ruleName)
@@ -7803,14 +7779,23 @@
             }
           }
           if (flag) {
-            matchedFilterOption = filterRule;
-            break outerLoop;
+            if (isQueryAllMatchedFilterRules) {
+              matchedFilterOptionList.push(filterRule);
+            } else {
+              matchedFilterOption = filterRule;
+              break outerLoop;
+            }
+          } else {
+            if (isQueryAllMatchedFilterRules) {
+              notMatchedFilterRule.push(filterRule);
+            }
           }
         }
       }
       return {
         isFilter: flag,
-        matchedFilterOption,
+        matchedFilterRule: isQueryAllMatchedFilterRules ? matchedFilterOptionList : matchedFilterOption,
+        notMatchedFilterRule: isQueryAllMatchedFilterRules ? notMatchedFilterRule : null,
         transformAwemeInfo,
         awemeInfo,
       };
@@ -7835,6 +7820,15 @@
       }
     }
   }
+  const DouYinNetWorkHook = {
+    __ajaxHooker: null,
+    get ajaxHooker() {
+      if (this.__ajaxHooker == null) {
+        this.__ajaxHooker = utils.ajaxHooker();
+      }
+      return this.__ajaxHooker;
+    },
+  };
   const UITextArea = function (
     text,
     key,
@@ -7894,9 +7888,10 @@
         }
         return this.__videoFilterRuleStorage;
       },
-      get isReverse() {
+      get onlyShowFilteredVideo() {
         return Panel.getValue("shieldVideo-only-show-filtered-video");
       },
+      videoFilterRules: [],
     },
     init() {
       if (DouYinRouter.isLive()) {
@@ -7908,46 +7903,63 @@
         this.addParseButton();
       });
     },
+    getFilterRules(scopeName, useEnableRule = true) {
+      if (!Panel.getValue(this.$key.ENABLE_KEY)) {
+        return [];
+      }
+      const videoFilterRules = this.$data.videoFilterRuleStorage.getAllRule();
+      if (!videoFilterRules.length) {
+        return [];
+      }
+      videoFilterRules.sort((a, b) => {
+        if (a.data.isFunctionHandler && !b.data.isFunctionHandler) {
+          return 1;
+        }
+        if (!a.data.isFunctionHandler && b.data.isFunctionHandler) {
+          return -1;
+        }
+        return 0;
+      });
+      if (typeof scopeName === "string") {
+        const scopeNameList = Array.isArray(scopeName) ? scopeName : [scopeName];
+        const matchedFilterOptionList = videoFilterRules.filter((it) => {
+          if (typeof useEnableRule === "boolean" && useEnableRule) {
+            if (!it.enable) {
+              return false;
+            }
+          }
+          return (
+            it.data.scope.includes("all") || scopeNameList.findIndex((item) => it.data.scope.includes(item)) !== -1
+          );
+        });
+        return matchedFilterOptionList;
+      } else {
+        const matchedFilterOptionList = videoFilterRules.filter((it) => {
+          if (typeof useEnableRule === "boolean" && useEnableRule) {
+            if (!it.enable) {
+              return false;
+            }
+          }
+          return true;
+        });
+        return matchedFilterOptionList;
+      }
+    },
     execFilter() {
       const that = this;
       Panel.execMenuOnce(this.$key.ENABLE_KEY, async () => {
         log.info(`执行视频过滤器`);
         const filterBase = new DouYinVideoFilterBase();
-        const getScopeFilterRules = (scopeName) => {
-          if (!Panel.getValue(that.$key.ENABLE_KEY)) {
-            return [];
-          }
-          const videoFilterRules = that.$data.videoFilterRuleStorage.getAllRule();
-          if (!videoFilterRules.length) {
-            return [];
-          }
-          videoFilterRules.sort((a, b) => {
-            if (a.data.isFunctionHandler && !b.data.isFunctionHandler) {
-              return 1;
-            }
-            if (!a.data.isFunctionHandler && b.data.isFunctionHandler) {
-              return -1;
-            }
-            return 0;
-          });
-          const scopeNameList = Array.isArray(scopeName) ? scopeName : [scopeName];
-          const matchedFilterOptionList = videoFilterRules.filter(
-            (it) =>
-              it.enable &&
-              (it.data.scope.includes("all") || scopeNameList.findIndex((item) => it.data.scope.includes(item)) !== -1)
-          );
-          return matchedFilterOptionList;
-        };
         const checkFilterCallBack = (awemeFilterInfoResult) => {
-          if (this.$data.isReverse) {
+          if (this.$data.onlyShowFilteredVideo) {
             awemeFilterInfoResult.isFilter = !awemeFilterInfoResult.isFilter;
             if (
               typeof awemeFilterInfoResult.transformAwemeInfo.awemeId === "string" &&
-              awemeFilterInfoResult.matchedFilterOption
+              awemeFilterInfoResult.matchedFilterRule
             ) {
               const filterOptionList =
                 this.$data.isFilterAwemeInfoList.get(awemeFilterInfoResult.transformAwemeInfo.awemeId) || [];
-              filterOptionList.push(awemeFilterInfoResult.matchedFilterOption);
+              filterOptionList.push(awemeFilterInfoResult.matchedFilterRule);
               this.$data.isFilterAwemeInfoList.set(awemeFilterInfoResult.transformAwemeInfo.awemeId, filterOptionList);
             }
           }
@@ -7960,7 +7972,7 @@
         };
         const xhr_hook_callback_1 = (scopeName, request) => {
           request.response = async (response) => {
-            const filterRules = getScopeFilterRules(scopeName);
+            const filterRules = that.getFilterRules(scopeName);
             if (!filterRules.length) {
               return;
             }
@@ -7972,7 +7984,7 @@
                 const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo);
                 checkFilterCallBack(filterResult);
                 if (filterResult.isFilter) {
-                  filterBase.sendDislikeVideo(filterResult.matchedFilterOption, awemeInfo);
+                  filterBase.sendDislikeVideo(filterResult.matchedFilterRule, awemeInfo);
                   filterBase.removeAweme(aweme_list, index--);
                 }
               }
@@ -7982,7 +7994,7 @@
         };
         const xhr_hook_callback_2 = (scopeName, request) => {
           request.response = async (response) => {
-            const filterRules = getScopeFilterRules(scopeName);
+            const filterRules = that.getFilterRules(scopeName);
             if (!filterRules.length) {
               return;
             }
@@ -7998,7 +8010,7 @@
                 const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo);
                 checkFilterCallBack(filterResult);
                 if (filterResult.isFilter) {
-                  filterBase.sendDislikeVideo(filterResult.matchedFilterOption, awemeInfo);
+                  filterBase.sendDislikeVideo(filterResult.matchedFilterRule, awemeInfo);
                   filterBase.removeAweme(aweme_list, index--);
                 }
               }
@@ -8008,7 +8020,7 @@
         };
         const xhr_hook_callback_3 = (scopeName, request) => {
           request.response = async (response) => {
-            const filterRules = getScopeFilterRules(scopeName);
+            const filterRules = that.getFilterRules(scopeName);
             if (!filterRules.length) {
               return;
             }
@@ -8021,7 +8033,7 @@
                 const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo);
                 checkFilterCallBack(filterResult);
                 if (filterResult.isFilter) {
-                  filterBase.sendDislikeVideo(filterResult.matchedFilterOption, awemeInfo);
+                  filterBase.sendDislikeVideo(filterResult.matchedFilterRule, awemeInfo);
                   filterBase.removeAweme(cards, index--);
                 }
               }
@@ -8031,7 +8043,7 @@
         };
         const xhr_hook_callback_4 = (scopeName, request) => {
           request.response = async (response) => {
-            const filterRules = getScopeFilterRules(scopeName);
+            const filterRules = that.getFilterRules(scopeName);
             if (!filterRules.length) {
               return;
             }
@@ -8050,7 +8062,7 @@
                       const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, mixItem);
                       checkFilterCallBack(filterResult);
                       if (filterResult.isFilter) {
-                        filterBase.sendDislikeVideo(filterResult.matchedFilterOption, mixItem);
+                        filterBase.sendDislikeVideo(filterResult.matchedFilterRule, mixItem);
                         filterBase.removeAweme(awemeMixInfoItems, mixIndex--);
                       }
                     }
@@ -8062,7 +8074,7 @@
                   const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo);
                   checkFilterCallBack(filterResult);
                   if (filterResult.isFilter) {
-                    filterBase.sendDislikeVideo(filterResult.matchedFilterOption, awemeInfo);
+                    filterBase.sendDislikeVideo(filterResult.matchedFilterRule, awemeInfo);
                     filterBase.removeAweme(aweme_list, index--);
                   }
                 }
@@ -8073,7 +8085,7 @@
         };
         const xhr_hook_callback_5 = (scopeName, request) => {
           request.response = async (response) => {
-            const filterRules = getScopeFilterRules(scopeName);
+            const filterRules = that.getFilterRules(scopeName);
             if (!filterRules.length) {
               return;
             }
@@ -8083,7 +8095,7 @@
               const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo);
               checkFilterCallBack(filterResult);
               if (filterResult.isFilter) {
-                filterBase.sendDislikeVideo(filterResult.matchedFilterOption, awemeInfo);
+                filterBase.sendDislikeVideo(filterResult.matchedFilterRule, awemeInfo);
               }
               response.responseText = JSON.stringify(data);
             }
@@ -8120,6 +8132,9 @@
     addParseButton() {
       addStyle(
         `
+      xg-icon .xg-tips{
+        display: none;
+      }
 			.basePlayerContainer .gm-video-filter-parse-btn{
 				margin-left: 4px;
 			}
@@ -8139,7 +8154,7 @@
 		`
       );
       const filterBase = new DouYinVideoFilterBase();
-      const awemeInfoClickCallBack = ($container) => {
+      const awemeInfoClickCallBack = async ($container) => {
         const that = this;
         const reactFiber = utils.getReactInstance($container)?.reactFiber;
         const awemeInfo =
@@ -8168,7 +8183,21 @@
         } else {
           transformAwemeInfo = transformAwemeInfoWithPage;
         }
-        const targetFilterOption = that.$data.isFilterAwemeInfoList.get(transformAwemeInfo.awemeId) || [];
+        let targetFilterOption = [];
+        let isHasMatchedRules = false;
+        if (this.$data.isFilterAwemeInfoList.has(transformAwemeInfo.awemeId)) {
+          targetFilterOption = targetFilterOption.concat(targetFilterOption);
+        } else {
+          const filterRules = this.getFilterRules();
+          const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, true);
+          if (filterResult.matchedFilterRule.length) {
+            isHasMatchedRules = true;
+            targetFilterOption = targetFilterOption.concat(filterResult.matchedFilterRule);
+          } else {
+            isHasMatchedRules = false;
+            targetFilterOption = targetFilterOption.concat(filterResult.notMatchedFilterRule);
+          }
+        }
         __pops.confirm({
           title: {
             text: "视频awemeInfo",
@@ -8198,10 +8227,10 @@
               },
             },
             other: {
-              enable: targetFilterOption.length ? true : false,
-              text: `命中的规则（${targetFilterOption.length}）`,
-              type: "xiaomi-primary",
-              callback(eventDetails, event) {
+              enable: Boolean(targetFilterOption.length),
+              text: `${isHasMatchedRules ? "" : "非"}命中的规则(${targetFilterOption.length})`,
+              type: isHasMatchedRules ? "xiaomi-primary" : "violet",
+              callback(btnConfig, event) {
                 that.getRuleViewInstance().showView((data) => {
                   const find = targetFilterOption.find((it) => {
                     return data.uuid === it.uuid;
@@ -8261,22 +8290,27 @@
         }
         $$(".basePlayerContainer xg-right-grid:not(:has(.gm-video-filter-parse-btn))").forEach(($xgRightGrid) => {
           const $gmFilterParseBtn = createFilterParseButton();
-          domUtils.on($gmFilterParseBtn, "click", (event) => {
+          domUtils.on($gmFilterParseBtn, "click", async (event) => {
             domUtils.preventEvent(event);
             const $basePlayerContainer = $xgRightGrid.closest(".basePlayerContainer");
-            awemeInfoClickCallBack($basePlayerContainer);
+            await awemeInfoClickCallBack($basePlayerContainer);
           });
           domUtils.prepend($xgRightGrid, $gmFilterParseBtn);
         });
-        $$('[data-e2e="feed-live"] xg-right-grid:not(:has(.gm-video-filter-parse-btn))').forEach(($xgRightGrid) => {
+        [
+          ...Array.from($$('[data-e2e="feed-live"] xg-right-grid:not(:has(.gm-video-filter-parse-btn))')),
+          ...Array.from(
+            $$('[data-e2e="feed-live"] .douyin-player-controls-right:not(:has(.gm-video-filter-parse-btn))')
+          ),
+        ].forEach(($xgRightGrid) => {
           if (!utils.isVisible($xgRightGrid, false)) {
             return;
           }
           const $gmFilterParseBtn = createFilterParseButton();
-          domUtils.on($gmFilterParseBtn, "click", (event) => {
+          domUtils.on($gmFilterParseBtn, "click", async (event) => {
             domUtils.preventEvent(event);
             const $liveContainer = $xgRightGrid.closest('[data-e2e="feed-live"]');
-            awemeInfoClickCallBack($liveContainer);
+            await awemeInfoClickCallBack($liveContainer);
           });
           domUtils.prepend($xgRightGrid, $gmFilterParseBtn);
         });
@@ -8293,9 +8327,8 @@
       });
     },
     getRuleViewInstance() {
-      const that = this;
       const panelHandlerComponents = __pops.config.PanelHandlerComponents();
-      function generateStorageApi(data) {
+      const generateStorageApi = (data) => {
         return {
           get(key, defaultValue) {
             return data[key] ?? defaultValue;
@@ -8304,23 +8337,25 @@
             data[key] = value;
           },
         };
-      }
-      const ruleView = new RuleView({
+      };
+      const ruleViewOption = {
         title: "视频过滤器",
         data: () => {
-          return that.$data.videoFilterRuleStorage.getAllRule();
+          return this.$data.videoFilterRuleStorage.getAllRule();
         },
         getAddData: () => {
           return this.getTemplateData();
         },
         getDataItemName: (data) => {
-          return data["name"];
+          return data.name;
         },
         updateData: (data) => {
-          return that.$data.videoFilterRuleStorage.setRule(data);
+          const setFlag = this.$data.videoFilterRuleStorage.setRule(data);
+          return setFlag;
         },
         deleteData: (data) => {
-          return that.$data.videoFilterRuleStorage.deleteRule(data);
+          const deleteFlag = this.$data.videoFilterRuleStorage.deleteRule(data);
+          return deleteFlag;
         },
         getData: (data) => {
           const allData = DouYinVideoFilter.$data.videoFilterRuleStorage.getAllRule();
@@ -8335,7 +8370,7 @@
             },
             callback: (data, enable) => {
               data.enable = enable;
-              that.$data.videoFilterRuleStorage.setRule(data);
+              ruleViewOption.updateData(data);
             },
           },
           edit: {
@@ -8564,7 +8599,7 @@
               $fragment.append($enable, $name, $scope, ...createDynamicItemNode(data.data), $dynamicContainer);
               return $fragment;
             },
-            onsubmit: ($form, isEdit, editData) => {
+            onsubmit: async ($form, isEdit, editData) => {
               const $ulist_li = $form.querySelectorAll(".rule-form-ulist > li");
               const data = this.getTemplateData();
               if (isEdit) {
@@ -8632,23 +8667,22 @@
                 };
               }
               if (data.data.ruleValue.trim() === "") {
-                Qmsg.error("属性值不能为空");
+                Qmsg.error((data.data.isFunctionHandler ? "自定义函数" : "属性值") + "不能为空");
                 return {
                   success: false,
                   data,
                 };
               }
+              let successFlag = false;
               if (isEdit) {
-                return {
-                  success: that.$data.videoFilterRuleStorage.setRule(data),
-                  data,
-                };
+                successFlag = Boolean(await ruleViewOption.updateData(data));
               } else {
-                return {
-                  success: that.$data.videoFilterRuleStorage.addRule(data),
-                  data,
-                };
+                successFlag = this.$data.videoFilterRuleStorage.addRule(data);
               }
+              return {
+                success: successFlag,
+                data,
+              };
             },
             style: `
           .pops-panel-textarea textarea{
@@ -8705,8 +8739,8 @@
           },
           delete: {
             enable: true,
-            deleteCallBack: (data) => {
-              return that.$data.videoFilterRuleStorage.deleteRule(data);
+            deleteCallBack: async (data) => {
+              return await ruleViewOption.deleteData(data);
             },
           },
         },
@@ -8742,11 +8776,12 @@
           clear: {
             enable: true,
             callback: () => {
-              that.$data.videoFilterRuleStorage.clearAllRule();
+              this.$data.videoFilterRuleStorage.clearAllRule();
             },
           },
         },
-      });
+      };
+      const ruleView = new RuleView(ruleViewOption);
       return ruleView;
     },
     showView() {

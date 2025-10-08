@@ -598,19 +598,24 @@ export class DouYinVideoFilterBase {
    * 检测视频是否可以屏蔽，可以屏蔽返回true
    * @param rules 规则
    * @param awemeInfo 视频信息结构
+   * @param isQueryAllMatchedFilterRules 是否获取所有命中的规则，默认false
    */
-  async checkAwemeInfoIsFilter(
+  async checkAwemeInfoIsFilter<T extends boolean = false>(
     rules: DouYinVideoFilterRule[],
-    awemeInfo: DouYinVideoAwemeInfo
+    awemeInfo: DouYinVideoAwemeInfo,
+    isQueryAllMatchedFilterRules?: T
   ): Promise<{
     isFilter: boolean;
-    matchedFilterOption: DouYinVideoFilterRule | null;
+    matchedFilterRule: T extends true ? DouYinVideoFilterRule[] : DouYinVideoFilterRule | null;
+    notMatchedFilterRule: T extends true ? DouYinVideoFilterRule[] : null;
     transformAwemeInfo: DouYinVideoHandlerInfo;
     awemeInfo: DouYinVideoAwemeInfo;
   }> {
     let transformAwemeInfo = this.parseAwemeInfoDictData(awemeInfo);
     let flag = false;
     let matchedFilterOption: DouYinVideoFilterRule | null = null;
+    let matchedFilterOptionList: DouYinVideoFilterRule[] = [];
+    let notMatchedFilterRule: DouYinVideoFilterRule[] = [];
     outerLoop: for (let index = 0; index < rules.length; index++) {
       const filterRule = rules[index];
       const ruleNameList = Array.isArray(filterRule.data.ruleName)
@@ -679,9 +684,19 @@ export class DouYinVideoFilterBase {
         }
         if (flag) {
           // 存在命中屏蔽规则
-          // 退出循环
-          matchedFilterOption = filterRule;
-          break outerLoop;
+          if (isQueryAllMatchedFilterRules) {
+            // 获取所有命中的规则
+            matchedFilterOptionList.push(filterRule);
+          } else {
+            // 退出循环
+            matchedFilterOption = filterRule;
+            break outerLoop;
+          }
+        } else {
+          if (isQueryAllMatchedFilterRules) {
+            // 获取所有非命中的规则
+            notMatchedFilterRule.push(filterRule);
+          }
         }
       }
     }
@@ -690,7 +705,9 @@ export class DouYinVideoFilterBase {
       /** 是否允许过滤 */
       isFilter: flag,
       /** 命中的过滤规则 */
-      matchedFilterOption: matchedFilterOption,
+      matchedFilterRule: isQueryAllMatchedFilterRules ? (matchedFilterOptionList as any) : matchedFilterOption,
+      /** 未命中的过滤规则 */
+      notMatchedFilterRule: isQueryAllMatchedFilterRules ? (notMatchedFilterRule as any) : null,
       /** 解析出的视频信息 */
       transformAwemeInfo: transformAwemeInfo,
       /** 原始视频信息 */
