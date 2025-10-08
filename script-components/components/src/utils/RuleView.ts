@@ -6,7 +6,7 @@ import Qmsg from "qmsg";
 /**
  * 规则视图配置
  */
-type RuleViewOption<T> = {
+export type RuleViewOption<T> = {
   /** 标题 */
   title: string;
   /** 获取所有数据 */
@@ -231,6 +231,10 @@ export class RuleView<T> {
                 execFilterCallBack: async () => {
                   DOMUtils.text($button, "取消过滤");
                   await this.option.bottomControls?.filter?.execFilterCallBack?.();
+                  const isFilteredData = ruleFilterView.getFilteredData();
+                  if (isFilteredData.length) {
+                    DOMUtils.text($button, `取消过滤(${isFilteredData.length})`);
+                  }
                 },
                 getAllRuleInfo: () => {
                   return getAllRuleElement().map(($el) => {
@@ -343,6 +347,7 @@ export class RuleView<T> {
 
     // 执行过滤规则
     let changeButtonText = false;
+    let isFilteredDataLength = 0;
     for (let index = 0; index < allData.length; index++) {
       let item = allData[index];
       let $ruleItemList = await this.appendRuleItemElement($popsConfirm.$shadowRoot, item);
@@ -357,11 +362,12 @@ export class RuleView<T> {
         // 隐藏元素
         changeButtonText = true;
         DOMUtils.hide($ruleItemList, false);
+        isFilteredDataLength++;
       }
     }
     if (changeButtonText) {
       let $button = $popsConfirm.$shadowRoot.querySelector<HTMLSpanElement>(".pops-confirm-btn-cancel span")!;
-      DOMUtils.text($button, "取消过滤");
+      DOMUtils.text($button, `取消过滤${isFilteredDataLength ? `(${isFilteredDataLength})` : ""}`);
     }
   }
   /**

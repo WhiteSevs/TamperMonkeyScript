@@ -42,6 +42,12 @@ export type RuleFilterViewOption<T> = {
 
 export class RuleFilterView<T> {
   option: RuleFilterViewOption<T>;
+  $data = {
+    /**
+     * 已被过滤的数据
+     */
+    isFilteredData: [] as T[],
+  };
   constructor(option: RuleFilterViewOption<T>) {
     this.option = option;
   }
@@ -96,14 +102,17 @@ export class RuleFilterView<T> {
         }
       );
       let execFilterAndCloseDialog = async () => {
+        this.$data.isFilteredData = [];
         let allRuleInfo = await this.option.getAllRuleInfo();
         allRuleInfo.forEach(async (ruleInfo) => {
           let filterResult = await filterOption.filterCallBack(ruleInfo.data);
-          if (!filterResult) {
+          if (filterResult) {
+            // 需要
+            DOMUtils.show(ruleInfo.$el, false);
+          } else {
             // 不需要
             DOMUtils.hide(ruleInfo.$el, false);
-          } else {
-            DOMUtils.show(ruleInfo.$el, false);
+            this.$data.isFilteredData.push(ruleInfo.data);
           }
         });
         if (typeof this.option.execFilterCallBack === "function") {
@@ -125,5 +134,11 @@ export class RuleFilterView<T> {
     });
 
     $filterContainer.appendChild($fragment);
+  }
+  /**
+   * 获取已被过滤的数据
+   */
+  getFilteredData() {
+    return this.$data.isFilteredData;
   }
 }
