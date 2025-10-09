@@ -1,4 +1,4 @@
-import { DOMUtils, utils } from "@/env";
+import { DOMUtils } from "@/env";
 import type { PopsPanelDeepMenuDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-deepMenu";
 
 const afterEnterDeepMenuCallBack: PopsPanelDeepMenuDetails["afterEnterDeepMenuCallBack"] = (formConfig, container) => {

@@ -2,7 +2,7 @@ import { DOMUtils, log } from "@/env";
 import { UISelect } from "@components/setting/components/ui-select";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
-import { AutoOpenOrClose } from "../utils/all-open-or-close";
+import { AutoOpenOrClose } from "../all-open-or-close";
 
 /**
  * 获取渲染的显卡信息，可能是核显，也可能是独显

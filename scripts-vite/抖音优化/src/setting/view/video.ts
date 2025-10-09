@@ -7,7 +7,7 @@ import { Panel } from "@components/setting/panel";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { UIButtonShortCut } from "@components/setting/components/ui-button-shortcut";
 import { UISlider } from "@components/setting/components/ui-slider";
-import { AutoOpenOrClose } from "../utils/all-open-or-close";
+import { AutoOpenOrClose } from "../all-open-or-close";
 import { DouYinVideoFilter } from "@/main/video/DouYinVideoFilter";
 
 export const PanelVideoConfig: PopsPanelContentConfig = {
@@ -461,6 +461,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   void 0,
                   "屏蔽元素（不包括屏蔽弹幕）"
                 ),
+                UISwitch("【屏蔽】AI笔记", "shieldBottomVideoToolbar-aiNotes", false, void 0, "屏蔽元素"),
                 UISwitch("【屏蔽】连播", "shieldBottomVideoToolbar-autoPlay", false, void 0, "屏蔽元素"),
                 UISwitch("【屏蔽】清屏", "shieldBottomVideoToolbar-clearScreen", false, void 0, "屏蔽元素"),
                 UISwitch("【屏蔽】清晰度", "shieldBottomVideoToolbar-playclarity", false, void 0, "屏蔽元素"),

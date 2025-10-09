@@ -4,6 +4,9 @@ import { DouYinRouter } from "@/router/DouYinRouter";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { DouYinVideoPlayer } from "./DouYinVideoPlayer";
 
+/**
+ * 评论区
+ */
 export const DouYinVideoBlock_Comment = {
   init() {
     Panel.execMenuOnce("dy-video-shieldUserCommentToolBar", () => {
@@ -30,6 +33,9 @@ export const DouYinVideoBlock_Comment = {
   },
 };
 
+/**
+ * 底部工具栏 - 视频信息区域
+ */
 export const DouYinVideoBlock_BottomToolbar_videoInfo = {
   init() {
     Panel.execMenuOnce("dy-video-bottom-shieldVideoInfoWrap", () => {
@@ -136,6 +142,9 @@ export const DouYinVideoBlock_BottomToolbar_videoInfo = {
   },
 };
 
+/**
+ * 底部工具栏 - 播放器组件
+ */
 export const DouYinVideoBlock_BottomToolbar_PlayerComponents = {
   init() {
     Panel.execMenuOnce("shieldBottomVideoToolBar", () => {
@@ -146,6 +155,9 @@ export const DouYinVideoBlock_BottomToolbar_PlayerComponents = {
     });
     Panel.execMenuOnce("shieldBottomVideoToolbar-autoPlay", () => {
       return this.autoPlay();
+    });
+    Panel.execMenuOnce("shieldBottomVideoToolbar-aiNotes", () => {
+      return this.aiNotes();
     });
     Panel.execMenuOnce("shieldBottomVideoToolbar-clearScreen", () => {
       return this.clearScreen();
@@ -194,6 +206,13 @@ export const DouYinVideoBlock_BottomToolbar_PlayerComponents = {
     // .basePlayerContainer > div.danmu
     log.info("【屏蔽】底部视频工具栏的弹幕容器");
     return [CommonUtil.addBlockCSS('xg-controls xg-inner-controls .danmakuContainer[data-e2e="danmaku-container"]')];
+  },
+  /**
+   * 【屏蔽】AI笔记
+   */
+  aiNotes() {
+    log.info(`【屏蔽】AI笔记`);
+    return [CommonUtil.addBlockCSS('.ai-note-container[data-e2e="ai-note-container"]')];
   },
   /**
    * 【屏蔽】连播
@@ -253,6 +272,9 @@ export const DouYinVideoBlock_BottomToolbar_PlayerComponents = {
   },
 };
 
+/**
+ * 右侧工具栏
+ */
 export const DouYinVideoBlock_RightToolbar = {
   init() {
     Panel.execMenuOnce("shieldPlaySwitchButton", () => {
@@ -441,6 +463,9 @@ export const DouYinVideoBlock_RightToolbar = {
     ];
   },
 };
+/**
+ * 总屏蔽
+ */
 export const DouYinVideoBlock = {
   init() {
     Panel.execMenuOnce("shieldRightExpandCommentButton", () => {

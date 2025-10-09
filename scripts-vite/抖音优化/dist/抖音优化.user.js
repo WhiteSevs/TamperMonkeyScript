@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.8.16
+// @version      2025.10.9
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -2982,6 +2982,9 @@
       Panel.execMenuOnce("shieldBottomVideoToolbar-autoPlay", () => {
         return this.autoPlay();
       });
+      Panel.execMenuOnce("shieldBottomVideoToolbar-aiNotes", () => {
+        return this.aiNotes();
+      });
       Panel.execMenuOnce("shieldBottomVideoToolbar-clearScreen", () => {
         return this.clearScreen();
       });
@@ -3022,6 +3025,10 @@
     shieldBottomVideoToolbarDanmuContainer() {
       log.info("【屏蔽】底部视频工具栏的弹幕容器");
       return [CommonUtil.addBlockCSS('xg-controls xg-inner-controls .danmakuContainer[data-e2e="danmaku-container"]')];
+    },
+    aiNotes() {
+      log.info(`【屏蔽】AI笔记`);
+      return [CommonUtil.addBlockCSS('.ai-note-container[data-e2e="ai-note-container"]')];
     },
     autoPlay() {
       log.info(`【屏蔽】连播`);
@@ -10517,6 +10524,7 @@
                     void 0,
                     "屏蔽元素（不包括屏蔽弹幕）"
                   ),
+                  UISwitch("【屏蔽】AI笔记", "shieldBottomVideoToolbar-aiNotes", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】连播", "shieldBottomVideoToolbar-autoPlay", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】清屏", "shieldBottomVideoToolbar-clearScreen", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】清晰度", "shieldBottomVideoToolbar-playclarity", false, void 0, "屏蔽元素"),
