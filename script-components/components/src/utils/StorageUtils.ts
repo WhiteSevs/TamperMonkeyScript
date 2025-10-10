@@ -8,12 +8,13 @@ import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 type ListenerData = {
   id: number;
   key: string;
-  callback: (key: string, oldValue: any, newValue: any) => void;
+  callback: (key: string, oldValue: any, newValue: any) => IPromise<void>;
 };
 
 export class StorageUtils {
   /** 存储的键名 */
   storageKey: string;
+  /** 监听的数据 */
   private listenerData: UtilsDictionary<string, ListenerData[]>;
   /**
    * 存储的键名，可以是多层的，如：a.b.c
@@ -32,7 +33,7 @@ export class StorageUtils {
    */
   constructor(key: string) {
     if (typeof key === "string") {
-      let trimKey = key.trim();
+      const trimKey = key.trim();
       if (trimKey == "") {
         throw new Error("key参数不能为空字符串");
       }
@@ -41,6 +42,19 @@ export class StorageUtils {
       throw new Error("key参数类型错误，必须是字符串");
     }
     this.listenerData = new utils.Dictionary();
+
+    this.getLocalValue = this.getLocalValue.bind(this);
+    this.set = this.set.bind(this);
+    this.get = this.get.bind(this);
+    this.getAll = this.getAll.bind(this);
+    this.delete = this.delete.bind(this);
+    this.has = this.has.bind(this);
+    this.keys = this.keys.bind(this);
+    this.values = this.values.bind(this);
+    this.clear = this.clear.bind(this);
+    this.addValueChangeListener = this.addValueChangeListener.bind(this);
+    this.removeValueChangeListener = this.removeValueChangeListener.bind(this);
+    this.triggerValueChangeListener = this.triggerValueChangeListener.bind(this);
   }
   /**
    * 获取本地值
@@ -66,8 +80,8 @@ export class StorageUtils {
    * @param value 值
    */
   set(key: string, value: any) {
-    let oldValue = this.get(key);
-    let localValue = this.getLocalValue();
+    const oldValue = this.get(key);
+    const localValue = this.getLocalValue();
     Reflect.set(localValue, key, value);
     this.setLocalValue(localValue);
     this.triggerValueChangeListener(key, oldValue, value);
@@ -78,14 +92,14 @@ export class StorageUtils {
    * @param defaultValue 默认值
    */
   get<T>(key: string, defaultValue?: T): T {
-    let localValue = this.getLocalValue();
+    const localValue = this.getLocalValue();
     return Reflect.get(localValue, key) ?? defaultValue;
   }
   /**
    * 获取所有值
    */
   getAll<T = any>(): T {
-    let localValue = this.getLocalValue();
+    const localValue = this.getLocalValue();
     return localValue;
   }
   /**
@@ -93,8 +107,8 @@ export class StorageUtils {
    * @param key 键
    */
   delete(key: string) {
-    let oldValue = this.get(key);
-    let localValue = this.getLocalValue();
+    const oldValue = this.get(key);
+    const localValue = this.getLocalValue();
     Reflect.deleteProperty(localValue, key);
     this.setLocalValue(localValue);
     this.triggerValueChangeListener(key, oldValue, void 0);
@@ -103,21 +117,21 @@ export class StorageUtils {
    * 判断是否存在该值
    */
   has(key: string) {
-    let localValue = this.getLocalValue();
+    const localValue = this.getLocalValue();
     return Reflect.has(localValue, key);
   }
   /**
    * 获取所有键
    */
   keys() {
-    let localValue = this.getLocalValue();
+    const localValue = this.getLocalValue();
     return Reflect.ownKeys(localValue);
   }
   /**
    * 获取所有值
    */
   values() {
-    let localValue = this.getLocalValue();
+    const localValue = this.getLocalValue();
     return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
   }
   /**
@@ -134,8 +148,8 @@ export class StorageUtils {
    * @param callback 值改变的回调函数
    */
   addValueChangeListener(key: string, callback: <T>(key: string, newValue: T, oldValue: T) => void) {
-    let listenerId = Math.random();
-    let listenerData = this.listenerData.get(key) || [];
+    const listenerId = Math.random();
+    const listenerData = this.listenerData.get(key) || [];
     listenerData.push({
       id: listenerId,
       key,
@@ -172,7 +186,9 @@ export class StorageUtils {
    * @param oldValue （可选）旧值
    * @param newValue （可选）新值
    */
-  triggerValueChangeListener(key: string, oldValue?: any, newValue?: any) {
+  triggerValueChangeListener(key: string, oldValue?: any, newValue?: any): Promise<void>;
+  async triggerValueChangeListener(...args: any[]) {
+    const [key, oldValue, newValue] = args;
     if (!this.listenerData.has(key)) {
       return;
     }
@@ -183,17 +199,17 @@ export class StorageUtils {
         let value = this.get<any>(key);
         let __newValue;
         let __oldValue;
-        if (typeof oldValue !== "undefined" && arguments.length >= 2) {
+        if (typeof oldValue !== "undefined" && args.length >= 2) {
           __oldValue = oldValue;
         } else {
           __oldValue = value;
         }
-        if (typeof newValue !== "undefined" && arguments.length > 2) {
+        if (typeof newValue !== "undefined" && args.length > 2) {
           __newValue = newValue;
         } else {
           __newValue = value;
         }
-        data.callback(key, __oldValue, __newValue);
+        await data.callback(key, __oldValue, __newValue);
       }
     }
   }
