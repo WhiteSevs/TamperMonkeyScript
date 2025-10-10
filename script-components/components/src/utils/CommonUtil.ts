@@ -86,11 +86,11 @@ export const CommonUtil = {
     /** 使用@resource引用的地址 */
     url: string;
   }) {
-    let cssText = typeof GM_getResourceText === "function" ? GM_getResourceText(resourceMapData.keyName) : null;
+    const cssText = typeof GM_getResourceText === "function" ? GM_getResourceText(resourceMapData.keyName) : null;
     if (typeof cssText === "string" && cssText) {
-      addStyle(cssText);
+      return addStyle(cssText);
     } else {
-      CommonUtil.loadStyleLink(resourceMapData.url);
+      return CommonUtil.loadStyleLink(resourceMapData.url);
     }
   },
   /**
@@ -104,8 +104,11 @@ export const CommonUtil = {
     $link.rel = "stylesheet";
     $link.type = "text/css";
     $link.href = url;
-    DOMUtils.ready(() => {
-      document.head.appendChild($link);
+    return new Promise<HTMLLinkElement>((resolve) => {
+      DOMUtils.ready(() => {
+        document.head.appendChild($link);
+        resolve($link);
+      });
     });
   },
   /**
