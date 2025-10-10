@@ -34,7 +34,7 @@ export class ViteUtils {
      */
   assign<T, U>(target1: T, target2: U, isAdd: boolean): T & U {
     if (target2 == null) {
-      return target1;
+      return target1 as T & U;
     }
     const that = this;
     const result: any = { ...target1 };
@@ -594,14 +594,14 @@ export async function GetLib(libName: (keyof typeof LIB_MAP)[] | keyof typeof LI
   const ResourceList: string[] = [];
   // if (process.env.NODE_ENV === "development") {
   if (false) {
-    for (const needLibName of needLib) {
-      let item = LIB_MAP[needLibName];
-      if (item) {
-        ResourceList.push(item.localPath);
-      } else {
-        console.warn(`${needLibName} is not found in LIB_MAP`);
-      }
-    }
+    // for (const needLibName of needLib) {
+    //   let item = LIB_MAP[needLibName];
+    //   if (item) {
+    //     ResourceList.push(item.localPath);
+    //   } else {
+    //     console.warn(`${needLibName} is not found in LIB_MAP`);
+    //   }
+    // }
   } else {
     for (const needLibName of needLib) {
       let item = LIB_MAP[needLibName];
