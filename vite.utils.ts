@@ -314,7 +314,7 @@ export class ViteUtils {
     } catch (error) {
       /* 版本号文件不存在 */
     }
-    fs.writeFileSync(SCRIPT_VERSION_PATH, JSON.stringify(versionInfo, null, 2), {
+    fs.writeFileSync(SCRIPT_VERSION_PATH, JSON.stringify(versionInfo, null, 2) + "\n", {
       encoding: "utf-8",
     });
     console.log("脚本构建的版本号: " + versionInfo.version);
