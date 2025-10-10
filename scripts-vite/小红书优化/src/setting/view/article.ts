@@ -1,4 +1,4 @@
-import { log } from "@/env";
+import { $, log } from "@/env";
 import { UISlider } from "@components/setting/components/ui-slider";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
@@ -38,7 +38,7 @@ const SettingUI_Article: PopsPanelContentConfig = {
           30,
           100,
           (event, value) => {
-            let $noteContainer = document.querySelector<HTMLDivElement>("#noteContainer");
+            let $noteContainer = $<HTMLDivElement>("#noteContainer");
             if (!$noteContainer) {
               log.error("未找到笔记容器");
               return;

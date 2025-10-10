@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.28
+// @version      2025.10.10
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -9,9 +9,9 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://www.xiaohongshu.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
@@ -119,7 +119,7 @@
     listenerData;
     constructor(key) {
       if (typeof key === "string") {
-        let trimKey = key.trim();
+        const trimKey = key.trim();
         if (trimKey == "") {
           throw new Error("key参数不能为空字符串");
         }
@@ -128,6 +128,18 @@
         throw new Error("key参数类型错误，必须是字符串");
       }
       this.listenerData = new Utils.Dictionary();
+      this.getLocalValue = this.getLocalValue.bind(this);
+      this.set = this.set.bind(this);
+      this.get = this.get.bind(this);
+      this.getAll = this.getAll.bind(this);
+      this.delete = this.delete.bind(this);
+      this.has = this.has.bind(this);
+      this.keys = this.keys.bind(this);
+      this.values = this.values.bind(this);
+      this.clear = this.clear.bind(this);
+      this.addValueChangeListener = this.addValueChangeListener.bind(this);
+      this.removeValueChangeListener = this.removeValueChangeListener.bind(this);
+      this.triggerValueChangeListener = this.triggerValueChangeListener.bind(this);
     }
     getLocalValue() {
       let localValue = _GM_getValue(this.storageKey);
@@ -141,45 +153,45 @@
       _GM_setValue(this.storageKey, value);
     }
     set(key, value) {
-      let oldValue = this.get(key);
-      let localValue = this.getLocalValue();
+      const oldValue = this.get(key);
+      const localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, value);
     }
     get(key, defaultValue) {
-      let localValue = this.getLocalValue();
+      const localValue = this.getLocalValue();
       return Reflect.get(localValue, key) ?? defaultValue;
     }
     getAll() {
-      let localValue = this.getLocalValue();
+      const localValue = this.getLocalValue();
       return localValue;
     }
     delete(key) {
-      let oldValue = this.get(key);
-      let localValue = this.getLocalValue();
+      const oldValue = this.get(key);
+      const localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, void 0);
     }
     has(key) {
-      let localValue = this.getLocalValue();
+      const localValue = this.getLocalValue();
       return Reflect.has(localValue, key);
     }
     keys() {
-      let localValue = this.getLocalValue();
+      const localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue);
     }
     values() {
-      let localValue = this.getLocalValue();
+      const localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
     }
     clear() {
       _GM_deleteValue(this.storageKey);
     }
     addValueChangeListener(key, callback) {
-      let listenerId = Math.random();
-      let listenerData = this.listenerData.get(key) || [];
+      const listenerId = Math.random();
+      const listenerData = this.listenerData.get(key) || [];
       listenerData.push({
         id: listenerId,
         key,
@@ -206,7 +218,8 @@
       }
       return flag;
     }
-    triggerValueChangeListener(key, oldValue, newValue) {
+    async triggerValueChangeListener(...args) {
+      const [key, oldValue, newValue] = args;
       if (!this.listenerData.has(key)) {
         return;
       }
@@ -217,17 +230,17 @@
           let value = this.get(key);
           let __newValue;
           let __oldValue;
-          if (typeof oldValue !== "undefined" && arguments.length >= 2) {
+          if (typeof oldValue !== "undefined" && args.length >= 2) {
             __oldValue = oldValue;
           } else {
             __oldValue = value;
           }
-          if (typeof newValue !== "undefined" && arguments.length > 2) {
+          if (typeof newValue !== "undefined" && args.length > 2) {
             __newValue = newValue;
           } else {
             __newValue = value;
           }
-          data.callback(key, __oldValue, __newValue);
+          await data.callback(key, __oldValue, __newValue);
         }
       }
     }
@@ -242,6 +255,7 @@
         }
         return this.__contentConfig;
       },
+      __defaultBottomContentConfig: [],
     },
     addContentConfig(configList) {
       if (!Array.isArray(configList)) {
@@ -257,6 +271,9 @@
       return this.$data.contentConfig.get(index) ?? [];
     },
     getDefaultBottomContentConfig() {
+      if (this.$data.__defaultBottomContentConfig.length) {
+        return this.$data.__defaultBottomContentConfig;
+      }
       return [
         {
           id: "script-version",
@@ -272,6 +289,9 @@
           },
         },
       ];
+    },
+    setDefaultBottomContentConfig(config) {
+      this.$data.__defaultBottomContentConfig = config;
     },
   };
   const PanelMenu = {
@@ -378,11 +398,11 @@
       return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
     setGMResourceCSS(resourceMapData) {
-      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
+      const cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
       if (typeof cssText === "string" && cssText) {
-        addStyle(cssText);
+        return addStyle(cssText);
       } else {
-        CommonUtil.loadStyleLink(resourceMapData.url);
+        return CommonUtil.loadStyleLink(resourceMapData.url);
       }
     },
     async loadStyleLink(url) {
@@ -390,8 +410,11 @@
       $link.rel = "stylesheet";
       $link.type = "text/css";
       $link.href = url;
-      DOMUtils.ready(() => {
-        document.head.appendChild($link);
+      return new Promise((resolve) => {
+        DOMUtils.ready(() => {
+          document.head.appendChild($link);
+          resolve($link);
+        });
       });
     },
     async loadScript(url) {
@@ -637,7 +660,8 @@
         if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
           return;
         }
-        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
+        const attributes = config.attributes;
+        let __attr_init__ = attributes[ATTRIBUTE_INIT];
         if (typeof __attr_init__ === "function") {
           let __attr_result__ = __attr_init__();
           if (typeof __attr_result__ === "boolean" && !__attr_result__) {
@@ -645,12 +669,12 @@
           }
         }
         let menuDefaultConfig = new Map();
-        let key = config.attributes[ATTRIBUTE_KEY];
+        let key = attributes[ATTRIBUTE_KEY];
         if (key != null) {
-          const defaultValue = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+          const defaultValue = attributes[ATTRIBUTE_DEFAULT_VALUE];
           menuDefaultConfig.set(key, defaultValue);
         }
-        let moreMenuDefaultConfig = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
+        let moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
         if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
           Object.keys(moreMenuDefaultConfig).forEach((key2) => {
             menuDefaultConfig.set(key2, moreMenuDefaultConfig[key2]);
@@ -742,7 +766,7 @@
         queryKeyFn = queryKey;
       }
       let isArrayKey = false;
-      let queryKeyResult = queryKeyFn();
+      const queryKeyResult = queryKeyFn();
       let keyList = [];
       if (Array.isArray(queryKeyResult)) {
         isArrayKey = true;
@@ -750,50 +774,85 @@
       } else {
         keyList.push(queryKeyResult);
       }
-      let findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
+      const findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
       if (findNotInDataKey) {
         log.warn(`${findNotInDataKey} 键不存在`);
         return;
       }
-      let storageKey = JSON.stringify(keyList);
+      const storageKey = JSON.stringify(keyList);
       if (once) {
         if (this.$data.onceExecMenuData.has(storageKey)) {
           return this.$data.onceExecMenuData.get(storageKey);
         }
       }
       let storeValueList = [];
-      let listenerIdList = [];
-      let dynamicAddStyleNodeCallback = (value, $style) => {
-        let dynamicResultList = [];
-        if (!Array.isArray($style)) {
-          $style = [$style];
+      const listenerIdList = [];
+      let destoryFnList = [];
+      const addStoreValueCallback = (enableValue, args) => {
+        let dynamicMenuStoreValueList = [];
+        let dynamicDestoryFnList = [];
+        let resultValueList = [];
+        if (Array.isArray(args)) {
+          resultValueList = resultValueList.concat(args);
+        } else {
+          if (typeof args === "object" && args != null) {
+            const { $css, destory } = args;
+            if ($css != null) {
+              if (Array.isArray($css)) {
+                resultValueList = resultValueList.concat($css);
+              } else {
+                resultValueList.push($css);
+              }
+            }
+            if (typeof destory === "function") {
+              resultValueList.push(destory);
+            }
+          } else {
+            resultValueList.push(args);
+          }
         }
-        $style.forEach(($styleItem) => {
-          if ($styleItem == null) {
-            return;
+        for (const it of resultValueList) {
+          if (it == null) {
+            continue;
           }
-          if ($styleItem instanceof HTMLStyleElement) {
-            dynamicResultList.push($styleItem);
-            return;
+          if (it instanceof Element) {
+            dynamicMenuStoreValueList.push(it);
+            continue;
           }
-        });
-        {
-          storeValueList = storeValueList.concat(dynamicResultList);
+          if (typeof it === "function") {
+            destoryFnList.push(it);
+            continue;
+          }
+        }
+        if (enableValue) {
+          storeValueList = storeValueList.concat(dynamicMenuStoreValueList);
+          destoryFnList = destoryFnList.concat(dynamicDestoryFnList);
+        } else {
+          execClearStoreStyleElements();
+          execDestory();
         }
       };
-      let getMenuValue = (key) => {
-        let value = this.getValue(key);
+      const getMenuValue = (key) => {
+        const value = this.getValue(key);
         return value;
       };
-      let clearBeforeStoreValue = () => {
+      const execClearStoreStyleElements = () => {
         for (let index = 0; index < storeValueList.length; index++) {
-          let $css = storeValueList[index];
-          $css.remove();
+          const $css = storeValueList[index];
+          $css?.remove();
           storeValueList.splice(index, 1);
           index--;
         }
       };
-      let checkMenuExec = () => {
+      const execDestory = () => {
+        for (let index = 0; index < destoryFnList.length; index++) {
+          const destoryFnItem = destoryFnList[index];
+          destoryFnItem();
+          destoryFnList.splice(index, 1);
+          index--;
+        }
+      };
+      const checkMenuExec = () => {
         let flag = false;
         if (typeof checkExec === "function") {
           flag = checkExec(keyList);
@@ -802,57 +861,52 @@
         }
         return flag;
       };
-      let valueChangeCallback = (valueOption) => {
-        let execFlag = checkMenuExec();
-        let resultList = [];
+      const valueChangeCallback = (valueOption) => {
+        const execFlag = checkMenuExec();
         if (execFlag) {
-          let valueList = keyList.map((key) => this.getValue(key));
-          let callbackResult = callback({
+          const valueList = keyList.map((key) => this.getValue(key));
+          const callbackResult = callback({
             value: isArrayKey ? valueList : valueList[0],
-            addStyleElement: (...args) => {
-              return dynamicAddStyleNodeCallback(true, ...args);
+            addStoreValue: (...args) => {
+              return addStoreValueCallback(true, args);
             },
           });
-          if (!Array.isArray(callbackResult)) {
-            callbackResult = [callbackResult];
-          }
-          callbackResult.forEach((it) => {
-            if (it == null) {
-              return;
-            }
-            if (it instanceof HTMLStyleElement) {
-              resultList.push(it);
-              return;
-            }
-          });
+          addStoreValueCallback(true, callbackResult);
+        } else {
+          addStoreValueCallback(false, []);
         }
-        clearBeforeStoreValue();
-        storeValueList = [...resultList];
       };
       once &&
         keyList.forEach((key) => {
-          let listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
+          const listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
             valueChangeCallback();
           });
           listenerIdList.push(listenerId);
         });
       valueChangeCallback();
-      let result = {
+      const result = {
         reload() {
           valueChangeCallback();
         },
         clear() {
           this.clearStoreStyleElements();
+          this.destory();
           this.removeValueChangeListener();
-          once && that.$data.onceExecMenuData.delete(storageKey);
+          this.clearOnceExecMenuData();
         },
         clearStoreStyleElements: () => {
-          return clearBeforeStoreValue();
+          return execClearStoreStyleElements();
+        },
+        destory() {
+          return execDestory();
         },
         removeValueChangeListener: () => {
           listenerIdList.forEach((listenerId) => {
             this.removeValueChangeListener(listenerId);
           });
+        },
+        clearOnceExecMenuData() {
+          once && that.$data.onceExecMenuData.delete(storageKey);
         },
       };
       this.$data.onceExecMenuData.set(storageKey, result);
@@ -865,9 +919,9 @@
           return callback(option);
         },
         (keyList) => {
-          let execFlag = keyList.every((__key__) => {
+          const execFlag = keyList.every((__key__) => {
             let flag = !!this.getValue(__key__);
-            let disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
+            const disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
             if (disabled) {
               flag = false;
               log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
@@ -1532,7 +1586,7 @@
     setTimeout: _unsafeWindow.setTimeout,
   });
   const addStyle = domUtils.addStyle.bind(domUtils);
-  DOMUtils.selector.bind(DOMUtils);
+  const $ = DOMUtils.selector.bind(DOMUtils);
   const $$ = DOMUtils.selectorAll.bind(DOMUtils);
   new utils.GM_Cookie();
   const _SCRIPT_NAME_ = SCRIPT_NAME || "小红书优化";
@@ -2140,7 +2194,7 @@
         return M_XHSArticleBlock.blockBottomToorBar();
       });
       Panel.execMenuOnce("little-red-book-optimizeImageBrowsing", () => {
-        M_XHSArticle.optimizeImageBrowsing();
+        return M_XHSArticle.optimizeImageBrowsing();
       });
       Panel.execMenuOnce("little-red-book-optimizeVideoNoteDesc", () => {
         return M_XHSArticleVideo.optimizeVideoNoteDesc();
@@ -2353,115 +2407,115 @@
       };
       domUtils.waitNode(".narmal-note-container").then(async () => {
         log.info("优化评论浏览-笔记元素出现");
-        let noteViewContainer = document.querySelector(".note-view-container");
+        let noteViewContainer = $(".note-view-container");
         let commentContainer = domUtils.createElement("div", {
           className: "little-red-book-comments-container",
           innerHTML: `
-                <style>
-                    .little-red-book-comments-parent {
-                        position: relative;
-                        display: flex;
-                        padding: 8px;
-                        width: 100%;
-                    }
-                    
-                    .little-red-book-comments-reply-container {
-                        position: relative;
-                        display: flex;
-                        padding: 8px;
-                        width: 100%;
-                        padding-left: 52px;
-                    }
-                    .little-red-book-comments-container {
-                        background: #fff;
-                        position: relative;
-                        padding: 8px 8px;
-                    }
-                    
-                    .little-red-book-comments-item {
-                        position: relative;
-                    }
-                    
-                    .little-red-book-comments-avatar {
-                        flex: 0 0 auto;
-                    }
-                    
-                    .little-red-book-comments-avatar img {
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        cursor: pointer;
-                        border-radius: 100%;
-                        border: 1px solid rgba(0,0,0,0.08);
-                        object-fit: cover;
-                        width: 40px;
-                        height: 40px;
-                    }
-                    .little-red-book-comments-content-wrapper {
-                        margin-left: 12px;
-                        display: flex;
-                        flex-direction: column;
-                        font-size: 14px;
-                        flex-grow: 1;
-                    }
-                    
-                    .little-red-book-comments-author {display: flex;justify-content: space-between;align-items: center;}
-                    
-                    a.little-red-book-comments-author-name {
-                        line-height: 18px;
-                        color: rgba(51,51,51,0.6);
-                    }
-                    
-                    .little-red-book-comments-content {
-                        margin-top: 4px;
-                        line-height: 140%;
-                        color: #333;
-                    }
-                    
-                    .little-red-book-comments-info {
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: space-between;
-                        font-size: 12px;
-                        line-height: 16px;
-                        color: rgba(51,51,51,0.6);
-                    }
-                    
-                    .little-red-book-comments-info-date {
-                        margin: 8px 0;
-                    }
-                    
-                    span.little-red-book-comments-location {
-                        margin-left: 4px;
-                        line-height: 120%;
-                    }
-                    img.little-red-book-note-content-emoji {
-                        margin: 0 1px;
-                        height: 16px;
-                        transform: translateY(2px);
-                        position: relative;
-                    }
-                    .little-red-book-comments-reply-container .little-red-book-comments-avatar img {
-                        width: 24px;
-                        height: 24px;
-                    }
-                    .little-red-book-comments-total{
-                        font-size: 14px;
-                        color: rgba(51,51,51,0.6);
-                        margin-left: 8px;
-                        margin-bottom: 12px;
-                    }
-                    .little-red-book-comments-reply-show-more {
-                    padding-left: calc(52px + 24px + 12px);
-                    height: 32px;
-                    line-height: 32px;
-                    color: #13386c;
-                    cursor: pointer;
-                    font-weight: 500;
-                    font-size: 14px;
-                    }
-                </style>
-          `,
+          <style>
+              .little-red-book-comments-parent {
+                  position: relative;
+                  display: flex;
+                  padding: 8px;
+                  width: 100%;
+              }
+              
+              .little-red-book-comments-reply-container {
+                  position: relative;
+                  display: flex;
+                  padding: 8px;
+                  width: 100%;
+                  padding-left: 52px;
+              }
+              .little-red-book-comments-container {
+                  background: #fff;
+                  position: relative;
+                  padding: 8px 8px;
+              }
+              
+              .little-red-book-comments-item {
+                  position: relative;
+              }
+              
+              .little-red-book-comments-avatar {
+                  flex: 0 0 auto;
+              }
+              
+              .little-red-book-comments-avatar img {
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  cursor: pointer;
+                  border-radius: 100%;
+                  border: 1px solid rgba(0,0,0,0.08);
+                  object-fit: cover;
+                  width: 40px;
+                  height: 40px;
+              }
+              .little-red-book-comments-content-wrapper {
+                  margin-left: 12px;
+                  display: flex;
+                  flex-direction: column;
+                  font-size: 14px;
+                  flex-grow: 1;
+              }
+              
+              .little-red-book-comments-author {display: flex;justify-content: space-between;align-items: center;}
+              
+              a.little-red-book-comments-author-name {
+                  line-height: 18px;
+                  color: rgba(51,51,51,0.6);
+              }
+              
+              .little-red-book-comments-content {
+                  margin-top: 4px;
+                  line-height: 140%;
+                  color: #333;
+              }
+              
+              .little-red-book-comments-info {
+                  display: flex;
+                  flex-direction: column;
+                  justify-content: space-between;
+                  font-size: 12px;
+                  line-height: 16px;
+                  color: rgba(51,51,51,0.6);
+              }
+              
+              .little-red-book-comments-info-date {
+                  margin: 8px 0;
+              }
+              
+              span.little-red-book-comments-location {
+                  margin-left: 4px;
+                  line-height: 120%;
+              }
+              img.little-red-book-note-content-emoji {
+                  margin: 0 1px;
+                  height: 16px;
+                  transform: translateY(2px);
+                  position: relative;
+              }
+              .little-red-book-comments-reply-container .little-red-book-comments-avatar img {
+                  width: 24px;
+                  height: 24px;
+              }
+              .little-red-book-comments-total{
+                  font-size: 14px;
+                  color: rgba(51,51,51,0.6);
+                  margin-left: 8px;
+                  margin-bottom: 12px;
+              }
+              .little-red-book-comments-reply-show-more {
+              padding-left: calc(52px + 24px + 12px);
+              height: 32px;
+              line-height: 32px;
+              color: #13386c;
+              cursor: pointer;
+              font-weight: 500;
+              font-size: 14px;
+              }
+          </style>
+        `,
         });
         Comments.commentContainer = commentContainer;
         Comments.init();
@@ -2482,7 +2536,6 @@
     },
     optimizeImageBrowsing() {
       log.info("优化图片浏览");
-      CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer);
       function viewIMG(imgSrcList = [], index = 0) {
         let viewerULNodeHTML = "";
         imgSrcList.forEach((item) => {
@@ -2504,13 +2557,12 @@
         viewer.zoomTo(1);
         viewer.show();
       }
-      domUtils.on(document, "click", ".note-image-box", function (event) {
-        let clickElement = event.target;
-        let imgElement = clickElement.querySelector("img");
+      const callback = (event, $click) => {
+        let imgElement = $click.querySelector("img");
         let imgList = [];
         let imgBoxList = [];
-        if (clickElement.closest(".onix-carousel-item")) {
-          imgBoxList = Array.from(clickElement.closest(".onix-carousel-item").parentElement.querySelectorAll("img"));
+        if ($click.closest(".onix-carousel-item")) {
+          imgBoxList = Array.from($click.closest(".onix-carousel-item").parentElement.querySelectorAll("img"));
         } else {
           imgBoxList = [imgElement];
         }
@@ -2525,54 +2577,61 @@
         });
         log.success(["点击浏览图片👉", imgList[index]]);
         viewIMG(imgList, index);
-      });
+      };
+      domUtils.on(document, "click", ".note-image-box", callback);
+      return [
+        CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer),
+        () => {
+          domUtils.off(document, "click", ".note-image-box", callback);
+        },
+      ];
     },
   };
   const M_XHSHome = {
     init() {
       domUtils.ready(() => {
         Panel.execMenuOnce("little-red-book-repariClick", () => {
-          M_XHSHome.repariClick();
+          return M_XHSHome.repariClick();
         });
       });
     },
     repariClick() {
       log.info("修复正确的点击跳转");
-      domUtils.on(
-        document,
-        "click",
-        void 0,
-        function (event) {
-          let clickElement = event.target;
-          log.info(["点击的按钮元素", clickElement]);
-          if (clickElement?.className?.includes("follow-btn")) {
-            log.success("点击-关注按钮");
-          } else if (clickElement?.closest("button.reds-button.message-btn")) {
-            log.success("点击-私信按钮");
-          } else if (clickElement?.closest("div.reds-tab-item")) {
-            log.success("点击-笔记/收藏按钮");
-          } else if (clickElement?.closest("section.reds-note-card")) {
-            log.success("点击-笔记卡片");
-            let sectionElement = clickElement?.closest("section.reds-note-card");
-            let note_id =
-              sectionElement.getAttribute("id") ||
-              utils.toJSON(sectionElement.getAttribute("impression"))?.["noteTarget"]?.["value"]?.["noteId"];
-            if (note_id) {
-              window.open(
-                `https://www.xiaohongshu.com/discovery/item/${clickElement?.closest("section.reds-note-card")?.getAttribute("id")}`,
-                "_blank"
-              );
-            } else {
-              Qmsg.error("获取笔记note_id失败");
-            }
+      const callback = (event) => {
+        let $click = event.target;
+        log.info(["点击的按钮元素", $click]);
+        if ($click?.className?.includes("follow-btn")) {
+          log.success("点击-关注按钮");
+        } else if ($click?.closest("button.reds-button.message-btn")) {
+          log.success("点击-私信按钮");
+        } else if ($click?.closest("div.reds-tab-item")) {
+          log.success("点击-笔记/收藏按钮");
+        } else if ($click?.closest("section.reds-note-card")) {
+          log.success("点击-笔记卡片");
+          let sectionElement = $click?.closest("section.reds-note-card");
+          let note_id =
+            sectionElement.getAttribute("id") ||
+            utils.toJSON(sectionElement.getAttribute("impression"))?.["noteTarget"]?.["value"]?.["noteId"];
+          if (note_id) {
+            window.open(
+              `https://www.xiaohongshu.com/discovery/item/${$click?.closest("section.reds-note-card")?.getAttribute("id")}`,
+              "_blank"
+            );
+          } else {
+            Qmsg.error("获取笔记note_id失败");
           }
-          domUtils.preventEvent(event);
-          return false;
-        },
-        {
-          capture: true,
         }
-      );
+        domUtils.preventEvent(event);
+        return false;
+      };
+      domUtils.on(document, "click", callback, {
+        capture: true,
+      });
+      return [
+        () => {
+          domUtils.off(document, "click", callback, { capture: true });
+        },
+      ];
     },
   };
   const M_XHS = {
@@ -2616,26 +2675,32 @@
       });
       domUtils.ready(() => {
         Panel.execMenuOnce("pc-xhs-shield-login-dialog", () => {
-          this.blockLoginContainer();
+          return this.blockLoginContainer();
         });
       });
     },
     blockLoginContainer() {
       log.info("添加屏蔽登录弹窗CSS，监听登录弹窗出现");
-      CommonUtil.addBlockCSS(".login-container");
-      utils.mutationObserver(document.body, {
+      const observer = utils.mutationObserver(document.body, {
         config: {
           subtree: true,
           childList: true,
         },
+        immediate: true,
         callback: () => {
-          let $close = document.querySelector(".login-container .icon-btn-wrapper");
+          let $close = $(".login-container .icon-btn-wrapper");
           if ($close) {
             $close.click();
-            log.success("登录弹窗出现，关闭");
+            log.success("登录弹窗出现，自动点击关闭按钮");
           }
         },
       });
+      return [
+        CommonUtil.addBlockCSS(".login-container"),
+        () => {
+          observer?.disconnect();
+        },
+      ];
     },
     blockSelectTextVisibleSearchPosition() {
       log.info("屏蔽选择文字弹出的搜索提示");
@@ -2865,6 +2930,24 @@
       if (Panel.getValue("pc-xhs-search-open-blank-btn") || Panel.getValue("pc-xhs-search-open-blank-keyboard-enter")) {
         this.optimizationSearch();
       }
+      Panel.exec(
+        ["pc-xhs-search-open-blank-btn", "pc-xhs-search-open-blank-keyboard-enter"],
+        () => {
+          return this.optimizationSearch();
+        },
+        (keyList) => {
+          const execFlag = keyList.some((__key__) => {
+            let flag = !!Panel.getValue(__key__);
+            let disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
+            if (disabled) {
+              flag = false;
+              log.warn(`.exec ${__key__} 被禁用`);
+            }
+            return flag;
+          });
+          return execFlag;
+        }
+      );
       Panel.execMenuOnce("pc-xhs-article-fullWidth", () => {
         return this.fullWidth();
       });
@@ -2872,7 +2955,7 @@
     optimizationSearch() {
       function blankSearchText(searchText, isBlank = true) {
         {
-          let $searchText = document.querySelector("#search-input");
+          let $searchText = $("#search-input");
           if ($searchText) {
             let searchText2 = $searchText.value;
             let searchUrl = XHSUrlApi.getSearchUrl(searchText2);
@@ -2964,15 +3047,21 @@
           }
         });
       });
-      utils.mutationObserver(document, {
+      const observer = utils.mutationObserver(document, {
         config: {
           subtree: true,
           childList: true,
         },
+        immediate: true,
         callback: () => {
           lockFn.run();
         },
       });
+      return [
+        () => {
+          observer?.disconnect();
+        },
+      ];
     },
   };
   const PanelComponents = {
@@ -3196,7 +3285,7 @@
       this.option = option;
     }
     getAllRule() {
-      let allRules = _GM_getValue(this.option.STORAGE_API_KEY, []);
+      const allRules = _GM_getValue(this.option.STORAGE_API_KEY, []);
       return allRules;
     }
     setAllRule(rules) {
@@ -3206,16 +3295,16 @@
       this.setAllRule([]);
     }
     getRule(uuid) {
-      let allRules = this.getAllRule();
-      let findIndex = allRules.findIndex((item) => item.uuid === uuid);
+      const allRules = this.getAllRule();
+      const findIndex = allRules.findIndex((item) => item.uuid === uuid);
       if (findIndex !== -1) {
-        let rule = allRules[findIndex];
+        const rule = allRules[findIndex];
         return rule;
       }
     }
     setRule(rule) {
-      let allRules = this.getAllRule();
-      let findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
+      const allRules = this.getAllRule();
+      const findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
       let updateFlag = false;
       if (findIndex !== -1) {
         allRules[findIndex] = rule;
@@ -3225,8 +3314,8 @@
       return updateFlag;
     }
     addRule(rule) {
-      let allRules = this.getAllRule();
-      let findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
+      const allRules = this.getAllRule();
+      const findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
       let addFlag = false;
       if (findIndex !== -1);
       else {
@@ -3237,8 +3326,8 @@
       return addFlag;
     }
     updateRule(rule) {
-      let allRules = this.getAllRule();
-      let findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
+      const allRules = this.getAllRule();
+      const findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
       if (findIndex !== -1) {
         allRules[findIndex] = rule;
       } else {
@@ -3247,9 +3336,9 @@
       this.setAllRule(allRules);
     }
     deleteRule(rule) {
-      let allRules = this.getAllRule();
-      let ruleUUID = typeof rule === "string" ? rule : rule.uuid;
-      let findIndex = allRules.findIndex((item) => item.uuid === ruleUUID);
+      const allRules = this.getAllRule();
+      const ruleUUID = typeof rule === "string" ? rule : rule.uuid;
+      const findIndex = allRules.findIndex((item) => item.uuid === ruleUUID);
       if (findIndex !== -1) {
         allRules.splice(findIndex, 1);
         this.setAllRule(allRules);
@@ -3259,7 +3348,7 @@
       }
     }
     importRules(importEndCallBack) {
-      let $alert = __pops.alert({
+      const $alert = __pops.alert({
         title: {
           text: "请选择导入方式",
           position: "center",
@@ -3296,17 +3385,17 @@
                 }
             `,
       });
-      let $local = $alert.$shadowRoot.querySelector(".btn-control[data-mode='local']");
-      let $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
-      let $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
-      let updateRuleToStorage = async (data) => {
+      const $local = $alert.$shadowRoot.querySelector(".btn-control[data-mode='local']");
+      const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
+      const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
+      const updateRuleToStorage = async (data) => {
         let allData = this.getAllRule();
-        let addNewData = [];
-        let repeatData = [];
+        const addNewData = [];
+        const repeatData = [];
         let isRepeat = false;
         for (let index = 0; index < data.length; index++) {
           const dataItem = data[index];
-          let findIndex = allData.findIndex((it) => it.uuid === dataItem.uuid);
+          const findIndex = allData.findIndex((it) => it.uuid === dataItem.uuid);
           if (findIndex !== -1) {
             repeatData.push({
               index: findIndex,
@@ -3317,7 +3406,7 @@
           }
         }
         if (repeatData.length) {
-          let confirmRepeat = await new Promise((resolve) => {
+          const confirmRepeat = await new Promise((resolve) => {
             __pops.alert({
               title: {
                 text: "覆盖规则",
@@ -3359,13 +3448,13 @@
           allData = allData.concat(addNewData);
         }
         this.setAllRule(allData);
-        let message = `共 ${data.length} 条规则，新增 ${addNewData.length} 条，覆盖 ${isRepeat ? repeatData.length : 0} 条`;
+        const message = `共 ${data.length} 条规则，新增 ${addNewData.length} 条，覆盖 ${isRepeat ? repeatData.length : 0} 条`;
         Qmsg.success(message);
         importEndCallBack?.();
       };
-      let importFile = (subscribeText) => {
+      const importFile = (subscribeText) => {
         return new Promise(async (resolve) => {
-          let data = utils.toJSON(subscribeText);
+          const data = utils.toJSON(subscribeText);
           if (!Array.isArray(data)) {
             log.error(data);
             Qmsg.error("导入失败，格式不符合（不是数组）", {
@@ -3388,7 +3477,7 @@
       domUtils.on($local, "click", (event) => {
         domUtils.preventEvent(event);
         $alert.close();
-        let $input = domUtils.createElement("input", {
+        const $input = domUtils.createElement("input", {
           type: "file",
           accept: ".json",
         });
@@ -3396,8 +3485,8 @@
           if (!$input.files?.length) {
             return;
           }
-          let uploadFile = $input.files[0];
-          let fileReader = new FileReader();
+          const uploadFile = $input.files[0];
+          const fileReader = new FileReader();
           fileReader.onload = () => {
             importFile(fileReader.result);
           };
@@ -3408,7 +3497,7 @@
       domUtils.on($network, "click", (event) => {
         domUtils.preventEvent(event);
         $alert.close();
-        let $prompt = __pops.prompt({
+        const $prompt = __pops.prompt({
           title: {
             text: "网络导入",
             position: "center",
@@ -3427,14 +3516,14 @@
             },
             ok: {
               text: "导入",
-              callback: async (eventDetails, event2) => {
-                let url = eventDetails.text;
+              callback: async (details, event2) => {
+                const url = details.text;
                 if (utils.isNull(url)) {
                   Qmsg.error("请填入完整的url");
                   return;
                 }
-                let $loading = Qmsg.loading("正在获取配置...");
-                let response = await httpx.get(url, {
+                const $loading = Qmsg.loading("正在获取配置...");
+                const response = await httpx.get(url, {
                   allowInterceptConfig: false,
                 });
                 $loading.close();
@@ -3443,11 +3532,11 @@
                   Qmsg.error("获取配置失败", { consoleLogContent: true });
                   return;
                 }
-                let flag = await importFile(response.data.responseText);
+                const flag = await importFile(response.data.responseText);
                 if (!flag) {
                   return;
                 }
-                eventDetails.close();
+                details.close();
               },
             },
             cancel: {
@@ -3459,10 +3548,10 @@
           width: PanelUISize.info.width,
           height: "auto",
         });
-        let $promptInput = $prompt.$shadowRoot.querySelector("input");
-        let $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
+        const $promptInput = $prompt.$shadowRoot.querySelector("input");
+        const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
         domUtils.on($promptInput, ["input", "propertychange"], (event2) => {
-          let value = domUtils.val($promptInput);
+          const value = domUtils.val($promptInput);
           if (value === "") {
             domUtils.attr($promptOk, "disabled", "true");
           } else {
@@ -3471,7 +3560,7 @@
         });
         domUtils.listenKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
           if (keyName === "Enter" && otherCodeList.length === 0) {
-            let value = domUtils.val($promptInput);
+            const value = domUtils.val($promptInput);
             if (value !== "") {
               domUtils.trigger($promptOk, "click");
             }
@@ -3482,7 +3571,7 @@
       domUtils.on($clipboard, "click", async (event) => {
         domUtils.preventEvent(event);
         $alert.close();
-        let clipboardInfo = await utils.getClipboardInfo();
+        const clipboardInfo = await utils.getClipboardInfo();
         if (clipboardInfo.error != null) {
           Qmsg.error(clipboardInfo.error.toString());
           return;
@@ -3491,17 +3580,17 @@
           Qmsg.warning("获取到的剪贴板内容为空");
           return;
         }
-        let flag = await importFile(clipboardInfo.content);
+        const flag = await importFile(clipboardInfo.content);
         if (!flag) {
           return;
         }
       });
     }
     exportRules(fileName = "rule.json") {
-      let allRules = this.getAllRule();
-      let blob = new Blob([JSON.stringify(allRules, null, 4)]);
-      let blobUrl = globalThis.URL.createObjectURL(blob);
-      let $a = document.createElement("a");
+      const allRules = this.getAllRule();
+      const blob = new Blob([JSON.stringify(allRules, null, 4)]);
+      const blobUrl = globalThis.URL.createObjectURL(blob);
+      const $a = document.createElement("a");
       $a.href = blobUrl;
       $a.download = fileName;
       $a.click();
@@ -3621,6 +3710,9 @@
   }
   class RuleFilterView {
     option;
+    $data = {
+      isFilteredData: [],
+    };
     constructor(option) {
       this.option = option;
     }
@@ -3675,13 +3767,15 @@
           }
         );
         let execFilterAndCloseDialog = async () => {
+          this.$data.isFilteredData = [];
           let allRuleInfo = await this.option.getAllRuleInfo();
           allRuleInfo.forEach(async (ruleInfo) => {
             let filterResult = await filterOption.filterCallBack(ruleInfo.data);
-            if (!filterResult) {
-              domUtils.hide(ruleInfo.$el, false);
-            } else {
+            if (filterResult) {
               domUtils.show(ruleInfo.$el, false);
+            } else {
+              domUtils.hide(ruleInfo.$el, false);
+              this.$data.isFilteredData.push(ruleInfo.data);
             }
           });
           if (typeof this.option.execFilterCallBack === "function") {
@@ -3702,6 +3796,9 @@
         $fragment.appendChild($button);
       });
       $filterContainer.appendChild($fragment);
+    }
+    getFilteredData() {
+      return this.$data.isFilteredData;
     }
   }
   class RuleView {
@@ -3774,6 +3871,10 @@
                   execFilterCallBack: async () => {
                     domUtils.text($button, "取消过滤");
                     await this.option.bottomControls?.filter?.execFilterCallBack?.();
+                    const isFilteredData = ruleFilterView.getFilteredData();
+                    if (isFilteredData.length) {
+                      domUtils.text($button, `取消过滤(${isFilteredData.length})`);
+                    }
                   },
                   getAllRuleInfo: () => {
                     return getAllRuleElement().map(($el) => {
@@ -3884,6 +3985,7 @@
       });
       let allData = await this.option.data();
       let changeButtonText = false;
+      let isFilteredDataLength = 0;
       for (let index = 0; index < allData.length; index++) {
         let item = allData[index];
         let $ruleItemList = await this.appendRuleItemElement($popsConfirm.$shadowRoot, item);
@@ -3897,11 +3999,12 @@
         if (!isNotFilterFlag) {
           changeButtonText = true;
           domUtils.hide($ruleItemList, false);
+          isFilteredDataLength++;
         }
       }
       if (changeButtonText) {
         let $button = $popsConfirm.$shadowRoot.querySelector(".pops-confirm-btn-cancel span");
-        domUtils.text($button, "取消过滤");
+        domUtils.text($button, `取消过滤${isFilteredDataLength ? `(${isFilteredDataLength})` : ""}`);
       }
     }
     showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
@@ -4824,14 +4927,14 @@
         XHSHook.hookVue();
       });
       Panel.execMenuOnce("pc-xhs-allowCopy", () => {
-        XHS.allowPCCopy();
+        return XHS.allowPCCopy();
       });
       Panel.execMenuOnce("pc-xhs-open-blank-article", () => {
-        XHS.openBlankArticle();
+        return XHS.openBlankArticle();
       });
       XHSBlock.init();
       Panel.execMenuOnce("pc-xhs-article-showPubsliushTime", () => {
-        XHSArticle.transformPublishTime();
+        return XHSArticle.transformPublishTime();
       });
       if (XHSRouter.isArticle()) {
         log.info("Router: 笔记页面");
@@ -4840,53 +4943,50 @@
     },
     allowPCCopy() {
       log.success("允许复制文字");
-      domUtils.on(
-        _unsafeWindow,
-        "copy",
-        void 0,
-        function (event) {
-          domUtils.preventEvent(event);
-          let selectText = _unsafeWindow.getSelection();
-          if (selectText) {
-            utils.copy(selectText.toString());
-          } else {
-            log.error("未选中任何内容");
-          }
-          return false;
-        },
-        {
-          capture: true,
+      const callback = (event) => {
+        domUtils.preventEvent(event);
+        let selectText = _unsafeWindow.getSelection();
+        if (selectText) {
+          utils.copy(selectText.toString());
+        } else {
+          log.error("未选中任何内容");
         }
-      );
+        return false;
+      };
+      domUtils.on(_unsafeWindow, "copy", callback, {
+        capture: true,
+      });
+      return {
+        destory() {
+          domUtils.off(_unsafeWindow, "copy", callback, { capture: true });
+        },
+      };
     },
     openBlankArticle() {
       log.success("新标签页打开文章");
-      domUtils.on(
-        document,
-        "click",
-        ".feeds-container .note-item",
-        function (event) {
-          domUtils.preventEvent(event);
-          let $click = event.target;
-          let $url = $click.querySelector("a.cover[href]");
-          let url = $url?.href;
-          if (url) {
-            log.info("跳转文章: " + url);
-            let urlInstance = new URL(url);
-            urlInstance.pathname = urlInstance.pathname.replace(
-              /^\/user\/profile\/[a-z0-9A-Z]+\//i,
-              "/discovery/item/"
-            );
-            url = urlInstance.toString();
-            window.open(url, "_blank");
-          } else {
-            Qmsg.error("未找到文章链接");
-          }
-        },
-        {
-          capture: true,
+      let callback = (event, $click) => {
+        if (!Panel.getValue("pc-xhs-open-blank-article")) return;
+        domUtils.preventEvent(event);
+        let $url = $click.querySelector("a.cover[href]");
+        let url = $url?.href;
+        if (url) {
+          log.info("跳转文章: " + url);
+          let urlInstance = new URL(url);
+          urlInstance.pathname = urlInstance.pathname.replace(/^\/user\/profile\/[a-z0-9A-Z]+\//i, "/discovery/item/");
+          url = urlInstance.toString();
+          window.open(url, "_blank");
+        } else {
+          Qmsg.error("未找到文章链接");
         }
-      );
+      };
+      domUtils.on(document, "click", ".feeds-container .note-item", callback, {
+        capture: true,
+      });
+      return {
+        destory() {
+          domUtils.off(document, "click", ".feeds-container .note-item", callback, { capture: true });
+        },
+      };
     },
   };
   const UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
@@ -5278,7 +5378,7 @@
             30,
             100,
             (event, value) => {
-              let $noteContainer = document.querySelector("#noteContainer");
+              let $noteContainer = $("#noteContainer");
               if (!$noteContainer) {
                 log.error("未找到笔记容器");
                 return;

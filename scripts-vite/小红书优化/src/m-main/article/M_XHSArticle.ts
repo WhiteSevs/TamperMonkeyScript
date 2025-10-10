@@ -1,5 +1,5 @@
 import { XHSApi } from "@/api/XHSApi";
-import { DOMUtils, Viewer, addStyle, log, utils } from "@/env";
+import { $, DOMUtils, Viewer, addStyle, log, utils } from "@/env";
 import { XHSHook } from "@/hook/XHSHook";
 import { unsafeWindow } from "ViteGM";
 import { M_XHSArticleBlock } from "./M_XHSArticleBlock";
@@ -38,7 +38,7 @@ export const M_XHSArticle = {
       return M_XHSArticleBlock.blockBottomToorBar();
     });
     Panel.execMenuOnce("little-red-book-optimizeImageBrowsing", () => {
-      M_XHSArticle.optimizeImageBrowsing();
+      return M_XHSArticle.optimizeImageBrowsing();
     });
     Panel.execMenuOnce("little-red-book-optimizeVideoNoteDesc", () => {
       return M_XHSArticleVideo.optimizeVideoNoteDesc();
@@ -315,116 +315,116 @@ export const M_XHSArticle = {
     /* 等待内容元素出现 */
     DOMUtils.waitNode<HTMLDivElement>(".narmal-note-container").then(async () => {
       log.info("优化评论浏览-笔记元素出现");
-      let noteViewContainer = document.querySelector(".note-view-container") as HTMLDivElement;
+      let noteViewContainer = $(".note-view-container")!;
       // let loading = Qmsg.loading("获取评论中，请稍后...");
       let commentContainer = DOMUtils.createElement("div", {
         className: "little-red-book-comments-container",
         innerHTML: /*html*/ `
-                <style>
-                    .little-red-book-comments-parent {
-                        position: relative;
-                        display: flex;
-                        padding: 8px;
-                        width: 100%;
-                    }
-                    
-                    .little-red-book-comments-reply-container {
-                        position: relative;
-                        display: flex;
-                        padding: 8px;
-                        width: 100%;
-                        padding-left: 52px;
-                    }
-                    .little-red-book-comments-container {
-                        background: #fff;
-                        position: relative;
-                        padding: 8px 8px;
-                    }
-                    
-                    .little-red-book-comments-item {
-                        position: relative;
-                    }
-                    
-                    .little-red-book-comments-avatar {
-                        flex: 0 0 auto;
-                    }
-                    
-                    .little-red-book-comments-avatar img {
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        cursor: pointer;
-                        border-radius: 100%;
-                        border: 1px solid rgba(0,0,0,0.08);
-                        object-fit: cover;
-                        width: 40px;
-                        height: 40px;
-                    }
-                    .little-red-book-comments-content-wrapper {
-                        margin-left: 12px;
-                        display: flex;
-                        flex-direction: column;
-                        font-size: 14px;
-                        flex-grow: 1;
-                    }
-                    
-                    .little-red-book-comments-author {display: flex;justify-content: space-between;align-items: center;}
-                    
-                    a.little-red-book-comments-author-name {
-                        line-height: 18px;
-                        color: rgba(51,51,51,0.6);
-                    }
-                    
-                    .little-red-book-comments-content {
-                        margin-top: 4px;
-                        line-height: 140%;
-                        color: #333;
-                    }
-                    
-                    .little-red-book-comments-info {
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: space-between;
-                        font-size: 12px;
-                        line-height: 16px;
-                        color: rgba(51,51,51,0.6);
-                    }
-                    
-                    .little-red-book-comments-info-date {
-                        margin: 8px 0;
-                    }
-                    
-                    span.little-red-book-comments-location {
-                        margin-left: 4px;
-                        line-height: 120%;
-                    }
-                    img.little-red-book-note-content-emoji {
-                        margin: 0 1px;
-                        height: 16px;
-                        transform: translateY(2px);
-                        position: relative;
-                    }
-                    .little-red-book-comments-reply-container .little-red-book-comments-avatar img {
-                        width: 24px;
-                        height: 24px;
-                    }
-                    .little-red-book-comments-total{
-                        font-size: 14px;
-                        color: rgba(51,51,51,0.6);
-                        margin-left: 8px;
-                        margin-bottom: 12px;
-                    }
-                    .little-red-book-comments-reply-show-more {
-                    padding-left: calc(52px + 24px + 12px);
-                    height: 32px;
-                    line-height: 32px;
-                    color: #13386c;
-                    cursor: pointer;
-                    font-weight: 500;
-                    font-size: 14px;
-                    }
-                </style>
-          `,
+          <style>
+              .little-red-book-comments-parent {
+                  position: relative;
+                  display: flex;
+                  padding: 8px;
+                  width: 100%;
+              }
+              
+              .little-red-book-comments-reply-container {
+                  position: relative;
+                  display: flex;
+                  padding: 8px;
+                  width: 100%;
+                  padding-left: 52px;
+              }
+              .little-red-book-comments-container {
+                  background: #fff;
+                  position: relative;
+                  padding: 8px 8px;
+              }
+              
+              .little-red-book-comments-item {
+                  position: relative;
+              }
+              
+              .little-red-book-comments-avatar {
+                  flex: 0 0 auto;
+              }
+              
+              .little-red-book-comments-avatar img {
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  cursor: pointer;
+                  border-radius: 100%;
+                  border: 1px solid rgba(0,0,0,0.08);
+                  object-fit: cover;
+                  width: 40px;
+                  height: 40px;
+              }
+              .little-red-book-comments-content-wrapper {
+                  margin-left: 12px;
+                  display: flex;
+                  flex-direction: column;
+                  font-size: 14px;
+                  flex-grow: 1;
+              }
+              
+              .little-red-book-comments-author {display: flex;justify-content: space-between;align-items: center;}
+              
+              a.little-red-book-comments-author-name {
+                  line-height: 18px;
+                  color: rgba(51,51,51,0.6);
+              }
+              
+              .little-red-book-comments-content {
+                  margin-top: 4px;
+                  line-height: 140%;
+                  color: #333;
+              }
+              
+              .little-red-book-comments-info {
+                  display: flex;
+                  flex-direction: column;
+                  justify-content: space-between;
+                  font-size: 12px;
+                  line-height: 16px;
+                  color: rgba(51,51,51,0.6);
+              }
+              
+              .little-red-book-comments-info-date {
+                  margin: 8px 0;
+              }
+              
+              span.little-red-book-comments-location {
+                  margin-left: 4px;
+                  line-height: 120%;
+              }
+              img.little-red-book-note-content-emoji {
+                  margin: 0 1px;
+                  height: 16px;
+                  transform: translateY(2px);
+                  position: relative;
+              }
+              .little-red-book-comments-reply-container .little-red-book-comments-avatar img {
+                  width: 24px;
+                  height: 24px;
+              }
+              .little-red-book-comments-total{
+                  font-size: 14px;
+                  color: rgba(51,51,51,0.6);
+                  margin-left: 8px;
+                  margin-bottom: 12px;
+              }
+              .little-red-book-comments-reply-show-more {
+              padding-left: calc(52px + 24px + 12px);
+              height: 32px;
+              line-height: 32px;
+              color: #13386c;
+              cursor: pointer;
+              font-weight: 500;
+              font-size: 14px;
+              }
+          </style>
+        `,
       });
       Comments.commentContainer = commentContainer;
       Comments.init();
@@ -476,7 +476,6 @@ export const M_XHSArticle = {
    */
   optimizeImageBrowsing() {
     log.info("优化图片浏览");
-    CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer);
     /**
      * 查看图片
      * @param imgSrcList
@@ -503,14 +502,13 @@ export const M_XHSArticle = {
       viewer.zoomTo(1);
       viewer.show();
     }
-    DOMUtils.on(document, "click", ".note-image-box", function (event) {
-      let clickElement = event.target as HTMLDivElement;
-      let imgElement = clickElement.querySelector("img") as HTMLImageElement;
+    const callback = (event: MouseEvent, $click: HTMLElement) => {
+      let imgElement = $click.querySelector("img") as HTMLImageElement;
       let imgList: string[] = [];
       let imgBoxList: HTMLImageElement[] = [];
-      if (clickElement.closest(".onix-carousel-item")) {
+      if ($click.closest(".onix-carousel-item")) {
         /* 多组图片 */
-        imgBoxList = Array.from(clickElement!.closest(".onix-carousel-item")!.parentElement!.querySelectorAll("img"));
+        imgBoxList = Array.from($click!.closest(".onix-carousel-item")!.parentElement!.querySelectorAll("img"));
       } else {
         /* 单个图片 */
         imgBoxList = [imgElement];
@@ -526,6 +524,13 @@ export const M_XHSArticle = {
       });
       log.success(["点击浏览图片👉", imgList[index]]);
       viewIMG(imgList, index);
-    });
+    };
+    DOMUtils.on(document, "click", ".note-image-box", callback);
+    return [
+      CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer),
+      () => {
+        DOMUtils.off(document, "click", ".note-image-box", callback);
+      },
+    ];
   },
 };

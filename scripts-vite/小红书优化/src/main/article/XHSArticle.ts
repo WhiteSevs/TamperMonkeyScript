@@ -1,5 +1,5 @@
 import { XHSUrlApi } from "@/api/XHSUrlApi";
-import { $$, addStyle, DOMUtils, log, utils } from "@/env";
+import { $, $$, addStyle, DOMUtils, log, utils } from "@/env";
 import { VueUtils } from "@components/utils/VueUtils";
 import { Panel } from "@components/setting/panel";
 import Qmsg from "qmsg";
@@ -26,6 +26,25 @@ export const XHSArticle = {
     if (Panel.getValue("pc-xhs-search-open-blank-btn") || Panel.getValue("pc-xhs-search-open-blank-keyboard-enter")) {
       this.optimizationSearch();
     }
+    Panel.exec(
+      ["pc-xhs-search-open-blank-btn", "pc-xhs-search-open-blank-keyboard-enter"],
+      () => {
+        return this.optimizationSearch();
+      },
+      (keyList) => {
+        const execFlag = keyList.some((__key__) => {
+          let flag = !!Panel.getValue(__key__);
+          let disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
+          if (disabled) {
+            // 被禁用
+            flag = false;
+            log.warn(`.exec ${__key__} 被禁用`);
+          }
+          return flag;
+        });
+        return execFlag;
+      }
+    );
     Panel.execMenuOnce("pc-xhs-article-fullWidth", () => {
       return this.fullWidth();
     });
@@ -36,7 +55,7 @@ export const XHSArticle = {
   optimizationSearch() {
     function blankSearchText(searchText?: string, isBlank: boolean = true) {
       if (searchText == null) {
-        let $searchText = document.querySelector<HTMLInputElement>("#search-input");
+        let $searchText = $<HTMLInputElement>("#search-input");
         if ($searchText) {
           let searchText = $searchText.value;
           let searchUrl = XHSUrlApi.getSearchUrl(searchText);
@@ -137,14 +156,20 @@ export const XHSArticle = {
         }
       });
     });
-    utils.mutationObserver(document, {
+    const observer = utils.mutationObserver(document, {
       config: {
         subtree: true,
         childList: true,
       },
+      immediate: true,
       callback: () => {
         lockFn.run();
       },
     });
+    return [
+      () => {
+        observer?.disconnect();
+      },
+    ];
   },
 };

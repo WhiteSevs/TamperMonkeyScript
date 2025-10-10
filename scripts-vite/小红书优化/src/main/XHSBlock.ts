@@ -1,5 +1,5 @@
 import blockCSS from "./css/block.css?raw";
-import { addStyle, DOMUtils, log, utils } from "@/env";
+import { $, addStyle, DOMUtils, log, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
 import { CommonUtil } from "@components/utils/CommonUtil";
 
@@ -16,7 +16,7 @@ export const XHSBlock = {
     });
     DOMUtils.ready(() => {
       Panel.execMenuOnce("pc-xhs-shield-login-dialog", () => {
-        this.blockLoginContainer();
+        return this.blockLoginContainer();
       });
     });
   },
@@ -25,21 +25,27 @@ export const XHSBlock = {
    */
   blockLoginContainer() {
     log.info("添加屏蔽登录弹窗CSS，监听登录弹窗出现");
-    CommonUtil.addBlockCSS(".login-container");
     /* 观察内容加载并关闭弹窗 */
-    utils.mutationObserver(document.body, {
+    const observer = utils.mutationObserver(document.body, {
       config: {
         subtree: true,
         childList: true,
       },
+      immediate: true,
       callback: () => {
-        let $close = document.querySelector(".login-container .icon-btn-wrapper") as HTMLDivElement;
+        let $close = $(".login-container .icon-btn-wrapper");
         if ($close) {
           $close.click();
-          log.success("登录弹窗出现，关闭");
+          log.success("登录弹窗出现，自动点击关闭按钮");
         }
       },
     });
+    return [
+      CommonUtil.addBlockCSS(".login-container"),
+      () => {
+        observer?.disconnect();
+      },
+    ];
   },
   /**
    * 屏蔽选择文字弹出的搜索提示
