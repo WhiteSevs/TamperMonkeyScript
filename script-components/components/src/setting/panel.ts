@@ -24,10 +24,37 @@ type ExecMenuCallBackOption = {
    */
   value: any;
   /**
-   * 主动添加<style>元素，一般用于异步函数主动使用
+   * 主动添加元素|销毁函数，一般用于异步函数主动使用
+   * @example
+   * addStoreValue(HTMLElement)
+   * @example
+   * addStoreValue([HTMLElement])
+   * @example
+   * addStoreValue(Function))
+   * @example
+   * addStoreValue([Function)])
    */
-  addStyleElement: (style: HTMLStyleElement | HTMLStyleElement[]) => void;
+  addStoreValue: (...args: ExecMenuResult) => void;
 };
+type ExecMenuResultInst = {
+  /**
+   * 样式元素
+   */
+  $css?: (Element | null | undefined)[] | (Element | null | undefined);
+  /**
+   * 卸载函数，在菜单项为关闭状态时执行卸载
+   */
+  destory?: () => void;
+};
+type ExecMenuResult =
+  | ExecMenuResultInst
+  | Element
+  | null
+  | undefined
+  | void
+  | (Element | undefined | null | (() => void))[]
+  | any
+  | any[];
 
 /**
  * 面板
@@ -340,7 +367,7 @@ const Panel = {
    */
   exec(
     queryKey: string | string[] | (() => string | string[]),
-    callback: (option: ExecMenuCallBackOption) => any | any[],
+    callback: (option: ExecMenuCallBackOption) => ExecMenuResult,
     checkExec?: (
       /** 键名列表 */
       keyList: string[]
@@ -357,7 +384,7 @@ const Panel = {
     }
     // 执行的键名是否是数组格式
     let isArrayKey = false;
-    let queryKeyResult = queryKeyFn();
+    const queryKeyResult = queryKeyFn();
     /** 所有的键名 */
     let keyList = <string[]>[];
     if (Array.isArray(queryKeyResult)) {
@@ -367,13 +394,13 @@ const Panel = {
       keyList.push(queryKeyResult);
     }
 
-    let findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
+    const findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
     if (findNotInDataKey) {
       log.warn(`${findNotInDataKey} 键不存在`);
       return;
     }
     /** 存储的键 */
-    let storageKey = JSON.stringify(keyList);
+    const storageKey = JSON.stringify(keyList);
     if (once) {
       // 仅执行一次
       if (this.$data.onceExecMenuData.has(storageKey)) {
@@ -382,67 +409,115 @@ const Panel = {
       }
     }
     /**
-     * 存储菜单返回的值
+     * 存储菜单返回的值，在监听到值改变且值为false时执行删除元素
      *
      * 例如：元素
      */
-    let storeValueList: HTMLStyleElement[] = [];
+    let storeValueList: Element[] = [];
     /** 所有监听的id列表 */
-    let listenerIdList: number[] = [];
+    const listenerIdList: number[] = [];
     /**
-     * 主动添加<style>标签的回调
+     * 执行卸载的函数
      */
-    let dynamicAddStyleNodeCallback = (value: boolean, $style: HTMLStyleElement | HTMLStyleElement[]) => {
-      let dynamicResultList: HTMLStyleElement[] = [];
-      if (!Array.isArray($style)) {
-        $style = [$style];
+    let destoryFnList: ((...args: any[]) => void)[] = [];
+    /**
+     * 主动添加存储值
+     * @param args 支持以下类型
+     * + [Element、null、undefined、Function]
+     * + Element
+     * + Function
+     * + null
+     * + undefined
+     * + ExecMenuResultInst
+     */
+    const addStoreValueCallback = (enableValue: boolean, args: any) => {
+      let dynamicMenuStoreValueList: typeof storeValueList = [];
+      let dynamicDestoryFnList: ((...args: any[]) => void)[] = [];
+      let resultValueList: any[] = [];
+      if (Array.isArray(args)) {
+        resultValueList = resultValueList.concat(args);
+      } else {
+        // 额外处理ExecMenuResultInst类型
+        if (typeof args === "object" && args != null) {
+          const { $css, destory } = args as ExecMenuResultInst;
+          if ($css != null) {
+            // 元素
+            if (Array.isArray($css)) {
+              resultValueList = resultValueList.concat($css);
+            } else {
+              resultValueList.push($css);
+            }
+          }
+          if (typeof destory === "function") {
+            resultValueList.push(destory);
+          }
+        } else {
+          resultValueList.push(args);
+        }
       }
-      $style.forEach(($styleItem) => {
-        if ($styleItem == null) {
-          return;
+      for (const it of resultValueList) {
+        if (it == null) {
+          // 空的
+          continue;
         }
-        if ($styleItem instanceof HTMLStyleElement) {
+        if (it instanceof Element) {
           // 元素
-          dynamicResultList.push($styleItem);
-          return;
+          dynamicMenuStoreValueList.push(it);
+          continue;
         }
-      });
-      if (value) {
+        if (typeof it === "function") {
+          // 函数（判断为卸载函数）
+          destoryFnList.push(it);
+          continue;
+        }
+      }
+      if (enableValue) {
         // 执行
-        storeValueList = storeValueList.concat(dynamicResultList);
+        // 追加存储的元素列表
+        // 追加卸载函数
+        storeValueList = storeValueList.concat(dynamicMenuStoreValueList);
+        destoryFnList = destoryFnList.concat(dynamicDestoryFnList);
       } else {
         // 不执行
-        // 移除已添加的元素
-        for (let index = 0; index < dynamicResultList.length; index++) {
-          let $css = dynamicResultList[index];
-          $css.remove();
-          dynamicResultList.splice(index, 1);
-          index--;
-        }
+        // 清理之前存储的元素列表
+        execClearStoreStyleElements();
+        // 执行卸载函数
+        execDestory();
       }
     };
     /**
      * 获取值
      */
-    let getMenuValue = (key: string) => {
-      let value = this.getValue<boolean>(key);
+    const getMenuValue = (key: string) => {
+      const value = this.getValue<boolean>(key);
       return value;
     };
     /**
      * 清空之前存储的值（例如：元素）
      */
-    let clearBeforeStoreValue = () => {
+    const execClearStoreStyleElements = () => {
       for (let index = 0; index < storeValueList.length; index++) {
-        let $css = storeValueList[index];
-        $css.remove();
+        const $css = storeValueList[index];
+        $css?.remove();
         storeValueList.splice(index, 1);
+        index--;
+      }
+    };
+    /**
+     * 执行卸载函数
+     */
+    const execDestory = () => {
+      for (let index = 0; index < destoryFnList.length; index++) {
+        const destoryFnItem = destoryFnList[index];
+        destoryFnItem();
+        destoryFnList.splice(index, 1);
         index--;
       }
     };
     /**
      * 判断执行
      */
-    let checkMenuExec = () => {
+    const checkMenuExec = () => {
       let flag = false;
       if (typeof checkExec === "function") {
         flag = checkExec(keyList);
@@ -454,52 +529,32 @@ const Panel = {
     /**
      * 值改变触发的回调
      */
-    let valueChangeCallback = (
+    const valueChangeCallback = (
       /**
        * 值改变的参数
        */
       valueOption?: { key: string; newValue: any; oldValue: any }
     ) => {
-      let execFlag = checkMenuExec();
-      let resultList: HTMLStyleElement[] = [];
+      const execFlag = checkMenuExec();
       if (execFlag) {
         // 开启，执行回调
-        let valueList = keyList.map((key) => this.getValue(key));
-        let callbackResult = callback({
+        const valueList = keyList.map((key) => this.getValue(key));
+        const callbackResult: ExecMenuResult = callback({
           value: isArrayKey ? valueList : valueList[0],
-          addStyleElement: (...args) => {
-            return dynamicAddStyleNodeCallback(true, ...args);
+          addStoreValue: (...args: any[]) => {
+            return addStoreValueCallback(true, args);
           },
         });
-        if (!Array.isArray(callbackResult)) {
-          callbackResult = [callbackResult];
-        }
-        callbackResult.forEach((it: any) => {
-          if (it == null) {
-            return;
-          }
-          if (it instanceof HTMLStyleElement) {
-            // 元素
-            resultList.push(it);
-            return;
-          }
-          if (typeof it === "function") {
-            // 函数
-          }
-        });
+        addStoreValueCallback(true, callbackResult);
       } else {
-        // 关闭状态
+        addStoreValueCallback(false, []);
       }
-      // 清理之前存储的元素列表
-      clearBeforeStoreValue();
-      // 存储元素列表
-      storeValueList = [...resultList];
     };
     // 仅执行一次
     // 那么需要添加值改变监听
     once &&
       keyList.forEach((key) => {
-        let listenerId = this.addValueChangeListener(key, (key, newValue, oldValue) => {
+        const listenerId = this.addValueChangeListener(key, (key, newValue, oldValue) => {
           valueChangeCallback({
             key,
             newValue,
@@ -510,7 +565,7 @@ const Panel = {
       });
     valueChangeCallback();
 
-    let result = {
+    const result = {
       /**
        * 重载菜单执行
        *
@@ -525,19 +580,27 @@ const Panel = {
        * 清空菜单执行情况
        *
        * + 清空存储的元素列表
+       * + 清空存储的卸载函数
        * + 清空值改变的监听器
        * + 清空存储的一次执行的键
        */
       clear() {
         this.clearStoreStyleElements();
+        this.destory();
         this.removeValueChangeListener();
-        once && that.$data.onceExecMenuData.delete(storageKey);
+        this.clearOnceExecMenuData();
       },
       /**
        * 清空存储的元素列表
        */
       clearStoreStyleElements: () => {
-        return clearBeforeStoreValue();
+        return execClearStoreStyleElements();
+      },
+      /**
+       * 执行卸载函数，该函数是由菜单执行回调的返回值中的函数构成
+       */
+      destory() {
+        return execDestory();
       },
       /**
        * 移除值改变的监听器
@@ -547,13 +610,19 @@ const Panel = {
           this.removeValueChangeListener(listenerId);
         });
       },
+      /**
+       * 清空存储的一次执行的键
+       */
+      clearOnceExecMenuData() {
+        once && that.$data.onceExecMenuData.delete(storageKey);
+      },
     };
 
     this.$data.onceExecMenuData.set(storageKey, result);
     return result;
   },
   /**
-   * 自动判断菜单是否启用，然后执行回调
+   * 自动判断菜单是否启用，如果启用，执行回调，如果不启用，执行卸载函数
    * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
    * @param callback 回调
    * @param isReverse 逆反判断菜单启用，默认false
@@ -561,7 +630,7 @@ const Panel = {
    */
   execMenu(
     key: string | string[],
-    callback: (option: ExecMenuCallBackOption) => any | any[],
+    callback: (option: ExecMenuCallBackOption) => ExecMenuResult,
     isReverse = false,
     once: boolean = false
   ) {
@@ -571,9 +640,9 @@ const Panel = {
         return callback(option);
       },
       (keyList) => {
-        let execFlag = keyList.every((__key__) => {
+        const execFlag = keyList.every((__key__) => {
           let flag = !!this.getValue(__key__);
-          let disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
+          const disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
           if (disabled) {
             // 被禁用
             flag = false;
@@ -599,7 +668,7 @@ const Panel = {
    */
   execMenuOnce(
     key: string | string[],
-    callback: (option: ExecMenuCallBackOption) => any | any[],
+    callback: (option: ExecMenuCallBackOption) => ExecMenuResult,
     isReverse = false,
     listenUrlChange: boolean = false
   ) {
