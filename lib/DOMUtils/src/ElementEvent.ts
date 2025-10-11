@@ -320,13 +320,13 @@ class ElementEvent extends ElementAnimate {
        * 取消绑定的监听事件
        * @param filter (可选)过滤函数，对元素属性上的事件进行过滤出想要删除的事件
        */
-      off(
+      off: (
         filter?: (
           value: DOMUtilsEventListenerOptionsAttribute,
           index: number,
           array: DOMUtilsEventListenerOptionsAttribute[]
         ) => boolean
-      ) {
+      ) => {
         that.off($elList, eventTypeList, selectorList, listenerCallBack, listenerOption, filter);
       },
       /**
@@ -334,7 +334,7 @@ class ElementEvent extends ElementAnimate {
        * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
        * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用callback，但是这种会让使用了selectorTarget的没有值
        */
-      trigger(details?: object, useDispatchToTriggerEvent?: boolean) {
+      trigger: (details?: object, useDispatchToTriggerEvent?: boolean) => {
         that.trigger($elList, eventTypeList, details, useDispatchToTriggerEvent);
       },
     };
