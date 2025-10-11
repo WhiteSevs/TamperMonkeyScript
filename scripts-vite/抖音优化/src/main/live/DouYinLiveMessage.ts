@@ -171,9 +171,7 @@ export const DouYinLiveMessage = {
    */
   filterMessage() {
     let lockFn = new utils.LockFunction(() => {
-      if (!DouYinRouter.isLive()) {
-        return;
-      }
+      if (!DouYinRouter.isLive()) return;
       DouYinMessageFilter.change();
     });
     DOMUtils.ready(() => {

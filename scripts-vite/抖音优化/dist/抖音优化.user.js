@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.11
+// @version      2025.10.11.23
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -5048,9 +5048,7 @@
   const DouYinLiveMessage = {
     filterMessage() {
       let lockFn = new utils.LockFunction(() => {
-        if (!DouYinRouter.isLive()) {
-          return;
-        }
+        if (!DouYinRouter.isLive()) return;
         DouYinMessageFilter.change();
       });
       domUtils.ready(() => {
@@ -5854,6 +5852,26 @@
     },
     shieldReleatedSearches() {
       log.info("【屏蔽】相关搜索");
+      let lockFn = new utils.LockFunction(() => {
+        if (!DouYinRouter.isSearch()) return;
+        $$('[id^="waterfall_item"]:has(.search-result-card p)').forEach(($el) => {
+          const $p = $el.querySelector("p");
+          const text = domUtils.text($p);
+          if (text.includes("相关搜索")) {
+            domUtils.remove($el);
+          }
+        });
+      });
+      const observer = utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true,
+        },
+        immediate: true,
+        callback: () => {
+          lockFn.run();
+        },
+      });
       return [
         CommonUtil.addBlockCSS("#search-content-area > div > div:nth-child(2)"),
         addStyle(
@@ -5861,9 +5879,11 @@
 			/* 把搜索结果宽度自适应 */
 			#search-result-container{
         width: auto !important;
-			}
-		`
+			}`
         ),
+        () => {
+          observer.disconnect();
+        },
       ];
     },
     blockAIAsk() {

@@ -1,7 +1,8 @@
 import { Panel } from "@components/setting/panel";
-import { $, addStyle, DOMUtils, log } from "@/env";
+import { $, $$, addStyle, DOMUtils, log, utils } from "@/env";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 import { CommonUtil } from "@components/utils/CommonUtil";
+import { DouYinRouter } from "@/router/DouYinRouter";
 
 export const DouYinSearchBlock = {
   init() {
@@ -38,14 +39,36 @@ export const DouYinSearchBlock = {
    */
   shieldReleatedSearches() {
     log.info("【屏蔽】相关搜索");
+    let lockFn = new utils.LockFunction(() => {
+      if (!DouYinRouter.isSearch()) return;
+      $$<HTMLElement>('[id^="waterfall_item"]:has(.search-result-card p)').forEach(($el) => {
+        const $p = $el.querySelector("p")!;
+        const text = DOMUtils.text($p);
+        if (text.includes("相关搜索")) {
+          DOMUtils.remove($el);
+        }
+      });
+    });
+    const observer = utils.mutationObserver(document, {
+      config: {
+        subtree: true,
+        childList: true,
+      },
+      immediate: true,
+      callback: () => {
+        lockFn.run();
+      },
+    });
     return [
       CommonUtil.addBlockCSS("#search-content-area > div > div:nth-child(2)"),
       addStyle(/*css*/ `
 			/* 把搜索结果宽度自适应 */
 			#search-result-container{
         width: auto !important;
-			}
-		`),
+			}`),
+      () => {
+        observer.disconnect();
+      },
     ];
   },
   /**
