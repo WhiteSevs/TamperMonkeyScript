@@ -326,7 +326,7 @@ const Panel = {
    * @param callback
    */
   addValueChangeListener(key: string, callback: (key: string, oldValue: any, newValue: any) => void) {
-    let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
+    const listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
       callback(key, __oldValue, __newValue);
     });
     return listenerId;
@@ -555,7 +555,7 @@ const Panel = {
     once &&
       keyList.forEach((key) => {
         const listenerId = this.addValueChangeListener(key, (key, newValue, oldValue) => {
-          valueChangeCallback({
+          return valueChangeCallback({
             key,
             newValue,
             oldValue,
@@ -700,7 +700,7 @@ const Panel = {
     key = this.transformKey(key);
     this.$data.onceExecMenuData.delete(key);
     this.$data.urlChangeReloadMenuExecOnce.delete(key);
-    let flag = PopsPanelStorageApi.removeValueChangeListener(key);
+    const flag = PopsPanelStorageApi.removeValueChangeListener(key);
     return flag;
   },
   /**
@@ -734,7 +734,7 @@ const Panel = {
    * @param key 键
    * @param callback 回调
    */
-  addUrlChangeWithExecMenuOnceListener(key: string | string[], callback: () => void) {
+  addUrlChangeWithExecMenuOnceListener(key: string | string[], callback: () => IPromise<void>) {
     key = this.transformKey(key);
     this.$data.urlChangeReloadMenuExecOnce.set(key, callback);
   },
