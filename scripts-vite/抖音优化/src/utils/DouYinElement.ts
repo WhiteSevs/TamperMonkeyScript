@@ -15,7 +15,7 @@ export const DouYinElement = {
       ]).then(($ele) => {
         log.info(`启用观察器观察加载的视频`);
         let lockFn = new utils.LockFunction((observer) => {
-          $os = $os || this.getOSElement();
+          $os = $os || this.selectorRootOSNode();
           if (!$os) {
             log.error("watchVideDataListChange：获取osElement失败");
             return;
@@ -35,7 +35,10 @@ export const DouYinElement = {
       });
     });
   },
-  getOSElement() {
+  /**
+   * 获取根节点元素
+   */
+  selectorRootOSNode() {
     return $<HTMLElement>("#root div[class*='-os']") || $<HTMLElement>("#douyin-right-container");
   },
 };

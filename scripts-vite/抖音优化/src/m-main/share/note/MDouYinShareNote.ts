@@ -19,19 +19,19 @@ export const MDouYinShareNote = {
       return this.blockFooterToobar();
     });
     Panel.execMenuOnce("m-dy-share-note-coverUser", () => {
-      this.coverUser();
+      return this.coverUser();
     });
     Panel.execMenuOnce("m-dy-share-note-coverHashTag", () => {
-      this.coverHashTag();
+      return this.coverHashTag();
     });
     Panel.execMenuOnce("m-dy-share-note-coverMusic", () => {
-      this.coverMusic();
+      return this.coverMusic();
     });
     Panel.execMenuOnce("m-dy-share-note-coverRecommend", () => {
-      this.coverRecommend();
+      return this.coverRecommend();
     });
     Panel.execMenuOnce("m-dy-share-note-coverExcitingGraphicsAndText", () => {
-      this.coverExcitingGraphicsAndText();
+      return this.coverExcitingGraphicsAndText();
     });
   },
   /**
@@ -60,7 +60,7 @@ export const MDouYinShareNote = {
    */
   coverRecommend() {
     log.info("覆盖相关推荐的点击事件");
-    DOMUtils.on(
+    const result = DOMUtils.on(
       document,
       "click",
       "#masonry .card",
@@ -79,68 +79,68 @@ export const MDouYinShareNote = {
       },
       { capture: true }
     );
+    return [result.off];
   },
   /**
    * 覆盖用户点击事件
    */
   coverUser() {
     log.info("覆盖用户点击事件");
-    DOMUtils.on(
-      document,
-      "click",
-      ".message-con__top",
-      (event) => {
-        DOMUtils.preventEvent(event);
-        let $click = event.target as HTMLElement;
-        let rectFiber = utils.getReactInstance($click).reactFiber;
-
-        if (!rectFiber) {
-          log.error("获取reactFiber失败");
-          Qmsg.error("获取reactFiber失败");
-          return;
-        }
-        let sec_id = rectFiber?.return?.return?.memoizedProps?.video?.authorInfo?.sec_uid;
-        let url = DouYinUrlUtils.getUserHomeUrl(sec_id);
-        window.open(url, "_blank");
+    const callback = (event: MouseEvent | PointerEvent, $click: HTMLElement) => {
+      DOMUtils.preventEvent(event);
+      const rectFiber = utils.getReactInstance($click).reactFiber;
+      if (!rectFiber) {
+        log.error("获取reactFiber失败");
+        Qmsg.error("获取reactFiber失败");
+        return;
+      }
+      const sec_id = rectFiber?.return?.return?.memoizedProps?.video?.authorInfo?.sec_uid;
+      const url = DouYinUrlUtils.getUserHomeUrl(sec_id);
+      window.open(url, "_blank");
+    };
+    DOMUtils.on(document, "click", ".message-con__top", callback, { capture: true });
+    return [
+      () => {
+        DOMUtils.off(document, "click", ".message-con__top", callback, { capture: true });
       },
-      { capture: true }
-    );
+    ];
   },
   /**
    * 覆盖话题点击事件
    */
   coverHashTag() {
     log.info("覆盖话题点击事件");
-    DOMUtils.on(
-      document,
-      "click",
-      ".message-con__content__body .message-con__content__body-text",
-      (event) => {
-        DOMUtils.preventEvent(event);
-        let $click = event.target as HTMLElement;
-        let rectFiber = utils.getReactInstance($click).reactFiber;
-
-        if (!rectFiber) {
-          log.error("获取reactFiber失败");
-          Qmsg.error("获取reactFiber失败");
-          return;
-        }
-        let index = rectFiber.index;
-        let splitStrArr = rectFiber?.return?.return?.return?.return?.memoizedProps?.video?.splitStrArr;
-        let currentSplitStr = splitStrArr[index];
-        let hashtagId = currentSplitStr["hashtagId"];
-        let url = DouYinUrlUtils.getHashTagUrl(hashtagId);
-        window.open(url, "_blank");
+    const callback = (event: MouseEvent | PointerEvent, $click: HTMLElement) => {
+      DOMUtils.preventEvent(event);
+      const rectFiber = utils.getReactInstance($click).reactFiber;
+      if (!rectFiber) {
+        Qmsg.error("获取reactFiber失败");
+        return;
+      }
+      const index = rectFiber.index;
+      const splitStrArr = rectFiber?.return?.return?.return?.return?.memoizedProps?.video?.splitStrArr;
+      const currentSplitStr = splitStrArr[index];
+      const hashtagId = currentSplitStr["hashtagId"];
+      const url = DouYinUrlUtils.getHashTagUrl(hashtagId);
+      window.open(url, "_blank");
+    };
+    DOMUtils.on(document, "click", ".message-con__content__body .message-con__content__body-text", callback, {
+      capture: true,
+    });
+    return [
+      () => {
+        DOMUtils.off(document, "click", ".message-con__content__body .message-con__content__body-text", callback, {
+          capture: true,
+        });
       },
-      { capture: true }
-    );
+    ];
   },
   /**
    * 覆盖音乐点击事件
    */
   coverMusic() {
     log.info("覆盖音乐点击事件");
-    DOMUtils.on(
+    const result = DOMUtils.on(
       document,
       "click",
       ".message-con__footer",
@@ -160,13 +160,14 @@ export const MDouYinShareNote = {
       },
       { capture: true }
     );
+    return [result.off];
   },
   /**
    * 覆盖精彩图文点击事件
    */
   coverExcitingGraphicsAndText() {
     log.info("覆盖精彩图文点击事件");
-    DOMUtils.on(
+    const result1 = DOMUtils.on(
       document,
       "click",
       ".container .related-list-con .related-note-item",
@@ -189,8 +190,9 @@ export const MDouYinShareNote = {
     );
     // 推荐更多精彩图文
     // 查看更多
-    DOMUtils.on(document, "click", ".related-title-con", (event) => DOMUtils.preventEvent(event), {
+    const result2 = DOMUtils.on(document, "click", ".related-title-con", (event) => DOMUtils.preventEvent(event), {
       capture: true,
     });
+    return [result1.off, result2.off];
   },
 };

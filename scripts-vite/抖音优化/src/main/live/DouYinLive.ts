@@ -67,9 +67,6 @@ export const DouYinLive = {
     // Panel.execMenu("live-unlockImageQuality", () => {
     // 	this.unlockImageQuality();
     // });
-    Panel.execMenuOnce("live-waitToRemovePauseDialog", () => {
-      this.waitToRemovePauseDialog();
-    });
     Panel.execMenu("live-pauseVideo", () => {
       this.disableVideoAutoPlay();
     });
@@ -80,7 +77,7 @@ export const DouYinLive = {
       DouYinLivePlayerInstance.initMenu();
     });
     Panel.execMenuOnce("live-prevent-wheel-switchLiveRoom", () => {
-      DOMUtils.on(
+      const result = DOMUtils.on(
         document,
         ["wheel", "mousewheel"],
         (evt) => {
@@ -96,8 +93,12 @@ export const DouYinLive = {
           capture: true,
         }
       );
+      return [result.off];
     });
     DOMUtils.ready(() => {
+      Panel.execMenuOnce("live-waitToRemovePauseDialog", () => {
+        return this.waitToRemovePauseDialog();
+      });
       Panel.execMenu("live-chooseQuality", (option) => {
         if (option.value === "auto") {
           return;
@@ -340,18 +341,22 @@ export const DouYinLive = {
         checkDialogToClose($ele, "2");
       });
     });
-    DOMUtils.ready(() => {
-      utils.mutationObserver(document.body, {
-        config: {
-          subtree: true,
-          childList: true,
-        },
-        immediate: true,
-        callback() {
-          lockFn.run();
-        },
-      });
+
+    const observer = utils.mutationObserver(document.body || document.documentElement, {
+      config: {
+        subtree: true,
+        childList: true,
+      },
+      immediate: true,
+      callback() {
+        lockFn.run();
+      },
     });
+    return [
+      () => {
+        observer?.disconnect();
+      },
+    ];
   },
   /**
    * 禁止自动播放视频

@@ -98,9 +98,9 @@ export const DouYinVideoElementAutoHide = (delayTimeKey: string, selectors: stri
 
   return {
     destory() {
-      observer.disconnect();
       $style.remove();
       Panel.removeValueChangeListener(listenerId);
+      observer?.disconnect();
     },
     $style,
   };

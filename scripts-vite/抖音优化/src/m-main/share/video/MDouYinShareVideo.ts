@@ -9,26 +9,24 @@ export const MDouYinShareVideo = {
     addStyle(blockCSS);
     addStyle(beautifyCSS);
     Panel.execMenuOnce("m-dy-share-video-coverGlobalClick", () => {
-      this.coverGlobalClick();
+      return this.coverGlobalClick();
     });
   },
   /**
    * 阻止全局点击，会跳转
    */
   coverGlobalClick() {
-    let selectorList = [".right-con", ".footer", ".mix-info"];
-    selectorList.forEach((selector) => {
-      DOMUtils.on(
-        document,
-        "click",
-        selector,
-        (event) => {
-          return DOMUtils.preventEvent(event);
-        },
-        {
-          capture: true,
-        }
-      );
-    });
+    const result = DOMUtils.on(
+      document,
+      "click",
+      [".right-con", ".footer", ".mix-info"],
+      (event) => {
+        return DOMUtils.preventEvent(event);
+      },
+      {
+        capture: true,
+      }
+    );
+    return [result.off];
   },
 };

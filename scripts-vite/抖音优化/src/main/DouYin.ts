@@ -35,7 +35,7 @@ export const DouYin = {
       return DouYinAccount.watchLoginDialogToClose();
     });
     Panel.execMenuOnce("disguiseLogin", () => {
-      DouYinAccount.disguiseLogin();
+      return DouYinAccount.disguiseLogin();
     });
     Panel.execMenuOnce("dy-initialScale", () => {
       this.initialScale();
@@ -50,14 +50,14 @@ export const DouYin = {
     Panel.execMenuOnce(
       "dy-common-listenRouterChange",
       () => {
-        this.listenRouterChange();
+        return this.listenRouterChange();
       },
       false,
       false
     );
 
     Panel.execMenuOnce("dy-search-click-to-new-tab", () => {
-      this.navSearchClickToNewTab();
+      return this.navSearchClickToNewTab();
     });
 
     if (DouYinRouter.isLive()) {
@@ -150,7 +150,7 @@ export const DouYin = {
   listenRouterChange() {
     log.info(`监听Router重载`);
     let url = window.location.href;
-    DOMUtils.on(window, "wb_url_change", (event) => {
+    const callback = () => {
       const beforeUrl = url;
       const currentUrl = window.location.href;
       url = currentUrl;
@@ -160,7 +160,13 @@ export const DouYin = {
         beforeUrl: beforeUrl,
       });
       this.init();
-    });
+    };
+    DOMUtils.on(window, "wb_url_change", callback);
+    return [
+      () => {
+        DOMUtils.off(window, "wb_url_change", callback);
+      },
+    ];
   },
   /**
    * 新标签页打开搜索结果
@@ -171,7 +177,8 @@ export const DouYin = {
       const url = `https://www.douyin.com/search/${encodeURIComponent(searchText)}`;
       return url;
     };
-    DOMUtils.on(
+    // 搜索框点击
+    const result1 = DOMUtils.on(
       document,
       "click",
       [
@@ -200,8 +207,13 @@ export const DouYin = {
             if ($before) {
               searchValue = DOMUtils.text($before);
             } else {
-              log.error("搜索内容为空，不进行搜索");
-              return;
+              const placeholder = $input.placeholder.trim();
+              if (placeholder != null && placeholder !== "") {
+                searchValue = placeholder;
+              } else {
+                log.error("搜索内容为空，不进行搜索");
+                return;
+              }
             }
           }
           log.info(`当前的搜索内容：` + searchValue);
@@ -215,7 +227,7 @@ export const DouYin = {
       }
     );
     // 搜索建议
-    DOMUtils.on(
+    const result2 = DOMUtils.on(
       document,
       "click",
       '[data-e2e="searchbar-button"] + div [data-text][data-index]',
@@ -237,5 +249,6 @@ export const DouYin = {
       },
       { capture: true }
     );
+    return [result1.off, result2.off];
   },
 };

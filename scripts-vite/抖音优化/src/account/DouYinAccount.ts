@@ -11,10 +11,12 @@ export const DouYinAccount = {
    */
   disguiseLogin() {
     log.info("伪装登录");
-    CommonUtil.addBlockCSS(
-      // 视频清晰度上面的弹出的 当前观看xxx画质，登录即可畅想xxx画质
-      ".login-tooltip-slot"
-    );
+    let result: any[] = [
+      CommonUtil.addBlockCSS(
+        // 视频清晰度上面的弹出的 当前观看xxx画质，登录即可畅想xxx画质
+        ".login-tooltip-slot"
+      ),
+    ];
     // DouYinNetWorkHook.hookUserNoLoginResponse();
     const WAIT_TIME = 20000;
     const uid = parseInt((Math.random() * 10000000000).toString());
@@ -139,13 +141,13 @@ export const DouYinAccount = {
     DOMUtils.waitNode<HTMLDivElement>("#root div[class*='-os']", WAIT_TIME)
       .then(() => {
         let lockFn = new utils.LockFunction(() => {
-          let $os = DouYinElement.getOSElement();
+          let $os = DouYinElement.selectorRootOSNode();
           if (!$os) {
             return;
           }
           setLogin($os);
         }, 70);
-        utils.mutationObserver(document.body, {
+        const observer = utils.mutationObserver(document.body, {
           config: {
             subtree: true,
             childList: true,
@@ -157,7 +159,6 @@ export const DouYinAccount = {
         });
       })
       .catch((err) => {});
-    this.watchCommentDialogToClose();
     /* 直播的顶部live */
     if (DouYinRouter.isLive()) {
       log.info("伪装登录：live");
@@ -165,11 +166,12 @@ export const DouYinAccount = {
         let lockFn = new utils.LockFunction(() => {
           setLogin($<HTMLDivElement>(`[id^="douyin-header"]`)!);
         }, 70);
-        utils.mutationObserver(document.body, {
+        const observer = utils.mutationObserver(document.body, {
           config: {
             subtree: true,
             childList: true,
           },
+          immediate: true,
           callback: () => {
             lockFn.run();
           },
@@ -198,17 +200,24 @@ export const DouYinAccount = {
         let lockFn = new utils.LockFunction(() => {
           setUserInfoBySearch($rootDiv);
         }, 70);
-        utils.mutationObserver(document, {
+        const observer = utils.mutationObserver(document, {
           config: {
             subtree: true,
             childList: true,
           },
+          immediate: true,
           callback: () => {
             lockFn.run();
           },
         });
       });
     }
+    if (!Panel.getValue("watchLoginDialogToClose")) {
+      // 避免重复
+      result = result.concat(this.watchLoginDialogToClose());
+    }
+    result = result.concat(this.watchCommentDialogToClose());
+    return result;
   },
   /**
    * 关闭登录弹窗
@@ -286,7 +295,7 @@ export const DouYinAccount = {
       }
       $close.click();
     });
-    utils.mutationObserver(document, {
+    const observer = utils.mutationObserver(document, {
       config: {
         subtree: true,
         childList: true,
@@ -304,6 +313,9 @@ export const DouYinAccount = {
 				filter: none !important;
 			}
 		`),
+      () => {
+        observer?.disconnect();
+      },
     ];
   },
 };

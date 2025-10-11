@@ -32,16 +32,16 @@ export const DouYinVideoPlayer = {
     });
     DouYinVideoPlayerBlockMouseHoverTip.init();
     Panel.execMenuOnce("changeCommentToBottom", () => {
-      return DouYinVideoPlayer.changeCommentToBottom();
+      return this.changeCommentToBottom();
     });
     Panel.execMenuOnce("fullScreen", () => {
       return this.fullScreen();
     });
     Panel.execMenuOnce("parseVideo", () => {
-      DouYinVideoPlayer.hookDownloadButtonToParseVideo();
+      return this.hookDownloadButtonToParseVideo();
     });
     Panel.execMenuOnce("dy-video-hookCopyLinkButton", () => {
-      DouYinVideoPlayer.hookCopyLinkButton();
+      return this.hookCopyLinkButton();
     });
     Panel.exec(
       ["autoEnterElementFullScreen", "search-autoEnterElementFullScreen"],
@@ -70,7 +70,7 @@ export const DouYinVideoPlayer = {
       false
     );
     Panel.execMenuOnce("dy-video-doubleClickEnterElementFullScreen", () => {
-      this.doubleClickEnterElementFullScreen();
+      return this.doubleClickEnterElementFullScreen();
     });
     Panel.execMenuOnce(["dy-video-bgColor-enable", "dy-video-changeBackgroundColor"], (option) => {
       return this.changeBackgroundColor(option.value[1]);
@@ -83,10 +83,7 @@ export const DouYinVideoPlayer = {
       return result;
     });
     Panel.execMenuOnce("dy-video-gestureBackCloseComment", () => {
-      this.gestureBackCloseComment();
-    });
-    Panel.execMenuOnce("dy-video-waitToRemovePauseDialog", () => {
-      this.waitToRemovePauseDialog();
+      return this.gestureBackCloseComment();
     });
     Panel.execMenuOnce("dy-video-removeStyle-bottom", () => {
       return this.removeStyleBottom();
@@ -97,17 +94,20 @@ export const DouYinVideoPlayer = {
     DouYinVideoPlayer.chooseQuality(Panel.getValue("chooseVideoDefinition"));
     DOMUtils.ready(() => {
       DouYinVideoPlayer.chooseQuality(Panel.getValue("chooseVideoDefinition"));
+      Panel.execMenuOnce("dy-video-waitToRemovePauseDialog", () => {
+        return this.waitToRemovePauseDialog();
+      });
       Panel.execMenuOnce("mobileMode", () => {
         return this.mobileMode();
       });
       Panel.execMenuOnce("dy-video-titleInfoAutoHide", () => {
-        this.titleInfoAutoHide();
+        return this.titleInfoAutoHide();
       });
       Panel.execMenuOnce("dy-video-videoControlsAutoHide", () => {
-        this.videoControlsAutoHide();
+        return this.videoControlsAutoHide();
       });
       Panel.execMenuOnce("dy-video-rightToolBarAutoHide", () => {
-        this.rightToolBarAutoHide();
+        return this.rightToolBarAutoHide();
       });
     });
   },
@@ -209,9 +209,11 @@ export const DouYinVideoPlayer = {
   doubleClickEnterElementFullScreen() {
     let isDouble = false;
     log.info("注册双击进入网页全屏事件");
-    let selectorList = [".newVideoPlayer", "#sliderVideo"];
-    selectorList.forEach((selector) => {
-      DOMUtils.on<MouseEvent | PointerEvent>(document, "click", selector, (event) => {
+    const result = DOMUtils.on<MouseEvent | PointerEvent>(
+      document,
+      "click",
+      [".newVideoPlayer", "#sliderVideo"],
+      (event) => {
         if (isDouble) {
           isDouble = false;
           DouYinVideoPlayer.autoEnterElementFullScreen(true);
@@ -221,8 +223,9 @@ export const DouYinVideoPlayer = {
             isDouble = false;
           }, 250);
         }
-      });
-    });
+      }
+    );
+    return [result.off];
   },
   /**
    * 评论区移到中间
@@ -609,7 +612,7 @@ export const DouYinVideoPlayer = {
         }
       );
     }
-    DOMUtils.on<MouseEvent | PointerEvent>(
+    const result = DOMUtils.on<MouseEvent | PointerEvent>(
       document,
       "click",
       'div[data-e2e="video-share-container"] div[data-inuser="false"] button + div',
@@ -733,13 +736,14 @@ export const DouYinVideoPlayer = {
         capture: true,
       }
     );
+    return [result.off];
   },
   /**
    * 修改页面的分享-复制链接
    */
   hookCopyLinkButton() {
     log.info("修改页面的分享-复制链接");
-    DOMUtils.on(
+    const result = DOMUtils.on(
       document,
       "click",
       'div[data-e2e="video-share-container"] div[data-inuser="false"] button:contains("复制链接")',
@@ -782,6 +786,7 @@ export const DouYinVideoPlayer = {
       },
       { capture: true }
     );
+    return [result.off];
   },
   /**
    * 手机模式
@@ -891,7 +896,7 @@ export const DouYinVideoPlayer = {
    */
   titleInfoAutoHide() {
     log.info(`自动隐藏视频标题`);
-    DouYinVideoElementAutoHide("dy-video-titleInfoAutoHide-delayTime", [
+    return DouYinVideoElementAutoHide("dy-video-titleInfoAutoHide-delayTime", [
       // 一般的推荐视频|单个视频的当前观看的视频
       '#sliderVideo[data-e2e="feed-active-video"] #video-info-wrap',
       // 进入作者主页后的当前观看的视频
@@ -905,7 +910,7 @@ export const DouYinVideoPlayer = {
    */
   videoControlsAutoHide() {
     log.info(`自动隐藏视频控件`);
-    DouYinVideoElementAutoHide("dy-video-videoControlsAutoHide-delayTime", [
+    return DouYinVideoElementAutoHide("dy-video-videoControlsAutoHide-delayTime", [
       // 一般的推荐视频|单个视频的当前观看的视频
       `#sliderVideo[data-e2e="feed-active-video"] xg-controls.xgplayer-controls`,
       // 进入作者主页后的当前观看的视频
@@ -919,12 +924,7 @@ export const DouYinVideoPlayer = {
    */
   rightToolBarAutoHide() {
     log.info(`自动隐藏右侧工具栏`);
-    addStyle(/*css*/ `
-			.positionBox{
-				transition: opacity 0.5s;
-			}
-		`);
-    DouYinVideoElementAutoHide("dy-video-titleInfoAutoHide-delayTime", [
+    const result = DouYinVideoElementAutoHide("dy-video-titleInfoAutoHide-delayTime", [
       // 一般的推荐视频|单个视频的当前观看的视频
       '#sliderVideo[data-e2e="feed-active-video"] .positionBox',
       // 进入作者主页后的当前观看的视频
@@ -932,6 +932,16 @@ export const DouYinVideoPlayer = {
       // 单个视频
       'div[data-e2e="video-detail"] .positionBox',
     ]);
+    return [
+      addStyle(/*css*/ `
+			.positionBox{
+				transition: opacity 0.5s;
+			}
+		  `),
+      ,
+      result.$style,
+      result.destory,
+    ];
   },
   /**
    * 手势返回关闭评论区
@@ -971,7 +981,7 @@ export const DouYinVideoPlayer = {
       }
     }
 
-    DOMUtils.on(
+    const result1 = DOMUtils.on(
       document,
       "click",
       `.xgplayer div[data-e2e="feed-comment-icon"]`,
@@ -989,7 +999,7 @@ export const DouYinVideoPlayer = {
         capture: true,
       }
     );
-    DOMUtils.on(
+    const result2 = DOMUtils.on(
       document,
       "click",
       $closeSelector,
@@ -1001,6 +1011,7 @@ export const DouYinVideoPlayer = {
         capture: true,
       }
     );
+    return [result1.off, result2.off];
   },
   /**
    * 信息区域
@@ -1054,17 +1065,21 @@ export const DouYinVideoPlayer = {
         checkDialogToClose($elementTiming);
       });
     });
-    DOMUtils.ready(() => {
-      utils.mutationObserver(document, {
-        config: {
-          subtree: true,
-          childList: true,
-        },
-        callback: () => {
-          lockFn.run();
-        },
-      });
+    const observer = utils.mutationObserver(document, {
+      config: {
+        subtree: true,
+        childList: true,
+      },
+      immediate: true,
+      callback: () => {
+        lockFn.run();
+      },
     });
+    return [
+      () => {
+        observer?.disconnect();
+      },
+    ];
   },
   /**
    * 移除video的bottom偏移

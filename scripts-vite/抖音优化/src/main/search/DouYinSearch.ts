@@ -12,7 +12,7 @@ export const DouYinSearch = {
       return this.mobileMode();
     });
     Panel.execMenuOnce("dy-search-disableClickToEnterFullScreen", () => {
-      this.disableClickToEnterFullScreen();
+      return this.disableClickToEnterFullScreen();
     });
     Panel.execMenuOnce("live-setSearchResultFilterWithVideoStyle", (option) => {
       return this.setSearchResultFilterWithVideoStyle(option.value);
@@ -100,7 +100,7 @@ export const DouYinSearch = {
   disableClickToEnterFullScreen() {
     log.info("搜索-禁止点击视频区域进入全屏");
     // 这个是对应 图文视频
-    DOMUtils.on(
+    const result1 = DOMUtils.on(
       document,
       "click",
       ".focusPanel",
@@ -131,7 +131,7 @@ export const DouYinSearch = {
       }
     );
     // 这个是对应 纯视频
-    DOMUtils.on(
+    const result2 = DOMUtils.on(
       document,
       "click",
       "#sliderVideo video",
@@ -153,6 +153,7 @@ export const DouYinSearch = {
         capture: true,
       }
     );
+    return [result1.off, result2.off];
   },
   /**
    * 设置搜索结果-按视频过滤的显示样式

@@ -8,10 +8,10 @@ export const MDouYinShareChallenge = {
   init() {
     addStyle(blockCSS);
     Panel.onceExec("m-dy-share-challenge-coverTopJump", () => {
-      this.coverTopJump();
+      return this.coverTopJump();
     });
     Panel.execMenuOnce("m-dy-share-challenge-coverVideoCard", () => {
-      this.coverVideoCard();
+      return this.coverVideoCard();
     });
   },
   /**
@@ -36,28 +36,27 @@ export const MDouYinShareChallenge = {
    */
   coverVideoCard() {
     log.info("覆盖视频卡片点击事件");
-    DOMUtils.on(
-      document,
-      "click",
-      "#pagelet-worklist li.item",
-      (event) => {
-        DOMUtils.preventEvent(event);
-        let $clikc = event.target as HTMLDivElement;
-        let rectFiber = utils.getReactInstance($clikc).reactFiber;
-        if (!rectFiber) {
-          log.error("获取reactFiber失败");
-          Qmsg.error("获取reactFiber失败");
-          return;
-        }
-        let listData = rectFiber?.return?.return?.return?.memoizedProps.listData;
-        let index = rectFiber.index;
-        let currentList = listData[index];
-        let url = DouYinUrlUtils.getVideoUrl(currentList["aweme_id"]);
-        window.open(url, "_blank");
-      },
-      {
-        capture: true,
+    const callback = (event: MouseEvent | PointerEvent, $click: HTMLElement) => {
+      DOMUtils.preventEvent(event);
+      let rectFiber = utils.getReactInstance($click).reactFiber;
+      if (!rectFiber) {
+        log.error("获取reactFiber失败");
+        Qmsg.error("获取reactFiber失败");
+        return;
       }
-    );
+      let listData = rectFiber?.return?.return?.return?.memoizedProps.listData;
+      let index = rectFiber.index;
+      let currentList = listData[index];
+      let url = DouYinUrlUtils.getVideoUrl(currentList["aweme_id"]);
+      window.open(url, "_blank");
+    };
+    DOMUtils.on(document, "click", "#pagelet-worklist li.item", callback, {
+      capture: true,
+    });
+    return [
+      () => {
+        DOMUtils.off(document, "click", "#pagelet-worklist li.item", callback, { capture: true });
+      },
+    ];
   },
 };

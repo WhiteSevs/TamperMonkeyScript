@@ -107,8 +107,10 @@ export const DouYinVideoFilter = {
       return;
     }
     this.execFilter();
-    Panel.execMenuOnce("shieldVideo-add-parseVideoInfoButton", () => {
-      this.addParseButton();
+    DOMUtils.ready(() => {
+      Panel.execMenuOnce("shieldVideo-add-parseVideoInfoButton", () => {
+        return this.addParseButton();
+      });
     });
   },
   /**
@@ -430,27 +432,6 @@ export const DouYinVideoFilter = {
    * 添加解析按钮
    */
   addParseButton() {
-    addStyle(/*css*/ `
-      xg-icon .xg-tips{
-        display: none;
-      }
-			.basePlayerContainer .gm-video-filter-parse-btn{
-				margin-left: 4px;
-			}
-			.basePlayerContainer .gm-video-filter-parse-btn .semi-icon{
-				display: flex;
-				justify-content: center;
-				align-items: center;
-			}
-			.basePlayerContainer .gm-video-filter-parse-btn .semi-icon svg{
-				
-			}
-			  /* 修复搜索结果单列页面 解析按钮的高度错位 */
-  			.searchControl33px .xg-right-grid xg-icon.gm-video-filter-parse-btn span svg{
-				transform: translateY(-6px) !important;
-			}
-
-		`);
     const filterBase = new DouYinVideoFilterBase();
 
     // 按钮的点击回调
@@ -627,7 +608,7 @@ export const DouYinVideoFilter = {
         DOMUtils.prepend($xgRightGrid, $gmFilterParseBtn);
       });
     });
-    utils.mutationObserver(document, {
+    const observer = utils.mutationObserver(document, {
       config: {
         subtree: true,
         childList: true,
@@ -637,6 +618,31 @@ export const DouYinVideoFilter = {
         lockFn.run();
       },
     });
+    return [
+      addStyle(/*css*/ `
+      xg-icon .xg-tips{
+        display: none;
+      }
+			.basePlayerContainer .gm-video-filter-parse-btn{
+				margin-left: 4px;
+			}
+			.basePlayerContainer .gm-video-filter-parse-btn .semi-icon{
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+			.basePlayerContainer .gm-video-filter-parse-btn .semi-icon svg{
+				
+			}
+      /* 修复搜索结果单列页面 解析按钮的高度错位 */
+      .searchControl33px .xg-right-grid xg-icon.gm-video-filter-parse-btn span svg{
+				transform: translateY(-6px) !important;
+			}`),
+      () => {
+        DOMUtils.remove(".gm-video-filter-parse-btn");
+        observer?.disconnect();
+      },
+    ];
   },
   /**
    * 获取规则视图实例

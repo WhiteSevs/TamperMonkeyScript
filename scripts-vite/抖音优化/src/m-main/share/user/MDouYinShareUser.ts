@@ -8,17 +8,17 @@ export const MDouYinShareUser = {
   init() {
     addStyle(blockCSS);
     Panel.execMenuOnce("m-dy-share-user-coverPlayletList", () => {
-      this.coverPlayletList();
+      return this.coverPlayletList();
     });
     Panel.execMenuOnce("m-dy-share-user-coverPostListContainer", () => {
-      this.coverPostListContainer();
+      return this.coverPostListContainer();
     });
   },
   /**
    * 覆盖视频合集点击事件
    */
   coverPlayletList() {
-    DOMUtils.on(
+    const result = DOMUtils.on(
       document,
       "click",
       ".user-playlet-list .playlet-item",
@@ -50,12 +50,13 @@ export const MDouYinShareUser = {
         capture: true,
       }
     );
+    return [result.off];
   },
   /**
    * 覆盖视频列表点击事件
    */
   coverPostListContainer() {
-    DOMUtils.on(
+    const result = DOMUtils.on(
       document,
       "click",
       ".post-list-container .user-post-cover",
@@ -74,5 +75,6 @@ export const MDouYinShareUser = {
         capture: true,
       }
     );
+    return [result.off];
   },
 };

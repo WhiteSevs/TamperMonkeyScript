@@ -6,8 +6,10 @@ import Qmsg from "qmsg";
 
 export const DouYinRecommend = {
   init() {
-    Panel.execMenuOnce("dy-recommend-automaticContinuousPlayback", () => {
-      this.automaticContinuousPlayback();
+    DOMUtils.ready(() => {
+      Panel.execMenuOnce("dy-recommend-automaticContinuousPlayback", () => {
+        return this.automaticContinuousPlayback();
+      });
     });
   },
   /**
@@ -107,14 +109,20 @@ export const DouYinRecommend = {
         { capture: true }
       );
     });
-    utils.mutationObserver(document, {
+    const observer = utils.mutationObserver(document, {
       config: {
         subtree: true,
         childList: true,
       },
+      immediate: true,
       callback: () => {
         lockFn.run();
       },
     });
+    return [
+      () => {
+        observer?.disconnect();
+      },
+    ];
   },
 };
