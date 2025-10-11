@@ -1,5 +1,5 @@
 import { ElementAnimate } from "./ElementAnimate";
-import type { DOMUtils_Event, DOMUtils_EventType, DOMUtilsElementEventType, DOMUtilsEventListenerOption, DOMUtilsEventListenerOptionsAttribute } from "./types/DOMUtilsEvent";
+import type { DOMUtils_Event, DOMUtils_EventType, DOMUtilsAddEventListenerResult, DOMUtilsElementEventType, DOMUtilsEventListenerOption, DOMUtilsEventListenerOptionsAttribute } from "./types/DOMUtilsEvent";
 import type { DOMUtilsTargetElementType } from "./types/global";
 import type { WindowApiOption } from "./types/WindowApi";
 import { WindowApi } from "./WindowApi";
@@ -28,7 +28,7 @@ declare class ElementEvent extends ElementAnimate {
      *    console.log("事件触发",event)
      * })
      */
-    on<T extends DOMUtils_EventType>(element: DOMUtilsElementEventType, eventType: T | T[], callback: (this: HTMLElement, event: DOMUtils_Event[T]) => void, option?: DOMUtilsEventListenerOption | boolean): void;
+    on<T extends DOMUtils_EventType>(element: DOMUtilsElementEventType, eventType: T | T[], callback: (this: HTMLElement, event: DOMUtils_Event[T]) => void, option?: DOMUtilsEventListenerOption | boolean): DOMUtilsAddEventListenerResult;
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
@@ -47,7 +47,7 @@ declare class ElementEvent extends ElementAnimate {
      *    console.log("事件触发",event)
      * })
      */
-    on<T extends Event>(element: DOMUtilsElementEventType, eventType: string | string[], callback: (this: HTMLElement, event: T) => void, option?: DOMUtilsEventListenerOption | boolean): void;
+    on<T extends Event>(element: DOMUtilsElementEventType, eventType: string | string[], callback: (this: HTMLElement, event: T) => void, option?: DOMUtilsEventListenerOption | boolean): DOMUtilsAddEventListenerResult;
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
@@ -72,7 +72,7 @@ declare class ElementEvent extends ElementAnimate {
      *    console.log("事件触发", event, selectorTarget)
      * })
      */
-    on<T extends DOMUtils_EventType>(element: DOMUtilsElementEventType, eventType: T | T[], selector: string | string[] | undefined | null, callback: (this: HTMLElement, event: DOMUtils_Event[T], selectorTarget: HTMLElement) => void, option?: DOMUtilsEventListenerOption | boolean): void;
+    on<T extends DOMUtils_EventType>(element: DOMUtilsElementEventType, eventType: T | T[], selector: string | string[] | undefined | null, callback: (this: HTMLElement, event: DOMUtils_Event[T], selectorTarget: HTMLElement) => void, option?: DOMUtilsEventListenerOption | boolean): DOMUtilsAddEventListenerResult;
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
@@ -97,7 +97,7 @@ declare class ElementEvent extends ElementAnimate {
      *    console.log("事件触发", event, selectorTarget)
      * })
      */
-    on<T extends Event>(element: DOMUtilsElementEventType, eventType: string | string[], selector: string | string[] | undefined | null, callback: (this: HTMLElement, event: T, selectorTarget: HTMLElement) => void, option?: DOMUtilsEventListenerOption | boolean): void;
+    on<T extends Event>(element: DOMUtilsElementEventType, eventType: string | string[], selector: string | string[] | undefined | null, callback: (this: HTMLElement, event: T, selectorTarget: HTMLElement) => void, option?: DOMUtilsEventListenerOption | boolean): DOMUtilsAddEventListenerResult;
     /**
      * 取消绑定事件
      * @param element 需要取消绑定的元素|元素数组

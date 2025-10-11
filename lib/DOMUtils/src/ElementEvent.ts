@@ -5,6 +5,7 @@ import { OriginPrototype } from "./OriginPrototype";
 import type {
   DOMUtils_Event,
   DOMUtils_EventType,
+  DOMUtilsAddEventListenerResult,
   DOMUtilsElementEventType,
   DOMUtilsEventListenerOption,
   DOMUtilsEventListenerOptionsAttribute,
@@ -50,7 +51,7 @@ class ElementEvent extends ElementAnimate {
     eventType: T | T[],
     callback: (this: HTMLElement, event: DOMUtils_Event[T]) => void,
     option?: DOMUtilsEventListenerOption | boolean
-  ): void;
+  ): DOMUtilsAddEventListenerResult;
   /**
    * 绑定事件
    * @param element 需要绑定的元素|元素数组|window
@@ -74,7 +75,7 @@ class ElementEvent extends ElementAnimate {
     eventType: string | string[],
     callback: (this: HTMLElement, event: T) => void,
     option?: DOMUtilsEventListenerOption | boolean
-  ): void;
+  ): DOMUtilsAddEventListenerResult;
   /**
    * 绑定事件
    * @param element 需要绑定的元素|元素数组|window
@@ -105,7 +106,7 @@ class ElementEvent extends ElementAnimate {
     selector: string | string[] | undefined | null,
     callback: (this: HTMLElement, event: DOMUtils_Event[T], selectorTarget: HTMLElement) => void,
     option?: DOMUtilsEventListenerOption | boolean
-  ): void;
+  ): DOMUtilsAddEventListenerResult;
   /**
    * 绑定事件
    * @param element 需要绑定的元素|元素数组|window
@@ -136,7 +137,7 @@ class ElementEvent extends ElementAnimate {
     selector: string | string[] | undefined | null,
     callback: (this: HTMLElement, event: T, selectorTarget: HTMLElement) => void,
     option?: DOMUtilsEventListenerOption | boolean
-  ): void;
+  ): DOMUtilsAddEventListenerResult;
   on<T extends Event>(
     element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null | typeof globalThis,
     eventType: DOMUtils_EventType | DOMUtils_EventType[] | string | string[],
@@ -151,7 +152,7 @@ class ElementEvent extends ElementAnimate {
       | DOMUtilsEventListenerOption
       | boolean,
     option?: DOMUtilsEventListenerOption | boolean
-  ) {
+  ): DOMUtilsAddEventListenerResult {
     /**
      * 获取option配置
      * @param args
@@ -190,7 +191,10 @@ class ElementEvent extends ElementAnimate {
       element = that.selectorAll(element);
     }
     if (element == null) {
-      return;
+      return {
+        off() {},
+        trigger() {},
+      };
     }
     let $elList: (Element | Document | Window)[] = [];
     if (element instanceof NodeList || Array.isArray(element)) {
