@@ -192,28 +192,23 @@ class ElementEvent extends ElementAnimate {
     if (element == null) {
       return;
     }
-    let elementList: HTMLElement[] = [];
+    let $elList: (Element | Document | Window)[] = [];
     if (element instanceof NodeList || Array.isArray(element)) {
-      element = element as HTMLElement[];
-      elementList = [...element];
+      $elList = $elList.concat(Array.from(element as Element[]));
     } else {
-      elementList.push(element as HTMLElement);
+      $elList.push(element as Element);
     }
     // 事件名
     let eventTypeList: string[] = [];
     if (Array.isArray(eventType)) {
-      eventTypeList = eventTypeList.concat(
-        eventType.filter((eventTypeItem) => typeof eventTypeItem === "string" && eventTypeItem.toString() !== "")
-      );
+      eventTypeList = eventTypeList.concat(eventType.filter((it) => typeof it === "string" && it.toString() !== ""));
     } else if (typeof eventType === "string") {
-      eventTypeList = eventTypeList.concat(eventType.split(" ").filter((eventTypeItem) => eventTypeItem !== ""));
+      eventTypeList = eventTypeList.concat(eventType.split(" ").filter((it) => it !== ""));
     }
     // 子元素选择器
     let selectorList: string[] = [];
     if (Array.isArray(selector)) {
-      selectorList = selectorList.concat(
-        selector.filter((selectorItem) => typeof selectorItem === "string" && selectorItem.toString() !== "")
-      );
+      selectorList = selectorList.concat(selector.filter((it) => typeof it === "string" && it.toString() !== ""));
     } else if (typeof selector === "string") {
       selectorList.push(selector);
     }
@@ -243,7 +238,7 @@ class ElementEvent extends ElementAnimate {
         that.off(element, eventType as any, selector as any, callback as any, option);
       }
     }
-    elementList.forEach((elementItem) => {
+    $elList.forEach((elementItem) => {
       /**
        * 事件回调
        * @param event
@@ -269,7 +264,7 @@ class ElementEvent extends ElementAnimate {
             }
             /* 在上层与主元素之间寻找可以被selector所匹配到的 */
             const $closestMatches = that.closest<HTMLElement>(eventTarget, selectorItem);
-            if ($closestMatches && totalParent?.contains($closestMatches)) {
+            if ($closestMatches && (<HTMLElement>totalParent)?.contains?.($closestMatches)) {
               eventTarget = $closestMatches;
               return true;
             }
@@ -291,7 +286,7 @@ class ElementEvent extends ElementAnimate {
           }
         } else {
           // 这时候的this指向监听的元素
-          listenerCallBack.call(elementItem, event as any);
+          listenerCallBack.call(elementItem as HTMLElement, event as any);
           checkOptionOnceToRemoveEventListener();
         }
       }
@@ -315,6 +310,30 @@ class ElementEvent extends ElementAnimate {
         Reflect.set(elementItem, GlobalData.domEventSymbol, elementEvents);
       });
     });
+
+    return {
+      /**
+       * 取消绑定的监听事件
+       * @param filter (可选)过滤函数，对元素属性上的事件进行过滤出想要删除的事件
+       */
+      off(
+        filter?: (
+          value: DOMUtilsEventListenerOptionsAttribute,
+          index: number,
+          array: DOMUtilsEventListenerOptionsAttribute[]
+        ) => boolean
+      ) {
+        that.off($elList, eventTypeList, selectorList, listenerCallBack, listenerOption, filter);
+      },
+      /**
+       * 主动触发事件
+       * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
+       * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用callback，但是这种会让使用了selectorTarget的没有值
+       */
+      trigger(details?: object, useDispatchToTriggerEvent?: boolean) {
+        that.trigger($elList, eventTypeList, details, useDispatchToTriggerEvent);
+      },
+    };
   }
   /**
    * 取消绑定事件
@@ -467,24 +486,20 @@ class ElementEvent extends ElementAnimate {
     let $elList: HTMLElement[] = [];
     if (element instanceof NodeList || Array.isArray(element)) {
       element = element as HTMLElement[];
-      $elList = [...element];
+      $elList = $elList.concat(Array.from(element));
     } else {
       $elList.push(element as HTMLElement);
     }
     let eventTypeList: string[] = [];
     if (Array.isArray(eventType)) {
-      eventTypeList = eventTypeList.concat(
-        eventType.filter((eventTypeItem) => typeof eventTypeItem === "string" && eventTypeItem.toString() !== "")
-      );
+      eventTypeList = eventTypeList.concat(eventType.filter((it) => typeof it === "string" && it.toString() !== ""));
     } else if (typeof eventType === "string") {
-      eventTypeList = eventTypeList.concat(eventType.split(" ").filter((eventTypeItem) => eventTypeItem !== ""));
+      eventTypeList = eventTypeList.concat(eventType.split(" ").filter((it) => it !== ""));
     }
     // 子元素选择器
     let selectorList: string[] = [];
     if (Array.isArray(selector)) {
-      selectorList = selectorList.concat(
-        selector.filter((selectorItem) => typeof selectorItem === "string" && selectorItem.toString() !== "")
-      );
+      selectorList = selectorList.concat(selector.filter((it) => typeof it === "string" && it.toString() !== ""));
     } else if (typeof selector === "string") {
       selectorList.push(selector);
     }
@@ -595,11 +610,11 @@ class ElementEvent extends ElementAnimate {
     if (element == null) {
       return;
     }
-    let $elList: HTMLElement[] = [];
+    let $elList: (Element | Document | Window | typeof globalThis | Node | ChildNode | EventTarget)[] = [];
     if (element instanceof NodeList || Array.isArray(element)) {
-      $elList = [...(element as HTMLElement[])];
+      $elList = $elList.concat(Array.from(element as HTMLElement[]));
     } else {
-      $elList.push(element as HTMLElement);
+      $elList.push(element);
     }
 
     let eventTypeList: string[] = [];
@@ -706,7 +721,7 @@ class ElementEvent extends ElementAnimate {
     }
     if (checkDOMReadyState()) {
       /* 检查document状态 */
-      CommonUtils.setTimeout(callback);
+      CommonUtils.setTimeout(callback, 0);
     } else {
       /* 添加监听 */
       addDomReadyListener();
@@ -717,7 +732,7 @@ class ElementEvent extends ElementAnimate {
    * @param element 需要触发的元素|元素数组|window
    * @param eventType 需要触发的事件
    * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-   * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件,默认true
+   * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用callback，但是这种会让使用了selectorTarget的没有值
    * @example
    * // 触发元素a.xx的click事件
    * DOMUtils.trigger(document.querySelector("a.xx"),"click")
@@ -728,7 +743,7 @@ class ElementEvent extends ElementAnimate {
    */
   trigger(
     element: DOMUtilsTargetElementType | Element | DocumentFragment | any[] | typeof globalThis | Window | Document,
-    eventType: string,
+    eventType: string | string[],
     details?: object,
     useDispatchToTriggerEvent?: boolean
   ): void;
@@ -737,7 +752,7 @@ class ElementEvent extends ElementAnimate {
    * @param element 需要触发的元素|元素数组|window
    * @param eventType 需要触发的事件
    * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-   * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，false的话就直接触发获取使用DOMUtils进行监听的事件
+   * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用callback，但是这种会让使用了selectorTarget的没有值
    * @example
    * // 触发元素a.xx的click事件
    * DOMUtils.trigger(document.querySelector("a.xx"),"click")
@@ -747,7 +762,7 @@ class ElementEvent extends ElementAnimate {
    * DOMUtils.trigger("a.xx",["click","tap","hover"])
    */
   trigger(
-    element: HTMLElement | string | NodeList | any[] | Window | Document,
+    element: Element | string | NodeList | any[] | Window | Document,
     eventType: DOMUtils_EventType | DOMUtils_EventType[],
     details?: object,
     useDispatchToTriggerEvent?: boolean
@@ -757,7 +772,7 @@ class ElementEvent extends ElementAnimate {
    * @param element 需要触发的元素|元素数组|window
    * @param eventType 需要触发的事件
    * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-   * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true
+   * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用callback，但是这种会让使用了selectorTarget的没有值
    * @example
    * // 触发元素a.xx的click事件
    * DOMUtils.trigger(document.querySelector("a.xx"),"click")
@@ -767,8 +782,8 @@ class ElementEvent extends ElementAnimate {
    * DOMUtils.trigger("a.xx",["click","tap","hover"])
    */
   trigger(
-    element: HTMLElement | string | NodeList | any[] | Window | Document,
-    eventType: DOMUtils_EventType | DOMUtils_EventType[] | string,
+    element: Element | string | NodeList | any[] | Window | Document,
+    eventType: DOMUtils_EventType | DOMUtils_EventType[] | string | string[],
     details?: object,
     useDispatchToTriggerEvent: boolean = true
   ) {
@@ -779,16 +794,15 @@ class ElementEvent extends ElementAnimate {
     if (element == null) {
       return;
     }
-    let $elList = [];
+    let $elList: (Document | Window | Element)[] = [];
     if (element instanceof NodeList || Array.isArray(element)) {
-      element = element as HTMLElement[];
-      $elList = [...element];
+      $elList = $elList.concat(Array.from(element));
     } else {
-      $elList = [element];
+      $elList.push(element);
     }
     let eventTypeList: string[] = [];
     if (Array.isArray(eventType)) {
-      eventTypeList = eventType as string[];
+      eventTypeList = eventType.filter((it) => typeof it === "string" && it.trim() !== "");
     } else if (typeof eventType === "string") {
       eventTypeList = eventType.split(" ");
     }
@@ -798,24 +812,25 @@ class ElementEvent extends ElementAnimate {
       const elementEvents: {
         [key: string]: DOMUtilsEventListenerOptionsAttribute[];
       } = Reflect.get($elItem, GlobalData.domEventSymbol) || {};
-      eventTypeList.forEach((__eventType) => {
+      eventTypeList.forEach((eventTypeItem) => {
         let event: Event = null as any;
         if (details && details instanceof Event) {
           event = details;
         } else {
           // 构造事件
-          event = new Event(__eventType);
+          event = new Event(eventTypeItem);
           if (details) {
-            Object.keys(details).forEach((keyName) => {
+            const detailKeys = Object.keys(details);
+            detailKeys.forEach((keyName) => {
               const value = Reflect.get(details, keyName);
               // 在event上添加属性
               Reflect.set(event, keyName, value);
             });
           }
         }
-        if (useDispatchToTriggerEvent == false && __eventType in elementEvents) {
+        if (useDispatchToTriggerEvent == false && eventTypeItem in elementEvents) {
           // 直接调用监听的事件
-          elementEvents[__eventType].forEach((eventsItem: any) => {
+          elementEvents[eventTypeItem].forEach((eventsItem: any) => {
             eventsItem.callback(event);
           });
         } else {

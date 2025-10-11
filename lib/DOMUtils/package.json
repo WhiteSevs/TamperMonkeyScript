@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
   "name": "@whitesev/domutils",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "type": "module",
   "description": "适合在浏览器中操作DOM的常用工具类",
   "main": "dist/index.cjs.js",
@@ -39,26 +39,26 @@
   "author": "WhiteSev",
   "license": "MIT",
   "dependencies": {
-    "worker-timers": "^8.0.23"
+    "worker-timers": "^8.0.25"
   },
   "devDependencies": {
-    "@eslint/js": "^9.36.0",
+    "@eslint/js": "^9.37.0",
     "@rollup/plugin-commonjs": "^28.0.6",
     "@rollup/plugin-json": "^6.1.0",
-    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-node-resolve": "^16.0.2",
     "@rollup/plugin-terser": "^0.4.4",
-    "@rollup/plugin-typescript": "^12.1.2",
-    "browserslist": "^4.26.2",
-    "caniuse-lite": "^1.0.30001743",
-    "eslint": "^9.36.0",
+    "@rollup/plugin-typescript": "^12.1.4",
+    "browserslist": "^4.26.3",
+    "caniuse-lite": "^1.0.30001749",
+    "eslint": "^9.37.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-compat": "^6.0.2",
     "eslint-plugin-prettier": "^5.5.4",
     "globals": "^16.4.0",
-    "rollup": "^4.44.1",
+    "rollup": "^4.52.4",
     "rollup-plugin-clear": "^2.0.7",
     "tslib": "^2.8.1",
-    "typescript": "^5.8.3",
-    "typescript-eslint": "^8.44.0"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.0"
   }
 }

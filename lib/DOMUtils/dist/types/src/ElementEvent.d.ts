@@ -182,7 +182,7 @@ declare class ElementEvent extends ElementAnimate {
      * @param element 需要触发的元素|元素数组|window
      * @param eventType 需要触发的事件
      * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-     * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件,默认true
+     * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用callback，但是这种会让使用了selectorTarget的没有值
      * @example
      * // 触发元素a.xx的click事件
      * DOMUtils.trigger(document.querySelector("a.xx"),"click")
@@ -191,13 +191,13 @@ declare class ElementEvent extends ElementAnimate {
      * DOMUtils.trigger(document.querySelector("a.xx"),"click tap hover")
      * DOMUtils.trigger("a.xx",["click","tap","hover"])
      */
-    trigger(element: DOMUtilsTargetElementType | Element | DocumentFragment | any[] | typeof globalThis | Window | Document, eventType: string, details?: object, useDispatchToTriggerEvent?: boolean): void;
+    trigger(element: DOMUtilsTargetElementType | Element | DocumentFragment | any[] | typeof globalThis | Window | Document, eventType: string | string[], details?: object, useDispatchToTriggerEvent?: boolean): void;
     /**
      * 主动触发事件
      * @param element 需要触发的元素|元素数组|window
      * @param eventType 需要触发的事件
      * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-     * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，false的话就直接触发获取使用DOMUtils进行监听的事件
+     * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用callback，但是这种会让使用了selectorTarget的没有值
      * @example
      * // 触发元素a.xx的click事件
      * DOMUtils.trigger(document.querySelector("a.xx"),"click")
@@ -206,7 +206,7 @@ declare class ElementEvent extends ElementAnimate {
      * DOMUtils.trigger(document.querySelector("a.xx"),"click tap hover")
      * DOMUtils.trigger("a.xx",["click","tap","hover"])
      */
-    trigger(element: HTMLElement | string | NodeList | any[] | Window | Document, eventType: DOMUtils_EventType | DOMUtils_EventType[], details?: object, useDispatchToTriggerEvent?: boolean): void;
+    trigger(element: Element | string | NodeList | any[] | Window | Document, eventType: DOMUtils_EventType | DOMUtils_EventType[], details?: object, useDispatchToTriggerEvent?: boolean): void;
     /**
      * 绑定或触发元素的click事件
      * @param element 目标元素
