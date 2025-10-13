@@ -304,6 +304,15 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   void 0,
                   DouYinVideoPlayerShortCut.shortCut
                 ),
+                UIButtonShortCut(
+                  "视频解析",
+                  "解析视频链接",
+                  "dy-video-shortcut-parseVideo",
+                  void 0,
+                  "点击录入快捷键",
+                  void 0,
+                  DouYinVideoPlayerShortCut.shortCut
+                ),
               ],
             },
           ],

@@ -13,7 +13,6 @@ export const DouYinLiveShortCut = {
   getShortCutMap(): ShortCutOption {
     return {
       "dy-live-block-chatroom": {
-        target: "window",
         callback() {
           log.info("快捷键 ==> 【屏蔽】聊天室");
           let flag = Panel.getValue<boolean>("live-shieldChatRoom");
@@ -21,7 +20,6 @@ export const DouYinLiveShortCut = {
         },
       },
       "dy-live-shieldGiftEffects": {
-        target: "window",
         callback: () => {
           log.info("快捷键 ==> 【屏蔽】礼物特效");
           let flag = Panel.getValue<boolean>("live-shieldGiftEffects");
@@ -29,7 +27,6 @@ export const DouYinLiveShortCut = {
         },
       },
       "dy-live-shortcut-changeVideoMuted": {
-        target: "window",
         callback() {
           log.info(`触发快捷键 ==> 切换静音状态`);
           $$("video").forEach(($video) => {

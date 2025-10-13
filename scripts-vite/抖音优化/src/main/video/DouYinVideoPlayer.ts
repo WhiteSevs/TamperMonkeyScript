@@ -393,8 +393,9 @@ export const DouYinVideoPlayer = {
   },
   /**
    * 修改页面的分享-下载按钮变成解析视频
+   * @param $parseNode 需要解析的元素
    */
-  hookDownloadButtonToParseVideo() {
+  hookDownloadButtonToParseVideo($parseNode?: HTMLElement) {
     log.info("修改页面的分享-下载按钮变成解析视频");
     type parseVideoDownloadInfo = {
       /**
@@ -431,12 +432,17 @@ export const DouYinVideoPlayer = {
      * @param downloadFileName 视频下载名
      * @param downloadUrlInfoList 资源列表
      */
-    function showParseInfoDialog(downloadFileName: string, downloadUrlInfoList: parseVideoDownloadInfo[]) {
+    function showParseInfoDialog(info: {
+      author: string;
+      desc: string;
+      downloadFileName: string;
+      downloadUrlInfoList: parseVideoDownloadInfo[];
+    }) {
       let contentHTML = "";
-      downloadUrlInfoList.forEach((downloadInfo) => {
+      info.downloadUrlInfoList.forEach((downloadInfo) => {
         let videoQualityInfo = `${downloadInfo.width}x${downloadInfo.height} @${downloadInfo.fps}`;
         contentHTML += /*html*/ `
-          		<div class="douyin-video-link-item">
+        <div class="douyin-video-link-item">
 					<div class="dy-video-name">
 						<span>清晰度信息：</span>
 						<span>${videoQualityInfo}</span>
@@ -447,7 +453,7 @@ export const DouYinVideoPlayer = {
 					</div>
 					<div class="dy-video-download-uri">
 						<span>下载地址：</span>
-						<a href="${downloadInfo.url}" data-file-name="${downloadFileName} - ${videoQualityInfo}.${
+						<a href="${downloadInfo.url}" data-file-name="${info.downloadFileName} - ${videoQualityInfo}.${
               downloadInfo.format
             }">${downloadInfo.url}</a>
 					</div>
@@ -459,7 +465,7 @@ export const DouYinVideoPlayer = {
 							${downloadInfo.backUrl
                 .map((url, index) => {
                   return /*html*/ `
-									<a href="${url}" data-file-name="${downloadFileName} - ${videoQualityInfo}.${downloadInfo.format}">地址${index + 1}</a>
+									<a href="${url}" data-file-name="${info.downloadFileName} - ${videoQualityInfo}.${downloadInfo.format}">地址${index + 1}</a>
 								`;
                 })
                 .join("，")}
@@ -467,10 +473,21 @@ export const DouYinVideoPlayer = {
 					`
               : ""
           }
-				</div>
-            	`;
+				</div>`;
       });
-      contentHTML = /*html*/ `<div class="douyin-video-link-container">${contentHTML}</div>`;
+      contentHTML = /*html*/ `
+      <div class="douyin-video-link-info">
+        <div class="douyin-video-name">
+          <span>作者：</span>
+          <span>${info.author}</span>
+        </div>
+        <div class="douyin-video-desc">
+          <span>文案：</span>
+          <span>${info.desc}</span>
+        </div>
+      </div>
+      <div class="douyin-video-link-container">${contentHTML}</div>
+      `;
       let $dialog = pops.alert({
         title: {
           text: "视频解析",
@@ -496,23 +513,35 @@ export const DouYinVideoPlayer = {
         drag: true,
         dragLimit: true,
         style: /*css*/ `
+          .douyin-video-link-item,
           .douyin-video-link-container a{
-              white-space: nowrap;
-              overflow: hidden;
-              text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
-          .douyin-video-link-item{
-              white-space: nowrap;
-              overflow: hidden;
-              text-overflow: ellipsis;
-              margin: 10px;
+          .douyin-video-link-item,
+          .douyin-video-name,
+          .douyin-video-desc{
+            margin: 10px;
           }
-          .dy-video-download-uri{
-            display: flex;
-          }
+          .douyin-video-name,
+          .douyin-video-desc,
+          .dy-video-download-uri,
           .dy-video-back-uri{
             display: flex;
-          }`,
+          }
+          
+          .douyin-video-name span:first-child,
+          .douyin-video-desc span:first-child{
+            white-space: nowrap;
+          }
+          .douyin-video-link-info,
+          .douyin-video-link-container{
+            border: 1px solid #000000;
+            border-radius: 5px;
+            margin: 10px;
+          }
+          `,
       });
       DOMUtils.on(
         $dialog.popsElement,
@@ -612,131 +641,153 @@ export const DouYinVideoPlayer = {
         }
       );
     }
-    const result = DOMUtils.on<MouseEvent | PointerEvent>(
-      document,
-      "click",
-      'div[data-e2e="video-share-container"] div[data-inuser="false"] button + div',
-      function (event, selectorTarget) {
-        DOMUtils.preventEvent(event);
-        let clickElement = selectorTarget;
-        let rectFiber = utils.getReactInstance(clickElement.parentElement as HTMLElement)?.reactFiber;
-        if (!rectFiber) {
-          Qmsg.error("获取rectFiber属性失败", { consoleLogContent: true });
+    const callback = ($click: HTMLElement) => {
+      if ($click.closest('[data-e2e="feed-live"]')) {
+        Qmsg.error("无法解析直播video的下载信息");
+        return;
+      }
+      const parentReactFilber = utils.getReactInstance($click?.parentElement!)?.reactFiber;
+      const $basePlayerContainer = $click.closest<HTMLElement>(".basePlayerContainer");
+      const basePlayerContainerReactFiber = utils.getReactInstance($basePlayerContainer!)?.reactFiber;
+      if (!parentReactFilber && !basePlayerContainerReactFiber) {
+        log.error([$click, parentReactFilber, $basePlayerContainer, basePlayerContainerReactFiber]);
+        Qmsg.error("获取rectFiber属性失败");
+        return;
+      }
+      const reactFiber = parentReactFilber || basePlayerContainerReactFiber;
+      try {
+        const awemeInfo = reactFiber?.return?.memoizedProps?.awemeInfo;
+        if (!awemeInfo) {
+          log.error([$click, reactFiber]);
+          Qmsg.error("获取awemeInfo属性失败");
           return;
         }
-        try {
-          let awemeInfo = rectFiber?.return?.memoizedProps?.awemeInfo;
-          if (!awemeInfo) {
-            Qmsg.error("获取awemeInfo属性失败", { consoleLogContent: true });
-            return;
-          }
-          log.info([`解析的awemeInfo: `, awemeInfo]);
-          // 收集到的全部的下载地址
-          let videoDownloadUrlList: parseVideoDownloadInfo[] = [];
+        log.info([`解析的awemeInfo: `, awemeInfo]);
+        // 收集到的全部的下载地址
+        let videoDownloadUrlList: parseVideoDownloadInfo[] = [];
 
-          // video.bitRateList
-          let bitRateList = awemeInfo?.video?.bitRateList as
-            | {
-                uri: string;
-                dataSize: number;
-                width: number;
-                height: number;
-                playAddr: {
-                  src: string;
-                }[];
-                playApi: string;
-                isH265: 0 | 1;
-                qualityType: number;
-                bitRate: 3915557;
-                videoFormat: string;
-                gearName: string;
-                fps: number;
-                playerAccessKey: string;
-                featureId: string;
-                format: string;
-                fileId: string;
-                pktOffsetMap: {
-                  time: number;
-                  offset: number;
-                }[];
-                realBitrate: number;
-                manualOnly: number;
-                mvmaf: {};
-                ufq: {};
-              }[]
-            | null;
-          if (bitRateList != null && Array.isArray(bitRateList)) {
-            videoDownloadUrlList = videoDownloadUrlList.concat(
-              bitRateList
-                .map((item) => {
-                  let result = {
-                    url: item.playApi,
-                    width: item.width,
-                    height: item.height,
-                    format: item.format,
-                    fps: 0,
-                    dataSize: item.dataSize,
-                    backUrl: [],
-                  } as parseVideoDownloadInfo;
-                  if (typeof item.fps === "number") {
-                    result.fps = item.fps;
-                  }
-                  if (Array.isArray(item.playAddr)) {
-                    result.backUrl = result.backUrl.concat(item.playAddr.map((it) => it.src));
-                  }
-                  return result;
-                })
-                .filter((it) => it != null)
-            );
-          }
-          if (!videoDownloadUrlList.length) {
-            Qmsg.error("未获取到视频的有效链接信息", {
-              consoleLogContent: true,
-            });
-            return;
-          }
-          // 去重
-          let uniqueVideoDownloadUrlList: parseVideoDownloadInfo[] = [];
-          for (let index = 0; index < videoDownloadUrlList.length; index++) {
-            const videoDownloadInfo = videoDownloadUrlList[index];
-            let findIndex = uniqueVideoDownloadUrlList.findIndex(
-              (it) =>
-                it.width === videoDownloadInfo.width &&
-                it.height === videoDownloadInfo.height &&
-                it.fps === videoDownloadInfo.fps
-            );
-            if (findIndex != -1) {
-              // 存在重复，比较文件大小
-              let findValue = uniqueVideoDownloadUrlList[findIndex];
-              if (findValue.dataSize < videoDownloadInfo.dataSize) {
-                uniqueVideoDownloadUrlList.splice(findIndex, 1, videoDownloadInfo);
-              }
-            } else {
-              uniqueVideoDownloadUrlList.push(videoDownloadInfo);
-            }
-          }
-          // 处理一下http的protocol，如果是http的话，点击会跳转到播放而不是下载
-          uniqueVideoDownloadUrlList = uniqueVideoDownloadUrlList.map((item) => {
-            if (item.url.startsWith("http:")) {
-              item.url = item.url.replace("http:", "");
-            }
-            return item;
-          });
-          // 按视频大小排序（降序）
-          utils.sortListByProperty(uniqueVideoDownloadUrlList, (it) => it.width);
-          let downloadFileName =
-            (awemeInfo?.authorInfo?.nickname || "未知作者") + " - " + (awemeInfo?.desc || "未知视频文案");
-          showParseInfoDialog(downloadFileName, uniqueVideoDownloadUrlList);
-        } catch (error) {
-          log.error(error);
-          Qmsg.error("解析视频失败", { consoleLogContent: true });
+        // video.bitRateList
+        const bitRateList = awemeInfo?.video?.bitRateList as
+          | {
+              uri: string;
+              dataSize: number;
+              width: number;
+              height: number;
+              playAddr: {
+                src: string;
+              }[];
+              playApi: string;
+              isH265: 0 | 1;
+              qualityType: number;
+              bitRate: 3915557;
+              videoFormat: string;
+              gearName: string;
+              fps: number;
+              playerAccessKey: string;
+              featureId: string;
+              format: string;
+              fileId: string;
+              pktOffsetMap: {
+                time: number;
+                offset: number;
+              }[];
+              realBitrate: number;
+              manualOnly: number;
+              mvmaf: {};
+              ufq: {};
+            }[]
+          | null;
+        if (bitRateList != null && Array.isArray(bitRateList)) {
+          videoDownloadUrlList = videoDownloadUrlList.concat(
+            bitRateList
+              .map((item) => {
+                let result = {
+                  url: item.playApi,
+                  width: item.width,
+                  height: item.height,
+                  format: item.format,
+                  fps: 0,
+                  dataSize: item.dataSize,
+                  backUrl: [],
+                } as parseVideoDownloadInfo;
+                if (typeof item.fps === "number") {
+                  result.fps = item.fps;
+                }
+                if (Array.isArray(item.playAddr)) {
+                  result.backUrl = result.backUrl.concat(item.playAddr.map((it) => it.src));
+                }
+                return result;
+              })
+              .filter((it) => it != null)
+          );
         }
-      },
-      {
-        capture: true,
+        if (!videoDownloadUrlList.length) {
+          Qmsg.error("未获取到视频的有效链接信息", {
+            consoleLogContent: true,
+          });
+          return;
+        }
+        // 去重
+        let uniqueVideoDownloadUrlList: parseVideoDownloadInfo[] = [];
+        for (let index = 0; index < videoDownloadUrlList.length; index++) {
+          const videoDownloadInfo = videoDownloadUrlList[index];
+          let findIndex = uniqueVideoDownloadUrlList.findIndex(
+            (it) =>
+              it.width === videoDownloadInfo.width &&
+              it.height === videoDownloadInfo.height &&
+              it.fps === videoDownloadInfo.fps
+          );
+          if (findIndex != -1) {
+            // 存在重复，比较文件大小
+            let findValue = uniqueVideoDownloadUrlList[findIndex];
+            if (findValue.dataSize < videoDownloadInfo.dataSize) {
+              uniqueVideoDownloadUrlList.splice(findIndex, 1, videoDownloadInfo);
+            }
+          } else {
+            uniqueVideoDownloadUrlList.push(videoDownloadInfo);
+          }
+        }
+        // 处理一下http的protocol，如果是http的话，点击会跳转到播放而不是下载
+        uniqueVideoDownloadUrlList = uniqueVideoDownloadUrlList.map((item) => {
+          if (item.url.startsWith("http:")) {
+            item.url = item.url.replace("http:", "");
+          }
+          return item;
+        });
+        // 按视频大小排序（降序）
+        utils.sortListByProperty(uniqueVideoDownloadUrlList, (it) => it.width);
+        const nickname = awemeInfo?.authorInfo?.nickname || "未知作者";
+        const desc = awemeInfo?.desc || "未知视频文案";
+        let downloadFileName =
+          (awemeInfo?.authorInfo?.nickname || "未知作者") + " - " + (awemeInfo?.desc || "未知视频文案");
+        showParseInfoDialog({
+          author: nickname,
+          desc,
+          downloadFileName,
+          downloadUrlInfoList: uniqueVideoDownloadUrlList,
+        });
+      } catch (error) {
+        log.error(error);
+        Qmsg.error("解析视频失败");
       }
-    );
-    return [result.off];
+    };
+    if ($parseNode) {
+      callback($parseNode);
+    } else {
+      const result = DOMUtils.on<MouseEvent | PointerEvent>(
+        document,
+        "click",
+        'div[data-e2e="video-share-container"] div[data-inuser="false"] button + div',
+        (evt, selectorTarget) => {
+          DOMUtils.preventEvent(evt);
+          callback(selectorTarget);
+        },
+        {
+          capture: true,
+        }
+      );
+      return [result.off];
+    }
   },
   /**
    * 修改页面的分享-复制链接
@@ -752,18 +803,18 @@ export const DouYinVideoPlayer = {
         let clickElement = event.target as HTMLDivElement;
         let rectFiber = utils.getReactInstance(clickElement.parentElement as HTMLElement)?.reactFiber;
         if (!rectFiber) {
-          Qmsg.error("获取rectFiber属性失败", { consoleLogContent: true });
+          Qmsg.error("获取rectFiber属性失败");
           return;
         }
         let awemeInfo = rectFiber?.return?.return?.memoizedProps?.awemeInfo as DouYinVideoAwemeInfo | null;
         if (awemeInfo == null || typeof awemeInfo !== "object") {
-          Qmsg.error("获取awemeInfo属性失败", { consoleLogContent: true });
+          Qmsg.error("获取awemeInfo属性失败");
           return;
         }
         log.info(`视频awemeInfo：`, awemeInfo);
         let shareUrl = awemeInfo?.shareInfo?.shareUrl;
         if (typeof shareUrl !== "string") {
-          Qmsg.error("获取shareUrl属性失败", { consoleLogContent: true });
+          Qmsg.error("获取shareUrl属性失败");
           return;
         }
         log.info(`视频链接：` + shareUrl);
@@ -1048,7 +1099,7 @@ export const DouYinVideoPlayer = {
             }
           });
           if (typeof closeDialogFn === "function") {
-            Qmsg.success(`调用函数关闭【长时间无操作，已暂停播放】弹窗`, { consoleLogContent: true });
+            Qmsg.success(`调用函数关闭【长时间无操作，已暂停播放】弹窗`);
             closeDialogFn();
           }
         }
