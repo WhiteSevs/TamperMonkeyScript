@@ -24,7 +24,7 @@ export type ShortCutOptionWindow = {
    * 需要触发的目标 全局
    * @default "window"
    */
-  target: "window";
+  target?: "window";
   /**
    * 触发该快捷键的回调
    */
@@ -35,8 +35,9 @@ export type ShortCutOptionElement = {
    * 需要触发的目标 元素选择器
    *
    * target不能为document，因为会先触发window的事件
+   * @default "window"
    */
-  target: string | Element | (() => IPromise<Element | void>);
+  target?: string | Element | (() => IPromise<Element | void>);
   /**
    * 触发该快捷键的回调
    */
@@ -402,7 +403,7 @@ export class ShortCut {
         } else {
           let __option: ShortCutOption = {};
           Reflect.set(__option, localKey, option);
-          setListenKeyboard(option.target, __option);
+          setListenKeyboard(option.target!, __option);
         }
       });
     });
