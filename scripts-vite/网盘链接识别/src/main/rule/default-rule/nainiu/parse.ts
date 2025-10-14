@@ -15,7 +15,7 @@ export class NetDiskParse_nainiu extends ParseFileCore {
     super.init(netDiskInfo);
     const that = this;
     let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-    this.panelList = [];
+    this.panelList.length = 0;
     this.panelContent = "";
     let checkLinkValidityInfo = await this.checkLinkValidity(this.shareCode, this.accessCode);
     if (!checkLinkValidityInfo) {

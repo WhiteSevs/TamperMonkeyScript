@@ -421,7 +421,7 @@ const YiYanChat = {
                   /* 合并 */
                   responseItem = combineItem.join("");
                   /* 清空 */
-                  combineItem = [];
+                  combineItem.length = 0;
                 } else if (!responseItem.includes("event:ping")) {
                   preResponseItem = responseItem;
                 }
@@ -617,7 +617,7 @@ const YiYanChat = {
    * 清除提问历史
    */
   clearHistoryQuestion() {
-    YiYanChat.question = [];
+    YiYanChat.question.length = 0;
     let $content = YiYanChat.dialogAlias.$shadowRoot.querySelector(".pops-alert-content") as HTMLElement;
     $content.innerHTML = "";
   },

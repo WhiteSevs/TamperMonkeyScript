@@ -67,7 +67,7 @@
     let isFirstLoad = pageNumber.value === 1;
     if (isFirstLoad) {
       isAsyncLoadEnd.value = false;
-      followForum.value = [];
+      followForum.value.length = 0;
     }
     const userName = props.UserData.name as string;
     let concernData = await TiebaHomeApi.getConcern(userName, pageNumber.value);

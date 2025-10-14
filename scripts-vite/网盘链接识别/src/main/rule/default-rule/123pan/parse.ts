@@ -31,7 +31,7 @@ export class NetDiskParse_123pan extends ParseFileCore {
     super.init(netDiskInfo);
     const that = this;
     let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-    this.panelList = [];
+    this.panelList.length = 0;
     this.Authorization = NetDiskAuthorization_123pan_Authorization.get();
     let checkLinkValidityStatus = await NetDiskCheckLinkValidity_123pan.init(netDiskInfo);
     if (

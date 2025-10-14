@@ -5044,7 +5044,7 @@
       this.initRule();
     },
     initRule() {
-      this.$data.rule = [];
+      this.$data.rule.length = 0;
       let localRule = this.get().trim();
       let localRuleSplit = localRule.split("\n");
       localRuleSplit.forEach((item) => {

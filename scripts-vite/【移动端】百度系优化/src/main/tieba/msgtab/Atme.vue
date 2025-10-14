@@ -71,7 +71,7 @@
   };
 
   onMounted(async () => {
-    postList.value = [];
+    postList.value.length = 0;
     const loading = ElLoading.service({
       lock: true,
       text: "Loading",

@@ -15,7 +15,7 @@ export const DouYinMessageFilter = {
    * 初始化解析规则
    */
   initRule() {
-    this.$data.rule = [];
+    this.$data.rule.length = 0;
     let localRule = this.get().trim();
     let localRuleSplit = localRule.split("\n");
     localRuleSplit.forEach((item: string) => {

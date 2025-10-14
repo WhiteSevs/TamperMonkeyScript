@@ -241,8 +241,8 @@ class VideoQuality extends VideoEncoding {
     // @ts-ignore
     this.$data.qualityOption = null;
     this.$data.qualityOption = option;
-    this.$data.qualityOptionList = [];
-    this.$data.qualityCodeIdList = [];
+    this.$data.qualityOptionList.length = 0;
+    this.$data.qualityCodeIdList.length = 0;
     this.$data.currentSelectQualityInfo = null;
     this.$data.currentQualityCodecId = void 0;
     if (import.meta.hot) {

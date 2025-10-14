@@ -58,8 +58,8 @@ export const BilibiliComponentDetectionRule = {
   },
   /** 初始化数据 */
   init() {
-    this.$data.whiteList = [];
-    this.$data.ruleData = [];
+    this.$data.whiteList.length = 0;
+    this.$data.ruleData.length = 0;
     let allData = this.getData();
     allData.forEach((data) => {
       if (!data.enable) {

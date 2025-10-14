@@ -118,7 +118,7 @@ const SubTitleData = {
    * 重置所有data数据
    */
   reset() {
-    this.allSubTitleInfo = [];
+    this.allSubTitleInfo.length = 0;
     this.currentSelectIndex = -1;
   },
 };

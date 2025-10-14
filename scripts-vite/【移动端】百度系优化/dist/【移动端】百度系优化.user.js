@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.7
+// @version      2025.10.14
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -14,7 +14,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/showdown/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
@@ -71,7 +71,7 @@
   };
 
   importCSS(
-    ' @charset "UTF-8";#small-toolbar[data-v-b2773fdf]{position:fixed;bottom:0;width:100%;background:#fff;height:.56rem;display:flex;align-items:center;z-index:1000}#small-toolbar .icon[data-v-b2773fdf]{width:.2rem;height:.2rem}#small-toolbar #reply-editor[data-v-b2773fdf]{flex:1}#small-toolbar .small-editor-toolbar[data-v-b2773fdf]{flex:1;margin:10px 15px;width:100%;font-size:.16rem;line-height:.16rem;display:flex;align-items:center;position:relative}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]{width:100%;background:#e9e9e9;border-radius:.06rem;padding:.06rem;border:0;outline:none;font-size:.14rem;line-height:.14rem;cursor:default}#small-toolbar .small-editor-toolbar .small-editor-toolbar-emoji-btn[data-v-b2773fdf]{position:absolute;top:50%;right:.06rem;transform:translateY(-50%)}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:focus,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:visited,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:focus-within,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:focus-visible{border:0;outline:none}#small-toolbar .gm-reply-other-toolbar[data-v-b2773fdf]{flex:0 auto;display:flex;align-items:safe center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count[data-v-b2773fdf],#small-toolbar .gm-reply-other-toolbar .reply-good-count[data-v-b2773fdf]{padding:8px;display:flex;flex-direction:column;align-items:center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count p.text[data-v-b2773fdf],#small-toolbar .gm-reply-other-toolbar .reply-good-count p.text[data-v-b2773fdf]{font-size:.1rem}.tiptap p.is-editor-empty:first-child:before{content:attr(data-placeholder);float:left;color:#adb5bd;pointer-events:none;height:0}#reply-editor .tiptap{width:100%;height:100%;outline:0!important;font-size:.16rem}.tiptap-input-image{width:.18rem;height:.18rem}#reply-editor[data-v-661335ab]{overflow:auto;background-color:#e5e5e5;padding:.06rem;height:100%;border-radius:5px}.icon-active[data-v-6550ea22]{fill:#7557ff}#full-toolbar[data-v-6550ea22]{position:fixed;bottom:0;width:100%;background:#fff;display:flex;align-items:center;z-index:100099;flex-flow:column}#full-toolbar .full-toolbar-top-reply-user[data-v-6550ea22]{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#adb5bd;width:-webkit-fill-available;width:-moz-available;padding-left:.2rem;padding-top:.06rem}#full-toolbar .full-toolbar-top-container[data-v-6550ea22]{display:flex;align-items:end;width:-moz-available;width:-webkit-fill-available;padding:.06rem .1rem;height:.6rem}#full-toolbar .full-toolbar-top-container .full-toolbar-top-left-container[data-v-6550ea22]{display:flex;flex-direction:column;flex:1;overflow:hidden;margin:0px .1rem;height:100%}#full-toolbar .full-toolbar-top-container .full-toolbar-top-right-container[data-v-6550ea22]{flex:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%}#full-toolbar .full-toolbar-bottom-container[data-v-6550ea22]{margin:.06rem 0;padding:0px 0px .06rem;margin-right:auto}#full-toolbar .full-toolbar-bottom-container .full-toolbar-emoji-btn[data-v-6550ea22],#full-toolbar .full-toolbar-bottom-container .full-toolbar-panel-at-btn[data-v-6550ea22]{margin:0 20px;display:flex;flex-direction:column;align-items:center}#full-toolbar .emoji-panel[data-v-6550ea22]{width:100%;height:30vh;background-color:#efefef;overflow:auto}.emoji-panel-huaji[data-v-6550ea22]{padding:.03rem;overflow-y:auto}.emoji-panel-huaji .el-avatar[data-v-6550ea22]{margin:16px}#full-toolbar[data-v-6550ea22]:has(.full-toolbar-top-container[data-full=true]){height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-6550ea22],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) #reply-editor[data-v-6550ea22]{height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-reply-user[data-v-6550ea22],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-right-container[data-v-6550ea22]{display:none}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-6550ea22]{flex-direction:column}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-left-container[data-v-6550ea22]{width:-webkit-fill-available;width:-moz-available}.full-toolbar-top-nav-container[data-v-6550ea22]{display:flex;width:-webkit-fill-available;width:-moz-available;align-items:center;justify-content:space-between;padding:.16rem}#full-toolbar .full-toolbar-top-container{max-height:calc(100vh - .12rem - 40px)}#full-toolbar[data-show-bottom-panel=true] .full-toolbar-top-container{max-height:calc(70vh - .12rem - 40px)}.posts-container-item[data-v-3116157a]{width:-webkit-fill-available;width:-moz-available}.posts-item-title[data-v-3116157a]{font-weight:700}.posts-item-title[data-v-3116157a],.posts-item-content[data-v-3116157a],.posts-item-media-container[data-v-3116157a]{margin:10px 0}.posts-item-footer[data-v-3116157a]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-3116157a]{text-align:center}.posts-item-footer-icon-container[data-v-3116157a]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-3116157a]{padding:0 10px}.posts-container[data-v-0e1c9a71]{background:#f2f2f4;padding:10px}.posts-container-item[data-v-0e1c9a71]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.posts-item-title[data-v-0e1c9a71]{font-weight:700}.posts-item-title[data-v-0e1c9a71],.posts-item-content[data-v-0e1c9a71],.posts-item-media-container[data-v-0e1c9a71]{margin:10px 0}.posts-item-footer[data-v-0e1c9a71]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-0e1c9a71]{text-align:center}.posts-item-footer-icon-container[data-v-0e1c9a71]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-0e1c9a71]{padding:0 10px}.follow-forum-container[data-v-020ff19b]{background:#f2f2f4;padding:10px}.follow-forum-list-container[data-v-020ff19b]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.follow-forum-item[data-v-020ff19b]{width:50%;max-width:50%;display:flex;align-items:flex-start;margin:10px 0}.follow-forum-avatar[data-v-020ff19b]{border-radius:12px}.follow-forum-item-right-container[data-v-020ff19b]{margin:0 10px;width:inherit;display:flex;flex-direction:column}.follow-forum-item-name[data-v-020ff19b]{display:flex;align-items:center;width:-webkit-fill-available;width:-moz-available}.follow-forum-item-level[data-level][data-v-020ff19b]{margin:5px;padding:2px;border-radius:3px;font-size:.6rem;line-height:.6rem;font-weight:700;text-align:center;background:var(--v19470dbc);color:var(--c2cd12fe)}.follow-forum-item-level[data-level="0"][data-v-020ff19b],.follow-forum-item-level[data-level="1"][data-v-020ff19b],.follow-forum-item-level[data-level="2"][data-v-020ff19b],.follow-forum-item-level[data-level="3"][data-v-020ff19b]{background:var(--v64a62dc3)}.follow-forum-item-level[data-level="4"][data-v-020ff19b],.follow-forum-item-level[data-level="5"][data-v-020ff19b],.follow-forum-item-level[data-level="6"][data-v-020ff19b],.follow-forum-item-level[data-level="7"][data-v-020ff19b],.follow-forum-item-level[data-level="8"][data-v-020ff19b],.follow-forum-item-level[data-level="9"][data-v-020ff19b]{background:var(--v64a63ccd)}.follow-forum-item-level[data-level="10"][data-v-020ff19b],.follow-forum-item-level[data-level="11"][data-v-020ff19b],.follow-forum-item-level[data-level="12"][data-v-020ff19b],.follow-forum-item-level[data-level="13"][data-v-020ff19b],.follow-forum-item-level[data-level="14"][data-v-020ff19b],.follow-forum-item-level[data-level="15"][data-v-020ff19b]{background:var(--v5869a33a)}.follow-forum-item-level[data-level="16"][data-v-020ff19b],.follow-forum-item-level[data-level="17"][data-v-020ff19b],.follow-forum-item-level[data-level="18"][data-v-020ff19b]{background:var(--v58642ec0)}.follow-forum-item-info[data-v-020ff19b]{word-wrap:break-word}#main[data-v-0eef167d]{z-index:1000;width:100%;height:100%}.big-text[data-v-0eef167d]{font-weight:700}.top-container[data-v-0eef167d]{width:-webkit-fill-available;width:-moz-available;padding:15px 15px 0}.user-info-bg[data-v-0eef167d]{width:100%;height:100px}.user-info-bg-main[data-v-0eef167d]{width:100%;height:160px;position:absolute;background:url(https://tb2.bdstatic.com/tb/mobile/suser/img/home_card_back_6cdfca5.jpg);background-size:100%;background-repeat:no-repeat}.user-avatar-top-background[data-v-0eef167d]{position:absolute;width:100%;height:40%;padding:0;margin:0;border-top-left-radius:12px;border-top-right-radius:12px;background:#fff;transform:translateY(100%)}.user-info-container[data-v-0eef167d]{padding:0 10px}.nav-left-arrow-icon[data-v-9d6dd989]{align-content:center;padding-left:0!important}.nav-title[data-v-9d6dd989]{font-weight:700;text-align:center;padding:10px}.user-avatar[data-v-9d6dd989]{text-align:center;padding-bottom:20px}.user-info-item[data-v-9d6dd989]{display:flex;padding:10px;flex-wrap:wrap}.user-desc-key[data-v-9d6dd989]{width:60px;display:block}.user-end-text[data-v-9d6dd989]{padding:0 20px}.user-top[data-v-7fba962d]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-7fba962d]{align-content:center;padding-left:0!important}.top-title-name[data-v-7fba962d]{text-align:center;padding:10px}.user-main[data-v-7fba962d]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-7fba962d]{padding:0 10px}.user-container .el-scrollbar__view[data-v-7fba962d]{height:100%}.user-item[data-v-7fba962d]{margin:10px 0}.user-item-row[data-v-7fba962d]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-7fba962d]{padding:0 10px}.user-name[data-v-7fba962d],.user-sign-text[data-v-7fba962d]{text-align:left}.user-sign-text[data-v-7fba962d]{color:#a2a2a2}.user-follow-btn[data-v-7fba962d]{float:right}.user-info[data-v-7fba962d]{display:grid}.user-item-row-left[data-v-7fba962d]{display:flex}.user-item-row-right[data-v-7fba962d]{float:right}.user-top[data-v-16d11114]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-16d11114]{align-content:center;padding-left:0!important}.top-title-name[data-v-16d11114]{text-align:center;padding:10px}.user-main[data-v-16d11114]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-16d11114]{padding:0 10px}.user-container .el-scrollbar__view[data-v-16d11114]{height:100%}.user-item[data-v-16d11114]{margin:10px 0}.user-item-row[data-v-16d11114]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-16d11114]{padding:0 10px;align-content:center}.user-name[data-v-16d11114],.user-sign-text[data-v-16d11114]{text-align:left}.user-sign-text[data-v-16d11114]{color:#a2a2a2}.user-follow-btn[data-v-16d11114]{float:right}.user-info[data-v-16d11114]{display:grid}.user-item-row-left[data-v-16d11114]{display:flex}.user-item-row-right[data-v-16d11114]{float:right}.router-view-container[data-v-8524ef32]{padding:20px}.router-view-container .layout-item[data-v-8524ef32]{display:flex;align-items:center;gap:10px;padding:10px 0}.router-view-container .layout-icon img[data-v-8524ef32]{width:100%;height:100%}.router-view-container .layout-text[data-v-8524ef32]{flex:1}.post-list-item[data-v-b35f58f8]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef}.post-list-item[data-v-b35f58f8]:last-child{border-bottom:0}.user-info[data-v-b35f58f8]{display:flex;align-items:center;gap:5px}.user-time[data-v-b35f58f8]{font-size:.8em;color:#999}.user-avatar img[data-v-b35f58f8]{width:35px;height:35px;border-radius:50%}.reply-content[data-v-b35f58f8]{font-size:.9em;color:#4a4a4a}.post-info[data-v-b35f58f8]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-b35f58f8]{display:flex;align-items:center;height:100px;width:100%}.post-content[data-v-b35f58f8]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-image[data-v-b35f58f8]{width:100px;height:100px}.post-image img[data-v-b35f58f8]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-b35f58f8]{color:#999}.bottom-msg[data-v-b35f58f8]{text-align:center;color:#999;padding:10px 0}.post-list-item[data-v-e527f680]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef}.post-list-item[data-v-e527f680]:last-child{border-bottom:0}.user-info[data-v-e527f680]{display:flex;align-items:center;gap:5px}.user-time[data-v-e527f680]{font-size:.8em;color:#999}.user-avatar img[data-v-e527f680]{width:35px;height:35px;border-radius:50%}.reply-content[data-v-e527f680]{font-size:.9em;color:#4a4a4a}.post-info[data-v-e527f680]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-e527f680]{display:flex;align-items:center;height:100px;width:100%}.post-content[data-v-e527f680]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-info[data-v-e527f680]:has(.quote-user){flex-direction:column;align-items:start;padding:10px;gap:10px}.post-info:has(.quote-user) .post-content[data-v-e527f680]{flex:1;align-content:center;padding:0 10px;margin-left:0;background:#fff;height:inherit}.post-image[data-v-e527f680]{width:100px;height:100px}.post-image img[data-v-e527f680]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-e527f680]{color:#999}.bottom-msg[data-v-e527f680],.bottom-msg[data-v-3f3b546a]{text-align:center;color:#999;padding:10px 0}.user-top[data-v-21d9b8e4]{--el-header-height: 40px;display:flex;align-items:center;position:fixed;top:0;left:0;right:0;background:#fff}.top-nav-container[data-v-21d9b8e4]{align-items:center;width:100%}.top-title-name[data-v-21d9b8e4]{text-align:center;position:absolute;left:50%;transform:translate(-50%)}.main[data-v-21d9b8e4]{padding:0;margin:40px 0 0} '
+    ' @charset "UTF-8";#small-toolbar[data-v-b2773fdf]{position:fixed;bottom:0;width:100%;background:#fff;height:.56rem;display:flex;align-items:center;z-index:1000}#small-toolbar .icon[data-v-b2773fdf]{width:.2rem;height:.2rem}#small-toolbar #reply-editor[data-v-b2773fdf]{flex:1}#small-toolbar .small-editor-toolbar[data-v-b2773fdf]{flex:1;margin:10px 15px;width:100%;font-size:.16rem;line-height:.16rem;display:flex;align-items:center;position:relative}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]{width:100%;background:#e9e9e9;border-radius:.06rem;padding:.06rem;border:0;outline:none;font-size:.14rem;line-height:.14rem;cursor:default}#small-toolbar .small-editor-toolbar .small-editor-toolbar-emoji-btn[data-v-b2773fdf]{position:absolute;top:50%;right:.06rem;transform:translateY(-50%)}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:focus,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:visited,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:focus-within,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:focus-visible{border:0;outline:none}#small-toolbar .gm-reply-other-toolbar[data-v-b2773fdf]{flex:0 auto;display:flex;align-items:safe center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count[data-v-b2773fdf],#small-toolbar .gm-reply-other-toolbar .reply-good-count[data-v-b2773fdf]{padding:8px;display:flex;flex-direction:column;align-items:center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count p.text[data-v-b2773fdf],#small-toolbar .gm-reply-other-toolbar .reply-good-count p.text[data-v-b2773fdf]{font-size:.1rem}.tiptap p.is-editor-empty:first-child:before{content:attr(data-placeholder);float:left;color:#adb5bd;pointer-events:none;height:0}#reply-editor .tiptap{width:100%;height:100%;outline:0!important;font-size:.16rem}.tiptap-input-image{width:.18rem;height:.18rem}#reply-editor[data-v-661335ab]{overflow:auto;background-color:#e5e5e5;padding:.06rem;height:100%;border-radius:5px}.icon-active[data-v-6550ea22]{fill:#7557ff}#full-toolbar[data-v-6550ea22]{position:fixed;bottom:0;width:100%;background:#fff;display:flex;align-items:center;z-index:100099;flex-flow:column}#full-toolbar .full-toolbar-top-reply-user[data-v-6550ea22]{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#adb5bd;width:-webkit-fill-available;width:-moz-available;padding-left:.2rem;padding-top:.06rem}#full-toolbar .full-toolbar-top-container[data-v-6550ea22]{display:flex;align-items:end;width:-moz-available;width:-webkit-fill-available;padding:.06rem .1rem;height:.6rem}#full-toolbar .full-toolbar-top-container .full-toolbar-top-left-container[data-v-6550ea22]{display:flex;flex-direction:column;flex:1;overflow:hidden;margin:0px .1rem;height:100%}#full-toolbar .full-toolbar-top-container .full-toolbar-top-right-container[data-v-6550ea22]{flex:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%}#full-toolbar .full-toolbar-bottom-container[data-v-6550ea22]{margin:.06rem 0;padding:0px 0px .06rem;margin-right:auto}#full-toolbar .full-toolbar-bottom-container .full-toolbar-emoji-btn[data-v-6550ea22],#full-toolbar .full-toolbar-bottom-container .full-toolbar-panel-at-btn[data-v-6550ea22]{margin:0 20px;display:flex;flex-direction:column;align-items:center}#full-toolbar .emoji-panel[data-v-6550ea22]{width:100%;height:30vh;background-color:#efefef;overflow:auto}.emoji-panel-huaji[data-v-6550ea22]{padding:.03rem;overflow-y:auto}.emoji-panel-huaji .el-avatar[data-v-6550ea22]{margin:16px}#full-toolbar[data-v-6550ea22]:has(.full-toolbar-top-container[data-full=true]){height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-6550ea22],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) #reply-editor[data-v-6550ea22]{height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-reply-user[data-v-6550ea22],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-right-container[data-v-6550ea22]{display:none}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-6550ea22]{flex-direction:column}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-left-container[data-v-6550ea22]{width:-webkit-fill-available;width:-moz-available}.full-toolbar-top-nav-container[data-v-6550ea22]{display:flex;width:-webkit-fill-available;width:-moz-available;align-items:center;justify-content:space-between;padding:.16rem}#full-toolbar .full-toolbar-top-container{max-height:calc(100vh - .12rem - 40px)}#full-toolbar[data-show-bottom-panel=true] .full-toolbar-top-container{max-height:calc(70vh - .12rem - 40px)}.posts-container-item[data-v-3116157a]{width:-webkit-fill-available;width:-moz-available}.posts-item-title[data-v-3116157a]{font-weight:700}.posts-item-title[data-v-3116157a],.posts-item-content[data-v-3116157a],.posts-item-media-container[data-v-3116157a]{margin:10px 0}.posts-item-footer[data-v-3116157a]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-3116157a]{text-align:center}.posts-item-footer-icon-container[data-v-3116157a]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-3116157a]{padding:0 10px}.posts-container[data-v-41f50a7a]{background:#f2f2f4;padding:10px}.posts-container-item[data-v-41f50a7a]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.posts-item-title[data-v-41f50a7a]{font-weight:700}.posts-item-title[data-v-41f50a7a],.posts-item-content[data-v-41f50a7a],.posts-item-media-container[data-v-41f50a7a]{margin:10px 0}.posts-item-footer[data-v-41f50a7a]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-41f50a7a]{text-align:center}.posts-item-footer-icon-container[data-v-41f50a7a]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-41f50a7a]{padding:0 10px}.follow-forum-container[data-v-9f65e55d]{background:#f2f2f4;padding:10px}.follow-forum-list-container[data-v-9f65e55d]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.follow-forum-item[data-v-9f65e55d]{width:50%;max-width:50%;display:flex;align-items:flex-start;margin:10px 0}.follow-forum-avatar[data-v-9f65e55d]{border-radius:12px}.follow-forum-item-right-container[data-v-9f65e55d]{margin:0 10px;width:inherit;display:flex;flex-direction:column}.follow-forum-item-name[data-v-9f65e55d]{display:flex;align-items:center;width:-webkit-fill-available;width:-moz-available}.follow-forum-item-level[data-level][data-v-9f65e55d]{margin:5px;padding:2px;border-radius:3px;font-size:.6rem;line-height:.6rem;font-weight:700;text-align:center;background:var(--v0ae5f27b);color:var(--v384f0200)}.follow-forum-item-level[data-level="0"][data-v-9f65e55d],.follow-forum-item-level[data-level="1"][data-v-9f65e55d],.follow-forum-item-level[data-level="2"][data-v-9f65e55d],.follow-forum-item-level[data-level="3"][data-v-9f65e55d]{background:var(--b2383e38)}.follow-forum-item-level[data-level="4"][data-v-9f65e55d],.follow-forum-item-level[data-level="5"][data-v-9f65e55d],.follow-forum-item-level[data-level="6"][data-v-9f65e55d],.follow-forum-item-level[data-level="7"][data-v-9f65e55d],.follow-forum-item-level[data-level="8"][data-v-9f65e55d],.follow-forum-item-level[data-level="9"][data-v-9f65e55d]{background:var(--b2382024)}.follow-forum-item-level[data-level="10"][data-v-9f65e55d],.follow-forum-item-level[data-level="11"][data-v-9f65e55d],.follow-forum-item-level[data-level="12"][data-v-9f65e55d],.follow-forum-item-level[data-level="13"][data-v-9f65e55d],.follow-forum-item-level[data-level="14"][data-v-9f65e55d],.follow-forum-item-level[data-level="15"][data-v-9f65e55d]{background:var(--v7d689d44)}.follow-forum-item-level[data-level="16"][data-v-9f65e55d],.follow-forum-item-level[data-level="17"][data-v-9f65e55d],.follow-forum-item-level[data-level="18"][data-v-9f65e55d]{background:var(--v7d6b5781)}.follow-forum-item-info[data-v-9f65e55d]{word-wrap:break-word}#main[data-v-0eef167d]{z-index:1000;width:100%;height:100%}.big-text[data-v-0eef167d]{font-weight:700}.top-container[data-v-0eef167d]{width:-webkit-fill-available;width:-moz-available;padding:15px 15px 0}.user-info-bg[data-v-0eef167d]{width:100%;height:100px}.user-info-bg-main[data-v-0eef167d]{width:100%;height:160px;position:absolute;background:url(https://tb2.bdstatic.com/tb/mobile/suser/img/home_card_back_6cdfca5.jpg);background-size:100%;background-repeat:no-repeat}.user-avatar-top-background[data-v-0eef167d]{position:absolute;width:100%;height:40%;padding:0;margin:0;border-top-left-radius:12px;border-top-right-radius:12px;background:#fff;transform:translateY(100%)}.user-info-container[data-v-0eef167d]{padding:0 10px}.nav-left-arrow-icon[data-v-9d6dd989]{align-content:center;padding-left:0!important}.nav-title[data-v-9d6dd989]{font-weight:700;text-align:center;padding:10px}.user-avatar[data-v-9d6dd989]{text-align:center;padding-bottom:20px}.user-info-item[data-v-9d6dd989]{display:flex;padding:10px;flex-wrap:wrap}.user-desc-key[data-v-9d6dd989]{width:60px;display:block}.user-end-text[data-v-9d6dd989]{padding:0 20px}.user-top[data-v-783d336f]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-783d336f]{align-content:center;padding-left:0!important}.top-title-name[data-v-783d336f]{text-align:center;padding:10px}.user-main[data-v-783d336f]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-783d336f]{padding:0 10px}.user-container .el-scrollbar__view[data-v-783d336f]{height:100%}.user-item[data-v-783d336f]{margin:10px 0}.user-item-row[data-v-783d336f]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-783d336f]{padding:0 10px}.user-name[data-v-783d336f],.user-sign-text[data-v-783d336f]{text-align:left}.user-sign-text[data-v-783d336f]{color:#a2a2a2}.user-follow-btn[data-v-783d336f]{float:right}.user-info[data-v-783d336f]{display:grid}.user-item-row-left[data-v-783d336f]{display:flex}.user-item-row-right[data-v-783d336f]{float:right}.user-top[data-v-b315e76a]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-b315e76a]{align-content:center;padding-left:0!important}.top-title-name[data-v-b315e76a]{text-align:center;padding:10px}.user-main[data-v-b315e76a]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-b315e76a]{padding:0 10px}.user-container .el-scrollbar__view[data-v-b315e76a]{height:100%}.user-item[data-v-b315e76a]{margin:10px 0}.user-item-row[data-v-b315e76a]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-b315e76a]{padding:0 10px;align-content:center}.user-name[data-v-b315e76a],.user-sign-text[data-v-b315e76a]{text-align:left}.user-sign-text[data-v-b315e76a]{color:#a2a2a2}.user-follow-btn[data-v-b315e76a]{float:right}.user-info[data-v-b315e76a]{display:grid}.user-item-row-left[data-v-b315e76a]{display:flex}.user-item-row-right[data-v-b315e76a]{float:right}.router-view-container[data-v-8524ef32]{padding:20px}.router-view-container .layout-item[data-v-8524ef32]{display:flex;align-items:center;gap:10px;padding:10px 0}.router-view-container .layout-icon img[data-v-8524ef32]{width:100%;height:100%}.router-view-container .layout-text[data-v-8524ef32]{flex:1}.post-list-item[data-v-552236f6]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef}.post-list-item[data-v-552236f6]:last-child{border-bottom:0}.user-info[data-v-552236f6]{display:flex;align-items:center;gap:5px}.user-time[data-v-552236f6]{font-size:.8em;color:#999}.user-avatar img[data-v-552236f6]{width:35px;height:35px;border-radius:50%}.reply-content[data-v-552236f6]{font-size:.9em;color:#4a4a4a}.post-info[data-v-552236f6]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-552236f6]{display:flex;align-items:center;height:100px;width:100%}.post-content[data-v-552236f6]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-image[data-v-552236f6]{width:100px;height:100px}.post-image img[data-v-552236f6]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-552236f6]{color:#999}.bottom-msg[data-v-552236f6]{text-align:center;color:#999;padding:10px 0}.post-list-item[data-v-2b71b42f]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef}.post-list-item[data-v-2b71b42f]:last-child{border-bottom:0}.user-info[data-v-2b71b42f]{display:flex;align-items:center;gap:5px}.user-time[data-v-2b71b42f]{font-size:.8em;color:#999}.user-avatar img[data-v-2b71b42f]{width:35px;height:35px;border-radius:50%}.reply-content[data-v-2b71b42f]{font-size:.9em;color:#4a4a4a}.post-info[data-v-2b71b42f]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-2b71b42f]{display:flex;align-items:center;height:100px;width:100%}.post-content[data-v-2b71b42f]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-info[data-v-2b71b42f]:has(.quote-user){flex-direction:column;align-items:start;padding:10px;gap:10px}.post-info:has(.quote-user) .post-content[data-v-2b71b42f]{flex:1;align-content:center;padding:0 10px;margin-left:0;background:#fff;height:inherit}.post-image[data-v-2b71b42f]{width:100px;height:100px}.post-image img[data-v-2b71b42f]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-2b71b42f]{color:#999}.bottom-msg[data-v-2b71b42f],.bottom-msg[data-v-b2e309d0]{text-align:center;color:#999;padding:10px 0}.user-top[data-v-21d9b8e4]{--el-header-height: 40px;display:flex;align-items:center;position:fixed;top:0;left:0;right:0;background:#fff}.top-nav-container[data-v-21d9b8e4]{align-items:center;width:100%}.top-title-name[data-v-21d9b8e4]{text-align:center;position:absolute;left:50%;transform:translate(-50%)}.main[data-v-21d9b8e4]{padding:0;margin:40px 0 0} '
   );
 
   var __getOwnPropNames = Object.getOwnPropertyNames;
@@ -80,7 +80,7 @@
       return (mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports);
     };
   var require_entrance_001 = __commonJS({
-    "entrance-BiJtnvMl.js"(exports, module) {
+    "entrance-CRxUOm8i.js"(exports, module) {
       var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
       var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
       var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
@@ -292,7 +292,7 @@
         listenerData;
         constructor(key) {
           if (typeof key === "string") {
-            let trimKey = key.trim();
+            const trimKey = key.trim();
             if (trimKey == "") {
               throw new Error("key参数不能为空字符串");
             }
@@ -301,6 +301,18 @@
             throw new Error("key参数类型错误，必须是字符串");
           }
           this.listenerData = new Utils.Dictionary();
+          this.getLocalValue = this.getLocalValue.bind(this);
+          this.set = this.set.bind(this);
+          this.get = this.get.bind(this);
+          this.getAll = this.getAll.bind(this);
+          this.delete = this.delete.bind(this);
+          this.has = this.has.bind(this);
+          this.keys = this.keys.bind(this);
+          this.values = this.values.bind(this);
+          this.clear = this.clear.bind(this);
+          this.addValueChangeListener = this.addValueChangeListener.bind(this);
+          this.removeValueChangeListener = this.removeValueChangeListener.bind(this);
+          this.triggerValueChangeListener = this.triggerValueChangeListener.bind(this);
         }
         getLocalValue() {
           let localValue = _GM_getValue(this.storageKey);
@@ -314,45 +326,45 @@
           _GM_setValue(this.storageKey, value);
         }
         set(key, value) {
-          let oldValue = this.get(key);
-          let localValue = this.getLocalValue();
+          const oldValue = this.get(key);
+          const localValue = this.getLocalValue();
           Reflect.set(localValue, key, value);
           this.setLocalValue(localValue);
           this.triggerValueChangeListener(key, oldValue, value);
         }
         get(key, defaultValue) {
-          let localValue = this.getLocalValue();
+          const localValue = this.getLocalValue();
           return Reflect.get(localValue, key) ?? defaultValue;
         }
         getAll() {
-          let localValue = this.getLocalValue();
+          const localValue = this.getLocalValue();
           return localValue;
         }
         delete(key) {
-          let oldValue = this.get(key);
-          let localValue = this.getLocalValue();
+          const oldValue = this.get(key);
+          const localValue = this.getLocalValue();
           Reflect.deleteProperty(localValue, key);
           this.setLocalValue(localValue);
           this.triggerValueChangeListener(key, oldValue, void 0);
         }
         has(key) {
-          let localValue = this.getLocalValue();
+          const localValue = this.getLocalValue();
           return Reflect.has(localValue, key);
         }
         keys() {
-          let localValue = this.getLocalValue();
+          const localValue = this.getLocalValue();
           return Reflect.ownKeys(localValue);
         }
         values() {
-          let localValue = this.getLocalValue();
+          const localValue = this.getLocalValue();
           return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
         }
         clear() {
           _GM_deleteValue(this.storageKey);
         }
         addValueChangeListener(key, callback) {
-          let listenerId = Math.random();
-          let listenerData = this.listenerData.get(key) || [];
+          const listenerId = Math.random();
+          const listenerData = this.listenerData.get(key) || [];
           listenerData.push({
             id: listenerId,
             key,
@@ -379,7 +391,8 @@
           }
           return flag;
         }
-        triggerValueChangeListener(key, oldValue, newValue) {
+        async triggerValueChangeListener(...args) {
+          const [key, oldValue, newValue] = args;
           if (!this.listenerData.has(key)) {
             return;
           }
@@ -390,17 +403,17 @@
               let value = this.get(key);
               let __newValue;
               let __oldValue;
-              if (typeof oldValue !== "undefined" && arguments.length >= 2) {
+              if (typeof oldValue !== "undefined" && args.length >= 2) {
                 __oldValue = oldValue;
               } else {
                 __oldValue = value;
               }
-              if (typeof newValue !== "undefined" && arguments.length > 2) {
+              if (typeof newValue !== "undefined" && args.length > 2) {
                 __newValue = newValue;
               } else {
                 __newValue = value;
               }
-              data.callback(key, __oldValue, __newValue);
+              await data.callback(key, __oldValue, __newValue);
             }
           }
         }
@@ -558,11 +571,12 @@
           return addStyle$1(`${selectorList.join(",\n")}{display: none !important;}`);
         },
         setGMResourceCSS(resourceMapData) {
-          let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
+          const cssText =
+            typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
           if (typeof cssText === "string" && cssText) {
-            addStyle$1(cssText);
+            return addStyle$1(cssText);
           } else {
-            CommonUtil.loadStyleLink(resourceMapData.url);
+            return CommonUtil.loadStyleLink(resourceMapData.url);
           }
         },
         async loadStyleLink(url) {
@@ -570,8 +584,11 @@
           $link.rel = "stylesheet";
           $link.type = "text/css";
           $link.href = url;
-          DOMUtils.ready(() => {
-            document.head.appendChild($link);
+          return new Promise((resolve) => {
+            DOMUtils.ready(() => {
+              document.head.appendChild($link);
+              resolve($link);
+            });
           });
         },
         async loadScript(url) {
@@ -903,7 +920,7 @@
           return PopsPanelStorageApi.has(key);
         },
         addValueChangeListener(key, callback) {
-          let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
+          const listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
             callback(key, __oldValue, __newValue);
           });
           return listenerId;
@@ -923,7 +940,7 @@
             queryKeyFn = queryKey;
           }
           let isArrayKey = false;
-          let queryKeyResult = queryKeyFn();
+          const queryKeyResult = queryKeyFn();
           let keyList = [];
           if (Array.isArray(queryKeyResult)) {
             isArrayKey = true;
@@ -931,50 +948,85 @@
           } else {
             keyList.push(queryKeyResult);
           }
-          let findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
+          const findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
           if (findNotInDataKey) {
             log.warn(`${findNotInDataKey} 键不存在`);
             return;
           }
-          let storageKey = JSON.stringify(keyList);
+          const storageKey = JSON.stringify(keyList);
           if (once) {
             if (this.$data.onceExecMenuData.has(storageKey)) {
               return this.$data.onceExecMenuData.get(storageKey);
             }
           }
           let storeValueList = [];
-          let listenerIdList = [];
-          let dynamicAddStyleNodeCallback = (value, $style) => {
-            let dynamicResultList = [];
-            if (!Array.isArray($style)) {
-              $style = [$style];
+          const listenerIdList = [];
+          let destoryFnList = [];
+          const addStoreValueCallback = (enableValue, args) => {
+            let dynamicMenuStoreValueList = [];
+            let dynamicDestoryFnList = [];
+            let resultValueList = [];
+            if (Array.isArray(args)) {
+              resultValueList = resultValueList.concat(args);
+            } else {
+              if (typeof args === "object" && args != null) {
+                const { $css, destory } = args;
+                if ($css != null) {
+                  if (Array.isArray($css)) {
+                    resultValueList = resultValueList.concat($css);
+                  } else {
+                    resultValueList.push($css);
+                  }
+                }
+                if (typeof destory === "function") {
+                  resultValueList.push(destory);
+                }
+              } else {
+                resultValueList.push(args);
+              }
             }
-            $style.forEach(($styleItem) => {
-              if ($styleItem == null) {
-                return;
+            for (const it of resultValueList) {
+              if (it == null) {
+                continue;
               }
-              if ($styleItem instanceof HTMLStyleElement) {
-                dynamicResultList.push($styleItem);
-                return;
+              if (it instanceof Element) {
+                dynamicMenuStoreValueList.push(it);
+                continue;
               }
-            });
-            {
-              storeValueList = storeValueList.concat(dynamicResultList);
+              if (typeof it === "function") {
+                destoryFnList.push(it);
+                continue;
+              }
+            }
+            if (enableValue) {
+              storeValueList = storeValueList.concat(dynamicMenuStoreValueList);
+              destoryFnList = destoryFnList.concat(dynamicDestoryFnList);
+            } else {
+              execClearStoreStyleElements();
+              execDestory();
             }
           };
-          let getMenuValue = (key) => {
-            let value = this.getValue(key);
+          const getMenuValue = (key) => {
+            const value = this.getValue(key);
             return value;
           };
-          let clearBeforeStoreValue = () => {
+          const execClearStoreStyleElements = () => {
             for (let index = 0; index < storeValueList.length; index++) {
-              let $css = storeValueList[index];
-              $css.remove();
+              const $css = storeValueList[index];
+              $css?.remove();
               storeValueList.splice(index, 1);
               index--;
             }
           };
-          let checkMenuExec = () => {
+          const execDestory = () => {
+            for (let index = 0; index < destoryFnList.length; index++) {
+              const destoryFnItem = destoryFnList[index];
+              destoryFnItem();
+              destoryFnList.splice(index, 1);
+              index--;
+            }
+          };
+          const checkMenuExec = () => {
             let flag = false;
             if (typeof checkExec === "function") {
               flag = checkExec(keyList);
@@ -983,57 +1035,52 @@
             }
             return flag;
           };
-          let valueChangeCallback = (valueOption) => {
-            let execFlag = checkMenuExec();
-            let resultList = [];
+          const valueChangeCallback = (valueOption) => {
+            const execFlag = checkMenuExec();
             if (execFlag) {
-              let valueList = keyList.map((key) => this.getValue(key));
-              let callbackResult = callback({
+              const valueList = keyList.map((key) => this.getValue(key));
+              const callbackResult = callback({
                 value: isArrayKey ? valueList : valueList[0],
-                addStyleElement: (...args) => {
-                  return dynamicAddStyleNodeCallback(true, ...args);
+                addStoreValue: (...args) => {
+                  return addStoreValueCallback(true, args);
                 },
               });
-              if (!Array.isArray(callbackResult)) {
-                callbackResult = [callbackResult];
-              }
-              callbackResult.forEach((it) => {
-                if (it == null) {
-                  return;
-                }
-                if (it instanceof HTMLStyleElement) {
-                  resultList.push(it);
-                  return;
-                }
-              });
+              addStoreValueCallback(true, callbackResult);
+            } else {
+              addStoreValueCallback(false, []);
             }
-            clearBeforeStoreValue();
-            storeValueList = [...resultList];
           };
           once &&
             keyList.forEach((key) => {
-              let listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
-                valueChangeCallback();
+              const listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
+                return valueChangeCallback();
               });
               listenerIdList.push(listenerId);
             });
           valueChangeCallback();
-          let result = {
+          const result = {
             reload() {
               valueChangeCallback();
             },
             clear() {
               this.clearStoreStyleElements();
+              this.destory();
               this.removeValueChangeListener();
-              once && that.$data.onceExecMenuData.delete(storageKey);
+              this.clearOnceExecMenuData();
             },
             clearStoreStyleElements: () => {
-              return clearBeforeStoreValue();
+              return execClearStoreStyleElements();
+            },
+            destory() {
+              return execDestory();
             },
             removeValueChangeListener: () => {
               listenerIdList.forEach((listenerId) => {
                 this.removeValueChangeListener(listenerId);
               });
+            },
+            clearOnceExecMenuData() {
+              once && that.$data.onceExecMenuData.delete(storageKey);
             },
           };
           this.$data.onceExecMenuData.set(storageKey, result);
@@ -1046,9 +1093,9 @@
               return callback(option);
             },
             (keyList) => {
-              let execFlag = keyList.every((__key__) => {
+              const execFlag = keyList.every((__key__) => {
                 let flag = !!this.getValue(__key__);
-                let disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
+                const disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
                 if (disabled) {
                   flag = false;
                   log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
@@ -1083,7 +1130,7 @@
           key = this.transformKey(key);
           this.$data.onceExecMenuData.delete(key);
           this.$data.urlChangeReloadMenuExecOnce.delete(key);
-          let flag = PopsPanelStorageApi.removeValueChangeListener(key);
+          const flag = PopsPanelStorageApi.removeValueChangeListener(key);
           return flag;
         },
         onceExec(key, callback) {
@@ -9522,6 +9569,9 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
       }
       class RuleFilterView {
         option;
+        $data = {
+          isFilteredData: [],
+        };
         constructor(option) {
           this.option = option;
         }
@@ -9576,13 +9626,15 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
               }
             );
             let execFilterAndCloseDialog = async () => {
+              this.$data.isFilteredData = [];
               let allRuleInfo = await this.option.getAllRuleInfo();
               allRuleInfo.forEach(async (ruleInfo) => {
                 let filterResult = await filterOption.filterCallBack(ruleInfo.data);
-                if (!filterResult) {
-                  domUtils.hide(ruleInfo.$el, false);
-                } else {
+                if (filterResult) {
                   domUtils.show(ruleInfo.$el, false);
+                } else {
+                  domUtils.hide(ruleInfo.$el, false);
+                  this.$data.isFilteredData.push(ruleInfo.data);
                 }
               });
               if (typeof this.option.execFilterCallBack === "function") {
@@ -9603,6 +9655,9 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
             $fragment.appendChild($button);
           });
           $filterContainer.appendChild($fragment);
+        }
+        getFilteredData() {
+          return this.$data.isFilteredData;
         }
       }
       class RuleView {
@@ -9677,6 +9732,10 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
                       execFilterCallBack: async () => {
                         domUtils.text($button, "取消过滤");
                         await this.option.bottomControls?.filter?.execFilterCallBack?.();
+                        const isFilteredData = ruleFilterView.getFilteredData();
+                        if (isFilteredData.length) {
+                          domUtils.text($button, `取消过滤(${isFilteredData.length})`);
+                        }
                       },
                       getAllRuleInfo: () => {
                         return getAllRuleElement().map(($el) => {
@@ -9787,6 +9846,7 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
           });
           let allData = await this.option.data();
           let changeButtonText = false;
+          let isFilteredDataLength = 0;
           for (let index = 0; index < allData.length; index++) {
             let item = allData[index];
             let $ruleItemList = await this.appendRuleItemElement($popsConfirm.$shadowRoot, item);
@@ -9801,11 +9861,12 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
             if (!isNotFilterFlag) {
               changeButtonText = true;
               domUtils.hide($ruleItemList, false);
+              isFilteredDataLength++;
             }
           }
           if (changeButtonText) {
             let $button = $popsConfirm.$shadowRoot.querySelector(".pops-confirm-btn-cancel span");
-            domUtils.text($button, "取消过滤");
+            domUtils.text($button, `取消过滤${isFilteredDataLength ? `(${isFilteredDataLength})` : ""}`);
           }
         }
         showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
@@ -10399,8 +10460,8 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
           STORAGE_KEY: "tieba-componentDetection-rule",
         },
         init() {
-          this.$data.whiteList = [];
-          this.$data.ruleData = [];
+          this.$data.whiteList.length = 0;
+          this.$data.ruleData.length = 0;
           let allData = this.getData();
           allData.forEach((data) => {
             if (!data.enable) {
@@ -23366,7 +23427,7 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
             let isFirstLoad = pageNumber.value === 1;
             if (isFirstLoad) {
               isAsyncLoadEnd.value = false;
-              postsInfoList.value = [];
+              postsInfoList.value.length = 0;
             }
             let userPostsList = await TieBaApi.getUserPosts(props.UserData.name, pageNumber.value);
             log.info(["获取到的帖子", userPostsList]);
@@ -23725,7 +23786,7 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
           };
         },
       });
-      const Posts = _export_sfc$1(_sfc_main$c, [["__scopeId", "data-v-0e1c9a71"]]);
+      const Posts = _export_sfc$1(_sfc_main$c, [["__scopeId", "data-v-41f50a7a"]]);
       const _sfc_main$b = {};
       const _hoisted_1$a = { style: { padding: "10px" } };
       const _hoisted_2$9 = {
@@ -23791,12 +23852,12 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
         },
         setup(__props) {
           vue.useCssVars((_ctx) => ({
-            v19470dbc: vue.unref(levelBgColor),
-            c2cd12fe: vue.unref(levelColor),
-            v64a62dc3: vue.unref(levelColor0_3),
-            v64a63ccd: vue.unref(levelColor4_9),
-            v5869a33a: vue.unref(levelColor10_15),
-            v58642ec0: vue.unref(levelColor16_18),
+            v0ae5f27b: vue.unref(levelBgColor),
+            v384f0200: vue.unref(levelColor),
+            b2383e38: vue.unref(levelColor0_3),
+            b2382024: vue.unref(levelColor4_9),
+            v7d689d44: vue.unref(levelColor10_15),
+            v7d6b5781: vue.unref(levelColor16_18),
           }));
           const props = __props;
           let showIsLoading = vue.ref(true);
@@ -23856,7 +23917,7 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
             let isFirstLoad = pageNumber.value === 1;
             if (isFirstLoad) {
               isAsyncLoadEnd.value = false;
-              followForum.value = [];
+              followForum.value.length = 0;
             }
             const userName = props.UserData.name;
             let concernData = await TiebaHomeApi.getConcern(userName, pageNumber.value);
@@ -24004,7 +24065,7 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
           };
         },
       });
-      const FollowForum = _export_sfc$1(_sfc_main$a, [["__scopeId", "data-v-020ff19b"]]);
+      const FollowForum = _export_sfc$1(_sfc_main$a, [["__scopeId", "data-v-9f65e55d"]]);
       const _hoisted_1$8 = ["data-sex"];
       const _hoisted_2$7 = {
         key: 1,
@@ -25237,7 +25298,7 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
             let isFirstLoad = pageOffset.value === pageSize$1;
             if (isFirstLoad) {
               isAsyncLoadEnd.value = false;
-              followInfoList.value = [];
+              followInfoList.value.length = 0;
             }
             let isCanceled = false;
             let getFollowInfoList = await TiebaHomeApi.getFollow(props.UserData.name, pageOffset.value, pageSize$1);
@@ -25499,7 +25560,7 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
           };
         },
       });
-      const Follow = _export_sfc$1(_sfc_main$6, [["__scopeId", "data-v-7fba962d"]]);
+      const Follow = _export_sfc$1(_sfc_main$6, [["__scopeId", "data-v-783d336f"]]);
       const _hoisted_1$4 = ["onClick"];
       const _hoisted_2$4 = { class: "user-item-row" };
       const _hoisted_3$4 = { class: "user-item-row-left" };
@@ -25572,7 +25633,7 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
             let isFirstLoad = pageOffset.value === pageSize;
             if (isFirstLoad) {
               isAsyncLoadEnd.value = false;
-              fansInfoList.value = [];
+              fansInfoList.value.length = 0;
             }
             let getFansInfoList = await TiebaHomeApi.getFans(props.UserData.name, pageOffset.value, pageSize);
             let isCanceled = false;
@@ -25810,7 +25871,7 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
           };
         },
       });
-      const Fans = _export_sfc$1(_sfc_main$5, [["__scopeId", "data-v-16d11114"]]);
+      const Fans = _export_sfc$1(_sfc_main$5, [["__scopeId", "data-v-b315e76a"]]);
       const TiebaRouter = {
         router: null,
         init() {
@@ -26675,7 +26736,7 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
             window.open(TiebaUrlHandler.getForum(fName), "_blank");
           };
           vue.onMounted(async () => {
-            postList.value = [];
+            postList.value.length = 0;
             const loading = ElLoading.service({
               lock: true,
               text: "Loading",
@@ -26822,7 +26883,7 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
           };
         },
       });
-      const Agreeme = _export_sfc$1(_sfc_main$3, [["__scopeId", "data-v-b35f58f8"]]);
+      const Agreeme = _export_sfc$1(_sfc_main$3, [["__scopeId", "data-v-552236f6"]]);
       const _hoisted_1$1 = { class: "post-list" };
       const _hoisted_2$1 = { class: "post-list-item" };
       const _hoisted_3$1 = ["onClick"];
@@ -26911,7 +26972,7 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
             );
           };
           vue.onMounted(async () => {
-            postList.value = [];
+            postList.value.length = 0;
             const loading = ElLoading.service({
               lock: true,
               text: "Loading",
@@ -27062,7 +27123,7 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
           };
         },
       });
-      const Replyme = _export_sfc$1(_sfc_main$2, [["__scopeId", "data-v-e527f680"]]);
+      const Replyme = _export_sfc$1(_sfc_main$2, [["__scopeId", "data-v-2b71b42f"]]);
       const _hoisted_1 = { class: "post-list" };
       const _hoisted_2 = {
         id: "load-more",
@@ -27118,7 +27179,7 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
             }
           };
           vue.onMounted(async () => {
-            postList.value = [];
+            postList.value.length = 0;
             const loading = ElLoading.service({
               lock: true,
               text: "Loading",
@@ -27154,7 +27215,7 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
           };
         },
       });
-      const Atme = _export_sfc$1(_sfc_main$1, [["__scopeId", "data-v-3f3b546a"]]);
+      const Atme = _export_sfc$1(_sfc_main$1, [["__scopeId", "data-v-b2e309d0"]]);
       const TiebaMsgTabRouter = {
         router: null,
         init() {

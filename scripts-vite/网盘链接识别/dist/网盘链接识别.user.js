@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.4
+// @version      2025.10.14
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -10,8 +10,8 @@
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@c90210bf4ab902dbceb9c6e5b101b1ea91c34581/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/data-paging@0.0.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
@@ -147,11 +147,11 @@
       return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
     setGMResourceCSS(resourceMapData) {
-      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
+      const cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
       if (typeof cssText === "string" && cssText) {
-        addStyle(cssText);
+        return addStyle(cssText);
       } else {
-        CommonUtil.loadStyleLink(resourceMapData.url);
+        return CommonUtil.loadStyleLink(resourceMapData.url);
       }
     },
     async loadStyleLink(url) {
@@ -159,8 +159,11 @@
       $link.rel = "stylesheet";
       $link.type = "text/css";
       $link.href = url;
-      DOMUtils.ready(() => {
-        document.head.appendChild($link);
+      return new Promise((resolve) => {
+        DOMUtils.ready(() => {
+          document.head.appendChild($link);
+          resolve($link);
+        });
       });
     },
     async loadScript(url) {
@@ -544,7 +547,7 @@
     listenerData;
     constructor(key) {
       if (typeof key === "string") {
-        let trimKey = key.trim();
+        const trimKey = key.trim();
         if (trimKey == "") {
           throw new Error("key参数不能为空字符串");
         }
@@ -553,6 +556,18 @@
         throw new Error("key参数类型错误，必须是字符串");
       }
       this.listenerData = new Utils.Dictionary();
+      this.getLocalValue = this.getLocalValue.bind(this);
+      this.set = this.set.bind(this);
+      this.get = this.get.bind(this);
+      this.getAll = this.getAll.bind(this);
+      this.delete = this.delete.bind(this);
+      this.has = this.has.bind(this);
+      this.keys = this.keys.bind(this);
+      this.values = this.values.bind(this);
+      this.clear = this.clear.bind(this);
+      this.addValueChangeListener = this.addValueChangeListener.bind(this);
+      this.removeValueChangeListener = this.removeValueChangeListener.bind(this);
+      this.triggerValueChangeListener = this.triggerValueChangeListener.bind(this);
     }
     getLocalValue() {
       let localValue = _GM_getValue(this.storageKey);
@@ -566,45 +581,45 @@
       _GM_setValue(this.storageKey, value);
     }
     set(key, value) {
-      let oldValue = this.get(key);
-      let localValue = this.getLocalValue();
+      const oldValue = this.get(key);
+      const localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, value);
     }
     get(key, defaultValue) {
-      let localValue = this.getLocalValue();
+      const localValue = this.getLocalValue();
       return Reflect.get(localValue, key) ?? defaultValue;
     }
     getAll() {
-      let localValue = this.getLocalValue();
+      const localValue = this.getLocalValue();
       return localValue;
     }
     delete(key) {
-      let oldValue = this.get(key);
-      let localValue = this.getLocalValue();
+      const oldValue = this.get(key);
+      const localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, void 0);
     }
     has(key) {
-      let localValue = this.getLocalValue();
+      const localValue = this.getLocalValue();
       return Reflect.has(localValue, key);
     }
     keys() {
-      let localValue = this.getLocalValue();
+      const localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue);
     }
     values() {
-      let localValue = this.getLocalValue();
+      const localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
     }
     clear() {
       _GM_deleteValue(this.storageKey);
     }
     addValueChangeListener(key, callback) {
-      let listenerId = Math.random();
-      let listenerData = this.listenerData.get(key) || [];
+      const listenerId = Math.random();
+      const listenerData = this.listenerData.get(key) || [];
       listenerData.push({
         id: listenerId,
         key,
@@ -631,7 +646,8 @@
       }
       return flag;
     }
-    triggerValueChangeListener(key, oldValue, newValue) {
+    async triggerValueChangeListener(...args) {
+      const [key, oldValue, newValue] = args;
       if (!this.listenerData.has(key)) {
         return;
       }
@@ -642,17 +658,17 @@
           let value = this.get(key);
           let __newValue;
           let __oldValue;
-          if (typeof oldValue !== "undefined" && arguments.length >= 2) {
+          if (typeof oldValue !== "undefined" && args.length >= 2) {
             __oldValue = oldValue;
           } else {
             __oldValue = value;
           }
-          if (typeof newValue !== "undefined" && arguments.length > 2) {
+          if (typeof newValue !== "undefined" && args.length > 2) {
             __newValue = newValue;
           } else {
             __newValue = value;
           }
-          data.callback(key, __oldValue, __newValue);
+          await data.callback(key, __oldValue, __newValue);
         }
       }
     }
@@ -909,7 +925,7 @@
       return PopsPanelStorageApi.has(key);
     },
     addValueChangeListener(key, callback) {
-      let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
+      const listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
         callback(key, __oldValue, __newValue);
       });
       return listenerId;
@@ -929,7 +945,7 @@
         queryKeyFn = queryKey;
       }
       let isArrayKey = false;
-      let queryKeyResult = queryKeyFn();
+      const queryKeyResult = queryKeyFn();
       let keyList = [];
       if (Array.isArray(queryKeyResult)) {
         isArrayKey = true;
@@ -937,50 +953,85 @@
       } else {
         keyList.push(queryKeyResult);
       }
-      let findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
+      const findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
       if (findNotInDataKey) {
         log.warn(`${findNotInDataKey} 键不存在`);
         return;
       }
-      let storageKey = JSON.stringify(keyList);
+      const storageKey = JSON.stringify(keyList);
       if (once) {
         if (this.$data.onceExecMenuData.has(storageKey)) {
           return this.$data.onceExecMenuData.get(storageKey);
         }
       }
       let storeValueList = [];
-      let listenerIdList = [];
-      let dynamicAddStyleNodeCallback = (value, $style) => {
-        let dynamicResultList = [];
-        if (!Array.isArray($style)) {
-          $style = [$style];
+      const listenerIdList = [];
+      let destoryFnList = [];
+      const addStoreValueCallback = (enableValue, args) => {
+        let dynamicMenuStoreValueList = [];
+        let dynamicDestoryFnList = [];
+        let resultValueList = [];
+        if (Array.isArray(args)) {
+          resultValueList = resultValueList.concat(args);
+        } else {
+          if (typeof args === "object" && args != null) {
+            const { $css, destory } = args;
+            if ($css != null) {
+              if (Array.isArray($css)) {
+                resultValueList = resultValueList.concat($css);
+              } else {
+                resultValueList.push($css);
+              }
+            }
+            if (typeof destory === "function") {
+              resultValueList.push(destory);
+            }
+          } else {
+            resultValueList.push(args);
+          }
         }
-        $style.forEach(($styleItem) => {
-          if ($styleItem == null) {
-            return;
+        for (const it of resultValueList) {
+          if (it == null) {
+            continue;
           }
-          if ($styleItem instanceof HTMLStyleElement) {
-            dynamicResultList.push($styleItem);
-            return;
+          if (it instanceof Element) {
+            dynamicMenuStoreValueList.push(it);
+            continue;
           }
-        });
-        {
-          storeValueList = storeValueList.concat(dynamicResultList);
+          if (typeof it === "function") {
+            destoryFnList.push(it);
+            continue;
+          }
+        }
+        if (enableValue) {
+          storeValueList = storeValueList.concat(dynamicMenuStoreValueList);
+          destoryFnList = destoryFnList.concat(dynamicDestoryFnList);
+        } else {
+          execClearStoreStyleElements();
+          execDestory();
         }
       };
-      let getMenuValue = (key) => {
-        let value = this.getValue(key);
+      const getMenuValue = (key) => {
+        const value = this.getValue(key);
         return value;
       };
-      let clearBeforeStoreValue = () => {
+      const execClearStoreStyleElements = () => {
         for (let index = 0; index < storeValueList.length; index++) {
-          let $css = storeValueList[index];
-          $css.remove();
+          const $css = storeValueList[index];
+          $css?.remove();
           storeValueList.splice(index, 1);
           index--;
         }
       };
-      let checkMenuExec = () => {
+      const execDestory = () => {
+        for (let index = 0; index < destoryFnList.length; index++) {
+          const destoryFnItem = destoryFnList[index];
+          destoryFnItem();
+          destoryFnList.splice(index, 1);
+          index--;
+        }
+      };
+      const checkMenuExec = () => {
         let flag = false;
         if (typeof checkExec === "function") {
           flag = checkExec(keyList);
@@ -989,57 +1040,52 @@
         }
         return flag;
       };
-      let valueChangeCallback = (valueOption) => {
-        let execFlag = checkMenuExec();
-        let resultList = [];
+      const valueChangeCallback = (valueOption) => {
+        const execFlag = checkMenuExec();
         if (execFlag) {
-          let valueList = keyList.map((key) => this.getValue(key));
-          let callbackResult = callback({
+          const valueList = keyList.map((key) => this.getValue(key));
+          const callbackResult = callback({
             value: isArrayKey ? valueList : valueList[0],
-            addStyleElement: (...args) => {
-              return dynamicAddStyleNodeCallback(true, ...args);
+            addStoreValue: (...args) => {
+              return addStoreValueCallback(true, args);
             },
           });
-          if (!Array.isArray(callbackResult)) {
-            callbackResult = [callbackResult];
-          }
-          callbackResult.forEach((it) => {
-            if (it == null) {
-              return;
-            }
-            if (it instanceof HTMLStyleElement) {
-              resultList.push(it);
-              return;
-            }
-          });
+          addStoreValueCallback(true, callbackResult);
+        } else {
+          addStoreValueCallback(false, []);
         }
-        clearBeforeStoreValue();
-        storeValueList = [...resultList];
       };
       once &&
         keyList.forEach((key) => {
-          let listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
-            valueChangeCallback();
+          const listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
+            return valueChangeCallback();
           });
           listenerIdList.push(listenerId);
         });
       valueChangeCallback();
-      let result = {
+      const result = {
         reload() {
           valueChangeCallback();
         },
         clear() {
           this.clearStoreStyleElements();
+          this.destory();
           this.removeValueChangeListener();
-          once && that.$data.onceExecMenuData.delete(storageKey);
+          this.clearOnceExecMenuData();
         },
         clearStoreStyleElements: () => {
-          return clearBeforeStoreValue();
+          return execClearStoreStyleElements();
+        },
+        destory() {
+          return execDestory();
         },
         removeValueChangeListener: () => {
           listenerIdList.forEach((listenerId) => {
             this.removeValueChangeListener(listenerId);
           });
+        },
+        clearOnceExecMenuData() {
+          once && that.$data.onceExecMenuData.delete(storageKey);
         },
       };
       this.$data.onceExecMenuData.set(storageKey, result);
@@ -1052,9 +1098,9 @@
           return callback(option);
         },
         (keyList) => {
-          let execFlag = keyList.every((__key__) => {
+          const execFlag = keyList.every((__key__) => {
             let flag = !!this.getValue(__key__);
-            let disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
+            const disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
             if (disabled) {
               flag = false;
               log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
@@ -1089,7 +1135,7 @@
       key = this.transformKey(key);
       this.$data.onceExecMenuData.delete(key);
       this.$data.urlChangeReloadMenuExecOnce.delete(key);
-      let flag = PopsPanelStorageApi.removeValueChangeListener(key);
+      const flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
     onceExec(key, callback) {
@@ -3079,7 +3125,7 @@
       super.init(netDiskInfo);
       const that = this;
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      this.panelList = [];
+      this.panelList.length = 0;
       this.Authorization = NetDiskAuthorization_123pan_Authorization.get();
       let checkLinkValidityStatus = await NetDiskCheckLinkValidity_123pan.init(netDiskInfo);
       if (
@@ -4528,6 +4574,9 @@
   };
   class RuleFilterView {
     option;
+    $data = {
+      isFilteredData: [],
+    };
     constructor(option) {
       this.option = option;
     }
@@ -4582,13 +4631,15 @@
           }
         );
         let execFilterAndCloseDialog = async () => {
+          this.$data.isFilteredData = [];
           let allRuleInfo = await this.option.getAllRuleInfo();
           allRuleInfo.forEach(async (ruleInfo) => {
             let filterResult = await filterOption.filterCallBack(ruleInfo.data);
-            if (!filterResult) {
-              domUtils.hide(ruleInfo.$el, false);
-            } else {
+            if (filterResult) {
               domUtils.show(ruleInfo.$el, false);
+            } else {
+              domUtils.hide(ruleInfo.$el, false);
+              this.$data.isFilteredData.push(ruleInfo.data);
             }
           });
           if (typeof this.option.execFilterCallBack === "function") {
@@ -4609,6 +4660,9 @@
         $fragment.appendChild($button);
       });
       $filterContainer.appendChild($fragment);
+    }
+    getFilteredData() {
+      return this.$data.isFilteredData;
     }
   }
   class RuleEditView {
@@ -7410,7 +7464,11 @@
       let allSubscribe = this.getAllSubscribe();
       let findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === uuid);
       if (findIndex !== -1) {
-        allSubscribe[findIndex].subscribeData.ruleData = [];
+        if (Array.isArray(allSubscribe[findIndex].subscribeData.ruleData)) {
+          allSubscribe[findIndex].subscribeData.ruleData.length = 0;
+        } else {
+          allSubscribe[findIndex].subscribeData.ruleData = [];
+        }
         this.storageApi.set(this.option.STORAGE_KEY, allSubscribe);
         return true;
       } else {
@@ -12009,7 +12067,7 @@
     async init(netDiskInfo) {
       super.init(netDiskInfo);
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      this.panelList = [];
+      this.panelList.length = 0;
       this.panelContent = "";
       let checkLinkValidityInfo = await this.checkLinkValidity(this.shareCode, this.accessCode);
       if (!checkLinkValidityInfo) {
@@ -15003,7 +15061,11 @@
             shareCodeNeedRemoveStr = [shareCodeNeedRemoveStr];
           }
           if (Array.isArray(shareCodeNeedRemoveStr)) {
-            netDiskRegularOption.shareCodeNeedRemoveStr = [];
+            if (Array.isArray(netDiskRegularOption.shareCodeNeedRemoveStr)) {
+              netDiskRegularOption.shareCodeNeedRemoveStr.length = 0;
+            } else {
+              netDiskRegularOption.shareCodeNeedRemoveStr = [];
+            }
             for (const shareCodeNeedRemoveStrItem of shareCodeNeedRemoveStr) {
               if (typeof shareCodeNeedRemoveStrItem === "string") {
                 const shareCodeNeedRemoveStrItemRegExp = new RegExp(shareCodeNeedRemoveStrItem, "ig");
@@ -15017,7 +15079,11 @@
             shareCodeNotMatch = [shareCodeNotMatch];
           }
           if (Array.isArray(shareCodeNotMatch)) {
-            netDiskRegularOption.shareCodeNotMatch = [];
+            if (Array.isArray(netDiskRegularOption.shareCodeNotMatch)) {
+              netDiskRegularOption.shareCodeNotMatch.length = 0;
+            } else {
+              netDiskRegularOption.shareCodeNotMatch = [];
+            }
             for (const shareCodeNotMatchItem of shareCodeNotMatch) {
               if (typeof shareCodeNotMatchItem === "string") {
                 const shareCodeNotMatchItemRegExp = new RegExp(shareCodeNotMatchItem, "ig");
@@ -15037,7 +15103,11 @@
             acceesCodeNotMatch = [acceesCodeNotMatch];
           }
           if (Array.isArray(acceesCodeNotMatch)) {
-            netDiskRegularOption.acceesCodeNotMatch = [];
+            if (Array.isArray(netDiskRegularOption.acceesCodeNotMatch)) {
+              netDiskRegularOption.acceesCodeNotMatch.length = 0;
+            } else {
+              netDiskRegularOption.acceesCodeNotMatch = [];
+            }
             for (const acceesCodeNotMatchItem of acceesCodeNotMatch) {
               if (typeof acceesCodeNotMatchItem === "string") {
                 const acceesCodeNotMatchItemRegExp = new RegExp(acceesCodeNotMatchItem, "ig");
@@ -15051,7 +15121,11 @@
             accessCodeNeedRemoveStr = [accessCodeNeedRemoveStr];
           }
           if (Array.isArray(accessCodeNeedRemoveStr)) {
-            netDiskRegularOption.accessCodeNeedRemoveStr = [];
+            if (Array.isArray(netDiskRegularOption.accessCodeNeedRemoveStr)) {
+              netDiskRegularOption.accessCodeNeedRemoveStr.length = 0;
+            } else {
+              netDiskRegularOption.accessCodeNeedRemoveStr = [];
+            }
             for (const accessCodeNeedRemoveStrItem of accessCodeNeedRemoveStr) {
               if (typeof accessCodeNeedRemoveStrItem === "string") {
                 const accessCodeNeedRemoveStrItemRegExp = new RegExp(accessCodeNeedRemoveStrItem, "ig");

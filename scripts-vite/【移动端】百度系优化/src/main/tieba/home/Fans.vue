@@ -66,7 +66,7 @@
     let isFirstLoad = pageOffset.value === pageSize;
     if (isFirstLoad) {
       isAsyncLoadEnd.value = false;
-      fansInfoList.value = [];
+      fansInfoList.value.length = 0;
     }
     let getFansInfoList = await TiebaHomeApi.getFans(props.UserData.name as string, pageOffset.value, pageSize);
     let isCanceled = false;

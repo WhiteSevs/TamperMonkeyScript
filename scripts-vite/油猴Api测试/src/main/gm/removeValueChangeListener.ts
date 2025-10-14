@@ -134,7 +134,7 @@ export class ApiTest_removeValueChangeListener extends ApiAsyncTestBase {
                   DOMUtils.on($button, "click", async (event) => {
                     DOMUtils.preventEvent(event);
                     try {
-                      tagTextList = [];
+                      tagTextList.length = 0;
                       TagUtil.setTag(container.$leftText, "info", "等待移除监听器");
                       DOMUtils.text(container.$leftDesc, this.text);
                       DOMUtils.show(container.$leftDesc, false);

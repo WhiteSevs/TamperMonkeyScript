@@ -57,7 +57,7 @@
     let isFirstLoad = pageNumber.value === 1;
     if (isFirstLoad) {
       isAsyncLoadEnd.value = false;
-      postsInfoList.value = [];
+      postsInfoList.value.length = 0;
     }
     let userPostsList = await TieBaApi.getUserPosts(props.UserData.name as string, pageNumber.value);
     log.info(["获取到的帖子", userPostsList]);

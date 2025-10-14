@@ -46,7 +46,7 @@ export const CookieRule = {
   },
   /** 初始化数据 */
   init() {
-    this.$data.matchedRuleList = [];
+    this.$data.matchedRuleList.length = 0;
     this.$data.matchedRuleList = this.getMatchedRuleList();
     // 注册菜单
     if (this.$data.matchedRuleList.length) {
@@ -69,8 +69,8 @@ export const CookieRule = {
    * 获取匹配的规则
    */
   getMatchedRuleList(url = window.location.href) {
-    let allData = this.getData();
-    let matchedRuleList: CookieRuleData[] = [];
+    const allData = this.getData();
+    const matchedRuleList: CookieRuleData[] = [];
     allData.forEach((data) => {
       if (!data.enable) {
         // 未启用

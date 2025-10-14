@@ -99,13 +99,18 @@ class RuleSubscribe<T extends NetDiskUserCustomRule> {
   }
   /**
    * 清空某个订阅内的规则
+   * @param config 配置/uuid
    */
   clearSubscribe(config: RuleSubscribeOption<T> | string) {
     let uuid = typeof config === "string" ? config : config.uuid;
     let allSubscribe = this.getAllSubscribe();
     let findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === uuid);
     if (findIndex !== -1) {
-      allSubscribe[findIndex].subscribeData.ruleData = [];
+      if (Array.isArray(allSubscribe[findIndex].subscribeData.ruleData)) {
+        allSubscribe[findIndex].subscribeData.ruleData.length = 0;
+      } else {
+        allSubscribe[findIndex].subscribeData.ruleData = [];
+      }
       this.storageApi.set(this.option.STORAGE_KEY, allSubscribe);
       return true;
     } else {
@@ -114,6 +119,7 @@ class RuleSubscribe<T extends NetDiskUserCustomRule> {
   }
   /**
    * 新增某个订阅
+   * @param subscribe 订阅
    */
   addSubscribe(subscribe: RuleSubscribeOption<T>) {
     let flag = false;
@@ -133,6 +139,7 @@ class RuleSubscribe<T extends NetDiskUserCustomRule> {
   }
   /**
    * 更新某个订阅
+   * @param subscribe 订阅
    */
   updateSubscribe(subscribe: RuleSubscribeOption<T>) {
     let flag = false;
@@ -152,6 +159,8 @@ class RuleSubscribe<T extends NetDiskUserCustomRule> {
   }
   /**
    * 更新某个订阅内的某个规则
+   * @param subscribeUUID 订阅id
+   * @param rule 规则
    */
   updateSubscribeRule(subscribeUUID: string, rule: RuleSubscribeOption<T>["subscribeData"]["ruleData"]["0"]) {
     let flag = false;

@@ -135,7 +135,7 @@ export class ApiTest_addValueChangeListener extends ApiAsyncTestBase {
                   DOMUtils.on($button, "click", async (event) => {
                     DOMUtils.preventEvent(event);
                     try {
-                      tagTextList = [];
+                      tagTextList.length = 0;
                       clearTimeout(timeoutId);
                       TagUtil.setTag(container.$leftText, "info", "等待触发回调");
                       DOMUtils.text(container.$leftDesc, this.text);

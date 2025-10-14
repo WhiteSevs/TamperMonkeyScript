@@ -70,7 +70,7 @@ export class WeiBoUnlockQuality {
     videoQualityMap: new utils.Dictionary<string, VideoQualityMapInfo[]>(),
   };
   constructor() {
-    this.$data.newQualityNameList = [];
+    this.$data.newQualityNameList.length = 0;
     this.$data.newQualityNameList.push(...Object.keys(this.$src));
   }
   /**

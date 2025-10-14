@@ -225,7 +225,11 @@ export const BilibiliBangumiArtPlayer = {
     if (option.isFlv) {
       // flv格式
       // 清空画质信息
-      artOption.quality = [];
+      if (Array.isArray(artOption.quality)) {
+        artOption.quality.length = 0;
+      } else {
+        artOption.quality = [];
+      }
       // 固定播放格式
       artOption.type = "flv";
       if (option.flvInfo.length === 0) {

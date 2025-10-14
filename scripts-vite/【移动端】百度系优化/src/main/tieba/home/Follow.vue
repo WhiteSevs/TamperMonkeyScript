@@ -57,7 +57,7 @@
     let isFirstLoad = pageOffset.value === pageSize;
     if (isFirstLoad) {
       isAsyncLoadEnd.value = false;
-      followInfoList.value = [];
+      followInfoList.value.length = 0;
     }
     let isCanceled = false;
     let getFollowInfoList = await TiebaHomeApi.getFollow(props.UserData.name as string, pageOffset.value, pageSize);

@@ -440,7 +440,7 @@ export const NetDiskHistoryMatchView = {
     utils.sortListByProperty(
       data,
       (item) => {
-        return item[orderField as keyof NetDiskHistoryDataOption];
+        return item[orderField as keyof NetDiskHistoryDataOption]!;
       },
       isDesc
     );

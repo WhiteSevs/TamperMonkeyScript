@@ -297,7 +297,11 @@ export const NetDiskUserRule = {
         }
         if (Array.isArray(shareCodeNeedRemoveStr)) {
           // 字符串转正则
-          netDiskRegularOption.shareCodeNeedRemoveStr = [];
+          if (Array.isArray(netDiskRegularOption.shareCodeNeedRemoveStr)) {
+            netDiskRegularOption.shareCodeNeedRemoveStr.length = 0;
+          } else {
+            netDiskRegularOption.shareCodeNeedRemoveStr = [];
+          }
           for (const shareCodeNeedRemoveStrItem of shareCodeNeedRemoveStr) {
             if (typeof shareCodeNeedRemoveStrItem === "string") {
               const shareCodeNeedRemoveStrItemRegExp = new RegExp(shareCodeNeedRemoveStrItem, "ig");
@@ -312,7 +316,11 @@ export const NetDiskUserRule = {
         }
         if (Array.isArray(shareCodeNotMatch)) {
           // 字符串转正则
-          netDiskRegularOption.shareCodeNotMatch = [];
+          if (Array.isArray(netDiskRegularOption.shareCodeNotMatch)) {
+            netDiskRegularOption.shareCodeNotMatch.length = 0;
+          } else {
+            netDiskRegularOption.shareCodeNotMatch = [];
+          }
           for (const shareCodeNotMatchItem of shareCodeNotMatch) {
             if (typeof shareCodeNotMatchItem === "string") {
               const shareCodeNotMatchItemRegExp = new RegExp(shareCodeNotMatchItem, "ig");
@@ -333,7 +341,11 @@ export const NetDiskUserRule = {
         }
         if (Array.isArray(acceesCodeNotMatch)) {
           // 字符串转正则
-          netDiskRegularOption.acceesCodeNotMatch = [];
+          if (Array.isArray(netDiskRegularOption.acceesCodeNotMatch)) {
+            netDiskRegularOption.acceesCodeNotMatch.length = 0;
+          } else {
+            netDiskRegularOption.acceesCodeNotMatch = [];
+          }
           for (const acceesCodeNotMatchItem of acceesCodeNotMatch) {
             if (typeof acceesCodeNotMatchItem === "string") {
               const acceesCodeNotMatchItemRegExp = new RegExp(acceesCodeNotMatchItem, "ig");
@@ -348,7 +360,11 @@ export const NetDiskUserRule = {
         }
         if (Array.isArray(accessCodeNeedRemoveStr)) {
           // 字符串转正则
-          netDiskRegularOption.accessCodeNeedRemoveStr = [];
+          if (Array.isArray(netDiskRegularOption.accessCodeNeedRemoveStr)) {
+            netDiskRegularOption.accessCodeNeedRemoveStr.length = 0;
+          } else {
+            netDiskRegularOption.accessCodeNeedRemoveStr = [];
+          }
           for (const accessCodeNeedRemoveStrItem of accessCodeNeedRemoveStr) {
             if (typeof accessCodeNeedRemoveStrItem === "string") {
               const accessCodeNeedRemoveStrItemRegExp = new RegExp(accessCodeNeedRemoveStrItem, "ig");

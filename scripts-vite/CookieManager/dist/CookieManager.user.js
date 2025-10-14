@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CookieManager
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.28
+// @version      2025.10.14
 // @author       WhiteSevs
 // @description  简单而强大的Cookie编辑器，允许您快速创建、编辑和删除Cookie
 // @license      GPL-3.0-only
@@ -9,9 +9,9 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @connect      *
@@ -103,7 +103,7 @@
     listenerData;
     constructor(key) {
       if (typeof key === "string") {
-        let trimKey = key.trim();
+        const trimKey = key.trim();
         if (trimKey == "") {
           throw new Error("key参数不能为空字符串");
         }
@@ -112,6 +112,18 @@
         throw new Error("key参数类型错误，必须是字符串");
       }
       this.listenerData = new Utils.Dictionary();
+      this.getLocalValue = this.getLocalValue.bind(this);
+      this.set = this.set.bind(this);
+      this.get = this.get.bind(this);
+      this.getAll = this.getAll.bind(this);
+      this.delete = this.delete.bind(this);
+      this.has = this.has.bind(this);
+      this.keys = this.keys.bind(this);
+      this.values = this.values.bind(this);
+      this.clear = this.clear.bind(this);
+      this.addValueChangeListener = this.addValueChangeListener.bind(this);
+      this.removeValueChangeListener = this.removeValueChangeListener.bind(this);
+      this.triggerValueChangeListener = this.triggerValueChangeListener.bind(this);
     }
     getLocalValue() {
       let localValue = _GM_getValue(this.storageKey);
@@ -125,45 +137,45 @@
       _GM_setValue(this.storageKey, value);
     }
     set(key, value) {
-      let oldValue = this.get(key);
-      let localValue = this.getLocalValue();
+      const oldValue = this.get(key);
+      const localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, value);
     }
     get(key, defaultValue) {
-      let localValue = this.getLocalValue();
+      const localValue = this.getLocalValue();
       return Reflect.get(localValue, key) ?? defaultValue;
     }
     getAll() {
-      let localValue = this.getLocalValue();
+      const localValue = this.getLocalValue();
       return localValue;
     }
     delete(key) {
-      let oldValue = this.get(key);
-      let localValue = this.getLocalValue();
+      const oldValue = this.get(key);
+      const localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, void 0);
     }
     has(key) {
-      let localValue = this.getLocalValue();
+      const localValue = this.getLocalValue();
       return Reflect.has(localValue, key);
     }
     keys() {
-      let localValue = this.getLocalValue();
+      const localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue);
     }
     values() {
-      let localValue = this.getLocalValue();
+      const localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
     }
     clear() {
       _GM_deleteValue(this.storageKey);
     }
     addValueChangeListener(key, callback) {
-      let listenerId = Math.random();
-      let listenerData = this.listenerData.get(key) || [];
+      const listenerId = Math.random();
+      const listenerData = this.listenerData.get(key) || [];
       listenerData.push({
         id: listenerId,
         key,
@@ -190,7 +202,8 @@
       }
       return flag;
     }
-    triggerValueChangeListener(key, oldValue, newValue) {
+    async triggerValueChangeListener(...args) {
+      const [key, oldValue, newValue] = args;
       if (!this.listenerData.has(key)) {
         return;
       }
@@ -201,17 +214,17 @@
           let value = this.get(key);
           let __newValue;
           let __oldValue;
-          if (typeof oldValue !== "undefined" && arguments.length >= 2) {
+          if (typeof oldValue !== "undefined" && args.length >= 2) {
             __oldValue = oldValue;
           } else {
             __oldValue = value;
           }
-          if (typeof newValue !== "undefined" && arguments.length > 2) {
+          if (typeof newValue !== "undefined" && args.length > 2) {
             __newValue = newValue;
           } else {
             __newValue = value;
           }
-          data.callback(key, __oldValue, __newValue);
+          await data.callback(key, __oldValue, __newValue);
         }
       }
     }
@@ -321,11 +334,11 @@
       return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
     setGMResourceCSS(resourceMapData) {
-      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
+      const cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
       if (typeof cssText === "string" && cssText) {
-        addStyle(cssText);
+        return addStyle(cssText);
       } else {
-        CommonUtil.loadStyleLink(resourceMapData.url);
+        return CommonUtil.loadStyleLink(resourceMapData.url);
       }
     },
     async loadStyleLink(url) {
@@ -333,8 +346,11 @@
       $link.rel = "stylesheet";
       $link.type = "text/css";
       $link.href = url;
-      DOMUtils.ready(() => {
-        document.head.appendChild($link);
+      return new Promise((resolve) => {
+        DOMUtils.ready(() => {
+          document.head.appendChild($link);
+          resolve($link);
+        });
       });
     },
     async loadScript(url) {
@@ -580,7 +596,8 @@
         if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
           return;
         }
-        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
+        const attributes = config.attributes;
+        let __attr_init__ = attributes[ATTRIBUTE_INIT];
         if (typeof __attr_init__ === "function") {
           let __attr_result__ = __attr_init__();
           if (typeof __attr_result__ === "boolean" && !__attr_result__) {
@@ -588,12 +605,12 @@
           }
         }
         let menuDefaultConfig = new Map();
-        let key = config.attributes[ATTRIBUTE_KEY];
+        let key = attributes[ATTRIBUTE_KEY];
         if (key != null) {
-          const defaultValue = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+          const defaultValue = attributes[ATTRIBUTE_DEFAULT_VALUE];
           menuDefaultConfig.set(key, defaultValue);
         }
-        let moreMenuDefaultConfig = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
+        let moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
         if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
           Object.keys(moreMenuDefaultConfig).forEach((key2) => {
             menuDefaultConfig.set(key2, moreMenuDefaultConfig[key2]);
@@ -665,7 +682,7 @@
       return PopsPanelStorageApi.has(key);
     },
     addValueChangeListener(key, callback) {
-      let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
+      const listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
         callback(key, __oldValue, __newValue);
       });
       return listenerId;
@@ -685,7 +702,7 @@
         queryKeyFn = queryKey;
       }
       let isArrayKey = false;
-      let queryKeyResult = queryKeyFn();
+      const queryKeyResult = queryKeyFn();
       let keyList = [];
       if (Array.isArray(queryKeyResult)) {
         isArrayKey = true;
@@ -693,50 +710,85 @@
       } else {
         keyList.push(queryKeyResult);
       }
-      let findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
+      const findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
       if (findNotInDataKey) {
         log.warn(`${findNotInDataKey} 键不存在`);
         return;
       }
-      let storageKey = JSON.stringify(keyList);
+      const storageKey = JSON.stringify(keyList);
       if (once) {
         if (this.$data.onceExecMenuData.has(storageKey)) {
           return this.$data.onceExecMenuData.get(storageKey);
         }
       }
       let storeValueList = [];
-      let listenerIdList = [];
-      let dynamicAddStyleNodeCallback = (value, $style) => {
-        let dynamicResultList = [];
-        if (!Array.isArray($style)) {
-          $style = [$style];
+      const listenerIdList = [];
+      let destoryFnList = [];
+      const addStoreValueCallback = (enableValue, args) => {
+        let dynamicMenuStoreValueList = [];
+        let dynamicDestoryFnList = [];
+        let resultValueList = [];
+        if (Array.isArray(args)) {
+          resultValueList = resultValueList.concat(args);
+        } else {
+          if (typeof args === "object" && args != null) {
+            const { $css, destory } = args;
+            if ($css != null) {
+              if (Array.isArray($css)) {
+                resultValueList = resultValueList.concat($css);
+              } else {
+                resultValueList.push($css);
+              }
+            }
+            if (typeof destory === "function") {
+              resultValueList.push(destory);
+            }
+          } else {
+            resultValueList.push(args);
+          }
         }
-        $style.forEach(($styleItem) => {
-          if ($styleItem == null) {
-            return;
+        for (const it of resultValueList) {
+          if (it == null) {
+            continue;
           }
-          if ($styleItem instanceof HTMLStyleElement) {
-            dynamicResultList.push($styleItem);
-            return;
+          if (it instanceof Element) {
+            dynamicMenuStoreValueList.push(it);
+            continue;
           }
-        });
-        {
-          storeValueList = storeValueList.concat(dynamicResultList);
+          if (typeof it === "function") {
+            destoryFnList.push(it);
+            continue;
+          }
+        }
+        if (enableValue) {
+          storeValueList = storeValueList.concat(dynamicMenuStoreValueList);
+          destoryFnList = destoryFnList.concat(dynamicDestoryFnList);
+        } else {
+          execClearStoreStyleElements();
+          execDestory();
         }
       };
-      let getMenuValue = (key) => {
-        let value = this.getValue(key);
+      const getMenuValue = (key) => {
+        const value = this.getValue(key);
         return value;
       };
-      let clearBeforeStoreValue = () => {
+      const execClearStoreStyleElements = () => {
         for (let index = 0; index < storeValueList.length; index++) {
-          let $css = storeValueList[index];
-          $css.remove();
+          const $css = storeValueList[index];
+          $css?.remove();
           storeValueList.splice(index, 1);
           index--;
         }
       };
-      let checkMenuExec = () => {
+      const execDestory = () => {
+        for (let index = 0; index < destoryFnList.length; index++) {
+          const destoryFnItem = destoryFnList[index];
+          destoryFnItem();
+          destoryFnList.splice(index, 1);
+          index--;
+        }
+      };
+      const checkMenuExec = () => {
         let flag = false;
         if (typeof checkExec === "function") {
           flag = checkExec(keyList);
@@ -745,57 +797,52 @@
         }
         return flag;
       };
-      let valueChangeCallback = (valueOption) => {
-        let execFlag = checkMenuExec();
-        let resultList = [];
+      const valueChangeCallback = (valueOption) => {
+        const execFlag = checkMenuExec();
         if (execFlag) {
-          let valueList = keyList.map((key) => this.getValue(key));
-          let callbackResult = callback({
+          const valueList = keyList.map((key) => this.getValue(key));
+          const callbackResult = callback({
             value: isArrayKey ? valueList : valueList[0],
-            addStyleElement: (...args) => {
-              return dynamicAddStyleNodeCallback(true, ...args);
+            addStoreValue: (...args) => {
+              return addStoreValueCallback(true, args);
             },
           });
-          if (!Array.isArray(callbackResult)) {
-            callbackResult = [callbackResult];
-          }
-          callbackResult.forEach((it) => {
-            if (it == null) {
-              return;
-            }
-            if (it instanceof HTMLStyleElement) {
-              resultList.push(it);
-              return;
-            }
-          });
+          addStoreValueCallback(true, callbackResult);
+        } else {
+          addStoreValueCallback(false, []);
         }
-        clearBeforeStoreValue();
-        storeValueList = [...resultList];
       };
       once &&
         keyList.forEach((key) => {
-          let listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
-            valueChangeCallback();
+          const listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
+            return valueChangeCallback();
           });
           listenerIdList.push(listenerId);
         });
       valueChangeCallback();
-      let result = {
+      const result = {
         reload() {
           valueChangeCallback();
         },
         clear() {
           this.clearStoreStyleElements();
+          this.destory();
           this.removeValueChangeListener();
-          once && that.$data.onceExecMenuData.delete(storageKey);
+          this.clearOnceExecMenuData();
         },
         clearStoreStyleElements: () => {
-          return clearBeforeStoreValue();
+          return execClearStoreStyleElements();
+        },
+        destory() {
+          return execDestory();
         },
         removeValueChangeListener: () => {
           listenerIdList.forEach((listenerId) => {
             this.removeValueChangeListener(listenerId);
           });
+        },
+        clearOnceExecMenuData() {
+          once && that.$data.onceExecMenuData.delete(storageKey);
         },
       };
       this.$data.onceExecMenuData.set(storageKey, result);
@@ -808,9 +855,9 @@
           return callback(option);
         },
         (keyList) => {
-          let execFlag = keyList.every((__key__) => {
+          const execFlag = keyList.every((__key__) => {
             let flag = !!this.getValue(__key__);
-            let disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
+            const disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
             if (disabled) {
               flag = false;
               log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
@@ -845,7 +892,7 @@
       key = this.transformKey(key);
       this.$data.onceExecMenuData.delete(key);
       this.$data.urlChangeReloadMenuExecOnce.delete(key);
-      let flag = PopsPanelStorageApi.removeValueChangeListener(key);
+      const flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
     onceExec(key, callback) {
@@ -1481,6 +1528,7 @@
         }
         return this.__contentConfig;
       },
+      __defaultBottomContentConfig: [],
     },
     addContentConfig(configList) {
       if (!Array.isArray(configList)) {
@@ -1496,6 +1544,9 @@
       return this.$data.contentConfig.get(index) ?? [];
     },
     getDefaultBottomContentConfig() {
+      if (this.$data.__defaultBottomContentConfig.length) {
+        return this.$data.__defaultBottomContentConfig;
+      }
       return [
         {
           id: "script-version",
@@ -1511,6 +1562,9 @@
           },
         },
       ];
+    },
+    setDefaultBottomContentConfig(config) {
+      this.$data.__defaultBottomContentConfig = config;
     },
   };
   let applyObjectThis = (obj) => {
@@ -2418,6 +2472,9 @@
   }
   class RuleFilterView {
     option;
+    $data = {
+      isFilteredData: [],
+    };
     constructor(option) {
       this.option = option;
     }
@@ -2472,13 +2529,15 @@
           }
         );
         let execFilterAndCloseDialog = async () => {
+          this.$data.isFilteredData = [];
           let allRuleInfo = await this.option.getAllRuleInfo();
           allRuleInfo.forEach(async (ruleInfo) => {
             let filterResult = await filterOption.filterCallBack(ruleInfo.data);
-            if (!filterResult) {
-              domUtils.hide(ruleInfo.$el, false);
-            } else {
+            if (filterResult) {
               domUtils.show(ruleInfo.$el, false);
+            } else {
+              domUtils.hide(ruleInfo.$el, false);
+              this.$data.isFilteredData.push(ruleInfo.data);
             }
           });
           if (typeof this.option.execFilterCallBack === "function") {
@@ -2499,6 +2558,9 @@
         $fragment.appendChild($button);
       });
       $filterContainer.appendChild($fragment);
+    }
+    getFilteredData() {
+      return this.$data.isFilteredData;
     }
   }
   class RuleView {
@@ -2571,6 +2633,10 @@
                   execFilterCallBack: async () => {
                     domUtils.text($button, "取消过滤");
                     await this.option.bottomControls?.filter?.execFilterCallBack?.();
+                    const isFilteredData = ruleFilterView.getFilteredData();
+                    if (isFilteredData.length) {
+                      domUtils.text($button, `取消过滤(${isFilteredData.length})`);
+                    }
                   },
                   getAllRuleInfo: () => {
                     return getAllRuleElement().map(($el) => {
@@ -2681,6 +2747,7 @@
       });
       let allData = await this.option.data();
       let changeButtonText = false;
+      let isFilteredDataLength = 0;
       for (let index = 0; index < allData.length; index++) {
         let item = allData[index];
         let $ruleItemList = await this.appendRuleItemElement($popsConfirm.$shadowRoot, item);
@@ -2694,11 +2761,12 @@
         if (!isNotFilterFlag) {
           changeButtonText = true;
           domUtils.hide($ruleItemList, false);
+          isFilteredDataLength++;
         }
       }
       if (changeButtonText) {
         let $button = $popsConfirm.$shadowRoot.querySelector(".pops-confirm-btn-cancel span");
-        domUtils.text($button, "取消过滤");
+        domUtils.text($button, `取消过滤${isFilteredDataLength ? `(${isFilteredDataLength})` : ""}`);
       }
     }
     showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
@@ -2947,7 +3015,7 @@
       matchedRuleList: [],
     },
     init() {
-      this.$data.matchedRuleList = [];
+      this.$data.matchedRuleList.length = 0;
       this.$data.matchedRuleList = this.getMatchedRuleList();
       if (this.$data.matchedRuleList.length) {
         GM_Menu.add({
@@ -2966,8 +3034,8 @@
       }
     },
     getMatchedRuleList(url = window.location.href) {
-      let allData = this.getData();
-      let matchedRuleList = [];
+      const allData = this.getData();
+      const matchedRuleList = [];
       allData.forEach((data) => {
         if (!data.enable) {
           return;
