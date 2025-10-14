@@ -37,18 +37,19 @@ export const MTForumPostRightToolBar = {
         inajax: 1,
         ajaxtarget: "fwin_content_k_favorite",
       })}`;
-      let $collect = document.createElement("span");
-      $collect.innerHTML = /*html*/ `
-			<a href="${collectUrl}" 
-				id="k_favorite"
-				onclick="showWindow(this.id, this.href, 'get', 0);"
-				onmouseover="this.title = $('favoritenumber').innerHTML + ' 人收藏'">
-				<img src="https://s1.ax1x.com/2020/04/29/JTk3lD.gif"
-						height="26" 
-						width="26" 
-						style="position:absolute;top:10px;left:11px">
-			</a>
-			`;
+      let $collect = DOMUtils.createElement("span", {
+        innerHTML: /*html*/ `
+        <a href="${collectUrl}" 
+          id="k_favorite"
+          onclick="showWindow(this.id, this.href, 'get', 0);"
+          onmouseover="this.title = $('favoritenumber').innerHTML + ' 人收藏'">
+          <img src="https://s1.ax1x.com/2020/04/29/JTk3lD.gif"
+              height="26" 
+              width="26" 
+              style="position:absolute;top:10px;left:11px">
+        </a>
+        `,
+      });
       DOMUtils.prepend($scrollTop, $collect);
     });
   },

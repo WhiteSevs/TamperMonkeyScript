@@ -31,16 +31,16 @@ export const MTForumPost = {
         this.removeCommentFontStyle();
       });
       Panel.execMenuOnce("mt-forum-post-loadNextPageComment", () => {
-        this.loadNextPageComment();
+        return this.loadNextPageComment();
       });
       Panel.execMenuOnce("mt-forum-post-codeQuoteOptimization", () => {
-        this.codeQuoteOptimization();
+        return this.codeQuoteOptimization();
       });
       Panel.execMenuOnce("mt-forum-post-optimizationImagePreview", () => {
-        this.optimizationImagePreview();
+        return this.optimizationImagePreview();
       });
       Panel.execMenuOnce("mt-forum-post-interceptionAttachment", () => {
-        this.setAttachmentsClickTip();
+        return this.setAttachmentsClickTip();
       });
       Panel.execMenu("mt-forum-post-detectingUserOnlineStatus", () => {
         this.detectingUserOnlineStatus();
@@ -80,7 +80,7 @@ export const MTForumPost = {
    * 移除帖子字体效果
    */
   removeFontStyle() {
-    let $messageTable = document.querySelector<HTMLElement>(".comiis_a.comiis_message_table");
+    let $messageTable = $<HTMLElement>(".comiis_a.comiis_message_table");
     if (!$messageTable) {
       return;
     }
@@ -94,12 +94,11 @@ export const MTForumPost = {
     log.info(`移除评论区的字体效果`);
     let $fontList = $$("font");
     /* 帖子主内容 */
-    let $postForumMainContent = $(".comiis_postlist .comiis_postli")?.innerHTML || "";
+    let $postForumMainContent = DOMUtils.html($<HTMLElement>(".comiis_postlist .comiis_postli")!) || "";
     if ($postForumMainContent !== "") {
       $fontList.forEach(($font) => {
         /* font元素是帖子主内容的移除字体效果 */
         if (!$postForumMainContent.includes($font.innerHTML)) {
-          /* log.info(hide[i].innerHTML); */
           $font.removeAttribute("color");
           $font.removeAttribute("style");
           $font.removeAttribute("size");
@@ -108,8 +107,8 @@ export const MTForumPost = {
       /* 帖子评论 */
       $$<HTMLElement>(".comiis_message.message").forEach(($message) => {
         if ($postForumMainContent.includes($message.innerHTML)) {
-          $message.innerHTML = $message.innerHTML.replace(MTRegExp.fontSpecial, "");
-          let $next = $message.nextElementSibling;
+          DOMUtils.html($message, DOMUtils.html($message).replace(MTRegExp.fontSpecial, ""));
+          let $next = DOMUtils.next($message);
           if ($next && $next.localName === "strike") {
             $next.outerHTML = $next.outerHTML.replace(/^<strike>(\n|)/g, "").replace(/<\/strike>$/g, "");
           }
@@ -137,7 +136,7 @@ export const MTForumPost = {
       return;
     }
 
-    var getPageInfo = async function (url: string) {
+    const getPageInfo = async function (url: string) {
       let response = await httpx.get(url, {
         fetch: true,
         allowInterceptConfig: false,
@@ -146,8 +145,8 @@ export const MTForumPost = {
         Qmsg.error("网络异常，请求下一页失败");
         return;
       }
-      var pageHTML = utils.parseFromString(response.data.responseText);
-      var nextPageBtn = pageHTML.querySelector(".pgbtn a");
+      const pageHTML = utils.parseFromString(response.data.responseText);
+      const nextPageBtn = pageHTML.querySelector(".pgbtn a");
       pageHTML.querySelector("#postlistreply")?.remove();
       pageHTML.querySelector(".bm_h.comiis_snvbt")?.remove();
       return {
@@ -157,8 +156,8 @@ export const MTForumPost = {
         pgs: pageHTML.querySelector<HTMLElement>(".pgs.mtm"),
       };
     };
-    var scrollEvent = async function () {
-      var nextURL = $<HTMLAnchorElement>(".pgbtn a")!.getAttribute("href");
+    const scrollEvent = async function () {
+      const nextURL = $<HTMLAnchorElement>(".pgbtn a")!.getAttribute("href");
       if (nextURL) {
         let pageInfo = await getPageInfo(nextURL);
         if (pageInfo) {
@@ -196,7 +195,12 @@ export const MTForumPost = {
         await scrollEvent();
       }
     });
-    DOMUtils.on(document, ["scroll", "wheel"], lockFn.run);
+    const listener = DOMUtils.on(document, ["scroll", "wheel"], lockFn.run);
+    return [
+      () => {
+        listener.off();
+      },
+    ];
   },
   /**
    * 代码块优化
@@ -204,7 +208,7 @@ export const MTForumPost = {
   codeQuoteOptimization() {
     log.info(`代码块优化`);
     function hljs_smali(hljs: HLJSApi): Language {
-      var smali_instr_low_prio = [
+      const smali_instr_low_prio = [
         "add",
         "and",
         "cmp",
@@ -235,7 +239,8 @@ export const MTForumPost = {
         "ushr",
         "xor",
       ];
-      var smali_instr_high_prio = [
+
+      const smali_instr_high_prio = [
         "aget",
         "aput",
         "array",
@@ -254,7 +259,8 @@ export const MTForumPost = {
         "sget",
         "sparse",
       ];
-      var smali_keywords = [
+
+      const smali_keywords = [
         "transient",
         "constructor",
         "abstract",
@@ -266,19 +272,70 @@ export const MTForumPost = {
         "static",
         "bridge",
         "system",
+        "interface",
+        "enum",
+        "annotation",
+        "volatile",
+        "native",
+        "strictfp",
+        "synchronized",
+      ];
+
+      // Smali数据类型
+      const smali_types = [
+        "void",
+        "boolean",
+        "byte",
+        "short",
+        "char",
+        "int",
+        "long",
+        "float",
+        "double",
+        "boolean\\[",
+        "byte\\[",
+        "short\\[",
+        "char\\[",
+        "int\\[",
+        "long\\[",
+        "float\\[",
+        "double\\[",
       ];
       return {
         aliases: ["smali"],
+        keywords: {
+          keyword: smali_keywords.join(" "),
+          built_in: smali_instr_low_prio.concat(smali_instr_high_prio).join(" "),
+          type: smali_types.join(" "),
+        },
         contains: [
+          // 字符串
           {
             className: "string",
             begin: '"',
             end: '"',
             relevance: 0,
+            contains: [
+              hljs.BACKSLASH_ESCAPE,
+              {
+                className: "char.escape",
+                begin: /\\[nrtbf]/,
+                relevance: 0,
+              },
+            ],
           },
+          // 单字符
+          {
+            className: "string",
+            begin: "'",
+            end: "'",
+            relevance: 0,
+          },
+          // 注释
           hljs.COMMENT("#", "$", {
             relevance: 0,
           }),
+          // 关键字和指令
           {
             className: "keyword",
             variants: [
@@ -288,6 +345,7 @@ export const MTForumPost = {
               { begin: "\\s(" + smali_keywords.join("|") + ")" },
             ],
           },
+          // 内置指令
           {
             className: "built_in",
             variants: [
@@ -304,36 +362,64 @@ export const MTForumPost = {
               },
             ],
           },
+          // 类名 (以L开头，以;结尾)
           {
             className: "class",
             begin: "L[^(;:\n]*;",
             relevance: 0,
           },
+          // 方法引用
           {
+            className: "function",
+            begin: "\\s*[a-zA-Z_<][a-zA-Z0-9_<>]*\\s*\\(",
+            end: "\\s*\\)",
+            excludeBegin: true,
+            excludeEnd: true,
+            relevance: 0,
+            contains: [
+              {
+                className: "params",
+                begin: "\\S",
+                endsWithParent: true,
+                relevance: 0,
+              },
+            ],
+          },
+          // 寄存器变量 (v\d+, p\d+)
+          {
+            className: "variable",
             begin: "[vp][0-9]+",
+            relevance: 0,
+          },
+          // 数字常量
+          {
+            className: "number",
+            variants: [
+              { begin: "\\b-?0[xX][0-9a-fA-F]+[lL]?" }, // 十六进制
+              { begin: "\\b-?0[0-7]+[lL]?" }, // 八进制
+              { begin: "\\b-?[0-9]+[lLfF]?" }, // 十进制
+            ],
+            relevance: 0,
+          },
+          // 字段引用
+          {
+            className: "property",
+            begin: "\\s*[a-zA-Z_<][a-zA-Z0-9_<>]*\\s*->\\s*[a-zA-Z_<][a-zA-Z0-9_<>]*",
+            relevance: 0,
           },
         ],
       };
     }
-    addStyle(/*css*/ `
-			.hljs{text-align:left}
-			.hljs ol{margin:0 0 0 10px;padding:10px 10px}
-			.hljs li{padding-left:10px;list-style-type:decimal-leading-zero;font-family:Monaco,Consolas,'Lucida Console','Courier New',serif;font-size:12px;line-height:1.8em}
-			.hljs li:hover{background:#2c313c}
-			.hljs li::marker{unicode-bidi:isolate;font-variant-numeric:tabular-nums;text-transform:none;text-indent:0!important;text-align:start!important;text-align-last:start!important}
-			.hljs em[onclick^=copycode]{color:#fff;background:#246fff;margin:5px 10px;border-radius:3px;padding:0 5px;cursor:pointer;height:32px;line-height:32px;display:inline-flex}
-			.hljs .code-select-language{height:32px;line-height:32px;font-size:14px;border:1px solid #5c5c5c;border-radius:5px;text-align:center;outline:0}
-		`);
     hljs.registerLanguage("smali", hljs_smali);
     let lockFn = new utils.LockFunction(
       () => {
-        function setElementHighlight(ele: any, language = "java") {
-          if (!ele.oldValue) {
-            ele.oldValue = ele.textContent;
+        function setElementHighlight($el: any, language = "java") {
+          if (!$el.oldValue) {
+            $el.oldValue = $el.textContent;
           }
-          ele.innerHTML = hljs.highlight(ele.oldValue, { language: language }).value.replace(/\\n$/gi, "");
+          DOMUtils.html($el, hljs.highlight($el.oldValue, { language: language }).value.replace(/\\n$/gi, ""));
         }
-        document.querySelectorAll<HTMLEmbedElement>("em[onclick^=copycode]").forEach((coypCodeElement) => {
+        $$<HTMLEmbedElement>("em[onclick^=copycode]").forEach((coypCodeElement) => {
           if (
             coypCodeElement.nextElementSibling &&
             typeof coypCodeElement.nextElementSibling.className === "string" &&
@@ -341,10 +427,25 @@ export const MTForumPost = {
           ) {
             return;
           }
-          let codeLanguage = hljs.highlightAuto(
-            DOMUtils.text(coypCodeElement.parentElement!.querySelector<HTMLDivElement>("div[id^=code]")!)
-          ).language;
-          let selectElement = document.createElement("select");
+          const codeText = DOMUtils.text(
+            coypCodeElement.parentElement!.querySelector<HTMLDivElement>("div[id^=code]")!
+          );
+          let codeLanguage = hljs.highlightAuto(codeText).language;
+          if (codeText.trim().startsWith("invoke-")) {
+            codeLanguage = "smali";
+          }
+          if (
+            codeLanguage &&
+            // 仅对论坛常见的语言进行自动检测高亮
+            !["bash", "css", "javascript", "json", "java", "kotlin", "python", "smali", "typescript"].includes(
+              codeLanguage
+            )
+          ) {
+            codeLanguage = "plaintext";
+          }
+          const $select = DOMUtils.createElement("select", {
+            className: "code-select-language",
+          });
           let selectLanguageList = hljs.listLanguages().sort();
           selectLanguageList = selectLanguageList.concat("自动检测");
           let selectInnerHTML = "";
@@ -355,30 +456,29 @@ export const MTForumPost = {
               selectInnerHTML += `<option data-value="${languageName}">${languageName}\</option>`;
             }
           });
-          selectElement.className = "code-select-language";
-          selectElement.innerHTML = selectInnerHTML;
-          DOMUtils.on(selectElement, "change", () => {
-            let changeCodeLanguage = selectElement.selectedOptions[0].getAttribute("data-value")!;
+          DOMUtils.html($select, selectInnerHTML);
+          DOMUtils.on($select, "change", () => {
+            let changeCodeLanguage = $select.selectedOptions[0].getAttribute("data-value")!;
             log.info("切换代码块语言: ", changeCodeLanguage);
-            DOMUtils.parent(selectElement)
+            DOMUtils.parent($select)
               .querySelectorAll("li")
               .forEach((liElement) => {
                 setElementHighlight(liElement, changeCodeLanguage);
               });
           });
-          DOMUtils.preventEvent(selectElement, "click");
+          DOMUtils.preventEvent($select, "click");
           DOMUtils.preventEvent(coypCodeElement, "click");
-          coypCodeElement.insertAdjacentElement("afterend", selectElement);
-          DOMUtils.trigger(selectElement, "change");
+          coypCodeElement.insertAdjacentElement("afterend", $select);
+          DOMUtils.trigger($select, "change");
         });
 
-        let blockcodeElementList = document.querySelectorAll(".blockcode");
+        let blockcodeElementList = $$(".blockcode");
         blockcodeElementList.forEach((ele) => (ele.className = "hljs"));
       },
       this,
       500
     );
-    utils.mutationObserver(document, {
+    const observer = utils.mutationObserver(document, {
       config: {
         subtree: true,
         childList: true,
@@ -387,6 +487,20 @@ export const MTForumPost = {
         lockFn.run();
       },
     });
+    return [
+      addStyle(/*css*/ `
+			.hljs{text-align:left}
+			.hljs ol{margin:0 0 0 10px;padding:10px 10px}
+			.hljs li{padding-left:10px;list-style-type:decimal-leading-zero;font-family:Monaco,Consolas,'Lucida Console','Courier New',serif;font-size:12px;line-height:1.8em}
+			.hljs li:hover{background:#2c313c}
+			.hljs li::marker{unicode-bidi:isolate;font-variant-numeric:tabular-nums;text-transform:none;text-indent:0!important;text-align:start!important;text-align-last:start!important}
+			.hljs em[onclick^=copycode]{color:#fff;background:#246fff;margin:5px 10px;border-radius:3px;padding:0 5px;cursor:pointer;height:32px;line-height:32px;display:inline-flex}
+			.hljs .code-select-language{height:32px;line-height:32px;font-size:14px;border:1px solid #5c5c5c;border-radius:5px;text-align:center;outline:0}
+		`),
+      () => {
+        observer.disconnect();
+      },
+    ];
   },
   /**
    * 图片查看优化
@@ -394,7 +508,7 @@ export const MTForumPost = {
   optimizationImagePreview() {
     log.info(`图片查看优化`);
 
-    let blackListNoViewIMG = [
+    const blackListNoViewIMG = [
       {
         hostName: "avatar-bbs.mt2.cn",
         pathName: "*",
@@ -496,7 +610,7 @@ export const MTForumPost = {
     let lockFn = new utils.LockFunction(() => {
       handleImageClick();
     });
-    utils.mutationObserver(document, {
+    const observer = utils.mutationObserver(document, {
       config: {
         subtree: true,
         childList: true,
@@ -506,6 +620,12 @@ export const MTForumPost = {
         lockFn.run();
       },
     });
+
+    return [
+      () => {
+        observer.disconnect();
+      },
+    ];
   },
   /**
    * 附件点击提醒
@@ -521,8 +641,8 @@ export const MTForumPost = {
         let attachmentId = item.hasAttribute("id") ? item.id : item.parentElement!.id;
         let attachmentURL = item.getAttribute("href")!;
         let attachmentName = item.innerText;
-        let attachmentMenu = document.querySelector<HTMLElement>(`#${attachmentId}_menu`)!;
-        if (attachmentMenu.innerText.indexOf("金币") === -1) {
+        let $attachmentMenu = $<HTMLElement>(`#${attachmentId}_menu`)!;
+        if ($attachmentMenu.innerText.indexOf("金币") === -1) {
           return;
         }
         console.log("发现附件", item);
@@ -555,21 +675,26 @@ export const MTForumPost = {
         };
       }
     }
-    utils.mutationObserver(document.documentElement, {
+    const observer = utils.mutationObserver(document.documentElement, {
       callback: () => {
-        document.querySelectorAll<HTMLAnchorElement>(".attnm a").forEach((item) => {
+        $$<HTMLAnchorElement>(".attnm a").forEach((item) => {
           handleClick(item);
         });
-        document.querySelectorAll<HTMLAnchorElement>(".comiis_attach a").forEach((item) => {
+        $$<HTMLAnchorElement>(".comiis_attach a").forEach((item) => {
           handleClick(item);
         });
-        document.querySelectorAll<HTMLAnchorElement>("span[id*=attach_] a").forEach((item) => {
+        $$<HTMLAnchorElement>("span[id*=attach_] a").forEach((item) => {
           handleClick(item);
         });
       },
       immediate: true,
       config: { childList: true, subtree: true },
     });
+    return [
+      () => {
+        observer.disconnect();
+      },
+    ];
   },
   /**
    * 探测用户在线状态
@@ -642,11 +767,11 @@ export const MTForumPost = {
     $$<HTMLElement>(".pls.favatar:not([data-show-user-level])").forEach(($userAvatar) => {
       $userAvatar.setAttribute("data-show-user-level", "true");
       let userLevel = "0级";
-      let userInfo = $userAvatar.querySelector<HTMLElement>(".tns tr")!;
-      let currentLevelText = $userAvatar.querySelector<HTMLElement>("p em")!.innerText;
-      let userLevelText = document.createElement("td");
-      userLevelText.setAttribute("style", "border-left: 1px solid #e3e3e3;");
-      switch (currentLevelText) {
+      let $userInfo = $userAvatar.querySelector<HTMLElement>(".tns tr")!;
+      let $currentLevelText = $userAvatar.querySelector<HTMLElement>("p em")!.innerText;
+      let $userLevelText = document.createElement("td");
+      $userLevelText.setAttribute("style", "border-left: 1px solid #e3e3e3;");
+      switch ($currentLevelText) {
         case "幼儿园":
         case "初级工程师":
           userLevel = "1级";
@@ -691,8 +816,8 @@ export const MTForumPost = {
           userLevel = "9级";
           break;
       }
-      userLevelText.innerHTML = `<p><a class="dj">${userLevel}</a></p>Lv`;
-      userInfo.appendChild(userLevelText);
+      DOMUtils.html($userLevelText, `<p><a class="dj">${userLevel}</a></p>Lv`);
+      $userInfo.appendChild($userLevelText);
     });
   },
   /**

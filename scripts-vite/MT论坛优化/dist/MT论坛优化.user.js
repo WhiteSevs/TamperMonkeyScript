@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.9.28
+// @version      2025.10.14
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、用户状态查看、美化导航、动态头像上传、最新发表、评论过滤器等
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://bbs.binmt.cc/*
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js
@@ -116,11 +116,11 @@
       return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
     setGMResourceCSS(resourceMapData) {
-      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
+      const cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
       if (typeof cssText === "string" && cssText) {
-        addStyle(cssText);
+        return addStyle(cssText);
       } else {
-        CommonUtil.loadStyleLink(resourceMapData.url);
+        return CommonUtil.loadStyleLink(resourceMapData.url);
       }
     },
     async loadStyleLink(url) {
@@ -128,8 +128,11 @@
       $link.rel = "stylesheet";
       $link.type = "text/css";
       $link.href = url;
-      DOMUtils.ready(() => {
-        document.head.appendChild($link);
+      return new Promise((resolve) => {
+        DOMUtils.ready(() => {
+          document.head.appendChild($link);
+          resolve($link);
+        });
       });
     },
     async loadScript(url) {
@@ -512,7 +515,7 @@
     listenerData;
     constructor(key) {
       if (typeof key === "string") {
-        let trimKey = key.trim();
+        const trimKey = key.trim();
         if (trimKey == "") {
           throw new Error("key参数不能为空字符串");
         }
@@ -521,6 +524,18 @@
         throw new Error("key参数类型错误，必须是字符串");
       }
       this.listenerData = new Utils.Dictionary();
+      this.getLocalValue = this.getLocalValue.bind(this);
+      this.set = this.set.bind(this);
+      this.get = this.get.bind(this);
+      this.getAll = this.getAll.bind(this);
+      this.delete = this.delete.bind(this);
+      this.has = this.has.bind(this);
+      this.keys = this.keys.bind(this);
+      this.values = this.values.bind(this);
+      this.clear = this.clear.bind(this);
+      this.addValueChangeListener = this.addValueChangeListener.bind(this);
+      this.removeValueChangeListener = this.removeValueChangeListener.bind(this);
+      this.triggerValueChangeListener = this.triggerValueChangeListener.bind(this);
     }
     getLocalValue() {
       let localValue = _GM_getValue(this.storageKey);
@@ -534,45 +549,45 @@
       _GM_setValue(this.storageKey, value);
     }
     set(key, value) {
-      let oldValue = this.get(key);
-      let localValue = this.getLocalValue();
+      const oldValue = this.get(key);
+      const localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, value);
     }
     get(key, defaultValue) {
-      let localValue = this.getLocalValue();
+      const localValue = this.getLocalValue();
       return Reflect.get(localValue, key) ?? defaultValue;
     }
     getAll() {
-      let localValue = this.getLocalValue();
+      const localValue = this.getLocalValue();
       return localValue;
     }
     delete(key) {
-      let oldValue = this.get(key);
-      let localValue = this.getLocalValue();
+      const oldValue = this.get(key);
+      const localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, void 0);
     }
     has(key) {
-      let localValue = this.getLocalValue();
+      const localValue = this.getLocalValue();
       return Reflect.has(localValue, key);
     }
     keys() {
-      let localValue = this.getLocalValue();
+      const localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue);
     }
     values() {
-      let localValue = this.getLocalValue();
+      const localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
     }
     clear() {
       _GM_deleteValue(this.storageKey);
     }
     addValueChangeListener(key, callback) {
-      let listenerId = Math.random();
-      let listenerData = this.listenerData.get(key) || [];
+      const listenerId = Math.random();
+      const listenerData = this.listenerData.get(key) || [];
       listenerData.push({
         id: listenerId,
         key,
@@ -599,7 +614,8 @@
       }
       return flag;
     }
-    triggerValueChangeListener(key, oldValue, newValue) {
+    async triggerValueChangeListener(...args) {
+      const [key, oldValue, newValue] = args;
       if (!this.listenerData.has(key)) {
         return;
       }
@@ -610,17 +626,17 @@
           let value = this.get(key);
           let __newValue;
           let __oldValue;
-          if (typeof oldValue !== "undefined" && arguments.length >= 2) {
+          if (typeof oldValue !== "undefined" && args.length >= 2) {
             __oldValue = oldValue;
           } else {
             __oldValue = value;
           }
-          if (typeof newValue !== "undefined" && arguments.length > 2) {
+          if (typeof newValue !== "undefined" && args.length > 2) {
             __newValue = newValue;
           } else {
             __newValue = value;
           }
-          data.callback(key, __oldValue, __newValue);
+          await data.callback(key, __oldValue, __newValue);
         }
       }
     }
@@ -635,6 +651,7 @@
         }
         return this.__contentConfig;
       },
+      __defaultBottomContentConfig: [],
     },
     addContentConfig(configList) {
       if (!Array.isArray(configList)) {
@@ -650,6 +667,9 @@
       return this.$data.contentConfig.get(index) ?? [];
     },
     getDefaultBottomContentConfig() {
+      if (this.$data.__defaultBottomContentConfig.length) {
+        return this.$data.__defaultBottomContentConfig;
+      }
       return [
         {
           id: "script-version",
@@ -665,6 +685,9 @@
           },
         },
       ];
+    },
+    setDefaultBottomContentConfig(config) {
+      this.$data.__defaultBottomContentConfig = config;
     },
   };
   const PanelMenu = {
@@ -784,7 +807,8 @@
         if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
           return;
         }
-        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
+        const attributes = config.attributes;
+        let __attr_init__ = attributes[ATTRIBUTE_INIT];
         if (typeof __attr_init__ === "function") {
           let __attr_result__ = __attr_init__();
           if (typeof __attr_result__ === "boolean" && !__attr_result__) {
@@ -792,12 +816,12 @@
           }
         }
         let menuDefaultConfig = new Map();
-        let key = config.attributes[ATTRIBUTE_KEY];
+        let key = attributes[ATTRIBUTE_KEY];
         if (key != null) {
-          const defaultValue = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+          const defaultValue = attributes[ATTRIBUTE_DEFAULT_VALUE];
           menuDefaultConfig.set(key, defaultValue);
         }
-        let moreMenuDefaultConfig = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
+        let moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
         if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
           Object.keys(moreMenuDefaultConfig).forEach((key2) => {
             menuDefaultConfig.set(key2, moreMenuDefaultConfig[key2]);
@@ -869,7 +893,7 @@
       return PopsPanelStorageApi.has(key);
     },
     addValueChangeListener(key, callback) {
-      let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
+      const listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
         callback(key, __oldValue, __newValue);
       });
       return listenerId;
@@ -889,7 +913,7 @@
         queryKeyFn = queryKey;
       }
       let isArrayKey = false;
-      let queryKeyResult = queryKeyFn();
+      const queryKeyResult = queryKeyFn();
       let keyList = [];
       if (Array.isArray(queryKeyResult)) {
         isArrayKey = true;
@@ -897,50 +921,85 @@
       } else {
         keyList.push(queryKeyResult);
       }
-      let findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
+      const findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
       if (findNotInDataKey) {
         log.warn(`${findNotInDataKey} 键不存在`);
         return;
       }
-      let storageKey = JSON.stringify(keyList);
+      const storageKey = JSON.stringify(keyList);
       if (once) {
         if (this.$data.onceExecMenuData.has(storageKey)) {
           return this.$data.onceExecMenuData.get(storageKey);
         }
       }
       let storeValueList = [];
-      let listenerIdList = [];
-      let dynamicAddStyleNodeCallback = (value, $style) => {
-        let dynamicResultList = [];
-        if (!Array.isArray($style)) {
-          $style = [$style];
+      const listenerIdList = [];
+      let destoryFnList = [];
+      const addStoreValueCallback = (enableValue, args) => {
+        let dynamicMenuStoreValueList = [];
+        let dynamicDestoryFnList = [];
+        let resultValueList = [];
+        if (Array.isArray(args)) {
+          resultValueList = resultValueList.concat(args);
+        } else {
+          if (typeof args === "object" && args != null) {
+            const { $css, destory } = args;
+            if ($css != null) {
+              if (Array.isArray($css)) {
+                resultValueList = resultValueList.concat($css);
+              } else {
+                resultValueList.push($css);
+              }
+            }
+            if (typeof destory === "function") {
+              resultValueList.push(destory);
+            }
+          } else {
+            resultValueList.push(args);
+          }
         }
-        $style.forEach(($styleItem) => {
-          if ($styleItem == null) {
-            return;
+        for (const it of resultValueList) {
+          if (it == null) {
+            continue;
           }
-          if ($styleItem instanceof HTMLStyleElement) {
-            dynamicResultList.push($styleItem);
-            return;
+          if (it instanceof Element) {
+            dynamicMenuStoreValueList.push(it);
+            continue;
           }
-        });
-        {
-          storeValueList = storeValueList.concat(dynamicResultList);
+          if (typeof it === "function") {
+            destoryFnList.push(it);
+            continue;
+          }
+        }
+        if (enableValue) {
+          storeValueList = storeValueList.concat(dynamicMenuStoreValueList);
+          destoryFnList = destoryFnList.concat(dynamicDestoryFnList);
+        } else {
+          execClearStoreStyleElements();
+          execDestory();
         }
       };
-      let getMenuValue = (key) => {
-        let value = this.getValue(key);
+      const getMenuValue = (key) => {
+        const value = this.getValue(key);
         return value;
       };
-      let clearBeforeStoreValue = () => {
+      const execClearStoreStyleElements = () => {
         for (let index = 0; index < storeValueList.length; index++) {
-          let $css = storeValueList[index];
-          $css.remove();
+          const $css = storeValueList[index];
+          $css?.remove();
           storeValueList.splice(index, 1);
           index--;
         }
       };
-      let checkMenuExec = () => {
+      const execDestory = () => {
+        for (let index = 0; index < destoryFnList.length; index++) {
+          const destoryFnItem = destoryFnList[index];
+          destoryFnItem();
+          destoryFnList.splice(index, 1);
+          index--;
+        }
+      };
+      const checkMenuExec = () => {
         let flag = false;
         if (typeof checkExec === "function") {
           flag = checkExec(keyList);
@@ -949,57 +1008,52 @@
         }
         return flag;
       };
-      let valueChangeCallback = (valueOption) => {
-        let execFlag = checkMenuExec();
-        let resultList = [];
+      const valueChangeCallback = (valueOption) => {
+        const execFlag = checkMenuExec();
         if (execFlag) {
-          let valueList = keyList.map((key) => this.getValue(key));
-          let callbackResult = callback({
+          const valueList = keyList.map((key) => this.getValue(key));
+          const callbackResult = callback({
             value: isArrayKey ? valueList : valueList[0],
-            addStyleElement: (...args) => {
-              return dynamicAddStyleNodeCallback(true, ...args);
+            addStoreValue: (...args) => {
+              return addStoreValueCallback(true, args);
             },
           });
-          if (!Array.isArray(callbackResult)) {
-            callbackResult = [callbackResult];
-          }
-          callbackResult.forEach((it) => {
-            if (it == null) {
-              return;
-            }
-            if (it instanceof HTMLStyleElement) {
-              resultList.push(it);
-              return;
-            }
-          });
+          addStoreValueCallback(true, callbackResult);
+        } else {
+          addStoreValueCallback(false, []);
         }
-        clearBeforeStoreValue();
-        storeValueList = [...resultList];
       };
       once &&
         keyList.forEach((key) => {
-          let listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
-            valueChangeCallback();
+          const listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
+            return valueChangeCallback();
           });
           listenerIdList.push(listenerId);
         });
       valueChangeCallback();
-      let result = {
+      const result = {
         reload() {
           valueChangeCallback();
         },
         clear() {
           this.clearStoreStyleElements();
+          this.destory();
           this.removeValueChangeListener();
-          once && that.$data.onceExecMenuData.delete(storageKey);
+          this.clearOnceExecMenuData();
         },
         clearStoreStyleElements: () => {
-          return clearBeforeStoreValue();
+          return execClearStoreStyleElements();
+        },
+        destory() {
+          return execDestory();
         },
         removeValueChangeListener: () => {
           listenerIdList.forEach((listenerId) => {
             this.removeValueChangeListener(listenerId);
           });
+        },
+        clearOnceExecMenuData() {
+          once && that.$data.onceExecMenuData.delete(storageKey);
         },
       };
       this.$data.onceExecMenuData.set(storageKey, result);
@@ -1012,9 +1066,9 @@
           return callback(option);
         },
         (keyList) => {
-          let execFlag = keyList.every((__key__) => {
+          const execFlag = keyList.every((__key__) => {
             let flag = !!this.getValue(__key__);
-            let disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
+            const disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
             if (disabled) {
               flag = false;
               log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
@@ -1049,7 +1103,7 @@
       key = this.transformKey(key);
       this.$data.onceExecMenuData.delete(key);
       this.$data.urlChangeReloadMenuExecOnce.delete(key);
-      let flag = PopsPanelStorageApi.removeValueChangeListener(key);
+      const flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
     onceExec(key, callback) {
@@ -2181,18 +2235,19 @@
           inajax: 1,
           ajaxtarget: "fwin_content_k_favorite",
         })}`;
-        let $collect = document.createElement("span");
-        $collect.innerHTML = `
-			<a href="${collectUrl}" 
-				id="k_favorite"
-				onclick="showWindow(this.id, this.href, 'get', 0);"
-				onmouseover="this.title = $('favoritenumber').innerHTML + ' 人收藏'">
-				<img src="https://s1.ax1x.com/2020/04/29/JTk3lD.gif"
-						height="26" 
-						width="26" 
-						style="position:absolute;top:10px;left:11px">
-			</a>
-			`;
+        let $collect = domUtils.createElement("span", {
+          innerHTML: `
+        <a href="${collectUrl}" 
+          id="k_favorite"
+          onclick="showWindow(this.id, this.href, 'get', 0);"
+          onmouseover="this.title = $('favoritenumber').innerHTML + ' 人收藏'">
+          <img src="https://s1.ax1x.com/2020/04/29/JTk3lD.gif"
+              height="26" 
+              width="26" 
+              style="position:absolute;top:10px;left:11px">
+        </a>
+        `,
+        });
         domUtils.prepend($scrollTop, $collect);
       });
     },
@@ -2257,16 +2312,16 @@
           this.removeCommentFontStyle();
         });
         Panel.execMenuOnce("mt-forum-post-loadNextPageComment", () => {
-          this.loadNextPageComment();
+          return this.loadNextPageComment();
         });
         Panel.execMenuOnce("mt-forum-post-codeQuoteOptimization", () => {
-          this.codeQuoteOptimization();
+          return this.codeQuoteOptimization();
         });
         Panel.execMenuOnce("mt-forum-post-optimizationImagePreview", () => {
-          this.optimizationImagePreview();
+          return this.optimizationImagePreview();
         });
         Panel.execMenuOnce("mt-forum-post-interceptionAttachment", () => {
-          this.setAttachmentsClickTip();
+          return this.setAttachmentsClickTip();
         });
         Panel.execMenu("mt-forum-post-detectingUserOnlineStatus", () => {
           this.detectingUserOnlineStatus();
@@ -2301,7 +2356,7 @@
       );
     },
     removeFontStyle() {
-      let $messageTable = document.querySelector(".comiis_a.comiis_message_table");
+      let $messageTable = $(".comiis_a.comiis_message_table");
       if (!$messageTable) {
         return;
       }
@@ -2311,7 +2366,7 @@
     removeCommentFontStyle() {
       log.info(`移除评论区的字体效果`);
       let $fontList = $$("font");
-      let $postForumMainContent = $(".comiis_postlist .comiis_postli")?.innerHTML || "";
+      let $postForumMainContent = domUtils.html($(".comiis_postlist .comiis_postli")) || "";
       if ($postForumMainContent !== "") {
         $fontList.forEach(($font) => {
           if (!$postForumMainContent.includes($font.innerHTML)) {
@@ -2322,8 +2377,8 @@
         });
         $$(".comiis_message.message").forEach(($message) => {
           if ($postForumMainContent.includes($message.innerHTML)) {
-            $message.innerHTML = $message.innerHTML.replace(MTRegExp.fontSpecial, "");
-            let $next = $message.nextElementSibling;
+            domUtils.html($message, domUtils.html($message).replace(MTRegExp.fontSpecial, ""));
+            let $next = domUtils.next($message);
             if ($next && $next.localName === "strike") {
               $next.outerHTML = $next.outerHTML.replace(/^<strike>(\n|)/g, "").replace(/<\/strike>$/g, "");
             }
@@ -2346,7 +2401,7 @@
         log.warn("没有找到下一页按钮");
         return;
       }
-      var getPageInfo = async function (url) {
+      const getPageInfo = async function (url) {
         let response = await httpx.get(url, {
           fetch: true,
           allowInterceptConfig: false,
@@ -2355,8 +2410,8 @@
           Qmsg.error("网络异常，请求下一页失败");
           return;
         }
-        var pageHTML = utils.parseFromString(response.data.responseText);
-        var nextPageBtn = pageHTML.querySelector(".pgbtn a");
+        const pageHTML = utils.parseFromString(response.data.responseText);
+        const nextPageBtn = pageHTML.querySelector(".pgbtn a");
         pageHTML.querySelector("#postlistreply")?.remove();
         pageHTML.querySelector(".bm_h.comiis_snvbt")?.remove();
         return {
@@ -2366,8 +2421,8 @@
           pgs: pageHTML.querySelector(".pgs.mtm"),
         };
       };
-      var scrollEvent = async function () {
-        var nextURL = $(".pgbtn a").getAttribute("href");
+      const scrollEvent = async function () {
+        const nextURL = $(".pgbtn a").getAttribute("href");
         if (nextURL) {
           let pageInfo = await getPageInfo(nextURL);
           if (pageInfo) {
@@ -2402,12 +2457,17 @@
           await scrollEvent();
         }
       });
-      domUtils.on(document, ["scroll", "wheel"], lockFn.run);
+      const listener = domUtils.on(document, ["scroll", "wheel"], lockFn.run);
+      return [
+        () => {
+          listener.off();
+        },
+      ];
     },
     codeQuoteOptimization() {
       log.info(`代码块优化`);
       function hljs_smali(hljs2) {
-        var smali_instr_low_prio = [
+        const smali_instr_low_prio = [
           "add",
           "and",
           "cmp",
@@ -2438,7 +2498,7 @@
           "ushr",
           "xor",
         ];
-        var smali_instr_high_prio = [
+        const smali_instr_high_prio = [
           "aget",
           "aput",
           "array",
@@ -2457,7 +2517,7 @@
           "sget",
           "sparse",
         ];
-        var smali_keywords = [
+        const smali_keywords = [
           "transient",
           "constructor",
           "abstract",
@@ -2469,14 +2529,59 @@
           "static",
           "bridge",
           "system",
+          "interface",
+          "enum",
+          "annotation",
+          "volatile",
+          "native",
+          "strictfp",
+          "synchronized",
+        ];
+        const smali_types = [
+          "void",
+          "boolean",
+          "byte",
+          "short",
+          "char",
+          "int",
+          "long",
+          "float",
+          "double",
+          "boolean\\[",
+          "byte\\[",
+          "short\\[",
+          "char\\[",
+          "int\\[",
+          "long\\[",
+          "float\\[",
+          "double\\[",
         ];
         return {
           aliases: ["smali"],
+          keywords: {
+            keyword: smali_keywords.join(" "),
+            built_in: smali_instr_low_prio.concat(smali_instr_high_prio).join(" "),
+            type: smali_types.join(" "),
+          },
           contains: [
             {
               className: "string",
               begin: '"',
               end: '"',
+              relevance: 0,
+              contains: [
+                hljs2.BACKSLASH_ESCAPE,
+                {
+                  className: "char.escape",
+                  begin: /\\[nrtbf]/,
+                  relevance: 0,
+                },
+              ],
+            },
+            {
+              className: "string",
+              begin: "'",
+              end: "'",
               relevance: 0,
             },
             hljs2.COMMENT("#", "$", {
@@ -2513,32 +2618,53 @@
               relevance: 0,
             },
             {
+              className: "function",
+              begin: "\\s*[a-zA-Z_<][a-zA-Z0-9_<>]*\\s*\\(",
+              end: "\\s*\\)",
+              excludeBegin: true,
+              excludeEnd: true,
+              relevance: 0,
+              contains: [
+                {
+                  className: "params",
+                  begin: "\\S",
+                  endsWithParent: true,
+                  relevance: 0,
+                },
+              ],
+            },
+            {
+              className: "variable",
               begin: "[vp][0-9]+",
+              relevance: 0,
+            },
+            {
+              className: "number",
+              variants: [
+                { begin: "\\b-?0[xX][0-9a-fA-F]+[lL]?" },
+                { begin: "\\b-?0[0-7]+[lL]?" },
+                { begin: "\\b-?[0-9]+[lLfF]?" },
+              ],
+              relevance: 0,
+            },
+            {
+              className: "property",
+              begin: "\\s*[a-zA-Z_<][a-zA-Z0-9_<>]*\\s*->\\s*[a-zA-Z_<][a-zA-Z0-9_<>]*",
+              relevance: 0,
             },
           ],
         };
       }
-      addStyle(
-        `
-			.hljs{text-align:left}
-			.hljs ol{margin:0 0 0 10px;padding:10px 10px}
-			.hljs li{padding-left:10px;list-style-type:decimal-leading-zero;font-family:Monaco,Consolas,'Lucida Console','Courier New',serif;font-size:12px;line-height:1.8em}
-			.hljs li:hover{background:#2c313c}
-			.hljs li::marker{unicode-bidi:isolate;font-variant-numeric:tabular-nums;text-transform:none;text-indent:0!important;text-align:start!important;text-align-last:start!important}
-			.hljs em[onclick^=copycode]{color:#fff;background:#246fff;margin:5px 10px;border-radius:3px;padding:0 5px;cursor:pointer;height:32px;line-height:32px;display:inline-flex}
-			.hljs .code-select-language{height:32px;line-height:32px;font-size:14px;border:1px solid #5c5c5c;border-radius:5px;text-align:center;outline:0}
-		`
-      );
       hljs.registerLanguage("smali", hljs_smali);
       let lockFn = new utils.LockFunction(
         () => {
-          function setElementHighlight(ele, language = "java") {
-            if (!ele.oldValue) {
-              ele.oldValue = ele.textContent;
+          function setElementHighlight($el, language = "java") {
+            if (!$el.oldValue) {
+              $el.oldValue = $el.textContent;
             }
-            ele.innerHTML = hljs.highlight(ele.oldValue, { language }).value.replace(/\\n$/gi, "");
+            domUtils.html($el, hljs.highlight($el.oldValue, { language }).value.replace(/\\n$/gi, ""));
           }
-          document.querySelectorAll("em[onclick^=copycode]").forEach((coypCodeElement) => {
+          $$("em[onclick^=copycode]").forEach((coypCodeElement) => {
             if (
               coypCodeElement.nextElementSibling &&
               typeof coypCodeElement.nextElementSibling.className === "string" &&
@@ -2546,10 +2672,22 @@
             ) {
               return;
             }
-            let codeLanguage = hljs.highlightAuto(
-              domUtils.text(coypCodeElement.parentElement.querySelector("div[id^=code]"))
-            ).language;
-            let selectElement = document.createElement("select");
+            const codeText = domUtils.text(coypCodeElement.parentElement.querySelector("div[id^=code]"));
+            let codeLanguage = hljs.highlightAuto(codeText).language;
+            if (codeText.trim().startsWith("invoke-")) {
+              codeLanguage = "smali";
+            }
+            if (
+              codeLanguage &&
+              !["bash", "css", "javascript", "json", "java", "kotlin", "python", "smali", "typescript"].includes(
+                codeLanguage
+              )
+            ) {
+              codeLanguage = "plaintext";
+            }
+            const $select = domUtils.createElement("select", {
+              className: "code-select-language",
+            });
             let selectLanguageList = hljs.listLanguages().sort();
             selectLanguageList = selectLanguageList.concat("自动检测");
             let selectInnerHTML = "";
@@ -2560,30 +2698,29 @@
                 selectInnerHTML += `<option data-value="${languageName}">${languageName}</option>`;
               }
             });
-            selectElement.className = "code-select-language";
-            selectElement.innerHTML = selectInnerHTML;
-            domUtils.on(selectElement, "change", () => {
-              let changeCodeLanguage = selectElement.selectedOptions[0].getAttribute("data-value");
+            domUtils.html($select, selectInnerHTML);
+            domUtils.on($select, "change", () => {
+              let changeCodeLanguage = $select.selectedOptions[0].getAttribute("data-value");
               log.info("切换代码块语言: ", changeCodeLanguage);
               domUtils
-                .parent(selectElement)
+                .parent($select)
                 .querySelectorAll("li")
                 .forEach((liElement) => {
                   setElementHighlight(liElement, changeCodeLanguage);
                 });
             });
-            domUtils.preventEvent(selectElement, "click");
+            domUtils.preventEvent($select, "click");
             domUtils.preventEvent(coypCodeElement, "click");
-            coypCodeElement.insertAdjacentElement("afterend", selectElement);
-            domUtils.trigger(selectElement, "change");
+            coypCodeElement.insertAdjacentElement("afterend", $select);
+            domUtils.trigger($select, "change");
           });
-          let blockcodeElementList = document.querySelectorAll(".blockcode");
+          let blockcodeElementList = $$(".blockcode");
           blockcodeElementList.forEach((ele) => (ele.className = "hljs"));
         },
         this,
         500
       );
-      utils.mutationObserver(document, {
+      const observer = utils.mutationObserver(document, {
         config: {
           subtree: true,
           childList: true,
@@ -2592,10 +2729,26 @@
           lockFn.run();
         },
       });
+      return [
+        addStyle(
+          `
+			.hljs{text-align:left}
+			.hljs ol{margin:0 0 0 10px;padding:10px 10px}
+			.hljs li{padding-left:10px;list-style-type:decimal-leading-zero;font-family:Monaco,Consolas,'Lucida Console','Courier New',serif;font-size:12px;line-height:1.8em}
+			.hljs li:hover{background:#2c313c}
+			.hljs li::marker{unicode-bidi:isolate;font-variant-numeric:tabular-nums;text-transform:none;text-indent:0!important;text-align:start!important;text-align-last:start!important}
+			.hljs em[onclick^=copycode]{color:#fff;background:#246fff;margin:5px 10px;border-radius:3px;padding:0 5px;cursor:pointer;height:32px;line-height:32px;display:inline-flex}
+			.hljs .code-select-language{height:32px;line-height:32px;font-size:14px;border:1px solid #5c5c5c;border-radius:5px;text-align:center;outline:0}
+		`
+        ),
+        () => {
+          observer.disconnect();
+        },
+      ];
     },
     optimizationImagePreview() {
       log.info(`图片查看优化`);
-      let blackListNoViewIMG = [
+      const blackListNoViewIMG = [
         {
           hostName: "avatar-bbs.mt2.cn",
           pathName: "*",
@@ -2681,7 +2834,7 @@
       let lockFn = new utils.LockFunction(() => {
         handleImageClick();
       });
-      utils.mutationObserver(document, {
+      const observer = utils.mutationObserver(document, {
         config: {
           subtree: true,
           childList: true,
@@ -2691,6 +2844,11 @@
           lockFn.run();
         },
       });
+      return [
+        () => {
+          observer.disconnect();
+        },
+      ];
     },
     setAttachmentsClickTip() {
       log.info(`附件点击提醒`);
@@ -2699,8 +2857,8 @@
           let attachmentId = item.hasAttribute("id") ? item.id : item.parentElement.id;
           let attachmentURL = item.getAttribute("href");
           let attachmentName = item.innerText;
-          let attachmentMenu = document.querySelector(`#${attachmentId}_menu`);
-          if (attachmentMenu.innerText.indexOf("金币") === -1) {
+          let $attachmentMenu = $(`#${attachmentId}_menu`);
+          if ($attachmentMenu.innerText.indexOf("金币") === -1) {
             return;
           }
           console.log("发现附件", item);
@@ -2733,21 +2891,26 @@
           };
         }
       }
-      utils.mutationObserver(document.documentElement, {
+      const observer = utils.mutationObserver(document.documentElement, {
         callback: () => {
-          document.querySelectorAll(".attnm a").forEach((item) => {
+          $$(".attnm a").forEach((item) => {
             handleClick(item);
           });
-          document.querySelectorAll(".comiis_attach a").forEach((item) => {
+          $$(".comiis_attach a").forEach((item) => {
             handleClick(item);
           });
-          document.querySelectorAll("span[id*=attach_] a").forEach((item) => {
+          $$("span[id*=attach_] a").forEach((item) => {
             handleClick(item);
           });
         },
         immediate: true,
         config: { childList: true, subtree: true },
       });
+      return [
+        () => {
+          observer.disconnect();
+        },
+      ];
     },
     async detectingUserOnlineStatus() {
       log.info(`探测用户在线状态`);
@@ -2813,11 +2976,11 @@
       $$(".pls.favatar:not([data-show-user-level])").forEach(($userAvatar) => {
         $userAvatar.setAttribute("data-show-user-level", "true");
         let userLevel = "0级";
-        let userInfo = $userAvatar.querySelector(".tns tr");
-        let currentLevelText = $userAvatar.querySelector("p em").innerText;
-        let userLevelText = document.createElement("td");
-        userLevelText.setAttribute("style", "border-left: 1px solid #e3e3e3;");
-        switch (currentLevelText) {
+        let $userInfo = $userAvatar.querySelector(".tns tr");
+        let $currentLevelText = $userAvatar.querySelector("p em").innerText;
+        let $userLevelText = document.createElement("td");
+        $userLevelText.setAttribute("style", "border-left: 1px solid #e3e3e3;");
+        switch ($currentLevelText) {
           case "幼儿园":
           case "初级工程师":
             userLevel = "1级";
@@ -2862,8 +3025,8 @@
             userLevel = "9级";
             break;
         }
-        userLevelText.innerHTML = `<p><a class="dj">${userLevel}</a></p>Lv`;
-        userInfo.appendChild(userLevelText);
+        domUtils.html($userLevelText, `<p><a class="dj">${userLevel}</a></p>Lv`);
+        $userInfo.appendChild($userLevelText);
       });
     },
     hideBottomInfoBlock() {
@@ -2888,7 +3051,7 @@
     init() {
       domUtils.ready(() => {
         Panel.execMenuOnce("mt-guide-beautifyPage", () => {
-          return this.beautifyPage();
+          this.beautifyPage();
         });
       });
     },
@@ -2896,15 +3059,15 @@
       log.info(`页面美化`);
       addStyle(
         `
-			.xst{font-size:15px}
-			td.author_img{width:50px;padding:15px 0}
-			td.author_img img{width:40px;height:40px;border-radius:50%}
-			.list_author{margin-top:2px;color:#999;font-size:12px}
-			.bankuai_tu_by a{color:#999!important}
-			.bankuai_tu_by img{height:16px;margin:1px 1px 0 0;vertical-align:top}
-			tbody a:hover{text-decoration:none;color:#3498db}
-			.byg_th_align em+a{margin-right:5px}
-		`
+		.xst{font-size:15px}
+		td.author_img{width:50px;padding:15px 0}
+		td.author_img img{width:40px;height:40px;border-radius:50%}
+		.list_author{margin-top:2px;color:#999;font-size:12px}
+		.bankuai_tu_by a{color:#999!important}
+		.bankuai_tu_by img{height:16px;margin:1px 1px 0 0;vertical-align:top}
+		tbody a:hover{text-decoration:none;color:#3498db}
+		.byg_th_align em+a{margin-right:5px}
+	`
       );
       $$(".bm_c table tbody").forEach(($tbody) => {
         let $common = $tbody.querySelector("th.common");
@@ -3443,7 +3606,7 @@
                 },
                 content: {
                   text: `
-                                ${Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+                                ${Array.from($$('link[rel="stylesheet"]'))
                                   .map((item) => item.outerHTML)
                                   .join("\n")}
 
@@ -3511,6 +3674,9 @@
   };
   class RuleFilterView {
     option;
+    $data = {
+      isFilteredData: [],
+    };
     constructor(option) {
       this.option = option;
     }
@@ -3565,13 +3731,15 @@
           }
         );
         let execFilterAndCloseDialog = async () => {
+          this.$data.isFilteredData = [];
           let allRuleInfo = await this.option.getAllRuleInfo();
           allRuleInfo.forEach(async (ruleInfo) => {
             let filterResult = await filterOption.filterCallBack(ruleInfo.data);
-            if (!filterResult) {
-              domUtils.hide(ruleInfo.$el, false);
-            } else {
+            if (filterResult) {
               domUtils.show(ruleInfo.$el, false);
+            } else {
+              domUtils.hide(ruleInfo.$el, false);
+              this.$data.isFilteredData.push(ruleInfo.data);
             }
           });
           if (typeof this.option.execFilterCallBack === "function") {
@@ -3592,6 +3760,9 @@
         $fragment.appendChild($button);
       });
       $filterContainer.appendChild($fragment);
+    }
+    getFilteredData() {
+      return this.$data.isFilteredData;
     }
   }
   class RuleView {
@@ -3664,6 +3835,10 @@
                   execFilterCallBack: async () => {
                     domUtils.text($button, "取消过滤");
                     await this.option.bottomControls?.filter?.execFilterCallBack?.();
+                    const isFilteredData = ruleFilterView.getFilteredData();
+                    if (isFilteredData.length) {
+                      domUtils.text($button, `取消过滤(${isFilteredData.length})`);
+                    }
                   },
                   getAllRuleInfo: () => {
                     return getAllRuleElement().map(($el) => {
@@ -3774,6 +3949,7 @@
       });
       let allData = await this.option.data();
       let changeButtonText = false;
+      let isFilteredDataLength = 0;
       for (let index = 0; index < allData.length; index++) {
         let item = allData[index];
         let $ruleItemList = await this.appendRuleItemElement($popsConfirm.$shadowRoot, item);
@@ -3787,11 +3963,12 @@
         if (!isNotFilterFlag) {
           changeButtonText = true;
           domUtils.hide($ruleItemList, false);
+          isFilteredDataLength++;
         }
       }
       if (changeButtonText) {
         let $button = $popsConfirm.$shadowRoot.querySelector(".pops-confirm-btn-cancel span");
-        domUtils.text($button, "取消过滤");
+        domUtils.text($button, `取消过滤${isFilteredDataLength ? `(${isFilteredDataLength})` : ""}`);
       }
     }
     showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
@@ -4767,7 +4944,7 @@
           MTOnlineUser.init();
         });
         Panel.execMenuOnce("mt-addLatestPostBtn", () => {
-          this.addLatestPostBtn();
+          return this.addLatestPostBtn();
         });
         Panel.execMenu("mt-auto-sign", () => {
           MTAutoSignIn.init();
@@ -4777,20 +4954,20 @@
         });
         if (!MTRouter.isPostPublish_edit()) {
           Panel.execMenuOnce("mt-link-text-to-hyperlink", () => {
-            MTIdentifyLinks();
+            return MTIdentifyLinks();
           });
         }
       });
     },
     addLatestPostBtn() {
       log.info(`新增【最新发表】`);
-      let $latest_publication = domUtils.createElement("li", {
+      const $latest_publication = domUtils.createElement("li", {
         id: "latest_publication",
         innerHTML: `
 				<a href="/forum.php?mod=guide&view=newthread" hidefocus="true" title="最新发表">最新发表</a>
 			`,
       });
-      let $link = $latest_publication.querySelector("a");
+      const $link = $latest_publication.querySelector("a");
       domUtils.append("#comiis_nv .wp.comiis_nvbox.cl ul", $latest_publication);
       if (window.location.href.includes("/forum.php?mod=guide&view=newthread")) {
         domUtils.removeClass("#mn_forum_10", "a");
@@ -4800,6 +4977,7 @@
           'url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAADICAYAAAAk7PuyAAAAAXNSR0IArs4c6QAAAGFJREFUWEft1zESgCAQQ9HsVfb+d5RRlLHRVotHS5f5+YHKyymXiRAihKMISBDCNOInJHT39iTkcpkIYUcTCUKYkkKCEJBwTaY6cML5eiNGYiRGYrz9pqyDdbAOqxC/q8MApobR97qxnMwAAAAASUVORK5CYII=") repeat-x 50% -50px'
         );
       }
+      return [$latest_publication];
     },
     async extendCookieExpire() {
       log.info(`延长cookie有效期`);

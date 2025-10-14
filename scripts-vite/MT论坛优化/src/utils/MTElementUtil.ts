@@ -1,4 +1,4 @@
-import { DOMUtils, log, utils } from "@/env";
+import { $$, DOMUtils, log, utils } from "@/env";
 
 export const MTElementUtil = {
   /**
@@ -31,7 +31,7 @@ export const MTElementUtil = {
         $icon.style.cssText = config.style;
       }
       if (typeof config.icon === "string") {
-        $icon.innerHTML = config.icon;
+        DOMUtils.html($icon, config.icon);
       }
       if (typeof config.iconColor === "string") {
         $icon.style.color = config.iconColor;
@@ -52,18 +52,18 @@ export const MTElementUtil = {
    * 导读中最新、热门、精华、回复、抢沙发的各个帖子【list】
    */
   comiisForumList: () => {
-    return document.querySelectorAll<HTMLLIElement>("li.forumlist_li");
+    return $$<HTMLLIElement>("li.forumlist_li");
   },
   /**
    * 帖子内评论，包括帖子内容主体，第一个就是主体【list】
    */
   comiisPostli: () => {
-    return document.querySelectorAll<HTMLDivElement>("div.comiis_postli.comiis_list_readimgs.nfqsqi");
+    return $$<HTMLDivElement>("div.comiis_postli.comiis_list_readimgs.nfqsqi");
   },
   /**
    * 帖子内评论，包括帖子内容主体，第一个就是主体【list】
    */
   comiisMmlist: () => {
-    return document.querySelectorAll<HTMLElement>(".comiis_mmlist");
+    return $$<HTMLElement>(".comiis_mmlist");
   },
 };

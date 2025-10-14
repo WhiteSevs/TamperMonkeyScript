@@ -40,7 +40,7 @@ export const MT = {
         MTOnlineUser.init();
       });
       Panel.execMenuOnce("mt-addLatestPostBtn", () => {
-        this.addLatestPostBtn();
+        return this.addLatestPostBtn();
       });
       Panel.execMenu("mt-auto-sign", () => {
         MTAutoSignIn.init();
@@ -51,7 +51,7 @@ export const MT = {
       if (!MTRouter.isPostPublish_edit()) {
         // 不在帖子编辑页面执行链接识别
         Panel.execMenuOnce("mt-link-text-to-hyperlink", () => {
-          MTIdentifyLinks();
+          return MTIdentifyLinks();
         });
       }
     });
@@ -61,13 +61,13 @@ export const MT = {
    */
   addLatestPostBtn() {
     log.info(`新增【最新发表】`);
-    let $latest_publication = DOMUtils.createElement("li", {
+    const $latest_publication = DOMUtils.createElement("li", {
       id: "latest_publication",
       innerHTML: /*html*/ `
 				<a href="/forum.php?mod=guide&view=newthread" hidefocus="true" title="最新发表">最新发表</a>
 			`,
     });
-    let $link = $latest_publication.querySelector("a")!;
+    const $link = $latest_publication.querySelector("a")!;
     DOMUtils.append("#comiis_nv .wp.comiis_nvbox.cl ul", $latest_publication);
     if (window.location.href.includes("/forum.php?mod=guide&view=newthread")) {
       DOMUtils.removeClass("#mn_forum_10", "a");
@@ -77,6 +77,7 @@ export const MT = {
         'url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAADICAYAAAAk7PuyAAAAAXNSR0IArs4c6QAAAGFJREFUWEft1zESgCAQQ9HsVfb+d5RRlLHRVotHS5f5+YHKyymXiRAihKMISBDCNOInJHT39iTkcpkIYUcTCUKYkkKCEJBwTaY6cML5eiNGYiRGYrz9pqyDdbAOqxC/q8MApobR97qxnMwAAAAASUVORK5CYII=") repeat-x 50% -50px'
       );
     }
+    return [$latest_publication];
   },
   /**
    * 延长cookie有效期

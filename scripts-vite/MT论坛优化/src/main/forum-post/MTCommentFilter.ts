@@ -336,7 +336,7 @@ export const MTCommentFilter = {
               },
               content: {
                 text: /*html*/ `
-                                ${Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+                                ${Array.from($$('link[rel="stylesheet"]'))
                                   .map((item) => item.outerHTML)
                                   .join("\n")}
 

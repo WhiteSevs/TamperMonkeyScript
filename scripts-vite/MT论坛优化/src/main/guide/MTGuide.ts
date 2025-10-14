@@ -7,7 +7,7 @@ export const MTGuide = {
   init() {
     DOMUtils.ready(() => {
       Panel.execMenuOnce("mt-guide-beautifyPage", () => {
-        return this.beautifyPage();
+        this.beautifyPage();
       });
     });
   },
@@ -17,15 +17,15 @@ export const MTGuide = {
   beautifyPage() {
     log.info(`页面美化`);
     addStyle(/*css*/ `
-			.xst{font-size:15px}
-			td.author_img{width:50px;padding:15px 0}
-			td.author_img img{width:40px;height:40px;border-radius:50%}
-			.list_author{margin-top:2px;color:#999;font-size:12px}
-			.bankuai_tu_by a{color:#999!important}
-			.bankuai_tu_by img{height:16px;margin:1px 1px 0 0;vertical-align:top}
-			tbody a:hover{text-decoration:none;color:#3498db}
-			.byg_th_align em+a{margin-right:5px}
-		`);
+		.xst{font-size:15px}
+		td.author_img{width:50px;padding:15px 0}
+		td.author_img img{width:40px;height:40px;border-radius:50%}
+		.list_author{margin-top:2px;color:#999;font-size:12px}
+		.bankuai_tu_by a{color:#999!important}
+		.bankuai_tu_by img{height:16px;margin:1px 1px 0 0;vertical-align:top}
+		tbody a:hover{text-decoration:none;color:#3498db}
+		.byg_th_align em+a{margin-right:5px}
+	`);
     $$<HTMLTableRowElement>(".bm_c table tbody").forEach(($tbody) => {
       let $common = $tbody.querySelector<HTMLElement>("th.common")!;
       let commonHTML = DOMUtils.html($common);
