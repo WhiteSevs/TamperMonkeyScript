@@ -660,12 +660,19 @@ class ElementEvent extends ElementAnimate {
    * @example
    * DOMUtils.ready(function(){
    *   console.log("文档加载完毕")
-   * })
+   * });
+   * > "文档加载完毕"
+   * @example
+   * await DOMUtils.ready();
+   * console.log("文档加载完毕");
+   * > "文档加载完毕"
    */
-  ready<T extends (...args: any[]) => any>(callback: T) {
-    if (typeof callback !== "function") {
-      return;
-    }
+  ready(): void;
+  ready(callback: (...args: any[]) => any): Promise<void>;
+  ready(...args: any[]): void | Promise<void> {
+    const callback: ((...args: any[]) => any) | undefined = args[0];
+    // 异步回调
+    let resolve: ((...args: any[]) => any) | undefined = void 0;
     const that = this;
     /**
      * 检测文档是否加载完毕
@@ -690,10 +697,18 @@ class ElementEvent extends ElementAnimate {
      */
     function completed() {
       removeDomReadyListener();
-      callback();
+      if (typeof callback === "function") {
+        callback();
+      }
+      if (typeof resolve === "function") {
+        resolve();
+      }
     }
 
-    const targetList = [
+    /**
+     * 监听目标
+     */
+    const listenTargetList = [
       {
         target: that.windowApi.document,
         eventType: "DOMContentLoaded",
@@ -709,26 +724,37 @@ class ElementEvent extends ElementAnimate {
      * 添加监听
      */
     function addDomReadyListener() {
-      for (let index = 0; index < targetList.length; index++) {
-        const item = targetList[index];
-        item.target.addEventListener(item.eventType, item.callback);
+      for (const item of listenTargetList) {
+        that.on(item.target, item.eventType, item.callback);
       }
     }
     /**
      * 移除监听
      */
     function removeDomReadyListener() {
-      for (let index = 0; index < targetList.length; index++) {
-        const item = targetList[index];
-        item.target.removeEventListener(item.eventType, item.callback);
+      for (const item of listenTargetList) {
+        that.off(item.target, item.eventType, item.callback);
       }
     }
-    if (checkDOMReadyState()) {
-      /* 检查document状态 */
-      CommonUtils.setTimeout(callback, 0);
+    /**
+     * 执行检查
+     */
+    function check() {
+      if (checkDOMReadyState()) {
+        /* 检查document状态 */
+        CommonUtils.setTimeout(completed, 0);
+      } else {
+        /* 添加监听 */
+        addDomReadyListener();
+      }
+    }
+    if (args.length === 0) {
+      return new Promise((__resolve__) => {
+        resolve = __resolve__;
+        check();
+      });
     } else {
-      /* 添加监听 */
-      addDomReadyListener();
+      check();
     }
   }
   /**

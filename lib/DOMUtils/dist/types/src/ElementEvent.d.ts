@@ -174,9 +174,15 @@ declare class ElementEvent extends ElementAnimate {
      * @example
      * DOMUtils.ready(function(){
      *   console.log("文档加载完毕")
-     * })
+     * });
+     * > "文档加载完毕"
+     * @example
+     * await DOMUtils.ready();
+     * console.log("文档加载完毕");
+     * > "文档加载完毕"
      */
-    ready<T extends (...args: any[]) => any>(callback: T): void;
+    ready(): void;
+    ready(callback: (...args: any[]) => any): Promise<void>;
     /**
      * 主动触发事件
      * @param element 需要触发的元素|元素数组|window
