@@ -46,6 +46,45 @@ type ExecMenuResultInst = {
    */
   destory?: () => void;
 };
+type OnceExecMenuStoreData = {
+  /**
+   * 重载菜单执行
+   *
+   * 当Router改变时，某些对应Router判断才生效的css需要重新执行才会添加
+   *
+   * 调用该函数会无视once的值
+   *
+   * + 清空存储的元素列表
+   * + 清空存储的卸载函数
+   * + 执行菜单项的回调
+   */
+  reload(): void;
+  /**
+   * 清空菜单执行情况
+   *
+   * + 清空存储的元素列表
+   * + 清空存储的卸载函数
+   * + 清空值改变的监听器
+   * + 清空存储的一次执行的键
+   */
+  clear(): void;
+  /**
+   * 执行卸载函数，该函数是由菜单执行回调的返回值中的函数构成
+   */
+  destory(): void;
+  /**
+   * 清空存储的元素列表
+   */
+  clearStoreStyleElements: () => void;
+  /**
+   * 移除值改变的监听器
+   */
+  removeValueChangeListener: () => void;
+  /**
+   * 清空存储的一次执行的键
+   */
+  clearOnceExecMenuData: () => void;
+};
 type ExecMenuResult =
   | ExecMenuResultInst
   | Element
@@ -65,15 +104,7 @@ const Panel = {
     /** @private */
     __contentConfigInitDefaultValue: null as UtilsDictionary<string, any> | null,
     /** @private */
-    __onceExecMenuData: null as UtilsDictionary<
-      string,
-      {
-        reload(): void;
-        clear(): void;
-        clearStoreStyleElements: () => void;
-        removeValueChangeListener: () => void;
-      }
-    > | null,
+    __onceExecMenuData: null as UtilsDictionary<string, OnceExecMenuStoreData> | null,
     /** @private */
     __urlChangeReloadMenuExecOnce: null as UtilsDictionary<string, Function> | null,
     /** @private */
@@ -565,54 +596,29 @@ const Panel = {
       });
     valueChangeCallback();
 
-    const result = {
-      /**
-       * 重载菜单执行
-       *
-       * 当Router改变时，某些对应Router判断才生效的css需要重新执行才会添加
-       *
-       * 调用该函数会无视once的值
-       */
+    const result: OnceExecMenuStoreData = {
       reload() {
+        this.clearStoreStyleElements();
+        this.destory();
         valueChangeCallback();
       },
-      /**
-       * 清空菜单执行情况
-       *
-       * + 清空存储的元素列表
-       * + 清空存储的卸载函数
-       * + 清空值改变的监听器
-       * + 清空存储的一次执行的键
-       */
       clear() {
         this.clearStoreStyleElements();
         this.destory();
         this.removeValueChangeListener();
         this.clearOnceExecMenuData();
       },
-      /**
-       * 清空存储的元素列表
-       */
       clearStoreStyleElements: () => {
         return execClearStoreStyleElements();
       },
-      /**
-       * 执行卸载函数，该函数是由菜单执行回调的返回值中的函数构成
-       */
       destory() {
         return execDestory();
       },
-      /**
-       * 移除值改变的监听器
-       */
       removeValueChangeListener: () => {
         listenerIdList.forEach((listenerId) => {
           this.removeValueChangeListener(listenerId);
         });
       },
-      /**
-       * 清空存储的一次执行的键
-       */
       clearOnceExecMenuData() {
         once && that.$data.onceExecMenuData.delete(storageKey);
       },
@@ -675,16 +681,14 @@ const Panel = {
     const result = this.execMenu(key, callback, isReverse, true);
     if (listenUrlChange) {
       if (result) {
+        // result可能是新的返回值或者是旧的存储的返回值
         const urlChangeEvent = () => {
           result.reload();
         };
+        // 移除旧的监听
         this.removeUrlChangeWithExecMenuOnceListener(key);
+        // 添加新的监听
         this.addUrlChangeWithExecMenuOnceListener(key, urlChangeEvent);
-        const originClear = result.clear;
-        result.clear = () => {
-          originClear();
-          this.removeUrlChangeWithExecMenuOnceListener(key);
-        };
       }
     }
     return result;
@@ -730,7 +734,7 @@ const Panel = {
     this.$data.onceExecData.delete(key);
   },
   /**
-   * 添加主动触发url改变的监听
+   * 添加触发url改变的监听
    * @param key 键
    * @param callback 回调
    */
@@ -739,12 +743,20 @@ const Panel = {
     this.$data.urlChangeReloadMenuExecOnce.set(key, callback);
   },
   /**
-   * 移除主动触发url改变的监听
+   * 移除触发url改变的监听
    * @param key 键
    */
   removeUrlChangeWithExecMenuOnceListener(key: string | string[]) {
     key = this.transformKey(key);
     this.$data.urlChangeReloadMenuExecOnce.delete(key);
+  },
+  /**
+   * 判断是否有触发url改变的监听
+   * @param key 键
+   */
+  hasUrlChangeWithExecMenuOnceListener(key: string | string[]) {
+    key = this.transformKey(key);
+    return this.$data.urlChangeReloadMenuExecOnce.has(key);
   },
   /**
    * 主动触发url改变的监听
