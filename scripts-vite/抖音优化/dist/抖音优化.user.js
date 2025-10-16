@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.14
+// @version      2025.10.16
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @match        *://*.iesdouyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @connect      *
@@ -866,6 +866,8 @@
       valueChangeCallback();
       const result = {
         reload() {
+          this.clearStoreStyleElements();
+          this.destory();
           valueChangeCallback();
         },
         clear() {
@@ -923,11 +925,6 @@
           };
           this.removeUrlChangeWithExecMenuOnceListener(key);
           this.addUrlChangeWithExecMenuOnceListener(key, urlChangeEvent);
-          const originClear = result.clear;
-          result.clear = () => {
-            originClear();
-            this.removeUrlChangeWithExecMenuOnceListener(key);
-          };
         }
       }
       return result;
@@ -961,6 +958,10 @@
     removeUrlChangeWithExecMenuOnceListener(key) {
       key = this.transformKey(key);
       this.$data.urlChangeReloadMenuExecOnce.delete(key);
+    },
+    hasUrlChangeWithExecMenuOnceListener(key) {
+      key = this.transformKey(key);
+      return this.$data.urlChangeReloadMenuExecOnce.has(key);
     },
     triggerUrlChangeWithExecMenuOnceEvent(config) {
       this.$data.urlChangeReloadMenuExecOnce.forEach((callback, key) => {
@@ -9221,19 +9222,16 @@
         const beforeUrl = url;
         const currentUrl = window.location.href;
         url = currentUrl;
-        log.info(`Router Change：` + currentUrl);
+        log.info(`Router Change Before：` + beforeUrl);
+        log.info(`Router Change Now：` + currentUrl);
         Panel.triggerUrlChangeWithExecMenuOnceEvent({
           url: currentUrl,
           beforeUrl,
         });
         this.init();
       };
-      domUtils.on(window, "wb_url_change", callback);
-      return [
-        () => {
-          domUtils.off(window, "wb_url_change", callback);
-        },
-      ];
+      const listener = domUtils.on(window, "wb_url_change", callback);
+      return [listener.off];
     },
     navSearchClickToNewTab() {
       log.info(`新标签页打开搜索结果`);
@@ -9527,12 +9525,8 @@
         const url = DouYinUrlUtils.getUserHomeUrl(sec_id);
         window.open(url, "_blank");
       };
-      domUtils.on(document, "click", ".message-con__top", callback, { capture: true });
-      return [
-        () => {
-          domUtils.off(document, "click", ".message-con__top", callback, { capture: true });
-        },
-      ];
+      const result = domUtils.on(document, "click", ".message-con__top", callback, { capture: true });
+      return [result.off];
     },
     coverHashTag() {
       log.info("覆盖话题点击事件");
@@ -9550,16 +9544,16 @@
         const url = DouYinUrlUtils.getHashTagUrl(hashtagId);
         window.open(url, "_blank");
       };
-      domUtils.on(document, "click", ".message-con__content__body .message-con__content__body-text", callback, {
-        capture: true,
-      });
-      return [
-        () => {
-          domUtils.off(document, "click", ".message-con__content__body .message-con__content__body-text", callback, {
-            capture: true,
-          });
-        },
-      ];
+      const result = domUtils.on(
+        document,
+        "click",
+        ".message-con__content__body .message-con__content__body-text",
+        callback,
+        {
+          capture: true,
+        }
+      );
+      return [result.off];
     },
     coverMusic() {
       log.info("覆盖音乐点击事件");
@@ -9654,14 +9648,10 @@
         let url = DouYinUrlUtils.getVideoUrl(currentList["aweme_id"]);
         window.open(url, "_blank");
       };
-      domUtils.on(document, "click", "#pagelet-worklist li.item", callback, {
+      const result = domUtils.on(document, "click", "#pagelet-worklist li.item", callback, {
         capture: true,
       });
-      return [
-        () => {
-          domUtils.off(document, "click", "#pagelet-worklist li.item", callback, { capture: true });
-        },
-      ];
+      return [result.off];
     },
   };
   const blockCSS =
@@ -9689,14 +9679,10 @@
         let url = DouYinUrlUtils.getVideoUrl(currentList["aweme_id"]);
         window.open(url, "_blank");
       };
-      domUtils.on(document, "click", "#pagelet-worklist li.item", callback, {
+      const result = domUtils.on(document, "click", "#pagelet-worklist li.item", callback, {
         capture: true,
       });
-      return [
-        () => {
-          domUtils.off(document, "click", "#pagelet-worklist li.item", callback, { capture: true });
-        },
-      ];
+      return [result.off];
     },
   };
   const MDouYin = {
@@ -10855,6 +10841,10 @@
                     "one",
                     [
                       {
+                        text: "无",
+                        value: "",
+                      },
+                      {
                         text: "单列",
                         value: "one",
                       },
@@ -10864,7 +10854,7 @@
                       },
                     ],
                     void 0,
-                    "自定义搜索结果，按视频筛选的结果项的显示样式"
+                    "当屏幕宽度<=<code>800px</code>时，该功能才会生效"
                   ),
                 ],
               },

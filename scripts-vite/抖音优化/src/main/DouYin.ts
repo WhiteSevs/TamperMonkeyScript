@@ -154,19 +154,16 @@ export const DouYin = {
       const beforeUrl = url;
       const currentUrl = window.location.href;
       url = currentUrl;
-      log.info(`Router Change：` + currentUrl);
+      log.info(`Router Change Before：` + beforeUrl);
+      log.info(`Router Change Now：` + currentUrl);
       Panel.triggerUrlChangeWithExecMenuOnceEvent({
         url: currentUrl,
         beforeUrl: beforeUrl,
       });
       this.init();
     };
-    DOMUtils.on(window, "wb_url_change", callback);
-    return [
-      () => {
-        DOMUtils.off(window, "wb_url_change", callback);
-      },
-    ];
+    const listener = DOMUtils.on(window, "wb_url_change", callback);
+    return [listener.off];
   },
   /**
    * 新标签页打开搜索结果

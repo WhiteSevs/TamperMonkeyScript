@@ -30,13 +30,9 @@ export const MDouYinShareMusic = {
       let url = DouYinUrlUtils.getVideoUrl(currentList["aweme_id"]);
       window.open(url, "_blank");
     };
-    DOMUtils.on(document, "click", "#pagelet-worklist li.item", callback, {
+    const result = DOMUtils.on(document, "click", "#pagelet-worklist li.item", callback, {
       capture: true,
     });
-    return [
-      () => {
-        DOMUtils.off(document, "click", "#pagelet-worklist li.item", callback, { capture: true });
-      },
-    ];
+    return [result.off];
   },
 };

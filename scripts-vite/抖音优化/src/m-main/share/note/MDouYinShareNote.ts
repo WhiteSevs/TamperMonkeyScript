@@ -98,12 +98,8 @@ export const MDouYinShareNote = {
       const url = DouYinUrlUtils.getUserHomeUrl(sec_id);
       window.open(url, "_blank");
     };
-    DOMUtils.on(document, "click", ".message-con__top", callback, { capture: true });
-    return [
-      () => {
-        DOMUtils.off(document, "click", ".message-con__top", callback, { capture: true });
-      },
-    ];
+    const result = DOMUtils.on(document, "click", ".message-con__top", callback, { capture: true });
+    return [result.off];
   },
   /**
    * 覆盖话题点击事件
@@ -124,16 +120,16 @@ export const MDouYinShareNote = {
       const url = DouYinUrlUtils.getHashTagUrl(hashtagId);
       window.open(url, "_blank");
     };
-    DOMUtils.on(document, "click", ".message-con__content__body .message-con__content__body-text", callback, {
-      capture: true,
-    });
-    return [
-      () => {
-        DOMUtils.off(document, "click", ".message-con__content__body .message-con__content__body-text", callback, {
-          capture: true,
-        });
-      },
-    ];
+    const result = DOMUtils.on(
+      document,
+      "click",
+      ".message-con__content__body .message-con__content__body-text",
+      callback,
+      {
+        capture: true,
+      }
+    );
+    return [result.off];
   },
   /**
    * 覆盖音乐点击事件

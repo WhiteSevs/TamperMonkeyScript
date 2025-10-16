@@ -54,6 +54,10 @@ export const PanelSearchConfig: PopsPanelContentConfig = {
                   "one",
                   [
                     {
+                      text: "无",
+                      value: "",
+                    },
+                    {
                       text: "单列",
                       value: "one",
                     },
@@ -63,7 +67,7 @@ export const PanelSearchConfig: PopsPanelContentConfig = {
                     },
                   ],
                   void 0,
-                  "自定义搜索结果，按视频筛选的结果项的显示样式"
+                  "当屏幕宽度<=<code>800px</code>时，该功能才会生效"
                 ),
               ],
             },
