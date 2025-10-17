@@ -61,9 +61,6 @@ export const DouYinLive = {
   init() {
     DouYinLiveBlock.init();
     DouYinLiveShortCut.init();
-    Panel.execMenuOnce("live-danmu-shield-rule-enable", () => {
-      return DouYinLiveMessage.filterMessage();
-    });
     // Panel.execMenu("live-unlockImageQuality", () => {
     // 	this.unlockImageQuality();
     // });
@@ -96,6 +93,9 @@ export const DouYinLive = {
       return [result.off];
     });
     DOMUtils.ready(() => {
+      Panel.execMenuOnce("live-danmu-shield-rule-enable", () => {
+        return DouYinLiveMessage.filterMessage();
+      });
       Panel.execMenuOnce("live-waitToRemovePauseDialog", () => {
         return this.waitToRemovePauseDialog();
       });
@@ -117,21 +117,19 @@ export const DouYinLive = {
    * 自动进入网页全屏
    */
   autoEnterElementFullScreen() {
-    DOMUtils.ready(() => {
-      ReactUtils.waitReactPropsToSet("xg-icon.xgplayer-fullscreen + xg-icon  div:has(>svg)", "reactFiber", {
-        check(reactInstance) {
-          return typeof reactInstance?.memoizedProps?.onClick === "function";
-        },
-        set(reactInstance, $target) {
-          let $xgIcon = $target.closest<HTMLElement>("xg-icon");
-          if ($xgIcon && DOMUtils.text($xgIcon).includes("退出网页全屏")) {
-            log.warn("抖音已自动进入网页全屏，不执行脚本的操作");
-            return;
-          }
-          log.success("成功自动进入网页全屏");
-          reactInstance.memoizedProps.onClick();
-        },
-      });
+    ReactUtils.waitReactPropsToSet("xg-icon.xgplayer-fullscreen + xg-icon  div:has(>svg)", "reactFiber", {
+      check(reactInstance) {
+        return typeof reactInstance?.memoizedProps?.onClick === "function";
+      },
+      set(reactInstance, $target) {
+        let $xgIcon = $target.closest<HTMLElement>("xg-icon");
+        if ($xgIcon && DOMUtils.text($xgIcon).includes("退出网页全屏")) {
+          log.warn("抖音已自动进入网页全屏，不执行脚本的操作");
+          return;
+        }
+        log.success("成功自动进入网页全屏");
+        reactInstance.memoizedProps.onClick();
+      },
     });
   },
   /**
@@ -371,9 +369,9 @@ export const DouYinLive = {
       }
       $video.autoplay = false;
       $video.pause();
-      let timeout = 3000;
+      const timeout = 3000;
       // 在firefox中video会重载，如果只触发一次，它依旧会自动播放
-      let playListener = (evt: Event) => {
+      const playListener = (evt: Event) => {
         DOMUtils.preventEvent(evt);
         $video.autoplay = false;
         $video.pause();
@@ -384,8 +382,8 @@ export const DouYinLive = {
       DOMUtils.on($video, "play", playListener, {
         capture: true,
       });
-      let reloadVideo = () => {
-        let keydownEvent = new KeyboardEvent("keydown", {
+      const reloadVideo = () => {
+        const keydownEvent = new KeyboardEvent("keydown", {
           bubbles: true,
           cancelable: true,
           key: "E",
@@ -393,12 +391,12 @@ export const DouYinLive = {
         });
         document.body.dispatchEvent(keydownEvent);
       };
-      let cb = () => {
+      const cb = () => {
         DOMUtils.off($video, "play", playListener, {
           capture: true,
         });
         log.info(`移除监听自动播放`);
-        let listenPlayVideo = () => {
+        const listenPlayVideo = () => {
           DOMUtils.offAll($video, "play");
           DOMUtils.on(
             $video,

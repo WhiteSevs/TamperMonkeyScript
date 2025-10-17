@@ -224,12 +224,12 @@ export const DouYinAccount = {
    */
   watchLoginDialogToClose() {
     log.info("监听登录弹窗并关闭");
-    let result: (HTMLStyleElement | undefined)[] = [CommonUtil.addBlockCSS('div[id^="login-full-panel-"]')];
 
     let lockFn = new utils.LockFunction(() => {
       if (!Panel.getValue("watchLoginDialogToClose")) {
         return;
       }
+      DOMUtils.remove(".douyin_login_iframe:has(iframe)");
       let $loginDialog = $<HTMLDivElement>('div[id^="login-full-panel-"]');
       if ($loginDialog && $loginDialog.children.length) {
         let $loginDialogCloseBtn =
@@ -266,17 +266,23 @@ export const DouYinAccount = {
         }
       }
     });
-    utils.mutationObserver(document, {
+    const observer = utils.mutationObserver(document, {
       config: {
         subtree: true,
         childList: true,
       },
+      immediate: true,
       callback: () => {
         lockFn.run();
       },
     });
 
-    return result;
+    return [
+      CommonUtil.addBlockCSS('div[id^="login-full-panel-"]', ".douyin_login_iframe:has(iframe)"),
+      () => {
+        observer.disconnect();
+      },
+    ];
   },
   /**
    * 关闭评论区的登录遮罩层
@@ -308,11 +314,11 @@ export const DouYinAccount = {
     return [
       CommonUtil.addBlockCSS('[id^="related-video-card-login-guide"]'),
       addStyle(/*css*/ `
-			/* 去除遮罩层 */
-			[id^="related-video-card-login-guide"]+div{
-				filter: none !important;
-			}
-		`),
+        /* 去除遮罩层 */
+        [id^="related-video-card-login-guide"]+div{
+          filter: none !important;
+        }
+      `),
       () => {
         observer?.disconnect();
       },

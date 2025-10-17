@@ -220,6 +220,7 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
               type: "forms",
               text: AutoOpenOrClose.text,
               forms: [
+                UISwitch("三屏画面", "dy-live-threeScreen", false, void 0, "S"),
                 UISwitch("刷新", "dy-live-refresh", false, void 0, "E"),
                 UISwitch("屏幕旋转", "dy-live-screenRotation", false, void 0, "D"),
                 UISwitch("开启小窗模式", "dy-live-enableSmallWindowMode", false, void 0, "U"),

@@ -2,14 +2,14 @@ import { DOMUtils, addStyle, cookieManager, log, utils } from "@/env";
 import MobileCSS from "./css/mobile.css?raw";
 import { DouYinSearchBlock } from "./DouYinSearchBlock";
 import Qmsg from "qmsg";
-import { Panel } from "@components/setting/panel";
+import { Panel, type ExecMenuCallBackOption } from "@components/setting/panel";
 import { DouYinRouter } from "@/router/DouYinRouter";
 
 export const DouYinSearch = {
   init() {
     DouYinSearchBlock.init();
-    Panel.execMenuOnce("mobileMode", () => {
-      return this.mobileMode();
+    Panel.execMenuOnce("mobileMode", (option) => {
+      return this.mobileMode(option);
     });
     Panel.execMenuOnce("dy-search-disableClickToEnterFullScreen", () => {
       return this.disableClickToEnterFullScreen();
@@ -22,7 +22,7 @@ export const DouYinSearch = {
    * 手机模式
    * (由通用统一调用，勿放在本函数的init内)
    */
-  mobileMode() {
+  mobileMode(option: ExecMenuCallBackOption) {
     log.info("搜索-手机模式");
     let result: HTMLStyleElement[] = [];
     result.push(addStyle(MobileCSS));
@@ -80,9 +80,9 @@ export const DouYinSearch = {
 		`)
     );
     /* 评论区展开才会出现 */
-    DOMUtils.waitNode<HTMLDivElement>("#relatedVideoCard").then(($relatedVideoCard) => {
+    DOMUtils.waitNode<HTMLElement>("#relatedVideoCard").then(($relatedVideoCard) => {
       log.info("评论区展开的className：" + $relatedVideoCard.className);
-      result.push(
+      option.addStoreValue(
         addStyle(/*css*/ `
 					html[data-vertical-screen]
 						#sliderVideo[data-e2e="feed-active-video"]

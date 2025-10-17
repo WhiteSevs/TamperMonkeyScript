@@ -16,12 +16,12 @@ export const DouYinMessageFilter = {
    */
   initRule() {
     this.$data.rule.length = 0;
-    let localRule = this.get().trim();
-    let localRuleSplit = localRule.split("\n");
+    const localRule = this.get().trim();
+    const localRuleSplit = localRule.split("\n");
     localRuleSplit.forEach((item: string) => {
       if (item.trim() == "") return;
       item = item.trim();
-      let itemRegExp = new RegExp(item.trim());
+      const itemRegExp = new RegExp(item.trim());
       this.$data.rule.push(itemRegExp);
     });
   },
@@ -170,23 +170,21 @@ export const DouYinLiveMessage = {
    * 消息过滤
    */
   filterMessage() {
-    let lockFn = new utils.LockFunction(() => {
+    log.success("消息过滤");
+    const lockFn = new utils.LockFunction(() => {
       if (!DouYinRouter.isLive()) return;
       DouYinMessageFilter.change();
     });
-    DOMUtils.ready(() => {
-      log.success("消息过滤");
-      DouYinMessageFilter.init();
-      utils.mutationObserver(document.body, {
-        config: {
-          childList: true,
-          subtree: true,
-        },
-        immediate: true,
-        callback: () => {
-          lockFn.run();
-        },
-      });
+    DouYinMessageFilter.init();
+    const observer = utils.mutationObserver(document.body, {
+      config: {
+        childList: true,
+        subtree: true,
+      },
+      immediate: true,
+      callback: () => {
+        lockFn.run();
+      },
     });
 
     return [
@@ -196,6 +194,7 @@ export const DouYinLiveMessage = {
 					height: 100% !important;
 				}
 			`),
+      () => observer.disconnect(),
     ];
   },
 };

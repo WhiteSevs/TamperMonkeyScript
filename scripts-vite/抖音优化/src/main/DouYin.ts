@@ -38,7 +38,7 @@ export const DouYin = {
       return DouYinAccount.disguiseLogin();
     });
     Panel.execMenuOnce("dy-initialScale", () => {
-      this.initialScale();
+      return this.initialScale();
     });
     Panel.execMenu("dy-apple-removeMetaAppleItunesApp", () => {
       this.removeMetaAppleItunesApp();
@@ -52,7 +52,7 @@ export const DouYin = {
       () => {
         return this.listenRouterChange();
       },
-      false,
+      void 0,
       false
     );
 
@@ -114,35 +114,34 @@ export const DouYin = {
   /**
    * 固定meta viewport缩放倍率为1
    */
-  initialScale() {
+  async initialScale() {
     log.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>");
-    DOMUtils.ready(() => {
-      let meta = DOMUtils.createElement(
-        "meta",
-        {},
-        {
-          name: "viewport",
-          content: "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover",
-        }
-      );
-      DOMUtils.remove("meta[name='viewport']");
-      DOMUtils.waitNode("head").then(() => {
-        document.head.appendChild(meta);
-      });
-    });
+    await DOMUtils.ready();
+    const $meta = DOMUtils.createElement(
+      "meta",
+      {},
+      {
+        name: "viewport",
+        content: "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover",
+      }
+    );
+    DOMUtils.remove("meta[name='viewport']");
+    await DOMUtils.waitNode("head");
+    document.head.appendChild($meta);
+    return $meta;
   },
   /**
    * 移除<meta>标签name="apple-itunes-app"
    */
-  removeMetaAppleItunesApp() {
-    DOMUtils.waitNodeList<NodeListOf<HTMLMeterElement>>(['meta[name="apple-itunes-app"]'], 10000).then(($metaList) => {
-      if (!$metaList) {
-        return;
-      }
-      $metaList.forEach(($meta) => {
-        $meta.remove();
-      });
-    });
+  async removeMetaAppleItunesApp() {
+    const $metaList = await DOMUtils.waitNodeList<NodeListOf<HTMLMeterElement>>(
+      ['meta[name="apple-itunes-app"]'],
+      10000
+    );
+    if (!$metaList) {
+      return;
+    }
+    DOMUtils.remove($metaList);
   },
   /**
    * 监听Router重载

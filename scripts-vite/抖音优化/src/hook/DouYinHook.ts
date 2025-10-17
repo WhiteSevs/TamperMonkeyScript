@@ -37,26 +37,24 @@ export const DouYinHook = {
    */
   removeEnvCheck() {
     log.info("移除环境检测");
-    let originalSetInterval = unsafeWindow.setInterval as any;
-    (unsafeWindow as any).setInterval = function (callback: any, time: any) {
-      let funcStr = callback.toString().trim();
+    Hook.setInterval((fn) => {
+      const funcStr = fn.toString().trim();
       if (funcStr.includes("debugger")) {
         log.success(["拦截→", [funcStr]]);
-        return;
+        return false;
       }
       if (funcStr.includes("checkEXp")) {
         log.success(["拦截→", [funcStr]]);
-        return;
+        return false;
       }
-      return originalSetInterval.call(this, callback, time);
-    };
+    });
   },
   /**
    * 移除Cookie
    */
   removeCookie() {
-    let cookieHandler = new utils.GM_Cookie();
-    let cookieNameList = ["__ac_signature", "__ac_referer", "__ac_nonce"];
+    const cookieHandler = new utils.GM_Cookie();
+    const cookieNameList = ["__ac_signature", "__ac_referer", "__ac_nonce"];
     cookieNameList.forEach((cookieName) => {
       cookieHandler.delete(
         {
@@ -90,15 +88,15 @@ export const DouYinHook = {
     Hook.document_addEventListener((target, eventName, listener, option) => {
       if (["keydown", "keypress", "keyup"].includes(eventName) && typeof listener === "function") {
         return function (this: Document, ...eventArgs: any[]) {
-          let event = eventArgs[0] as KeyboardEvent;
+          const event = eventArgs[0] as KeyboardEvent;
           /** 键名 */
-          let key = event.key;
+          const key = event.key;
           /** 键值字符串 */
-          let code = event.code;
+          const code = event.code;
           /** 键值 */
-          let keyCodeValue = event.charCode || event.keyCode || event.which;
+          const keyCodeValue = event.charCode || event.keyCode || event.which;
           /** 组合键列表 */
-          let otherCodeList: KeyboardOtherCodeName[] = [];
+          const otherCodeList: KeyboardOtherCodeName[] = [];
           if (event.ctrlKey) {
             otherCodeList.push("ctrl");
           }
@@ -119,7 +117,7 @@ export const DouYinHook = {
             return;
           }
 
-          let keyboardConfigList: {
+          const keyboardConfigList: {
             enableKey: string;
             code: string[];
             otherCodeList?: KeyboardOtherCodeName[];
@@ -258,6 +256,10 @@ export const DouYinHook = {
             // 直播
             keyboardConfigList.push(
               {
+                enableKey: "dy-live-threeScreen",
+                code: ["KeyS"],
+              },
+              {
                 enableKey: "dy-live-refresh",
                 code: ["KeyE"],
               },
@@ -279,7 +281,7 @@ export const DouYinHook = {
             const keyboardConfig = keyboardConfigList[index];
             if (keyboardConfig.code.includes(code)) {
               if (Array.isArray(keyboardConfig.otherCodeList)) {
-                let findValue = keyboardConfig.otherCodeList.find((item) => !otherCodeList.includes(item));
+                const findValue = keyboardConfig.otherCodeList.find((item) => !otherCodeList.includes(item));
                 if (findValue) {
                   continue;
                 }
@@ -312,7 +314,7 @@ export const DouYinHook = {
         listenerStr.match(/video|innerContainer|video.__canvas|mouse/)
       ) {
         return function (this: any, ...eventArgs: any[]) {
-          let currentClickTime = Date.now();
+          const currentClickTime = Date.now();
           if (currentClickTime - latestClickTime <= 288) {
             latestClickTime = currentClickTime;
             log.success("阻止触发双击点赞");

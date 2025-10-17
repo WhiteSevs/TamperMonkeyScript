@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.16
+// @version      2025.10.17
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -10,8 +10,8 @@
 // @match        *://*.douyin.com/*
 // @match        *://*.iesdouyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @connect      *
@@ -737,7 +737,7 @@
     triggerMenuValueChange(key, newValue, oldValue) {
       PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
     },
-    exec(queryKey, callback, checkExec, once = true) {
+    async exec(queryKey, callback, checkExec, once = true) {
       const that = this;
       let queryKeyFn;
       if (typeof queryKey === "string" || Array.isArray(queryKey)) {
@@ -841,11 +841,11 @@
         }
         return flag;
       };
-      const valueChangeCallback = (valueOption) => {
+      const valueChangeCallback = async (valueOption) => {
         const execFlag = checkMenuExec();
         if (execFlag) {
           const valueList = keyList.map((key) => this.getValue(key));
-          const callbackResult = callback({
+          const callbackResult = await callback({
             value: isArrayKey ? valueList : valueList[0],
             addStoreValue: (...args) => {
               return addStoreValueCallback(true, args);
@@ -863,7 +863,7 @@
           });
           listenerIdList.push(listenerId);
         });
-      valueChangeCallback();
+      await valueChangeCallback();
       const result = {
         reload() {
           this.clearStoreStyleElements();
@@ -894,8 +894,8 @@
       this.$data.onceExecMenuData.set(storageKey, result);
       return result;
     },
-    execMenu(key, callback, isReverse = false, once = false) {
-      return this.exec(
+    async execMenu(key, callback, isReverse = false, once = false) {
+      return await this.exec(
         key,
         (option) => {
           return callback(option);
@@ -916,8 +916,8 @@
         once
       );
     },
-    execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
-      const result = this.execMenu(key, callback, isReverse, true);
+    async execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
+      const result = await this.execMenu(key, callback, isReverse, true);
       if (listenUrlChange) {
         if (result) {
           const urlChangeEvent = () => {
@@ -963,10 +963,11 @@
       key = this.transformKey(key);
       return this.$data.urlChangeReloadMenuExecOnce.has(key);
     },
-    triggerUrlChangeWithExecMenuOnceEvent(config) {
-      this.$data.urlChangeReloadMenuExecOnce.forEach((callback, key) => {
-        callback(config);
-      });
+    async triggerUrlChangeWithExecMenuOnceEvent(config) {
+      const values = this.$data.urlChangeReloadMenuExecOnce.values();
+      for (const callback of values) {
+        await callback(config);
+      }
     },
     showPanel(
       content,
@@ -2027,14 +2028,14 @@
         return;
       }
       const that = this;
-      let weakMap = new WeakMap();
+      const weakMap = new WeakMap();
       const originAddEventListener = _unsafeWindow.document.addEventListener;
       const originRemoveEventListener = _unsafeWindow.document.removeEventListener;
       _unsafeWindow.document.addEventListener = function (...args) {
-        let target = this;
-        let eventName = args[0];
-        let listener = args[1];
-        let options = args[2];
+        const target = this;
+        const eventName = args[0];
+        const listener = args[1];
+        const options = args[2];
         for (let index = 0; index < that.$data.document_addEventListener.length; index++) {
           const callback = that.$data.document_addEventListener[index];
           const result = Reflect.apply(callback, this, [target, eventName, listener, options]);
@@ -2053,9 +2054,9 @@
         return Reflect.apply(originAddEventListener, this, args);
       };
       _unsafeWindow.document.removeEventListener = function (...args) {
-        let eventName = args[0];
-        let listener = args[1];
-        let options = args[2];
+        const eventName = args[0];
+        const listener = args[1];
+        const options = args[2];
         if (weakMap.has(listener)) {
           const { eventName: __eventName__, fn: __listener__, options: __options__ } = weakMap.get(listener);
           let flag = false;
@@ -2086,14 +2087,14 @@
         return;
       }
       const that = this;
-      let weakMap = new WeakMap();
+      const weakMap = new WeakMap();
       const originAddEventListener = _unsafeWindow.Element.prototype.addEventListener;
       const originRemoveEventListener = _unsafeWindow.Element.prototype.removeEventListener;
       _unsafeWindow.Element.prototype.addEventListener = function (...args) {
-        let target = this;
-        let eventName = args[0];
-        let listener = args[1];
-        let options = args[2];
+        const target = this;
+        const eventName = args[0];
+        const listener = args[1];
+        const options = args[2];
         for (let index = 0; index < that.$data.element_addEventListener.length; index++) {
           const callback = that.$data.element_addEventListener[index];
           const result = Reflect.apply(callback, this, [target, eventName, listener, options]);
@@ -2112,9 +2113,9 @@
         return Reflect.apply(originAddEventListener, this, args);
       };
       _unsafeWindow.Element.prototype.removeEventListener = function (...args) {
-        let eventName = args[0];
-        let listener = args[1];
-        let options = args[2];
+        const eventName = args[0];
+        const listener = args[1];
+        const options = args[2];
         if (weakMap.has(listener)) {
           const { eventName: __eventName__, fn: __listener__, options: __options__ } = weakMap.get(listener);
           let flag = false;
@@ -2145,15 +2146,19 @@
         return;
       }
       const that = this;
-      let originSetTimeout = _unsafeWindow.setTimeout;
+      const originSetTimeout = _unsafeWindow.setTimeout;
       _unsafeWindow.setTimeout = function (...args) {
-        let fn = args[0];
-        let timeout = args[1];
+        const fn = args[0];
+        const timeout = args[1];
         for (let index = 0; index < that.$data.setTimeout.length; index++) {
           const item = that.$data.setTimeout[index];
           const result = item(fn, timeout);
           if (typeof result === "boolean" && !result) {
             return;
+          }
+          if (typeof result === "function") {
+            args[0] = result;
+            break;
           }
         }
         return Reflect.apply(originSetTimeout, this, args);
@@ -2166,15 +2171,19 @@
         return;
       }
       const that = this;
-      let originSetInterval = _unsafeWindow.setInterval;
+      const originSetInterval = _unsafeWindow.setInterval;
       _unsafeWindow.setInterval = function (...args) {
-        let fn = args[0];
-        let timeout = args[1];
+        const fn = args[0];
+        const timeout = args[1];
         for (let index = 0; index < that.$data.setInterval.length; index++) {
           const item = that.$data.setInterval[index];
           const result = item(fn, timeout);
           if (typeof result === "boolean" && !result) {
             return;
+          }
+          if (typeof result === "function") {
+            args[0] = result;
+            break;
           }
         }
         return Reflect.apply(originSetInterval, this, args);
@@ -2187,15 +2196,15 @@
         return;
       }
       const that = this;
-      let originApply = _unsafeWindow.Function.prototype.apply;
+      const originApply = _unsafeWindow.Function.prototype.apply;
       _unsafeWindow.Function.prototype.apply = function (...args) {
-        let thisArg = args[0];
-        let argArray = args[1];
+        const thisArg = args[0];
+        const argArray = args[1];
         let fn = this;
         for (let index = 0; index < that.$data.function_apply.length; index++) {
-          let item = that.$data.function_apply[index];
+          const item = that.$data.function_apply[index];
           if (typeof item.paramsHandler === "function") {
-            let handlerResult = item.paramsHandler(fn, thisArg, argArray);
+            const handlerResult = item.paramsHandler(fn, thisArg, argArray);
             if (handlerResult != null) {
               if (handlerResult.args) {
                 args[0] = handlerResult.args.thisArg;
@@ -2214,7 +2223,7 @@
         }
         let result = originApply.call(fn, ...args);
         for (let index = 0; index < that.$data.function_apply.length; index++) {
-          let item = that.$data.function_apply[index];
+          const item = that.$data.function_apply[index];
           if (typeof item.returnsHandler === "function") {
             let handlerResult = item.returnsHandler(fn, args[0], args[1], result);
             result = handlerResult.result;
@@ -2230,15 +2239,15 @@
         return;
       }
       const that = this;
-      let originCall = _unsafeWindow.Function.prototype.call;
+      const originCall = _unsafeWindow.Function.prototype.call;
       _unsafeWindow.Function.prototype.call = function (...args) {
-        let thisArg = args[0];
-        let argArray = args.slice(1);
+        const thisArg = args[0];
+        const argArray = args.slice(1);
         let fn = this;
         for (let index = 0; index < that.$data.function_call.length; index++) {
-          let item = that.$data.function_call[index];
+          const item = that.$data.function_call[index];
           if (typeof item.paramsHandler === "function") {
-            let handlerResult = item.paramsHandler(fn, thisArg, argArray);
+            const handlerResult = item.paramsHandler(fn, thisArg, argArray);
             if (handlerResult != null) {
               if (handlerResult.args) {
                 args[0] = handlerResult.args.thisArg;
@@ -2257,9 +2266,9 @@
         }
         let result = originCall.apply(fn, args);
         for (let index = 0; index < that.$data.function_call.length; index++) {
-          let item = that.$data.function_call[index];
+          const item = that.$data.function_call[index];
           if (typeof item.returnsHandler === "function") {
-            let handlerResult = item.returnsHandler(fn, args[0], args[1], result);
+            const handlerResult = item.returnsHandler(fn, args[0], args[1], result);
             result = handlerResult.result;
           }
         }
@@ -2273,11 +2282,11 @@
         return;
       }
       const that = this;
-      let originDefineProperty = _unsafeWindow.Object.defineProperty;
+      const originDefineProperty = _unsafeWindow.Object.defineProperty;
       _unsafeWindow.Object.defineProperty = function (...args) {
-        let target = args[0];
-        let key = args[1];
-        let attributes = args[2];
+        const target = args[0];
+        const key = args[1];
+        const attributes = args[2];
         for (let index = 0; index < that.$data.defineProperty.length; index++) {
           const item = that.$data.defineProperty[index];
           const result = item(target, key, attributes);
@@ -2347,23 +2356,21 @@
     },
     removeEnvCheck() {
       log.info("移除环境检测");
-      let originalSetInterval = _unsafeWindow.setInterval;
-      _unsafeWindow.setInterval = function (callback, time) {
-        let funcStr = callback.toString().trim();
+      Hook.setInterval((fn) => {
+        const funcStr = fn.toString().trim();
         if (funcStr.includes("debugger")) {
           log.success(["拦截→", [funcStr]]);
-          return;
+          return false;
         }
         if (funcStr.includes("checkEXp")) {
           log.success(["拦截→", [funcStr]]);
-          return;
+          return false;
         }
-        return originalSetInterval.call(this, callback, time);
-      };
+      });
     },
     removeCookie() {
-      let cookieHandler = new utils.GM_Cookie();
-      let cookieNameList = ["__ac_signature", "__ac_referer", "__ac_nonce"];
+      const cookieHandler = new utils.GM_Cookie();
+      const cookieNameList = ["__ac_signature", "__ac_referer", "__ac_nonce"];
       cookieNameList.forEach((cookieName) => {
         cookieHandler.delete(
           {
@@ -2390,11 +2397,11 @@
       Hook.document_addEventListener((target, eventName, listener, option) => {
         if (["keydown", "keypress", "keyup"].includes(eventName) && typeof listener === "function") {
           return function (...eventArgs) {
-            let event = eventArgs[0];
+            const event = eventArgs[0];
             event.key;
-            let code = event.code;
+            const code = event.code;
             event.charCode || event.keyCode || event.which;
-            let otherCodeList = [];
+            const otherCodeList = [];
             if (event.ctrlKey) {
               otherCodeList.push("ctrl");
             }
@@ -2412,7 +2419,7 @@
             if (isInPopsComponentsRequireInputNode($shadowRootActive ?? $active)) {
               return;
             }
-            let keyboardConfigList = [
+            const keyboardConfigList = [
               {
                 enableKey: "dy-keyboard-hook-likeOrDislike",
                 code: ["KeyZ"],
@@ -2544,6 +2551,10 @@
             } else if (DouYinRouter.isLive()) {
               keyboardConfigList.push(
                 {
+                  enableKey: "dy-live-threeScreen",
+                  code: ["KeyS"],
+                },
+                {
                   enableKey: "dy-live-refresh",
                   code: ["KeyE"],
                 },
@@ -2565,7 +2576,7 @@
               const keyboardConfig = keyboardConfigList[index];
               if (keyboardConfig.code.includes(code)) {
                 if (Array.isArray(keyboardConfig.otherCodeList)) {
-                  let findValue = keyboardConfig.otherCodeList.find((item) => !otherCodeList.includes(item));
+                  const findValue = keyboardConfig.otherCodeList.find((item) => !otherCodeList.includes(item));
                   if (findValue) {
                     continue;
                   }
@@ -2592,7 +2603,7 @@
           listenerStr.match(/video|innerContainer|video.__canvas|mouse/)
         ) {
           return function (...eventArgs) {
-            let currentClickTime = Date.now();
+            const currentClickTime = Date.now();
             if (currentClickTime - latestClickTime <= 288) {
               latestClickTime = currentClickTime;
               log.success("阻止触发双击点赞");
@@ -2831,11 +2842,11 @@
     },
     watchLoginDialogToClose() {
       log.info("监听登录弹窗并关闭");
-      let result = [CommonUtil.addBlockCSS('div[id^="login-full-panel-"]')];
       let lockFn = new utils.LockFunction(() => {
         if (!Panel.getValue("watchLoginDialogToClose")) {
           return;
         }
+        domUtils.remove(".douyin_login_iframe:has(iframe)");
         let $loginDialog = $('div[id^="login-full-panel-"]');
         if ($loginDialog && $loginDialog.children.length) {
           let $loginDialogCloseBtn =
@@ -2872,16 +2883,22 @@
           }
         }
       });
-      utils.mutationObserver(document, {
+      const observer = utils.mutationObserver(document, {
         config: {
           subtree: true,
           childList: true,
         },
+        immediate: true,
         callback: () => {
           lockFn.run();
         },
       });
-      return result;
+      return [
+        CommonUtil.addBlockCSS('div[id^="login-full-panel-"]', ".douyin_login_iframe:has(iframe)"),
+        () => {
+          observer.disconnect();
+        },
+      ];
     },
     watchCommentDialogToClose() {
       let lockFn = new utils.LockFunction(() => {
@@ -2910,11 +2927,11 @@
         CommonUtil.addBlockCSS('[id^="related-video-card-login-guide"]'),
         addStyle(
           `
-			/* 去除遮罩层 */
-			[id^="related-video-card-login-guide"]+div{
-				filter: none !important;
-			}
-		`
+        /* 去除遮罩层 */
+        [id^="related-video-card-login-guide"]+div{
+          filter: none !important;
+        }
+      `
         ),
         () => {
           observer?.disconnect();
@@ -5046,12 +5063,12 @@
     },
     initRule() {
       this.$data.rule.length = 0;
-      let localRule = this.get().trim();
-      let localRuleSplit = localRule.split("\n");
+      const localRule = this.get().trim();
+      const localRuleSplit = localRule.split("\n");
       localRuleSplit.forEach((item) => {
         if (item.trim() == "") return;
         item = item.trim();
-        let itemRegExp = new RegExp(item.trim());
+        const itemRegExp = new RegExp(item.trim());
         this.$data.rule.push(itemRegExp);
       });
     },
@@ -5145,23 +5162,21 @@
   };
   const DouYinLiveMessage = {
     filterMessage() {
-      let lockFn = new utils.LockFunction(() => {
+      log.success("消息过滤");
+      const lockFn = new utils.LockFunction(() => {
         if (!DouYinRouter.isLive()) return;
         DouYinMessageFilter.change();
       });
-      domUtils.ready(() => {
-        log.success("消息过滤");
-        DouYinMessageFilter.init();
-        utils.mutationObserver(document.body, {
-          config: {
-            childList: true,
-            subtree: true,
-          },
-          immediate: true,
-          callback: () => {
-            lockFn.run();
-          },
-        });
+      DouYinMessageFilter.init();
+      const observer = utils.mutationObserver(document.body, {
+        config: {
+          childList: true,
+          subtree: true,
+        },
+        immediate: true,
+        callback: () => {
+          lockFn.run();
+        },
       });
       return [
         addStyle(
@@ -5172,6 +5187,7 @@
 				}
 			`
         ),
+        () => observer.disconnect(),
       ];
     },
   };
@@ -5546,9 +5562,6 @@
     init() {
       DouYinLiveBlock.init();
       DouYinLiveShortCut.init();
-      Panel.execMenuOnce("live-danmu-shield-rule-enable", () => {
-        return DouYinLiveMessage.filterMessage();
-      });
       Panel.execMenu("live-pauseVideo", () => {
         this.disableVideoAutoPlay();
       });
@@ -5578,6 +5591,9 @@
         return [result.off];
       });
       domUtils.ready(() => {
+        Panel.execMenuOnce("live-danmu-shield-rule-enable", () => {
+          return DouYinLiveMessage.filterMessage();
+        });
         Panel.execMenuOnce("live-waitToRemovePauseDialog", () => {
           return this.waitToRemovePauseDialog();
         });
@@ -5596,21 +5612,19 @@
       });
     },
     autoEnterElementFullScreen() {
-      domUtils.ready(() => {
-        ReactUtils.waitReactPropsToSet("xg-icon.xgplayer-fullscreen + xg-icon  div:has(>svg)", "reactFiber", {
-          check(reactInstance) {
-            return typeof reactInstance?.memoizedProps?.onClick === "function";
-          },
-          set(reactInstance, $target) {
-            let $xgIcon = $target.closest("xg-icon");
-            if ($xgIcon && domUtils.text($xgIcon).includes("退出网页全屏")) {
-              log.warn("抖音已自动进入网页全屏，不执行脚本的操作");
-              return;
-            }
-            log.success("成功自动进入网页全屏");
-            reactInstance.memoizedProps.onClick();
-          },
-        });
+      ReactUtils.waitReactPropsToSet("xg-icon.xgplayer-fullscreen + xg-icon  div:has(>svg)", "reactFiber", {
+        check(reactInstance) {
+          return typeof reactInstance?.memoizedProps?.onClick === "function";
+        },
+        set(reactInstance, $target) {
+          let $xgIcon = $target.closest("xg-icon");
+          if ($xgIcon && domUtils.text($xgIcon).includes("退出网页全屏")) {
+            log.warn("抖音已自动进入网页全屏，不执行脚本的操作");
+            return;
+          }
+          log.success("成功自动进入网页全屏");
+          reactInstance.memoizedProps.onClick();
+        },
       });
     },
     chooseQuality(quality = "origin") {
@@ -5819,8 +5833,8 @@
           }
           $video.autoplay = false;
           $video.pause();
-          let timeout = 3e3;
-          let playListener = (evt) => {
+          const timeout = 3e3;
+          const playListener = (evt) => {
             domUtils.preventEvent(evt);
             $video.autoplay = false;
             $video.pause();
@@ -5831,8 +5845,8 @@
           domUtils.on($video, "play", playListener, {
             capture: true,
           });
-          let reloadVideo = () => {
-            let keydownEvent = new KeyboardEvent("keydown", {
+          const reloadVideo = () => {
+            const keydownEvent = new KeyboardEvent("keydown", {
               bubbles: true,
               cancelable: true,
               key: "E",
@@ -5840,12 +5854,12 @@
             });
             document.body.dispatchEvent(keydownEvent);
           };
-          let cb = () => {
+          const cb = () => {
             domUtils.off($video, "play", playListener, {
               capture: true,
             });
             log.info(`移除监听自动播放`);
-            let listenPlayVideo = () => {
+            const listenPlayVideo = () => {
               domUtils.offAll($video, "play");
               domUtils.on(
                 $video,
@@ -5995,8 +6009,8 @@
   const DouYinSearch = {
     init() {
       DouYinSearchBlock.init();
-      Panel.execMenuOnce("mobileMode", () => {
-        return this.mobileMode();
+      Panel.execMenuOnce("mobileMode", (option) => {
+        return this.mobileMode(option);
       });
       Panel.execMenuOnce("dy-search-disableClickToEnterFullScreen", () => {
         return this.disableClickToEnterFullScreen();
@@ -6005,7 +6019,7 @@
         return this.setSearchResultFilterWithVideoStyle(option.value);
       });
     },
-    mobileMode() {
+    mobileMode(option) {
       log.info("搜索-手机模式");
       let result = [];
       result.push(addStyle(MobileCSS));
@@ -6066,7 +6080,7 @@
       );
       domUtils.waitNode("#relatedVideoCard").then(($relatedVideoCard) => {
         log.info("评论区展开的className：" + $relatedVideoCard.className);
-        result.push(
+        option.addStoreValue(
           addStyle(
             `
 					html[data-vertical-screen]
@@ -9020,12 +9034,12 @@
     automaticContinuousPlayback() {
       log.info(`自动连播`);
       const attrFlagName = "data-automaticContinuousPlayback";
-      let queryActiveVideo = (withAttr = false) => {
+      const queryActiveVideo = (withAttr = false) => {
         return $(
           `.page-recommend-container:not(:has([data-e2e="feed-live"])) [data-e2e="feed-active-video"] video${withAttr ? `:not([${attrFlagName}])` : ""}`
         );
       };
-      let switchActiveVideo = () => {
+      const switchActiveVideo = () => {
         if (Panel.getValue("dy-keyboard-hook-pageUpAndDown")) {
           Qmsg.error("自动连播切换失败，请勿禁用↑↓翻页快捷键");
           return;
@@ -9040,7 +9054,7 @@
         });
         document.body.dispatchEvent(keydownEvent);
       };
-      let lockFn = new utils.LockFunction(() => {
+      const lockFn = new utils.LockFunction(() => {
         if (!DouYinRouter.isRecommend()) {
           return;
         }
@@ -9122,7 +9136,7 @@
         return DouYinAccount.disguiseLogin();
       });
       Panel.execMenuOnce("dy-initialScale", () => {
-        this.initialScale();
+        return this.initialScale();
       });
       Panel.execMenu("dy-apple-removeMetaAppleItunesApp", () => {
         this.removeMetaAppleItunesApp();
@@ -9135,7 +9149,7 @@
         () => {
           return this.listenRouterChange();
         },
-        false,
+        void 0,
         false
       );
       Panel.execMenuOnce("dy-search-click-to-new-tab", () => {
@@ -9188,32 +9202,28 @@
         });
       return [addStyle(blockCSS$8)];
     },
-    initialScale() {
+    async initialScale() {
       log.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>");
-      domUtils.ready(() => {
-        let meta = domUtils.createElement(
-          "meta",
-          {},
-          {
-            name: "viewport",
-            content: "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover",
-          }
-        );
-        domUtils.remove("meta[name='viewport']");
-        domUtils.waitNode("head").then(() => {
-          document.head.appendChild(meta);
-        });
-      });
-    },
-    removeMetaAppleItunesApp() {
-      domUtils.waitNodeList(['meta[name="apple-itunes-app"]'], 1e4).then(($metaList) => {
-        if (!$metaList) {
-          return;
+      await domUtils.ready();
+      const $meta = domUtils.createElement(
+        "meta",
+        {},
+        {
+          name: "viewport",
+          content: "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover",
         }
-        $metaList.forEach(($meta) => {
-          $meta.remove();
-        });
-      });
+      );
+      domUtils.remove("meta[name='viewport']");
+      await domUtils.waitNode("head");
+      document.head.appendChild($meta);
+      return $meta;
+    },
+    async removeMetaAppleItunesApp() {
+      const $metaList = await domUtils.waitNodeList(['meta[name="apple-itunes-app"]'], 1e4);
+      if (!$metaList) {
+        return;
+      }
+      domUtils.remove($metaList);
     },
     listenRouterChange() {
       log.info(`监听Router重载`);
@@ -11170,6 +11180,7 @@
                 type: "forms",
                 text: AutoOpenOrClose.text,
                 forms: [
+                  UISwitch("三屏画面", "dy-live-threeScreen", false, void 0, "S"),
                   UISwitch("刷新", "dy-live-refresh", false, void 0, "E"),
                   UISwitch("屏幕旋转", "dy-live-screenRotation", false, void 0, "D"),
                   UISwitch("开启小窗模式", "dy-live-enableSmallWindowMode", false, void 0, "U"),

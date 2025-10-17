@@ -21,7 +21,7 @@ export const DouYinRecommend = {
     /**
      * 获取当前播放的视频
      */
-    let queryActiveVideo = (
+    const queryActiveVideo = (
       /**
        * @default false
        */
@@ -36,7 +36,7 @@ export const DouYinRecommend = {
     /**
      * 切换视频
      */
-    let switchActiveVideo = () => {
+    const switchActiveVideo = () => {
       if (Panel.getValue("dy-keyboard-hook-pageUpAndDown")) {
         Qmsg.error("自动连播切换失败，请勿禁用↑↓翻页快捷键");
         return;
@@ -51,7 +51,7 @@ export const DouYinRecommend = {
       });
       document.body.dispatchEvent(keydownEvent);
     };
-    let lockFn = new utils.LockFunction(() => {
+    const lockFn = new utils.LockFunction(() => {
       if (!DouYinRouter.isRecommend()) {
         // 必须在推荐页面
         return;
