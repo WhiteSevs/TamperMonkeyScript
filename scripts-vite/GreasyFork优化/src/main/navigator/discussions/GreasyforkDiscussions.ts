@@ -4,6 +4,7 @@ import { Panel } from "@components/setting/panel";
 import i18next from "i18next";
 import Qmsg from "qmsg";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
+import type { PopsRightClickMenuDataDetails } from "@whitesev/pops/dist/types/src/components/rightClickMenu/types";
 
 export const GreasyforkForum = {
   init() {
@@ -12,13 +13,42 @@ export const GreasyforkForum = {
       Panel.execMenuOnce("greasyfork-discussions-filter-enable", () => {
         this.filterEnable();
       });
-      let lockFn = new utils.LockFunction(() => {
-        Panel.execMenu("discussions-addShortcutOperationButton", () => {
-          this.addShortcutOperationButton();
-        });
-        Panel.execMenu("discussions-addReportButton", () => {
+      addStyle(/*css*/ `
+        .discussion-meta-item[data-type="more"]{
+          display: none;
+        }
+        .discussion-meta-item[data-type="more"] button{
+          padding-left: 10px;
+          padding-right: 10px;
+        }
+
+        @media screen and (max-width: 600px){
+          /* 移动端时隐藏过滤、举报按钮 */
+          .discussion-meta-item[data-type="filter"],
+          .discussion-meta-item[data-type="report"]{
+            display: none;
+          }
+          /* 显示举报按钮 */
+          .discussion-meta-item[data-type="more"]{
+            display: block;
+          }
+        }
+      `);
+      const lockFn = new utils.LockFunction(() => {
+        const addFilterButton = Panel.getValue("discussions-addShortcutOperationButton")!;
+        const addReportButton = Panel.getValue("discussions-addReportButton")!;
+        if (addFilterButton) {
+          this.addFilterButton();
+        }
+        if (addReportButton) {
           this.addReportButton();
-        });
+        }
+        if (addFilterButton || addReportButton) {
+          this.addMoreButton({
+            addFilterButton,
+            addReportButton,
+          });
+        }
       });
       utils.mutationObserver(document.body, {
         config: {
@@ -54,10 +84,10 @@ export const GreasyforkForum = {
   /**
    * 添加【过滤】按钮
    */
-  addShortcutOperationButton() {
-    log.info("添加【过滤】按钮");
+  addFilterButton() {
+    const buttonClassName = "discussion-filter-button";
     GreasyforkDiscussionsFilter.getElementList().forEach(($listContainer) => {
-      if ($listContainer.querySelector<HTMLAnchorElement>(".discussion-filter-button")) {
+      if ($listContainer.querySelector<HTMLAnchorElement>(`.${buttonClassName}`)) {
         return;
       }
       let $listItem = $listContainer.querySelector<HTMLElement>(".discussion-list-item")!;
@@ -67,14 +97,15 @@ export const GreasyforkForum = {
         {
           className: "discussion-meta-item",
           innerHTML: `
-					<button class="discussion-filter-button">${i18next.t("过滤")}</button>
+					<button class="${buttonClassName}">${i18next.t("过滤")}</button>
 					`,
         },
         {
           style: "flex: 0;",
+          "data-type": "filter",
         }
       );
-      let $button = $ownMetaItem.querySelector<HTMLButtonElement>(".discussion-filter-button")!;
+      let $button = $ownMetaItem.querySelector<HTMLButtonElement>(`.${buttonClassName}`)!;
       $meta.appendChild($ownMetaItem);
       DOMUtils.on($button, "click", (event) => {
         DOMUtils.preventEvent(event);
@@ -178,9 +209,9 @@ export const GreasyforkForum = {
    * 添加【举报】按钮
    */
   addReportButton() {
-    log.info(`添加【举报】按钮`);
+    const buttonClassName = "discussion-report-button";
     GreasyforkDiscussionsFilter.getElementList().forEach(($listContainer) => {
-      if ($listContainer.querySelector(".discussion-report-button")) {
+      if ($listContainer.querySelector(`.${buttonClassName}`)) {
         return;
       }
       let $listItem = $listContainer.querySelector<HTMLElement>(".discussion-list-item")!;
@@ -190,14 +221,15 @@ export const GreasyforkForum = {
         {
           className: "discussion-meta-item",
           innerHTML: `
-					<button class="discussion-report-button pops-button--danger">${i18next.t("举报")}</button>
+					<button class="${buttonClassName} pops-button--danger">${i18next.t("举报")}</button>
 					`,
         },
         {
           style: "flex: 0;",
+          "data-type": "report",
         }
       );
-      let $button = $ownMetaItem.querySelector<HTMLButtonElement>(".discussion-report-button")!;
+      let $button = $ownMetaItem.querySelector<HTMLButtonElement>(`.${buttonClassName}`)!;
       $meta.appendChild($ownMetaItem);
 
       DOMUtils.on($button, "click", (event) => {
@@ -298,6 +330,84 @@ export const GreasyforkForum = {
 							`,
         });
       });
+    });
+  },
+  /**
+   * 添加【...】按钮
+   */
+  addMoreButton(config: { addFilterButton: boolean; addReportButton: boolean }) {
+    const buttonClassName = "discussion-more-button";
+    GreasyforkDiscussionsFilter.getElementList().forEach(($listContainer) => {
+      if ($listContainer.querySelector(`.${buttonClassName}`)) {
+        return;
+      }
+      let $listItem = $listContainer.querySelector<HTMLElement>(".discussion-list-item")!;
+      let $meta = $listItem.querySelector<HTMLElement>(".discussion-meta")!;
+      let $ownMetaItem = DOMUtils.createElement(
+        "div",
+        {
+          className: "discussion-meta-item",
+          innerHTML: `
+					<button class="${buttonClassName}">${i18next.t("...")}</button>
+					`,
+        },
+        {
+          style: "flex: 0;",
+          "data-type": "more",
+        }
+      );
+      const $button = $ownMetaItem.querySelector<HTMLButtonElement>(`.${buttonClassName}`)!;
+      const data: PopsRightClickMenuDataDetails[] = [];
+      if (config.addFilterButton) {
+        data.push({
+          text: i18next.t("过滤"),
+          callback: () => {
+            const $parent = DOMUtils.parent($listItem);
+            const $filter = $parent.querySelector<HTMLElement>('.discussion-meta-item[data-type="filter"] button');
+            if (!$filter) {
+              Qmsg.error(i18next.t("未找到【过滤】按钮"));
+              return;
+            }
+            $filter.click();
+          },
+        });
+      }
+      if (config.addReportButton) {
+        data.push({
+          text: i18next.t("举报"),
+          callback: () => {
+            const $parent = DOMUtils.parent($listItem);
+            const $report = $parent.querySelector<HTMLElement>('.discussion-meta-item[data-type="report"] button');
+            if (!$report) {
+              Qmsg.error(i18next.t("未找到【举报】按钮"));
+              return;
+            }
+            $report.click();
+          },
+        });
+      }
+      if (!data.length) {
+        return;
+      }
+      const rightClickMenu = pops.rightClickMenu({
+        target: document.documentElement,
+        position: "absolute",
+        limitPositionYInView: false,
+        data: data,
+      });
+      rightClickMenu.removeContextMenuEvent(document.documentElement);
+      DOMUtils.on($button, "click", (event) => {
+        DOMUtils.preventEvent(event);
+        const rect = $button.getBoundingClientRect();
+        rightClickMenu.PopsContextMenu.contextMenuEvent(
+          new PointerEvent("contextmenu", {
+            clientX: rect.left + window.scrollX,
+            clientY: rect.top + rect.height + window.scrollY,
+          }),
+          $button
+        );
+      });
+      $meta.appendChild($ownMetaItem);
     });
   },
 };

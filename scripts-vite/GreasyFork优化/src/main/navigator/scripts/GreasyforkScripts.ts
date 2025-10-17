@@ -59,12 +59,12 @@ export const GreasyforkScriptsCollectEvent = async function (scriptId: string | 
 			<div class="user-collect-name">${userCollectInfo.name}</div>
 			<div class="user-collect-btn-container">
 			<div class="pops-panel-button collect-add-script-id">
-				<button type="primary" data-icon="" data-righticon="">
+				<button type="button" data-type="primary" data-icon="" data-righticon="">
 				<span>${i18next.t("添加")}</span>
 				</button>
 			</div>
 			<div class="pops-panel-button collect-delete-script-id">
-				<button type="danger" data-icon="" data-righticon="">
+				<button type="button" data-type="danger" data-icon="" data-righticon="">
 				<span>${i18next.t("刪除")}</span>
 				</button>
 			</div>

@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2025.10.6
+// @version            2025.10.17
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -13,12 +13,12 @@
 // @match              *://sleazyfork.org/*
 // @match              *://cn-greasyfork.org/*
 // @require            https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.3/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.0/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.4/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.4/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.5/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
-// @require            https://fastly.jsdelivr.net/npm/i18next@25.5.2/i18next.min.js
+// @require            https://fastly.jsdelivr.net/npm/i18next@25.5.3/i18next.min.js
 // @require            https://fastly.jsdelivr.net/npm/otpauth@9.4.1/dist/otpauth.umd.js
 // @resource           ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect            greasyfork.org
@@ -144,11 +144,11 @@
       return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
     setGMResourceCSS(resourceMapData) {
-      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
+      const cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
       if (typeof cssText === "string" && cssText) {
-        addStyle(cssText);
+        return addStyle(cssText);
       } else {
-        CommonUtil.loadStyleLink(resourceMapData.url);
+        return CommonUtil.loadStyleLink(resourceMapData.url);
       }
     },
     async loadStyleLink(url) {
@@ -156,8 +156,11 @@
       $link.rel = "stylesheet";
       $link.type = "text/css";
       $link.href = url;
-      DOMUtils.ready(() => {
-        document.head.appendChild($link);
+      return new Promise((resolve) => {
+        DOMUtils.ready(() => {
+          document.head.appendChild($link);
+          resolve($link);
+        });
       });
     },
     async loadScript(url) {
@@ -541,7 +544,7 @@
     listenerData;
     constructor(key) {
       if (typeof key === "string") {
-        let trimKey = key.trim();
+        const trimKey = key.trim();
         if (trimKey == "") {
           throw new Error("key参数不能为空字符串");
         }
@@ -550,6 +553,18 @@
         throw new Error("key参数类型错误，必须是字符串");
       }
       this.listenerData = new Utils.Dictionary();
+      this.getLocalValue = this.getLocalValue.bind(this);
+      this.set = this.set.bind(this);
+      this.get = this.get.bind(this);
+      this.getAll = this.getAll.bind(this);
+      this.delete = this.delete.bind(this);
+      this.has = this.has.bind(this);
+      this.keys = this.keys.bind(this);
+      this.values = this.values.bind(this);
+      this.clear = this.clear.bind(this);
+      this.addValueChangeListener = this.addValueChangeListener.bind(this);
+      this.removeValueChangeListener = this.removeValueChangeListener.bind(this);
+      this.triggerValueChangeListener = this.triggerValueChangeListener.bind(this);
     }
     getLocalValue() {
       let localValue = _GM_getValue(this.storageKey);
@@ -563,45 +578,45 @@
       _GM_setValue(this.storageKey, value);
     }
     set(key, value) {
-      let oldValue = this.get(key);
-      let localValue = this.getLocalValue();
+      const oldValue = this.get(key);
+      const localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, value);
     }
     get(key, defaultValue) {
-      let localValue = this.getLocalValue();
+      const localValue = this.getLocalValue();
       return Reflect.get(localValue, key) ?? defaultValue;
     }
     getAll() {
-      let localValue = this.getLocalValue();
+      const localValue = this.getLocalValue();
       return localValue;
     }
     delete(key) {
-      let oldValue = this.get(key);
-      let localValue = this.getLocalValue();
+      const oldValue = this.get(key);
+      const localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, void 0);
     }
     has(key) {
-      let localValue = this.getLocalValue();
+      const localValue = this.getLocalValue();
       return Reflect.has(localValue, key);
     }
     keys() {
-      let localValue = this.getLocalValue();
+      const localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue);
     }
     values() {
-      let localValue = this.getLocalValue();
+      const localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
     }
     clear() {
       _GM_deleteValue(this.storageKey);
     }
     addValueChangeListener(key, callback) {
-      let listenerId = Math.random();
-      let listenerData = this.listenerData.get(key) || [];
+      const listenerId = Math.random();
+      const listenerData = this.listenerData.get(key) || [];
       listenerData.push({
         id: listenerId,
         key,
@@ -628,7 +643,8 @@
       }
       return flag;
     }
-    triggerValueChangeListener(key, oldValue, newValue) {
+    async triggerValueChangeListener(...args) {
+      const [key, oldValue, newValue] = args;
       if (!this.listenerData.has(key)) {
         return;
       }
@@ -639,17 +655,17 @@
           let value = this.get(key);
           let __newValue;
           let __oldValue;
-          if (typeof oldValue !== "undefined" && arguments.length >= 2) {
+          if (typeof oldValue !== "undefined" && args.length >= 2) {
             __oldValue = oldValue;
           } else {
             __oldValue = value;
           }
-          if (typeof newValue !== "undefined" && arguments.length > 2) {
+          if (typeof newValue !== "undefined" && args.length > 2) {
             __newValue = newValue;
           } else {
             __newValue = value;
           }
-          data.callback(key, __oldValue, __newValue);
+          await data.callback(key, __oldValue, __newValue);
         }
       }
     }
@@ -906,7 +922,7 @@
       return PopsPanelStorageApi.has(key);
     },
     addValueChangeListener(key, callback) {
-      let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
+      const listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
         callback(key, __oldValue, __newValue);
       });
       return listenerId;
@@ -917,7 +933,7 @@
     triggerMenuValueChange(key, newValue, oldValue) {
       PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
     },
-    exec(queryKey, callback, checkExec, once = true) {
+    async exec(queryKey, callback, checkExec, once = true) {
       const that = this;
       let queryKeyFn;
       if (typeof queryKey === "string" || Array.isArray(queryKey)) {
@@ -926,7 +942,7 @@
         queryKeyFn = queryKey;
       }
       let isArrayKey = false;
-      let queryKeyResult = queryKeyFn();
+      const queryKeyResult = queryKeyFn();
       let keyList = [];
       if (Array.isArray(queryKeyResult)) {
         isArrayKey = true;
@@ -934,50 +950,85 @@
       } else {
         keyList.push(queryKeyResult);
       }
-      let findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
+      const findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
       if (findNotInDataKey) {
         log.warn(`${findNotInDataKey} 键不存在`);
         return;
       }
-      let storageKey = JSON.stringify(keyList);
+      const storageKey = JSON.stringify(keyList);
       if (once) {
         if (this.$data.onceExecMenuData.has(storageKey)) {
           return this.$data.onceExecMenuData.get(storageKey);
         }
       }
       let storeValueList = [];
-      let listenerIdList = [];
-      let dynamicAddStyleNodeCallback = (value, $style) => {
-        let dynamicResultList = [];
-        if (!Array.isArray($style)) {
-          $style = [$style];
+      const listenerIdList = [];
+      let destoryFnList = [];
+      const addStoreValueCallback = (enableValue, args) => {
+        let dynamicMenuStoreValueList = [];
+        let dynamicDestoryFnList = [];
+        let resultValueList = [];
+        if (Array.isArray(args)) {
+          resultValueList = resultValueList.concat(args);
+        } else {
+          if (typeof args === "object" && args != null) {
+            const { $css, destory } = args;
+            if ($css != null) {
+              if (Array.isArray($css)) {
+                resultValueList = resultValueList.concat($css);
+              } else {
+                resultValueList.push($css);
+              }
+            }
+            if (typeof destory === "function") {
+              resultValueList.push(destory);
+            }
+          } else {
+            resultValueList.push(args);
+          }
         }
-        $style.forEach(($styleItem) => {
-          if ($styleItem == null) {
-            return;
+        for (const it of resultValueList) {
+          if (it == null) {
+            continue;
           }
-          if ($styleItem instanceof HTMLStyleElement) {
-            dynamicResultList.push($styleItem);
-            return;
+          if (it instanceof Element) {
+            dynamicMenuStoreValueList.push(it);
+            continue;
           }
-        });
-        {
-          storeValueList = storeValueList.concat(dynamicResultList);
+          if (typeof it === "function") {
+            destoryFnList.push(it);
+            continue;
+          }
+        }
+        if (enableValue) {
+          storeValueList = storeValueList.concat(dynamicMenuStoreValueList);
+          destoryFnList = destoryFnList.concat(dynamicDestoryFnList);
+        } else {
+          execClearStoreStyleElements();
+          execDestory();
         }
       };
-      let getMenuValue = (key) => {
-        let value = this.getValue(key);
+      const getMenuValue = (key) => {
+        const value = this.getValue(key);
         return value;
       };
-      let clearBeforeStoreValue = () => {
+      const execClearStoreStyleElements = () => {
         for (let index = 0; index < storeValueList.length; index++) {
-          let $css = storeValueList[index];
-          $css.remove();
+          const $css = storeValueList[index];
+          $css?.remove();
           storeValueList.splice(index, 1);
           index--;
         }
       };
-      let checkMenuExec = () => {
+      const execDestory = () => {
+        for (let index = 0; index < destoryFnList.length; index++) {
+          const destoryFnItem = destoryFnList[index];
+          destoryFnItem();
+          destoryFnList.splice(index, 1);
+          index--;
+        }
+      };
+      const checkMenuExec = () => {
         let flag = false;
         if (typeof checkExec === "function") {
           flag = checkExec(keyList);
@@ -986,72 +1037,69 @@
         }
         return flag;
       };
-      let valueChangeCallback = (valueOption) => {
-        let execFlag = checkMenuExec();
-        let resultList = [];
+      const valueChangeCallback = async (valueOption) => {
+        const execFlag = checkMenuExec();
         if (execFlag) {
-          let valueList = keyList.map((key) => this.getValue(key));
-          let callbackResult = callback({
+          const valueList = keyList.map((key) => this.getValue(key));
+          const callbackResult = await callback({
             value: isArrayKey ? valueList : valueList[0],
-            addStyleElement: (...args) => {
-              return dynamicAddStyleNodeCallback(true, ...args);
+            addStoreValue: (...args) => {
+              return addStoreValueCallback(true, args);
             },
           });
-          if (!Array.isArray(callbackResult)) {
-            callbackResult = [callbackResult];
-          }
-          callbackResult.forEach((it) => {
-            if (it == null) {
-              return;
-            }
-            if (it instanceof HTMLStyleElement) {
-              resultList.push(it);
-              return;
-            }
-          });
+          addStoreValueCallback(true, callbackResult);
+        } else {
+          addStoreValueCallback(false, []);
         }
-        clearBeforeStoreValue();
-        storeValueList = [...resultList];
       };
       once &&
         keyList.forEach((key) => {
-          let listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
-            valueChangeCallback();
+          const listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
+            return valueChangeCallback();
           });
           listenerIdList.push(listenerId);
         });
-      valueChangeCallback();
-      let result = {
+      await valueChangeCallback();
+      const result = {
         reload() {
+          this.clearStoreStyleElements();
+          this.destory();
           valueChangeCallback();
         },
         clear() {
           this.clearStoreStyleElements();
+          this.destory();
           this.removeValueChangeListener();
-          once && that.$data.onceExecMenuData.delete(storageKey);
+          this.clearOnceExecMenuData();
         },
         clearStoreStyleElements: () => {
-          return clearBeforeStoreValue();
+          return execClearStoreStyleElements();
+        },
+        destory() {
+          return execDestory();
         },
         removeValueChangeListener: () => {
           listenerIdList.forEach((listenerId) => {
             this.removeValueChangeListener(listenerId);
           });
         },
+        clearOnceExecMenuData() {
+          once && that.$data.onceExecMenuData.delete(storageKey);
+        },
       };
       this.$data.onceExecMenuData.set(storageKey, result);
       return result;
     },
-    execMenu(key, callback, isReverse = false, once = false) {
-      return this.exec(
+    async execMenu(key, callback, isReverse = false, once = false) {
+      return await this.exec(
         key,
         (option) => {
           return callback(option);
         },
         (keyList) => {
-          let execFlag = keyList.every((__key__) => {
+          const execFlag = keyList.every((__key__) => {
             let flag = !!this.getValue(__key__);
-            let disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
+            const disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
             if (disabled) {
               flag = false;
               log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
@@ -1064,8 +1112,8 @@
         once
       );
     },
-    execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
-      const result = this.execMenu(key, callback, isReverse, true);
+    async execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
+      const result = await this.execMenu(key, callback, isReverse, true);
       if (listenUrlChange) {
         if (result) {
           const urlChangeEvent = () => {
@@ -1073,11 +1121,6 @@
           };
           this.removeUrlChangeWithExecMenuOnceListener(key);
           this.addUrlChangeWithExecMenuOnceListener(key, urlChangeEvent);
-          const originClear = result.clear;
-          result.clear = () => {
-            originClear();
-            this.removeUrlChangeWithExecMenuOnceListener(key);
-          };
         }
       }
       return result;
@@ -1086,7 +1129,7 @@
       key = this.transformKey(key);
       this.$data.onceExecMenuData.delete(key);
       this.$data.urlChangeReloadMenuExecOnce.delete(key);
-      let flag = PopsPanelStorageApi.removeValueChangeListener(key);
+      const flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
     onceExec(key, callback) {
@@ -1112,10 +1155,15 @@
       key = this.transformKey(key);
       this.$data.urlChangeReloadMenuExecOnce.delete(key);
     },
-    triggerUrlChangeWithExecMenuOnceEvent(config) {
-      this.$data.urlChangeReloadMenuExecOnce.forEach((callback, key) => {
-        callback(config);
-      });
+    hasUrlChangeWithExecMenuOnceListener(key) {
+      key = this.transformKey(key);
+      return this.$data.urlChangeReloadMenuExecOnce.has(key);
+    },
+    async triggerUrlChangeWithExecMenuOnceEvent(config) {
+      const values = this.$data.urlChangeReloadMenuExecOnce.values();
+      for (const callback of values) {
+        await callback(config);
+      }
     },
     showPanel(
       content,
@@ -2138,6 +2186,8 @@
     "两步验证（2FA）": "Two-step verification (2FA)",
     获取用户主页信息失败: "Failed to obtain user homepage information",
     "monaco-editor加载中...": "monaco-editor loading...",
+    "未找到【过滤】按钮": "[Filter] button not found",
+    "未找到【举报】按钮": "[Report] button not found",
   };
   const LanguageInit = function () {
     let settingPanel = _GM_getValue(KEY, {});
@@ -3355,13 +3405,44 @@
         Panel.execMenuOnce("greasyfork-discussions-filter-enable", () => {
           this.filterEnable();
         });
-        let lockFn = new utils.LockFunction(() => {
-          Panel.execMenu("discussions-addShortcutOperationButton", () => {
-            this.addShortcutOperationButton();
-          });
-          Panel.execMenu("discussions-addReportButton", () => {
+        addStyle(
+          `
+        .discussion-meta-item[data-type="more"]{
+          display: none;
+        }
+        .discussion-meta-item[data-type="more"] button{
+          padding-left: 10px;
+          padding-right: 10px;
+        }
+
+        @media screen and (max-width: 600px){
+          /* 移动端时隐藏过滤、举报按钮 */
+          .discussion-meta-item[data-type="filter"],
+          .discussion-meta-item[data-type="report"]{
+            display: none;
+          }
+          /* 显示举报按钮 */
+          .discussion-meta-item[data-type="more"]{
+            display: block;
+          }
+        }
+      `
+        );
+        const lockFn = new utils.LockFunction(() => {
+          const addFilterButton = Panel.getValue("discussions-addShortcutOperationButton");
+          const addReportButton = Panel.getValue("discussions-addReportButton");
+          if (addFilterButton) {
+            this.addFilterButton();
+          }
+          if (addReportButton) {
             this.addReportButton();
-          });
+          }
+          if (addFilterButton || addReportButton) {
+            this.addMoreButton({
+              addFilterButton,
+              addReportButton,
+            });
+          }
         });
         utils.mutationObserver(document.body, {
           config: {
@@ -3390,10 +3471,10 @@
         `
       );
     },
-    addShortcutOperationButton() {
-      log.info("添加【过滤】按钮");
+    addFilterButton() {
+      const buttonClassName = "discussion-filter-button";
       GreasyforkDiscussionsFilter.getElementList().forEach(($listContainer) => {
-        if ($listContainer.querySelector(".discussion-filter-button")) {
+        if ($listContainer.querySelector(`.${buttonClassName}`)) {
           return;
         }
         let $listItem = $listContainer.querySelector(".discussion-list-item");
@@ -3403,14 +3484,15 @@
           {
             className: "discussion-meta-item",
             innerHTML: `
-					<button class="discussion-filter-button">${i18next.t("过滤")}</button>
+					<button class="${buttonClassName}">${i18next.t("过滤")}</button>
 					`,
           },
           {
             style: "flex: 0;",
+            "data-type": "filter",
           }
         );
-        let $button = $ownMetaItem.querySelector(".discussion-filter-button");
+        let $button = $ownMetaItem.querySelector(`.${buttonClassName}`);
         $meta.appendChild($ownMetaItem);
         domUtils.on($button, "click", (event) => {
           domUtils.preventEvent(event);
@@ -3510,9 +3592,9 @@
       });
     },
     addReportButton() {
-      log.info(`添加【举报】按钮`);
+      const buttonClassName = "discussion-report-button";
       GreasyforkDiscussionsFilter.getElementList().forEach(($listContainer) => {
-        if ($listContainer.querySelector(".discussion-report-button")) {
+        if ($listContainer.querySelector(`.${buttonClassName}`)) {
           return;
         }
         let $listItem = $listContainer.querySelector(".discussion-list-item");
@@ -3522,14 +3604,15 @@
           {
             className: "discussion-meta-item",
             innerHTML: `
-					<button class="discussion-report-button pops-button--danger">${i18next.t("举报")}</button>
+					<button class="${buttonClassName} pops-button--danger">${i18next.t("举报")}</button>
 					`,
           },
           {
             style: "flex: 0;",
+            "data-type": "report",
           }
         );
-        let $button = $ownMetaItem.querySelector(".discussion-report-button");
+        let $button = $ownMetaItem.querySelector(`.${buttonClassName}`);
         $meta.appendChild($ownMetaItem);
         domUtils.on($button, "click", (event) => {
           domUtils.preventEvent(event);
@@ -3626,6 +3709,81 @@
 							`,
           });
         });
+      });
+    },
+    addMoreButton(config) {
+      const buttonClassName = "discussion-more-button";
+      GreasyforkDiscussionsFilter.getElementList().forEach(($listContainer) => {
+        if ($listContainer.querySelector(`.${buttonClassName}`)) {
+          return;
+        }
+        let $listItem = $listContainer.querySelector(".discussion-list-item");
+        let $meta = $listItem.querySelector(".discussion-meta");
+        let $ownMetaItem = domUtils.createElement(
+          "div",
+          {
+            className: "discussion-meta-item",
+            innerHTML: `
+					<button class="${buttonClassName}">${i18next.t("...")}</button>
+					`,
+          },
+          {
+            style: "flex: 0;",
+            "data-type": "more",
+          }
+        );
+        const $button = $ownMetaItem.querySelector(`.${buttonClassName}`);
+        const data = [];
+        if (config.addFilterButton) {
+          data.push({
+            text: i18next.t("过滤"),
+            callback: () => {
+              const $parent = domUtils.parent($listItem);
+              const $filter = $parent.querySelector('.discussion-meta-item[data-type="filter"] button');
+              if (!$filter) {
+                Qmsg.error(i18next.t("未找到【过滤】按钮"));
+                return;
+              }
+              $filter.click();
+            },
+          });
+        }
+        if (config.addReportButton) {
+          data.push({
+            text: i18next.t("举报"),
+            callback: () => {
+              const $parent = domUtils.parent($listItem);
+              const $report = $parent.querySelector('.discussion-meta-item[data-type="report"] button');
+              if (!$report) {
+                Qmsg.error(i18next.t("未找到【举报】按钮"));
+                return;
+              }
+              $report.click();
+            },
+          });
+        }
+        if (!data.length) {
+          return;
+        }
+        const rightClickMenu = __pops.rightClickMenu({
+          target: document.documentElement,
+          position: "absolute",
+          limitPositionYInView: false,
+          data,
+        });
+        rightClickMenu.removeContextMenuEvent(document.documentElement);
+        domUtils.on($button, "click", (event) => {
+          domUtils.preventEvent(event);
+          const rect = $button.getBoundingClientRect();
+          rightClickMenu.PopsContextMenu.contextMenuEvent(
+            new PointerEvent("contextmenu", {
+              clientX: rect.left + window.scrollX,
+              clientY: rect.top + rect.height + window.scrollY,
+            }),
+            $button
+          );
+        });
+        $meta.appendChild($ownMetaItem);
       });
     },
   };
@@ -4054,12 +4212,12 @@
 			<div class="user-collect-name">${userCollectInfo.name}</div>
 			<div class="user-collect-btn-container">
 			<div class="pops-panel-button collect-add-script-id">
-				<button type="primary" data-icon="" data-righticon="">
+				<button type="button" data-type="primary" data-icon="" data-righticon="">
 				<span>${i18next.t("添加")}</span>
 				</button>
 			</div>
 			<div class="pops-panel-button collect-delete-script-id">
-				<button type="danger" data-icon="" data-righticon="">
+				<button type="button" data-type="danger" data-icon="" data-righticon="">
 				<span>${i18next.t("刪除")}</span>
 				</button>
 			</div>
@@ -6943,24 +7101,24 @@
 				</div>
             `,
         });
-        let scriptInfoElement = liElement.querySelector(".w-script-info");
-        let buttonElement = domUtils.createElement("div", {
+        const $scriptInfo = liElement.querySelector(".w-script-info");
+        const $syncCode = domUtils.createElement("div", {
           className: "pops-panel-button",
           innerHTML: `
-				<button type="primary" data-icon="" data-righticon="false">
-				<span>${i18next.t("同步代码")}</span>
+				<button type="button" data-type="primary" data-icon="" data-righticon="false">
+				  <span>${i18next.t("同步代码")}</span>
 				</button>
 				`,
         });
         if (scriptInfo["deleted"]) {
           liElement.classList.add("w-script-deleted");
-          buttonElement.querySelector("button").setAttribute("disabled", "true");
+          $syncCode.querySelector("button").setAttribute("disabled", "true");
         }
-        domUtils.on(buttonElement, "click", async function () {
+        domUtils.on($syncCode, "click", async function () {
           log.success("同步", scriptInfo);
-          let btn = buttonElement.querySelector("button");
-          let span = buttonElement.querySelector("button span");
-          let iconElement = domUtils.createElement(
+          const $button = $syncCode.querySelector("button");
+          const $span = $syncCode.querySelector("button span");
+          const $icon = domUtils.createElement(
             "i",
             {
               className: "pops-bottom-icon",
@@ -6970,12 +7128,12 @@
               "is-loading": true,
             }
           );
-          btn.setAttribute("disabled", "true");
-          btn.setAttribute("data-icon", "true");
-          span.innerText = i18next.t("同步中...");
-          domUtils.before(span, iconElement);
-          let scriptId = scriptInfo?.["id"];
-          let syncFormDataInfo = await GreasyforkApi.getSourceCodeSyncFormDataInfo(scriptId.toString());
+          $button.setAttribute("disabled", "true");
+          $button.setAttribute("data-icon", "true");
+          $span.innerText = i18next.t("同步中...");
+          domUtils.before($span, $icon);
+          const scriptId = scriptInfo?.["id"];
+          const syncFormDataInfo = await GreasyforkApi.getSourceCodeSyncFormDataInfo(scriptId.toString());
           if (syncFormDataInfo) {
             const { formData: codeSyncFormData, url: syncUrl } = syncFormDataInfo;
             const SCRIPT_SYNC_TYPE_ID_FORMDATA_KEY = "script[script_sync_type_id]";
@@ -6994,12 +7152,12 @@
               } else if (codeSyncFormData.has(SCRIPT_SYNC_TYPE)) {
                 syncMode = codeSyncFormData.get(SCRIPT_SYNC_TYPE);
               }
-              let $oldSyncType = liElement.querySelector(".w-script-sync-type");
+              const $oldSyncType = liElement.querySelector(".w-script-sync-type");
               if ($oldSyncType) {
                 $oldSyncType.querySelector("p").innerText = i18next.t("同步方式：{{syncMode}}", { syncMode });
               } else {
                 domUtils.append(
-                  scriptInfoElement,
+                  $scriptInfo,
                   `
 								<div class="w-script-sync-type">
 									<p>${i18next.t("同步方式：{{syncMode}}", {
@@ -7009,7 +7167,7 @@
 								</div>`
                 );
               }
-              let syncUpdateResponse = await GreasyforkApi.sourceCodeSync(
+              const syncUpdateResponse = await GreasyforkApi.sourceCodeSync(
                 scriptInfo["id"].toString(),
                 codeSyncFormData,
                 syncUrl
@@ -7023,12 +7181,12 @@
               Qmsg.error(i18next.t("该脚本未设置同步信息"));
             }
           }
-          btn.removeAttribute("disabled");
-          btn.removeAttribute("data-icon");
-          span.innerText = i18next.t("同步代码");
-          iconElement.remove();
+          $button.removeAttribute("disabled");
+          $button.removeAttribute("data-icon");
+          $span.innerText = i18next.t("同步代码");
+          $icon.remove();
         });
-        liElement.appendChild(buttonElement);
+        liElement.appendChild($syncCode);
         rightContainerElement.appendChild(liElement);
       }
     },

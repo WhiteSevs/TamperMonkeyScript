@@ -73,26 +73,26 @@ export const PopsPanelUISetting = {
 				</div>
             `,
       });
-      let scriptInfoElement = liElement.querySelector(".w-script-info") as HTMLElement;
-      let buttonElement = DOMUtils.createElement("div", {
+      const $scriptInfo = liElement.querySelector(".w-script-info") as HTMLElement;
+      const $syncCode = DOMUtils.createElement("div", {
         className: "pops-panel-button",
         innerHTML: /*html*/ `
-				<button type="primary" data-icon="" data-righticon="false">
-				<span>${i18next.t("同步代码")}</span>
+				<button type="button" data-type="primary" data-icon="" data-righticon="false">
+				  <span>${i18next.t("同步代码")}</span>
 				</button>
 				`,
       });
       if (scriptInfo["deleted"]) {
         /* 该脚本已给删除 */
         liElement.classList.add("w-script-deleted");
-        buttonElement.querySelector<HTMLButtonElement>("button")!.setAttribute("disabled", "true");
+        $syncCode.querySelector<HTMLButtonElement>("button")!.setAttribute("disabled", "true");
       }
 
-      DOMUtils.on(buttonElement, "click", async function () {
+      DOMUtils.on($syncCode, "click", async function () {
         log.success("同步", scriptInfo);
-        let btn = buttonElement.querySelector("button") as HTMLButtonElement;
-        let span = buttonElement.querySelector("button span") as HTMLSpanElement;
-        let iconElement = DOMUtils.createElement(
+        const $button = $syncCode.querySelector("button") as HTMLButtonElement;
+        const $span = $syncCode.querySelector("button span") as HTMLSpanElement;
+        const $icon = DOMUtils.createElement(
           "i",
           {
             className: "pops-bottom-icon",
@@ -102,12 +102,12 @@ export const PopsPanelUISetting = {
             "is-loading": true,
           }
         );
-        btn.setAttribute("disabled", "true");
-        btn.setAttribute("data-icon", "true");
-        span.innerText = i18next.t("同步中...");
-        DOMUtils.before(span, iconElement);
-        let scriptId = scriptInfo?.["id"];
-        let syncFormDataInfo = await GreasyforkApi.getSourceCodeSyncFormDataInfo(scriptId.toString());
+        $button.setAttribute("disabled", "true");
+        $button.setAttribute("data-icon", "true");
+        $span.innerText = i18next.t("同步中...");
+        DOMUtils.before($span, $icon);
+        const scriptId = scriptInfo?.["id"];
+        const syncFormDataInfo = await GreasyforkApi.getSourceCodeSyncFormDataInfo(scriptId.toString());
         if (syncFormDataInfo) {
           const { formData: codeSyncFormData, url: syncUrl } = syncFormDataInfo;
           const SCRIPT_SYNC_TYPE_ID_FORMDATA_KEY = "script[script_sync_type_id]";
@@ -132,12 +132,12 @@ export const PopsPanelUISetting = {
               // 新版本直接是 script[sync_type]
               syncMode = codeSyncFormData.get(SCRIPT_SYNC_TYPE) as string;
             }
-            let $oldSyncType = liElement.querySelector<HTMLLIElement>(".w-script-sync-type")!;
+            const $oldSyncType = liElement.querySelector<HTMLLIElement>(".w-script-sync-type")!;
             if ($oldSyncType) {
               $oldSyncType.querySelector("p")!.innerText = i18next.t("同步方式：{{syncMode}}", { syncMode });
             } else {
               DOMUtils.append(
-                scriptInfoElement,
+                $scriptInfo,
                 /*html*/ `
 								<div class="w-script-sync-type">
 									<p>${i18next.t("同步方式：{{syncMode}}", {
@@ -147,7 +147,7 @@ export const PopsPanelUISetting = {
 								</div>`
               );
             }
-            let syncUpdateResponse = await GreasyforkApi.sourceCodeSync(
+            const syncUpdateResponse = await GreasyforkApi.sourceCodeSync(
               scriptInfo["id"].toString(),
               codeSyncFormData,
               syncUrl
@@ -162,12 +162,12 @@ export const PopsPanelUISetting = {
           }
         }
 
-        btn.removeAttribute("disabled");
-        btn.removeAttribute("data-icon");
-        span.innerText = i18next.t("同步代码");
-        iconElement.remove();
+        $button.removeAttribute("disabled");
+        $button.removeAttribute("data-icon");
+        $span.innerText = i18next.t("同步代码");
+        $icon.remove();
       });
-      liElement.appendChild(buttonElement);
+      liElement.appendChild($syncCode);
       rightContainerElement.appendChild(liElement);
     }
   },
