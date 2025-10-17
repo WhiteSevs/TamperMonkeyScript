@@ -25,7 +25,7 @@
   "dependencies": {
     "@mgdn/bvid": "^0.3.0",
     "@whitesev/data-paging": "^0.0.3",
-    "@whitesev/domutils": "^1.7.3",
+    "@whitesev/domutils": "^1.7.4",
     "@whitesev/pops": "^2.5.4",
     "@whitesev/utils": "^2.9.3",
     "artplayer": "^5.3.0",
