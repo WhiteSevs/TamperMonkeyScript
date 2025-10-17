@@ -18,15 +18,17 @@ type HookEventListenerHandler<T> = (
  * @returns
  * + void 不做处理
  * + false 阻止执行
+ * + Function 替换原有的fn
  */
-type HookSetTimeoutHandler = (fn: Function, timeout: number | undefined) => false | void;
+type HookSetTimeoutHandler = (fn: Function, timeout: number | undefined) => false | void | Function;
 
 /**
  * @returns
  * + void 不做处理
  * + false 阻止执行
+ * + Function 替换原有的fn
  */
-type HookSetIntervalHandler = (fn: Function, intervalTime: number | undefined) => false | void;
+type HookSetIntervalHandler = (fn: Function, intervalTime: number | undefined) => false | void | Function;
 
 type HookFunctionApplyHandler = {
   /**
@@ -148,7 +150,7 @@ export const Hook = {
   },
   /**
    * 劫持 document.addEventListener
-   * @param handler
+   * @param handler 如果返回Function类型，则替换为返回的函数，如果返回false，则劫持监听的回调函数
    */
   document_addEventListener(handler: HookEventListenerHandler<Document>) {
     this.$data.document_addEventListener.push(handler);
@@ -159,7 +161,7 @@ export const Hook = {
     }
     const that = this;
     /** 存储回调函数 */
-    let weakMap = new WeakMap<
+    const weakMap = new WeakMap<
       Function,
       {
         eventName: string;
@@ -172,13 +174,13 @@ export const Hook = {
     const originRemoveEventListener = unsafeWindow.document.removeEventListener;
     unsafeWindow.document.addEventListener = function (this: Document, ...args: any[]) {
       /** 目标元素 */
-      let target = this;
+      const target = this;
       /** 事件名 */
-      let eventName = args[0] as string;
+      const eventName = args[0] as string;
       /** 回调函数 */
-      let listener = args[1] as Function;
+      const listener = args[1] as Function;
       /** 监听配置 */
-      let options = args[2] as boolean | AddEventListenerOptions | undefined;
+      const options = args[2] as boolean | AddEventListenerOptions | undefined;
 
       for (let index = 0; index < that.$data.document_addEventListener.length; index++) {
         const callback = that.$data.document_addEventListener[index];
@@ -199,11 +201,11 @@ export const Hook = {
     };
     unsafeWindow.document.removeEventListener = function (this: HTMLElement, ...args: any[]) {
       /** 事件名 */
-      let eventName = args[0] as string;
+      const eventName = args[0] as string;
       /** 回调函数 */
-      let listener = args[1] as Function;
+      const listener = args[1] as Function;
       /** 监听配置 */
-      let options = args[2] as boolean | EventListenerOptions | undefined;
+      const options = args[2] as boolean | EventListenerOptions | undefined;
       if (weakMap.has(listener)) {
         const { eventName: __eventName__, fn: __listener__, options: __options__ } = weakMap.get(listener)!;
         let flag = false;
@@ -229,7 +231,7 @@ export const Hook = {
   },
   /**
    * 劫持 Element.property.addEventListener
-   * @param handler
+   * @param handler 如果返回Function类型，则替换为返回的函数，如果返回false，则劫持监听的回调函数
    */
   element_addEventListener(handler: HookEventListenerHandler<Element>) {
     this.$data.element_addEventListener.push(handler);
@@ -241,7 +243,7 @@ export const Hook = {
     const that = this;
 
     /** 存储回调函数 */
-    let weakMap = new WeakMap<
+    const weakMap = new WeakMap<
       Function,
       {
         eventName: string;
@@ -254,13 +256,13 @@ export const Hook = {
     const originRemoveEventListener = unsafeWindow.Element.prototype.removeEventListener;
     unsafeWindow.Element.prototype.addEventListener = function (this: HTMLElement, ...args: any[]) {
       /** 目标元素 */
-      let target = this;
+      const target = this;
       /** 事件名 */
-      let eventName = args[0] as string;
+      const eventName = args[0] as string;
       /** 回调函数 */
-      let listener = args[1] as Function;
+      const listener = args[1] as Function;
       /** 监听配置 */
-      let options = args[2] as boolean | AddEventListenerOptions | undefined;
+      const options = args[2] as boolean | AddEventListenerOptions | undefined;
 
       for (let index = 0; index < that.$data.element_addEventListener.length; index++) {
         const callback = that.$data.element_addEventListener[index];
@@ -281,11 +283,11 @@ export const Hook = {
     };
     unsafeWindow.Element.prototype.removeEventListener = function (this: HTMLElement, ...args: any[]) {
       /** 事件名 */
-      let eventName = args[0] as string;
+      const eventName = args[0] as string;
       /** 回调函数 */
-      let listener = args[1] as Function;
+      const listener = args[1] as Function;
       /** 监听配置 */
-      let options = args[2] as boolean | EventListenerOptions | undefined;
+      const options = args[2] as boolean | EventListenerOptions | undefined;
       if (weakMap.has(listener)) {
         const { eventName: __eventName__, fn: __listener__, options: __options__ } = weakMap.get(listener)!;
         let flag = false;
@@ -321,16 +323,19 @@ export const Hook = {
       return;
     }
     const that = this;
-    let originSetTimeout = unsafeWindow.setTimeout;
-    // @ts-ignore
+    const originSetTimeout = unsafeWindow.setTimeout;
     unsafeWindow.setTimeout = function (this: any, ...args: any[]): any {
-      let fn = args[0];
-      let timeout = args[1];
+      const fn = args[0];
+      const timeout = args[1];
       for (let index = 0; index < that.$data.setTimeout.length; index++) {
         const item = that.$data.setTimeout[index];
         const result = item(fn, timeout);
         if (typeof result === "boolean" && !result) {
           return;
+        }
+        if (typeof result === "function") {
+          args[0] = result;
+          break;
         }
       }
       return Reflect.apply(originSetTimeout, this, args);
@@ -347,15 +352,19 @@ export const Hook = {
       return;
     }
     const that = this;
-    let originSetInterval = unsafeWindow.setInterval;
+    const originSetInterval = unsafeWindow.setInterval;
     unsafeWindow.setInterval = function (this: any, ...args: any[]): any {
-      let fn = args[0];
-      let timeout = args[1];
+      const fn = args[0];
+      const timeout = args[1];
       for (let index = 0; index < that.$data.setInterval.length; index++) {
         const item = that.$data.setInterval[index];
         const result = item(fn, timeout);
         if (typeof result === "boolean" && !result) {
           return;
+        }
+        if (typeof result === "function") {
+          args[0] = result;
+          break;
         }
       }
       return Reflect.apply(originSetInterval, this, args);
@@ -372,15 +381,15 @@ export const Hook = {
       return;
     }
     const that = this;
-    let originApply = unsafeWindow.Function.prototype.apply;
+    const originApply = unsafeWindow.Function.prototype.apply;
     unsafeWindow.Function.prototype.apply = function (...args: [thisArg: any, argArray?: any]): any {
-      let thisArg = args[0];
-      let argArray = args[1] as any[];
+      const thisArg = args[0];
+      const argArray = args[1] as any[];
       let fn = this;
       for (let index = 0; index < that.$data.function_apply.length; index++) {
-        let item = that.$data.function_apply[index];
+        const item = that.$data.function_apply[index];
         if (typeof item.paramsHandler === "function") {
-          let handlerResult = item.paramsHandler(fn, thisArg, argArray);
+          const handlerResult = item.paramsHandler(fn, thisArg, argArray);
           if (handlerResult != null) {
             if (handlerResult.args) {
               args[0] = handlerResult.args.thisArg;
@@ -399,7 +408,7 @@ export const Hook = {
       }
       let result = originApply.call(fn, ...args);
       for (let index = 0; index < that.$data.function_apply.length; index++) {
-        let item = that.$data.function_apply[index];
+        const item = that.$data.function_apply[index];
         if (typeof item.returnsHandler === "function") {
           let handlerResult = item.returnsHandler(fn, args[0], args[1], result);
           result = handlerResult.result;
@@ -419,15 +428,15 @@ export const Hook = {
       return;
     }
     const that = this;
-    let originCall = unsafeWindow.Function.prototype.call;
+    const originCall = unsafeWindow.Function.prototype.call;
     unsafeWindow.Function.prototype.call = function (...args: [thisArg: any, ...argArray: any[]]) {
-      let thisArg = args[0];
-      let argArray = args.slice(1);
+      const thisArg = args[0];
+      const argArray = args.slice(1);
       let fn = this;
       for (let index = 0; index < that.$data.function_call.length; index++) {
-        let item = that.$data.function_call[index];
+        const item = that.$data.function_call[index];
         if (typeof item.paramsHandler === "function") {
-          let handlerResult = item.paramsHandler(fn, thisArg, argArray);
+          const handlerResult = item.paramsHandler(fn, thisArg, argArray);
           if (handlerResult != null) {
             if (handlerResult.args) {
               args[0] = handlerResult.args.thisArg;
@@ -446,9 +455,9 @@ export const Hook = {
       }
       let result = originCall.apply(fn, args);
       for (let index = 0; index < that.$data.function_call.length; index++) {
-        let item = that.$data.function_call[index];
+        const item = that.$data.function_call[index];
         if (typeof item.returnsHandler === "function") {
-          let handlerResult = item.returnsHandler(fn, args[0], args[1], result);
+          const handlerResult = item.returnsHandler(fn, args[0], args[1], result);
           result = handlerResult.result;
         }
       }
@@ -466,11 +475,11 @@ export const Hook = {
       return;
     }
     const that = this;
-    let originDefineProperty = unsafeWindow.Object.defineProperty;
+    const originDefineProperty = unsafeWindow.Object.defineProperty;
     unsafeWindow.Object.defineProperty = function (this: any, ...args: any[]): any {
-      let target = args[0];
-      let key = args[1];
-      let attributes = args[2];
+      const target = args[0];
+      const key = args[1];
+      const attributes = args[2];
       for (let index = 0; index < that.$data.defineProperty.length; index++) {
         const item = that.$data.defineProperty[index];
         const result = item(target, key, attributes);
