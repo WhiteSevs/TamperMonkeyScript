@@ -126,10 +126,11 @@ export const DouYinVideoPlayerShortCut = {
               vertical: Math.round(verticalPercentage * 100) / 100,
             };
           }
-          const $videos = $$<HTMLVideoElement>("video[src]");
+          const $videos = $$<HTMLVideoElement>("video");
           const videosInViewData = $videos
             .map(($video) => {
-              if (utils.isNull($video.src)) return;
+              // 忽略没有媒体资源的video标签
+              if (utils.isNull($video.src) && utils.isNull($video.currentSrc)) return;
               // 计算在可视区域内占据的百分比
               const visiblePercent = getElementVisiblePercentage($video);
               if (visiblePercent.percentage <= 0) return;
