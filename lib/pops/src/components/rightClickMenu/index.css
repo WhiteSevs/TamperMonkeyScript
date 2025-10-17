@@ -30,6 +30,9 @@
   -webkit-backdrop-filter: var(--pops-right-context-backdrop-filter);
   backdrop-filter: var(--pops-right-context-backdrop-filter);
 }
+.pops-rightClickMenu[data-position="absolute"] {
+  position: absolute;
+}
 /* scale动画 */
 .pops-rightClickMenu-anim-scale {
   transition:

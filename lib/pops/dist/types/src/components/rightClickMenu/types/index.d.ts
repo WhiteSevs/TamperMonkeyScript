@@ -30,7 +30,7 @@ export interface PopsRightClickMenuDataDetails {
      * + false 不关闭菜单
      *
      */
-    callback?: (clickEvent: PointerEvent, contextMenuEvent: PointerEvent, liElement: HTMLLIElement, menuListenerRootNode: HTMLElement) => boolean | void | Promise<boolean | void>;
+    callback?: (clickEvent: PointerEvent, contextMenuEvent: PointerEvent, liElement: HTMLLIElement, menuListenerRootNode: NonNullable<PopsRightClickMenuDetails["target"]>) => boolean | void | Promise<boolean | void>;
     /**
      * 子项配置
      */
@@ -47,8 +47,14 @@ export interface PopsRightClickMenuDetails extends Pick<PopsCommonConfig, "useSh
     target?: HTMLElement | Window | EventTarget | Node;
     /**
      * 目标的子元素选择器，默认为空
+     * @default null
      */
     targetSelector?: string | null;
+    /**
+     * 位置
+     * @default "fixed"
+     */
+    position?: "absolute" | "fixed";
     /**
      * 右键菜单数据
      */
@@ -87,4 +93,14 @@ export interface PopsRightClickMenuDetails extends Pick<PopsCommonConfig, "useSh
      * @default false
      */
     preventDefault?: boolean;
+    /**
+     * 限制x位置在当前视窗内
+     * @default true
+     */
+    limitPositionXInView?: boolean;
+    /**
+     * 限制y位置在当前视窗内
+     * @default true
+     */
+    limitPositionYInView?: boolean;
 }

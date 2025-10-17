@@ -5,6 +5,7 @@ export const rightClickMenuConfig = (): DeepRequired<PopsRightClickMenuDetails> 
   return {
     target: document.documentElement,
     targetSelector: null,
+    position: "fixed",
     data: [
       {
         icon: PopsIcon.getIcon("search")!,
@@ -94,5 +95,7 @@ export const rightClickMenuConfig = (): DeepRequired<PopsRightClickMenuDetails> 
     preventDefault: true,
     style: null,
     beforeAppendToPageCallBack() {},
+    limitPositionXInView: true,
+    limitPositionYInView: true,
   };
 };

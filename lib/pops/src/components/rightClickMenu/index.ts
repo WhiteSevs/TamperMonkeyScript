@@ -47,7 +47,7 @@ export const PopsRightClickMenu = {
     ]);
 
     if (config.style != null) {
-      const cssNode = popsDOMUtils.createElement(
+      const $css = popsDOMUtils.createElement(
         "style",
         {
           innerHTML: config.style,
@@ -56,7 +56,7 @@ export const PopsRightClickMenu = {
           type: "text/css",
         }
       );
-      $shadowRoot.appendChild(cssNode);
+      $shadowRoot.appendChild($css);
     }
 
     const PopsContextMenu = {
@@ -132,7 +132,7 @@ export const PopsRightClickMenu = {
        * @param event
        * @param selectorTarget
        */
-      contextMenuEvent(event: PointerEvent, selectorTarget: HTMLElement) {
+      contextMenuEvent(event: PointerEvent, selectorTarget: NonNullable<PopsRightClickMenuDetails["target"]>) {
         if (config.preventDefault) {
           popsDOMUtils.preventEvent(event);
         }
@@ -140,6 +140,7 @@ export const PopsRightClickMenu = {
         if (PopsContextMenu.rootElement) {
           PopsContextMenu.closeAllMenu(PopsContextMenu.rootElement);
         }
+        selectorTarget = selectorTarget ?? config.target;
         const rootElement = PopsContextMenu.showMenu(event, config.data, selectorTarget);
         PopsContextMenu.rootElement = rootElement;
         if (config.only) {
@@ -186,7 +187,6 @@ export const PopsRightClickMenu = {
           });
           $menu.remove();
         };
-        popsDOMUtils.containsClassName;
         if (popsDOMUtils.containsClassName($menu, `pops-${popsType}-anim-show`)) {
           /* 有动画 */
           popsDOMUtils.on($menu, popsDOMUtils.getTransitionEndNameList(), transitionEndEvent, {
@@ -233,10 +233,16 @@ export const PopsRightClickMenu = {
        * @param isChildren 是否是rightClickMenu的某一项的子菜单
        */
       createMenuContainerElement(isChildren: boolean) {
-        const $menu = popsDOMUtils.createElement("div", {
-          className: `pops-${popsType}`,
-          innerHTML: /*html*/ `<ul class="pops-${popsType}-wrapper"></ul>`,
-        });
+        const $menu = popsDOMUtils.createElement(
+          "div",
+          {
+            className: `pops-${popsType}`,
+            innerHTML: /*html*/ `<ul class="pops-${popsType}-wrapper"></ul>`,
+          },
+          {
+            "data-position": config.position,
+          }
+        );
         const zIndex = this.getMenuZIndex();
         if (zIndex > 10000) {
           $menu.style.zIndex = zIndex.toString();
@@ -287,8 +293,13 @@ export const PopsRightClickMenu = {
          * 限制的间隙距离
          */
         const limitDistance = 1;
-        const maxPageLeftOffset = popsDOMUtils.width(globalThis) - limitDistance;
-        const maxPageTopOffset = popsDOMUtils.height(globalThis) - limitDistance;
+        let maxPageLeftOffset = popsDOMUtils.width(globalThis) - limitDistance;
+        let maxPageTopOffset = popsDOMUtils.height(globalThis) - limitDistance;
+        if (config.position === "absolute") {
+          // 添加滚动距离
+          maxPageLeftOffset += globalThis.scrollX;
+          maxPageTopOffset += globalThis.scrollY;
+        }
         /* left最大偏移 */
         const maxLeftOffset = maxPageLeftOffset - menuElementWidth;
         /* top最大偏移 */
@@ -299,8 +310,10 @@ export const PopsRightClickMenu = {
         let currentLeftOffset = mousePosition.x;
         let currentTopOffset = mousePosition.y;
         currentLeftOffset = currentLeftOffset < 0 ? 0 : currentLeftOffset;
+        currentTopOffset = currentTopOffset < 0 ? 0 : currentTopOffset;
+
         // 不允许超出left最大值
-        if (currentLeftOffset + chileMenuLeftOrRightDistance >= maxLeftOffset) {
+        if (config.limitPositionXInView && currentLeftOffset + chileMenuLeftOrRightDistance >= maxLeftOffset) {
           // 超过，那么子菜单将会在放在左边
           // 偏移计算方式就是父菜单的右偏移+父菜单的宽度
           if (parentInfo) {
@@ -326,8 +339,7 @@ export const PopsRightClickMenu = {
           Reflect.deleteProperty(result, "right");
         }
         // 不允许超出top最大值
-        currentTopOffset = currentTopOffset < 0 ? 0 : currentTopOffset;
-        if (currentTopOffset + childMenuTopOrBottomDistance >= maxTopOffset) {
+        if (config.limitPositionYInView && currentTopOffset + childMenuTopOrBottomDistance >= maxTopOffset) {
           // 超过，那么子菜单将会在放在上面
           if (parentInfo) {
             // 以项的top偏移为基准
@@ -347,6 +359,7 @@ export const PopsRightClickMenu = {
           Reflect.deleteProperty(result, "top");
         } else {
           currentTopOffset = currentTopOffset + childMenuTopOrBottomDistance;
+          // 底部偏移
           result.top = currentTopOffset;
           Reflect.deleteProperty(result, "bottom");
         }
@@ -358,7 +371,11 @@ export const PopsRightClickMenu = {
        * @param _config_
        * @param menuListenerRootNode 右键菜单监听的元素
        */
-      showMenu(menuEvent: PointerEvent, _config_: PopsRightClickMenuDataDetails[], menuListenerRootNode: HTMLElement) {
+      showMenu(
+        menuEvent: PointerEvent,
+        _config_: PopsRightClickMenuDataDetails[],
+        menuListenerRootNode: NonNullable<PopsRightClickMenuDetails["target"]>
+      ) {
         const menuElement = this.createMenuContainerElement(false);
         Reflect.set(menuElement, "__menuData__", {
           child: [],
@@ -395,7 +412,7 @@ export const PopsRightClickMenu = {
         _config_: PopsRightClickMenuDataDetails[],
         rootElement: HTMLDivElement,
         targetLiElement: HTMLLIElement,
-        menuListenerRootNode: HTMLElement
+        menuListenerRootNode: NonNullable<PopsRightClickMenuDetails["target"]>
       ) {
         const menuElement = this.createMenuContainerElement(true);
         Reflect.set(menuElement, "__menuData__", {
@@ -467,7 +484,7 @@ export const PopsRightClickMenu = {
         rootElement: HTMLDivElement,
         menuElement: HTMLDivElement,
         _config_: PopsRightClickMenuDataDetails[],
-        menuListenerRootNode: HTMLElement
+        menuListenerRootNode: NonNullable<PopsRightClickMenuDetails["target"]>
       ) {
         const menuEventTarget = menuEvent.target;
         const menuULElement = menuElement.querySelector<HTMLUListElement>("ul")!;
@@ -592,11 +609,26 @@ export const PopsRightClickMenu = {
     PopsContextMenu.addWindowCheckClickListener();
     return {
       guid: guid,
-      config: config,
-      removeWindowCheckClickListener: PopsContextMenu.removeWindowCheckClickListener,
+      config: config as DeepRequired<PopsRightClickMenuDetails>,
       addWindowCheckClickListener: PopsContextMenu.addWindowCheckClickListener,
-      removeContextMenuEvent: PopsContextMenu.removeContextMenuEvent,
+      removeWindowCheckClickListener: PopsContextMenu.removeWindowCheckClickListener,
       addContextMenuEvent: PopsContextMenu.addContextMenuEvent,
+      removeContextMenuEvent: PopsContextMenu.removeContextMenuEvent,
+      /**
+       * 移除初始化时的添加的监听事件
+       */
+      removeInitEventListener: {
+        contextMenu() {
+          PopsContextMenu.removeContextMenuEvent(config.target as Window, config.targetSelector!);
+        },
+        windowClick() {
+          PopsContextMenu.removeWindowCheckClickListener();
+        },
+      },
+      /**
+       * 操作弹出菜单的对象
+       */
+      PopsContextMenu: PopsContextMenu,
     };
   },
 };
