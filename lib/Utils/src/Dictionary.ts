@@ -1,11 +1,47 @@
 export class UtilsDictionary<K, V> {
   private items: Map<K, V>;
+  /**
+   * @example
+   * new utils.Dictionary();
+   * @example
+   * new utils.Dictionary(1, 2);
+   * @example
+   * new utils.Dictionary([1, 2], [3, 4], [5, 6]);
+   * @example
+   * new utils.Dictionary({1:2, 3:4, "5":"6"});
+   */
   constructor();
+  constructor(dataList: [key: K, value: V][]);
+  constructor(data: { [key: string | symbol]: V });
   constructor(key: K, value: V);
-  constructor(key?: K, value?: V) {
+  constructor(...args: any[]) {
     this.items = new Map();
-    if (key != null) {
-      this.set(key, value!);
+    if (args.length === 1) {
+      // 数组|对象
+      const data = args[0];
+      if (Array.isArray(data)) {
+        // 数组
+        // [[1,2], [3,4], ...]
+        for (let index = 0; index < data.length; index++) {
+          const item = data[index];
+          if (Array.isArray(item)) {
+            const [key, value] = item;
+            this.set(key, value);
+          }
+        }
+      } else if (typeof data === "object" && data != null) {
+        // 对象
+        // {1:2, 3:4}
+        for (const key in data) {
+          if (Reflect.has(data, key)) {
+            this.set(key as K, data[key] as V);
+          }
+        }
+      }
+    } else if (args.length === 2) {
+      // 键、值
+      const [key, value] = args;
+      this.set(key, value);
     }
   }
   /**
@@ -20,7 +56,7 @@ export class UtilsDictionary<K, V> {
   get entries() {
     const that = this;
     return function* (): IterableIterator<[K, V]> {
-      const itemKeys = Object.keys(that.getItems());
+      const itemKeys = that.keys();
       for (const keyName of itemKeys) {
         yield [keyName as K, that.get(keyName as K) as V];
       }
@@ -57,7 +93,7 @@ export class UtilsDictionary<K, V> {
    */
   set(key: K, val: V): void {
     if (key === void 0) {
-      throw new Error("Utils.Dictionary().set 参数 key 不能为空");
+      throw new Error("Utils.Dictionary().set 参数 key 不能为undefined");
     }
     this.items.set(key, val);
   }

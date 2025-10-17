@@ -1,6 +1,20 @@
 export declare class UtilsDictionary<K, V> {
     private items;
+    /**
+     * @example
+     * new utils.Dictionary();
+     * @example
+     * new utils.Dictionary(1, 2);
+     * @example
+     * new utils.Dictionary([1, 2], [3, 4], [5, 6]);
+     * @example
+     * new utils.Dictionary({1:2, 3:4, "5":"6"});
+     */
     constructor();
+    constructor(dataList: [key: K, value: V][]);
+    constructor(data: {
+        [key: string | symbol]: V;
+    });
     constructor(key: K, value: V);
     /**
      * 获取字典的长度，同this.size
