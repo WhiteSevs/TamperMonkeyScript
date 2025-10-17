@@ -16,13 +16,15 @@ import { CommonUtil } from "./../utils/CommonUtil";
 import Qmsg from "qmsg";
 import type { PopsPanelDeepMenuDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-deepMenu";
 
-type ExecMenuCallBackOption = {
+export type ExecMenuCallBackOption<T = any> = {
   /**
    * 当前菜单项的值
    *
    * 如果queryKey|key是string[]，那么value也是对应的string[]
+   * @example
+   * 例如：[key1, key2]，这时候值为：[value1, value2]
    */
-  value: any;
+  value: T;
   /**
    * 主动添加元素|销毁函数，一般用于异步函数主动使用
    * @example
@@ -36,7 +38,7 @@ type ExecMenuCallBackOption = {
    */
   addStoreValue: (...args: ExecMenuResult) => void;
 };
-type ExecMenuResultInst = {
+export type ExecMenuResultInst = {
   /**
    * 样式元素
    */
@@ -46,7 +48,7 @@ type ExecMenuResultInst = {
    */
   destory?: () => void;
 };
-type OnceExecMenuStoreData = {
+export type OnceExecMenuStoreData = {
   /**
    * 重载菜单执行
    *
@@ -85,7 +87,7 @@ type OnceExecMenuStoreData = {
    */
   clearOnceExecMenuData: () => void;
 };
-type ExecMenuResult =
+export type ExecMenuResult =
   | ExecMenuResultInst
   | Element
   | null
@@ -94,7 +96,7 @@ type ExecMenuResult =
   | (Element | undefined | null | (() => void))[]
   | any
   | any[];
-type UrlChangeWithExecMenuOnceEventConfig = {
+export type UrlChangeWithExecMenuOnceEventConfig = {
   /** 当前url */
   url: string;
   /** 更新前的url */
@@ -404,9 +406,9 @@ const Panel = {
    * + true （默认）只执行一次，且会监听键的值改变
    * + false 不会监听键的值改变
    */
-  async exec(
+  async exec<T = any>(
     queryKey: string | string[] | (() => string | string[]),
-    callback: (option: ExecMenuCallBackOption) => ExecMenuResult,
+    callback: (option: ExecMenuCallBackOption<T>) => ExecMenuResult,
     checkExec?: (
       /** 键名列表 */
       keyList: string[]
@@ -577,9 +579,9 @@ const Panel = {
       const execFlag = checkMenuExec();
       if (execFlag) {
         // 开启，执行回调
-        const valueList = keyList.map((key) => this.getValue(key));
+        const valueList = keyList.map((key) => this.getValue<T>(key));
         const callbackResult: ExecMenuResult = await callback({
-          value: isArrayKey ? valueList : valueList[0],
+          value: (isArrayKey ? valueList : valueList[0]) as T,
           addStoreValue: (...args: any[]) => {
             return addStoreValueCallback(true, args);
           },
@@ -642,13 +644,13 @@ const Panel = {
    * @param isReverse 逆反判断菜单启用，默认false
    * @param once 是否是只执行一次，默认false
    */
-  async execMenu(
+  async execMenu<T = any>(
     key: string | string[],
-    callback: (option: ExecMenuCallBackOption) => ExecMenuResult,
+    callback: (option: ExecMenuCallBackOption<T>) => ExecMenuResult,
     isReverse: boolean = false,
     once: boolean = false
   ) {
-    return await this.exec(
+    return await this.exec<T>(
       key,
       (option) => {
         return callback(option);
@@ -680,13 +682,13 @@ const Panel = {
    * @param isReverse 逆反判断菜单启用，默认false
    * @param listenUrlChange 监听url改变，重载菜单执行，默认为false，注意，如果用此函数执行了监听Router改变，请设置该值false，否则会反复触发
    */
-  async execMenuOnce(
+  async execMenuOnce<T = any>(
     key: string | string[],
-    callback: (option: ExecMenuCallBackOption) => ExecMenuResult,
+    callback: (option: ExecMenuCallBackOption<T>) => ExecMenuResult,
     isReverse: boolean = false,
     listenUrlChange: boolean = false
   ) {
-    const result = await this.execMenu(key, callback, isReverse, true);
+    const result = await this.execMenu<T>(key, callback, isReverse, true);
     if (listenUrlChange) {
       if (result) {
         // result可能是新的返回值或者是旧的存储的返回值
