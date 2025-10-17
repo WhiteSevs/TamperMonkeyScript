@@ -346,12 +346,12 @@ declare class DOMUtils extends ElementHandler {
     before($el: DOMUtilsTargetElementType, content: HTMLElement | string): void;
     /**
      * 移除元素
-     * @param $el 目标元素
+     * @param $el 目标元素，可以是数组、单个元素、NodeList、元素选择器
      * @example
-     * // 元素a.xx前面添加一个元素
      * DOMUtils.remove(document.querySelector("a.xx"))
      * DOMUtils.remove(document.querySelectorAll("a.xx"))
      * DOMUtils.remove("a.xx")
+     * DOMUtils.remove([a.xxx, div.xxx, span.xxx])
      * */
     remove($el: DOMUtilsTargetElementType | Element): void;
     /**

@@ -667,8 +667,8 @@ class ElementEvent extends ElementAnimate {
    * console.log("文档加载完毕");
    * > "文档加载完毕"
    */
-  ready(): void;
-  ready(callback: (...args: any[]) => any): Promise<void>;
+  ready(): Promise<void>;
+  ready(callback: (...args: any[]) => any): void;
   ready(...args: any[]): void | Promise<void> {
     const callback: ((...args: any[]) => any) | undefined = args[0];
     // 异步回调
