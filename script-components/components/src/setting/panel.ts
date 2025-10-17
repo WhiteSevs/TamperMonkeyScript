@@ -94,7 +94,12 @@ type ExecMenuResult =
   | (Element | undefined | null | (() => void))[]
   | any
   | any[];
-
+type UrlChangeWithExecMenuOnceEventConfig = {
+  /** 当前url */
+  url: string;
+  /** 更新前的url */
+  beforeUrl: string;
+};
 /**
  * 面板
  */
@@ -106,7 +111,10 @@ const Panel = {
     /** @private */
     __onceExecMenuData: null as UtilsDictionary<string, OnceExecMenuStoreData> | null,
     /** @private */
-    __urlChangeReloadMenuExecOnce: null as UtilsDictionary<string, Function> | null,
+    __urlChangeReloadMenuExecOnce: null as UtilsDictionary<
+      string,
+      (config?: UrlChangeWithExecMenuOnceEventConfig) => IPromise<void>
+    > | null,
     /** @private */
     __onceExecData: null as UtilsDictionary<string, number> | null,
     /** @private */
@@ -396,7 +404,7 @@ const Panel = {
    * + true （默认）只执行一次，且会监听键的值改变
    * + false 不会监听键的值改变
    */
-  exec(
+  async exec(
     queryKey: string | string[] | (() => string | string[]),
     callback: (option: ExecMenuCallBackOption) => ExecMenuResult,
     checkExec?: (
@@ -560,7 +568,7 @@ const Panel = {
     /**
      * 值改变触发的回调
      */
-    const valueChangeCallback = (
+    const valueChangeCallback = async (
       /**
        * 值改变的参数
        */
@@ -570,7 +578,7 @@ const Panel = {
       if (execFlag) {
         // 开启，执行回调
         const valueList = keyList.map((key) => this.getValue(key));
-        const callbackResult: ExecMenuResult = callback({
+        const callbackResult: ExecMenuResult = await callback({
           value: isArrayKey ? valueList : valueList[0],
           addStoreValue: (...args: any[]) => {
             return addStoreValueCallback(true, args);
@@ -594,7 +602,7 @@ const Panel = {
         });
         listenerIdList.push(listenerId);
       });
-    valueChangeCallback();
+    await valueChangeCallback();
 
     const result: OnceExecMenuStoreData = {
       reload() {
@@ -634,13 +642,13 @@ const Panel = {
    * @param isReverse 逆反判断菜单启用，默认false
    * @param once 是否是只执行一次，默认false
    */
-  execMenu(
+  async execMenu(
     key: string | string[],
     callback: (option: ExecMenuCallBackOption) => ExecMenuResult,
-    isReverse = false,
+    isReverse: boolean = false,
     once: boolean = false
   ) {
-    return this.exec(
+    return await this.exec(
       key,
       (option) => {
         return callback(option);
@@ -672,13 +680,13 @@ const Panel = {
    * @param isReverse 逆反判断菜单启用，默认false
    * @param listenUrlChange 监听url改变，重载菜单执行，默认为false，注意，如果用此函数执行了监听Router改变，请设置该值false，否则会反复触发
    */
-  execMenuOnce(
+  async execMenuOnce(
     key: string | string[],
     callback: (option: ExecMenuCallBackOption) => ExecMenuResult,
-    isReverse = false,
+    isReverse: boolean = false,
     listenUrlChange: boolean = false
   ) {
-    const result = this.execMenu(key, callback, isReverse, true);
+    const result = await this.execMenu(key, callback, isReverse, true);
     if (listenUrlChange) {
       if (result) {
         // result可能是新的返回值或者是旧的存储的返回值
@@ -762,10 +770,11 @@ const Panel = {
    * 主动触发url改变的监听
    * @param config 配置
    */
-  triggerUrlChangeWithExecMenuOnceEvent(config?: { url: string; beforeUrl: string }) {
-    this.$data.urlChangeReloadMenuExecOnce.forEach((callback, key) => {
-      callback(config);
-    });
+  async triggerUrlChangeWithExecMenuOnceEvent(config?: UrlChangeWithExecMenuOnceEventConfig) {
+    const values = this.$data.urlChangeReloadMenuExecOnce.values();
+    for (const callback of values) {
+      await callback(config);
+    }
   },
   /**
    * 显示设置面板
