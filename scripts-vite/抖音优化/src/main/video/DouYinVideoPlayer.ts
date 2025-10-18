@@ -656,7 +656,8 @@ export const DouYinVideoPlayer = {
       }
       const reactFiber = parentReactFilber || basePlayerContainerReactFiber;
       try {
-        const awemeInfo = reactFiber?.return?.memoizedProps?.awemeInfo;
+        const awemeInfo =
+          reactFiber?.return?.memoizedProps?.awemeInfo || reactFiber?.return?.memoizedProps?.xgplayerConfig?.awemeInfo;
         if (!awemeInfo) {
           log.error([$click, reactFiber]);
           Qmsg.error("获取awemeInfo属性失败");
@@ -983,16 +984,14 @@ export const DouYinVideoPlayer = {
       // 单个视频
       'div[data-e2e="video-detail"] .positionBox',
     ]);
-    return [
+    result.push(
       addStyle(/*css*/ `
 			.positionBox{
 				transition: opacity 0.5s;
 			}
-		  `),
-      ,
-      result.$style,
-      result.destory,
-    ];
+		  `)
+    );
+    return result;
   },
   /**
    * 手势返回关闭评论区

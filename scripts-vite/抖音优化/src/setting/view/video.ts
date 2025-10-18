@@ -526,6 +526,25 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
             },
           ],
         },
+        {
+          type: "deepMenu",
+          text: "布局屏蔽-直播",
+          afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
+          forms: [
+            {
+              type: "forms",
+              text: AutoOpenOrClose.text,
+              forms: [
+                UISwitch(
+                  "【屏蔽】点击或按<code>F</code>进入直播间",
+                  "dy-video-live-block-tipClickOrKeyboardFEnterLiveRoom",
+                  false
+                ),
+                UISwitch("【屏蔽】小黄车", "dy-video-live-block-yellowCar", false),
+              ],
+            },
+          ],
+        },
       ],
     },
   ],

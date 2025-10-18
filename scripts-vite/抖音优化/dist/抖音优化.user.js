@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.17.19
+// @version      2025.10.18
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -710,7 +710,7 @@
       PopsPanelStorageApi.set(key, value);
     },
     getValue(key, defaultValue) {
-      let localValue = PopsPanelStorageApi.get(key);
+      const localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
         if (this.$data.contentConfigInitDefaultValue.has(key)) {
           return this.$data.contentConfigInitDefaultValue.get(key);
@@ -776,16 +776,20 @@
           resultValueList = resultValueList.concat(args);
         } else {
           if (typeof args === "object" && args != null) {
-            const { $css, destory } = args;
-            if ($css != null) {
-              if (Array.isArray($css)) {
-                resultValueList = resultValueList.concat($css);
-              } else {
-                resultValueList.push($css);
+            if (args instanceof Element) {
+              resultValueList.push(args);
+            } else {
+              const { $css, destory } = args;
+              if ($css != null) {
+                if (Array.isArray($css)) {
+                  resultValueList = resultValueList.concat($css);
+                } else {
+                  resultValueList.push($css);
+                }
               }
-            }
-            if (typeof destory === "function") {
-              resultValueList.push(destory);
+              if (typeof destory === "function") {
+                resultValueList.push(destory);
+              }
             }
           } else {
             resultValueList.push(args);
@@ -897,8 +901,8 @@
     async execMenu(key, callback, isReverse = false, once = false) {
       return await this.exec(
         key,
-        (option) => {
-          return callback(option);
+        async (option) => {
+          return await callback(option);
         },
         (keyList) => {
           const execFlag = keyList.every((__key__) => {
@@ -3288,6 +3292,34 @@
       ];
     },
   };
+  const DouYinVideoBlock_Live = {
+    init() {
+      Panel.execMenuOnce("dy-video-live-block-tipClickOrKeyboardFEnterLiveRoom", () => {
+        return this.tipClickOrKeyboardFEnterLiveRoom();
+      });
+      Panel.execMenuOnce("dy-video-live-block-yellowCar", () => {
+        return this.blockYellowCar();
+      });
+    },
+    tipClickOrKeyboardFEnterLiveRoom() {
+      log.info(`【屏蔽】点击或按F进入直播间`);
+      return [
+        CommonUtil.addBlockCSS(
+          '[data-e2e="feed-live"] .douyin-player > a',
+          '.search-result-card [data-e2e="basicPlayer"] > a[href]'
+        ),
+      ];
+    },
+    blockYellowCar() {
+      log.info("【屏蔽】小黄车");
+      return [
+        CommonUtil.addBlockCSS(
+          '[data-e2e="feed-live"] .douyin-player > div:has([data-e2e="yellowCart-container"])',
+          '.search-result-card [data-e2e="basicPlayer"] > div:has([data-e2e="yellowCart-container"])'
+        ),
+      ];
+    },
+  };
   const DouYinVideoBlock = {
     init() {
       Panel.execMenuOnce("shieldRightExpandCommentButton", () => {
@@ -3316,6 +3348,7 @@
       DouYinVideoBlock_BottomToolbar_PlayerComponents.init();
       DouYinVideoBlock_RightToolbar.init();
       DouYinVideoBlock_Comment.init();
+      DouYinVideoBlock_Live.init();
     },
     shieldRightExpandCommentButton() {
       log.info("【屏蔽】右侧的展开评论按钮");
@@ -3751,7 +3784,8 @@
             const $videos = $$("video");
             const videosInViewData = $videos
               .map(($video2) => {
-                if (utils.isNull($video2.src) && utils.isNull($video2.currentSrc)) return;
+                if (utils.isNull($video2.src) && utils.isNull($video2.currentSrc) && utils.isNull($video2.srcObject))
+                  return;
                 const visiblePercent = getElementVisiblePercentage($video2);
                 if (visiblePercent.percentage <= 0) return;
                 return {
@@ -3969,7 +4003,7 @@
     let opacityShowAttrName = "data-opacity-show";
     let opacityHideAttrName = "data-opacity-hide";
     let delayTime = () => Panel.getValue(delayTimeKey);
-    let styleCSS = (__delayTime__ = delayTime()) => {
+    const styleCSS = (__delayTime__ = delayTime()) => {
       if (__delayTime__ === 0) {
         return `
             ${selectors.join(",")}{
@@ -3995,11 +4029,11 @@
             `;
       }
     };
-    let $style = addStyle(styleCSS());
-    let listenerId = Panel.addValueChangeListener(delayTimeKey, (key, oldValue, newValue) => {
+    const $style = addStyle(styleCSS());
+    const listenerId = Panel.addValueChangeListener(delayTimeKey, (key, oldValue, newValue) => {
       domUtils.html($style, styleCSS(newValue));
     });
-    let lockFn = new utils.LockFunction(() => {
+    const lockFn = new utils.LockFunction(() => {
       selectors.forEach((selector) => {
         let $el = $(`${selector}:not([${isInjectAttrName}])`);
         if (!$el) {
@@ -4030,7 +4064,7 @@
         }
       });
     });
-    let observer = utils.mutationObserver(document, {
+    const observer = utils.mutationObserver(document, {
       config: {
         subtree: true,
         childList: true,
@@ -4040,14 +4074,13 @@
         lockFn.run();
       },
     });
-    return {
-      destory() {
-        $style.remove();
+    return [
+      () => {
         Panel.removeValueChangeListener(listenerId);
         observer?.disconnect();
       },
       $style,
-    };
+    ];
   };
   const ReactUtils = {
     async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
@@ -4642,7 +4675,9 @@
         }
         const reactFiber = parentReactFilber || basePlayerContainerReactFiber;
         try {
-          const awemeInfo = reactFiber?.return?.memoizedProps?.awemeInfo;
+          const awemeInfo =
+            reactFiber?.return?.memoizedProps?.awemeInfo ||
+            reactFiber?.return?.memoizedProps?.xgplayerConfig?.awemeInfo;
           if (!awemeInfo) {
             log.error([$click, reactFiber]);
             Qmsg.error("获取awemeInfo属性失败");
@@ -4897,18 +4932,16 @@
         '#slideMode[data-e2e="feed-active-video"] .positionBox',
         'div[data-e2e="video-detail"] .positionBox',
       ]);
-      return [
+      result.push(
         addStyle(
           `
 			.positionBox{
 				transition: opacity 0.5s;
 			}
 		  `
-        ),
-        ,
-        result.$style,
-        result.destory,
-      ];
+        )
+      );
+      return result;
     },
     gestureBackCloseComment() {
       log.info(`手势返回关闭评论区`);
@@ -10793,6 +10826,25 @@
                     void 0,
                     "在评论区的顶部出现"
                   ),
+                ],
+              },
+            ],
+          },
+          {
+            type: "deepMenu",
+            text: "布局屏蔽-直播",
+            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
+            forms: [
+              {
+                type: "forms",
+                text: AutoOpenOrClose.text,
+                forms: [
+                  UISwitch(
+                    "【屏蔽】点击或按<code>F</code>进入直播间",
+                    "dy-video-live-block-tipClickOrKeyboardFEnterLiveRoom",
+                    false
+                  ),
+                  UISwitch("【屏蔽】小黄车", "dy-video-live-block-yellowCar", false),
                 ],
               },
             ],

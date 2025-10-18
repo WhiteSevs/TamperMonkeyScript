@@ -130,7 +130,7 @@ export const DouYinVideoPlayerShortCut = {
           const videosInViewData = $videos
             .map(($video) => {
               // 忽略没有媒体资源的video标签
-              if (utils.isNull($video.src) && utils.isNull($video.currentSrc)) return;
+              if (utils.isNull($video.src) && utils.isNull($video.currentSrc) && utils.isNull($video.srcObject)) return;
               // 计算在可视区域内占据的百分比
               const visiblePercent = getElementVisiblePercentage($video);
               if (visiblePercent.percentage <= 0) return;

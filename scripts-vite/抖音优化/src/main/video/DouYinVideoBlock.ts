@@ -463,6 +463,42 @@ export const DouYinVideoBlock_RightToolbar = {
     ];
   },
 };
+export const DouYinVideoBlock_Live = {
+  init() {
+    Panel.execMenuOnce("dy-video-live-block-tipClickOrKeyboardFEnterLiveRoom", () => {
+      return this.tipClickOrKeyboardFEnterLiveRoom();
+    });
+    Panel.execMenuOnce("dy-video-live-block-yellowCar", () => {
+      return this.blockYellowCar();
+    });
+  },
+  /**
+   * 【屏蔽】点击或按F进入直播间
+   */
+  tipClickOrKeyboardFEnterLiveRoom() {
+    log.info(`【屏蔽】点击或按F进入直播间`);
+    return [
+      CommonUtil.addBlockCSS(
+        '[data-e2e="feed-live"] .douyin-player > a',
+        // 搜索页面的
+        '.search-result-card [data-e2e="basicPlayer"] > a[href]'
+      ),
+    ];
+  },
+  /**
+   * 【屏蔽】小黄车
+   */
+  blockYellowCar() {
+    log.info("【屏蔽】小黄车");
+    return [
+      CommonUtil.addBlockCSS(
+        '[data-e2e="feed-live"] .douyin-player > div:has([data-e2e="yellowCart-container"])',
+        // 搜索页面的
+        '.search-result-card [data-e2e="basicPlayer"] > div:has([data-e2e="yellowCart-container"])'
+      ),
+    ];
+  },
+};
 /**
  * 总屏蔽
  */
@@ -494,6 +530,7 @@ export const DouYinVideoBlock = {
     DouYinVideoBlock_BottomToolbar_PlayerComponents.init();
     DouYinVideoBlock_RightToolbar.init();
     DouYinVideoBlock_Comment.init();
+    DouYinVideoBlock_Live.init();
   },
   /**
    * 【屏蔽】右侧的展开评论按钮

@@ -12,7 +12,7 @@ export const DouYinVideoElementAutoHide = (delayTimeKey: string, selectors: stri
   let opacityHideAttrName = "data-opacity-hide";
   let delayTime = () => Panel.getValue<number>(delayTimeKey);
 
-  let styleCSS = (__delayTime__ = delayTime()) => {
+  const styleCSS = (__delayTime__ = delayTime()) => {
     if (__delayTime__ === 0) {
       // 默认隐藏
       return /*css*/ `
@@ -41,11 +41,11 @@ export const DouYinVideoElementAutoHide = (delayTimeKey: string, selectors: stri
             `;
     }
   };
-  let $style = addStyle(styleCSS());
-  let listenerId = Panel.addValueChangeListener(delayTimeKey, (key, oldValue, newValue) => {
+  const $style = addStyle(styleCSS());
+  const listenerId = Panel.addValueChangeListener(delayTimeKey, (key, oldValue, newValue) => {
     DOMUtils.html($style, styleCSS(newValue));
   });
-  let lockFn = new utils.LockFunction(() => {
+  const lockFn = new utils.LockFunction(() => {
     /** 视频信息列表 */
     selectors.forEach((selector) => {
       let $el = $<HTMLElement>(`${selector}:not([${isInjectAttrName}])`);
@@ -85,7 +85,7 @@ export const DouYinVideoElementAutoHide = (delayTimeKey: string, selectors: stri
       }
     });
   });
-  let observer = utils.mutationObserver(document, {
+  const observer = utils.mutationObserver(document, {
     config: {
       subtree: true,
       childList: true,
@@ -96,12 +96,11 @@ export const DouYinVideoElementAutoHide = (delayTimeKey: string, selectors: stri
     },
   });
 
-  return {
-    destory() {
-      $style.remove();
+  return [
+    () => {
       Panel.removeValueChangeListener(listenerId);
       observer?.disconnect();
     },
     $style,
-  };
+  ];
 };
