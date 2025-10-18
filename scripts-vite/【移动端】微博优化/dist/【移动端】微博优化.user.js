@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.14
+// @version      2025.10.18
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -13,9 +13,9 @@
 // @match        *://card.weibo.com/*
 // @match        *://weibo.com/l/wblive/m/show/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @connect      m.weibo.cn
 // @connect      www.weibo.com
@@ -839,7 +839,7 @@
       PopsPanelStorageApi.set(key, value);
     },
     getValue(key, defaultValue) {
-      let localValue = PopsPanelStorageApi.get(key);
+      const localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
         if (this.$data.contentConfigInitDefaultValue.has(key)) {
           return this.$data.contentConfigInitDefaultValue.get(key);
@@ -866,7 +866,7 @@
     triggerMenuValueChange(key, newValue, oldValue) {
       PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
     },
-    exec(queryKey, callback, checkExec, once = true) {
+    async exec(queryKey, callback, checkExec, once = true) {
       const that = this;
       let queryKeyFn;
       if (typeof queryKey === "string" || Array.isArray(queryKey)) {
@@ -905,16 +905,20 @@
           resultValueList = resultValueList.concat(args);
         } else {
           if (typeof args === "object" && args != null) {
-            const { $css, destory } = args;
-            if ($css != null) {
-              if (Array.isArray($css)) {
-                resultValueList = resultValueList.concat($css);
-              } else {
-                resultValueList.push($css);
+            if (args instanceof Element) {
+              resultValueList.push(args);
+            } else {
+              const { $css, destory } = args;
+              if ($css != null) {
+                if (Array.isArray($css)) {
+                  resultValueList = resultValueList.concat($css);
+                } else {
+                  resultValueList.push($css);
+                }
               }
-            }
-            if (typeof destory === "function") {
-              resultValueList.push(destory);
+              if (typeof destory === "function") {
+                resultValueList.push(destory);
+              }
             }
           } else {
             resultValueList.push(args);
@@ -970,11 +974,11 @@
         }
         return flag;
       };
-      const valueChangeCallback = (valueOption) => {
+      const valueChangeCallback = async (valueOption) => {
         const execFlag = checkMenuExec();
         if (execFlag) {
           const valueList = keyList.map((key) => this.getValue(key));
-          const callbackResult = callback({
+          const callbackResult = await callback({
             value: isArrayKey ? valueList : valueList[0],
             addStoreValue: (...args) => {
               return addStoreValueCallback(true, args);
@@ -992,9 +996,11 @@
           });
           listenerIdList.push(listenerId);
         });
-      valueChangeCallback();
+      await valueChangeCallback();
       const result = {
         reload() {
+          this.clearStoreStyleElements();
+          this.destory();
           valueChangeCallback();
         },
         clear() {
@@ -1021,11 +1027,11 @@
       this.$data.onceExecMenuData.set(storageKey, result);
       return result;
     },
-    execMenu(key, callback, isReverse = false, once = false) {
-      return this.exec(
+    async execMenu(key, callback, isReverse = false, once = false) {
+      return await this.exec(
         key,
-        (option) => {
-          return callback(option);
+        async (option) => {
+          return await callback(option);
         },
         (keyList) => {
           const execFlag = keyList.every((__key__) => {
@@ -1043,8 +1049,8 @@
         once
       );
     },
-    execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
-      const result = this.execMenu(key, callback, isReverse, true);
+    async execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
+      const result = await this.execMenu(key, callback, isReverse, true);
       if (listenUrlChange) {
         if (result) {
           const urlChangeEvent = () => {
@@ -1052,11 +1058,6 @@
           };
           this.removeUrlChangeWithExecMenuOnceListener(key);
           this.addUrlChangeWithExecMenuOnceListener(key, urlChangeEvent);
-          const originClear = result.clear;
-          result.clear = () => {
-            originClear();
-            this.removeUrlChangeWithExecMenuOnceListener(key);
-          };
         }
       }
       return result;
@@ -1091,10 +1092,15 @@
       key = this.transformKey(key);
       this.$data.urlChangeReloadMenuExecOnce.delete(key);
     },
-    triggerUrlChangeWithExecMenuOnceEvent(config) {
-      this.$data.urlChangeReloadMenuExecOnce.forEach((callback, key) => {
-        callback(config);
-      });
+    hasUrlChangeWithExecMenuOnceListener(key) {
+      key = this.transformKey(key);
+      return this.$data.urlChangeReloadMenuExecOnce.has(key);
+    },
+    async triggerUrlChangeWithExecMenuOnceEvent(config) {
+      const values = this.$data.urlChangeReloadMenuExecOnce.values();
+      for (const callback of values) {
+        await callback(config);
+      }
     },
     showPanel(
       content,
