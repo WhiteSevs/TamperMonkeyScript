@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2025.10.17
+// @version            2025.10.18
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -906,7 +906,7 @@
       PopsPanelStorageApi.set(key, value);
     },
     getValue(key, defaultValue) {
-      let localValue = PopsPanelStorageApi.get(key);
+      const localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
         if (this.$data.contentConfigInitDefaultValue.has(key)) {
           return this.$data.contentConfigInitDefaultValue.get(key);
@@ -972,16 +972,20 @@
           resultValueList = resultValueList.concat(args);
         } else {
           if (typeof args === "object" && args != null) {
-            const { $css, destory } = args;
-            if ($css != null) {
-              if (Array.isArray($css)) {
-                resultValueList = resultValueList.concat($css);
-              } else {
-                resultValueList.push($css);
+            if (args instanceof Element) {
+              resultValueList.push(args);
+            } else {
+              const { $css, destory } = args;
+              if ($css != null) {
+                if (Array.isArray($css)) {
+                  resultValueList = resultValueList.concat($css);
+                } else {
+                  resultValueList.push($css);
+                }
               }
-            }
-            if (typeof destory === "function") {
-              resultValueList.push(destory);
+              if (typeof destory === "function") {
+                resultValueList.push(destory);
+              }
             }
           } else {
             resultValueList.push(args);
@@ -1093,8 +1097,8 @@
     async execMenu(key, callback, isReverse = false, once = false) {
       return await this.exec(
         key,
-        (option) => {
-          return callback(option);
+        async (option) => {
+          return await callback(option);
         },
         (keyList) => {
           const execFlag = keyList.every((__key__) => {
