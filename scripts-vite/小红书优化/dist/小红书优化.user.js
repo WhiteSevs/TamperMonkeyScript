@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.10
+// @version      2025.10.18
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -9,9 +9,9 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://www.xiaohongshu.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
@@ -730,7 +730,7 @@
       PopsPanelStorageApi.set(key, value);
     },
     getValue(key, defaultValue) {
-      let localValue = PopsPanelStorageApi.get(key);
+      const localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
         if (this.$data.contentConfigInitDefaultValue.has(key)) {
           return this.$data.contentConfigInitDefaultValue.get(key);
@@ -746,7 +746,7 @@
       return PopsPanelStorageApi.has(key);
     },
     addValueChangeListener(key, callback) {
-      let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
+      const listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
         callback(key, __oldValue, __newValue);
       });
       return listenerId;
@@ -757,7 +757,7 @@
     triggerMenuValueChange(key, newValue, oldValue) {
       PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
     },
-    exec(queryKey, callback, checkExec, once = true) {
+    async exec(queryKey, callback, checkExec, once = true) {
       const that = this;
       let queryKeyFn;
       if (typeof queryKey === "string" || Array.isArray(queryKey)) {
@@ -796,16 +796,20 @@
           resultValueList = resultValueList.concat(args);
         } else {
           if (typeof args === "object" && args != null) {
-            const { $css, destory } = args;
-            if ($css != null) {
-              if (Array.isArray($css)) {
-                resultValueList = resultValueList.concat($css);
-              } else {
-                resultValueList.push($css);
+            if (args instanceof Element) {
+              resultValueList.push(args);
+            } else {
+              const { $css, destory } = args;
+              if ($css != null) {
+                if (Array.isArray($css)) {
+                  resultValueList = resultValueList.concat($css);
+                } else {
+                  resultValueList.push($css);
+                }
               }
-            }
-            if (typeof destory === "function") {
-              resultValueList.push(destory);
+              if (typeof destory === "function") {
+                resultValueList.push(destory);
+              }
             }
           } else {
             resultValueList.push(args);
@@ -861,11 +865,11 @@
         }
         return flag;
       };
-      const valueChangeCallback = (valueOption) => {
+      const valueChangeCallback = async (valueOption) => {
         const execFlag = checkMenuExec();
         if (execFlag) {
           const valueList = keyList.map((key) => this.getValue(key));
-          const callbackResult = callback({
+          const callbackResult = await callback({
             value: isArrayKey ? valueList : valueList[0],
             addStoreValue: (...args) => {
               return addStoreValueCallback(true, args);
@@ -879,13 +883,15 @@
       once &&
         keyList.forEach((key) => {
           const listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
-            valueChangeCallback();
+            return valueChangeCallback();
           });
           listenerIdList.push(listenerId);
         });
-      valueChangeCallback();
+      await valueChangeCallback();
       const result = {
         reload() {
+          this.clearStoreStyleElements();
+          this.destory();
           valueChangeCallback();
         },
         clear() {
@@ -912,11 +918,11 @@
       this.$data.onceExecMenuData.set(storageKey, result);
       return result;
     },
-    execMenu(key, callback, isReverse = false, once = false) {
-      return this.exec(
+    async execMenu(key, callback, isReverse = false, once = false) {
+      return await this.exec(
         key,
-        (option) => {
-          return callback(option);
+        async (option) => {
+          return await callback(option);
         },
         (keyList) => {
           const execFlag = keyList.every((__key__) => {
@@ -934,8 +940,8 @@
         once
       );
     },
-    execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
-      const result = this.execMenu(key, callback, isReverse, true);
+    async execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
+      const result = await this.execMenu(key, callback, isReverse, true);
       if (listenUrlChange) {
         if (result) {
           const urlChangeEvent = () => {
@@ -943,11 +949,6 @@
           };
           this.removeUrlChangeWithExecMenuOnceListener(key);
           this.addUrlChangeWithExecMenuOnceListener(key, urlChangeEvent);
-          const originClear = result.clear;
-          result.clear = () => {
-            originClear();
-            this.removeUrlChangeWithExecMenuOnceListener(key);
-          };
         }
       }
       return result;
@@ -956,7 +957,7 @@
       key = this.transformKey(key);
       this.$data.onceExecMenuData.delete(key);
       this.$data.urlChangeReloadMenuExecOnce.delete(key);
-      let flag = PopsPanelStorageApi.removeValueChangeListener(key);
+      const flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
     onceExec(key, callback) {
@@ -982,10 +983,15 @@
       key = this.transformKey(key);
       this.$data.urlChangeReloadMenuExecOnce.delete(key);
     },
-    triggerUrlChangeWithExecMenuOnceEvent(config) {
-      this.$data.urlChangeReloadMenuExecOnce.forEach((callback, key) => {
-        callback(config);
-      });
+    hasUrlChangeWithExecMenuOnceListener(key) {
+      key = this.transformKey(key);
+      return this.$data.urlChangeReloadMenuExecOnce.has(key);
+    },
+    async triggerUrlChangeWithExecMenuOnceEvent(config) {
+      const values = this.$data.urlChangeReloadMenuExecOnce.values();
+      for (const callback of values) {
+        await callback(config);
+      }
     },
     showPanel(
       content,
@@ -1710,14 +1716,14 @@
         return;
       }
       const that = this;
-      let weakMap = new WeakMap();
+      const weakMap = new WeakMap();
       const originAddEventListener = _unsafeWindow.document.addEventListener;
       const originRemoveEventListener = _unsafeWindow.document.removeEventListener;
       _unsafeWindow.document.addEventListener = function (...args) {
-        let target = this;
-        let eventName = args[0];
-        let listener = args[1];
-        let options = args[2];
+        const target = this;
+        const eventName = args[0];
+        const listener = args[1];
+        const options = args[2];
         for (let index = 0; index < that.$data.document_addEventListener.length; index++) {
           const callback = that.$data.document_addEventListener[index];
           const result = Reflect.apply(callback, this, [target, eventName, listener, options]);
@@ -1736,9 +1742,9 @@
         return Reflect.apply(originAddEventListener, this, args);
       };
       _unsafeWindow.document.removeEventListener = function (...args) {
-        let eventName = args[0];
-        let listener = args[1];
-        let options = args[2];
+        const eventName = args[0];
+        const listener = args[1];
+        const options = args[2];
         if (weakMap.has(listener)) {
           const { eventName: __eventName__, fn: __listener__, options: __options__ } = weakMap.get(listener);
           let flag = false;
@@ -1769,14 +1775,14 @@
         return;
       }
       const that = this;
-      let weakMap = new WeakMap();
+      const weakMap = new WeakMap();
       const originAddEventListener = _unsafeWindow.Element.prototype.addEventListener;
       const originRemoveEventListener = _unsafeWindow.Element.prototype.removeEventListener;
       _unsafeWindow.Element.prototype.addEventListener = function (...args) {
-        let target = this;
-        let eventName = args[0];
-        let listener = args[1];
-        let options = args[2];
+        const target = this;
+        const eventName = args[0];
+        const listener = args[1];
+        const options = args[2];
         for (let index = 0; index < that.$data.element_addEventListener.length; index++) {
           const callback = that.$data.element_addEventListener[index];
           const result = Reflect.apply(callback, this, [target, eventName, listener, options]);
@@ -1795,9 +1801,9 @@
         return Reflect.apply(originAddEventListener, this, args);
       };
       _unsafeWindow.Element.prototype.removeEventListener = function (...args) {
-        let eventName = args[0];
-        let listener = args[1];
-        let options = args[2];
+        const eventName = args[0];
+        const listener = args[1];
+        const options = args[2];
         if (weakMap.has(listener)) {
           const { eventName: __eventName__, fn: __listener__, options: __options__ } = weakMap.get(listener);
           let flag = false;
@@ -1828,15 +1834,19 @@
         return;
       }
       const that = this;
-      let originSetTimeout = _unsafeWindow.setTimeout;
+      const originSetTimeout = _unsafeWindow.setTimeout;
       _unsafeWindow.setTimeout = function (...args) {
-        let fn = args[0];
-        let timeout = args[1];
+        const fn = args[0];
+        const timeout = args[1];
         for (let index = 0; index < that.$data.setTimeout.length; index++) {
           const item = that.$data.setTimeout[index];
           const result = item(fn, timeout);
           if (typeof result === "boolean" && !result) {
             return;
+          }
+          if (typeof result === "function") {
+            args[0] = result;
+            break;
           }
         }
         return Reflect.apply(originSetTimeout, this, args);
@@ -1849,15 +1859,19 @@
         return;
       }
       const that = this;
-      let originSetInterval = _unsafeWindow.setInterval;
+      const originSetInterval = _unsafeWindow.setInterval;
       _unsafeWindow.setInterval = function (...args) {
-        let fn = args[0];
-        let timeout = args[1];
+        const fn = args[0];
+        const timeout = args[1];
         for (let index = 0; index < that.$data.setInterval.length; index++) {
           const item = that.$data.setInterval[index];
           const result = item(fn, timeout);
           if (typeof result === "boolean" && !result) {
             return;
+          }
+          if (typeof result === "function") {
+            args[0] = result;
+            break;
           }
         }
         return Reflect.apply(originSetInterval, this, args);
@@ -1870,15 +1884,15 @@
         return;
       }
       const that = this;
-      let originApply = _unsafeWindow.Function.prototype.apply;
+      const originApply = _unsafeWindow.Function.prototype.apply;
       _unsafeWindow.Function.prototype.apply = function (...args) {
-        let thisArg = args[0];
-        let argArray = args[1];
+        const thisArg = args[0];
+        const argArray = args[1];
         let fn = this;
         for (let index = 0; index < that.$data.function_apply.length; index++) {
-          let item = that.$data.function_apply[index];
+          const item = that.$data.function_apply[index];
           if (typeof item.paramsHandler === "function") {
-            let handlerResult = item.paramsHandler(fn, thisArg, argArray);
+            const handlerResult = item.paramsHandler(fn, thisArg, argArray);
             if (handlerResult != null) {
               if (handlerResult.args) {
                 args[0] = handlerResult.args.thisArg;
@@ -1897,7 +1911,7 @@
         }
         let result = originApply.call(fn, ...args);
         for (let index = 0; index < that.$data.function_apply.length; index++) {
-          let item = that.$data.function_apply[index];
+          const item = that.$data.function_apply[index];
           if (typeof item.returnsHandler === "function") {
             let handlerResult = item.returnsHandler(fn, args[0], args[1], result);
             result = handlerResult.result;
@@ -1913,15 +1927,15 @@
         return;
       }
       const that = this;
-      let originCall = _unsafeWindow.Function.prototype.call;
+      const originCall = _unsafeWindow.Function.prototype.call;
       _unsafeWindow.Function.prototype.call = function (...args) {
-        let thisArg = args[0];
-        let argArray = args.slice(1);
+        const thisArg = args[0];
+        const argArray = args.slice(1);
         let fn = this;
         for (let index = 0; index < that.$data.function_call.length; index++) {
-          let item = that.$data.function_call[index];
+          const item = that.$data.function_call[index];
           if (typeof item.paramsHandler === "function") {
-            let handlerResult = item.paramsHandler(fn, thisArg, argArray);
+            const handlerResult = item.paramsHandler(fn, thisArg, argArray);
             if (handlerResult != null) {
               if (handlerResult.args) {
                 args[0] = handlerResult.args.thisArg;
@@ -1940,9 +1954,9 @@
         }
         let result = originCall.apply(fn, args);
         for (let index = 0; index < that.$data.function_call.length; index++) {
-          let item = that.$data.function_call[index];
+          const item = that.$data.function_call[index];
           if (typeof item.returnsHandler === "function") {
-            let handlerResult = item.returnsHandler(fn, args[0], args[1], result);
+            const handlerResult = item.returnsHandler(fn, args[0], args[1], result);
             result = handlerResult.result;
           }
         }
@@ -1956,11 +1970,11 @@
         return;
       }
       const that = this;
-      let originDefineProperty = _unsafeWindow.Object.defineProperty;
+      const originDefineProperty = _unsafeWindow.Object.defineProperty;
       _unsafeWindow.Object.defineProperty = function (...args) {
-        let target = args[0];
-        let key = args[1];
-        let attributes = args[2];
+        const target = args[0];
+        const key = args[1];
+        const attributes = args[2];
         for (let index = 0; index < that.$data.defineProperty.length; index++) {
           const item = that.$data.defineProperty[index];
           const result = item(target, key, attributes);
