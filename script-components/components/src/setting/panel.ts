@@ -335,7 +335,7 @@ const Panel = {
    * @param defaultValue 默认值
    */
   getValue<T extends any = boolean | undefined>(key: string, defaultValue?: T): T {
-    let localValue = PopsPanelStorageApi.get<T>(key);
+    const localValue = PopsPanelStorageApi.get<T>(key);
     if (localValue == null) {
       /* 值不存在或值为null/undefined或只有键但无值 */
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
@@ -480,17 +480,22 @@ const Panel = {
       } else {
         // 额外处理ExecMenuResultInst类型
         if (typeof args === "object" && args != null) {
-          const { $css, destory } = args as ExecMenuResultInst;
-          if ($css != null) {
+          if (args instanceof Element) {
             // 元素
-            if (Array.isArray($css)) {
-              resultValueList = resultValueList.concat($css);
-            } else {
-              resultValueList.push($css);
+            resultValueList.push(args);
+          } else {
+            const { $css, destory } = args as ExecMenuResultInst;
+            if ($css != null) {
+              // 元素
+              if (Array.isArray($css)) {
+                resultValueList = resultValueList.concat($css);
+              } else {
+                resultValueList.push($css);
+              }
             }
-          }
-          if (typeof destory === "function") {
-            resultValueList.push(destory);
+            if (typeof destory === "function") {
+              resultValueList.push(destory);
+            }
           }
         } else {
           resultValueList.push(args);
@@ -652,8 +657,8 @@ const Panel = {
   ) {
     return await this.exec<T>(
       key,
-      (option) => {
-        return callback(option);
+      async (option) => {
+        return await callback(option);
       },
       (keyList) => {
         const execFlag = keyList.every((__key__) => {
