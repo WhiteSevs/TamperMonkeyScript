@@ -90,7 +90,7 @@ export const NetDiskViewRightClickMenu = {
             text: "复制",
             icon: "documentCopy",
             callback: function (event, contextMenuEvent, liElement, menuListenerRootNode) {
-              let $link = menuListenerRootNode;
+              let $link = menuListenerRootNode as HTMLElement;
               const { ruleKeyName, ruleIndex, shareCode, accessCode } = NetDiskLinkView.parseBoxAttrRuleInfo($link);
               NetDiskLinkClickMode.copy(ruleKeyName, ruleIndex, shareCode, accessCode);
             },
@@ -99,7 +99,7 @@ export const NetDiskViewRightClickMenu = {
             text: "打开",
             icon: open_svg,
             callback: function (event, contextMenuEvent, liElement, menuListenerRootNode) {
-              let $link = menuListenerRootNode;
+              let $link = menuListenerRootNode as HTMLElement;
               const { ruleKeyName, ruleIndex, shareCode, accessCode } = NetDiskLinkView.parseBoxAttrRuleInfo($link);
               let url = NetDiskLinkClickModeUtils.getBlankUrl({
                 ruleKeyName,
@@ -114,7 +114,7 @@ export const NetDiskViewRightClickMenu = {
             text: "后台打开",
             icon: open_svg,
             callback: function (event, contextMenuEvent, liElement, menuListenerRootNode) {
-              let $link = menuListenerRootNode;
+              let $link = menuListenerRootNode as HTMLElement;
               const { ruleKeyName, ruleIndex, shareCode, accessCode } = NetDiskLinkView.parseBoxAttrRuleInfo($link);
               let url = NetDiskLinkClickModeUtils.getBlankUrl({
                 ruleKeyName,
@@ -138,7 +138,7 @@ export const NetDiskViewRightClickMenu = {
             text: "复制",
             icon: "documentCopy",
             callback(clickEvent, contextMenuEvent, liElement, menuListenerRootNode) {
-              let $link = menuListenerRootNode;
+              let $link = menuListenerRootNode as HTMLElement;
               const { ruleKeyName, ruleIndex, shareCode, accessCode } = NetDiskLinkView.parseBoxAttrRuleInfo($link);
               if (accessCode == null || (typeof accessCode === "string" && accessCode.trim() === "")) {
                 Qmsg.warning("无访问码");
@@ -162,7 +162,7 @@ export const NetDiskViewRightClickMenu = {
             text: "修改",
             icon: `edit`,
             callback: function (event, contextMenuEvent, liElement, menuListenerRootNode) {
-              let $link = menuListenerRootNode;
+              let $link = menuListenerRootNode as HTMLElement;
               const { ruleKeyName, ruleIndex, shareCode, accessCode } = NetDiskLinkView.parseBoxAttrRuleInfo($link);
 
               NetDiskView.$inst.newAccessCodeView(
@@ -226,7 +226,7 @@ export const NetDiskViewRightClickMenu = {
             text: "复制全部",
             icon: "documentCopy",
             callback(clickEvent, contextMenuEvent, liElement, menuListenerRootNode) {
-              let $link = menuListenerRootNode;
+              let $link = menuListenerRootNode as HTMLElement;
               let $boxAll = $link.closest<HTMLElement>(".netdisk-url-box-all")!;
               // 获取全部链接的复制文本
               let copyTextList: string[] = [];
@@ -268,7 +268,7 @@ export const NetDiskViewRightClickMenu = {
           text: "删除当前",
           icon: "delete",
           callback: function (event, contextMenuEvent, liElement, menuListenerRootNode) {
-            let $link = menuListenerRootNode;
+            let $link = menuListenerRootNode as HTMLElement;
             let $box = $link.closest<HTMLElement>(".netdisk-url-box")!;
             const { ruleKeyName, ruleIndex, shareCode, accessCode } = NetDiskLinkView.parseBoxAttrRuleInfo($link);
             let flag = false;
@@ -302,7 +302,7 @@ export const NetDiskViewRightClickMenu = {
           text: "删除所有",
           icon: "delete",
           callback: function (event, contextMenuEvent, liElement, menuListenerRootNode) {
-            let $link = menuListenerRootNode;
+            let $link = menuListenerRootNode as HTMLElement;
             let $boxAll = $link.closest<HTMLElement>(".netdisk-url-box-all")!;
             const { ruleKeyName, ruleIndex, shareCode, accessCode } = NetDiskLinkView.parseBoxAttrRuleInfo($link);
             NetDisk.$match.matchedInfo.forEach((netDiskItem, netDiskKeyName) => {
