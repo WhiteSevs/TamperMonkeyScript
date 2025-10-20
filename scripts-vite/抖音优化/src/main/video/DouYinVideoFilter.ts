@@ -67,8 +67,10 @@ export const DouYinVideoFilter = {
     ENABLE_KEY: "shieldVideo-exec-network-enable",
   },
   $data: {
-    /** 已经过滤的信息 */
-    isFilterAwemeInfoList: new Utils.Dictionary<string, DouYinVideoFilterRule[]>(),
+    /**
+     * 已过滤的视频信息（仅显示被过滤的视频）
+     */
+    isFilterAwemeInfoListWithOnlyShowFilteredVideo: new Utils.Dictionary<string, DouYinVideoFilterRule[]>(),
     /**
      * 网络接口的视频信息字典
      */
@@ -186,9 +188,14 @@ export const DouYinVideoFilter = {
             awemeFilterInfoResult.matchedFilterRule
           ) {
             const filterOptionList: DouYinVideoFilterRule[] =
-              this.$data.isFilterAwemeInfoList.get(awemeFilterInfoResult.transformAwemeInfo.awemeId) || [];
+              this.$data.isFilterAwemeInfoListWithOnlyShowFilteredVideo.get(
+                awemeFilterInfoResult.transformAwemeInfo.awemeId
+              ) || [];
             filterOptionList.push(awemeFilterInfoResult.matchedFilterRule);
-            this.$data.isFilterAwemeInfoList.set(awemeFilterInfoResult.transformAwemeInfo.awemeId, filterOptionList);
+            this.$data.isFilterAwemeInfoListWithOnlyShowFilteredVideo.set(
+              awemeFilterInfoResult.transformAwemeInfo.awemeId,
+              filterOptionList
+            );
           }
         }
         // 添加网络接口的视频信息字典映射
@@ -469,9 +476,17 @@ export const DouYinVideoFilter = {
        */
       let targetFilterOption: DouYinVideoFilterRule[] = [];
       let isHasMatchedRules = false;
-      if (this.$data.isFilterAwemeInfoList.has(transformAwemeInfo.awemeId!)) {
-        // 仅显示被过滤的视频
-        targetFilterOption = targetFilterOption.concat(targetFilterOption);
+      if (
+        this.$data.onlyShowFilteredVideo &&
+        this.$data.isFilterAwemeInfoListWithOnlyShowFilteredVideo.has(transformAwemeInfo.awemeId!)
+      ) {
+        // 已开启 仅显示被过滤的视频
+        // 提取出命中的规则
+        isHasMatchedRules = true;
+        const matchedFilterOption = this.$data.isFilterAwemeInfoListWithOnlyShowFilteredVideo.get(
+          transformAwemeInfo.awemeId!
+        );
+        targetFilterOption = targetFilterOption.concat(matchedFilterOption);
       } else {
         const filterRules = this.getFilterRules();
         const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, true);

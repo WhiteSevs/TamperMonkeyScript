@@ -14,7 +14,8 @@ import { DouYinVideoPlayerBlockMouseHoverTip } from "./DouYinVideoPlayerBlockMou
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { DouYinVideoElementAutoHide } from "./DouYinVideoElementAutoHide";
 import { ReactUtils } from "@components/utils/ReactUtils";
-import type { DouYinVideoAwemeInfo } from "./DouYinVideoType";
+import type { DouYinVideoAwemeInfo, DouYinVideoHandlerInfo } from "./DouYinVideoType";
+import { DouYinVideoFilterBase } from "./DouYinVideoFilterBase";
 
 /**
  * 视频播放器的播放速度
@@ -441,6 +442,11 @@ export const DouYinVideoPlayer = {
       let contentHTML = "";
       info.downloadUrlInfoList.forEach((downloadInfo) => {
         let videoQualityInfo = `${downloadInfo.width}x${downloadInfo.height} @${downloadInfo.fps}`;
+        let downloadFileName = info.downloadFileName;
+        [["{quality}", videoQualityInfo]].forEach(([key, value]) => {
+          downloadFileName = downloadFileName.replace(key, value);
+        });
+        downloadFileName = downloadFileName + "." + downloadInfo.format;
         contentHTML += /*html*/ `
         <div class="douyin-video-link-item">
 					<div class="dy-video-name">
@@ -453,9 +459,7 @@ export const DouYinVideoPlayer = {
 					</div>
 					<div class="dy-video-download-uri">
 						<span>下载地址：</span>
-						<a href="${downloadInfo.url}" data-file-name="${info.downloadFileName} - ${videoQualityInfo}.${
-              downloadInfo.format
-            }">${downloadInfo.url}</a>
+						<a href="${downloadInfo.url}" data-file-name="${downloadFileName}">${downloadInfo.url}</a>
 					</div>
 					${
             downloadInfo.backUrl.length
@@ -465,7 +469,7 @@ export const DouYinVideoPlayer = {
 							${downloadInfo.backUrl
                 .map((url, index) => {
                   return /*html*/ `
-									<a href="${url}" data-file-name="${info.downloadFileName} - ${videoQualityInfo}.${downloadInfo.format}">地址${index + 1}</a>
+									<a href="${url}" data-file-name="${downloadFileName}">地址${index + 1}</a>
 								`;
                 })
                 .join("，")}
@@ -488,7 +492,7 @@ export const DouYinVideoPlayer = {
       </div>
       <div class="douyin-video-link-container">${contentHTML}</div>
       `;
-      let $dialog = pops.alert({
+      const $dialog = pops.alert({
         title: {
           text: "视频解析",
           position: "center",
@@ -558,7 +562,7 @@ export const DouYinVideoPlayer = {
             try {
               return typeof GM_download === "function";
             } catch (error) {
-              console.error(error);
+              log.error(error);
               return false;
             }
           };
@@ -641,6 +645,23 @@ export const DouYinVideoPlayer = {
         }
       );
     }
+    /**
+     * 转换下载的文件名
+     */
+    const transformDownloadFileName = (data: {
+      uid: string;
+      nickname: string;
+      desc: string;
+      downloadTime: string;
+    }): string => {
+      let fileNameTemplate = Panel.getValue<string>("dy-video-parseVideo-downloadFileName");
+      for (const key in data) {
+        if (!Object.hasOwn(data, key)) continue;
+        const value = data[key as keyof typeof data].toString();
+        fileNameTemplate = fileNameTemplate.replace(`{${key}}`, value);
+      }
+      return fileNameTemplate;
+    };
     const callback = ($click: HTMLElement) => {
       if ($click.closest('[data-e2e="feed-live"]')) {
         Qmsg.error("无法解析直播video的下载信息");
@@ -757,13 +778,23 @@ export const DouYinVideoPlayer = {
         });
         // 按视频大小排序（降序）
         utils.sortListByProperty(uniqueVideoDownloadUrlList, (it) => it.width);
-        const nickname = awemeInfo?.authorInfo?.nickname || "未知作者";
-        const desc = awemeInfo?.desc || "未知视频文案";
-        let downloadFileName =
-          (awemeInfo?.authorInfo?.nickname || "未知作者") + " - " + (awemeInfo?.desc || "未知视频文案");
+        const filterBase = new DouYinVideoFilterBase();
+        const transformAwemeInfo = filterBase.parseAwemeInfoDictData(awemeInfo) as Required<DouYinVideoHandlerInfo>;
+        if (transformAwemeInfo.nickname == null) {
+          transformAwemeInfo.nickname = "未知作者";
+        }
+        if (transformAwemeInfo.desc == null) {
+          transformAwemeInfo.desc = "未知视频文案";
+        }
+        const downloadFileName = transformDownloadFileName({
+          uid: transformAwemeInfo.uid,
+          nickname: transformAwemeInfo.nickname,
+          desc: transformAwemeInfo.desc,
+          downloadTime: utils.formatTime(void 0, "yyyy-MM-dd_HH:mm:ss"),
+        });
         showParseInfoDialog({
-          author: nickname,
-          desc,
+          author: transformAwemeInfo.nickname,
+          desc: transformAwemeInfo.desc,
           downloadFileName,
           downloadUrlInfoList: uniqueVideoDownloadUrlList,
         });

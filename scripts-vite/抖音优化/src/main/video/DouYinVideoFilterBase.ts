@@ -605,10 +605,15 @@ export class DouYinVideoFilterBase {
     awemeInfo: DouYinVideoAwemeInfo,
     isQueryAllMatchedFilterRules?: T
   ): Promise<{
+    /** 是否允许过滤 */
     isFilter: boolean;
+    /** 命中的过滤规则 */
     matchedFilterRule: T extends true ? DouYinVideoFilterRule[] : DouYinVideoFilterRule | null;
+    /** 未命中的过滤规则 */
     notMatchedFilterRule: T extends true ? DouYinVideoFilterRule[] : null;
+    /** 解析出的视频信息 */
     transformAwemeInfo: DouYinVideoHandlerInfo;
+    /** 原始视频信息 */
     awemeInfo: DouYinVideoAwemeInfo;
   }> {
     let transformAwemeInfo = this.parseAwemeInfoDictData(awemeInfo);
@@ -702,15 +707,10 @@ export class DouYinVideoFilterBase {
     }
 
     return {
-      /** 是否允许过滤 */
       isFilter: flag,
-      /** 命中的过滤规则 */
       matchedFilterRule: isQueryAllMatchedFilterRules ? (matchedFilterOptionList as any) : matchedFilterOption,
-      /** 未命中的过滤规则 */
       notMatchedFilterRule: isQueryAllMatchedFilterRules ? (notMatchedFilterRule as any) : null,
-      /** 解析出的视频信息 */
       transformAwemeInfo: transformAwemeInfo,
-      /** 原始视频信息 */
       awemeInfo: awemeInfo,
     };
   }

@@ -9,6 +9,7 @@ import { UIButtonShortCut } from "@components/setting/components/ui-button-short
 import { UISlider } from "@components/setting/components/ui-slider";
 import { AutoOpenOrClose } from "../all-open-or-close";
 import { DouYinVideoFilter } from "@/main/video/DouYinVideoFilter";
+import { UIInput } from "@components/setting/components/ui-input";
 
 export const PanelVideoConfig: PopsPanelContentConfig = {
   id: "panel-config-video",
@@ -131,6 +132,11 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   false,
                   void 0,
                   "当点击下载时，如果启用该功能，则弹出下载重命名文件名弹窗，可自定义文件名"
+                ),
+                UIInput(
+                  "自定义下载文件名",
+                  "dy-video-parseVideo-downloadFileName",
+                  "{uid}-{nickname}-{desc}-{quality}-{downloadTime}"
                 ),
               ],
             },

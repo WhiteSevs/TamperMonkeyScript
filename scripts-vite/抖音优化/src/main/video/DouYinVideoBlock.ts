@@ -480,8 +480,10 @@ export const DouYinVideoBlock_Live = {
     return [
       CommonUtil.addBlockCSS(
         '[data-e2e="feed-live"] .douyin-player > a',
+        '[data-e2e="feed-live"] [data-e2e="basicPlayer"] > a',
         // 搜索页面的
-        '.search-result-card [data-e2e="basicPlayer"] > a[href]'
+        '.search-result-card [data-e2e="basicPlayer"] > a[href]',
+        ".search-result-card .douyin-player > a[href]"
       ),
     ];
   },
@@ -493,6 +495,7 @@ export const DouYinVideoBlock_Live = {
     return [
       CommonUtil.addBlockCSS(
         '[data-e2e="feed-live"] .douyin-player > div:has([data-e2e="yellowCart-container"])',
+        '[data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has([data-e2e="yellowCart-container"])',
         // 搜索页面的
         '.search-result-card [data-e2e="basicPlayer"] > div:has([data-e2e="yellowCart-container"])'
       ),
