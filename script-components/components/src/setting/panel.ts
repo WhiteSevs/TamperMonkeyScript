@@ -870,7 +870,7 @@ const Panel = {
       };
       next?: SearchPath;
     };
-    let asyncQueryProperty = async <T extends any = any>(
+    const asyncQueryProperty = async <T extends any = any>(
       target: any,
       handler: (target: T) => IPromise<{
         /**
@@ -889,7 +889,7 @@ const Panel = {
         // @ts-ignore
         return;
       }
-      let handleResult = await handler(target);
+      const handleResult = await handler(target);
       if (handleResult && typeof handleResult.isFind === "boolean" && handleResult.isFind) {
         return handleResult.data;
       }
@@ -898,7 +898,7 @@ const Panel = {
     /**
      * 监听元素滚动进入视窗
      */
-    let scrollToElementAndListen = ($el: Element, callback?: () => void) => {
+    const scrollToElementAndListen = ($el: Element, callback?: () => void) => {
       // 创建 IntersectionObserver 监听元素是否进入视口
       const observer = new IntersectionObserver(
         (entries) => {
@@ -921,7 +921,7 @@ const Panel = {
     /**
      * 添加闪烁样式
      */
-    let addFlashingClass = ($el: Element) => {
+    const addFlashingClass = ($el: Element) => {
       const flashingClassName = "pops-flashing";
       DOMUtils.animationend($el as HTMLElement, () => {
         $el.classList.remove(flashingClassName);
@@ -931,9 +931,14 @@ const Panel = {
     /**
      * 双击触发的事件
      */
-    let dbclick_event = (evt: MouseEvent | PointerEvent | TouchEvent, selectorTarget: HTMLElement) => {
+    const dbclick_callback = (evt: MouseEvent | PointerEvent | TouchEvent) => {
+      if (evt.type === "dblclick" && isMobileTouch) {
+        // 禁止在移动端触发dblclick事件
+        return;
+      }
       DOMUtils.preventEvent(evt);
-      let $alert = pops.alert({
+      clickElement = null;
+      const $alert = pops.alert({
         title: {
           text: "搜索配置",
           position: "center",
@@ -999,22 +1004,22 @@ const Panel = {
 				`,
       });
 
-      let $searchWrapper = $alert.$shadowRoot.querySelector<HTMLElement>(".search-wrapper")!;
-      let $searchInput = $alert.$shadowRoot.querySelector<HTMLInputElement>(".search-config-text")!;
-      let $searchResultWrapper = $alert.$shadowRoot.querySelector<HTMLElement>(".search-result-wrapper")!;
+      const $searchWrapper = $alert.$shadowRoot.querySelector<HTMLElement>(".search-wrapper")!;
+      const $searchInput = $alert.$shadowRoot.querySelector<HTMLInputElement>(".search-config-text")!;
+      const $searchResultWrapper = $alert.$shadowRoot.querySelector<HTMLElement>(".search-result-wrapper")!;
 
       $searchInput.focus();
 
       /**
        * 清空搜索结果
        */
-      let clearSearchResult = () => {
+      const clearSearchResult = () => {
         DOMUtils.empty($searchResultWrapper);
       };
       /**
        * 创建搜索结果项
        */
-      let createSearchResultItem = (pathInfo: SearchPath) => {
+      const createSearchResultItem = (pathInfo: SearchPath) => {
         const searchPath: SearchPath = utils.queryProperty(pathInfo, (target) => {
           if (target?.next) {
             return {
@@ -1028,7 +1033,7 @@ const Panel = {
             };
           }
         });
-        let $item = DOMUtils.createElement("div", {
+        const $item = DOMUtils.createElement("div", {
           className: "search-result-item",
           innerHTML: /*html*/ `
 							<div class="search-result-item-path">${searchPath.matchedData?.path}</div>
@@ -1037,10 +1042,10 @@ const Panel = {
         });
         // 点击进行定位项
         DOMUtils.on($item, "click", (clickItemEvent) => {
-          let $asideItems = $panel.$shadowRoot.querySelectorAll<HTMLLIElement>(
+          const $asideItems = $panel.$shadowRoot.querySelectorAll<HTMLLIElement>(
             "aside.pops-panel-aside .pops-panel-aside-top-container li"
           );
-          let $targetAsideItem = $asideItems[pathInfo.index!];
+          const $targetAsideItem = $asideItems[pathInfo.index!];
           if (!$targetAsideItem) {
             Qmsg.error(`左侧项下标${pathInfo.index}不存在`);
             return;
@@ -1054,7 +1059,7 @@ const Panel = {
             if (target?.next) {
               // 还在里面
               // 那这里的是deepMenu
-              let $findDeepMenu = await DOMUtils.waitNode(() => {
+              const $findDeepMenu = await DOMUtils.waitNode(() => {
                 return Array.from(
                   $panel.$shadowRoot.querySelectorAll<HTMLElement>(".pops-panel-deepMenu-nav-item")
                 ).find(($deepMenu) => {
@@ -1079,7 +1084,7 @@ const Panel = {
                 data: target.next,
               };
             } else {
-              let $findTargetMenu = await DOMUtils.waitNode(() => {
+              const $findTargetMenu = await DOMUtils.waitNode(() => {
                 return Array.from(
                   $panel.$shadowRoot.querySelectorAll<HTMLLIElement>(`li:not(.pops-panel-deepMenu-nav-item)`)
                 ).find(($menuItem) => {
@@ -1089,10 +1094,10 @@ const Panel = {
               }, 2500);
               if ($findTargetMenu) {
                 scrollToElementAndListen($findTargetMenu);
-                let $fold = $findTargetMenu.closest<HTMLElement>(`.pops-panel-forms-fold[data-fold-enable]`);
+                const $fold = $findTargetMenu.closest<HTMLElement>(`.pops-panel-forms-fold[data-fold-enable]`);
                 // 折叠状态
                 if ($fold) {
-                  let $foldWrapper = $fold.querySelector<HTMLElement>(".pops-panel-forms-fold-container")!;
+                  const $foldWrapper = $fold.querySelector<HTMLElement>(".pops-panel-forms-fold-container")!;
                   $foldWrapper.click();
                   await utils.sleep(500);
                 }
@@ -1114,14 +1119,14 @@ const Panel = {
       /**
        * 执行搜索
        */
-      let execSearch = (searchText: string) => {
+      const execSearch = (searchText: string) => {
         const searchTextRegExp = new RegExp(searchText, "i");
         const searchConfigResult: SearchPath[] = [];
         const loopContentConfig = (configList: PopsPanelContentConfig["forms"], path: SearchPath) => {
           for (let index = 0; index < configList.length; index++) {
             const configItem = configList[index];
 
-            let child_forms = (<PopsPanelFormsDetails>configItem).forms;
+            const child_forms = (<PopsPanelFormsDetails>configItem).forms;
             if (child_forms && Array.isArray(child_forms)) {
               /* 存在子配置forms */
               const deepMenuPath = utils.deepClone(path);
@@ -1145,10 +1150,10 @@ const Panel = {
               }
               loopContentConfig(child_forms, deepMenuPath);
             } else {
-              let text = Reflect.get(configItem, "text");
-              let description = Reflect.get(configItem, "description");
+              const text = Reflect.get(configItem, "text");
+              const description = Reflect.get(configItem, "description");
               const delayMatchedTextList = [text, description];
-              let matchedIndex = delayMatchedTextList.findIndex((configText) => {
+              const matchedIndex = delayMatchedTextList.findIndex((configText) => {
                 if (typeof configText !== "string") {
                   return;
                 }
@@ -1229,7 +1234,7 @@ const Panel = {
           }
         }
 
-        let fragment = document.createDocumentFragment();
+        const fragment = document.createDocumentFragment();
         for (const pathInfo of searchConfigResult) {
           let $resultItem = createSearchResultItem(pathInfo);
           fragment.appendChild($resultItem);
@@ -1253,27 +1258,31 @@ const Panel = {
         }, 200)
       );
     };
+    const $asideItems = $panel.$shadowRoot.querySelectorAll<HTMLElement>(
+      `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`
+    );
+    // 为每一项单独监听双击事件
+    $asideItems.forEach(($asideItem) => {
+      DOMUtils.on($asideItem, "dblclick", dbclick_callback);
+    });
     let clickElement: Element | null = null;
     let isDoubleClick = false;
     let timer: number | undefined = void 0;
-    DOMUtils.on(
-      $panel.$shadowRoot,
-      "dblclick",
-      `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`,
-      dbclick_event
-    );
+    /** 是否是移动端点击 */
+    let isMobileTouch = false;
     DOMUtils.on<TouchEvent>(
       $panel.$shadowRoot,
       "touchend",
       `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`,
       (evt, selectorTarget) => {
+        isMobileTouch = true;
         clearTimeout(timer);
         timer = void 0;
         if (isDoubleClick && clickElement === selectorTarget) {
           isDoubleClick = false;
           clickElement = null;
           /* 判定为双击 */
-          dbclick_event(evt, selectorTarget);
+          dbclick_callback(evt);
         } else {
           timer = setTimeout(() => {
             isDoubleClick = false;
