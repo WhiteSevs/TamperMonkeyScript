@@ -379,4 +379,20 @@ export const CommonUtil = {
       return $parent as T;
     }
   },
+  /**
+   * 使用JSON.stringify转字符串
+   *
+   * 会处理undefined
+   */
+  toStr(data: any): string {
+    const undefinedReplacedStr = `__undefined__placeholder__replaced__str__`;
+    const dataStr = JSON.stringify(
+      data,
+      (key, value) => {
+        return value === void 0 ? undefinedReplacedStr : value;
+      },
+      2
+    ).replace(new RegExp(`"${undefinedReplacedStr}"`, "g"), "undefined");
+    return dataStr;
+  },
 };
