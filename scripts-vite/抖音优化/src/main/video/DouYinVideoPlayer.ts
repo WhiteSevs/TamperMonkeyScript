@@ -93,6 +93,9 @@ export const DouYinVideoPlayer = {
       return this.disableRightToolbarTransform();
     });
     DouYinVideoPlayer.chooseQuality(Panel.getValue("chooseVideoDefinition"));
+    Panel.execMenuOnce("dy-video-object-fit", (option) => {
+      return this.objectFit(option.value);
+    });
     DOMUtils.ready(() => {
       DouYinVideoPlayer.chooseQuality(Panel.getValue("chooseVideoDefinition"));
       Panel.execMenuOnce("dy-video-waitToRemovePauseDialog", () => {
@@ -548,17 +551,17 @@ export const DouYinVideoPlayer = {
           `,
       });
       DOMUtils.on(
-        $dialog.popsElement,
+        $dialog.$pops,
         "click",
         "a",
         (event, selectorTarget) => {
           DOMUtils.preventEvent(event);
-          let url = selectorTarget.getAttribute("href")!;
+          const url = selectorTarget.getAttribute("href")!;
           let fileName = selectorTarget.getAttribute("data-file-name")!;
           /**
            * 测试是否支持GM_download
            */
-          let isSupport_GM_download = function () {
+          const isSupport_GM_download = function () {
             try {
               return typeof GM_download === "function";
             } catch (error) {
@@ -1184,6 +1187,20 @@ export const DouYinVideoPlayer = {
 			.basePlayerContainer .positionBox{
 				transform: unset !important;
 			}
+		`);
+  },
+  /**
+   * 自定义video object-fit
+   * @param value
+   */
+  objectFit(value: string) {
+    const allowValue = ["fill", "contain", "cover", "none", "scale-down"];
+    if (!allowValue.includes(value)) return;
+    log.info(`自定义video object-fit`);
+    return addStyle(/*css*/ `
+		.xgplayer video {
+			object-fit: ${value};
+		}
 		`);
   },
 };

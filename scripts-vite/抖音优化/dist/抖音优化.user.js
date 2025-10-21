@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.20
+// @version      2025.10.21
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
@@ -1211,7 +1211,7 @@
       };
       const getMenuValue = (key) => {
         const value = this.getValue(key);
-        return value;
+        return Boolean(value);
       };
       const execClearStoreStyleElements = () => {
         for (let index = 0; index < storeValueList.length; index++) {
@@ -5138,6 +5138,9 @@
         return this.disableRightToolbarTransform();
       });
       DouYinVideoPlayer.chooseQuality(Panel.getValue("chooseVideoDefinition"));
+      Panel.execMenuOnce("dy-video-object-fit", (option) => {
+        return this.objectFit(option.value);
+      });
       domUtils.ready(() => {
         DouYinVideoPlayer.chooseQuality(Panel.getValue("chooseVideoDefinition"));
         Panel.execMenuOnce("dy-video-waitToRemovePauseDialog", () => {
@@ -5474,14 +5477,14 @@
           `,
         });
         domUtils.on(
-          $dialog.popsElement,
+          $dialog.$pops,
           "click",
           "a",
           (event, selectorTarget) => {
             domUtils.preventEvent(event);
-            let url = selectorTarget.getAttribute("href");
+            const url = selectorTarget.getAttribute("href");
             let fileName = selectorTarget.getAttribute("data-file-name");
-            let isSupport_GM_download = function () {
+            const isSupport_GM_download = function () {
               try {
                 return typeof _GM_download === "function";
               } catch (error) {
@@ -6006,6 +6009,18 @@
 			.basePlayerContainer .positionBox{
 				transform: unset !important;
 			}
+		`
+      );
+    },
+    objectFit(value) {
+      const allowValue = ["fill", "contain", "cover", "none", "scale-down"];
+      if (!allowValue.includes(value)) return;
+      log.info(`自定义video object-fit`);
+      return addStyle(
+        `
+		.xgplayer video {
+			object-fit: ${value};
+		}
 		`
       );
     },
@@ -10855,6 +10870,39 @@
                   ),
                   UISwitch("移除video的bottom偏移", "dy-video-removeStyle-bottom", false, void 0, ""),
                   UISwitch("禁用右侧工具栏的transform", "dy-video-disableRightToolbarTransform", false, void 0, ""),
+                  UISelect(
+                    "object-fit",
+                    "dy-video-object-fit",
+                    "",
+                    [
+                      {
+                        text: "默认",
+                        value: "",
+                      },
+                      {
+                        text: "fill（拉伸填满容器）",
+                        value: "fill",
+                      },
+                      {
+                        text: "contain（等比缩放至容器内（可能有留白）",
+                        value: "contain",
+                      },
+                      {
+                        text: "cover（等比填充并裁剪超出部分）",
+                        value: "cover",
+                      },
+                      {
+                        text: "none（原始尺寸）",
+                        value: "none",
+                      },
+                      {
+                        text: "scale-down（根据容器大小选择填充或拉伸）",
+                        value: "scale-down",
+                      },
+                    ],
+                    void 0,
+                    "对video的object-fit属性进行覆盖"
+                  ),
                 ],
               },
               {

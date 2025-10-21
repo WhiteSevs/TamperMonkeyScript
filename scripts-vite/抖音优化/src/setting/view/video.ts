@@ -113,6 +113,39 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                 ),
                 UISwitch("移除video的bottom偏移", "dy-video-removeStyle-bottom", false, void 0, ""),
                 UISwitch("禁用右侧工具栏的transform", "dy-video-disableRightToolbarTransform", false, void 0, ""),
+                UISelect(
+                  "object-fit",
+                  "dy-video-object-fit",
+                  "",
+                  [
+                    {
+                      text: "默认",
+                      value: "",
+                    },
+                    {
+                      text: "fill（拉伸填满容器）",
+                      value: "fill",
+                    },
+                    {
+                      text: "contain（等比缩放至容器内（可能有留白）",
+                      value: "contain",
+                    },
+                    {
+                      text: "cover（等比填充并裁剪超出部分）",
+                      value: "cover",
+                    },
+                    {
+                      text: "none（原始尺寸）",
+                      value: "none",
+                    },
+                    {
+                      text: "scale-down（根据容器大小选择填充或拉伸）",
+                      value: "scale-down",
+                    },
+                  ],
+                  void 0,
+                  "对video的object-fit属性进行覆盖"
+                ),
               ],
             },
             {
