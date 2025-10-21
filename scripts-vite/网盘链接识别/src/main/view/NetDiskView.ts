@@ -1,4 +1,4 @@
-import type { PopsEventDetails } from "@whitesev/pops/dist/types/src/types/event";
+import type { PopsEventConfig } from "@whitesev/pops/dist/types/src/types/event";
 import { NetDiskViewSizeConfig } from "./NetDiskViewSizeConfig";
 import { NetDiskSuspension } from "./suspension/NetDiskSuspensionView";
 import { NetDiskLinkView } from "./link-view/NetDiskLinkView";
@@ -15,15 +15,15 @@ export const NetDiskView = {
     /**
      * 链接弹窗的对象
      */
-    $linkView: void 0 as any as PopsEventDetails,
+    $linkView: void 0 as any as PopsEventConfig,
     /**
      * 历史匹配记录弹窗的对象
      */
-    $historyView: void 0 as any as PopsEventDetails,
+    $historyView: void 0 as any as PopsEventConfig,
     /**
      * 设置弹窗的对象
      */
-    $settingView: void 0 as any as PopsEventDetails,
+    $settingView: void 0 as any as PopsEventConfig,
   },
   $inst: {
     /**

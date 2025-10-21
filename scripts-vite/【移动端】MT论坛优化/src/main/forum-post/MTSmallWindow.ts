@@ -177,7 +177,7 @@ export const MTSmallWindow = {
     let $drag = $drawer.$shadowRoot.querySelector<HTMLElement>(".small-window-drag")!;
     let AnyTouch = pops.config.Utils.AnyTouch();
     let dragNode = new AnyTouch($drag);
-    let smallWidowNode = $drawer.popsElement;
+    let smallWidowNode = $drawer.$pops;
     /* 小窗原始高度 */
     let smallWidowNormalHeight = DOMUtils.height(smallWidowNode);
     dragNode.on("pan", (event) => {

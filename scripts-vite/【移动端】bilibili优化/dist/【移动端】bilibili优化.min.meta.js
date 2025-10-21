@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.18
+// @version      2025.10.21
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -15,7 +15,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/QRCode/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.4/dist/index.umd.min.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.min.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.5/dist/index.umd.min.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.0/dist/index.umd.min.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.min.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
@@ -36,8 +36,10 @@
 // @grant        GM_getResourceText
 // @grant        GM_getValue
 // @grant        GM_info
+// @grant        GM_listValues
 // @grant        GM_registerMenuCommand
 // @grant        GM_setValue
+// @grant        GM_setValues
 // @grant        GM_unregisterMenuCommand
 // @grant        GM_xmlhttpRequest
 // @grant        unsafeWindow

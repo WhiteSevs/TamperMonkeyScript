@@ -1,9 +1,8 @@
 import { DOMUtils, httpx, log, showdown, pops, utils } from "@/env";
-import { PopsCallResult } from "@whitesev/pops/dist/types/src/types/main";
 import Qmsg from "qmsg";
 
 const YiYanChat = {
-  dialogAlias: null as unknown as PopsCallResult,
+  dialogInst: null as unknown as ReturnType<(typeof pops)["alert"]>,
   /** 是否正在进行初始化参数 */
   isIniting: false,
   /** 是否已初始化参数 */
@@ -86,15 +85,15 @@ const YiYanChat = {
    * 显示ChatGPT回答弹窗
    */
   showChatGPTDialog() {
-    if (YiYanChat.dialogAlias != null) {
-      if (!YiYanChat.dialogAlias.popsElement.getClientRects().length) {
-        YiYanChat.dialogAlias.show();
+    if (YiYanChat.dialogInst != null) {
+      if (!YiYanChat.dialogInst.$pops.getClientRects().length) {
+        YiYanChat.dialogInst.show();
       } else {
         log.info("请勿重复打开");
       }
       return;
     }
-    YiYanChat.dialogAlias = pops.alert({
+    YiYanChat.dialogInst = pops.alert({
       title: {
         text: "<p style='width:100%;'>文心一言</p>",
         position: "center",
@@ -274,7 +273,7 @@ const YiYanChat = {
             `,
     });
     YiYanChat.loadCSS("https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown.min.css");
-    let $alertBtn = YiYanChat.dialogAlias.popsElement.querySelector(".pops-alert-btn") as HTMLDivElement;
+    let $alertBtn = YiYanChat.dialogInst.$pops.querySelector(".pops-alert-btn") as HTMLDivElement;
     $alertBtn.innerHTML = /*html*/ `
         <div class="ask-question">
             <textarea class="ask-question-input" placeholder="请输入问题"></textarea>
@@ -290,7 +289,7 @@ const YiYanChat = {
     let $textArea = $alertBtn.querySelector("textarea") as HTMLTextAreaElement;
     let $enterBtn = $alertBtn.querySelector(".pops-alert-btn-ok") as HTMLElement;
     let $clearHistoryBtn = $alertBtn.querySelector(".pops-alert-btn-clear-history") as HTMLElement;
-    let $content = YiYanChat.dialogAlias.popsElement.querySelector(".pops-alert-content") as HTMLDivElement;
+    let $content = YiYanChat.dialogInst.$pops.querySelector(".pops-alert-content") as HTMLDivElement;
     $content.innerHTML = "";
 
     /**
@@ -469,14 +468,14 @@ const YiYanChat = {
    * @param url
    */
   loadCSS(url: string) {
-    YiYanChat.dialogAlias.$shadowRoot.insertBefore(
+    YiYanChat.dialogInst.$shadowRoot.insertBefore(
       DOMUtils.createElement("link", {
         rel: "stylesheet",
         href: url,
         type: "text/css",
         crossOrigin: "anonymous",
       }),
-      YiYanChat.dialogAlias.$shadowRoot.childNodes[0]
+      YiYanChat.dialogInst.$shadowRoot.childNodes[0]
     );
   },
   /**
@@ -618,14 +617,14 @@ const YiYanChat = {
    */
   clearHistoryQuestion() {
     YiYanChat.question.length = 0;
-    let $content = YiYanChat.dialogAlias.$shadowRoot.querySelector(".pops-alert-content") as HTMLElement;
+    let $content = YiYanChat.dialogInst.$shadowRoot.querySelector(".pops-alert-content") as HTMLElement;
     $content.innerHTML = "";
   },
   /**
    * 滚动到内容容器的底部
    */
   scrollToContentContainerEnd() {
-    let $contentElement = YiYanChat.dialogAlias.popsElement.querySelector(".pops-alert-content") as HTMLElement;
+    let $contentElement = YiYanChat.dialogInst.$pops.querySelector(".pops-alert-content") as HTMLElement;
     $contentElement.scrollTo(0, $contentElement.scrollHeight);
   },
 };

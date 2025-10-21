@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.18
+// @version      2025.10.21
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -15,7 +15,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/QRCode/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.5.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
@@ -36,8 +36,10 @@
 // @grant        GM_getResourceText
 // @grant        GM_getValue
 // @grant        GM_info
+// @grant        GM_listValues
 // @grant        GM_registerMenuCommand
 // @grant        GM_setValue
+// @grant        GM_setValues
 // @grant        GM_unregisterMenuCommand
 // @grant        GM_xmlhttpRequest
 // @grant        unsafeWindow
@@ -120,9 +122,11 @@
   var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
   var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
   var _GM_info = (() => (typeof GM_info != "undefined" ? GM_info : void 0))();
+  var _GM_listValues = (() => (typeof GM_listValues != "undefined" ? GM_listValues : void 0))();
   var _GM_registerMenuCommand = (() =>
     typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
   var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
+  var _GM_setValues = (() => (typeof GM_setValues != "undefined" ? GM_setValues : void 0))();
   var _GM_unregisterMenuCommand = (() =>
     typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
   var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
@@ -309,109 +313,6 @@
     }
   }
   const PopsPanelStorageApi = new StorageUtils(KEY);
-  const PanelContent = {
-    $data: {
-      __contentConfig: null,
-      get contentConfig() {
-        if (this.__contentConfig == null) {
-          this.__contentConfig = new utils.Dictionary();
-        }
-        return this.__contentConfig;
-      },
-      __defaultBottomContentConfig: [],
-    },
-    addContentConfig(configList) {
-      if (!Array.isArray(configList)) {
-        configList = [configList];
-      }
-      let index = this.$data.contentConfig.keys().length;
-      this.$data.contentConfig.set(index, configList);
-    },
-    getAllContentConfig() {
-      return this.$data.contentConfig.values().flat();
-    },
-    getConfig(index = 0) {
-      return this.$data.contentConfig.get(index) ?? [];
-    },
-    getDefaultBottomContentConfig() {
-      if (this.$data.__defaultBottomContentConfig.length) {
-        return this.$data.__defaultBottomContentConfig;
-      }
-      return [
-        {
-          id: "script-version",
-          title: `版本：${_GM_info?.script?.version || "未知"}`,
-          isBottom: true,
-          forms: [],
-          clickFirstCallback(event, rightHeaderElement, rightContainerElement) {
-            let supportURL = _GM_info?.script?.supportURL || _GM_info?.script?.namespace;
-            if (typeof supportURL === "string" && utils.isNotNull(supportURL)) {
-              window.open(supportURL, "_blank");
-            }
-            return false;
-          },
-        },
-      ];
-    },
-    setDefaultBottomContentConfig(config) {
-      this.$data.__defaultBottomContentConfig = config;
-    },
-  };
-  const PanelMenu = {
-    $data: {
-      __menuOption: [
-        {
-          key: "show_pops_panel_setting",
-          text: "⚙ 设置",
-          autoReload: false,
-          isStoreValue: false,
-          showText(text) {
-            return text;
-          },
-          callback: () => {
-            Panel.showPanel(PanelContent.getConfig(0));
-          },
-        },
-      ],
-      get menuOption() {
-        return this.__menuOption;
-      },
-    },
-    init() {
-      this.initExtensionsMenu();
-    },
-    initExtensionsMenu() {
-      if (!Panel.isTopWindow()) {
-        return;
-      }
-      GM_Menu.add(this.$data.menuOption);
-    },
-    addMenuOption(option) {
-      if (!Array.isArray(option)) {
-        option = [option];
-      }
-      this.$data.menuOption.push(...option);
-    },
-    updateMenuOption(option) {
-      if (!Array.isArray(option)) {
-        option = [option];
-      }
-      option.forEach((optionItem) => {
-        let findIndex = this.$data.menuOption.findIndex((it) => {
-          return it.key === optionItem.key;
-        });
-        if (findIndex !== -1) {
-          this.$data.menuOption[findIndex] = optionItem;
-        }
-      });
-    },
-    getMenuOption(index = 0) {
-      return this.$data.menuOption[index];
-    },
-    deleteMenuOption(index = 0) {
-      this.$data.menuOption.splice(index, 1);
-    },
-  };
   const CommonUtil = {
     waitRemove(...args) {
       args.forEach((selector) => {
@@ -660,6 +561,498 @@
         return $parent;
       }
     },
+    toStr(data2) {
+      const undefinedReplacedStr = `__undefined__placeholder__replaced__str__`;
+      const dataStr = JSON.stringify(
+        data2,
+        (key, value) => {
+          return value === void 0 ? undefinedReplacedStr : value;
+        },
+        2
+      ).replace(new RegExp(`"${undefinedReplacedStr}"`, "g"), "undefined");
+      return dataStr;
+    },
+  };
+  const PanelContent = {
+    $data: {
+      __contentConfig: null,
+      get contentConfig() {
+        if (this.__contentConfig == null) {
+          this.__contentConfig = new utils.Dictionary();
+        }
+        return this.__contentConfig;
+      },
+      __defaultBottomContentConfig: [],
+    },
+    addContentConfig(configList) {
+      if (!Array.isArray(configList)) {
+        configList = [configList];
+      }
+      let index = this.$data.contentConfig.keys().length;
+      this.$data.contentConfig.set(index, configList);
+    },
+    getAllContentConfig() {
+      return this.$data.contentConfig.values().flat();
+    },
+    getConfig(index = 0) {
+      return this.$data.contentConfig.get(index) ?? [];
+    },
+    getDefaultBottomContentConfig() {
+      if (this.$data.__defaultBottomContentConfig.length) {
+        return this.$data.__defaultBottomContentConfig;
+      }
+      let isDoubleClick = false;
+      let timer = void 0;
+      const exportToFile = (fileName, fileData) => {
+        if (typeof fileData !== "string") {
+          fileData = CommonUtil.toStr(fileData);
+        }
+        const blob = new Blob([fileData]);
+        const blobUrl = globalThis.URL.createObjectURL(blob);
+        const $anchor = domUtils.createElement("a", {
+          href: blobUrl,
+          download: fileName,
+        });
+        $anchor.click();
+        utils.workerSetTimeout(() => {
+          globalThis.URL.revokeObjectURL(blobUrl);
+        }, 500);
+      };
+      const dbclick_callback = () => {
+        const importConfig = (importEndCallBack) => {
+          const $alert = __pops.alert({
+            title: {
+              text: "请选择导入方式",
+              position: "center",
+            },
+            content: {
+              text: `
+            <div class="btn-control" data-mode="local">本地导入</div>
+            <div class="btn-control" data-mode="network">网络导入</div>
+            <div class="btn-control" data-mode="clipboard">剪贴板导入</div>`,
+              html: true,
+            },
+            btn: {
+              ok: { enable: false },
+              close: {
+                enable: true,
+                callback(details, event) {
+                  details.close();
+                },
+              },
+            },
+            drag: true,
+            mask: {
+              enable: true,
+            },
+            width: PanelUISize.info.width,
+            height: PanelUISize.info.height,
+            style: `
+          .btn-control{
+              display: inline-block;
+              margin: 10px;
+              padding: 10px;
+              border: 1px solid #ccc;
+              border-radius: 5px;
+              cursor: pointer;
+          }
+          .btn-control:hover{
+            color: #409eff;
+            border-color: #c6e2ff;
+            background-color: #ecf5ff;
+          }`,
+          });
+          const $local = $alert.$shadowRoot.querySelector(".btn-control[data-mode='local']");
+          const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
+          const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
+          const updateConfigToStorage = async (data2) => {
+            const clearLocalStorage = confirm("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）");
+            if (clearLocalStorage) {
+              if (typeof _GM_listValues === "function") {
+                if (typeof _GM_deleteValue === "function") {
+                  const localStorageKeys = _GM_listValues();
+                  localStorageKeys.forEach((key) => {
+                    _GM_deleteValue(key);
+                  });
+                  Qmsg.success("已清空脚本存储的配置");
+                } else {
+                  Qmsg.error("不支持GM_deleteValue函数，无法执行删除脚本配置");
+                }
+              } else {
+                Qmsg.error("不支持GM_listValues函数，无法清空脚本存储的配置");
+              }
+            }
+            if (typeof _GM_setValues === "function") {
+              _GM_setValues(data2);
+            } else {
+              const keys = Object.keys(data2);
+              keys.forEach((key) => {
+                const value = data2[key];
+                _GM_setValue(key, value);
+              });
+            }
+            Qmsg.success("配置导入完毕");
+          };
+          const importFile = (configText) => {
+            return new Promise(async (resolve) => {
+              const data2 = utils.toJSON(configText);
+              if (Object.keys(data2).length === 0) {
+                Qmsg.warning("解析为空配置，不导入");
+              } else {
+                await updateConfigToStorage(data2);
+              }
+              resolve(true);
+            });
+          };
+          domUtils.on($local, "click", (event) => {
+            domUtils.preventEvent(event);
+            $alert.close();
+            const $input = domUtils.createElement("input", {
+              type: "file",
+              accept: ".json",
+            });
+            domUtils.on($input, ["propertychange", "input"], (event2) => {
+              if (!$input.files?.length) {
+                return;
+              }
+              const uploadFile = $input.files[0];
+              const fileReader = new FileReader();
+              fileReader.onload = () => {
+                importFile(fileReader.result);
+              };
+              fileReader.readAsText(uploadFile, "UTF-8");
+            });
+            $input.click();
+          });
+          domUtils.on($network, "click", (event) => {
+            domUtils.preventEvent(event);
+            $alert.close();
+            const $prompt = __pops.prompt({
+              title: {
+                text: "网络导入",
+                position: "center",
+              },
+              content: {
+                text: "",
+                placeholder: "请填写URL",
+                focus: true,
+              },
+              btn: {
+                close: {
+                  enable: true,
+                  callback(details, event2) {
+                    details.close();
+                  },
+                },
+                ok: {
+                  text: "导入",
+                  callback: async (details, event2) => {
+                    const url = details.text;
+                    if (utils.isNull(url)) {
+                      Qmsg.error("请填入完整的url");
+                      return;
+                    }
+                    const $loading = Qmsg.loading("正在获取配置...");
+                    const response = await httpx.get(url, {
+                      allowInterceptConfig: false,
+                    });
+                    $loading.close();
+                    if (!response.status) {
+                      log$1.error(response);
+                      Qmsg.error("获取配置失败", { consoleLogContent: true });
+                      return;
+                    }
+                    const flag = await importFile(response.data.responseText);
+                    if (!flag) {
+                      return;
+                    }
+                    details.close();
+                  },
+                },
+                cancel: {
+                  enable: false,
+                },
+              },
+              drag: true,
+              mask: {
+                enable: true,
+              },
+              width: PanelUISize.info.width,
+              height: "auto",
+            });
+            const $promptInput = $prompt.$shadowRoot.querySelector("input");
+            const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
+            domUtils.on($promptInput, ["input", "propertychange"], (event2) => {
+              const value = domUtils.val($promptInput);
+              if (value === "") {
+                domUtils.attr($promptOk, "disabled", "true");
+              } else {
+                domUtils.removeAttr($promptOk, "disabled");
+              }
+            });
+            domUtils.listenKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
+              if (keyName === "Enter" && otherCodeList.length === 0) {
+                const value = domUtils.val($promptInput);
+                if (value !== "") {
+                  domUtils.trigger($promptOk, "click");
+                }
+              }
+            });
+            domUtils.trigger($promptInput, "input");
+          });
+          domUtils.on($clipboard, "click", async (event) => {
+            domUtils.preventEvent(event);
+            $alert.close();
+            let clipboardText = await CommonUtil.getClipboardText();
+            if (clipboardText.trim() === "") {
+              Qmsg.warning("获取到的剪贴板内容为空");
+              return;
+            }
+            const flag = await importFile(clipboardText);
+            if (!flag) {
+              return;
+            }
+          });
+        };
+        const exportConfig = (
+          fileName = `${SCRIPT_NAME}_panel-setting-${utils.formatTime(Date.now(), "yyyy_MM_dd_HH_mm_ss")}.json`,
+          fileData
+        ) => {
+          const $alert = __pops.alert({
+            title: {
+              text: "请选择导出方式",
+              position: "center",
+            },
+            content: {
+              text: `
+            <div class="btn-control" data-mode="export-to-file">导出至文件</div>
+            <div class="btn-control" data-mode="export-to-clipboard">导出至剪贴板</div>
+            `,
+              html: true,
+            },
+            btn: {
+              ok: { enable: false },
+              close: {
+                enable: true,
+                callback(details, event) {
+                  details.close();
+                },
+              },
+            },
+            drag: true,
+            mask: {
+              enable: true,
+            },
+            width: PanelUISize.info.width,
+            height: PanelUISize.info.height,
+            style: `
+          .btn-control{
+              display: inline-block;
+              margin: 10px;
+              padding: 10px;
+              border: 1px solid #ccc;
+              border-radius: 5px;
+              cursor: pointer;
+          }
+          .btn-control:hover{
+            color: #409eff;
+            border-color: #c6e2ff;
+            background-color: #ecf5ff;
+          }`,
+          });
+          const $exportToFile = $alert.$shadowRoot.querySelector(".btn-control[data-mode='export-to-file']");
+          const $exportToClipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='export-to-clipboard']");
+          domUtils.on($exportToFile, "click", (event) => {
+            domUtils.preventEvent(event);
+            try {
+              exportToFile(fileName, fileData);
+              $alert.close();
+            } catch (error) {
+              Qmsg.error(error.toString(), { consoleLogContent: true });
+            }
+          });
+          domUtils.on($exportToClipboard, "click", async (event) => {
+            const result = await utils.copy(fileData);
+            if (result) {
+              Qmsg.success("复制成功");
+              $alert.close();
+            } else {
+              Qmsg.error("复制失败");
+            }
+          });
+        };
+        const $dialog = __pops.confirm({
+          title: {
+            text: "配置",
+            position: "center",
+          },
+          content: {
+            text: `
+            <textarea name="config-value" id="config" readonly></textarea>
+          `,
+            html: true,
+          },
+          btn: {
+            ok: {
+              enable: true,
+              type: "primary",
+              text: "导入",
+              callback(eventDetails, event) {
+                importConfig();
+              },
+            },
+            cancel: {
+              enable: true,
+              text: "导出",
+              callback(eventDetails, event) {
+                exportConfig(void 0, configDataStr);
+              },
+            },
+          },
+          width: PanelSizeUtil.width < 450 ? "90vw" : "450px",
+          height: "auto",
+          style: `
+          .pops-content textarea {
+            --textarea-bd-color: #dcdfe6;
+            display: inline-block;
+            resize: vertical;
+            padding: 5px 15px;
+            margin: 0;
+            line-height: normal;
+            box-sizing: border-box;
+            color: #606266;
+            border: 0;
+            border-radius: 0;
+            outline: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background: none;
+            width: 100%;
+            height: 100%;
+            appearance: none;
+            resize: none;
+          }
+          .pops-content textarea{
+            height: 500px;
+          }
+          .pops-content textarea:focus {
+            --textarea-bd-color: #3677f0;
+          }
+          .pops-content textarea:hover {
+            --textarea-bd-color: #c0c4cc;
+          }
+        `,
+        });
+        const $textarea = $dialog.$shadowRoot.querySelector("textarea");
+        const configData = {};
+        if (typeof _GM_listValues === "function") {
+          const LocalKeys = _GM_listValues();
+          LocalKeys.forEach((key) => {
+            const value = _GM_getValue(key);
+            Reflect.set(configData, key, value);
+          });
+        } else {
+          Qmsg.warning("不支持函数GM_listValues，仅导出菜单配置");
+          const panelLocalValue = _GM_getValue(KEY);
+          Reflect.set(configData, KEY, panelLocalValue);
+        }
+        const configDataStr = CommonUtil.toStr(configData);
+        $textarea.value = configDataStr;
+      };
+      const click_callback = () => {
+        let supportURL = _GM_info?.script?.supportURL || _GM_info?.script?.namespace;
+        if (typeof supportURL === "string" && utils.isNotNull(supportURL)) {
+          window.open(supportURL, "_blank");
+        }
+      };
+      return [
+        {
+          id: "script-version",
+          title: `版本：${_GM_info?.script?.version || "未知"}`,
+          isBottom: true,
+          forms: [],
+          clickFirstCallback() {
+            return false;
+          },
+          afterRender(config) {
+            const anyTouch = new AnyTouch(config.$asideLiElement);
+            anyTouch.on("tap", function (event) {
+              clearTimeout(timer);
+              timer = void 0;
+              if (isDoubleClick) {
+                isDoubleClick = false;
+                dbclick_callback();
+              } else {
+                timer = setTimeout(() => {
+                  isDoubleClick = false;
+                  click_callback();
+                }, 200);
+                isDoubleClick = true;
+              }
+            });
+          },
+        },
+      ];
+    },
+    setDefaultBottomContentConfig(config) {
+      this.$data.__defaultBottomContentConfig = config;
+    },
+  };
+  const PanelMenu = {
+    $data: {
+      __menuOption: [
+        {
+          key: "show_pops_panel_setting",
+          text: "⚙ 设置",
+          autoReload: false,
+          isStoreValue: false,
+          showText(text) {
+            return text;
+          },
+          callback: () => {
+            Panel.showPanel(PanelContent.getConfig(0));
+          },
+        },
+      ],
+      get menuOption() {
+        return this.__menuOption;
+      },
+    },
+    init() {
+      this.initExtensionsMenu();
+    },
+    initExtensionsMenu() {
+      if (!Panel.isTopWindow()) {
+        return;
+      }
+      GM_Menu.add(this.$data.menuOption);
+    },
+    addMenuOption(option) {
+      if (!Array.isArray(option)) {
+        option = [option];
+      }
+      this.$data.menuOption.push(...option);
+    },
+    updateMenuOption(option) {
+      if (!Array.isArray(option)) {
+        option = [option];
+      }
+      option.forEach((optionItem) => {
+        let findIndex = this.$data.menuOption.findIndex((it) => {
+          return it.key === optionItem.key;
+        });
+        if (findIndex !== -1) {
+          this.$data.menuOption[findIndex] = optionItem;
+        }
+      });
+    },
+    getMenuOption(index = 0) {
+      return this.$data.menuOption[index];
+    },
+    deleteMenuOption(index = 0) {
+      this.$data.menuOption.splice(index, 1);
+    },
   };
   const Panel = {
     $data: {
@@ -901,7 +1294,7 @@
       };
       const getMenuValue = (key) => {
         const value = this.getValue(key);
-        return value;
+        return Boolean(value);
       };
       const execClearStoreStyleElements = () => {
         for (let index = 0; index < storeValueList.length; index++) {
@@ -1116,17 +1509,17 @@
     },
     registerConfigSearch(config) {
       const { $panel, content } = config;
-      let asyncQueryProperty = async (target, handler) => {
+      const asyncQueryProperty = async (target, handler) => {
         if (target == null) {
           return;
         }
-        let handleResult = await handler(target);
+        const handleResult = await handler(target);
         if (handleResult && typeof handleResult.isFind === "boolean" && handleResult.isFind) {
           return handleResult.data;
         }
         return await asyncQueryProperty(handleResult.data, handler);
       };
-      let scrollToElementAndListen = ($el, callback) => {
+      const scrollToElementAndListen = ($el, callback) => {
         const observer = new IntersectionObserver(
           (entries) => {
             entries.forEach((entry) => {
@@ -1144,16 +1537,20 @@
         observer.observe($el);
         $el.scrollIntoView({ behavior: "smooth", block: "center" });
       };
-      let addFlashingClass = ($el) => {
+      const addFlashingClass = ($el) => {
         const flashingClassName = "pops-flashing";
         domUtils.animationend($el, () => {
           $el.classList.remove(flashingClassName);
         });
         $el.classList.add(flashingClassName);
       };
-      let dbclick_event = (evt, selectorTarget) => {
+      const dbclick_callback = (evt) => {
+        if (evt.type === "dblclick" && isMobileTouch) {
+          return;
+        }
         domUtils.preventEvent(evt);
-        let $alert = __pops.alert({
+        clickElement = null;
+        const $alert = __pops.alert({
           title: {
             text: "搜索配置",
             position: "center",
@@ -1219,13 +1616,13 @@
 				`,
         });
         $alert.$shadowRoot.querySelector(".search-wrapper");
-        let $searchInput = $alert.$shadowRoot.querySelector(".search-config-text");
-        let $searchResultWrapper = $alert.$shadowRoot.querySelector(".search-result-wrapper");
+        const $searchInput = $alert.$shadowRoot.querySelector(".search-config-text");
+        const $searchResultWrapper = $alert.$shadowRoot.querySelector(".search-result-wrapper");
         $searchInput.focus();
-        let clearSearchResult = () => {
+        const clearSearchResult = () => {
           domUtils.empty($searchResultWrapper);
         };
-        let createSearchResultItem = (pathInfo) => {
+        const createSearchResultItem = (pathInfo) => {
           const searchPath = utils.queryProperty(pathInfo, (target) => {
             if (target?.next) {
               return {
@@ -1239,7 +1636,7 @@
               };
             }
           });
-          let $item = domUtils.createElement("div", {
+          const $item = domUtils.createElement("div", {
             className: "search-result-item",
             innerHTML: `
 							<div class="search-result-item-path">${searchPath.matchedData?.path}</div>
@@ -1247,10 +1644,10 @@
 						`,
           });
           domUtils.on($item, "click", (clickItemEvent) => {
-            let $asideItems = $panel.$shadowRoot.querySelectorAll(
+            const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
             );
-            let $targetAsideItem = $asideItems[pathInfo.index];
+            const $targetAsideItem = $asideItems2[pathInfo.index];
             if (!$targetAsideItem) {
               Qmsg.error(`左侧项下标${pathInfo.index}不存在`);
               return;
@@ -1262,7 +1659,7 @@
             $targetAsideItem.click();
             asyncQueryProperty(pathInfo.next, async (target) => {
               if (target?.next) {
-                let $findDeepMenu = await domUtils.waitNode(() => {
+                const $findDeepMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")).find(
                     ($deepMenu) => {
                       const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
@@ -1288,7 +1685,7 @@
                   data: target.next,
                 };
               } else {
-                let $findTargetMenu = await domUtils.waitNode(() => {
+                const $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)).find(
                     ($menuItem) => {
                       const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
@@ -1298,9 +1695,9 @@
                 }, 2500);
                 if ($findTargetMenu) {
                   scrollToElementAndListen($findTargetMenu);
-                  let $fold = $findTargetMenu.closest(`.pops-panel-forms-fold[data-fold-enable]`);
+                  const $fold = $findTargetMenu.closest(`.pops-panel-forms-fold[data-fold-enable]`);
                   if ($fold) {
-                    let $foldWrapper = $fold.querySelector(".pops-panel-forms-fold-container");
+                    const $foldWrapper = $fold.querySelector(".pops-panel-forms-fold-container");
                     $foldWrapper.click();
                     await utils.sleep(500);
                   }
@@ -1319,13 +1716,13 @@
           });
           return $item;
         };
-        let execSearch = (searchText) => {
+        const execSearch = (searchText) => {
           const searchTextRegExp = new RegExp(searchText, "i");
           const searchConfigResult = [];
           const loopContentConfig = (configList, path) => {
             for (let index = 0; index < configList.length; index++) {
               const configItem = configList[index];
-              let child_forms = configItem.forms;
+              const child_forms = configItem.forms;
               if (child_forms && Array.isArray(child_forms)) {
                 const deepMenuPath = utils.deepClone(path);
                 if (configItem.type === "deepMenu") {
@@ -1348,10 +1745,10 @@
                 }
                 loopContentConfig(child_forms, deepMenuPath);
               } else {
-                let text = Reflect.get(configItem, "text");
-                let description = Reflect.get(configItem, "description");
+                const text = Reflect.get(configItem, "text");
+                const description = Reflect.get(configItem, "description");
                 const delayMatchedTextList = [text, description];
-                let matchedIndex = delayMatchedTextList.findIndex((configText) => {
+                const matchedIndex = delayMatchedTextList.findIndex((configText) => {
                   if (typeof configText !== "string") {
                     return;
                   }
@@ -1426,7 +1823,7 @@
               });
             }
           }
-          let fragment = document.createDocumentFragment();
+          const fragment = document.createDocumentFragment();
           for (const pathInfo of searchConfigResult) {
             let $resultItem = createSearchResultItem(pathInfo);
             fragment.appendChild($resultItem);
@@ -1448,26 +1845,28 @@
           }, 200)
         );
       };
+      const $asideItems = $panel.$shadowRoot.querySelectorAll(
+        `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`
+      );
+      $asideItems.forEach(($asideItem) => {
+        domUtils.on($asideItem, "dblclick", dbclick_callback);
+      });
       let clickElement = null;
       let isDoubleClick = false;
       let timer = void 0;
-      domUtils.on(
-        $panel.$shadowRoot,
-        "dblclick",
-        `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`,
-        dbclick_event
-      );
+      let isMobileTouch = false;
       domUtils.on(
         $panel.$shadowRoot,
         "touchend",
         `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`,
         (evt, selectorTarget) => {
+          isMobileTouch = true;
           clearTimeout(timer);
           timer = void 0;
           if (isDoubleClick && clickElement === selectorTarget) {
             isDoubleClick = false;
             clickElement = null;
-            dbclick_event(evt);
+            dbclick_callback(evt);
           } else {
             timer = setTimeout(() => {
               isDoubleClick = false;
@@ -1542,7 +1941,7 @@
   const __pops = pops;
   const log$1 = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
   let SCRIPT_NAME = _GM_info?.script?.name || void 0;
-  pops.config.Utils.AnyTouch();
+  const AnyTouch = pops.config.Utils.AnyTouch();
   const DEBUG = false;
   log$1.config({
     debug: false,

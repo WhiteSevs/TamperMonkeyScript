@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.18
+// @version      2025.10.21
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -13020,7 +13020,7 @@ ${err.stack}`);
   var folderCSS =
     '.pops-folder-list {\r\n  --folder-arrow-fill-color: #d4d7de;\r\n  --folder-arrow-active-fill-color: #06a7ff;\r\n  --header-breadcrumb-text-color: #06a7ff;\r\n  --header-breadcrumb-all-files-text-color: var(--header-breadcrumb-text-color);\r\n  --header-breadcrumb-all-files-first-text-color: var(--header-breadcrumb-text-color);\r\n  --header-breadcrumb-all-files-last-text-color: #999999;\r\n  --table-header-row-text-color: #818999;\r\n  --table-body-td-text-color: rgb(247, 248, 250, var(--pops-bg-opacity));\r\n  --table-body-th-text-color: rgb(247, 248, 250, var(--pops-bg-opacity));\r\n  --table-body-row-text-color: #05082c;\r\n  --table-body-row-file-name-text-color: #05082c;\r\n  --table-body-row-hover-bd-color: rgb(245, 246, 247, var(--pops-bg-opacity));\r\n  --table-body-row-hover-bg-color: rgb(245, 246, 247, var(--pops-bg-opacity));\r\n  --table-body-row-file-name-hover-text-color: #06a7ff;\r\n  --table-body-row-content-text-color: #818999;\r\n}\r\n.pops-folder-list .cursor-p {\r\n  cursor: pointer;\r\n}\r\n.pops-folder-list a {\r\n  background: 0 0;\r\n  text-decoration: none;\r\n  -webkit-tap-highlight-color: transparent;\r\n  color: var(--header-breadcrumb-text-color);\r\n}\r\ntable.pops-folder-list-table__body,\r\ntable.pops-folder-list-table__header {\r\n  width: 100%;\r\n  table-layout: fixed;\r\n  border-collapse: collapse;\r\n  border-spacing: 0;\r\n  padding: 0 20px;\r\n}\r\ntable.pops-folder-list-table__body,\r\ntable.pops-folder-list-table__header {\r\n  height: 100%;\r\n  background: 0 0;\r\n  overflow: hidden;\r\n  display: -webkit-box;\r\n  display: -ms-flexbox;\r\n  -ms-flex-direction: column;\r\n  -webkit-box-orient: vertical;\r\n  -webkit-box-direction: normal;\r\n}\r\ntable.pops-folder-list-table__body {\r\n  height: 100%;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n.pops-folder-list table tr {\r\n  line-height: normal;\r\n  align-content: center;\r\n}\r\n.pops-folder-list-table__header-row {\r\n  height: 50px;\r\n  line-height: normal;\r\n  align-content: center;\r\n  color: var(--table-header-row-text-color);\r\n  text-align: left;\r\n  font-size: 12px;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n.pops-folder-list-table__body-row {\r\n  height: 50px;\r\n  line-height: normal;\r\n  align-content: center;\r\n  color: var(--table-body-row-text-color);\r\n  font-size: 12px;\r\n}\r\n.pops-folder-list-table__body-row:hover {\r\n  background-color: var(--table-body-row-hover-bg-color);\r\n  border-color: var(--table-body-row-hover-bd-color);\r\n  border: 0;\r\n  outline: none;\r\n}\r\n.pops-folder-list table th {\r\n  border: 0;\r\n  border-bottom: 1px solid var(--table-body-th-text-color);\r\n}\r\n.pops-folder-list table td {\r\n  border: 0;\r\n  border-bottom: 1px solid var(--table-body-td-text-color);\r\n  position: relative;\r\n}\r\n.pops-folder-list .list-name-text {\r\n  display: inline-block;\r\n  padding-left: 12px;\r\n  line-height: normal;\r\n  align-content: center;\r\n  max-width: 176px;\r\n}\r\n.pops-folder-list-file-name > div {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.pops-mobile-folder-list-file-name {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n.pops-mobile-folder-list-file-name > div {\r\n  display: flex;\r\n  flex-wrap: wrap;\r\n  justify-content: flex-start;\r\n  align-items: flex-start;\r\n  padding: 6px 0px;\r\n  flex-direction: column;\r\n}\r\n.pops-mobile-folder-list-file-name img.pops-folder-list-file-icon {\r\n  width: 45px;\r\n  height: 45px;\r\n}\r\n.pops-mobile-folder-list-file-name a.pops-folder-list-file-name-title-text {\r\n  padding-left: unset;\r\n  max-width: 250px;\r\n  overflow-x: hidden;\r\n  font-weight: 400;\r\n  line-height: unset;\r\n  margin-bottom: 4px;\r\n  white-space: normal;\r\n  text-overflow: unset;\r\n}\r\n\r\n/* 修改滚动 */\r\n.pops-folder-content {\r\n  overflow: hidden !important;\r\n}\r\n.pops-folder-content .pops-folder-list {\r\n  height: 100%;\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n.pops-folder-content .pops-folder-list-table__body-div {\r\n  height: 100%;\r\n  flex: 1 auto;\r\n  overflow: auto;\r\n  padding-bottom: 0;\r\n}\r\n.pops-mobile-folder-content .pops-folder-list-table__body-div {\r\n  height: 100%;\r\n  flex: 1 auto;\r\n  overflow: auto;\r\n  padding-bottom: 0;\r\n}\r\n.pops-folder-content table.pops-folder-list-table__body {\r\n  overflow: auto;\r\n}\r\n.pops-folder-content .pops-folder-list-table__header-div {\r\n  flex: 0;\r\n}\r\n.pops-mobile-folder-content .pops-folder-list-table__header-div {\r\n  display: none;\r\n}\r\n\r\n.pops-folder-list .pops-folder-list-file-name-title-text {\r\n  color: var(--table-body-row-file-name-text-color);\r\n}\r\n.pops-folder-list .pops-folder-list-file-name-title-text:hover {\r\n  text-decoration: none;\r\n  color: var(--table-body-row-file-name-hover-text-color);\r\n}\r\n.pops-folder-list .text-ellip {\r\n  overflow: hidden;\r\n  white-space: nowrap;\r\n  text-overflow: ellipsis;\r\n}\r\n.pops-folder-list .content {\r\n  color: var(--table-body-row-content-text-color);\r\n  position: relative;\r\n  width: 100%;\r\n  text-align: left;\r\n}\r\n.pops-folder-list .inline-block-v-middle {\r\n  display: inline-block;\r\n  vertical-align: middle;\r\n}\r\n.pops-folder-list .flex-a-i-center {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n.pops-folder-list .u-file-icon {\r\n  display: inline-block;\r\n  vertical-align: middle;\r\n}\r\n.pops-folder-list .u-file-icon--list {\r\n  width: 32px;\r\n  height: 32px;\r\n}\r\n.pops-folder-list .pops-folder-list-file-icon {\r\n  line-height: normal;\r\n  align-content: center;\r\n  position: relative;\r\n  vertical-align: middle;\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb-primary {\r\n  flex: 1;\r\n  display: -webkit-box;\r\n  display: -webkit-flex;\r\n  display: -ms-flexbox;\r\n  display: flex;\r\n  -webkit-box-align: center;\r\n  -webkit-align-items: center;\r\n  -ms-flex-align: center;\r\n  align-items: center;\r\n  -webkit-box-orient: horizontal;\r\n  -webkit-box-direction: normal;\r\n  -webkit-flex-direction: row;\r\n  -ms-flex-direction: row;\r\n  flex-direction: row;\r\n  min-height: 17px;\r\n  flex-wrap: wrap;\r\n}\r\n.pops-folder-list .pops-folder-list-table__sort {\r\n  display: inline-flex;\r\n  margin-left: 4px;\r\n  flex-direction: column;\r\n}\r\n\r\n.pops-folder-list .pops-folder-icon-arrow {\r\n  width: 10px;\r\n  height: 10px;\r\n  fill: var(--folder-arrow-fill-color);\r\n}\r\n.pops-folder-list .pops-folder-icon-active {\r\n  fill: var(--folder-arrow-active-fill-color);\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb {\r\n  padding: 4px 20px;\r\n  -webkit-box-sizing: border-box;\r\n  box-sizing: border-box;\r\n  display: -webkit-box;\r\n  display: -webkit-flex;\r\n  display: -ms-flexbox;\r\n  display: flex;\r\n  -webkit-box-align: center;\r\n  -webkit-align-items: center;\r\n  -ms-flex-align: center;\r\n  align-items: center;\r\n  -webkit-box-orient: horizontal;\r\n  -webkit-box-direction: normal;\r\n  -webkit-flex-direction: row;\r\n  -ms-flex-direction: row;\r\n  flex-direction: row;\r\n  -webkit-box-pack: start;\r\n  -webkit-justify-content: start;\r\n  -ms-flex-pack: start;\r\n  justify-content: flex-start;\r\n  min-height: 35px;\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles {\r\n  font-size: 12px;\r\n  color: var(--header-breadcrumb-all-files-text-color);\r\n  line-height: normal;\r\n  align-content: center;\r\n  font-weight: 700;\r\n  display: inline-block;\r\n  max-width: 140px;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  white-space: nowrap;\r\n  word-wrap: normal;\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:last-child a {\r\n  color: var(--header-breadcrumb-all-files-last-text-color);\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:first-child a {\r\n  font-size: 14px;\r\n  color: var(--header-breadcrumb-all-files-first-text-color);\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb .iconArrow {\r\n  width: 16px;\r\n  height: 16px;\r\n}\r\n.pops-folder-list .iconArrow {\r\n  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAASCAMAAABYd88+AAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAABFUExURUdwTOLi4uLi4t7e3uPj49/f397e3t3d3f///97e3vDw8N3d3d7e3t3d3d3d3ejo6N/f397e3t7e3t3d3d/f393d3d3d3RK+NoEAAAAWdFJOUwAnM4YPU/iQA+UIeMDaHhY41i7zX7UebpjFAAAAUElEQVQI15XOORaAIAwE0LATXHCd+x9VfCiksXCq+UUWou8oZ1vXHrt7YVBiYkW4gdMKYFIC4CSATWCNHWPuM6HuHkr1x3N0ZrBu/9gl0b9c3+kF7C7hS1YAAAAASUVORK5CYII=)\r\n    55% 50%/6px 9px no-repeat;\r\n}\r\n\r\n@media (prefers-color-scheme: dark) {\r\n  .pops[type-value="folder"] {\r\n    --pops-title-border-color: rgb(73, 83, 102, var(--pops-bg-opacity));\r\n    --pops-bottom-btn-controls-border-color: rgb(73, 83, 102, var(--pops-bg-opacity));\r\n  }\r\n  .pops-folder-list {\r\n    --header-breadcrumb-text-color: #06a7ff;\r\n    --header-breadcrumb-all-files-text-color: var(--header-breadcrumb-text-color);\r\n    --header-breadcrumb-all-files-first-text-color: var(--header-breadcrumb-text-color);\r\n    --header-breadcrumb-all-files-last-text-color: #818999;\r\n    --table-body-row-text-color: #f7f8fa;\r\n    --table-body-td-text-color: rgb(73, 83, 102, var(--pops-bg-opacity));\r\n    --table-body-th-text-color: rgb(73, 83, 102, var(--pops-bg-opacity));\r\n    --table-body-td-text-color: #495366;\r\n    --table-body-row-hover-bd-color: #1f2022;\r\n    --table-body-row-hover-bg-color: #1f2022;\r\n    --table-body-row-file-name-text-color: #f7f8fa;\r\n  }\r\n}\r\n';
   var panelCSS =
-    '.pops[type-value="panel"] {\r\n  --pops-bg-color: #f2f2f2;\r\n  --pops-color: #333333;\r\n  --panel-title-bg-color: #ffffff;\r\n\r\n  --panel-aside-bg-color: #ffffff;\r\n  --panel-aside-hover-color: rgb(64, 158, 255);\r\n  --panel-aside-hover-bg-color: rgba(64, 158, 255, 0.1);\r\n\r\n  --pops-panel-forms-margin-top-bottom: 10px;\r\n  --pops-panel-forms-margin-left-right: 20px;\r\n  --pops-panel-forms-header-icon-size: calc(var(--pops-panel-forms-container-li-padding-left-right) + 1px);\r\n  --pops-panel-forms-header-padding-top-bottom: 15px;\r\n  --pops-panel-forms-header-padding-left-right: 10px;\r\n  --pops-panel-forms-container-item-left-text-gap: 6px;\r\n  --pops-panel-forms-container-item-left-desc-text-size: 0.8em;\r\n  --pops-panel-forms-container-item-left-desc-text-color: #6c6c6c;\r\n  --pops-panel-forms-container-item-bg-color: #ffffff;\r\n  --pops-panel-forms-container-item-title-color: #333;\r\n  --pops-panel-forms-container-item-border-radius: 6px;\r\n  --pops-panel-forms-container-item-margin-top-bottom: 10px;\r\n  --pops-panel-forms-container-item-margin-left-right: var(--pops-panel-forms-margin-left-right);\r\n  --pops-panel-forms-container-li-border-color: var(--pops-bd-color);\r\n  --pops-panel-forms-container-li-padding-top-bottom: 12px;\r\n  --pops-panel-forms-container-li-padding-left-right: 16px;\r\n\r\n  --pops-panel-forms-container-deepMenu-item-active-bg: #e9e9e9;\r\n}\r\n.pops[type-value="panel"] {\r\n  color: var(--pops-color);\r\n  background: var(--pops-bg-color);\r\n}\r\n.pops[type-value] .pops-panel-title {\r\n  background: var(--panel-title-bg-color);\r\n}\r\n\r\n/* ↓panel的CSS↓ */\r\n/* 左侧的列表 */\r\naside.pops-panel-aside {\r\n  box-sizing: border-box;\r\n  flex-shrink: 0;\r\n  max-width: 200px;\r\n  min-width: 100px;\r\n  height: 100%;\r\n  background: var(--panel-aside-bg-color);\r\n  border-right: 1px solid var(--panel-aside-bg-color);\r\n  font-size: 0.9em;\r\n  display: flex;\r\n  flex-direction: column;\r\n  justify-content: space-between;\r\n}\r\naside.pops-panel-aside .pops-panel-aside-top-container {\r\n  overflow: auto;\r\n}\r\naside.pops-panel-aside ul li {\r\n  margin: 6px 8px;\r\n  border-radius: 4px;\r\n  padding: 6px 10px;\r\n  cursor: default;\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: flex-start;\r\n}\r\naside.pops-panel-aside .pops-is-visited,\r\naside.pops-panel-aside ul li:not(.pops-panel-disabled-aside-hover-css):hover {\r\n  color: var(--panel-aside-hover-color);\r\n  background: var(--panel-aside-hover-bg-color);\r\n}\r\n/* 左侧的列表 */\r\n\r\n/* 底部的容器 */\r\n.pops-panel-bottom-wrapper {\r\n  background: var(--panel-aside-bg-color);\r\n  border-top: 1px solid #ebeef5;\r\n}\r\n.pops-panel-bottom-wrapper:has(.pops-panel-bottom-left-container:empty):has(.pops-panel-bottom-right-container:empty) {\r\n  border-top: 0;\r\n}\r\n.pops-panel-bottom-container {\r\n  display: flex;\r\n  flex-wrap: nowrap;\r\n  justify-content: space-between;\r\n}\r\n.pops-panel-bottom-left-container {\r\n}\r\n.pops-panel-bottom-right-container {\r\n}\r\n.pops-panel-bottom-wrapper .pops-panel-bottom-item {\r\n  list-style-type: none;\r\n  margin: 6px 8px;\r\n  border-radius: 4px;\r\n  padding: 6px 10px;\r\n  cursor: default;\r\n}\r\n.pops-panel-bottom-wrapper:not(.pops-panel-disable-bottom-item-hover-css) .pops-panel-bottom-item:hover {\r\n  color: var(--panel-aside-hover-color);\r\n  background: var(--panel-aside-hover-bg-color);\r\n}\r\n/* 底部的容器 */\r\n\r\n.pops-panel-content {\r\n  display: flex;\r\n  flex-direction: row;\r\n  flex: 1;\r\n  overflow: auto;\r\n  flex-basis: auto;\r\n  box-sizing: border-box;\r\n  min-width: 0;\r\n  bottom: 0 !important;\r\n}\r\n\r\n.pops-panel-section-wrapper {\r\n  width: 100%;\r\n  overflow: hidden;\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n\r\nsection.pops-panel-container {\r\n  width: 100%;\r\n  overflow: hidden;\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\nsection.pops-panel-container .pops-panel-container-header-ul,\r\nsection.pops-panel-container .pops-panel-deepMenu-container-header-ul {\r\n  border-bottom: 1px solid rgba(223, 223, 223, var(--pops-bg-opacity));\r\n  flex: 0 auto;\r\n}\r\nsection.pops-panel-container .pops-panel-container-header-ul li,\r\nsection.pops-panel-container .pops-panel-container-header-ul li.pops-panel-container-header-title-text {\r\n  display: flex;\r\n  justify-content: flex-start !important;\r\n  margin: 0px !important;\r\n  padding: var(--pops-panel-forms-header-padding-top-bottom)\r\n    calc(var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right));\r\n  text-align: left;\r\n}\r\nsection.pops-panel-container ul.pops-panel-container-main-ul {\r\n  overflow: auto;\r\n  /*flex: 1;*/\r\n}\r\nsection.pops-panel-container > ul li:not(.pops-panel-forms-container-item) {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  margin: var(--pops-panel-forms-margin-top-bottom)\r\n    calc(var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-margin-left-right));\r\n  gap: 10px;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item-header-text {\r\n  margin: 10px;\r\n  margin-left: calc(\r\n    var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right)\r\n  );\r\n  font-size: 0.9em;\r\n  text-align: left;\r\n  color: var(--pops-panel-forms-container-item-title-color);\r\n}\r\nsection.pops-panel-container li.pops-panel-forms-container-item {\r\n  /* 去除<li>左侧的圆点 */\r\n  display: block;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item ul.pops-panel-forms-container-item-formlist {\r\n  border-radius: var(--pops-panel-forms-container-item-border-radius);\r\n  background: var(--pops-panel-forms-container-item-bg-color);\r\n  margin: var(--pops-panel-forms-container-item-margin-top-bottom) var(--pops-panel-forms-margin-left-right);\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item ul.pops-panel-forms-container-item-formlist li {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  padding: var(--pops-panel-forms-container-li-padding-top-bottom)\r\n    var(--pops-panel-forms-container-li-padding-left-right);\r\n  margin: 0px 0px;\r\n  border-bottom: 1px solid var(--pops-panel-forms-container-li-border-color);\r\n  text-align: left;\r\n}\r\n/*section.pops-panel-container\r\n	.pops-panel-forms-container-item\r\n	ul\r\n	li.pops-panel-deepMenu-nav-item {\r\n	padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px;\r\n	margin: 0px var(--pops-panel-forms-container-li-padding-left-right);\r\n	border-bottom: 1px solid var(--pops-panel-forms-container-li-border-color);\r\n}*/\r\nsection.pops-panel-container\r\n  .pops-panel-forms-container-item\r\n  ul.pops-panel-forms-container-item-formlist\r\n  li:last-child {\r\n  border: 0px;\r\n}\r\n/* 左侧的文字 */\r\nsection.pops-panel-container .pops-panel-item-left-text {\r\n  display: flex;\r\n  flex-direction: column;\r\n  gap: var(--pops-panel-forms-container-item-left-text-gap);\r\n}\r\n\r\n/* 左侧的主文字 */\r\n/*section.pops-panel-container .pops-panel-item-left-main-text {\r\n	\r\n}*/\r\n/* 左侧的描述文字 */\r\nsection.pops-panel-container .pops-panel-item-left-desc-text {\r\n  font-size: var(--pops-panel-forms-container-item-left-desc-text-size);\r\n  color: var(--pops-panel-forms-container-item-left-desc-text-color);\r\n}\r\n\r\n/* 折叠面板 */\r\nsection.pops-panel-container .pops-panel-forms-fold {\r\n  border-radius: var(--pops-panel-forms-container-item-border-radius);\r\n  background: var(--pops-panel-forms-container-item-bg-color);\r\n  margin: var(--pops-panel-forms-margin-top-bottom) var(--pops-panel-forms-margin-left-right);\r\n}\r\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-fold-container {\r\n  display: flex;\r\n  align-items: center;\r\n  fill: #6c6c6c;\r\n  justify-content: space-between;\r\n  margin: 0px var(--pops-panel-forms-container-li-padding-left-right) !important;\r\n  padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px !important;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-fold[data-fold-enable] .pops-panel-forms-fold-container-icon {\r\n  transform: rotate(90deg);\r\n}\r\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-fold-container-icon {\r\n  width: 15px;\r\n  height: 15px;\r\n  display: flex;\r\n  align-items: center;\r\n  transform: rotate(-90deg);\r\n  transition: transform 0.3s;\r\n}\r\n/* 折叠状态 */\r\nsection.pops-panel-container .pops-panel-forms-fold[data-fold-enable] .pops-panel-forms-container-item-formlist {\r\n  height: 0;\r\n}\r\n/* 非折叠状态 */\r\nsection.pops-panel-container .pops-panel-forms-fold ul.pops-panel-forms-container-item-formlist {\r\n  margin: 0;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-container-item-formlist {\r\n  transition: height 0.3s;\r\n  overflow: hidden;\r\n  border-radius: unset;\r\n  background: unset;\r\n  margin: 0;\r\n  height: calc-size(auto, size);\r\n}\r\n/* 折叠面板 */\r\n\r\n/* 姑且认为小于600px的屏幕为移动端 */\r\n@media (max-width: 600px) {\r\n  /* 兼容移动端CSS */\r\n  .pops[type-value="panel"] {\r\n    --pops-panel-forms-margin-left-right: 10px;\r\n  }\r\n  .pops[type-value="panel"] {\r\n    width: 92%;\r\n    width: 92vw;\r\n    width: 92dvw;\r\n  }\r\n  .pops[type-value="panel"] .pops-panel-content aside.pops-panel-aside {\r\n    max-width: 20%;\r\n    min-width: auto;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-forms-container-item > div {\r\n    text-align: left;\r\n    --pops-panel-forms-margin-left-right: 0px;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-forms-container-item ul {\r\n    margin: 0px !important;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container > ul > li {\r\n    margin: 10px 10px;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container > ul > li div:nth-child(2) {\r\n    max-width: 55%;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-select select {\r\n    min-width: 88px !important;\r\n    width: -webkit-fill-available;\r\n    width: -moz-available;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-container-header-ul li {\r\n    font-size: 16px;\r\n  }\r\n  .pops[type-value="panel"] .pops-panel-title p[pops],\r\n  .pops[type-value="panel"] section.pops-panel-container > ul li,\r\n  .pops[type-value="panel"] aside.pops-panel-aside ul li {\r\n    font-size: 14px;\r\n  }\r\n}\r\n/* switch的CSS */\r\n.pops-panel-switch {\r\n  --panel-switch-core-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\r\n  --panel-switch-core-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\r\n  --panel-switch-circle-color: #dcdfe6;\r\n  --panel-switch-circle-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n  --panel-switch-checked-circle-color: #409eff;\r\n  --panel-switch-checked-core-bd-color: rgb(64, 158, 255, var(--pops-bd-opacity));\r\n  --panel-switch-checked-core-bg-color: rgb(64, 158, 255, var(--pops-bg-opacity));\r\n}\r\n.pops-panel-switch {\r\n  display: inline-flex;\r\n  flex-direction: row-reverse;\r\n  align-items: center;\r\n  position: relative;\r\n  font-size: 14px;\r\n  line-height: normal;\r\n  align-content: center;\r\n  height: 32px;\r\n  vertical-align: middle;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n.pops-panel-switch input.pops-panel-switch__input {\r\n  position: absolute;\r\n  width: 0;\r\n  height: 0;\r\n  opacity: 0;\r\n  margin: 0;\r\n}\r\n.pops-panel-switch:has(input.pops-panel-switch__input:disabled),\r\n.pops-panel-switch[data-disabled],\r\n.pops-panel-switch[data-disabled] .pops-panel-switch__core,\r\n.pops-panel-switch input.pops-panel-switch__input:disabled + .pops-panel-switch__core {\r\n  cursor: not-allowed;\r\n  opacity: 0.6;\r\n}\r\n.pops-panel-switch span.pops-panel-switch__core {\r\n  display: inline-flex;\r\n  position: relative;\r\n  align-items: center;\r\n  min-width: 40px;\r\n  height: 20px;\r\n  border: 1px solid var(--panel-switch-core-bd-color);\r\n  outline: 0;\r\n  border-radius: 10px;\r\n  box-sizing: border-box;\r\n  background: var(--panel-switch-core-bg-color);\r\n  cursor: pointer;\r\n  transition:\r\n    border-color 0.3s,\r\n    background-color 0.3s;\r\n}\r\n.pops-panel-switch .pops-panel-switch__action {\r\n  position: absolute;\r\n  left: 1px;\r\n  border-radius: 100%;\r\n  transition: all 0.3s;\r\n  width: 16px;\r\n  height: 16px;\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  background-color: var(--panel-switch-circle-bg-color);\r\n  color: var(--panel-switch-circle-color);\r\n}\r\n.pops-panel-switch.pops-panel-switch-is-checked span.pops-panel-switch__core {\r\n  border-color: var(--panel-switch-checked-core-bd-color);\r\n  background-color: var(--panel-switch-checked-core-bg-color);\r\n}\r\n.pops-panel-switch.pops-panel-switch-is-checked .pops-panel-switch__action {\r\n  left: calc(100% - 17px);\r\n  color: var(--panel-switch-checked-circle-color);\r\n}\r\n/* switch的CSS */\r\n\r\n/* slider旧的CSS */\r\nsection.pops-panel-container .pops-panel-slider:has(> input[type="range"]) {\r\n  overflow: hidden;\r\n  height: 25px;\r\n  line-height: normal;\r\n  align-content: center;\r\n  display: flex;\r\n  align-items: center;\r\n}\r\nsection.pops-panel-container .pops-panel-slider input[type="range"] {\r\n  height: 6px;\r\n  background: rgb(228, 231, 237, var(--pops-bg-opacity));\r\n  outline: 0;\r\n  -webkit-appearance: none;\r\n  appearance: none;\r\n  width: 100%;\r\n}\r\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-webkit-slider-thumb {\r\n  width: 20px;\r\n  height: 20px;\r\n  border-radius: 50%;\r\n  border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));\r\n  background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n  box-shadow:\r\n    0 0 2px rgba(0, 0, 0, 0.3),\r\n    0 3px 5px rgba(0, 0, 0, 0.2);\r\n  cursor: pointer;\r\n  -webkit-appearance: none;\r\n  appearance: none;\r\n  border-image: linear-gradient(#409eff, #409eff) 0 fill/9 25 9 0/0 0 0 100vw;\r\n}\r\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-thumb {\r\n  width: 20px;\r\n  height: 20px;\r\n  border-radius: 50%;\r\n  border: 1px solid rgb(64, 159, 255, var(--pops-bd-opacity));\r\n  background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n  box-shadow:\r\n    0 0 2px rgba(0, 0, 0, 0.3),\r\n    0 3px 5px rgba(0, 0, 0, 0.2);\r\n  cursor: pointer;\r\n  -webkit-appearance: none;\r\n  appearance: none;\r\n}\r\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-progress {\r\n  height: 6px;\r\n  border-image: linear-gradient(#409eff, #409eff) 0 fill/9 25 9 0/0 0 0 100vw;\r\n}\r\n/* slider旧的CSS */\r\n\r\n/* slider的CSS */\r\n.pops-slider {\r\n  --pops-slider-color-white: #ffffff;\r\n  --pops-slider-color-primary: #409eff;\r\n  --pops-slider-color-info: #909399;\r\n  --pops-slider-text-color-placeholder: #a8abb2;\r\n  --pops-slider-border-color-light: #e4e7ed;\r\n  --pops-slider-border-radius-circle: 100%;\r\n  --pops-slider-transition-duration-fast: 0.2s;\r\n\r\n  --pops-slider-main-bg-color: var(--pops-slider-color-primary);\r\n  --pops-slider-runway-bg-color: var(--pops-slider-border-color-light);\r\n  --pops-slider-stop-bg-color: var(--pops-slider-color-white);\r\n  --pops-slider-disabled-color: var(--pops-slider-text-color-placeholder);\r\n  --pops-slider-border-radius: 3px;\r\n  --pops-slider-height: 6px;\r\n  --pops-slider-button-size: 20px;\r\n  --pops-slider-button-wrapper-size: 36px;\r\n  --pops-slider-button-wrapper-offset: -15px;\r\n}\r\n\r\n.pops-slider {\r\n  width: 100%;\r\n  height: 32px;\r\n  display: flex;\r\n  align-items: center;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n\r\n.pops-slider-width {\r\n  flex: 0 0 52%;\r\n  margin-left: 10px;\r\n}\r\n\r\n.pops-slider__runway {\r\n  flex: 1;\r\n  height: var(--pops-slider-height);\r\n  background-color: var(--pops-slider-runway-bg-color);\r\n  border-radius: var(--pops-slider-border-radius);\r\n  position: relative;\r\n  cursor: pointer;\r\n}\r\n\r\n.pops-slider__runway.show-input {\r\n  margin-right: 30px;\r\n  width: auto;\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled {\r\n  cursor: default;\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__bar {\r\n  background-color: var(--pops-slider-disabled-color);\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button {\r\n  border-color: var(--pops-slider-disabled-color);\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\r\n  cursor: not-allowed;\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\r\n  transform: scale(1);\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\r\n  cursor: not-allowed;\r\n}\r\n\r\n.pops-slider__input {\r\n  flex-shrink: 0;\r\n  width: 130px;\r\n}\r\n\r\n.pops-slider__bar {\r\n  height: var(--pops-slider-height);\r\n  background-color: var(--pops-slider-main-bg-color);\r\n  border-top-left-radius: var(--pops-slider-border-radius);\r\n  border-bottom-left-radius: var(--pops-slider-border-radius);\r\n  position: absolute;\r\n}\r\n\r\n.pops-slider__button-wrapper {\r\n  height: var(--pops-slider-button-wrapper-size);\r\n  width: var(--pops-slider-button-wrapper-size);\r\n  position: absolute;\r\n  z-index: 1;\r\n  top: var(--pops-slider-button-wrapper-offset);\r\n  transform: translate(-50%);\r\n  background-color: transparent;\r\n  text-align: center;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n  line-height: normal;\r\n  outline: none;\r\n}\r\n\r\n.pops-slider__button-wrapper:after {\r\n  display: inline-block;\r\n  content: "";\r\n  height: 100%;\r\n  vertical-align: middle;\r\n}\r\n\r\n.pops-slider__button:hover,\r\n.pops-slider__button.hover {\r\n  cursor: grab;\r\n}\r\n\r\n.pops-slider__button {\r\n  display: inline-block;\r\n  width: var(--pops-slider-button-size);\r\n  height: var(--pops-slider-button-size);\r\n  vertical-align: middle;\r\n  border: solid 2px var(--pops-slider-main-bg-color);\r\n  background-color: var(--pops-slider-color-white);\r\n  border-radius: 50%;\r\n  box-sizing: border-box;\r\n  transition: var(--pops-slider-transition-duration-fast);\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n\r\n.pops-slider__button:hover,\r\n.pops-slider__button.hover,\r\n.pops-slider__button.dragging {\r\n  transform: scale(1.2);\r\n}\r\n\r\n.pops-slider__button:hover,\r\n.pops-slider__button.hover {\r\n  cursor: grab;\r\n}\r\n\r\n.pops-slider__button.dragging {\r\n  cursor: grabbing;\r\n}\r\n\r\n.pops-slider__stop {\r\n  position: absolute;\r\n  height: var(--pops-slider-height);\r\n  width: var(--pops-slider-height);\r\n  border-radius: var(--pops-slider-border-radius-circle);\r\n  background-color: var(--pops-slider-stop-bg-color);\r\n  transform: translate(-50%);\r\n}\r\n\r\n.pops-slider__marks {\r\n  top: 0;\r\n  left: 12px;\r\n  width: 18px;\r\n  height: 100%;\r\n}\r\n\r\n.pops-slider__marks-text {\r\n  position: absolute;\r\n  transform: translate(-50%);\r\n  font-size: 14px;\r\n  color: var(--pops-slider-color-info);\r\n  margin-top: 15px;\r\n  white-space: pre;\r\n}\r\n\r\n.pops-slider.is-vertical {\r\n  position: relative;\r\n  display: inline-flex;\r\n  width: auto;\r\n  height: 100%;\r\n  flex: 0;\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__runway {\r\n  width: var(--pops-slider-height);\r\n  height: 100%;\r\n  margin: 0 16px;\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__bar {\r\n  width: var(--pops-slider-height);\r\n  height: auto;\r\n  border-radius: 0 0 3px 3px;\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__button-wrapper {\r\n  top: auto;\r\n  left: var(--pops-slider-button-wrapper-offset);\r\n  transform: translateY(50%);\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__stop {\r\n  transform: translateY(50%);\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__marks-text {\r\n  margin-top: 0;\r\n  left: 15px;\r\n  transform: translateY(50%);\r\n}\r\n\r\n.pops-slider--large {\r\n  height: 40px;\r\n}\r\n\r\n.pops-slider--small {\r\n  height: 24px;\r\n}\r\n/* slider的CSS */\r\n\r\n/* input的CSS */\r\n.pops-panel-input {\r\n  --el-disabled-text-color: #a8abb2;\r\n  --el-disabled-bg-color: #f5f7fa;\r\n  --el-disabled-border-color: #e4e7ed;\r\n\r\n  --pops-panel-components-input-text-color: #000000;\r\n  --pops-panel-components-input-text-bg-color: transparent;\r\n  --pops-panel-components-input-text-default-padding: 8px;\r\n  --pops-panel-components-input-bd-color: #dcdfe6;\r\n  --pops-panel-components-input-bg-color: #ffffff;\r\n  --pops-panel-components-input-hover-bd-color: #c0c4cc;\r\n  --pops-panel-components-input-focus-bd-color: #409eff;\r\n  --pops-panel-components-input-suffix-color: #a8abb2;\r\n  --pops-panel-components-input-suffix-bg-color: #ffffff;\r\n}\r\n.pops-panel-input {\r\n  display: flex;\r\n  align-items: center;\r\n  border: 1px solid var(--pops-panel-components-input-bd-color);\r\n  border-radius: 4px;\r\n  background-color: var(--pops-panel-components-input-bg-color);\r\n  position: relative;\r\n  box-shadow: none;\r\n}\r\n.pops-panel-input:hover {\r\n  border: 1px solid var(--pops-panel-components-input-hover-bd-color);\r\n}\r\n.pops-panel-input:has(input:disabled):hover {\r\n  --pops-panel-components-input-hover-bd-color: var(--pops-panel-components-input-bd-color);\r\n}\r\n.pops-panel-input:has(input:focus) {\r\n  outline: 0;\r\n  border: 1px solid var(--pops-panel-components-input-focus-bd-color);\r\n  border-radius: 4px;\r\n  box-shadow: none;\r\n}\r\n.pops-panel-input input {\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  text-align: start;\r\n  align-items: center;\r\n  align-content: center;\r\n  white-space: nowrap;\r\n  cursor: text;\r\n  box-sizing: border-box;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n  vertical-align: middle;\r\n  -webkit-appearance: none;\r\n  appearance: none;\r\n  color: var(--pops-panel-components-input-text-color);\r\n  background-color: var(--pops-panel-components-input-text-bg-color);\r\n  outline: 0;\r\n  transition: 0.1s;\r\n  border: 0;\r\n  font-size: 14px;\r\n  font-weight: 500;\r\n  line-height: normal;\r\n  height: 32px;\r\n  width: 100%;\r\n  flex: 1;\r\n  /*margin-right: calc(1em + 8px);*/\r\n  margin: 0px;\r\n  padding: var(--pops-panel-components-input-text-default-padding);\r\n}\r\n.pops-panel-input span.pops-panel-input__suffix {\r\n  display: inline-flex;\r\n  white-space: nowrap;\r\n  flex-shrink: 0;\r\n  flex-wrap: nowrap;\r\n  height: 100%;\r\n  text-align: center;\r\n  color: var(--pops-panel-components-input-suffix-color);\r\n  background: var(--pops-panel-components-input-suffix-bg-color);\r\n  transition: all 0.3s;\r\n  pointer-events: none;\r\n  padding: 0 8px;\r\n  position: absolute;\r\n  right: 0px;\r\n  border-top-right-radius: 4px;\r\n  border-bottom-right-radius: 4px;\r\n  border: 1px solid transparent;\r\n}\r\n.pops-panel-input span.pops-panel-input__suffix-inner {\r\n  pointer-events: all;\r\n  display: inline-flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n}\r\n/* 如果包含清空图标的按钮，则默认隐藏清空图标，当:hover、:focus、:focus-within、:active时显示清空图标 */\r\n.pops-panel-input span.pops-panel-input__suffix:has(svg[data-type="circleClose"]) {\r\n  display: none;\r\n}\r\n.pops-panel-input:hover span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\r\n.pops-panel-input:focus span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\r\n.pops-panel-input:focus-within span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\r\n.pops-panel-input:active span.pops-panel-input__suffix:has(svg[data-type="circleClose"]) {\r\n  display: inline-flex;\r\n}\r\n.pops-panel-input .pops-panel-icon {\r\n  cursor: pointer;\r\n}\r\n.pops-panel-input .pops-panel-icon {\r\n  height: inherit;\r\n  line-height: normal;\r\n  align-content: center;\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  transition: all 0.3s;\r\n}\r\n.pops-panel-input .pops-panel-icon svg {\r\n  height: 1em;\r\n  width: 1em;\r\n}\r\n\r\n.pops-input-disabled {\r\n  background-color: var(--pops-components-is-disabled-bg-color);\r\n}\r\n.pops-panel-input.pops-input-disabled:hover {\r\n  --pops-panel-components-input-hover-bd-color: var(--pops-panel-components-input-bd-color);\r\n}\r\n.pops-panel-input input:disabled,\r\n.pops-panel-input input:disabled + .pops-panel-input__suffix {\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n  color: var(--el-disabled-text-color);\r\n  -webkit-text-fill-color: var(--el-disabled-text-color);\r\n  cursor: not-allowed;\r\n}\r\n.pops-panel-input input:disabled + .pops-panel-input__suffix {\r\n  display: none;\r\n}\r\n/* input的CSS */\r\n\r\n/* textarea的CSS */\r\n.pops-panel-textarea {\r\n  --pops-panel-components-textarea-text-color: #000000;\r\n  --pops-panel-components-textarea-text-bg-color: #ffffff;\r\n  --pops-panel-components-textarea-bd-color: #dcdfe6;\r\n  --pops-panel-components-textarea-hover-bd-color: #c0c4cc;\r\n  --pops-panel-components-textarea-focus-bd-color: #409eff;\r\n}\r\n.pops-panel-textarea textarea {\r\n  width: 100%;\r\n  /*vertical-align: bottom;*/\r\n  position: relative;\r\n  display: block;\r\n  resize: none;\r\n  padding: 5px 11px;\r\n  /*line-height: 1;*/\r\n  box-sizing: border-box;\r\n  font-size: inherit;\r\n  font-family: inherit;\r\n  color: var(--pops-panel-components-textarea-text-color);\r\n  background-color: var(--pops-panel-components-textarea-text-bg-color);\r\n  background-image: none;\r\n  -webkit-appearance: none;\r\n  appearance: none;\r\n  box-shadow: none;\r\n  border-radius: 0;\r\n  transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\r\n  border: 1px solid var(--pops-panel-components-textarea-bd-color);\r\n}\r\n.pops-panel-textarea textarea:hover {\r\n  border-color: var(--pops-panel-components-textarea-hover-bd-color);\r\n}\r\n.pops-panel-textarea:has(textarea:disabled):hover {\r\n  --pops-panel-components-textarea-hover-bd-color: var(--pops-panel-components-textarea-bd-color);\r\n}\r\n.pops-panel-textarea-disable {\r\n  --pops-panel-components-textarea-text-bg-color: var(--pops-components-is-disabled-bg-color) !important;\r\n  --pops-panel-components-textarea-text-color: var(--pops-components-is-disabled-text-color);\r\n}\r\n.pops-panel-textarea-disable textarea {\r\n  cursor: not-allowed;\r\n}\r\n.pops-panel-textarea textarea:focus {\r\n  outline: 0;\r\n  border-color: var(--pops-panel-components-textarea-focus-bd-color);\r\n}\r\n/* textarea的CSS */\r\n\r\n/* select的CSS */\r\n.pops-panel-select {\r\n  --pops-panel-components-select-text-color: #000000;\r\n  --pops-panel-components-select-bd-color: rgb(184, 184, 184, var(--pops-bd-opacity));\r\n  --pops-panel-components-select-hover-bd-color: rgb(184, 184, 184, var(--pops-bd-opacity));\r\n  --pops-panel-components-select-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n}\r\n.pops-panel-select {\r\n  border: 0;\r\n}\r\n.pops-panel-select select {\r\n  height: 32px;\r\n  line-height: normal;\r\n  align-content: center;\r\n  min-width: 200px;\r\n  border: 1px solid var(--pops-panel-components-select-bd-color);\r\n  border-radius: 5px;\r\n  text-align: center;\r\n  outline: 0;\r\n  color: var(--pops-panel-components-select-text-color);\r\n  background-color: var(--pops-panel-components-select-bg-color);\r\n  box-shadow: none;\r\n}\r\n.pops-panel-select select:hover {\r\n  border: 1px solid var(--pops-panel-components-select-hover-bd-color);\r\n}\r\n.pops-panel-select-disable {\r\n  --pops-panel-components-select-text-color: var(--pops-components-is-disabled-text-color);\r\n  --pops-panel-components-select-bg-color: var(--pops-components-is-disabled-bg-color);\r\n}\r\n.pops-panel-select-disable select {\r\n  cursor: not-allowed;\r\n}\r\n.pops-panel-select-disable select:hover {\r\n  box-shadow: none;\r\n  --pops-panel-components-select-hover-bd-color: var(--pops-panel-components-select-bd-color);\r\n}\r\n.pops-panel-select select:focus {\r\n  border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));\r\n  box-shadow: none;\r\n}\r\n/* select的CSS */\r\n\r\n/* select-multiple的CSS*/\r\n.pops-panel-select-multiple {\r\n  --el-border-radius-base: 4px;\r\n  --el-fill-color-blank: #ffffff;\r\n  --el-transition-duration: 0.3s;\r\n  --el-border-color: #cbcbcb;\r\n  --el-text-color-placeholder: #a8abb2;\r\n  --color: inherit;\r\n  --el-select-input-color: #a8abb2;\r\n  --el-select-input-font-size: 14px;\r\n  --el-text-color-regular: #606266;\r\n  --el-color-info: #909399;\r\n  --el-color-info-light-9: #f4f4f5;\r\n  --el-color-info-light-8: #e9e9eb;\r\n  --el-color-primary-light-9: #ecf5ff;\r\n  --el-color-primary-light-8: #d9ecff;\r\n  --el-color-primary: #409eff;\r\n  --el-color-white: #ffffff;\r\n  width: 200px;\r\n}\r\n.pops-panel-select-multiple .el-select__wrapper {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  box-sizing: border-box;\r\n  cursor: pointer;\r\n  text-align: left;\r\n  font-size: 14px;\r\n  padding: 4px 12px;\r\n  gap: 6px;\r\n  min-height: 32px;\r\n  line-height: normal;\r\n  align-content: center;\r\n  border-radius: var(--el-border-radius-base);\r\n  background-color: var(--el-fill-color-blank);\r\n  transition: var(--el-transition-duration);\r\n  transform: translateZ(0);\r\n  border: 1px solid var(--el-border-color);\r\n}\r\n.pops-panel-select-multiple .el-select__wrapper.is-focused {\r\n  --el-border-color: var(--el-color-primary);\r\n}\r\n.pops-panel-select-multiple .el-select__selection {\r\n  position: relative;\r\n  display: flex;\r\n  flex-wrap: wrap;\r\n  align-items: center;\r\n  flex: 1;\r\n  min-width: 0;\r\n  gap: 6px;\r\n}\r\n.pops-panel-select-multiple .el-select__selected-item {\r\n  display: flex;\r\n  flex-wrap: wrap;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n.pops-panel-select-multiple .el-select__selected-item.el-select__choose_tag .el-tag {\r\n  max-width: 200px;\r\n}\r\n.pops-panel-select-multiple .el-select__input-wrapper {\r\n  max-width: 100%;\r\n}\r\n.pops-panel-select-multiple .el-select__selection.is-near {\r\n  margin-left: -8px;\r\n}\r\n.pops-panel-select-multiple .el-select__placeholder {\r\n  position: absolute;\r\n  display: block;\r\n  top: 50%;\r\n  transform: translateY(-50%);\r\n  width: 100%;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  white-space: nowrap;\r\n  color: var(--el-input-text-color, var(--el-text-color-regular));\r\n}\r\n.pops-panel-select-multiple .el-select__placeholder.is-transparent {\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n  color: var(--el-text-color-placeholder);\r\n}\r\n.pops-panel-select-multiple .el-select__prefix,\r\n.pops-panel-select-multiple .el-select__suffix {\r\n  display: flex;\r\n  align-items: center;\r\n  flex-shrink: 0;\r\n  gap: 6px;\r\n  color: var(--el-input-icon-color, var(--el-text-color-placeholder));\r\n}\r\n.pops-panel-select-multiple .el-icon {\r\n  --color: inherit;\r\n  height: 1em;\r\n  width: 1em;\r\n  line-height: normal;\r\n  align-content: center;\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  fill: currentColor;\r\n  color: var(--color);\r\n  font-size: inherit;\r\n}\r\n.pops-panel-select-multiple .el-icon svg {\r\n  height: 1em;\r\n  width: 1em;\r\n}\r\n.pops-panel-select-multiple .el-select__caret {\r\n  color: var(--el-select-input-color);\r\n  font-size: var(--el-select-input-font-size);\r\n  transition: var(--el-transition-duration);\r\n  transform: rotate(0);\r\n  cursor: pointer;\r\n}\r\n.pops-panel-select-multiple .el-tag {\r\n  --el-tag-font-size: 12px;\r\n  --el-tag-border-radius: 4px;\r\n  --el-tag-border-radius-rounded: 9999px;\r\n}\r\n.pops-panel-select-multiple .el-tag {\r\n  background-color: var(--el-tag-bg-color);\r\n  border-color: var(--el-tag-border-color);\r\n  color: var(--el-tag-text-color);\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  vertical-align: middle;\r\n  height: 24px;\r\n  padding: 0 9px;\r\n  font-size: var(--el-tag-font-size);\r\n  line-height: normal;\r\n  align-content: center;\r\n  border-width: 1px;\r\n  border-style: solid;\r\n  border-radius: var(--el-tag-border-radius);\r\n  box-sizing: border-box;\r\n  white-space: nowrap;\r\n  --el-icon-size: 14px;\r\n  --el-tag-bg-color: var(--el-color-primary-light-9);\r\n  --el-tag-border-color: var(--el-color-primary-light-8);\r\n  --el-tag-hover-color: var(--el-color-primary);\r\n}\r\n.pops-panel-select-multiple .el-select__selection .el-tag {\r\n  cursor: pointer;\r\n  border-color: transparent;\r\n}\r\n.pops-panel-select-multiple .el-tag.el-tag--info {\r\n  --el-tag-bg-color: var(--el-color-info-light-9);\r\n  --el-tag-border-color: var(--el-color-info-light-8);\r\n  --el-tag-hover-color: var(--el-color-info);\r\n}\r\n.pops-panel-select-multiple .el-tag.el-tag--info {\r\n  --el-tag-text-color: var(--el-color-info);\r\n}\r\n.pops-panel-select-multiple .el-tag.is-closable {\r\n  padding-right: 5px;\r\n}\r\n.pops-panel-select-multiple .el-select__selection .el-tag .el-tag__content {\r\n  min-width: 0;\r\n}\r\n.pops-panel-select-multiple .el-tag .el-tag__close {\r\n  flex-shrink: 0;\r\n  color: var(--el-tag-text-color);\r\n}\r\n.pops-panel-select-multiple .el-tag .el-tag__close:hover {\r\n  color: var(--el-color-white);\r\n  background-color: var(--el-tag-hover-color);\r\n}\r\n.pops-panel-select-multiple .el-tag .el-icon {\r\n  border-radius: 50%;\r\n  cursor: pointer;\r\n  font-size: calc(var(--el-icon-size) - 2px);\r\n  height: var(--el-icon-size);\r\n  width: var(--el-icon-size);\r\n}\r\n.pops-panel-select-multiple .el-tag .el-tag__close {\r\n  margin-left: 6px;\r\n}\r\n.pops-panel-select-multiple .el-select__tags-text {\r\n  display: block;\r\n  line-height: normal;\r\n  align-content: center;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  white-space: nowrap;\r\n}\r\n.pops-panel-select-multiple-disable {\r\n  --el-fill-color-blank: #f5f7fa;\r\n  --color: #a8abb2;\r\n  --el-border-color: #cbcbcb;\r\n}\r\n.pops-panel-select-multiple-disable .el-tag.el-tag--info {\r\n  --el-tag-bg-color: #e7e7e7;\r\n  --el-tag-text-color: var(--pops-components-is-disabled-text-color);\r\n}\r\n.pops-panel-select-multiple-disable .el-select__selection .el-tag,\r\n.pops-panel-select-multiple-disable .el-tag .el-tag__close:hover,\r\n.pops-panel-select-multiple-disable .el-select__wrapper,\r\n.pops-panel-select-multiple-disable .el-select__caret {\r\n  cursor: not-allowed;\r\n}\r\n/* select-multiple的CSS*/\r\n\r\n/* deepMenu的css */\r\n.pops-panel-deepMenu-nav-item {\r\n  cursor: pointer;\r\n}\r\n.pops-panel-deepMenu-nav-item:active {\r\n  background: var(--pops-panel-forms-container-deepMenu-item-active-bg);\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item ul li.pops-panel-deepMenu-nav-item:active {\r\n  padding: var(--pops-panel-forms-container-li-padding-top-bottom)\r\n    var(--pops-panel-forms-container-li-padding-left-right);\r\n  margin: 0px;\r\n}\r\n/* 去除上个兄弟item的底部边框颜色 */\r\nsection.pops-panel-container .pops-panel-forms-container-item ul li:has(+ .pops-panel-deepMenu-nav-item:active) {\r\n  border-bottom: 1px solid transparent;\r\n}\r\n/* 第一个和最后一个跟随圆角 */\r\nsection.pops-panel-container .pops-panel-forms-container-item ul li.pops-panel-deepMenu-nav-item:first-child:active {\r\n  border-top-left-radius: var(--pops-panel-forms-container-item-border-radius);\r\n  border-top-right-radius: var(--pops-panel-forms-container-item-border-radius);\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item ul li.pops-panel-deepMenu-nav-item:last-child:active {\r\n  border-bottom-left-radius: var(--pops-panel-forms-container-item-border-radius);\r\n  border-bottom-right-radius: var(--pops-panel-forms-container-item-border-radius);\r\n}\r\n.pops-panel-deepMenu-nav-item .pops-panel-deepMenu {\r\n  display: flex;\r\n  align-items: center;\r\n  color: #6c6c6c;\r\n  fill: #6c6c6c;\r\n}\r\n.pops-panel-deepMenu-nav-item .pops-panel-deepMenu-arrowRight-icon {\r\n  width: 15px;\r\n  height: 15px;\r\n  display: flex;\r\n  align-items: center;\r\n}\r\nsection.pops-panel-deepMenu-container .pops-panel-container-header-ul li.pops-panel-deepMenu-container-header {\r\n  display: flex;\r\n  align-items: center;\r\n  width: -webkit-fill-available;\r\n  width: -moz-available;\r\n  padding: var(--pops-panel-forms-header-padding-top-bottom)\r\n    calc(\r\n      var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right) -\r\n        var(--pops-panel-forms-header-icon-size)\r\n    );\r\n  gap: 0px;\r\n}\r\n.pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon {\r\n  width: var(--pops-panel-forms-header-icon-size);\r\n  height: var(--pops-panel-forms-header-icon-size);\r\n  display: flex;\r\n  align-items: center;\r\n  cursor: pointer;\r\n}\r\n/* 修复safari上图标大小未正常显示 */\r\n.pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon > svg {\r\n  width: inherit;\r\n  height: inherit;\r\n}\r\n/* deepMenu的css */\r\n\r\n/* 文字对齐 */\r\n.pops-panel-item-left-desc-text:has(code) {\r\n  display: flex;\r\n  align-items: baseline;\r\n  flex-wrap: wrap;\r\n}\r\n\r\n@media (prefers-color-scheme: dark) {\r\n  .pops[type-value="panel"] {\r\n    --pops-bg-color: #000000;\r\n    --pops-color: #f2f2f2;\r\n    --panel-title-bg-color: #000000;\r\n    --panel-aside-bg-color: #262626;\r\n    --pops-panel-forms-container-item-left-desc-text-color: #6c6c6c;\r\n    --pops-panel-forms-container-item-bg-color: #262626;\r\n    --pops-panel-forms-container-item-title-color: #c1c1c1;\r\n\r\n    --pops-panel-forms-container-li-border-color: rgb(51, 51, 51, var(--pops-bd-opacity));\r\n    --pops-panel-forms-container-deepMenu-item-active-bg: #333333;\r\n  }\r\n  .pops[type-value="panel"] .pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon {\r\n    fill: #f2f2f2;\r\n  }\r\n\r\n  /* switch的CSS */\r\n  .pops-panel-switch {\r\n    --panel-switch-core-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\r\n    --panel-switch-core-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\r\n    --panel-switch-circle-color: #dcdfe6;\r\n    --panel-switch-circle-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n    --panel-switch-checked-circle-color: #409eff;\r\n    --panel-switch-checked-core-bd-color: rgb(64, 158, 255, var(--pops-bd-opacity));\r\n    --panel-switch-checked-core-bg-color: rgb(64, 158, 255, var(--pops-bg-opacity));\r\n  }\r\n  /* select的CSS */\r\n  .pops-panel-select {\r\n    --pops-panel-components-select-text-color: #f2f2f2;\r\n    --pops-panel-components-select-bd-color: rgb(51, 51, 51, var(--pops-bd-opacity));\r\n    --pops-panel-components-select-bg-color: #141414;\r\n  }\r\n  /* select-multiple的CSS*/\r\n  .pops-panel-select-multiple {\r\n    --el-fill-color-blank: #141414;\r\n    --el-border-color: #4c4d4f;\r\n    --el-text-color-placeholder: #a8abb2;\r\n    --el-select-input-color: #a8abb2;\r\n    --el-text-color-regular: #606266;\r\n    --el-color-info: #909399;\r\n    --el-color-info-light-8: #e9e9eb;\r\n    --el-color-primary-light-9: #ecf5ff;\r\n    --el-color-primary-light-8: #d9ecff;\r\n    --el-color-primary: #409eff;\r\n    --el-color-white: #ffffff;\r\n  }\r\n  .pops-panel-select-multiple .el-tag {\r\n    --el-color-info-light-9: #202121;\r\n  }\r\n  .pops-panel-select-multiple-disable {\r\n    --el-border-color: rgb(51, 51, 51, var(--pops-bd-opacity));\r\n  }\r\n  .pops-panel-select-multiple-disable .el-tag.el-tag--info {\r\n    --el-tag-bg-color: #2f2f2f;\r\n  }\r\n  /* select-multiple的CSS*/\r\n  /* slider的CSS */\r\n  .pops-slider {\r\n    --pops-slider-border-color-light: #414243;\r\n  }\r\n  /* input的CSS */\r\n  .pops-panel-input {\r\n    --pops-panel-components-input-text-color: #f2f2f2;\r\n    --pops-panel-components-input-bd-color: #4f5052;\r\n    --pops-panel-components-input-bg-color: #141414;\r\n    --pops-panel-components-input-hover-bd-color: #6f7175;\r\n    --pops-panel-components-input-focus-bd-color: #409eff;\r\n    --pops-panel-components-input-suffix-color: #a8abb2;\r\n  }\r\n  /* textarea的CSS */\r\n  .pops-panel-textarea {\r\n    --pops-panel-components-textarea-text-color: #f2f2f2;\r\n    --pops-panel-components-textarea-text-bg-color: #141414;\r\n    --pops-panel-components-textarea-bd-color: #4f5052;\r\n    --pops-panel-components-textarea-hover-bd-color: #6f7175;\r\n    --pops-panel-components-textarea-focus-bd-color: #409eff;\r\n  }\r\n  .pops-panel-textarea-disable {\r\n    --pops-panel-components-textarea-text-color: var(--pops-components-is-disabled-text-color);\r\n    --pops-panel-components-textarea-text-bg-color: var(--pops-components-is-disabled-bg-color);\r\n  }\r\n  /* slider */\r\n  .pops-slider {\r\n    --pops-slider-text-color-placeholder: #8d9095;\r\n  }\r\n}\r\n';
+    '.pops[type-value="panel"] {\r\n  --pops-bg-color: #f2f2f2;\r\n  --pops-color: #333333;\r\n  --panel-title-bg-color: #ffffff;\r\n\r\n  --panel-aside-bg-color: #ffffff;\r\n  --panel-aside-hover-color: rgb(64, 158, 255);\r\n  --panel-aside-hover-bg-color: rgba(64, 158, 255, 0.1);\r\n\r\n  --pops-panel-forms-margin-top-bottom: 10px;\r\n  --pops-panel-forms-margin-left-right: 20px;\r\n  --pops-panel-forms-header-icon-size: calc(var(--pops-panel-forms-container-li-padding-left-right) + 1px);\r\n  --pops-panel-forms-header-padding-top-bottom: 15px;\r\n  --pops-panel-forms-header-padding-left-right: 10px;\r\n  --pops-panel-forms-container-item-left-text-gap: 6px;\r\n  --pops-panel-forms-container-item-left-desc-text-size: 0.8em;\r\n  --pops-panel-forms-container-item-left-desc-text-color: #6c6c6c;\r\n  --pops-panel-forms-container-item-bg-color: #ffffff;\r\n  --pops-panel-forms-container-item-title-color: #333;\r\n  --pops-panel-forms-container-item-border-radius: 6px;\r\n  --pops-panel-forms-container-item-margin-top-bottom: 10px;\r\n  --pops-panel-forms-container-item-margin-left-right: var(--pops-panel-forms-margin-left-right);\r\n  --pops-panel-forms-container-li-border-color: var(--pops-bd-color);\r\n  --pops-panel-forms-container-li-padding-top-bottom: 12px;\r\n  --pops-panel-forms-container-li-padding-left-right: 16px;\r\n\r\n  --pops-panel-forms-container-deepMenu-item-active-bg: #e9e9e9;\r\n}\r\n.pops[type-value="panel"] {\r\n  color: var(--pops-color);\r\n  background: var(--pops-bg-color);\r\n}\r\n.pops[type-value] .pops-panel-title {\r\n  background: var(--panel-title-bg-color);\r\n}\r\n\r\n/* ↓panel的CSS↓ */\r\n/* 左侧的列表 */\r\naside.pops-panel-aside {\r\n  box-sizing: border-box;\r\n  flex-shrink: 0;\r\n  max-width: 200px;\r\n  min-width: 100px;\r\n  height: 100%;\r\n  background: var(--panel-aside-bg-color);\r\n  border-right: 1px solid var(--panel-aside-bg-color);\r\n  font-size: 0.9em;\r\n  display: flex;\r\n  flex-direction: column;\r\n  justify-content: space-between;\r\n}\r\naside.pops-panel-aside .pops-panel-aside-top-container {\r\n  overflow: auto;\r\n}\r\naside.pops-panel-aside ul li {\r\n  margin: 6px 8px;\r\n  border-radius: 4px;\r\n  padding: 6px 10px;\r\n  cursor: default;\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: flex-start;\r\n}\r\naside.pops-panel-aside .pops-is-visited,\r\naside.pops-panel-aside ul li:not(.pops-panel-disabled-aside-hover-css):hover {\r\n  color: var(--panel-aside-hover-color);\r\n  background: var(--panel-aside-hover-bg-color);\r\n}\r\n/* 左侧的列表 */\r\n\r\n/* 底部的容器 */\r\n.pops-panel-bottom-wrapper {\r\n  background: var(--panel-aside-bg-color);\r\n  border-top: 1px solid #ebeef5;\r\n}\r\n.pops-panel-bottom-wrapper:has(.pops-panel-bottom-left-container:empty):has(.pops-panel-bottom-right-container:empty) {\r\n  border-top: 0;\r\n}\r\n.pops-panel-bottom-container {\r\n  display: flex;\r\n  flex-wrap: nowrap;\r\n  justify-content: space-between;\r\n}\r\n.pops-panel-bottom-left-container {\r\n}\r\n.pops-panel-bottom-right-container {\r\n}\r\n.pops-panel-bottom-wrapper .pops-panel-bottom-item {\r\n  list-style-type: none;\r\n  margin: 6px 8px;\r\n  border-radius: 4px;\r\n  padding: 6px 10px;\r\n  cursor: default;\r\n}\r\n.pops-panel-bottom-wrapper:not(.pops-panel-disable-bottom-item-hover-css) .pops-panel-bottom-item:hover {\r\n  color: var(--panel-aside-hover-color);\r\n  background: var(--panel-aside-hover-bg-color);\r\n}\r\n/* 底部的容器 */\r\n\r\n.pops-panel-content {\r\n  display: flex;\r\n  flex-direction: row;\r\n  flex: 1;\r\n  overflow: auto;\r\n  flex-basis: auto;\r\n  box-sizing: border-box;\r\n  min-width: 0;\r\n  bottom: 0 !important;\r\n}\r\n\r\n.pops-panel-section-wrapper {\r\n  width: 100%;\r\n  overflow: hidden;\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n\r\nsection.pops-panel-container {\r\n  width: 100%;\r\n  overflow: hidden;\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\nsection.pops-panel-container .pops-panel-container-header-ul,\r\nsection.pops-panel-container .pops-panel-deepMenu-container-header-ul {\r\n  border-bottom: 1px solid rgba(223, 223, 223, var(--pops-bg-opacity));\r\n  flex: 0 auto;\r\n}\r\nsection.pops-panel-container .pops-panel-container-header-ul li,\r\nsection.pops-panel-container .pops-panel-container-header-ul li.pops-panel-container-header-title-text {\r\n  display: flex;\r\n  justify-content: flex-start !important;\r\n  margin: 0px !important;\r\n  padding: var(--pops-panel-forms-header-padding-top-bottom)\r\n    calc(var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right));\r\n  text-align: left;\r\n}\r\nsection.pops-panel-container ul.pops-panel-container-main-ul {\r\n  overflow: auto;\r\n  /*flex: 1;*/\r\n}\r\nsection.pops-panel-container > ul li:not(.pops-panel-forms-container-item) {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  margin: var(--pops-panel-forms-margin-top-bottom)\r\n    calc(var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-margin-left-right));\r\n  gap: 10px;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item-header-text {\r\n  margin: 10px;\r\n  margin-left: calc(\r\n    var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right)\r\n  );\r\n  font-size: 0.9em;\r\n  text-align: left;\r\n  color: var(--pops-panel-forms-container-item-title-color);\r\n}\r\nsection.pops-panel-container li.pops-panel-forms-container-item {\r\n  /* 去除<li>左侧的圆点 */\r\n  display: block;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item ul.pops-panel-forms-container-item-formlist {\r\n  border-radius: var(--pops-panel-forms-container-item-border-radius);\r\n  background: var(--pops-panel-forms-container-item-bg-color);\r\n  margin: var(--pops-panel-forms-container-item-margin-top-bottom) var(--pops-panel-forms-margin-left-right);\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item ul.pops-panel-forms-container-item-formlist li {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  padding: var(--pops-panel-forms-container-li-padding-top-bottom)\r\n    var(--pops-panel-forms-container-li-padding-left-right);\r\n  margin: 0px 0px;\r\n  border-bottom: 1px solid var(--pops-panel-forms-container-li-border-color);\r\n  text-align: left;\r\n}\r\n/*section.pops-panel-container\r\n	.pops-panel-forms-container-item\r\n	ul\r\n	li.pops-panel-deepMenu-nav-item {\r\n	padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px;\r\n	margin: 0px var(--pops-panel-forms-container-li-padding-left-right);\r\n	border-bottom: 1px solid var(--pops-panel-forms-container-li-border-color);\r\n}*/\r\nsection.pops-panel-container\r\n  .pops-panel-forms-container-item\r\n  ul.pops-panel-forms-container-item-formlist\r\n  li:last-child {\r\n  border: 0px;\r\n}\r\n/* 左侧的文字 */\r\nsection.pops-panel-container .pops-panel-item-left-text {\r\n  display: flex;\r\n  flex-direction: column;\r\n  gap: var(--pops-panel-forms-container-item-left-text-gap);\r\n}\r\n\r\n/* 左侧的主文字 */\r\n/*section.pops-panel-container .pops-panel-item-left-main-text {\r\n	\r\n}*/\r\n/* 左侧的描述文字 */\r\nsection.pops-panel-container .pops-panel-item-left-desc-text {\r\n  font-size: var(--pops-panel-forms-container-item-left-desc-text-size);\r\n  color: var(--pops-panel-forms-container-item-left-desc-text-color);\r\n}\r\n\r\n/* 折叠面板 */\r\nsection.pops-panel-container .pops-panel-forms-fold {\r\n  border-radius: var(--pops-panel-forms-container-item-border-radius);\r\n  background: var(--pops-panel-forms-container-item-bg-color);\r\n  margin: var(--pops-panel-forms-margin-top-bottom) var(--pops-panel-forms-margin-left-right);\r\n}\r\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-fold-container {\r\n  display: flex;\r\n  align-items: center;\r\n  fill: #6c6c6c;\r\n  justify-content: space-between;\r\n  margin: 0px var(--pops-panel-forms-container-li-padding-left-right) !important;\r\n  padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px !important;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-fold[data-fold-enable] .pops-panel-forms-fold-container-icon {\r\n  transform: rotate(90deg);\r\n}\r\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-fold-container-icon {\r\n  width: 15px;\r\n  height: 15px;\r\n  display: flex;\r\n  align-items: center;\r\n  transform: rotate(-90deg);\r\n  transition: transform 0.3s;\r\n}\r\n/* 折叠状态 */\r\nsection.pops-panel-container .pops-panel-forms-fold[data-fold-enable] .pops-panel-forms-container-item-formlist {\r\n  height: 0;\r\n}\r\n/* 非折叠状态 */\r\nsection.pops-panel-container .pops-panel-forms-fold ul.pops-panel-forms-container-item-formlist {\r\n  margin: 0;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-container-item-formlist {\r\n  transition: height 0.3s;\r\n  overflow: hidden;\r\n  border-radius: unset;\r\n  background: unset;\r\n  margin: 0;\r\n  height: calc-size(auto, size);\r\n}\r\n/* 折叠面板 */\r\n\r\n/* 姑且认为小于600px的屏幕为移动端 */\r\n@media (max-width: 600px) {\r\n  /* 兼容移动端CSS */\r\n  .pops[type-value="panel"] {\r\n    --pops-panel-forms-margin-left-right: 10px;\r\n  }\r\n  .pops[type-value="panel"] {\r\n    width: 92%;\r\n    width: 92vw;\r\n    width: 92dvw;\r\n  }\r\n  .pops[type-value="panel"] .pops-panel-content aside.pops-panel-aside {\r\n    max-width: 20%;\r\n    min-width: auto;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-forms-container-item > div {\r\n    text-align: left;\r\n    --pops-panel-forms-margin-left-right: 0px;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-forms-container-item ul {\r\n    margin: 0px !important;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container > ul > li {\r\n    margin: 10px 10px;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container > ul > li div:nth-child(2) {\r\n    max-width: 55%;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container > ul > li .pops-panel-input span.pops-panel-input__suffix {\r\n    padding: 0 4px;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-select select {\r\n    min-width: 88px !important;\r\n    width: -webkit-fill-available;\r\n    width: -moz-available;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-container-header-ul li {\r\n    font-size: 16px;\r\n  }\r\n  .pops[type-value="panel"] .pops-panel-title p[pops],\r\n  .pops[type-value="panel"] section.pops-panel-container > ul li,\r\n  .pops[type-value="panel"] aside.pops-panel-aside ul li {\r\n    font-size: 14px;\r\n  }\r\n}\r\n/* switch的CSS */\r\n.pops-panel-switch {\r\n  --panel-switch-core-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\r\n  --panel-switch-core-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\r\n  --panel-switch-circle-color: #dcdfe6;\r\n  --panel-switch-circle-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n  --panel-switch-checked-circle-color: #409eff;\r\n  --panel-switch-checked-core-bd-color: rgb(64, 158, 255, var(--pops-bd-opacity));\r\n  --panel-switch-checked-core-bg-color: rgb(64, 158, 255, var(--pops-bg-opacity));\r\n}\r\n.pops-panel-switch {\r\n  display: inline-flex;\r\n  flex-direction: row-reverse;\r\n  align-items: center;\r\n  position: relative;\r\n  font-size: 14px;\r\n  line-height: normal;\r\n  align-content: center;\r\n  height: 32px;\r\n  vertical-align: middle;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n.pops-panel-switch input.pops-panel-switch__input {\r\n  position: absolute;\r\n  width: 0;\r\n  height: 0;\r\n  opacity: 0;\r\n  margin: 0;\r\n}\r\n.pops-panel-switch:has(input.pops-panel-switch__input:disabled),\r\n.pops-panel-switch[data-disabled],\r\n.pops-panel-switch[data-disabled] .pops-panel-switch__core,\r\n.pops-panel-switch input.pops-panel-switch__input:disabled + .pops-panel-switch__core {\r\n  cursor: not-allowed;\r\n  opacity: 0.6;\r\n}\r\n.pops-panel-switch span.pops-panel-switch__core {\r\n  display: inline-flex;\r\n  position: relative;\r\n  align-items: center;\r\n  min-width: 40px;\r\n  height: 20px;\r\n  border: 1px solid var(--panel-switch-core-bd-color);\r\n  outline: 0;\r\n  border-radius: 10px;\r\n  box-sizing: border-box;\r\n  background: var(--panel-switch-core-bg-color);\r\n  cursor: pointer;\r\n  transition:\r\n    border-color 0.3s,\r\n    background-color 0.3s;\r\n}\r\n.pops-panel-switch .pops-panel-switch__action {\r\n  position: absolute;\r\n  left: 1px;\r\n  border-radius: 100%;\r\n  transition: all 0.3s;\r\n  width: 16px;\r\n  height: 16px;\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  background-color: var(--panel-switch-circle-bg-color);\r\n  color: var(--panel-switch-circle-color);\r\n}\r\n.pops-panel-switch.pops-panel-switch-is-checked span.pops-panel-switch__core {\r\n  border-color: var(--panel-switch-checked-core-bd-color);\r\n  background-color: var(--panel-switch-checked-core-bg-color);\r\n}\r\n.pops-panel-switch.pops-panel-switch-is-checked .pops-panel-switch__action {\r\n  left: calc(100% - 17px);\r\n  color: var(--panel-switch-checked-circle-color);\r\n}\r\n/* switch的CSS */\r\n\r\n/* slider旧的CSS */\r\nsection.pops-panel-container .pops-panel-slider:has(> input[type="range"]) {\r\n  overflow: hidden;\r\n  height: 25px;\r\n  line-height: normal;\r\n  align-content: center;\r\n  display: flex;\r\n  align-items: center;\r\n}\r\nsection.pops-panel-container .pops-panel-slider input[type="range"] {\r\n  height: 6px;\r\n  background: rgb(228, 231, 237, var(--pops-bg-opacity));\r\n  outline: 0;\r\n  -webkit-appearance: none;\r\n  appearance: none;\r\n  width: 100%;\r\n}\r\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-webkit-slider-thumb {\r\n  width: 20px;\r\n  height: 20px;\r\n  border-radius: 50%;\r\n  border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));\r\n  background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n  box-shadow:\r\n    0 0 2px rgba(0, 0, 0, 0.3),\r\n    0 3px 5px rgba(0, 0, 0, 0.2);\r\n  cursor: pointer;\r\n  -webkit-appearance: none;\r\n  appearance: none;\r\n  border-image: linear-gradient(#409eff, #409eff) 0 fill/9 25 9 0/0 0 0 100vw;\r\n}\r\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-thumb {\r\n  width: 20px;\r\n  height: 20px;\r\n  border-radius: 50%;\r\n  border: 1px solid rgb(64, 159, 255, var(--pops-bd-opacity));\r\n  background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n  box-shadow:\r\n    0 0 2px rgba(0, 0, 0, 0.3),\r\n    0 3px 5px rgba(0, 0, 0, 0.2);\r\n  cursor: pointer;\r\n  -webkit-appearance: none;\r\n  appearance: none;\r\n}\r\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-progress {\r\n  height: 6px;\r\n  border-image: linear-gradient(#409eff, #409eff) 0 fill/9 25 9 0/0 0 0 100vw;\r\n}\r\n/* slider旧的CSS */\r\n\r\n/* slider的CSS */\r\n.pops-slider {\r\n  --pops-slider-color-white: #ffffff;\r\n  --pops-slider-color-primary: #409eff;\r\n  --pops-slider-color-info: #909399;\r\n  --pops-slider-text-color-placeholder: #a8abb2;\r\n  --pops-slider-border-color-light: #e4e7ed;\r\n  --pops-slider-border-radius-circle: 100%;\r\n  --pops-slider-transition-duration-fast: 0.2s;\r\n\r\n  --pops-slider-main-bg-color: var(--pops-slider-color-primary);\r\n  --pops-slider-runway-bg-color: var(--pops-slider-border-color-light);\r\n  --pops-slider-stop-bg-color: var(--pops-slider-color-white);\r\n  --pops-slider-disabled-color: var(--pops-slider-text-color-placeholder);\r\n  --pops-slider-border-radius: 3px;\r\n  --pops-slider-height: 6px;\r\n  --pops-slider-button-size: 20px;\r\n  --pops-slider-button-wrapper-size: 36px;\r\n  --pops-slider-button-wrapper-offset: -15px;\r\n}\r\n\r\n.pops-slider {\r\n  width: 100%;\r\n  height: 32px;\r\n  display: flex;\r\n  align-items: center;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n\r\n.pops-slider-width {\r\n  flex: 0 0 52%;\r\n  margin-left: 10px;\r\n}\r\n\r\n.pops-slider__runway {\r\n  flex: 1;\r\n  height: var(--pops-slider-height);\r\n  background-color: var(--pops-slider-runway-bg-color);\r\n  border-radius: var(--pops-slider-border-radius);\r\n  position: relative;\r\n  cursor: pointer;\r\n}\r\n\r\n.pops-slider__runway.show-input {\r\n  margin-right: 30px;\r\n  width: auto;\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled {\r\n  cursor: default;\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__bar {\r\n  background-color: var(--pops-slider-disabled-color);\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button {\r\n  border-color: var(--pops-slider-disabled-color);\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\r\n  cursor: not-allowed;\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\r\n  transform: scale(1);\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\r\n  cursor: not-allowed;\r\n}\r\n\r\n.pops-slider__input {\r\n  flex-shrink: 0;\r\n  width: 130px;\r\n}\r\n\r\n.pops-slider__bar {\r\n  height: var(--pops-slider-height);\r\n  background-color: var(--pops-slider-main-bg-color);\r\n  border-top-left-radius: var(--pops-slider-border-radius);\r\n  border-bottom-left-radius: var(--pops-slider-border-radius);\r\n  position: absolute;\r\n}\r\n\r\n.pops-slider__button-wrapper {\r\n  height: var(--pops-slider-button-wrapper-size);\r\n  width: var(--pops-slider-button-wrapper-size);\r\n  position: absolute;\r\n  z-index: 1;\r\n  top: var(--pops-slider-button-wrapper-offset);\r\n  transform: translate(-50%);\r\n  background-color: transparent;\r\n  text-align: center;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n  line-height: normal;\r\n  outline: none;\r\n}\r\n\r\n.pops-slider__button-wrapper:after {\r\n  display: inline-block;\r\n  content: "";\r\n  height: 100%;\r\n  vertical-align: middle;\r\n}\r\n\r\n.pops-slider__button:hover,\r\n.pops-slider__button.hover {\r\n  cursor: grab;\r\n}\r\n\r\n.pops-slider__button {\r\n  display: inline-block;\r\n  width: var(--pops-slider-button-size);\r\n  height: var(--pops-slider-button-size);\r\n  vertical-align: middle;\r\n  border: solid 2px var(--pops-slider-main-bg-color);\r\n  background-color: var(--pops-slider-color-white);\r\n  border-radius: 50%;\r\n  box-sizing: border-box;\r\n  transition: var(--pops-slider-transition-duration-fast);\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n\r\n.pops-slider__button:hover,\r\n.pops-slider__button.hover,\r\n.pops-slider__button.dragging {\r\n  transform: scale(1.2);\r\n}\r\n\r\n.pops-slider__button:hover,\r\n.pops-slider__button.hover {\r\n  cursor: grab;\r\n}\r\n\r\n.pops-slider__button.dragging {\r\n  cursor: grabbing;\r\n}\r\n\r\n.pops-slider__stop {\r\n  position: absolute;\r\n  height: var(--pops-slider-height);\r\n  width: var(--pops-slider-height);\r\n  border-radius: var(--pops-slider-border-radius-circle);\r\n  background-color: var(--pops-slider-stop-bg-color);\r\n  transform: translate(-50%);\r\n}\r\n\r\n.pops-slider__marks {\r\n  top: 0;\r\n  left: 12px;\r\n  width: 18px;\r\n  height: 100%;\r\n}\r\n\r\n.pops-slider__marks-text {\r\n  position: absolute;\r\n  transform: translate(-50%);\r\n  font-size: 14px;\r\n  color: var(--pops-slider-color-info);\r\n  margin-top: 15px;\r\n  white-space: pre;\r\n}\r\n\r\n.pops-slider.is-vertical {\r\n  position: relative;\r\n  display: inline-flex;\r\n  width: auto;\r\n  height: 100%;\r\n  flex: 0;\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__runway {\r\n  width: var(--pops-slider-height);\r\n  height: 100%;\r\n  margin: 0 16px;\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__bar {\r\n  width: var(--pops-slider-height);\r\n  height: auto;\r\n  border-radius: 0 0 3px 3px;\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__button-wrapper {\r\n  top: auto;\r\n  left: var(--pops-slider-button-wrapper-offset);\r\n  transform: translateY(50%);\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__stop {\r\n  transform: translateY(50%);\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__marks-text {\r\n  margin-top: 0;\r\n  left: 15px;\r\n  transform: translateY(50%);\r\n}\r\n\r\n.pops-slider--large {\r\n  height: 40px;\r\n}\r\n\r\n.pops-slider--small {\r\n  height: 24px;\r\n}\r\n/* slider的CSS */\r\n\r\n/* input的CSS */\r\n.pops-panel-input {\r\n  --el-disabled-text-color: #a8abb2;\r\n  --el-disabled-bg-color: #f5f7fa;\r\n  --el-disabled-border-color: #e4e7ed;\r\n\r\n  --pops-panel-components-input-text-color: #000000;\r\n  --pops-panel-components-input-text-bg-color: transparent;\r\n  --pops-panel-components-input-text-default-padding: 8px;\r\n  --pops-panel-components-input-bd-color: #dcdfe6;\r\n  --pops-panel-components-input-bg-color: #ffffff;\r\n  --pops-panel-components-input-hover-bd-color: #c0c4cc;\r\n  --pops-panel-components-input-focus-bd-color: #409eff;\r\n  --pops-panel-components-input-suffix-color: #a8abb2;\r\n  --pops-panel-components-input-suffix-bg-color: #ffffff;\r\n}\r\n.pops-panel-input {\r\n  display: flex;\r\n  align-items: center;\r\n  border: 1px solid var(--pops-panel-components-input-bd-color);\r\n  border-radius: 4px;\r\n  background-color: var(--pops-panel-components-input-bg-color);\r\n  position: relative;\r\n  box-shadow: none;\r\n  width: 200px;\r\n}\r\n.pops-panel-input:hover {\r\n  border: 1px solid var(--pops-panel-components-input-hover-bd-color);\r\n}\r\n.pops-panel-input:has(input:disabled):hover {\r\n  --pops-panel-components-input-hover-bd-color: var(--pops-panel-components-input-bd-color);\r\n}\r\n.pops-panel-input:has(input:focus) {\r\n  outline: 0;\r\n  border: 1px solid var(--pops-panel-components-input-focus-bd-color);\r\n  border-radius: 4px;\r\n  box-shadow: none;\r\n}\r\n.pops-panel-input input {\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  text-align: start;\r\n  align-items: center;\r\n  align-content: center;\r\n  white-space: nowrap;\r\n  cursor: text;\r\n  box-sizing: border-box;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n  vertical-align: middle;\r\n  -webkit-appearance: none;\r\n  appearance: none;\r\n  color: var(--pops-panel-components-input-text-color);\r\n  background-color: var(--pops-panel-components-input-text-bg-color);\r\n  outline: 0;\r\n  transition: 0.1s;\r\n  border: 0;\r\n  font-size: 14px;\r\n  font-weight: 500;\r\n  line-height: normal;\r\n  height: 32px;\r\n  width: 100%;\r\n  flex: 1;\r\n  /*margin-right: calc(1em + 8px);*/\r\n  margin: 0px;\r\n  padding: var(--pops-panel-components-input-text-default-padding);\r\n}\r\n.pops-panel-input span.pops-panel-input__suffix {\r\n  display: inline-flex;\r\n  white-space: nowrap;\r\n  flex-shrink: 0;\r\n  flex-wrap: nowrap;\r\n  height: 100%;\r\n  text-align: center;\r\n  color: var(--pops-panel-components-input-suffix-color);\r\n  background: var(--pops-panel-components-input-suffix-bg-color);\r\n  transition: all 0.3s;\r\n  pointer-events: none;\r\n  padding: 0 8px;\r\n  position: relative;\r\n  right: 0px;\r\n  border-top-right-radius: 4px;\r\n  border-bottom-right-radius: 4px;\r\n  border: 1px solid transparent;\r\n}\r\n.pops-panel-input span.pops-panel-input__suffix-inner {\r\n  pointer-events: all;\r\n  display: inline-flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n}\r\n/* 如果包含清空图标的按钮，则默认隐藏清空图标，当:hover、:focus、:focus-within、:active时显示清空图标 */\r\n.pops-panel-input span.pops-panel-input__suffix:has(svg[data-type="circleClose"]) {\r\n  display: none;\r\n}\r\n.pops-panel-input:hover span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\r\n.pops-panel-input:focus span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\r\n.pops-panel-input:focus-within span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\r\n.pops-panel-input:active span.pops-panel-input__suffix:has(svg[data-type="circleClose"]) {\r\n  display: inline-flex;\r\n}\r\n/* 当清空图标显示时，则隐藏输入框的padding-right */\r\n.pops-panel-input:hover:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,\r\n.pops-panel-input:focus:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,\r\n.pops-panel-input:focus-within:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,\r\n.pops-panel-input:active:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input {\r\n  padding-right: 0;\r\n}\r\n.pops-panel-input .pops-panel-icon {\r\n  cursor: pointer;\r\n}\r\n.pops-panel-input .pops-panel-icon {\r\n  height: inherit;\r\n  line-height: normal;\r\n  align-content: center;\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  transition: all 0.3s;\r\n}\r\n.pops-panel-input .pops-panel-icon svg {\r\n  height: 1em;\r\n  width: 1em;\r\n}\r\n\r\n.pops-input-disabled {\r\n  background-color: var(--pops-components-is-disabled-bg-color);\r\n}\r\n.pops-panel-input.pops-input-disabled:hover {\r\n  --pops-panel-components-input-hover-bd-color: var(--pops-panel-components-input-bd-color);\r\n}\r\n.pops-panel-input input:disabled,\r\n.pops-panel-input input:disabled + .pops-panel-input__suffix {\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n  color: var(--el-disabled-text-color);\r\n  -webkit-text-fill-color: var(--el-disabled-text-color);\r\n  cursor: not-allowed;\r\n}\r\n.pops-panel-input input:disabled + .pops-panel-input__suffix {\r\n  display: none;\r\n}\r\n/* input的CSS */\r\n\r\n/* textarea的CSS */\r\n.pops-panel-textarea {\r\n  --pops-panel-components-textarea-text-color: #000000;\r\n  --pops-panel-components-textarea-text-bg-color: #ffffff;\r\n  --pops-panel-components-textarea-bd-color: #dcdfe6;\r\n  --pops-panel-components-textarea-hover-bd-color: #c0c4cc;\r\n  --pops-panel-components-textarea-focus-bd-color: #409eff;\r\n}\r\n.pops-panel-textarea textarea {\r\n  width: 100%;\r\n  /*vertical-align: bottom;*/\r\n  position: relative;\r\n  display: block;\r\n  resize: none;\r\n  padding: 5px 11px;\r\n  /*line-height: 1;*/\r\n  box-sizing: border-box;\r\n  font-size: inherit;\r\n  font-family: inherit;\r\n  color: var(--pops-panel-components-textarea-text-color);\r\n  background-color: var(--pops-panel-components-textarea-text-bg-color);\r\n  background-image: none;\r\n  -webkit-appearance: none;\r\n  appearance: none;\r\n  box-shadow: none;\r\n  border-radius: 0;\r\n  transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\r\n  border: 1px solid var(--pops-panel-components-textarea-bd-color);\r\n}\r\n.pops-panel-textarea textarea:hover {\r\n  border-color: var(--pops-panel-components-textarea-hover-bd-color);\r\n}\r\n.pops-panel-textarea:has(textarea:disabled):hover {\r\n  --pops-panel-components-textarea-hover-bd-color: var(--pops-panel-components-textarea-bd-color);\r\n}\r\n.pops-panel-textarea-disable {\r\n  --pops-panel-components-textarea-text-bg-color: var(--pops-components-is-disabled-bg-color) !important;\r\n  --pops-panel-components-textarea-text-color: var(--pops-components-is-disabled-text-color);\r\n}\r\n.pops-panel-textarea-disable textarea {\r\n  cursor: not-allowed;\r\n}\r\n.pops-panel-textarea textarea:focus {\r\n  outline: 0;\r\n  border-color: var(--pops-panel-components-textarea-focus-bd-color);\r\n}\r\n/* textarea的CSS */\r\n\r\n/* select的CSS */\r\n.pops-panel-select {\r\n  --pops-panel-components-select-text-color: #000000;\r\n  --pops-panel-components-select-bd-color: rgb(184, 184, 184, var(--pops-bd-opacity));\r\n  --pops-panel-components-select-hover-bd-color: rgb(184, 184, 184, var(--pops-bd-opacity));\r\n  --pops-panel-components-select-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n}\r\n.pops-panel-select {\r\n  border: 0;\r\n}\r\n.pops-panel-select select {\r\n  height: 32px;\r\n  line-height: normal;\r\n  align-content: center;\r\n  min-width: 200px;\r\n  border: 1px solid var(--pops-panel-components-select-bd-color);\r\n  border-radius: 5px;\r\n  text-align: center;\r\n  outline: 0;\r\n  color: var(--pops-panel-components-select-text-color);\r\n  background-color: var(--pops-panel-components-select-bg-color);\r\n  box-shadow: none;\r\n}\r\n.pops-panel-select select:hover {\r\n  border: 1px solid var(--pops-panel-components-select-hover-bd-color);\r\n}\r\n.pops-panel-select-disable {\r\n  --pops-panel-components-select-text-color: var(--pops-components-is-disabled-text-color);\r\n  --pops-panel-components-select-bg-color: var(--pops-components-is-disabled-bg-color);\r\n}\r\n.pops-panel-select-disable select {\r\n  cursor: not-allowed;\r\n}\r\n.pops-panel-select-disable select:hover {\r\n  box-shadow: none;\r\n  --pops-panel-components-select-hover-bd-color: var(--pops-panel-components-select-bd-color);\r\n}\r\n.pops-panel-select select:focus {\r\n  border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));\r\n  box-shadow: none;\r\n}\r\n/* select的CSS */\r\n\r\n/* select-multiple的CSS*/\r\n.pops-panel-select-multiple {\r\n  --el-border-radius-base: 4px;\r\n  --el-fill-color-blank: #ffffff;\r\n  --el-transition-duration: 0.3s;\r\n  --el-border-color: #cbcbcb;\r\n  --el-text-color-placeholder: #a8abb2;\r\n  --color: inherit;\r\n  --el-select-input-color: #a8abb2;\r\n  --el-select-input-font-size: 14px;\r\n  --el-text-color-regular: #606266;\r\n  --el-color-info: #909399;\r\n  --el-color-info-light-9: #f4f4f5;\r\n  --el-color-info-light-8: #e9e9eb;\r\n  --el-color-primary-light-9: #ecf5ff;\r\n  --el-color-primary-light-8: #d9ecff;\r\n  --el-color-primary: #409eff;\r\n  --el-color-white: #ffffff;\r\n  width: 200px;\r\n}\r\n.pops-panel-select-multiple .el-select__wrapper {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  box-sizing: border-box;\r\n  cursor: pointer;\r\n  text-align: left;\r\n  font-size: 14px;\r\n  padding: 4px 12px;\r\n  gap: 6px;\r\n  min-height: 32px;\r\n  line-height: normal;\r\n  align-content: center;\r\n  border-radius: var(--el-border-radius-base);\r\n  background-color: var(--el-fill-color-blank);\r\n  transition: var(--el-transition-duration);\r\n  transform: translateZ(0);\r\n  border: 1px solid var(--el-border-color);\r\n}\r\n.pops-panel-select-multiple .el-select__wrapper.is-focused {\r\n  --el-border-color: var(--el-color-primary);\r\n}\r\n.pops-panel-select-multiple .el-select__selection {\r\n  position: relative;\r\n  display: flex;\r\n  flex-wrap: wrap;\r\n  align-items: center;\r\n  flex: 1;\r\n  min-width: 0;\r\n  gap: 6px;\r\n}\r\n.pops-panel-select-multiple .el-select__selected-item {\r\n  display: flex;\r\n  flex-wrap: wrap;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n.pops-panel-select-multiple .el-select__selected-item.el-select__choose_tag .el-tag {\r\n  max-width: 200px;\r\n}\r\n.pops-panel-select-multiple .el-select__input-wrapper {\r\n  max-width: 100%;\r\n}\r\n.pops-panel-select-multiple .el-select__selection.is-near {\r\n  margin-left: -8px;\r\n}\r\n.pops-panel-select-multiple .el-select__placeholder {\r\n  position: absolute;\r\n  display: block;\r\n  top: 50%;\r\n  transform: translateY(-50%);\r\n  width: 100%;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  white-space: nowrap;\r\n  color: var(--el-input-text-color, var(--el-text-color-regular));\r\n}\r\n.pops-panel-select-multiple .el-select__placeholder.is-transparent {\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n  color: var(--el-text-color-placeholder);\r\n}\r\n.pops-panel-select-multiple .el-select__prefix,\r\n.pops-panel-select-multiple .el-select__suffix {\r\n  display: flex;\r\n  align-items: center;\r\n  flex-shrink: 0;\r\n  gap: 6px;\r\n  color: var(--el-input-icon-color, var(--el-text-color-placeholder));\r\n}\r\n.pops-panel-select-multiple .el-icon {\r\n  --color: inherit;\r\n  height: 1em;\r\n  width: 1em;\r\n  line-height: normal;\r\n  align-content: center;\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  fill: currentColor;\r\n  color: var(--color);\r\n  font-size: inherit;\r\n}\r\n.pops-panel-select-multiple .el-icon svg {\r\n  height: 1em;\r\n  width: 1em;\r\n}\r\n.pops-panel-select-multiple .el-select__caret {\r\n  color: var(--el-select-input-color);\r\n  font-size: var(--el-select-input-font-size);\r\n  transition: var(--el-transition-duration);\r\n  transform: rotate(0);\r\n  cursor: pointer;\r\n}\r\n.pops-panel-select-multiple .el-tag {\r\n  --el-tag-font-size: 12px;\r\n  --el-tag-border-radius: 4px;\r\n  --el-tag-border-radius-rounded: 9999px;\r\n}\r\n.pops-panel-select-multiple .el-tag {\r\n  background-color: var(--el-tag-bg-color);\r\n  border-color: var(--el-tag-border-color);\r\n  color: var(--el-tag-text-color);\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  vertical-align: middle;\r\n  height: 24px;\r\n  padding: 0 9px;\r\n  font-size: var(--el-tag-font-size);\r\n  line-height: normal;\r\n  align-content: center;\r\n  border-width: 1px;\r\n  border-style: solid;\r\n  border-radius: var(--el-tag-border-radius);\r\n  box-sizing: border-box;\r\n  white-space: nowrap;\r\n  --el-icon-size: 14px;\r\n  --el-tag-bg-color: var(--el-color-primary-light-9);\r\n  --el-tag-border-color: var(--el-color-primary-light-8);\r\n  --el-tag-hover-color: var(--el-color-primary);\r\n}\r\n.pops-panel-select-multiple .el-select__selection .el-tag {\r\n  cursor: pointer;\r\n  border-color: transparent;\r\n}\r\n.pops-panel-select-multiple .el-tag.el-tag--info {\r\n  --el-tag-bg-color: var(--el-color-info-light-9);\r\n  --el-tag-border-color: var(--el-color-info-light-8);\r\n  --el-tag-hover-color: var(--el-color-info);\r\n}\r\n.pops-panel-select-multiple .el-tag.el-tag--info {\r\n  --el-tag-text-color: var(--el-color-info);\r\n}\r\n.pops-panel-select-multiple .el-tag.is-closable {\r\n  padding-right: 5px;\r\n}\r\n.pops-panel-select-multiple .el-select__selection .el-tag .el-tag__content {\r\n  min-width: 0;\r\n}\r\n.pops-panel-select-multiple .el-tag .el-tag__close {\r\n  flex-shrink: 0;\r\n  color: var(--el-tag-text-color);\r\n}\r\n.pops-panel-select-multiple .el-tag .el-tag__close:hover {\r\n  color: var(--el-color-white);\r\n  background-color: var(--el-tag-hover-color);\r\n}\r\n.pops-panel-select-multiple .el-tag .el-icon {\r\n  border-radius: 50%;\r\n  cursor: pointer;\r\n  font-size: calc(var(--el-icon-size) - 2px);\r\n  height: var(--el-icon-size);\r\n  width: var(--el-icon-size);\r\n}\r\n.pops-panel-select-multiple .el-tag .el-tag__close {\r\n  margin-left: 6px;\r\n}\r\n.pops-panel-select-multiple .el-select__tags-text {\r\n  display: block;\r\n  line-height: normal;\r\n  align-content: center;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  white-space: nowrap;\r\n}\r\n.pops-panel-select-multiple-disable {\r\n  --el-fill-color-blank: #f5f7fa;\r\n  --color: #a8abb2;\r\n  --el-border-color: #cbcbcb;\r\n}\r\n.pops-panel-select-multiple-disable .el-tag.el-tag--info {\r\n  --el-tag-bg-color: #e7e7e7;\r\n  --el-tag-text-color: var(--pops-components-is-disabled-text-color);\r\n}\r\n.pops-panel-select-multiple-disable .el-select__selection .el-tag,\r\n.pops-panel-select-multiple-disable .el-tag .el-tag__close:hover,\r\n.pops-panel-select-multiple-disable .el-select__wrapper,\r\n.pops-panel-select-multiple-disable .el-select__caret {\r\n  cursor: not-allowed;\r\n}\r\n/* select-multiple的CSS*/\r\n\r\n/* deepMenu的css */\r\n.pops-panel-deepMenu-nav-item {\r\n  cursor: pointer;\r\n}\r\n.pops-panel-deepMenu-nav-item:active {\r\n  background: var(--pops-panel-forms-container-deepMenu-item-active-bg);\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item ul li.pops-panel-deepMenu-nav-item:active {\r\n  padding: var(--pops-panel-forms-container-li-padding-top-bottom)\r\n    var(--pops-panel-forms-container-li-padding-left-right);\r\n  margin: 0px;\r\n}\r\n/* 去除上个兄弟item的底部边框颜色 */\r\nsection.pops-panel-container .pops-panel-forms-container-item ul li:has(+ .pops-panel-deepMenu-nav-item:active) {\r\n  border-bottom: 1px solid transparent;\r\n}\r\n/* 第一个和最后一个跟随圆角 */\r\nsection.pops-panel-container .pops-panel-forms-container-item ul li.pops-panel-deepMenu-nav-item:first-child:active {\r\n  border-top-left-radius: var(--pops-panel-forms-container-item-border-radius);\r\n  border-top-right-radius: var(--pops-panel-forms-container-item-border-radius);\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item ul li.pops-panel-deepMenu-nav-item:last-child:active {\r\n  border-bottom-left-radius: var(--pops-panel-forms-container-item-border-radius);\r\n  border-bottom-right-radius: var(--pops-panel-forms-container-item-border-radius);\r\n}\r\n.pops-panel-deepMenu-nav-item .pops-panel-deepMenu {\r\n  display: flex;\r\n  align-items: center;\r\n  color: #6c6c6c;\r\n  fill: #6c6c6c;\r\n}\r\n.pops-panel-deepMenu-nav-item .pops-panel-deepMenu-arrowRight-icon {\r\n  width: 15px;\r\n  height: 15px;\r\n  display: flex;\r\n  align-items: center;\r\n}\r\nsection.pops-panel-deepMenu-container .pops-panel-container-header-ul li.pops-panel-deepMenu-container-header {\r\n  display: flex;\r\n  align-items: center;\r\n  width: -webkit-fill-available;\r\n  width: -moz-available;\r\n  padding: var(--pops-panel-forms-header-padding-top-bottom)\r\n    calc(\r\n      var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right) -\r\n        var(--pops-panel-forms-header-icon-size)\r\n    );\r\n  gap: 0px;\r\n}\r\n.pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon {\r\n  width: var(--pops-panel-forms-header-icon-size);\r\n  height: var(--pops-panel-forms-header-icon-size);\r\n  display: flex;\r\n  align-items: center;\r\n  cursor: pointer;\r\n}\r\n/* 修复safari上图标大小未正常显示 */\r\n.pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon > svg {\r\n  width: inherit;\r\n  height: inherit;\r\n}\r\n/* deepMenu的css */\r\n\r\n/* 文字对齐 */\r\n.pops-panel-item-left-desc-text:has(code) {\r\n  display: flex;\r\n  align-items: baseline;\r\n  flex-wrap: wrap;\r\n}\r\n\r\n@media (prefers-color-scheme: dark) {\r\n  .pops[type-value="panel"] {\r\n    --pops-bg-color: #000000;\r\n    --pops-color: #f2f2f2;\r\n    --panel-title-bg-color: #000000;\r\n    --panel-aside-bg-color: #262626;\r\n    --pops-panel-forms-container-item-left-desc-text-color: #6c6c6c;\r\n    --pops-panel-forms-container-item-bg-color: #262626;\r\n    --pops-panel-forms-container-item-title-color: #c1c1c1;\r\n\r\n    --pops-panel-forms-container-li-border-color: rgb(51, 51, 51, var(--pops-bd-opacity));\r\n    --pops-panel-forms-container-deepMenu-item-active-bg: #333333;\r\n  }\r\n  .pops[type-value="panel"] .pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon {\r\n    fill: #f2f2f2;\r\n  }\r\n\r\n  /* switch的CSS */\r\n  .pops-panel-switch {\r\n    --panel-switch-core-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\r\n    --panel-switch-core-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\r\n    --panel-switch-circle-color: #dcdfe6;\r\n    --panel-switch-circle-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n    --panel-switch-checked-circle-color: #409eff;\r\n    --panel-switch-checked-core-bd-color: rgb(64, 158, 255, var(--pops-bd-opacity));\r\n    --panel-switch-checked-core-bg-color: rgb(64, 158, 255, var(--pops-bg-opacity));\r\n  }\r\n  /* select的CSS */\r\n  .pops-panel-select {\r\n    --pops-panel-components-select-text-color: #f2f2f2;\r\n    --pops-panel-components-select-bd-color: rgb(51, 51, 51, var(--pops-bd-opacity));\r\n    --pops-panel-components-select-bg-color: #141414;\r\n  }\r\n  /* select-multiple的CSS*/\r\n  .pops-panel-select-multiple {\r\n    --el-fill-color-blank: #141414;\r\n    --el-border-color: #4c4d4f;\r\n    --el-text-color-placeholder: #a8abb2;\r\n    --el-select-input-color: #a8abb2;\r\n    --el-text-color-regular: #606266;\r\n    --el-color-info: #909399;\r\n    --el-color-info-light-8: #e9e9eb;\r\n    --el-color-primary-light-9: #ecf5ff;\r\n    --el-color-primary-light-8: #d9ecff;\r\n    --el-color-primary: #409eff;\r\n    --el-color-white: #ffffff;\r\n  }\r\n  .pops-panel-select-multiple .el-tag {\r\n    --el-color-info-light-9: #202121;\r\n  }\r\n  .pops-panel-select-multiple-disable {\r\n    --el-border-color: rgb(51, 51, 51, var(--pops-bd-opacity));\r\n  }\r\n  .pops-panel-select-multiple-disable .el-tag.el-tag--info {\r\n    --el-tag-bg-color: #2f2f2f;\r\n  }\r\n  /* select-multiple的CSS*/\r\n  /* slider的CSS */\r\n  .pops-slider {\r\n    --pops-slider-border-color-light: #414243;\r\n  }\r\n  /* input的CSS */\r\n  .pops-panel-input {\r\n    --pops-panel-components-input-text-color: #f2f2f2;\r\n    --pops-panel-components-input-bd-color: #4f5052;\r\n    --pops-panel-components-input-bg-color: #141414;\r\n    --pops-panel-components-input-hover-bd-color: #6f7175;\r\n    --pops-panel-components-input-focus-bd-color: #409eff;\r\n    --pops-panel-components-input-suffix-color: #a8abb2;\r\n  }\r\n  /* textarea的CSS */\r\n  .pops-panel-textarea {\r\n    --pops-panel-components-textarea-text-color: #f2f2f2;\r\n    --pops-panel-components-textarea-text-bg-color: #141414;\r\n    --pops-panel-components-textarea-bd-color: #4f5052;\r\n    --pops-panel-components-textarea-hover-bd-color: #6f7175;\r\n    --pops-panel-components-textarea-focus-bd-color: #409eff;\r\n  }\r\n  .pops-panel-textarea-disable {\r\n    --pops-panel-components-textarea-text-color: var(--pops-components-is-disabled-text-color);\r\n    --pops-panel-components-textarea-text-bg-color: var(--pops-components-is-disabled-bg-color);\r\n  }\r\n  /* slider */\r\n  .pops-slider {\r\n    --pops-slider-text-color-placeholder: #8d9095;\r\n  }\r\n}\r\n';
   var rightClickMenuCSS =
     '.pops-rightClickMenu {\r\n  --pops-right-context-color: #000000;\r\n  --pops-right-context-bg-color: rgb(255, 255, 255, 0.733);\r\n  --pops-right-context-backdrop-filter: blur(10px);\r\n  --pops-right-context-z-index: 10000;\r\n  --pops-right-context-bd-radius: 6px;\r\n  --pops-right-context-menu-shadow-color: rgb(114, 114, 114, 0.251);\r\n  --pops-right-context-menu-row-bd-radius: 6px;\r\n  --pops-right-context-menu-row-visited-color: rgb(0, 0, 0, 0.067);\r\n  --pops-right-context-menu-row-hover-color: rgb(0, 0, 0, 0.067);\r\n}\r\n.pops-rightClickMenu * {\r\n  -webkit-box-sizing: border-box;\r\n  box-sizing: border-box;\r\n  margin: 0;\r\n  padding: 0;\r\n  -webkit-tap-highlight-color: transparent;\r\n  scrollbar-width: thin;\r\n}\r\n.pops-rightClickMenu {\r\n  position: fixed;\r\n  z-index: var(--pops-right-context-z-index);\r\n  text-align: center;\r\n  border-radius: var(--pops-right-context-bd-radius);\r\n  font-size: 16px;\r\n  font-weight: 500;\r\n  color: var(--pops-right-context-color);\r\n  background: var(--pops-right-context-bg-color);\r\n  box-shadow: 0 0.25rem 0.5rem 0.125rem var(--pops-right-context-menu-shadow-color);\r\n  -webkit-backdrop-filter: var(--pops-right-context-backdrop-filter);\r\n  backdrop-filter: var(--pops-right-context-backdrop-filter);\r\n}\r\n.pops-rightClickMenu[data-position="absolute"] {\r\n  position: absolute;\r\n}\r\n/* scale动画 */\r\n.pops-rightClickMenu-anim-scale {\r\n  transition:\r\n    opacity 150ms cubic-bezier(0.2, 0, 0.2, 1),\r\n    transform 150ms cubic-bezier(0.2, 0, 0.2, 1);\r\n  transform: scale(0.85);\r\n}\r\n.pops-rightClickMenu-anim-scale-open {\r\n  transform: scale(1);\r\n}\r\n.pops-rightClickMenu-anim-scale-not-open {\r\n  opacity: 0;\r\n}\r\n/* 展开动画 */\r\n.pops-rightClickMenu-anim-grid {\r\n  display: grid;\r\n  transition: 0.3s;\r\n  grid-template-rows: 0fr;\r\n}\r\n.pops-rightClickMenu-anim-show {\r\n  grid-template-rows: 1fr;\r\n}\r\n.pops-rightClickMenu-is-visited {\r\n  background: var(--pops-right-context-menu-row-visited-color);\r\n}\r\ni.pops-rightClickMenu-icon {\r\n  height: 1em;\r\n  width: 1em;\r\n  line-height: normal;\r\n  align-content: center;\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  fill: currentColor;\r\n  color: inherit;\r\n  font-size: inherit;\r\n  margin-right: 6px;\r\n}\r\ni.pops-rightClickMenu-icon[is-loading="true"] {\r\n  animation: rotating 2s linear infinite;\r\n}\r\n.pops-rightClickMenu li:hover {\r\n  background: var(--pops-right-context-menu-row-hover-color);\r\n  cursor: pointer;\r\n}\r\n.pops-rightClickMenu ul {\r\n  margin: 0;\r\n  padding: 0;\r\n  display: flex;\r\n  flex-direction: column;\r\n  align-items: flex-start;\r\n  justify-content: center;\r\n  overflow: hidden;\r\n}\r\n.pops-rightClickMenu ul li {\r\n  padding: 5px 10px;\r\n  margin: 5px 5px;\r\n  border-radius: var(--pops-right-context-menu-row-bd-radius);\r\n  display: flex;\r\n  width: -webkit-fill-available;\r\n  width: -moz-available;\r\n  text-align: left;\r\n  align-items: center;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n\r\n@media (prefers-color-scheme: dark) {\r\n  /*.pops-rightClickMenu {\r\n		--pops-right-context-menu-shadow-color: #3c3c3c;\r\n	}*/\r\n}\r\n@media (hover: hover) {\r\n  .pops-rightClickMenu ul li:active {\r\n    transform: scale(0.98);\r\n  }\r\n}\r\n';
   const PopsCSS = {
@@ -13196,13 +13196,15 @@ ${err.stack}`);
       });
       return instConfigList;
     },
-    hide(popsType, instConfigList, guid, config, animElement, maskElement) {
+    hide(config, popsType, instConfigList, guid, $anim, $mask) {
       return new Promise((resolve) => {
-        const popsElement = animElement.querySelector(".pops[type-value]");
+        const popsElement = $anim.querySelector(".pops[type-value]");
         if (popsType === "drawer") {
           const drawerConfig = config;
           popsUtils.setTimeout(() => {
-            maskElement.style.setProperty("display", "none");
+            if ($mask) {
+              popsDOMUtils.css($mask, "display", "none");
+            }
             if (["top", "bottom"].includes(drawerConfig.direction)) {
               popsElement.style.setProperty("height", "0");
             } else if (["left", "right"].includes(drawerConfig.direction)) {
@@ -13258,13 +13260,15 @@ ${err.stack}`);
         }
       });
     },
-    show(popsType, instConfigList, guid, config, animElement, maskElement) {
+    show(config, popsType, instConfigList, guid, $anim, $mask) {
       return new Promise((resolve) => {
-        const popsElement = animElement.querySelector(".pops[type-value]");
+        const popsElement = $anim.querySelector(".pops[type-value]");
         if (popsType === "drawer") {
           const drawerConfig = config;
           popsUtils.setTimeout(() => {
-            popsDOMUtils.css(maskElement, "display", "");
+            if ($mask) {
+              popsDOMUtils.css($mask, "display", "");
+            }
             const direction = drawerConfig.direction;
             const size = drawerConfig.size.toString();
             if (["top", "bottom"].includes(direction)) {
@@ -13322,9 +13326,9 @@ ${err.stack}`);
         }
       });
     },
-    close(popsType, instConfigList, guid, config, animElement) {
+    close(config, popsType, instConfigList, guid, $anim) {
       return new Promise((resolve) => {
-        const popsElement = animElement.querySelector(".pops[type-value]");
+        const popsElement = $anim.querySelector(".pops[type-value]");
         const drawerConfig = config;
         function transitionendEvent() {
           function closeCallBack(event) {
@@ -13376,8 +13380,8 @@ ${err.stack}`);
       let isMove = false;
       let clickElementLeftOffset = 0;
       let clickElementTopOffset = 0;
-      const AnyTouch = popsUtils.AnyTouch();
-      const anyTouchElement = new AnyTouch(options.dragElement, {
+      const AnyTouch2 = popsUtils.AnyTouch();
+      const anyTouchElement = new AnyTouch2(options.dragElement, {
         preventDefault(event) {
           if (typeof options.preventEvent === "function") {
             return options.preventEvent(event);
@@ -13584,36 +13588,36 @@ ${err.stack}`);
         $styleParent.appendChild($css);
       }
     },
-    handleMask(details = {}) {
+    handleMask(config = {}) {
       const result = {
-        maskElement: popsDOMUtils.parseTextToDOM(details.maskHTML),
+        maskElement: popsDOMUtils.parseTextToDOM(config.maskHTML),
       };
       let isMaskClick = false;
       function clickEvent(event) {
         popsDOMUtils.preventEvent(event);
-        const targetInst = PopsInstData[details.type];
+        const targetInst = PopsInstData[config.type];
         function originalRun() {
-          if (details.config.mask.clickEvent.toClose) {
-            return PopsInstanceUtils.close(details.type, targetInst, details.guid, details.config, details.animElement);
-          } else if (details.config.mask.clickEvent.toHide) {
+          if (config.config.mask.clickEvent.toClose) {
+            return PopsInstanceUtils.close(config.config, config.type, targetInst, config.guid, config.animElement);
+          } else if (config.config.mask.clickEvent.toHide) {
             return PopsInstanceUtils.hide(
-              details.type,
+              config.config,
+              config.type,
               targetInst,
-              details.guid,
-              details.config,
-              details.animElement,
+              config.guid,
+              config.animElement,
               result.maskElement
             );
           }
         }
-        if (typeof details.config.mask.clickCallBack === "function") {
-          details.config.mask.clickCallBack(originalRun, details.config);
+        if (typeof config.config.mask.clickCallBack === "function") {
+          config.config.mask.clickCallBack(originalRun, config.config);
         } else {
           originalRun();
         }
         return false;
       }
-      if (details.config.mask.clickEvent.toClose || details.config.mask.clickEvent.toHide) {
+      if (config.config.mask.clickEvent.toClose || config.config.mask.clickEvent.toHide) {
         let isAnimElement2 = function (element) {
           return Boolean(
             element?.localName?.toLowerCase() === "div" &&
@@ -13622,11 +13626,11 @@ ${err.stack}`);
               element.hasAttribute("anim")
           );
         };
-        popsDOMUtils.on(details.animElement, ["touchstart", "mousedown"], void 0, (event) => {
+        popsDOMUtils.on(config.animElement, ["touchstart", "mousedown"], void 0, (event) => {
           const $click = event.composedPath()[0];
           isMaskClick = isAnimElement2($click);
         });
-        popsDOMUtils.on(details.animElement, "click", void 0, (event) => {
+        popsDOMUtils.on(config.animElement, "click", void 0, (event) => {
           const $click = event.composedPath()[0];
           if (isAnimElement2($click) && isMaskClick) {
             return clickEvent(event);
@@ -13681,53 +13685,54 @@ ${err.stack}`);
         $folderSortFileSize: animElement.querySelector('.pops-folder-list-table__sort[data-sort="fileSize"]'),
       };
     },
-    handleEventDetails(guid, $shadowContainer, $shadowRoot, mode, animElement, popsElement, maskElement, config) {
+    handleEventConfig(config, guid, $shadowContainer, $shadowRoot, mode, $anim, $pops, $mask) {
       return {
         $shadowContainer,
         $shadowRoot,
-        element: animElement,
-        animElement,
-        popsElement,
-        maskElement,
+        $el: $anim,
+        $anim,
+        $pops,
+        $mask,
         mode,
         guid,
         close() {
-          return PopsInstanceUtils.close(mode, PopsInstData[mode], guid, config, animElement);
+          return PopsInstanceUtils.close(config, mode, PopsInstData[mode], guid, $anim);
         },
         hide() {
-          return PopsInstanceUtils.hide(mode, PopsInstData[mode], guid, config, animElement, maskElement);
+          return PopsInstanceUtils.hide(config, mode, PopsInstData[mode], guid, $anim, $mask);
         },
         show() {
-          return PopsInstanceUtils.show(mode, PopsInstData[mode], guid, config, animElement, maskElement);
+          return PopsInstanceUtils.show(config, mode, PopsInstData[mode], guid, $anim, $mask);
         },
       };
     },
-    handleLoadingEventDetails(guid, mode, animElement, popsElement, maskElement, config) {
+    handleLoadingEventConfig(config, guid, mode, $anim, $pops, $mask) {
       return {
-        element: animElement,
-        animElement,
-        popsElement,
-        maskElement,
+        $el: $anim,
+        $anim,
+        $pops,
+        $mask,
         mode,
         guid,
         close() {
-          return PopsInstanceUtils.close(mode, PopsInstData[mode], guid, config, animElement);
+          return PopsInstanceUtils.close(config, mode, PopsInstData[mode], guid, $anim);
         },
         hide() {
-          return PopsInstanceUtils.hide(mode, PopsInstData[mode], guid, config, animElement, maskElement);
+          return PopsInstanceUtils.hide(config, mode, PopsInstData[mode], guid, $anim, $mask);
         },
         show() {
-          return PopsInstanceUtils.show(mode, PopsInstData[mode], guid, config, animElement, maskElement);
+          return PopsInstanceUtils.show(config, mode, PopsInstData[mode], guid, $anim, $mask);
         },
       };
     },
-    handleResultDetails(details) {
-      const resultDetails = Object.assign({}, details);
+    handleResultConfig(config) {
+      const resultDetails = Object.assign({}, config);
       popsUtils.delete(resultDetails, "type");
       popsUtils.delete(resultDetails, "function");
       return resultDetails;
     },
-    handleClickEvent(type, $btn, eventDetails, callback) {
+    handleClickEvent(type, $btn, eventConfig, callback) {
+      if (typeof callback !== "function") return;
       popsDOMUtils.on(
         $btn,
         "click",
@@ -13735,7 +13740,7 @@ ${err.stack}`);
           const extraParam = {
             type,
           };
-          callback(Object.assign(eventDetails, extraParam), event);
+          callback(Object.assign(eventConfig, extraParam), event);
         },
         {
           capture: true,
@@ -13775,7 +13780,7 @@ ${err.stack}`);
         },
       };
     },
-    handlePromptClickEvent(type, inputElement, $btn, eventDetails, callback) {
+    handlePromptClickEvent(type, inputElement, $btn, eventConfig, callback) {
       popsDOMUtils.on(
         $btn,
         "click",
@@ -13784,7 +13789,7 @@ ${err.stack}`);
             type,
             text: inputElement.value,
           };
-          callback(Object.assign(eventDetails, extraParam), event);
+          callback(Object.assign(eventConfig, extraParam), event);
         },
         {
           capture: true,
@@ -13957,32 +13962,32 @@ ${err.stack}`);
         $btnOk: btnOkElement,
         $title,
       } = PopsHandler.handleQueryElement($anim, popsType);
-      let $mask = null;
-      const elementList = [$anim];
+      let $mask = void 0;
+      const $elList = [$anim];
       if (config.mask.enable) {
-        const _handleMask_ = PopsHandler.handleMask({
+        const handleMask = PopsHandler.handleMask({
           type: popsType,
           guid,
           config,
           animElement: $anim,
           maskHTML,
         });
-        $mask = _handleMask_.maskElement;
-        elementList.push($mask);
+        $mask = handleMask.maskElement;
+        $elList.push($mask);
       }
-      const eventDetails = PopsHandler.handleEventDetails(
+      const evtConfig = PopsHandler.handleEventConfig(
+        config,
         guid,
         $shadowContainer,
         $shadowRoot,
         popsType,
         $anim,
         $pops,
-        $mask,
-        config
+        $mask
       );
-      PopsHandler.handleClickEvent("close", $headerCloseBtn, eventDetails, config.btn.close.callback);
-      PopsHandler.handleClickEvent("ok", btnOkElement, eventDetails, config.btn.ok.callback);
-      popsDOMUtils.append($shadowRoot, elementList);
+      PopsHandler.handleClickEvent("close", $headerCloseBtn, evtConfig, config.btn.close?.callback);
+      PopsHandler.handleClickEvent("ok", btnOkElement, evtConfig, config.btn.ok?.callback);
+      popsDOMUtils.append($shadowRoot, $elList);
       if (typeof config.beforeAppendToPageCallBack === "function") {
         config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
       }
@@ -14007,7 +14012,7 @@ ${err.stack}`);
           endCallBack: config.dragEndCallBack,
         });
       }
-      const result = PopsHandler.handleResultDetails(eventDetails);
+      const result = PopsHandler.handleResultConfig(evtConfig);
       return result;
     },
   };
@@ -14162,34 +14167,34 @@ ${err.stack}`);
         $btnCancel,
         $btnOther,
       } = PopsHandler.handleQueryElement($anim, popsType);
-      let $mask = null;
-      const elementList = [$anim];
+      let $mask = void 0;
+      const $elList = [$anim];
       if (config.mask.enable) {
-        const _handleMask_ = PopsHandler.handleMask({
+        const handleMask = PopsHandler.handleMask({
           type: popsType,
           guid,
           config,
           animElement: $anim,
           maskHTML,
         });
-        $mask = _handleMask_.maskElement;
-        elementList.push($mask);
+        $mask = handleMask.maskElement;
+        $elList.push($mask);
       }
-      const eventDetails = PopsHandler.handleEventDetails(
+      const evtConfig = PopsHandler.handleEventConfig(
+        config,
         guid,
         $shadowContainer,
         $shadowRoot,
         popsType,
         $anim,
         $pops,
-        $mask,
-        config
+        $mask
       );
-      PopsHandler.handleClickEvent("close", $btnClose, eventDetails, config.btn.close.callback);
-      PopsHandler.handleClickEvent("ok", $btnOk, eventDetails, config.btn.ok.callback);
-      PopsHandler.handleClickEvent("cancel", $btnCancel, eventDetails, config.btn.cancel.callback);
-      PopsHandler.handleClickEvent("other", $btnOther, eventDetails, config.btn.other.callback);
-      popsDOMUtils.append($shadowRoot, elementList);
+      PopsHandler.handleClickEvent("close", $btnClose, evtConfig, config.btn.close.callback);
+      PopsHandler.handleClickEvent("ok", $btnOk, evtConfig, config.btn.ok.callback);
+      PopsHandler.handleClickEvent("cancel", $btnCancel, evtConfig, config.btn.cancel.callback);
+      PopsHandler.handleClickEvent("other", $btnOther, evtConfig, config.btn.other.callback);
+      popsDOMUtils.append($shadowRoot, $elList);
       if (typeof config.beforeAppendToPageCallBack === "function") {
         config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
       }
@@ -14214,7 +14219,7 @@ ${err.stack}`);
           endCallBack: config.dragEndCallBack,
         });
       }
-      const result = PopsHandler.handleResultDetails(eventDetails);
+      const result = PopsHandler.handleResultConfig(evtConfig);
       return result;
     },
   };
@@ -14380,28 +14385,28 @@ ${err.stack}`);
       const $btnCancel = btnCancelElement;
       const $btnOk = btnOkElement;
       const $btnOther = btnOtherElement;
-      let $mask = null;
-      const elementList = [$anim];
+      let $mask = void 0;
+      const $elList = [$anim];
       if (config.mask.enable) {
-        const _handleMask_ = PopsHandler.handleMask({
+        const handleMask = PopsHandler.handleMask({
           type: popsType,
           guid,
           config,
           animElement: $anim,
           maskHTML,
         });
-        $mask = _handleMask_.maskElement;
-        elementList.push($mask);
+        $mask = handleMask.maskElement;
+        $elList.push($mask);
       }
-      const eventDetails = PopsHandler.handleEventDetails(
+      const evtConfig = PopsHandler.handleEventConfig(
+        config,
         guid,
         $shadowContainer,
         $shadowRoot,
         popsType,
         $anim,
         $pops,
-        $mask,
-        config
+        $mask
       );
       $pops.setAttribute("direction", config.direction);
       if (config.direction === "top") {
@@ -14419,7 +14424,7 @@ ${err.stack}`);
       }
       if (config.closeOnPressEscape) {
         PopsHandler.handleKeyboardEvent("Escape", [], function () {
-          eventDetails.close();
+          evtConfig.close();
         });
       }
       const needHandleClickEventList = [
@@ -14441,13 +14446,14 @@ ${err.stack}`);
         },
       ];
       needHandleClickEventList.forEach((item) => {
-        PopsHandler.handleClickEvent(item.type, item.ele, eventDetails, (_eventDetails_) => {
-          if (typeof config.btn[item.type].callback === "function") {
-            config.btn[item.type].callback(_eventDetails_);
+        PopsHandler.handleClickEvent(item.type, item.ele, evtConfig, (details2, event) => {
+          const callback = config.btn[item.type].callback;
+          if (typeof callback === "function") {
+            callback(details2, event);
           }
         });
       });
-      elementList.forEach((element) => {
+      $elList.forEach((element) => {
         element.style.setProperty("display", "none");
         if (["top"].includes(config.direction)) {
           $pops.style.setProperty("height", config.size.toString());
@@ -14464,7 +14470,7 @@ ${err.stack}`);
         }
         element.style.setProperty("display", "");
       });
-      popsDOMUtils.append($shadowRoot, elementList);
+      popsDOMUtils.append($shadowRoot, $elList);
       if (typeof config.beforeAppendToPageCallBack === "function") {
         config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
       }
@@ -14485,7 +14491,7 @@ ${err.stack}`);
         $shadowContainer,
         $shadowRoot,
       });
-      const result = PopsHandler.handleResultDetails(eventDetails);
+      const result = PopsHandler.handleResultConfig(evtConfig);
       return result;
     },
   };
@@ -14552,21 +14558,21 @@ ${err.stack}`);
       );
       const $anim = PopsElementHandler.parseElement(animHTML);
       const { $pops } = PopsHandler.handleQueryElement($anim, PopsType);
-      let $mask = null;
-      const elementList = [$anim];
+      let $mask = void 0;
+      const $elList = [$anim];
       if (config.mask.enable) {
-        const _handleMask_ = PopsHandler.handleMask({
+        const handleMask = PopsHandler.handleMask({
           type: PopsType,
           guid,
           config,
           animElement: $anim,
           maskHTML,
         });
-        $mask = _handleMask_.maskElement;
-        elementList.push($mask);
+        $mask = handleMask.maskElement;
+        $elList.push($mask);
       }
-      const eventDetails = PopsHandler.handleLoadingEventDetails(guid, PopsType, $anim, $pops, $mask, config);
-      popsDOMUtils.append(config.parent, elementList);
+      const evtConfig = PopsHandler.handleLoadingEventConfig(config, guid, PopsType, $anim, $pops, $mask);
+      popsDOMUtils.append(config.parent, $elList);
       if ($mask != null) {
         $anim.after($mask);
       }
@@ -14580,7 +14586,7 @@ ${err.stack}`);
         popsDOMUtils.css($anim, "position", "absolute !important");
         $mask && popsDOMUtils.css($mask, "position", "absolute !important");
       }
-      const result = PopsHandler.handleResultDetails(eventDetails);
+      const result = PopsHandler.handleResultConfig(evtConfig);
       return result;
     },
   };
@@ -14957,34 +14963,34 @@ ${err.stack}`);
         $folderSortLatestTime: folderListSortLatestTimeElement,
         $folderSortFileSize: folderListSortFileSizeElement,
       } = PopsHandler.handleQueryElement($anim, popsType);
-      let $mask = null;
-      const elementList = [$anim];
+      let $mask = void 0;
+      const $elList = [$anim];
       if (config.mask.enable) {
-        const _handleMask_ = PopsHandler.handleMask({
+        const handleMask = PopsHandler.handleMask({
           type: popsType,
           guid,
           config,
           animElement: $anim,
           maskHTML,
         });
-        $mask = _handleMask_.maskElement;
-        elementList.push($mask);
+        $mask = handleMask.maskElement;
+        $elList.push($mask);
       }
-      const eventDetails = PopsHandler.handleEventDetails(
+      const evtConfig = PopsHandler.handleEventConfig(
+        config,
         guid,
         $shadowContainer,
         $shadowRoot,
         popsType,
         $anim,
         $pops,
-        $mask,
-        config
+        $mask
       );
-      PopsHandler.handleClickEvent("close", $btnCloseBtn, eventDetails, config.btn.close.callback);
-      PopsHandler.handleClickEvent("ok", btnOkElement, eventDetails, config.btn.ok.callback);
-      PopsHandler.handleClickEvent("cancel", btnCancelElement, eventDetails, config.btn.cancel.callback);
-      PopsHandler.handleClickEvent("other", btnOtherElement, eventDetails, config.btn.other.callback);
-      popsDOMUtils.append($shadowRoot, elementList);
+      PopsHandler.handleClickEvent("close", $btnCloseBtn, evtConfig, config.btn.close.callback);
+      PopsHandler.handleClickEvent("ok", btnOkElement, evtConfig, config.btn.ok.callback);
+      PopsHandler.handleClickEvent("cancel", btnCancelElement, evtConfig, config.btn.cancel.callback);
+      PopsHandler.handleClickEvent("other", btnOtherElement, evtConfig, config.btn.other.callback);
+      popsDOMUtils.append($shadowRoot, $elList);
       if (typeof config.beforeAppendToPageCallBack === "function") {
         config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
       }
@@ -15473,7 +15479,7 @@ ${err.stack}`);
         $shadowContainer,
         $shadowRoot,
       });
-      const result = PopsHandler.handleResultDetails(eventDetails);
+      const result = PopsHandler.handleResultConfig(evtConfig);
       return result;
     },
   };
@@ -15615,30 +15621,30 @@ ${err.stack}`);
           "display: flex;position: fixed;bottom: 0px;flex-flow: wrap-reverse;-webkit-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;";
         popsDOMUtils.appendBody($iframeContainer);
       }
-      let $mask = null;
-      const elementList = [$anim];
+      let $mask = void 0;
+      const $elList = [$anim];
       if (config.mask.enable) {
-        const _handleMask_ = PopsHandler.handleMask({
+        const handleMask = PopsHandler.handleMask({
           type: popsType,
           guid,
           config,
           animElement: $anim,
           maskHTML,
         });
-        $mask = _handleMask_.maskElement;
-        elementList.push($mask);
+        $mask = handleMask.maskElement;
+        $elList.push($mask);
       }
-      const eventDetails = PopsHandler.handleEventDetails(
+      const evtConfig = PopsHandler.handleEventConfig(
+        config,
         guid,
         $shadowContainer,
         $shadowRoot,
         popsType,
         $anim,
         $pops,
-        $mask,
-        config
+        $mask
       );
-      eventDetails["iframeElement"] = $iframe;
+      evtConfig["iframeElement"] = $iframe;
       popsDOMUtils.on($anim, popsDOMUtils.getAnimationEndNameList(), function () {
         $anim.style.width = "0%";
         $anim.style.height = "0%";
@@ -15652,9 +15658,9 @@ ${err.stack}`);
         if (config.title.text.trim() === "" && $iframe.contentDocument) {
           $title.querySelector("p").innerText = $iframe.contentDocument.title;
         }
-        config.loadEndCallBack(eventDetails);
+        config.loadEndCallBack(evtConfig);
       });
-      popsDOMUtils.append($shadowRoot, elementList);
+      popsDOMUtils.append($shadowRoot, $elList);
       if (typeof config.beforeAppendToPageCallBack === "function") {
         config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
       }
@@ -15692,7 +15698,7 @@ ${err.stack}`);
           headerMaxBtnElement.style.setProperty("display", "none");
           headerMiseBtnElement.style.setProperty("display", "");
           if (typeof config?.btn?.min?.callback === "function") {
-            config.btn.min.callback(eventDetails, event);
+            config.btn.min.callback(evtConfig, event);
           }
         },
         {
@@ -15723,7 +15729,7 @@ ${err.stack}`);
           headerMaxBtnElement.style.setProperty("display", "none");
           headerMiseBtnElement.style.setProperty("display", "");
           if (typeof config?.btn?.max?.callback === "function") {
-            config.btn.max.callback(eventDetails, event);
+            config.btn.max.callback(evtConfig, event);
           }
         },
         {
@@ -15760,7 +15766,7 @@ ${err.stack}`);
             headerMiseBtnElement.style.setProperty("display", "none");
           }
           if (typeof config?.btn?.mise?.callback === "function") {
-            config.btn.mise.callback(eventDetails, event);
+            config.btn.mise.callback(evtConfig, event);
           }
         },
         {
@@ -15775,7 +15781,7 @@ ${err.stack}`);
           event.stopPropagation();
           PopsInstanceUtils.removeInstance([PopsInstData.iframe], guid, false);
           if (typeof config?.btn?.close?.callback === "function") {
-            config.btn.close.callback(eventDetails, event);
+            config.btn.close.callback(evtConfig, event);
           }
         },
         {
@@ -15790,7 +15796,7 @@ ${err.stack}`);
         $shadowContainer,
         $shadowRoot,
       });
-      const result = PopsHandler.handleResultDetails(eventDetails);
+      const result = PopsHandler.handleResultConfig(evtConfig);
       return result;
     },
   };
@@ -17455,8 +17461,8 @@ ${err.stack}`);
             this.closeToolTip();
           },
           setPanEvent() {
-            const AnyTouch = popsUtils.AnyTouch();
-            this.$tooltip = new AnyTouch(this.$ele.button, {
+            const AnyTouch2 = popsUtils.AnyTouch();
+            this.$tooltip = new AnyTouch2(this.$ele.button, {
               preventDefault() {
                 return false;
               },
@@ -19072,31 +19078,31 @@ ${err.stack}`);
       if (config.isMobile || popsUtils.isPhone()) {
         popsDOMUtils.addClassName($pops, config.mobileClassName);
       }
-      let $mask = null;
-      const isCreatedElementList = [$anim];
+      let $mask = void 0;
+      const $elList = [$anim];
       if (config.mask.enable) {
-        const { maskElement } = PopsHandler.handleMask({
+        const handleMask = PopsHandler.handleMask({
           type: popsType,
           guid,
           config,
           animElement: $anim,
           maskHTML,
         });
-        $mask = maskElement;
-        isCreatedElementList.push($mask);
+        $mask = handleMask.maskElement;
+        $elList.push($mask);
       }
-      const eventDetails = PopsHandler.handleEventDetails(
+      const evtConfig = PopsHandler.handleEventConfig(
+        config,
         guid,
         $shadowContainer,
         $shadowRoot,
         popsType,
         $anim,
         $pops,
-        $mask,
-        config
+        $mask
       );
-      PopsHandler.handleClickEvent("close", $headerBtnClose, eventDetails, config.btn.close.callback);
-      popsDOMUtils.append($shadowRoot, isCreatedElementList);
+      PopsHandler.handleClickEvent("close", $headerBtnClose, evtConfig, config.btn?.close?.callback);
+      popsDOMUtils.append($shadowRoot, $elList);
       if (typeof config.beforeAppendToPageCallBack === "function") {
         config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
       }
@@ -19136,7 +19142,7 @@ ${err.stack}`);
           endCallBack: config.dragEndCallBack,
         });
       }
-      const result = PopsHandler.handleResultDetails(eventDetails);
+      const result = PopsHandler.handleResultConfig(evtConfig);
       return {
         ...result,
         addEventListener: (event, listener, options) => {
@@ -19304,35 +19310,35 @@ ${err.stack}`);
         $btnOther,
         $title,
       } = PopsHandler.handleQueryElement($anim, popsType);
-      let $mask = null;
-      const elementList = [$anim];
+      let $mask = void 0;
+      const $elList = [$anim];
       if (config.mask.enable) {
-        const _handleMask_ = PopsHandler.handleMask({
+        const handleMask = PopsHandler.handleMask({
           type: popsType,
           guid,
           config,
           animElement: $anim,
           maskHTML,
         });
-        $mask = _handleMask_.maskElement;
-        elementList.push($mask);
+        $mask = handleMask.maskElement;
+        $elList.push($mask);
       }
-      const eventDetails = PopsHandler.handleEventDetails(
+      const evtConfig = PopsHandler.handleEventConfig(
+        config,
         guid,
         $shadowContainer,
         $shadowRoot,
         popsType,
         $anim,
         $pops,
-        $mask,
-        config
+        $mask
       );
       $input.value = config.content.text;
-      PopsHandler.handlePromptClickEvent("close", $input, $btnClose, eventDetails, config.btn.close.callback);
-      PopsHandler.handlePromptClickEvent("ok", $input, $btnOk, eventDetails, config.btn.ok.callback);
-      PopsHandler.handlePromptClickEvent("cancel", $input, $btnCancel, eventDetails, config.btn.cancel.callback);
-      PopsHandler.handlePromptClickEvent("other", $input, $btnOther, eventDetails, config.btn.other.callback);
-      popsDOMUtils.append($shadowRoot, elementList);
+      PopsHandler.handlePromptClickEvent("close", $input, $btnClose, evtConfig, config.btn.close.callback);
+      PopsHandler.handlePromptClickEvent("ok", $input, $btnOk, evtConfig, config.btn.ok.callback);
+      PopsHandler.handlePromptClickEvent("cancel", $input, $btnCancel, evtConfig, config.btn.cancel.callback);
+      PopsHandler.handlePromptClickEvent("other", $input, $btnOther, evtConfig, config.btn.other.callback);
+      popsDOMUtils.append($shadowRoot, $elList);
       if (typeof config.beforeAppendToPageCallBack === "function") {
         config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
       }
@@ -19363,7 +19369,7 @@ ${err.stack}`);
       if (config.content.select) {
         $input.select();
       }
-      const result = PopsHandler.handleResultDetails(eventDetails);
+      const result = PopsHandler.handleResultConfig(evtConfig);
       return result;
     },
   };
@@ -20596,7 +20602,7 @@ ${err.stack}`);
       return SearchSuggestion;
     },
   };
-  const version = "2.5.5";
+  const version = "2.6.0";
   class Pops {
     config = {
       version,
@@ -20923,6 +20929,17 @@ ${err.stack}`);
         return $parent;
       }
     },
+    toStr(data) {
+      const undefinedReplacedStr = `__undefined__placeholder__replaced__str__`;
+      const dataStr = JSON.stringify(
+        data,
+        (key, value) => {
+          return value === void 0 ? undefinedReplacedStr : value;
+        },
+        2
+      ).replace(new RegExp(`"${undefinedReplacedStr}"`, "g"), "undefined");
+      return dataStr;
+    },
   };
   const PanelSettingConfig = {
     qmsg_config_position: {
@@ -20943,7 +20960,7 @@ ${err.stack}`);
   const __pops = pops;
   const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
   let SCRIPT_NAME = _GM_info?.script?.name || void 0;
-  pops.config.Utils.AnyTouch();
+  const AnyTouch = pops.config.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
     debug: false,
@@ -21278,18 +21295,396 @@ ${err.stack}`);
       if (this.$data.__defaultBottomContentConfig.length) {
         return this.$data.__defaultBottomContentConfig;
       }
+      let isDoubleClick = false;
+      let timer = void 0;
+      const exportToFile = (fileName, fileData) => {
+        if (typeof fileData !== "string") {
+          fileData = CommonUtil2.toStr(fileData);
+        }
+        const blob = new Blob([fileData]);
+        const blobUrl = globalThis.URL.createObjectURL(blob);
+        const $anchor = domUtils.createElement("a", {
+          href: blobUrl,
+          download: fileName,
+        });
+        $anchor.click();
+        utils.workerSetTimeout(() => {
+          globalThis.URL.revokeObjectURL(blobUrl);
+        }, 500);
+      };
+      const dbclick_callback = () => {
+        const importConfig = (importEndCallBack) => {
+          const $alert = __pops.alert({
+            title: {
+              text: "请选择导入方式",
+              position: "center",
+            },
+            content: {
+              text: `
+            <div class="btn-control" data-mode="local">本地导入</div>
+            <div class="btn-control" data-mode="network">网络导入</div>
+            <div class="btn-control" data-mode="clipboard">剪贴板导入</div>`,
+              html: true,
+            },
+            btn: {
+              ok: { enable: false },
+              close: {
+                enable: true,
+                callback(details, event) {
+                  details.close();
+                },
+              },
+            },
+            drag: true,
+            mask: {
+              enable: true,
+            },
+            width: PanelUISize.info.width,
+            height: PanelUISize.info.height,
+            style: `
+          .btn-control{
+              display: inline-block;
+              margin: 10px;
+              padding: 10px;
+              border: 1px solid #ccc;
+              border-radius: 5px;
+              cursor: pointer;
+          }
+          .btn-control:hover{
+            color: #409eff;
+            border-color: #c6e2ff;
+            background-color: #ecf5ff;
+          }`,
+          });
+          const $local = $alert.$shadowRoot.querySelector(".btn-control[data-mode='local']");
+          const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
+          const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
+          const updateConfigToStorage = async (data) => {
+            const clearLocalStorage = confirm("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）");
+            if (clearLocalStorage) {
+              if (typeof _GM_listValues === "function") {
+                if (typeof _GM_deleteValue === "function") {
+                  const localStorageKeys = _GM_listValues();
+                  localStorageKeys.forEach((key) => {
+                    _GM_deleteValue(key);
+                  });
+                  qmsg.success("已清空脚本存储的配置");
+                } else {
+                  qmsg.error("不支持GM_deleteValue函数，无法执行删除脚本配置");
+                }
+              } else {
+                qmsg.error("不支持GM_listValues函数，无法清空脚本存储的配置");
+              }
+            }
+            if (typeof _GM_setValues === "function") {
+              _GM_setValues(data);
+            } else {
+              const keys = Object.keys(data);
+              keys.forEach((key) => {
+                const value = data[key];
+                _GM_setValue(key, value);
+              });
+            }
+            qmsg.success("配置导入完毕");
+          };
+          const importFile = (configText) => {
+            return new Promise(async (resolve) => {
+              const data = utils.toJSON(configText);
+              if (Object.keys(data).length === 0) {
+                qmsg.warning("解析为空配置，不导入");
+              } else {
+                await updateConfigToStorage(data);
+              }
+              resolve(true);
+            });
+          };
+          domUtils.on($local, "click", (event) => {
+            domUtils.preventEvent(event);
+            $alert.close();
+            const $input = domUtils.createElement("input", {
+              type: "file",
+              accept: ".json",
+            });
+            domUtils.on($input, ["propertychange", "input"], (event2) => {
+              if (!$input.files?.length) {
+                return;
+              }
+              const uploadFile = $input.files[0];
+              const fileReader = new FileReader();
+              fileReader.onload = () => {
+                importFile(fileReader.result);
+              };
+              fileReader.readAsText(uploadFile, "UTF-8");
+            });
+            $input.click();
+          });
+          domUtils.on($network, "click", (event) => {
+            domUtils.preventEvent(event);
+            $alert.close();
+            const $prompt = __pops.prompt({
+              title: {
+                text: "网络导入",
+                position: "center",
+              },
+              content: {
+                text: "",
+                placeholder: "请填写URL",
+                focus: true,
+              },
+              btn: {
+                close: {
+                  enable: true,
+                  callback(details, event2) {
+                    details.close();
+                  },
+                },
+                ok: {
+                  text: "导入",
+                  callback: async (details, event2) => {
+                    const url = details.text;
+                    if (utils.isNull(url)) {
+                      qmsg.error("请填入完整的url");
+                      return;
+                    }
+                    const $loading = qmsg.loading("正在获取配置...");
+                    const response = await httpx.get(url, {
+                      allowInterceptConfig: false,
+                    });
+                    $loading.close();
+                    if (!response.status) {
+                      log.error(response);
+                      qmsg.error("获取配置失败", { consoleLogContent: true });
+                      return;
+                    }
+                    const flag = await importFile(response.data.responseText);
+                    if (!flag) {
+                      return;
+                    }
+                    details.close();
+                  },
+                },
+                cancel: {
+                  enable: false,
+                },
+              },
+              drag: true,
+              mask: {
+                enable: true,
+              },
+              width: PanelUISize.info.width,
+              height: "auto",
+            });
+            const $promptInput = $prompt.$shadowRoot.querySelector("input");
+            const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
+            domUtils.on($promptInput, ["input", "propertychange"], (event2) => {
+              const value = domUtils.val($promptInput);
+              if (value === "") {
+                domUtils.attr($promptOk, "disabled", "true");
+              } else {
+                domUtils.removeAttr($promptOk, "disabled");
+              }
+            });
+            domUtils.listenKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
+              if (keyName === "Enter" && otherCodeList.length === 0) {
+                const value = domUtils.val($promptInput);
+                if (value !== "") {
+                  domUtils.trigger($promptOk, "click");
+                }
+              }
+            });
+            domUtils.trigger($promptInput, "input");
+          });
+          domUtils.on($clipboard, "click", async (event) => {
+            domUtils.preventEvent(event);
+            $alert.close();
+            let clipboardText = await CommonUtil2.getClipboardText();
+            if (clipboardText.trim() === "") {
+              qmsg.warning("获取到的剪贴板内容为空");
+              return;
+            }
+            const flag = await importFile(clipboardText);
+            if (!flag) {
+              return;
+            }
+          });
+        };
+        const exportConfig = (
+          fileName = `${SCRIPT_NAME}_panel-setting-${utils.formatTime(Date.now(), "yyyy_MM_dd_HH_mm_ss")}.json`,
+          fileData
+        ) => {
+          const $alert = __pops.alert({
+            title: {
+              text: "请选择导出方式",
+              position: "center",
+            },
+            content: {
+              text: `
+            <div class="btn-control" data-mode="export-to-file">导出至文件</div>
+            <div class="btn-control" data-mode="export-to-clipboard">导出至剪贴板</div>
+            `,
+              html: true,
+            },
+            btn: {
+              ok: { enable: false },
+              close: {
+                enable: true,
+                callback(details, event) {
+                  details.close();
+                },
+              },
+            },
+            drag: true,
+            mask: {
+              enable: true,
+            },
+            width: PanelUISize.info.width,
+            height: PanelUISize.info.height,
+            style: `
+          .btn-control{
+              display: inline-block;
+              margin: 10px;
+              padding: 10px;
+              border: 1px solid #ccc;
+              border-radius: 5px;
+              cursor: pointer;
+          }
+          .btn-control:hover{
+            color: #409eff;
+            border-color: #c6e2ff;
+            background-color: #ecf5ff;
+          }`,
+          });
+          const $exportToFile = $alert.$shadowRoot.querySelector(".btn-control[data-mode='export-to-file']");
+          const $exportToClipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='export-to-clipboard']");
+          domUtils.on($exportToFile, "click", (event) => {
+            domUtils.preventEvent(event);
+            try {
+              exportToFile(fileName, fileData);
+              $alert.close();
+            } catch (error) {
+              qmsg.error(error.toString(), { consoleLogContent: true });
+            }
+          });
+          domUtils.on($exportToClipboard, "click", async (event) => {
+            const result = await utils.copy(fileData);
+            if (result) {
+              qmsg.success("复制成功");
+              $alert.close();
+            } else {
+              qmsg.error("复制失败");
+            }
+          });
+        };
+        const $dialog = __pops.confirm({
+          title: {
+            text: "配置",
+            position: "center",
+          },
+          content: {
+            text: `
+            <textarea name="config-value" id="config" readonly></textarea>
+          `,
+            html: true,
+          },
+          btn: {
+            ok: {
+              enable: true,
+              type: "primary",
+              text: "导入",
+              callback(eventDetails, event) {
+                importConfig();
+              },
+            },
+            cancel: {
+              enable: true,
+              text: "导出",
+              callback(eventDetails, event) {
+                exportConfig(void 0, configDataStr);
+              },
+            },
+          },
+          width: PanelSizeUtil.width < 450 ? "90vw" : "450px",
+          height: "auto",
+          style: `
+          .pops-content textarea {
+            --textarea-bd-color: #dcdfe6;
+            display: inline-block;
+            resize: vertical;
+            padding: 5px 15px;
+            margin: 0;
+            line-height: normal;
+            box-sizing: border-box;
+            color: #606266;
+            border: 0;
+            border-radius: 0;
+            outline: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background: none;
+            width: 100%;
+            height: 100%;
+            appearance: none;
+            resize: none;
+          }
+          .pops-content textarea{
+            height: 500px;
+          }
+          .pops-content textarea:focus {
+            --textarea-bd-color: #3677f0;
+          }
+          .pops-content textarea:hover {
+            --textarea-bd-color: #c0c4cc;
+          }
+        `,
+        });
+        const $textarea = $dialog.$shadowRoot.querySelector("textarea");
+        const configData = {};
+        if (typeof _GM_listValues === "function") {
+          const LocalKeys = _GM_listValues();
+          LocalKeys.forEach((key) => {
+            const value = _GM_getValue(key);
+            Reflect.set(configData, key, value);
+          });
+        } else {
+          qmsg.warning("不支持函数GM_listValues，仅导出菜单配置");
+          const panelLocalValue = _GM_getValue(KEY);
+          Reflect.set(configData, KEY, panelLocalValue);
+        }
+        const configDataStr = CommonUtil2.toStr(configData);
+        $textarea.value = configDataStr;
+      };
+      const click_callback = () => {
+        let supportURL = _GM_info?.script?.supportURL || _GM_info?.script?.namespace;
+        if (typeof supportURL === "string" && utils.isNotNull(supportURL)) {
+          window.open(supportURL, "_blank");
+        }
+      };
       return [
         {
           id: "script-version",
           title: `版本：${_GM_info?.script?.version || "未知"}`,
           isBottom: true,
           forms: [],
-          clickFirstCallback(event, rightHeaderElement, rightContainerElement) {
-            let supportURL = _GM_info?.script?.supportURL || _GM_info?.script?.namespace;
-            if (typeof supportURL === "string" && utils.isNotNull(supportURL)) {
-              window.open(supportURL, "_blank");
-            }
+          clickFirstCallback() {
             return false;
+          },
+          afterRender(config) {
+            const anyTouch = new AnyTouch(config.$asideLiElement);
+            anyTouch.on("tap", function (event) {
+              clearTimeout(timer);
+              timer = void 0;
+              if (isDoubleClick) {
+                isDoubleClick = false;
+                dbclick_callback();
+              } else {
+                timer = setTimeout(() => {
+                  isDoubleClick = false;
+                  click_callback();
+                }, 200);
+                isDoubleClick = true;
+              }
+            });
           },
         },
       ];
@@ -21593,7 +21988,7 @@ ${err.stack}`);
       };
       const getMenuValue = (key) => {
         const value = this.getValue(key);
-        return value;
+        return Boolean(value);
       };
       const execClearStoreStyleElements = () => {
         for (let index = 0; index < storeValueList.length; index++) {
@@ -21808,17 +22203,17 @@ ${err.stack}`);
     },
     registerConfigSearch(config) {
       const { $panel, content } = config;
-      let asyncQueryProperty = async (target, handler) => {
+      const asyncQueryProperty = async (target, handler) => {
         if (target == null) {
           return;
         }
-        let handleResult = await handler(target);
+        const handleResult = await handler(target);
         if (handleResult && typeof handleResult.isFind === "boolean" && handleResult.isFind) {
           return handleResult.data;
         }
         return await asyncQueryProperty(handleResult.data, handler);
       };
-      let scrollToElementAndListen = ($el, callback) => {
+      const scrollToElementAndListen = ($el, callback) => {
         const observer = new IntersectionObserver(
           (entries) => {
             entries.forEach((entry) => {
@@ -21836,16 +22231,20 @@ ${err.stack}`);
         observer.observe($el);
         $el.scrollIntoView({ behavior: "smooth", block: "center" });
       };
-      let addFlashingClass = ($el) => {
+      const addFlashingClass = ($el) => {
         const flashingClassName = "pops-flashing";
         domUtils.animationend($el, () => {
           $el.classList.remove(flashingClassName);
         });
         $el.classList.add(flashingClassName);
       };
-      let dbclick_event = (evt, selectorTarget) => {
+      const dbclick_callback = (evt) => {
+        if (evt.type === "dblclick" && isMobileTouch) {
+          return;
+        }
         domUtils.preventEvent(evt);
-        let $alert = __pops.alert({
+        clickElement = null;
+        const $alert = __pops.alert({
           title: {
             text: "搜索配置",
             position: "center",
@@ -21911,13 +22310,13 @@ ${err.stack}`);
 				`,
         });
         $alert.$shadowRoot.querySelector(".search-wrapper");
-        let $searchInput = $alert.$shadowRoot.querySelector(".search-config-text");
-        let $searchResultWrapper = $alert.$shadowRoot.querySelector(".search-result-wrapper");
+        const $searchInput = $alert.$shadowRoot.querySelector(".search-config-text");
+        const $searchResultWrapper = $alert.$shadowRoot.querySelector(".search-result-wrapper");
         $searchInput.focus();
-        let clearSearchResult = () => {
+        const clearSearchResult = () => {
           domUtils.empty($searchResultWrapper);
         };
-        let createSearchResultItem = (pathInfo) => {
+        const createSearchResultItem = (pathInfo) => {
           const searchPath = utils.queryProperty(pathInfo, (target) => {
             if (target?.next) {
               return {
@@ -21931,7 +22330,7 @@ ${err.stack}`);
               };
             }
           });
-          let $item = domUtils.createElement("div", {
+          const $item = domUtils.createElement("div", {
             className: "search-result-item",
             innerHTML: `
 							<div class="search-result-item-path">${searchPath.matchedData?.path}</div>
@@ -21939,10 +22338,10 @@ ${err.stack}`);
 						`,
           });
           domUtils.on($item, "click", (clickItemEvent) => {
-            let $asideItems = $panel.$shadowRoot.querySelectorAll(
+            const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
             );
-            let $targetAsideItem = $asideItems[pathInfo.index];
+            const $targetAsideItem = $asideItems2[pathInfo.index];
             if (!$targetAsideItem) {
               qmsg.error(`左侧项下标${pathInfo.index}不存在`);
               return;
@@ -21954,7 +22353,7 @@ ${err.stack}`);
             $targetAsideItem.click();
             asyncQueryProperty(pathInfo.next, async (target) => {
               if (target?.next) {
-                let $findDeepMenu = await domUtils.waitNode(() => {
+                const $findDeepMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")).find(
                     ($deepMenu) => {
                       const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
@@ -21980,7 +22379,7 @@ ${err.stack}`);
                   data: target.next,
                 };
               } else {
-                let $findTargetMenu = await domUtils.waitNode(() => {
+                const $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)).find(
                     ($menuItem) => {
                       const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
@@ -21990,9 +22389,9 @@ ${err.stack}`);
                 }, 2500);
                 if ($findTargetMenu) {
                   scrollToElementAndListen($findTargetMenu);
-                  let $fold = $findTargetMenu.closest(`.pops-panel-forms-fold[data-fold-enable]`);
+                  const $fold = $findTargetMenu.closest(`.pops-panel-forms-fold[data-fold-enable]`);
                   if ($fold) {
-                    let $foldWrapper = $fold.querySelector(".pops-panel-forms-fold-container");
+                    const $foldWrapper = $fold.querySelector(".pops-panel-forms-fold-container");
                     $foldWrapper.click();
                     await utils.sleep(500);
                   }
@@ -22011,13 +22410,13 @@ ${err.stack}`);
           });
           return $item;
         };
-        let execSearch = (searchText) => {
+        const execSearch = (searchText) => {
           const searchTextRegExp = new RegExp(searchText, "i");
           const searchConfigResult = [];
           const loopContentConfig = (configList, path) => {
             for (let index = 0; index < configList.length; index++) {
               const configItem = configList[index];
-              let child_forms = configItem.forms;
+              const child_forms = configItem.forms;
               if (child_forms && Array.isArray(child_forms)) {
                 const deepMenuPath = utils.deepClone(path);
                 if (configItem.type === "deepMenu") {
@@ -22040,10 +22439,10 @@ ${err.stack}`);
                 }
                 loopContentConfig(child_forms, deepMenuPath);
               } else {
-                let text = Reflect.get(configItem, "text");
-                let description = Reflect.get(configItem, "description");
+                const text = Reflect.get(configItem, "text");
+                const description = Reflect.get(configItem, "description");
                 const delayMatchedTextList = [text, description];
-                let matchedIndex = delayMatchedTextList.findIndex((configText) => {
+                const matchedIndex = delayMatchedTextList.findIndex((configText) => {
                   if (typeof configText !== "string") {
                     return;
                   }
@@ -22118,7 +22517,7 @@ ${err.stack}`);
               });
             }
           }
-          let fragment = document.createDocumentFragment();
+          const fragment = document.createDocumentFragment();
           for (const pathInfo of searchConfigResult) {
             let $resultItem = createSearchResultItem(pathInfo);
             fragment.appendChild($resultItem);
@@ -22140,26 +22539,28 @@ ${err.stack}`);
           }, 200)
         );
       };
+      const $asideItems = $panel.$shadowRoot.querySelectorAll(
+        `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`
+      );
+      $asideItems.forEach(($asideItem) => {
+        domUtils.on($asideItem, "dblclick", dbclick_callback);
+      });
       let clickElement = null;
       let isDoubleClick = false;
       let timer = void 0;
-      domUtils.on(
-        $panel.$shadowRoot,
-        "dblclick",
-        `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`,
-        dbclick_event
-      );
+      let isMobileTouch = false;
       domUtils.on(
         $panel.$shadowRoot,
         "touchend",
         `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`,
         (evt, selectorTarget) => {
+          isMobileTouch = true;
           clearTimeout(timer);
           timer = void 0;
           if (isDoubleClick && clickElement === selectorTarget) {
             isDoubleClick = false;
             clickElement = null;
-            dbclick_event(evt);
+            dbclick_callback(evt);
           } else {
             timer = setTimeout(() => {
               isDoubleClick = false;

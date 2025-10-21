@@ -324,14 +324,14 @@ export const NetDiskLinkView = {
         },
         NetDiskView.$config.viewSizeConfig.mainViewSmallWindow
       );
-      let smallWindowPosition = NetDiskViewConfig.view["netdisk-ui-small-window-position"].value;
-      let popsElement = NetDiskView.$el.$linkView.popsElement;
+      const smallWindowPosition = NetDiskViewConfig.view["netdisk-ui-small-window-position"].value;
+      const $pops = NetDiskView.$el.$linkView.$pops;
       if (smallWindowPosition) {
-        let viewWidth = DOMUtils.width(popsElement, true);
-        let viewHeight = DOMUtils.height(popsElement, true);
+        let viewWidth = DOMUtils.width($pops, true);
+        let viewHeight = DOMUtils.height($pops, true);
         let maxWindowLeft = DOMUtils.width(window);
         let maxWindowTop = DOMUtils.height(window);
-        const { transformLeft, transformTop } = DOMUtils.getTransform(popsElement);
+        const { transformLeft, transformTop } = DOMUtils.getTransform($pops);
         /* 最大的left偏移*/
         let maxLeft = maxWindowLeft - viewWidth + transformLeft;
         /* 最大的top偏移 */
@@ -350,11 +350,11 @@ export const NetDiskLinkView = {
         } else if (smallWindowPosition.left < minLeft) {
           smallWindowPosition.left = minLeft;
         }
-        popsElement.style.transitionDuration = "0s";
-        popsElement.style.left = smallWindowPosition["left"] + "px";
-        popsElement.style.top = smallWindowPosition["top"] + "px";
+        $pops.style.transitionDuration = "0s";
+        $pops.style.left = smallWindowPosition["left"] + "px";
+        $pops.style.top = smallWindowPosition["top"] + "px";
         setTimeout(() => {
-          popsElement.style.transitionDuration = "0s";
+          $pops.style.transitionDuration = "0s";
         }, 300);
       }
     } else {
@@ -474,9 +474,9 @@ export const NetDiskLinkView = {
     }
     this.refreshLinkView();
     // 链接视图的z-index
-    let netDiskLinkViewZIndex = NetDiskGlobalData.smallWindow["netdisk-link-view-z-index"].value;
+    const netDiskLinkViewZIndex = NetDiskGlobalData.smallWindow["netdisk-link-view-z-index"].value;
     if (netDiskLinkViewZIndex > 0) {
-      DOMUtils.css(NetDiskView.$el.$linkView.popsElement, {
+      DOMUtils.css(NetDiskView.$el.$linkView.$pops, {
         "z-index": netDiskLinkViewZIndex,
       });
     }
@@ -671,7 +671,7 @@ export const NetDiskLinkView = {
       // 还未创建视图，那就不修改元素
       return;
     }
-    let uiLink = NetDisk.handleLinkShow({
+    const uiLink = NetDisk.handleLinkShow({
       ruleKeyName,
       ruleIndex,
       shareCode,
@@ -682,7 +682,7 @@ export const NetDiskLinkView = {
       // 不存在显示到页面中的链接
       return;
     }
-    let $url = NetDiskView.$el.$linkView.popsElement.querySelector<HTMLElement>(
+    const $url = NetDiskView.$el.$linkView.$pops.querySelector<HTMLElement>(
       `.netdisk-url a[data-sharecode='${shareCode}'][data-rule-index='${ruleIndex}']`
     );
     if ($url) {

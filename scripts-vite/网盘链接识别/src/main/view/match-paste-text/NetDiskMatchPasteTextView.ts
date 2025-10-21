@@ -26,7 +26,7 @@ export const NetDiskMatchPasteText = {
             text: "识别",
             callback() {
               let inputText =
-                popsConfirm.popsElement?.querySelector<HTMLInputElement>(".netdisk-match-paste-text")?.value || "";
+                popsConfirm.$pops?.querySelector<HTMLInputElement>(".netdisk-match-paste-text")?.value || "";
               if (inputText.trim() !== "") {
                 /* 删除掉中文 */
                 inputText = NetDiskRuleUtils.replaceChinese(inputText);
@@ -54,7 +54,7 @@ export const NetDiskMatchPasteText = {
       },
       NetDiskView.$config.viewSizeConfig.matchPasteTextView
     );
-    popsConfirm.popsElement.querySelector<HTMLTextAreaElement>("textarea")!.focus();
+    popsConfirm.$pops.querySelector<HTMLTextAreaElement>("textarea")!.focus();
   },
   /**
    * Worker匹配完毕后执行的回调函数
