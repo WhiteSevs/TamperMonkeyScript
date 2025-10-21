@@ -1,4 +1,4 @@
-import type { PopsEventDetails, PopsHandlerEventDetails } from "./event";
+import type { PopsEventConfig, PopsHandlerEventConfig } from "./event";
 import type { PopsIconType } from "./icon";
 import type { PopsType } from "./main";
 
@@ -110,7 +110,7 @@ export interface PopsButtonDetails<T = object> {
    *
    * 如果传入该值，那么将不会自动关闭弹窗
    */
-  callback(eventDetails: PopsHandlerEventDetails & T, event: PointerEvent | MouseEvent): void;
+  callback(eventConfig: PopsHandlerEventConfig & T, event: PointerEvent | MouseEvent): void;
 }
 
 /**
@@ -127,7 +127,7 @@ export type PopsButtonDetailsAnyType<T = object> = Omit<PopsButtonDetails<T>, "t
 /** prompt的点击回调 */
 export interface PopsPromptButtonDetails extends PopsButtonDetails {
   callback(
-    eventDetails: PopsHandlerEventDetails & {
+    eventConfig: PopsHandlerEventConfig & {
       text: string;
     },
     event: PointerEvent | MouseEvent
@@ -183,5 +183,5 @@ export interface PopsHeaderCloseButtonDetails {
    *
    * 如果传入该值，那么将不会自动关闭弹窗
    */
-  callback?: (details: PopsEventDetails, event: PointerEvent | MouseEvent) => void;
+  callback?: (details: PopsEventConfig, event: PointerEvent | MouseEvent) => void;
 }

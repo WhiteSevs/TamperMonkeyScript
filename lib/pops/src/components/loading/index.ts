@@ -56,15 +56,15 @@ export const PopsLoading = {
     /**
      * 遮罩层元素
      */
-    let $mask: HTMLDivElement | null = null;
+    let $mask: HTMLDivElement | undefined = void 0;
     /**
      * 已创建的元素列表
      */
-    const elementList: HTMLElement[] = [$anim];
+    const $elList: HTMLElement[] = [$anim];
 
     if (config.mask.enable) {
       // 创建遮罩层
-      const _handleMask_ = PopsHandler.handleMask({
+      const handleMask = PopsHandler.handleMask({
         type: PopsType,
         guid: guid,
 
@@ -72,11 +72,11 @@ export const PopsLoading = {
         animElement: $anim,
         maskHTML: maskHTML,
       });
-      $mask = _handleMask_.maskElement;
-      elementList.push($mask);
+      $mask = handleMask.maskElement;
+      $elList.push($mask);
     }
-    const eventDetails = PopsHandler.handleLoadingEventDetails(guid, PopsType, $anim, $pops!, $mask!, config);
-    popsDOMUtils.append(config.parent, elementList);
+    const evtConfig = PopsHandler.handleLoadingEventConfig(config, guid, PopsType, $anim, $pops, $mask);
+    popsDOMUtils.append(config.parent, $elList);
     if ($mask != null) {
       $anim.after($mask);
     }
@@ -93,7 +93,7 @@ export const PopsLoading = {
       popsDOMUtils.css($anim, "position", "absolute !important");
       $mask && popsDOMUtils.css($mask, "position", "absolute !important");
     }
-    const result = PopsHandler.handleResultDetails(eventDetails);
+    const result = PopsHandler.handleResultConfig(evtConfig);
     return result;
   },
 };

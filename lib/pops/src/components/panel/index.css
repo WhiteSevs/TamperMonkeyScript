@@ -278,6 +278,9 @@ section.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-container-
   .pops[type-value="panel"] section.pops-panel-container > ul > li div:nth-child(2) {
     max-width: 55%;
   }
+  .pops[type-value="panel"] section.pops-panel-container > ul > li .pops-panel-input span.pops-panel-input__suffix {
+    padding: 0 4px;
+  }
   .pops[type-value="panel"] section.pops-panel-container .pops-panel-select select {
     min-width: 88px !important;
     width: -webkit-fill-available;
@@ -668,6 +671,7 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
   background-color: var(--pops-panel-components-input-bg-color);
   position: relative;
   box-shadow: none;
+  width: 200px;
 }
 .pops-panel-input:hover {
   border: 1px solid var(--pops-panel-components-input-hover-bd-color);
@@ -724,7 +728,7 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
   transition: all 0.3s;
   pointer-events: none;
   padding: 0 8px;
-  position: absolute;
+  position: relative;
   right: 0px;
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
@@ -745,6 +749,13 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
 .pops-panel-input:focus-within span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),
 .pops-panel-input:active span.pops-panel-input__suffix:has(svg[data-type="circleClose"]) {
   display: inline-flex;
+}
+/* 当清空图标显示时，则隐藏输入框的padding-right */
+.pops-panel-input:hover:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,
+.pops-panel-input:focus:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,
+.pops-panel-input:focus-within:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,
+.pops-panel-input:active:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input {
+  padding-right: 0;
 }
 .pops-panel-input .pops-panel-icon {
   cursor: pointer;

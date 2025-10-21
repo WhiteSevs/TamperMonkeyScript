@@ -4,7 +4,7 @@ import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
 import { PopsCSS } from "../../PopsCSS";
 import { PopsInstData } from "../../PopsInst";
-import type { PopsEventDetails } from "../../types/event";
+import type { PopsEventConfig } from "../../types/event";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { popsUtils } from "../../utils/PopsUtils";
@@ -115,14 +115,14 @@ export const PopsIframe = {
     /**
      * 遮罩层元素
      */
-    let $mask: HTMLDivElement | null = null;
+    let $mask: HTMLDivElement | undefined = void 0;
     /**
      * 已创建的元素列表
      */
-    const elementList: HTMLElement[] = [$anim];
+    const $elList: HTMLElement[] = [$anim];
 
     if (config.mask.enable) {
-      const _handleMask_ = PopsHandler.handleMask({
+      const handleMask = PopsHandler.handleMask({
         type: popsType,
         guid: guid,
 
@@ -130,25 +130,24 @@ export const PopsIframe = {
         animElement: $anim,
         maskHTML: maskHTML,
       });
-      $mask = _handleMask_.maskElement;
-      elementList.push($mask);
+      $mask = handleMask.maskElement;
+      $elList.push($mask);
     }
 
-    const eventDetails = PopsHandler.handleEventDetails(
+    const evtConfig = PopsHandler.handleEventConfig(
+      config,
       guid,
       $shadowContainer,
       $shadowRoot,
       popsType,
       $anim,
-
-      $pops!,
-      $mask!,
-      config
-    ) as any as PopsEventDetails & {
+      $pops,
+      $mask
+    ) as any as PopsEventConfig & {
       iframeElement: HTMLIFrameElement;
     };
 
-    eventDetails["iframeElement"] = $iframe!;
+    evtConfig["iframeElement"] = $iframe!;
 
     popsDOMUtils.on($anim, popsDOMUtils.getAnimationEndNameList(), function () {
       /* 动画加载完毕 */
@@ -170,11 +169,11 @@ export const PopsIframe = {
         $title!.querySelector<HTMLElement>("p")!.innerText = $iframe!.contentDocument.title;
       }
 
-      config.loadEndCallBack(eventDetails);
+      config.loadEndCallBack(evtConfig);
     });
     /* 创建到页面中 */
 
-    popsDOMUtils.append($shadowRoot, elementList);
+    popsDOMUtils.append($shadowRoot, $elList);
     if (typeof config.beforeAppendToPageCallBack === "function") {
       config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
     }
@@ -218,7 +217,7 @@ export const PopsIframe = {
         // 显示复位图标
         headerMiseBtnElement.style.setProperty("display", "");
         if (typeof config?.btn?.min?.callback === "function") {
-          config.btn.min.callback(eventDetails, event);
+          config.btn.min.callback(evtConfig, event);
         }
       },
       {
@@ -252,7 +251,7 @@ export const PopsIframe = {
         // 显示复位图标
         headerMiseBtnElement.style.setProperty("display", "");
         if (typeof config?.btn?.max?.callback === "function") {
-          config.btn.max.callback(eventDetails, event);
+          config.btn.max.callback(evtConfig, event);
         }
       },
       {
@@ -294,7 +293,7 @@ export const PopsIframe = {
           headerMiseBtnElement.style.setProperty("display", "none");
         }
         if (typeof config?.btn?.mise?.callback === "function") {
-          config.btn.mise.callback(eventDetails, event);
+          config.btn.mise.callback(evtConfig, event);
         }
       },
       {
@@ -310,7 +309,7 @@ export const PopsIframe = {
         event.stopPropagation();
         PopsInstanceUtils.removeInstance([PopsInstData.iframe], guid, false);
         if (typeof config?.btn?.close?.callback === "function") {
-          config.btn.close.callback(eventDetails, event);
+          config.btn.close.callback(evtConfig, event);
         }
       },
       {
@@ -329,7 +328,7 @@ export const PopsIframe = {
       $shadowRoot: $shadowRoot,
     });
 
-    const result = PopsHandler.handleResultDetails(eventDetails);
+    const result = PopsHandler.handleResultConfig(evtConfig);
     return result;
   },
 };

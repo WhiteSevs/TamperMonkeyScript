@@ -217,13 +217,10 @@ export const PopsInstanceUtils = {
    * @param instConfigList
    * @param guid
    * @param config
-   * @param animElement
-   * @param maskElement
+   * @param $anim
+   * @param $mask
    */
   hide(
-    popsType: PopsInstStoreType,
-    instConfigList: PopsInstCommonConfig[],
-    guid: string,
     config:
       | PopsAlertDetails
       | PopsDrawerDetails
@@ -233,15 +230,20 @@ export const PopsInstanceUtils = {
       | PopsLoadingDetails
       | PopsPanelDetails
       | PopsFolderDetails,
-    animElement: HTMLElement,
-    maskElement: HTMLElement
+    popsType: PopsInstStoreType,
+    instConfigList: PopsInstCommonConfig[],
+    guid: string,
+    $anim: HTMLElement,
+    $mask?: HTMLElement
   ) {
     return new Promise<void>((resolve) => {
-      const popsElement = animElement.querySelector<HTMLDivElement>(".pops[type-value]")!;
+      const popsElement = $anim.querySelector<HTMLDivElement>(".pops[type-value]")!;
       if (popsType === "drawer") {
         const drawerConfig = config as Required<PopsDrawerDetails>;
         popsUtils.setTimeout(() => {
-          maskElement.style.setProperty("display", "none");
+          if ($mask) {
+            popsDOMUtils.css($mask, "display", "none");
+          }
           if (["top", "bottom"].includes(drawerConfig.direction)) {
             popsElement.style.setProperty("height", "0");
           } else if (["left", "right"].includes(drawerConfig.direction)) {
@@ -303,13 +305,10 @@ export const PopsInstanceUtils = {
    * @param instConfigList
    * @param guid
    * @param config
-   * @param animElement
-   * @param maskElement
+   * @param $anim
+   * @param $mask
    */
   show(
-    popsType: PopsInstStoreType,
-    instConfigList: PopsInstCommonConfig[],
-    guid: string,
     config:
       | PopsAlertDetails
       | PopsDrawerDetails
@@ -319,15 +318,20 @@ export const PopsInstanceUtils = {
       | PopsLoadingDetails
       | PopsPanelDetails
       | PopsFolderDetails,
-    animElement: HTMLElement,
-    maskElement?: HTMLElement
+    popsType: PopsInstStoreType,
+    instConfigList: PopsInstCommonConfig[],
+    guid: string,
+    $anim: HTMLElement,
+    $mask?: HTMLElement
   ) {
     return new Promise<void>((resolve) => {
-      const popsElement = animElement.querySelector<HTMLDivElement>(".pops[type-value]")!;
+      const popsElement = $anim.querySelector<HTMLDivElement>(".pops[type-value]")!;
       if (popsType === "drawer") {
         const drawerConfig = config as PopsDrawerDetails;
         popsUtils.setTimeout(() => {
-          popsDOMUtils.css(maskElement!, "display", "");
+          if ($mask) {
+            popsDOMUtils.css($mask, "display", "");
+          }
           const direction = drawerConfig.direction!;
           const size = drawerConfig.size!.toString();
           if (["top", "bottom"].includes(direction)) {
@@ -389,12 +393,9 @@ export const PopsInstanceUtils = {
    * @param instConfigList
    * @param guid
    * @param config
-   * @param animElement
+   * @param $anim
    */
   close(
-    popsType: string,
-    instConfigList: PopsInstCommonConfig[],
-    guid: string,
     config:
       | PopsAlertDetails
       | PopsDrawerDetails
@@ -404,10 +405,13 @@ export const PopsInstanceUtils = {
       | PopsLoadingDetails
       | PopsPanelDetails
       | PopsFolderDetails,
-    animElement: HTMLElement
+    popsType: string,
+    instConfigList: PopsInstCommonConfig[],
+    guid: string,
+    $anim: HTMLElement
   ) {
     return new Promise<void>((resolve) => {
-      const popsElement = animElement.querySelector<HTMLDivElement>(".pops[type-value]")!;
+      const popsElement = $anim.querySelector<HTMLDivElement>(".pops[type-value]")!;
       const drawerConfig = config as Required<PopsDrawerDetails>;
       /**
        * 动画结束事件

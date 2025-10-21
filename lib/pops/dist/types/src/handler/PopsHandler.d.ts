@@ -7,7 +7,7 @@ import type { PopsLoadingDetails } from "../components/loading/types";
 import type { PopsPanelDetails } from "../components/panel/types";
 import type { PopsPromptDetails } from "../components/prompt/types/index";
 import type { PopsCommonConfig } from "../types/components";
-import type { PopsEventDetails, PopsHandlerEventDetails } from "../types/event";
+import type { PopsEventConfig, PopsHandlerEventConfig } from "../types/event";
 import type { PopsInstCommonConfig } from "../types/inst";
 import type { PopsInstStoreType, PopsType, PopsSupportAnimDetailsType, PopsSupportOnlyDetails } from "../types/main";
 export declare const PopsHandler: {
@@ -34,9 +34,9 @@ export declare const PopsHandler: {
      * 处理遮罩层
      *
      * + 设置遮罩层的点击事件
-     * @param details 传递的配置
+     * @param config 传递的配置
      */
-    handleMask(details?: {
+    handleMask(config?: {
         type: "alert" | "confirm" | "prompt" | "loading" | "iframe" | "drawer" | "folder" | "panel";
         guid: string;
         config: Required<PopsAlertDetails> | Required<PopsLoadingDetails> | Required<PopsIframeDetails> | Required<PopsDrawerDetails> | Required<PopsPanelDetails> | Required<PopsFolderDetails>;
@@ -178,34 +178,35 @@ export declare const PopsHandler: {
      * @param $shadowContainer
      * @param $shadowRoot
      * @param mode 当前弹窗类型
-     * @param animElement 动画层
-     * @param popsElement 主元素
-     * @param maskElement 遮罩层
+     * @param $anim 动画层
+     * @param $pops 主元素
+     * @param $mask 遮罩层
      * @param config 当前配置
      */
-    handleEventDetails(guid: string, $shadowContainer: HTMLDivElement, $shadowRoot: ShadowRoot | HTMLElement, mode: PopsInstStoreType, animElement: HTMLDivElement, popsElement: HTMLDivElement, maskElement: HTMLDivElement, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails): PopsEventDetails;
+    handleEventConfig(config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, guid: string, $shadowContainer: HTMLDivElement, $shadowRoot: ShadowRoot | HTMLElement, mode: PopsInstStoreType, $anim: HTMLDivElement, $pops: HTMLDivElement, $mask?: HTMLDivElement): PopsEventConfig;
     /**
      * 获取loading的事件配置
      * @param guid
      * @param mode 当前弹窗类型
-     * @param animElement 动画层
-     * @param popsElement 主元素
-     * @param maskElement 遮罩层
+     * @param $anim 动画层
+     * @param $pops 主元素
+     * @param $mask 遮罩层
      * @param config 当前配置
      */
-    handleLoadingEventDetails(guid: string, mode: "loading", animElement: HTMLDivElement, popsElement: HTMLDivElement, maskElement: HTMLDivElement, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails): Omit<PopsEventDetails, "$shadowContainer" | "$shadowRoot">;
+    handleLoadingEventConfig(config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, guid: string, mode: "loading", $anim: HTMLDivElement, $pops: HTMLDivElement, $mask?: HTMLDivElement): Omit<PopsEventConfig, "$shadowContainer" | "$shadowRoot">;
     /**
-     * 处理返回的配置，针对popsHandler.handleEventDetails
+     * 处理返回的配置，针对popsHandler.handleEventConfig
+     * @param config 配置
      */
-    handleResultDetails<T>(details: T): Omit<T, "type" | "function">;
+    handleResultConfig<T>(config: T): Omit<T, "type" | "function">;
     /**
      * 处理点击事件
      * @param type 当前按钮类型
      * @param $btn 按钮元素
-     * @param eventDetails 事件配置，由popsHandler.handleEventDetails创建的
+     * @param eventConfig 事件配置，由popsHandler.handleEventConfig创建的
      * @param callback 点击回调
      */
-    handleClickEvent(type: "cancel" | "close" | "ok" | "other", $btn: HTMLElement, eventDetails: PopsEventDetails, callback: (details: PopsHandlerEventDetails, event: PointerEvent | MouseEvent) => void): void;
+    handleClickEvent(type: PopsHandlerEventConfig["type"], $btn: HTMLElement, eventConfig: PopsEventConfig, callback?: (details: PopsHandlerEventConfig, event: PointerEvent | MouseEvent) => void): void;
     /**
      * 全局监听键盘事件
      * @param keyName 键名|键值
@@ -220,10 +221,10 @@ export declare const PopsHandler: {
      * @param type 触发事件类型
      * @param inputElement 输入框
      * @param  $btn 按钮元素
-     * @param eventDetails 事件配置，由popsHandler.handleEventDetails创建的
+     * @param eventConfig 事件配置，由popsHandler.handleEventConfig创建的
      * @param callback 点击回调
      */
-    handlePromptClickEvent(type: "ok" | "close" | "cancel" | "other", inputElement: HTMLInputElement | HTMLTextAreaElement, $btn: HTMLElement, eventDetails: PopsEventDetails, callback: (details: PopsEventDetails & {
+    handlePromptClickEvent(type: PopsHandlerEventConfig["type"], inputElement: HTMLInputElement | HTMLTextAreaElement, $btn: HTMLElement, eventConfig: PopsEventConfig, callback: (details: PopsEventConfig & {
         type: any;
         text: string;
     }, event: MouseEvent | PointerEvent) => void): void;

@@ -89,42 +89,42 @@ export const PopsAlert = {
     } = PopsHandler.handleQueryElement($anim, popsType);
 
     /** 遮罩层元素 */
-    let $mask: HTMLDivElement | null = null;
+    let $mask: HTMLDivElement | undefined = void 0;
     /** 已创建的元素列表 */
-    const elementList: HTMLElement[] = [$anim];
+    const $elList: HTMLElement[] = [$anim];
 
     /* 遮罩层元素 */
 
     if (config.mask.enable) {
-      const _handleMask_ = PopsHandler.handleMask({
+      const handleMask = PopsHandler.handleMask({
         type: popsType,
         guid: guid,
         config: config,
         animElement: $anim,
         maskHTML: maskHTML,
       });
-      $mask = _handleMask_.maskElement;
-      elementList.push($mask);
+      $mask = handleMask.maskElement;
+      $elList.push($mask);
     }
     /* 处理返回的配置 */
-    const eventDetails = PopsHandler.handleEventDetails(
+    const evtConfig = PopsHandler.handleEventConfig(
+      config,
       guid,
       $shadowContainer,
       $shadowRoot,
       popsType,
       $anim,
-      $pops!,
-      $mask!,
-      config
+      $pops,
+      $mask
     );
     /* 为顶部右边的关闭按钮添加点击事件 */
-    PopsHandler.handleClickEvent("close", $headerCloseBtn!, eventDetails, config.btn.close!.callback!);
+    PopsHandler.handleClickEvent("close", $headerCloseBtn, evtConfig, config.btn.close?.callback);
     /* 为底部ok按钮添加点击事件 */
-    PopsHandler.handleClickEvent("ok", btnOkElement!, eventDetails!, config.btn.ok!.callback!);
+    PopsHandler.handleClickEvent("ok", btnOkElement, evtConfig, config.btn.ok?.callback);
 
     /* 创建到页面中 */
 
-    popsDOMUtils.append($shadowRoot, elementList);
+    popsDOMUtils.append($shadowRoot, $elList);
     if (typeof config.beforeAppendToPageCallBack === "function") {
       config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
     }
@@ -157,7 +157,7 @@ export const PopsAlert = {
       });
     }
 
-    const result = PopsHandler.handleResultDetails(eventDetails);
+    const result = PopsHandler.handleResultConfig(evtConfig);
     return result;
   },
 };

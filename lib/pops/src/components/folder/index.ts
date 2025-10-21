@@ -252,41 +252,41 @@ export const PopsFolder = {
     /**
      * 遮罩层元素
      */
-    let $mask: HTMLDivElement | null = null;
+    let $mask: HTMLDivElement | undefined = void 0;
     /**
      * 已创建的元素列表
      */
-    const elementList: HTMLElement[] = [$anim];
+    const $elList: HTMLElement[] = [$anim];
 
     if (config.mask.enable) {
-      const _handleMask_ = PopsHandler.handleMask({
+      const handleMask = PopsHandler.handleMask({
         type: popsType,
         guid: guid,
         config: config,
         animElement: $anim,
         maskHTML: maskHTML,
       });
-      $mask = _handleMask_.maskElement;
-      elementList.push($mask);
+      $mask = handleMask.maskElement;
+      $elList.push($mask);
     }
     /* 事件 */
-    const eventDetails = PopsHandler.handleEventDetails(
+    const evtConfig = PopsHandler.handleEventConfig(
+      config,
       guid,
       $shadowContainer,
       $shadowRoot,
       popsType,
       $anim,
       $pops,
-      $mask!,
-      config
+      $mask
     );
-    PopsHandler.handleClickEvent("close", $btnCloseBtn, eventDetails, config.btn.close!.callback!);
-    PopsHandler.handleClickEvent("ok", btnOkElement, eventDetails, config.btn.ok!.callback!);
-    PopsHandler.handleClickEvent("cancel", btnCancelElement, eventDetails, config.btn.cancel!.callback!);
-    PopsHandler.handleClickEvent("other", btnOtherElement, eventDetails, config.btn.other!.callback!);
+    PopsHandler.handleClickEvent("close", $btnCloseBtn, evtConfig, config.btn.close.callback);
+    PopsHandler.handleClickEvent("ok", btnOkElement, evtConfig, config.btn.ok.callback);
+    PopsHandler.handleClickEvent("cancel", btnCancelElement, evtConfig, config.btn.cancel.callback);
+    PopsHandler.handleClickEvent("other", btnOtherElement, evtConfig, config.btn.other.callback);
     /* 创建到页面中 */
 
-    popsDOMUtils.append($shadowRoot, elementList);
+    popsDOMUtils.append($shadowRoot, $elList);
     if (typeof config.beforeAppendToPageCallBack === "function") {
       config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
     }
@@ -923,7 +923,7 @@ export const PopsFolder = {
       $shadowContainer: $shadowContainer,
       $shadowRoot: $shadowRoot,
     });
-    const result = PopsHandler.handleResultDetails(eventDetails);
+    const result = PopsHandler.handleResultConfig(evtConfig);
     return result;
   },
 };

@@ -10,7 +10,7 @@ import { PopsCore } from "../PopsCore";
 import { PopsAnimation } from "../PopsAnimation";
 import { PopsInstData } from "../PopsInst";
 import type { PopsCommonConfig } from "../types/components";
-import type { PopsEventDetails, PopsHandlerEventDetails } from "../types/event";
+import type { PopsEventConfig, PopsHandlerEventConfig } from "../types/event";
 import type { PopsInstCommonConfig } from "../types/inst";
 import type { PopsInstStoreType, PopsType, PopsSupportAnimDetailsType, PopsSupportOnlyDetails } from "../types/main";
 import { popsDOMUtils } from "../utils/PopsDOMUtils";
@@ -103,10 +103,10 @@ export const PopsHandler = {
    * 处理遮罩层
    *
    * + 设置遮罩层的点击事件
-   * @param details 传递的配置
+   * @param config 传递的配置
    */
   handleMask(
-    details = {} as {
+    config = {} as {
       type: "alert" | "confirm" | "prompt" | "loading" | "iframe" | "drawer" | "folder" | "panel";
       guid: string;
       config:
@@ -121,7 +121,7 @@ export const PopsHandler = {
     }
   ) {
     const result = {
-      maskElement: popsDOMUtils.parseTextToDOM<HTMLDivElement>(details.maskHTML),
+      maskElement: popsDOMUtils.parseTextToDOM<HTMLDivElement>(config.maskHTML),
     };
     let isMaskClick = false;
     /**
@@ -131,32 +131,32 @@ export const PopsHandler = {
     function clickEvent(event: MouseEvent | PointerEvent) {
       popsDOMUtils.preventEvent(event);
       // 获取该类型实例存储列表
-      const targetInst = PopsInstData[details.type];
+      const targetInst = PopsInstData[config.type];
       function originalRun() {
-        if (details.config.mask!.clickEvent!.toClose) {
+        if (config.config.mask!.clickEvent!.toClose) {
           /* 关闭 */
-          return PopsInstanceUtils.close(details.type, targetInst, details.guid, details.config, details.animElement);
-        } else if (details.config.mask!.clickEvent!.toHide) {
+          return PopsInstanceUtils.close(config.config, config.type, targetInst, config.guid, config.animElement);
+        } else if (config.config.mask!.clickEvent!.toHide) {
           /* 隐藏 */
           return PopsInstanceUtils.hide(
-            details.type,
+            config.config,
+            config.type,
             targetInst,
-            details.guid,
-            details.config,
-            details.animElement,
+            config.guid,
+            config.animElement,
             result.maskElement
           );
         }
       }
-      if (typeof details.config.mask.clickCallBack === "function") {
-        details.config.mask.clickCallBack(originalRun, details.config);
+      if (typeof config.config.mask.clickCallBack === "function") {
+        config.config.mask.clickCallBack(originalRun, config.config);
       } else {
         originalRun();
       }
       return false;
     }
     // 判断是否启用了遮罩层点击动作
-    if (details.config.mask.clickEvent!.toClose || details.config.mask.clickEvent!.toHide) {
+    if (config.config.mask.clickEvent!.toClose || config.config.mask.clickEvent!.toHide) {
       /**
        * 判断点击的元素是否是动画层的元素
        * @param element
@@ -171,12 +171,12 @@ export const PopsHandler = {
         );
       }
       /* 判断按下的元素是否是pops-anim */
-      popsDOMUtils.on(details.animElement, ["touchstart", "mousedown"], void 0, (event) => {
+      popsDOMUtils.on(config.animElement, ["touchstart", "mousedown"], void 0, (event) => {
         const $click = event.composedPath()[0] as HTMLElement;
         isMaskClick = isAnimElement($click);
       });
       /* 如果有动画层，在动画层上监听点击事件 */
-      popsDOMUtils.on<MouseEvent | PointerEvent>(details.animElement, "click", void 0, (event) => {
+      popsDOMUtils.on<MouseEvent | PointerEvent>(config.animElement, "click", void 0, (event) => {
         const $click = event.composedPath()[0] as HTMLElement;
         if (isAnimElement($click) && isMaskClick) {
           return clickEvent(event);
@@ -344,19 +344,12 @@ export const PopsHandler = {
    * @param $shadowContainer
    * @param $shadowRoot
    * @param mode 当前弹窗类型
-   * @param animElement 动画层
-   * @param popsElement 主元素
-   * @param maskElement 遮罩层
+   * @param $anim 动画层
+   * @param $pops 主元素
+   * @param $mask 遮罩层
    * @param config 当前配置
    */
-  handleEventDetails(
-    guid: string,
-    $shadowContainer: HTMLDivElement,
-    $shadowRoot: ShadowRoot | HTMLElement,
-    mode: PopsInstStoreType,
-    animElement: HTMLDivElement,
-    popsElement: HTMLDivElement,
-    maskElement: HTMLDivElement,
+  handleEventConfig(
     config:
       | PopsAlertDetails
       | PopsDrawerDetails
@@ -365,25 +358,32 @@ export const PopsHandler = {
       | PopsIframeDetails
       | PopsLoadingDetails
       | PopsPanelDetails
-      | PopsFolderDetails
-  ): PopsEventDetails {
+      | PopsFolderDetails,
+    guid: string,
+    $shadowContainer: HTMLDivElement,
+    $shadowRoot: ShadowRoot | HTMLElement,
+    mode: PopsInstStoreType,
+    $anim: HTMLDivElement,
+    $pops: HTMLDivElement,
+    $mask?: HTMLDivElement
+  ): PopsEventConfig {
     return {
       $shadowContainer: $shadowContainer,
       $shadowRoot: $shadowRoot,
-      element: animElement,
-      animElement: animElement,
-      popsElement: popsElement,
-      maskElement: maskElement,
+      $el: $anim,
+      $anim: $anim,
+      $pops: $pops,
+      $mask: $mask,
       mode: mode,
       guid: guid,
       close() {
-        return PopsInstanceUtils.close(mode, PopsInstData[mode], guid, config, animElement);
+        return PopsInstanceUtils.close(config, mode, PopsInstData[mode], guid, $anim);
       },
       hide() {
-        return PopsInstanceUtils.hide(mode, PopsInstData[mode], guid, config, animElement, maskElement);
+        return PopsInstanceUtils.hide(config, mode, PopsInstData[mode], guid, $anim, $mask);
       },
       show() {
-        return PopsInstanceUtils.show(mode, PopsInstData[mode], guid, config, animElement, maskElement);
+        return PopsInstanceUtils.show(config, mode, PopsInstData[mode], guid, $anim, $mask);
       },
     };
   },
@@ -391,17 +391,12 @@ export const PopsHandler = {
    * 获取loading的事件配置
    * @param guid
    * @param mode 当前弹窗类型
-   * @param animElement 动画层
-   * @param popsElement 主元素
-   * @param maskElement 遮罩层
+   * @param $anim 动画层
+   * @param $pops 主元素
+   * @param $mask 遮罩层
    * @param config 当前配置
    */
-  handleLoadingEventDetails(
-    guid: string,
-    mode: "loading",
-    animElement: HTMLDivElement,
-    popsElement: HTMLDivElement,
-    maskElement: HTMLDivElement,
+  handleLoadingEventConfig(
     config:
       | PopsAlertDetails
       | PopsDrawerDetails
@@ -410,31 +405,37 @@ export const PopsHandler = {
       | PopsIframeDetails
       | PopsLoadingDetails
       | PopsPanelDetails
-      | PopsFolderDetails
-  ): Omit<PopsEventDetails, "$shadowContainer" | "$shadowRoot"> {
+      | PopsFolderDetails,
+    guid: string,
+    mode: "loading",
+    $anim: HTMLDivElement,
+    $pops: HTMLDivElement,
+    $mask?: HTMLDivElement
+  ): Omit<PopsEventConfig, "$shadowContainer" | "$shadowRoot"> {
     return {
-      element: animElement,
-      animElement: animElement,
-      popsElement: popsElement,
-      maskElement: maskElement,
+      $el: $anim,
+      $anim: $anim,
+      $pops: $pops,
+      $mask: $mask,
       mode: mode,
       guid: guid,
       close() {
-        return PopsInstanceUtils.close(mode, PopsInstData[mode], guid, config, animElement);
+        return PopsInstanceUtils.close(config, mode, PopsInstData[mode], guid, $anim);
       },
       hide() {
-        return PopsInstanceUtils.hide(mode, PopsInstData[mode], guid, config, animElement, maskElement);
+        return PopsInstanceUtils.hide(config, mode, PopsInstData[mode], guid, $anim, $mask);
       },
       show() {
-        return PopsInstanceUtils.show(mode, PopsInstData[mode], guid, config, animElement, maskElement);
+        return PopsInstanceUtils.show(config, mode, PopsInstData[mode], guid, $anim, $mask);
       },
     };
   },
   /**
-   * 处理返回的配置，针对popsHandler.handleEventDetails
+   * 处理返回的配置，针对popsHandler.handleEventConfig
+   * @param config 配置
    */
-  handleResultDetails<T>(details: T): Omit<T, "type" | "function"> {
-    const resultDetails = Object.assign({}, details);
+  handleResultConfig<T>(config: T): Omit<T, "type" | "function"> {
+    const resultDetails = Object.assign({}, config);
     popsUtils.delete(resultDetails, "type");
     popsUtils.delete(resultDetails, "function");
     return resultDetails;
@@ -443,15 +444,16 @@ export const PopsHandler = {
    * 处理点击事件
    * @param type 当前按钮类型
    * @param $btn 按钮元素
-   * @param eventDetails 事件配置，由popsHandler.handleEventDetails创建的
+   * @param eventConfig 事件配置，由popsHandler.handleEventConfig创建的
    * @param callback 点击回调
    */
   handleClickEvent(
-    type: "cancel" | "close" | "ok" | "other",
+    type: PopsHandlerEventConfig["type"],
     $btn: HTMLElement,
-    eventDetails: PopsEventDetails,
-    callback: (details: PopsHandlerEventDetails, event: PointerEvent | MouseEvent) => void
+    eventConfig: PopsEventConfig,
+    callback?: (details: PopsHandlerEventConfig, event: PointerEvent | MouseEvent) => void
   ) {
+    if (typeof callback !== "function") return;
     popsDOMUtils.on<PointerEvent | MouseEvent>(
       $btn,
       "click",
@@ -459,7 +461,7 @@ export const PopsHandler = {
         const extraParam = {
           type: type,
         };
-        callback(Object.assign(eventDetails, extraParam), event);
+        callback(Object.assign(eventConfig, extraParam), event);
       },
       {
         capture: true,
@@ -510,16 +512,16 @@ export const PopsHandler = {
    * @param type 触发事件类型
    * @param inputElement 输入框
    * @param  $btn 按钮元素
-   * @param eventDetails 事件配置，由popsHandler.handleEventDetails创建的
+   * @param eventConfig 事件配置，由popsHandler.handleEventConfig创建的
    * @param callback 点击回调
    */
   handlePromptClickEvent(
-    type: "ok" | "close" | "cancel" | "other",
+    type: PopsHandlerEventConfig["type"],
     inputElement: HTMLInputElement | HTMLTextAreaElement,
     $btn: HTMLElement,
-    eventDetails: PopsEventDetails,
+    eventConfig: PopsEventConfig,
     callback: (
-      details: PopsEventDetails & {
+      details: PopsEventConfig & {
         type: any;
         text: string;
       },
@@ -535,7 +537,7 @@ export const PopsHandler = {
           type: type,
           text: inputElement.value,
         };
-        callback(Object.assign(eventDetails, extraParam), event);
+        callback(Object.assign(eventConfig, extraParam), event);
       },
       {
         capture: true,

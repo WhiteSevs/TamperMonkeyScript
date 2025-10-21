@@ -1,6 +1,6 @@
 import type { PopsTitleConfig, PopsDragConfig, PopsCommonConfig } from "../../../types/components";
 
-import type { PopsEventDetails } from "../../../types/event";
+import type { PopsEventConfig } from "../../../types/event";
 
 /**
  * pops.iframe的按钮的点击回调参数event
@@ -65,7 +65,7 @@ export interface PopsIframeDetails extends PopsTitleConfig, PopsDragConfig, Pops
        * 点击的回调函数
        */
       callback: (
-        eventDetails: PopsEventDetails & {
+        eventConfig: PopsEventConfig & {
           iframeElement: HTMLIFrameElement;
         },
         event: MouseEvent | PointerEvent
@@ -79,7 +79,7 @@ export interface PopsIframeDetails extends PopsTitleConfig, PopsDragConfig, Pops
        * 点击的回调函数
        */
       callback: (
-        eventDetails: PopsEventDetails & {
+        eventConfig: PopsEventConfig & {
           iframeElement: HTMLIFrameElement;
         },
         event: MouseEvent | PointerEvent
@@ -93,7 +93,7 @@ export interface PopsIframeDetails extends PopsTitleConfig, PopsDragConfig, Pops
        * 点击的回调函数
        */
       callback: (
-        eventDetails: PopsEventDetails & {
+        eventConfig: PopsEventConfig & {
           iframeElement: HTMLIFrameElement;
         },
         event: MouseEvent | PointerEvent
@@ -107,7 +107,7 @@ export interface PopsIframeDetails extends PopsTitleConfig, PopsDragConfig, Pops
        * 点击的回调函数
        */
       callback: (
-        eventDetails: PopsEventDetails & {
+        eventConfig: PopsEventConfig & {
           iframeElement: HTMLIFrameElement;
         },
         event: MouseEvent | PointerEvent
@@ -132,7 +132,7 @@ export interface PopsIframeDetails extends PopsTitleConfig, PopsDragConfig, Pops
    * 加载完毕的回调
    */
   loadEndCallBack?: (
-    details: PopsEventDetails & {
+    details: PopsEventConfig & {
       iframeElement: HTMLIFrameElement;
     }
   ) => void;

@@ -104,76 +104,75 @@ export const PopsPrompt = {
     /**
      * 遮罩层元素
      */
-    let $mask: HTMLDivElement | null = null;
+    let $mask: HTMLDivElement | undefined = void 0;
 
     /**
      * 已创建的元素列表
      */
-    const elementList: HTMLElement[] = [$anim];
+    const $elList: HTMLElement[] = [$anim];
 
     if (config.mask.enable) {
       // 启用遮罩层
-      const _handleMask_ = PopsHandler.handleMask({
+      const handleMask = PopsHandler.handleMask({
         type: popsType,
         guid: guid,
         config: config,
         animElement: $anim,
         maskHTML: maskHTML,
       });
-      $mask = _handleMask_.maskElement;
-      elementList.push($mask);
+      $mask = handleMask.maskElement;
+      $elList.push($mask);
     }
-    const eventDetails = PopsHandler.handleEventDetails(
+    const evtConfig = PopsHandler.handleEventConfig(
+      config,
       guid,
       $shadowContainer,
       $shadowRoot,
       popsType,
       $anim,
-
-      $pops!,
-      $mask!,
-      config
+      $pops,
+      $mask
     );
     /* 输入框赋值初始值 */
 
-    $input!.value = config.content.text;
+    $input.value = config.content.text;
     PopsHandler.handlePromptClickEvent(
       "close",
-      $input!,
-      $btnClose!,
-      eventDetails,
+      $input,
+      $btnClose,
+      evtConfig,
 
-      config.btn.close!.callback!
+      config.btn.close.callback
     );
 
     PopsHandler.handlePromptClickEvent(
       "ok",
-      $input!,
-      $btnOk!,
-      eventDetails,
+      $input,
+      $btnOk,
+      evtConfig,
 
-      config.btn.ok!.callback!
+      config.btn.ok.callback
     );
     PopsHandler.handlePromptClickEvent(
       "cancel",
-      $input!,
-      $btnCancel!,
-      eventDetails,
+      $input,
+      $btnCancel,
+      evtConfig,
 
-      config.btn.cancel!.callback!
+      config.btn.cancel.callback
     );
 
     PopsHandler.handlePromptClickEvent(
       "other",
-      $input!,
-      $btnOther!,
-      eventDetails,
+      $input,
+      $btnOther,
+      evtConfig,
 
-      config.btn.other!.callback!
+      config.btn.other.callback
     );
     /* 创建到页面中 */
 
-    popsDOMUtils.append($shadowRoot, elementList);
+    popsDOMUtils.append($shadowRoot, $elList);
     if (typeof config.beforeAppendToPageCallBack === "function") {
       config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
     }
@@ -210,7 +209,7 @@ export const PopsPrompt = {
     if (config.content.select) {
       $input.select();
     }
-    const result = PopsHandler.handleResultDetails(eventDetails);
+    const result = PopsHandler.handleResultConfig(evtConfig);
     return result;
   },
 };

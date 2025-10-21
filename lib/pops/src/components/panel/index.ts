@@ -129,41 +129,41 @@ export const PopsPanel = {
     /**
      * 遮罩层元素
      */
-    let $mask: HTMLDivElement | null = null;
+    let $mask: HTMLDivElement | undefined = void 0;
     /**
      * 已创建的元素列表
      */
-    const isCreatedElementList: HTMLElement[] = [$anim];
+    const $elList: HTMLElement[] = [$anim];
 
     /* 遮罩层元素 */
     if (config.mask.enable) {
-      const { maskElement } = PopsHandler.handleMask({
+      const handleMask = PopsHandler.handleMask({
         type: popsType,
         guid: guid,
         config: config,
         animElement: $anim,
         maskHTML: maskHTML,
       });
-      $mask = maskElement;
-      isCreatedElementList.push($mask);
+      $mask = handleMask.maskElement;
+      $elList.push($mask);
     }
 
     /* 处理返回的配置 */
-    const eventDetails = PopsHandler.handleEventDetails(
+    const evtConfig = PopsHandler.handleEventConfig(
+      config,
       guid,
       $shadowContainer,
       $shadowRoot,
       popsType,
       $anim,
       $pops,
-      $mask!,
-      config
+      $mask
     );
     /* 为顶部右边的关闭按钮添加点击事件 */
-    PopsHandler.handleClickEvent("close", $headerBtnClose, eventDetails, config.btn.close!.callback!);
+    PopsHandler.handleClickEvent("close", $headerBtnClose, evtConfig, config.btn?.close?.callback);
 
     /* 创建到页面中 */
-    popsDOMUtils.append($shadowRoot, isCreatedElementList);
+    popsDOMUtils.append($shadowRoot, $elList);
     if (typeof config.beforeAppendToPageCallBack === "function") {
       config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
     }
@@ -209,7 +209,7 @@ export const PopsPanel = {
         endCallBack: config.dragEndCallBack,
       });
     }
-    const result = PopsHandler.handleResultDetails(eventDetails);
+    const result = PopsHandler.handleResultConfig(evtConfig);
 
     return {
       ...result,

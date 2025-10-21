@@ -94,43 +94,42 @@ export const PopsConfirm = {
     /**
      * 遮罩层元素
      */
-    let $mask: HTMLDivElement | null = null;
+    let $mask: HTMLDivElement | undefined = void 0;
     /**
      * 已创建的元素列表
      */
-    const elementList: HTMLElement[] = [$anim];
+    const $elList: HTMLElement[] = [$anim];
 
     if (config.mask.enable) {
       // 启用遮罩层
-      const _handleMask_ = PopsHandler.handleMask({
+      const handleMask = PopsHandler.handleMask({
         type: popsType,
         guid: guid,
         config: config,
         animElement: $anim,
         maskHTML: maskHTML,
       });
-      $mask = _handleMask_.maskElement;
-      elementList.push($mask);
+      $mask = handleMask.maskElement;
+      $elList.push($mask);
     }
-    const eventDetails = PopsHandler.handleEventDetails(
+    const evtConfig = PopsHandler.handleEventConfig(
+      config,
       guid,
       $shadowContainer,
       $shadowRoot,
       popsType,
-
       $anim,
-      $pops!,
-      $mask!,
-      config
+      $pops,
+      $mask
     );
-    PopsHandler.handleClickEvent("close", $btnClose!, eventDetails, config.btn.close!.callback!);
-    PopsHandler.handleClickEvent("ok", $btnOk!, eventDetails!, config.btn.ok!.callback!);
-    PopsHandler.handleClickEvent("cancel", $btnCancel!, eventDetails, config.btn.cancel!.callback!);
-    PopsHandler.handleClickEvent("other", $btnOther!, eventDetails, config.btn.other!.callback!);
+    PopsHandler.handleClickEvent("close", $btnClose, evtConfig, config.btn.close.callback);
+    PopsHandler.handleClickEvent("ok", $btnOk, evtConfig, config.btn.ok.callback);
+    PopsHandler.handleClickEvent("cancel", $btnCancel, evtConfig, config.btn.cancel.callback);
+    PopsHandler.handleClickEvent("other", $btnOther, evtConfig, config.btn.other.callback);
 
     /* 创建到页面中 */
 
-    popsDOMUtils.append($shadowRoot, elementList);
+    popsDOMUtils.append($shadowRoot, $elList);
     if (typeof config.beforeAppendToPageCallBack === "function") {
       config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
     }
@@ -160,7 +159,7 @@ export const PopsConfirm = {
         endCallBack: config.dragEndCallBack,
       });
     }
-    const result = PopsHandler.handleResultDetails(eventDetails);
+    const result = PopsHandler.handleResultConfig(evtConfig);
     return result;
   },
 };

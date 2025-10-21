@@ -2,6 +2,7 @@ import { GlobalConfig } from "../../config/GlobalConfig";
 import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
 import { PopsCSS } from "../../PopsCSS";
+import type { PopsHandlerEventConfig } from "../../types/event";
 import type { PopsType } from "../../types/main";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { popsUtils } from "../../utils/PopsUtils";
@@ -99,32 +100,32 @@ export const PopsDrawer = {
     /**
      * 遮罩层元素
      */
-    let $mask: HTMLDivElement | null = null;
+    let $mask: HTMLDivElement | undefined = void 0;
     /**
      * 已创建的元素列表
      */
-    const elementList: HTMLElement[] = [$anim];
+    const $elList: HTMLElement[] = [$anim];
 
     if (config.mask.enable) {
-      const _handleMask_ = PopsHandler.handleMask({
+      const handleMask = PopsHandler.handleMask({
         type: popsType,
         guid: guid,
         config: config,
         animElement: $anim,
         maskHTML: maskHTML,
       });
-      $mask = _handleMask_.maskElement;
-      elementList.push($mask);
+      $mask = handleMask.maskElement;
+      $elList.push($mask);
     }
-    const eventDetails = PopsHandler.handleEventDetails(
+    const evtConfig = PopsHandler.handleEventConfig(
+      config,
       guid,
       $shadowContainer,
       $shadowRoot,
       popsType,
       $anim,
       $pops,
-      $mask!,
-      config
+      $mask
     );
     /* 处理方向 */
 
@@ -153,11 +154,14 @@ export const PopsDrawer = {
     /* 按下Esc键触发关闭 */
     if (config.closeOnPressEscape) {
       PopsHandler.handleKeyboardEvent("Escape", [], function () {
-        eventDetails.close();
+        evtConfig.close();
       });
     }
     /* 待处理的点击事件列表 */
-    const needHandleClickEventList = [
+    const needHandleClickEventList: {
+      type: PopsHandlerEventConfig["type"];
+      ele: HTMLElement;
+    }[] = [
       {
         type: "close",
         ele: $headerCloseBtn,
@@ -176,20 +180,16 @@ export const PopsDrawer = {
       },
     ];
     needHandleClickEventList.forEach((item) => {
-      PopsHandler.handleClickEvent(
-        item.type as "close" | "cancel" | "ok" | "other",
-        item.ele,
-        eventDetails,
-        (_eventDetails_) => {
-          if (typeof (config.btn as any)[item.type].callback === "function") {
-            (config.btn as any)[item.type].callback(_eventDetails_);
-          }
+      PopsHandler.handleClickEvent(item.type, item.ele, evtConfig, (details, event) => {
+        const callback = config.btn[item.type].callback;
+        if (typeof callback === "function") {
+          callback(details, event);
         }
-      );
+      });
     });
 
     /* 先隐藏，然后根据config.openDelay来显示 */
-    elementList.forEach((element) => {
+    $elList.forEach((element) => {
       element.style.setProperty("display", "none");
       if (["top"].includes(config.direction)) {
         $pops.style.setProperty("height", config.size.toString());
@@ -212,7 +212,7 @@ export const PopsDrawer = {
     });
     /* 创建到页面中 */
 
-    popsDOMUtils.append($shadowRoot, elementList);
+    popsDOMUtils.append($shadowRoot, $elList);
     if (typeof config.beforeAppendToPageCallBack === "function") {
       config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
     }
@@ -236,7 +236,7 @@ export const PopsDrawer = {
       $shadowContainer: $shadowContainer,
       $shadowRoot: $shadowRoot,
     });
-    const result = PopsHandler.handleResultDetails(eventDetails);
+    const result = PopsHandler.handleResultConfig(evtConfig);
     return result;
   },
 };

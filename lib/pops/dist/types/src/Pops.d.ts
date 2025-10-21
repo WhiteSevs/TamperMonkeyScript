@@ -197,9 +197,9 @@ declare class Pops {
             };
             getMaxZIndex(deviation?: number): number;
             removeInstance(instConfigList: import("./types/inst").PopsInstCommonConfig[][], guid: string, isAll?: boolean): import("./types/inst").PopsInstCommonConfig[][];
-            hide(popsType: import("./types/main").PopsInstStoreType, instConfigList: import("./types/inst").PopsInstCommonConfig[], guid: string, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, animElement: HTMLElement, maskElement: HTMLElement): Promise<void>;
-            show(popsType: import("./types/main").PopsInstStoreType, instConfigList: import("./types/inst").PopsInstCommonConfig[], guid: string, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, animElement: HTMLElement, maskElement?: HTMLElement): Promise<void>;
-            close(popsType: string, instConfigList: import("./types/inst").PopsInstCommonConfig[], guid: string, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, animElement: HTMLElement): Promise<void>;
+            hide(config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, popsType: import("./types/main").PopsInstStoreType, instConfigList: import("./types/inst").PopsInstCommonConfig[], guid: string, $anim: HTMLElement, $mask?: HTMLElement): Promise<void>;
+            show(config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, popsType: import("./types/main").PopsInstStoreType, instConfigList: import("./types/inst").PopsInstCommonConfig[], guid: string, $anim: HTMLElement, $mask?: HTMLElement): Promise<void>;
+            close(config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, popsType: string, instConfigList: import("./types/inst").PopsInstCommonConfig[], guid: string, $anim: HTMLElement): Promise<void>;
             drag(moveElement: HTMLElement, options: {
                 dragElement: HTMLElement;
                 limit: boolean;
@@ -326,27 +326,27 @@ declare class Pops {
      * 普通信息框
      * @param details 配置
      */
-    alert: (details: PopsAlertDetails) => Omit<import("./types/event").PopsEventDetails, "function" | "type">;
+    alert: (details: PopsAlertDetails) => Omit<import("./types/event").PopsEventConfig, "function" | "type">;
     /**
      * 询问框
      * @param details 配置
      */
-    confirm: (details: PopsConfirmDetails) => Omit<import("./types/event").PopsEventDetails, "function" | "type">;
+    confirm: (details: PopsConfirmDetails) => Omit<import("./types/event").PopsEventConfig, "function" | "type">;
     /**
      * 输入框
      * @param details 配置
      */
-    prompt: (details: PopsPromptDetails) => Omit<import("./types/event").PopsEventDetails, "function" | "type">;
+    prompt: (details: PopsPromptDetails) => Omit<import("./types/event").PopsEventConfig, "function" | "type">;
     /**
      * 加载层
      * @param details 配置
      */
-    loading: (details: PopsLoadingDetails) => Omit<Omit<import("./types/event").PopsEventDetails, "$shadowContainer" | "$shadowRoot">, "function" | "type">;
+    loading: (details: PopsLoadingDetails) => Omit<Omit<import("./types/event").PopsEventConfig, "$shadowContainer" | "$shadowRoot">, "function" | "type">;
     /**
      * iframe层
      * @param details 配置
      */
-    iframe: (details: PopsIframeDetails) => Omit<import("./types/event").PopsEventDetails & {
+    iframe: (details: PopsIframeDetails) => Omit<import("./types/event").PopsEventConfig & {
         iframeElement: HTMLIFrameElement;
     }, "function" | "type">;
     /**
@@ -407,12 +407,12 @@ declare class Pops {
      * 抽屉
      * @param details 配置
      */
-    drawer: (details: PopsDrawerDetails) => Omit<import("./types/event").PopsEventDetails, "function" | "type">;
+    drawer: (details: PopsDrawerDetails) => Omit<import("./types/event").PopsEventConfig, "function" | "type">;
     /**
      * 文件夹
      * @param details 配置
      */
-    folder: (details: PopsFolderDetails) => Omit<import("./types/event").PopsEventDetails, "function" | "type">;
+    folder: (details: PopsFolderDetails) => Omit<import("./types/event").PopsEventConfig, "function" | "type">;
     /**
      * 配置面板
      * @param details 配置
@@ -426,10 +426,10 @@ declare class Pops {
         guid: string;
         $shadowContainer: HTMLDivElement;
         $shadowRoot: ShadowRoot | HTMLElement;
-        element: HTMLDivElement;
-        animElement: HTMLDivElement;
-        popsElement: HTMLDivElement;
-        maskElement?: HTMLDivElement | undefined;
+        $el: HTMLDivElement;
+        $anim: HTMLDivElement;
+        $pops: HTMLDivElement;
+        $mask?: HTMLDivElement | undefined;
         mode: import("./types/main").PopsType;
     };
     /**

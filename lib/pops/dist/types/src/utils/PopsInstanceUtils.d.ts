@@ -55,29 +55,29 @@ export declare const PopsInstanceUtils: {
      * @param instConfigList
      * @param guid
      * @param config
-     * @param animElement
-     * @param maskElement
+     * @param $anim
+     * @param $mask
      */
-    hide(popsType: PopsInstStoreType, instConfigList: PopsInstCommonConfig[], guid: string, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, animElement: HTMLElement, maskElement: HTMLElement): Promise<void>;
+    hide(config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, popsType: PopsInstStoreType, instConfigList: PopsInstCommonConfig[], guid: string, $anim: HTMLElement, $mask?: HTMLElement): Promise<void>;
     /**
      * 显示
      * @param popsType
      * @param instConfigList
      * @param guid
      * @param config
-     * @param animElement
-     * @param maskElement
+     * @param $anim
+     * @param $mask
      */
-    show(popsType: PopsInstStoreType, instConfigList: PopsInstCommonConfig[], guid: string, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, animElement: HTMLElement, maskElement?: HTMLElement): Promise<void>;
+    show(config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, popsType: PopsInstStoreType, instConfigList: PopsInstCommonConfig[], guid: string, $anim: HTMLElement, $mask?: HTMLElement): Promise<void>;
     /**
      * 关闭
      * @param popsType
      * @param instConfigList
      * @param guid
      * @param config
-     * @param animElement
+     * @param $anim
      */
-    close(popsType: string, instConfigList: PopsInstCommonConfig[], guid: string, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, animElement: HTMLElement): Promise<void>;
+    close(config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, popsType: string, instConfigList: PopsInstCommonConfig[], guid: string, $anim: HTMLElement): Promise<void>;
     /**
      * 拖拽元素
      * 说明：

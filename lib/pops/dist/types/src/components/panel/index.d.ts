@@ -10,10 +10,10 @@ export declare const PopsPanel: {
         guid: string;
         $shadowContainer: HTMLDivElement;
         $shadowRoot: ShadowRoot | HTMLElement;
-        element: HTMLDivElement;
-        animElement: HTMLDivElement;
-        popsElement: HTMLDivElement;
-        maskElement?: HTMLDivElement | undefined;
+        $el: HTMLDivElement;
+        $anim: HTMLDivElement;
+        $pops: HTMLDivElement;
+        $mask?: HTMLDivElement | undefined;
         mode: PopsType;
     };
 };
