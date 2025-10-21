@@ -722,6 +722,8 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
   flex-shrink: 0;
   flex-wrap: nowrap;
   height: 100%;
+  height: -webkit-fill-available;
+  height: -moz-available;
   text-align: center;
   color: var(--pops-panel-components-input-suffix-color);
   background: var(--pops-panel-components-input-suffix-bg-color);
@@ -750,11 +752,13 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
 .pops-panel-input:active span.pops-panel-input__suffix:has(svg[data-type="circleClose"]) {
   display: inline-flex;
 }
-/* 当清空图标显示时，则隐藏输入框的padding-right */
+/* 当清空图标显示时或查看图标存在时，则隐藏输入框的padding-right */
 .pops-panel-input:hover:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,
 .pops-panel-input:focus:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,
 .pops-panel-input:focus-within:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,
-.pops-panel-input:active:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input {
+.pops-panel-input:active:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,
+.pops-panel-input:has(span.pops-panel-input__suffix svg[data-type="view"]) input,
+.pops-panel-input:has(span.pops-panel-input__suffix svg[data-type="hide"]) input {
   padding-right: 0;
 }
 .pops-panel-input .pops-panel-icon {

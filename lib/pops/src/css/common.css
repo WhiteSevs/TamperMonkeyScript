@@ -33,8 +33,14 @@
   align-content: center;
 }
 .pops-width-fill {
+  width: 100%;
   width: -webkit-fill-available;
   width: -moz-available;
+}
+.pops-height-fill {
+  height: 100%;
+  height: -webkit-fill-available;
+  height: -moz-available;
 }
 .pops-text-is-disabled {
   --pops-text-is-disabled-color: #a8abb2;

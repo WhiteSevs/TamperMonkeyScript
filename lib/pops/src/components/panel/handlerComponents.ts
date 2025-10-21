@@ -1183,7 +1183,7 @@ export const PanelHandlerComponents = () => {
          */
         initEle() {
           this.$ele.input.parentElement!.insertBefore(this.$ele.inputSpanIcon, this.$ele.input.nextSibling);
-          this.$ele.inputSpanIcon.className = "pops-panel-input__suffix";
+          popsDOMUtils.addClassName(this.$ele.inputSpanIcon, "pops-panel-input__suffix");
           PopsSafeUtils.setSafeHTML(
             this.$ele.inputSpanIcon,
             /*html*/ `
