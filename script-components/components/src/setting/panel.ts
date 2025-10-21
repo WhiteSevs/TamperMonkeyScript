@@ -536,7 +536,7 @@ const Panel = {
      */
     const getMenuValue = (key: string) => {
       const value = this.getValue<boolean>(key);
-      return value;
+      return Boolean(value);
     };
     /**
      * 清空之前存储的值（例如：元素）
