@@ -3,19 +3,20 @@ import { $, $$, DOMUtils, addStyle, log, pops, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 import { DouYinRouter } from "@/router/DouYinRouter";
-import MobileCSS from "./css/mobile.css?raw";
+import MobileCSS from "../css/mobile.css?raw";
 import Qmsg from "qmsg";
-import { DouYin } from "../DouYin";
-import { DouYinVideoBlock, DouYinVideoBlock_BottomToolbar_videoInfo } from "./DouYinVideoBlock";
+import { DouYin } from "../../DouYin";
+import { DouYinVideoBlock } from "../block/DouYinVideoBlock";
 import { DouYinVideoPlayerShortCut } from "./DouYinVideoPlayerShortCut";
 import { GestureBack } from "@components/utils/GestureBack";
-import { DouYinGestureBackHashConfig } from "../DouYinGestureBackConfig";
+import { DouYinGestureBackHashConfig } from "../../DouYinGestureBackConfig";
 import { DouYinVideoPlayerBlockMouseHoverTip } from "./DouYinVideoPlayerBlockMouseHoverTip";
 import { CommonUtil } from "@components/utils/CommonUtil";
-import { DouYinVideoElementAutoHide } from "./DouYinVideoElementAutoHide";
+import { DouYinVideoElementAutoHide } from "../DouYinVideoElementAutoHide";
 import { ReactUtils } from "@components/utils/ReactUtils";
-import type { DouYinVideoAwemeInfo, DouYinVideoHandlerInfo } from "./DouYinVideoType";
-import { DouYinVideoFilterBase } from "./DouYinVideoFilterBase";
+import type { DouYinVideoAwemeInfo, DouYinVideoHandlerInfo } from "../DouYinVideoType";
+import { DouYinVideoFilterBase } from "../filter/DouYinVideoFilterBase";
+import { DouYinVideoBlock_BottomToolbar_videoInfo } from "../block/DouYinVideoBlock_BottomToolbar_videoInfo";
 
 /**
  * 视频播放器的播放速度
@@ -978,13 +979,15 @@ export const DouYinVideoPlayer = {
 		`);
   },
   /**
-   * 自动隐藏视频标题
+   * 自动隐藏视频信息
    */
   titleInfoAutoHide() {
-    log.info(`自动隐藏视频标题`);
+    log.info(`自动隐藏视频信息`);
     return DouYinVideoElementAutoHide("dy-video-titleInfoAutoHide-delayTime", [
       // 一般的推荐视频|单个视频的当前观看的视频
       '#sliderVideo[data-e2e="feed-active-video"] #video-info-wrap',
+      // 直播
+      '[data-e2e="feed-item"] [data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has([aria-label*="直播"])',
       // 进入作者主页后的当前观看的视频
       '#slideMode[data-e2e="feed-active-video"] #video-info-wrap',
       // 单个视频
@@ -999,6 +1002,8 @@ export const DouYinVideoPlayer = {
     return DouYinVideoElementAutoHide("dy-video-videoControlsAutoHide-delayTime", [
       // 一般的推荐视频|单个视频的当前观看的视频
       `#sliderVideo[data-e2e="feed-active-video"] xg-controls.xgplayer-controls`,
+      // 直播
+      `[data-e2e="feed-item"] [data-e2e="feed-live"] xg-controls.xgplayer-controls`,
       // 进入作者主页后的当前观看的视频
       '#slideMode[data-e2e="feed-active-video"] xg-controls.xgplayer-controls',
       // 单个视频
@@ -1013,6 +1018,8 @@ export const DouYinVideoPlayer = {
     const result = DouYinVideoElementAutoHide("dy-video-titleInfoAutoHide-delayTime", [
       // 一般的推荐视频|单个视频的当前观看的视频
       '#sliderVideo[data-e2e="feed-active-video"] .positionBox',
+      // 直播
+      '[data-e2e="feed-item"] [data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has(svg path[d="M13.556 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM19.778 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM24.222 19.556a1.778 1.778 0 1 0 0-3.556 1.778 1.778 0 0 0 0 3.556z"])',
       // 进入作者主页后的当前观看的视频
       '#slideMode[data-e2e="feed-active-video"] .positionBox',
       // 单个视频

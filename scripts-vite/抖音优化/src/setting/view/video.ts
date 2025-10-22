@@ -2,13 +2,13 @@ import { DOMUtils, log, SCRIPT_NAME, utils } from "@/env";
 import { UISelect } from "@components/setting/components/ui-select";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import { UIButton } from "@components/setting/components/ui-button";
-import { DouYinVideoPlayerShortCut } from "@/main/video/DouYinVideoPlayerShortCut";
+import { DouYinVideoPlayerShortCut } from "@/main/video/player/DouYinVideoPlayerShortCut";
 import { Panel } from "@components/setting/panel";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { UIButtonShortCut } from "@components/setting/components/ui-button-shortcut";
 import { UISlider } from "@components/setting/components/ui-slider";
 import { AutoOpenOrClose } from "../all-open-or-close";
-import { DouYinVideoFilter } from "@/main/video/DouYinVideoFilter";
+import { DouYinVideoFilter } from "@/main/video/filter/DouYinVideoFilter";
 import { UIInput } from "@components/setting/components/ui-input";
 
 export const PanelVideoConfig: PopsPanelContentConfig = {
@@ -111,8 +111,8 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   void 0,
                   "双击视频自动进入网页全屏，检测间隔250ms"
                 ),
-                UISwitch("移除video的bottom偏移", "dy-video-removeStyle-bottom", false, void 0, ""),
-                UISwitch("禁用右侧工具栏的transform", "dy-video-disableRightToolbarTransform", false, void 0, ""),
+                UISwitch("移除video的bottom偏移", "dy-video-removeStyle-bottom", false, void 0),
+                UISwitch("禁用右侧工具栏的transform", "dy-video-disableRightToolbarTransform", false, void 0),
                 UISelect(
                   "object-fit",
                   "dy-video-object-fit",
@@ -221,10 +221,10 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
             },
             {
               type: "forms",
-              text: "视频标题",
+              text: "视频信息",
               forms: [
                 UISwitch(
-                  "自动隐藏视频标题",
+                  "自动隐藏视频信息",
                   "dy-video-titleInfoAutoHide",
                   false,
                   void 0,
@@ -240,7 +240,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   (value) => {
                     return `${value}ms`;
                   },
-                  "设置首次延迟自动隐藏视频标题的时间，单位（ms）",
+                  "设置首次延迟自动隐藏视频信息的时间，单位（ms）",
                   100
                 ),
               ],
@@ -422,49 +422,56 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
       type: "forms",
       forms: [
         {
-          text: "布局屏蔽-视频区域内",
+          text: "布局屏蔽-播放器-右侧工具栏",
           type: "deepMenu",
           afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
           forms: [
             {
-              text: AutoOpenOrClose.text + "<br>右侧工具栏",
+              text: AutoOpenOrClose.text,
               type: "forms",
               forms: [
                 UISwitch(
-                  "【屏蔽】切换播放",
+                  "【屏蔽】切换播放<code>↑</code><code>↓</code>",
                   "shieldPlaySwitchButton",
                   false,
                   void 0,
-                  "屏蔽元素，在右侧作者头像上方或者是在右侧区域"
+                  "在右侧作者头像上方或者是在右侧区域"
                 ),
-                UISwitch("【屏蔽】AI抖音", "blockAIDouYin", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】作者头像", "shieldAuthorAvatar", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】点赞", "shieldLikeButton", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】评论", "shieldCommentButton", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】收藏", "shieldCollectionButton", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】分享", "shieldSharenButton", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】听抖音", "shieldListenDouYinButton", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】看相关", "shieldRelatedRecommendationsButton", false, void 0, "屏蔽元素"),
+                UISwitch("【屏蔽】AI抖音", "blockAIDouYin", false, void 0),
+                UISwitch("【屏蔽】作者头像", "shieldAuthorAvatar", false, void 0),
+                UISwitch("【屏蔽】点赞", "shieldLikeButton", false, void 0),
+                UISwitch("【屏蔽】评论", "shieldCommentButton", false, void 0),
+                UISwitch("【屏蔽】收藏", "shieldCollectionButton", false, void 0),
+                UISwitch("【屏蔽】分享", "shieldSharenButton", false, void 0),
+                UISwitch("【屏蔽】听抖音", "shieldListenDouYinButton", false, void 0),
+                UISwitch("【屏蔽】看相关", "shieldRelatedRecommendationsButton", false, void 0),
                 UISwitch("【屏蔽】更多", "shieldMoreButton", false, void 0, "<code>...</code>按钮"),
               ],
             },
+          ],
+        },
+        {
+          type: "deepMenu",
+          text: "布局屏蔽-播放器-底部-视频信息",
+          afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
+          forms: [
             {
-              text: "底部工具栏-视频信息区域",
               type: "forms",
+              text: AutoOpenOrClose.text,
               forms: [
                 UISwitch(
                   "【屏蔽】视频信息",
                   "dy-video-bottom-shieldVideoInfoWrap",
                   false,
                   void 0,
-                  "屏蔽元素，可代替【清屏】功能"
+                  "可代替【清屏】功能"
                 ),
                 UISwitch(
-                  "<code>【屏蔽】点击推荐</code>或<code>【屏蔽】共xx人推荐</code>",
+                  "【屏蔽】<code>点击推荐</code>或<code>共xx人推荐</code>",
                   "dy-video-blockClickRecommend",
                   false,
                   void 0,
-                  "屏蔽元素"
+                  ""
                 ),
                 UISwitch(
                   "【屏蔽】视频标题上面的标签",
@@ -480,13 +487,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   void 0,
                   "例如：相关搜索、AI搜索、合集...等"
                 ),
-                UISwitch(
-                  "【屏蔽】及时接收作品更新提醒",
-                  "dy-video-blockClickUpdateReminder",
-                  false,
-                  void 0,
-                  "屏蔽元素"
-                ),
+                UISwitch("【屏蔽】及时接收作品更新提醒", "dy-video-blockClickUpdateReminder", false, void 0),
                 UISwitch(
                   "【屏蔽】作者声明",
                   "dy-video-blockAuthorDeclaration",
@@ -494,58 +495,70 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   void 0,
                   "例如：<code>作者声明：虚构演绎，仅供娱乐</code>"
                 ),
-                UISwitch("【屏蔽】识别画面", "dy-video-blockAIIdentifyTheScreen", false, void 0, "屏蔽元素"),
+                UISwitch("【屏蔽】识别画面", "dy-video-blockAIIdentifyTheScreen", false, void 0),
               ],
             },
+          ],
+        },
+        {
+          type: "deepMenu",
+          text: "布局屏蔽-播放器-底部-播放器组件",
+          afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
+          forms: [
             {
               type: "forms",
-              text: "底部工具栏-播放工具",
+              text: AutoOpenOrClose.text,
               forms: [
-                UISwitch("【屏蔽】播放工具组件", "shieldBottomVideoToolBar", false, void 0, "屏蔽元素"),
-                UISwitch(
-                  "【屏蔽】弹幕容器",
-                  "shieldBottomVideoToolbarDanmuContainer",
-                  false,
-                  void 0,
-                  "屏蔽元素（不包括屏蔽弹幕）"
-                ),
-                UISwitch("【屏蔽】AI笔记", "shieldBottomVideoToolbar-aiNotes", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】连播", "shieldBottomVideoToolbar-autoPlay", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】清屏", "shieldBottomVideoToolbar-clearScreen", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】清晰度", "shieldBottomVideoToolbar-playclarity", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】倍速", "shieldBottomVideoToolbar-playback", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】稍后再看", "shieldBottomVideoToolbar-watchLater", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】小窗模式", "shieldBottomVideoToolbar-miniMode", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】网页全屏", "shieldBottomVideoToolbar-pageFullScreen", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】进入全屏", "shieldBottomVideoToolbar-fullScreen", false, void 0, "屏蔽元素"),
+                UISwitch("【屏蔽】播放器组件", "shieldBottomVideoToolBar", false, void 0, "整个播放器组件"),
+                UISwitch("【屏蔽】播放", "shieldBottomVideoToolBar-play", false, void 0, "播放|暂停按钮"),
+                UISwitch("【屏蔽】播放时长", "shieldBottomVideoToolBar-time", false, void 0),
+                UISwitch("【屏蔽】章节要点", "shieldBottomVideoToolbar-blockChapterContainer", false, void 0),
+                UISwitch("【屏蔽】弹幕容器", "shieldBottomVideoToolbarDanmuContainer", false, void 0),
+                UISwitch("【屏蔽】AI笔记", "shieldBottomVideoToolbar-aiNotes", false, void 0),
+                UISwitch("【屏蔽】连播", "shieldBottomVideoToolbar-autoPlay", false, void 0),
+                UISwitch("【屏蔽】清屏", "shieldBottomVideoToolbar-clearScreen", false, void 0),
+                UISwitch("【屏蔽】清晰度", "shieldBottomVideoToolbar-playclarity", false, void 0),
+                UISwitch("【屏蔽】倍速", "shieldBottomVideoToolbar-playback", false, void 0),
+                UISwitch("【屏蔽】稍后再看", "shieldBottomVideoToolbar-watchLater", false, void 0),
+                UISwitch("【屏蔽】小窗模式", "shieldBottomVideoToolbar-miniMode", false, void 0),
+                UISwitch("【屏蔽】音量", "shieldBottomVideoToolbar-volume", false, void 0),
+                UISwitch("【屏蔽】网页全屏", "shieldBottomVideoToolbar-pageFullScreen", false, void 0),
+                UISwitch("【屏蔽】进入全屏", "shieldBottomVideoToolbar-fullScreen", false, void 0),
               ],
             },
+          ],
+        },
+        {
+          type: "deepMenu",
+          text: "布局屏蔽-播放器-其它",
+          afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
+          forms: [
             {
-              text: "其它",
               type: "forms",
+              text: AutoOpenOrClose.text,
               forms: [
-                UISwitch("【屏蔽】右侧的展开评论按钮", "shieldRightExpandCommentButton", true, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】搜索悬浮栏", "shieldSearchFloatingBar", true, void 0, "屏蔽元素，一般出现在左上角"),
+                UISwitch("【屏蔽】右侧的展开评论按钮", "shieldRightExpandCommentButton", true, void 0),
+                UISwitch("【屏蔽】搜索悬浮栏", "shieldSearchFloatingBar", true, void 0, "一般出现在左上角"),
                 UISwitch(
                   "【屏蔽】网页全屏关闭按钮",
                   "shieldCloseFullScreenButton",
                   true,
                   void 0,
-                  "屏蔽元素，一般开启网页全屏后出现在左上角"
+                  "一般开启网页全屏后出现在左上角"
                 ),
                 UISwitch(
                   "【屏蔽】购物信息",
                   "dy-video-blockShopInfo",
                   true,
                   void 0,
-                  "屏蔽元素，该元素出现在视频底部的用户名、标题信息的上面"
+                  "该元素出现在视频底部的用户名、标题信息的上面"
                 ),
               ],
             },
           ],
         },
         {
-          text: "布局屏蔽-评论区域内",
+          text: "布局屏蔽-评论区",
           type: "deepMenu",
           afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
           forms: [
@@ -553,7 +566,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
               text: AutoOpenOrClose.text,
               type: "forms",
               forms: [
-                UISwitch("【屏蔽】评论工具栏", "dy-video-shieldUserCommentToolBar", false, void 0, "屏蔽元素"),
+                UISwitch("【屏蔽】底部的评论工具栏", "dy-video-shieldUserCommentToolBar", false, void 0),
                 UISwitch(
                   "【屏蔽】大家都在搜",
                   "dy-video-shieldUserCommentEveryOneAllSearch",
@@ -581,6 +594,11 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                 ),
                 UISwitch("【屏蔽】小黄车", "dy-video-live-block-yellowCar", false),
               ],
+            },
+            {
+              type: "forms",
+              text: "播放器组件",
+              forms: [UISwitch("【屏蔽】刷新", "dy-video-live-block-playComponents-refresh", false)],
             },
           ],
         },

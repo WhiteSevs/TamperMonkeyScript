@@ -16,7 +16,7 @@ import Utils from "@whitesev/utils";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import type { UtilsAjaxHookRequestOptions } from "@whitesev/utils/dist/types/src/types/ajaxHooker";
 import type { PopsPanelSelectMultipleDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-selectMultiple";
-import type { DouYinVideoAwemeInfo, DouYinVideoHandlerInfo } from "./DouYinVideoType";
+import type { DouYinVideoAwemeInfo, DouYinVideoHandlerInfo } from "../DouYinVideoType";
 
 type DouYinVideoFilterRuleOptionScope =
   | "all"

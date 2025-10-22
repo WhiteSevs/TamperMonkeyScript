@@ -1,6 +1,6 @@
 import { httpx, log, pops, utils } from "@/env";
 import type { DouYinVideoFilterRuleDynamicOption, DouYinVideoFilterRule } from "./DouYinVideoFilter";
-import type { DouYinVideoAwemeInfo, DouYinVideoHandlerInfo } from "./DouYinVideoType";
+import type { DouYinVideoAwemeInfo, DouYinVideoHandlerInfo } from "../DouYinVideoType";
 import DOMUtils from "@whitesev/domutils";
 import Qmsg from "qmsg";
 import { unsafeWindow } from "ViteGM";
