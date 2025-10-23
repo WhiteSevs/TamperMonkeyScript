@@ -1120,6 +1120,9 @@ declare class Utils {
      * 复制到剪贴板
      * @param data 需要复制到剪贴板的文本
      * @param info （可选）默认：text/plain
+     * @returns
+     * + true 复制成功
+     * + false 复制失败
      * @example
      * Utils.copy({1:2});
      * > {"1":2}

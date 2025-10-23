@@ -1,7 +1,7 @@
 export class ColorConversion {
   /**
    * 判断是否是16进制颜色
-   * @param str
+   * @param str 十六进制颜色，如`#000000`
    */
   isHex(str: string): boolean {
     if (typeof str !== "string") {
@@ -16,8 +16,8 @@ export class ColorConversion {
    * 16进制颜色转rgba
    *
    * 例如：`#ff0000` 转为 `rgba(123,123,123, 0.4)`
-   * @param hex
-   * @param opacity
+   * @param hex 十六进制颜色，如`#000000`
+   * @param opacity 透明度，0~1
    */
   hexToRgba(hex: string, opacity: number): string {
     if (!this.isHex(hex)) {
@@ -31,16 +31,16 @@ export class ColorConversion {
   }
   /**
    * hex转rgb
-   * @param str
+   * @param hex 十六进制颜色，如`#000000`
    */
-  hexToRgb(str: string) {
-    if (!this.isHex(str)) {
-      throw new TypeError(`输入错误的hex：${str}`);
+  hexToRgb(hex: string) {
+    if (!this.isHex(hex)) {
+      throw new TypeError(`输入错误的hex：${hex}`);
     }
     /* replace替换查找的到的字符串 */
-    str = str.replace("#", "");
+    hex = hex.replace("#", "");
     /* match得到查询数组 */
-    const hxs = str.match(/../g)!;
+    const hxs = hex.match(/../g)!;
     for (let index = 0; index < 3; index++) {
       const value = parseInt(hxs[index], 16);
       Reflect.set(hxs, index, value);
@@ -50,9 +50,10 @@ export class ColorConversion {
   }
   /**
    * rgb转hex
-   * @param redValue
-   * @param greenValue
-   * @param blueValue
+   * @param redValue 红色值
+   * @param greenValue 绿色值
+   * @param blueValue 蓝色值
+   * @returns hex
    */
   rgbToHex(redValue: string | number, greenValue: string | number, blueValue: string | number): string {
     /* 验证输入的rgb值是否合法 */
@@ -69,17 +70,20 @@ export class ColorConversion {
   }
   /**
    * 获取颜色变暗或亮
-   * @param color 颜色
-   * @param level 0~1.0
+   * @param color hex颜色，如`#000000`
+   * @param level 0~1.0 系数越大，颜色越变暗
    */
-  getDarkColor(color: string, level: string): string {
+  getDarkColor(color: string, level: number | string): string {
     if (!this.isHex(color)) {
       throw new TypeError(`输入错误的hex：${color}`);
+    }
+    if (typeof level !== "number") {
+      level = Number(level);
     }
     const rgbc = this.hexToRgb(color);
     for (let index = 0; index < 3; index++) {
       const rgbcItemValue = rgbc[index];
-      const value = Math.floor(Number(rgbcItemValue) * (1 - Number(level)));
+      const value = Math.floor(Number(rgbcItemValue) * (1 - level));
       Reflect.set(rgbc, index, value);
     }
 
@@ -87,12 +91,15 @@ export class ColorConversion {
   }
   /**
    * 获取颜色变亮
-   * @param color 颜色
-   * @param level 0~1.0
+   * @param color hex颜色，如`#000000`
+   * @param level 0~1.0 系数越大，颜色越变亮
    */
-  getLightColor(color: string, level: number): string {
+  getLightColor(color: string, level: number | string): string {
     if (!this.isHex(color)) {
       throw new TypeError(`输入错误的hex：${color}`);
+    }
+    if (typeof level !== "number") {
+      level = Number(level);
     }
     const rgbc = this.hexToRgb(color);
     for (let index = 0; index < 3; index++) {
