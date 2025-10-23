@@ -6,6 +6,7 @@ import Qmsg from "qmsg";
 import { CookieInfoTransform } from "@/main/CookieInfoTransform";
 import { PanelUISize } from "@components/setting/panel-ui-size";
 import type { PopsPanelTextAreaDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-textarea";
+import { UIOwn } from "@components/setting/components/ui-own";
 
 /**
  * 编辑UI-输入框
@@ -118,7 +119,7 @@ export const CookieManagerEditView = {
     let cookieInfo: GMCookieInstance = utils.assign({} as GMCookieInstance, defaultCookieInfo, true);
     utils.assign(cookieInfo, __cookieInfo__ ?? {}, true);
     cookieInfo = CookieInfoTransform.beforeEdit(cookieInfo, isEdit);
-    let $dialog = pops.confirm({
+    const $dialog = pops.confirm({
       title: {
         text: isEdit ? "编辑Cookie" : "添加Cookie",
         position: "center",
@@ -216,10 +217,10 @@ export const CookieManagerEditView = {
 				}
             `,
     });
-    let $editContent = $dialog.$shadowRoot.querySelector<HTMLElement>(".pops-confirm-content")!;
+    const $editContent = $dialog.$shadowRoot.querySelector<HTMLElement>(".pops-confirm-content")!;
 
-    let panelHandlerComponents = pops.config.PanelHandlerComponents();
-    let $name = panelHandlerComponents.createSectionContainerItem_input(
+    const panelHandlerComponents = pops.config.PanelHandlerComponents();
+    const $name = panelHandlerComponents.createSectionContainerItem_input(
       edit_ui_input(
         "name",
         () => cookieInfo.name,
@@ -227,21 +228,21 @@ export const CookieManagerEditView = {
         isEdit
       )
     );
-    let $value = panelHandlerComponents.createSectionContainerItem_textarea(
+    const $value = panelHandlerComponents.createSectionContainerItem_textarea(
       edit_ui_textarea(
         "value",
         () => cookieInfo.value,
         (value) => (cookieInfo.value = value)
       )
     );
-    let $domain = panelHandlerComponents.createSectionContainerItem_input(
+    const $domain = panelHandlerComponents.createSectionContainerItem_input(
       edit_ui_input(
         "domain",
         () => cookieInfo.domain,
         (value) => (cookieInfo.domain = value)
       )
     );
-    let $path = panelHandlerComponents.createSectionContainerItem_input(
+    const $path = panelHandlerComponents.createSectionContainerItem_input(
       edit_ui_input(
         "path",
         () => cookieInfo.path,
@@ -260,11 +261,9 @@ export const CookieManagerEditView = {
         )
       );
     } else {
-      $expires = panelHandlerComponents.createSectionContainerItem_own({
-        type: "own",
-        getLiElementCallBack: function (liElement: HTMLLIElement): HTMLLIElement {
-          let $li = DOMUtils.createElement("li", {
-            innerHTML: /*html*/ `
+      const expiresTemplate = UIOwn(() => {
+        const $li = DOMUtils.createElement("li", {
+          innerHTML: /*html*/ `
 							<div class="pops-panel-item-left-text">
 								<p class="pops-panel-item-left-main-text">expires</p>
 							</div>
@@ -272,18 +271,18 @@ export const CookieManagerEditView = {
 								<input type="datetime-local" id="cookie-item-property-expires">
 							</div>
 						`,
-          });
-          let $dateTime = $li.querySelector<HTMLInputElement>("#cookie-item-property-expires")!;
-          $dateTime.valueAsNumber = cookieInfo.expirationDate!;
-          DOMUtils.on($dateTime, ["change", "input", "propertychange"], (event) => {
-            DOMUtils.preventEvent(event);
-            cookieInfo.expirationDate = $dateTime.valueAsNumber;
-          });
-          return $li;
-        },
+        });
+        const $dateTime = $li.querySelector<HTMLInputElement>("#cookie-item-property-expires")!;
+        $dateTime.valueAsNumber = cookieInfo.expirationDate!;
+        DOMUtils.on($dateTime, ["change", "input", "propertychange"], (event) => {
+          DOMUtils.preventEvent(event);
+          cookieInfo.expirationDate = $dateTime.valueAsNumber;
+        });
+        return $li;
       });
+      $expires = panelHandlerComponents.createSectionContainerItem_own(expiresTemplate);
     }
-    let $httpOnly = panelHandlerComponents.createSectionContainerItem_select(
+    const $httpOnly = panelHandlerComponents.createSectionContainerItem_select(
       edit_ui_select(
         "httpOnly",
         [
@@ -300,7 +299,7 @@ export const CookieManagerEditView = {
         (value) => (cookieInfo.httpOnly = value)
       )
     );
-    let $secure = panelHandlerComponents.createSectionContainerItem_select(
+    const $secure = panelHandlerComponents.createSectionContainerItem_select(
       edit_ui_select(
         "secure",
         [
@@ -352,7 +351,7 @@ export const CookieManagerEditView = {
         },
       ];
     }
-    let $sameSite = panelHandlerComponents.createSectionContainerItem_select(
+    const $sameSite = panelHandlerComponents.createSectionContainerItem_select(
       edit_ui_select(
         "sameSite",
         sameSiteData,

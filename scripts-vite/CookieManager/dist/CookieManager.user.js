@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CookieManager
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.21
+// @version      2025.10.23
 // @author       WhiteSevs
 // @description  简单而强大的Cookie编辑器，允许您快速创建、编辑和删除Cookie
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @connect      *
@@ -55,6 +55,7 @@
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
+  const ATTRIBUTE_PLUGIN_SEARCH_CONFIG = "data-plugin-search-config";
   const PROPS_STORAGE_API = "data-storage-api";
   const PanelSizeUtil = {
     get width() {
@@ -628,7 +629,8 @@
         let moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
         if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
           Object.keys(moreMenuDefaultConfig).forEach((key2) => {
-            menuDefaultConfig.set(key2, moreMenuDefaultConfig[key2]);
+            const defaultValue = moreMenuDefaultConfig[key2];
+            menuDefaultConfig.set(key2, defaultValue);
           });
         }
         if (!menuDefaultConfig.size) {
@@ -1240,8 +1242,22 @@
                 }
                 loopContentConfig(child_forms, deepMenuPath);
               } else {
-                const text = Reflect.get(configItem, "text");
-                const description = Reflect.get(configItem, "description");
+                let text;
+                let description;
+                if (configItem.type === "own") {
+                  const searchConfig = Reflect.get(configItem.attributes || {}, ATTRIBUTE_PLUGIN_SEARCH_CONFIG);
+                  if (searchConfig) {
+                    if (typeof searchConfig.text === "string") {
+                      text = searchConfig.text;
+                    }
+                    if (typeof searchConfig.desc === "string") {
+                      description = searchConfig.desc;
+                    }
+                  }
+                } else {
+                  text = Reflect.get(configItem, "text");
+                  description = Reflect.get(configItem, "description");
+                }
                 const delayMatchedTextList = [text, description];
                 const matchedIndex = delayMatchedTextList.findIndex((configText) => {
                   if (typeof configText !== "string") {
@@ -2228,7 +2244,7 @@
     disabled,
     valueChangeCallBack
   ) {
-    let result = {
+    const result = {
       text,
       type: "switch",
       description,
@@ -2236,20 +2252,20 @@
       attributes: {},
       props: {},
       getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
-        let value = storageApiValue.get(key, defaultValue);
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        const value = storageApiValue.get(key, defaultValue);
         return value;
       },
       callback(event, __value) {
-        let value = Boolean(__value);
+        const value = Boolean(__value);
         log.success(`${value ? "开启" : "关闭"} ${text}`);
         if (typeof clickCallBack === "function") {
-          let result2 = clickCallBack(event, value);
+          const result2 = clickCallBack(event, value);
           if (result2) {
             return;
           }
         }
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
       afterAddToUListCallBack,
@@ -2297,6 +2313,19 @@
       }
       return cookieInfo;
     },
+  };
+  const UIOwn = function (getLiElementCallBack, initConfig, searchConfig, attr, props, afterAddToUListCallBack) {
+    const result = {
+      type: "own",
+      attributes: {},
+      props: {},
+      getLiElementCallBack,
+      afterAddToUListCallBack,
+    };
+    {
+      Reflect.set(result.attributes, ATTRIBUTE_INIT, () => false);
+    }
+    return result;
   };
   let edit_ui_input = (text, getValue, setValue, disabled) => {
     let config = {
@@ -2375,7 +2404,7 @@
       let cookieInfo = utils.assign({}, defaultCookieInfo, true);
       utils.assign(cookieInfo, __cookieInfo__ ?? {}, true);
       cookieInfo = CookieInfoTransform.beforeEdit(cookieInfo, isEdit);
-      let $dialog = __pops.confirm({
+      const $dialog = __pops.confirm({
         title: {
           text: isEdit ? "编辑Cookie" : "添加Cookie",
           position: "center",
@@ -2470,9 +2499,9 @@
 				}
             `,
       });
-      let $editContent = $dialog.$shadowRoot.querySelector(".pops-confirm-content");
-      let panelHandlerComponents = __pops.config.PanelHandlerComponents();
-      let $name = panelHandlerComponents.createSectionContainerItem_input(
+      const $editContent = $dialog.$shadowRoot.querySelector(".pops-confirm-content");
+      const panelHandlerComponents = __pops.config.PanelHandlerComponents();
+      const $name = panelHandlerComponents.createSectionContainerItem_input(
         edit_ui_input(
           "name",
           () => cookieInfo.name,
@@ -2480,21 +2509,21 @@
           isEdit
         )
       );
-      let $value = panelHandlerComponents.createSectionContainerItem_textarea(
+      const $value = panelHandlerComponents.createSectionContainerItem_textarea(
         edit_ui_textarea(
           "value",
           () => cookieInfo.value,
           (value) => (cookieInfo.value = value)
         )
       );
-      let $domain = panelHandlerComponents.createSectionContainerItem_input(
+      const $domain = panelHandlerComponents.createSectionContainerItem_input(
         edit_ui_input(
           "domain",
           () => cookieInfo.domain,
           (value) => (cookieInfo.domain = value)
         )
       );
-      let $path = panelHandlerComponents.createSectionContainerItem_input(
+      const $path = panelHandlerComponents.createSectionContainerItem_input(
         edit_ui_input(
           "path",
           () => cookieInfo.path,
@@ -2512,11 +2541,9 @@
           )
         );
       } else {
-        $expires = panelHandlerComponents.createSectionContainerItem_own({
-          type: "own",
-          getLiElementCallBack: function (liElement) {
-            let $li = domUtils.createElement("li", {
-              innerHTML: `
+        const expiresTemplate = UIOwn(() => {
+          const $li = domUtils.createElement("li", {
+            innerHTML: `
 							<div class="pops-panel-item-left-text">
 								<p class="pops-panel-item-left-main-text">expires</p>
 							</div>
@@ -2524,18 +2551,18 @@
 								<input type="datetime-local" id="cookie-item-property-expires">
 							</div>
 						`,
-            });
-            let $dateTime = $li.querySelector("#cookie-item-property-expires");
-            $dateTime.valueAsNumber = cookieInfo.expirationDate;
-            domUtils.on($dateTime, ["change", "input", "propertychange"], (event) => {
-              domUtils.preventEvent(event);
-              cookieInfo.expirationDate = $dateTime.valueAsNumber;
-            });
-            return $li;
-          },
+          });
+          const $dateTime = $li.querySelector("#cookie-item-property-expires");
+          $dateTime.valueAsNumber = cookieInfo.expirationDate;
+          domUtils.on($dateTime, ["change", "input", "propertychange"], (event) => {
+            domUtils.preventEvent(event);
+            cookieInfo.expirationDate = $dateTime.valueAsNumber;
+          });
+          return $li;
         });
+        $expires = panelHandlerComponents.createSectionContainerItem_own(expiresTemplate);
       }
-      let $httpOnly = panelHandlerComponents.createSectionContainerItem_select(
+      const $httpOnly = panelHandlerComponents.createSectionContainerItem_select(
         edit_ui_select(
           "httpOnly",
           [
@@ -2552,7 +2579,7 @@
           (value) => (cookieInfo.httpOnly = value)
         )
       );
-      let $secure = panelHandlerComponents.createSectionContainerItem_select(
+      const $secure = panelHandlerComponents.createSectionContainerItem_select(
         edit_ui_select(
           "secure",
           [
@@ -2603,7 +2630,7 @@
           },
         ];
       }
-      let $sameSite = panelHandlerComponents.createSectionContainerItem_select(
+      const $sameSite = panelHandlerComponents.createSectionContainerItem_select(
         edit_ui_select(
           "sameSite",
           sameSiteData,
@@ -2641,26 +2668,26 @@
     } else {
       selectData = data;
     }
-    let result = {
+    const result = {
       text,
       type: "select",
       description,
       attributes: {},
       props: {},
       getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
       callback(event, isSelectedValue, isSelectedText) {
-        let value = isSelectedValue;
+        const value = isSelectedValue;
         log.info(`选择：${isSelectedText}`);
         if (typeof selectCallBack === "function") {
-          let result2 = selectCallBack(event, value, isSelectedText);
+          const result2 = selectCallBack(event, value, isSelectedText);
           if (result2) {
             return;
           }
         }
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
         if (typeof valueChangeCallBack === "function") {
           valueChangeCallBack(event, value, isSelectedText);
@@ -2692,7 +2719,7 @@
     afterAddToUListCallBack,
     valueChangeCallback
   ) {
-    let result = {
+    const result = {
       text,
       type: "input",
       isNumber: Boolean(isNumber),
@@ -2702,11 +2729,11 @@
       description,
       afterAddToUListCallBack,
       getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
       callback(event, value, valueAsNumber) {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
       placeholder,
@@ -2733,7 +2760,7 @@
     disabled,
     valueChangeCallBack
   ) {
-    let result = {
+    const result = {
       text,
       type: "textarea",
       attributes: {},
@@ -2742,15 +2769,15 @@
       placeholder,
       disabled,
       getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
-        let value = storageApiValue.get(key, defaultValue);
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        const value = storageApiValue.get(key, defaultValue);
         if (Array.isArray(value)) {
           return value.join("\n");
         }
         return value;
       },
       callback(event, value) {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
     };
@@ -5111,7 +5138,7 @@
     afterAddToUListCallBack,
     disable
   ) {
-    let result = {
+    const result = {
       text,
       type: "button",
       attributes: {},
