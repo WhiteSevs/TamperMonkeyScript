@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网页调试
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.21
+// @version      2025.10.23
 // @author       WhiteSevs
 // @description  内置多种网页调试工具，包括：Eruda、vConsole、PageSpy、Chii，可在设置菜单中进行详细配置
 // @license      GPL-3.0-only
@@ -14,7 +14,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@b2f37e0ef04aafbccbdbd52733f795c2076acd87/lib/PageSpy/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @resource     Resource_erudaBenchmark       https://fastly.jsdelivr.net/npm/eruda-benchmark@2.0.1
 // @resource     Resource_erudaCode            https://fastly.jsdelivr.net/npm/eruda-code@2.2.0
@@ -462,6 +462,7 @@
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
+  const ATTRIBUTE_PLUGIN_SEARCH_CONFIG = "data-plugin-search-config";
   const PROPS_STORAGE_API = "data-storage-api";
   const PanelSizeUtil = {
     followBrowserSize: false,
@@ -1199,7 +1200,8 @@
         let moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
         if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
           Object.keys(moreMenuDefaultConfig).forEach((key2) => {
-            menuDefaultConfig.set(key2, moreMenuDefaultConfig[key2]);
+            const defaultValue = moreMenuDefaultConfig[key2];
+            menuDefaultConfig.set(key2, defaultValue);
           });
         }
         if (!menuDefaultConfig.size) {
@@ -1811,8 +1813,22 @@
                 }
                 loopContentConfig(child_forms, deepMenuPath);
               } else {
-                const text = Reflect.get(configItem, "text");
-                const description = Reflect.get(configItem, "description");
+                let text;
+                let description;
+                if (configItem.type === "own") {
+                  const searchConfig = Reflect.get(configItem.attributes || {}, ATTRIBUTE_PLUGIN_SEARCH_CONFIG);
+                  if (searchConfig) {
+                    if (typeof searchConfig.text === "string") {
+                      text = searchConfig.text;
+                    }
+                    if (typeof searchConfig.desc === "string") {
+                      description = searchConfig.desc;
+                    }
+                  }
+                } else {
+                  text = Reflect.get(configItem, "text");
+                  description = Reflect.get(configItem, "description");
+                }
                 const delayMatchedTextList = [text, description];
                 const matchedIndex = delayMatchedTextList.findIndex((configText) => {
                   if (typeof configText !== "string") {
@@ -3262,20 +3278,20 @@
     } else {
       selectData = data;
     }
-    let result = {
+    const result = {
       text,
       type: "select",
       description,
       attributes: {},
       props: {},
       getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
       callback(event, isSelectedValue, isSelectedText) {
-        let value = isSelectedValue;
+        const value = isSelectedValue;
         log.info(`选择：${isSelectedText}`);
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
       data: selectData,
@@ -3302,7 +3318,7 @@
     disabled,
     valueChangeCallBack
   ) {
-    let result = {
+    const result = {
       text,
       type: "switch",
       description,
@@ -3310,20 +3326,20 @@
       attributes: {},
       props: {},
       getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
-        let value = storageApiValue.get(key, defaultValue);
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        const value = storageApiValue.get(key, defaultValue);
         return value;
       },
       callback(event, __value) {
-        let value = Boolean(__value);
+        const value = Boolean(__value);
         log.success(`${value ? "开启" : "关闭"} ${text}`);
         if (typeof clickCallBack === "function") {
-          let result2 = clickCallBack(event, value);
+          const result2 = clickCallBack(event, value);
           if (result2) {
             return;
           }
         }
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
       afterAddToUListCallBack,
@@ -3417,7 +3433,7 @@
     afterAddToUListCallBack,
     disable
   ) {
-    let result = {
+    const result = {
       text,
       type: "button",
       attributes: {},
@@ -3440,6 +3456,22 @@
     });
     return result;
   };
+  const UIOwn = function (getLiElementCallBack, initConfig, searchConfig, attr, props, afterAddToUListCallBack) {
+    const result = {
+      type: "own",
+      attributes: {},
+      props: {},
+      getLiElementCallBack,
+      afterAddToUListCallBack,
+    };
+    {
+      Reflect.set(result.attributes, ATTRIBUTE_INIT, () => false);
+    }
+    if (typeof searchConfig === "object" && searchConfig !== null) {
+      Reflect.set(result.attributes, ATTRIBUTE_PLUGIN_SEARCH_CONFIG, searchConfig);
+    }
+    return result;
+  };
   const PanelUI_eruda = {
     id: "debug-panel-config-eruda",
     title: "Eruda",
@@ -3453,26 +3485,31 @@
             domUtils.preventEvent(event);
             window.open(DebugToolConfig.eruda.homeUrl, "_blank");
           }),
-          {
-            type: "own",
-            getLiElementCallBack(liElement) {
-              let $left = document.createElement("div");
-              $left.className = "pops-panel-item-left-text";
-              $left.innerHTML = `
+          UIOwn(
+            ($li) => {
+              const $left = domUtils.createElement("div", {
+                className: "pops-panel-item-left-text",
+                innerHTML: `
                             <p class="pops-panel-item-left-main-text">最新版本</p>
-                        `;
-              let $right = document.createElement("div");
-              $right.className = "pops-panel-item-right-text";
-              $right.innerHTML = `
+                        `,
+              });
+              const $right = domUtils.createElement("div", {
+                className: "pops-panel-item-right-text",
+                innerHTML: `
                         <a href="${DebugToolConfig.eruda.homeUrl}" target="_blank">
                             <img src="https://img.shields.io/npm/v/eruda/latest.svg?label=eruda" alt="eruda">
                         </a>
-                        `;
-              liElement.appendChild($left);
-              liElement.appendChild($right);
-              return liElement;
+                        `,
+              });
+              $li.appendChild($left);
+              $li.appendChild($right);
+              return $li;
             },
-          },
+            void 0,
+            {
+              text: "最新版本",
+            }
+          ),
           UISwitch(
             "自动打开面板",
             GlobalSettingConfig.eruda_auto_open_panel.key,
@@ -3863,7 +3900,7 @@
     afterAddToUListCallBack,
     valueChangeCallback
   ) {
-    let result = {
+    const result = {
       text,
       type: "input",
       isNumber: Boolean(isNumber),
@@ -3873,11 +3910,11 @@
       description,
       afterAddToUListCallBack,
       getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
       callback(event, value, valueAsNumber) {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
       placeholder,
@@ -3907,26 +3944,31 @@
             domUtils.preventEvent(event);
             window.open(DebugToolConfig.vConsole.homeUrl, "_blank");
           }),
-          {
-            type: "own",
-            getLiElementCallBack(liElement) {
-              let $left = document.createElement("div");
-              $left.className = "pops-panel-item-left-text";
-              $left.innerHTML = `
+          UIOwn(
+            ($li) => {
+              const $left = domUtils.createElement("div", {
+                className: "pops-panel-item-left-text",
+                innerHTML: `
                             <p class="pops-panel-item-left-main-text">最新版本</p>
-                        `;
-              let $right = document.createElement("div");
-              $right.className = "pops-panel-item-right-text";
-              $right.innerHTML = `
+                        `,
+              });
+              const $right = domUtils.createElement("div", {
+                className: "pops-panel-item-right-text",
+                innerHTML: `
                         <a href="${DebugToolConfig.vConsole.homeUrl}" target="_blank">
                             <img src="https://img.shields.io/npm/v/vconsole/latest.svg?label=vConsole" alt="vConsole">
                         </a>
-                        `;
-              liElement.appendChild($left);
-              liElement.appendChild($right);
-              return liElement;
+                        `,
+              });
+              $li.appendChild($left);
+              $li.appendChild($right);
+              return $li;
             },
-          },
+            void 0,
+            {
+              text: "最新版本",
+            }
+          ),
           UISwitch(
             "自动打开面板",
             GlobalSettingConfig.vconsole_auto_open_panel.key,
@@ -4204,26 +4246,31 @@
             domUtils.preventEvent(event);
             window.open(DebugToolConfig.pageSpy.homeUrl, "_blank");
           }),
-          {
-            type: "own",
-            getLiElementCallBack(liElement) {
-              let $left = document.createElement("div");
-              $left.className = "pops-panel-item-left-text";
-              $left.innerHTML = `
+          UIOwn(
+            ($li) => {
+              const $left = domUtils.createElement("div", {
+                className: "pops-panel-item-left-text",
+                innerHTML: `
                             <p class="pops-panel-item-left-main-text">最新版本</p>
-                        `;
-              let $right = document.createElement("div");
-              $right.className = "pops-panel-item-right-text";
-              $right.innerHTML = `
+                        `,
+              });
+              const $right = domUtils.createElement("div", {
+                className: "pops-panel-item-right-text",
+                innerHTML: `
                         <a href="${DebugToolConfig.pageSpy.homeUrl}" target="_blank">
                             <img src="https://img.shields.io/npm/v/@huolala-tech/page-spy-browser?label=pagespy" alt="page-spy-browser">
                         </a>
-                        `;
-              liElement.appendChild($left);
-              liElement.appendChild($right);
-              return liElement;
+                        `,
+              });
+              $li.appendChild($left);
+              $li.appendChild($right);
+              return $li;
             },
-          },
+            void 0,
+            {
+              text: "最新版本",
+            }
+          ),
           UISwitch(
             "禁止在调试端运行",
             GlobalSettingConfig.pagespy_disable_run_in_debug_client.key,
@@ -4342,14 +4389,14 @@
     step,
     valueChangeCallBack
   ) {
-    let result = {
+    const result = {
       text,
       type: "slider",
       description,
       attributes: {},
       props: {},
       getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
       getToolTipContent(value) {
@@ -4361,12 +4408,12 @@
       },
       callback(event, value) {
         if (typeof changeCallback === "function") {
-          let result2 = changeCallback(event, value);
+          const result2 = changeCallback(event, value);
           if (result2) {
             return;
           }
         }
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
       min,

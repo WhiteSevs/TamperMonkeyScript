@@ -7,6 +7,7 @@ import { UIInput } from "@components/setting/components/ui-input";
 import { PanelUISize } from "@components/setting/panel-ui-size";
 import { UISelect } from "@components/setting/components/ui-select";
 import { GlobalSettingConfig } from "../config";
+import { UIOwn } from "@components/setting/components/ui-own";
 
 export const PanelUI_pagespy: PopsPanelContentConfig = {
   id: "debug-panel-config-pagespy",
@@ -60,26 +61,31 @@ export const PanelUI_pagespy: PopsPanelContentConfig = {
           DOMUtils.preventEvent(event);
           window.open(DebugToolConfig.pageSpy.homeUrl, "_blank");
         }),
-        {
-          type: "own",
-          getLiElementCallBack(liElement) {
-            let $left = document.createElement("div");
-            $left.className = "pops-panel-item-left-text";
-            $left.innerHTML = /*html*/ `
+        UIOwn(
+          ($li) => {
+            const $left = DOMUtils.createElement("div", {
+              className: "pops-panel-item-left-text",
+              innerHTML: /*html*/ `
                             <p class="pops-panel-item-left-main-text">最新版本</p>
-                        `;
-            let $right = document.createElement("div");
-            $right.className = "pops-panel-item-right-text";
-            $right.innerHTML = /*html*/ `
+                        `,
+            });
+            const $right = DOMUtils.createElement("div", {
+              className: "pops-panel-item-right-text",
+              innerHTML: /*html*/ `
                         <a href="${DebugToolConfig.pageSpy.homeUrl}" target="_blank">
                             <img src="https://img.shields.io/npm/v/@huolala-tech/page-spy-browser?label=pagespy" alt="page-spy-browser">
                         </a>
-                        `;
-            liElement.appendChild($left);
-            liElement.appendChild($right);
-            return liElement;
+                        `,
+            });
+            $li.appendChild($left);
+            $li.appendChild($right);
+            return $li;
           },
-        },
+          void 0,
+          {
+            text: "最新版本",
+          }
+        ),
         UISwitch(
           "禁止在调试端运行",
           GlobalSettingConfig.pagespy_disable_run_in_debug_client.key,

@@ -7,6 +7,7 @@ import { UISelect } from "@components/setting/components/ui-select";
 import { DebugToolVersionConfig } from "@/main/DebugToolVersionConfig";
 import { GlobalSettingConfig } from "../config";
 import { Panel } from "@components/setting/panel";
+import { UIOwn } from "@components/setting/components/ui-own";
 
 export const PanelUI_eruda: PopsPanelContentConfig = {
   id: "debug-panel-config-eruda",
@@ -21,26 +22,31 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
           DOMUtils.preventEvent(event);
           window.open(DebugToolConfig.eruda.homeUrl, "_blank");
         }),
-        {
-          type: "own",
-          getLiElementCallBack(liElement) {
-            let $left = document.createElement("div");
-            $left.className = "pops-panel-item-left-text";
-            $left.innerHTML = /*html*/ `
+        UIOwn(
+          ($li) => {
+            const $left = DOMUtils.createElement("div", {
+              className: "pops-panel-item-left-text",
+              innerHTML: /*html*/ `
                             <p class="pops-panel-item-left-main-text">最新版本</p>
-                        `;
-            let $right = document.createElement("div");
-            $right.className = "pops-panel-item-right-text";
-            $right.innerHTML = /*html*/ `
+                        `,
+            });
+            const $right = DOMUtils.createElement("div", {
+              className: "pops-panel-item-right-text",
+              innerHTML: /*html*/ `
                         <a href="${DebugToolConfig.eruda.homeUrl}" target="_blank">
                             <img src="https://img.shields.io/npm/v/eruda/latest.svg?label=eruda" alt="eruda">
                         </a>
-                        `;
-            liElement.appendChild($left);
-            liElement.appendChild($right);
-            return liElement;
+                        `,
+            });
+            $li.appendChild($left);
+            $li.appendChild($right);
+            return $li;
           },
-        },
+          void 0,
+          {
+            text: "最新版本",
+          }
+        ),
         UISwitch(
           "自动打开面板",
           GlobalSettingConfig.eruda_auto_open_panel.key,
