@@ -5,6 +5,7 @@ import { CommonUtil } from "@components/utils/CommonUtil";
 import { StorageApi } from "@/main/StorageApi";
 import { GMTotal } from "@/main/GMTotal";
 import { PanelKeyConfig } from "../panel-key-config";
+import { UIOwn } from "@components/setting/components/ui-own";
 
 type ApiSupportUIConfig = {
   name: string;
@@ -131,21 +132,18 @@ export const Component_Common = (): PopsPanelContentConfig => {
           }
         },
         forms: [
-          {
-            type: "own",
-            getLiElementCallBack(liElement) {
-              let $container = DOMUtils.createElement("div", {
-                className: "gm-api-features-not-support",
-              });
-              let $fragment = document.createDocumentFragment();
-              notSupportApiNameList.forEach((config) => {
-                $fragment.append(createFeatureItem(config));
-              });
-              $container.appendChild($fragment);
-              liElement.appendChild($container);
-              return liElement;
-            },
-          },
+          UIOwn(($li) => {
+            const $container = DOMUtils.createElement("div", {
+              className: "gm-api-features-not-support",
+            });
+            const $fragment = document.createDocumentFragment();
+            notSupportApiNameList.forEach((config) => {
+              $fragment.append(createFeatureItem(config));
+            });
+            $container.appendChild($fragment);
+            $li.appendChild($container);
+            return $li;
+          }),
         ],
       },
       {
@@ -158,21 +156,18 @@ export const Component_Common = (): PopsPanelContentConfig => {
           }
         },
         forms: [
-          {
-            type: "own",
-            getLiElementCallBack(liElement) {
-              let $container = DOMUtils.createElement("div", {
-                className: "gm-api-features-support",
-              });
-              let $fragment = document.createDocumentFragment();
-              supportApiNameList.forEach((config) => {
-                $fragment.append(createFeatureItem(config));
-              });
-              $container.appendChild($fragment);
-              liElement.appendChild($container);
-              return liElement;
-            },
-          },
+          UIOwn(($li) => {
+            const $container = DOMUtils.createElement("div", {
+              className: "gm-api-features-support",
+            });
+            const $fragment = document.createDocumentFragment();
+            supportApiNameList.forEach((config) => {
+              $fragment.append(createFeatureItem(config));
+            });
+            $container.appendChild($fragment);
+            $li.appendChild($container);
+            return $li;
+          }),
         ],
       },
     ],
