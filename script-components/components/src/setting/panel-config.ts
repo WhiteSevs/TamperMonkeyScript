@@ -30,6 +30,15 @@ const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
  */
 const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
 /**
+ * panel面板的搜索插件的配置项
+ * @example
+ * Reflect.set(result.attributes!, ATTRIBUTE_PLUGIN_SEARCH_CONFIG, {
+ *   text: "左侧文字",
+ *   desc: "左侧描述文字",
+ * })
+ */
+const ATTRIBUTE_PLUGIN_SEARCH_CONFIG = "data-plugin-search-config";
+/**
  * 存储值的api
  *
  * 在props属性上
@@ -45,4 +54,12 @@ const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
  */
 const PROPS_STORAGE_API = "data-storage-api";
 
-export { KEY, ATTRIBUTE_KEY, ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_INIT, ATTRIBUTE_INIT_MORE_VALUE, PROPS_STORAGE_API };
+export {
+  KEY,
+  ATTRIBUTE_KEY,
+  ATTRIBUTE_DEFAULT_VALUE,
+  ATTRIBUTE_INIT,
+  ATTRIBUTE_INIT_MORE_VALUE,
+  ATTRIBUTE_PLUGIN_SEARCH_CONFIG,
+  PROPS_STORAGE_API,
+};

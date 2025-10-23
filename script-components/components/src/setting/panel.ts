@@ -7,7 +7,14 @@ import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/compon
 import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import { unsafeWindow } from "ViteGM";
 import { DOMUtils, log, pops, SCRIPT_NAME, utils } from "../base.env";
-import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_INIT, ATTRIBUTE_INIT_MORE_VALUE, ATTRIBUTE_KEY, KEY } from "./panel-config";
+import {
+  ATTRIBUTE_DEFAULT_VALUE,
+  ATTRIBUTE_INIT,
+  ATTRIBUTE_INIT_MORE_VALUE,
+  ATTRIBUTE_KEY,
+  ATTRIBUTE_PLUGIN_SEARCH_CONFIG,
+  KEY,
+} from "./panel-config";
 import { PanelUISize } from "./panel-ui-size";
 import { PopsPanelStorageApi } from "./panel-storage";
 import { PanelMenu } from "./panel-menu";
@@ -15,6 +22,7 @@ import { PanelContent } from "./panel-content";
 import { CommonUtil } from "./../utils/CommonUtil";
 import Qmsg from "qmsg";
 import type { PopsPanelDeepMenuDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-deepMenu";
+import type { UIOwnSearchConfig } from "./components/ui-own";
 
 export type ExecMenuCallBackOption<T = any> = {
   /**
@@ -254,7 +262,8 @@ const Panel = {
       if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
         // 追加|覆盖
         Object.keys(moreMenuDefaultConfig).forEach((key) => {
-          menuDefaultConfig.set(key, moreMenuDefaultConfig[key]);
+          const defaultValue = moreMenuDefaultConfig[key];
+          menuDefaultConfig.set(key, defaultValue);
         });
       }
       if (!menuDefaultConfig.size) {
@@ -861,11 +870,11 @@ const Panel = {
     const { $panel, content } = config;
     type SearchPath = {
       index?: number;
-      name: string;
+      name: string | undefined;
       matchedData?: {
         path: string;
         formConfig: any;
-        matchedText: string;
+        matchedText: string | undefined;
         description?: string;
       };
       next?: SearchPath;
@@ -1128,7 +1137,7 @@ const Panel = {
 
             const child_forms = (<PopsPanelFormsDetails>configItem).forms;
             if (child_forms && Array.isArray(child_forms)) {
-              /* 存在子配置forms */
+              // 存在子配置forms
               const deepMenuPath = utils.deepClone(path);
               if (configItem.type === "deepMenu") {
                 const deepNext = utils.queryProperty(deepMenuPath, (target) => {
@@ -1150,8 +1159,29 @@ const Panel = {
               }
               loopContentConfig(child_forms, deepMenuPath);
             } else {
-              const text = Reflect.get(configItem, "text");
-              const description = Reflect.get(configItem, "description");
+              // 无子配置forms
+              let text: string | undefined;
+              let description: string | undefined;
+              if (configItem.type === "own") {
+                // own有自己的搜索配置
+                const searchConfig: UIOwnSearchConfig | undefined = Reflect.get(
+                  configItem.attributes || {},
+                  ATTRIBUTE_PLUGIN_SEARCH_CONFIG
+                );
+                if (searchConfig) {
+                  // 左侧文字
+                  if (typeof searchConfig.text === "string") {
+                    text = searchConfig.text;
+                  }
+                  // 描述
+                  if (typeof searchConfig.desc === "string") {
+                    description = searchConfig.desc;
+                  }
+                }
+              } else {
+                text = Reflect.get(configItem, "text");
+                description = Reflect.get(configItem, "description");
+              }
               const delayMatchedTextList = [text, description];
               const matchedIndex = delayMatchedTextList.findIndex((configText) => {
                 if (typeof configText !== "string") {
