@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2025.10.21
+// @version            2025.10.23
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -15,7 +15,7 @@
 // @require            https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.4/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.0/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.1/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require            https://fastly.jsdelivr.net/npm/i18next@25.5.3/i18next.min.js
@@ -499,6 +499,7 @@
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
+  const ATTRIBUTE_PLUGIN_SEARCH_CONFIG = "data-plugin-search-config";
   const PROPS_STORAGE_API = "data-storage-api";
   const PanelSizeUtil = {
     get width() {
@@ -1246,7 +1247,8 @@
         let moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
         if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
           Object.keys(moreMenuDefaultConfig).forEach((key2) => {
-            menuDefaultConfig.set(key2, moreMenuDefaultConfig[key2]);
+            const defaultValue = moreMenuDefaultConfig[key2];
+            menuDefaultConfig.set(key2, defaultValue);
           });
         }
         if (!menuDefaultConfig.size) {
@@ -1858,8 +1860,22 @@
                 }
                 loopContentConfig(child_forms, deepMenuPath);
               } else {
-                const text = Reflect.get(configItem, "text");
-                const description = Reflect.get(configItem, "description");
+                let text;
+                let description;
+                if (configItem.type === "own") {
+                  const searchConfig = Reflect.get(configItem.attributes || {}, ATTRIBUTE_PLUGIN_SEARCH_CONFIG);
+                  if (searchConfig) {
+                    if (typeof searchConfig.text === "string") {
+                      text = searchConfig.text;
+                    }
+                    if (typeof searchConfig.desc === "string") {
+                      description = searchConfig.desc;
+                    }
+                  }
+                } else {
+                  text = Reflect.get(configItem, "text");
+                  description = Reflect.get(configItem, "description");
+                }
                 const delayMatchedTextList = [text, description];
                 const matchedIndex = delayMatchedTextList.findIndex((configText) => {
                   if (typeof configText !== "string") {
@@ -3865,11 +3881,18 @@
     },
     readBgColor() {
       log.info("设置已读背景颜色");
-      let color = Panel.getValue("discussions-readBgColor");
+      const color = Panel.getValue("discussions-readBgColor");
+      const colorConversion = new utils.ColorConversion();
+      const darkColor = colorConversion.getDarkColor(color, 0.8);
       return addStyle(
         `
         .discussion-read{
             background: ${color} !important;
+        }
+        @media (prefers-color-scheme: dark){
+            .discussion-read{
+                background: ${darkColor} !important;
+            }
         }
         `
       );
@@ -7207,7 +7230,7 @@
     afterAddToUListCallBack,
     disable
   ) {
-    let result = {
+    const result = {
       text,
       type: "button",
       attributes: {},
@@ -7277,7 +7300,7 @@
     afterAddToUListCallBack,
     valueChangeCallback
   ) {
-    let result = {
+    const result = {
       text,
       type: "input",
       isNumber: Boolean(isNumber),
@@ -7287,11 +7310,11 @@
       description,
       afterAddToUListCallBack,
       getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
       callback(event, value, valueAsNumber) {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
       placeholder,
@@ -7318,7 +7341,7 @@
     disabled,
     valueChangeCallBack
   ) {
-    let result = {
+    const result = {
       text,
       type: "switch",
       description,
@@ -7326,14 +7349,14 @@
       attributes: {},
       props: {},
       getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
-        let value = storageApiValue.get(key, defaultValue);
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        const value = storageApiValue.get(key, defaultValue);
         return value;
       },
       callback(event, __value) {
-        let value = Boolean(__value);
+        const value = Boolean(__value);
         log.success(`${value ? "开启" : "关闭"} ${text}`);
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
       afterAddToUListCallBack,
@@ -7357,26 +7380,26 @@
     } else {
       selectData = data;
     }
-    let result = {
+    const result = {
       text,
       type: "select",
       description,
       attributes: {},
       props: {},
       getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
       callback(event, isSelectedValue, isSelectedText) {
-        let value = isSelectedValue;
+        const value = isSelectedValue;
         log.info(`选择：${isSelectedText}`);
         if (typeof selectCallBack === "function") {
-          let result2 = selectCallBack(event, value, isSelectedText);
+          const result2 = selectCallBack(event, value, isSelectedText);
           if (result2) {
             return;
           }
         }
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
       data: selectData,
@@ -7402,16 +7425,16 @@
     buttonType = "default",
     shortCut
   ) {
-    let __defaultButtonText = typeof defaultButtonText === "function" ? defaultButtonText() : defaultButtonText;
+    const __defaultButtonText = typeof defaultButtonText === "function" ? defaultButtonText() : defaultButtonText;
     if (typeof defaultValue === "object") {
       shortCut.initConfig(key, defaultValue);
     }
-    let getButtonText = () => {
+    const getButtonText = () => {
       return shortCut.getShowText(key, __defaultButtonText);
     };
-    let result = UIButton(text, description, getButtonText, "keyboard", false, false, buttonType, async (event) => {
-      let $click = event.target;
-      let $btn = $click.closest(".pops-panel-button")?.querySelector("span");
+    const result = UIButton(text, description, getButtonText, "keyboard", false, false, buttonType, async (event) => {
+      const $click = event.target;
+      const $btn = $click.closest(".pops-panel-button")?.querySelector("span");
       if (shortCut.isWaitPress) {
         Qmsg.warning("请先执行当前的录入操作");
         return;
@@ -7420,13 +7443,13 @@
         shortCut.emptyOption(key);
         Qmsg.success("清空快捷键");
       } else {
-        let loadingQmsg = Qmsg.loading("请按下快捷键...", {
+        const loadingQmsg = Qmsg.loading("请按下快捷键...", {
           showClose: true,
           onClose() {
             shortCut.cancelEnterShortcutKeys();
           },
         });
-        let { status, option, key: isUsedKey } = await shortCut.enterShortcutKeys(key);
+        const { status, option, key: isUsedKey } = await shortCut.enterShortcutKeys(key);
         loadingQmsg.close();
         if (status) {
           log.success(["成功录入快捷键", option]);
@@ -7593,6 +7616,24 @@
         rightContainerElement.appendChild(liElement);
       }
     },
+  };
+  const UIOwn = function (getLiElementCallBack, initConfig, searchConfig, attr, props, afterAddToUListCallBack) {
+    const result = {
+      type: "own",
+      attributes: {},
+      props: {},
+      getLiElementCallBack,
+      afterAddToUListCallBack,
+    };
+    if (typeof initConfig === "object" && initConfig !== null && Object.keys(initConfig).length > 0) {
+      Reflect.set(result.attributes, ATTRIBUTE_INIT_MORE_VALUE, initConfig);
+    } else {
+      Reflect.set(result.attributes, ATTRIBUTE_INIT, () => false);
+    }
+    if (typeof searchConfig === "object" && searchConfig !== null) {
+      Reflect.set(result.attributes, ATTRIBUTE_PLUGIN_SEARCH_CONFIG, searchConfig);
+    }
+    return result;
   };
   const SettingUICommon = {
     id: "greasy-fork-panel-config-account",
@@ -8084,34 +8125,31 @@
                     void 0,
                     i18next.t("作用域：脚本、脚本搜索、用户主页")
                   ),
-                  {
-                    type: "own",
-                    getLiElementCallBack(liElement) {
-                      let textareaDiv = domUtils.createElement(
-                        "div",
-                        {
-                          className: "pops-panel-textarea",
-                          innerHTML: `
+                  UIOwn(($li) => {
+                    const textareaDiv = domUtils.createElement(
+                      "div",
+                      {
+                        className: "pops-panel-textarea",
+                        innerHTML: `
 												<textarea placeholder="${i18next.t("请输入规则，每行一个")}" style="height:200px;"></textarea>`,
-                        },
-                        {
-                          style: "width: 100%;",
-                        }
-                      );
-                      let $textarea = textareaDiv.querySelector("textarea");
-                      $textarea.value = GreasyforkScriptsFilter.getValue();
-                      domUtils.on(
-                        $textarea,
-                        ["input", "propertychange"],
-                        void 0,
-                        utils.debounce(function (event) {
-                          GreasyforkScriptsFilter.setValue($textarea.value);
-                        }, 200)
-                      );
-                      liElement.appendChild(textareaDiv);
-                      return liElement;
-                    },
-                  },
+                      },
+                      {
+                        style: "width: 100%;",
+                      }
+                    );
+                    const $textarea = textareaDiv.querySelector("textarea");
+                    $textarea.value = GreasyforkScriptsFilter.getValue();
+                    domUtils.on(
+                      $textarea,
+                      ["input", "propertychange"],
+                      void 0,
+                      utils.debounce(function (event) {
+                        GreasyforkScriptsFilter.setValue($textarea.value);
+                      }, 200)
+                    );
+                    $li.appendChild(textareaDiv);
+                    return $li;
+                  }),
                 ],
               },
             ],
@@ -8421,30 +8459,25 @@
                 text: "",
                 type: "forms",
                 forms: [
-                  {
-                    type: "own",
-                    attributes: {
-                      "data-key": "discussions-readBgColor",
-                      "data-default-value": "#e5e5e5",
-                    },
-                    getLiElementCallBack(liElement) {
-                      let key = "discussions-readBgColor";
-                      let $left = domUtils.createElement("div", {
+                  UIOwn(
+                    ($li) => {
+                      const key = "discussions-readBgColor";
+                      const $left = domUtils.createElement("div", {
                         className: "pops-panel-item-left-text",
                         innerHTML: `
 											<p class="pops-panel-item-left-main-text">${i18next.t("自定义已读颜色")}</p>
 											<p class="pops-panel-item-left-desc-text">${i18next.t("在讨论内生效")}</p>
 											`,
                       });
-                      let $right = domUtils.createElement("div", {
+                      const $right = domUtils.createElement("div", {
                         className: "pops-panel-item-right",
                         innerHTML: `
 											<input type="color" class="pops-color-choose" />
 											`,
                       });
-                      let $color = $right.querySelector(".pops-color-choose");
+                      const $color = $right.querySelector(".pops-color-choose");
                       $color.value = Panel.getValue(key);
-                      let $style = domUtils.createElement("style");
+                      const $style = domUtils.createElement("style");
                       domUtils.append(document.head, $style);
                       domUtils.on($color, ["input", "propertychange"], (event) => {
                         log.info("选择颜色：" + $color.value);
@@ -8455,11 +8488,18 @@
 												`;
                         Panel.setValue(key, $color.value);
                       });
-                      liElement.appendChild($left);
-                      liElement.appendChild($right);
-                      return liElement;
+                      $li.appendChild($left);
+                      $li.appendChild($right);
+                      return $li;
                     },
-                  },
+                    {
+                      "discussions-readBgColor": "#e5e5e5",
+                    },
+                    {
+                      text: i18next.t("自定义已读颜色"),
+                      desc: i18next.t("在讨论内生效"),
+                    }
+                  ),
                   UISwitch(
                     i18next.t("添加【过滤】按钮"),
                     "discussions-addShortcutOperationButton",
@@ -8502,34 +8542,30 @@
                     void 0,
                     i18next.t("过滤掉重复的评论数量(≥2)")
                   ),
-                  {
-                    type: "own",
-                    getLiElementCallBack(liElement) {
-                      let textareaDiv = domUtils.createElement(
-                        "div",
-                        {
-                          className: "pops-panel-textarea",
-                          innerHTML: `
-										<textarea placeholder="${i18next.t("请输入规则，每行一个")}" style="height:200px;"></textarea>`,
-                        },
-                        {
-                          style: "width: 100%;",
-                        }
-                      );
-                      let $textarea = textareaDiv.querySelector("textarea");
-                      $textarea.value = GreasyforkDiscussionsFilter.getValue();
-                      domUtils.on(
-                        $textarea,
-                        ["input", "propertychange"],
-                        void 0,
-                        utils.debounce(function (event) {
-                          GreasyforkDiscussionsFilter.setValue($textarea.value);
-                        }, 200)
-                      );
-                      liElement.appendChild(textareaDiv);
-                      return liElement;
-                    },
-                  },
+                  UIOwn(($li) => {
+                    const $textareaWrapper = domUtils.createElement(
+                      "div",
+                      {
+                        className: "pops-panel-textarea",
+                        innerHTML: `<textarea placeholder="${i18next.t("请输入规则，每行一个")}" style="height:200px;"></textarea>`,
+                      },
+                      {
+                        style: "width: 100%;",
+                      }
+                    );
+                    const $textarea = $textareaWrapper.querySelector("textarea");
+                    $textarea.value = GreasyforkDiscussionsFilter.getValue();
+                    domUtils.on(
+                      $textarea,
+                      ["input", "propertychange"],
+                      void 0,
+                      utils.debounce(function (event) {
+                        GreasyforkDiscussionsFilter.setValue($textarea.value);
+                      }, 200)
+                    );
+                    $li.appendChild($textareaWrapper);
+                    return $li;
+                  }),
                 ],
               },
             ],

@@ -15,6 +15,7 @@ import { GreasyforkRememberFormTextArea } from "@/main/GreasyforkRememberFormTex
 import { PopsPanelUISetting } from "@/main/ui-setting/PopsPanelUISetting";
 import { GreasyforkScriptsFilter } from "@/main/navigator/scripts/GreasyforkScriptsFilter";
 import { Panel } from "@components/setting/panel";
+import { UIOwn } from "@components/setting/components/ui-own";
 
 export const SettingUICommon: PopsPanelContentConfig = {
   id: "greasy-fork-panel-config-account",
@@ -506,34 +507,31 @@ export const SettingUICommon: PopsPanelContentConfig = {
                   void 0,
                   i18next.t("作用域：脚本、脚本搜索、用户主页")
                 ),
-                {
-                  type: "own",
-                  getLiElementCallBack(liElement) {
-                    let textareaDiv = DOMUtils.createElement(
-                      "div",
-                      {
-                        className: "pops-panel-textarea",
-                        innerHTML: `
+                UIOwn(($li) => {
+                  const textareaDiv = DOMUtils.createElement(
+                    "div",
+                    {
+                      className: "pops-panel-textarea",
+                      innerHTML: `
 												<textarea placeholder="${i18next.t("请输入规则，每行一个")}" style="height:200px;"></textarea>`,
-                      },
-                      {
-                        style: "width: 100%;",
-                      }
-                    );
-                    let $textarea = textareaDiv.querySelector<HTMLTextAreaElement>("textarea")!;
-                    $textarea.value = GreasyforkScriptsFilter.getValue();
-                    DOMUtils.on(
-                      $textarea,
-                      ["input", "propertychange"],
-                      void 0,
-                      utils.debounce(function (event) {
-                        GreasyforkScriptsFilter.setValue($textarea.value);
-                      }, 200)
-                    );
-                    liElement.appendChild(textareaDiv);
-                    return liElement;
-                  },
-                },
+                    },
+                    {
+                      style: "width: 100%;",
+                    }
+                  );
+                  const $textarea = textareaDiv.querySelector<HTMLTextAreaElement>("textarea")!;
+                  $textarea.value = GreasyforkScriptsFilter.getValue();
+                  DOMUtils.on(
+                    $textarea,
+                    ["input", "propertychange"],
+                    void 0,
+                    utils.debounce(function (event) {
+                      GreasyforkScriptsFilter.setValue($textarea.value);
+                    }, 200)
+                  );
+                  $li.appendChild(textareaDiv);
+                  return $li;
+                }),
               ],
             },
           ],

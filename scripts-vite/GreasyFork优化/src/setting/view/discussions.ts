@@ -4,6 +4,7 @@ import i18next from "i18next";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { GreasyforkDiscussionsFilter } from "@/main/navigator/discussions/GreasyforkDiscussionsFilter";
 import { Panel } from "@components/setting/panel";
+import { UIOwn } from "@components/setting/components/ui-own";
 
 export const SettingUIDiscuessions: PopsPanelContentConfig = {
   id: "greasy-fork-panel-config-discussions",
@@ -21,30 +22,25 @@ export const SettingUIDiscuessions: PopsPanelContentConfig = {
               text: "",
               type: "forms",
               forms: [
-                {
-                  type: "own",
-                  attributes: {
-                    "data-key": "discussions-readBgColor",
-                    "data-default-value": "#e5e5e5",
-                  },
-                  getLiElementCallBack(liElement) {
-                    let key = "discussions-readBgColor";
-                    let $left = DOMUtils.createElement("div", {
+                UIOwn(
+                  ($li) => {
+                    const key = "discussions-readBgColor";
+                    const $left = DOMUtils.createElement("div", {
                       className: "pops-panel-item-left-text",
                       innerHTML: `
 											<p class="pops-panel-item-left-main-text">${i18next.t("自定义已读颜色")}</p>
 											<p class="pops-panel-item-left-desc-text">${i18next.t("在讨论内生效")}</p>
 											`,
                     });
-                    let $right = DOMUtils.createElement("div", {
+                    const $right = DOMUtils.createElement("div", {
                       className: "pops-panel-item-right",
                       innerHTML: `
 											<input type="color" class="pops-color-choose" />
 											`,
                     });
-                    let $color = $right.querySelector<HTMLInputElement>(".pops-color-choose")!;
+                    const $color = $right.querySelector<HTMLInputElement>(".pops-color-choose")!;
                     $color.value = Panel.getValue(key);
-                    let $style = DOMUtils.createElement("style");
+                    const $style = DOMUtils.createElement("style");
                     DOMUtils.append(document.head, $style);
                     DOMUtils.on($color, ["input", "propertychange"], (event) => {
                       log.info("选择颜色：" + $color.value);
@@ -56,11 +52,18 @@ export const SettingUIDiscuessions: PopsPanelContentConfig = {
                       Panel.setValue(key, $color.value);
                     });
 
-                    liElement.appendChild($left);
-                    liElement.appendChild($right);
-                    return liElement;
+                    $li.appendChild($left);
+                    $li.appendChild($right);
+                    return $li;
                   },
-                },
+                  {
+                    "discussions-readBgColor": "#e5e5e5",
+                  },
+                  {
+                    text: i18next.t("自定义已读颜色"),
+                    desc: i18next.t("在讨论内生效"),
+                  }
+                ),
                 UISwitch(
                   i18next.t("添加【过滤】按钮"),
                   "discussions-addShortcutOperationButton",
@@ -103,34 +106,30 @@ export const SettingUIDiscuessions: PopsPanelContentConfig = {
                   void 0,
                   i18next.t("过滤掉重复的评论数量(≥2)")
                 ),
-                {
-                  type: "own",
-                  getLiElementCallBack(liElement) {
-                    let textareaDiv = DOMUtils.createElement(
-                      "div",
-                      {
-                        className: "pops-panel-textarea",
-                        innerHTML: `
-										<textarea placeholder="${i18next.t("请输入规则，每行一个")}" style="height:200px;"></textarea>`,
-                      },
-                      {
-                        style: "width: 100%;",
-                      }
-                    );
-                    let $textarea = textareaDiv.querySelector<HTMLTextAreaElement>("textarea")!;
-                    $textarea.value = GreasyforkDiscussionsFilter.getValue();
-                    DOMUtils.on(
-                      $textarea,
-                      ["input", "propertychange"],
-                      void 0,
-                      utils.debounce(function (event) {
-                        GreasyforkDiscussionsFilter.setValue($textarea.value);
-                      }, 200)
-                    );
-                    liElement.appendChild(textareaDiv);
-                    return liElement;
-                  },
-                },
+                UIOwn(($li) => {
+                  const $textareaWrapper = DOMUtils.createElement(
+                    "div",
+                    {
+                      className: "pops-panel-textarea",
+                      innerHTML: /*html*/ `<textarea placeholder="${i18next.t("请输入规则，每行一个")}" style="height:200px;"></textarea>`,
+                    },
+                    {
+                      style: "width: 100%;",
+                    }
+                  );
+                  const $textarea = $textareaWrapper.querySelector<HTMLTextAreaElement>("textarea")!;
+                  $textarea.value = GreasyforkDiscussionsFilter.getValue();
+                  DOMUtils.on(
+                    $textarea,
+                    ["input", "propertychange"],
+                    void 0,
+                    utils.debounce(function (event) {
+                      GreasyforkDiscussionsFilter.setValue($textarea.value);
+                    }, 200)
+                  );
+                  $li.appendChild($textareaWrapper);
+                  return $li;
+                }),
               ],
             },
           ],

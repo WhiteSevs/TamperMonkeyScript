@@ -74,10 +74,18 @@ export const GreasyforkForum = {
    */
   readBgColor() {
     log.info("设置已读背景颜色");
-    let color = Panel.getValue("discussions-readBgColor");
+    const color = Panel.getValue<string>("discussions-readBgColor");
+    const colorConversion = new utils.ColorConversion();
+    // @ts-ignore
+    const darkColor = colorConversion.getDarkColor(color, 0.8);
     return addStyle(/*css*/ `
         .discussion-read{
             background: ${color} !important;
+        }
+        @media (prefers-color-scheme: dark){
+            .discussion-read{
+                background: ${darkColor} !important;
+            }
         }
         `);
   },
