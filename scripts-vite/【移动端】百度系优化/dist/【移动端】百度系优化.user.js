@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.21
+// @version      2025.10.23
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -15,7 +15,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/showdown/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/vue@3.5.22/dist/vue.global.prod.js
@@ -82,7 +82,7 @@
       return (mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports);
     };
   var require_entrance_001 = __commonJS({
-    "entrance-BQjwY7Aw.js"(exports, module) {
+    "entrance-DuCJ15q1.js"(exports, module) {
       var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
       var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
       var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
@@ -247,6 +247,7 @@
       const ATTRIBUTE_KEY = "data-key";
       const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
       const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
+      const ATTRIBUTE_PLUGIN_SEARCH_CONFIG = "data-plugin-search-config";
       const PROPS_STORAGE_API = "data-storage-api";
       const PanelSizeUtil = {
         get width() {
@@ -1246,7 +1247,8 @@
             let moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
             if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
               Object.keys(moreMenuDefaultConfig).forEach((key2) => {
-                menuDefaultConfig.set(key2, moreMenuDefaultConfig[key2]);
+                const defaultValue = moreMenuDefaultConfig[key2];
+                menuDefaultConfig.set(key2, defaultValue);
               });
             }
             if (!menuDefaultConfig.size) {
@@ -1858,8 +1860,22 @@
                     }
                     loopContentConfig(child_forms, deepMenuPath);
                   } else {
-                    const text = Reflect.get(configItem, "text");
-                    const description = Reflect.get(configItem, "description");
+                    let text;
+                    let description;
+                    if (configItem.type === "own") {
+                      const searchConfig = Reflect.get(configItem.attributes || {}, ATTRIBUTE_PLUGIN_SEARCH_CONFIG);
+                      if (searchConfig) {
+                        if (typeof searchConfig.text === "string") {
+                          text = searchConfig.text;
+                        }
+                        if (typeof searchConfig.desc === "string") {
+                          description = searchConfig.desc;
+                        }
+                      }
+                    } else {
+                      text = Reflect.get(configItem, "text");
+                      description = Reflect.get(configItem, "description");
+                    }
                     const delayMatchedTextList = [text, description];
                     const matchedIndex = delayMatchedTextList.findIndex((configText) => {
                       if (typeof configText !== "string") {
@@ -9778,7 +9794,7 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
         afterAddToUListCallBack,
         valueChangeCallback
       ) {
-        let result = {
+        const result = {
           text,
           type: "input",
           isNumber: Boolean(isNumber2),
@@ -9788,11 +9804,11 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
           description,
           afterAddToUListCallBack,
           getValue() {
-            let storageApiValue = this.props[PROPS_STORAGE_API];
+            const storageApiValue = this.props[PROPS_STORAGE_API];
             return storageApiValue.get(key, defaultValue);
           },
           callback(event, value, valueAsNumber) {
-            let storageApiValue = this.props[PROPS_STORAGE_API];
+            const storageApiValue = this.props[PROPS_STORAGE_API];
             storageApiValue.set(key, value);
           },
           placeholder,
@@ -9819,7 +9835,7 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
         disabled,
         valueChangeCallBack
       ) {
-        let result = {
+        const result = {
           text,
           type: "switch",
           description,
@@ -9827,20 +9843,20 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
           attributes: {},
           props: {},
           getValue() {
-            let storageApiValue = this.props[PROPS_STORAGE_API];
-            let value = storageApiValue.get(key, defaultValue);
+            const storageApiValue = this.props[PROPS_STORAGE_API];
+            const value = storageApiValue.get(key, defaultValue);
             return value;
           },
           callback(event, __value) {
-            let value = Boolean(__value);
+            const value = Boolean(__value);
             log.success(`${value ? "开启" : "关闭"} ${text}`);
             if (typeof clickCallBack === "function") {
-              let result2 = clickCallBack(event, value);
+              const result2 = clickCallBack(event, value);
               if (result2) {
                 return;
               }
             }
-            let storageApiValue = this.props[PROPS_STORAGE_API];
+            const storageApiValue = this.props[PROPS_STORAGE_API];
             storageApiValue.set(key, value);
           },
           afterAddToUListCallBack,
@@ -10825,7 +10841,7 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
         disabled,
         valueChangeCallBack
       ) {
-        let result = {
+        const result = {
           text,
           type: "textarea",
           attributes: {},
@@ -10834,15 +10850,15 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
           placeholder,
           disabled,
           getValue() {
-            let storageApiValue = this.props[PROPS_STORAGE_API];
-            let value = storageApiValue.get(key, defaultValue);
+            const storageApiValue = this.props[PROPS_STORAGE_API];
+            const value = storageApiValue.get(key, defaultValue);
             if (Array.isArray(value)) {
               return value.join("\n");
             }
             return value;
           },
           callback(event, value) {
-            let storageApiValue = this.props[PROPS_STORAGE_API];
+            const storageApiValue = this.props[PROPS_STORAGE_API];
             storageApiValue.set(key, value);
           },
         };
@@ -29562,26 +29578,26 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
         } else {
           selectData = data;
         }
-        let result = {
+        const result = {
           text,
           type: "select",
           description,
           attributes: {},
           props: {},
           getValue() {
-            let storageApiValue = this.props[PROPS_STORAGE_API];
+            const storageApiValue = this.props[PROPS_STORAGE_API];
             return storageApiValue.get(key, defaultValue);
           },
           callback(event, isSelectedValue, isSelectedText) {
-            let value = isSelectedValue;
+            const value = isSelectedValue;
             log.info(`选择：${isSelectedText}`);
             if (typeof selectCallBack === "function") {
-              let result2 = selectCallBack(event, value, isSelectedText);
+              const result2 = selectCallBack(event, value, isSelectedText);
               if (result2) {
                 return;
               }
             }
-            let storageApiValue = this.props[PROPS_STORAGE_API];
+            const storageApiValue = this.props[PROPS_STORAGE_API];
             storageApiValue.set(key, value);
           },
           data: selectData,
@@ -29732,6 +29748,19 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
             ],
           },
         ],
+      };
+      const UIOwn = function (getLiElementCallBack, initConfig, searchConfig, attr, props, afterAddToUListCallBack) {
+        const result = {
+          type: "own",
+          attributes: {},
+          props: {},
+          getLiElementCallBack,
+          afterAddToUListCallBack,
+        };
+        {
+          Reflect.set(result.attributes, ATTRIBUTE_INIT, () => false);
+        }
+        return result;
       };
       const PanelSearchSettingUI = {
         id: "baidu-panel-config-search",
@@ -30018,51 +30047,53 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
                         void 0,
                         "默认拦截规则"
                       ),
-                      {
-                        type: "own",
-                        afterAddToUListCallBack(formConfig, rightContainerOptions) {
-                          let $searchShield = rightContainerOptions?.formHeaderDivElement?.querySelector(
-                            "a.baidu-search-shield-css-reset"
-                          );
-                          domUtils.on($searchShield, "click", void 0, () => {
-                            BaiduSearchBlockRule.clearLocalRule();
-                            let $textArea = rightContainerOptions.ulElement.querySelector("textarea");
-                            $textArea.value = "";
-                            Qmsg.success("已重置");
-                          });
-                        },
-                        getLiElementCallBack(liElement) {
-                          let $textAreaContainer = domUtils.createElement("div", {
+                      UIOwn(
+                        ($li) => {
+                          const $textAreaContainer = domUtils.createElement("div", {
                             className: "pops-panel-textarea baidu-search-interception-rule",
                             innerHTML: `
-									<style>
-									.baidu-search-interception-rule{
-										width: 100%;
-									}
-									.baidu-search-interception-rule textarea{
-										min-height: 3.6rem;
-										white-space: pre;
-										border-radius: 0 !important;
-									}
-									</style>
-									<textarea></textarea>
-									`,
+                      <style>
+                      .baidu-search-interception-rule{
+                        width: 100%;
+                      }
+                      .baidu-search-interception-rule textarea{
+                        min-height: 3.6rem;
+                        white-space: pre;
+                        border-radius: 0 !important;
+                      }
+                      </style>
+                      <textarea></textarea>
+									    `,
                           });
-                          let $textArea = $textAreaContainer.querySelector("textarea");
-                          let customRule = BaiduSearchBlockRule.getLocalRule();
+                          const $textArea = $textAreaContainer.querySelector("textarea");
+                          const customRule = BaiduSearchBlockRule.getLocalRule();
                           $textArea.value = customRule;
-                          liElement.appendChild($textAreaContainer);
+                          $li.appendChild($textAreaContainer);
                           domUtils.on(
                             $textArea,
                             ["input", "propertychange"],
-                            void 0,
                             utils.debounce(function () {
                               BaiduSearchBlockRule.setLocalRule($textArea.value);
                             }, 100)
                           );
-                          return liElement;
+                          return $li;
                         },
-                      },
+                        void 0,
+                        void 0,
+                        void 0,
+                        void 0,
+                        (formConfig, rightContainerOptions) => {
+                          const $searchShield = rightContainerOptions?.formHeaderDivElement?.querySelector(
+                            "a.baidu-search-shield-css-reset"
+                          );
+                          domUtils.on($searchShield, "click", void 0, () => {
+                            BaiduSearchBlockRule.clearLocalRule();
+                            const $textArea = rightContainerOptions.ulElement.querySelector("textarea");
+                            $textArea.value = "";
+                            Qmsg.success("已重置");
+                          });
+                        }
+                      ),
                     ],
                   },
                 ],
@@ -30075,12 +30106,10 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
                     text: "",
                     type: "forms",
                     forms: [
-                      {
-                        type: "own",
-                        getLiElementCallBack(liElement) {
-                          let $textAreaContainer = domUtils.createElement("div", {
-                            className: "pops-panel-textarea baidu-search-user-style",
-                            innerHTML: `
+                      UIOwn(($li) => {
+                        const $textAreaContainer = domUtils.createElement("div", {
+                          className: "pops-panel-textarea baidu-search-user-style",
+                          innerHTML: `
 											<style>
 											.baidu-search-user-style{
 												width: 100%;
@@ -30093,21 +30122,19 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
 											</style>
 											<textarea></textarea>
 											`,
-                          });
-                          let $textArea = $textAreaContainer.querySelector("textarea");
-                          $textArea.value = Panel.getValue("baidu-search-user-style", "");
-                          liElement.appendChild($textAreaContainer);
-                          domUtils.on(
-                            $textArea,
-                            ["input", "propertychange"],
-                            void 0,
-                            utils.debounce(function () {
-                              Panel.setValue("baidu-search-user-style", $textArea.value);
-                            }, 100)
-                          );
-                          return liElement;
-                        },
-                      },
+                        });
+                        const $textArea = $textAreaContainer.querySelector("textarea");
+                        $textArea.value = Panel.getValue("baidu-search-user-style", "");
+                        $li.appendChild($textAreaContainer);
+                        domUtils.on(
+                          $textArea,
+                          ["input", "propertychange"],
+                          utils.debounce(function () {
+                            Panel.setValue("baidu-search-user-style", $textArea.value);
+                          }, 100)
+                        );
+                        return $li;
+                      }),
                     ],
                   },
                 ],
@@ -30209,7 +30236,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
         afterAddToUListCallBack,
         disable
       ) {
-        let result = {
+        const result = {
           text,
           type: "button",
           attributes: {},

@@ -6,6 +6,7 @@ import { UISwitch } from "@components/setting/components/ui-switch";
 import Qmsg from "qmsg";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { ATTRIBUTE_KEY } from "@components/setting/panel-config";
+import { UIOwn } from "@components/setting/components/ui-own";
 
 const PanelSearchSettingUI: PopsPanelContentConfig = {
   id: "baidu-panel-config-search",
@@ -302,52 +303,54 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
                   void 0,
                   "默认拦截规则"
                 ),
-                {
-                  type: "own",
-                  afterAddToUListCallBack(formConfig, rightContainerOptions) {
-                    let $searchShield = rightContainerOptions?.formHeaderDivElement?.querySelector(
-                      "a.baidu-search-shield-css-reset"
-                    ) as HTMLAnchorElement;
-                    DOMUtils.on($searchShield, "click", void 0, () => {
-                      BaiduSearchBlockRule.clearLocalRule();
-                      let $textArea = rightContainerOptions.ulElement.querySelector("textarea");
-                      $textArea!.value = "";
-                      Qmsg.success("已重置");
-                    });
-                  },
-                  getLiElementCallBack(liElement) {
-                    let $textAreaContainer = DOMUtils.createElement("div", {
+                UIOwn(
+                  ($li) => {
+                    const $textAreaContainer = DOMUtils.createElement("div", {
                       className: "pops-panel-textarea baidu-search-interception-rule",
-                      innerHTML: `
-									<style>
-									.baidu-search-interception-rule{
-										width: 100%;
-									}
-									.baidu-search-interception-rule textarea{
-										min-height: 3.6rem;
-										white-space: pre;
-										border-radius: 0 !important;
-									}
-									</style>
-									<textarea></textarea>
-									`,
+                      innerHTML: /*html*/ `
+                      <style>
+                      .baidu-search-interception-rule{
+                        width: 100%;
+                      }
+                      .baidu-search-interception-rule textarea{
+                        min-height: 3.6rem;
+                        white-space: pre;
+                        border-radius: 0 !important;
+                      }
+                      </style>
+                      <textarea></textarea>
+									    `,
                     });
-                    let $textArea = $textAreaContainer.querySelector("textarea") as HTMLTextAreaElement;
+                    const $textArea = $textAreaContainer.querySelector("textarea") as HTMLTextAreaElement;
                     /* 自定义规则 */
-                    let customRule = BaiduSearchBlockRule.getLocalRule();
+                    const customRule = BaiduSearchBlockRule.getLocalRule();
                     $textArea!.value = customRule;
-                    liElement.appendChild($textAreaContainer);
+                    $li.appendChild($textAreaContainer);
                     DOMUtils.on(
                       $textArea,
                       ["input", "propertychange"],
-                      void 0,
                       utils.debounce(function () {
                         BaiduSearchBlockRule.setLocalRule($textArea.value);
                       }, 100)
                     );
-                    return liElement;
+                    return $li;
                   },
-                },
+                  void 0,
+                  void 0,
+                  void 0,
+                  void 0,
+                  (formConfig, rightContainerOptions) => {
+                    const $searchShield = rightContainerOptions?.formHeaderDivElement?.querySelector(
+                      "a.baidu-search-shield-css-reset"
+                    ) as HTMLAnchorElement;
+                    DOMUtils.on($searchShield, "click", void 0, () => {
+                      BaiduSearchBlockRule.clearLocalRule();
+                      const $textArea = rightContainerOptions.ulElement.querySelector("textarea");
+                      $textArea!.value = "";
+                      Qmsg.success("已重置");
+                    });
+                  }
+                ),
               ],
             },
           ],
@@ -360,12 +363,10 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
               text: "",
               type: "forms",
               forms: [
-                {
-                  type: "own",
-                  getLiElementCallBack(liElement) {
-                    let $textAreaContainer = DOMUtils.createElement("div", {
-                      className: "pops-panel-textarea baidu-search-user-style",
-                      innerHTML: `
+                UIOwn(($li) => {
+                  const $textAreaContainer = DOMUtils.createElement("div", {
+                    className: "pops-panel-textarea baidu-search-user-style",
+                    innerHTML: /*html*/ `
 											<style>
 											.baidu-search-user-style{
 												width: 100%;
@@ -378,22 +379,20 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
 											</style>
 											<textarea></textarea>
 											`,
-                    });
-                    let $textArea = $textAreaContainer.querySelector("textarea") as HTMLTextAreaElement;
-                    /* 自定义样式 */
-                    $textArea.value = Panel.getValue("baidu-search-user-style", "");
-                    liElement.appendChild($textAreaContainer);
-                    DOMUtils.on(
-                      $textArea,
-                      ["input", "propertychange"],
-                      void 0,
-                      utils.debounce(function () {
-                        Panel.setValue("baidu-search-user-style", $textArea.value);
-                      }, 100)
-                    );
-                    return liElement;
-                  },
-                },
+                  });
+                  const $textArea = $textAreaContainer.querySelector("textarea")!;
+                  /* 自定义样式 */
+                  $textArea.value = Panel.getValue("baidu-search-user-style", "");
+                  $li.appendChild($textAreaContainer);
+                  DOMUtils.on(
+                    $textArea,
+                    ["input", "propertychange"],
+                    utils.debounce(function () {
+                      Panel.setValue("baidu-search-user-style", $textArea.value);
+                    }, 100)
+                  );
+                  return $li;
+                }),
               ],
             },
           ],
