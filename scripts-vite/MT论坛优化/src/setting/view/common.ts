@@ -244,17 +244,18 @@ export const Component_Common: PopsPanelContentConfig = {
               text: "<a href='https://ezgif.com/resize' target='_blank'>Resize Image</a>",
               type: "forms",
               forms: [
-                UIOwn(($li) => {
-                  let $left = DOMUtils.createElement("div", {
-                    className: "pops-panel-item-left-text",
-                    innerHTML: /*html*/ `
+                UIOwn(
+                  ($li) => {
+                    const $left = DOMUtils.createElement("div", {
+                      className: "pops-panel-item-left-text",
+                      innerHTML: /*html*/ `
 											<p class="pops-panel-item-left-main-text">头像（有缓存）</p>
 											<p class="pops-panel-item-left-desc-text">小、中、大</p>
 											`,
-                  });
-                  let $right = DOMUtils.createElement("div", {
-                    className: "pops-panel-avatar-img",
-                    innerHTML: /*html*/ `
+                    });
+                    const $right = DOMUtils.createElement("div", {
+                      className: "pops-panel-avatar-img",
+                      innerHTML: /*html*/ `
 											<img 
 												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=small"
 												class="avatar-img" data-size="small">
@@ -265,9 +266,9 @@ export const Component_Common: PopsPanelContentConfig = {
 												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=big"
 												class="avatar-img" data-size="big">
 											`,
-                  });
-                  let $style = DOMUtils.createElement("style", {
-                    innerHTML: /*css*/ `
+                    });
+                    const $style = DOMUtils.createElement("style", {
+                      innerHTML: /*css*/ `
 											.avatar-img {
 												width: 30px;
 												height: 30px;
@@ -275,26 +276,33 @@ export const Component_Common: PopsPanelContentConfig = {
 												overflow: hidden;
 											}
 										`,
-                  });
-                  let $small = $right.querySelector<HTMLImageElement>(".avatar-img[data-size='small']")!;
-                  let $middle = $right.querySelector<HTMLImageElement>(".avatar-img[data-size='middle']")!;
-                  let $big = $right.querySelector<HTMLImageElement>(".avatar-img[data-size='big']")!;
-                  $li.appendChild($left);
-                  $li.appendChild($right);
-                  $li.appendChild($style);
-                  return $li;
-                }),
-                UIOwn(($li) => {
-                  let $left = DOMUtils.createElement("div", {
-                    className: "pops-panel-item-left-text",
-                    innerHTML: /*html*/ `
+                    });
+                    const $small = $right.querySelector<HTMLImageElement>(".avatar-img[data-size='small']")!;
+                    const $middle = $right.querySelector<HTMLImageElement>(".avatar-img[data-size='middle']")!;
+                    const $big = $right.querySelector<HTMLImageElement>(".avatar-img[data-size='big']")!;
+                    $li.appendChild($left);
+                    $li.appendChild($right);
+                    $li.appendChild($style);
+                    return $li;
+                  },
+                  void 0,
+                  {
+                    text: "头像（有缓存）",
+                    desc: "小、中、大",
+                  }
+                ),
+                UIOwn(
+                  ($li) => {
+                    const $left = DOMUtils.createElement("div", {
+                      className: "pops-panel-item-left-text",
+                      innerHTML: /*html*/ `
 											<p class="pops-panel-item-left-main-text">头像</p>
 											<p class="pops-panel-item-left-desc-text">小、中、大</p>
 											`,
-                  });
-                  let $right = DOMUtils.createElement("div", {
-                    className: "pops-panel-avatar-img",
-                    innerHTML: /*html*/ `
+                    });
+                    const $right = DOMUtils.createElement("div", {
+                      className: "pops-panel-avatar-img",
+                      innerHTML: /*html*/ `
 											<img 
 												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=small&ts=${Date.now()}"
 												class="avatar-img" data-size="small">
@@ -305,11 +313,17 @@ export const Component_Common: PopsPanelContentConfig = {
 												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=big&ts=${Date.now()}"
 												class="avatar-img" data-size="big">
 											`,
-                  });
-                  $li.appendChild($left);
-                  $li.appendChild($right);
-                  return $li;
-                }),
+                    });
+                    $li.appendChild($left);
+                    $li.appendChild($right);
+                    return $li;
+                  },
+                  void 0,
+                  {
+                    text: "头像",
+                    desc: "小、中、大",
+                  }
+                ),
                 UIButton(
                   "修改头像",
                   `可以上传gif图片，注意图片最大限制为${Utils.formatByteToSize(
