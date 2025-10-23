@@ -34,18 +34,18 @@ export const UIButtonShortCut = function (
   buttonType: PopsButtonStyleType = "default",
   shortCut: ShortCut
 ) {
-  let __defaultButtonText = typeof defaultButtonText === "function" ? defaultButtonText() : defaultButtonText;
+  const __defaultButtonText = typeof defaultButtonText === "function" ? defaultButtonText() : defaultButtonText;
   if (typeof defaultValue === "object") {
     // 初始化配置
     shortCut.initConfig(key, defaultValue);
   }
   // 获取按钮文字
-  let getButtonText = () => {
+  const getButtonText = () => {
     return shortCut.getShowText(key, __defaultButtonText);
   };
-  let result = UIButton(text, description, getButtonText, "keyboard", false, false, buttonType, async (event) => {
-    let $click = event.target as HTMLDivElement;
-    let $btn = $click.closest(".pops-panel-button")?.querySelector<HTMLSpanElement>("span")!;
+  const result = UIButton(text, description, getButtonText, "keyboard", false, false, buttonType, async (event) => {
+    const $click = event.target as HTMLDivElement;
+    const $btn = $click.closest(".pops-panel-button")?.querySelector<HTMLSpanElement>("span")!;
     if (shortCut.isWaitPress) {
       Qmsg.warning("请先执行当前的录入操作");
       return;
@@ -57,13 +57,13 @@ export const UIButtonShortCut = function (
     } else {
       // 不存在快捷键
       // 录入快捷键
-      let loadingQmsg = Qmsg.loading("请按下快捷键...", {
+      const loadingQmsg = Qmsg.loading("请按下快捷键...", {
         showClose: true,
         onClose() {
           shortCut.cancelEnterShortcutKeys();
         },
       });
-      let { status, option, key: isUsedKey } = await shortCut.enterShortcutKeys(key);
+      const { status, option, key: isUsedKey } = await shortCut.enterShortcutKeys(key);
       loadingQmsg.close();
       if (status) {
         log.success(["成功录入快捷键", option]);

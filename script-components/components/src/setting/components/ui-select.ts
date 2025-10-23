@@ -47,27 +47,31 @@ export const UISelect = function <T extends any>(
   } else {
     selectData = data;
   }
-  let result: PopsPanelSelectDetails<T> = {
+  const result: PopsPanelSelectDetails<T> = {
     text: text,
     type: "select",
     description: description,
     attributes: {},
     props: {},
     getValue() {
-      let storageApiValue = this.props![PROPS_STORAGE_API as keyof typeof this.props] as PanelComponentsStorageApiValue;
+      const storageApiValue = this.props![
+        PROPS_STORAGE_API as keyof typeof this.props
+      ] as PanelComponentsStorageApiValue;
       return storageApiValue.get(key, defaultValue);
     },
     callback(event, isSelectedValue, isSelectedText) {
-      let value = isSelectedValue;
+      const value = isSelectedValue;
       log.info(`选择：${isSelectedText}`);
 
       if (typeof selectCallBack === "function") {
-        let result = selectCallBack(event, value, isSelectedText);
+        const result = selectCallBack(event, value, isSelectedText);
         if (result) {
           return;
         }
       }
-      let storageApiValue = this.props![PROPS_STORAGE_API as keyof typeof this.props] as PanelComponentsStorageApiValue;
+      const storageApiValue = this.props![
+        PROPS_STORAGE_API as keyof typeof this.props
+      ] as PanelComponentsStorageApiValue;
       storageApiValue.set(key, value);
 
       if (typeof valueChangeCallBack === "function") {

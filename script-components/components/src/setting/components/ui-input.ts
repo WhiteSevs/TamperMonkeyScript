@@ -42,7 +42,7 @@ export const UIInput = function <T extends boolean>(
     valueAsNumber: T extends true ? number : number | undefined
   ) => void | boolean
 ) {
-  let result: PopsPanelInputDetails = {
+  const result: PopsPanelInputDetails = {
     text: text,
     type: "input",
     isNumber: Boolean(isNumber),
@@ -52,17 +52,21 @@ export const UIInput = function <T extends boolean>(
     description: description,
     afterAddToUListCallBack: afterAddToUListCallBack,
     getValue() {
-      let storageApiValue = this.props![PROPS_STORAGE_API as keyof typeof this.props] as PanelComponentsStorageApiValue;
+      const storageApiValue = this.props![
+        PROPS_STORAGE_API as keyof typeof this.props
+      ] as PanelComponentsStorageApiValue;
       return storageApiValue.get<any>(key, defaultValue);
     },
     callback(event, value, valueAsNumber) {
       if (typeof changeCallback === "function") {
-        let result = changeCallback(event, value, valueAsNumber!);
+        const result = changeCallback(event, value, valueAsNumber!);
         if (result) {
           return;
         }
       }
-      let storageApiValue = this.props![PROPS_STORAGE_API as keyof typeof this.props] as PanelComponentsStorageApiValue;
+      const storageApiValue = this.props![
+        PROPS_STORAGE_API as keyof typeof this.props
+      ] as PanelComponentsStorageApiValue;
       storageApiValue.set(key, value);
 
       if (typeof valueChangeCallback === "function") {

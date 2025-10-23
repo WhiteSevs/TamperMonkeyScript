@@ -29,7 +29,7 @@ export const UISwitch = function (
   disabled?: boolean | (() => boolean) | undefined,
   valueChangeCallBack?: ((event: MouseEvent | PointerEvent, value: boolean) => boolean | void) | undefined
 ) {
-  let result: PopsPanelSwitchDetails = {
+  const result: PopsPanelSwitchDetails = {
     text: text,
     type: "switch",
     description: description,
@@ -37,22 +37,26 @@ export const UISwitch = function (
     attributes: {},
     props: {},
     getValue() {
-      let storageApiValue = this.props![PROPS_STORAGE_API as keyof typeof this.props] as PanelComponentsStorageApiValue;
-      let value = storageApiValue.get(key, defaultValue)!;
+      const storageApiValue = this.props![
+        PROPS_STORAGE_API as keyof typeof this.props
+      ] as PanelComponentsStorageApiValue;
+      const value = storageApiValue.get(key, defaultValue)!;
 
       return value;
     },
     callback(event: MouseEvent | PointerEvent, __value: boolean) {
-      let value = Boolean(__value);
+      const value = Boolean(__value);
       log.success(`${value ? "开启" : "关闭"} ${text}`);
       if (typeof clickCallBack === "function") {
-        let result = clickCallBack(event, value);
+        const result = clickCallBack(event, value);
         if (result) {
           return;
         }
       }
 
-      let storageApiValue = this.props![PROPS_STORAGE_API as keyof typeof this.props] as PanelComponentsStorageApiValue;
+      const storageApiValue = this.props![
+        PROPS_STORAGE_API as keyof typeof this.props
+      ] as PanelComponentsStorageApiValue;
       storageApiValue.set(key, value);
 
       if (typeof valueChangeCallBack === "function") {

@@ -33,7 +33,7 @@ export const UISelectMultiple = function <T>(
   } else {
     selectData = data;
   }
-  let result: PopsPanelSelectMultipleDetails<T> = {
+  const result: PopsPanelSelectMultipleDetails<T> = {
     text: text,
     type: "select-multiple",
     description: description,
@@ -41,20 +41,24 @@ export const UISelectMultiple = function <T>(
     attributes: {},
     props: {},
     getValue() {
-      let storageApiValue = this.props![PROPS_STORAGE_API as keyof typeof this.props] as PanelComponentsStorageApiValue;
+      const storageApiValue = this.props![
+        PROPS_STORAGE_API as keyof typeof this.props
+      ] as PanelComponentsStorageApiValue;
       return storageApiValue.get(key, defaultValue);
     },
     selectConfirmDialogDetails: selectConfirmDialogDetails,
     callback(selectInfo) {
-      let storageApiValue = this.props![PROPS_STORAGE_API as keyof typeof this.props] as PanelComponentsStorageApiValue;
-      let value: T[] = [];
+      const storageApiValue = this.props![
+        PROPS_STORAGE_API as keyof typeof this.props
+      ] as PanelComponentsStorageApiValue;
+      const value: T[] = [];
       selectInfo.forEach((selectedInfo) => {
         value.push(selectedInfo.value);
       });
       log.info(`多选-选择：`, value);
 
       if (typeof selectCallBack === "function") {
-        let result = selectCallBack(selectInfo);
+        const result = selectCallBack(selectInfo);
         if (result) {
           return;
         }

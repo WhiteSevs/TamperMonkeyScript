@@ -28,14 +28,16 @@ export const UISlider = function (
   step?: number,
   valueChangeCallBack?: ((event: InputEvent, value: number) => boolean | void) | undefined
 ): PopsPanelSliderDetails {
-  let result: PopsPanelSliderDetails = {
+  const result: PopsPanelSliderDetails = {
     text: text,
     type: "slider",
     description: description,
     attributes: {},
     props: {},
     getValue() {
-      let storageApiValue = this.props![PROPS_STORAGE_API as keyof typeof this.props] as PanelComponentsStorageApiValue;
+      const storageApiValue = this.props![
+        PROPS_STORAGE_API as keyof typeof this.props
+      ] as PanelComponentsStorageApiValue;
       return storageApiValue.get(key, defaultValue);
     },
     getToolTipContent(value) {
@@ -47,12 +49,14 @@ export const UISlider = function (
     },
     callback(event, value) {
       if (typeof changeCallback === "function") {
-        let result = changeCallback(event, value);
+        const result = changeCallback(event, value);
         if (result) {
           return;
         }
       }
-      let storageApiValue = this.props![PROPS_STORAGE_API as keyof typeof this.props] as PanelComponentsStorageApiValue;
+      const storageApiValue = this.props![
+        PROPS_STORAGE_API as keyof typeof this.props
+      ] as PanelComponentsStorageApiValue;
       storageApiValue.set(key, value);
 
       if (typeof valueChangeCallBack === "function") {

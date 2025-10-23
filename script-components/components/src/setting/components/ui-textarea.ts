@@ -24,7 +24,7 @@ export const UITextArea = function (
   disabled?: boolean,
   valueChangeCallBack?: ((event: InputEvent, value: string) => void | boolean) | undefined
 ) {
-  let result: PopsPanelTextAreaDetails = {
+  const result: PopsPanelTextAreaDetails = {
     text: text,
     type: "textarea",
     attributes: {},
@@ -33,8 +33,10 @@ export const UITextArea = function (
     placeholder: placeholder,
     disabled: disabled,
     getValue() {
-      let storageApiValue = this.props![PROPS_STORAGE_API as keyof typeof this.props] as PanelComponentsStorageApiValue;
-      let value = storageApiValue.get(key, defaultValue);
+      const storageApiValue = this.props![
+        PROPS_STORAGE_API as keyof typeof this.props
+      ] as PanelComponentsStorageApiValue;
+      const value = storageApiValue.get(key, defaultValue);
 
       if (Array.isArray(value)) {
         // 处理数组的情况
@@ -45,12 +47,14 @@ export const UITextArea = function (
     },
     callback(event, value) {
       if (typeof changeCallback === "function") {
-        let result = changeCallback(event, value);
+        const result = changeCallback(event, value);
         if (result) {
           return;
         }
       }
-      let storageApiValue = this.props![PROPS_STORAGE_API as keyof typeof this.props] as PanelComponentsStorageApiValue;
+      const storageApiValue = this.props![
+        PROPS_STORAGE_API as keyof typeof this.props
+      ] as PanelComponentsStorageApiValue;
       storageApiValue.set(key, value);
 
       if (typeof valueChangeCallBack === "function") {

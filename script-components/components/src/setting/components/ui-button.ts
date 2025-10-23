@@ -32,7 +32,7 @@ export const UIButton = function (
     | undefined,
   disable?: boolean | undefined | (() => boolean)
 ): PopsPanelButtonDetails {
-  let result: PopsPanelButtonDetails = {
+  const result: PopsPanelButtonDetails = {
     text: text,
     type: "button",
     attributes: {},
