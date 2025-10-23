@@ -8,6 +8,7 @@ import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components
 import { AutoOpenOrClose } from "../all-open-or-close";
 import { UIButtonShortCut } from "@components/setting/components/ui-button-shortcut";
 import { DouYinLiveShortCut } from "@/main/live/DouYinLiveShortCut";
+import { UIOwn } from "@components/setting/components/ui-own";
 
 export const PanelLiveConfig: PopsPanelContentConfig = {
   id: "panel-config-live",
@@ -73,38 +74,40 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
               type: "forms",
               forms: [
                 UISwitch("启用", "live-bgColor-enable", false, void 0, "自定义视频背景色"),
-                {
-                  type: "own",
-                  attributes: {
-                    "data-key": "live-changeBackgroundColor",
-                    "data-default-value": "#000000",
-                  },
-                  getLiElementCallBack(liElement) {
-                    let $left = DOMUtils.createElement("div", {
+                UIOwn(
+                  ($li) => {
+                    const $left = DOMUtils.createElement("div", {
                       className: "pops-panel-item-left-text",
-                      innerHTML: `
+                      innerHTML: /*html*/ `
 											<p class="pops-panel-item-left-main-text">视频背景颜色</p>
 											<p class="pops-panel-item-left-desc-text">自定义视频背景颜色</p>
 											`,
                     });
-                    let $right = DOMUtils.createElement("div", {
+                    const $right = DOMUtils.createElement("div", {
                       className: "pops-panel-item-right",
-                      innerHTML: `
+                      innerHTML: /*html*/ `
 											<input type="color" class="pops-color-choose" />
 											`,
                     });
-                    let $color = $right.querySelector<HTMLInputElement>(".pops-color-choose")!;
+                    const $color = $right.querySelector<HTMLInputElement>(".pops-color-choose")!;
                     $color.value = Panel.getValue("live-changeBackgroundColor");
                     DOMUtils.on($color, ["input", "propertychange"], (event) => {
                       log.info("选择颜色：" + $color.value);
                       Panel.setValue("live-changeBackgroundColor", $color.value);
                     });
 
-                    liElement.appendChild($left);
-                    liElement.appendChild($right);
-                    return liElement;
+                    $li.appendChild($left);
+                    $li.appendChild($right);
+                    return $li;
                   },
-                },
+                  {
+                    "live-changeBackgroundColor": "#000000",
+                  },
+                  {
+                    text: "视频背景颜色",
+                    desc: "自定义视频背景颜色",
+                  }
+                ),
               ],
             },
           ],
@@ -141,33 +144,30 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
               type: "forms",
               text: "",
               forms: [
-                {
-                  type: "own",
-                  getLiElementCallBack(liElement: HTMLLIElement) {
-                    let textareaDiv = DOMUtils.createElement(
-                      "div",
-                      {
-                        className: "pops-panel-textarea",
-                        innerHTML: `<textarea placeholder="请输入屏蔽规则，每行一个\n例如：屏蔽包含'主播'的消息\n主播" style="height:350px;"></textarea>`,
-                      },
-                      {
-                        style: "width: 100%;",
-                      }
-                    );
-                    let textarea = textareaDiv.querySelector("textarea")!;
-                    textarea.value = DouYinMessageFilter.get();
-                    DOMUtils.on(
-                      textarea,
-                      ["input", "propertychange"],
-                      utils.debounce(function () {
-                        DouYinMessageFilter.set(textarea.value);
-                        DouYinMessageFilter.init();
-                      }, 1000)
-                    );
-                    liElement.appendChild(textareaDiv);
-                    return liElement;
-                  },
-                },
+                UIOwn(($li: HTMLLIElement) => {
+                  const $textareaWrapper = DOMUtils.createElement(
+                    "div",
+                    {
+                      className: "pops-panel-textarea",
+                      innerHTML: `<textarea placeholder="请输入屏蔽规则，每行一个\n例如：屏蔽包含'主播'的消息\n主播" style="height:350px;"></textarea>`,
+                    },
+                    {
+                      style: "width: 100%;",
+                    }
+                  );
+                  const textarea = $textareaWrapper.querySelector("textarea")!;
+                  textarea.value = DouYinMessageFilter.get();
+                  DOMUtils.on(
+                    textarea,
+                    ["input", "propertychange"],
+                    utils.debounce(function () {
+                      DouYinMessageFilter.set(textarea.value);
+                      DouYinMessageFilter.init();
+                    }, 1000)
+                  );
+                  $li.appendChild($textareaWrapper);
+                  return $li;
+                }),
               ],
             },
           ],

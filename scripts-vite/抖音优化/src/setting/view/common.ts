@@ -3,6 +3,7 @@ import { UISelect } from "@components/setting/components/ui-select";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { AutoOpenOrClose } from "../all-open-or-close";
+import { UIOwn } from "@components/setting/components/ui-own";
 
 /**
  * 获取渲染的显卡信息，可能是核显，也可能是独显
@@ -118,17 +119,16 @@ export const PanelCommonConfig: PopsPanelContentConfig = {
       type: "forms",
       text: "",
       forms: [
-        {
-          type: "own",
-          getLiElementCallBack(liElement) {
-            let $left = DOMUtils.createElement("div", {
+        UIOwn(
+          ($li) => {
+            const $left = DOMUtils.createElement("div", {
               className: "pops-panel-item-left-text",
               innerHTML: /*html*/ `
 							<p class="pops-panel-item-left-main-text">WebGL</p>
 							<p class="pops-panel-item-left-desc-text"></p>
 							`,
             });
-            let $leftDesc = $left.querySelector<HTMLElement>(".pops-panel-item-left-desc-text")!;
+            const $leftDesc = $left.querySelector<HTMLElement>(".pops-panel-item-left-desc-text")!;
             let gpuInfo = "";
             try {
               gpuInfo = getGPU();
@@ -137,10 +137,14 @@ export const PanelCommonConfig: PopsPanelContentConfig = {
               gpuInfo = error.toString();
             }
             DOMUtils.text($leftDesc, gpuInfo);
-            DOMUtils.append(liElement, $left);
-            return liElement;
+            DOMUtils.append($li, $left);
+            return $li;
           },
-        },
+          void 0,
+          {
+            text: "WebGL",
+          }
+        ),
         {
           text: "功能",
           type: "deepMenu",

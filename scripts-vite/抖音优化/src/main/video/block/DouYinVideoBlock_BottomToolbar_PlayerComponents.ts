@@ -64,7 +64,8 @@ export const DouYinVideoBlock_BottomToolbar_PlayerComponents = {
       // 修复屏蔽后视频信息区域未沉底
       DouYinVideoPlayer.removeStyleBottom(),
       addStyle(/*css*/ `
-        /* 视频标题往下移 */
+        /* 视频信息往下移 */
+			  #sliderVideo[data-e2e="feed-active-video"] div:has( > div > #video-info-wrap),
         div:has(> #video-info-wrap){
             bottom: 0px !important;
         }

@@ -1178,7 +1178,6 @@ export const DouYinVideoPlayer = {
   removeStyleBottom() {
     log.info(`移除video的bottom偏移`);
     return addStyle(/*css*/ `
-			#sliderVideo[data-e2e="feed-active-video"] div:has( > div > #video-info-wrap),
 			div:has( > div > pace-island > #video-info-wrap ),
 			xg-video-container.xg-video-container{
 				bottom: 0 !important;

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.22
+// @version      2025.10.23
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
@@ -54,6 +54,7 @@
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
+  const ATTRIBUTE_PLUGIN_SEARCH_CONFIG = "data-plugin-search-config";
   const PROPS_STORAGE_API = "data-storage-api";
   const PanelSizeUtil = {
     get width() {
@@ -1050,7 +1051,8 @@
         let moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
         if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
           Object.keys(moreMenuDefaultConfig).forEach((key2) => {
-            menuDefaultConfig.set(key2, moreMenuDefaultConfig[key2]);
+            const defaultValue = moreMenuDefaultConfig[key2];
+            menuDefaultConfig.set(key2, defaultValue);
           });
         }
         if (!menuDefaultConfig.size) {
@@ -1662,8 +1664,22 @@
                 }
                 loopContentConfig(child_forms, deepMenuPath);
               } else {
-                const text = Reflect.get(configItem, "text");
-                const description = Reflect.get(configItem, "description");
+                let text;
+                let description;
+                if (configItem.type === "own") {
+                  const searchConfig = Reflect.get(configItem.attributes || {}, ATTRIBUTE_PLUGIN_SEARCH_CONFIG);
+                  if (searchConfig) {
+                    if (typeof searchConfig.text === "string") {
+                      text = searchConfig.text;
+                    }
+                    if (typeof searchConfig.desc === "string") {
+                      description = searchConfig.desc;
+                    }
+                  }
+                } else {
+                  text = Reflect.get(configItem, "text");
+                  description = Reflect.get(configItem, "description");
+                }
                 const delayMatchedTextList = [text, description];
                 const matchedIndex = delayMatchedTextList.findIndex((configText) => {
                   if (typeof configText !== "string") {
@@ -3550,7 +3566,8 @@
         DouYinVideoPlayer.removeStyleBottom(),
         addStyle(
           `
-        /* 视频标题往下移 */
+        /* 视频信息往下移 */
+			  #sliderVideo[data-e2e="feed-active-video"] div:has( > div > #video-info-wrap),
         div:has(> #video-info-wrap){
             bottom: 0px !important;
         }
@@ -6050,7 +6067,6 @@
       log.info(`移除video的bottom偏移`);
       return addStyle(
         `
-			#sliderVideo[data-e2e="feed-active-video"] div:has( > div > #video-info-wrap),
 			div:has( > div > pace-island > #video-info-wrap ),
 			xg-video-container.xg-video-container{
 				bottom: 0 !important;
@@ -7462,7 +7478,7 @@
     afterAddToUListCallBack,
     valueChangeCallback
   ) {
-    let result = {
+    const result = {
       text,
       type: "input",
       isNumber: Boolean(isNumber),
@@ -7472,11 +7488,11 @@
       description,
       afterAddToUListCallBack,
       getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
       callback(event, value, valueAsNumber) {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
       placeholder,
@@ -7510,7 +7526,7 @@
     } else {
       selectData = data;
     }
-    let result = {
+    const result = {
       text,
       type: "select-multiple",
       description,
@@ -7518,13 +7534,13 @@
       attributes: {},
       props: {},
       getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
       selectConfirmDialogDetails,
       callback(selectInfo) {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
-        let value = [];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        const value = [];
         selectInfo.forEach((selectedInfo) => {
           value.push(selectedInfo.value);
         });
@@ -7555,7 +7571,7 @@
     disabled,
     valueChangeCallBack
   ) {
-    let result = {
+    const result = {
       text,
       type: "switch",
       description,
@@ -7563,14 +7579,14 @@
       attributes: {},
       props: {},
       getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
-        let value = storageApiValue.get(key, defaultValue);
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        const value = storageApiValue.get(key, defaultValue);
         return value;
       },
       callback(event, __value) {
-        let value = Boolean(__value);
+        const value = Boolean(__value);
         log.success(`${value ? "开启" : "关闭"} ${text}`);
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
         if (typeof valueChangeCallBack === "function") {
           valueChangeCallBack(event, value);
@@ -8575,7 +8591,7 @@
     disabled,
     valueChangeCallBack
   ) {
-    let result = {
+    const result = {
       text,
       type: "textarea",
       attributes: {},
@@ -8584,15 +8600,15 @@
       placeholder,
       disabled,
       getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
-        let value = storageApiValue.get(key, defaultValue);
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        const value = storageApiValue.get(key, defaultValue);
         if (Array.isArray(value)) {
           return value.join("\n");
         }
         return value;
       },
       callback(event, value) {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
     };
@@ -10266,26 +10282,26 @@
     } else {
       selectData = data;
     }
-    let result = {
+    const result = {
       text,
       type: "select",
       description,
       attributes: {},
       props: {},
       getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
       callback(event, isSelectedValue, isSelectedText) {
-        let value = isSelectedValue;
+        const value = isSelectedValue;
         log.info(`选择：${isSelectedText}`);
         if (typeof selectCallBack === "function") {
-          let result2 = selectCallBack(event, value, isSelectedText);
+          const result2 = selectCallBack(event, value, isSelectedText);
           if (result2) {
             return;
           }
         }
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
       data: selectData,
@@ -10337,6 +10353,24 @@
         <a href="javascript:;" class="keyboard-oneClickClose">取消禁用全部快捷键</a>
     `,
     afterEnterDeepMenuCallBack,
+  };
+  const UIOwn = function (getLiElementCallBack, initConfig, searchConfig, attr, props, afterAddToUListCallBack) {
+    const result = {
+      type: "own",
+      attributes: {},
+      props: {},
+      getLiElementCallBack,
+      afterAddToUListCallBack,
+    };
+    if (typeof initConfig === "object" && initConfig !== null && Object.keys(initConfig).length > 0) {
+      Reflect.set(result.attributes, ATTRIBUTE_INIT_MORE_VALUE, initConfig);
+    } else {
+      Reflect.set(result.attributes, ATTRIBUTE_INIT, () => false);
+    }
+    if (typeof searchConfig === "object" && searchConfig !== null) {
+      Reflect.set(result.attributes, ATTRIBUTE_PLUGIN_SEARCH_CONFIG, searchConfig);
+    }
+    return result;
   };
   function getGPU() {
     const isFirefox = /Firefox/.test(window.navigator.userAgent);
@@ -10449,17 +10483,16 @@
         type: "forms",
         text: "",
         forms: [
-          {
-            type: "own",
-            getLiElementCallBack(liElement) {
-              let $left = domUtils.createElement("div", {
+          UIOwn(
+            ($li) => {
+              const $left = domUtils.createElement("div", {
                 className: "pops-panel-item-left-text",
                 innerHTML: `
 							<p class="pops-panel-item-left-main-text">WebGL</p>
 							<p class="pops-panel-item-left-desc-text"></p>
 							`,
               });
-              let $leftDesc = $left.querySelector(".pops-panel-item-left-desc-text");
+              const $leftDesc = $left.querySelector(".pops-panel-item-left-desc-text");
               let gpuInfo = "";
               try {
                 gpuInfo = getGPU();
@@ -10468,10 +10501,14 @@
                 gpuInfo = error.toString();
               }
               domUtils.text($leftDesc, gpuInfo);
-              domUtils.append(liElement, $left);
-              return liElement;
+              domUtils.append($li, $left);
+              return $li;
             },
-          },
+            void 0,
+            {
+              text: "WebGL",
+            }
+          ),
           {
             text: "功能",
             type: "deepMenu",
@@ -10706,7 +10743,7 @@
     afterAddToUListCallBack,
     disable
   ) {
-    let result = {
+    const result = {
       text,
       type: "button",
       attributes: {},
@@ -10738,13 +10775,13 @@
     buttonType = "default",
     shortCut
   ) {
-    let __defaultButtonText = defaultButtonText;
-    let getButtonText = () => {
+    const __defaultButtonText = defaultButtonText;
+    const getButtonText = () => {
       return shortCut.getShowText(key, __defaultButtonText);
     };
-    let result = UIButton(text, description, getButtonText, "keyboard", false, false, buttonType, async (event) => {
-      let $click = event.target;
-      let $btn = $click.closest(".pops-panel-button")?.querySelector("span");
+    const result = UIButton(text, description, getButtonText, "keyboard", false, false, buttonType, async (event) => {
+      const $click = event.target;
+      const $btn = $click.closest(".pops-panel-button")?.querySelector("span");
       if (shortCut.isWaitPress) {
         Qmsg.warning("请先执行当前的录入操作");
         return;
@@ -10753,13 +10790,13 @@
         shortCut.emptyOption(key);
         Qmsg.success("清空快捷键");
       } else {
-        let loadingQmsg = Qmsg.loading("请按下快捷键...", {
+        const loadingQmsg = Qmsg.loading("请按下快捷键...", {
           showClose: true,
           onClose() {
             shortCut.cancelEnterShortcutKeys();
           },
         });
-        let { status, option, key: isUsedKey } = await shortCut.enterShortcutKeys(key);
+        const { status, option, key: isUsedKey } = await shortCut.enterShortcutKeys(key);
         loadingQmsg.close();
         if (status) {
           log.success(["成功录入快捷键", option]);
@@ -10788,14 +10825,14 @@
     step,
     valueChangeCallBack
   ) {
-    let result = {
+    const result = {
       text,
       type: "slider",
       description,
       attributes: {},
       props: {},
       getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
       getToolTipContent(value) {
@@ -10806,7 +10843,7 @@
         }
       },
       callback(event, value) {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
       min,
@@ -10991,29 +11028,24 @@
                 type: "forms",
                 forms: [
                   UISwitch("启用", "dy-video-bgColor-enable", false, void 0, "自定义视频背景色"),
-                  {
-                    type: "own",
-                    attributes: {
-                      "data-key": "dy-video-changeBackgroundColor",
-                      "data-default-value": "#000000",
-                    },
-                    getLiElementCallBack(liElement) {
-                      let $left = domUtils.createElement("div", {
+                  UIOwn(
+                    ($li) => {
+                      const $left = domUtils.createElement("div", {
                         className: "pops-panel-item-left-text",
                         innerHTML: `
 											<p class="pops-panel-item-left-main-text">视频背景颜色</p>
 											<p class="pops-panel-item-left-desc-text">自定义视频背景颜色，包括评论区</p>
 											`,
                       });
-                      let $right = domUtils.createElement("div", {
+                      const $right = domUtils.createElement("div", {
                         className: "pops-panel-item-right",
                         innerHTML: `
 											<input type="color" class="pops-color-choose" />
 											`,
                       });
-                      let $color = $right.querySelector(".pops-color-choose");
+                      const $color = $right.querySelector(".pops-color-choose");
                       $color.value = Panel.getValue("dy-video-changeBackgroundColor");
-                      let $style = domUtils.createElement("style");
+                      const $style = domUtils.createElement("style");
                       domUtils.append(document.head, $style);
                       domUtils.on($color, ["input", "propertychange"], (event) => {
                         log.info("选择颜色：" + $color.value);
@@ -11024,11 +11056,18 @@
 												`;
                         Panel.setValue("dy-video-changeBackgroundColor", $color.value);
                       });
-                      liElement.appendChild($left);
-                      liElement.appendChild($right);
-                      return liElement;
+                      $li.appendChild($left);
+                      $li.appendChild($right);
+                      return $li;
                     },
-                  },
+                    {
+                      "dy-video-changeBackgroundColor": "#000000",
+                    },
+                    {
+                      text: "视频背景颜色",
+                      desc: "自定义视频背景颜色，包括评论区",
+                    }
+                  ),
                 ],
               },
               {
@@ -11649,37 +11688,39 @@
                 type: "forms",
                 forms: [
                   UISwitch("启用", "live-bgColor-enable", false, void 0, "自定义视频背景色"),
-                  {
-                    type: "own",
-                    attributes: {
-                      "data-key": "live-changeBackgroundColor",
-                      "data-default-value": "#000000",
-                    },
-                    getLiElementCallBack(liElement) {
-                      let $left = domUtils.createElement("div", {
+                  UIOwn(
+                    ($li) => {
+                      const $left = domUtils.createElement("div", {
                         className: "pops-panel-item-left-text",
                         innerHTML: `
 											<p class="pops-panel-item-left-main-text">视频背景颜色</p>
 											<p class="pops-panel-item-left-desc-text">自定义视频背景颜色</p>
 											`,
                       });
-                      let $right = domUtils.createElement("div", {
+                      const $right = domUtils.createElement("div", {
                         className: "pops-panel-item-right",
                         innerHTML: `
 											<input type="color" class="pops-color-choose" />
 											`,
                       });
-                      let $color = $right.querySelector(".pops-color-choose");
+                      const $color = $right.querySelector(".pops-color-choose");
                       $color.value = Panel.getValue("live-changeBackgroundColor");
                       domUtils.on($color, ["input", "propertychange"], (event) => {
                         log.info("选择颜色：" + $color.value);
                         Panel.setValue("live-changeBackgroundColor", $color.value);
                       });
-                      liElement.appendChild($left);
-                      liElement.appendChild($right);
-                      return liElement;
+                      $li.appendChild($left);
+                      $li.appendChild($right);
+                      return $li;
                     },
-                  },
+                    {
+                      "live-changeBackgroundColor": "#000000",
+                    },
+                    {
+                      text: "视频背景颜色",
+                      desc: "自定义视频背景颜色",
+                    }
+                  ),
                 ],
               },
             ],
@@ -11716,35 +11757,32 @@
                 type: "forms",
                 text: "",
                 forms: [
-                  {
-                    type: "own",
-                    getLiElementCallBack(liElement) {
-                      let textareaDiv = domUtils.createElement(
-                        "div",
-                        {
-                          className: "pops-panel-textarea",
-                          innerHTML: `<textarea placeholder="请输入屏蔽规则，每行一个
+                  UIOwn(($li) => {
+                    const $textareaWrapper = domUtils.createElement(
+                      "div",
+                      {
+                        className: "pops-panel-textarea",
+                        innerHTML: `<textarea placeholder="请输入屏蔽规则，每行一个
 例如：屏蔽包含'主播'的消息
 主播" style="height:350px;"></textarea>`,
-                        },
-                        {
-                          style: "width: 100%;",
-                        }
-                      );
-                      let textarea = textareaDiv.querySelector("textarea");
-                      textarea.value = DouYinMessageFilter.get();
-                      domUtils.on(
-                        textarea,
-                        ["input", "propertychange"],
-                        utils.debounce(function () {
-                          DouYinMessageFilter.set(textarea.value);
-                          DouYinMessageFilter.init();
-                        }, 1e3)
-                      );
-                      liElement.appendChild(textareaDiv);
-                      return liElement;
-                    },
-                  },
+                      },
+                      {
+                        style: "width: 100%;",
+                      }
+                    );
+                    const textarea = $textareaWrapper.querySelector("textarea");
+                    textarea.value = DouYinMessageFilter.get();
+                    domUtils.on(
+                      textarea,
+                      ["input", "propertychange"],
+                      utils.debounce(function () {
+                        DouYinMessageFilter.set(textarea.value);
+                        DouYinMessageFilter.init();
+                      }, 1e3)
+                    );
+                    $li.appendChild($textareaWrapper);
+                    return $li;
+                  }),
                 ],
               },
             ],
