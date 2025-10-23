@@ -115,6 +115,6 @@ body:
   - type: textarea
     attributes:
       label: 问题描述 & 复现步骤
-      placeholder: "在这里详细叙述你的问题及具体重现步骤，可以录视频上传（支持 Markdown 语法）"
+      placeholder: "在这里详细叙述你的问题及具体重现步骤（支持 Markdown 语法），如果可以，请录视频上传以便我们定位问题。"
     validations:
       required: true
