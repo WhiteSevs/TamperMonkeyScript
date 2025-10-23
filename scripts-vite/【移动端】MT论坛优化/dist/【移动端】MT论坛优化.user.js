@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.21
+// @version      2025.10.23
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@79fb4d854f1e2cdf606339b0dac18d50104e2ebe/lib/js-watermark/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js
@@ -475,6 +475,7 @@
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
+  const ATTRIBUTE_PLUGIN_SEARCH_CONFIG = "data-plugin-search-config";
   const PROPS_STORAGE_API = "data-storage-api";
   const PanelSizeUtil = {
     get width() {
@@ -1211,7 +1212,8 @@
         let moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
         if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
           Object.keys(moreMenuDefaultConfig).forEach((key2) => {
-            menuDefaultConfig.set(key2, moreMenuDefaultConfig[key2]);
+            const defaultValue = moreMenuDefaultConfig[key2];
+            menuDefaultConfig.set(key2, defaultValue);
           });
         }
         if (!menuDefaultConfig.size) {
@@ -1823,8 +1825,22 @@
                 }
                 loopContentConfig(child_forms, deepMenuPath);
               } else {
-                const text = Reflect.get(configItem, "text");
-                const description = Reflect.get(configItem, "description");
+                let text;
+                let description;
+                if (configItem.type === "own") {
+                  const searchConfig = Reflect.get(configItem.attributes || {}, ATTRIBUTE_PLUGIN_SEARCH_CONFIG);
+                  if (searchConfig) {
+                    if (typeof searchConfig.text === "string") {
+                      text = searchConfig.text;
+                    }
+                    if (typeof searchConfig.desc === "string") {
+                      description = searchConfig.desc;
+                    }
+                  }
+                } else {
+                  text = Reflect.get(configItem, "text");
+                  description = Reflect.get(configItem, "description");
+                }
                 const delayMatchedTextList = [text, description];
                 const matchedIndex = delayMatchedTextList.findIndex((configText) => {
                   if (typeof configText !== "string") {
@@ -7263,7 +7279,7 @@
     afterAddToUListCallBack,
     valueChangeCallback
   ) {
-    let result = {
+    const result = {
       text,
       type: "input",
       isNumber: Boolean(isNumber),
@@ -7273,11 +7289,11 @@
       description,
       afterAddToUListCallBack,
       getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
       callback(event, value, valueAsNumber) {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
       placeholder,
@@ -7304,7 +7320,7 @@
     disabled,
     valueChangeCallBack
   ) {
-    let result = {
+    const result = {
       text,
       type: "switch",
       description,
@@ -7312,14 +7328,14 @@
       attributes: {},
       props: {},
       getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
-        let value = storageApiValue.get(key, defaultValue);
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        const value = storageApiValue.get(key, defaultValue);
         return value;
       },
       callback(event, __value) {
-        let value = Boolean(__value);
+        const value = Boolean(__value);
         log.success(`${value ? "开启" : "关闭"} ${text}`);
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
       afterAddToUListCallBack,
@@ -8324,7 +8340,7 @@
     disabled,
     valueChangeCallBack
   ) {
-    let result = {
+    const result = {
       text,
       type: "textarea",
       attributes: {},
@@ -8333,15 +8349,15 @@
       placeholder,
       disabled,
       getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
-        let value = storageApiValue.get(key, defaultValue);
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        const value = storageApiValue.get(key, defaultValue);
         if (Array.isArray(value)) {
           return value.join("\n");
         }
         return value;
       },
       callback(event, value) {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
     };
@@ -11124,26 +11140,26 @@
     } else {
       selectData = data;
     }
-    let result = {
+    const result = {
       text,
       type: "select",
       description,
       attributes: {},
       props: {},
       getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
       callback(event, isSelectedValue, isSelectedText) {
-        let value = isSelectedValue;
+        const value = isSelectedValue;
         log.info(`选择：${isSelectedText}`);
         if (typeof selectCallBack === "function") {
-          let result2 = selectCallBack(event, value, isSelectedText);
+          const result2 = selectCallBack(event, value, isSelectedText);
           if (result2) {
             return;
           }
         }
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
       data: selectData,
@@ -11172,7 +11188,7 @@
     afterAddToUListCallBack,
     disable
   ) {
-    let result = {
+    const result = {
       text,
       type: "button",
       attributes: {},
@@ -11195,17 +11211,20 @@
     });
     return result;
   };
-  const UIOwn = function (getLiElementCallBack, initConfig, props, afterAddToUListCallBack) {
-    let result = {
+  const UIOwn = function (getLiElementCallBack, initConfig, searchConfig, attr, props, afterAddToUListCallBack) {
+    const result = {
       type: "own",
       attributes: {},
-      props,
+      props: {},
       getLiElementCallBack,
       afterAddToUListCallBack,
     };
-    Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
-      return false;
-    });
+    {
+      Reflect.set(result.attributes, ATTRIBUTE_INIT, () => false);
+    }
+    if (typeof searchConfig === "object" && searchConfig !== null) {
+      Reflect.set(result.attributes, ATTRIBUTE_PLUGIN_SEARCH_CONFIG, searchConfig);
+    }
     return result;
   };
   const MTDyncmicAvatar = {
@@ -11696,17 +11715,18 @@
                 text: "<a href='https://ezgif.com/resize' target='_blank'>Resize Image</a>",
                 type: "forms",
                 forms: [
-                  UIOwn(($li) => {
-                    let $left = domUtils.createElement("div", {
-                      className: "pops-panel-item-left-text",
-                      innerHTML: `
+                  UIOwn(
+                    ($li) => {
+                      const $left = domUtils.createElement("div", {
+                        className: "pops-panel-item-left-text",
+                        innerHTML: `
 											<p class="pops-panel-item-left-main-text">头像（有缓存）</p>
 											<p class="pops-panel-item-left-desc-text">小、中、大</p>
 											`,
-                    });
-                    let $right = domUtils.createElement("div", {
-                      className: "pops-panel-avatar-img",
-                      innerHTML: `
+                      });
+                      const $right = domUtils.createElement("div", {
+                        className: "pops-panel-avatar-img",
+                        innerHTML: `
 											<img 
 												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=small"
 												class="avatar-img" data-size="small">
@@ -11717,9 +11737,9 @@
 												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=big"
 												class="avatar-img" data-size="big">
 											`,
-                    });
-                    let $style = domUtils.createElement("style", {
-                      innerHTML: `
+                      });
+                      const $style = domUtils.createElement("style", {
+                        innerHTML: `
 											.avatar-img {
 												width: 30px;
 												height: 30px;
@@ -11727,26 +11747,33 @@
 												overflow: hidden;
 											}
 										`,
-                    });
-                    $right.querySelector(".avatar-img[data-size='small']");
-                    $right.querySelector(".avatar-img[data-size='middle']");
-                    $right.querySelector(".avatar-img[data-size='big']");
-                    $li.appendChild($left);
-                    $li.appendChild($right);
-                    $li.appendChild($style);
-                    return $li;
-                  }),
-                  UIOwn(($li) => {
-                    let $left = domUtils.createElement("div", {
-                      className: "pops-panel-item-left-text",
-                      innerHTML: `
+                      });
+                      $right.querySelector(".avatar-img[data-size='small']");
+                      $right.querySelector(".avatar-img[data-size='middle']");
+                      $right.querySelector(".avatar-img[data-size='big']");
+                      $li.appendChild($left);
+                      $li.appendChild($right);
+                      $li.appendChild($style);
+                      return $li;
+                    },
+                    void 0,
+                    {
+                      text: "头像（有缓存）",
+                      desc: "小、中、大",
+                    }
+                  ),
+                  UIOwn(
+                    ($li) => {
+                      const $left = domUtils.createElement("div", {
+                        className: "pops-panel-item-left-text",
+                        innerHTML: `
 											<p class="pops-panel-item-left-main-text">头像</p>
 											<p class="pops-panel-item-left-desc-text">小、中、大</p>
 											`,
-                    });
-                    let $right = domUtils.createElement("div", {
-                      className: "pops-panel-avatar-img",
-                      innerHTML: `
+                      });
+                      const $right = domUtils.createElement("div", {
+                        className: "pops-panel-avatar-img",
+                        innerHTML: `
 											<img 
 												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=small&ts=${Date.now()}"
 												class="avatar-img" data-size="small">
@@ -11757,11 +11784,17 @@
 												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=big&ts=${Date.now()}"
 												class="avatar-img" data-size="big">
 											`,
-                    });
-                    $li.appendChild($left);
-                    $li.appendChild($right);
-                    return $li;
-                  }),
+                      });
+                      $li.appendChild($left);
+                      $li.appendChild($right);
+                      return $li;
+                    },
+                    void 0,
+                    {
+                      text: "头像",
+                      desc: "小、中、大",
+                    }
+                  ),
                   UIButton(
                     "修改头像",
                     `可以上传gif图片，注意图片最大限制为${Utils.formatByteToSize(
