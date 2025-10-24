@@ -48,7 +48,9 @@ export const DouYinVideoBlock_RightToolbar = {
         '.positionBox  .xgplayer-playswitch[data-state="normal"]',
         "div.xgplayer-playswitch",
         /* 全屏下的右侧的切换播放 */
-        ".xgplayer-playswitch"
+        ".xgplayer-playswitch",
+        /* 全屏下的直播视频的右侧的切换播放 */
+        '[data-e2e="feed-live"]>div:has(svg path[d="M7.269 16.316a1.393 1.393 0 0 1 0-1.97l5.056-5.055a1.393 1.393 0 0 1 1.97 0l.011.011 5.045 5.045a1.393 1.393 0 1 1-1.97 1.97l-4.071-4.072-4.071 4.071a1.393 1.393 0 0 1-1.97 0z"])'
       ),
       addStyle(/*css*/ `
 			div[data-e2e="slideList"]{
