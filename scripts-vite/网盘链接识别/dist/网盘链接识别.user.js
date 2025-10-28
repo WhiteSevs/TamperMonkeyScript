@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.21
+// @version      2025.10.28
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -10,11 +10,11 @@
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@c90210bf4ab902dbceb9c6e5b101b1ea91c34581/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/data-paging@0.0.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/data-paging@0.0.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @connect      *
 // @connect      lanzoub.com
@@ -378,9 +378,9 @@
   };
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
-  const __pops = pops;
+  const __pops__ = pops;
   const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
-  let SCRIPT_NAME = _GM_info?.script?.name || void 0;
+  const SCRIPT_NAME = _GM_info?.script?.name || void 0;
   const AnyTouch = pops.config.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
@@ -432,9 +432,9 @@
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
     },
   });
-  __pops.GlobalConfig.setGlobalConfig({
+  __pops__.GlobalConfig.setGlobalConfig({
     zIndex: () => {
-      let maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
+      const maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
         if ($ele?.classList?.contains("qmsg-shadow-container")) {
           return false;
         }
@@ -442,7 +442,7 @@
           return false;
         }
       });
-      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+      const popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
     },
     mask: {
@@ -502,6 +502,7 @@
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
+  const ATTRIBUTE_PLUGIN_SEARCH_CONFIG = "data-plugin-search-config";
   const PROPS_STORAGE_API = "data-storage-api";
   const PanelSizeUtil = {
     get width() {
@@ -736,7 +737,7 @@
       };
       const dbclick_callback = () => {
         const importConfig = (importEndCallBack) => {
-          const $alert = __pops.alert({
+          const $alert = __pops__.alert({
             title: {
               text: "请选择导入方式",
               position: "center",
@@ -843,7 +844,7 @@
           domUtils.on($network, "click", (event) => {
             domUtils.preventEvent(event);
             $alert.close();
-            const $prompt = __pops.prompt({
+            const $prompt = __pops__.prompt({
               title: {
                 text: "网络导入",
                 position: "center",
@@ -934,7 +935,7 @@
           fileName = `${SCRIPT_NAME}_panel-setting-${utils.formatTime(Date.now(), "yyyy_MM_dd_HH_mm_ss")}.json`,
           fileData
         ) => {
-          const $alert = __pops.alert({
+          const $alert = __pops__.alert({
             title: {
               text: "请选择导出方式",
               position: "center",
@@ -997,7 +998,7 @@
             }
           });
         };
-        const $dialog = __pops.confirm({
+        const $dialog = __pops__.confirm({
           title: {
             text: "配置",
             position: "center",
@@ -1249,7 +1250,8 @@
         let moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
         if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
           Object.keys(moreMenuDefaultConfig).forEach((key2) => {
-            menuDefaultConfig.set(key2, moreMenuDefaultConfig[key2]);
+            const defaultValue = moreMenuDefaultConfig[key2];
+            menuDefaultConfig.set(key2, defaultValue);
           });
         }
         if (!menuDefaultConfig.size) {
@@ -1581,7 +1583,7 @@
       if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig) {
         content.push(...PanelContent.getDefaultBottomContentConfig());
       }
-      let $panel = __pops.panel({
+      let $panel = __pops__.panel({
         ...{
           title: {
             text: title,
@@ -1666,7 +1668,7 @@
         }
         domUtils.preventEvent(evt);
         clickElement = null;
-        const $alert = __pops.alert({
+        const $alert = __pops__.alert({
           title: {
             text: "搜索配置",
             position: "center",
@@ -1692,7 +1694,7 @@
           height: "auto",
           drag: true,
           style: `
-					${__pops.config.cssText.panelCSS}
+					${__pops__.config.cssText.panelCSS}
 
 					.search-wrapper{
 						border-bottom: 1px solid rgb(235, 238, 245, 1);
@@ -1861,8 +1863,22 @@
                 }
                 loopContentConfig(child_forms, deepMenuPath);
               } else {
-                const text = Reflect.get(configItem, "text");
-                const description = Reflect.get(configItem, "description");
+                let text;
+                let description;
+                if (configItem.type === "own") {
+                  const searchConfig = Reflect.get(configItem.attributes || {}, ATTRIBUTE_PLUGIN_SEARCH_CONFIG);
+                  if (searchConfig) {
+                    if (typeof searchConfig.text === "string") {
+                      text = searchConfig.text;
+                    }
+                    if (typeof searchConfig.desc === "string") {
+                      description = searchConfig.desc;
+                    }
+                  }
+                } else {
+                  text = Reflect.get(configItem, "text");
+                  description = Reflect.get(configItem, "description");
+                }
                 const delayMatchedTextList = [text, description];
                 const matchedIndex = delayMatchedTextList.findIndex((configText) => {
                   if (typeof configText !== "string") {
@@ -2080,7 +2096,7 @@
     disabled,
     valueChangeCallBack
   ) {
-    let result = {
+    const result = {
       text,
       type: "switch",
       description,
@@ -2088,20 +2104,20 @@
       attributes: {},
       props: {},
       getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
-        let value = storageApiValue.get(key, defaultValue);
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        const value = storageApiValue.get(key, defaultValue);
         return value;
       },
       callback(event, __value) {
-        let value = Boolean(__value);
+        const value = Boolean(__value);
         log.success(`${value ? "开启" : "关闭"} ${text}`);
         if (typeof clickCallBack === "function") {
-          let result2 = clickCallBack(event, value);
+          const result2 = clickCallBack(event, value);
           if (result2) {
             return;
           }
         }
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
         if (typeof valueChangeCallBack === "function") {
           valueChangeCallBack(event, value);
@@ -2133,7 +2149,7 @@
     afterAddToUListCallBack,
     valueChangeCallback
   ) {
-    let result = {
+    const result = {
       text,
       type: "input",
       isNumber: Boolean(isNumber),
@@ -2143,17 +2159,17 @@
       description,
       afterAddToUListCallBack,
       getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
       callback(event, value, valueAsNumber) {
         if (typeof changeCallback === "function") {
-          let result2 = changeCallback(event, value, valueAsNumber);
+          const result2 = changeCallback(event, value, valueAsNumber);
           if (result2) {
             return;
           }
         }
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
       placeholder,
@@ -2182,7 +2198,7 @@
     afterAddToUListCallBack,
     disable
   ) {
-    let result = {
+    const result = {
       text,
       type: "button",
       attributes: {},
@@ -3300,7 +3316,7 @@
       code: 1,
       msg: "验证中...",
       setIcon($el) {
-        domUtils.html($el, __pops.config.iconSVG.loading);
+        domUtils.html($el, __pops__.config.iconSVG.loading);
       },
       setView($el, checkInfo, msg) {
         NetDiskCheckLinkValidity.setViewCheckValid($el, "loading", msg ?? this.msg);
@@ -4248,11 +4264,11 @@
   const NetDiskPops = {
     alert(details, sizeConfig) {
       const config = this.handleDetails(details, sizeConfig);
-      return __pops.alert(config);
+      return __pops__.alert(config);
     },
     confirm(details, sizeConfig) {
       const config = this.handleDetails(details, sizeConfig);
-      return __pops.confirm(config);
+      return __pops__.confirm(config);
     },
     loading(details) {
       if (typeof details["animation"] === "undefined") {
@@ -4261,11 +4277,11 @@
       if (typeof details["forbiddenScroll"] === "undefined") {
         details["forbiddenScroll"] = NetDiskView.$data.isForbiddenScrollByDefault;
       }
-      return __pops.loading(details);
+      return __pops__.loading(details);
     },
     prompt(details, sizeConfig) {
       const config = this.handleDetails(details, sizeConfig);
-      return __pops.prompt(config);
+      return __pops__.prompt(config);
     },
     folder(details, sizeConfig) {
       const config = this.handleDetails(details, sizeConfig);
@@ -4277,15 +4293,15 @@
           NetDiskGlobalData.popsFolder["pops-folder-sort-is-desc"].value = sortDesc;
         },
       };
-      return __pops.folder(config);
+      return __pops__.folder(config);
     },
     panel(details, sizeConfig) {
       const config = this.handleDetails(details, sizeConfig);
-      return __pops.panel(config);
+      return __pops__.panel(config);
     },
     rightClickMenu(details) {
       const config = this.handleDetails(details);
-      return __pops.rightClickMenu(config);
+      return __pops__.rightClickMenu(config);
     },
     handleDetails(details, sizeConfig) {
       details = Object.assign(
@@ -4298,7 +4314,7 @@
         details
       );
       if (sizeConfig != null) {
-        if (__pops.isPhone()) {
+        if (__pops__.isPhone()) {
           let popsWidth =
             typeof sizeConfig.Mobile.width === "function" ? sizeConfig.Mobile.width() : sizeConfig.Mobile.width;
           let popsHeight =
@@ -4354,7 +4370,7 @@
       details.zIndex = () => {
         const deviation = 10;
         let maxZIndex = utils.getMaxZIndex(deviation);
-        let popsMaxZIndex = __pops.config.InstanceUtils.getPopsMaxZIndex(deviation).zIndex;
+        let popsMaxZIndex = __pops__.config.InstanceUtils.getPopsMaxZIndex(deviation).zIndex;
         let zIndex = utils.getMaxValue(99999, maxZIndex, popsMaxZIndex) + deviation;
         return zIndex;
       };
@@ -4986,7 +5002,7 @@
       this.option = option;
     }
     showView() {
-      let $alert = __pops.alert({
+      let $alert = __pops__.alert({
         title: {
           text: this.option.title,
           position: "center",
@@ -5076,7 +5092,7 @@
       this.option = option;
     }
     async showView() {
-      let $dialog = __pops.confirm({
+      let $dialog = __pops__.confirm({
         title: {
           text: this.option.title,
           position: "center",
@@ -5106,7 +5122,7 @@
           enable: true,
         },
         style: `
-                ${__pops.config.cssText.panelCSS}
+                ${__pops__.config.cssText.panelCSS}
                 
                 .rule-form-container {
                     
@@ -5224,7 +5240,7 @@
                 $subscribeRightContainer,
                 subscribeOption,
                 async () => {
-                  let $prompt = __pops.prompt({
+                  let $prompt = __pops__.prompt({
                     title: {
                       text: "添加订阅",
                       position: "center",
@@ -5255,7 +5271,7 @@
                               let subscribeInfo = subscribeInfoResult.data;
                               let title =
                                 subscribeInfo.data.title || subscribeInfo.subscribeData.title || subscribeInfo.data.url;
-                              let $subscribeNetworkAddDialog = __pops.alert({
+                              let $subscribeNetworkAddDialog = __pops__.alert({
                                 title: {
                                   text: "添加订阅",
                                   position: "center",
@@ -5492,7 +5508,7 @@
           }
         };
       });
-      __pops.panel({
+      __pops__.panel({
         title: {
           text: typeof this.option.title === "function" ? this.option.title() : this.option.title,
           position: "center",
@@ -5616,7 +5632,7 @@
         innerHTML: `
 				<ul class="pops-panel-container-header-ul pops-panel-deepMenu-container-header-ul">
 					<li class="pops-panel-container-header-title-text pops-panel-deepMenu-container-header">
-						<i class="pops-panel-deepMenu-container-left-arrow-icon">${__pops.config.iconSVG.arrowLeft}</i>
+						<i class="pops-panel-deepMenu-container-left-arrow-icon">${__pops__.config.iconSVG.arrowLeft}</i>
 						<p class="pops-panel-deepMenu-container-header-title-text">${headerTitle}</p>
 					</li>
 				</ul>
@@ -5815,7 +5831,7 @@
         );
         domUtils.on($ruleControlClearAll, "click", (event) => {
           domUtils.preventEvent(event);
-          let $askDialog = __pops.confirm({
+          let $askDialog = __pops__.confirm({
             title: {
               text: "提示",
               position: "center",
@@ -5970,10 +5986,10 @@
 					</div>
 				</div>
 				<div class="rule-controls-edit">
-					${__pops.config.iconSVG.edit}
+					${__pops__.config.iconSVG.edit}
 				</div>
 				<div class="rule-controls-delete">
-					${__pops.config.iconSVG.delete}
+					${__pops__.config.iconSVG.delete}
 				</div>
 			</div>
 			`,
@@ -6060,7 +6076,7 @@
       if (option?.btnControls?.ruleDelete?.enable) {
         domUtils.on($delete, "click", (event) => {
           domUtils.preventEvent(event);
-          let $askDialog = __pops.confirm({
+          let $askDialog = __pops__.confirm({
             title: {
               text: "提示",
               position: "center",
@@ -6432,7 +6448,7 @@
       }
     }
     importSubscribe(importEndCallBack) {
-      let $alert = __pops.alert({
+      let $alert = __pops__.alert({
         title: {
           text: "请选择导入方式",
           position: "center",
@@ -6570,7 +6586,7 @@
       domUtils.on($network, "click", (event) => {
         domUtils.preventEvent(event);
         $alert.close();
-        let $prompt = __pops.prompt({
+        let $prompt = __pops__.prompt({
           title: {
             text: "网络导入",
             position: "center",
@@ -6658,7 +6674,7 @@
       });
     }
     exportSubscribe(fileName = "rule.json") {
-      let $alert = __pops.alert({
+      let $alert = __pops__.alert({
         title: {
           text: "请选择导出方式",
           position: "center",
@@ -6749,7 +6765,7 @@
     } else {
       selectData = data;
     }
-    let result = {
+    const result = {
       text,
       type: "select-multiple",
       description,
@@ -6757,13 +6773,13 @@
       attributes: {},
       props: {},
       getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
       selectConfirmDialogDetails,
       callback(selectInfo) {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
-        let value = [];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        const value = [];
         selectInfo.forEach((selectedInfo) => {
           value.push(selectedInfo.value);
         });
@@ -6808,7 +6824,7 @@
     },
     getRulePanelViewOption(quickAddData) {
       const that = this;
-      let panelHandlerComponents = __pops.config.PanelHandlerComponents();
+      let panelHandlerComponents = __pops__.config.PanelHandlerComponents();
       let addData = () => {
         return quickAddData ?? this.getTemplateData();
       };
@@ -7519,7 +7535,7 @@
             Qmsg.warning("规则为空，无需导出");
             return;
           }
-          let panelHandlerComponents = __pops.config.PanelHandlerComponents();
+          let panelHandlerComponents = __pops__.config.PanelHandlerComponents();
           let generateStorageApi = function (data) {
             return {
               get(key, defaultValue) {
@@ -7584,7 +7600,7 @@
             width: PanelUISize.info.width,
             height: PanelUISize.info.height,
             style: `
-						${__pops.config.cssText.panelCSS}
+						${__pops__.config.cssText.panelCSS}
 
 						.pops-alert-content li{
 							list-style-type: none;
@@ -8749,7 +8765,7 @@
       let dataPaging = new __DataPaging({
         data,
         pageShowDataMaxCount: 10,
-        pageMaxStep: __pops.isPhone() ? 2 : 4,
+        pageMaxStep: __pops__.isPhone() ? 2 : 4,
         currentPage: 1,
         pageChangeCallBack: function (page) {
           that.pageChangeCallBack(data, page);
@@ -15178,7 +15194,7 @@
         let msg = $el.getAttribute("data-msg");
         return msgProp ?? msg;
       };
-      __pops.tooltip({
+      __pops__.tooltip({
         target: $netDiskStatus,
         className: "github-tooltip",
         isFixed: true,
@@ -15194,7 +15210,7 @@
         },
         zIndex() {
           let maxZIndex = utils.getMaxZIndex(10);
-          let popsMaxZIndex = __pops.config.InstanceUtils.getPopsMaxZIndex(10).zIndex;
+          let popsMaxZIndex = __pops__.config.InstanceUtils.getPopsMaxZIndex(10).zIndex;
           return utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
         },
       });
@@ -15428,7 +15444,7 @@
         NetDiskCheckLinkValidityStatus,
         log,
         Qmsg,
-        pops: __pops,
+        pops: __pops__,
         setValue: NetDiskUserRuleBindContextStorageApi.set.bind(NetDiskUserRuleBindContextStorageApi),
         getValue: NetDiskUserRuleBindContextStorageApi.get.bind(NetDiskUserRuleBindContextStorageApi),
         deleteValue: NetDiskUserRuleBindContextStorageApi.delete.bind(NetDiskUserRuleBindContextStorageApi),
@@ -16217,7 +16233,7 @@
             Qmsg.warning("规则为空，无需导出");
             return;
           }
-          let panelHandlerComponents = __pops.config.PanelHandlerComponents();
+          let panelHandlerComponents = __pops__.config.PanelHandlerComponents();
           let generateStorageApi = function (data) {
             return {
               get(key, defaultValue) {
@@ -16282,7 +16298,7 @@
             width: PanelUISize.info.width,
             height: PanelUISize.info.height,
             style: `
-						${__pops.config.cssText.panelCSS}
+						${__pops__.config.cssText.panelCSS}
 
 						.pops-alert-content li{
 							list-style-type: none;
@@ -17574,14 +17590,14 @@
     step,
     valueChangeCallBack
   ) {
-    let result = {
+    const result = {
       text,
       type: "slider",
       description,
       attributes: {},
       props: {},
       getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
       getToolTipContent(value) {
@@ -17593,12 +17609,12 @@
       },
       callback(event, value) {
         if (typeof changeCallback === "function") {
-          let result2 = changeCallback(event, value);
+          const result2 = changeCallback(event, value);
           if (result2) {
             return;
           }
         }
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
       min,
@@ -17624,20 +17640,20 @@
     } else {
       selectData = data;
     }
-    let result = {
+    const result = {
       text,
       type: "select",
       description,
       attributes: {},
       props: {},
       getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
       callback(event, isSelectedValue, isSelectedText) {
-        let value = isSelectedValue;
+        const value = isSelectedValue;
         log.info(`选择：${isSelectedText}`);
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
       data: selectData,
@@ -17885,14 +17901,14 @@
 						data-type="${netDiskRuleConfig.setting.name}"
 						${typeof netDiskRuleConfig.subscribeUUID === "string" ? `data-subscribe-uuid="${netDiskRuleConfig.subscribeUUID}"` : ""}"
 						
-					>${__pops.config.iconSVG.edit}</div>`;
+					>${__pops__.config.iconSVG.edit}</div>`;
           headerTitleText += `
 					<div
 						class="netdisk-custom-rule-delete"
 						data-key="${ruleKey}"
 						data-type="${netDiskRuleConfig.setting.name}"
 						${typeof netDiskRuleConfig.subscribeUUID === "string" ? `data-subscribe-uuid="${netDiskRuleConfig.subscribeUUID}"` : ""}"
-					>${__pops.config.iconSVG.delete}</div>`;
+					>${__pops__.config.iconSVG.delete}</div>`;
         }
         this.$data.ruleContent.push({
           id: "netdisk-panel-config-" + ruleKey,
@@ -19015,7 +19031,7 @@
     },
     getRulePanelViewOption(quickAddData) {
       const that = this;
-      let panelHandlerComponents = __pops.config.PanelHandlerComponents();
+      let panelHandlerComponents = __pops__.config.PanelHandlerComponents();
       let addData = () => {
         return quickAddData ?? this.getTemplateData();
       };
@@ -19738,7 +19754,7 @@
             Qmsg.warning("规则为空，无需导出");
             return;
           }
-          let panelHandlerComponents = __pops.config.PanelHandlerComponents();
+          let panelHandlerComponents = __pops__.config.PanelHandlerComponents();
           let generateStorageApi = function (data) {
             return {
               get(key, defaultValue) {
@@ -19803,7 +19819,7 @@
             width: PanelUISize.info.width,
             height: PanelUISize.info.height,
             style: `
-						${__pops.config.cssText.panelCSS}
+						${__pops__.config.cssText.panelCSS}
 
 						.pops-alert-content li{
 							list-style-type: none;
@@ -20104,7 +20120,7 @@
       opacity: GeneratePanelStorage("opacity", 1),
       "randbg-time": GeneratePanelStorage("randbg-time", 1500),
       "randbg-show-time": GeneratePanelStorage("randbg-show-time", 1200),
-      "suspended-button-adsorption-edge": GeneratePanelStorage("suspended-button-adsorption-edge", false),
+      "suspended-button-adsorption-edge": GeneratePanelStorage("suspended-button-adsorption-edge", true),
       "suspended-z-index": GeneratePanelStorage("suspended-z-index", -1),
     },
     smallWindow: {
@@ -20963,13 +20979,13 @@
     buttonType = "default",
     shortCut
   ) {
-    let __defaultButtonText = defaultButtonText;
-    let getButtonText = () => {
+    const __defaultButtonText = defaultButtonText;
+    const getButtonText = () => {
       return shortCut.getShowText(key, __defaultButtonText);
     };
-    let result = UIButton(text, description, getButtonText, "keyboard", false, false, buttonType, async (event) => {
-      let $click = event.target;
-      let $btn = $click.closest(".pops-panel-button")?.querySelector("span");
+    const result = UIButton(text, description, getButtonText, "keyboard", false, false, buttonType, async (event) => {
+      const $click = event.target;
+      const $btn = $click.closest(".pops-panel-button")?.querySelector("span");
       if (shortCut.isWaitPress) {
         Qmsg.warning("请先执行当前的录入操作");
         return;
@@ -20978,13 +20994,13 @@
         shortCut.emptyOption(key);
         Qmsg.success("清空快捷键");
       } else {
-        let loadingQmsg = Qmsg.loading("请按下快捷键...", {
+        const loadingQmsg = Qmsg.loading("请按下快捷键...", {
           showClose: true,
           onClose() {
             shortCut.cancelEnterShortcutKeys();
           },
         });
-        let { status, option, key: isUsedKey } = await shortCut.enterShortcutKeys(key);
+        const { status, option, key: isUsedKey } = await shortCut.enterShortcutKeys(key);
         loadingQmsg.close();
         if (status) {
           log.success(["成功录入快捷键", option]);
@@ -21298,7 +21314,7 @@
                       (value) => {
                         return `${value}px`;
                       },
-                      "悬浮按钮的大小，默认: " + NetDiskGlobalData.suspension.size.default
+                      "悬浮按钮的大小，默认: " + NetDiskGlobalData.suspension.size.default + "px"
                     ),
                     UISlider(
                       "透明度",

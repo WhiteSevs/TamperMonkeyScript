@@ -79,7 +79,7 @@ export const NetDiskGlobalData = {
     /** 背景显示时间 */
     "randbg-show-time": GeneratePanelStorage("randbg-show-time", 1200),
     /** 吸附边缘 */
-    "suspended-button-adsorption-edge": GeneratePanelStorage("suspended-button-adsorption-edge", false),
+    "suspended-button-adsorption-edge": GeneratePanelStorage("suspended-button-adsorption-edge", true),
     /** z-index层级 */
     "suspended-z-index": GeneratePanelStorage("suspended-z-index", -1),
   },

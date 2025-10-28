@@ -4,7 +4,6 @@ import { UISwitch } from "@components/setting/components/ui-switch";
 import { NetDiskView } from "@/main/view/NetDiskView";
 import { NetDiskGlobalData } from "@/main/data/NetDiskGlobalData";
 import { UISlider } from "@components/setting/components/ui-slider";
-import { utils } from "@/env";
 import Qmsg from "qmsg";
 import { UIButtonShortCut } from "@components/setting/components/ui-button-shortcut";
 import { NetDiskShortcut } from "@/main/shortcut/NetDiskShortcut";
@@ -311,7 +310,7 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
                     (value) => {
                       return `${value}px`;
                     },
-                    "悬浮按钮的大小，默认: " + NetDiskGlobalData.suspension.size.default
+                    "悬浮按钮的大小，默认: " + NetDiskGlobalData.suspension.size.default + "px"
                   ),
                   UISlider(
                     "透明度",
