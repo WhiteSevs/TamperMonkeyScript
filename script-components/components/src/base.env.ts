@@ -21,27 +21,35 @@ import type { QmsgPosition } from "qmsg/dist/src/QmsgConfig";
 
 const utils = Utils.noConflict();
 const domUtils = DOMUtils.noConflict();
-const __pops = pops;
+const __pops__ = pops;
 // const showdown: typeof import("@lib/showdown") =
 // 	(monkeyWindow as any).showdown || (unsafeWindow as any).showdown;
 const log = new utils.Log(GM_info, unsafeWindow.console || monkeyWindow.console);
-let SCRIPT_NAME = GM_info?.script?.name || import.meta.env.SCRIPT_NAME;
+/**
+ * 脚本名
+ */
+const SCRIPT_NAME = GM_info?.script?.name || import.meta.env.SCRIPT_NAME;
 
+/**
+ * 手势库
+ */
 const AnyTouch = pops.config.Utils.AnyTouch();
 
 /**
  * 是否为调试模式
+ *
+ * 当`dev`时，自动开启调试模式
  */
 const DEBUG = import.meta.env.DEV ?? false;
 
-/* 配置控制台日志 */
+// 配置控制台日志
 log.config({
   debug: false,
   logMaxCount: DEBUG ? 10000 : 250,
   autoClearConsole: true,
   tag: true,
 });
-/* 配置吐司Qmsg */
+// 配置Toast
 Qmsg.config({
   isHTML: true,
   autoClose: true,
@@ -87,9 +95,9 @@ Qmsg.config({
 });
 
 /* 配置pops的默认选项 */
-__pops.GlobalConfig.setGlobalConfig({
+__pops__.GlobalConfig.setGlobalConfig({
   zIndex: () => {
-    let maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
+    const maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
       if (($ele as HTMLElement)?.classList?.contains("qmsg-shadow-container")) {
         return false;
       }
@@ -97,7 +105,7 @@ __pops.GlobalConfig.setGlobalConfig({
         return false;
       }
     });
-    let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+    const popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
     return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
   },
   mask: {
@@ -122,7 +130,7 @@ const GM_Menu = new utils.GM_Menu({
 
 const httpx = new utils.Httpx({
   xmlHttpRequest: GM_xmlhttpRequest,
-  logDetails: import.meta.env.DEV ? true : DEBUG,
+  logDetails: DEBUG,
 });
 
 // 添加请求拦截器
@@ -176,49 +184,52 @@ const $$ = DOMUtils.selectorAll.bind(DOMUtils);
 /**
  * Vue的根元素的id
  */
-const VUE_ELE_NAME_ID = "vite-app";
+const VUE_ROOT_ID = "vite-app";
 /**
  * 注册vue、element-plus、element-plus/icons-vue
- * @param targetApp vue实例
- * @param plugin 插件之类的，如vue-router、Element-Plus
+ * @param rootComponent vue实例
+ * @param plugins 插件之类的，如vue-router、Element-Plus
  */
-const MountVue = async function (targetApp: any, plugin: any[] = []) {
-  DOMUtils.ready(async () => {
-    const app = createApp(targetApp);
-    let $mount = DOMUtils.createElement("div", {
-      id: VUE_ELE_NAME_ID,
-    });
-    /* 注册图标组件 */
-    if (import.meta.env.DEV) {
-      const ElementPlusIconsVue = await import("@element-plus/icons-vue");
+const MountVue = async function (rootComponent: any, plugins: any[] = []) {
+  CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.ElementPlus);
+  await DOMUtils.ready();
+  const app = createApp(rootComponent);
+  const $mount = DOMUtils.createElement("div", {
+    id: VUE_ROOT_ID,
+  });
+  /* 注册图标组件 */
+  if (import.meta.env.DEV) {
+    const ElementPlusIconsVue = await import("@element-plus/icons-vue");
+    for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+      app.component(key, component);
+    }
+  } else {
+    /* ElementPlusIconsVue是var定义的，不在window上 */
+    // @ts-ignore
+    if (ElementPlusIconsVue != null) {
+      // @ts-ignore
       for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+        // @ts-ignore
         app.component(key, component);
       }
-    } else {
-      /* ElementPlusIconsVue是var定义的，不在window上 */
-      // @ts-ignore
-      if (ElementPlusIconsVue != null) {
-        // @ts-ignore
-        for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-          // @ts-ignore
-          app.component(key, component);
-        }
-      }
     }
-    document.body.appendChild($mount);
-    plugin.forEach((item) => {
-      app.use(item);
-    });
-    app.mount($mount);
+  }
+  document.body.appendChild($mount);
+  plugins.forEach((item) => {
+    app.use(item);
   });
-  CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.ElementPlus);
+  const mountResult = app.mount($mount);
+  return mountResult;
 };
 
+/**
+ * cookie管理
+ */
 const cookieManager = new utils.GM_Cookie();
 
 // dev使用
 if (import.meta.env.DEV) {
-  let registerObject = { httpx, cookieManager };
+  const registerObject = { httpx, cookieManager };
   Object.keys(registerObject).forEach((key) => {
     Reflect.set(unsafeWindow, key, registerObject[key as keyof typeof registerObject]);
   });
@@ -227,7 +238,7 @@ if (import.meta.env.DEV) {
 export {
   utils,
   domUtils as DOMUtils,
-  __pops as pops,
+  __pops__ as pops,
   log,
   GM_Menu,
   SCRIPT_NAME,
@@ -237,7 +248,7 @@ export {
   $,
   $$,
   MountVue,
-  VUE_ELE_NAME_ID,
+  VUE_ROOT_ID as VUE_ELE_NAME_ID,
   DEBUG,
   cookieManager,
   AnyTouch,
