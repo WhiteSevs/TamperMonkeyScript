@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.23
+// @version      2025.10.28
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -187,6 +187,7 @@
         animation: true,
         autoClose: true,
         listenEventToPauseAutoClose: true,
+        listenEventToCloseInstance: true,
         content: "",
         isHTML: false,
         position: "top",
@@ -993,14 +994,19 @@
         callback() {
           if (document.visibilityState === "visible") {
             for (let index = 0; index < QmsgInstStorage.insInfoList.length; index++) {
-              const qmsgInst = QmsgInstStorage.insInfoList[index];
+              const qmsgStorageItem = QmsgInstStorage.insInfoList[index];
+              const qmsgInst = qmsgStorageItem.instance;
+              const qmsgSetting = qmsgInst.getSetting();
+              const now = Date.now();
               if (
-                qmsgInst.instance.setting.type !== "loading" &&
-                qmsgInst.instance.endTime == null &&
-                qmsgInst.instance.startTime != null &&
-                Date.now() - qmsgInst.instance.startTime >= qmsgInst.instance.getSetting().timeout
+                qmsgSetting.type !== "loading" &&
+                qmsgSetting.autoClose &&
+                typeof qmsgInst.endTime !== "number" &&
+                typeof qmsgInst.startTime === "number" &&
+                typeof qmsgSetting.timeout === "number" &&
+                now - qmsgInst.startTime >= qmsgSetting.timeout
               ) {
-                qmsgInst.instance.close();
+                qmsgInst.close();
               }
             }
           }
@@ -1029,7 +1035,7 @@
       },
     },
   };
-  const version$3 = "1.5.0";
+  const version$3 = "1.5.1";
   CompatibleProcessing();
   class Qmsg {
     $data;
@@ -4086,12 +4092,12 @@
         ? `rgba(${parseInt(`0x${hex.slice(1, 3)}`)},${parseInt(`0x${hex.slice(3, 5)}`)},${parseInt(`0x${hex.slice(5, 7)}`)},${opacity})`
         : "";
     }
-    hexToRgb(str) {
-      if (!this.isHex(str)) {
-        throw new TypeError(`输入错误的hex：${str}`);
+    hexToRgb(hex) {
+      if (!this.isHex(hex)) {
+        throw new TypeError(`输入错误的hex：${hex}`);
       }
-      str = str.replace("#", "");
-      const hxs = str.match(/../g);
+      hex = hex.replace("#", "");
+      const hxs = hex.match(/../g);
       for (let index = 0; index < 3; index++) {
         const value = parseInt(hxs[index], 16);
         Reflect.set(hxs, index, value);
@@ -4114,10 +4120,16 @@
       if (!this.isHex(color)) {
         throw new TypeError(`输入错误的hex：${color}`);
       }
+      if (typeof level !== "number") {
+        level = Number(level);
+      }
+      if (isNaN(level)) {
+        throw new TypeError(`输入错误的level：${level}`);
+      }
       const rgbc = this.hexToRgb(color);
       for (let index = 0; index < 3; index++) {
         const rgbcItemValue = rgbc[index];
-        const value = Math.floor(Number(rgbcItemValue) * (1 - Number(level)));
+        const value = Math.floor(Number(rgbcItemValue) * (1 - level));
         Reflect.set(rgbc, index, value);
       }
       return this.rgbToHex(rgbc[0], rgbc[1], rgbc[2]);
@@ -4125,6 +4137,12 @@
     getLightColor(color, level) {
       if (!this.isHex(color)) {
         throw new TypeError(`输入错误的hex：${color}`);
+      }
+      if (typeof level !== "number") {
+        level = Number(level);
+      }
+      if (isNaN(level)) {
+        throw new TypeError(`输入错误的level：${level}`);
       }
       const rgbc = this.hexToRgb(color);
       for (let index = 0; index < 3; index++) {
@@ -5823,19 +5841,19 @@
     }
     setEnableTrueEmoji(emojiString) {
       if (typeof emojiString !== "string") {
-        throw new Error("参数emojiString必须是string类型");
+        throw new TypeError("参数emojiString必须是string类型");
       }
       this.MenuHandle.$emoji.success = emojiString;
     }
     setEnableFalseEmoji(emojiString) {
       if (typeof emojiString !== "string") {
-        throw new Error("参数emojiString必须是string类型");
+        throw new TypeError("参数emojiString必须是string类型");
       }
       this.MenuHandle.$emoji.error = emojiString;
     }
     setLocalStorageKeyName(keyName) {
       if (typeof keyName !== "string") {
-        throw new Error("参数keyName必须是string类型");
+        throw new TypeError("参数keyName必须是string类型");
       }
       this.MenuHandle.$data.key = keyName;
     }
@@ -8309,7 +8327,7 @@ ${err.stack}`);
     }
   }
   const domUtils$1 = new DOMUtils2();
-  const version$1 = "2.9.4";
+  const version$1 = "2.9.6";
   class Utils2 {
     windowApi;
     constructor(option) {
@@ -20957,9 +20975,9 @@ ${err.stack}`);
   };
   const utils = utils$1.noConflict();
   const domUtils = domUtils$2.noConflict();
-  const __pops = pops;
+  const __pops__ = pops;
   const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
-  let SCRIPT_NAME = _GM_info?.script?.name || void 0;
+  const SCRIPT_NAME = _GM_info?.script?.name || void 0;
   const AnyTouch = pops.config.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
@@ -21011,9 +21029,9 @@ ${err.stack}`);
       return utils$1.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
     },
   });
-  __pops.GlobalConfig.setGlobalConfig({
+  __pops__.GlobalConfig.setGlobalConfig({
     zIndex: () => {
-      let maxZIndex = utils$1.getMaxZIndex(void 0, void 0, ($ele) => {
+      const maxZIndex = utils$1.getMaxZIndex(void 0, void 0, ($ele) => {
         if ($ele?.classList?.contains("qmsg-shadow-container")) {
           return false;
         }
@@ -21021,7 +21039,7 @@ ${err.stack}`);
           return false;
         }
       });
-      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+      const popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
       return utils$1.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
     },
     mask: {
@@ -21315,7 +21333,7 @@ ${err.stack}`);
       };
       const dbclick_callback = () => {
         const importConfig = (importEndCallBack) => {
-          const $alert = __pops.alert({
+          const $alert = __pops__.alert({
             title: {
               text: "请选择导入方式",
               position: "center",
@@ -21422,7 +21440,7 @@ ${err.stack}`);
           domUtils.on($network, "click", (event) => {
             domUtils.preventEvent(event);
             $alert.close();
-            const $prompt = __pops.prompt({
+            const $prompt = __pops__.prompt({
               title: {
                 text: "网络导入",
                 position: "center",
@@ -21513,7 +21531,7 @@ ${err.stack}`);
           fileName = `${SCRIPT_NAME}_panel-setting-${utils.formatTime(Date.now(), "yyyy_MM_dd_HH_mm_ss")}.json`,
           fileData
         ) => {
-          const $alert = __pops.alert({
+          const $alert = __pops__.alert({
             title: {
               text: "请选择导出方式",
               position: "center",
@@ -21576,7 +21594,7 @@ ${err.stack}`);
             }
           });
         };
-        const $dialog = __pops.confirm({
+        const $dialog = __pops__.confirm({
           title: {
             text: "配置",
             position: "center",
@@ -22161,7 +22179,7 @@ ${err.stack}`);
       if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig) {
         content.push(...PanelContent.getDefaultBottomContentConfig());
       }
-      let $panel = __pops.panel({
+      let $panel = __pops__.panel({
         ...{
           title: {
             text: title,
@@ -22246,7 +22264,7 @@ ${err.stack}`);
         }
         domUtils.preventEvent(evt);
         clickElement = null;
-        const $alert = __pops.alert({
+        const $alert = __pops__.alert({
           title: {
             text: "搜索配置",
             position: "center",
@@ -22272,7 +22290,7 @@ ${err.stack}`);
           height: "auto",
           drag: true,
           style: `
-					${__pops.config.cssText.panelCSS}
+					${__pops__.config.cssText.panelCSS}
 
 					.search-wrapper{
 						border-bottom: 1px solid rgb(235, 238, 245, 1);
@@ -23584,7 +23602,7 @@ ${err.stack}`);
                         const cookies = await data.list({});
                         console.log(cookies);
                         if (Array.isArray(cookies)) {
-                          __pops.alert({
+                          __pops__.alert({
                             title: {
                               text: data.name + ".list",
                               position: "center",

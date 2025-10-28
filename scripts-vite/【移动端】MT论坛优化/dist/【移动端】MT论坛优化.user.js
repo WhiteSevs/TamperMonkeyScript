@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.23
+// @version      2025.10.28
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -11,10 +11,10 @@
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@79fb4d854f1e2cdf606339b0dac18d50104e2ebe/lib/js-watermark/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js
 // @resource     HljsCSS    https://fastly.jsdelivr.net/npm/highlight.js@11.11.1/styles/github-dark.min.css
@@ -351,9 +351,9 @@
   };
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
-  const __pops = pops;
+  const __pops__ = pops;
   const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
-  let SCRIPT_NAME = _GM_info?.script?.name || void 0;
+  const SCRIPT_NAME = _GM_info?.script?.name || void 0;
   const AnyTouch = pops.config.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
@@ -405,9 +405,9 @@
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
     },
   });
-  __pops.GlobalConfig.setGlobalConfig({
+  __pops__.GlobalConfig.setGlobalConfig({
     zIndex: () => {
-      let maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
+      const maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
         if ($ele?.classList?.contains("qmsg-shadow-container")) {
           return false;
         }
@@ -415,7 +415,7 @@
           return false;
         }
       });
-      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+      const popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
     },
     mask: {
@@ -699,7 +699,7 @@
       };
       const dbclick_callback = () => {
         const importConfig = (importEndCallBack) => {
-          const $alert = __pops.alert({
+          const $alert = __pops__.alert({
             title: {
               text: "请选择导入方式",
               position: "center",
@@ -806,7 +806,7 @@
           domUtils.on($network, "click", (event) => {
             domUtils.preventEvent(event);
             $alert.close();
-            const $prompt = __pops.prompt({
+            const $prompt = __pops__.prompt({
               title: {
                 text: "网络导入",
                 position: "center",
@@ -897,7 +897,7 @@
           fileName = `${SCRIPT_NAME}_panel-setting-${utils.formatTime(Date.now(), "yyyy_MM_dd_HH_mm_ss")}.json`,
           fileData
         ) => {
-          const $alert = __pops.alert({
+          const $alert = __pops__.alert({
             title: {
               text: "请选择导出方式",
               position: "center",
@@ -960,7 +960,7 @@
             }
           });
         };
-        const $dialog = __pops.confirm({
+        const $dialog = __pops__.confirm({
           title: {
             text: "配置",
             position: "center",
@@ -1545,7 +1545,7 @@
       if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig) {
         content.push(...PanelContent.getDefaultBottomContentConfig());
       }
-      let $panel = __pops.panel({
+      let $panel = __pops__.panel({
         ...{
           title: {
             text: title,
@@ -1630,7 +1630,7 @@
         }
         domUtils.preventEvent(evt);
         clickElement = null;
-        const $alert = __pops.alert({
+        const $alert = __pops__.alert({
           title: {
             text: "搜索配置",
             position: "center",
@@ -1656,7 +1656,7 @@
           height: "auto",
           drag: true,
           style: `
-					${__pops.config.cssText.panelCSS}
+					${__pops__.config.cssText.panelCSS}
 
 					.search-wrapper{
 						border-bottom: 1px solid rgb(235, 238, 245, 1);
@@ -2107,7 +2107,7 @@
     httpxCookieManager.handle(data);
     return data;
   });
-  __pops.GlobalConfig.setGlobalConfig({
+  __pops__.GlobalConfig.setGlobalConfig({
     mask: {
       enable: true,
     },
@@ -2285,7 +2285,7 @@
         return;
       }
       this.$data.cid = blackListInfo.next_cid;
-      let $confirm = __pops.confirm({
+      let $confirm = __pops__.confirm({
         title: {
           text: "小黑屋名单",
           position: "center",
@@ -2530,7 +2530,7 @@
       if (!onlineUserInfo) {
         return;
       }
-      let $alert = __pops.alert({
+      let $alert = __pops__.alert({
         title: {
           text: "在线用户",
           position: "center",
@@ -3526,7 +3526,7 @@
               if (Panel.getValue("mt-image-bed-watermark-autoAddWaterMark")) {
                 await upload_callback(chooseImage);
               } else {
-                __pops.confirm({
+                __pops__.confirm({
                   title: {
                     text: "水印预览",
                     position: "center",
@@ -5244,7 +5244,7 @@
           let $font = $ubbs.querySelector(".comiis_xifont");
           domUtils.removeClass($font, "f_d");
           domUtils.removeClass($font, "f_d");
-          let $prompt = __pops.prompt({
+          let $prompt = __pops__.prompt({
             title: {
               text: "UBB代码",
               position: "center",
@@ -5852,7 +5852,7 @@
           attachmentNameNode.innerText = "【已拦截】" + attachmentName;
           $ele.onclick = function () {
             log.info("附件url：", attachmentURL);
-            __pops.confirm({
+            __pops__.confirm({
               title: {
                 text: "提示",
                 position: "center",
@@ -5953,7 +5953,7 @@
           },
         };
       });
-      let suggestion = __pops.searchSuggestion({
+      let suggestion = __pops__.searchSuggestion({
         target: $input,
         inputTarget: $input,
         data: searchSuggestionData,
@@ -6448,7 +6448,7 @@
                         `,
             });
             domUtils.on($tipBtn, "click", function () {
-              __pops.confirm({
+              __pops__.confirm({
                 title: {
                   text: "提示",
                   position: "center",
@@ -6580,7 +6580,7 @@
     showView() {
       log.info(`显示白嫖列表`);
       let data = MTPaidThemePost.getTipData();
-      __pops.alert({
+      __pops__.alert({
         title: {
           text: "付费主题白嫖列表",
           position: "center",
@@ -6701,7 +6701,7 @@
         let $click = event.target;
         let $parent = domUtils.parent($click);
         var t_index = parseInt($parent.getAttribute("t-index"));
-        __pops.confirm({
+        __pops__.confirm({
           title: {
             text: "提示",
             position: "center",
@@ -6941,7 +6941,7 @@
                 </i>
             </div>
         </div>`;
-      let $drawer = __pops.drawer({
+      let $drawer = __pops__.drawer({
         title: {
           enable: true,
           text: websiteTitle,
@@ -6990,7 +6990,7 @@
       this.$el.$webSiteIcon = $webSiteIcon;
       let $iframe = $drawer.$shadowRoot.querySelector("iframe");
       let $drag = $drawer.$shadowRoot.querySelector(".small-window-drag");
-      let AnyTouch2 = __pops.config.Utils.AnyTouch();
+      let AnyTouch2 = __pops__.config.Utils.AnyTouch();
       let dragNode = new AnyTouch2($drag);
       let smallWidowNode = $drawer.$pops;
       let smallWidowNormalHeight = domUtils.height(smallWidowNode);
@@ -7035,7 +7035,7 @@
           url: "data-src",
           zIndex: (() => {
             let maxZIndex = utils.getMaxZIndex();
-            let popsMaxZIndex = __pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+            let popsMaxZIndex = __pops__.config.InstanceUtils.getPopsMaxZIndex().zIndex;
             return utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
           })(),
           hidden: () => {
@@ -7358,7 +7358,7 @@
       this.option = option;
     }
     async showView() {
-      let $dialog = __pops.confirm({
+      let $dialog = __pops__.confirm({
         title: {
           text: this.option.title,
           position: "center",
@@ -7388,7 +7388,7 @@
           enable: true,
         },
         style: `
-                ${__pops.config.cssText.panelCSS}
+                ${__pops__.config.cssText.panelCSS}
                 
                 .rule-form-container {
                     
@@ -7470,7 +7470,7 @@
       this.option = option;
     }
     showView() {
-      let $alert = __pops.alert({
+      let $alert = __pops__.alert({
         title: {
           text: this.option.title,
           position: "center",
@@ -7560,7 +7560,7 @@
       this.option = option;
     }
     async showView(filterCallBack) {
-      let $popsConfirm = __pops.confirm({
+      let $popsConfirm = __pops__.confirm({
         title: {
           text: this.option.title,
           position: "center",
@@ -7647,7 +7647,7 @@
             type: "xiaomi-primary",
             text: `清空所有(${(await this.option.data()).length})`,
             callback: (event) => {
-              let $askDialog = __pops.confirm({
+              let $askDialog = __pops__.confirm({
                 title: {
                   text: "提示",
                   position: "center",
@@ -7694,7 +7694,7 @@
         width: window.innerWidth > 500 ? "500px" : "88vw",
         height: window.innerHeight > 500 ? "500px" : "80vh",
         style: `
-            ${__pops.config.cssText.panelCSS}
+            ${__pops__.config.cssText.panelCSS}
             
             .rule-item{
                 display: flex;
@@ -7869,10 +7869,10 @@
 					</div>
 				</div>
 				<div class="rule-controls-edit">
-					${__pops.config.iconSVG.edit}
+					${__pops__.config.iconSVG.edit}
 				</div>
 				<div class="rule-controls-delete">
-					${__pops.config.iconSVG.delete}
+					${__pops__.config.iconSVG.delete}
 				</div>
 			</div>
 			`,
@@ -7914,7 +7914,7 @@
       if (this.option.itemControls.delete.enable) {
         domUtils.on($delete, "click", (event) => {
           domUtils.preventEvent(event);
-          let $askDialog = __pops.confirm({
+          let $askDialog = __pops__.confirm({
             title: {
               text: "提示",
               position: "center",
@@ -8051,7 +8051,7 @@
       };
     },
     showView() {
-      let panelHandlerComponents = __pops.config.PanelHandlerComponents();
+      let panelHandlerComponents = __pops__.config.PanelHandlerComponents();
       function generateStorageApi(data) {
         return {
           get(key, defaultValue) {
@@ -8502,7 +8502,7 @@
           },
         };
       }
-      let panelHandlerComponents = __pops.config.PanelHandlerComponents();
+      let panelHandlerComponents = __pops__.config.PanelHandlerComponents();
       let view = new RuleEditView({
         title: "评论过滤器",
         data: () => {
@@ -8586,7 +8586,7 @@
             type: "primary",
             callback: (details, event) => {
               console.log(this.$el.isFilterElementHTML);
-              __pops.alert({
+              __pops__.alert({
                 title: {
                   text: "评论过滤器-已过滤",
                   position: "center",
@@ -8725,7 +8725,7 @@
             productItem["remainingQuantity"] > 0
           ) {
             log.success(`成功匹配对应商品`, reminderOption, productItem);
-            __pops.confirm({
+            __pops__.confirm({
               title: {
                 text: "积分商城提醒",
                 position: "center",
@@ -8777,7 +8777,7 @@
       };
     },
     showView() {
-      let panelHandlerComponents = __pops.config.PanelHandlerComponents();
+      let panelHandlerComponents = __pops__.config.PanelHandlerComponents();
       function generateStorageApi(data) {
         return {
           get(key, defaultValue) {
@@ -8975,7 +8975,7 @@
       });
     },
     showView() {
-      let panelHandlerComponents = __pops.config.PanelHandlerComponents();
+      let panelHandlerComponents = __pops__.config.PanelHandlerComponents();
       function generateStorageApi(data) {
         return {
           get(key, defaultValue) {
@@ -10128,7 +10128,7 @@
       } else if (MTRouter.isPostPublish_edit()) {
         log.info(`草稿的页面`);
         if (typeof save_callback === "function" && typeof delete_callback === "function") {
-          __pops.confirm({
+          __pops__.confirm({
             title: {
               text: "提示",
               position: "center",
@@ -10321,7 +10321,7 @@
       );
       domUtils.append($header, $btn);
       domUtils.on($btn, "click", function () {
-        __pops.confirm({
+        __pops__.confirm({
           title: {
             text: "提示",
             position: "center",
@@ -11271,7 +11271,7 @@
     },
     showView() {
       const that = this;
-      let $confirm = __pops.confirm({
+      let $confirm = __pops__.confirm({
         title: {
           text: "修改头像",
           position: "center",
@@ -12120,7 +12120,7 @@
             (event) => {
               let $click = event.composedPath()[0];
               let $desc = $click.closest("li").querySelector(".pops-panel-item-left-desc-text");
-              __pops.confirm({
+              __pops__.confirm({
                 title: {
                   text: "提示 ",
                   position: "center",

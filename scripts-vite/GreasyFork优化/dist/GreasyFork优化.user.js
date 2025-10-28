@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2025.10.23
+// @version            2025.10.28
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -13,12 +13,12 @@
 // @match              *://sleazyfork.org/*
 // @match              *://cn-greasyfork.org/*
 // @require            https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.4/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.6/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.1/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/qmsg@1.5.1/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
-// @require            https://fastly.jsdelivr.net/npm/i18next@25.5.3/i18next.min.js
+// @require            https://fastly.jsdelivr.net/npm/i18next@25.6.0/i18next.min.js
 // @require            https://fastly.jsdelivr.net/npm/otpauth@9.4.1/dist/otpauth.umd.js
 // @resource           ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect            greasyfork.org
@@ -74,10 +74,10 @@
       ((a) => {
         function r(n) {
           if (typeof GM_addStyle == "function") return GM_addStyle(n);
-          let e = document.createElement("style");
+          const e = document.createElement("style");
           if ((e.setAttribute("type", "text/css"), e.setAttribute("data-type", "gm-css"), globalThis.trustedTypes)) {
-            const l = globalThis.trustedTypes.createPolicy("safe-innerHTML", { createHTML: (i) => i });
-            e.innerHTML = l.createHTML(n);
+            const c = globalThis.trustedTypes.createPolicy("safe-innerHTML", { createHTML: (i) => i });
+            e.innerHTML = c.createHTML(n);
           } else e.innerHTML = n;
           return ((document.head || document.documentElement).appendChild(e), e);
         }
@@ -375,9 +375,9 @@
   };
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
-  const __pops = pops;
+  const __pops__ = pops;
   const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
-  let SCRIPT_NAME = _GM_info?.script?.name || void 0;
+  const SCRIPT_NAME = _GM_info?.script?.name || void 0;
   const AnyTouch = pops.config.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
@@ -429,9 +429,9 @@
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
     },
   });
-  __pops.GlobalConfig.setGlobalConfig({
+  __pops__.GlobalConfig.setGlobalConfig({
     zIndex: () => {
-      let maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
+      const maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
         if ($ele?.classList?.contains("qmsg-shadow-container")) {
           return false;
         }
@@ -439,7 +439,7 @@
           return false;
         }
       });
-      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+      const popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
     },
     mask: {
@@ -734,7 +734,7 @@
       };
       const dbclick_callback = () => {
         const importConfig = (importEndCallBack) => {
-          const $alert = __pops.alert({
+          const $alert = __pops__.alert({
             title: {
               text: "请选择导入方式",
               position: "center",
@@ -841,7 +841,7 @@
           domUtils.on($network, "click", (event) => {
             domUtils.preventEvent(event);
             $alert.close();
-            const $prompt = __pops.prompt({
+            const $prompt = __pops__.prompt({
               title: {
                 text: "网络导入",
                 position: "center",
@@ -932,7 +932,7 @@
           fileName = `${SCRIPT_NAME}_panel-setting-${utils.formatTime(Date.now(), "yyyy_MM_dd_HH_mm_ss")}.json`,
           fileData
         ) => {
-          const $alert = __pops.alert({
+          const $alert = __pops__.alert({
             title: {
               text: "请选择导出方式",
               position: "center",
@@ -995,7 +995,7 @@
             }
           });
         };
-        const $dialog = __pops.confirm({
+        const $dialog = __pops__.confirm({
           title: {
             text: "配置",
             position: "center",
@@ -1580,7 +1580,7 @@
       if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig) {
         content.push(...PanelContent.getDefaultBottomContentConfig());
       }
-      let $panel = __pops.panel({
+      let $panel = __pops__.panel({
         ...{
           title: {
             text: title,
@@ -1665,7 +1665,7 @@
         }
         domUtils.preventEvent(evt);
         clickElement = null;
-        const $alert = __pops.alert({
+        const $alert = __pops__.alert({
           title: {
             text: "搜索配置",
             position: "center",
@@ -1691,7 +1691,7 @@
           height: "auto",
           drag: true,
           style: `
-					${__pops.config.cssText.panelCSS}
+					${__pops__.config.cssText.panelCSS}
 
 					.search-wrapper{
 						border-bottom: 1px solid rgb(235, 238, 245, 1);
@@ -3928,7 +3928,7 @@
           }
           let attr_filter_key = "data-filter-key";
           let attr_filter_value = "data-filter-value";
-          let $dialog = __pops.alert({
+          let $dialog = __pops__.alert({
             title: {
               text: i18next.t("选择需要过滤的选项"),
               position: "center",
@@ -4046,7 +4046,7 @@
           if (!discussionInfo) {
             return;
           }
-          __pops.alert({
+          __pops__.alert({
             title: {
               text: i18next.t("举报"),
               position: "center",
@@ -4191,7 +4191,7 @@
         if (!data.length) {
           return;
         }
-        const rightClickMenu = __pops.rightClickMenu({
+        const rightClickMenu = __pops__.rightClickMenu({
           target: document.documentElement,
           position: "absolute",
           limitPositionYInView: false,
@@ -4508,7 +4508,7 @@
               compareLeftText = compareLeftResponse.data.responseText;
               compareRightText = compareRightResponse.data.responseText;
               let { recovery } = CommonUtil.lockScroll();
-              let $alert = __pops.alert({
+              let $alert = __pops__.alert({
                 title: {
                   text: i18next.t("代码对比"),
                   html: false,
@@ -4542,7 +4542,7 @@
                 },
                 zIndex() {
                   let maxZIndex = utils.getMaxZIndex();
-                  let popsMaxZIndex = __pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+                  let popsMaxZIndex = __pops__.config.InstanceUtils.getPopsMaxZIndex().zIndex;
                   return utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
                 },
                 useShadowRoot: false,
@@ -4651,7 +4651,7 @@
 		</li>
 		  `;
     });
-    let collectionDialog = __pops.alert({
+    let collectionDialog = __pops__.alert({
       title: {
         text: i18next.t("收藏集"),
         position: "center",
@@ -4671,7 +4671,7 @@
           enable: false,
         },
       },
-      width: __pops.isPhone() ? "92vw" : "500px",
+      width: __pops__.isPhone() ? "92vw" : "500px",
       height: "auto",
       drag: true,
       only: true,
@@ -4758,7 +4758,7 @@
         }
         let $alertElement = $section.querySelector(".alert");
         if ($alertElement) {
-          __pops.alert({
+          __pops__.alert({
             title: {
               text: i18next.t("添加失败"),
               position: "center",
@@ -5462,7 +5462,7 @@
               let attr_filter_value = "data-filter-value";
               DOMUtils.on($filter, "click", (event) => {
                 DOMUtils.preventEvent(event);
-                let $dialog = __pops.alert({
+                let $dialog = __pops__.alert({
                   title: {
                     text: i18next.t("选择需要过滤的选项"),
                     position: "center",
@@ -5615,7 +5615,7 @@
           name: i18next.t("控制台"),
           className: "scripts-console",
           clickEvent(event) {
-            let $dialog = __pops.alert({
+            let $dialog = __pops__.alert({
               title: {
                 text: i18next.t("控制台"),
                 position: "center",
@@ -6255,11 +6255,11 @@
       shadowRoot.appendChild(
         domUtils.createElement("style", {
           innerHTML: `
-                    ${__pops.config.cssText.index}
+                    ${__pops__.config.cssText.index}
 
-                    ${__pops.config.cssText.common}
+                    ${__pops__.config.cssText.common}
 
-                    ${__pops.config.cssText.panelCSS}
+                    ${__pops__.config.cssText.panelCSS}
                 `,
         })
       );
@@ -6335,7 +6335,7 @@
       });
     },
     addFilterControlsItem($search, $filterControlsContainer) {
-      let panelHandlerComponents = __pops.config.PanelHandlerComponents();
+      let panelHandlerComponents = __pops__.config.PanelHandlerComponents();
       let controlsConfig = [
         {
           name: i18next.t("名称"),
@@ -6876,7 +6876,7 @@
           clipboardCopyElement.setAttribute("success", "true");
           octiconCopyElement.setAttribute("aria-hidden", "true");
           octiconCheckCopyElement.removeAttribute("aria-hidden");
-          let tooltip = __pops.tooltip({
+          let tooltip = __pops__.tooltip({
             target: clipboardCopyElement,
             content: i18next.t("✅ 复制成功!"),
             position: "left",
@@ -6992,7 +6992,7 @@
           name: i18next.t("操作面板"),
           className: "filter-scripts",
           clickEvent(event) {
-            let $dialog = __pops.alert({
+            let $dialog = __pops__.alert({
               title: {
                 text: i18next.t("操作面板"),
                 position: "center",
@@ -7102,7 +7102,7 @@
   const GithubUrl2WebhookUrl = {
     init() {},
     showView() {
-      let $alert = __pops.alert({
+      let $alert = __pops__.alert({
         title: {
           text: i18next.t("Url To WebhookUrl"),
           position: "center",
@@ -7478,7 +7478,7 @@
         ?.split("/")
         ?.pop()
         ?.match(/([0-9]+)/)?.[0];
-      let loading = __pops.loading({
+      let loading = __pops__.loading({
         mask: {
           enable: true,
         },
@@ -7548,7 +7548,7 @@
             "i",
             {
               className: "pops-bottom-icon",
-              innerHTML: __pops.config.iconSVG.loading,
+              innerHTML: __pops__.config.iconSVG.loading,
             },
             {
               "is-loading": true,

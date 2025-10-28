@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.21
+// @version      2025.10.28
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -13,10 +13,10 @@
 // @match        *://card.weibo.com/*
 // @match        *://weibo.com/l/wblive/m/show/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.1/dist/index.umd.js
 // @connect      m.weibo.cn
 // @connect      www.weibo.com
 // @connect      passport.weibo.com
@@ -327,9 +327,9 @@
   };
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
-  const __pops = pops;
+  const __pops__ = pops;
   const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
-  let SCRIPT_NAME = _GM_info?.script?.name || void 0;
+  const SCRIPT_NAME = _GM_info?.script?.name || void 0;
   const AnyTouch = pops.config.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
@@ -381,9 +381,9 @@
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
     },
   });
-  __pops.GlobalConfig.setGlobalConfig({
+  __pops__.GlobalConfig.setGlobalConfig({
     zIndex: () => {
-      let maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
+      const maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
         if ($ele?.classList?.contains("qmsg-shadow-container")) {
           return false;
         }
@@ -391,7 +391,7 @@
           return false;
         }
       });
-      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+      const popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
     },
     mask: {
@@ -451,6 +451,7 @@
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
+  const ATTRIBUTE_PLUGIN_SEARCH_CONFIG = "data-plugin-search-config";
   const PROPS_STORAGE_API = "data-storage-api";
   const PanelSizeUtil = {
     get width() {
@@ -674,7 +675,7 @@
       };
       const dbclick_callback = () => {
         const importConfig = (importEndCallBack) => {
-          const $alert = __pops.alert({
+          const $alert = __pops__.alert({
             title: {
               text: "请选择导入方式",
               position: "center",
@@ -781,7 +782,7 @@
           domUtils.on($network, "click", (event) => {
             domUtils.preventEvent(event);
             $alert.close();
-            const $prompt = __pops.prompt({
+            const $prompt = __pops__.prompt({
               title: {
                 text: "网络导入",
                 position: "center",
@@ -872,7 +873,7 @@
           fileName = `${SCRIPT_NAME}_panel-setting-${utils.formatTime(Date.now(), "yyyy_MM_dd_HH_mm_ss")}.json`,
           fileData
         ) => {
-          const $alert = __pops.alert({
+          const $alert = __pops__.alert({
             title: {
               text: "请选择导出方式",
               position: "center",
@@ -935,7 +936,7 @@
             }
           });
         };
-        const $dialog = __pops.confirm({
+        const $dialog = __pops__.confirm({
           title: {
             text: "配置",
             position: "center",
@@ -1187,7 +1188,8 @@
         let moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
         if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
           Object.keys(moreMenuDefaultConfig).forEach((key2) => {
-            menuDefaultConfig.set(key2, moreMenuDefaultConfig[key2]);
+            const defaultValue = moreMenuDefaultConfig[key2];
+            menuDefaultConfig.set(key2, defaultValue);
           });
         }
         if (!menuDefaultConfig.size) {
@@ -1519,7 +1521,7 @@
       if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig) {
         content.push(...PanelContent.getDefaultBottomContentConfig());
       }
-      let $panel = __pops.panel({
+      let $panel = __pops__.panel({
         ...{
           title: {
             text: title,
@@ -1604,7 +1606,7 @@
         }
         domUtils.preventEvent(evt);
         clickElement = null;
-        const $alert = __pops.alert({
+        const $alert = __pops__.alert({
           title: {
             text: "搜索配置",
             position: "center",
@@ -1630,7 +1632,7 @@
           height: "auto",
           drag: true,
           style: `
-					${__pops.config.cssText.panelCSS}
+					${__pops__.config.cssText.panelCSS}
 
 					.search-wrapper{
 						border-bottom: 1px solid rgb(235, 238, 245, 1);
@@ -1799,8 +1801,22 @@
                 }
                 loopContentConfig(child_forms, deepMenuPath);
               } else {
-                const text = Reflect.get(configItem, "text");
-                const description = Reflect.get(configItem, "description");
+                let text;
+                let description;
+                if (configItem.type === "own") {
+                  const searchConfig = Reflect.get(configItem.attributes || {}, ATTRIBUTE_PLUGIN_SEARCH_CONFIG);
+                  if (searchConfig) {
+                    if (typeof searchConfig.text === "string") {
+                      text = searchConfig.text;
+                    }
+                    if (typeof searchConfig.desc === "string") {
+                      description = searchConfig.desc;
+                    }
+                  }
+                } else {
+                  text = Reflect.get(configItem, "text");
+                  description = Reflect.get(configItem, "description");
+                }
                 const delayMatchedTextList = [text, description];
                 const matchedIndex = delayMatchedTextList.findIndex((configText) => {
                   if (typeof configText !== "string") {
@@ -3371,26 +3387,26 @@
     } else {
       selectData = data;
     }
-    let result = {
+    const result = {
       text,
       type: "select",
       description,
       attributes: {},
       props: {},
       getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
       callback(event, isSelectedValue, isSelectedText) {
-        let value = isSelectedValue;
+        const value = isSelectedValue;
         log.info(`选择：${isSelectedText}`);
         if (typeof selectCallBack === "function") {
-          let result2 = selectCallBack(event, value, isSelectedText);
+          const result2 = selectCallBack(event, value, isSelectedText);
           if (result2) {
             return;
           }
         }
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
       data: selectData,
@@ -3417,7 +3433,7 @@
     disabled,
     valueChangeCallBack
   ) {
-    let result = {
+    const result = {
       text,
       type: "switch",
       description,
@@ -3425,14 +3441,14 @@
       attributes: {},
       props: {},
       getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
-        let value = storageApiValue.get(key, defaultValue);
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        const value = storageApiValue.get(key, defaultValue);
         return value;
       },
       callback(event, __value) {
-        let value = Boolean(__value);
+        const value = Boolean(__value);
         log.success(`${value ? "开启" : "关闭"} ${text}`);
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
       afterAddToUListCallBack,
@@ -3459,7 +3475,7 @@
     disabled,
     valueChangeCallBack
   ) {
-    let result = {
+    const result = {
       text,
       type: "textarea",
       attributes: {},
@@ -3468,15 +3484,15 @@
       placeholder,
       disabled,
       getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
-        let value = storageApiValue.get(key, defaultValue);
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        const value = storageApiValue.get(key, defaultValue);
         if (Array.isArray(value)) {
           return value.join("\n");
         }
         return value;
       },
       callback(event, value) {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
+        const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
     };

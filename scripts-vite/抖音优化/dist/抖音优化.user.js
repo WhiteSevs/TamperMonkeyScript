@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.24
+// @version      2025.10.28
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -10,10 +10,10 @@
 // @match        *://*.douyin.com/*
 // @match        *://*.iesdouyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.1/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
 // @grant        GM_deleteValue
@@ -538,7 +538,7 @@
       };
       const dbclick_callback = () => {
         const importConfig = (importEndCallBack) => {
-          const $alert = __pops.alert({
+          const $alert = __pops__.alert({
             title: {
               text: "请选择导入方式",
               position: "center",
@@ -645,7 +645,7 @@
           domUtils.on($network, "click", (event) => {
             domUtils.preventEvent(event);
             $alert.close();
-            const $prompt = __pops.prompt({
+            const $prompt = __pops__.prompt({
               title: {
                 text: "网络导入",
                 position: "center",
@@ -736,7 +736,7 @@
           fileName = `${SCRIPT_NAME}_panel-setting-${utils.formatTime(Date.now(), "yyyy_MM_dd_HH_mm_ss")}.json`,
           fileData
         ) => {
-          const $alert = __pops.alert({
+          const $alert = __pops__.alert({
             title: {
               text: "请选择导出方式",
               position: "center",
@@ -799,7 +799,7 @@
             }
           });
         };
-        const $dialog = __pops.confirm({
+        const $dialog = __pops__.confirm({
           title: {
             text: "配置",
             position: "center",
@@ -1384,7 +1384,7 @@
       if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig) {
         content.push(...PanelContent.getDefaultBottomContentConfig());
       }
-      let $panel = __pops.panel({
+      let $panel = __pops__.panel({
         ...{
           title: {
             text: title,
@@ -1469,7 +1469,7 @@
         }
         domUtils.preventEvent(evt);
         clickElement = null;
-        const $alert = __pops.alert({
+        const $alert = __pops__.alert({
           title: {
             text: "搜索配置",
             position: "center",
@@ -1495,7 +1495,7 @@
           height: "auto",
           drag: true,
           style: `
-					${__pops.config.cssText.panelCSS}
+					${__pops__.config.cssText.panelCSS}
 
 					.search-wrapper{
 						border-bottom: 1px solid rgb(235, 238, 245, 1);
@@ -1865,9 +1865,9 @@
   };
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
-  const __pops = pops;
+  const __pops__ = pops;
   const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
-  let SCRIPT_NAME = _GM_info?.script?.name || void 0;
+  const SCRIPT_NAME = _GM_info?.script?.name || void 0;
   const AnyTouch = pops.config.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
@@ -1919,9 +1919,9 @@
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
     },
   });
-  __pops.GlobalConfig.setGlobalConfig({
+  __pops__.GlobalConfig.setGlobalConfig({
     zIndex: () => {
-      let maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
+      const maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
         if ($ele?.classList?.contains("qmsg-shadow-container")) {
           return false;
         }
@@ -1929,7 +1929,7 @@
           return false;
         }
       });
-      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+      const popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
     },
     mask: {
@@ -4959,7 +4959,7 @@
           DOMUtils,
           httpx,
           Qmsg,
-          pops: __pops,
+          pops: __pops__,
           log,
           window,
           unsafeWindow: _unsafeWindow,
@@ -5492,7 +5492,7 @@
       </div>
       <div class="douyin-video-link-container">${contentHTML}</div>
       `;
-        const $dialog = __pops.alert({
+        const $dialog = __pops__.alert({
           title: {
             text: "视频解析",
             position: "center",
@@ -6481,7 +6481,7 @@
       log.info(["解析的信息：", this.$data.playerInstance]);
       let blobSrc = this.$data.playerInstance?.url || this.$data.playerInstance?.src;
       let pushSrc = this.$data.playerInstance?.config.url;
-      __pops.alert({
+      __pops__.alert({
         title: {
           text: "解析信息",
           position: "center",
@@ -7613,7 +7613,7 @@
       this.option = option;
     }
     async showView() {
-      let $dialog = __pops.confirm({
+      let $dialog = __pops__.confirm({
         title: {
           text: this.option.title,
           position: "center",
@@ -7643,7 +7643,7 @@
           enable: true,
         },
         style: `
-                ${__pops.config.cssText.panelCSS}
+                ${__pops__.config.cssText.panelCSS}
                 
                 .rule-form-container {
                     
@@ -7725,7 +7725,7 @@
       this.option = option;
     }
     showView() {
-      let $alert = __pops.alert({
+      let $alert = __pops__.alert({
         title: {
           text: this.option.title,
           position: "center",
@@ -7815,7 +7815,7 @@
       this.option = option;
     }
     async showView(filterCallBack) {
-      let $popsConfirm = __pops.confirm({
+      let $popsConfirm = __pops__.confirm({
         title: {
           text: this.option.title,
           position: "center",
@@ -7902,7 +7902,7 @@
             type: "xiaomi-primary",
             text: `清空所有(${(await this.option.data()).length})`,
             callback: (event) => {
-              let $askDialog = __pops.confirm({
+              let $askDialog = __pops__.confirm({
                 title: {
                   text: "提示",
                   position: "center",
@@ -7949,7 +7949,7 @@
         width: window.innerWidth > 500 ? "500px" : "88vw",
         height: window.innerHeight > 500 ? "500px" : "80vh",
         style: `
-            ${__pops.config.cssText.panelCSS}
+            ${__pops__.config.cssText.panelCSS}
             
             .rule-item{
                 display: flex;
@@ -8124,10 +8124,10 @@
 					</div>
 				</div>
 				<div class="rule-controls-edit">
-					${__pops.config.iconSVG.edit}
+					${__pops__.config.iconSVG.edit}
 				</div>
 				<div class="rule-controls-delete">
-					${__pops.config.iconSVG.delete}
+					${__pops__.config.iconSVG.delete}
 				</div>
 			</div>
 			`,
@@ -8169,7 +8169,7 @@
       if (this.option.itemControls.delete.enable) {
         domUtils.on($delete, "click", (event) => {
           domUtils.preventEvent(event);
-          let $askDialog = __pops.confirm({
+          let $askDialog = __pops__.confirm({
             title: {
               text: "提示",
               position: "center",
@@ -8322,7 +8322,7 @@
       }
     }
     importRules(importEndCallBack) {
-      const $alert = __pops.alert({
+      const $alert = __pops__.alert({
         title: {
           text: "请选择导入方式",
           position: "center",
@@ -8381,7 +8381,7 @@
         }
         if (repeatData.length) {
           const confirmRepeat = await new Promise((resolve) => {
-            __pops.alert({
+            __pops__.alert({
               title: {
                 text: "覆盖规则",
                 position: "center",
@@ -8471,7 +8471,7 @@
       domUtils.on($network, "click", (event) => {
         domUtils.preventEvent(event);
         $alert.close();
-        const $prompt = __pops.prompt({
+        const $prompt = __pops__.prompt({
           title: {
             text: "网络导入",
             position: "center",
@@ -8942,7 +8942,7 @@
             targetFilterOption = targetFilterOption.concat(filterResult.notMatchedFilterRule);
           }
         }
-        __pops.confirm({
+        __pops__.confirm({
           title: {
             text: "视频awemeInfo",
             position: "center",
@@ -9098,7 +9098,7 @@
       ];
     },
     getRuleViewInstance() {
-      const panelHandlerComponents = __pops.config.PanelHandlerComponents();
+      const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
       const generateStorageApi = (data) => {
         return {
           get(key, defaultValue) {
