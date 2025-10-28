@@ -4,8 +4,8 @@ import { ViteUtils, GetLib, viteUtils } from "./../../vite.utils";
 import mkcert from "vite-plugin-mkcert";
 // @ts-ignore
 import vue from "@vitejs/plugin-vue";
-import Icons from "unplugin-icons/dist/vite";
-import IconsResolver from "unplugin-icons/dist/resolver";
+import Icons from "unplugin-icons/vite";
+import IconsResolver from "unplugin-icons/resolver";
 import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
@@ -99,7 +99,15 @@ const GenerateUserConfig = async (option: {
     VERSION = inheritUtils.getScriptVersion(!isEmptyOutDir);
   }
 
+  /**
+   * cdn是提供给vite-plugin-monkey的配置
+   *
+   * local是提供给hook使用替换的
+   */
   const externalGlobalsConfig = {
+    CoverUMD: {
+      local: await GetLib("CoverUMD", true),
+    },
     "@whitesev/utils": {
       cdn: cdn.jsdelivrFastly("Utils", isMinify ? "dist/index.umd.min.js" : "dist/index.umd.js"),
       local: `file:///${baseUtils.getAbsolutePath(`./../../lib/Utils/dist/index.umd.${isMinify ? "min." : ""}js`)}`,
@@ -119,6 +127,12 @@ const GenerateUserConfig = async (option: {
     qmsg: {
       cdn: cdn.jsdelivrFastly("Qmsg", isMinify ? "dist/index.umd.min.js" : "dist/index.umd.js"),
       local: `file:///${baseUtils.getAbsolutePath(`./../../lib/Qmsg/dist/index.umd.${isMinify ? "min." : ""}js`)}`,
+    },
+    showdown: {
+      local: await GetLib("showdown", true),
+    },
+    "Element-Plus": {
+      local: await GetLib("Element-Plus", true),
     },
   };
   /**
@@ -161,9 +175,11 @@ const GenerateUserConfig = async (option: {
       externalGlobals: Object.assign(
         {},
         (() => {
-          let result = {};
+          const result = {};
           for (const [key, value] of Object.entries(externalGlobalsConfig)) {
-            result[key] = value.cdn;
+            if ("cdn" in value) {
+              result[key] = value.cdn;
+            }
           }
           return result;
         })()
@@ -177,7 +193,7 @@ const GenerateUserConfig = async (option: {
             // @ts-ignore
             return GM_addStyle(cssText);
           }
-          let $css = document.createElement("style");
+          const $css = document.createElement("style");
           $css.setAttribute("type", "text/css");
           $css.setAttribute("data-type", "gm-css");
           if (globalThis.trustedTypes) {
@@ -204,12 +220,15 @@ const GenerateUserConfig = async (option: {
     disableExternalGlobals: option.monkeyOption.disableExternalGlobals ?? false,
     build: {
       metaLocalFileName: option.monkeyOption?.build?.metaLocalFileName ?? true,
+      // 本地映射
       externalGlobalsLocal: Object.assign(
         {},
         (() => {
           let result = {};
           for (const [key, value] of Object.entries(externalGlobalsConfig)) {
-            result[key] = value.local;
+            if ("local" in value) {
+              result[key] = value.local;
+            }
           }
           return result;
         })(),
@@ -461,8 +480,8 @@ const GenerateUserConfig = async (option: {
 	const GM_Api = {};
 	let GM_repair_count = 0;
 	
-	if (typeof unsafeWindow !== "undefined" && unsafeWindow == window) {
-		console.log("[vite-plugin-monkey] window == unsafeWindow repair GM api");
+	if (typeof unsafeWindow !== "undefined" && unsafeWindow == window || typeof unsafeWindow === "undefined") {
+		console.log("[vite-plugin-monkey] window == unsafeWindow start check and repair GM api with this env");
 
 		if (window.GM == null && typeof GM === "object") {
       Reflect.set(window, "GM", GM);
@@ -532,7 +551,7 @@ const GenerateUserConfig = async (option: {
         let localMetaFileName = fileName.replace(/\.meta\.js$/gi, "");
         const chunk = bundle[fileName];
         const filePath = path.join(options.dir, fileName);
-        let content = fs.readFileSync(filePath, "utf-8");
+        const content = fs.readFileSync(filePath, "utf-8");
         const splitContent = content.split("\n");
         let insertIndex = -1;
         let inserRequireSpace = " ";
@@ -543,7 +562,7 @@ const GenerateUserConfig = async (option: {
           if (metaEndIndex === -1 && metaItem.startsWith("// ==/UserScript==")) {
             metaEndIndex = index;
           }
-          let requireMatch = metaItem.match(/^\/\/[\s]+@require([\s]+)/i);
+          const requireMatch = metaItem.match(/^\/\/[\s]+@require([\s]+)/i);
           if (requireMatch) {
             inserRequireSpace = requireMatch[requireMatch.length - 1];
             insertIndex = index;
@@ -555,9 +574,9 @@ const GenerateUserConfig = async (option: {
         }
         for (let index = 0; index < splitContent.length; index++) {
           let metaItem = splitContent[index];
-          // 把部分库转为本地文件
-          let requireMatch = metaItem.match(/^\/\/[\s]+@require([\s]+)/i);
-          let resourceMatch = metaItem.match(/^\/\/[\s]+@resource([\s]+)/i);
+          // 把部分库映射为本地文件
+          const requireMatch = metaItem.match(/^\/\/[\s]+@require([\s]+)/i);
+          const resourceMatch = metaItem.match(/^\/\/[\s]+@resource([\s]+)/i);
           if (requireMatch) {
             metaItem = metaItem.replace(requireMatch[0], "");
             for (const [requiredMatchKey, requiredUrl] of Object.entries(
@@ -583,8 +602,8 @@ const GenerateUserConfig = async (option: {
             }
           }
         }
-        let localMainFilePath = `${options.dir}\\${SCRIPT_NAME}.user.js`;
-        let localMainFileRequire = `// @require${inserRequireSpace}file:///${localMainFilePath}`;
+        const localMainFilePath = `${options.dir}\\${SCRIPT_NAME}.user.js`;
+        const localMainFileRequire = `// @require${inserRequireSpace}file:///${localMainFilePath}`;
         splitContent.splice(insertIndex + 1, 0, localMainFileRequire);
 
         localMetaFileName = `${localMetaFileName}.meta.local.user.js`;
@@ -593,7 +612,7 @@ const GenerateUserConfig = async (option: {
         } else if (typeof DefaultOwnMonkeyOption.build.metaLocalFileName === "function") {
           localMetaFileName = DefaultOwnMonkeyOption.build.metaLocalFileName(localMetaFileName);
         }
-        let metaLocalFilePath = `${options.dir}\\${localMetaFileName}`;
+        const metaLocalFilePath = `${options.dir}\\${localMetaFileName}`;
         fs.writeFileSync(metaLocalFilePath, splitContent.join("\n"));
 
         const metaLocalFileSize = fs.statSync(metaLocalFilePath).size;
