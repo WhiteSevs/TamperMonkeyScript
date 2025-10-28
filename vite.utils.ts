@@ -338,7 +338,7 @@ const jsdelivrHost = "fastly.jsdelivr.net";
 /**
  * github的链接
  */
-const github_jsdelivr = (repoName, sha_hash, file_path) => {
+const github_jsdelivr = (repoName: string, sha_hash: string, file_path: string) => {
   file_path = file_path.replace(/^\//i, "");
   file_path = encodeURI(file_path);
   return `https://${jsdelivrHost}/gh/${repoName}@${sha_hash}/${file_path}`;
@@ -347,7 +347,7 @@ const github_jsdelivr = (repoName, sha_hash, file_path) => {
 /** 库映射信息 */
 const LIB_MAP = {
   CoverUMD: {
-    localPath: "file://" + viteUtils.getOriginAbsolutePath("./lib/CoverUMD/index.js"),
+    localPath: "file:///" + viteUtils.getOriginAbsolutePath("./lib/CoverUMD/index.js"),
     url: async () => {
       // return await viteUtils.getGreasyForkLibLatestVersionUrl(494167);
       return await viteUtils.getGitHubLibLatestVersionUrl(
@@ -358,7 +358,7 @@ const LIB_MAP = {
     },
   },
   Viewer: {
-    localPath: "file://" + viteUtils.getAbsolutePath("./lib/Viewer/index.js"),
+    localPath: "file:///" + viteUtils.getAbsolutePath("./lib/Viewer/index.js"),
     url: async () => {
       // return await viteUtils.getGreasyForkLibLatestVersionUrl(449471);
       return await viteUtils.getGitHubLibLatestVersionUrl(
@@ -369,7 +369,7 @@ const LIB_MAP = {
     },
   },
   Qmsg: {
-    localPath: "file://" + viteUtils.getAbsolutePath("./lib/Qmsg/dist/index.umd.js"),
+    localPath: "file:///" + viteUtils.getAbsolutePath("./lib/Qmsg/dist/index.umd.js"),
     url: async () => {
       // return await viteUtils.getGreasyForkLibLatestVersionUrl(462234);
       return await viteUtils.getGitHubLibLatestVersionUrl(
@@ -380,7 +380,7 @@ const LIB_MAP = {
     },
   },
   pops: {
-    localPath: "file://" + viteUtils.getAbsolutePath("./lib/pops/dist/index.umd.js"),
+    localPath: "file:///" + viteUtils.getAbsolutePath("./lib/pops/dist/index.umd.js"),
     url: async () => {
       // return await viteUtils.getGreasyForkLibLatestVersionUrl(456485);
       return await viteUtils.getGitHubLibLatestVersionUrl(
@@ -391,7 +391,7 @@ const LIB_MAP = {
     },
   },
   Utils: {
-    localPath: "file://" + viteUtils.getAbsolutePath("./lib/Utils/dist/index.umd.js"),
+    localPath: "file:///" + viteUtils.getAbsolutePath("./lib/Utils/dist/index.umd.js"),
     url: async () => {
       // return await viteUtils.getGreasyForkLibLatestVersionUrl(455186);
       return await viteUtils.getGitHubLibLatestVersionUrl(
@@ -402,7 +402,7 @@ const LIB_MAP = {
     },
   },
   DOMUtils: {
-    localPath: "file://" + viteUtils.getAbsolutePath("./lib/DOMUtils/dist/index.umd.js"),
+    localPath: "file:///" + viteUtils.getAbsolutePath("./lib/DOMUtils/dist/index.umd.js"),
     url: async () => {
       // return await viteUtils.getGreasyForkLibLatestVersionUrl(465772);
       return await viteUtils.getGitHubLibLatestVersionUrl(
@@ -413,7 +413,7 @@ const LIB_MAP = {
     },
   },
   showdown: {
-    localPath: "file://" + viteUtils.getAbsolutePath("./lib/showdown/index.js"),
+    localPath: "file:///" + viteUtils.getAbsolutePath("./lib/showdown/index.js"),
     url: async () => {
       // return await viteUtils.getGreasyForkLibatestVersionUrl(488179);
       return await viteUtils.getGitHubLibLatestVersionUrl(
@@ -424,7 +424,7 @@ const LIB_MAP = {
     },
   },
   Xtiper: {
-    localPath: "file://" + viteUtils.getAbsolutePath("./lib/Xtiper/index.js"),
+    localPath: "file:///" + viteUtils.getAbsolutePath("./lib/Xtiper/index.js"),
     url: async () => {
       // return await viteUtils.getGreasyForkLibLatestVersionUrl(449512);
       return await viteUtils.getGitHubLibLatestVersionUrl(
@@ -435,7 +435,7 @@ const LIB_MAP = {
     },
   },
   NZMsgBox: {
-    localPath: "file://" + viteUtils.getAbsolutePath("./lib/NZMsgBox/index.js"),
+    localPath: "file:///" + viteUtils.getAbsolutePath("./lib/NZMsgBox/index.js"),
     url: async () => {
       // return await viteUtils.getGreasyForkLibLatestVersionUrl(449562);
       return await viteUtils.getGitHubLibLatestVersionUrl(
@@ -446,7 +446,7 @@ const LIB_MAP = {
     },
   },
   "js-watermark": {
-    localPath: "file://" + viteUtils.getAbsolutePath("./lib/js-watermark/index.js"),
+    localPath: "file:///" + viteUtils.getAbsolutePath("./lib/js-watermark/index.js"),
     url: async () => {
       // return await viteUtils.getGreasyForkLibLatestVersionUrl(452322);
       return await viteUtils.getGitHubLibLatestVersionUrl(
@@ -457,7 +457,7 @@ const LIB_MAP = {
     },
   },
   GM_html2canvas: {
-    localPath: "file://" + viteUtils.getAbsolutePath("./lib/html2canvas/index.js"),
+    localPath: "file:///" + viteUtils.getAbsolutePath("./lib/html2canvas/index.js"),
     url: async () => {
       // return await viteUtils.getGreasyForkLibLatestVersionUrl(456607);
       return await viteUtils.getGitHubLibLatestVersionUrl(
@@ -468,7 +468,7 @@ const LIB_MAP = {
     },
   },
   DataPaging: {
-    localPath: "file://" + viteUtils.getAbsolutePath("./lib/DataPaging/dist/index.umd.js"),
+    localPath: "file:///" + viteUtils.getAbsolutePath("./lib/DataPaging/dist/index.umd.js"),
     url: async () => {
       // return await viteUtils.getGreasyForkLibLatestVersionUrl(465550);
       return await viteUtils.getGitHubLibLatestVersionUrl(
@@ -479,7 +479,7 @@ const LIB_MAP = {
     },
   },
   Eruda: {
-    localPath: "file://" + viteUtils.getAbsolutePath("./lib/Eruda/index.js"),
+    localPath: "file:///" + viteUtils.getAbsolutePath("./lib/Eruda/index.js"),
     url: async () => {
       // return await viteUtils.getGreasyForkLibLatestVersionUrl(483694);
       return await viteUtils.getGitHubLibLatestVersionUrl(
@@ -490,7 +490,7 @@ const LIB_MAP = {
     },
   },
   vConsole: {
-    localPath: "file://" + viteUtils.getAbsolutePath("./lib/VConsole/index.js"),
+    localPath: "file:///" + viteUtils.getAbsolutePath("./lib/VConsole/index.js"),
     url: async () => {
       // return await viteUtils.getGreasyForkLibLatestVersionUrl(483695);
       return await viteUtils.getGitHubLibLatestVersionUrl(
@@ -501,7 +501,7 @@ const LIB_MAP = {
     },
   },
   PageSpy: {
-    localPath: "file://" + viteUtils.getAbsolutePath("./lib/PageSpy/index.js"),
+    localPath: "file:///" + viteUtils.getAbsolutePath("./lib/PageSpy/index.js"),
     url: async () => {
       // return await viteUtils.getGreasyForkLibLatestVersionUrl(483696);
       return await viteUtils.getGitHubLibLatestVersionUrl(
@@ -512,7 +512,7 @@ const LIB_MAP = {
     },
   },
   Leaflet: {
-    localPath: "file://" + viteUtils.getAbsolutePath("./lib/leaflet/index.js"),
+    localPath: "file:///" + viteUtils.getAbsolutePath("./lib/leaflet/index.js"),
     url: async () => {
       // return await viteUtils.getGreasyForkLibLatestVersionUrl(483765);
       return await viteUtils.getGitHubLibLatestVersionUrl(
@@ -523,7 +523,7 @@ const LIB_MAP = {
     },
   },
   "Crypto-JS": {
-    localPath: "file://" + viteUtils.getAbsolutePath("./lib/CryptoJS/index.js"),
+    localPath: "file:///" + viteUtils.getAbsolutePath("./lib/CryptoJS/index.js"),
     url: async () => {
       // return await viteUtils.getGreasyForkLibLatestVersionUrl(486152);
       return await viteUtils.getGitHubLibLatestVersionUrl(
@@ -534,7 +534,7 @@ const LIB_MAP = {
     },
   },
   "Element-Plus": {
-    localPath: "file://" + viteUtils.getAbsolutePath("./lib/Element-Plus/index.js"),
+    localPath: "file:///" + viteUtils.getAbsolutePath("./lib/Element-Plus/index.js"),
     url: async () => {
       // return await viteUtils.getGreasyForkLibLatestVersionUrl(495227);
       return await viteUtils.getGitHubLibLatestVersionUrl(
@@ -545,7 +545,7 @@ const LIB_MAP = {
     },
   },
   QRCode: {
-    localPath: "file://" + viteUtils.getAbsolutePath("./lib/QRCode/index.umd.js"),
+    localPath: "file:///" + viteUtils.getAbsolutePath("./lib/QRCode/index.umd.js"),
     url: async () => {
       // return await viteUtils.getGreasyForkLibLatestVersionUrl(497907);
       return await viteUtils.getGitHubLibLatestVersionUrl(
@@ -556,7 +556,7 @@ const LIB_MAP = {
     },
   },
   "网盘链接识别-图标库": {
-    localPath: "file://" + viteUtils.getAbsolutePath("./scripts-vite/网盘链接识别/网盘链接识别-图标.js"),
+    localPath: "file:///" + viteUtils.getAbsolutePath("./scripts-vite/网盘链接识别/网盘链接识别-图标.js"),
     url: async () => {
       // return await viteUtils.getGreasyForkLibLatestVersionUrl(456470);
       return await viteUtils.getGitHubLibLatestVersionUrl(
@@ -579,10 +579,14 @@ const LIB_MAP = {
 /**
  * 获取库的链接信息，server下是file://...，build下是https://...
  * @param libName 库名|库名数组
+ * @param isLocal 是否指定获取本地的，true：强制本地，false：强制cdn
  */
-export async function GetLib(libName: keyof typeof LIB_MAP): Promise<string>;
-export async function GetLib(libName: (keyof typeof LIB_MAP)[]): Promise<string[]>;
-export async function GetLib(libName: (keyof typeof LIB_MAP)[] | keyof typeof LIB_MAP): Promise<string | string[]> {
+export async function GetLib(libName: keyof typeof LIB_MAP, isLocal?: boolean): Promise<string>;
+export async function GetLib(libName: (keyof typeof LIB_MAP)[], isLocal?: boolean): Promise<string[]>;
+export async function GetLib(
+  libName: (keyof typeof LIB_MAP)[] | keyof typeof LIB_MAP,
+  isLocal?: boolean
+): Promise<string | string[]> {
   let needLib: (keyof typeof LIB_MAP)[] = [];
   if (typeof libName == "string") {
     needLib = [libName];
@@ -593,24 +597,33 @@ export async function GetLib(libName: (keyof typeof LIB_MAP)[] | keyof typeof LI
   }
   const ResourceList: string[] = [];
   // if (process.env.NODE_ENV === "development") {
-  if (false) {
-    // for (const needLibName of needLib) {
-    //   let item = LIB_MAP[needLibName];
-    //   if (item) {
-    //     ResourceList.push(item.localPath);
-    //   } else {
-    //     console.warn(`${needLibName} is not found in LIB_MAP`);
-    //   }
-    // }
+  if (isLocal) {
+    for (const needLibName of needLib) {
+      const item = LIB_MAP[needLibName];
+      if (item) {
+        if (typeof item.localPath === "function") {
+          const url = await item.localPath();
+          ResourceList.push(url);
+        } else if (typeof item.localPath === "string") {
+          ResourceList.push(item.localPath);
+        } else {
+          console.warn(`${needLibName} localPath must be string or function`);
+        }
+      } else {
+        console.warn(`${needLibName} is not found in LIB_MAP`);
+      }
+    }
   } else {
     for (const needLibName of needLib) {
-      let item = LIB_MAP[needLibName];
+      const item = LIB_MAP[needLibName];
       if (item) {
         if (typeof item.url === "function") {
-          let url = await item.url();
+          const url = await item.url();
           ResourceList.push(url);
-        } else {
+        } else if (typeof item.url === "string") {
           ResourceList.push(item.url);
+        } else {
+          console.warn(`${needLibName} url must be string or function`);
         }
       } else {
         console.warn(`${needLibName} is not found in LIB_MAP`);
