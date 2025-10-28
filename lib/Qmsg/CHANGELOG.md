@@ -1,6 +1,9 @@
-# v1.5.0
+# v1.5.1
+
+## Fix
+
+- 修复页面切换时`Qmsg`实例被自动关闭的问题（autoClose=false）
 
 ## Feat
 
-- 项目新增`prettier`和`eslint`配置
-- 修复`demo`中的演示文件不渲染svg的问题
+- 新增配置项`listenEventToCloseInstance`

@@ -10,7 +10,13 @@ export declare const QmsgEvent: {
             callback(): void;
             option: AddEventListenerOptions;
         };
+        /**
+         * 监听事件
+         */
         addEvent(): void;
+        /**
+         * 移除监听事件
+         */
         removeEvent(): void;
     };
 };

@@ -7,8 +7,8 @@
 
 **使用**
 
-```npm
-npm install qmsg
+```pnpm
+pnpm i qmsg
 // 或者
 pnpm add qmsg
 ```
@@ -29,7 +29,7 @@ pnpm add qmsg
 <!-- your html -->
 <script src="https://fastly.jsdelivr.net/npm/qmsg@latest/dist/index.umd.min.js"></script>
 <script>
-  var configs = {};
+  const configs = {};
   // configs 为配置参数，可省略
   Qmsg.info("这是提示消息", configs);
 </script>
@@ -38,7 +38,7 @@ pnpm add qmsg
 **油猴引入**
 
 ```html
-// @require https://fastly.jsdelivr.net/npm/qmsg@1.3.3/dist/index.umd.min.js
+// @require https://fastly.jsdelivr.net/npm/qmsg@1.5.1/dist/index.umd.min.js
 ```
 
 **全局配置**
@@ -54,33 +54,34 @@ Qmsg.config({
 
 所有支持的配置信息如下:
 
-| 参数名                      | 类型                                                | 描述                                                                                                       | 默认                                        |
-| --------------------------- | --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
-| parent                      | HTMLElement \| Document \| DocumentFragment \| Node | 实例插入到页面的父元素                                                                                     | document.body \|\| document.documentElement |
-| useShadowRoot               | Boolean                                             | 是否使用 shadowRoot（内部插入实例元素）                                                                    | true                                        |
-| shadowRootMode              | "open" \| "closed"                                  | shadowRoot 的模式                                                                                          | "open"                                      |
-| animation                   | Boolean                                             | 是否使用弹出动画                                                                                           | true                                        |
-| autoClose                   | Boolean                                             | 是否自动关闭                                                                                               | true                                        |
-| listenEventToPauseAutoClose | Boolean                                             | 通过监听事件来判断是否(鼠标悬停\|触摸进入)时暂停自动关闭，当(鼠标离开\|触摸离开)时会自动重启自动关闭定时器 | true                                        |
-| content                     | Number                                              | 提示的消息内容                                                                                             | 空                                          |
-| isHTML                      | Boolean                                             | （同上）是否将内容作为 html 渲染                                                                           | false                                       |
-| position                    | String                                              | 弹出位置 topleft、top、topright、left、center、right、bottomleft、bottom、bottomright，不区分大小写        | top                                         |
-| maxNums                     | Number                                              | 页面中最多显示消息(autoClose: true)的数量                                                                  | 5                                           |
-| onClose                     | Function                                            | 关闭时的回调函数                                                                                           | null                                        |
-| showClose                   | Boolean                                             | 是否显示关闭图标                                                                                           | false                                       |
-| showIcon                    | Boolean                                             | 是否显示左边的图标                                                                                         | true                                        |
-| showMoreContent             | Boolean                                             | 是否显示更多内容(换行)                                                                                     | false                                       |
-| showReverse                 | Boolean                                             | 是否使弹出方式逆反                                                                                         | false                                       |
-| timeout                     | Number                                              | 自动关闭时，消息的持续显示时间，单位（ms）                                                                 | 2500                                        |
-| type                        | String                                              | 弹出类型                                                                                                   | info                                        |
-| zIndex                      | Number                                              | z-index 的层级                                                                                             | 50000                                       |
-| style                       | String                                              | 由于 Qmsg 在 ShadowRoot 内，需要更改 CSS 时，在这里设置即可级                                              |                                             |
-| customClass                 | String                                              | 自定义的 className                                                                                         |                                             |
-| isLimitWidth                | Boolean                                             | 是否限制宽度                                                                                               | false                                       |
-| limitWidthNum               | Number                                              | 限制宽度的数值                                                                                             | 200                                         |
-| limitWidthWrap              | "no-wrap" \| "wrap"\| "ellipsis"                    | 当超出限制宽度时，是否换行还是显示为省略号                                                                 | "no-wrap"                                   |
-| consoleLogContent           | Boolean \| Function                                 | 是否在控制台打印信息                                                                                       | false                                       |
-| afterRender                 | Funtion                                             | 在实例初始化完毕后自动调用该函数                                                                           | null                                        |
+| 参数名                      | 类型                                                        | 描述                                                                                                                    | 默认                                        |
+| --------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| parent                      | `HTMLElement` \| `Document` \| `DocumentFragment` \| `Node` | 实例插入到页面的父元素                                                                                                  | document.body \|\| document.documentElement |
+| useShadowRoot               | boolean                                                     | 是否使用 shadowRoot（内部插入实例元素）                                                                                 | true                                        |
+| shadowRootMode              | `"open"` \| `"closed"`                                      | shadowRoot 的模式                                                                                                       | "open"                                      |
+| animation                   | boolean                                                     | 是否使用弹出动画                                                                                                        | true                                        |
+| autoClose                   | boolean                                                     | 是否自动关闭                                                                                                            | true                                        |
+| listenEventToPauseAutoClose | boolean                                                     | 通过监听事件来判断是否(鼠标悬停\|触摸进入)时暂停自动关闭，当(鼠标离开\|触摸离开)时会自动重启自动关闭定时器              | true                                        |
+| listenEventToCloseInstance  | boolean                                                     | 通过监听`visibilitychange`事件在来回切换标签页时自动关闭实例                                                            | true                                        |
+| content                     | string                                                      | 提示的消息内容                                                                                                          | 空                                          |
+| isHTML                      | boolean                                                     | （同上）是否将内容作为 html 渲染                                                                                        | false                                       |
+| position                    | string                                                      | 弹出位置 `topleft`、`top`、`topright`、`left`、`center`、`right`、`bottomleft`、`bottom`、`bottomright`（不区分大小写） | top                                         |
+| maxNums                     | number                                                      | 页面中最多显示消息(autoClose: true)的数量                                                                               | 5                                           |
+| onClose                     | Function                                                    | 关闭时的回调函数                                                                                                        | null                                        |
+| showClose                   | boolean                                                     | 是否显示关闭图标                                                                                                        | false                                       |
+| showIcon                    | boolean                                                     | 是否显示左边的图标                                                                                                      | true                                        |
+| showMoreContent             | boolean                                                     | 是否显示更多内容（换行）                                                                                                | false                                       |
+| showReverse                 | boolean                                                     | 是否使弹出方式逆反                                                                                                      | false                                       |
+| timeout                     | number                                                      | 自动关闭时，消息的持续显示时间，单位（ms）                                                                              | 2500                                        |
+| type                        | string                                                      | 弹出类型                                                                                                                | info                                        |
+| zIndex                      | number                                                      | z-index 的层级                                                                                                          | 50000                                       |
+| style                       | string                                                      | 由于 Qmsg 在 ShadowRoot 内，需要更改 CSS 时，在这里设置即可级                                                           |                                             |
+| customClass                 | string                                                      | 自定义的 className                                                                                                      |                                             |
+| isLimitWidth                | boolean                                                     | 是否限制宽度                                                                                                            | false                                       |
+| limitWidthNum               | number                                                      | 限制宽度的数值                                                                                                          | 200                                         |
+| limitWidthWrap              | `"no-wrap"` \| `"wrap"`\| `"ellipsis"`                      | 当超出限制宽度时，是否换行还是显示为省略号                                                                              | "no-wrap"                                   |
+| consoleLogContent           | boolean \| Function                                         | 是否在控制台打印信息                                                                                                    | false                                       |
+| afterRender                 | Funtion                                                     | 在实例初始化完毕后自动调用该函数                                                                                        | null                                        |
 
 **Qmsg 支持的方法**
 

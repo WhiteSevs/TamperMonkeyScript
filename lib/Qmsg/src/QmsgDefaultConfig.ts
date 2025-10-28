@@ -20,6 +20,7 @@ export const QmsgDefaultConfig = {
       animation: true,
       autoClose: true,
       listenEventToPauseAutoClose: true,
+      listenEventToCloseInstance: true,
       content: "",
       isHTML: false,
       position: "top",

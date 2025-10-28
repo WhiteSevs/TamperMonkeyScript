@@ -40,6 +40,13 @@ export interface QmsgConfig {
      */
     listenEventToPauseAutoClose?: boolean;
     /**
+     * 通过监听`visibilitychange`事件在来回切换标签页时自动关闭实例
+     *
+     * 前置条件：`autoClose`: true，`timeout`: >0
+     * @default true
+     */
+    listenEventToCloseInstance?: boolean;
+    /**
      * 显示的内容
      * @default ""
      */
@@ -66,6 +73,7 @@ export interface QmsgConfig {
     maxNums?: number;
     /**
      * 关闭Qmsg时触发的回调函数
+     * @default null
      */
     onClose?: (<T extends QmsgMsg>(this: T) => void) | null;
     /**
@@ -80,6 +88,8 @@ export interface QmsgConfig {
     showMoreContent?: boolean;
     /**
      * 弹出顺序是否逆反
+     * + `true`：按顺序追加弹出
+     * + `false`：逆序追加弹出
      * @default false
      */
     showReverse?: boolean;
@@ -90,6 +100,8 @@ export interface QmsgConfig {
     timeout?: number;
     /**
      * 弹出类型
+     *
+     * 信息、警告、成功、错误、加载中
      */
     type: QmsgType;
     /**
@@ -98,7 +110,7 @@ export interface QmsgConfig {
      */
     zIndex?: number | (() => number);
     /**
-     * 自定义的style
+     * 自定义的样式
      * @default ""
      */
     style?: string;
@@ -108,12 +120,16 @@ export interface QmsgConfig {
      */
     customClass?: string;
     /**
-     * 是否限制宽度
+     * 是否限制宽度，当该值为`true`时，会限制宽度，超出限制宽度时，会进行换行或显示为省略号
+     *
+     * 前置条件：`limitWidthNum`: >0
      * @default false
      */
     isLimitWidth?: boolean;
     /**
      * 限制宽度的数值
+     *
+     * 前置条件：`isLimitWidth`: true
      * @default 200
      */
     limitWidthNum?: number | string;
@@ -124,6 +140,8 @@ export interface QmsgConfig {
     limitWidthWrap?: "no-wrap" | "wrap" | "ellipsis";
     /**
      * 是否在控制台打印content信息
+     *
+     * 如果为函数，返回`boolean`类型，当为`true`时，通过`console.log`输出`content`，当为`false`时，不输出content信息
      * @default false
      */
     consoleLogContent?: boolean | ((
@@ -132,7 +150,8 @@ export interface QmsgConfig {
      */
     qmsgInst: typeof QmsgMsg.prototype) => boolean);
     /**
-     * 在实例初始化完毕（元素创建完成）后自动调用该函数
+     * 在实例初始化完毕（元素创建完成且添加到`parent`内）后自动调用该函数
+     * @default null
      */
     afterRender?: ((
     /**
