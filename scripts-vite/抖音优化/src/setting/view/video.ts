@@ -540,12 +540,12 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
               type: "forms",
               text: AutoOpenOrClose.text,
               forms: [
-                UISwitch("【屏蔽】右侧的展开评论按钮", "shieldRightExpandCommentButton", true, void 0),
-                UISwitch("【屏蔽】搜索悬浮栏", "shieldSearchFloatingBar", true, void 0, "一般出现在左上角"),
+                UISwitch("【屏蔽】右侧的展开评论按钮", "shieldRightExpandCommentButton", false, void 0),
+                UISwitch("【屏蔽】搜索悬浮栏", "shieldSearchFloatingBar", false, void 0, "一般出现在左上角"),
                 UISwitch(
                   "【屏蔽】网页全屏关闭按钮",
                   "shieldCloseFullScreenButton",
-                  true,
+                  false,
                   void 0,
                   "一般开启网页全屏后出现在左上角"
                 ),

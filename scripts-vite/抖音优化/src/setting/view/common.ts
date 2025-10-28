@@ -249,11 +249,11 @@ export const PanelCommonConfig: PopsPanelContentConfig = {
                 UISwitch(
                   "【屏蔽】登录弹窗",
                   "watchLoginDialogToClose",
-                  true,
+                  false,
                   void 0,
                   "屏蔽元素且自动等待元素出现并关闭登录弹窗"
                 ),
-                UISwitch("【屏蔽】底部？按钮", "shieldBottomQuestionButton", true, void 0, "屏蔽元素"),
+                UISwitch("【屏蔽】底部？按钮", "shieldBottomQuestionButton", false, void 0, "屏蔽元素"),
               ],
             },
           ],

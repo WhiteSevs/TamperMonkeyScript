@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.28.19
+// @version      2025.10.29
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -10621,11 +10621,11 @@
                   UISwitch(
                     "【屏蔽】登录弹窗",
                     "watchLoginDialogToClose",
-                    true,
+                    false,
                     void 0,
                     "屏蔽元素且自动等待元素出现并关闭登录弹窗"
                   ),
-                  UISwitch("【屏蔽】底部？按钮", "shieldBottomQuestionButton", true, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】底部？按钮", "shieldBottomQuestionButton", false, void 0, "屏蔽元素"),
                 ],
               },
             ],
@@ -11390,12 +11390,12 @@
                 type: "forms",
                 text: AutoOpenOrClose.text,
                 forms: [
-                  UISwitch("【屏蔽】右侧的展开评论按钮", "shieldRightExpandCommentButton", true),
-                  UISwitch("【屏蔽】搜索悬浮栏", "shieldSearchFloatingBar", true, void 0, "一般出现在左上角"),
+                  UISwitch("【屏蔽】右侧的展开评论按钮", "shieldRightExpandCommentButton", false),
+                  UISwitch("【屏蔽】搜索悬浮栏", "shieldSearchFloatingBar", false, void 0, "一般出现在左上角"),
                   UISwitch(
                     "【屏蔽】网页全屏关闭按钮",
                     "shieldCloseFullScreenButton",
-                    true,
+                    false,
                     void 0,
                     "一般开启网页全屏后出现在左上角"
                   ),
