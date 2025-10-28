@@ -80,6 +80,9 @@ export class ColorConversion {
     if (typeof level !== "number") {
       level = Number(level);
     }
+    if (isNaN(level)) {
+      throw new TypeError(`输入错误的level：${level}`);
+    }
     const rgbc = this.hexToRgb(color);
     for (let index = 0; index < 3; index++) {
       const rgbcItemValue = rgbc[index];
@@ -100,6 +103,9 @@ export class ColorConversion {
     }
     if (typeof level !== "number") {
       level = Number(level);
+    }
+    if (isNaN(level)) {
+      throw new TypeError(`输入错误的level：${level}`);
     }
     const rgbc = this.hexToRgb(color);
     for (let index = 0; index < 3; index++) {

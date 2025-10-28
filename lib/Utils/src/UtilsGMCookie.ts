@@ -134,7 +134,7 @@ export class UtilsGMCookie {
     }
   }
   /**
-   *  获取多组Cookie
+   * 获取多组Cookie
    * @param option 配置
    **/
   getList(option: UtilsGMCookieListOptions | object): UtilsGMCookieResult[] {
@@ -246,7 +246,8 @@ export class UtilsGMCookie {
     }
   }
   /**
-   * 解析cookie字符串
+   * 解析cookie字符串，按`;`分割
+   *
    * 例如：document.cookie
    * @param cookieStr
    */

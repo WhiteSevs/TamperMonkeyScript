@@ -370,7 +370,7 @@ export class GMMenu {
    * 根据键值获取callback函数
    * @param menuKey 菜单-键key
    */
-  getCallBack(menuKey: string): ((...args: any[]) => any) | undefined {
+  getCallBack(menuKey: string) {
     return this.MenuHandle.getMenuHandledOption(menuKey)?.callback;
   }
   /**
@@ -410,31 +410,31 @@ export class GMMenu {
   }
   /**
    * 设置当enable为true时默认显示在菜单中前面的emoji图标
-   * @param emojiString
+   * @param emojiString emoji字符串
    */
   setEnableTrueEmoji(emojiString: string) {
     if (typeof emojiString !== "string") {
-      throw new Error("参数emojiString必须是string类型");
+      throw new TypeError("参数emojiString必须是string类型");
     }
     this.MenuHandle.$emoji.success = emojiString;
   }
   /**
    * 设置当enable为false时默认显示在菜单中前面的emoji图标
-   * @param emojiString
+   * @param emojiString emoji字符串
    */
   setEnableFalseEmoji(emojiString: string) {
     if (typeof emojiString !== "string") {
-      throw new Error("参数emojiString必须是string类型");
+      throw new TypeError("参数emojiString必须是string类型");
     }
     this.MenuHandle.$emoji.error = emojiString;
   }
   /**
    * 设置本地存储的菜单外部的键名
-   * @param keyName
+   * @param keyName 键名
    */
   setLocalStorageKeyName(keyName: string) {
     if (typeof keyName !== "string") {
-      throw new Error("参数keyName必须是string类型");
+      throw new TypeError("参数keyName必须是string类型");
     }
     this.MenuHandle.$data.key = keyName;
   }

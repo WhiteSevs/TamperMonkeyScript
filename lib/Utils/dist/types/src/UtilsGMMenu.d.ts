@@ -73,7 +73,7 @@ export declare class GMMenu {
      * 根据键值获取callback函数
      * @param menuKey 菜单-键key
      */
-    getCallBack(menuKey: string): ((...args: any[]) => any) | undefined;
+    getCallBack(menuKey: string): ((data: import("./types/UtilsGMMenu").UtilsGMMenuClickCallBackData) => void) | undefined;
     /**
      * 获取当enable为true时默认显示在菜单中前面的emoji图标
      */
@@ -101,17 +101,17 @@ export declare class GMMenu {
     setEnable(menuKey: string, value: boolean): void;
     /**
      * 设置当enable为true时默认显示在菜单中前面的emoji图标
-     * @param emojiString
+     * @param emojiString emoji字符串
      */
     setEnableTrueEmoji(emojiString: string): void;
     /**
      * 设置当enable为false时默认显示在菜单中前面的emoji图标
-     * @param emojiString
+     * @param emojiString emoji字符串
      */
     setEnableFalseEmoji(emojiString: string): void;
     /**
      * 设置本地存储的菜单外部的键名
-     * @param keyName
+     * @param keyName 键名
      */
     setLocalStorageKeyName(keyName: string): void;
 }

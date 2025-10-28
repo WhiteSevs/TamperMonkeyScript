@@ -24,7 +24,7 @@ export declare class UtilsGMCookie {
     };
     list(option: UtilsGMCookieListOptions | object, callback?: (data: UtilsGMCookieResult[], error?: Error) => void): void;
     /**
-     *  获取多组Cookie
+     * 获取多组Cookie
      * @param option 配置
      **/
     getList(option: UtilsGMCookieListOptions | object): UtilsGMCookieResult[];
@@ -41,7 +41,8 @@ export declare class UtilsGMCookie {
      */
     delete(option: UtilsGMCookieDeleteOptions, callback?: (error?: Error) => void): void;
     /**
-     * 解析cookie字符串
+     * 解析cookie字符串，按`;`分割
+     *
      * 例如：document.cookie
      * @param cookieStr
      */
