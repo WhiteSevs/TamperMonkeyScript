@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.28
+// @version      2025.10.28.19
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -4772,7 +4772,7 @@
         },
         () => {
           if (typeof awemeInfo?.["web_raw_data"] === "string") {
-            const webRawData = utils.toJSON(awemeInfo["webRawData"]);
+            const webRawData = utils.toJSON(awemeInfo["web_raw_data"]);
             if (typeof webRawData?.["brand_ad"] === "string") {
               const brandAd = utils.toJSON(webRawData["brand_ad"]);
               if (brandAd?.["is_ad"]) {
@@ -8908,15 +8908,16 @@
         }
         let transformAwemeInfo;
         const transformAwemeInfoWithPage = filterBase.parseAwemeInfoDictData(awemeInfo, false);
-        log.info(["视频页面原始awemeInfo：", awemeInfo]);
-        log.info(["视频页面解析出的transformAwemeInfo：", transformAwemeInfoWithPage]);
+        log.info(["DOM上的的awemeInfo：", awemeInfo]);
+        log.info(["DOM上解析出的transformAwemeInfo：", transformAwemeInfoWithPage]);
         if (
           typeof transformAwemeInfoWithPage.awemeId === "string" &&
           DouYinVideoFilter.$data.networkAwemeInfoMap.has(transformAwemeInfoWithPage.awemeId)
         ) {
           const awemeInfoMapData = DouYinVideoFilter.$data.networkAwemeInfoMap.get(transformAwemeInfoWithPage.awemeId);
           transformAwemeInfo = awemeInfoMapData.transformAwemeInfo;
-          log.info([`视频网络接口存储的Info：`, awemeInfoMapData]);
+          log.info([`网络请求的awemeInfo：`, awemeInfoMapData.awemeInfo]);
+          log.info([`网络请求解析出的transformAwemeInfo：`, awemeInfoMapData.transformAwemeInfo]);
         } else {
           transformAwemeInfo = transformAwemeInfoWithPage;
         }

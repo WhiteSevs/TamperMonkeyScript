@@ -231,7 +231,7 @@ export class DouYinVideoFilterBase {
         //  @ts-ignore
         if (typeof awemeInfo?.["web_raw_data"] === "string") {
           //  @ts-ignore
-          const webRawData = utils.toJSON(awemeInfo["webRawData"]);
+          const webRawData = utils.toJSON(awemeInfo["web_raw_data"]);
           if (typeof webRawData?.["brand_ad"] === "string") {
             const brandAd = utils.toJSON(webRawData["brand_ad"]);
             if (brandAd?.["is_ad"]) {

@@ -459,15 +459,16 @@ export const DouYinVideoFilter = {
       }
       let transformAwemeInfo: DouYinVideoHandlerInfo;
       const transformAwemeInfoWithPage = filterBase.parseAwemeInfoDictData(awemeInfo, false);
-      log.info(["视频页面原始awemeInfo：", awemeInfo]);
-      log.info(["视频页面解析出的transformAwemeInfo：", transformAwemeInfoWithPage]);
+      log.info(["DOM上的的awemeInfo：", awemeInfo]);
+      log.info(["DOM上解析出的transformAwemeInfo：", transformAwemeInfoWithPage]);
       if (
         typeof transformAwemeInfoWithPage.awemeId === "string" &&
         DouYinVideoFilter.$data.networkAwemeInfoMap.has(transformAwemeInfoWithPage.awemeId)
       ) {
         const awemeInfoMapData = DouYinVideoFilter.$data.networkAwemeInfoMap.get(transformAwemeInfoWithPage.awemeId);
         transformAwemeInfo = awemeInfoMapData.transformAwemeInfo;
-        log.info([`视频网络接口存储的Info：`, awemeInfoMapData]);
+        log.info([`网络请求的awemeInfo：`, awemeInfoMapData.awemeInfo]);
+        log.info([`网络请求解析出的transformAwemeInfo：`, awemeInfoMapData.transformAwemeInfo]);
       } else {
         transformAwemeInfo = transformAwemeInfoWithPage;
       }
