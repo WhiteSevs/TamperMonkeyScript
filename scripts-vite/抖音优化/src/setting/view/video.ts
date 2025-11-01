@@ -300,6 +300,29 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                 ),
               ],
             },
+            {
+              type: "forms",
+              text: "倍速播放",
+              forms: [
+                UISwitch("启用", "dy-video-playbackrate", false),
+                UISelect(
+                  "倍速",
+                  "dy-video-playbackrate-select-value",
+                  1,
+                  [
+                    0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75, 4, 5, 6, 7, 8, 9, 10,
+                    11, 12, 13, 14, 15, 16,
+                  ].map((it) => {
+                    return {
+                      text: String(it),
+                      value: Number(String(it)),
+                    };
+                  }),
+                  void 0,
+                  "选择视频播放的速度"
+                ),
+              ],
+            },
           ],
         },
         {
@@ -350,6 +373,15 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   "视频解析",
                   "解析视频链接",
                   "dy-video-shortcut-parseVideo",
+                  void 0,
+                  "点击录入快捷键",
+                  void 0,
+                  DouYinVideoPlayerShortCut.shortCut
+                ),
+                UIButtonShortCut(
+                  "倍速播放",
+                  "开启/关闭倍速播放功能",
+                  "dy-video-shortcut-playbackRate",
                   void 0,
                   "点击录入快捷键",
                   void 0,

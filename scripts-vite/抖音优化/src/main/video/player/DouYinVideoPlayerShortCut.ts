@@ -11,9 +11,14 @@ export const DouYinVideoPlayerShortCut = {
     rateMap: ["0.75", "1", "1.25", "1.5", "1.75", "2", "3"] as VideoPlayerRate[],
   },
   init() {
-    this.shortCut.initGlobalKeyboardListener(this.getShortCutMap());
+    this.shortCut.initGlobalKeyboardListener(this.shorCutMapOption(), {
+      capture: true,
+    });
   },
-  getShortCutMap(): ShortCutOption {
+  /**
+   * 快捷键配置
+   */
+  shorCutMapOption(): ShortCutOption {
     return {
       "dy-video-rate-low": {
         callback() {
@@ -148,6 +153,20 @@ export const DouYinVideoPlayerShortCut = {
           const $video = videosInViewData[0].$el;
           log.info(`当前在可视区域内占据面积最大的视频是：`, $video);
           DouYinVideoPlayer.hookDownloadButtonToParseVideo($video);
+        },
+      },
+      "dy-video-shortcut-playbackRate": {
+        callback() {
+          log.info("触发快捷键 ==> 倍速播放");
+          let enable = Boolean(Panel.getValue("dy-video-playbackrate"));
+          enable = !enable;
+          if (enable) {
+            const rate = Panel.getValue<string>("dy-video-playbackrate-select-value");
+            Qmsg.success("开启倍速：" + rate);
+          } else {
+            Qmsg.info("关闭倍速");
+          }
+          Panel.setValue("dy-video-playbackrate", enable);
         },
       },
     };

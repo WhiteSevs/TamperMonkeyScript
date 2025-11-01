@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.29
+// @version      2025.11.1
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.0/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
 // @grant        GM_deleteValue
@@ -1881,11 +1881,11 @@
     autoClose: true,
     showClose: false,
     consoleLogContent(qmsgInst) {
-      const qmsgType = qmsgInst.getSetting().type;
+      const qmsgType = qmsgInst.setting.type;
       if (qmsgType === "loading") {
         return false;
       }
-      const content = qmsgInst.getSetting().content;
+      const content = qmsgInst.setting.content;
       if (qmsgType === "warning") {
         log.warn(content);
       } else if (qmsgType === "error") {
@@ -4164,9 +4164,11 @@
       rateMap: ["0.75", "1", "1.25", "1.5", "1.75", "2", "3"],
     },
     init() {
-      this.shortCut.initGlobalKeyboardListener(this.getShortCutMap());
+      this.shortCut.initGlobalKeyboardListener(this.shorCutMapOption(), {
+        capture: true,
+      });
     },
-    getShortCutMap() {
+    shorCutMapOption() {
       return {
         "dy-video-rate-low": {
           callback() {
@@ -4275,6 +4277,20 @@
             const $video = videosInViewData[0].$el;
             log.info(`当前在可视区域内占据面积最大的视频是：`, $video);
             DouYinVideoPlayer.hookDownloadButtonToParseVideo($video);
+          },
+        },
+        "dy-video-shortcut-playbackRate": {
+          callback() {
+            log.info("触发快捷键 ==> 倍速播放");
+            let enable = Boolean(Panel.getValue("dy-video-playbackrate"));
+            enable = !enable;
+            if (enable) {
+              const rate = Panel.getValue("dy-video-playbackrate-select-value");
+              Qmsg.success("开启倍速：" + rate);
+            } else {
+              Qmsg.info("关闭倍速");
+            }
+            Panel.setValue("dy-video-playbackrate", enable);
           },
         },
       };
@@ -5212,6 +5228,9 @@
       Panel.execMenuOnce("dy-video-object-fit", (option) => {
         return this.objectFit(option.value);
       });
+      Panel.execMenuOnce(["dy-video-playbackrate", "dy-video-playbackrate-select-value"], (option) => {
+        return this.playbackrate(option.value[1]);
+      });
       domUtils.ready(() => {
         DouYinVideoPlayer.chooseQuality(Panel.getValue("chooseVideoDefinition"));
         Panel.execMenuOnce("dy-video-waitToRemovePauseDialog", () => {
@@ -6096,6 +6115,36 @@
 		}
 		`
       );
+    },
+    playbackrate(rate) {
+      log.info(`自定义播放倍速：${rate}`);
+      const lockFn = new utils.LockFunction(() => {
+        if (DouYinRouter.isLive()) return;
+        $$("video").forEach(($video) => {
+          if ($video.closest('[data-e2e="feed-live"]')) return;
+          $video.playbackRate = rate;
+        });
+      });
+      const observer = utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true,
+        },
+        immediate: true,
+        callback: () => {
+          lockFn.run();
+        },
+      });
+      return [
+        () => {
+          observer?.disconnect();
+        },
+        () => {
+          $$("video").forEach(($video) => {
+            $video.playbackRate = 1;
+          });
+        },
+      ];
     },
   };
   const DouYinMessageFilter = {
@@ -11150,6 +11199,29 @@
                   ),
                 ],
               },
+              {
+                type: "forms",
+                text: "倍速播放",
+                forms: [
+                  UISwitch("启用", "dy-video-playbackrate", false),
+                  UISelect(
+                    "倍速",
+                    "dy-video-playbackrate-select-value",
+                    1,
+                    [
+                      0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75, 4, 5, 6, 7, 8, 9, 10,
+                      11, 12, 13, 14, 15, 16,
+                    ].map((it) => {
+                      return {
+                        text: String(it),
+                        value: Number(String(it)),
+                      };
+                    }),
+                    void 0,
+                    "选择视频播放的速度"
+                  ),
+                ],
+              },
             ],
           },
           {
@@ -11200,6 +11272,15 @@
                     "视频解析",
                     "解析视频链接",
                     "dy-video-shortcut-parseVideo",
+                    void 0,
+                    "点击录入快捷键",
+                    void 0,
+                    DouYinVideoPlayerShortCut.shortCut
+                  ),
+                  UIButtonShortCut(
+                    "倍速播放",
+                    "开启/关闭倍速播放功能",
+                    "dy-video-shortcut-playbackRate",
                     void 0,
                     "点击录入快捷键",
                     void 0,
