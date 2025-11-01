@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         简书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.28
+// @version      2025.11.1
 // @author       WhiteSevs
 // @description  支持手机端和PC端、屏蔽广告、优化浏览体验、重定向链接、全文居中、自动展开全文、允许复制文字、劫持唤醒/跳转App、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.0/dist/index.umd.js
 // @connect      *
 // @grant        GM_deleteValue
 // @grant        GM_getResourceText
@@ -1927,11 +1927,11 @@ footer > div > div {\r
     autoClose: true,
     showClose: false,
     consoleLogContent(qmsgInst) {
-      const qmsgType = qmsgInst.getSetting().type;
+      const qmsgType = qmsgInst.setting.type;
       if (qmsgType === "loading") {
         return false;
       }
-      const content = qmsgInst.getSetting().content;
+      const content = qmsgInst.setting.content;
       if (qmsgType === "warning") {
         log.warn(content);
       } else if (qmsgType === "error") {

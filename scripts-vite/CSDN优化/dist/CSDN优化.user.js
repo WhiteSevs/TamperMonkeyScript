@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.28
+// @version      2025.11.1
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.5.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.0/dist/index.umd.js
 // @connect      blog.csdn.net
 // @connect      mp-action.csdn.net
 // @grant        GM_deleteValue
@@ -338,11 +338,11 @@
     autoClose: true,
     showClose: false,
     consoleLogContent(qmsgInst) {
-      const qmsgType = qmsgInst.getSetting().type;
+      const qmsgType = qmsgInst.setting.type;
       if (qmsgType === "loading") {
         return false;
       }
-      const content = qmsgInst.getSetting().content;
+      const content = qmsgInst.setting.content;
       if (qmsgType === "warning") {
         log.warn(content);
       } else if (qmsgType === "error") {

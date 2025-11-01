@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.10.28
+// @version      2025.11.1
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -115,10 +115,10 @@
   function CompatibleProcessing() {
     try {
       if (typeof Object.assign !== "function") {
-        Object.assign = function (target) {
-          target = Object(target);
-          if (arguments.length > 1) {
-            const sourceList = [...arguments].splice(1, arguments.length - 1);
+        Object.assign = function (...args) {
+          const target = Object(args[0] || {});
+          if (args.length > 1) {
+            const sourceList = [...args].splice(1, args.length - 1);
             sourceList.forEach((sourceItem) => {
               for (const sourceKey in sourceItem) {
                 if (Object.prototype.hasOwnProperty.call(sourceItem, sourceKey)) {
@@ -172,13 +172,13 @@
     }
   }
   const QmsgDefaultConfig = {
+    INS_DEFAULT: {},
     get PLUGIN_NAME() {
       return "qmsg";
     },
     get NAMESPACE() {
       return "qmsg";
     },
-    INS_DEFAULT: {},
     get config() {
       return {
         parent: document.body || document.documentElement,
@@ -195,7 +195,6 @@
         maxNums: 5,
         onClose: null,
         showIcon: true,
-        showMoreContent: false,
         showReverse: false,
         timeout: 2500,
         type: "info",
@@ -469,11 +468,8 @@
   const setTimeout$1$3 = (...args) => loadOrReturnBroker$3().setTimeout(...args);
   const QmsgUtils = {
     getNameSpacify(...args) {
-      let result = QmsgDefaultConfig.NAMESPACE;
-      for (let index = 0; index < args.length; ++index) {
-        result += "-" + args[index];
-      }
-      return result;
+      const result = QmsgDefaultConfig.NAMESPACE;
+      return [result, ...args].join("-");
     },
     isNumber(text) {
       const isNumberPattern = /^\d+$/;
@@ -505,8 +501,8 @@
       }
       return opts;
     },
-    toDynamicObject(obj, ...other_objs) {
-      const __obj__ = Object.assign({}, obj ?? {});
+    toDynamicObject(defaultObj, ...other_objs) {
+      const __obj__ = Object.assign({}, defaultObj ?? {});
       Object.keys(__obj__).forEach((keyName) => {
         let objValue = __obj__[keyName];
         Object.defineProperty(__obj__, keyName, {
@@ -613,7 +609,7 @@
     },
   };
   const css_text$1 =
-    '@charset "utf-8";\r\n.qmsg.qmsg-wrapper {\r\n  position: fixed;\r\n  top: 16px;\r\n  left: 0;\r\n  z-index: 50000;\r\n  display: flex;\r\n  box-sizing: border-box;\r\n  margin: 0;\r\n  padding: 0;\r\n  width: 100%;\r\n  color: rgba(0, 0, 0, 0.55);\r\n  list-style: none;\r\n  font-variant: tabular-nums;\r\n  font-size: 13px;\r\n  line-height: 1;\r\n  font-feature-settings: "tnum";\r\n  pointer-events: none;\r\n  flex-direction: column;\r\n}\r\n.qmsg.qmsg-data-position-center,\r\n.qmsg.qmsg-data-position-left,\r\n.qmsg.qmsg-data-position-right {\r\n  position: fixed;\r\n  top: 50%;\r\n  left: 50%;\r\n  transform: translate(-50%, -50%);\r\n}\r\n.qmsg.qmsg-data-position-bottom,\r\n.qmsg.qmsg-data-position-bottomleft,\r\n.qmsg.qmsg-data-position-bottomright {\r\n  position: fixed;\r\n  top: unset;\r\n  bottom: 0;\r\n  bottom: 8px;\r\n  left: 50%;\r\n  transform: translate(-50%, 0);\r\n}\r\n.qmsg.qmsg-data-position-bottomleft .qmsg-item,\r\n.qmsg.qmsg-data-position-left .qmsg-item,\r\n.qmsg.qmsg-data-position-topleft .qmsg-item {\r\n  text-align: left;\r\n}\r\n.qmsg.qmsg-data-position-bottom .qmsg-item,\r\n.qmsg.qmsg-data-position-center .qmsg-item,\r\n.qmsg.qmsg-data-position-top .qmsg-item {\r\n  text-align: center;\r\n}\r\n.qmsg.qmsg-data-position-bottomright .qmsg-item,\r\n.qmsg.qmsg-data-position-right .qmsg-item,\r\n.qmsg.qmsg-data-position-topright .qmsg-item {\r\n  text-align: right;\r\n}\r\n.qmsg .qmsg-item {\r\n  position: relative;\r\n  padding: 8px;\r\n  text-align: center;\r\n  -webkit-animation-duration: 0.3s;\r\n  animation-duration: 0.3s;\r\n}\r\n.qmsg .qmsg-item .qmsg-count {\r\n  position: absolute;\r\n  top: -4px;\r\n  left: -4px;\r\n  display: inline-block;\r\n  height: 16px;\r\n  min-width: 16px;\r\n  border-radius: 2px;\r\n  background-color: red;\r\n  color: #fff;\r\n  text-align: center;\r\n  font-size: 12px;\r\n  line-height: 16px;\r\n  -webkit-animation-duration: 0.3s;\r\n  animation-duration: 0.3s;\r\n}\r\n.qmsg .qmsg-item:first-child {\r\n  margin-top: -8px;\r\n}\r\n.qmsg .qmsg-content {\r\n  position: relative;\r\n  display: inline-block;\r\n  padding: 10px 12px;\r\n  max-width: 80%;\r\n  min-width: 40px;\r\n  border-radius: 4px;\r\n  background: #fff;\r\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);\r\n  text-align: center;\r\n  pointer-events: all;\r\n}\r\n.qmsg .qmsg-content [class^="qmsg-content-"] {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n.qmsg .qmsg-icon {\r\n  position: relative;\r\n  top: 1px;\r\n  display: inline-block;\r\n  margin-right: 8px;\r\n  color: inherit;\r\n  vertical-align: -0.125em;\r\n  text-align: center;\r\n  text-transform: none;\r\n  font-style: normal;\r\n  font-size: 16px;\r\n  line-height: 0;\r\n  text-rendering: optimizeLegibility;\r\n  -webkit-font-smoothing: antialiased;\r\n  -moz-osx-font-smoothing: grayscale;\r\n}\r\n.qmsg .qmsg-icon svg {\r\n  display: inline-block;\r\n}\r\n.qmsg .qmsg-content .qmsg-show-more-content {\r\n  display: flex;\r\n  align-items: center;\r\n  white-space: unset;\r\n  overflow: unset;\r\n  text-overflow: unset;\r\n  padding-right: unset;\r\n}\r\n.qmsg .qmsg-content-info .qmsg-icon {\r\n  color: #1890ff;\r\n}\r\n.qmsg .qmsg-icon-close {\r\n  margin: 0;\r\n  margin-left: 8px;\r\n  padding: 0;\r\n  outline: 0;\r\n  border: none;\r\n  background-color: transparent;\r\n  color: rgba(0, 0, 0, 0.45);\r\n  font-size: 12px;\r\n  cursor: pointer;\r\n  transition: color 0.3s;\r\n}\r\n.qmsg .qmsg-icon-close:hover > svg path {\r\n  stroke: #555;\r\n}\r\n.qmsg .qmsg-icon-close.qmsg-show-more-content {\r\n  position: unset;\r\n  overflow: unset;\r\n  padding-left: 6px;\r\n  margin-right: 0;\r\n}\r\n.qmsg .animate-turn {\r\n  animation: MessageTurn 1s linear infinite;\r\n  -webkit-animation: MessageTurn 1s linear infinite;\r\n}\r\n';
+    '@charset "utf-8";\r\n.qmsg.qmsg-wrapper {\r\n  position: fixed;\r\n  top: 16px;\r\n  left: 0;\r\n  z-index: 50000;\r\n  display: flex;\r\n  box-sizing: border-box;\r\n  margin: 0;\r\n  padding: 0;\r\n  width: 100%;\r\n  color: rgba(0, 0, 0, 0.55);\r\n  list-style: none;\r\n  font-variant: tabular-nums;\r\n  font-size: 13px;\r\n  line-height: 1;\r\n  font-feature-settings: "tnum";\r\n  pointer-events: none;\r\n  flex-direction: column;\r\n}\r\n.qmsg.qmsg-data-position-center,\r\n.qmsg.qmsg-data-position-left,\r\n.qmsg.qmsg-data-position-right {\r\n  position: fixed;\r\n  top: 50%;\r\n  left: 50%;\r\n  transform: translate(-50%, -50%);\r\n}\r\n.qmsg.qmsg-data-position-bottom,\r\n.qmsg.qmsg-data-position-bottomleft,\r\n.qmsg.qmsg-data-position-bottomright {\r\n  position: fixed;\r\n  top: unset;\r\n  bottom: 0;\r\n  bottom: 8px;\r\n  left: 50%;\r\n  transform: translate(-50%, 0);\r\n}\r\n.qmsg.qmsg-data-position-bottomleft .qmsg-item,\r\n.qmsg.qmsg-data-position-left .qmsg-item,\r\n.qmsg.qmsg-data-position-topleft .qmsg-item {\r\n  text-align: left;\r\n}\r\n.qmsg.qmsg-data-position-bottom .qmsg-item,\r\n.qmsg.qmsg-data-position-center .qmsg-item,\r\n.qmsg.qmsg-data-position-top .qmsg-item {\r\n  text-align: center;\r\n}\r\n.qmsg.qmsg-data-position-bottomright .qmsg-item,\r\n.qmsg.qmsg-data-position-right .qmsg-item,\r\n.qmsg.qmsg-data-position-topright .qmsg-item {\r\n  text-align: right;\r\n}\r\n.qmsg .qmsg-item {\r\n  position: relative;\r\n  padding: 8px;\r\n  text-align: center;\r\n  -webkit-animation-duration: 0.3s;\r\n  animation-duration: 0.3s;\r\n}\r\n.qmsg .qmsg-item .qmsg-count {\r\n  position: absolute;\r\n  top: -4px;\r\n  left: -4px;\r\n  display: inline-block;\r\n  height: 16px;\r\n  min-width: 16px;\r\n  border-radius: 2px;\r\n  background-color: red;\r\n  color: #fff;\r\n  text-align: center;\r\n  font-size: 12px;\r\n  line-height: 16px;\r\n  -webkit-animation-duration: 0.3s;\r\n  animation-duration: 0.3s;\r\n}\r\n.qmsg .qmsg-item:first-child {\r\n  margin-top: -8px;\r\n}\r\n.qmsg .qmsg-content-wrapper {\r\n  position: relative;\r\n  display: inline-block;\r\n  padding: 10px 12px;\r\n  max-width: 80%;\r\n  min-width: 40px;\r\n  border-radius: 4px;\r\n  background: #fff;\r\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);\r\n  text-align: center;\r\n  pointer-events: all;\r\n}\r\n.qmsg .qmsg-content-wrapper .qmsg-content-text[data-limitWidthWrap="no-wrap"] {\r\n  white-space: nowrap;\r\n}\r\n.qmsg .qmsg-content-wrapper .qmsg-content-text[data-limitWidthWrap="ellipsis"] {\r\n  white-space: nowrap;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n}\r\n.qmsg .qmsg-content-wrapper .qmsg-content-text[data-limitWidthWrap="wrap"] {\r\n  white-space: normal;\r\n}\r\n.qmsg .qmsg-content-wrapper [class^="qmsg-content-"]:not(.qmsg-content-text) {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n.qmsg .qmsg-icon {\r\n  position: relative;\r\n  top: 0;\r\n  display: inline-block;\r\n  margin-right: 8px;\r\n  color: inherit;\r\n  vertical-align: -0.125em;\r\n  text-align: center;\r\n  text-transform: none;\r\n  font-style: normal;\r\n  font-size: 16px;\r\n  line-height: 0;\r\n  text-rendering: optimizeLegibility;\r\n  -webkit-font-smoothing: antialiased;\r\n  -moz-osx-font-smoothing: grayscale;\r\n}\r\n.qmsg .qmsg-icon svg {\r\n  display: inline-block;\r\n}\r\n.qmsg .qmsg-content-info .qmsg-icon {\r\n  color: #1890ff;\r\n}\r\n.qmsg .qmsg-icon-close {\r\n  margin: 0;\r\n  margin-left: 8px;\r\n  padding: 0;\r\n  outline: 0;\r\n  border: none;\r\n  background-color: transparent;\r\n  color: rgba(0, 0, 0, 0.45);\r\n  font-size: 12px;\r\n  cursor: pointer;\r\n  transition: color 0.3s;\r\n}\r\n.qmsg .qmsg-icon-close:hover > svg path {\r\n  stroke: #555;\r\n}\r\n.qmsg .animate-turn {\r\n  animation: MessageTurn 1s linear infinite;\r\n  -webkit-animation: MessageTurn 1s linear infinite;\r\n}\r\n';
   const css_text =
     "@keyframes MessageTurn {\r\n  0% {\r\n    -webkit-transform: rotate(0);\r\n  }\r\n  25% {\r\n    -webkit-transform: rotate(90deg);\r\n  }\r\n  50% {\r\n    -webkit-transform: rotate(180deg);\r\n  }\r\n  75% {\r\n    -webkit-transform: rotate(270deg);\r\n  }\r\n  100% {\r\n    -webkit-transform: rotate(360deg);\r\n  }\r\n}\r\n@-webkit-keyframes MessageTurn {\r\n  0% {\r\n    -webkit-transform: rotate(0);\r\n  }\r\n  25% {\r\n    -webkit-transform: rotate(90deg);\r\n  }\r\n  50% {\r\n    -webkit-transform: rotate(180deg);\r\n  }\r\n  75% {\r\n    -webkit-transform: rotate(270deg);\r\n  }\r\n  100% {\r\n    -webkit-transform: rotate(360deg);\r\n  }\r\n}\r\n@-webkit-keyframes MessageMoveOut {\r\n  0% {\r\n    max-height: 150px;\r\n    opacity: 1;\r\n  }\r\n  to {\r\n    max-height: 0;\r\n    opacity: 0;\r\n  }\r\n}\r\n@keyframes MessageMoveOut {\r\n  0% {\r\n    max-height: 150px;\r\n    opacity: 1;\r\n  }\r\n  to {\r\n    max-height: 0;\r\n    opacity: 0;\r\n  }\r\n}\r\n@-webkit-keyframes MessageMoveIn {\r\n  0% {\r\n    opacity: 0;\r\n    transform: translateY(-100%);\r\n    transform-origin: 0 0;\r\n  }\r\n  to {\r\n    opacity: 1;\r\n    transform: translateY(0);\r\n    transform-origin: 0 0;\r\n  }\r\n}\r\n@keyframes MessageMoveIn {\r\n  0% {\r\n    opacity: 0;\r\n    transform: translateY(-100%);\r\n    transform-origin: 0 0;\r\n  }\r\n  to {\r\n    opacity: 1;\r\n    transform: translateY(0);\r\n    transform-origin: 0 0;\r\n  }\r\n}\r\n@-webkit-keyframes MessageShake {\r\n  0%,\r\n  100% {\r\n    opacity: 1;\r\n    transform: translateX(0);\r\n  }\r\n  25%,\r\n  75% {\r\n    opacity: 0.75;\r\n    transform: translateX(-4px);\r\n  }\r\n  50% {\r\n    opacity: 0.25;\r\n    transform: translateX(4px);\r\n  }\r\n}\r\n@keyframes MessageShake {\r\n  0%,\r\n  100% {\r\n    opacity: 1;\r\n    transform: translateX(0);\r\n  }\r\n  25%,\r\n  75% {\r\n    opacity: 0.75;\r\n    transform: translateX(-4px);\r\n  }\r\n  50% {\r\n    opacity: 0.25;\r\n    transform: translateX(4px);\r\n  }\r\n}\r\n";
   const QmsgCSS = {
@@ -635,21 +631,34 @@
     startTime;
     endTime;
     setting;
+    settingStr;
+    settingJSON;
     uuid;
     state;
     repeatNum;
-    $Qmsg;
+    $el = {
+      $item: null,
+      get $content() {
+        const $el = this.$item.querySelector('[class^="qmsg-content-"] .qmsg-content-text');
+        if (!$el) {
+          throw new TypeError("QmsgInst $content is null");
+        }
+        return $el;
+      },
+    };
     constructor(config, uuid) {
       this.timeId = void 0;
       this.startTime = Date.now();
       this.endTime = null;
       this.setting = QmsgUtils.toDynamicObject(QmsgDefaultConfig.config, config, QmsgDefaultConfig.INS_DEFAULT);
+      this.settingStr = JSON.stringify(this.setting);
+      this.settingJSON = Object.assign({}, this.setting);
       this.uuid = uuid;
       this.state = "opening";
-      this.$Qmsg = document.createElement("div");
+      this.$el.$item = document.createElement("div");
       this.repeatNum = 1;
       this.detectionType();
-      this.init();
+      this.initEl();
       const consoleLogContent =
         typeof this.setting.consoleLogContent === "function"
           ? this.setting.consoleLogContent(this)
@@ -657,26 +666,15 @@
       if (consoleLogContent) {
         console.log(this.setting.content);
       }
+      Reflect.set(this.$el.$item, "data-inst", this);
       if (typeof this.setting.afterRender === "function") {
         this.setting.afterRender(this);
       }
     }
-    getSetting() {
-      return this.setting;
-    }
-    getRepeatNum() {
-      return this.repeatNum;
-    }
-    setRepeatNum(num) {
-      this.repeatNum = num;
-    }
-    setRepeatNumIncreasing() {
-      this.repeatNum++;
-    }
-    init() {
-      const QmsgContext = this;
+    initEl() {
+      const that = this;
       if (this.setting.customClass && typeof this.setting.customClass === "string") {
-        this.$Qmsg.classList.add(this.setting.customClass);
+        this.$el.$item.classList.add(this.setting.customClass);
       }
       const $svg = QmsgIcon[this.setting.type || "info"];
       let contentClassName = QmsgUtils.getNameSpacify("content-" + this.setting.type || "info");
@@ -684,18 +682,14 @@
         contentClassName += " " + QmsgUtils.getNameSpacify("content-with-close");
       }
       const content = this.setting.content || "";
-      let extraCloseIconClassName = "";
       const $closeSvg = QmsgHeaderCloseIcon;
-      if (this.setting.showMoreContent) {
-        contentClassName += "qmsg-show-more-content";
-        extraCloseIconClassName += "qmsg-show-more-content";
-      }
       let $closeIcon = "";
       if (this.setting.showClose) {
-        $closeIcon = `<i class="qmsg-icon qmsg-icon-close ${extraCloseIconClassName}">${$closeSvg}</i>`;
+        $closeIcon = `<i class="qmsg-icon qmsg-icon-close">${$closeSvg}</i>`;
       }
       const $content = document.createElement("span");
-      const $positionClassName = QmsgUtils.getNameSpacify("data-position", this.setting.position.toLowerCase());
+      $content.className = "qmsg-content-text";
+      const positionClassName = QmsgUtils.getNameSpacify("data-position", this.setting.position.toLowerCase());
       const isHTML = this.setting.isHTML;
       if (isHTML) {
         QmsgUtils.setSafeHTML($content, content);
@@ -713,20 +707,14 @@
         }
         $content.style.maxWidth = limitWidthNum;
         $content.style.width = limitWidthNum;
-        if (this.setting.limitWidthWrap === "no-wrap") {
-          $content.style.whiteSpace = "nowrap";
-        } else if (this.setting.limitWidthWrap === "ellipsis") {
-          $content.style.whiteSpace = "nowrap";
-          $content.style.overflow = "hidden";
-          $content.style.textOverflow = "ellipsis";
-        } else if (this.setting.limitWidthWrap === "wrap") {
-          $content.style.whiteSpace = "";
-        }
+        $content.setAttribute("data-limitWidthWrap", this.setting.limitWidthWrap);
+      } else {
+        $content.setAttribute("data-limitWidthWrap", "no-wrap");
       }
       QmsgUtils.setSafeHTML(
-        this.$Qmsg,
+        this.$el.$item,
         `
-			<div class="qmsg-content">
+			<div class="qmsg-content-wrapper">
 				<div class="${contentClassName}">
 				${this.setting.showIcon ? `<i class="qmsg-icon">${$svg}</i>` : ""}
 					${$content.outerHTML}
@@ -735,9 +723,9 @@
 			</div>
 			`
       );
-      const $contentContainer = this.$Qmsg.querySelector(".qmsg-content");
-      this.$Qmsg.classList.add(QmsgUtils.getNameSpacify("item"));
-      this.$Qmsg.setAttribute(QmsgUtils.getNameSpacify("uuid"), this.uuid);
+      const $contentContainer = this.$el.$item.querySelector(".qmsg-content-wrapper");
+      this.$el.$item.classList.add(QmsgUtils.getNameSpacify("item"));
+      this.$el.$item.setAttribute(QmsgUtils.getNameSpacify("uuid"), this.uuid);
       let $shadowContainer;
       let $shadowRoot;
       let $wrapper;
@@ -764,16 +752,18 @@
         this.setting.parent.appendChild($shadowContainer);
       }
       if ($shadowRoot == null) {
-        throw new Error("QmsgInst " + QmsgDefaultConfig.PLUGIN_NAME + " $shadowRoot is null");
+        throw new TypeError("QmsgInst " + QmsgDefaultConfig.PLUGIN_NAME + " $shadowRoot is null");
       }
-      $wrapper = $shadowRoot.querySelector(`.${QmsgDefaultConfig.NAMESPACE}.${$positionClassName}`);
+      $wrapper = $shadowRoot.querySelector(
+        `.${QmsgDefaultConfig.NAMESPACE}.${QmsgUtils.getNameSpacify("wrapper")}.${positionClassName}`
+      );
       if (!$wrapper) {
         $wrapper = document.createElement("div");
         $wrapper.classList.add(
           QmsgDefaultConfig.NAMESPACE,
           QmsgUtils.getNameSpacify("wrapper"),
           QmsgUtils.getNameSpacify("is-initialized"),
-          $positionClassName
+          positionClassName
         );
         $shadowRoot.appendChild($wrapper);
       }
@@ -789,33 +779,33 @@
       if (!isNaN(zIndex)) {
         $wrapper.style.zIndex = zIndex.toString();
       }
-      $wrapper.appendChild(this.$Qmsg);
-      this.setState(this.$Qmsg, "opening");
+      $wrapper.appendChild(this.$el.$item);
+      this.setState(this.$el.$item, "opening");
       if (this.setting.showClose) {
-        const $closeIcon2 = this.$Qmsg.querySelector(".qmsg-icon-close");
+        const $closeIcon2 = this.$el.$item.querySelector(".qmsg-icon-close");
         if ($closeIcon2) {
-          $closeIcon2.addEventListener("click", (_event) => {
-            QmsgContext.close();
+          $closeIcon2.addEventListener("click", () => {
+            that.close();
           });
         }
       }
-      const animationendEvent = (_event) => {
-        const animationNameValue = QmsgAnimation.getStyleAnimationNameValue(QmsgContext.$Qmsg);
+      const animationendEvent = () => {
+        const animationNameValue = QmsgAnimation.getStyleAnimationNameValue(that.$el.$item);
         if (animationNameValue === QmsgAnimation.$state.closing) {
-          QmsgContext.endTime = Date.now();
-          QmsgContext.destroy();
+          that.endTime = Date.now();
+          that.destroy();
         }
-        QmsgAnimation.setStyleAnimationName(QmsgContext.$Qmsg);
+        QmsgAnimation.setStyleAnimationName(this.$el.$item);
       };
       QmsgAnimation.$name.endNameList.forEach(function (animationendName) {
-        QmsgContext.$Qmsg.addEventListener(animationendName, animationendEvent);
+        that.$el.$item.addEventListener(animationendName, animationendEvent);
       });
       if (this.setting.autoClose && this.setting.listenEventToPauseAutoClose) {
         this.resetAutoCloseTimer();
-        const enterEvent = (_event) => {
+        const enterEvent = () => {
           this.clearAutoCloseTimer();
         };
-        const leaveEvent = (_event) => {
+        const leaveEvent = () => {
           if (this.timeId != null) {
             console.warn("QmsgInst timeId is not null，mouseenter may be not first trigger，timeId：" + this.timeId);
             return;
@@ -823,18 +813,22 @@
           this.startAutoCloseTimer();
         };
         let isRemoveMouseEvent = false;
-        this.$Qmsg.addEventListener("mouseenter", enterEvent);
-        this.$Qmsg.addEventListener("mouseleave", leaveEvent);
-        this.$Qmsg.addEventListener("touchstart", (evt) => {
-          if (!isRemoveMouseEvent) {
-            isRemoveMouseEvent = true;
-            this.$Qmsg.removeEventListener("mouseenter", enterEvent);
-            this.$Qmsg.removeEventListener("mouseleave", leaveEvent);
-          }
-          enterEvent();
-        });
-        this.$Qmsg.addEventListener("touchend", leaveEvent);
-        this.$Qmsg.addEventListener("touchcancel", leaveEvent);
+        this.$el.$item.addEventListener("mouseenter", enterEvent);
+        this.$el.$item.addEventListener("mouseleave", leaveEvent);
+        this.$el.$item.addEventListener(
+          "touchstart",
+          () => {
+            if (!isRemoveMouseEvent) {
+              isRemoveMouseEvent = true;
+              this.$el.$item.removeEventListener("mouseenter", enterEvent);
+              this.$el.$item.removeEventListener("mouseleave", leaveEvent);
+            }
+            enterEvent();
+          },
+          { passive: true }
+        );
+        this.$el.$item.addEventListener("touchend", leaveEvent);
+        this.$el.$item.addEventListener("touchcancel", leaveEvent);
       }
     }
     detectionType() {
@@ -871,12 +865,16 @@
       this.state = state;
       QmsgAnimation.setStyleAnimationName(element, QmsgAnimation.$state[state]);
     }
+    setRepeatNumIncreasing() {
+      this.repeatNum++;
+    }
     setMsgCount() {
       const countClassName = QmsgUtils.getNameSpacify("count");
-      const wrapperClassName = `div.${QmsgUtils.getNameSpacify("data-position", this.setting.position.toLowerCase())} [class^="qmsg-content-"]`;
-      const $content = this.$Qmsg.querySelector(wrapperClassName);
+      const $content = this.$el.$item.querySelector(
+        `.${QmsgDefaultConfig.NAMESPACE}.${QmsgUtils.getNameSpacify("wrapper")} [class^="qmsg-content-"]`
+      );
       if (!$content) {
-        throw new Error("QmsgInst $content is null");
+        throw new TypeError("QmsgInst $content is null");
       }
       let $count = $content.querySelector("." + countClassName);
       if (!$count) {
@@ -884,7 +882,7 @@
         $count.classList.add(countClassName);
         $content.appendChild($count);
       }
-      const repeatNum = this.getRepeatNum();
+      const repeatNum = this.repeatNum;
       QmsgUtils.setSafeHTML($count, repeatNum.toString());
       QmsgAnimation.setStyleAnimationName($count);
       QmsgAnimation.setStyleAnimationName($count, "MessageShake");
@@ -910,7 +908,7 @@
       this.startAutoCloseTimer();
     }
     close() {
-      this.setState(this.$Qmsg, "closing");
+      this.setState(this.$el.$item, "closing");
       if (QmsgAnimation.CAN_ANIMATION) {
         QmsgInstStorage.remove(this.uuid);
       } else {
@@ -923,58 +921,54 @@
     }
     destroy() {
       this.endTime = Date.now();
-      this.$Qmsg.remove();
+      this.$el.$item.remove();
       QmsgUtils.clearTimeout(this.timeId);
       QmsgInstStorage.remove(this.uuid);
       this.timeId = void 0;
     }
-    get $content() {
-      const $content = this.$Qmsg.querySelector("div[class^=qmsg-content-] > span");
-      if (!$content) {
-        throw new Error("QmsgInst $content is null");
-      }
-      return $content;
-    }
     setText(text) {
-      const $content = this.$content;
+      const $content = this.$el.$content;
       $content.innerText = text;
       this.setting.content = text;
     }
     setHTML(text) {
-      const $content = this.$content;
+      const $content = this.$el.$content;
       QmsgUtils.setSafeHTML($content, text);
       this.setting.content = text;
     }
   }
   function QmsgInstHandler(config = {}) {
-    const optionString = JSON.stringify(config);
-    let findQmsgItemInfo = QmsgInstStorage.insInfoList.find((item) => {
-      return item.config === optionString;
+    const optionStr = JSON.stringify(config);
+    const setting = QmsgUtils.toDynamicObject(QmsgDefaultConfig.config, config, QmsgDefaultConfig.INS_DEFAULT);
+    const settingStr = JSON.stringify(setting);
+    let qmsgItemInfo = QmsgInstStorage.insInfoList.find((item) => {
+      return item.configStr === optionStr && item.inst.settingStr === settingStr;
     });
-    let qmsgInst = findQmsgItemInfo?.instance;
+    let qmsgInst = qmsgItemInfo?.inst;
     if (qmsgInst == null) {
       const uuid = QmsgUtils.getUUID();
+      const inst = new QmsgMsg(setting, uuid);
       const qmsgInstStorageInfo = {
         uuid,
-        config: optionString,
-        instance: new QmsgMsg(config, uuid),
+        configStr: optionStr,
+        inst,
       };
       QmsgInstStorage.insInfoList.push(qmsgInstStorageInfo);
       const QmsgListLength = QmsgInstStorage.insInfoList.length;
-      const maxNums = qmsgInstStorageInfo.instance.getSetting().maxNums;
+      const maxNums = qmsgInstStorageInfo.inst.setting.maxNums;
       if (QmsgListLength > maxNums) {
         for (let index = 0; index < QmsgListLength - maxNums; index++) {
           const item = QmsgInstStorage.insInfoList[index];
-          item && item.instance.getSetting().autoClose && item.instance.close();
+          item && item.inst.setting.autoClose && item.inst.close();
         }
       }
-      findQmsgItemInfo = qmsgInstStorageInfo;
-      qmsgInst = qmsgInstStorageInfo.instance;
+      qmsgItemInfo = qmsgInstStorageInfo;
+      qmsgInst = qmsgInstStorageInfo.inst;
     } else {
-      if (!qmsgInst.getRepeatNum()) {
-        qmsgInst.setRepeatNum(2);
+      if (!qmsgInst.repeatNum) {
+        qmsgInst.repeatNum = 2;
       } else {
-        if (qmsgInst.getRepeatNum() >= 99);
+        if (qmsgInst.repeatNum >= 99);
         else {
           qmsgInst.setRepeatNumIncreasing();
         }
@@ -982,7 +976,7 @@
       qmsgInst.setMsgCount();
     }
     if (qmsgInst) {
-      qmsgInst.$Qmsg.setAttribute("data-count", qmsgInst?.getRepeatNum().toString());
+      qmsgInst.$el.$item.setAttribute("data-count", qmsgInst?.repeatNum.toString());
     } else {
       throw new Error("QmsgInst is null");
     }
@@ -995,8 +989,8 @@
           if (document.visibilityState === "visible") {
             for (let index = 0; index < QmsgInstStorage.insInfoList.length; index++) {
               const qmsgStorageItem = QmsgInstStorage.insInfoList[index];
-              const qmsgInst = qmsgStorageItem.instance;
-              const qmsgSetting = qmsgInst.getSetting();
+              const qmsgInst = qmsgStorageItem.inst;
+              const qmsgSetting = qmsgInst.setting;
               const now = Date.now();
               if (
                 qmsgSetting.type !== "loading" &&
@@ -1035,7 +1029,7 @@
       },
     },
   };
-  const version$3 = "1.5.1";
+  const version$3 = "1.6.0";
   CompatibleProcessing();
   class Qmsg {
     $data;
@@ -1051,11 +1045,36 @@
       this.$eventUtils.visibilitychange.addEvent();
       this.config(config);
     }
-    config(config) {
-      if (config == null) return;
-      if (typeof config !== "object") return;
-      QmsgDefaultConfig.INS_DEFAULT = null;
-      QmsgDefaultConfig.INS_DEFAULT = config;
+    config(globalConfig) {
+      const that = QmsgDefaultConfig;
+      if (globalConfig == null) return that.INS_DEFAULT;
+      if (typeof globalConfig !== "object") return that.INS_DEFAULT;
+      for (const key in globalConfig) {
+        if (!Object.hasOwn(globalConfig, key)) continue;
+        const descriptor = Object.getOwnPropertyDescriptor(globalConfig, key);
+        if (descriptor) {
+          if ("get" in descriptor) {
+            Reflect.deleteProperty(that.INS_DEFAULT, key);
+            Object.defineProperty(that.INS_DEFAULT, key, {
+              get: descriptor.get,
+              configurable: true,
+              enumerable: true,
+            });
+          } else if ("value" in descriptor) {
+            Reflect.deleteProperty(that.INS_DEFAULT, key);
+            Object.defineProperty(that.INS_DEFAULT, key, {
+              get: () => descriptor.value,
+              configurable: true,
+              enumerable: true,
+            });
+          } else {
+            throw new TypeError("Qmsg.config: descriptor.get or descriptor.value is null");
+          }
+        } else {
+          Reflect.set(that.INS_DEFAULT, key, globalConfig[key]);
+        }
+      }
+      return that.INS_DEFAULT;
     }
     info(content, config) {
       const params = QmsgUtils.mergeArgs(content, config);
@@ -1089,7 +1108,7 @@
     closeAll() {
       for (let index = QmsgInstStorage.insInfoList.length - 1; index >= 0; index--) {
         const item = QmsgInstStorage.insInfoList[index];
-        item && item.instance && item.instance.close();
+        item && item.inst && item.inst.close();
       }
     }
   }
@@ -20991,11 +21010,11 @@ ${err.stack}`);
     autoClose: true,
     showClose: false,
     consoleLogContent(qmsgInst) {
-      const qmsgType = qmsgInst.getSetting().type;
+      const qmsgType = qmsgInst.setting.type;
       if (qmsgType === "loading") {
         return false;
       }
-      const content = qmsgInst.getSetting().content;
+      const content = qmsgInst.setting.content;
       if (qmsgType === "warning") {
         log.warn(content);
       } else if (qmsgType === "error") {
