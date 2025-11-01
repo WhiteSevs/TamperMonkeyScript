@@ -125,30 +125,31 @@ export const GreasyforkVersions = {
           DOMUtils.after($submit, $compareButton);
           DOMUtils.on($compareButton, "click", async (event) => {
             DOMUtils.preventEvent(event);
-            let $form = $submit.closest("form")!;
-            let formData = new FormData($form);
-            let compareLeftVersion = formData.get("v1")!;
-            let compareRighttVersion = formData.get("v2")!;
+            const $form = $submit.closest("form")!;
+            const formData = new FormData($form);
+            const compareLeftVersion = formData.get("v1")!;
+            const compareRighttVersion = formData.get("v2")!;
             if (compareLeftVersion === compareRighttVersion) {
               Qmsg.warning(i18next.t("版本号相同，不需要比较源码"));
               return;
             }
-            let loading = Qmsg.loading(i18next.t("正在获取对比文本中..."));
-            let scriptId = GreasyforkUrlUtils.getScriptId()!;
-            let scriptInfo = await GreasyforkApi.getScriptInfo(scriptId);
+            log.info(`对比版本：${compareLeftVersion} vs ${compareRighttVersion}`);
+            const loading = Qmsg.loading(i18next.t("正在获取对比文本中..."));
+            const scriptId = GreasyforkUrlUtils.getScriptId()!;
+            const scriptInfo = await GreasyforkApi.getScriptInfo(scriptId);
             if (!scriptInfo) {
               loading.close();
               return;
             }
-            let code_url: string = scriptInfo["code_url"];
-            let compareLeftUrl = code_url.replace(
-              new RegExp(`/${scriptId}(/[\\d]+|)`),
-              `/${scriptId}/${compareLeftVersion}`
+            log.info(`脚本信息：`, scriptInfo);
+            const code_url: string = scriptInfo["code_url"];
+            const compareLeftUrl = code_url.replace(new RegExp(`/${scriptId}/`), `/${scriptId}/${compareLeftVersion}/`);
+            const compareRightUrl = code_url.replace(
+              new RegExp(`/${scriptId}/`),
+              `/${scriptId}/${compareRighttVersion}/`
             );
-            let compareRightUrl = code_url.replace(
-              new RegExp(`/${scriptId}(/[\\d]+|)`),
-              `/${scriptId}/${compareRighttVersion}`
-            );
+            log.info(`请求版本代码：${compareLeftUrl}`);
+            log.info(`请求版本代码：${compareRightUrl}`);
             let compareLeftText = "";
             let compareRightText = "";
             const [compareLeftResponse, compareRightResponse] = await Promise.all([
