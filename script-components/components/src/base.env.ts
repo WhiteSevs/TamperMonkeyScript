@@ -55,11 +55,11 @@ Qmsg.config({
   autoClose: true,
   showClose: false,
   consoleLogContent(qmsgInst) {
-    const qmsgType = qmsgInst.getSetting().type;
+    const qmsgType = qmsgInst.setting.type;
     if (qmsgType === "loading") {
       return false;
     }
-    const content = qmsgInst.getSetting().content;
+    const content = qmsgInst.setting.content;
     if (qmsgType === "warning") {
       log.warn(content);
     } else if (qmsgType === "error") {
