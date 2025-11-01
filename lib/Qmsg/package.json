@@ -1,6 +1,6 @@
 {
   "name": "qmsg",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "type": "module",
   "description": "一款优雅的页面消息提示插件，兼容性良好，无任何依赖。",
   "main": "dist/index.cjs.js",
@@ -44,15 +44,15 @@
     "worker-timers": "^8.0.25"
   },
   "devDependencies": {
-    "@eslint/js": "^9.38.0",
-    "@rollup/plugin-commonjs": "^28.0.9",
+    "@eslint/js": "^9.39.0",
+    "@rollup/plugin-commonjs": "^29.0.0",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.3.0",
     "browserslist": "^4.27.0",
-    "caniuse-lite": "^1.0.30001751",
-    "eslint": "^9.38.0",
+    "caniuse-lite": "^1.0.30001752",
+    "eslint": "^9.39.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-compat": "^6.0.2",
     "eslint-plugin-prettier": "^5.5.4",

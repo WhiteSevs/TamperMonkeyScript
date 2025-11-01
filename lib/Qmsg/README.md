@@ -3,7 +3,7 @@
 - 最新版本：[![npm version](https://img.shields.io/npm/v/qmsg)](https://www.npmjs.com/package/qmsg)
 
 **插件描述：**
-一款优雅的原生 JS 页面消息提示插件，兼容性良好，无任何依赖。
+一款优雅的原生 JS 页面消息提示插件，兼容性良好。
 
 **使用**
 
@@ -38,7 +38,7 @@ pnpm add qmsg
 **油猴引入**
 
 ```html
-// @require https://fastly.jsdelivr.net/npm/qmsg@1.5.1/dist/index.umd.min.js
+// @require https://fastly.jsdelivr.net/npm/qmsg@1.6.0/dist/index.umd.min.js
 ```
 
 **全局配置**
@@ -70,7 +70,6 @@ Qmsg.config({
 | onClose                     | Function                                                    | 关闭时的回调函数                                                                                                        | null                                        |
 | showClose                   | boolean                                                     | 是否显示关闭图标                                                                                                        | false                                       |
 | showIcon                    | boolean                                                     | 是否显示左边的图标                                                                                                      | true                                        |
-| showMoreContent             | boolean                                                     | 是否显示更多内容（换行）                                                                                                | false                                       |
 | showReverse                 | boolean                                                     | 是否使弹出方式逆反                                                                                                      | false                                       |
 | timeout                     | number                                                      | 自动关闭时，消息的持续显示时间，单位（ms）                                                                              | 2500                                        |
 | type                        | string                                                      | 弹出类型                                                                                                                | info                                        |

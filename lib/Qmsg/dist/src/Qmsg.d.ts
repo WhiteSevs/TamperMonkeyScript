@@ -29,10 +29,10 @@ declare class Qmsg {
      */
     constructor(config?: QmsgConfigPartial);
     /**
-     * 修改默认配置
-     * @param config 配置
+     * 修改全局的默认配置，该配置会覆盖掉上一次修改的配置
+     * @param globalConfig 自定义全局配置
      */
-    config(config?: QmsgConfigPartial): void;
+    config(globalConfig?: QmsgConfigPartial): QmsgConfig;
     /**
      * 信息Toast
      * @param content 内容

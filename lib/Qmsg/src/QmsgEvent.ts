@@ -14,8 +14,8 @@ export const QmsgEvent = {
           // 回到页面
           for (let index = 0; index < QmsgInstStorage.insInfoList.length; index++) {
             const qmsgStorageItem = QmsgInstStorage.insInfoList[index];
-            const qmsgInst = qmsgStorageItem.instance;
-            const qmsgSetting = qmsgInst.getSetting();
+            const qmsgInst = qmsgStorageItem.inst;
+            const qmsgSetting = qmsgInst.setting;
             const now = Date.now();
             if (
               // loading类型不被自动关闭

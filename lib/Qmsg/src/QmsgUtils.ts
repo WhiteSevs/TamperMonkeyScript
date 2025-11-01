@@ -8,11 +8,8 @@ export const QmsgUtils = {
    * @param args
    */
   getNameSpacify(...args: string[]): string {
-    let result = QmsgDefaultConfig.NAMESPACE;
-    for (let index = 0; index < args.length; ++index) {
-      result += "-" + args[index];
-    }
-    return result;
+    const result = QmsgDefaultConfig.NAMESPACE;
+    return [result, ...args].join("-");
   },
   /**
    * 判断字符是否是数字
@@ -64,11 +61,14 @@ export const QmsgUtils = {
   },
   /**
    * 转换为动态对象
-   * @param obj 需要配置的对象
+   * @param defaultObj 需要配置的对象
    * @param other_obj 获取的其它对象
    */
-  toDynamicObject<T1, T2 extends any[]>(obj: T1, ...other_objs: T2): T1 & (T2 extends Array<infer U> ? U : never) {
-    const __obj__ = Object.assign({}, obj ?? {});
+  toDynamicObject<T1, T2 extends any[]>(
+    defaultObj: T1,
+    ...other_objs: T2
+  ): T1 & (T2 extends Array<infer U> ? U : never) {
+    const __obj__ = Object.assign({}, defaultObj ?? {});
     Object.keys(__obj__).forEach((keyName) => {
       // @ts-ignore
       let objValue = __obj__[keyName];

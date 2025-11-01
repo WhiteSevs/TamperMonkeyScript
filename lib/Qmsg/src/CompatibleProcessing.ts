@@ -2,14 +2,13 @@
  * 兼容处理
  */
 function CompatibleProcessing() {
-  /* 处理Object.assign不存在的问题 */
+  // 处理Object.assign不存在的问题
   try {
     if (typeof Object.assign !== "function") {
-      Object.assign = function (target: any) {
-        target = Object(target);
-        if (arguments.length > 1) {
-          // eslint-disable-next-line prefer-rest-params
-          const sourceList = [...arguments].splice(1, arguments.length - 1);
+      Object.assign = function (...args: any[]) {
+        const target = Object(args[0] || {});
+        if (args.length > 1) {
+          const sourceList = [...args].splice(1, args.length - 1);
           sourceList.forEach((sourceItem) => {
             for (const sourceKey in sourceItem) {
               if (Object.prototype.hasOwnProperty.call(sourceItem, sourceKey)) {
@@ -25,7 +24,7 @@ function CompatibleProcessing() {
     console.warn("Qmsg CompatibleProcessing Object.assign error", error);
   }
 
-  /* 'classList' 兼容处理，add，remove不支持传入多个cls参数 */
+  // 'classList' 兼容处理，add，remove不支持传入多个cls参数
   try {
     if (!("classList" in document.documentElement)) {
       Object.defineProperty(HTMLElement.prototype, "classList", {

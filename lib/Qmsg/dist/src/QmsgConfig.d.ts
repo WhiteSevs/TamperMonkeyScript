@@ -82,11 +82,6 @@ export interface QmsgConfig {
      */
     showIcon?: boolean;
     /**
-     * 是否使内容进行换行显示
-     * @default false
-     */
-    showMoreContent?: boolean;
-    /**
      * 弹出顺序是否逆反
      * + `true`：按顺序追加弹出
      * + `false`：逆序追加弹出
@@ -129,13 +124,19 @@ export interface QmsgConfig {
     /**
      * 限制宽度的数值
      *
+     * 如果是空字符串，那么使用默认的限制：`80%`
+     *
      * 前置条件：`isLimitWidth`: true
      * @default 200
      */
     limitWidthNum?: number | string;
     /**
      * 当超出限制宽度时，是否换行还是显示为省略号
-     * @default "wrap"
+     *
+     * + `no-wrap`：不换行（默认值）
+     * + `wrap`：换行
+     * + `ellipsis`：显示为省略号
+     * @default "no-wrap"
      */
     limitWidthWrap?: "no-wrap" | "wrap" | "ellipsis";
     /**

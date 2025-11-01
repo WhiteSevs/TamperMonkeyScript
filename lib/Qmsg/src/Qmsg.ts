@@ -15,7 +15,7 @@ export type QmsgConfigPartial = Partial<QmsgConfig>;
 // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 type QmsgConfigContent = string | boolean | number | symbol | Function | bigint | null | undefined;
 
-/* 执行兼容 */
+// 执行兼容
 CompatibleProcessing();
 
 class Qmsg {
@@ -50,16 +50,39 @@ class Qmsg {
     this.config(config);
   }
   /**
-   * 修改默认配置
-   * @param config 配置
+   * 修改全局的默认配置，该配置会覆盖掉上一次修改的配置
+   * @param globalConfig 自定义全局配置
    */
-  config(config?: QmsgConfigPartial) {
-    if (config == null) return;
-    if (typeof config !== "object") return;
-    // @ts-ignore
-    QmsgDefaultConfig.INS_DEFAULT = null;
-    // @ts-ignore
-    QmsgDefaultConfig.INS_DEFAULT = config;
+  config(globalConfig?: QmsgConfigPartial) {
+    const that = QmsgDefaultConfig;
+    if (globalConfig == null) return that.INS_DEFAULT;
+    if (typeof globalConfig !== "object") return that.INS_DEFAULT;
+    for (const key in globalConfig) {
+      if (!Object.hasOwn(globalConfig, key)) continue;
+      const descriptor = Object.getOwnPropertyDescriptor(globalConfig, key);
+      if (descriptor) {
+        if ("get" in descriptor) {
+          Reflect.deleteProperty(that.INS_DEFAULT, key);
+          Object.defineProperty(that.INS_DEFAULT, key, {
+            get: descriptor.get,
+            configurable: true,
+            enumerable: true,
+          });
+        } else if ("value" in descriptor) {
+          Reflect.deleteProperty(that.INS_DEFAULT, key);
+          Object.defineProperty(that.INS_DEFAULT, key, {
+            get: () => descriptor.value,
+            configurable: true,
+            enumerable: true,
+          });
+        } else {
+          throw new TypeError("Qmsg.config: descriptor.get or descriptor.value is null");
+        }
+      } else {
+        Reflect.set(that.INS_DEFAULT, key, globalConfig[key as keyof typeof globalConfig]);
+      }
+    }
+    return that.INS_DEFAULT;
   }
   /**
    * 信息Toast
@@ -182,7 +205,7 @@ class Qmsg {
   closeAll() {
     for (let index = QmsgInstStorage.insInfoList.length - 1; index >= 0; index--) {
       const item = QmsgInstStorage.insInfoList[index];
-      item && item.instance && item.instance.close();
+      item && item.inst && item.inst.close();
     }
   }
 }

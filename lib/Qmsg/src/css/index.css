@@ -77,7 +77,7 @@
 .qmsg .qmsg-item:first-child {
   margin-top: -8px;
 }
-.qmsg .qmsg-content {
+.qmsg .qmsg-content-wrapper {
   position: relative;
   display: inline-block;
   padding: 10px 12px;
@@ -89,13 +89,24 @@
   text-align: center;
   pointer-events: all;
 }
-.qmsg .qmsg-content [class^="qmsg-content-"] {
+.qmsg .qmsg-content-wrapper .qmsg-content-text[data-limitWidthWrap="no-wrap"] {
+  white-space: nowrap;
+}
+.qmsg .qmsg-content-wrapper .qmsg-content-text[data-limitWidthWrap="ellipsis"] {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.qmsg .qmsg-content-wrapper .qmsg-content-text[data-limitWidthWrap="wrap"] {
+  white-space: normal;
+}
+.qmsg .qmsg-content-wrapper [class^="qmsg-content-"]:not(.qmsg-content-text) {
   display: flex;
   align-items: center;
 }
 .qmsg .qmsg-icon {
   position: relative;
-  top: 1px;
+  top: 0;
   display: inline-block;
   margin-right: 8px;
   color: inherit;
@@ -111,14 +122,6 @@
 }
 .qmsg .qmsg-icon svg {
   display: inline-block;
-}
-.qmsg .qmsg-content .qmsg-show-more-content {
-  display: flex;
-  align-items: center;
-  white-space: unset;
-  overflow: unset;
-  text-overflow: unset;
-  padding-right: unset;
 }
 .qmsg .qmsg-content-info .qmsg-icon {
   color: #1890ff;
@@ -137,12 +140,6 @@
 }
 .qmsg .qmsg-icon-close:hover > svg path {
   stroke: #555;
-}
-.qmsg .qmsg-icon-close.qmsg-show-more-content {
-  position: unset;
-  overflow: unset;
-  padding-left: 6px;
-  margin-right: 0;
 }
 .qmsg .animate-turn {
   animation: MessageTurn 1s linear infinite;

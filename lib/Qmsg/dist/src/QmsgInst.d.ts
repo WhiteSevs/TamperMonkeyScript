@@ -17,47 +17,47 @@ export declare class QmsgMsg {
      */
     endTime: number | null;
     /**
-     * Qmsg的配置
+     * 实例的配置（动态获取）
      */
     setting: Required<QmsgConfig>;
+    /**
+     * 实例的配置的字符串
+     */
+    settingStr: string;
+    /**
+     * 把动态的`setting`转为普通的对象
+     */
+    settingJSON: Required<QmsgConfig>;
     /**
      * uuid
      */
     uuid: string;
     /**
-     * 当前动画状态
+     * 当前实例的动画状态
      */
     state: keyof QmsgAnimationState;
     /**
-     * 当前相同消息的数量
+     * 当前实例的相同消息的数量
      */
     repeatNum: number;
     /**
-     * 主元素
+     * 元素
      */
-    $Qmsg: HTMLElement;
+    $el: {
+        /**
+         * 主元素
+         */
+        $item: HTMLElement;
+        /**
+         * 获取内容元素
+         */
+        readonly $content: HTMLSpanElement;
+    };
     constructor(config: QmsgConfig, uuid: string);
-    /**
-     * 获取当前配置
-     */
-    getSetting(): Required<QmsgConfig>;
-    /**
-     * 获取当前相同的数量
-     */
-    getRepeatNum(): number;
-    /**
-     * 设置repeatNum值
-     * @param num 重复的数量
-     */
-    setRepeatNum(num: number): void;
-    /**
-     * 设置repeatNum自增
-     */
-    setRepeatNumIncreasing(): void;
     /**
      * 初始化元素
      */
-    private init;
+    private initEl;
     /**
      * 对timeout进行检测并转换
      * 当timeout为string时，转换为number
@@ -70,6 +70,10 @@ export declare class QmsgMsg {
      * @param state
      */
     private setState;
+    /**
+     * 设置`repeatNum`自增
+     */
+    setRepeatNumIncreasing(): void;
     /**
      * 设置消息数量统计
      */
@@ -95,15 +99,13 @@ export declare class QmsgMsg {
      */
     destroy(): void;
     /**
-     * 获取内容元素
-     */
-    get $content(): HTMLSpanElement;
-    /**
      * 设置内容文本
+     * @param text 字符串
      */
     setText(text: string): void;
     /**
      * 设置内容超文本
+     * @param text 字符串
      */
     setHTML(text: string): void;
 }

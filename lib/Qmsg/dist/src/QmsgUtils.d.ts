@@ -22,10 +22,10 @@ export declare const QmsgUtils: {
     mergeArgs(content?: any, config?: object): QmsgConfig;
     /**
      * 转换为动态对象
-     * @param obj 需要配置的对象
+     * @param defaultObj 需要配置的对象
      * @param other_obj 获取的其它对象
      */
-    toDynamicObject<T1, T2 extends any[]>(obj: T1, ...other_objs: T2): T1 & (T2 extends Array<infer U> ? U : never);
+    toDynamicObject<T1, T2 extends any[]>(defaultObj: T1, ...other_objs: T2): T1 & (T2 extends Array<infer U> ? U : never);
     /**
      * 自动使用 Worker 执行 setTimeout
      */

@@ -4,8 +4,17 @@ import type { QmsgMsg } from "./QmsgInst";
  * Qmsg实例存储信息
  */
 export interface QmsgInstStorageInfo {
-  config: string;
-  instance: typeof QmsgMsg.prototype;
+  /**
+   * 配置的字符串
+   */
+  configStr: string;
+  /**
+   * 实例
+   */
+  inst: typeof QmsgMsg.prototype;
+  /**
+   * 唯一id
+   */
   uuid: string;
 }
 /**

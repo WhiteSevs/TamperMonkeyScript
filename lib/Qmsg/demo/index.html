@@ -5,49 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Qmsg</title>
     <script src="../dist/index.umd.js"></script>
-    <style>
-      * {
-        padding: 0;
-        margin: 0;
-      }
-      html,
-      body {
-        width: 100%;
-        height: 100%;
-      }
-      .box {
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        height: 100%;
-      }
-      .settings {
-        margin-top: 30px;
-      }
-      div button {
-        margin: 10px;
-        padding: 10px;
-        border-radius: 12px;
-        border: 1px solid #fff;
-        font-size: 12px;
-      }
-      div button:hover {
-        background: #dddddd;
-        cursor: pointer;
-      }
-    </style>
+    <link rel="stylesheet" href="./css/index.css" />
   </head>
-
   <body>
     <div class="box">
+      <div class="settings">
+        <button class="close-all">立即关闭全部实例</button>
+      </div>
       <div class="types">
         <button class="btn" data-type="info">info提示</button>
         <button class="btn" data-type="error">error提示</button>
         <button class="btn" data-type="success">success提示</button>
         <button class="btn" data-type="warning">warning提示</button>
-        <button class="btn" data-type="loading">loading提示（默认手动关闭）</button>
+        <button class="btn" data-type="loading">loading提示</button>
       </div>
       <div class="settings">
         <button class="auto-close">自动关闭</button>
@@ -56,23 +26,26 @@
         <button class="hide-close">隐藏关闭按钮</button>
         <button class="show-reverse">逆反弹出</button>
         <button class="close-show-reverse">正常弹出</button>
-        <button class="close-all">立即关闭全部实例</button>
       </div>
       <div class="settings">
-        <button class="show-long-content">显示长内容</button>
-        <button class="close-show-long-content">关闭长内容</button>
+        <button class="show-long-content-no-limit">显示长内容且不限制宽度</button>
+        <button class="show-long-content-wrap">显示长内容自动换行</button>
+        <button class="show-long-content-ellipsis">显示长内容自动换行省略号</button>
+        <button class="show-long-content-no-wrap">显示长内容但不换行</button>
+      </div>
+      <div class="settings">
         <button class="show-icon">显示左边Icon</button>
         <button class="close-show-icon">关闭显示左边Icon</button>
       </div>
       <div class="settings">
-        <button class="create-loading">创建一个loading</button>
+        <button class="create-loading">显示loading提示</button>
         <button class="change-loading-text">修改loading的文本</button>
         <button class="change-loading-html">修改loading的超文本</button>
-        <button class="close-loading">关闭这个loading</button>
+        <button class="close-loading">关闭此loading</button>
       </div>
       <div class="settings">
-        <button class="set-show-maxnum">设置弹出最多为2条并弹出10条信息</button>
-        <button class="close-set-show-maxnum">恢复为默认5条</button>
+        <button class="set-show-maxnum-10">弹出10条信息（限制最多显示2条）</button>
+        <button class="set-show-maxnum-5">弹出10条信息（限制最多显示5条）</button>
         <button class="info-max-99">弹出99+消息</button>
       </div>
       <div class="position">
@@ -91,169 +64,6 @@
         <button class="set-position" data-position="bottomright">右下显示</button>
       </div>
     </div>
-    <script>
-      Qmsg.config({
-        autoClose: false,
-        showClose: true,
-      });
-      var $types = document.querySelector(".types");
-      var btns = $types.querySelectorAll(".btn");
-      for (var i = 0, btn; (btn = btns[i]); i++) {
-        btn.addEventListener("click", function (e) {
-          var type = this.getAttribute("data-type");
-          var txt = this.innerText;
-          Qmsg[type](txt);
-        });
-      }
-
-      /* var $position = document.querySelector(".position"); */
-      var $pos = document.querySelectorAll(".set-position");
-      for (var i = 0, botn; (botn = $pos[i]); i++) {
-        botn.addEventListener("click", function (e) {
-          var position = this.getAttribute("data-position");
-          var txt = this.innerText;
-          Qmsg.config({
-            position: position,
-          });
-          Qmsg.info('我来自 <i style="color:red">' + txt + "</i> " + new Date().toLocaleString(), {
-            isHTML: true,
-          });
-        });
-      }
-
-      document.querySelector(".auto-close").onclick = function () {
-        Qmsg.config({
-          autoClose: true,
-        });
-        Qmsg.warning('设置 <i style="color:green">autoClose</i> = <i style="color:red">true</i>', {
-          isHTML: true,
-        });
-      };
-      document.querySelector(".show-reverse").onclick = function () {
-        Qmsg.config({
-          showReverse: true,
-        });
-        Qmsg.warning('设置 <i style="color:green">showReverse</i> = <i style="color:red">true</i>', {
-          isHTML: true,
-        });
-      };
-      document.querySelector(".close-show-reverse").onclick = function () {
-        Qmsg.config({
-          showReverse: false,
-        });
-        Qmsg.warning('设置 <i style="color:green">showReverse</i> = <i style="color:red">false</i>', {
-          isHTML: true,
-        });
-      };
-      document.querySelector(".manually-close").onclick = function () {
-        Qmsg.config({
-          autoClose: false,
-          showClose: true,
-        });
-        Qmsg.warning('设置 <i style="color:green">autoClose</i> = <i style="color:red">false</i>', {
-          isHTML: true,
-        });
-      };
-
-      document.querySelector(".show-close").onclick = function () {
-        Qmsg.config({
-          showClose: true,
-        });
-        Qmsg.warning('设置 <i style="color:green">showClose</i> = <i style="color:red">true</i>', {
-          isHTML: true,
-        });
-      };
-      document.querySelector(".hide-close").onclick = function () {
-        Qmsg.config({
-          showClose: false,
-        });
-        Qmsg.warning('设置 <i style="color:green">showClose</i> = <i style="color:gray">false</i>', {
-          isHTML: true,
-        });
-      };
-      document.querySelector(".close-all").onclick = function () {
-        Qmsg.closeAll();
-      };
-      var loading;
-      document.querySelector(".create-loading").onclick = function () {
-        loading = Qmsg.loading("小鸭子,游呀游~", {
-          onClose: function () {
-            console.log("游上了岸~");
-          },
-        });
-      };
-      document.querySelector(".change-loading-text").onclick = function () {
-        loading?.setText("当前loading实例.setText()");
-      };
-      document.querySelector(".change-loading-html").onclick = function () {
-        loading?.setHTML("<i style='color:red;'>当前loading实例.setHTML()</i>");
-      };
-      document.querySelector(".close-loading").onclick = function () {
-        loading && loading.close();
-      };
-
-      document.querySelector(".show-long-content").onclick = function () {
-        let text = "";
-        for (let i = 0; i < 6; i++) {
-          text += '设置 <i style="color:green">showMoreContent</i> = <i style="color:red">true</i>';
-        }
-        Qmsg.warning(text, {
-          isHTML: true,
-          showMoreContent: true,
-        });
-      };
-      document.querySelector(".close-show-long-content").onclick = function () {
-        let text = "";
-        for (let i = 0; i < 6; i++) {
-          text += '设置 <i style="color:green">showMoreContent</i> = <i style="color:red">false</i>';
-        }
-        Qmsg.warning(text, {
-          isHTML: true,
-          showMoreContent: false,
-        });
-      };
-      document.querySelector(".show-icon").onclick = function () {
-        Qmsg.config({
-          showIcon: true,
-        });
-        Qmsg.warning('设置 <i style="color:green">showIcon</i> = <i style="color:red">true</i>', {
-          isHTML: true,
-        });
-      };
-      document.querySelector(".close-show-icon").onclick = function () {
-        Qmsg.config({
-          showIcon: false,
-        });
-        Qmsg.warning('设置 <i style="color:green">showIcon</i> = <i style="color:red">false</i>', {
-          isHTML: true,
-        });
-      };
-      document.querySelector(".set-show-maxnum").onclick = function () {
-        Qmsg.config({
-          maxNums: 2,
-        });
-        for (let i = 0; i < 10; i++) {
-          Qmsg.info(
-            `第 ${
-              i + 1
-            } 个，设置 <i style="color:green">autoClose</i> = <i style="color:red">true</i> 的超出限制直接关闭`,
-            {
-              autoClose: true,
-              isHTML: true,
-            }
-          );
-        }
-      };
-      document.querySelector(".close-set-show-maxnum").onclick = function () {
-        Qmsg.config({
-          maxNums: 5,
-        });
-      };
-      document.querySelector(".info-max-99").onclick = function () {
-        for (let i = 0; i < 150; i++) {
-          Qmsg.info("99+消息");
-        }
-      };
-    </script>
+    <script src="./js/index.js"></script>
   </body>
 </html>
