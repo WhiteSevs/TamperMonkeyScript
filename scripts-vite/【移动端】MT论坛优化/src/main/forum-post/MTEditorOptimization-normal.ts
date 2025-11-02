@@ -49,7 +49,14 @@ let tempReplyBtnNode: HTMLElement | null = null;
 
 export const MTEditorOptimizationNormal = {
   $data: {
+    /**
+     * 是否是ubb代码插入的点击
+     */
     isUBBCodeInsertClick: false,
+    /**
+     * 当前是否正在回复|发表中
+     */
+    isPosting: false,
     db: new Utils.indexedDB("mt_reply_record", "input_text"),
     forum_action: null as any as string,
     get tid() {
@@ -78,15 +85,15 @@ export const MTEditorOptimizationNormal = {
    */
   overridePageEditor() {
     // 评论图标
-    let $old_commentIcon = document.querySelector<HTMLElement>("#comiis_foot_memu .comiis_flex li:nth-child(2)")!;
+    let $old_commentIcon = $<HTMLElement>("#comiis_foot_memu .comiis_flex li:nth-child(2)")!;
     // 点赞图标
-    let $old_linkIcon = document.querySelector<HTMLElement>("#comiis_foot_memu .comiis_flex li:nth-child(3)")!;
+    let $old_linkIcon = $<HTMLElement>("#comiis_foot_memu .comiis_flex li:nth-child(3)")!;
     // 收藏图标
-    let $old_collectIcon = document.querySelector<HTMLElement>("#comiis_foot_memu .comiis_flex li:nth-child(4)")!;
-    this.$el.$form = document.querySelector<HTMLFormElement>("#fastpostform")!;
+    let $old_collectIcon = $<HTMLElement>("#comiis_foot_memu .comiis_flex li:nth-child(4)")!;
+    this.$el.$form = $<HTMLFormElement>("#fastpostform")!;
     this.$data.forum_action = this.$el.$form.getAttribute("action")!;
     let forum_serialize = DOMUtils.serialize(this.$el.$form);
-    let forum_url = document.querySelector<HTMLAnchorElement>("#fastpostform .header_y a")!.href;
+    let forum_url = $<HTMLAnchorElement>("#fastpostform .header_y a")!.href;
     // 移除页面原来的输入框
     DOMUtils.remove("#needmessage[name='message']");
     // 移除表情列表
@@ -95,7 +102,7 @@ export const MTEditorOptimizationNormal = {
     DOMUtils.remove("#fastpostsubmitline");
     DOMUtils.remove("#fastpostsubmit");
 
-    let $footMenu = document.querySelector<HTMLElement>("#comiis_foot_memu")!;
+    let $footMenu = $<HTMLElement>("#comiis_foot_memu")!;
     DOMUtils.hide($footMenu, false);
 
     let smiliesList = MTEditorSmilies();
@@ -264,9 +271,9 @@ export const MTEditorOptimizationNormal = {
     this.setMenuSmileTabClickEvent();
     this.setMenuInsertClickEvent();
     this.setMenuQuickUBB();
-    Panel.execMenu("mt-forum-post-editorOptimizationNormal-recordInputText", () => {
-      this.initReplyText();
+    Panel.execMenu("mt-forum-post-editorOptimizationNormal-recordInputText", async () => {
       this.setInputChangeSaveEvent();
+      await this.initReplyText();
     });
     Panel.execMenuOnce("mt-image-bed-hello-enable", () => {
       MTEditorImageBed_Hello.init();
@@ -330,42 +337,46 @@ export const MTEditorOptimizationNormal = {
   setInputChangeSaveEvent() {
     const that = this;
 
-    DOMUtils.on(this.$el.$input, ["input", "propertychange"], (event) => {
-      let inputText = that.$el.$input.value;
-      let $reply = that.$el.$input.closest(".reply_area")!.querySelector<HTMLElement>(".reply_user_content")!;
-      let replyUrl = $reply.getAttribute("data-reply-url")!;
-      let data: EditorNormalStorageOption = {
+    DOMUtils.on(this.$el.$input, ["input", "propertychange"], async (event) => {
+      const inputText = that.$el.$input.value;
+      const $reply = that.$el.$input.closest(".reply_area")!.querySelector<HTMLElement>(".reply_user_content")!;
+      const replyUrl = $reply.getAttribute("data-reply-url")!;
+      const data: EditorNormalStorageOption = {
         url: window.location.href,
         text: inputText,
         repquote: replyUrl ? MTUtils.getRepquote(replyUrl) : undefined,
         forumId: that.$data.tid!,
       };
 
-      that.$data.db.get<EditorNormalStorageOption[]>("data").then((result) => {
-        if (!result.success || result.code === 201) {
-          console.warn(result);
-          return;
-        }
-        let localDataIndex = result.data.findIndex((item) => {
-          return item.forumId === data.forumId && item.repquote === data.repquote;
-        });
-        if (localDataIndex !== -1) {
-          if (inputText == null || inputText === "") {
-            // 空数据，清理indexedDB数据
-            result.data.splice(localDataIndex, 1);
-          } else {
-            result.data[localDataIndex] = utils.assign(result.data[localDataIndex], {
-              text: data.text,
-            } as EditorNormalStorageOption);
-          }
-        } else {
-          result.data.push(data);
-        }
-
-        that.$data.db.save<EditorNormalStorageOption[]>("data", result.data).then((result2) => {
-          // console.info(result2);
-        });
+      const result = await that.$data.db.get<EditorNormalStorageOption[]>("data");
+      if (!result.success || result.code === 201) {
+        console.warn(result);
+        return;
+      }
+      let localDataIndex = result.data.findIndex((item) => {
+        return item.forumId === data.forumId && item.repquote === data.repquote;
       });
+      let statusStr = "";
+      if (localDataIndex !== -1) {
+        if (inputText == null || inputText === "") {
+          // 空数据，清理indexedDB数据
+          statusStr = "删除数据";
+          result.data.splice(localDataIndex, 1);
+        } else {
+          statusStr = "更新数据";
+          result.data[localDataIndex] = utils.assign(result.data[localDataIndex], {
+            text: data.text,
+          } as EditorNormalStorageOption);
+        }
+      } else {
+        statusStr = "添加数据";
+        result.data.push(data);
+      }
+
+      const saveData = await that.$data.db.save<EditorNormalStorageOption[]>("data", result.data);
+      if (import.meta.env.DEV) {
+        console.info(`存储更新-${statusStr}：`, saveData);
+      }
     });
   },
   /**
@@ -589,91 +600,106 @@ export const MTEditorOptimizationNormal = {
     const that = this;
     DOMUtils.on(this.$el.$fastpostsubmit, "click", async (event) => {
       DOMUtils.preventEvent(event);
-      var $message = $<HTMLTextAreaElement>("#needmessage")!;
-      var message = DOMUtils.val($message);
+      that.$data.isPosting = true;
+      const $message = $<HTMLTextAreaElement>("#needmessage")!;
+      let message = DOMUtils.val($message);
       message = encodeURIComponent(message);
       if (message == null || message === "") {
         return;
       }
-      if (DOMUtils.val(that.$el.$fastpostsubmit) == "发表") {
-        let $loading = Qmsg.loading("发表中，请稍后...");
-        // 请求数据
-        let data = "message=" + message;
-        // 遍历图片数据，添加到请求数据中
-        $$<HTMLInputElement>("#imglist input[type='hidden']").forEach(($ele) => {
-          let key = $ele.getAttribute("name");
-          data += `&${key}=`;
-        });
-        data = DOMUtils.serialize(that.$el.$form) + "&" + data;
-        let url = that.$data.forum_action + "reply&handlekey=fastpost&loc=1&inajax=1";
-        let response = await httpx.post(url, {
-          data: data,
-          fetch: true,
-          allowInterceptConfig: false,
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        });
-        $loading.close();
-        if (!response.status) {
-          Qmsg.error("发表失败，网络异常");
-          return;
-        }
-        let xmlDoc = utils.parseFromString(response.data.responseText, "text/xml");
-        let xmlText = xmlDoc.lastChild?.firstChild?.nodeValue!;
-        unsafeWindow.evalscript(xmlText);
-        if (this.handle_error(xmlText)) {
-          return;
-        }
-        window.scrollTo({
-          top: DOMUtils.height(document),
-        });
+      try {
+        if (DOMUtils.val(that.$el.$fastpostsubmit) == "发表") {
+          let $loading = Qmsg.loading("发表中，请稍后...");
+          // 请求数据
+          let data = "message=" + message;
+          // 遍历图片数据，添加到请求数据中
+          $$<HTMLInputElement>("#imglist input[type='hidden']").forEach(($ele) => {
+            let key = $ele.getAttribute("name");
+            data += `&${key}=`;
+          });
+          data = DOMUtils.serialize(that.$el.$form) + "&" + data;
+          let url = that.$data.forum_action + "reply&handlekey=fastpost&loc=1&inajax=1";
+          let response = await httpx.post(url, {
+            data: data,
+            fetch: true,
+            allowInterceptConfig: false,
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+          });
+          $loading.close();
+          if (!response.status) {
+            Qmsg.error("发表失败，网络异常");
+            return;
+          }
+          let xmlDoc = utils.parseFromString(response.data.responseText, "text/xml");
+          let xmlText = xmlDoc.lastChild?.firstChild?.nodeValue!;
+          unsafeWindow.evalscript(xmlText);
+          if (this.handle_error(xmlText)) {
+            return;
+          }
+          window.scrollTo({
+            top: DOMUtils.height(document),
+          });
 
-        DOMUtils.val("#needmessage", "");
-        $<HTMLElement>("#comiis_head")?.click();
-        DOMUtils.hide("#comiis_foot_menu_beautify_big .reply_user_content", false);
-        DOMUtils.attr('#comiis_foot_menu_beautify_big li[data-attr="发表"] input', "data-text", "false");
-        DOMUtils.attr("#comiis_foot_menu_beautify li[data-attr='回帖'] input", "placeholder", "发帖千百度，文明第一步");
-        this.deleteReplyTextStorage();
-      } else {
-        /* 回复 */
-        let data =
-          DOMUtils.attr("#comiis_foot_menu_beautify_big .reply_user_content", "data-reply-serialize") + message;
+          DOMUtils.val("#needmessage", "");
+          $<HTMLElement>("#comiis_head")?.click();
+          DOMUtils.hide("#comiis_foot_menu_beautify_big .reply_user_content", false);
+          DOMUtils.attr('#comiis_foot_menu_beautify_big li[data-attr="发表"] input', "data-text", "false");
+          DOMUtils.attr(
+            "#comiis_foot_menu_beautify li[data-attr='回帖'] input",
+            "placeholder",
+            "发帖千百度，文明第一步"
+          );
+          await this.deleteReplyTextStorage();
+        } else {
+          /* 回复 */
+          let data =
+            DOMUtils.attr("#comiis_foot_menu_beautify_big .reply_user_content", "data-reply-serialize") + message;
 
-        $$<HTMLInputElement>("#imglist input[type='hidden']").forEach((item) => {
-          data = `${data}&${item.getAttribute("name")}=`;
-        });
-        let replyUrl = DOMUtils.attr("#comiis_foot_menu_beautify_big .reply_user_content", "data-reply-action");
-        let response = await httpx.post(replyUrl + "&handlekey=fastposts&loc=1&inajax=1", {
-          allowInterceptConfig: false,
-          fetch: true,
-          data: data,
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        });
-        if (!response.status) {
-          Qmsg.error("回复失败，网络异常");
-          return;
-        }
-        let xmlDoc = utils.parseFromString(response.data.responseText, "text/xml");
-        let xmlText = xmlDoc.lastChild?.firstChild?.nodeValue!;
-        log.info(xmlText);
-        unsafeWindow.evalscript(xmlText);
-        if (this.handle_error(xmlText)) {
-          return;
-        }
-        $<HTMLElement>(xmlText)?.click();
+          $$<HTMLInputElement>("#imglist input[type='hidden']").forEach((item) => {
+            data = `${data}&${item.getAttribute("name")}=`;
+          });
+          let replyUrl = DOMUtils.attr("#comiis_foot_menu_beautify_big .reply_user_content", "data-reply-action");
+          let response = await httpx.post(replyUrl + "&handlekey=fastposts&loc=1&inajax=1", {
+            allowInterceptConfig: false,
+            fetch: true,
+            data: data,
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+          });
+          if (!response.status) {
+            Qmsg.error("回复失败，网络异常");
+            return;
+          }
+          let xmlDoc = utils.parseFromString(response.data.responseText, "text/xml");
+          let xmlText = xmlDoc.lastChild?.firstChild?.nodeValue!;
+          log.info(xmlText);
+          unsafeWindow.evalscript(xmlText);
+          if (this.handle_error(xmlText)) {
+            return;
+          }
+          $<HTMLElement>(xmlText)?.click();
 
-        DOMUtils.val("#needmessage", "");
-        $<HTMLElement>("#comiis_head")!.click();
-        DOMUtils.val('#comiis_foot_menu_beautify_big li[data-attr="发表"] input', "发表");
-        DOMUtils.attr('#comiis_foot_menu_beautify_big li[data-attr="发表"] input', "data-text", "false");
-        DOMUtils.attr("#comiis_foot_menu_beautify li[data-attr='回帖'] input", "placeholder", "发帖千百度，文明第一步");
-        window.scrollTo({
-          top: DOMUtils.height(document),
-        });
-        this.deleteReplyTextStorage(true, replyUrl);
+          DOMUtils.val("#needmessage", "");
+          $<HTMLElement>("#comiis_head")!.click();
+          DOMUtils.val('#comiis_foot_menu_beautify_big li[data-attr="发表"] input', "发表");
+          DOMUtils.attr('#comiis_foot_menu_beautify_big li[data-attr="发表"] input', "data-text", "false");
+          DOMUtils.attr(
+            "#comiis_foot_menu_beautify li[data-attr='回帖'] input",
+            "placeholder",
+            "发帖千百度，文明第一步"
+          );
+          window.scrollTo({
+            top: DOMUtils.height(document),
+          });
+          await this.deleteReplyTextStorage(true, replyUrl);
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        that.$data.isPosting = false;
       }
 
       return false;
@@ -723,8 +749,8 @@ export const MTEditorOptimizationNormal = {
         DOMUtils.attr("#comiis_foot_menu_beautify_big .reply_user_content", "data-reply-serialize", reply_serialize);
         tempReplyBtnNode = $reply;
         DOMUtils.val("#needmessage", DOMUtils.attr($reply, "data-text") || "");
-        Panel.execMenu("mt-forum-post-editorOptimizationNormal-recordInputText", () => {
-          this.initReplyText(true, reply_url);
+        Panel.execMenu("mt-forum-post-editorOptimizationNormal-recordInputText", async () => {
+          await this.initReplyText(true, reply_url);
         });
       },
       {
@@ -782,10 +808,10 @@ export const MTEditorOptimizationNormal = {
           }
         }
 
-        if (DOMUtils.val(that.$el.$input) === "") {
-          // 空的
-          Panel.execMenu("mt-forum-post-editorOptimizationNormal-recordInputText", () => {
-            that.initReplyText();
+        if (DOMUtils.val(that.$el.$input) === "" && !that.$data.isPosting) {
+          // 空的且非回复|发表中
+          Panel.execMenu("mt-forum-post-editorOptimizationNormal-recordInputText", async () => {
+            await that.initReplyText();
           });
         }
       }
@@ -920,27 +946,43 @@ export const MTEditorOptimizationNormal = {
    * @param isUserReply 是否是来自点击回复的
    * @param replyUrl 回复的url
    */
-  deleteReplyTextStorage(isUserReply: boolean = false, replyUrl: string | undefined | null = undefined) {
+  async deleteReplyTextStorage(isUserReply: boolean = false, replyUrl: string | undefined | null = undefined) {
     const that = this;
-    this.$data.db.get<EditorNormalStorageOption[]>("data").then((result) => {
-      if (!result.success || result.code === 201) {
-        console.warn(result);
-        return;
+    const removeData = async () => {
+      const queryData = await this.$data.db.get<EditorNormalStorageOption[]>("data");
+      if (!queryData.success || queryData.code === 201) {
+        console.warn(queryData);
+        listener.off();
+        return false;
       }
-      let localDataIndex = result.data.findIndex((item) => {
+      let localDataIndex = queryData.data.findIndex((item) => {
         if (isUserReply) {
           return item.forumId === that.$data.tid && replyUrl && item.repquote === MTUtils.getRepquote(replyUrl);
         } else {
           return item.forumId === that.$data.tid && utils.isNull(item.repquote);
         }
       });
+      let flag = false;
       if (localDataIndex !== -1) {
-        result.data.splice(localDataIndex, 1);
-        this.$data.db.save<EditorNormalStorageOption[]>("data", result.data).then((result2) => {
-          // console.info(result2);
-        });
+        queryData.data.splice(localDataIndex, 1);
+        const saveData = await this.$data.db.save<EditorNormalStorageOption[]>("data", queryData.data);
+        if (import.meta.env.DEV) {
+          console.log("存储更新-删除发布|回复的数据：", saveData);
+        }
+        flag = true;
       }
-    });
+      listener.off();
+      return flag;
+    };
+    const listener = DOMUtils.on(
+      window,
+      "beforeunload",
+      async () => {
+        await removeData();
+      },
+      { capture: true }
+    );
+    await removeData();
   },
   /**
    * 注入UBB代码

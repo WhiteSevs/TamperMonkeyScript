@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.1
+// @version      2025.11.2
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -4436,6 +4436,7 @@
   const MTEditorOptimizationNormal = {
     $data: {
       isUBBCodeInsertClick: false,
+      isPosting: false,
       db: new Utils.indexedDB("mt_reply_record", "input_text"),
       forum_action: null,
       get tid() {
@@ -4455,18 +4456,18 @@
       this.overridePageEditor();
     },
     overridePageEditor() {
-      let $old_commentIcon = document.querySelector("#comiis_foot_memu .comiis_flex li:nth-child(2)");
-      let $old_linkIcon = document.querySelector("#comiis_foot_memu .comiis_flex li:nth-child(3)");
-      let $old_collectIcon = document.querySelector("#comiis_foot_memu .comiis_flex li:nth-child(4)");
-      this.$el.$form = document.querySelector("#fastpostform");
+      let $old_commentIcon = $("#comiis_foot_memu .comiis_flex li:nth-child(2)");
+      let $old_linkIcon = $("#comiis_foot_memu .comiis_flex li:nth-child(3)");
+      let $old_collectIcon = $("#comiis_foot_memu .comiis_flex li:nth-child(4)");
+      this.$el.$form = $("#fastpostform");
       this.$data.forum_action = this.$el.$form.getAttribute("action");
       let forum_serialize = domUtils.serialize(this.$el.$form);
-      let forum_url = document.querySelector("#fastpostform .header_y a").href;
+      let forum_url = $("#fastpostform .header_y a").href;
       domUtils.remove("#needmessage[name='message']");
       domUtils.remove("#imglist");
       domUtils.remove("#fastpostsubmitline");
       domUtils.remove("#fastpostsubmit");
-      let $footMenu = document.querySelector("#comiis_foot_memu");
+      let $footMenu = $("#comiis_foot_memu");
       domUtils.hide($footMenu, false);
       let smiliesList = MTEditorSmilies();
       let first_smilies = Object.keys(smiliesList[0]).map((key) => {
@@ -4618,9 +4619,9 @@
       this.setMenuSmileTabClickEvent();
       this.setMenuInsertClickEvent();
       this.setMenuQuickUBB();
-      Panel.execMenu("mt-forum-post-editorOptimizationNormal-recordInputText", () => {
-        this.initReplyText();
+      Panel.execMenu("mt-forum-post-editorOptimizationNormal-recordInputText", async () => {
         this.setInputChangeSaveEvent();
+        await this.initReplyText();
       });
       Panel.execMenuOnce("mt-image-bed-hello-enable", () => {
         MTEditorImageBed_Hello.init();
@@ -4667,37 +4668,36 @@
     },
     setInputChangeSaveEvent() {
       const that = this;
-      domUtils.on(this.$el.$input, ["input", "propertychange"], (event) => {
-        let inputText = that.$el.$input.value;
-        let $reply = that.$el.$input.closest(".reply_area").querySelector(".reply_user_content");
-        let replyUrl = $reply.getAttribute("data-reply-url");
-        let data = {
+      domUtils.on(this.$el.$input, ["input", "propertychange"], async (event) => {
+        const inputText = that.$el.$input.value;
+        const $reply = that.$el.$input.closest(".reply_area").querySelector(".reply_user_content");
+        const replyUrl = $reply.getAttribute("data-reply-url");
+        const data = {
           url: window.location.href,
           text: inputText,
           repquote: replyUrl ? MTUtils.getRepquote(replyUrl) : void 0,
           forumId: that.$data.tid,
         };
-        that.$data.db.get("data").then((result) => {
-          if (!result.success || result.code === 201) {
-            console.warn(result);
-            return;
-          }
-          let localDataIndex = result.data.findIndex((item) => {
-            return item.forumId === data.forumId && item.repquote === data.repquote;
-          });
-          if (localDataIndex !== -1) {
-            if (inputText == null || inputText === "") {
-              result.data.splice(localDataIndex, 1);
-            } else {
-              result.data[localDataIndex] = utils.assign(result.data[localDataIndex], {
-                text: data.text,
-              });
-            }
-          } else {
-            result.data.push(data);
-          }
-          that.$data.db.save("data", result.data).then((result2) => {});
+        const result = await that.$data.db.get("data");
+        if (!result.success || result.code === 201) {
+          console.warn(result);
+          return;
+        }
+        let localDataIndex = result.data.findIndex((item) => {
+          return item.forumId === data.forumId && item.repquote === data.repquote;
         });
+        if (localDataIndex !== -1) {
+          if (inputText == null || inputText === "") {
+            result.data.splice(localDataIndex, 1);
+          } else {
+            result.data[localDataIndex] = utils.assign(result.data[localDataIndex], {
+              text: data.text,
+            });
+          }
+        } else {
+          result.data.push(data);
+        }
+        await that.$data.db.save("data", result.data);
       });
     },
     async initReplyText(isUserReply = false, replyUrl = void 0) {
@@ -4909,93 +4909,100 @@
       const that = this;
       domUtils.on(this.$el.$fastpostsubmit, "click", async (event) => {
         domUtils.preventEvent(event);
-        var $message = $("#needmessage");
-        var message = domUtils.val($message);
+        that.$data.isPosting = true;
+        const $message = $("#needmessage");
+        let message = domUtils.val($message);
         message = encodeURIComponent(message);
         if (message == null || message === "") {
           return;
         }
-        if (domUtils.val(that.$el.$fastpostsubmit) == "发表") {
-          let $loading = Qmsg.loading("发表中，请稍后...");
-          let data = "message=" + message;
-          $$("#imglist input[type='hidden']").forEach(($ele) => {
-            let key = $ele.getAttribute("name");
-            data += `&${key}=`;
-          });
-          data = domUtils.serialize(that.$el.$form) + "&" + data;
-          let url = that.$data.forum_action + "reply&handlekey=fastpost&loc=1&inajax=1";
-          let response = await httpx.post(url, {
-            data,
-            fetch: true,
-            allowInterceptConfig: false,
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-            },
-          });
-          $loading.close();
-          if (!response.status) {
-            Qmsg.error("发表失败，网络异常");
-            return;
+        try {
+          if (domUtils.val(that.$el.$fastpostsubmit) == "发表") {
+            let $loading = Qmsg.loading("发表中，请稍后...");
+            let data = "message=" + message;
+            $$("#imglist input[type='hidden']").forEach(($ele) => {
+              let key = $ele.getAttribute("name");
+              data += `&${key}=`;
+            });
+            data = domUtils.serialize(that.$el.$form) + "&" + data;
+            let url = that.$data.forum_action + "reply&handlekey=fastpost&loc=1&inajax=1";
+            let response = await httpx.post(url, {
+              data,
+              fetch: true,
+              allowInterceptConfig: false,
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+            });
+            $loading.close();
+            if (!response.status) {
+              Qmsg.error("发表失败，网络异常");
+              return;
+            }
+            let xmlDoc = utils.parseFromString(response.data.responseText, "text/xml");
+            let xmlText = xmlDoc.lastChild?.firstChild?.nodeValue;
+            _unsafeWindow.evalscript(xmlText);
+            if (this.handle_error(xmlText)) {
+              return;
+            }
+            window.scrollTo({
+              top: domUtils.height(document),
+            });
+            domUtils.val("#needmessage", "");
+            $("#comiis_head")?.click();
+            domUtils.hide("#comiis_foot_menu_beautify_big .reply_user_content", false);
+            domUtils.attr('#comiis_foot_menu_beautify_big li[data-attr="发表"] input', "data-text", "false");
+            domUtils.attr(
+              "#comiis_foot_menu_beautify li[data-attr='回帖'] input",
+              "placeholder",
+              "发帖千百度，文明第一步"
+            );
+            await this.deleteReplyTextStorage();
+          } else {
+            let data =
+              domUtils.attr("#comiis_foot_menu_beautify_big .reply_user_content", "data-reply-serialize") + message;
+            $$("#imglist input[type='hidden']").forEach((item) => {
+              data = `${data}&${item.getAttribute("name")}=`;
+            });
+            let replyUrl = domUtils.attr("#comiis_foot_menu_beautify_big .reply_user_content", "data-reply-action");
+            let response = await httpx.post(replyUrl + "&handlekey=fastposts&loc=1&inajax=1", {
+              allowInterceptConfig: false,
+              fetch: true,
+              data,
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+            });
+            if (!response.status) {
+              Qmsg.error("回复失败，网络异常");
+              return;
+            }
+            let xmlDoc = utils.parseFromString(response.data.responseText, "text/xml");
+            let xmlText = xmlDoc.lastChild?.firstChild?.nodeValue;
+            log.info(xmlText);
+            _unsafeWindow.evalscript(xmlText);
+            if (this.handle_error(xmlText)) {
+              return;
+            }
+            $(xmlText)?.click();
+            domUtils.val("#needmessage", "");
+            $("#comiis_head").click();
+            domUtils.val('#comiis_foot_menu_beautify_big li[data-attr="发表"] input', "发表");
+            domUtils.attr('#comiis_foot_menu_beautify_big li[data-attr="发表"] input', "data-text", "false");
+            domUtils.attr(
+              "#comiis_foot_menu_beautify li[data-attr='回帖'] input",
+              "placeholder",
+              "发帖千百度，文明第一步"
+            );
+            window.scrollTo({
+              top: domUtils.height(document),
+            });
+            await this.deleteReplyTextStorage(true, replyUrl);
           }
-          let xmlDoc = utils.parseFromString(response.data.responseText, "text/xml");
-          let xmlText = xmlDoc.lastChild?.firstChild?.nodeValue;
-          _unsafeWindow.evalscript(xmlText);
-          if (this.handle_error(xmlText)) {
-            return;
-          }
-          window.scrollTo({
-            top: domUtils.height(document),
-          });
-          domUtils.val("#needmessage", "");
-          $("#comiis_head")?.click();
-          domUtils.hide("#comiis_foot_menu_beautify_big .reply_user_content", false);
-          domUtils.attr('#comiis_foot_menu_beautify_big li[data-attr="发表"] input', "data-text", "false");
-          domUtils.attr(
-            "#comiis_foot_menu_beautify li[data-attr='回帖'] input",
-            "placeholder",
-            "发帖千百度，文明第一步"
-          );
-          this.deleteReplyTextStorage();
-        } else {
-          let data =
-            domUtils.attr("#comiis_foot_menu_beautify_big .reply_user_content", "data-reply-serialize") + message;
-          $$("#imglist input[type='hidden']").forEach((item) => {
-            data = `${data}&${item.getAttribute("name")}=`;
-          });
-          let replyUrl = domUtils.attr("#comiis_foot_menu_beautify_big .reply_user_content", "data-reply-action");
-          let response = await httpx.post(replyUrl + "&handlekey=fastposts&loc=1&inajax=1", {
-            allowInterceptConfig: false,
-            fetch: true,
-            data,
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-            },
-          });
-          if (!response.status) {
-            Qmsg.error("回复失败，网络异常");
-            return;
-          }
-          let xmlDoc = utils.parseFromString(response.data.responseText, "text/xml");
-          let xmlText = xmlDoc.lastChild?.firstChild?.nodeValue;
-          log.info(xmlText);
-          _unsafeWindow.evalscript(xmlText);
-          if (this.handle_error(xmlText)) {
-            return;
-          }
-          $(xmlText)?.click();
-          domUtils.val("#needmessage", "");
-          $("#comiis_head").click();
-          domUtils.val('#comiis_foot_menu_beautify_big li[data-attr="发表"] input', "发表");
-          domUtils.attr('#comiis_foot_menu_beautify_big li[data-attr="发表"] input', "data-text", "false");
-          domUtils.attr(
-            "#comiis_foot_menu_beautify li[data-attr='回帖'] input",
-            "placeholder",
-            "发帖千百度，文明第一步"
-          );
-          window.scrollTo({
-            top: domUtils.height(document),
-          });
-          this.deleteReplyTextStorage(true, replyUrl);
+        } catch (error) {
+          console.error(error);
+        } finally {
+          that.$data.isPosting = false;
         }
         return false;
       });
@@ -5039,8 +5046,8 @@
           domUtils.attr("#comiis_foot_menu_beautify_big .reply_user_content", "data-reply-serialize", reply_serialize);
           tempReplyBtnNode = $reply;
           domUtils.val("#needmessage", domUtils.attr($reply, "data-text") || "");
-          Panel.execMenu("mt-forum-post-editorOptimizationNormal-recordInputText", () => {
-            this.initReplyText(true, reply_url);
+          Panel.execMenu("mt-forum-post-editorOptimizationNormal-recordInputText", async () => {
+            await this.initReplyText(true, reply_url);
           });
         },
         {
@@ -5090,9 +5097,9 @@
               );
             }
           }
-          if (domUtils.val(that.$el.$input) === "") {
-            Panel.execMenu("mt-forum-post-editorOptimizationNormal-recordInputText", () => {
-              that.initReplyText();
+          if (domUtils.val(that.$el.$input) === "" && !that.$data.isPosting) {
+            Panel.execMenu("mt-forum-post-editorOptimizationNormal-recordInputText", async () => {
+              await that.initReplyText();
             });
           }
         }
@@ -5183,25 +5190,40 @@
     async clearAllReplyRecord() {
       return await this.$data.db.deleteAll();
     },
-    deleteReplyTextStorage(isUserReply = false, replyUrl = void 0) {
+    async deleteReplyTextStorage(isUserReply = false, replyUrl = void 0) {
       const that = this;
-      this.$data.db.get("data").then((result) => {
-        if (!result.success || result.code === 201) {
-          console.warn(result);
-          return;
+      const removeData = async () => {
+        const queryData = await this.$data.db.get("data");
+        if (!queryData.success || queryData.code === 201) {
+          console.warn(queryData);
+          listener.off();
+          return false;
         }
-        let localDataIndex = result.data.findIndex((item) => {
+        let localDataIndex = queryData.data.findIndex((item) => {
           if (isUserReply) {
             return item.forumId === that.$data.tid && replyUrl && item.repquote === MTUtils.getRepquote(replyUrl);
           } else {
             return item.forumId === that.$data.tid && utils.isNull(item.repquote);
           }
         });
+        let flag = false;
         if (localDataIndex !== -1) {
-          result.data.splice(localDataIndex, 1);
-          this.$data.db.save("data", result.data).then((result2) => {});
+          queryData.data.splice(localDataIndex, 1);
+          await this.$data.db.save("data", queryData.data);
+          flag = true;
         }
-      });
+        listener.off();
+        return flag;
+      };
+      const listener = domUtils.on(
+        window,
+        "beforeunload",
+        async () => {
+          await removeData();
+        },
+        { capture: true }
+      );
+      await removeData();
     },
     setMenuQuickUBB() {
       let $tab_list = $("#comiis_insert_ubb_tab_list");
