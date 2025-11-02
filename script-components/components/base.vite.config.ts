@@ -484,7 +484,7 @@ const GenerateUserConfig = async (option: {
 		console.log("[vite-plugin-monkey] window == unsafeWindow start check and repair GM api with this env");
 
 		if (window.GM == null && typeof GM === "object") {
-      Reflect.set(window, "GM", GM);
+			Reflect.set(window, "GM", GM);
 			Reflect.set(GM_Api, "GM", GM);
 			GM_repair_count++;
 		}
@@ -503,10 +503,11 @@ const GenerateUserConfig = async (option: {
       )
       .join("\n\n		")}
 	}
-	Object.freeze(GM_Api);
-  Reflect.set(document,\`__monkeyApi-${Date.now()}\`) = GM_Api;
 	if (GM_repair_count > 0) {
+    const now = Date.now();
 		console.log("[vite-plugin-monkey] repair GM api count: " + GM_repair_count);
+		Object.freeze(GM_Api);
+		Reflect.set(document, "__monkeyApi-" + now, GM_Api);
 	}
 })();`
             );
