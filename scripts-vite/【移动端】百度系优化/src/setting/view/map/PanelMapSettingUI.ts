@@ -10,11 +10,11 @@ const PanelMapSettingUI: PopsPanelContentConfig = {
     return BaiduRouter.isMap();
   },
   scrollToDefaultView: true,
-  forms: [
+  views: [
     {
       text: "劫持/拦截",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISwitch("劫持Element.appendChild", "baidu_map_hijack-element-appendChild", true, void 0, "阻止唤醒调用App"),
         UISwitch("劫持$.append", "baidu_map_hijack-jQuery-append", true, void 0, "阻止唤醒调用App"),
         UISwitch("劫持setTimeout", "baidu_map_hijack-setTimeout", true, void 0, "阻止唤醒调用App和剪贴板复制"),

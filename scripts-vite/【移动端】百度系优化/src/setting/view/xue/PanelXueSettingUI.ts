@@ -9,7 +9,7 @@ const PanelXueSettingUI: PopsPanelContentConfig = {
     return BaiduRouter.isJingYan();
   },
   scrollToDefaultView: true,
-  forms: [],
+  views: [],
 };
 
 export { PanelXueSettingUI };

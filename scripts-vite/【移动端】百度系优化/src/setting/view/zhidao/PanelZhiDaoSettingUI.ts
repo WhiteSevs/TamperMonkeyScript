@@ -10,11 +10,11 @@ const PanelZhiDaoSettingUI: PopsPanelContentConfig = {
     return BaiduRouter.isZhiDao();
   },
   scrollToDefaultView: true,
-  forms: [
+  views: [
     {
       text: "屏蔽",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISwitch("【屏蔽】推荐更多精彩内容", "baidu_zhidao_block_recommend_more_exciting_content", true),
         UISwitch("【屏蔽】相关问题", "baidu_zhidao_block_related_issues", true),
         UISwitch("【屏蔽】其他回答", "baidu_zhidao_block_other_answers", false),

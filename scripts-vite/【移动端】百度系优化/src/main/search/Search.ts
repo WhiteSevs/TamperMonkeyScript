@@ -62,7 +62,7 @@ const BaiduSearch = {
             }
           }, 600);
           let removeAdsLockFunction = new utils.LockFunction(BaiduHandleResultItem.removeAds, 600);
-          DOMUtils.waitNode<HTMLDivElement>("div#page.search-page").then(($searchPage) => {
+          DOMUtils.waitNode<HTMLDivElement>("#page.search-page").then(($searchPage) => {
             utils.mutationObserver($searchPage, {
               callback: async () => {
                 if (baidu_search_handle_search_result_enable) {
@@ -70,6 +70,7 @@ const BaiduSearch = {
                 }
                 removeAdsLockFunction.run();
               },
+              immediate: true,
               config: {
                 childList: true,
                 subtree: true,

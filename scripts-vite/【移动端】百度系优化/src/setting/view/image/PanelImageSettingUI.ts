@@ -9,7 +9,7 @@ const PanelImageSettingUI: PopsPanelContentConfig = {
     return BaiduRouter.isJingYan();
   },
   scrollToDefaultView: true,
-  forms: [],
+  views: [],
 };
 
 export { PanelImageSettingUI };

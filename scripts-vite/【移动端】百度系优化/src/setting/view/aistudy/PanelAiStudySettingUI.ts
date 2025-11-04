@@ -10,20 +10,20 @@ const PanelAiStudySettingUI: PopsPanelContentConfig = {
     return BaiduRouter.isAiStudy() || BaiduRouter.isISite();
   },
   scrollToDefaultView: true,
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "知了爱学",
           description: "isite",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "屏蔽",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("【屏蔽】底部免费在线咨询", "baidu_isite_wjz2tdly_shieldBottomBarRootContainer", true),
                 UISwitch("【屏蔽】右侧悬浮按钮-查看更多", "baidu_isite_wjz2tdly_shieldRightSeeMoreToolBar", false),
                 UISwitch("【屏蔽】大家还在看", "baidu_isite_wjz2tdly_shieldArticleBottom", true),
@@ -31,8 +31,8 @@ const PanelAiStudySettingUI: PopsPanelContentConfig = {
             },
             {
               text: "功能",
-              type: "forms",
-              forms: [UISwitch("自动展开全文", "baidu_isite_wjz2tdly_autoExpandFullText", true)],
+              type: "container",
+              views: [UISwitch("自动展开全文", "baidu_isite_wjz2tdly_autoExpandFullText", true)],
             },
           ],
         },
@@ -40,16 +40,16 @@ const PanelAiStudySettingUI: PopsPanelContentConfig = {
           text: "知了爱学",
           description: "aistudy",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "屏蔽",
-              type: "forms",
-              forms: [UISwitch("【屏蔽】底部工具栏", "baidu_ai_study_shieldBottomToolBar", true)],
+              type: "container",
+              views: [UISwitch("【屏蔽】底部工具栏", "baidu_ai_study_shieldBottomToolBar", true)],
             },
             {
               text: "功能",
-              type: "forms",
-              forms: [UISwitch("自动展开全文", "baidu_ai_study_autoExpandFullText", true)],
+              type: "container",
+              views: [UISwitch("自动展开全文", "baidu_ai_study_autoExpandFullText", true)],
             },
           ],
         },

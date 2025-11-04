@@ -8,11 +8,11 @@ const PanelWenKuSettingUI: PopsPanelContentConfig = {
   headerTitle: "百度文库<br />wk.baidu.com<br />tanbi.baidu.com",
   isDefault: BaiduRouter.isWenKu,
   scrollToDefaultView: true,
-  forms: [
+  views: [
     {
       text: "屏蔽",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISwitch("【屏蔽】会员精选", "baidu_wenku_block_member_picks", true),
         UISwitch("【屏蔽】APP精选", "baidu_wenku_blocking_app_featured", true),
         UISwitch("【屏蔽】相关文档", "baidu_wenku_blocking_related_documents", false),

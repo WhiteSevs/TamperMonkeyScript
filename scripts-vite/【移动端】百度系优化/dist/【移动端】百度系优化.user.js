@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.1
+// @version      2025.11.4
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -13,10 +13,10 @@
 // @match        *://uf9kyh.smartapps.cn/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/showdown/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/vue@3.5.22/dist/vue.global.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-demi@0.14.10/lib/index.iife.min.js
@@ -82,7 +82,7 @@
       return (mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports);
     };
   var require_entrance_001 = __commonJS({
-    "entrance-C34GbRIE.js"(exports, module) {
+    "entrance-C7QmCLIj.js"(exports, module) {
       var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
       var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
       var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
@@ -1085,7 +1085,7 @@
               id: "script-version",
               title: `版本：${_GM_info?.script?.version || "未知"}`,
               isBottom: true,
-              forms: [],
+              views: [],
               clickFirstCallback() {
                 return false;
               },
@@ -1227,7 +1227,7 @@
             if (!config.attributes) {
               return;
             }
-            if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
+            if (config.type === "button" || config.type === "container" || config.type === "deepMenu") {
               return;
             }
             const attributes = config.attributes;
@@ -1269,19 +1269,19 @@
             for (let index = 0; index < configList.length; index++) {
               let configItem = configList[index];
               initDefaultValue(configItem);
-              let child_forms = configItem.forms;
-              if (child_forms && Array.isArray(child_forms)) {
-                loopInitDefaultValue(child_forms);
+              let childViews = configItem.views;
+              if (childViews && Array.isArray(childViews)) {
+                loopInitDefaultValue(childViews);
               }
             }
           };
           const contentConfigList = [...PanelContent.getAllContentConfig()];
           for (let index = 0; index < contentConfigList.length; index++) {
             let leftContentConfigItem = contentConfigList[index];
-            if (!leftContentConfigItem.forms) {
+            if (!leftContentConfigItem.views) {
               continue;
             }
-            const rightContentConfigList = leftContentConfigItem.forms;
+            const rightContentConfigList = leftContentConfigItem.views;
             if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
               loopInitDefaultValue(rightContentConfigList);
             }
@@ -1758,6 +1758,7 @@
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
 						`,
               });
+              const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
               domUtils.on($item, "click", (clickItemEvent) => {
                 const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
                   "aside.pops-panel-aside .pops-panel-aside-top-container li"
@@ -1777,11 +1778,9 @@
                     const $findDeepMenu = await domUtils.waitNode(() => {
                       return Array.from($panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")).find(
                         ($deepMenu) => {
-                          const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
+                          const viewConfig = Reflect.get($deepMenu, panelHandlerComponents.$data.nodeStoreConfigKey);
                           return (
-                            typeof __formConfig__ === "object" &&
-                            __formConfig__ != null &&
-                            __formConfig__.text === target.name
+                            typeof viewConfig === "object" && viewConfig != null && viewConfig.text === target.name
                           );
                         }
                       );
@@ -1804,8 +1803,8 @@
                       return Array.from(
                         $panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)
                       ).find(($menuItem) => {
-                        const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
-                        return __formConfig__ === target.matchedData?.formConfig;
+                        const viewConfig = Reflect.get($menuItem, panelHandlerComponents.$data.nodeStoreConfigKey);
+                        return viewConfig === target.matchedData?.formConfig;
                       });
                     }, 2500);
                     if ($findTargetMenu) {
@@ -1837,7 +1836,7 @@
               const loopContentConfig = (configList, path) => {
                 for (let index = 0; index < configList.length; index++) {
                   const configItem = configList[index];
-                  const child_forms = configItem.forms;
+                  const child_forms = configItem.views;
                   if (child_forms && Array.isArray(child_forms)) {
                     const deepMenuPath = utils.deepClone(path);
                     if (configItem.type === "deepMenu") {
@@ -1934,13 +1933,13 @@
               };
               for (let index = 0; index < content.length; index++) {
                 const leftContentConfigItem = content[index];
-                if (!leftContentConfigItem.forms) {
+                if (!leftContentConfigItem.views) {
                   continue;
                 }
                 if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") {
                   continue;
                 }
-                const rightContentConfigList = leftContentConfigItem.forms;
+                const rightContentConfigList = leftContentConfigItem.views;
                 if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
                   let text = leftContentConfigItem.title;
                   if (typeof text === "function") {
@@ -3219,6 +3218,11 @@ div[class^="new-summary-container_"] {\r
         defaultRule: `
 // 百度健康
 // match-href##expert.baidu.com
+match-attr##srcid##med_wz
+// 百度健康病案库
+match-attr##srcid##med_medical_records_san
+// 百度健康卖药的
+match-attr##srcid##med_disease_drug
 // 大家还在搜
 match-href##recommend_list.baidu.com&&&&match-attr##tpl##recommend_list
 // 大家还在搜:隐藏的(点击后，跳出来的)
@@ -3248,6 +3252,8 @@ match-attr##srcid##sp_purc_san
 match-attr##srcid##sp_purc_atom
 // 百度本地生活
 match-attr##srcid##jy_bdb_in_store_service_2nd
+// AI智能体推广
+match-attr##srcid##ai_agent_distribute
 
 
 // 搜索聚合
@@ -3353,25 +3359,22 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
           });
           return result;
         },
-        handleCustomRule(element, url) {
+        handleCustomRule($el, url) {
           function handleOneRule(ruleItem) {
             if (ruleItem.mode === "match-href") {
               if (typeof url === "string" && url.match(ruleItem.matchText)) {
                 return true;
               }
             } else if (ruleItem.mode === "match-attr") {
-              if (
-                element.hasAttribute(ruleItem.attr) &&
-                element.getAttribute(ruleItem.attr)?.match(ruleItem.matchText)
-              ) {
+              if ($el.hasAttribute(ruleItem.attr) && $el.getAttribute(ruleItem.attr)?.match(ruleItem.matchText)) {
                 return true;
               }
             } else if (ruleItem.mode === "contains-child") {
-              if (element.querySelector(ruleItem.matchText)) {
+              if ($el.querySelector(ruleItem.matchText)) {
                 return true;
               }
             } else if (ruleItem.mode === "remove-child") {
-              element.querySelector(ruleItem["matchText"])?.remove();
+              $el.querySelector(ruleItem["matchText"])?.remove();
             }
           }
           for (const ruleItem of this.rule) {
@@ -3797,11 +3800,8 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
             let dataLog = utils.toJSON($result.getAttribute("data-log"));
             let searchArticleOriginal_link =
               dataLog["mu"] || $result.querySelector("article")?.getAttribute("rl-link-href");
-            if (
-              utils.isNotNull(searchArticleOriginal_link) &&
-              BaiduSearchBlockRule.handleCustomRule($result, searchArticleOriginal_link)
-            ) {
-              log.info(["触发自定义规则，拦截该项：", searchArticleOriginal_link]);
+            if (BaiduSearchBlockRule.handleCustomRule($result, searchArticleOriginal_link)) {
+              log.info(["触发自定义规则，屏蔽该搜索结果：", searchArticleOriginal_link]);
               $result.remove();
               return;
             }
@@ -5147,7 +5147,7 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
                   }
                 }, 600);
                 let removeAdsLockFunction = new utils.LockFunction(BaiduHandleResultItem.removeAds, 600);
-                domUtils.waitNode("div#page.search-page").then(($searchPage) => {
+                domUtils.waitNode("#page.search-page").then(($searchPage) => {
                   utils.mutationObserver($searchPage, {
                     callback: async () => {
                       if (baidu_search_handle_search_result_enable) {
@@ -5155,6 +5155,7 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
                       }
                       removeAdsLockFunction.run();
                     },
+                    immediate: true,
                     config: {
                       childList: true,
                       subtree: true,
@@ -6253,10 +6254,10 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
             return searchSuggestionData;
           };
           let searchSuggestion = __pops__.searchSuggestion({
-            selfDocument: document,
+            $selfDocument: document,
             className: "WhiteSevsSearchSelect",
-            target: this.$ele.$searchInput,
-            inputTarget: this.$ele.$searchInput,
+            $target: this.$ele.$searchInput,
+            $inputTarget: this.$ele.$searchInput,
             data: [],
             isAbsolute: false,
             followTargetWidth: true,
@@ -10701,8 +10702,8 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
                     data.uuid = editData.uuid;
                   }
                   $ulist_li.forEach(($li) => {
-                    let formConfig = Reflect.get($li, "__formConfig__");
-                    let attrs = Reflect.get(formConfig, "attributes");
+                    let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+                    let attrs = Reflect.get(viewConfig, "attributes");
                     let storageApi = Reflect.get($li, PROPS_STORAGE_API);
                     let key = Reflect.get(attrs, ATTRIBUTE_KEY);
                     let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
@@ -11093,8 +11094,8 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
                   }
                   try {
                     $ulist_li.forEach(($li) => {
-                      let formConfig = Reflect.get($li, "__formConfig__");
-                      let attrs = Reflect.get(formConfig, "attributes");
+                      let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+                      let attrs = Reflect.get(viewConfig, "attributes");
                       let storageApi = Reflect.get($li, PROPS_STORAGE_API);
                       let key = Reflect.get(attrs, ATTRIBUTE_KEY);
                       let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
@@ -29620,19 +29621,19 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
       const PanelCommonSettingUI = {
         id: "baidu-panel-config-common",
         title: "通用",
-        forms: [
+        views: [
           {
             text: "",
-            type: "forms",
-            forms: [
+            type: "container",
+            views: [
               {
                 text: "Toast配置",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISelect(
                         "Toast位置",
                         "qmsg-config-position",
@@ -29717,11 +29718,11 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
               {
                 text: "Cookie配置",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch(
                         "启用",
                         "httpx-use-cookie-enable",
@@ -29772,19 +29773,19 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
         isDefault() {
           return BaiduRouter.isSearch() || BaiduRouter.isSearchHome() || BaiduRouter.isSearchBh();
         },
-        forms: [
+        views: [
           {
             text: "",
-            type: "forms",
-            forms: [
+            type: "container",
+            views: [
               {
                 text: "主页",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "",
-                    type: "forms",
-                    forms: [UISwitch("精简主页", "baidu_search_home_homepage_minification", true)],
+                    type: "container",
+                    views: [UISwitch("精简主页", "baidu_search_home_homepage_minification", true)],
                   },
                 ],
               },
@@ -29792,11 +29793,11 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
                 text: "百度健康",
                 type: "deepMenu",
                 headerTitle: "百度健康（/bh）",
-                forms: [
+                views: [
                   {
                     text: "百度健康(快速问医生)",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch("【屏蔽】底部其它信息", "baidu_search_headlth_shield_other_info", true),
                       UISwitch("【屏蔽】底部工具栏", "baidu_search_headlth_shield_bottom_toolbar", true),
                     ],
@@ -29806,11 +29807,11 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
               {
                 text: "视频页",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "功能",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch(
                         "自动跳转至原网页",
                         "baidu-search-video-autoJumpToOriginUrl",
@@ -29822,8 +29823,8 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
                   },
                   {
                     text: "屏蔽",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch(
                         "【屏蔽】底部推荐视频",
                         "baidu-search-video-blockBottomRecommendVideo",
@@ -29839,16 +29840,16 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           },
           {
             text: "",
-            type: "forms",
-            forms: [
+            type: "container",
+            views: [
               {
                 text: "图片",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "Vue属性",
-                    type: "forms",
-                    forms: [UISwitch("isBaiduBox", "baidu_search_vsearch-isBaiduBox", true, void 0, "")],
+                    type: "container",
+                    views: [UISwitch("isBaiduBox", "baidu_search_vsearch-isBaiduBox", true, void 0, "")],
                   },
                 ],
               },
@@ -29856,16 +29857,16 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           },
           {
             text: "",
-            type: "forms",
-            forms: [
+            type: "container",
+            views: [
               {
                 text: "功能",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch(
                         "禁止自动播放视频",
                         "baidu-search-blockAutomaticVideoPlayback",
@@ -29966,8 +29967,8 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
                   },
                   {
                     text: "全局悬浮搜索按钮",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch(
                         "启用",
                         "baidu-search-global-searchToolBar",
@@ -29989,11 +29990,11 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
               {
                 text: "屏蔽",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch(
                         "【屏蔽】大家还在搜",
                         "baidu_search_blocking_everyone_is_still_searching",
@@ -30015,11 +30016,11 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
               {
                 text: "劫持/拦截",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch("劫持-复制", "baidu_search_hijack_copy", true, void 0, "阻止百度复制xxx到剪贴板"),
                       UISwitch("劫持-Scheme唤醒App", "baidu_search_hijack_scheme", true, void 0, "阻止唤醒调用App"),
                       UISwitch("劫持-OpenBox函数", "baidu_search_hijack_openbox", true, void 0, "优化搜索结果跳转"),
@@ -30038,17 +30039,17 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
               {
                 text: "自定义拦截规则",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "<a href='https://greasyfork.org/zh-CN/scripts/418349-%E7%A7%BB%E5%8A%A8%E7%AB%AF-%E7%99%BE%E5%BA%A6%E7%B3%BB%E4%BC%98%E5%8C%96#:~:text=%E5%A6%82%E4%BD%95%E8%87%AA%E5%AE%9A%E4%B9%89%E7%99%BE%E5%BA%A6%E6%90%9C%E7%B4%A2%E6%8B%A6%E6%88%AA%E8%A7%84%E5%88%99' target='_blank'>查看规则文档</><br><a href='javascript:;' class='baidu-search-shield-css-reset'>点击重置</a>",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch(
                         "启用默认拦截规则",
                         "baidu-search-enable-default-interception-rules",
                         true,
                         void 0,
-                        "默认拦截规则"
+                        "内置了多个拦截规则"
                       ),
                       UIOwn(
                         ($li) => {
@@ -30104,11 +30105,11 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
               {
                 text: "自定义样式",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UIOwn(($li) => {
                         const $textAreaContainer = domUtils.createElement("div", {
                           className: "pops-panel-textarea baidu-search-user-style",
@@ -30154,20 +30155,20 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           return BaiduRouter.isBaiJiaHao() || BaiduRouter.isMbd();
         },
         scrollToDefaultView: true,
-        forms: [
+        views: [
           {
             text: "",
-            type: "forms",
-            forms: [
+            type: "container",
+            views: [
               {
                 text: "百家号",
                 description: "baijiahao.baidu.com",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "屏蔽",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch("【屏蔽】推荐文章", "baijiahao_shield_recommended_article", true),
                       UISwitch("【屏蔽】用户评论", "baijiahao_shield_user_comment", false),
                       UISwitch("【屏蔽】底部悬浮工具栏", "baijiahao_shield_user_comment_input_box", false),
@@ -30175,8 +30176,8 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
                   },
                   {
                     text: "劫持/拦截",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch("劫持-唤醒App", "baijiahao_hijack_wakeup", true, void 0, "阻止唤醒调用App"),
                       UISwitch("劫持-iframe唤醒App", "baidu_baijiahao_hijack_iframe", true, void 0, "阻止唤醒调用App"),
                       UISwitch("劫持-OpenBox函数", "baidu_baijiahao_hijack_openbox", true),
@@ -30189,11 +30190,11 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
                 text: "百家号",
                 type: "deepMenu",
                 description: "mbd.baidu.com",
-                forms: [
+                views: [
                   {
                     text: "屏蔽",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch("【屏蔽】精彩评论", "baidu_mbd_block_exciting_comments", false),
                       UISwitch("【屏蔽】精彩推荐", "baidu_mbd_block_exciting_recommendations", false),
                       UISwitch("【屏蔽】底部工具栏", "baidu_mbd_shield_bottom_toolbar", false),
@@ -30201,8 +30202,8 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
                   },
                   {
                     text: "功能",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch(
                         "伪装成lite baiduboxapp",
                         "baidu_mbd_camouflage_lite_baiduboxapp",
@@ -30214,8 +30215,8 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
                   },
                   {
                     text: "劫持/拦截",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch("拦截-唤醒App", "baidu_mbd_hijack_wakeup", true, void 0, "阻止唤醒调用App"),
                       UISwitch("拦截-iframe唤醒App", "baidu_mbd_hijack_iframe", true, void 0, "阻止唤醒调用App"),
                       UISwitch("劫持-BoxJSBefore函数", "baidu_mbd_hijack_BoxJSBefore", true, void 0, "阻止唤醒调用App"),
@@ -30331,26 +30332,26 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           return BaiduRouter.isTieBa();
         },
         scrollToDefaultView: true,
-        forms: [
+        views: [
           {
             text: "",
-            type: "forms",
-            forms: [
+            type: "container",
+            views: [
               {
                 text: "首页",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "功能",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch("新标签页打开", "baidu_tieba_index_openANewTab", false, void 0, "新标签页打开帖子"),
                     ],
                   },
                   {
                     text: "消息",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch(
                         "启用",
                         "baidu_tieba_index_add_msgtab",
@@ -30366,11 +30367,11 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
               {
                 text: "话题热议",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "功能",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch("重定向xx吧跳转", "baidu_tieba_topic_redirect_jump", true, void 0, "点击帖子直接跳转"),
                       UISwitch("新标签页打开", "baidu_tieba_topic_openANewTab", false, void 0, "新标签页打开帖子"),
                     ],
@@ -30380,11 +30381,11 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
               {
                 type: "deepMenu",
                 text: "热搜榜单",
-                forms: [
+                views: [
                   {
-                    type: "forms",
+                    type: "container",
                     text: "功能",
-                    forms: [
+                    views: [
                       UISwitch("覆盖openApp函数", "tieba-hot-topic-coverOpenApp", true, void 0, "用于阻止唤醒App"),
                       UISwitch("设置isTiebaApp为true", "tieba-hot-topic-isTiebaApp", true, void 0),
                       UISwitch("设置isHarmony为true", "tieba-hot-topic-isHarmony", true, void 0),
@@ -30396,11 +30397,11 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
               {
                 text: "搜索综合",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "功能",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch(
                         "新标签页打开",
                         "baidu_tieba_hybrid_search_openANewTab",
@@ -30415,11 +30416,11 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
               {
                 type: "deepMenu",
                 text: "合辑",
-                forms: [
+                views: [
                   {
-                    type: "forms",
+                    type: "container",
                     text: "功能",
-                    forms: [
+                    views: [
                       UISwitch(
                         "修复卡片点击跳转",
                         "tieba_collection_center_repair_card_click_jump",
@@ -30442,11 +30443,11 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
                 text: "吧内",
                 description: "新版的uni-app",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "功能",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch(
                         "解除签到限制",
                         "baidu_tieba_removeForumSignInLimit",
@@ -30471,9 +30472,9 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
                     ],
                   },
                   {
-                    type: "forms",
+                    type: "container",
                     text: "劫持",
-                    forms: [
+                    views: [
                       UISwitch("劫持.wake-up", "baidu_tieba_banei_hookWakeUp", true, void 0, "阻止点击唤醒App"),
                       UISwitch(
                         "劫持iframe call App",
@@ -30490,11 +30491,11 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
                 text: "帖内",
                 description: "新版的uni-app",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "功能",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch(
                         "阻止.wake-up的点击事件",
                         "baidu-tieba-uni-app-post-preventWakeApp",
@@ -30609,11 +30610,11 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
               {
                 text: "用户主页",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
-                    type: "forms",
+                    type: "container",
                     text: "功能",
-                    forms: [
+                    views: [
                       UISwitch("美化页面", "baidu-tieba-beautify-home-page", true, void 0, "重构页面样式，美化页面"),
                     ],
                   },
@@ -30623,16 +30624,16 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           },
           {
             text: "",
-            type: "forms",
-            forms: [
+            type: "container",
+            views: [
               {
                 text: "通用",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch(
                         "检测骨架屏",
                         "baidu_tieba_checkSkeleton",
@@ -30661,11 +30662,11 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
               {
                 text: "账号功能",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UIButton("签到所有关注的吧", void 0, "签到", void 0, void 0, false, "default", async () => {
                         function getSignInfoHTML(index, maxIndex, forumName, text, signText) {
                           return `
@@ -30746,11 +30747,11 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
               {
                 type: "deepMenu",
                 text: "成分检测",
-                forms: [
+                views: [
                   {
-                    type: "forms",
+                    type: "container",
                     text: "",
-                    forms: [
+                    views: [
                       UISwitch("启用", "baidu-tieba-componentDetection", true, void 0, "启用后可检测用户的成分信息"),
                       UIButton("自定义规则", "检测用户成分的规则", "管理", void 0, false, false, "primary", () => {
                         TiebaUniAppComponentDetectionRule.showView();
@@ -30758,9 +30759,9 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
                     ],
                   },
                   {
-                    type: "forms",
+                    type: "container",
                     text: "",
-                    forms: [
+                    views: [
                       UIButton("数据导入", "导入自定义规则数据", "导入", void 0, false, false, "primary", () => {
                         TiebaUniAppComponentDetectionRule.importRule();
                       }),
@@ -30774,11 +30775,11 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
               {
                 text: "搜索功能",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch("启用", "baidu_tieba_add_search", true, void 0, "在贴内和吧内右上角添加搜索按钮"),
                       UISwitch(
                         "获取详细信息",
@@ -30818,22 +30819,22 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
               {
                 text: "布局屏蔽",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "",
-                    type: "forms",
-                    forms: [UISwitch("【屏蔽】评论输入框", "baidu-tieba-blockCommentInput", false, void 0, "屏蔽元素")],
+                    type: "container",
+                    views: [UISwitch("【屏蔽】评论输入框", "baidu-tieba-blockCommentInput", false, void 0, "屏蔽元素")],
                   },
                 ],
               },
               {
                 text: "劫持/拦截",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch("劫持-唤醒App", "baidu_tieba_hijack_wake_up", false, void 0, "阻止唤醒调用App"),
                       UISwitch("伪装客户端已调用", "baidu_tieba_clientCallMasquerade", true, void 0, "阻止弹窗"),
                     ],
@@ -30850,11 +30851,11 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
         headerTitle: "百度文库<br />wk.baidu.com<br />tanbi.baidu.com",
         isDefault: BaiduRouter.isWenKu,
         scrollToDefaultView: true,
-        forms: [
+        views: [
           {
             text: "屏蔽",
-            type: "forms",
-            forms: [
+            type: "container",
+            views: [
               UISwitch("【屏蔽】会员精选", "baidu_wenku_block_member_picks", true),
               UISwitch("【屏蔽】APP精选", "baidu_wenku_blocking_app_featured", true),
               UISwitch("【屏蔽】相关文档", "baidu_wenku_blocking_related_documents", false),
@@ -30873,20 +30874,20 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           return BaiduRouter.isBaiKe();
         },
         scrollToDefaultView: true,
-        forms: [
+        views: [
           {
             text: "",
-            type: "forms",
-            forms: [
+            type: "container",
+            views: [
               {
                 text: "他说",
                 description: "/tashuo",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "屏蔽",
-                    type: "forms",
-                    forms: [UISwitch("【屏蔽】底部广告", "baidu_baike_tashuo_remove_bottom_ad", true)],
+                    type: "container",
+                    views: [UISwitch("【屏蔽】底部广告", "baidu_baike_tashuo_remove_bottom_ad", true)],
                   },
                 ],
               },
@@ -30894,16 +30895,16 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           },
           {
             text: "",
-            type: "forms",
-            forms: [
+            type: "container",
+            views: [
               {
                 text: "劫持",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "劫持Box",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch("劫持全局Box", "baidu-baike-hookBox", true, void 0, "开启后下面的选项才会生效"),
                       UISwitch("isBox", "baidu-baike-Box-isBox", true, void 0, "Box.isBox和Box.$isBox强制返回true"),
                       UISwitch(
@@ -30965,11 +30966,11 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           return BaiduRouter.isZhiDao();
         },
         scrollToDefaultView: true,
-        forms: [
+        views: [
           {
             text: "屏蔽",
-            type: "forms",
-            forms: [
+            type: "container",
+            views: [
               UISwitch("【屏蔽】推荐更多精彩内容", "baidu_zhidao_block_recommend_more_exciting_content", true),
               UISwitch("【屏蔽】相关问题", "baidu_zhidao_block_related_issues", true),
               UISwitch("【屏蔽】其他回答", "baidu_zhidao_block_other_answers", false),
@@ -30986,20 +30987,20 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           return BaiduRouter.isFanYi() || BaiduRouter.isFanYiApp();
         },
         scrollToDefaultView: true,
-        forms: [
+        views: [
           {
             text: "",
-            type: "forms",
-            forms: [
+            type: "container",
+            views: [
               {
                 text: "App",
                 type: "deepMenu",
                 description: "fanyi-app",
-                forms: [
+                views: [
                   {
                     text: "",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch("【屏蔽】专栏信息", "baidu_fanyi_app_shield_column_information", false),
                       UISwitch("【屏蔽】为你推荐", "baidu_fanyi_app_shield_recommended_for_you", false),
                       UISwitch("【屏蔽】我要跟读", "baidu_fanyi_app_shield_i_need_to_follow_along", false),
@@ -31011,27 +31012,27 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           },
           {
             text: "",
-            type: "forms",
-            forms: [
+            type: "container",
+            views: [
               {
                 text: "功能",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "",
-                    type: "forms",
-                    forms: [UISwitch("自动聚焦输入框", "baidu_fanyi_auto_focus", true)],
+                    type: "container",
+                    views: [UISwitch("自动聚焦输入框", "baidu_fanyi_auto_focus", true)],
                   },
                 ],
               },
               {
                 text: "屏蔽",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch("【屏蔽】底部推荐", "baidu_fanyi_recommended_shielding_bottom", true),
                       UISwitch("【屏蔽】底部其它", "baidu_fanyi_other_shielding_bottom", true),
                     ],
@@ -31050,11 +31051,11 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           return BaiduRouter.isMap();
         },
         scrollToDefaultView: true,
-        forms: [
+        views: [
           {
             text: "劫持/拦截",
-            type: "forms",
-            forms: [
+            type: "container",
+            views: [
               UISwitch(
                 "劫持Element.appendChild",
                 "baidu_map_hijack-element-appendChild",
@@ -31076,11 +31077,11 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           return BaiduRouter.isAiQiCha();
         },
         scrollToDefaultView: true,
-        forms: [
+        views: [
           {
             text: "屏蔽",
-            type: "forms",
-            forms: [
+            type: "container",
+            views: [
               UISwitch("【屏蔽】轮播图", "baidu_aiqicha_shield_carousel", true),
               UISwitch("【屏蔽】行业热点新闻", "baidu_aiqicha_shield_industry_host_news", true),
             ],
@@ -31095,11 +31096,11 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           return BaiduRouter.isHaoKan();
         },
         scrollToDefaultView: true,
-        forms: [
+        views: [
           {
             text: "屏蔽",
-            type: "forms",
-            forms: [
+            type: "container",
+            views: [
               UISwitch("【屏蔽】猜你喜欢", "baidu_haokan_shield_may_also_like", true),
               UISwitch("【屏蔽】今日热播榜单", "baidu_haokan_shield_today_s_hot_list", true),
               UISwitch("【屏蔽】右侧工具栏", "baidu_haokan_shield_right_video_action", true),
@@ -31107,15 +31108,15 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           },
           {
             text: "功能",
-            type: "forms",
-            forms: [
+            type: "container",
+            views: [
               UISwitch("播放视频自动进入全屏", "baidu_haokan_play_video_and_automatically_enter_full_screen", false),
             ],
           },
           {
             text: "劫持/拦截",
-            type: "forms",
-            forms: [UISwitch("拦截-唤醒App", "baidu_haokan_hijack_wakeup", true, void 0, "阻止唤醒调用App")],
+            type: "container",
+            views: [UISwitch("拦截-唤醒App", "baidu_haokan_hijack_wakeup", true, void 0, "阻止唤醒调用App")],
           },
         ],
       };
@@ -31127,19 +31128,19 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           return BaiduRouter.isYiYan();
         },
         scrollToDefaultView: true,
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "",
-            forms: [
+            views: [
               {
                 type: "deepMenu",
                 text: "功能",
-                forms: [
+                views: [
                   {
-                    type: "forms",
+                    type: "container",
                     text: "",
-                    forms: [
+                    views: [
                       UISwitch(
                         "地址参数识别",
                         "baidu_yiyan-execByUrlSearchParams",
@@ -31164,11 +31165,11 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
               {
                 type: "deepMenu",
                 text: "屏蔽",
-                forms: [
+                views: [
                   {
                     text: "",
-                    type: "forms",
-                    forms: [UISwitch("【屏蔽】文字/图片水印", "baidu_yiyan_remove_ai_mask", true)],
+                    type: "container",
+                    views: [UISwitch("【屏蔽】文字/图片水印", "baidu_yiyan_remove_ai_mask", true)],
                   },
                 ],
               },
@@ -31184,11 +31185,11 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           return BaiduRouter.isChat();
         },
         scrollToDefaultView: true,
-        forms: [
+        views: [
           {
             text: "屏蔽",
-            type: "forms",
-            forms: [UISwitch("【屏蔽】文字/图片水印", "baidu_chat_remove_ai_mask", true)],
+            type: "container",
+            views: [UISwitch("【屏蔽】文字/图片水印", "baidu_chat_remove_ai_mask", true)],
           },
         ],
       };
@@ -31200,19 +31201,19 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           return BaiduRouter.isEasyLearn() || BaiduRouter.isMiniJiaoYu();
         },
         scrollToDefaultView: true,
-        forms: [
+        views: [
           {
             text: "",
-            type: "forms",
-            forms: [
+            type: "container",
+            views: [
               {
                 text: "小程序",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "屏蔽",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch("【屏蔽】底部下拉菜单", "mini_baidu_jiaoyu_shield_bottom_pull_down_menu", false),
                       UISwitch("【屏蔽】大家还在搜", "mini_baidu_jiaoyu-blockEveryOneSearch", false),
                     ],
@@ -31223,16 +31224,16 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           },
           {
             text: "",
-            type: "forms",
-            forms: [
+            type: "container",
+            views: [
               {
                 text: "功能",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch("解锁顶部搜索框", "baidu_easylearn_unlocking_top_search_input", true),
                       UISwitch("解锁搜题上限", "baidu_easylearn_unlocking_the_upper_limit_of_search_questions", true),
                       UISwitch("自动显示答案", "baidu_easylearn_auto_show_answer", true),
@@ -31243,11 +31244,11 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
               {
                 text: "屏蔽",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch("【屏蔽】本题试卷", "baidu_easylearn_shield_this_question_paper", false),
                       UISwitch("【屏蔽】本卷好题", "baidu_easylearn_shield_good_questions_in_this_volume", false),
                       UISwitch("【屏蔽】相关试卷", "baidu_easylearn_shield_related_test_papers", false),
@@ -31270,20 +31271,20 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           return BaiduRouter.isAiStudy() || BaiduRouter.isISite();
         },
         scrollToDefaultView: true,
-        forms: [
+        views: [
           {
             text: "",
-            type: "forms",
-            forms: [
+            type: "container",
+            views: [
               {
                 text: "知了爱学",
                 description: "isite",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "屏蔽",
-                    type: "forms",
-                    forms: [
+                    type: "container",
+                    views: [
                       UISwitch("【屏蔽】底部免费在线咨询", "baidu_isite_wjz2tdly_shieldBottomBarRootContainer", true),
                       UISwitch(
                         "【屏蔽】右侧悬浮按钮-查看更多",
@@ -31295,8 +31296,8 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
                   },
                   {
                     text: "功能",
-                    type: "forms",
-                    forms: [UISwitch("自动展开全文", "baidu_isite_wjz2tdly_autoExpandFullText", true)],
+                    type: "container",
+                    views: [UISwitch("自动展开全文", "baidu_isite_wjz2tdly_autoExpandFullText", true)],
                   },
                 ],
               },
@@ -31304,16 +31305,16 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
                 text: "知了爱学",
                 description: "aistudy",
                 type: "deepMenu",
-                forms: [
+                views: [
                   {
                     text: "屏蔽",
-                    type: "forms",
-                    forms: [UISwitch("【屏蔽】底部工具栏", "baidu_ai_study_shieldBottomToolBar", true)],
+                    type: "container",
+                    views: [UISwitch("【屏蔽】底部工具栏", "baidu_ai_study_shieldBottomToolBar", true)],
                   },
                   {
                     text: "功能",
-                    type: "forms",
-                    forms: [UISwitch("自动展开全文", "baidu_ai_study_autoExpandFullText", true)],
+                    type: "container",
+                    views: [UISwitch("自动展开全文", "baidu_ai_study_autoExpandFullText", true)],
                   },
                 ],
               },

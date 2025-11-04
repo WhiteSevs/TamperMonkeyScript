@@ -493,13 +493,10 @@ export const BaiduHandleResultItem = {
       /* 获取属性上的LOG */
       let dataLog = utils.toJSON($result.getAttribute("data-log"));
       /* 真实链接 */
-      let searchArticleOriginal_link: string =
+      let searchArticleOriginal_link: string | null =
         dataLog["mu"] || $result.querySelector<HTMLElement>("article")?.getAttribute("rl-link-href");
-      if (
-        utils.isNotNull(searchArticleOriginal_link) &&
-        BaiduSearchBlockRule.handleCustomRule($result, searchArticleOriginal_link)
-      ) {
-        log.info(["触发自定义规则，拦截该项：", searchArticleOriginal_link]);
+      if (BaiduSearchBlockRule.handleCustomRule($result, searchArticleOriginal_link)) {
+        log.info(["触发自定义规则，屏蔽该搜索结果：", searchArticleOriginal_link]);
         $result.remove();
         return;
       }

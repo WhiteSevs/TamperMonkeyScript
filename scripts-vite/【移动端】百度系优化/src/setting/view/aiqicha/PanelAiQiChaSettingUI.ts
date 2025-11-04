@@ -10,11 +10,11 @@ const PanelAiQiChaSettingUI: PopsPanelContentConfig = {
     return BaiduRouter.isAiQiCha();
   },
   scrollToDefaultView: true,
-  forms: [
+  views: [
     {
       text: "屏蔽",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISwitch("【屏蔽】轮播图", "baidu_aiqicha_shield_carousel", true),
         UISwitch("【屏蔽】行业热点新闻", "baidu_aiqicha_shield_industry_host_news", true),
       ],

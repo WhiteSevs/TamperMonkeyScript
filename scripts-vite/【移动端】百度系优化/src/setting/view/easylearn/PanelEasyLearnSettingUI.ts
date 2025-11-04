@@ -10,19 +10,19 @@ const PanelEasyLearnSettingUI: PopsPanelContentConfig = {
     return BaiduRouter.isEasyLearn() || BaiduRouter.isMiniJiaoYu();
   },
   scrollToDefaultView: true,
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "小程序",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "屏蔽",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("【屏蔽】底部下拉菜单", "mini_baidu_jiaoyu_shield_bottom_pull_down_menu", false),
                 UISwitch("【屏蔽】大家还在搜", "mini_baidu_jiaoyu-blockEveryOneSearch", false),
               ],
@@ -33,16 +33,16 @@ const PanelEasyLearnSettingUI: PopsPanelContentConfig = {
     },
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "功能",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("解锁顶部搜索框", "baidu_easylearn_unlocking_top_search_input", true),
                 UISwitch("解锁搜题上限", "baidu_easylearn_unlocking_the_upper_limit_of_search_questions", true),
                 UISwitch("自动显示答案", "baidu_easylearn_auto_show_answer", true),
@@ -53,11 +53,11 @@ const PanelEasyLearnSettingUI: PopsPanelContentConfig = {
         {
           text: "屏蔽",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("【屏蔽】本题试卷", "baidu_easylearn_shield_this_question_paper", false),
                 UISwitch("【屏蔽】本卷好题", "baidu_easylearn_shield_good_questions_in_this_volume", false),
                 UISwitch("【屏蔽】相关试卷", "baidu_easylearn_shield_related_test_papers", false),

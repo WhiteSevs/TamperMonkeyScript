@@ -10,19 +10,19 @@ const PanelYiYanSettingUI: PopsPanelContentConfig = {
     return BaiduRouter.isYiYan();
   },
   scrollToDefaultView: true,
-  forms: [
+  views: [
     {
-      type: "forms",
+      type: "container",
       text: "",
-      forms: [
+      views: [
         {
           type: "deepMenu",
           text: "功能",
-          forms: [
+          views: [
             {
-              type: "forms",
+              type: "container",
               text: "",
-              forms: [
+              views: [
                 UISwitch(
                   "地址参数识别",
                   "baidu_yiyan-execByUrlSearchParams",
@@ -47,11 +47,11 @@ const PanelYiYanSettingUI: PopsPanelContentConfig = {
         {
           type: "deepMenu",
           text: "屏蔽",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [UISwitch("【屏蔽】文字/图片水印", "baidu_yiyan_remove_ai_mask", true)],
+              type: "container",
+              views: [UISwitch("【屏蔽】文字/图片水印", "baidu_yiyan_remove_ai_mask", true)],
             },
           ],
         },

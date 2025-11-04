@@ -10,11 +10,11 @@ const PanelGraphSettingUI: PopsPanelContentConfig = {
     return BaiduRouter.isGraph();
   },
   scrollToDefaultView: true,
-  forms: [
+  views: [
     {
       text: "功能",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISwitch(
           "【重构】识图一下",
           "baidu-graph-repairHomeRecognitionPicture",

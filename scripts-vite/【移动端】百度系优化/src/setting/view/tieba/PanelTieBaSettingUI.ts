@@ -18,24 +18,24 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
     return BaiduRouter.isTieBa();
   },
   scrollToDefaultView: true,
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "首页",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "功能",
-              type: "forms",
-              forms: [UISwitch("新标签页打开", "baidu_tieba_index_openANewTab", false, void 0, "新标签页打开帖子")],
+              type: "container",
+              views: [UISwitch("新标签页打开", "baidu_tieba_index_openANewTab", false, void 0, "新标签页打开帖子")],
             },
             {
               text: "消息",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   "启用",
                   "baidu_tieba_index_add_msgtab",
@@ -51,11 +51,11 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
         {
           text: "话题热议",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "功能",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("重定向xx吧跳转", "baidu_tieba_topic_redirect_jump", true, void 0, "点击帖子直接跳转"),
                 UISwitch("新标签页打开", "baidu_tieba_topic_openANewTab", false, void 0, "新标签页打开帖子"),
               ],
@@ -65,11 +65,11 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
         {
           type: "deepMenu",
           text: "热搜榜单",
-          forms: [
+          views: [
             {
-              type: "forms",
+              type: "container",
               text: "功能",
-              forms: [
+              views: [
                 UISwitch("覆盖openApp函数", "tieba-hot-topic-coverOpenApp", true, void 0, "用于阻止唤醒App"),
                 UISwitch("设置isTiebaApp为true", "tieba-hot-topic-isTiebaApp", true, void 0),
                 UISwitch("设置isHarmony为true", "tieba-hot-topic-isHarmony", true, void 0),
@@ -81,11 +81,11 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
         {
           text: "搜索综合",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "功能",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("新标签页打开", "baidu_tieba_hybrid_search_openANewTab", false, void 0, "新标签页打开帖子"),
               ],
             },
@@ -94,11 +94,11 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
         {
           type: "deepMenu",
           text: "合辑",
-          forms: [
+          views: [
             {
-              type: "forms",
+              type: "container",
               text: "功能",
-              forms: [
+              views: [
                 UISwitch(
                   "修复卡片点击跳转",
                   "tieba_collection_center_repair_card_click_jump",
@@ -121,11 +121,11 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
           text: "吧内",
           description: "新版的uni-app",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "功能",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 // UISwitch(
                 // 	"记住当前选择的看帖排序",
                 // 	"baidu_tieba_remember_user_post_sort",
@@ -158,9 +158,9 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
               ],
             },
             {
-              type: "forms",
+              type: "container",
               text: "劫持",
-              forms: [
+              views: [
                 UISwitch("劫持.wake-up", "baidu_tieba_banei_hookWakeUp", true, void 0, "阻止点击唤醒App"),
                 UISwitch(
                   "劫持iframe call App",
@@ -177,11 +177,11 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
           text: "帖内",
           description: "新版的uni-app",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "功能",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   "阻止.wake-up的点击事件",
                   "baidu-tieba-uni-app-post-preventWakeApp",
@@ -286,9 +286,9 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
               ],
             },
             // {
-            // 	type: "forms",
+            // 	type: "container",
             // 	text: "网络请求拦截",
-            // 	forms: [
+            // 	views: [
             // 		UISwitch(
             // 			"/mo/q/getUpConfigData",
             // 			"baidu-tieba-uni-app-post-intercept-getUpConfigData",
@@ -303,11 +303,11 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
         {
           text: "用户主页",
           type: "deepMenu",
-          forms: [
+          views: [
             {
-              type: "forms",
+              type: "container",
               text: "功能",
-              forms: [UISwitch("美化页面", "baidu-tieba-beautify-home-page", true, void 0, "重构页面样式，美化页面")],
+              views: [UISwitch("美化页面", "baidu-tieba-beautify-home-page", true, void 0, "重构页面样式，美化页面")],
             },
           ],
         },
@@ -315,11 +315,11 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
         // 	text: "帖内",
         // 	description: "旧版本设置项，大部分功能已失效",
         // 	type: "deepMenu",
-        // 	forms: [
+        // 	views: [
         // 		{
         // 			text: "功能",
-        // 			type: "forms",
-        // 			forms: [
+        // 			type: "container",
+        // 			views: [
         // 				UISwitch(
         // 					"楼中楼回复弹窗手势返回",
         // 					"baidu_tieba_lzl_ban_global_back",
@@ -403,16 +403,16 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
     },
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "通用",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   "检测骨架屏",
                   "baidu_tieba_checkSkeleton",
@@ -441,11 +441,11 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
         {
           text: "账号功能",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UIButton("签到所有关注的吧", void 0, "签到", void 0, void 0, false, "default", async () => {
                   /**
                    * 获取提示内容
@@ -540,11 +540,11 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
         {
           type: "deepMenu",
           text: "成分检测",
-          forms: [
+          views: [
             {
-              type: "forms",
+              type: "container",
               text: "",
-              forms: [
+              views: [
                 UISwitch("启用", "baidu-tieba-componentDetection", true, void 0, "启用后可检测用户的成分信息"),
                 UIButton("自定义规则", "检测用户成分的规则", "管理", void 0, false, false, "primary", () => {
                   TiebaUniAppComponentDetectionRule.showView();
@@ -552,9 +552,9 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
               ],
             },
             {
-              type: "forms",
+              type: "container",
               text: "",
-              forms: [
+              views: [
                 UIButton("数据导入", "导入自定义规则数据", "导入", void 0, false, false, "primary", () => {
                   TiebaUniAppComponentDetectionRule.importRule();
                 }),
@@ -568,11 +568,11 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
         {
           text: "搜索功能",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("启用", "baidu_tieba_add_search", true, void 0, "在贴内和吧内右上角添加搜索按钮"),
                 UISwitch(
                   "获取详细信息",
@@ -612,22 +612,22 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
         {
           text: "布局屏蔽",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [UISwitch("【屏蔽】评论输入框", "baidu-tieba-blockCommentInput", false, void 0, "屏蔽元素")],
+              type: "container",
+              views: [UISwitch("【屏蔽】评论输入框", "baidu-tieba-blockCommentInput", false, void 0, "屏蔽元素")],
             },
           ],
         },
         {
           text: "劫持/拦截",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("劫持-唤醒App", "baidu_tieba_hijack_wake_up", false, void 0, "阻止唤醒调用App"),
                 UISwitch("伪装客户端已调用", "baidu_tieba_clientCallMasquerade", true, void 0, "阻止弹窗"),
               ],

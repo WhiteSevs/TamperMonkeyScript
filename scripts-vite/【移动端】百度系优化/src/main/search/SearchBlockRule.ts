@@ -16,6 +16,11 @@ export const BaiduSearchBlockRule = {
   defaultRule: `
 // 百度健康
 // match-href##expert.baidu.com
+match-attr##srcid##med_wz
+// 百度健康病案库
+match-attr##srcid##med_medical_records_san
+// 百度健康卖药的
+match-attr##srcid##med_disease_drug
 // 大家还在搜
 match-href##recommend_list.baidu.com&&&&match-attr##tpl##recommend_list
 // 大家还在搜:隐藏的(点击后，跳出来的)
@@ -45,6 +50,8 @@ match-attr##srcid##sp_purc_san
 match-attr##srcid##sp_purc_atom
 // 百度本地生活
 match-attr##srcid##jy_bdb_in_store_service_2nd
+// AI智能体推广
+match-attr##srcid##ai_agent_distribute
 
 
 // 搜索聚合
@@ -163,10 +170,10 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
   },
   /**
    * 执行自定义规则，拦截返回true
-   * @param element
+   * @param $el
    * @param url 真实链接
    */
-  handleCustomRule(element: HTMLDivElement, url?: string) {
+  handleCustomRule($el: HTMLDivElement, url?: string | null) {
     function handleOneRule(ruleItem: BaiduSearchRuleConfig) {
       if (ruleItem.mode === "match-href") {
         if (typeof url === "string" && url.match(ruleItem.matchText as RegExp)) {
@@ -174,17 +181,17 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
         }
       } else if (ruleItem.mode === "match-attr") {
         if (
-          element.hasAttribute(ruleItem.attr as string) &&
-          element.getAttribute(ruleItem.attr as string)?.match(ruleItem.matchText as RegExp)
+          $el.hasAttribute(ruleItem.attr as string) &&
+          $el.getAttribute(ruleItem.attr as string)?.match(ruleItem.matchText as RegExp)
         ) {
           return true;
         }
       } else if (ruleItem.mode === "contains-child") {
-        if (element.querySelector(ruleItem.matchText as string)) {
+        if ($el.querySelector(ruleItem.matchText as string)) {
           return true;
         }
       } else if (ruleItem.mode === "remove-child") {
-        element.querySelector(ruleItem["matchText"] as string)?.remove();
+        $el.querySelector(ruleItem["matchText"] as string)?.remove();
       }
     }
     for (const ruleItem of this.rule) {

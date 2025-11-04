@@ -10,11 +10,11 @@ const PanelChatSettingUI: PopsPanelContentConfig = {
     return BaiduRouter.isChat();
   },
   scrollToDefaultView: true,
-  forms: [
+  views: [
     {
       text: "屏蔽",
-      type: "forms",
-      forms: [UISwitch("【屏蔽】文字/图片水印", "baidu_chat_remove_ai_mask", true)],
+      type: "container",
+      views: [UISwitch("【屏蔽】文字/图片水印", "baidu_chat_remove_ai_mask", true)],
     },
   ],
 };

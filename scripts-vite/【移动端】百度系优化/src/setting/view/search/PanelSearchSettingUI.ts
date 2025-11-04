@@ -15,19 +15,19 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
   isDefault() {
     return BaiduRouter.isSearch() || BaiduRouter.isSearchHome() || BaiduRouter.isSearchBh();
   },
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "主页",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [UISwitch("精简主页", "baidu_search_home_homepage_minification", true)],
+              type: "container",
+              views: [UISwitch("精简主页", "baidu_search_home_homepage_minification", true)],
             },
           ],
         },
@@ -35,11 +35,11 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
           text: "百度健康",
           type: "deepMenu",
           headerTitle: "百度健康（/bh）",
-          forms: [
+          views: [
             {
               text: "百度健康(快速问医生)",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("【屏蔽】底部其它信息", "baidu_search_headlth_shield_other_info", true),
                 UISwitch("【屏蔽】底部工具栏", "baidu_search_headlth_shield_bottom_toolbar", true),
               ],
@@ -49,11 +49,11 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
         {
           text: "视频页",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "功能",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   "自动跳转至原网页",
                   "baidu-search-video-autoJumpToOriginUrl",
@@ -65,8 +65,8 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
             },
             {
               text: "屏蔽",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   "【屏蔽】底部推荐视频",
                   "baidu-search-video-blockBottomRecommendVideo",
@@ -82,38 +82,38 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
     },
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "图片",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "Vue属性",
-              type: "forms",
-              forms: [UISwitch("isBaiduBox", "baidu_search_vsearch-isBaiduBox", true, void 0, "")],
+              type: "container",
+              views: [UISwitch("isBaiduBox", "baidu_search_vsearch-isBaiduBox", true, void 0, "")],
             },
           ],
         },
         // {
         // 	text: "问答",
         // 	type: "deepMenu",
-        // 	forms: [
+        // 	views: [
         // 		{
         // 			text: "",
-        // 			type: "forms",
-        // 			forms: [],
+        // 			type: "container",
+        // 			views: [],
         // 		},
         // 	],
         // },
         // {
         // 	text: "笔记",
         // 	type: "deepMenu",
-        // 	forms: [
+        // 	views: [
         // 		{
         // 			text: "",
-        // 			type: "forms",
-        // 			forms: [],
+        // 			type: "container",
+        // 			views: [],
         // 		},
         // 	],
         // },
@@ -121,16 +121,16 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
     },
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "功能",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   "禁止自动播放视频",
                   "baidu-search-blockAutomaticVideoPlayback",
@@ -231,8 +231,8 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
             },
             {
               text: "全局悬浮搜索按钮",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   "启用",
                   "baidu-search-global-searchToolBar",
@@ -254,11 +254,11 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
         {
           text: "屏蔽",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   "【屏蔽】大家还在搜",
                   "baidu_search_blocking_everyone_is_still_searching",
@@ -274,11 +274,11 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
         {
           text: "劫持/拦截",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("劫持-复制", "baidu_search_hijack_copy", true, void 0, "阻止百度复制xxx到剪贴板"),
                 UISwitch("劫持-Scheme唤醒App", "baidu_search_hijack_scheme", true, void 0, "阻止唤醒调用App"),
                 UISwitch("劫持-OpenBox函数", "baidu_search_hijack_openbox", true, void 0, "优化搜索结果跳转"),
@@ -291,17 +291,17 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
         {
           text: "自定义拦截规则",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "<a href='https://greasyfork.org/zh-CN/scripts/418349-%E7%A7%BB%E5%8A%A8%E7%AB%AF-%E7%99%BE%E5%BA%A6%E7%B3%BB%E4%BC%98%E5%8C%96#:~:text=%E5%A6%82%E4%BD%95%E8%87%AA%E5%AE%9A%E4%B9%89%E7%99%BE%E5%BA%A6%E6%90%9C%E7%B4%A2%E6%8B%A6%E6%88%AA%E8%A7%84%E5%88%99' target='_blank'>查看规则文档</><br><a href='javascript:;' class='baidu-search-shield-css-reset'>点击重置</a>",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   "启用默认拦截规则",
                   "baidu-search-enable-default-interception-rules",
                   true,
                   void 0,
-                  "默认拦截规则"
+                  "内置了多个拦截规则"
                 ),
                 UIOwn(
                   ($li) => {
@@ -358,11 +358,11 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
         {
           text: "自定义样式",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UIOwn(($li) => {
                   const $textAreaContainer = DOMUtils.createElement("div", {
                     className: "pops-panel-textarea baidu-search-user-style",

@@ -10,20 +10,20 @@ const PanelBaiKeSettingUI: PopsPanelContentConfig = {
     return BaiduRouter.isBaiKe();
   },
   scrollToDefaultView: true,
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "他说",
           description: "/tashuo",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "屏蔽",
-              type: "forms",
-              forms: [UISwitch("【屏蔽】底部广告", "baidu_baike_tashuo_remove_bottom_ad", true)],
+              type: "container",
+              views: [UISwitch("【屏蔽】底部广告", "baidu_baike_tashuo_remove_bottom_ad", true)],
             },
           ],
         },
@@ -31,16 +31,16 @@ const PanelBaiKeSettingUI: PopsPanelContentConfig = {
     },
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "劫持",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "劫持Box",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("劫持全局Box", "baidu-baike-hookBox", true, void 0, "开启后下面的选项才会生效"),
                 UISwitch("isBox", "baidu-baike-Box-isBox", true, void 0, "Box.isBox和Box.$isBox强制返回true"),
                 UISwitch(

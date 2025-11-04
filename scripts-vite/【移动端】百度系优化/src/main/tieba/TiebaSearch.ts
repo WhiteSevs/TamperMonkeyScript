@@ -98,8 +98,8 @@ const TiebaSearchSuggestion = {
      * 获取搜索建议数据
      * @param inputValue 输入框内容
      */
-    let querySearchSuggesiton = async (inputValue: string): Promise<PopsSearchSuggestionData[]> => {
-      let result: PopsSearchSuggestionData[] = [];
+    let querySearchSuggesiton = async (inputValue: string): Promise<PopsSearchSuggestionData<string>[]> => {
+      let result: PopsSearchSuggestionData<string>[] = [];
       log.success("搜索中...");
       let suggestionData = await that.getSuggestion(inputValue);
       if (utils.isNull(suggestionData)) {
@@ -117,7 +117,7 @@ const TiebaSearchSuggestion = {
         fclass1: string;
         fclass2: string;
       }[] = suggestionData?.query_match.search_data || [];
-      const searchSuggestionData: PopsSearchSuggestionData[] = search_data.map((item) => {
+      const searchSuggestionData: PopsSearchSuggestionData<string>[] = search_data.map((item) => {
         return {
           value: item.fname,
           enableDeleteButton: false,
@@ -141,10 +141,10 @@ const TiebaSearchSuggestion = {
       return searchSuggestionData;
     };
     let searchSuggestion = pops.searchSuggestion({
-      selfDocument: document,
+      $selfDocument: document,
       className: "WhiteSevsSearchSelect",
-      target: this.$ele.$searchInput,
-      inputTarget: this.$ele.$searchInput,
+      $target: this.$ele.$searchInput,
+      $inputTarget: this.$ele.$searchInput,
       data: [],
       isAbsolute: false,
       followTargetWidth: true,

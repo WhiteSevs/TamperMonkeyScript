@@ -9,7 +9,7 @@ const PanelPosSettingUI: PopsPanelContentConfig = {
     return BaiduRouter.isPos();
   },
   scrollToDefaultView: true,
-  forms: [],
+  views: [],
 };
 
 export { PanelPosSettingUI };
