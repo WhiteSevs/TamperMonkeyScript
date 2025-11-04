@@ -17,7 +17,7 @@ import { CommonUtil } from "./utils/CommonUtil";
 import { GM_RESOURCE_MAPPING } from "./GM_Resource_Mapping";
 import { createApp } from "vue";
 import { PanelSettingConfig } from "./setting/panel-setting-config";
-import type { QmsgPosition } from "qmsg/dist/src/QmsgConfig";
+import type { QmsgPosition } from "qmsg/dist/src/types/config";
 
 const utils = Utils.noConflict();
 const domUtils = DOMUtils.noConflict();
