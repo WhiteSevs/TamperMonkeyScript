@@ -46,7 +46,13 @@ export const PopsSearchSuggestion = {
       });
       $shadowRoot.appendChild($css);
     }
-
+    /**
+     * 监听器的默认配置
+     */
+    const defaultListenerOption: AddEventListenerOptions = {
+      capture: true,
+      passive: true,
+    };
     const SearchSuggestion = {
       /**
        * 当前的环境，可以是document，可以是shadowroot，默认是document
@@ -416,31 +422,16 @@ export const PopsSearchSuggestion = {
       },
       /**
        * 设置搜索建议框每一项的选中事件
-       * @param liElement
+       * @param $li 每一项元素
        */
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      setSearchItemSelectEvent(liElement: HTMLLIElement) {
-        // popsDOMUtils.on(
-        // 	liElement,
-        // 	"keyup",
-        // 	void 0,
-        // 	(event) => {
-        // 		let value = liElement["data-value"];
-        // 		config.selectCallBack(event, liElement, value);
-        // 	},
-        // 	{
-        // 		capture: true,
-        // 	}
-        // );
+      setSearchItemSelectEvent($li: HTMLLIElement) {
+        //  TODO
       },
       /**
        * 监听输入框内容改变
        */
-      setInputChangeEvent(
-        option: AddEventListenerOptions = {
-          capture: true,
-        }
-      ) {
+      setInputChangeEvent(option: AddEventListenerOptions = defaultListenerOption) {
         // 必须是input或者textarea才有input事件
         if (!(config.$inputTarget instanceof HTMLInputElement || config.$inputTarget instanceof HTMLTextAreaElement)) {
           return;
@@ -451,8 +442,7 @@ export const PopsSearchSuggestion = {
         // 内容改变事件
         const listenerHandler = popsDOMUtils.onInput(
           config.$inputTarget,
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          async (_event) => {
+          async () => {
             const data = SearchSuggestion.getData();
             const queryDataResult = await config.inputTargetChangeRefreshShowDataCallback(
               config.$inputTarget.value,
@@ -469,12 +459,7 @@ export const PopsSearchSuggestion = {
       /**
        * 移除输入框内容改变的监听
        */
-      removeInputChangeEvent(
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        option: AddEventListenerOptions = {
-          capture: true,
-        }
-      ) {
+      removeInputChangeEvent() {
         for (let index = 0; index < SearchSuggestion.$evt.offInputChangeEvtHandler.length; index++) {
           const handler = SearchSuggestion.$evt.offInputChangeEvtHandler[index];
           handler();
@@ -500,12 +485,7 @@ export const PopsSearchSuggestion = {
       /**
        * 设置显示搜索建议框的事件
        */
-      setShowEvent(
-        option: AddEventListenerOptions = {
-          capture: true,
-          passive: true,
-        }
-      ) {
+      setShowEvent(option: AddEventListenerOptions = defaultListenerOption) {
         /* 焦点|点击事件*/
         if (config.followPosition === "target") {
           popsDOMUtils.on([config.$target], ["focus", "click"], void 0, SearchSuggestion.showEvent, option);
@@ -520,12 +500,7 @@ export const PopsSearchSuggestion = {
       /**
        * 移除显示搜索建议框的事件
        */
-      removeShowEvent(
-        option: AddEventListenerOptions = {
-          capture: true,
-          passive: true,
-        }
-      ) {
+      removeShowEvent(option: AddEventListenerOptions = defaultListenerOption) {
         /* 焦点|点击事件*/
         popsDOMUtils.off(
           [config.$target, config.$inputTarget],
@@ -561,12 +536,7 @@ export const PopsSearchSuggestion = {
       /**
        * 设置隐藏搜索建议框的事件
        */
-      setHideEvent(
-        option: AddEventListenerOptions = {
-          capture: true,
-          passive: true,
-        }
-      ) {
+      setHideEvent(option: AddEventListenerOptions = defaultListenerOption) {
         // 全局点击事件
         // 全局触摸屏点击事件
         if (Array.isArray(SearchSuggestion.selfDocument)) {
@@ -580,12 +550,7 @@ export const PopsSearchSuggestion = {
       /**
        * 移除隐藏搜索建议框的事件
        */
-      removeHideEvent(
-        option: AddEventListenerOptions = {
-          capture: true,
-          passive: true,
-        }
-      ) {
+      removeHideEvent(option: AddEventListenerOptions = defaultListenerOption) {
         if (Array.isArray(SearchSuggestion.selfDocument)) {
           SearchSuggestion.selfDocument.forEach(($checkParent) => {
             popsDOMUtils.off($checkParent, ["click", "touchstart"], void 0, SearchSuggestion.hideEvent, option);
@@ -603,12 +568,7 @@ export const PopsSearchSuggestion = {
       /**
        * 设置所有监听，包括（input值改变、全局点击判断显示/隐藏建议框）
        */
-      setAllEvent(
-        option: AddEventListenerOptions = {
-          capture: true,
-          passive: true,
-        }
-      ) {
+      setAllEvent(option: AddEventListenerOptions = defaultListenerOption) {
         SearchSuggestion.setInputChangeEvent(option);
         SearchSuggestion.setHideEvent(option);
         SearchSuggestion.setShowEvent(option);
@@ -616,13 +576,8 @@ export const PopsSearchSuggestion = {
       /**
        * 移除所有监听
        */
-      removeAllEvent(
-        option: AddEventListenerOptions = {
-          capture: true,
-          passive: true,
-        }
-      ) {
-        SearchSuggestion.removeInputChangeEvent(option);
+      removeAllEvent(option: AddEventListenerOptions = defaultListenerOption) {
+        SearchSuggestion.removeInputChangeEvent();
         SearchSuggestion.removeHideEvent(option);
         SearchSuggestion.removeShowEvent(option);
       },

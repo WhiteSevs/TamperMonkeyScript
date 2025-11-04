@@ -34,17 +34,16 @@ declare class Pops {
         };
         /** icon图标的svg代码 */
         iconSVG: {
-            picture: string;
-            search: string;
+            loading: string;
             min: string;
-            mise: string;
             max: string;
+            mise: string;
             close: string;
             edit: string;
             share: string;
             delete: string;
+            search: string;
             upload: string;
-            loading: string;
             next: string;
             prev: string;
             eleme: string;
@@ -56,6 +55,7 @@ declare class Pops {
             headset: string;
             monitor: string;
             documentCopy: string;
+            picture: string;
             circleClose: string;
             view: string;
             hide: string;
@@ -70,13 +70,13 @@ declare class Pops {
         /** 存储已创建的元素 */
         instData: {
             iframe: import("./types/inst").PopsInstGeneralConfig[];
+            folder: import("./types/inst").PopsInstGeneralConfig[];
             loading: import("./types/inst").PopsInstGeneralConfig[];
             alert: import("./types/inst").PopsInstGeneralConfig[];
             confirm: import("./types/inst").PopsInstGeneralConfig[];
             prompt: import("./types/inst").PopsInstGeneralConfig[];
             tooltip: import("./types/inst").PopsInstGeneralConfig[];
             drawer: import("./types/inst").PopsInstGeneralConfig[];
-            folder: import("./types/inst").PopsInstGeneralConfig[];
             panel: import("./types/inst").PopsInstGeneralConfig[];
             rightClickMenu: import("./types/inst").PopsInstGeneralConfig[];
         };
@@ -410,6 +410,7 @@ declare class Pops {
         close: () => Promise<void>;
         hide: () => Promise<void>;
         show: () => Promise<void>;
+        guid: string;
         $shadowContainer: HTMLDivElement;
         $shadowRoot: ShadowRoot | HTMLElement;
         $el: HTMLDivElement;
@@ -417,7 +418,6 @@ declare class Pops {
         $pops: HTMLDivElement;
         $mask?: HTMLDivElement | undefined;
         mode: import("./types/main").PopsType;
-        guid: string;
     };
     /**
      * 右键菜单
@@ -521,9 +521,9 @@ declare class Pops {
         getItemDataValue(data: import("./components/searchSuggestion/types/index").PopsSearchSuggestionData<T>): import("./components/searchSuggestion/types/index").PopsSearchSuggestionData<T>;
         createSearchItemLiElement(dataItem: import("./components/searchSuggestion/types/index").PopsSearchSuggestionData<T>, dateItemIndex: number): HTMLLIElement;
         setSearchItemClickEvent($searchItem: HTMLLIElement): void;
-        setSearchItemSelectEvent(liElement: HTMLLIElement): void;
+        setSearchItemSelectEvent($li: HTMLLIElement): void;
         setInputChangeEvent(option?: AddEventListenerOptions): void;
-        removeInputChangeEvent(option?: AddEventListenerOptions): void;
+        removeInputChangeEvent(): void;
         showEvent(): void;
         setShowEvent(option?: AddEventListenerOptions): void;
         removeShowEvent(option?: AddEventListenerOptions): void;

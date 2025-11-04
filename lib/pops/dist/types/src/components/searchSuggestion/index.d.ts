@@ -79,9 +79,9 @@ export declare const PopsSearchSuggestion: {
         setSearchItemClickEvent($searchItem: HTMLLIElement): void;
         /**
          * 设置搜索建议框每一项的选中事件
-         * @param liElement
+         * @param $li 每一项元素
          */
-        setSearchItemSelectEvent(liElement: HTMLLIElement): void;
+        setSearchItemSelectEvent($li: HTMLLIElement): void;
         /**
          * 监听输入框内容改变
          */
@@ -89,7 +89,7 @@ export declare const PopsSearchSuggestion: {
         /**
          * 移除输入框内容改变的监听
          */
-        removeInputChangeEvent(option?: AddEventListenerOptions): void;
+        removeInputChangeEvent(): void;
         /**
          * 显示搜索建议框的事件
          */
