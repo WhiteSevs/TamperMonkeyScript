@@ -1,4 +1,4 @@
-import type { PopsPanelInputDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-input";
+import type { PopsPanelInputConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-input";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, PROPS_STORAGE_API } from "../panel-config";
 import { Panel } from "../panel";
 import { PanelComponents, type PanelComponentsStorageApiValue } from "../panel-components";
@@ -32,7 +32,7 @@ export const UIInput = function <T extends boolean>(
   placeholder: string = "",
   isNumber?: T,
   isPassword?: boolean,
-  afterAddToUListCallBack?: PopsPanelInputDetails["afterAddToUListCallBack"],
+  afterAddToUListCallBack?: PopsPanelInputConfig["afterAddToUListCallBack"],
   valueChangeCallback?: (
     /** 输入框事件 */
     event: InputEvent,
@@ -42,7 +42,7 @@ export const UIInput = function <T extends boolean>(
     valueAsNumber: T extends true ? number : number | undefined
   ) => void | boolean
 ) {
-  const result: PopsPanelInputDetails = {
+  const result: PopsPanelInputConfig = {
     text: text,
     type: "input",
     isNumber: Boolean(isNumber),
@@ -78,7 +78,7 @@ export const UIInput = function <T extends boolean>(
   Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
   Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
 
-  PanelComponents.initComponentsStorageApi("input", result as Required<PopsPanelInputDetails>, {
+  PanelComponents.initComponentsStorageApi("input", result as Required<PopsPanelInputConfig>, {
     get<T>(key: string, defaultValue: T) {
       return Panel.getValue(key, defaultValue);
     },

@@ -1,4 +1,4 @@
-import type { PopsPanelTextAreaDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-textarea";
+import type { PopsPanelTextAreaConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-textarea";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, PROPS_STORAGE_API } from "../panel-config";
 import { Panel } from "../panel";
 import { PanelComponents, type PanelComponentsStorageApiValue } from "../panel-components";
@@ -24,7 +24,7 @@ export const UITextArea = function (
   disabled?: boolean,
   valueChangeCallBack?: ((event: InputEvent, value: string) => void | boolean) | undefined
 ) {
-  const result: PopsPanelTextAreaDetails = {
+  const result: PopsPanelTextAreaConfig = {
     text: text,
     type: "textarea",
     attributes: {},
@@ -66,7 +66,7 @@ export const UITextArea = function (
   Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
   Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
 
-  PanelComponents.initComponentsStorageApi("switch", result as Required<PopsPanelTextAreaDetails>, {
+  PanelComponents.initComponentsStorageApi("switch", result as Required<PopsPanelTextAreaConfig>, {
     get<T>(key: string, defaultValue: T) {
       return Panel.getValue(key, defaultValue);
     },

@@ -1,5 +1,5 @@
-import type { PopsPanelSelectMultipleDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-selectMultiple";
-import type { PopsAlertDetails } from "@whitesev/pops/dist/types/src/components/alert/types/index";
+import type { PopsPanelSelectMultipleConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-selectMultiple";
+import type { PopsAlertConfig } from "@whitesev/pops/dist/types/src/components/alert/types/index";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, PROPS_STORAGE_API } from "../panel-config";
 import { Panel } from "../panel";
 import { log } from "../../base.env";
@@ -20,20 +20,20 @@ export const UISelectMultiple = function <T>(
   text: string,
   key: string,
   defaultValue: T[],
-  data: PopsPanelSelectMultipleDetails<T>["data"] | (() => PopsPanelSelectMultipleDetails<T>["data"]),
-  selectCallBack?: ((selectInfo: PopsPanelSelectMultipleDetails<T>["data"]) => void | boolean) | undefined,
+  data: PopsPanelSelectMultipleConfig<T>["data"] | (() => PopsPanelSelectMultipleConfig<T>["data"]),
+  selectCallBack?: ((selectInfo: PopsPanelSelectMultipleConfig<T>["data"]) => void | boolean) | undefined,
   description?: string,
   placeholder = "请至少选择一个选项",
-  selectConfirmDialogDetails?: Partial<PopsAlertDetails>,
-  valueChangeCallBack?: ((selectInfo: PopsPanelSelectMultipleDetails<T>["data"]) => void | boolean) | undefined
-): PopsPanelSelectMultipleDetails<T> {
-  let selectData: PopsPanelSelectMultipleDetails<T>["data"] = [];
+  selectConfirmDialogDetails?: Partial<PopsAlertConfig>,
+  valueChangeCallBack?: ((selectInfo: PopsPanelSelectMultipleConfig<T>["data"]) => void | boolean) | undefined
+): PopsPanelSelectMultipleConfig<T> {
+  let selectData: PopsPanelSelectMultipleConfig<T>["data"] = [];
   if (typeof data === "function") {
     selectData = data();
   } else {
     selectData = data;
   }
-  const result: PopsPanelSelectMultipleDetails<T> = {
+  const result: PopsPanelSelectMultipleConfig<T> = {
     text: text,
     type: "select-multiple",
     description: description,
@@ -46,7 +46,7 @@ export const UISelectMultiple = function <T>(
       ] as PanelComponentsStorageApiValue;
       return storageApiValue.get(key, defaultValue);
     },
-    selectConfirmDialogDetails: selectConfirmDialogDetails,
+    selectConfirmDialogConfig: selectConfirmDialogDetails,
     callback(selectInfo) {
       const storageApiValue = this.props![
         PROPS_STORAGE_API as keyof typeof this.props
@@ -75,7 +75,7 @@ export const UISelectMultiple = function <T>(
   Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
   Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
 
-  PanelComponents.initComponentsStorageApi("select-multiple", result as Required<PopsPanelSelectMultipleDetails<T>>, {
+  PanelComponents.initComponentsStorageApi("select-multiple", result as Required<PopsPanelSelectMultipleConfig<T>>, {
     get<T>(key: string, defaultValue: T) {
       return Panel.getValue(key, defaultValue);
     },

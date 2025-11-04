@@ -1,4 +1,4 @@
-import type { PopsPanelSliderDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-slider";
+import type { PopsPanelSliderConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-slider";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, PROPS_STORAGE_API } from "../panel-config";
 import { Panel } from "../panel";
 import { PanelComponents, type PanelComponentsStorageApiValue } from "../panel-components";
@@ -27,8 +27,8 @@ export const UISlider = function (
   description?: string | undefined,
   step?: number,
   valueChangeCallBack?: ((event: InputEvent, value: number) => boolean | void) | undefined
-): PopsPanelSliderDetails {
-  const result: PopsPanelSliderDetails = {
+): PopsPanelSliderConfig {
+  const result: PopsPanelSliderConfig = {
     text: text,
     type: "slider",
     description: description,
@@ -71,7 +71,7 @@ export const UISlider = function (
   Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
   Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
 
-  PanelComponents.initComponentsStorageApi("slider", result as Required<PopsPanelSliderDetails>, {
+  PanelComponents.initComponentsStorageApi("slider", result as Required<PopsPanelSliderConfig>, {
     get<T>(key: string, defaultValue: T) {
       return Panel.getValue(key, defaultValue);
     },

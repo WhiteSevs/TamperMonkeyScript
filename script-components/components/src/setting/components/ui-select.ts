@@ -1,4 +1,4 @@
-import type { PopsPanelSelectDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-select";
+import type { PopsPanelSelectConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-select";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, PROPS_STORAGE_API } from "../panel-config";
 import { log } from "../../base.env";
 import { Panel } from "../panel";
@@ -36,7 +36,7 @@ export const UISelect = function <T extends any>(
   valueChangeCallBack?:
     | ((event: PointerEvent | TouchEvent, isSelectedValue: T, isSelectedText: string) => void | boolean)
     | undefined
-): PopsPanelSelectDetails<T> {
+): PopsPanelSelectConfig<T> {
   let selectData: {
     value: T;
     text: string;
@@ -47,7 +47,7 @@ export const UISelect = function <T extends any>(
   } else {
     selectData = data;
   }
-  const result: PopsPanelSelectDetails<T> = {
+  const result: PopsPanelSelectConfig<T> = {
     text: text,
     type: "select",
     description: description,
@@ -83,7 +83,7 @@ export const UISelect = function <T extends any>(
   Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
   Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
 
-  PanelComponents.initComponentsStorageApi("select", result as Required<PopsPanelSelectDetails<T>>, {
+  PanelComponents.initComponentsStorageApi("select", result as Required<PopsPanelSelectConfig<T>>, {
     get<T>(key: string, defaultValue: T) {
       return Panel.getValue(key, defaultValue);
     },

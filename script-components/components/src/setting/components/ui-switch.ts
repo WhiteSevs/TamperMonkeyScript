@@ -1,6 +1,5 @@
-import type { PopsPanelSwitchDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-switch";
-import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/components/panel/types/index";
-import type { PopsPanelRightAsideContainerOptions } from "@whitesev/pops/dist/types/src/components/panel/types/components-common";
+import type { PopsPanelSwitchConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-switch";
+import type { PopsPanelRightAsideContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-common";
 import { log } from "../../base.env";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, PROPS_STORAGE_API } from "../panel-config";
 import { Panel } from "../panel";
@@ -24,12 +23,12 @@ export const UISwitch = function (
   clickCallBack?: ((event: MouseEvent | PointerEvent, value: boolean) => boolean | void) | undefined,
   description?: string | undefined,
   afterAddToUListCallBack?:
-    | ((formConfig: PopsPanelFormsTotalDetails, container: PopsPanelRightAsideContainerOptions) => void)
+    | ((viewConfig: PopsPanelSwitchConfig, container: PopsPanelRightAsideContainerConfig) => void)
     | undefined,
   disabled?: boolean | (() => boolean) | undefined,
   valueChangeCallBack?: ((event: MouseEvent | PointerEvent, value: boolean) => boolean | void) | undefined
 ) {
-  const result: PopsPanelSwitchDetails = {
+  const result: PopsPanelSwitchConfig = {
     text: text,
     type: "switch",
     description: description,
@@ -69,7 +68,7 @@ export const UISwitch = function (
   Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
   Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
 
-  PanelComponents.initComponentsStorageApi("switch", result as Required<PopsPanelSwitchDetails>, {
+  PanelComponents.initComponentsStorageApi("switch", result as Required<PopsPanelSwitchConfig>, {
     get<T>(key: string, defaultValue: T) {
       return Panel.getValue(key, defaultValue);
     },

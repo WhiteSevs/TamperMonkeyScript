@@ -1,5 +1,5 @@
 import { pops, utils } from "../base.env";
-import type { PopsConfirmDetails } from "@whitesev/pops/dist/types/src/components/confirm/types/index";
+import type { PopsConfirmConfig } from "@whitesev/pops/dist/types/src/components/confirm/types/index";
 
 type RuleEditViewOption<T> = {
   /** 标题 */
@@ -35,7 +35,7 @@ type RuleEditViewOption<T> = {
   /**
    * 按钮配置
    */
-  btn?: PopsConfirmDetails["btn"];
+  btn?: PopsConfirmConfig["btn"];
   /**
    * 添加/编辑框的宽度，注意带单位，px或%
    */

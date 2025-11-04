@@ -1,8 +1,7 @@
-import type { PopsPanelButtonDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-button";
-import type { PopsPanelRightAsideContainerOptions } from "@whitesev/pops/dist/types/src/components/panel/types/components-common";
+import type { PopsPanelButtonConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-button";
+import type { PopsPanelRightAsideContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-common";
 import type { PopsButtonStyleType } from "@whitesev/pops/dist/types/src/types/button";
 import type { PopsIconType } from "@whitesev/pops/dist/types/src/types/icon";
-import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
 import { ATTRIBUTE_INIT } from "../panel-config";
 
 /**
@@ -28,11 +27,11 @@ export const UIButton = function (
   buttonType: PopsButtonStyleType,
   clickCallBack?: ((event: MouseEvent | PointerEvent) => void) | undefined,
   afterAddToUListCallBack?:
-    | ((formConfig: PopsPanelFormsTotalDetails, container: PopsPanelRightAsideContainerOptions) => void)
+    | ((viewConfig: PopsPanelButtonConfig, container: PopsPanelRightAsideContainerConfig) => void)
     | undefined,
   disable?: boolean | undefined | (() => boolean)
-): PopsPanelButtonDetails {
-  const result: PopsPanelButtonDetails = {
+): PopsPanelButtonConfig {
+  const result: PopsPanelButtonConfig = {
     text: text,
     type: "button",
     attributes: {},

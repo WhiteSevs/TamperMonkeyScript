@@ -261,7 +261,7 @@ type RulePanelBtnControlsOption<T> = {
 /**
  * 规则视图的内容配置
  */
-export type RulePanelContentOption<T> = Omit<PopsPanelContentConfig, "forms"> & {
+export type RulePanelContentOption<T> = Omit<PopsPanelContentConfig, "views"> & {
   /**
    * 订阅配置
    */
@@ -411,8 +411,7 @@ export class RulePanelView<T> {
     const that = this;
     let contentConfigList = this.option.contentConfig;
     contentConfigList.forEach((config) => {
-      // @ts-ignore
-      config.forms = [];
+      (config as any as PopsPanelContentConfig).views = [];
       config.headerTitle = config.headerTitle || config.title;
       if (config.subscribe?.enable) {
         // 存在订阅按钮

@@ -1,6 +1,5 @@
-import type { PopsPanelOwnDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-own";
-import type { PopsPanelRightAsideContainerOptions } from "@whitesev/pops/dist/types/src/components/panel/types/components-common";
-import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import type { PopsPanelOwnConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-own";
+import type { PopsPanelRightAsideContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-common";
 import { ATTRIBUTE_INIT, ATTRIBUTE_INIT_MORE_VALUE, ATTRIBUTE_PLUGIN_SEARCH_CONFIG } from "../panel-config";
 
 /**
@@ -38,10 +37,10 @@ export const UIOwn = function (
       }
     | undefined,
   afterAddToUListCallBack?:
-    | ((formConfig: PopsPanelFormsTotalDetails, containerOption: PopsPanelRightAsideContainerOptions) => void)
+    | ((viewConfig: PopsPanelOwnConfig, containerOption: PopsPanelRightAsideContainerConfig) => void)
     | undefined
-): PopsPanelOwnDetails {
-  const result: PopsPanelOwnDetails = {
+): PopsPanelOwnConfig {
+  const result: PopsPanelOwnConfig = {
     type: "own",
     attributes: attr || {},
     props: props || {},

@@ -1,9 +1,10 @@
 import type {
   PopsPanelContentConfig,
-  PopsPanelDetails,
-  PopsPanelFormsTotalDetails,
+  PopsPanelConfig,
+  PopsPanelViewConfig,
 } from "@whitesev/pops/dist/types/src/components/panel/types/index";
-import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-forms";
+import type { PopsPanelDeepViewConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-deepMenu";
+import type { PopsPanelContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-container";
 import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import { unsafeWindow } from "ViteGM";
 import { DOMUtils, log, pops, SCRIPT_NAME, utils } from "../base.env";
@@ -21,7 +22,6 @@ import { PanelMenu } from "./panel-menu";
 import { PanelContent } from "./panel-content";
 import { CommonUtil } from "./../utils/CommonUtil";
 import Qmsg from "qmsg";
-import type { PopsPanelDeepMenuDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-deepMenu";
 import type { UIOwnSearchConfig } from "./components/ui-own";
 
 export type ExecMenuCallBackOption<T = any> = {
@@ -128,7 +128,7 @@ const Panel = {
     /** @private */
     __onceExecData: null as UtilsDictionary<string, number> | null,
     /** @private */
-    __panelConfig: {} as Partial<PopsPanelDetails>,
+    __panelConfig: {} as Partial<PopsPanelConfig>,
     /**
      * 面板
      */
@@ -221,14 +221,14 @@ const Panel = {
      * 设置默认值
      * @param config
      */
-    const initDefaultValue = (config: PopsPanelFormsTotalDetails | PopsPanelFormsDetails) => {
+    const initDefaultValue = (config: PopsPanelContainerConfig | PopsPanelViewConfig) => {
       if (!config.attributes) {
         /* 必须配置attributes属性，用于存储菜单的键和默认值 */
         return;
       }
 
       // 排除掉不需要初始化默认值的配置
-      if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
+      if (config.type === "button" || config.type === "container" || config.type === "deepMenu") {
         return;
       }
 
@@ -283,26 +283,26 @@ const Panel = {
       }
     };
     /** 嵌套循环初始化默认值 */
-    const loopInitDefaultValue = (configList: PopsPanelContentConfig["forms"]) => {
+    const loopInitDefaultValue = (configList: PopsPanelContentConfig["views"]) => {
       for (let index = 0; index < configList.length; index++) {
         let configItem = configList[index];
         initDefaultValue(configItem);
-        let child_forms = (<PopsPanelFormsDetails>configItem).forms;
-        if (child_forms && Array.isArray(child_forms)) {
+        let childViews = (<PopsPanelContainerConfig>configItem).views;
+        if (childViews && Array.isArray(childViews)) {
           /* 存在子配置forms */
-          loopInitDefaultValue(child_forms);
+          loopInitDefaultValue(childViews);
         }
       }
     };
     const contentConfigList = [...PanelContent.getAllContentConfig()];
     for (let index = 0; index < contentConfigList.length; index++) {
       let leftContentConfigItem = contentConfigList[index];
-      if (!leftContentConfigItem.forms) {
+      if (!leftContentConfigItem.views) {
         /* 不存在forms */
         continue;
       }
       // 循环左侧容器内存储的右侧配置项
-      const rightContentConfigList = leftContentConfigItem.forms;
+      const rightContentConfigList = leftContentConfigItem.views;
       if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
         loopInitDefaultValue(rightContentConfigList);
       }
@@ -1050,6 +1050,7 @@ const Panel = {
 						`,
         });
         // 点击进行定位项
+        const panelHandlerComponents = pops.config.PanelHandlerComponents();
         DOMUtils.on($item, "click", (clickItemEvent) => {
           const $asideItems = $panel.$shadowRoot.querySelectorAll<HTMLLIElement>(
             "aside.pops-panel-aside .pops-panel-aside-top-container li"
@@ -1072,11 +1073,12 @@ const Panel = {
                 return Array.from(
                   $panel.$shadowRoot.querySelectorAll<HTMLElement>(".pops-panel-deepMenu-nav-item")
                 ).find(($deepMenu) => {
-                  const __formConfig__: PopsPanelDeepMenuDetails = Reflect.get($deepMenu, "__formConfig__");
-                  // 找到对应的二级菜单
-                  return (
-                    typeof __formConfig__ === "object" && __formConfig__ != null && __formConfig__.text === target.name
+                  const viewConfig: PopsPanelDeepViewConfig = Reflect.get(
+                    $deepMenu,
+                    panelHandlerComponents.$data.nodeStoreConfigKey
                   );
+                  // 找到对应的二级菜单
+                  return typeof viewConfig === "object" && viewConfig != null && viewConfig.text === target.name;
                 });
               }, 2500);
               if ($findDeepMenu) {
@@ -1097,8 +1099,11 @@ const Panel = {
                 return Array.from(
                   $panel.$shadowRoot.querySelectorAll<HTMLLIElement>(`li:not(.pops-panel-deepMenu-nav-item)`)
                 ).find(($menuItem) => {
-                  const __formConfig__: PopsPanelDeepMenuDetails = Reflect.get($menuItem, "__formConfig__");
-                  return __formConfig__ === target.matchedData?.formConfig;
+                  const viewConfig: PopsPanelDeepViewConfig = Reflect.get(
+                    $menuItem,
+                    panelHandlerComponents.$data.nodeStoreConfigKey
+                  );
+                  return viewConfig === target.matchedData?.formConfig;
                 });
               }, 2500);
               if ($findTargetMenu) {
@@ -1131,11 +1136,11 @@ const Panel = {
       const execSearch = (searchText: string) => {
         const searchTextRegExp = new RegExp(searchText, "i");
         const searchConfigResult: SearchPath[] = [];
-        const loopContentConfig = (configList: PopsPanelContentConfig["forms"], path: SearchPath) => {
+        const loopContentConfig = (configList: PopsPanelContentConfig["views"], path: SearchPath) => {
           for (let index = 0; index < configList.length; index++) {
             const configItem = configList[index];
 
-            const child_forms = (<PopsPanelFormsDetails>configItem).forms;
+            const child_forms = (<PopsPanelContainerConfig>configItem).views;
             if (child_forms && Array.isArray(child_forms)) {
               // 存在子配置forms
               const deepMenuPath = utils.deepClone(path);
@@ -1242,8 +1247,8 @@ const Panel = {
 
         for (let index = 0; index < content.length; index++) {
           const leftContentConfigItem = content[index];
-          if (!leftContentConfigItem.forms) {
-            /* 不存在forms */
+          if (!leftContentConfigItem.views) {
+            /* 不存在 */
             continue;
           }
           if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") {
@@ -1251,7 +1256,7 @@ const Panel = {
             continue;
           }
           // 循环左侧容器内存储的右侧配置项
-          const rightContentConfigList = leftContentConfigItem.forms;
+          const rightContentConfigList = leftContentConfigItem.views;
           if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
             let text = leftContentConfigItem.title;
             if (typeof text === "function") {

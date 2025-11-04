@@ -465,7 +465,7 @@ export const PanelContent = {
         id: "script-version",
         title: `版本：${GM_info?.script?.version || "未知"}`,
         isBottom: true,
-        forms: [],
+        views: [],
         clickFirstCallback() {
           return false;
         },

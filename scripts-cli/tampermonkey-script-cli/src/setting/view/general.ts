@@ -8,11 +8,11 @@ import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/compo
 export const Component_Common: PopsPanelContentConfig = {
   id: "view-general",
   title: "通用",
-  forms: [
+  views: [
     {
       text: "Toast配置",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISelect(
           "Toast位置",
           PanelSettingConfig.qmsg_config_position.key,
@@ -100,8 +100,8 @@ export const Component_Common: PopsPanelContentConfig = {
     },
     {
       text: "Cookie配置",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISwitch(
           "启用",
           PanelSettingConfig.httpx_cookie_manager_enable.key,
@@ -117,8 +117,8 @@ export const Component_Common: PopsPanelContentConfig = {
           "会自动根据请求的域名来使用cookie"
         ),
         // UITextArea(
-        // 	"tieba.baidu.com",
-        // 	"httpx-cookie-tieba.baidu.com",
+        // 	"xxx.xxx.com",
+        // 	"httpx-cookie-xxx.xxx.com",
         // 	"",
         // 	void 0,
         // 	void 0,
