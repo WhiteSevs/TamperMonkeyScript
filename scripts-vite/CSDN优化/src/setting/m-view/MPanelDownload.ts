@@ -8,11 +8,11 @@ export const MSettingUIDownload: PopsPanelContentConfig = {
   isDefault() {
     return CSDNRouter.isDownload();
   },
-  forms: [
+  views: [
     {
       text: "功能",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISwitch(
           "自动展开资源介绍",
           "m-csdn-download-automaticallyExpandResourceIntroduction",
@@ -24,8 +24,8 @@ export const MSettingUIDownload: PopsPanelContentConfig = {
     },
     {
       text: "屏蔽",
-      type: "forms",
-      forms: [UISwitch("【屏蔽】广告", "m-csdn-download-removeAds", true, void 0, "包括：登录弹窗、会员降价等")],
+      type: "container",
+      views: [UISwitch("【屏蔽】广告", "m-csdn-download-removeAds", true, void 0, "包括：登录弹窗、会员降价等")],
     },
   ],
 };

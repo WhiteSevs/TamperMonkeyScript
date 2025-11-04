@@ -37,7 +37,7 @@ export const MTSearch = {
     let searchHistoryList = GM_getValue<string[]>("search_history", []);
     let $input = $<HTMLInputElement>("#scform_srchtxt")!;
     let $submit = $<HTMLFormElement>("#searchform")!;
-    const searchSuggestionData: PopsSearchSuggestionData[] = searchHistoryList.map((item) => {
+    const searchSuggestionData: PopsSearchSuggestionData<string>[] = searchHistoryList.map((item) => {
       return {
         value: item,
         enableDeleteButton: true,
@@ -59,8 +59,8 @@ export const MTSearch = {
       };
     });
     let suggestion = pops.searchSuggestion({
-      target: $input,
-      inputTarget: $input,
+      $target: $input,
+      $inputTarget: $input,
       data: searchSuggestionData,
       inputTargetChangeRefreshShowDataCallback(inputValue, data, config) {
         return searchSuggestionData.filter((item) => {

@@ -9,19 +9,19 @@ const SettingUISearch: PopsPanelContentConfig = {
   isDefault() {
     return BilibiliRouter.isSearch();
   },
-  forms: [
+  views: [
     {
-      type: "forms",
+      type: "container",
       text: "",
-      forms: [
+      views: [
         {
           type: "deepMenu",
           text: "功能",
-          forms: [
+          views: [
             {
-              type: "forms",
+              type: "container",
               text: "",
-              forms: [
+              views: [
                 UISwitch("搜索框自动获取焦点", "bili-search-inputAutoFocus", true, void 0, ""),
                 UISwitch("美化搜索结果", "bili-search-beautifySearchResult", true, void 0, "重构搜索结果的样式"),
                 UISwitch(
@@ -35,8 +35,8 @@ const SettingUISearch: PopsPanelContentConfig = {
             },
             {
               text: "<a href='https://github.com/yujincheng08/BiliRoaming/wiki/%E5%85%AC%E5%85%B1%E8%A7%A3%E6%9E%90%E6%9C%8D%E5%8A%A1%E5%99%A8' target='_blank'>搜索服务器</a>",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UIInput(
                   "香港",
                   "bili-search-proxyApiServer-hk",
@@ -68,11 +68,11 @@ const SettingUISearch: PopsPanelContentConfig = {
         {
           type: "deepMenu",
           text: "覆盖点击事件",
-          forms: [
+          views: [
             {
-              type: "forms",
+              type: "container",
               text: "",
-              forms: [
+              views: [
                 UISwitch("取消", "bili-search-cover-cancel", false, void 0, "点击取消按钮回退至上一页"),
                 UISwitch(
                   "搜索结果",
@@ -88,11 +88,11 @@ const SettingUISearch: PopsPanelContentConfig = {
         {
           text: "变量设置",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("noCallApp", "bili-search-vue-prop-noCallApp", true, void 0, "noCallApp = true"),
                 UISwitch("openAppDialog", "bili-search-vue-prop-openAppDialog", true, void 0, "openAppDialog = false"),
               ],

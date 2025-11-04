@@ -32,11 +32,11 @@ export class GrantTest_onurlchange extends ApiTestBase {
       clickCallback(data) {
         StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
       },
-      forms: [
+      views: [
         {
-          type: "forms",
+          type: "container",
           text: "功能测试",
-          forms: [
+          views: [
             UIInfo(() => {
               try {
                 return {

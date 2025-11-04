@@ -8,19 +8,19 @@ import { XHSArticleFilter } from "@/main/article/XHSArticleFilter";
 export const SettingUI_Common: PopsPanelContentConfig = {
   id: "xhs-panel-config-common",
   title: "通用",
-  forms: [
+  views: [
     {
-      type: "forms",
+      type: "container",
       text: "",
-      forms: [
+      views: [
         {
           text: "Toast配置",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISelect(
                   "Toast位置",
                   "qmsg-config-position",
@@ -106,16 +106,16 @@ export const SettingUI_Common: PopsPanelContentConfig = {
     },
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "功能",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("允许复制", "pc-xhs-allowCopy", true, void 0, "可以选择文字并复制"),
                 UISwitch(
                   "新标签页打开文章",
@@ -131,11 +131,11 @@ export const SettingUI_Common: PopsPanelContentConfig = {
         {
           text: "搜索",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   "新标签页打开-搜索按钮",
                   "pc-xhs-search-open-blank-btn",
@@ -157,11 +157,11 @@ export const SettingUI_Common: PopsPanelContentConfig = {
         {
           text: "屏蔽",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("【屏蔽】广告", "pc-xhs-shieldAd", true, void 0, "屏蔽元素"),
                 UISwitch("【屏蔽】登录弹窗", "pc-xhs-shield-login-dialog", true, void 0, "屏蔽会自动弹出的登录弹窗"),
                 UISwitch(
@@ -179,11 +179,11 @@ export const SettingUI_Common: PopsPanelContentConfig = {
         {
           type: "deepMenu",
           text: "笔记过滤器",
-          forms: [
+          views: [
             {
               text: '<a href="https://greasyfork.org/zh-CN/scripts/483960-%E5%B0%8F%E7%BA%A2%E4%B9%A6%E4%BC%98%E5%8C%96#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99" target="_blank">点击查看规则</a>',
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("启用", "shieldVideo-exec-network-enable", true, void 0, "开启后以下功能才会生效"),
                 UISwitch(
                   "仅显示被过滤的笔记",
@@ -198,9 +198,9 @@ export const SettingUI_Common: PopsPanelContentConfig = {
               ],
             },
             {
-              type: "forms",
+              type: "container",
               text: "",
-              forms: [
+              views: [
                 UIButton("数据导入", "导入自定义规则数据", "导入", void 0, false, false, "primary", () => {
                   XHSArticleFilter.$data.videoFilterRuleStorage.importRules();
                 }),
@@ -214,11 +214,11 @@ export const SettingUI_Common: PopsPanelContentConfig = {
         {
           text: "劫持/拦截",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [UISwitch("劫持Vue", "pc-xhs-hook-vue", true, void 0, "恢复__vue__属性")],
+              type: "container",
+              views: [UISwitch("劫持Vue", "pc-xhs-hook-vue", true, void 0, "恢复__vue__属性")],
             },
           ],
         },

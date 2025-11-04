@@ -10,19 +10,19 @@ import { MTEditorOptimization } from "@/main/forum-post-publish/MTEditorOptimiza
 export const Component_ForumPost: PopsPanelContentConfig = {
   id: "component-forum-post",
   title: "帖子",
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "功能",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("自动展开内容", "mt-forum-post-autoExpandContent", true, void 0, "注入CSS展开帖子的内容"),
                 UISwitch(
                   "修复图片宽度",
@@ -62,11 +62,11 @@ export const Component_ForumPost: PopsPanelContentConfig = {
         {
           text: "自动加载评论",
           type: "deepMenu",
-          forms: [
+          views: [
             {
-              type: "forms",
+              type: "container",
               text: "",
-              forms: [
+              views: [
                 UISwitch("自动加载下一页评论", "mt-forum-post-loadNextPageComment", true, void 0, ""),
                 UISwitch(
                   "同步加载的地址",
@@ -82,11 +82,11 @@ export const Component_ForumPost: PopsPanelContentConfig = {
         {
           text: "编辑器-简略版",
           type: "deepMenu",
-          forms: [
+          views: [
             {
-              type: "forms",
+              type: "container",
               text: "",
-              forms: [
+              views: [
                 UISwitch("启用", "mt-forum-post-editorOptimizationNormal", true, void 0, "优化样式，插入bbcode代码等"),
                 UISwitch(
                   "自动保存输入记录",
@@ -130,11 +130,11 @@ export const Component_ForumPost: PopsPanelContentConfig = {
         {
           text: "编辑器-完整版",
           type: "deepMenu",
-          forms: [
+          views: [
             {
-              type: "forms",
+              type: "container",
               text: "",
-              forms: [
+              views: [
                 UISwitch(
                   "启用",
                   "mt-forum-post-publish-editorOptimization",
@@ -181,11 +181,11 @@ export const Component_ForumPost: PopsPanelContentConfig = {
         {
           text: "编辑器-图床配置",
           type: "deepMenu",
-          forms: [
+          views: [
             {
-              type: "forms",
+              type: "container",
               text: `<a href="https://www.helloimg.com/" target="_blank">Hello图床</a>`,
-              forms: [
+              views: [
                 UISwitch("启用", "mt-image-bed-hello-enable", false, void 0, "启用Hello图床"),
                 UIInput("账号", "mt-image-bed-hello-account", "", "", void 0, "必填"),
                 UIInput("密码", "mt-image-bed-hello-password", "", "", void 0, "必填", false, true),
@@ -193,14 +193,14 @@ export const Component_ForumPost: PopsPanelContentConfig = {
               ],
             },
             {
-              type: "forms",
+              type: "container",
               text: `<a href="https://img.binmt.cc/" target="_blank">MT图床</a>`,
-              forms: [UISwitch("启用", "mt-image-bed-mt-enable", true, void 0, "启用MT图床")],
+              views: [UISwitch("启用", "mt-image-bed-mt-enable", true, void 0, "启用MT图床")],
             },
             {
-              type: "forms",
+              type: "container",
               text: "图片水印",
-              forms: [
+              views: [
                 UISwitch("启用", "mt-image-bed-watermark-enable", false, void 0, "开启后会为图床图片添加文字水印"),
                 UISwitch(
                   "自动添加水印",

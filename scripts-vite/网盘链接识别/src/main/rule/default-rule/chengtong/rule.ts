@@ -146,9 +146,9 @@ export const NetDiskRule_chengtong: NetDiskRuleOption = {
       },
       ownFormList: [
         {
-          type: "forms",
+          type: "container",
           text: "文件解析配置",
-          forms: [
+          views: [
             UIInput(
               "<a target='_blank' href='https://github.com/qinlili23333/ctfileGet/'>解析站</a>",
               "chengtong-parse-file-api-host",

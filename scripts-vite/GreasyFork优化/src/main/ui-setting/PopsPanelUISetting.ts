@@ -28,7 +28,7 @@ export const PopsPanelUISetting = {
       mask: {
         enable: true,
       },
-      parent: rightContainerElement,
+      $parent: rightContainerElement,
       content: {
         text: i18next.t("获取信息中，请稍后..."),
       },

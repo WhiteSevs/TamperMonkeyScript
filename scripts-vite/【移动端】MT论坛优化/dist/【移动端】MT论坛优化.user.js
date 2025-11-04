@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.2
+// @version      2025.11.4
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -11,10 +11,10 @@
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@79fb4d854f1e2cdf606339b0dac18d50104e2ebe/lib/js-watermark/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js
 // @resource     HljsCSS    https://fastly.jsdelivr.net/npm/highlight.js@11.11.1/styles/github-dark.min.css
@@ -1050,7 +1050,7 @@
           id: "script-version",
           title: `版本：${_GM_info?.script?.version || "未知"}`,
           isBottom: true,
-          forms: [],
+          views: [],
           clickFirstCallback() {
             return false;
           },
@@ -1192,7 +1192,7 @@
         if (!config.attributes) {
           return;
         }
-        if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
+        if (config.type === "button" || config.type === "container" || config.type === "deepMenu") {
           return;
         }
         const attributes = config.attributes;
@@ -1234,19 +1234,19 @@
         for (let index = 0; index < configList.length; index++) {
           let configItem = configList[index];
           initDefaultValue(configItem);
-          let child_forms = configItem.forms;
-          if (child_forms && Array.isArray(child_forms)) {
-            loopInitDefaultValue(child_forms);
+          let childViews = configItem.views;
+          if (childViews && Array.isArray(childViews)) {
+            loopInitDefaultValue(childViews);
           }
         }
       };
       const contentConfigList = [...PanelContent.getAllContentConfig()];
       for (let index = 0; index < contentConfigList.length; index++) {
         let leftContentConfigItem = contentConfigList[index];
-        if (!leftContentConfigItem.forms) {
+        if (!leftContentConfigItem.views) {
           continue;
         }
-        const rightContentConfigList = leftContentConfigItem.forms;
+        const rightContentConfigList = leftContentConfigItem.views;
         if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
           loopInitDefaultValue(rightContentConfigList);
         }
@@ -1723,6 +1723,7 @@
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
 						`,
           });
+          const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
           domUtils.on($item, "click", (clickItemEvent) => {
             const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
@@ -1742,12 +1743,8 @@
                 const $findDeepMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")).find(
                     ($deepMenu) => {
-                      const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
-                      return (
-                        typeof __formConfig__ === "object" &&
-                        __formConfig__ != null &&
-                        __formConfig__.text === target.name
-                      );
+                      const viewConfig = Reflect.get($deepMenu, panelHandlerComponents.$data.nodeStoreConfigKey);
+                      return typeof viewConfig === "object" && viewConfig != null && viewConfig.text === target.name;
                     }
                   );
                 }, 2500);
@@ -1768,8 +1765,8 @@
                 const $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)).find(
                     ($menuItem) => {
-                      const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
-                      return __formConfig__ === target.matchedData?.formConfig;
+                      const viewConfig = Reflect.get($menuItem, panelHandlerComponents.$data.nodeStoreConfigKey);
+                      return viewConfig === target.matchedData?.formConfig;
                     }
                   );
                 }, 2500);
@@ -1802,7 +1799,7 @@
           const loopContentConfig = (configList, path) => {
             for (let index = 0; index < configList.length; index++) {
               const configItem = configList[index];
-              const child_forms = configItem.forms;
+              const child_forms = configItem.views;
               if (child_forms && Array.isArray(child_forms)) {
                 const deepMenuPath = utils.deepClone(path);
                 if (configItem.type === "deepMenu") {
@@ -1899,13 +1896,13 @@
           };
           for (let index = 0; index < content.length; index++) {
             const leftContentConfigItem = content[index];
-            if (!leftContentConfigItem.forms) {
+            if (!leftContentConfigItem.views) {
               continue;
             }
             if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") {
               continue;
             }
-            const rightContentConfigList = leftContentConfigItem.forms;
+            const rightContentConfigList = leftContentConfigItem.views;
             if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
               let text = leftContentConfigItem.title;
               if (typeof text === "function") {
@@ -5976,8 +5973,8 @@
         };
       });
       let suggestion = __pops__.searchSuggestion({
-        target: $input,
-        inputTarget: $input,
+        $target: $input,
+        $inputTarget: $input,
         data: searchSuggestionData,
         inputTargetChangeRefreshShowDataCallback(inputValue, data, config) {
           return searchSuggestionData.filter((item) => {
@@ -8171,8 +8168,8 @@
                 data.uuid = editData.uuid;
               }
               $ulist_li.forEach(($li) => {
-                let formConfig = Reflect.get($li, "__formConfig__");
-                let attrs = Reflect.get(formConfig, "attributes");
+                let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+                let attrs = Reflect.get(viewConfig, "attributes");
                 let storageApi = Reflect.get($li, PROPS_STORAGE_API);
                 let key = Reflect.get(attrs, ATTRIBUTE_KEY);
                 let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
@@ -8869,8 +8866,8 @@
                 data.uuid = editData.uuid;
               }
               $ulist_li.forEach(($li) => {
-                let formConfig = Reflect.get($li, "__formConfig__");
-                let attrs = Reflect.get(formConfig, "attributes");
+                let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+                let attrs = Reflect.get(viewConfig, "attributes");
                 let storageApi = Reflect.get($li, PROPS_STORAGE_API);
                 let key = Reflect.get(attrs, ATTRIBUTE_KEY);
                 let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
@@ -9088,8 +9085,8 @@
                 data.uuid = editData.uuid;
               }
               $ulist_li.forEach(($li) => {
-                let formConfig = Reflect.get($li, "__formConfig__");
-                let attrs = Reflect.get(formConfig, "attributes");
+                let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+                let attrs = Reflect.get(viewConfig, "attributes");
                 let storageApi = Reflect.get($li, PROPS_STORAGE_API);
                 let key = Reflect.get(attrs, ATTRIBUTE_KEY);
                 let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
@@ -11530,19 +11527,19 @@
   const Component_Common = {
     id: "component-common",
     title: "通用",
-    forms: [
+    views: [
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "Toast配置",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISelect(
                     "Toast位置",
                     "qmsg-config-position",
@@ -11627,11 +11624,11 @@
           {
             text: "Cookie配置",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("启用", "httpx-use-cookie-enable", false, void 0, "启用后，将根据下面的配置进行添加cookie"),
                   UISwitch(
                     "使用document.cookie",
@@ -11656,16 +11653,16 @@
       },
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "功能",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     "文本转超链接",
                     "mt-link-text-to-hyperlink",
@@ -11689,11 +11686,11 @@
           {
             text: "额外菜单项",
             type: "deepMenu",
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: "",
-                forms: [
+                views: [
                   UISwitch("小黑屋", "mt-black-home", true, void 0, "将会在左侧面板添加【小黑屋】菜单"),
                   UISwitch("在线用户", "mt-online-user", true, void 0, "将会在左侧面板添加【在线用户】菜单"),
                   UISwitch(
@@ -11732,11 +11729,11 @@
           {
             text: "头像",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "<a href='https://ezgif.com/resize' target='_blank'>Resize Image</a>",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UIOwn(
                     ($li) => {
                       const $left = domUtils.createElement("div", {
@@ -11842,19 +11839,19 @@
   const Component_ForumPost = {
     id: "component-forum-post",
     title: "帖子",
-    forms: [
+    views: [
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "功能",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("自动展开内容", "mt-forum-post-autoExpandContent", true, void 0, "注入CSS展开帖子的内容"),
                   UISwitch(
                     "修复图片宽度",
@@ -11900,11 +11897,11 @@
           {
             text: "自动加载评论",
             type: "deepMenu",
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: "",
-                forms: [
+                views: [
                   UISwitch("自动加载下一页评论", "mt-forum-post-loadNextPageComment", true, void 0, ""),
                   UISwitch(
                     "同步加载的地址",
@@ -11920,11 +11917,11 @@
           {
             text: "编辑器-简略版",
             type: "deepMenu",
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: "",
-                forms: [
+                views: [
                   UISwitch(
                     "启用",
                     "mt-forum-post-editorOptimizationNormal",
@@ -11977,11 +11974,11 @@
           {
             text: "编辑器-完整版",
             type: "deepMenu",
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: "",
-                forms: [
+                views: [
                   UISwitch(
                     "启用",
                     "mt-forum-post-publish-editorOptimization",
@@ -12028,11 +12025,11 @@
           {
             text: "编辑器-图床配置",
             type: "deepMenu",
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: `<a href="https://www.helloimg.com/" target="_blank">Hello图床</a>`,
-                forms: [
+                views: [
                   UISwitch("启用", "mt-image-bed-hello-enable", false, void 0, "启用Hello图床"),
                   UIInput("账号", "mt-image-bed-hello-account", "", "", void 0, "必填"),
                   UIInput("密码", "mt-image-bed-hello-password", "", "", void 0, "必填", false, true),
@@ -12040,14 +12037,14 @@
                 ],
               },
               {
-                type: "forms",
+                type: "container",
                 text: `<a href="https://img.binmt.cc/" target="_blank">MT图床</a>`,
-                forms: [UISwitch("启用", "mt-image-bed-mt-enable", true, void 0, "启用MT图床")],
+                views: [UISwitch("启用", "mt-image-bed-mt-enable", true, void 0, "启用MT图床")],
               },
               {
-                type: "forms",
+                type: "container",
                 text: "图片水印",
-                forms: [
+                views: [
                   UISwitch("启用", "mt-image-bed-watermark-enable", false, void 0, "开启后会为图床图片添加文字水印"),
                   UISwitch(
                     "自动添加水印",
@@ -12094,11 +12091,11 @@
   const Component_Search = {
     id: "component-search",
     title: "搜索",
-    forms: [
+    views: [
       {
-        type: "forms",
+        type: "container",
         text: "",
-        forms: [
+        views: [
           UISwitch("显示搜索历史", "mt-search-showSearchHistory", true, void 0, "自动记住搜索历史并显示"),
           UISwitch("修复清空按钮", "mt-search-repairClearBtn", true, void 0, "修复点击清空按钮不清空输入框的问题"),
           UISwitch("搜索框自动获取焦点", "mt-search-searchInputAutoFocus", true, void 0, ""),
@@ -12109,19 +12106,19 @@
   const Component_Sign = {
     id: "component-sigh",
     title: "签到",
-    forms: [
+    views: [
       {
         text: "功能",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UISwitch("显示【今日签到之星】", "mt-sign-showTodaySignStar", true, void 0, "在签到按钮上面显示今日签到之星"),
           UISwitch("显示【今日最先】", "mt-sign-showTodayRanking", true, void 0, "在签到排名上面新增【今日最先】"),
         ],
       },
       {
         text: "自动签到",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UISwitch("启用", "mt-auto-sign", true, void 0, "自动请求签到"),
           UISwitch("使用fetch请求", "mt-auto-sign-useFetch", false, void 0, ""),
           UIButton(
@@ -12185,11 +12182,11 @@
   const Component_Space = {
     id: "component-space",
     title: "空间",
-    forms: [
+    views: [
       {
-        type: "forms",
+        type: "container",
         text: "",
-        forms: [
+        views: [
           UISwitch("修复无法进入空间", "mt-space-repairEnterSpace", true, void 0, "修复链接错误导致不能进入空间的问题"),
           UISwitch(
             "显示帖子回复内容",
@@ -12205,11 +12202,11 @@
   const Component_Guide = {
     id: "component-guide",
     title: "导读",
-    forms: [
+    views: [
       {
-        type: "forms",
+        type: "container",
         text: "",
-        forms: [UISwitch("显示最新帖子", "mt-guide-showLatestPost", true, void 0, "在最上面显示最新发布的帖子")],
+        views: [UISwitch("显示最新帖子", "mt-guide-showLatestPost", true, void 0, "在最上面显示最新发布的帖子")],
       },
     ],
   };

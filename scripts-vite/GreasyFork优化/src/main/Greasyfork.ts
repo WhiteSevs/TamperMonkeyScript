@@ -434,7 +434,7 @@ const Greasyfork = {
         octiconCopyElement.setAttribute("aria-hidden", "true");
         octiconCheckCopyElement.removeAttribute("aria-hidden");
         let tooltip = pops.tooltip({
-          target: clipboardCopyElement,
+          $target: clipboardCopyElement,
           content: i18next.t("✅ 复制成功!"),
           position: "left",
           className: "github-tooltip",

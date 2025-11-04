@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.1
+// @version      2025.11.4
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -9,10 +9,10 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://www.xiaohongshu.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect      edith.xiaohongshu.com
@@ -909,7 +909,7 @@
           id: "script-version",
           title: `版本：${_GM_info?.script?.version || "未知"}`,
           isBottom: true,
-          forms: [],
+          views: [],
           clickFirstCallback() {
             return false;
           },
@@ -1051,7 +1051,7 @@
         if (!config.attributes) {
           return;
         }
-        if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
+        if (config.type === "button" || config.type === "container" || config.type === "deepMenu") {
           return;
         }
         const attributes = config.attributes;
@@ -1093,19 +1093,19 @@
         for (let index = 0; index < configList.length; index++) {
           let configItem = configList[index];
           initDefaultValue(configItem);
-          let child_forms = configItem.forms;
-          if (child_forms && Array.isArray(child_forms)) {
-            loopInitDefaultValue(child_forms);
+          let childViews = configItem.views;
+          if (childViews && Array.isArray(childViews)) {
+            loopInitDefaultValue(childViews);
           }
         }
       };
       const contentConfigList = [...PanelContent.getAllContentConfig()];
       for (let index = 0; index < contentConfigList.length; index++) {
         let leftContentConfigItem = contentConfigList[index];
-        if (!leftContentConfigItem.forms) {
+        if (!leftContentConfigItem.views) {
           continue;
         }
-        const rightContentConfigList = leftContentConfigItem.forms;
+        const rightContentConfigList = leftContentConfigItem.views;
         if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
           loopInitDefaultValue(rightContentConfigList);
         }
@@ -1582,6 +1582,7 @@
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
 						`,
           });
+          const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
           domUtils.on($item, "click", (clickItemEvent) => {
             const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
@@ -1601,12 +1602,8 @@
                 const $findDeepMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")).find(
                     ($deepMenu) => {
-                      const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
-                      return (
-                        typeof __formConfig__ === "object" &&
-                        __formConfig__ != null &&
-                        __formConfig__.text === target.name
-                      );
+                      const viewConfig = Reflect.get($deepMenu, panelHandlerComponents.$data.nodeStoreConfigKey);
+                      return typeof viewConfig === "object" && viewConfig != null && viewConfig.text === target.name;
                     }
                   );
                 }, 2500);
@@ -1627,8 +1624,8 @@
                 const $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)).find(
                     ($menuItem) => {
-                      const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
-                      return __formConfig__ === target.matchedData?.formConfig;
+                      const viewConfig = Reflect.get($menuItem, panelHandlerComponents.$data.nodeStoreConfigKey);
+                      return viewConfig === target.matchedData?.formConfig;
                     }
                   );
                 }, 2500);
@@ -1661,7 +1658,7 @@
           const loopContentConfig = (configList, path) => {
             for (let index = 0; index < configList.length; index++) {
               const configItem = configList[index];
-              const child_forms = configItem.forms;
+              const child_forms = configItem.views;
               if (child_forms && Array.isArray(child_forms)) {
                 const deepMenuPath = utils.deepClone(path);
                 if (configItem.type === "deepMenu") {
@@ -1758,13 +1755,13 @@
           };
           for (let index = 0; index < content.length; index++) {
             const leftContentConfigItem = content[index];
-            if (!leftContentConfigItem.forms) {
+            if (!leftContentConfigItem.views) {
               continue;
             }
             if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") {
               continue;
             }
-            const rightContentConfigList = leftContentConfigItem.forms;
+            const rightContentConfigList = leftContentConfigItem.views;
             if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
               let text = leftContentConfigItem.title;
               if (typeof text === "function") {
@@ -3641,7 +3638,7 @@
         const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
-      selectConfirmDialogDetails,
+      selectConfirmDialogConfig: selectConfirmDialogDetails,
       callback(selectInfo) {
         const storageApiValue = this.props[PROPS_STORAGE_API];
         const value = [];
@@ -5066,7 +5063,7 @@
                 "选择需要在xxx上生效的作用域"
               );
               Reflect.set(scope_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-              let $scope = panelHandlerComponents.createSectionContainerItem_select_multiple_new(scope_template);
+              let $scope = panelHandlerComponents.createSectionContainerItem_select_multiple(scope_template);
               let keyNameHandlerInfo = [
                 "display_title",
                 "isLike",
@@ -5094,8 +5091,7 @@
                   "选择需要的属性名 "
                 );
                 Reflect.set(ruleName_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
-                let $ruleName2 =
-                  panelHandlerComponents.createSectionContainerItem_select_multiple_new(ruleName_template);
+                let $ruleName2 = panelHandlerComponents.createSectionContainerItem_select_multiple(ruleName_template);
                 let ruleValue_template = UITextArea("属性值", "ruleValue", "", "如果是字符串，可正则，注意转义");
                 Reflect.set(ruleValue_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
                 let $ruleValue2 = panelHandlerComponents.createSectionContainerItem_textarea(ruleValue_template);
@@ -5190,11 +5186,11 @@
                 data.uuid = editData.uuid;
               }
               $ulist_li.forEach(($li) => {
-                let formConfig = Reflect.get($li, "__formConfig__");
-                if (!formConfig) {
+                let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+                if (!viewConfig) {
                   return;
                 }
-                let attrs = Reflect.get(formConfig, "attributes");
+                let attrs = Reflect.get(viewConfig, "attributes");
                 if (!attrs) {
                   return;
                 }
@@ -5213,11 +5209,11 @@
               $form.querySelectorAll(".rule-form-ulist-dynamic__inner-container").forEach(($inner) => {
                 let dynamicData = {};
                 $inner.querySelectorAll(".dynamic-forms > li").forEach(($li) => {
-                  let formConfig = Reflect.get($li, "__formConfig__");
-                  if (!formConfig) {
+                  let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+                  if (!viewConfig) {
                     return;
                   }
-                  let attrs = Reflect.get(formConfig, "attributes");
+                  let attrs = Reflect.get(viewConfig, "attributes");
                   if (!attrs) {
                     return;
                   }
@@ -5499,19 +5495,19 @@
   const SettingUI_Common = {
     id: "xhs-panel-config-common",
     title: "通用",
-    forms: [
+    views: [
       {
-        type: "forms",
+        type: "container",
         text: "",
-        forms: [
+        views: [
           {
             text: "Toast配置",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISelect(
                     "Toast位置",
                     "qmsg-config-position",
@@ -5597,16 +5593,16 @@
       },
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "功能",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("允许复制", "pc-xhs-allowCopy", true, void 0, "可以选择文字并复制"),
                   UISwitch(
                     "新标签页打开文章",
@@ -5622,11 +5618,11 @@
           {
             text: "搜索",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     "新标签页打开-搜索按钮",
                     "pc-xhs-search-open-blank-btn",
@@ -5648,11 +5644,11 @@
           {
             text: "屏蔽",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("【屏蔽】广告", "pc-xhs-shieldAd", true, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】登录弹窗", "pc-xhs-shield-login-dialog", true, void 0, "屏蔽会自动弹出的登录弹窗"),
                   UISwitch(
@@ -5670,11 +5666,11 @@
           {
             type: "deepMenu",
             text: "笔记过滤器",
-            forms: [
+            views: [
               {
                 text: '<a href="https://greasyfork.org/zh-CN/scripts/483960-%E5%B0%8F%E7%BA%A2%E4%B9%A6%E4%BC%98%E5%8C%96#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99" target="_blank">点击查看规则</a>',
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("启用", "shieldVideo-exec-network-enable", true, void 0, "开启后以下功能才会生效"),
                   UISwitch(
                     "仅显示被过滤的笔记",
@@ -5689,9 +5685,9 @@
                 ],
               },
               {
-                type: "forms",
+                type: "container",
                 text: "",
-                forms: [
+                views: [
                   UIButton("数据导入", "导入自定义规则数据", "导入", void 0, false, false, "primary", () => {
                     XHSArticleFilter.$data.videoFilterRuleStorage.importRules();
                   }),
@@ -5705,11 +5701,11 @@
           {
             text: "劫持/拦截",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [UISwitch("劫持Vue", "pc-xhs-hook-vue", true, void 0, "恢复__vue__属性")],
+                type: "container",
+                views: [UISwitch("劫持Vue", "pc-xhs-hook-vue", true, void 0, "恢复__vue__属性")],
               },
             ],
           },
@@ -5775,11 +5771,11 @@
   const SettingUI_Article = {
     id: "xhs-panel-config-article",
     title: "笔记",
-    forms: [
+    views: [
       {
-        type: "forms",
+        type: "container",
         text: "功能",
-        forms: [
+        views: [
           UISwitch(
             "显示发布、修改的绝对时间",
             "pc-xhs-article-showPubsliushTime",
@@ -5791,8 +5787,8 @@
       },
       {
         text: "笔记宽屏",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UISwitch(
             "启用",
             "pc-xhs-article-fullWidth",
@@ -5826,19 +5822,19 @@
   const MSettingUI_Common = {
     id: "little-red-book-panel-config-common",
     title: "通用",
-    forms: [
+    views: [
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "Toast配置",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISelect(
                     "Toast位置",
                     "qmsg-config-position",
@@ -5924,16 +5920,16 @@
       },
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "屏蔽",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("【屏蔽】广告", "little-red-book-shieldAd", true, void 0, "如：App内打开"),
                   UISwitch("【屏蔽】底部搜索发现", "little-red-book-shieldBottomSearchFind", true, void 0, "建议开启"),
                   UISwitch("【屏蔽】底部工具栏", "little-red-book-shieldBottomToorBar", true, void 0, "建议开启"),
@@ -5948,19 +5944,19 @@
   const MSettingUI_Home = {
     id: "little-red-book-panel-config-home",
     title: "主页",
-    forms: [
+    views: [
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "劫持/拦截",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("劫持点击事件", "little-red-book-repariClick", true, void 0, "可阻止点击跳转至下载页面"),
                 ],
               },
@@ -5973,19 +5969,19 @@
   const MSettingUI_Notes = {
     id: "little-red-book-panel-config-note",
     title: "笔记",
-    forms: [
+    views: [
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "视频笔记",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     "优化视频描述",
                     "little-red-book-optimizeVideoNoteDesc",
@@ -6003,16 +5999,16 @@
       },
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "功能",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     "优化评论浏览",
                     "little-red-book-optimizeCommentBrowsing",
@@ -6029,11 +6025,11 @@
           {
             text: "劫持/拦截",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     "劫持webpack-弹窗",
                     "little-red-book-hijack-webpack-mask",

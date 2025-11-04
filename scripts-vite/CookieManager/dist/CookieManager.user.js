@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CookieManager
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.1
+// @version      2025.11.4
 // @author       WhiteSevs
 // @description  简单而强大的Cookie编辑器，允许您快速创建、编辑和删除Cookie
 // @license      GPL-3.0-only
@@ -9,10 +9,10 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @connect      *
 // @grant        GM.cookie
@@ -609,7 +609,7 @@
         if (!config.attributes) {
           return;
         }
-        if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
+        if (config.type === "button" || config.type === "container" || config.type === "deepMenu") {
           return;
         }
         const attributes = config.attributes;
@@ -651,19 +651,19 @@
         for (let index = 0; index < configList.length; index++) {
           let configItem = configList[index];
           initDefaultValue(configItem);
-          let child_forms = configItem.forms;
-          if (child_forms && Array.isArray(child_forms)) {
-            loopInitDefaultValue(child_forms);
+          let childViews = configItem.views;
+          if (childViews && Array.isArray(childViews)) {
+            loopInitDefaultValue(childViews);
           }
         }
       };
       const contentConfigList = [...PanelContent.getAllContentConfig()];
       for (let index = 0; index < contentConfigList.length; index++) {
         let leftContentConfigItem = contentConfigList[index];
-        if (!leftContentConfigItem.forms) {
+        if (!leftContentConfigItem.views) {
           continue;
         }
-        const rightContentConfigList = leftContentConfigItem.forms;
+        const rightContentConfigList = leftContentConfigItem.views;
         if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
           loopInitDefaultValue(rightContentConfigList);
         }
@@ -1140,6 +1140,7 @@
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
 						`,
           });
+          const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
           domUtils.on($item, "click", (clickItemEvent) => {
             const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
@@ -1159,12 +1160,8 @@
                 const $findDeepMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")).find(
                     ($deepMenu) => {
-                      const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
-                      return (
-                        typeof __formConfig__ === "object" &&
-                        __formConfig__ != null &&
-                        __formConfig__.text === target.name
-                      );
+                      const viewConfig = Reflect.get($deepMenu, panelHandlerComponents.$data.nodeStoreConfigKey);
+                      return typeof viewConfig === "object" && viewConfig != null && viewConfig.text === target.name;
                     }
                   );
                 }, 2500);
@@ -1185,8 +1182,8 @@
                 const $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)).find(
                     ($menuItem) => {
-                      const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
-                      return __formConfig__ === target.matchedData?.formConfig;
+                      const viewConfig = Reflect.get($menuItem, panelHandlerComponents.$data.nodeStoreConfigKey);
+                      return viewConfig === target.matchedData?.formConfig;
                     }
                   );
                 }, 2500);
@@ -1219,7 +1216,7 @@
           const loopContentConfig = (configList, path) => {
             for (let index = 0; index < configList.length; index++) {
               const configItem = configList[index];
-              const child_forms = configItem.forms;
+              const child_forms = configItem.views;
               if (child_forms && Array.isArray(child_forms)) {
                 const deepMenuPath = utils.deepClone(path);
                 if (configItem.type === "deepMenu") {
@@ -1316,13 +1313,13 @@
           };
           for (let index = 0; index < content.length; index++) {
             const leftContentConfigItem = content[index];
-            if (!leftContentConfigItem.forms) {
+            if (!leftContentConfigItem.views) {
               continue;
             }
             if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") {
               continue;
             }
-            const rightContentConfigList = leftContentConfigItem.forms;
+            const rightContentConfigList = leftContentConfigItem.views;
             if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
               let text = leftContentConfigItem.title;
               if (typeof text === "function") {
@@ -1960,7 +1957,7 @@
           id: "script-version",
           title: `版本：${_GM_info?.script?.version || "未知"}`,
           isBottom: true,
-          forms: [],
+          views: [],
           clickFirstCallback() {
             return false;
           },
@@ -3653,8 +3650,8 @@
               }
               try {
                 $ulist_li.forEach(($li) => {
-                  let formConfig = Reflect.get($li, "__formConfig__");
-                  let attrs = Reflect.get(formConfig, "attributes");
+                  let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+                  let attrs = Reflect.get(viewConfig, "attributes");
                   let storageApi = Reflect.get($li, PROPS_STORAGE_API);
                   let key = Reflect.get(attrs, ATTRIBUTE_KEY);
                   let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
@@ -5165,20 +5162,20 @@
     id: "view-rule",
     title: "规则",
     headerTitle: "Cookie操作规则",
-    forms: [
+    views: [
       {
-        type: "forms",
+        type: "container",
         text: "",
-        forms: [
+        views: [
           UIButton("自定义规则", "操作Cookie的规则", "管理", void 0, false, false, "default", () => {
             CookieRule.showView();
           }),
         ],
       },
       {
-        type: "forms",
+        type: "container",
         text: "",
-        forms: [
+        views: [
           UIButton("数据导入", "导入自定义规则数据", "导入", void 0, false, false, "primary", () => {
             CookieRule.importRule();
           }),
@@ -5192,11 +5189,11 @@
   const Component_Common = {
     id: "view-general",
     title: "通用",
-    forms: [
+    views: [
       {
         text: "Toast配置",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UISelect(
             "Toast位置",
             PanelSettingConfig.qmsg_config_position.key,

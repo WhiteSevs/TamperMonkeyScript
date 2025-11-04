@@ -5,19 +5,19 @@ import { UISwitch } from "@components/setting/components/ui-switch";
 export const SettingUIUsers: PopsPanelContentConfig = {
   id: "greasy-fork-panel-config-account",
   title: i18next.t("用户"),
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: i18next.t("功能"),
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   i18next.t("迁移【控制台】到顶部导航栏"),
                   "users-changeConsoleToTopNavigator",
@@ -32,11 +32,11 @@ export const SettingUIUsers: PopsPanelContentConfig = {
         {
           text: i18next.t("美化"),
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   i18next.t("美化私信页面"),
                   "conversations-beautifyDialogBox",

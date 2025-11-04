@@ -25,7 +25,7 @@ export const Image = {
     let imageElement = imgList[0];
     let imageUrl = imageElement.src;
     pops.rightClickMenu({
-      target: unsafeWindow,
+      $target: unsafeWindow,
       data: [
         {
           icon: pops.config.iconSVG.documentCopy,

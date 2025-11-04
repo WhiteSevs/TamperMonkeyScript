@@ -8,19 +8,19 @@ export const SettingUISpace: PopsPanelContentConfig = {
   isDefault() {
     return BilibiliRouter.isSpace();
   },
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "功能",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   "修复正确跳转",
                   "bili-space-repairRealJump",
@@ -35,11 +35,11 @@ export const SettingUISpace: PopsPanelContentConfig = {
         {
           text: "覆盖点击事件",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   "动态视频",
                   "bili-space-coverDynamicStateCardVideo",

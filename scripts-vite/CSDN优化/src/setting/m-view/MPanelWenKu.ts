@@ -8,11 +8,11 @@ const MSettingUIWenKu: PopsPanelContentConfig = {
   isDefault() {
     return CSDNRouter.isWenKu();
   },
-  forms: [
+  views: [
     {
       text: "屏蔽",
-      type: "forms",
-      forms: [UISwitch("【屏蔽】底部工具栏", "m-csdn-wenku-shieldBottomToolbar", false)],
+      type: "container",
+      views: [UISwitch("【屏蔽】底部工具栏", "m-csdn-wenku-shieldBottomToolbar", false)],
     },
   ],
 };

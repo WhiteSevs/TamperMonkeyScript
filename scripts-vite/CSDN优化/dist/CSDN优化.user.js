@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.1
+// @version      2025.11.4
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -9,10 +9,10 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*.csdn.net/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @connect      blog.csdn.net
 // @connect      mp-action.csdn.net
 // @grant        GM_deleteValue
@@ -1021,7 +1021,7 @@
           id: "script-version",
           title: `版本：${_GM_info?.script?.version || "未知"}`,
           isBottom: true,
-          forms: [],
+          views: [],
           clickFirstCallback() {
             return false;
           },
@@ -1163,7 +1163,7 @@
         if (!config.attributes) {
           return;
         }
-        if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
+        if (config.type === "button" || config.type === "container" || config.type === "deepMenu") {
           return;
         }
         const attributes = config.attributes;
@@ -1205,19 +1205,19 @@
         for (let index = 0; index < configList.length; index++) {
           let configItem = configList[index];
           initDefaultValue(configItem);
-          let child_forms = configItem.forms;
-          if (child_forms && Array.isArray(child_forms)) {
-            loopInitDefaultValue(child_forms);
+          let childViews = configItem.views;
+          if (childViews && Array.isArray(childViews)) {
+            loopInitDefaultValue(childViews);
           }
         }
       };
       const contentConfigList = [...PanelContent.getAllContentConfig()];
       for (let index = 0; index < contentConfigList.length; index++) {
         let leftContentConfigItem = contentConfigList[index];
-        if (!leftContentConfigItem.forms) {
+        if (!leftContentConfigItem.views) {
           continue;
         }
-        const rightContentConfigList = leftContentConfigItem.forms;
+        const rightContentConfigList = leftContentConfigItem.views;
         if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
           loopInitDefaultValue(rightContentConfigList);
         }
@@ -1694,6 +1694,7 @@
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
 						`,
           });
+          const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
           domUtils.on($item, "click", (clickItemEvent) => {
             const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
@@ -1713,12 +1714,8 @@
                 const $findDeepMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")).find(
                     ($deepMenu) => {
-                      const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
-                      return (
-                        typeof __formConfig__ === "object" &&
-                        __formConfig__ != null &&
-                        __formConfig__.text === target.name
-                      );
+                      const viewConfig = Reflect.get($deepMenu, panelHandlerComponents.$data.nodeStoreConfigKey);
+                      return typeof viewConfig === "object" && viewConfig != null && viewConfig.text === target.name;
                     }
                   );
                 }, 2500);
@@ -1739,8 +1736,8 @@
                 const $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)).find(
                     ($menuItem) => {
-                      const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
-                      return __formConfig__ === target.matchedData?.formConfig;
+                      const viewConfig = Reflect.get($menuItem, panelHandlerComponents.$data.nodeStoreConfigKey);
+                      return viewConfig === target.matchedData?.formConfig;
                     }
                   );
                 }, 2500);
@@ -1773,7 +1770,7 @@
           const loopContentConfig = (configList, path) => {
             for (let index = 0; index < configList.length; index++) {
               const configItem = configList[index];
-              const child_forms = configItem.forms;
+              const child_forms = configItem.views;
               if (child_forms && Array.isArray(child_forms)) {
                 const deepMenuPath = utils.deepClone(path);
                 if (configItem.type === "deepMenu") {
@@ -1870,13 +1867,13 @@
           };
           for (let index = 0; index < content.length; index++) {
             const leftContentConfigItem = content[index];
-            if (!leftContentConfigItem.forms) {
+            if (!leftContentConfigItem.views) {
               continue;
             }
             if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") {
               continue;
             }
-            const rightContentConfigList = leftContentConfigItem.forms;
+            const rightContentConfigList = leftContentConfigItem.views;
             if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
               let text = leftContentConfigItem.title;
               if (typeof text === "function") {
@@ -3437,11 +3434,11 @@
   const SettingUICommon = {
     id: "component-common",
     title: "通用",
-    forms: [
+    views: [
       {
         text: "Toast配置",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UISelect(
             "Toast位置",
             "qmsg-config-position",
@@ -3584,27 +3581,27 @@
     isDefault() {
       return CSDNRouter.isBlog();
     },
-    forms: [
+    views: [
       {
-        type: "forms",
+        type: "container",
         text: "",
-        forms: [
+        views: [
           {
             type: "deepMenu",
             text: "文章",
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: "",
-                forms: [
+                views: [
                   {
                     text: "布局屏蔽",
                     type: "deepMenu",
-                    forms: [
+                    views: [
                       {
                         text: "",
-                        type: "forms",
-                        forms: [
+                        type: "container",
+                        views: [
                           UISwitch("【屏蔽】登录弹窗", "csdn-blog-shieldLoginDialog", true),
                           UISwitch("【屏蔽】左侧博客信息", "csdn-blog-shieldLeftBlogContainerAside", false),
                           UISwitch("【屏蔽】右侧目录信息", "csdn-blog-shieldRightDirectoryInformation", false),
@@ -3616,11 +3613,11 @@
                   {
                     text: "右侧悬浮工具栏",
                     type: "deepMenu",
-                    forms: [
+                    views: [
                       {
                         text: "功能",
-                        type: "forms",
-                        forms: [
+                        type: "container",
+                        views: [
                           UISwitch(
                             "启用",
                             "csdn-blog-rightToolbarEnable",
@@ -3671,8 +3668,8 @@
                       },
                       {
                         text: "屏蔽",
-                        type: "forms",
-                        forms: [
+                        type: "container",
+                        views: [
                           UISwitch("【屏蔽】创作中心", "csdn-blog-rightToolbarCreativeCenter", false),
                           UISwitch("【屏蔽】显示/隐藏侧栏", "csdn-blog-rightToolbarShowOrSidebar", false),
                           UISwitch("【屏蔽】新手引导", "csdn-blog-rightToolbarBeginnerGuidance", false),
@@ -3686,11 +3683,11 @@
                   {
                     text: "内容",
                     type: "deepMenu",
-                    forms: [
+                    views: [
                       {
                         text: "功能",
-                        type: "forms",
-                        forms: [
+                        type: "container",
+                        views: [
                           UISwitch(
                             "点击代码块自动展开",
                             "csdn-blog-clickPreCodeAutomatically",
@@ -3728,8 +3725,8 @@
                       },
                       {
                         text: "屏蔽",
-                        type: "forms",
-                        forms: [
+                        type: "container",
+                        views: [
                           UISwitch("【屏蔽】底部xx技能树", "csdn-blog-shieldBottomSkillTree", false),
                           UISwitch(
                             "【屏蔽】选中文字悬浮栏",
@@ -3745,11 +3742,11 @@
                   {
                     text: "评论区",
                     type: "deepMenu",
-                    forms: [
+                    views: [
                       {
                         text: "",
-                        type: "forms",
-                        forms: [
+                        type: "container",
+                        views: [
                           UISwitch("启用", "csdn-blog-blockComment", true, void 0, "关闭是屏蔽评论区"),
                           UISwitch("优化评论区的位置", "csdn-blog-restoreComments", true),
                         ],
@@ -3759,11 +3756,11 @@
                   {
                     text: "底部文章",
                     type: "deepMenu",
-                    forms: [
+                    views: [
                       {
                         text: "",
-                        type: "forms",
-                        forms: [
+                        type: "container",
+                        views: [
                           UISwitch(
                             "启用",
                             "csdn-blog-bottomRecommendArticleEnable",
@@ -3791,27 +3788,27 @@
       },
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "全局布局屏蔽",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [UISwitch("【屏蔽】顶部工具栏", "csdn-blog-shieldTopToolbar", false)],
+                type: "container",
+                views: [UISwitch("【屏蔽】顶部工具栏", "csdn-blog-shieldTopToolbar", false)],
               },
             ],
           },
           {
             text: "劫持/拦截",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("拦截-复制的小尾巴", "csdn-blog-removeClipboardHijacking", true),
                   UISwitch("劫持-禁止复制", "csdn-blog-unBlockCopy", true, void 0, "允许点击复制按钮进行复制"),
                 ],
@@ -3828,11 +3825,11 @@
     isDefault() {
       return CSDNRouter.isLink();
     },
-    forms: [
+    views: [
       {
         text: "功能",
-        type: "forms",
-        forms: [UISwitch("重定向链接", "csdn-link-jumpRedirect", true, void 0, "自动跳转至被拦截的Url链接")],
+        type: "container",
+        views: [UISwitch("重定向链接", "csdn-link-jumpRedirect", true, void 0, "自动跳转至被拦截的Url链接")],
       },
     ],
   };
@@ -3842,16 +3839,16 @@
     isDefault() {
       return CSDNRouter.isHuaWeiCloudBlog();
     },
-    forms: [
+    views: [
       {
         text: "功能",
-        type: "forms",
-        forms: [UISwitch("自动展开全文", "csdn-hua-wei-cloud-autoExpandContent", true)],
+        type: "container",
+        views: [UISwitch("自动展开全文", "csdn-hua-wei-cloud-autoExpandContent", true)],
       },
       {
         text: "屏蔽",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UISwitch("【屏蔽】云开发者任务挑战活动", "csdn-hua-wei-cloud-shieldCloudDeveloperTaskChallengeEvent", true),
           UISwitch(
             "【屏蔽】左侧悬浮按钮",
@@ -3880,11 +3877,11 @@
     isDefault() {
       return CSDNRouter.isLink();
     },
-    forms: [
+    views: [
       {
         text: "屏蔽",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UISwitch("【屏蔽】资源推荐", "csdn-wenku-shieldResourceRecommend", false),
           UISwitch("【屏蔽】右侧用户信息", "csdn-wenku-shieldRightUserInfo", false),
           UISwitch("【屏蔽】右侧悬浮工具栏", "csdn-wenku-shieldRightToolBar", false),
@@ -3898,22 +3895,22 @@
     isDefault() {
       return CSDNRouter.isSo();
     },
-    forms: [
+    views: [
       {
         text: "C知道-功能",
-        type: "forms",
-        forms: [UISwitch("去除水印", "csdn-so-cknow-removeMaskCover", true)],
+        type: "container",
+        views: [UISwitch("去除水印", "csdn-so-cknow-removeMaskCover", true)],
       },
     ],
   };
   const MSettingUICommon = {
     id: "component-common",
     title: "通用",
-    forms: [
+    views: [
       {
         text: "Toast配置",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UISelect(
             "Toast位置",
             "qmsg-config-position",
@@ -4001,27 +3998,27 @@
     isDefault() {
       return CSDNRouter.isBlog();
     },
-    forms: [
+    views: [
       {
-        type: "forms",
+        type: "container",
         text: "",
-        forms: [
+        views: [
           {
             type: "deepMenu",
             text: "文章",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   {
                     type: "deepMenu",
                     text: "顶部工具栏",
-                    forms: [
+                    views: [
                       {
-                        type: "forms",
+                        type: "container",
                         text: "",
-                        forms: [
+                        views: [
                           UISwitch("启用", "m-csdn-blog-shieldTopToolbar", false, void 0, "关闭是屏蔽顶部工具栏"),
                         ],
                       },
@@ -4030,11 +4027,11 @@
                   {
                     text: "内容",
                     type: "deepMenu",
-                    forms: [
+                    views: [
                       {
                         text: "",
-                        type: "forms",
-                        forms: [
+                        type: "container",
+                        views: [
                           UISwitch(
                             "允许选中文字",
                             "m-csdn-blog-allowSelectText",
@@ -4057,11 +4054,11 @@
                   {
                     text: "评论",
                     type: "deepMenu",
-                    forms: [
+                    views: [
                       {
                         text: "",
-                        type: "forms",
-                        forms: [
+                        type: "container",
+                        views: [
                           UISwitch("启用", "m-csdn-blog-comment-enable", true, void 0, "关闭是屏蔽评论区"),
                           UISwitch(
                             "不限制评论区的最大高度",
@@ -4077,11 +4074,11 @@
                   {
                     text: "底部文章",
                     type: "deepMenu",
-                    forms: [
+                    views: [
                       {
                         text: "",
-                        type: "forms",
-                        forms: [
+                        type: "container",
+                        views: [
                           UISwitch("启用", "m-csdn-blog-bottomArticleEnable", true, void 0, "关闭是屏蔽底部文章"),
                           UISwitch(
                             "移除资源下载",
@@ -4099,11 +4096,11 @@
                   {
                     type: "deepMenu",
                     text: "底部工具栏",
-                    forms: [
+                    views: [
                       {
-                        type: "forms",
+                        type: "container",
                         text: "",
-                        forms: [
+                        views: [
                           UISwitch("启用", "m-csdn-blog-bottom-toolbar-enable", false, void 0, "关闭是屏蔽底部工具栏"),
                           UISwitch(
                             "常驻底部",
@@ -4130,17 +4127,17 @@
         ],
       },
       {
-        type: "forms",
+        type: "container",
         text: "",
-        forms: [
+        views: [
           {
             text: "功能",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     "【屏蔽】广告",
                     "m-csdn-blog-removeAds",
@@ -4163,11 +4160,11 @@
     isDefault() {
       return CSDNRouter.isLink();
     },
-    forms: [
+    views: [
       {
         text: "功能",
-        type: "forms",
-        forms: [UISwitch("重定向链接", "m-csdn-link-jumpRedirect", true, void 0, "自动跳转至被拦截的Url链接")],
+        type: "container",
+        views: [UISwitch("重定向链接", "m-csdn-link-jumpRedirect", true, void 0, "自动跳转至被拦截的Url链接")],
       },
     ],
   };
@@ -4177,16 +4174,16 @@
     isDefault() {
       return CSDNRouter.isHuaWeiCloudBlog();
     },
-    forms: [
+    views: [
       {
         text: "功能",
-        type: "forms",
-        forms: [UISwitch("自动展开全文", "m-csdn-hua-wei-cloud-autoExpandContent", true)],
+        type: "container",
+        views: [UISwitch("自动展开全文", "m-csdn-hua-wei-cloud-autoExpandContent", true)],
       },
       {
         text: "屏蔽",
-        type: "forms",
-        forms: [UISwitch("【屏蔽】底部加入社区", "m-csdn-hua-wei-cloud-blockBottomJoinTheCommunity", true)],
+        type: "container",
+        views: [UISwitch("【屏蔽】底部加入社区", "m-csdn-hua-wei-cloud-blockBottomJoinTheCommunity", true)],
       },
     ],
   };
@@ -4196,11 +4193,11 @@
     isDefault() {
       return CSDNRouter.isWenKu();
     },
-    forms: [
+    views: [
       {
         text: "屏蔽",
-        type: "forms",
-        forms: [UISwitch("【屏蔽】底部工具栏", "m-csdn-wenku-shieldBottomToolbar", false)],
+        type: "container",
+        views: [UISwitch("【屏蔽】底部工具栏", "m-csdn-wenku-shieldBottomToolbar", false)],
       },
     ],
   };
@@ -4210,11 +4207,11 @@
     isDefault() {
       return CSDNRouter.isSo();
     },
-    forms: [
+    views: [
       {
         text: "C知道-功能",
-        type: "forms",
-        forms: [UISwitch("去除水印", "m-csdn-so-cknow-removeMaskCover", true)],
+        type: "container",
+        views: [UISwitch("去除水印", "m-csdn-so-cknow-removeMaskCover", true)],
       },
     ],
   };
@@ -4224,11 +4221,11 @@
     isDefault() {
       return CSDNRouter.isDownload();
     },
-    forms: [
+    views: [
       {
         text: "功能",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UISwitch(
             "自动展开资源介绍",
             "m-csdn-download-automaticallyExpandResourceIntroduction",
@@ -4240,8 +4237,8 @@
       },
       {
         text: "屏蔽",
-        type: "forms",
-        forms: [UISwitch("【屏蔽】广告", "m-csdn-download-removeAds", true, void 0, "包括：登录弹窗、会员降价等")],
+        type: "container",
+        views: [UISwitch("【屏蔽】广告", "m-csdn-download-removeAds", true, void 0, "包括：登录弹窗、会员降价等")],
       },
     ],
   };

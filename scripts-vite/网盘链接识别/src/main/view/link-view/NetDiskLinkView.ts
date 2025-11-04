@@ -7,23 +7,13 @@ import {
   NetDiskCheckLinkValidity,
   type NetDiskCheckLinkValidityInfoConfig,
 } from "../../check-valid/NetDiskCheckLinkValidity";
-import {
-  PopsRightClickMenuDataDetails,
-  PopsRightClickMenuDetails,
-} from "@whitesev/pops/dist/types/src/components/rightClickMenu/types/index";
-import Qmsg from "qmsg";
+import { PopsRightClickMenuDataConfig } from "@whitesev/pops/dist/types/src/components/rightClickMenu/types/index";
 import { NetDiskSuspensionConfig } from "../suspension/NetDiskSuspensionView";
-import { NetDiskLinkClickMode, NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
-import { NetDiskRuleData } from "@/main/data/NetDiskRuleData";
 import indexCSS from "./index.css?raw";
 import { GenerateData } from "@/main/data/NetDiskGenerateDataUtils";
-import { NetDiskFilterScheme } from "../../scheme/NetDiskFilterScheme";
-import { CommonUtil } from "@components/utils/CommonUtil";
-import { NetDiskViewRightClickMenu } from "../NetDiskViewRightClickMenu";
 import { type Paging } from "@whitesev/data-paging/dist/types/src/index";
 import { NetDiskLinkViewData } from "./NetDiskLinkViewData";
 import { NetDiskLinkViewEvent } from "./NetDiskLinkViewEvent";
-import type { PagingConfig } from "@whitesev/data-paging/dist/types/src/types/config";
 
 /**
  * 传递给生成需要的网盘参数数据
@@ -73,11 +63,11 @@ export type LinkViewItemInfo = {
  * 注册右侧菜单需要传递的配置
  */
 export type LinkViewRegisterContextMenuShowTextOption = Pick<
-  PopsRightClickMenuDataDetails,
+  PopsRightClickMenuDataConfig,
   "text" | "callback" | "item"
 > & {
-  icon?: PopsRightClickMenuDataDetails["icon"];
-  iconIsLoading?: PopsRightClickMenuDataDetails["iconIsLoading"];
+  icon?: PopsRightClickMenuDataConfig["icon"];
+  iconIsLoading?: PopsRightClickMenuDataConfig["iconIsLoading"];
 };
 
 export type LinkViewData = {

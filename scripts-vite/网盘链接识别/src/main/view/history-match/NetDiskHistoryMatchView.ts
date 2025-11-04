@@ -289,7 +289,7 @@ export const NetDiskHistoryMatchView = {
       let $btnOther = target.querySelector<HTMLElement>(".pops-confirm-btn-other")!;
       /* 删除中的遮罩层 */
       let deleteLoading = NetDiskPops.loading({
-        parent: that.getLinkContainer(),
+        $parent: that.getLinkContainer(),
         content: {
           text: "删除中...",
         },
@@ -360,7 +360,7 @@ export const NetDiskHistoryMatchView = {
       }
       isSeaching = true;
       $searchLoading = NetDiskPops.loading({
-        parent: that.getLinkContainer(),
+        $parent: that.getLinkContainer(),
         content: {
           text: "搜索中...",
         },

@@ -12,19 +12,19 @@ import Utils from "@whitesev/utils";
 export const Component_Common: PopsPanelContentConfig = {
   id: "component-common",
   title: "通用",
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "Toast配置",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISelect(
                   "Toast位置",
                   "qmsg-config-position",
@@ -109,11 +109,11 @@ export const Component_Common: PopsPanelContentConfig = {
         {
           text: "Cookie配置",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("启用", "httpx-use-cookie-enable", false, void 0, "启用后，将根据下面的配置进行添加cookie"),
                 UISwitch(
                   "使用document.cookie",
@@ -138,16 +138,16 @@ export const Component_Common: PopsPanelContentConfig = {
     },
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "功能",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   "文本转超链接",
                   "mt-link-text-to-hyperlink",
@@ -165,11 +165,11 @@ export const Component_Common: PopsPanelContentConfig = {
         {
           text: "额外菜单项",
           type: "deepMenu",
-          forms: [
+          views: [
             {
-              type: "forms",
+              type: "container",
               text: "",
-              forms: [
+              views: [
                 UISwitch("小黑屋", "mt-black-home", true, void 0, "将会在左侧面板添加【小黑屋】菜单"),
                 UISwitch("在线用户", "mt-online-user", true, void 0, "将会在左侧面板添加【在线用户】菜单"),
                 UISwitch(
@@ -202,11 +202,11 @@ export const Component_Common: PopsPanelContentConfig = {
         {
           text: "头像",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "<a href='https://ezgif.com/resize' target='_blank'>Resize Image</a>",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UIOwn(
                   ($li) => {
                     const $left = DOMUtils.createElement("div", {

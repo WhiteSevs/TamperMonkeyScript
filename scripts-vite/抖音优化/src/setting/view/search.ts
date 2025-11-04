@@ -7,19 +7,19 @@ import { PopsPanelStorageApi } from "@components/setting/panel-storage";
 export const PanelSearchConfig: PopsPanelContentConfig = {
   id: "panel-config-search",
   title: "搜索",
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "功能",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   "禁止点击视频区域进入全屏",
                   "dy-search-disableClickToEnterFullScreen",
@@ -77,17 +77,17 @@ export const PanelSearchConfig: PopsPanelContentConfig = {
     },
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "布局屏蔽",
           type: "deepMenu",
           afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-          forms: [
+          views: [
             {
               text: AutoOpenOrClose.text,
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   "【屏蔽】相关搜索",
                   "douyin-search-shieldReleatedSearches",
@@ -110,11 +110,11 @@ export const PanelSearchConfig: PopsPanelContentConfig = {
         {
           text: "布局屏蔽-左侧导航栏",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISelect(
                   "【屏蔽】左侧导航栏",
                   "search-shieldLeftNavigator",
@@ -143,11 +143,11 @@ export const PanelSearchConfig: PopsPanelContentConfig = {
         {
           text: "布局屏蔽-顶部导航栏",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISelect(
                   "【屏蔽】顶部导航栏",
                   "search-shieldTopNavigator",

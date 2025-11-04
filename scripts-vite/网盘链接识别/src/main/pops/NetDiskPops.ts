@@ -1,13 +1,13 @@
 import { NetDiskView } from "../view/NetDiskView";
 import { pops, utils } from "@/env";
-import type { PopsPanelDetails } from "@whitesev/pops/dist/types/src/components/panel/types/index";
-import { PopsLoadingDetails } from "@whitesev/pops/dist/types/src/components/loading/types/index";
-import { PopsConfirmDetails } from "@whitesev/pops/dist/types/src/components/confirm/types/index";
-import { PopsFolderDetails } from "@whitesev/pops/dist/types/src/components/folder/types/index";
-import { PopsAlertDetails } from "@whitesev/pops/dist/types/src/components/alert/types/index";
-import { PopsPromptDetails } from "@whitesev/pops/dist/types/src/components/prompt/types/index";
+import type { PopsPanelConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import { PopsLoadingConfig } from "@whitesev/pops/dist/types/src/components/loading/types/index";
+import { PopsConfirmConfig } from "@whitesev/pops/dist/types/src/components/confirm/types/index";
+import { PopsFolderConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
+import { PopsAlertConfig } from "@whitesev/pops/dist/types/src/components/alert/types/index";
+import { PopsPromptConfig } from "@whitesev/pops/dist/types/src/components/prompt/types/index";
 import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
-import { PopsRightClickMenuDetails } from "@whitesev/pops/dist/types/src/components/rightClickMenu/types/index";
+import { PopsRightClickMenuConfig } from "@whitesev/pops/dist/types/src/components/rightClickMenu/types/index";
 import type { PopsAnimation } from "@whitesev/pops/dist/types/src/types/animation";
 
 export type PopsSizeConfig = {
@@ -41,7 +41,7 @@ export const NetDiskPops = {
    * @param details 配置
    * @param sizeConfig 大小配置
    */
-  alert(details: NetDiskPopsDetails<PopsAlertDetails>, sizeConfig?: PopsSizeConfig) {
+  alert(details: NetDiskPopsDetails<PopsAlertConfig>, sizeConfig?: PopsSizeConfig) {
     const config = this.handleDetails(details, sizeConfig);
     return pops.alert(config);
   },
@@ -50,7 +50,7 @@ export const NetDiskPops = {
    * @param details 配置
    * @param sizeConfig 大小配置
    */
-  confirm(details: NetDiskPopsDetails<PopsConfirmDetails>, sizeConfig?: PopsSizeConfig) {
+  confirm(details: NetDiskPopsDetails<PopsConfirmConfig>, sizeConfig?: PopsSizeConfig) {
     const config = this.handleDetails(details, sizeConfig);
     return pops.confirm(config);
   },
@@ -58,7 +58,7 @@ export const NetDiskPops = {
    * 加载层
    * @param details 配置
    */
-  loading(details: NetDiskPopsDetails<PopsLoadingDetails>) {
+  loading(details: NetDiskPopsDetails<PopsLoadingConfig>) {
     if (typeof details["animation"] === "undefined") {
       details["animation"] = NetDiskGlobalData.pops.popsAnimation.value as PopsAnimation;
     }
@@ -72,7 +72,7 @@ export const NetDiskPops = {
    * @param details 配置
    * @param sizeConfig 大小配置
    */
-  prompt(details: NetDiskPopsDetails<PopsPromptDetails>, sizeConfig?: PopsSizeConfig) {
+  prompt(details: NetDiskPopsDetails<PopsPromptConfig>, sizeConfig?: PopsSizeConfig) {
     const config = this.handleDetails(details, sizeConfig);
     return pops.prompt(config);
   },
@@ -80,8 +80,8 @@ export const NetDiskPops = {
    * 文件夹
    * @param details 配置
    */
-  folder(details: Omit<NetDiskPopsDetails<PopsFolderDetails>, "sort">, sizeConfig?: PopsSizeConfig) {
-    const config = this.handleDetails(details, sizeConfig) as PopsFolderDetails;
+  folder(details: Omit<NetDiskPopsDetails<PopsFolderConfig>, "sort">, sizeConfig?: PopsSizeConfig) {
+    const config = this.handleDetails(details, sizeConfig) as PopsFolderConfig;
     config["sort"] = {
       name: NetDiskGlobalData.popsFolder["pops-folder-sort-name"].value,
       isDesc: NetDiskGlobalData.popsFolder["pops-folder-sort-is-desc"].value,
@@ -96,14 +96,14 @@ export const NetDiskPops = {
    * 菜单面板
    * @param details 配置
    */
-  panel(details: NetDiskPopsDetails<PopsPanelDetails>, sizeConfig?: PopsSizeConfig) {
+  panel(details: NetDiskPopsDetails<PopsPanelConfig>, sizeConfig?: PopsSizeConfig) {
     const config = this.handleDetails(details, sizeConfig);
     return pops.panel(config);
   },
   /**
    * 右键菜单
    */
-  rightClickMenu(details: NetDiskPopsDetails<PopsRightClickMenuDetails>) {
+  rightClickMenu(details: NetDiskPopsDetails<PopsRightClickMenuConfig>) {
     const config = this.handleDetails(details);
     return pops.rightClickMenu(config);
   },

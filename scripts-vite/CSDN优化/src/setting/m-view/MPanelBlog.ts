@@ -10,38 +10,38 @@ const MSettingUIBlog: PopsPanelContentConfig = {
   isDefault() {
     return CSDNRouter.isBlog();
   },
-  forms: [
+  views: [
     {
-      type: "forms",
+      type: "container",
       text: "",
-      forms: [
+      views: [
         {
           type: "deepMenu",
           text: "文章",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 {
                   type: "deepMenu",
                   text: "顶部工具栏",
-                  forms: [
+                  views: [
                     {
-                      type: "forms",
+                      type: "container",
                       text: "",
-                      forms: [UISwitch("启用", "m-csdn-blog-shieldTopToolbar", false, void 0, "关闭是屏蔽顶部工具栏")],
+                      views: [UISwitch("启用", "m-csdn-blog-shieldTopToolbar", false, void 0, "关闭是屏蔽顶部工具栏")],
                     },
                   ],
                 },
                 {
                   text: "内容",
                   type: "deepMenu",
-                  forms: [
+                  views: [
                     {
                       text: "",
-                      type: "forms",
-                      forms: [
+                      type: "container",
+                      views: [
                         UISwitch("允许选中文字", "m-csdn-blog-allowSelectText", true, void 0, "设置user-select: text;"),
                         UISwitch("自动展开", "m-csdn-blog-autoExpandContent", true, void 0, "包括内容、代码块"),
                         UISwitch(
@@ -58,11 +58,11 @@ const MSettingUIBlog: PopsPanelContentConfig = {
                 {
                   text: "评论",
                   type: "deepMenu",
-                  forms: [
+                  views: [
                     {
                       text: "",
-                      type: "forms",
-                      forms: [
+                      type: "container",
+                      views: [
                         UISwitch("启用", "m-csdn-blog-comment-enable", true, void 0, "关闭是屏蔽评论区"),
                         UISwitch(
                           "不限制评论区的最大高度",
@@ -78,11 +78,11 @@ const MSettingUIBlog: PopsPanelContentConfig = {
                 {
                   text: "底部文章",
                   type: "deepMenu",
-                  forms: [
+                  views: [
                     {
                       text: "",
-                      type: "forms",
-                      forms: [
+                      type: "container",
+                      views: [
                         UISwitch("启用", "m-csdn-blog-bottomArticleEnable", true, void 0, "关闭是屏蔽底部文章"),
                         UISwitch(
                           "移除资源下载",
@@ -100,11 +100,11 @@ const MSettingUIBlog: PopsPanelContentConfig = {
                 {
                   type: "deepMenu",
                   text: "底部工具栏",
-                  forms: [
+                  views: [
                     {
-                      type: "forms",
+                      type: "container",
                       text: "",
-                      forms: [
+                      views: [
                         UISwitch("启用", "m-csdn-blog-bottom-toolbar-enable", false, void 0, "关闭是屏蔽底部工具栏"),
                         UISwitch(
                           "常驻底部",
@@ -131,17 +131,17 @@ const MSettingUIBlog: PopsPanelContentConfig = {
       ],
     },
     {
-      type: "forms",
+      type: "container",
       text: "",
-      forms: [
+      views: [
         {
           text: "功能",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   "【屏蔽】广告",
                   "m-csdn-blog-removeAds",

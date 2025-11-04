@@ -19,20 +19,20 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
     title: "设置",
     headerTitle: "总设置",
     isDefault: true,
-    forms: [
+    views: [
       {
-        type: "forms",
+        type: "container",
         text: "",
-        forms: [
+        views: [
           {
             type: "deepMenu",
             text: "Toast",
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: "",
                 className: "netdisk-panel-forms-toast",
-                forms: [
+                views: [
                   UISelect(
                     "位置",
                     NetDiskGlobalData.toast.position.KEY,
@@ -121,12 +121,12 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
           {
             type: "deepMenu",
             text: "弹窗",
-            forms: [
+            views: [
               {
                 className: "netdisk-panel-forms-pops",
-                type: "forms",
+                type: "container",
                 text: "",
-                forms: [
+                views: [
                   UISelect(
                     "动画",
                     NetDiskGlobalData.pops.popsAnimation.KEY,
@@ -235,12 +235,12 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
           {
             type: "deepMenu",
             text: "文件弹窗",
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: "",
                 className: "netdisk-panel-forms-pops-folder",
-                forms: [
+                views: [
                   UISelect(
                     "排序名",
                     NetDiskGlobalData.popsFolder["pops-folder-sort-name"].KEY,
@@ -286,11 +286,11 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
           {
             type: "deepMenu",
             text: "悬浮按钮",
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: "",
-                forms: [
+                views: [
                   UISlider(
                     "大小",
                     NetDiskGlobalData.suspension.size.KEY,
@@ -388,11 +388,11 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
           {
             type: "deepMenu",
             text: "大/小链接弹窗",
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: "通用配置",
-                forms: [
+                views: [
                   UIInput(
                     "z-index",
                     NetDiskGlobalData.smallWindow["netdisk-link-view-z-index"].KEY,
@@ -408,9 +408,9 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
                 ],
               },
               {
-                type: "forms",
+                type: "container",
                 text: "数据分页显示",
-                forms: [
+                views: [
                   UISwitch(
                     "启用",
                     NetDiskGlobalData.smallWindow["netdisk-ui-link-view-data-paging-enable"].KEY,
@@ -430,10 +430,10 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
                 ],
               },
               {
-                type: "forms",
+                type: "container",
                 text: "小窗",
                 className: "netdisk-panel-forms-small-window",
-                forms: [
+                views: [
                   UISlider(
                     "宽度",
                     NetDiskGlobalData.smallWindow["netdisk-ui-small-window-width"].KEY,
@@ -468,18 +468,18 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
         ],
       },
       {
-        type: "forms",
+        type: "container",
         text: "",
-        forms: [
+        views: [
           {
             type: "deepMenu",
             text: "功能",
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: "",
                 className: "netdisk-panel-forms-function",
-                forms: [
+                views: [
                   UISelect(
                     "匹配模式",
                     NetDiskGlobalData.features["netdisk-match-mode"].KEY,
@@ -532,11 +532,11 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
           {
             type: "deepMenu",
             text: "匹配设置",
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: "文本匹配范围",
-                forms: [
+                views: [
                   UISelectMultiple<ArrayElementType<NetDiskWorkerOptions["matchTextRange"]>>(
                     "匹配规则类型",
                     NetDiskGlobalData.match.pageMatchRange.KEY,
@@ -603,9 +603,9 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
                 ],
               },
               {
-                type: "forms",
+                type: "container",
                 text: "MutationObserver观察器",
-                forms: [
+                views: [
                   UISlider(
                     "匹配间隔",
                     NetDiskGlobalData.match.delaytime.KEY,
@@ -654,11 +654,11 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
           {
             type: "deepMenu",
             text: "网盘图标",
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: "",
-                forms: [
+                views: [
                   UISwitch(
                     "点击定位分享码",
                     NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode"].KEY,
@@ -689,12 +689,12 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
           {
             type: "deepMenu",
             text: "历史匹配记录",
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: "",
                 className: "netdisk-panel-history-match",
-                forms: [
+                views: [
                   UISwitch(
                     "保存匹配记录",
                     NetDiskGlobalData.historyMatch.saveMatchNetDisk.KEY,
@@ -761,12 +761,12 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
           {
             type: "deepMenu",
             text: "分享码",
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: "",
                 className: "netdisk-panel-forms-share-code",
-                forms: [
+                views: [
                   UISwitch(
                     "排除分享码",
                     NetDiskGlobalData.shareCode.excludeIdenticalSharedCodes.KEY,
@@ -794,12 +794,12 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
           {
             type: "deepMenu",
             text: "访问码",
-            forms: [
+            views: [
               {
                 className: "netdisk-panel-forms-access-code",
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     "允许查询历史匹配记录",
                     NetDiskGlobalData.accessCode.allowQueryHistoryMatchingAccessCode.KEY,
@@ -815,12 +815,12 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
             type: "deepMenu",
             className: "netdisk-panel-forms-shortcut-keys-deepMenu",
             text: "快捷键",
-            forms: [
+            views: [
               {
                 className: "netdisk-panel-forms-shortcut-keys",
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UIButtonShortCut(
                     "【打开】⚙ 设置",
                     "",

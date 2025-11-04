@@ -15,7 +15,7 @@ import { UITextArea } from "@components/setting/components/ui-textarea";
 import Utils from "@whitesev/utils";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import type { UtilsAjaxHookRequestOptions } from "@whitesev/utils/dist/types/src/types/ajaxHooker";
-import type { PopsPanelSelectMultipleDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-selectMultiple";
+import type { PopsPanelSelectMultipleConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-selectMultiple";
 import type { DouYinVideoAwemeInfo, DouYinVideoHandlerInfo } from "../DouYinVideoType";
 
 type DouYinVideoFilterRuleOptionScope =
@@ -790,9 +790,9 @@ export const DouYinVideoFilter = {
                   //   text: "视频",
                   //   value: "xhr-video",
                   // },
-                ] as PopsPanelSelectMultipleDetails<DouYinVideoFilterRuleOptionScope>["data"]
+                ] as PopsPanelSelectMultipleConfig<DouYinVideoFilterRuleOptionScope>["data"]
               ).map((it) => {
-                const result: PopsPanelSelectMultipleDetails<DouYinVideoFilterRuleOptionScope>["data"]["0"] = {
+                const result: PopsPanelSelectMultipleConfig<DouYinVideoFilterRuleOptionScope>["data"]["0"] = {
                   ...it,
                   value: it.value as DouYinVideoFilterRuleOptionScope,
                 };
@@ -809,7 +809,7 @@ export const DouYinVideoFilter = {
               "选择需要在xxx上生效的作用域"
             );
             Reflect.set(scope_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-            const $scope = panelHandlerComponents.createSectionContainerItem_select_multiple_new(scope_template);
+            const $scope = panelHandlerComponents.createSectionContainerItem_select_multiple(scope_template);
 
             // const autoSendDisLikeRequest_template = UISwitch(
             // 	"是否自动发送不感兴趣请求",
@@ -895,8 +895,7 @@ export const DouYinVideoFilter = {
                 "选择需要的属性名 "
               );
               Reflect.set(ruleName_template.props!, PROPS_STORAGE_API, generateStorageApi(storageData));
-              const $ruleName =
-                panelHandlerComponents.createSectionContainerItem_select_multiple_new(ruleName_template);
+              const $ruleName = panelHandlerComponents.createSectionContainerItem_select_multiple(ruleName_template);
 
               // 自定义函数处理
               const isFunctionHandler_template_valueChange = (_: any, enableValue: boolean) => {
@@ -1043,11 +1042,11 @@ export const DouYinVideoFilter = {
               data.uuid = editData!.uuid;
             }
             $ulist_li.forEach(($li) => {
-              const formConfig = Reflect.get($li, "__formConfig__");
-              if (!formConfig) {
+              const viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+              if (!viewConfig) {
                 return;
               }
-              const attrs = Reflect.get(formConfig, "attributes");
+              const attrs = Reflect.get(viewConfig, "attributes");
               if (!attrs) {
                 return;
               }
@@ -1067,11 +1066,11 @@ export const DouYinVideoFilter = {
             $form.querySelectorAll<HTMLLIElement>(".rule-form-ulist-dynamic__inner-container").forEach(($inner) => {
               const dynamicData = {} as DouYinVideoFilterRuleDynamicOption;
               $inner.querySelectorAll(".dynamic-forms > li").forEach(($li) => {
-                const formConfig = Reflect.get($li, "__formConfig__");
-                if (!formConfig) {
+                const viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+                if (!viewConfig) {
                   return;
                 }
-                const attrs = Reflect.get(formConfig, "attributes");
+                const attrs = Reflect.get(viewConfig, "attributes");
                 if (!attrs) {
                   return;
                 }

@@ -8,9 +8,12 @@ import { NetDiskView } from "../view/NetDiskView";
 import { NetDiskPops } from "../pops/NetDiskPops";
 import { Panel } from "@components/setting/panel";
 import { NetDiskRule } from "../rule/NetDiskRule";
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import type {
+  PopsPanelContentConfig,
+  PopsPanelViewConfig,
+} from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { NetDiskRuleDataKEY, WebsiteRuleDataKey } from "../data/NetDiskRuleDataKey";
-import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-forms";
+import type { PopsPanelContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-container";
 import panelSettingCSS from "./css/index.css?raw";
 import panelIndexCSS from "./../view/setting/index.css?raw";
 import { type RulePanelContentOption, type RuleSubscribeOption } from "@components/utils/RulePanelView";
@@ -163,23 +166,23 @@ export const WebsiteRule = {
           // console.log(newPanelContentConfig);
           // 迭代遍历form配置，进行updateStorageApi
           /** 迭代遍历 */
-          function iterativeTraversal(configList: PopsPanelContentConfig["forms"]) {
+          function iterativeTraversal(configList: PopsPanelContentConfig["views"]) {
             configList.forEach((configItem) => {
               if (typeof configItem?.props === "object" && Reflect.has(configItem.props, PROPS_STORAGE_API)) {
                 // 替换存储配置
                 let panelStorageApi = generatePanelStorageApi(data.uuid);
                 Reflect.set(configItem.props, PROPS_STORAGE_API, panelStorageApi);
               }
-              let childForms = (configItem as any).forms;
-              if (childForms && Array.isArray(childForms)) {
+              let childViews = (<PopsPanelContainerConfig>configItem).views;
+              if (childViews && Array.isArray(childViews)) {
                 /* 存在子配置forms */
-                iterativeTraversal(childForms);
+                iterativeTraversal(childViews);
               }
             });
           }
           for (let index = 0; index < newPanelContentConfig.length; index++) {
             let leftContentConfigItem = newPanelContentConfig[index];
-            if (!leftContentConfigItem.forms) {
+            if (!leftContentConfigItem.views) {
               /* 不存在forms */
               continue;
             }
@@ -204,7 +207,7 @@ export const WebsiteRule = {
             }
             if (
               typeof leftContentConfigItem.attributes === "object" &&
-              leftContentConfigItem.forms != null &&
+              leftContentConfigItem.views != null &&
               ATTRIBUTE_KEY in leftContentConfigItem.attributes
             ) {
               /** 规则键 */
@@ -235,20 +238,20 @@ export const WebsiteRule = {
               );
               // 覆盖存储api
               Reflect.set(custom_accessCode_template.props!, PROPS_STORAGE_API, generatePanelStorageApi(data.uuid));
-              let custom_accessCode_container: PopsPanelFormsDetails = {
+              let custom_accessCode_container: PopsPanelContainerConfig = {
                 text: "额外功能",
-                type: "forms",
-                forms: [custom_accessCode_enable_template, custom_accessCode_template],
+                type: "container",
+                views: [custom_accessCode_enable_template, custom_accessCode_template],
               };
-              if (leftContentConfigItem.forms.length) {
+              if (leftContentConfigItem.views.length) {
                 // 添加到第一个后面
-                leftContentConfigItem.forms.splice(1, 0, custom_accessCode_container);
+                leftContentConfigItem.views.splice(1, 0, custom_accessCode_container);
               } else {
-                leftContentConfigItem.forms.push(custom_accessCode_container);
+                leftContentConfigItem.views.push(custom_accessCode_container);
               }
             }
             // 循环左侧容器内存储的右侧配置项
-            let rightContentConfigList = leftContentConfigItem.forms;
+            let rightContentConfigList = leftContentConfigItem.views;
             if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
               iterativeTraversal(rightContentConfigList);
             }
@@ -266,8 +269,8 @@ export const WebsiteRule = {
               btn: {
                 close: {
                   enable: true,
-                  callback(event) {
-                    event.close();
+                  callback(evtConfig) {
+                    evtConfig.close();
                   },
                 },
               },
@@ -319,8 +322,8 @@ export const WebsiteRule = {
         }
       }
       $ulist_li.forEach(($li) => {
-        let formConfig = Reflect.get($li, "__formConfig__");
-        let attrs = Reflect.get(formConfig, "attributes");
+        let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+        let attrs = Reflect.get(viewConfig, "attributes");
         let storageApi = Reflect.get($li, PROPS_STORAGE_API);
         let key = Reflect.get(attrs, ATTRIBUTE_KEY);
         if (key == null) {

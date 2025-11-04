@@ -4,11 +4,11 @@ import { UISwitch } from "@components/setting/components/ui-switch";
 export const SettingUIDetail: PopsPanelContentConfig = {
   id: "weibo-panel-config-detail",
   title: "正文",
-  forms: [
+  views: [
     {
       text: "功能",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISwitch(
           "修改发布时间显示为绝对时间",
           "weibo-detail-setArticleAbsoluteTime",

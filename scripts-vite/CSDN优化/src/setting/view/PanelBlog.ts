@@ -10,27 +10,27 @@ const SettingUIBlog: PopsPanelContentConfig = {
   isDefault() {
     return CSDNRouter.isBlog();
   },
-  forms: [
+  views: [
     {
-      type: "forms",
+      type: "container",
       text: "",
-      forms: [
+      views: [
         {
           type: "deepMenu",
           text: "文章",
-          forms: [
+          views: [
             {
-              type: "forms",
+              type: "container",
               text: "",
-              forms: [
+              views: [
                 {
                   text: "布局屏蔽",
                   type: "deepMenu",
-                  forms: [
+                  views: [
                     {
                       text: "",
-                      type: "forms",
-                      forms: [
+                      type: "container",
+                      views: [
                         UISwitch("【屏蔽】登录弹窗", "csdn-blog-shieldLoginDialog", true),
                         UISwitch("【屏蔽】左侧博客信息", "csdn-blog-shieldLeftBlogContainerAside", false),
                         UISwitch("【屏蔽】右侧目录信息", "csdn-blog-shieldRightDirectoryInformation", false),
@@ -42,11 +42,11 @@ const SettingUIBlog: PopsPanelContentConfig = {
                 {
                   text: "右侧悬浮工具栏",
                   type: "deepMenu",
-                  forms: [
+                  views: [
                     {
                       text: "功能",
-                      type: "forms",
-                      forms: [
+                      type: "container",
+                      views: [
                         UISwitch(
                           "启用",
                           "csdn-blog-rightToolbarEnable",
@@ -97,8 +97,8 @@ const SettingUIBlog: PopsPanelContentConfig = {
                     },
                     {
                       text: "屏蔽",
-                      type: "forms",
-                      forms: [
+                      type: "container",
+                      views: [
                         UISwitch("【屏蔽】创作中心", "csdn-blog-rightToolbarCreativeCenter", false),
                         UISwitch("【屏蔽】显示/隐藏侧栏", "csdn-blog-rightToolbarShowOrSidebar", false),
                         UISwitch("【屏蔽】新手引导", "csdn-blog-rightToolbarBeginnerGuidance", false),
@@ -112,11 +112,11 @@ const SettingUIBlog: PopsPanelContentConfig = {
                 {
                   text: "内容",
                   type: "deepMenu",
-                  forms: [
+                  views: [
                     {
                       text: "功能",
-                      type: "forms",
-                      forms: [
+                      type: "container",
+                      views: [
                         UISwitch(
                           "点击代码块自动展开",
                           "csdn-blog-clickPreCodeAutomatically",
@@ -154,8 +154,8 @@ const SettingUIBlog: PopsPanelContentConfig = {
                     },
                     {
                       text: "屏蔽",
-                      type: "forms",
-                      forms: [
+                      type: "container",
+                      views: [
                         UISwitch("【屏蔽】底部xx技能树", "csdn-blog-shieldBottomSkillTree", false),
                         UISwitch(
                           "【屏蔽】选中文字悬浮栏",
@@ -171,11 +171,11 @@ const SettingUIBlog: PopsPanelContentConfig = {
                 {
                   text: "评论区",
                   type: "deepMenu",
-                  forms: [
+                  views: [
                     {
                       text: "",
-                      type: "forms",
-                      forms: [
+                      type: "container",
+                      views: [
                         UISwitch("启用", "csdn-blog-blockComment", true, void 0, "关闭是屏蔽评论区"),
                         UISwitch("优化评论区的位置", "csdn-blog-restoreComments", true),
                       ],
@@ -185,11 +185,11 @@ const SettingUIBlog: PopsPanelContentConfig = {
                 {
                   text: "底部文章",
                   type: "deepMenu",
-                  forms: [
+                  views: [
                     {
                       text: "",
-                      type: "forms",
-                      forms: [
+                      type: "container",
+                      views: [
                         UISwitch("启用", "csdn-blog-bottomRecommendArticleEnable", true, void 0, "关闭是屏蔽底部文章"),
                         UISwitch("标识CSDN下载", "csdn-blog-identityCSDNDownload", true, void 0, "使用红框标识"),
                         UISwitch(
@@ -211,27 +211,27 @@ const SettingUIBlog: PopsPanelContentConfig = {
     },
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "全局布局屏蔽",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [UISwitch("【屏蔽】顶部工具栏", "csdn-blog-shieldTopToolbar", false)],
+              type: "container",
+              views: [UISwitch("【屏蔽】顶部工具栏", "csdn-blog-shieldTopToolbar", false)],
             },
           ],
         },
         {
           text: "劫持/拦截",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("拦截-复制的小尾巴", "csdn-blog-removeClipboardHijacking", true),
                 UISwitch("劫持-禁止复制", "csdn-blog-unBlockCopy", true, void 0, "允许点击复制按钮进行复制"),
               ],

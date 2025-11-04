@@ -13,19 +13,19 @@ import Qmsg from "qmsg";
 export const Component_Common: PopsPanelContentConfig = {
   id: "component-common",
   title: "通用",
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "Toast配置",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISelect(
                   "Toast位置",
                   "qmsg-config-position",
@@ -110,11 +110,11 @@ export const Component_Common: PopsPanelContentConfig = {
         // {
         // 	text: "Cookie配置",
         // 	type: "deepMenu",
-        // 	forms: [
+        // 	views: [
         // 		{
         // 			text: "",
-        // 			type: "forms",
-        // 			forms: [
+        // 			type: "container",
+        // 			views: [
         // 				UISwitch(
         // 					"启用",
         // 					"httpx-use-cookie-enable",
@@ -145,16 +145,16 @@ export const Component_Common: PopsPanelContentConfig = {
     },
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "功能",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("新增【最新发表】", "mt-addLatestPostBtn", true, void 0, "便于快捷跳转"),
                 UISwitch(
                   "文本转超链接",
@@ -171,11 +171,11 @@ export const Component_Common: PopsPanelContentConfig = {
         {
           type: "deepMenu",
           text: "自动签到",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("启用", "mt-auto-sign", true, void 0, "自动请求签到"),
                 UISwitch("使用fetch请求", "mt-auto-sign-useFetch", false, void 0, ""),
                 UIButton(
@@ -239,11 +239,11 @@ export const Component_Common: PopsPanelContentConfig = {
         {
           text: "头像",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "<a href='https://ezgif.com/resize' target='_blank'>Resize Image</a>",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UIOwn(
                   ($li) => {
                     const $left = DOMUtils.createElement("div", {

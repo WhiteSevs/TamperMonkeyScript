@@ -3,11 +3,10 @@ import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/compo
 import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { UIInfo } from "@/setting/components/ui-info";
-import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
-import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-forms";
+import type { PopsPanelContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-container";
 
 export class ApiTest_getResourceText extends ApiAsyncTestBase {
   public isSupport() {
@@ -38,11 +37,11 @@ export class ApiTest_getResourceText extends ApiAsyncTestBase {
       clickCallback(data) {
         StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
       },
-      forms: [
+      views: [
         {
-          type: "forms",
+          type: "container",
           text: "函数测试",
-          forms: [
+          views: [
             UIInfo(() =>
               this.isSupport()
                 ? {
@@ -68,14 +67,14 @@ export class ApiTest_getResourceText extends ApiAsyncTestBase {
           ],
         },
         {
-          type: "forms",
+          type: "container",
           text: "功能测试",
-          forms: [],
+          views: [],
         },
         {
-          type: "forms",
+          type: "container",
           text: "功能测试（异步）",
-          forms: [],
+          views: [],
         },
       ],
     };
@@ -90,12 +89,12 @@ export class ApiTest_getResourceText extends ApiAsyncTestBase {
               resolve(ret);
             });
           },
-          formList: (<PopsPanelFormsDetails>result["forms"][1]).forms,
+          formList: (<PopsPanelContainerConfig>result["views"][1]).views,
         },
         {
           name: apiAsyncInfo.name,
           fn: GM.getResourceText,
-          formList: (<PopsPanelFormsDetails>result["forms"][2]).forms,
+          formList: (<PopsPanelContainerConfig>result["views"][2]).views,
         },
       ].forEach((data) => {
         let apiNameTag = data.name.replace(".", "__async__");

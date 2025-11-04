@@ -4,11 +4,11 @@ import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/compo
 export const Component_Common: PopsPanelContentConfig = {
   id: "view-general",
   title: "通用",
-  forms: [
+  views: [
     {
-      type: "forms",
+      type: "container",
       text: "功能",
-      forms: [
+      views: [
         UISwitch("默认规则", "user-rule-default-enable", true, void 0, "如果当前网站没有设置规则，那么使用默认规则"),
       ],
     },

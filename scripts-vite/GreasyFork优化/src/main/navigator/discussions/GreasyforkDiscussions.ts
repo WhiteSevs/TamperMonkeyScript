@@ -4,7 +4,7 @@ import { Panel } from "@components/setting/panel";
 import i18next from "i18next";
 import Qmsg from "qmsg";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
-import type { PopsRightClickMenuDataDetails } from "@whitesev/pops/dist/types/src/components/rightClickMenu/types";
+import type { PopsRightClickMenuDataConfig } from "@whitesev/pops/dist/types/src/components/rightClickMenu/types";
 
 export const GreasyforkForum = {
   init() {
@@ -365,7 +365,7 @@ export const GreasyforkForum = {
         }
       );
       const $button = $ownMetaItem.querySelector<HTMLButtonElement>(`.${buttonClassName}`)!;
-      const data: PopsRightClickMenuDataDetails[] = [];
+      const data: PopsRightClickMenuDataConfig[] = [];
       if (config.addFilterButton) {
         data.push({
           text: i18next.t("过滤"),
@@ -398,7 +398,6 @@ export const GreasyforkForum = {
         return;
       }
       const rightClickMenu = pops.rightClickMenu({
-        target: document.documentElement,
         position: "absolute",
         limitPositionYInView: false,
         data: data,

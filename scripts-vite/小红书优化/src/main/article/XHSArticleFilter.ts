@@ -8,7 +8,7 @@ import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, PROPS_STORAGE_API } from "@comp
 import { RuleStorage } from "@components/utils/RuleStorage";
 import { RuleView } from "@components/utils/RuleView";
 import Utils from "@whitesev/utils";
-import type { PopsPanelSelectMultipleDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-selectMultiple";
+import type { PopsPanelSelectMultipleConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-selectMultiple";
 import Qmsg from "qmsg";
 import { XHSNetworkHook } from "@/hook/XHSNetWorkHook";
 import { CommonUtil } from "@components/utils/CommonUtil";
@@ -291,9 +291,9 @@ export const XHSArticleFilter = {
                     text: "发现",
                     value: "xhr-explore",
                   },
-                ] as PopsPanelSelectMultipleDetails<XHSArticleFilterOptionScope>["data"]
+                ] as PopsPanelSelectMultipleConfig<XHSArticleFilterOptionScope>["data"]
               ).map((it) => {
-                let result: PopsPanelSelectMultipleDetails<XHSArticleFilterOptionScope>["data"]["0"] = {
+                let result: PopsPanelSelectMultipleConfig<XHSArticleFilterOptionScope>["data"]["0"] = {
                   ...it,
                   value: it.value as XHSArticleFilterOptionScope,
                 };
@@ -303,7 +303,7 @@ export const XHSArticleFilter = {
               "选择需要在xxx上生效的作用域"
             );
             Reflect.set(scope_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-            let $scope = panelHandlerComponents.createSectionContainerItem_select_multiple_new(scope_template);
+            let $scope = panelHandlerComponents.createSectionContainerItem_select_multiple(scope_template);
 
             // 属性名列表
             let keyNameHandlerInfo = <(keyof XHSArticleHandlerInfo)[]>[
@@ -341,7 +341,7 @@ export const XHSArticleFilter = {
               Reflect.set(ruleName_template.props!, PROPS_STORAGE_API, generateStorageApi(storageData));
 
               // 属性值
-              let $ruleName = panelHandlerComponents.createSectionContainerItem_select_multiple_new(ruleName_template);
+              let $ruleName = panelHandlerComponents.createSectionContainerItem_select_multiple(ruleName_template);
 
               let ruleValue_template = UITextArea("属性值", "ruleValue", "", "如果是字符串，可正则，注意转义", void 0);
               Reflect.set(ruleValue_template.props!, PROPS_STORAGE_API, generateStorageApi(storageData));
@@ -463,11 +463,11 @@ export const XHSArticleFilter = {
               data.uuid = editData!.uuid;
             }
             $ulist_li.forEach(($li) => {
-              let formConfig = Reflect.get($li, "__formConfig__");
-              if (!formConfig) {
+              let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+              if (!viewConfig) {
                 return;
               }
-              let attrs = Reflect.get(formConfig, "attributes");
+              let attrs = Reflect.get(viewConfig, "attributes");
               if (!attrs) {
                 return;
               }
@@ -487,11 +487,11 @@ export const XHSArticleFilter = {
             $form.querySelectorAll<HTMLLIElement>(".rule-form-ulist-dynamic__inner-container").forEach(($inner) => {
               let dynamicData = {} as XHSArticleFilterDynamicOption;
               $inner.querySelectorAll(".dynamic-forms > li").forEach(($li) => {
-                let formConfig = Reflect.get($li, "__formConfig__");
-                if (!formConfig) {
+                let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+                if (!viewConfig) {
                   return;
                 }
-                let attrs = Reflect.get(formConfig, "attributes");
+                let attrs = Reflect.get(viewConfig, "attributes");
                 if (!attrs) {
                   return;
                 }

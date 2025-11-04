@@ -1,4 +1,4 @@
-import { PopsFolderDetails } from "@whitesev/pops/dist/types/src/components/folder/types/index";
+import { PopsFolderConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
 import { GeneratePanelStorage } from "./NetDiskDataUtils";
 
 // /** 数据过滤器 一般用于数据覆盖 */
@@ -45,7 +45,7 @@ export const NetDiskGlobalData = {
     /** 排序名 */
     "pops-folder-sort-name": GeneratePanelStorage(
       "pops-folder-sort-name",
-      "fileName" as PopsFolderDetails["sort"]["name"]
+      "fileName" as PopsFolderConfig["sort"]["name"]
     ),
     /** 排序规则 */
     "pops-folder-sort-is-desc": GeneratePanelStorage("pops-folder-sort-is-desc", false),

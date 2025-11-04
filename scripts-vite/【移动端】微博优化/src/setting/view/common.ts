@@ -8,19 +8,19 @@ import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components
 const SettingUICommon: PopsPanelContentConfig = {
   id: "weibo-panel-config-currency",
   title: "通用",
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           type: "deepMenu",
           text: "Toast配置",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISelect(
                   "Toast位置",
                   "qmsg-config-position",
@@ -105,11 +105,11 @@ const SettingUICommon: PopsPanelContentConfig = {
         {
           type: "deepMenu",
           text: "Cookie配置",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("启用", "httpx-use-cookie-enable", false, void 0, "启用后，将根据下面的配置进行添加cookie"),
                 UISwitch(
                   "使用document.cookie",
@@ -126,17 +126,17 @@ const SettingUICommon: PopsPanelContentConfig = {
       ],
     },
     {
-      type: "forms",
+      type: "container",
       text: "",
-      forms: [
+      views: [
         {
           text: "功能",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISelect(
                   "视频清晰度",
                   "weibo-common-lockVideoQuality",
@@ -184,8 +184,8 @@ const SettingUICommon: PopsPanelContentConfig = {
             },
             {
               text: "函数禁用",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   "navigator.serviceWorker.register",
                   "weibo_hijack_navigator_service_worker_register",
@@ -200,11 +200,11 @@ const SettingUICommon: PopsPanelContentConfig = {
         {
           text: "屏蔽",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("【屏蔽】广告", "weibo_remove_ads", true, void 0, "包括【登录/注册按钮】、【小程序横幅推荐】"),
                 UISwitch("【屏蔽】底部工具栏", "weibo_shield_bottom_bar", false, void 0, "屏蔽聊天/关注按钮"),
               ],
@@ -214,11 +214,11 @@ const SettingUICommon: PopsPanelContentConfig = {
         {
           text: "拦截跳转",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "注意：已登录的情况下请关闭下面的功能",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("api/attitudes/create", "weibo_apply_attitudes_create", true),
                 UISwitch("点赞", "weibo_apply_likes_update", true, void 0, "未登录时，拦截点赞跳转登录"),
                 UISwitch("评论", "weibo_apply_comments_create", true, void 0, "未登录时，拦截评论跳转登录"),
@@ -247,11 +247,11 @@ const SettingUICommon: PopsPanelContentConfig = {
         {
           text: "网络请求",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   "/api/config",
                   "weibo_request_api_config",
@@ -280,11 +280,11 @@ const SettingUICommon: PopsPanelContentConfig = {
         {
           text: "Vue-Router路由",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("监听路由改变", "weibo-listenRouterChange", true, void 0, "监听路由改变，动态加载功能"),
                 UISwitch(
                   "修复用户主页正确跳转",

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.1
+// @version      2025.11.4
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -13,10 +13,10 @@
 // @match        *://card.weibo.com/*
 // @match        *://weibo.com/l/wblive/m/show/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @connect      m.weibo.cn
 // @connect      www.weibo.com
 // @connect      passport.weibo.com
@@ -1026,7 +1026,7 @@
           id: "script-version",
           title: `版本：${_GM_info?.script?.version || "未知"}`,
           isBottom: true,
-          forms: [],
+          views: [],
           clickFirstCallback() {
             return false;
           },
@@ -1168,7 +1168,7 @@
         if (!config.attributes) {
           return;
         }
-        if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
+        if (config.type === "button" || config.type === "container" || config.type === "deepMenu") {
           return;
         }
         const attributes = config.attributes;
@@ -1210,19 +1210,19 @@
         for (let index = 0; index < configList.length; index++) {
           let configItem = configList[index];
           initDefaultValue(configItem);
-          let child_forms = configItem.forms;
-          if (child_forms && Array.isArray(child_forms)) {
-            loopInitDefaultValue(child_forms);
+          let childViews = configItem.views;
+          if (childViews && Array.isArray(childViews)) {
+            loopInitDefaultValue(childViews);
           }
         }
       };
       const contentConfigList = [...PanelContent.getAllContentConfig()];
       for (let index = 0; index < contentConfigList.length; index++) {
         let leftContentConfigItem = contentConfigList[index];
-        if (!leftContentConfigItem.forms) {
+        if (!leftContentConfigItem.views) {
           continue;
         }
-        const rightContentConfigList = leftContentConfigItem.forms;
+        const rightContentConfigList = leftContentConfigItem.views;
         if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
           loopInitDefaultValue(rightContentConfigList);
         }
@@ -1699,6 +1699,7 @@
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
 						`,
           });
+          const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
           domUtils.on($item, "click", (clickItemEvent) => {
             const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
@@ -1718,12 +1719,8 @@
                 const $findDeepMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")).find(
                     ($deepMenu) => {
-                      const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
-                      return (
-                        typeof __formConfig__ === "object" &&
-                        __formConfig__ != null &&
-                        __formConfig__.text === target.name
-                      );
+                      const viewConfig = Reflect.get($deepMenu, panelHandlerComponents.$data.nodeStoreConfigKey);
+                      return typeof viewConfig === "object" && viewConfig != null && viewConfig.text === target.name;
                     }
                   );
                 }, 2500);
@@ -1744,8 +1741,8 @@
                 const $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)).find(
                     ($menuItem) => {
-                      const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
-                      return __formConfig__ === target.matchedData?.formConfig;
+                      const viewConfig = Reflect.get($menuItem, panelHandlerComponents.$data.nodeStoreConfigKey);
+                      return viewConfig === target.matchedData?.formConfig;
                     }
                   );
                 }, 2500);
@@ -1778,7 +1775,7 @@
           const loopContentConfig = (configList, path) => {
             for (let index = 0; index < configList.length; index++) {
               const configItem = configList[index];
-              const child_forms = configItem.forms;
+              const child_forms = configItem.views;
               if (child_forms && Array.isArray(child_forms)) {
                 const deepMenuPath = utils.deepClone(path);
                 if (configItem.type === "deepMenu") {
@@ -1875,13 +1872,13 @@
           };
           for (let index = 0; index < content.length; index++) {
             const leftContentConfigItem = content[index];
-            if (!leftContentConfigItem.forms) {
+            if (!leftContentConfigItem.views) {
               continue;
             }
             if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") {
               continue;
             }
-            const rightContentConfigList = leftContentConfigItem.forms;
+            const rightContentConfigList = leftContentConfigItem.views;
             if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
               let text = leftContentConfigItem.title;
               if (typeof text === "function") {
@@ -3511,19 +3508,19 @@
   const SettingUICommon = {
     id: "weibo-panel-config-currency",
     title: "通用",
-    forms: [
+    views: [
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             type: "deepMenu",
             text: "Toast配置",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISelect(
                     "Toast位置",
                     "qmsg-config-position",
@@ -3608,11 +3605,11 @@
           {
             type: "deepMenu",
             text: "Cookie配置",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("启用", "httpx-use-cookie-enable", false, void 0, "启用后，将根据下面的配置进行添加cookie"),
                   UISwitch(
                     "使用document.cookie",
@@ -3636,17 +3633,17 @@
         ],
       },
       {
-        type: "forms",
+        type: "container",
         text: "",
-        forms: [
+        views: [
           {
             text: "功能",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISelect(
                     "视频清晰度",
                     "weibo-common-lockVideoQuality",
@@ -3689,8 +3686,8 @@
               },
               {
                 text: "函数禁用",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     "navigator.serviceWorker.register",
                     "weibo_hijack_navigator_service_worker_register",
@@ -3705,11 +3702,11 @@
           {
             text: "屏蔽",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     "【屏蔽】广告",
                     "weibo_remove_ads",
@@ -3725,11 +3722,11 @@
           {
             text: "拦截跳转",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "注意：已登录的情况下请关闭下面的功能",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("api/attitudes/create", "weibo_apply_attitudes_create", true),
                   UISwitch("点赞", "weibo_apply_likes_update", true, void 0, "未登录时，拦截点赞跳转登录"),
                   UISwitch("评论", "weibo_apply_comments_create", true, void 0, "未登录时，拦截评论跳转登录"),
@@ -3758,11 +3755,11 @@
           {
             text: "网络请求",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     "/api/config",
                     "weibo_request_api_config",
@@ -3791,11 +3788,11 @@
           {
             text: "Vue-Router路由",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("监听路由改变", "weibo-listenRouterChange", true, void 0, "监听路由改变，动态加载功能"),
                   UISwitch(
                     "修复用户主页正确跳转",
@@ -3815,11 +3812,11 @@
   const SettingUIHome = {
     id: "weibo-panel-config-card-article",
     title: "首页",
-    forms: [
+    views: [
       {
         text: "功能",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UISwitch("新增超话Tab", "weibo-home-addSupertalkTab", false, void 0, "在首页添加超话Tab，方便快速查看超话"),
           UISwitch(
             "新增【新标签页打开】按钮",
@@ -3832,26 +3829,26 @@
       },
       {
         text: "网络拦截",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UISwitch("过滤掉信息流广告", "weibo-request-blockArticleAds", true, void 0, '夹杂在文章中间的"微博广告"'),
         ],
       },
       {
         text: "屏蔽",
-        type: "forms",
-        forms: [UISwitch("屏蔽消息数量", "weibo-home-blockMessageCount", false, void 0, "即登录后右上角的消息提示数")],
+        type: "container",
+        views: [UISwitch("屏蔽消息数量", "weibo-home-blockMessageCount", false, void 0, "即登录后右上角的消息提示数")],
       },
     ],
   };
   const SettingUIDetail = {
     id: "weibo-panel-config-detail",
     title: "正文",
-    forms: [
+    views: [
       {
         text: "功能",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UISwitch(
             "修改发布时间显示为绝对时间",
             "weibo-detail-setArticleAbsoluteTime",
@@ -3866,11 +3863,11 @@
   const SettingUISearch = {
     id: "weibo-panel-config-u",
     title: "搜索",
-    forms: [
+    views: [
       {
         text: "功能",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UISwitch("自动聚焦搜索框", "weibo-search-autoFocusSearchInput", void 0),
           UISwitch(
             "新增【新标签页打开】按钮",
@@ -3886,11 +3883,11 @@
   const SettingUIHuaTi = {
     id: "weibo-panel-config-huati",
     title: "话题",
-    forms: [
+    views: [
       {
         text: "功能",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UISwitch(
             "伪装微博客户端",
             "huati_weibo_masquerade_weibo_client_app",
@@ -3902,8 +3899,8 @@
       },
       {
         text: "网络请求(不一定能劫持到)",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UISwitch(
             "/ajax/super/starschedule",
             "huati_weibo_get_more_celebrity_calendar_information",
@@ -3918,11 +3915,11 @@
   const SettingUIVideo = {
     id: "weibo-panel-config-video",
     title: "视频",
-    forms: [
+    views: [
       {
         text: "功能",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UISelect(
             "视频清晰度",
             "weibo-video-quality",
@@ -3963,8 +3960,8 @@
       },
       {
         text: "屏蔽",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UISwitch("【屏蔽】底部工具栏", "weibo_video_shield_bottom_toolbar", true),
           UISwitch("【屏蔽】相关推荐", "weibo_video_shield_recommend", true),
           UISwitch("【屏蔽】热门评论", "weibo_video_shield_hot_comments", true),
@@ -3972,19 +3969,19 @@
       },
       {
         text: "webpack",
-        type: "forms",
-        forms: [UISwitch("gotoApp", "weibo_video_webpack_gotoApp", true, void 0, "开启后阻止唤醒Scheme")],
+        type: "container",
+        views: [UISwitch("gotoApp", "weibo_video_webpack_gotoApp", true, void 0, "开启后阻止唤醒Scheme")],
       },
     ],
   };
   const SettingUICardArticle = {
     id: "weibo-panel-config-card-article",
     title: "头条文章",
-    forms: [
+    views: [
       {
         text: "功能",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UISwitch("自动展开全文", "card_weibo_com__autoExpandFullArticle", true, void 0, "自动展开全文，屏蔽展开按钮"),
           UISwitch(
             "修复文章作者主页正确跳转",
@@ -3997,19 +3994,19 @@
       },
       {
         text: "屏蔽",
-        type: "forms",
-        forms: [UISwitch("【屏蔽】评论", "card_weibo_com__blockComment", false, void 0, "屏蔽评论区")],
+        type: "container",
+        views: [UISwitch("【屏蔽】评论", "card_weibo_com__blockComment", false, void 0, "屏蔽评论区")],
       },
     ],
   };
   const SettingUIOther = {
     id: "weibo-panel-config-other",
     title: "其它",
-    forms: [
+    views: [
       {
         text: "微博热搜",
-        type: "forms",
-        forms: [UISwitch("新标签页打开", "weibo-hot-search-openBlank", false, void 0, "新标签页打开链接")],
+        type: "container",
+        views: [UISwitch("新标签页打开", "weibo-hot-search-openBlank", false, void 0, "新标签页打开链接")],
       },
     ],
   };

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         简书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.1
+// @version      2025.11.4
 // @author       WhiteSevs
 // @description  支持手机端和PC端、屏蔽广告、优化浏览体验、重定向链接、全文居中、自动展开全文、允许复制文字、劫持唤醒/跳转App、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -10,10 +10,10 @@
 // @match        *://*.jianshu.com/*
 // @match        *://*.jianshu.io/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @connect      *
 // @grant        GM_deleteValue
 // @grant        GM_getResourceText
@@ -935,7 +935,7 @@ footer > div > div {\r
           id: "script-version",
           title: `版本：${_GM_info?.script?.version || "未知"}`,
           isBottom: true,
-          forms: [],
+          views: [],
           clickFirstCallback() {
             return false;
           },
@@ -1077,7 +1077,7 @@ footer > div > div {\r
         if (!config.attributes) {
           return;
         }
-        if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
+        if (config.type === "button" || config.type === "container" || config.type === "deepMenu") {
           return;
         }
         const attributes = config.attributes;
@@ -1119,19 +1119,19 @@ footer > div > div {\r
         for (let index = 0; index < configList.length; index++) {
           let configItem = configList[index];
           initDefaultValue(configItem);
-          let child_forms = configItem.forms;
-          if (child_forms && Array.isArray(child_forms)) {
-            loopInitDefaultValue(child_forms);
+          let childViews = configItem.views;
+          if (childViews && Array.isArray(childViews)) {
+            loopInitDefaultValue(childViews);
           }
         }
       };
       const contentConfigList = [...PanelContent.getAllContentConfig()];
       for (let index = 0; index < contentConfigList.length; index++) {
         let leftContentConfigItem = contentConfigList[index];
-        if (!leftContentConfigItem.forms) {
+        if (!leftContentConfigItem.views) {
           continue;
         }
-        const rightContentConfigList = leftContentConfigItem.forms;
+        const rightContentConfigList = leftContentConfigItem.views;
         if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
           loopInitDefaultValue(rightContentConfigList);
         }
@@ -1608,6 +1608,7 @@ footer > div > div {\r
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
 						`,
           });
+          const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
           domUtils.on($item, "click", (clickItemEvent) => {
             const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
@@ -1627,12 +1628,8 @@ footer > div > div {\r
                 const $findDeepMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")).find(
                     ($deepMenu) => {
-                      const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
-                      return (
-                        typeof __formConfig__ === "object" &&
-                        __formConfig__ != null &&
-                        __formConfig__.text === target.name
-                      );
+                      const viewConfig = Reflect.get($deepMenu, panelHandlerComponents.$data.nodeStoreConfigKey);
+                      return typeof viewConfig === "object" && viewConfig != null && viewConfig.text === target.name;
                     }
                   );
                 }, 2500);
@@ -1653,8 +1650,8 @@ footer > div > div {\r
                 const $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)).find(
                     ($menuItem) => {
-                      const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
-                      return __formConfig__ === target.matchedData?.formConfig;
+                      const viewConfig = Reflect.get($menuItem, panelHandlerComponents.$data.nodeStoreConfigKey);
+                      return viewConfig === target.matchedData?.formConfig;
                     }
                   );
                 }, 2500);
@@ -1687,7 +1684,7 @@ footer > div > div {\r
           const loopContentConfig = (configList, path) => {
             for (let index = 0; index < configList.length; index++) {
               const configItem = configList[index];
-              const child_forms = configItem.forms;
+              const child_forms = configItem.views;
               if (child_forms && Array.isArray(child_forms)) {
                 const deepMenuPath = utils.deepClone(path);
                 if (configItem.type === "deepMenu") {
@@ -1784,13 +1781,13 @@ footer > div > div {\r
           };
           for (let index = 0; index < content.length; index++) {
             const leftContentConfigItem = content[index];
-            if (!leftContentConfigItem.forms) {
+            if (!leftContentConfigItem.views) {
               continue;
             }
             if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") {
               continue;
             }
-            const rightContentConfigList = leftContentConfigItem.forms;
+            const rightContentConfigList = leftContentConfigItem.views;
             if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
               let text = leftContentConfigItem.title;
               if (typeof text === "function") {
@@ -2324,19 +2321,19 @@ footer > div > div {\r
   const SettingUIMobile = {
     id: "jianshu-panel-config-mobile",
     title: "移动端",
-    forms: [
+    views: [
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "功能",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("自动展开全文", "JianShuAutoExpandFullText_Mobile", true),
                   UISwitch("重定向链接", "JianShuAutoJumpRedirect_Mobile", true, void 0, "自动跳转简书拦截的Url链接"),
                 ],
@@ -2346,11 +2343,11 @@ footer > div > div {\r
           {
             text: "屏蔽",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("【屏蔽】底部推荐阅读", "JianShuremoveFooterRecommendRead", false),
                   UISwitch("【屏蔽】评论区", "JianShuShieldUserCommentsMobile", false),
                 ],
@@ -2360,11 +2357,11 @@ footer > div > div {\r
           {
             text: "劫持/拦截",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("拦截-剪贴板", "JianShuRemoveClipboardHijacking_Mobile", true, void 0, "去除禁止复制"),
                   UISwitch(
                     "劫持-唤醒/跳转App",
@@ -2427,11 +2424,11 @@ footer > div > div {\r
   const SettingUICommon = {
     id: "jianshu-panel-common",
     title: "通用",
-    forms: [
+    views: [
       {
         text: "Toast配置",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UISelect(
             "Toast位置",
             "qmsg-config-position",
@@ -2516,19 +2513,19 @@ footer > div > div {\r
   const SettingUIPC = {
     id: "jianshu-panel-config-pc",
     title: "桌面端",
-    forms: [
+    views: [
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "功能",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("全文居中", "JianShuArticleCenter", true),
                   UISwitch("自动展开全文", "JianShuAutoExpandFullText", true),
                   UISwitch("重定向链接", "JianShuAutoJumpRedirect_PC", true, void 0, "自动跳转简书拦截的Url链接"),
@@ -2539,11 +2536,11 @@ footer > div > div {\r
           {
             text: "屏蔽",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("【屏蔽】底部推荐阅读", "JianShuShieldRecommendedReading", false),
                   UISwitch("【屏蔽】评论区", "JianShuShieldUserComments", false),
                   UISwitch("【屏蔽】相关文章", "JianShuShieldRelatedArticles", false),
@@ -2569,11 +2566,11 @@ footer > div > div {\r
           {
             text: "劫持/拦截",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [UISwitch("拦截-剪贴板", "JianShuRemoveClipboardHijacking", true, void 0, "去除禁止复制")],
+                type: "container",
+                views: [UISwitch("拦截-剪贴板", "JianShuRemoveClipboardHijacking", true, void 0, "去除禁止复制")],
               },
             ],
           },

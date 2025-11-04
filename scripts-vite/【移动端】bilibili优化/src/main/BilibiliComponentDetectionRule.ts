@@ -276,8 +276,8 @@ export const BilibiliComponentDetectionRule = {
             }
             try {
               $ulist_li.forEach(($li) => {
-                let formConfig = Reflect.get($li, "__formConfig__");
-                let attrs = Reflect.get(formConfig, "attributes");
+                let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+                let attrs = Reflect.get(viewConfig, "attributes");
                 let storageApi = Reflect.get($li, PROPS_STORAGE_API);
                 let key = Reflect.get(attrs, ATTRIBUTE_KEY);
                 let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);

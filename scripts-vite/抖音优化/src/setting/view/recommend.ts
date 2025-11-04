@@ -4,11 +4,11 @@ import { UISwitch } from "@components/setting/components/ui-switch";
 export const PanelRecommendConfig: PopsPanelContentConfig = {
   id: "panel-config-recommend",
   title: "推荐",
-  forms: [
+  views: [
     {
       text: "功能",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISwitch(
           "自动连播",
           "dy-recommend-automaticContinuousPlayback",

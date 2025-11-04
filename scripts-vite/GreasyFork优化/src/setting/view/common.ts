@@ -20,19 +20,19 @@ import { UIOwn } from "@components/setting/components/ui-own";
 export const SettingUICommon: PopsPanelContentConfig = {
   id: "greasy-fork-panel-config-account",
   title: i18next.t("通用"),
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: i18next.t("Toast配置"),
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISelect(
                   i18next.t("Toast位置"),
                   "qmsg-config-position",
@@ -143,16 +143,16 @@ export const SettingUICommon: PopsPanelContentConfig = {
     },
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: i18next.t("账号/密码"),
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UIInput(i18next.t("账号"), "user", "", void 0, void 0, i18next.t("请输入账号")),
                 UIInput(i18next.t("密码"), "pwd", "", void 0, void 0, i18next.t("请输入密码"), false, true),
                 UIInput(
@@ -169,8 +169,8 @@ export const SettingUICommon: PopsPanelContentConfig = {
             },
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(i18next.t("自动登录"), "autoLogin", true, void 0, i18next.t("自动登录当前保存的账号")),
                 UIButton(
                   i18next.t("清空账号/密码"),
@@ -201,11 +201,11 @@ export const SettingUICommon: PopsPanelContentConfig = {
         {
           text: i18next.t("功能"),
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: i18next.t("功能"),
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISelect(
                   i18next.t("固定当前语言"),
                   "language-selector-locale",
@@ -272,8 +272,8 @@ export const SettingUICommon: PopsPanelContentConfig = {
             },
             {
               text: i18next.t("检测页面加载"),
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   i18next.t("启用"),
                   "checkPage",
@@ -308,11 +308,11 @@ export const SettingUICommon: PopsPanelContentConfig = {
         {
           type: "deepMenu",
           text: i18next.t("表单"),
-          forms: [
+          views: [
             {
-              type: "forms",
+              type: "container",
               text: "",
-              forms: [
+              views: [
                 UISwitch(
                   i18next.t("记住回复内容"),
                   "rememberReplyContent",
@@ -387,7 +387,7 @@ export const SettingUICommon: PopsPanelContentConfig = {
                       Qmsg.error(i18next.t("清理失败"));
                     }
                   },
-                  async (formConfig, container) => {
+                  async (viewConfig, container) => {
                     let $leftTopText = container.ulElement.querySelector<HTMLDivElement>(
                       'li[data-key="gf-autoClearRememberReplayContent"]+li .pops-panel-item-left-main-text'
                     )!;
@@ -410,11 +410,11 @@ export const SettingUICommon: PopsPanelContentConfig = {
         {
           text: i18next.t("美化"),
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: i18next.t("全局"),
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   i18next.t("美化页面元素"),
                   "beautifyPage",
@@ -442,9 +442,9 @@ export const SettingUICommon: PopsPanelContentConfig = {
               ],
             },
             {
-              type: "forms",
+              type: "container",
               text: i18next.t("脚本列表"),
-              forms: [
+              views: [
                 UISwitch(
                   i18next.t("美化脚本列表"),
                   "beautifyCenterContent",
@@ -466,11 +466,11 @@ export const SettingUICommon: PopsPanelContentConfig = {
         {
           type: "deepMenu",
           text: i18next.t("自定义快捷键"),
-          forms: [
+          views: [
             {
-              type: "forms",
+              type: "container",
               text: "",
-              forms: [
+              views: [
                 UIButtonShortCut(
                   i18next.t("快捷键发表回复"),
                   i18next.t("在输入框内按下快捷发表回复，例如：{{key}}", {
@@ -493,13 +493,13 @@ export const SettingUICommon: PopsPanelContentConfig = {
         {
           text: i18next.t("过滤"),
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: `<a target="_blank" href="https://greasyfork.org/zh-CN/scripts/475722-greasyfork%E4%BC%98%E5%8C%96#:~:text=%E8%84%9A%E6%9C%AC%E8%BF%87%E6%BB%A4%E8%A7%84%E5%88%99">${i18next.t(
                 "帮助文档"
               )}</a>`,
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   i18next.t("启用"),
                   "gf-scripts-filter-enable",
@@ -539,17 +539,17 @@ export const SettingUICommon: PopsPanelContentConfig = {
       ],
     },
     {
-      type: "forms",
+      type: "container",
       text: i18next.t("脚本管理"),
-      forms: [
+      views: [
         {
           type: "deepMenu",
           text: i18next.t("代码同步"),
-          forms: [
+          views: [
             {
               text: i18next.t("代码同步"),
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UIButton(
                   i18next.t("源代码同步【脚本列表】"),
                   void 0,
@@ -635,17 +635,17 @@ export const SettingUICommon: PopsPanelContentConfig = {
         {
           type: "deepMenu",
           text: i18next.t("脚本列表"),
-          forms: [],
-          afterEnterDeepMenuCallBack(formConfig, container) {
-            PopsPanelUISetting.UIScriptList("script-list", container.sectionBodyContainer);
+          views: [],
+          afterEnterDeepMenuCallBack(viewConfig, container) {
+            PopsPanelUISetting.UIScriptList("script-list", container.$sectionBodyContainer);
           },
         },
         {
           type: "deepMenu",
           text: i18next.t("库"),
-          forms: [],
-          afterEnterDeepMenuCallBack(formConfig, container) {
-            PopsPanelUISetting.UIScriptList("script-library", container.sectionBodyContainer);
+          views: [],
+          afterEnterDeepMenuCallBack(viewConfig, container) {
+            PopsPanelUISetting.UIScriptList("script-library", container.$sectionBodyContainer);
           },
         },
       ],

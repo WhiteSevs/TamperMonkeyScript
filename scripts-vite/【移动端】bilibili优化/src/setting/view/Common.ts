@@ -11,19 +11,19 @@ import { BilibiliComponentDetectionRule } from "@/main/BilibiliComponentDetectio
 const SettingUICommon: PopsPanelContentConfig = {
   id: "panel-common",
   title: "通用",
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "功能",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   "监听路由-重载所有功能",
                   "bili-listenRouterChange",
@@ -58,11 +58,11 @@ const SettingUICommon: PopsPanelContentConfig = {
         {
           text: "变量设置",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("noCallApp", "bili-noCallApp", true, void 0, "$store.state.common.noCallApp=true"),
                 UISwitch(
                   "isLogin",
@@ -98,11 +98,11 @@ const SettingUICommon: PopsPanelContentConfig = {
         {
           text: "劫持/拦截",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   "覆盖.launch-app-btn openApp",
                   "bili-overrideLaunchAppBtn_Vue_openApp",
@@ -138,11 +138,11 @@ const SettingUICommon: PopsPanelContentConfig = {
         {
           type: "deepMenu",
           text: "成分检测",
-          forms: [
+          views: [
             {
-              type: "forms",
+              type: "container",
               text: "",
-              forms: [
+              views: [
                 UISwitch("启用", "bili-componentDetection", true, void 0, "启用后可检测用户的成分信息"),
                 UIButton("自定义规则", "检测用户成分的规则", "管理", void 0, false, false, "primary", () => {
                   BilibiliComponentDetectionRule.showView();
@@ -150,9 +150,9 @@ const SettingUICommon: PopsPanelContentConfig = {
               ],
             },
             {
-              type: "forms",
+              type: "container",
               text: "",
-              forms: [
+              views: [
                 UIButton("数据导入", "导入自定义规则数据", "导入", void 0, false, false, "primary", () => {
                   BilibiliComponentDetectionRule.importRule();
                 }),
@@ -167,16 +167,16 @@ const SettingUICommon: PopsPanelContentConfig = {
     },
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "数据配置",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UIInput(
                   "access_token",
                   "bili-head-recommend-access_token",
@@ -199,11 +199,11 @@ const SettingUICommon: PopsPanelContentConfig = {
         {
           text: "Toast配置",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISelect(
                   "Toast位置",
                   "qmsg-config-position",
@@ -288,11 +288,11 @@ const SettingUICommon: PopsPanelContentConfig = {
         {
           text: "Cookie配置",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("启用", "httpx-use-cookie-enable", false, void 0, "启用后，将根据下面的配置进行添加cookie"),
                 UISwitch(
                   "使用document.cookie",

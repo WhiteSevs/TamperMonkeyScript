@@ -13,11 +13,11 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
   id: "debug-panel-config-eruda",
   title: "Eruda",
   headerTitle: `<a href='${DebugToolConfig.eruda.settingDocUrl}' target='_blank'>Eruda设置</a>`,
-  forms: [
+  views: [
     {
       text: "功能",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UIButton("当前版本", "", DebugToolConfig.eruda.version, void 0, false, false, "primary", (event) => {
           DOMUtils.preventEvent(event);
           window.open(DebugToolConfig.eruda.homeUrl, "_blank");
@@ -197,8 +197,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
     },
     {
       text: "面板",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISwitch(
           "Console",
           GlobalSettingConfig.eruda_panel_console.key,
@@ -252,8 +252,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
     },
     {
       text: "插件",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISwitch(
           /*html*/ `
                     <a class="plugin-anchor" href="https://github.com/liriliri/eruda-monitor" target="_blank">

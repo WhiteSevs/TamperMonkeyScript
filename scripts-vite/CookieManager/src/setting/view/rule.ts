@@ -7,20 +7,20 @@ export const Component_Rule: PopsPanelContentConfig = {
   id: "view-rule",
   title: "规则",
   headerTitle: "Cookie操作规则",
-  forms: [
+  views: [
     {
-      type: "forms",
+      type: "container",
       text: "",
-      forms: [
+      views: [
         UIButton("自定义规则", "操作Cookie的规则", "管理", void 0, false, false, "default", () => {
           CookieRule.showView();
         }),
       ],
     },
     {
-      type: "forms",
+      type: "container",
       text: "",
-      forms: [
+      views: [
         UIButton("数据导入", "导入自定义规则数据", "导入", void 0, false, false, "primary", () => {
           CookieRule.importRule();
         }),

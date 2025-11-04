@@ -99,11 +99,11 @@ export const Component_Common = (): PopsPanelContentConfig => {
     clickCallback(data) {
       StorageApi.set(PanelKeyConfig.asideLastVisit, "component-common");
     },
-    forms: [
+    views: [
       {
-        type: "forms",
+        type: "container",
         text: "@run-at document-start<br>注：注入速度等级越低，注入的速度越快<br>范围：0~4",
-        forms: [
+        views: [
           UIInfo(() => {
             return {
               text: CommonUtil.escapeHtml(injectDocumentTime),
@@ -113,16 +113,16 @@ export const Component_Common = (): PopsPanelContentConfig => {
         ],
       },
       {
-        type: "forms",
+        type: "container",
         text: "特性",
         afterAddToUListCallBack(formConfig, container) {
           container.formHeaderDivElement!.style.fontSize = "1.2em";
           container.formHeaderDivElement!.style.fontWeight = "700";
         },
-        forms: [],
+        views: [],
       },
       {
-        type: "forms",
+        type: "container",
         text: "不支持列表",
         afterAddToUListCallBack(formConfig, container) {
           container.formHeaderDivElement!.style.color = "rgb(216, 30, 6)";
@@ -131,7 +131,7 @@ export const Component_Common = (): PopsPanelContentConfig => {
             container.formContainerListElement?.remove();
           }
         },
-        forms: [
+        views: [
           UIOwn(($li) => {
             const $container = DOMUtils.createElement("div", {
               className: "gm-api-features-not-support",
@@ -147,7 +147,7 @@ export const Component_Common = (): PopsPanelContentConfig => {
         ],
       },
       {
-        type: "forms",
+        type: "container",
         text: "支持列表",
         afterAddToUListCallBack(formConfig, container) {
           container.formHeaderDivElement!.style.fontWeight = "600";
@@ -155,7 +155,7 @@ export const Component_Common = (): PopsPanelContentConfig => {
             container.formContainerListElement?.remove();
           }
         },
-        forms: [
+        views: [
           UIOwn(($li) => {
             const $container = DOMUtils.createElement("div", {
               className: "gm-api-features-support",

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.1
+// @version      2025.11.4
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -10,10 +10,10 @@
 // @match        *://*.douyin.com/*
 // @match        *://*.iesdouyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
 // @grant        GM_deleteValue
@@ -889,7 +889,7 @@
           id: "script-version",
           title: `版本：${_GM_info?.script?.version || "未知"}`,
           isBottom: true,
-          forms: [],
+          views: [],
           clickFirstCallback() {
             return false;
           },
@@ -1031,7 +1031,7 @@
         if (!config.attributes) {
           return;
         }
-        if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
+        if (config.type === "button" || config.type === "container" || config.type === "deepMenu") {
           return;
         }
         const attributes = config.attributes;
@@ -1073,19 +1073,19 @@
         for (let index = 0; index < configList.length; index++) {
           let configItem = configList[index];
           initDefaultValue(configItem);
-          let child_forms = configItem.forms;
-          if (child_forms && Array.isArray(child_forms)) {
-            loopInitDefaultValue(child_forms);
+          let childViews = configItem.views;
+          if (childViews && Array.isArray(childViews)) {
+            loopInitDefaultValue(childViews);
           }
         }
       };
       const contentConfigList = [...PanelContent.getAllContentConfig()];
       for (let index = 0; index < contentConfigList.length; index++) {
         let leftContentConfigItem = contentConfigList[index];
-        if (!leftContentConfigItem.forms) {
+        if (!leftContentConfigItem.views) {
           continue;
         }
-        const rightContentConfigList = leftContentConfigItem.forms;
+        const rightContentConfigList = leftContentConfigItem.views;
         if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
           loopInitDefaultValue(rightContentConfigList);
         }
@@ -1562,6 +1562,7 @@
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
 						`,
           });
+          const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
           domUtils.on($item, "click", (clickItemEvent) => {
             const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
@@ -1581,12 +1582,8 @@
                 const $findDeepMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")).find(
                     ($deepMenu) => {
-                      const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
-                      return (
-                        typeof __formConfig__ === "object" &&
-                        __formConfig__ != null &&
-                        __formConfig__.text === target.name
-                      );
+                      const viewConfig = Reflect.get($deepMenu, panelHandlerComponents.$data.nodeStoreConfigKey);
+                      return typeof viewConfig === "object" && viewConfig != null && viewConfig.text === target.name;
                     }
                   );
                 }, 2500);
@@ -1607,8 +1604,8 @@
                 const $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)).find(
                     ($menuItem) => {
-                      const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
-                      return __formConfig__ === target.matchedData?.formConfig;
+                      const viewConfig = Reflect.get($menuItem, panelHandlerComponents.$data.nodeStoreConfigKey);
+                      return viewConfig === target.matchedData?.formConfig;
                     }
                   );
                 }, 2500);
@@ -1641,7 +1638,7 @@
           const loopContentConfig = (configList, path) => {
             for (let index = 0; index < configList.length; index++) {
               const configItem = configList[index];
-              const child_forms = configItem.forms;
+              const child_forms = configItem.views;
               if (child_forms && Array.isArray(child_forms)) {
                 const deepMenuPath = utils.deepClone(path);
                 if (configItem.type === "deepMenu") {
@@ -1738,13 +1735,13 @@
           };
           for (let index = 0; index < content.length; index++) {
             const leftContentConfigItem = content[index];
-            if (!leftContentConfigItem.forms) {
+            if (!leftContentConfigItem.views) {
               continue;
             }
             if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") {
               continue;
             }
-            const rightContentConfigList = leftContentConfigItem.forms;
+            const rightContentConfigList = leftContentConfigItem.views;
             if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
               let text = leftContentConfigItem.title;
               if (typeof text === "function") {
@@ -7587,7 +7584,7 @@
         const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
-      selectConfirmDialogDetails,
+      selectConfirmDialogConfig: selectConfirmDialogDetails,
       callback(selectInfo) {
         const storageApiValue = this.props[PROPS_STORAGE_API];
         const value = [];
@@ -9259,7 +9256,7 @@
                 "选择需要在xxx上生效的作用域"
               );
               Reflect.set(scope_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-              const $scope = panelHandlerComponents.createSectionContainerItem_select_multiple_new(scope_template);
+              const $scope = panelHandlerComponents.createSectionContainerItem_select_multiple(scope_template);
               const douYinVideoHandlerInfoKey = [
                 "isLive",
                 "isAds",
@@ -9318,8 +9315,7 @@
                   "选择需要的属性名 "
                 );
                 Reflect.set(ruleName_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
-                const $ruleName =
-                  panelHandlerComponents.createSectionContainerItem_select_multiple_new(ruleName_template);
+                const $ruleName = panelHandlerComponents.createSectionContainerItem_select_multiple(ruleName_template);
                 const isFunctionHandler_template_valueChange = (_, enableValue) => {
                   if (enableValue) {
                     domUtils.html($ruleValueLeftMainText, `自定义函数`);
@@ -9427,11 +9423,11 @@
                 data.uuid = editData.uuid;
               }
               $ulist_li.forEach(($li) => {
-                const formConfig = Reflect.get($li, "__formConfig__");
-                if (!formConfig) {
+                const viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+                if (!viewConfig) {
                   return;
                 }
-                const attrs = Reflect.get(formConfig, "attributes");
+                const attrs = Reflect.get(viewConfig, "attributes");
                 if (!attrs) {
                   return;
                 }
@@ -9450,11 +9446,11 @@
               $form.querySelectorAll(".rule-form-ulist-dynamic__inner-container").forEach(($inner) => {
                 const dynamicData = {};
                 $inner.querySelectorAll(".dynamic-forms > li").forEach(($li) => {
-                  const formConfig = Reflect.get($li, "__formConfig__");
-                  if (!formConfig) {
+                  const viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+                  if (!viewConfig) {
                     return;
                   }
-                  const attrs = Reflect.get(formConfig, "attributes");
+                  const attrs = Reflect.get(viewConfig, "attributes");
                   if (!attrs) {
                     return;
                   }
@@ -10370,10 +10366,10 @@
     return result;
   };
   const afterEnterDeepMenuCallBack = (formConfig, container) => {
-    let $oneClickOpen = container.sectionBodyContainer.querySelector(".keyboard-oneClickOpen");
-    let $oneClickClose = container.sectionBodyContainer.querySelector(".keyboard-oneClickClose");
+    let $oneClickOpen = container.$sectionBodyContainer.querySelector(".keyboard-oneClickOpen");
+    let $oneClickClose = container.$sectionBodyContainer.querySelector(".keyboard-oneClickClose");
     let clickCallBack = (isOpen) => {
-      container.sectionBodyContainer?.querySelectorAll(".pops-panel-switch").forEach(($ele) => {
+      container.$sectionBodyContainer?.querySelectorAll(".pops-panel-switch").forEach(($ele) => {
         let $input = $ele.querySelector(".pops-panel-switch__input");
         let $checkbox = $ele.querySelector(".pops-panel-switch__core");
         if (isOpen) {
@@ -10434,19 +10430,19 @@
   const PanelCommonConfig = {
     id: "panel-config-common",
     title: "通用",
-    forms: [
+    views: [
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "Toast配置",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISelect(
                     "Toast位置",
                     "qmsg-config-position",
@@ -10531,9 +10527,9 @@
         ],
       },
       {
-        type: "forms",
+        type: "container",
         text: "",
-        forms: [
+        views: [
           UIOwn(
             ($li) => {
               const $left = domUtils.createElement("div", {
@@ -10563,11 +10559,11 @@
           {
             text: "功能",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     "伪装登录",
                     "disguiseLogin",
@@ -10602,8 +10598,8 @@
               },
               {
                 text: "Url重定向",
-                type: "forms",
-                forms: [UISwitch("重定向/home", "douyin-redirect-url-home-to-root", false, void 0, "/home => /")],
+                type: "container",
+                views: [UISwitch("重定向/home", "douyin-redirect-url-home-to-root", false, void 0, "/home => /")],
               },
             ],
           },
@@ -10611,11 +10607,11 @@
             type: "deepMenu",
             text: "禁用抖音快捷键",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: AutoOpenOrClose.text,
-                forms: [
+                views: [
                   UISwitch("赞|取消赞", "dy-keyboard-hook-likeOrDislike", false, void 0, "Z"),
                   UISwitch("评论", "dy-keyboard-hook-comment", false, void 0, "X"),
                   UISwitch("开启/关闭弹幕", "dy-keyboard-hook-danmaku-enable", false, void 0, "B"),
@@ -10656,17 +10652,17 @@
       },
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "布局屏蔽-全局",
             type: "deepMenu",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: AutoOpenOrClose.text,
-                forms: [
+                views: [
                   UISwitch(
                     "【屏蔽】登录弹窗",
                     "watchLoginDialogToClose",
@@ -10683,11 +10679,11 @@
             text: "布局屏蔽-左侧导航栏",
             type: "deepMenu",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: AutoOpenOrClose.text,
-                forms: [
+                views: [
                   UISwitch("【屏蔽】左侧导航栏", "shieldLeftNavigator", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】精选", "shieldLeftNavigator-tab-home", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】推荐", "shieldLeftNavigator-tab-recommend", false, void 0, "屏蔽元素"),
@@ -10707,11 +10703,11 @@
             text: "布局屏蔽-顶部导航栏",
             type: "deepMenu",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-            forms: [
+            views: [
               {
                 text: AutoOpenOrClose.text,
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("【屏蔽】顶部导航栏", "shieldTopNavigator", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】右侧菜单栏", "shield-topNav-rightMenu", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】客户端提示", "shieldClientTip", true, void 0, "屏蔽元素"),
@@ -10733,11 +10729,11 @@
             text: "布局屏蔽-搜索",
             type: "deepMenu",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-            forms: [
+            views: [
               {
                 text: AutoOpenOrClose.text,
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("【屏蔽】搜索框", "shieldSearch", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】搜索框的提示", "shieldSearchPlaceholder", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】猜你想搜", "shieldSearchGuessYouWantToSearch", false, void 0, "屏蔽元素"),
@@ -10750,11 +10746,11 @@
             type: "deepMenu",
             text: "布局屏蔽-鼠标悬浮提示",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: AutoOpenOrClose.text + "<br>视频区域-右侧工具栏",
-                forms: [
+                views: [
                   UISwitch("进入作者主页", "dy-video-mouseHoverTip-rightToolBar-enterUserHome", false),
                   UISwitch("关注", "dy-video-mouseHoverTip-rightToolBar-follow", false),
                   UISwitch("点赞", "dy-video-mouseHoverTip-rightToolBar-addLike", false),
@@ -10766,9 +10762,9 @@
                 ],
               },
               {
-                type: "forms",
+                type: "container",
                 text: "视频区域-底部工具栏",
-                forms: [
+                views: [
                   UISwitch("自动连播", "dy-video-mouseHoverTip-bottomToolBar-automaticBroadcast", false),
                   UISwitch("清屏", "dy-video-mouseHoverTip-bottomToolBar-clearScreen", false),
                   UISwitch("稍后再看", "dy-video-mouseHoverTip-bottomToolBar-watchLater", false),
@@ -10916,19 +10912,19 @@
   const PanelVideoConfig = {
     id: "panel-config-video",
     title: "视频",
-    forms: [
+    views: [
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "功能",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "功能",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISelect(
                     "清晰度",
                     "chooseVideoDefinition",
@@ -11050,9 +11046,9 @@
                 ],
               },
               {
-                type: "forms",
+                type: "container",
                 text: "解析下载",
-                forms: [
+                views: [
                   UISwitch(
                     "视频解析",
                     "parseVideo",
@@ -11076,8 +11072,8 @@
               },
               {
                 text: "视频区域背景色",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("启用", "dy-video-bgColor-enable", false, void 0, "自定义视频背景色"),
                   UIOwn(
                     ($li) => {
@@ -11122,9 +11118,9 @@
                 ],
               },
               {
-                type: "forms",
+                type: "container",
                 text: "视频信息",
-                forms: [
+                views: [
                   UISwitch(
                     "自动隐藏视频信息",
                     "dy-video-titleInfoAutoHide",
@@ -11148,9 +11144,9 @@
                 ],
               },
               {
-                type: "forms",
+                type: "container",
                 text: "底部的视频控件",
-                forms: [
+                views: [
                   UISwitch(
                     "自动隐藏视频控件",
                     "dy-video-videoControlsAutoHide",
@@ -11174,9 +11170,9 @@
                 ],
               },
               {
-                type: "forms",
+                type: "container",
                 text: "右侧工具栏",
-                forms: [
+                views: [
                   UISwitch(
                     "自动隐藏右侧工具栏",
                     "dy-video-rightToolBarAutoHide",
@@ -11200,9 +11196,9 @@
                 ],
               },
               {
-                type: "forms",
+                type: "container",
                 text: "倍速播放",
-                forms: [
+                views: [
                   UISwitch("启用", "dy-video-playbackrate", false),
                   UISelect(
                     "倍速",
@@ -11227,11 +11223,11 @@
           {
             text: "自定义快捷键",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UIButtonShortCut(
                     "倍速 -> 小",
                     "视频倍速变小",
@@ -11294,11 +11290,11 @@
             type: "deepMenu",
             text: "禁用抖音快捷键",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: AutoOpenOrClose.text,
-                forms: [
+                views: [
                   UISwitch("上翻页", "dy-keyboard-hook-arrowUp-w", false, void 0, "W"),
                   UISwitch("下翻页", "dy-keyboard-hook-arrowDown-s", false, void 0, "S"),
                   UISwitch("快退", "dy-keyboard-hook-videoRewind", false, void 0, "A"),
@@ -11310,11 +11306,11 @@
           {
             text: "过滤器",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: '<a href="https://greasyfork.org/zh-CN/scripts/494643-%E6%8A%96%E9%9F%B3%E4%BC%98%E5%8C%96#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99" target="_blank">点击查看规则</a>',
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("启用", "shieldVideo-exec-network-enable", true, void 0, "开启后以下功能才会生效"),
                   UISwitch(
                     "仅显示被过滤的视频",
@@ -11336,9 +11332,9 @@
                 ],
               },
               {
-                type: "forms",
+                type: "container",
                 text: "",
-                forms: [
+                views: [
                   UIButton("数据导入", "导入自定义规则数据", "导入", void 0, false, false, "primary", () => {
                     DouYinVideoFilter.$data.videoFilterRuleStorage.importRules();
                   }),
@@ -11353,17 +11349,17 @@
       },
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "布局屏蔽-播放器-右侧工具栏",
             type: "deepMenu",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-            forms: [
+            views: [
               {
                 text: AutoOpenOrClose.text,
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     "【屏蔽】切换播放<code>↑</code><code>↓</code>",
                     "shieldPlaySwitchButton",
@@ -11388,11 +11384,11 @@
             type: "deepMenu",
             text: "布局屏蔽-播放器-底部-视频信息",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: AutoOpenOrClose.text,
-                forms: [
+                views: [
                   UISwitch(
                     "【屏蔽】视频信息",
                     "dy-video-bottom-shieldVideoInfoWrap",
@@ -11438,11 +11434,11 @@
             type: "deepMenu",
             text: "布局屏蔽-播放器-底部-播放器组件",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: AutoOpenOrClose.text,
-                forms: [
+                views: [
                   UISwitch("【屏蔽】播放器组件", "shieldBottomVideoToolBar", false, void 0, "整个播放器组件"),
                   UISwitch("【屏蔽】播放", "shieldBottomVideoToolBar-play", false, void 0, "播放|暂停按钮"),
                   UISwitch("【屏蔽】播放时长", "shieldBottomVideoToolBar-time", false),
@@ -11466,11 +11462,11 @@
             type: "deepMenu",
             text: "布局屏蔽-播放器-其它",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: AutoOpenOrClose.text,
-                forms: [
+                views: [
                   UISwitch("【屏蔽】右侧的展开评论按钮", "shieldRightExpandCommentButton", false),
                   UISwitch("【屏蔽】搜索悬浮栏", "shieldSearchFloatingBar", false, void 0, "一般出现在左上角"),
                   UISwitch(
@@ -11495,11 +11491,11 @@
             text: "布局屏蔽-评论区",
             type: "deepMenu",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-            forms: [
+            views: [
               {
                 text: AutoOpenOrClose.text,
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("【屏蔽】底部的评论工具栏", "dy-video-shieldUserCommentToolBar", false),
                   UISwitch(
                     "【屏蔽】大家都在搜",
@@ -11516,11 +11512,11 @@
             type: "deepMenu",
             text: "布局屏蔽-直播",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: AutoOpenOrClose.text,
-                forms: [
+                views: [
                   UISwitch(
                     "【屏蔽】点击或按<code>F</code>进入直播间",
                     "dy-video-live-block-tipClickOrKeyboardFEnterLiveRoom",
@@ -11530,9 +11526,9 @@
                 ],
               },
               {
-                type: "forms",
+                type: "container",
                 text: "播放器组件",
-                forms: [UISwitch("【屏蔽】刷新", "dy-video-live-block-playComponents-refresh", false)],
+                views: [UISwitch("【屏蔽】刷新", "dy-video-live-block-playComponents-refresh", false)],
               },
             ],
           },
@@ -11543,19 +11539,19 @@
   const PanelSearchConfig = {
     id: "panel-config-search",
     title: "搜索",
-    forms: [
+    views: [
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "功能",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     "禁止点击视频区域进入全屏",
                     "dy-search-disableClickToEnterFullScreen",
@@ -11613,17 +11609,17 @@
       },
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "布局屏蔽",
             type: "deepMenu",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-            forms: [
+            views: [
               {
                 text: AutoOpenOrClose.text,
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     "【屏蔽】相关搜索",
                     "douyin-search-shieldReleatedSearches",
@@ -11646,11 +11642,11 @@
           {
             text: "布局屏蔽-左侧导航栏",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISelect(
                     "【屏蔽】左侧导航栏",
                     "search-shieldLeftNavigator",
@@ -11679,11 +11675,11 @@
           {
             text: "布局屏蔽-顶部导航栏",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISelect(
                     "【屏蔽】顶部导航栏",
                     "search-shieldTopNavigator",
@@ -11716,19 +11712,19 @@
   const PanelLiveConfig = {
     id: "panel-config-live",
     title: "直播",
-    forms: [
+    views: [
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "功能",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "功能",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISelect(
                     "清晰度",
                     "live-chooseQuality",
@@ -11768,8 +11764,8 @@
               },
               {
                 text: "视频区域背景色",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("启用", "live-bgColor-enable", false, void 0, "自定义视频背景色"),
                   UIOwn(
                     ($li) => {
@@ -11812,20 +11808,20 @@
             text: "消息过滤器",
             type: "deepMenu",
             description: "包括：弹幕、聊天室",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("启用", "live-danmu-shield-rule-enable", false, void 0, "启用自定义的弹幕过滤规则"),
                   UISwitch("【屏蔽】送礼信息", "live-danmu-shield-gift", false, void 0, ""),
                   UISwitch("【屏蔽】福袋口令", "live-danmu-shield-lucky-bag", false, void 0, ""),
                 ],
               },
               {
-                type: "forms",
+                type: "container",
                 text: "聊天室",
-                forms: [
+                views: [
                   UISwitch(
                     "【屏蔽】xxx 为主播加了 xx分",
                     "live-message-shield-biz_scene-common_text_game_score",
@@ -11837,9 +11833,9 @@
                 ],
               },
               {
-                type: "forms",
+                type: "container",
                 text: "",
-                forms: [
+                views: [
                   UIOwn(($li) => {
                     const $textareaWrapper = domUtils.createElement(
                       "div",
@@ -11873,11 +11869,11 @@
           {
             text: "自定义快捷键",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UIButtonShortCut(
                     "【屏蔽】聊天室",
                     "",
@@ -11913,11 +11909,11 @@
             type: "deepMenu",
             text: "禁用抖音快捷键",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: AutoOpenOrClose.text,
-                forms: [
+                views: [
                   UISwitch("三屏画面", "dy-live-threeScreen", false, void 0, "S"),
                   UISwitch("刷新", "dy-live-refresh", false, void 0, "E"),
                   UISwitch("屏幕旋转", "dy-live-screenRotation", false, void 0, "D"),
@@ -11931,17 +11927,17 @@
       },
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "布局屏蔽-视频区域内",
             type: "deepMenu",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-            forms: [
+            views: [
               {
                 text: AutoOpenOrClose.text,
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     "【屏蔽】顶栏信息",
                     "live-shieldTopToolBarInfo",
@@ -11964,9 +11960,9 @@
                 ],
               },
               {
-                type: "forms",
+                type: "container",
                 text: "右键菜单",
-                forms: [
+                views: [
                   UISwitch(
                     "【屏蔽】下载客户端",
                     "dy-live-blockVideoRightMenu-downloadClient",
@@ -11982,11 +11978,11 @@
             text: "布局屏蔽-聊天室",
             type: "deepMenu",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-            forms: [
+            views: [
               {
                 text: AutoOpenOrClose.text,
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("【屏蔽】聊天室", "live-shieldChatRoom", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】贵宾席", "live-shielChatRoomVipSeats", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】用户等级图标", "dy-live-shieldUserLevelIcon", false, void 0, "屏蔽元素"),
@@ -12010,11 +12006,11 @@
   const PanelUserConfig = {
     id: "panel-config-user",
     title: "用户",
-    forms: [
+    views: [
       {
         text: "功能",
-        type: "forms",
-        forms: [UISwitch("显示UID", "dy-user-addShowUserUID", true, void 0, "在用户信息区域下方显示当前用户的uid")],
+        type: "container",
+        views: [UISwitch("显示UID", "dy-user-addShowUserUID", true, void 0, "在用户信息区域下方显示当前用户的uid")],
       },
     ],
   };
@@ -12022,19 +12018,19 @@
     id: "m-panel-config-share-user",
     title: "主页",
     headerTitle: "/share/user<br />主页",
-    forms: [
+    views: [
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "覆盖点击事件",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("视频合集", "m-dy-share-user-coverPlayletList", true, void 0, "正确跳转视频合集页面"),
                   UISwitch("视频列表", "m-dy-share-user-coverPostListContainer", true, void 0, "正确跳转视频页面"),
                 ],
@@ -12049,19 +12045,19 @@
     id: "m-panel-config-share-note",
     title: "笔记",
     headerTitle: "/share/note<br />笔记",
-    forms: [
+    views: [
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "覆盖点击事件",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     "精彩图文",
                     "m-dy-share-note-coverExcitingGraphicsAndText",
@@ -12080,11 +12076,11 @@
           {
             text: "屏蔽元素",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("【屏蔽】评论", "m-dy-share-note-blockComment", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】相关推荐", "m-dy-share-note-blockRecommend", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】底部工具栏", "m-dy-share-note-blockFooterToobar", false, void 0, "屏蔽元素"),
@@ -12100,19 +12096,19 @@
     id: "m-panel-config-share-challenge",
     title: "话题",
     headerTitle: "/share/challenge<br />话题",
-    forms: [
+    views: [
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "覆盖点击事件",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("顶部区域", "m-dy-share-challenge-coverTopJump", true, void 0, "阻止跳转至下载页面"),
                   UISwitch("视频卡片", "m-dy-share-challenge-coverVideoCard", true, void 0, "正确跳转视频页面"),
                 ],
@@ -12127,19 +12123,19 @@
     id: "m-panel-config-share-video",
     title: "视频",
     headerTitle: "/share/video<br />视频",
-    forms: [
+    views: [
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "覆盖点击事件",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [UISwitch("全局点击", "m-dy-share-video-coverGlobalClick", true, void 0, "阻止跳转至下载页")],
+                type: "container",
+                views: [UISwitch("全局点击", "m-dy-share-video-coverGlobalClick", true, void 0, "阻止跳转至下载页")],
               },
             ],
           },
@@ -12151,19 +12147,19 @@
     id: "m-panel-config-share-music",
     title: "音乐",
     headerTitle: "/share/music<br />音乐",
-    forms: [
+    views: [
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "覆盖点击事件",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [UISwitch("视频卡片", "m-dy-share-music-coverVideoCard", true, void 0, "正确跳转视频页面")],
+                type: "container",
+                views: [UISwitch("视频卡片", "m-dy-share-music-coverVideoCard", true, void 0, "正确跳转视频页面")],
               },
             ],
           },
@@ -12174,11 +12170,11 @@
   const PanelRecommendConfig = {
     id: "panel-config-recommend",
     title: "推荐",
-    forms: [
+    views: [
       {
         text: "功能",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UISwitch(
             "自动连播",
             "dy-recommend-automaticContinuousPlayback",

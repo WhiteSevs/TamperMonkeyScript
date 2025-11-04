@@ -19,19 +19,19 @@ function getGPU() {
 export const PanelCommonConfig: PopsPanelContentConfig = {
   id: "panel-config-common",
   title: "通用",
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "Toast配置",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISelect(
                   "Toast位置",
                   "qmsg-config-position",
@@ -116,9 +116,9 @@ export const PanelCommonConfig: PopsPanelContentConfig = {
       ],
     },
     {
-      type: "forms",
+      type: "container",
       text: "",
-      forms: [
+      views: [
         UIOwn(
           ($li) => {
             const $left = DOMUtils.createElement("div", {
@@ -148,11 +148,11 @@ export const PanelCommonConfig: PopsPanelContentConfig = {
         {
           text: "功能",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("伪装登录", "disguiseLogin", false, void 0, "该功能残缺，在部分区域内会失效或者导致功能异常"),
                 UISwitch("initial-scale=1", "dy-initialScale", false, void 0, "可配合手机模式放大页面"),
                 UISwitch(
@@ -181,8 +181,8 @@ export const PanelCommonConfig: PopsPanelContentConfig = {
             },
             {
               text: "Url重定向",
-              type: "forms",
-              forms: [UISwitch("重定向/home", "douyin-redirect-url-home-to-root", false, void 0, "/home => /")],
+              type: "container",
+              views: [UISwitch("重定向/home", "douyin-redirect-url-home-to-root", false, void 0, "/home => /")],
             },
           ],
         },
@@ -190,11 +190,11 @@ export const PanelCommonConfig: PopsPanelContentConfig = {
           type: "deepMenu",
           text: "禁用抖音快捷键",
           afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-          forms: [
+          views: [
             {
-              type: "forms",
+              type: "container",
               text: AutoOpenOrClose.text,
-              forms: [
+              views: [
                 UISwitch("赞|取消赞", "dy-keyboard-hook-likeOrDislike", false, void 0, "Z"),
                 UISwitch("评论", "dy-keyboard-hook-comment", false, void 0, "X"),
                 UISwitch("开启/关闭弹幕", "dy-keyboard-hook-danmaku-enable", false, void 0, "B"),
@@ -235,17 +235,17 @@ export const PanelCommonConfig: PopsPanelContentConfig = {
     },
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "布局屏蔽-全局",
           type: "deepMenu",
           afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-          forms: [
+          views: [
             {
-              type: "forms",
+              type: "container",
               text: AutoOpenOrClose.text,
-              forms: [
+              views: [
                 UISwitch(
                   "【屏蔽】登录弹窗",
                   "watchLoginDialogToClose",
@@ -262,11 +262,11 @@ export const PanelCommonConfig: PopsPanelContentConfig = {
           text: "布局屏蔽-左侧导航栏",
           type: "deepMenu",
           afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-          forms: [
+          views: [
             {
-              type: "forms",
+              type: "container",
               text: AutoOpenOrClose.text,
-              forms: [
+              views: [
                 UISwitch("【屏蔽】左侧导航栏", "shieldLeftNavigator", false, void 0, "屏蔽元素"),
                 UISwitch("【屏蔽】精选", "shieldLeftNavigator-tab-home", false, void 0, "屏蔽元素"),
                 UISwitch("【屏蔽】推荐", "shieldLeftNavigator-tab-recommend", false, void 0, "屏蔽元素"),
@@ -341,11 +341,11 @@ export const PanelCommonConfig: PopsPanelContentConfig = {
           text: "布局屏蔽-顶部导航栏",
           type: "deepMenu",
           afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-          forms: [
+          views: [
             {
               text: AutoOpenOrClose.text,
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("【屏蔽】顶部导航栏", "shieldTopNavigator", false, void 0, "屏蔽元素"),
                 UISwitch("【屏蔽】右侧菜单栏", "shield-topNav-rightMenu", false, void 0, "屏蔽元素"),
                 UISwitch("【屏蔽】客户端提示", "shieldClientTip", true, void 0, "屏蔽元素"),
@@ -367,11 +367,11 @@ export const PanelCommonConfig: PopsPanelContentConfig = {
           text: "布局屏蔽-搜索",
           type: "deepMenu",
           afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-          forms: [
+          views: [
             {
               text: AutoOpenOrClose.text,
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("【屏蔽】搜索框", "shieldSearch", false, void 0, "屏蔽元素"),
                 UISwitch("【屏蔽】搜索框的提示", "shieldSearchPlaceholder", false, void 0, "屏蔽元素"),
                 UISwitch("【屏蔽】猜你想搜", "shieldSearchGuessYouWantToSearch", false, void 0, "屏蔽元素"),
@@ -384,11 +384,11 @@ export const PanelCommonConfig: PopsPanelContentConfig = {
           type: "deepMenu",
           text: "布局屏蔽-鼠标悬浮提示",
           afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-          forms: [
+          views: [
             {
-              type: "forms",
+              type: "container",
               text: AutoOpenOrClose.text + "<br>视频区域-右侧工具栏",
-              forms: [
+              views: [
                 UISwitch("进入作者主页", "dy-video-mouseHoverTip-rightToolBar-enterUserHome", false),
                 UISwitch("关注", "dy-video-mouseHoverTip-rightToolBar-follow", false),
                 UISwitch("点赞", "dy-video-mouseHoverTip-rightToolBar-addLike", false),
@@ -400,9 +400,9 @@ export const PanelCommonConfig: PopsPanelContentConfig = {
               ],
             },
             {
-              type: "forms",
+              type: "container",
               text: "视频区域-底部工具栏",
-              forms: [
+              views: [
                 UISwitch("自动连播", "dy-video-mouseHoverTip-bottomToolBar-automaticBroadcast", false),
                 UISwitch("清屏", "dy-video-mouseHoverTip-bottomToolBar-clearScreen", false),
                 UISwitch("稍后再看", "dy-video-mouseHoverTip-bottomToolBar-watchLater", false),

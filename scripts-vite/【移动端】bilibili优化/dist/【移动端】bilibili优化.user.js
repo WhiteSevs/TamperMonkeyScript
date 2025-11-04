@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.1
+// @version      2025.11.4
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -13,10 +13,10 @@
 // @match        *://www.bilibili.com/h5/comment/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/QRCode/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @require      https://fastly.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.js
@@ -972,7 +972,7 @@
           id: "script-version",
           title: `版本：${_GM_info?.script?.version || "未知"}`,
           isBottom: true,
-          forms: [],
+          views: [],
           clickFirstCallback() {
             return false;
           },
@@ -1114,7 +1114,7 @@
         if (!config.attributes) {
           return;
         }
-        if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
+        if (config.type === "button" || config.type === "container" || config.type === "deepMenu") {
           return;
         }
         const attributes = config.attributes;
@@ -1156,19 +1156,19 @@
         for (let index = 0; index < configList.length; index++) {
           let configItem = configList[index];
           initDefaultValue(configItem);
-          let child_forms = configItem.forms;
-          if (child_forms && Array.isArray(child_forms)) {
-            loopInitDefaultValue(child_forms);
+          let childViews = configItem.views;
+          if (childViews && Array.isArray(childViews)) {
+            loopInitDefaultValue(childViews);
           }
         }
       };
       const contentConfigList = [...PanelContent.getAllContentConfig()];
       for (let index = 0; index < contentConfigList.length; index++) {
         let leftContentConfigItem = contentConfigList[index];
-        if (!leftContentConfigItem.forms) {
+        if (!leftContentConfigItem.views) {
           continue;
         }
-        const rightContentConfigList = leftContentConfigItem.forms;
+        const rightContentConfigList = leftContentConfigItem.views;
         if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
           loopInitDefaultValue(rightContentConfigList);
         }
@@ -1645,6 +1645,7 @@
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
 						`,
           });
+          const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
           domUtils.on($item, "click", (clickItemEvent) => {
             const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
@@ -1664,12 +1665,8 @@
                 const $findDeepMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")).find(
                     ($deepMenu) => {
-                      const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
-                      return (
-                        typeof __formConfig__ === "object" &&
-                        __formConfig__ != null &&
-                        __formConfig__.text === target.name
-                      );
+                      const viewConfig = Reflect.get($deepMenu, panelHandlerComponents.$data.nodeStoreConfigKey);
+                      return typeof viewConfig === "object" && viewConfig != null && viewConfig.text === target.name;
                     }
                   );
                 }, 2500);
@@ -1690,8 +1687,8 @@
                 const $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)).find(
                     ($menuItem) => {
-                      const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
-                      return __formConfig__ === target.matchedData?.formConfig;
+                      const viewConfig = Reflect.get($menuItem, panelHandlerComponents.$data.nodeStoreConfigKey);
+                      return viewConfig === target.matchedData?.formConfig;
                     }
                   );
                 }, 2500);
@@ -1724,7 +1721,7 @@
           const loopContentConfig = (configList, path) => {
             for (let index = 0; index < configList.length; index++) {
               const configItem = configList[index];
-              const child_forms = configItem.forms;
+              const child_forms = configItem.views;
               if (child_forms && Array.isArray(child_forms)) {
                 const deepMenuPath = utils.deepClone(path);
                 if (configItem.type === "deepMenu") {
@@ -1821,13 +1818,13 @@
           };
           for (let index = 0; index < content.length; index++) {
             const leftContentConfigItem = content[index];
-            if (!leftContentConfigItem.forms) {
+            if (!leftContentConfigItem.views) {
               continue;
             }
             if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") {
               continue;
             }
-            const rightContentConfigList = leftContentConfigItem.forms;
+            const rightContentConfigList = leftContentConfigItem.views;
             if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
               let text = leftContentConfigItem.title;
               if (typeof text === "function") {
@@ -2880,7 +2877,7 @@
             if (pollInfo.message === "二维码已扫码未确认") {
               log$1.info("已扫码，等待确认...");
               __pops__.loading({
-                parent: $biliQrcodeCanvas,
+                $parent: $biliQrcodeCanvas,
                 content: {
                   text: "已扫码，等待确认",
                 },
@@ -11837,8 +11834,8 @@
               }
               try {
                 $ulist_li.forEach(($li) => {
-                  let formConfig = Reflect.get($li, "__formConfig__");
-                  let attrs = Reflect.get(formConfig, "attributes");
+                  let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+                  let attrs = Reflect.get(viewConfig, "attributes");
                   let storageApi = Reflect.get($li, PROPS_STORAGE_API);
                   let key = Reflect.get(attrs, ATTRIBUTE_KEY);
                   let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
@@ -13361,19 +13358,19 @@
   const SettingUICommon = {
     id: "panel-common",
     title: "通用",
-    forms: [
+    views: [
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "功能",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     "监听路由-重载所有功能",
                     "bili-listenRouterChange",
@@ -13403,11 +13400,11 @@
           {
             text: "变量设置",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("noCallApp", "bili-noCallApp", true, void 0, "$store.state.common.noCallApp=true"),
                   UISwitch(
                     "isLogin",
@@ -13436,11 +13433,11 @@
           {
             text: "劫持/拦截",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     "覆盖.launch-app-btn openApp",
                     "bili-overrideLaunchAppBtn_Vue_openApp",
@@ -13476,11 +13473,11 @@
           {
             type: "deepMenu",
             text: "成分检测",
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: "",
-                forms: [
+                views: [
                   UISwitch("启用", "bili-componentDetection", true, void 0, "启用后可检测用户的成分信息"),
                   UIButton("自定义规则", "检测用户成分的规则", "管理", void 0, false, false, "primary", () => {
                     BilibiliComponentDetectionRule.showView();
@@ -13488,9 +13485,9 @@
                 ],
               },
               {
-                type: "forms",
+                type: "container",
                 text: "",
-                forms: [
+                views: [
                   UIButton("数据导入", "导入自定义规则数据", "导入", void 0, false, false, "primary", () => {
                     BilibiliComponentDetectionRule.importRule();
                   }),
@@ -13505,16 +13502,16 @@
       },
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "数据配置",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UIInput(
                     "access_token",
                     "bili-head-recommend-access_token",
@@ -13537,11 +13534,11 @@
           {
             text: "Toast配置",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISelect(
                     "Toast位置",
                     "qmsg-config-position",
@@ -13626,11 +13623,11 @@
           {
             text: "Cookie配置",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("启用", "httpx-use-cookie-enable", false, void 0, "启用后，将根据下面的配置进行添加cookie"),
                   UISwitch(
                     "使用document.cookie",
@@ -13658,19 +13655,19 @@
   const SettingUIHead = {
     id: "panel-head",
     title: "首页",
-    forms: [
+    views: [
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "功能",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("美化显示", "bili-head-beautify", true, void 0, "调整瀑布流视频卡片样式类似哔哩哔哩App"),
                   UISwitch("美化顶部NavBar", "bili-beautifyTopNavBar", true, void 0, "类似哔哩哔哩App的样式"),
                   UISwitch(
@@ -13688,11 +13685,11 @@
           {
             text: "推荐视频",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     "启用",
                     "bili-head-recommend-enable",
@@ -13770,19 +13767,19 @@
     isDefault() {
       return BilibiliRouter.isVideo();
     },
-    forms: [
+    views: [
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "功能",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     "强制本页刷新跳转",
                     "bili-video-forceThisPageToRefreshAndRedirect",
@@ -13806,11 +13803,11 @@
           {
             text: "ArtPlayer播放器",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "功能",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("启用", "bili-video-enableArtPlayer", true, void 0, "使用artplayer代替页面的播放器"),
                   UISelect(
                     "播放的视频类型",
@@ -13835,8 +13832,8 @@
               },
               {
                 text: "控件设置",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISlider(
                     "controls左右边距",
                     "bili-video-artplayer-controlsPadding-left-right",
@@ -13854,8 +13851,8 @@
               },
               {
                 text: "插件",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("弹幕", "artplayer-plugin-video-danmaku-enable", true, void 0, "哔哩哔哩 (゜-゜)つロ 干杯~"),
                   UISwitch(
                     "Dash Audio Support",
@@ -13896,8 +13893,8 @@
               },
               {
                 text: "加速CDN设置（dash）",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISelect(
                     "视频-UPOS服务器设置",
                     "bili-video-uposServerSelect",
@@ -13947,11 +13944,11 @@
           {
             text: "覆盖点击事件",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("UP主信息", "bili-video-cover-UpWrapper", true, void 0, "点击UP主头像/名称可跳转至UP主空间"),
                   UISwitch(
                     "相关视频",
@@ -13974,11 +13971,11 @@
           {
             text: "劫持/拦截",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [UISwitch("阻止调用App", "bili-video-hook-callApp", true, void 0, "处理函数: PlayerAgent")],
+                type: "container",
+                views: [UISwitch("阻止调用App", "bili-video-hook-callApp", true, void 0, "处理函数: PlayerAgent")],
               },
             ],
           },
@@ -13992,19 +13989,19 @@
     isDefault() {
       return BilibiliRouter.isOpus();
     },
-    forms: [
+    views: [
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "功能",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     "自动展开阅读全文",
                     "bili-opus-automaticallyExpandToReadFullText",
@@ -14019,11 +14016,11 @@
           {
             text: "变量设置",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("autoOpenApp", "bili-opus-variable-autoOpenApp", true, void 0, "autoOpenApp函数置空"),
                   UISwitch("go404", "bili-opus-variable-go404", true, void 0, "go404函数置空，可禁止前往404页面"),
                   UISwitch("handleFallback", "bili-opus-variable-handleFallback", true, void 0, "禁止前往404页面"),
@@ -14034,11 +14031,11 @@
           {
             text: "覆盖点击事件",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("话题", "bili-opus-cover-topicJump", true, void 0, "点击话题正确跳转"),
                   UISwitch(
                     "header用户",
@@ -14061,19 +14058,19 @@
     isDefault() {
       return BilibiliRouter.isDynamic();
     },
-    forms: [
+    views: [
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "覆盖点击事件",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("话题", "bili-dynamic-cover-topicJump", true, void 0, "点击话题正确跳转"),
                   UISwitch(
                     "header用户",
@@ -14098,30 +14095,30 @@
     isDefault() {
       return BilibiliRouter.isBangumi();
     },
-    forms: [
+    views: [
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "功能",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [UISwitch("固定缩放倍率", "bili-bangumi-initialScale", true, void 0, "")],
+                type: "container",
+                views: [UISwitch("固定缩放倍率", "bili-bangumi-initialScale", true, void 0, "")],
               },
             ],
           },
           {
             text: "ArtPlayer播放器",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "控件设置",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISlider(
                     "controls左右边距",
                     "bili-bangumi-artplayer-controlsPadding-left-right",
@@ -14139,8 +14136,8 @@
               },
               {
                 text: "插件",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     "弹幕",
                     "artplayer-plugin-bangumi-danmaku-enable",
@@ -14194,8 +14191,8 @@
               },
               {
                 text: "解除区域限制",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     "解锁番剧限制",
                     "bili-bangumi-unlockAreaLimit",
@@ -14214,8 +14211,8 @@
               },
               {
                 text: "加速CDN设置（dash）",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISelect(
                     "视频-UPOS服务器设置",
                     "bili-bangumi-uposServerSelect",
@@ -14262,8 +14259,8 @@
               },
               {
                 text: "<a href='https://github.com/yujincheng08/BiliRoaming/wiki/%E5%85%AC%E5%85%B1%E8%A7%A3%E6%9E%90%E6%9C%8D%E5%8A%A1%E5%99%A8' target='_blank'>解析服务器</a>",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UIInput(
                     "中国大陆",
                     "bili-bangumi-proxyApiServer-default",
@@ -14303,11 +14300,11 @@
           {
             text: "覆盖点击事件",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     "【选集】",
                     "bili-bangumi-cover-clicl-event-chooseEp",
@@ -14336,11 +14333,11 @@
           {
             text: "劫持/拦截",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [UISwitch("阻止调用App", "bili-bangumi-hook-callApp", true, void 0, "")],
+                type: "container",
+                views: [UISwitch("阻止调用App", "bili-bangumi-hook-callApp", true, void 0, "")],
               },
             ],
           },
@@ -14354,19 +14351,19 @@
     isDefault() {
       return BilibiliRouter.isSearch();
     },
-    forms: [
+    views: [
       {
-        type: "forms",
+        type: "container",
         text: "",
-        forms: [
+        views: [
           {
             type: "deepMenu",
             text: "功能",
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: "",
-                forms: [
+                views: [
                   UISwitch("搜索框自动获取焦点", "bili-search-inputAutoFocus", true, void 0, ""),
                   UISwitch("美化搜索结果", "bili-search-beautifySearchResult", true, void 0, "重构搜索结果的样式"),
                   UISwitch(
@@ -14380,8 +14377,8 @@
               },
               {
                 text: "<a href='https://github.com/yujincheng08/BiliRoaming/wiki/%E5%85%AC%E5%85%B1%E8%A7%A3%E6%9E%90%E6%9C%8D%E5%8A%A1%E5%99%A8' target='_blank'>搜索服务器</a>",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UIInput(
                     "香港",
                     "bili-search-proxyApiServer-hk",
@@ -14413,11 +14410,11 @@
           {
             type: "deepMenu",
             text: "覆盖点击事件",
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: "",
-                forms: [
+                views: [
                   UISwitch("取消", "bili-search-cover-cancel", false, void 0, "点击取消按钮回退至上一页"),
                   UISwitch(
                     "搜索结果",
@@ -14433,11 +14430,11 @@
           {
             text: "变量设置",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("noCallApp", "bili-search-vue-prop-noCallApp", true, void 0, "noCallApp = true"),
                   UISwitch(
                     "openAppDialog",
@@ -14460,19 +14457,19 @@
     isDefault() {
       return BilibiliRouter.isSpace();
     },
-    forms: [
+    views: [
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: "功能",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     "修复正确跳转",
                     "bili-space-repairRealJump",
@@ -14487,11 +14484,11 @@
           {
             text: "覆盖点击事件",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     "动态视频",
                     "bili-space-coverDynamicStateCardVideo",
@@ -14513,19 +14510,19 @@
     isDefault() {
       return BilibiliRouter.isLive();
     },
-    forms: [
+    views: [
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             type: "deepMenu",
             text: "功能",
-            forms: [
+            views: [
               {
                 text: "加速CDN设置",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("启用", "bili-live-cdn-hook", false, void 0, "开启后，劫持网络请求并替换返回的视频流CDN"),
                   UISelect(
                     "直播视频流-UPOS服务器设置",
@@ -14555,11 +14552,11 @@
           {
             text: "屏蔽",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch("【屏蔽】聊天室", "bili-live-block-chatRoom", false, void 0, "直接不显示底部的聊天室"),
                   UISwitch(
                     "【屏蔽】xxx进入直播间",
@@ -14582,11 +14579,11 @@
           {
             text: "劫持/拦截",
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     "阻止open-app-btn元素点击事件触发",
                     "bili-live-prevent-openAppBtn",
@@ -14608,7 +14605,7 @@
     isDefault() {
       return BilibiliRouter.isTopicDetail();
     },
-    forms: [],
+    views: [],
   };
   PanelContent.addContentConfig([
     SettingUICommon,

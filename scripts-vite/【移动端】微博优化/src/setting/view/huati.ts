@@ -4,11 +4,11 @@ import { UISwitch } from "@components/setting/components/ui-switch";
 const SettingUIHuaTi: PopsPanelContentConfig = {
   id: "weibo-panel-config-huati",
   title: "话题",
-  forms: [
+  views: [
     {
       text: "功能",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISwitch(
           "伪装微博客户端",
           "huati_weibo_masquerade_weibo_client_app",
@@ -20,8 +20,8 @@ const SettingUIHuaTi: PopsPanelContentConfig = {
     },
     {
       text: "网络请求(不一定能劫持到)",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISwitch(
           "/ajax/super/starschedule",
           "huati_weibo_get_more_celebrity_calendar_information",

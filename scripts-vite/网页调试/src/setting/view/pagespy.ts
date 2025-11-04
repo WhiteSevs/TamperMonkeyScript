@@ -13,11 +13,11 @@ export const PanelUI_pagespy: PopsPanelContentConfig = {
   id: "debug-panel-config-pagespy",
   title: "PageSpy",
   headerTitle: `<a href='${DebugToolConfig.pageSpy.settingDocUrl}' target='_blank'>PageSpy设置</a>`,
-  forms: [
+  views: [
     {
       text: "功能",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UIButton(
           "注意！隐私保护！",
           "",
@@ -97,8 +97,8 @@ export const PanelUI_pagespy: PopsPanelContentConfig = {
     },
     {
       text: "配置",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UIInput(
           "api",
           GlobalSettingConfig.pagespy_api.key,

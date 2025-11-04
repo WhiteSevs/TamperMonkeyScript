@@ -11,11 +11,11 @@ export const PanelUI_chii: PopsPanelContentConfig = {
   id: "debug-panel-config-chii",
   title: "Chii",
   headerTitle: `<a href='${DebugToolConfig.chii.settingDocUrl}' target='_blank'>Chii设置</a>`,
-  forms: [
+  views: [
     {
       text: "功能",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UIButton(
           "调试页面",
           "",
@@ -42,8 +42,8 @@ export const PanelUI_chii: PopsPanelContentConfig = {
     },
     {
       text: "配置",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISwitch(
           "本页展示",
           GlobalSettingConfig.chii_script_embedded.key,
@@ -96,8 +96,8 @@ export const PanelUI_chii: PopsPanelContentConfig = {
     },
     {
       text: "本页展示的配置",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISwitch(
           "锁定高度",
           GlobalSettingConfig.chii_embedded_height_enable.key,

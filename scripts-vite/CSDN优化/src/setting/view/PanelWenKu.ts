@@ -8,11 +8,11 @@ const SettingUIWenKu: PopsPanelContentConfig = {
   isDefault() {
     return CSDNRouter.isLink();
   },
-  forms: [
+  views: [
     {
       text: "屏蔽",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISwitch("【屏蔽】资源推荐", "csdn-wenku-shieldResourceRecommend", false),
         UISwitch("【屏蔽】右侧用户信息", "csdn-wenku-shieldRightUserInfo", false),
         UISwitch("【屏蔽】右侧悬浮工具栏", "csdn-wenku-shieldRightToolBar", false),

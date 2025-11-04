@@ -12,19 +12,19 @@ const SettingUILive: PopsPanelContentConfig = {
   isDefault() {
     return BilibiliRouter.isLive();
   },
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           type: "deepMenu",
           text: "功能",
-          forms: [
+          views: [
             {
               text: "加速CDN设置",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("启用", "bili-live-cdn-hook", false, void 0, "开启后，劫持网络请求并替换返回的视频流CDN"),
                 UISelect(
                   "直播视频流-UPOS服务器设置",
@@ -54,11 +54,11 @@ const SettingUILive: PopsPanelContentConfig = {
         {
           text: "屏蔽",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("【屏蔽】聊天室", "bili-live-block-chatRoom", false, void 0, "直接不显示底部的聊天室"),
                 UISwitch(
                   "【屏蔽】xxx进入直播间",
@@ -81,11 +81,11 @@ const SettingUILive: PopsPanelContentConfig = {
         {
           text: "劫持/拦截",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   "阻止open-app-btn元素点击事件触发",
                   "bili-live-prevent-openAppBtn",

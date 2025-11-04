@@ -6,11 +6,11 @@ import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components
 const SettingUI_Article: PopsPanelContentConfig = {
   id: "xhs-panel-config-article",
   title: "笔记",
-  forms: [
+  views: [
     {
-      type: "forms",
+      type: "container",
       text: "功能",
-      forms: [
+      views: [
         UISwitch(
           "显示发布、修改的绝对时间",
           "pc-xhs-article-showPubsliushTime",
@@ -22,8 +22,8 @@ const SettingUI_Article: PopsPanelContentConfig = {
     },
     {
       text: "笔记宽屏",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISwitch(
           "启用",
           "pc-xhs-article-fullWidth",

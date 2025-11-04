@@ -115,7 +115,7 @@ export const BilibiliQrCodeLogin = {
             // 等待确认
             log.info("已扫码，等待确认...");
             pops.loading({
-              parent: $biliQrcodeCanvas,
+              $parent: $biliQrcodeCanvas,
               content: {
                 text: "已扫码，等待确认",
               },

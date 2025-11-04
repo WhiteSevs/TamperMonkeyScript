@@ -6,19 +6,19 @@ import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/compo
 export const SettingUIHead: PopsPanelContentConfig = {
   id: "panel-head",
   title: "首页",
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "功能",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("美化显示", "bili-head-beautify", true, void 0, "调整瀑布流视频卡片样式类似哔哩哔哩App"),
                 UISwitch("美化顶部NavBar", "bili-beautifyTopNavBar", true, void 0, "类似哔哩哔哩App的样式"),
                 UISwitch(
@@ -36,11 +36,11 @@ export const SettingUIHead: PopsPanelContentConfig = {
         {
           text: "推荐视频",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   "启用",
                   "bili-head-recommend-enable",

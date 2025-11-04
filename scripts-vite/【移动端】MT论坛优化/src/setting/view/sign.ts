@@ -9,19 +9,19 @@ import Utils from "@whitesev/utils";
 export const Component_Sign: PopsPanelContentConfig = {
   id: "component-sigh",
   title: "签到",
-  forms: [
+  views: [
     {
       text: "功能",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISwitch("显示【今日签到之星】", "mt-sign-showTodaySignStar", true, void 0, "在签到按钮上面显示今日签到之星"),
         UISwitch("显示【今日最先】", "mt-sign-showTodayRanking", true, void 0, "在签到排名上面新增【今日最先】"),
       ],
     },
     {
       text: "自动签到",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISwitch("启用", "mt-auto-sign", true, void 0, "自动请求签到"),
         UISwitch("使用fetch请求", "mt-auto-sign-useFetch", false, void 0, ""),
         UIButton(

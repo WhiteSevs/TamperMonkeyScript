@@ -1,11 +1,11 @@
 import { DOMUtils } from "@/env";
-import type { PopsPanelDeepMenuDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-deepMenu";
+import type { PopsPanelDeepViewConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-deepMenu";
 
-const afterEnterDeepMenuCallBack: PopsPanelDeepMenuDetails["afterEnterDeepMenuCallBack"] = (formConfig, container) => {
-  let $oneClickOpen = container.sectionBodyContainer.querySelector<HTMLAnchorElement>(".keyboard-oneClickOpen");
-  let $oneClickClose = container.sectionBodyContainer.querySelector<HTMLAnchorElement>(".keyboard-oneClickClose");
+const afterEnterDeepMenuCallBack: PopsPanelDeepViewConfig["afterEnterDeepMenuCallBack"] = (formConfig, container) => {
+  let $oneClickOpen = container.$sectionBodyContainer.querySelector<HTMLAnchorElement>(".keyboard-oneClickOpen");
+  let $oneClickClose = container.$sectionBodyContainer.querySelector<HTMLAnchorElement>(".keyboard-oneClickClose");
   let clickCallBack = (isOpen: boolean) => {
-    container.sectionBodyContainer?.querySelectorAll<HTMLElement>(".pops-panel-switch").forEach(($ele) => {
+    container.$sectionBodyContainer?.querySelectorAll<HTMLElement>(".pops-panel-switch").forEach(($ele) => {
       let $input = $ele.querySelector<HTMLInputElement>(".pops-panel-switch__input")!;
       let $checkbox = $ele.querySelector<HTMLInputElement>(".pops-panel-switch__core")!;
       if (isOpen) {

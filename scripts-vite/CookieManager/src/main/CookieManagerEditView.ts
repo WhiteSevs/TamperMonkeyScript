@@ -1,18 +1,18 @@
 import { DOMUtils, pops, utils } from "@/env";
-import type { PopsPanelInputDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-input";
-import type { PopsPanelSelectDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-select";
+import type { PopsPanelInputConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-input";
+import type { PopsPanelSelectConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-select";
 import { CookieManager } from "./CookieManager";
 import Qmsg from "qmsg";
 import { CookieInfoTransform } from "@/main/CookieInfoTransform";
 import { PanelUISize } from "@components/setting/panel-ui-size";
-import type { PopsPanelTextAreaDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-textarea";
+import type { PopsPanelTextAreaConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-textarea";
 import { UIOwn } from "@components/setting/components/ui-own";
 
 /**
  * 编辑UI-输入框
  */
 let edit_ui_input = (text: string, getValue: () => string, setValue: (value: string) => void, disabled?: boolean) => {
-  let config: PopsPanelInputDetails = {
+  let config: PopsPanelInputConfig = {
     text: text,
     type: "input",
     isNumber: false,
@@ -40,7 +40,7 @@ let edit_ui_textarea = (
   setValue: (value: string) => void,
   disabled?: boolean
 ) => {
-  let config: PopsPanelTextAreaDetails = {
+  let config: PopsPanelTextAreaConfig = {
     text: text,
     type: "textarea",
     props: {},
@@ -63,12 +63,12 @@ let edit_ui_textarea = (
  */
 let edit_ui_select = <T>(
   text: string,
-  data: PopsPanelSelectDetails<T>["data"] | (() => PopsPanelSelectDetails<T>["data"]),
+  data: PopsPanelSelectConfig<T>["data"] | (() => PopsPanelSelectConfig<T>["data"]),
   getValue: () => T,
   setValue: (selectedValue: T) => void,
   disabled?: boolean
 ) => {
-  let config: PopsPanelSelectDetails<T> = {
+  let config: PopsPanelSelectConfig<T> = {
     text: text,
     type: "select",
     description: "",

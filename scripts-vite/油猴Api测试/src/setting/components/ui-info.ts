@@ -1,7 +1,7 @@
 import { DOMUtils, utils } from "@/env";
-import type { PopsPanelOwnDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-own";
+import type { PopsPanelOwnConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-own";
 import { Tag, TagUtil, type TagName } from "../tag";
-import type { PopsPanelRightAsideContainerOptions } from "@whitesev/pops/dist/types/src/components/panel/types/components-common";
+import type { PopsPanelRightAsideContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-common";
 import { UIOwn } from "@components/setting/components/ui-own";
 
 export type UIInfoResultConfig = {
@@ -14,15 +14,15 @@ export type UIInfoResultConfig = {
   /** 渲染到页面中时触发回调 */
   afterRender?: (
     this: UIInfoResultConfig,
-    container: PopsPanelRightAsideContainerOptions & {
+    container: PopsPanelRightAsideContainerConfig & {
       $leftContainer: HTMLElement;
       $leftText: HTMLElement;
       $leftDesc: HTMLElement;
     }
   ) => void;
 };
-export const UIInfo = (config: () => UIInfoResultConfig | Promise<UIInfoResultConfig>): PopsPanelOwnDetails => {
-  let result: PopsPanelOwnDetails = UIOwn(
+export const UIInfo = (config: () => UIInfoResultConfig | Promise<UIInfoResultConfig>): PopsPanelOwnConfig => {
+  let result: PopsPanelOwnConfig = UIOwn(
     ($li) => {
       let $item = DOMUtils.createElement("div", {
         className: "pops-panel-item-left-text",

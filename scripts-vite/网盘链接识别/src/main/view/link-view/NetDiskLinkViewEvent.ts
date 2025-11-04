@@ -7,10 +7,9 @@ import { log } from "@components/base.env";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import DOMUtils from "@whitesev/domutils";
 import type {
-  PopsRightClickMenuDataDetails,
-  PopsRightClickMenuDetails,
+  PopsRightClickMenuConfig,
+  PopsRightClickMenuDataConfig,
 } from "@whitesev/pops/dist/types/src/components/rightClickMenu/types";
-import utils from "@whitesev/utils";
 import Qmsg from "qmsg";
 import {
   NetDiskLinkView,
@@ -165,7 +164,7 @@ export const NetDiskLinkViewEvent = {
     showTextList: LinkViewRegisterContextMenuShowTextOption[] = [],
     className: string = "whitesevSuspensionContextMenu"
   ) {
-    let data: PopsRightClickMenuDataDetails[] = [];
+    const data: PopsRightClickMenuDataConfig[] = [];
     showTextList.forEach((item) => {
       data.push({
         text: item.text,
@@ -175,8 +174,8 @@ export const NetDiskLinkViewEvent = {
         item: item?.item ?? null,
       });
     });
-    let detail: PopsRightClickMenuDetails = {
-      target: target,
+    let detail: PopsRightClickMenuConfig = {
+      $target: target,
       targetSelector: selector,
       data: data,
       isAnimation: false,

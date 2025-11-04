@@ -5,19 +5,19 @@ import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components
 export const SettingUIScripts: PopsPanelContentConfig = {
   id: "greasy-fork-panel-config-scripts",
   title: i18next.t("脚本"),
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: i18next.t("代码"),
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(i18next.t("添加复制代码按钮"), "addCopyCodeButton", true, void 0, i18next.t("更优雅的复制")),
                 UISwitch(
                   i18next.t("快捷键"),
@@ -41,11 +41,11 @@ export const SettingUIScripts: PopsPanelContentConfig = {
         {
           text: i18next.t("历史版本"),
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: i18next.t("功能"),
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   i18next.t("添加额外的标签按钮"),
                   "scripts-versions-addExtraTagButton",
@@ -64,8 +64,8 @@ export const SettingUIScripts: PopsPanelContentConfig = {
             },
             {
               text: i18next.t("美化"),
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   i18next.t("美化历史版本页面"),
                   "beautifyHistoryVersionPage",
@@ -81,16 +81,16 @@ export const SettingUIScripts: PopsPanelContentConfig = {
     },
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: i18next.t("功能"),
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   i18next.t("添加【寻找引用】按钮"),
                   "addFindReferenceButton",

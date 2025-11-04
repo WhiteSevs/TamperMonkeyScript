@@ -143,7 +143,7 @@ export const CharacterMapping = {
           },
         });
         let $data_regExpFlag =
-          panelHandlerComponents.createSectionContainerItem_select_multiple_new(data_regExpFlag_template);
+          panelHandlerComponents.createSectionContainerItem_select_multiple(data_regExpFlag_template);
 
         // 映射为
         let data_replaceValue_template = UIInput(
@@ -265,8 +265,8 @@ export const CharacterMapping = {
         data.uuid = editData!.uuid;
       }
       $ulist_li.forEach(($li) => {
-        let formConfig = Reflect.get($li, "__formConfig__");
-        let attrs = Reflect.get(formConfig, "attributes");
+        let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+        let attrs = Reflect.get(viewConfig, "attributes");
         let storageApi = Reflect.get($li, PROPS_STORAGE_API);
         let key = Reflect.get(attrs, ATTRIBUTE_KEY);
         let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
@@ -283,11 +283,11 @@ export const CharacterMapping = {
       $form.querySelectorAll<HTMLLIElement>(".rule-form-ulist-dynamic__inner-container").forEach(($inner) => {
         let dynamicData = {};
         $inner.querySelectorAll(".dynamic-forms > li").forEach(($li) => {
-          let formConfig = Reflect.get($li, "__formConfig__");
-          if (!formConfig) {
+          let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+          if (!viewConfig) {
             return;
           }
-          let attrs = Reflect.get(formConfig, "attributes");
+          let attrs = Reflect.get(viewConfig, "attributes");
           if (!attrs) {
             return;
           }

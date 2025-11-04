@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网页调试
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.1
+// @version      2025.11.4
 // @author       WhiteSevs
 // @description  内置多种网页调试工具，包括：Eruda、vConsole、PageSpy、Chii，可在设置菜单中进行详细配置
 // @license      GPL-3.0-only
@@ -12,10 +12,10 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@734ba267afee2a5995d15dc419e754a19532cbf4/lib/Eruda/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@9f63667d501ec8df5bdb4af680f37793f393754f/lib/VConsole/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@b2f37e0ef04aafbccbdbd52733f795c2076acd87/lib/PageSpy/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @resource     Resource_erudaBenchmark       https://fastly.jsdelivr.net/npm/eruda-benchmark@2.0.1
 // @resource     Resource_erudaCode            https://fastly.jsdelivr.net/npm/eruda-code@2.2.0
 // @resource     Resource_erudaFeatures        https://fastly.jsdelivr.net/npm/eruda-features@2.1.0
@@ -1038,7 +1038,7 @@
           id: "script-version",
           title: `版本：${_GM_info?.script?.version || "未知"}`,
           isBottom: true,
-          forms: [],
+          views: [],
           clickFirstCallback() {
             return false;
           },
@@ -1180,7 +1180,7 @@
         if (!config.attributes) {
           return;
         }
-        if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
+        if (config.type === "button" || config.type === "container" || config.type === "deepMenu") {
           return;
         }
         const attributes = config.attributes;
@@ -1222,19 +1222,19 @@
         for (let index = 0; index < configList.length; index++) {
           let configItem = configList[index];
           initDefaultValue(configItem);
-          let child_forms = configItem.forms;
-          if (child_forms && Array.isArray(child_forms)) {
-            loopInitDefaultValue(child_forms);
+          let childViews = configItem.views;
+          if (childViews && Array.isArray(childViews)) {
+            loopInitDefaultValue(childViews);
           }
         }
       };
       const contentConfigList = [...PanelContent.getAllContentConfig()];
       for (let index = 0; index < contentConfigList.length; index++) {
         let leftContentConfigItem = contentConfigList[index];
-        if (!leftContentConfigItem.forms) {
+        if (!leftContentConfigItem.views) {
           continue;
         }
-        const rightContentConfigList = leftContentConfigItem.forms;
+        const rightContentConfigList = leftContentConfigItem.views;
         if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
           loopInitDefaultValue(rightContentConfigList);
         }
@@ -1711,6 +1711,7 @@
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
 						`,
           });
+          const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
           domUtils.on($item, "click", (clickItemEvent) => {
             const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
@@ -1730,12 +1731,8 @@
                 const $findDeepMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")).find(
                     ($deepMenu) => {
-                      const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
-                      return (
-                        typeof __formConfig__ === "object" &&
-                        __formConfig__ != null &&
-                        __formConfig__.text === target.name
-                      );
+                      const viewConfig = Reflect.get($deepMenu, panelHandlerComponents.$data.nodeStoreConfigKey);
+                      return typeof viewConfig === "object" && viewConfig != null && viewConfig.text === target.name;
                     }
                   );
                 }, 2500);
@@ -1756,8 +1753,8 @@
                 const $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)).find(
                     ($menuItem) => {
-                      const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
-                      return __formConfig__ === target.matchedData?.formConfig;
+                      const viewConfig = Reflect.get($menuItem, panelHandlerComponents.$data.nodeStoreConfigKey);
+                      return viewConfig === target.matchedData?.formConfig;
                     }
                   );
                 }, 2500);
@@ -1790,7 +1787,7 @@
           const loopContentConfig = (configList, path) => {
             for (let index = 0; index < configList.length; index++) {
               const configItem = configList[index];
-              const child_forms = configItem.forms;
+              const child_forms = configItem.views;
               if (child_forms && Array.isArray(child_forms)) {
                 const deepMenuPath = utils.deepClone(path);
                 if (configItem.type === "deepMenu") {
@@ -1887,13 +1884,13 @@
           };
           for (let index = 0; index < content.length; index++) {
             const leftContentConfigItem = content[index];
-            if (!leftContentConfigItem.forms) {
+            if (!leftContentConfigItem.views) {
               continue;
             }
             if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") {
               continue;
             }
-            const rightContentConfigList = leftContentConfigItem.forms;
+            const rightContentConfigList = leftContentConfigItem.views;
             if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
               let text = leftContentConfigItem.title;
               if (typeof text === "function") {
@@ -3360,11 +3357,11 @@
     id: "debug-panel-config-all",
     title: "总设置",
     headerTitle: "总设置",
-    forms: [
+    views: [
       {
         text: "功能",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UISelect(
             "调试工具",
             GlobalSettingConfig.debugTool.key,
@@ -3407,9 +3404,9 @@
         ],
       },
       {
-        type: "forms",
+        type: "container",
         text: "其它设置",
-        forms: [
+        views: [
           UISwitch(
             "面板尺寸跟随浏览器窗口尺寸",
             "panel-ui-size-follow-browser-window",
@@ -3476,11 +3473,11 @@
     id: "debug-panel-config-eruda",
     title: "Eruda",
     headerTitle: `<a href='${DebugToolConfig.eruda.settingDocUrl}' target='_blank'>Eruda设置</a>`,
-    forms: [
+    views: [
       {
         text: "功能",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UIButton("当前版本", "", DebugToolConfig.eruda.version, void 0, false, false, "primary", (event) => {
             domUtils.preventEvent(event);
             window.open(DebugToolConfig.eruda.homeUrl, "_blank");
@@ -3660,8 +3657,8 @@
       },
       {
         text: "面板",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UISwitch(
             "Console",
             GlobalSettingConfig.eruda_panel_console.key,
@@ -3715,8 +3712,8 @@
       },
       {
         text: "插件",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UISwitch(
             `
                     <a class="plugin-anchor" href="https://github.com/liriliri/eruda-monitor" target="_blank">
@@ -3935,11 +3932,11 @@
     id: "debug-panel-config-vconsole",
     title: "vConsole",
     headerTitle: `<a href='${DebugToolConfig.vConsole.settingDocUrl}' target='_blank'>vConsole设置</a>`,
-    forms: [
+    views: [
       {
         text: "功能",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UIButton("当前版本", "", DebugToolConfig.vConsole.version, void 0, false, false, "primary", (event) => {
             domUtils.preventEvent(event);
             window.open(DebugToolConfig.vConsole.homeUrl, "_blank");
@@ -4042,8 +4039,8 @@
       },
       {
         text: "面板",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UISwitch(
             "System",
             GlobalSettingConfig.vConsole_panel_system.key,
@@ -4076,8 +4073,8 @@
       },
       {
         text: "配置",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UISelect(
             "主题",
             GlobalSettingConfig.vConsole_theme.key,
@@ -4131,8 +4128,8 @@
       },
       {
         text: "Storage配置",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UISwitch(
             "Cookies",
             GlobalSettingConfig.vConsole_storage_defaultStorages_cookies.key,
@@ -4158,8 +4155,8 @@
       },
       {
         text: "插件",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UISwitch(
             "vconsole-stats-plugin",
             GlobalSettingConfig.vConsole_plugin_Resource_vConsole_Stats.key,
@@ -4198,11 +4195,11 @@
     id: "debug-panel-config-pagespy",
     title: "PageSpy",
     headerTitle: `<a href='${DebugToolConfig.pageSpy.settingDocUrl}' target='_blank'>PageSpy设置</a>`,
-    forms: [
+    views: [
       {
         text: "功能",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UIButton(
             "注意！隐私保护！",
             "",
@@ -4282,8 +4279,8 @@
       },
       {
         text: "配置",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UIInput(
             "api",
             GlobalSettingConfig.pagespy_api.key,
@@ -4436,11 +4433,11 @@
     id: "debug-panel-config-chii",
     title: "Chii",
     headerTitle: `<a href='${DebugToolConfig.chii.settingDocUrl}' target='_blank'>Chii设置</a>`,
-    forms: [
+    views: [
       {
         text: "功能",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UIButton(
             "调试页面",
             "",
@@ -4467,8 +4464,8 @@
       },
       {
         text: "配置",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UISwitch(
             "本页展示",
             GlobalSettingConfig.chii_script_embedded.key,
@@ -4520,8 +4517,8 @@
       },
       {
         text: "本页展示的配置",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           UISwitch(
             "锁定高度",
             GlobalSettingConfig.chii_embedded_height_enable.key,

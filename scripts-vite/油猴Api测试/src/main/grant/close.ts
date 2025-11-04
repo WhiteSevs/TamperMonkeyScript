@@ -1,7 +1,4 @@
-import type {
-  PopsPanelContentConfig,
-  PopsPanelFormsTotalDetails,
-} from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { ApiTestBase } from "../base/ApiTestBase";
 import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
@@ -35,11 +32,11 @@ export class GrantTest_close extends ApiTestBase {
       clickCallback(data) {
         StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
       },
-      forms: [
+      views: [
         {
-          type: "forms",
+          type: "container",
           text: "功能测试",
-          forms: [
+          views: [
             UIInfo(() => {
               try {
                 return {

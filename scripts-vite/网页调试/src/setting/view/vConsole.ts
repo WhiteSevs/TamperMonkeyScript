@@ -14,11 +14,11 @@ export const PanelUI_vConsole: PopsPanelContentConfig = {
   id: "debug-panel-config-vconsole",
   title: "vConsole",
   headerTitle: `<a href='${DebugToolConfig.vConsole.settingDocUrl}' target='_blank'>vConsole设置</a>`,
-  forms: [
+  views: [
     {
       text: "功能",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UIButton("当前版本", "", DebugToolConfig.vConsole.version, void 0, false, false, "primary", (event) => {
           DOMUtils.preventEvent(event);
           window.open(DebugToolConfig.vConsole.homeUrl, "_blank");
@@ -122,8 +122,8 @@ export const PanelUI_vConsole: PopsPanelContentConfig = {
 
     {
       text: "面板",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISwitch(
           "System",
           GlobalSettingConfig.vConsole_panel_system.key,
@@ -156,8 +156,8 @@ export const PanelUI_vConsole: PopsPanelContentConfig = {
     },
     {
       text: "配置",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISelect(
           "主题",
           GlobalSettingConfig.vConsole_theme.key,
@@ -211,8 +211,8 @@ export const PanelUI_vConsole: PopsPanelContentConfig = {
     },
     {
       text: "Storage配置",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISwitch(
           "Cookies",
           GlobalSettingConfig.vConsole_storage_defaultStorages_cookies.key,
@@ -238,8 +238,8 @@ export const PanelUI_vConsole: PopsPanelContentConfig = {
     },
     {
       text: "插件",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISwitch(
           "vconsole-stats-plugin",
           GlobalSettingConfig.vConsole_plugin_Resource_vConsole_Stats.key,

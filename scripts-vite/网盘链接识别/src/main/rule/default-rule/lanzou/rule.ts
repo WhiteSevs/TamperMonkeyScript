@@ -74,8 +74,8 @@ export const NetDiskRule_lanzou = (): NetDiskRuleOption => {
         ownFormList: [
           {
             text: "其它配置",
-            type: "forms",
-            forms: [
+            type: "container",
+            views: [
               UIInput(
                 "蓝奏云域名",
                 NetDiskParse_Lanzou_Config.MENU_KEY,

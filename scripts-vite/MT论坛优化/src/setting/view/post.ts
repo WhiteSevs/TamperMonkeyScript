@@ -4,19 +4,19 @@ import { UISwitch } from "@components/setting/components/ui-switch";
 export const Component_ForumPost: PopsPanelContentConfig = {
   id: "component-forum-post",
   title: "帖子",
-  forms: [
+  views: [
     {
-      type: "forms",
+      type: "container",
       text: "",
-      forms: [
+      views: [
         {
           text: "功能",
           type: "deepMenu",
-          forms: [
+          views: [
             {
-              type: "forms",
+              type: "container",
               text: "",
-              forms: [
+              views: [
                 UISwitch(
                   "拦截附件",
                   "mt-forum-post-interceptionAttachment",
@@ -40,11 +40,11 @@ export const Component_ForumPost: PopsPanelContentConfig = {
         {
           type: "deepMenu",
           text: "用户信息块",
-          forms: [
+          views: [
             {
-              type: "forms",
+              type: "container",
               text: "",
-              forms: [
+              views: [
                 UISwitch(
                   "探测用户在线状态",
                   "mt-forum-post-detectingUserOnlineStatus",
@@ -67,11 +67,11 @@ export const Component_ForumPost: PopsPanelContentConfig = {
         {
           type: "deepMenu",
           text: "右侧悬浮工具栏",
-          forms: [
+          views: [
             {
-              type: "forms",
+              type: "container",
               text: "",
-              forms: [
+              views: [
                 UISwitch(
                   "新增【快捷收藏】",
                   "mt-forum-post-quickCollentBtn",

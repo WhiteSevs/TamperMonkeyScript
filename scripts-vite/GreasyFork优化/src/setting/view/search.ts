@@ -5,11 +5,11 @@ import { UISwitch } from "@components/setting/components/ui-switch";
 export const SettingUIScriptSearch: PopsPanelContentConfig = {
   id: "greasy-fork-panel-config-script-search",
   title: i18next.t("搜索"),
-  forms: [
+  views: [
     {
-      type: "forms",
+      type: "container",
       text: "搜素结果过滤",
-      forms: [
+      views: [
         UISwitch(
           i18next.t("新增【关键词】搜索框"),
           "gf-script-search-addFilterSearchInput",

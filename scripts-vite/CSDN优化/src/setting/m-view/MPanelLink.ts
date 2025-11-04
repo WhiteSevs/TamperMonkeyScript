@@ -8,11 +8,11 @@ const MSettingUILink: PopsPanelContentConfig = {
   isDefault() {
     return CSDNRouter.isLink();
   },
-  forms: [
+  views: [
     {
       text: "功能",
-      type: "forms",
-      forms: [UISwitch("重定向链接", "m-csdn-link-jumpRedirect", true, void 0, "自动跳转至被拦截的Url链接")],
+      type: "container",
+      views: [UISwitch("重定向链接", "m-csdn-link-jumpRedirect", true, void 0, "自动跳转至被拦截的Url链接")],
     },
   ],
 };

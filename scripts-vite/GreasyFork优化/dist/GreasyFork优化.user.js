@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2025.11.1
+// @version            2025.11.4
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -13,10 +13,10 @@
 // @match              *://sleazyfork.org/*
 // @match              *://cn-greasyfork.org/*
 // @require            https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.6/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.1/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/qmsg@1.6.0/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.7/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.0/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require            https://fastly.jsdelivr.net/npm/i18next@25.6.0/i18next.min.js
 // @require            https://fastly.jsdelivr.net/npm/otpauth@9.4.1/dist/otpauth.umd.js
@@ -1085,7 +1085,7 @@
           id: "script-version",
           title: `版本：${_GM_info?.script?.version || "未知"}`,
           isBottom: true,
-          forms: [],
+          views: [],
           clickFirstCallback() {
             return false;
           },
@@ -1227,7 +1227,7 @@
         if (!config.attributes) {
           return;
         }
-        if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
+        if (config.type === "button" || config.type === "container" || config.type === "deepMenu") {
           return;
         }
         const attributes = config.attributes;
@@ -1269,19 +1269,19 @@
         for (let index = 0; index < configList.length; index++) {
           let configItem = configList[index];
           initDefaultValue(configItem);
-          let child_forms = configItem.forms;
-          if (child_forms && Array.isArray(child_forms)) {
-            loopInitDefaultValue(child_forms);
+          let childViews = configItem.views;
+          if (childViews && Array.isArray(childViews)) {
+            loopInitDefaultValue(childViews);
           }
         }
       };
       const contentConfigList = [...PanelContent.getAllContentConfig()];
       for (let index = 0; index < contentConfigList.length; index++) {
         let leftContentConfigItem = contentConfigList[index];
-        if (!leftContentConfigItem.forms) {
+        if (!leftContentConfigItem.views) {
           continue;
         }
-        const rightContentConfigList = leftContentConfigItem.forms;
+        const rightContentConfigList = leftContentConfigItem.views;
         if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
           loopInitDefaultValue(rightContentConfigList);
         }
@@ -1758,6 +1758,7 @@
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
 						`,
           });
+          const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
           domUtils.on($item, "click", (clickItemEvent) => {
             const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
@@ -1777,12 +1778,8 @@
                 const $findDeepMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")).find(
                     ($deepMenu) => {
-                      const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
-                      return (
-                        typeof __formConfig__ === "object" &&
-                        __formConfig__ != null &&
-                        __formConfig__.text === target.name
-                      );
+                      const viewConfig = Reflect.get($deepMenu, panelHandlerComponents.$data.nodeStoreConfigKey);
+                      return typeof viewConfig === "object" && viewConfig != null && viewConfig.text === target.name;
                     }
                   );
                 }, 2500);
@@ -1803,8 +1800,8 @@
                 const $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)).find(
                     ($menuItem) => {
-                      const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
-                      return __formConfig__ === target.matchedData?.formConfig;
+                      const viewConfig = Reflect.get($menuItem, panelHandlerComponents.$data.nodeStoreConfigKey);
+                      return viewConfig === target.matchedData?.formConfig;
                     }
                   );
                 }, 2500);
@@ -1837,7 +1834,7 @@
           const loopContentConfig = (configList, path) => {
             for (let index = 0; index < configList.length; index++) {
               const configItem = configList[index];
-              const child_forms = configItem.forms;
+              const child_forms = configItem.views;
               if (child_forms && Array.isArray(child_forms)) {
                 const deepMenuPath = utils.deepClone(path);
                 if (configItem.type === "deepMenu") {
@@ -1934,13 +1931,13 @@
           };
           for (let index = 0; index < content.length; index++) {
             const leftContentConfigItem = content[index];
-            if (!leftContentConfigItem.forms) {
+            if (!leftContentConfigItem.views) {
               continue;
             }
             if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") {
               continue;
             }
-            const rightContentConfigList = leftContentConfigItem.forms;
+            const rightContentConfigList = leftContentConfigItem.views;
             if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
               let text = leftContentConfigItem.title;
               if (typeof text === "function") {
@@ -4192,7 +4189,6 @@
           return;
         }
         const rightClickMenu = __pops__.rightClickMenu({
-          target: document.documentElement,
           position: "absolute",
           limitPositionYInView: false,
           data,
@@ -6881,7 +6877,7 @@
           octiconCopyElement.setAttribute("aria-hidden", "true");
           octiconCheckCopyElement.removeAttribute("aria-hidden");
           let tooltip = __pops__.tooltip({
-            target: clipboardCopyElement,
+            $target: clipboardCopyElement,
             content: i18next.t("✅ 复制成功!"),
             position: "left",
             className: "github-tooltip",
@@ -7486,7 +7482,7 @@
         mask: {
           enable: true,
         },
-        parent: rightContainerElement,
+        $parent: rightContainerElement,
         content: {
           text: i18next.t("获取信息中，请稍后..."),
         },
@@ -7642,19 +7638,19 @@
   const SettingUICommon = {
     id: "greasy-fork-panel-config-account",
     title: i18next.t("通用"),
-    forms: [
+    views: [
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: i18next.t("Toast配置"),
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISelect(
                     i18next.t("Toast位置"),
                     "qmsg-config-position",
@@ -7765,16 +7761,16 @@
       },
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: i18next.t("账号/密码"),
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UIInput(i18next.t("账号"), "user", "", void 0, void 0, i18next.t("请输入账号")),
                   UIInput(i18next.t("密码"), "pwd", "", void 0, void 0, i18next.t("请输入密码"), false, true),
                   UIInput(
@@ -7791,8 +7787,8 @@
               },
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(i18next.t("自动登录"), "autoLogin", true, void 0, i18next.t("自动登录当前保存的账号")),
                   UIButton(
                     i18next.t("清空账号/密码"),
@@ -7820,11 +7816,11 @@
           {
             text: i18next.t("功能"),
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: i18next.t("功能"),
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISelect(
                     i18next.t("固定当前语言"),
                     "language-selector-locale",
@@ -7891,8 +7887,8 @@
               },
               {
                 text: i18next.t("检测页面加载"),
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     i18next.t("启用"),
                     "checkPage",
@@ -7924,11 +7920,11 @@
           {
             type: "deepMenu",
             text: i18next.t("表单"),
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: "",
-                forms: [
+                views: [
                   UISwitch(
                     i18next.t("记住回复内容"),
                     "rememberReplyContent",
@@ -8003,7 +7999,7 @@
                         Qmsg.error(i18next.t("清理失败"));
                       }
                     },
-                    async (formConfig, container) => {
+                    async (viewConfig, container) => {
                       let $leftTopText = container.ulElement.querySelector(
                         'li[data-key="gf-autoClearRememberReplayContent"]+li .pops-panel-item-left-main-text'
                       );
@@ -8026,11 +8022,11 @@
           {
             text: i18next.t("美化"),
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: i18next.t("全局"),
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     i18next.t("美化页面元素"),
                     "beautifyPage",
@@ -8064,9 +8060,9 @@
                 ],
               },
               {
-                type: "forms",
+                type: "container",
                 text: i18next.t("脚本列表"),
-                forms: [
+                views: [
                   UISwitch(
                     i18next.t("美化脚本列表"),
                     "beautifyCenterContent",
@@ -8088,11 +8084,11 @@
           {
             type: "deepMenu",
             text: i18next.t("自定义快捷键"),
-            forms: [
+            views: [
               {
-                type: "forms",
+                type: "container",
                 text: "",
-                forms: [
+                views: [
                   UIButtonShortCut(
                     i18next.t("快捷键发表回复"),
                     i18next.t("在输入框内按下快捷发表回复，例如：{{key}}", {
@@ -8115,13 +8111,13 @@
           {
             text: i18next.t("过滤"),
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: `<a target="_blank" href="https://greasyfork.org/zh-CN/scripts/475722-greasyfork%E4%BC%98%E5%8C%96#:~:text=%E8%84%9A%E6%9C%AC%E8%BF%87%E6%BB%A4%E8%A7%84%E5%88%99">${i18next.t(
                   "帮助文档"
                 )}</a>`,
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     i18next.t("启用"),
                     "gf-scripts-filter-enable",
@@ -8161,17 +8157,17 @@
         ],
       },
       {
-        type: "forms",
+        type: "container",
         text: i18next.t("脚本管理"),
-        forms: [
+        views: [
           {
             type: "deepMenu",
             text: i18next.t("代码同步"),
-            forms: [
+            views: [
               {
                 text: i18next.t("代码同步"),
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UIButton(
                     i18next.t("源代码同步【脚本列表】"),
                     void 0,
@@ -8257,17 +8253,17 @@
           {
             type: "deepMenu",
             text: i18next.t("脚本列表"),
-            forms: [],
-            afterEnterDeepMenuCallBack(formConfig, container) {
-              PopsPanelUISetting.UIScriptList("script-list", container.sectionBodyContainer);
+            views: [],
+            afterEnterDeepMenuCallBack(viewConfig, container) {
+              PopsPanelUISetting.UIScriptList("script-list", container.$sectionBodyContainer);
             },
           },
           {
             type: "deepMenu",
             text: i18next.t("库"),
-            forms: [],
-            afterEnterDeepMenuCallBack(formConfig, container) {
-              PopsPanelUISetting.UIScriptList("script-library", container.sectionBodyContainer);
+            views: [],
+            afterEnterDeepMenuCallBack(viewConfig, container) {
+              PopsPanelUISetting.UIScriptList("script-library", container.$sectionBodyContainer);
             },
           },
         ],
@@ -8277,19 +8273,19 @@
   const SettingUIScripts = {
     id: "greasy-fork-panel-config-scripts",
     title: i18next.t("脚本"),
-    forms: [
+    views: [
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: i18next.t("代码"),
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(i18next.t("添加复制代码按钮"), "addCopyCodeButton", true, void 0, i18next.t("更优雅的复制")),
                   UISwitch(
                     i18next.t("快捷键"),
@@ -8313,11 +8309,11 @@
           {
             text: i18next.t("历史版本"),
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: i18next.t("功能"),
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     i18next.t("添加额外的标签按钮"),
                     "scripts-versions-addExtraTagButton",
@@ -8336,8 +8332,8 @@
               },
               {
                 text: i18next.t("美化"),
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     i18next.t("美化历史版本页面"),
                     "beautifyHistoryVersionPage",
@@ -8353,16 +8349,16 @@
       },
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: i18next.t("功能"),
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     i18next.t("添加【寻找引用】按钮"),
                     "addFindReferenceButton",
@@ -8395,11 +8391,11 @@
   const SettingUIScriptSearch = {
     id: "greasy-fork-panel-config-script-search",
     title: i18next.t("搜索"),
-    forms: [
+    views: [
       {
-        type: "forms",
+        type: "container",
         text: "搜素结果过滤",
-        forms: [
+        views: [
           UISwitch(
             i18next.t("新增【关键词】搜索框"),
             "gf-script-search-addFilterSearchInput",
@@ -8450,19 +8446,19 @@
   const SettingUIDiscuessions = {
     id: "greasy-fork-panel-config-discussions",
     title: i18next.t("论坛"),
-    forms: [
+    views: [
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: i18next.t("功能"),
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UIOwn(
                     ($li) => {
                       const key = "discussions-readBgColor";
@@ -8525,13 +8521,13 @@
           {
             text: i18next.t("过滤"),
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: `<a target="_blank" href="https://greasyfork.org/zh-CN/scripts/475722-greasyfork%E4%BC%98%E5%8C%96#:~:text=%E8%AE%BA%E5%9D%9B%E8%BF%87%E6%BB%A4%E8%A7%84%E5%88%99">${i18next.t(
                   "帮助文档"
                 )}</a>`,
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     i18next.t("启用"),
                     "greasyfork-discussions-filter-enable",
@@ -8581,19 +8577,19 @@
   const SettingUIUsers = {
     id: "greasy-fork-panel-config-account",
     title: i18next.t("用户"),
-    forms: [
+    views: [
       {
         text: "",
-        type: "forms",
-        forms: [
+        type: "container",
+        views: [
           {
             text: i18next.t("功能"),
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     i18next.t("迁移【控制台】到顶部导航栏"),
                     "users-changeConsoleToTopNavigator",
@@ -8608,11 +8604,11 @@
           {
             text: i18next.t("美化"),
             type: "deepMenu",
-            forms: [
+            views: [
               {
                 text: "",
-                type: "forms",
-                forms: [
+                type: "container",
+                views: [
                   UISwitch(
                     i18next.t("美化私信页面"),
                     "conversations-beautifyDialogBox",

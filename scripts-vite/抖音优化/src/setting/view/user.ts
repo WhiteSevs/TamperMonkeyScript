@@ -4,11 +4,11 @@ import { UISwitch } from "@components/setting/components/ui-switch";
 export const PanelUserConfig: PopsPanelContentConfig = {
   id: "panel-config-user",
   title: "用户",
-  forms: [
+  views: [
     {
       text: "功能",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISwitch("显示UID", "dy-user-addShowUserUID", true, void 0, "在用户信息区域下方显示当前用户的uid"),
         // UIButton(
         // 	"跳转至用户主页",

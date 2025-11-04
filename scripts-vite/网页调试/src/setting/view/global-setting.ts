@@ -7,11 +7,11 @@ export const PanelUI_globalSetting: PopsPanelContentConfig = {
   id: "debug-panel-config-all",
   title: "总设置",
   headerTitle: "总设置",
-  forms: [
+  views: [
     {
       text: "功能",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISelect(
           "调试工具",
           GlobalSettingConfig.debugTool.key,
@@ -54,9 +54,9 @@ export const PanelUI_globalSetting: PopsPanelContentConfig = {
       ],
     },
     {
-      type: "forms",
+      type: "container",
       text: "其它设置",
-      forms: [
+      views: [
         UISwitch(
           "面板尺寸跟随浏览器窗口尺寸",
           "panel-ui-size-follow-browser-window",

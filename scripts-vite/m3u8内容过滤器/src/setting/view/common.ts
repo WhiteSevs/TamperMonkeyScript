@@ -7,11 +7,11 @@ import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components
 export const Component_Common: PopsPanelContentConfig = {
   id: "component-common",
   title: "通用",
-  forms: [
+  views: [
     {
       text: "Toast配置",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISelect(
           "Toast位置",
           "qmsg-config-position",
@@ -93,8 +93,8 @@ export const Component_Common: PopsPanelContentConfig = {
     },
     {
       text: "Cookie配置",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISwitch("启用", "httpx-use-cookie-enable", false, void 0, "启用后，将根据下面的配置进行添加cookie"),
         UISwitch(
           "使用document.cookie",

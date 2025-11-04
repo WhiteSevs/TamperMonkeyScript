@@ -9,19 +9,19 @@ import { UIOwn } from "@components/setting/components/ui-own";
 export const SettingUIDiscuessions: PopsPanelContentConfig = {
   id: "greasy-fork-panel-config-discussions",
   title: i18next.t("论坛"),
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: i18next.t("功能"),
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UIOwn(
                   ($li) => {
                     const key = "discussions-readBgColor";
@@ -85,13 +85,13 @@ export const SettingUIDiscuessions: PopsPanelContentConfig = {
         {
           text: i18next.t("过滤"),
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: `<a target="_blank" href="https://greasyfork.org/zh-CN/scripts/475722-greasyfork%E4%BC%98%E5%8C%96#:~:text=%E8%AE%BA%E5%9D%9B%E8%BF%87%E6%BB%A4%E8%A7%84%E5%88%99">${i18next.t(
                 "帮助文档"
               )}</a>`,
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   i18next.t("启用"),
                   "greasyfork-discussions-filter-enable",

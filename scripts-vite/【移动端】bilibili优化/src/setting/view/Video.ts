@@ -13,19 +13,19 @@ const SettingUIVideo: PopsPanelContentConfig = {
   isDefault() {
     return BilibiliRouter.isVideo();
   },
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "功能",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 // UISwitch(
                 // 	"调整视频底部区域高度",
                 // 	"bili-video-repairVideoBottomAreaHeight",
@@ -72,9 +72,9 @@ const SettingUIVideo: PopsPanelContentConfig = {
               ],
             },
             // {
-            // 	type: "forms",
+            // 	type: "container",
             // 	text: "底部Tab",
-            // 	forms: [
+            // 	views: [
             // 		UISwitch(
             // 			"滚动固钉Tab",
             // 			"bili-video-optimizationScroll",
@@ -96,11 +96,11 @@ const SettingUIVideo: PopsPanelContentConfig = {
         {
           text: "ArtPlayer播放器",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "功能",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("启用", "bili-video-enableArtPlayer", true, void 0, "使用artplayer代替页面的播放器"),
                 UISelect(
                   "播放的视频类型",
@@ -125,8 +125,8 @@ const SettingUIVideo: PopsPanelContentConfig = {
             },
             {
               text: "控件设置",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISlider(
                   "controls左右边距",
                   "bili-video-artplayer-controlsPadding-left-right",
@@ -144,8 +144,8 @@ const SettingUIVideo: PopsPanelContentConfig = {
             },
             {
               text: "插件",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("弹幕", "artplayer-plugin-video-danmaku-enable", true, void 0, "哔哩哔哩 (゜-゜)つロ 干杯~"),
                 UISwitch(
                   "Dash Audio Support",
@@ -180,8 +180,8 @@ const SettingUIVideo: PopsPanelContentConfig = {
             },
             {
               text: "加速CDN设置（dash）",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISelect(
                   "视频-UPOS服务器设置",
                   "bili-video-uposServerSelect",
@@ -231,11 +231,11 @@ const SettingUIVideo: PopsPanelContentConfig = {
         {
           text: "覆盖点击事件",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("UP主信息", "bili-video-cover-UpWrapper", true, void 0, "点击UP主头像/名称可跳转至UP主空间"),
                 UISwitch(
                   "相关视频",
@@ -258,11 +258,11 @@ const SettingUIVideo: PopsPanelContentConfig = {
         {
           text: "劫持/拦截",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [UISwitch("阻止调用App", "bili-video-hook-callApp", true, void 0, "处理函数: PlayerAgent")],
+              type: "container",
+              views: [UISwitch("阻止调用App", "bili-video-hook-callApp", true, void 0, "处理函数: PlayerAgent")],
             },
           ],
         },

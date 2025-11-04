@@ -8,19 +8,19 @@ export const SettingUIOpus: PopsPanelContentConfig = {
   isDefault() {
     return BilibiliRouter.isOpus();
   },
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "功能",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   "自动展开阅读全文",
                   "bili-opus-automaticallyExpandToReadFullText",
@@ -35,11 +35,11 @@ export const SettingUIOpus: PopsPanelContentConfig = {
         {
           text: "变量设置",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("autoOpenApp", "bili-opus-variable-autoOpenApp", true, void 0, "autoOpenApp函数置空"),
                 UISwitch("go404", "bili-opus-variable-go404", true, void 0, "go404函数置空，可禁止前往404页面"),
                 UISwitch("handleFallback", "bili-opus-variable-handleFallback", true, void 0, "禁止前往404页面"),
@@ -50,11 +50,11 @@ export const SettingUIOpus: PopsPanelContentConfig = {
         {
           text: "覆盖点击事件",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("话题", "bili-opus-cover-topicJump", true, void 0, "点击话题正确跳转"),
                 UISwitch(
                   "header用户",

@@ -15,19 +15,19 @@ import { UIOwn } from "@components/setting/components/ui-own";
 export const PanelVideoConfig: PopsPanelContentConfig = {
   id: "panel-config-video",
   title: "视频",
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "功能",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "功能",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISelect<number>(
                   "清晰度",
                   "chooseVideoDefinition",
@@ -150,9 +150,9 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
               ],
             },
             {
-              type: "forms",
+              type: "container",
               text: "解析下载",
-              forms: [
+              views: [
                 UISwitch(
                   "视频解析",
                   "parseVideo",
@@ -176,8 +176,8 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
             },
             {
               text: "视频区域背景色",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("启用", "dy-video-bgColor-enable", false, void 0, "自定义视频背景色"),
                 UIOwn(
                   ($li) => {
@@ -223,9 +223,9 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
               ],
             },
             {
-              type: "forms",
+              type: "container",
               text: "视频信息",
-              forms: [
+              views: [
                 UISwitch(
                   "自动隐藏视频信息",
                   "dy-video-titleInfoAutoHide",
@@ -249,9 +249,9 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
               ],
             },
             {
-              type: "forms",
+              type: "container",
               text: "底部的视频控件",
-              forms: [
+              views: [
                 UISwitch(
                   "自动隐藏视频控件",
                   "dy-video-videoControlsAutoHide",
@@ -275,9 +275,9 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
               ],
             },
             {
-              type: "forms",
+              type: "container",
               text: "右侧工具栏",
-              forms: [
+              views: [
                 UISwitch(
                   "自动隐藏右侧工具栏",
                   "dy-video-rightToolBarAutoHide",
@@ -301,9 +301,9 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
               ],
             },
             {
-              type: "forms",
+              type: "container",
               text: "倍速播放",
-              forms: [
+              views: [
                 UISwitch("启用", "dy-video-playbackrate", false),
                 UISelect(
                   "倍速",
@@ -328,11 +328,11 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
         {
           text: "自定义快捷键",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UIButtonShortCut(
                   "倍速 -> 小",
                   "视频倍速变小",
@@ -395,11 +395,11 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
           type: "deepMenu",
           text: "禁用抖音快捷键",
           afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-          forms: [
+          views: [
             {
-              type: "forms",
+              type: "container",
               text: AutoOpenOrClose.text,
-              forms: [
+              views: [
                 UISwitch("上翻页", "dy-keyboard-hook-arrowUp-w", false, void 0, "W"),
                 UISwitch("下翻页", "dy-keyboard-hook-arrowDown-s", false, void 0, "S"),
                 UISwitch("快退", "dy-keyboard-hook-videoRewind", false, void 0, "A"),
@@ -411,11 +411,11 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
         {
           text: "过滤器",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: '<a href="https://greasyfork.org/zh-CN/scripts/494643-%E6%8A%96%E9%9F%B3%E4%BC%98%E5%8C%96#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99" target="_blank">点击查看规则</a>',
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("启用", "shieldVideo-exec-network-enable", true, void 0, "开启后以下功能才会生效"),
                 UISwitch(
                   "仅显示被过滤的视频",
@@ -437,9 +437,9 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
               ],
             },
             {
-              type: "forms",
+              type: "container",
               text: "",
-              forms: [
+              views: [
                 UIButton("数据导入", "导入自定义规则数据", "导入", void 0, false, false, "primary", () => {
                   DouYinVideoFilter.$data.videoFilterRuleStorage.importRules();
                 }),
@@ -454,17 +454,17 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
     },
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "布局屏蔽-播放器-右侧工具栏",
           type: "deepMenu",
           afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-          forms: [
+          views: [
             {
               text: AutoOpenOrClose.text,
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   "【屏蔽】切换播放<code>↑</code><code>↓</code>",
                   "shieldPlaySwitchButton",
@@ -489,11 +489,11 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
           type: "deepMenu",
           text: "布局屏蔽-播放器-底部-视频信息",
           afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-          forms: [
+          views: [
             {
-              type: "forms",
+              type: "container",
               text: AutoOpenOrClose.text,
-              forms: [
+              views: [
                 UISwitch(
                   "【屏蔽】视频信息",
                   "dy-video-bottom-shieldVideoInfoWrap",
@@ -539,11 +539,11 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
           type: "deepMenu",
           text: "布局屏蔽-播放器-底部-播放器组件",
           afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-          forms: [
+          views: [
             {
-              type: "forms",
+              type: "container",
               text: AutoOpenOrClose.text,
-              forms: [
+              views: [
                 UISwitch("【屏蔽】播放器组件", "shieldBottomVideoToolBar", false, void 0, "整个播放器组件"),
                 UISwitch("【屏蔽】播放", "shieldBottomVideoToolBar-play", false, void 0, "播放|暂停按钮"),
                 UISwitch("【屏蔽】播放时长", "shieldBottomVideoToolBar-time", false, void 0),
@@ -567,11 +567,11 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
           type: "deepMenu",
           text: "布局屏蔽-播放器-其它",
           afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-          forms: [
+          views: [
             {
-              type: "forms",
+              type: "container",
               text: AutoOpenOrClose.text,
-              forms: [
+              views: [
                 UISwitch("【屏蔽】右侧的展开评论按钮", "shieldRightExpandCommentButton", false, void 0),
                 UISwitch("【屏蔽】搜索悬浮栏", "shieldSearchFloatingBar", false, void 0, "一般出现在左上角"),
                 UISwitch(
@@ -596,11 +596,11 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
           text: "布局屏蔽-评论区",
           type: "deepMenu",
           afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-          forms: [
+          views: [
             {
               text: AutoOpenOrClose.text,
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("【屏蔽】底部的评论工具栏", "dy-video-shieldUserCommentToolBar", false, void 0),
                 UISwitch(
                   "【屏蔽】大家都在搜",
@@ -617,11 +617,11 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
           type: "deepMenu",
           text: "布局屏蔽-直播",
           afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-          forms: [
+          views: [
             {
-              type: "forms",
+              type: "container",
               text: AutoOpenOrClose.text,
-              forms: [
+              views: [
                 UISwitch(
                   "【屏蔽】点击或按<code>F</code>进入直播间",
                   "dy-video-live-block-tipClickOrKeyboardFEnterLiveRoom",
@@ -631,9 +631,9 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
               ],
             },
             {
-              type: "forms",
+              type: "container",
               text: "播放器组件",
-              forms: [UISwitch("【屏蔽】刷新", "dy-video-live-block-playComponents-refresh", false)],
+              views: [UISwitch("【屏蔽】刷新", "dy-video-live-block-playComponents-refresh", false)],
             },
           ],
         },

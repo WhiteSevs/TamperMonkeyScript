@@ -5,19 +5,19 @@ export const MPanelShareVideoConfig: PopsPanelContentConfig = {
   id: "m-panel-config-share-video",
   title: "视频",
   headerTitle: "/share/video<br />视频",
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "覆盖点击事件",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [UISwitch("全局点击", "m-dy-share-video-coverGlobalClick", true, void 0, "阻止跳转至下载页")],
+              type: "container",
+              views: [UISwitch("全局点击", "m-dy-share-video-coverGlobalClick", true, void 0, "阻止跳转至下载页")],
             },
           ],
         },

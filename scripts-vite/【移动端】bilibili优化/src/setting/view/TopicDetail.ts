@@ -8,5 +8,5 @@ export const SettingUITopicDetail: PopsPanelContentConfig = {
   isDefault() {
     return BilibiliRouter.isTopicDetail();
   },
-  forms: [],
+  views: [],
 };

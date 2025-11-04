@@ -8,11 +8,11 @@ const MSettingUISo: PopsPanelContentConfig = {
   isDefault() {
     return CSDNRouter.isSo();
   },
-  forms: [
+  views: [
     {
       text: "C知道-功能",
-      type: "forms",
-      forms: [UISwitch("去除水印", "m-csdn-so-cknow-removeMaskCover", true)],
+      type: "container",
+      views: [UISwitch("去除水印", "m-csdn-so-cknow-removeMaskCover", true)],
     },
   ],
 };

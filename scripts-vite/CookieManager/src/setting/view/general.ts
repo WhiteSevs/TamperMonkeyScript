@@ -8,11 +8,11 @@ import { PanelSettingConfig } from "@components/setting/panel-setting-config";
 export const Component_Common: PopsPanelContentConfig = {
   id: "view-general",
   title: "通用",
-  forms: [
+  views: [
     {
       text: "Toast配置",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISelect(
           "Toast位置",
           PanelSettingConfig.qmsg_config_position.key,

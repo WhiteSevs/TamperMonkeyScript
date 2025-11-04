@@ -8,16 +8,16 @@ const SettingUIHuaWeiCloud: PopsPanelContentConfig = {
   isDefault() {
     return CSDNRouter.isHuaWeiCloudBlog();
   },
-  forms: [
+  views: [
     {
       text: "功能",
-      type: "forms",
-      forms: [UISwitch("自动展开全文", "csdn-hua-wei-cloud-autoExpandContent", true)],
+      type: "container",
+      views: [UISwitch("自动展开全文", "csdn-hua-wei-cloud-autoExpandContent", true)],
     },
     {
       text: "屏蔽",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISwitch("【屏蔽】云开发者任务挑战活动", "csdn-hua-wei-cloud-shieldCloudDeveloperTaskChallengeEvent", true),
         UISwitch(
           "【屏蔽】左侧悬浮按钮",

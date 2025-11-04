@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.1
+// @version      2025.11.4
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -1029,7 +1029,7 @@
       },
     },
   };
-  const version$3 = "1.6.0";
+  const version$3 = "1.6.1";
   CompatibleProcessing();
   class Qmsg {
     $data;
@@ -1520,7 +1520,7 @@
       return ["webkitTransitionEnd", "mozTransitionEnd", "MSTransitionEnd", "otransitionend", "transitionend"];
     },
   };
-  const version$2 = "1.7.4";
+  const version$2 = "1.7.5";
   const GlobalData = {
     domEventSymbol: Symbol("events_" + (((1 + Math.random()) * 65536) | 0).toString(16).substring(1)),
   };
@@ -1823,38 +1823,31 @@
       if (target == null) {
         target = {};
       }
+      let iteratorTarget;
       if (isAdd) {
-        for (const sourceKeyName in source) {
-          const targetKeyName = sourceKeyName;
-          const targetValue = Reflect.get(target, targetKeyName);
-          const sourceValue = Reflect.get(source, sourceKeyName);
-          if (
-            typeof sourceValue === "object" &&
-            sourceValue != null &&
-            sourceKeyName in target &&
-            !isDOM(sourceValue)
-          ) {
-            Reflect.set(target, sourceKeyName, UtilsContext.assign(targetValue, sourceValue, isAdd));
-            continue;
-          }
-          Reflect.set(target, sourceKeyName, sourceValue);
-        }
+        iteratorTarget = source;
       } else {
-        for (const targetKeyName in target) {
-          if (targetKeyName in source) {
-            const targetValue = Reflect.get(target, targetKeyName);
-            const sourceValue = Reflect.get(source, targetKeyName);
-            if (
-              typeof sourceValue === "object" &&
-              sourceValue != null &&
-              !isDOM(sourceValue) &&
-              Object.keys(sourceValue).length
-            ) {
-              Reflect.set(target, targetKeyName, UtilsContext.assign(targetValue, sourceValue, isAdd));
-              continue;
+        iteratorTarget = target;
+      }
+      for (const keyName in iteratorTarget) {
+        if (!isAdd && !(keyName in source)) {
+          continue;
+        }
+        const targetValue = Reflect.get(target, keyName);
+        const sourceValue = Reflect.get(source, keyName);
+        if (typeof sourceValue === "object" && sourceValue != null && keyName in target && !isDOM(sourceValue)) {
+          let childObjectValue;
+          if (Array.isArray(sourceValue)) {
+            if (Array.isArray(targetValue)) {
+              targetValue.length = 0;
             }
-            Reflect.set(target, targetKeyName, sourceValue);
+            childObjectValue = sourceValue;
+          } else {
+            childObjectValue = UtilsContext.assign(targetValue, sourceValue, isAdd);
           }
+          Reflect.set(target, keyName, childObjectValue);
+        } else {
+          Reflect.set(target, keyName, sourceValue);
         }
       }
       return target;
@@ -4323,38 +4316,36 @@
       if (target == null) {
         target = {};
       }
+      let iteratorTarget;
       if (isAdd) {
-        for (const sourceKeyName in source) {
-          const targetKeyName = sourceKeyName;
-          const targetValue = Reflect.get(target, targetKeyName);
-          const sourceValue = Reflect.get(source, sourceKeyName);
-          if (
-            typeof sourceValue === "object" &&
-            sourceValue != null &&
-            sourceKeyName in target &&
-            !UtilsContext.isDOM(sourceValue)
-          ) {
-            Reflect.set(target, sourceKeyName, UtilsContext.assign(targetValue, sourceValue, isAdd));
-            continue;
-          }
-          Reflect.set(target, sourceKeyName, sourceValue);
-        }
+        iteratorTarget = source;
       } else {
-        for (const targetKeyName in target) {
-          if (targetKeyName in source) {
-            const targetValue = Reflect.get(target, targetKeyName);
-            const sourceValue = Reflect.get(source, targetKeyName);
-            if (
-              typeof sourceValue === "object" &&
-              sourceValue != null &&
-              !UtilsContext.isDOM(sourceValue) &&
-              Object.keys(sourceValue).length
-            ) {
-              Reflect.set(target, targetKeyName, UtilsContext.assign(targetValue, sourceValue, isAdd));
-              continue;
+        iteratorTarget = target;
+      }
+      for (const keyName in iteratorTarget) {
+        if (!isAdd && !(keyName in source)) {
+          continue;
+        }
+        const targetValue = Reflect.get(target, keyName);
+        const sourceValue = Reflect.get(source, keyName);
+        if (
+          typeof sourceValue === "object" &&
+          sourceValue != null &&
+          keyName in target &&
+          !UtilsContext.isDOM(sourceValue)
+        ) {
+          let childObjectValue;
+          if (Array.isArray(sourceValue)) {
+            if (Array.isArray(targetValue)) {
+              targetValue.length = 0;
             }
-            Reflect.set(target, targetKeyName, sourceValue);
+            childObjectValue = sourceValue;
+          } else {
+            childObjectValue = UtilsContext.assign(targetValue, sourceValue, isAdd);
           }
+          Reflect.set(target, keyName, childObjectValue);
+        } else {
+          Reflect.set(target, keyName, sourceValue);
         }
       }
       return target;
@@ -8346,7 +8337,7 @@ ${err.stack}`);
     }
   }
   const domUtils$1 = new DOMUtils2();
-  const version$1 = "2.9.6";
+  const version$1 = "2.9.7";
   class Utils2 {
     windowApi;
     constructor(option) {
@@ -11395,12 +11386,6 @@ ${err.stack}`);
     }
     assign(target = {}, source = {}, isAdd = false) {
       const UtilsContext = this;
-      if (source == null) {
-        return target;
-      }
-      if (target == null) {
-        target = {};
-      }
       if (Array.isArray(source)) {
         const canTraverse = source.filter((item) => {
           return typeof item === "object";
@@ -11409,39 +11394,42 @@ ${err.stack}`);
           return source;
         }
       }
+      if (source == null) {
+        return target;
+      }
+      if (target == null) {
+        target = {};
+      }
+      let iteratorTarget;
       if (isAdd) {
-        for (const sourceKeyName in source) {
-          const targetKeyName = sourceKeyName;
-          const targetValue = target[targetKeyName];
-          const sourceValue = source[sourceKeyName];
-          if (
-            typeof sourceValue === "object" &&
-            sourceValue != null &&
-            sourceKeyName in target &&
-            !UtilsContext.isDOM(sourceValue)
-          ) {
-            target[sourceKeyName] = UtilsContext.assign(targetValue, sourceValue, isAdd);
-            continue;
-          }
-          target[sourceKeyName] = sourceValue;
-        }
+        iteratorTarget = source;
       } else {
-        for (const targetKeyName in target) {
-          if (targetKeyName in source) {
-            const targetValue = Reflect.get(target, targetKeyName);
-            const sourceValue = Reflect.get(source, targetKeyName);
-            if (
-              typeof sourceValue === "object" &&
-              sourceValue != null &&
-              !UtilsContext.isDOM(sourceValue) &&
-              Object.keys(sourceValue).length
-            ) {
-              const childObjectValue = UtilsContext.assign(targetValue, sourceValue, isAdd);
-              Reflect.set(target, targetKeyName, childObjectValue);
-              continue;
+        iteratorTarget = target;
+      }
+      for (const keyName in iteratorTarget) {
+        if (!isAdd && !(keyName in source)) {
+          continue;
+        }
+        const targetValue = Reflect.get(target, keyName);
+        const sourceValue = Reflect.get(source, keyName);
+        if (
+          typeof sourceValue === "object" &&
+          sourceValue != null &&
+          keyName in target &&
+          !UtilsContext.isDOM(sourceValue)
+        ) {
+          let childObjectValue;
+          if (Array.isArray(sourceValue)) {
+            if (Array.isArray(targetValue)) {
+              targetValue.length = 0;
             }
-            Reflect.set(target, targetKeyName, sourceValue);
+            childObjectValue = sourceValue;
+          } else {
+            childObjectValue = UtilsContext.assign(targetValue, sourceValue, isAdd);
           }
+          Reflect.set(target, keyName, childObjectValue);
+        } else {
+          Reflect.set(target, keyName, sourceValue);
         }
       }
       return target;
@@ -11573,6 +11561,17 @@ ${err.stack}`);
       } finally {
         PopsCore.clearInterval(timeId);
       }
+    }
+    setArray(target, key, newArr) {
+      if (target == null) return;
+      if (!Array.isArray(newArr)) return;
+      const arr = target[key];
+      if (Array.isArray(target[key])) {
+        arr.length = 0;
+      } else {
+        target[key] = [];
+      }
+      target[key] = newArr;
     }
   }
   const popsUtils = new PopsUtils();
@@ -13057,7 +13056,7 @@ ${err.stack}`);
   var folderCSS =
     '.pops-folder-list {\r\n  --folder-arrow-fill-color: #d4d7de;\r\n  --folder-arrow-active-fill-color: #06a7ff;\r\n  --header-breadcrumb-text-color: #06a7ff;\r\n  --header-breadcrumb-all-files-text-color: var(--header-breadcrumb-text-color);\r\n  --header-breadcrumb-all-files-first-text-color: var(--header-breadcrumb-text-color);\r\n  --header-breadcrumb-all-files-last-text-color: #999999;\r\n  --table-header-row-text-color: #818999;\r\n  --table-body-td-text-color: rgb(247, 248, 250, var(--pops-bg-opacity));\r\n  --table-body-th-text-color: rgb(247, 248, 250, var(--pops-bg-opacity));\r\n  --table-body-row-text-color: #05082c;\r\n  --table-body-row-file-name-text-color: #05082c;\r\n  --table-body-row-hover-bd-color: rgb(245, 246, 247, var(--pops-bg-opacity));\r\n  --table-body-row-hover-bg-color: rgb(245, 246, 247, var(--pops-bg-opacity));\r\n  --table-body-row-file-name-hover-text-color: #06a7ff;\r\n  --table-body-row-content-text-color: #818999;\r\n}\r\n.pops-folder-list .cursor-p {\r\n  cursor: pointer;\r\n}\r\n.pops-folder-list a {\r\n  background: 0 0;\r\n  text-decoration: none;\r\n  -webkit-tap-highlight-color: transparent;\r\n  color: var(--header-breadcrumb-text-color);\r\n}\r\ntable.pops-folder-list-table__body,\r\ntable.pops-folder-list-table__header {\r\n  width: 100%;\r\n  table-layout: fixed;\r\n  border-collapse: collapse;\r\n  border-spacing: 0;\r\n  padding: 0 20px;\r\n}\r\ntable.pops-folder-list-table__body,\r\ntable.pops-folder-list-table__header {\r\n  height: 100%;\r\n  background: 0 0;\r\n  overflow: hidden;\r\n  display: -webkit-box;\r\n  display: -ms-flexbox;\r\n  -ms-flex-direction: column;\r\n  -webkit-box-orient: vertical;\r\n  -webkit-box-direction: normal;\r\n}\r\ntable.pops-folder-list-table__body {\r\n  height: 100%;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n.pops-folder-list table tr {\r\n  line-height: normal;\r\n  align-content: center;\r\n}\r\n.pops-folder-list-table__header-row {\r\n  height: 50px;\r\n  line-height: normal;\r\n  align-content: center;\r\n  color: var(--table-header-row-text-color);\r\n  text-align: left;\r\n  font-size: 12px;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n.pops-folder-list-table__body-row {\r\n  height: 50px;\r\n  line-height: normal;\r\n  align-content: center;\r\n  color: var(--table-body-row-text-color);\r\n  font-size: 12px;\r\n}\r\n.pops-folder-list-table__body-row:hover {\r\n  background-color: var(--table-body-row-hover-bg-color);\r\n  border-color: var(--table-body-row-hover-bd-color);\r\n  border: 0;\r\n  outline: none;\r\n}\r\n.pops-folder-list table th {\r\n  border: 0;\r\n  border-bottom: 1px solid var(--table-body-th-text-color);\r\n}\r\n.pops-folder-list table td {\r\n  border: 0;\r\n  border-bottom: 1px solid var(--table-body-td-text-color);\r\n  position: relative;\r\n}\r\n.pops-folder-list .list-name-text {\r\n  display: inline-block;\r\n  padding-left: 12px;\r\n  line-height: normal;\r\n  align-content: center;\r\n  max-width: 176px;\r\n}\r\n.pops-folder-list-file-name > div {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.pops-mobile-folder-list-file-name {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n.pops-mobile-folder-list-file-name > div {\r\n  display: flex;\r\n  flex-wrap: wrap;\r\n  justify-content: flex-start;\r\n  align-items: flex-start;\r\n  padding: 6px 0px;\r\n  flex-direction: column;\r\n}\r\n.pops-mobile-folder-list-file-name img.pops-folder-list-file-icon {\r\n  width: 45px;\r\n  height: 45px;\r\n}\r\n.pops-mobile-folder-list-file-name a.pops-folder-list-file-name-title-text {\r\n  padding-left: unset;\r\n  max-width: 250px;\r\n  overflow-x: hidden;\r\n  font-weight: 400;\r\n  line-height: unset;\r\n  margin-bottom: 4px;\r\n  white-space: normal;\r\n  text-overflow: unset;\r\n}\r\n\r\n/* 修改滚动 */\r\n.pops-folder-content {\r\n  overflow: hidden !important;\r\n}\r\n.pops-folder-content .pops-folder-list {\r\n  height: 100%;\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n.pops-folder-content .pops-folder-list-table__body-div {\r\n  height: 100%;\r\n  flex: 1 auto;\r\n  overflow: auto;\r\n  padding-bottom: 0;\r\n}\r\n.pops-mobile-folder-content .pops-folder-list-table__body-div {\r\n  height: 100%;\r\n  flex: 1 auto;\r\n  overflow: auto;\r\n  padding-bottom: 0;\r\n}\r\n.pops-folder-content table.pops-folder-list-table__body {\r\n  overflow: auto;\r\n}\r\n.pops-folder-content .pops-folder-list-table__header-div {\r\n  flex: 0;\r\n}\r\n.pops-mobile-folder-content .pops-folder-list-table__header-div {\r\n  display: none;\r\n}\r\n\r\n.pops-folder-list .pops-folder-list-file-name-title-text {\r\n  color: var(--table-body-row-file-name-text-color);\r\n}\r\n.pops-folder-list .pops-folder-list-file-name-title-text:hover {\r\n  text-decoration: none;\r\n  color: var(--table-body-row-file-name-hover-text-color);\r\n}\r\n.pops-folder-list .text-ellip {\r\n  overflow: hidden;\r\n  white-space: nowrap;\r\n  text-overflow: ellipsis;\r\n}\r\n.pops-folder-list .content {\r\n  color: var(--table-body-row-content-text-color);\r\n  position: relative;\r\n  width: 100%;\r\n  text-align: left;\r\n}\r\n.pops-folder-list .inline-block-v-middle {\r\n  display: inline-block;\r\n  vertical-align: middle;\r\n}\r\n.pops-folder-list .flex-a-i-center {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n.pops-folder-list .u-file-icon {\r\n  display: inline-block;\r\n  vertical-align: middle;\r\n}\r\n.pops-folder-list .u-file-icon--list {\r\n  width: 32px;\r\n  height: 32px;\r\n}\r\n.pops-folder-list .pops-folder-list-file-icon {\r\n  line-height: normal;\r\n  align-content: center;\r\n  position: relative;\r\n  vertical-align: middle;\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb-primary {\r\n  flex: 1;\r\n  display: -webkit-box;\r\n  display: -webkit-flex;\r\n  display: -ms-flexbox;\r\n  display: flex;\r\n  -webkit-box-align: center;\r\n  -webkit-align-items: center;\r\n  -ms-flex-align: center;\r\n  align-items: center;\r\n  -webkit-box-orient: horizontal;\r\n  -webkit-box-direction: normal;\r\n  -webkit-flex-direction: row;\r\n  -ms-flex-direction: row;\r\n  flex-direction: row;\r\n  min-height: 17px;\r\n  flex-wrap: wrap;\r\n}\r\n.pops-folder-list .pops-folder-list-table__sort {\r\n  display: inline-flex;\r\n  margin-left: 4px;\r\n  flex-direction: column;\r\n}\r\n\r\n.pops-folder-list .pops-folder-icon-arrow {\r\n  width: 10px;\r\n  height: 10px;\r\n  fill: var(--folder-arrow-fill-color);\r\n}\r\n.pops-folder-list .pops-folder-icon-active {\r\n  fill: var(--folder-arrow-active-fill-color);\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb {\r\n  padding: 4px 20px;\r\n  -webkit-box-sizing: border-box;\r\n  box-sizing: border-box;\r\n  display: -webkit-box;\r\n  display: -webkit-flex;\r\n  display: -ms-flexbox;\r\n  display: flex;\r\n  -webkit-box-align: center;\r\n  -webkit-align-items: center;\r\n  -ms-flex-align: center;\r\n  align-items: center;\r\n  -webkit-box-orient: horizontal;\r\n  -webkit-box-direction: normal;\r\n  -webkit-flex-direction: row;\r\n  -ms-flex-direction: row;\r\n  flex-direction: row;\r\n  -webkit-box-pack: start;\r\n  -webkit-justify-content: start;\r\n  -ms-flex-pack: start;\r\n  justify-content: flex-start;\r\n  min-height: 35px;\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles {\r\n  font-size: 12px;\r\n  color: var(--header-breadcrumb-all-files-text-color);\r\n  line-height: normal;\r\n  align-content: center;\r\n  font-weight: 700;\r\n  display: inline-block;\r\n  max-width: 140px;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  white-space: nowrap;\r\n  word-wrap: normal;\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:last-child a {\r\n  color: var(--header-breadcrumb-all-files-last-text-color);\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:first-child a {\r\n  font-size: 14px;\r\n  color: var(--header-breadcrumb-all-files-first-text-color);\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb .iconArrow {\r\n  width: 16px;\r\n  height: 16px;\r\n}\r\n.pops-folder-list .iconArrow {\r\n  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAASCAMAAABYd88+AAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAABFUExURUdwTOLi4uLi4t7e3uPj49/f397e3t3d3f///97e3vDw8N3d3d7e3t3d3d3d3ejo6N/f397e3t7e3t3d3d/f393d3d3d3RK+NoEAAAAWdFJOUwAnM4YPU/iQA+UIeMDaHhY41i7zX7UebpjFAAAAUElEQVQI15XOORaAIAwE0LATXHCd+x9VfCiksXCq+UUWou8oZ1vXHrt7YVBiYkW4gdMKYFIC4CSATWCNHWPuM6HuHkr1x3N0ZrBu/9gl0b9c3+kF7C7hS1YAAAAASUVORK5CYII=)\r\n    55% 50%/6px 9px no-repeat;\r\n}\r\n\r\n@media (prefers-color-scheme: dark) {\r\n  .pops[type-value="folder"] {\r\n    --pops-title-border-color: rgb(73, 83, 102, var(--pops-bg-opacity));\r\n    --pops-bottom-btn-controls-border-color: rgb(73, 83, 102, var(--pops-bg-opacity));\r\n  }\r\n  .pops-folder-list {\r\n    --header-breadcrumb-text-color: #06a7ff;\r\n    --header-breadcrumb-all-files-text-color: var(--header-breadcrumb-text-color);\r\n    --header-breadcrumb-all-files-first-text-color: var(--header-breadcrumb-text-color);\r\n    --header-breadcrumb-all-files-last-text-color: #818999;\r\n    --table-body-row-text-color: #f7f8fa;\r\n    --table-body-td-text-color: rgb(73, 83, 102, var(--pops-bg-opacity));\r\n    --table-body-th-text-color: rgb(73, 83, 102, var(--pops-bg-opacity));\r\n    --table-body-td-text-color: #495366;\r\n    --table-body-row-hover-bd-color: #1f2022;\r\n    --table-body-row-hover-bg-color: #1f2022;\r\n    --table-body-row-file-name-text-color: #f7f8fa;\r\n  }\r\n}\r\n';
   var panelCSS =
-    '.pops[type-value="panel"] {\r\n  --pops-bg-color: #f2f2f2;\r\n  --pops-color: #333333;\r\n  --panel-title-bg-color: #ffffff;\r\n\r\n  --panel-aside-bg-color: #ffffff;\r\n  --panel-aside-hover-color: rgb(64, 158, 255);\r\n  --panel-aside-hover-bg-color: rgba(64, 158, 255, 0.1);\r\n\r\n  --pops-panel-forms-margin-top-bottom: 10px;\r\n  --pops-panel-forms-margin-left-right: 20px;\r\n  --pops-panel-forms-header-icon-size: calc(var(--pops-panel-forms-container-li-padding-left-right) + 1px);\r\n  --pops-panel-forms-header-padding-top-bottom: 15px;\r\n  --pops-panel-forms-header-padding-left-right: 10px;\r\n  --pops-panel-forms-container-item-left-text-gap: 6px;\r\n  --pops-panel-forms-container-item-left-desc-text-size: 0.8em;\r\n  --pops-panel-forms-container-item-left-desc-text-color: #6c6c6c;\r\n  --pops-panel-forms-container-item-bg-color: #ffffff;\r\n  --pops-panel-forms-container-item-title-color: #333;\r\n  --pops-panel-forms-container-item-border-radius: 6px;\r\n  --pops-panel-forms-container-item-margin-top-bottom: 10px;\r\n  --pops-panel-forms-container-item-margin-left-right: var(--pops-panel-forms-margin-left-right);\r\n  --pops-panel-forms-container-li-border-color: var(--pops-bd-color);\r\n  --pops-panel-forms-container-li-padding-top-bottom: 12px;\r\n  --pops-panel-forms-container-li-padding-left-right: 16px;\r\n\r\n  --pops-panel-forms-container-deepMenu-item-active-bg: #e9e9e9;\r\n}\r\n.pops[type-value="panel"] {\r\n  color: var(--pops-color);\r\n  background: var(--pops-bg-color);\r\n}\r\n.pops[type-value] .pops-panel-title {\r\n  background: var(--panel-title-bg-color);\r\n}\r\n\r\n/* ↓panel的CSS↓ */\r\n/* 左侧的列表 */\r\naside.pops-panel-aside {\r\n  box-sizing: border-box;\r\n  flex-shrink: 0;\r\n  max-width: 200px;\r\n  min-width: 100px;\r\n  height: 100%;\r\n  background: var(--panel-aside-bg-color);\r\n  border-right: 1px solid var(--panel-aside-bg-color);\r\n  font-size: 0.9em;\r\n  display: flex;\r\n  flex-direction: column;\r\n  justify-content: space-between;\r\n}\r\naside.pops-panel-aside .pops-panel-aside-top-container {\r\n  overflow: auto;\r\n}\r\naside.pops-panel-aside ul li {\r\n  margin: 6px 8px;\r\n  border-radius: 4px;\r\n  padding: 6px 10px;\r\n  cursor: default;\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: flex-start;\r\n}\r\naside.pops-panel-aside .pops-is-visited,\r\naside.pops-panel-aside ul li:not(.pops-panel-disabled-aside-hover-css):hover {\r\n  color: var(--panel-aside-hover-color);\r\n  background: var(--panel-aside-hover-bg-color);\r\n}\r\n/* 左侧的列表 */\r\n\r\n/* 底部的容器 */\r\n.pops-panel-bottom-wrapper {\r\n  background: var(--panel-aside-bg-color);\r\n  border-top: 1px solid #ebeef5;\r\n}\r\n.pops-panel-bottom-wrapper:has(.pops-panel-bottom-left-container:empty):has(.pops-panel-bottom-right-container:empty) {\r\n  border-top: 0;\r\n}\r\n.pops-panel-bottom-container {\r\n  display: flex;\r\n  flex-wrap: nowrap;\r\n  justify-content: space-between;\r\n}\r\n.pops-panel-bottom-left-container {\r\n}\r\n.pops-panel-bottom-right-container {\r\n}\r\n.pops-panel-bottom-wrapper .pops-panel-bottom-item {\r\n  list-style-type: none;\r\n  margin: 6px 8px;\r\n  border-radius: 4px;\r\n  padding: 6px 10px;\r\n  cursor: default;\r\n}\r\n.pops-panel-bottom-wrapper:not(.pops-panel-disable-bottom-item-hover-css) .pops-panel-bottom-item:hover {\r\n  color: var(--panel-aside-hover-color);\r\n  background: var(--panel-aside-hover-bg-color);\r\n}\r\n/* 底部的容器 */\r\n\r\n.pops-panel-content {\r\n  display: flex;\r\n  flex-direction: row;\r\n  flex: 1;\r\n  overflow: auto;\r\n  flex-basis: auto;\r\n  box-sizing: border-box;\r\n  min-width: 0;\r\n  bottom: 0 !important;\r\n}\r\n\r\n.pops-panel-section-wrapper {\r\n  width: 100%;\r\n  overflow: hidden;\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n\r\nsection.pops-panel-container {\r\n  width: 100%;\r\n  overflow: hidden;\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\nsection.pops-panel-container .pops-panel-container-header-ul,\r\nsection.pops-panel-container .pops-panel-deepMenu-container-header-ul {\r\n  border-bottom: 1px solid rgba(223, 223, 223, var(--pops-bg-opacity));\r\n  flex: 0 auto;\r\n}\r\nsection.pops-panel-container .pops-panel-container-header-ul li,\r\nsection.pops-panel-container .pops-panel-container-header-ul li.pops-panel-container-header-title-text {\r\n  display: flex;\r\n  justify-content: flex-start !important;\r\n  margin: 0px !important;\r\n  padding: var(--pops-panel-forms-header-padding-top-bottom)\r\n    calc(var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right));\r\n  text-align: left;\r\n}\r\nsection.pops-panel-container ul.pops-panel-container-main-ul {\r\n  overflow: auto;\r\n  /*flex: 1;*/\r\n}\r\nsection.pops-panel-container > ul li:not(.pops-panel-forms-container-item) {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  margin: var(--pops-panel-forms-margin-top-bottom)\r\n    calc(var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-margin-left-right));\r\n  gap: 10px;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item-header-text {\r\n  margin: 10px;\r\n  margin-left: calc(\r\n    var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right)\r\n  );\r\n  font-size: 0.9em;\r\n  text-align: left;\r\n  color: var(--pops-panel-forms-container-item-title-color);\r\n}\r\nsection.pops-panel-container li.pops-panel-forms-container-item {\r\n  /* 去除<li>左侧的圆点 */\r\n  display: block;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item ul.pops-panel-forms-container-item-formlist {\r\n  border-radius: var(--pops-panel-forms-container-item-border-radius);\r\n  background: var(--pops-panel-forms-container-item-bg-color);\r\n  margin: var(--pops-panel-forms-container-item-margin-top-bottom) var(--pops-panel-forms-margin-left-right);\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item ul.pops-panel-forms-container-item-formlist li {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  padding: var(--pops-panel-forms-container-li-padding-top-bottom)\r\n    var(--pops-panel-forms-container-li-padding-left-right);\r\n  margin: 0px 0px;\r\n  border-bottom: 1px solid var(--pops-panel-forms-container-li-border-color);\r\n  text-align: left;\r\n}\r\n/*section.pops-panel-container\r\n	.pops-panel-forms-container-item\r\n	ul\r\n	li.pops-panel-deepMenu-nav-item {\r\n	padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px;\r\n	margin: 0px var(--pops-panel-forms-container-li-padding-left-right);\r\n	border-bottom: 1px solid var(--pops-panel-forms-container-li-border-color);\r\n}*/\r\nsection.pops-panel-container\r\n  .pops-panel-forms-container-item\r\n  ul.pops-panel-forms-container-item-formlist\r\n  li:last-child {\r\n  border: 0px;\r\n}\r\n/* 左侧的文字 */\r\nsection.pops-panel-container .pops-panel-item-left-text {\r\n  display: flex;\r\n  flex-direction: column;\r\n  gap: var(--pops-panel-forms-container-item-left-text-gap);\r\n}\r\n\r\n/* 左侧的主文字 */\r\n/*section.pops-panel-container .pops-panel-item-left-main-text {\r\n	\r\n}*/\r\n/* 左侧的描述文字 */\r\nsection.pops-panel-container .pops-panel-item-left-desc-text {\r\n  font-size: var(--pops-panel-forms-container-item-left-desc-text-size);\r\n  color: var(--pops-panel-forms-container-item-left-desc-text-color);\r\n}\r\n\r\n/* 折叠面板 */\r\nsection.pops-panel-container .pops-panel-forms-fold {\r\n  border-radius: var(--pops-panel-forms-container-item-border-radius);\r\n  background: var(--pops-panel-forms-container-item-bg-color);\r\n  margin: var(--pops-panel-forms-margin-top-bottom) var(--pops-panel-forms-margin-left-right);\r\n}\r\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-fold-container {\r\n  display: flex;\r\n  align-items: center;\r\n  fill: #6c6c6c;\r\n  justify-content: space-between;\r\n  margin: 0px var(--pops-panel-forms-container-li-padding-left-right) !important;\r\n  padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px !important;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-fold[data-fold-enable] .pops-panel-forms-fold-container-icon {\r\n  transform: rotate(90deg);\r\n}\r\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-fold-container-icon {\r\n  width: 15px;\r\n  height: 15px;\r\n  display: flex;\r\n  align-items: center;\r\n  transform: rotate(-90deg);\r\n  transition: transform 0.3s;\r\n}\r\n/* 折叠状态 */\r\nsection.pops-panel-container .pops-panel-forms-fold[data-fold-enable] .pops-panel-forms-container-item-formlist {\r\n  height: 0;\r\n}\r\n/* 非折叠状态 */\r\nsection.pops-panel-container .pops-panel-forms-fold ul.pops-panel-forms-container-item-formlist {\r\n  margin: 0;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-container-item-formlist {\r\n  transition: height 0.3s;\r\n  overflow: hidden;\r\n  border-radius: unset;\r\n  background: unset;\r\n  margin: 0;\r\n  height: calc-size(auto, size);\r\n}\r\n/* 折叠面板 */\r\n\r\n/* 姑且认为小于600px的屏幕为移动端 */\r\n@media (max-width: 600px) {\r\n  /* 兼容移动端CSS */\r\n  .pops[type-value="panel"] {\r\n    --pops-panel-forms-margin-left-right: 10px;\r\n  }\r\n  .pops[type-value="panel"] {\r\n    width: 92%;\r\n    width: 92vw;\r\n    width: 92dvw;\r\n  }\r\n  .pops[type-value="panel"] .pops-panel-content aside.pops-panel-aside {\r\n    max-width: 20%;\r\n    min-width: auto;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-forms-container-item > div {\r\n    text-align: left;\r\n    --pops-panel-forms-margin-left-right: 0px;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-forms-container-item ul {\r\n    margin: 0px !important;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container > ul > li {\r\n    margin: 10px 10px;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container > ul > li div:nth-child(2) {\r\n    max-width: 55%;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container > ul > li .pops-panel-input span.pops-panel-input__suffix {\r\n    padding: 0 4px;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-select select {\r\n    min-width: 88px !important;\r\n    width: -webkit-fill-available;\r\n    width: -moz-available;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-container-header-ul li {\r\n    font-size: 16px;\r\n  }\r\n  .pops[type-value="panel"] .pops-panel-title p[pops],\r\n  .pops[type-value="panel"] section.pops-panel-container > ul li,\r\n  .pops[type-value="panel"] aside.pops-panel-aside ul li {\r\n    font-size: 14px;\r\n  }\r\n}\r\n/* switch的CSS */\r\n.pops-panel-switch {\r\n  --panel-switch-core-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\r\n  --panel-switch-core-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\r\n  --panel-switch-circle-color: #dcdfe6;\r\n  --panel-switch-circle-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n  --panel-switch-checked-circle-color: #409eff;\r\n  --panel-switch-checked-core-bd-color: rgb(64, 158, 255, var(--pops-bd-opacity));\r\n  --panel-switch-checked-core-bg-color: rgb(64, 158, 255, var(--pops-bg-opacity));\r\n}\r\n.pops-panel-switch {\r\n  display: inline-flex;\r\n  flex-direction: row-reverse;\r\n  align-items: center;\r\n  position: relative;\r\n  font-size: 14px;\r\n  line-height: normal;\r\n  align-content: center;\r\n  height: 32px;\r\n  vertical-align: middle;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n.pops-panel-switch input.pops-panel-switch__input {\r\n  position: absolute;\r\n  width: 0;\r\n  height: 0;\r\n  opacity: 0;\r\n  margin: 0;\r\n}\r\n.pops-panel-switch:has(input.pops-panel-switch__input:disabled),\r\n.pops-panel-switch[data-disabled],\r\n.pops-panel-switch[data-disabled] .pops-panel-switch__core,\r\n.pops-panel-switch input.pops-panel-switch__input:disabled + .pops-panel-switch__core {\r\n  cursor: not-allowed;\r\n  opacity: 0.6;\r\n}\r\n.pops-panel-switch span.pops-panel-switch__core {\r\n  display: inline-flex;\r\n  position: relative;\r\n  align-items: center;\r\n  min-width: 40px;\r\n  height: 20px;\r\n  border: 1px solid var(--panel-switch-core-bd-color);\r\n  outline: 0;\r\n  border-radius: 10px;\r\n  box-sizing: border-box;\r\n  background: var(--panel-switch-core-bg-color);\r\n  cursor: pointer;\r\n  transition:\r\n    border-color 0.3s,\r\n    background-color 0.3s;\r\n}\r\n.pops-panel-switch .pops-panel-switch__action {\r\n  position: absolute;\r\n  left: 1px;\r\n  border-radius: 100%;\r\n  transition: all 0.3s;\r\n  width: 16px;\r\n  height: 16px;\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  background-color: var(--panel-switch-circle-bg-color);\r\n  color: var(--panel-switch-circle-color);\r\n}\r\n.pops-panel-switch.pops-panel-switch-is-checked span.pops-panel-switch__core {\r\n  border-color: var(--panel-switch-checked-core-bd-color);\r\n  background-color: var(--panel-switch-checked-core-bg-color);\r\n}\r\n.pops-panel-switch.pops-panel-switch-is-checked .pops-panel-switch__action {\r\n  left: calc(100% - 17px);\r\n  color: var(--panel-switch-checked-circle-color);\r\n}\r\n/* switch的CSS */\r\n\r\n/* slider旧的CSS */\r\nsection.pops-panel-container .pops-panel-slider:has(> input[type="range"]) {\r\n  overflow: hidden;\r\n  height: 25px;\r\n  line-height: normal;\r\n  align-content: center;\r\n  display: flex;\r\n  align-items: center;\r\n}\r\nsection.pops-panel-container .pops-panel-slider input[type="range"] {\r\n  height: 6px;\r\n  background: rgb(228, 231, 237, var(--pops-bg-opacity));\r\n  outline: 0;\r\n  -webkit-appearance: none;\r\n  appearance: none;\r\n  width: 100%;\r\n}\r\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-webkit-slider-thumb {\r\n  width: 20px;\r\n  height: 20px;\r\n  border-radius: 50%;\r\n  border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));\r\n  background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n  box-shadow:\r\n    0 0 2px rgba(0, 0, 0, 0.3),\r\n    0 3px 5px rgba(0, 0, 0, 0.2);\r\n  cursor: pointer;\r\n  -webkit-appearance: none;\r\n  appearance: none;\r\n  border-image: linear-gradient(#409eff, #409eff) 0 fill/9 25 9 0/0 0 0 100vw;\r\n}\r\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-thumb {\r\n  width: 20px;\r\n  height: 20px;\r\n  border-radius: 50%;\r\n  border: 1px solid rgb(64, 159, 255, var(--pops-bd-opacity));\r\n  background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n  box-shadow:\r\n    0 0 2px rgba(0, 0, 0, 0.3),\r\n    0 3px 5px rgba(0, 0, 0, 0.2);\r\n  cursor: pointer;\r\n  -webkit-appearance: none;\r\n  appearance: none;\r\n}\r\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-progress {\r\n  height: 6px;\r\n  border-image: linear-gradient(#409eff, #409eff) 0 fill/9 25 9 0/0 0 0 100vw;\r\n}\r\n/* slider旧的CSS */\r\n\r\n/* slider的CSS */\r\n.pops-slider {\r\n  --pops-slider-color-white: #ffffff;\r\n  --pops-slider-color-primary: #409eff;\r\n  --pops-slider-color-info: #909399;\r\n  --pops-slider-text-color-placeholder: #a8abb2;\r\n  --pops-slider-border-color-light: #e4e7ed;\r\n  --pops-slider-border-radius-circle: 100%;\r\n  --pops-slider-transition-duration-fast: 0.2s;\r\n\r\n  --pops-slider-main-bg-color: var(--pops-slider-color-primary);\r\n  --pops-slider-runway-bg-color: var(--pops-slider-border-color-light);\r\n  --pops-slider-stop-bg-color: var(--pops-slider-color-white);\r\n  --pops-slider-disabled-color: var(--pops-slider-text-color-placeholder);\r\n  --pops-slider-border-radius: 3px;\r\n  --pops-slider-height: 6px;\r\n  --pops-slider-button-size: 20px;\r\n  --pops-slider-button-wrapper-size: 36px;\r\n  --pops-slider-button-wrapper-offset: -15px;\r\n}\r\n\r\n.pops-slider {\r\n  width: 100%;\r\n  height: 32px;\r\n  display: flex;\r\n  align-items: center;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n\r\n.pops-slider-width {\r\n  flex: 0 0 52%;\r\n  margin-left: 10px;\r\n}\r\n\r\n.pops-slider__runway {\r\n  flex: 1;\r\n  height: var(--pops-slider-height);\r\n  background-color: var(--pops-slider-runway-bg-color);\r\n  border-radius: var(--pops-slider-border-radius);\r\n  position: relative;\r\n  cursor: pointer;\r\n}\r\n\r\n.pops-slider__runway.show-input {\r\n  margin-right: 30px;\r\n  width: auto;\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled {\r\n  cursor: default;\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__bar {\r\n  background-color: var(--pops-slider-disabled-color);\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button {\r\n  border-color: var(--pops-slider-disabled-color);\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\r\n  cursor: not-allowed;\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\r\n  transform: scale(1);\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\r\n  cursor: not-allowed;\r\n}\r\n\r\n.pops-slider__input {\r\n  flex-shrink: 0;\r\n  width: 130px;\r\n}\r\n\r\n.pops-slider__bar {\r\n  height: var(--pops-slider-height);\r\n  background-color: var(--pops-slider-main-bg-color);\r\n  border-top-left-radius: var(--pops-slider-border-radius);\r\n  border-bottom-left-radius: var(--pops-slider-border-radius);\r\n  position: absolute;\r\n}\r\n\r\n.pops-slider__button-wrapper {\r\n  height: var(--pops-slider-button-wrapper-size);\r\n  width: var(--pops-slider-button-wrapper-size);\r\n  position: absolute;\r\n  z-index: 1;\r\n  top: var(--pops-slider-button-wrapper-offset);\r\n  transform: translate(-50%);\r\n  background-color: transparent;\r\n  text-align: center;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n  line-height: normal;\r\n  outline: none;\r\n}\r\n\r\n.pops-slider__button-wrapper:after {\r\n  display: inline-block;\r\n  content: "";\r\n  height: 100%;\r\n  vertical-align: middle;\r\n}\r\n\r\n.pops-slider__button:hover,\r\n.pops-slider__button.hover {\r\n  cursor: grab;\r\n}\r\n\r\n.pops-slider__button {\r\n  display: inline-block;\r\n  width: var(--pops-slider-button-size);\r\n  height: var(--pops-slider-button-size);\r\n  vertical-align: middle;\r\n  border: solid 2px var(--pops-slider-main-bg-color);\r\n  background-color: var(--pops-slider-color-white);\r\n  border-radius: 50%;\r\n  box-sizing: border-box;\r\n  transition: var(--pops-slider-transition-duration-fast);\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n\r\n.pops-slider__button:hover,\r\n.pops-slider__button.hover,\r\n.pops-slider__button.dragging {\r\n  transform: scale(1.2);\r\n}\r\n\r\n.pops-slider__button:hover,\r\n.pops-slider__button.hover {\r\n  cursor: grab;\r\n}\r\n\r\n.pops-slider__button.dragging {\r\n  cursor: grabbing;\r\n}\r\n\r\n.pops-slider__stop {\r\n  position: absolute;\r\n  height: var(--pops-slider-height);\r\n  width: var(--pops-slider-height);\r\n  border-radius: var(--pops-slider-border-radius-circle);\r\n  background-color: var(--pops-slider-stop-bg-color);\r\n  transform: translate(-50%);\r\n}\r\n\r\n.pops-slider__marks {\r\n  top: 0;\r\n  left: 12px;\r\n  width: 18px;\r\n  height: 100%;\r\n}\r\n\r\n.pops-slider__marks-text {\r\n  position: absolute;\r\n  transform: translate(-50%);\r\n  font-size: 14px;\r\n  color: var(--pops-slider-color-info);\r\n  margin-top: 15px;\r\n  white-space: pre;\r\n}\r\n\r\n.pops-slider.is-vertical {\r\n  position: relative;\r\n  display: inline-flex;\r\n  width: auto;\r\n  height: 100%;\r\n  flex: 0;\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__runway {\r\n  width: var(--pops-slider-height);\r\n  height: 100%;\r\n  margin: 0 16px;\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__bar {\r\n  width: var(--pops-slider-height);\r\n  height: auto;\r\n  border-radius: 0 0 3px 3px;\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__button-wrapper {\r\n  top: auto;\r\n  left: var(--pops-slider-button-wrapper-offset);\r\n  transform: translateY(50%);\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__stop {\r\n  transform: translateY(50%);\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__marks-text {\r\n  margin-top: 0;\r\n  left: 15px;\r\n  transform: translateY(50%);\r\n}\r\n\r\n.pops-slider--large {\r\n  height: 40px;\r\n}\r\n\r\n.pops-slider--small {\r\n  height: 24px;\r\n}\r\n/* slider的CSS */\r\n\r\n/* input的CSS */\r\n.pops-panel-input {\r\n  --el-disabled-text-color: #a8abb2;\r\n  --el-disabled-bg-color: #f5f7fa;\r\n  --el-disabled-border-color: #e4e7ed;\r\n\r\n  --pops-panel-components-input-text-color: #000000;\r\n  --pops-panel-components-input-text-bg-color: transparent;\r\n  --pops-panel-components-input-text-default-padding: 8px;\r\n  --pops-panel-components-input-bd-color: #dcdfe6;\r\n  --pops-panel-components-input-bg-color: #ffffff;\r\n  --pops-panel-components-input-hover-bd-color: #c0c4cc;\r\n  --pops-panel-components-input-focus-bd-color: #409eff;\r\n  --pops-panel-components-input-suffix-color: #a8abb2;\r\n  --pops-panel-components-input-suffix-bg-color: #ffffff;\r\n}\r\n.pops-panel-input {\r\n  display: flex;\r\n  align-items: center;\r\n  border: 1px solid var(--pops-panel-components-input-bd-color);\r\n  border-radius: 4px;\r\n  background-color: var(--pops-panel-components-input-bg-color);\r\n  position: relative;\r\n  box-shadow: none;\r\n  width: 200px;\r\n}\r\n.pops-panel-input:hover {\r\n  border: 1px solid var(--pops-panel-components-input-hover-bd-color);\r\n}\r\n.pops-panel-input:has(input:disabled):hover {\r\n  --pops-panel-components-input-hover-bd-color: var(--pops-panel-components-input-bd-color);\r\n}\r\n.pops-panel-input:has(input:focus) {\r\n  outline: 0;\r\n  border: 1px solid var(--pops-panel-components-input-focus-bd-color);\r\n  border-radius: 4px;\r\n  box-shadow: none;\r\n}\r\n.pops-panel-input input {\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  text-align: start;\r\n  align-items: center;\r\n  align-content: center;\r\n  white-space: nowrap;\r\n  cursor: text;\r\n  box-sizing: border-box;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n  vertical-align: middle;\r\n  -webkit-appearance: none;\r\n  appearance: none;\r\n  color: var(--pops-panel-components-input-text-color);\r\n  background-color: var(--pops-panel-components-input-text-bg-color);\r\n  outline: 0;\r\n  transition: 0.1s;\r\n  border: 0;\r\n  font-size: 14px;\r\n  font-weight: 500;\r\n  line-height: normal;\r\n  height: 32px;\r\n  width: 100%;\r\n  flex: 1;\r\n  /*margin-right: calc(1em + 8px);*/\r\n  margin: 0px;\r\n  padding: var(--pops-panel-components-input-text-default-padding);\r\n}\r\n.pops-panel-input span.pops-panel-input__suffix {\r\n  display: inline-flex;\r\n  white-space: nowrap;\r\n  flex-shrink: 0;\r\n  flex-wrap: nowrap;\r\n  height: 100%;\r\n  height: -webkit-fill-available;\r\n  height: -moz-available;\r\n  text-align: center;\r\n  color: var(--pops-panel-components-input-suffix-color);\r\n  background: var(--pops-panel-components-input-suffix-bg-color);\r\n  transition: all 0.3s;\r\n  pointer-events: none;\r\n  padding: 0 8px;\r\n  position: relative;\r\n  right: 0px;\r\n  border-top-right-radius: 4px;\r\n  border-bottom-right-radius: 4px;\r\n  border: 1px solid transparent;\r\n}\r\n.pops-panel-input span.pops-panel-input__suffix-inner {\r\n  pointer-events: all;\r\n  display: inline-flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n}\r\n/* 如果包含清空图标的按钮，则默认隐藏清空图标，当:hover、:focus、:focus-within、:active时显示清空图标 */\r\n.pops-panel-input span.pops-panel-input__suffix:has(svg[data-type="circleClose"]) {\r\n  display: none;\r\n}\r\n.pops-panel-input:hover span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\r\n.pops-panel-input:focus span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\r\n.pops-panel-input:focus-within span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\r\n.pops-panel-input:active span.pops-panel-input__suffix:has(svg[data-type="circleClose"]) {\r\n  display: inline-flex;\r\n}\r\n/* 当清空图标显示时或查看图标存在时，则隐藏输入框的padding-right */\r\n.pops-panel-input:hover:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,\r\n.pops-panel-input:focus:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,\r\n.pops-panel-input:focus-within:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,\r\n.pops-panel-input:active:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,\r\n.pops-panel-input:has(span.pops-panel-input__suffix svg[data-type="view"]) input,\r\n.pops-panel-input:has(span.pops-panel-input__suffix svg[data-type="hide"]) input {\r\n  padding-right: 0;\r\n}\r\n.pops-panel-input .pops-panel-icon {\r\n  cursor: pointer;\r\n}\r\n.pops-panel-input .pops-panel-icon {\r\n  height: inherit;\r\n  line-height: normal;\r\n  align-content: center;\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  transition: all 0.3s;\r\n}\r\n.pops-panel-input .pops-panel-icon svg {\r\n  height: 1em;\r\n  width: 1em;\r\n}\r\n\r\n.pops-input-disabled {\r\n  background-color: var(--pops-components-is-disabled-bg-color);\r\n}\r\n.pops-panel-input.pops-input-disabled:hover {\r\n  --pops-panel-components-input-hover-bd-color: var(--pops-panel-components-input-bd-color);\r\n}\r\n.pops-panel-input input:disabled,\r\n.pops-panel-input input:disabled + .pops-panel-input__suffix {\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n  color: var(--el-disabled-text-color);\r\n  -webkit-text-fill-color: var(--el-disabled-text-color);\r\n  cursor: not-allowed;\r\n}\r\n.pops-panel-input input:disabled + .pops-panel-input__suffix {\r\n  display: none;\r\n}\r\n/* input的CSS */\r\n\r\n/* textarea的CSS */\r\n.pops-panel-textarea {\r\n  --pops-panel-components-textarea-text-color: #000000;\r\n  --pops-panel-components-textarea-text-bg-color: #ffffff;\r\n  --pops-panel-components-textarea-bd-color: #dcdfe6;\r\n  --pops-panel-components-textarea-hover-bd-color: #c0c4cc;\r\n  --pops-panel-components-textarea-focus-bd-color: #409eff;\r\n}\r\n.pops-panel-textarea textarea {\r\n  width: 100%;\r\n  /*vertical-align: bottom;*/\r\n  position: relative;\r\n  display: block;\r\n  resize: none;\r\n  padding: 5px 11px;\r\n  /*line-height: 1;*/\r\n  box-sizing: border-box;\r\n  font-size: inherit;\r\n  font-family: inherit;\r\n  color: var(--pops-panel-components-textarea-text-color);\r\n  background-color: var(--pops-panel-components-textarea-text-bg-color);\r\n  background-image: none;\r\n  -webkit-appearance: none;\r\n  appearance: none;\r\n  box-shadow: none;\r\n  border-radius: 0;\r\n  transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\r\n  border: 1px solid var(--pops-panel-components-textarea-bd-color);\r\n}\r\n.pops-panel-textarea textarea:hover {\r\n  border-color: var(--pops-panel-components-textarea-hover-bd-color);\r\n}\r\n.pops-panel-textarea:has(textarea:disabled):hover {\r\n  --pops-panel-components-textarea-hover-bd-color: var(--pops-panel-components-textarea-bd-color);\r\n}\r\n.pops-panel-textarea-disable {\r\n  --pops-panel-components-textarea-text-bg-color: var(--pops-components-is-disabled-bg-color) !important;\r\n  --pops-panel-components-textarea-text-color: var(--pops-components-is-disabled-text-color);\r\n}\r\n.pops-panel-textarea-disable textarea {\r\n  cursor: not-allowed;\r\n}\r\n.pops-panel-textarea textarea:focus {\r\n  outline: 0;\r\n  border-color: var(--pops-panel-components-textarea-focus-bd-color);\r\n}\r\n/* textarea的CSS */\r\n\r\n/* select的CSS */\r\n.pops-panel-select {\r\n  --pops-panel-components-select-text-color: #000000;\r\n  --pops-panel-components-select-bd-color: rgb(184, 184, 184, var(--pops-bd-opacity));\r\n  --pops-panel-components-select-hover-bd-color: rgb(184, 184, 184, var(--pops-bd-opacity));\r\n  --pops-panel-components-select-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n}\r\n.pops-panel-select {\r\n  border: 0;\r\n}\r\n.pops-panel-select select {\r\n  height: 32px;\r\n  line-height: normal;\r\n  align-content: center;\r\n  min-width: 200px;\r\n  border: 1px solid var(--pops-panel-components-select-bd-color);\r\n  border-radius: 5px;\r\n  text-align: center;\r\n  outline: 0;\r\n  color: var(--pops-panel-components-select-text-color);\r\n  background-color: var(--pops-panel-components-select-bg-color);\r\n  box-shadow: none;\r\n}\r\n.pops-panel-select select:hover {\r\n  border: 1px solid var(--pops-panel-components-select-hover-bd-color);\r\n}\r\n.pops-panel-select-disable {\r\n  --pops-panel-components-select-text-color: var(--pops-components-is-disabled-text-color);\r\n  --pops-panel-components-select-bg-color: var(--pops-components-is-disabled-bg-color);\r\n}\r\n.pops-panel-select-disable select {\r\n  cursor: not-allowed;\r\n}\r\n.pops-panel-select-disable select:hover {\r\n  box-shadow: none;\r\n  --pops-panel-components-select-hover-bd-color: var(--pops-panel-components-select-bd-color);\r\n}\r\n.pops-panel-select select:focus {\r\n  border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));\r\n  box-shadow: none;\r\n}\r\n/* select的CSS */\r\n\r\n/* select-multiple的CSS*/\r\n.pops-panel-select-multiple {\r\n  --el-border-radius-base: 4px;\r\n  --el-fill-color-blank: #ffffff;\r\n  --el-transition-duration: 0.3s;\r\n  --el-border-color: #cbcbcb;\r\n  --el-text-color-placeholder: #a8abb2;\r\n  --color: inherit;\r\n  --el-select-input-color: #a8abb2;\r\n  --el-select-input-font-size: 14px;\r\n  --el-text-color-regular: #606266;\r\n  --el-color-info: #909399;\r\n  --el-color-info-light-9: #f4f4f5;\r\n  --el-color-info-light-8: #e9e9eb;\r\n  --el-color-primary-light-9: #ecf5ff;\r\n  --el-color-primary-light-8: #d9ecff;\r\n  --el-color-primary: #409eff;\r\n  --el-color-white: #ffffff;\r\n  width: 200px;\r\n}\r\n.pops-panel-select-multiple .el-select__wrapper {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  box-sizing: border-box;\r\n  cursor: pointer;\r\n  text-align: left;\r\n  font-size: 14px;\r\n  padding: 4px 12px;\r\n  gap: 6px;\r\n  min-height: 32px;\r\n  line-height: normal;\r\n  align-content: center;\r\n  border-radius: var(--el-border-radius-base);\r\n  background-color: var(--el-fill-color-blank);\r\n  transition: var(--el-transition-duration);\r\n  transform: translateZ(0);\r\n  border: 1px solid var(--el-border-color);\r\n}\r\n.pops-panel-select-multiple .el-select__wrapper.is-focused {\r\n  --el-border-color: var(--el-color-primary);\r\n}\r\n.pops-panel-select-multiple .el-select__selection {\r\n  position: relative;\r\n  display: flex;\r\n  flex-wrap: wrap;\r\n  align-items: center;\r\n  flex: 1;\r\n  min-width: 0;\r\n  gap: 6px;\r\n}\r\n.pops-panel-select-multiple .el-select__selected-item {\r\n  display: flex;\r\n  flex-wrap: wrap;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n.pops-panel-select-multiple .el-select__selected-item.el-select__choose_tag .el-tag {\r\n  max-width: 200px;\r\n}\r\n.pops-panel-select-multiple .el-select__input-wrapper {\r\n  max-width: 100%;\r\n}\r\n.pops-panel-select-multiple .el-select__selection.is-near {\r\n  margin-left: -8px;\r\n}\r\n.pops-panel-select-multiple .el-select__placeholder {\r\n  position: absolute;\r\n  display: block;\r\n  top: 50%;\r\n  transform: translateY(-50%);\r\n  width: 100%;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  white-space: nowrap;\r\n  color: var(--el-input-text-color, var(--el-text-color-regular));\r\n}\r\n.pops-panel-select-multiple .el-select__placeholder.is-transparent {\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n  color: var(--el-text-color-placeholder);\r\n}\r\n.pops-panel-select-multiple .el-select__prefix,\r\n.pops-panel-select-multiple .el-select__suffix {\r\n  display: flex;\r\n  align-items: center;\r\n  flex-shrink: 0;\r\n  gap: 6px;\r\n  color: var(--el-input-icon-color, var(--el-text-color-placeholder));\r\n}\r\n.pops-panel-select-multiple .el-icon {\r\n  --color: inherit;\r\n  height: 1em;\r\n  width: 1em;\r\n  line-height: normal;\r\n  align-content: center;\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  fill: currentColor;\r\n  color: var(--color);\r\n  font-size: inherit;\r\n}\r\n.pops-panel-select-multiple .el-icon svg {\r\n  height: 1em;\r\n  width: 1em;\r\n}\r\n.pops-panel-select-multiple .el-select__caret {\r\n  color: var(--el-select-input-color);\r\n  font-size: var(--el-select-input-font-size);\r\n  transition: var(--el-transition-duration);\r\n  transform: rotate(0);\r\n  cursor: pointer;\r\n}\r\n.pops-panel-select-multiple .el-tag {\r\n  --el-tag-font-size: 12px;\r\n  --el-tag-border-radius: 4px;\r\n  --el-tag-border-radius-rounded: 9999px;\r\n}\r\n.pops-panel-select-multiple .el-tag {\r\n  background-color: var(--el-tag-bg-color);\r\n  border-color: var(--el-tag-border-color);\r\n  color: var(--el-tag-text-color);\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  vertical-align: middle;\r\n  height: 24px;\r\n  padding: 0 9px;\r\n  font-size: var(--el-tag-font-size);\r\n  line-height: normal;\r\n  align-content: center;\r\n  border-width: 1px;\r\n  border-style: solid;\r\n  border-radius: var(--el-tag-border-radius);\r\n  box-sizing: border-box;\r\n  white-space: nowrap;\r\n  --el-icon-size: 14px;\r\n  --el-tag-bg-color: var(--el-color-primary-light-9);\r\n  --el-tag-border-color: var(--el-color-primary-light-8);\r\n  --el-tag-hover-color: var(--el-color-primary);\r\n}\r\n.pops-panel-select-multiple .el-select__selection .el-tag {\r\n  cursor: pointer;\r\n  border-color: transparent;\r\n}\r\n.pops-panel-select-multiple .el-tag.el-tag--info {\r\n  --el-tag-bg-color: var(--el-color-info-light-9);\r\n  --el-tag-border-color: var(--el-color-info-light-8);\r\n  --el-tag-hover-color: var(--el-color-info);\r\n}\r\n.pops-panel-select-multiple .el-tag.el-tag--info {\r\n  --el-tag-text-color: var(--el-color-info);\r\n}\r\n.pops-panel-select-multiple .el-tag.is-closable {\r\n  padding-right: 5px;\r\n}\r\n.pops-panel-select-multiple .el-select__selection .el-tag .el-tag__content {\r\n  min-width: 0;\r\n}\r\n.pops-panel-select-multiple .el-tag .el-tag__close {\r\n  flex-shrink: 0;\r\n  color: var(--el-tag-text-color);\r\n}\r\n.pops-panel-select-multiple .el-tag .el-tag__close:hover {\r\n  color: var(--el-color-white);\r\n  background-color: var(--el-tag-hover-color);\r\n}\r\n.pops-panel-select-multiple .el-tag .el-icon {\r\n  border-radius: 50%;\r\n  cursor: pointer;\r\n  font-size: calc(var(--el-icon-size) - 2px);\r\n  height: var(--el-icon-size);\r\n  width: var(--el-icon-size);\r\n}\r\n.pops-panel-select-multiple .el-tag .el-tag__close {\r\n  margin-left: 6px;\r\n}\r\n.pops-panel-select-multiple .el-select__tags-text {\r\n  display: block;\r\n  line-height: normal;\r\n  align-content: center;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  white-space: nowrap;\r\n}\r\n.pops-panel-select-multiple-disable {\r\n  --el-fill-color-blank: #f5f7fa;\r\n  --color: #a8abb2;\r\n  --el-border-color: #cbcbcb;\r\n}\r\n.pops-panel-select-multiple-disable .el-tag.el-tag--info {\r\n  --el-tag-bg-color: #e7e7e7;\r\n  --el-tag-text-color: var(--pops-components-is-disabled-text-color);\r\n}\r\n.pops-panel-select-multiple-disable .el-select__selection .el-tag,\r\n.pops-panel-select-multiple-disable .el-tag .el-tag__close:hover,\r\n.pops-panel-select-multiple-disable .el-select__wrapper,\r\n.pops-panel-select-multiple-disable .el-select__caret {\r\n  cursor: not-allowed;\r\n}\r\n/* select-multiple的CSS*/\r\n\r\n/* deepMenu的css */\r\n.pops-panel-deepMenu-nav-item {\r\n  cursor: pointer;\r\n}\r\n.pops-panel-deepMenu-nav-item:active {\r\n  background: var(--pops-panel-forms-container-deepMenu-item-active-bg);\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item ul li.pops-panel-deepMenu-nav-item:active {\r\n  padding: var(--pops-panel-forms-container-li-padding-top-bottom)\r\n    var(--pops-panel-forms-container-li-padding-left-right);\r\n  margin: 0px;\r\n}\r\n/* 去除上个兄弟item的底部边框颜色 */\r\nsection.pops-panel-container .pops-panel-forms-container-item ul li:has(+ .pops-panel-deepMenu-nav-item:active) {\r\n  border-bottom: 1px solid transparent;\r\n}\r\n/* 第一个和最后一个跟随圆角 */\r\nsection.pops-panel-container .pops-panel-forms-container-item ul li.pops-panel-deepMenu-nav-item:first-child:active {\r\n  border-top-left-radius: var(--pops-panel-forms-container-item-border-radius);\r\n  border-top-right-radius: var(--pops-panel-forms-container-item-border-radius);\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item ul li.pops-panel-deepMenu-nav-item:last-child:active {\r\n  border-bottom-left-radius: var(--pops-panel-forms-container-item-border-radius);\r\n  border-bottom-right-radius: var(--pops-panel-forms-container-item-border-radius);\r\n}\r\n.pops-panel-deepMenu-nav-item .pops-panel-deepMenu {\r\n  display: flex;\r\n  align-items: center;\r\n  color: #6c6c6c;\r\n  fill: #6c6c6c;\r\n}\r\n.pops-panel-deepMenu-nav-item .pops-panel-deepMenu-arrowRight-icon {\r\n  width: 15px;\r\n  height: 15px;\r\n  display: flex;\r\n  align-items: center;\r\n}\r\nsection.pops-panel-deepMenu-container .pops-panel-container-header-ul li.pops-panel-deepMenu-container-header {\r\n  display: flex;\r\n  align-items: center;\r\n  width: -webkit-fill-available;\r\n  width: -moz-available;\r\n  padding: var(--pops-panel-forms-header-padding-top-bottom)\r\n    calc(\r\n      var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right) -\r\n        var(--pops-panel-forms-header-icon-size)\r\n    );\r\n  gap: 0px;\r\n}\r\n.pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon {\r\n  width: var(--pops-panel-forms-header-icon-size);\r\n  height: var(--pops-panel-forms-header-icon-size);\r\n  display: flex;\r\n  align-items: center;\r\n  cursor: pointer;\r\n}\r\n/* 修复safari上图标大小未正常显示 */\r\n.pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon > svg {\r\n  width: inherit;\r\n  height: inherit;\r\n}\r\n/* deepMenu的css */\r\n\r\n/* 文字对齐 */\r\n.pops-panel-item-left-desc-text:has(code) {\r\n  display: flex;\r\n  align-items: baseline;\r\n  flex-wrap: wrap;\r\n}\r\n\r\n@media (prefers-color-scheme: dark) {\r\n  .pops[type-value="panel"] {\r\n    --pops-bg-color: #000000;\r\n    --pops-color: #f2f2f2;\r\n    --panel-title-bg-color: #000000;\r\n    --panel-aside-bg-color: #262626;\r\n    --pops-panel-forms-container-item-left-desc-text-color: #6c6c6c;\r\n    --pops-panel-forms-container-item-bg-color: #262626;\r\n    --pops-panel-forms-container-item-title-color: #c1c1c1;\r\n\r\n    --pops-panel-forms-container-li-border-color: rgb(51, 51, 51, var(--pops-bd-opacity));\r\n    --pops-panel-forms-container-deepMenu-item-active-bg: #333333;\r\n  }\r\n  .pops[type-value="panel"] .pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon {\r\n    fill: #f2f2f2;\r\n  }\r\n\r\n  /* switch的CSS */\r\n  .pops-panel-switch {\r\n    --panel-switch-core-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\r\n    --panel-switch-core-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\r\n    --panel-switch-circle-color: #dcdfe6;\r\n    --panel-switch-circle-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n    --panel-switch-checked-circle-color: #409eff;\r\n    --panel-switch-checked-core-bd-color: rgb(64, 158, 255, var(--pops-bd-opacity));\r\n    --panel-switch-checked-core-bg-color: rgb(64, 158, 255, var(--pops-bg-opacity));\r\n  }\r\n  /* select的CSS */\r\n  .pops-panel-select {\r\n    --pops-panel-components-select-text-color: #f2f2f2;\r\n    --pops-panel-components-select-bd-color: rgb(51, 51, 51, var(--pops-bd-opacity));\r\n    --pops-panel-components-select-bg-color: #141414;\r\n  }\r\n  /* select-multiple的CSS*/\r\n  .pops-panel-select-multiple {\r\n    --el-fill-color-blank: #141414;\r\n    --el-border-color: #4c4d4f;\r\n    --el-text-color-placeholder: #a8abb2;\r\n    --el-select-input-color: #a8abb2;\r\n    --el-text-color-regular: #606266;\r\n    --el-color-info: #909399;\r\n    --el-color-info-light-8: #e9e9eb;\r\n    --el-color-primary-light-9: #ecf5ff;\r\n    --el-color-primary-light-8: #d9ecff;\r\n    --el-color-primary: #409eff;\r\n    --el-color-white: #ffffff;\r\n  }\r\n  .pops-panel-select-multiple .el-tag {\r\n    --el-color-info-light-9: #202121;\r\n  }\r\n  .pops-panel-select-multiple-disable {\r\n    --el-border-color: rgb(51, 51, 51, var(--pops-bd-opacity));\r\n  }\r\n  .pops-panel-select-multiple-disable .el-tag.el-tag--info {\r\n    --el-tag-bg-color: #2f2f2f;\r\n  }\r\n  /* select-multiple的CSS*/\r\n  /* slider的CSS */\r\n  .pops-slider {\r\n    --pops-slider-border-color-light: #414243;\r\n  }\r\n  /* input的CSS */\r\n  .pops-panel-input {\r\n    --pops-panel-components-input-text-color: #f2f2f2;\r\n    --pops-panel-components-input-bd-color: #4f5052;\r\n    --pops-panel-components-input-bg-color: #141414;\r\n    --pops-panel-components-input-hover-bd-color: #6f7175;\r\n    --pops-panel-components-input-focus-bd-color: #409eff;\r\n    --pops-panel-components-input-suffix-color: #a8abb2;\r\n  }\r\n  /* textarea的CSS */\r\n  .pops-panel-textarea {\r\n    --pops-panel-components-textarea-text-color: #f2f2f2;\r\n    --pops-panel-components-textarea-text-bg-color: #141414;\r\n    --pops-panel-components-textarea-bd-color: #4f5052;\r\n    --pops-panel-components-textarea-hover-bd-color: #6f7175;\r\n    --pops-panel-components-textarea-focus-bd-color: #409eff;\r\n  }\r\n  .pops-panel-textarea-disable {\r\n    --pops-panel-components-textarea-text-color: var(--pops-components-is-disabled-text-color);\r\n    --pops-panel-components-textarea-text-bg-color: var(--pops-components-is-disabled-bg-color);\r\n  }\r\n  /* slider */\r\n  .pops-slider {\r\n    --pops-slider-text-color-placeholder: #8d9095;\r\n  }\r\n}\r\n';
+    '.pops[type-value="panel"] {\r\n  --pops-bg-color: #f2f2f2;\r\n  --pops-color: #333333;\r\n  --panel-title-bg-color: #ffffff;\r\n\r\n  --panel-aside-bg-color: #ffffff;\r\n  --panel-aside-hover-color: rgb(64, 158, 255);\r\n  --panel-aside-hover-bg-color: rgba(64, 158, 255, 0.1);\r\n\r\n  --pops-panel-forms-margin-top-bottom: 10px;\r\n  --pops-panel-forms-margin-left-right: 20px;\r\n  --pops-panel-forms-header-icon-size: calc(var(--pops-panel-forms-container-li-padding-left-right) + 1px);\r\n  --pops-panel-forms-header-padding-top-bottom: 15px;\r\n  --pops-panel-forms-header-padding-left-right: 10px;\r\n  --pops-panel-forms-container-item-left-text-gap: 6px;\r\n  --pops-panel-forms-container-item-left-desc-text-size: 0.8em;\r\n  --pops-panel-forms-container-item-left-desc-text-color: #6c6c6c;\r\n  --pops-panel-forms-container-item-bg-color: #ffffff;\r\n  --pops-panel-forms-container-item-title-color: #333;\r\n  --pops-panel-forms-container-item-border-radius: 6px;\r\n  --pops-panel-forms-container-item-margin-top-bottom: 10px;\r\n  --pops-panel-forms-container-item-margin-left-right: var(--pops-panel-forms-margin-left-right);\r\n  --pops-panel-forms-container-li-border-color: var(--pops-bd-color);\r\n  --pops-panel-forms-container-li-padding-top-bottom: 12px;\r\n  --pops-panel-forms-container-li-padding-left-right: 16px;\r\n\r\n  --pops-panel-forms-container-deepMenu-item-active-bg: #e9e9e9;\r\n}\r\n.pops[type-value="panel"] {\r\n  color: var(--pops-color);\r\n  background: var(--pops-bg-color);\r\n}\r\n.pops[type-value] .pops-panel-title {\r\n  background: var(--panel-title-bg-color);\r\n}\r\n\r\n/* ↓panel的CSS↓ */\r\n/* 左侧的列表 */\r\naside.pops-panel-aside {\r\n  box-sizing: border-box;\r\n  flex-shrink: 0;\r\n  max-width: 200px;\r\n  min-width: 100px;\r\n  height: 100%;\r\n  background: var(--panel-aside-bg-color);\r\n  border-right: 1px solid var(--panel-aside-bg-color);\r\n  font-size: 0.9em;\r\n  display: flex;\r\n  flex-direction: column;\r\n  justify-content: space-between;\r\n}\r\naside.pops-panel-aside .pops-panel-aside-top-container {\r\n  overflow: auto;\r\n}\r\naside.pops-panel-aside ul li {\r\n  margin: 6px 8px;\r\n  border-radius: 4px;\r\n  padding: 6px 10px;\r\n  cursor: default;\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: flex-start;\r\n}\r\naside.pops-panel-aside .pops-is-visited,\r\naside.pops-panel-aside ul li:not(.pops-panel-disabled-aside-hover-css):hover {\r\n  color: var(--panel-aside-hover-color);\r\n  background: var(--panel-aside-hover-bg-color);\r\n}\r\n/* 左侧的列表 */\r\n\r\n/* 底部的容器 */\r\n.pops-panel-bottom-wrapper {\r\n  background: var(--panel-aside-bg-color);\r\n  border-top: 1px solid #ebeef5;\r\n}\r\n.pops-panel-bottom-wrapper:has(.pops-panel-bottom-left-container:empty):has(.pops-panel-bottom-right-container:empty) {\r\n  border-top: 0;\r\n}\r\n.pops-panel-bottom-container {\r\n  display: flex;\r\n  flex-wrap: nowrap;\r\n  justify-content: space-between;\r\n}\r\n.pops-panel-bottom-left-container {\r\n}\r\n.pops-panel-bottom-right-container {\r\n}\r\n.pops-panel-bottom-wrapper .pops-panel-bottom-item {\r\n  list-style-type: none;\r\n  margin: 6px 8px;\r\n  border-radius: 4px;\r\n  padding: 6px 10px;\r\n  cursor: default;\r\n}\r\n.pops-panel-bottom-wrapper:not(.pops-panel-disable-bottom-item-hover-css) .pops-panel-bottom-item:hover {\r\n  color: var(--panel-aside-hover-color);\r\n  background: var(--panel-aside-hover-bg-color);\r\n}\r\n/* 底部的容器 */\r\n\r\n.pops-panel-content {\r\n  display: flex;\r\n  flex-direction: row;\r\n  flex: 1;\r\n  overflow: auto;\r\n  flex-basis: auto;\r\n  box-sizing: border-box;\r\n  min-width: 0;\r\n  bottom: 0 !important;\r\n}\r\n\r\n.pops-panel-section-wrapper {\r\n  width: 100%;\r\n  overflow: hidden;\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n\r\nsection.pops-panel-container {\r\n  width: 100%;\r\n  overflow: hidden;\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\nsection.pops-panel-container .pops-panel-container-header-ul,\r\nsection.pops-panel-container .pops-panel-deepMenu-container-header-ul {\r\n  border-bottom: 1px solid rgba(223, 223, 223, var(--pops-bg-opacity));\r\n  flex: 0 auto;\r\n}\r\nsection.pops-panel-container .pops-panel-container-header-ul li,\r\nsection.pops-panel-container .pops-panel-container-header-ul li.pops-panel-container-header-title-text {\r\n  display: flex;\r\n  justify-content: flex-start !important;\r\n  margin: 0px !important;\r\n  padding: var(--pops-panel-forms-header-padding-top-bottom)\r\n    calc(var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right));\r\n  text-align: left;\r\n}\r\nsection.pops-panel-container ul.pops-panel-container-main-ul {\r\n  overflow: auto;\r\n  /*flex: 1;*/\r\n}\r\nsection.pops-panel-container > ul li:not(.pops-panel-forms-container-item) {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  margin: var(--pops-panel-forms-margin-top-bottom)\r\n    calc(var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-margin-left-right));\r\n  gap: 10px;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item-header-text {\r\n  margin: 10px;\r\n  margin-left: calc(\r\n    var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right)\r\n  );\r\n  font-size: 0.9em;\r\n  text-align: left;\r\n  color: var(--pops-panel-forms-container-item-title-color);\r\n}\r\nsection.pops-panel-container li.pops-panel-forms-container-item {\r\n  /* 去除<li>左侧的圆点 */\r\n  display: block;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item ul.pops-panel-forms-container-item-formlist {\r\n  border-radius: var(--pops-panel-forms-container-item-border-radius);\r\n  background: var(--pops-panel-forms-container-item-bg-color);\r\n  margin: var(--pops-panel-forms-container-item-margin-top-bottom) var(--pops-panel-forms-margin-left-right);\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item ul.pops-panel-forms-container-item-formlist li {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  padding: var(--pops-panel-forms-container-li-padding-top-bottom)\r\n    var(--pops-panel-forms-container-li-padding-left-right);\r\n  margin: 0px 0px;\r\n  border-bottom: 1px solid var(--pops-panel-forms-container-li-border-color);\r\n  text-align: left;\r\n}\r\n/*section.pops-panel-container\r\n	.pops-panel-forms-container-item\r\n	ul\r\n	li.pops-panel-deepMenu-nav-item {\r\n	padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px;\r\n	margin: 0px var(--pops-panel-forms-container-li-padding-left-right);\r\n	border-bottom: 1px solid var(--pops-panel-forms-container-li-border-color);\r\n}*/\r\nsection.pops-panel-container\r\n  .pops-panel-forms-container-item\r\n  ul.pops-panel-forms-container-item-formlist\r\n  li:last-child {\r\n  border: 0px;\r\n}\r\n/* 左侧的文字 */\r\nsection.pops-panel-container .pops-panel-item-left-text {\r\n  display: flex;\r\n  flex-direction: column;\r\n  gap: var(--pops-panel-forms-container-item-left-text-gap);\r\n}\r\n\r\n/* 左侧的主文字 */\r\n/*section.pops-panel-container .pops-panel-item-left-main-text {\r\n	\r\n}*/\r\n/* 左侧的描述文字 */\r\nsection.pops-panel-container .pops-panel-item-left-desc-text {\r\n  font-size: var(--pops-panel-forms-container-item-left-desc-text-size);\r\n  color: var(--pops-panel-forms-container-item-left-desc-text-color);\r\n}\r\n\r\n/* 折叠面板 */\r\nsection.pops-panel-container .pops-panel-forms-fold {\r\n  border-radius: var(--pops-panel-forms-container-item-border-radius);\r\n  background: var(--pops-panel-forms-container-item-bg-color);\r\n  margin: var(--pops-panel-forms-margin-top-bottom) var(--pops-panel-forms-margin-left-right);\r\n}\r\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-fold-container {\r\n  display: flex;\r\n  align-items: center;\r\n  fill: #6c6c6c;\r\n  justify-content: space-between;\r\n  margin: 0px var(--pops-panel-forms-container-li-padding-left-right) !important;\r\n  padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px !important;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-fold[data-fold-enable] .pops-panel-forms-fold-container-icon {\r\n  transform: rotate(90deg);\r\n}\r\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-fold-container-icon {\r\n  width: 15px;\r\n  height: 15px;\r\n  display: flex;\r\n  align-items: center;\r\n  transform: rotate(-90deg);\r\n  transition: transform 0.3s;\r\n}\r\n/* 折叠状态 */\r\nsection.pops-panel-container .pops-panel-forms-fold[data-fold-enable] .pops-panel-forms-container-item-formlist {\r\n  height: 0;\r\n}\r\n/* 非折叠状态 */\r\nsection.pops-panel-container .pops-panel-forms-fold ul.pops-panel-forms-container-item-formlist {\r\n  margin: 0;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-container-item-formlist {\r\n  transition: height 0.3s;\r\n  overflow: hidden;\r\n  border-radius: unset;\r\n  background: unset;\r\n  margin: 0;\r\n  height: calc-size(auto, size);\r\n}\r\n/* 折叠面板 */\r\n\r\n/* 姑且认为小于600px的屏幕为移动端 */\r\n@media (max-width: 600px) {\r\n  /* 兼容移动端CSS */\r\n  .pops[type-value="panel"] {\r\n    --pops-panel-forms-margin-left-right: 10px;\r\n  }\r\n  .pops[type-value="panel"] {\r\n    width: 92%;\r\n    width: 92vw;\r\n    width: 92dvw;\r\n  }\r\n  .pops[type-value="panel"] .pops-panel-content aside.pops-panel-aside {\r\n    max-width: 20%;\r\n    min-width: auto;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-forms-container-item > div {\r\n    text-align: left;\r\n    --pops-panel-forms-margin-left-right: 0px;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-forms-container-item ul {\r\n    margin: 0px !important;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container > ul > li {\r\n    margin: 10px 10px;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container > ul > li div:nth-child(2) {\r\n    max-width: 55%;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container > ul > li .pops-panel-input span.pops-panel-input__suffix {\r\n    padding: 0 4px;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-select select {\r\n    min-width: 88px !important;\r\n    width: -webkit-fill-available;\r\n    width: -moz-available;\r\n  }\r\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-container-header-ul li {\r\n    font-size: 16px;\r\n  }\r\n  .pops[type-value="panel"] .pops-panel-title p[pops],\r\n  .pops[type-value="panel"] section.pops-panel-container > ul li,\r\n  .pops[type-value="panel"] aside.pops-panel-aside ul li {\r\n    font-size: 14px;\r\n  }\r\n}\r\n/* switch的CSS */\r\n.pops-panel-switch {\r\n  --panel-switch-core-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\r\n  --panel-switch-core-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\r\n  --panel-switch-circle-color: #dcdfe6;\r\n  --panel-switch-circle-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n  --panel-switch-checked-circle-color: #409eff;\r\n  --panel-switch-checked-core-bd-color: rgb(64, 158, 255, var(--pops-bd-opacity));\r\n  --panel-switch-checked-core-bg-color: rgb(64, 158, 255, var(--pops-bg-opacity));\r\n}\r\n.pops-panel-switch {\r\n  display: inline-flex;\r\n  flex-direction: row-reverse;\r\n  align-items: center;\r\n  position: relative;\r\n  font-size: 14px;\r\n  line-height: normal;\r\n  align-content: center;\r\n  height: 32px;\r\n  vertical-align: middle;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n.pops-panel-switch input.pops-panel-switch__input {\r\n  position: absolute;\r\n  width: 0;\r\n  height: 0;\r\n  opacity: 0;\r\n  margin: 0;\r\n}\r\n.pops-panel-switch:has(input.pops-panel-switch__input:disabled),\r\n.pops-panel-switch[data-disabled],\r\n.pops-panel-switch[data-disabled] .pops-panel-switch__core,\r\n.pops-panel-switch input.pops-panel-switch__input:disabled + .pops-panel-switch__core {\r\n  cursor: not-allowed;\r\n  opacity: 0.6;\r\n}\r\n.pops-panel-switch span.pops-panel-switch__core {\r\n  display: inline-flex;\r\n  position: relative;\r\n  align-items: center;\r\n  min-width: 40px;\r\n  height: 20px;\r\n  border: 1px solid var(--panel-switch-core-bd-color);\r\n  outline: 0;\r\n  border-radius: 10px;\r\n  box-sizing: border-box;\r\n  background: var(--panel-switch-core-bg-color);\r\n  cursor: pointer;\r\n  transition:\r\n    border-color 0.3s,\r\n    background-color 0.3s;\r\n}\r\n.pops-panel-switch .pops-panel-switch__action {\r\n  position: absolute;\r\n  left: 1px;\r\n  border-radius: 100%;\r\n  transition: all 0.3s;\r\n  width: 16px;\r\n  height: 16px;\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  background-color: var(--panel-switch-circle-bg-color);\r\n  color: var(--panel-switch-circle-color);\r\n}\r\n.pops-panel-switch.pops-panel-switch-is-checked span.pops-panel-switch__core {\r\n  border-color: var(--panel-switch-checked-core-bd-color);\r\n  background-color: var(--panel-switch-checked-core-bg-color);\r\n}\r\n.pops-panel-switch.pops-panel-switch-is-checked .pops-panel-switch__action {\r\n  left: calc(100% - 17px);\r\n  color: var(--panel-switch-checked-circle-color);\r\n}\r\n/* switch的CSS */\r\n\r\n/* slider旧的CSS */\r\nsection.pops-panel-container .pops-panel-slider:has(> input[type="range"]) {\r\n  overflow: hidden;\r\n  height: 25px;\r\n  line-height: normal;\r\n  align-content: center;\r\n  display: flex;\r\n  align-items: center;\r\n}\r\nsection.pops-panel-container .pops-panel-slider input[type="range"] {\r\n  height: 6px;\r\n  background: rgb(228, 231, 237, var(--pops-bg-opacity));\r\n  outline: 0;\r\n  -webkit-appearance: none;\r\n  appearance: none;\r\n  width: 100%;\r\n}\r\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-webkit-slider-thumb {\r\n  width: 20px;\r\n  height: 20px;\r\n  border-radius: 50%;\r\n  border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));\r\n  background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n  box-shadow:\r\n    0 0 2px rgba(0, 0, 0, 0.3),\r\n    0 3px 5px rgba(0, 0, 0, 0.2);\r\n  cursor: pointer;\r\n  -webkit-appearance: none;\r\n  appearance: none;\r\n  border-image: linear-gradient(#409eff, #409eff) 0 fill/9 25 9 0/0 0 0 100vw;\r\n}\r\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-thumb {\r\n  width: 20px;\r\n  height: 20px;\r\n  border-radius: 50%;\r\n  border: 1px solid rgb(64, 159, 255, var(--pops-bd-opacity));\r\n  background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n  box-shadow:\r\n    0 0 2px rgba(0, 0, 0, 0.3),\r\n    0 3px 5px rgba(0, 0, 0, 0.2);\r\n  cursor: pointer;\r\n  -webkit-appearance: none;\r\n  appearance: none;\r\n}\r\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-progress {\r\n  height: 6px;\r\n  border-image: linear-gradient(#409eff, #409eff) 0 fill/9 25 9 0/0 0 0 100vw;\r\n}\r\n/* slider旧的CSS */\r\n\r\n/* slider的CSS */\r\n.pops-slider {\r\n  --pops-slider-color-white: #ffffff;\r\n  --pops-slider-color-primary: #409eff;\r\n  --pops-slider-color-info: #909399;\r\n  --pops-slider-text-color-placeholder: #a8abb2;\r\n  --pops-slider-border-color-light: #e4e7ed;\r\n  --pops-slider-border-radius-circle: 100%;\r\n  --pops-slider-transition-duration-fast: 0.2s;\r\n\r\n  --pops-slider-main-bg-color: var(--pops-slider-color-primary);\r\n  --pops-slider-runway-bg-color: var(--pops-slider-border-color-light);\r\n  --pops-slider-stop-bg-color: var(--pops-slider-color-white);\r\n  --pops-slider-disabled-color: var(--pops-slider-text-color-placeholder);\r\n  --pops-slider-border-radius: 3px;\r\n  --pops-slider-height: 6px;\r\n  --pops-slider-button-size: 20px;\r\n  --pops-slider-button-wrapper-size: 36px;\r\n  --pops-slider-button-wrapper-offset: -15px;\r\n}\r\n\r\n.pops-slider {\r\n  width: 100%;\r\n  height: 32px;\r\n  display: flex;\r\n  align-items: center;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n\r\n.pops-slider-width {\r\n  flex: 0 0 52%;\r\n  margin-left: 10px;\r\n}\r\n\r\n.pops-slider__runway {\r\n  flex: 1;\r\n  height: var(--pops-slider-height);\r\n  background-color: var(--pops-slider-runway-bg-color);\r\n  border-radius: var(--pops-slider-border-radius);\r\n  position: relative;\r\n  cursor: pointer;\r\n}\r\n\r\n.pops-slider__runway.show-input {\r\n  margin-right: 30px;\r\n  width: auto;\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled {\r\n  cursor: default;\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__bar {\r\n  background-color: var(--pops-slider-disabled-color);\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button {\r\n  border-color: var(--pops-slider-disabled-color);\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\r\n  cursor: not-allowed;\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\r\n  transform: scale(1);\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\r\n  cursor: not-allowed;\r\n}\r\n\r\n.pops-slider__input {\r\n  flex-shrink: 0;\r\n  width: 130px;\r\n}\r\n\r\n.pops-slider__bar {\r\n  height: var(--pops-slider-height);\r\n  background-color: var(--pops-slider-main-bg-color);\r\n  border-top-left-radius: var(--pops-slider-border-radius);\r\n  border-bottom-left-radius: var(--pops-slider-border-radius);\r\n  position: absolute;\r\n}\r\n\r\n.pops-slider__button-wrapper {\r\n  height: var(--pops-slider-button-wrapper-size);\r\n  width: var(--pops-slider-button-wrapper-size);\r\n  position: absolute;\r\n  z-index: 1;\r\n  top: var(--pops-slider-button-wrapper-offset);\r\n  transform: translate(-50%);\r\n  background-color: transparent;\r\n  text-align: center;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n  line-height: normal;\r\n  outline: none;\r\n}\r\n\r\n.pops-slider__button-wrapper:after {\r\n  display: inline-block;\r\n  content: "";\r\n  height: 100%;\r\n  vertical-align: middle;\r\n}\r\n\r\n.pops-slider__button:hover,\r\n.pops-slider__button.hover {\r\n  cursor: grab;\r\n}\r\n\r\n.pops-slider__button {\r\n  display: inline-block;\r\n  width: var(--pops-slider-button-size);\r\n  height: var(--pops-slider-button-size);\r\n  vertical-align: middle;\r\n  border: solid 2px var(--pops-slider-main-bg-color);\r\n  background-color: var(--pops-slider-color-white);\r\n  border-radius: 50%;\r\n  box-sizing: border-box;\r\n  transition: var(--pops-slider-transition-duration-fast);\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n\r\n.pops-slider__button:hover,\r\n.pops-slider__button.hover,\r\n.pops-slider__button.dragging {\r\n  transform: scale(1.2);\r\n}\r\n\r\n.pops-slider__button:hover,\r\n.pops-slider__button.hover {\r\n  cursor: grab;\r\n}\r\n\r\n.pops-slider__button.dragging {\r\n  cursor: grabbing;\r\n}\r\n\r\n.pops-slider__stop {\r\n  position: absolute;\r\n  height: var(--pops-slider-height);\r\n  width: var(--pops-slider-height);\r\n  border-radius: var(--pops-slider-border-radius-circle);\r\n  background-color: var(--pops-slider-stop-bg-color);\r\n  transform: translate(-50%);\r\n}\r\n\r\n.pops-slider__marks {\r\n  top: 0;\r\n  left: 12px;\r\n  width: 18px;\r\n  height: 100%;\r\n}\r\n\r\n.pops-slider__marks-text {\r\n  position: absolute;\r\n  transform: translate(-50%);\r\n  font-size: 14px;\r\n  color: var(--pops-slider-color-info);\r\n  margin-top: 15px;\r\n  white-space: pre;\r\n}\r\n\r\n.pops-slider.is-vertical {\r\n  position: relative;\r\n  display: inline-flex;\r\n  width: auto;\r\n  height: 100%;\r\n  flex: 0;\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__runway {\r\n  width: var(--pops-slider-height);\r\n  height: 100%;\r\n  margin: 0 16px;\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__bar {\r\n  width: var(--pops-slider-height);\r\n  height: auto;\r\n  border-radius: 0 0 3px 3px;\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__button-wrapper {\r\n  top: auto;\r\n  left: var(--pops-slider-button-wrapper-offset);\r\n  transform: translateY(50%);\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__stop {\r\n  transform: translateY(50%);\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__marks-text {\r\n  margin-top: 0;\r\n  left: 15px;\r\n  transform: translateY(50%);\r\n}\r\n\r\n.pops-slider--large {\r\n  height: 40px;\r\n}\r\n\r\n.pops-slider--small {\r\n  height: 24px;\r\n}\r\n/* slider的CSS */\r\n\r\n/* input的CSS */\r\n.pops-panel-input {\r\n  --el-disabled-text-color: #a8abb2;\r\n  --el-disabled-bg-color: #f5f7fa;\r\n  --el-disabled-border-color: #e4e7ed;\r\n\r\n  --pops-panel-components-input-text-color: #000000;\r\n  --pops-panel-components-input-text-bg-color: transparent;\r\n  --pops-panel-components-input-text-default-padding: 8px;\r\n  --pops-panel-components-input-bd-color: #dcdfe6;\r\n  --pops-panel-components-input-bg-color: #ffffff;\r\n  --pops-panel-components-input-hover-bd-color: #c0c4cc;\r\n  --pops-panel-components-input-focus-bd-color: #409eff;\r\n  --pops-panel-components-input-suffix-color: #a8abb2;\r\n  --pops-panel-components-input-suffix-bg-color: #ffffff;\r\n}\r\n.pops-panel-input {\r\n  display: flex;\r\n  align-items: center;\r\n  border: 1px solid var(--pops-panel-components-input-bd-color);\r\n  border-radius: 4px;\r\n  background-color: var(--pops-panel-components-input-bg-color);\r\n  position: relative;\r\n  box-shadow: none;\r\n  width: 200px;\r\n}\r\n.pops-panel-input:hover {\r\n  border: 1px solid var(--pops-panel-components-input-hover-bd-color);\r\n}\r\n.pops-panel-input:has(input:disabled):hover {\r\n  --pops-panel-components-input-hover-bd-color: var(--pops-panel-components-input-bd-color);\r\n}\r\n.pops-panel-input:has(input:focus) {\r\n  outline: 0;\r\n  border: 1px solid var(--pops-panel-components-input-focus-bd-color);\r\n  border-radius: 4px;\r\n  box-shadow: none;\r\n}\r\n.pops-panel-input input {\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  text-align: start;\r\n  align-items: center;\r\n  align-content: center;\r\n  white-space: nowrap;\r\n  cursor: text;\r\n  box-sizing: border-box;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n  vertical-align: middle;\r\n  -webkit-appearance: none;\r\n  appearance: none;\r\n  color: var(--pops-panel-components-input-text-color);\r\n  background-color: var(--pops-panel-components-input-text-bg-color);\r\n  outline: 0;\r\n  transition: 0.1s;\r\n  border: 0;\r\n  font-size: 14px;\r\n  font-weight: 500;\r\n  line-height: normal;\r\n  height: 32px;\r\n  width: 100%;\r\n  flex: 1;\r\n  /*margin-right: calc(1em + 8px);*/\r\n  margin: 0px;\r\n  padding: var(--pops-panel-components-input-text-default-padding);\r\n}\r\n.pops-panel-input span.pops-panel-input__suffix {\r\n  display: inline-flex;\r\n  white-space: nowrap;\r\n  flex-shrink: 0;\r\n  flex-wrap: nowrap;\r\n  height: 100%;\r\n  height: -webkit-fill-available;\r\n  height: -moz-available;\r\n  text-align: center;\r\n  color: var(--pops-panel-components-input-suffix-color);\r\n  background: var(--pops-panel-components-input-suffix-bg-color);\r\n  transition: all 0.3s;\r\n  pointer-events: none;\r\n  padding: 0 8px;\r\n  position: relative;\r\n  right: 0px;\r\n  border-top-right-radius: 4px;\r\n  border-bottom-right-radius: 4px;\r\n  border: 1px solid transparent;\r\n}\r\n.pops-panel-input span.pops-panel-input__suffix-inner {\r\n  pointer-events: all;\r\n  display: inline-flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n}\r\n/* 如果包含清空图标的按钮，则默认隐藏清空图标，当:hover、:focus、:focus-within、:active时显示清空图标 */\r\n.pops-panel-input span.pops-panel-input__suffix:has(svg[data-type="circleClose"]) {\r\n  display: none;\r\n}\r\n.pops-panel-input:hover span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\r\n.pops-panel-input:focus span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\r\n.pops-panel-input:focus-within span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\r\n.pops-panel-input:active span.pops-panel-input__suffix:has(svg[data-type="circleClose"]) {\r\n  display: inline-flex;\r\n}\r\n/* 当清空图标显示时或查看图标存在时，则隐藏输入框的padding-right */\r\n.pops-panel-input:hover:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,\r\n.pops-panel-input:focus:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,\r\n.pops-panel-input:focus-within:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,\r\n.pops-panel-input:active:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,\r\n.pops-panel-input:has(span.pops-panel-input__suffix svg[data-type="view"]) input,\r\n.pops-panel-input:has(span.pops-panel-input__suffix svg[data-type="hide"]) input {\r\n  padding-right: 0;\r\n}\r\n.pops-panel-input .pops-panel-icon {\r\n  cursor: pointer;\r\n}\r\n.pops-panel-input .pops-panel-icon {\r\n  height: inherit;\r\n  line-height: normal;\r\n  align-content: center;\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  transition: all 0.3s;\r\n}\r\n.pops-panel-input .pops-panel-icon svg {\r\n  height: 1em;\r\n  width: 1em;\r\n}\r\n\r\n.pops-input-disabled {\r\n  background-color: var(--pops-components-is-disabled-bg-color);\r\n}\r\n.pops-panel-input.pops-input-disabled:hover {\r\n  --pops-panel-components-input-hover-bd-color: var(--pops-panel-components-input-bd-color);\r\n}\r\n.pops-panel-input input:disabled,\r\n.pops-panel-input input:disabled + .pops-panel-input__suffix {\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n  color: var(--el-disabled-text-color);\r\n  -webkit-text-fill-color: var(--el-disabled-text-color);\r\n  cursor: not-allowed;\r\n}\r\n.pops-panel-input input:disabled + .pops-panel-input__suffix {\r\n  display: none;\r\n}\r\n/* input的CSS */\r\n\r\n/* textarea的CSS */\r\n.pops-panel-textarea {\r\n  --pops-panel-components-textarea-text-color: #000000;\r\n  --pops-panel-components-textarea-text-bg-color: #ffffff;\r\n  --pops-panel-components-textarea-bd-color: #dcdfe6;\r\n  --pops-panel-components-textarea-hover-bd-color: #c0c4cc;\r\n  --pops-panel-components-textarea-focus-bd-color: #409eff;\r\n}\r\n.pops-panel-textarea textarea {\r\n  width: 100%;\r\n  /*vertical-align: bottom;*/\r\n  position: relative;\r\n  display: block;\r\n  resize: none;\r\n  padding: 5px 11px;\r\n  /*line-height: 1;*/\r\n  box-sizing: border-box;\r\n  font-size: inherit;\r\n  font-family: inherit;\r\n  color: var(--pops-panel-components-textarea-text-color);\r\n  background-color: var(--pops-panel-components-textarea-text-bg-color);\r\n  background-image: none;\r\n  -webkit-appearance: none;\r\n  appearance: none;\r\n  box-shadow: none;\r\n  border-radius: 0;\r\n  transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\r\n  border: 1px solid var(--pops-panel-components-textarea-bd-color);\r\n}\r\n.pops-panel-textarea textarea:hover {\r\n  border-color: var(--pops-panel-components-textarea-hover-bd-color);\r\n}\r\n.pops-panel-textarea:has(textarea:disabled):hover {\r\n  --pops-panel-components-textarea-hover-bd-color: var(--pops-panel-components-textarea-bd-color);\r\n}\r\n.pops-panel-textarea-disable {\r\n  --pops-panel-components-textarea-text-bg-color: var(--pops-components-is-disabled-bg-color) !important;\r\n  --pops-panel-components-textarea-text-color: var(--pops-components-is-disabled-text-color);\r\n}\r\n.pops-panel-textarea-disable textarea {\r\n  cursor: not-allowed;\r\n}\r\n.pops-panel-textarea textarea:focus {\r\n  outline: 0;\r\n  border-color: var(--pops-panel-components-textarea-focus-bd-color);\r\n}\r\n/* textarea的CSS */\r\n\r\n/* select的CSS */\r\n.pops-panel-select {\r\n  --pops-panel-components-select-text-color: #000000;\r\n  --pops-panel-components-select-bd-color: rgb(184, 184, 184, var(--pops-bd-opacity));\r\n  --pops-panel-components-select-hover-bd-color: rgb(184, 184, 184, var(--pops-bd-opacity));\r\n  --pops-panel-components-select-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n}\r\n.pops-panel-select {\r\n  border: 0;\r\n}\r\n.pops-panel-select select {\r\n  height: 32px;\r\n  line-height: normal;\r\n  align-content: center;\r\n  min-width: 200px;\r\n  border: 1px solid var(--pops-panel-components-select-bd-color);\r\n  border-radius: 5px;\r\n  text-align: center;\r\n  outline: 0;\r\n  color: var(--pops-panel-components-select-text-color);\r\n  background-color: var(--pops-panel-components-select-bg-color);\r\n  box-shadow: none;\r\n}\r\n.pops-panel-select select:hover {\r\n  border: 1px solid var(--pops-panel-components-select-hover-bd-color);\r\n}\r\n.pops-panel-select-disable {\r\n  --pops-panel-components-select-text-color: var(--pops-components-is-disabled-text-color);\r\n  --pops-panel-components-select-bg-color: var(--pops-components-is-disabled-bg-color);\r\n}\r\n.pops-panel-select-disable select {\r\n  cursor: not-allowed;\r\n}\r\n.pops-panel-select-disable select:hover {\r\n  box-shadow: none;\r\n  --pops-panel-components-select-hover-bd-color: var(--pops-panel-components-select-bd-color);\r\n}\r\n.pops-panel-select select:focus {\r\n  border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));\r\n  box-shadow: none;\r\n}\r\n/* select的CSS */\r\n\r\n/* select-multiple的CSS*/\r\n.pops-panel-select-multiple {\r\n  --el-border-radius-base: 4px;\r\n  --el-fill-color-blank: #ffffff;\r\n  --el-transition-duration: 0.3s;\r\n  --el-border-color: #cbcbcb;\r\n  --el-text-color-placeholder: #a8abb2;\r\n  --color: inherit;\r\n  --el-select-input-color: #a8abb2;\r\n  --el-select-input-font-size: 14px;\r\n  --el-text-color-regular: #606266;\r\n  --el-color-info: #909399;\r\n  --el-color-info-light-9: #f4f4f5;\r\n  --el-color-info-light-8: #e9e9eb;\r\n  --el-color-primary-light-9: #ecf5ff;\r\n  --el-color-primary-light-8: #d9ecff;\r\n  --el-color-primary: #409eff;\r\n  --el-color-white: #ffffff;\r\n  width: 200px;\r\n}\r\n.pops-panel-select-multiple .el-select__wrapper {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  box-sizing: border-box;\r\n  cursor: pointer;\r\n  text-align: left;\r\n  font-size: 14px;\r\n  padding: 4px 12px;\r\n  gap: 6px;\r\n  min-height: 32px;\r\n  line-height: normal;\r\n  align-content: center;\r\n  border-radius: var(--el-border-radius-base);\r\n  background-color: var(--el-fill-color-blank);\r\n  transition: var(--el-transition-duration);\r\n  transform: translateZ(0);\r\n  border: 1px solid var(--el-border-color);\r\n}\r\n.pops-panel-select-multiple .el-select__wrapper.is-focused {\r\n  --el-border-color: var(--el-color-primary);\r\n}\r\n.pops-panel-select-multiple .el-select__selection {\r\n  position: relative;\r\n  display: flex;\r\n  flex-wrap: wrap;\r\n  align-items: center;\r\n  flex: 1;\r\n  min-width: 0;\r\n  gap: 6px;\r\n}\r\n.pops-panel-select-multiple .el-select__selected-item {\r\n  display: flex;\r\n  flex-wrap: wrap;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n.pops-panel-select-multiple .el-select__selected-item.el-select__choose_tag .el-tag {\r\n  max-width: 200px;\r\n}\r\n.pops-panel-select-multiple .el-select__input-wrapper {\r\n  max-width: 100%;\r\n}\r\n.pops-panel-select-multiple .el-select__selection.is-near {\r\n  margin-left: -8px;\r\n}\r\n.pops-panel-select-multiple .el-select__placeholder {\r\n  position: absolute;\r\n  display: block;\r\n  top: 50%;\r\n  transform: translateY(-50%);\r\n  width: 100%;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  white-space: nowrap;\r\n  color: var(--el-input-text-color, var(--el-text-color-regular));\r\n}\r\n.pops-panel-select-multiple .el-select__placeholder.is-transparent {\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n  color: var(--el-text-color-placeholder);\r\n}\r\n.pops-panel-select-multiple .el-select__prefix,\r\n.pops-panel-select-multiple .el-select__suffix {\r\n  display: flex;\r\n  align-items: center;\r\n  flex-shrink: 0;\r\n  gap: 6px;\r\n  color: var(--el-input-icon-color, var(--el-text-color-placeholder));\r\n}\r\n.pops-panel-select-multiple .el-icon {\r\n  --color: inherit;\r\n  height: 1em;\r\n  width: 1em;\r\n  line-height: normal;\r\n  align-content: center;\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  fill: currentColor;\r\n  color: var(--color);\r\n  font-size: inherit;\r\n}\r\n.pops-panel-select-multiple .el-icon svg {\r\n  height: 1em;\r\n  width: 1em;\r\n}\r\n.pops-panel-select-multiple .el-select__caret {\r\n  color: var(--el-select-input-color);\r\n  font-size: var(--el-select-input-font-size);\r\n  transition: transform var(--el-transition-duration);\r\n  transform: rotate(0);\r\n  cursor: pointer;\r\n}\r\n/* 把箭头旋转 */\r\n.pops-panel-select-multiple[data-show-option] .el-select__caret {\r\n  transform: rotate(180deg);\r\n}\r\n.pops-panel-select-multiple .el-tag {\r\n  --el-tag-font-size: 12px;\r\n  --el-tag-border-radius: 4px;\r\n  --el-tag-border-radius-rounded: 9999px;\r\n}\r\n.pops-panel-select-multiple .el-tag {\r\n  background-color: var(--el-tag-bg-color);\r\n  border-color: var(--el-tag-border-color);\r\n  color: var(--el-tag-text-color);\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  vertical-align: middle;\r\n  height: 24px;\r\n  padding: 0 9px;\r\n  font-size: var(--el-tag-font-size);\r\n  line-height: normal;\r\n  align-content: center;\r\n  border-width: 1px;\r\n  border-style: solid;\r\n  border-radius: var(--el-tag-border-radius);\r\n  box-sizing: border-box;\r\n  white-space: nowrap;\r\n  --el-icon-size: 14px;\r\n  --el-tag-bg-color: var(--el-color-primary-light-9);\r\n  --el-tag-border-color: var(--el-color-primary-light-8);\r\n  --el-tag-hover-color: var(--el-color-primary);\r\n}\r\n.pops-panel-select-multiple .el-select__selection .el-tag {\r\n  cursor: pointer;\r\n  border-color: transparent;\r\n}\r\n.pops-panel-select-multiple .el-tag.el-tag--info {\r\n  --el-tag-bg-color: var(--el-color-info-light-9);\r\n  --el-tag-border-color: var(--el-color-info-light-8);\r\n  --el-tag-hover-color: var(--el-color-info);\r\n}\r\n.pops-panel-select-multiple .el-tag.el-tag--info {\r\n  --el-tag-text-color: var(--el-color-info);\r\n}\r\n.pops-panel-select-multiple .el-tag.is-closable {\r\n  padding-right: 5px;\r\n}\r\n.pops-panel-select-multiple .el-select__selection .el-tag .el-tag__content {\r\n  min-width: 0;\r\n}\r\n.pops-panel-select-multiple .el-tag .el-tag__close {\r\n  flex-shrink: 0;\r\n  color: var(--el-tag-text-color);\r\n}\r\n.pops-panel-select-multiple .el-tag .el-tag__close:hover {\r\n  color: var(--el-color-white);\r\n  background-color: var(--el-tag-hover-color);\r\n}\r\n.pops-panel-select-multiple .el-tag .el-icon {\r\n  border-radius: 50%;\r\n  cursor: pointer;\r\n  font-size: calc(var(--el-icon-size) - 2px);\r\n  height: var(--el-icon-size);\r\n  width: var(--el-icon-size);\r\n}\r\n.pops-panel-select-multiple .el-tag .el-tag__close {\r\n  margin-left: 6px;\r\n}\r\n.pops-panel-select-multiple .el-select__tags-text {\r\n  display: block;\r\n  line-height: normal;\r\n  align-content: center;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  white-space: nowrap;\r\n}\r\n.pops-panel-select-multiple-disable {\r\n  --el-fill-color-blank: #f5f7fa;\r\n  --color: #a8abb2;\r\n  --el-border-color: #cbcbcb;\r\n}\r\n.pops-panel-select-multiple-disable .el-tag.el-tag--info {\r\n  --el-tag-bg-color: #e7e7e7;\r\n  --el-tag-text-color: var(--pops-components-is-disabled-text-color);\r\n}\r\n.pops-panel-select-multiple-disable .el-select__selection .el-tag,\r\n.pops-panel-select-multiple-disable .el-tag .el-tag__close:hover,\r\n.pops-panel-select-multiple-disable .el-select__wrapper,\r\n.pops-panel-select-multiple-disable .el-select__caret {\r\n  cursor: not-allowed;\r\n}\r\n/* select-multiple的CSS*/\r\n\r\n/* deepMenu的css */\r\n.pops-panel-deepMenu-nav-item {\r\n  cursor: pointer;\r\n}\r\n.pops-panel-deepMenu-nav-item:active {\r\n  background: var(--pops-panel-forms-container-deepMenu-item-active-bg);\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item ul li.pops-panel-deepMenu-nav-item:active {\r\n  padding: var(--pops-panel-forms-container-li-padding-top-bottom)\r\n    var(--pops-panel-forms-container-li-padding-left-right);\r\n  margin: 0px;\r\n}\r\n/* 去除上个兄弟item的底部边框颜色 */\r\nsection.pops-panel-container .pops-panel-forms-container-item ul li:has(+ .pops-panel-deepMenu-nav-item:active) {\r\n  border-bottom: 1px solid transparent;\r\n}\r\n/* 第一个和最后一个跟随圆角 */\r\nsection.pops-panel-container .pops-panel-forms-container-item ul li.pops-panel-deepMenu-nav-item:first-child:active {\r\n  border-top-left-radius: var(--pops-panel-forms-container-item-border-radius);\r\n  border-top-right-radius: var(--pops-panel-forms-container-item-border-radius);\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item ul li.pops-panel-deepMenu-nav-item:last-child:active {\r\n  border-bottom-left-radius: var(--pops-panel-forms-container-item-border-radius);\r\n  border-bottom-right-radius: var(--pops-panel-forms-container-item-border-radius);\r\n}\r\n.pops-panel-deepMenu-nav-item .pops-panel-deepMenu {\r\n  display: flex;\r\n  align-items: center;\r\n  color: #6c6c6c;\r\n  fill: #6c6c6c;\r\n}\r\n.pops-panel-deepMenu-nav-item .pops-panel-deepMenu-arrowRight-icon {\r\n  width: 15px;\r\n  height: 15px;\r\n  display: flex;\r\n  align-items: center;\r\n}\r\nsection.pops-panel-deepMenu-container .pops-panel-container-header-ul li.pops-panel-deepMenu-container-header {\r\n  display: flex;\r\n  align-items: center;\r\n  width: -webkit-fill-available;\r\n  width: -moz-available;\r\n  padding: var(--pops-panel-forms-header-padding-top-bottom)\r\n    calc(\r\n      var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right) -\r\n        var(--pops-panel-forms-header-icon-size)\r\n    );\r\n  gap: 0px;\r\n}\r\n.pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon {\r\n  width: var(--pops-panel-forms-header-icon-size);\r\n  height: var(--pops-panel-forms-header-icon-size);\r\n  display: flex;\r\n  align-items: center;\r\n  cursor: pointer;\r\n}\r\n/* 修复safari上图标大小未正常显示 */\r\n.pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon > svg {\r\n  width: inherit;\r\n  height: inherit;\r\n}\r\n/* deepMenu的css */\r\n\r\n/* 文字对齐 */\r\n.pops-panel-item-left-desc-text:has(code) {\r\n  display: flex;\r\n  align-items: baseline;\r\n  flex-wrap: wrap;\r\n}\r\n\r\n@media (prefers-color-scheme: dark) {\r\n  .pops[type-value="panel"] {\r\n    --pops-bg-color: #000000;\r\n    --pops-color: #f2f2f2;\r\n    --panel-title-bg-color: #000000;\r\n    --panel-aside-bg-color: #262626;\r\n    --pops-panel-forms-container-item-left-desc-text-color: #6c6c6c;\r\n    --pops-panel-forms-container-item-bg-color: #262626;\r\n    --pops-panel-forms-container-item-title-color: #c1c1c1;\r\n\r\n    --pops-panel-forms-container-li-border-color: rgb(51, 51, 51, var(--pops-bd-opacity));\r\n    --pops-panel-forms-container-deepMenu-item-active-bg: #333333;\r\n  }\r\n  .pops[type-value="panel"] .pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon {\r\n    fill: #f2f2f2;\r\n  }\r\n\r\n  /* switch的CSS */\r\n  .pops-panel-switch {\r\n    --panel-switch-core-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\r\n    --panel-switch-core-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\r\n    --panel-switch-circle-color: #dcdfe6;\r\n    --panel-switch-circle-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n    --panel-switch-checked-circle-color: #409eff;\r\n    --panel-switch-checked-core-bd-color: rgb(64, 158, 255, var(--pops-bd-opacity));\r\n    --panel-switch-checked-core-bg-color: rgb(64, 158, 255, var(--pops-bg-opacity));\r\n  }\r\n  /* select的CSS */\r\n  .pops-panel-select {\r\n    --pops-panel-components-select-text-color: #f2f2f2;\r\n    --pops-panel-components-select-bd-color: rgb(51, 51, 51, var(--pops-bd-opacity));\r\n    --pops-panel-components-select-bg-color: #141414;\r\n  }\r\n  /* select-multiple的CSS*/\r\n  .pops-panel-select-multiple {\r\n    --el-fill-color-blank: #141414;\r\n    --el-border-color: #4c4d4f;\r\n    --el-text-color-placeholder: #a8abb2;\r\n    --el-select-input-color: #a8abb2;\r\n    --el-text-color-regular: #606266;\r\n    --el-color-info: #909399;\r\n    --el-color-info-light-8: #e9e9eb;\r\n    --el-color-primary-light-9: #ecf5ff;\r\n    --el-color-primary-light-8: #d9ecff;\r\n    --el-color-primary: #409eff;\r\n    --el-color-white: #ffffff;\r\n  }\r\n  .pops-panel-select-multiple .el-tag {\r\n    --el-color-info-light-9: #202121;\r\n  }\r\n  .pops-panel-select-multiple-disable {\r\n    --el-border-color: rgb(51, 51, 51, var(--pops-bd-opacity));\r\n  }\r\n  .pops-panel-select-multiple-disable .el-tag.el-tag--info {\r\n    --el-tag-bg-color: #2f2f2f;\r\n  }\r\n  /* select-multiple的CSS*/\r\n  /* slider的CSS */\r\n  .pops-slider {\r\n    --pops-slider-border-color-light: #414243;\r\n  }\r\n  /* input的CSS */\r\n  .pops-panel-input {\r\n    --pops-panel-components-input-text-color: #f2f2f2;\r\n    --pops-panel-components-input-bd-color: #4f5052;\r\n    --pops-panel-components-input-bg-color: #141414;\r\n    --pops-panel-components-input-hover-bd-color: #6f7175;\r\n    --pops-panel-components-input-focus-bd-color: #409eff;\r\n    --pops-panel-components-input-suffix-color: #a8abb2;\r\n  }\r\n  /* textarea的CSS */\r\n  .pops-panel-textarea {\r\n    --pops-panel-components-textarea-text-color: #f2f2f2;\r\n    --pops-panel-components-textarea-text-bg-color: #141414;\r\n    --pops-panel-components-textarea-bd-color: #4f5052;\r\n    --pops-panel-components-textarea-hover-bd-color: #6f7175;\r\n    --pops-panel-components-textarea-focus-bd-color: #409eff;\r\n  }\r\n  .pops-panel-textarea-disable {\r\n    --pops-panel-components-textarea-text-color: var(--pops-components-is-disabled-text-color);\r\n    --pops-panel-components-textarea-text-bg-color: var(--pops-components-is-disabled-bg-color);\r\n  }\r\n  /* slider */\r\n  .pops-slider {\r\n    --pops-slider-text-color-placeholder: #8d9095;\r\n  }\r\n}\r\n';
   var rightClickMenuCSS =
     '.pops-rightClickMenu {\r\n  --pops-right-context-color: #000000;\r\n  --pops-right-context-bg-color: rgb(255, 255, 255, 0.733);\r\n  --pops-right-context-backdrop-filter: blur(10px);\r\n  --pops-right-context-z-index: 10000;\r\n  --pops-right-context-bd-radius: 6px;\r\n  --pops-right-context-menu-shadow-color: rgb(114, 114, 114, 0.251);\r\n  --pops-right-context-menu-row-bd-radius: 6px;\r\n  --pops-right-context-menu-row-visited-color: rgb(0, 0, 0, 0.067);\r\n  --pops-right-context-menu-row-hover-color: rgb(0, 0, 0, 0.067);\r\n}\r\n.pops-rightClickMenu * {\r\n  -webkit-box-sizing: border-box;\r\n  box-sizing: border-box;\r\n  margin: 0;\r\n  padding: 0;\r\n  -webkit-tap-highlight-color: transparent;\r\n  scrollbar-width: thin;\r\n}\r\n.pops-rightClickMenu {\r\n  position: fixed;\r\n  z-index: var(--pops-right-context-z-index);\r\n  text-align: center;\r\n  border-radius: var(--pops-right-context-bd-radius);\r\n  font-size: 16px;\r\n  font-weight: 500;\r\n  color: var(--pops-right-context-color);\r\n  background: var(--pops-right-context-bg-color);\r\n  box-shadow: 0 0.25rem 0.5rem 0.125rem var(--pops-right-context-menu-shadow-color);\r\n  -webkit-backdrop-filter: var(--pops-right-context-backdrop-filter);\r\n  backdrop-filter: var(--pops-right-context-backdrop-filter);\r\n}\r\n.pops-rightClickMenu[data-position="absolute"] {\r\n  position: absolute;\r\n}\r\n/* scale动画 */\r\n.pops-rightClickMenu-anim-scale {\r\n  transition:\r\n    opacity 150ms cubic-bezier(0.2, 0, 0.2, 1),\r\n    transform 150ms cubic-bezier(0.2, 0, 0.2, 1);\r\n  transform: scale(0.85);\r\n}\r\n.pops-rightClickMenu-anim-scale-open {\r\n  transform: scale(1);\r\n}\r\n.pops-rightClickMenu-anim-scale-not-open {\r\n  opacity: 0;\r\n}\r\n/* 展开动画 */\r\n.pops-rightClickMenu-anim-grid {\r\n  display: grid;\r\n  transition: 0.3s;\r\n  grid-template-rows: 0fr;\r\n}\r\n.pops-rightClickMenu-anim-show {\r\n  grid-template-rows: 1fr;\r\n}\r\n.pops-rightClickMenu-is-visited {\r\n  background: var(--pops-right-context-menu-row-visited-color);\r\n}\r\ni.pops-rightClickMenu-icon {\r\n  height: 1em;\r\n  width: 1em;\r\n  line-height: normal;\r\n  align-content: center;\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  fill: currentColor;\r\n  color: inherit;\r\n  font-size: inherit;\r\n  margin-right: 6px;\r\n}\r\ni.pops-rightClickMenu-icon[is-loading="true"] {\r\n  animation: rotating 2s linear infinite;\r\n}\r\n.pops-rightClickMenu li:hover {\r\n  background: var(--pops-right-context-menu-row-hover-color);\r\n  cursor: pointer;\r\n}\r\n.pops-rightClickMenu ul {\r\n  margin: 0;\r\n  padding: 0;\r\n  display: flex;\r\n  flex-direction: column;\r\n  align-items: flex-start;\r\n  justify-content: center;\r\n  overflow: hidden;\r\n}\r\n.pops-rightClickMenu ul li {\r\n  padding: 5px 10px;\r\n  margin: 5px 5px;\r\n  border-radius: var(--pops-right-context-menu-row-bd-radius);\r\n  display: flex;\r\n  width: -webkit-fill-available;\r\n  width: -moz-available;\r\n  text-align: left;\r\n  align-items: center;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n\r\n@media (prefers-color-scheme: dark) {\r\n  /*.pops-rightClickMenu {\r\n		--pops-right-context-menu-shadow-color: #3c3c3c;\r\n	}*/\r\n}\r\n@media (hover: hover) {\r\n  .pops-rightClickMenu ul li:active {\r\n    transform: scale(0.98);\r\n  }\r\n}\r\n';
   const PopsCSS = {
@@ -13169,13 +13168,13 @@ ${err.stack}`);
         const instData = PopsInstData[instKeyName];
         for (let index = 0; index < instData.length; index++) {
           const inst = instData[index];
-          const nodeStyle = window.getComputedStyle(inst.animElement);
+          const nodeStyle = window.getComputedStyle(inst.$anim);
           if (isVisibleNode(nodeStyle)) {
             const nodeZIndex = parseInt(nodeStyle.zIndex);
             if (!isNaN(nodeZIndex)) {
               if (nodeZIndex > zIndex) {
                 zIndex = nodeZIndex;
-                maxZIndexNode = inst.animElement;
+                maxZIndexNode = inst.$anim;
               }
             }
           }
@@ -13196,23 +13195,23 @@ ${err.stack}`);
         if (typeof instCommonConfig.beforeRemoveCallBack === "function") {
           instCommonConfig.beforeRemoveCallBack(instCommonConfig);
         }
-        instCommonConfig?.animElement?.remove();
-        instCommonConfig?.popsElement?.remove();
-        instCommonConfig?.maskElement?.remove();
+        instCommonConfig?.$anim?.remove();
+        instCommonConfig?.$pops?.remove();
+        instCommonConfig?.$mask?.remove();
         instCommonConfig?.$shadowContainer?.remove();
       }
       instConfigList.forEach((instConfigList2) => {
         instConfigList2.forEach((instConfigItem, index) => {
           if (isAll || instConfigItem["guid"] === guid) {
-            const animName = instConfigItem.animElement.getAttribute("anim");
+            const animName = instConfigItem.$anim.getAttribute("anim");
             if (PopsAnimation.hasAnim(animName)) {
               const reverseAnimName = animName + "-reverse";
-              instConfigItem.animElement.style.width = "100%";
-              instConfigItem.animElement.style.height = "100%";
-              instConfigItem.animElement.style["animation-name"] = reverseAnimName;
-              if (PopsAnimation.hasAnim(instConfigItem.animElement.style["animation-name"])) {
+              instConfigItem.$anim.style.width = "100%";
+              instConfigItem.$anim.style.height = "100%";
+              instConfigItem.$anim.style["animation-name"] = reverseAnimName;
+              if (PopsAnimation.hasAnim(instConfigItem.$anim.style["animation-name"])) {
                 popsDOMUtils.on(
-                  instConfigItem.animElement,
+                  instConfigItem.$anim,
                   popsDOMUtils.getAnimationEndNameList(),
                   function () {
                     removeItem(instConfigItem);
@@ -13235,7 +13234,7 @@ ${err.stack}`);
     },
     hide(config, popsType, instConfigList, guid, $anim, $mask) {
       return new Promise((resolve) => {
-        const popsElement = $anim.querySelector(".pops[type-value]");
+        const $pops = $anim.querySelector(".pops[type-value]");
         if (popsType === "drawer") {
           const drawerConfig = config;
           popsUtils.setTimeout(() => {
@@ -13243,9 +13242,9 @@ ${err.stack}`);
               popsDOMUtils.css($mask, "display", "none");
             }
             if (["top", "bottom"].includes(drawerConfig.direction)) {
-              popsElement.style.setProperty("height", "0");
+              $pops.style.setProperty("height", "0");
             } else if (["left", "right"].includes(drawerConfig.direction)) {
-              popsElement.style.setProperty("width", "0");
+              $pops.style.setProperty("width", "0");
             } else {
               console.error("未知direction：", drawerConfig.direction);
             }
@@ -13255,41 +13254,31 @@ ${err.stack}`);
           const fintInst = instConfigList.find((instConfigItem) => instConfigItem.guid === guid);
           if (fintInst) {
             const instConfigItem = fintInst;
-            instConfigItem.animElement.style.width = "100%";
-            instConfigItem.animElement.style.height = "100%";
+            instConfigItem.$anim.style.width = "100%";
+            instConfigItem.$anim.style.height = "100%";
             Reflect.set(
-              instConfigItem.animElement.style,
+              instConfigItem.$anim.style,
               "animation-name",
-              instConfigItem.animElement.getAttribute("anim") + "-reverse"
+              instConfigItem.$anim.getAttribute("anim") + "-reverse"
             );
-            if (PopsAnimation.hasAnim(Reflect.get(instConfigItem.animElement.style, "animation-name"))) {
+            if (PopsAnimation.hasAnim(Reflect.get(instConfigItem.$anim.style, "animation-name"))) {
               let animationendCallBack2 = function () {
-                instConfigItem.animElement.style.display = "none";
-                if (instConfigItem.maskElement) {
-                  instConfigItem.maskElement.style.display = "none";
+                instConfigItem.$anim.style.display = "none";
+                if (instConfigItem.$mask) {
+                  instConfigItem.$mask.style.display = "none";
                 }
-                popsDOMUtils.off(
-                  instConfigItem.animElement,
-                  popsDOMUtils.getAnimationEndNameList(),
-                  animationendCallBack2,
-                  {
-                    capture: true,
-                  }
-                );
+                popsDOMUtils.off(instConfigItem.$anim, popsDOMUtils.getAnimationEndNameList(), animationendCallBack2, {
+                  capture: true,
+                });
                 resolve();
               };
-              popsDOMUtils.on(
-                instConfigItem.animElement,
-                popsDOMUtils.getAnimationEndNameList(),
-                animationendCallBack2,
-                {
-                  capture: true,
-                }
-              );
+              popsDOMUtils.on(instConfigItem.$anim, popsDOMUtils.getAnimationEndNameList(), animationendCallBack2, {
+                capture: true,
+              });
             } else {
-              instConfigItem.animElement.style.display = "none";
-              if (instConfigItem.maskElement) {
-                instConfigItem.maskElement.style.display = "none";
+              instConfigItem.$anim.style.display = "none";
+              if (instConfigItem.$mask) {
+                instConfigItem.$mask.style.display = "none";
               }
               resolve();
             }
@@ -13299,7 +13288,7 @@ ${err.stack}`);
     },
     show(config, popsType, instConfigList, guid, $anim, $mask) {
       return new Promise((resolve) => {
-        const popsElement = $anim.querySelector(".pops[type-value]");
+        const $pops = $anim.querySelector(".pops[type-value]");
         if (popsType === "drawer") {
           const drawerConfig = config;
           popsUtils.setTimeout(() => {
@@ -13309,9 +13298,9 @@ ${err.stack}`);
             const direction = drawerConfig.direction;
             const size = drawerConfig.size.toString();
             if (["top", "bottom"].includes(direction)) {
-              popsElement.style.setProperty("height", size);
+              $pops.style.setProperty("height", size);
             } else if (["left", "right"].includes(direction)) {
-              popsElement.style.setProperty("width", size);
+              $pops.style.setProperty("width", size);
             } else {
               console.error("未知direction：", direction);
             }
@@ -13321,41 +13310,31 @@ ${err.stack}`);
           const fintInst = instConfigList.find((instConfigItem) => instConfigItem.guid === guid);
           if (fintInst) {
             const instConfigItem = fintInst;
-            instConfigItem.animElement.style.width = "";
-            instConfigItem.animElement.style.height = "";
+            instConfigItem.$anim.style.width = "";
+            instConfigItem.$anim.style.height = "";
             Reflect.set(
-              instConfigItem.animElement.style,
+              instConfigItem.$anim.style,
               "animation-name",
-              instConfigItem.animElement.getAttribute("anim").replace("-reverse", "")
+              instConfigItem.$anim.getAttribute("anim").replace("-reverse", "")
             );
-            if (PopsAnimation.hasAnim(Reflect.get(instConfigItem.animElement.style, "animation-name"))) {
+            if (PopsAnimation.hasAnim(Reflect.get(instConfigItem.$anim.style, "animation-name"))) {
               let animationendCallBack2 = function () {
-                popsDOMUtils.off(
-                  instConfigItem.animElement,
-                  popsDOMUtils.getAnimationEndNameList(),
-                  animationendCallBack2,
-                  {
-                    capture: true,
-                  }
-                );
+                popsDOMUtils.off(instConfigItem.$anim, popsDOMUtils.getAnimationEndNameList(), animationendCallBack2, {
+                  capture: true,
+                });
                 resolve();
               };
-              instConfigItem.animElement.style.display = "";
-              if (instConfigItem.maskElement) {
-                instConfigItem.maskElement.style.display = "";
+              instConfigItem.$anim.style.display = "";
+              if (instConfigItem.$mask) {
+                instConfigItem.$mask.style.display = "";
               }
-              popsDOMUtils.on(
-                instConfigItem.animElement,
-                popsDOMUtils.getAnimationEndNameList(),
-                animationendCallBack2,
-                {
-                  capture: true,
-                }
-              );
+              popsDOMUtils.on(instConfigItem.$anim, popsDOMUtils.getAnimationEndNameList(), animationendCallBack2, {
+                capture: true,
+              });
             } else {
-              instConfigItem.animElement.style.display = "";
-              if (instConfigItem.maskElement) {
-                instConfigItem.maskElement.style.display = "";
+              instConfigItem.$anim.style.display = "";
+              if (instConfigItem.$mask) {
+                instConfigItem.$mask.style.display = "";
               }
               resolve();
             }
@@ -13365,31 +13344,31 @@ ${err.stack}`);
     },
     close(config, popsType, instConfigList, guid, $anim) {
       return new Promise((resolve) => {
-        const popsElement = $anim.querySelector(".pops[type-value]");
+        const $pops = $anim.querySelector(".pops[type-value]");
         const drawerConfig = config;
         function transitionendEvent() {
           function closeCallBack(event) {
             if (event.propertyName !== "transform") {
               return;
             }
-            popsDOMUtils.off(popsElement, popsDOMUtils.getTransitionEndNameList(), void 0, closeCallBack);
+            popsDOMUtils.off($pops, popsDOMUtils.getTransitionEndNameList(), void 0, closeCallBack);
             PopsInstanceUtils.removeInstance([instConfigList], guid);
             resolve();
           }
-          popsDOMUtils.on(popsElement, popsDOMUtils.getTransitionEndNameList(), closeCallBack);
-          const popsTransForm = getComputedStyle(popsElement).transform;
+          popsDOMUtils.on($pops, popsDOMUtils.getTransitionEndNameList(), closeCallBack);
+          const popsTransForm = getComputedStyle($pops).transform;
           if (popsTransForm !== "none") {
-            popsDOMUtils.trigger(popsElement, popsDOMUtils.getTransitionEndNameList(), void 0, true);
+            popsDOMUtils.trigger($pops, popsDOMUtils.getTransitionEndNameList(), void 0, true);
             return;
           }
           if (["top"].includes(drawerConfig.direction)) {
-            popsElement.style.setProperty("transform", "translateY(-100%)");
+            $pops.style.setProperty("transform", "translateY(-100%)");
           } else if (["bottom"].includes(drawerConfig.direction)) {
-            popsElement.style.setProperty("transform", "translateY(100%)");
+            $pops.style.setProperty("transform", "translateY(100%)");
           } else if (["left"].includes(drawerConfig.direction)) {
-            popsElement.style.setProperty("transform", "translateX(-100%)");
+            $pops.style.setProperty("transform", "translateX(-100%)");
           } else if (["right"].includes(drawerConfig.direction)) {
-            popsElement.style.setProperty("transform", "translateX(100%)");
+            $pops.style.setProperty("transform", "translateX(100%)");
           } else {
             console.error("未知direction：", drawerConfig.direction);
           }
@@ -13404,7 +13383,7 @@ ${err.stack}`);
         }
       });
     },
-    drag(moveElement, options) {
+    drag($move, options) {
       options = Object.assign(
         {
           limit: true,
@@ -13461,7 +13440,7 @@ ${err.stack}`);
           };
         }
       }
-      let transformInfo = popsDOMUtils.getTransform(moveElement);
+      let transformInfo = popsDOMUtils.getTransform($move);
       let resumeMoveElementStyle = null;
       anyTouchElement.on("pan", function (event) {
         if (!isMove) {
@@ -13469,8 +13448,8 @@ ${err.stack}`);
           const rect = options.dragElement.getBoundingClientRect();
           clickElementLeftOffset = event.x - rect.left;
           clickElementTopOffset = event.y - rect.top;
-          transformInfo = popsDOMUtils.getTransform(moveElement);
-          resumeMoveElementStyle = changeMoveElementStyle(moveElement);
+          transformInfo = popsDOMUtils.getTransform($move);
+          resumeMoveElementStyle = changeMoveElementStyle($move);
         }
         let currentMoveLeftOffset = event.x - clickElementLeftOffset + transformInfo.transformLeft;
         let currentMoveTopOffset = event.y - clickElementTopOffset + transformInfo.transformTop;
@@ -13478,12 +13457,12 @@ ${err.stack}`);
           if (options.limit) {
             const maxLeftOffset =
               getContainerWidthOrHeight(options.container).width -
-              popsDOMUtils.width(moveElement) +
+              popsDOMUtils.width($move) +
               transformInfo.transformLeft;
             const { left: minLeftOffset, top: minTopOffset } = getContainerTopOrLeft(options.container);
             const maxTopOffset =
               getContainerWidthOrHeight(options.container).height -
-              popsDOMUtils.height(moveElement) +
+              popsDOMUtils.height($move) +
               transformInfo.transformTop;
             if (currentMoveLeftOffset > maxLeftOffset) {
               currentMoveLeftOffset = maxLeftOffset;
@@ -13505,9 +13484,9 @@ ${err.stack}`);
             }
           }
           if (typeof options.moveCallBack === "function") {
-            options.moveCallBack(moveElement, currentMoveLeftOffset, currentMoveTopOffset);
+            options.moveCallBack($move, currentMoveLeftOffset, currentMoveTopOffset);
           }
-          popsDOMUtils.css(moveElement, {
+          popsDOMUtils.css($move, {
             left: currentMoveLeftOffset + "px",
             top: currentMoveTopOffset + "px",
           });
@@ -13519,7 +13498,7 @@ ${err.stack}`);
             resumeMoveElementStyle = null;
           }
           if (typeof options.endCallBack === "function") {
-            options.endCallBack(moveElement, currentMoveLeftOffset, currentMoveTopOffset);
+            options.endCallBack($move, currentMoveLeftOffset, currentMoveTopOffset);
           }
         }
       });
@@ -13877,7 +13856,7 @@ ${err.stack}`);
       PopsInstData[type].push(value);
     },
   };
-  const PopsAlertConfig = () => {
+  const PopsAlertDefaultConfig = () => {
     return {
       title: {
         text: "默认标题",
@@ -13900,14 +13879,14 @@ ${err.stack}`);
           iconIsLoading: false,
           text: "确定",
           type: "primary",
-          callback: function (details) {
-            details.close();
+          callback: function (eventConfig) {
+            eventConfig.close();
           },
         },
         close: {
           enable: true,
-          callback: function (details) {
-            details.close();
+          callback: function (eventConfig) {
+            eventConfig.close();
           },
         },
       },
@@ -13938,12 +13917,12 @@ ${err.stack}`);
     };
   };
   const PopsAlert = {
-    init(details) {
+    init(__config__) {
       const guid = popsUtils.getRandomGUID();
       const popsType = "alert";
-      let config = PopsAlertConfig();
+      let config = PopsAlertDefaultConfig();
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-      config = popsUtils.assign(config, details);
+      config = popsUtils.assign(config, __config__);
       config = PopsHandler.handleOnly(popsType, config);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
@@ -14034,9 +14013,9 @@ ${err.stack}`);
       }
       PopsHandler.handlePush(popsType, {
         guid,
-        animElement: $anim,
-        popsElement: $pops,
-        maskElement: $mask,
+        $anim,
+        $pops,
+        $mask,
         $shadowContainer,
         $shadowRoot,
       });
@@ -14053,7 +14032,7 @@ ${err.stack}`);
       return result;
     },
   };
-  const PopsConfirmConfig = () => {
+  const PopsConfirmDefaultConfig = () => {
     return {
       title: {
         text: "默认标题",
@@ -14079,8 +14058,8 @@ ${err.stack}`);
           iconIsLoading: false,
           text: "确定",
           type: "primary",
-          callback(detail) {
-            detail.close();
+          callback(eventConfig) {
+            eventConfig.close();
           },
         },
         cancel: {
@@ -14091,8 +14070,8 @@ ${err.stack}`);
           iconIsLoading: false,
           text: "关闭",
           type: "default",
-          callback(detail) {
-            detail.close();
+          callback(eventConfig) {
+            eventConfig.close();
           },
         },
         other: {
@@ -14103,14 +14082,14 @@ ${err.stack}`);
           iconIsLoading: false,
           text: "其它按钮",
           type: "default",
-          callback(detail) {
-            detail.close();
+          callback(eventConfig) {
+            eventConfig.close();
           },
         },
         close: {
           enable: true,
-          callback(detail) {
-            detail.close();
+          callback(eventConfig) {
+            eventConfig.close();
           },
         },
       },
@@ -14141,12 +14120,12 @@ ${err.stack}`);
     };
   };
   const PopsConfirm = {
-    init(details) {
+    init(__config__) {
       const guid = popsUtils.getRandomGUID();
       const popsType = "confirm";
-      let config = PopsConfirmConfig();
+      let config = PopsConfirmDefaultConfig();
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-      config = popsUtils.assign(config, details);
+      config = popsUtils.assign(config, __config__);
       config = PopsHandler.handleOnly(popsType, config);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
@@ -14241,9 +14220,9 @@ ${err.stack}`);
       }
       PopsHandler.handlePush(popsType, {
         guid,
-        animElement: $anim,
-        popsElement: $pops,
-        maskElement: $mask,
+        $anim,
+        $pops,
+        $mask,
         $shadowContainer,
         $shadowRoot,
       });
@@ -14260,7 +14239,7 @@ ${err.stack}`);
       return result;
     },
   };
-  const PopsDrawerConfig = () => {
+  const PopsDrawerDefaultConfig = () => {
     return {
       title: {
         enable: true,
@@ -14287,8 +14266,8 @@ ${err.stack}`);
           iconIsLoading: false,
           text: "确定",
           type: "primary",
-          callback(detail) {
-            detail.close();
+          callback(eventConfig) {
+            eventConfig.close();
           },
         },
         cancel: {
@@ -14299,8 +14278,8 @@ ${err.stack}`);
           iconIsLoading: false,
           text: "关闭",
           type: "default",
-          callback(detail) {
-            detail.close();
+          callback(eventConfig) {
+            eventConfig.close();
           },
         },
         other: {
@@ -14311,14 +14290,14 @@ ${err.stack}`);
           iconIsLoading: false,
           text: "其它按钮",
           type: "default",
-          callback(detail) {
-            detail.close();
+          callback(eventConfig) {
+            eventConfig.close();
           },
         },
         close: {
           enable: true,
-          callback(detail) {
-            detail.close();
+          callback(eventConfig) {
+            eventConfig.close();
           },
         },
       },
@@ -14347,12 +14326,12 @@ ${err.stack}`);
     };
   };
   const PopsDrawer = {
-    init(details) {
+    init(__config__) {
       const guid = popsUtils.getRandomGUID();
       const popsType = "drawer";
-      let config = PopsDrawerConfig();
+      let config = PopsDrawerDefaultConfig();
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-      config = popsUtils.assign(config, details);
+      config = popsUtils.assign(config, __config__);
       config = PopsHandler.handleOnly(popsType, config);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
@@ -14483,10 +14462,10 @@ ${err.stack}`);
         },
       ];
       needHandleClickEventList.forEach((item) => {
-        PopsHandler.handleClickEvent(item.type, item.ele, evtConfig, (details2, event) => {
+        PopsHandler.handleClickEvent(item.type, item.ele, evtConfig, (evtConfig2, event) => {
           const callback = config.btn[item.type].callback;
           if (typeof callback === "function") {
-            callback(details2, event);
+            callback(evtConfig2, event);
           }
         });
       });
@@ -14522,9 +14501,9 @@ ${err.stack}`);
       }
       PopsHandler.handlePush(popsType, {
         guid,
-        animElement: $anim,
-        popsElement: $pops,
-        maskElement: $mask,
+        $anim,
+        $pops,
+        $mask,
         $shadowContainer,
         $shadowRoot,
       });
@@ -14532,9 +14511,9 @@ ${err.stack}`);
       return result;
     },
   };
-  const PopsLoadingConfig = () => {
+  const PopsLoadingDefaultConfig = () => {
     return {
-      parent: document.body,
+      $parent: document.body || document.documentElement,
       content: {
         text: "加载中...",
         icon: "loading",
@@ -14560,12 +14539,12 @@ ${err.stack}`);
     };
   };
   const PopsLoading = {
-    init(details) {
-      let config = PopsLoadingConfig();
-      config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-      config = popsUtils.assign(config, details);
+    init(__config__) {
       const guid = popsUtils.getRandomGUID();
       const PopsType = "loading";
+      let config = PopsLoadingDefaultConfig();
+      config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
+      config = popsUtils.assign(config, __config__);
       config = PopsHandler.handleOnly(PopsType, config);
       const zIndex = PopsHandler.handleZIndex(config.zIndex);
       const maskHTML = PopsElementHandler.createMask(guid, zIndex);
@@ -14609,15 +14588,15 @@ ${err.stack}`);
         $elList.push($mask);
       }
       const evtConfig = PopsHandler.handleLoadingEventConfig(config, guid, PopsType, $anim, $pops, $mask);
-      popsDOMUtils.append(config.parent, $elList);
+      popsDOMUtils.append(config.$parent, $elList);
       if ($mask != null) {
         $anim.after($mask);
       }
       PopsHandler.handlePush(PopsType, {
         guid,
-        animElement: $anim,
-        popsElement: $pops,
-        maskElement: $mask,
+        $anim,
+        $pops,
+        $mask,
       });
       if (config.isAbsolute) {
         popsDOMUtils.css($anim, "position", "absolute !important");
@@ -14627,7 +14606,7 @@ ${err.stack}`);
       return result;
     },
   };
-  const PopsFolderConfig = () => {
+  const PopsFolderDefaultConfig = () => {
     return {
       title: {
         text: "pops.Folder",
@@ -14669,9 +14648,13 @@ ${err.stack}`);
                       latestTime: 1702039602126,
                       isFolder: false,
                       index: 1,
-                      clickEvent() {
-                        console.log("下载文件：", this.fileName);
-                        return "https://update.greasyfork.org/scripts/456485/pops.js";
+                      clickEvent(event, config) {
+                        console.log("下载文件：", config);
+                        return {
+                          autoDownload: true,
+                          url: "https://update.greasyfork.org/scripts/456485/pops.js",
+                          mode: "aBlank",
+                        };
                       },
                     },
                   ];
@@ -14690,7 +14673,11 @@ ${err.stack}`);
           index: 1,
           clickEvent() {
             console.log("下载文件：", this.fileName);
-            return "https://update.greasyfork.org/scripts/456485/pops.js";
+            return {
+              autoDownload: true,
+              url: "https://update.greasyfork.org/scripts/456485/pops.js",
+              mode: "openBlank",
+            };
           },
         },
       ],
@@ -14707,8 +14694,8 @@ ${err.stack}`);
           iconIsLoading: false,
           text: "确定",
           type: "primary",
-          callback(detail) {
-            detail.close();
+          callback(evtConfig) {
+            evtConfig.close();
           },
         },
         cancel: {
@@ -14719,8 +14706,8 @@ ${err.stack}`);
           iconIsLoading: false,
           text: "关闭",
           type: "default",
-          callback(detail) {
-            detail.close();
+          callback(evtConfig) {
+            evtConfig.close();
           },
         },
         other: {
@@ -14731,14 +14718,14 @@ ${err.stack}`);
           iconIsLoading: false,
           text: "其它按钮",
           type: "default",
-          callback(detail) {
-            detail.close();
+          callback(evtConfig) {
+            evtConfig.close();
           },
         },
         close: {
           enable: true,
-          callback(detail) {
-            detail.close();
+          callback(evtConfig) {
+            evtConfig.close();
           },
         },
       },
@@ -14794,12 +14781,12 @@ ${err.stack}`);
     dwg: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAABaUExURUxpcXvGVIbNYXvHVHzJWYbNYXbDTWu9QHrGU4jOZHLBSW+/RYDJWmy+QoXMYHzHVYjOZHfET2m7P4LLXf3/+/T+7u3+5MXrsaXbiVyuMZjUeNb2xOP81bPjmuZ7vy0AAAAKdFJOUwA9z1wc33ign591Bg7OAAACdUlEQVRYw+2Yi3KjIBRAm51UI4gKxMei+f/f3PsQNU3SXtzOdGfWo0W4wBGFau3b28HBwYGYU1a85JSuOxfNZ/w6p/rem895TzQWTfOtxjP1qWCDtJoLK1WyMcM+VUUu1pJ3ls6nSDEW1UpTvSLBWFRf0iQZXwn93jFuhd7fK/2SJhgL9Hh0ecp5P4tn3xzwYmPhX0En2SL7nXkirEIPNA/xspAIL9Cw9CUmsV85dG3bBcjNgSUjeVJcykeG9nrtAmX9/MNJtk9Yk7B5cqbLvymsdwjr2LOmBIVtU3OMQ9xGJIQOQHSFGzBegR5zoV4Qj7DeQiumbVGIx26gEXICpAvr4bqlHe5r04WWhB1BQvsdwo5uX4/GvxCGgejBMv4mJpwZjoY0IY7C9nSZNB+jI1DY8tXfsJGVCi3Rt8tUjBoDelrn5mbBJxVi29qqG60XXDLtqFjYXudQd1N8VqEQUUNPTNA/jhCyE0cHRUNMEiq+cbiwV2E3cFTvGKHjqQ34bB0Jespy1NlkIQwR0aG7I2iOJwmVje1BG6atbwpQxbUqZYRq3ej9NIJ1GjGHwk21SKgiFndL7xQU0jvFLlWERJhHE3ehuQnTNI2WZmOxUQuhcDsK44xzJCx5vdyRJFzRYQShf6xQ+U8J9VOh3inU4NMAaTULccWUmopUrRQ3kAkfqQJgn1TsFBpaO+77hHp+xOwXmo9DhNVoOLipMlKh0dibd8waLq7HWDBGJDQJ/IgwM3zHIm5JlpQ33CV/wZ6wj1t7UT4KaLY5R4noMyB3EXN32BRiRHLF8H2rnRAt/JY65zJfLv8iPWf5l2Q7/ptxcHDw//IHYWiLelDcDu8AAAAASUVORK5CYII=",
   };
   const PopsFolder = {
-    init(details) {
+    init(__config__) {
       const guid = popsUtils.getRandomGUID();
       const popsType = "folder";
-      let config = PopsFolderConfig();
+      let config = PopsFolderDefaultConfig();
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-      config = popsUtils.assign(config, details);
+      config = popsUtils.assign(config, __config__);
       config = PopsHandler.handleOnly(popsType, config);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
@@ -14871,8 +14858,8 @@ ${err.stack}`);
       androidIconList.forEach((keyName) => {
         Folder_ICON[keyName] = Folder_ICON.apk;
       });
-      if (details?.folder) {
-        Reflect.set(config, "folder", details.folder);
+      if (config?.folder) {
+        Reflect.set(config, "folder", config.folder);
       }
       const zIndex = PopsHandler.handleZIndex(config.zIndex);
       const maskHTML = PopsElementHandler.createMask(guid, zIndex);
@@ -15039,11 +15026,11 @@ ${err.stack}`);
         init() {
           config.folder.sort();
           this.initFolderView(config.folder);
-          const allFilesElement = folderFileListBreadcrumbPrimaryElement.querySelector(
+          const $allFiles = folderFileListBreadcrumbPrimaryElement.querySelector(
             ".pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:first-child"
           );
-          Reflect.set(allFilesElement, "_config_", config.folder);
-          popsDOMUtils.on(allFilesElement, "click", (event) => {
+          Reflect.set($allFiles, "data-config", config.folder);
+          popsDOMUtils.on($allFiles, "click", (event) => {
             this.setBreadcrumbClickEvent(event, true, config.folder);
           });
           popsDOMUtils.on(
@@ -15114,7 +15101,7 @@ ${err.stack}`);
             for (const keyName in Folder_ICON) {
               if (fileName.toLowerCase().endsWith("." + keyName)) {
                 fileType = keyName;
-                fileIcon = Folder_ICON[keyName];
+                fileIcon = Reflect.get(Folder_ICON, keyName);
                 break;
               }
             }
@@ -15198,7 +15185,7 @@ ${err.stack}`);
             for (const keyName in Folder_ICON) {
               if (fileName.toLowerCase().endsWith("." + keyName)) {
                 fileType = keyName;
-                fileIcon = Folder_ICON[keyName];
+                fileIcon = Reflect.get(Folder_ICON, keyName);
                 break;
               }
             }
@@ -15250,7 +15237,7 @@ ${err.stack}`);
             {
               className: "pops-folder-file-list-breadcrumb-allFiles cursor-p",
               innerHTML: `<a>${folderName}</a>`,
-              _config_: folderDataConfig,
+              "data-config": folderDataConfig,
             },
             {
               title: folderName,
@@ -15270,7 +15257,7 @@ ${err.stack}`);
             console.error("获取导航按钮失败");
           }
           const loadingMask = PopsLoading.init({
-            parent: $content,
+            $parent: $content,
             content: {
               text: "获取文件列表中...",
             },
@@ -15289,7 +15276,7 @@ ${err.stack}`);
         async enterFolder(clickEvent, dataConfig) {
           this.clearFolderInfoView();
           const loadingMask = PopsLoading.init({
-            parent: $content,
+            $parent: $content,
             content: {
               text: "获取文件列表中...",
             },
@@ -15301,9 +15288,9 @@ ${err.stack}`);
           if (typeof dataConfig.clickEvent === "function") {
             const childConfig = await dataConfig.clickEvent(clickEvent, dataConfig);
             folderFileListBreadcrumbPrimaryElement.appendChild(this.createHeaderArrowIcon());
-            const breadcrumbAllFilesElement = this.createBreadcrumb(dataConfig.fileName, childConfig);
-            folderFileListBreadcrumbPrimaryElement.appendChild(breadcrumbAllFilesElement);
-            popsDOMUtils.on(breadcrumbAllFilesElement, "click", (event) => {
+            const $breadcrumbAllFiles = this.createBreadcrumb(dataConfig.fileName, childConfig);
+            folderFileListBreadcrumbPrimaryElement.appendChild($breadcrumbAllFiles);
+            popsDOMUtils.on($breadcrumbAllFiles, "click", (event) => {
               this.setBreadcrumbClickEvent(event, false, childConfig);
             });
             this.initFolderView(childConfig);
@@ -15325,7 +15312,7 @@ ${err.stack}`);
               $link.setAttribute("href", downloadInfo.url);
               $link.setAttribute("target", "_blank");
               if (downloadInfo.autoDownload) {
-                if (downloadInfo.mode == null || downloadInfo.mode === "") {
+                if (downloadInfo.mode == null || String(downloadInfo.mode) === "") {
                   downloadInfo.mode = "aBlank";
                 }
                 if (downloadInfo.mode === "a" || downloadInfo.mode === "aBlank") {
@@ -15475,9 +15462,9 @@ ${err.stack}`);
             config.sort.name = sortName;
             config.sort.isDesc = !config.sort.isDesc;
           }
-          const arrowUp = target.querySelector(".pops-folder-icon-arrow-up");
-          const arrowDown = target.querySelector(".pops-folder-icon-arrow-down");
-          this.changeArrowActive(arrowUp, arrowDown, config.sort.isDesc);
+          const $arrowUp = target.querySelector(".pops-folder-icon-arrow-up");
+          const $arrowDown = target.querySelector(".pops-folder-icon-arrow-down");
+          this.changeArrowActive($arrowUp, $arrowDown, config.sort.isDesc);
           if (
             typeof config.sort.callback === "function" &&
             config.sort.callback(target, event, config.sort.name, config.sort.isDesc)
@@ -15510,9 +15497,9 @@ ${err.stack}`);
       }
       PopsHandler.handlePush(popsType, {
         guid,
-        animElement: $anim,
-        popsElement: $pops,
-        maskElement: $mask,
+        $anim,
+        $pops,
+        $mask,
         $shadowContainer,
         $shadowRoot,
       });
@@ -15520,7 +15507,7 @@ ${err.stack}`);
       return result;
     },
   };
-  const PopsIframeConfig = () => {
+  const PopsIframeDefaultConfig = () => {
     return {
       title: {
         position: "center",
@@ -15578,14 +15565,14 @@ ${err.stack}`);
     };
   };
   const PopsIframe = {
-    init(details) {
+    init(__config__) {
       const guid = popsUtils.getRandomGUID();
       const popsType = "iframe";
-      let config = PopsIframeConfig();
+      let config = PopsIframeDefaultConfig();
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-      config = popsUtils.assign(config, details);
+      config = popsUtils.assign(config, __config__);
       if (config.url == null) {
-        throw new Error("config.url不能为空");
+        throw new TypeError("config.url must not be null.");
       }
       config = PopsHandler.handleOnly(popsType, config);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
@@ -15681,7 +15668,7 @@ ${err.stack}`);
         $pops,
         $mask
       );
-      evtConfig["iframeElement"] = $iframe;
+      evtConfig.$iframe = $iframe;
       popsDOMUtils.on($anim, popsDOMUtils.getAnimationEndNameList(), function () {
         $anim.style.width = "0%";
         $anim.style.height = "0%";
@@ -15827,9 +15814,9 @@ ${err.stack}`);
       );
       PopsHandler.handlePush(popsType, {
         guid,
-        animElement: $anim,
-        popsElement: $pops,
-        maskElement: $mask,
+        $anim,
+        $pops,
+        $mask,
         $shadowContainer,
         $shadowRoot,
       });
@@ -15837,7 +15824,7 @@ ${err.stack}`);
       return result;
     },
   };
-  const PopsPanelConfig = () => {
+  const PopsPanelDefaultConfig = () => {
     return {
       title: {
         text: "默认标题",
@@ -15850,18 +15837,18 @@ ${err.stack}`);
           id: "whitesev-panel-config-1",
           title: "菜单配置1",
           headerTitle: "菜单配置1",
-          isDefault: false,
+          isDefault: true,
           attributes: {
             "data-test": "test",
             "data-test-2": "test2",
           },
-          forms: [
+          views: [
             {
               className: "forms-1",
               text: "区域设置",
-              type: "forms",
+              type: "container",
               attributes: {},
-              forms: [
+              views: [
                 {
                   className: "panel-switch",
                   text: "switch",
@@ -15969,12 +15956,12 @@ ${err.stack}`);
           id: "whitesev-panel-config-2",
           title: "菜单配置2",
           headerTitle: "菜单配置2",
-          isDefault: true,
+          isDefault: false,
           attributes: {
             "data-value": "value",
             "data-value-2": "value2",
           },
-          forms: [
+          views: [
             {
               className: "panel-input",
               text: "input",
@@ -16023,8 +16010,8 @@ ${err.stack}`);
               placeholder: "请输入内容",
             },
             {
-              className: "panel-select",
-              text: "select",
+              className: "panel-select-disabled",
+              text: "select-disabled",
               type: "select",
               disabled: true,
               props: {},
@@ -16042,7 +16029,7 @@ ${err.stack}`);
                   disable() {
                     return false;
                   },
-                  forms: [],
+                  views: [],
                 },
                 {
                   value: "text",
@@ -16050,7 +16037,7 @@ ${err.stack}`);
                   disable() {
                     return false;
                   },
-                  forms: [],
+                  views: [],
                 },
                 {
                   value: "html",
@@ -16058,7 +16045,89 @@ ${err.stack}`);
                   disable() {
                     return false;
                   },
-                  forms: [],
+                  views: [],
+                },
+              ],
+            },
+            {
+              className: "panel-select-multiple-disabled",
+              type: "select-multiple",
+              text: "select-multiple-disabled",
+              disabled: true,
+              props: {},
+              attributes: {},
+              placeholder: "请至少选择一个选项",
+              getValue() {
+                return ["select-1", "select-2"];
+              },
+              callback(selectInfo) {
+                console.log(`select值改变，多选信息`, selectInfo);
+              },
+              clickCallBack(event, isSelectedInfo) {
+                console.log("点击", event, isSelectedInfo);
+              },
+              closeIconClickCallBack(event, data) {
+                console.log("点击关闭图标的事件", data);
+              },
+              data: [
+                {
+                  value: "select-1",
+                  text: "单选1",
+                  isHTML: false,
+                },
+                {
+                  value: "select-2",
+                  text: "单选2",
+                  isHTML: false,
+                },
+                {
+                  value: "select-3",
+                  text: "单选3",
+                  isHTML: false,
+                },
+                {
+                  value: "select-4",
+                  text: "单选4",
+                  isHTML: false,
+                },
+              ],
+            },
+            {
+              className: "panel-select",
+              text: "select",
+              type: "select",
+              props: {},
+              attributes: {},
+              getValue() {
+                return 50;
+              },
+              callback(event, isSelectedValue, isSelectedText) {
+                console.log(`select当前选项：${isSelectedValue}，当前选项文本：${isSelectedText}`);
+              },
+              data: [
+                {
+                  value: "all",
+                  text: "所有",
+                  disable() {
+                    return false;
+                  },
+                  views: [],
+                },
+                {
+                  value: "text",
+                  text: "文本",
+                  disable() {
+                    return false;
+                  },
+                  views: [],
+                },
+                {
+                  value: "html",
+                  text: "超文本",
+                  disable() {
+                    return false;
+                  },
+                  views: [],
                 },
               ],
             },
@@ -16066,7 +16135,6 @@ ${err.stack}`);
               className: "panel-select-multiple",
               type: "select-multiple",
               text: "select-multiple",
-              disabled: true,
               props: {},
               attributes: {},
               placeholder: "请至少选择一个选项",
@@ -16130,9 +16198,9 @@ ${err.stack}`);
               ],
             },
             {
-              type: "forms",
+              type: "container",
               text: "deep菜单",
-              forms: [
+              views: [
                 {
                   type: "deepMenu",
                   className: "panel-deepMenu",
@@ -16140,20 +16208,20 @@ ${err.stack}`);
                   description: "二级菜单",
                   rightText: "自定义配置",
                   arrowRightIcon: true,
-                  afterAddToUListCallBack(formConfig, container) {
-                    console.log(formConfig, container);
+                  afterAddToUListCallBack(viewConfig, container) {
+                    console.log(viewConfig, container);
                   },
-                  clickCallBack(event, formConfig) {
-                    console.log("进入子配置", event, formConfig);
+                  clickCallBack(event, viewConfig) {
+                    console.log("进入子配置", event, viewConfig);
                   },
-                  forms: [
+                  views: [
                     {
                       className: "forms-1",
                       text: "区域设置",
-                      type: "forms",
+                      type: "container",
                       attributes: {},
                       props: {},
-                      forms: [
+                      views: [
                         {
                           className: "panel-switch",
                           text: "switch",
@@ -16237,24 +16305,24 @@ ${err.stack}`);
                   description: "二级菜单",
                   rightText: "自定义配置",
                   arrowRightIcon: true,
-                  afterAddToUListCallBack(formConfig, container) {
-                    console.log(formConfig, container);
+                  afterAddToUListCallBack(viewConfig, container) {
+                    console.log(viewConfig, container);
                   },
-                  clickCallBack(event, formConfig) {
-                    console.log("进入子配置", event, formConfig);
+                  clickCallBack(event, viewConfig) {
+                    console.log("进入子配置", event, viewConfig);
                   },
-                  forms: [],
+                  views: [],
                 },
               ],
             },
             {
-              type: "forms",
+              type: "container",
               isFold: true,
               text: "折叠菜单",
-              afterAddToUListCallBack(formConfig, container) {
-                console.log(formConfig, container);
+              afterAddToUListCallBack(viewConfig, container) {
+                console.log(viewConfig, container);
               },
-              forms: [
+              views: [
                 {
                   className: "panel-switch",
                   text: "switch",
@@ -16284,7 +16352,7 @@ ${err.stack}`);
             "data-value-2": "value2",
           },
           props: {},
-          forms: [],
+          views: [],
           clickFirstCallback: function () {
             return false;
           },
@@ -16298,7 +16366,7 @@ ${err.stack}`);
             "data-value-2": "value2",
           },
           props: {},
-          forms: [],
+          views: [],
           clickFirstCallback: function () {
             return false;
           },
@@ -16394,10 +16462,10 @@ ${err.stack}`);
       return (number1ReplaceValue / number2ReplaceValue) * Math.pow(10, number2length - number1length);
     },
   };
-  const PopsTooltipConfig = () => {
+  const PopsTooltipDefaultConfig = () => {
     return {
       useShadowRoot: true,
-      target: null,
+      $target: null,
       content: "默认文字",
       isDiffContent: false,
       position: "top",
@@ -16409,9 +16477,9 @@ ${err.stack}`);
       zIndex: 1e4,
       only: false,
       eventOption: {
+        once: false,
         passive: false,
         capture: true,
-        once: false,
       },
       showBeforeCallBack() {},
       showAfterCallBack() {},
@@ -16590,7 +16658,7 @@ ${err.stack}`);
     }
     changePosition(event) {
       const positionInfo = this.calcToolTipPosition(
-        this.$data.config.target,
+        this.$data.config.$target,
         this.$data.config.arrowDistance,
         this.$data.config.otherDistance,
         event
@@ -16673,14 +16741,14 @@ ${err.stack}`);
     }
     onShowEvent() {
       popsDOMUtils.on(
-        this.$data.config.target,
+        this.$data.config.$target,
         this.$data.config.triggerShowEventName,
         this.show,
         this.$data.config.eventOption
       );
     }
     offShowEvent() {
-      popsDOMUtils.off(this.$data.config.target, this.$data.config.triggerShowEventName, this.show, {
+      popsDOMUtils.off(this.$data.config.$target, this.$data.config.triggerShowEventName, this.show, {
         capture: true,
       });
     }
@@ -16689,7 +16757,7 @@ ${err.stack}`);
       const eventType = event instanceof MouseEvent ? "MouseEvent" : "TouchEvent";
       if (event && event instanceof MouseEvent) {
         const $target = event.composedPath()[0];
-        if ($target != this.$data.config.target && $target != this.$el.$toolTip) {
+        if ($target != this.$data.config.$target && $target != this.$el.$toolTip) {
           return;
         }
       }
@@ -16727,14 +16795,14 @@ ${err.stack}`);
     }
     onCloseEvent() {
       popsDOMUtils.on(
-        this.$data.config.target,
+        this.$data.config.$target,
         this.$data.config.triggerCloseEventName,
         this.close,
         this.$data.config.eventOption
       );
     }
     offCloseEvent() {
-      popsDOMUtils.off(this.$data.config.target, this.$data.config.triggerCloseEventName, this.close, {
+      popsDOMUtils.off(this.$data.config.$target, this.$data.config.triggerCloseEventName, this.close, {
         capture: true,
       });
     }
@@ -16804,13 +16872,13 @@ ${err.stack}`);
     }
   }
   const PopsTooltip = {
-    init(details) {
+    init(__config__) {
       const guid = popsUtils.getRandomGUID();
       const popsType = "tooltip";
-      let config = PopsTooltipConfig();
+      let config = PopsTooltipDefaultConfig();
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-      config = popsUtils.assign(config, details);
-      if (!(config.target instanceof HTMLElement)) {
+      config = popsUtils.assign(config, __config__);
+      if (!(config.$target instanceof HTMLElement)) {
         throw new TypeError("config.target 必须是HTMLElement类型");
       }
       config = PopsHandler.handleOnly(popsType, config);
@@ -16866,13 +16934,16 @@ ${err.stack}`);
         $panelBottomLeftContainer: null,
         $panelBottomRightContainer: null,
       },
+      $data: {
+        nodeStoreConfigKey: "data-view-config",
+      },
       $config: {},
-      init(details) {
+      init(data) {
         const PopsType = "panel";
         this.$el = {
-          ...details.$el,
+          ...data.$el,
         };
-        this.$config = details.config;
+        this.$config = data.config;
         this.asideULElement = this.$el.$panelLeftAside.querySelector(`ul.pops-${PopsType}-aside-top-container`);
         this.asideBottomULElement = this.$el.$panelLeftAside.querySelector(
           `ul.pops-${PopsType}-aside-bottom-container`
@@ -16885,7 +16956,7 @@ ${err.stack}`);
         );
         let $defaultAsideItem = null;
         let isScrollToDefaultView = false;
-        details.config.content.forEach((asideItemConfig) => {
+        data.config.content.forEach((asideItemConfig) => {
           const $asideLiElement = this.createAsideItem(asideItemConfig);
           this.setAsideItemClickEvent($asideLiElement, asideItemConfig);
           const isBottom =
@@ -16914,7 +16985,7 @@ ${err.stack}`);
             });
           }
         });
-        (details.config?.bottomContentConfig || []).forEach((bottomItemConfig) => {
+        (data.config?.bottomContentConfig || []).forEach((bottomItemConfig) => {
           const $bottomLiElement = this.createBottomItem(bottomItemConfig);
           this.setBottomItemClickEvent($bottomLiElement, bottomItemConfig);
           if (bottomItemConfig.position === "left" || bottomItemConfig.position == null) {
@@ -16946,7 +17017,7 @@ ${err.stack}`);
         }
       },
       clearContainer() {
-        Reflect.deleteProperty(this.$el.$panelContentSectionContainer, "__formConfig__");
+        Reflect.deleteProperty(this.$el.$panelContentSectionContainer, this.$data.nodeStoreConfigKey);
         PopsSafeUtils.setSafeHTML(this.sectionContainerHeaderULElement, "");
         PopsSafeUtils.setSafeHTML(this.sectionContainerULElement, "");
         this.clearDeepMenuContainer();
@@ -17033,7 +17104,7 @@ ${err.stack}`);
           id: asideConfig.id,
           innerHTML: text,
         });
-        Reflect.set($li, "__forms__", asideConfig.forms);
+        Reflect.set($li, "__forms__", asideConfig.views);
         this.setElementClassName($li, "pops-panel-aside-item");
         this.setElementClassName($li, asideConfig.className);
         this.setElementAttributes($li, asideConfig.attributes);
@@ -17050,21 +17121,21 @@ ${err.stack}`);
         }
         return $li;
       },
-      createSectionContainerItem_switch(formConfig) {
+      createSectionContainerItem_switch(viewConfig) {
         const $li = popsDOMUtils.createElement("li");
-        Reflect.set($li, "__formConfig__", formConfig);
-        this.setElementClassName($li, formConfig.className);
-        this.setElementAttributes($li, formConfig.attributes);
-        this.setElementProps($li, formConfig.props);
+        Reflect.set($li, this.$data.nodeStoreConfigKey, viewConfig);
+        this.setElementClassName($li, viewConfig.className);
+        this.setElementAttributes($li, viewConfig.attributes);
+        this.setElementProps($li, viewConfig.props);
         let leftDescriptionText = "";
-        if (formConfig.description) {
-          leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+        if (viewConfig.description) {
+          leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${viewConfig.description}</p>`;
         }
         PopsSafeUtils.setSafeHTML(
           $li,
           `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
+					<p class="pops-panel-item-left-main-text">${viewConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-switch">
 					<input class="pops-panel-switch__input" type="checkbox">
 					<span class="pops-panel-switch__core">
@@ -17076,7 +17147,7 @@ ${err.stack}`);
         const PopsPanelSwitch = {
           [Symbol.toStringTag]: "PopsPanelSwitch",
           $data: {
-            value: Boolean(formConfig.getValue()),
+            value: Boolean(viewConfig.getValue()),
           },
           $ele: {
             itemLeftTextContainer: $li.querySelector(".pops-panel-item-left-text"),
@@ -17086,7 +17157,7 @@ ${err.stack}`);
           },
           init() {
             this.setStatus(this.$data.value);
-            const disabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
+            const disabled = typeof viewConfig.disabled === "function" ? viewConfig.disabled() : viewConfig.disabled;
             if (disabled) {
               this.disable();
             }
@@ -17100,8 +17171,8 @@ ${err.stack}`);
               }
               that.$data.value = that.getStatus();
               that.setStatus(that.$data.value);
-              if (typeof formConfig.callback === "function") {
-                formConfig.callback(event, that.$data.value);
+              if (typeof viewConfig.callback === "function") {
+                viewConfig.callback(event, that.$data.value);
               }
             });
           },
@@ -17136,40 +17207,40 @@ ${err.stack}`);
         Reflect.set($li, "data-switch", PopsPanelSwitch);
         return $li;
       },
-      createSectionContainerItem_slider(formConfig) {
+      createSectionContainerItem_slider(viewConfig) {
         const $li = popsDOMUtils.createElement("li");
-        Reflect.set($li, "__formConfig__", formConfig);
-        this.setElementClassName($li, formConfig.className);
-        this.setElementAttributes($li, formConfig.attributes);
-        this.setElementProps($li, formConfig.props);
+        Reflect.set($li, this.$data.nodeStoreConfigKey, viewConfig);
+        this.setElementClassName($li, viewConfig.className);
+        this.setElementAttributes($li, viewConfig.attributes);
+        this.setElementProps($li, viewConfig.props);
         let leftDescriptionText = "";
-        if (formConfig.description) {
-          leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+        if (viewConfig.description) {
+          leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${viewConfig.description}</p>`;
         }
         PopsSafeUtils.setSafeHTML(
           $li,
           `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
+					<p class="pops-panel-item-left-main-text">${viewConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-slider">
-					<input type="range" min="${formConfig.min}" max="${formConfig.max}">
+					<input type="range" min="${viewConfig.min}" max="${viewConfig.max}">
 				</div>
 			`
         );
         const $rangeInput = $li.querySelector(".pops-panel-slider input[type=range]");
-        if (formConfig.step) {
-          $rangeInput.setAttribute("step", formConfig.step.toString());
+        if (viewConfig.step) {
+          $rangeInput.setAttribute("step", viewConfig.step.toString());
         }
-        $rangeInput.value = formConfig.getValue().toString();
+        $rangeInput.value = viewConfig.getValue().toString();
         const getToolTipContent = function (value) {
-          if (typeof formConfig.getToolTipContent === "function") {
-            return formConfig.getToolTipContent(value);
+          if (typeof viewConfig.getToolTipContent === "function") {
+            return viewConfig.getToolTipContent(value);
           } else {
             return value;
           }
         };
         const tooltip = PopsTooltip.init({
-          target: $rangeInput.parentElement,
+          $target: $rangeInput.parentElement,
           content: () => {
             return getToolTipContent($rangeInput.value);
           },
@@ -17184,27 +17255,27 @@ ${err.stack}`);
         });
         popsDOMUtils.on($rangeInput, ["input", "propertychange"], void 0, function (event) {
           tooltip.toolTip.changeContent(getToolTipContent($rangeInput.value));
-          if (typeof formConfig.callback === "function") {
-            formConfig.callback(event, $rangeInput.valueAsNumber);
+          if (typeof viewConfig.callback === "function") {
+            viewConfig.callback(event, $rangeInput.valueAsNumber);
           }
         });
         return $li;
       },
-      createSectionContainerItem_slider_new(formConfig) {
+      createSectionContainerItem_slider_new(viewConfig) {
         const $li = popsDOMUtils.createElement("li");
-        Reflect.set($li, "__formConfig__", formConfig);
-        this.setElementClassName($li, formConfig.className);
-        this.setElementAttributes($li, formConfig.attributes);
-        this.setElementProps($li, formConfig.props);
+        Reflect.set($li, this.$data.nodeStoreConfigKey, viewConfig);
+        this.setElementClassName($li, viewConfig.className);
+        this.setElementAttributes($li, viewConfig.attributes);
+        this.setElementProps($li, viewConfig.props);
         let leftDescriptionText = "";
-        if (formConfig.description) {
-          leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+        if (viewConfig.description) {
+          leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${viewConfig.description}</p>`;
         }
         PopsSafeUtils.setSafeHTML(
           $li,
           `
 				<div class="pops-panel-item-left-text" style="flex: 1;">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
+					<p class="pops-panel-item-left-main-text">${viewConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-slider pops-slider-width">
 					<div class="pops-slider__runway">
 						<div class="pops-slider__bar" style="width: 0%; left: 0%"></div>
@@ -17216,10 +17287,10 @@ ${err.stack}`);
         );
         const PopsPanelSlider = {
           [Symbol.toStringTag]: "PopsPanelSlider",
-          value: formConfig.getValue(),
-          min: formConfig.min,
-          max: formConfig.max,
-          step: formConfig.step || 1,
+          value: viewConfig.getValue(),
+          min: viewConfig.min,
+          max: viewConfig.max,
+          step: viewConfig.step || 1,
           $data: {
             isMove: false,
             isInitDragPosition: false,
@@ -17249,7 +17320,7 @@ ${err.stack}`);
             this.setPanEvent();
             this.setRunAwayClickEvent();
             this.intervalInit();
-            if (this.isFormConfigDisabledDrag()) {
+            if (this.isDisabledDragWithConfig()) {
               this.disableDrag();
             }
           },
@@ -17378,8 +17449,8 @@ ${err.stack}`);
             return Number(num) === num && num % 1 !== 0;
           },
           valueChangeCallBack(event, value) {
-            if (typeof formConfig.callback === "function") {
-              formConfig.callback(event, value);
+            if (typeof viewConfig.callback === "function") {
+              viewConfig.callback(event, value);
             }
           },
           getDragInfo(dragX) {
@@ -17424,8 +17495,8 @@ ${err.stack}`);
           isDisabledDrag() {
             return popsDOMUtils.containsClassName(this.$ele.runAway, "pops-slider-is-disabled");
           },
-          isFormConfigDisabledDrag() {
-            const isDisabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
+          isDisabledDragWithConfig() {
+            const isDisabled = typeof viewConfig.disabled === "function" ? viewConfig.disabled() : viewConfig.disabled;
             if (typeof isDisabled === "boolean") {
               return isDisabled;
             } else {
@@ -17454,7 +17525,7 @@ ${err.stack}`);
             );
           },
           dragStartCallBack() {
-            if (this.isFormConfigDisabledDrag()) {
+            if (this.isDisabledDragWithConfig()) {
               this.disableDrag();
               return false;
             }
@@ -17549,14 +17620,14 @@ ${err.stack}`);
           },
           setToolTipEvent() {
             function getToolTipContent() {
-              if (typeof formConfig.getToolTipContent === "function") {
-                return formConfig.getToolTipContent(PopsPanelSlider.value);
+              if (typeof viewConfig.getToolTipContent === "function") {
+                return viewConfig.getToolTipContent(PopsPanelSlider.value);
               } else {
                 return PopsPanelSlider.value.toString();
               }
             }
             const tooltip = PopsTooltip.init({
-              target: this.$ele.button,
+              $target: this.$ele.button,
               content: getToolTipContent,
               zIndex: () => {
                 return PopsInstanceUtils.getPopsMaxZIndex().zIndex;
@@ -17570,10 +17641,10 @@ ${err.stack}`);
               },
               showBeforeCallBack: () => {
                 const isShowHoverTip =
-                  typeof formConfig.isShowHoverTip === "function"
-                    ? formConfig.isShowHoverTip()
-                    : typeof formConfig.isShowHoverTip === "boolean"
-                      ? formConfig.isShowHoverTip
+                  typeof viewConfig.isShowHoverTip === "function"
+                    ? viewConfig.isShowHoverTip()
+                    : typeof viewConfig.isShowHoverTip === "boolean"
+                      ? viewConfig.isShowHoverTip
                       : true;
                 if (!isShowHoverTip) {
                   return false;
@@ -17600,29 +17671,29 @@ ${err.stack}`);
         Reflect.set($li, "data-slider", PopsPanelSlider);
         return $li;
       },
-      createSectionContainerItem_input(formConfig) {
+      createSectionContainerItem_input(viewConfig) {
         const $li = popsDOMUtils.createElement("li");
-        Reflect.set($li, "__formConfig__", formConfig);
-        this.setElementClassName($li, formConfig.className);
-        this.setElementAttributes($li, formConfig.attributes);
-        this.setElementProps($li, formConfig.props);
+        Reflect.set($li, this.$data.nodeStoreConfigKey, viewConfig);
+        this.setElementClassName($li, viewConfig.className);
+        this.setElementAttributes($li, viewConfig.attributes);
+        this.setElementProps($li, viewConfig.props);
         let inputType = "text";
-        if (formConfig.isPassword) {
+        if (viewConfig.isPassword) {
           inputType = "password";
-        } else if (formConfig.isNumber) {
+        } else if (viewConfig.isNumber) {
           inputType = "number";
         }
         let leftDescriptionText = "";
-        if (formConfig.description) {
-          leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+        if (viewConfig.description) {
+          leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${viewConfig.description}</p>`;
         }
         PopsSafeUtils.setSafeHTML(
           $li,
           `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
+					<p class="pops-panel-item-left-main-text">${viewConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-input">
-					<input type="${inputType}" placeholder="${formConfig.placeholder ?? ""}">
+					<input type="${inputType}" placeholder="${viewConfig.placeholder ?? ""}">
 				</div>
 				`
         );
@@ -17637,13 +17708,13 @@ ${err.stack}`);
             icon: null,
           },
           $data: {
-            value: formConfig.getValue(),
+            value: viewConfig.getValue(),
             isView: false,
           },
           init() {
             this.initEle();
             this.setInputValue(this.$data.value);
-            if (formConfig.isPassword) {
+            if (viewConfig.isPassword) {
               this.setCircleIcon(PopsIcon.getIcon("view"));
               this.setCircleIconClickEvent();
             } else {
@@ -17653,12 +17724,12 @@ ${err.stack}`);
               }
             }
             this.setInputChangeEvent();
-            const disabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
+            const disabled = typeof viewConfig.disabled === "function" ? viewConfig.disabled() : viewConfig.disabled;
             if (disabled) {
               this.disable();
             }
-            if (typeof formConfig.handlerCallBack === "function") {
-              formConfig.handlerCallBack($li, this.$ele.input);
+            if (typeof viewConfig.handlerCallBack === "function") {
+              viewConfig.handlerCallBack($li, this.$ele.input);
             }
           },
           initEle() {
@@ -17707,7 +17778,7 @@ ${err.stack}`);
                 return;
               }
               this.removeCircleIcon();
-              if (formConfig.isPassword) {
+              if (viewConfig.isPassword) {
                 if (this.$data.isView) {
                   this.$data.isView = false;
                   this.setInputType("text");
@@ -17727,7 +17798,7 @@ ${err.stack}`);
           setInputChangeEvent() {
             popsDOMUtils.on(this.$ele.input, ["input", "propertychange"], void 0, (event) => {
               this.$data.value = this.$ele.input.value;
-              if (!formConfig.isPassword) {
+              if (!viewConfig.isPassword) {
                 if (this.$ele.input.value !== "" && this.$ele.icon.innerHTML === "") {
                   this.setCircleIcon(PopsIcon.getIcon("circleClose"));
                   this.setCircleIconClickEvent();
@@ -17735,11 +17806,11 @@ ${err.stack}`);
                   this.removeCircleIcon();
                 }
               }
-              if (typeof formConfig.callback === "function") {
-                if (formConfig.isNumber) {
-                  formConfig.callback(event, this.$ele.input.value, this.$ele.input.valueAsNumber);
+              if (typeof viewConfig.callback === "function") {
+                if (viewConfig.isNumber) {
+                  viewConfig.callback(event, this.$ele.input.value, this.$ele.input.valueAsNumber);
                 } else {
-                  formConfig.callback(event, this.$ele.input.value);
+                  viewConfig.callback(event, this.$ele.input.value);
                 }
               }
             });
@@ -17749,23 +17820,23 @@ ${err.stack}`);
         Reflect.set($li, "data-input", PopsPanelInput);
         return $li;
       },
-      createSectionContainerItem_textarea(formConfig) {
+      createSectionContainerItem_textarea(viewConfig) {
         const $li = popsDOMUtils.createElement("li");
-        Reflect.set($li, "__formConfig__", formConfig);
-        this.setElementClassName($li, formConfig.className);
-        this.setElementAttributes($li, formConfig.attributes);
-        this.setElementProps($li, formConfig.props);
+        Reflect.set($li, this.$data.nodeStoreConfigKey, viewConfig);
+        this.setElementClassName($li, viewConfig.className);
+        this.setElementAttributes($li, viewConfig.attributes);
+        this.setElementProps($li, viewConfig.props);
         let leftDescriptionText = "";
-        if (formConfig.description) {
-          leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+        if (viewConfig.description) {
+          leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${viewConfig.description}</p>`;
         }
         PopsSafeUtils.setSafeHTML(
           $li,
           `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
+					<p class="pops-panel-item-left-main-text">${viewConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-textarea">
-					<textarea placeholder="${formConfig.placeholder ?? ""}"></textarea>
+					<textarea placeholder="${viewConfig.placeholder ?? ""}"></textarea>
 				</div>
 			`
         );
@@ -17777,12 +17848,12 @@ ${err.stack}`);
             textarea: $li.querySelector(".pops-panel-textarea textarea"),
           },
           $data: {
-            value: formConfig.getValue(),
+            value: viewConfig.getValue(),
           },
           init() {
             this.setValue(this.$data.value);
             this.setChangeEvent();
-            const disabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
+            const disabled = typeof viewConfig.disabled === "function" ? viewConfig.disabled() : viewConfig.disabled;
             if (disabled) {
               this.disable();
             }
@@ -17810,8 +17881,8 @@ ${err.stack}`);
             popsDOMUtils.on(this.$ele.textarea, ["input", "propertychange"], (event) => {
               const value = this.$ele.textarea.value;
               this.$data.value = value;
-              if (typeof formConfig.callback === "function") {
-                formConfig.callback(event, value);
+              if (typeof viewConfig.callback === "function") {
+                viewConfig.callback(event, value);
               }
             });
           },
@@ -17820,22 +17891,22 @@ ${err.stack}`);
         Reflect.set($li, "data-textarea", PopsPanelTextArea);
         return $li;
       },
-      createSectionContainerItem_select(formConfig) {
+      createSectionContainerItem_select(viewConfig) {
         const that = this;
         const $li = popsDOMUtils.createElement("li");
-        Reflect.set($li, "__formConfig__", formConfig);
-        this.setElementClassName($li, formConfig.className);
-        this.setElementAttributes($li, formConfig.attributes);
-        this.setElementProps($li, formConfig.props);
+        Reflect.set($li, this.$data.nodeStoreConfigKey, viewConfig);
+        this.setElementClassName($li, viewConfig.className);
+        this.setElementAttributes($li, viewConfig.attributes);
+        this.setElementProps($li, viewConfig.props);
         let leftDescriptionText = "";
-        if (formConfig.description) {
-          leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+        if (viewConfig.description) {
+          leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${viewConfig.description}</p>`;
         }
         PopsSafeUtils.setSafeHTML(
           $li,
           `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
+					<p class="pops-panel-item-left-main-text">${viewConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-select">
 					<select></select>
 				</div>
@@ -17851,17 +17922,17 @@ ${err.stack}`);
           $eleKey: {
             disable: "__disable__",
             value: "__value__",
-            forms: "__forms__",
+            viewConfig: "data-view-config",
           },
           $data: {
-            defaultValue: formConfig.getValue(),
+            defaultValue: viewConfig.getValue(),
           },
           init() {
             popsDOMUtils.addClassName(this.$ele.panelSelect, PopsCommonCSSClassName.userSelectNone);
             this.initOption();
             this.setChangeEvent();
             this.setClickEvent();
-            const disabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
+            const disabled = typeof viewConfig.disabled === "function" ? viewConfig.disabled() : viewConfig.disabled;
             if (disabled) {
               this.disable();
             }
@@ -17889,11 +17960,11 @@ ${err.stack}`);
             );
           },
           initOption() {
-            formConfig.data.forEach((dataItem) => {
+            viewConfig.data.forEach((dataItem) => {
               const optionElement = popsDOMUtils.createElement("option");
               this.setNodeValue(optionElement, this.$eleKey.value, dataItem.value);
               this.setNodeValue(optionElement, this.$eleKey.disable, dataItem.disable);
-              this.setNodeValue(optionElement, this.$eleKey.forms, dataItem.forms);
+              this.setNodeValue(optionElement, this.$eleKey.viewConfig, dataItem.views);
               if (dataItem.value === this.$data.defaultValue) {
                 this.setOptionSelected(optionElement);
               }
@@ -17927,11 +17998,11 @@ ${err.stack}`);
           getSelectOptionInfo($option) {
             const optionValue = this.getNodeValue($option, this.$eleKey.value);
             const optionText = $option.innerText || $option.textContent;
-            const optionForms = this.getNodeValue($option, this.$eleKey.forms);
+            const views = this.getNodeValue($option, this.$eleKey.viewConfig);
             return {
               value: optionValue,
               text: optionText,
-              forms: optionForms,
+              views,
               $option,
             };
           },
@@ -17940,11 +18011,11 @@ ${err.stack}`);
               const $isSelectedElement = this.$ele.select[this.$ele.select.selectedIndex];
               const selectInfo = this.getSelectOptionInfo($isSelectedElement);
               this.setSelectOptionsDisableStatus();
-              if (typeof formConfig.callback === "function") {
-                formConfig.callback(event, selectInfo.value, selectInfo.text);
+              if (typeof viewConfig.callback === "function") {
+                viewConfig.callback(event, selectInfo.value, selectInfo.text);
               }
-              const forms = typeof selectInfo.forms === "function" ? selectInfo.forms() : selectInfo.forms;
-              if (Array.isArray(forms)) {
+              const views = typeof selectInfo.views === "function" ? selectInfo.views() : selectInfo.views;
+              if (Array.isArray(views)) {
                 const childUListClassName = "pops-panel-select-child-forms";
                 while ($li.nextElementSibling) {
                   if ($li.nextElementSibling.classList.contains(childUListClassName)) {
@@ -17956,7 +18027,7 @@ ${err.stack}`);
                 const $childUList = popsDOMUtils.createElement("ul");
                 $childUList.className = childUListClassName;
                 popsDOMUtils.after($li, $childUList);
-                that.uListContainerAddItem(formConfig, {
+                that.uListContainerAddItem(viewConfig, {
                   ulElement: $childUList,
                 });
               }
@@ -17965,8 +18036,8 @@ ${err.stack}`);
           setClickEvent() {
             popsDOMUtils.on(this.$ele.select, "click", void 0, (event) => {
               this.setSelectOptionsDisableStatus();
-              if (typeof formConfig.clickCallBack === "function") {
-                formConfig.clickCallBack(event, this.$ele.select);
+              if (typeof viewConfig.clickCallBack === "function") {
+                viewConfig.clickCallBack(event, this.$ele.select);
               }
             });
           },
@@ -17975,21 +18046,21 @@ ${err.stack}`);
         Reflect.set($li, "data-select", PopsPanelSelect);
         return $li;
       },
-      createSectionContainerItem_select_multiple_new(formConfig) {
+      createSectionContainerItem_select_multiple(viewConfig) {
         const $li = popsDOMUtils.createElement("li");
-        Reflect.set($li, "__formConfig__", formConfig);
-        this.setElementClassName($li, formConfig.className);
-        this.setElementAttributes($li, formConfig.attributes);
-        this.setElementProps($li, formConfig.props);
+        Reflect.set($li, this.$data.nodeStoreConfigKey, viewConfig);
+        this.setElementClassName($li, viewConfig.className);
+        this.setElementAttributes($li, viewConfig.attributes);
+        this.setElementProps($li, viewConfig.props);
         let leftDescriptionText = "";
-        if (formConfig.description) {
-          leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+        if (viewConfig.description) {
+          leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${viewConfig.description}</p>`;
         }
         PopsSafeUtils.setSafeHTML(
           $li,
           `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
+					<p class="pops-panel-item-left-main-text">${viewConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-select-multiple">
 					<div class="el-select__wrapper">
 						<div class="el-select__selection">
@@ -18027,8 +18098,9 @@ ${err.stack}`);
             $selectContainer: void 0,
           },
           $data: {
-            defaultValue: formConfig.getValue(),
+            defaultValue: viewConfig.getValue(),
             selectInfo: [],
+            rotateKey: "data-show-option",
           },
           init() {
             this.initDefault();
@@ -18036,13 +18108,13 @@ ${err.stack}`);
             this.initPlaceHolder();
             this.initTagElement();
             this.setSelectContainerClickEvent();
-            const disabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
+            const disabled = typeof viewConfig.disabled === "function" ? viewConfig.disabled() : viewConfig.disabled;
             if (disabled) {
               this.disable();
             }
           },
           initDefault() {
-            formConfig.data.forEach((dataItem) => {
+            viewConfig.data.forEach((dataItem) => {
               if (this.$data.defaultValue.includes(dataItem.value)) {
                 this.$data.selectInfo.push({
                   text: dataItem.text,
@@ -18067,10 +18139,10 @@ ${err.stack}`);
           },
           initPlaceHolder() {
             let placeholder = "";
-            if (typeof formConfig.placeholder === "string") {
-              placeholder = formConfig.placeholder;
-            } else if (typeof formConfig.placeholder === "function") {
-              const placeholderResult = formConfig.placeholder();
+            if (typeof viewConfig.placeholder === "string") {
+              placeholder = viewConfig.placeholder;
+            } else if (typeof viewConfig.placeholder === "function") {
+              const placeholderResult = viewConfig.placeholder();
               if (typeof placeholderResult === "string") {
                 placeholder = placeholderResult;
               }
@@ -18081,7 +18153,7 @@ ${err.stack}`);
             this.$el.$selectedPlaceHolderWrapper.appendChild($placeholder);
           },
           initTagElement() {
-            formConfig.data.forEach((dataItem) => {
+            viewConfig.data.forEach((dataItem) => {
               const findValue = this.$data.selectInfo.find((item) => item.value === dataItem.value);
               if (findValue) {
                 const selectedInfo = this.createSelectedTagItem(dataItem);
@@ -18157,8 +18229,8 @@ ${err.stack}`);
           },
           selectValueChangeCallBack(selectedDataList) {
             this.updateSelectItem();
-            if (typeof formConfig.callback === "function") {
-              formConfig.callback(selectedDataList || this.$data.selectInfo);
+            if (typeof viewConfig.callback === "function") {
+              viewConfig.callback(selectedDataList || this.$data.selectInfo);
             }
           },
           updateSelectItem() {
@@ -18273,9 +18345,9 @@ ${err.stack}`);
               if (this.isSelectItemDisabled($select)) {
                 return;
               }
-              if (typeof formConfig.clickCallBack === "function") {
+              if (typeof viewConfig.clickCallBack === "function") {
                 const allSelectedInfo = this.getAllSelectItemInfo().map((it) => it.data);
-                const clickResult = formConfig.clickCallBack(event, allSelectedInfo);
+                const clickResult = viewConfig.clickCallBack(event, allSelectedInfo);
                 if (typeof clickResult === "boolean" && !clickResult) {
                   return;
                 }
@@ -18290,14 +18362,82 @@ ${err.stack}`);
             });
           },
           setSelectContainerClickEvent() {
-            const that = this;
+            const defaultCSS = `
+            .select-container{
+              --el-font-size-base: 14px;
+              --el-text-color-regular: #606266;
+              --el-color-primary: #409eff;
+              --el-fill-color-light: #f5f7fa;
+              --el-disable-color: #a8abb2;
+            }
+            .select-item{
+              cursor: pointer;
+              font-size: var(--el-font-size-base);
+              padding: 0 32px 0 20px;
+              position: relative;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              color: var(--el-text-color-regular);
+              height: 34px;
+              line-height: 34px;
+              box-sizing: border-box;
+            }
+            .select-item[aria-disabled],
+            .select-item[disabled]{
+              cursor: not-allowed;
+              color: var(--el-disable-color);
+              background: unset;
+            }
+            .select-item:hover{
+              background-color: var(--el-fill-color-light);
+            }
+            .select-item.select-item-is-selected{
+              color: var(--el-color-primary);
+              font-weight: 700;
+            }
+            .select-item.select-item-is-selected::after{
+              content: "";
+              position: absolute;
+              top: 50%;
+              right: 20px;
+              border-top: none;
+              border-right: none;
+              background-repeat: no-repeat;
+              background-position: center;
+              background-color: var(--el-color-primary);
+              mask: url("data:image/svg+xml;utf8,%3Csvg class='icon' width='200' height='200' viewBox='0 0 1024 1024' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='currentColor' d='M406.656 706.944L195.84 496.256a32 32 0 10-45.248 45.248l256 256 512-512a32 32 0 00-45.248-45.248L406.592 706.944z'%3E%3C/path%3E%3C/svg%3E") no-repeat;
+              mask-size: 100% 100%;
+              -webkit-mask: url("data:image/svg+xml;utf8,%3Csvg class='icon' width='200' height='200' viewBox='0 0 1024 1024' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='currentColor' d='M406.656 706.944L195.84 496.256a32 32 0 10-45.248 45.248l256 256 512-512a32 32 0 00-45.248-45.248L406.592 706.944z'%3E%3C/path%3E%3C/svg%3E") no-repeat;
+              -webkit-mask-size: 100% 100%;
+              transform: translateY(-50%);
+              width: 12px;
+              height: 12px;
+            }
+
+            
+            @media (prefers-color-scheme: dark) {
+              .select-container{
+                --el-text-color-regular: #f2f2f2;
+                --el-disable-color: #8D9095;
+                --el-fill-color-light: #262727;
+              }
+            }
+					`;
             popsDOMUtils.on(this.$el.$container, "click", () => {
               if (this.isDisabled()) {
                 return;
               }
-              const selectedInfo = that.$data.selectInfo;
-              const { style, ...userConfirmDetails } = formConfig.selectConfirmDialogDetails || {};
-              const confirmDetails = popsUtils.assign(
+              const selectInfo = this.$data.selectInfo;
+              const { style, ...userConfirmConfig } = viewConfig.selectConfirmDialogConfig || {};
+              const dialogCloseCallback = () => {
+                this.$data.selectInfo = [...selectInfo];
+                this.updateSelectTagItem();
+                this.$el.$selectContainer = null;
+                this.$el.$container.removeAttribute(this.$data.rotateKey);
+              };
+              this.$el.$container.setAttribute(this.$data.rotateKey, String(true));
+              const confirmConfig = popsUtils.assign(
                 {
                   title: {
                     text: "请勾选需要选择的选项",
@@ -18315,11 +18455,9 @@ ${err.stack}`);
                     },
                     close: {
                       enable: true,
-                      callback(details) {
-                        that.$data.selectInfo = [...selectedInfo];
-                        that.updateSelectTagItem();
-                        that.$el.$selectContainer = null;
-                        details.close();
+                      callback(evtConfig) {
+                        evtConfig.close();
+                        dialogCloseCallback();
                       },
                     },
                   },
@@ -18327,9 +18465,7 @@ ${err.stack}`);
                     enable: true,
                     clickCallBack(originalRun) {
                       originalRun();
-                      that.$data.selectInfo = [...selectedInfo];
-                      that.updateSelectTagItem();
-                      that.$el.$selectContainer = null;
+                      dialogCloseCallback();
                     },
                     clickEvent: {
                       toClose: true,
@@ -18340,80 +18476,21 @@ ${err.stack}`);
                   width: "300px",
                   height: "300px",
                   style: `
-								.select-container{
-									--el-font-size-base: 14px;
-									--el-text-color-regular: #606266;
-									--el-color-primary: #409eff;
-									--el-fill-color-light: #f5f7fa;
-									--el-disable-color: #a8abb2;
-								}
-								.select-item{
-									cursor: pointer;
-									font-size: var(--el-font-size-base);
-									padding: 0 32px 0 20px;
-									position: relative;
-									white-space: nowrap;
-									overflow: hidden;
-									text-overflow: ellipsis;
-									color: var(--el-text-color-regular);
-									height: 34px;
-									line-height: 34px;
-									box-sizing: border-box;
-								}
-								.select-item[aria-disabled],
-								.select-item[disabled]{
-									cursor: not-allowed;
-									color: var(--el-disable-color);
-									background: unset;
-								}
-								.select-item:hover{
-									background-color: var(--el-fill-color-light);
-								}
-								.select-item.select-item-is-selected{
-									color: var(--el-color-primary);
-									font-weight: 700;
-								}
-								.select-item.select-item-is-selected::after{
-									content: "";
-									position: absolute;
-									top: 50%;
-									right: 20px;
-									border-top: none;
-									border-right: none;
-									background-repeat: no-repeat;
-									background-position: center;
-									background-color: var(--el-color-primary);
-									mask: url("data:image/svg+xml;utf8,%3Csvg class='icon' width='200' height='200' viewBox='0 0 1024 1024' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='currentColor' d='M406.656 706.944L195.84 496.256a32 32 0 10-45.248 45.248l256 256 512-512a32 32 0 00-45.248-45.248L406.592 706.944z'%3E%3C/path%3E%3C/svg%3E") no-repeat;
-									mask-size: 100% 100%;
-									-webkit-mask: url("data:image/svg+xml;utf8,%3Csvg class='icon' width='200' height='200' viewBox='0 0 1024 1024' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='currentColor' d='M406.656 706.944L195.84 496.256a32 32 0 10-45.248 45.248l256 256 512-512a32 32 0 00-45.248-45.248L406.592 706.944z'%3E%3C/path%3E%3C/svg%3E") no-repeat;
-									-webkit-mask-size: 100% 100%;
-									transform: translateY(-50%);
-									width: 12px;
-									height: 12px;
-								}
+                  ${defaultCSS}
 
-								
-								@media (prefers-color-scheme: dark) {
-									.select-container{
-										--el-text-color-regular: #f2f2f2;
-										--el-disable-color: #8D9095;
-										--el-fill-color-light: #262727;
-									}
-								}
-
-								${style || ""}
+								  ${style || ""}
 								`,
                 },
-                userConfirmDetails
+                userConfirmConfig
               );
-              const $dialog = PopsAlert.init(confirmDetails);
+              const $dialog = PopsAlert.init(confirmConfig);
               const $selectContainer = $dialog.$shadowRoot.querySelector(".select-container");
-              this.$el.$selectContainer = $selectContainer;
-              formConfig.data.forEach((item) => {
+              viewConfig.data.forEach((item) => {
                 const $select = this.createSelectItemElement(item);
                 $selectContainer.appendChild($select);
-                this.setSelectElementClickEvent(selectedInfo, $select);
+                this.setSelectElementClickEvent(selectInfo, $select);
               });
+              this.$el.$selectContainer = $selectContainer;
               this.updateSelectItem();
             });
           },
@@ -18426,8 +18503,8 @@ ${err.stack}`);
                 if (this.isDisabled()) {
                   return;
                 }
-                if (typeof formConfig.closeIconClickCallBack === "function") {
-                  const result = formConfig.closeIconClickCallBack(event, {
+                if (typeof viewConfig.closeIconClickCallBack === "function") {
+                  const result = viewConfig.closeIconClickCallBack(event, {
                     $tag: data.$tag,
                     $closeIcon: data.$closeIcon,
                     value: data.value,
@@ -18502,21 +18579,21 @@ ${err.stack}`);
         Reflect.set($li, "data-select-multiple", PopsPanelSelectMultiple);
         return $li;
       },
-      createSectionContainerItem_button(formConfig) {
+      createSectionContainerItem_button(viewConfig) {
         const $li = popsDOMUtils.createElement("li");
-        Reflect.set($li, "__formConfig__", formConfig);
-        this.setElementClassName($li, formConfig.className);
-        this.setElementAttributes($li, formConfig.attributes);
-        this.setElementProps($li, formConfig.props);
+        Reflect.set($li, this.$data.nodeStoreConfigKey, viewConfig);
+        this.setElementClassName($li, viewConfig.className);
+        this.setElementAttributes($li, viewConfig.attributes);
+        this.setElementProps($li, viewConfig.props);
         let leftDescriptionText = "";
-        if (formConfig.description) {
-          leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+        if (viewConfig.description) {
+          leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${viewConfig.description}</p>`;
         }
         PopsSafeUtils.setSafeHTML(
           $li,
           `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
+					<p class="pops-panel-item-left-main-text">${viewConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-button">
 					<button class="pops-panel-button_inner" type="button">
 						<i class="pops-bottom-icon"></i>
@@ -18540,31 +18617,31 @@ ${err.stack}`);
             this.setClickEvent();
           },
           initButton() {
-            if (typeof formConfig.buttonIcon === "string" && formConfig.buttonIcon.trim() !== "") {
-              if (PopsIcon.hasIcon(formConfig.buttonIcon)) {
-                this.setIconSVG(PopsIcon.getIcon(formConfig.buttonIcon));
+            if (typeof viewConfig.buttonIcon === "string" && viewConfig.buttonIcon.trim() !== "") {
+              if (PopsIcon.hasIcon(viewConfig.buttonIcon)) {
+                this.setIconSVG(PopsIcon.getIcon(viewConfig.buttonIcon));
               } else {
-                this.setIconSVG(formConfig.buttonIcon);
+                this.setIconSVG(viewConfig.buttonIcon);
               }
               this.showIcon();
             } else {
               this.hideIcon();
             }
-            let buttonText = formConfig.buttonText;
-            if (typeof formConfig.buttonText === "function") {
-              buttonText = formConfig.buttonText();
+            let buttonText = viewConfig.buttonText;
+            if (typeof viewConfig.buttonText === "function") {
+              buttonText = viewConfig.buttonText();
             }
-            this.setButtonType(formConfig.buttonType);
-            if (formConfig.buttonIsRightIcon) {
+            this.setButtonType(viewConfig.buttonType);
+            if (viewConfig.buttonIsRightIcon) {
               this.setIconRight();
             } else {
               this.setIconLeft();
             }
-            if (formConfig.disable) {
+            if (viewConfig.disable) {
               this.disable();
             }
             this.setButtonText(buttonText);
-            this.setIconLoadingStatus(formConfig.buttonIconIsLoading);
+            this.setIconLoadingStatus(viewConfig.buttonIconIsLoading);
           },
           disable() {
             this.$ele.button.setAttribute("disabled", "true");
@@ -18601,8 +18678,8 @@ ${err.stack}`);
           },
           setClickEvent() {
             popsDOMUtils.on(this.$ele.button, "click", void 0, (event) => {
-              if (typeof formConfig.callback === "function") {
-                formConfig.callback(event);
+              if (typeof viewConfig.callback === "function") {
+                viewConfig.callback(event);
               }
             });
           },
@@ -18611,32 +18688,32 @@ ${err.stack}`);
         Reflect.set($li, "data-button", PopsPanelButton);
         return $li;
       },
-      createSectionContainerItem_deepMenu(formConfig) {
+      createSectionContainerItem_deepMenu(viewConfig) {
         const that = this;
         const $li = popsDOMUtils.createElement("li");
         popsDOMUtils.addClassName($li, "pops-panel-deepMenu-nav-item");
-        Reflect.set($li, "__formConfig__", formConfig);
-        this.setElementClassName($li, formConfig.className);
-        this.setElementAttributes($li, formConfig.attributes);
-        this.setElementProps($li, formConfig.props);
+        Reflect.set($li, this.$data.nodeStoreConfigKey, viewConfig);
+        this.setElementClassName($li, viewConfig.className);
+        this.setElementAttributes($li, viewConfig.attributes);
+        this.setElementProps($li, viewConfig.props);
         let leftDescriptionText = "";
-        if (formConfig.description) {
-          leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+        if (viewConfig.description) {
+          leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${viewConfig.description}</p>`;
         }
-        const arrowRightIcon = typeof formConfig.arrowRightIcon === "boolean" ? formConfig.arrowRightIcon : true;
+        const arrowRightIcon = typeof viewConfig.arrowRightIcon === "boolean" ? viewConfig.arrowRightIcon : true;
         let arrowRightIconHTML = "";
         if (arrowRightIcon) {
           arrowRightIconHTML = `<i class="pops-panel-deepMenu-arrowRight-icon">${PopsIcon.getIcon("arrowRight")}</i>`;
         }
         let rightText = "";
-        if (formConfig.rightText) {
-          rightText = `<p class="pops-panel-item-right-text">${formConfig.rightText}</p>`;
+        if (viewConfig.rightText) {
+          rightText = `<p class="pops-panel-item-right-text">${viewConfig.rightText}</p>`;
         }
         PopsSafeUtils.setSafeHTML(
           $li,
           `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
+					<p class="pops-panel-item-left-main-text">${viewConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-deepMenu">${rightText}${arrowRightIconHTML}</div>
 				`
         );
@@ -18650,10 +18727,10 @@ ${err.stack}`);
           init() {
             this.setLiClickEvent();
           },
-          initFormItem($container, formItemConfig) {
-            const formConfig_forms = formItemConfig;
-            if (formConfig_forms.type === "forms") {
-              const childForms = formConfig_forms["forms"];
+          initContainerItem($container, formItemConfig) {
+            const containerViewConfig = formItemConfig;
+            if (containerViewConfig.type === "container") {
+              const childForms = containerViewConfig["views"];
               const formContainerListElement = popsDOMUtils.createElement("li");
               const formContainerULElement = popsDOMUtils.createElement("ul");
               formContainerULElement.classList.add("pops-panel-forms-container-item-formlist");
@@ -18661,12 +18738,12 @@ ${err.stack}`);
               const formHeaderDivElement = popsDOMUtils.createElement("div", {
                 className: "pops-panel-forms-container-item-header-text",
               });
-              PopsSafeUtils.setSafeHTML(formHeaderDivElement, formConfig_forms["text"]);
-              if (formConfig_forms.isFold) {
+              PopsSafeUtils.setSafeHTML(formHeaderDivElement, containerViewConfig["text"]);
+              if (containerViewConfig.isFold) {
                 PopsSafeUtils.setSafeHTML(
                   formHeaderDivElement,
                   `
-								<p>${formConfig_forms.text}</p>
+								<p>${containerViewConfig.text}</p>
 								<i class="pops-panel-forms-fold-container-icon">
 									<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
 										<path d="M340.864 149.312a30.592 30.592 0 0 0 0 42.752L652.736 512 340.864 831.872a30.592 30.592 0 0 0 0 42.752 29.12 29.12 0 0 0 41.728 0L714.24 534.336a32 32 0 0 0 0-44.672L382.592 149.376a29.12 29.12 0 0 0-41.728 0z"></path>
@@ -18692,8 +18769,8 @@ ${err.stack}`);
               that.setElementClassName(formContainerListElement, formItemConfig.className);
               that.setElementAttributes(formContainerListElement, formItemConfig.attributes);
               that.setElementProps(formContainerListElement, formItemConfig.props);
-              childForms.forEach((childFormConfig) => {
-                that.uListContainerAddItem(childFormConfig, {
+              childForms.forEach((childViewConfig) => {
+                that.uListContainerAddItem(childViewConfig, {
                   ulElement: formContainerULElement,
                   sectionContainerULElement: that.sectionContainerULElement,
                   formContainerListElement,
@@ -18702,8 +18779,8 @@ ${err.stack}`);
               });
               formContainerListElement.appendChild(formContainerULElement);
               $container.appendChild(formContainerListElement);
-              if (typeof formConfig_forms.afterAddToUListCallBack === "function") {
-                formConfig_forms.afterAddToUListCallBack(formConfig, {
+              if (typeof containerViewConfig.afterAddToUListCallBack === "function") {
+                containerViewConfig.afterAddToUListCallBack(viewConfig, {
                   target: formContainerListElement,
                   ulElement: formContainerULElement,
                   sectionContainerULElement: that.sectionContainerULElement,
@@ -18712,7 +18789,7 @@ ${err.stack}`);
                 });
               }
             } else {
-              that.uListContainerAddItem(formConfig, {
+              that.uListContainerAddItem(viewConfig, {
                 ulElement: that.sectionContainerULElement,
               });
             }
@@ -18722,14 +18799,14 @@ ${err.stack}`);
             const $deepMenuSection = popsDOMUtils.createElement("section", {
               className: "pops-panel-container pops-panel-deepMenu-container",
             });
-            Reflect.set($deepMenuSection, "__formConfig__", formConfig);
+            Reflect.set($deepMenuSection, that.$data.nodeStoreConfigKey, viewConfig);
             const $deepMenuHeaderUL = popsDOMUtils.createElement("ul", {
               className: "pops-panel-container-header-ul pops-panel-deepMenu-container-header-ul",
             });
             const $deepMenuMain = popsDOMUtils.createElement("ul", {
               className: "pops-panel-container-main-ul",
             });
-            const headerTitleText = formConfig.headerTitle ?? formConfig.text;
+            const headerTitleText = viewConfig.headerTitle ?? viewConfig.text;
             const $header = popsDOMUtils.createElement("li", {
               className: "pops-panel-container-header-title-text pops-panel-deepMenu-container-header",
               innerHTML: `<p class="pops-panel-deepMenu-container-header-title-text">${headerTitleText}</p>`,
@@ -18795,10 +18872,10 @@ ${err.stack}`);
               $deepMenuHeaderUL.appendChild($header);
               $deepMenuSection.appendChild($deepMenuHeaderUL);
               $deepMenuSection.appendChild($deepMenuMain);
-              if (formConfig.forms && Array.isArray(formConfig.forms)) {
-                for (let index = 0; index < formConfig.forms.length; index++) {
-                  const formItemConfig = formConfig.forms[index];
-                  this.initFormItem($deepMenuMain, formItemConfig);
+              if (viewConfig.views && Array.isArray(viewConfig.views)) {
+                for (let index = 0; index < viewConfig.views.length; index++) {
+                  const formItemConfig = viewConfig.views[index];
+                  this.initContainerItem($deepMenuMain, formItemConfig);
                 }
               }
               that.$el.$panelRightSectionWrapper.appendChild($deepMenuSection);
@@ -18821,20 +18898,20 @@ ${err.stack}`);
             } else {
               enterViewTransition();
             }
-            if (typeof formConfig.afterEnterDeepMenuCallBack === "function") {
-              formConfig.afterEnterDeepMenuCallBack(formConfig, {
-                sectionContainer: $deepMenuSection,
-                sectionContainerHeaderContainer: $deepMenuHeaderUL,
-                sectionContainerHeader: $header,
-                sectionBodyContainer: $deepMenuMain,
+            if (typeof viewConfig.afterEnterDeepMenuCallBack === "function") {
+              viewConfig.afterEnterDeepMenuCallBack(viewConfig, {
+                $sectionContainer: $deepMenuSection,
+                $sectionContainerHeaderContainer: $deepMenuHeaderUL,
+                $sectionContainerHeader: $header,
+                $sectionBodyContainer: $deepMenuMain,
               });
             }
             that.triggerRenderRightContainer($deepMenuSection);
           },
           setLiClickEvent() {
             popsDOMUtils.on($li, "click", void 0, async (event) => {
-              if (typeof formConfig.clickCallBack === "function") {
-                const result = await formConfig.clickCallBack(event, formConfig);
+              if (typeof viewConfig.clickCallBack === "function") {
+                const result = await viewConfig.clickCallBack(event, viewConfig);
                 if (result) {
                   return;
                 }
@@ -18847,44 +18924,44 @@ ${err.stack}`);
         Reflect.set($li, "data-deepMenu", PopsPanelDeepMenu);
         return $li;
       },
-      createSectionContainerItem_own(formConfig) {
+      createSectionContainerItem_own(viewConfig) {
         let $li = popsDOMUtils.createElement("li");
-        Reflect.set($li, "__formConfig__", formConfig);
-        this.setElementClassName($li, formConfig.className);
-        this.setElementAttributes($li, formConfig.attributes);
-        this.setElementProps($li, formConfig.props);
-        $li = formConfig.getLiElementCallBack($li);
+        Reflect.set($li, this.$data.nodeStoreConfigKey, viewConfig);
+        this.setElementClassName($li, viewConfig.className);
+        this.setElementAttributes($li, viewConfig.attributes);
+        this.setElementProps($li, viewConfig.props);
+        $li = viewConfig.getLiElementCallBack($li);
         return $li;
       },
-      createSectionContainerItem(formConfig) {
-        const formType = formConfig.type;
-        if (formType === "switch") {
-          return this.createSectionContainerItem_switch(formConfig);
-        } else if (formType === "slider") {
-          return this.createSectionContainerItem_slider_new(formConfig);
-        } else if (formType === "input") {
-          return this.createSectionContainerItem_input(formConfig);
-        } else if (formType === "textarea") {
-          return this.createSectionContainerItem_textarea(formConfig);
-        } else if (formType === "select") {
-          return this.createSectionContainerItem_select(formConfig);
-        } else if (formType === "select-multiple") {
-          return this.createSectionContainerItem_select_multiple_new(formConfig);
-        } else if (formType === "button") {
-          return this.createSectionContainerItem_button(formConfig);
-        } else if (formType === "deepMenu") {
-          return this.createSectionContainerItem_deepMenu(formConfig);
-        } else if (formType === "own") {
-          return this.createSectionContainerItem_own(formConfig);
+      createSectionContainerItem(viewConfig) {
+        const componentType = viewConfig.type;
+        if (componentType === "switch") {
+          return this.createSectionContainerItem_switch(viewConfig);
+        } else if (componentType === "slider") {
+          return this.createSectionContainerItem_slider_new(viewConfig);
+        } else if (componentType === "input") {
+          return this.createSectionContainerItem_input(viewConfig);
+        } else if (componentType === "textarea") {
+          return this.createSectionContainerItem_textarea(viewConfig);
+        } else if (componentType === "select") {
+          return this.createSectionContainerItem_select(viewConfig);
+        } else if (componentType === "select-multiple") {
+          return this.createSectionContainerItem_select_multiple(viewConfig);
+        } else if (componentType === "button") {
+          return this.createSectionContainerItem_button(viewConfig);
+        } else if (componentType === "deepMenu") {
+          return this.createSectionContainerItem_deepMenu(viewConfig);
+        } else if (componentType === "own") {
+          return this.createSectionContainerItem_own(viewConfig);
         } else {
-          console.error("尚未实现的type类型", formConfig);
+          console.error("尚未实现的type类型", viewConfig);
         }
       },
-      createSectionContainerItem_forms(formConfig) {
+      createSectionContainerItem_forms(viewConfig) {
         const that = this;
-        const formConfig_forms = formConfig;
-        if (formConfig_forms.type === "forms") {
-          const childForms = formConfig["forms"];
+        const containerConfig = viewConfig;
+        if (containerConfig.type === "container") {
+          const childForms = viewConfig["views"];
           const formContainerListElement = popsDOMUtils.createElement("li");
           const formContainerULElement = popsDOMUtils.createElement("ul");
           formContainerListElement.classList.add("pops-panel-forms-container-item");
@@ -18892,12 +18969,12 @@ ${err.stack}`);
           const formHeaderDivElement = popsDOMUtils.createElement("div", {
             className: "pops-panel-forms-container-item-header-text",
           });
-          PopsSafeUtils.setSafeHTML(formHeaderDivElement, formConfig_forms["text"]);
-          if (formConfig_forms.isFold) {
+          PopsSafeUtils.setSafeHTML(formHeaderDivElement, containerConfig["text"]);
+          if (containerConfig.isFold) {
             PopsSafeUtils.setSafeHTML(
               formHeaderDivElement,
               `
-						<p>${formConfig_forms.text}</p>
+						<p>${containerConfig.text}</p>
 						<i class="pops-panel-forms-fold-container-icon">
 							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
 								<path d="M340.864 149.312a30.592 30.592 0 0 0 0 42.752L652.736 512 340.864 831.872a30.592 30.592 0 0 0 0 42.752 29.12 29.12 0 0 0 41.728 0L714.24 534.336a32 32 0 0 0 0-44.672L382.592 149.376a29.12 29.12 0 0 0-41.728 0z"></path>
@@ -18920,11 +18997,11 @@ ${err.stack}`);
           } else {
             formContainerListElement.appendChild(formHeaderDivElement);
           }
-          that.setElementClassName(formContainerListElement, formConfig.className);
-          that.setElementAttributes(formContainerListElement, formConfig.attributes);
-          that.setElementProps(formContainerListElement, formConfig.props);
-          childForms.forEach((childFormConfig) => {
-            that.uListContainerAddItem(childFormConfig, {
+          that.setElementClassName(formContainerListElement, viewConfig.className);
+          that.setElementAttributes(formContainerListElement, viewConfig.attributes);
+          that.setElementProps(formContainerListElement, viewConfig.props);
+          childForms.forEach((childViewConfig) => {
+            that.uListContainerAddItem(childViewConfig, {
               ulElement: formContainerULElement,
               sectionContainerULElement: that.sectionContainerULElement,
               formContainerListElement,
@@ -18933,8 +19010,8 @@ ${err.stack}`);
           });
           formContainerListElement.appendChild(formContainerULElement);
           that.sectionContainerULElement.appendChild(formContainerListElement);
-          if (typeof formConfig_forms.afterAddToUListCallBack === "function") {
-            formConfig_forms.afterAddToUListCallBack(formConfig_forms, {
+          if (typeof containerConfig.afterAddToUListCallBack === "function") {
+            containerConfig.afterAddToUListCallBack(containerConfig, {
               target: formContainerListElement,
               ulElement: formContainerULElement,
               sectionContainerULElement: that.sectionContainerULElement,
@@ -18943,28 +19020,28 @@ ${err.stack}`);
             });
           }
         } else {
-          that.uListContainerAddItem(formConfig, {
+          that.uListContainerAddItem(viewConfig, {
             ulElement: that.sectionContainerULElement,
           });
         }
       },
       triggerRenderRightContainer($container) {
-        const __formConfig__ = Reflect.get($container, "__formConfig__");
+        const dataViewConfig = Reflect.get($container, this.$data.nodeStoreConfigKey);
         this.$el.$pops.dispatchEvent(
           new CustomEvent("pops:renderRightContainer", {
             detail: {
-              formConfig: __formConfig__,
+              viewConfig: dataViewConfig,
             },
           })
         );
       },
-      uListContainerAddItem(formConfig, containerOptions) {
-        const itemLiElement = this.createSectionContainerItem(formConfig);
+      uListContainerAddItem(viewConfig, containerOptions) {
+        const itemLiElement = this.createSectionContainerItem(viewConfig);
         if (itemLiElement) {
           containerOptions["ulElement"].appendChild(itemLiElement);
         }
-        if (typeof formConfig.afterAddToUListCallBack === "function") {
-          formConfig.afterAddToUListCallBack(formConfig, {
+        if (typeof viewConfig.afterAddToUListCallBack === "function") {
+          viewConfig.afterAddToUListCallBack(viewConfig, {
             ...containerOptions,
             target: itemLiElement,
           });
@@ -18983,8 +19060,8 @@ ${err.stack}`);
             }
           }
           this.clearContainer();
-          const rightContainerFormConfig = Reflect.get($asideItem, "__forms__");
-          Reflect.set(this.$el.$panelContentSectionContainer, "__formConfig__", rightContainerFormConfig);
+          const rightContainerViewConfig = Reflect.get($asideItem, "__forms__");
+          Reflect.set(this.$el.$panelContentSectionContainer, this.$data.nodeStoreConfigKey, rightContainerViewConfig);
           popsDOMUtils.cssShow(this.$el.$panelContentSectionContainer);
           this.clearAsideItemIsVisited();
           this.setAsideItemIsVisited($asideItem);
@@ -18999,8 +19076,8 @@ ${err.stack}`);
             PopsSafeUtils.setSafeHTML($containerHeaderTitle, headerTitleText);
             this.sectionContainerHeaderULElement.appendChild($containerHeaderTitle);
           }
-          rightContainerFormConfig.forEach((formConfig) => {
-            this.createSectionContainerItem_forms(formConfig);
+          rightContainerViewConfig.forEach((viewConfig) => {
+            this.createSectionContainerItem_forms(viewConfig);
           });
           if (typeof asideConfig.clickCallback === "function") {
             const asideClickCallbackResult = await asideConfig.clickCallback(
@@ -19018,22 +19095,12 @@ ${err.stack}`);
     };
   };
   const PopsPanel = {
-    init(details) {
+    init(__config__) {
       const guid = popsUtils.getRandomGUID();
       const popsType = "panel";
-      let config = PopsPanelConfig();
+      let config = PopsPanelDefaultConfig();
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-      config = popsUtils.assign(config, details);
-      if (details) {
-        if (Array.isArray(details.content)) {
-          config.content = details.content;
-        }
-        if (Array.isArray(details.bottomContentConfig)) {
-          config.bottomContentConfig = details.bottomContentConfig;
-        } else {
-          config.bottomContentConfig = [];
-        }
-      }
+      config = popsUtils.assign(config, __config__);
       config = PopsHandler.handleOnly(popsType, config);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
@@ -19164,9 +19231,9 @@ ${err.stack}`);
       });
       PopsHandler.handlePush(popsType, {
         guid,
-        animElement: $anim,
-        popsElement: $pops,
-        maskElement: $mask,
+        $anim,
+        $pops,
+        $mask,
         $shadowContainer,
         $shadowRoot,
       });
@@ -19191,7 +19258,7 @@ ${err.stack}`);
       };
     },
   };
-  const PopsPromptConfig = () => {
+  const PopsPromptDefaultConfig = () => {
     return {
       title: {
         text: "默认标题",
@@ -19221,8 +19288,8 @@ ${err.stack}`);
           iconIsLoading: false,
           text: "确定",
           type: "success",
-          callback(detail) {
-            detail.close();
+          callback(eventConfig) {
+            eventConfig.close();
           },
         },
         cancel: {
@@ -19233,8 +19300,8 @@ ${err.stack}`);
           iconIsLoading: false,
           text: "关闭",
           type: "default",
-          callback(detail) {
-            detail.close();
+          callback(eventConfig) {
+            eventConfig.close();
           },
         },
         other: {
@@ -19245,14 +19312,14 @@ ${err.stack}`);
           iconIsLoading: false,
           text: "其它按钮",
           type: "default",
-          callback(detail) {
-            detail.close();
+          callback(eventConfig) {
+            eventConfig.close();
           },
         },
         close: {
           enable: true,
-          callback(detail) {
-            detail.close();
+          callback(eventConfig) {
+            eventConfig.close();
           },
         },
       },
@@ -19283,12 +19350,12 @@ ${err.stack}`);
     };
   };
   const PopsPrompt = {
-    init(details) {
+    init(__config__) {
       const guid = popsUtils.getRandomGUID();
       const popsType = "prompt";
-      let config = PopsPromptConfig();
+      let config = PopsPromptDefaultConfig();
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-      config = popsUtils.assign(config, details);
+      config = popsUtils.assign(config, __config__);
       config = PopsHandler.handleOnly(popsType, config);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
@@ -19385,9 +19452,9 @@ ${err.stack}`);
       }
       PopsHandler.handlePush(popsType, {
         guid,
-        animElement: $anim,
-        popsElement: $pops,
-        maskElement: $mask,
+        $anim,
+        $pops,
+        $mask,
         $shadowContainer,
         $shadowRoot,
       });
@@ -19410,9 +19477,9 @@ ${err.stack}`);
       return result;
     },
   };
-  const rightClickMenuConfig = () => {
+  const PopsRightClickMenuDefaultConfig = () => {
     return {
-      target: document.documentElement,
+      $target: document.documentElement,
       targetSelector: null,
       position: "fixed",
       data: [
@@ -19421,8 +19488,8 @@ ${err.stack}`);
           iconIsLoading: false,
           text: "搜索",
           item: [],
-          callback(clickEvent, contextMenuEvent, liElement) {
-            console.log("点击：" + this.text, [clickEvent, contextMenuEvent, liElement]);
+          callback(clickEvent, contextMenuEvent, $li) {
+            console.log("点击：" + this.text, [clickEvent, contextMenuEvent, $li]);
           },
         },
         {
@@ -19430,8 +19497,8 @@ ${err.stack}`);
           iconIsLoading: false,
           text: "复制",
           item: [],
-          callback(clickEvent, contextMenuEvent, liElement) {
-            console.log("点击：" + this.text, [clickEvent, contextMenuEvent, liElement]);
+          callback(clickEvent, contextMenuEvent, $li) {
+            console.log("点击：" + this.text, [clickEvent, contextMenuEvent, $li]);
           },
         },
         {
@@ -19439,8 +19506,8 @@ ${err.stack}`);
           text: "删除",
           iconIsLoading: false,
           item: [],
-          callback(clickEvent, contextMenuEvent, liElement) {
-            console.log("点击：" + this.text, [clickEvent, contextMenuEvent, liElement]);
+          callback(clickEvent, contextMenuEvent, $li) {
+            console.log("点击：" + this.text, [clickEvent, contextMenuEvent, $li]);
           },
         },
         {
@@ -19448,8 +19515,8 @@ ${err.stack}`);
           iconIsLoading: true,
           text: "加载",
           item: [],
-          callback(clickEvent, contextMenuEvent, liElement) {
-            console.log("点击：" + this.text, [clickEvent, contextMenuEvent, liElement]);
+          callback(clickEvent, contextMenuEvent, $li) {
+            console.log("点击：" + this.text, [clickEvent, contextMenuEvent, $li]);
             return false;
           },
         },
@@ -19457,8 +19524,8 @@ ${err.stack}`);
           icon: PopsIcon.getIcon("elemePlus"),
           iconIsLoading: true,
           text: "饿了么",
-          callback(clickEvent, contextMenuEvent, liElement) {
-            console.log("点击：" + this.text, [clickEvent, contextMenuEvent, liElement]);
+          callback(clickEvent, contextMenuEvent, $li) {
+            console.log("点击：" + this.text, [clickEvent, contextMenuEvent, $li]);
             return false;
           },
           item: [
@@ -19467,16 +19534,17 @@ ${err.stack}`);
               iconIsLoading: false,
               text: "处理文件",
               item: [],
-              callback(clickEvent, contextMenuEvent, liElement) {
-                console.log("点击：" + this.text, [clickEvent, contextMenuEvent, liElement]);
+              callback(clickEvent, contextMenuEvent, $li) {
+                console.log("点击：" + this.text, [clickEvent, contextMenuEvent, $li]);
               },
             },
             {
               icon: "",
               iconIsLoading: false,
               text: "其它处理",
-              callback(clickEvent, contextMenuEvent, liElement) {
-                console.log("点击：" + this.text, [clickEvent, contextMenuEvent, liElement]);
+              callback(clickEvent, contextMenuEvent, $li) {
+                console.log("点击：" + this.text, [clickEvent, contextMenuEvent, $li]);
+                return false;
               },
               item: [
                 {
@@ -19484,8 +19552,8 @@ ${err.stack}`);
                   iconIsLoading: false,
                   text: "查看",
                   item: [],
-                  callback(clickEvent, contextMenuEvent, liElement) {
-                    console.log("点击：" + this.text, [clickEvent, contextMenuEvent, liElement]);
+                  callback(clickEvent, contextMenuEvent, $li) {
+                    console.log("点击：" + this.text, [clickEvent, contextMenuEvent, $li]);
                   },
                 },
               ],
@@ -19509,19 +19577,13 @@ ${err.stack}`);
     };
   };
   const PopsRightClickMenu = {
-    init(details) {
+    init(__config__) {
       const guid = popsUtils.getRandomGUID();
       const popsType = "rightClickMenu";
-      let config = rightClickMenuConfig();
+      let config = PopsRightClickMenuDefaultConfig();
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-      config = popsUtils.assign(config, details);
+      config = popsUtils.assign(config, __config__);
       config = PopsHandler.handleOnly(popsType, config);
-      if (config.target == null) {
-        throw new Error("config.target 不能为空");
-      }
-      if (details.data) {
-        Reflect.set(config, "data", details.data);
-      }
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
         {
@@ -19554,9 +19616,14 @@ ${err.stack}`);
         $shadowRoot.appendChild($css);
       }
       const PopsContextMenu = {
-        rootElement: null,
+        $data: {
+          menuDataKey: "data-menu",
+        },
+        $el: {
+          $root: null,
+        },
         windowCheckClickEvent(event) {
-          if (!PopsContextMenu.rootElement) {
+          if (!PopsContextMenu.$el.$root) {
             return;
           }
           const $click = event.target;
@@ -19566,24 +19633,24 @@ ${err.stack}`);
           if ($click.className && $click.className === "pops-shadow-container" && $click.shadowRoot != null) {
             return;
           }
-          PopsContextMenu.closeAllMenu(PopsContextMenu.rootElement);
+          PopsContextMenu.closeAllMenu(PopsContextMenu.$el.$root);
         },
         shadowRootCheckClickEvent(event) {
-          if (!PopsContextMenu.rootElement) {
+          if (!PopsContextMenu.$el.$root) {
             return;
           }
           const $click = event.target;
           if ($click.closest(`.pops-${popsType}`)) {
             return;
           }
-          PopsContextMenu.closeAllMenu(PopsContextMenu.rootElement);
+          PopsContextMenu.closeAllMenu(PopsContextMenu.$el.$root);
         },
         addWindowCheckClickListener() {
           popsDOMUtils.on(globalThis, "click touchstart", void 0, PopsContextMenu.windowCheckClickEvent, {
             capture: true,
           });
-          if (config.target instanceof Node) {
-            const $shadowRoot2 = config.target.getRootNode();
+          if (config.$target instanceof Node) {
+            const $shadowRoot2 = config.$target.getRootNode();
             if ($shadowRoot2 instanceof ShadowRoot) {
               popsDOMUtils.on($shadowRoot2, "click touchstart", void 0, PopsContextMenu.shadowRootCheckClickEvent, {
                 capture: true,
@@ -19595,8 +19662,8 @@ ${err.stack}`);
           popsDOMUtils.off(globalThis, "click touchstart", void 0, PopsContextMenu.windowCheckClickEvent, {
             capture: true,
           });
-          if (config.target instanceof Node) {
-            const $shadowRoot2 = config.target.getRootNode();
+          if (config.$target instanceof Node) {
+            const $shadowRoot2 = config.$target.getRootNode();
             if ($shadowRoot2 instanceof ShadowRoot) {
               popsDOMUtils.off($shadowRoot2, "click touchstart", void 0, PopsContextMenu.windowCheckClickEvent, {
                 capture: true,
@@ -19609,21 +19676,21 @@ ${err.stack}`);
             popsDOMUtils.preventEvent(event);
           }
           PopsHandler.handleOnly(popsType, config);
-          if (PopsContextMenu.rootElement) {
-            PopsContextMenu.closeAllMenu(PopsContextMenu.rootElement);
+          if (PopsContextMenu.$el.$root) {
+            PopsContextMenu.closeAllMenu(PopsContextMenu.$el.$root);
           }
-          selectorTarget = selectorTarget ?? config.target;
+          selectorTarget = selectorTarget ?? config.$target;
           const rootElement = PopsContextMenu.showMenu(event, config.data, selectorTarget);
-          PopsContextMenu.rootElement = rootElement;
+          PopsContextMenu.$el.$root = rootElement;
           if (config.only) {
             PopsHandler.handlePush(popsType, {
               $shadowRoot,
               $shadowContainer,
               guid,
-              animElement: rootElement,
-              popsElement: rootElement,
+              $anim: rootElement,
+              $pops: rootElement,
               beforeRemoveCallBack(instCommonConfig) {
-                PopsContextMenu.closeAllMenu(instCommonConfig.popsElement);
+                PopsContextMenu.closeAllMenu(instCommonConfig.$pops);
               },
             });
           }
@@ -19659,20 +19726,20 @@ ${err.stack}`);
             $menu.remove();
           }
         },
-        closeAllMenu(rootElement) {
-          if (rootElement == null) {
+        closeAllMenu($root) {
+          if ($root == null) {
             return;
           }
-          const rootElementMenuData = Reflect.get(rootElement, "__menuData__");
+          const rootElementMenuData = Reflect.get($root, PopsContextMenu.$data.menuDataKey);
           if (rootElementMenuData?.root) {
-            rootElement = rootElementMenuData.root;
+            $root = rootElementMenuData.root;
           }
           const childMenuList = rootElementMenuData.child;
           childMenuList.forEach((childMenuElement) => {
             this.animationCloseMenu(childMenuElement);
           });
-          this.animationCloseMenu(rootElement);
-          PopsContextMenu.rootElement = null;
+          this.animationCloseMenu($root);
+          PopsContextMenu.$el.$root = null;
         },
         createMenuContainerElement(isChildren) {
           const $menu = popsDOMUtils.createElement(
@@ -19704,15 +19771,15 @@ ${err.stack}`);
         getMenuZIndex() {
           return PopsHandler.handleZIndex(config.zIndex);
         },
-        getOffset(menuElement, mousePosition, parentInfo) {
+        getOffset($menu, mousePosition, parentInfo) {
           const result = {
             top: 0,
             right: 0,
             bottom: 0,
             left: 0,
           };
-          const menuElementWidth = popsDOMUtils.width(menuElement);
-          const menuElementHeight = popsDOMUtils.height(menuElement);
+          const menuElementWidth = popsDOMUtils.width($menu);
+          const menuElementHeight = popsDOMUtils.height($menu);
           const limitDistance = 1;
           let maxPageLeftOffset = popsDOMUtils.width(globalThis) - limitDistance;
           let maxPageTopOffset = popsDOMUtils.height(globalThis) - limitDistance;
@@ -19770,12 +19837,12 @@ ${err.stack}`);
           }
           return result;
         },
-        showMenu(menuEvent, _config_, menuListenerRootNode) {
+        showMenu(menuEvent, dataConfig, $listenerRootNode) {
           const menuElement = this.createMenuContainerElement(false);
-          Reflect.set(menuElement, "__menuData__", {
+          Reflect.set(menuElement, PopsContextMenu.$data.menuDataKey, {
             child: [],
           });
-          PopsContextMenu.addMenuLiELement(menuEvent, menuElement, menuElement, _config_, menuListenerRootNode);
+          PopsContextMenu.addMenuLiELement(menuEvent, menuElement, menuElement, dataConfig, $listenerRootNode);
           popsDOMUtils.append($shadowRoot, menuElement);
           if (!document.contains($shadowContainer)) {
             if (typeof config.beforeAppendToPageCallBack === "function") {
@@ -19786,20 +19853,20 @@ ${err.stack}`);
           this.handlerShowMenuCSS(menuElement, menuEvent);
           return menuElement;
         },
-        showClildMenu(menuEvent, posInfo, _config_, rootElement, targetLiElement, menuListenerRootNode) {
+        showClildMenu(menuEvent, posInfo, dataConfig, $root, $targetLi, $listenerRootNode) {
           const menuElement = this.createMenuContainerElement(true);
-          Reflect.set(menuElement, "__menuData__", {
-            parent: targetLiElement,
-            root: rootElement,
+          Reflect.set(menuElement, PopsContextMenu.$data.menuDataKey, {
+            parent: $targetLi,
+            root: $root,
           });
-          const rootElementMenuData = Reflect.get(rootElement, "__menuData__");
+          const rootElementMenuData = Reflect.get($root, PopsContextMenu.$data.menuDataKey);
           rootElementMenuData.child.push(menuElement);
-          PopsContextMenu.addMenuLiELement(menuEvent, rootElement, menuElement, _config_, menuListenerRootNode);
+          PopsContextMenu.addMenuLiELement(menuEvent, $root, menuElement, dataConfig, $listenerRootNode);
           popsDOMUtils.append($shadowRoot, menuElement);
-          const $parentMenu = targetLiElement.closest(".pops-rightClickMenu");
+          const $parentMenu = $targetLi.closest(".pops-rightClickMenu");
           this.handlerShowMenuCSS(menuElement, posInfo, {
             $menu: $parentMenu,
-            $parentItem: targetLiElement,
+            $parentItem: $targetLi,
           });
           return menuElement;
         },
@@ -19823,10 +19890,10 @@ ${err.stack}`);
             popsDOMUtils.addClassName($menu, `pops-${popsType}-anim-scale-open`);
           }
         },
-        addMenuLiELement(menuEvent, rootElement, menuElement, _config_, menuListenerRootNode) {
+        addMenuLiELement(menuEvent, $root, $menu, dataConfig, $listenerRootNode) {
           const menuEventTarget = menuEvent.target;
-          const menuULElement = menuElement.querySelector("ul");
-          _config_.forEach((item) => {
+          const menuULElement = $menu.querySelector("ul");
+          dataConfig.forEach((item) => {
             const menuLiElement = popsDOMUtils.parseTextToDOM(`<li></li>`);
             if (typeof item.icon === "string" && item.icon.trim() !== "") {
               const iconSVGHTML = PopsIcon.getIcon(item.icon) ?? item.icon;
@@ -19849,22 +19916,23 @@ ${err.stack}`);
               }
               Array.from(menuULElement.children).forEach((liElement) => {
                 popsDOMUtils.removeClassName(liElement, `pops-${popsType}-is-visited`);
-                const li_menuData = Reflect.get(liElement, "__menuData__");
+                const li_menuData = Reflect.get(liElement, PopsContextMenu.$data.menuDataKey);
                 if (!li_menuData) {
                   return;
                 }
-                function removeElement(element) {
-                  element.querySelectorAll("ul li").forEach(($ele) => {
-                    const menuData = Reflect.get($ele, "__menuData__");
+                function removeElement($el) {
+                  if (!$el) return;
+                  $el.querySelectorAll("ul li").forEach(($ele) => {
+                    const menuData = Reflect.get($ele, PopsContextMenu.$data.menuDataKey);
                     if (menuData?.child) {
                       removeElement(menuData.child);
                     }
                   });
-                  element.remove();
+                  $el.remove();
                 }
                 removeElement(li_menuData.child);
               });
-              const root_menuData = Reflect.get(rootElement, "__menuData__");
+              const root_menuData = Reflect.get($root, PopsContextMenu.$data.menuDataKey);
               for (let index = 0; index < root_menuData.child.length; index++) {
                 const element = root_menuData.child[index];
                 if (!$shadowRoot.contains(element)) {
@@ -19884,11 +19952,11 @@ ${err.stack}`);
                   clientY: rect.top,
                 },
                 item.item,
-                rootElement,
+                $root,
                 menuLiElement,
-                menuListenerRootNode
+                $listenerRootNode
               );
-              Reflect.set(menuLiElement, "__menuData__", {
+              Reflect.set(menuLiElement, PopsContextMenu.$data.menuDataKey, {
                 child: childMenu,
               });
             }
@@ -19901,7 +19969,7 @@ ${err.stack}`);
                     },
                   });
                 } catch {}
-                const callbackResult = await item.callback(clickEvent, menuEvent, menuLiElement, menuListenerRootNode);
+                const callbackResult = await item.callback(clickEvent, menuEvent, menuLiElement, $listenerRootNode);
                 if (typeof callbackResult === "boolean" && callbackResult == false) {
                   return;
                 }
@@ -19909,7 +19977,7 @@ ${err.stack}`);
               Array.from(menuULElement.children).forEach((liEle) => {
                 popsDOMUtils.off(liEle, "mouseenter touchstart");
               });
-              PopsContextMenu.closeAllMenu(rootElement);
+              PopsContextMenu.closeAllMenu($root);
             }
             popsDOMUtils.on(menuLiElement, "mouseenter touchstart", liElementHoverEvent);
             popsDOMUtils.on(menuLiElement, "click", liElementClickEvent);
@@ -19917,7 +19985,7 @@ ${err.stack}`);
           });
         },
       };
-      PopsContextMenu.addContextMenuEvent(config.target, config.targetSelector);
+      PopsContextMenu.addContextMenuEvent(config.$target, config.targetSelector);
       PopsContextMenu.addWindowCheckClickListener();
       return {
         guid,
@@ -19928,7 +19996,7 @@ ${err.stack}`);
         removeContextMenuEvent: PopsContextMenu.removeContextMenuEvent,
         removeInitEventListener: {
           contextMenu() {
-            PopsContextMenu.removeContextMenuEvent(config.target, config.targetSelector);
+            PopsContextMenu.removeContextMenuEvent(config.$target, config.targetSelector);
           },
           windowClick() {
             PopsContextMenu.removeWindowCheckClickListener();
@@ -19938,32 +20006,40 @@ ${err.stack}`);
       };
     },
   };
-  const searchSuggestionConfig = () => {
+  const PopsSearchSuggestionDefaultConfig = () => {
     const data = [];
     for (let index = 0; index < 10; index++) {
       data.push({
         value: `测试${index}`,
         enableDeleteButton: true,
         deleteButtonClickCallback(event, $dataItem, dataItem, config) {
-          console.log("删除当前项", [event, $dataItem, dataItem, config]);
+          const value = dataItem.value;
+          console.log("删除当前项：" + value, [event, $dataItem, dataItem, config]);
           return true;
         },
         itemView(dateItem) {
           return `${dateItem.value}-html`;
         },
         clickCallback(event, $dataItem, dataItem, config) {
-          console.log("item项的点击回调", [event, $dataItem, data, config]);
-          return index % 2 === 0 ? true : false;
+          const isUpdateInputValue = index % 2 === 0 ? true : false;
+          const value = dataItem.value;
+          if (isUpdateInputValue) {
+            console.log("item项的点击回调,更新input内的值：" + value, [event, $dataItem, dataItem, config, value]);
+          } else {
+            console.log("item项的点击回调：" + value, [event, $dataItem, dataItem, config, value]);
+          }
+          return isUpdateInputValue;
         },
         selectCallback(event, $dataItem, dataItem, config) {
-          console.log("item项的选中回调", [event, $dataItem, data, config]);
+          const value = dataItem.value;
+          console.log("item项的选中回调：" + value, [event, $dataItem, dataItem, config]);
         },
       });
     }
     return {
-      target: null,
-      inputTarget: null,
-      selfDocument: document,
+      $target: null,
+      $inputTarget: null,
+      $selfDocument: document,
       data,
       useShadowRoot: true,
       className: "",
@@ -19990,20 +20066,14 @@ ${err.stack}`);
     };
   };
   const PopsSearchSuggestion = {
-    init(details) {
+    init(__config__) {
       const guid = popsUtils.getRandomGUID();
       const popsType = "searchSuggestion";
-      let config = searchSuggestionConfig();
+      let config = PopsSearchSuggestionDefaultConfig();
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-      config = popsUtils.assign(config, details);
-      if (config.target == null) {
-        throw new Error("config.target 不能为空");
-      }
-      if (config.inputTarget == null) {
-        config.inputTarget = config.target;
-      }
-      if (details.data) {
-        config.data = details.data;
+      config = popsUtils.assign(config, __config__);
+      if (config.$inputTarget == null) {
+        config.$inputTarget = config.$target;
       }
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
@@ -20028,10 +20098,12 @@ ${err.stack}`);
         $shadowRoot.appendChild($css);
       }
       const SearchSuggestion = {
-        selfDocument: config.selfDocument,
+        selfDocument: config.$selfDocument,
         $el: {
           root: null,
-          $hintULContainer: null,
+          $dropdownWrapper: null,
+          $dropdownContainer: null,
+          $arrow: null,
           $dynamicCSS: null,
         },
         $evt: {
@@ -20039,20 +20111,29 @@ ${err.stack}`);
         },
         $data: {
           isEmpty: true,
+          storeNodeHandlerKey: "data-SearchSuggestion",
         },
-        init(parentElement = document.body || document.documentElement) {
+        init($parent = document.body || document.documentElement) {
           SearchSuggestion.initEl();
           SearchSuggestion.update(SearchSuggestion.getData());
           SearchSuggestion.updateStyleSheet();
           SearchSuggestion.hide();
           $shadowRoot.appendChild(SearchSuggestion.$el.root);
-          parentElement.appendChild($shadowContainer);
+          $parent.appendChild($shadowContainer);
         },
         initEl() {
           SearchSuggestion.$el.root = SearchSuggestion.createSearchSelectElement();
-          Reflect.set(SearchSuggestion.$el.root, "data-SearchSuggestion", SearchSuggestion);
+          Reflect.set(SearchSuggestion.$el.root, this.$data.storeNodeHandlerKey, SearchSuggestion);
           SearchSuggestion.$el.$dynamicCSS = SearchSuggestion.$el.root.querySelector("style[data-dynamic]");
-          SearchSuggestion.$el.$hintULContainer = SearchSuggestion.$el.root.querySelector("ul");
+          SearchSuggestion.$el.$dropdownWrapper = SearchSuggestion.$el.root.querySelector(
+            `.pops-${popsType}-search-suggestion-dropdown-wrapper`
+          );
+          SearchSuggestion.$el.$dropdownContainer = SearchSuggestion.$el.root.querySelector(
+            `ul.pops-${popsType}-search-suggestion-dropdown-container`
+          );
+          SearchSuggestion.$el.$arrow = SearchSuggestion.$el.root.querySelector(
+            `.pops-${popsType}-search-suggestion-arrow`
+          );
         },
         getData() {
           return typeof config.data === "function" ? config.data() : config.data;
@@ -20165,7 +20246,10 @@ ${err.stack}`);
 						<style type="text/css" data-user-css>
 							${config.style || ""}
 						</style>
-						<ul class="pops-${popsType}-search-suggestion-hint ${PopsCommonCSSClassName.userSelectNone}">${config.toSearhNotResultHTML}</ul>
+            <div class="pops-${popsType}-search-suggestion-dropdown-wrapper">
+              <ul class="pops-${popsType}-search-suggestion-dropdown-container ${PopsCommonCSSClassName.userSelectNone}">${config.toSearhNotResultHTML}</ul>
+            </div>
+            <!-- 箭头 -->
 						${config.useArrow ? `<div class="pops-${popsType}-search-suggestion-arrow"></div>` : ""}
          				 `,
             },
@@ -20201,25 +20285,27 @@ ${err.stack}`);
 					position: ${config.isAbsolute ? "absolute" : "fixed"};
 					z-index: ${PopsHandler.handleZIndex(config.zIndex)};
 				}
-				ul.pops-${popsType}-search-suggestion-hint{
+        .pops-${popsType}-search-suggestion-dropdown-wrapper{
 					max-height: ${config.maxHeight};
-					overflow-x: hidden;
-					overflow-y: auto;
-					padding: 5px 0;
-					background-color: var(--search-suggestion-bg-color);
-					box-sizing: border-box;
 					border-radius: 4px;
 					box-shadow: 0 1px 6px var(--search-suggestion-box-shadow-color);
+					background-color: var(--search-suggestion-bg-color);
+					padding: 5px 0;
+					overflow-x: hidden;
+					overflow-y: auto;
+        }
+				.pops-${popsType}-search-suggestion-dropdown-wrapper ul.pops-${popsType}-search-suggestion-dropdown-container{
+					box-sizing: border-box;
 				}
-				/* 建议框在上面时 */
-				.pops-${popsType}-search-suggestion[data-top-reverse] ul.pops-${popsType}-search-suggestion-hint{
+				// 建议框在上面时
+				.pops-${popsType}-search-suggestion[data-top-reverse] ul.pops-${popsType}-search-suggestion-dropdown-container{
 					display: flex;
 					flex-direction: column-reverse;
 				}
-				.pops-${popsType}-search-suggestion[data-top-reverse] ul.pops-${popsType}-search-suggestion-hint li{
+				.pops-${popsType}-search-suggestion[data-top-reverse] ul.pops-${popsType}-search-suggestion-dropdown-container li{
 					flex-shrink: 0;
 				}
-				ul.pops-${popsType}-search-suggestion-hint li{
+				ul.pops-${popsType}-search-suggestion-dropdown-container li{
 					padding: 7px;
 					margin: 0;
 					clear: both;
@@ -20232,12 +20318,12 @@ ${err.stack}`);
 					text-overflow: ellipsis;
 					width: 100%;
 				}
-				ul.pops-${popsType}-search-suggestion-hint li[data-none]{
+				ul.pops-${popsType}-search-suggestion-dropdown-container li[data-none]{
 					text-align: center;
 					font-size: 12px;
 					color: var(--search-suggestion-item-none-color);
 				}
-				ul.pops-${popsType}-search-suggestion-hint li:not([data-none]):hover{
+				ul.pops-${popsType}-search-suggestion-dropdown-container li:not([data-none]):hover{
 					background-color: var(--search-suggestion-item-is-hover-bg-color);
 				}
 				@media (prefers-color-scheme: dark){
@@ -20255,7 +20341,7 @@ ${err.stack}`);
         createSearchItemLiElement(dataItem, dateItemIndex) {
           const dataValue = SearchSuggestion.getItemDataValue(dataItem);
           const $li = popsDOMUtils.createElement("li", {
-            className: `pops-${popsType}-search-suggestion-hint-item`,
+            className: `pops-${popsType}-search-suggestion-dropdown-item`,
             "data-index": dateItemIndex,
             "data-value": dataValue,
           });
@@ -20294,7 +20380,7 @@ ${err.stack}`);
                     $searchItem.remove();
                   }
                 }
-                if (!SearchSuggestion.$el.$hintULContainer.children.length) {
+                if (!SearchSuggestion.$el.$dropdownContainer.children.length) {
                   SearchSuggestion.clear();
                 }
                 SearchSuggestion.updateStyleSheet();
@@ -20303,10 +20389,10 @@ ${err.stack}`);
                   const result = await dataItem.clickCallback(event, $searchItem, dataItem, config);
                   if (typeof result === "boolean" && result) {
                     if (
-                      config.inputTarget instanceof HTMLInputElement ||
-                      config.inputTarget instanceof HTMLTextAreaElement
+                      config.$inputTarget instanceof HTMLInputElement ||
+                      config.$inputTarget instanceof HTMLTextAreaElement
                     ) {
-                      config.inputTarget.value = String(dataItem.value);
+                      config.$inputTarget.value = String(dataItem.value);
                     }
                   }
                 }
@@ -20324,16 +20410,18 @@ ${err.stack}`);
             capture: true,
           }
         ) {
-          if (!(config.inputTarget instanceof HTMLInputElement || config.inputTarget instanceof HTMLTextAreaElement)) {
+          if (
+            !(config.$inputTarget instanceof HTMLInputElement || config.$inputTarget instanceof HTMLTextAreaElement)
+          ) {
             return;
           }
-          config.inputTarget.setAttribute("autocomplete", "off");
+          config.$inputTarget.setAttribute("autocomplete", "off");
           const listenerHandler = popsDOMUtils.onInput(
-            config.inputTarget,
+            config.$inputTarget,
             async (_event) => {
               const data = SearchSuggestion.getData();
               const queryDataResult = await config.inputTargetChangeRefreshShowDataCallback(
-                config.inputTarget.value,
+                config.$inputTarget.value,
                 data,
                 config
               );
@@ -20371,20 +20459,15 @@ ${err.stack}`);
         setShowEvent(
           option = {
             capture: true,
+            passive: true,
           }
         ) {
           if (config.followPosition === "target") {
-            popsDOMUtils.on([config.target], ["focus", "click"], void 0, SearchSuggestion.showEvent, option);
+            popsDOMUtils.on([config.$target], ["focus", "click"], void 0, SearchSuggestion.showEvent, option);
           } else if (config.followPosition === "input") {
-            popsDOMUtils.on([config.inputTarget], ["focus", "click"], void 0, SearchSuggestion.showEvent, option);
+            popsDOMUtils.on([config.$inputTarget], ["focus", "click"], void 0, SearchSuggestion.showEvent, option);
           } else if (config.followPosition === "inputCursor") {
-            popsDOMUtils.on(
-              [config.inputTarget],
-              ["focus", "click", "input"],
-              void 0,
-              SearchSuggestion.showEvent,
-              option
-            );
+            popsDOMUtils.on([config.$inputTarget], ["focus", "click", "input"], SearchSuggestion.showEvent, option);
           } else {
             throw new Error("未知followPosition：" + config.followPosition);
           }
@@ -20392,26 +20475,27 @@ ${err.stack}`);
         removeShowEvent(
           option = {
             capture: true,
+            passive: true,
           }
         ) {
           popsDOMUtils.off(
-            [config.target, config.inputTarget],
+            [config.$target, config.$inputTarget],
             ["focus", "click"],
             void 0,
             SearchSuggestion.showEvent,
             option
           );
-          popsDOMUtils.off([config.inputTarget], ["input"], void 0, SearchSuggestion.showEvent, option);
+          popsDOMUtils.off([config.$inputTarget], ["input"], void 0, SearchSuggestion.showEvent, option);
         },
         hideEvent(event) {
           if (event.target instanceof Node) {
             if ($shadowContainer.contains(event.target)) {
               return;
             }
-            if (config.target.contains(event.target)) {
+            if (config.$target.contains(event.target)) {
               return;
             }
-            if (config.inputTarget.contains(event.target)) {
+            if (config.$inputTarget.contains(event.target)) {
               return;
             }
             SearchSuggestion.hide(true);
@@ -20420,6 +20504,7 @@ ${err.stack}`);
         setHideEvent(
           option = {
             capture: true,
+            passive: true,
           }
         ) {
           if (Array.isArray(SearchSuggestion.selfDocument)) {
@@ -20427,18 +20512,13 @@ ${err.stack}`);
               popsDOMUtils.on($checkParent, ["click", "touchstart"], void 0, SearchSuggestion.hideEvent, option);
             });
           } else {
-            popsDOMUtils.on(
-              SearchSuggestion.selfDocument,
-              ["click", "touchstart"],
-              void 0,
-              SearchSuggestion.hideEvent,
-              option
-            );
+            popsDOMUtils.on(SearchSuggestion.selfDocument, ["click", "touchstart"], SearchSuggestion.hideEvent, option);
           }
         },
         removeHideEvent(
           option = {
             capture: true,
+            passive: true,
           }
         ) {
           if (Array.isArray(SearchSuggestion.selfDocument)) {
@@ -20458,6 +20538,7 @@ ${err.stack}`);
         setAllEvent(
           option = {
             capture: true,
+            passive: true,
           }
         ) {
           SearchSuggestion.setInputChangeEvent(option);
@@ -20467,6 +20548,7 @@ ${err.stack}`);
         removeAllEvent(
           option = {
             capture: true,
+            passive: true,
           }
         ) {
           SearchSuggestion.removeInputChangeEvent(option);
@@ -20486,23 +20568,23 @@ ${err.stack}`);
         },
         setPromptsInSearch() {
           const $isSearching = popsDOMUtils.createElement("li", {
-            className: `pops-${popsType}-search-suggestion-hint-searching-item`,
+            className: `pops-${popsType}-search-suggestion-dropdown-searching-item`,
             innerHTML: config.searchingTip,
           });
           SearchSuggestion.addItem($isSearching);
         },
         removePromptsInSearch() {
-          SearchSuggestion.$el.$hintULContainer
-            .querySelector(`li.pops-${popsType}-search-suggestion-hint-searching-item`)
+          SearchSuggestion.$el.$dropdownContainer
+            .querySelector(`li.pops-${popsType}-search-suggestion-dropdown-searching-item`)
             ?.remove();
         },
-        changeHintULElementPosition(target = config.target ?? config.inputTarget, checkPositonAgain = true) {
+        changeHintULElementPosition(target = config.$target ?? config.$inputTarget, checkPositonAgain = true) {
           let targetRect = null;
           if (config.followPosition === "inputCursor") {
             targetRect = popsDOMUtils.getTextBoundingRect(
-              config.inputTarget,
-              config.inputTarget.selectionStart || 0,
-              config.inputTarget.selectionEnd || 0,
+              config.$inputTarget,
+              config.$inputTarget.selectionStart || 0,
+              config.$inputTarget.selectionEnd || 0,
               false
             );
           } else {
@@ -20516,10 +20598,12 @@ ${err.stack}`);
             documentHeight = popsDOMUtils.height(document);
           }
           const documentWidth = popsDOMUtils.width(document);
+          const arrowHeight = config.useArrow ? popsDOMUtils.height(SearchSuggestion.$el.$arrow) : 0;
           let position = config.position;
           if (config.position === "auto") {
             const targetBottom = targetRect.bottom;
-            const searchSuggestionContainerHeight = popsDOMUtils.height(SearchSuggestion.$el.$hintULContainer);
+            const searchSuggestionContainerHeight =
+              popsDOMUtils.height(SearchSuggestion.$el.$dropdownWrapper) + arrowHeight;
             if (targetBottom + searchSuggestionContainerHeight > documentHeight) {
               position = "top";
             } else {
@@ -20533,20 +20617,20 @@ ${err.stack}`);
             if (config.useFoldAnimation) {
               SearchSuggestion.$el.root.setAttribute("data-popper-placement", "top");
             }
-            const bottom = documentHeight - targetRect.top + config.topDistance;
+            const bottom = documentHeight - targetRect.top + config.topDistance + arrowHeight;
             SearchSuggestion.$el.root.style.top = "";
             SearchSuggestion.$el.root.style.bottom = bottom + "px";
           } else if (position === "bottom") {
             if (config.useFoldAnimation) {
               SearchSuggestion.$el.root.setAttribute("data-popper-placement", "bottom-center");
             }
-            const top2 = targetRect.height + targetRect.top + config.topDistance;
+            const top2 = targetRect.height + targetRect.top + config.topDistance + arrowHeight;
             SearchSuggestion.$el.root.removeAttribute("data-top-reverse");
             SearchSuggestion.$el.root.style.bottom = "";
             SearchSuggestion.$el.root.style.top = top2 + "px";
           }
           let left = targetRect.left;
-          const hintUIWidth = popsDOMUtils.width(SearchSuggestion.$el.$hintULContainer);
+          const hintUIWidth = popsDOMUtils.width(SearchSuggestion.$el.$dropdownWrapper);
           if (hintUIWidth > documentWidth) {
             left = left + documentWidth - hintUIWidth;
           }
@@ -20555,12 +20639,12 @@ ${err.stack}`);
             SearchSuggestion.changeHintULElementPosition(target, !checkPositonAgain);
           }
         },
-        changeHintULElementWidth(target = config.target ?? config.inputTarget) {
+        changeHintULElementWidth(target = config.$target ?? config.$inputTarget) {
           const targetRect = target.getBoundingClientRect();
           if (config.followTargetWidth) {
-            SearchSuggestion.$el.$hintULContainer.style.width = targetRect.width + "px";
+            SearchSuggestion.$el.$dropdownWrapper.style.width = targetRect.width + "px";
           } else {
-            SearchSuggestion.$el.$hintULContainer.style.width = config.width;
+            SearchSuggestion.$el.$dropdownWrapper.style.width = config.width;
           }
         },
         updateDynamicCSS() {
@@ -20573,7 +20657,7 @@ ${err.stack}`);
           SearchSuggestion.changeHintULElementPosition();
         },
         addItem($item) {
-          SearchSuggestion.$el.$hintULContainer.appendChild($item);
+          SearchSuggestion.$el.$dropdownContainer.appendChild($item);
         },
         update(updateData = []) {
           if (!Array.isArray(updateData)) {
@@ -20599,7 +20683,7 @@ ${err.stack}`);
           }
         },
         clear(onlyClearView = false) {
-          PopsSafeUtils.setSafeHTML(SearchSuggestion.$el.$hintULContainer, "");
+          PopsSafeUtils.setSafeHTML(SearchSuggestion.$el.$dropdownContainer, "");
           if (onlyClearView) {
             return;
           }
@@ -20639,7 +20723,7 @@ ${err.stack}`);
       return SearchSuggestion;
     },
   };
-  const version = "2.6.1";
+  const version = "3.0.1";
   class Pops {
     config = {
       version,
@@ -20672,48 +20756,48 @@ ${err.stack}`);
       return popsUtils.isPhone(userAgent);
     }
     GlobalConfig = GlobalConfig;
-    alert = (details) => {
-      const dialog = PopsAlert.init(details);
+    alert = (config) => {
+      const dialog = PopsAlert.init(config);
       return dialog;
     };
-    confirm = (details) => {
-      const dialog = PopsConfirm.init(details);
+    confirm = (config) => {
+      const dialog = PopsConfirm.init(config);
       return dialog;
     };
-    prompt = (details) => {
-      const dialog = PopsPrompt.init(details);
+    prompt = (config) => {
+      const dialog = PopsPrompt.init(config);
       return dialog;
     };
-    loading = (details) => {
-      const popsLoading = PopsLoading.init(details);
+    loading = (config) => {
+      const popsLoading = PopsLoading.init(config);
       return popsLoading;
     };
-    iframe = (details) => {
-      const dialog = PopsIframe.init(details);
+    iframe = (config) => {
+      const dialog = PopsIframe.init(config);
       return dialog;
     };
-    tooltip = (details) => {
-      const popsTooltip = PopsTooltip.init(details);
+    tooltip = (config) => {
+      const popsTooltip = PopsTooltip.init(config);
       return popsTooltip;
     };
-    drawer = (details) => {
-      const dialog = PopsDrawer.init(details);
+    drawer = (config) => {
+      const dialog = PopsDrawer.init(config);
       return dialog;
     };
-    folder = (details) => {
-      const dialog = PopsFolder.init(details);
+    folder = (config) => {
+      const dialog = PopsFolder.init(config);
       return dialog;
     };
-    panel = (details) => {
-      const dialog = PopsPanel.init(details);
+    panel = (config) => {
+      const dialog = PopsPanel.init(config);
       return dialog;
     };
-    rightClickMenu = (details) => {
-      const popsRightClickMenu = PopsRightClickMenu.init(details);
+    rightClickMenu = (config) => {
+      const popsRightClickMenu = PopsRightClickMenu.init(config);
       return popsRightClickMenu;
     };
-    searchSuggestion = (details) => {
-      const popsSearchSuggestion = PopsSearchSuggestion.init(details);
+    searchSuggestion = (config) => {
+      const popsSearchSuggestion = PopsSearchSuggestion.init(config);
       return popsSearchSuggestion;
     };
   }
@@ -21703,7 +21787,7 @@ ${err.stack}`);
           id: "script-version",
           title: `版本：${_GM_info?.script?.version || "未知"}`,
           isBottom: true,
-          forms: [],
+          views: [],
           clickFirstCallback() {
             return false;
           },
@@ -21845,7 +21929,7 @@ ${err.stack}`);
         if (!config.attributes) {
           return;
         }
-        if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
+        if (config.type === "button" || config.type === "container" || config.type === "deepMenu") {
           return;
         }
         const attributes = config.attributes;
@@ -21887,19 +21971,19 @@ ${err.stack}`);
         for (let index = 0; index < configList.length; index++) {
           let configItem = configList[index];
           initDefaultValue(configItem);
-          let child_forms = configItem.forms;
-          if (child_forms && Array.isArray(child_forms)) {
-            loopInitDefaultValue(child_forms);
+          let childViews = configItem.views;
+          if (childViews && Array.isArray(childViews)) {
+            loopInitDefaultValue(childViews);
           }
         }
       };
       const contentConfigList = [...PanelContent.getAllContentConfig()];
       for (let index = 0; index < contentConfigList.length; index++) {
         let leftContentConfigItem = contentConfigList[index];
-        if (!leftContentConfigItem.forms) {
+        if (!leftContentConfigItem.views) {
           continue;
         }
-        const rightContentConfigList = leftContentConfigItem.forms;
+        const rightContentConfigList = leftContentConfigItem.views;
         if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
           loopInitDefaultValue(rightContentConfigList);
         }
@@ -22376,6 +22460,7 @@ ${err.stack}`);
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
 						`,
           });
+          const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
           domUtils.on($item, "click", (clickItemEvent) => {
             const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
@@ -22395,12 +22480,8 @@ ${err.stack}`);
                 const $findDeepMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")).find(
                     ($deepMenu) => {
-                      const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
-                      return (
-                        typeof __formConfig__ === "object" &&
-                        __formConfig__ != null &&
-                        __formConfig__.text === target.name
-                      );
+                      const viewConfig = Reflect.get($deepMenu, panelHandlerComponents.$data.nodeStoreConfigKey);
+                      return typeof viewConfig === "object" && viewConfig != null && viewConfig.text === target.name;
                     }
                   );
                 }, 2500);
@@ -22421,8 +22502,8 @@ ${err.stack}`);
                 const $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)).find(
                     ($menuItem) => {
-                      const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
-                      return __formConfig__ === target.matchedData?.formConfig;
+                      const viewConfig = Reflect.get($menuItem, panelHandlerComponents.$data.nodeStoreConfigKey);
+                      return viewConfig === target.matchedData?.formConfig;
                     }
                   );
                 }, 2500);
@@ -22455,7 +22536,7 @@ ${err.stack}`);
           const loopContentConfig = (configList, path) => {
             for (let index = 0; index < configList.length; index++) {
               const configItem = configList[index];
-              const child_forms = configItem.forms;
+              const child_forms = configItem.views;
               if (child_forms && Array.isArray(child_forms)) {
                 const deepMenuPath = utils.deepClone(path);
                 if (configItem.type === "deepMenu") {
@@ -22552,13 +22633,13 @@ ${err.stack}`);
           };
           for (let index = 0; index < content.length; index++) {
             const leftContentConfigItem = content[index];
-            if (!leftContentConfigItem.forms) {
+            if (!leftContentConfigItem.views) {
               continue;
             }
             if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") {
               continue;
             }
-            const rightContentConfigList = leftContentConfigItem.forms;
+            const rightContentConfigList = leftContentConfigItem.views;
             if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
               let text = leftContentConfigItem.title;
               if (typeof text === "function") {
@@ -22860,11 +22941,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "函数测试",
-            forms: [
+            views: [
               UIInfo(() =>
                 this.isSupport()
                   ? {
@@ -22890,14 +22971,14 @@ ${err.stack}`);
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [],
+            views: [],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试（异步）",
-            forms: [],
+            views: [],
           },
         ],
       };
@@ -22911,12 +22992,12 @@ ${err.stack}`);
                 resolve(fnResult);
               });
             },
-            formList: result["forms"][1].forms,
+            formList: result["views"][1].views,
           },
           {
             name: apiAsyncInfo.name,
             fn: _GM.addElement,
-            formList: result["forms"][2].forms,
+            formList: result["views"][2].views,
           },
         ].forEach((data) => {
           let apiNameTag = data.name.replace(".", "__async__");
@@ -23069,11 +23150,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "函数测试",
-            forms: [
+            views: [
               UIInfo(() =>
                 this.isSupport()
                   ? {
@@ -23099,14 +23180,14 @@ ${err.stack}`);
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [],
+            views: [],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试（异步）",
-            forms: [],
+            views: [],
           },
         ],
       };
@@ -23120,12 +23201,12 @@ ${err.stack}`);
                 resolve(fnResult);
               });
             },
-            formList: result["forms"][1].forms,
+            formList: result["views"][1].views,
           },
           {
             name: apiAsyncInfo.name,
             fn: _GM.addStyle,
-            formList: result["forms"][2].forms,
+            formList: result["views"][2].views,
           },
         ].forEach((data) => {
           let apiNameTag = data.name.replace(".", "__async__");
@@ -23213,11 +23294,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "函数测试",
-            forms: [
+            views: [
               UIInfo(() =>
                 this.isSupport()
                   ? {
@@ -23243,14 +23324,14 @@ ${err.stack}`);
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [],
+            views: [],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试（异步）",
-            forms: [],
+            views: [],
           },
         ],
       };
@@ -23264,12 +23345,12 @@ ${err.stack}`);
                 resolve(ret);
               });
             },
-            formList: result["forms"][1].forms,
+            formList: result["views"][1].views,
           },
           {
             name: apiAsyncInfo.name,
             fn: _GM.addValueChangeListener,
-            formList: result["forms"][2].forms,
+            formList: result["views"][2].views,
           },
         ].forEach((data) => {
           let apiNameTag = data.name;
@@ -23428,11 +23509,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "函数测试",
-            forms: [
+            views: [
               UIInfo(() =>
                 this.isSupport()
                   ? {
@@ -23447,18 +23528,18 @@ ${err.stack}`);
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [],
+            views: [],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试（异步）",
-            forms: [],
+            views: [],
           },
         ],
       };
-      let firstFormList = result["forms"][0].forms;
+      let firstFormList = result["views"][0].views;
       if (this.isSupport()) {
         firstFormList.push(
           UIInfo(() => {
@@ -23584,14 +23665,14 @@ ${err.stack}`);
                 });
               });
             },
-            formList: result["forms"][1].forms,
+            formList: result["views"][1].views,
           },
           {
             name: apiAsyncInfo.name,
             list: _GM.cookie?.list,
             set: _GM.cookie?.set,
             delete: _GM.cookie?.delete,
-            formList: result["forms"][2].forms,
+            formList: result["views"][2].views,
           },
         ].forEach((data) => {
           data.name;
@@ -23783,11 +23864,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "函数测试",
-            forms: [
+            views: [
               UIInfo(() =>
                 this.isSupport()
                   ? {
@@ -23813,14 +23894,14 @@ ${err.stack}`);
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [],
+            views: [],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试（异步）",
-            forms: [],
+            views: [],
           },
         ],
       };
@@ -23834,12 +23915,12 @@ ${err.stack}`);
                 resolve(ret);
               });
             },
-            formList: result["forms"][1].forms,
+            formList: result["views"][1].views,
           },
           {
             name: apiAsyncInfo.name,
             fn: _GM.deleteValue,
-            formList: result["forms"][2].forms,
+            formList: result["views"][2].views,
           },
         ].forEach((data) => {
           let apiNameTag = data.name;
@@ -23918,11 +23999,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "函数测试",
-            forms: [
+            views: [
               UIInfo(() =>
                 this.isSupport()
                   ? {
@@ -23948,14 +24029,14 @@ ${err.stack}`);
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [],
+            views: [],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试（异步）",
-            forms: [],
+            views: [],
           },
         ],
       };
@@ -23969,12 +24050,12 @@ ${err.stack}`);
                 resolve(ret);
               });
             },
-            formList: result["forms"][1].forms,
+            formList: result["views"][1].views,
           },
           {
             name: apiAsyncInfo.name,
             fn: _GM.deleteValues,
-            formList: result["forms"][2].forms,
+            formList: result["views"][2].views,
           },
         ].forEach((data) => {
           data.name;
@@ -24064,11 +24145,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "函数测试",
-            forms: [
+            views: [
               UIInfo(() =>
                 this.isSupport()
                   ? {
@@ -24094,14 +24175,14 @@ ${err.stack}`);
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [],
+            views: [],
           },
         ],
       };
       if (this.isSupport()) {
-        result["forms"][1].forms.push(
+        result["views"][1].views.push(
           UIInfo(() => {
             return {
               text: CommonUtil2.escapeHtml("TODO"),
@@ -24143,11 +24224,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "函数测试",
-            forms: [
+            views: [
               UIInfo(() =>
                 this.isSupport()
                   ? {
@@ -24173,14 +24254,14 @@ ${err.stack}`);
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [],
+            views: [],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试（异步）",
-            forms: [],
+            views: [],
           },
         ],
       };
@@ -24194,12 +24275,12 @@ ${err.stack}`);
                 resolve(ret);
               });
             },
-            formList: result["forms"][1].forms,
+            formList: result["views"][1].views,
           },
           {
             name: apiAsyncInfo.name,
             fn: _GM.getResourceText,
-            formList: result["forms"][2].forms,
+            formList: result["views"][2].views,
           },
         ].forEach((data) => {
           data.name.replace(".", "__async__");
@@ -24260,11 +24341,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "函数测试",
-            forms: [
+            views: [
               UIInfo(() =>
                 this.isSupport()
                   ? {
@@ -24290,14 +24371,14 @@ ${err.stack}`);
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [],
+            views: [],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试（异步）",
-            forms: [],
+            views: [],
           },
         ],
       };
@@ -24311,12 +24392,12 @@ ${err.stack}`);
                 resolve(fnResult);
               });
             },
-            formList: result["forms"][1].forms,
+            formList: result["views"][1].views,
           },
           {
             name: apiAsyncInfo.name,
             fn: _GM.getResourceUrl,
-            formList: result["forms"][2].forms,
+            formList: result["views"][2].views,
           },
         ].forEach((data) => {
           data.name.replace(".", "__async__");
@@ -24397,11 +24478,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "函数测试",
-            forms: [
+            views: [
               UIInfo(() =>
                 this.isSupport()
                   ? {
@@ -24427,14 +24508,14 @@ ${err.stack}`);
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [],
+            views: [],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试（异步）",
-            forms: [],
+            views: [],
           },
         ],
       };
@@ -24449,12 +24530,12 @@ ${err.stack}`);
                 });
               });
             },
-            formList: result["forms"][1].forms,
+            formList: result["views"][1].views,
           },
           {
             name: apiAsyncInfo.name,
             fn: _GM.getTab,
-            formList: result["forms"][2].forms,
+            formList: result["views"][2].views,
           },
         ].forEach((data) => {
           data.name.replace(".", "__async__");
@@ -24554,11 +24635,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "函数测试",
-            forms: [
+            views: [
               UIInfo(() =>
                 this.isSupport()
                   ? {
@@ -24584,14 +24665,14 @@ ${err.stack}`);
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [],
+            views: [],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试（异步）",
-            forms: [],
+            views: [],
           },
         ],
       };
@@ -24606,12 +24687,12 @@ ${err.stack}`);
                 });
               });
             },
-            formList: result["forms"][1].forms,
+            formList: result["views"][1].views,
           },
           {
             name: apiAsyncInfo.name,
             fn: _GM.getTabs,
-            formList: result["forms"][2].forms,
+            formList: result["views"][2].views,
           },
         ].forEach((data) => {
           data.name.replace(".", "__async__");
@@ -24711,11 +24792,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "函数测试",
-            forms: [
+            views: [
               UIInfo(() =>
                 this.isSupport()
                   ? {
@@ -24741,14 +24822,14 @@ ${err.stack}`);
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [],
+            views: [],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试（异步）",
-            forms: [],
+            views: [],
           },
         ],
       };
@@ -24762,12 +24843,12 @@ ${err.stack}`);
                 resolve(ret);
               });
             },
-            formList: result["forms"][1].forms,
+            formList: result["views"][1].views,
           },
           {
             name: apiAsyncInfo.name,
             fn: _GM.getValue,
-            formList: result["forms"][2].forms,
+            formList: result["views"][2].views,
           },
         ].forEach((data) => {
           let apiNameTag = data.name;
@@ -24991,11 +25072,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "函数测试",
-            forms: [
+            views: [
               UIInfo(() =>
                 this.isSupport()
                   ? {
@@ -25021,14 +25102,14 @@ ${err.stack}`);
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [],
+            views: [],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试（异步）",
-            forms: [],
+            views: [],
           },
         ],
       };
@@ -25042,12 +25123,12 @@ ${err.stack}`);
                 resolve(ret);
               });
             },
-            formList: result["forms"][1].forms,
+            formList: result["views"][1].views,
           },
           {
             name: apiAsyncInfo.name,
             fn: _GM.getValues,
-            formList: result["forms"][2].forms,
+            formList: result["views"][2].views,
           },
         ].forEach((data) => {
           let apiNameTag = data.name;
@@ -25209,11 +25290,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "函数测试",
-            forms: [
+            views: [
               UIInfo(() =>
                 this.isSupport()
                   ? {
@@ -25239,14 +25320,14 @@ ${err.stack}`);
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [],
+            views: [],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试（GM）",
-            forms: [],
+            views: [],
           },
         ],
       };
@@ -25255,12 +25336,12 @@ ${err.stack}`);
           {
             name: apiName,
             fn: _GM_info,
-            formList: result["forms"][1].forms,
+            formList: result["views"][1].views,
           },
           {
             name: apiAsyncInfo.name,
             fn: _GM.info,
-            formList: result["forms"][2].forms,
+            formList: result["views"][2].views,
           },
         ].forEach((data) => {
           data.name;
@@ -25369,11 +25450,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "函数测试",
-            forms: [
+            views: [
               UIInfo(() =>
                 this.isSupport()
                   ? {
@@ -25399,14 +25480,14 @@ ${err.stack}`);
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [],
+            views: [],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试（异步）",
-            forms: [],
+            views: [],
           },
         ],
       };
@@ -25420,12 +25501,12 @@ ${err.stack}`);
                 resolve(ret);
               });
             },
-            formList: result["forms"][1].forms,
+            formList: result["views"][1].views,
           },
           {
             name: apiAsyncInfo.name,
             fn: _GM.listValues,
-            formList: result["forms"][2].forms,
+            formList: result["views"][2].views,
           },
         ].forEach((data) => {
           data.name;
@@ -25503,11 +25584,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "函数测试",
-            forms: [
+            views: [
               UIInfo(() =>
                 this.isSupport()
                   ? {
@@ -25533,14 +25614,14 @@ ${err.stack}`);
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [],
+            views: [],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试（异步）",
-            forms: [],
+            views: [],
           },
         ],
       };
@@ -25554,12 +25635,12 @@ ${err.stack}`);
                 resolve(ret);
               });
             },
-            formList: result["forms"][1].forms,
+            formList: result["views"][1].views,
           },
           {
             name: apiAsyncInfo.name,
             fn: _GM.log,
-            formList: result["forms"][2].forms,
+            formList: result["views"][2].views,
           },
         ].forEach((data) => {
           data.name;
@@ -25637,11 +25718,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "函数测试",
-            forms: [
+            views: [
               UIInfo(() =>
                 this.isSupport()
                   ? {
@@ -25667,14 +25748,14 @@ ${err.stack}`);
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [],
+            views: [],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试（异步）",
-            forms: [],
+            views: [],
           },
         ],
       };
@@ -25696,12 +25777,12 @@ ${err.stack}`);
                 });
               });
             },
-            formList: result["forms"][1].forms,
+            formList: result["views"][1].views,
           },
           {
             name: apiAsyncInfo.name,
             fn: _GM.notification,
-            formList: result["forms"][2].forms,
+            formList: result["views"][2].views,
           },
         ].forEach((data) => {
           data.name.replace(".", "__async__");
@@ -26065,11 +26146,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "函数测试",
-            forms: [
+            views: [
               UIInfo(() =>
                 this.isSupport()
                   ? {
@@ -26095,14 +26176,14 @@ ${err.stack}`);
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [],
+            views: [],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试（异步）",
-            forms: [],
+            views: [],
           },
         ],
       };
@@ -26116,12 +26197,12 @@ ${err.stack}`);
                 resolve(ret);
               });
             },
-            formList: result["forms"][1].forms,
+            formList: result["views"][1].views,
           },
           {
             name: apiAsyncInfo.name,
             fn: _GM.openInTab,
-            formList: result["forms"][2].forms,
+            formList: result["views"][2].views,
           },
         ].forEach((data) => {
           data.formList.push(
@@ -26401,11 +26482,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "函数测试",
-            forms: [
+            views: [
               UIInfo(() =>
                 this.isSupport()
                   ? {
@@ -26431,14 +26512,14 @@ ${err.stack}`);
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [],
+            views: [],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试（异步）",
-            forms: [],
+            views: [],
           },
         ],
       };
@@ -26452,12 +26533,12 @@ ${err.stack}`);
                 resolve(ret);
               });
             },
-            formList: result["forms"][1].forms,
+            formList: result["views"][1].views,
           },
           {
             name: apiAsyncInfo.name,
             fn: _GM.registerMenuCommand,
-            formList: result["forms"][2].forms,
+            formList: result["views"][2].views,
           },
         ].forEach((data) => {
           data.formList.push(
@@ -26644,11 +26725,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "函数测试",
-            forms: [
+            views: [
               UIInfo(() =>
                 this.isSupport()
                   ? {
@@ -26674,14 +26755,14 @@ ${err.stack}`);
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [],
+            views: [],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试（异步）",
-            forms: [],
+            views: [],
           },
         ],
       };
@@ -26695,12 +26776,12 @@ ${err.stack}`);
                 resolve(ret);
               });
             },
-            formList: result["forms"][1].forms,
+            formList: result["views"][1].views,
           },
           {
             name: apiAsyncInfo.name,
             fn: _GM.removeValueChangeListener,
-            formList: result["forms"][2].forms,
+            formList: result["views"][2].views,
           },
         ].forEach((data) => {
           data.name;
@@ -26794,11 +26875,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "函数测试",
-            forms: [
+            views: [
               UIInfo(() =>
                 this.isSupport()
                   ? {
@@ -26824,14 +26905,14 @@ ${err.stack}`);
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [],
+            views: [],
           },
         ],
       };
       if (this.isSupport()) {
-        result["forms"][1].forms.push(
+        result["views"][1].views.push(
           UIInfo(() => {
             try {
               return {
@@ -26879,11 +26960,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "函数测试",
-            forms: [
+            views: [
               UIInfo(() =>
                 this.isSupport()
                   ? {
@@ -26909,14 +26990,14 @@ ${err.stack}`);
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [],
+            views: [],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试（异步）",
-            forms: [],
+            views: [],
           },
         ],
       };
@@ -26936,7 +27017,7 @@ ${err.stack}`);
                 _GM_setClipboard(...args);
               });
             },
-            formList: result["forms"][1].forms,
+            formList: result["views"][1].views,
           },
           {
             name: apiAsyncInfo.name,
@@ -26947,7 +27028,7 @@ ${err.stack}`);
                 cb();
               }
             },
-            formList: result["forms"][2].forms,
+            formList: result["views"][2].views,
           },
         ].forEach((data) => {
           data.formList.push(
@@ -27022,11 +27103,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "函数测试",
-            forms: [
+            views: [
               UIInfo(() =>
                 this.isSupport()
                   ? {
@@ -27052,14 +27133,14 @@ ${err.stack}`);
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [],
+            views: [],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试（异步）",
-            forms: [],
+            views: [],
           },
         ],
       };
@@ -27073,12 +27154,12 @@ ${err.stack}`);
                 resolve(ret);
               });
             },
-            formList: result["forms"][1].forms,
+            formList: result["views"][1].views,
           },
           {
             name: apiAsyncInfo.name,
             fn: _GM.setValue,
-            formList: result["forms"][2].forms,
+            formList: result["views"][2].views,
           },
         ].forEach((data) => {
           let apiNameTag = data.name;
@@ -27214,11 +27295,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "函数测试",
-            forms: [
+            views: [
               UIInfo(() =>
                 this.isSupport()
                   ? {
@@ -27244,14 +27325,14 @@ ${err.stack}`);
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [],
+            views: [],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试（异步）",
-            forms: [],
+            views: [],
           },
         ],
       };
@@ -27265,12 +27346,12 @@ ${err.stack}`);
                 resolve(ret);
               });
             },
-            formList: result["forms"][1].forms,
+            formList: result["views"][1].views,
           },
           {
             name: apiAsyncInfo.name,
             fn: _GM.setValues,
-            formList: result["forms"][2].forms,
+            formList: result["views"][2].views,
           },
         ].forEach((data) => {
           data.name;
@@ -27342,11 +27423,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "函数测试",
-            forms: [
+            views: [
               UIInfo(() =>
                 this.isSupport()
                   ? {
@@ -27372,14 +27453,14 @@ ${err.stack}`);
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [],
+            views: [],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试（异步）",
-            forms: [],
+            views: [],
           },
         ],
       };
@@ -27393,12 +27474,12 @@ ${err.stack}`);
                 resolve(ret);
               });
             },
-            formList: result["forms"][1].forms,
+            formList: result["views"][1].views,
           },
           {
             name: apiAsyncInfo.name,
             fn: _GM.unregisterMenuCommand,
-            formList: result["forms"][2].forms,
+            formList: result["views"][2].views,
           },
         ].forEach((data) => {
           data.formList.push(
@@ -27480,11 +27561,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "函数测试",
-            forms: [
+            views: [
               UIInfo(() =>
                 this.isSupport()
                   ? {
@@ -27499,14 +27580,14 @@ ${err.stack}`);
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [],
+            views: [],
           },
         ],
       };
       if (this.isSupport()) {
-        result["forms"][1].forms.push(
+        result["views"][1].views.push(
           UIInfo(() => {
             let key = "test-gm-window";
             let flag = _monkeyWindow == _unsafeWindow;
@@ -27557,11 +27638,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "函数测试",
-            forms: [
+            views: [
               UIInfo(() =>
                 this.isSupport()
                   ? {
@@ -27587,14 +27668,14 @@ ${err.stack}`);
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [],
+            views: [],
           },
         ],
       };
       if (this.isSupport()) {
-        result["forms"][1].forms.push(
+        result["views"][1].views.push(
           UIInfo(() => {
             try {
               return {
@@ -27642,11 +27723,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "函数测试",
-            forms: [
+            views: [
               UIInfo(() =>
                 this.isSupport()
                   ? {
@@ -27672,14 +27753,14 @@ ${err.stack}`);
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [],
+            views: [],
           },
         ],
       };
       if (this.isSupport()) {
-        result["forms"][1].forms.push(
+        result["views"][1].views.push(
           UIInfo(() => {
             try {
               return {
@@ -27771,11 +27852,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "函数测试",
-            forms: [
+            views: [
               UIInfo(() =>
                 this.isSupport()
                   ? {
@@ -27790,18 +27871,18 @@ ${err.stack}`);
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [],
+            views: [],
           },
           {
-            type: "forms",
+            type: "container",
             text: "功能测试（异步）",
-            forms: [],
+            views: [],
           },
         ],
       };
-      let firstFormList = result["forms"][0].forms;
+      let firstFormList = result["views"][0].views;
       if (this.isSupport()) {
         firstFormList.push(
           UIInfo(() => {
@@ -27953,7 +28034,7 @@ ${err.stack}`);
                 });
               });
             },
-            formList: result["forms"][1].forms,
+            formList: result["views"][1].views,
           },
           {
             name: apiAsyncInfo.name,
@@ -27975,7 +28056,7 @@ ${err.stack}`);
             },
             addStateChangeListener: _GM.audio?.addStateChangeListener,
             removeStateChangeListener: _GM.audio?.removeStateChangeListener,
-            formList: result["forms"][2].forms,
+            formList: result["views"][2].views,
           },
         ].forEach((data) => {
           data.name;
@@ -28453,11 +28534,11 @@ ${err.stack}`);
       clickCallback(data) {
         StorageApi.set(PanelKeyConfig.asideLastVisit, "component-common");
       },
-      forms: [
+      views: [
         {
-          type: "forms",
+          type: "container",
           text: "@run-at document-start<br>注：注入速度等级越低，注入的速度越快<br>范围：0~4",
-          forms: [
+          views: [
             UIInfo(() => {
               return {
                 text: CommonUtil2.escapeHtml(injectDocumentTime),
@@ -28467,16 +28548,16 @@ ${err.stack}`);
           ],
         },
         {
-          type: "forms",
+          type: "container",
           text: "特性",
           afterAddToUListCallBack(formConfig, container) {
             container.formHeaderDivElement.style.fontSize = "1.2em";
             container.formHeaderDivElement.style.fontWeight = "700";
           },
-          forms: [],
+          views: [],
         },
         {
-          type: "forms",
+          type: "container",
           text: "不支持列表",
           afterAddToUListCallBack(formConfig, container) {
             container.formHeaderDivElement.style.color = "rgb(216, 30, 6)";
@@ -28485,7 +28566,7 @@ ${err.stack}`);
               container.formContainerListElement?.remove();
             }
           },
-          forms: [
+          views: [
             UIOwn(($li) => {
               const $container = domUtils.createElement("div", {
                 className: "gm-api-features-not-support",
@@ -28501,7 +28582,7 @@ ${err.stack}`);
           ],
         },
         {
-          type: "forms",
+          type: "container",
           text: "支持列表",
           afterAddToUListCallBack(formConfig, container) {
             container.formHeaderDivElement.style.fontWeight = "600";
@@ -28509,7 +28590,7 @@ ${err.stack}`);
               container.formContainerListElement?.remove();
             }
           },
-          forms: [
+          views: [
             UIOwn(($li) => {
               const $container = domUtils.createElement("div", {
                 className: "gm-api-features-support",
@@ -28550,11 +28631,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [
+            views: [
               UIInfo(() => {
                 try {
                   return {
@@ -28642,11 +28723,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [
+            views: [
               UIInfo(() => {
                 try {
                   return {
@@ -28718,11 +28799,11 @@ ${err.stack}`);
         clickCallback(data) {
           StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
         },
-        forms: [
+        views: [
           {
-            type: "forms",
+            type: "container",
             text: "功能测试",
-            forms: [
+            views: [
               UIInfo(() => {
                 try {
                   return {

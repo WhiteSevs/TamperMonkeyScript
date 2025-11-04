@@ -4,19 +4,19 @@ import { UISwitch } from "@components/setting/components/ui-switch";
 const MSettingUI_Home: PopsPanelContentConfig = {
   id: "little-red-book-panel-config-home",
   title: "主页",
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "劫持/拦截",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("劫持点击事件", "little-red-book-repariClick", true, void 0, "可阻止点击跳转至下载页面"),
               ],
             },

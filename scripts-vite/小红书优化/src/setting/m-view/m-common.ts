@@ -6,19 +6,19 @@ import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components
 export const MSettingUI_Common: PopsPanelContentConfig = {
   id: "little-red-book-panel-config-common",
   title: "通用",
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "Toast配置",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISelect(
                   "Toast位置",
                   "qmsg-config-position",
@@ -104,16 +104,16 @@ export const MSettingUI_Common: PopsPanelContentConfig = {
     },
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "屏蔽",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("【屏蔽】广告", "little-red-book-shieldAd", true, void 0, "如：App内打开"),
                 UISwitch("【屏蔽】底部搜索发现", "little-red-book-shieldBottomSearchFind", true, void 0, "建议开启"),
                 UISwitch("【屏蔽】底部工具栏", "little-red-book-shieldBottomToorBar", true, void 0, "建议开启"),
@@ -124,11 +124,11 @@ export const MSettingUI_Common: PopsPanelContentConfig = {
         // {
         // 	text: "劫持/拦截",
         // 	type: "deepMenu",
-        // 	forms: [
+        // 	views: [
         // 		{
         // 			text: "",
-        // 			type: "forms",
-        // 			forms: [
+        // 			type: "container",
+        // 			views: [
         // 				UISwitch(
         // 					"劫持Vue",
         // 					"little-red-book-hijack-vue",

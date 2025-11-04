@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.1
+// @version      2025.11.4
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -10,11 +10,11 @@
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@c90210bf4ab902dbceb9c6e5b101b1ea91c34581/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.6.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/data-paging@0.0.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @connect      *
 // @connect      lanzoub.com
@@ -1088,7 +1088,7 @@
           id: "script-version",
           title: `版本：${_GM_info?.script?.version || "未知"}`,
           isBottom: true,
-          forms: [],
+          views: [],
           clickFirstCallback() {
             return false;
           },
@@ -1230,7 +1230,7 @@
         if (!config.attributes) {
           return;
         }
-        if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
+        if (config.type === "button" || config.type === "container" || config.type === "deepMenu") {
           return;
         }
         const attributes = config.attributes;
@@ -1272,19 +1272,19 @@
         for (let index = 0; index < configList.length; index++) {
           let configItem = configList[index];
           initDefaultValue(configItem);
-          let child_forms = configItem.forms;
-          if (child_forms && Array.isArray(child_forms)) {
-            loopInitDefaultValue(child_forms);
+          let childViews = configItem.views;
+          if (childViews && Array.isArray(childViews)) {
+            loopInitDefaultValue(childViews);
           }
         }
       };
       const contentConfigList = [...PanelContent.getAllContentConfig()];
       for (let index = 0; index < contentConfigList.length; index++) {
         let leftContentConfigItem = contentConfigList[index];
-        if (!leftContentConfigItem.forms) {
+        if (!leftContentConfigItem.views) {
           continue;
         }
-        const rightContentConfigList = leftContentConfigItem.forms;
+        const rightContentConfigList = leftContentConfigItem.views;
         if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
           loopInitDefaultValue(rightContentConfigList);
         }
@@ -1761,6 +1761,7 @@
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
 						`,
           });
+          const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
           domUtils.on($item, "click", (clickItemEvent) => {
             const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
@@ -1780,12 +1781,8 @@
                 const $findDeepMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")).find(
                     ($deepMenu) => {
-                      const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
-                      return (
-                        typeof __formConfig__ === "object" &&
-                        __formConfig__ != null &&
-                        __formConfig__.text === target.name
-                      );
+                      const viewConfig = Reflect.get($deepMenu, panelHandlerComponents.$data.nodeStoreConfigKey);
+                      return typeof viewConfig === "object" && viewConfig != null && viewConfig.text === target.name;
                     }
                   );
                 }, 2500);
@@ -1806,8 +1803,8 @@
                 const $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)).find(
                     ($menuItem) => {
-                      const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
-                      return __formConfig__ === target.matchedData?.formConfig;
+                      const viewConfig = Reflect.get($menuItem, panelHandlerComponents.$data.nodeStoreConfigKey);
+                      return viewConfig === target.matchedData?.formConfig;
                     }
                   );
                 }, 2500);
@@ -1840,7 +1837,7 @@
           const loopContentConfig = (configList, path) => {
             for (let index = 0; index < configList.length; index++) {
               const configItem = configList[index];
-              const child_forms = configItem.forms;
+              const child_forms = configItem.views;
               if (child_forms && Array.isArray(child_forms)) {
                 const deepMenuPath = utils.deepClone(path);
                 if (configItem.type === "deepMenu") {
@@ -1937,13 +1934,13 @@
           };
           for (let index = 0; index < content.length; index++) {
             const leftContentConfigItem = content[index];
-            if (!leftContentConfigItem.forms) {
+            if (!leftContentConfigItem.views) {
               continue;
             }
             if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") {
               continue;
             }
-            const rightContentConfigList = leftContentConfigItem.forms;
+            const rightContentConfigList = leftContentConfigItem.views;
             if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
               let text = leftContentConfigItem.title;
               if (typeof text === "function") {
@@ -5204,7 +5201,7 @@
       const that = this;
       let contentConfigList = this.option.contentConfig;
       contentConfigList.forEach((config) => {
-        config.forms = [];
+        config.views = [];
         config.headerTitle = config.headerTitle || config.title;
         if (config.subscribe?.enable) {
           config.headerTitle =
@@ -6776,7 +6773,7 @@
         const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
-      selectConfirmDialogDetails,
+      selectConfirmDialogConfig: selectConfirmDialogDetails,
       callback(selectInfo) {
         const storageApiValue = this.props[PROPS_STORAGE_API];
         const value = [];
@@ -6899,7 +6896,7 @@
             },
           });
           let $data_regExpFlag =
-            panelHandlerComponents.createSectionContainerItem_select_multiple_new(data_regExpFlag_template);
+            panelHandlerComponents.createSectionContainerItem_select_multiple(data_regExpFlag_template);
           let data_replaceValue_template = UIInput(
             "映射为",
             "replaceValue",
@@ -7003,8 +7000,8 @@
           data.uuid = editData.uuid;
         }
         $ulist_li.forEach(($li) => {
-          let formConfig = Reflect.get($li, "__formConfig__");
-          let attrs = Reflect.get(formConfig, "attributes");
+          let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+          let attrs = Reflect.get(viewConfig, "attributes");
           let storageApi = Reflect.get($li, PROPS_STORAGE_API);
           let key = Reflect.get(attrs, ATTRIBUTE_KEY);
           let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
@@ -7020,11 +7017,11 @@
         $form.querySelectorAll(".rule-form-ulist-dynamic__inner-container").forEach(($inner) => {
           let dynamicData = {};
           $inner.querySelectorAll(".dynamic-forms > li").forEach(($li) => {
-            let formConfig = Reflect.get($li, "__formConfig__");
-            if (!formConfig) {
+            let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+            if (!viewConfig) {
               return;
             }
-            let attrs = Reflect.get(formConfig, "attributes");
+            let attrs = Reflect.get(viewConfig, "attributes");
             if (!attrs) {
               return;
             }
@@ -8730,7 +8727,7 @@
       domUtils.on(target, "click", ".netdiskrecord-functions button.btn-delete", function (event) {
         let $btnOther = target.querySelector(".pops-confirm-btn-other");
         let deleteLoading = NetDiskPops.loading({
-          parent: that.getLinkContainer(),
+          $parent: that.getLinkContainer(),
           content: {
             text: "删除中...",
           },
@@ -8788,7 +8785,7 @@
         }
         isSeaching = true;
         $searchLoading = NetDiskPops.loading({
-          parent: that.getLinkContainer(),
+          $parent: that.getLinkContainer(),
           content: {
             text: "搜索中...",
           },
@@ -10678,7 +10675,7 @@
       }
     },
     registerContextMenu(target, selector, showTextList = [], className = "whitesevSuspensionContextMenu") {
-      let data = [];
+      const data = [];
       showTextList.forEach((item) => {
         data.push({
           text: item.text,
@@ -10689,7 +10686,7 @@
         });
       });
       let detail = {
-        target,
+        $target: target,
         targetSelector: selector,
         data,
         isAnimation: false,
@@ -15195,7 +15192,7 @@
         return msgProp ?? msg;
       };
       __pops__.tooltip({
-        target: $netDiskStatus,
+        $target: $netDiskStatus,
         className: "github-tooltip",
         isFixed: true,
         content() {
@@ -16684,8 +16681,8 @@
           ownFormList: [
             {
               text: "其它配置",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UIInput(
                   "蓝奏云域名",
                   NetDiskParse_Lanzou_Config.MENU_KEY,
@@ -17310,9 +17307,9 @@
         },
         ownFormList: [
           {
-            type: "forms",
+            type: "container",
             text: "文件解析配置",
-            forms: [
+            views: [
               UIInput(
                 "<a target='_blank' href='https://github.com/qinlili23333/ctfileGet/'>解析站</a>",
                 "chengtong-parse-file-api-host",
@@ -17917,7 +17914,7 @@
           attributes: {
             "data-key": ruleKey,
           },
-          forms: viewConfig,
+          views: viewConfig,
           afterRender: (data) => {
             data.$asideLiElement.setAttribute(
               "data-function-enable",
@@ -18058,8 +18055,8 @@
         if (function_form.length) {
           formConfigList.push({
             text: "功能",
-            type: "forms",
-            forms: function_form,
+            type: "container",
+            views: function_form,
           });
         }
       }
@@ -18102,8 +18099,8 @@
         if (linkClickMode_openBlank_form.length) {
           formConfigList.push({
             text: "点击动作-新标签页打开",
-            type: "forms",
-            forms: linkClickMode_openBlank_form,
+            type: "container",
+            views: linkClickMode_openBlank_form,
           });
         }
       }
@@ -18172,9 +18169,9 @@
         if (schemeUri_form.length) {
           formConfigList.push({
             text: "Scheme Uri转发",
-            type: "forms",
+            type: "container",
             isFold: true,
-            forms: schemeUri_form,
+            views: schemeUri_form,
           });
         }
       }
@@ -18217,8 +18214,8 @@
         if (matchRange_text_form.length) {
           formConfigList.push({
             text: "提取码文本匹配Text",
-            type: "forms",
-            forms: matchRange_text_form,
+            type: "container",
+            views: matchRange_text_form,
           });
         }
       }
@@ -18261,8 +18258,8 @@
         if (matchRange_html_form.length) {
           formConfigList.push({
             text: "提取码文本匹配HTML",
-            type: "forms",
-            forms: matchRange_html_form,
+            type: "container",
+            views: matchRange_html_form,
           });
         }
       }
@@ -19103,15 +19100,15 @@
                   let panelStorageApi = generatePanelStorageApi(data.uuid);
                   Reflect.set(configItem.props, PROPS_STORAGE_API, panelStorageApi);
                 }
-                let childForms = configItem.forms;
-                if (childForms && Array.isArray(childForms)) {
-                  iterativeTraversal(childForms);
+                let childViews = configItem.views;
+                if (childViews && Array.isArray(childViews)) {
+                  iterativeTraversal(childViews);
                 }
               });
             }
             for (let index = 0; index < newPanelContentConfig.length; index++) {
               let leftContentConfigItem = newPanelContentConfig[index];
-              if (!leftContentConfigItem.forms) {
+              if (!leftContentConfigItem.views) {
                 continue;
               }
               if (
@@ -19134,7 +19131,7 @@
               }
               if (
                 typeof leftContentConfigItem.attributes === "object" &&
-                leftContentConfigItem.forms != null &&
+                leftContentConfigItem.views != null &&
                 ATTRIBUTE_KEY in leftContentConfigItem.attributes
               ) {
                 let ruleKey = leftContentConfigItem.attributes[ATTRIBUTE_KEY];
@@ -19164,16 +19161,16 @@
                 Reflect.set(custom_accessCode_template.props, PROPS_STORAGE_API, generatePanelStorageApi(data.uuid));
                 let custom_accessCode_container = {
                   text: "额外功能",
-                  type: "forms",
-                  forms: [custom_accessCode_enable_template, custom_accessCode_template],
+                  type: "container",
+                  views: [custom_accessCode_enable_template, custom_accessCode_template],
                 };
-                if (leftContentConfigItem.forms.length) {
-                  leftContentConfigItem.forms.splice(1, 0, custom_accessCode_container);
+                if (leftContentConfigItem.views.length) {
+                  leftContentConfigItem.views.splice(1, 0, custom_accessCode_container);
                 } else {
-                  leftContentConfigItem.forms.push(custom_accessCode_container);
+                  leftContentConfigItem.views.push(custom_accessCode_container);
                 }
               }
-              let rightContentConfigList = leftContentConfigItem.forms;
+              let rightContentConfigList = leftContentConfigItem.views;
               if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
                 iterativeTraversal(rightContentConfigList);
               }
@@ -19188,8 +19185,8 @@
                 btn: {
                   close: {
                     enable: true,
-                    callback(event2) {
-                      event2.close();
+                    callback(evtConfig) {
+                      evtConfig.close();
                     },
                   },
                 },
@@ -19238,8 +19235,8 @@
           }
         }
         $ulist_li.forEach(($li) => {
-          let formConfig = Reflect.get($li, "__formConfig__");
-          let attrs = Reflect.get(formConfig, "attributes");
+          let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+          let attrs = Reflect.get(viewConfig, "attributes");
           let storageApi = Reflect.get($li, PROPS_STORAGE_API);
           let key = Reflect.get(attrs, ATTRIBUTE_KEY);
           if (key == null) {
@@ -21023,20 +21020,20 @@
       title: "设置",
       headerTitle: "总设置",
       isDefault: true,
-      forms: [
+      views: [
         {
-          type: "forms",
+          type: "container",
           text: "",
-          forms: [
+          views: [
             {
               type: "deepMenu",
               text: "Toast",
-              forms: [
+              views: [
                 {
-                  type: "forms",
+                  type: "container",
                   text: "",
                   className: "netdisk-panel-forms-toast",
-                  forms: [
+                  views: [
                     UISelect(
                       "位置",
                       NetDiskGlobalData.toast.position.KEY,
@@ -21125,12 +21122,12 @@
             {
               type: "deepMenu",
               text: "弹窗",
-              forms: [
+              views: [
                 {
                   className: "netdisk-panel-forms-pops",
-                  type: "forms",
+                  type: "container",
                   text: "",
-                  forms: [
+                  views: [
                     UISelect(
                       "动画",
                       NetDiskGlobalData.pops.popsAnimation.KEY,
@@ -21239,12 +21236,12 @@
             {
               type: "deepMenu",
               text: "文件弹窗",
-              forms: [
+              views: [
                 {
-                  type: "forms",
+                  type: "container",
                   text: "",
                   className: "netdisk-panel-forms-pops-folder",
-                  forms: [
+                  views: [
                     UISelect(
                       "排序名",
                       NetDiskGlobalData.popsFolder["pops-folder-sort-name"].KEY,
@@ -21290,11 +21287,11 @@
             {
               type: "deepMenu",
               text: "悬浮按钮",
-              forms: [
+              views: [
                 {
-                  type: "forms",
+                  type: "container",
                   text: "",
-                  forms: [
+                  views: [
                     UISlider(
                       "大小",
                       NetDiskGlobalData.suspension.size.KEY,
@@ -21391,11 +21388,11 @@
             {
               type: "deepMenu",
               text: "大/小链接弹窗",
-              forms: [
+              views: [
                 {
-                  type: "forms",
+                  type: "container",
                   text: "通用配置",
-                  forms: [
+                  views: [
                     UIInput(
                       "z-index",
                       NetDiskGlobalData.smallWindow["netdisk-link-view-z-index"].KEY,
@@ -21411,9 +21408,9 @@
                   ],
                 },
                 {
-                  type: "forms",
+                  type: "container",
                   text: "数据分页显示",
-                  forms: [
+                  views: [
                     UISwitch(
                       "启用",
                       NetDiskGlobalData.smallWindow["netdisk-ui-link-view-data-paging-enable"].KEY,
@@ -21433,10 +21430,10 @@
                   ],
                 },
                 {
-                  type: "forms",
+                  type: "container",
                   text: "小窗",
                   className: "netdisk-panel-forms-small-window",
-                  forms: [
+                  views: [
                     UISlider(
                       "宽度",
                       NetDiskGlobalData.smallWindow["netdisk-ui-small-window-width"].KEY,
@@ -21471,18 +21468,18 @@
           ],
         },
         {
-          type: "forms",
+          type: "container",
           text: "",
-          forms: [
+          views: [
             {
               type: "deepMenu",
               text: "功能",
-              forms: [
+              views: [
                 {
-                  type: "forms",
+                  type: "container",
                   text: "",
                   className: "netdisk-panel-forms-function",
-                  forms: [
+                  views: [
                     UISelect(
                       "匹配模式",
                       NetDiskGlobalData.features["netdisk-match-mode"].KEY,
@@ -21535,11 +21532,11 @@
             {
               type: "deepMenu",
               text: "匹配设置",
-              forms: [
+              views: [
                 {
-                  type: "forms",
+                  type: "container",
                   text: "文本匹配范围",
-                  forms: [
+                  views: [
                     UISelectMultiple(
                       "匹配规则类型",
                       NetDiskGlobalData.match.pageMatchRange.KEY,
@@ -21606,9 +21603,9 @@
                   ],
                 },
                 {
-                  type: "forms",
+                  type: "container",
                   text: "MutationObserver观察器",
-                  forms: [
+                  views: [
                     UISlider(
                       "匹配间隔",
                       NetDiskGlobalData.match.delaytime.KEY,
@@ -21657,11 +21654,11 @@
             {
               type: "deepMenu",
               text: "网盘图标",
-              forms: [
+              views: [
                 {
-                  type: "forms",
+                  type: "container",
                   text: "",
-                  forms: [
+                  views: [
                     UISwitch(
                       "点击定位分享码",
                       NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode"].KEY,
@@ -21692,12 +21689,12 @@
             {
               type: "deepMenu",
               text: "历史匹配记录",
-              forms: [
+              views: [
                 {
-                  type: "forms",
+                  type: "container",
                   text: "",
                   className: "netdisk-panel-history-match",
-                  forms: [
+                  views: [
                     UISwitch(
                       "保存匹配记录",
                       NetDiskGlobalData.historyMatch.saveMatchNetDisk.KEY,
@@ -21764,12 +21761,12 @@
             {
               type: "deepMenu",
               text: "分享码",
-              forms: [
+              views: [
                 {
-                  type: "forms",
+                  type: "container",
                   text: "",
                   className: "netdisk-panel-forms-share-code",
-                  forms: [
+                  views: [
                     UISwitch(
                       "排除分享码",
                       NetDiskGlobalData.shareCode.excludeIdenticalSharedCodes.KEY,
@@ -21797,12 +21794,12 @@
             {
               type: "deepMenu",
               text: "访问码",
-              forms: [
+              views: [
                 {
                   className: "netdisk-panel-forms-access-code",
                   text: "",
-                  type: "forms",
-                  forms: [
+                  type: "container",
+                  views: [
                     UISwitch(
                       "允许查询历史匹配记录",
                       NetDiskGlobalData.accessCode.allowQueryHistoryMatchingAccessCode.KEY,
@@ -21818,12 +21815,12 @@
               type: "deepMenu",
               className: "netdisk-panel-forms-shortcut-keys-deepMenu",
               text: "快捷键",
-              forms: [
+              views: [
                 {
                   className: "netdisk-panel-forms-shortcut-keys",
                   text: "",
-                  type: "forms",
-                  forms: [
+                  type: "container",
+                  views: [
                     UIButtonShortCut(
                       "【打开】⚙ 设置",
                       "",

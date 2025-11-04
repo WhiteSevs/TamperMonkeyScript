@@ -4,19 +4,19 @@ import { UISwitch } from "@components/setting/components/ui-switch";
 const SettingUIPC: PopsPanelContentConfig = {
   id: "jianshu-panel-config-pc",
   title: "桌面端",
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "功能",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("全文居中", "JianShuArticleCenter", true),
                 UISwitch("自动展开全文", "JianShuAutoExpandFullText", true),
                 UISwitch("重定向链接", "JianShuAutoJumpRedirect_PC", true, void 0, "自动跳转简书拦截的Url链接"),
@@ -27,11 +27,11 @@ const SettingUIPC: PopsPanelContentConfig = {
         {
           text: "屏蔽",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("【屏蔽】底部推荐阅读", "JianShuShieldRecommendedReading", false),
                 UISwitch("【屏蔽】评论区", "JianShuShieldUserComments", false),
                 UISwitch("【屏蔽】相关文章", "JianShuShieldRelatedArticles", false),
@@ -57,11 +57,11 @@ const SettingUIPC: PopsPanelContentConfig = {
         {
           text: "劫持/拦截",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [UISwitch("拦截-剪贴板", "JianShuRemoveClipboardHijacking", true, void 0, "去除禁止复制")],
+              type: "container",
+              views: [UISwitch("拦截-剪贴板", "JianShuRemoveClipboardHijacking", true, void 0, "去除禁止复制")],
             },
           ],
         },

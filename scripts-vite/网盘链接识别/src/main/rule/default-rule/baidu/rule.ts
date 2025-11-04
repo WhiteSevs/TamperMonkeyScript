@@ -59,8 +59,8 @@ export const NetDiskRule_baidu: NetDiskRuleOption = {
       // ownFormList: [
       // 	{
       // 		text: "第三方解析站",
-      // 		type: "forms",
-      // 		forms: [
+      // 		type: "container",
+      // 		views: [
       // 			UISwitch(
       // 				"启用解析站",
       // 				"baidu-static-enable",

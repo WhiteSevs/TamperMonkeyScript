@@ -13,30 +13,30 @@ const SettingUIBangumi: PopsPanelContentConfig = {
   isDefault() {
     return BilibiliRouter.isBangumi();
   },
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "功能",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [UISwitch("固定缩放倍率", "bili-bangumi-initialScale", true, void 0, "")],
+              type: "container",
+              views: [UISwitch("固定缩放倍率", "bili-bangumi-initialScale", true, void 0, "")],
             },
           ],
         },
         {
           text: "ArtPlayer播放器",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "控件设置",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISlider(
                   "controls左右边距",
                   "bili-bangumi-artplayer-controlsPadding-left-right",
@@ -54,8 +54,8 @@ const SettingUIBangumi: PopsPanelContentConfig = {
             },
             {
               text: "插件",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("弹幕", "artplayer-plugin-bangumi-danmaku-enable", true, void 0, "哔哩哔哩 (゜-゜)つロ 干杯~"),
                 UISwitch(
                   "Dash Audio Support",
@@ -103,8 +103,8 @@ const SettingUIBangumi: PopsPanelContentConfig = {
             },
             {
               text: "解除区域限制",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("解锁番剧限制", "bili-bangumi-unlockAreaLimit", false, void 0, "使用户可以观看区域外版权番剧"),
                 UISwitch(
                   "生成简中字幕",
@@ -117,8 +117,8 @@ const SettingUIBangumi: PopsPanelContentConfig = {
             },
             {
               text: "加速CDN设置（dash）",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISelect(
                   "视频-UPOS服务器设置",
                   "bili-bangumi-uposServerSelect",
@@ -165,8 +165,8 @@ const SettingUIBangumi: PopsPanelContentConfig = {
             },
             {
               text: "<a href='https://github.com/yujincheng08/BiliRoaming/wiki/%E5%85%AC%E5%85%B1%E8%A7%A3%E6%9E%90%E6%9C%8D%E5%8A%A1%E5%99%A8' target='_blank'>解析服务器</a>",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UIInput(
                   "中国大陆",
                   "bili-bangumi-proxyApiServer-default",
@@ -206,11 +206,11 @@ const SettingUIBangumi: PopsPanelContentConfig = {
         {
           text: "覆盖点击事件",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   "【选集】",
                   "bili-bangumi-cover-clicl-event-chooseEp",
@@ -239,11 +239,11 @@ const SettingUIBangumi: PopsPanelContentConfig = {
         {
           text: "劫持/拦截",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [UISwitch("阻止调用App", "bili-bangumi-hook-callApp", true, void 0, "")],
+              type: "container",
+              views: [UISwitch("阻止调用App", "bili-bangumi-hook-callApp", true, void 0, "")],
             },
           ],
         },

@@ -4,11 +4,11 @@ import { UISwitch } from "@components/setting/components/ui-switch";
 export const SettingUISearch: PopsPanelContentConfig = {
   id: "weibo-panel-config-u",
   title: "搜索",
-  forms: [
+  views: [
     {
       text: "功能",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISwitch("自动聚焦搜索框", "weibo-search-autoFocusSearchInput", void 0),
         UISwitch(
           "新增【新标签页打开】按钮",

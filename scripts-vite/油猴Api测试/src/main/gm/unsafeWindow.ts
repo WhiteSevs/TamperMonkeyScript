@@ -1,7 +1,4 @@
-import type {
-  PopsPanelContentConfig,
-  PopsPanelFormsTotalDetails,
-} from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { ApiTestBase } from "../base/ApiTestBase";
 import { monkeyWindow, unsafeWindow } from "ViteGM";
 import { StorageApi } from "../StorageApi";
@@ -10,6 +7,7 @@ import { UIInfo } from "@/setting/components/ui-info";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
+import type { PopsPanelContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-container";
 
 export class ApiTest_unsafeWindow extends ApiAsyncTestBase {
   public getApiName() {
@@ -35,11 +33,11 @@ export class ApiTest_unsafeWindow extends ApiAsyncTestBase {
       clickCallback(data) {
         StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
       },
-      forms: [
+      views: [
         {
-          type: "forms",
+          type: "container",
           text: "函数测试",
-          forms: [
+          views: [
             UIInfo(() =>
               this.isSupport()
                 ? {
@@ -54,15 +52,15 @@ export class ApiTest_unsafeWindow extends ApiAsyncTestBase {
           ],
         },
         {
-          type: "forms",
+          type: "container",
           text: "功能测试",
-          forms: [],
+          views: [],
         },
       ],
     };
 
     if (this.isSupport()) {
-      ((result["forms"][1] as any).forms as PopsPanelFormsTotalDetails[]).push(
+      (<PopsPanelContainerConfig>result["views"][1]).views.push(
         UIInfo(() => {
           let key = "test-gm-window";
           let flag = monkeyWindow == unsafeWindow;

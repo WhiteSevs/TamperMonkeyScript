@@ -13,19 +13,19 @@ import { UIOwn } from "@components/setting/components/ui-own";
 export const PanelLiveConfig: PopsPanelContentConfig = {
   id: "panel-config-live",
   title: "直播",
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "功能",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "功能",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISelect<string>(
                   "清晰度",
                   "live-chooseQuality",
@@ -71,8 +71,8 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
             },
             {
               text: "视频区域背景色",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("启用", "live-bgColor-enable", false, void 0, "自定义视频背景色"),
                 UIOwn(
                   ($li) => {
@@ -116,20 +116,20 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
           text: "消息过滤器",
           type: "deepMenu",
           description: "包括：弹幕、聊天室",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("启用", "live-danmu-shield-rule-enable", false, void 0, "启用自定义的弹幕过滤规则"),
                 UISwitch("【屏蔽】送礼信息", "live-danmu-shield-gift", false, void 0, ""),
                 UISwitch("【屏蔽】福袋口令", "live-danmu-shield-lucky-bag", false, void 0, ""),
               ],
             },
             {
-              type: "forms",
+              type: "container",
               text: "聊天室",
-              forms: [
+              views: [
                 UISwitch(
                   "【屏蔽】xxx 为主播加了 xx分",
                   "live-message-shield-biz_scene-common_text_game_score",
@@ -141,9 +141,9 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
               ],
             },
             {
-              type: "forms",
+              type: "container",
               text: "",
-              forms: [
+              views: [
                 UIOwn(($li: HTMLLIElement) => {
                   const $textareaWrapper = DOMUtils.createElement(
                     "div",
@@ -175,11 +175,11 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
         {
           text: "自定义快捷键",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UIButtonShortCut(
                   "【屏蔽】聊天室",
                   "",
@@ -215,11 +215,11 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
           type: "deepMenu",
           text: "禁用抖音快捷键",
           afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-          forms: [
+          views: [
             {
-              type: "forms",
+              type: "container",
               text: AutoOpenOrClose.text,
-              forms: [
+              views: [
                 UISwitch("三屏画面", "dy-live-threeScreen", false, void 0, "S"),
                 UISwitch("刷新", "dy-live-refresh", false, void 0, "E"),
                 UISwitch("屏幕旋转", "dy-live-screenRotation", false, void 0, "D"),
@@ -233,17 +233,17 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
     },
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "布局屏蔽-视频区域内",
           type: "deepMenu",
           afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-          forms: [
+          views: [
             {
               text: AutoOpenOrClose.text,
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   "【屏蔽】顶栏信息",
                   "live-shieldTopToolBarInfo",
@@ -266,9 +266,9 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
               ],
             },
             {
-              type: "forms",
+              type: "container",
               text: "右键菜单",
-              forms: [
+              views: [
                 UISwitch(
                   "【屏蔽】下载客户端",
                   "dy-live-blockVideoRightMenu-downloadClient",
@@ -284,11 +284,11 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
           text: "布局屏蔽-聊天室",
           type: "deepMenu",
           afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-          forms: [
+          views: [
             {
               text: AutoOpenOrClose.text,
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("【屏蔽】聊天室", "live-shieldChatRoom", false, void 0, "屏蔽元素"),
                 UISwitch("【屏蔽】贵宾席", "live-shielChatRoomVipSeats", false, void 0, "屏蔽元素"),
                 UISwitch("【屏蔽】用户等级图标", "dy-live-shieldUserLevelIcon", false, void 0, "屏蔽元素"),

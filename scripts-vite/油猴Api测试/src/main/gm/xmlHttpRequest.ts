@@ -4,11 +4,11 @@ import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/compo
 import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { UIInfo } from "@/setting/components/ui-info";
-import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
 import { DOMUtils } from "@/env";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
+import type { PopsPanelContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-container";
 
 export class ApiTest_xmlHttpRequest extends ApiAsyncTestBase {
   public isSupport() {
@@ -39,11 +39,11 @@ export class ApiTest_xmlHttpRequest extends ApiAsyncTestBase {
       clickCallback(data) {
         StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
       },
-      forms: [
+      views: [
         {
-          type: "forms",
+          type: "container",
           text: "函数测试",
-          forms: [
+          views: [
             UIInfo(() =>
               this.isSupport()
                 ? {
@@ -69,14 +69,14 @@ export class ApiTest_xmlHttpRequest extends ApiAsyncTestBase {
           ],
         },
         {
-          type: "forms",
+          type: "container",
           text: "功能测试",
-          forms: [],
+          views: [],
         },
       ],
     };
     if (this.isSupport()) {
-      ((result["forms"][1] as any).forms as PopsPanelFormsTotalDetails[]).push(
+      (<PopsPanelContainerConfig>result["views"][1]).views.push(
         UIInfo(() => {
           try {
             return {

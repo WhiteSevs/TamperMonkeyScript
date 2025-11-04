@@ -6,11 +6,11 @@ import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components
 export const SettingUICommon: PopsPanelContentConfig = {
   id: "jianshu-panel-common",
   title: "通用",
-  forms: [
+  views: [
     {
       text: "Toast配置",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         UISelect(
           "Toast位置",
           "qmsg-config-position",

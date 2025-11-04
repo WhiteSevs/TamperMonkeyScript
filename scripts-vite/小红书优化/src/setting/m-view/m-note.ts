@@ -4,19 +4,19 @@ import { UISwitch } from "@components/setting/components/ui-switch";
 const MSettingUI_Notes: PopsPanelContentConfig = {
   id: "little-red-book-panel-config-note",
   title: "笔记",
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "视频笔记",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   "优化视频描述",
                   "little-red-book-optimizeVideoNoteDesc",
@@ -34,16 +34,16 @@ const MSettingUI_Notes: PopsPanelContentConfig = {
     },
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "功能",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   "优化评论浏览",
                   "little-red-book-optimizeCommentBrowsing",
@@ -60,11 +60,11 @@ const MSettingUI_Notes: PopsPanelContentConfig = {
         {
           text: "劫持/拦截",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch(
                   "劫持webpack-弹窗",
                   "little-red-book-hijack-webpack-mask",

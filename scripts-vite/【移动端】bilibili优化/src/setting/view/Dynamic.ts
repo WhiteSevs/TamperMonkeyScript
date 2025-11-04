@@ -8,19 +8,19 @@ export const SettingUIDynamic: PopsPanelContentConfig = {
   isDefault() {
     return BilibiliRouter.isDynamic();
   },
-  forms: [
+  views: [
     {
       text: "",
-      type: "forms",
-      forms: [
+      type: "container",
+      views: [
         {
           text: "覆盖点击事件",
           type: "deepMenu",
-          forms: [
+          views: [
             {
               text: "",
-              type: "forms",
-              forms: [
+              type: "container",
+              views: [
                 UISwitch("话题", "bili-dynamic-cover-topicJump", true, void 0, "点击话题正确跳转"),
                 UISwitch(
                   "header用户",

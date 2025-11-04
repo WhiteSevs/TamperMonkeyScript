@@ -1,7 +1,7 @@
-import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-forms";
+import { PopsPanelContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-container";
 import type {
   PopsPanelContentConfig,
-  PopsPanelFormsTotalDetails,
+  PopsPanelViewConfig,
 } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { NetDiskRule_baidu } from "./default-rule/baidu/rule";
 import { NetDiskRule_lanzou } from "./default-rule/lanzou/rule";
@@ -168,7 +168,7 @@ export const NetDiskRule = {
         attributes: {
           "data-key": ruleKey,
         },
-        forms: viewConfig,
+        views: viewConfig,
         afterRender: (data) => {
           data.$asideLiElement.setAttribute(
             "data-function-enable",
@@ -231,9 +231,9 @@ export const NetDiskRule = {
     rule: NetDiskMatchRuleConfig[];
     setting: NetDiskRuleSetting;
     isUserRule?: boolean;
-  }): (PopsPanelFormsDetails | PopsPanelFormsTotalDetails)[] {
+  }): (PopsPanelContainerConfig | PopsPanelViewConfig)[] {
     // 处理配置项信息
-    let formConfigList: (PopsPanelFormsDetails | PopsPanelFormsTotalDetails)[] = [];
+    let formConfigList: (PopsPanelContainerConfig | PopsPanelViewConfig)[] = [];
     const settingConfig = netDiskRuleConfig.setting.configurationInterface;
     const ruleKey = netDiskRuleConfig.setting.key;
     if (settingConfig == null) {
@@ -242,7 +242,7 @@ export const NetDiskRule = {
     }
     if (settingConfig.function) {
       // 功能
-      let function_form: PopsPanelFormsTotalDetails[] = [];
+      let function_form: PopsPanelViewConfig[] = [];
       if ("enable" in settingConfig.function) {
         let default_value = typeof settingConfig.function.enable === "boolean" ? settingConfig.function.enable : false;
         function_form.push(
@@ -350,14 +350,14 @@ export const NetDiskRule = {
       if (function_form.length) {
         formConfigList.push({
           text: "功能",
-          type: "forms",
-          forms: function_form,
+          type: "container",
+          views: function_form,
         });
       }
     }
     if (settingConfig.linkClickMode_openBlank) {
       // 点击动作-新标签页打开
-      let linkClickMode_openBlank_form: PopsPanelFormsTotalDetails[] = [];
+      let linkClickMode_openBlank_form: PopsPanelViewConfig[] = [];
       if ("openBlankAutoFilleAccessCode" in settingConfig.linkClickMode_openBlank) {
         const default_value =
           typeof settingConfig.linkClickMode_openBlank.openBlankAutoFilleAccessCode === "boolean"
@@ -397,13 +397,13 @@ export const NetDiskRule = {
       if (linkClickMode_openBlank_form.length) {
         formConfigList.push({
           text: "点击动作-新标签页打开",
-          type: "forms",
-          forms: linkClickMode_openBlank_form,
+          type: "container",
+          views: linkClickMode_openBlank_form,
         });
       }
     }
     if (settingConfig.schemeUri) {
-      const schemeUri_form: PopsPanelFormsTotalDetails[] = [];
+      const schemeUri_form: PopsPanelViewConfig[] = [];
       if ("enable" in settingConfig.schemeUri) {
         const default_value =
           typeof settingConfig.schemeUri.enable === "boolean" ? settingConfig.schemeUri.enable : false;
@@ -471,15 +471,15 @@ export const NetDiskRule = {
       if (schemeUri_form.length) {
         formConfigList.push({
           text: "Scheme Uri转发",
-          type: "forms",
+          type: "container",
           isFold: true,
-          forms: schemeUri_form,
+          views: schemeUri_form,
         });
       }
     }
 
     if (settingConfig.matchRange_text) {
-      let matchRange_text_form: PopsPanelFormsTotalDetails[] = [];
+      let matchRange_text_form: PopsPanelViewConfig[] = [];
       if ("before" in settingConfig.matchRange_text) {
         const default_value =
           typeof settingConfig.matchRange_text.before === "number" ? settingConfig.matchRange_text.before : 0;
@@ -520,13 +520,13 @@ export const NetDiskRule = {
       if (matchRange_text_form.length) {
         formConfigList.push({
           text: "提取码文本匹配Text",
-          type: "forms",
-          forms: matchRange_text_form,
+          type: "container",
+          views: matchRange_text_form,
         });
       }
     }
     if (settingConfig.matchRange_html) {
-      let matchRange_html_form: PopsPanelFormsTotalDetails[] = [];
+      let matchRange_html_form: PopsPanelViewConfig[] = [];
       if ("before" in settingConfig.matchRange_html) {
         const default_value =
           typeof settingConfig.matchRange_html.before === "number" ? settingConfig.matchRange_html.before : 0;
@@ -568,8 +568,8 @@ export const NetDiskRule = {
       if (matchRange_html_form.length) {
         formConfigList.push({
           text: "提取码文本匹配HTML",
-          type: "forms",
-          forms: matchRange_html_form,
+          type: "container",
+          views: matchRange_html_form,
         });
       }
     }
