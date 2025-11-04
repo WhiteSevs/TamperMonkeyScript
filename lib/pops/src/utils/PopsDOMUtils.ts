@@ -237,7 +237,7 @@ class PopsDOMUtilsEvent {
        */
       function domUtilsEventCallBack(event: Event) {
         if (selectorList.length) {
-          /* 存在子元素选择器 */
+          // 存在子元素选择器
           // 这时候的this和target都是子元素选择器的元素
           let eventTarget = listenerOption.isComposedPath
             ? (event.composedPath()[0] as HTMLElement)
@@ -251,10 +251,10 @@ class PopsDOMUtilsEvent {
           const findValue = selectorList.find((selectorItem) => {
             // 判断目标元素是否匹配选择器
             if (DOMUtilsContext.matches(eventTarget, selectorItem)) {
-              /* 当前目标可以被selector所匹配到 */
+              // 当前目标可以被selector所匹配到
               return true;
             }
-            /* 在上层与主元素之间寻找可以被selector所匹配到的 */
+            // 在上层与主元素之间寻找可以被selector所匹配到的
             const $closestMatches = DOMUtilsContext.closest<HTMLElement>(eventTarget, selectorItem);
             if ($closestMatches && totalParent?.contains($closestMatches)) {
               eventTarget = $closestMatches;
@@ -283,14 +283,14 @@ class PopsDOMUtilsEvent {
         }
       }
 
-      /* 遍历事件名设置元素事件 */
+      // 遍历事件名设置元素事件
       eventTypeList.forEach((eventName) => {
         elementItem.addEventListener(eventName, domUtilsEventCallBack, listenerOption);
-        /* 获取对象上的事件 */
+        // 获取对象上的事件
         const elementEvents: {
           [k: string]: PopsDOMUtilsEventListenerOptionsAttribute[];
         } = Reflect.get(elementItem, SymbolEvents) || {};
-        /* 初始化对象上的xx事件 */
+        // 初始化对象上的xx事件
         elementEvents[eventName] = elementEvents[eventName] || [];
         elementEvents[eventName].push({
           selector: selectorList,
@@ -298,7 +298,7 @@ class PopsDOMUtilsEvent {
           callback: domUtilsEventCallBack,
           originCallBack: listenerCallBack,
         });
-        /* 覆盖事件 */
+        // 覆盖事件
         Reflect.set(elementItem, SymbolEvents, elementEvents);
       });
     });
@@ -513,7 +513,7 @@ class PopsDOMUtilsEvent {
       ) => boolean;
     }
     elementList.forEach((elementItem) => {
-      /* 获取对象上的事件 */
+      // 获取对象上的事件
       const elementEvents: {
         [key: string]: PopsDOMUtilsEventListenerOptionsAttribute[];
       } = Reflect.get(elementItem, SymbolEvents) || {};
@@ -550,7 +550,7 @@ class PopsDOMUtilsEvent {
           }
         }
         if (handlers.length === 0) {
-          /* 如果没有任意的handler，那么删除该属性 */
+          // 如果没有任意的handler，那么删除该属性
           popsUtils.delete(elementEvents, eventType);
         }
       });
@@ -689,10 +689,10 @@ class PopsDOMUtilsEvent {
       }
     }
     if (checkDOMReadyState()) {
-      /* 检查document状态 */
+      // 检查document状态
       popsUtils.setTimeout(callback, 0);
     } else {
-      /* 添加监听 */
+      // 添加监听
       addDomReadyListener();
     }
   }
@@ -777,7 +777,7 @@ class PopsDOMUtilsEvent {
     }
 
     elementList.forEach((elementItem) => {
-      /* 获取对象上的事件 */
+      // 获取对象上的事件
       const events = elementItem[SymbolEvents] || {};
       eventTypeList.forEach((_eventType_) => {
         let event: Event = null as any;
@@ -1046,20 +1046,20 @@ class PopsDOMUtilsEvent {
     capture?: boolean
   ): boolean | undefined {
     function stopEvent(event: Event) {
-      /* 阻止事件的默认行为发生。例如，当点击一个链接时，浏览器会默认打开链接的URL */
+      // 阻止事件的默认行为发生。例如，当点击一个链接时，浏览器会默认打开链接的URL
       event?.preventDefault();
-      /* 停止事件的传播，阻止它继续向更上层的元素冒泡，事件将不会再传播给其他的元素 */
+      // 停止事件的传播，阻止它继续向更上层的元素冒泡，事件将不会再传播给其他的元素
       event?.stopPropagation();
-      /* 阻止事件传播，并且还能阻止元素上的其他事件处理程序被触发 */
+      // 阻止事件传播，并且还能阻止元素上的其他事件处理程序被触发
       event?.stopImmediatePropagation();
       return false;
     }
     if (arguments.length === 1) {
-      /* 直接阻止事件 */
+      // 直接阻止事件
       // eslint-disable-next-line prefer-rest-params
       return stopEvent(arguments[0]);
     } else {
-      /* 添加对应的事件来阻止触发 */
+      // 添加对应的事件来阻止触发
       if (typeof eventNameList === "string") {
         eventNameList = [eventNameList];
       }
@@ -1354,7 +1354,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
       return PopsCore.window.document.documentElement.clientWidth;
     }
     if ((element as HTMLElement).nodeType === 9) {
-      /* Document文档节点 */
+      // Document文档节点
       element = element as Document;
       return Math.max(
         element.body.scrollWidth,
@@ -1365,15 +1365,15 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
       );
     }
     if (isShow || (!isShow && popsDOMUtils.isShow(element as HTMLElement))) {
-      /* 已显示 */
-      /* 不从style中获取对应的宽度，因为可能使用了class定义了width !important */
+      // 已显示
+      // 不从style中获取对应的宽度，因为可能使用了class定义了width !important
       element = element as HTMLElement;
-      /* 如果element.style.width为空  则从css里面获取是否定义了width信息如果定义了 则读取css里面定义的宽度width */
+      // 如果element.style.width为空  则从css里面获取是否定义了width信息如果定义了 则读取css里面定义的宽度width
       if (parseFloat(popsDOMUtils.getStyleValue(element, "width").toString()) > 0) {
         return parseFloat(popsDOMUtils.getStyleValue(element, "width").toString());
       }
 
-      /* 如果从css里获取到的值不是大于0  可能是auto 则通过offsetWidth来进行计算 */
+      // 如果从css里获取到的值不是大于0  可能是auto 则通过offsetWidth来进行计算
       if (element.offsetWidth > 0) {
         const borderLeftWidth = popsDOMUtils.getStyleValue(element, "borderLeftWidth");
         const borderRightWidth = popsDOMUtils.getStyleValue(element, "borderRightWidth");
@@ -1389,7 +1389,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
       }
       return 0;
     } else {
-      /* 未显示 */
+      // 未显示
       element = element as HTMLElement;
       const { cloneNode, recovery } = popsDOMUtils.showElement(element, parent);
       const width = DOMUtilsContext.width(cloneNode, true, parent);
@@ -1439,7 +1439,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
     }
     if ((element as Document).nodeType === 9) {
       element = element as Document;
-      /* Document文档节点 */
+      // Document文档节点
       return Math.max(
         element.body.scrollHeight,
         element.documentElement.scrollHeight,
@@ -1450,14 +1450,14 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
     }
     if (isShow || (!isShow && popsDOMUtils.isShow(element as HTMLElement))) {
       element = element as HTMLElement;
-      /* 已显示 */
-      /* 从style中获取对应的高度，因为可能使用了class定义了width !important */
-      /* 如果element.style.height为空  则从css里面获取是否定义了height信息如果定义了 则读取css里面定义的高度height */
+      // 已显示
+      // 从style中获取对应的高度，因为可能使用了class定义了width !important
+      // 如果element.style.height为空  则从css里面获取是否定义了height信息如果定义了 则读取css里面定义的高度height
       if (parseFloat(popsDOMUtils.getStyleValue(element, "height").toString()) > 0) {
         return parseFloat(popsDOMUtils.getStyleValue(element, "height").toString());
       }
 
-      /* 如果从css里获取到的值不是大于0  可能是auto 则通过offsetHeight来进行计算 */
+      // 如果从css里获取到的值不是大于0  可能是auto 则通过offsetHeight来进行计算
       if (element.offsetHeight > 0) {
         const borderTopWidth = popsDOMUtils.getStyleValue(element, "borderTopWidth");
         const borderBottomWidth = popsDOMUtils.getStyleValue(element, "borderBottomWidth");
@@ -1473,7 +1473,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
       }
       return 0;
     } else {
-      /* 未显示 */
+      // 未显示
       element = element as HTMLElement;
       const { cloneNode, recovery } = popsDOMUtils.showElement(element, parent);
       const height = DOMUtilsContext.height(cloneNode, true, parent);
@@ -1809,10 +1809,10 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
     Object.keys(attributes).forEach((key) => {
       let value = attributes[key];
       if (typeof value === "object") {
-        /* object转字符串 */
+        // object转字符串
         value = JSON.stringify(value);
       } else if (typeof value === "function") {
-        /* function转字符串 */
+        // function转字符串
         value = value.toString();
       }
       $temp.setAttribute(key, value);
@@ -1825,7 +1825,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
    * @returns
    */
   parseTextToDOM<R extends HTMLElement>(elementString: string): R {
-    /* 去除前后的换行和空格 */
+    // 去除前后的换行和空格
     elementString = elementString.replace(/^[\n|\s]*/g, "").replace(/[\n|\s]*$/g, "");
     const targetElement = this.createElement("div", {
       innerHTML: elementString,
@@ -2087,7 +2087,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
       }
     }
     if (Array.isArray(content) || content instanceof NodeList) {
-      /* 数组 */
+      // 数组
       const fragment = PopsCore.document.createDocumentFragment();
       content.forEach((ele) => {
         if (typeof ele === "string") {
@@ -2176,7 +2176,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
     let view = null;
     let styles = null;
     if (element instanceof CSSStyleDeclaration) {
-      /* 直接就获取了style属性 */
+      // 直接就获取了style属性
       styles = element;
     } else {
       view = element.ownerDocument.defaultView;

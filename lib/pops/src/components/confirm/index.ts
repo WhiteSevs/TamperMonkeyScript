@@ -6,17 +6,18 @@ import type { PopsType } from "../../types/main";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { popsUtils } from "../../utils/PopsUtils";
-import { PopsConfirmConfig } from "./config";
-import type { PopsConfirmDetails } from "./types";
+import { PopsConfirmDefaultConfig } from "./defaultConfig";
+import type { PopsConfirmConfig } from "./types";
 
 export const PopsConfirm = {
-  init(details: PopsConfirmDetails) {
+  init(__config__: PopsConfirmConfig) {
     const guid = popsUtils.getRandomGUID();
     // 设置当前类型
     const popsType: PopsType = "confirm";
-    let config = PopsConfirmConfig();
+
+    let config = PopsConfirmDefaultConfig();
     config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-    config = popsUtils.assign(config, details);
+    config = popsUtils.assign(config, __config__);
     config = PopsHandler.handleOnly(popsType, config);
 
     const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
@@ -127,7 +128,7 @@ export const PopsConfirm = {
     PopsHandler.handleClickEvent("cancel", $btnCancel, evtConfig, config.btn.cancel.callback);
     PopsHandler.handleClickEvent("other", $btnOther, evtConfig, config.btn.other.callback);
 
-    /* 创建到页面中 */
+    // 创建到页面中
 
     popsDOMUtils.append($shadowRoot, $elList);
     if (typeof config.beforeAppendToPageCallBack === "function") {
@@ -140,16 +141,13 @@ export const PopsConfirm = {
     }
     PopsHandler.handlePush(popsType, {
       guid: guid,
-
-      animElement: $anim,
-
-      popsElement: $pops!,
-
-      maskElement: $mask!,
+      $anim: $anim,
+      $pops: $pops!,
+      $mask: $mask!,
       $shadowContainer: $shadowContainer,
       $shadowRoot: $shadowRoot,
     });
-    /* 拖拽 */
+    // 拖拽
     if (config.drag) {
       PopsInstanceUtils.drag($pops!, {
         dragElement: $title!,

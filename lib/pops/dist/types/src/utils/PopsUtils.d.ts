@@ -134,6 +134,10 @@ declare class PopsUtils {
      * 配合 .setInterval 使用
      */
     clearInterval(timeId: number | undefined): void;
+    /**
+     * 覆盖对象中的数组新值
+     */
+    setArray<T>(target: T, key: keyof T, newArr: any[]): void;
 }
 declare const popsUtils: PopsUtils;
 export { popsUtils };

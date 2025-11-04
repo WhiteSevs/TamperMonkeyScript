@@ -1,7 +1,4 @@
-import type { PopsEventConfig } from "../../types/event";
-import type { PopsIframeDetails } from "./types";
+import type { PopsIframeClickEventConfig, PopsIframeConfig } from "./types";
 export declare const PopsIframe: {
-    init(details: PopsIframeDetails): Omit<PopsEventConfig & {
-        iframeElement: HTMLIFrameElement;
-    }, "function" | "type">;
+    init(__config__: PopsIframeConfig): Omit<PopsIframeClickEventConfig, "function" | "type">;
 };

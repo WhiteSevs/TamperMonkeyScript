@@ -1,11 +1,11 @@
-import type { PopsCommonConfig, PopsDragConfig } from "../types/components";
+import type { PopsGeneralConfig, PopsDragConfig } from "../types/components";
 
 type EnterReturnType<T> = null | T | (() => T);
 
 type GlobalConfigOption = {
   style?: EnterReturnType<string>;
   zIndex?: EnterReturnType<number> | EnterReturnType<string>;
-} & Partial<PopsCommonConfig> &
+} & Partial<PopsGeneralConfig> &
   Partial<PopsDragConfig>;
 
 type ResultGlobalConfigOption<T> = T extends null | undefined ? never : T extends (...args: any) => infer R ? R : T;

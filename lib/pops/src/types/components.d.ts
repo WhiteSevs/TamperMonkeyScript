@@ -1,7 +1,7 @@
 import type { PopsAnimation } from "./animation";
 import type { PopsPosition, PopsTextAlign, PopsJustifyContent } from "./position";
-import type { PopsButtonDetails, PopsButtonDetailsAnyType, PopsHeaderCloseButtonDetails } from "./button";
-import type { PopsMaskDetails } from "./mask";
+import type { PopsGlobalButtonConfig, PopsButtonConfigAnyType, PopsHeaderCloseButtonConfig } from "./button";
+import type { PopsMaskConfig } from "./mask";
 
 /**
  * 标题配置
@@ -62,7 +62,7 @@ export interface PopsButtonConfig {
     /**
      * 右上角的关闭按钮
      */
-    close?: PopsHeaderCloseButtonDetails;
+    close?: PopsHeaderCloseButtonConfig;
   };
 }
 /**
@@ -88,15 +88,15 @@ export interface PopsMoreButtonConfig<T = object> {
     /**
      * 确定按钮
      */
-    ok?: Partial<PopsButtonDetails<T> | PopsButtonDetailsAnyType<T>>;
+    ok?: Partial<PopsGlobalButtonConfig<T> | PopsButtonConfigAnyType<T>>;
     /**
      * 取消按钮
      */
-    cancel?: Partial<PopsButtonDetails<T> | PopsButtonDetailsAnyType<T>>;
+    cancel?: Partial<PopsGlobalButtonConfig<T> | PopsButtonConfigAnyType<T>>;
     /**
      * 其他按钮
      */
-    other?: Partial<PopsButtonDetails<T> | PopsButtonDetailsAnyType<T>>;
+    other?: Partial<PopsGlobalButtonConfig<T> | PopsButtonConfigAnyType<T>>;
   };
 }
 /**
@@ -136,7 +136,7 @@ export interface PopsDragConfig {
 /**
  * 通用配置
  */
-export interface PopsCommonConfig {
+export interface PopsGeneralConfig {
   /**
    * 是否使用shadowRoot
    *
@@ -188,7 +188,7 @@ export interface PopsCommonConfig {
   /**
    * 遮罩层
    */
-  mask?: PopsMaskDetails;
+  mask?: PopsMaskConfig;
   /**
    * 是否禁用页面滚动
    *

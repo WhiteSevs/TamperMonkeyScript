@@ -1,16 +1,16 @@
-import type { PopsAlertDetails } from "../components/alert/types";
-import type { PopsConfirmDetails } from "../components/confirm/types";
-import type { PopsIframeDetails } from "../components/iframe/types";
+import type { PopsAlertConfig } from "../components/alert/types";
+import type { PopsConfirmConfig } from "../components/confirm/types";
+import type { PopsIframeConfig } from "../components/iframe/types";
 import type { PopsIconType } from "../types/icon";
 import type {
-  PopsSupportAnimDetails,
-  PopsSupportBottomBtnDetails,
-  PopsSupportContentDetails,
-  PopsSupportHeaderTitleDetails,
-  PopsSupportAnimDetailsType,
-  PopsSupportBottomBtnDetailsType,
-  PopsSupportContentDetailsType,
-  PopsSupportHeaderTitleDetailsType,
+  PopsSupportAnimConfig,
+  PopsSupportBottomButtonConfig,
+  PopsSupportContentConfig,
+  PopsSupportHeaderTitleConfig,
+  PopsSupportAnimConfigType,
+  PopsSupportBottomButtonConfigType,
+  PopsSupportContentConfigType,
+  PopsSupportHeaderTitleConfigType,
 } from "../types/main";
 import { PopsIcon } from "../PopsIcon";
 import { popsDOMUtils } from "../utils/PopsDOMUtils";
@@ -40,13 +40,13 @@ export const PopsElementHandler = {
    */
   createAnim(
     guid: string,
-    type: PopsSupportAnimDetailsType,
-    config: PopsSupportAnimDetails[keyof PopsSupportAnimDetails],
+    type: PopsSupportAnimConfigType,
+    config: PopsSupportAnimConfig[keyof PopsSupportAnimConfig],
     html = "",
     bottomBtnHTML = "",
     zIndex: number
   ) {
-    const __config = config as PopsAlertDetails;
+    const __config = config as PopsAlertConfig;
     let popsAnimStyle = "";
     let popsStyle = "";
     const popsPosition = __config.position || "";
@@ -76,22 +76,22 @@ export const PopsElementHandler = {
    * @param config
    */
   createHeader(
-    type: PopsSupportHeaderTitleDetailsType,
-    config: PopsSupportHeaderTitleDetails[keyof PopsSupportHeaderTitleDetails]
+    type: PopsSupportHeaderTitleConfigType,
+    config: PopsSupportHeaderTitleConfig[keyof PopsSupportHeaderTitleConfig]
   ): string {
     if (!config.btn) {
       return "";
     }
-    const confirm_config = config as PopsConfirmDetails;
+    const confirm_config = config as PopsConfirmConfig;
     if (type !== "iframe" && !confirm_config.btn?.close?.enable) {
       return "";
     }
     let resultHTML = "";
     // let btnStyle = "";
     let closeHTML = "";
-    const iframe_config = config as PopsIframeDetails;
+    const iframe_config = config as PopsIframeConfig;
     if (type === "iframe" && iframe_config.topRightButton?.trim() !== "") {
-      /* iframe的 */
+      // iframe的
       let topRightButtonHTML = "";
       iframe_config.topRightButton.split("|").forEach((item: string) => {
         // 最小化、最大化、窗口化、关闭按钮
@@ -124,8 +124,8 @@ export const PopsElementHandler = {
    * @param config 弹窗配置
    */
   createHeaderStyle(
-    type: PopsSupportHeaderTitleDetailsType,
-    config: PopsSupportHeaderTitleDetails[keyof PopsSupportHeaderTitleDetails]
+    type: PopsSupportHeaderTitleConfigType,
+    config: PopsSupportHeaderTitleConfig[keyof PopsSupportHeaderTitleConfig]
   ) {
     return {
       headerStyle: config?.title?.html ? config?.title?.style || "" : "",
@@ -138,14 +138,14 @@ export const PopsElementHandler = {
    * @param config
    */
   createBottom(
-    type: PopsSupportBottomBtnDetailsType,
-    config: Omit<PopsSupportBottomBtnDetails[keyof PopsSupportBottomBtnDetails], "content">
+    type: PopsSupportBottomButtonConfigType,
+    config: Omit<PopsSupportBottomButtonConfig[keyof PopsSupportBottomButtonConfig], "content">
   ): string {
     if (config.btn == null) {
       // 未设置btn参数
       return "";
     }
-    const confirm_config = config as Required<PopsConfirmDetails>;
+    const confirm_config = config as Required<PopsConfirmConfig>;
     if (!(config.btn?.ok?.enable || confirm_config.btn?.cancel?.enable || confirm_config.btn?.other?.enable)) {
       // 确定、取消、其它按钮都未启用直接返回
       return "";
@@ -164,7 +164,7 @@ export const PopsElementHandler = {
       btnStyle += "flex-direction: row-reverse;";
     }
     if (config.btn?.ok?.enable) {
-      /* 处理确定按钮的尺寸问题 */
+      // 处理确定按钮的尺寸问题
       let okButtonSizeClassName = "";
       if (config.btn.ok.size === "large") {
         okButtonSizeClassName = "pops-button-" + config.btn.ok.size;
@@ -196,7 +196,7 @@ export const PopsElementHandler = {
     }
 
     if (confirm_config.btn?.cancel?.enable) {
-      /* 处理取消按钮的尺寸问题 */
+      // 处理取消按钮的尺寸问题
       let cancelButtonSizeClassName = "";
 
       if (confirm_config.btn.cancel.size === "large") {
@@ -229,7 +229,7 @@ export const PopsElementHandler = {
     }
 
     if (confirm_config.btn?.other?.enable) {
-      /* 处理其它按钮的尺寸问题 */
+      // 处理其它按钮的尺寸问题
       let otherButtonSizeClassName = "";
 
       if (confirm_config.btn.other.size === "large") {
@@ -285,12 +285,11 @@ export const PopsElementHandler = {
    * @param config 弹窗配置
    */
   createContentStyle(
-    type: PopsSupportContentDetailsType,
-    config: PopsSupportContentDetails[keyof PopsSupportContentDetails]
+    type: PopsSupportContentConfigType,
+    config: PopsSupportContentConfig[keyof PopsSupportContentConfig]
   ) {
     return {
       contentStyle: (config?.content as any)?.html ? config?.content?.style || "" : "",
-
       contentPStyle: (config?.content as any)?.html ? "" : config?.content?.style || "",
     };
   },

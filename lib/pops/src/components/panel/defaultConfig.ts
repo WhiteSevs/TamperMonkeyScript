@@ -1,7 +1,7 @@
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
-import type { PopsPanelDetails } from "./types";
+import type { PopsPanelConfig } from "./types";
 
-export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
+export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
   return {
     title: {
       text: "默认标题",
@@ -14,18 +14,18 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
         id: "whitesev-panel-config-1",
         title: "菜单配置1",
         headerTitle: "菜单配置1",
-        isDefault: false,
+        isDefault: true,
         attributes: {
           "data-test": "test",
           "data-test-2": "test2",
         },
-        forms: [
+        views: [
           {
             className: "forms-1",
             text: "区域设置",
-            type: "forms",
+            type: "container",
             attributes: {},
-            forms: [
+            views: [
               {
                 className: "panel-switch",
                 text: "switch",
@@ -141,12 +141,12 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
         id: "whitesev-panel-config-2",
         title: "菜单配置2",
         headerTitle: "菜单配置2",
-        isDefault: true,
+        isDefault: false,
         attributes: {
           "data-value": "value",
           "data-value-2": "value2",
         },
-        forms: [
+        views: [
           {
             className: "panel-input",
             text: "input",
@@ -167,7 +167,6 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
             className: "panel-input-password",
             text: "input-password",
             type: "input",
-            // @ts-ignore
             props: {},
             attributes: {},
             getValue() {
@@ -184,7 +183,6 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
             className: "panel-textarea",
             text: "textarea",
             type: "textarea",
-            // @ts-ignore
             props: {},
             attributes: {},
             getValue() {
@@ -197,11 +195,10 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
             placeholder: "请输入内容",
           },
           {
-            className: "panel-select",
-            text: "select",
+            className: "panel-select-disabled",
+            text: "select-disabled",
             type: "select",
             disabled: true,
-            // @ts-ignore
             props: {},
             attributes: {},
             getValue() {
@@ -217,7 +214,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
                 disable() {
                   return false;
                 },
-                forms: [],
+                views: [],
               },
               {
                 value: "text",
@@ -225,7 +222,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
                 disable() {
                   return false;
                 },
-                forms: [],
+                views: [],
               },
               {
                 value: "html",
@@ -233,7 +230,90 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
                 disable() {
                   return false;
                 },
-                forms: [],
+                views: [],
+              },
+            ],
+          },
+          {
+            className: "panel-select-multiple-disabled",
+            type: "select-multiple",
+            text: "select-multiple-disabled",
+            disabled: true,
+            props: {},
+
+            attributes: {},
+            placeholder: "请至少选择一个选项",
+            getValue() {
+              return ["select-1", "select-2"];
+            },
+            callback(selectInfo) {
+              console.log(`select值改变，多选信息`, selectInfo);
+            },
+            clickCallBack(event, isSelectedInfo) {
+              console.log("点击", event, isSelectedInfo);
+            },
+            closeIconClickCallBack(event, data) {
+              console.log("点击关闭图标的事件", data);
+            },
+            data: [
+              {
+                value: "select-1",
+                text: "单选1",
+                isHTML: false,
+              },
+              {
+                value: "select-2",
+                text: "单选2",
+                isHTML: false,
+              },
+              {
+                value: "select-3",
+                text: "单选3",
+                isHTML: false,
+              },
+              {
+                value: "select-4",
+                text: "单选4",
+                isHTML: false,
+              },
+            ],
+          },
+          {
+            className: "panel-select",
+            text: "select",
+            type: "select",
+            props: {},
+            attributes: {},
+            getValue() {
+              return 50;
+            },
+            callback(event, isSelectedValue, isSelectedText) {
+              console.log(`select当前选项：${isSelectedValue}，当前选项文本：${isSelectedText}`);
+            },
+            data: [
+              {
+                value: "all",
+                text: "所有",
+                disable() {
+                  return false;
+                },
+                views: [],
+              },
+              {
+                value: "text",
+                text: "文本",
+                disable() {
+                  return false;
+                },
+                views: [],
+              },
+              {
+                value: "html",
+                text: "超文本",
+                disable() {
+                  return false;
+                },
+                views: [],
               },
             ],
           },
@@ -241,8 +321,6 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
             className: "panel-select-multiple",
             type: "select-multiple",
             text: "select-multiple",
-            disabled: true,
-            // @ts-ignore
             props: {},
 
             attributes: {},
@@ -307,9 +385,9 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
             ],
           },
           {
-            type: "forms",
+            type: "container",
             text: "deep菜单",
-            forms: [
+            views: [
               {
                 type: "deepMenu",
                 className: "panel-deepMenu",
@@ -317,20 +395,20 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
                 description: "二级菜单",
                 rightText: "自定义配置",
                 arrowRightIcon: true,
-                afterAddToUListCallBack(formConfig, container) {
-                  console.log(formConfig, container);
+                afterAddToUListCallBack(viewConfig, container) {
+                  console.log(viewConfig, container);
                 },
-                clickCallBack(event, formConfig) {
-                  console.log("进入子配置", event, formConfig);
+                clickCallBack(event, viewConfig) {
+                  console.log("进入子配置", event, viewConfig);
                 },
-                forms: [
+                views: [
                   {
                     className: "forms-1",
                     text: "区域设置",
-                    type: "forms",
+                    type: "container",
                     attributes: {},
                     props: {},
-                    forms: [
+                    views: [
                       {
                         className: "panel-switch",
                         text: "switch",
@@ -420,24 +498,24 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
                 description: "二级菜单",
                 rightText: "自定义配置",
                 arrowRightIcon: true,
-                afterAddToUListCallBack(formConfig, container) {
-                  console.log(formConfig, container);
+                afterAddToUListCallBack(viewConfig, container) {
+                  console.log(viewConfig, container);
                 },
-                clickCallBack(event, formConfig) {
-                  console.log("进入子配置", event, formConfig);
+                clickCallBack(event, viewConfig) {
+                  console.log("进入子配置", event, viewConfig);
                 },
-                forms: [],
+                views: [],
               },
             ],
           },
           {
-            type: "forms",
+            type: "container",
             isFold: true,
             text: "折叠菜单",
-            afterAddToUListCallBack(formConfig, container) {
-              console.log(formConfig, container);
+            afterAddToUListCallBack(viewConfig, container) {
+              console.log(viewConfig, container);
             },
-            forms: [
+            views: [
               {
                 className: "panel-switch",
                 text: "switch",
@@ -469,7 +547,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
         },
         // @ts-ignore
         props: {},
-        forms: [],
+        views: [],
         clickFirstCallback: function () {
           return false;
         },
@@ -484,7 +562,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
         },
         // @ts-ignore
         props: {},
-        forms: [],
+        views: [],
         clickFirstCallback: function () {
           return false;
         },

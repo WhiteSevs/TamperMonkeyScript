@@ -4,19 +4,20 @@ import { PopsHandler } from "../../handler/PopsHandler";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { popsUtils } from "../../utils/PopsUtils";
-import { PopsAlertConfig } from "./config";
+import { PopsAlertDefaultConfig } from "./defaultConfig";
 import type { PopsType } from "../../types/main";
-import type { PopsAlertDetails } from "./types";
+import type { PopsAlertConfig } from "./types";
 import { PopsCSS } from "../../PopsCSS";
 
 export const PopsAlert = {
-  init(details: PopsAlertDetails) {
+  init(__config__: PopsAlertConfig) {
     const guid = popsUtils.getRandomGUID();
     // 设置当前类型
     const popsType: PopsType = "alert";
-    let config = PopsAlertConfig();
+
+    let config = PopsAlertDefaultConfig();
     config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-    config = popsUtils.assign(config, details);
+    config = popsUtils.assign(config, __config__);
     config = PopsHandler.handleOnly(popsType, config);
 
     const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
@@ -93,7 +94,7 @@ export const PopsAlert = {
     /** 已创建的元素列表 */
     const $elList: HTMLElement[] = [$anim];
 
-    /* 遮罩层元素 */
+    // 遮罩层元素
 
     if (config.mask.enable) {
       const handleMask = PopsHandler.handleMask({
@@ -106,7 +107,7 @@ export const PopsAlert = {
       $mask = handleMask.maskElement;
       $elList.push($mask);
     }
-    /* 处理返回的配置 */
+    // 处理返回的配置
     const evtConfig = PopsHandler.handleEventConfig(
       config,
       guid,
@@ -117,12 +118,12 @@ export const PopsAlert = {
       $pops,
       $mask
     );
-    /* 为顶部右边的关闭按钮添加点击事件 */
+    // 为顶部右边的关闭按钮添加点击事件
     PopsHandler.handleClickEvent("close", $headerCloseBtn, evtConfig, config.btn.close?.callback);
-    /* 为底部ok按钮添加点击事件 */
+    // 为底部ok按钮添加点击事件
     PopsHandler.handleClickEvent("ok", btnOkElement, evtConfig, config.btn.ok?.callback);
 
-    /* 创建到页面中 */
+    // 创建到页面中
 
     popsDOMUtils.append($shadowRoot, $elList);
     if (typeof config.beforeAppendToPageCallBack === "function") {
@@ -134,19 +135,16 @@ export const PopsAlert = {
       // 添加遮罩层
       $anim.after($mask);
     }
-    /* 保存 */
+    // 保存
     PopsHandler.handlePush(popsType, {
       guid: guid,
-
-      animElement: $anim,
-
-      popsElement: $pops!,
-
-      maskElement: $mask!,
+      $anim: $anim,
+      $pops: $pops!,
+      $mask: $mask!,
       $shadowContainer: $shadowContainer,
       $shadowRoot: $shadowRoot,
     });
-    /* 拖拽 */
+    // 拖拽
     if (config.drag) {
       PopsInstanceUtils.drag($pops!, {
         dragElement: $title!,

@@ -1,18 +1,18 @@
-import type { PopsAlertDetails } from "../components/alert/types";
-import type { PopsConfirmDetails } from "../components/confirm/types";
-import type { PopsDrawerDetails } from "../components/drawer/types";
-import type { PopsFolderDetails } from "../components/folder/types";
-import type { PopsIframeDetails } from "../components/iframe/types";
-import type { PopsLoadingDetails } from "../components/loading/types";
-import type { PopsPanelDetails } from "../components/panel/types";
-import type { PopsPromptDetails } from "../components/prompt/types/index";
+import type { PopsAlertConfig } from "../components/alert/types";
+import type { PopsConfirmConfig } from "../components/confirm/types";
+import type { PopsDrawerConfig } from "../components/drawer/types";
+import type { PopsFolderConfig } from "../components/folder/types";
+import type { PopsIframeConfig } from "../components/iframe/types";
+import type { PopsLoadingConfig } from "../components/loading/types";
+import type { PopsPanelConfig } from "../components/panel/types";
+import type { PopsPromptConfig } from "../components/prompt/types/index";
 import { PopsCore } from "../PopsCore";
 import { PopsAnimation } from "../PopsAnimation";
 import { PopsInstData } from "../PopsInst";
-import type { PopsCommonConfig } from "../types/components";
+import type { PopsGeneralConfig } from "../types/components";
 import type { PopsEventConfig, PopsHandlerEventConfig } from "../types/event";
-import type { PopsInstCommonConfig } from "../types/inst";
-import type { PopsInstStoreType, PopsType, PopsSupportAnimDetailsType, PopsSupportOnlyDetails } from "../types/main";
+import type { PopsInstGeneralConfig } from "../types/inst";
+import type { PopsInstStoreType, PopsType, PopsSupportAnimConfigType, PopsSupportOnlyConfig } from "../types/main";
 import { popsDOMUtils } from "../utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "../utils/PopsInstanceUtils";
 import { popsUtils } from "../utils/PopsUtils";
@@ -21,7 +21,7 @@ export const PopsHandler = {
   /**
    * 创建shadow
    */
-  handlerShadow(config: Pick<PopsCommonConfig, "useShadowRoot">) {
+  handlerShadow(config: Pick<PopsGeneralConfig, "useShadowRoot">) {
     const $shadowContainer = popsDOMUtils.createElement("div", {
       className: "pops-shadow-container",
     });
@@ -110,12 +110,12 @@ export const PopsHandler = {
       type: "alert" | "confirm" | "prompt" | "loading" | "iframe" | "drawer" | "folder" | "panel";
       guid: string;
       config:
-        | Required<PopsAlertDetails>
-        | Required<PopsLoadingDetails>
-        | Required<PopsIframeDetails>
-        | Required<PopsDrawerDetails>
-        | Required<PopsPanelDetails>
-        | Required<PopsFolderDetails>;
+        | Required<PopsAlertConfig>
+        | Required<PopsLoadingConfig>
+        | Required<PopsIframeConfig>
+        | Required<PopsDrawerConfig>
+        | Required<PopsPanelConfig>
+        | Required<PopsFolderConfig>;
       animElement: HTMLElement;
       maskHTML: string;
     }
@@ -134,10 +134,10 @@ export const PopsHandler = {
       const targetInst = PopsInstData[config.type];
       function originalRun() {
         if (config.config.mask!.clickEvent!.toClose) {
-          /* 关闭 */
+          // 关闭
           return PopsInstanceUtils.close(config.config, config.type, targetInst, config.guid, config.animElement);
         } else if (config.config.mask!.clickEvent!.toHide) {
-          /* 隐藏 */
+          // 隐藏
           return PopsInstanceUtils.hide(
             config.config,
             config.type,
@@ -170,20 +170,20 @@ export const PopsHandler = {
             element.hasAttribute("anim")
         );
       }
-      /* 判断按下的元素是否是pops-anim */
+      // 判断按下的元素是否是pops-anim
       popsDOMUtils.on(config.animElement, ["touchstart", "mousedown"], void 0, (event) => {
         const $click = event.composedPath()[0] as HTMLElement;
         isMaskClick = isAnimElement($click);
       });
-      /* 如果有动画层，在动画层上监听点击事件 */
+      // 如果有动画层，在动画层上监听点击事件
       popsDOMUtils.on<MouseEvent | PointerEvent>(config.animElement, "click", void 0, (event) => {
         const $click = event.composedPath()[0] as HTMLElement;
         if (isAnimElement($click) && isMaskClick) {
           return clickEvent(event);
         }
       });
-      /* 在遮罩层监听点击事件 */
-      /* 如果有动画层，那么该点击事件触发不了 */
+      // 在遮罩层监听点击事件
+      // 如果有动画层，那么该点击事件触发不了
       popsDOMUtils.on<MouseEvent | PointerEvent>(result.maskElement, "click", void 0, (event) => {
         isMaskClick = true;
         clickEvent(event);
@@ -196,7 +196,7 @@ export const PopsHandler = {
    * @param animElement
    * @param type
    */
-  handleQueryElement(animElement: HTMLDivElement, type: PopsSupportAnimDetailsType) {
+  handleQueryElement(animElement: HTMLDivElement, type: PopsSupportAnimConfigType) {
     return {
       /**
        * 主元素
@@ -351,14 +351,14 @@ export const PopsHandler = {
    */
   handleEventConfig(
     config:
-      | PopsAlertDetails
-      | PopsDrawerDetails
-      | PopsPromptDetails
-      | PopsConfirmDetails
-      | PopsIframeDetails
-      | PopsLoadingDetails
-      | PopsPanelDetails
-      | PopsFolderDetails,
+      | PopsAlertConfig
+      | PopsDrawerConfig
+      | PopsPromptConfig
+      | PopsConfirmConfig
+      | PopsIframeConfig
+      | PopsLoadingConfig
+      | PopsPanelConfig
+      | PopsFolderConfig,
     guid: string,
     $shadowContainer: HTMLDivElement,
     $shadowRoot: ShadowRoot | HTMLElement,
@@ -398,14 +398,14 @@ export const PopsHandler = {
    */
   handleLoadingEventConfig(
     config:
-      | PopsAlertDetails
-      | PopsDrawerDetails
-      | PopsPromptDetails
-      | PopsConfirmDetails
-      | PopsIframeDetails
-      | PopsLoadingDetails
-      | PopsPanelDetails
-      | PopsFolderDetails,
+      | PopsAlertConfig
+      | PopsDrawerConfig
+      | PopsPromptConfig
+      | PopsConfirmConfig
+      | PopsIframeConfig
+      | PopsLoadingConfig
+      | PopsPanelConfig
+      | PopsFolderConfig,
     guid: string,
     mode: "loading",
     $anim: HTMLDivElement,
@@ -560,7 +560,7 @@ export const PopsHandler = {
    * @param type 当前弹窗类型
    * @param config 配置
    */
-  handleOnly<T extends Required<PopsSupportOnlyDetails[keyof PopsSupportOnlyDetails]>>(type: PopsType, config: T): T {
+  handleOnly<T extends Required<PopsSupportOnlyConfig[keyof PopsSupportOnlyConfig]>>(type: PopsType, config: T): T {
     if (config.only) {
       // .loading
       // .tooltip
@@ -602,7 +602,7 @@ export const PopsHandler = {
    * @param type 当前弹窗类型
    * @param value
    */
-  handlePush(type: PopsInstStoreType, value: PopsInstCommonConfig) {
+  handlePush(type: PopsInstStoreType, value: PopsInstGeneralConfig) {
     PopsInstData[type].push(value);
   },
 };

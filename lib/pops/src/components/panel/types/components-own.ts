@@ -1,10 +1,10 @@
-import type { PopsPanelCommonDetails } from "./components-common";
+import type { PopsPanelGeneralConfig } from "./components-common";
 
 /**
  * pops.panel的 own
  * 自定义的
  */
-export interface PopsPanelOwnDetails extends PopsPanelCommonDetails<PopsPanelOwnDetails> {
+export interface PopsPanelOwnConfig extends PopsPanelGeneralConfig<PopsPanelOwnConfig> {
   /**
    * 类型
    */

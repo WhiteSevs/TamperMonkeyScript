@@ -1,8 +1,12 @@
-import type { PopsPanelCommonDetails } from "./components-common";
+import type { PopsPanelGeneralConfig } from "./components-common";
 /**
  * pops.panel的 input
  */
-export interface PopsPanelInputDetails extends PopsPanelCommonDetails<PopsPanelInputDetails> {
+export interface PopsPanelInputConfig extends PopsPanelGeneralConfig<PopsPanelInputConfig> {
+    /**
+     * 类型
+     */
+    type: "input";
     /**
      * 显示在左边的文字
      */
@@ -12,10 +16,6 @@ export interface PopsPanelInputDetails extends PopsPanelCommonDetails<PopsPanelI
      * @default ""
      */
     description?: string;
-    /**
-     * 类型
-     */
-    type: "input";
     /**
      * （可选）是否禁用
      * @default false

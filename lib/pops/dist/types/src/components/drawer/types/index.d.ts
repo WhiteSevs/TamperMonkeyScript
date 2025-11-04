@@ -1,8 +1,8 @@
-import type { PopsTitleConfig, PopsContentConfig, PopsCommonConfig, PopsMoreButtonConfig } from "../../../types/components";
+import type { PopsTitleConfig, PopsContentConfig, PopsGeneralConfig, PopsMoreButtonConfig } from "../../../types/components";
 /**
  * pops.drawer
  */
-export interface PopsDrawerDetails extends PopsContentConfig, PopsMoreButtonConfig, Omit<PopsCommonConfig, "width" | "height" | "position" | "animation"> {
+export interface PopsDrawerConfig extends PopsContentConfig, PopsMoreButtonConfig, Omit<PopsGeneralConfig, "width" | "height" | "position" | "animation"> {
     /**
      * 标题
      */

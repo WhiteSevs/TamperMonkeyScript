@@ -8,19 +8,19 @@ import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import { PopsLoading } from "../loading";
-import { PopsFolderConfig } from "./config";
+import { PopsFolderDefaultConfig } from "./defaultConfig";
 import { Folder_ICON } from "./folderIcon";
-import type { PopsFolderDataConfig, PopsFolderDetails } from "./types";
+import type { PopsFolderDataConfig, PopsFolderConfig, PopsFolderDownloadOption } from "./types";
 
 export const PopsFolder = {
-  init(details: PopsFolderDetails) {
+  init(__config__: PopsFolderConfig) {
     const guid = popsUtils.getRandomGUID();
     // 设置当前类型
     const popsType: PopsType = "folder";
 
-    let config = PopsFolderConfig();
+    let config = PopsFolderDefaultConfig();
     config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-    config = popsUtils.assign(config, details);
+    config = popsUtils.assign(config, __config__);
     config = PopsHandler.handleOnly(popsType, config);
 
     const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
@@ -55,7 +55,7 @@ export const PopsFolder = {
       },
     ]);
 
-    /* 办公几件套 */
+    // 办公几件套
     Reflect.set(Folder_ICON, "docx", Folder_ICON.doc);
     Reflect.set(Folder_ICON, "rtf", Folder_ICON.doc);
     Reflect.set(Folder_ICON, "xlsx", Folder_ICON.xls);
@@ -63,7 +63,7 @@ export const PopsFolder = {
     Reflect.set(Folder_ICON, "dmg", Folder_ICON.ipa);
     Reflect.set(Folder_ICON, "json", Folder_ICON.js);
 
-    /* 压缩包 */
+    // 压缩包
     const zipIconList = [
       "rar",
       "7z",
@@ -83,13 +83,13 @@ export const PopsFolder = {
       "001",
     ];
 
-    /* 图片 */
+    // 图片
     const imageIconList = ["jpg", "jpeg", "ico", "webp"];
 
-    /* 代码语言 */
+    // 代码语言
     const codeLanguageIconList = ["htm", "py", "vue", "bat", "sh", "vbs", "java", "kt"];
 
-    /* Android安装包 */
+    // Android安装包
     const androidIconList = ["apk", "apkm", "xapk"];
 
     zipIconList.forEach((keyName) => {
@@ -105,8 +105,8 @@ export const PopsFolder = {
       Folder_ICON[keyName as keyof typeof Folder_ICON] = Folder_ICON.apk;
     });
 
-    if (details?.folder) {
-      Reflect.set(config, "folder", details.folder);
+    if (config?.folder) {
+      Reflect.set(config, "folder", config.folder);
     }
 
     // 先把z-index提取出来
@@ -269,7 +269,7 @@ export const PopsFolder = {
       $mask = handleMask.maskElement;
       $elList.push($mask);
     }
-    /* 事件 */
+    // 事件
     const evtConfig = PopsHandler.handleEventConfig(
       config,
       guid,
@@ -284,7 +284,7 @@ export const PopsFolder = {
     PopsHandler.handleClickEvent("ok", btnOkElement, evtConfig, config.btn.ok.callback);
     PopsHandler.handleClickEvent("cancel", btnCancelElement, evtConfig, config.btn.cancel.callback);
     PopsHandler.handleClickEvent("other", btnOtherElement, evtConfig, config.btn.other.callback);
-    /* 创建到页面中 */
+    // 创建到页面中
 
     popsDOMUtils.append($shadowRoot, $elList);
     if (typeof config.beforeAppendToPageCallBack === "function") {
@@ -299,15 +299,15 @@ export const PopsFolder = {
       init() {
         config.folder.sort();
         this.initFolderView(config.folder);
-        /* 将数据存到全部文件的属性_config_中 */
+        // 将数据存到全部文件的属性_config_中
 
-        const allFilesElement = folderFileListBreadcrumbPrimaryElement.querySelector<HTMLDivElement>(
+        const $allFiles = folderFileListBreadcrumbPrimaryElement.querySelector<HTMLDivElement>(
           ".pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:first-child"
         )!;
 
-        Reflect.set(allFilesElement, "_config_", config.folder);
-        /* 设置点击顶部的全部文件事件 */
-        popsDOMUtils.on<MouseEvent | PointerEvent>(allFilesElement, "click", (event) => {
+        Reflect.set($allFiles, "data-config", config.folder);
+        // 设置点击顶部的全部文件事件
+        popsDOMUtils.on<MouseEvent | PointerEvent>($allFiles, "click", (event) => {
           this.setBreadcrumbClickEvent(event, true, config.folder);
         });
         // 文件名的点击排序
@@ -343,7 +343,7 @@ export const PopsFolder = {
             capture: true,
           }
         );
-        /* 设置默认触发的arrow */
+        // 设置默认触发的arrow
         if (config.sort.name === "fileName") {
           popsDOMUtils.trigger(folderListSortFileNameElement, "click", {
             notChangeSortRule: true,
@@ -385,11 +385,11 @@ export const PopsFolder = {
         let fileType = "";
         let fileIcon = Folder_ICON.folder;
         if (isFolder) {
-          /* 文件夹 */
+          // 文件夹
           latestTime = "";
           fileSize = "";
         } else {
-          /* 文件 */
+          // 文件
           fileIcon = "";
           if (typeof latestTime === "number") {
             latestTime = popsUtils.formatTime(latestTime);
@@ -400,8 +400,7 @@ export const PopsFolder = {
           for (const keyName in Folder_ICON) {
             if (fileName.toLowerCase().endsWith("." + keyName)) {
               fileType = keyName;
-
-              fileIcon = (Folder_ICON as any)[keyName];
+              fileIcon = Reflect.get(Folder_ICON, keyName);
               break;
             }
           }
@@ -444,7 +443,7 @@ export const PopsFolder = {
 				`
         );
 
-        /* 存储原来的值 */
+        // 存储原来的值
         const __value__ = {
           fileName: origin_fileName,
           latestTime: origin_latestTime,
@@ -490,11 +489,11 @@ export const PopsFolder = {
         let fileType = "";
         let fileIcon = Folder_ICON.folder;
         if (isFolder) {
-          /* 文件夹 */
+          // 文件夹
           latestTime = "";
           fileSize = "";
         } else {
-          /* 文件 */
+          // 文件
           fileIcon = "";
           if (typeof latestTime === "number") {
             latestTime = popsUtils.formatTime(latestTime);
@@ -505,8 +504,7 @@ export const PopsFolder = {
           for (const keyName in Folder_ICON) {
             if (fileName.toLowerCase().endsWith("." + keyName)) {
               fileType = keyName;
-
-              fileIcon = (Folder_ICON as any)[keyName];
+              fileIcon = Reflect.get(Folder_ICON, keyName);
               break;
             }
           }
@@ -529,7 +527,7 @@ export const PopsFolder = {
 				</div>
 			`
         );
-        /* 存储原来的值 */
+        // 存储原来的值
         const __value__ = {
           fileName: origin_fileName,
           latestTime: origin_latestTime,
@@ -564,13 +562,16 @@ export const PopsFolder = {
        * @param folderName 文件夹名
        * @param folderDataConfig 文件夹配置
        */
-      createBreadcrumb(folderName: string, folderDataConfig: PopsFolderDataConfig) {
+      createBreadcrumb(
+        folderName: string,
+        folderDataConfig: PopsFolderDownloadOption | PopsFolderDataConfig[] | null | undefined | void
+      ) {
         const $breadcrumb = popsDOMUtils.createElement(
           "span",
           {
             className: "pops-folder-file-list-breadcrumb-allFiles cursor-p",
             innerHTML: `<a>${folderName}</a>`,
-            _config_: folderDataConfig,
+            "data-config": folderDataConfig,
           },
           {
             title: folderName,
@@ -590,7 +591,7 @@ export const PopsFolder = {
         dataConfigList: PopsFolderDataConfig[]
       ) {
         this.clearFolderInfoView();
-        /* 获取当前的导航元素 */
+        // 获取当前的导航元素
         const $click = clickEvent.target as HTMLElement;
         const currentBreadcrumb = $click.closest<HTMLSpanElement>("span.pops-folder-file-list-breadcrumb-allFiles");
         if (currentBreadcrumb) {
@@ -601,7 +602,7 @@ export const PopsFolder = {
           console.error("获取导航按钮失败");
         }
         const loadingMask = PopsLoading.init({
-          parent: $content,
+          $parent: $content,
           content: {
             text: "获取文件列表中...",
           },
@@ -627,7 +628,7 @@ export const PopsFolder = {
       async enterFolder(clickEvent: MouseEvent | PointerEvent, dataConfig: PopsFolderDataConfig) {
         this.clearFolderInfoView();
         const loadingMask = PopsLoading.init({
-          parent: $content,
+          $parent: $content,
           content: {
             text: "获取文件列表中...",
           },
@@ -638,15 +639,15 @@ export const PopsFolder = {
         });
         if (typeof dataConfig.clickEvent === "function") {
           const childConfig = await dataConfig.clickEvent(clickEvent, dataConfig);
-          /* 添加顶部导航的箭头 */
+          // 添加顶部导航的箭头
           folderFileListBreadcrumbPrimaryElement.appendChild(this.createHeaderArrowIcon());
-          /* 添加顶部导航的链接文字 */
-          const breadcrumbAllFilesElement = this.createBreadcrumb(dataConfig.fileName, childConfig as any);
+          // 添加顶部导航的链接文字
+          const $breadcrumbAllFiles = this.createBreadcrumb(dataConfig.fileName, childConfig);
 
-          folderFileListBreadcrumbPrimaryElement.appendChild(breadcrumbAllFilesElement);
-          /* 设置顶部导航点击事件 */
+          folderFileListBreadcrumbPrimaryElement.appendChild($breadcrumbAllFiles);
+          // 设置顶部导航点击事件
 
-          popsDOMUtils.on<MouseEvent | PointerEvent>(breadcrumbAllFilesElement, "click", (event) => {
+          popsDOMUtils.on<MouseEvent | PointerEvent>($breadcrumbAllFiles, "click", (event) => {
             this.setBreadcrumbClickEvent(event, false, childConfig as PopsFolderDataConfig[]);
           });
 
@@ -675,12 +676,12 @@ export const PopsFolder = {
             $link.setAttribute("href", downloadInfo.url);
             $link.setAttribute("target", "_blank");
             if (downloadInfo.autoDownload) {
-              if (downloadInfo.mode == null || (downloadInfo as any).mode === "") {
-                /* 未设置mode的话默认为aBlank */
+              if (downloadInfo.mode == null || String(downloadInfo.mode) === "") {
+                // 未设置mode的话默认为aBlank
                 downloadInfo.mode = "aBlank";
               }
               if (downloadInfo.mode === "a" || downloadInfo.mode === "aBlank") {
-                /* a标签下载 */
+                // a标签下载
                 const $anchor = popsDOMUtils.createElement("a");
 
                 if (downloadInfo.mode === "aBlank") {
@@ -690,7 +691,7 @@ export const PopsFolder = {
                 $anchor.href = downloadInfo.url;
                 $anchor.click();
               } else if (downloadInfo.mode === "open" || downloadInfo.mode === "openBlank") {
-                /* window.open下载 */
+                // window.open下载
 
                 if (downloadInfo.mode === "openBlank") {
                   globalThis.open(downloadInfo.url, "_blank");
@@ -698,7 +699,7 @@ export const PopsFolder = {
                   globalThis.open(downloadInfo.url);
                 }
               } else if (downloadInfo.mode === "iframe") {
-                /* iframe下载 */
+                // iframe下载
                 const $downloadIframe = popsDOMUtils.createElement("iframe");
 
                 $downloadIframe.src = downloadInfo.url;
@@ -746,7 +747,7 @@ export const PopsFolder = {
             const afterVal = rightConfig[sortName].toString();
             let compareVal = beforeVal.localeCompare(afterVal);
             if (isDesc) {
-              /* 降序 */
+              // 降序
               if (compareVal > 0) {
                 compareVal = -1;
               } else if (compareVal < 0) {
@@ -761,7 +762,7 @@ export const PopsFolder = {
             const afterVal = rightConfig[sortName].toString();
             let compareVal = beforeVal.localeCompare(afterVal);
             if (isDesc) {
-              /* 降序 */
+              // 降序
               if (compareVal > 0) {
                 compareVal = -1;
               } else if (compareVal < 0) {
@@ -782,24 +783,24 @@ export const PopsFolder = {
             let beforeVal = beforeConfig[sortName];
             let afterVal = afterConfig[sortName];
             if (sortName === "fileSize") {
-              /* 文件大小，进行Float转换 */
+              // 文件大小，进行Float转换
               beforeVal = parseFloat(beforeVal.toString());
               afterVal = parseFloat(afterVal.toString());
             } else if (sortName === "latestTime") {
-              /* 文件时间 */
+              // 文件时间
               beforeVal = new Date(beforeVal).getTime();
               afterVal = new Date(afterVal).getTime();
             }
             if (beforeVal > afterVal) {
               if (isDesc) {
-                /* 降序 */
+                // 降序
                 return -1;
               } else {
                 return 1;
               }
             } else if (beforeVal < afterVal) {
               if (isDesc) {
-                /* 降序 */
+                // 降序
                 return 1;
               } else {
                 return -1;
@@ -874,13 +875,13 @@ export const PopsFolder = {
       arrowToSortFolderInfoView(target: HTMLDivElement, event: MouseEvent | PointerEvent, sortName: string) {
         const notChangeSortRule = Reflect.get(event, "notChangeSortRule");
         if (!notChangeSortRule) {
-          (config as any).sort.name = sortName;
+          config.sort.name = sortName as PopsFolderConfig["sort"]["name"];
           config.sort.isDesc = !config.sort.isDesc;
         }
 
-        const arrowUp = target.querySelector<HTMLDivElement>(".pops-folder-icon-arrow-up")!;
-        const arrowDown = target.querySelector<HTMLDivElement>(".pops-folder-icon-arrow-down")!;
-        this.changeArrowActive(arrowUp, arrowDown, config.sort.isDesc);
+        const $arrowUp = target.querySelector<HTMLDivElement>(".pops-folder-icon-arrow-up")!;
+        const $arrowDown = target.querySelector<HTMLDivElement>(".pops-folder-icon-arrow-down")!;
+        this.changeArrowActive($arrowUp, $arrowDown, config.sort.isDesc);
         if (
           typeof config.sort.callback === "function" &&
           config.sort.callback(target, event, config.sort.name, config.sort.isDesc)
@@ -905,7 +906,7 @@ export const PopsFolder = {
     const popsFolder = new PopsFolder();
     popsFolder.init();
     Reflect.set($pops, "data-pops-folder", popsFolder);
-    /* 拖拽 */
+    // 拖拽
     if (config.drag) {
       PopsInstanceUtils.drag($pops, {
         dragElement: $title,
@@ -917,9 +918,9 @@ export const PopsFolder = {
     }
     PopsHandler.handlePush(popsType, {
       guid: guid,
-      animElement: $anim,
-      popsElement: $pops,
-      maskElement: $mask!,
+      $anim: $anim,
+      $pops: $pops,
+      $mask: $mask!,
       $shadowContainer: $shadowContainer,
       $shadowRoot: $shadowRoot,
     });

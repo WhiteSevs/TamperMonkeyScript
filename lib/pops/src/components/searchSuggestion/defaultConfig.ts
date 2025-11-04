@@ -1,34 +1,41 @@
-import type { PopsSearchSuggestionData, PopsSearchSuggestionDetails } from "./types/index";
+import type { PopsSearchSuggestionData, PopsSearchSuggestionConfig } from "./types/index";
 
-export const searchSuggestionConfig = (): DeepRequired<PopsSearchSuggestionDetails<any>> => {
-  const data: DeepRequired<PopsSearchSuggestionData>[] = [];
+export const PopsSearchSuggestionDefaultConfig = (): DeepRequired<PopsSearchSuggestionConfig<any>> => {
+  const data: DeepRequired<PopsSearchSuggestionData<any>>[] = [];
   for (let index = 0; index < 10; index++) {
     data.push({
       value: `测试${index}`,
       enableDeleteButton: true,
       deleteButtonClickCallback(event, $dataItem, dataItem, config) {
-        console.log("删除当前项", [event, $dataItem, dataItem, config]);
+        const value = dataItem.value;
+        console.log("删除当前项：" + value, [event, $dataItem, dataItem, config]);
         return true;
       },
       itemView(dateItem) {
         return `${dateItem.value}-html`;
       },
       clickCallback(event, $dataItem, dataItem, config) {
-        console.log("item项的点击回调", [event, $dataItem, data, config]);
-        // config.inputTarget!.value = dataItem.value;
-        return index % 2 === 0 ? true : false;
+        const isUpdateInputValue = index % 2 === 0 ? true : false;
+        const value = dataItem.value;
+        if (isUpdateInputValue) {
+          console.log("item项的点击回调,更新input内的值：" + value, [event, $dataItem, dataItem, config, value]);
+        } else {
+          console.log("item项的点击回调：" + value, [event, $dataItem, dataItem, config, value]);
+        }
+        return isUpdateInputValue;
       },
       selectCallback(event, $dataItem, dataItem, config) {
-        console.log("item项的选中回调", [event, $dataItem, data, config]);
+        const value = dataItem.value;
+        console.log("item项的选中回调：" + value, [event, $dataItem, dataItem, config]);
       },
     });
   }
   return {
     // @ts-ignore
-    target: null,
+    $target: null,
     // @ts-ignore
-    inputTarget: null,
-    selfDocument: document,
+    $inputTarget: null,
+    $selfDocument: document,
     data: data,
     useShadowRoot: true,
     className: "",

@@ -1,12 +1,12 @@
-import type { PopsAlertDetails } from "../components/alert/types";
-import type { PopsConfirmDetails } from "../components/confirm/types";
-import type { PopsDrawerDetails } from "../components/drawer/types";
-import type { PopsFolderDetails } from "../components/folder/types";
-import type { PopsIframeDetails } from "../components/iframe/types";
-import type { PopsLoadingDetails } from "../components/loading/types";
-import type { PopsPanelDetails } from "../components/panel/types";
-import type { PopsPromptDetails } from "../components/prompt/types/index";
-import type { PopsInstCommonConfig } from "../types/inst";
+import type { PopsAlertConfig } from "../components/alert/types";
+import type { PopsConfirmConfig } from "../components/confirm/types";
+import type { PopsDrawerConfig } from "../components/drawer/types";
+import type { PopsFolderConfig } from "../components/folder/types";
+import type { PopsIframeConfig } from "../components/iframe/types";
+import type { PopsLoadingConfig } from "../components/loading/types";
+import type { PopsPanelConfig } from "../components/panel/types";
+import type { PopsPromptConfig } from "../components/prompt/types/index";
+import type { PopsInstGeneralConfig } from "../types/inst";
 import type { PopsInstStoreType } from "../types/main";
 export declare const PopsInstanceUtils: {
     /**
@@ -48,7 +48,7 @@ export declare const PopsInstanceUtils: {
      * @param  guid 唯一标识
      * @param isAll 是否全部删除
      */
-    removeInstance(instConfigList: PopsInstCommonConfig[][], guid: string, isAll?: boolean): PopsInstCommonConfig[][];
+    removeInstance(instConfigList: PopsInstGeneralConfig[][], guid: string, isAll?: boolean): PopsInstGeneralConfig[][];
     /**
      * 隐藏
      * @param popsType
@@ -58,7 +58,7 @@ export declare const PopsInstanceUtils: {
      * @param $anim
      * @param $mask
      */
-    hide(config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, popsType: PopsInstStoreType, instConfigList: PopsInstCommonConfig[], guid: string, $anim: HTMLElement, $mask?: HTMLElement): Promise<void>;
+    hide(config: PopsAlertConfig | PopsDrawerConfig | PopsPromptConfig | PopsConfirmConfig | PopsIframeConfig | PopsLoadingConfig | PopsPanelConfig | PopsFolderConfig, popsType: PopsInstStoreType, instConfigList: PopsInstGeneralConfig[], guid: string, $anim: HTMLElement, $mask?: HTMLElement): Promise<void>;
     /**
      * 显示
      * @param popsType
@@ -68,7 +68,7 @@ export declare const PopsInstanceUtils: {
      * @param $anim
      * @param $mask
      */
-    show(config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, popsType: PopsInstStoreType, instConfigList: PopsInstCommonConfig[], guid: string, $anim: HTMLElement, $mask?: HTMLElement): Promise<void>;
+    show(config: PopsAlertConfig | PopsDrawerConfig | PopsPromptConfig | PopsConfirmConfig | PopsIframeConfig | PopsLoadingConfig | PopsPanelConfig | PopsFolderConfig, popsType: PopsInstStoreType, instConfigList: PopsInstGeneralConfig[], guid: string, $anim: HTMLElement, $mask?: HTMLElement): Promise<void>;
     /**
      * 关闭
      * @param popsType
@@ -77,16 +77,16 @@ export declare const PopsInstanceUtils: {
      * @param config
      * @param $anim
      */
-    close(config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, popsType: string, instConfigList: PopsInstCommonConfig[], guid: string, $anim: HTMLElement): Promise<void>;
+    close(config: PopsAlertConfig | PopsDrawerConfig | PopsPromptConfig | PopsConfirmConfig | PopsIframeConfig | PopsLoadingConfig | PopsPanelConfig | PopsFolderConfig, popsType: string, instConfigList: PopsInstGeneralConfig[], guid: string, $anim: HTMLElement): Promise<void>;
     /**
      * 拖拽元素
      * 说明：
      * + 元素的position为absolute或者fixed
      * + 会为元素的
-     * @param moveElement 需要拖拽的元素
+     * @param $move 需要拖拽的元素
      * @param options 配置
      */
-    drag(moveElement: HTMLElement, options: {
+    drag($move: HTMLElement, options: {
         dragElement: HTMLElement;
         limit: boolean;
         triggerClick?: boolean;

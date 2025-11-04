@@ -2,17 +2,17 @@ import type {
   PopsTitleConfig,
   PopsContentConfig,
   // PopsDragConfig,
-  PopsCommonConfig,
+  PopsGeneralConfig,
   PopsMoreButtonConfig,
 } from "../../../types/components";
 
 /**
  * pops.drawer
  */
-export interface PopsDrawerDetails
+export interface PopsDrawerConfig
   extends PopsContentConfig,
     PopsMoreButtonConfig,
-    Omit<PopsCommonConfig, "width" | "height" | "position" | "animation"> {
+    Omit<PopsGeneralConfig, "width" | "height" | "position" | "animation"> {
   /**
    * 标题
    */

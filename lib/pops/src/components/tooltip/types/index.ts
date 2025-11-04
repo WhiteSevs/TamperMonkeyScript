@@ -1,5 +1,5 @@
-import type { PopsCommonConfig } from "../../../types/components";
-import type { PopsPanelCommonDetails } from "../../panel/types/components-common";
+import type { PopsGeneralConfig } from "../../../types/components";
+import type { PopsPanelGeneralConfig } from "../../panel/types/components-common";
 
 /** tooltip的出现位置 */
 export type PopsTooltipPosition = "top" | "right" | "bottom" | "left" | "follow";
@@ -7,12 +7,12 @@ export type PopsTooltipPosition = "top" | "right" | "bottom" | "left" | "follow"
 /**
  * pops.tooltip
  */
-export interface PopsToolTipDetails
-  extends Pick<PopsCommonConfig, "useShadowRoot" | "only" | "zIndex" | "style" | "beforeAppendToPageCallBack"> {
+export interface PopsToolTipConfig
+  extends Pick<PopsGeneralConfig, "useShadowRoot" | "only" | "zIndex" | "style" | "beforeAppendToPageCallBack"> {
   /**
    * 目标元素
    */
-  target: HTMLElement;
+  $target: HTMLElement;
   /**
    * 显示的文字
    */
@@ -36,7 +36,7 @@ export interface PopsToolTipDetails
    * + `github-tooltip` github的样式
    * @default ""
    */
-  className?: PopsPanelCommonDetails<any>["className"];
+  className?: PopsPanelGeneralConfig<any>["className"];
   /**
    * 是否使用fixed定位，false则是absolute定位
    *
@@ -69,7 +69,9 @@ export interface PopsToolTipDetails
    * 监听的事件配置
    */
   eventOption?: {
-    [P in keyof AddEventListenerOptions]: AddEventListenerOptions[P];
+    once?: boolean;
+    passive?: boolean;
+    capture?: boolean;
   };
   /**
    * 触发显示前的回调

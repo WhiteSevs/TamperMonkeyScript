@@ -2,16 +2,16 @@ import type {
   PopsTitleConfig,
   PopsContentConfig,
   PopsDragConfig,
-  PopsCommonConfig,
+  PopsGeneralConfig,
   PopsMoreButtonConfig,
 } from "../../../types/components";
 
 /**
  * pops.confirm
  */
-export interface PopsConfirmDetails
+export interface PopsConfirmConfig
   extends PopsTitleConfig,
     PopsContentConfig,
     PopsMoreButtonConfig,
     PopsDragConfig,
-    PopsCommonConfig {}
+    PopsGeneralConfig {}

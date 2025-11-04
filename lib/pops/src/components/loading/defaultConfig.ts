@@ -1,8 +1,8 @@
-import type { PopsLoadingDetails } from "./types";
+import type { PopsLoadingConfig } from "./types";
 
-export const PopsLoadingConfig = (): DeepRequired<PopsLoadingDetails> => {
+export const PopsLoadingDefaultConfig = (): DeepRequired<PopsLoadingConfig> => {
   return {
-    parent: document.body,
+    $parent: document.body || document.documentElement,
     content: {
       text: "加载中...",
       icon: "loading",

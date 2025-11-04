@@ -1,12 +1,12 @@
-import type { PopsAlertDetails } from "../components/alert/types";
-import type { PopsConfirmDetails } from "../components/confirm/types";
-import type { PopsDrawerDetails } from "../components/drawer/types";
-import type { PopsFolderDetails } from "../components/folder/types";
-import type { PopsIframeDetails } from "../components/iframe/types";
-import type { PopsLoadingDetails } from "../components/loading/types";
-import type { PopsPanelDetails } from "../components/panel/types";
-import type { PopsPromptDetails } from "../components/prompt/types/index";
-import type { PopsInstCommonConfig } from "../types/inst";
+import type { PopsAlertConfig } from "../components/alert/types";
+import type { PopsConfirmConfig } from "../components/confirm/types";
+import type { PopsDrawerConfig } from "../components/drawer/types";
+import type { PopsFolderConfig } from "../components/folder/types";
+import type { PopsIframeConfig } from "../components/iframe/types";
+import type { PopsLoadingConfig } from "../components/loading/types";
+import type { PopsPanelConfig } from "../components/panel/types";
+import type { PopsPromptConfig } from "../components/prompt/types/index";
+import type { PopsInstGeneralConfig } from "../types/inst";
 import type { PopsInstStoreType } from "../types/main";
 import { popsDOMUtils } from "./PopsDOMUtils";
 import { popsUtils } from "./PopsUtils";
@@ -65,7 +65,7 @@ export const PopsInstanceUtils = {
       }
       /** 元素的样式 */
       const nodeStyle = PopsCore.window.getComputedStyle($ele);
-      /* 不对position为static和display为none的元素进行获取它们的z-index */
+      // 不对position为static和display为none的元素进行获取它们的z-index
       if (isVisibleNode(nodeStyle)) {
         const nodeZIndex = parseInt(nodeStyle.zIndex);
         if (!isNaN(nodeZIndex)) {
@@ -122,14 +122,14 @@ export const PopsInstanceUtils = {
       const instData = PopsInstData[instKeyName as PopsInstStoreType];
       for (let index = 0; index < instData.length; index++) {
         const inst = instData[index];
-        const nodeStyle = window.getComputedStyle(inst.animElement);
-        /* 不对position为static和display为none的元素进行获取它们的z-index */
+        const nodeStyle = window.getComputedStyle(inst.$anim);
+        // 不对position为static和display为none的元素进行获取它们的z-index
         if (isVisibleNode(nodeStyle)) {
           const nodeZIndex = parseInt(nodeStyle.zIndex);
           if (!isNaN(nodeZIndex)) {
             if (nodeZIndex > zIndex) {
               zIndex = nodeZIndex;
-              maxZIndexNode = inst.animElement;
+              maxZIndexNode = inst.$anim;
             }
           }
         }
@@ -159,19 +159,19 @@ export const PopsInstanceUtils = {
    * @param  guid 唯一标识
    * @param isAll 是否全部删除
    */
-  removeInstance(instConfigList: PopsInstCommonConfig[][], guid: string, isAll = false) {
+  removeInstance(instConfigList: PopsInstGeneralConfig[][], guid: string, isAll = false) {
     /**
      * 移除元素实例
      * @param instCommonConfig
      */
-    function removeItem(instCommonConfig: PopsInstCommonConfig) {
+    function removeItem(instCommonConfig: PopsInstGeneralConfig) {
       if (typeof instCommonConfig.beforeRemoveCallBack === "function") {
         // 调用移除签的回调
         instCommonConfig.beforeRemoveCallBack(instCommonConfig);
       }
-      instCommonConfig?.animElement?.remove();
-      instCommonConfig?.popsElement?.remove();
-      instCommonConfig?.maskElement?.remove();
+      instCommonConfig?.$anim?.remove();
+      instCommonConfig?.$pops?.remove();
+      instCommonConfig?.$mask?.remove();
       instCommonConfig?.$shadowContainer?.remove();
     }
     // [ inst[], inst[],...]
@@ -181,15 +181,15 @@ export const PopsInstanceUtils = {
         // 移除全部或者guid相同
         if (isAll || instConfigItem["guid"] === guid) {
           // 判断是否有动画
-          const animName = instConfigItem.animElement.getAttribute("anim") as string;
+          const animName = instConfigItem.$anim.getAttribute("anim")!;
           if (PopsAnimation.hasAnim(animName)) {
             const reverseAnimName = animName + "-reverse";
-            instConfigItem.animElement.style.width = "100%";
-            instConfigItem.animElement.style.height = "100%";
-            (instConfigItem.animElement.style as any)["animation-name"] = reverseAnimName;
-            if (PopsAnimation.hasAnim((instConfigItem.animElement.style as any)["animation-name"])) {
+            instConfigItem.$anim.style.width = "100%";
+            instConfigItem.$anim.style.height = "100%";
+            (instConfigItem.$anim.style as any)["animation-name"] = reverseAnimName;
+            if (PopsAnimation.hasAnim((instConfigItem.$anim.style as any)["animation-name"])) {
               popsDOMUtils.on(
-                instConfigItem.animElement,
+                instConfigItem.$anim,
                 popsDOMUtils.getAnimationEndNameList(),
                 function () {
                   removeItem(instConfigItem);
@@ -222,32 +222,32 @@ export const PopsInstanceUtils = {
    */
   hide(
     config:
-      | PopsAlertDetails
-      | PopsDrawerDetails
-      | PopsPromptDetails
-      | PopsConfirmDetails
-      | PopsIframeDetails
-      | PopsLoadingDetails
-      | PopsPanelDetails
-      | PopsFolderDetails,
+      | PopsAlertConfig
+      | PopsDrawerConfig
+      | PopsPromptConfig
+      | PopsConfirmConfig
+      | PopsIframeConfig
+      | PopsLoadingConfig
+      | PopsPanelConfig
+      | PopsFolderConfig,
     popsType: PopsInstStoreType,
-    instConfigList: PopsInstCommonConfig[],
+    instConfigList: PopsInstGeneralConfig[],
     guid: string,
     $anim: HTMLElement,
     $mask?: HTMLElement
   ) {
     return new Promise<void>((resolve) => {
-      const popsElement = $anim.querySelector<HTMLDivElement>(".pops[type-value]")!;
+      const $pops = $anim.querySelector<HTMLDivElement>(".pops[type-value]")!;
       if (popsType === "drawer") {
-        const drawerConfig = config as Required<PopsDrawerDetails>;
+        const drawerConfig = config as Required<PopsDrawerConfig>;
         popsUtils.setTimeout(() => {
           if ($mask) {
             popsDOMUtils.css($mask, "display", "none");
           }
           if (["top", "bottom"].includes(drawerConfig.direction)) {
-            popsElement.style.setProperty("height", "0");
+            $pops.style.setProperty("height", "0");
           } else if (["left", "right"].includes(drawerConfig.direction)) {
-            popsElement.style.setProperty("width", "0");
+            $pops.style.setProperty("width", "0");
           } else {
             console.error("未知direction：", drawerConfig.direction);
           }
@@ -256,41 +256,36 @@ export const PopsInstanceUtils = {
       } else {
         const fintInst = instConfigList.find((instConfigItem) => instConfigItem.guid === guid);
         if (fintInst) {
-          /* 存在动画 */
+          // 存在动画
           const instConfigItem = fintInst;
-          instConfigItem.animElement.style.width = "100%";
-          instConfigItem.animElement.style.height = "100%";
+          instConfigItem.$anim.style.width = "100%";
+          instConfigItem.$anim.style.height = "100%";
           Reflect.set(
-            instConfigItem.animElement.style,
+            instConfigItem.$anim.style,
             "animation-name",
-            instConfigItem.animElement.getAttribute("anim") + "-reverse"
+            instConfigItem.$anim.getAttribute("anim") + "-reverse"
           );
-          if (PopsAnimation.hasAnim(Reflect.get(instConfigItem.animElement.style, "animation-name"))) {
+          if (PopsAnimation.hasAnim(Reflect.get(instConfigItem.$anim.style, "animation-name"))) {
             /**
              * 动画结束的回调
              */
             function animationendCallBack() {
-              instConfigItem.animElement.style.display = "none";
-              if (instConfigItem.maskElement) {
-                instConfigItem.maskElement.style.display = "none";
+              instConfigItem.$anim.style.display = "none";
+              if (instConfigItem.$mask) {
+                instConfigItem.$mask.style.display = "none";
               }
-              popsDOMUtils.off(
-                instConfigItem.animElement,
-                popsDOMUtils.getAnimationEndNameList(),
-                animationendCallBack,
-                {
-                  capture: true,
-                }
-              );
+              popsDOMUtils.off(instConfigItem.$anim, popsDOMUtils.getAnimationEndNameList(), animationendCallBack, {
+                capture: true,
+              });
               resolve();
             }
-            popsDOMUtils.on(instConfigItem.animElement, popsDOMUtils.getAnimationEndNameList(), animationendCallBack, {
+            popsDOMUtils.on(instConfigItem.$anim, popsDOMUtils.getAnimationEndNameList(), animationendCallBack, {
               capture: true,
             });
           } else {
-            instConfigItem.animElement.style.display = "none";
-            if (instConfigItem.maskElement) {
-              instConfigItem.maskElement.style.display = "none";
+            instConfigItem.$anim.style.display = "none";
+            if (instConfigItem.$mask) {
+              instConfigItem.$mask.style.display = "none";
             }
 
             resolve();
@@ -310,24 +305,24 @@ export const PopsInstanceUtils = {
    */
   show(
     config:
-      | PopsAlertDetails
-      | PopsDrawerDetails
-      | PopsPromptDetails
-      | PopsConfirmDetails
-      | PopsIframeDetails
-      | PopsLoadingDetails
-      | PopsPanelDetails
-      | PopsFolderDetails,
+      | PopsAlertConfig
+      | PopsDrawerConfig
+      | PopsPromptConfig
+      | PopsConfirmConfig
+      | PopsIframeConfig
+      | PopsLoadingConfig
+      | PopsPanelConfig
+      | PopsFolderConfig,
     popsType: PopsInstStoreType,
-    instConfigList: PopsInstCommonConfig[],
+    instConfigList: PopsInstGeneralConfig[],
     guid: string,
     $anim: HTMLElement,
     $mask?: HTMLElement
   ) {
     return new Promise<void>((resolve) => {
-      const popsElement = $anim.querySelector<HTMLDivElement>(".pops[type-value]")!;
+      const $pops = $anim.querySelector<HTMLDivElement>(".pops[type-value]")!;
       if (popsType === "drawer") {
-        const drawerConfig = config as PopsDrawerDetails;
+        const drawerConfig = config as PopsDrawerConfig;
         popsUtils.setTimeout(() => {
           if ($mask) {
             popsDOMUtils.css($mask, "display", "");
@@ -335,9 +330,9 @@ export const PopsInstanceUtils = {
           const direction = drawerConfig.direction!;
           const size = drawerConfig.size!.toString();
           if (["top", "bottom"].includes(direction)) {
-            popsElement.style.setProperty("height", size);
+            $pops.style.setProperty("height", size);
           } else if (["left", "right"].includes(direction)) {
-            popsElement.style.setProperty("width", size);
+            $pops.style.setProperty("width", size);
           } else {
             console.error("未知direction：", direction);
           }
@@ -347,39 +342,34 @@ export const PopsInstanceUtils = {
         const fintInst = instConfigList.find((instConfigItem) => instConfigItem.guid === guid);
         if (fintInst) {
           const instConfigItem = fintInst;
-          instConfigItem.animElement.style.width = "";
-          instConfigItem.animElement.style.height = "";
+          instConfigItem.$anim.style.width = "";
+          instConfigItem.$anim.style.height = "";
           Reflect.set(
-            instConfigItem.animElement.style,
+            instConfigItem.$anim.style,
             "animation-name",
-            instConfigItem.animElement!.getAttribute("anim")!.replace("-reverse", "")
+            instConfigItem.$anim!.getAttribute("anim")!.replace("-reverse", "")
           );
-          if (PopsAnimation.hasAnim(Reflect.get(instConfigItem.animElement.style, "animation-name"))) {
+          if (PopsAnimation.hasAnim(Reflect.get(instConfigItem.$anim.style, "animation-name"))) {
             /**
              * 动画结束的回调
              */
             function animationendCallBack() {
-              popsDOMUtils.off(
-                instConfigItem.animElement,
-                popsDOMUtils.getAnimationEndNameList(),
-                animationendCallBack,
-                {
-                  capture: true,
-                }
-              );
+              popsDOMUtils.off(instConfigItem.$anim, popsDOMUtils.getAnimationEndNameList(), animationendCallBack, {
+                capture: true,
+              });
               resolve();
             }
-            instConfigItem.animElement.style.display = "";
-            if (instConfigItem.maskElement) {
-              instConfigItem.maskElement.style.display = "";
+            instConfigItem.$anim.style.display = "";
+            if (instConfigItem.$mask) {
+              instConfigItem.$mask.style.display = "";
             }
-            popsDOMUtils.on(instConfigItem.animElement, popsDOMUtils.getAnimationEndNameList(), animationendCallBack, {
+            popsDOMUtils.on(instConfigItem.$anim, popsDOMUtils.getAnimationEndNameList(), animationendCallBack, {
               capture: true,
             });
           } else {
-            instConfigItem.animElement.style.display = "";
-            if (instConfigItem.maskElement) {
-              instConfigItem.maskElement.style.display = "";
+            instConfigItem.$anim.style.display = "";
+            if (instConfigItem.$mask) {
+              instConfigItem.$mask.style.display = "";
             }
             resolve();
           }
@@ -397,22 +387,22 @@ export const PopsInstanceUtils = {
    */
   close(
     config:
-      | PopsAlertDetails
-      | PopsDrawerDetails
-      | PopsPromptDetails
-      | PopsConfirmDetails
-      | PopsIframeDetails
-      | PopsLoadingDetails
-      | PopsPanelDetails
-      | PopsFolderDetails,
+      | PopsAlertConfig
+      | PopsDrawerConfig
+      | PopsPromptConfig
+      | PopsConfirmConfig
+      | PopsIframeConfig
+      | PopsLoadingConfig
+      | PopsPanelConfig
+      | PopsFolderConfig,
     popsType: string,
-    instConfigList: PopsInstCommonConfig[],
+    instConfigList: PopsInstGeneralConfig[],
     guid: string,
     $anim: HTMLElement
   ) {
     return new Promise<void>((resolve) => {
-      const popsElement = $anim.querySelector<HTMLDivElement>(".pops[type-value]")!;
-      const drawerConfig = config as Required<PopsDrawerDetails>;
+      const $pops = $anim.querySelector<HTMLDivElement>(".pops[type-value]")!;
+      const drawerConfig = config as Required<PopsDrawerConfig>;
       /**
        * 动画结束事件
        */
@@ -424,25 +414,25 @@ export const PopsInstanceUtils = {
           if ((event as TransitionEvent).propertyName !== "transform") {
             return;
           }
-          popsDOMUtils.off(popsElement, popsDOMUtils.getTransitionEndNameList(), void 0, closeCallBack);
+          popsDOMUtils.off($pops, popsDOMUtils.getTransitionEndNameList(), void 0, closeCallBack);
           PopsInstanceUtils.removeInstance([instConfigList], guid);
           resolve();
         }
-        /* 监听过渡结束 */
-        popsDOMUtils.on(popsElement, popsDOMUtils.getTransitionEndNameList(), closeCallBack);
-        const popsTransForm = getComputedStyle(popsElement).transform;
+        // 监听过渡结束
+        popsDOMUtils.on($pops, popsDOMUtils.getTransitionEndNameList(), closeCallBack);
+        const popsTransForm = getComputedStyle($pops).transform;
         if (popsTransForm !== "none") {
-          popsDOMUtils.trigger(popsElement, popsDOMUtils.getTransitionEndNameList(), void 0, true);
+          popsDOMUtils.trigger($pops, popsDOMUtils.getTransitionEndNameList(), void 0, true);
           return;
         }
         if (["top"].includes(drawerConfig.direction)) {
-          popsElement.style.setProperty("transform", "translateY(-100%)");
+          $pops.style.setProperty("transform", "translateY(-100%)");
         } else if (["bottom"].includes(drawerConfig.direction)) {
-          popsElement.style.setProperty("transform", "translateY(100%)");
+          $pops.style.setProperty("transform", "translateY(100%)");
         } else if (["left"].includes(drawerConfig.direction)) {
-          popsElement.style.setProperty("transform", "translateX(-100%)");
+          $pops.style.setProperty("transform", "translateX(-100%)");
         } else if (["right"].includes(drawerConfig.direction)) {
-          popsElement.style.setProperty("transform", "translateX(100%)");
+          $pops.style.setProperty("transform", "translateX(100%)");
         } else {
           console.error("未知direction：", drawerConfig.direction);
         }
@@ -463,11 +453,11 @@ export const PopsInstanceUtils = {
    * 说明：
    * + 元素的position为absolute或者fixed
    * + 会为元素的
-   * @param moveElement 需要拖拽的元素
+   * @param $move 需要拖拽的元素
    * @param options 配置
    */
   drag(
-    moveElement: HTMLElement,
+    $move: HTMLElement,
     options: {
       dragElement: HTMLElement;
       limit: boolean;
@@ -489,9 +479,9 @@ export const PopsInstanceUtils = {
       options
     );
     let isMove = false;
-    /* 点击元素，left偏移 */
+    // 点击元素，left偏移
     let clickElementLeftOffset = 0;
-    /* 点击元素，top偏移 */
+    // 点击元素，top偏移
     let clickElementTopOffset = 0;
     const AnyTouch = popsUtils.AnyTouch();
     const anyTouchElement = new AnyTouch(options.dragElement, {
@@ -549,7 +539,7 @@ export const PopsInstanceUtils = {
       }
     }
     // 获取transform偏移
-    let transformInfo = popsDOMUtils.getTransform(moveElement);
+    let transformInfo = popsDOMUtils.getTransform($move);
 
     let resumeMoveElementStyle: ((...args: any[]) => any) | null = null;
 
@@ -559,7 +549,7 @@ export const PopsInstanceUtils = {
         const rect = options.dragElement.getBoundingClientRect();
         clickElementLeftOffset = event.x - rect.left;
         clickElementTopOffset = event.y - rect.top;
-        transformInfo = popsDOMUtils.getTransform(moveElement);
+        transformInfo = popsDOMUtils.getTransform($move);
         //if (event.nativeEvent.offsetX) {
         //  clickElementLeftOffset = parseInt(event.nativeEvent.offsetX);
         //} else {
@@ -570,66 +560,66 @@ export const PopsInstanceUtils = {
         //} else {
         //  clickElementTopOffset = parseInt(event.getOffset().y);
         //}
-        resumeMoveElementStyle = changeMoveElementStyle(moveElement);
+        resumeMoveElementStyle = changeMoveElementStyle($move);
       }
 
       /** 当前移动的left偏移 */
       let currentMoveLeftOffset = event.x - clickElementLeftOffset + transformInfo.transformLeft;
       /** 当前移动的top偏移 */
       let currentMoveTopOffset = event.y - clickElementTopOffset + transformInfo.transformTop;
-      /* 拖拽移动 */
+      // 拖拽移动
       if (event.phase === "move") {
         if (options.limit) {
-          /* 限制在容器内移动 */
-          /* left偏移最大值 */
+          // 限制在容器内移动
+          // left偏移最大值
           const maxLeftOffset =
             getContainerWidthOrHeight(options.container!).width -
-            popsDOMUtils.width(moveElement) +
+            popsDOMUtils.width($move) +
             transformInfo.transformLeft;
           const { left: minLeftOffset, top: minTopOffset } = getContainerTopOrLeft(options.container!);
-          /* top偏移的最大值 */
+          // top偏移的最大值
           const maxTopOffset =
             getContainerWidthOrHeight(options.container!).height -
-            popsDOMUtils.height(moveElement) +
+            popsDOMUtils.height($move) +
             transformInfo.transformTop;
           if (currentMoveLeftOffset > maxLeftOffset) {
-            /* 不允许超过容器的最大宽度 */
+            // 不允许超过容器的最大宽度
             currentMoveLeftOffset = maxLeftOffset;
           }
           if (currentMoveTopOffset > maxTopOffset) {
-            /* 不允许超过容器的最大高度 */
+            // 不允许超过容器的最大高度
             currentMoveTopOffset = maxTopOffset;
           }
           if (currentMoveLeftOffset - options.extraDistance * 2 < minLeftOffset + transformInfo.transformLeft) {
-            /* 不允许left偏移小于容器最小值 */
+            // 不允许left偏移小于容器最小值
             currentMoveLeftOffset = minLeftOffset + transformInfo.transformLeft;
-            /* 最左边 +额外距离 */
+            // 最左边 +额外距离
             currentMoveLeftOffset += options.extraDistance;
           } else {
-            /* 最右边 -额外距离 */
+            // 最右边 -额外距离
             currentMoveLeftOffset -= options.extraDistance;
           }
           if (currentMoveTopOffset - options.extraDistance * 2 < minTopOffset + transformInfo.transformTop) {
-            /* 不允许top偏移小于容器最小值 */
+            // 不允许top偏移小于容器最小值
             currentMoveTopOffset = minTopOffset + transformInfo.transformTop;
-            /* 最上面 +额外距离 */
+            // 最上面 +额外距离
             currentMoveTopOffset += options.extraDistance;
           } else {
-            /* 最下面 -额外距离 */
+            // 最下面 -额外距离
             currentMoveTopOffset -= options.extraDistance;
           }
         }
         if (typeof options.moveCallBack === "function") {
-          options.moveCallBack(moveElement, currentMoveLeftOffset, currentMoveTopOffset);
+          options.moveCallBack($move, currentMoveLeftOffset, currentMoveTopOffset);
         }
 
-        popsDOMUtils.css(moveElement, {
+        popsDOMUtils.css($move, {
           left: currentMoveLeftOffset + "px",
           top: currentMoveTopOffset + "px",
         });
       }
 
-      /* 停止拖拽 */
+      // 停止拖拽
       if (event.phase === "end") {
         isMove = false;
         if (typeof resumeMoveElementStyle === "function") {
@@ -637,12 +627,12 @@ export const PopsInstanceUtils = {
           resumeMoveElementStyle = null;
         }
         if (typeof options.endCallBack === "function") {
-          options.endCallBack(moveElement, currentMoveLeftOffset, currentMoveTopOffset);
+          options.endCallBack($move, currentMoveLeftOffset, currentMoveTopOffset);
         }
       }
     });
     if (options.triggerClick) {
-      /* 因为会覆盖上面的点击事件，主动触发一下 */
+      // 因为会覆盖上面的点击事件，主动触发一下
       anyTouchElement.on(["tap"], function (event) {
         event.changedPoints.forEach((item) => {
           popsDOMUtils.trigger(item.target! as HTMLElement, "click", void 0, true);
@@ -668,8 +658,8 @@ export const PopsInstanceUtils = {
       throw new Error("获取前面的值或后面的值的方法不能为空");
     }
     return function (after_obj: T, before_obj: T) {
-      const beforeValue = getBeforeValueFun(before_obj); /*  前 */
-      const afterValue = getAfterValueFun(after_obj); /* 后 */
+      const beforeValue = getBeforeValueFun(before_obj); //  前
+      const afterValue = getAfterValueFun(after_obj); // 后
       if (sortByDesc) {
         if (afterValue > beforeValue) {
           return -1;

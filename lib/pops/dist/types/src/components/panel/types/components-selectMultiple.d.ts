@@ -1,5 +1,5 @@
-import type { PopsAlertDetails } from "../../alert/types";
-import type { PopsPanelCommonDetails } from "./components-common";
+import type { PopsAlertConfig } from "../../alert/types";
+import type { PopsPanelGeneralConfig } from "./components-common";
 export interface PopsPanelSelectMultipleDataOption<T> {
     /**
      * 真正的值
@@ -31,7 +31,11 @@ export interface PopsPanelSelectMultipleDataOption<T> {
 /**
  * pops.panel的 select
  */
-export interface PopsPanelSelectMultipleDetails<T = any> extends PopsPanelCommonDetails<PopsPanelSelectMultipleDetails> {
+export interface PopsPanelSelectMultipleConfig<T = any> extends PopsPanelGeneralConfig<PopsPanelSelectMultipleConfig> {
+    /**
+     * 类型
+     */
+    type: "select-multiple";
     /**
      * 显示在左边的文字
      */
@@ -40,10 +44,6 @@ export interface PopsPanelSelectMultipleDetails<T = any> extends PopsPanelCommon
      * （可选）左边的文字下面的描述
      */
     description?: string;
-    /**
-     * 类型
-     */
-    type: "select-multiple";
     /**
      * （可选）是否禁用
      */
@@ -59,7 +59,7 @@ export interface PopsPanelSelectMultipleDetails<T = any> extends PopsPanelCommon
     /**
      * 弹出的下拉列表弹窗的配置
      */
-    selectConfirmDialogDetails?: Partial<PopsAlertDetails>;
+    selectConfirmDialogConfig?: Partial<PopsAlertConfig>;
     /**
      * 选择器的值改变触发的回调函数
      * @param event 事件

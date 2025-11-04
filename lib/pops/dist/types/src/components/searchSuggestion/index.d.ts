@@ -1,6 +1,6 @@
-import type { PopsSearchSuggestionData, PopsSearchSuggestionDetails } from "./types/index";
+import type { PopsSearchSuggestionData, PopsSearchSuggestionConfig } from "./types/index";
 export declare const PopsSearchSuggestion: {
-    init<T>(details: PopsSearchSuggestionDetails<T>): {
+    init<T>(__config__: PopsSearchSuggestionConfig<T>): {
         /**
          * 当前的环境，可以是document，可以是shadowroot，默认是document
          */
@@ -8,8 +8,16 @@ export declare const PopsSearchSuggestion: {
         $el: {
             /** 根元素 */
             root: HTMLElement;
+            /**
+             * 包裹ul的容器元素
+             */
+            $dropdownWrapper: HTMLElement;
             /** ul元素 */
-            $hintULContainer: HTMLUListElement;
+            $dropdownContainer: HTMLUListElement;
+            /**
+             * 箭头元素
+             */
+            $arrow: HTMLDivElement;
             /** 动态更新CSS */
             $dynamicCSS: HTMLStyleElement;
         };
@@ -19,12 +27,19 @@ export declare const PopsSearchSuggestion: {
         $data: {
             /** 是否结果为空 */
             isEmpty: boolean;
+            /**
+             * 存储在元素上的操作的键名
+             */
+            storeNodeHandlerKey: string;
         };
         /**
          * 初始化
-         * @param parentElement 父元素
+         * @param $parent 父元素
+         * @example
+         * .init();
+         * .setAllEvent();
          */
-        init(parentElement?: HTMLElement): void;
+        init($parent?: HTMLElement): void;
         /**
          * 初始化元素变量
          */
@@ -101,7 +116,7 @@ export declare const PopsSearchSuggestion: {
          */
         removeHideEvent(option?: AddEventListenerOptions): void;
         /**
-         * 设置所有监听
+         * 设置所有监听，包括（input值改变、全局点击判断显示/隐藏建议框）
          */
         setAllEvent(option?: AddEventListenerOptions): void;
         /**

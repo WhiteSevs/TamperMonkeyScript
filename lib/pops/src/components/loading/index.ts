@@ -4,16 +4,17 @@ import { PopsHandler } from "../../handler/PopsHandler";
 import { PopsCSS } from "../../PopsCSS";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { popsUtils } from "../../utils/PopsUtils";
-import { PopsLoadingConfig } from "./config";
-import type { PopsLoadingDetails } from "./types";
+import { PopsLoadingDefaultConfig } from "./defaultConfig";
+import type { PopsLoadingConfig } from "./types";
 
 export const PopsLoading = {
-  init(details: PopsLoadingDetails) {
-    let config = PopsLoadingConfig();
-    config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-    config = popsUtils.assign(config, details);
+  init(__config__: PopsLoadingConfig) {
     const guid = popsUtils.getRandomGUID();
+    // 设置当前类型
     const PopsType = "loading";
+    let config = PopsLoadingDefaultConfig();
+    config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
+    config = popsUtils.assign(config, __config__);
 
     config = PopsHandler.handleOnly(PopsType, config);
 
@@ -76,16 +77,17 @@ export const PopsLoading = {
       $elList.push($mask);
     }
     const evtConfig = PopsHandler.handleLoadingEventConfig(config, guid, PopsType, $anim, $pops, $mask);
-    popsDOMUtils.append(config.parent, $elList);
+    popsDOMUtils.append(config.$parent, $elList);
     if ($mask != null) {
       $anim.after($mask);
     }
+    // @ts-ignore
     PopsHandler.handlePush(PopsType, {
       guid: guid,
-      animElement: $anim,
-      popsElement: $pops!,
-      maskElement: $mask!,
-    } as any);
+      $anim: $anim,
+      $pops: $pops!,
+      $mask: $mask!,
+    });
 
     if (config.isAbsolute) {
       // 遮罩层必须是跟随主内容

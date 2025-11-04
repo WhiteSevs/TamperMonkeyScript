@@ -1,10 +1,38 @@
 import type {
   PopsTitleConfig,
   PopsDragConfig,
-  PopsCommonConfig,
+  PopsGeneralConfig,
   PopsMoreButtonConfig,
 } from "../../../types/components";
 
+/**
+ * pops.folder的下载配置选项
+ */
+export type PopsFolderDownloadOption = {
+  /**
+   * 是否点击触发下载
+   *
+   * + true：根据设置的`mode`值来选择下载方式
+   * + false：不触发下载
+   */
+  autoDownload: boolean;
+  /**
+   * 触发下载后会根据提供的url链接进行下载
+   */
+  url: string;
+  /**
+   * 下载方式
+   *
+   * + a：使用a标签进行下载
+   * + aBlank：使用a标签进行下载（添加属性`target="_blank"`）
+   * + iframe：使用iframe进行下载
+   * + open：使用window.open进行下载
+   * + openBlank：使用window.open进行下载（添加参数`_blank`）
+   *
+   * @default "aBlank"
+   */
+  mode?: "a" | "aBlank" | "iframe" | "open" | "openBlank";
+};
 /**
  * pops.folder的folder配置信息
  */
@@ -43,28 +71,13 @@ export interface PopsFolderDataConfig {
   clickEvent?: (
     event: MouseEvent | PointerEvent,
     config: PopsFolderDataConfig
-  ) =>
-    | Promise<
-        | {
-            autoDownload: boolean;
-            url: string;
-            mode: "a" | "aBlank" | "iframe" | "open" | "openBlank";
-          }
-        | null
-        | undefined
-        | void
-        | PopsFolderDataConfig[]
-      >
-    | null
-    | undefined
-    | void
-    | PopsFolderDataConfig[];
+  ) => IPromise<PopsFolderDownloadOption | PopsFolderDataConfig[] | null | undefined | void>;
 }
 
 /**
  * pops.folder
  */
-export interface PopsFolderDetails extends PopsTitleConfig, PopsDragConfig, PopsMoreButtonConfig, PopsCommonConfig {
+export interface PopsFolderConfig extends PopsTitleConfig, PopsDragConfig, PopsMoreButtonConfig, PopsGeneralConfig {
   /**
    * 排序
    */

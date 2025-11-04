@@ -1,4 +1,4 @@
-import type { PopsToolTipDetails } from "./types/index";
+import type { PopsToolTipConfig } from "./types/index";
 type ToolTipEventTypeName = "MouseEvent" | "TouchEvent";
 export declare class ToolTip {
     $el: {
@@ -9,12 +9,12 @@ export declare class ToolTip {
         $arrow: HTMLElement;
     };
     $data: {
-        config: Required<PopsToolTipDetails>;
+        config: Required<PopsToolTipConfig>;
         guid: string;
         timeId_close_TouchEvent: number[];
         timeId_close_MouseEvent: number[];
     };
-    constructor(config: Required<PopsToolTipDetails>, guid: string, ShadowInfo: {
+    constructor(config: Required<PopsToolTipConfig>, guid: string, ShadowInfo: {
         $shadowContainer: HTMLDivElement;
         $shadowRoot: ShadowRoot | HTMLElement;
     });
@@ -171,7 +171,7 @@ export declare class ToolTip {
      */
     offToolTipMouseLeaveEvent(): void;
 }
-export type PopsTooltipResult<T extends PopsToolTipDetails> = {
+export type PopsTooltipResult<T extends PopsToolTipConfig> = {
     guid: string;
     config: T;
     $shadowContainer: HTMLDivElement;
@@ -179,10 +179,10 @@ export type PopsTooltipResult<T extends PopsToolTipDetails> = {
     toolTip: typeof ToolTip.prototype;
 };
 export declare const PopsTooltip: {
-    init(details: PopsToolTipDetails): {
+    init(__config__: PopsToolTipConfig): {
         guid: string;
         config: {
-            target: HTMLElement;
+            $target: HTMLElement;
             content: string | (() => string);
             isDiffContent: boolean;
             position: import("./types/index").PopsTooltipPosition;
@@ -195,21 +195,6 @@ export declare const PopsTooltip: {
             eventOption: {
                 once: boolean;
                 passive: boolean;
-                signal: {
-                    readonly aborted: boolean;
-                    onabort: ((this: AbortSignal, ev: Event) => any) | null;
-                    readonly reason: any;
-                    throwIfAborted: () => void;
-                    addEventListener: {
-                        <K extends keyof AbortSignalEventMap>(type: K, listener: (this: AbortSignal, ev: AbortSignalEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
-                        (type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-                    };
-                    removeEventListener: {
-                        <K extends keyof AbortSignalEventMap>(type: K, listener: (this: AbortSignal, ev: AbortSignalEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
-                        (type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
-                    };
-                    dispatchEvent: (event: Event) => boolean;
-                };
                 capture: boolean;
             };
             showBeforeCallBack: ($toolTip: HTMLElement) => false | void;

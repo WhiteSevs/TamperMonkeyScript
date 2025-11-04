@@ -1,7 +1,7 @@
-import type { PopsCommonConfig } from "../../../types/components";
-import type { PopsPanelCommonDetails } from "../../panel/types/components-common";
+import type { PopsGeneralConfig } from "../../../types/components";
+import type { PopsPanelGeneralConfig } from "../../panel/types/components-common";
 
-export type PopsSearchSuggestionData<T = any> = {
+export type PopsSearchSuggestionData<T> = {
   /**
    * 值
    */
@@ -33,7 +33,7 @@ export type PopsSearchSuggestionData<T = any> = {
     /**
      * 当前配置
      */
-    config: PopsSearchSuggestionDetails<T>
+    config: PopsSearchSuggestionConfig<T>
   ) => void | boolean | Promise<void | boolean>;
   /**
    * 获取每一项的html，在显示的时候会调用该函数
@@ -52,7 +52,7 @@ export type PopsSearchSuggestionData<T = any> = {
     /**
      * 当前配置
      */
-    config: PopsSearchSuggestionDetails<T>
+    config: PopsSearchSuggestionConfig<T>
   ) => HTMLElement | string;
   /**
    * 每一项的点击回调
@@ -76,8 +76,8 @@ export type PopsSearchSuggestionData<T = any> = {
     /**
      * 当前配置
      */
-    config: PopsSearchSuggestionDetails<T>
-  ) => void | boolean | Promise<void | boolean>;
+    config: PopsSearchSuggestionConfig<T>
+  ) => IPromise<void | boolean>;
   /**
    * 键盘的上下键选择的回调
    */
@@ -97,31 +97,33 @@ export type PopsSearchSuggestionData<T = any> = {
     /**
      * 当前配置
      */
-    config: PopsSearchSuggestionDetails<T>
+    config: PopsSearchSuggestionConfig<T>
   ) => void;
 };
 /**
  * 搜索建议悬浮窗
  * pops.searchSuggestion
  */
-export interface PopsSearchSuggestionDetails<T = any>
-  extends Pick<PopsCommonConfig, "useShadowRoot" | "zIndex" | "style"> {
+export interface PopsSearchSuggestionConfig<T = any>
+  extends Pick<PopsGeneralConfig, "useShadowRoot" | "zIndex" | "style"> {
   /**
    * 当前的环境，可以是document，可以是shadowroot，默认是document
+   *
+   * 用于检测监听全局点击事件
    * @default document
    */
-  selfDocument?: Document | ShadowRoot | (Document | ShadowRoot)[];
+  $selfDocument?: Document | ShadowRoot | (Document | ShadowRoot)[];
   /**
    * 目标元素，一般是跟随它的位置变化，监听它的focus/click
    */
-  target: HTMLElement;
+  $target: HTMLElement;
   /**
    * 目标input元素，监听它的focus/click/input事件
    *
    * 如果未填，那么自动使用target的值
    * @default config.target
    */
-  inputTarget?: HTMLInputElement | HTMLTextAreaElement;
+  $inputTarget?: HTMLInputElement | HTMLTextAreaElement;
   /**
    * 数据
    */
@@ -130,7 +132,7 @@ export interface PopsSearchSuggestionDetails<T = any>
    * （可选）元素的className，值为空的话就不设置
    * @default ""
    */
-  className?: PopsPanelCommonDetails<any>["className"];
+  className?: PopsPanelGeneralConfig<any>["className"];
   /**
    * 建议框的position位置
    *
@@ -235,6 +237,6 @@ export interface PopsSearchSuggestionDetails<T = any>
     /**
      * 当前配置
      */
-    config: PopsSearchSuggestionDetails<T>
+    config: PopsSearchSuggestionConfig<T>
   ) => Promise<PopsSearchSuggestionData<T>[]> | PopsSearchSuggestionData<T>[];
 }

@@ -1,4 +1,4 @@
-import type { PopsSupportAnimDetails, PopsSupportBottomBtnDetails, PopsSupportContentDetails, PopsSupportHeaderTitleDetails, PopsSupportAnimDetailsType, PopsSupportBottomBtnDetailsType, PopsSupportContentDetailsType, PopsSupportHeaderTitleDetailsType } from "../types/main";
+import type { PopsSupportAnimConfig, PopsSupportBottomButtonConfig, PopsSupportContentConfig, PopsSupportHeaderTitleConfig, PopsSupportAnimConfigType, PopsSupportBottomButtonConfigType, PopsSupportContentConfigType, PopsSupportHeaderTitleConfigType } from "../types/main";
 export declare const PopsElementHandler: {
     /**
      * 获取遮罩层HTML
@@ -16,19 +16,19 @@ export declare const PopsElementHandler: {
      * @param bottomBtnHTML
      * @param zIndex
      */
-    createAnim(guid: string, type: PopsSupportAnimDetailsType, config: PopsSupportAnimDetails[keyof PopsSupportAnimDetails], html: string | undefined, bottomBtnHTML: string | undefined, zIndex: number): string;
+    createAnim(guid: string, type: PopsSupportAnimConfigType, config: PopsSupportAnimConfig[keyof PopsSupportAnimConfig], html: string | undefined, bottomBtnHTML: string | undefined, zIndex: number): string;
     /**
      * 获取顶部按钮层HTML
      * @param type
      * @param config
      */
-    createHeader(type: PopsSupportHeaderTitleDetailsType, config: PopsSupportHeaderTitleDetails[keyof PopsSupportHeaderTitleDetails]): string;
+    createHeader(type: PopsSupportHeaderTitleConfigType, config: PopsSupportHeaderTitleConfig[keyof PopsSupportHeaderTitleConfig]): string;
     /**
      * 获取标题style
      * @param type 弹窗类型
      * @param config 弹窗配置
      */
-    createHeaderStyle(type: PopsSupportHeaderTitleDetailsType, config: PopsSupportHeaderTitleDetails[keyof PopsSupportHeaderTitleDetails]): {
+    createHeaderStyle(type: PopsSupportHeaderTitleConfigType, config: PopsSupportHeaderTitleConfig[keyof PopsSupportHeaderTitleConfig]): {
         headerStyle: string;
         headerPStyle: string;
     };
@@ -37,13 +37,13 @@ export declare const PopsElementHandler: {
      * @param type
      * @param config
      */
-    createBottom(type: PopsSupportBottomBtnDetailsType, config: Omit<PopsSupportBottomBtnDetails[keyof PopsSupportBottomBtnDetails], "content">): string;
+    createBottom(type: PopsSupportBottomButtonConfigType, config: Omit<PopsSupportBottomButtonConfig[keyof PopsSupportBottomButtonConfig], "content">): string;
     /**
      * 获取内容style
      * @param type 弹窗类型
      * @param config 弹窗配置
      */
-    createContentStyle(type: PopsSupportContentDetailsType, config: PopsSupportContentDetails[keyof PopsSupportContentDetails]): {
+    createContentStyle(type: PopsSupportContentConfigType, config: PopsSupportContentConfig[keyof PopsSupportContentConfig]): {
         contentStyle: string;
         contentPStyle: string;
     };

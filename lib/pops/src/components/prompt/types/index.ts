@@ -1,20 +1,20 @@
 import type {
   PopsTitleConfig,
   PopsDragConfig,
-  PopsCommonConfig,
+  PopsGeneralConfig,
   PopsMoreButtonConfig,
 } from "../../../types/components";
 
 /**
  * pops.prompt
  */
-export interface PopsPromptDetails
+export interface PopsPromptConfig
   extends PopsTitleConfig,
     PopsDragConfig,
     PopsMoreButtonConfig<{
       text: string;
     }>,
-    PopsCommonConfig {
+    PopsGeneralConfig {
   /**
    * 内容配置
    */
@@ -49,6 +49,7 @@ export interface PopsPromptDetails
     placeholder?: string;
     /**
      * （可选）文字的自定义CSS
+     * @default ""
      */
     style?: string;
   };

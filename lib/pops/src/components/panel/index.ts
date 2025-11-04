@@ -3,35 +3,22 @@ import { PopsHandler } from "../../handler/PopsHandler";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { popsUtils } from "../../utils/PopsUtils";
-import type { PopsPanelDetails, PopsPanelEventType } from "./types";
-import { PopsPanelConfig } from "./config";
+import type { PopsPanelConfig, PopsPanelEventType } from "./types";
+import { PopsPanelDefaultConfig } from "./defaultConfig";
 import { PanelHandlerComponents } from "./handlerComponents";
 import { GlobalConfig } from "../../config/GlobalConfig";
 import { PopsCSS } from "../../PopsCSS";
 import type { PopsType } from "../../types/main";
 
 export const PopsPanel = {
-  init(details: PopsPanelDetails) {
+  init(__config__: PopsPanelConfig) {
     const guid = popsUtils.getRandomGUID();
     // 设置当前类型
     const popsType: PopsType = "panel";
 
-    let config: Required<PopsPanelDetails> = PopsPanelConfig();
+    let config: Required<PopsPanelConfig> = PopsPanelDefaultConfig();
     config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-    config = popsUtils.assign(config, details);
-    if (details) {
-      if (Array.isArray(details.content)) {
-        // 存在内容配置
-        config.content = details.content;
-      }
-      if (Array.isArray(details.bottomContentConfig)) {
-        // 存在底部配置
-        config.bottomContentConfig = details.bottomContentConfig;
-      } else {
-        // 不存在底部配置 清空默认的
-        config.bottomContentConfig = [];
-      }
-    }
+    config = popsUtils.assign(config, __config__);
     config = PopsHandler.handleOnly(popsType, config);
 
     const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
@@ -109,7 +96,7 @@ export const PopsPanel = {
      * 弹窗的主元素，包括动画层
      */
     const $anim = PopsElementHandler.parseElement<HTMLDivElement>(animHTML);
-    /* 结构元素 */
+    // 结构元素
     const {
       $pops,
       $headerBtnClose,
@@ -135,7 +122,7 @@ export const PopsPanel = {
      */
     const $elList: HTMLElement[] = [$anim];
 
-    /* 遮罩层元素 */
+    // 遮罩层元素
     if (config.mask.enable) {
       const handleMask = PopsHandler.handleMask({
         type: popsType,
@@ -148,7 +135,7 @@ export const PopsPanel = {
       $elList.push($mask);
     }
 
-    /* 处理返回的配置 */
+    // 处理返回的配置
     const evtConfig = PopsHandler.handleEventConfig(
       config,
       guid,
@@ -159,16 +146,16 @@ export const PopsPanel = {
       $pops,
       $mask
     );
-    /* 为顶部右边的关闭按钮添加点击事件 */
+    // 为顶部右边的关闭按钮添加点击事件
     PopsHandler.handleClickEvent("close", $headerBtnClose, evtConfig, config.btn?.close?.callback);
 
-    /* 创建到页面中 */
+    // 创建到页面中
     popsDOMUtils.append($shadowRoot, $elList);
     if (typeof config.beforeAppendToPageCallBack === "function") {
       config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
     }
     popsDOMUtils.appendBody($shadowContainer);
-    /* 追加遮罩层元素 */
+    // 追加遮罩层元素
     if ($mask != null) {
       $anim.after($mask);
     }
@@ -193,13 +180,13 @@ export const PopsPanel = {
 
     PopsHandler.handlePush(popsType, {
       guid: guid,
-      animElement: $anim,
-      popsElement: $pops,
-      maskElement: $mask!,
+      $anim: $anim,
+      $pops: $pops,
+      $mask: $mask!,
       $shadowContainer: $shadowContainer,
       $shadowRoot: $shadowRoot,
     });
-    /* 拖拽 */
+    // 拖拽
     if (config.drag) {
       PopsInstanceUtils.drag($pops, {
         dragElement: $title,

@@ -1,8 +1,12 @@
-import type { PopsPanelCommonDetails } from "./components-common";
+import type { PopsPanelGeneralConfig } from "./components-common";
 /**
  * pops.panel的 textarea
  */
-export interface PopsPanelTextAreaDetails extends PopsPanelCommonDetails<PopsPanelTextAreaDetails> {
+export interface PopsPanelTextAreaConfig extends PopsPanelGeneralConfig<PopsPanelTextAreaConfig> {
+    /**
+     * 类型
+     */
+    type: "textarea";
     /**
      * 显示在左边的文字
      */
@@ -12,10 +16,6 @@ export interface PopsPanelTextAreaDetails extends PopsPanelCommonDetails<PopsPan
      * @default ""
      */
     description?: string;
-    /**
-     * 类型
-     */
-    type: "textarea";
     /**
      * （可选）是否禁用
      * @default false

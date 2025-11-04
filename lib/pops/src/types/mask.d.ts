@@ -1,20 +1,23 @@
-import type { PopsAlertDetails } from "../components/alert/types";
-import type { PopsDrawerDetails } from "../components/drawer/types";
-import type { PopsFolderDetails } from "../components/folder/types";
-import type { PopsIframeDetails } from "../components/iframe/types";
-import type { PopsLoadingDetails } from "../components/loading/types";
-import type { PopsPanelDetails } from "../components/panel/types";
-import type { PopsPromptDetails } from "../components/prompt/types/index";
+import type { PopsAlertConfig } from "../components/alert/types";
+import type { PopsDrawerConfig } from "../components/drawer/types";
+import type { PopsFolderConfig } from "../components/folder/types";
+import type { PopsIframeConfig } from "../components/iframe/types";
+import type { PopsLoadingConfig } from "../components/loading/types";
+import type { PopsPanelConfig } from "../components/panel/types";
+import type { PopsPromptConfig } from "../components/prompt/types/index";
 
 /**
  * 遮罩层配置
  */
-export interface PopsMaskDetails {
+export interface PopsMaskConfig {
   /**
    * 是否启用遮罩层，默认false
    * @default false
    */
   enable?: boolean;
+  /**
+   * 点击事件
+   */
   clickEvent?: {
     /**
      * 点击遮罩层是否触发关闭事件
@@ -36,13 +39,13 @@ export interface PopsMaskDetails {
     | ((
         originalRun: () => void | Promise<void>,
         config:
-          | PopsAlertDetails
-          | PopsDrawerDetails
-          | PopsIframeDetails
-          | PopsPromptDetails
-          | PopsFolderDetails
-          | PopsLoadingDetails
-          | PopsPanelDetails
+          | PopsAlertConfig
+          | PopsDrawerConfig
+          | PopsIframeConfig
+          | PopsPromptConfig
+          | PopsFolderConfig
+          | PopsLoadingConfig
+          | PopsPanelConfig
       ) => void)
     | undefined
     | null;

@@ -1,6 +1,6 @@
-import type { PopsFolderDetails } from "./types";
+import type { PopsFolderConfig } from "./types";
 
-export const PopsFolderConfig = (): DeepRequired<PopsFolderDetails> => {
+export const PopsFolderDefaultConfig = (): DeepRequired<PopsFolderConfig> => {
   return {
     title: {
       text: "pops.Folder",
@@ -11,7 +11,6 @@ export const PopsFolderConfig = (): DeepRequired<PopsFolderDetails> => {
     sort: {
       name: "latestTime",
       isDesc: false,
-      // @ts-ignore
       callback() {},
     },
     folder: [
@@ -23,7 +22,6 @@ export const PopsFolderConfig = (): DeepRequired<PopsFolderDetails> => {
         latestTime: 0,
         isFolder: true,
         index: 0,
-        // @ts-ignore
         clickEvent() {
           return [
             {
@@ -34,7 +32,6 @@ export const PopsFolderConfig = (): DeepRequired<PopsFolderDetails> => {
               latestTime: 0,
               isFolder: true,
               index: 0,
-              // @ts-ignore
               clickEvent() {
                 return [
                   {
@@ -45,9 +42,13 @@ export const PopsFolderConfig = (): DeepRequired<PopsFolderDetails> => {
                     latestTime: 1702039602126,
                     isFolder: false,
                     index: 1,
-                    clickEvent() {
-                      console.log("下载文件：", this.fileName);
-                      return "https://update.greasyfork.org/scripts/456485/pops.js";
+                    clickEvent(event, config) {
+                      console.log("下载文件：", config);
+                      return {
+                        autoDownload: true,
+                        url: "https://update.greasyfork.org/scripts/456485/pops.js",
+                        mode: "aBlank",
+                      };
                     },
                   },
                 ];
@@ -64,10 +65,13 @@ export const PopsFolderConfig = (): DeepRequired<PopsFolderDetails> => {
         latestTime: 1702039410440,
         isFolder: false,
         index: 1,
-        // @ts-ignore
         clickEvent() {
           console.log("下载文件：", this.fileName);
-          return "https://update.greasyfork.org/scripts/456485/pops.js";
+          return {
+            autoDownload: true,
+            url: "https://update.greasyfork.org/scripts/456485/pops.js",
+            mode: "openBlank",
+          };
         },
       },
     ],
@@ -84,8 +88,8 @@ export const PopsFolderConfig = (): DeepRequired<PopsFolderDetails> => {
         iconIsLoading: false,
         text: "确定",
         type: "primary",
-        callback(detail: any) {
-          detail.close();
+        callback(evtConfig) {
+          evtConfig.close();
         },
       },
       cancel: {
@@ -96,8 +100,8 @@ export const PopsFolderConfig = (): DeepRequired<PopsFolderDetails> => {
         iconIsLoading: false,
         text: "关闭",
         type: "default",
-        callback(detail: any) {
-          detail.close();
+        callback(evtConfig) {
+          evtConfig.close();
         },
       },
       other: {
@@ -108,14 +112,14 @@ export const PopsFolderConfig = (): DeepRequired<PopsFolderDetails> => {
         iconIsLoading: false,
         text: "其它按钮",
         type: "default",
-        callback(detail: any) {
-          detail.close();
+        callback(evtConfig) {
+          evtConfig.close();
         },
       },
       close: {
         enable: true,
-        callback(detail: any) {
-          detail.close();
+        callback(evtConfig) {
+          evtConfig.close();
         },
       },
     },

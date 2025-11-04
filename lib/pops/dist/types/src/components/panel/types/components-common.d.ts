@@ -1,9 +1,9 @@
-import type { PopsPanelFormsDetails } from "./components-forms";
-import type { PopsPanelFormsTotalDetails } from ".";
+import type { PopsPanelContainerConfig } from "./components-container";
+import type { PopsPanelViewConfig } from ".";
 /**
  * 右侧容器的配置
  */
-export interface PopsPanelRightAsideContainerOptions {
+export interface PopsPanelRightAsideContainerConfig {
     /** 当前的<li>元素 */
     target: HTMLLIElement | undefined;
     /** 当前的<li>元素的父<ul>元素 */
@@ -18,7 +18,7 @@ export interface PopsPanelRightAsideContainerOptions {
 /**
  * 通用配置
  */
-export interface PopsPanelCommonDetails<T extends PopsPanelFormsTotalDetails | PopsPanelFormsDetails> {
+export interface PopsPanelGeneralConfig<T extends PopsPanelViewConfig | PopsPanelContainerConfig> {
     /**
      * （可选）元素的className，值为空的话就不设置
      * @default ""
@@ -42,11 +42,11 @@ export interface PopsPanelCommonDetails<T extends PopsPanelFormsTotalDetails | P
     };
     /**
        * 在添加到<ul>元素后触发该回调
-       * @param formConfig 配置
+       * @param viewConfig 配置
        * @param container 右侧容器的元素
        * @example
        * // 例如在type为own时
-       * afterAddToUListCallBack(formConfig, container) {
+       * afterAddToUListCallBack(viewConfig, container) {
        * DOMUtils.on(
           container.formHeaderDivElement.querySelector(
           "a"
@@ -66,5 +66,5 @@ export interface PopsPanelCommonDetails<T extends PopsPanelFormsTotalDetails | P
        * // 例如在type为forms时
        * container内只有container.ulElement这个属性
        */
-    afterAddToUListCallBack?: (formConfig: T, container: PopsPanelRightAsideContainerOptions) => void;
+    afterAddToUListCallBack?: (viewConfig: T, container: PopsPanelRightAsideContainerConfig) => void;
 }

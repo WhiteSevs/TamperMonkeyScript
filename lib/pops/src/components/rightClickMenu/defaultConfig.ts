@@ -1,9 +1,9 @@
 import { PopsIcon } from "../../PopsIcon";
-import type { PopsRightClickMenuDetails } from "./types";
+import type { PopsRightClickMenuConfig } from "./types";
 
-export const rightClickMenuConfig = (): DeepRequired<PopsRightClickMenuDetails> => {
+export const PopsRightClickMenuDefaultConfig = (): DeepRequired<PopsRightClickMenuConfig> => {
   return {
-    target: document.documentElement,
+    $target: document.documentElement,
     targetSelector: null,
     position: "fixed",
     data: [
@@ -12,8 +12,8 @@ export const rightClickMenuConfig = (): DeepRequired<PopsRightClickMenuDetails> 
         iconIsLoading: false,
         text: "搜索",
         item: [],
-        callback(clickEvent, contextMenuEvent, liElement) {
-          console.log("点击：" + this.text, [clickEvent, contextMenuEvent, liElement]);
+        callback(clickEvent, contextMenuEvent, $li) {
+          console.log("点击：" + this.text, [clickEvent, contextMenuEvent, $li]);
         },
       },
       {
@@ -21,8 +21,8 @@ export const rightClickMenuConfig = (): DeepRequired<PopsRightClickMenuDetails> 
         iconIsLoading: false,
         text: "复制",
         item: [],
-        callback(clickEvent, contextMenuEvent, liElement) {
-          console.log("点击：" + this.text, [clickEvent, contextMenuEvent, liElement]);
+        callback(clickEvent, contextMenuEvent, $li) {
+          console.log("点击：" + this.text, [clickEvent, contextMenuEvent, $li]);
         },
       },
       {
@@ -30,8 +30,8 @@ export const rightClickMenuConfig = (): DeepRequired<PopsRightClickMenuDetails> 
         text: "删除",
         iconIsLoading: false,
         item: [],
-        callback(clickEvent, contextMenuEvent, liElement) {
-          console.log("点击：" + this.text, [clickEvent, contextMenuEvent, liElement]);
+        callback(clickEvent, contextMenuEvent, $li) {
+          console.log("点击：" + this.text, [clickEvent, contextMenuEvent, $li]);
         },
       },
       {
@@ -39,8 +39,8 @@ export const rightClickMenuConfig = (): DeepRequired<PopsRightClickMenuDetails> 
         iconIsLoading: true,
         text: "加载",
         item: [],
-        callback(clickEvent, contextMenuEvent, liElement) {
-          console.log("点击：" + this.text, [clickEvent, contextMenuEvent, liElement]);
+        callback(clickEvent, contextMenuEvent, $li) {
+          console.log("点击：" + this.text, [clickEvent, contextMenuEvent, $li]);
           return false;
         },
       },
@@ -48,8 +48,8 @@ export const rightClickMenuConfig = (): DeepRequired<PopsRightClickMenuDetails> 
         icon: PopsIcon.getIcon("elemePlus")!,
         iconIsLoading: true,
         text: "饿了么",
-        callback(clickEvent, contextMenuEvent, liElement) {
-          console.log("点击：" + this.text, [clickEvent, contextMenuEvent, liElement]);
+        callback(clickEvent, contextMenuEvent, $li) {
+          console.log("点击：" + this.text, [clickEvent, contextMenuEvent, $li]);
           return false;
         },
         item: [
@@ -58,16 +58,17 @@ export const rightClickMenuConfig = (): DeepRequired<PopsRightClickMenuDetails> 
             iconIsLoading: false,
             text: "处理文件",
             item: [],
-            callback(clickEvent, contextMenuEvent, liElement) {
-              console.log("点击：" + this.text, [clickEvent, contextMenuEvent, liElement]);
+            callback(clickEvent, contextMenuEvent, $li) {
+              console.log("点击：" + this.text, [clickEvent, contextMenuEvent, $li]);
             },
           },
           {
             icon: "",
             iconIsLoading: false,
             text: "其它处理",
-            callback(clickEvent, contextMenuEvent, liElement) {
-              console.log("点击：" + this.text, [clickEvent, contextMenuEvent, liElement]);
+            callback(clickEvent, contextMenuEvent, $li) {
+              console.log("点击：" + this.text, [clickEvent, contextMenuEvent, $li]);
+              return false;
             },
             item: [
               {
@@ -75,8 +76,8 @@ export const rightClickMenuConfig = (): DeepRequired<PopsRightClickMenuDetails> 
                 iconIsLoading: false,
                 text: "查看",
                 item: [],
-                callback(clickEvent, contextMenuEvent, liElement) {
-                  console.log("点击：" + this.text, [clickEvent, contextMenuEvent, liElement]);
+                callback(clickEvent, contextMenuEvent, $li) {
+                  console.log("点击：" + this.text, [clickEvent, contextMenuEvent, $li]);
                 },
               },
             ],

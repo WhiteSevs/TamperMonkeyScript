@@ -7,28 +7,28 @@ import { popsUtils } from "../../utils/PopsUtils";
 import { PopsAlert } from "../alert";
 import { PopsTooltip } from "../tooltip";
 import { PopsCommonCSSClassName } from "../../config/CommonCSSClassName";
-import type { PopsAlertDetails } from "../alert/types";
-import type { PopsPanelButtonDetails } from "./types/components-button";
-import type { PopsPanelCommonDetails, PopsPanelRightAsideContainerOptions } from "./types/components-common";
-import type { PopsPanelDeepMenuDetails } from "./types/components-deepMenu";
-import type { PopsPanelFormsDetails } from "./types/components-forms";
+import type { PopsAlertConfig } from "../alert/types";
+import type { PopsPanelButtonConfig } from "./types/components-button";
+import type { PopsPanelGeneralConfig, PopsPanelRightAsideContainerConfig } from "./types/components-common";
+import type { PopsPanelDeepViewConfig } from "./types/components-deepMenu";
+import type { PopsPanelContainerConfig } from "./types/components-container";
 import type {
   PopsPanelBottomContentConfig,
   PopsPanelContentConfig,
-  PopsPanelDetails,
+  PopsPanelConfig,
   PopsPanelEventType,
-  PopsPanelFormsTotalDetails,
+  PopsPanelViewConfig,
 } from "./types";
-import type { PopsPanelInputDetails } from "./types/components-input";
-import type { PopsPanelOwnDetails } from "./types/components-own";
+import type { PopsPanelInputConfig } from "./types/components-input";
+import type { PopsPanelOwnConfig } from "./types/components-own";
 import type {
   PopsPanelSelectMultipleDataOption,
-  PopsPanelSelectMultipleDetails,
+  PopsPanelSelectMultipleConfig,
 } from "./types/components-selectMultiple";
-import type { PopsPanelSelectDetails } from "./types/components-select";
-import type { PopsPanelSliderDetails } from "./types/components-slider";
-import type { PopsPanelSwitchDetails } from "./types/components-switch";
-import type { PopsPanelTextAreaDetails } from "./types/components-textarea";
+import type { PopsPanelSelectConfig } from "./types/components-select";
+import type { PopsPanelSliderConfig } from "./types/components-slider";
+import type { PopsPanelSwitchConfig } from "./types/components-switch";
+import type { PopsPanelTextAreaConfig } from "./types/components-textarea";
 /**
  * 处理组件（把组件配置转为组件元素）
  */
@@ -69,13 +69,16 @@ export const PanelHandlerComponents = () => {
       $panelBottomLeftContainer: null as any as HTMLElement,
       $panelBottomRightContainer: null as any as HTMLElement,
     },
-    $config: {} as Required<PopsPanelDetails>,
+    $data: {
+      nodeStoreConfigKey: "data-view-config",
+    },
+    $config: {} as Required<PopsPanelConfig>,
     /**
      * 初始化
-     * @param details
+     * @param data
      */
-    init(details: {
-      config: Required<PopsPanelDetails>;
+    init(data: {
+      config: Required<PopsPanelConfig>;
       $el: {
         $pops: HTMLElement;
         $content: HTMLElement;
@@ -90,9 +93,9 @@ export const PanelHandlerComponents = () => {
     }) {
       const PopsType = "panel";
       this.$el = {
-        ...details.$el,
+        ...data.$el,
       };
-      this.$config = details.config;
+      this.$config = data.config;
 
       this.asideULElement = this.$el.$panelLeftAside.querySelector<HTMLUListElement>(
         `ul.pops-${PopsType}-aside-top-container`
@@ -113,7 +116,7 @@ export const PanelHandlerComponents = () => {
       /** 是否滚动到默认位置（第一个项） */
       let isScrollToDefaultView = false;
       // 初始化内容配置
-      details.config.content.forEach((asideItemConfig) => {
+      data.config.content.forEach((asideItemConfig) => {
         const $asideLiElement = this.createAsideItem(asideItemConfig);
         this.setAsideItemClickEvent($asideLiElement, asideItemConfig);
         // 是否处于底部
@@ -145,7 +148,7 @@ export const PanelHandlerComponents = () => {
         }
       });
       // 初始化底部内容配置
-      (details.config?.bottomContentConfig || []).forEach((bottomItemConfig) => {
+      (data.config?.bottomContentConfig || []).forEach((bottomItemConfig) => {
         const $bottomLiElement = this.createBottomItem(bottomItemConfig);
         this.setBottomItemClickEvent($bottomLiElement, bottomItemConfig);
         if (bottomItemConfig.position === "left" || bottomItemConfig.position == null) {
@@ -166,13 +169,13 @@ export const PanelHandlerComponents = () => {
         }
       });
 
-      /* 点击左侧列表 */
+      // 点击左侧列表
       if ($defaultAsideItem == null && this.asideULElement.children.length) {
-        /* 默认第一个 */
+        // 默认第一个
         $defaultAsideItem = <HTMLLIElement>this.asideULElement.children[0];
       }
       if ($defaultAsideItem) {
-        /* 点击选择的那一项 */
+        // 点击选择的那一项
         $defaultAsideItem.click();
         if (isScrollToDefaultView) {
           $defaultAsideItem?.scrollIntoView();
@@ -185,7 +188,7 @@ export const PanelHandlerComponents = () => {
      * 清空container容器的元素
      */
     clearContainer() {
-      Reflect.deleteProperty(this.$el.$panelContentSectionContainer, "__formConfig__");
+      Reflect.deleteProperty(this.$el.$panelContentSectionContainer, this.$data.nodeStoreConfigKey);
       PopsSafeUtils.setSafeHTML(this.sectionContainerHeaderULElement, "");
       PopsSafeUtils.setSafeHTML(this.sectionContainerULElement, "");
       this.clearDeepMenuContainer();
@@ -255,7 +258,7 @@ export const PanelHandlerComponents = () => {
      * @param $el 元素
      * @param className
      */
-    setElementClassName($el: HTMLElement, className?: PopsPanelCommonDetails<any>["className"]) {
+    setElementClassName($el: HTMLElement, className?: PopsPanelGeneralConfig<any>["className"]) {
       popsDOMUtils.addClassName($el, className);
     },
     /**
@@ -272,9 +275,9 @@ export const PanelHandlerComponents = () => {
         className: ["pops-panel-bottom-item", "pops-user-select-none", className].join(" "),
         innerHTML: text,
       });
-      /* 处理attr */
+      // 处理attr
       this.setElementAttributes($li, bottomItemConfig.attributes);
-      /* 处理props */
+      // 处理props
       this.setElementProps($li, bottomItemConfig.props);
       /** 禁用左侧项的hover的CSS样式的类名 */
       const disablHoverCSSClassName = "pops-panel-disable-bottom-item-hover-css";
@@ -298,7 +301,7 @@ export const PanelHandlerComponents = () => {
     setBottomItemClickEvent($bottomItem: HTMLElement, bottomItemConfig: PopsPanelBottomContentConfig) {
       popsDOMUtils.on<MouseEvent | PointerEvent>($bottomItem, "click", async (event) => {
         if (typeof bottomItemConfig.clickCallback === "function") {
-          /* 执行回调 */
+          // 执行回调
           const asideClickCallbackResult = await bottomItemConfig.clickCallback(event);
           if (typeof asideClickCallbackResult === "boolean" && !asideClickCallbackResult) {
             return;
@@ -317,13 +320,13 @@ export const PanelHandlerComponents = () => {
         id: asideConfig.id,
         innerHTML: text,
       });
-      Reflect.set($li, "__forms__", asideConfig.forms);
-      /* 处理className */
+      Reflect.set($li, "__forms__", asideConfig.views);
+      // 处理className
       this.setElementClassName($li, "pops-panel-aside-item");
       this.setElementClassName($li, asideConfig.className);
-      /* 处理attr */
+      // 处理attr
       this.setElementAttributes($li, asideConfig.attributes);
-      /* 处理props */
+      // 处理props
       this.setElementProps($li, asideConfig.props);
       /** 禁用左侧项的hover的CSS样式的类名 */
       const disablHoverCSSClassName = "pops-panel-disabled-aside-hover-css";
@@ -342,24 +345,24 @@ export const PanelHandlerComponents = () => {
     /**
      * type ==> switch
      * 创建中间容器的元素<li>
-     * @param formConfig
+     * @param viewConfig
      */
-    createSectionContainerItem_switch(formConfig: PopsPanelSwitchDetails) {
+    createSectionContainerItem_switch(viewConfig: PopsPanelSwitchConfig) {
       const $li = popsDOMUtils.createElement("li");
-      Reflect.set($li, "__formConfig__", formConfig);
-      this.setElementClassName($li, formConfig.className);
-      this.setElementAttributes($li, formConfig.attributes);
-      this.setElementProps($li, formConfig.props);
-      /* 左边底部的描述的文字 */
+      Reflect.set($li, this.$data.nodeStoreConfigKey, viewConfig);
+      this.setElementClassName($li, viewConfig.className);
+      this.setElementAttributes($li, viewConfig.attributes);
+      this.setElementProps($li, viewConfig.props);
+      // 左边底部的描述的文字
       let leftDescriptionText = "";
-      if (formConfig.description) {
-        leftDescriptionText = /*html*/ `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+      if (viewConfig.description) {
+        leftDescriptionText = /*html*/ `<p class="pops-panel-item-left-desc-text">${viewConfig.description}</p>`;
       }
       PopsSafeUtils.setSafeHTML(
         $li,
         /*html*/ `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
+					<p class="pops-panel-item-left-main-text">${viewConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-switch">
 					<input class="pops-panel-switch__input" type="checkbox">
 					<span class="pops-panel-switch__core">
@@ -371,7 +374,7 @@ export const PanelHandlerComponents = () => {
       const PopsPanelSwitch = {
         [Symbol.toStringTag]: "PopsPanelSwitch",
         $data: {
-          value: Boolean(formConfig.getValue()),
+          value: Boolean(viewConfig.getValue()),
         },
         $ele: {
           itemLeftTextContainer: $li.querySelector<HTMLElement>(".pops-panel-item-left-text"),
@@ -381,7 +384,7 @@ export const PanelHandlerComponents = () => {
         },
         init() {
           this.setStatus(this.$data.value);
-          const disabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
+          const disabled = typeof viewConfig.disabled === "function" ? viewConfig.disabled() : viewConfig.disabled;
           if (disabled) {
             this.disable();
           }
@@ -398,8 +401,8 @@ export const PanelHandlerComponents = () => {
             }
             that.$data.value = that.getStatus();
             that.setStatus(that.$data.value);
-            if (typeof formConfig.callback === "function") {
-              formConfig.callback(event, that.$data.value);
+            if (typeof viewConfig.callback === "function") {
+              viewConfig.callback(event, that.$data.value);
             }
           });
         },
@@ -450,47 +453,47 @@ export const PanelHandlerComponents = () => {
     /**
      * type ==> slider
      * 获取中间容器的元素<li>
-     * @param formConfig
+     * @param viewConfig
      */
-    createSectionContainerItem_slider(formConfig: PopsPanelSliderDetails) {
+    createSectionContainerItem_slider(viewConfig: PopsPanelSliderConfig) {
       const $li = popsDOMUtils.createElement("li");
-      Reflect.set($li, "__formConfig__", formConfig);
-      this.setElementClassName($li, formConfig.className);
-      this.setElementAttributes($li, formConfig.attributes);
-      this.setElementProps($li, formConfig.props);
-      /* 左边底部的描述的文字 */
+      Reflect.set($li, this.$data.nodeStoreConfigKey, viewConfig);
+      this.setElementClassName($li, viewConfig.className);
+      this.setElementAttributes($li, viewConfig.attributes);
+      this.setElementProps($li, viewConfig.props);
+      // 左边底部的描述的文字
       let leftDescriptionText = "";
-      if (formConfig.description) {
-        leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+      if (viewConfig.description) {
+        leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${viewConfig.description}</p>`;
       }
       PopsSafeUtils.setSafeHTML(
         $li,
         /*html*/ `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
+					<p class="pops-panel-item-left-main-text">${viewConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-slider">
-					<input type="range" min="${formConfig.min}" max="${formConfig.max}">
+					<input type="range" min="${viewConfig.min}" max="${viewConfig.max}">
 				</div>
 			`
       );
       const $rangeInput = $li.querySelector<HTMLInputElement>(".pops-panel-slider input[type=range]")!;
-      if (formConfig.step) {
-        $rangeInput.setAttribute("step", formConfig.step.toString());
+      if (viewConfig.step) {
+        $rangeInput.setAttribute("step", viewConfig.step.toString());
       }
-      $rangeInput.value = formConfig.getValue().toString();
+      $rangeInput.value = viewConfig.getValue().toString();
       /**
        * 获取提示的内容
        * @param value
        */
       const getToolTipContent = function (value: number | string) {
-        if (typeof formConfig.getToolTipContent === "function") {
-          return formConfig.getToolTipContent(value as number);
+        if (typeof viewConfig.getToolTipContent === "function") {
+          return viewConfig.getToolTipContent(value as number);
         } else {
           return value as string;
         }
       };
       const tooltip = PopsTooltip.init({
-        target: $rangeInput.parentElement!,
+        $target: $rangeInput.parentElement!,
         content: () => {
           return getToolTipContent($rangeInput.value);
         },
@@ -505,8 +508,8 @@ export const PanelHandlerComponents = () => {
       });
       popsDOMUtils.on<InputEvent>($rangeInput, ["input", "propertychange"], void 0, function (event) {
         tooltip.toolTip.changeContent(getToolTipContent($rangeInput.value));
-        if (typeof formConfig.callback === "function") {
-          formConfig.callback(event, $rangeInput.valueAsNumber);
+        if (typeof viewConfig.callback === "function") {
+          viewConfig.callback(event, $rangeInput.valueAsNumber);
         }
       });
       return $li;
@@ -514,24 +517,24 @@ export const PanelHandlerComponents = () => {
     /**
      * type ==> slider
      * 获取中间容器的元素<li>
-     * @param formConfig
+     * @param viewConfig
      */
-    createSectionContainerItem_slider_new(formConfig: PopsPanelSliderDetails) {
+    createSectionContainerItem_slider_new(viewConfig: PopsPanelSliderConfig) {
       const $li = popsDOMUtils.createElement("li");
-      Reflect.set($li, "__formConfig__", formConfig);
-      this.setElementClassName($li, formConfig.className);
-      this.setElementAttributes($li, formConfig.attributes);
-      this.setElementProps($li, formConfig.props);
-      /* 左边底部的描述的文字 */
+      Reflect.set($li, this.$data.nodeStoreConfigKey, viewConfig);
+      this.setElementClassName($li, viewConfig.className);
+      this.setElementAttributes($li, viewConfig.attributes);
+      this.setElementProps($li, viewConfig.props);
+      // 左边底部的描述的文字
       let leftDescriptionText = "";
-      if (formConfig.description) {
-        leftDescriptionText = /*html*/ `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+      if (viewConfig.description) {
+        leftDescriptionText = /*html*/ `<p class="pops-panel-item-left-desc-text">${viewConfig.description}</p>`;
       }
       PopsSafeUtils.setSafeHTML(
         $li,
         /*html*/ `
 				<div class="pops-panel-item-left-text" style="flex: 1;">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
+					<p class="pops-panel-item-left-main-text">${viewConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-slider pops-slider-width">
 					<div class="pops-slider__runway">
 						<div class="pops-slider__bar" style="width: 0%; left: 0%"></div>
@@ -546,19 +549,19 @@ export const PanelHandlerComponents = () => {
         /**
          * 值
          */
-        value: formConfig.getValue(),
+        value: viewConfig.getValue(),
         /**
          * 最小值
          */
-        min: formConfig.min,
+        min: viewConfig.min,
         /**
          * 最大值
          */
-        max: formConfig.max,
+        max: viewConfig.max,
         /**
          * 间隔
          */
-        step: formConfig.step || 1,
+        step: viewConfig.step || 1,
         $data: {
           /**
            * 是否正在移动
@@ -630,7 +633,7 @@ export const PanelHandlerComponents = () => {
           this.setPanEvent();
           this.setRunAwayClickEvent();
           this.intervalInit();
-          if (this.isFormConfigDisabledDrag()) {
+          if (this.isDisabledDragWithConfig()) {
             this.disableDrag();
           }
         },
@@ -658,7 +661,7 @@ export const PanelHandlerComponents = () => {
               if (this.$data.totalWidth !== 0) {
                 isSuccess = true;
                 if (this.$data.totalWidth !== oldTotalWidth) {
-                  /* slider的总宽度改变了 */
+                  // slider的总宽度改变了
                   if (PopsMathFloatUtils.isFloat(this.step)) {
                     this.initFloatStepMap();
                   } else {
@@ -669,7 +672,7 @@ export const PanelHandlerComponents = () => {
               }
             }
           }, checkStepTime);
-          /* 最长检测时间是10s */
+          // 最长检测时间是10s
           timer = setTimeout(() => {
             clearInterval(interval);
           }, maxTime);
@@ -707,7 +710,7 @@ export const PanelHandlerComponents = () => {
             const value = this.formatValue(stepValue);
             let info;
             if (value === this.min) {
-              /* 起始 */
+              // 起始
               info = {
                 value: value,
                 px: 0,
@@ -753,7 +756,7 @@ export const PanelHandlerComponents = () => {
             const value = this.formatValue(stepValue);
             let info;
             if (value === this.min) {
-              /* 起始 */
+              // 起始
               info = {
                 value: value,
                 px: 0,
@@ -785,10 +788,10 @@ export const PanelHandlerComponents = () => {
          * 初始化slider的默认起始left的百分比值
          */
         initSliderPosition() {
-          /* 设置起始默认style的left值 */
+          // 设置起始默认style的left值
           let percent = 0;
           for (const [, stepBlockInfo] of this.$data.stepBlockMap.entries()) {
-            /* 判断值是否和区域内的值相等 */
+            // 判断值是否和区域内的值相等
             if (stepBlockInfo.value == this.value) {
               percent = stepBlockInfo.percent;
               this.$data.dragWidth = stepBlockInfo.px;
@@ -811,8 +814,8 @@ export const PanelHandlerComponents = () => {
          * @param value
          */
         valueChangeCallBack(event: any, value: number) {
-          if (typeof formConfig.callback === "function") {
-            formConfig.callback(event, value);
+          if (typeof viewConfig.callback === "function") {
+            viewConfig.callback(event, value);
           }
         },
         /**
@@ -859,9 +862,9 @@ export const PanelHandlerComponents = () => {
           if (percent > 1) {
             percent = percent / 100;
           }
-          /* 滑块按钮的偏移 */
+          // 滑块按钮的偏移
           this.$ele.buttonWrapper.style.left = `${percent * 100}%`;
-          /* 滑块进度的宽度 */
+          // 滑块进度的宽度
           this.$ele.bar.style.width = `${percent * 100}%`;
         },
         /**
@@ -887,8 +890,8 @@ export const PanelHandlerComponents = () => {
         /**
          * 判断当前滑块是否被禁用（配置中判断）
          */
-        isFormConfigDisabledDrag() {
-          const isDisabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
+        isDisabledDragWithConfig() {
+          const isDisabled = typeof viewConfig.disabled === "function" ? viewConfig.disabled() : viewConfig.disabled;
           if (typeof isDisabled === "boolean") {
             return isDisabled;
           } else {
@@ -923,7 +926,7 @@ export const PanelHandlerComponents = () => {
          * 拖拽开始的回调，如果返回false，禁止拖拽
          */
         dragStartCallBack() {
-          if (this.isFormConfigDisabledDrag()) {
+          if (this.isDisabledDragWithConfig()) {
             // 禁止
             this.disableDrag();
             return false;
@@ -993,7 +996,7 @@ export const PanelHandlerComponents = () => {
            * 当前的拖拽的距离px
            */
           let currentDragX = 0;
-          /* 监听拖拽 */
+          // 监听拖拽
           this.$tooltip.on("at:move", (event) => {
             if (!this.dragStartCallBack()) {
               return;
@@ -1007,10 +1010,10 @@ export const PanelHandlerComponents = () => {
               displacementX = runAwayRect.width;
             }
             currentDragX = displacementX;
-            /* 拖拽移动 */
+            // 拖拽移动
             this.dragMoveCallBack(event, currentDragX, oldValue);
           });
-          /* 监听触点离开，处理某些情况下，拖拽松开，但是未触发pan事件，可以通过设置这个来关闭tooltip */
+          // 监听触点离开，处理某些情况下，拖拽松开，但是未触发pan事件，可以通过设置这个来关闭tooltip
           this.$tooltip.on("at:end", () => {
             this.dragEndCallBack(currentDragX);
           });
@@ -1055,15 +1058,15 @@ export const PanelHandlerComponents = () => {
            * 获取提示的内容
            */
           function getToolTipContent() {
-            if (typeof formConfig.getToolTipContent === "function") {
-              return formConfig.getToolTipContent(PopsPanelSlider.value);
+            if (typeof viewConfig.getToolTipContent === "function") {
+              return viewConfig.getToolTipContent(PopsPanelSlider.value);
             } else {
               return PopsPanelSlider.value.toString();
             }
           }
 
           const tooltip = PopsTooltip.init({
-            target: this.$ele.button,
+            $target: this.$ele.button,
             content: getToolTipContent,
             zIndex: () => {
               return PopsInstanceUtils.getPopsMaxZIndex().zIndex;
@@ -1077,10 +1080,10 @@ export const PanelHandlerComponents = () => {
             },
             showBeforeCallBack: () => {
               const isShowHoverTip =
-                typeof formConfig.isShowHoverTip === "function"
-                  ? formConfig.isShowHoverTip()
-                  : typeof formConfig.isShowHoverTip === "boolean"
-                    ? formConfig.isShowHoverTip
+                typeof viewConfig.isShowHoverTip === "function"
+                  ? viewConfig.isShowHoverTip()
+                  : typeof viewConfig.isShowHoverTip === "boolean"
+                    ? viewConfig.isShowHoverTip
                     : true;
               if (!isShowHoverTip) {
                 return false;
@@ -1110,32 +1113,32 @@ export const PanelHandlerComponents = () => {
     /**
      * type ==> input
      * 获取中间容器的元素<li>
-     * @param formConfig
+     * @param viewConfig
      */
-    createSectionContainerItem_input(formConfig: PopsPanelInputDetails) {
+    createSectionContainerItem_input(viewConfig: PopsPanelInputConfig) {
       const $li = popsDOMUtils.createElement("li");
-      Reflect.set($li, "__formConfig__", formConfig);
-      this.setElementClassName($li, formConfig.className);
-      this.setElementAttributes($li, formConfig.attributes);
-      this.setElementProps($li, formConfig.props);
+      Reflect.set($li, this.$data.nodeStoreConfigKey, viewConfig);
+      this.setElementClassName($li, viewConfig.className);
+      this.setElementAttributes($li, viewConfig.attributes);
+      this.setElementProps($li, viewConfig.props);
       let inputType = "text";
-      if (formConfig.isPassword) {
+      if (viewConfig.isPassword) {
         inputType = "password";
-      } else if (formConfig.isNumber) {
+      } else if (viewConfig.isNumber) {
         inputType = "number";
       }
-      /* 左边底部的描述的文字 */
+      // 左边底部的描述的文字
       let leftDescriptionText = "";
-      if (formConfig.description) {
-        leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+      if (viewConfig.description) {
+        leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${viewConfig.description}</p>`;
       }
       PopsSafeUtils.setSafeHTML(
         $li,
         /*html*/ `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
+					<p class="pops-panel-item-left-main-text">${viewConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-input">
-					<input type="${inputType}" placeholder="${formConfig.placeholder ?? ""}">
+					<input type="${inputType}" placeholder="${viewConfig.placeholder ?? ""}">
 				</div>
 				`
       );
@@ -1150,18 +1153,18 @@ export const PanelHandlerComponents = () => {
           icon: null as any as HTMLElement,
         },
         $data: {
-          value: formConfig.getValue(),
+          value: viewConfig.getValue(),
           isView: false,
         },
         init() {
           this.initEle();
           this.setInputValue(this.$data.value);
-          /* 如果是密码框，放进图标 */
-          if (formConfig.isPassword) {
+          // 如果是密码框，放进图标
+          if (viewConfig.isPassword) {
             this.setCircleIcon(PopsIcon.getIcon("view")!);
             this.setCircleIconClickEvent();
           } else {
-            /* 先判断预设值是否为空，不为空添加清空图标按钮 */
+            // 先判断预设值是否为空，不为空添加清空图标按钮
             if (this.$ele.input.value != "") {
               this.setCircleIcon(PopsIcon.getIcon("circleClose")!);
               this.setCircleIconClickEvent();
@@ -1170,12 +1173,12 @@ export const PanelHandlerComponents = () => {
 
           this.setInputChangeEvent();
           // 是否禁用复选框
-          const disabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
+          const disabled = typeof viewConfig.disabled === "function" ? viewConfig.disabled() : viewConfig.disabled;
           if (disabled) {
             this.disable();
           }
-          if (typeof formConfig.handlerCallBack === "function") {
-            formConfig.handlerCallBack($li, this.$ele.input);
+          if (typeof viewConfig.handlerCallBack === "function") {
+            viewConfig.handlerCallBack($li, this.$ele.input);
           }
         },
         /**
@@ -1255,30 +1258,30 @@ export const PanelHandlerComponents = () => {
             if (this.isDisabled()) {
               return;
             }
-            /* 删除图标 */
+            // 删除图标
             this.removeCircleIcon();
-            if (formConfig.isPassword) {
-              /* 密码输入框 */
+            if (viewConfig.isPassword) {
+              // 密码输入框
               if (this.$data.isView) {
-                /* 当前可见 => 点击改变为隐藏 */
+                // 当前可见 => 点击改变为隐藏
                 this.$data.isView = false;
-                /* 显示输入框内容，且更换图标为隐藏图标 */
+                // 显示输入框内容，且更换图标为隐藏图标
                 this.setInputType("text");
                 this.setCircleIcon(PopsIcon.getIcon("hide")!);
               } else {
-                /* 当前不可见 => 点击改变为显示 */
+                // 当前不可见 => 点击改变为显示
                 this.$data.isView = true;
-                /* 隐藏输入框内容，且更换图标为显示图标 */
+                // 隐藏输入框内容，且更换图标为显示图标
                 this.setInputType("password");
                 this.setCircleIcon(PopsIcon.getIcon("view")!);
               }
             } else {
-              /* 普通输入框 */
-              /* 清空内容 */
+              // 普通输入框
+              // 清空内容
               this.setInputValue("");
-              /* 获取焦点 */
+              // 获取焦点
               this.$ele.input.focus();
-              /* 触发内容改变事件 */
+              // 触发内容改变事件
               this.$ele.input.dispatchEvent(new Event("input"));
             }
           });
@@ -1289,21 +1292,21 @@ export const PanelHandlerComponents = () => {
         setInputChangeEvent() {
           popsDOMUtils.on<InputEvent>(this.$ele.input, ["input", "propertychange"], void 0, (event) => {
             this.$data.value = this.$ele.input.value;
-            if (!formConfig.isPassword) {
-              /* 不是密码框 */
+            if (!viewConfig.isPassword) {
+              // 不是密码框
               if (this.$ele.input.value !== "" && this.$ele.icon.innerHTML === "") {
-                /* 不为空，显示清空图标 */
+                // 不为空，显示清空图标
                 this.setCircleIcon(PopsIcon.getIcon("circleClose")!);
                 this.setCircleIconClickEvent();
               } else if (this.$ele.input.value === "") {
                 this.removeCircleIcon();
               }
             }
-            if (typeof formConfig.callback === "function") {
-              if (formConfig.isNumber) {
-                formConfig.callback(event, this.$ele.input.value, this.$ele.input.valueAsNumber);
+            if (typeof viewConfig.callback === "function") {
+              if (viewConfig.isNumber) {
+                viewConfig.callback(event, this.$ele.input.value, this.$ele.input.valueAsNumber);
               } else {
-                formConfig.callback(event, this.$ele.input.value);
+                viewConfig.callback(event, this.$ele.input.value);
               }
             }
           });
@@ -1316,27 +1319,27 @@ export const PanelHandlerComponents = () => {
     /**
      * type ==> textarea
      * 获取中间容器的元素<li>
-     * @param formConfig
+     * @param viewConfig
      */
-    createSectionContainerItem_textarea(formConfig: PopsPanelTextAreaDetails) {
+    createSectionContainerItem_textarea(viewConfig: PopsPanelTextAreaConfig) {
       const $li = popsDOMUtils.createElement("li");
-      Reflect.set($li, "__formConfig__", formConfig);
-      this.setElementClassName($li, formConfig.className);
-      this.setElementAttributes($li, formConfig.attributes);
-      this.setElementProps($li, formConfig.props);
+      Reflect.set($li, this.$data.nodeStoreConfigKey, viewConfig);
+      this.setElementClassName($li, viewConfig.className);
+      this.setElementAttributes($li, viewConfig.attributes);
+      this.setElementProps($li, viewConfig.props);
 
-      /* 左边底部的描述的文字 */
+      // 左边底部的描述的文字
       let leftDescriptionText = "";
-      if (formConfig.description) {
-        leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+      if (viewConfig.description) {
+        leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${viewConfig.description}</p>`;
       }
       PopsSafeUtils.setSafeHTML(
         $li,
         /*html*/ `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
+					<p class="pops-panel-item-left-main-text">${viewConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-textarea">
-					<textarea placeholder="${formConfig.placeholder ?? ""}"></textarea>
+					<textarea placeholder="${viewConfig.placeholder ?? ""}"></textarea>
 				</div>
 			`
       );
@@ -1349,12 +1352,12 @@ export const PanelHandlerComponents = () => {
           textarea: $li.querySelector<HTMLTextAreaElement>(".pops-panel-textarea textarea")!,
         },
         $data: {
-          value: formConfig.getValue(),
+          value: viewConfig.getValue(),
         },
         init() {
           this.setValue(this.$data.value);
           this.setChangeEvent();
-          const disabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
+          const disabled = typeof viewConfig.disabled === "function" ? viewConfig.disabled() : viewConfig.disabled;
           if (disabled) {
             this.disable();
           }
@@ -1385,8 +1388,8 @@ export const PanelHandlerComponents = () => {
           popsDOMUtils.on<InputEvent>(this.$ele.textarea, ["input", "propertychange"], (event) => {
             const value = this.$ele.textarea.value;
             this.$data.value = value;
-            if (typeof formConfig.callback === "function") {
-              formConfig.callback(
+            if (typeof viewConfig.callback === "function") {
+              viewConfig.callback(
                 event as InputEvent & {
                   target: HTMLTextAreaElement;
                 },
@@ -1405,25 +1408,25 @@ export const PanelHandlerComponents = () => {
     /**
      * type ==> select
      * 获取中间容器的元素<li>
-     * @param formConfig
+     * @param viewConfig
      */
-    createSectionContainerItem_select(formConfig: PopsPanelSelectDetails<any>) {
+    createSectionContainerItem_select(viewConfig: PopsPanelSelectConfig<any>) {
       const that = this;
       const $li = popsDOMUtils.createElement("li");
-      Reflect.set($li, "__formConfig__", formConfig);
-      this.setElementClassName($li, formConfig.className);
-      this.setElementAttributes($li, formConfig.attributes);
-      this.setElementProps($li, formConfig.props);
-      /* 左边底部的描述的文字 */
+      Reflect.set($li, this.$data.nodeStoreConfigKey, viewConfig);
+      this.setElementClassName($li, viewConfig.className);
+      this.setElementAttributes($li, viewConfig.attributes);
+      this.setElementProps($li, viewConfig.props);
+      // 左边底部的描述的文字
       let leftDescriptionText = "";
-      if (formConfig.description) {
-        leftDescriptionText = /*html*/ `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+      if (viewConfig.description) {
+        leftDescriptionText = /*html*/ `<p class="pops-panel-item-left-desc-text">${viewConfig.description}</p>`;
       }
       PopsSafeUtils.setSafeHTML(
         $li,
         /*html*/ `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
+					<p class="pops-panel-item-left-main-text">${viewConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-select">
 					<select></select>
 				</div>
@@ -1440,17 +1443,17 @@ export const PanelHandlerComponents = () => {
         $eleKey: {
           disable: "__disable__",
           value: "__value__",
-          forms: "__forms__",
+          viewConfig: "data-view-config",
         },
         $data: {
-          defaultValue: formConfig.getValue(),
+          defaultValue: viewConfig.getValue(),
         },
         init() {
           popsDOMUtils.addClassName(this.$ele.panelSelect, PopsCommonCSSClassName.userSelectNone);
           this.initOption();
           this.setChangeEvent();
           this.setClickEvent();
-          const disabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
+          const disabled = typeof viewConfig.disabled === "function" ? viewConfig.disabled() : viewConfig.disabled;
           if (disabled) {
             this.disable();
           }
@@ -1502,12 +1505,12 @@ export const PanelHandlerComponents = () => {
          * 初始化选项
          */
         initOption() {
-          formConfig.data.forEach((dataItem) => {
+          viewConfig.data.forEach((dataItem) => {
             // 初始化默认选中
             const optionElement = popsDOMUtils.createElement("option");
             this.setNodeValue(optionElement, this.$eleKey.value, dataItem.value);
             this.setNodeValue(optionElement, this.$eleKey.disable, dataItem.disable);
-            this.setNodeValue(optionElement, this.$eleKey.forms, dataItem.forms);
+            this.setNodeValue(optionElement, this.$eleKey.viewConfig, dataItem.views);
             if (dataItem.value === this.$data.defaultValue) {
               this.setOptionSelected(optionElement);
             }
@@ -1547,11 +1550,11 @@ export const PanelHandlerComponents = () => {
         getSelectOptionInfo($option: HTMLOptionElement) {
           const optionValue = this.getNodeValue($option, this.$eleKey.value);
           const optionText = $option.innerText || $option.textContent!;
-          const optionForms = this.getNodeValue($option, this.$eleKey.forms) as (typeof formConfig.data)[0]["forms"];
+          const views = this.getNodeValue($option, this.$eleKey.viewConfig) as (typeof viewConfig.data)[0]["views"];
           return {
             value: optionValue,
             text: optionText,
-            forms: optionForms,
+            views: views,
             $option: $option,
           };
         },
@@ -1563,12 +1566,12 @@ export const PanelHandlerComponents = () => {
             const $isSelectedElement = this.$ele.select[this.$ele.select.selectedIndex] as HTMLOptionElement;
             const selectInfo = this.getSelectOptionInfo($isSelectedElement);
             this.setSelectOptionsDisableStatus();
-            if (typeof formConfig.callback === "function") {
-              formConfig.callback(event, selectInfo.value, selectInfo.text);
+            if (typeof viewConfig.callback === "function") {
+              viewConfig.callback(event, selectInfo.value, selectInfo.text);
             }
-            const forms = typeof selectInfo.forms === "function" ? selectInfo.forms() : selectInfo.forms;
-            if (Array.isArray(forms)) {
-              /* 如果成功创建，加入到中间容器中 */
+            const views = typeof selectInfo.views === "function" ? selectInfo.views() : selectInfo.views;
+            if (Array.isArray(views)) {
+              // 如果成功创建，加入到中间容器中
               const childUListClassName = "pops-panel-select-child-forms";
               // 移除旧的元素
               while ($li.nextElementSibling) {
@@ -1581,7 +1584,7 @@ export const PanelHandlerComponents = () => {
               const $childUList = popsDOMUtils.createElement("ul");
               $childUList.className = childUListClassName;
               popsDOMUtils.after($li, $childUList);
-              that.uListContainerAddItem(formConfig, {
+              that.uListContainerAddItem(viewConfig, {
                 ulElement: $childUList,
               });
             }
@@ -1593,8 +1596,8 @@ export const PanelHandlerComponents = () => {
         setClickEvent() {
           popsDOMUtils.on(this.$ele.select, "click", void 0, (event) => {
             this.setSelectOptionsDisableStatus();
-            if (typeof formConfig.clickCallBack === "function") {
-              formConfig.clickCallBack(event, this.$ele.select);
+            if (typeof viewConfig.clickCallBack === "function") {
+              viewConfig.clickCallBack(event, this.$ele.select);
             }
           });
         },
@@ -1607,24 +1610,24 @@ export const PanelHandlerComponents = () => {
     /**
      * type ==> select-multiple
      * 获取中间容器的元素<li>
-     * @param formConfig
+     * @param viewConfig
      */
-    createSectionContainerItem_select_multiple_new(formConfig: PopsPanelSelectMultipleDetails<any>) {
+    createSectionContainerItem_select_multiple(viewConfig: PopsPanelSelectMultipleConfig<any>) {
       const $li = popsDOMUtils.createElement("li");
-      Reflect.set($li, "__formConfig__", formConfig);
-      this.setElementClassName($li, formConfig.className);
-      this.setElementAttributes($li, formConfig.attributes);
-      this.setElementProps($li, formConfig.props);
-      /* 左边底部的描述的文字 */
+      Reflect.set($li, this.$data.nodeStoreConfigKey, viewConfig);
+      this.setElementClassName($li, viewConfig.className);
+      this.setElementAttributes($li, viewConfig.attributes);
+      this.setElementProps($li, viewConfig.props);
+      // 左边底部的描述的文字
       let leftDescriptionText = "";
-      if (formConfig.description) {
-        leftDescriptionText = /*html*/ `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+      if (viewConfig.description) {
+        leftDescriptionText = /*html*/ `<p class="pops-panel-item-left-desc-text">${viewConfig.description}</p>`;
       }
       PopsSafeUtils.setSafeHTML(
         $li,
         /*html*/ `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
+					<p class="pops-panel-item-left-main-text">${viewConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-select-multiple">
 					<div class="el-select__wrapper">
 						<div class="el-select__selection">
@@ -1653,9 +1656,9 @@ export const PanelHandlerComponents = () => {
         $el: {
           /** 左侧文本容器 */
           itemLeftTextContainer: $li.querySelector<HTMLElement>(".pops-panel-item-left-text"),
-          /** 容器 */
+          /** 选择框容器 */
           $container: void 0 as any as HTMLElement,
-          /** 包括的容器 */
+          /** 选择框包裹的容器 */
           $wrapper: void 0 as any as HTMLElement,
           /** 内容区域 */
           $section: void 0 as any as HTMLElement,
@@ -1672,8 +1675,15 @@ export const PanelHandlerComponents = () => {
         },
         $data: {
           /** 默认值 */
-          defaultValue: formConfig.getValue(),
-          selectInfo: [] as any as PopsPanelSelectMultipleDataOption<any>[],
+          defaultValue: viewConfig.getValue(),
+          /**
+           * 选择的信息
+           */
+          selectInfo: [] as PopsPanelSelectMultipleDataOption<any>[],
+          /**
+           * 箭头旋转的属性
+           */
+          rotateKey: "data-show-option",
         },
         /** 初始化 */
         init() {
@@ -1683,14 +1693,14 @@ export const PanelHandlerComponents = () => {
           this.initTagElement();
           this.setSelectContainerClickEvent();
 
-          const disabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
+          const disabled = typeof viewConfig.disabled === "function" ? viewConfig.disabled() : viewConfig.disabled;
           if (disabled) {
             this.disable();
           }
         },
         /** 初始化默认值 */
         initDefault() {
-          formConfig.data.forEach((dataItem) => {
+          viewConfig.data.forEach((dataItem) => {
             if (this.$data.defaultValue.includes(dataItem.value)) {
               // 初始化选中的配置
               this.$data.selectInfo.push({
@@ -1722,10 +1732,10 @@ export const PanelHandlerComponents = () => {
         /** 初始化提示文字 */
         initPlaceHolder() {
           let placeholder = "";
-          if (typeof formConfig.placeholder === "string") {
-            placeholder = formConfig.placeholder;
-          } else if (typeof formConfig.placeholder === "function") {
-            const placeholderResult = formConfig.placeholder();
+          if (typeof viewConfig.placeholder === "string") {
+            placeholder = viewConfig.placeholder;
+          } else if (typeof viewConfig.placeholder === "function") {
+            const placeholderResult = viewConfig.placeholder();
             if (typeof placeholderResult === "string") {
               placeholder = placeholderResult;
             }
@@ -1738,7 +1748,7 @@ export const PanelHandlerComponents = () => {
         /** 初始化tag元素 */
         initTagElement() {
           // 遍历数据，寻找对应的值
-          formConfig.data.forEach((dataItem) => {
+          viewConfig.data.forEach((dataItem) => {
             const findValue = this.$data.selectInfo.find((item) => item.value === dataItem.value);
             if (findValue) {
               // 存在对应的值
@@ -1839,8 +1849,8 @@ export const PanelHandlerComponents = () => {
         selectValueChangeCallBack(selectedDataList?: PopsPanelSelectMultipleDataOption<any>[]) {
           // 动态更新禁用状态
           this.updateSelectItem();
-          if (typeof formConfig.callback === "function") {
-            formConfig.callback(selectedDataList || this.$data.selectInfo);
+          if (typeof viewConfig.callback === "function") {
+            viewConfig.callback(selectedDataList || this.$data.selectInfo);
           }
         },
         /**
@@ -2029,9 +2039,9 @@ export const PanelHandlerComponents = () => {
             if (this.isSelectItemDisabled($select)) {
               return;
             }
-            if (typeof formConfig.clickCallBack === "function") {
+            if (typeof viewConfig.clickCallBack === "function") {
               const allSelectedInfo = this.getAllSelectItemInfo().map((it) => it.data);
-              const clickResult = formConfig.clickCallBack(event, allSelectedInfo);
+              const clickResult = viewConfig.clickCallBack(event, allSelectedInfo);
               if (typeof clickResult === "boolean" && !clickResult) {
                 return;
               }
@@ -2048,18 +2058,88 @@ export const PanelHandlerComponents = () => {
         },
         /**
          * 设置下拉列表的点击事件
+         *
+         * 点击显示下拉列表弹窗
          */
         setSelectContainerClickEvent() {
-          const that = this;
+          const defaultCSS = /*css*/ `
+            .select-container{
+              --el-font-size-base: 14px;
+              --el-text-color-regular: #606266;
+              --el-color-primary: #409eff;
+              --el-fill-color-light: #f5f7fa;
+              --el-disable-color: #a8abb2;
+            }
+            .select-item{
+              cursor: pointer;
+              font-size: var(--el-font-size-base);
+              padding: 0 32px 0 20px;
+              position: relative;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              color: var(--el-text-color-regular);
+              height: 34px;
+              line-height: 34px;
+              box-sizing: border-box;
+            }
+            .select-item[aria-disabled],
+            .select-item[disabled]{
+              cursor: not-allowed;
+              color: var(--el-disable-color);
+              background: unset;
+            }
+            .select-item:hover{
+              background-color: var(--el-fill-color-light);
+            }
+            .select-item.select-item-is-selected{
+              color: var(--el-color-primary);
+              font-weight: 700;
+            }
+            .select-item.select-item-is-selected::after{
+              content: "";
+              position: absolute;
+              top: 50%;
+              right: 20px;
+              border-top: none;
+              border-right: none;
+              background-repeat: no-repeat;
+              background-position: center;
+              background-color: var(--el-color-primary);
+              mask: url("data:image/svg+xml;utf8,%3Csvg class='icon' width='200' height='200' viewBox='0 0 1024 1024' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='currentColor' d='M406.656 706.944L195.84 496.256a32 32 0 10-45.248 45.248l256 256 512-512a32 32 0 00-45.248-45.248L406.592 706.944z'%3E%3C/path%3E%3C/svg%3E") no-repeat;
+              mask-size: 100% 100%;
+              -webkit-mask: url("data:image/svg+xml;utf8,%3Csvg class='icon' width='200' height='200' viewBox='0 0 1024 1024' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='currentColor' d='M406.656 706.944L195.84 496.256a32 32 0 10-45.248 45.248l256 256 512-512a32 32 0 00-45.248-45.248L406.592 706.944z'%3E%3C/path%3E%3C/svg%3E") no-repeat;
+              -webkit-mask-size: 100% 100%;
+              transform: translateY(-50%);
+              width: 12px;
+              height: 12px;
+            }
+
+            
+            @media (prefers-color-scheme: dark) {
+              .select-container{
+                --el-text-color-regular: #f2f2f2;
+                --el-disable-color: #8D9095;
+                --el-fill-color-light: #262727;
+              }
+            }
+					`;
           popsDOMUtils.on(this.$el.$container, "click", () => {
             if (this.isDisabled()) {
               return;
             }
-            /** 弹窗的选中的值 */
-            const selectedInfo = that.$data.selectInfo;
-            const { style, ...userConfirmDetails } = formConfig.selectConfirmDialogDetails || {};
-            const confirmDetails = popsUtils.assign(
-              <PopsAlertDetails>{
+            /** 当前已选中的值 */
+            const selectInfo = this.$data.selectInfo;
+            const { style, ...userConfirmConfig } = viewConfig.selectConfirmDialogConfig || {};
+            const dialogCloseCallback = () => {
+              this.$data.selectInfo = [...selectInfo];
+              this.updateSelectTagItem();
+              this.$el.$selectContainer = null;
+              this.$el.$container.removeAttribute(this.$data.rotateKey);
+            };
+            this.$el.$container.setAttribute(this.$data.rotateKey, String(true));
+            const confirmConfig = popsUtils.assign(
+              <PopsAlertConfig>{
                 title: {
                   text: "请勾选需要选择的选项",
                   position: "center",
@@ -2076,11 +2156,9 @@ export const PanelHandlerComponents = () => {
                   },
                   close: {
                     enable: true,
-                    callback(details) {
-                      that.$data.selectInfo = [...selectedInfo];
-                      that.updateSelectTagItem();
-                      that.$el.$selectContainer = null;
-                      details.close();
+                    callback(evtConfig) {
+                      evtConfig.close();
+                      dialogCloseCallback();
                     },
                   },
                 },
@@ -2088,9 +2166,7 @@ export const PanelHandlerComponents = () => {
                   enable: true,
                   clickCallBack(originalRun) {
                     originalRun();
-                    that.$data.selectInfo = [...selectedInfo];
-                    that.updateSelectTagItem();
-                    that.$el.$selectContainer = null;
+                    dialogCloseCallback();
                   },
                   clickEvent: {
                     toClose: true,
@@ -2101,83 +2177,24 @@ export const PanelHandlerComponents = () => {
                 width: "300px",
                 height: "300px",
                 style: /*css*/ `
-								.select-container{
-									--el-font-size-base: 14px;
-									--el-text-color-regular: #606266;
-									--el-color-primary: #409eff;
-									--el-fill-color-light: #f5f7fa;
-									--el-disable-color: #a8abb2;
-								}
-								.select-item{
-									cursor: pointer;
-									font-size: var(--el-font-size-base);
-									padding: 0 32px 0 20px;
-									position: relative;
-									white-space: nowrap;
-									overflow: hidden;
-									text-overflow: ellipsis;
-									color: var(--el-text-color-regular);
-									height: 34px;
-									line-height: 34px;
-									box-sizing: border-box;
-								}
-								.select-item[aria-disabled],
-								.select-item[disabled]{
-									cursor: not-allowed;
-									color: var(--el-disable-color);
-									background: unset;
-								}
-								.select-item:hover{
-									background-color: var(--el-fill-color-light);
-								}
-								.select-item.select-item-is-selected{
-									color: var(--el-color-primary);
-									font-weight: 700;
-								}
-								.select-item.select-item-is-selected::after{
-									content: "";
-									position: absolute;
-									top: 50%;
-									right: 20px;
-									border-top: none;
-									border-right: none;
-									background-repeat: no-repeat;
-									background-position: center;
-									background-color: var(--el-color-primary);
-									mask: url("data:image/svg+xml;utf8,%3Csvg class='icon' width='200' height='200' viewBox='0 0 1024 1024' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='currentColor' d='M406.656 706.944L195.84 496.256a32 32 0 10-45.248 45.248l256 256 512-512a32 32 0 00-45.248-45.248L406.592 706.944z'%3E%3C/path%3E%3C/svg%3E") no-repeat;
-									mask-size: 100% 100%;
-									-webkit-mask: url("data:image/svg+xml;utf8,%3Csvg class='icon' width='200' height='200' viewBox='0 0 1024 1024' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='currentColor' d='M406.656 706.944L195.84 496.256a32 32 0 10-45.248 45.248l256 256 512-512a32 32 0 00-45.248-45.248L406.592 706.944z'%3E%3C/path%3E%3C/svg%3E") no-repeat;
-									-webkit-mask-size: 100% 100%;
-									transform: translateY(-50%);
-									width: 12px;
-									height: 12px;
-								}
+                  ${defaultCSS}
 
-								
-								@media (prefers-color-scheme: dark) {
-									.select-container{
-										--el-text-color-regular: #f2f2f2;
-										--el-disable-color: #8D9095;
-										--el-fill-color-light: #262727;
-									}
-								}
-
-								${style || ""}
+								  ${style || ""}
 								`,
               },
-              userConfirmDetails
+              userConfirmConfig
             );
-            const $dialog = PopsAlert.init(confirmDetails);
+            const $dialog = PopsAlert.init(confirmConfig);
             const $selectContainer = $dialog.$shadowRoot.querySelector<HTMLUListElement>(".select-container")!;
-            this.$el.$selectContainer = $selectContainer;
             // 配置选项元素
-            formConfig.data.forEach((item) => {
+            viewConfig.data.forEach((item) => {
               const $select = this.createSelectItemElement(item);
               // 添加到confirm中
               $selectContainer.appendChild($select);
               // 设置每一项的点击事件
-              this.setSelectElementClickEvent(selectedInfo, $select);
+              this.setSelectElementClickEvent(selectInfo, $select);
             });
+            this.$el.$selectContainer = $selectContainer;
             // 动态更新禁用状态
             this.updateSelectItem();
           });
@@ -2204,8 +2221,8 @@ export const PanelHandlerComponents = () => {
               if (this.isDisabled()) {
                 return;
               }
-              if (typeof formConfig.closeIconClickCallBack === "function") {
-                const result = formConfig.closeIconClickCallBack(event, {
+              if (typeof viewConfig.closeIconClickCallBack === "function") {
+                const result = viewConfig.closeIconClickCallBack(event, {
                   $tag: data.$tag,
                   $closeIcon: data.$closeIcon,
                   value: data.value,
@@ -2314,25 +2331,25 @@ export const PanelHandlerComponents = () => {
     /**
      * type ==> button
      * 获取中间容器的元素<li>
-     * @param formConfig
+     * @param viewConfig
      */
-    createSectionContainerItem_button(formConfig: PopsPanelButtonDetails) {
+    createSectionContainerItem_button(viewConfig: PopsPanelButtonConfig) {
       const $li = popsDOMUtils.createElement("li");
-      Reflect.set($li, "__formConfig__", formConfig);
-      this.setElementClassName($li, formConfig.className);
-      this.setElementAttributes($li, formConfig.attributes);
-      this.setElementProps($li, formConfig.props);
+      Reflect.set($li, this.$data.nodeStoreConfigKey, viewConfig);
+      this.setElementClassName($li, viewConfig.className);
+      this.setElementAttributes($li, viewConfig.attributes);
+      this.setElementProps($li, viewConfig.props);
 
-      /* 左边底部的描述的文字 */
+      // 左边底部的描述的文字
       let leftDescriptionText = "";
-      if (formConfig.description) {
-        leftDescriptionText = /*html*/ `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+      if (viewConfig.description) {
+        leftDescriptionText = /*html*/ `<p class="pops-panel-item-left-desc-text">${viewConfig.description}</p>`;
       }
       PopsSafeUtils.setSafeHTML(
         $li,
         /*html*/ `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
+					<p class="pops-panel-item-left-main-text">${viewConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-button">
 					<button class="pops-panel-button_inner" type="button">
 						<i class="pops-bottom-icon"></i>
@@ -2357,33 +2374,33 @@ export const PanelHandlerComponents = () => {
           this.setClickEvent();
         },
         initButton() {
-          if (typeof formConfig.buttonIcon === "string" && formConfig.buttonIcon.trim() !== "") {
-            /* 存在icon图标且不为空 */
-            if (PopsIcon.hasIcon(formConfig.buttonIcon)) {
-              this.setIconSVG(PopsIcon.getIcon(formConfig.buttonIcon)!);
+          if (typeof viewConfig.buttonIcon === "string" && viewConfig.buttonIcon.trim() !== "") {
+            // 存在icon图标且不为空
+            if (PopsIcon.hasIcon(viewConfig.buttonIcon)) {
+              this.setIconSVG(PopsIcon.getIcon(viewConfig.buttonIcon)!);
             } else {
-              this.setIconSVG(formConfig.buttonIcon);
+              this.setIconSVG(viewConfig.buttonIcon);
             }
             this.showIcon();
           } else {
             this.hideIcon();
           }
-          /* 按钮文字 */
-          let buttonText = formConfig.buttonText;
-          if (typeof formConfig.buttonText === "function") {
-            buttonText = formConfig.buttonText();
+          // 按钮文字
+          let buttonText = viewConfig.buttonText;
+          if (typeof viewConfig.buttonText === "function") {
+            buttonText = viewConfig.buttonText();
           }
-          this.setButtonType(formConfig.buttonType);
-          if (formConfig.buttonIsRightIcon) {
+          this.setButtonType(viewConfig.buttonType);
+          if (viewConfig.buttonIsRightIcon) {
             this.setIconRight();
           } else {
             this.setIconLeft();
           }
-          if (formConfig.disable) {
+          if (viewConfig.disable) {
             this.disable();
           }
           this.setButtonText(buttonText as string);
-          this.setIconLoadingStatus(formConfig.buttonIconIsLoading);
+          this.setIconLoadingStatus(viewConfig.buttonIconIsLoading);
         },
         disable() {
           this.$ele.button.setAttribute("disabled", "true");
@@ -2450,8 +2467,8 @@ export const PanelHandlerComponents = () => {
         },
         setClickEvent() {
           popsDOMUtils.on(this.$ele.button, "click", void 0, (event) => {
-            if (typeof formConfig.callback === "function") {
-              formConfig.callback(event);
+            if (typeof viewConfig.callback === "function") {
+              viewConfig.callback(event);
             }
           });
         },
@@ -2463,40 +2480,40 @@ export const PanelHandlerComponents = () => {
     /**
      * type ==> deepMenu
      * 获取深层容器的元素<li>
-     * @param formConfig
+     * @param viewConfig
      */
-    createSectionContainerItem_deepMenu(formConfig: PopsPanelDeepMenuDetails) {
+    createSectionContainerItem_deepMenu(viewConfig: PopsPanelDeepViewConfig) {
       const that = this;
       const $li = popsDOMUtils.createElement("li");
       popsDOMUtils.addClassName($li, "pops-panel-deepMenu-nav-item");
-      Reflect.set($li, "__formConfig__", formConfig);
-      this.setElementClassName($li, formConfig.className);
+      Reflect.set($li, this.$data.nodeStoreConfigKey, viewConfig);
+      this.setElementClassName($li, viewConfig.className);
       // 设置属性
-      this.setElementAttributes($li, formConfig.attributes);
+      this.setElementAttributes($li, viewConfig.attributes);
       // 设置元素上的属性
-      this.setElementProps($li, formConfig.props);
+      this.setElementProps($li, viewConfig.props);
 
-      /* 左边底部的描述的文字 */
+      // 左边底部的描述的文字
       let leftDescriptionText = "";
-      if (formConfig.description) {
+      if (viewConfig.description) {
         // 设置描述
-        leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+        leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${viewConfig.description}</p>`;
       }
       // 箭头图标
-      const arrowRightIcon = typeof formConfig.arrowRightIcon === "boolean" ? formConfig.arrowRightIcon : true;
+      const arrowRightIcon = typeof viewConfig.arrowRightIcon === "boolean" ? viewConfig.arrowRightIcon : true;
       let arrowRightIconHTML = "";
       if (arrowRightIcon) {
         arrowRightIconHTML = `<i class="pops-panel-deepMenu-arrowRight-icon">${PopsIcon.getIcon("arrowRight")}</i>`;
       }
       let rightText = "";
-      if (formConfig.rightText) {
-        rightText = /*html*/ `<p class="pops-panel-item-right-text">${formConfig.rightText}</p>`;
+      if (viewConfig.rightText) {
+        rightText = /*html*/ `<p class="pops-panel-item-right-text">${viewConfig.rightText}</p>`;
       }
       PopsSafeUtils.setSafeHTML(
         $li,
         /*html*/ `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
+					<p class="pops-panel-item-left-main-text">${viewConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-deepMenu">${rightText}${arrowRightIconHTML}</div>
 				`
       );
@@ -2515,29 +2532,29 @@ export const PanelHandlerComponents = () => {
          * @param $container
          * @param formItemConfig
          */
-        initFormItem($container: HTMLElement, formItemConfig: PopsPanelFormsTotalDetails | PopsPanelFormsDetails) {
-          const formConfig_forms = formItemConfig as PopsPanelFormsDetails;
-          if (formConfig_forms.type === "forms") {
-            const childForms = formConfig_forms["forms"];
-            /* 每一项<li>元素 */
+        initContainerItem($container: HTMLElement, formItemConfig: PopsPanelViewConfig | PopsPanelContainerConfig) {
+          const containerViewConfig = formItemConfig as PopsPanelContainerConfig;
+          if (containerViewConfig.type === "container") {
+            const childForms = containerViewConfig["views"];
+            // 每一项<li>元素
             const formContainerListElement = popsDOMUtils.createElement("li");
-            /* 每一项<li>内的子<ul>元素 */
+            // 每一项<li>内的子<ul>元素
             const formContainerULElement = popsDOMUtils.createElement("ul");
             formContainerULElement.classList.add("pops-panel-forms-container-item-formlist");
             formContainerListElement.classList.add("pops-panel-forms-container-item");
-            /* 区域头部的文字 */
+            // 区域头部的文字
             const formHeaderDivElement = popsDOMUtils.createElement("div", {
               className: "pops-panel-forms-container-item-header-text",
             });
-            PopsSafeUtils.setSafeHTML(formHeaderDivElement, formConfig_forms["text"]);
+            PopsSafeUtils.setSafeHTML(formHeaderDivElement, containerViewConfig["text"]);
 
-            if (formConfig_forms.isFold) {
-              /* 添加第一个 */
-              /* 加进容器内 */
+            if (containerViewConfig.isFold) {
+              // 添加第一个
+              // 加进容器内
               PopsSafeUtils.setSafeHTML(
                 formHeaderDivElement,
                 /*html*/ `
-								<p>${formConfig_forms.text}</p>
+								<p>${containerViewConfig.text}</p>
 								<i class="pops-panel-forms-fold-container-icon">
 									<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
 										<path d="M340.864 149.312a30.592 30.592 0 0 0 0 42.752L652.736 512 340.864 831.872a30.592 30.592 0 0 0 0 42.752 29.12 29.12 0 0 0 41.728 0L714.24 534.336a32 32 0 0 0 0-44.672L382.592 149.376a29.12 29.12 0 0 0-41.728 0z"></path>
@@ -2559,15 +2576,15 @@ export const PanelHandlerComponents = () => {
               popsDOMUtils.addClassName(formHeaderDivElement, "pops-panel-forms-fold");
               formContainerListElement.appendChild(formHeaderDivElement);
             } else {
-              /* 加进容器内 */
+              // 加进容器内
               formContainerListElement.appendChild(formHeaderDivElement);
             }
 
             that.setElementClassName(formContainerListElement, formItemConfig.className);
             that.setElementAttributes(formContainerListElement, formItemConfig.attributes);
             that.setElementProps(formContainerListElement, formItemConfig.props);
-            childForms.forEach((childFormConfig) => {
-              that.uListContainerAddItem(childFormConfig, {
+            childForms.forEach((childViewConfig) => {
+              that.uListContainerAddItem(childViewConfig, {
                 ulElement: formContainerULElement,
                 sectionContainerULElement: that.sectionContainerULElement,
                 formContainerListElement: formContainerListElement,
@@ -2576,8 +2593,8 @@ export const PanelHandlerComponents = () => {
             });
             formContainerListElement.appendChild(formContainerULElement);
             $container.appendChild(formContainerListElement);
-            if (typeof formConfig_forms.afterAddToUListCallBack === "function") {
-              formConfig_forms.afterAddToUListCallBack(formConfig as any as PopsPanelFormsDetails, {
+            if (typeof containerViewConfig.afterAddToUListCallBack === "function") {
+              containerViewConfig.afterAddToUListCallBack(viewConfig as any as PopsPanelContainerConfig, {
                 target: formContainerListElement,
                 ulElement: formContainerULElement,
                 sectionContainerULElement: that.sectionContainerULElement,
@@ -2586,8 +2603,8 @@ export const PanelHandlerComponents = () => {
               });
             }
           } else {
-            /* 如果成功创建，加入到中间容器中 */
-            that.uListContainerAddItem(formConfig, {
+            // 如果成功创建，加入到中间容器中
+            that.uListContainerAddItem(viewConfig, {
               ulElement: that.sectionContainerULElement,
             });
           }
@@ -2604,7 +2621,7 @@ export const PanelHandlerComponents = () => {
           const $deepMenuSection = popsDOMUtils.createElement("section", {
             className: "pops-panel-container pops-panel-deepMenu-container",
           });
-          Reflect.set($deepMenuSection, "__formConfig__", formConfig);
+          Reflect.set($deepMenuSection, that.$data.nodeStoreConfigKey, viewConfig);
           const $deepMenuHeaderUL = popsDOMUtils.createElement("ul", {
             className: "pops-panel-container-header-ul pops-panel-deepMenu-container-header-ul",
           });
@@ -2612,7 +2629,7 @@ export const PanelHandlerComponents = () => {
             className: "pops-panel-container-main-ul",
           });
           // 标题文字
-          const headerTitleText = formConfig.headerTitle ?? formConfig.text;
+          const headerTitleText = viewConfig.headerTitle ?? viewConfig.text;
           const $header = popsDOMUtils.createElement("li", {
             className: "pops-panel-container-header-title-text pops-panel-deepMenu-container-header",
             innerHTML: /*html*/ `<p class="pops-panel-deepMenu-container-header-title-text">${headerTitleText}</p>`,
@@ -2692,10 +2709,10 @@ export const PanelHandlerComponents = () => {
             $deepMenuSection.appendChild($deepMenuHeaderUL);
             $deepMenuSection.appendChild($deepMenuMain);
 
-            if (formConfig.forms && Array.isArray(formConfig.forms)) {
-              for (let index = 0; index < formConfig.forms.length; index++) {
-                const formItemConfig = formConfig.forms[index];
-                this.initFormItem($deepMenuMain, formItemConfig);
+            if (viewConfig.views && Array.isArray(viewConfig.views)) {
+              for (let index = 0; index < viewConfig.views.length; index++) {
+                const formItemConfig = viewConfig.views[index];
+                this.initContainerItem($deepMenuMain, formItemConfig);
               }
             }
             that.$el.$panelRightSectionWrapper.appendChild($deepMenuSection);
@@ -2720,12 +2737,12 @@ export const PanelHandlerComponents = () => {
           } else {
             enterViewTransition();
           }
-          if (typeof formConfig.afterEnterDeepMenuCallBack === "function") {
-            formConfig.afterEnterDeepMenuCallBack(formConfig, {
-              sectionContainer: $deepMenuSection,
-              sectionContainerHeaderContainer: $deepMenuHeaderUL,
-              sectionContainerHeader: $header,
-              sectionBodyContainer: $deepMenuMain,
+          if (typeof viewConfig.afterEnterDeepMenuCallBack === "function") {
+            viewConfig.afterEnterDeepMenuCallBack(viewConfig, {
+              $sectionContainer: $deepMenuSection,
+              $sectionContainerHeaderContainer: $deepMenuHeaderUL,
+              $sectionContainerHeader: $header,
+              $sectionBodyContainer: $deepMenuMain,
             });
           }
           that.triggerRenderRightContainer($deepMenuSection);
@@ -2733,8 +2750,8 @@ export const PanelHandlerComponents = () => {
         /** 设置项的点击事件 */
         setLiClickEvent() {
           popsDOMUtils.on($li, "click", void 0, async (event) => {
-            if (typeof formConfig.clickCallBack === "function") {
-              const result = await formConfig.clickCallBack(event, formConfig);
+            if (typeof viewConfig.clickCallBack === "function") {
+              const result = await viewConfig.clickCallBack(event, viewConfig);
               if (result) {
                 return;
               }
@@ -2752,74 +2769,74 @@ export const PanelHandlerComponents = () => {
     /**
      * type ===> own
      * 获取中间容器的元素<li>
-     * @param formConfig
+     * @param viewConfig
      */
-    createSectionContainerItem_own(formConfig: PopsPanelOwnDetails) {
+    createSectionContainerItem_own(viewConfig: PopsPanelOwnConfig) {
       let $li = popsDOMUtils.createElement("li");
-      Reflect.set($li, "__formConfig__", formConfig);
-      this.setElementClassName($li, formConfig.className);
-      this.setElementAttributes($li, formConfig.attributes);
-      this.setElementProps($li, formConfig.props);
-      $li = formConfig.getLiElementCallBack($li);
+      Reflect.set($li, this.$data.nodeStoreConfigKey, viewConfig);
+      this.setElementClassName($li, viewConfig.className);
+      this.setElementAttributes($li, viewConfig.attributes);
+      this.setElementProps($li, viewConfig.props);
+      $li = viewConfig.getLiElementCallBack($li);
       return $li;
     },
     /**
      * 获取中间容器的元素<li>
-     * @param formConfig
+     * @param viewConfig 视图配置
      */
-    createSectionContainerItem(formConfig: PopsPanelFormsTotalDetails) {
+    createSectionContainerItem(viewConfig: PopsPanelViewConfig) {
       /** 配置项的类型 */
-      const formType = formConfig.type;
+      const componentType = viewConfig.type;
 
-      if (formType === "switch") {
-        return this.createSectionContainerItem_switch(formConfig as PopsPanelSwitchDetails);
-      } else if (formType === "slider") {
-        return this.createSectionContainerItem_slider_new(formConfig as PopsPanelSliderDetails);
-      } else if (formType === "input") {
-        return this.createSectionContainerItem_input(formConfig as PopsPanelInputDetails);
-      } else if (formType === "textarea") {
-        return this.createSectionContainerItem_textarea(formConfig as PopsPanelTextAreaDetails);
-      } else if (formType === "select") {
-        return this.createSectionContainerItem_select(formConfig as PopsPanelSelectDetails);
-      } else if (formType === "select-multiple") {
-        return this.createSectionContainerItem_select_multiple_new(formConfig as PopsPanelSelectMultipleDetails<any>);
-      } else if (formType === "button") {
-        return this.createSectionContainerItem_button(formConfig as PopsPanelButtonDetails);
-      } else if (formType === "deepMenu") {
-        return this.createSectionContainerItem_deepMenu(formConfig as PopsPanelDeepMenuDetails);
-      } else if (formType === "own") {
-        return this.createSectionContainerItem_own(formConfig as PopsPanelOwnDetails);
+      if (componentType === "switch") {
+        return this.createSectionContainerItem_switch(viewConfig as PopsPanelSwitchConfig);
+      } else if (componentType === "slider") {
+        return this.createSectionContainerItem_slider_new(viewConfig as PopsPanelSliderConfig);
+      } else if (componentType === "input") {
+        return this.createSectionContainerItem_input(viewConfig as PopsPanelInputConfig);
+      } else if (componentType === "textarea") {
+        return this.createSectionContainerItem_textarea(viewConfig as PopsPanelTextAreaConfig);
+      } else if (componentType === "select") {
+        return this.createSectionContainerItem_select(viewConfig as PopsPanelSelectConfig);
+      } else if (componentType === "select-multiple") {
+        return this.createSectionContainerItem_select_multiple(viewConfig as PopsPanelSelectMultipleConfig<any>);
+      } else if (componentType === "button") {
+        return this.createSectionContainerItem_button(viewConfig as PopsPanelButtonConfig);
+      } else if (componentType === "deepMenu") {
+        return this.createSectionContainerItem_deepMenu(viewConfig as PopsPanelDeepViewConfig);
+      } else if (componentType === "own") {
+        return this.createSectionContainerItem_own(viewConfig as PopsPanelOwnConfig);
       } else {
-        console.error("尚未实现的type类型", formConfig);
+        console.error("尚未实现的type类型", viewConfig);
       }
     },
     /**
      * 生成配置项forms
      * 生成配置每一项的元素
-     * @param formConfig
+     * @param viewConfig
      */
-    createSectionContainerItem_forms(formConfig: PopsPanelContentConfig | PopsPanelFormsDetails) {
+    createSectionContainerItem_forms(viewConfig: PopsPanelContentConfig | PopsPanelContainerConfig) {
       const that = this;
-      const formConfig_forms = formConfig as PopsPanelFormsDetails;
-      if (formConfig_forms.type === "forms") {
-        const childForms = formConfig["forms"];
-        /* 每一项<li>元素 */
+      const containerConfig = viewConfig as PopsPanelContainerConfig;
+      if (containerConfig.type === "container") {
+        const childForms = viewConfig["views"];
+        // 每一项<li>元素
         const formContainerListElement = popsDOMUtils.createElement("li");
-        /* 每一项<li>内的子<ul>元素 */
+        // 每一项<li>内的子<ul>元素
         const formContainerULElement = popsDOMUtils.createElement("ul");
         formContainerListElement.classList.add("pops-panel-forms-container-item");
         formContainerULElement.classList.add("pops-panel-forms-container-item-formlist");
-        /* 区域头部的文字 */
+        // 区域头部的文字
         const formHeaderDivElement = popsDOMUtils.createElement("div", {
           className: "pops-panel-forms-container-item-header-text",
         });
-        PopsSafeUtils.setSafeHTML(formHeaderDivElement, formConfig_forms["text"]);
-        if (formConfig_forms.isFold) {
-          /* 加进容器内 */
+        PopsSafeUtils.setSafeHTML(formHeaderDivElement, containerConfig["text"]);
+        if (containerConfig.isFold) {
+          // 加进容器内
           PopsSafeUtils.setSafeHTML(
             formHeaderDivElement,
             /*html*/ `
-						<p>${formConfig_forms.text}</p>
+						<p>${containerConfig.text}</p>
 						<i class="pops-panel-forms-fold-container-icon">
 							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
 								<path d="M340.864 149.312a30.592 30.592 0 0 0 0 42.752L652.736 512 340.864 831.872a30.592 30.592 0 0 0 0 42.752 29.12 29.12 0 0 0 41.728 0L714.24 534.336a32 32 0 0 0 0-44.672L382.592 149.376a29.12 29.12 0 0 0-41.728 0z"></path>
@@ -2841,14 +2858,14 @@ export const PanelHandlerComponents = () => {
           popsDOMUtils.addClassName(formContainerListElement, "pops-panel-forms-fold");
           formContainerListElement.appendChild(formHeaderDivElement);
         } else {
-          /* 加进容器内 */
+          // 加进容器内
           formContainerListElement.appendChild(formHeaderDivElement);
         }
-        that.setElementClassName(formContainerListElement, formConfig.className);
-        that.setElementAttributes(formContainerListElement, formConfig.attributes);
-        that.setElementProps(formContainerListElement, formConfig.props);
-        childForms.forEach((childFormConfig) => {
-          that.uListContainerAddItem(childFormConfig as PopsPanelFormsTotalDetails, {
+        that.setElementClassName(formContainerListElement, viewConfig.className);
+        that.setElementAttributes(formContainerListElement, viewConfig.attributes);
+        that.setElementProps(formContainerListElement, viewConfig.props);
+        childForms.forEach((childViewConfig) => {
+          that.uListContainerAddItem(childViewConfig as PopsPanelViewConfig, {
             ulElement: formContainerULElement,
             sectionContainerULElement: that.sectionContainerULElement,
             formContainerListElement: formContainerListElement,
@@ -2858,8 +2875,8 @@ export const PanelHandlerComponents = () => {
         formContainerListElement.appendChild(formContainerULElement);
         that.sectionContainerULElement.appendChild(formContainerListElement);
 
-        if (typeof formConfig_forms.afterAddToUListCallBack === "function") {
-          formConfig_forms.afterAddToUListCallBack(formConfig_forms, {
+        if (typeof containerConfig.afterAddToUListCallBack === "function") {
+          containerConfig.afterAddToUListCallBack(containerConfig, {
             target: formContainerListElement,
             ulElement: formContainerULElement,
             sectionContainerULElement: that.sectionContainerULElement,
@@ -2868,26 +2885,27 @@ export const PanelHandlerComponents = () => {
           });
         }
       } else {
-        /* 如果成功创建，加入到中间容器中 */
-        that.uListContainerAddItem(formConfig as any as PopsPanelFormsTotalDetails, {
+        // 如果成功创建，加入到中间容器中
+        that.uListContainerAddItem(viewConfig as any as PopsPanelViewConfig, {
           ulElement: that.sectionContainerULElement,
         });
       }
     },
     /**
      * 主动触发触发渲染右侧容器的事件
+     * @param $container 容器
      */
     triggerRenderRightContainer($container: HTMLElement) {
-      const __formConfig__: PopsPanelEventType["pops:renderRightContainer"]["formConfig"] = Reflect.get(
+      const dataViewConfig: PopsPanelEventType["pops:renderRightContainer"]["viewConfig"] = Reflect.get(
         $container,
-        "__formConfig__"
+        this.$data.nodeStoreConfigKey
       );
       this.$el.$pops.dispatchEvent(
         new CustomEvent<PopsPanelEventType["pops:renderRightContainer"]>(
           <keyof PopsPanelEventType>"pops:renderRightContainer",
           {
             detail: {
-              formConfig: __formConfig__,
+              viewConfig: dataViewConfig,
             },
           }
         )
@@ -2895,19 +2913,19 @@ export const PanelHandlerComponents = () => {
     },
     /**
      *
-     * @param formConfig
+     * @param viewConfig
      * @param containerOptions
      */
     uListContainerAddItem(
-      formConfig: PopsPanelFormsTotalDetails,
-      containerOptions: Omit<PopsPanelRightAsideContainerOptions, "target">
+      viewConfig: PopsPanelViewConfig,
+      containerOptions: Omit<PopsPanelRightAsideContainerConfig, "target">
     ) {
-      const itemLiElement = this.createSectionContainerItem(formConfig);
+      const itemLiElement = this.createSectionContainerItem(viewConfig);
       if (itemLiElement) {
         containerOptions["ulElement"].appendChild(itemLiElement);
       }
-      if (typeof formConfig.afterAddToUListCallBack === "function") {
-        formConfig.afterAddToUListCallBack(formConfig as any, {
+      if (typeof viewConfig.afterAddToUListCallBack === "function") {
+        viewConfig.afterAddToUListCallBack(viewConfig as any, {
           ...containerOptions,
           target: itemLiElement,
         });
@@ -2931,13 +2949,13 @@ export const PanelHandlerComponents = () => {
           }
         }
         this.clearContainer();
-        const rightContainerFormConfig: PopsPanelContentConfig[] = Reflect.get($asideItem, "__forms__");
+        const rightContainerViewConfig: PopsPanelContentConfig[] = Reflect.get($asideItem, "__forms__");
 
-        Reflect.set(this.$el.$panelContentSectionContainer, "__formConfig__", rightContainerFormConfig);
+        Reflect.set(this.$el.$panelContentSectionContainer, this.$data.nodeStoreConfigKey, rightContainerViewConfig);
         popsDOMUtils.cssShow(this.$el.$panelContentSectionContainer);
         this.clearAsideItemIsVisited();
         this.setAsideItemIsVisited($asideItem);
-        /* 顶部标题栏，存在就设置 */
+        // 顶部标题栏，存在就设置
         const title = typeof asideConfig.title === "function" ? asideConfig.title() : asideConfig.title;
         let headerTitleText =
           typeof asideConfig.headerTitle === "function" ? asideConfig.headerTitle() : asideConfig.headerTitle;
@@ -2950,12 +2968,12 @@ export const PanelHandlerComponents = () => {
           this.sectionContainerHeaderULElement.appendChild($containerHeaderTitle);
         }
 
-        rightContainerFormConfig.forEach((formConfig) => {
-          this.createSectionContainerItem_forms(formConfig);
+        rightContainerViewConfig.forEach((viewConfig) => {
+          this.createSectionContainerItem_forms(viewConfig);
         });
 
         if (typeof asideConfig.clickCallback === "function") {
-          /* 执行回调 */
+          // 执行回调
           const asideClickCallbackResult = await asideConfig.clickCallback(
             event,
             this.sectionContainerHeaderULElement,

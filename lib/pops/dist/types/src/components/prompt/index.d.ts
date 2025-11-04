@@ -1,4 +1,4 @@
-import type { PopsPromptDetails } from "./types/index";
+import type { PopsPromptConfig } from "./types/index";
 export declare const PopsPrompt: {
-    init(details: PopsPromptDetails): Omit<import("../../types/event").PopsEventConfig, "function" | "type">;
+    init(__config__: PopsPromptConfig): Omit<import("../../types/event").PopsEventConfig, "function" | "type">;
 };

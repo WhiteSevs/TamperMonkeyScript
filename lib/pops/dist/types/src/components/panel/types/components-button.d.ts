@@ -1,10 +1,14 @@
-import type { PopsPanelCommonDetails } from "./components-common";
+import type { PopsPanelGeneralConfig } from "./components-common";
 import type { PopsButtonStyleType } from "../../../types/button";
 import type { PopsIconType } from "../../../types/icon";
 /**
  * pops.panel的 button
  */
-export interface PopsPanelButtonDetails extends PopsPanelCommonDetails<PopsPanelButtonDetails> {
+export interface PopsPanelButtonConfig extends PopsPanelGeneralConfig<PopsPanelButtonConfig> {
+    /**
+     * 类型
+     */
+    type: "button";
     /**
      * 显示在左边的文字
      */
@@ -14,11 +18,8 @@ export interface PopsPanelButtonDetails extends PopsPanelCommonDetails<PopsPanel
      */
     description?: string;
     /**
-     * 类型
-     */
-    type: "button";
-    /**
      * （可选）是否禁用
+     * @default false
      */
     disable?: boolean;
     /**

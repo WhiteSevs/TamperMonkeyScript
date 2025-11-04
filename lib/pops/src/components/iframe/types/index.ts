@@ -1,41 +1,21 @@
-import type { PopsTitleConfig, PopsDragConfig, PopsCommonConfig } from "../../../types/components";
+import type { PopsTitleConfig, PopsDragConfig, PopsGeneralConfig } from "../../../types/components";
 
 import type { PopsEventConfig } from "../../../types/event";
 
 /**
- * pops.iframe的按钮的点击回调参数event
+ * pops.iframe的按钮点击事件回调的配置参数
  */
-export interface PopsBtnIframeCallBackEvent {
-  /**
-   * 动画元素（包裹着弹窗元素）
-   */
-  animElement: HTMLElement;
-  /**
-   * 弹窗元素
-   */
-  popsElement: HTMLElement;
-  /**
-   * 遮罩层元素，如果未设置，那么不存在
-   */
-  maskElement?: HTMLElement;
+export type PopsIframeClickEventConfig = PopsEventConfig & {
   /**
    * iframe元素
    */
-  iframePopsElement: HTMLIFrameElement;
-  /**
-   * 使用的方法名
-   */
-  function: "iframe";
-  /**
-   * 唯一id
-   */
-  guid: string;
-}
+  $iframe: HTMLIFrameElement;
+};
 
 /**
  * pops.iframe
  */
-export interface PopsIframeDetails extends PopsTitleConfig, PopsDragConfig, PopsCommonConfig {
+export interface PopsIframeConfig extends PopsTitleConfig, PopsDragConfig, PopsGeneralConfig {
   /**
    * 加载配置
    */
@@ -64,12 +44,7 @@ export interface PopsIframeDetails extends PopsTitleConfig, PopsDragConfig, Pops
       /**
        * 点击的回调函数
        */
-      callback: (
-        eventConfig: PopsEventConfig & {
-          iframeElement: HTMLIFrameElement;
-        },
-        event: MouseEvent | PointerEvent
-      ) => void;
+      callback: (eventConfig: PopsIframeClickEventConfig, event: MouseEvent | PointerEvent) => void;
     };
     /**
      * 最大化
@@ -78,12 +53,7 @@ export interface PopsIframeDetails extends PopsTitleConfig, PopsDragConfig, Pops
       /**
        * 点击的回调函数
        */
-      callback: (
-        eventConfig: PopsEventConfig & {
-          iframeElement: HTMLIFrameElement;
-        },
-        event: MouseEvent | PointerEvent
-      ) => void;
+      callback: (eventConfig: PopsIframeClickEventConfig, event: MouseEvent | PointerEvent) => void;
     };
     /**
      * 窗口化
@@ -92,12 +62,7 @@ export interface PopsIframeDetails extends PopsTitleConfig, PopsDragConfig, Pops
       /**
        * 点击的回调函数
        */
-      callback: (
-        eventConfig: PopsEventConfig & {
-          iframeElement: HTMLIFrameElement;
-        },
-        event: MouseEvent | PointerEvent
-      ) => void;
+      callback: (eventConfig: PopsIframeClickEventConfig, event: MouseEvent | PointerEvent) => void;
     };
     /**
      * 关闭
@@ -106,12 +71,7 @@ export interface PopsIframeDetails extends PopsTitleConfig, PopsDragConfig, Pops
       /**
        * 点击的回调函数
        */
-      callback: (
-        eventConfig: PopsEventConfig & {
-          iframeElement: HTMLIFrameElement;
-        },
-        event: MouseEvent | PointerEvent
-      ) => void;
+      callback: (eventConfig: PopsIframeClickEventConfig, event: MouseEvent | PointerEvent) => void;
     };
   };
   /**
@@ -121,8 +81,9 @@ export interface PopsIframeDetails extends PopsTitleConfig, PopsDragConfig, Pops
   url?: string;
   /**
    * 右上角按钮顺序：最小化、最大化、窗口化、关闭
+   * @default "min|max|mise|close"
    */
-  topRightButton: "min|max|mise|close";
+  topRightButton: string;
   /**
    * 是否启用沙箱，默认false
    * @default false
@@ -131,9 +92,5 @@ export interface PopsIframeDetails extends PopsTitleConfig, PopsDragConfig, Pops
   /**
    * 加载完毕的回调
    */
-  loadEndCallBack?: (
-    details: PopsEventConfig & {
-      iframeElement: HTMLIFrameElement;
-    }
-  ) => void;
+  loadEndCallBack?: (eventConfig: PopsIframeClickEventConfig) => void;
 }

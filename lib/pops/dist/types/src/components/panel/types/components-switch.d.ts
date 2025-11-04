@@ -1,8 +1,12 @@
-import type { PopsPanelCommonDetails } from "./components-common";
+import type { PopsPanelGeneralConfig } from "./components-common";
 /**
  * pops.panel的 switch
  */
-export interface PopsPanelSwitchDetails extends PopsPanelCommonDetails<PopsPanelSwitchDetails> {
+export interface PopsPanelSwitchConfig extends PopsPanelGeneralConfig<PopsPanelSwitchConfig> {
+    /**
+     * 类型
+     */
+    type: "switch";
     /**
      * 显示在左边的文字
      */
@@ -12,10 +16,6 @@ export interface PopsPanelSwitchDetails extends PopsPanelCommonDetails<PopsPanel
      * @default ""
      */
     description?: string;
-    /**
-     * 类型
-     */
-    type: "switch";
     /**
      * （可选）是否禁用
      * @default false

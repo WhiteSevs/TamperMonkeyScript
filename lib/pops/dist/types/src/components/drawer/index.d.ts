@@ -1,4 +1,4 @@
-import type { PopsDrawerDetails } from "./types";
+import type { PopsDrawerConfig } from "./types";
 export declare const PopsDrawer: {
-    init(details: PopsDrawerDetails): Omit<import("../../types/event").PopsEventConfig, "function" | "type">;
+    init(__config__: PopsDrawerConfig): Omit<import("../../types/event").PopsEventConfig, "function" | "type">;
 };

@@ -1,111 +1,66 @@
-import type { PopsAlertDetails } from "../components/alert/types";
-import type { PopsConfirmDetails } from "../components/confirm/types";
-import type { PopsDrawerDetails } from "../components/drawer/types";
-import type { PopsFolderDetails } from "../components/folder/types";
-import type { PopsIframeDetails } from "../components/iframe/types";
-import type { PopsLoadingDetails } from "../components/loading/types";
-import type { PopsPanelButtonDetails } from "../components/panel/types/components-button";
-import type { PopsPanelDeepMenuDetails } from "../components/panel/types/components-deepMenu";
-import type { PopsPanelDetails } from "../components/panel/types";
-import type { PopsPanelInputDetails } from "../components/panel/types/components-input";
-import type { PopsPanelOwnDetails } from "../components/panel/types/components-own";
-import type { PopsPanelSelectDetails } from "../components/panel/types/components-select";
-import type { PopsPanelSliderDetails } from "../components/panel/types/components-slider";
-import type { PopsPanelSwitchDetails } from "../components/panel/types/components-switch";
-import type { PopsPanelTextAreaDetails } from "../components/panel/types/components-textarea";
-import type { PopsPromptDetails } from "../components/prompt/types/index";
-import type { PopsRightClickMenuDetails } from "../components/rightClickMenu/types";
-import type { PopsToolTipDetails } from "../components/tooltip/types/index";
-import type { PopsSearchSuggestionDetails } from "../components/searchSuggestion/types";
+import type { PopsAlertConfig } from "../components/alert/types";
+import type { PopsConfirmConfig } from "../components/confirm/types";
+import type { PopsDrawerConfig } from "../components/drawer/types";
+import type { PopsFolderConfig } from "../components/folder/types";
+import type { PopsIframeConfig } from "../components/iframe/types";
+import type { PopsLoadingConfig } from "../components/loading/types";
+import type { PopsPanelConfig } from "../components/panel/types";
+import type { PopsPromptConfig } from "../components/prompt/types/index";
+import type { PopsRightClickMenuConfig } from "../components/rightClickMenu/types";
+import type { PopsToolTipConfig } from "../components/tooltip/types/index";
+import type { PopsSearchSuggestionConfig } from "../components/searchSuggestion/types";
 
 export interface PopsUtilsOwnObject<V> {
   [key: string]: V | PopsUtilsOwnObject<V>;
 }
 
 /** pops所有的类型配置 11个*/
-export interface PopsDetails {
-  alert: PopsAlertDetails;
-  confirm: PopsConfirmDetails;
-  prompt: PopsPromptDetails;
-  loading: PopsLoadingDetails;
-  iframe: PopsIframeDetails;
-  tooltip: PopsToolTipDetails;
-  drawer: PopsDrawerDetails;
-  folder: PopsFolderDetails;
-  panel: PopsPanelDetails;
-  rightClickMenu: PopsRightClickMenuDetails;
-  searchSuggestion: PopsSearchSuggestionDetails;
+export interface PopsConfig {
+  alert: PopsAlertConfig;
+  confirm: PopsConfirmConfig;
+  prompt: PopsPromptConfig;
+  loading: PopsLoadingConfig;
+  iframe: PopsIframeConfig;
+  tooltip: PopsToolTipConfig;
+  drawer: PopsDrawerConfig;
+  folder: PopsFolderConfig;
+  panel: PopsPanelConfig;
+  rightClickMenu: PopsRightClickMenuConfig;
+  searchSuggestion: PopsSearchSuggestionConfig;
 }
 
 /** pops的类型 */
-export type PopsType = keyof PopsDetails;
+export type PopsType = keyof PopsConfig;
 
 /** pops中支持only的配置 */
-export type PopsSupportOnlyDetails = Omit<PopsDetails, "searchSuggestion">;
+export type PopsSupportOnlyConfig = Omit<PopsConfig, "searchSuggestion">;
 
 /** 存储实例的类型 */
-export type PopsInstStoreType = keyof Omit<PopsDetails, "searchSuggestion">;
+export type PopsInstStoreType = keyof Omit<PopsConfig, "searchSuggestion">;
 
 /** pops弹窗支持动画元素的配置 8个 */
-export type PopsSupportAnimDetails = Omit<PopsDetails, "tooltip" | "rightClickMenu" | "searchSuggestion">;
+export type PopsSupportAnimConfig = Omit<PopsConfig, "tooltip" | "rightClickMenu" | "searchSuggestion">;
 
 /** pops弹窗支持动画元素的类型 */
-export type PopsSupportAnimDetailsType = keyof PopsSupportAnimDetails;
+export type PopsSupportAnimConfigType = keyof PopsSupportAnimConfig;
 
 /** pops弹窗支持标题栏的配置 */
-export type PopsSupportHeaderTitleDetails = Pick<
-  PopsDetails,
+export type PopsSupportHeaderTitleConfig = Pick<
+  PopsConfig,
   "alert" | "confirm" | "prompt" | "iframe" | "drawer" | "folder" | "panel"
 >;
 
 /** pops弹窗支持标题栏的类型 */
-export type PopsSupportHeaderTitleDetailsType = keyof PopsSupportHeaderTitleDetails;
+export type PopsSupportHeaderTitleConfigType = keyof PopsSupportHeaderTitleConfig;
 
 /** pops支持底部按钮的配置 */
-export type PopsSupportBottomBtnDetails = Pick<PopsDetails, "alert" | "confirm" | "prompt" | "drawer">;
+export type PopsSupportBottomButtonConfig = Pick<PopsConfig, "alert" | "confirm" | "prompt" | "drawer">;
 
 /** pops支持底部按钮的类型 */
-export type PopsSupportBottomBtnDetailsType = keyof PopsSupportHeaderTitleDetails;
+export type PopsSupportBottomButtonConfigType = keyof PopsSupportHeaderTitleConfig;
 
 /** pops支持中间内容的配置 */
-export type PopsSupportContentDetails = Pick<PopsDetails, "alert" | "confirm" | "prompt" | "drawer" | "loading">;
+export type PopsSupportContentConfig = Pick<PopsConfig, "alert" | "confirm" | "prompt" | "drawer" | "loading">;
 
 /** pops支持中间内容的类型 */
-export type PopsSupportContentDetailsType = keyof PopsSupportContentDetails;
-
-/** panel的各种类型的配置项 */
-export type PopsPanelFormsTotalDetails =
-  | PopsPanelSwitchDetails
-  | PopsPanelSliderDetails
-  | PopsPanelInputDetails
-  | PopsPanelTextAreaDetails
-  | PopsPanelSelectDetails<any>
-  | PopsPanelButtonDetails
-  | PopsPanelDeepMenuDetails
-  | PopsPanelOwnDetails;
-
-/**
- * pops.xxx的调用返回值
- */
-export interface PopsCallResult {
-  /** 唯一标识id */
-  guid: string;
-  /** 影子元素 */
-  $shadowContainer: HTMLDivElement;
-  /** 影子元素的根节点 */
-  $shadowRoot: ShadowRoot | HTMLElement;
-  /** 元素 */
-  element: HTMLDivElement;
-  /** 动画层元素 */
-  animElement: HTMLDivElement;
-  /** pops元素 */
-  popsElement: HTMLDivElement;
-  /** 遮罩层元素 */
-  maskElement?: HTMLDivElement;
-  /** 关闭弹窗 */
-  close(): void;
-  /** 隐藏弹窗 */
-  hide(): void;
-  /** 显示弹窗 */
-  show(): void;
-}
+export type PopsSupportContentConfigType = keyof PopsSupportContentConfig;

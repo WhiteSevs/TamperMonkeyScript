@@ -25,3 +25,5 @@ declare type DeepRequired<T> = T extends any[]
             [K in keyof T]-?: DeepRequired<T[K]>;
           }
       : T;
+
+declare type IPromise<T> = Promise<T> | T;

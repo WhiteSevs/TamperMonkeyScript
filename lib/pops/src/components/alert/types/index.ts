@@ -2,15 +2,15 @@ import type {
   PopsTitleConfig,
   PopsContentConfig,
   PopsDragConfig,
-  PopsCommonConfig,
+  PopsGeneralConfig,
   PopsButtonConfig,
 } from "../../../types/components";
-import type { PopsButtonDetails, PopsButtonDetailsAnyType } from "../../../types/button";
+import type { PopsGlobalButtonConfig, PopsButtonConfigAnyType } from "../../../types/button";
 
 /**
  * pops.alert
  */
-export interface PopsAlertDetails extends PopsTitleConfig, PopsContentConfig, PopsDragConfig, PopsCommonConfig {
+export interface PopsAlertConfig extends PopsTitleConfig, PopsContentConfig, PopsDragConfig, PopsGeneralConfig {
   /**
    * 按钮配置
    */
@@ -18,6 +18,6 @@ export interface PopsAlertDetails extends PopsTitleConfig, PopsContentConfig, Po
     /**
      * 确定按钮
      */
-    ok?: Partial<PopsButtonDetails | PopsButtonDetailsAnyType>;
+    ok?: Partial<PopsGlobalButtonConfig | PopsButtonConfigAnyType>;
   };
 }

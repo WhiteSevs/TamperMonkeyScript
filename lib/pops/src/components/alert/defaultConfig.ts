@@ -1,6 +1,6 @@
-import type { PopsConfirmDetails } from "./types";
+import type { PopsAlertConfig } from "./types";
 
-export const PopsConfirmConfig = (): DeepRequired<PopsConfirmDetails> => {
+export const PopsAlertDefaultConfig = (): DeepRequired<PopsAlertConfig> => {
   return {
     title: {
       text: "默认标题",
@@ -14,50 +14,23 @@ export const PopsConfirmConfig = (): DeepRequired<PopsConfirmDetails> => {
       style: "",
     },
     btn: {
-      merge: false,
-      mergeReverse: false,
-      reverse: false,
       position: "flex-end",
       ok: {
-        enable: true,
         size: void 0 as any,
+        enable: true,
         icon: void 0 as any,
         rightIcon: false,
         iconIsLoading: false,
         text: "确定",
         type: "primary",
-        callback(detail: any) {
-          detail.close();
-        },
-      },
-      cancel: {
-        enable: true,
-        size: void 0 as any,
-        icon: void 0 as any,
-        rightIcon: false,
-        iconIsLoading: false,
-        text: "关闭",
-        type: "default",
-        callback(detail: any) {
-          detail.close();
-        },
-      },
-      other: {
-        enable: false,
-        size: void 0 as any,
-        icon: void 0 as any,
-        rightIcon: false,
-        iconIsLoading: false,
-        text: "其它按钮",
-        type: "default",
-        callback(detail: any) {
-          detail.close();
+        callback: function (eventConfig) {
+          eventConfig.close();
         },
       },
       close: {
         enable: true,
-        callback(detail: any) {
-          detail.close();
+        callback: function (eventConfig) {
+          eventConfig.close();
         },
       },
     },
@@ -83,8 +56,7 @@ export const PopsConfirmConfig = (): DeepRequired<PopsConfirmDetails> => {
     dragMoveCallBack() {},
     dragEndCallBack() {},
     forbiddenScroll: false,
-
     style: null,
     beforeAppendToPageCallBack() {},
-  } as DeepRequired<PopsConfirmDetails>;
+  } as DeepRequired<PopsAlertConfig>;
 };

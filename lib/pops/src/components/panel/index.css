@@ -1005,9 +1005,13 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
 .pops-panel-select-multiple .el-select__caret {
   color: var(--el-select-input-color);
   font-size: var(--el-select-input-font-size);
-  transition: var(--el-transition-duration);
+  transition: transform var(--el-transition-duration);
   transform: rotate(0);
   cursor: pointer;
+}
+/* 把箭头旋转 */
+.pops-panel-select-multiple[data-show-option] .el-select__caret {
+  transform: rotate(180deg);
 }
 .pops-panel-select-multiple .el-tag {
   --el-tag-font-size: 12px;

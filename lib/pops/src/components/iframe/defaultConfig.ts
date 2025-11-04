@@ -1,6 +1,6 @@
-import type { PopsIframeDetails } from "./types";
+import type { PopsIframeConfig } from "./types";
 
-export const PopsIframeConfig = (): DeepRequired<PopsIframeDetails> => {
+export const PopsIframeDefaultConfig = (): DeepRequired<PopsIframeConfig> => {
   return {
     title: {
       position: "center",

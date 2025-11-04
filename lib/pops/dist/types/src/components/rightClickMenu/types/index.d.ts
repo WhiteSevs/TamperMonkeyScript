@@ -1,10 +1,31 @@
-import type { PopsCommonConfig } from "../../../types/components";
+import type { PopsGeneralConfig } from "../../../types/components";
 import type { PopsIconType } from "../../../types/icon";
-import type { PopsPanelCommonDetails } from "../../panel/types/components-common";
+import type { PopsPanelGeneralConfig } from "../../panel/types/components-common";
+/**
+ * 存储在pops.rightClickMenu的右键菜单根元素上的属性
+ */
+export type PopsRightClickMenuRootStoreNodeValue = {
+    child: HTMLElement[];
+};
+/**
+ * 存储在pops.rightClickMenu的右键菜单子菜单的根元素上的属性
+ */
+export type PopsRightClickMenuChildRootStoreNodeValue = {
+    parent: HTMLElement;
+    root: HTMLElement;
+};
+/**
+ * 存储在pops.rightClickMenu的右键菜单每一项元素上的属性
+ */
+export type PopsRightClickMenuItemStoreNodeValue = {
+    child?: HTMLElement;
+    parent?: HTMLElement;
+    root?: HTMLElement;
+};
 /**
  * pops.rightClickMenu的右键菜单配置
  */
-export interface PopsRightClickMenuDataDetails {
+export interface PopsRightClickMenuDataConfig {
     /**
      * svg图标，留空则是没图标
      * @default ""
@@ -23,28 +44,28 @@ export interface PopsRightClickMenuDataDetails {
      * 点击的回调函数
      * @param clickEvent 点击菜单的click事件
      * @param contextMenuEvent 触发的contextmenu事件
-     * @param liElement <li>元素
-     * @param menuListenerRootNode 右键菜单监听的元素
+     * @param $li <li>元素
+     * @param $listenerRootNode 右键菜单监听的元素
      * @returns
      * + true(默认) 关闭菜单
      * + false 不关闭菜单
      *
      */
-    callback?: (clickEvent: PointerEvent, contextMenuEvent: PointerEvent, liElement: HTMLLIElement, menuListenerRootNode: NonNullable<PopsRightClickMenuDetails["target"]>) => boolean | void | Promise<boolean | void>;
+    callback?: (clickEvent: PointerEvent, contextMenuEvent: PointerEvent, $li: HTMLLIElement, $listenerRootNode: NonNullable<PopsRightClickMenuConfig["$target"]>) => IPromise<boolean | void>;
     /**
      * 子项配置
      */
-    item?: PopsRightClickMenuDataDetails[] | null;
+    item?: PopsRightClickMenuDataConfig[] | null;
 }
 /**
  * pops.rightClickMenu
  */
-export interface PopsRightClickMenuDetails extends Pick<PopsCommonConfig, "useShadowRoot" | "beforeAppendToPageCallBack" | "zIndex" | "style" | "only"> {
+export interface PopsRightClickMenuConfig extends Pick<PopsGeneralConfig, "useShadowRoot" | "beforeAppendToPageCallBack" | "zIndex" | "style" | "only"> {
     /**
      * 目标元素
      * @default document.documentElement
      */
-    target?: HTMLElement | Window | EventTarget | Node;
+    $target?: HTMLElement | Window | EventTarget | Node;
     /**
      * 目标的子元素选择器，默认为空
      * @default null
@@ -58,7 +79,7 @@ export interface PopsRightClickMenuDetails extends Pick<PopsCommonConfig, "useSh
     /**
      * 右键菜单数据
      */
-    data: PopsRightClickMenuDataDetails[];
+    data: PopsRightClickMenuDataConfig[];
     /**
      * 子菜单的左右偏移距离
      * @default 0
@@ -73,7 +94,7 @@ export interface PopsRightClickMenuDetails extends Pick<PopsCommonConfig, "useSh
      * （可选）元素的className，值为空的话就不设置
      * @default ""
      */
-    className?: PopsPanelCommonDetails<any>["className"];
+    className?: PopsPanelGeneralConfig<any>["className"];
     /**
      * 是否启用动画，默认false
      *

@@ -1,4 +1,4 @@
-import type { PopsFolderDetails } from "./types";
+import type { PopsFolderConfig } from "./types";
 export declare const PopsFolder: {
-    init(details: PopsFolderDetails): Omit<import("../../types/event").PopsEventConfig, "function" | "type">;
+    init(__config__: PopsFolderConfig): Omit<import("../../types/event").PopsEventConfig, "function" | "type">;
 };

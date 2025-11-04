@@ -1,6 +1,5 @@
 import type { PopsEventConfig, PopsHandlerEventConfig } from "./event";
 import type { PopsIconType } from "./icon";
-import type { PopsType } from "./main";
 
 /**
  * 按钮类型
@@ -25,55 +24,9 @@ export type PopsButtonStyleType =
 export type PopsButtonSize = "large" | "small";
 
 /**
- * 按钮的点击回调参数event
- */
-export interface PopsBtnCallBackEvent {
-  /**
-   * 元素
-   */
-  element: HTMLElement;
-  /**
-   * 动画元素（包裹着弹窗元素）
-   */
-  animElement: HTMLElement;
-  /**
-   * 弹窗元素
-   */
-  popsElement: HTMLElement;
-  /**
-   * 遮罩层元素
-   */
-  maskElement: HTMLElement | undefined;
-  /**
-   * 按钮调用类型
-   */
-  type: PopsButtonType;
-  /**
-   * 调用的方法
-   */
-  mode: PopsType;
-  /**
-   * 唯一id
-   */
-  guid: string;
-  /**
-   * 关闭弹窗
-   */
-  close(): void;
-  /**
-   * 隐藏弹窗
-   */
-  hide(): void;
-  /**
-   * 显示弹窗
-   */
-  show(): void;
-}
-
-/**
  * 按钮配置
  */
-export interface PopsButtonDetails<T = object> {
+export interface PopsGlobalButtonConfig<T = object> {
   /**
    * 是否启用按钮
    */
@@ -116,7 +69,7 @@ export interface PopsButtonDetails<T = object> {
 /**
  * 按钮配置（匹配任意类型）
  */
-export type PopsButtonDetailsAnyType<T = object> = Omit<PopsButtonDetails<T>, "type"> & {
+export type PopsButtonConfigAnyType<T = object> = Omit<PopsGlobalButtonConfig<T>, "type"> & {
   /**
    * 按钮样式类型
    * @default "default"
@@ -124,56 +77,10 @@ export type PopsButtonDetailsAnyType<T = object> = Omit<PopsButtonDetails<T>, "t
   type: string;
 };
 
-/** prompt的点击回调 */
-export interface PopsPromptButtonDetails extends PopsButtonDetails {
-  callback(
-    eventConfig: PopsHandlerEventConfig & {
-      text: string;
-    },
-    event: PointerEvent | MouseEvent
-  ): void;
-}
-/**
- * 右上角关闭按钮点击回调的配置
- */
-export interface PopsHeaderCloseButtonClickCallBackEvent {
-  /**
-   * 动画元素（包裹着弹窗元素）
-   */
-  animElement: HTMLElement;
-  /**
-   * 遮罩层元素，如果未设置，那么不存在
-   */
-  maskElement?: HTMLElement;
-  /**
-   * 按钮调用类型
-   */
-  type: string;
-  /**
-   * 唯一id
-   */
-  guid: string;
-  /**
-   * 关闭弹窗
-   */
-  close(): void;
-  /**
-   * 隐藏弹窗
-   */
-  hide(): void;
-  /**
-   * 显示弹窗
-   */
-  show(): void;
-  /**
-   * 输入的内容
-   */
-  text: string;
-}
 /**
  * 顶部关闭按钮配置
  */
-export interface PopsHeaderCloseButtonDetails {
+export interface PopsHeaderCloseButtonConfig {
   /**
    * 是否启用按钮
    */
@@ -183,5 +90,5 @@ export interface PopsHeaderCloseButtonDetails {
    *
    * 如果传入该值，那么将不会自动关闭弹窗
    */
-  callback?: (details: PopsEventConfig, event: PointerEvent | MouseEvent) => void;
+  callback?: (eventConfig: PopsEventConfig, event: PointerEvent | MouseEvent) => void;
 }

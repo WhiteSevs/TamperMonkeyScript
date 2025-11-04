@@ -1,11 +1,15 @@
-import type { PopsPanelCommonDetails } from "./components-common";
-import type { PopsPanelFormsDetails } from "./components-forms";
-import type { PopsPanelFormsTotalDetails } from ".";
+import type { PopsPanelGeneralConfig } from "./components-common";
+import type { PopsPanelContainerConfig } from "./components-container";
+import type { PopsPanelViewConfig } from ".";
 
 /**
  * pops.panel的 select
  */
-export interface PopsPanelSelectDetails<T = any> extends PopsPanelCommonDetails<PopsPanelSelectDetails> {
+export interface PopsPanelSelectConfig<T = any> extends PopsPanelGeneralConfig<PopsPanelSelectConfig> {
+  /**
+   * 类型
+   */
+  type: "select";
   /**
    * 显示在左边的文字
    */
@@ -15,10 +19,6 @@ export interface PopsPanelSelectDetails<T = any> extends PopsPanelCommonDetails<
    * @default ""
    */
   description?: string;
-  /**
-   * 类型
-   */
-  type: "select";
   /**
    * （可选）是否禁用
    * @default false
@@ -63,8 +63,8 @@ export interface PopsPanelSelectDetails<T = any> extends PopsPanelCommonDetails<
     /**
      * 子配置，跟随切换改变
      */
-    forms?:
-      | (PopsPanelFormsDetails | PopsPanelFormsTotalDetails)[]
-      | (() => (PopsPanelFormsDetails | PopsPanelFormsTotalDetails)[]);
+    views?:
+      | (PopsPanelContainerConfig | PopsPanelViewConfig)[]
+      | (() => (PopsPanelContainerConfig | PopsPanelViewConfig)[]);
   }[];
 }

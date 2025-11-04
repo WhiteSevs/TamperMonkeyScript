@@ -1,26 +1,26 @@
 import { PopsAlert } from "./components/alert";
-import type { PopsAlertDetails } from "./components/alert/types";
+import type { PopsAlertConfig } from "./components/alert/types";
 import { PopsConfirm } from "./components/confirm";
-import type { PopsConfirmDetails } from "./components/confirm/types";
+import type { PopsConfirmConfig } from "./components/confirm/types";
 import { PopsDrawer } from "./components/drawer";
-import type { PopsDrawerDetails } from "./components/drawer/types";
+import type { PopsDrawerConfig } from "./components/drawer/types";
 import { PopsFolder } from "./components/folder";
-import type { PopsFolderDetails } from "./components/folder/types";
+import type { PopsFolderConfig } from "./components/folder/types";
 import { PopsIframe } from "./components/iframe";
-import type { PopsIframeDetails } from "./components/iframe/types";
+import type { PopsIframeConfig } from "./components/iframe/types";
 import { PopsLoading } from "./components/loading";
-import type { PopsLoadingDetails } from "./components/loading/types";
+import type { PopsLoadingConfig } from "./components/loading/types";
 import { PopsPanel } from "./components/panel";
 import { PanelHandlerComponents } from "./components/panel/handlerComponents";
-import type { PopsPanelDetails } from "./components/panel/types";
+import type { PopsPanelConfig } from "./components/panel/types";
 import { PopsPrompt } from "./components/prompt";
-import type { PopsPromptDetails } from "./components/prompt/types/index";
+import type { PopsPromptConfig } from "./components/prompt/types/index";
 import { PopsRightClickMenu } from "./components/rightClickMenu";
-import type { PopsRightClickMenuDetails } from "./components/rightClickMenu/types";
+import type { PopsRightClickMenuConfig } from "./components/rightClickMenu/types";
 import { PopsSearchSuggestion } from "./components/searchSuggestion";
-import type { PopsSearchSuggestionDetails } from "./components/searchSuggestion/types/index";
+import type { PopsSearchSuggestionConfig } from "./components/searchSuggestion/types/index";
 import { PopsTooltip } from "./components/tooltip";
-import type { PopsToolTipDetails } from "./components/tooltip/types/index";
+import type { PopsToolTipConfig } from "./components/tooltip/types/index";
 import { GlobalConfig } from "./config/GlobalConfig";
 import { PopsAnimation } from "./PopsAnimation";
 import { PopsCore } from "./PopsCore";
@@ -90,91 +90,91 @@ class Pops {
   GlobalConfig = GlobalConfig;
   /**
    * 普通信息框
-   * @param details 配置
+   * @param config 配置
    */
-  alert = (details: PopsAlertDetails) => {
-    const dialog = PopsAlert.init(details);
+  alert = (config: PopsAlertConfig) => {
+    const dialog = PopsAlert.init(config);
     return dialog;
   };
 
   /**
    * 询问框
-   * @param details 配置
+   * @param config 配置
    */
-  confirm = (details: PopsConfirmDetails) => {
-    const dialog = PopsConfirm.init(details);
+  confirm = (config: PopsConfirmConfig) => {
+    const dialog = PopsConfirm.init(config);
     return dialog;
   };
 
   /**
    * 输入框
-   * @param details 配置
+   * @param config 配置
    */
-  prompt = (details: PopsPromptDetails) => {
-    const dialog = PopsPrompt.init(details);
+  prompt = (config: PopsPromptConfig) => {
+    const dialog = PopsPrompt.init(config);
     return dialog;
   };
 
   /**
    * 加载层
-   * @param details 配置
+   * @param config 配置
    */
-  loading = (details: PopsLoadingDetails) => {
-    const popsLoading = PopsLoading.init(details);
+  loading = (config: PopsLoadingConfig) => {
+    const popsLoading = PopsLoading.init(config);
     return popsLoading;
   };
 
   /**
    * iframe层
-   * @param details 配置
+   * @param config 配置
    */
-  iframe = (details: PopsIframeDetails) => {
-    const dialog = PopsIframe.init(details);
+  iframe = (config: PopsIframeConfig) => {
+    const dialog = PopsIframe.init(config);
     return dialog;
   };
 
   /**
    * 提示框
-   * @param details 配置
+   * @param config 配置
    */
-  tooltip = (details: PopsToolTipDetails) => {
-    const popsTooltip = PopsTooltip.init(details);
+  tooltip = (config: PopsToolTipConfig) => {
+    const popsTooltip = PopsTooltip.init(config);
     return popsTooltip;
   };
 
   /**
    * 抽屉
-   * @param details 配置
+   * @param config 配置
    */
-  drawer = (details: PopsDrawerDetails) => {
-    const dialog = PopsDrawer.init(details);
+  drawer = (config: PopsDrawerConfig) => {
+    const dialog = PopsDrawer.init(config);
     return dialog;
   };
 
   /**
    * 文件夹
-   * @param details 配置
+   * @param config 配置
    */
-  folder = (details: PopsFolderDetails) => {
-    const dialog = PopsFolder.init(details);
+  folder = (config: PopsFolderConfig) => {
+    const dialog = PopsFolder.init(config);
     return dialog;
   };
 
   /**
    * 配置面板
-   * @param details 配置
+   * @param config 配置
    */
-  panel = (details: PopsPanelDetails) => {
-    const dialog = PopsPanel.init(details);
+  panel = (config: PopsPanelConfig) => {
+    const dialog = PopsPanel.init(config);
     return dialog;
   };
 
   /**
    * 右键菜单
-   * @param details 配置
+   * @param config 配置
    */
-  rightClickMenu = (details: PopsRightClickMenuDetails) => {
-    const popsRightClickMenu = PopsRightClickMenu.init(details);
+  rightClickMenu = (config: PopsRightClickMenuConfig) => {
+    const popsRightClickMenu = PopsRightClickMenu.init(config);
     return popsRightClickMenu;
   };
 
@@ -182,7 +182,7 @@ class Pops {
    * 搜索建议
    *
    * 注意：调用后需要主动调用.init()和.setAllEvent()进行初始化
-   * @param details 配置
+   * @param config 配置
    * @example
    * let $input = document.querySelector("#input");
    * let searchSuggestion = pops.searchSuggestion({
@@ -195,8 +195,8 @@ class Pops {
    * searchSuggestion.init();
    * searchSuggestion.setAllEvent();
    */
-  searchSuggestion = <T = any>(details: PopsSearchSuggestionDetails<T>) => {
-    const popsSearchSuggestion = PopsSearchSuggestion.init<T>(details);
+  searchSuggestion = <T = any>(config: PopsSearchSuggestionConfig<T>) => {
+    const popsSearchSuggestion = PopsSearchSuggestion.init<T>(config);
     return popsSearchSuggestion;
   };
 }

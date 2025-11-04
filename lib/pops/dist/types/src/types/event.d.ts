@@ -1,35 +1,5 @@
-import type { PopsIframeDetails } from "../components/iframe/types";
 import type { PopsType } from "./main";
 
-/**
- * 事件配置
- */
-export interface PopsIframeEventConfig {
-  /**
-   * 唯一id
-   */
-  guid: string;
-  /**
-   * 当前弹窗类型
-   */
-  mode: PopsType;
-  /**
-   * 动画层
-   */
-  animElement: HTMLElement;
-  /**
-   * 主元素
-   */
-  popsElement: HTMLElement;
-  /**
-   * 遮罩层
-   */
-  maskElement: HTMLElement;
-  /**
-   * 当前配置
-   */
-  config: PopsIframeDetails;
-}
 /**
  * 事件配置
  */

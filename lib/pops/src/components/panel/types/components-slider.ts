@@ -1,9 +1,14 @@
-import type { PopsPanelCommonDetails } from "./components-common";
+import type { PopsPanelGeneralConfig } from "./components-common";
 
 /**
  * pops.panel的 slider
  */
-export interface PopsPanelSliderDetails extends PopsPanelCommonDetails<PopsPanelSliderDetails> {
+export interface PopsPanelSliderConfig extends PopsPanelGeneralConfig<PopsPanelSliderConfig> {
+  /**
+   * 类型
+   * @default "slider"
+   */
+  type: "slider";
   /**
    * 显示在左边的文字
    */
@@ -13,11 +18,6 @@ export interface PopsPanelSliderDetails extends PopsPanelCommonDetails<PopsPanel
    * @default ""
    */
   description?: string;
-  /**
-   * 类型
-   * @default "slider"
-   */
-  type: "slider";
   /**
    * （可选）是否禁用
    * @default false

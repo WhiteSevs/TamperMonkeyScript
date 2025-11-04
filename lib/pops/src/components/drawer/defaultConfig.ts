@@ -1,6 +1,6 @@
-import type { PopsDrawerDetails } from "./types";
+import type { PopsDrawerConfig } from "./types";
 
-export const PopsDrawerConfig = (): DeepRequired<PopsDrawerDetails> => {
+export const PopsDrawerDefaultConfig = (): DeepRequired<PopsDrawerConfig> => {
   return {
     title: {
       enable: true,
@@ -27,8 +27,8 @@ export const PopsDrawerConfig = (): DeepRequired<PopsDrawerDetails> => {
         iconIsLoading: false,
         text: "确定",
         type: "primary",
-        callback(detail: any) {
-          detail.close();
+        callback(eventConfig) {
+          eventConfig.close();
         },
       },
       cancel: {
@@ -39,8 +39,8 @@ export const PopsDrawerConfig = (): DeepRequired<PopsDrawerDetails> => {
         iconIsLoading: false,
         text: "关闭",
         type: "default",
-        callback(detail: any) {
-          detail.close();
+        callback(eventConfig) {
+          eventConfig.close();
         },
       },
       other: {
@@ -51,14 +51,14 @@ export const PopsDrawerConfig = (): DeepRequired<PopsDrawerDetails> => {
         iconIsLoading: false,
         text: "其它按钮",
         type: "default",
-        callback(detail: any) {
-          detail.close();
+        callback(eventConfig) {
+          eventConfig.close();
         },
       },
       close: {
         enable: true,
-        callback(detail: any) {
-          detail.close();
+        callback(eventConfig) {
+          eventConfig.close();
         },
       },
     },

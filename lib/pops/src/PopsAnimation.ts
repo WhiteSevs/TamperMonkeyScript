@@ -11,7 +11,7 @@ export const PopsAnimation = {
   init() {
     if (!this.$flag.isInit) {
       this.$flag.isInit = true;
-      /* 处理获取当前所有的动画名 */
+      // 处理获取当前所有的动画名
       const $style = popsDOMUtils.createElement("style", {
         innerHTML: PopsCSS.anim,
       });

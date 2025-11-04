@@ -4,28 +4,29 @@ import { PopsHandler } from "../../handler/PopsHandler";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
 import { popsUtils } from "../../utils/PopsUtils";
-import { rightClickMenuConfig as PopsRightClickMenuConfig } from "./config";
-import type { PopsRightClickMenuDataDetails, PopsRightClickMenuDetails } from "./types";
+import { PopsRightClickMenuDefaultConfig } from "./defaultConfig";
+import type {
+  PopsRightClickMenuChildRootStoreNodeValue,
+  PopsRightClickMenuConfig,
+  PopsRightClickMenuDataConfig,
+  PopsRightClickMenuItemStoreNodeValue,
+  PopsRightClickMenuRootStoreNodeValue,
+} from "./types";
 import { PopsCSS } from "../../PopsCSS";
 import { PopsIcon } from "../../PopsIcon";
 import type { PopsType } from "../../types/main";
 
 export const PopsRightClickMenu = {
-  init(details: PopsRightClickMenuDetails) {
+  init(__config__: PopsRightClickMenuConfig) {
     const guid = popsUtils.getRandomGUID();
     // 设置当前类型
     const popsType: PopsType = "rightClickMenu";
 
-    let config = PopsRightClickMenuConfig();
+    let config = PopsRightClickMenuDefaultConfig();
     config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-    config = popsUtils.assign(config, details);
+    config = popsUtils.assign(config, __config__);
     config = PopsHandler.handleOnly(popsType, config);
-    if (config.target == null) {
-      throw new Error("config.target 不能为空");
-    }
-    if (details.data) {
-      Reflect.set(config, "data", details.data);
-    }
+
     const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
     PopsHandler.handleInit($shadowRoot, [
       {
@@ -60,16 +61,18 @@ export const PopsRightClickMenu = {
     }
 
     const PopsContextMenu = {
-      /**
-       * 根元素
-       */
-      rootElement: null as any as HTMLElement,
+      $data: {
+        menuDataKey: "data-menu",
+      },
+      $el: {
+        $root: null as any as HTMLElement,
+      },
       /**
        * 全局点击检测
        * @param event
        */
       windowCheckClickEvent(event: MouseEvent | PointerEvent) {
-        if (!PopsContextMenu.rootElement) {
+        if (!PopsContextMenu.$el.$root) {
           return;
         }
         const $click = event.target as HTMLElement;
@@ -79,21 +82,21 @@ export const PopsRightClickMenu = {
         if ($click.className && $click.className === "pops-shadow-container" && $click.shadowRoot != null) {
           return;
         }
-        PopsContextMenu.closeAllMenu(PopsContextMenu.rootElement);
+        PopsContextMenu.closeAllMenu(PopsContextMenu.$el.$root);
       },
       /**
        * target为shadowRoot或shadowRoot内的全局点击检测
        * @param event
        */
       shadowRootCheckClickEvent(event: MouseEvent | PointerEvent) {
-        if (!PopsContextMenu.rootElement) {
+        if (!PopsContextMenu.$el.$root) {
           return;
         }
         const $click = event.target as HTMLElement;
         if ($click.closest(`.pops-${popsType}`)) {
           return;
         }
-        PopsContextMenu.closeAllMenu(PopsContextMenu.rootElement);
+        PopsContextMenu.closeAllMenu(PopsContextMenu.$el.$root);
       },
       /**
        * 添加全局点击检测事件
@@ -102,8 +105,8 @@ export const PopsRightClickMenu = {
         popsDOMUtils.on(globalThis, "click touchstart", void 0, PopsContextMenu.windowCheckClickEvent, {
           capture: true,
         });
-        if (config.target instanceof Node) {
-          const $shadowRoot = config.target.getRootNode();
+        if (config.$target instanceof Node) {
+          const $shadowRoot = config.$target.getRootNode();
           if ($shadowRoot instanceof ShadowRoot) {
             popsDOMUtils.on($shadowRoot, "click touchstart", void 0, PopsContextMenu.shadowRootCheckClickEvent, {
               capture: true,
@@ -118,8 +121,8 @@ export const PopsRightClickMenu = {
         popsDOMUtils.off(globalThis, "click touchstart", void 0, PopsContextMenu.windowCheckClickEvent, {
           capture: true,
         });
-        if (config.target instanceof Node) {
-          const $shadowRoot = config.target.getRootNode();
+        if (config.$target instanceof Node) {
+          const $shadowRoot = config.$target.getRootNode();
           if ($shadowRoot instanceof ShadowRoot) {
             popsDOMUtils.off($shadowRoot, "click touchstart", void 0, PopsContextMenu.windowCheckClickEvent, {
               capture: true,
@@ -132,26 +135,26 @@ export const PopsRightClickMenu = {
        * @param event
        * @param selectorTarget
        */
-      contextMenuEvent(event: PointerEvent, selectorTarget: NonNullable<PopsRightClickMenuDetails["target"]>) {
+      contextMenuEvent(event: PointerEvent, selectorTarget: NonNullable<PopsRightClickMenuConfig["$target"]>) {
         if (config.preventDefault) {
           popsDOMUtils.preventEvent(event);
         }
         PopsHandler.handleOnly(popsType, config);
-        if (PopsContextMenu.rootElement) {
-          PopsContextMenu.closeAllMenu(PopsContextMenu.rootElement);
+        if (PopsContextMenu.$el.$root) {
+          PopsContextMenu.closeAllMenu(PopsContextMenu.$el.$root);
         }
-        selectorTarget = selectorTarget ?? config.target;
+        selectorTarget = selectorTarget ?? config.$target;
         const rootElement = PopsContextMenu.showMenu(event, config.data, selectorTarget);
-        PopsContextMenu.rootElement = rootElement;
+        PopsContextMenu.$el.$root = rootElement;
         if (config.only) {
           PopsHandler.handlePush(popsType, {
             $shadowRoot: $shadowRoot,
             $shadowContainer: $shadowContainer,
             guid: guid,
-            animElement: rootElement,
-            popsElement: rootElement,
+            $anim: rootElement,
+            $pops: rootElement,
             beforeRemoveCallBack(instCommonConfig) {
-              PopsContextMenu.closeAllMenu(instCommonConfig.popsElement);
+              PopsContextMenu.closeAllMenu(instCommonConfig.$pops);
             },
           });
         }
@@ -161,7 +164,7 @@ export const PopsRightClickMenu = {
        * @param target 目标
        * @param selector 子元素选择器
        */
-      addContextMenuEvent(target: PopsRightClickMenuDetails["target"], selector?: string) {
+      addContextMenuEvent(target: PopsRightClickMenuConfig["$target"], selector?: string) {
         popsDOMUtils.on(target!, "contextmenu", selector, PopsContextMenu.contextMenuEvent);
       },
       /**
@@ -188,7 +191,7 @@ export const PopsRightClickMenu = {
           $menu.remove();
         };
         if (popsDOMUtils.containsClassName($menu, `pops-${popsType}-anim-show`)) {
-          /* 有动画 */
+          // 有动画
           popsDOMUtils.on($menu, popsDOMUtils.getTransitionEndNameList(), transitionEndEvent, {
             capture: true,
           });
@@ -197,36 +200,37 @@ export const PopsRightClickMenu = {
           popsDOMUtils.containsClassName($menu, `pops-${popsType}-anim-scale`) &&
           popsDOMUtils.containsClassName($menu, `pops-${popsType}-anim-scale-open`)
         ) {
-          /* 有动画 */
+          // 有动画
           popsDOMUtils.on($menu, popsDOMUtils.getTransitionEndNameList(), transitionEndEvent, {
             capture: true,
           });
           popsDOMUtils.removeClassName($menu, `pops-${popsType}-anim-scale-open`);
           popsDOMUtils.addClassName($menu, `pops-${popsType}-anim-scale-not-open`);
         } else {
-          /* 无动画 */
+          // 无动画
           $menu.remove();
         }
       },
       /**
        * 关闭所有菜单
-       * @param rootElement
+       * @param $root
        */
-      closeAllMenu(rootElement: HTMLElement) {
-        if (rootElement == null) {
+      closeAllMenu($root: HTMLElement) {
+        if ($root == null) {
           return;
         }
-        const rootElementMenuData = Reflect.get(rootElement, "__menuData__");
-        if (rootElementMenuData?.root) {
-          rootElement = rootElementMenuData.root;
+        const rootElementMenuData: PopsRightClickMenuRootStoreNodeValue | PopsRightClickMenuChildRootStoreNodeValue =
+          Reflect.get($root, PopsContextMenu.$data.menuDataKey);
+        if ((<PopsRightClickMenuChildRootStoreNodeValue>rootElementMenuData)?.root) {
+          $root = (<PopsRightClickMenuChildRootStoreNodeValue>rootElementMenuData).root;
         }
 
-        const childMenuList = rootElementMenuData.child as HTMLElement[];
+        const childMenuList = (<PopsRightClickMenuRootStoreNodeValue>rootElementMenuData).child as HTMLElement[];
         childMenuList.forEach((childMenuElement) => {
           this.animationCloseMenu(childMenuElement);
         });
-        this.animationCloseMenu(rootElement);
-        PopsContextMenu.rootElement = null as any;
+        this.animationCloseMenu($root);
+        PopsContextMenu.$el.$root = null as any;
       },
       /**
        * 获取菜单容器
@@ -250,7 +254,7 @@ export const PopsRightClickMenu = {
         if (isChildren) {
           $menu.setAttribute("is-children", "true");
         }
-        /* 添加动画 */
+        // 添加动画
         if (config.isAnimation) {
           popsDOMUtils.addClassName($menu, `pops-${popsType}-anim-grid`);
         }
@@ -269,12 +273,12 @@ export const PopsRightClickMenu = {
       },
       /**
        * 获取left、top偏移
-       * @param menuElement 当前生成的菜单元素
+       * @param $menu 当前生成的菜单元素
        * @param mousePosition 鼠标位置信息
        * @param isMainMenu 是否是主菜单
        */
       getOffset(
-        menuElement: HTMLElement,
+        $menu: HTMLElement,
         mousePosition: { x: number; y: number },
         parentInfo?: {
           $menu: HTMLElement;
@@ -287,8 +291,8 @@ export const PopsRightClickMenu = {
           bottom: 0,
           left: 0,
         };
-        const menuElementWidth = popsDOMUtils.width(menuElement);
-        const menuElementHeight = popsDOMUtils.height(menuElement);
+        const menuElementWidth = popsDOMUtils.width($menu);
+        const menuElementHeight = popsDOMUtils.height($menu);
         /**
          * 限制的间隙距离
          */
@@ -300,9 +304,9 @@ export const PopsRightClickMenu = {
           maxPageLeftOffset += globalThis.scrollX;
           maxPageTopOffset += globalThis.scrollY;
         }
-        /* left最大偏移 */
+        // left最大偏移
         const maxLeftOffset = maxPageLeftOffset - menuElementWidth;
-        /* top最大偏移 */
+        // top最大偏移
         const maxTopOffset = maxPageTopOffset - menuElementHeight;
 
         const chileMenuLeftOrRightDistance = config.chileMenuLeftOrRightDistance;
@@ -368,20 +372,20 @@ export const PopsRightClickMenu = {
       /**
        * 显示菜单
        * @param menuEvent 触发的事件
-       * @param _config_
-       * @param menuListenerRootNode 右键菜单监听的元素
+       * @param dataConfig
+       * @param $listenerRootNode 右键菜单监听的元素
        */
       showMenu(
         menuEvent: PointerEvent,
-        _config_: PopsRightClickMenuDataDetails[],
-        menuListenerRootNode: NonNullable<PopsRightClickMenuDetails["target"]>
+        dataConfig: PopsRightClickMenuDataConfig[],
+        $listenerRootNode: NonNullable<PopsRightClickMenuConfig["$target"]>
       ) {
         const menuElement = this.createMenuContainerElement(false);
-        Reflect.set(menuElement, "__menuData__", {
+        Reflect.set(menuElement, PopsContextMenu.$data.menuDataKey, {
           child: [],
-        });
+        } as PopsRightClickMenuRootStoreNodeValue);
         // 添加子元素
-        PopsContextMenu.addMenuLiELement(menuEvent, menuElement, menuElement, _config_, menuListenerRootNode);
+        PopsContextMenu.addMenuLiELement(menuEvent, menuElement, menuElement, dataConfig, $listenerRootNode);
         // 添加到页面
         popsDOMUtils.append($shadowRoot, menuElement);
         // 判断容器是否存在
@@ -398,10 +402,10 @@ export const PopsRightClickMenu = {
        * 显示子菜单
        * @param menuEvent 事件
        * @param posInfo 位置信息
-       * @param  _config_
-       * @param rootElement 根菜单元素
-       * @param targetLiElement 父li项元素
-       * @param menuListenerRootNode 右键菜单监听的元素
+       * @param  dataConfig
+       * @param $root 根菜单元素
+       * @param $targetLi 父li项元素
+       * @param $listenerRootNode 右键菜单监听的元素
        */
       showClildMenu(
         menuEvent: PointerEvent,
@@ -409,27 +413,30 @@ export const PopsRightClickMenu = {
           clientX: number;
           clientY: number;
         },
-        _config_: PopsRightClickMenuDataDetails[],
-        rootElement: HTMLDivElement,
-        targetLiElement: HTMLLIElement,
-        menuListenerRootNode: NonNullable<PopsRightClickMenuDetails["target"]>
+        dataConfig: PopsRightClickMenuDataConfig[],
+        $root: HTMLDivElement,
+        $targetLi: HTMLLIElement,
+        $listenerRootNode: NonNullable<PopsRightClickMenuConfig["$target"]>
       ) {
         const menuElement = this.createMenuContainerElement(true);
-        Reflect.set(menuElement, "__menuData__", {
-          parent: targetLiElement,
-          root: rootElement,
-        });
+        Reflect.set(menuElement, PopsContextMenu.$data.menuDataKey, {
+          parent: $targetLi,
+          root: $root,
+        } as PopsRightClickMenuItemStoreNodeValue);
         // 根菜单数据
-        const rootElementMenuData = Reflect.get(rootElement, "__menuData__");
+        const rootElementMenuData: PopsRightClickMenuRootStoreNodeValue = Reflect.get(
+          $root,
+          PopsContextMenu.$data.menuDataKey
+        );
         rootElementMenuData.child.push(menuElement);
         // 添加子元素
-        PopsContextMenu.addMenuLiELement(menuEvent, rootElement, menuElement, _config_, menuListenerRootNode);
+        PopsContextMenu.addMenuLiELement(menuEvent, $root, menuElement, dataConfig, $listenerRootNode);
         // 添加到页面
         popsDOMUtils.append($shadowRoot, menuElement);
-        const $parentMenu = targetLiElement.closest<HTMLElement>(".pops-rightClickMenu")!;
+        const $parentMenu = $targetLi.closest<HTMLElement>(".pops-rightClickMenu")!;
         this.handlerShowMenuCSS(menuElement, posInfo, {
           $menu: $parentMenu,
-          $parentItem: targetLiElement,
+          $parentItem: $targetLi,
         });
         return menuElement;
       },
@@ -462,7 +469,7 @@ export const PopsRightClickMenu = {
         popsDOMUtils.css($menu, {
           ...offset,
         });
-        /* 过渡动画 */
+        // 过渡动画
         if (config.isAnimation) {
           popsDOMUtils.addClassName($menu, `pops-${popsType}-anim-show`);
         }
@@ -474,23 +481,23 @@ export const PopsRightClickMenu = {
       /**
        * 获取菜单项的元素
        * @param menuEvent 事件
-       * @param rootElement 根元素
-       * @param menuElement 菜单元素
-       * @param _config_ 配置
-       * @param menuListenerRootNode 右键菜单监听的元素
+       * @param $root 根元素
+       * @param $menu 菜单元素
+       * @param dataConfig 配置
+       * @param $listenerRootNode 右键菜单监听的元素
        */
       addMenuLiELement(
         menuEvent: PointerEvent,
-        rootElement: HTMLDivElement,
-        menuElement: HTMLDivElement,
-        _config_: PopsRightClickMenuDataDetails[],
-        menuListenerRootNode: NonNullable<PopsRightClickMenuDetails["target"]>
+        $root: HTMLDivElement,
+        $menu: HTMLDivElement,
+        dataConfig: PopsRightClickMenuDataConfig[],
+        $listenerRootNode: NonNullable<PopsRightClickMenuConfig["$target"]>
       ) {
         const menuEventTarget = menuEvent.target;
-        const menuULElement = menuElement.querySelector<HTMLUListElement>("ul")!;
-        _config_.forEach((item) => {
+        const menuULElement = $menu.querySelector<HTMLUListElement>("ul")!;
+        dataConfig.forEach((item) => {
           const menuLiElement = popsDOMUtils.parseTextToDOM<HTMLLIElement>(`<li></li>`);
-          /* 判断有无图标，有就添加进去 */
+          // 判断有无图标，有就添加进去
           if (typeof item.icon === "string" && item.icon.trim() !== "") {
             const iconSVGHTML = PopsIcon.getIcon(item.icon) ?? item.icon;
             const iconElement = popsDOMUtils.parseTextToDOM(
@@ -498,13 +505,13 @@ export const PopsRightClickMenu = {
             );
             menuLiElement.appendChild(iconElement);
           }
-          /* 插入文字 */
+          // 插入文字
           menuLiElement.insertAdjacentHTML("beforeend", PopsSafeUtils.getSafeHTML(`<span>${item.text}</span>`));
-          /* 如果存在子数据，显示 */
+          // 如果存在子数据，显示
           if (item.item && Array.isArray(item.item)) {
             popsDOMUtils.addClassName(menuLiElement, `pops-${popsType}-item`);
           }
-          /* 鼠标|触摸 移入事件 */
+          // 鼠标|触摸 移入事件
           // 在移动端会先触发touchstart再然后mouseenter
           let isTriggerTouchEvent = false;
           /**
@@ -519,24 +526,34 @@ export const PopsRightClickMenu = {
             }
             Array.from(menuULElement.children as any as HTMLLIElement[]).forEach((liElement) => {
               popsDOMUtils.removeClassName(liElement, `pops-${popsType}-is-visited`);
-              const li_menuData = Reflect.get(liElement, "__menuData__");
+              const li_menuData: PopsRightClickMenuItemStoreNodeValue = Reflect.get(
+                liElement,
+                PopsContextMenu.$data.menuDataKey
+              );
               if (!li_menuData) {
                 return;
               }
-              function removeElement(element: HTMLElement) {
-                element.querySelectorAll<HTMLLIElement>("ul li").forEach(($ele) => {
-                  const menuData = Reflect.get($ele, "__menuData__");
+              function removeElement($el: HTMLElement | undefined | null) {
+                if (!$el) return;
+                $el.querySelectorAll<HTMLLIElement>("ul li").forEach(($ele) => {
+                  const menuData: PopsRightClickMenuItemStoreNodeValue = Reflect.get(
+                    $ele,
+                    PopsContextMenu.$data.menuDataKey
+                  );
                   if (menuData?.child) {
                     removeElement(menuData.child);
                   }
                 });
-                element.remove();
+                $el.remove();
               }
-              /* 遍历根元素的上的__menuData__.child，判断 */
+              // 遍历根元素的上的__menuData__.child，判断
               removeElement(li_menuData.child);
             });
-            /* 清理根元素上的children不存在于页面中的元素 */
-            const root_menuData = Reflect.get(rootElement, "__menuData__");
+            // 清理根元素上的children不存在于页面中的元素
+            const root_menuData: PopsRightClickMenuRootStoreNodeValue = Reflect.get(
+              $root,
+              PopsContextMenu.$data.menuDataKey
+            );
             for (let index = 0; index < root_menuData.child.length; index++) {
               const element = root_menuData.child[index];
               if (!$shadowRoot.contains(element)) {
@@ -556,13 +573,13 @@ export const PopsRightClickMenu = {
                 clientY: rect.top,
               },
               item.item,
-              rootElement,
+              $root,
               menuLiElement,
-              menuListenerRootNode
+              $listenerRootNode
             );
-            Reflect.set(menuLiElement, "__menuData__", {
+            Reflect.set(menuLiElement, PopsContextMenu.$data.menuDataKey, {
               child: childMenu,
-            });
+            } as PopsRightClickMenuItemStoreNodeValue);
           }
           /**
            * 点击事件
@@ -583,20 +600,20 @@ export const PopsRightClickMenu = {
                 clickEvent as PointerEvent,
                 menuEvent,
                 menuLiElement,
-                menuListenerRootNode
+                $listenerRootNode
               );
               if (typeof callbackResult === "boolean" && callbackResult == false) {
                 return;
               }
             }
-            /* 取消绑定的鼠标/触摸事件，防止关闭的时候再次触发 */
+            // 取消绑定的鼠标/触摸事件，防止关闭的时候再次触发
             Array.from(menuULElement.children as any as HTMLLIElement[]).forEach((liEle) => {
               popsDOMUtils.off(liEle, "mouseenter touchstart");
             });
-            PopsContextMenu.closeAllMenu(rootElement);
+            PopsContextMenu.closeAllMenu($root);
           }
           popsDOMUtils.on(menuLiElement, "mouseenter touchstart", liElementHoverEvent);
-          /* 项-点击事件 */
+          // 项-点击事件
           popsDOMUtils.on(menuLiElement, "click", liElementClickEvent);
           menuULElement.appendChild(menuLiElement);
         });
@@ -604,12 +621,12 @@ export const PopsRightClickMenu = {
     };
 
     // 添加右键菜单事件
-    PopsContextMenu.addContextMenuEvent(config.target, config.targetSelector!);
+    PopsContextMenu.addContextMenuEvent(config.$target, config.targetSelector!);
     // 添加全局点击检测
     PopsContextMenu.addWindowCheckClickListener();
     return {
       guid: guid,
-      config: config as DeepRequired<PopsRightClickMenuDetails>,
+      config: config as DeepRequired<PopsRightClickMenuConfig>,
       addWindowCheckClickListener: PopsContextMenu.addWindowCheckClickListener,
       removeWindowCheckClickListener: PopsContextMenu.removeWindowCheckClickListener,
       addContextMenuEvent: PopsContextMenu.addContextMenuEvent,
@@ -619,7 +636,7 @@ export const PopsRightClickMenu = {
        */
       removeInitEventListener: {
         contextMenu() {
-          PopsContextMenu.removeContextMenuEvent(config.target as Window, config.targetSelector!);
+          PopsContextMenu.removeContextMenuEvent(config.$target as Window, config.targetSelector!);
         },
         windowClick() {
           PopsContextMenu.removeWindowCheckClickListener();

@@ -1,18 +1,24 @@
-import type { PopsTitleConfig, PopsDragConfig, PopsCommonConfig } from "../../../types/components";
-import type { PopsPanelFormsDetails } from "./components-forms";
-import type { PopsPanelSwitchDetails } from "./components-switch";
-import type { PopsPanelSliderDetails } from "./components-slider";
-import type { PopsPanelInputDetails } from "./components-input";
-import type { PopsPanelTextAreaDetails } from "./components-textarea";
-import type { PopsPanelSelectDetails } from "./components-select";
-import type { PopsPanelButtonDetails } from "./components-button";
-import type { PopsPanelDeepMenuDetails } from "./components-deepMenu";
-import type { PopsPanelOwnDetails } from "./components-own";
-import type { PopsHeaderCloseButtonDetails } from "../../../types/button";
-import type { PopsPanelSelectMultipleDetails } from "./components-selectMultiple";
-import type { PopsPanelCommonDetails } from "./components-common";
-/** panel的各种类型的配置项 */
-export type PopsPanelFormsTotalDetails = PopsPanelSwitchDetails | PopsPanelSliderDetails | PopsPanelInputDetails | PopsPanelTextAreaDetails | PopsPanelSelectDetails<any> | PopsPanelSelectMultipleDetails<any> | PopsPanelButtonDetails | PopsPanelDeepMenuDetails | PopsPanelOwnDetails;
+import type { PopsTitleConfig, PopsDragConfig, PopsGeneralConfig } from "../../../types/components";
+import type { PopsPanelContainerConfig } from "./components-container";
+import type { PopsPanelSwitchConfig } from "./components-switch";
+import type { PopsPanelSliderConfig } from "./components-slider";
+import type { PopsPanelInputConfig } from "./components-input";
+import type { PopsPanelTextAreaConfig } from "./components-textarea";
+import type { PopsPanelSelectConfig } from "./components-select";
+import type { PopsPanelButtonConfig } from "./components-button";
+import type { PopsPanelDeepViewConfig } from "./components-deepMenu";
+import type { PopsPanelOwnConfig } from "./components-own";
+import type { PopsHeaderCloseButtonConfig } from "../../../types/button";
+import type { PopsPanelSelectMultipleConfig } from "./components-selectMultiple";
+import type { PopsPanelGeneralConfig } from "./components-common";
+/**
+ * panel的各种类型的配置项（不包括type="container"类型的）
+ */
+export type PopsPanelViewConfig = PopsPanelSwitchConfig | PopsPanelSliderConfig | PopsPanelInputConfig | PopsPanelTextAreaConfig | PopsPanelSelectConfig<any> | PopsPanelSelectMultipleConfig<any> | PopsPanelButtonConfig | PopsPanelDeepViewConfig | PopsPanelOwnConfig;
+/**
+ * panel的views配置项
+ */
+export type PopsPanelMainViewConfig = PopsPanelViewConfig | PopsPanelContainerConfig;
 /**
  * panel的内部事件
  */
@@ -22,9 +28,9 @@ export type PopsPanelEventType = {
      */
     "pops:renderRightContainer": {
         /**
-         * 菜单配置
+         * 视图配置
          */
-        formConfig: PopsPanelContentConfig[] | PopsPanelDeepMenuDetails;
+        viewConfig: PopsPanelContentConfig[] | PopsPanelDeepViewConfig;
     };
 };
 /**
@@ -39,7 +45,7 @@ export interface PopsPanelContentConfig {
      * （可选）元素的className，值为空的话就不设置
      * @default ""
      */
-    className?: PopsPanelCommonDetails<any>["className"];
+    className?: PopsPanelGeneralConfig<any>["className"];
     /**
      * 显示的文本，可以是html格式
      */
@@ -72,16 +78,18 @@ export interface PopsPanelContentConfig {
     scrollToDefaultView?: boolean;
     /**
      * （可选）自定义元素属性.setAttribute、.getAttribute
+     * @default {}
      */
-    attributes?: PopsPanelCommonDetails<any>["attributes"];
+    attributes?: PopsPanelGeneralConfig<any>["attributes"];
     /**
      * （可选）自定义元素内部的属性值
+     * @default {}
      */
-    props?: PopsPanelCommonDetails<any>["props"];
+    props?: PopsPanelGeneralConfig<any>["props"];
     /**
-     * 子配置
+     * 视图配置
      */
-    forms: (PopsPanelFormsDetails | PopsPanelFormsTotalDetails)[];
+    views: PopsPanelMainViewConfig[];
     /**
      * 左侧容器的点击回调（点击后第一个触发该回调）
      * @returns
@@ -116,7 +124,7 @@ export interface PopsPanelBottomContentConfig {
      * （可选）元素的className，值为空的话就不设置
      * @default ""
      */
-    className?: PopsPanelCommonDetails<any>["className"];
+    className?: PopsPanelGeneralConfig<any>["className"];
     /**
      * （可选）配置所在位置
      *
@@ -136,12 +144,12 @@ export interface PopsPanelBottomContentConfig {
      * （可选）自定义元素属性.setAttribute、.getAttribute
      * @default {}
      */
-    attributes?: PopsPanelCommonDetails<any>["attributes"];
+    attributes?: PopsPanelGeneralConfig<any>["attributes"];
     /**
      * （可选）自定义元素内部的属性值
      * @default {}
      */
-    props?: PopsPanelCommonDetails<any>["props"];
+    props?: PopsPanelGeneralConfig<any>["props"];
     /**
      * 该项的点击回调
      */
@@ -171,7 +179,7 @@ export interface PopsPanelBottomContentConfig {
 /**
  * pops.panel
  */
-export interface PopsPanelDetails extends PopsTitleConfig, PopsDragConfig, PopsCommonConfig {
+export interface PopsPanelConfig extends PopsTitleConfig, PopsDragConfig, PopsGeneralConfig {
     /**
      * 内容配置
      */
@@ -187,14 +195,14 @@ export interface PopsPanelDetails extends PopsTitleConfig, PopsDragConfig, PopsC
         /**
          * 关闭按钮
          */
-        close?: PopsHeaderCloseButtonDetails;
+        close?: PopsHeaderCloseButtonConfig;
     };
     /**
      * 移动端适配的的className
      *
      * @default "pops-panel-is-mobile"
      */
-    mobileClassName?: PopsPanelCommonDetails<any>["className"];
+    mobileClassName?: PopsPanelGeneralConfig<any>["className"];
     /**
      * 是否强制是移动端，默认false
      * + true 强制为移动端

@@ -90,12 +90,6 @@ class PopsUtils {
   assign<T1, T2 extends object, T3 extends boolean>(target: T1, source: T2, isAdd?: T3): T3 extends true ? T1 & T2 : T1;
   assign(target = {}, source = {}, isAdd = false) {
     const UtilsContext = this;
-    if (source == null) {
-      return target;
-    }
-    if (target == null) {
-      target = {};
-    }
     if (Array.isArray(source)) {
       const canTraverse = source.filter((item) => {
         return typeof item === "object";
@@ -104,42 +98,49 @@ class PopsUtils {
         return source;
       }
     }
+    if (source == null) {
+      return target;
+    }
+    if (target == null) {
+      target = {};
+    }
+    // 当前遍历的目标对象
+    let iteratorTarget;
     if (isAdd) {
-      for (const sourceKeyName in source) {
-        const targetKeyName = sourceKeyName;
-        const targetValue = (target as any)[targetKeyName];
-        const sourceValue = (source as any)[sourceKeyName];
-        if (
-          typeof sourceValue === "object" &&
-          sourceValue != null &&
-          sourceKeyName in target &&
-          !UtilsContext.isDOM(sourceValue)
-        ) {
-          /* 源端的值是object类型，且不是元素节点 */
-          (target as any)[sourceKeyName] = UtilsContext.assign(targetValue, sourceValue, isAdd);
-          continue;
-        }
-        (target as any)[sourceKeyName] = sourceValue;
-      }
+      // 追加并覆盖是以source为准
+      iteratorTarget = source;
     } else {
-      for (const targetKeyName in target) {
-        if (targetKeyName in source) {
-          const targetValue = Reflect.get(target, targetKeyName);
-          const sourceValue = Reflect.get(source, targetKeyName);
-          if (
-            typeof sourceValue === "object" &&
-            sourceValue != null &&
-            !UtilsContext.isDOM(sourceValue) &&
-            Object.keys(sourceValue).length
-          ) {
-            /* 源端的值是object类型，且不是元素节点 */
-            const childObjectValue = UtilsContext.assign(targetValue, sourceValue, isAdd);
-            Reflect.set(target, targetKeyName, childObjectValue);
-            continue;
+      // 覆盖以target为准
+      iteratorTarget = target;
+    }
+    for (const keyName in iteratorTarget) {
+      if (!isAdd && !(keyName in source)) {
+        // 仅替换 但是源端没有此键
+        continue;
+      }
+      const targetValue = Reflect.get(target, keyName);
+      const sourceValue = Reflect.get(source, keyName);
+      if (
+        typeof sourceValue === "object" &&
+        sourceValue != null &&
+        keyName in target &&
+        !UtilsContext.isDOM(sourceValue)
+      ) {
+        // 源端的值是object类型，且不是元素节点
+        // 如果是数组，那此数组中有值，清空旧的数组再赋值
+        let childObjectValue;
+        if (Array.isArray(sourceValue)) {
+          if (Array.isArray(targetValue)) {
+            targetValue.length = 0;
           }
-          /* 直接赋值 */
-          Reflect.set(target, targetKeyName, sourceValue);
+          childObjectValue = sourceValue;
+        } else {
+          childObjectValue = UtilsContext.assign(targetValue, sourceValue, isAdd);
         }
+        Reflect.set(target, keyName, childObjectValue);
+      } else {
+        /* 直接赋值 */
+        Reflect.set(target, keyName, sourceValue);
       }
     }
 
@@ -272,19 +273,19 @@ class PopsUtils {
 
     const timeRegexp = {
       yyyy: time.getFullYear(),
-      /* 年 */
+      // 年
       MM: checkTime(time.getMonth() + 1),
-      /* 月 */
+      // 月
       dd: checkTime(time.getDate()),
-      /* 日 */
+      // 日
       HH: checkTime(time.getHours()),
-      /* 时 (24小时制) */
+      // 时 (24小时制)
       hh: checkTime(timeSystemChange(time.getHours())),
-      /* 时 (12小时制) */
+      // 时 (12小时制)
       mm: checkTime(time.getMinutes()),
-      /* 分 */
+      // 分
       ss: checkTime(time.getSeconds()),
-      /* 秒 */
+      // 秒
     };
     Object.keys(timeRegexp).forEach(function (key) {
       const replaecRegexp = new RegExp(key, "g");
@@ -398,6 +399,20 @@ class PopsUtils {
     } finally {
       PopsCore.clearInterval(timeId);
     }
+  }
+  /**
+   * 覆盖对象中的数组新值
+   */
+  setArray<T>(target: T, key: keyof T, newArr: any[]) {
+    if (target == null) return;
+    if (!Array.isArray(newArr)) return;
+    const arr: any = target[key];
+    if (Array.isArray(target[key])) {
+      arr.length = 0;
+    } else {
+      (<any>target)[key] = [];
+    }
+    (<any>target)[key] = newArr;
   }
 }
 

@@ -6,18 +6,18 @@ import type { PopsType } from "../../types/main";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { popsUtils } from "../../utils/PopsUtils";
-import { PopsPromptConfig } from "./config";
-import type { PopsPromptDetails } from "./types/index";
+import { PopsPromptDefaultConfig } from "./defaultConfig";
+import type { PopsPromptConfig } from "./types/index";
 
 export const PopsPrompt = {
-  init(details: PopsPromptDetails) {
+  init(__config__: PopsPromptConfig) {
     const guid = popsUtils.getRandomGUID();
     // 设置当前类型
     const popsType: PopsType = "prompt";
 
-    let config = PopsPromptConfig();
+    let config = PopsPromptDefaultConfig();
     config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-    config = popsUtils.assign(config, details);
+    config = popsUtils.assign(config, __config__);
     config = PopsHandler.handleOnly(popsType, config);
 
     const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
@@ -133,7 +133,7 @@ export const PopsPrompt = {
       $pops,
       $mask
     );
-    /* 输入框赋值初始值 */
+    // 输入框赋值初始值
 
     $input.value = config.content.text;
     PopsHandler.handlePromptClickEvent(
@@ -170,7 +170,7 @@ export const PopsPrompt = {
 
       config.btn.other.callback
     );
-    /* 创建到页面中 */
+    // 创建到页面中
 
     popsDOMUtils.append($shadowRoot, $elList);
     if (typeof config.beforeAppendToPageCallBack === "function") {
@@ -183,15 +183,13 @@ export const PopsPrompt = {
     }
     PopsHandler.handlePush(popsType, {
       guid: guid,
-      animElement: $anim,
-
-      popsElement: $pops!,
-
-      maskElement: $mask!,
+      $anim: $anim,
+      $pops: $pops!,
+      $mask: $mask!,
       $shadowContainer: $shadowContainer,
       $shadowRoot: $shadowRoot,
     });
-    /* 拖拽 */
+    // 拖拽
     if (config.drag) {
       PopsInstanceUtils.drag($pops!, {
         dragElement: $title!,
@@ -201,11 +199,11 @@ export const PopsPrompt = {
         endCallBack: config.dragEndCallBack,
       });
     }
-    /* 设置自动获取焦点 */
+    // 设置自动获取焦点
     if (config.content.focus) {
       $input.focus();
     }
-    /* 设置自动选中所有文字 */
+    // 设置自动选中所有文字
     if (config.content.select) {
       $input.select();
     }

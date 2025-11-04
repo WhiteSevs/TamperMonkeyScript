@@ -4,25 +4,24 @@ import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
 import { PopsCSS } from "../../PopsCSS";
 import { PopsInstData } from "../../PopsInst";
-import type { PopsEventConfig } from "../../types/event";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { popsUtils } from "../../utils/PopsUtils";
-import { PopsIframeConfig } from "./config";
-import type { PopsIframeDetails } from "./types";
+import { PopsIframeDefaultConfig } from "./defaultConfig";
+import type { PopsIframeClickEventConfig, PopsIframeConfig } from "./types";
 import type { PopsType } from "../../types/main";
 
 export const PopsIframe = {
-  init(details: PopsIframeDetails) {
+  init(__config__: PopsIframeConfig) {
     const guid = popsUtils.getRandomGUID();
     // 设置当前类型
     const popsType: PopsType = "iframe";
 
-    let config = PopsIframeConfig();
+    let config = PopsIframeDefaultConfig();
     config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-    config = popsUtils.assign(config, details);
+    config = popsUtils.assign(config, __config__);
     if (config.url == null) {
-      throw new Error("config.url不能为空");
+      throw new TypeError("config.url must not be null.");
     }
     config = PopsHandler.handleOnly(popsType, config);
 
@@ -61,7 +60,7 @@ export const PopsIframe = {
     const maskHTML = PopsElementHandler.createMask(guid, zIndex, maskExtraStyle);
 
     const headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
-    const iframeLoadingHTML = '<div class="pops-loading"></div>';
+    const iframeLoadingHTML = /*html*/ '<div class="pops-loading"></div>';
     const titleText = config.title!.text!.trim() !== "" ? config.title.text : config.url;
     const { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(popsType, config);
     const animHTML = PopsElementHandler.createAnim(
@@ -143,35 +142,33 @@ export const PopsIframe = {
       $anim,
       $pops,
       $mask
-    ) as any as PopsEventConfig & {
-      iframeElement: HTMLIFrameElement;
-    };
-
-    evtConfig["iframeElement"] = $iframe!;
+    ) as PopsIframeClickEventConfig;
+    // 赋值额外的$iframe参数
+    evtConfig.$iframe = $iframe!;
 
     popsDOMUtils.on($anim, popsDOMUtils.getAnimationEndNameList(), function () {
-      /* 动画加载完毕 */
+      // 动画加载完毕
       $anim.style.width = "0%";
       $anim.style.height = "0%";
     });
 
     popsDOMUtils.on($iframe, "load", () => {
-      /* iframe加载中... */
+      // iframe加载中...
       loadingElement?.remove();
       $contentLoading!.style.animation = "iframeLoadingChange_85 0.3s forwards";
       popsDOMUtils.on($contentLoading, popsDOMUtils.getAnimationEndNameList(), () => {
-        /* 动画加载完毕就移除 */
+        // 动画加载完毕就移除
         $contentLoading!.remove();
       });
 
       if (config.title!.text!.trim() === "" && $iframe!.contentDocument) {
-        /* 同域名下的才可以获取网页标题 */
+        // 同域名下的才可以获取网页标题
         $title!.querySelector<HTMLElement>("p")!.innerText = $iframe!.contentDocument.title;
       }
 
       config.loadEndCallBack(evtConfig);
     });
-    /* 创建到页面中 */
+    // 创建到页面中
 
     popsDOMUtils.append($shadowRoot, $elList);
     if (typeof config.beforeAppendToPageCallBack === "function") {
@@ -182,7 +179,7 @@ export const PopsIframe = {
     if ($mask != null) {
       $anim.after($mask);
     }
-    /* 拖拽 */
+    // 拖拽
     if (config.drag) {
       PopsInstanceUtils.drag($pops!, {
         dragElement: $title!,
@@ -193,7 +190,7 @@ export const PopsIframe = {
       });
     }
     const TYPE_MODULE = "type-module";
-    /* 最小化按钮点击事件 */
+    // 最小化按钮点击事件
     let origin_left = "";
     let origin_top = "";
     let origin_is_max = false;
@@ -224,7 +221,7 @@ export const PopsIframe = {
         capture: true,
       }
     );
-    /* 最大化按钮点击事件 */
+    // 最大化按钮点击事件
     popsDOMUtils.on<MouseEvent | PointerEvent>(
       headerMaxBtnElement,
       "click",
@@ -258,9 +255,9 @@ export const PopsIframe = {
         capture: true,
       }
     );
-    /* 先隐藏窗口化按钮 */
+    // 先隐藏窗口化按钮
     headerMiseBtnElement?.style?.setProperty("display", "none");
-    /* 复位按钮点击事件 */
+    // 复位按钮点击事件
     popsDOMUtils.on<MouseEvent | PointerEvent>(
       headerMiseBtnElement,
       "click",
@@ -300,7 +297,7 @@ export const PopsIframe = {
         capture: true,
       }
     );
-    /* 关闭按钮点击事件 */
+    // 关闭按钮点击事件
     popsDOMUtils.on<MouseEvent | PointerEvent>(
       headerCloseBtnElement,
       "click",
@@ -319,11 +316,9 @@ export const PopsIframe = {
 
     PopsHandler.handlePush(popsType, {
       guid: guid,
-      animElement: $anim,
-
-      popsElement: $pops!,
-
-      maskElement: $mask!,
+      $anim: $anim,
+      $pops: $pops!,
+      $mask: $mask!,
       $shadowContainer: $shadowContainer,
       $shadowRoot: $shadowRoot,
     });

@@ -6,17 +6,18 @@ import type { PopsHandlerEventConfig } from "../../types/event";
 import type { PopsType } from "../../types/main";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { popsUtils } from "../../utils/PopsUtils";
-import { PopsDrawerConfig } from "./config";
-import type { PopsDrawerDetails } from "./types";
+import { PopsDrawerDefaultConfig } from "./defaultConfig";
+import type { PopsDrawerConfig } from "./types";
 
 export const PopsDrawer = {
-  init(details: PopsDrawerDetails) {
+  init(__config__: PopsDrawerConfig) {
     const guid = popsUtils.getRandomGUID();
     // 设置当前类型
     const popsType: PopsType = "drawer";
-    let config = PopsDrawerConfig();
+
+    let config = PopsDrawerDefaultConfig();
     config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-    config = popsUtils.assign(config, details);
+    config = popsUtils.assign(config, __config__);
     config = PopsHandler.handleOnly(popsType, config);
 
     const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
@@ -127,12 +128,12 @@ export const PopsDrawer = {
       $pops,
       $mask
     );
-    /* 处理方向 */
+    // 处理方向
 
     $pops.setAttribute("direction", config.direction);
 
-    /* 处理border-radius */
-    /* 处理动画前的宽高 */
+    // 处理border-radius
+    // 处理动画前的宽高
     if (config.direction === "top") {
       $pops.style.setProperty("height", "0");
 
@@ -151,13 +152,13 @@ export const PopsDrawer = {
       $pops.style.setProperty("border-radius", `${config.borderRadius}px 0px ${config.borderRadius}px 0px`);
     }
 
-    /* 按下Esc键触发关闭 */
+    // 按下Esc键触发关闭
     if (config.closeOnPressEscape) {
       PopsHandler.handleKeyboardEvent("Escape", [], function () {
         evtConfig.close();
       });
     }
-    /* 待处理的点击事件列表 */
+    // 待处理的点击事件列表
     const needHandleClickEventList: {
       type: PopsHandlerEventConfig["type"];
       ele: HTMLElement;
@@ -180,15 +181,15 @@ export const PopsDrawer = {
       },
     ];
     needHandleClickEventList.forEach((item) => {
-      PopsHandler.handleClickEvent(item.type, item.ele, evtConfig, (details, event) => {
+      PopsHandler.handleClickEvent(item.type, item.ele, evtConfig, (evtConfig, event) => {
         const callback = config.btn[item.type].callback;
         if (typeof callback === "function") {
-          callback(details, event);
+          callback(evtConfig, event);
         }
       });
     });
 
-    /* 先隐藏，然后根据config.openDelay来显示 */
+    // 先隐藏，然后根据config.openDelay来显示
     $elList.forEach((element) => {
       element.style.setProperty("display", "none");
       if (["top"].includes(config.direction)) {
@@ -210,7 +211,7 @@ export const PopsDrawer = {
       }
       element.style.setProperty("display", "");
     });
-    /* 创建到页面中 */
+    // 创建到页面中
 
     popsDOMUtils.append($shadowRoot, $elList);
     if (typeof config.beforeAppendToPageCallBack === "function") {
@@ -230,9 +231,9 @@ export const PopsDrawer = {
 
     PopsHandler.handlePush(popsType, {
       guid: guid,
-      animElement: $anim,
-      popsElement: $pops,
-      maskElement: $mask!,
+      $anim: $anim,
+      $pops: $pops,
+      $mask: $mask!,
       $shadowContainer: $shadowContainer,
       $shadowRoot: $shadowRoot,
     });

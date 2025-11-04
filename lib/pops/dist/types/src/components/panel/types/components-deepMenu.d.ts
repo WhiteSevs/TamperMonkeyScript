@@ -1,10 +1,10 @@
-import type { PopsPanelFormsTotalDetails } from ".";
-import type { PopsPanelFormsDetails } from "./components-forms";
-import type { PopsPanelCommonDetails } from "./components-common";
+import type { PopsPanelViewConfig } from ".";
+import type { PopsPanelContainerConfig } from "./components-container";
+import type { PopsPanelGeneralConfig } from "./components-common";
 /**
- * pops.panel的 深层菜单
+ * pops.panel的 深层视图的配置
  */
-export interface PopsPanelDeepMenuDetails extends PopsPanelCommonDetails<PopsPanelDeepMenuDetails> {
+export interface PopsPanelDeepViewConfig extends PopsPanelGeneralConfig<PopsPanelDeepViewConfig> {
     /**
      * 类型
      */
@@ -32,25 +32,25 @@ export interface PopsPanelDeepMenuDetails extends PopsPanelCommonDetails<PopsPan
      * + true 表示阻止进入深层菜单
      * + false （默认）表示允许进入深层菜单
      */
-    clickCallBack?: (event: MouseEvent | PointerEvent, formConfig: PopsPanelDeepMenuDetails) => boolean | void | Promise<boolean | void>;
+    clickCallBack?: (event: MouseEvent | PointerEvent, viewConfig: PopsPanelDeepViewConfig) => boolean | void | Promise<boolean | void>;
     /**
      * 进入深层菜单后触发的回调
-     * @param formConfig
+     * @param viewConfig
      */
-    afterEnterDeepMenuCallBack?: (formConfig: PopsPanelDeepMenuDetails, container: {
+    afterEnterDeepMenuCallBack?: (viewConfig: PopsPanelDeepViewConfig, container: {
         /** 右侧的总容器 */
-        sectionContainer: HTMLElement;
+        $sectionContainer: HTMLElement;
         /** 右侧的总容器的标题头容器 */
-        sectionContainerHeaderContainer: HTMLUListElement;
+        $sectionContainerHeaderContainer: HTMLUListElement;
         /** 右侧的总容器的标题头 */
-        sectionContainerHeader: HTMLLIElement;
+        $sectionContainerHeader: HTMLLIElement;
         /** 右侧的内容容器 */
-        sectionBodyContainer: HTMLUListElement;
+        $sectionBodyContainer: HTMLUListElement;
     }) => void;
     /**
      * 菜单配置
      */
-    forms?: (PopsPanelFormsDetails | PopsPanelFormsTotalDetails)[];
+    views?: (PopsPanelContainerConfig | PopsPanelViewConfig)[];
     /**
      * （可选）头部的标题文字，没有的话默认是text
      */

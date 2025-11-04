@@ -1,6 +1,6 @@
-import type { PopsPromptDetails } from "./types/index";
+import type { PopsConfirmConfig } from "./types";
 
-export const PopsPromptConfig = (): DeepRequired<PopsPromptDetails> => {
+export const PopsConfirmDefaultConfig = (): DeepRequired<PopsConfirmConfig> => {
   return {
     title: {
       text: "默认标题",
@@ -9,12 +9,8 @@ export const PopsPromptConfig = (): DeepRequired<PopsPromptDetails> => {
       style: "",
     },
     content: {
-      text: "",
-      select: false,
-      password: false,
-      row: false,
-      focus: true,
-      placeholder: "默认提示",
+      text: "默认内容",
+      html: false,
       style: "",
     },
     btn: {
@@ -29,9 +25,9 @@ export const PopsPromptConfig = (): DeepRequired<PopsPromptDetails> => {
         rightIcon: false,
         iconIsLoading: false,
         text: "确定",
-        type: "success",
-        callback(detail) {
-          detail.close();
+        type: "primary",
+        callback(eventConfig) {
+          eventConfig.close();
         },
       },
       cancel: {
@@ -42,8 +38,8 @@ export const PopsPromptConfig = (): DeepRequired<PopsPromptDetails> => {
         iconIsLoading: false,
         text: "关闭",
         type: "default",
-        callback(detail) {
-          detail.close();
+        callback(eventConfig) {
+          eventConfig.close();
         },
       },
       other: {
@@ -54,14 +50,14 @@ export const PopsPromptConfig = (): DeepRequired<PopsPromptDetails> => {
         iconIsLoading: false,
         text: "其它按钮",
         type: "default",
-        callback(detail) {
-          detail.close();
+        callback(eventConfig) {
+          eventConfig.close();
         },
       },
       close: {
         enable: true,
-        callback(detail) {
-          detail.close();
+        callback(eventConfig) {
+          eventConfig.close();
         },
       },
     },
@@ -90,5 +86,5 @@ export const PopsPromptConfig = (): DeepRequired<PopsPromptDetails> => {
 
     style: null,
     beforeAppendToPageCallBack() {},
-  };
+  } as DeepRequired<PopsConfirmConfig>;
 };

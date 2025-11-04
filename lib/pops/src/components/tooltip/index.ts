@@ -5,8 +5,8 @@ import type { PopsType } from "../../types/main";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
 import { popsUtils } from "../../utils/PopsUtils";
-import { PopsTooltipConfig } from "./config";
-import type { PopsToolTipDetails } from "./types/index";
+import { PopsTooltipDefaultConfig } from "./defaultConfig";
+import type { PopsToolTipConfig } from "./types/index";
 
 type ToolTipEventTypeName = "MouseEvent" | "TouchEvent";
 
@@ -19,13 +19,13 @@ export class ToolTip {
     $arrow: null as unknown as HTMLElement,
   };
   $data = {
-    config: null as any as Required<PopsToolTipDetails>,
+    config: null as any as Required<PopsToolTipConfig>,
     guid: null as any as string,
     timeId_close_TouchEvent: <number[]>[],
     timeId_close_MouseEvent: <number[]>[],
   };
   constructor(
-    config: Required<PopsToolTipDetails>,
+    config: Required<PopsToolTipConfig>,
     guid: string,
     ShadowInfo: {
       $shadowContainer: HTMLDivElement;
@@ -86,7 +86,7 @@ export class ToolTip {
     // 添加z-index
     $toolTipContainer.style.zIndex = PopsHandler.handleZIndex(this.$data.config.zIndex).toString();
     if (this.$data.config.style != null) {
-      /* 添加自定义style */
+      // 添加自定义style
       const cssNode = popsDOMUtils.createElement("style", {
         type: "text/css",
         innerHTML: this.$data.config.style,
@@ -173,9 +173,9 @@ export class ToolTip {
 
     const toolTipElement_width = popsDOMUtils.outerWidth(this.$el.$toolTip);
     const toolTipElement_height = popsDOMUtils.outerHeight(this.$el.$toolTip);
-    /* 目标元素的x轴的中间位置 */
+    // 目标元素的x轴的中间位置
     const targetElement_X_center_pos = targetElement_left + targetElement_width / 2 - toolTipElement_width / 2;
-    /* 目标元素的Y轴的中间位置 */
+    // 目标元素的Y轴的中间位置
     const targetElement_Y_center_pos = targetElement_top + targetElement_height / 2 - toolTipElement_height / 2;
 
     let mouseX = 0;
@@ -235,7 +235,7 @@ export class ToolTip {
    */
   changePosition(event?: MouseEvent | TouchEvent | PointerEvent) {
     const positionInfo = this.calcToolTipPosition(
-      this.$data.config.target,
+      this.$data.config.$target,
       this.$data.config.arrowDistance,
       this.$data.config.otherDistance,
       event
@@ -348,7 +348,7 @@ export class ToolTip {
    */
   onShowEvent() {
     popsDOMUtils.on(
-      this.$data.config.target,
+      this.$data.config.$target,
       this.$data.config.triggerShowEventName,
       this.show,
       this.$data.config.eventOption
@@ -358,7 +358,7 @@ export class ToolTip {
    * 取消绑定 显示事件
    */
   offShowEvent() {
-    popsDOMUtils.off(this.$data.config.target, this.$data.config.triggerShowEventName, this.show, {
+    popsDOMUtils.off(this.$data.config.$target, this.$data.config.triggerShowEventName, this.show, {
       capture: true,
     });
   }
@@ -373,7 +373,7 @@ export class ToolTip {
     if (event && event instanceof MouseEvent) {
       const $target = event.composedPath()[0];
       // 如果是目标元素的子元素/tooltip元素的子元素触发的话，那就不管
-      if ($target != this.$data.config.target && $target != this.$el.$toolTip) {
+      if ($target != this.$data.config.$target && $target != this.$el.$toolTip) {
         return;
       }
     }
@@ -418,7 +418,7 @@ export class ToolTip {
    */
   onCloseEvent() {
     popsDOMUtils.on(
-      this.$data.config.target,
+      this.$data.config.$target,
       this.$data.config.triggerCloseEventName,
       this.close,
       this.$data.config.eventOption
@@ -428,7 +428,7 @@ export class ToolTip {
    * 取消绑定 关闭事件
    */
   offCloseEvent() {
-    popsDOMUtils.off(this.$data.config.target, this.$data.config.triggerCloseEventName, this.close, {
+    popsDOMUtils.off(this.$data.config.$target, this.$data.config.triggerCloseEventName, this.close, {
       capture: true,
     });
   }
@@ -537,7 +537,7 @@ export class ToolTip {
   }
 }
 
-export type PopsTooltipResult<T extends PopsToolTipDetails> = {
+export type PopsTooltipResult<T extends PopsToolTipConfig> = {
   guid: string;
   config: T;
   $shadowContainer: HTMLDivElement;
@@ -546,15 +546,15 @@ export type PopsTooltipResult<T extends PopsToolTipDetails> = {
 };
 
 export const PopsTooltip = {
-  init(details: PopsToolTipDetails) {
+  init(__config__: PopsToolTipConfig) {
     const guid = popsUtils.getRandomGUID();
     // 设置当前类型
     const popsType: PopsType = "tooltip";
 
-    let config = PopsTooltipConfig();
+    let config = PopsTooltipDefaultConfig();
     config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-    config = popsUtils.assign(config, details);
-    if (!(config.target instanceof HTMLElement)) {
+    config = popsUtils.assign(config, __config__);
+    if (!(config.$target instanceof HTMLElement)) {
       throw new TypeError("config.target 必须是HTMLElement类型");
     }
     config = PopsHandler.handleOnly(popsType, config);
@@ -584,11 +584,11 @@ export const PopsTooltip = {
       $shadowRoot,
     });
     if (config.alwaysShow) {
-      /* 总是显示 */
-      /* 直接显示 */
+      // 总是显示
+      // 直接显示
       toolTip.show();
     } else {
-      /* 事件触发才显示 */
+      // 事件触发才显示
     }
 
     return {
