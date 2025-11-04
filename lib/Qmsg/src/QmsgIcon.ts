@@ -1,4 +1,4 @@
-import type { QmsgType } from "./QmsgConfig";
+import type { QmsgType } from "./types/config";
 
 export const QmsgHeaderCloseIcon = /*css*/ `
 	<svg width="16" height="16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">

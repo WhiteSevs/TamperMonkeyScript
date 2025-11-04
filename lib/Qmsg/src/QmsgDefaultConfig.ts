@@ -1,4 +1,4 @@
-import type { QmsgConfig } from "./QmsgConfig";
+import type { QmsgConfig } from "./types/config";
 
 export const QmsgDefaultConfig = {
   /** 实例配置的固定的默认值，在初始化时会插入值 */

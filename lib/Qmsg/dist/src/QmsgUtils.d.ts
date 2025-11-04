@@ -1,4 +1,4 @@
-import type { QmsgConfig } from "./QmsgConfig";
+import type { QmsgConfig } from "./types/config";
 export declare const QmsgUtils: {
     /**
      * 生成带插件名的名称

@@ -1,4 +1,4 @@
-import type { QmsgMsg } from "./QmsgInst";
+import type { QmsgMsg } from "../QmsgInst";
 /** 实例所在的位置 */
 export type QmsgPosition = "topleft" | "top" | "topright" | "left" | "center" | "right" | "bottomleft" | "bottom" | "bottomright";
 /** 实例类型 */

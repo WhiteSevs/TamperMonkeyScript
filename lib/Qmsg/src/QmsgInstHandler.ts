@@ -1,6 +1,6 @@
 import { QmsgMsg } from "./QmsgInst";
 import { QmsgInstStorage, type QmsgInstStorageInfo } from "./QmsgInstStorage";
-import type { QmsgConfig } from "./QmsgConfig";
+import type { QmsgConfig } from "./types/config";
 import { QmsgUtils } from "./QmsgUtils";
 import { QmsgDefaultConfig } from "./QmsgDefaultConfig";
 

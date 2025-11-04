@@ -3,7 +3,7 @@ import { QmsgCSS } from "./QmsgCSS";
 import { QmsgDefaultConfig } from "./QmsgDefaultConfig";
 import { QmsgIcon, QmsgHeaderCloseIcon } from "./QmsgIcon";
 import { QmsgInstStorage } from "./QmsgInstStorage";
-import type { QmsgConfig } from "./QmsgConfig";
+import type { QmsgConfig } from "./types/config";
 import { QmsgUtils } from "./QmsgUtils";
 /**
  * 每条消息的构造函数

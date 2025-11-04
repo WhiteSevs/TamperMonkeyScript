@@ -1,6 +1,6 @@
 import { QmsgDefaultConfig } from "./QmsgDefaultConfig";
 import { clearInterval, clearTimeout, setInterval, setTimeout } from "worker-timers";
-import type { QmsgConfig } from "./QmsgConfig";
+import type { QmsgConfig } from "./types/config";
 
 export const QmsgUtils = {
   /**

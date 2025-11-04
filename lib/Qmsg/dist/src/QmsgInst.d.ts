@@ -1,5 +1,5 @@
 import { type QmsgAnimationState } from "./QmsgAnimation";
-import type { QmsgConfig } from "./QmsgConfig";
+import type { QmsgConfig } from "./types/config";
 /**
  * 每条消息的构造函数
  */

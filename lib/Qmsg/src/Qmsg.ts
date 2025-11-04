@@ -6,7 +6,7 @@ import { QmsgUtils } from "./QmsgUtils";
 import { QmsgInstHandler } from "./QmsgInstHandler";
 import { QmsgEvent } from "./QmsgEvent";
 import type { QmsgMsg } from "./QmsgInst";
-import type { QmsgConfig } from "./QmsgConfig";
+import type { QmsgConfig } from "./types/config";
 import { version } from "./../package.json";
 
 /** 实例配置（可选） */

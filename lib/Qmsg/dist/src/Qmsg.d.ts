@@ -3,7 +3,7 @@ import { QmsgIcon } from "./QmsgIcon";
 import { QmsgInstStorage } from "./QmsgInstStorage";
 import { QmsgEvent } from "./QmsgEvent";
 import type { QmsgMsg } from "./QmsgInst";
-import type { QmsgConfig } from "./QmsgConfig";
+import type { QmsgConfig } from "./types/config";
 /** 实例配置（可选） */
 export type QmsgConfigPartial = Partial<QmsgConfig>;
 type QmsgConfigContent = string | boolean | number | symbol | Function | bigint | null | undefined;
