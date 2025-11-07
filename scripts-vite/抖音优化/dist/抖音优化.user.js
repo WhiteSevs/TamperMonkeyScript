@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.7
+// @version      2025.11.7.17
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -2620,12 +2620,18 @@
         for (let index = 0; index < that.$data.function_apply.length; index++) {
           const item = that.$data.function_apply[index];
           if (typeof item.paramsHandler === "function") {
-            const handlerResult = item.paramsHandler(fn, thisArg, argArray);
+            const handlerResult = item.paramsHandler(fn, thisArg, argArray, args);
             if (handlerResult != null) {
               if (handlerResult.args) {
-                args[0] = handlerResult.args.thisArg;
-                args[1] = handlerResult.args.argArray;
-                fn = handlerResult.args.fn;
+                if ("thisArg" in handlerResult.args) {
+                  args[0] = handlerResult.args.thisArg;
+                }
+                if ("argArray" in handlerResult.args) {
+                  args[1] = handlerResult.args.argArray;
+                }
+                if (typeof handlerResult.args.fn === "function") {
+                  fn = handlerResult.args.fn;
+                }
               }
               if (handlerResult.preventDefault) {
                 if ("result" in handlerResult) {
@@ -2641,8 +2647,10 @@
         for (let index = 0; index < that.$data.function_apply.length; index++) {
           const item = that.$data.function_apply[index];
           if (typeof item.returnsHandler === "function") {
-            let handlerResult = item.returnsHandler(fn, args[0], args[1], result);
-            result = handlerResult.result;
+            let handlerResult = item.returnsHandler(fn, args[0], args[1], result, args);
+            if (handlerResult != null && "result" in handlerResult) {
+              result = handlerResult.result;
+            }
           }
         }
         return result;
@@ -2663,12 +2671,18 @@
         for (let index = 0; index < that.$data.function_call.length; index++) {
           const item = that.$data.function_call[index];
           if (typeof item.paramsHandler === "function") {
-            const handlerResult = item.paramsHandler(fn, thisArg, argArray);
+            const handlerResult = item.paramsHandler(fn, thisArg, argArray, args);
             if (handlerResult != null) {
               if (handlerResult.args) {
-                args[0] = handlerResult.args.thisArg;
-                args.splice(1, argArray.length, ...handlerResult.args.argArray);
-                fn = handlerResult.args.fn;
+                if ("thisArg" in handlerResult.args) {
+                  args[0] = handlerResult.args.thisArg;
+                }
+                if ("argArray" in handlerResult.args) {
+                  args.splice(1, argArray.length, ...handlerResult.args.argArray);
+                }
+                if (typeof handlerResult.args.fn === "function") {
+                  fn = handlerResult.args.fn;
+                }
               }
               if (handlerResult.preventDefault) {
                 if ("result" in handlerResult) {
@@ -2684,8 +2698,10 @@
         for (let index = 0; index < that.$data.function_call.length; index++) {
           const item = that.$data.function_call[index];
           if (typeof item.returnsHandler === "function") {
-            const handlerResult = item.returnsHandler(fn, args[0], args[1], result);
-            result = handlerResult.result;
+            const handlerResult = item.returnsHandler(fn, args[0], args[1], result, args);
+            if (handlerResult != null && "result" in handlerResult) {
+              result = handlerResult.result;
+            }
           }
         }
         return result;
@@ -3258,28 +3274,29 @@
     },
     watchLoginDialogToClose() {
       log.info("监听登录弹窗并关闭");
-      let lockFn = new utils.LockFunction(() => {
-        if (!Panel.getValue("watchLoginDialogToClose")) {
+      const lockFn = new utils.LockFunction(() => {
+        if (!Panel.getValue("watchLoginDialogToClose") && !Panel.getValue("disguiseLogin")) {
           return;
         }
         domUtils.remove(".douyin_login_iframe:has(iframe)");
-        let $loginDialog = $('div[id^="login-full-panel-"]');
+        const $loginDialog = $('div[id^="login-full-panel-"]');
         if ($loginDialog && $loginDialog.children.length) {
-          let $loginDialogCloseBtn =
+          const $loginDialogCloseBtn =
             $loginDialog.querySelector(".dy-account-close") ||
             $loginDialog.querySelector(
               'div:has(>svg path[d="M12.7929 22.2426C12.4024 22.6331 12.4024 23.2663 12.7929 23.6568C13.1834 24.0474 13.8166 24.0474 14.2071 23.6568L18.5 19.3639L22.7929 23.6568C23.1834 24.0474 23.8166 24.0474 24.2071 23.6568C24.5976 23.2663 24.5976 22.6331 24.2071 22.2426L19.9142 17.9497L24.1066 13.7573C24.4971 13.3668 24.4971 12.7336 24.1066 12.3431C23.7161 11.9526 23.0829 11.9526 22.6924 12.3431L18.5 16.5355L14.3076 12.3431C13.9171 11.9526 13.2839 11.9526 12.8934 12.3431C12.5029 12.7336 12.5029 13.3668 12.8934 13.7573L17.0858 17.9497L12.7929 22.2426Z"])'
             );
           if ($loginDialogCloseBtn) {
-            let reactInst = utils.getReactInstance($loginDialogCloseBtn);
-            let onClick = reactInst?.reactProps?.onClick;
+            const reactInst = utils.getReactInstance($loginDialogCloseBtn);
+            const onClick = reactInst?.reactProps?.onClick;
             if (typeof onClick === "function") {
               onClick(new Event("click"));
+              log.success(`调用onClick触发关闭弹窗`);
             } else {
               log.error("监听到登录弹窗但是关闭失败，原因：未获取到onClick函数");
             }
           } else {
-            let $logPanelNew = $loginDialog.querySelector("#login-panel-new > div");
+            const $logPanelNew = $loginDialog.querySelector("#login-panel-new > div");
             if (!$logPanelNew || ($logPanelNew && $logPanelNew.children.length)) {
               log.error(
                 "未找到登录弹出的关闭按钮，此时键盘被聚焦在登录弹窗上从而导致'快捷键'失效",
