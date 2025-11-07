@@ -38,17 +38,39 @@ type HookFunctionApplyHandler = {
    * + false 阻止调用生成原始结果
    */
   paramsHandler?: (
+    /**
+     * 函数
+     */
     fn: Function,
+    /**
+     * 函数的this对象
+     */
     thisArg: any,
-    argArray: any[]
+    /**
+     * 函数的入参列表
+     */
+    argArray: any[],
+    /**
+     * arguments
+     */
+    args: any[]
   ) => void | {
     /**
-     * 函数参数信息
+     * 替换的函数参数信息
      */
     args?: {
-      fn: Function;
-      thisArg: any;
-      argArray: any[];
+      /**
+       * 函数
+       */
+      fn?: Function;
+      /**
+       * 函数的this对象
+       */
+      thisArg?: any;
+      /**
+       * 函数的入参列表
+       */
+      argArray?: any[];
     };
     /**
      * 阻止调用生成原始结果
@@ -61,60 +83,39 @@ type HookFunctionApplyHandler = {
     result?: any;
   };
   /**
+   * 结果处理器
    * @returns
    */
   returnsHandler?: (
+    /**
+     * 函数
+     */
     fn: Function,
+    /**
+     * 函数的this对象
+     */
     thisArg: any,
+    /**
+     * 函数的入参列表
+     */
     argArray: any[],
-    result: any
+    /**
+     * 执行call后的结果
+     */
+    result: any,
+    /**
+     * arguments
+     */
+    args: any[]
   ) => {
+    /**
+     * 需要把call调用后的结果替换成的值
+     */
     result: any;
-  };
+  } | void;
 };
 
-type HookFunctionCallHandler = {
-  /**
-   * @returns
-   * + void 不做处理
-   * + object 替换所返回的内容
-   * + false 阻止调用生成原始结果
-   */
-  paramsHandler?: (
-    fn: Function,
-    thisArg: any,
-    argArray: any[]
-  ) => void | {
-    /**
-     * 函数参数信息
-     */
-    args?: {
-      fn: Function;
-      thisArg: any;
-      argArray: any[];
-    };
-    /**
-     * 阻止调用生成原始结果
-     * @default false
-     */
-    preventDefault?: boolean;
-    /**
-     * 替换函数返回的内容
-     */
-    result?: any;
-  };
-  /**
-   * @returns
-   */
-  returnsHandler?: (
-    fn: Function,
-    thisArg: any,
-    argArray: any[],
-    result: any
-  ) => {
-    result: any;
-  };
-};
+type HookFunctionCallHandler = HookFunctionApplyHandler;
 
 /**
  * @returns
@@ -389,12 +390,18 @@ export const Hook = {
       for (let index = 0; index < that.$data.function_apply.length; index++) {
         const item = that.$data.function_apply[index];
         if (typeof item.paramsHandler === "function") {
-          const handlerResult = item.paramsHandler(fn, thisArg, argArray);
+          const handlerResult = item.paramsHandler(fn, thisArg, argArray, args);
           if (handlerResult != null) {
             if (handlerResult.args) {
-              args[0] = handlerResult.args.thisArg;
-              args[1] = handlerResult.args.argArray;
-              fn = handlerResult.args.fn;
+              if ("thisArg" in handlerResult.args) {
+                args[0] = handlerResult.args.thisArg;
+              }
+              if ("argArray" in handlerResult.args) {
+                args[1] = handlerResult.args.argArray;
+              }
+              if (typeof handlerResult.args.fn === "function") {
+                fn = handlerResult.args.fn;
+              }
             }
             if (handlerResult.preventDefault) {
               if ("result" in handlerResult) {
@@ -410,8 +417,10 @@ export const Hook = {
       for (let index = 0; index < that.$data.function_apply.length; index++) {
         const item = that.$data.function_apply[index];
         if (typeof item.returnsHandler === "function") {
-          let handlerResult = item.returnsHandler(fn, args[0], args[1], result);
-          result = handlerResult.result;
+          let handlerResult = item.returnsHandler(fn, args[0], args[1], result, args);
+          if (handlerResult != null && "result" in handlerResult) {
+            result = handlerResult.result;
+          }
         }
       }
       return result;
@@ -436,12 +445,18 @@ export const Hook = {
       for (let index = 0; index < that.$data.function_call.length; index++) {
         const item = that.$data.function_call[index];
         if (typeof item.paramsHandler === "function") {
-          const handlerResult = item.paramsHandler(fn, thisArg, argArray);
+          const handlerResult = item.paramsHandler(fn, thisArg, argArray, args);
           if (handlerResult != null) {
             if (handlerResult.args) {
-              args[0] = handlerResult.args.thisArg;
-              args.splice(1, argArray.length, ...handlerResult.args.argArray);
-              fn = handlerResult.args.fn;
+              if ("thisArg" in handlerResult.args) {
+                args[0] = handlerResult.args.thisArg;
+              }
+              if ("argArray" in handlerResult.args) {
+                args.splice(1, argArray.length, ...handlerResult.args.argArray!);
+              }
+              if (typeof handlerResult.args.fn === "function") {
+                fn = handlerResult.args.fn;
+              }
             }
             if (handlerResult.preventDefault) {
               if ("result" in handlerResult) {
@@ -457,8 +472,10 @@ export const Hook = {
       for (let index = 0; index < that.$data.function_call.length; index++) {
         const item = that.$data.function_call[index];
         if (typeof item.returnsHandler === "function") {
-          const handlerResult = item.returnsHandler(fn, args[0], args[1], result);
-          result = handlerResult.result;
+          const handlerResult = item.returnsHandler(fn, args[0], args[1], result, args);
+          if (handlerResult != null && "result" in handlerResult) {
+            result = handlerResult.result;
+          }
         }
       }
       return result;
