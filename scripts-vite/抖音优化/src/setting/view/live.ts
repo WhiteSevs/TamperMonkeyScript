@@ -299,7 +299,7 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
                   "dy-live-shieldMessage",
                   false,
                   void 0,
-                  "底部滚动播报的的xxx来了，xxx给主播点赞"
+                  "顶部左右滚动播报（xxx进入/加入直播间），底部滚动播报（xxx来了，xxx给主播点赞）"
                 ),
               ],
             },

@@ -1140,12 +1140,12 @@ const Panel = {
           for (let index = 0; index < configList.length; index++) {
             const configItem = configList[index];
 
-            const child_forms = (<PopsPanelContainerConfig>configItem).views;
-            if (child_forms && Array.isArray(child_forms)) {
+            const childViewConfig = (<PopsPanelContainerConfig>configItem).views;
+            if (childViewConfig && Array.isArray(childViewConfig)) {
               // 存在子配置forms
               const deepMenuPath = utils.deepClone(path);
               if (configItem.type === "deepMenu") {
-                const deepNext = utils.queryProperty(deepMenuPath, (target) => {
+                const deepNext = utils.queryProperty<SearchPath>(deepMenuPath, (target) => {
                   if (target?.next) {
                     return {
                       isFind: false,
@@ -1162,7 +1162,7 @@ const Panel = {
                   name: configItem.text,
                 };
               }
-              loopContentConfig(child_forms, deepMenuPath);
+              loopContentConfig(childViewConfig, deepMenuPath);
             } else {
               // 无子配置forms
               let text: string | undefined;
@@ -1184,7 +1184,7 @@ const Panel = {
                   }
                 }
               } else {
-                text = Reflect.get(configItem, "text");
+                text = configItem.text;
                 description = Reflect.get(configItem, "description");
               }
               const delayMatchedTextList = [text, description];
