@@ -1425,11 +1425,15 @@ declare class Utils {
      */
     watchObject(target: any, propertyName: string, getCallBack: (value: any) => void, setCallBack: (value: any) => void): void;
     /**
-     * 深度获取对象属性
+     * 深度获取对象的某个属性
      * @param target 待获取的对象
      * @param handler 获取属性的回调
      */
-    queryProperty<T = any>(target: any, handler: (target: T) => {
+    queryProperty<T = any>(target: any, handler: (
+    /**
+     * 该值为返回的data值
+     */
+    target: T) => {
         /**
          * 是否是需要的属性
          * + `true` 将目标值赋值给data
