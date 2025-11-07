@@ -61,7 +61,9 @@ const BaiduSearch = {
               log.error(["替换为真实链接失败", error]);
             }
           }, 600);
-          let removeAdsLockFunction = new utils.LockFunction(BaiduHandleResultItem.removeAds, 600);
+          let removeAdsLockFunction = new utils.LockFunction(() => {
+            BaiduHandleResultItem.removeAds();
+          }, 600);
           DOMUtils.waitNode<HTMLDivElement>("#page.search-page").then(($searchPage) => {
             utils.mutationObserver($searchPage, {
               callback: async () => {
@@ -165,6 +167,13 @@ const BaiduSearch = {
       let $result = $selectorTarget;
 
       if ($click) {
+        if (Panel.getValue("baidu-search-add-filter-button")) {
+          if (CommonUtil.findParentNode($click, ".gm-search-filter-wrapper")) {
+            // 自定义的过滤按钮
+            log.info(`该点击为自定义的过滤按钮，不点击跳转`);
+            return;
+          }
+        }
         // 百度AI 总结全网xx篇结果
         // 让它不点击跳转
         let isWenDa = $result.matches('[srcid="wenda_generate"]');

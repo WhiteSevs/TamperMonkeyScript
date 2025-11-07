@@ -1,7 +1,6 @@
 import { $$, DOMUtils, addStyle, log, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
 import { SearchHandleResultEveryOneSearch } from "./SearchHandleResultEveryOneSearch";
-import { BaiduSearchBlockRule } from "./SearchBlockRule";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 
 /** 处理每一项搜索结果 */
@@ -490,16 +489,8 @@ export const BaiduHandleResultItem = {
 
     // 遍历并处理每一条搜索结果
     $$<HTMLDivElement>(".c-result.result").forEach(($result) => {
-      /* 获取属性上的LOG */
-      let dataLog = utils.toJSON($result.getAttribute("data-log"));
       /* 真实链接 */
-      let searchArticleOriginal_link: string | null =
-        dataLog["mu"] || $result.querySelector<HTMLElement>("article")?.getAttribute("rl-link-href");
-      if (BaiduSearchBlockRule.handleCustomRule($result, searchArticleOriginal_link)) {
-        log.info(["触发自定义规则，屏蔽该搜索结果：", searchArticleOriginal_link]);
-        $result.remove();
-        return;
-      }
+      const searchArticleOriginal_link = this.getSearchArticleOriginal_link($result);
       // 禁止自动播放视频
       // 原自定义规则：remove-child##[class*='-video-player']
       // 直接删除播放视频的元素会导致如下副作用
@@ -542,6 +533,18 @@ export const BaiduHandleResultItem = {
         }
       });
     });
+  },
+  /**
+   * 过滤.result上的真实链接
+   */
+  getSearchArticleOriginal_link($result: HTMLElement) {
+    /* 获取属性上的LOG */
+    const dataLog = $result.getAttribute("data-log");
+    let dataLogJSON = utils.toJSON(dataLog);
+    /* 真实链接 */
+    let url: string | undefined =
+      dataLogJSON["mu"] || $result.querySelector<HTMLElement>("article")?.getAttribute("rl-link-href") || void 0;
+    return url;
   },
   /**
    * 重定向顶部的链接，如全部、视频、图片、贴吧、咨询...

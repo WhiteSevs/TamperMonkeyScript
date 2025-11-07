@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.4
+// @version      2025.11.7
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -82,7 +82,7 @@
       return (mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports);
     };
   var require_entrance_001 = __commonJS({
-    "entrance-C7QmCLIj.js"(exports, module) {
+    "entrance-Cz7a8CEI.js"(exports, module) {
       var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
       var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
       var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
@@ -1836,8 +1836,8 @@
               const loopContentConfig = (configList, path) => {
                 for (let index = 0; index < configList.length; index++) {
                   const configItem = configList[index];
-                  const child_forms = configItem.views;
-                  if (child_forms && Array.isArray(child_forms)) {
+                  const childViewConfig = configItem.views;
+                  if (childViewConfig && Array.isArray(childViewConfig)) {
                     const deepMenuPath = utils.deepClone(path);
                     if (configItem.type === "deepMenu") {
                       const deepNext = utils.queryProperty(deepMenuPath, (target) => {
@@ -1857,7 +1857,7 @@
                         name: configItem.text,
                       };
                     }
-                    loopContentConfig(child_forms, deepMenuPath);
+                    loopContentConfig(childViewConfig, deepMenuPath);
                   } else {
                     let text;
                     let description;
@@ -1872,7 +1872,7 @@
                         }
                       }
                     } else {
-                      text = Reflect.get(configItem, "text");
+                      text = configItem.text;
                       description = Reflect.get(configItem, "description");
                     }
                     const delayMatchedTextList = [text, description];
@@ -3214,184 +3214,6 @@ div[class^="new-summary-container_"] {\r
           });
         },
       };
-      const BaiduSearchBlockRule = {
-        defaultRule: `
-// 百度健康
-// match-href##expert.baidu.com
-match-attr##srcid##med_wz
-// 百度健康病案库
-match-attr##srcid##med_medical_records_san
-// 百度健康卖药的
-match-attr##srcid##med_disease_drug
-// 大家还在搜
-match-href##recommend_list.baidu.com&&&&match-attr##tpl##recommend_list
-// 大家还在搜:隐藏的(点击后，跳出来的)
-remove-child##.c-atom-afterclick-recomm-wrap
-// 百家号聚合
-match-href##author.baidu.com/home/
-// xxx 相关 xxx
-match-attr##srcid##(sigma|vid_fourfold)
-// 问一问
-match-attr##data-log##wenda_inquiry
-// 百度游戏
-match-attr##srcid##yx_entity_san
-// 大家还在看
-match-attr##srcid##yl_recommend_list
-// 百度-智能小程序
-match-attr##srcid##xcx_multi
-// 百度 xx精选商品问答
-match-attr##srcid##b2b_wenda_wise
-// 百度爱采购
-match-attr##srcid##b2b_straight_wise_vertical
-// ↓会误杀有些情况下是百度知道的回答链接
-// match-attr##srcid##lego_tpl
-match-href##^http(s|)://b2b.baidu.com
-// 百度优选
-match-attr##srcid##sp_purc_san
-// 全网热卖
-match-attr##srcid##sp_purc_atom
-// 百度本地生活
-match-attr##srcid##jy_bdb_in_store_service_2nd
-// AI智能体推广
-match-attr##srcid##ai_agent_distribute
-
-
-// 搜索聚合
-// match-attr##srcid##note_lead
-// 资讯
-// match-attr##srcid##realtime
-// 百度有驾
-// match-attr##srcid##(car_kg2_san|car_view_point_san)
-// 动态(微博、百度动态...等)
-// match-attr##srcid##rel_ugc_san
-`,
-        rule: [],
-        init() {
-          let localRule = this.getLocalRule();
-          if (Panel.getValue("baidu-search-blockNoteLead")) {
-            this.defaultRule += "\nmatch-attr##srcid##note_lead";
-          }
-          if (Panel.getValue("baidu-search-enable-default-interception-rules")) {
-            localRule = this.defaultRule + "\n\n" + localRule;
-          }
-          this.rule = this.parseRule(localRule);
-        },
-        getLocalRule() {
-          let localRule = Panel.getValue("baidu-search-interception-rules", "");
-          localRule = localRule.trim();
-          return localRule;
-        },
-        setLocalRule(rule) {
-          Panel.setValue("baidu-search-interception-rules", rule);
-        },
-        clearLocalRule() {
-          Panel.deleteValue("baidu-search-interception-rules");
-        },
-        parseRule(localRule) {
-          let result = [];
-          function parseOneRule(ruleItem) {
-            let cRuleItemSplit = ruleItem.split("##");
-            if (!cRuleItemSplit.length) {
-              log.error(["无效规则", ruleItem]);
-              return;
-            }
-            let ruleName = cRuleItemSplit[0];
-            let ruleNameLowerCase = ruleName.toLowerCase();
-            let endRule = ruleItem.replace(ruleName + "##", "");
-            if (ruleNameLowerCase === "match-href") {
-              return {
-                rule: ruleItem,
-                mode: ruleNameLowerCase,
-                matchText: new RegExp(endRule),
-              };
-            } else if (ruleNameLowerCase === "match-attr") {
-              let otherRuleSplit = endRule.split("##");
-              if (otherRuleSplit.length === 1) {
-                log.error(["无效规则", ruleItem]);
-                return;
-              }
-              let attrName = otherRuleSplit[0];
-              let attrValueMatch = endRule.replace(attrName + "##", "");
-              return {
-                rule: ruleItem,
-                mode: ruleNameLowerCase,
-                attr: attrName,
-                matchText: new RegExp(attrValueMatch),
-              };
-            } else if (ruleNameLowerCase === "contains-child" || ruleNameLowerCase === "remove-child") {
-              return {
-                rule: ruleItem,
-                mode: ruleNameLowerCase,
-                matchText: endRule,
-              };
-            } else {
-              log.error(["无效规则", ruleItem]);
-            }
-          }
-          localRule.split("\n").forEach((ruleItem) => {
-            ruleItem = ruleItem.trim();
-            if (ruleItem === "") {
-              return;
-            }
-            if (ruleItem.startsWith("//")) {
-              return;
-            }
-            let moreRule = ruleItem.split("&&&&");
-            if (moreRule.length === 1) {
-              let parsedRule = parseOneRule(ruleItem);
-              if (parsedRule) {
-                result.push(parsedRule);
-              }
-            } else {
-              let resultRule = [];
-              moreRule.forEach((oneRule) => {
-                oneRule = oneRule.trim();
-                let parsedRule = parseOneRule(oneRule);
-                if (parsedRule) {
-                  resultRule.push(parsedRule);
-                }
-              });
-              result.push({
-                mode: "more-rule",
-                moreRule: resultRule,
-              });
-            }
-          });
-          return result;
-        },
-        handleCustomRule($el, url) {
-          function handleOneRule(ruleItem) {
-            if (ruleItem.mode === "match-href") {
-              if (typeof url === "string" && url.match(ruleItem.matchText)) {
-                return true;
-              }
-            } else if (ruleItem.mode === "match-attr") {
-              if ($el.hasAttribute(ruleItem.attr) && $el.getAttribute(ruleItem.attr)?.match(ruleItem.matchText)) {
-                return true;
-              }
-            } else if (ruleItem.mode === "contains-child") {
-              if ($el.querySelector(ruleItem.matchText)) {
-                return true;
-              }
-            } else if (ruleItem.mode === "remove-child") {
-              $el.querySelector(ruleItem["matchText"])?.remove();
-            }
-          }
-          for (const ruleItem of this.rule) {
-            if (ruleItem.moreRule) {
-              for (const oneRule of ruleItem.moreRule) {
-                if (handleOneRule(oneRule)) {
-                  return true;
-                }
-              }
-            } else {
-              if (handleOneRule(ruleItem)) {
-                return true;
-              }
-            }
-          }
-        },
-      };
       const BaiduHandleResultItem = {
         originURLMap: null,
         isBaiDuTransferStation(url) {
@@ -3797,14 +3619,7 @@ match-attr##srcid##ai_agent_distribute
             domUtils.remove(domUtils.parent($ec_wise_aad));
           }
           $$(".c-result.result").forEach(($result) => {
-            let dataLog = utils.toJSON($result.getAttribute("data-log"));
-            let searchArticleOriginal_link =
-              dataLog["mu"] || $result.querySelector("article")?.getAttribute("rl-link-href");
-            if (BaiduSearchBlockRule.handleCustomRule($result, searchArticleOriginal_link)) {
-              log.info(["触发自定义规则，屏蔽该搜索结果：", searchArticleOriginal_link]);
-              $result.remove();
-              return;
-            }
+            const searchArticleOriginal_link = this.getSearchArticleOriginal_link($result);
             if (Panel.getValue("baidu-search-blockAutomaticVideoPlayback")) {
               $result.querySelectorAll("[class*='-video-player']").forEach((ele) => ele.remove());
             }
@@ -3838,6 +3653,12 @@ match-attr##srcid##ai_agent_distribute
               }
             });
           });
+        },
+        getSearchArticleOriginal_link($result) {
+          const dataLog = $result.getAttribute("data-log");
+          let dataLogJSON = utils.toJSON(dataLog);
+          let url = dataLogJSON["mu"] || $result.querySelector("article")?.getAttribute("rl-link-href") || void 0;
+          return url;
         },
         redirectTopLink() {
           $$(".se-head-tablink a").forEach((item) => {
@@ -4444,6 +4265,384 @@ match-attr##srcid##ai_agent_distribute
             return false;
           }
           return true;
+        },
+      };
+      const BaiduSearchBlockRule = {
+        defaultRule: `
+// 百度健康
+// match-href##expert.baidu.com
+match-attr##srcid##med_wz
+// 百度健康病案库
+match-attr##srcid##med_medical_records_san
+// 百度健康卖药的
+match-attr##srcid##med_disease_drug
+// 大家还在搜
+match-href##recommend_list.baidu.com&&&&match-attr##tpl##recommend_list
+// 大家还在搜:隐藏的(点击后，跳出来的)
+remove-child##.c-atom-afterclick-recomm-wrap
+// 百家号聚合
+match-href##author.baidu.com/home/
+// xxx 相关 xxx
+match-attr##srcid##(sigma|vid_fourfold)
+// 问一问
+match-attr##data-log##wenda_inquiry
+// 百度游戏
+match-attr##srcid##yx_entity_san
+// 大家还在看
+match-attr##srcid##yl_recommend_list
+// 百度-智能小程序
+match-attr##srcid##xcx_multi
+// 百度 xx精选商品问答
+match-attr##srcid##b2b_wenda_wise
+// 百度爱采购
+match-attr##srcid##b2b_straight_wise_vertical
+// ↓会误杀有些情况下是百度知道的回答链接
+// match-attr##srcid##lego_tpl
+match-href##^http(s|)://b2b.baidu.com
+// 百度优选
+match-attr##srcid##sp_purc_san
+// 全网热卖
+match-attr##srcid##sp_purc_atom
+// 百度本地生活
+match-attr##srcid##jy_bdb_in_store_service_2nd
+// AI智能体推广
+match-attr##srcid##ai_agent_distribute
+// AI智能体 智能回复
+match-attr##srcid##ai_agent_qa_recommend
+
+
+// 搜索聚合
+// match-attr##srcid##note_lead
+// 资讯
+// match-attr##srcid##realtime
+// 百度有驾
+// match-attr##srcid##(car_kg2_san|car_view_point_san)
+// 动态(微博、百度动态...等)
+// match-attr##srcid##rel_ugc_san
+`,
+        rule: [],
+        init() {
+          this.initRule();
+          Panel.execMenuOnce("baidu-search-add-filter-button", () => {
+            const $css = addStyle$1(
+              `
+        .gm-search-filter-wrapper{
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+        }
+      `
+            );
+            const lockFn = new utils.LockFunction(() => {
+              $$(".c-result.result").forEach(($result) => {
+                BaiduSearchBlockRule.addFilterButton($result);
+                const url = BaiduHandleResultItem.getSearchArticleOriginal_link($result);
+                if (Panel.getValue("baidu-search-filter-enable") && BaiduSearchBlockRule.checkFilter($result, url)) {
+                  log.info(["触发自定义规则，屏蔽该搜索结果：", url]);
+                  $result.remove();
+                  return;
+                }
+              });
+            });
+            const observer = utils.mutationObserver(document, {
+              config: {
+                subtree: true,
+                childList: true,
+              },
+              immediate: true,
+              callback: () => {
+                lockFn.run();
+              },
+            });
+            return [
+              $css,
+              () => {
+                observer.disconnect();
+              },
+              () => {
+                domUtils.remove(".gm-search-filter-wrapper");
+              },
+            ];
+          });
+        },
+        getLocalRule() {
+          let localRule = Panel.getValue("baidu-search-interception-rules", "");
+          localRule = localRule.trim();
+          return localRule;
+        },
+        setLocalRule(rule) {
+          Panel.setValue("baidu-search-interception-rules", rule);
+        },
+        clearLocalRule() {
+          Panel.deleteValue("baidu-search-interception-rules");
+        },
+        addRule(rule) {
+          let localRule = this.getLocalRule();
+          localRule += "\n" + rule.trim();
+          this.setLocalRule(localRule);
+        },
+        initRule() {
+          let localRule = this.getLocalRule();
+          if (Panel.getValue("baidu-search-blockNoteLead")) {
+            this.defaultRule += "\nmatch-attr##srcid##note_lead";
+          }
+          if (Panel.getValue("baidu-search-enable-default-interception-rules")) {
+            localRule = this.defaultRule + "\n\n" + localRule;
+          }
+          if (Array.isArray(this.rule) && this.rule.length) {
+            this.rule.length = 0;
+          } else {
+            this.rule = [];
+          }
+          this.rule = this.parseRule(localRule);
+        },
+        parseRule(localRule) {
+          let result = [];
+          function parseOneRule(ruleItem) {
+            let cRuleItemSplit = ruleItem.split("##");
+            if (!cRuleItemSplit.length) {
+              log.error(["无效规则", ruleItem]);
+              return;
+            }
+            let ruleName = cRuleItemSplit[0];
+            let ruleNameLowerCase = ruleName.toLowerCase();
+            let endRule = ruleItem.replace(ruleName + "##", "");
+            if (ruleNameLowerCase === "match-href") {
+              return {
+                rule: ruleItem,
+                mode: ruleNameLowerCase,
+                matchText: new RegExp(endRule),
+              };
+            } else if (ruleNameLowerCase === "match-attr") {
+              let otherRuleSplit = endRule.split("##");
+              if (otherRuleSplit.length === 1) {
+                log.error(["无效规则", ruleItem]);
+                return;
+              }
+              let attrName = otherRuleSplit[0];
+              let attrValueMatch = endRule.replace(attrName + "##", "");
+              return {
+                rule: ruleItem,
+                mode: ruleNameLowerCase,
+                attr: attrName,
+                matchText: new RegExp(attrValueMatch),
+              };
+            } else if (ruleNameLowerCase === "contains-child" || ruleNameLowerCase === "remove-child") {
+              return {
+                rule: ruleItem,
+                mode: ruleNameLowerCase,
+                matchText: endRule,
+              };
+            } else {
+              log.error(["无效规则", ruleItem]);
+            }
+          }
+          localRule.split("\n").forEach((ruleItem) => {
+            ruleItem = ruleItem.trim();
+            if (ruleItem === "") {
+              return;
+            }
+            if (ruleItem.startsWith("//")) {
+              return;
+            }
+            let moreRule = ruleItem.split("&&&&");
+            if (moreRule.length === 1) {
+              let parsedRule = parseOneRule(ruleItem);
+              if (parsedRule) {
+                result.push(parsedRule);
+              }
+            } else {
+              let resultRule = [];
+              moreRule.forEach((oneRule) => {
+                oneRule = oneRule.trim();
+                let parsedRule = parseOneRule(oneRule);
+                if (parsedRule) {
+                  resultRule.push(parsedRule);
+                }
+              });
+              result.push({
+                mode: "more-rule",
+                moreRule: resultRule,
+              });
+            }
+          });
+          return result;
+        },
+        checkFilter($el, url) {
+          function handleOneRule(ruleItem) {
+            if (ruleItem.mode === "match-href") {
+              if (typeof url === "string" && url.match(ruleItem.matchText)) {
+                return true;
+              }
+            } else if (ruleItem.mode === "match-attr") {
+              if ($el.hasAttribute(ruleItem.attr) && $el.getAttribute(ruleItem.attr)?.match(ruleItem.matchText)) {
+                return true;
+              }
+            } else if (ruleItem.mode === "contains-child") {
+              if ($el.querySelector(ruleItem.matchText)) {
+                return true;
+              }
+            } else if (ruleItem.mode === "remove-child") {
+              $el.querySelector(ruleItem["matchText"])?.remove();
+            }
+          }
+          for (const ruleItem of this.rule) {
+            if (ruleItem.moreRule) {
+              for (const oneRule of ruleItem.moreRule) {
+                if (handleOneRule(oneRule)) {
+                  return true;
+                }
+              }
+            } else {
+              if (handleOneRule(ruleItem)) {
+                return true;
+              }
+            }
+          }
+        },
+        createFilterButton() {
+          const $btn = domUtils.createElement("div", {
+            className: "gm-search-filter-wrapper",
+            innerHTML: `
+        <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+          <path d="M512 512m-465.454545 0a465.454545 465.454545 0 1 0 930.90909 0 465.454545 465.454545 0 1 0-930.90909 0Z" fill="#FFF1F0"></path>
+          <path d="M512 1000.727273c269.917091 0 488.727273-218.810182 488.727273-488.727273S781.917091 23.272727 512 23.272727 23.272727 242.082909 23.272727 512 242.082909 1000.727273 512 1000.727273z m0-46.545455a442.181818 442.181818 0 1 1 0-884.363636 442.181818 442.181818 0 0 1 0 884.363636z" fill="#FFA39E"></path>
+          <path d="M621.940364 338.385455h51.944727c19.083636 0 34.583273 15.546182 34.583273 34.769454v176.407273c12.520727 5.864727 24.203636 13.312 34.676363 22.295273v-198.749091a69.352727 69.352727 0 0 0-69.306182-69.492364H327.493818a69.352727 69.352727 0 0 0-69.259636 69.538909v347.648c0 38.4 30.999273 69.492364 69.259636 69.492364h202.612364a153.181091 153.181091 0 0 1-23.458909-34.769455H327.493818a34.676364 34.676364 0 0 1-34.629818-34.722909v-347.694545c0-19.176727 15.499636-34.722909 34.629818-34.722909h294.446546z" fill="#F5222D"></path>
+          <path d="M362.123636 668.578909c0 9.634909 7.726545 17.408 17.314909 17.408h111.709091a153.134545 153.134545 0 0 1 4.514909-34.769454H379.438545a17.314909 17.314909 0 0 0-17.268363 17.361454z m259.770182-191.162182H379.438545a17.314909 17.314909 0 0 0-17.268363 17.408c0 9.588364 7.68 17.361455 17.268363 17.361455h242.501819a17.361455 17.361455 0 0 0 0-34.769455z m-100.072727-77.405091H379.438545a17.314909 17.314909 0 0 0-17.268363 17.408c0 9.588364 7.68 17.361455 17.268363 17.361455h142.382546a17.361455 17.361455 0 0 0 0-34.769455z m-159.650909 181.713455c0 9.588364 7.68 17.361455 17.268363 17.361454h140.427637c9.634909-13.405091 21.410909-25.134545 34.769454-34.769454H379.438545a17.314909 17.314909 0 0 0-17.268363 17.408z m368.360727 22.481454a124.741818 124.741818 0 0 0-172.916364 0 116.782545 116.782545 0 0 0 0 168.261819 124.648727 124.648727 0 0 0 172.916364 0 116.782545 116.782545 0 0 0 0-168.261819z m-24.808727 23.45891c30.021818 29.184 33.698909 74.286545 11.077818 107.426909l-121.483636-118.225455a89.460364 89.460364 0 0 1 110.405818 10.798546z m-123.997091 120.692363a83.688727 83.688727 0 0 1-11.077818-107.473454l121.483636 118.272a89.553455 89.553455 0 0 1-110.405818-10.798546z" fill="#F5222D"></path>
+        </svg>
+      `,
+          });
+          return $btn;
+        },
+        addFilterButton($searchResult) {
+          if ($searchResult.hasAttribute("data-is-add-search-result-filter-button")) {
+            return;
+          }
+          $searchResult.setAttribute("data-is-add-search-result-filter-button", "true");
+          const $feedback = $searchResult.querySelector(".cosc-feedback");
+          const $cardArticle = $searchResult.querySelector("article.cosc-card section");
+          const $section = $searchResult.querySelector("article section");
+          const $filterBtn = this.createFilterButton();
+          domUtils.on(
+            $filterBtn,
+            "click",
+            (evt) => {
+              domUtils.preventEvent(evt);
+              const url = BaiduHandleResultItem.getSearchArticleOriginal_link($searchResult);
+              const ruleList = [];
+              const srcid = $searchResult.getAttribute("srcid");
+              if (utils.isNotNull(srcid)) {
+                ruleList.push(`match-attr##srcid##${srcid}`);
+              }
+              const new_srcid = $searchResult.getAttribute("new_srcid");
+              if (utils.isNotNull(new_srcid)) {
+                ruleList.push(`match-attr##new_srcid##${new_srcid}`);
+              }
+              const tpl = $searchResult.getAttribute("tpl");
+              if (utils.isNotNull(tpl)) {
+                ruleList.push(`match-attr##tpl##${tpl}`);
+              }
+              if (utils.isNotNull(url)) {
+                try {
+                  const urlInst = new URL(url);
+                  ruleList.push(`match-href##url##${urlInst.hostname}`);
+                  ruleList.push(`match-href##url##${urlInst.hostname}${urlInst.pathname}`);
+                } catch (error) {
+                  ruleList.push(`match-href##url##${url}`);
+                }
+              }
+              const $dialog = __pops__.confirm({
+                title: {
+                  text: "快捷添加过滤规则",
+                  position: "center",
+                },
+                content: {
+                  text: `
+              <div class="quick-add-rule-wrapper">
+                ${ruleList
+                  .map((it, index) => {
+                    return `
+                      <div class="quick-add-rule-item" data-list-index="${index}">
+                        <code>${it}</code>
+                      </div>
+                    `;
+                  })
+                  .join("\n")}
+              </div>
+            `,
+                  html: true,
+                },
+                btn: {
+                  ok: {
+                    enable: true,
+                    text: "添加",
+                    callback(eventConfig, event) {
+                      console.log("添加");
+                    },
+                  },
+                  cancel: {
+                    enable: true,
+                    text: "取消",
+                  },
+                },
+                mask: {
+                  clickEvent: {
+                    toClose: true,
+                  },
+                },
+                width: PanelUISize.setting.width,
+                height: "auto",
+                style: `
+            .quick-add-rule-wrapper{
+              display: flex;
+              flex-direction: column;
+              align-items: flex-start;
+              gap: 15px;
+              padding: 10px;
+            }
+            .quick-add-rule-item{
+              cursor: pointer;
+            }
+            .quick-add-rule-item code {
+              display: flex;
+              flex-wrap: nowrap;
+            }
+          `,
+              });
+              domUtils.on($dialog.$pops, "click", ".quick-add-rule-item", (evt2, selectorTarget) => {
+                domUtils.preventEvent(evt);
+                const index = Number(selectorTarget.getAttribute("data-list-index"));
+                const rule = ruleList[index];
+                if (rule == null) {
+                  log.error(rule, index);
+                  Qmsg.error("规则不存在");
+                  return;
+                }
+                log.info(["添加过滤规则：", rule]);
+                Qmsg.success("添加规则成功");
+                this.addRule(rule);
+                this.initRule();
+                BaiduHandleResultItem.removeAds();
+                $dialog.close();
+              });
+            },
+            {
+              capture: true,
+            }
+          );
+          const feedbackRect = $feedback?.getBoundingClientRect();
+          if ($feedback && feedbackRect?.width !== 0 && feedbackRect?.height !== 0) {
+            domUtils.prepend($feedback, $filterBtn);
+            $searchResult.setAttribute("data-is-add-search-result-filter-button", "1");
+          } else if ($cardArticle) {
+            domUtils.append($cardArticle, $filterBtn);
+            $searchResult.setAttribute("data-is-add-search-result-filter-button", "2");
+          } else if ($section) {
+            domUtils.append($section, $filterBtn);
+            $searchResult.setAttribute("data-is-add-search-result-filter-button", "3");
+          } else {
+            $searchResult.setAttribute("data-is-add-search-result-filter-button", "-1");
+          }
         },
       };
       const blockCSS$1 =
@@ -5146,7 +5345,9 @@ match-attr##srcid##ai_agent_distribute
                     log.error(["替换为真实链接失败", error]);
                   }
                 }, 600);
-                let removeAdsLockFunction = new utils.LockFunction(BaiduHandleResultItem.removeAds, 600);
+                let removeAdsLockFunction = new utils.LockFunction(() => {
+                  BaiduHandleResultItem.removeAds();
+                }, 600);
                 domUtils.waitNode("#page.search-page").then(($searchPage) => {
                   utils.mutationObserver($searchPage, {
                     callback: async () => {
@@ -5213,6 +5414,12 @@ match-attr##srcid##ai_agent_distribute
             let $click = event.composedPath()[0];
             let $result = $selectorTarget;
             if ($click) {
+              if (Panel.getValue("baidu-search-add-filter-button")) {
+                if (CommonUtil.findParentNode($click, ".gm-search-filter-wrapper")) {
+                  log.info(`该点击为自定义的过滤按钮，不点击跳转`);
+                  return;
+                }
+              }
               let isWenDa = $result.matches('[srcid="wenda_generate"]');
               if (isWenDa) {
                 log.warn(["该点击来自百度AI总结全网xx篇结果，不点击跳转", { event, $click, $result, isWenDa }]);
@@ -30037,19 +30244,27 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
                 ],
               },
               {
-                text: "自定义拦截规则",
+                text: "自定义过滤器",
                 type: "deepMenu",
                 views: [
                   {
                     text: "<a href='https://greasyfork.org/zh-CN/scripts/418349-%E7%A7%BB%E5%8A%A8%E7%AB%AF-%E7%99%BE%E5%BA%A6%E7%B3%BB%E4%BC%98%E5%8C%96#:~:text=%E5%A6%82%E4%BD%95%E8%87%AA%E5%AE%9A%E4%B9%89%E7%99%BE%E5%BA%A6%E6%90%9C%E7%B4%A2%E6%8B%A6%E6%88%AA%E8%A7%84%E5%88%99' target='_blank'>查看规则文档</><br><a href='javascript:;' class='baidu-search-shield-css-reset'>点击重置</a>",
                     type: "container",
                     views: [
+                      UISwitch("启用", "baidu-search-filter-enable", true, void 0, "启用搜索结果过滤器"),
                       UISwitch(
-                        "启用默认拦截规则",
+                        "启用默认过滤规则",
                         "baidu-search-enable-default-interception-rules",
                         true,
                         void 0,
-                        "内置了多个拦截规则"
+                        "内置了多个过滤规则"
+                      ),
+                      UISwitch(
+                        "新增【过滤】按钮",
+                        "baidu-search-add-filter-button",
+                        true,
+                        void 0,
+                        "在每个搜索结果右下角新增快捷添加过滤规则的按钮"
                       ),
                       UIOwn(
                         ($li) => {

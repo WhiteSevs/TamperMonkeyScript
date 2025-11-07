@@ -289,19 +289,27 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
           ],
         },
         {
-          text: "自定义拦截规则",
+          text: "自定义过滤器",
           type: "deepMenu",
           views: [
             {
               text: "<a href='https://greasyfork.org/zh-CN/scripts/418349-%E7%A7%BB%E5%8A%A8%E7%AB%AF-%E7%99%BE%E5%BA%A6%E7%B3%BB%E4%BC%98%E5%8C%96#:~:text=%E5%A6%82%E4%BD%95%E8%87%AA%E5%AE%9A%E4%B9%89%E7%99%BE%E5%BA%A6%E6%90%9C%E7%B4%A2%E6%8B%A6%E6%88%AA%E8%A7%84%E5%88%99' target='_blank'>查看规则文档</><br><a href='javascript:;' class='baidu-search-shield-css-reset'>点击重置</a>",
               type: "container",
               views: [
+                UISwitch("启用", "baidu-search-filter-enable", true, void 0, "启用搜索结果过滤器"),
                 UISwitch(
-                  "启用默认拦截规则",
+                  "启用默认过滤规则",
                   "baidu-search-enable-default-interception-rules",
                   true,
                   void 0,
-                  "内置了多个拦截规则"
+                  "内置了多个过滤规则"
+                ),
+                UISwitch(
+                  "新增【过滤】按钮",
+                  "baidu-search-add-filter-button",
+                  true,
+                  void 0,
+                  "在每个搜索结果右下角新增快捷添加过滤规则的按钮"
                 ),
                 UIOwn(
                   ($li) => {
