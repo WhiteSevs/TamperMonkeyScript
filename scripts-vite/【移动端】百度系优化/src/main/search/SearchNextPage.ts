@@ -350,7 +350,7 @@ const SearchNextPage = {
         scriptAtomData.appendChild(item);
       });
       let nextPageScriptOriginUrlMap = BaiduHandleResultItem.parseScriptDOMOriginUrlMap(scriptAtomData);
-      BaiduHandleResultItem.originURLMap.concat(nextPageScriptOriginUrlMap);
+      BaiduHandleResultItem.$data.originURLMap.concat(nextPageScriptOriginUrlMap);
       // 将下一页的样式插入到当前页面
       nextPageDoc.querySelectorAll("style[data-vue-ssr-id]").forEach((item) => {
         /* 插入vue打包的css需重新引入 */

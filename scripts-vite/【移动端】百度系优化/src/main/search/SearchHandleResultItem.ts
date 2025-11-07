@@ -5,7 +5,20 @@ import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 
 /** 处理每一项搜索结果 */
 export const BaiduHandleResultItem = {
-  originURLMap: null as unknown as UtilsDictionary<string, string>,
+  $el: {
+    /**
+     * 页面中的搜索结果元素
+     */
+    get $resultList() {
+      return $$(".c-result.result");
+    },
+  },
+  $data: {
+    /**
+     * 原始链接映射
+     */
+    originURLMap: null as unknown as UtilsDictionary<string, string>,
+  },
   /**
    * 判断链接是否是百度的中转链接
    * @param url
@@ -29,7 +42,8 @@ export const BaiduHandleResultItem = {
    * + true 是黑名单url
    * + false 不是黑名单url
    */
-  isBlackList(url: string) {
+  isBlackList(url: string | null | undefined) {
+    if (url == null) return false;
     let blackList = [
       /^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/productcard/,
       // 貌似是贴吧类
@@ -50,11 +64,11 @@ export const BaiduHandleResultItem = {
    * @param $result 每条结果元素
    * @param articleURL article的真实url
    */
-  setArticleOriginUrl($result: HTMLDivElement, articleURL: string) {
+  setArticleOriginUrl($result: HTMLElement, articleURL: string) {
     /* 处理超链接 */
     $result.querySelectorAll("a").forEach(async (item) => {
-      if (BaiduHandleResultItem.originURLMap.has(item.href)) {
-        articleURL = BaiduHandleResultItem.originURLMap.get(item.href);
+      if (BaiduHandleResultItem.$data.originURLMap.has(item.href)) {
+        articleURL = BaiduHandleResultItem.$data.originURLMap.get(item.href);
       }
       let originUrl = BaiduHandleResultItem.parseOriginUrlFromDataSet(item);
       if (!utils.isNull(originUrl)) {
@@ -199,7 +213,7 @@ export const BaiduHandleResultItem = {
    * 解析DOM节点上隐藏在属性中的真正url
    * @param $target 目标元素
    */
-  parseOriginUrlFromDataSet($target: HTMLElement) {
+  parseOriginUrlFromDataSet($target: HTMLElement): string | null {
     let url = null;
     let dataLogStr = $target.getAttribute("data-log");
     let $article = $target.querySelector("article");
@@ -488,7 +502,7 @@ export const BaiduHandleResultItem = {
     }
 
     // 遍历并处理每一条搜索结果
-    $$<HTMLDivElement>(".c-result.result").forEach(($result) => {
+    this.$el.$resultList.forEach(($result) => {
       /* 真实链接 */
       const searchArticleOriginal_link = this.getSearchArticleOriginal_link($result);
       // 禁止自动播放视频
@@ -580,7 +594,7 @@ export const BaiduHandleResultItem = {
    * 替换链接
    */
   async replaceLink() {
-    let searchResultList = Array.from($$<HTMLDivElement>(".c-result.result"));
+    let searchResultList = Array.from(this.$el.$resultList);
     for (const searchResultItem of searchResultList) {
       let resultItemOriginURL = BaiduHandleResultItem.parseOriginUrlFromDataSet(searchResultItem);
       /* 根据已获取的真实链接取值 */
@@ -616,7 +630,7 @@ export const BaiduHandleResultItem = {
             return;
           } else {
             window.stop();
-            window.location.href = decodeURI(resultItemOriginURL);
+            window.location.href = decodeURI(resultItemOriginURL!);
           }
         });
         continue;

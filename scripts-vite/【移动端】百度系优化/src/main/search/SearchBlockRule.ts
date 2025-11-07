@@ -57,6 +57,8 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
 match-attr##srcid##ai_agent_distribute
 // AI智能体 智能回复
 match-attr##srcid##ai_agent_qa_recommend
+// AI智能体 超多相关角色-等你来聊 
+match-attr##srcid##yl_actor_agent
 
 
 // 搜索聚合
@@ -80,6 +82,10 @@ match-attr##srcid##ai_agent_qa_recommend
           display: flex;
           align-items: center;
           justify-content: flex-end;
+        }
+        .sc-feedback:has(.gm-search-filter-wrapper){
+          justify-content: center;
+          gap: 6px;
         }
       `);
       const lockFn = new utils.LockFunction(() => {
@@ -305,8 +311,10 @@ match-attr##srcid##ai_agent_qa_recommend
       return;
     }
     $searchResult.setAttribute("data-is-add-search-result-filter-button", "true");
-    const $feedback = $searchResult.querySelector<HTMLElement>(".cosc-feedback");
-    const $cardArticle = $searchResult.querySelector<HTMLElement>("article.cosc-card section");
+    const $feedback =
+      $searchResult.querySelector<HTMLElement>(".cosc-feedback") ||
+      $searchResult.querySelector<HTMLElement>(`.sc-feedback`);
+    const $cardSection = $searchResult.querySelector<HTMLElement>("article.cosc-card section");
     const $section = $searchResult.querySelector<HTMLElement>("article section");
     const $filterBtn = this.createFilterButton();
 
@@ -318,22 +326,35 @@ match-attr##srcid##ai_agent_qa_recommend
         const url = BaiduHandleResultItem.getSearchArticleOriginal_link($searchResult);
         const ruleList: string[] = [];
         const srcid = $searchResult.getAttribute("srcid");
+        let rule_attr_srcid, rule_attr_new_srcid, rule_attr_tpl, rule_href_hostname, rule_href_hostname_pathname;
         if (utils.isNotNull(srcid)) {
-          ruleList.push(`match-attr##srcid##${srcid}`);
+          rule_attr_srcid = `match-attr##srcid##${srcid}`;
+          ruleList.push(rule_attr_srcid);
         }
         const new_srcid = $searchResult.getAttribute("new_srcid");
         if (utils.isNotNull(new_srcid)) {
-          ruleList.push(`match-attr##new_srcid##${new_srcid}`);
+          rule_attr_new_srcid = `match-attr##new_srcid##${new_srcid}`;
+          ruleList.push(rule_attr_new_srcid);
         }
         const tpl = $searchResult.getAttribute("tpl");
         if (utils.isNotNull(tpl)) {
-          ruleList.push(`match-attr##tpl##${tpl}`);
+          rule_attr_tpl = `match-attr##tpl##${tpl}`;
+          ruleList.push(rule_attr_tpl);
         }
         if (utils.isNotNull(url)) {
           try {
             const urlInst = new URL(url);
-            ruleList.push(`match-href##url##${urlInst.hostname}`);
-            ruleList.push(`match-href##url##${urlInst.hostname}${urlInst.pathname}`);
+            rule_href_hostname = `match-href##${urlInst.hostname}`;
+            rule_href_hostname_pathname = `match-href##${urlInst.hostname}${urlInst.pathname}`;
+            if (utils.isNotNull(srcid)) {
+              ruleList.push([rule_attr_srcid, rule_href_hostname].join("&&&&"));
+            }
+            if (utils.isNotNull(new_srcid)) {
+              ruleList.push([rule_attr_new_srcid, rule_href_hostname].join("&&&&"));
+            }
+            if (utils.isNotNull(tpl)) {
+              ruleList.push([rule_attr_tpl, rule_href_hostname].join("&&&&"));
+            }
           } catch (error) {
             ruleList.push(`match-href##url##${url}`);
           }
@@ -406,7 +427,7 @@ match-attr##srcid##ai_agent_qa_recommend
             return;
           }
           log.info(["添加过滤规则：", rule]);
-          Qmsg.success("添加规则成功");
+          Qmsg.success("添加成功");
           this.addRule(rule);
           this.initRule();
           BaiduHandleResultItem.removeAds();
@@ -421,15 +442,15 @@ match-attr##srcid##ai_agent_qa_recommend
     if ($feedback && feedbackRect?.width !== 0 && feedbackRect?.height !== 0) {
       // 右下角反馈按钮里面（必须是显示的）
       DOMUtils.prepend($feedback, $filterBtn);
-      $searchResult.setAttribute("data-is-add-search-result-filter-button", "1");
-    } else if ($cardArticle) {
-      DOMUtils.append($cardArticle, $filterBtn);
-      $searchResult.setAttribute("data-is-add-search-result-filter-button", "2");
+      $searchResult.setAttribute("data-is-add-search-result-filter-button", "feedback");
+    } else if ($cardSection) {
+      DOMUtils.append($cardSection, $filterBtn);
+      $searchResult.setAttribute("data-is-add-search-result-filter-button", "cardSection");
     } else if ($section) {
       DOMUtils.append($section, $filterBtn);
-      $searchResult.setAttribute("data-is-add-search-result-filter-button", "3");
+      $searchResult.setAttribute("data-is-add-search-result-filter-button", "section");
     } else {
-      $searchResult.setAttribute("data-is-add-search-result-filter-button", "-1");
+      $searchResult.setAttribute("data-is-add-search-result-filter-button", "");
       if (import.meta.env.DEV) {
         log.error(["未找到用于添加过滤按钮的父元素，无法新增过滤按钮", $searchResult]);
       }

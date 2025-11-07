@@ -50,7 +50,7 @@ const BaiduSearch = {
       });
       DOMUtils.ready(() => {
         /* 解析真实地址 from <script> */
-        BaiduHandleResultItem.originURLMap = BaiduHandleResultItem.parseScriptDOMOriginUrlMap(document);
+        BaiduHandleResultItem.$data.originURLMap = BaiduHandleResultItem.parseScriptDOMOriginUrlMap(document);
         /* 处理搜索结果 */
         let baidu_search_handle_search_result_enable = Panel.getValue("baidu_search_handle_search_result");
         if (baidu_search_handle_search_result_enable) {

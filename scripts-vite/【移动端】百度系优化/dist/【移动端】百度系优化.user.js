@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.7
+// @version      2025.11.7.16
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -82,7 +82,7 @@
       return (mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports);
     };
   var require_entrance_001 = __commonJS({
-    "entrance-Cz7a8CEI.js"(exports, module) {
+    "entrance-iclcHF0I.js"(exports, module) {
       var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
       var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
       var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
@@ -3215,7 +3215,14 @@ div[class^="new-summary-container_"] {\r
         },
       };
       const BaiduHandleResultItem = {
-        originURLMap: null,
+        $el: {
+          get $resultList() {
+            return $$(".c-result.result");
+          },
+        },
+        $data: {
+          originURLMap: null,
+        },
         isBaiDuTransferStation(url) {
           try {
             url = decodeURIComponent(url);
@@ -3226,6 +3233,7 @@ div[class^="new-summary-container_"] {\r
           }
         },
         isBlackList(url) {
+          if (url == null) return false;
           let blackList = [
             /^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/productcard/,
             /^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/pages\/pb\/pb/,
@@ -3242,8 +3250,8 @@ div[class^="new-summary-container_"] {\r
         },
         setArticleOriginUrl($result, articleURL) {
           $result.querySelectorAll("a").forEach(async (item) => {
-            if (BaiduHandleResultItem.originURLMap.has(item.href)) {
-              articleURL = BaiduHandleResultItem.originURLMap.get(item.href);
+            if (BaiduHandleResultItem.$data.originURLMap.has(item.href)) {
+              articleURL = BaiduHandleResultItem.$data.originURLMap.get(item.href);
             }
             let originUrl = BaiduHandleResultItem.parseOriginUrlFromDataSet(item);
             if (!utils.isNull(originUrl)) {
@@ -3618,7 +3626,7 @@ div[class^="new-summary-container_"] {\r
             log.success(`${TAG}顶部的部分商品广告 ${$ec_wise_aad.length}个`);
             domUtils.remove(domUtils.parent($ec_wise_aad));
           }
-          $$(".c-result.result").forEach(($result) => {
+          this.$el.$resultList.forEach(($result) => {
             const searchArticleOriginal_link = this.getSearchArticleOriginal_link($result);
             if (Panel.getValue("baidu-search-blockAutomaticVideoPlayback")) {
               $result.querySelectorAll("[class*='-video-player']").forEach((ele) => ele.remove());
@@ -3681,7 +3689,7 @@ div[class^="new-summary-container_"] {\r
           });
         },
         async replaceLink() {
-          let searchResultList = Array.from($$(".c-result.result"));
+          let searchResultList = Array.from(this.$el.$resultList);
           for (const searchResultItem of searchResultList) {
             let resultItemOriginURL = BaiduHandleResultItem.parseOriginUrlFromDataSet(searchResultItem);
             if (utils.isNull(resultItemOriginURL)) {
@@ -3975,7 +3983,7 @@ div[class^="new-summary-container_"] {\r
               scriptAtomData.appendChild(item);
             });
             let nextPageScriptOriginUrlMap = BaiduHandleResultItem.parseScriptDOMOriginUrlMap(scriptAtomData);
-            BaiduHandleResultItem.originURLMap.concat(nextPageScriptOriginUrlMap);
+            BaiduHandleResultItem.$data.originURLMap.concat(nextPageScriptOriginUrlMap);
             nextPageDoc.querySelectorAll("style[data-vue-ssr-id]").forEach((item) => {
               let dataVueSsrId = "data-vue-ssr-id";
               let dataVueSsrIdValue = item.getAttribute(dataVueSsrId);
@@ -4309,6 +4317,8 @@ match-attr##srcid##jy_bdb_in_store_service_2nd
 match-attr##srcid##ai_agent_distribute
 // AI智能体 智能回复
 match-attr##srcid##ai_agent_qa_recommend
+// AI智能体 超多相关角色-等你来聊 
+match-attr##srcid##yl_actor_agent
 
 
 // 搜索聚合
@@ -4330,6 +4340,10 @@ match-attr##srcid##ai_agent_qa_recommend
           display: flex;
           align-items: center;
           justify-content: flex-end;
+        }
+        .sc-feedback:has(.gm-search-filter-wrapper){
+          justify-content: center;
+          gap: 6px;
         }
       `
             );
@@ -4519,8 +4533,9 @@ match-attr##srcid##ai_agent_qa_recommend
             return;
           }
           $searchResult.setAttribute("data-is-add-search-result-filter-button", "true");
-          const $feedback = $searchResult.querySelector(".cosc-feedback");
-          const $cardArticle = $searchResult.querySelector("article.cosc-card section");
+          const $feedback =
+            $searchResult.querySelector(".cosc-feedback") || $searchResult.querySelector(`.sc-feedback`);
+          const $cardSection = $searchResult.querySelector("article.cosc-card section");
           const $section = $searchResult.querySelector("article section");
           const $filterBtn = this.createFilterButton();
           domUtils.on(
@@ -4531,22 +4546,35 @@ match-attr##srcid##ai_agent_qa_recommend
               const url = BaiduHandleResultItem.getSearchArticleOriginal_link($searchResult);
               const ruleList = [];
               const srcid = $searchResult.getAttribute("srcid");
+              let rule_attr_srcid, rule_attr_new_srcid, rule_attr_tpl, rule_href_hostname, rule_href_hostname_pathname;
               if (utils.isNotNull(srcid)) {
-                ruleList.push(`match-attr##srcid##${srcid}`);
+                rule_attr_srcid = `match-attr##srcid##${srcid}`;
+                ruleList.push(rule_attr_srcid);
               }
               const new_srcid = $searchResult.getAttribute("new_srcid");
               if (utils.isNotNull(new_srcid)) {
-                ruleList.push(`match-attr##new_srcid##${new_srcid}`);
+                rule_attr_new_srcid = `match-attr##new_srcid##${new_srcid}`;
+                ruleList.push(rule_attr_new_srcid);
               }
               const tpl = $searchResult.getAttribute("tpl");
               if (utils.isNotNull(tpl)) {
-                ruleList.push(`match-attr##tpl##${tpl}`);
+                rule_attr_tpl = `match-attr##tpl##${tpl}`;
+                ruleList.push(rule_attr_tpl);
               }
               if (utils.isNotNull(url)) {
                 try {
                   const urlInst = new URL(url);
-                  ruleList.push(`match-href##url##${urlInst.hostname}`);
-                  ruleList.push(`match-href##url##${urlInst.hostname}${urlInst.pathname}`);
+                  rule_href_hostname = `match-href##${urlInst.hostname}`;
+                  rule_href_hostname_pathname = `match-href##${urlInst.hostname}${urlInst.pathname}`;
+                  if (utils.isNotNull(srcid)) {
+                    ruleList.push([rule_attr_srcid, rule_href_hostname].join("&&&&"));
+                  }
+                  if (utils.isNotNull(new_srcid)) {
+                    ruleList.push([rule_attr_new_srcid, rule_href_hostname].join("&&&&"));
+                  }
+                  if (utils.isNotNull(tpl)) {
+                    ruleList.push([rule_attr_tpl, rule_href_hostname].join("&&&&"));
+                  }
                 } catch (error) {
                   ruleList.push(`match-href##url##${url}`);
                 }
@@ -4619,7 +4647,7 @@ match-attr##srcid##ai_agent_qa_recommend
                   return;
                 }
                 log.info(["添加过滤规则：", rule]);
-                Qmsg.success("添加规则成功");
+                Qmsg.success("添加成功");
                 this.addRule(rule);
                 this.initRule();
                 BaiduHandleResultItem.removeAds();
@@ -4633,15 +4661,15 @@ match-attr##srcid##ai_agent_qa_recommend
           const feedbackRect = $feedback?.getBoundingClientRect();
           if ($feedback && feedbackRect?.width !== 0 && feedbackRect?.height !== 0) {
             domUtils.prepend($feedback, $filterBtn);
-            $searchResult.setAttribute("data-is-add-search-result-filter-button", "1");
-          } else if ($cardArticle) {
-            domUtils.append($cardArticle, $filterBtn);
-            $searchResult.setAttribute("data-is-add-search-result-filter-button", "2");
+            $searchResult.setAttribute("data-is-add-search-result-filter-button", "feedback");
+          } else if ($cardSection) {
+            domUtils.append($cardSection, $filterBtn);
+            $searchResult.setAttribute("data-is-add-search-result-filter-button", "cardSection");
           } else if ($section) {
             domUtils.append($section, $filterBtn);
-            $searchResult.setAttribute("data-is-add-search-result-filter-button", "3");
+            $searchResult.setAttribute("data-is-add-search-result-filter-button", "section");
           } else {
-            $searchResult.setAttribute("data-is-add-search-result-filter-button", "-1");
+            $searchResult.setAttribute("data-is-add-search-result-filter-button", "");
           }
         },
       };
@@ -5335,7 +5363,7 @@ match-attr##srcid##ai_agent_qa_recommend
               this.openResultBlank();
             });
             domUtils.ready(() => {
-              BaiduHandleResultItem.originURLMap = BaiduHandleResultItem.parseScriptDOMOriginUrlMap(document);
+              BaiduHandleResultItem.$data.originURLMap = BaiduHandleResultItem.parseScriptDOMOriginUrlMap(document);
               let baidu_search_handle_search_result_enable = Panel.getValue("baidu_search_handle_search_result");
               if (baidu_search_handle_search_result_enable) {
                 let searchUpdateRealLink = new utils.LockFunction(async () => {
@@ -13492,11 +13520,6 @@ match-attr##srcid##ai_agent_qa_recommend
           cssVarBlockName,
         };
       };
-      /**
-       * @vue/shared v3.5.22
-       * (c) 2018-present Yuxi (Evan) You and Vue contributors
-       * @license MIT
-       **/
       const NOOP = () => {};
       const hasOwnProperty$9 = Object.prototype.hasOwnProperty;
       const hasOwn = (val, key) => hasOwnProperty$9.call(val, key);
@@ -26963,12 +26986,6 @@ match-attr##srcid##ai_agent_qa_recommend
         charenc_1 = charenc;
         return charenc_1;
       }
-      /*!
-       * Determine if an object is a Buffer
-       *
-       * @author   Feross Aboukhadijeh <https://feross.org>
-       * @license  MIT
-       */
       var isBuffer_1;
       var hasRequiredIsBuffer;
       function requireIsBuffer() {
