@@ -488,26 +488,36 @@ const Panel = {
         resultValueList = resultValueList.concat(args);
       } else {
         // 额外处理ExecMenuResultInst类型
-        if (typeof args === "object" && args != null) {
-          if (args instanceof Element) {
-            // 元素
-            resultValueList.push(args);
-          } else {
-            const { $css, destory } = args as ExecMenuResultInst;
-            if ($css != null) {
+        const handlerArgs = (obj: any) => {
+          if (typeof obj === "object" && obj != null) {
+            if (obj instanceof Element) {
               // 元素
-              if (Array.isArray($css)) {
-                resultValueList = resultValueList.concat($css);
-              } else {
-                resultValueList.push($css);
+              resultValueList.push(obj);
+            } else {
+              // 对象，包括数组
+              const { $css, destory } = obj as ExecMenuResultInst;
+              if ($css != null) {
+                // 元素
+                if (Array.isArray($css)) {
+                  resultValueList = resultValueList.concat($css);
+                } else {
+                  resultValueList.push($css);
+                }
+              }
+              if (typeof destory === "function") {
+                resultValueList.push(destory);
               }
             }
-            if (typeof destory === "function") {
-              resultValueList.push(destory);
-            }
+          } else {
+            resultValueList.push(obj);
+          }
+        };
+        if (args != null && Array.isArray(args)) {
+          for (const it of args) {
+            handlerArgs(it);
           }
         } else {
-          resultValueList.push(args);
+          handlerArgs(args);
         }
       }
       for (const it of resultValueList) {
