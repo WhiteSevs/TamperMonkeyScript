@@ -453,6 +453,7 @@ const GenerateUserConfig = async (option: {
         res.end = (...args: any[]) => {
           let text: string = args[0];
           if (typeof text === "string" && text.trim().match(/^\/\/[\s]+==UserScript==/)) {
+            // vite-plugin-monkey 的版本>=7.2.2时不需要替换document.head了
             text = text.replaceAll("document.head", "(document.head || document.documentElement)");
             const textSplit = text.split("\n");
             const userScriptMetaEndIndex = textSplit.findIndex((item) =>
@@ -477,16 +478,11 @@ const GenerateUserConfig = async (option: {
               0,
               /*js*/ `
 ;(()=>{
-	const GM_Api = {};
-	let GM_repair_count = 0;
-	
+	const needRepairGMApi = {};
 	if (typeof unsafeWindow !== "undefined" && unsafeWindow == window || typeof unsafeWindow === "undefined") {
 		console.log("[vite-plugin-monkey] window == unsafeWindow start check and repair GM api with this env");
-
 		if (window.GM == null && typeof GM === "object") {
-			Reflect.set(window, "GM", GM);
-			Reflect.set(GM_Api, "GM", GM);
-			GM_repair_count++;
+			Reflect.set(needRepairGMApi, "GM", GM);
 		}
 
 		${collectGrant
@@ -496,18 +492,22 @@ const GenerateUserConfig = async (option: {
 			${it} != null &&
 			window.${it} == null
 		) {
-			Reflect.set(window, "${it}", ${it});
-			Reflect.set(GM_Api, "${it}", ${it});
-			GM_repair_count++;
+			Reflect.set(needRepairGMApi, "${it}", ${it});
 		}`
       )
       .join("\n\n		")}
 	}
-	if (GM_repair_count > 0) {
-    const now = Date.now();
-		console.log("[vite-plugin-monkey] repair GM api count: " + GM_repair_count);
-		Object.freeze(GM_Api);
-		Reflect.set(document, "__monkeyApi-" + now, GM_Api);
+	Object.freeze(needRepairGMApi);
+	if (Object.keys(needRepairGMApi).length > 0) {
+		console.log("[vite-plugin-monkey] repair GM api info ↓");
+		console.table(needRepairGMApi);
+		const now = Date.now();
+		Reflect.set(document, "__monkeyApi-repair-" + now, needRepairGMApi);
+		for (const key in needRepairGMApi) {
+			if (!Object.hasOwn(needRepairGMApi, key)) continue;
+			const value = needRepairGMApi[key];
+			Reflect.set(window, key, value);
+		}
 	}
 })();`
             );
