@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.4
+// @version      2025.11.9
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -1302,24 +1302,33 @@
         if (Array.isArray(args)) {
           resultValueList = resultValueList.concat(args);
         } else {
-          if (typeof args === "object" && args != null) {
-            if (args instanceof Element) {
-              resultValueList.push(args);
-            } else {
-              const { $css, destory } = args;
-              if ($css != null) {
-                if (Array.isArray($css)) {
-                  resultValueList = resultValueList.concat($css);
-                } else {
-                  resultValueList.push($css);
+          const handlerArgs = (obj) => {
+            if (typeof obj === "object" && obj != null) {
+              if (obj instanceof Element) {
+                resultValueList.push(obj);
+              } else {
+                const { $css, destory } = obj;
+                if ($css != null) {
+                  if (Array.isArray($css)) {
+                    resultValueList = resultValueList.concat($css);
+                  } else {
+                    resultValueList.push($css);
+                  }
+                }
+                if (typeof destory === "function") {
+                  resultValueList.push(destory);
                 }
               }
-              if (typeof destory === "function") {
-                resultValueList.push(destory);
-              }
+            } else {
+              resultValueList.push(obj);
+            }
+          };
+          if (args != null && Array.isArray(args)) {
+            for (const it of args) {
+              handlerArgs(it);
             }
           } else {
-            resultValueList.push(args);
+            handlerArgs(args);
           }
         }
         for (const it of resultValueList) {
@@ -1770,8 +1779,8 @@
           const loopContentConfig = (configList, path) => {
             for (let index = 0; index < configList.length; index++) {
               const configItem = configList[index];
-              const child_forms = configItem.views;
-              if (child_forms && Array.isArray(child_forms)) {
+              const childViewConfig = configItem.views;
+              if (childViewConfig && Array.isArray(childViewConfig)) {
                 const deepMenuPath = utils.deepClone(path);
                 if (configItem.type === "deepMenu") {
                   const deepNext = utils.queryProperty(deepMenuPath, (target) => {
@@ -1791,7 +1800,7 @@
                     name: configItem.text,
                   };
                 }
-                loopContentConfig(child_forms, deepMenuPath);
+                loopContentConfig(childViewConfig, deepMenuPath);
               } else {
                 let text;
                 let description;
@@ -1806,7 +1815,7 @@
                     }
                   }
                 } else {
-                  text = Reflect.get(configItem, "text");
+                  text = configItem.text;
                   description = Reflect.get(configItem, "description");
                 }
                 const delayMatchedTextList = [text, description];
@@ -2282,27 +2291,25 @@
     articleCenter() {
       log.info("全文居中");
       let result = [addStyle(BlogArticleCenterCSS)];
-      if (Panel.getValue("csdn-blog-shieldRightDirectoryInformation")) {
-        result.push(
-          addStyle(
-            `
-				#mainBox {
-					margin-right: 0px;
-				}
-        `
-          )
-        );
+      result.push(this.shieldRightDirectoryInformation());
+      result.push(
+        addStyle(
+          `
+      #mainBox {
+        margin-right: 0px;
       }
-      if (Panel.getValue("csdn-blog-shieldLeftBlogContainerAside")) {
-        result.push(
-          addStyle(
-            `
-				#mainBox {
-					margin-left: 0px;
-				}`
-          )
-        );
-      }
+      `
+        )
+      );
+      result.push(this.shieldLeftBlogContainerAside());
+      result.push(
+        addStyle(
+          `
+      #mainBox {
+        margin-left: 0px;
+      }`
+        )
+      );
       return result;
     },
     shieldLoginDialog() {
@@ -3713,12 +3720,8 @@
                             "全文居中",
                             "csdn-blog-articleCenter",
                             true,
-                            function (event, enable) {
-                              if (enable) {
-                                alert("为了更好的呈现效果，请开启功能：【屏蔽】左侧博客信息、【屏蔽】右侧目录信息");
-                              }
-                            },
-                            "自动屏蔽左侧和右侧的信息，且将文章居中"
+                            void 0,
+                            "自动开启<code>【屏蔽】左侧博客信息</code>和<code>【屏蔽】右侧目录信息</code>，并将文章居中"
                           ),
                           UISwitch("允许选择内容", "csdn-blog-allowSelectContent", true, void 0),
                         ],

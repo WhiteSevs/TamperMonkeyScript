@@ -122,27 +122,25 @@ export const CSDNBlogArticle = {
   articleCenter() {
     log.info("全文居中");
     let result: any[] = [addStyle(BlogArticleCenterCSS)];
-    if (Panel.getValue("csdn-blog-shieldRightDirectoryInformation")) {
-      // 当前启用了【屏蔽】右侧目录信息
-      // 去除margin偏移
-      result.push(
-        addStyle(/*css*/ `
-				#mainBox {
-					margin-right: 0px;
-				}
-        `)
-      );
-    }
-    if (Panel.getValue("csdn-blog-shieldLeftBlogContainerAside")) {
-      // 当前启用了【屏蔽】左侧博客信息
-      // 去除margin偏移
-      result.push(
-        addStyle(/*css*/ `
-				#mainBox {
-					margin-left: 0px;
-				}`)
-      );
-    }
+    result.push(this.shieldRightDirectoryInformation());
+    // 【屏蔽】右侧目录信息
+    // 去除margin偏移
+    result.push(
+      addStyle(/*css*/ `
+      #mainBox {
+        margin-right: 0px;
+      }
+      `)
+    );
+    // 【屏蔽】左侧博客信息
+    // 去除margin偏移
+    result.push(this.shieldLeftBlogContainerAside());
+    result.push(
+      addStyle(/*css*/ `
+      #mainBox {
+        margin-left: 0px;
+      }`)
+    );
     return result;
   },
   /**

@@ -142,12 +142,8 @@ const SettingUIBlog: PopsPanelContentConfig = {
                           "全文居中",
                           "csdn-blog-articleCenter",
                           true,
-                          function (event, enable) {
-                            if (enable) {
-                              alert("为了更好的呈现效果，请开启功能：【屏蔽】左侧博客信息、【屏蔽】右侧目录信息");
-                            }
-                          },
-                          "自动屏蔽左侧和右侧的信息，且将文章居中"
+                          void 0,
+                          "自动开启<code>【屏蔽】左侧博客信息</code>和<code>【屏蔽】右侧目录信息</code>，并将文章居中"
                         ),
                         UISwitch("允许选择内容", "csdn-blog-allowSelectContent", true, void 0),
                       ],
