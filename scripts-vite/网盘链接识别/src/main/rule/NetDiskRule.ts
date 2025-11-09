@@ -10,7 +10,6 @@ import { NetDiskRule_tianyiyun } from "./default-rule/tianyiyun/rule";
 import { NetDiskRule_hecaiyun } from "./default-rule/hecaiyun/rule";
 import { NetDiskRule_aliyun } from "./default-rule/aliyun/rule";
 import { NetDiskRule_wenshushu } from "./default-rule/wenshushu/rule";
-import { NetDiskRule_nainiu } from "./default-rule/nainiu/rule";
 import { NetDiskRule_123pan } from "./default-rule/123pan/rule";
 import { NetDiskRule_weiyun } from "./default-rule/weiyun/rule";
 import { NetDiskRule_xunlei } from "./default-rule/xunlei/rule";
@@ -62,7 +61,6 @@ export const NetDiskRule = {
       NetDiskRule_hecaiyun,
       NetDiskRule_aliyun,
       NetDiskRule_wenshushu,
-      NetDiskRule_nainiu,
       NetDiskRule_123pan,
       NetDiskRule_weiyun,
       NetDiskRule_xunlei,

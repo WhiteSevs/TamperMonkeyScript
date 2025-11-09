@@ -5,7 +5,6 @@ import { NetDiskCheckLinkValidity_lanzouyx } from "../rule/default-rule/lanzouyx
 import { NetDiskCheckLinkValidity_tianyiyun } from "../rule/default-rule/tianyiyun/checkLinkValidity";
 import { NetDiskCheckLinkValidity_aliyun } from "../rule/default-rule/aliyun/checkLinkValidity";
 import { NetDiskCheckLinkValidity_wenshushu } from "../rule/default-rule/wenshushu/checkLinkValidity";
-import { NetDiskCheckLinkValidity_nainiu } from "../rule/default-rule/nainiu/checkLinkValidity";
 import { NetDiskCheckLinkValidity_123pan } from "../rule/default-rule/123pan/checkLinkValidity";
 import { NetDiskCheckLinkValidity_weiyun } from "../rule/default-rule/weiyun/checkLinkValidity";
 import { NetDiskCheckLinkValidity_xunlei } from "../rule/default-rule/xunlei/checkLinkValidity";
@@ -31,7 +30,6 @@ const AllCheckLinkValidityFunction: NetDiskCheckLinkValidityEntrance = {
   // hecaiyun: NetDiskCheckLinkValidity_hecaiyun,
   aliyun: NetDiskCheckLinkValidity_aliyun,
   wenshushu: NetDiskCheckLinkValidity_wenshushu,
-  nainiu: NetDiskCheckLinkValidity_nainiu,
   _123pan: NetDiskCheckLinkValidity_123pan,
   weiyun: NetDiskCheckLinkValidity_weiyun,
   xunlei: NetDiskCheckLinkValidity_xunlei,

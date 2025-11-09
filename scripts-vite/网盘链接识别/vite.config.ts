@@ -48,7 +48,6 @@ let userConfig = await GenerateUserConfig({
         "123pan.cn",
         "wenshushu.cn",
         "jianguoyun.com",
-        "cowtransfer.com",
         "cowcs.com",
         "aliyundrive.com",
         "baidu.com",

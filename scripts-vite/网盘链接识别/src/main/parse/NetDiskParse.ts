@@ -7,7 +7,6 @@ import { NetDiskParse_Jianguoyun } from "../rule/default-rule/jianguoyun/parse";
 import { NetDiskParse_Lanzou } from "../rule/default-rule/lanzou/parse";
 import { NetDiskParse_Lanzouyx } from "../rule/default-rule/lanzouyx/parse";
 import { NetDiskParse_magnet } from "../rule/default-rule/magnet/parse";
-import { NetDiskParse_nainiu } from "../rule/default-rule/nainiu/parse";
 import { NetDiskParse_Tianyiyun } from "../rule/default-rule/tianyiyun/parse";
 import { NetDiskParse_UC } from "../rule/default-rule/uc/parse";
 import { NetDiskParse_Wenshushu } from "../rule/default-rule/wenshushu/parse";
@@ -44,11 +43,6 @@ export const NetDiskParse = {
      * 坚果云
      */
     jianguoyun: NetDiskParse_Jianguoyun,
-    /**
-     * 奶牛快传
-     * 感谢：https://github.com/qaiu/netdisk-fast-download
-     */
-    nainiu: NetDiskParse_nainiu,
     /**
      * UC网盘
      */

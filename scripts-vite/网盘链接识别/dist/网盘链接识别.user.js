@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.4
+// @version      2025.11.9
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -51,7 +51,6 @@
 // @connect      123pan.cn
 // @connect      wenshushu.cn
 // @connect      jianguoyun.com
-// @connect      cowtransfer.com
 // @connect      cowcs.com
 // @connect      aliyundrive.com
 // @connect      baidu.com
@@ -1369,24 +1368,33 @@
         if (Array.isArray(args)) {
           resultValueList = resultValueList.concat(args);
         } else {
-          if (typeof args === "object" && args != null) {
-            if (args instanceof Element) {
-              resultValueList.push(args);
-            } else {
-              const { $css, destory } = args;
-              if ($css != null) {
-                if (Array.isArray($css)) {
-                  resultValueList = resultValueList.concat($css);
-                } else {
-                  resultValueList.push($css);
+          const handlerArgs = (obj) => {
+            if (typeof obj === "object" && obj != null) {
+              if (obj instanceof Element) {
+                resultValueList.push(obj);
+              } else {
+                const { $css, destory } = obj;
+                if ($css != null) {
+                  if (Array.isArray($css)) {
+                    resultValueList = resultValueList.concat($css);
+                  } else {
+                    resultValueList.push($css);
+                  }
+                }
+                if (typeof destory === "function") {
+                  resultValueList.push(destory);
                 }
               }
-              if (typeof destory === "function") {
-                resultValueList.push(destory);
-              }
+            } else {
+              resultValueList.push(obj);
+            }
+          };
+          if (args != null && Array.isArray(args)) {
+            for (const it of args) {
+              handlerArgs(it);
             }
           } else {
-            resultValueList.push(args);
+            handlerArgs(args);
           }
         }
         for (const it of resultValueList) {
@@ -1837,8 +1845,8 @@
           const loopContentConfig = (configList, path) => {
             for (let index = 0; index < configList.length; index++) {
               const configItem = configList[index];
-              const child_forms = configItem.views;
-              if (child_forms && Array.isArray(child_forms)) {
+              const childViewConfig = configItem.views;
+              if (childViewConfig && Array.isArray(childViewConfig)) {
                 const deepMenuPath = utils.deepClone(path);
                 if (configItem.type === "deepMenu") {
                   const deepNext = utils.queryProperty(deepMenuPath, (target) => {
@@ -1858,7 +1866,7 @@
                     name: configItem.text,
                   };
                 }
-                loopContentConfig(child_forms, deepMenuPath);
+                loopContentConfig(childViewConfig, deepMenuPath);
               } else {
                 let text;
                 let description;
@@ -1873,7 +1881,7 @@
                     }
                   }
                 } else {
-                  text = Reflect.get(configItem, "text");
+                  text = configItem.text;
                   description = Reflect.get(configItem, "description");
                 }
                 const delayMatchedTextList = [text, description];
@@ -12468,402 +12476,6 @@
       MetaDataParser.showFileMetaInfoDialog(metaInfo);
     }
   }
-  const NetDiskCommonUtils = {
-    isSupport_GM_download() {
-      try {
-        return typeof _GM_download === "function";
-      } catch (error) {
-        console.error(error);
-        return false;
-      }
-    },
-  };
-  class NetDiskParse_nainiu extends ParseFileCore {
-    panelList = [];
-    panelContent = "";
-    OK_CODE = "0000";
-    async init(netDiskInfo) {
-      super.init(netDiskInfo);
-      let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      this.panelList.length = 0;
-      this.panelContent = "";
-      let checkLinkValidityInfo = await this.checkLinkValidity(this.shareCode, this.accessCode);
-      if (!checkLinkValidityInfo) {
-        return;
-      }
-      if (checkLinkValidityInfo.isFolder) {
-        Qmsg.info("正在递归文件");
-        let QmsgLoading = Qmsg.loading(`正在解析多文件中，请稍后...`);
-        let firstFolderInfo = await this.getShareFolder(checkLinkValidityInfo["data"]["guid"]);
-        if (!firstFolderInfo) {
-          QmsgLoading.close();
-          return;
-        }
-        let firstFileInfo = await this.getShareFiles(checkLinkValidityInfo["data"]["guid"]);
-        if (!firstFileInfo) {
-          QmsgLoading.close();
-          return;
-        }
-        let folderInfoList = this.getFolderInfo(
-          checkLinkValidityInfo["data"]["guid"],
-          firstFolderInfo,
-          firstFileInfo,
-          0
-        );
-        QmsgLoading.close();
-        log.info("递归完毕");
-        NetDiskView.$inst.linearChainDialogView.moreFile("奶牛快传文件解析", folderInfoList);
-      } else {
-        let downloadUrl = void 0;
-        if (checkLinkValidityInfo["zipDownload"]) {
-          downloadUrl = await this.getZipFileDownloadUrl(
-            this.shareCode,
-            checkLinkValidityInfo["guid"],
-            checkLinkValidityInfo["fileName"]
-          );
-        } else {
-          downloadUrl = await this.getDownloadUrl(
-            this.shareCode,
-            checkLinkValidityInfo["guid"],
-            checkLinkValidityInfo["id"]
-          );
-        }
-        if (!downloadUrl) {
-          return;
-        }
-        if (NetDiskFilterScheme.isForwardDownloadLink("nainiu")) {
-          downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("nainiu", downloadUrl);
-        }
-        NetDiskView.$inst.linearChainDialogView.oneFile({
-          title: "奶牛快传单文件直链",
-          fileName: checkLinkValidityInfo["fileName"],
-          fileType: checkLinkValidityInfo["fileType"],
-          fileSize: checkLinkValidityInfo["fileSize"],
-          downloadUrl,
-          fileUploadTime: checkLinkValidityInfo["fileUploadTime"],
-          fileLatestTime: checkLinkValidityInfo["fileLatestTime"],
-          clickCallBack: (_fileDetails_) => {
-            this.downloadFile(checkLinkValidityInfo["fileName"], downloadUrl);
-          },
-        });
-      }
-    }
-    async checkLinkValidity(shareCode, accessCode) {
-      const that = this;
-      let resultJSON = await that.getShareByUniqueUrl(shareCode);
-      if (!resultJSON) {
-        return false;
-      }
-      let code = resultJSON["code"];
-      let message = resultJSON["message"];
-      if (code !== that.OK_CODE) {
-        Qmsg.error(message);
-        return false;
-      } else {
-        let needPassword = resultJSON["data"]["needPassword"];
-        let zipDownload = resultJSON["data"]["zipDownload"];
-        if (needPassword && utils.isNull(accessCode)) {
-          Qmsg.error("密码缺失!");
-          NetDiskView.$inst.newAccessCodeView(
-            "密码缺失",
-            "nainiu",
-            that.ruleIndex,
-            that.shareCode,
-            that.accessCode,
-            (option) => {
-              that.init({
-                ruleIndex: that.ruleIndex,
-                shareCode: that.shareCode,
-                accessCode: option.accessCode,
-              });
-            }
-          );
-          return false;
-        } else if (zipDownload) {
-          Qmsg.success("该链接为zip单文件");
-          return {
-            zipDownload,
-            guid: resultJSON["data"]["guid"],
-            fileSize: utils.formatByteToSize(resultJSON["data"]["firstFolder"]["size"]),
-            fileName: resultJSON["data"]["firstFolder"]["title"],
-            fileUploadTime: utils.formatTime(resultJSON["data"]["firstFolder"]["created_at"]),
-            fileLatestTime: utils.formatTime(resultJSON["data"]["firstFolder"]["updated_at"]),
-          };
-        } else if (resultJSON["data"]["firstFile"] == void 0) {
-          Qmsg.success("该链接为文件夹类型");
-          return {
-            isFolder: true,
-            guid: resultJSON["data"]["guid"],
-            firstFolder: resultJSON["data"]["firstFolder"],
-            data: resultJSON["data"],
-          };
-        }
-        return {
-          zipDownload,
-          guid: resultJSON["data"]["guid"],
-          id: resultJSON["data"]["firstFile"]["id"],
-          fileSize: utils.formatByteToSize(resultJSON["data"]["firstFile"]["file_info"]["size"]),
-          fileName: resultJSON["data"]["firstFile"]["file_info"]["title"],
-          fileType: resultJSON["data"]["firstFile"]["file_info"]["format"],
-          fileUploadTime: utils.formatTime(resultJSON["data"]["firstFile"]["created_at"]),
-          fileLatestTime: utils.formatTime(resultJSON["data"]["firstFile"]["updated_at"]),
-        };
-      }
-    }
-    getFolderInfo(transferGuid, shareFolderInfoList, shareFileInfoList, index = 0) {
-      const that = this;
-      let folderInfoList = [];
-      let tempFolderInfoList = [];
-      let tempFolderFileInfoList = [];
-      shareFolderInfoList.forEach((folderInfo) => {
-        folderInfoList.push({
-          fileName: folderInfo["title"],
-          fileSize: 0,
-          fileType: "",
-          createTime: folderInfo["created_at"],
-          latestTime: folderInfo["updated_at"],
-          isFolder: true,
-          index,
-          async clickEvent() {
-            if (!folderInfo["child_folder_count"] && !folderInfo["content_count"]) {
-              return [];
-            }
-            let childFolderInfo = await that.getShareFolder(transferGuid, folderInfo["id"]);
-            if (!childFolderInfo) {
-              return [];
-            }
-            let childFileInfo = await that.getShareFiles(transferGuid, folderInfo["id"]);
-            if (!childFileInfo) {
-              return [];
-            }
-            let folderInfoList2 = that.getFolderInfo(transferGuid, childFolderInfo, childFileInfo, index + 1);
-            return folderInfoList2;
-          },
-        });
-      });
-      shareFileInfoList.forEach((fileInfo) => {
-        let fileName = fileInfo["file_info"]["title"];
-        let fileType = fileInfo["file_info"]["format"] ?? "";
-        if (Boolean(fileType)) {
-          fileName = fileName + "." + fileType;
-        }
-        folderInfoList.push({
-          fileName,
-          fileSize: fileInfo["file_info"]["size"],
-          fileType,
-          createTime: fileInfo["created_at"],
-          latestTime: fileInfo["updated_at"],
-          isFolder: false,
-          index,
-          async clickEvent() {
-            let downloadUrl = await that.getDownloadUrl(that.shareCode, transferGuid, fileInfo["id"]);
-            if (!downloadUrl) {
-              return;
-            }
-            if (NetDiskFilterScheme.isForwardDownloadLink("nainiu")) {
-              downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("nainiu", downloadUrl);
-            }
-            that.downloadFile(fileName, downloadUrl);
-          },
-        });
-      });
-      tempFolderInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
-      tempFolderFileInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
-      folderInfoList = folderInfoList.concat(tempFolderInfoList);
-      folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
-      log.info("getFolderInfo", folderInfoList);
-      return folderInfoList;
-    }
-    async parseMoreFile(shareCode, accessCode) {}
-    async getShareFolder(transferGuid, folderId = "", page = 0, size = 100) {
-      const that = this;
-      let getResp = await httpx.get(
-        `https://cowtransfer.com/core/api/transfer/share/folders?transferGuid=${transferGuid}&folderId=${folderId}&page=${page}&size=${size}`,
-        {
-          headers: {
-            Accept: "application/json",
-            "User-Agent": utils.getRandomPCUA(),
-            Referer: "https://cowtransfer.com/",
-          },
-        }
-      );
-      log.success(getResp);
-      if (!getResp.status) {
-        return;
-      }
-      let data = utils.toJSON(getResp.data.responseText);
-      if (data.code !== that.OK_CODE) {
-        Qmsg.error(data["message"]);
-        return;
-      }
-      let folders = data["data"]["folders"];
-      if (!Array.isArray(folders)) {
-        Qmsg.error("data.folders不是数组");
-        return;
-      }
-      return folders;
-    }
-    async getShareFiles(transferGuid, folderId = "", page = 0, size = 20, subContent = false) {
-      const that = this;
-      let getResp = await httpx.get(
-        `https://cowtransfer.com/core/api/transfer/share/files?transferGuid=${transferGuid}&folderId=${folderId}&page=${page}&size=${size}&subContent=${subContent}`,
-        {
-          headers: {
-            Accept: "application/json",
-            "User-Agent": utils.getRandomPCUA(),
-            Referer: "https://cowtransfer.com/",
-          },
-        }
-      );
-      log.success(getResp);
-      if (!getResp.status) {
-        return;
-      }
-      let data = utils.toJSON(getResp.data.responseText);
-      if (data.code !== that.OK_CODE) {
-        Qmsg.error(data["message"]);
-        return;
-      }
-      let files = data["data"]["files"];
-      if (!Array.isArray(files)) {
-        Qmsg.error("data.files不是数组");
-        return;
-      }
-      return files;
-    }
-    async getShareByUniqueUrl(shareCode) {
-      let url = `https://cowtransfer.com/core/api/transfer/share?uniqueUrl=${shareCode}`;
-      let getResp = await httpx.get({
-        url,
-        headers: {
-          "User-Agent": utils.getRandomPCUA(),
-          Referer: "https://cowtransfer.com/s/" + shareCode,
-        },
-      });
-      log.info(getResp);
-      if (!getResp.status) {
-        return;
-      }
-      let respData = getResp.data;
-      let resultJSON = utils.toJSON(respData.responseText);
-      log.info("转换的JSON", resultJSON);
-      return resultJSON;
-    }
-    async getDownloadUrl(shareCode, guid = "", id = "") {
-      const that = this;
-      let url = `https://cowtransfer.com/core/api/transfer/share/download?transferGuid=${guid}&fileId=${id}`;
-      let getResp = await httpx.get({
-        url,
-        headers: {
-          "User-Agent": utils.getRandomPCUA(),
-          Referer: "https://cowtransfer.com/s/" + shareCode,
-        },
-      });
-      log.info(getResp);
-      if (!getResp.status) {
-        return;
-      }
-      let respData = getResp.data;
-      let resultJSON = utils.toJSON(respData.responseText);
-      log.info("转换的JSON", resultJSON);
-      if (resultJSON["code"] === that.OK_CODE) {
-        return resultJSON["data"]["downloadUrl"];
-      } else {
-        Qmsg.error(`奶牛快传-获取直链：${resultJSON["message"]}`);
-        return;
-      }
-    }
-    async getZipFileDownloadUrl(shareCode, guid = "", title = "") {
-      const that = this;
-      let url = `https://cowtransfer.com/core/api/transfer/share/download?transferGuid=${guid}&title=${title}`;
-      let getResp = await httpx.get({
-        url,
-        headers: {
-          "User-Agent": utils.getRandomPCUA(),
-          Referer: "https://cowtransfer.com/s/" + shareCode,
-        },
-      });
-      log.info(getResp);
-      if (!getResp.status) {
-        return;
-      }
-      let respData = getResp.data;
-      let resultJSON = utils.toJSON(respData.responseText);
-      log.info("转换的JSON", resultJSON);
-      if (resultJSON["code"] === that.OK_CODE) {
-        return resultJSON["data"]["downloadUrl"];
-      } else {
-        Qmsg.error(`奶牛快传-获取直链：${resultJSON["message"]}`);
-        return;
-      }
-    }
-    async downloadFile(fileName, downloadUrl) {
-      log.info("下载文件：", fileName, downloadUrl);
-      if (window.location.hostname === "cowtransfer.com") {
-        window.open(downloadUrl, "_blank");
-        return;
-      }
-      if (!NetDiskCommonUtils.isSupport_GM_download()) {
-        Qmsg.error("当前脚本环境不支持API 【GM_download】");
-        return;
-      }
-      Qmsg.info(`调用【GM_download】下载：${fileName}`);
-      let abortDownload = null;
-      let isSuccessDownload = false;
-      let isDownloadEnd = false;
-      let downloadingQmsg = Qmsg.loading("下载中...", {
-        showClose: true,
-        onClose() {
-          if (!isSuccessDownload && typeof abortDownload === "function") {
-            abortDownload();
-          }
-        },
-      });
-      let result = _GM_download({
-        url: downloadUrl,
-        name: fileName,
-        headers: {
-          Referer: "https://cowtransfer.com/s/" + this.shareCode,
-        },
-        onload() {
-          isSuccessDownload = true;
-          downloadingQmsg.close();
-          Qmsg.success(`下载 ${fileName} 已完成`, { consoleLogContent: true });
-        },
-        onprogress(details) {
-          if (typeof details === "object" && "loaded" in details && "total" in details && !isDownloadEnd) {
-            let progressNum = details.loaded / details.total;
-            let formatProgressNum = (progressNum * 100).toFixed(2);
-            downloadingQmsg.setText(`下载中...${formatProgressNum}%`);
-            if (details.loaded === details.total) {
-              isDownloadEnd = true;
-            }
-          }
-        },
-        onerror(error) {
-          downloadingQmsg.close();
-          log.error("下载失败error👉", error);
-          if (typeof error === "object" && error["error"]) {
-            Qmsg.error(`下载 ${fileName} 失败或已取消 原因：${error["error"]}`, {
-              timeout: 6e3,
-              consoleLogContent: true,
-            });
-          } else {
-            Qmsg.error(`下载 ${fileName} 失败或已取消`, {
-              consoleLogContent: true,
-            });
-          }
-        },
-        ontimeout() {
-          downloadingQmsg.close();
-          Qmsg.error(`下载 ${fileName} 请求超时`, { consoleLogContent: true });
-        },
-      });
-      if (typeof result === "object" && result != null && "abort" in result) {
-        abortDownload = result["abort"];
-      }
-    }
-  }
   class NetDiskParse_Tianyiyun extends ParseFileCore {
     shareId = void 0;
     shareMode = 1;
@@ -13263,6 +12875,16 @@
       return folderInfoList;
     }
   }
+  const NetDiskCommonUtils = {
+    isSupport_GM_download() {
+      try {
+        return typeof _GM_download === "function";
+      } catch (error) {
+        console.error(error);
+        return false;
+      }
+    },
+  };
   class NetDiskParse_UC extends ParseFileCore {
     async init(netDiskInfo) {
       super.init(netDiskInfo);
@@ -13822,7 +13444,6 @@
       wenshushu: NetDiskParse_Wenshushu,
       _123pan: NetDiskParse_123pan,
       jianguoyun: NetDiskParse_Jianguoyun,
-      nainiu: NetDiskParse_nainiu,
       uc: NetDiskParse_UC,
       aliyun: NetDiskParse_Aliyun,
       chengtong: NetDiskParse_Chengtong,
@@ -14394,43 +14015,6 @@
       };
     },
   };
-  const NetDiskCheckLinkValidity_nainiu = {
-    async init(netDiskInfo) {
-      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      let response = await httpx.get(`https://cowtransfer.com/core/api/transfer/share?uniqueUrl=${shareCode}`, {
-        headers: {
-          "User-Agent": utils.getRandomPCUA(),
-          Host: "cowtransfer.com",
-          Origin: "https://cowtransfer.com",
-          Referer: "https://cowtransfer.com/",
-        },
-        ...NetDiskCheckLinkValidityRequestOption,
-      });
-      if (!response.status && utils.isNull(response.data.responseText)) {
-        return {
-          ...NetDiskCheckLinkValidityStatus.networkError,
-          data: response,
-        };
-      }
-      let data = utils.toJSON(response.data.responseText);
-      if (data.code != "0000") {
-        return {
-          ...NetDiskCheckLinkValidityStatus.failed,
-          data,
-        };
-      }
-      if (data.data.needPassword && data.data.needPassword) {
-        return {
-          ...NetDiskCheckLinkValidityStatus.needAccessCode,
-          data,
-        };
-      }
-      return {
-        ...NetDiskCheckLinkValidityStatus.success,
-        data,
-      };
-    },
-  };
   const NetDiskCheckLinkValidity_weiyun = {
     async init(netDiskInfo) {
       const { ruleIndex, shareCode, accessCode } = netDiskInfo;
@@ -14983,7 +14567,6 @@
 
     aliyun: NetDiskCheckLinkValidity_aliyun,
     wenshushu: NetDiskCheckLinkValidity_wenshushu,
-    nainiu: NetDiskCheckLinkValidity_nainiu,
     _123pan: NetDiskCheckLinkValidity_123pan,
     weiyun: NetDiskCheckLinkValidity_weiyun,
     xunlei: NetDiskCheckLinkValidity_xunlei,
@@ -17019,61 +16602,6 @@
       },
     },
   };
-  const NetDiskRule_nainiu = {
-    rule: [
-      {
-        link_innerText: `cowtransfer.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
-        link_innerHTML: `cowtransfer.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
-        shareCode: /cowtransfer.com\/s\/([a-zA-Z0-9_\-]{8,14})/gi,
-        shareCodeNeedRemoveStr: /cowtransfer\.com\/s\//gi,
-        checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
-        accessCode: /([0-9a-zA-Z]{4,6})/gi,
-        uiLinkShow: "cowtransfer.com/s/{#shareCode#} 提取码: {#accessCode#}",
-        blank: "https://cowtransfer.com/s/{#shareCode#}",
-        copyUrl: "https://cowtransfer.com/s/{#shareCode#}\n密码：{#accessCode#}",
-      },
-    ],
-    setting: {
-      name: "奶牛",
-      key: "nainiu",
-      configurationInterface: {
-        matchRange_text: {
-          before: 20,
-          after: 10,
-        },
-        matchRange_html: {
-          before: 100,
-          after: 15,
-        },
-        function: {
-          enable: true,
-          linkClickMode: {
-            openBlank: {
-              default: true,
-            },
-            parseFile: {
-              enable: true,
-            },
-            "parseFile-closePopup": {
-              enable: true,
-            },
-          },
-          checkLinkValidity: true,
-          checkLinkValidityHoverTip: true,
-        },
-        linkClickMode_openBlank: {
-          openBlankAutoFilleAccessCode: true,
-          openBlankWithCopyAccessCode: true,
-        },
-        schemeUri: {
-          enable: false,
-          isForwardLinearChain: true,
-          isForwardBlankLink: true,
-          uri: "",
-        },
-      },
-    },
-  };
   const NetDiskRule_weiyun = {
     rule: [
       {
@@ -17839,7 +17367,6 @@
         NetDiskRule_hecaiyun,
         NetDiskRule_aliyun,
         NetDiskRule_wenshushu,
-        NetDiskRule_nainiu,
         NetDiskRule_123pan,
         NetDiskRule_weiyun,
         NetDiskRule_xunlei,
