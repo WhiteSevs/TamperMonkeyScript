@@ -238,7 +238,7 @@
             {{ props.UserData.sex == 0 ? "保密" : props.UserData.sex == 1 ? "♂" : "♀" }}
           </span>
           <el-divider direction="vertical" border-style="dashed" />
-          <el-link :underline="false" @click="copyIdEvent">
+          <el-link :underline="'never'" @click="copyIdEvent">
             ID {{ props.UserData.id }}
             <el-icon>
               <CopyDocument />

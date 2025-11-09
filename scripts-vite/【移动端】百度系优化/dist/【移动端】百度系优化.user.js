@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.7.16
+// @version      2025.11.9
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -18,13 +18,13 @@
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
-// @require      https://fastly.jsdelivr.net/npm/vue@3.5.22/dist/vue.global.prod.js
+// @require      https://fastly.jsdelivr.net/npm/vue@3.5.24/dist/vue.global.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-demi@0.14.10/lib/index.iife.min.js
-// @require      https://fastly.jsdelivr.net/npm/pinia@3.0.3/dist/pinia.iife.prod.js
+// @require      https://fastly.jsdelivr.net/npm/pinia@3.0.4/dist/pinia.iife.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-router@4.6.3/dist/vue-router.global.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@70fca3b5fc45d132c7d8a73d1d94e014a3892c5d/lib/Element-Plus/index.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.2/dist/index.iife.min.js
-// @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.11.5/dist/index.min.css
+// @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.11.7/dist/index.min.css
 // @resource     ViewerCSS               https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect      *
 // @connect      www.baidu.com
@@ -73,7 +73,7 @@
   };
 
   importCSS(
-    ' @charset "UTF-8";#small-toolbar[data-v-b2773fdf]{position:fixed;bottom:0;width:100%;background:#fff;height:.56rem;display:flex;align-items:center;z-index:1000}#small-toolbar .icon[data-v-b2773fdf]{width:.2rem;height:.2rem}#small-toolbar #reply-editor[data-v-b2773fdf]{flex:1}#small-toolbar .small-editor-toolbar[data-v-b2773fdf]{flex:1;margin:10px 15px;width:100%;font-size:.16rem;line-height:.16rem;display:flex;align-items:center;position:relative}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]{width:100%;background:#e9e9e9;border-radius:.06rem;padding:.06rem;border:0;outline:none;font-size:.14rem;line-height:.14rem;cursor:default}#small-toolbar .small-editor-toolbar .small-editor-toolbar-emoji-btn[data-v-b2773fdf]{position:absolute;top:50%;right:.06rem;transform:translateY(-50%)}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:focus,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:visited,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:focus-within,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:focus-visible{border:0;outline:none}#small-toolbar .gm-reply-other-toolbar[data-v-b2773fdf]{flex:0 auto;display:flex;align-items:safe center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count[data-v-b2773fdf],#small-toolbar .gm-reply-other-toolbar .reply-good-count[data-v-b2773fdf]{padding:8px;display:flex;flex-direction:column;align-items:center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count p.text[data-v-b2773fdf],#small-toolbar .gm-reply-other-toolbar .reply-good-count p.text[data-v-b2773fdf]{font-size:.1rem}.tiptap p.is-editor-empty:first-child:before{content:attr(data-placeholder);float:left;color:#adb5bd;pointer-events:none;height:0}#reply-editor .tiptap{width:100%;height:100%;outline:0!important;font-size:.16rem}.tiptap-input-image{width:.18rem;height:.18rem}#reply-editor[data-v-661335ab]{overflow:auto;background-color:#e5e5e5;padding:.06rem;height:100%;border-radius:5px}.icon-active[data-v-6550ea22]{fill:#7557ff}#full-toolbar[data-v-6550ea22]{position:fixed;bottom:0;width:100%;background:#fff;display:flex;align-items:center;z-index:100099;flex-flow:column}#full-toolbar .full-toolbar-top-reply-user[data-v-6550ea22]{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#adb5bd;width:-webkit-fill-available;width:-moz-available;padding-left:.2rem;padding-top:.06rem}#full-toolbar .full-toolbar-top-container[data-v-6550ea22]{display:flex;align-items:end;width:-moz-available;width:-webkit-fill-available;padding:.06rem .1rem;height:.6rem}#full-toolbar .full-toolbar-top-container .full-toolbar-top-left-container[data-v-6550ea22]{display:flex;flex-direction:column;flex:1;overflow:hidden;margin:0px .1rem;height:100%}#full-toolbar .full-toolbar-top-container .full-toolbar-top-right-container[data-v-6550ea22]{flex:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%}#full-toolbar .full-toolbar-bottom-container[data-v-6550ea22]{margin:.06rem 0;padding:0px 0px .06rem;margin-right:auto}#full-toolbar .full-toolbar-bottom-container .full-toolbar-emoji-btn[data-v-6550ea22],#full-toolbar .full-toolbar-bottom-container .full-toolbar-panel-at-btn[data-v-6550ea22]{margin:0 20px;display:flex;flex-direction:column;align-items:center}#full-toolbar .emoji-panel[data-v-6550ea22]{width:100%;height:30vh;background-color:#efefef;overflow:auto}.emoji-panel-huaji[data-v-6550ea22]{padding:.03rem;overflow-y:auto}.emoji-panel-huaji .el-avatar[data-v-6550ea22]{margin:16px}#full-toolbar[data-v-6550ea22]:has(.full-toolbar-top-container[data-full=true]){height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-6550ea22],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) #reply-editor[data-v-6550ea22]{height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-reply-user[data-v-6550ea22],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-right-container[data-v-6550ea22]{display:none}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-6550ea22]{flex-direction:column}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-left-container[data-v-6550ea22]{width:-webkit-fill-available;width:-moz-available}.full-toolbar-top-nav-container[data-v-6550ea22]{display:flex;width:-webkit-fill-available;width:-moz-available;align-items:center;justify-content:space-between;padding:.16rem}#full-toolbar .full-toolbar-top-container{max-height:calc(100vh - .12rem - 40px)}#full-toolbar[data-show-bottom-panel=true] .full-toolbar-top-container{max-height:calc(70vh - .12rem - 40px)}.posts-container-item[data-v-3116157a]{width:-webkit-fill-available;width:-moz-available}.posts-item-title[data-v-3116157a]{font-weight:700}.posts-item-title[data-v-3116157a],.posts-item-content[data-v-3116157a],.posts-item-media-container[data-v-3116157a]{margin:10px 0}.posts-item-footer[data-v-3116157a]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-3116157a]{text-align:center}.posts-item-footer-icon-container[data-v-3116157a]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-3116157a]{padding:0 10px}.posts-container[data-v-41f50a7a]{background:#f2f2f4;padding:10px}.posts-container-item[data-v-41f50a7a]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.posts-item-title[data-v-41f50a7a]{font-weight:700}.posts-item-title[data-v-41f50a7a],.posts-item-content[data-v-41f50a7a],.posts-item-media-container[data-v-41f50a7a]{margin:10px 0}.posts-item-footer[data-v-41f50a7a]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-41f50a7a]{text-align:center}.posts-item-footer-icon-container[data-v-41f50a7a]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-41f50a7a]{padding:0 10px}.follow-forum-container[data-v-9f65e55d]{background:#f2f2f4;padding:10px}.follow-forum-list-container[data-v-9f65e55d]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.follow-forum-item[data-v-9f65e55d]{width:50%;max-width:50%;display:flex;align-items:flex-start;margin:10px 0}.follow-forum-avatar[data-v-9f65e55d]{border-radius:12px}.follow-forum-item-right-container[data-v-9f65e55d]{margin:0 10px;width:inherit;display:flex;flex-direction:column}.follow-forum-item-name[data-v-9f65e55d]{display:flex;align-items:center;width:-webkit-fill-available;width:-moz-available}.follow-forum-item-level[data-level][data-v-9f65e55d]{margin:5px;padding:2px;border-radius:3px;font-size:.6rem;line-height:.6rem;font-weight:700;text-align:center;background:var(--v0ae5f27b);color:var(--v384f0200)}.follow-forum-item-level[data-level="0"][data-v-9f65e55d],.follow-forum-item-level[data-level="1"][data-v-9f65e55d],.follow-forum-item-level[data-level="2"][data-v-9f65e55d],.follow-forum-item-level[data-level="3"][data-v-9f65e55d]{background:var(--b2383e38)}.follow-forum-item-level[data-level="4"][data-v-9f65e55d],.follow-forum-item-level[data-level="5"][data-v-9f65e55d],.follow-forum-item-level[data-level="6"][data-v-9f65e55d],.follow-forum-item-level[data-level="7"][data-v-9f65e55d],.follow-forum-item-level[data-level="8"][data-v-9f65e55d],.follow-forum-item-level[data-level="9"][data-v-9f65e55d]{background:var(--b2382024)}.follow-forum-item-level[data-level="10"][data-v-9f65e55d],.follow-forum-item-level[data-level="11"][data-v-9f65e55d],.follow-forum-item-level[data-level="12"][data-v-9f65e55d],.follow-forum-item-level[data-level="13"][data-v-9f65e55d],.follow-forum-item-level[data-level="14"][data-v-9f65e55d],.follow-forum-item-level[data-level="15"][data-v-9f65e55d]{background:var(--v7d689d44)}.follow-forum-item-level[data-level="16"][data-v-9f65e55d],.follow-forum-item-level[data-level="17"][data-v-9f65e55d],.follow-forum-item-level[data-level="18"][data-v-9f65e55d]{background:var(--v7d6b5781)}.follow-forum-item-info[data-v-9f65e55d]{word-wrap:break-word}#main[data-v-0eef167d]{z-index:1000;width:100%;height:100%}.big-text[data-v-0eef167d]{font-weight:700}.top-container[data-v-0eef167d]{width:-webkit-fill-available;width:-moz-available;padding:15px 15px 0}.user-info-bg[data-v-0eef167d]{width:100%;height:100px}.user-info-bg-main[data-v-0eef167d]{width:100%;height:160px;position:absolute;background:url(https://tb2.bdstatic.com/tb/mobile/suser/img/home_card_back_6cdfca5.jpg);background-size:100%;background-repeat:no-repeat}.user-avatar-top-background[data-v-0eef167d]{position:absolute;width:100%;height:40%;padding:0;margin:0;border-top-left-radius:12px;border-top-right-radius:12px;background:#fff;transform:translateY(100%)}.user-info-container[data-v-0eef167d]{padding:0 10px}.nav-left-arrow-icon[data-v-9d6dd989]{align-content:center;padding-left:0!important}.nav-title[data-v-9d6dd989]{font-weight:700;text-align:center;padding:10px}.user-avatar[data-v-9d6dd989]{text-align:center;padding-bottom:20px}.user-info-item[data-v-9d6dd989]{display:flex;padding:10px;flex-wrap:wrap}.user-desc-key[data-v-9d6dd989]{width:60px;display:block}.user-end-text[data-v-9d6dd989]{padding:0 20px}.user-top[data-v-783d336f]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-783d336f]{align-content:center;padding-left:0!important}.top-title-name[data-v-783d336f]{text-align:center;padding:10px}.user-main[data-v-783d336f]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-783d336f]{padding:0 10px}.user-container .el-scrollbar__view[data-v-783d336f]{height:100%}.user-item[data-v-783d336f]{margin:10px 0}.user-item-row[data-v-783d336f]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-783d336f]{padding:0 10px}.user-name[data-v-783d336f],.user-sign-text[data-v-783d336f]{text-align:left}.user-sign-text[data-v-783d336f]{color:#a2a2a2}.user-follow-btn[data-v-783d336f]{float:right}.user-info[data-v-783d336f]{display:grid}.user-item-row-left[data-v-783d336f]{display:flex}.user-item-row-right[data-v-783d336f]{float:right}.user-top[data-v-b315e76a]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-b315e76a]{align-content:center;padding-left:0!important}.top-title-name[data-v-b315e76a]{text-align:center;padding:10px}.user-main[data-v-b315e76a]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-b315e76a]{padding:0 10px}.user-container .el-scrollbar__view[data-v-b315e76a]{height:100%}.user-item[data-v-b315e76a]{margin:10px 0}.user-item-row[data-v-b315e76a]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-b315e76a]{padding:0 10px;align-content:center}.user-name[data-v-b315e76a],.user-sign-text[data-v-b315e76a]{text-align:left}.user-sign-text[data-v-b315e76a]{color:#a2a2a2}.user-follow-btn[data-v-b315e76a]{float:right}.user-info[data-v-b315e76a]{display:grid}.user-item-row-left[data-v-b315e76a]{display:flex}.user-item-row-right[data-v-b315e76a]{float:right}.router-view-container[data-v-8524ef32]{padding:20px}.router-view-container .layout-item[data-v-8524ef32]{display:flex;align-items:center;gap:10px;padding:10px 0}.router-view-container .layout-icon img[data-v-8524ef32]{width:100%;height:100%}.router-view-container .layout-text[data-v-8524ef32]{flex:1}.post-list-item[data-v-552236f6]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef}.post-list-item[data-v-552236f6]:last-child{border-bottom:0}.user-info[data-v-552236f6]{display:flex;align-items:center;gap:5px}.user-time[data-v-552236f6]{font-size:.8em;color:#999}.user-avatar img[data-v-552236f6]{width:35px;height:35px;border-radius:50%}.reply-content[data-v-552236f6]{font-size:.9em;color:#4a4a4a}.post-info[data-v-552236f6]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-552236f6]{display:flex;align-items:center;height:100px;width:100%}.post-content[data-v-552236f6]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-image[data-v-552236f6]{width:100px;height:100px}.post-image img[data-v-552236f6]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-552236f6]{color:#999}.bottom-msg[data-v-552236f6]{text-align:center;color:#999;padding:10px 0}.post-list-item[data-v-2b71b42f]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef}.post-list-item[data-v-2b71b42f]:last-child{border-bottom:0}.user-info[data-v-2b71b42f]{display:flex;align-items:center;gap:5px}.user-time[data-v-2b71b42f]{font-size:.8em;color:#999}.user-avatar img[data-v-2b71b42f]{width:35px;height:35px;border-radius:50%}.reply-content[data-v-2b71b42f]{font-size:.9em;color:#4a4a4a}.post-info[data-v-2b71b42f]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-2b71b42f]{display:flex;align-items:center;height:100px;width:100%}.post-content[data-v-2b71b42f]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-info[data-v-2b71b42f]:has(.quote-user){flex-direction:column;align-items:start;padding:10px;gap:10px}.post-info:has(.quote-user) .post-content[data-v-2b71b42f]{flex:1;align-content:center;padding:0 10px;margin-left:0;background:#fff;height:inherit}.post-image[data-v-2b71b42f]{width:100px;height:100px}.post-image img[data-v-2b71b42f]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-2b71b42f]{color:#999}.bottom-msg[data-v-2b71b42f],.bottom-msg[data-v-b2e309d0]{text-align:center;color:#999;padding:10px 0}.user-top[data-v-21d9b8e4]{--el-header-height: 40px;display:flex;align-items:center;position:fixed;top:0;left:0;right:0;background:#fff}.top-nav-container[data-v-21d9b8e4]{align-items:center;width:100%}.top-title-name[data-v-21d9b8e4]{text-align:center;position:absolute;left:50%;transform:translate(-50%)}.main[data-v-21d9b8e4]{padding:0;margin:40px 0 0} '
+    ' @charset "UTF-8";#small-toolbar[data-v-b2773fdf]{position:fixed;bottom:0;width:100%;background:#fff;height:.56rem;display:flex;align-items:center;z-index:1000}#small-toolbar .icon[data-v-b2773fdf]{width:.2rem;height:.2rem}#small-toolbar #reply-editor[data-v-b2773fdf]{flex:1}#small-toolbar .small-editor-toolbar[data-v-b2773fdf]{flex:1;margin:10px 15px;width:100%;font-size:.16rem;line-height:.16rem;display:flex;align-items:center;position:relative}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]{width:100%;background:#e9e9e9;border-radius:.06rem;padding:.06rem;border:0;outline:none;font-size:.14rem;line-height:.14rem;cursor:default}#small-toolbar .small-editor-toolbar .small-editor-toolbar-emoji-btn[data-v-b2773fdf]{position:absolute;top:50%;right:.06rem;transform:translateY(-50%)}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:focus,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:visited,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:focus-within,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:focus-visible{border:0;outline:none}#small-toolbar .gm-reply-other-toolbar[data-v-b2773fdf]{flex:0 auto;display:flex;align-items:safe center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count[data-v-b2773fdf],#small-toolbar .gm-reply-other-toolbar .reply-good-count[data-v-b2773fdf]{padding:8px;display:flex;flex-direction:column;align-items:center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count p.text[data-v-b2773fdf],#small-toolbar .gm-reply-other-toolbar .reply-good-count p.text[data-v-b2773fdf]{font-size:.1rem}.tiptap p.is-editor-empty:first-child:before{content:attr(data-placeholder);float:left;color:#adb5bd;pointer-events:none;height:0}#reply-editor .tiptap{width:100%;height:100%;outline:0!important;font-size:.16rem}.tiptap-input-image{width:.18rem;height:.18rem}#reply-editor[data-v-661335ab]{overflow:auto;background-color:#e5e5e5;padding:.06rem;height:100%;border-radius:5px}.icon-active[data-v-6550ea22]{fill:#7557ff}#full-toolbar[data-v-6550ea22]{position:fixed;bottom:0;width:100%;background:#fff;display:flex;align-items:center;z-index:100099;flex-flow:column}#full-toolbar .full-toolbar-top-reply-user[data-v-6550ea22]{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#adb5bd;width:-webkit-fill-available;width:-moz-available;padding-left:.2rem;padding-top:.06rem}#full-toolbar .full-toolbar-top-container[data-v-6550ea22]{display:flex;align-items:end;width:-moz-available;width:-webkit-fill-available;padding:.06rem .1rem;height:.6rem}#full-toolbar .full-toolbar-top-container .full-toolbar-top-left-container[data-v-6550ea22]{display:flex;flex-direction:column;flex:1;overflow:hidden;margin:0px .1rem;height:100%}#full-toolbar .full-toolbar-top-container .full-toolbar-top-right-container[data-v-6550ea22]{flex:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%}#full-toolbar .full-toolbar-bottom-container[data-v-6550ea22]{margin:.06rem 0;padding:0px 0px .06rem;margin-right:auto}#full-toolbar .full-toolbar-bottom-container .full-toolbar-emoji-btn[data-v-6550ea22],#full-toolbar .full-toolbar-bottom-container .full-toolbar-panel-at-btn[data-v-6550ea22]{margin:0 20px;display:flex;flex-direction:column;align-items:center}#full-toolbar .emoji-panel[data-v-6550ea22]{width:100%;height:30vh;background-color:#efefef;overflow:auto}.emoji-panel-huaji[data-v-6550ea22]{padding:.03rem;overflow-y:auto}.emoji-panel-huaji .el-avatar[data-v-6550ea22]{margin:16px}#full-toolbar[data-v-6550ea22]:has(.full-toolbar-top-container[data-full=true]){height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-6550ea22],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) #reply-editor[data-v-6550ea22]{height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-reply-user[data-v-6550ea22],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-right-container[data-v-6550ea22]{display:none}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-6550ea22]{flex-direction:column}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-left-container[data-v-6550ea22]{width:-webkit-fill-available;width:-moz-available}.full-toolbar-top-nav-container[data-v-6550ea22]{display:flex;width:-webkit-fill-available;width:-moz-available;align-items:center;justify-content:space-between;padding:.16rem}#full-toolbar .full-toolbar-top-container{max-height:calc(100vh - .12rem - 40px)}#full-toolbar[data-show-bottom-panel=true] .full-toolbar-top-container{max-height:calc(70vh - .12rem - 40px)}.posts-container-item[data-v-3116157a]{width:-webkit-fill-available;width:-moz-available}.posts-item-title[data-v-3116157a]{font-weight:700}.posts-item-title[data-v-3116157a],.posts-item-content[data-v-3116157a],.posts-item-media-container[data-v-3116157a]{margin:10px 0}.posts-item-footer[data-v-3116157a]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-3116157a]{text-align:center}.posts-item-footer-icon-container[data-v-3116157a]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-3116157a]{padding:0 10px}.posts-container[data-v-41f50a7a]{background:#f2f2f4;padding:10px}.posts-container-item[data-v-41f50a7a]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.posts-item-title[data-v-41f50a7a]{font-weight:700}.posts-item-title[data-v-41f50a7a],.posts-item-content[data-v-41f50a7a],.posts-item-media-container[data-v-41f50a7a]{margin:10px 0}.posts-item-footer[data-v-41f50a7a]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-41f50a7a]{text-align:center}.posts-item-footer-icon-container[data-v-41f50a7a]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-41f50a7a]{padding:0 10px}.follow-forum-container[data-v-9f65e55d]{background:#f2f2f4;padding:10px}.follow-forum-list-container[data-v-9f65e55d]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.follow-forum-item[data-v-9f65e55d]{width:50%;max-width:50%;display:flex;align-items:flex-start;margin:10px 0}.follow-forum-avatar[data-v-9f65e55d]{border-radius:12px}.follow-forum-item-right-container[data-v-9f65e55d]{margin:0 10px;width:inherit;display:flex;flex-direction:column}.follow-forum-item-name[data-v-9f65e55d]{display:flex;align-items:center;width:-webkit-fill-available;width:-moz-available}.follow-forum-item-level[data-level][data-v-9f65e55d]{margin:5px;padding:2px;border-radius:3px;font-size:.6rem;line-height:.6rem;font-weight:700;text-align:center;background:var(--v0ae5f27b);color:var(--v384f0200)}.follow-forum-item-level[data-level="0"][data-v-9f65e55d],.follow-forum-item-level[data-level="1"][data-v-9f65e55d],.follow-forum-item-level[data-level="2"][data-v-9f65e55d],.follow-forum-item-level[data-level="3"][data-v-9f65e55d]{background:var(--b2383e38)}.follow-forum-item-level[data-level="4"][data-v-9f65e55d],.follow-forum-item-level[data-level="5"][data-v-9f65e55d],.follow-forum-item-level[data-level="6"][data-v-9f65e55d],.follow-forum-item-level[data-level="7"][data-v-9f65e55d],.follow-forum-item-level[data-level="8"][data-v-9f65e55d],.follow-forum-item-level[data-level="9"][data-v-9f65e55d]{background:var(--b2382024)}.follow-forum-item-level[data-level="10"][data-v-9f65e55d],.follow-forum-item-level[data-level="11"][data-v-9f65e55d],.follow-forum-item-level[data-level="12"][data-v-9f65e55d],.follow-forum-item-level[data-level="13"][data-v-9f65e55d],.follow-forum-item-level[data-level="14"][data-v-9f65e55d],.follow-forum-item-level[data-level="15"][data-v-9f65e55d]{background:var(--v7d689d44)}.follow-forum-item-level[data-level="16"][data-v-9f65e55d],.follow-forum-item-level[data-level="17"][data-v-9f65e55d],.follow-forum-item-level[data-level="18"][data-v-9f65e55d]{background:var(--v7d6b5781)}.follow-forum-item-info[data-v-9f65e55d]{word-wrap:break-word}#main[data-v-08dab6d1]{z-index:1000;width:100%;height:100%}.big-text[data-v-08dab6d1]{font-weight:700}.top-container[data-v-08dab6d1]{width:-webkit-fill-available;width:-moz-available;padding:15px 15px 0}.user-info-bg[data-v-08dab6d1]{width:100%;height:100px}.user-info-bg-main[data-v-08dab6d1]{width:100%;height:160px;position:absolute;background:url(https://tb2.bdstatic.com/tb/mobile/suser/img/home_card_back_6cdfca5.jpg);background-size:100%;background-repeat:no-repeat}.user-avatar-top-background[data-v-08dab6d1]{position:absolute;width:100%;height:40%;padding:0;margin:0;border-top-left-radius:12px;border-top-right-radius:12px;background:#fff;transform:translateY(100%)}.user-info-container[data-v-08dab6d1]{padding:0 10px}.nav-left-arrow-icon[data-v-9d6dd989]{align-content:center;padding-left:0!important}.nav-title[data-v-9d6dd989]{font-weight:700;text-align:center;padding:10px}.user-avatar[data-v-9d6dd989]{text-align:center;padding-bottom:20px}.user-info-item[data-v-9d6dd989]{display:flex;padding:10px;flex-wrap:wrap}.user-desc-key[data-v-9d6dd989]{width:60px;display:block}.user-end-text[data-v-9d6dd989]{padding:0 20px}.user-top[data-v-783d336f]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-783d336f]{align-content:center;padding-left:0!important}.top-title-name[data-v-783d336f]{text-align:center;padding:10px}.user-main[data-v-783d336f]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-783d336f]{padding:0 10px}.user-container .el-scrollbar__view[data-v-783d336f]{height:100%}.user-item[data-v-783d336f]{margin:10px 0}.user-item-row[data-v-783d336f]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-783d336f]{padding:0 10px}.user-name[data-v-783d336f],.user-sign-text[data-v-783d336f]{text-align:left}.user-sign-text[data-v-783d336f]{color:#a2a2a2}.user-follow-btn[data-v-783d336f]{float:right}.user-info[data-v-783d336f]{display:grid}.user-item-row-left[data-v-783d336f]{display:flex}.user-item-row-right[data-v-783d336f]{float:right}.user-top[data-v-b315e76a]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-b315e76a]{align-content:center;padding-left:0!important}.top-title-name[data-v-b315e76a]{text-align:center;padding:10px}.user-main[data-v-b315e76a]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-b315e76a]{padding:0 10px}.user-container .el-scrollbar__view[data-v-b315e76a]{height:100%}.user-item[data-v-b315e76a]{margin:10px 0}.user-item-row[data-v-b315e76a]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-b315e76a]{padding:0 10px;align-content:center}.user-name[data-v-b315e76a],.user-sign-text[data-v-b315e76a]{text-align:left}.user-sign-text[data-v-b315e76a]{color:#a2a2a2}.user-follow-btn[data-v-b315e76a]{float:right}.user-info[data-v-b315e76a]{display:grid}.user-item-row-left[data-v-b315e76a]{display:flex}.user-item-row-right[data-v-b315e76a]{float:right}.router-view-container[data-v-8524ef32]{padding:20px}.router-view-container .layout-item[data-v-8524ef32]{display:flex;align-items:center;gap:10px;padding:10px 0}.router-view-container .layout-icon img[data-v-8524ef32]{width:100%;height:100%}.router-view-container .layout-text[data-v-8524ef32]{flex:1}.post-list-item[data-v-552236f6]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef}.post-list-item[data-v-552236f6]:last-child{border-bottom:0}.user-info[data-v-552236f6]{display:flex;align-items:center;gap:5px}.user-time[data-v-552236f6]{font-size:.8em;color:#999}.user-avatar img[data-v-552236f6]{width:35px;height:35px;border-radius:50%}.reply-content[data-v-552236f6]{font-size:.9em;color:#4a4a4a}.post-info[data-v-552236f6]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-552236f6]{display:flex;align-items:center;height:100px;width:100%}.post-content[data-v-552236f6]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-image[data-v-552236f6]{width:100px;height:100px}.post-image img[data-v-552236f6]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-552236f6]{color:#999}.bottom-msg[data-v-552236f6]{text-align:center;color:#999;padding:10px 0}.post-list-item[data-v-2b71b42f]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef}.post-list-item[data-v-2b71b42f]:last-child{border-bottom:0}.user-info[data-v-2b71b42f]{display:flex;align-items:center;gap:5px}.user-time[data-v-2b71b42f]{font-size:.8em;color:#999}.user-avatar img[data-v-2b71b42f]{width:35px;height:35px;border-radius:50%}.reply-content[data-v-2b71b42f]{font-size:.9em;color:#4a4a4a}.post-info[data-v-2b71b42f]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-2b71b42f]{display:flex;align-items:center;height:100px;width:100%}.post-content[data-v-2b71b42f]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-info[data-v-2b71b42f]:has(.quote-user){flex-direction:column;align-items:start;padding:10px;gap:10px}.post-info:has(.quote-user) .post-content[data-v-2b71b42f]{flex:1;align-content:center;padding:0 10px;margin-left:0;background:#fff;height:inherit}.post-image[data-v-2b71b42f]{width:100px;height:100px}.post-image img[data-v-2b71b42f]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-2b71b42f]{color:#999}.bottom-msg[data-v-2b71b42f],.bottom-msg[data-v-b2e309d0]{text-align:center;color:#999;padding:10px 0}.user-top[data-v-21d9b8e4]{--el-header-height: 40px;display:flex;align-items:center;position:fixed;top:0;left:0;right:0;background:#fff}.top-nav-container[data-v-21d9b8e4]{align-items:center;width:100%}.top-title-name[data-v-21d9b8e4]{text-align:center;position:absolute;left:50%;transform:translate(-50%)}.main[data-v-21d9b8e4]{padding:0;margin:40px 0 0} '
   );
 
   var __getOwnPropNames = Object.getOwnPropertyNames;
@@ -82,7 +82,7 @@
       return (mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports);
     };
   var require_entrance_001 = __commonJS({
-    "entrance-iclcHF0I.js"(exports, module) {
+    "entrance--vEv5a3q.js"(exports$1, module) {
       var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
       var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
       var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
@@ -1366,24 +1366,33 @@
             if (Array.isArray(args)) {
               resultValueList = resultValueList.concat(args);
             } else {
-              if (typeof args === "object" && args != null) {
-                if (args instanceof Element) {
-                  resultValueList.push(args);
-                } else {
-                  const { $css, destory } = args;
-                  if ($css != null) {
-                    if (Array.isArray($css)) {
-                      resultValueList = resultValueList.concat($css);
-                    } else {
-                      resultValueList.push($css);
+              const handlerArgs = (obj) => {
+                if (typeof obj === "object" && obj != null) {
+                  if (obj instanceof Element) {
+                    resultValueList.push(obj);
+                  } else {
+                    const { $css, destory } = obj;
+                    if ($css != null) {
+                      if (Array.isArray($css)) {
+                        resultValueList = resultValueList.concat($css);
+                      } else {
+                        resultValueList.push($css);
+                      }
+                    }
+                    if (typeof destory === "function") {
+                      resultValueList.push(destory);
                     }
                   }
-                  if (typeof destory === "function") {
-                    resultValueList.push(destory);
-                  }
+                } else {
+                  resultValueList.push(obj);
+                }
+              };
+              if (args != null && Array.isArray(args)) {
+                for (const it of args) {
+                  handlerArgs(it);
                 }
               } else {
-                resultValueList.push(args);
+                handlerArgs(args);
               }
             }
             for (const it of resultValueList) {
@@ -4319,6 +4328,8 @@ match-attr##srcid##ai_agent_distribute
 match-attr##srcid##ai_agent_qa_recommend
 // AI智能体 超多相关角色-等你来聊 
 match-attr##srcid##yl_actor_agent
+// 百度游戏中心
+match-attr##srcid##yx_entity_pc_san
 
 
 // 搜索聚合
@@ -13904,7 +13915,7 @@ match-attr##srcid##yl_actor_agent
       function stubFalse() {
         return false;
       }
-      var freeExports$2 = typeof exports == "object" && exports && !exports.nodeType && exports;
+      var freeExports$2 = typeof exports$1 == "object" && exports$1 && !exports$1.nodeType && exports$1;
       var freeModule$2 = freeExports$2 && typeof module == "object" && module && !module.nodeType && module;
       var moduleExports$2 = freeModule$2 && freeModule$2.exports === freeExports$2;
       var Buffer$1 = moduleExports$2 ? root.Buffer : void 0;
@@ -13969,7 +13980,7 @@ match-attr##srcid##yl_actor_agent
           return func(value);
         };
       }
-      var freeExports$1 = typeof exports == "object" && exports && !exports.nodeType && exports;
+      var freeExports$1 = typeof exports$1 == "object" && exports$1 && !exports$1.nodeType && exports$1;
       var freeModule$1 = freeExports$1 && typeof module == "object" && module && !module.nodeType && module;
       var moduleExports$1 = freeModule$1 && freeModule$1.exports === freeExports$1;
       var freeProcess = moduleExports$1 && freeGlobal.process;
@@ -14426,7 +14437,7 @@ match-attr##srcid##yl_actor_agent
       Stack.prototype.get = stackGet;
       Stack.prototype.has = stackHas;
       Stack.prototype.set = stackSet;
-      var freeExports = typeof exports == "object" && exports && !exports.nodeType && exports;
+      var freeExports = typeof exports$1 == "object" && exports$1 && !exports$1.nodeType && exports$1;
       var freeModule = freeExports && typeof module == "object" && module && !module.nodeType && module;
       var moduleExports = freeModule && freeModule.exports === freeExports;
       var Buffer2 = moduleExports ? root.Buffer : void 0;
@@ -15391,6 +15402,19 @@ match-attr##srcid##yl_actor_agent
         });
         return focused;
       }
+      class ElementPlusError extends Error {
+        constructor(m) {
+          super(m);
+          this.name = "ElementPlusError";
+        }
+      }
+      function throwError(scope, m) {
+        throw new ElementPlusError(`[${scope}] ${m}`);
+      }
+      function debugWarn(scope, message) {
+        const error = isString$1(scope) ? new ElementPlusError(`[${scope}] ${message}`) : scope;
+        console.warn(error);
+      }
       const initial = {
         current: 0,
       };
@@ -15412,7 +15436,13 @@ match-attr##srcid##yl_actor_agent
           zIndex.value = increasingInjection.current;
           return currentZIndex.value;
         };
-        if (!isClient && !vue.inject(ZINDEX_INJECTION_KEY));
+        if (!isClient && !vue.inject(ZINDEX_INJECTION_KEY)) {
+          debugWarn(
+            "ZIndexInjection",
+            `Looks like you are using server rendering, you must provide a z-index provider to ensure the hydration process to be succeed
+usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
+          );
+        }
         return {
           initialZIndex,
           currentZIndex,
@@ -15434,6 +15464,9 @@ match-attr##srcid##yl_actor_agent
             alphaDescription: "alpha {alpha}, current color is {color}",
             hueLabel: "pick hue value",
             hueDescription: "hue {hue}, current color is {color}",
+            svLabel: "pick saturation and brightness value",
+            svDescription: "saturation {saturation}, brightness {brightness}, current color is {color}",
+            predefineDescription: "select {value} as the color",
           },
           datepicker: {
             now: "Now",
@@ -15741,6 +15774,7 @@ match-attr##srcid##yl_actor_agent
         const oldConfig = inSetup ? useGlobalConfig() : void 0;
         const provideFn = (_a2 = void 0) != null ? _a2 : inSetup ? vue.provide : void 0;
         if (!provideFn) {
+          debugWarn("provideGlobalConfig", "provideGlobalConfig() can only be used inside setup().");
           return;
         }
         const context = vue.computed(() => {
@@ -15794,6 +15828,7 @@ match-attr##srcid##yl_actor_agent
       };
       const rAF = (fn) => (isClient ? window.requestAnimationFrame(fn) : setTimeout(fn, 16));
       const cAF = (handle) => (isClient ? window.cancelAnimationFrame(handle) : clearTimeout(handle));
+      const SCOPE = "utils/dom/style";
       const classNameToArray = (cls = "") => cls.split(" ").filter((item) => !!item.trim());
       const addClass = (el, cls) => {
         if (!el || !cls.trim()) return;
@@ -15824,6 +15859,7 @@ match-attr##srcid##yl_actor_agent
         } else if (isString$1(value)) {
           return value;
         }
+        debugWarn(SCOPE, "binding value must be a string or number");
       }
       const isScroll = (el, isVertical) => {
         if (!isClient) return false;
@@ -15845,15 +15881,6 @@ match-attr##srcid##yl_actor_agent
         }
         return parent2;
       };
-      class ElementPlusError extends Error {
-        constructor(m) {
-          super(m);
-          this.name = "ElementPlusError";
-        }
-      }
-      function throwError(scope, m) {
-        throw new ElementPlusError(`[${scope}] ${m}`);
-      }
       const withInstall = (main, extra) => {
         main.install = (app) => {
           for (const comp of [main, ...Object.values(extra != null ? extra : {})]) {
@@ -15942,6 +15969,10 @@ match-attr##srcid##yl_actor_agent
         });
         const instance = vue.getCurrentInstance();
         if (!instance) {
+          debugWarn(
+            "use-attrs",
+            "getCurrentInstance() returned null. useAttrs() must be called at the top of a setup function"
+          );
           return vue.computed(() => ({}));
         }
         return vue.computed(() => {
@@ -15963,6 +15994,16 @@ match-attr##srcid##yl_actor_agent
       };
       const useId = (deterministicId) => {
         const idInjection = useIdInjection();
+        if (!isClient && idInjection === defaultIdInjection) {
+          debugWarn(
+            "IdInjection",
+            `Looks like you are using server rendering, you must provide a id provider to ensure the hydration process to be succeed
+usage: app.provide(ID_INJECTION_KEY, {
+  prefix: number,
+  current: number,
+})`
+          );
+        }
         const namespace = useGetDerivedNamespace();
         const idRef = computedEager(
           () => vue.unref(deterministicId) || `${namespace.value}-id-${idInjection.prefix}-${idInjection.current++}`
@@ -16492,12 +16533,14 @@ match-attr##srcid##yl_actor_agent
           }
           const setScrollTop = (value) => {
             if (!isNumber(value)) {
+              debugWarn(COMPONENT_NAME$4, "value must be a number");
               return;
             }
             wrapRef.value.scrollTop = value;
           };
           const setScrollLeft = (value) => {
             if (!isNumber(value)) {
+              debugWarn(COMPONENT_NAME$4, "value must be a number");
               return;
             }
             wrapRef.value.scrollLeft = value;
@@ -17364,7 +17407,16 @@ match-attr##srcid##yl_actor_agent
       const useDeprecated = ({ from, replacement, scope, version, ref: ref2, type = "API" }, condition) => {
         vue.watch(
           () => vue.unref(condition),
-          (val) => {},
+          (val) => {
+            if (val) {
+              debugWarn(
+                scope,
+                `[${type}] ${from} is about to be deprecated in version ${version}, please use ${replacement} instead.
+For more detail, please visit: ${ref2}
+`
+              );
+            }
+          },
           {
             immediate: true,
           }
@@ -21242,6 +21294,10 @@ match-attr##srcid##yl_actor_agent
           default: "",
         },
         stretch: Boolean,
+        tabindex: {
+          type: [String, Number],
+          default: void 0,
+        },
       });
       const tabNavEmits = {
         tabClick: (tab, tabName, ev) => ev instanceof Event,
@@ -21472,7 +21528,7 @@ match-attr##srcid##yl_actor_agent
                 ]
               : null;
             const tabs = props.panes.map((pane, index) => {
-              var _a2, _b, _c, _d;
+              var _a2, _b, _c, _d, _e;
               const uid = pane.uid;
               const disabled = pane.props.disabled;
               const tabName = (_b = (_a2 = pane.props.name) != null ? _a2 : pane.index) != null ? _b : `${index}`;
@@ -21492,7 +21548,8 @@ match-attr##srcid##yl_actor_agent
                 : null;
               const tabLabelContent =
                 ((_d = (_c = pane.slots).label) == null ? void 0 : _d.call(_c)) || pane.props.label;
-              const tabindex = !disabled && pane.active ? 0 : -1;
+              const tabindex =
+                !disabled && pane.active ? ((_e = props.tabindex) != null ? _e : rootTabs.props.tabindex) : -1;
               return vue.createVNode(
                 "div",
                 {
@@ -21605,6 +21662,10 @@ match-attr##srcid##yl_actor_agent
           default: () => true,
         },
         stretch: Boolean,
+        tabindex: {
+          type: [String, Number],
+          default: 0,
+        },
       });
       const isPaneName = (value) => isString$1(value) || isNumber(value);
       const tabsEmits = {
@@ -21717,7 +21778,7 @@ match-attr##srcid##yl_actor_agent
                     "div",
                     {
                       class: [ns.e("new-tab"), isVertical.value && ns.e("new-tab-vertical")],
-                      tabindex: "0",
+                      tabindex: props.tabindex,
                       onClick: handleTabAdd,
                       onKeydown: handleKeydown,
                     },
@@ -22074,7 +22135,7 @@ match-attr##srcid##yl_actor_agent
                           style: {
                             backgroundColor: data.background || "",
                           },
-                          class: [ns.b("mask"), data.customClass, data.fullscreen ? "is-fullscreen" : ""],
+                          class: [ns.b("mask"), data.customClass, ns.is("fullscreen", data.fullscreen)],
                         },
                         [
                           vue.h(
@@ -25124,7 +25185,7 @@ match-attr##srcid##yl_actor_agent
                                       vue.createVNode(
                                         _component_el_link,
                                         {
-                                          underline: false,
+                                          underline: "never",
                                           onClick: copyIdEvent,
                                         },
                                         {
@@ -25482,7 +25543,7 @@ match-attr##srcid##yl_actor_agent
           };
         },
       });
-      const Home = _export_sfc$1(_sfc_main$9, [["__scopeId", "data-v-0eef167d"]]);
+      const Home = _export_sfc$1(_sfc_main$9, [["__scopeId", "data-v-08dab6d1"]]);
       const _hoisted_1$7 = { class: "user-avatar" };
       const _hoisted_2$6 = { class: "user-info" };
       const _hoisted_3$6 = { class: "user-info-item" };

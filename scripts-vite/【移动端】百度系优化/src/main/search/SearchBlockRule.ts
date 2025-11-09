@@ -59,6 +59,8 @@ match-attr##srcid##ai_agent_distribute
 match-attr##srcid##ai_agent_qa_recommend
 // AI智能体 超多相关角色-等你来聊 
 match-attr##srcid##yl_actor_agent
+// 百度游戏中心
+match-attr##srcid##yx_entity_pc_san
 
 
 // 搜索聚合
