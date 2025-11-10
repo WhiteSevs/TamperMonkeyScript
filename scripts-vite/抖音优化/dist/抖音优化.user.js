@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.7.17
+// @version      2025.11.10
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1170,24 +1170,33 @@
         if (Array.isArray(args)) {
           resultValueList = resultValueList.concat(args);
         } else {
-          if (typeof args === "object" && args != null) {
-            if (args instanceof Element) {
-              resultValueList.push(args);
-            } else {
-              const { $css, destory } = args;
-              if ($css != null) {
-                if (Array.isArray($css)) {
-                  resultValueList = resultValueList.concat($css);
-                } else {
-                  resultValueList.push($css);
+          const handlerArgs = (obj) => {
+            if (typeof obj === "object" && obj != null) {
+              if (obj instanceof Element) {
+                resultValueList.push(obj);
+              } else {
+                const { $css, destory } = obj;
+                if ($css != null) {
+                  if (Array.isArray($css)) {
+                    resultValueList = resultValueList.concat($css);
+                  } else {
+                    resultValueList.push($css);
+                  }
+                }
+                if (typeof destory === "function") {
+                  resultValueList.push(destory);
                 }
               }
-              if (typeof destory === "function") {
-                resultValueList.push(destory);
-              }
+            } else {
+              resultValueList.push(obj);
+            }
+          };
+          if (args != null && Array.isArray(args)) {
+            for (const it of args) {
+              handlerArgs(it);
             }
           } else {
-            resultValueList.push(args);
+            handlerArgs(args);
           }
         }
         for (const it of resultValueList) {
@@ -2155,8 +2164,10 @@
         addStyle(
           `
 				#slidelist .page-recommend-container{
-					margin: 0 !important;
-					height: 100vh !important;
+          --recommend-video-container-margin-height: 6px;
+					margin: var(--recommend-video-container-margin-height) 0px !important;
+					height: calc(100vh - calc(var(--recommend-video-container-margin-height) * 2)) !important;
+					height: calc(100dvh - calc(var(--recommend-video-container-margin-height) * 2)) !important;
 				}
 			`
         )
