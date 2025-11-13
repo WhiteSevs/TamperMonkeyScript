@@ -8,16 +8,16 @@ import { UIOwn } from "@components/setting/components/ui-own";
 /**
  * 获取渲染的显卡信息，可能是核显，也可能是独显
  */
-function getGPU() {
+function queryGPUInfo() {
   const isFirefox = /Firefox/.test(window.navigator.userAgent);
-  const canvas = document.createElement("canvas");
-  const gl = (canvas.getContext("webgl") || canvas.getContext("experimental-webgl")) as WebGLRenderingContext;
+  const $canvas = DOMUtils.createElement("canvas");
+  const gl = ($canvas.getContext("webgl") || $canvas.getContext("experimental-webgl")) as WebGLRenderingContext;
   const debugRenderInfo = isFirefox ? null : gl.getExtension("WEBGL_debug_renderer_info");
   const info: string = gl.getParameter(debugRenderInfo?.UNMASKED_RENDERER_WEBGL ?? gl?.RENDERER);
   return info;
 }
-export const PanelCommonConfig: PopsPanelContentConfig = {
-  id: "panel-config-common",
+export const PanelGeneralConfig: PopsPanelContentConfig = {
+  id: "panel-general-config",
   title: "通用",
   views: [
     {
@@ -131,7 +131,7 @@ export const PanelCommonConfig: PopsPanelContentConfig = {
             const $leftDesc = $left.querySelector<HTMLElement>(".pops-panel-item-left-desc-text")!;
             let gpuInfo = "";
             try {
-              gpuInfo = getGPU();
+              gpuInfo = queryGPUInfo();
             } catch (error: any) {
               log.error(error);
               gpuInfo = error.toString();
@@ -251,9 +251,8 @@ export const PanelCommonConfig: PopsPanelContentConfig = {
                   "watchLoginDialogToClose",
                   false,
                   void 0,
-                  "屏蔽元素且自动等待元素出现并关闭登录弹窗"
+                  "自动等待元素出现并关闭登录弹窗"
                 ),
-                UISwitch("【屏蔽】底部？按钮", "shieldBottomQuestionButton", false, void 0, "屏蔽元素"),
               ],
             },
           ],
@@ -267,72 +266,16 @@ export const PanelCommonConfig: PopsPanelContentConfig = {
               type: "container",
               text: AutoOpenOrClose.text,
               views: [
-                UISwitch("【屏蔽】左侧导航栏", "shieldLeftNavigator", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】精选", "shieldLeftNavigator-tab-home", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】推荐", "shieldLeftNavigator-tab-recommend", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】AI搜索/抖音", "shieldLeftNavigator-tab-ai-search", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】关注", "shieldLeftNavigator-tab-follow", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】朋友", "shieldLeftNavigator-tab-friend", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】我的", "shieldLeftNavigator-tab-user_self", false, void 0, "屏蔽元素"),
-                // UISwitch(
-                // 	"【屏蔽】喜欢",
-                // 	"shieldLeftNavigator-tab-user_self_like",
-                // 	false,
-                // 	void 0,
-                // 	"屏蔽元素"
-                // ),
-                // UISwitch(
-                // 	"【屏蔽】收藏",
-                // 	"shieldLeftNavigator-tab-user_self_collection",
-                // 	false,
-                // 	void 0,
-                // 	"屏蔽元素"
-                // ),
-                // UISwitch(
-                // 	"【屏蔽】观看历史",
-                // 	"shieldLeftNavigator-tab-user_self_record",
-                // 	false,
-                // 	void 0,
-                // 	"屏蔽元素"
-                // ),
-                UISwitch("【屏蔽】直播", "shieldLeftNavigator-tab-live", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】放映厅", "shieldLeftNavigator-tab-vs", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】短剧", "shieldLeftNavigator-tab-series", false, void 0, "屏蔽元素"),
-                // UISwitch(
-                // 	"【屏蔽】知识",
-                // 	"shieldLeftNavigator-tab-channel_300203",
-                // 	false,
-                // 	void 0,
-                // 	"屏蔽元素"
-                // ),
-                // UISwitch(
-                // 	"【屏蔽】游戏",
-                // 	"shieldLeftNavigator-tab-channel_300205",
-                // 	false,
-                // 	void 0,
-                // 	"屏蔽元素"
-                // ),
-                // UISwitch(
-                // 	"【屏蔽】二次元",
-                // 	"shieldLeftNavigator-tab-channel_300206",
-                // 	false,
-                // 	void 0,
-                // 	"屏蔽元素"
-                // ),
-                // UISwitch(
-                // 	"【屏蔽】音乐",
-                // 	"shieldLeftNavigator-tab-channel_300209",
-                // 	false,
-                // 	void 0,
-                // 	"屏蔽元素"
-                // ),
-                // UISwitch(
-                // 	"【屏蔽】美食",
-                // 	"shieldLeftNavigator-tab-channel_300204",
-                // 	false,
-                // 	void 0,
-                // 	"屏蔽元素"
-                // ),
+                UISwitch("【屏蔽】左侧导航栏", "shieldLeftNavigator", false),
+                UISwitch("【屏蔽】精选", "shieldLeftNavigator-tab-home", false),
+                UISwitch("【屏蔽】推荐", "shieldLeftNavigator-tab-recommend", false),
+                UISwitch("【屏蔽】AI搜索/抖音", "shieldLeftNavigator-tab-ai-search", false),
+                UISwitch("【屏蔽】关注", "shieldLeftNavigator-tab-follow", false),
+                UISwitch("【屏蔽】朋友", "shieldLeftNavigator-tab-friend", false),
+                UISwitch("【屏蔽】我的", "shieldLeftNavigator-tab-user_self", false),
+                UISwitch("【屏蔽】直播", "shieldLeftNavigator-tab-live", false),
+                UISwitch("【屏蔽】放映厅", "shieldLeftNavigator-tab-vs", false),
+                UISwitch("【屏蔽】短剧", "shieldLeftNavigator-tab-series", false),
               ],
             },
           ],
@@ -346,19 +289,19 @@ export const PanelCommonConfig: PopsPanelContentConfig = {
               text: AutoOpenOrClose.text,
               type: "container",
               views: [
-                UISwitch("【屏蔽】顶部导航栏", "shieldTopNavigator", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】右侧菜单栏", "shield-topNav-rightMenu", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】客户端提示", "shieldClientTip", true, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】充钻石", "shieldFillingBricksAndStones", true, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】客户端", "shieldClient", true, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】快捷访问", "shieldQuickAccess", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】通知", "shieldNotifitation", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】私信", "shieldPrivateMessage", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】投稿", "shieldSubmission", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】壁纸", "shieldWallpaper", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】更多", "shield-topNav-rightMenu-more", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】登录头像", "shield-topNav-rightMenu-loginAvatar", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】AI搜索", "shield-topNav-ai-search", false, void 0, "屏蔽元素"),
+                UISwitch("【屏蔽】顶部导航栏", "shieldTopNavigator", false),
+                UISwitch("【屏蔽】右侧菜单栏", "shield-topNav-rightMenu", false),
+                UISwitch("【屏蔽】客户端提示", "shieldClientTip", true),
+                UISwitch("【屏蔽】充钻石", "shieldFillingBricksAndStones", true),
+                UISwitch("【屏蔽】客户端", "shieldClient", true),
+                UISwitch("【屏蔽】快捷访问", "shieldQuickAccess", false),
+                UISwitch("【屏蔽】通知", "shieldNotifitation", false),
+                UISwitch("【屏蔽】私信", "shieldPrivateMessage", false),
+                UISwitch("【屏蔽】投稿", "shieldSubmission", false),
+                UISwitch("【屏蔽】壁纸", "shieldWallpaper", false),
+                UISwitch("【屏蔽】更多", "shield-topNav-rightMenu-more", false),
+                UISwitch("【屏蔽】登录头像", "shield-topNav-rightMenu-loginAvatar", false),
+                UISwitch("【屏蔽】AI搜索", "shield-topNav-ai-search", false),
               ],
             },
           ],
@@ -372,10 +315,10 @@ export const PanelCommonConfig: PopsPanelContentConfig = {
               text: AutoOpenOrClose.text,
               type: "container",
               views: [
-                UISwitch("【屏蔽】搜索框", "shieldSearch", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】搜索框的提示", "shieldSearchPlaceholder", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】猜你想搜", "shieldSearchGuessYouWantToSearch", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】抖音热点", "shieldSearchTiktokHotspot", false, void 0, "屏蔽元素"),
+                UISwitch("【屏蔽】搜索框", "shieldSearch", false),
+                UISwitch("【屏蔽】搜索框的提示", "shieldSearchPlaceholder", false),
+                UISwitch("【屏蔽】猜你想搜", "shieldSearchGuessYouWantToSearch", false),
+                UISwitch("【屏蔽】抖音热点", "shieldSearchTiktokHotspot", false),
               ],
             },
           ],

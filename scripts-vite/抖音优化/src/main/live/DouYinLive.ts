@@ -371,15 +371,37 @@ export const DouYinLive = {
       $video.pause();
       const timeout = 3000;
       // 在firefox中video会重载，如果只触发一次，它依旧会自动播放
-      const playListener = (evt: Event) => {
+      const playCallback = (evt: Event) => {
+        // listener remove tag
         DOMUtils.preventEvent(evt);
         $video.autoplay = false;
         $video.pause();
         log.success("成功禁止自动播放视频(直播)");
       };
-      DOMUtils.offAll($video, "play");
-      DOMUtils.offAll($video, "pause");
-      DOMUtils.on($video, "play", playListener, {
+      // 移除旧的监听
+      DOMUtils.off(
+        $video,
+        "play",
+        void 0,
+        {
+          capture: true,
+        },
+        (value) => {
+          return value.callback.toString().includes("listener remove tag");
+        }
+      );
+      DOMUtils.off(
+        $video,
+        "pause",
+        void 0,
+        {
+          capture: true,
+        },
+        (value) => {
+          return value.callback.toString().includes("listener remove tag");
+        }
+      );
+      const playListener = DOMUtils.on($video, "play", playCallback, {
         capture: true,
       });
       const reloadVideo = () => {
@@ -389,19 +411,28 @@ export const DouYinLive = {
           key: "E",
           code: "KeyE",
         });
-        document.body.dispatchEvent(keydownEvent);
+        (document.body || document).dispatchEvent(keydownEvent);
       };
       const cb = () => {
-        DOMUtils.off($video, "play", playListener, {
-          capture: true,
-        });
+        playListener.off();
         log.info(`移除监听自动播放`);
         const listenPlayVideo = () => {
-          DOMUtils.offAll($video, "play");
+          DOMUtils.off(
+            $video,
+            "play",
+            void 0,
+            {
+              capture: true,
+            },
+            (value) => {
+              return value.callback.toString().includes("listener remove tag");
+            }
+          );
           DOMUtils.on(
             $video,
             "play",
             (evt) => {
+              // listener remove tag
               // 如果长时间暂停会导致点击播放时不加载直播
               // 此bug仅在firefox上复现
               // 临时解决方法：监听play事件重载视频
@@ -418,6 +449,7 @@ export const DouYinLive = {
           $video,
           "pause",
           (evt) => {
+            // listener remove tag
             // 第2、3、4...次暂停一段时间后再播放依旧卡屏（不加载，依旧firefox）
             // 监听暂停，监听播放
             listenPlayVideo();

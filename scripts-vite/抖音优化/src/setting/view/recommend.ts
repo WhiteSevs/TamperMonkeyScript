@@ -9,6 +9,7 @@ export const PanelRecommendConfig: PopsPanelContentConfig = {
       text: "功能",
       type: "container",
       views: [
+        UISwitch("禁止自动播放", "dy-recommend-pauseVideo", false, void 0, "3秒内禁止任何形式的播放（仅第一个视频）"),
         UISwitch(
           "自动连播",
           "dy-recommend-automaticContinuousPlayback",

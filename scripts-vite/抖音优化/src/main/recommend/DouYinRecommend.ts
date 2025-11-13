@@ -6,10 +6,58 @@ import Qmsg from "qmsg";
 
 export const DouYinRecommend = {
   init() {
+    Panel.execMenuOnce("dy-recommend-pauseVideo", () => {
+      return this.pauseVideo();
+    });
     DOMUtils.ready(() => {
       Panel.execMenuOnce("dy-recommend-automaticContinuousPlayback", () => {
         return this.automaticContinuousPlayback();
       });
+    });
+  },
+  /**
+   * 禁止自动播放
+   */
+  pauseVideo() {
+    log.info(`禁止自动播放`);
+
+    DOMUtils.waitAnyNode<HTMLVideoElement>(
+      ['.page-recommend-container [data-e2e="feed-active-video"] video'],
+      10000
+    ).then(($video) => {
+      if (!$video) {
+        return;
+      }
+      $video.autoplay = false;
+      $video.pause();
+      const timeout = 3000;
+      // 在firefox中video会重载，如果只触发一次，它依旧会自动播放
+      const playCallback = (evt: Event) => {
+        // listener remove tag
+        DOMUtils.preventEvent(evt);
+        $video.autoplay = false;
+        $video.pause();
+        log.success("成功禁止自动播放视频(直播)");
+      };
+      DOMUtils.off(
+        $video,
+        "play",
+        void 0,
+        {
+          capture: true,
+        },
+        (value) => {
+          return value.callback.toString().includes("listener remove tag");
+        }
+      );
+      const playListener = DOMUtils.on($video, "play", playCallback, {
+        capture: true,
+      });
+      const cb = () => {
+        log.info(`已移除监听自动播放`);
+        playListener.off();
+      };
+      setTimeout(cb, timeout);
     });
   },
   /**

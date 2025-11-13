@@ -93,9 +93,6 @@ export const BlockTopNavigator = {
       void 0,
       true
     );
-    Panel.execMenuOnce("shieldBottomQuestionButton", () => {
-      return this.shieldBottomQuestionButton();
-    });
     Panel.execMenuOnce("shield-topNav-rightMenu", () => {
       return this.shieldRightMenu();
     });
@@ -402,17 +399,6 @@ export const BlockTopNavigator = {
       );
     }
     return result;
-  },
-  /**
-   * 屏蔽底部问题按钮
-   */
-  shieldBottomQuestionButton() {
-    log.info("屏蔽底部问题按钮");
-    return CommonUtil.addBlockCSS([
-      "#douyin-sidebar",
-      /* 推荐视频右下角的？按钮 */
-      "#douyin-temp-sidebar",
-    ]);
   },
   /**
    * 【屏蔽】右侧菜单栏

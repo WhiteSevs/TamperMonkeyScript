@@ -249,19 +249,19 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
                   "live-shieldTopToolBarInfo",
                   false,
                   void 0,
-                  "屏蔽元素，包括直播作者、右侧的礼物展馆"
+                  "包括直播作者、右侧的礼物展馆"
                 ),
-                UISwitch("【屏蔽】底部的礼物栏", "live-shieldGiftColumn", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】礼物特效", "live-shieldGiftEffects", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】福袋", "live-shieldLucky", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】弹幕", "live-shieldDanmuku", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】小黄车", "live-shielYellowCar", false, void 0, "屏蔽元素"),
+                UISwitch("【屏蔽】底部的礼物栏", "live-shieldGiftColumn", false),
+                UISwitch("【屏蔽】礼物特效", "live-shieldGiftEffects", false),
+                UISwitch("【屏蔽】福袋", "live-shieldLucky", false),
+                UISwitch("【屏蔽】弹幕", "live-shieldDanmuku", false),
+                UISwitch("【屏蔽】小黄车", "live-shielYellowCar", false),
                 UISwitch(
                   "【屏蔽】点亮展馆帮主播集星",
                   "live-block-exhibition-banner-dylive-tooltip",
                   false,
                   void 0,
-                  "屏蔽元素，礼物展馆下面的悬浮提示"
+                  "礼物展馆下面的悬浮提示"
                 ),
               ],
             },
@@ -289,11 +289,11 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
               text: AutoOpenOrClose.text,
               type: "container",
               views: [
-                UISwitch("【屏蔽】聊天室", "live-shieldChatRoom", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】贵宾席", "live-shielChatRoomVipSeats", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】用户等级图标", "dy-live-shieldUserLevelIcon", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】VIP图标", "dy-live-shieldUserVIPIcon", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】粉丝牌", "dy-live-shieldUserFansIcon", false, void 0, "屏蔽元素"),
+                UISwitch("【屏蔽】聊天室", "live-shieldChatRoom", false),
+                UISwitch("【屏蔽】贵宾席", "live-shielChatRoomVipSeats", false),
+                UISwitch("【屏蔽】用户等级图标", "dy-live-shieldUserLevelIcon", false),
+                UISwitch("【屏蔽】VIP图标", "dy-live-shieldUserVIPIcon", false),
+                UISwitch("【屏蔽】粉丝牌", "dy-live-shieldUserFansIcon", false),
                 UISwitch(
                   "【屏蔽】信息播报",
                   "dy-live-shieldMessage",

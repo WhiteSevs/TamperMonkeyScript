@@ -204,7 +204,7 @@ export const DouYin = {
               searchValue = DOMUtils.text($before);
             } else {
               const placeholder = $input.placeholder.trim();
-              if (placeholder != null && placeholder !== "") {
+              if (placeholder != null && placeholder !== "" && placeholder !== "搜索你感兴趣的内容") {
                 searchValue = placeholder;
               } else {
                 log.error("搜索内容为空，不进行搜索");

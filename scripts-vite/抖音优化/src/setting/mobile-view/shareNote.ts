@@ -35,9 +35,9 @@ export const MPanelShareNoteConfig: PopsPanelContentConfig = {
               text: "",
               type: "container",
               views: [
-                UISwitch("【屏蔽】评论", "m-dy-share-note-blockComment", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】相关推荐", "m-dy-share-note-blockRecommend", false, void 0, "屏蔽元素"),
-                UISwitch("【屏蔽】底部工具栏", "m-dy-share-note-blockFooterToobar", false, void 0, "屏蔽元素"),
+                UISwitch("【屏蔽】评论", "m-dy-share-note-blockComment", false),
+                UISwitch("【屏蔽】相关推荐", "m-dy-share-note-blockRecommend", false),
+                UISwitch("【屏蔽】底部工具栏", "m-dy-share-note-blockFooterToobar", false),
               ],
             },
           ],

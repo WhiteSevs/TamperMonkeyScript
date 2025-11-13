@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.10
+// @version      2025.11.13
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -2124,9 +2124,6 @@
         void 0,
         true
       );
-      Panel.execMenuOnce("shieldBottomQuestionButton", () => {
-        return this.shieldBottomQuestionButton();
-      });
       Panel.execMenuOnce("shield-topNav-rightMenu", () => {
         return this.shieldRightMenu();
       });
@@ -2357,10 +2354,6 @@
         );
       }
       return result;
-    },
-    shieldBottomQuestionButton() {
-      log.info("屏蔽底部问题按钮");
-      return CommonUtil.addBlockCSS(["#douyin-sidebar", "#douyin-temp-sidebar"]);
     },
     shieldRightMenu() {
       log.info(`【屏蔽】右侧菜单栏`);
@@ -6952,15 +6945,35 @@
           $video.autoplay = false;
           $video.pause();
           const timeout = 3e3;
-          const playListener = (evt) => {
+          const playCallback = (evt) => {
             domUtils.preventEvent(evt);
             $video.autoplay = false;
             $video.pause();
             log.success("成功禁止自动播放视频(直播)");
           };
-          domUtils.offAll($video, "play");
-          domUtils.offAll($video, "pause");
-          domUtils.on($video, "play", playListener, {
+          domUtils.off(
+            $video,
+            "play",
+            void 0,
+            {
+              capture: true,
+            },
+            (value) => {
+              return value.callback.toString().includes("listener remove tag");
+            }
+          );
+          domUtils.off(
+            $video,
+            "pause",
+            void 0,
+            {
+              capture: true,
+            },
+            (value) => {
+              return value.callback.toString().includes("listener remove tag");
+            }
+          );
+          const playListener = domUtils.on($video, "play", playCallback, {
             capture: true,
           });
           const reloadVideo = () => {
@@ -6970,15 +6983,23 @@
               key: "E",
               code: "KeyE",
             });
-            document.body.dispatchEvent(keydownEvent);
+            (document.body || document).dispatchEvent(keydownEvent);
           };
           const cb = () => {
-            domUtils.off($video, "play", playListener, {
-              capture: true,
-            });
+            playListener.off();
             log.info(`移除监听自动播放`);
             const listenPlayVideo = () => {
-              domUtils.offAll($video, "play");
+              domUtils.off(
+                $video,
+                "play",
+                void 0,
+                {
+                  capture: true,
+                },
+                (value) => {
+                  return value.callback.toString().includes("listener remove tag");
+                }
+              );
               domUtils.on(
                 $video,
                 "play",
@@ -7127,13 +7148,16 @@
   const DouYinSearch = {
     init() {
       DouYinSearchBlock.init();
+      Panel.execMenuOnce("dy-search-allowContextMenu", () => {
+        return this.allowContextMenu();
+      });
       Panel.execMenuOnce("mobileMode", (option) => {
         return this.mobileMode(option);
       });
       Panel.execMenuOnce("dy-search-disableClickToEnterFullScreen", () => {
         return this.disableClickToEnterFullScreen();
       });
-      Panel.execMenuOnce("live-setSearchResultFilterWithVideoStyle", (option) => {
+      Panel.execMenuOnce("dy-search-setSearchResultFilterWithVideoStyle", (option) => {
         return this.setSearchResultFilterWithVideoStyle(option.value);
       });
     },
@@ -7299,6 +7323,24 @@
         );
       }
     },
+    allowContextMenu() {
+      log.info(`阻止屏蔽搜索框的右键菜单`);
+      const listener = domUtils.on(
+        document,
+        "contextmenu",
+        ['input[data-e2e="searchbar-input"]'],
+        (evt) => {
+          evt.stopPropagation();
+          return true;
+        },
+        { capture: true }
+      );
+      return [
+        () => {
+          listener.off();
+        },
+      ];
+    },
   };
   const BlockLeftNavigator = {
     init() {
@@ -7386,24 +7428,6 @@
         'div[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self)'
       );
     },
-    block_tab_user_self_like() {
-      log.info("【屏蔽】喜欢");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self_like)'
-      );
-    },
-    block_tab_user_self_collection() {
-      log.info("【屏蔽】收藏");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self_collection)'
-      );
-    },
-    block_tab_user_self_record() {
-      log.info("【屏蔽】观看历史");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self_record)'
-      );
-    },
     block_tab_live() {
       log.info("【屏蔽】直播");
       return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-live)');
@@ -7420,36 +7444,6 @@
       log.info(`【屏蔽】AI搜索`);
       return CommonUtil.addBlockCSS(
         'div[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-aisearch"])'
-      );
-    },
-    block_tab_channel_300203() {
-      log.info("【屏蔽】知识");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300203)'
-      );
-    },
-    block_tab_channel_300205() {
-      log.info("【屏蔽】游戏");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300205)'
-      );
-    },
-    block_tab_channel_300206() {
-      log.info("【屏蔽】二次元");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300206)'
-      );
-    },
-    block_tab_channel_300209() {
-      log.info("【屏蔽】音乐");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300209)'
-      );
-    },
-    block_tab_channel_300204() {
-      log.info("【屏蔽】美食");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300204)'
       );
     },
   };
@@ -9657,10 +9651,49 @@
   };
   const DouYinRecommend = {
     init() {
+      Panel.execMenuOnce("dy-recommend-pauseVideo", () => {
+        return this.pauseVideo();
+      });
       domUtils.ready(() => {
         Panel.execMenuOnce("dy-recommend-automaticContinuousPlayback", () => {
           return this.automaticContinuousPlayback();
         });
+      });
+    },
+    pauseVideo() {
+      log.info(`禁止自动播放`);
+      domUtils.waitAnyNode(['.page-recommend-container [data-e2e="feed-active-video"] video'], 1e4).then(($video) => {
+        if (!$video) {
+          return;
+        }
+        $video.autoplay = false;
+        $video.pause();
+        const timeout = 3e3;
+        const playCallback = (evt) => {
+          domUtils.preventEvent(evt);
+          $video.autoplay = false;
+          $video.pause();
+          log.success("成功禁止自动播放视频(直播)");
+        };
+        domUtils.off(
+          $video,
+          "play",
+          void 0,
+          {
+            capture: true,
+          },
+          (value) => {
+            return value.callback.toString().includes("listener remove tag");
+          }
+        );
+        const playListener = domUtils.on($video, "play", playCallback, {
+          capture: true,
+        });
+        const cb = () => {
+          log.info(`已移除监听自动播放`);
+          playListener.off();
+        };
+        setTimeout(cb, timeout);
       });
     },
     automaticContinuousPlayback() {
@@ -9907,7 +9940,7 @@
                 searchValue = domUtils.text($before);
               } else {
                 const placeholder = $input.placeholder.trim();
-                if (placeholder != null && placeholder !== "") {
+                if (placeholder != null && placeholder !== "" && placeholder !== "搜索你感兴趣的内容") {
                   searchValue = placeholder;
                 } else {
                   log.error("搜索内容为空，不进行搜索");
@@ -10446,16 +10479,16 @@
     }
     return result;
   };
-  function getGPU() {
+  function queryGPUInfo() {
     const isFirefox = /Firefox/.test(window.navigator.userAgent);
-    const canvas = document.createElement("canvas");
-    const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+    const $canvas = domUtils.createElement("canvas");
+    const gl = $canvas.getContext("webgl") || $canvas.getContext("experimental-webgl");
     const debugRenderInfo = isFirefox ? null : gl.getExtension("WEBGL_debug_renderer_info");
     const info = gl.getParameter(debugRenderInfo?.UNMASKED_RENDERER_WEBGL ?? gl?.RENDERER);
     return info;
   }
-  const PanelCommonConfig = {
-    id: "panel-config-common",
+  const PanelGeneralConfig = {
+    id: "panel-general-config",
     title: "通用",
     views: [
       {
@@ -10569,7 +10602,7 @@
               const $leftDesc = $left.querySelector(".pops-panel-item-left-desc-text");
               let gpuInfo = "";
               try {
-                gpuInfo = getGPU();
+                gpuInfo = queryGPUInfo();
               } catch (error) {
                 log.error(error);
                 gpuInfo = error.toString();
@@ -10695,9 +10728,8 @@
                     "watchLoginDialogToClose",
                     false,
                     void 0,
-                    "屏蔽元素且自动等待元素出现并关闭登录弹窗"
+                    "自动等待元素出现并关闭登录弹窗"
                   ),
-                  UISwitch("【屏蔽】底部？按钮", "shieldBottomQuestionButton", false, void 0, "屏蔽元素"),
                 ],
               },
             ],
@@ -10711,17 +10743,16 @@
                 type: "container",
                 text: AutoOpenOrClose.text,
                 views: [
-                  UISwitch("【屏蔽】左侧导航栏", "shieldLeftNavigator", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】精选", "shieldLeftNavigator-tab-home", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】推荐", "shieldLeftNavigator-tab-recommend", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】AI搜索/抖音", "shieldLeftNavigator-tab-ai-search", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】关注", "shieldLeftNavigator-tab-follow", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】朋友", "shieldLeftNavigator-tab-friend", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】我的", "shieldLeftNavigator-tab-user_self", false, void 0, "屏蔽元素"),
-
-                  UISwitch("【屏蔽】直播", "shieldLeftNavigator-tab-live", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】放映厅", "shieldLeftNavigator-tab-vs", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】短剧", "shieldLeftNavigator-tab-series", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】左侧导航栏", "shieldLeftNavigator", false),
+                  UISwitch("【屏蔽】精选", "shieldLeftNavigator-tab-home", false),
+                  UISwitch("【屏蔽】推荐", "shieldLeftNavigator-tab-recommend", false),
+                  UISwitch("【屏蔽】AI搜索/抖音", "shieldLeftNavigator-tab-ai-search", false),
+                  UISwitch("【屏蔽】关注", "shieldLeftNavigator-tab-follow", false),
+                  UISwitch("【屏蔽】朋友", "shieldLeftNavigator-tab-friend", false),
+                  UISwitch("【屏蔽】我的", "shieldLeftNavigator-tab-user_self", false),
+                  UISwitch("【屏蔽】直播", "shieldLeftNavigator-tab-live", false),
+                  UISwitch("【屏蔽】放映厅", "shieldLeftNavigator-tab-vs", false),
+                  UISwitch("【屏蔽】短剧", "shieldLeftNavigator-tab-series", false),
                 ],
               },
             ],
@@ -10735,19 +10766,19 @@
                 text: AutoOpenOrClose.text,
                 type: "container",
                 views: [
-                  UISwitch("【屏蔽】顶部导航栏", "shieldTopNavigator", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】右侧菜单栏", "shield-topNav-rightMenu", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】客户端提示", "shieldClientTip", true, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】充钻石", "shieldFillingBricksAndStones", true, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】客户端", "shieldClient", true, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】快捷访问", "shieldQuickAccess", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】通知", "shieldNotifitation", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】私信", "shieldPrivateMessage", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】投稿", "shieldSubmission", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】壁纸", "shieldWallpaper", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】更多", "shield-topNav-rightMenu-more", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】登录头像", "shield-topNav-rightMenu-loginAvatar", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】AI搜索", "shield-topNav-ai-search", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】顶部导航栏", "shieldTopNavigator", false),
+                  UISwitch("【屏蔽】右侧菜单栏", "shield-topNav-rightMenu", false),
+                  UISwitch("【屏蔽】客户端提示", "shieldClientTip", true),
+                  UISwitch("【屏蔽】充钻石", "shieldFillingBricksAndStones", true),
+                  UISwitch("【屏蔽】客户端", "shieldClient", true),
+                  UISwitch("【屏蔽】快捷访问", "shieldQuickAccess", false),
+                  UISwitch("【屏蔽】通知", "shieldNotifitation", false),
+                  UISwitch("【屏蔽】私信", "shieldPrivateMessage", false),
+                  UISwitch("【屏蔽】投稿", "shieldSubmission", false),
+                  UISwitch("【屏蔽】壁纸", "shieldWallpaper", false),
+                  UISwitch("【屏蔽】更多", "shield-topNav-rightMenu-more", false),
+                  UISwitch("【屏蔽】登录头像", "shield-topNav-rightMenu-loginAvatar", false),
+                  UISwitch("【屏蔽】AI搜索", "shield-topNav-ai-search", false),
                 ],
               },
             ],
@@ -10761,10 +10792,10 @@
                 text: AutoOpenOrClose.text,
                 type: "container",
                 views: [
-                  UISwitch("【屏蔽】搜索框", "shieldSearch", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】搜索框的提示", "shieldSearchPlaceholder", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】猜你想搜", "shieldSearchGuessYouWantToSearch", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】抖音热点", "shieldSearchTiktokHotspot", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】搜索框", "shieldSearch", false),
+                  UISwitch("【屏蔽】搜索框的提示", "shieldSearchPlaceholder", false),
+                  UISwitch("【屏蔽】猜你想搜", "shieldSearchGuessYouWantToSearch", false),
+                  UISwitch("【屏蔽】抖音热点", "shieldSearchTiktokHotspot", false),
                 ],
               },
             ],
@@ -11579,6 +11610,7 @@
                 text: "",
                 type: "container",
                 views: [
+                  UISwitch("阻止屏蔽搜索框的右键菜单", "dy-search-allowContextMenu", false),
                   UISwitch(
                     "禁止点击视频区域进入全屏",
                     "dy-search-disableClickToEnterFullScreen",
@@ -11609,8 +11641,8 @@
                   ),
                   UISelect(
                     "搜索结果-视频-显示样式",
-                    "live-setSearchResultFilterWithVideoStyle",
-                    "one",
+                    "dy-search-setSearchResultFilterWithVideoStyle",
+                    "",
                     [
                       {
                         text: "无",
@@ -11970,19 +12002,19 @@
                     "live-shieldTopToolBarInfo",
                     false,
                     void 0,
-                    "屏蔽元素，包括直播作者、右侧的礼物展馆"
+                    "包括直播作者、右侧的礼物展馆"
                   ),
-                  UISwitch("【屏蔽】底部的礼物栏", "live-shieldGiftColumn", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】礼物特效", "live-shieldGiftEffects", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】福袋", "live-shieldLucky", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】弹幕", "live-shieldDanmuku", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】小黄车", "live-shielYellowCar", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】底部的礼物栏", "live-shieldGiftColumn", false),
+                  UISwitch("【屏蔽】礼物特效", "live-shieldGiftEffects", false),
+                  UISwitch("【屏蔽】福袋", "live-shieldLucky", false),
+                  UISwitch("【屏蔽】弹幕", "live-shieldDanmuku", false),
+                  UISwitch("【屏蔽】小黄车", "live-shielYellowCar", false),
                   UISwitch(
                     "【屏蔽】点亮展馆帮主播集星",
                     "live-block-exhibition-banner-dylive-tooltip",
                     false,
                     void 0,
-                    "屏蔽元素，礼物展馆下面的悬浮提示"
+                    "礼物展馆下面的悬浮提示"
                   ),
                 ],
               },
@@ -12010,11 +12042,11 @@
                 text: AutoOpenOrClose.text,
                 type: "container",
                 views: [
-                  UISwitch("【屏蔽】聊天室", "live-shieldChatRoom", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】贵宾席", "live-shielChatRoomVipSeats", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】用户等级图标", "dy-live-shieldUserLevelIcon", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】VIP图标", "dy-live-shieldUserVIPIcon", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】粉丝牌", "dy-live-shieldUserFansIcon", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】聊天室", "live-shieldChatRoom", false),
+                  UISwitch("【屏蔽】贵宾席", "live-shielChatRoomVipSeats", false),
+                  UISwitch("【屏蔽】用户等级图标", "dy-live-shieldUserLevelIcon", false),
+                  UISwitch("【屏蔽】VIP图标", "dy-live-shieldUserVIPIcon", false),
+                  UISwitch("【屏蔽】粉丝牌", "dy-live-shieldUserFansIcon", false),
                   UISwitch(
                     "【屏蔽】信息播报",
                     "dy-live-shieldMessage",
@@ -12108,9 +12140,9 @@
                 text: "",
                 type: "container",
                 views: [
-                  UISwitch("【屏蔽】评论", "m-dy-share-note-blockComment", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】相关推荐", "m-dy-share-note-blockRecommend", false, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】底部工具栏", "m-dy-share-note-blockFooterToobar", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】评论", "m-dy-share-note-blockComment", false),
+                  UISwitch("【屏蔽】相关推荐", "m-dy-share-note-blockRecommend", false),
+                  UISwitch("【屏蔽】底部工具栏", "m-dy-share-note-blockFooterToobar", false),
                 ],
               },
             ],
@@ -12202,6 +12234,7 @@
         text: "功能",
         type: "container",
         views: [
+          UISwitch("禁止自动播放", "dy-recommend-pauseVideo", false, void 0, "3秒内禁止任何形式的播放（仅第一个视频）"),
           UISwitch(
             "自动连播",
             "dy-recommend-automaticContinuousPlayback",
@@ -12214,7 +12247,7 @@
     ],
   };
   PanelContent.addContentConfig([
-    PanelCommonConfig,
+    PanelGeneralConfig,
     PanelVideoConfig,
     PanelRecommendConfig,
     PanelSearchConfig,

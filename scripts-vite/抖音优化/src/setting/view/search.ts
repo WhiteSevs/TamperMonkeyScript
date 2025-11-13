@@ -20,6 +20,7 @@ export const PanelSearchConfig: PopsPanelContentConfig = {
               text: "",
               type: "container",
               views: [
+                UISwitch("阻止屏蔽搜索框的右键菜单", "dy-search-allowContextMenu", false),
                 UISwitch(
                   "禁止点击视频区域进入全屏",
                   "dy-search-disableClickToEnterFullScreen",
@@ -50,8 +51,8 @@ export const PanelSearchConfig: PopsPanelContentConfig = {
                 ),
                 UISelect(
                   "搜索结果-视频-显示样式",
-                  "live-setSearchResultFilterWithVideoStyle",
-                  "one",
+                  "dy-search-setSearchResultFilterWithVideoStyle",
+                  "",
                   [
                     {
                       text: "无",

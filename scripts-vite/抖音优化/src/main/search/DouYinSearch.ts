@@ -8,13 +8,16 @@ import { DouYinRouter } from "@/router/DouYinRouter";
 export const DouYinSearch = {
   init() {
     DouYinSearchBlock.init();
+    Panel.execMenuOnce("dy-search-allowContextMenu", () => {
+      return this.allowContextMenu();
+    });
     Panel.execMenuOnce("mobileMode", (option) => {
       return this.mobileMode(option);
     });
     Panel.execMenuOnce("dy-search-disableClickToEnterFullScreen", () => {
       return this.disableClickToEnterFullScreen();
     });
-    Panel.execMenuOnce("live-setSearchResultFilterWithVideoStyle", (option) => {
+    Panel.execMenuOnce("dy-search-setSearchResultFilterWithVideoStyle", (option) => {
       return this.setSearchResultFilterWithVideoStyle(option.value);
     });
   },
@@ -186,5 +189,27 @@ export const DouYinSearch = {
 			}
 			`);
     }
+  },
+  /**
+   * 阻止屏蔽搜索框的右键菜单
+   */
+  allowContextMenu() {
+    log.info(`阻止屏蔽搜索框的右键菜单`);
+    const listener = DOMUtils.on(
+      document,
+      "contextmenu",
+      ['input[data-e2e="searchbar-input"]'],
+      (evt) => {
+        evt.stopPropagation();
+        return true;
+      },
+      { capture: true }
+    );
+
+    return [
+      () => {
+        listener.off();
+      },
+    ];
   },
 };

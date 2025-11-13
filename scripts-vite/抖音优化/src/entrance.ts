@@ -3,7 +3,7 @@ import { MDouYinRouter } from "./router/MDouYinRouter";
 import { MDouYin } from "./m-main/MDouYin";
 import { Panel } from "@components/setting/panel";
 import { PanelContent } from "@components/setting/panel-content";
-import { PanelCommonConfig } from "./setting/view/common";
+import { PanelGeneralConfig } from "./setting/view/general";
 import { PanelVideoConfig } from "./setting/view/video";
 import { PanelSearchConfig } from "./setting/view/search";
 import { PanelLiveConfig } from "./setting/view/live";
@@ -17,7 +17,7 @@ import { PanelMenu } from "@components/setting/panel-menu";
 import { PanelRecommendConfig } from "./setting/view/recommend";
 
 PanelContent.addContentConfig([
-  PanelCommonConfig,
+  PanelGeneralConfig,
   PanelVideoConfig,
   PanelRecommendConfig,
   PanelSearchConfig,

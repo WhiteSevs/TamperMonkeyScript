@@ -43,18 +43,6 @@ export const BlockLeftNavigator = {
     Panel.execMenuOnce("shieldLeftNavigator-tab-user_self", () => {
       return this.block_tab_user_self();
     });
-    // Panel.execMenuOnce("shieldLeftNavigator-tab-user_self_like", () => {
-    // 	return this.block_tab_user_self_like();
-    // });
-    // Panel.execMenuOnce(
-    // 	"shieldLeftNavigator-tab-user_self_collection",
-    // 	() => {
-    // 		return this.block_tab_user_self_collection();
-    // 	}
-    // );
-    // Panel.execMenuOnce("shieldLeftNavigator-tab-user_self_record", () => {
-    // 	return this.block_tab_user_self_record();
-    // });
     Panel.execMenuOnce("shieldLeftNavigator-tab-live", () => {
       return this.block_tab_live();
     });
@@ -67,21 +55,6 @@ export const BlockLeftNavigator = {
     Panel.execMenuOnce("shieldLeftNavigator-tab-ai-search", () => {
       return this.block_tab_ai_search();
     });
-    // Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300203", () => {
-    // 	return this.block_tab_channel_300203();
-    // });
-    // Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300205", () => {
-    // 	return this.block_tab_channel_300205();
-    // });
-    // Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300206", () => {
-    // 	return this.block_tab_channel_300206();
-    // });
-    // Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300209", () => {
-    // 	return this.block_tab_channel_300209();
-    // });
-    // Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300204", () => {
-    // 	return this.block_tab_channel_300204();
-    // });
   },
   /**
    * 【屏蔽】左侧导航栏
@@ -137,33 +110,6 @@ export const BlockLeftNavigator = {
     );
   },
   /**
-   * 【屏蔽】喜欢
-   */
-  block_tab_user_self_like() {
-    log.info("【屏蔽】喜欢");
-    return CommonUtil.addBlockCSS(
-      'div[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self_like)'
-    );
-  },
-  /**
-   * 【屏蔽】收藏
-   */
-  block_tab_user_self_collection() {
-    log.info("【屏蔽】收藏");
-    return CommonUtil.addBlockCSS(
-      'div[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self_collection)'
-    );
-  },
-  /**
-   * 【屏蔽】观看历史
-   */
-  block_tab_user_self_record() {
-    log.info("【屏蔽】观看历史");
-    return CommonUtil.addBlockCSS(
-      'div[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self_record)'
-    );
-  },
-  /**
    * 【屏蔽】直播
    */
   block_tab_live() {
@@ -192,40 +138,5 @@ export const BlockLeftNavigator = {
     return CommonUtil.addBlockCSS(
       'div[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-aisearch"])'
     );
-  },
-  /**
-   * 【屏蔽】知识
-   */
-  block_tab_channel_300203() {
-    log.info("【屏蔽】知识");
-    return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300203)');
-  },
-  /**
-   * 【屏蔽】游戏
-   */
-  block_tab_channel_300205() {
-    log.info("【屏蔽】游戏");
-    return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300205)');
-  },
-  /**
-   * 【屏蔽】二次元
-   */
-  block_tab_channel_300206() {
-    log.info("【屏蔽】二次元");
-    return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300206)');
-  },
-  /**
-   * 【屏蔽】音乐
-   */
-  block_tab_channel_300209() {
-    log.info("【屏蔽】音乐");
-    return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300209)');
-  },
-  /**
-   * 【屏蔽】美食
-   */
-  block_tab_channel_300204() {
-    log.info("【屏蔽】美食");
-    return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300204)');
   },
 };
