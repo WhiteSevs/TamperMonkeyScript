@@ -176,8 +176,14 @@ export const GreasyforkDiscussionsFilter = {
     if ($reply) {
       // 回复的用户
       const $replyUserLink = $reply.querySelector<HTMLAnchorElement>("a.user-link");
-      info.replyUserName = $replyUserLink!.innerText;
-      info.replyUserHomeUrl = $replyUserLink!.href;
+      if (!$replyUserLink) {
+        if (import.meta.env.DEV) {
+          console.log("获取回复用户信息失败，该用户可能被删除");
+        }
+        return info;
+      }
+      info.replyUserName = $replyUserLink.innerText;
+      info.replyUserHomeUrl = $replyUserLink.href;
       info.replyUserId = GreasyforkUrlUtils.getUserId(info.replyUserHomeUrl);
       info.replyTimeStamp = new Date($reply.querySelector<HTMLElement>("relative-time")!.getAttribute("datetime")!);
     }

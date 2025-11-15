@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2025.11.4
+// @version            2025.11.15
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -18,7 +18,7 @@
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.0/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
-// @require            https://fastly.jsdelivr.net/npm/i18next@25.6.0/i18next.min.js
+// @require            https://fastly.jsdelivr.net/npm/i18next@25.6.1/i18next.min.js
 // @require            https://fastly.jsdelivr.net/npm/otpauth@9.4.1/dist/otpauth.umd.js
 // @resource           ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect            greasyfork.org
@@ -1366,24 +1366,33 @@
         if (Array.isArray(args)) {
           resultValueList = resultValueList.concat(args);
         } else {
-          if (typeof args === "object" && args != null) {
-            if (args instanceof Element) {
-              resultValueList.push(args);
-            } else {
-              const { $css, destory } = args;
-              if ($css != null) {
-                if (Array.isArray($css)) {
-                  resultValueList = resultValueList.concat($css);
-                } else {
-                  resultValueList.push($css);
+          const handlerArgs = (obj) => {
+            if (typeof obj === "object" && obj != null) {
+              if (obj instanceof Element) {
+                resultValueList.push(obj);
+              } else {
+                const { $css, destory } = obj;
+                if ($css != null) {
+                  if (Array.isArray($css)) {
+                    resultValueList = resultValueList.concat($css);
+                  } else {
+                    resultValueList.push($css);
+                  }
+                }
+                if (typeof destory === "function") {
+                  resultValueList.push(destory);
                 }
               }
-              if (typeof destory === "function") {
-                resultValueList.push(destory);
-              }
+            } else {
+              resultValueList.push(obj);
+            }
+          };
+          if (args != null && Array.isArray(args)) {
+            for (const it of args) {
+              handlerArgs(it);
             }
           } else {
-            resultValueList.push(args);
+            handlerArgs(args);
           }
         }
         for (const it of resultValueList) {
@@ -1834,8 +1843,8 @@
           const loopContentConfig = (configList, path) => {
             for (let index = 0; index < configList.length; index++) {
               const configItem = configList[index];
-              const child_forms = configItem.views;
-              if (child_forms && Array.isArray(child_forms)) {
+              const childViewConfig = configItem.views;
+              if (childViewConfig && Array.isArray(childViewConfig)) {
                 const deepMenuPath = utils.deepClone(path);
                 if (configItem.type === "deepMenu") {
                   const deepNext = utils.queryProperty(deepMenuPath, (target) => {
@@ -1855,7 +1864,7 @@
                     name: configItem.text,
                   };
                 }
-                loopContentConfig(child_forms, deepMenuPath);
+                loopContentConfig(childViewConfig, deepMenuPath);
               } else {
                 let text;
                 let description;
@@ -1870,7 +1879,7 @@
                     }
                   }
                 } else {
-                  text = Reflect.get(configItem, "text");
+                  text = configItem.text;
                   description = Reflect.get(configItem, "description");
                 }
                 const delayMatchedTextList = [text, description];
@@ -3787,6 +3796,9 @@
       let $reply = $listContainer.querySelector(".discussion-meta-item .discussion-meta-item");
       if ($reply) {
         const $replyUserLink = $reply.querySelector("a.user-link");
+        if (!$replyUserLink) {
+          return info;
+        }
         info.replyUserName = $replyUserLink.innerText;
         info.replyUserHomeUrl = $replyUserLink.href;
         info.replyUserId = GreasyforkUrlUtils.getUserId(info.replyUserHomeUrl);
@@ -3944,11 +3956,17 @@
                 )}$">${i18next.t("脚本名：{{text}}", {
                   text: discussionInfo.scriptName,
                 })}</button>
-								<button ${attr_filter_key}="postUserId" ${attr_filter_value}="^${utils.toRegExpStr(
-                  discussionInfo.postUserId
-                )}$">${i18next.t("发布的用户id：{{text}}", {
-                  text: discussionInfo.postUserId,
-                })}</button>
+                ${
+                  discussionInfo.postUserId != null
+                    ? `
+                  <button ${attr_filter_key}="postUserId" ${attr_filter_value}="^${utils.toRegExpStr(
+                    discussionInfo.postUserId
+                  )}$">${i18next.t("发布的用户id：{{text}}", {
+                    text: discussionInfo.postUserId,
+                  })}</button>
+                `
+                    : ""
+                }
 							`,
               html: true,
             },
@@ -5157,7 +5175,7 @@
     },
   };
   const beautifyCenterContentCSS =
-    '.sidebarred-main-content {\r\n  max-width: unset;\r\n  flex: unset;\r\n}\r\nol.script-list {\r\n  display: flex;\r\n  flex-wrap: wrap;\r\n  border: none;\r\n  gap: 20px;\r\n  background: transparent;\r\n  box-shadow: none;\r\n  --shadow-color: #dddddd;\r\n  --border-color: #dddddd;\r\n}\r\nol.script-list .script-description {\r\n  overflow-wrap: anywhere;\r\n}\r\nol.script-list li {\r\n  border: 1px solid var(--border-color);\r\n  border-radius: 5px;\r\n  flex: 1 1 45%;\r\n  box-shadow: var(--shadow-color) 0px 0px 5px 2px;\r\n}\r\n/* 收藏按钮 */\r\n.script-collect-btn {\r\n  color: #ffffff;\r\n  border-color: #409eff;\r\n  background-color: #409eff;\r\n}\r\n/* 评分按钮 */\r\n.script-list-rating-score[data-position="right"] {\r\n  display: inline-block;\r\n  min-width: 1em;\r\n  text-align: center;\r\n  padding: 0 0.25em;\r\n  border: 1px solid #dddddd;\r\n  border-radius: 10px;\r\n  width: fit-content;\r\n}\r\n/* 安装按钮 */\r\n.install-link {\r\n  border-radius: 0.25rem 0.25rem 0.25rem 0.25rem !important;\r\n}\r\n.install-link:has(+ .install-help-link) {\r\n  border-radius: 0.25rem 0 0 0.25rem !important;\r\n}\r\n/* 加载圆圈动画 */\r\n.install-link.lum-lightbox-loader {\r\n  position: relative;\r\n  min-width: 4rem;\r\n  min-height: 1rem;\r\n}\r\n.install-link.lum-lightbox-loader::before {\r\n  margin-left: 1rem;\r\n}\r\n.install-link.lum-lightbox-loader::after {\r\n  margin-right: 1rem;\r\n}\r\n.install-link.lum-lightbox-loader::before,\r\n.install-link.lum-lightbox-loader::after {\r\n  width: 1em;\r\n  height: 1em;\r\n  margin-top: -0.5em;\r\n  border-radius: 1em !important;\r\n  background: hsla(0, 0%, 100%, 0.5);\r\n}\r\n\r\n@media (prefers-color-scheme: dark) {\r\n  ol.script-list {\r\n    --shadow-color: #3d3d3d;\r\n    --border-color: #3d3d3d;\r\n  }\r\n}\r\n';
+    '.sidebarred-main-content {\r\n  max-width: unset;\r\n  flex: unset;\r\n}\r\nol.script-list {\r\n  /*display: flex;\r\n  flex-wrap: wrap;*/\r\n  border: none;\r\n  gap: 20px;\r\n  background: transparent;\r\n  box-shadow: none;\r\n  --shadow-color: #dddddd;\r\n  --border-color: #dddddd;\r\n}\r\nol.script-list li {\r\n  /*flex: 1 1 45%;*/\r\n  border: 1px solid var(--border-color);\r\n  border-radius: 5px;\r\n  box-shadow: var(--shadow-color) 0px 0px 5px 2px;\r\n}\r\nol.script-list .script-description {\r\n  overflow-wrap: anywhere;\r\n}\r\n/* 收藏按钮 */\r\n.script-collect-btn {\r\n  color: #ffffff;\r\n  border-color: #409eff;\r\n  background-color: #409eff;\r\n}\r\n/* 评分按钮 */\r\n.script-list-rating-score[data-position="right"] {\r\n  display: inline-block;\r\n  min-width: 1em;\r\n  text-align: center;\r\n  padding: 0 0.25em;\r\n  border: 1px solid #dddddd;\r\n  border-radius: 10px;\r\n  width: fit-content;\r\n}\r\n/* 安装按钮 */\r\n.install-link {\r\n  border-radius: 0.25rem 0.25rem 0.25rem 0.25rem !important;\r\n}\r\n.install-link:has(+ .install-help-link) {\r\n  border-radius: 0.25rem 0 0 0.25rem !important;\r\n}\r\n/* 加载圆圈动画 */\r\n.install-link.lum-lightbox-loader {\r\n  position: relative;\r\n  min-width: 4rem;\r\n  min-height: 1rem;\r\n}\r\n.install-link.lum-lightbox-loader::before {\r\n  margin-left: 1rem;\r\n}\r\n.install-link.lum-lightbox-loader::after {\r\n  margin-right: 1rem;\r\n}\r\n.install-link.lum-lightbox-loader::before,\r\n.install-link.lum-lightbox-loader::after {\r\n  width: 1em;\r\n  height: 1em;\r\n  margin-top: -0.5em;\r\n  border-radius: 1em !important;\r\n  background: hsla(0, 0%, 100%, 0.5);\r\n}\r\n\r\n@media (prefers-color-scheme: dark) {\r\n  ol.script-list {\r\n    --shadow-color: #3d3d3d;\r\n    --border-color: #3d3d3d;\r\n  }\r\n}\r\n/* 仅桌面端为双列 */\r\n/* 移动端的宽度不适用双列 */\r\n@media screen and (min-width: 768px) {\r\n  ol.script-list {\r\n    display: grid;\r\n    grid-template-columns: repeat(auto-fill, minmax(45%, 1fr));\r\n  }\r\n}\r\n';
   const GreasyforkCheckVersion = {
     getTampermonkey: () => {
       return _unsafeWindow.external?.Tampermonkey;

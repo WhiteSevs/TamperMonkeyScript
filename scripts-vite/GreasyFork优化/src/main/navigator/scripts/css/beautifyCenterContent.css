@@ -3,8 +3,8 @@
   flex: unset;
 }
 ol.script-list {
-  display: flex;
-  flex-wrap: wrap;
+  /*display: flex;
+  flex-wrap: wrap;*/
   border: none;
   gap: 20px;
   background: transparent;
@@ -12,14 +12,14 @@ ol.script-list {
   --shadow-color: #dddddd;
   --border-color: #dddddd;
 }
-ol.script-list .script-description {
-  overflow-wrap: anywhere;
-}
 ol.script-list li {
+  /*flex: 1 1 45%;*/
   border: 1px solid var(--border-color);
   border-radius: 5px;
-  flex: 1 1 45%;
   box-shadow: var(--shadow-color) 0px 0px 5px 2px;
+}
+ol.script-list .script-description {
+  overflow-wrap: anywhere;
 }
 /* 收藏按钮 */
 .script-collect-btn {
@@ -69,5 +69,13 @@ ol.script-list li {
   ol.script-list {
     --shadow-color: #3d3d3d;
     --border-color: #3d3d3d;
+  }
+}
+/* 仅桌面端为双列 */
+/* 移动端的宽度不适用双列 */
+@media screen and (min-width: 768px) {
+  ol.script-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(45%, 1fr));
   }
 }

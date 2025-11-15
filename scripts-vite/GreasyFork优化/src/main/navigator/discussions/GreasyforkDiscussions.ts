@@ -143,11 +143,17 @@ export const GreasyforkForum = {
                 )}$">${i18next.t("脚本名：{{text}}", {
                   text: discussionInfo.scriptName,
                 })}</button>
-								<button ${attr_filter_key}="postUserId" ${attr_filter_value}="^${utils.toRegExpStr(
-                  discussionInfo.postUserId!
-                )}$">${i18next.t("发布的用户id：{{text}}", {
-                  text: discussionInfo.postUserId,
-                })}</button>
+                ${
+                  discussionInfo.postUserId != null
+                    ? /*html*/ `
+                  <button ${attr_filter_key}="postUserId" ${attr_filter_value}="^${utils.toRegExpStr(
+                    discussionInfo.postUserId!
+                  )}$">${i18next.t("发布的用户id：{{text}}", {
+                    text: discussionInfo.postUserId,
+                  })}</button>
+                `
+                    : ""
+                }
 							`,
             html: true,
           },
