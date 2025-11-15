@@ -130,7 +130,7 @@ export const BlockTopNavigator = {
     result.push(
       addStyle(/*css*/ `
 				#slidelist .page-recommend-container{
-          --recommend-video-container-margin-height: 6px;
+          --recommend-video-container-margin-height: 0px;
 					margin: var(--recommend-video-container-margin-height) 0px !important;
 					height: calc(100vh - calc(var(--recommend-video-container-margin-height) * 2)) !important;
 					height: calc(100dvh - calc(var(--recommend-video-container-margin-height) * 2)) !important;
