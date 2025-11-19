@@ -29,12 +29,10 @@ const log = new utils.Log(GM_info, unsafeWindow.console || monkeyWindow.console)
  * 脚本名
  */
 const SCRIPT_NAME = GM_info?.script?.name || import.meta.env.SCRIPT_NAME;
-
 /**
  * 手势库
  */
 const AnyTouch = pops.config.Utils.AnyTouch();
-
 /**
  * 是否为调试模式
  *
@@ -49,6 +47,7 @@ log.config({
   autoClearConsole: true,
   tag: true,
 });
+
 // 配置Toast
 Qmsg.config({
   isHTML: true,
@@ -120,8 +119,10 @@ __pops__.GlobalConfig.setGlobalConfig({
   drag: true,
 });
 
-/** 油猴菜单 */
-const GM_Menu = new utils.GM_Menu({
+/**
+ * 油猴菜单注册器
+ */
+const MenuRegister = new utils.GM_Menu({
   GM_getValue,
   GM_setValue,
   GM_registerMenuCommand,
@@ -185,6 +186,7 @@ const $$ = DOMUtils.selectorAll.bind(DOMUtils);
  * Vue的根元素的id
  */
 const VUE_ROOT_ID = "vite-app";
+
 /**
  * 注册vue、element-plus、element-plus/icons-vue
  * @param rootComponent vue实例
@@ -240,7 +242,7 @@ export {
   domUtils as DOMUtils,
   __pops__ as pops,
   log,
-  GM_Menu,
+  MenuRegister,
   SCRIPT_NAME,
   OriginPrototype,
   httpx,
@@ -248,7 +250,7 @@ export {
   $,
   $$,
   MountVue,
-  VUE_ROOT_ID as VUE_ELE_NAME_ID,
+  VUE_ROOT_ID,
   DEBUG,
   cookieManager,
   AnyTouch,

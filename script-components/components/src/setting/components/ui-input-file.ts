@@ -1,52 +1,63 @@
-import type {
-  PopsPanelInputConfig,
-  PopsPanelInputStringType,
-} from "@whitesev/pops/dist/types/src/components/panel/types/components-input";
+import type { PopsPanelInputConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-input";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, PROPS_STORAGE_API } from "../panel-config";
 import { Panel } from "../panel";
 import { PanelComponents, type PanelComponentsStorageApiValue } from "../panel-components";
 
 /**
- * 输入框的配置
+ * 密码输入框的配置
  * @param text 左边的文字
  * @param key 键
  * @param defaultValue 默认值
  * @param description （可选）左边的文字下面的描述
  * @param changeCallback （可选）输入框内容改变时的回调，如果返回true，则阻止默认行为（存储值）
  * @param placeholder （可选）输入框的默认提示内容
- * @param inputType （可选）输入框的类型
  * @param afterAddToUListCallBack （可选）
  * @param valueChangeCallback （可选）输入框内容改变且成功存储值后的回调
+ * @param accept （可选）文件上传的格式
+ * @param isMultiple （可选）是否允许多文件上传
  */
-export const UIInput = function (
+export const UIInputPassword = function (
   text: string,
   key: string,
-  defaultValue: number | string,
+  defaultValue: string | number,
   description?: string,
   changeCallback?: (
-    /** 输入框事件 */
+    /**
+     * 输入框事件
+     */
     event: InputEvent,
-    /** 输入框的值 */
-    value: string,
-    /** 是否通过验证 */
-    isValid: boolean
+    /**
+     * 上传的文件
+     */
+    value: FileList | null,
+    /**
+     * 文件上传的input元素
+     */
+    $input: HTMLInputElement
   ) => void | boolean,
   placeholder: string = "",
-  inputType: PopsPanelInputStringType = "text",
   afterAddToUListCallBack?: PopsPanelInputConfig["afterAddToUListCallBack"],
   valueChangeCallback?: (
-    /** 输入框事件 */
+    /**
+     * 输入框事件
+     */
     event: InputEvent,
-    /** 输入框的值 */
-    value: string,
-    /** 是否通过验证 */
-    isValid: boolean
-  ) => void | boolean
+    /**
+     * 上传的文件
+     */
+    value: FileList | null,
+    /**
+     * 文件上传的input元素
+     */
+    $input: HTMLInputElement
+  ) => void | boolean,
+  accept: string = "",
+  isMultiple: boolean = false
 ) {
   const result: PopsPanelInputConfig = {
     text: text,
     type: "input",
-    inputType: inputType,
+    inputType: "file",
     attributes: {},
     props: {},
     description: description,
@@ -58,11 +69,11 @@ export const UIInput = function (
       ] as PanelComponentsStorageApiValue;
       return storageApiValue.get<any>(key, defaultValue);
     },
-    callback(event, value) {
+    callback(event) {
       const $input = event.target as HTMLInputElement;
-      const isValid = $input.validity.valid;
+      const files = $input.files;
       if (typeof changeCallback === "function") {
-        const result = changeCallback(event, value, isValid);
+        const result = changeCallback(event, files, $input);
         if (result) {
           return;
         }
@@ -70,11 +81,15 @@ export const UIInput = function (
       const storageApiValue = this.props![
         PROPS_STORAGE_API as keyof typeof this.props
       ] as PanelComponentsStorageApiValue;
-      storageApiValue.set(key, value);
+      storageApiValue.set(key, files);
 
       if (typeof valueChangeCallback === "function") {
-        valueChangeCallback(event, value, isValid);
+        valueChangeCallback(event, files, $input);
       }
+    },
+    handlerCallBack($li, $input) {
+      $input.accept = accept;
+      $input.multiple = isMultiple;
     },
   };
   Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);

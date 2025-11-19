@@ -1,5 +1,5 @@
 import type { UtilsGMMenuOption } from "@whitesev/utils/dist/types/src/types/UtilsGMMenu";
-import { GM_Menu } from "../base.env";
+import { MenuRegister } from "../base.env";
 import { Panel } from "./panel";
 import { PanelContent } from "./panel-content";
 
@@ -37,7 +37,7 @@ export const PanelMenu = {
       /* 不允许在iframe内重复注册 */
       return;
     }
-    GM_Menu.add(this.$data.menuOption);
+    MenuRegister.add(this.$data.menuOption);
   },
   /**
    * 添加菜单项

@@ -17,7 +17,7 @@ export type UIOwnSearchConfig = {
 };
 /**
  * 自定义配置
- * @param getLiElementCallBack
+ * @param createLIElement
  * @param initConfig （可选）初始化的配置，{"键": "默认值", "键2": "默认值2"}
  * @param searchConfig （可选）搜索配置项，用于搜索插件进行搜索内容
  * @param attr （可选）元素的属性
@@ -25,26 +25,25 @@ export type UIOwnSearchConfig = {
  * @param afterAddToUListCallBack （可选）在添加到元素后触发该回调
  */
 export const UIOwn = function (
-  getLiElementCallBack: ($li: HTMLLIElement) => HTMLLIElement,
+  createLIElement: ($li: HTMLLIElement) => HTMLLIElement,
   initConfig?: { [key: string]: any },
   searchConfig?: UIOwnSearchConfig,
   attr?: {
     [key: string]: string | number | boolean;
   },
-  props?:
-    | {
-        [K in keyof HTMLElement]?: HTMLElement[K];
-      }
-    | undefined,
-  afterAddToUListCallBack?:
-    | ((viewConfig: PopsPanelOwnConfig, containerOption: PopsPanelRightAsideContainerConfig) => void)
-    | undefined
+  props?: {
+    [K in keyof HTMLElement]?: HTMLElement[K];
+  },
+  afterAddToUListCallBack?: (
+    viewConfig: PopsPanelOwnConfig,
+    containerOption: PopsPanelRightAsideContainerConfig
+  ) => void
 ): PopsPanelOwnConfig {
   const result: PopsPanelOwnConfig = {
     type: "own",
     attributes: attr || {},
     props: props || {},
-    getLiElementCallBack: getLiElementCallBack,
+    createLIElement: createLIElement,
     afterAddToUListCallBack: afterAddToUListCallBack,
   };
 
