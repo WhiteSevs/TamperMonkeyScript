@@ -235,6 +235,9 @@ class CommonUtil {
   toJSON<T = any>(data: string | null, errorCallBack?: (error: Error) => void): T;
   toJSON<T = any>(data: string | null, errorCallBack?: (error: Error) => void): T {
     let result: any = {};
+    if (data == null) {
+      return result as T;
+    }
     if (typeof data === "object") {
       return data as T;
     }
