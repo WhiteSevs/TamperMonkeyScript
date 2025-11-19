@@ -8,7 +8,9 @@ import type { PopsPanelConfig } from "./components/panel/types";
 import type { PopsPromptConfig } from "./components/prompt/types/index";
 import type { PopsRightClickMenuConfig } from "./components/rightClickMenu/types";
 import type { PopsSearchSuggestionConfig } from "./components/searchSuggestion/types/index";
+import { PopsTooltip } from "./components/tooltip";
 import type { PopsToolTipConfig } from "./components/tooltip/types/index";
+import { popsUtils } from "./utils/PopsUtils";
 declare class Pops {
     /** 配置 */
     config: {
@@ -31,18 +33,19 @@ declare class Pops {
             folderCSS: string;
             panelCSS: string;
             rightClickMenu: string;
+            panelComponents_Select: string;
         };
         /** icon图标的svg代码 */
         iconSVG: {
             loading: string;
             min: string;
             max: string;
+            search: string;
             mise: string;
             close: string;
             edit: string;
             share: string;
             delete: string;
-            search: string;
             upload: string;
             next: string;
             prev: string;
@@ -263,23 +266,371 @@ declare class Pops {
             setElementProps($el: HTMLElement, props?: any): void;
             setElementClassName($el: HTMLElement, className?: import("./components/panel/types/components-common").PopsPanelGeneralConfig<any>["className"]): void;
             createBottomItem(bottomItemConfig: import("./components/panel/types").PopsPanelBottomContentConfig): HTMLLIElement;
-            setBottomItemClickEvent($bottomItem: HTMLElement, bottomItemConfig: import("./components/panel/types").PopsPanelBottomContentConfig): void;
+            onBottomItemClick($bottomItem: HTMLElement, bottomItemConfig: import("./components/panel/types").PopsPanelBottomContentConfig): void;
             createAsideItem(asideConfig: import("./components/panel/types").PopsPanelContentConfig): HTMLLIElement;
-            createSectionContainerItem_switch(viewConfig: import("./components/panel/types/components-switch").PopsPanelSwitchConfig): HTMLLIElement;
-            createSectionContainerItem_slider(viewConfig: import("./components/panel/types/components-slider").PopsPanelSliderConfig): HTMLLIElement;
-            createSectionContainerItem_slider_new(viewConfig: import("./components/panel/types/components-slider").PopsPanelSliderConfig): HTMLLIElement;
-            createSectionContainerItem_input(viewConfig: import("./components/panel/types/components-input").PopsPanelInputConfig): HTMLLIElement;
-            createSectionContainerItem_textarea(viewConfig: import("./components/panel/types/components-textarea").PopsPanelTextAreaConfig): HTMLLIElement;
-            createSectionContainerItem_select(viewConfig: import("./components/panel/types/components-select").PopsPanelSelectConfig<any>): HTMLLIElement;
-            createSectionContainerItem_select_multiple(viewConfig: import("./components/panel/types/components-selectMultiple").PopsPanelSelectMultipleConfig<any>): HTMLLIElement;
-            createSectionContainerItem_button(viewConfig: import("./components/panel/types/components-button").PopsPanelButtonConfig): HTMLLIElement;
-            createSectionContainerItem_deepMenu(viewConfig: import("./components/panel/types/components-deepMenu").PopsPanelDeepViewConfig): HTMLLIElement;
-            createSectionContainerItem_own(viewConfig: import("./components/panel/types/components-own").PopsPanelOwnConfig): HTMLLIElement;
-            createSectionContainerItem(viewConfig: import("./components/panel/types").PopsPanelViewConfig): HTMLLIElement | undefined;
+            createSectionContainerItem_switch(viewConfig: import("./components/panel/types/components-switch").PopsPanelSwitchConfig): {
+                $el: HTMLLIElement;
+                handler: {
+                    [Symbol.toStringTag]: string;
+                    $data: {
+                        value: boolean;
+                    };
+                    $ele: {
+                        itemLeftTextContainer: HTMLElement | null;
+                        switch: HTMLDivElement;
+                        input: HTMLInputElement;
+                        core: HTMLSpanElement;
+                    };
+                    init(): void;
+                    onClick(): void;
+                    setStatus(isChecked?: boolean): void;
+                    getStatus(): boolean;
+                    disable(): void;
+                    notDisable(): void;
+                };
+            };
+            createSectionContainerItem_slider_new(viewConfig: import("./components/panel/types/components-slider").PopsPanelSliderConfig): {
+                $el: HTMLLIElement;
+                handler: {
+                    [Symbol.toStringTag]: string;
+                    value: number;
+                    min: number;
+                    max: number;
+                    step: number;
+                    $data: {
+                        isMove: boolean;
+                        isInitDragPosition: boolean;
+                        isCheckingStopDragMove: boolean;
+                        totalWidth: number;
+                        stepPx: number;
+                        dragWidth: number;
+                        dragPercent: number;
+                        stepBlockMap: Map<number, {
+                            value: number;
+                            px: number;
+                            pxLeft: number;
+                            pxRight: number;
+                            percent: number;
+                        }>;
+                        tooltip: ReturnType<typeof PopsTooltip.init>;
+                    };
+                    $ele: {
+                        itemLeftTextContainer: HTMLElement | null;
+                        slider: HTMLElement;
+                        runAway: HTMLElement;
+                        bar: HTMLElement;
+                        buttonWrapper: HTMLElement;
+                        button: HTMLElement;
+                    };
+                    $interval: {
+                        isCheck: boolean;
+                    };
+                    $tooltip: ReturnType<typeof popsUtils.AnyTouch>["prototype"];
+                    init(): void;
+                    intervalInit(checkStepTime?: number, maxTime?: number): void;
+                    initEleData(): void;
+                    initTotalWidth(): void;
+                    initStepMap(): void;
+                    initFloatStepMap(): void;
+                    initSliderPosition(): void;
+                    isFloat(num: number): boolean;
+                    valueChangeCallBack(event: any, value: number): void;
+                    getDragInfo(dragX: number): {
+                        value: number;
+                        px: number;
+                        pxLeft: number;
+                        pxRight: number;
+                        percent: number;
+                    } | undefined;
+                    getSliderPositonPercent(dragWidth: number): number;
+                    formatValue(num: number): number;
+                    setSliderPosition(percent: number): void;
+                    disableDrag(): void;
+                    allowDrag(): void;
+                    isDisabledDrag(): boolean;
+                    isDisabledDragWithConfig(): boolean;
+                    onRunAwayClick(): void;
+                    dragStartCallBack(): boolean;
+                    dragMoveCallBack(event: any, dragX: number, oldValue: number): void;
+                    dragEndCallBack(dragX: number): void;
+                    setPanEvent(): void;
+                    showToolTip(): void;
+                    closeToolTip(): void;
+                    checkStopDragMove(): void;
+                    setToolTipEvent(): void;
+                };
+            };
+            createSectionContainerItem_input(viewConfig: import("./components/panel/types/components-input").PopsPanelInputConfig): {
+                $el: HTMLLIElement;
+                handler: {
+                    [Symbol.toStringTag]: string;
+                    $el: {
+                        itemLeftTextContainer: HTMLElement | null;
+                        panelInput: HTMLDivElement;
+                        panelInputInner: HTMLDivElement;
+                        input: HTMLInputElement;
+                        suffix: HTMLSpanElement;
+                        suffixInner: HTMLSpanElement;
+                        icon: HTMLElement;
+                    };
+                    $data: {
+                        value: string | number | Date;
+                        isVisible: boolean;
+                    };
+                    init(): void;
+                    initEle(): void;
+                    isTextInputType(): boolean;
+                    isDateInputType(): boolean;
+                    isNumberInputType(): boolean;
+                    disable(): void;
+                    notDisable(): void;
+                    isDisabled(): boolean;
+                    setInputValue(value?: string | number | Date): void;
+                    setInputType(typeValue?: import("./components/panel/types/components-input").PopsPanelInputType): void;
+                    removeCircleIcon(): void;
+                    setCircleIcon(svgHTML?: string): void;
+                    hideCircleIconWrapper(): void;
+                    showCircleIconWrapper(): void;
+                    onIconClick(): void;
+                    onValueChange(): void;
+                    triggerValueChange(): void;
+                    addValidErrorMsg(msg?: string): void;
+                    removeValidErrorMsg(): void;
+                };
+            };
+            createSectionContainerItem_textarea(viewConfig: import("./components/panel/types/components-textarea").PopsPanelTextAreaConfig): {
+                $el: HTMLLIElement;
+                handler: {
+                    [Symbol.toStringTag]: string;
+                    $ele: {
+                        itemLeftTextContainer: HTMLElement | null;
+                        panelTextarea: HTMLDivElement;
+                        textarea: HTMLTextAreaElement;
+                    };
+                    $data: {
+                        value: string;
+                    };
+                    init(): void;
+                    disable(): void;
+                    notDisable(): void;
+                    isDisabled(): boolean;
+                    setValue(value: string): void;
+                    onValueChange(): void;
+                };
+            };
+            createSectionContainerItem_select(viewConfig: import("./components/panel/types/components-select").PopsPanelSelectConfig<any>): {
+                $el: HTMLLIElement;
+                handler: {
+                    [Symbol.toStringTag]: string;
+                    $el: {
+                        itemLeftTextContainer: HTMLElement | null;
+                        $container: HTMLElement;
+                        $wrapper: HTMLElement;
+                        $section: HTMLElement;
+                        $selectedInputWrapper: HTMLElement;
+                        $selectedPlaceHolderWrapper: HTMLElement;
+                        $suffix: HTMLElement;
+                        $suffixIcon: HTMLElement;
+                        $selectDialogContainer: HTMLElement | null;
+                    };
+                    $data: {
+                        data: import("./components/panel/types/components-select").PopsPanelSelectDataOption<any>[];
+                        defaultValue: any;
+                        selectedData: import("./components/panel/types/components-select").PopsPanelSelectDataOption<any> | undefined;
+                        isValidSuccess: boolean;
+                        rotateKey: string;
+                    };
+                    init(): void;
+                    initDefault(): void;
+                    initEl(): void;
+                    initPlaceHolder(): void;
+                    renderSelectText(): void;
+                    disable(): void;
+                    cancleDisable(): void;
+                    isDisabled(): boolean;
+                    onShowSelectDialogClick(): void;
+                    onValueChangeCallback(data?: import("./components/panel/types/components-select").PopsPanelSelectDataOption<any>, isUpdateSelectItem?: boolean): void;
+                    updateAllSelectItemStatus(): void;
+                    resetAllSelectedItemStatus(): void;
+                    setItemSelected($el: HTMLElement): void;
+                    removeItemSelected($el: HTMLElement): void;
+                    isItemSelected($el: HTMLElement): boolean;
+                    addSelectedItemInfo(data: import("./components/panel/types/components-select").PopsPanelSelectDataOption<any>): void;
+                    getItemDataOption($el: HTMLElement): import("./components/panel/types/components-select").PopsPanelSelectDataOption<any>;
+                    removeSelectedItemInfo(): void;
+                    updateSelectedInfo(data?: import("./components/panel/types/components-select").PopsPanelSelectDataOption<any>): void;
+                    resetCurrentSelectedInfo(): void;
+                    getAllSelectItems(onlySelected?: boolean): {
+                        data: import("./components/panel/types/components-select").PopsPanelSelectDataOption<any>;
+                        $select: HTMLElement;
+                    }[];
+                    createSelectItemElement(data: import("./components/panel/types/components-select").PopsPanelSelectDataOption<any>): HTMLLIElement;
+                    setSelectItemText(data: import("./components/panel/types/components-select").PopsPanelSelectDataOption<any>, $select: HTMLElement): void;
+                    setSelectItemDisabled($select: HTMLElement): void;
+                    removeSelectItemDisabled($select: HTMLElement): void;
+                    isSelectItemDisabled($select: HTMLElement): string | true | null;
+                    onSelectItemClick(data: import("./components/panel/types/components-select").PopsPanelSelectDataOption<any> | undefined, $select: HTMLElement): void;
+                    showInputWrapper(): void;
+                    hideInputWrapper(): void;
+                    showPlaceHolderWrapper(): void;
+                    hidePlaceHolderWrapper(): void;
+                } | {
+                    [Symbol.toStringTag]: string;
+                    $el: {
+                        itemLeftTextContainer: HTMLElement | null;
+                        panelSelect: HTMLDivElement;
+                        select: HTMLSelectElement;
+                    };
+                    $eleKey: {
+                        disable: string;
+                        value: string;
+                        viewConfig: string;
+                    };
+                    $data: {
+                        data: import("./components/panel/types/components-select").PopsPanelSelectDataOption<any>[];
+                        defaultValue: any;
+                    };
+                    init(): void;
+                    setNodeValue($ele: HTMLElement, key: string, value: any): void;
+                    getNodeValue($ele: HTMLElement, key: string): any;
+                    disable(): void;
+                    notDisable(): void;
+                    isDisabled(): boolean;
+                    initOption(): void;
+                    setOptionSelected($option: HTMLOptionElement): void;
+                    setSelectOptionsDisableStatus(): void;
+                    setOptionDisableStatus($option: HTMLOptionElement): void;
+                    getSelectOptionInfo($option: HTMLOptionElement): {
+                        value: any;
+                        text: string;
+                        views: NonNullable<IFunction<(import("./components/panel/types").PopsPanelViewConfig | import("./components/panel/types/components-container").PopsPanelContainerConfig)[]> | undefined>;
+                        $option: HTMLOptionElement;
+                    };
+                    onValueChange(): void;
+                    onClick(): void;
+                };
+            };
+            createSectionContainerItem_select_multiple(viewConfig: import("./components/panel/types/components-selectMultiple").PopsPanelSelectMultipleConfig<any>): {
+                $el: HTMLLIElement;
+                handler: {
+                    [Symbol.toStringTag]: string;
+                    $el: {
+                        itemLeftTextContainer: HTMLElement | null;
+                        $container: HTMLElement;
+                        $wrapper: HTMLElement;
+                        $section: HTMLElement;
+                        $selectedInputWrapper: HTMLElement;
+                        $selectedPlaceHolderWrapper: HTMLElement;
+                        $suffix: HTMLElement;
+                        $suffixIcon: HTMLElement;
+                        $selectContainer: HTMLElement | null;
+                    };
+                    $data: {
+                        defaultValue: any[];
+                        selectedDataList: import("./components/panel/types/components-selectMultiple").PopsPanelSelectMultipleDataOption<any>[];
+                        rotateKey: string;
+                    };
+                    init(): void;
+                    initDefault(): void;
+                    inintEl(): void;
+                    initPlaceHolder(): void;
+                    initTagElement(): void;
+                    createTagItem(data: import("./components/panel/types/components-selectMultiple").PopsPanelSelectMultipleDataOption<any>): {
+                        $tag: HTMLDivElement;
+                        $tagText: HTMLSpanElement;
+                        $closeIcon: HTMLElement;
+                    };
+                    addTagItem($tag: HTMLElement): void;
+                    updateTagItem(): void;
+                    onValueChange(selectedDataList?: import("./components/panel/types/components-selectMultiple").PopsPanelSelectMultipleDataOption<any>[]): void;
+                    updateAllSelectItems(): void;
+                    setItemSelected($select: HTMLElement): void;
+                    removeItemSelected($select: HTMLElement): void;
+                    isItemSelected($select: HTMLElement): boolean;
+                    addItemSelected(dataList: import("./components/panel/types/components-selectMultiple").PopsPanelSelectMultipleDataOption<any>[], $select: HTMLElement): void;
+                    getSelectedItemInfo($select: HTMLElement): import("./components/panel/types/components-selectMultiple").PopsPanelSelectMultipleDataOption<any>;
+                    removeSelectedItemInfo(dataList: import("./components/panel/types/components-selectMultiple").PopsPanelSelectMultipleDataOption<any>[], $select: HTMLElement): void;
+                    getAllSelectItemInfo(onlySelected?: boolean): {
+                        data: import("./components/panel/types/components-selectMultiple").PopsPanelSelectMultipleDataOption<any>;
+                        $select: HTMLElement;
+                    }[];
+                    createSelectItemElement(data: import("./components/panel/types/components-selectMultiple").PopsPanelSelectMultipleDataOption<any>): HTMLLIElement;
+                    setSelectItemText(data: import("./components/panel/types/components-selectMultiple").PopsPanelSelectMultipleDataOption<any>, $select: HTMLElement): void;
+                    disableSelectItem($select: HTMLElement): void;
+                    cancleDisableSelectItem($select: HTMLElement): void;
+                    isSelectItemDisabled($select: HTMLElement): string | true | null;
+                    onSelectItemClick(dataList: import("./components/panel/types/components-selectMultiple").PopsPanelSelectMultipleDataOption<any>[], $select: HTMLElement): void;
+                    onShowSelectDialogClick(): void;
+                    onSelectItemCloseIconClick(data: {
+                        $closeIcon: HTMLElement;
+                        $tag: HTMLElement;
+                        value: import("./components/panel/types/components-selectMultiple").PopsPanelSelectMultipleDataOption<any>["value"];
+                        text: import("./components/panel/types/components-selectMultiple").PopsPanelSelectMultipleDataOption<any>["text"];
+                    }): void;
+                    checkTagEmpty(): void;
+                    removeSelectedTagItem($tag: HTMLElement): void;
+                    removeSelectedInfo(data: import("./components/panel/types/components-selectMultiple").PopsPanelSelectMultipleDataOption<any>, triggerValueChangeCallBack?: boolean): void;
+                    showInputWrapper(): void;
+                    hideInputWrapper(): void;
+                    showPlaceHolderWrapper(): void;
+                    hidePlaceHolderWrapper(): void;
+                    setSectionIsNear(): void;
+                    removeSectionIsNear(): void;
+                    disable(): void;
+                    isDisabled(): boolean;
+                    cancleDisable(): void;
+                };
+            };
+            createSectionContainerItem_button(viewConfig: import("./components/panel/types/components-button").PopsPanelButtonConfig): {
+                $el: HTMLLIElement;
+                handler: {
+                    [Symbol.toStringTag]: string;
+                    $ele: {
+                        panelButton: HTMLDivElement;
+                        button: HTMLDivElement;
+                        icon: HTMLDivElement;
+                        spanText: HTMLDivElement;
+                    };
+                    $data: {};
+                    init(): void;
+                    initButton(): void;
+                    disable(): void;
+                    notDisable(): void;
+                    hideIcon(): void;
+                    showIcon(): void;
+                    setIconSVG(svgHTML: string): void;
+                    setIconLoadingStatus(status: any): void;
+                    setHasIcon(value: any): void;
+                    setButtonType(typeValue: string): void;
+                    setIconRight(): void;
+                    setIconLeft(): void;
+                    setButtonText(text: string): void;
+                    onButtonClick(): void;
+                };
+            };
+            createSectionContainerItem_deepMenu(viewConfig: import("./components/panel/types/components-deepMenu").PopsPanelDeepViewConfig): {
+                $el: HTMLLIElement;
+                handler: {
+                    [Symbol.toStringTag]: string;
+                    $ele: {
+                        readonly parentSection: HTMLElement;
+                    };
+                    init(): void;
+                    initContainerItem($container: HTMLElement, formItemConfig: import("./components/panel/types").PopsPanelViewConfig | import("./components/panel/types/components-container").PopsPanelContainerConfig): void;
+                    gotoDeepMenu(event: Event, liElement: HTMLLIElement): Promise<void>;
+                    onLiClick(): void;
+                };
+            };
+            createSectionContainerItem_own(viewConfig: import("./components/panel/types/components-own").PopsPanelOwnConfig): {
+                $el: HTMLLIElement;
+            };
+            createSectionContainerItem(viewConfig: import("./components/panel/types").PopsPanelViewConfig): {
+                $el: HTMLLIElement;
+            } | undefined;
             createSectionContainerItem_forms(viewConfig: import("./components/panel/types").PopsPanelContentConfig | import("./components/panel/types/components-container").PopsPanelContainerConfig): void;
             triggerRenderRightContainer($container: HTMLElement): void;
             uListContainerAddItem(viewConfig: import("./components/panel/types").PopsPanelViewConfig, containerOptions: Omit<import("./components/panel/types/components-common").PopsPanelRightAsideContainerConfig, "target">): void;
-            setAsideItemClickEvent($asideItem: HTMLElement, asideConfig: import("./components/panel/types").PopsPanelContentConfig): void;
+            onAsideItemClick($asideItem: HTMLElement, asideConfig: import("./components/panel/types").PopsPanelContentConfig): void;
         };
     };
     init(): void;

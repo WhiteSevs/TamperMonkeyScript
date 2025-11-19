@@ -27,8 +27,10 @@ export declare const PopsCSS: {
     drawerCSS: string;
     /** pops.folder */
     folderCSS: string;
-    /** pops.folder */
+    /** pops.panel */
     panelCSS: string;
     /** pops.rightClickMenu */
     rightClickMenu: string;
+    /** pops.panel的select组件 */
+    panelComponents_Select: string;
 };

@@ -6,7 +6,7 @@ import type { PopsPanelGeneralConfig } from "./components-common";
  */
 export interface PopsPanelDeepViewConfig extends PopsPanelGeneralConfig<PopsPanelDeepViewConfig> {
     /**
-     * 类型
+     * 组件类型
      */
     type: "deepMenu";
     /**

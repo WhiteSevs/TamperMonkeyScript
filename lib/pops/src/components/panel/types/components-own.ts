@@ -6,11 +6,11 @@ import type { PopsPanelGeneralConfig } from "./components-common";
  */
 export interface PopsPanelOwnConfig extends PopsPanelGeneralConfig<PopsPanelOwnConfig> {
   /**
-   * 类型
+   * 组件类型
    */
   type: "own";
   /**
-   * 获取自定义<li>标签元素
+   * 生成<li>标签元素
    */
-  getLiElementCallBack: (liElement: HTMLLIElement) => HTMLLIElement;
+  createLIElement($li: HTMLLIElement): HTMLLIElement;
 }

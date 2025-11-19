@@ -5,7 +5,7 @@ import type { PopsPanelGeneralConfig } from "./components-common";
  */
 export interface PopsPanelTextAreaConfig extends PopsPanelGeneralConfig<PopsPanelTextAreaConfig> {
   /**
-   * 类型
+   * 组件类型
    */
   type: "textarea";
   /**

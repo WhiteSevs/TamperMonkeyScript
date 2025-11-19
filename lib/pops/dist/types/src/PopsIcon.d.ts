@@ -3,12 +3,12 @@ export declare const PopsIcon: {
         loading: string;
         min: string;
         max: string;
+        search: string;
         mise: string;
         close: string;
         edit: string;
         share: string;
         delete: string;
-        search: string;
         upload: string;
         next: string;
         prev: string;

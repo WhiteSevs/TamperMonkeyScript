@@ -4,8 +4,7 @@ import type { PopsPanelGeneralConfig } from "./components-common";
  */
 export interface PopsPanelSliderConfig extends PopsPanelGeneralConfig<PopsPanelSliderConfig> {
     /**
-     * 类型
-     * @default "slider"
+     * 组件类型
      */
     type: "slider";
     /**
@@ -38,7 +37,7 @@ export interface PopsPanelSliderConfig extends PopsPanelGeneralConfig<PopsPanelS
     /**
      * 获取tooltip的提示内容，可自定义，默认为slider的值
      */
-    getToolTipContent?: (value: number) => string;
+    getToolTipContent?(value: number): string;
     /**
      * 滑块的最小值
      */

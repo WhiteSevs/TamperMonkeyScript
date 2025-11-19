@@ -35,9 +35,10 @@ export interface PopsPanelSelectMultipleDataOption<T> {
 /**
  * pops.panel的 select
  */
-export interface PopsPanelSelectMultipleConfig<T = any> extends PopsPanelGeneralConfig<PopsPanelSelectMultipleConfig> {
+export interface PopsPanelSelectMultipleConfig<T = any>
+  extends PopsPanelGeneralConfig<PopsPanelSelectMultipleConfig<T>> {
   /**
-   * 类型
+   * 组件类型
    */
   type: "select-multiple";
   /**
@@ -61,29 +62,19 @@ export interface PopsPanelSelectMultipleConfig<T = any> extends PopsPanelGeneral
    */
   getValue(): T[];
   /**
-   * 弹出的下拉列表弹窗的配置
-   */
-  selectConfirmDialogConfig?: Partial<PopsAlertConfig>;
-  /**
    * 选择器的值改变触发的回调函数
-   * @param event 事件
-   * @param isSelectedValue 当前选中的值，也就是元素属性上的__value__
-   * @param isSelectedText 当前选中的文本
+   * @param isSelectedInfo 当前已选中的信息
    */
-  callback?(
-    /** 当前已选中的信息 */
-    isSelectedInfo: PopsPanelSelectMultipleDataOption<any>[]
-  ): void;
+  callback?(isSelectedInfo: PopsPanelSelectMultipleDataOption<T>[]): void;
   /**
    * 点击某个项的元素触发该回调
    * @param event 点击事件
-   * @param selectElement 当前的选中的元素
    * @returns 如果返回boolean为false，则不会触发默认的点击事件
    */
   clickCallBack?(
     event: PointerEvent | MouseEvent,
     /** 当前已选中的信息 */
-    isSelectedInfo: PopsPanelSelectMultipleDataOption<any>[]
+    isSelectedInfo: PopsPanelSelectMultipleDataOption<T>[]
   ): void | boolean;
   /**
    * 点击标签tag的关闭图标触发该回调
@@ -103,7 +94,11 @@ export interface PopsPanelSelectMultipleConfig<T = any> extends PopsPanelGeneral
     }
   ) => void | boolean;
   /**
-   * 选择器内的数据组
+   * 选择列表内的数据
    */
   data: PopsPanelSelectMultipleDataOption<T>[];
+  /**
+   * 弹出的下拉列表弹窗的配置
+   */
+  selectConfirmDialogConfig?: Partial<PopsAlertConfig>;
 }

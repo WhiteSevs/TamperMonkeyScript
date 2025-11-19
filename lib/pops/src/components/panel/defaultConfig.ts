@@ -24,7 +24,6 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
             className: "forms-1",
             text: "区域设置",
             type: "container",
-            attributes: {},
             views: [
               {
                 className: "panel-switch",
@@ -32,11 +31,6 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
                 type: "switch",
                 disabled: false,
                 description: "",
-                afterAddToUListCallBack() {
-                  // TODO
-                },
-                props: {},
-                attributes: {},
                 getValue() {
                   return true;
                 },
@@ -49,17 +43,12 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
                 text: "slider",
                 type: "slider",
                 description: "",
-                afterAddToUListCallBack() {
-                  // TODO
-                },
                 disabled: false,
                 getToolTipContent(value) {
                   return String(value);
                 },
                 isShowHoverTip: true,
                 step: 1,
-                props: {},
-                attributes: {},
                 getValue() {
                   return 50;
                 },
@@ -76,11 +65,6 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
                 description: "",
                 disable: false,
                 buttonIsRightIcon: false,
-                props: {},
-                afterAddToUListCallBack() {
-                  // TODO
-                },
-                attributes: {},
                 buttonIcon: "view",
                 buttonIconIsLoading: true,
                 buttonType: "default",
@@ -93,8 +77,6 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
                 className: "panel-button",
                 text: "button",
                 type: "button",
-                props: {},
-                attributes: {},
                 buttonIcon: "eleme",
                 buttonIconIsLoading: true,
                 buttonType: "warning",
@@ -106,10 +88,7 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
               {
                 className: "panel-button",
                 text: "button",
-                // @ts-ignore
-                props: {},
                 type: "button",
-                attributes: {},
                 buttonIcon: "chromeFilled",
                 buttonIconIsLoading: true,
                 buttonType: "danger",
@@ -122,9 +101,6 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
                 className: "panel-button",
                 text: "button",
                 type: "button",
-                attributes: {},
-                // @ts-ignore
-                props: {},
                 buttonIcon: "upload",
                 buttonIconIsLoading: false,
                 buttonType: "info",
@@ -151,9 +127,6 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
             className: "panel-input",
             text: "input",
             type: "input",
-            isNumber: false,
-            props: {},
-            attributes: {},
             getValue() {
               return "50";
             },
@@ -164,11 +137,31 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
             placeholder: "请输入内容",
           },
           {
+            className: "panel-input-number",
+            text: "input-number",
+            type: "input",
+            inputType: "number",
+            getValue() {
+              return "50";
+            },
+            callback(event, value, valueAsNumber) {
+              popsDOMUtils.preventEvent(event);
+              console.log("输入框内容改变：", valueAsNumber);
+              if (valueAsNumber! > 60) {
+                return {
+                  valid: false,
+                  message: "输入值不能大于60，当前：" + value,
+                };
+              }
+            },
+            placeholder: "请输入内容",
+          },
+          {
             className: "panel-input-password",
             text: "input-password",
             type: "input",
-            props: {},
-            attributes: {},
+            inputType: "password",
+            placeholder: "请输入密码",
             getValue() {
               return "123456";
             },
@@ -176,15 +169,188 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
               popsDOMUtils.preventEvent(event);
               console.log("密码输入框内容改变：", value);
             },
-            isPassword: true,
+          },
+          {
+            className: "panel-input-file",
+            text: "input-file",
+            type: "input",
+            inputType: "file",
+            getValue() {
+              return "";
+            },
+            callback(event, value) {
+              popsDOMUtils.preventEvent(event);
+              console.log("内容改变：", value);
+            },
             placeholder: "请输入密码",
+          },
+          {
+            className: "panel-input-date",
+            text: "input-date",
+            type: "input",
+            inputType: "date",
+            placeholder: "请输入内容",
+            getValue() {
+              const date = new Date();
+              let hour = date.getHours().toString();
+              let minutes = date.getMinutes().toString();
+              if (hour.length === 1) {
+                hour = `0${hour}`;
+              }
+              if (minutes.length === 1) {
+                minutes = `0${minutes}`;
+              }
+              return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+            },
+            callback(event, value, valueAsNumber, valueAsDate) {
+              popsDOMUtils.preventEvent(event);
+              console.log("输入框内容改变：", value, valueAsNumber, valueAsDate);
+            },
+          },
+          {
+            className: "panel-input-datetime-local",
+            text: "input-datetime-local",
+            type: "input",
+            inputType: "datetime-local",
+            getValue() {
+              const date = new Date();
+              let hour = date.getHours().toString();
+              let minutes = date.getMinutes().toString();
+              if (hour.length === 1) {
+                hour = `0${hour}`;
+              }
+              if (minutes.length === 1) {
+                minutes = `0${minutes}`;
+              }
+              return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}T${hour}:${minutes}`;
+            },
+            callback(event, value, valueAsNumber, valueAsDate) {
+              popsDOMUtils.preventEvent(event);
+              console.log("输入框内容改变：", value, valueAsNumber, valueAsDate);
+            },
+            placeholder: "请输入内容",
+          },
+          {
+            className: "panel-input-time",
+            text: "input-time",
+            type: "input",
+            inputType: "time",
+            getValue() {
+              return "11:30";
+            },
+            callback(event, value, valueAsNumber, valueAsDate) {
+              popsDOMUtils.preventEvent(event);
+              console.log("输入框内容改变：", value, valueAsNumber, valueAsDate);
+            },
+            placeholder: "请输入内容",
+          },
+          {
+            className: "panel-input-month",
+            text: "input-month",
+            type: "input",
+            inputType: "month",
+            getValue() {
+              const date = new Date();
+              return `${date.getFullYear()}-${date.getMonth() + 1}`;
+            },
+            callback(event, value, valueAsNumber, valueAsDate) {
+              popsDOMUtils.preventEvent(event);
+              console.log("输入框内容改变：", value, valueAsNumber, valueAsDate);
+            },
+            placeholder: "请输入内容",
+          },
+          {
+            className: "panel-input-week",
+            text: "input-week",
+            type: "input",
+            inputType: "week",
+            getValue() {
+              const date = new Date();
+              return `${date.getFullYear()}-W01`;
+            },
+            callback(event, value, valueAsNumber, valueAsDate) {
+              popsDOMUtils.preventEvent(event);
+              console.log("输入框内容改变：", value, valueAsNumber, valueAsDate);
+            },
+            placeholder: "请输入内容",
+          },
+          {
+            className: "panel-input-search",
+            text: "input-search",
+            type: "input",
+            inputType: "search",
+            getValue() {
+              return "search test";
+            },
+            callback(event, value) {
+              popsDOMUtils.preventEvent(event);
+              console.log("输入框内容改变：", value);
+            },
+            placeholder: "请输入内容",
+          },
+          {
+            className: "panel-input-color",
+            text: "input-color",
+            type: "input",
+            inputType: "color",
+            getValue() {
+              return "#ff0000";
+            },
+            callback(event, value) {
+              popsDOMUtils.preventEvent(event);
+              console.log("输入框内容改变：", value);
+            },
+            placeholder: "请输入内容",
+          },
+          {
+            className: "panel-input-email",
+            text: "input-email",
+            type: "input",
+            inputType: "email",
+            getValue() {
+              return "test@gmail.com";
+            },
+            callback(event, value) {
+              popsDOMUtils.preventEvent(event);
+              const $input = event.target as HTMLInputElement;
+              console.log("输入框内容改变：", value, $input.validity);
+            },
+            placeholder: "请输入内容",
+          },
+          {
+            className: "panel-input-tel",
+            text: "input-tel",
+            type: "input",
+            inputType: "tel",
+            getValue() {
+              return "11111111111";
+            },
+            callback(event, value) {
+              popsDOMUtils.preventEvent(event);
+              const $input = event.target as HTMLInputElement;
+              console.log("输入框内容改变：", value, $input.validity);
+            },
+            placeholder: "请输入内容",
+          },
+          {
+            className: "panel-input-url",
+            text: "input-url",
+            type: "input",
+            inputType: "url",
+            getValue() {
+              return "https://github.com/";
+            },
+            callback(event, value) {
+              popsDOMUtils.preventEvent(event);
+              const $input = event.target as HTMLInputElement;
+              console.log("输入框内容改变：", value, $input.validity);
+            },
+            placeholder: "请输入内容",
           },
           {
             className: "panel-textarea",
             text: "textarea",
             type: "textarea",
-            props: {},
-            attributes: {},
             getValue() {
               return "50";
             },
@@ -199,13 +365,12 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
             text: "select-disabled",
             type: "select",
             disabled: true,
-            props: {},
-            attributes: {},
             getValue() {
-              return 50;
+              return "text";
             },
-            callback(event, isSelectedValue, isSelectedText) {
-              console.log(`select当前选项：${isSelectedValue}，当前选项文本：${isSelectedText}`);
+            callback(isSelectedInfo) {
+              if (isSelectedInfo == null) return;
+              console.log(`select当前选项：${isSelectedInfo.value}，当前选项文本：${isSelectedInfo.text}`);
             },
             data: [
               {
@@ -214,7 +379,6 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
                 disable() {
                   return false;
                 },
-                views: [],
               },
               {
                 value: "text",
@@ -222,7 +386,6 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
                 disable() {
                   return false;
                 },
-                views: [],
               },
               {
                 value: "html",
@@ -230,7 +393,6 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
                 disable() {
                   return false;
                 },
-                views: [],
               },
             ],
           },
@@ -239,9 +401,6 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
             type: "select-multiple",
             text: "select-multiple-disabled",
             disabled: true,
-            props: {},
-
-            attributes: {},
             placeholder: "请至少选择一个选项",
             getValue() {
               return ["select-1", "select-2"];
@@ -282,13 +441,12 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
             className: "panel-select",
             text: "select",
             type: "select",
-            props: {},
-            attributes: {},
             getValue() {
-              return 50;
+              return "all";
             },
-            callback(event, isSelectedValue, isSelectedText) {
-              console.log(`select当前选项：${isSelectedValue}，当前选项文本：${isSelectedText}`);
+            callback(isSelectedInfo) {
+              if (isSelectedInfo == null) return;
+              console.log(`select当前选项：${isSelectedInfo.value}，当前选项文本：${isSelectedInfo.text}`);
             },
             data: [
               {
@@ -297,7 +455,6 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
                 disable() {
                   return false;
                 },
-                views: [],
               },
               {
                 value: "text",
@@ -305,7 +462,6 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
                 disable() {
                   return false;
                 },
-                views: [],
               },
               {
                 value: "html",
@@ -313,17 +469,97 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
                 disable() {
                   return false;
                 },
-                views: [],
               },
             ],
+          },
+          {
+            className: "panel-select-dialog",
+            text: "select-dialog",
+            type: "select",
+            getValue() {
+              return window.localStorage.getItem("select-dialog-customInput") || "";
+            },
+            callback(isSelectedInfo) {
+              if (isSelectedInfo == null) {
+                console.warn(`select当前选项为空`);
+                return;
+              }
+              if (isSelectedInfo.addCustomInput) {
+                if (isSelectedInfo.value === "") {
+                  // 空值，不存储
+                  if (isSelectedInfo.customInputStoreKey) {
+                    console.log(`select删除自定义输入的值`);
+                    window.localStorage.removeItem(isSelectedInfo.customInputStoreKey);
+                  }
+                } else {
+                  console.log(
+                    `select当前自定义输入框内容：${isSelectedInfo.value}，当前选项显示文本：${isSelectedInfo.text}`
+                  );
+                  if (isSelectedInfo.customInputStoreKey) {
+                    window.localStorage.setItem(isSelectedInfo.customInputStoreKey!, isSelectedInfo.value);
+                  }
+                }
+              } else {
+                console.log(`select当前选项：${isSelectedInfo.value}，当前选项显示文本：${isSelectedInfo.text}`);
+              }
+            },
+            data: [
+              {
+                value: "all",
+                text: "所有",
+                disable() {
+                  return false;
+                },
+              },
+              {
+                value: "text",
+                text: "文本",
+                disable(value, selectInfo) {
+                  if (selectInfo?.value === "all") return true;
+                  return false;
+                },
+              },
+              {
+                value: "html",
+                text: "超文本",
+                disable(value, selectInfo) {
+                  if (selectInfo?.value === "all") return true;
+                  return false;
+                },
+              },
+              {
+                value: "own",
+                text: "自定义",
+                disable(value, selectInfo) {
+                  if (selectInfo?.value === "all") return true;
+                  return false;
+                },
+              },
+              {
+                value: window.localStorage.getItem("select-dialog-customInput") || "",
+                text: window.localStorage.getItem("select-dialog-customInput") || "",
+                addCustomInput: true,
+                customInputStoreKey: "select-dialog-customInput",
+                onValid(dataOption) {
+                  if (dataOption.value === "123") {
+                    console.error("非规范值");
+                    return {
+                      valid: false,
+                      message: "非规范值",
+                    };
+                  }
+                  return {
+                    valid: true,
+                  };
+                },
+              },
+            ],
+            useDialog: true,
           },
           {
             className: "panel-select-multiple",
             type: "select-multiple",
             text: "select-multiple",
-            props: {},
-
-            attributes: {},
             placeholder: "请至少选择一个选项",
             getValue() {
               return ["select-1", "select-2"];
@@ -406,16 +642,11 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
                     className: "forms-1",
                     text: "区域设置",
                     type: "container",
-                    attributes: {},
-                    props: {},
                     views: [
                       {
                         className: "panel-switch",
                         text: "switch",
                         type: "switch",
-                        // @ts-ignore
-                        props: {},
-                        attributes: {},
                         getValue() {
                           return true;
                         },
@@ -426,10 +657,7 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
                       {
                         className: "panel-slider",
                         text: "slider",
-                        // @ts-ignore
-                        props: {},
                         type: "slider",
-                        attributes: {},
                         getValue() {
                           return 50;
                         },
@@ -442,10 +670,7 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
                       {
                         className: "panel-button",
                         text: "button",
-                        // @ts-ignore
-                        props: {},
                         type: "button",
-                        attributes: {},
                         buttonIcon: "eleme",
                         buttonIconIsLoading: true,
                         buttonType: "warning",
@@ -458,9 +683,6 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
                         className: "panel-button",
                         text: "button",
                         type: "button",
-                        // @ts-ignore
-                        props: {},
-                        attributes: {},
                         buttonIcon: "chromeFilled",
                         buttonIconIsLoading: true,
                         buttonType: "danger",
@@ -472,10 +694,7 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
                       {
                         className: "panel-button",
                         text: "button",
-                        // @ts-ignore
-                        props: {},
                         type: "button",
-                        attributes: {},
                         buttonIcon: "upload",
                         buttonIconIsLoading: false,
                         buttonType: "info",
@@ -491,9 +710,7 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
               {
                 type: "deepMenu",
                 className: "panel-deepMenu2",
-                attributes: {},
                 //@ts-ignore
-                props: {},
                 text: "deepMenu2",
                 description: "二级菜单",
                 rightText: "自定义配置",
@@ -519,10 +736,7 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
               {
                 className: "panel-switch",
                 text: "switch",
-                // @ts-ignore
-                props: {},
                 type: "switch",
-                attributes: {},
                 getValue() {
                   return true;
                 },
@@ -545,8 +759,6 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
           "data-value": "value",
           "data-value-2": "value2",
         },
-        // @ts-ignore
-        props: {},
         views: [],
         clickFirstCallback: function () {
           return false;
@@ -560,8 +772,6 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
           "data-value": "value",
           "data-value-2": "value2",
         },
-        // @ts-ignore
-        props: {},
         views: [],
         clickFirstCallback: function () {
           return false;

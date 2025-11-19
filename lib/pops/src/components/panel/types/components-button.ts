@@ -6,7 +6,7 @@ import type { PopsIconType } from "../../../types/icon";
  */
 export interface PopsPanelButtonConfig extends PopsPanelGeneralConfig<PopsPanelButtonConfig> {
   /**
-   * 类型
+   * 组件类型
    */
   type: "button";
   /**

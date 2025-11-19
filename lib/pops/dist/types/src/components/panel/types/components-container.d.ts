@@ -5,7 +5,7 @@ import type { PopsPanelViewConfig } from ".";
  */
 export interface PopsPanelContainerConfig extends PopsPanelGeneralConfig<PopsPanelContainerConfig> {
     /**
-     * 类型
+     * 组件类型
      */
     type: "container";
     /**

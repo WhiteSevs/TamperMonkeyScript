@@ -14,6 +14,7 @@ import drawerCSS from "./components/drawer/index.css";
 import folderCSS from "./components/folder/index.css";
 import panelCSS from "./components/panel/index.css";
 import rightClickMenuCSS from "./components/rightClickMenu/index.css";
+import panelComponents_Select_CSS from "./components/panel/css/components-select.css";
 
 export const PopsCSS = {
   /** 主CSS */
@@ -44,8 +45,10 @@ export const PopsCSS = {
   drawerCSS: drawerCSS,
   /** pops.folder */
   folderCSS: folderCSS,
-  /** pops.folder */
+  /** pops.panel */
   panelCSS: panelCSS,
   /** pops.rightClickMenu */
   rightClickMenu: rightClickMenuCSS,
+  /** pops.panel的select组件 */
+  panelComponents_Select: panelComponents_Select_CSS,
 };

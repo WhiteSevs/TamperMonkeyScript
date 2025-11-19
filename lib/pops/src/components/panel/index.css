@@ -652,6 +652,7 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
   --el-disabled-text-color: #a8abb2;
   --el-disabled-bg-color: #f5f7fa;
   --el-disabled-border-color: #e4e7ed;
+  --el-color-danger: #f56c6c;
 
   --pops-panel-components-input-text-color: #000000;
   --pops-panel-components-input-text-bg-color: transparent;
@@ -666,20 +667,28 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
 .pops-panel-input {
   display: flex;
   align-items: center;
-  border: 1px solid var(--pops-panel-components-input-bd-color);
-  border-radius: 4px;
-  background-color: var(--pops-panel-components-input-bg-color);
+  flex-direction: column;
   position: relative;
   box-shadow: none;
   width: 200px;
+  border: 0px;
 }
-.pops-panel-input:hover {
+.pops-panel-input_inner {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border: 1px solid var(--pops-panel-components-input-bd-color);
+  border-radius: 4px;
+  background-color: var(--pops-panel-components-input-bg-color);
+  box-shadow: none;
+}
+.pops-panel-input_inner:hover {
   border: 1px solid var(--pops-panel-components-input-hover-bd-color);
 }
 .pops-panel-input:has(input:disabled):hover {
   --pops-panel-components-input-hover-bd-color: var(--pops-panel-components-input-bd-color);
 }
-.pops-panel-input:has(input:focus) {
+.pops-panel-input_inner:has(input:focus) {
   outline: 0;
   border: 1px solid var(--pops-panel-components-input-focus-bd-color);
   border-radius: 4px;
@@ -715,6 +724,25 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
   /*margin-right: calc(1em + 8px);*/
   margin: 0px;
   padding: var(--pops-panel-components-input-text-default-padding);
+}
+.pops-panel-input input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  display: none;
+}
+/* 颜色选择器不需要那么宽 */
+.pops-panel-input:has(input[type="color"]) {
+  width: 50px;
+}
+.pops-panel-input input[type="color"] {
+  padding: 0px;
+}
+.pops-panel-input_inner:has(input[type="file"]) {
+  border: 0px;
+  background: transparent;
+}
+.pops-panel-input input[type="file"] {
+  padding: 0px;
+  line-height: 32px;
 }
 .pops-panel-input span.pops-panel-input__suffix {
   display: inline-flex;
@@ -796,6 +824,22 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
 }
 .pops-panel-input input:disabled + .pops-panel-input__suffix {
   display: none;
+}
+/* 校验样式 */
+.pops-panel-input:has(.pops-panel-input-valid-error) {
+  --pops-panel-components-input-bd-color: var(--el-color-danger) !important;
+  --pops-panel-components-input-hover-bd-color: var(--pops-panel-components-input-bd-color);
+  --pops-panel-components-input-focus-bd-color: var(--pops-panel-components-input-bd-color);
+}
+.pops-panel-input .pops-panel-input-valid-error {
+  width: 100%;
+  color: var(--el-color-danger);
+  font-weight: 500;
+  font-size: 0.8em;
+  box-sizing: border-box;
+  vertical-align: middle;
+  display: inline-flex;
+  position: relative;
 }
 /* input的CSS */
 
@@ -890,8 +934,14 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
 }
 /* select的CSS */
 
+/* select useDialog的CSS */
+.pops-panel-select {
+}
+/* select useDialog的CSS */
+
 /* select-multiple的CSS*/
-.pops-panel-select-multiple {
+.pops-panel-select-multiple,
+.pops-panel-select {
   --el-border-radius-base: 4px;
   --el-fill-color-blank: #ffffff;
   --el-transition-duration: 0.3s;
@@ -910,6 +960,7 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
   --el-color-white: #ffffff;
   width: 200px;
 }
+.pops-panel-select .el-select__wrapper,
 .pops-panel-select-multiple .el-select__wrapper {
   display: flex;
   align-items: center;
@@ -929,9 +980,11 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
   transform: translateZ(0);
   border: 1px solid var(--el-border-color);
 }
+.pops-panel-select .el-select__wrapper.is-focused,
 .pops-panel-select-multiple .el-select__wrapper.is-focused {
   --el-border-color: var(--el-color-primary);
 }
+.pops-panel-select .el-select__selection,
 .pops-panel-select-multiple .el-select__selection {
   position: relative;
   display: flex;
@@ -941,6 +994,16 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
   min-width: 0;
   gap: 6px;
 }
+.pops-panel-select .el-select__selection[data-selected-text-align="left"] {
+  justify-content: left;
+}
+.pops-panel-select .el-select__selection[data-selected-text-align="center"] {
+  justify-content: center;
+}
+.pops-panel-select .el-select__selection[data-selected-text-align="right"] {
+  justify-content: right;
+}
+.pops-panel-select .el-select__selected-item,
 .pops-panel-select-multiple .el-select__selected-item {
   display: flex;
   flex-wrap: wrap;
@@ -949,15 +1012,24 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
   -ms-user-select: none;
   user-select: none;
 }
+.pops-panel-select .el-select__selected-item span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.pops-panel-select .el-select__selected-item.el-select__choose_tag .el-tag,
 .pops-panel-select-multiple .el-select__selected-item.el-select__choose_tag .el-tag {
   max-width: 200px;
 }
+.pops-panel-select .el-select__input-wrapper,
 .pops-panel-select-multiple .el-select__input-wrapper {
   max-width: 100%;
 }
+.pops-panel-select .el-select__selection.is-near,
 .pops-panel-select-multiple .el-select__selection.is-near {
   margin-left: -8px;
 }
+.pops-panel-select .el-select__placeholder,
 .pops-panel-select-multiple .el-select__placeholder {
   position: absolute;
   display: block;
@@ -969,6 +1041,7 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
   white-space: nowrap;
   color: var(--el-input-text-color, var(--el-text-color-regular));
 }
+.pops-panel-select .el-select__placeholder.is-transparent,
 .pops-panel-select-multiple .el-select__placeholder.is-transparent {
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -976,6 +1049,8 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
   user-select: none;
   color: var(--el-text-color-placeholder);
 }
+.pops-panel-select .el-select__prefix,
+.pops-panel-select .el-select__suffix,
 .pops-panel-select-multiple .el-select__prefix,
 .pops-panel-select-multiple .el-select__suffix {
   display: flex;
@@ -984,6 +1059,7 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
   gap: 6px;
   color: var(--el-input-icon-color, var(--el-text-color-placeholder));
 }
+.pops-panel-select .el-icon,
 .pops-panel-select-multiple .el-icon {
   --color: inherit;
   height: 1em;
@@ -998,10 +1074,12 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
   color: var(--color);
   font-size: inherit;
 }
+.pops-panel-select .el-icon svg,
 .pops-panel-select-multiple .el-icon svg {
   height: 1em;
   width: 1em;
 }
+.pops-panel-select .el-select__caret,
 .pops-panel-select-multiple .el-select__caret {
   color: var(--el-select-input-color);
   font-size: var(--el-select-input-font-size);
@@ -1010,6 +1088,7 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
   cursor: pointer;
 }
 /* 把箭头旋转 */
+.pops-panel-select[data-show-option] .el-select__caret,
 .pops-panel-select-multiple[data-show-option] .el-select__caret {
   transform: rotate(180deg);
 }
@@ -1085,6 +1164,7 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* 禁用样式 */
 .pops-panel-select-multiple-disable {
   --el-fill-color-blank: #f5f7fa;
   --color: #a8abb2;
