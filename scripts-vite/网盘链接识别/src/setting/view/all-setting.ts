@@ -12,6 +12,7 @@ import { UISelectMultiple } from "@components/setting/components/ui-select-multi
 import { UIInput } from "@components/setting/components/ui-input";
 import DOMUtils from "@whitesev/domutils";
 import { NetDiskSuspension } from "@/main/view/suspension/NetDiskSuspensionView";
+import { UIInputNumber } from "@components/setting/components/ui-input-number";
 
 export const PanelUI_allSetting = (): PopsPanelContentConfig => {
   return {
@@ -368,7 +369,7 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
                       NetDiskSuspension.updatePosition(false);
                     }
                   ),
-                  UIInput(
+                  UIInputNumber(
                     "z-index",
                     NetDiskGlobalData.suspension["suspended-z-index"].KEY,
                     NetDiskGlobalData.suspension["suspended-z-index"].default,
@@ -377,9 +378,7 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
                     (event, value, valueAsNumber) => {
                       NetDiskGlobalData.suspension["suspended-z-index"].value = valueAsNumber!;
                       return true;
-                    },
-                    "",
-                    true
+                    }
                   ),
                 ],
               },
@@ -393,7 +392,7 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
                 type: "container",
                 text: "通用配置",
                 views: [
-                  UIInput(
+                  UIInputNumber(
                     "z-index",
                     NetDiskGlobalData.smallWindow["netdisk-link-view-z-index"].KEY,
                     NetDiskGlobalData.smallWindow["netdisk-link-view-z-index"].default,
@@ -401,9 +400,7 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
                     (event, value, valueAsNumber) => {
                       NetDiskGlobalData.smallWindow["netdisk-link-view-z-index"].value = valueAsNumber;
                       return true;
-                    },
-                    "",
-                    true
+                    }
                   ),
                 ],
               },
@@ -418,14 +415,13 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
                     void 0,
                     "如果页面的数据量大，建议开启分页以显示防止卡顿"
                   ),
-                  UIInput(
+                  UIInputNumber(
                     "分页数量",
                     NetDiskGlobalData.smallWindow["netdisk-ui-link-view-data-paging-show-data-count"].KEY,
                     NetDiskGlobalData.smallWindow["netdisk-ui-link-view-data-paging-show-data-count"].default,
                     "每页显示的数据数量",
                     void 0,
-                    "默认：10",
-                    true
+                    "默认：10"
                   ),
                 ],
               },

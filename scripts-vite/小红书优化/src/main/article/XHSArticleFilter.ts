@@ -269,12 +269,12 @@ export const XHSArticleFilter = {
             // 启用
             let enable_template = UISwitch("启用", "enable", true);
             Reflect.set(enable_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+            let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
 
             // 规则名称
             let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
             Reflect.set(name_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+            let $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
 
             // 作用域
             let scope_template = UISelectMultiple<XHSArticleFilterOptionScope>(
@@ -303,7 +303,7 @@ export const XHSArticleFilter = {
               "选择需要在xxx上生效的作用域"
             );
             Reflect.set(scope_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-            let $scope = panelHandlerComponents.createSectionContainerItem_select_multiple(scope_template);
+            let $scope = panelHandlerComponents.createSectionContainerItem_select_multiple(scope_template).$el;
 
             // 属性名列表
             let keyNameHandlerInfo = <(keyof XHSArticleHandlerInfo)[]>[
@@ -341,16 +341,16 @@ export const XHSArticleFilter = {
               Reflect.set(ruleName_template.props!, PROPS_STORAGE_API, generateStorageApi(storageData));
 
               // 属性值
-              let $ruleName = panelHandlerComponents.createSectionContainerItem_select_multiple(ruleName_template);
+              let $ruleName = panelHandlerComponents.createSectionContainerItem_select_multiple(ruleName_template).$el;
 
               let ruleValue_template = UITextArea("属性值", "ruleValue", "", "如果是字符串，可正则，注意转义", void 0);
               Reflect.set(ruleValue_template.props!, PROPS_STORAGE_API, generateStorageApi(storageData));
-              let $ruleValue = panelHandlerComponents.createSectionContainerItem_textarea(ruleValue_template);
+              let $ruleValue = panelHandlerComponents.createSectionContainerItem_textarea(ruleValue_template).$el;
 
               // 备注
               let remarks_template = UITextArea("备注", "remarks", "", "", void 0);
               Reflect.set(remarks_template.props!, PROPS_STORAGE_API, generateStorageApi(storageData));
-              let $remarks = panelHandlerComponents.createSectionContainerItem_textarea(remarks_template);
+              let $remarks = panelHandlerComponents.createSectionContainerItem_textarea(remarks_template).$el;
 
               return {
                 $ruleName,

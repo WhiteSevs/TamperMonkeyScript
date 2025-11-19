@@ -75,17 +75,17 @@ export const CharacterMapping = {
       // 启用
       let enable_template = UISwitch("启用", "enable", true);
       Reflect.set(enable_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-      let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+      let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
 
       // 规则名称
       let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
       Reflect.set(name_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-      let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+      let $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
 
       // 匹配网址
       let url_template = UIInput("匹配网址", "url", "", "", void 0, "必填，可正则");
       Reflect.set(url_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-      let $data_url = panelHandlerComponents.createSectionContainerItem_input(url_template);
+      let $data_url = panelHandlerComponents.createSectionContainerItem_input(url_template).$el;
 
       /**
        * 获取动态的元素
@@ -103,7 +103,7 @@ export const CharacterMapping = {
           "必填，可正则"
         );
         Reflect.set(data_searchValue_template.props!, PROPS_STORAGE_API, generateStorageApi(storageData));
-        let $data_searchValue = panelHandlerComponents.createSectionContainerItem_input(data_searchValue_template);
+        let $data_searchValue = panelHandlerComponents.createSectionContainerItem_input(data_searchValue_template).$el;
 
         // 是否启用正则
         let data_isRegExp_template = UISwitch(
@@ -114,7 +114,7 @@ export const CharacterMapping = {
           "使用正则进行匹配字符规则"
         );
         Reflect.set(data_isRegExp_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-        let $data_isRegExp = panelHandlerComponents.createSectionContainerItem_switch(data_isRegExp_template);
+        let $data_isRegExp = panelHandlerComponents.createSectionContainerItem_switch(data_isRegExp_template).$el;
 
         // 正则标识符
         let data_regExpFlag_template = UISelectMultiple<string>(
@@ -143,7 +143,7 @@ export const CharacterMapping = {
           },
         });
         let $data_regExpFlag =
-          panelHandlerComponents.createSectionContainerItem_select_multiple(data_regExpFlag_template);
+          panelHandlerComponents.createSectionContainerItem_select_multiple(data_regExpFlag_template).$el;
 
         // 映射为
         let data_replaceValue_template = UIInput(
@@ -155,7 +155,8 @@ export const CharacterMapping = {
           ""
         );
         Reflect.set(data_replaceValue_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-        let $data_replaceValue = panelHandlerComponents.createSectionContainerItem_input(data_replaceValue_template);
+        let $data_replaceValue =
+          panelHandlerComponents.createSectionContainerItem_input(data_replaceValue_template).$el;
 
         return {
           $data_searchValue,
@@ -265,7 +266,7 @@ export const CharacterMapping = {
         data.uuid = editData!.uuid;
       }
       $ulist_li.forEach(($li) => {
-        let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+        let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey).$el;
         let attrs = Reflect.get(viewConfig, "attributes");
         let storageApi = Reflect.get($li, PROPS_STORAGE_API);
         let key = Reflect.get(attrs, ATTRIBUTE_KEY);
@@ -283,7 +284,7 @@ export const CharacterMapping = {
       $form.querySelectorAll<HTMLLIElement>(".rule-form-ulist-dynamic__inner-container").forEach(($inner) => {
         let dynamicData = {};
         $inner.querySelectorAll(".dynamic-forms > li").forEach(($li) => {
-          let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+          let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey).$el;
           if (!viewConfig) {
             return;
           }
@@ -960,19 +961,19 @@ export const CharacterMapping = {
           Partial<RuleSubscribeOption<CharacterMappingOption>["subscribeData"]>
         >(this.$data.EXPORT_CONFIG_KEY, {});
         // 订阅名称
-        let title_template = UIInput("订阅标题", "title", "", "", void 0, "");
+        let title_template = UIInput("订阅标题", "title", "");
         Reflect.set(title_template.props!, PROPS_STORAGE_API, generateStorageApi(configData));
-        let $title = panelHandlerComponents.createSectionContainerItem_input(title_template);
+        let $title = panelHandlerComponents.createSectionContainerItem_input(title_template).$el;
 
         // 版本号
-        let version_template = UIInput("版本号", "version", "", "", void 0, "", false);
+        let version_template = UIInput("版本号", "version", "");
         Reflect.set(version_template.props!, PROPS_STORAGE_API, generateStorageApi(configData));
-        let $version = panelHandlerComponents.createSectionContainerItem_input(version_template);
+        let $version = panelHandlerComponents.createSectionContainerItem_input(version_template).$el;
 
         // 主页地址
         let homePage_template = UIInput("主页地址", "homePage", "", "", void 0, "选填");
         Reflect.set(homePage_template.props!, PROPS_STORAGE_API, generateStorageApi(configData));
-        let $homePage = panelHandlerComponents.createSectionContainerItem_input(homePage_template);
+        let $homePage = panelHandlerComponents.createSectionContainerItem_input(homePage_template).$el;
 
         DOMUtils.append($content, $title);
         DOMUtils.append($content, $version);

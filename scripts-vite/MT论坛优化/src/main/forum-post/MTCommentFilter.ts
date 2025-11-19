@@ -1,4 +1,4 @@
-import { $$, GM_Menu, log, pops, utils } from "@/env";
+import { $$, log, MenuRegister, pops, utils } from "@/env";
 import { MTRouter } from "@/router/MTRouter";
 import { UIInput } from "@components/setting/components/ui-input";
 import { UISwitch } from "@components/setting/components/ui-switch";
@@ -7,6 +7,8 @@ import { PROPS_STORAGE_API } from "@components/setting/panel-config";
 import { MTRegExp } from "@/utils/MTRegExp";
 import { RuleEditView } from "@components/utils/RuleEditView";
 import { GM_getValue, GM_setValue } from "ViteGM";
+import { UIInputNumber } from "@components/setting/components/ui-input-number";
+import { UIInputPassword } from "@components/setting/components/ui-input-password";
 
 type FilterOption = {
   /**
@@ -95,7 +97,7 @@ export const MTCommentFilter = {
    * 注册菜单
    */
   registerMenu() {
-    GM_Menu.add({
+    MenuRegister.add({
       key: "comment-filter",
       text: "⚙ 评论过滤器",
       autoReload: false,
@@ -244,17 +246,17 @@ export const MTCommentFilter = {
         // 启用
         let enable_template = UISwitch("启用", "enable", true);
         Reflect.set(enable_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-        let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+        let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
 
         // 是否处理回复引用
         let replyFlag_template = UISwitch("处理回复引用", "replyFlag", false, void 0, "移除引用");
         Reflect.set(replyFlag_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-        let $replyFlag = panelHandlerComponents.createSectionContainerItem_switch(replyFlag_template);
+        let $replyFlag = panelHandlerComponents.createSectionContainerItem_switch(replyFlag_template).$el;
 
         // 是否处理作者评论
         let avatarFlag_template = UISwitch("处理作者评论", "avatarFlag", false);
         Reflect.set(avatarFlag_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-        let $avatarFlag = panelHandlerComponents.createSectionContainerItem_switch(avatarFlag_template);
+        let $avatarFlag = panelHandlerComponents.createSectionContainerItem_switch(avatarFlag_template).$el;
         // 是否处理从"搜索页面"或"我的帖子提醒页面"进入的网站
         let viewthreadFlag_template = UISwitch(
           '处理从"搜索页面"或"我的帖子提醒页面"进入的网站',
@@ -262,43 +264,37 @@ export const MTCommentFilter = {
           false
         );
         Reflect.set(viewthreadFlag_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-        let $viewthreadFlag = panelHandlerComponents.createSectionContainerItem_switch(viewthreadFlag_template);
+        let $viewthreadFlag = panelHandlerComponents.createSectionContainerItem_switch(viewthreadFlag_template).$el;
 
-        let minLength_template = UIInput(
+        let minLength_template = UIInputNumber(
           "匹配的评论内容长度最小值",
           "minLength",
           5,
-          "小于此长度的评论就算关键字匹配成功了也不会被排除",
-          void 0,
-          "",
-          true
+          "小于此长度的评论就算关键字匹配成功了也不会被排除"
         );
         Reflect.set(minLength_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-        let $minLength = panelHandlerComponents.createSectionContainerItem_input(minLength_template);
+        let $minLength = panelHandlerComponents.createSectionContainerItem_input(minLength_template).$el;
 
-        let keywordLength = UIInput(
+        let keywordLength = UIInputNumber(
           "匹配的评论内容长度最大值",
           "keywordLength",
           8,
-          "大于此长度的评论就算关键字匹配成功了也不会被排除",
-          void 0,
-          "",
-          true
+          "大于此长度的评论就算关键字匹配成功了也不会被排除"
         );
         Reflect.set(keywordLength.props!, PROPS_STORAGE_API, generateStorageApi(data));
-        let $keywordLength = panelHandlerComponents.createSectionContainerItem_input(keywordLength);
+        let $keywordLength = panelHandlerComponents.createSectionContainerItem_input(keywordLength).$el;
 
         let keywords_template = UITextArea("评论关键字", "keywords", "", "多个评论关键字换行分割", void 0);
 
         Reflect.set(keywords_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-        let $keywords = panelHandlerComponents.createSectionContainerItem_textarea(keywords_template);
+        let $keywords = panelHandlerComponents.createSectionContainerItem_textarea(keywords_template).$el;
 
         let userBlackList_template = UITextArea("黑名单用户", "userBlackList", "", "多个用户换行分割", void 0);
         Reflect.set(userBlackList_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-        let $userBlackList = panelHandlerComponents.createSectionContainerItem_textarea(userBlackList_template);
+        let $userBlackList = panelHandlerComponents.createSectionContainerItem_textarea(userBlackList_template).$el;
         let userWhiteList_template = UITextArea("白名单用户", "userWhiteList", "", "多个用户换行分割", void 0);
         Reflect.set(userWhiteList_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-        let $userWhiteList = panelHandlerComponents.createSectionContainerItem_textarea(userWhiteList_template);
+        let $userWhiteList = panelHandlerComponents.createSectionContainerItem_textarea(userWhiteList_template).$el;
 
         $fragment.append(
           $enable,

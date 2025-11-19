@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         简书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.4
+// @version      2025.11.19
 // @author       WhiteSevs
 // @description  支持手机端和PC端、屏蔽广告、优化浏览体验、重定向链接、全文居中、自动展开全文、允许复制文字、劫持唤醒/跳转App、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://*.jianshu.com/*
 // @match        *://*.jianshu.io/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @connect      *
 // @grant        GM_deleteValue
@@ -990,7 +990,7 @@ footer > div > div {\r
       if (!Panel.isTopWindow()) {
         return;
       }
-      GM_Menu.add(this.$data.menuOption);
+      MenuRegister.add(this.$data.menuOption);
     },
     addMenuOption(option) {
       if (!Array.isArray(option)) {
@@ -1216,24 +1216,33 @@ footer > div > div {\r
         if (Array.isArray(args)) {
           resultValueList = resultValueList.concat(args);
         } else {
-          if (typeof args === "object" && args != null) {
-            if (args instanceof Element) {
-              resultValueList.push(args);
-            } else {
-              const { $css, destory } = args;
-              if ($css != null) {
-                if (Array.isArray($css)) {
-                  resultValueList = resultValueList.concat($css);
-                } else {
-                  resultValueList.push($css);
+          const handlerArgs = (obj) => {
+            if (typeof obj === "object" && obj != null) {
+              if (obj instanceof Element) {
+                resultValueList.push(obj);
+              } else {
+                const { $css, destory } = obj;
+                if ($css != null) {
+                  if (Array.isArray($css)) {
+                    resultValueList = resultValueList.concat($css);
+                  } else {
+                    resultValueList.push($css);
+                  }
+                }
+                if (typeof destory === "function") {
+                  resultValueList.push(destory);
                 }
               }
-              if (typeof destory === "function") {
-                resultValueList.push(destory);
-              }
+            } else {
+              resultValueList.push(obj);
+            }
+          };
+          if (args != null && Array.isArray(args)) {
+            for (const it of args) {
+              handlerArgs(it);
             }
           } else {
-            resultValueList.push(args);
+            handlerArgs(args);
           }
         }
         for (const it of resultValueList) {
@@ -1684,8 +1693,8 @@ footer > div > div {\r
           const loopContentConfig = (configList, path) => {
             for (let index = 0; index < configList.length; index++) {
               const configItem = configList[index];
-              const child_forms = configItem.views;
-              if (child_forms && Array.isArray(child_forms)) {
+              const childViewConfig = configItem.views;
+              if (childViewConfig && Array.isArray(childViewConfig)) {
                 const deepMenuPath = utils.deepClone(path);
                 if (configItem.type === "deepMenu") {
                   const deepNext = utils.queryProperty(deepMenuPath, (target) => {
@@ -1705,7 +1714,7 @@ footer > div > div {\r
                     name: configItem.text,
                   };
                 }
-                loopContentConfig(child_forms, deepMenuPath);
+                loopContentConfig(childViewConfig, deepMenuPath);
               } else {
                 let text;
                 let description;
@@ -1720,7 +1729,7 @@ footer > div > div {\r
                     }
                   }
                 } else {
-                  text = Reflect.get(configItem, "text");
+                  text = configItem.text;
                   description = Reflect.get(configItem, "description");
                 }
                 const delayMatchedTextList = [text, description];
@@ -1984,7 +1993,7 @@ footer > div > div {\r
     },
     drag: true,
   });
-  const GM_Menu = new utils.GM_Menu({
+  const MenuRegister = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,
     GM_registerMenuCommand: _GM_registerMenuCommand,
@@ -2379,12 +2388,6 @@ footer > div > div {\r
     ],
   };
   const UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
-    let selectData = [];
-    if (typeof data === "function") {
-      selectData = data();
-    } else {
-      selectData = data;
-    }
     const result = {
       text,
       type: "select",
@@ -2395,11 +2398,14 @@ footer > div > div {\r
         const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
-      callback(event, isSelectedValue, isSelectedText) {
-        const value = isSelectedValue;
-        log.info(`选择：${isSelectedText}`);
+      callback(isSelectedInfo) {
+        if (isSelectedInfo == null) {
+          return;
+        }
+        const value = isSelectedInfo.value;
+        log.info(`选择：${isSelectedInfo.text}`);
         if (typeof selectCallBack === "function") {
-          const result2 = selectCallBack(event, value, isSelectedText);
+          const result2 = selectCallBack(isSelectedInfo);
           if (result2) {
             return;
           }
@@ -2407,7 +2413,7 @@ footer > div > div {\r
         const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      data: selectData,
+      data,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -2471,8 +2477,8 @@ footer > div > div {\r
                 text: "右下角",
               },
             ],
-            (event, isSelectValue, isSelectText) => {
-              log.info("设置当前Qmsg弹出位置" + isSelectText);
+            (isSelectedInfo) => {
+              log.info("设置当前Qmsg弹出位置" + isSelectedInfo.text);
             },
             "Toast显示在页面九宫格的位置"
           ),
@@ -2583,7 +2589,7 @@ footer > div > div {\r
   let isMobile = utils.isPhone();
   let CHANGE_ENV_SET_KEY = "change_env_set";
   let chooseMode = _GM_getValue(CHANGE_ENV_SET_KEY);
-  GM_Menu.add({
+  MenuRegister.add({
     key: CHANGE_ENV_SET_KEY,
     text: `⚙ 自动: ${isMobile ? "移动端" : "PC端"}`,
     autoReload: false,

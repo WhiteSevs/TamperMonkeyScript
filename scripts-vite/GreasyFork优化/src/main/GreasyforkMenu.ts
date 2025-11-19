@@ -1,5 +1,5 @@
 import { GreasyforkApi } from "@/api/GreasyForkApi";
-import { $, $$, GM_Menu, log, utils } from "@/env";
+import { $, $$, log, MenuRegister, utils } from "@/env";
 import { GreasyforkRouter } from "@/router/GreasyforkRouter";
 import { Panel } from "@components/setting/panel";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
@@ -10,7 +10,7 @@ export const GreasyforkMenu = {
   /**
    * @class
    */
-  menu: GM_Menu,
+  menu: MenuRegister,
   /**
    * 当前是否已登录
    */

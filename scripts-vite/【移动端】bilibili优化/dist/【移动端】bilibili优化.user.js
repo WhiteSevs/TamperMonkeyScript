@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.4
+// @version      2025.11.19
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -13,9 +13,9 @@
 // @match        *://www.bilibili.com/h5/comment/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/QRCode/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
@@ -1027,7 +1027,7 @@
       if (!Panel.isTopWindow()) {
         return;
       }
-      GM_Menu.add(this.$data.menuOption);
+      MenuRegister.add(this.$data.menuOption);
     },
     addMenuOption(option) {
       if (!Array.isArray(option)) {
@@ -1253,24 +1253,33 @@
         if (Array.isArray(args)) {
           resultValueList = resultValueList.concat(args);
         } else {
-          if (typeof args === "object" && args != null) {
-            if (args instanceof Element) {
-              resultValueList.push(args);
-            } else {
-              const { $css, destory } = args;
-              if ($css != null) {
-                if (Array.isArray($css)) {
-                  resultValueList = resultValueList.concat($css);
-                } else {
-                  resultValueList.push($css);
+          const handlerArgs = (obj) => {
+            if (typeof obj === "object" && obj != null) {
+              if (obj instanceof Element) {
+                resultValueList.push(obj);
+              } else {
+                const { $css, destory } = obj;
+                if ($css != null) {
+                  if (Array.isArray($css)) {
+                    resultValueList = resultValueList.concat($css);
+                  } else {
+                    resultValueList.push($css);
+                  }
+                }
+                if (typeof destory === "function") {
+                  resultValueList.push(destory);
                 }
               }
-              if (typeof destory === "function") {
-                resultValueList.push(destory);
-              }
+            } else {
+              resultValueList.push(obj);
+            }
+          };
+          if (args != null && Array.isArray(args)) {
+            for (const it of args) {
+              handlerArgs(it);
             }
           } else {
-            resultValueList.push(args);
+            handlerArgs(args);
           }
         }
         for (const it of resultValueList) {
@@ -1721,8 +1730,8 @@
           const loopContentConfig = (configList, path) => {
             for (let index = 0; index < configList.length; index++) {
               const configItem = configList[index];
-              const child_forms = configItem.views;
-              if (child_forms && Array.isArray(child_forms)) {
+              const childViewConfig = configItem.views;
+              if (childViewConfig && Array.isArray(childViewConfig)) {
                 const deepMenuPath = utils.deepClone(path);
                 if (configItem.type === "deepMenu") {
                   const deepNext = utils.queryProperty(deepMenuPath, (target) => {
@@ -1742,7 +1751,7 @@
                     name: configItem.text,
                   };
                 }
-                loopContentConfig(child_forms, deepMenuPath);
+                loopContentConfig(childViewConfig, deepMenuPath);
               } else {
                 let text;
                 let description;
@@ -1757,7 +1766,7 @@
                     }
                   }
                 } else {
-                  text = Reflect.get(configItem, "text");
+                  text = configItem.text;
                   description = Reflect.get(configItem, "description");
                 }
                 const delayMatchedTextList = [text, description];
@@ -2027,7 +2036,7 @@
     },
     drag: true,
   });
-  const GM_Menu = new utils.GM_Menu({
+  const MenuRegister = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,
     GM_registerMenuCommand: _GM_registerMenuCommand,
@@ -10860,35 +10869,29 @@
     description,
     changeCallback,
     placeholder = "",
-    isNumber,
-    isPassword,
+    inputType = "text",
     afterAddToUListCallBack,
     valueChangeCallback
   ) {
     const result = {
       text,
       type: "input",
-      isNumber: Boolean(isNumber),
-      isPassword: Boolean(isPassword),
+      inputType,
       attributes: {},
       props: {},
       description,
+      placeholder,
       afterAddToUListCallBack,
       getValue() {
         const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
-      callback(event, value, valueAsNumber) {
-        if (typeof changeCallback === "function") {
-          const result2 = changeCallback(event, value, valueAsNumber);
-          if (result2) {
-            return;
-          }
-        }
+      callback(event, value) {
+        const $input = event.target;
+        $input.validity.valid;
         const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      placeholder,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -11707,10 +11710,10 @@
               }
               let enable_template = UISwitch("启用", "enable", templateData.enable);
               Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data2));
-              let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+              let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
               let name_template = UIInput("规则名称", "name", "", templateData.name, void 0, "必填");
               Reflect.set(name_template.props, PROPS_STORAGE_API, generateStorageApi(data2));
-              let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+              let $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
               let isShowDisplayName_template = UISwitch(
                 "是否显示标签名称",
                 "isShowDisplayName",
@@ -11718,7 +11721,7 @@
               );
               Reflect.set(isShowDisplayName_template.props, PROPS_STORAGE_API, generateStorageApi(data2.data));
               let $isShowDisplayName =
-                panelHandlerComponents.createSectionContainerItem_switch(isShowDisplayName_template);
+                panelHandlerComponents.createSectionContainerItem_switch(isShowDisplayName_template).$el;
               let displayName_template = UIInput(
                 "标签名称",
                 "displayName",
@@ -11726,7 +11729,7 @@
                 "例如：原神"
               );
               Reflect.set(displayName_template.props, PROPS_STORAGE_API, generateStorageApi(data2.data));
-              let $displayName = panelHandlerComponents.createSectionContainerItem_input(displayName_template);
+              let $displayName = panelHandlerComponents.createSectionContainerItem_input(displayName_template).$el;
               let isShowDisplayIcon_template = UISwitch(
                 "是否显示标签图标",
                 "isShowDisplayIcon",
@@ -11734,7 +11737,7 @@
               );
               Reflect.set(isShowDisplayIcon_template.props, PROPS_STORAGE_API, generateStorageApi(data2.data));
               let $isShowDisplayIcon =
-                panelHandlerComponents.createSectionContainerItem_switch(isShowDisplayIcon_template);
+                panelHandlerComponents.createSectionContainerItem_switch(isShowDisplayIcon_template).$el;
               let displayIcon_template = UIInput(
                 "标签图标",
                 "displayIcon",
@@ -11742,7 +11745,7 @@
                 "Url或base64"
               );
               Reflect.set(displayIcon_template.props, PROPS_STORAGE_API, generateStorageApi(data2.data));
-              let $displayIcon = panelHandlerComponents.createSectionContainerItem_input(displayIcon_template);
+              let $displayIcon = panelHandlerComponents.createSectionContainerItem_input(displayIcon_template).$el;
               let keywords_template = UITextArea(
                 "关键词",
                 "keywords",
@@ -11766,7 +11769,7 @@
                   data2.data[key] = value;
                 },
               });
-              let $keywords = panelHandlerComponents.createSectionContainerItem_textarea(keywords_template);
+              let $keywords = panelHandlerComponents.createSectionContainerItem_textarea(keywords_template).$el;
               let followings_template = UITextArea("关注的用户", "followings", "", "用户id", void 0, "多个用户id换行");
               Reflect.set(followings_template.props, PROPS_STORAGE_API, {
                 get(key, defaultValue) {
@@ -11789,7 +11792,7 @@
                   data2.data[key] = value;
                 },
               });
-              let $followings = panelHandlerComponents.createSectionContainerItem_textarea(followings_template);
+              let $followings = panelHandlerComponents.createSectionContainerItem_textarea(followings_template).$el;
               let blacklist_template = UITextArea("黑名单", "blacklist", "", "", void 0, "多个用户id换行");
               Reflect.set(blacklist_template.props, PROPS_STORAGE_API, {
                 get(key, defaultValue) {
@@ -11812,7 +11815,7 @@
                   data2.data[key] = value;
                 },
               });
-              let $blacklist = panelHandlerComponents.createSectionContainerItem_textarea(blacklist_template);
+              let $blacklist = panelHandlerComponents.createSectionContainerItem_textarea(blacklist_template).$el;
               $fragment.append(
                 $enable,
                 $name,
@@ -13278,12 +13281,6 @@
     },
   };
   const UISelect = function (text, key, defaultValue, data2, selectCallBack, description, valueChangeCallBack) {
-    let selectData = [];
-    if (typeof data2 === "function") {
-      selectData = data2();
-    } else {
-      selectData = data2;
-    }
     const result = {
       text,
       type: "select",
@@ -13294,11 +13291,14 @@
         const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
-      callback(event, isSelectedValue, isSelectedText) {
-        const value = isSelectedValue;
-        log$1.info(`选择：${isSelectedText}`);
+      callback(isSelectedInfo) {
+        if (isSelectedInfo == null) {
+          return;
+        }
+        const value = isSelectedInfo.value;
+        log$1.info(`选择：${isSelectedInfo.text}`);
         if (typeof selectCallBack === "function") {
-          const result2 = selectCallBack(event, value, isSelectedText);
+          const result2 = selectCallBack(isSelectedInfo);
           if (result2) {
             return;
           }
@@ -13306,7 +13306,7 @@
         const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      data: selectData,
+      data: data2,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -13352,6 +13352,52 @@
     };
     Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
       result.disable = Boolean(disable);
+    });
+    return result;
+  };
+  const UIInputPassword = function (
+    text,
+    key,
+    defaultValue,
+    description,
+    changeCallback,
+    placeholder = "",
+    afterAddToUListCallBack,
+    valueChangeCallback
+  ) {
+    const result = {
+      text,
+      type: "input",
+      inputType: "password",
+      attributes: {},
+      props: {},
+      description,
+      placeholder,
+      afterAddToUListCallBack,
+      getValue() {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
+      },
+      callback(event, value) {
+        if (typeof changeCallback === "function") {
+          const result2 = changeCallback(event, value);
+          if (result2) {
+            return;
+          }
+        }
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
+      },
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("input", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
+      },
     });
     return result;
   };
@@ -13512,20 +13558,17 @@
                 text: "",
                 type: "container",
                 views: [
-                  UIInput(
+                  UIInputPassword(
                     "access_token",
                     "bili-head-recommend-access_token",
                     BilibiliQrCodeLogin.getAccessToken(),
                     "填入access_token，可用于获取推荐视频数据、番剧搜索、番剧播放等",
-                    (event, value, valueAsNumber) => {
+                    (event, value) => {
                       BilibiliQrCodeLogin.setAccessTokenInfo({
                         access_token: value,
                         expireAt: BilibiliQrCodeLogin.generateExpireAt(),
                       });
-                    },
-                    void 0,
-                    false,
-                    true
+                    }
                   ),
                 ],
               },
@@ -13581,8 +13624,8 @@
                         text: "右下角",
                       },
                     ],
-                    (event, isSelectValue, isSelectText) => {
-                      log$1.info("设置当前Qmsg弹出位置" + isSelectText);
+                    (isSelectedInfo) => {
+                      log$1.info("设置当前Qmsg弹出位置" + isSelectedInfo.text);
                     },
                     "Toast显示在页面九宫格的位置"
                   ),

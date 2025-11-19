@@ -1,4 +1,4 @@
-import { GM_Menu } from "@/env";
+import { MenuRegister } from "@/env";
 import { M3U8Rule } from "./M3U8Rule";
 import type { UtilsGMMenuOption } from "@whitesev/utils/dist/types/src/types/UtilsGMMenu";
 
@@ -20,7 +20,7 @@ export const M3U8Menu = {
       },
       callback: () => {},
     };
-    GM_Menu.update(option);
+    MenuRegister.update(option);
   },
   /**
    * 添加/更新当前已过滤的广告片段的时长
@@ -36,6 +36,6 @@ export const M3U8Menu = {
       },
       callback: () => {},
     };
-    GM_Menu.update(option);
+    MenuRegister.update(option);
   },
 };

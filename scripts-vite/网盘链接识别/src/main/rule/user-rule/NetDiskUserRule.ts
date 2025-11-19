@@ -1275,19 +1275,19 @@ export const NetDiskUserRule = {
           Partial<RuleSubscribeOption<NetDiskUserCustomRule>["subscribeData"]>
         >(this.$data.EXPORT_CONFIG_KEY, {});
         // 订阅名称
-        let title_template = UIInput("订阅标题", "title", "", "", void 0, "");
+        let title_template = UIInput("订阅标题", "title", "");
         Reflect.set(title_template.props!, PROPS_STORAGE_API, generateStorageApi(configData));
-        let $title = panelHandlerComponents.createSectionContainerItem_input(title_template);
+        let $title = panelHandlerComponents.createSectionContainerItem_input(title_template).$el;
 
         // 版本号
-        let version_template = UIInput("版本号", "version", "", "", void 0, "", false);
+        let version_template = UIInput("版本号", "version", "");
         Reflect.set(version_template.props!, PROPS_STORAGE_API, generateStorageApi(configData));
-        let $version = panelHandlerComponents.createSectionContainerItem_input(version_template);
+        let $version = panelHandlerComponents.createSectionContainerItem_input(version_template).$el;
 
         // 主页地址
         let homePage_template = UIInput("主页地址", "homePage", "", "", void 0, "选填");
         Reflect.set(homePage_template.props!, PROPS_STORAGE_API, generateStorageApi(configData));
-        let $homePage = panelHandlerComponents.createSectionContainerItem_input(homePage_template);
+        let $homePage = panelHandlerComponents.createSectionContainerItem_input(homePage_template).$el;
 
         DOMUtils.append($content, $title);
         DOMUtils.append($content, $version);

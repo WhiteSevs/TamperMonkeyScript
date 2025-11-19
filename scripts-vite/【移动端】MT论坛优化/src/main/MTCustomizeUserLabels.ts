@@ -139,25 +139,25 @@ export const MTCustomizeUserLabels = {
             // 启用
             let enable_template = UISwitch("启用", "enable", true);
             Reflect.set(enable_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+            let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
 
             // 规则名称
             let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
             Reflect.set(name_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+            let $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
 
             let userUID_template = UIInput("用户UID", "userUID", "", "", void 0, "必填，可正则，注意转义");
             Reflect.set(userUID_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            let $userUID = panelHandlerComponents.createSectionContainerItem_input(userUID_template);
+            let $userUID = panelHandlerComponents.createSectionContainerItem_input(userUID_template).$el;
 
             let labelName_template = UIInput("标签名", "labelName", "", "", void 0, "必填");
             Reflect.set(labelName_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
 
-            let $labelName = panelHandlerComponents.createSectionContainerItem_input(labelName_template);
+            let $labelName = panelHandlerComponents.createSectionContainerItem_input(labelName_template).$el;
 
             let labelColor_template = UIInput("标签颜色", "labelColor", "", "", void 0);
             Reflect.set(labelColor_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            let $labelColor = panelHandlerComponents.createSectionContainerItem_input(labelColor_template);
+            let $labelColor = panelHandlerComponents.createSectionContainerItem_input(labelColor_template).$el;
             let $labelColor_input = $labelColor.querySelector("input")!;
             $labelColor.querySelector(".pops-panel-input__suffix")?.remove();
             $labelColor_input.setAttribute("type", "color");
@@ -169,11 +169,12 @@ export const MTCustomizeUserLabels = {
 
             let labelStyle_template = UIInput("标签CSS", "labelStyle", "", "", void 0);
             Reflect.set(labelStyle_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            let $labelStyle = panelHandlerComponents.createSectionContainerItem_input(labelStyle_template);
+            let $labelStyle = panelHandlerComponents.createSectionContainerItem_input(labelStyle_template).$el;
 
             let labelClickEvent_template = UITextArea("标签点击事件", "labelClickEvent", "", "", void 0);
             Reflect.set(labelClickEvent_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            let $labelClickEvent = panelHandlerComponents.createSectionContainerItem_textarea(labelClickEvent_template);
+            let $labelClickEvent =
+              panelHandlerComponents.createSectionContainerItem_textarea(labelClickEvent_template).$el;
 
             $fragment.append($enable, $name, $userUID, $labelName, $labelColor, $labelStyle, $labelClickEvent);
             return $fragment;

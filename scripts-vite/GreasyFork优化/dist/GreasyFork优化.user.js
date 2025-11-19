@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2025.11.15
+// @version            2025.11.19
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -13,12 +13,12 @@
 // @match              *://sleazyfork.org/*
 // @match              *://cn-greasyfork.org/*
 // @require            https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.7/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.8/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.0/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.1/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
-// @require            https://fastly.jsdelivr.net/npm/i18next@25.6.1/i18next.min.js
+// @require            https://fastly.jsdelivr.net/npm/i18next@25.6.2/i18next.min.js
 // @require            https://fastly.jsdelivr.net/npm/otpauth@9.4.1/dist/otpauth.umd.js
 // @resource           ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect            greasyfork.org
@@ -451,7 +451,7 @@
     },
     drag: true,
   });
-  const GM_Menu = new utils.GM_Menu({
+  const MenuRegister = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,
     GM_registerMenuCommand: _GM_registerMenuCommand,
@@ -1140,7 +1140,7 @@
       if (!Panel.isTopWindow()) {
         return;
       }
-      GM_Menu.add(this.$data.menuOption);
+      MenuRegister.add(this.$data.menuOption);
     },
     addMenuOption(option) {
       if (!Array.isArray(option)) {
@@ -3479,7 +3479,7 @@
     },
   };
   const GreasyforkMenu = {
-    menu: GM_Menu,
+    menu: MenuRegister,
     isLogin: false,
     initEnv() {
       let userLinkElement = this.getUserLinkElement();
@@ -6477,7 +6477,7 @@
             Panel.setValue("gf-script-search-addFilterSearchInput-text", value.toString());
             execTotalFilter();
           }, 500),
-        });
+        }).$el;
         domUtils.append($search, $searchInner);
       }
       controlsConfig.forEach((controlConfig) => {
@@ -6516,7 +6516,7 @@
               });
             }
           },
-        });
+        }).$el;
         domUtils.append($filterControlsContainer, $controlContainer);
       });
     },
@@ -7313,29 +7313,29 @@
     description,
     changeCallback,
     placeholder = "",
-    isNumber,
-    isPassword,
+    inputType = "text",
     afterAddToUListCallBack,
     valueChangeCallback
   ) {
     const result = {
       text,
       type: "input",
-      isNumber: Boolean(isNumber),
-      isPassword: Boolean(isPassword),
+      inputType,
       attributes: {},
       props: {},
       description,
+      placeholder,
       afterAddToUListCallBack,
       getValue() {
         const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
-      callback(event, value, valueAsNumber) {
+      callback(event, value) {
+        const $input = event.target;
+        $input.validity.valid;
         const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      placeholder,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -7391,13 +7391,47 @@
     });
     return result;
   };
+  const UIInputPassword = function (
+    text,
+    key,
+    defaultValue,
+    description,
+    changeCallback,
+    placeholder = "",
+    afterAddToUListCallBack,
+    valueChangeCallback
+  ) {
+    const result = {
+      text,
+      type: "input",
+      inputType: "password",
+      attributes: {},
+      props: {},
+      description,
+      placeholder,
+      afterAddToUListCallBack,
+      getValue() {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
+      },
+      callback(event, value) {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
+      },
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("input", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
+      },
+    });
+    return result;
+  };
   const UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
-    let selectData = [];
-    if (typeof data === "function") {
-      selectData = data();
-    } else {
-      selectData = data;
-    }
     const result = {
       text,
       type: "select",
@@ -7408,11 +7442,14 @@
         const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
-      callback(event, isSelectedValue, isSelectedText) {
-        const value = isSelectedValue;
-        log.info(`选择：${isSelectedText}`);
+      callback(isSelectedInfo) {
+        if (isSelectedInfo == null) {
+          return;
+        }
+        const value = isSelectedInfo.value;
+        log.info(`选择：${isSelectedInfo.text}`);
         if (typeof selectCallBack === "function") {
-          const result2 = selectCallBack(event, value, isSelectedText);
+          const result2 = selectCallBack(isSelectedInfo);
           if (result2) {
             return;
           }
@@ -7420,7 +7457,7 @@
         const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      data: selectData,
+      data,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -7635,12 +7672,12 @@
       }
     },
   };
-  const UIOwn = function (getLiElementCallBack, initConfig, searchConfig, attr, props, afterAddToUListCallBack) {
+  const UIOwn = function (createLIElement, initConfig, searchConfig, attr, props, afterAddToUListCallBack) {
     const result = {
       type: "own",
       attributes: {},
       props: {},
-      getLiElementCallBack,
+      createLIElement,
       afterAddToUListCallBack,
     };
     if (typeof initConfig === "object" && initConfig !== null && Object.keys(initConfig).length > 0) {
@@ -7711,8 +7748,8 @@
                         text: i18next.t("右下角"),
                       },
                     ],
-                    (event, isSelectValue, isSelectText) => {
-                      log.info("设置当前Qmsg弹出位置" + isSelectText);
+                    (isSelectedInfo) => {
+                      log.info("设置当前Qmsg弹出位置" + isSelectedInfo.text);
                     },
                     i18next.t("Toast显示在页面九宫格的位置")
                   ),
@@ -7770,9 +7807,9 @@
                 text: "English",
               },
             ],
-            (event, isSelectValue, isSelectText) => {
-              log.info("改变语言：" + isSelectText);
-              i18next.changeLanguage(isSelectValue);
+            (isSelectedInfo) => {
+              log.info("改变语言：" + isSelectedInfo.text);
+              i18next.changeLanguage(isSelectedInfo.value);
             }
           ),
         ],
@@ -7790,16 +7827,14 @@
                 type: "container",
                 views: [
                   UIInput(i18next.t("账号"), "user", "", void 0, void 0, i18next.t("请输入账号")),
-                  UIInput(i18next.t("密码"), "pwd", "", void 0, void 0, i18next.t("请输入密码"), false, true),
-                  UIInput(
+                  UIInputPassword(i18next.t("密码"), "pwd", "", void 0, void 0, i18next.t("请输入密码")),
+                  UIInputPassword(
                     i18next.t("secret"),
                     "secret",
                     "",
-                    "两步验证（2FA）",
+                    i18next.t("两步验证（2FA）"),
                     void 0,
-                    i18next.t("请输入secret"),
-                    false,
-                    true
+                    i18next.t("请输入secret")
                   ),
                 ],
               },

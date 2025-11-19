@@ -135,12 +135,12 @@ export const BilibiliComponentDetectionRule = {
             // 启用
             let enable_template = UISwitch("启用", "enable", templateData.enable);
             Reflect.set(enable_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+            let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
 
             // 规则名称
             let name_template = UIInput("规则名称", "name", "", templateData.name, void 0, "必填");
             Reflect.set(name_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+            let $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
 
             // 是否显示标签名称
             let isShowDisplayName_template = UISwitch(
@@ -150,12 +150,12 @@ export const BilibiliComponentDetectionRule = {
             );
             Reflect.set(isShowDisplayName_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
             let $isShowDisplayName =
-              panelHandlerComponents.createSectionContainerItem_switch(isShowDisplayName_template);
+              panelHandlerComponents.createSectionContainerItem_switch(isShowDisplayName_template).$el;
 
             // 显示的标签名称
             let displayName_template = UIInput("标签名称", "displayName", templateData.data.displayName, "例如：原神");
             Reflect.set(displayName_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-            let $displayName = panelHandlerComponents.createSectionContainerItem_input(displayName_template);
+            let $displayName = panelHandlerComponents.createSectionContainerItem_input(displayName_template).$el;
 
             // 是否显示标签图标
             let isShowDisplayIcon_template = UISwitch(
@@ -165,12 +165,12 @@ export const BilibiliComponentDetectionRule = {
             );
             Reflect.set(isShowDisplayIcon_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
             let $isShowDisplayIcon =
-              panelHandlerComponents.createSectionContainerItem_switch(isShowDisplayIcon_template);
+              panelHandlerComponents.createSectionContainerItem_switch(isShowDisplayIcon_template).$el;
 
             // 显示的标签图标
             let displayIcon_template = UIInput("标签图标", "displayIcon", templateData.data.displayIcon, "Url或base64");
             Reflect.set(displayIcon_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-            let $displayIcon = panelHandlerComponents.createSectionContainerItem_input(displayIcon_template);
+            let $displayIcon = panelHandlerComponents.createSectionContainerItem_input(displayIcon_template).$el;
 
             // 关键词
             let keywords_template = UITextArea(
@@ -198,7 +198,7 @@ export const BilibiliComponentDetectionRule = {
                 data.data[key] = value;
               },
             });
-            let $keywords = panelHandlerComponents.createSectionContainerItem_textarea(keywords_template);
+            let $keywords = panelHandlerComponents.createSectionContainerItem_textarea(keywords_template).$el;
 
             // 关注的用户
             let followings_template = UITextArea("关注的用户", "followings", "", "用户id", void 0, "多个用户id换行");
@@ -225,7 +225,7 @@ export const BilibiliComponentDetectionRule = {
                 data.data[key] = value;
               },
             });
-            let $followings = panelHandlerComponents.createSectionContainerItem_textarea(followings_template);
+            let $followings = panelHandlerComponents.createSectionContainerItem_textarea(followings_template).$el;
 
             // 黑名单
             let blacklist_template = UITextArea("黑名单", "blacklist", "", "", void 0, "多个用户id换行");
@@ -252,7 +252,7 @@ export const BilibiliComponentDetectionRule = {
                 data.data[key] = value;
               },
             });
-            let $blacklist = panelHandlerComponents.createSectionContainerItem_textarea(blacklist_template);
+            let $blacklist = panelHandlerComponents.createSectionContainerItem_textarea(blacklist_template).$el;
 
             $fragment.append(
               $enable,

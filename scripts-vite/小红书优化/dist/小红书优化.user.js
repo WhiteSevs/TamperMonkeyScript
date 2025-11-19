@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.4
+// @version      2025.11.19
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -9,9 +9,9 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://www.xiaohongshu.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
@@ -964,7 +964,7 @@
       if (!Panel.isTopWindow()) {
         return;
       }
-      GM_Menu.add(this.$data.menuOption);
+      MenuRegister.add(this.$data.menuOption);
     },
     addMenuOption(option) {
       if (!Array.isArray(option)) {
@@ -1190,24 +1190,33 @@
         if (Array.isArray(args)) {
           resultValueList = resultValueList.concat(args);
         } else {
-          if (typeof args === "object" && args != null) {
-            if (args instanceof Element) {
-              resultValueList.push(args);
-            } else {
-              const { $css, destory } = args;
-              if ($css != null) {
-                if (Array.isArray($css)) {
-                  resultValueList = resultValueList.concat($css);
-                } else {
-                  resultValueList.push($css);
+          const handlerArgs = (obj) => {
+            if (typeof obj === "object" && obj != null) {
+              if (obj instanceof Element) {
+                resultValueList.push(obj);
+              } else {
+                const { $css, destory } = obj;
+                if ($css != null) {
+                  if (Array.isArray($css)) {
+                    resultValueList = resultValueList.concat($css);
+                  } else {
+                    resultValueList.push($css);
+                  }
+                }
+                if (typeof destory === "function") {
+                  resultValueList.push(destory);
                 }
               }
-              if (typeof destory === "function") {
-                resultValueList.push(destory);
-              }
+            } else {
+              resultValueList.push(obj);
+            }
+          };
+          if (args != null && Array.isArray(args)) {
+            for (const it of args) {
+              handlerArgs(it);
             }
           } else {
-            resultValueList.push(args);
+            handlerArgs(args);
           }
         }
         for (const it of resultValueList) {
@@ -1658,8 +1667,8 @@
           const loopContentConfig = (configList, path) => {
             for (let index = 0; index < configList.length; index++) {
               const configItem = configList[index];
-              const child_forms = configItem.views;
-              if (child_forms && Array.isArray(child_forms)) {
+              const childViewConfig = configItem.views;
+              if (childViewConfig && Array.isArray(childViewConfig)) {
                 const deepMenuPath = utils.deepClone(path);
                 if (configItem.type === "deepMenu") {
                   const deepNext = utils.queryProperty(deepMenuPath, (target) => {
@@ -1679,7 +1688,7 @@
                     name: configItem.text,
                   };
                 }
-                loopContentConfig(child_forms, deepMenuPath);
+                loopContentConfig(childViewConfig, deepMenuPath);
               } else {
                 let text;
                 let description;
@@ -1694,7 +1703,7 @@
                     }
                   }
                 } else {
-                  text = Reflect.get(configItem, "text");
+                  text = configItem.text;
                   description = Reflect.get(configItem, "description");
                 }
                 const delayMatchedTextList = [text, description];
@@ -1964,7 +1973,7 @@
     },
     drag: true,
   });
-  const GM_Menu = new utils.GM_Menu({
+  const MenuRegister = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,
     GM_registerMenuCommand: _GM_registerMenuCommand,
@@ -2304,12 +2313,18 @@
         for (let index = 0; index < that.$data.function_apply.length; index++) {
           const item = that.$data.function_apply[index];
           if (typeof item.paramsHandler === "function") {
-            const handlerResult = item.paramsHandler(fn, thisArg, argArray);
+            const handlerResult = item.paramsHandler(fn, thisArg, argArray, args);
             if (handlerResult != null) {
               if (handlerResult.args) {
-                args[0] = handlerResult.args.thisArg;
-                args[1] = handlerResult.args.argArray;
-                fn = handlerResult.args.fn;
+                if ("thisArg" in handlerResult.args) {
+                  args[0] = handlerResult.args.thisArg;
+                }
+                if ("argArray" in handlerResult.args) {
+                  args[1] = handlerResult.args.argArray;
+                }
+                if (typeof handlerResult.args.fn === "function") {
+                  fn = handlerResult.args.fn;
+                }
               }
               if (handlerResult.preventDefault) {
                 if ("result" in handlerResult) {
@@ -2325,8 +2340,10 @@
         for (let index = 0; index < that.$data.function_apply.length; index++) {
           const item = that.$data.function_apply[index];
           if (typeof item.returnsHandler === "function") {
-            let handlerResult = item.returnsHandler(fn, args[0], args[1], result);
-            result = handlerResult.result;
+            let handlerResult = item.returnsHandler(fn, args[0], args[1], result, args);
+            if (handlerResult != null && "result" in handlerResult) {
+              result = handlerResult.result;
+            }
           }
         }
         return result;
@@ -2347,12 +2364,18 @@
         for (let index = 0; index < that.$data.function_call.length; index++) {
           const item = that.$data.function_call[index];
           if (typeof item.paramsHandler === "function") {
-            const handlerResult = item.paramsHandler(fn, thisArg, argArray);
+            const handlerResult = item.paramsHandler(fn, thisArg, argArray, args);
             if (handlerResult != null) {
               if (handlerResult.args) {
-                args[0] = handlerResult.args.thisArg;
-                args.splice(1, argArray.length, ...handlerResult.args.argArray);
-                fn = handlerResult.args.fn;
+                if ("thisArg" in handlerResult.args) {
+                  args[0] = handlerResult.args.thisArg;
+                }
+                if ("argArray" in handlerResult.args) {
+                  args.splice(1, argArray.length, ...handlerResult.args.argArray);
+                }
+                if (typeof handlerResult.args.fn === "function") {
+                  fn = handlerResult.args.fn;
+                }
               }
               if (handlerResult.preventDefault) {
                 if ("result" in handlerResult) {
@@ -2368,8 +2391,10 @@
         for (let index = 0; index < that.$data.function_call.length; index++) {
           const item = that.$data.function_call[index];
           if (typeof item.returnsHandler === "function") {
-            const handlerResult = item.returnsHandler(fn, args[0], args[1], result);
-            result = handlerResult.result;
+            const handlerResult = item.returnsHandler(fn, args[0], args[1], result, args);
+            if (handlerResult != null && "result" in handlerResult) {
+              result = handlerResult.result;
+            }
           }
         }
         return result;
@@ -3532,29 +3557,29 @@
     description,
     changeCallback,
     placeholder = "",
-    isNumber,
-    isPassword,
+    inputType = "text",
     afterAddToUListCallBack,
     valueChangeCallback
   ) {
     const result = {
       text,
       type: "input",
-      isNumber: Boolean(isNumber),
-      isPassword: Boolean(isPassword),
+      inputType,
       attributes: {},
       props: {},
       description,
+      placeholder,
       afterAddToUListCallBack,
       getValue() {
         const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
-      callback(event, value, valueAsNumber) {
+      callback(event, value) {
+        const $input = event.target;
+        $input.validity.valid;
         const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      placeholder,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -5035,10 +5060,10 @@
               }
               let enable_template = UISwitch("启用", "enable", true);
               Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-              let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+              let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
               let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
               Reflect.set(name_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-              let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+              let $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
               let scope_template = UISelectMultiple(
                 "作用域",
                 "scope",
@@ -5063,7 +5088,7 @@
                 "选择需要在xxx上生效的作用域"
               );
               Reflect.set(scope_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-              let $scope = panelHandlerComponents.createSectionContainerItem_select_multiple(scope_template);
+              let $scope = panelHandlerComponents.createSectionContainerItem_select_multiple(scope_template).$el;
               let keyNameHandlerInfo = [
                 "display_title",
                 "isLike",
@@ -5091,13 +5116,14 @@
                   "选择需要的属性名 "
                 );
                 Reflect.set(ruleName_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
-                let $ruleName2 = panelHandlerComponents.createSectionContainerItem_select_multiple(ruleName_template);
+                let $ruleName2 =
+                  panelHandlerComponents.createSectionContainerItem_select_multiple(ruleName_template).$el;
                 let ruleValue_template = UITextArea("属性值", "ruleValue", "", "如果是字符串，可正则，注意转义");
                 Reflect.set(ruleValue_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
-                let $ruleValue2 = panelHandlerComponents.createSectionContainerItem_textarea(ruleValue_template);
+                let $ruleValue2 = panelHandlerComponents.createSectionContainerItem_textarea(ruleValue_template).$el;
                 let remarks_template = UITextArea("备注", "remarks", "", "");
                 Reflect.set(remarks_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
-                let $remarks2 = panelHandlerComponents.createSectionContainerItem_textarea(remarks_template);
+                let $remarks2 = panelHandlerComponents.createSectionContainerItem_textarea(remarks_template).$el;
                 return {
                   $ruleName: $ruleName2,
                   $ruleValue: $ruleValue2,
@@ -5415,12 +5441,6 @@
     },
   };
   const UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
-    let selectData = [];
-    if (typeof data === "function") {
-      selectData = data();
-    } else {
-      selectData = data;
-    }
     const result = {
       text,
       type: "select",
@@ -5431,11 +5451,14 @@
         const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
-      callback(event, isSelectedValue, isSelectedText) {
-        const value = isSelectedValue;
-        log.info(`选择：${isSelectedText}`);
+      callback(isSelectedInfo) {
+        if (isSelectedInfo == null) {
+          return;
+        }
+        const value = isSelectedInfo.value;
+        log.info(`选择：${isSelectedInfo.text}`);
         if (typeof selectCallBack === "function") {
-          const result2 = selectCallBack(event, value, isSelectedText);
+          const result2 = selectCallBack(isSelectedInfo);
           if (result2) {
             return;
           }
@@ -5443,7 +5466,7 @@
         const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      data: selectData,
+      data,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -5550,8 +5573,8 @@
                         text: "右下角",
                       },
                     ],
-                    (event, isSelectValue, isSelectText) => {
-                      log.info("设置当前Qmsg弹出位置" + isSelectText);
+                    (isSelectedInfo) => {
+                      log.info("设置当前Qmsg弹出位置" + isSelectedInfo.text);
                     },
                     "Toast显示在页面九宫格的位置"
                   ),
@@ -5877,8 +5900,8 @@
                         text: "右下角",
                       },
                     ],
-                    (event, isSelectValue, isSelectText) => {
-                      log.info("设置当前Qmsg弹出位置" + isSelectText);
+                    (isSelectedInfo) => {
+                      log.info("设置当前Qmsg弹出位置" + isSelectedInfo.text);
                     },
                     "Toast显示在页面九宫格的位置"
                   ),
@@ -6080,7 +6103,7 @@
   let isMobile = utils.isPhone();
   let CHANGE_ENV_SET_KEY = "change_env_set";
   let chooseMode = _GM_getValue(CHANGE_ENV_SET_KEY);
-  GM_Menu.add({
+  MenuRegister.add({
     key: CHANGE_ENV_SET_KEY,
     text: `⚙ 自动: ${isMobile ? "移动端" : "PC端"}`,
     autoReload: false,

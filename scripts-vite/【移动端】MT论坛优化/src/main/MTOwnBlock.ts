@@ -158,48 +158,49 @@ export const MTOwnBlock = {
             // 启用
             let enable_template = UISwitch("启用", "enable", true);
             Reflect.set(enable_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+            let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
 
             // 规则名称
             let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
             Reflect.set(name_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+            let $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
 
             // 用户名
             let data_userName_template = UIInput("用户名", "userName", "", "", void 0, "可正则");
             Reflect.set(data_userName_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-            let $data_userName = panelHandlerComponents.createSectionContainerItem_input(data_userName_template);
+            let $data_userName = panelHandlerComponents.createSectionContainerItem_input(data_userName_template).$el;
 
             // 用户UID
             let data_userUID_template = UIInput("用户UID", "userUID", "", "", void 0, "可正则");
             Reflect.set(data_userUID_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-            let $data_userUID = panelHandlerComponents.createSectionContainerItem_input(data_userUID_template);
+            let $data_userUID = panelHandlerComponents.createSectionContainerItem_input(data_userUID_template).$el;
 
             // 用户等级
             let data_userLevel_template = UIInput("用户等级", "userLevel", "", "", void 0, "可正则");
             Reflect.set(data_userLevel_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-            let $data_userLevel = panelHandlerComponents.createSectionContainerItem_input(data_userLevel_template);
+            let $data_userLevel = panelHandlerComponents.createSectionContainerItem_input(data_userLevel_template).$el;
 
             // 帖子url
             let data_postUrl_template = UIInput("帖子url", "postUrl", "", "", void 0, "可正则");
             Reflect.set(data_postUrl_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-            let $data_postUrl = panelHandlerComponents.createSectionContainerItem_input(data_postUrl_template);
+            let $data_postUrl = panelHandlerComponents.createSectionContainerItem_input(data_postUrl_template).$el;
 
             // 帖子标题
             let data_postTitle_template = UIInput("帖子标题", "postTitle", "", "", void 0, "可正则");
             Reflect.set(data_postTitle_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-            let $data_postTitle = panelHandlerComponents.createSectionContainerItem_input(data_postTitle_template);
+            let $data_postTitle = panelHandlerComponents.createSectionContainerItem_input(data_postTitle_template).$el;
 
             // 帖子内容
             let data_postContent_template = UIInput("帖子内容", "postContent", "", "", void 0, "可正则");
             Reflect.set(data_postContent_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-            let $data_postContent = panelHandlerComponents.createSectionContainerItem_input(data_postContent_template);
+            let $data_postContent =
+              panelHandlerComponents.createSectionContainerItem_input(data_postContent_template).$el;
 
             // 帖子所在的板块名
             let data_postPlateName_template = UIInput("帖子所在的板块名", "postPlateName", "", "", void 0, "可正则");
             Reflect.set(data_postPlateName_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
             let $data_postPlateName =
-              panelHandlerComponents.createSectionContainerItem_input(data_postPlateName_template);
+              panelHandlerComponents.createSectionContainerItem_input(data_postPlateName_template).$el;
             $fragment.appendChild($enable);
             $fragment.appendChild($name);
             $fragment.appendChild($data_userName);

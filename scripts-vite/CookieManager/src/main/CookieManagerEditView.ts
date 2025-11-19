@@ -15,8 +15,6 @@ let edit_ui_input = (text: string, getValue: () => string, setValue: (value: str
   let config: PopsPanelInputConfig = {
     text: text,
     type: "input",
-    isNumber: false,
-    isPassword: false,
     props: {},
     attributes: {},
     description: "",
@@ -77,8 +75,8 @@ let edit_ui_select = <T>(
     getValue() {
       return getValue();
     },
-    callback(event, isSelectedValue, isSelectedText) {
-      let value = isSelectedValue;
+    callback(isSelectedInfo) {
+      const value = isSelectedInfo!.value;
       setValue(value);
     },
     data: typeof data === "function" ? data() : data,
@@ -227,28 +225,28 @@ export const CookieManagerEditView = {
         (value) => (cookieInfo.name = value),
         isEdit
       )
-    );
+    ).$el;
     const $value = panelHandlerComponents.createSectionContainerItem_textarea(
       edit_ui_textarea(
         "value",
         () => cookieInfo.value,
         (value) => (cookieInfo.value = value)
       )
-    );
+    ).$el;
     const $domain = panelHandlerComponents.createSectionContainerItem_input(
       edit_ui_input(
         "domain",
         () => cookieInfo.domain,
         (value) => (cookieInfo.domain = value)
       )
-    );
+    ).$el;
     const $path = panelHandlerComponents.createSectionContainerItem_input(
       edit_ui_input(
         "path",
         () => cookieInfo.path,
         (value) => (cookieInfo.path = value)
       )
-    );
+    ).$el;
     let $expires: HTMLLIElement;
     if (cookieInfo.session) {
       // session的话就是 没有过期时间，变成输出框
@@ -259,7 +257,7 @@ export const CookieManagerEditView = {
           (value) => {},
           true
         )
-      );
+      ).$el;
     } else {
       const expiresTemplate = UIOwn(() => {
         const $li = DOMUtils.createElement("li", {
@@ -280,7 +278,7 @@ export const CookieManagerEditView = {
         });
         return $li;
       });
-      $expires = panelHandlerComponents.createSectionContainerItem_own(expiresTemplate);
+      $expires = panelHandlerComponents.createSectionContainerItem_own(expiresTemplate).$el;
     }
     const $httpOnly = panelHandlerComponents.createSectionContainerItem_select(
       edit_ui_select(
@@ -298,7 +296,7 @@ export const CookieManagerEditView = {
         () => cookieInfo.httpOnly,
         (value) => (cookieInfo.httpOnly = value)
       )
-    );
+    ).$el;
     const $secure = panelHandlerComponents.createSectionContainerItem_select(
       edit_ui_select(
         "secure",
@@ -315,7 +313,7 @@ export const CookieManagerEditView = {
         () => cookieInfo.secure,
         (value) => (cookieInfo.secure = value)
       )
-    );
+    ).$el;
     let sameSiteData = [
       {
         text: "no_restriction",
@@ -358,7 +356,7 @@ export const CookieManagerEditView = {
         () => cookieInfo.sameSite,
         (value) => (cookieInfo.sameSite = value)
       )
-    );
+    ).$el;
     DOMUtils.append($editContent, [$name, $value]);
     if (CookieManager.cookieManagerApiName === "GM_cookie" || CookieManager.cookieManagerApiName === "GM.cookie") {
       DOMUtils.append($editContent, [$domain, $path, $expires, $httpOnly, $secure, $sameSite]);

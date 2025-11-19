@@ -1,6 +1,6 @@
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 import { M_XHS } from "./m-main/M_XHS";
-import { addStyle, GM_Menu, log, SCRIPT_NAME, utils } from "./env";
+import { addStyle, log, MenuRegister, SCRIPT_NAME, utils } from "./env";
 import { XHS } from "./main/XHS";
 import Qmsg from "qmsg";
 import { Panel } from "@components/setting/panel";
@@ -39,7 +39,7 @@ Panel.init();
 let isMobile = utils.isPhone();
 let CHANGE_ENV_SET_KEY = "change_env_set";
 let chooseMode = GM_getValue(CHANGE_ENV_SET_KEY);
-GM_Menu.add({
+MenuRegister.add({
   key: CHANGE_ENV_SET_KEY,
   text: `⚙ 自动: ${isMobile ? "移动端" : "PC端"}`,
   autoReload: false,

@@ -1,5 +1,5 @@
 import { Jianshu } from "@/main/Jianshu";
-import { GM_Menu, log, utils } from "./env";
+import { log, MenuRegister, utils } from "./env";
 import { M_Jianshu } from "./m-main/m-Jianshu";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 import Qmsg from "qmsg";
@@ -15,7 +15,7 @@ Panel.init();
 let isMobile = utils.isPhone();
 let CHANGE_ENV_SET_KEY = "change_env_set";
 let chooseMode = GM_getValue(CHANGE_ENV_SET_KEY);
-GM_Menu.add({
+MenuRegister.add({
   key: CHANGE_ENV_SET_KEY,
   text: `⚙ 自动: ${isMobile ? "移动端" : "PC端"}`,
   autoReload: false,

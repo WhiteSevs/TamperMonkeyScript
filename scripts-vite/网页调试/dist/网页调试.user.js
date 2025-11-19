@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网页调试
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.4
+// @version      2025.11.19
 // @author       WhiteSevs
 // @description  内置多种网页调试工具，包括：Eruda、vConsole、PageSpy、Chii，可在设置菜单中进行详细配置
 // @license      GPL-3.0-only
@@ -12,9 +12,9 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@734ba267afee2a5995d15dc419e754a19532cbf4/lib/Eruda/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@9f63667d501ec8df5bdb4af680f37793f393754f/lib/VConsole/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@b2f37e0ef04aafbccbdbd52733f795c2076acd87/lib/PageSpy/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @resource     Resource_erudaBenchmark       https://fastly.jsdelivr.net/npm/eruda-benchmark@2.0.1
 // @resource     Resource_erudaCode            https://fastly.jsdelivr.net/npm/eruda-code@2.2.0
@@ -414,7 +414,7 @@
     },
     drag: true,
   });
-  const GM_Menu = new utils.GM_Menu({
+  const MenuRegister = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,
     GM_registerMenuCommand: _GM_registerMenuCommand,
@@ -1093,7 +1093,7 @@
       if (!Panel.isTopWindow()) {
         return;
       }
-      GM_Menu.add(this.$data.menuOption);
+      MenuRegister.add(this.$data.menuOption);
     },
     addMenuOption(option) {
       if (!Array.isArray(option)) {
@@ -1319,24 +1319,33 @@
         if (Array.isArray(args)) {
           resultValueList = resultValueList.concat(args);
         } else {
-          if (typeof args === "object" && args != null) {
-            if (args instanceof Element) {
-              resultValueList.push(args);
-            } else {
-              const { $css, destory } = args;
-              if ($css != null) {
-                if (Array.isArray($css)) {
-                  resultValueList = resultValueList.concat($css);
-                } else {
-                  resultValueList.push($css);
+          const handlerArgs = (obj) => {
+            if (typeof obj === "object" && obj != null) {
+              if (obj instanceof Element) {
+                resultValueList.push(obj);
+              } else {
+                const { $css, destory } = obj;
+                if ($css != null) {
+                  if (Array.isArray($css)) {
+                    resultValueList = resultValueList.concat($css);
+                  } else {
+                    resultValueList.push($css);
+                  }
+                }
+                if (typeof destory === "function") {
+                  resultValueList.push(destory);
                 }
               }
-              if (typeof destory === "function") {
-                resultValueList.push(destory);
-              }
+            } else {
+              resultValueList.push(obj);
+            }
+          };
+          if (args != null && Array.isArray(args)) {
+            for (const it of args) {
+              handlerArgs(it);
             }
           } else {
-            resultValueList.push(args);
+            handlerArgs(args);
           }
         }
         for (const it of resultValueList) {
@@ -1787,8 +1796,8 @@
           const loopContentConfig = (configList, path) => {
             for (let index = 0; index < configList.length; index++) {
               const configItem = configList[index];
-              const child_forms = configItem.views;
-              if (child_forms && Array.isArray(child_forms)) {
+              const childViewConfig = configItem.views;
+              if (childViewConfig && Array.isArray(childViewConfig)) {
                 const deepMenuPath = utils.deepClone(path);
                 if (configItem.type === "deepMenu") {
                   const deepNext = utils.queryProperty(deepMenuPath, (target) => {
@@ -1808,7 +1817,7 @@
                     name: configItem.text,
                   };
                 }
-                loopContentConfig(child_forms, deepMenuPath);
+                loopContentConfig(childViewConfig, deepMenuPath);
               } else {
                 let text;
                 let description;
@@ -1823,7 +1832,7 @@
                     }
                   }
                 } else {
-                  text = Reflect.get(configItem, "text");
+                  text = configItem.text;
                   description = Reflect.get(configItem, "description");
                 }
                 const delayMatchedTextList = [text, description];
@@ -3096,7 +3105,7 @@
       } catch (error) {
         console.error(error);
       }
-      GM_Menu.add({
+      MenuRegister.add({
         key: "iframeUrl",
         text: window.location.href,
         autoReload: false,
@@ -3156,19 +3165,19 @@
           if (DebugTool.$ele.hideDebugToolCSSNode) {
             this.showCurrentDebugTool();
             menuData.text = "🌑 隐藏调试工具";
-            GM_Menu.update(menuData);
+            MenuRegister.update(menuData);
           } else {
             this.hideCurrentDebugTool();
             menuData.text = "🌕 显示调试工具";
-            GM_Menu.update(menuData);
+            MenuRegister.update(menuData);
           }
         } else {
           this.showCurrentDebugTool();
           menuData.text = "🌑 隐藏调试工具";
-          GM_Menu.update(menuData);
+          MenuRegister.update(menuData);
         }
       };
-      GM_Menu.add(menuData);
+      MenuRegister.add(menuData);
     },
     isInjectDebugToolHideCSS() {
       return Boolean(
@@ -3269,12 +3278,6 @@
     },
   };
   const UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
-    let selectData = [];
-    if (typeof data === "function") {
-      selectData = data();
-    } else {
-      selectData = data;
-    }
     const result = {
       text,
       type: "select",
@@ -3285,13 +3288,16 @@
         const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
-      callback(event, isSelectedValue, isSelectedText) {
-        const value = isSelectedValue;
-        log.info(`选择：${isSelectedText}`);
+      callback(isSelectedInfo) {
+        if (isSelectedInfo == null) {
+          return;
+        }
+        const value = isSelectedInfo.value;
+        log.info(`选择：${isSelectedInfo.text}`);
         const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      data: selectData,
+      data,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -3453,12 +3459,12 @@
     });
     return result;
   };
-  const UIOwn = function (getLiElementCallBack, initConfig, searchConfig, attr, props, afterAddToUListCallBack) {
+  const UIOwn = function (createLIElement, initConfig, searchConfig, attr, props, afterAddToUListCallBack) {
     const result = {
       type: "own",
       attributes: {},
       props: {},
-      getLiElementCallBack,
+      createLIElement,
       afterAddToUListCallBack,
     };
     {
@@ -3885,26 +3891,24 @@
       },
     ],
   };
-  const UIInput = function (
+  const UIInputNumber = function (
     text,
     key,
     defaultValue,
     description,
     changeCallback,
     placeholder = "",
-    isNumber,
-    isPassword,
     afterAddToUListCallBack,
     valueChangeCallback
   ) {
     const result = {
       text,
       type: "input",
-      isNumber: Boolean(isNumber),
-      isPassword: Boolean(isPassword),
+      inputType: "number",
       attributes: {},
       props: {},
       description,
+      placeholder,
       afterAddToUListCallBack,
       getValue() {
         const storageApiValue = this.props[PROPS_STORAGE_API];
@@ -3914,7 +3918,6 @@
         const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      placeholder,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -4106,23 +4109,17 @@
             GlobalSettingConfig.vconsole_showTimestamps.key,
             GlobalSettingConfig.vconsole_showTimestamps.defaultValue
           ),
-          UIInput(
+          UIInputNumber(
             "日志的上限数量",
             GlobalSettingConfig.vconsole_maxLogNumber.key,
             GlobalSettingConfig.vconsole_maxLogNumber.defaultValue,
-            "请输入数字",
-            void 0,
-            void 0,
-            true
+            "请输入合适的数字"
           ),
-          UIInput(
+          UIInputNumber(
             "请求记录的上限数量",
             GlobalSettingConfig.vconsole_maxNetworkNumber.key,
             GlobalSettingConfig.vconsole_maxNetworkNumber.defaultValue,
-            "请输入数字",
-            void 0,
-            void 0,
-            true
+            "请输入合适的数字"
           ),
         ],
       },
@@ -4190,6 +4187,49 @@
         ],
       },
     ],
+  };
+  const UIInput = function (
+    text,
+    key,
+    defaultValue,
+    description,
+    changeCallback,
+    placeholder = "",
+    inputType = "text",
+    afterAddToUListCallBack,
+    valueChangeCallback
+  ) {
+    const result = {
+      text,
+      type: "input",
+      inputType,
+      attributes: {},
+      props: {},
+      description,
+      placeholder,
+      afterAddToUListCallBack,
+      getValue() {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
+      },
+      callback(event, value) {
+        const $input = event.target;
+        $input.validity.valid;
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
+      },
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("input", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
+      },
+    });
+    return result;
   };
   const PanelUI_pagespy = {
     id: "debug-panel-config-pagespy",

@@ -1,5 +1,5 @@
 import { NetDiskGlobalData } from "./data/NetDiskGlobalData";
-import { DEBUG, GM_Menu, log, utils } from "@/env";
+import { DEBUG, log, MenuRegister, utils } from "@/env";
 import Qmsg from "qmsg";
 import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import { NetDiskRuleUtils } from "./rule/NetDiskRuleUtils";
@@ -106,7 +106,7 @@ export const NetDisk = {
     const matchedUrlRuleList = WebsiteRule.getUrlMatchedRule();
     if (matchedUrlRuleList.length) {
       log.info("成功命中的网站规则 ==> ", matchedUrlRuleList);
-      GM_Menu.add({
+      MenuRegister.add({
         key: "matchedUrlRuleList",
         text: `🌏 命中网站规则 ${matchedUrlRuleList.length} 条`,
         autoReload: false,
@@ -148,7 +148,7 @@ export const NetDisk = {
     const matchedCharacterMappingRuleList = CharacterMapping.getUrlMatchedRule();
     if (matchedCharacterMappingRuleList.length) {
       log.info("成功命中的字符规则 ==> ", matchedCharacterMappingRuleList);
-      GM_Menu.add({
+      MenuRegister.add({
         key: "characterMapping",
         text: `🌏 命中字符规则 ${matchedCharacterMappingRuleList.length} 条`,
         autoReload: false,

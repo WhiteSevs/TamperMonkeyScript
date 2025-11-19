@@ -63,8 +63,8 @@ const SettingUICommon: PopsPanelContentConfig = {
                       text: "右下角",
                     },
                   ],
-                  (event, isSelectValue, isSelectText) => {
-                    log.info("设置当前Qmsg弹出位置" + isSelectText);
+                  (isSelectedInfo) => {
+                    log.info("设置当前Qmsg弹出位置" + isSelectedInfo.text);
                   },
                   "Toast显示在页面九宫格的位置"
                 ),

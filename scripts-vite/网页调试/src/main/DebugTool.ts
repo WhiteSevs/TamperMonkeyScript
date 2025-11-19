@@ -1,4 +1,4 @@
-import { console, copy, DOMUtils, GM_Menu, unsafeWin, utils } from "@/env";
+import { console, copy, MenuRegister } from "@/env";
 import type { UtilsGMMenuClickCallBackData, UtilsGMMenuOption } from "@whitesev/utils/dist/types/src/types/UtilsGMMenu";
 import { Eruda } from "./Eruda/Eruda";
 import { vConsole } from "./vConsole/vConsole";
@@ -37,7 +37,7 @@ export const DebugTool = {
     } catch (error) {
       console.error(error);
     }
-    GM_Menu.add({
+    MenuRegister.add({
       key: "iframeUrl",
       text: window.location.href,
       autoReload: false,
@@ -116,14 +116,14 @@ export const DebugTool = {
           /* 菜单状态：【隐藏调试工具】 */
           this.showCurrentDebugTool();
           menuData.text = "🌑 隐藏调试工具";
-          GM_Menu.update(menuData);
+          MenuRegister.update(menuData);
         } else {
           /* 状态：已加载且未添加隐藏CSS */
           /* 进行添加隐藏CSS */
           /* 菜单状态：【显示调试工具】 */
           this.hideCurrentDebugTool();
           menuData.text = "🌕 显示调试工具";
-          GM_Menu.update(menuData);
+          MenuRegister.update(menuData);
         }
       } else {
         /* 状态：未加载，加载并显示 */
@@ -131,10 +131,10 @@ export const DebugTool = {
         /* 菜单状态：【隐藏调试工具】 */
         this.showCurrentDebugTool();
         menuData.text = "🌑 隐藏调试工具";
-        GM_Menu.update(menuData);
+        MenuRegister.update(menuData);
       }
     };
-    GM_Menu.add(menuData);
+    MenuRegister.add(menuData);
   },
   /**
    * 判断页面中是否已存在隐藏调试工具的CSS元素节点

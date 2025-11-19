@@ -1,4 +1,4 @@
-import { DOMUtils, GM_Menu, httpx, log, pops, utils } from "@/env";
+import { DOMUtils, httpx, log, MenuRegister, pops, utils } from "@/env";
 import Qmsg from "qmsg";
 import blackHomeCSS from "./css/black-home.css?raw";
 import { MTUtils } from "@/utils/MTUtils";
@@ -28,7 +28,7 @@ export const MTBlackHome = {
    * 注册菜单
    */
   registerMenu() {
-    GM_Menu.add({
+    MenuRegister.add({
       key: "black-home",
       text: "⚙ 小黑屋",
       autoReload: false,

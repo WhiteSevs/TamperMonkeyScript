@@ -1,6 +1,6 @@
 import onlineUserCSS from "./css/online-user.css?raw";
 import Qmsg from "qmsg";
-import { GM_Menu, httpx, pops, utils } from "@/env";
+import { httpx, MenuRegister, pops, utils } from "@/env";
 import DOMUtils from "@whitesev/domutils";
 import { MTUtils } from "@/utils/MTUtils";
 import { PanelUISize } from "@components/setting/panel-ui-size";
@@ -22,7 +22,7 @@ export const MTOnlineUser = {
    * 注册菜单
    */
   registerMenu() {
-    GM_Menu.add({
+    MenuRegister.add({
       key: "online-user",
       text: "⚙ 在线用户",
       autoReload: false,

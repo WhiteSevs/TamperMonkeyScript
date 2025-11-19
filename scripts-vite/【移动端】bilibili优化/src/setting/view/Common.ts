@@ -7,6 +7,8 @@ import { UIInput } from "@components/setting/components/ui-input";
 import { BilibiliQrCodeLogin } from "@/account/BilibiliQrCodeLogin";
 import { UIButton } from "@components/setting/components/ui-button";
 import { BilibiliComponentDetectionRule } from "@/main/BilibiliComponentDetectionRule";
+import { UIInputNumber } from "@components/setting/components/ui-input-number";
+import { UIInputPassword } from "@components/setting/components/ui-input-password";
 
 const SettingUICommon: PopsPanelContentConfig = {
   id: "panel-common",
@@ -177,20 +179,17 @@ const SettingUICommon: PopsPanelContentConfig = {
               text: "",
               type: "container",
               views: [
-                UIInput(
+                UIInputPassword(
                   "access_token",
                   "bili-head-recommend-access_token",
                   BilibiliQrCodeLogin.getAccessToken(),
                   "填入access_token，可用于获取推荐视频数据、番剧搜索、番剧播放等",
-                  (event, value, valueAsNumber) => {
+                  (event, value) => {
                     BilibiliQrCodeLogin.setAccessTokenInfo({
                       access_token: value,
                       expireAt: BilibiliQrCodeLogin.generateExpireAt(),
                     });
-                  },
-                  void 0,
-                  false,
-                  true
+                  }
                 ),
               ],
             },
@@ -246,8 +245,8 @@ const SettingUICommon: PopsPanelContentConfig = {
                       text: "右下角",
                     },
                   ],
-                  (event, isSelectValue, isSelectText) => {
-                    log.info("设置当前Qmsg弹出位置" + isSelectText);
+                  (isSelectedInfo) => {
+                    log.info("设置当前Qmsg弹出位置" + isSelectedInfo.text);
                   },
                   "Toast显示在页面九宫格的位置"
                 ),

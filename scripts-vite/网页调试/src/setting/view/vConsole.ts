@@ -9,6 +9,7 @@ import { DebugToolVersionConfig } from "@/main/DebugToolVersionConfig";
 import { GlobalSettingConfig } from "../config";
 import { Panel } from "@components/setting/panel";
 import { UIOwn } from "@components/setting/components/ui-own";
+import { UIInputNumber } from "@components/setting/components/ui-input-number";
 
 export const PanelUI_vConsole: PopsPanelContentConfig = {
   id: "debug-panel-config-vconsole",
@@ -189,23 +190,17 @@ export const PanelUI_vConsole: PopsPanelContentConfig = {
           GlobalSettingConfig.vconsole_showTimestamps.key,
           GlobalSettingConfig.vconsole_showTimestamps.defaultValue
         ),
-        UIInput(
+        UIInputNumber(
           "日志的上限数量",
           GlobalSettingConfig.vconsole_maxLogNumber.key,
           GlobalSettingConfig.vconsole_maxLogNumber.defaultValue,
-          "请输入数字",
-          void 0,
-          void 0,
-          true
+          "请输入合适的数字"
         ),
-        UIInput(
+        UIInputNumber(
           "请求记录的上限数量",
           GlobalSettingConfig.vconsole_maxNetworkNumber.key,
           GlobalSettingConfig.vconsole_maxNetworkNumber.defaultValue,
-          "请输入数字",
-          void 0,
-          void 0,
-          true
+          "请输入合适的数字"
         ),
       ],
     },

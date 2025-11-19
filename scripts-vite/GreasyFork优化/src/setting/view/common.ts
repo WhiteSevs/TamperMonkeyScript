@@ -2,6 +2,7 @@ import Qmsg from "qmsg";
 import { UIButton } from "@components/setting/components/ui-button";
 import { UIInput } from "@components/setting/components/ui-input";
 import { UISwitch } from "@components/setting/components/ui-switch";
+import { UIInputPassword } from "@components/setting/components/ui-input-password";
 import { GreasyforkMenu } from "@/main/GreasyforkMenu";
 import { GreasyforkRouter } from "@/router/GreasyforkRouter";
 import i18next from "i18next";
@@ -75,8 +76,8 @@ export const SettingUICommon: PopsPanelContentConfig = {
                       text: i18next.t("右下角"),
                     },
                   ],
-                  (event, isSelectValue, isSelectText) => {
-                    log.info("设置当前Qmsg弹出位置" + isSelectText);
+                  (isSelectedInfo) => {
+                    log.info("设置当前Qmsg弹出位置" + isSelectedInfo.text);
                   },
                   i18next.t("Toast显示在页面九宫格的位置")
                 ),
@@ -134,9 +135,9 @@ export const SettingUICommon: PopsPanelContentConfig = {
               text: "English",
             },
           ],
-          (event, isSelectValue, isSelectText) => {
-            log.info("改变语言：" + isSelectText);
-            i18next.changeLanguage(isSelectValue);
+          (isSelectedInfo) => {
+            log.info("改变语言：" + isSelectedInfo.text);
+            i18next.changeLanguage(isSelectedInfo.value);
           }
         ),
       ],
@@ -154,16 +155,14 @@ export const SettingUICommon: PopsPanelContentConfig = {
               type: "container",
               views: [
                 UIInput(i18next.t("账号"), "user", "", void 0, void 0, i18next.t("请输入账号")),
-                UIInput(i18next.t("密码"), "pwd", "", void 0, void 0, i18next.t("请输入密码"), false, true),
-                UIInput(
+                UIInputPassword(i18next.t("密码"), "pwd", "", void 0, void 0, i18next.t("请输入密码")),
+                UIInputPassword(
                   i18next.t("secret"),
                   "secret",
                   "",
-                  "两步验证（2FA）",
+                  i18next.t("两步验证（2FA）"),
                   void 0,
-                  i18next.t("请输入secret"),
-                  false,
-                  true
+                  i18next.t("请输入secret")
                 ),
               ],
             },

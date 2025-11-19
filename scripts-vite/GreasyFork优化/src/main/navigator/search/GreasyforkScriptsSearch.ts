@@ -282,7 +282,7 @@ export const GreasyforkScriptsSearch = {
           Panel.setValue("gf-script-search-addFilterSearchInput-text", value.toString());
           execTotalFilter();
         }, 500),
-      });
+      }).$el;
       DOMUtils.append($search, $searchInner);
     }
     controlsConfig.forEach((controlConfig) => {
@@ -323,7 +323,7 @@ export const GreasyforkScriptsSearch = {
             });
           }
         },
-      });
+      }).$el;
       DOMUtils.append($filterControlsContainer, $controlContainer);
     });
   },

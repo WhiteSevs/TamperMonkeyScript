@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.9
+// @version      2025.11.19
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@c90210bf4ab902dbceb9c6e5b101b1ea91c34581/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/data-paging@0.0.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
@@ -453,7 +453,7 @@
     },
     drag: true,
   });
-  const GM_Menu = new utils.GM_Menu({
+  const MenuRegister = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,
     GM_registerMenuCommand: _GM_registerMenuCommand,
@@ -1142,7 +1142,7 @@
       if (!Panel.isTopWindow()) {
         return;
       }
-      GM_Menu.add(this.$data.menuOption);
+      MenuRegister.add(this.$data.menuOption);
     },
     addMenuOption(option) {
       if (!Array.isArray(option)) {
@@ -2149,35 +2149,29 @@
     description,
     changeCallback,
     placeholder = "",
-    isNumber,
-    isPassword,
+    inputType = "text",
     afterAddToUListCallBack,
     valueChangeCallback
   ) {
     const result = {
       text,
       type: "input",
-      isNumber: Boolean(isNumber),
-      isPassword: Boolean(isPassword),
+      inputType,
       attributes: {},
       props: {},
       description,
+      placeholder,
       afterAddToUListCallBack,
       getValue() {
         const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
-      callback(event, value, valueAsNumber) {
-        if (typeof changeCallback === "function") {
-          const result2 = changeCallback(event, value, valueAsNumber);
-          if (result2) {
-            return;
-          }
-        }
+      callback(event, value) {
+        const $input = event.target;
+        $input.validity.valid;
         const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      placeholder,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -6850,13 +6844,13 @@
         let $fragment = document.createDocumentFragment();
         let enable_template = UISwitch("启用", "enable", true);
         Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-        let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+        let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
         let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
         Reflect.set(name_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-        let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+        let $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
         let url_template = UIInput("匹配网址", "url", "", "", void 0, "必填，可正则");
         Reflect.set(url_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-        let $data_url = panelHandlerComponents.createSectionContainerItem_input(url_template);
+        let $data_url = panelHandlerComponents.createSectionContainerItem_input(url_template).$el;
         let getDynamicPropElement = (storageData) => {
           let template_data = this.getTemplateData();
           let data_searchValue_template = UIInput(
@@ -6868,7 +6862,8 @@
             "必填，可正则"
           );
           Reflect.set(data_searchValue_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
-          let $data_searchValue = panelHandlerComponents.createSectionContainerItem_input(data_searchValue_template);
+          let $data_searchValue =
+            panelHandlerComponents.createSectionContainerItem_input(data_searchValue_template).$el;
           let data_isRegExp_template = UISwitch(
             "是否启用正则",
             "isRegExp",
@@ -6877,7 +6872,7 @@
             "使用正则进行匹配字符规则"
           );
           Reflect.set(data_isRegExp_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-          let $data_isRegExp = panelHandlerComponents.createSectionContainerItem_switch(data_isRegExp_template);
+          let $data_isRegExp = panelHandlerComponents.createSectionContainerItem_switch(data_isRegExp_template).$el;
           let data_regExpFlag_template = UISelectMultiple(
             "正则标识符",
             "regExpFlag",
@@ -6904,7 +6899,7 @@
             },
           });
           let $data_regExpFlag =
-            panelHandlerComponents.createSectionContainerItem_select_multiple(data_regExpFlag_template);
+            panelHandlerComponents.createSectionContainerItem_select_multiple(data_regExpFlag_template).$el;
           let data_replaceValue_template = UIInput(
             "映射为",
             "replaceValue",
@@ -6914,7 +6909,8 @@
             ""
           );
           Reflect.set(data_replaceValue_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-          let $data_replaceValue = panelHandlerComponents.createSectionContainerItem_input(data_replaceValue_template);
+          let $data_replaceValue =
+            panelHandlerComponents.createSectionContainerItem_input(data_replaceValue_template).$el;
           return {
             $data_searchValue,
             $data_isRegExp,
@@ -7008,7 +7004,7 @@
           data.uuid = editData.uuid;
         }
         $ulist_li.forEach(($li) => {
-          let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+          let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey).$el;
           let attrs = Reflect.get(viewConfig, "attributes");
           let storageApi = Reflect.get($li, PROPS_STORAGE_API);
           let key = Reflect.get(attrs, ATTRIBUTE_KEY);
@@ -7025,7 +7021,7 @@
         $form.querySelectorAll(".rule-form-ulist-dynamic__inner-container").forEach(($inner) => {
           let dynamicData = {};
           $inner.querySelectorAll(".dynamic-forms > li").forEach(($li) => {
-            let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+            let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey).$el;
             if (!viewConfig) {
               return;
             }
@@ -7618,15 +7614,15 @@
           });
           let $content = $exportSubscribeDialog.$shadowRoot.querySelector(".pops-alert-content");
           let configData = CharacterMappingStorageApi.get(this.$data.EXPORT_CONFIG_KEY, {});
-          let title_template = UIInput("订阅标题", "title", "", "", void 0, "");
+          let title_template = UIInput("订阅标题", "title", "");
           Reflect.set(title_template.props, PROPS_STORAGE_API, generateStorageApi(configData));
-          let $title = panelHandlerComponents.createSectionContainerItem_input(title_template);
-          let version_template = UIInput("版本号", "version", "", "", void 0, "", false);
+          let $title = panelHandlerComponents.createSectionContainerItem_input(title_template).$el;
+          let version_template = UIInput("版本号", "version", "");
           Reflect.set(version_template.props, PROPS_STORAGE_API, generateStorageApi(configData));
-          let $version = panelHandlerComponents.createSectionContainerItem_input(version_template);
+          let $version = panelHandlerComponents.createSectionContainerItem_input(version_template).$el;
           let homePage_template = UIInput("主页地址", "homePage", "", "", void 0, "选填");
           Reflect.set(homePage_template.props, PROPS_STORAGE_API, generateStorageApi(configData));
-          let $homePage = panelHandlerComponents.createSectionContainerItem_input(homePage_template);
+          let $homePage = panelHandlerComponents.createSectionContainerItem_input(homePage_template).$el;
           domUtils.append($content, $title);
           domUtils.append($content, $version);
           domUtils.append($content, $homePage);
@@ -9423,14 +9419,14 @@
               } else {
                 Qmsg.error(`删除失败`);
               }
-              GM_Menu.update(menuOption);
+              MenuRegister.update(menuOption);
             }
           } else {
             this.dispatchWorkerInitErrorDialog();
           }
         },
       };
-      GM_Menu.update(menuOption);
+      MenuRegister.update(menuOption);
     },
     postMessage(message, options) {
       NetDiskWorker.GM_matchWorker.postMessage(message, options);
@@ -9789,7 +9785,7 @@
         });
         this.dispatchMonitorDOMChange = true;
       } else if (matchMode === "Menu") {
-        GM_Menu.add({
+        MenuRegister.add({
           key: "performPageTextMatchingManually_" + window.location.href,
           text: "点击执行文本匹配" + (Panel.isTopWindow() ? "" : "（iframe）"),
           autoReload: false,
@@ -15891,15 +15887,15 @@
           });
           let $content = $exportSubscribeDialog.$shadowRoot.querySelector(".pops-alert-content");
           let configData = NetDiskUserRuleStorageApi.get(this.$data.EXPORT_CONFIG_KEY, {});
-          let title_template = UIInput("订阅标题", "title", "", "", void 0, "");
+          let title_template = UIInput("订阅标题", "title", "");
           Reflect.set(title_template.props, PROPS_STORAGE_API, generateStorageApi(configData));
-          let $title = panelHandlerComponents.createSectionContainerItem_input(title_template);
-          let version_template = UIInput("版本号", "version", "", "", void 0, "", false);
+          let $title = panelHandlerComponents.createSectionContainerItem_input(title_template).$el;
+          let version_template = UIInput("版本号", "version", "");
           Reflect.set(version_template.props, PROPS_STORAGE_API, generateStorageApi(configData));
-          let $version = panelHandlerComponents.createSectionContainerItem_input(version_template);
+          let $version = panelHandlerComponents.createSectionContainerItem_input(version_template).$el;
           let homePage_template = UIInput("主页地址", "homePage", "", "", void 0, "选填");
           Reflect.set(homePage_template.props, PROPS_STORAGE_API, generateStorageApi(configData));
-          let $homePage = panelHandlerComponents.createSectionContainerItem_input(homePage_template);
+          let $homePage = panelHandlerComponents.createSectionContainerItem_input(homePage_template).$el;
           domUtils.append($content, $title);
           domUtils.append($content, $version);
           domUtils.append($content, $homePage);
@@ -17159,12 +17155,6 @@
     return result;
   };
   const UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
-    let selectData = [];
-    if (typeof data === "function") {
-      selectData = data();
-    } else {
-      selectData = data;
-    }
     const result = {
       text,
       type: "select",
@@ -17175,13 +17165,16 @@
         const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
-      callback(event, isSelectedValue, isSelectedText) {
-        const value = isSelectedValue;
-        log.info(`选择：${isSelectedText}`);
+      callback(isSelectedInfo) {
+        if (isSelectedInfo == null) {
+          return;
+        }
+        const value = isSelectedInfo.value;
+        log.info(`选择：${isSelectedInfo.text}`);
         const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      data: selectData,
+      data,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -18602,13 +18595,13 @@
         let $fragment = document.createDocumentFragment();
         let enable_template = UISwitch("启用", "enable", true);
         Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-        let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+        let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
         let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
         Reflect.set(name_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-        let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+        let $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
         let url_template = UIInput("匹配网址", "url", "", "", void 0, "必填，可正则");
         Reflect.set(url_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-        let $data_url = panelHandlerComponents.createSectionContainerItem_input(url_template);
+        let $data_url = panelHandlerComponents.createSectionContainerItem_input(url_template).$el;
         let coverSetting_template = UIButton(
           "覆盖设置",
           "",
@@ -18681,9 +18674,7 @@
                   "",
                   "让获取的到的链接的访问码都为自定义的访问码",
                   void 0,
-                  "请输入自定义访问码",
-                  false,
-                  false
+                  "请输入自定义访问码"
                 );
                 Reflect.set(custom_accessCode_template.props, PROPS_STORAGE_API, generatePanelStorageApi(data.uuid));
                 let custom_accessCode_container = {
@@ -18743,7 +18734,8 @@
           },
           void 0
         );
-        let $coverSetting_template = panelHandlerComponents.createSectionContainerItem_button(coverSetting_template);
+        let $coverSetting_template =
+          panelHandlerComponents.createSectionContainerItem_button(coverSetting_template).$el;
         $fragment.appendChild($enable);
         $fragment.appendChild($name);
         $fragment.appendChild($data_url);
@@ -19356,15 +19348,15 @@
           });
           let $content = $exportSubscribeDialog.$shadowRoot.querySelector(".pops-alert-content");
           let configData = WebsiteRuleStorageApi.get(this.$data.EXPORT_CONFIG_KEY, {});
-          let title_template = UIInput("订阅标题", "title", "", "", void 0, "");
+          let title_template = UIInput("订阅标题", "title", "");
           Reflect.set(title_template.props, PROPS_STORAGE_API, generateStorageApi(configData));
-          let $title = panelHandlerComponents.createSectionContainerItem_input(title_template);
-          let version_template = UIInput("版本号", "version", "", "", void 0, "", false);
+          let $title = panelHandlerComponents.createSectionContainerItem_input(title_template).$el;
+          let version_template = UIInput("版本号", "version", "");
           Reflect.set(version_template.props, PROPS_STORAGE_API, generateStorageApi(configData));
-          let $version = panelHandlerComponents.createSectionContainerItem_input(version_template);
+          let $version = panelHandlerComponents.createSectionContainerItem_input(version_template).$el;
           let homePage_template = UIInput("主页地址", "homePage", "", "", void 0, "选填");
           Reflect.set(homePage_template.props, PROPS_STORAGE_API, generateStorageApi(configData));
-          let $homePage = panelHandlerComponents.createSectionContainerItem_input(homePage_template);
+          let $homePage = panelHandlerComponents.createSectionContainerItem_input(homePage_template).$el;
           domUtils.append($content, $title);
           domUtils.append($content, $version);
           domUtils.append($content, $homePage);
@@ -19748,7 +19740,7 @@
       const matchedUrlRuleList = WebsiteRule.getUrlMatchedRule();
       if (matchedUrlRuleList.length) {
         log.info("成功命中的网站规则 ==> ", matchedUrlRuleList);
-        GM_Menu.add({
+        MenuRegister.add({
           key: "matchedUrlRuleList",
           text: `🌏 命中网站规则 ${matchedUrlRuleList.length} 条`,
           autoReload: false,
@@ -19789,7 +19781,7 @@
       const matchedCharacterMappingRuleList = CharacterMapping.getUrlMatchedRule();
       if (matchedCharacterMappingRuleList.length) {
         log.info("成功命中的字符规则 ==> ", matchedCharacterMappingRuleList);
-        GM_Menu.add({
+        MenuRegister.add({
           key: "characterMapping",
           text: `🌏 命中字符规则 ${matchedCharacterMappingRuleList.length} 条`,
           autoReload: false,
@@ -20541,6 +20533,52 @@
     });
     return result;
   };
+  const UIInputNumber = function (
+    text,
+    key,
+    defaultValue,
+    description,
+    changeCallback,
+    placeholder = "",
+    afterAddToUListCallBack,
+    valueChangeCallback
+  ) {
+    const result = {
+      text,
+      type: "input",
+      inputType: "number",
+      attributes: {},
+      props: {},
+      description,
+      placeholder,
+      afterAddToUListCallBack,
+      getValue() {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
+      },
+      callback(event, value, valueAsNumber) {
+        if (typeof changeCallback === "function") {
+          const result2 = changeCallback(event, value, valueAsNumber);
+          if (result2) {
+            return;
+          }
+        }
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
+      },
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("input", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
+      },
+    });
+    return result;
+  };
   const PanelUI_allSetting = () => {
     return {
       id: "netdisk-panel-config-all-setting",
@@ -20896,7 +20934,7 @@
                         NetDiskSuspension.updatePosition(false);
                       }
                     ),
-                    UIInput(
+                    UIInputNumber(
                       "z-index",
                       NetDiskGlobalData.suspension["suspended-z-index"].KEY,
                       NetDiskGlobalData.suspension["suspended-z-index"].default,
@@ -20904,9 +20942,7 @@
                       (event, value, valueAsNumber) => {
                         NetDiskGlobalData.suspension["suspended-z-index"].value = valueAsNumber;
                         return true;
-                      },
-                      "",
-                      true
+                      }
                     ),
                   ],
                 },
@@ -20920,7 +20956,7 @@
                   type: "container",
                   text: "通用配置",
                   views: [
-                    UIInput(
+                    UIInputNumber(
                       "z-index",
                       NetDiskGlobalData.smallWindow["netdisk-link-view-z-index"].KEY,
                       NetDiskGlobalData.smallWindow["netdisk-link-view-z-index"].default,
@@ -20928,9 +20964,7 @@
                       (event, value, valueAsNumber) => {
                         NetDiskGlobalData.smallWindow["netdisk-link-view-z-index"].value = valueAsNumber;
                         return true;
-                      },
-                      "",
-                      true
+                      }
                     ),
                   ],
                 },
@@ -20945,14 +20979,13 @@
                       void 0,
                       "如果页面的数据量大，建议开启分页以显示防止卡顿"
                     ),
-                    UIInput(
+                    UIInputNumber(
                       "分页数量",
                       NetDiskGlobalData.smallWindow["netdisk-ui-link-view-data-paging-show-data-count"].KEY,
                       NetDiskGlobalData.smallWindow["netdisk-ui-link-view-data-paging-show-data-count"].default,
                       "每页显示的数据数量",
                       void 0,
-                      "默认：10",
-                      true
+                      "默认：10"
                     ),
                   ],
                 },

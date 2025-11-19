@@ -1,4 +1,4 @@
-import { DOMUtils, GM_Menu, httpx, log, pops, utils } from "@/env";
+import { DOMUtils, httpx, log, MenuRegister, pops, utils } from "@/env";
 import { NetWorkHook } from "@/hook/NetWorkHook";
 import { UIInput } from "@components/setting/components/ui-input";
 import { UISwitch } from "@components/setting/components/ui-switch";
@@ -67,7 +67,7 @@ export const M3U8Rule = {
    * 注册菜单
    */
   registerMenu(allData: RuleOption[]) {
-    GM_Menu.update([
+    MenuRegister.update([
       {
         key: "m3u8-rule",
         text: `⚙ 自定义规则（${allData.length}条）`,
@@ -187,17 +187,17 @@ export const M3U8Rule = {
             // 启用
             let enable_template = UISwitch("启用", "enable", true);
             Reflect.set(enable_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+            let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
 
             // 规则名称
             let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
             Reflect.set(name_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+            let $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
 
             // 匹配网址
             let data_url_template = UIInput("匹配网址", "url", "", "", void 0, "必填，可正则，注意转义");
             Reflect.set(data_url_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-            let $data_url = panelHandlerComponents.createSectionContainerItem_input(data_url_template);
+            let $data_url = panelHandlerComponents.createSectionContainerItem_input(data_url_template).$el;
 
             // 是否启用通用1过滤广告
             let data_commonFilterAdsSegmentsFilePathLength_template = UISwitch(
@@ -214,7 +214,7 @@ export const M3U8Rule = {
             );
             let $data_commonFilterAdsSegmentsFilePathLength = panelHandlerComponents.createSectionContainerItem_switch(
               data_commonFilterAdsSegmentsFilePathLength_template
-            );
+            ).$el;
 
             // 是否启用通用2过滤广告
             let data_commonFilterAdsSegmentsFilePathSimilar_template = UISwitch(
@@ -231,7 +231,7 @@ export const M3U8Rule = {
             );
             let $data_commonFilterAdsSegmentsFilePathSimilar = panelHandlerComponents.createSectionContainerItem_switch(
               data_commonFilterAdsSegmentsFilePathSimilar_template
-            );
+            ).$el;
 
             // 自定义过滤代码
             let data_ownFilterCode_template = UITextArea(
@@ -250,7 +250,7 @@ export const M3U8Rule = {
             );
             Reflect.set(data_ownFilterCode_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
             let $data_ownFilterCode =
-              panelHandlerComponents.createSectionContainerItem_textarea(data_ownFilterCode_template);
+              panelHandlerComponents.createSectionContainerItem_textarea(data_ownFilterCode_template).$el;
 
             $fragment.appendChild($enable);
             $fragment.appendChild($name);

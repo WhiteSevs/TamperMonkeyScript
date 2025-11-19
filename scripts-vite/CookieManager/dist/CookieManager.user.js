@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CookieManager
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.4
+// @version      2025.11.19
 // @author       WhiteSevs
 // @description  简单而强大的Cookie编辑器，允许您快速创建、编辑和删除Cookie
 // @license      GPL-3.0-only
@@ -9,9 +9,9 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @connect      *
@@ -262,7 +262,7 @@
       if (!Panel.isTopWindow()) {
         return;
       }
-      GM_Menu.add(this.$data.menuOption);
+      MenuRegister.add(this.$data.menuOption);
     },
     addMenuOption(option) {
       if (!Array.isArray(option)) {
@@ -748,24 +748,33 @@
         if (Array.isArray(args)) {
           resultValueList = resultValueList.concat(args);
         } else {
-          if (typeof args === "object" && args != null) {
-            if (args instanceof Element) {
-              resultValueList.push(args);
-            } else {
-              const { $css, destory } = args;
-              if ($css != null) {
-                if (Array.isArray($css)) {
-                  resultValueList = resultValueList.concat($css);
-                } else {
-                  resultValueList.push($css);
+          const handlerArgs = (obj) => {
+            if (typeof obj === "object" && obj != null) {
+              if (obj instanceof Element) {
+                resultValueList.push(obj);
+              } else {
+                const { $css, destory } = obj;
+                if ($css != null) {
+                  if (Array.isArray($css)) {
+                    resultValueList = resultValueList.concat($css);
+                  } else {
+                    resultValueList.push($css);
+                  }
+                }
+                if (typeof destory === "function") {
+                  resultValueList.push(destory);
                 }
               }
-              if (typeof destory === "function") {
-                resultValueList.push(destory);
-              }
+            } else {
+              resultValueList.push(obj);
+            }
+          };
+          if (args != null && Array.isArray(args)) {
+            for (const it of args) {
+              handlerArgs(it);
             }
           } else {
-            resultValueList.push(args);
+            handlerArgs(args);
           }
         }
         for (const it of resultValueList) {
@@ -1216,8 +1225,8 @@
           const loopContentConfig = (configList, path) => {
             for (let index = 0; index < configList.length; index++) {
               const configItem = configList[index];
-              const child_forms = configItem.views;
-              if (child_forms && Array.isArray(child_forms)) {
+              const childViewConfig = configItem.views;
+              if (childViewConfig && Array.isArray(childViewConfig)) {
                 const deepMenuPath = utils.deepClone(path);
                 if (configItem.type === "deepMenu") {
                   const deepNext = utils.queryProperty(deepMenuPath, (target) => {
@@ -1237,7 +1246,7 @@
                     name: configItem.text,
                   };
                 }
-                loopContentConfig(child_forms, deepMenuPath);
+                loopContentConfig(childViewConfig, deepMenuPath);
               } else {
                 let text;
                 let description;
@@ -1252,7 +1261,7 @@
                     }
                   }
                 } else {
-                  text = Reflect.get(configItem, "text");
+                  text = configItem.text;
                   description = Reflect.get(configItem, "description");
                 }
                 const delayMatchedTextList = [text, description];
@@ -1516,7 +1525,7 @@
     },
     drag: true,
   });
-  const GM_Menu = new utils.GM_Menu({
+  const MenuRegister = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,
     GM_registerMenuCommand: _GM_registerMenuCommand,
@@ -2311,12 +2320,12 @@
       return cookieInfo;
     },
   };
-  const UIOwn = function (getLiElementCallBack, initConfig, searchConfig, attr, props, afterAddToUListCallBack) {
+  const UIOwn = function (createLIElement, initConfig, searchConfig, attr, props, afterAddToUListCallBack) {
     const result = {
       type: "own",
       attributes: {},
       props: {},
-      getLiElementCallBack,
+      createLIElement,
       afterAddToUListCallBack,
     };
     {
@@ -2328,8 +2337,6 @@
     let config = {
       text,
       type: "input",
-      isNumber: false,
-      isPassword: false,
       props: {},
       attributes: {},
       description: "",
@@ -2372,8 +2379,8 @@
       getValue() {
         return getValue();
       },
-      callback(event, isSelectedValue, isSelectedText) {
-        let value = isSelectedValue;
+      callback(isSelectedInfo) {
+        const value = isSelectedInfo.value;
         setValue(value);
       },
       data: typeof data === "function" ? data() : data,
@@ -2505,28 +2512,28 @@
           (value) => (cookieInfo.name = value),
           isEdit
         )
-      );
+      ).$el;
       const $value = panelHandlerComponents.createSectionContainerItem_textarea(
         edit_ui_textarea(
           "value",
           () => cookieInfo.value,
           (value) => (cookieInfo.value = value)
         )
-      );
+      ).$el;
       const $domain = panelHandlerComponents.createSectionContainerItem_input(
         edit_ui_input(
           "domain",
           () => cookieInfo.domain,
           (value) => (cookieInfo.domain = value)
         )
-      );
+      ).$el;
       const $path = panelHandlerComponents.createSectionContainerItem_input(
         edit_ui_input(
           "path",
           () => cookieInfo.path,
           (value) => (cookieInfo.path = value)
         )
-      );
+      ).$el;
       let $expires;
       if (cookieInfo.session) {
         $expires = panelHandlerComponents.createSectionContainerItem_input(
@@ -2536,7 +2543,7 @@
             (value) => {},
             true
           )
-        );
+        ).$el;
       } else {
         const expiresTemplate = UIOwn(() => {
           const $li = domUtils.createElement("li", {
@@ -2557,7 +2564,7 @@
           });
           return $li;
         });
-        $expires = panelHandlerComponents.createSectionContainerItem_own(expiresTemplate);
+        $expires = panelHandlerComponents.createSectionContainerItem_own(expiresTemplate).$el;
       }
       const $httpOnly = panelHandlerComponents.createSectionContainerItem_select(
         edit_ui_select(
@@ -2575,7 +2582,7 @@
           () => cookieInfo.httpOnly,
           (value) => (cookieInfo.httpOnly = value)
         )
-      );
+      ).$el;
       const $secure = panelHandlerComponents.createSectionContainerItem_select(
         edit_ui_select(
           "secure",
@@ -2592,7 +2599,7 @@
           () => cookieInfo.secure,
           (value) => (cookieInfo.secure = value)
         )
-      );
+      ).$el;
       let sameSiteData = [
         {
           text: "no_restriction",
@@ -2634,7 +2641,7 @@
           () => cookieInfo.sameSite,
           (value) => (cookieInfo.sameSite = value)
         )
-      );
+      ).$el;
       domUtils.append($editContent, [$name, $value]);
       if (CookieManager.cookieManagerApiName === "GM_cookie" || CookieManager.cookieManagerApiName === "GM.cookie") {
         domUtils.append($editContent, [$domain, $path, $expires, $httpOnly, $secure, $sameSite]);
@@ -2659,12 +2666,6 @@
     },
   };
   const UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
-    let selectData = [];
-    if (typeof data === "function") {
-      selectData = data();
-    } else {
-      selectData = data;
-    }
     const result = {
       text,
       type: "select",
@@ -2675,11 +2676,14 @@
         const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
-      callback(event, isSelectedValue, isSelectedText) {
-        const value = isSelectedValue;
-        log.info(`选择：${isSelectedText}`);
+      callback(isSelectedInfo) {
+        if (isSelectedInfo == null) {
+          return;
+        }
+        const value = isSelectedInfo.value;
+        log.info(`选择：${isSelectedInfo.text}`);
         if (typeof selectCallBack === "function") {
-          const result2 = selectCallBack(event, value, isSelectedText);
+          const result2 = selectCallBack(isSelectedInfo);
           if (result2) {
             return;
           }
@@ -2687,10 +2691,10 @@
         const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
         if (typeof valueChangeCallBack === "function") {
-          valueChangeCallBack(event, value, isSelectedText);
+          valueChangeCallBack(isSelectedInfo);
         }
       },
-      data: selectData,
+      data,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -2711,29 +2715,29 @@
     description,
     changeCallback,
     placeholder = "",
-    isNumber,
-    isPassword,
+    inputType = "text",
     afterAddToUListCallBack,
     valueChangeCallback
   ) {
     const result = {
       text,
       type: "input",
-      isNumber: Boolean(isNumber),
-      isPassword: Boolean(isPassword),
+      inputType,
       attributes: {},
       props: {},
       description,
+      placeholder,
       afterAddToUListCallBack,
       getValue() {
         const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
-      callback(event, value, valueAsNumber) {
+      callback(event, value) {
+        const $input = event.target;
+        $input.validity.valid;
         const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      placeholder,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -3447,7 +3451,7 @@
       this.$data.matchedRuleList.length = 0;
       this.$data.matchedRuleList = this.getMatchedRuleList();
       if (this.$data.matchedRuleList.length) {
-        GM_Menu.add({
+        MenuRegister.add({
           key: "matched-cookie-rule-list",
           text: `${window.location.hostname} ${this.$data.matchedRuleList.length}条规则`,
           isStoreValue: false,
@@ -3542,10 +3546,10 @@
               }
               let enable_template = UISwitch("启用", "enable", templateData.enable);
               Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-              let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+              let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
               let name_template = UIInput("规则名称", "name", "", templateData.name, void 0, "必填");
               Reflect.set(name_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-              let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+              let $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
               let apiName_template = UISelect(
                 "Cookie管理Api",
                 "execApiName",
@@ -3566,10 +3570,10 @@
                 "操作Cookie的Api函数"
               );
               Reflect.set(apiName_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-              let $apiName = panelHandlerComponents.createSectionContainerItem_select(apiName_template);
+              let $apiName = panelHandlerComponents.createSectionContainerItem_select(apiName_template).$el;
               let url_template = UIInput("网址", "url", templateData.data.url, "用于执行该规则的网址", void 0, "必填");
               Reflect.set(url_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-              let $url = panelHandlerComponents.createSectionContainerItem_input(url_template);
+              let $url = panelHandlerComponents.createSectionContainerItem_input(url_template).$el;
               let enableRegExpToMatchUrl_template = UISwitch(
                 "启用正则匹配网址",
                 "enableRegExpToMatchUrl",
@@ -3578,7 +3582,7 @@
               Reflect.set(enableRegExpToMatchUrl_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
               let $enableRegExpToMatchUrl = panelHandlerComponents.createSectionContainerItem_switch(
                 enableRegExpToMatchUrl_template
-              );
+              ).$el;
               let cookieName_template = UIInput(
                 "Cookie名称",
                 "cookieName",
@@ -3588,7 +3592,7 @@
                 "必填"
               );
               Reflect.set(cookieName_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-              let $cookieName = panelHandlerComponents.createSectionContainerItem_input(cookieName_template);
+              let $cookieName = panelHandlerComponents.createSectionContainerItem_input(cookieName_template).$el;
               let enableRegExpToMatchCookieName_template = UISwitch(
                 "启用正则匹配Cookie名称",
                 "enableRegExpToMatchCookieName",
@@ -3601,7 +3605,7 @@
               );
               let $enableRegExpToMatchCookieName = panelHandlerComponents.createSectionContainerItem_switch(
                 enableRegExpToMatchCookieName_template
-              );
+              ).$el;
               let operationMode_template = UISelect("操作模式", "operationMode", templateData.data.operationMode, [
                 {
                   value: "delete",
@@ -3625,10 +3629,10 @@
                 },
               ]);
               Reflect.set(operationMode_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-              let $operationMode = panelHandlerComponents.createSectionContainerItem_select(operationMode_template);
+              let $operationMode = panelHandlerComponents.createSectionContainerItem_select(operationMode_template).$el;
               let remark_template = UITextArea("备注", "remark", templateData.data.remark);
               Reflect.set(remark_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-              let $remark = panelHandlerComponents.createSectionContainerItem_textarea(remark_template);
+              let $remark = panelHandlerComponents.createSectionContainerItem_textarea(remark_template).$el;
               $fragment.append(
                 $enable,
                 $name,
@@ -4897,7 +4901,7 @@
           UISwitch("启用正则表达式", "search-config-use-regexp", false, void 0, "使用正则表达式搜索Cookie名称", () => {
             triggerUpdateCookieListGroupWithSearchFilter();
           })
-        );
+        ).$el;
         domUtils.append($content, $useRegExp);
       });
       domUtils.on($refresh, "click", (event) => {
@@ -4996,7 +5000,7 @@
               triggerUpdateCookieListGroupWithSearchFilter();
             }
           )
-        );
+        ).$el;
         let $decodeValue = panelHandlerComponents.createSectionContainerItem_switch(
           UISwitch(
             "解码Cookie值",
@@ -5007,7 +5011,7 @@
             },
             "对Cookie值进行解码"
           )
-        );
+        ).$el;
         let $excludeSessionCookie = panelHandlerComponents.createSectionContainerItem_switch(
           UISwitch(
             "排除Session Cookie",
@@ -5018,7 +5022,7 @@
             },
             "过滤掉浏览器会话Cookie"
           )
-        );
+        ).$el;
         domUtils.append($content, [$useGM_cookie, $decodeValue, $excludeSessionCookie]);
       });
       let triggerUpdateCookieListGroupWithSearchFilter = () => {
@@ -5028,7 +5032,7 @@
     },
     registerMenu() {
       const that = this;
-      GM_Menu.add({
+      MenuRegister.add({
         key: "cookie_manager_view",
         text: "⚙ Cookie管理",
         autoReload: false,
@@ -5236,8 +5240,8 @@
                 text: "右下角",
               },
             ],
-            (event, isSelectValue, isSelectText) => {
-              log.info("设置当前Qmsg弹出位置" + isSelectText);
+            (isSelectedInfo) => {
+              log.info("设置当前Qmsg弹出位置" + isSelectedInfo.text);
             },
             "Toast显示在页面九宫格的位置"
           ),

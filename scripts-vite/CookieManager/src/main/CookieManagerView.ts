@@ -1,4 +1,4 @@
-import { DOMUtils, GM_Menu, log, pops, utils } from "@/env";
+import { DOMUtils, log, MenuRegister, pops, utils } from "@/env";
 import { CookieManager } from "./CookieManager";
 import { PanelUISize } from "@components/setting/panel-ui-size";
 import Qmsg from "qmsg";
@@ -463,7 +463,7 @@ export const CookieManagerView = {
         UISwitch("启用正则表达式", "search-config-use-regexp", false, void 0, "使用正则表达式搜索Cookie名称", () => {
           triggerUpdateCookieListGroupWithSearchFilter();
         })
-      );
+      ).$el;
 
       DOMUtils.append($content, $useRegExp);
     });
@@ -570,7 +570,7 @@ export const CookieManagerView = {
             triggerUpdateCookieListGroupWithSearchFilter();
           }
         )
-      );
+      ).$el;
       let $decodeValue = panelHandlerComponents.createSectionContainerItem_switch(
         UISwitch(
           "解码Cookie值",
@@ -581,7 +581,7 @@ export const CookieManagerView = {
           },
           "对Cookie值进行解码"
         )
-      );
+      ).$el;
       let $excludeSessionCookie = panelHandlerComponents.createSectionContainerItem_switch(
         UISwitch(
           "排除Session Cookie",
@@ -592,7 +592,7 @@ export const CookieManagerView = {
           },
           "过滤掉浏览器会话Cookie"
         )
-      );
+      ).$el;
       DOMUtils.append($content, [$useGM_cookie, $decodeValue, $excludeSessionCookie]);
     });
 
@@ -610,7 +610,7 @@ export const CookieManagerView = {
    */
   registerMenu() {
     const that = this;
-    GM_Menu.add({
+    MenuRegister.add({
       key: "cookie_manager_view",
       text: "⚙ Cookie管理",
       autoReload: false,

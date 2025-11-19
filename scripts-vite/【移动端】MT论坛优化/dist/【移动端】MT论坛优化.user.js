@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.4
+// @version      2025.11.19
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -11,9 +11,9 @@
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@79fb4d854f1e2cdf606339b0dac18d50104e2ebe/lib/js-watermark/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js
@@ -427,7 +427,7 @@
     },
     drag: true,
   });
-  const GM_Menu = new utils.GM_Menu({
+  const MenuRegister = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,
     GM_registerMenuCommand: _GM_registerMenuCommand,
@@ -1105,7 +1105,7 @@
       if (!Panel.isTopWindow()) {
         return;
       }
-      GM_Menu.add(this.$data.menuOption);
+      MenuRegister.add(this.$data.menuOption);
     },
     addMenuOption(option) {
       if (!Array.isArray(option)) {
@@ -1331,24 +1331,33 @@
         if (Array.isArray(args)) {
           resultValueList = resultValueList.concat(args);
         } else {
-          if (typeof args === "object" && args != null) {
-            if (args instanceof Element) {
-              resultValueList.push(args);
-            } else {
-              const { $css, destory } = args;
-              if ($css != null) {
-                if (Array.isArray($css)) {
-                  resultValueList = resultValueList.concat($css);
-                } else {
-                  resultValueList.push($css);
+          const handlerArgs = (obj) => {
+            if (typeof obj === "object" && obj != null) {
+              if (obj instanceof Element) {
+                resultValueList.push(obj);
+              } else {
+                const { $css, destory } = obj;
+                if ($css != null) {
+                  if (Array.isArray($css)) {
+                    resultValueList = resultValueList.concat($css);
+                  } else {
+                    resultValueList.push($css);
+                  }
+                }
+                if (typeof destory === "function") {
+                  resultValueList.push(destory);
                 }
               }
-              if (typeof destory === "function") {
-                resultValueList.push(destory);
-              }
+            } else {
+              resultValueList.push(obj);
+            }
+          };
+          if (args != null && Array.isArray(args)) {
+            for (const it of args) {
+              handlerArgs(it);
             }
           } else {
-            resultValueList.push(args);
+            handlerArgs(args);
           }
         }
         for (const it of resultValueList) {
@@ -1799,8 +1808,8 @@
           const loopContentConfig = (configList, path) => {
             for (let index = 0; index < configList.length; index++) {
               const configItem = configList[index];
-              const child_forms = configItem.views;
-              if (child_forms && Array.isArray(child_forms)) {
+              const childViewConfig = configItem.views;
+              if (childViewConfig && Array.isArray(childViewConfig)) {
                 const deepMenuPath = utils.deepClone(path);
                 if (configItem.type === "deepMenu") {
                   const deepNext = utils.queryProperty(deepMenuPath, (target) => {
@@ -1820,7 +1829,7 @@
                     name: configItem.text,
                   };
                 }
-                loopContentConfig(child_forms, deepMenuPath);
+                loopContentConfig(childViewConfig, deepMenuPath);
               } else {
                 let text;
                 let description;
@@ -1835,7 +1844,7 @@
                     }
                   }
                 } else {
-                  text = Reflect.get(configItem, "text");
+                  text = configItem.text;
                   description = Reflect.get(configItem, "description");
                 }
                 const delayMatchedTextList = [text, description];
@@ -7293,29 +7302,29 @@
     description,
     changeCallback,
     placeholder = "",
-    isNumber,
-    isPassword,
+    inputType = "text",
     afterAddToUListCallBack,
     valueChangeCallback
   ) {
     const result = {
       text,
       type: "input",
-      isNumber: Boolean(isNumber),
-      isPassword: Boolean(isPassword),
+      inputType,
       attributes: {},
       props: {},
       description,
+      placeholder,
       afterAddToUListCallBack,
       getValue() {
         const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
-      callback(event, value, valueAsNumber) {
+      callback(event, value) {
+        const $input = event.target;
+        $input.validity.valid;
         const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      placeholder,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -8123,33 +8132,35 @@
               }
               let enable_template = UISwitch("启用", "enable", true);
               Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-              let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+              let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
               let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
               Reflect.set(name_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-              let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+              let $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
               let data_userName_template = UIInput("用户名", "userName", "", "", void 0, "可正则");
               Reflect.set(data_userName_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-              let $data_userName = panelHandlerComponents.createSectionContainerItem_input(data_userName_template);
+              let $data_userName = panelHandlerComponents.createSectionContainerItem_input(data_userName_template).$el;
               let data_userUID_template = UIInput("用户UID", "userUID", "", "", void 0, "可正则");
               Reflect.set(data_userUID_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-              let $data_userUID = panelHandlerComponents.createSectionContainerItem_input(data_userUID_template);
+              let $data_userUID = panelHandlerComponents.createSectionContainerItem_input(data_userUID_template).$el;
               let data_userLevel_template = UIInput("用户等级", "userLevel", "", "", void 0, "可正则");
               Reflect.set(data_userLevel_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-              let $data_userLevel = panelHandlerComponents.createSectionContainerItem_input(data_userLevel_template);
+              let $data_userLevel =
+                panelHandlerComponents.createSectionContainerItem_input(data_userLevel_template).$el;
               let data_postUrl_template = UIInput("帖子url", "postUrl", "", "", void 0, "可正则");
               Reflect.set(data_postUrl_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-              let $data_postUrl = panelHandlerComponents.createSectionContainerItem_input(data_postUrl_template);
+              let $data_postUrl = panelHandlerComponents.createSectionContainerItem_input(data_postUrl_template).$el;
               let data_postTitle_template = UIInput("帖子标题", "postTitle", "", "", void 0, "可正则");
               Reflect.set(data_postTitle_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-              let $data_postTitle = panelHandlerComponents.createSectionContainerItem_input(data_postTitle_template);
+              let $data_postTitle =
+                panelHandlerComponents.createSectionContainerItem_input(data_postTitle_template).$el;
               let data_postContent_template = UIInput("帖子内容", "postContent", "", "", void 0, "可正则");
               Reflect.set(data_postContent_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
               let $data_postContent =
-                panelHandlerComponents.createSectionContainerItem_input(data_postContent_template);
+                panelHandlerComponents.createSectionContainerItem_input(data_postContent_template).$el;
               let data_postPlateName_template = UIInput("帖子所在的板块名", "postPlateName", "", "", void 0, "可正则");
               Reflect.set(data_postPlateName_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
               let $data_postPlateName =
-                panelHandlerComponents.createSectionContainerItem_input(data_postPlateName_template);
+                panelHandlerComponents.createSectionContainerItem_input(data_postPlateName_template).$el;
               $fragment.appendChild($enable);
               $fragment.appendChild($name);
               $fragment.appendChild($data_userName);
@@ -8392,6 +8403,46 @@
     });
     return result;
   };
+  const UIInputNumber = function (
+    text,
+    key,
+    defaultValue,
+    description,
+    changeCallback,
+    placeholder = "",
+    afterAddToUListCallBack,
+    valueChangeCallback
+  ) {
+    const result = {
+      text,
+      type: "input",
+      inputType: "number",
+      attributes: {},
+      props: {},
+      description,
+      placeholder,
+      afterAddToUListCallBack,
+      getValue() {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
+      },
+      callback(event, value, valueAsNumber) {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
+      },
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("input", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
+      },
+    });
+    return result;
+  };
   const MTCommentFilter = {
     $el: {
       isFilterElementHTML: [],
@@ -8531,51 +8582,45 @@
           let $fragment = document.createDocumentFragment();
           let enable_template = UISwitch("启用", "enable", true);
           Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-          let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+          let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
           let replyFlag_template = UISwitch("处理回复引用", "replyFlag", false, void 0, "移除引用");
           Reflect.set(replyFlag_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-          let $replyFlag = panelHandlerComponents.createSectionContainerItem_switch(replyFlag_template);
+          let $replyFlag = panelHandlerComponents.createSectionContainerItem_switch(replyFlag_template).$el;
           let avatarFlag_template = UISwitch("处理作者评论", "avatarFlag", false);
           Reflect.set(avatarFlag_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-          let $avatarFlag = panelHandlerComponents.createSectionContainerItem_switch(avatarFlag_template);
+          let $avatarFlag = panelHandlerComponents.createSectionContainerItem_switch(avatarFlag_template).$el;
           let viewthreadFlag_template = UISwitch(
             '处理从"搜索页面"或"我的帖子提醒页面"进入的网站',
             "viewthreadFlag",
             false
           );
           Reflect.set(viewthreadFlag_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-          let $viewthreadFlag = panelHandlerComponents.createSectionContainerItem_switch(viewthreadFlag_template);
-          let minLength_template = UIInput(
+          let $viewthreadFlag = panelHandlerComponents.createSectionContainerItem_switch(viewthreadFlag_template).$el;
+          let minLength_template = UIInputNumber(
             "匹配的评论内容长度最小值",
             "minLength",
             5,
-            "小于此长度的评论就算关键字匹配成功了也不会被排除",
-            void 0,
-            "",
-            true
+            "小于此长度的评论就算关键字匹配成功了也不会被排除"
           );
           Reflect.set(minLength_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-          let $minLength = panelHandlerComponents.createSectionContainerItem_input(minLength_template);
-          let keywordLength = UIInput(
+          let $minLength = panelHandlerComponents.createSectionContainerItem_input(minLength_template).$el;
+          let keywordLength = UIInputNumber(
             "匹配的评论内容长度最大值",
             "keywordLength",
             8,
-            "大于此长度的评论就算关键字匹配成功了也不会被排除",
-            void 0,
-            "",
-            true
+            "大于此长度的评论就算关键字匹配成功了也不会被排除"
           );
           Reflect.set(keywordLength.props, PROPS_STORAGE_API, generateStorageApi(data));
-          let $keywordLength = panelHandlerComponents.createSectionContainerItem_input(keywordLength);
+          let $keywordLength = panelHandlerComponents.createSectionContainerItem_input(keywordLength).$el;
           let keywords_template = UITextArea("评论关键字", "keywords", "", "多个关键字换行分割");
           Reflect.set(keywords_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-          let $keywords = panelHandlerComponents.createSectionContainerItem_textarea(keywords_template);
+          let $keywords = panelHandlerComponents.createSectionContainerItem_textarea(keywords_template).$el;
           let userBlackList_template = UITextArea("黑名单用户", "userBlackList", "", "多个用户换行分割");
           Reflect.set(userBlackList_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-          let $userBlackList = panelHandlerComponents.createSectionContainerItem_textarea(userBlackList_template);
+          let $userBlackList = panelHandlerComponents.createSectionContainerItem_textarea(userBlackList_template).$el;
           let userWhiteList_template = UITextArea("白名单用户", "userWhiteList", "", "多个用户换行分割");
           Reflect.set(userWhiteList_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-          let $userWhiteList = panelHandlerComponents.createSectionContainerItem_textarea(userWhiteList_template);
+          let $userWhiteList = panelHandlerComponents.createSectionContainerItem_textarea(userWhiteList_template).$el;
           $fragment.append(
             $enable,
             $replyFlag,
@@ -8849,13 +8894,13 @@
               }
               let enable_template = UISwitch("启用", "enable", true);
               Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-              let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+              let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
               let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
               Reflect.set(name_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-              let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+              let $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
               let productName_template = UIInput("商品名", "productName", "", "", void 0, "可正则，需手动转义");
               Reflect.set(productName_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-              let $productName = panelHandlerComponents.createSectionContainerItem_input(productName_template);
+              let $productName = panelHandlerComponents.createSectionContainerItem_input(productName_template).$el;
               $fragment.append($enable, $name, $productName);
               return $fragment;
             },
@@ -9047,19 +9092,19 @@
               }
               let enable_template = UISwitch("启用", "enable", true);
               Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-              let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+              let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
               let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
               Reflect.set(name_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-              let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+              let $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
               let userUID_template = UIInput("用户UID", "userUID", "", "", void 0, "必填，可正则，注意转义");
               Reflect.set(userUID_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-              let $userUID = panelHandlerComponents.createSectionContainerItem_input(userUID_template);
+              let $userUID = panelHandlerComponents.createSectionContainerItem_input(userUID_template).$el;
               let labelName_template = UIInput("标签名", "labelName", "", "", void 0, "必填");
               Reflect.set(labelName_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-              let $labelName = panelHandlerComponents.createSectionContainerItem_input(labelName_template);
+              let $labelName = panelHandlerComponents.createSectionContainerItem_input(labelName_template).$el;
               let labelColor_template = UIInput("标签颜色", "labelColor", "", "");
               Reflect.set(labelColor_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-              let $labelColor = panelHandlerComponents.createSectionContainerItem_input(labelColor_template);
+              let $labelColor = panelHandlerComponents.createSectionContainerItem_input(labelColor_template).$el;
               let $labelColor_input = $labelColor.querySelector("input");
               $labelColor.querySelector(".pops-panel-input__suffix")?.remove();
               $labelColor_input.setAttribute("type", "color");
@@ -9070,11 +9115,11 @@
               });
               let labelStyle_template = UIInput("标签CSS", "labelStyle", "", "");
               Reflect.set(labelStyle_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-              let $labelStyle = panelHandlerComponents.createSectionContainerItem_input(labelStyle_template);
+              let $labelStyle = panelHandlerComponents.createSectionContainerItem_input(labelStyle_template).$el;
               let labelClickEvent_template = UITextArea("标签点击事件", "labelClickEvent", "", "");
               Reflect.set(labelClickEvent_template.props, PROPS_STORAGE_API, generateStorageApi(data));
               let $labelClickEvent =
-                panelHandlerComponents.createSectionContainerItem_textarea(labelClickEvent_template);
+                panelHandlerComponents.createSectionContainerItem_textarea(labelClickEvent_template).$el;
               $fragment.append($enable, $name, $userUID, $labelName, $labelColor, $labelStyle, $labelClickEvent);
               return $fragment;
             },
@@ -11153,12 +11198,6 @@
     },
   };
   const UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
-    let selectData = [];
-    if (typeof data === "function") {
-      selectData = data();
-    } else {
-      selectData = data;
-    }
     const result = {
       text,
       type: "select",
@@ -11169,11 +11208,14 @@
         const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
-      callback(event, isSelectedValue, isSelectedText) {
-        const value = isSelectedValue;
-        log.info(`选择：${isSelectedText}`);
+      callback(isSelectedInfo) {
+        if (isSelectedInfo == null) {
+          return;
+        }
+        const value = isSelectedInfo.value;
+        log.info(`选择：${isSelectedInfo.text}`);
         if (typeof selectCallBack === "function") {
-          const result2 = selectCallBack(event, value, isSelectedText);
+          const result2 = selectCallBack(isSelectedInfo);
           if (result2) {
             return;
           }
@@ -11181,7 +11223,7 @@
         const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      data: selectData,
+      data,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -11230,12 +11272,12 @@
     });
     return result;
   };
-  const UIOwn = function (getLiElementCallBack, initConfig, searchConfig, attr, props, afterAddToUListCallBack) {
+  const UIOwn = function (createLIElement, initConfig, searchConfig, attr, props, afterAddToUListCallBack) {
     const result = {
       type: "own",
       attributes: {},
       props: {},
-      getLiElementCallBack,
+      createLIElement,
       afterAddToUListCallBack,
     };
     {
@@ -11582,8 +11624,8 @@
                         text: "右下角",
                       },
                     ],
-                    (event, isSelectValue, isSelectText) => {
-                      log.info("设置当前Qmsg弹出位置" + isSelectText);
+                    (isSelectedInfo) => {
+                      log.info("设置当前Qmsg弹出位置" + isSelectedInfo.text);
                     },
                     "Toast显示在页面九宫格的位置"
                   ),
@@ -11836,6 +11878,46 @@
       },
     ],
   };
+  const UIInputPassword = function (
+    text,
+    key,
+    defaultValue,
+    description,
+    changeCallback,
+    placeholder = "",
+    afterAddToUListCallBack,
+    valueChangeCallback
+  ) {
+    const result = {
+      text,
+      type: "input",
+      inputType: "password",
+      attributes: {},
+      props: {},
+      description,
+      placeholder,
+      afterAddToUListCallBack,
+      getValue() {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
+      },
+      callback(event, value) {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
+      },
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("input", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
+      },
+    });
+    return result;
+  };
   const Component_ForumPost = {
     id: "component-forum-post",
     title: "帖子",
@@ -12032,8 +12114,8 @@
                 views: [
                   UISwitch("启用", "mt-image-bed-hello-enable", false, void 0, "启用Hello图床"),
                   UIInput("账号", "mt-image-bed-hello-account", "", "", void 0, "必填"),
-                  UIInput("密码", "mt-image-bed-hello-password", "", "", void 0, "必填", false, true),
-                  UIInput("token", "mt-image-bed-hello-token", "", "", void 0, "必填", false, true),
+                  UIInputPassword("密码", "mt-image-bed-hello-password", "", "", void 0, "必填"),
+                  UIInputPassword("token", "mt-image-bed-hello-token", "", "", void 0, "必填"),
                 ],
               },
               {
@@ -12061,8 +12143,7 @@
                     void 0,
                     void 0,
                     "",
-                    false,
-                    false,
+                    "color",
                     (formConfig, container) => {
                       let $input = container.target?.querySelector("input");
                       let $suffix = container.target?.querySelector(".pops-panel-input__suffix");
@@ -12075,11 +12156,11 @@
                       });
                     }
                   ),
-                  UIInput("大小", "mt-image-bed-watermark-font-size", 16, void 0, void 0, void 0, true),
-                  UIInput("透明度", "mt-image-bed-watermark-font-opacity", 1, void 0, void 0, void 0, true),
-                  UIInput("左右间距", "mt-image-bed-watermark-left-right-margin", 80, void 0, void 0, void 0, true),
-                  UIInput("上下间距", "mt-image-bed-watermark-top-bottom-margin", 80, void 0, void 0, void 0, true),
-                  UIInput("旋转角度", "mt-image-bed-watermark-rotate", 45, void 0, void 0, void 0, true),
+                  UIInputNumber("大小", "mt-image-bed-watermark-font-size", 16),
+                  UIInputNumber("透明度", "mt-image-bed-watermark-font-opacity", 1),
+                  UIInputNumber("左右间距", "mt-image-bed-watermark-left-right-margin", 80),
+                  UIInputNumber("上下间距", "mt-image-bed-watermark-top-bottom-margin", 80),
+                  UIInputNumber("旋转角度", "mt-image-bed-watermark-rotate", 45),
                 ],
               },
             ],

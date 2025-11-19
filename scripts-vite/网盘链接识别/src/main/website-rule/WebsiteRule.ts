@@ -131,17 +131,17 @@ export const WebsiteRule = {
       // 启用
       let enable_template = UISwitch("启用", "enable", true);
       Reflect.set(enable_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-      let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+      let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
 
       // 规则名称
       let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
       Reflect.set(name_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-      let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+      let $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
 
       // 匹配网址
       let url_template = UIInput("匹配网址", "url", "", "", void 0, "必填，可正则");
       Reflect.set(url_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-      let $data_url = panelHandlerComponents.createSectionContainerItem_input(url_template);
+      let $data_url = panelHandlerComponents.createSectionContainerItem_input(url_template).$el;
 
       // 覆盖设置
       let coverSetting_template = UIButton(
@@ -232,9 +232,7 @@ export const WebsiteRule = {
                 "",
                 "让获取的到的链接的访问码都为自定义的访问码",
                 void 0,
-                "请输入自定义访问码",
-                false,
-                false
+                "请输入自定义访问码"
               );
               // 覆盖存储api
               Reflect.set(custom_accessCode_template.props!, PROPS_STORAGE_API, generatePanelStorageApi(data.uuid));
@@ -300,7 +298,7 @@ export const WebsiteRule = {
         },
         void 0
       );
-      let $coverSetting_template = panelHandlerComponents.createSectionContainerItem_button(coverSetting_template);
+      let $coverSetting_template = panelHandlerComponents.createSectionContainerItem_button(coverSetting_template).$el;
 
       $fragment.appendChild($enable);
       $fragment.appendChild($name);
@@ -1010,19 +1008,19 @@ export const WebsiteRule = {
           {}
         );
         // 订阅名称
-        let title_template = UIInput("订阅标题", "title", "", "", void 0, "");
+        let title_template = UIInput("订阅标题", "title", "");
         Reflect.set(title_template.props!, PROPS_STORAGE_API, generateStorageApi(configData));
-        let $title = panelHandlerComponents.createSectionContainerItem_input(title_template);
+        let $title = panelHandlerComponents.createSectionContainerItem_input(title_template).$el;
 
         // 版本号
-        let version_template = UIInput("版本号", "version", "", "", void 0, "", false);
+        let version_template = UIInput("版本号", "version", "");
         Reflect.set(version_template.props!, PROPS_STORAGE_API, generateStorageApi(configData));
-        let $version = panelHandlerComponents.createSectionContainerItem_input(version_template);
+        let $version = panelHandlerComponents.createSectionContainerItem_input(version_template).$el;
 
         // 主页地址
         let homePage_template = UIInput("主页地址", "homePage", "", "", void 0, "选填");
         Reflect.set(homePage_template.props!, PROPS_STORAGE_API, generateStorageApi(configData));
-        let $homePage = panelHandlerComponents.createSectionContainerItem_input(homePage_template);
+        let $homePage = panelHandlerComponents.createSectionContainerItem_input(homePage_template).$el;
 
         DOMUtils.append($content, $title);
         DOMUtils.append($content, $version);

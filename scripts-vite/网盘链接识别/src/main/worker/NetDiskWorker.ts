@@ -1,4 +1,4 @@
-import { $$, DOMUtils, GM_Menu, DEBUG, log, utils } from "@/env";
+import { $$, DOMUtils, MenuRegister, DEBUG, log, utils } from "@/env";
 import { NetDisk } from "../NetDisk";
 import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 import { NetDiskView } from "../view/NetDiskView";
@@ -400,14 +400,14 @@ export const NetDiskWorker = {
             } else {
               Qmsg.error(`删除失败`);
             }
-            GM_Menu.update(menuOption);
+            MenuRegister.update(menuOption);
           }
         } else {
           this.dispatchWorkerInitErrorDialog();
         }
       },
     };
-    GM_Menu.update(menuOption);
+    MenuRegister.update(menuOption);
   },
   /**
    * 传递数据给worker内进行处理匹配
@@ -890,7 +890,7 @@ export const NetDiskWorker = {
     } else if (matchMode === "Menu") {
       // 匹配模式 - Menu
       // 注册油猴菜单
-      GM_Menu.add({
+      MenuRegister.add({
         key: "performPageTextMatchingManually" + "_" + window.location.href,
         text: "点击执行文本匹配" + (Panel.isTopWindow() ? "" : "（iframe）"),
         autoReload: false,

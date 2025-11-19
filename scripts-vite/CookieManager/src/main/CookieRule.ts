@@ -1,4 +1,4 @@
-import { DOMUtils, GM_Menu, httpx, log, pops, utils } from "@/env";
+import { DOMUtils, httpx, log, MenuRegister, pops, utils } from "@/env";
 import { UIInput } from "@components/setting/components/ui-input";
 import { UISelect } from "@components/setting/components/ui-select";
 import { UISwitch } from "@components/setting/components/ui-switch";
@@ -50,7 +50,7 @@ export const CookieRule = {
     this.$data.matchedRuleList = this.getMatchedRuleList();
     // 注册菜单
     if (this.$data.matchedRuleList.length) {
-      GM_Menu.add({
+      MenuRegister.add({
         key: "matched-cookie-rule-list",
         text: `${window.location.hostname} ${this.$data.matchedRuleList.length}条规则`,
         isStoreValue: false,
@@ -164,12 +164,12 @@ export const CookieRule = {
             // 启用
             let enable_template = UISwitch("启用", "enable", templateData.enable);
             Reflect.set(enable_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+            let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
 
             // 规则名称
             let name_template = UIInput("规则名称", "name", "", templateData.name, void 0, "必填");
             Reflect.set(name_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+            let $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
 
             // 执行的Api
             let apiName_template = UISelect<NonNullable<CookieRuleData["data"]["execApiName"]>>(
@@ -192,12 +192,12 @@ export const CookieRule = {
               "操作Cookie的Api函数"
             );
             Reflect.set(apiName_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-            let $apiName = panelHandlerComponents.createSectionContainerItem_select(apiName_template);
+            let $apiName = panelHandlerComponents.createSectionContainerItem_select(apiName_template).$el;
 
             // 匹配的网址
             let url_template = UIInput("网址", "url", templateData.data.url, "用于执行该规则的网址", void 0, "必填");
             Reflect.set(url_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-            let $url = panelHandlerComponents.createSectionContainerItem_input(url_template);
+            let $url = panelHandlerComponents.createSectionContainerItem_input(url_template).$el;
 
             // 使用正则来匹配网址
             let enableRegExpToMatchUrl_template = UISwitch(
@@ -208,7 +208,7 @@ export const CookieRule = {
             Reflect.set(enableRegExpToMatchUrl_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
             let $enableRegExpToMatchUrl = panelHandlerComponents.createSectionContainerItem_switch(
               enableRegExpToMatchUrl_template
-            );
+            ).$el;
 
             // Cookie名称
             let cookieName_template = UIInput(
@@ -220,7 +220,7 @@ export const CookieRule = {
               "必填"
             );
             Reflect.set(cookieName_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-            let $cookieName = panelHandlerComponents.createSectionContainerItem_input(cookieName_template);
+            let $cookieName = panelHandlerComponents.createSectionContainerItem_input(cookieName_template).$el;
 
             // 显示的标签图标
             let enableRegExpToMatchCookieName_template = UISwitch(
@@ -235,7 +235,7 @@ export const CookieRule = {
             );
             let $enableRegExpToMatchCookieName = panelHandlerComponents.createSectionContainerItem_switch(
               enableRegExpToMatchCookieName_template
-            );
+            ).$el;
 
             let operationMode_template = UISelect("操作模式", "operationMode", templateData.data.operationMode, [
               {
@@ -260,11 +260,11 @@ export const CookieRule = {
               },
             ]);
             Reflect.set(operationMode_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-            let $operationMode = panelHandlerComponents.createSectionContainerItem_select(operationMode_template);
+            let $operationMode = panelHandlerComponents.createSectionContainerItem_select(operationMode_template).$el;
 
             let remark_template = UITextArea("备注", "remark", templateData.data.remark);
             Reflect.set(remark_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-            let $remark = panelHandlerComponents.createSectionContainerItem_textarea(remark_template);
+            let $remark = panelHandlerComponents.createSectionContainerItem_textarea(remark_template).$el;
 
             $fragment.append(
               $enable,

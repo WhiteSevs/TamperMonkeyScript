@@ -1,4 +1,4 @@
-import { DOMUtils, GM_Menu, httpx, log, pops, utils } from "@/env";
+import { DOMUtils, httpx, log, MenuRegister, pops, utils } from "@/env";
 import { MTRouter } from "@/router/MTRouter";
 import { UIInput } from "@components/setting/components/ui-input";
 import { UISwitch } from "@components/setting/components/ui-switch";
@@ -41,7 +41,7 @@ export const MTProductListingReminder = {
    * 注册菜单
    */
   registerMenu() {
-    GM_Menu.add({
+    MenuRegister.add({
       key: "product-reminder",
       text: "⚙ 商品上架提醒",
       autoReload: false,
@@ -236,17 +236,17 @@ export const MTProductListingReminder = {
             // 启用
             let enable_template = UISwitch("启用", "enable", true);
             Reflect.set(enable_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+            let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
 
             // 规则名称
             let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
             Reflect.set(name_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+            let $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
 
             // 用户名
             let productName_template = UIInput("商品名", "productName", "", "", void 0, "可正则，需手动转义");
             Reflect.set(productName_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            let $productName = panelHandlerComponents.createSectionContainerItem_input(productName_template);
+            let $productName = panelHandlerComponents.createSectionContainerItem_input(productName_template).$el;
 
             $fragment.append($enable, $name, $productName);
             return $fragment;
