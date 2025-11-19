@@ -5,14 +5,14 @@ export {
   utils,
   DOMUtils,
   log,
-  GM_Menu,
+  MenuRegister,
   httpx,
   addStyle,
   pops,
   $,
   $$,
   MountVue,
-  VUE_ELE_NAME_ID,
+  VUE_ROOT_ID,
   cookieManager,
 } from "@components/base.env";
 

@@ -146,7 +146,11 @@ export const DouYinVideoPlayer = {
 			}
 			/* 图文的图片全屏 */
 			.basePlayerContainer  .focusPanel .dySwiperSlide img[src]{
-				height: 99% !important;
+        height: 100%;
+        object-fit: contain;
+        transform: translateY(-50%);
+        top: 50%;
+        position: relative;
 			}
       /* 修复有时候背景为全黑的问题 */
       .isCssFullScreen .basePlayerContainer video{

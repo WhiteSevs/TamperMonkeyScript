@@ -1,4 +1,4 @@
-import { $, GM_Menu, log, pops, utils } from "@/env";
+import { $, log, MenuRegister, pops, utils } from "@/env";
 import Qmsg from "qmsg";
 
 type DouYinLivePlayerInstance = {
@@ -48,7 +48,7 @@ export const DouYinLivePlayerInstance = {
    * 添加油猴菜单
    */
   initMenu() {
-    GM_Menu.add({
+    MenuRegister.add({
       key: "live-parsePlayerInstance",
       text: "⚙ PlayerInstance",
       autoReload: false,

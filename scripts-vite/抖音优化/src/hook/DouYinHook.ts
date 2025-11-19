@@ -315,13 +315,52 @@ export const DouYinHook = {
       ) {
         return function (this: any, ...eventArgs: any[]) {
           const currentClickTime = Date.now();
+          const [event] = eventArgs;
           if (currentClickTime - latestClickTime <= 288) {
             latestClickTime = currentClickTime;
             log.success("阻止触发双击点赞");
+            if (event instanceof Event) {
+              const $target = event.target;
+              if ($target && $target instanceof HTMLVideoElement) {
+                // 因为双击会暂停视频，所以这里再播放
+                if ($target.paused) {
+                  const listener = DOMUtils.on(
+                    $target,
+                    "play",
+                    () => {
+                      log.info(`双击前该视频在暂停中，这里触发播放，主动暂停视频`);
+                      utils.workerClearTimeout(timeId);
+                      $target.pause();
+                      listener.off();
+                    },
+                    { capture: true }
+                  );
+                  const timeId = utils.workerSetTimeout(() => {
+                    listener.off();
+                  }, 1000);
+                } else {
+                  const listener = DOMUtils.on(
+                    $target,
+                    "pause",
+                    () => {
+                      log.info(`双击前该视频在播放中，这里触发暂停，主动播放视频`);
+                      utils.workerClearTimeout(timeId);
+                      $target.play();
+                      listener.off();
+                    },
+                    { capture: true }
+                  );
+                  const timeId = utils.workerSetTimeout(() => {
+                    listener.off();
+                  }, 1000);
+                }
+              }
+            }
             return;
           }
           latestClickTime = currentClickTime;
-          Reflect.apply(listener, this, eventArgs);
+          const ret = Reflect.apply(listener, this, eventArgs);
+          return ret;
         };
       }
     });

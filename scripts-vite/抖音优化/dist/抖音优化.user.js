@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.15
+// @version      2025.11.19
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
@@ -944,7 +944,7 @@
       if (!Panel.isTopWindow()) {
         return;
       }
-      GM_Menu.add(this.$data.menuOption);
+      MenuRegister.add(this.$data.menuOption);
     },
     addMenuOption(option) {
       if (!Array.isArray(option)) {
@@ -1947,7 +1947,7 @@
     },
     drag: true,
   });
-  const GM_Menu = new utils.GM_Menu({
+  const MenuRegister = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,
     GM_registerMenuCommand: _GM_registerMenuCommand,
@@ -3040,13 +3040,51 @@
         ) {
           return function (...eventArgs) {
             const currentClickTime = Date.now();
+            const [event] = eventArgs;
             if (currentClickTime - latestClickTime <= 288) {
               latestClickTime = currentClickTime;
               log.success("阻止触发双击点赞");
+              if (event instanceof Event) {
+                const $target = event.target;
+                if ($target && $target instanceof HTMLVideoElement) {
+                  if ($target.paused) {
+                    const listener2 = domUtils.on(
+                      $target,
+                      "play",
+                      () => {
+                        log.info(`双击前该视频在暂停中，这里触发播放，主动暂停视频`);
+                        utils.workerClearTimeout(timeId);
+                        $target.pause();
+                        listener2.off();
+                      },
+                      { capture: true }
+                    );
+                    const timeId = utils.workerSetTimeout(() => {
+                      listener2.off();
+                    }, 1e3);
+                  } else {
+                    const listener2 = domUtils.on(
+                      $target,
+                      "pause",
+                      () => {
+                        log.info(`双击前该视频在播放中，这里触发暂停，主动播放视频`);
+                        utils.workerClearTimeout(timeId);
+                        $target.play();
+                        listener2.off();
+                      },
+                      { capture: true }
+                    );
+                    const timeId = utils.workerSetTimeout(() => {
+                      listener2.off();
+                    }, 1e3);
+                  }
+                }
+              }
               return;
             }
             latestClickTime = currentClickTime;
-            Reflect.apply(listener, this, eventArgs);
+            const ret = Reflect.apply(listener, this, eventArgs);
+            return ret;
           };
         }
       });
@@ -5286,7 +5324,11 @@
 			}
 			/* 图文的图片全屏 */
 			.basePlayerContainer  .focusPanel .dySwiperSlide img[src]{
-				height: 99% !important;
+        height: 100%;
+        object-fit: contain;
+        transform: translateY(-50%);
+        top: 50%;
+        position: relative;
 			}
       /* 修复有时候背景为全黑的问题 */
       .isCssFullScreen .basePlayerContainer video{
@@ -6513,7 +6555,7 @@
       $playerIns: null,
     },
     initMenu() {
-      GM_Menu.add({
+      MenuRegister.add({
         key: "live-parsePlayerInstance",
         text: "⚙ PlayerInstance",
         autoReload: false,
@@ -7541,29 +7583,29 @@
     description,
     changeCallback,
     placeholder = "",
-    isNumber,
-    isPassword,
+    inputType = "text",
     afterAddToUListCallBack,
     valueChangeCallback
   ) {
     const result = {
       text,
       type: "input",
-      isNumber: Boolean(isNumber),
-      isPassword: Boolean(isPassword),
+      inputType,
       attributes: {},
       props: {},
       description,
+      placeholder,
       afterAddToUListCallBack,
       getValue() {
         const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
-      callback(event, value, valueAsNumber) {
+      callback(event, value) {
+        const $input = event.target;
+        $input.validity.valid;
         const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      placeholder,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -9221,10 +9263,10 @@
               }
               const enable_template = UISwitch("启用", "enable", true);
               Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-              const $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+              const { $el: $enable } = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
               const name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
               Reflect.set(name_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-              const $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+              const { $el: $name } = panelHandlerComponents.createSectionContainerItem_input(name_template);
               const scope_template = UISelectMultiple(
                 "作用域",
                 "scope",
@@ -9277,7 +9319,7 @@
                 "选择需要在xxx上生效的作用域"
               );
               Reflect.set(scope_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-              const $scope = panelHandlerComponents.createSectionContainerItem_select_multiple(scope_template);
+              const { $el: $scope } = panelHandlerComponents.createSectionContainerItem_select_multiple(scope_template);
               const douYinVideoHandlerInfoKey = [
                 "isLive",
                 "isAds",
@@ -9336,7 +9378,8 @@
                   "选择需要的属性名 "
                 );
                 Reflect.set(ruleName_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
-                const $ruleName = panelHandlerComponents.createSectionContainerItem_select_multiple(ruleName_template);
+                const { $el: $ruleName } =
+                  panelHandlerComponents.createSectionContainerItem_select_multiple(ruleName_template);
                 const isFunctionHandler_template_valueChange = (_, enableValue) => {
                   if (enableValue) {
                     domUtils.html($ruleValueLeftMainText, `自定义函数`);
@@ -9357,16 +9400,17 @@
                   isFunctionHandler_template_valueChange
                 );
                 Reflect.set(isFunctionHandler_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
-                const $ownFunctionHandler =
+                const { $el: $ownFunctionHandler } =
                   panelHandlerComponents.createSectionContainerItem_switch(isFunctionHandler_template);
                 const ruleValue_template = UITextArea("属性值", "ruleValue", "", "如果是字符串，可正则，注意转义");
                 Reflect.set(ruleValue_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
-                const $ruleValue = panelHandlerComponents.createSectionContainerItem_textarea(ruleValue_template);
+                const { $el: $ruleValue } =
+                  panelHandlerComponents.createSectionContainerItem_textarea(ruleValue_template);
                 const $ruleValueLeftMainText = $ruleValue.querySelector(".pops-panel-item-left-main-text");
                 const $ruleValueLeftDescText = $ruleValue.querySelector(".pops-panel-item-left-desc-text");
                 const remarks_template = UITextArea("备注", "remarks", "", "");
                 Reflect.set(remarks_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
-                const $remarks = panelHandlerComponents.createSectionContainerItem_textarea(remarks_template);
+                const { $el: $remarks } = panelHandlerComponents.createSectionContainerItem_textarea(remarks_template);
                 if (storageData.isFunctionHandler) {
                   isFunctionHandler_template_valueChange(null, isFunctionHandler_template.getValue());
                 }
@@ -10383,12 +10427,6 @@
     },
   };
   const UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
-    let selectData = [];
-    if (typeof data === "function") {
-      selectData = data();
-    } else {
-      selectData = data;
-    }
     const result = {
       text,
       type: "select",
@@ -10399,11 +10437,14 @@
         const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
-      callback(event, isSelectedValue, isSelectedText) {
-        const value = isSelectedValue;
-        log.info(`选择：${isSelectedText}`);
+      callback(isSelectedInfo) {
+        if (isSelectedInfo == null) {
+          return;
+        }
+        const value = isSelectedInfo.value;
+        log.info(`选择：${isSelectedInfo.text}`);
         if (typeof selectCallBack === "function") {
-          const result2 = selectCallBack(event, value, isSelectedText);
+          const result2 = selectCallBack(isSelectedInfo);
           if (result2) {
             return;
           }
@@ -10411,7 +10452,7 @@
         const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      data: selectData,
+      data,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -10461,12 +10502,12 @@
     `,
     afterEnterDeepMenuCallBack,
   };
-  const UIOwn = function (getLiElementCallBack, initConfig, searchConfig, attr, props, afterAddToUListCallBack) {
+  const UIOwn = function (createLIElement, initConfig, searchConfig, attr, props, afterAddToUListCallBack) {
     const result = {
       type: "own",
       attributes: {},
       props: {},
-      getLiElementCallBack,
+      createLIElement,
       afterAddToUListCallBack,
     };
     if (typeof initConfig === "object" && initConfig !== null && Object.keys(initConfig).length > 0) {
@@ -10545,8 +10586,8 @@
                         text: "右下角",
                       },
                     ],
-                    (event, isSelectValue, isSelectText) => {
-                      log.info("设置当前Qmsg弹出位置" + isSelectText);
+                    (isSelectedInfo) => {
+                      log.info("设置当前Qmsg弹出位置" + isSelectedInfo.text);
                     },
                     "Toast显示在页面九宫格的位置"
                   ),

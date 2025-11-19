@@ -736,12 +736,12 @@ export const DouYinVideoFilter = {
             // 启用
             const enable_template = UISwitch("启用", "enable", true);
             Reflect.set(enable_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            const $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+            const { $el: $enable } = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
 
             // 规则名称
             const name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
             Reflect.set(name_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            const $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+            const { $el: $name } = panelHandlerComponents.createSectionContainerItem_input(name_template);
 
             // 作用域
             const scope_template = UISelectMultiple<DouYinVideoFilterRuleOptionScope>(
@@ -809,7 +809,7 @@ export const DouYinVideoFilter = {
               "选择需要在xxx上生效的作用域"
             );
             Reflect.set(scope_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-            const $scope = panelHandlerComponents.createSectionContainerItem_select_multiple(scope_template);
+            const { $el: $scope } = panelHandlerComponents.createSectionContainerItem_select_multiple(scope_template);
 
             // const autoSendDisLikeRequest_template = UISwitch(
             // 	"是否自动发送不感兴趣请求",
@@ -823,10 +823,9 @@ export const DouYinVideoFilter = {
             // 	PROPS_STORAGE_API,
             // 	generateStorageApi(data.data)
             // );
-            // const $autoSendDisLikeRequest =
-            // 	popsPanelContentUtils.createSectionContainerItem_switch(
-            // 		autoSendDisLikeRequest_template
-            // 	);
+            // const { $el: $autoSendDisLikeRequest } = panelHandlerComponents.createSectionContainerItem_switch(
+            //   autoSendDisLikeRequest_template
+            // );
 
             // 属性名列表
             const douYinVideoHandlerInfoKey = <(keyof DouYinVideoHandlerInfo)[]>[
@@ -895,7 +894,8 @@ export const DouYinVideoFilter = {
                 "选择需要的属性名 "
               );
               Reflect.set(ruleName_template.props!, PROPS_STORAGE_API, generateStorageApi(storageData));
-              const $ruleName = panelHandlerComponents.createSectionContainerItem_select_multiple(ruleName_template);
+              const { $el: $ruleName } =
+                panelHandlerComponents.createSectionContainerItem_select_multiple(ruleName_template);
 
               // 自定义函数处理
               const isFunctionHandler_template_valueChange = (_: any, enableValue: boolean) => {
@@ -922,7 +922,7 @@ export const DouYinVideoFilter = {
                 isFunctionHandler_template_valueChange
               );
               Reflect.set(isFunctionHandler_template.props!, PROPS_STORAGE_API, generateStorageApi(storageData));
-              const $ownFunctionHandler =
+              const { $el: $ownFunctionHandler } =
                 panelHandlerComponents.createSectionContainerItem_switch(isFunctionHandler_template);
 
               // 属性值
@@ -934,14 +934,15 @@ export const DouYinVideoFilter = {
                 void 0
               );
               Reflect.set(ruleValue_template.props!, PROPS_STORAGE_API, generateStorageApi(storageData));
-              const $ruleValue = panelHandlerComponents.createSectionContainerItem_textarea(ruleValue_template);
+              const { $el: $ruleValue } =
+                panelHandlerComponents.createSectionContainerItem_textarea(ruleValue_template);
               const $ruleValueLeftMainText = $ruleValue.querySelector<HTMLElement>(".pops-panel-item-left-main-text")!;
               const $ruleValueLeftDescText = $ruleValue.querySelector<HTMLElement>(".pops-panel-item-left-desc-text")!;
 
               // 备注
               const remarks_template = UITextArea("备注", "remarks", "", "", void 0);
               Reflect.set(remarks_template.props!, PROPS_STORAGE_API, generateStorageApi(storageData));
-              const $remarks = panelHandlerComponents.createSectionContainerItem_textarea(remarks_template);
+              const { $el: $remarks } = panelHandlerComponents.createSectionContainerItem_textarea(remarks_template);
 
               // 值初始化
               if (storageData.isFunctionHandler) {
