@@ -1,4 +1,4 @@
-import { MountVue, VUE_ELE_NAME_ID, addStyle } from "@/env";
+import { MountVue, VUE_ROOT_ID, addStyle } from "@/env";
 import App from "./App.vue";
 import { TiebaRouter } from "./router";
 import AppCSS from "./app.css?raw";
@@ -16,15 +16,15 @@ const TiebaHome = {
     TiebaRouter.init();
     MountVue(App, [TiebaRouter.router, ElementPlus]);
     addStyle(/*css*/ `
-        #${VUE_ELE_NAME_ID}{
+        #${VUE_ROOT_ID}{
             z-index: 1000;
         }
-        body > div:not([id="${VUE_ELE_NAME_ID}"]){
+        body > div:not([id="${VUE_ROOT_ID}"]){
             display: none;
         }
         body > div[class="dia_wrapper"],
         body > div[class="dia_mask"],
-        #${VUE_ELE_NAME_ID} ~ *{
+        #${VUE_ROOT_ID} ~ *{
             display: unset;
         }
         `);

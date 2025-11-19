@@ -1,5 +1,5 @@
 import { unsafeWindow } from "ViteGM";
-import { $, DOMUtils, GM_Menu, addStyle, httpx, loadingView, log, utils } from "@/env";
+import { $, DOMUtils, MenuRegister, addStyle, httpx, loadingView, log, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
 import { BaiduHandleResultItem } from "./SearchHandleResultItem";
 import { SearchHandleResultEveryOneSearch } from "./SearchHandleResultEveryOneSearch";
@@ -363,7 +363,7 @@ const SearchNextPage = {
         }
       });
       // 解析下一页的搜索结果项
-      let searchResultDOM = nextPageDoc.querySelectorAll(".c-result");
+      let searchResultDOM = nextPageDoc.querySelectorAll(BaiduHandleResultItem.$data.resultListSelector);
       // 解析下一页的下一页地址的容器（用于判断是否需要请求下下一页）
       let nextPageControllerDOM =
         nextPageDoc.querySelector<HTMLElement>("#page-controller") ||
@@ -487,7 +487,7 @@ const SearchNextPage_SearchCraft = {
   init() {
     let isSearchCraft = navigator.userAgent.includes("SearchCraft");
     log.success(
-      `判断是否是SearchCraft：${isSearchCraft ? GM_Menu.getEnableTrueEmoji() : GM_Menu.getEnableFalseEmoji()}`
+      `判断是否是SearchCraft：${isSearchCraft ? MenuRegister.getEnableTrueEmoji() : MenuRegister.getEnableFalseEmoji()}`
     );
     if (isSearchCraft) {
       this.setNextPageInterSectionObserver();

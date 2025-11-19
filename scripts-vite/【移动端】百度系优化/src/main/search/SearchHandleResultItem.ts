@@ -10,7 +10,14 @@ export const BaiduHandleResultItem = {
      * 页面中的搜索结果元素
      */
     get $resultList() {
-      return $$(".c-result.result");
+      const $generalResultList = $$(BaiduHandleResultItem.$data.resultListSelector);
+      if ($generalResultList.length) {
+        return $generalResultList;
+      } else {
+        // 筛选 - 资讯
+        const $realTimeResultList = $$(BaiduHandleResultItem.$data.realTimeResultListSelector);
+        return $realTimeResultList;
+      }
     },
   },
   $data: {
@@ -18,6 +25,14 @@ export const BaiduHandleResultItem = {
      * 原始链接映射
      */
     originURLMap: null as unknown as UtilsDictionary<string, string>,
+    /**
+     * 搜索结果每一项的选择器
+     */
+    resultListSelector: ".c-result",
+    /**
+     * 资讯的每一项的选择器
+     */
+    realTimeResultListSelector: '#realtime-container .c-infinite-scroll >div:has(a[class*="card-link"])',
   },
   /**
    * 判断链接是否是百度的中转链接
@@ -455,7 +470,7 @@ export const BaiduHandleResultItem = {
      */
     let $conterEveryOneSearch = [
       ...Array.from($$<HTMLElement>(".c-recomm-wrap.new-ux-recom-wrapper.c-bg-color-white.animation")),
-      ...Array.from($$<HTMLElement>('.c-result.result[tpl^="recommend_list"]')),
+      ...Array.from($$<HTMLElement>('.c-result[tpl^="recommend_list"]')),
     ];
     /**
      * 末尾 大家都在搜

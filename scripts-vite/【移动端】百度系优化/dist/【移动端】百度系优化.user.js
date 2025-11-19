@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.9
+// @version      2025.11.19
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -15,16 +15,16 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/showdown/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/vue@3.5.24/dist/vue.global.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-demi@0.14.10/lib/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/pinia@3.0.4/dist/pinia.iife.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-router@4.6.3/dist/vue-router.global.js
-// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@70fca3b5fc45d132c7d8a73d1d94e014a3892c5d/lib/Element-Plus/index.js
+// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@1ec131db8c5fdc9020cbf6d6e231a46f1ecc8b8f/lib/Element-Plus/index.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.2/dist/index.iife.min.js
-// @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.11.7/dist/index.min.css
+// @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.11.8/dist/index.min.css
 // @resource     ViewerCSS               https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect      *
 // @connect      www.baidu.com
@@ -82,7 +82,7 @@
       return (mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports);
     };
   var require_entrance_001 = __commonJS({
-    "entrance--vEv5a3q.js"(exports$1, module) {
+    "entrance-BcklgFxh.js"(exports$1, module) {
       var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
       var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
       var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
@@ -1140,7 +1140,7 @@
           if (!Panel.isTopWindow()) {
             return;
           }
-          GM_Menu.add(this.$data.menuOption);
+          MenuRegister.add(this.$data.menuOption);
         },
         addMenuOption(option) {
           if (!Array.isArray(option)) {
@@ -2155,7 +2155,7 @@
         },
         drag: true,
       });
-      const GM_Menu = new utils.GM_Menu({
+      const MenuRegister = new utils.GM_Menu({
         GM_getValue: _GM_getValue,
         GM_setValue: _GM_setValue,
         GM_registerMenuCommand: _GM_registerMenuCommand,
@@ -3226,11 +3226,19 @@ div[class^="new-summary-container_"] {\r
       const BaiduHandleResultItem = {
         $el: {
           get $resultList() {
-            return $$(".c-result.result");
+            const $generalResultList = $$(BaiduHandleResultItem.$data.resultListSelector);
+            if ($generalResultList.length) {
+              return $generalResultList;
+            } else {
+              const $realTimeResultList = $$(BaiduHandleResultItem.$data.realTimeResultListSelector);
+              return $realTimeResultList;
+            }
           },
         },
         $data: {
           originURLMap: null,
+          resultListSelector: ".c-result",
+          realTimeResultListSelector: '#realtime-container .c-infinite-scroll >div:has(a[class*="card-link"])',
         },
         isBaiDuTransferStation(url) {
           try {
@@ -3602,7 +3610,7 @@ div[class^="new-summary-container_"] {\r
           let isRemoveEveryOneSearch = Panel.getValue("baidu_search_blocking_everyone_is_still_searching");
           let $conterEveryOneSearch = [
             ...Array.from($$(".c-recomm-wrap.new-ux-recom-wrapper.c-bg-color-white.animation")),
-            ...Array.from($$('.c-result.result[tpl^="recommend_list"]')),
+            ...Array.from($$('.c-result[tpl^="recommend_list"]')),
           ];
           let $bottomEveryOneSearch = [...Array.from($$("#page-relative"))];
           let $searchCraftEveryOnceSearch = [...Array.from($$("#relativewords"))];
@@ -4002,7 +4010,7 @@ div[class^="new-summary-container_"] {\r
                 log.info(["插入Vue的CSS", cssDOM]);
               }
             });
-            let searchResultDOM = nextPageDoc.querySelectorAll(".c-result");
+            let searchResultDOM = nextPageDoc.querySelectorAll(BaiduHandleResultItem.$data.resultListSelector);
             let nextPageControllerDOM =
               nextPageDoc.querySelector("#page-controller") || nextPageDoc.querySelector(".vsearch-page-controller");
             let currentResultsDOM = SearchNextPage.$el.results;
@@ -4100,7 +4108,7 @@ div[class^="new-summary-container_"] {\r
         init() {
           let isSearchCraft = navigator.userAgent.includes("SearchCraft");
           log.success(
-            `判断是否是SearchCraft：${isSearchCraft ? GM_Menu.getEnableTrueEmoji() : GM_Menu.getEnableFalseEmoji()}`
+            `判断是否是SearchCraft：${isSearchCraft ? MenuRegister.getEnableTrueEmoji() : MenuRegister.getEnableFalseEmoji()}`
           );
           if (isSearchCraft) {
             this.setNextPageInterSectionObserver();
@@ -4359,7 +4367,7 @@ match-attr##srcid##yx_entity_pc_san
       `
             );
             const lockFn = new utils.LockFunction(() => {
-              $$(".c-result.result").forEach(($result) => {
+              BaiduHandleResultItem.$el.$resultList.forEach(($result) => {
                 BaiduSearchBlockRule.addFilterButton($result);
                 const url = BaiduHandleResultItem.getSearchArticleOriginal_link($result);
                 if (Panel.getValue("baidu-search-filter-enable") && BaiduSearchBlockRule.checkFilter($result, url)) {
@@ -4577,6 +4585,8 @@ match-attr##srcid##yx_entity_pc_san
                   const urlInst = new URL(url);
                   rule_href_hostname = `match-href##${urlInst.hostname}`;
                   rule_href_hostname_pathname = `match-href##${urlInst.hostname}${urlInst.pathname}`;
+                  ruleList.push(rule_href_hostname);
+                  ruleList.push(rule_href_hostname_pathname);
                   if (utils.isNotNull(srcid)) {
                     ruleList.push([rule_attr_srcid, rule_href_hostname].join("&&&&"));
                   }
@@ -4589,6 +4599,10 @@ match-attr##srcid##yx_entity_pc_san
                 } catch (error) {
                   ruleList.push(`match-href##url##${url}`);
                 }
+              }
+              if (!ruleList.length) {
+                Qmsg.error("生成过滤规则失败");
+                return;
               }
               const $dialog = __pops__.confirm({
                 title: {
@@ -4613,15 +4627,10 @@ match-attr##srcid##yx_entity_pc_san
                 },
                 btn: {
                   ok: {
-                    enable: true,
-                    text: "添加",
-                    callback(eventConfig, event) {
-                      console.log("添加");
-                    },
+                    enable: false,
                   },
                   cancel: {
-                    enable: true,
-                    text: "取消",
+                    enable: false,
                   },
                 },
                 mask: {
@@ -5535,9 +5544,15 @@ match-attr##srcid##yx_entity_pc_san
             changeVisitedNodeColor($click, $result);
             window.open(url, "_blank");
           };
-          domUtils.on(document, "click", ".c-result.result", globalResultClickEvent, {
-            capture: true,
-          });
+          domUtils.on(
+            document,
+            "click",
+            [BaiduHandleResultItem.$data.resultListSelector, BaiduHandleResultItem.$data.realTimeResultListSelector],
+            globalResultClickEvent,
+            {
+              capture: true,
+            }
+          );
         },
       };
       const SearchHomeShieldCSS =
@@ -10036,29 +10051,29 @@ match-attr##srcid##yx_entity_pc_san
         description,
         changeCallback,
         placeholder = "",
-        isNumber2,
-        isPassword,
+        inputType = "text",
         afterAddToUListCallBack,
         valueChangeCallback
       ) {
         const result = {
           text,
           type: "input",
-          isNumber: Boolean(isNumber2),
-          isPassword: Boolean(isPassword),
+          inputType,
           attributes: {},
           props: {},
           description,
+          placeholder,
           afterAddToUListCallBack,
           getValue() {
             const storageApiValue = this.props[PROPS_STORAGE_API];
             return storageApiValue.get(key, defaultValue);
           },
-          callback(event, value, valueAsNumber) {
+          callback(event, value) {
+            const $input = event.target;
+            $input.validity.valid;
             const storageApiValue = this.props[PROPS_STORAGE_API];
             storageApiValue.set(key, value);
           },
-          placeholder,
         };
         Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
         Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -10917,13 +10932,13 @@ match-attr##srcid##yx_entity_pc_san
                   }
                   let enable_template = UISwitch("启用", "enable", true);
                   Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-                  let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+                  let { $el: $enable } = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
                   let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
                   Reflect.set(name_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-                  let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+                  let { $el: $name } = panelHandlerComponents.createSectionContainerItem_input(name_template);
                   let author_id_template = UIInput("用户id", "author_id", "", "", void 0, "完全匹配");
                   Reflect.set(author_id_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-                  let $author_id = panelHandlerComponents.createSectionContainerItem_input(author_id_template);
+                  let { $el: $author_id } = panelHandlerComponents.createSectionContainerItem_input(author_id_template);
                   let author_nameShow_template = UIInput(
                     "用户名",
                     "author_nameShow",
@@ -10933,11 +10948,11 @@ match-attr##srcid##yx_entity_pc_san
                     "可正则，注意转义"
                   );
                   Reflect.set(author_nameShow_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-                  let $author_nameShow =
+                  let { $el: $author_nameShow } =
                     panelHandlerComponents.createSectionContainerItem_input(author_nameShow_template);
                   let content_template = UIInput("内容", "content", "", "");
                   Reflect.set(content_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-                  let $content = panelHandlerComponents.createSectionContainerItem_input(content_template);
+                  let { $el: $content } = panelHandlerComponents.createSectionContainerItem_input(content_template);
                   $fragment.append($enable, $name, $author_id, $author_nameShow, $content);
                   return $fragment;
                 },
@@ -11195,21 +11210,22 @@ match-attr##srcid##yx_entity_pc_san
                   }
                   let enable_template = UISwitch("启用", "enable", templateData.enable);
                   Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-                  let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+                  let { $el: $enable } = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
                   let name_template = UIInput("规则名称", "name", "", templateData.name, void 0, "必填");
                   Reflect.set(name_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-                  let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+                  let { $el: $name } = panelHandlerComponents.createSectionContainerItem_input(name_template);
                   let isShowDisplayName_template = UISwitch(
                     "是否显示标签名称",
                     "isShowDisplayName",
                     templateData.data.isShowDisplayName
                   );
                   Reflect.set(isShowDisplayName_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-                  let $isShowDisplayName =
+                  let { $el: $isShowDisplayName } =
                     panelHandlerComponents.createSectionContainerItem_switch(isShowDisplayName_template);
                   let displayName_template = UIInput("标签名称", "displayName", templateData.data.displayName, "");
                   Reflect.set(displayName_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-                  let $displayName = panelHandlerComponents.createSectionContainerItem_input(displayName_template);
+                  let { $el: $displayName } =
+                    panelHandlerComponents.createSectionContainerItem_input(displayName_template);
                   let isShowDisplayIcon_template = UISwitch(
                     "是否显示标签图标",
                     "isShowDisplayIcon",
@@ -11218,7 +11234,7 @@ match-attr##srcid##yx_entity_pc_san
                     ""
                   );
                   Reflect.set(isShowDisplayIcon_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-                  let $isShowDisplayIcon =
+                  let { $el: $isShowDisplayIcon } =
                     panelHandlerComponents.createSectionContainerItem_switch(isShowDisplayIcon_template);
                   let displayIcon_template = UIInput(
                     "标签图标",
@@ -11227,7 +11243,8 @@ match-attr##srcid##yx_entity_pc_san
                     "Url或base64"
                   );
                   Reflect.set(displayIcon_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-                  let $displayIcon = panelHandlerComponents.createSectionContainerItem_input(displayIcon_template);
+                  let { $el: $displayIcon } =
+                    panelHandlerComponents.createSectionContainerItem_input(displayIcon_template);
                   let keywords_template = UITextArea(
                     "关键词",
                     "keywords",
@@ -11251,7 +11268,8 @@ match-attr##srcid##yx_entity_pc_san
                       data.data[key] = value;
                     },
                   });
-                  let $keywords = panelHandlerComponents.createSectionContainerItem_textarea(keywords_template);
+                  let { $el: $keywords } =
+                    panelHandlerComponents.createSectionContainerItem_textarea(keywords_template);
                   let followings_template = UITextArea(
                     "关注的用户",
                     "followings",
@@ -11275,7 +11293,8 @@ match-attr##srcid##yx_entity_pc_san
                       data.data[key] = value;
                     },
                   });
-                  let $followings = panelHandlerComponents.createSectionContainerItem_textarea(followings_template);
+                  let { $el: $followings } =
+                    panelHandlerComponents.createSectionContainerItem_textarea(followings_template);
                   let followingForums_template = UITextArea(
                     "关注的吧",
                     "followingForums",
@@ -11299,7 +11318,7 @@ match-attr##srcid##yx_entity_pc_san
                       data.data[key] = value;
                     },
                   });
-                  let $followingForums =
+                  let { $el: $followingForums } =
                     panelHandlerComponents.createSectionContainerItem_textarea(followingForums_template);
                   let blacklist_template = UITextArea("黑名单", "blacklist", "", "", void 0, "多个用户id/portrait换行");
                   Reflect.set(blacklist_template.props, PROPS_STORAGE_API, {
@@ -11317,7 +11336,8 @@ match-attr##srcid##yx_entity_pc_san
                       data.data[key] = value;
                     },
                   });
-                  let $blacklist = panelHandlerComponents.createSectionContainerItem_textarea(blacklist_template);
+                  let { $el: $blacklist } =
+                    panelHandlerComponents.createSectionContainerItem_textarea(blacklist_template);
                   $fragment.append(
                     $enable,
                     $name,
@@ -15411,10 +15431,6 @@ match-attr##srcid##yx_entity_pc_san
       function throwError(scope, m) {
         throw new ElementPlusError(`[${scope}] ${m}`);
       }
-      function debugWarn(scope, message) {
-        const error = isString$1(scope) ? new ElementPlusError(`[${scope}] ${message}`) : scope;
-        console.warn(error);
-      }
       const initial = {
         current: 0,
       };
@@ -15436,13 +15452,7 @@ match-attr##srcid##yx_entity_pc_san
           zIndex.value = increasingInjection.current;
           return currentZIndex.value;
         };
-        if (!isClient && !vue.inject(ZINDEX_INJECTION_KEY)) {
-          debugWarn(
-            "ZIndexInjection",
-            `Looks like you are using server rendering, you must provide a z-index provider to ensure the hydration process to be succeed
-usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
-          );
-        }
+        if (!isClient && !vue.inject(ZINDEX_INJECTION_KEY));
         return {
           initialZIndex,
           currentZIndex,
@@ -15774,7 +15784,6 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         const oldConfig = inSetup ? useGlobalConfig() : void 0;
         const provideFn = (_a2 = void 0) != null ? _a2 : inSetup ? vue.provide : void 0;
         if (!provideFn) {
-          debugWarn("provideGlobalConfig", "provideGlobalConfig() can only be used inside setup().");
           return;
         }
         const context = vue.computed(() => {
@@ -15828,8 +15837,12 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
       };
       const rAF = (fn) => (isClient ? window.requestAnimationFrame(fn) : setTimeout(fn, 16));
       const cAF = (handle) => (isClient ? window.cancelAnimationFrame(handle) : clearTimeout(handle));
-      const SCOPE = "utils/dom/style";
       const classNameToArray = (cls = "") => cls.split(" ").filter((item) => !!item.trim());
+      const hasClass = (el, cls) => {
+        if (!el || !cls) return false;
+        if (cls.includes(" ")) throw new Error("className should not contain space.");
+        return el.classList.contains(cls);
+      };
       const addClass = (el, cls) => {
         if (!el || !cls.trim()) return;
         el.classList.add(...classNameToArray(cls));
@@ -15859,7 +15872,6 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         } else if (isString$1(value)) {
           return value;
         }
-        debugWarn(SCOPE, "binding value must be a string or number");
       }
       const isScroll = (el, isVertical) => {
         if (!isClient) return false;
@@ -15880,6 +15892,28 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           parent2 = parent2.parentNode;
         }
         return parent2;
+      };
+      let scrollBarWidth;
+      const getScrollBarWidth = (namespace) => {
+        var _a2;
+        if (!isClient) return 0;
+        if (scrollBarWidth !== void 0) return scrollBarWidth;
+        const outer = document.createElement("div");
+        outer.className = `${namespace}-scrollbar__wrap`;
+        outer.style.visibility = "hidden";
+        outer.style.width = "100px";
+        outer.style.position = "absolute";
+        outer.style.top = "-9999px";
+        document.body.appendChild(outer);
+        const widthNoScroll = outer.offsetWidth;
+        outer.style.overflow = "scroll";
+        const inner = document.createElement("div");
+        inner.style.width = "100%";
+        outer.appendChild(inner);
+        const widthWithScroll = inner.offsetWidth;
+        (_a2 = outer.parentNode) == null ? void 0 : _a2.removeChild(outer);
+        scrollBarWidth = widthNoScroll - widthWithScroll;
+        return scrollBarWidth;
       };
       const withInstall = (main, extra) => {
         main.install = (app) => {
@@ -15969,10 +16003,6 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         });
         const instance = vue.getCurrentInstance();
         if (!instance) {
-          debugWarn(
-            "use-attrs",
-            "getCurrentInstance() returned null. useAttrs() must be called at the top of a setup function"
-          );
           return vue.computed(() => ({}));
         }
         return vue.computed(() => {
@@ -15994,16 +16024,6 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
       };
       const useId = (deterministicId) => {
         const idInjection = useIdInjection();
-        if (!isClient && idInjection === defaultIdInjection) {
-          debugWarn(
-            "IdInjection",
-            `Looks like you are using server rendering, you must provide a id provider to ensure the hydration process to be succeed
-usage: app.provide(ID_INJECTION_KEY, {
-  prefix: number,
-  current: number,
-})`
-          );
-        }
         const namespace = useGetDerivedNamespace();
         const idRef = computedEager(
           () => vue.unref(deterministicId) || `${namespace.value}-id-${idInjection.prefix}-${idInjection.current++}`
@@ -16533,14 +16553,12 @@ usage: app.provide(ID_INJECTION_KEY, {
           }
           const setScrollTop = (value) => {
             if (!isNumber(value)) {
-              debugWarn(COMPONENT_NAME$4, "value must be a number");
               return;
             }
             wrapRef.value.scrollTop = value;
           };
           const setScrollLeft = (value) => {
             if (!isNumber(value)) {
-              debugWarn(COMPONENT_NAME$4, "value must be a number");
               return;
             }
             wrapRef.value.scrollLeft = value;
@@ -17407,16 +17425,7 @@ usage: app.provide(ID_INJECTION_KEY, {
       const useDeprecated = ({ from, replacement, scope, version, ref: ref2, type = "API" }, condition) => {
         vue.watch(
           () => vue.unref(condition),
-          (val) => {
-            if (val) {
-              debugWarn(
-                scope,
-                `[${type}] ${from} is about to be deprecated in version ${version}, please use ${replacement} instead.
-For more detail, please visit: ${ref2}
-`
-              );
-            }
-          },
+          (val) => {},
           {
             immediate: true,
           }
@@ -19118,6 +19127,43 @@ For more detail, please visit: ${ref2}
       withNoopInstall(Footer);
       const ElHeader = withNoopInstall(Header);
       const ElMain = withNoopInstall(Main);
+      const useLockscreen = (trigger, options = {}) => {
+        if (!vue.isRef(trigger)) {
+          throwError("[useLockscreen]", "You need to pass a ref param to this function");
+        }
+        const ns = options.ns || useNamespace("popup");
+        const hiddenCls = vue.computed(() => ns.bm("parent", "hidden"));
+        let scrollBarWidth2 = 0;
+        let withoutHiddenClass = false;
+        let bodyWidth = "0";
+        const cleanup = () => {
+          setTimeout(() => {
+            if (typeof document === "undefined") return;
+            if (withoutHiddenClass && document) {
+              document.body.style.width = bodyWidth;
+              removeClass(document.body, hiddenCls.value);
+            }
+          }, 200);
+        };
+        vue.watch(trigger, (val) => {
+          if (!val) {
+            cleanup();
+            return;
+          }
+          withoutHiddenClass = !hasClass(document.body, hiddenCls.value);
+          if (withoutHiddenClass) {
+            bodyWidth = document.body.style.width;
+            addClass(document.body, hiddenCls.value);
+          }
+          scrollBarWidth2 = getScrollBarWidth(ns.namespace.value);
+          const bodyHasOverflow = document.documentElement.clientHeight < document.body.scrollHeight;
+          const bodyOverflowY = getStyle(document.body, "overflowY");
+          if (scrollBarWidth2 > 0 && (bodyHasOverflow || bodyOverflowY === "scroll") && withoutHiddenClass) {
+            document.body.style.width = `calc(100% - ${scrollBarWidth2}px)`;
+          }
+        });
+        vue.onScopeDispose(() => cleanup());
+      };
       const dividerProps = buildProps({
         direction: {
           type: String,
@@ -19599,7 +19645,6 @@ For more detail, please visit: ${ref2}
             },
           };
           let stopWheelListener;
-          let prevOverflow = "";
           const { t } = useLocale();
           const ns = useNamespace("image-viewer");
           const { nextZIndex } = useZIndex();
@@ -19612,6 +19657,7 @@ For more detail, please visit: ${ref2}
           });
           const loading = vue.ref(true);
           const loadError = vue.ref(false);
+          const visible = vue.ref(false);
           const activeIndex = vue.ref(props.initialIndex);
           const mode = vue.shallowRef(modes.CONTAIN);
           const transform = vue.ref({
@@ -19622,6 +19668,7 @@ For more detail, please visit: ${ref2}
             enableTransition: false,
           });
           const zIndex2 = vue.ref((_a2 = props.zIndex) != null ? _a2 : nextZIndex());
+          useLockscreen(visible, { ns });
           const isSingle = vue.computed(() => {
             const { urlList } = props;
             return urlList.length <= 1;
@@ -19661,7 +19708,7 @@ For more detail, please visit: ${ref2}
           function hide() {
             unregisterEventListener();
             stopWheelListener == null ? void 0 : stopWheelListener();
-            document.body.style.overflow = prevOverflow;
+            visible.value = false;
             emit("close");
           }
           function registerEventListener() {
@@ -19697,7 +19744,7 @@ For more detail, please visit: ${ref2}
             });
             scopeEventListener.run(() => {
               useEventListener(document, "keydown", keydownHandler);
-              useEventListener(document, "wheel", mousewheelHandler);
+              useEventListener(wrapper, "wheel", mousewheelHandler);
             });
           }
           function unregisterEventListener() {
@@ -19834,12 +19881,11 @@ For more detail, please visit: ${ref2}
             emit("switch", val);
           });
           vue.onMounted(() => {
+            visible.value = true;
             registerEventListener();
             stopWheelListener = useEventListener("wheel", wheelHandler, {
               passive: false,
             });
-            prevOverflow = document.body.style.overflow;
-            document.body.style.overflow = "hidden";
           });
           expose({
             setActiveItem,
@@ -23910,7 +23956,7 @@ For more detail, please visit: ${ref2}
         ".el-image__error,.el-image__inner,.el-image__placeholder,.el-image__wrapper{height:100%;width:100%}.el-image{display:inline-block;overflow:hidden;position:relative}.el-image__inner{opacity:1;vertical-align:top}.el-image__inner.is-loading{opacity:0}.el-image__wrapper{left:0;position:absolute;top:0}.el-image__error,.el-image__placeholder{background:var(--el-fill-color-light)}.el-image__error{align-items:center;color:var(--el-text-color-placeholder);display:flex;font-size:14px;justify-content:center;vertical-align:middle}.el-image__preview{cursor:pointer}";
       importCSS(elImageCss);
       const elImageViewerCss =
-        ".el-image-viewer__wrapper{inset:0;position:fixed}.el-image-viewer__wrapper:focus{outline:none!important}.el-image-viewer__btn{align-items:center;border-radius:50%;box-sizing:border-box;cursor:pointer;display:flex;justify-content:center;opacity:.8;position:absolute;-webkit-user-select:none;-moz-user-select:none;user-select:none;z-index:1}.el-image-viewer__btn .el-icon{cursor:pointer}.el-image-viewer__close{font-size:40px;height:40px;right:40px;top:40px;width:40px}.el-image-viewer__canvas{align-items:center;display:flex;height:100%;justify-content:center;position:static;-webkit-user-select:none;-moz-user-select:none;user-select:none;width:100%}.el-image-viewer__actions{background-color:var(--el-text-color-regular);border-color:#fff;border-radius:22px;bottom:30px;height:44px;left:50%;padding:0 23px;transform:translate(-50%)}.el-image-viewer__actions__inner{align-items:center;color:#fff;cursor:default;display:flex;font-size:23px;gap:22px;height:100%;justify-content:space-around;padding:0 6px;width:100%}.el-image-viewer__actions__divider{margin:0 -6px}.el-image-viewer__progress{bottom:90px;color:#fff;cursor:default;left:50%;transform:translate(-50%)}.el-image-viewer__prev{left:40px}.el-image-viewer__next,.el-image-viewer__prev{background-color:var(--el-text-color-regular);border-color:#fff;color:#fff;font-size:24px;height:44px;top:50%;transform:translateY(-50%);width:44px}.el-image-viewer__next{right:40px;text-indent:2px}.el-image-viewer__close{background-color:var(--el-text-color-regular);border-color:#fff;color:#fff;font-size:24px;height:44px;width:44px}.el-image-viewer__mask{background:#000;height:100%;left:0;opacity:.5;position:absolute;top:0;width:100%}.viewer-fade-enter-active{animation:viewer-fade-in var(--el-transition-duration)}.viewer-fade-leave-active{animation:viewer-fade-out var(--el-transition-duration)}@keyframes viewer-fade-in{0%{opacity:0;transform:translate3d(0,-20px,0)}to{opacity:1;transform:translateZ(0)}}@keyframes viewer-fade-out{0%{opacity:1;transform:translateZ(0)}to{opacity:0;transform:translate3d(0,-20px,0)}}";
+        ".el-image-viewer__wrapper{inset:0;position:fixed}.el-image-viewer__wrapper:focus{outline:none!important}.el-image-viewer__btn{align-items:center;border-radius:50%;box-sizing:border-box;cursor:pointer;display:flex;justify-content:center;opacity:.8;position:absolute;-webkit-user-select:none;-moz-user-select:none;user-select:none;z-index:1}.el-image-viewer__btn .el-icon{cursor:pointer}.el-image-viewer__close{font-size:40px;height:40px;right:40px;top:40px;width:40px}.el-image-viewer__canvas{align-items:center;display:flex;height:100%;justify-content:center;position:static;-webkit-user-select:none;-moz-user-select:none;user-select:none;width:100%}.el-image-viewer__actions{background-color:var(--el-text-color-regular);border-color:#fff;border-radius:22px;bottom:30px;height:44px;left:50%;padding:0 23px;transform:translate(-50%)}.el-image-viewer__actions__inner{align-items:center;color:#fff;cursor:default;display:flex;font-size:23px;gap:22px;height:100%;justify-content:space-around;padding:0 6px;width:100%}.el-image-viewer__actions__divider{margin:0 -6px}.el-image-viewer__progress{bottom:90px;color:#fff;cursor:default;left:50%;transform:translate(-50%)}.el-image-viewer__prev{left:40px}.el-image-viewer__next,.el-image-viewer__prev{background-color:var(--el-text-color-regular);border-color:#fff;color:#fff;font-size:24px;height:44px;top:50%;transform:translateY(-50%);width:44px}.el-image-viewer__next{right:40px;text-indent:2px}.el-image-viewer__close{background-color:var(--el-text-color-regular);border-color:#fff;color:#fff;font-size:24px;height:44px;width:44px}.el-image-viewer__mask{background:#000;height:100%;left:0;opacity:.5;position:absolute;top:0;width:100%}.el-image-viewer-parent--hidden{overflow:hidden}.viewer-fade-enter-active{animation:viewer-fade-in var(--el-transition-duration)}.viewer-fade-leave-active{animation:viewer-fade-out var(--el-transition-duration)}@keyframes viewer-fade-in{0%{opacity:0;transform:translate3d(0,-20px,0)}to{opacity:1;transform:translateZ(0)}}@keyframes viewer-fade-out{0%{opacity:1;transform:translateZ(0)}to{opacity:0;transform:translate3d(0,-20px,0)}}";
       importCSS(elImageViewerCss);
       const elEmptyCss =
         ".el-empty{--el-empty-padding:40px 0;--el-empty-image-width:160px;--el-empty-description-margin-top:20px;--el-empty-bottom-margin-top:20px;--el-empty-fill-color-0:var(--el-color-white);--el-empty-fill-color-1:#fcfcfd;--el-empty-fill-color-2:#f8f9fb;--el-empty-fill-color-3:#f7f8fc;--el-empty-fill-color-4:#eeeff3;--el-empty-fill-color-5:#edeef2;--el-empty-fill-color-6:#e9ebef;--el-empty-fill-color-7:#e5e7e9;--el-empty-fill-color-8:#e0e3e9;--el-empty-fill-color-9:#d5d7de;align-items:center;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;padding:var(--el-empty-padding);text-align:center}.el-empty__image{width:var(--el-empty-image-width)}.el-empty__image img{height:100%;-o-object-fit:contain;object-fit:contain;-webkit-user-select:none;-moz-user-select:none;user-select:none;vertical-align:top;width:100%}.el-empty__image svg{color:var(--el-svg-monochrome-grey);fill:currentColor;height:100%;vertical-align:top;width:100%}.el-empty__description{margin-top:var(--el-empty-description-margin-top)}.el-empty__description p{color:var(--el-text-color-secondary);font-size:var(--el-font-size-base);margin:0}.el-empty__bottom{margin-top:var(--el-empty-bottom-margin-top)}";
@@ -29861,12 +29907,6 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
         },
       };
       const UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
-        let selectData = [];
-        if (typeof data === "function") {
-          selectData = data();
-        } else {
-          selectData = data;
-        }
         const result = {
           text,
           type: "select",
@@ -29877,11 +29917,14 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
             const storageApiValue = this.props[PROPS_STORAGE_API];
             return storageApiValue.get(key, defaultValue);
           },
-          callback(event, isSelectedValue, isSelectedText) {
-            const value = isSelectedValue;
-            log.info(`选择：${isSelectedText}`);
+          callback(isSelectedInfo) {
+            if (isSelectedInfo == null) {
+              return;
+            }
+            const value = isSelectedInfo.value;
+            log.info(`选择：${isSelectedInfo.text}`);
             if (typeof selectCallBack === "function") {
-              const result2 = selectCallBack(event, value, isSelectedText);
+              const result2 = selectCallBack(isSelectedInfo);
               if (result2) {
                 return;
               }
@@ -29889,7 +29932,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
             const storageApiValue = this.props[PROPS_STORAGE_API];
             storageApiValue.set(key, value);
           },
-          data: selectData,
+          data,
         };
         Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
         Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -29961,8 +30004,8 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
                             text: "右下角",
                           },
                         ],
-                        (event, isSelectValue, isSelectText) => {
-                          log.info("设置当前Qmsg弹出位置" + isSelectText);
+                        (isSelectedInfo) => {
+                          log.info("设置当前Qmsg弹出位置" + isSelectedInfo.text);
                         },
                         "Toast显示在页面九宫格的位置"
                       ),
@@ -30038,12 +30081,12 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           },
         ],
       };
-      const UIOwn = function (getLiElementCallBack, initConfig, searchConfig, attr, props, afterAddToUListCallBack) {
+      const UIOwn = function (createLIElement, initConfig, searchConfig, attr, props, afterAddToUListCallBack) {
         const result = {
           type: "own",
           attributes: {},
           props: {},
-          getLiElementCallBack,
+          createLIElement,
           afterAddToUListCallBack,
         };
         {

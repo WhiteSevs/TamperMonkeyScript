@@ -162,7 +162,7 @@ const BaiduSearch = {
     const globalResultClickEvent = (event: PointerEvent | MouseEvent | Event, $selectorTarget: HTMLElement) => {
       let url: null | string = null;
       let $click = event.composedPath()[0] as HTMLElement;
-      // .c-result.result
+      // .c-result
       // 搜索结果项
       let $result = $selectorTarget;
 
@@ -257,9 +257,15 @@ const BaiduSearch = {
       changeVisitedNodeColor($click, $result);
       window.open(url, "_blank");
     };
-    DOMUtils.on(document, "click", ".c-result.result", globalResultClickEvent, {
-      capture: true,
-    });
+    DOMUtils.on(
+      document,
+      "click",
+      [BaiduHandleResultItem.$data.resultListSelector, BaiduHandleResultItem.$data.realTimeResultListSelector],
+      globalResultClickEvent,
+      {
+        capture: true,
+      }
+    );
   },
 };
 

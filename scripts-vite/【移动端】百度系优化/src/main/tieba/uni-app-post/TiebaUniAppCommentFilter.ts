@@ -178,26 +178,27 @@ export const TiebaUniAppCommentFilter = {
             // 启用
             let enable_template = UISwitch("启用", "enable", true);
             Reflect.set(enable_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+            let { $el: $enable } = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
 
             // 规则名称
             let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
             Reflect.set(name_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+            let { $el: $name } = panelHandlerComponents.createSectionContainerItem_input(name_template);
 
             // 用户id
             let author_id_template = UIInput("用户id", "author_id", "", "", void 0, "完全匹配");
             Reflect.set(author_id_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            let $author_id = panelHandlerComponents.createSectionContainerItem_input(author_id_template);
+            let { $el: $author_id } = panelHandlerComponents.createSectionContainerItem_input(author_id_template);
             // 用户显示的名字
             let author_nameShow_template = UIInput("用户名", "author_nameShow", "", "", void 0, "可正则，注意转义");
             Reflect.set(author_nameShow_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
 
-            let $author_nameShow = panelHandlerComponents.createSectionContainerItem_input(author_nameShow_template);
+            let { $el: $author_nameShow } =
+              panelHandlerComponents.createSectionContainerItem_input(author_nameShow_template);
 
             let content_template = UIInput("内容", "content", "", "", void 0);
             Reflect.set(content_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            let $content = panelHandlerComponents.createSectionContainerItem_input(content_template);
+            let { $el: $content } = panelHandlerComponents.createSectionContainerItem_input(content_template);
 
             $fragment.append($enable, $name, $author_id, $author_nameShow, $content);
             return $fragment;

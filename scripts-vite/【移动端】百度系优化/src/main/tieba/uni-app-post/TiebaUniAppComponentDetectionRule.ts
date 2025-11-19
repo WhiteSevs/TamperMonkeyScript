@@ -141,12 +141,12 @@ export const TiebaUniAppComponentDetectionRule = {
             // 启用
             let enable_template = UISwitch("启用", "enable", templateData.enable);
             Reflect.set(enable_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+            let { $el: $enable } = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
 
             // 规则名称
             let name_template = UIInput("规则名称", "name", "", templateData.name, void 0, "必填");
             Reflect.set(name_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+            let { $el: $name } = panelHandlerComponents.createSectionContainerItem_input(name_template);
 
             // 是否显示标签名称
             let isShowDisplayName_template = UISwitch(
@@ -155,13 +155,13 @@ export const TiebaUniAppComponentDetectionRule = {
               templateData.data.isShowDisplayName
             );
             Reflect.set(isShowDisplayName_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-            let $isShowDisplayName =
+            let { $el: $isShowDisplayName } =
               panelHandlerComponents.createSectionContainerItem_switch(isShowDisplayName_template);
 
             // 标签名称
             let displayName_template = UIInput("标签名称", "displayName", templateData.data.displayName, "");
             Reflect.set(displayName_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-            let $displayName = panelHandlerComponents.createSectionContainerItem_input(displayName_template);
+            let { $el: $displayName } = panelHandlerComponents.createSectionContainerItem_input(displayName_template);
 
             // 是否显示标签图标
             let isShowDisplayIcon_template = UISwitch(
@@ -172,13 +172,13 @@ export const TiebaUniAppComponentDetectionRule = {
               ""
             );
             Reflect.set(isShowDisplayIcon_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-            let $isShowDisplayIcon =
+            let { $el: $isShowDisplayIcon } =
               panelHandlerComponents.createSectionContainerItem_switch(isShowDisplayIcon_template);
 
             // 标签图标
             let displayIcon_template = UIInput("标签图标", "displayIcon", templateData.data.displayIcon, "Url或base64");
             Reflect.set(displayIcon_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-            let $displayIcon = panelHandlerComponents.createSectionContainerItem_input(displayIcon_template);
+            let { $el: $displayIcon } = panelHandlerComponents.createSectionContainerItem_input(displayIcon_template);
 
             // 关键词
             let keywords_template = UITextArea(
@@ -206,7 +206,7 @@ export const TiebaUniAppComponentDetectionRule = {
                 data.data[key] = value;
               },
             });
-            let $keywords = panelHandlerComponents.createSectionContainerItem_textarea(keywords_template);
+            let { $el: $keywords } = panelHandlerComponents.createSectionContainerItem_textarea(keywords_template);
 
             // 关注的用户
             let followings_template = UITextArea("关注的用户", "followings", "", "", void 0, "多个用户portrait换行");
@@ -227,7 +227,7 @@ export const TiebaUniAppComponentDetectionRule = {
                 data.data[key] = value;
               },
             });
-            let $followings = panelHandlerComponents.createSectionContainerItem_textarea(followings_template);
+            let { $el: $followings } = panelHandlerComponents.createSectionContainerItem_textarea(followings_template);
 
             // 关注的吧
             let followingForums_template = UITextArea("关注的吧", "followingForums", "", "", void 0, "多个吧名换行");
@@ -248,7 +248,8 @@ export const TiebaUniAppComponentDetectionRule = {
                 data.data[key] = value;
               },
             });
-            let $followingForums = panelHandlerComponents.createSectionContainerItem_textarea(followingForums_template);
+            let { $el: $followingForums } =
+              panelHandlerComponents.createSectionContainerItem_textarea(followingForums_template);
 
             // 黑名单
             let blacklist_template = UITextArea("黑名单", "blacklist", "", "", void 0, "多个用户id/portrait换行");
@@ -269,7 +270,7 @@ export const TiebaUniAppComponentDetectionRule = {
                 data.data[key] = value;
               },
             });
-            let $blacklist = panelHandlerComponents.createSectionContainerItem_textarea(blacklist_template);
+            let { $el: $blacklist } = panelHandlerComponents.createSectionContainerItem_textarea(blacklist_template);
 
             $fragment.append(
               $enable,

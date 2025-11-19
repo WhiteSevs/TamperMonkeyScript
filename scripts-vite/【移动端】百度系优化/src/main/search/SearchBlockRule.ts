@@ -91,7 +91,7 @@ match-attr##srcid##yx_entity_pc_san
         }
       `);
       const lockFn = new utils.LockFunction(() => {
-        $$<HTMLDivElement>(".c-result.result").forEach(($result) => {
+        BaiduHandleResultItem.$el.$resultList.forEach(($result) => {
           // 添加过滤按钮
           BaiduSearchBlockRule.addFilterButton($result);
           const url = BaiduHandleResultItem.getSearchArticleOriginal_link($result);
@@ -245,7 +245,7 @@ match-attr##srcid##yx_entity_pc_san
    * @param $el
    * @param url 真实链接
    */
-  checkFilter($el: HTMLDivElement, url?: string) {
+  checkFilter($el: HTMLElement, url?: string) {
     function handleOneRule(ruleItem: BaiduSearchRuleConfig) {
       if (ruleItem.mode === "match-href") {
         if (typeof url === "string" && url.match(ruleItem.matchText as RegExp)) {
@@ -348,6 +348,8 @@ match-attr##srcid##yx_entity_pc_san
             const urlInst = new URL(url);
             rule_href_hostname = `match-href##${urlInst.hostname}`;
             rule_href_hostname_pathname = `match-href##${urlInst.hostname}${urlInst.pathname}`;
+            ruleList.push(rule_href_hostname);
+            ruleList.push(rule_href_hostname_pathname);
             if (utils.isNotNull(srcid)) {
               ruleList.push([rule_attr_srcid, rule_href_hostname].join("&&&&"));
             }
@@ -360,6 +362,10 @@ match-attr##srcid##yx_entity_pc_san
           } catch (error) {
             ruleList.push(`match-href##url##${url}`);
           }
+        }
+        if (!ruleList.length) {
+          Qmsg.error("生成过滤规则失败");
+          return;
         }
         const $dialog = pops.confirm({
           title: {
@@ -384,15 +390,10 @@ match-attr##srcid##yx_entity_pc_san
           },
           btn: {
             ok: {
-              enable: true,
-              text: "添加",
-              callback(eventConfig, event) {
-                console.log("添加");
-              },
+              enable: false,
             },
             cancel: {
-              enable: true,
-              text: "取消",
+              enable: false,
             },
           },
           mask: {
