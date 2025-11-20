@@ -1,12 +1,12 @@
 import { DOMUtils, pops, utils } from "@/env";
+import { CookieInfoTransform } from "@/main/CookieInfoTransform";
+import { UIOwn } from "@components/setting/components/ui-own";
+import { PanelUISize } from "@components/setting/panel-ui-size";
 import type { PopsPanelInputConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-input";
 import type { PopsPanelSelectConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-select";
-import { CookieManager } from "./CookieManager";
-import Qmsg from "qmsg";
-import { CookieInfoTransform } from "@/main/CookieInfoTransform";
-import { PanelUISize } from "@components/setting/panel-ui-size";
 import type { PopsPanelTextAreaConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-textarea";
-import { UIOwn } from "@components/setting/components/ui-own";
+import Qmsg from "qmsg";
+import { CookieManager } from "./CookieManager";
 
 /**
  * 编辑UI-输入框
