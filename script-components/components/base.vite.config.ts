@@ -215,7 +215,7 @@ const GenerateUserConfig = async (option: {
   /**
    * 默认自定义配置
    */
-  let DefaultOwnMonkeyOption: Required<OwnMonkeyOption> = {
+  const DefaultOwnMonkeyOption: Required<OwnMonkeyOption> = {
     isVueProject: option.monkeyOption.isVueProject ?? false,
     disableExternalGlobals: option.monkeyOption.disableExternalGlobals ?? false,
     build: {
