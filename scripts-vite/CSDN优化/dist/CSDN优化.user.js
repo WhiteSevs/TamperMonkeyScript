@@ -2622,7 +2622,7 @@
   };
   const CSDNFavoriteApi = {
     async folderListWithCheck(url) {
-      let response = await httpx.get(
+      const response = await httpx.get(
         `https://mp-action.csdn.net/interact/wrapper/pc/favorite/v1/api/folderListWithCheck`,
         {
           data: {
@@ -2636,7 +2636,7 @@
         }
       );
       log.info(response);
-      let data = utils.toJSON(response.data.responseText);
+      const data = utils.toJSON(response.data.responseText);
       if (!response.status || !ApiResponseCheck.isSuccessResponse(response.data.responseText)) {
         log.error("获取收藏夹信息失败，请求异常");
         if (typeof data.msg === "string") {
@@ -2649,7 +2649,7 @@
       return data.data.result;
     },
     async addFavoriteInFolds(requestData) {
-      let response = await httpx.post(
+      const response = await httpx.post(
         "https://mp-action.csdn.net/interact/wrapper/pc/favorite/v1/api/addFavoriteInFolds",
         {
           fetch: true,
@@ -2670,8 +2670,7 @@
       return true;
     },
     async checkFavoriteByUrl(url) {
-      debugger;
-      let response = await httpx.get(
+      const response = await httpx.get(
         `https://mp-action.csdn.net/interact/wrapper/pc/favorite/v1/api/checkFavoriteByUrl`,
         {
           data: {
@@ -2694,7 +2693,7 @@
       return data.data;
     },
     async createFolder(config) {
-      let response = await httpx.post(`https://mp-action.csdn.net/interact/wrapper/pc/favorite/v1/api/createFolder`, {
+      const response = await httpx.post(`https://mp-action.csdn.net/interact/wrapper/pc/favorite/v1/api/createFolder`, {
         data: config,
         fetch: true,
         headers: {
@@ -2709,7 +2708,7 @@
         Qmsg.error("创建收藏夹失败");
         return;
       }
-      let data = utils.toJSON(response.data.responseText);
+      const data = utils.toJSON(response.data.responseText);
       return data.data;
     },
   };
