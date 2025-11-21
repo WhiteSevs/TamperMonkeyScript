@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.19
+// @version      2025.11.21
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -2442,13 +2442,15 @@
       }
     },
   };
-  const BlogShieldCSS =
-    ".ecommend-item-box.recommend-recommend-box,\r\n.login-mark,\r\n.opt-box.text-center,\r\n.leftPop,\r\n#csdn-shop-window,\r\n.toolbar-advert,\r\n.hide-article-box,\r\n.user-desc.user-desc-fix,\r\n.recommend-card-box,\r\n.more-article,\r\n.article-show-more,\r\n#csdn-toolbar-profile-nologin,\r\n.guide-rr-first,\r\n#recommend-item-box-tow,\r\n/* 发文章得原力分图片提示 */\r\ndiv.csdn-toolbar-creative-mp,\r\n/* 阅读终点，创作起航，您可以撰写心得或摘录文章要点写篇博文。 */\r\n#toolBarBox div.write-guide-buttom-box,\r\n/* 觉得还不错? 一键收藏 */\r\nul.toolbox-list div.tool-active-list,\r\n/* 右边按钮组的最上面的创作话题 */\r\ndiv.csdn-side-toolbar .activity-swiper-box,\r\n.sidetool-writeguide-box .tip-box,\r\n/* 右下角的登录提示 */\r\n.passport-login-tip-container,\r\n/* 全屏双十一红包 */\r\n.csdn-reapck-select,\r\n/* 侧栏的618会员开通 */\r\n.csdn-side-toolbar  .sidecolumn-vip,\r\n/* 右边推荐的推广广告 */\r\n#recommendAdBox {\r\n  display: none !important;\r\n}\r\n";
   const BlogCSS =
     "/*.blog_container_aside,\r\n#nav {\r\n	margin-left: -45px;\r\n}\r\n.recommend-right.align-items-stretch.clearfix,\r\n.dl_right_fixed {\r\n	margin-left: 45px;\r\n}*/\r\n";
+  const BlogShieldCSS =
+    '.ecommend-item-box.recommend-recommend-box,\r\n.login-mark,\r\n.opt-box.text-center,\r\n.leftPop,\r\n#csdn-shop-window,\r\n.toolbar-advert,\r\n.hide-article-box,\r\n.user-desc.user-desc-fix,\r\n.recommend-card-box,\r\n.more-article,\r\n.article-show-more,\r\n#csdn-toolbar-profile-nologin,\r\n.guide-rr-first,\r\n#recommend-item-box-tow,\r\n/* 发文章得原力分图片提示 */\r\ndiv.csdn-toolbar-creative-mp,\r\n/* 阅读终点，创作起航，您可以撰写心得或摘录文章要点写篇博文。 */\r\n#toolBarBox div.write-guide-buttom-box,\r\n/* 觉得还不错? 一键收藏 */\r\nul.toolbox-list div.tool-active-list,\r\n/* 右边按钮组的最上面的创作话题 */\r\ndiv.csdn-side-toolbar .activity-swiper-box,\r\n.sidetool-writeguide-box .tip-box,\r\n/* 右下角的登录提示 */\r\n.passport-login-tip-container,\r\n/* 全屏双十一红包 */\r\n.csdn-reapck-select,\r\n/* 侧栏的618会员开通 */\r\n.csdn-side-toolbar  .sidecolumn-vip,\r\n/* 右边推荐的推广广告 */\r\n#recommendAdBox,\r\n/* 顶部导航栏的vip推广 */\r\n#csdn-plugin-vip,\r\n/* 侧栏的【点击体验 DeepSeekR1满血版】 */\r\n#sidecolumn-deepseek,\r\n/* 侧栏的【下载APP、公众号、视频号】 */\r\n.csdn-side-toolbar .option-box[data-type="app"] {\r\n  display: none !important;\r\n}\r\n';
   const CSDNBlog = {
     init() {
-      this.addCSS();
+      Panel.onceExec("csdn-blog-blockCSS", () => {
+        return this.addCSS();
+      });
       Panel.execMenuOnce("csdn-blog-shieldTopToolbar", () => {
         return this.shieldTopToolbar();
       });
@@ -3587,206 +3589,6 @@
     },
     views: [
       {
-        type: "container",
-        text: "",
-        views: [
-          {
-            type: "deepMenu",
-            text: "文章",
-            views: [
-              {
-                type: "container",
-                text: "",
-                views: [
-                  {
-                    text: "布局屏蔽",
-                    type: "deepMenu",
-                    views: [
-                      {
-                        text: "",
-                        type: "container",
-                        views: [
-                          UISwitch("【屏蔽】登录弹窗", "csdn-blog-shieldLoginDialog", true),
-                          UISwitch("【屏蔽】左侧博客信息", "csdn-blog-shieldLeftBlogContainerAside", false),
-                          UISwitch("【屏蔽】右侧目录信息", "csdn-blog-shieldRightDirectoryInformation", false),
-                          UISwitch("【屏蔽】底部的悬浮工具栏", "csdn-blog-shieldBottomFloatingToolbar", false),
-                        ],
-                      },
-                    ],
-                  },
-                  {
-                    text: "右侧悬浮工具栏",
-                    type: "deepMenu",
-                    views: [
-                      {
-                        text: "功能",
-                        type: "container",
-                        views: [
-                          UISwitch(
-                            "启用",
-                            "csdn-blog-rightToolbarEnable",
-                            true,
-                            void 0,
-                            "创作中心，隐藏/显示侧栏，新手引导，客服、举报..."
-                          ),
-                          UISwitch(
-                            "【添加按钮】前往评论",
-                            "csdn-blog-addGotoRecommandButton",
-                            true,
-                            void 0,
-                            "在悬浮工具栏最后面添加"
-                          ),
-                          UISlider(
-                            "right偏移",
-                            "csdn-blog-rightToolbarRightOffset",
-                            90,
-                            0,
-                            document.documentElement.clientWidth,
-                            (event, value) => {
-                              let csdnSideToolbar = document.querySelector(".csdn-side-toolbar");
-                              domUtils.css(csdnSideToolbar, {
-                                right: value + "px",
-                              });
-                            },
-                            (value) => {
-                              return `当前：${value}px，默认：90px`;
-                            }
-                          ),
-                          UISlider(
-                            "top偏移",
-                            "csdn-blog-rightToolbarTopOffset",
-                            140,
-                            0,
-                            document.documentElement.clientHeight,
-                            (event, value) => {
-                              let csdnSideToolbar = document.querySelector(".csdn-side-toolbar");
-                              domUtils.css(csdnSideToolbar, {
-                                top: value + "px",
-                              });
-                            },
-                            (value) => {
-                              return `当前：${value}px，默认：90px`;
-                            }
-                          ),
-                        ],
-                      },
-                      {
-                        text: "屏蔽",
-                        type: "container",
-                        views: [
-                          UISwitch("【屏蔽】创作中心", "csdn-blog-rightToolbarCreativeCenter", false),
-                          UISwitch("【屏蔽】显示/隐藏侧栏", "csdn-blog-rightToolbarShowOrSidebar", false),
-                          UISwitch("【屏蔽】新手引导", "csdn-blog-rightToolbarBeginnerGuidance", false),
-                          UISwitch("【屏蔽】客服", "csdn-blog-rightToolbarCustomerService", false),
-                          UISwitch("【屏蔽】举报", "csdn-blog-rightToolbarReport", false),
-                          UISwitch("【屏蔽】返回顶部", "csdn-blog-rightToolbarBackToTop", false),
-                        ],
-                      },
-                    ],
-                  },
-                  {
-                    text: "内容",
-                    type: "deepMenu",
-                    views: [
-                      {
-                        text: "功能",
-                        type: "container",
-                        views: [
-                          UISwitch(
-                            "点击代码块自动展开",
-                            "csdn-blog-clickPreCodeAutomatically",
-                            true,
-                            void 0,
-                            "当鼠标点击代码块区域时，将自动展开内容"
-                          ),
-                          UISwitch(
-                            "自动展开代码块",
-                            "csdn-blog-autoExpandCodeContent",
-                            true,
-                            void 0,
-                            "懒人操作，免手动点击展开"
-                          ),
-                          UISwitch(
-                            "自动展开内容",
-                            "csdn-blog-autoExpandContent",
-                            true,
-                            void 0,
-                            "懒人操作，免手动点击展开"
-                          ),
-                          UISwitch(
-                            "全文居中",
-                            "csdn-blog-articleCenter",
-                            true,
-                            void 0,
-                            "自动开启<code>【屏蔽】左侧博客信息</code>和<code>【屏蔽】右侧目录信息</code>，并将文章居中"
-                          ),
-                          UISwitch("允许选择内容", "csdn-blog-allowSelectContent", true, void 0),
-                        ],
-                      },
-                      {
-                        text: "屏蔽",
-                        type: "container",
-                        views: [
-                          UISwitch("【屏蔽】底部xx技能树", "csdn-blog-shieldBottomSkillTree", false),
-                          UISwitch(
-                            "【屏蔽】选中文字悬浮栏",
-                            "csdn-blog-shieldArticleSearchTip",
-                            false,
-                            void 0,
-                            "选中文字弹出的，例如：搜索、评论、笔记"
-                          ),
-                        ],
-                      },
-                    ],
-                  },
-                  {
-                    text: "评论区",
-                    type: "deepMenu",
-                    views: [
-                      {
-                        text: "",
-                        type: "container",
-                        views: [
-                          UISwitch("启用", "csdn-blog-blockComment", true, void 0, "关闭是屏蔽评论区"),
-                          UISwitch("优化评论区的位置", "csdn-blog-restoreComments", true),
-                        ],
-                      },
-                    ],
-                  },
-                  {
-                    text: "底部文章",
-                    type: "deepMenu",
-                    views: [
-                      {
-                        text: "",
-                        type: "container",
-                        views: [
-                          UISwitch(
-                            "启用",
-                            "csdn-blog-bottomRecommendArticleEnable",
-                            true,
-                            void 0,
-                            "关闭是屏蔽底部文章"
-                          ),
-                          UISwitch("标识CSDN下载", "csdn-blog-identityCSDNDownload", true, void 0, "使用红框标识"),
-                          UISwitch(
-                            "移除资源下载的文章",
-                            "csdn-blog-removeResourceDownloadArticle",
-                            false,
-                            void 0,
-                            "download.csdn.net<br>www.iteye.com<br>edu.csdn.net"
-                          ),
-                        ],
-                      },
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-      {
         text: "",
         type: "container",
         views: [
@@ -3811,6 +3613,188 @@
                 views: [
                   UISwitch("拦截-复制的小尾巴", "csdn-blog-removeClipboardHijacking", true),
                   UISwitch("劫持-禁止复制", "csdn-blog-unBlockCopy", true, void 0, "允许点击复制按钮进行复制"),
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        type: "container",
+        text: "功能",
+        views: [
+          {
+            text: "布局屏蔽",
+            type: "deepMenu",
+            views: [
+              {
+                text: "",
+                type: "container",
+                views: [
+                  UISwitch("【屏蔽】登录弹窗", "csdn-blog-shieldLoginDialog", true),
+                  UISwitch("【屏蔽】左侧博客信息", "csdn-blog-shieldLeftBlogContainerAside", false),
+                  UISwitch("【屏蔽】右侧目录信息", "csdn-blog-shieldRightDirectoryInformation", false),
+                  UISwitch("【屏蔽】底部的悬浮工具栏", "csdn-blog-shieldBottomFloatingToolbar", false),
+                ],
+              },
+            ],
+          },
+          {
+            text: "右侧悬浮工具栏",
+            type: "deepMenu",
+            views: [
+              {
+                text: "功能",
+                type: "container",
+                views: [
+                  UISwitch(
+                    "启用",
+                    "csdn-blog-rightToolbarEnable",
+                    true,
+                    void 0,
+                    "创作中心，隐藏/显示侧栏，新手引导，客服、举报..."
+                  ),
+                  UISwitch(
+                    "【添加按钮】前往评论",
+                    "csdn-blog-addGotoRecommandButton",
+                    true,
+                    void 0,
+                    "在悬浮工具栏最后面添加"
+                  ),
+                  UISlider(
+                    "right偏移",
+                    "csdn-blog-rightToolbarRightOffset",
+                    90,
+                    0,
+                    document.documentElement.clientWidth,
+                    (event, value) => {
+                      let csdnSideToolbar = document.querySelector(".csdn-side-toolbar");
+                      domUtils.css(csdnSideToolbar, {
+                        right: value + "px",
+                      });
+                    },
+                    (value) => {
+                      return `当前：${value}px，默认：90px`;
+                    }
+                  ),
+                  UISlider(
+                    "top偏移",
+                    "csdn-blog-rightToolbarTopOffset",
+                    140,
+                    0,
+                    document.documentElement.clientHeight,
+                    (event, value) => {
+                      let csdnSideToolbar = document.querySelector(".csdn-side-toolbar");
+                      domUtils.css(csdnSideToolbar, {
+                        top: value + "px",
+                      });
+                    },
+                    (value) => {
+                      return `当前：${value}px，默认：90px`;
+                    }
+                  ),
+                ],
+              },
+              {
+                text: "屏蔽",
+                type: "container",
+                views: [
+                  UISwitch("【屏蔽】创作中心", "csdn-blog-rightToolbarCreativeCenter", false),
+                  UISwitch("【屏蔽】显示/隐藏侧栏", "csdn-blog-rightToolbarShowOrSidebar", false),
+                  UISwitch("【屏蔽】新手引导", "csdn-blog-rightToolbarBeginnerGuidance", false),
+                  UISwitch("【屏蔽】客服", "csdn-blog-rightToolbarCustomerService", false),
+                  UISwitch("【屏蔽】举报", "csdn-blog-rightToolbarReport", false),
+                  UISwitch("【屏蔽】返回顶部", "csdn-blog-rightToolbarBackToTop", false),
+                ],
+              },
+            ],
+          },
+          {
+            text: "内容",
+            type: "deepMenu",
+            views: [
+              {
+                text: "功能",
+                type: "container",
+                views: [
+                  UISwitch(
+                    "点击代码块自动展开",
+                    "csdn-blog-clickPreCodeAutomatically",
+                    true,
+                    void 0,
+                    "当鼠标点击代码块区域时，将自动展开内容"
+                  ),
+                  UISwitch(
+                    "自动展开代码块",
+                    "csdn-blog-autoExpandCodeContent",
+                    true,
+                    void 0,
+                    "懒人操作，免手动点击展开"
+                  ),
+                  UISwitch("自动展开内容", "csdn-blog-autoExpandContent", true, void 0, "懒人操作，免手动点击展开"),
+                  UISwitch(
+                    "全文居中",
+                    "csdn-blog-articleCenter",
+                    true,
+                    void 0,
+                    "自动执行<code>【屏蔽】左侧博客信息</code>和<code>【屏蔽】右侧目录信息</code>，并将文章居中"
+                  ),
+                  UISwitch("允许选择内容", "csdn-blog-allowSelectContent", true, void 0, "解除文字选中限制"),
+                ],
+              },
+              {
+                text: "屏蔽",
+                type: "container",
+                views: [
+                  UISwitch("【屏蔽】底部xx技能树", "csdn-blog-shieldBottomSkillTree", false),
+                  UISwitch(
+                    "【屏蔽】选中文字悬浮栏",
+                    "csdn-blog-shieldArticleSearchTip",
+                    false,
+                    void 0,
+                    "选中文字弹出的，例如：搜索、评论、笔记"
+                  ),
+                ],
+              },
+            ],
+          },
+          {
+            text: "评论区",
+            type: "deepMenu",
+            views: [
+              {
+                text: "",
+                type: "container",
+                views: [
+                  UISwitch("启用", "csdn-blog-blockComment", true, void 0, "关闭是屏蔽评论区"),
+                  UISwitch("优化评论区的位置", "csdn-blog-restoreComments", true),
+                ],
+              },
+            ],
+          },
+          {
+            text: "底部文章",
+            type: "deepMenu",
+            views: [
+              {
+                text: "",
+                type: "container",
+                views: [
+                  UISwitch(
+                    "启用",
+                    "csdn-blog-bottomRecommendArticleEnable",
+                    true,
+                    void 0,
+                    "<code>开启</code>是允许出现推荐文章，<code>关闭</code>是屏蔽底部文章"
+                  ),
+                  UISwitch("标识CSDN下载", "csdn-blog-identityCSDNDownload", true, void 0, "使用红框标识"),
+                  UISwitch(
+                    "移除资源下载的文章",
+                    "csdn-blog-removeResourceDownloadArticle",
+                    false,
+                    void 0,
+                    "download.csdn.net<br>www.iteye.com<br>edu.csdn.net"
+                  ),
                 ],
               },
             ],
@@ -4004,133 +3988,6 @@
         text: "",
         views: [
           {
-            type: "deepMenu",
-            text: "文章",
-            views: [
-              {
-                text: "",
-                type: "container",
-                views: [
-                  {
-                    type: "deepMenu",
-                    text: "顶部工具栏",
-                    views: [
-                      {
-                        type: "container",
-                        text: "",
-                        views: [
-                          UISwitch("启用", "m-csdn-blog-shieldTopToolbar", false, void 0, "关闭是屏蔽顶部工具栏"),
-                        ],
-                      },
-                    ],
-                  },
-                  {
-                    text: "内容",
-                    type: "deepMenu",
-                    views: [
-                      {
-                        text: "",
-                        type: "container",
-                        views: [
-                          UISwitch(
-                            "允许选中文字",
-                            "m-csdn-blog-allowSelectText",
-                            true,
-                            void 0,
-                            "设置user-select: text;"
-                          ),
-                          UISwitch("自动展开", "m-csdn-blog-autoExpandContent", true, void 0, "包括内容、代码块"),
-                          UISwitch(
-                            "不限制代码块的最大高度",
-                            "m-csdn-blog-notLimitCodePreMaxHeight",
-                            false,
-                            void 0,
-                            "让代码块的高度直接被撑开"
-                          ),
-                        ],
-                      },
-                    ],
-                  },
-                  {
-                    text: "评论",
-                    type: "deepMenu",
-                    views: [
-                      {
-                        text: "",
-                        type: "container",
-                        views: [
-                          UISwitch("启用", "m-csdn-blog-comment-enable", true, void 0, "关闭是屏蔽评论区"),
-                          UISwitch(
-                            "不限制评论区的最大高度",
-                            "m-csdn-blog-notLimitCommentMaxHeight",
-                            true,
-                            void 0,
-                            "让评论区高度直接被撑开"
-                          ),
-                        ],
-                      },
-                    ],
-                  },
-                  {
-                    text: "底部文章",
-                    type: "deepMenu",
-                    views: [
-                      {
-                        text: "",
-                        type: "container",
-                        views: [
-                          UISwitch("启用", "m-csdn-blog-bottomArticleEnable", true, void 0, "关闭是屏蔽底部文章"),
-                          UISwitch(
-                            "移除资源下载",
-                            "m-csdn-blog-removeResourceArticle",
-                            false,
-                            void 0,
-                            "download.csdn.net<br>www.iteye.com<br>edu.csdn.net"
-                          ),
-                          UISwitch("重构", "m-csdn-blog-refactoringRecommendation", true, void 0, "文章的样式统一"),
-                          UISwitch("新标签页打开", "m-csdn-blog-openNewTab", true, void 0, "新标签页打开文章"),
-                        ],
-                      },
-                    ],
-                  },
-                  {
-                    type: "deepMenu",
-                    text: "底部工具栏",
-                    views: [
-                      {
-                        type: "container",
-                        text: "",
-                        views: [
-                          UISwitch("启用", "m-csdn-blog-bottom-toolbar-enable", false, void 0, "关闭是屏蔽底部工具栏"),
-                          UISwitch(
-                            "常驻底部",
-                            "m-csdn-blog-bottom-toolbar-always-bottom",
-                            false,
-                            void 0,
-                            "开启后底部工具栏不随下滑滚动而隐藏"
-                          ),
-                          UISwitch(
-                            "优化收藏按钮",
-                            "m-csdn-blog-bottom-toolbar-optimizationCollectButton",
-                            false,
-                            void 0,
-                            "可以自行选择收藏夹"
-                          ),
-                        ],
-                      },
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-      {
-        type: "container",
-        text: "",
-        views: [
-          {
             text: "功能",
             type: "deepMenu",
             views: [
@@ -4146,6 +4003,107 @@
                     "包括：登录弹窗、打开APP、ios版本提示等"
                   ),
                   UISwitch("允许复制", "m-csdn-blog-unBlockCopy", true, void 0, "允许点击复制按钮进行复制"),
+                ],
+              },
+            ],
+          },
+          {
+            type: "deepMenu",
+            text: "顶部工具栏",
+            views: [
+              {
+                type: "container",
+                text: "",
+                views: [UISwitch("启用", "m-csdn-blog-shieldTopToolbar", false, void 0, "关闭是屏蔽顶部工具栏")],
+              },
+            ],
+          },
+          {
+            text: "内容",
+            type: "deepMenu",
+            views: [
+              {
+                text: "",
+                type: "container",
+                views: [
+                  UISwitch("允许选中文字", "m-csdn-blog-allowSelectText", true, void 0, "设置user-select: text;"),
+                  UISwitch("自动展开", "m-csdn-blog-autoExpandContent", true, void 0, "包括内容、代码块"),
+                  UISwitch(
+                    "不限制代码块的最大高度",
+                    "m-csdn-blog-notLimitCodePreMaxHeight",
+                    false,
+                    void 0,
+                    "让代码块的高度直接被撑开"
+                  ),
+                ],
+              },
+            ],
+          },
+          {
+            text: "评论",
+            type: "deepMenu",
+            views: [
+              {
+                text: "",
+                type: "container",
+                views: [
+                  UISwitch("启用", "m-csdn-blog-comment-enable", true, void 0, "关闭是屏蔽评论区"),
+                  UISwitch(
+                    "不限制评论区的最大高度",
+                    "m-csdn-blog-notLimitCommentMaxHeight",
+                    true,
+                    void 0,
+                    "让评论区高度直接被撑开"
+                  ),
+                ],
+              },
+            ],
+          },
+          {
+            text: "底部文章",
+            type: "deepMenu",
+            views: [
+              {
+                text: "",
+                type: "container",
+                views: [
+                  UISwitch("启用", "m-csdn-blog-bottomArticleEnable", true, void 0, "关闭是屏蔽底部文章"),
+                  UISwitch(
+                    "移除资源下载",
+                    "m-csdn-blog-removeResourceArticle",
+                    false,
+                    void 0,
+                    "download.csdn.net<br>www.iteye.com<br>edu.csdn.net"
+                  ),
+                  UISwitch("重构", "m-csdn-blog-refactoringRecommendation", true, void 0, "文章的样式统一"),
+                  UISwitch("新标签页打开", "m-csdn-blog-openNewTab", true, void 0, "新标签页打开文章"),
+                ],
+              },
+            ],
+          },
+          {
+            type: "deepMenu",
+            text: "底部工具栏",
+            views: [
+              {
+                type: "container",
+                text: "",
+                views: [
+                  UISwitch("启用", "m-csdn-blog-bottom-toolbar-enable", false, void 0, "关闭是屏蔽底部工具栏"),
+                  UISwitch(
+                    "常驻底部",
+                    "m-csdn-blog-bottom-toolbar-always-bottom",
+                    false,
+                    void 0,
+                    "开启后底部工具栏不随下滑滚动而隐藏"
+                  ),
+                  UISwitch(
+                    "优化收藏按钮",
+                    "m-csdn-blog-bottom-toolbar-optimizationCollectButton",
+                    false,
+                    void 0,
+                    "可以自行选择收藏夹"
+                  ),
                 ],
               },
             ],

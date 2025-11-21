@@ -1,15 +1,15 @@
-import { CSDNRouter } from "@/router/CSDNRouter";
-import { CSDNBlogArticle } from "./CSDNBlogArticle";
 import { $$, addStyle, DOMUtils, log, utils } from "@/env";
-import BlogShieldCSS from "./css/shield.css?raw";
-import BlogCSS from "./css/CSDNBlog.css?raw";
 import { Panel } from "@components/setting/panel";
-import { unsafeWindow } from "ViteGM";
 import { CommonUtil } from "@components/utils/CommonUtil";
+import { unsafeWindow } from "ViteGM";
+import BlogCSS from "./css/CSDNBlog.css?raw";
+import BlogShieldCSS from "./css/shield.css?raw";
 
 export const CSDNBlog = {
   init() {
-    this.addCSS();
+    Panel.onceExec("csdn-blog-blockCSS", () => {
+      return this.addCSS();
+    });
     Panel.execMenuOnce("csdn-blog-shieldTopToolbar", () => {
       return this.shieldTopToolbar();
     });

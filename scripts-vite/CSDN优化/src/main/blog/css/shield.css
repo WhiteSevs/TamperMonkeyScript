@@ -28,6 +28,12 @@ div.csdn-side-toolbar .activity-swiper-box,
 /* 侧栏的618会员开通 */
 .csdn-side-toolbar  .sidecolumn-vip,
 /* 右边推荐的推广广告 */
-#recommendAdBox {
+#recommendAdBox,
+/* 顶部导航栏的vip推广 */
+#csdn-plugin-vip,
+/* 侧栏的【点击体验 DeepSeekR1满血版】 */
+#sidecolumn-deepseek,
+/* 侧栏的【下载APP、公众号、视频号】 */
+.csdn-side-toolbar .option-box[data-type="app"] {
   display: none !important;
 }
