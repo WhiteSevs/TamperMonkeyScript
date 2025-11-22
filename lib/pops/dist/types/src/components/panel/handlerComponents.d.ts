@@ -170,7 +170,7 @@ export declare const PanelHandlerComponents: () => {
      * 获取中间容器的元素<li>
      * @param viewConfig
      */
-    createSectionContainerItem_slider_new(viewConfig: PopsPanelSliderConfig): {
+    createSectionContainerItem_slider(viewConfig: PopsPanelSliderConfig): {
         $el: HTMLLIElement;
         handler: {
             [Symbol.toStringTag]: string;
@@ -521,7 +521,86 @@ export declare const PanelHandlerComponents: () => {
         handler: {
             [Symbol.toStringTag]: string;
             $el: {
-                itemLeftTextContainer: HTMLElement | null;
+                itemLeftTextContainer: HTMLElement;
+                $container: HTMLElement;
+                $select: HTMLSelectElement;
+            };
+            $eleKey: {
+                disable: string;
+                value: string;
+                viewConfig: string;
+            };
+            $data: {
+                data: PopsPanelSelectDataOption<any>[];
+                defaultValue: any;
+            };
+            init(): void;
+            /**
+             * 给option元素设置属性
+             * @param $ele
+             * @param key
+             * @param value
+             */
+            setNodeValue($ele: HTMLElement, key: string, value: any): void;
+            /**
+             * 获取option元素上设置的属性
+             * @param $ele
+             * @param value
+             * @param key
+             */
+            getNodeValue($ele: HTMLElement, key: string): any;
+            /**
+             * 禁用选项
+             */
+            disable(): void;
+            /**
+             * 取消禁用
+             */
+            notDisable(): void;
+            /**
+             * 判断是否禁用
+             */
+            isDisabled(): boolean;
+            /**
+             * 初始化选项
+             */
+            initOption(): void;
+            /**
+             * 设置选项选中
+             * @param $option
+             */
+            setOptionSelected($option: HTMLOptionElement): void;
+            /**
+             * 检测所有option并设置禁用状态
+             */
+            setSelectOptionsDisableStatus(): void;
+            /**
+             * 设置禁用状态
+             * @param $option
+             */
+            setOptionDisableStatus($option: HTMLOptionElement): void;
+            /**
+             * 获取option上的信息
+             * @param $option
+             */
+            getSelectOptionInfo($option: HTMLOptionElement): {
+                value: any;
+                text: string;
+                views: NonNullable<IFunction<(PopsPanelViewConfig | PopsPanelContainerConfig)[]> | undefined>;
+                $option: HTMLOptionElement;
+            };
+            /**
+             * 监听选择内容改变
+             */
+            onValueChange(): void;
+            /**
+             * 监听点击事件
+             */
+            onClick(): void;
+        } | {
+            [Symbol.toStringTag]: string;
+            $el: {
+                $itemLeftContainer: HTMLElement;
                 /** 选择框容器 */
                 $container: HTMLElement;
                 /** 选择框包裹的容器 */
@@ -631,16 +710,16 @@ export declare const PanelHandlerComponents: () => {
              */
             isItemSelected($el: HTMLElement): boolean;
             /**
+             * 获取项上存储的信息
+             * @param $el 选项元素
+             */
+            getItemDataOption($el: HTMLElement): PopsPanelSelectDataOption<any>;
+            /**
              * 添加选中信息
              * @param data 选择项的数据
              * @param [triggerValueChangeCallBack=true] 主动触发值改变回调
              */
             addSelectedItemInfo(data: PopsPanelSelectDataOption<any>): void;
-            /**
-             * 获取项上存储的信息
-             * @param $el 选项元素
-             */
-            getItemDataOption($el: HTMLElement): PopsPanelSelectDataOption<any>;
             /**
              * 移除选中信息
              * @param data 选择项的数据
@@ -710,83 +789,151 @@ export declare const PanelHandlerComponents: () => {
         } | {
             [Symbol.toStringTag]: string;
             $el: {
-                itemLeftTextContainer: HTMLElement | null;
-                panelSelect: HTMLDivElement;
-                select: HTMLSelectElement;
-            };
-            $eleKey: {
-                disable: string;
-                value: string;
-                viewConfig: string;
+                $itemLeftContainer: HTMLElement;
+                /** 选择框容器 */
+                $container: HTMLElement;
+                /** 选择框包裹的容器 */
+                $wrapper: HTMLElement;
             };
             $data: {
+                /**
+                 * 数据
+                 */
                 data: PopsPanelSelectDataOption<any>[];
+                /**
+                 * 默认值
+                 */
                 defaultValue: any;
+                /**
+                 * 选择的信息
+                 */
+                selectedData: PopsPanelSelectDataOption<any> | undefined;
+                /**
+                 * 箭头旋转的属性
+                 */
+                rotateKey: string;
             };
+            /** 初始化 */
             init(): void;
+            /** 初始化默认值 */
+            initDefault(): void;
+            /** 初始化$ele变量 */
+            initEl(): void;
             /**
-             * 给option元素设置属性
-             * @param $ele
-             * @param key
-             * @param value
-             */
-            setNodeValue($ele: HTMLElement, key: string, value: any): void;
-            /**
-             * 获取option元素上设置的属性
-             * @param $ele
-             * @param value
-             * @param key
-             */
-            getNodeValue($ele: HTMLElement, key: string): any;
-            /**
-             * 禁用选项
+             * 禁用选项容器
              */
             disable(): void;
             /**
-             * 取消禁用
+             * 取消禁用选项容器
              */
-            notDisable(): void;
+            cancleDisable(): void;
             /**
-             * 判断是否禁用
+             * 判断当前是否已禁用选项容器
              */
             isDisabled(): boolean;
             /**
-             * 初始化选项
+             * 创建选择项
+             * @param data 数据
              */
-            initOption(): void;
+            createSelectItemElement(data: PopsPanelSelectDataOption<any>): HTMLDivElement;
             /**
-             * 设置选项选中
-             * @param $option
+             * 设置选择项的文字
+             * @param data 选择项的数据
+             * @param $select 选择项元素
              */
-            setOptionSelected($option: HTMLOptionElement): void;
+            setSelectItemText(data: PopsPanelSelectDataOption<any>, $select: HTMLElement): void;
             /**
-             * 检测所有option并设置禁用状态
+             * 设置选择项点击事件
              */
-            setSelectOptionsDisableStatus(): void;
+            onSelectItemClick(data: PopsPanelSelectDataOption<any> | undefined, $el: HTMLElement): void;
             /**
-             * 设置禁用状态
-             * @param $option
+             * 选中的值改变的回调
+             * @param data 当前的选中信息
              */
-            setOptionDisableStatus($option: HTMLOptionElement): void;
+            onValueChangeCallback(data?: PopsPanelSelectDataOption<any>, isUpdateSelectItem?: boolean): void;
             /**
-             * 获取option上的信息
-             * @param $option
+             * 更新选项弹窗内的所有选项元素的状态
+             *
+             * + 更新禁用状态
+             * + 更新选中状态
              */
-            getSelectOptionInfo($option: HTMLOptionElement): {
-                value: any;
-                text: string;
-                views: NonNullable<IFunction<(PopsPanelViewConfig | PopsPanelContainerConfig)[]> | undefined>;
-                $option: HTMLOptionElement;
-            };
+            updateAllSelectItemStatus(): void;
             /**
-             * 监听选择内容改变
+             * 重置所有已选中的项以下状态
+             *
+             * + 更新选项显示的文字
+             * + 移除禁用状态
+             * + 移除选中状态
              */
-            onValueChange(): void;
+            resetAllSelectedItemStatus(): void;
             /**
-             * 监听点击事件
+             * 添加选中信息
+             * @param data 选择项的数据
+             * @param [triggerValueChangeCallBack=true] 主动触发值改变回调
              */
-            onClick(): void;
-        };
+            addSelectedItemInfo(data: PopsPanelSelectDataOption<any>): void;
+            /**
+             * 移除选中信息
+             * @param data 选择项的数据
+             */
+            removeSelectedItemInfo(): void;
+            /**
+             * 更新选中信息
+             * @param data 数据
+             */
+            updateSelectedInfo(data?: PopsPanelSelectDataOption<any>): void;
+            /**
+             * 从保存的已选中的信息列表中移除目标信息
+             */
+            resetCurrentSelectedInfo(): void;
+            /**
+             * 设置选择项禁用
+             * @param $select 选择项元素
+             */
+            setSelectItemDisabled($select: HTMLElement): void;
+            /**
+             * 移除选择项的禁用状态
+             * @param $select 选择项元素
+             */
+            removeSelectItemDisabled($select: HTMLElement): void;
+            /**
+             * 判断选择项是否禁用
+             * @param $select 选择项元素
+             */
+            isSelectItemDisabled($select: HTMLElement): string | true | null;
+            /**
+             * 设置选择项选中
+             * @param $select 选择项元素（.select-item）
+             */
+            setItemSelected($select: HTMLElement): void;
+            /**
+             * 移除选择项选中
+             * @param $select 选择项元素（.select-item）
+             */
+            removeItemSelected($select: HTMLElement): void;
+            /**
+             * 判断选择项是否选中
+             * @param $select 选择项元素（.select-item）
+             */
+            isItemSelected($select: HTMLElement): boolean;
+            /**
+             * 获取所有选项的信息
+             * @param [onlySelected=true] 是否仅获取选中的项的信息
+             * + true （默认）仅获取选中项的信息
+             * + false 获取所有选择项的信息
+             */
+            getAllSelectItems(onlySelected?: boolean): {
+                /** 选项信息数据 */
+                data: PopsPanelSelectDataOption<any>;
+                /** 选项元素 */
+                $select: HTMLElement;
+            }[];
+            /**
+             * 获取项上存储的信息
+             * @param $el 选项元素
+             */
+            getItemDataOption($el: HTMLElement): PopsPanelSelectDataOption<any>;
+        } | undefined;
     };
     /**
      * type ==> select-multiple
@@ -799,7 +946,7 @@ export declare const PanelHandlerComponents: () => {
             [Symbol.toStringTag]: string;
             $el: {
                 /** 左侧文本容器 */
-                itemLeftTextContainer: HTMLElement | null;
+                $itemLeftContainer: HTMLElement | null;
                 /** 选择框容器 */
                 $container: HTMLElement;
                 /** 选择框包裹的容器 */

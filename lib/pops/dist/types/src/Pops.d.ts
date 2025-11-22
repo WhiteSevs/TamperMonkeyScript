@@ -289,7 +289,7 @@ declare class Pops {
                     notDisable(): void;
                 };
             };
-            createSectionContainerItem_slider_new(viewConfig: import("./components/panel/types/components-slider").PopsPanelSliderConfig): {
+            createSectionContainerItem_slider(viewConfig: import("./components/panel/types/components-slider").PopsPanelSliderConfig): {
                 $el: HTMLLIElement;
                 handler: {
                     [Symbol.toStringTag]: string;
@@ -423,7 +423,41 @@ declare class Pops {
                 handler: {
                     [Symbol.toStringTag]: string;
                     $el: {
-                        itemLeftTextContainer: HTMLElement | null;
+                        itemLeftTextContainer: HTMLElement;
+                        $container: HTMLElement;
+                        $select: HTMLSelectElement;
+                    };
+                    $eleKey: {
+                        disable: string;
+                        value: string;
+                        viewConfig: string;
+                    };
+                    $data: {
+                        data: import("./components/panel/types/components-select").PopsPanelSelectDataOption<any>[];
+                        defaultValue: any;
+                    };
+                    init(): void;
+                    setNodeValue($ele: HTMLElement, key: string, value: any): void;
+                    getNodeValue($ele: HTMLElement, key: string): any;
+                    disable(): void;
+                    notDisable(): void;
+                    isDisabled(): boolean;
+                    initOption(): void;
+                    setOptionSelected($option: HTMLOptionElement): void;
+                    setSelectOptionsDisableStatus(): void;
+                    setOptionDisableStatus($option: HTMLOptionElement): void;
+                    getSelectOptionInfo($option: HTMLOptionElement): {
+                        value: any;
+                        text: string;
+                        views: NonNullable<IFunction<(import("./components/panel/types").PopsPanelViewConfig | import("./components/panel/types/components-container").PopsPanelContainerConfig)[]> | undefined>;
+                        $option: HTMLOptionElement;
+                    };
+                    onValueChange(): void;
+                    onClick(): void;
+                } | {
+                    [Symbol.toStringTag]: string;
+                    $el: {
+                        $itemLeftContainer: HTMLElement;
                         $container: HTMLElement;
                         $wrapper: HTMLElement;
                         $section: HTMLElement;
@@ -455,8 +489,8 @@ declare class Pops {
                     setItemSelected($el: HTMLElement): void;
                     removeItemSelected($el: HTMLElement): void;
                     isItemSelected($el: HTMLElement): boolean;
-                    addSelectedItemInfo(data: import("./components/panel/types/components-select").PopsPanelSelectDataOption<any>): void;
                     getItemDataOption($el: HTMLElement): import("./components/panel/types/components-select").PopsPanelSelectDataOption<any>;
+                    addSelectedItemInfo(data: import("./components/panel/types/components-select").PopsPanelSelectDataOption<any>): void;
                     removeSelectedItemInfo(): void;
                     updateSelectedInfo(data?: import("./components/panel/types/components-select").PopsPanelSelectDataOption<any>): void;
                     resetCurrentSelectedInfo(): void;
@@ -477,45 +511,51 @@ declare class Pops {
                 } | {
                     [Symbol.toStringTag]: string;
                     $el: {
-                        itemLeftTextContainer: HTMLElement | null;
-                        panelSelect: HTMLDivElement;
-                        select: HTMLSelectElement;
-                    };
-                    $eleKey: {
-                        disable: string;
-                        value: string;
-                        viewConfig: string;
+                        $itemLeftContainer: HTMLElement;
+                        $container: HTMLElement;
+                        $wrapper: HTMLElement;
                     };
                     $data: {
                         data: import("./components/panel/types/components-select").PopsPanelSelectDataOption<any>[];
                         defaultValue: any;
+                        selectedData: import("./components/panel/types/components-select").PopsPanelSelectDataOption<any> | undefined;
+                        rotateKey: string;
                     };
                     init(): void;
-                    setNodeValue($ele: HTMLElement, key: string, value: any): void;
-                    getNodeValue($ele: HTMLElement, key: string): any;
+                    initDefault(): void;
+                    initEl(): void;
                     disable(): void;
-                    notDisable(): void;
+                    cancleDisable(): void;
                     isDisabled(): boolean;
-                    initOption(): void;
-                    setOptionSelected($option: HTMLOptionElement): void;
-                    setSelectOptionsDisableStatus(): void;
-                    setOptionDisableStatus($option: HTMLOptionElement): void;
-                    getSelectOptionInfo($option: HTMLOptionElement): {
-                        value: any;
-                        text: string;
-                        views: NonNullable<IFunction<(import("./components/panel/types").PopsPanelViewConfig | import("./components/panel/types/components-container").PopsPanelContainerConfig)[]> | undefined>;
-                        $option: HTMLOptionElement;
-                    };
-                    onValueChange(): void;
-                    onClick(): void;
-                };
+                    createSelectItemElement(data: import("./components/panel/types/components-select").PopsPanelSelectDataOption<any>): HTMLDivElement;
+                    setSelectItemText(data: import("./components/panel/types/components-select").PopsPanelSelectDataOption<any>, $select: HTMLElement): void;
+                    onSelectItemClick(data: import("./components/panel/types/components-select").PopsPanelSelectDataOption<any> | undefined, $el: HTMLElement): void;
+                    onValueChangeCallback(data?: import("./components/panel/types/components-select").PopsPanelSelectDataOption<any>, isUpdateSelectItem?: boolean): void;
+                    updateAllSelectItemStatus(): void;
+                    resetAllSelectedItemStatus(): void;
+                    addSelectedItemInfo(data: import("./components/panel/types/components-select").PopsPanelSelectDataOption<any>): void;
+                    removeSelectedItemInfo(): void;
+                    updateSelectedInfo(data?: import("./components/panel/types/components-select").PopsPanelSelectDataOption<any>): void;
+                    resetCurrentSelectedInfo(): void;
+                    setSelectItemDisabled($select: HTMLElement): void;
+                    removeSelectItemDisabled($select: HTMLElement): void;
+                    isSelectItemDisabled($select: HTMLElement): string | true | null;
+                    setItemSelected($select: HTMLElement): void;
+                    removeItemSelected($select: HTMLElement): void;
+                    isItemSelected($select: HTMLElement): boolean;
+                    getAllSelectItems(onlySelected?: boolean): {
+                        data: import("./components/panel/types/components-select").PopsPanelSelectDataOption<any>;
+                        $select: HTMLElement;
+                    }[];
+                    getItemDataOption($el: HTMLElement): import("./components/panel/types/components-select").PopsPanelSelectDataOption<any>;
+                } | undefined;
             };
             createSectionContainerItem_select_multiple(viewConfig: import("./components/panel/types/components-selectMultiple").PopsPanelSelectMultipleConfig<any>): {
                 $el: HTMLLIElement;
                 handler: {
                     [Symbol.toStringTag]: string;
                     $el: {
-                        itemLeftTextContainer: HTMLElement | null;
+                        $itemLeftContainer: HTMLElement | null;
                         $container: HTMLElement;
                         $wrapper: HTMLElement;
                         $section: HTMLElement;
@@ -758,6 +798,7 @@ declare class Pops {
     panel: (config: PopsPanelConfig) => {
         addEventListener: <K extends keyof import("./components/panel/types").PopsPanelEventType>(event: K, listener: (evt: CustomEvent<import("./components/panel/types").PopsPanelEventType[K]>) => void, options?: boolean | EventListenerOptions) => void;
         removeEventListener: <K extends keyof import("./components/panel/types").PopsPanelEventType>(event: K, listener: (evt: CustomEvent<import("./components/panel/types").PopsPanelEventType[K]>) => void, options?: boolean | EventListenerOptions) => void;
+        mode: import("./types/main").PopsType;
         close: () => Promise<void>;
         hide: () => Promise<void>;
         show: () => Promise<void>;
@@ -768,7 +809,6 @@ declare class Pops {
         $anim: HTMLDivElement;
         $pops: HTMLDivElement;
         $mask?: HTMLDivElement | undefined;
-        mode: import("./types/main").PopsType;
     };
     /**
      * 右键菜单

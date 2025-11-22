@@ -278,13 +278,17 @@ section.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-container-
   .pops[type-value="panel"] section.pops-panel-container > ul > li div:nth-child(2) {
     max-width: 55%;
   }
+  .pops[type-value="panel"] .pops-panel-select .el-select__selected-item.el-select__placeholder {
+    max-width: -moz-available;
+    max-width: -webkit-fill-available;
+  }
   .pops[type-value="panel"] section.pops-panel-container > ul > li .pops-panel-input span.pops-panel-input__suffix {
     padding: 0 4px;
   }
   .pops[type-value="panel"] section.pops-panel-container .pops-panel-select select {
     min-width: 88px !important;
-    width: -webkit-fill-available;
     width: -moz-available;
+    width: -webkit-fill-available;
   }
   .pops[type-value="panel"] section.pops-panel-container .pops-panel-container-header-ul li {
     font-size: 16px;
@@ -750,8 +754,8 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
   flex-shrink: 0;
   flex-wrap: nowrap;
   height: 100%;
-  height: -webkit-fill-available;
   height: -moz-available;
+  height: -webkit-fill-available;
   text-align: center;
   color: var(--pops-panel-components-input-suffix-color);
   background: var(--pops-panel-components-input-suffix-bg-color);
@@ -893,6 +897,7 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
 
 /* select的CSS */
 .pops-panel-select {
+  --pops-panel-components-select-disabled-text-color: #a8abb2;
   --pops-panel-components-select-text-color: #000000;
   --pops-panel-components-select-bd-color: rgb(184, 184, 184, var(--pops-bd-opacity));
   --pops-panel-components-select-hover-bd-color: rgb(184, 184, 184, var(--pops-bd-opacity));
@@ -934,10 +939,60 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
 }
 /* select的CSS */
 
-/* select useDialog的CSS */
-.pops-panel-select {
+/* select dialog 的CSS */
+.pops-panel-select[data-mode="dialog"] {
 }
-/* select useDialog的CSS */
+/* select dialog 的CSS */
+
+/* select horizontal 的CSS */
+.pops-panel-select[data-mode="horizontal"] {
+  --pops-panel-components-select-horizontal-selected-text-color: #626aef;
+  --pops-panel-components-select-horizontal-selected-bg-color: #eff0fd;
+}
+.pops-panel-select[data-mode="horizontal"] .el-select__wrapper {
+  padding: 0;
+  gap: 0;
+  border: 0;
+}
+.pops-panel-select[data-mode="horizontal"] .select-item {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid var(--el-border-color);
+  height: -moz-available;
+  height: -webkit-fill-available;
+  border-left: 0;
+}
+.pops-panel-select[data-mode="horizontal"] .select-item:hover {
+  color: var(--el-color-primary);
+}
+.pops-panel-select[data-mode="horizontal"] .select-item:first-child {
+  border-left: 1px solid var(--el-border-color);
+  border-top-left-radius: var(--el-border-radius-base);
+  border-bottom-left-radius: var(--el-border-radius-base);
+}
+.pops-panel-select[data-mode="horizontal"] .select-item:last-child {
+  border-top-right-radius: var(--el-border-radius-base);
+  border-bottom-right-radius: var(--el-border-radius-base);
+}
+.pops-panel-select[data-mode="horizontal"] .select-item.select__selected-item {
+  color: var(--pops-panel-components-select-horizontal-selected-text-color);
+  background-color: var(--pops-panel-components-select-horizontal-selected-bg-color);
+  border-color: var(--pops-panel-components-select-horizontal-selected-bg-color);
+}
+.pops-panel-select[data-mode="horizontal"] .select-item:has(+ .select__selected-item) {
+  border-right: 0;
+}
+.pops-panel-select[data-mode="horizontal"] .select-item[disabled] {
+  color: var(--pops-panel-components-select-disabled-text-color);
+  --pops-panel-components-select-horizontal-selected-text-color: var(
+    --pops-panel-components-select-disabled-text-color
+  );
+  cursor: not-allowed;
+  background: unset;
+}
+/* select horizontal 的CSS */
 
 /* select-multiple的CSS*/
 .pops-panel-select-multiple,
@@ -1165,19 +1220,19 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
   white-space: nowrap;
 }
 /* 禁用样式 */
-.pops-panel-select-multiple-disable {
+.pops-panel-select-disable {
   --el-fill-color-blank: #f5f7fa;
   --color: #a8abb2;
   --el-border-color: #cbcbcb;
 }
-.pops-panel-select-multiple-disable .el-tag.el-tag--info {
+.pops-panel-select-disable .el-tag.el-tag--info {
   --el-tag-bg-color: #e7e7e7;
   --el-tag-text-color: var(--pops-components-is-disabled-text-color);
 }
-.pops-panel-select-multiple-disable .el-select__selection .el-tag,
-.pops-panel-select-multiple-disable .el-tag .el-tag__close:hover,
-.pops-panel-select-multiple-disable .el-select__wrapper,
-.pops-panel-select-multiple-disable .el-select__caret {
+.pops-panel-select-disable .el-select__selection .el-tag,
+.pops-panel-select-disable .el-tag .el-tag__close:hover,
+.pops-panel-select-disable .el-select__wrapper,
+.pops-panel-select-disable .el-select__caret {
   cursor: not-allowed;
 }
 /* select-multiple的CSS*/
@@ -1226,8 +1281,8 @@ section.pops-panel-container .pops-panel-forms-container-item ul li.pops-panel-d
 section.pops-panel-deepMenu-container .pops-panel-container-header-ul li.pops-panel-deepMenu-container-header {
   display: flex;
   align-items: center;
-  width: -webkit-fill-available;
   width: -moz-available;
+  width: -webkit-fill-available;
   padding: var(--pops-panel-forms-header-padding-top-bottom)
     calc(
       var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right) -

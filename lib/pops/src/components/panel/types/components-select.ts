@@ -2,8 +2,38 @@ import type { PopsPanelGeneralConfig } from "./components-common";
 import type { PopsPanelContainerConfig } from "./components-container";
 import type { PopsPanelViewConfig } from ".";
 import type { PopsAlertConfig } from "../../alert/types";
+export type PopsPanelSelectMode = "native" | "dialog" | "horizontal";
 
-export interface PopsPanelSelectDataOption<T> {
+/**
+ * 分组配置
+ *
+ * 用在mode="dialog"里
+ */
+export type PopsPanelSelectDialogGroupOption<T> = {
+  /**
+   * 是否是分组
+   * @default false
+   *
+   * + true 这时候text的值是显示的分组名，value是可以忽略的
+   */
+  isGroup?: boolean;
+  /**
+   * 分组内部选择是否是单选
+   * @default false
+   */
+  isSingleSelect?: boolean;
+  /**
+   * 分组数据列表
+   *
+   * 该数据仅在mode === "dialog"下生效
+   * @default []
+   */
+  groupDataOptions?: IFunction<Omit<PopsPanelSelectDataOption<T>, keyof PopsPanelSelectDialogGroupOption<T>>[]>;
+};
+/**
+ * 选择项的配置数据
+ */
+export type PopsPanelSelectDataOption<T> = {
   /**
    * 真正的值
    */
@@ -63,7 +93,7 @@ export interface PopsPanelSelectDataOption<T> {
     valid: boolean;
     message?: string;
   };
-}
+};
 /**
  * pops.panel的 select
  */
@@ -110,6 +140,8 @@ export interface PopsPanelSelectConfig<T = any> extends PopsPanelGeneralConfig<P
    * 点击select元素触发该回调
    * @param event 点击事件
    * @param selectElement 当前的select元素
+   * @returns
+   * + false 阻止更新状态
    */
   clickCallBack?(
     event: PointerEvent | MouseEvent,
@@ -121,10 +153,15 @@ export interface PopsPanelSelectConfig<T = any> extends PopsPanelGeneralConfig<P
    */
   data: IFunction<PopsPanelSelectDataOption<T>[]>;
   /**
-   * 是否使用弹窗代替
-   * @default false
+   * 显示模式
+   * @default "native"
    */
-  useDialog?: boolean;
+  mode?: PopsPanelSelectMode;
+  /**
+   * 宽度
+   * @default "200px"
+   */
+  width?: number | string;
   /**
    * 弹出的下拉列表弹窗的配置
    */

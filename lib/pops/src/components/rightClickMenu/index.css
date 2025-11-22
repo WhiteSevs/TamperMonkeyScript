@@ -93,8 +93,8 @@ i.pops-rightClickMenu-icon[is-loading="true"] {
   margin: 5px 5px;
   border-radius: var(--pops-right-context-menu-row-bd-radius);
   display: flex;
-  width: -webkit-fill-available;
   width: -moz-available;
+  width: -webkit-fill-available;
   text-align: left;
   align-items: center;
   -webkit-user-select: none;

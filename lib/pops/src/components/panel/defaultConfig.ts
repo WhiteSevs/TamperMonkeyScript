@@ -361,262 +361,312 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
             placeholder: "请输入内容",
           },
           {
-            className: "panel-select-disabled",
-            text: "select-disabled",
-            type: "select",
-            disabled: true,
-            getValue() {
-              return "text";
-            },
-            callback(isSelectedInfo) {
-              if (isSelectedInfo == null) return;
-              console.log(`select当前选项：${isSelectedInfo.value}，当前选项文本：${isSelectedInfo.text}`);
-            },
-            data: [
+            type: "container",
+            text: "",
+            views: [
               {
-                value: "all",
-                text: "所有",
-                disable() {
-                  return false;
+                className: "panel-select-disabled",
+                text: "select-disabled",
+                type: "select",
+                disabled: true,
+                getValue() {
+                  return "text";
                 },
-              },
-              {
-                value: "text",
-                text: "文本",
-                disable() {
-                  return false;
+                callback(isSelectedInfo) {
+                  if (isSelectedInfo == null) return;
+                  console.log(`select当前选项：${isSelectedInfo.value}，当前选项文本：${isSelectedInfo.text}`);
                 },
+                data: [
+                  {
+                    value: "all",
+                    text: "所有",
+                    disable() {
+                      return false;
+                    },
+                  },
+                  {
+                    value: "text",
+                    text: "文本",
+                    disable() {
+                      return false;
+                    },
+                  },
+                  {
+                    value: "html",
+                    text: "超文本",
+                    disable() {
+                      return false;
+                    },
+                  },
+                ],
               },
               {
-                value: "html",
-                text: "超文本",
-                disable() {
-                  return false;
+                className: "panel-select-multiple-disabled",
+                type: "select-multiple",
+                text: "select-multiple-disabled",
+                disabled: true,
+                placeholder: "请至少选择一个选项",
+                getValue() {
+                  return ["select-1", "select-2"];
                 },
-              },
-            ],
-          },
-          {
-            className: "panel-select-multiple-disabled",
-            type: "select-multiple",
-            text: "select-multiple-disabled",
-            disabled: true,
-            placeholder: "请至少选择一个选项",
-            getValue() {
-              return ["select-1", "select-2"];
-            },
-            callback(selectInfo) {
-              console.log(`select值改变，多选信息`, selectInfo);
-            },
-            clickCallBack(event, isSelectedInfo) {
-              console.log("点击", event, isSelectedInfo);
-            },
-            closeIconClickCallBack(event, data) {
-              console.log("点击关闭图标的事件", data);
-            },
-            data: [
-              {
-                value: "select-1",
-                text: "单选1",
-                isHTML: false,
-              },
-              {
-                value: "select-2",
-                text: "单选2",
-                isHTML: false,
-              },
-              {
-                value: "select-3",
-                text: "单选3",
-                isHTML: false,
-              },
-              {
-                value: "select-4",
-                text: "单选4",
-                isHTML: false,
-              },
-            ],
-          },
-          {
-            className: "panel-select",
-            text: "select",
-            type: "select",
-            getValue() {
-              return "all";
-            },
-            callback(isSelectedInfo) {
-              if (isSelectedInfo == null) return;
-              console.log(`select当前选项：${isSelectedInfo.value}，当前选项文本：${isSelectedInfo.text}`);
-            },
-            data: [
-              {
-                value: "all",
-                text: "所有",
-                disable() {
-                  return false;
+                callback(selectInfo) {
+                  console.log(`select值改变，多选信息`, selectInfo);
                 },
+                clickCallBack(event, isSelectedInfo) {
+                  console.log("点击", event, isSelectedInfo);
+                },
+                closeIconClickCallBack(event, data) {
+                  console.log("点击关闭图标的事件", data);
+                },
+                data: [
+                  {
+                    value: "select-1",
+                    text: "单选1",
+                    isHTML: false,
+                  },
+                  {
+                    value: "select-2",
+                    text: "单选2",
+                    isHTML: false,
+                  },
+                  {
+                    value: "select-3",
+                    text: "单选3",
+                    isHTML: false,
+                  },
+                  {
+                    value: "select-4",
+                    text: "单选4",
+                    isHTML: false,
+                  },
+                ],
               },
               {
-                value: "text",
-                text: "文本",
-                disable() {
-                  return false;
+                className: "panel-select-native",
+                text: "select-native",
+                type: "select",
+                mode: "native",
+                getValue() {
+                  return "all";
                 },
+                callback(isSelectedInfo) {
+                  if (isSelectedInfo == null) return;
+                  console.log(`select当前选项：${isSelectedInfo.value}，当前选项文本：${isSelectedInfo.text}`);
+                },
+                data: [
+                  {
+                    value: "all",
+                    text: "所有",
+                    disable() {
+                      return false;
+                    },
+                  },
+                  {
+                    value: "text",
+                    text: "文本",
+                    disable() {
+                      return false;
+                    },
+                  },
+                  {
+                    value: "html",
+                    text: "超文本",
+                    disable() {
+                      return false;
+                    },
+                  },
+                ],
               },
               {
-                value: "html",
-                text: "超文本",
-                disable() {
-                  return false;
+                className: "panel-select-dialog",
+                text: "select-dialog",
+                type: "select",
+                mode: "dialog",
+                getValue() {
+                  return window.localStorage.getItem("select-dialog-customInput") || "";
                 },
-              },
-            ],
-          },
-          {
-            className: "panel-select-dialog",
-            text: "select-dialog",
-            type: "select",
-            getValue() {
-              return window.localStorage.getItem("select-dialog-customInput") || "";
-            },
-            callback(isSelectedInfo) {
-              if (isSelectedInfo == null) {
-                console.warn(`select当前选项为空`);
-                return;
-              }
-              if (isSelectedInfo.addCustomInput) {
-                if (isSelectedInfo.value === "") {
-                  // 空值，不存储
-                  if (isSelectedInfo.customInputStoreKey) {
-                    console.log(`select删除自定义输入的值`);
-                    window.localStorage.removeItem(isSelectedInfo.customInputStoreKey);
+                callback(isSelectedInfo) {
+                  if (isSelectedInfo == null) {
+                    console.warn(`select当前选项为空`);
+                    return;
                   }
-                } else {
-                  console.log(
-                    `select当前自定义输入框内容：${isSelectedInfo.value}，当前选项显示文本：${isSelectedInfo.text}`
-                  );
-                  if (isSelectedInfo.customInputStoreKey) {
-                    window.localStorage.setItem(isSelectedInfo.customInputStoreKey!, isSelectedInfo.value);
+                  if (isSelectedInfo.addCustomInput) {
+                    if (isSelectedInfo.value === "") {
+                      // 空值，不存储
+                      if (isSelectedInfo.customInputStoreKey) {
+                        console.log(`select删除自定义输入的值`);
+                        window.localStorage.removeItem(isSelectedInfo.customInputStoreKey);
+                      }
+                    } else {
+                      console.log(
+                        `select当前自定义输入框内容：${isSelectedInfo.value}，当前选项显示文本：${isSelectedInfo.text}`
+                      );
+                      if (isSelectedInfo.customInputStoreKey) {
+                        window.localStorage.setItem(isSelectedInfo.customInputStoreKey!, isSelectedInfo.value);
+                      }
+                    }
+                  } else {
+                    console.log(`select当前选项：${isSelectedInfo.value}，当前选项显示文本：${isSelectedInfo.text}`);
                   }
-                }
-              } else {
-                console.log(`select当前选项：${isSelectedInfo.value}，当前选项显示文本：${isSelectedInfo.text}`);
-              }
-            },
-            data: [
-              {
-                value: "all",
-                text: "所有",
-                disable() {
-                  return false;
                 },
+                data: [
+                  {
+                    value: "all",
+                    text: "所有",
+                    disable() {
+                      return false;
+                    },
+                  },
+                  {
+                    value: "text",
+                    text: "文本",
+                    disable(value, selectInfo) {
+                      if (selectInfo?.value === "all") return true;
+                      return false;
+                    },
+                  },
+                  {
+                    value: "html",
+                    text: "超文本",
+                    disable(value, selectInfo) {
+                      if (selectInfo?.value === "all") return true;
+                      return false;
+                    },
+                  },
+                  {
+                    value: "own",
+                    text: "自定义",
+                    disable(value, selectInfo) {
+                      if (selectInfo?.value === "all") return true;
+                      return false;
+                    },
+                  },
+                  {
+                    value: window.localStorage.getItem("select-dialog-customInput") || "",
+                    text: window.localStorage.getItem("select-dialog-customInput") || "",
+                    addCustomInput: true,
+                    customInputStoreKey: "select-dialog-customInput",
+                    onValid(dataOption) {
+                      if (dataOption.value === "123") {
+                        console.error("非规范值");
+                        return {
+                          valid: false,
+                          message: "非规范值",
+                        };
+                      }
+                      return {
+                        valid: true,
+                      };
+                    },
+                  },
+                ],
               },
               {
-                value: "text",
-                text: "文本",
-                disable(value, selectInfo) {
-                  if (selectInfo?.value === "all") return true;
-                  return false;
+                className: "panel-select-horizontal",
+                text: "select-horizontal",
+                type: "select",
+                mode: "horizontal",
+                getValue() {
+                  return "text";
                 },
+                callback(isSelectedInfo) {
+                  if (isSelectedInfo == null) return;
+                  console.log(`select当前选项：${isSelectedInfo.value}，当前选项文本：${isSelectedInfo.text}`);
+                },
+                data: [
+                  {
+                    value: "all",
+                    text: "所有",
+                    disable() {
+                      return false;
+                    },
+                  },
+                  {
+                    value: "text",
+                    text: "文本",
+                    disable() {
+                      return false;
+                    },
+                  },
+                  {
+                    value: "html",
+                    text: "超文本",
+                    disable() {
+                      return false;
+                    },
+                  },
+                  {
+                    value: "own",
+                    text: "自定义",
+                    disable() {
+                      return true;
+                    },
+                  },
+                ],
               },
               {
-                value: "html",
-                text: "超文本",
-                disable(value, selectInfo) {
-                  if (selectInfo?.value === "all") return true;
-                  return false;
+                className: "panel-select-multiple",
+                type: "select-multiple",
+                text: "select-multiple",
+                placeholder: "请至少选择一个选项",
+                getValue() {
+                  return ["select-1", "select-2"];
                 },
-              },
-              {
-                value: "own",
-                text: "自定义",
-                disable(value, selectInfo) {
-                  if (selectInfo?.value === "all") return true;
-                  return false;
+                callback(selectInfo) {
+                  console.log(`select值改变，多选信息`, selectInfo);
                 },
-              },
-              {
-                value: window.localStorage.getItem("select-dialog-customInput") || "",
-                text: window.localStorage.getItem("select-dialog-customInput") || "",
-                addCustomInput: true,
-                customInputStoreKey: "select-dialog-customInput",
-                onValid(dataOption) {
-                  if (dataOption.value === "123") {
-                    console.error("非规范值");
-                    return {
-                      valid: false,
-                      message: "非规范值",
-                    };
-                  }
-                  return {
-                    valid: true,
-                  };
+                clickCallBack(event, isSelectedInfo) {
+                  console.log("点击", event, isSelectedInfo);
                 },
-              },
-            ],
-            useDialog: true,
-          },
-          {
-            className: "panel-select-multiple",
-            type: "select-multiple",
-            text: "select-multiple",
-            placeholder: "请至少选择一个选项",
-            getValue() {
-              return ["select-1", "select-2"];
-            },
-            callback(selectInfo) {
-              console.log(`select值改变，多选信息`, selectInfo);
-            },
-            clickCallBack(event, isSelectedInfo) {
-              console.log("点击", event, isSelectedInfo);
-            },
-            closeIconClickCallBack(event, data) {
-              console.log("点击关闭图标的事件", data);
-            },
-            data: [
-              {
-                value: "select-1",
-                text: "单选1",
-                isHTML: false,
-                disable(value, allSelectedInfo) {
-                  return allSelectedInfo.findIndex((it) => ["select-5"].includes(it.value)) !== -1;
+                closeIconClickCallBack(event, data) {
+                  console.log("点击关闭图标的事件", data);
                 },
-              },
-              {
-                value: "select-2",
-                text: "单选2",
-                isHTML: false,
-                disable(value, allSelectedInfo) {
-                  return allSelectedInfo.findIndex((it) => ["select-5"].includes(it.value)) !== -1;
-                },
-              },
-              {
-                value: "select-3",
-                text: "单选3",
-                isHTML: false,
-                disable(value, allSelectedInfo) {
-                  return allSelectedInfo.findIndex((it) => ["select-2", "select-5"].includes(it.value)) !== -1;
-                },
-              },
-              {
-                value: "select-4",
-                text: "单选4",
-                isHTML: false,
-                disable(value, allSelectedInfo) {
-                  return allSelectedInfo.findIndex((it) => ["select-3", "select-5"].includes(it.value)) !== -1;
-                },
-              },
-              {
-                value: "select-5",
-                text(value, allSelectedInfo) {
-                  return allSelectedInfo.findIndex((it) => ["select-4"].includes(it.value)) !== -1
-                    ? "单选5-禁用"
-                    : "单选5";
-                },
-                isHTML: false,
-                disable(value, allSelectedInfo) {
-                  return allSelectedInfo.findIndex((it) => ["select-4"].includes(it.value)) !== -1;
-                },
+                data: [
+                  {
+                    value: "select-1",
+                    text: "单选1",
+                    isHTML: false,
+                    disable(value, allSelectedInfo) {
+                      return allSelectedInfo.findIndex((it) => ["select-5"].includes(it.value)) !== -1;
+                    },
+                  },
+                  {
+                    value: "select-2",
+                    text: "单选2",
+                    isHTML: false,
+                    disable(value, allSelectedInfo) {
+                      return allSelectedInfo.findIndex((it) => ["select-5"].includes(it.value)) !== -1;
+                    },
+                  },
+                  {
+                    value: "select-3",
+                    text: "单选3",
+                    isHTML: false,
+                    disable(value, allSelectedInfo) {
+                      return allSelectedInfo.findIndex((it) => ["select-2", "select-5"].includes(it.value)) !== -1;
+                    },
+                  },
+                  {
+                    value: "select-4",
+                    text: "单选4",
+                    isHTML: false,
+                    disable(value, allSelectedInfo) {
+                      return allSelectedInfo.findIndex((it) => ["select-3", "select-5"].includes(it.value)) !== -1;
+                    },
+                  },
+                  {
+                    value: "select-5",
+                    text(value, allSelectedInfo) {
+                      return allSelectedInfo.findIndex((it) => ["select-4"].includes(it.value)) !== -1
+                        ? "单选5-禁用"
+                        : "单选5";
+                    },
+                    isHTML: false,
+                    disable(value, allSelectedInfo) {
+                      return allSelectedInfo.findIndex((it) => ["select-4"].includes(it.value)) !== -1;
+                    },
+                  },
+                ],
               },
             ],
           },

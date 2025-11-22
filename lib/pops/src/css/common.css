@@ -34,21 +34,21 @@
 }
 .pops-width-fill {
   width: 100%;
-  width: -webkit-fill-available;
   width: -moz-available;
+  width: -webkit-fill-available;
 }
 .pops-height-fill {
   height: 100%;
-  height: -webkit-fill-available;
   height: -moz-available;
+  height: -webkit-fill-available;
 }
 .pops-text-is-disabled {
   --pops-text-is-disabled-color: #a8abb2;
-  color: var(--pops-text-is-disabled-color);
   --pops-panel-forms-container-item-left-desc-text-color: var(--pops-text-is-disabled-color);
+  color: var(--pops-text-is-disabled-color);
 }
 .pops-text-is-disabled-important {
   --pops-text-is-disabled-color: #a8abb2;
-  color: var(--pops-text-is-disabled-color) !important;
   --pops-panel-forms-container-item-left-desc-text-color: var(--pops-text-is-disabled-color) !important;
+  color: var(--pops-text-is-disabled-color) !important;
 }
