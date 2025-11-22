@@ -68,7 +68,7 @@ export const UISelectDialog = function <T extends any>(
       }
     },
     data: data,
-    useDialog: true,
+    mode: "dialog",
     placeholder,
     selectConfirmDialogConfig,
     selectedTextAlign,
