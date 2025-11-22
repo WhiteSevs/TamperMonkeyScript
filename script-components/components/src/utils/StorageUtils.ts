@@ -11,7 +11,7 @@ type ListenerData = {
   callback: (key: string, oldValue: any, newValue: any) => IPromise<void>;
 };
 
-export class StorageUtils {
+class StorageUtils {
   /** 存储的键名 */
   storageKey: string;
   /** 监听的数据 */
@@ -214,3 +214,5 @@ export class StorageUtils {
     }
   }
 }
+
+export { StorageUtils, type ListenerData };

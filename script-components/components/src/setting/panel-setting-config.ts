@@ -1,6 +1,6 @@
 import type { QmsgPosition } from "qmsg/dist/src/types/config";
 
-export const PanelSettingConfig = {
+const PanelSettingConfig = {
   /** Toast位置 */
   qmsg_config_position: {
     key: "qmsg-config-position",
@@ -27,3 +27,6 @@ export const PanelSettingConfig = {
     defaultValue: false,
   },
 };
+
+export { PanelSettingConfig };
+

@@ -1,16 +1,16 @@
-import { log, utils } from "../base.env";
-import { PanelSettingConfig } from "../setting/panel-setting-config";
-import { Panel } from "../setting/panel";
 import type { HttpxRequestOption } from "@whitesev/utils/dist/types/src/types/Httpx";
+import { log, utils } from "../base.env";
+import { Panel } from "../setting/panel";
+import { PanelSettingConfig } from "../setting/panel-setting-config";
 
-export type HttpxCookieManagerRule = {
+type HttpxCookieManagerRule = {
   /** PopsPanel存储的键名 */
   key: string;
   /** 匹配url的hostname的正则或字符串 */
   hostname: RegExp | string;
 };
 
-export class HttpxCookieManager {
+class HttpxCookieManager {
   $data = {
     /** 是否启用 */
     get enable() {
@@ -136,3 +136,5 @@ export class HttpxCookieManager {
     }
   }
 }
+
+export { HttpxCookieManager, type HttpxCookieManagerRule };

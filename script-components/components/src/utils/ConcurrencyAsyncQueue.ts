@@ -1,4 +1,4 @@
-export class ConcurrencyAsyncQueue {
+class ConcurrencyAsyncQueue {
   /**
    * 请求队列
    */
@@ -55,3 +55,5 @@ export class ConcurrencyAsyncQueue {
     }
   }
 }
+
+export { ConcurrencyAsyncQueue };

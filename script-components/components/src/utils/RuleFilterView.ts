@@ -1,9 +1,9 @@
-import { DOMUtils, pops, utils } from "../base.env";
+import { DOMUtils, pops } from "../base.env";
 
 /**
  * 过滤视图配置
  */
-export type RuleFilterViewOption<T> = {
+type RuleFilterViewOption<T> = {
   /** 标题 */
   title: string;
   /** 所有的配置项信息 */
@@ -40,7 +40,7 @@ export type RuleFilterViewOption<T> = {
   }[];
 };
 
-export class RuleFilterView<T> {
+class RuleFilterView<T> {
   option: RuleFilterViewOption<T>;
   $data = {
     /**
@@ -142,3 +142,5 @@ export class RuleFilterView<T> {
     return this.$data.isFilteredData;
   }
 }
+
+export { RuleFilterView, type RuleFilterViewOption };

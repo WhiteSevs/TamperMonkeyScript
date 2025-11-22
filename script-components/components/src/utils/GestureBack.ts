@@ -18,7 +18,7 @@ type GestureBackConfig = {
 /**
  * 手势返回
  */
-export class GestureBack {
+class GestureBack {
   /**
    * 是否正在后退
    */
@@ -108,3 +108,5 @@ export class GestureBack {
     }
   }
 }
+
+export { GestureBack, type GestureBackConfig };

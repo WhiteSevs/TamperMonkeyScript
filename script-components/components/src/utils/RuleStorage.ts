@@ -1,7 +1,7 @@
-import { DOMUtils, httpx, log, pops, utils } from "../base.env";
-import { PanelUISize } from "../setting/panel-ui-size";
 import Qmsg from "qmsg";
 import { GM_getValue, GM_setValue } from "ViteGM";
+import { DOMUtils, httpx, log, pops, utils } from "../base.env";
+import { PanelUISize } from "../setting/panel-ui-size";
 
 type RuleStorageConstructOption = {
   /**
@@ -9,10 +9,11 @@ type RuleStorageConstructOption = {
    */
   STORAGE_API_KEY: string;
 };
+
 /**
  * 规则的存储
  */
-export class RuleStorage<
+class RuleStorage<
   T extends {
     /** 唯一键 */
     uuid: string;
@@ -412,3 +413,5 @@ export class RuleStorage<
     }, 1500);
   }
 }
+
+export { RuleStorage, type RuleStorageConstructOption };

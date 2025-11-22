@@ -1,5 +1,5 @@
-import { log } from "../base.env";
 import { unsafeWindow } from "ViteGM";
+import { log } from "../base.env";
 
 /**
  * @returns
@@ -132,7 +132,7 @@ type HookObjectDefinePropertyHandler = (
   attributes: PropertyDescriptor & ThisType<any>;
 } | void;
 
-export const Hook = {
+const Hook = {
   $data: {
     /** 存储 document.addEventListener 的hook实例 */
     document_addEventListener: <HookEventListenerHandler<Document>[]>[],
@@ -553,3 +553,5 @@ export const Hook = {
     });
   },
 };
+
+export { Hook };

@@ -1,14 +1,14 @@
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import Qmsg from "qmsg";
 import { DOMUtils, log, pops, utils } from "../base.env";
 import { PanelUISize } from "../setting/panel-ui-size";
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
-import { RuleFilterView, type RuleFilterViewOption } from "./RuleFilterView";
-import Qmsg from "qmsg";
 import { RuleEditView } from "./RuleEditView";
+import { RuleFilterView, type RuleFilterViewOption } from "./RuleFilterView";
 
 /**
  * 规则订阅配置
  */
-export type RuleSubscribeOption<T> = {
+type RuleSubscribeOption<T> = {
   /** 唯一id */
   uuid: string;
   /** 订阅内的数据 */
@@ -261,7 +261,7 @@ type RulePanelBtnControlsOption<T> = {
 /**
  * 规则视图的内容配置
  */
-export type RulePanelContentOption<T> = Omit<PopsPanelContentConfig, "views"> & {
+type RulePanelContentOption<T> = Omit<PopsPanelContentConfig, "views"> & {
   /**
    * 订阅配置
    */
@@ -271,10 +271,11 @@ export type RulePanelContentOption<T> = Omit<PopsPanelContentConfig, "views"> & 
    */
   ruleOption: RulePanelRuleOption<T>;
 };
+
 /**
  * 规则视图配置
  */
-export type RulePanelOption<T> = {
+type RulePanelOption<T> = {
   /** 面版标题 */
   title: string | (() => string);
   /** 面版内容配置 */
@@ -356,6 +357,7 @@ type RulePanelSubscribeOption<T> = {
     msg: string;
   }>;
 };
+
 /**
  * 规则面版的配置
  */
@@ -393,12 +395,13 @@ type RulePanelRuleOption<T> = {
    */
   btnControls?: RulePanelBtnControlsOption<T>;
 };
+
 /**
  * 规则面版的各种规则配置
  */
 type RulePanelAnyOption<T> = RulePanelRuleOption<T> | RulePanelSubscribeOption<T>;
 
-export class RulePanelView<T> {
+class RulePanelView<T> {
   option: RulePanelOption<T>;
   constructor(option: RulePanelOption<T>) {
     this.option = option;
@@ -1696,3 +1699,14 @@ export class RulePanelView<T> {
     editView.showView();
   }
 }
+
+export {
+  RulePanelView,
+  type RulePanelAnyOption,
+  type RulePanelBtnControlsOption,
+  type RulePanelContentOption,
+  type RulePanelOption,
+  type RulePanelRuleOption,
+  type RulePanelSubscribeOption,
+  type RuleSubscribeOption,
+};

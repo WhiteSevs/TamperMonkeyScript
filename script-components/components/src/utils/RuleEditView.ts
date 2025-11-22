@@ -1,5 +1,5 @@
-import { pops, utils } from "../base.env";
 import type { PopsConfirmConfig } from "@whitesev/pops/dist/types/src/components/confirm/types/index";
+import { pops, utils } from "../base.env";
 
 type RuleEditViewOption<T> = {
   /** 标题 */
@@ -46,7 +46,7 @@ type RuleEditViewOption<T> = {
   height?: () => string;
 };
 
-export class RuleEditView<T> {
+class RuleEditView<T> {
   option: RuleEditViewOption<T>;
   constructor(option: RuleEditViewOption<T>) {
     this.option = option;
@@ -161,3 +161,5 @@ export class RuleEditView<T> {
     };
   }
 }
+
+export { RuleEditView, type RuleEditViewOption };

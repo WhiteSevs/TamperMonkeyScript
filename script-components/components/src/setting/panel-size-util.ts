@@ -1,4 +1,4 @@
-export const PanelSizeUtil = {
+const PanelSizeUtil = {
   /**
    * 跟随浏览器的尺寸
    *
@@ -20,3 +20,5 @@ export const PanelSizeUtil = {
     return PanelSizeUtil.followBrowserSize ? globalThis.outerHeight : globalThis.innerHeight;
   },
 };
+
+export { PanelSizeUtil };

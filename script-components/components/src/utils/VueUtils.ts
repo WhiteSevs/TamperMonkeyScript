@@ -1,7 +1,7 @@
-import { DOMUtils, log, utils } from "../base.env";
 import type { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 import { unsafeWindow } from "ViteGM";
 import Qmsg from "qmsg";
+import { DOMUtils, log, utils } from "../base.env";
 
 /** 等待设置vue某个值的配置 */
 type VueCheckOption = {
@@ -29,7 +29,8 @@ type VueCheckOption = {
     isTimeout: boolean
   ) => void;
 };
-export const VueUtils = {
+
+const VueUtils = {
   /**
    * 获取vue2实例
    * @param $el
@@ -310,3 +311,5 @@ export const VueUtils = {
     };
   },
 };
+
+export { VueUtils, type VueCheckOption };

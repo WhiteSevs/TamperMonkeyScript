@@ -2,7 +2,7 @@ import { GM_getValue, GM_setValue } from "ViteGM";
 import { DOMUtils, log, utils } from "../base.env";
 
 /** 本地存储快捷键的键配置 */
-export type ShortCutKeyboardOption = {
+type ShortCutKeyboardOption = {
   /** 键盘名 */
   keyName: string;
   /** 键盘数值 */
@@ -19,7 +19,7 @@ type ShortCutLocalStorageOption = {
   value: ShortCutKeyboardOption | null;
 };
 
-export type ShortCutOptionWindow = {
+type ShortCutOptionWindow = {
   /**
    * 需要触发的目标 全局
    * @default "window"
@@ -30,7 +30,8 @@ export type ShortCutOptionWindow = {
    */
   callback(): void;
 };
-export type ShortCutOptionElement = {
+
+type ShortCutOptionElement = {
   /**
    * 需要触发的目标 元素选择器
    *
@@ -45,12 +46,12 @@ export type ShortCutOptionElement = {
 };
 
 /** 监听全局的快捷键配置 */
-export type ShortCutOption = {
+type ShortCutOption = {
   [key: string]: ShortCutOptionWindow | ShortCutOptionElement;
 };
 
 /** 快捷键 */
-export class ShortCut {
+class ShortCut {
   /** 存储的键 */
   private key: string = "short-cut";
   /** 配置 */
@@ -409,3 +410,12 @@ export class ShortCut {
     });
   }
 }
+
+export {
+  ShortCut,
+  type ShortCutKeyboardOption,
+  type ShortCutLocalStorageOption,
+  type ShortCutOption,
+  type ShortCutOptionElement,
+  type ShortCutOptionWindow,
+};

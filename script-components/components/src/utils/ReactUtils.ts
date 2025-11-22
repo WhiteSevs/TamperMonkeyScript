@@ -4,6 +4,7 @@ import { DOMUtils, log, utils } from "../base.env";
  * react在元素上储存的实例对象
  */
 type ReactInst = ReturnType<typeof utils.getReactInstance>;
+
 /**
  * 等待react实例的属性的配置
  */
@@ -33,7 +34,7 @@ type ReactCheckPropOption = {
   ) => void;
 };
 
-export const ReactUtils = {
+const ReactUtils = {
   /**
    * 等待react某个属性并进行设置
    * @param $el 需要检测的元素对象
@@ -148,3 +149,5 @@ export const ReactUtils = {
     });
   },
 };
+
+export { ReactUtils, type ReactCheckPropOption, type ReactInst };

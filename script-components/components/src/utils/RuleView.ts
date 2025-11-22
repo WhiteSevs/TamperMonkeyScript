@@ -1,12 +1,12 @@
-import { DOMUtils, log, pops, utils } from "../base.env";
+import Qmsg from "qmsg";
+import { DOMUtils, log, pops } from "../base.env";
 import { RuleEditView } from "./RuleEditView";
 import { RuleFilterView, type RuleFilterViewOption } from "./RuleFilterView";
-import Qmsg from "qmsg";
 
 /**
  * 规则视图配置
  */
-export type RuleViewOption<T> = {
+type RuleViewOption<T> = {
   /** 标题 */
   title: string;
   /** 获取所有数据 */
@@ -150,7 +150,8 @@ export type RuleViewOption<T> = {
     };
   };
 };
-export class RuleView<T> {
+
+class RuleView<T> {
   option: RuleViewOption<T>;
   constructor(option: RuleViewOption<T>) {
     this.option = option;
@@ -685,3 +686,5 @@ export class RuleView<T> {
     this.setDeleteBtnText($shadowRoot, `清空所有(${data.length})`);
   }
 }
+
+export { RuleView, type RuleViewOption };

@@ -1,9 +1,9 @@
+import Qmsg from "qmsg";
 import { DOMUtils, httpx, log, pops, utils } from "../base.env";
+import { PanelUISize } from "../setting/panel-ui-size";
+import { CommonUtil } from "./CommonUtil";
 import type { RuleSubscribeOption } from "./RulePanelView";
 import { StorageUtils } from "./StorageUtils";
-import { PanelUISize } from "../setting/panel-ui-size";
-import Qmsg from "qmsg";
-import { CommonUtil } from "./CommonUtil";
 
 type RuleSubscribeConstructOption = {
   /**
@@ -16,7 +16,7 @@ type RuleSubscribeConstructOption = {
   STORAGE_KEY: string;
 };
 
-export class RuleSubscribe<
+class RuleSubscribe<
   T extends {
     /** 唯一键 */
     uuid: string;
@@ -631,3 +631,5 @@ export class RuleSubscribe<
     });
   }
 }
+
+export { RuleSubscribe, type RuleSubscribeConstructOption };

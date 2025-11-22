@@ -1,10 +1,25 @@
 import Utils from "@whitesev/utils";
 import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
+import { UIButton } from "./components/ui-button";
+import { UIButtonShortCut } from "./components/ui-button-shortcut";
+import { UIInput } from "./components/ui-input";
+import { UIInputDateTime } from "./components/ui-input-datetime";
+import { UIInputFile } from "./components/ui-input-file";
+import { UIInputNumber } from "./components/ui-input-number";
+import { UIInputPassword } from "./components/ui-input-password";
+import { UIOwn } from "./components/ui-own";
+import { UISelect } from "./components/ui-select";
+import { UISelectDialog } from "./components/ui-select-dialog";
+import { UISelectHorizontal } from "./components/ui-select-horizontal";
+import { UISelectMultiple } from "./components/ui-select-multiple";
+import { UISlider } from "./components/ui-slider";
+import { UISwitch } from "./components/ui-switch";
+import { UITextArea } from "./components/ui-textarea";
 import { PROPS_STORAGE_API } from "./panel-config";
 
-export type PanelComponentsType = "input" | "select-multiple" | "select" | "slider" | "switch" | "textarea";
+type PanelComponentsType = "input" | "select-multiple" | "select" | "slider" | "switch" | "textarea";
 
-export type PanelComponentsStorageApiValue = {
+type PanelComponentsStorageApiValue = {
   /**
    * 获取值时自动调用
    * @param key 键名
@@ -18,12 +33,14 @@ export type PanelComponentsStorageApiValue = {
    */
   set(key: string, value: any): void;
 };
-export type PanelComponentsConfig = {
+
+type PanelComponentsConfig = {
   props: {
     [key: string]: any;
   };
 };
-export const PanelComponents = {
+
+const PanelComponents = {
   $data: {
     __storeApiFn: null as null | UtilsDictionary<PanelComponentsType, PanelComponentsStorageApiValue>,
     get storeApiValue() {
@@ -86,4 +103,26 @@ export const PanelComponents = {
   setComponentsStorageApiProperty(config: PanelComponentsConfig, storageApiValue: PanelComponentsStorageApiValue) {
     Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
   },
+};
+
+export {
+  PanelComponents,
+  UIButton,
+  UIButtonShortCut,
+  UIInput,
+  UIInputDateTime,
+  UIInputFile,
+  UIInputNumber,
+  UIInputPassword,
+  UIOwn,
+  UISelect,
+  UISelectDialog,
+  UISelectHorizontal,
+  UISelectMultiple,
+  UISlider,
+  UISwitch,
+  UITextArea,
+  type PanelComponentsConfig,
+  type PanelComponentsStorageApiValue,
+  type PanelComponentsType,
 };

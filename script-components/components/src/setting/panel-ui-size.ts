@@ -1,6 +1,6 @@
 import { PanelSizeUtil } from "./panel-size-util";
 
-export const PanelUISize = {
+const PanelUISize = {
   /**
    * 一般设置界面的尺寸
    */
@@ -58,3 +58,5 @@ export const PanelUISize = {
     },
   },
 };
+
+export { PanelUISize };

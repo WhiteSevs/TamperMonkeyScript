@@ -1,8 +1,8 @@
 import DOMUtils from "@whitesev/domutils";
-import { addStyle, log, utils } from "../base.env";
 import { GM_getResourceText } from "ViteGM";
+import { addStyle, log, utils } from "../base.env";
 
-export const CommonUtil = {
+const CommonUtil = {
   /**
    * 移除元素（未出现也可以等待出现）
    * @param selector 元素选择器
@@ -396,3 +396,5 @@ export const CommonUtil = {
     return dataStr;
   },
 };
+
+export { CommonUtil };

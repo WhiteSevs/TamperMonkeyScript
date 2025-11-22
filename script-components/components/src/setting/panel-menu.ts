@@ -6,7 +6,7 @@ import { PanelContent } from "./panel-content";
 /**
  * 油猴菜单
  */
-export const PanelMenu = {
+const PanelMenu = {
   $data: {
     __menuOption: [
       {
@@ -82,3 +82,5 @@ export const PanelMenu = {
     this.$data.menuOption.splice(index, 1);
   },
 };
+export { PanelMenu };
+

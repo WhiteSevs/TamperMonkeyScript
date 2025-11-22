@@ -1,5 +1,5 @@
-import type { PopsPanelOwnConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-own";
 import type { PopsPanelRightAsideContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-common";
+import type { PopsPanelOwnConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-own";
 import { ATTRIBUTE_INIT, ATTRIBUTE_INIT_MORE_VALUE, ATTRIBUTE_PLUGIN_SEARCH_CONFIG } from "../panel-config";
 
 /**

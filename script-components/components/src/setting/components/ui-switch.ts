@@ -1,9 +1,9 @@
-import type { PopsPanelSwitchConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-switch";
 import type { PopsPanelRightAsideContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-common";
+import type { PopsPanelSwitchConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-switch";
 import { log } from "../../base.env";
-import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, PROPS_STORAGE_API } from "../panel-config";
 import { Panel } from "../panel";
 import { PanelComponents, type PanelComponentsStorageApiValue } from "../panel-components";
+import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, PROPS_STORAGE_API } from "../panel-config";
 
 /**
  * 获取checkbox按钮配置
