@@ -16,7 +16,7 @@ import { PanelComponents, type PanelComponentsStorageApiValue } from "../panel-c
  * @param accept （可选）文件上传的格式
  * @param isMultiple （可选）是否允许多文件上传
  */
-export const UIInputPassword = function (
+export const UIInputFile = function (
   text: string,
   key: string,
   defaultValue: string | number,
