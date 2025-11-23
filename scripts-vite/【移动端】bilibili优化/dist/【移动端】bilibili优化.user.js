@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.19
+// @version      2025.11.23
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -15,7 +15,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/QRCode/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
@@ -46,7 +46,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(function (Qmsg, DOMUtils, Utils, pops, md5, Artplayer, artplayerPluginDanmuku, Viewer, flvjs) {
+(function (DOMUtils, pops, Utils, Qmsg, md5, Artplayer, artplayerPluginDanmuku, Viewer, flvjs) {
   "use strict";
 
   const d = new Set();
@@ -68,7 +68,7 @@
   };
 
   const blockCss =
-    '@charset "UTF-8";.m-video2-awaken-btn,.openapp-dialog{display:none!important}.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-head m-open-app{display:none!important}.m-home .launch-app-btn.home-float-openapp{display:none!important}.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp,.m-space m-open-app:has(>.m-fixed-openapp){display:none!important}#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp{display:none!important}#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn,#app .m-dynamic m-open-app:has(>.m-fixed-openapp){display:none!important}#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .m-opus .m-navbar .m-nav-openapp,#app .m-opus m-open-app.m-open-app.fixed-openapp{display:none!important}#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp{display:none!important}#app.main-container bili-open-app.btn-download{display:none!important}#__next m-open-app[class^=TopBar_download],#__next m-open-app:has([class^=GoApp]){display:none!important}#__next m-open-app[class^=MainButton_btnWrap]{visibility:hidden!important}#app .read-app-main bili-open-app{display:none!important}#app .playlist>.open-app-wp{display:none!important}#app .playlist>.open-app-wp+div{padding-top:56.25%}';
+    '@charset "UTF-8";.m-video2-awaken-btn,.openapp-dialog{display:none!important}.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-head m-open-app{display:none!important}.m-home .launch-app-btn.home-float-openapp{display:none!important}.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp,.m-space m-open-app:has(>.m-fixed-openapp){display:none!important}#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp{display:none!important}#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn,#app .m-dynamic m-open-app:has(>.m-fixed-openapp){display:none!important}#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .m-opus .m-navbar .m-nav-openapp,#app .m-opus m-open-app.m-open-app.fixed-openapp,#app .m-opus_wp .m-open-app.opus-float-btn{display:none!important}#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp{display:none!important}#app.main-container bili-open-app.btn-download{display:none!important}#__next m-open-app[class^=TopBar_download],#__next m-open-app:has([class^=GoApp]){display:none!important}#__next m-open-app[class^=MainButton_btnWrap]{visibility:hidden!important}#app .read-app-main bili-open-app{display:none!important}#app .playlist>.open-app-wp{display:none!important}#app .playlist>.open-app-wp+div{padding-top:56.25%}';
   importCSS(blockCss);
   const commonCss = "html{--bili-color: #fb7299;--bili-color-rgb: 251, 114, 153}";
   importCSS(commonCss);
@@ -132,188 +132,12 @@
   var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
   var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
   var _monkeyWindow = (() => window)();
-  const KEY = "GM_Panel";
-  const ATTRIBUTE_INIT = "data-init";
-  const ATTRIBUTE_KEY = "data-key";
-  const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
-  const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
-  const ATTRIBUTE_PLUGIN_SEARCH_CONFIG = "data-plugin-search-config";
-  const PROPS_STORAGE_API = "data-storage-api";
-  const PanelSizeUtil = {
-    get width() {
-      return globalThis.innerWidth;
-    },
-    get height() {
-      return globalThis.innerHeight;
+  const GM_RESOURCE_MAPPING = {
+    Viewer: {
+      keyName: "ViewerCSS",
+      url: "https://fastly.jsdelivr.net/npm/viewerjs@latest/dist/viewer.min.css",
     },
   };
-  const PanelUISize = {
-    setting: {
-      get width() {
-        if (PanelSizeUtil.width < 550) {
-          return "88vw";
-        } else if (PanelSizeUtil.width < 700) {
-          return "550px";
-        } else {
-          return "700px";
-        }
-      },
-      get height() {
-        if (PanelSizeUtil.height < 450) {
-          return "70vh";
-        } else if (PanelSizeUtil.height < 550) {
-          return "450px";
-        } else {
-          return "550px";
-        }
-      },
-    },
-    settingMiddle: {
-      get width() {
-        return PanelSizeUtil.width < 350 ? "88vw" : "350px";
-      },
-    },
-    info: {
-      get width() {
-        return PanelSizeUtil.width < 350 ? "88vw" : "350px";
-      },
-      get height() {
-        return PanelSizeUtil.height < 250 ? "88vh" : "250px";
-      },
-    },
-  };
-  class StorageUtils {
-    storageKey;
-    listenerData;
-    constructor(key) {
-      if (typeof key === "string") {
-        const trimKey = key.trim();
-        if (trimKey == "") {
-          throw new Error("key参数不能为空字符串");
-        }
-        this.storageKey = trimKey;
-      } else {
-        throw new Error("key参数类型错误，必须是字符串");
-      }
-      this.listenerData = new Utils.Dictionary();
-      this.getLocalValue = this.getLocalValue.bind(this);
-      this.set = this.set.bind(this);
-      this.get = this.get.bind(this);
-      this.getAll = this.getAll.bind(this);
-      this.delete = this.delete.bind(this);
-      this.has = this.has.bind(this);
-      this.keys = this.keys.bind(this);
-      this.values = this.values.bind(this);
-      this.clear = this.clear.bind(this);
-      this.addValueChangeListener = this.addValueChangeListener.bind(this);
-      this.removeValueChangeListener = this.removeValueChangeListener.bind(this);
-      this.triggerValueChangeListener = this.triggerValueChangeListener.bind(this);
-    }
-    getLocalValue() {
-      let localValue = _GM_getValue(this.storageKey);
-      if (localValue == null) {
-        localValue = {};
-        this.setLocalValue(localValue);
-      }
-      return localValue;
-    }
-    setLocalValue(value) {
-      _GM_setValue(this.storageKey, value);
-    }
-    set(key, value) {
-      const oldValue = this.get(key);
-      const localValue = this.getLocalValue();
-      Reflect.set(localValue, key, value);
-      this.setLocalValue(localValue);
-      this.triggerValueChangeListener(key, oldValue, value);
-    }
-    get(key, defaultValue) {
-      const localValue = this.getLocalValue();
-      return Reflect.get(localValue, key) ?? defaultValue;
-    }
-    getAll() {
-      const localValue = this.getLocalValue();
-      return localValue;
-    }
-    delete(key) {
-      const oldValue = this.get(key);
-      const localValue = this.getLocalValue();
-      Reflect.deleteProperty(localValue, key);
-      this.setLocalValue(localValue);
-      this.triggerValueChangeListener(key, oldValue, void 0);
-    }
-    has(key) {
-      const localValue = this.getLocalValue();
-      return Reflect.has(localValue, key);
-    }
-    keys() {
-      const localValue = this.getLocalValue();
-      return Reflect.ownKeys(localValue);
-    }
-    values() {
-      const localValue = this.getLocalValue();
-      return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
-    }
-    clear() {
-      _GM_deleteValue(this.storageKey);
-    }
-    addValueChangeListener(key, callback) {
-      const listenerId = Math.random();
-      const listenerData = this.listenerData.get(key) || [];
-      listenerData.push({
-        id: listenerId,
-        key,
-        callback,
-      });
-      this.listenerData.set(key, listenerData);
-      return listenerId;
-    }
-    removeValueChangeListener(listenerId) {
-      let flag = false;
-      for (const [key, listenerData] of this.listenerData.entries()) {
-        for (let index = 0; index < listenerData.length; index++) {
-          const value = listenerData[index];
-          if (
-            (typeof listenerId === "string" && value.key === listenerId) ||
-            (typeof listenerId === "number" && value.id === listenerId)
-          ) {
-            listenerData.splice(index, 1);
-            index--;
-            flag = true;
-          }
-        }
-        this.listenerData.set(key, listenerData);
-      }
-      return flag;
-    }
-    async triggerValueChangeListener(...args) {
-      const [key, oldValue, newValue] = args;
-      if (!this.listenerData.has(key)) {
-        return;
-      }
-      let listenerData = this.listenerData.get(key);
-      for (let index = 0; index < listenerData.length; index++) {
-        const data2 = listenerData[index];
-        if (typeof data2.callback === "function") {
-          let value = this.get(key);
-          let __newValue;
-          let __oldValue;
-          if (typeof oldValue !== "undefined" && args.length >= 2) {
-            __oldValue = oldValue;
-          } else {
-            __oldValue = value;
-          }
-          if (typeof newValue !== "undefined" && args.length > 2) {
-            __newValue = newValue;
-          } else {
-            __newValue = value;
-          }
-          await data2.callback(key, __oldValue, __newValue);
-        }
-      }
-    }
-  }
-  const PopsPanelStorageApi = new StorageUtils(KEY);
   const CommonUtil = {
     waitRemove(...args) {
       args.forEach((selector) => {
@@ -572,6 +396,56 @@
         2
       ).replace(new RegExp(`"${undefinedReplacedStr}"`, "g"), "undefined");
       return dataStr;
+    },
+  };
+  const KEY = "GM_Panel";
+  const ATTRIBUTE_INIT = "data-init";
+  const ATTRIBUTE_KEY = "data-key";
+  const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
+  const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
+  const ATTRIBUTE_PLUGIN_SEARCH_CONFIG = "data-plugin-search-config";
+  const PROPS_STORAGE_API = "data-storage-api";
+  const PanelSizeUtil = {
+    get width() {
+      return globalThis.innerWidth;
+    },
+    get height() {
+      return globalThis.innerHeight;
+    },
+  };
+  const PanelUISize = {
+    setting: {
+      get width() {
+        if (PanelSizeUtil.width < 550) {
+          return "88vw";
+        } else if (PanelSizeUtil.width < 700) {
+          return "550px";
+        } else {
+          return "700px";
+        }
+      },
+      get height() {
+        if (PanelSizeUtil.height < 450) {
+          return "70vh";
+        } else if (PanelSizeUtil.height < 550) {
+          return "450px";
+        } else {
+          return "550px";
+        }
+      },
+    },
+    settingMiddle: {
+      get width() {
+        return PanelSizeUtil.width < 350 ? "88vw" : "350px";
+      },
+    },
+    info: {
+      get width() {
+        return PanelSizeUtil.width < 350 ? "88vw" : "350px";
+      },
+      get height() {
+        return PanelSizeUtil.height < 250 ? "88vh" : "250px";
+      },
     },
   };
   const PanelContent = {
@@ -1055,6 +929,138 @@
       this.$data.menuOption.splice(index, 1);
     },
   };
+  class StorageUtils {
+    storageKey;
+    listenerData;
+    constructor(key) {
+      if (typeof key === "string") {
+        const trimKey = key.trim();
+        if (trimKey == "") {
+          throw new Error("key参数不能为空字符串");
+        }
+        this.storageKey = trimKey;
+      } else {
+        throw new Error("key参数类型错误，必须是字符串");
+      }
+      this.listenerData = new Utils.Dictionary();
+      this.getLocalValue = this.getLocalValue.bind(this);
+      this.set = this.set.bind(this);
+      this.get = this.get.bind(this);
+      this.getAll = this.getAll.bind(this);
+      this.delete = this.delete.bind(this);
+      this.has = this.has.bind(this);
+      this.keys = this.keys.bind(this);
+      this.values = this.values.bind(this);
+      this.clear = this.clear.bind(this);
+      this.addValueChangeListener = this.addValueChangeListener.bind(this);
+      this.removeValueChangeListener = this.removeValueChangeListener.bind(this);
+      this.triggerValueChangeListener = this.triggerValueChangeListener.bind(this);
+    }
+    getLocalValue() {
+      let localValue = _GM_getValue(this.storageKey);
+      if (localValue == null) {
+        localValue = {};
+        this.setLocalValue(localValue);
+      }
+      return localValue;
+    }
+    setLocalValue(value) {
+      _GM_setValue(this.storageKey, value);
+    }
+    set(key, value) {
+      const oldValue = this.get(key);
+      const localValue = this.getLocalValue();
+      Reflect.set(localValue, key, value);
+      this.setLocalValue(localValue);
+      this.triggerValueChangeListener(key, oldValue, value);
+    }
+    get(key, defaultValue) {
+      const localValue = this.getLocalValue();
+      return Reflect.get(localValue, key) ?? defaultValue;
+    }
+    getAll() {
+      const localValue = this.getLocalValue();
+      return localValue;
+    }
+    delete(key) {
+      const oldValue = this.get(key);
+      const localValue = this.getLocalValue();
+      Reflect.deleteProperty(localValue, key);
+      this.setLocalValue(localValue);
+      this.triggerValueChangeListener(key, oldValue, void 0);
+    }
+    has(key) {
+      const localValue = this.getLocalValue();
+      return Reflect.has(localValue, key);
+    }
+    keys() {
+      const localValue = this.getLocalValue();
+      return Reflect.ownKeys(localValue);
+    }
+    values() {
+      const localValue = this.getLocalValue();
+      return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
+    }
+    clear() {
+      _GM_deleteValue(this.storageKey);
+    }
+    addValueChangeListener(key, callback) {
+      const listenerId = Math.random();
+      const listenerData = this.listenerData.get(key) || [];
+      listenerData.push({
+        id: listenerId,
+        key,
+        callback,
+      });
+      this.listenerData.set(key, listenerData);
+      return listenerId;
+    }
+    removeValueChangeListener(listenerId) {
+      let flag = false;
+      for (const [key, listenerData] of this.listenerData.entries()) {
+        for (let index = 0; index < listenerData.length; index++) {
+          const value = listenerData[index];
+          if (
+            (typeof listenerId === "string" && value.key === listenerId) ||
+            (typeof listenerId === "number" && value.id === listenerId)
+          ) {
+            listenerData.splice(index, 1);
+            index--;
+            flag = true;
+          }
+        }
+        this.listenerData.set(key, listenerData);
+      }
+      return flag;
+    }
+    async triggerValueChangeListener(...args) {
+      const [key, oldValue, newValue] = args;
+      if (!this.listenerData.has(key)) {
+        return;
+      }
+      let listenerData = this.listenerData.get(key);
+      for (let index = 0; index < listenerData.length; index++) {
+        const data2 = listenerData[index];
+        if (typeof data2.callback === "function") {
+          let value = this.get(key);
+          let __newValue;
+          let __oldValue;
+          if (typeof oldValue !== "undefined" && args.length >= 2) {
+            __oldValue = oldValue;
+          } else {
+            __oldValue = value;
+          }
+          if (typeof newValue !== "undefined" && args.length > 2) {
+            __newValue = newValue;
+          } else {
+            __newValue = value;
+          }
+          await data2.callback(key, __oldValue, __newValue);
+        }
+      }
+    }
+  }
+  const PopsPanelStorageApi = new StorageUtils(KEY);
   const Panel = {
     $data: {
       __contentConfigInitDefaultValue: null,
@@ -1936,12 +1942,6 @@
       } else {
         return key;
       }
-    },
-  };
-  const GM_RESOURCE_MAPPING = {
-    Viewer: {
-      keyName: "ViewerCSS",
-      url: "https://fastly.jsdelivr.net/npm/viewerjs@latest/dist/viewer.min.css",
     },
   };
   const PanelSettingConfig = {
@@ -10827,56 +10827,55 @@
       ]);
     },
   };
-  const PanelComponents = {
-    $data: {
-      __storeApiFn: null,
-      get storeApiValue() {
-        if (!this.__storeApiFn) {
-          this.__storeApiFn = new Utils.Dictionary();
+  const UIButton = function (
+    text,
+    description,
+    buttonText,
+    buttonIcon,
+    buttonIsRightIcon,
+    buttonIconIsLoading,
+    buttonType,
+    clickCallBack,
+    afterAddToUListCallBack,
+    disable
+  ) {
+    const result = {
+      text,
+      type: "button",
+      attributes: {},
+      props: {},
+      description,
+      buttonIcon,
+      buttonIsRightIcon,
+      buttonIconIsLoading,
+      buttonType,
+      buttonText,
+      callback(event) {
+        if (typeof clickCallBack === "function") {
+          clickCallBack(event);
         }
-        return this.__storeApiFn;
       },
-    },
-    getStorageApi(type) {
-      if (!this.hasStorageApi(type)) {
-        return;
-      }
-      return this.$data.storeApiValue.get(type);
-    },
-    hasStorageApi(type) {
-      return this.$data.storeApiValue.has(type);
-    },
-    setStorageApi(type, storageApiValue) {
-      this.$data.storeApiValue.set(type, storageApiValue);
-    },
-    initComponentsStorageApi(type, config, storageApiValue) {
-      let propsStorageApi;
-      if (this.hasStorageApi(type)) {
-        propsStorageApi = this.getStorageApi(type);
-      } else {
-        propsStorageApi = storageApiValue;
-      }
-      this.setComponentsStorageApiProperty(config, propsStorageApi);
-    },
-    setComponentsStorageApiProperty(config, storageApiValue) {
-      Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
-    },
+      afterAddToUListCallBack,
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
+      result.disable = Boolean(disable);
+    });
+    return result;
   };
-  const UIInput = function (
+  const UIInputPassword = function (
     text,
     key,
     defaultValue,
     description,
     changeCallback,
     placeholder = "",
-    inputType = "text",
     afterAddToUListCallBack,
     valueChangeCallback
   ) {
     const result = {
       text,
       type: "input",
-      inputType,
+      inputType: "password",
       attributes: {},
       props: {},
       description,
@@ -10887,8 +10886,12 @@
         return storageApiValue.get(key, defaultValue);
       },
       callback(event, value) {
-        const $input = event.target;
-        $input.validity.valid;
+        if (typeof changeCallback === "function") {
+          const result2 = changeCallback(event, value);
+          if (result2) {
+            return;
+          }
+        }
         const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
@@ -10896,6 +10899,95 @@
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     PanelComponents.initComponentsStorageApi("input", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
+      },
+    });
+    return result;
+  };
+  const UISelect = function (text, key, defaultValue, data2, selectCallBack, description, valueChangeCallBack) {
+    const result = {
+      text,
+      type: "select",
+      description,
+      attributes: {},
+      props: {},
+      getValue() {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
+      },
+      callback(isSelectedInfo) {
+        if (isSelectedInfo == null) {
+          return;
+        }
+        const value = isSelectedInfo.value;
+        log$1.info(`选择：${isSelectedInfo.text}`);
+        if (typeof selectCallBack === "function") {
+          const result2 = selectCallBack(isSelectedInfo);
+          if (result2) {
+            return;
+          }
+        }
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
+      },
+      data: data2,
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("select", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
+      },
+    });
+    return result;
+  };
+  const UISlider = function (
+    text,
+    key,
+    defaultValue,
+    min,
+    max,
+    changeCallback,
+    getToolTipContent,
+    description,
+    step,
+    valueChangeCallBack
+  ) {
+    const result = {
+      text,
+      type: "slider",
+      description,
+      attributes: {},
+      props: {},
+      getValue() {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
+      },
+      getToolTipContent(value) {
+        if (typeof getToolTipContent === "function") {
+          return getToolTipContent(value);
+        } else {
+          return `${value}`;
+        }
+      },
+      callback(event, value) {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
+      },
+      min,
+      max,
+      step,
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("slider", result, {
       get(key2, defaultValue2) {
         return Panel.getValue(key2, defaultValue2);
       },
@@ -10981,6 +11073,84 @@
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     PanelComponents.initComponentsStorageApi("switch", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
+      },
+    });
+    return result;
+  };
+  const PanelComponents = {
+    $data: {
+      __storeApiFn: null,
+      get storeApiValue() {
+        if (!this.__storeApiFn) {
+          this.__storeApiFn = new Utils.Dictionary();
+        }
+        return this.__storeApiFn;
+      },
+    },
+    getStorageApi(type) {
+      if (!this.hasStorageApi(type)) {
+        return;
+      }
+      return this.$data.storeApiValue.get(type);
+    },
+    hasStorageApi(type) {
+      return this.$data.storeApiValue.has(type);
+    },
+    setStorageApi(type, storageApiValue) {
+      this.$data.storeApiValue.set(type, storageApiValue);
+    },
+    initComponentsStorageApi(type, config, storageApiValue) {
+      let propsStorageApi;
+      if (this.hasStorageApi(type)) {
+        propsStorageApi = this.getStorageApi(type);
+      } else {
+        propsStorageApi = storageApiValue;
+      }
+      this.setComponentsStorageApiProperty(config, propsStorageApi);
+    },
+    setComponentsStorageApiProperty(config, storageApiValue) {
+      Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
+    },
+  };
+  const UIInput = function (
+    text,
+    key,
+    defaultValue,
+    description,
+    changeCallback,
+    placeholder = "",
+    inputType = "text",
+    afterAddToUListCallBack,
+    valueChangeCallback
+  ) {
+    const result = {
+      text,
+      type: "input",
+      inputType,
+      attributes: {},
+      props: {},
+      description,
+      placeholder,
+      afterAddToUListCallBack,
+      getValue() {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
+      },
+      callback(event, value) {
+        const $input = event.target;
+        $input.validity.valid;
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
+      },
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("input", result, {
       get(key2, defaultValue2) {
         return Panel.getValue(key2, defaultValue2);
       },
@@ -13280,127 +13450,6 @@
       });
     },
   };
-  const UISelect = function (text, key, defaultValue, data2, selectCallBack, description, valueChangeCallBack) {
-    const result = {
-      text,
-      type: "select",
-      description,
-      attributes: {},
-      props: {},
-      getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
-      },
-      callback(isSelectedInfo) {
-        if (isSelectedInfo == null) {
-          return;
-        }
-        const value = isSelectedInfo.value;
-        log$1.info(`选择：${isSelectedInfo.text}`);
-        if (typeof selectCallBack === "function") {
-          const result2 = selectCallBack(isSelectedInfo);
-          if (result2) {
-            return;
-          }
-        }
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
-      },
-      data: data2,
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi("select", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
-      },
-    });
-    return result;
-  };
-  const UIButton = function (
-    text,
-    description,
-    buttonText,
-    buttonIcon,
-    buttonIsRightIcon,
-    buttonIconIsLoading,
-    buttonType,
-    clickCallBack,
-    afterAddToUListCallBack,
-    disable
-  ) {
-    const result = {
-      text,
-      type: "button",
-      attributes: {},
-      props: {},
-      description,
-      buttonIcon,
-      buttonIsRightIcon,
-      buttonIconIsLoading,
-      buttonType,
-      buttonText,
-      callback(event) {
-        if (typeof clickCallBack === "function") {
-          clickCallBack(event);
-        }
-      },
-      afterAddToUListCallBack,
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
-      result.disable = Boolean(disable);
-    });
-    return result;
-  };
-  const UIInputPassword = function (
-    text,
-    key,
-    defaultValue,
-    description,
-    changeCallback,
-    placeholder = "",
-    afterAddToUListCallBack,
-    valueChangeCallback
-  ) {
-    const result = {
-      text,
-      type: "input",
-      inputType: "password",
-      attributes: {},
-      props: {},
-      description,
-      placeholder,
-      afterAddToUListCallBack,
-      getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
-      },
-      callback(event, value) {
-        if (typeof changeCallback === "function") {
-          const result2 = changeCallback(event, value);
-          if (result2) {
-            return;
-          }
-        }
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
-      },
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi("input", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
-      },
-    });
-    return result;
-  };
   const SettingUICommon = {
     id: "panel-common",
     title: "通用",
@@ -13754,55 +13803,6 @@
         ],
       },
     ],
-  };
-  const UISlider = function (
-    text,
-    key,
-    defaultValue,
-    min,
-    max,
-    changeCallback,
-    getToolTipContent,
-    description,
-    step,
-    valueChangeCallBack
-  ) {
-    const result = {
-      text,
-      type: "slider",
-      description,
-      attributes: {},
-      props: {},
-      getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
-      },
-      getToolTipContent(value) {
-        if (typeof getToolTipContent === "function") {
-          return getToolTipContent(value);
-        } else {
-          return `${value}`;
-        }
-      },
-      callback(event, value) {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
-      },
-      min,
-      max,
-      step,
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi("slider", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
-      },
-    });
-    return result;
   };
   const SettingUIVideo = {
     id: "panel-video",
@@ -14720,4 +14720,4 @@ aside.pops-panel-aside .pops-is-visited, aside.pops-panel-aside ul li:hover{
     --button-bg-color: var(--bili-color);
 }
 `;
-})(Qmsg, DOMUtils, Utils, pops, MD5, Artplayer, artplayerPluginDanmuku, Viewer, MD5);
+})(DOMUtils, pops, Utils, Qmsg, MD5, Artplayer, artplayerPluginDanmuku, Viewer, MD5);
