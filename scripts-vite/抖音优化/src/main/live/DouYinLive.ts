@@ -408,8 +408,8 @@ export const DouYinLive = {
         const keydownEvent = new KeyboardEvent("keydown", {
           bubbles: true,
           cancelable: true,
-          key: "E",
-          code: "KeyE",
+          key: "R",
+          code: "KeyR",
         });
         (document.body || document).dispatchEvent(keydownEvent);
       };

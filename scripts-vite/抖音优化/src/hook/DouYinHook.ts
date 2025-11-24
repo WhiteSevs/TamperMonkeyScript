@@ -117,7 +117,7 @@ export const DouYinHook = {
             return;
           }
 
-          const keyboardConfigList: {
+          let keyboardConfigList: {
             enableKey: string;
             code: string[];
             otherCodeList?: KeyboardOtherCodeName[];
@@ -232,9 +232,15 @@ export const DouYinHook = {
             },
           ];
 
+          let otherKeyboardConfigList: {
+            enableKey: string;
+            code: string[];
+            otherCodeList?: KeyboardOtherCodeName[];
+          }[] = [];
+
           if (DouYinRouter.isIndex()) {
             // 主站
-            keyboardConfigList.push(
+            otherKeyboardConfigList = [
               {
                 enableKey: "dy-keyboard-hook-arrowUp-w",
                 code: ["KeyW"],
@@ -250,18 +256,18 @@ export const DouYinHook = {
               {
                 enableKey: "dy-keyboard-hook-videoFastForward",
                 code: ["KeyD"],
-              }
-            );
+              },
+            ];
           } else if (DouYinRouter.isLive()) {
             // 直播
-            keyboardConfigList.push(
+            otherKeyboardConfigList = [
               {
                 enableKey: "dy-live-threeScreen",
                 code: ["KeyS"],
               },
               {
                 enableKey: "dy-live-refresh",
-                code: ["KeyE"],
+                code: ["KeyR"],
               },
               {
                 enableKey: "dy-live-screenRotation",
@@ -274,9 +280,17 @@ export const DouYinHook = {
               {
                 enableKey: "dy-live-switchLiveRoom",
                 code: ["ArrowUp", "ArrowDown"],
-              }
-            );
+              },
+            ];
           }
+          // 去重
+          // 比如直播的KeyR和推荐视频的不感兴趣快捷键重复了
+          keyboardConfigList = utils.uniqueArray(keyboardConfigList, otherKeyboardConfigList, (it1, it2) => {
+            const compare1 = JSON.stringify(it1.code.toSorted());
+            const compare2 = JSON.stringify(it2.code.toSorted());
+            return compare1 === compare2;
+          });
+          keyboardConfigList = otherKeyboardConfigList.concat(keyboardConfigList);
           for (let index = 0; index < keyboardConfigList.length; index++) {
             const keyboardConfig = keyboardConfigList[index];
             if (keyboardConfig.code.includes(code)) {

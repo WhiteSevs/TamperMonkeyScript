@@ -64,6 +64,18 @@ export interface DouYinVideoHandlerInfo {
   productId?: string;
   /** 产品标题 */
   productTitle?: string;
+  /** 是否是直播 */
+  isLive: boolean;
+  /** 是否是广告 */
+  isAds: boolean;
+  /** 是否是系列信息-剧集 */
+  isSeriesInfo: boolean;
+  /** 是否是混合信息-合集 */
+  isMixInfo: boolean;
+  /** 是否是图文 */
+  isPicture: boolean;
+  /** 是否是产品（付费视频、专属会员视频） */
+  isProduct: boolean;
   /**
    * 视频流的播放信息
    */
@@ -80,18 +92,6 @@ export interface DouYinVideoHandlerInfo {
     width?: number;
     height?: number;
   }[];
-  /** 是否是直播 */
-  isLive: boolean;
-  /** 是否是广告 */
-  isAds: boolean;
-  /** 是否是系列信息-剧集 */
-  isSeriesInfo: boolean;
-  /** 是否是混合信息-合集 */
-  isMixInfo: boolean;
-  /** 是否是图文 */
-  isPicture: boolean;
-  /** 是否是产品（付费视频、专属会员视频） */
-  isProduct: boolean;
 }
 
 /** 抖音视频的awemeInfo对象信息 */

@@ -864,9 +864,9 @@ export const DouYinVideoFilter = {
               "liveStreamNickName",
               "liveStreamRoomUserCount",
               "liveStreamRoomDynamicSpliceLabel",
-              "videoBitRateList",
               "productId",
               "productTitle",
+              "videoBitRateList",
             ];
 
             /**

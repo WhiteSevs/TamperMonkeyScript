@@ -466,7 +466,6 @@ export class DouYinVideoFilterBase {
       liveStreamNickName,
       liveStreamRoomUserCount,
       liveStreamRoomDynamicSpliceLabel,
-      videoBitRateList,
       productId,
       productTitle,
       isLive,
@@ -475,6 +474,7 @@ export class DouYinVideoFilterBase {
       isMixInfo,
       isPicture,
       isProduct,
+      videoBitRateList,
     };
   }
   /**
