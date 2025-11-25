@@ -1,4 +1,4 @@
-import { $$, addStyle, DOMUtils, log, pops, utils } from "@/env";
+import { addStyle, DOMUtils, log, pops, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
 import { PanelUISize } from "@components/setting/panel-ui-size";
 import Qmsg from "qmsg";
@@ -96,7 +96,7 @@ match-attr##srcid##yx_entity_pc_san
           BaiduSearchBlockRule.addFilterButton($result);
           const url = BaiduHandleResultItem.getSearchArticleOriginal_link($result);
           if (Panel.getValue("baidu-search-filter-enable") && BaiduSearchBlockRule.checkFilter($result, url)) {
-            log.info(["触发自定义规则，屏蔽该搜索结果：", url]);
+            log.info(["触发自定义规则，屏蔽该搜索结果，url：", url]);
             $result.remove();
             return;
           }

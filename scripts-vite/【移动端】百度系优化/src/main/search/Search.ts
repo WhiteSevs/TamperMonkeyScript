@@ -1,17 +1,17 @@
-import { DOMUtils, log, utils, addStyle } from "@/env";
+import { addStyle, DOMUtils, log, utils } from "@/env";
 import { BaiduRouter } from "@/router/BaiduRouter";
 import { Panel } from "@components/setting/panel";
-import SearchShieldCSS from "./shield.css?raw";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import { BaiduHeadlth } from "./bh/SearchHealth";
-import { BaiduSearchHook } from "./SearchHook";
-import { BaiduHandleResultItem } from "./SearchHandleResultItem";
-import { SearchNextPage, SearchNextPage_SearchCraft } from "./SearchNextPage";
-import { SearchInputEvent } from "./SearchInput";
 import { BaiduSearchBlockRule } from "./SearchBlockRule";
+import { BaiduHandleResultItem } from "./SearchHandleResultItem";
+import { BaiduSearchHook } from "./SearchHook";
+import { SearchInputEvent } from "./SearchInput";
+import { SearchNextPage, SearchNextPage_SearchCraft } from "./SearchNextPage";
+import { BaiduSearchToolBar } from "./SearchToolBar";
+import SearchShieldCSS from "./shield.css?raw";
 import { BaiduSearchVideo } from "./video/SearchVideo";
 import { BaiduSearchVSearch } from "./vsearch/VSearch";
-import { BaiduSearchToolBar } from "./SearchToolBar";
-import { CommonUtil } from "@components/utils/CommonUtil";
 
 /**
  * 处理百度搜索自定义的样式添加

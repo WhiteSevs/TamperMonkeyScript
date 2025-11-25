@@ -1,4 +1,6 @@
 /* 右上角的 banner 热播爆款好剧 */
-#index-card #userinfo-wrap .index-banner {
+#index-card #userinfo-wrap .index-banner,
+/* 搜索框下面的轮播推广 */
+#header div:has(>div>div>#carousel-img-item) {
   display: none !important;
 }

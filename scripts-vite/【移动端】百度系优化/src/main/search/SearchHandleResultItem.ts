@@ -1,7 +1,7 @@
 import { $$, DOMUtils, addStyle, log, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
-import { SearchHandleResultEveryOneSearch } from "./SearchHandleResultEveryOneSearch";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
+import { SearchHandleResultEveryOneSearch } from "./SearchHandleResultEveryOneSearch";
 
 /** 处理每一项搜索结果 */
 export const BaiduHandleResultItem = {

@@ -1,43 +1,37 @@
+import { log } from "@/env";
 import { BaiduRouter } from "@/router/BaiduRouter";
-import { BaiduSearch } from "./search/Search";
-import { BaiduSearchHome } from "./search/home/SearchHome";
+import { BaiduAiQiCha } from "./aiqicha/AiQiCha";
+import { BaiduAiStudy } from "./aistudy/AiStudy";
 import { BaiduBaiJiaHao } from "./baijiahao/BaiJiaHao";
-import { BaiduTieBa } from "./tieba/Tieba";
-import { BaiduWenKu } from "./wenku/WenKu";
-import { BaiduJingYan } from "./jingyan/JingYan";
 import { BaiduBaiKe } from "./baike/BaiKe";
 import { BaiduBaiKeTaShuo } from "./baike/tashuo/BaiKeTaShuo";
-import { BaiduZhiDao } from "./zhidao/ZhiDao";
-import { BaiduFanYi } from "./fanyi/FanYi";
+import { BaiduChat } from "./chat/Chat";
+import { BaiduEasyLearn } from "./easylearn/EasyLearn";
 import { BaiduFanYiApp } from "./fanyi-app/FanYiApp";
+import { BaiduFanYi } from "./fanyi/FanYi";
+import { BaiduGraph } from "./graph/Graph";
+import { BaiduHaoKan } from "./haokan/HaoKan";
+import { BaiduHealth } from "./health/Health";
 import { BaiduImage } from "./image/Image";
+import { BaiduISite } from "./isite/ISite";
+import { BaiduJingYan } from "./jingyan/JingYan";
 import { BaiduMap } from "./map/Map";
 import { BaiduMbd } from "./mbd/Mbd";
-import { BaiduXue } from "./xue/Xue";
-import { BaiduAiQiCha } from "./aiqicha/AiQiCha";
-import { BaiduPos } from "./pos/Pos";
-import { BaiduHaoKan } from "./haokan/HaoKan";
-import { BaiduGraph } from "./graph/Graph";
-import { BaiduPan } from "./pan/Pan";
-import { BaiduYiYan } from "./yiyan/YiYan";
-import { BaiduChat } from "./chat/Chat";
 import { BaiduMiniJiaoYu } from "./mini-jiaoyu/MiniJiaoYu";
-import { BaiduEasyLearn } from "./easylearn/EasyLearn";
-import { BaiduAiStudy } from "./aistudy/AiStudy";
-import { BaiduISite } from "./isite/ISite";
-import { log } from "@/env";
+import { BaiduPan } from "./pan/Pan";
+import { BaiduPos } from "./pos/Pos";
+import { BaiduSearch } from "./search/Search";
+import { BaiduSearchHome } from "./search/home/SearchHome";
 import { SmartAppsTieba } from "./smartapps/tieba/SmartAppsTieba";
+import { BaiduTieBa } from "./tieba/Tieba";
+import { BaiduWenKu } from "./wenku/WenKu";
+import { BaiduXue } from "./xue/Xue";
+import { BaiduYiYan } from "./yiyan/YiYan";
+import { BaiduZhiDao } from "./zhidao/ZhiDao";
 
 const Baidu = {
   init() {
-    if (BaiduRouter.isSearch()) {
-      log.success("Router: 百度搜索");
-      BaiduSearch.init();
-      if (BaiduRouter.isSearchHome()) {
-        log.success("Router: 百度搜索-主页");
-        BaiduSearchHome.init();
-      }
-    } else if (BaiduRouter.isBaiJiaHao()) {
+    if (BaiduRouter.isBaiJiaHao()) {
       log.success("Router: 百家号");
       BaiduBaiJiaHao.init();
     } else if (BaiduRouter.isTieBa()) {
@@ -113,6 +107,17 @@ const Baidu = {
     } else if (BaiduRouter.isSmartApps_Tieba()) {
       log.success(`Router: 小程序 - 百度贴吧`);
       SmartAppsTieba.init();
+    } else if (BaiduRouter.isHealth()) {
+      log.success(`Router: 百度健康`);
+      BaiduHealth.init();
+    } else if (BaiduRouter.isSearch()) {
+      log.success("Router: 百度搜索");
+      if (BaiduRouter.isSearchHome()) {
+        log.success("Router: 百度搜索-主页");
+        BaiduSearchHome.init();
+      } else {
+        BaiduSearch.init();
+      }
     } else {
       log.error("该Router暂未适配，请联系开发者：" + window.location.href);
     }

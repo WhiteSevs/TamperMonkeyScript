@@ -1,7 +1,7 @@
 import { addStyle, log } from "@/env";
 import { Panel } from "@components/setting/panel";
-import SearchHomeShieldCSS from "./shield.css?raw";
 import SearchHomeMinificationShieldCSS from "./minificationShield.css?raw";
+import SearchHomeShieldCSS from "./shield.css?raw";
 
 const BaiduSearchHome = {
   init() {

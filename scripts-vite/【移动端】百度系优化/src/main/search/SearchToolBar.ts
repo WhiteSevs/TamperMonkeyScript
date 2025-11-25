@@ -1,7 +1,7 @@
 import { addStyle, DOMUtils, httpx, log, utils } from "@/env";
-import searchToolBarCSS from "./search-toolbar.css?raw";
 import { Panel } from "@components/setting/panel";
 import { GestureBack } from "@components/utils/GestureBack";
+import searchToolBarCSS from "./search-toolbar.css?raw";
 
 export const BaiduSearchToolBar = {
   $el: {

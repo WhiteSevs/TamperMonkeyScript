@@ -1,10 +1,10 @@
-import { unsafeWindow } from "ViteGM";
 import { $, DOMUtils, MenuRegister, addStyle, httpx, loadingView, log, utils } from "@/env";
-import { Panel } from "@components/setting/panel";
-import { BaiduHandleResultItem } from "./SearchHandleResultItem";
-import { SearchHandleResultEveryOneSearch } from "./SearchHandleResultEveryOneSearch";
-import { CommonUtil } from "@components/utils/CommonUtil";
 import { BaiduRouter } from "@/router/BaiduRouter";
+import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
+import { unsafeWindow } from "ViteGM";
+import { SearchHandleResultEveryOneSearch } from "./SearchHandleResultEveryOneSearch";
+import { BaiduHandleResultItem } from "./SearchHandleResultItem";
 
 interface PageInfo {
   pageNum: number;

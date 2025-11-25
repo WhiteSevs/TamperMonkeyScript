@@ -1,4 +1,4 @@
-import { $, $$, DOMUtils, log, utils } from "@/env";
+import { $, DOMUtils, log } from "@/env";
 import { Panel } from "@components/setting/panel";
 
 export const SearchHandleResultEveryOneSearch = {

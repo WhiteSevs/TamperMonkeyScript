@@ -1,4 +1,4 @@
-import { OriginPrototype, log } from "@/env";
+import { log } from "@/env";
 import { BaiduHook } from "@/hook/BaiduHook";
 import { Panel } from "@components/setting/panel";
 
